@@ -1,0 +1,7 @@
+package MdtCalibITools
+
+manager Niels van Eldik <nveldik@nikhef.nl>
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-01-*        External
+
