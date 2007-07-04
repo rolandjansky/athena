@@ -1,0 +1,13 @@
+package MuonEDM_AssociationObjects
+
+manager Niels van Eldik <Niels.van.Eldik@cern.ch >
+
+use AtlasPolicy          AtlasPolicy-*
+use CLIDSvc              CLIDSvc-*                  Control
+use DataModel		 DataModel-*                Control
+use MuonPattern          MuonPattern-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonSegment          MuonSegment-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
+apply_pattern installed_library
+library MuonEDM_AssociationObjects *.cxx
+
