@@ -1,0 +1,11 @@
+package CondDBObjects
+
+author Nuno Barros <Nuno.Barros@cern.ch>
+	
+use AtlasPolicy     AtlasPolicy-01-*
+use CLIDSvc         CLIDSvc-00-*            Control
+use GaudiInterface  GaudiInterface-*           External	
+
+library CondDBObjects *.cxx
+apply_pattern installed_library
+
