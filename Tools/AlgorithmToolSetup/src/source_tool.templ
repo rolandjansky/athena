@@ -1,0 +1,50 @@
+///////////////////////////////////////////////////////////////////
+// @algName@.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#include "@packageName@/@algName@.h"
+
+//================ Constructor =================================================
+
+@nameSpace@::@algName@::@algName@(const std::string& t,
+			  const std::string& n,
+			  const IInterface*  p )
+  :
+  AlgTool(t,n,p),
+  m_log(msgSvc(),n)
+{
+  declareInterface<I@algName@>(this);
+
+  //  template for property decalration
+  //declareProperty("PropertyName", m_propertyName);
+}
+
+//================ Destructor =================================================
+
+@nameSpace@::@algName@::~@algName@()
+{}
+
+
+//================ Initialisation =================================================
+
+StatusCode @nameSpace@::@algName@::initialize()
+{
+  
+  StatusCode sc = AlgTool::initialize();
+  m_log.setLevel(outputLevel());
+  if (sc.isFailure()) return sc;
+
+  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  return StatusCode::SUCCESS;
+}
+
+//================ Finalisation =================================================
+
+StatusCode @nameSpace@::@algName@::finalize()
+{
+  StatusCode sc = AlgTool::finalize();
+  return sc;
+}
+
+//============================================================================================
+

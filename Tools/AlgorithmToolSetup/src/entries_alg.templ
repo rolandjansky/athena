@@ -1,0 +1,8 @@
+#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "@packageName@/@algName@.h"
+
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( @nameSpace@ , @algName@ )
+
+DECLARE_FACTORY_ENTRIES( @packageName@ ) {
+  DECLARE_NAMESPACE_ALGORITHM( @nameSpace@ ,  @algName@ )
+}   

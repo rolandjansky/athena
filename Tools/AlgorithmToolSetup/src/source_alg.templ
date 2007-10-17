@@ -1,0 +1,62 @@
+///////////////////////////////////////////////////////////////////
+// @algName@.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#include "@packageName@/@algName@.h"
+#include "StoreGate/StoreGateSvc.h"
+
+//================ Constructor =================================================
+
+@nameSpace@::@algName@::@algName@(const std::string& name, ISvcLocator* pSvcLocator)
+  :
+  Algorithm(name,pSvcLocator),
+  m_log(msgSvc(),name)
+{
+  //  template for property decalration
+  //declareProperty("PropertyName", m_propertyName);
+}
+
+//================ Destructor =================================================
+
+@nameSpace@::@algName@::~@algName@()
+{}
+
+
+//================ Initialisation =================================================
+
+StatusCode @nameSpace@::@algName@::initialize()
+{
+  // Code entered here will be executed once at program start.
+  
+  m_log.setLevel(outputLevel());
+  m_log << MSG::INFO << name() << " initialize()" << endreq;
+
+  // retrieve the StoreGate Service (delete if not needed)
+  StatusCode sc= service("StoreGateSvc",m_sgSvc);
+  if (sc.isFailure()) 
+    m_log << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
+  else 
+    m_log << MSG::INFO << "StoreGateSvc retrieved!" << endreq;
+  
+  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  return StatusCode::SUCCESS;
+}
+
+//================ Finalisation =================================================
+
+StatusCode @nameSpace@::@algName@::finalize()
+{
+  // Code entered here will be executed once at the end of the program run.
+  return StatusCode::SUCCESS;
+}
+
+//================ Execution ====================================================
+
+StatusCode @nameSpace@::@algName@::execute()
+{
+  // Code entered here will be executed once per event
+  return StatusCode::SUCCESS;
+}
+
+//============================================================================================
+

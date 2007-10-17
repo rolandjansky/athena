@@ -1,0 +1,12 @@
+
+  o--------------------------------------------------------o                      
+  | The empty files for the Algorithm/Tool are now set up  |
+  | and ready to compile. Remember to type 'cmt config'    |
+  | before 'make'                                          |
+  |                                                        |
+  | Please do not forget to remove the standard comments   |
+  | from the header file and the doc/mainpage.h file and   |
+  | to replace them with meaningful comments.              |
+  | (Don't forget, your name is already there ...  ;-) )   |
+  |                                                        |
+  o--------------------------------------------------------o

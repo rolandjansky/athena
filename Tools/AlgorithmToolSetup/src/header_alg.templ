@@ -1,0 +1,61 @@
+///////////////////////////////////////////////////////////////////
+// @algName@.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef @CppKey@_H
+#define @CppKey@_H
+
+// Gaudi includes
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/MsgStream.h"
+#include <string>
+
+class AtlasDetectorID;
+class Identifier;
+class StoreGateSvc;
+
+namespace @nameSpace@ 
+{
+
+  /** @class @algName@
+
+      This is for the Doxygen-Documentation.  
+      Please delete these lines and fill in information about
+      the Algorithm!
+      Please precede every member function declaration with a
+      short Doxygen comment stating the purpose of this function.
+      
+      @author  @authorName@ <@authorMail@>
+  */  
+
+  class @algName@ : public Algorithm
+    {
+    public:
+
+       /** Standard Athena-Algorithm Constructor */
+       @algName@(const std::string& name, ISvcLocator* pSvcLocator);
+       /** Default Destructor */
+       ~@algName@();
+
+       /** standard Athena-Algorithm method */
+       StatusCode          initialize();
+       /** standard Athena-Algorithm method */
+       StatusCode          execute();
+       /** standard Athena-Algorithm method */
+       StatusCode          finalize();
+
+    private:
+      
+      /** class member version of retrieving MsgStream */
+      mutable MsgStream                 m_log;
+
+      /** class member version of retrieving StoreGate */
+      StoreGateSvc*  m_sgSvc;
+
+      /** member variables for algorithm properties: */
+      // int/double/bool  m_propertyName;
+      
+    }; 
+} // end of namespace
+
+#endif 

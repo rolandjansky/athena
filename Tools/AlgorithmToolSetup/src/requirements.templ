@@ -1,0 +1,17 @@
+package @packageName@
+
+author @authorName@ <@authorMail@>
+
+public
+
+use AtlasPolicy AtlasPolicy-* 
+use StoreGate StoreGate-* Control
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern component_library
+library @packageName@ *.cxx components/*.cxx
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

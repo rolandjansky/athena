@@ -1,0 +1,31 @@
+///////////////////////////////////////////////////////////////////
+// I@algName@.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+#ifndef I@CppKey@_H
+#define I@CppKey@_H
+
+#include "GaudiKernel/IAlgTool.h"
+
+
+namespace @nameSpace@ 
+{
+
+
+  static const InterfaceID IID_I@algName@("@nameSpace@::I@algName@", 1, 0);
+
+  class I@algName@ : virtual public IAlgTool {
+  public:
+    static const InterfaceID& interfaceID( ) ;
+
+    // enter declaration of your interface-defining member functions here
+
+  };
+
+  inline const InterfaceID& @nameSpace@::I@algName@::interfaceID()
+    { 
+      return IID_I@algName@; 
+    }
+
+} // end of namespace
+
+#endif 

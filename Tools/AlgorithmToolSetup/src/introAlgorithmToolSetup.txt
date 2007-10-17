@@ -1,0 +1,21 @@
+
+  o--------------------------------------------------------o                      
+  |                                                        |
+  | This tool sets up the basic files needed to write new  |
+  | algorithms or tools within the Athena framework.       |
+  |                                                        |
+  | It requires the name of the algorithm/tool to be       | 
+  | created, the name of the package, where it is to be    |
+  | located and the path to the package.                   |
+  |                                                        |
+  | If the targeted package already exists, the new        |
+  | algorithm/tool will be added to the package            |
+  |                                                        |
+  | This tool sets up the cmt/requirements file, the       |
+  | header and the source file, the components files and   |
+  | the doc/mainpage file.                                 |
+  |                                                        |
+  |                                                        |
+  |                             Martin Siebel, 05/2006     |
+  |                              <Martin.Siebel@CERN.ch>   |
+  o--------------------------------------------------------o                      
