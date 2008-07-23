@@ -1,0 +1,26 @@
+package StlAthenaPoolCnv
+
+author Sebastien Binet <binet@cern.ch>
+author RD Schaffer <R.D.Schaffer@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasReflex          AtlasReflex-00-*           External
+
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use SGTools              SGTools-*             	    Control
+use GaudiInterface       GaudiInterface-*           External
+
+
+library StlAthenaPoolCnv *.cxx
+apply_pattern component_library
+
+#apply_pattern declare_joboptions files="*.py"
+#apply_pattern declare_python_modules files="*.py"
+
+
+
+private
+end_private
+
+
