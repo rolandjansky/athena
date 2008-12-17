@@ -1,0 +1,17 @@
+package InDetTrackPRD_Association
+
+author Igor Gavrilenko <Igor.Garilenko@cern.ch>
+
+private
+
+use TrkTrack                     TrkTrack-*               Tracking/TrkEvent
+
+public
+
+use AtlasPolicy                  AtlasPolicy-*
+use AthenaBaseComps              AthenaBaseComps-*        Control
+use GaudiInterface               GaudiInterface-*         External 
+use TrkToolInterfaces            TrkToolInterfaces-*      Tracking/TrkTools
+
+library InDetTrackPRD_Association *.cxx components/*.cxx
+apply_pattern component_library
