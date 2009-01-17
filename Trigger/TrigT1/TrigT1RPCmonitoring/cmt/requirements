@@ -1,0 +1,23 @@
+package TrigT1RPCmonitoring
+
+author Alessandro Di Mattia <alessandro.dimattia@roma1.infn.it>
+
+use AtlasPolicy          AtlasPolicy-01-*
+use GaudiInterface       GaudiInterface-01-*       External
+
+use TrigT1RPClogic       TrigT1RPClogic-00-*       Trigger/TrigT1
+
+use MuonCablingTools     MuonCablingTools-00-*     MuonSpectrometer/MuonCablings
+use RPCcablingInterface  RPCcablingInterface-00-*  MuonSpectrometer/MuonCablings
+use RPCcabling           RPCcabling-00-*           MuonSpectrometer/MuonCablings
+
+macro_append lib_RPCmonitoring_pp_cppflags " -DLVL1_STANDALONE "
+library RPCmonitoring -no_share -suffix=STN *.cxx
+macro_append RPCmonitoring_dependencies " install_includes"
+
+apply_pattern dual_use_library files=*.cxx
+
+
+#library TrigT1RPCmonitoring *.cxx -s=../src/components *.cxx
+
+#apply_pattern declare_runtime
