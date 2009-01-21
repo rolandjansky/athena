@@ -1,0 +1,24 @@
+package InDetBCM_EventAthenaPool
+
+author Dominique Tardif <Dominique.Tardif@cern.ch>
+
+public
+use AtlasPolicy          AtlasPolicy-* 
+use AthenaPoolUtilities  AthenaPoolUtilities-*     Database/AthenaPOOL
+use AtlasReflex          AtlasReflex-*             External
+
+use InDetBCM_RawData     InDetBCM_RawData-*        InnerDetector/InDetRawEvent
+
+private
+use GaudiInterface 	 GaudiInterface-*          External
+use StoreGate 		 StoreGate-*               Control
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*        Database/AthenaPOOL
+use AtlasSealCLHEP       AtlasSealCLHEP-*          Database
+
+public
+apply_pattern poolcnv files="-s=${InDetBCM_RawData_root}/InDetBCM_RawData BCM_RDO_Container.h"
+
+macro_append InDetBCM_EventAthenaPoolPoolCnv_shlibflags "$(InDetBCM_EventAthenaPool_linkopts)"
+
+macro_append InDetBCM_EventAthenaPoolPoolCnvGen_dependencies " InDetBCM_EventAthenaPoolCnvDict "
+apply_pattern lcgdict dict=InDetBCM_EventAthenaPoolCnv  selectionfile=selection.xml headerfiles="../InDetBCM_EventAthenaPool/InDetBCM_EventAthenaPoolCnvDict.h" 
