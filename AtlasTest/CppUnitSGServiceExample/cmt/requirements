@@ -1,0 +1,19 @@
+package CppUnitSGServiceExample
+
+author Alex Undrus <undrus@bnl.gov>
+
+use AtlasPolicy    AtlasPolicy-01-* 
+use TestPolicy     TestPolicy-00-*
+use TestTools      TestTools-*      AtlasTest
+use GaudiInterface  GaudiInterface-*   External
+use AthenaKernel    AthenaKernel-*      Control
+use DataModel      DataModel-*      Control
+use StoreGate      StoreGate-*     Control
+
+# Run CppUnit tests:
+apply_pattern CppUnit name=SimpleDataVector files="-s=../test SimpleDataVectorTest_CppUnit.cxx"
+
+
+
+
+
