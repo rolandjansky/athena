@@ -1,0 +1,31 @@
+package AtlasExternalArea
+
+author ATLAS Software Librarian <ATLAS-Software.Librarian@cern.ch>
+
+use LCG_Settings v*
+use PlatformPolicy PlatformPolicy-* External
+
+set ATLAS_EXTERNAL "${SITEROOT}/atlas/offline/external" \
+    BNL            "${SITEROOT}/offline/external" \
+    LBNL           "${SITEROOT}/local/offline/external" \
+    EXTSITE        "${SITEROOT}/external" \
+    STANDALONE     "${SITEROOT}/external"
+
+macro LCG_ROOT     "${SITEROOT}/sw/lcg" \
+      BNL	   "${SITEROOT}/cernsw/lcg
+
+macro LCG_EXTERNAL "${LCG_ROOT}/external"
+
+# System name for LCG applications software
+macro LCG_app_system   "$(LCG_platform)"
+
+# System name for LCG external software
+macro LCG_ext_system "$(LCG_system)"
+
+# We should probably revisit this and decide on whether a different 
+# interface package should be created for the common packages area.
+macro COMMON_PACKAGES "${SITEROOT}/sw/packages" \
+      BNL             "${SITEROOT}/cernsw/packages" \
+      EXTSITE         "${SITEROOT}/packages" \
+      STANDALONE      "${SITEROOT}/packages"
+
