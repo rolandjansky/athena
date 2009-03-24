@@ -1,0 +1,20 @@
+package AtlasCLHEP
+
+author ATLAS Software Librarian <ATLAS-Software.Librarian@cern.ch>
+
+use ExternalPolicy ExternalPolicy-00-* External
+use CLHEP v* LCG_Interfaces
+
+macro_remove CLHEP_linkopts "" \
+             notAsNeeded    "" \
+             asNeeded       "-lCLHEP-Vector-$(CLHEP_native_version)"
+macro_remove CLHEP_linkopts "" \
+             notAsNeeded    "" \
+             asNeeded       "-lCLHEP-Random-$(CLHEP_native_version)"
+macro_append CLHEP_linkopts "" \
+             notAsNeeded    "" \
+             asNeeded       " $(notAsNeeded_linkopt) -lCLHEP-Vector-$(CLHEP_native_version)  -lCLHEP-Random-$(CLHEP_native_version) $(asNeeded_linkopt) "
+
+macro CLHEP_pp_cppflags " -DCLHEP_MAX_MIN_DEFINED -DCLHEP_ABS_DEFINED -DCLHEP_SQR_DEFINED "
+macro CLHEP_pp_fflags " -DCLHEP_MAX_MIN_DEFINED -DCLHEP_ABS_DEFINED -DCLHEP_SQR_DEFINED "
+
