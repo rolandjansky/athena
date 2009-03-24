@@ -1,0 +1,19 @@
+package TrackParticleTruthAthenaPool
+
+author Andreas Wildauer <andreas.wildauer@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*          
+use GaudiInterface       GaudiInterface-*       External
+use StoreGate            StoreGate-*            Control
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+
+use ParticleTruth        ParticleTruth-*        Reconstruction
+
+use TrackParticleTruthTPCnv        TrackParticleTruthTPCnv-*     	Reconstruction
+
+apply_pattern poolcnv files="\
+-s=$(ParticleTruth_root)/ParticleTruth TrackParticleTruthCollection.h \
+-s=$(ParticleTruth_root)/ParticleTruth  TrackParticleTruthCollectionContainer.h \
+"
+
