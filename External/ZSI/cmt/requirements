@@ -1,0 +1,17 @@
+package ZSI
+
+use AtlasExternalArea AtlasExternalArea-00-* External
+
+author Chun Lik Tan <clat@hep.ph.bham.ac.uk>
+
+set ZSI_VERSION "2.1-a1"
+
+path_remove PYTHONPATH "/ZSI/"
+path_remove PATH "/ZSI/"
+path_prepend PYTHONPATH "${ATLAS_EXTERNAL}/ZSI/${ZSI_VERSION}/lib/python"
+path_prepend PATH "${ATLAS_EXTERNAL}/ZSI/${ZSI_VERSION}/bin"
+
+macro ZSI_home "${ATLAS_EXTERNAL}/ZSI"
+macro ZSI_native_version "${ZSI_VERSION}"
+macro ZSI_export_paths "${ATLAS_EXTERNAL}/ZSI/${ZSI_VERSION}/lib/python"
+
