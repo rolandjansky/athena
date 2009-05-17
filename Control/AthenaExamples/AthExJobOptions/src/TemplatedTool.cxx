@@ -64,7 +64,7 @@ StatusCode ToolSpace::TemplatedTool< T >::performTask( double& result )
 
    msg(MSG::INFO) << "... templated task is done";
    if ( msgLvl(MSG::DEBUG) ) { msg() << ", result: " << result; }
-   msg(MSG::INFO) << endmsg;
+   msg(MSG::INFO) << endreq;
 
    return StatusCode::SUCCESS;
 }

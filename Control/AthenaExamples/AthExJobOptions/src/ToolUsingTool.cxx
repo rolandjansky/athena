@@ -100,7 +100,7 @@ StatusCode ToolUsingTool::performTask( double& result )
 
    msg(MSG::INFO) << "... task using tool is done";
    if ( msgLvl(MSG::DEBUG) ) { msg() << ", result: " << result; }
-   msg(MSG::INFO) << endmsg;
+   msg(MSG::INFO) << endreq;
 
 // make list of tools do their work
    double newvalue = 12345.0;
