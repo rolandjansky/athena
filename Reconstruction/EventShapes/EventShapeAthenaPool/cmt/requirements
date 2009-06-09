@@ -1,0 +1,19 @@
+package EventShapeAthenaPool
+
+author Rolf Seuster <seuster@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-01-* 
+
+use GaudiInterface       GaudiInterface-*           External
+
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+use EventShapeEvent	 EventShapeEvent-*	    Reconstruction/EventShapes
+use EventShapeTPCnv	 EventShapeTPCnv-*	    Reconstruction/EventShapes
+
+branches EventShapeAthenaPool src
+
+apply_pattern poolcnv typesWithNamespace=$(eventShapeAthenaPool_poolCnvTypes) \
+   files="-s=${EventShapeEvent_root}/EventShapeEvent EventShapeStore.h"
+
