@@ -1,0 +1,25 @@
+package TrigTimeAlgs
+author John Baines <j.baines@rl.ac.uk>
+manager John Baines <j.baines@rl.ac.uk>, Tomasz.Bold@cern.ch
+
+use 	AtlasPolicy         	AtlasPolicy-*
+use     AtlasROOT               AtlasROOT-*             External
+use     AtlasBoost		AtlasBoost-*		External
+use 	GaudiInterface 		GaudiInterface-* 	External
+use 	AthenaKernel            AthenaKernel-*          Control
+use 	DataModel          	DataModel-*      	Control
+use 	SGTools          	SGTools-*      		Control
+
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="jobOfragment_TrigTimerSvc.py"
+
+private
+
+macro_append libraryshr_linkopts "" \
+   Linux                  " -Wl,-lrt "
+
+# UnitTest programs
+use 	TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=TimerSvc extrapatterns=".*"
+
+end_private

@@ -1,0 +1,10 @@
+ApplicationMgr.DLLs += { "TrigTimeAlgs" };
+//ApplicationMgr.ExtSvc += { "ClassIDSvc" };
+//ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
+//ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
+//ApplicationMgr.ExtSvc += { "ToolSvc" };
+//ApplicationMgr.ExtSvc += { "TrigTimerSvc" };
+AuditorSvc.Auditors  += { "AlgContextAuditor"};
+MessageSvc.OutputLevel = 2;
+
+

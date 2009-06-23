@@ -1,0 +1,53 @@
+
+ TrigTimerSvc - Benchmarking service for the trigger
+
+ Author : John Baines j.baines@rl.ac.uk
+ This file : offline/Trigger/TrigTools/TrigTimerSvc/README
+
+TrigTimerSvc is a utility to record timing information:
+
+ o User defined timing statistics can be generated using TrigTimers created 
+   and controlled by your code. This information can also be included in 
+   the NTuples. As well as elapsed time, an unsigned integer can be associated
+   with the time, eg. the number of tracks can be associated with the track 
+   reconstruction time.
+
+ o Timing Ntuples can be filled from the information available from 
+   TrigTimerSvc using the HLTAlgo TrigTimeNtuple
+
+
+The timing mechanism is based on an Athena Service TrigTimerSvc from which 
+TrigTimers can be requested. The TrigTimers are controlled (started, stopped 
+etc.) by the requesting algorithm, but the TrigTimerSvc retains ownership 
+of the TrigTimers. This means that TrigTimerSvc can provide additional services 
+such as end-of-run printing, or providing a list of all TrigTimers so that, 
+for example, the execution times can be entered into an NTuple. 
+
+Since the algorithms request individual TrigTimers, the timers are started and 
+stopped directly. There is is no need for a potentially slow map access by 
+string key, as is the case in the Gaudi Chrono Service.
+
+For an example of use of these time utilities, see the TrigSiTreeAlg package.
+
+For more information, see :
+
+http://hepunx.rl.ac.uk/atlasuk/simulation/level2/doc/Prototypes/PesaCore/TrigTimeAlgs.html
+
+
+Files in this Package:
+
+src/TrigTimer.cxx
+src/TrigTimerSvc.cxx
+src/TrigTimeNtuple.cxx
+src/TrigTimeNtEntry.cxx
+
+src/components/TrigTimerSvc_entries.cxx
+src/components/TrigTimerSvc_load.cxx
+
+TrigTrigutil/ITrigTimerSvc.h
+TrigTrigutil/TrigTimer.h
+TrigTrigutil/TrigTimerItem.h
+TrigTrigutil/TrigTimerSvc.h
+TrigTrigutil/TrigTimeNtuple.h
+TrigTrigutil/TrigTimeNtEntry.h
+
