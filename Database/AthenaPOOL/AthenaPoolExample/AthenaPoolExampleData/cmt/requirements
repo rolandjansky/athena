@@ -1,0 +1,18 @@
+package AthenaPoolExampleData
+
+author Peter Van Gemmeren <gemmeren@anl.gov>
+
+use AtlasPolicy           AtlasPolicy-*
+use AtlasCLHEP            AtlasCLHEP-00-*            External
+use GaudiInterface        GaudiInterface-*           External
+use CLIDSvc               CLIDSvc-00-*               Control
+use DataModel             DataModel-00-*             Control
+use Navigation            Navigation-00-*            Control
+
+library AthenaPoolExampleData *.cxx
+apply_pattern installed_library
+
+private
+use AtlasReflex             AtlasReflex-00-*             External -no_auto_imports
+
+apply_pattern lcgdict dict=AthenaPoolExampleData selectionfile=selection.xml navigables="ExampleHitContainer" headerfiles="-s=${AthenaPoolExampleData_root}/AthenaPoolExampleData AthenaPoolExampleDataDict.h"
