@@ -1,0 +1,31 @@
+//ApplicationMgr.DLLs += { "StoreGate", "CLIDSvc", "TrigNavigation" };
+ApplicationMgr.DLLs += { "StoreGate", "TrigNavigation", "TrigDecision" };
+ApplicationMgr.ExtSvc += { "ClassIDSvc" };
+ApplicationMgr.ExtSvc += { "TrigSerializeCnvSvc" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
+ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
+ApplicationMgr.ExtSvc += { "ToolSvc" };
+AuditorSvc.Auditors  += { "AlgContextAuditor"};
+StoreGateSvc.OutputLevel = 2;
+StoreGateSvc.ActivateHistory = false;
+//CLIDSvc.OutputLevel = 2;
+MessageSvc.OutputLevel = 0;
+MessageSvc.useColors        = true;
+
+//StoreGateSvc.FolderNameList = { "MyFolder", "YourFolder" };
+//MyFolder.ItemList = {"Foo#Bla", "Bar#*"};
+//YourFolder.ItemList = {"8101", "8107#", "Baricco#*"};
+
+//#include "IOVSvc/IOVSvc.txt"
+//ApplicationMgr.DLLs += { "IOVSvc" };
+
+//ApplicationMgr.ExtSvc += { "IOVSvc" };
+
+//EventPersistencySvc.CnvServices += { "TrigSerializeCnvSvc" }
+
+// 
+//Navigation.ReferenceAllClasses = 1
+//ApplicationMgr.DLLs += { "TrigCaloEvent" };
+//ToolSvc.Navigation.ReferenceAllClasses = 1;
+//ToolSvc.Navigation.ClassesToPreregister = {"A#EverEmptyButPresent", "A#AgainPresentButEmpty", "B#"};
+//ToolSvc.Navigation.OutputLevel=0;
