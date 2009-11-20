@@ -1,0 +1,161 @@
+
+Implementation of Raw Digit Container  
+
+Hong Ma
+Brookhaven National Lab
+Christophe Meessen
+Centre de Physique des Particules de Marseille
+
+Version 2.0
+Oct 8, 2001
+ 
+	Based on the requirements and interfaces defined in [1], we have developed an implementation for a raw digit container, IdentifiableContainer.  It is a template container class for any identifiable class, and it should work for all DigitCollection classes that follow the requirements discussed in the above note.  The additional requirement for the Collection is that a hash function has to be provided for the identifier of the given Collection.    Since there is no requirement that the identifiable objects be a collection, we use a more general name for the container, IdentifiableContainer.  In the rest of the document, we refer to the identifiable objects in the container as Collection.   The Container can be used to store hit collection, or other non-collection objects. 
+
+	The goal of this design and implementation is that this IdentifiableContainer should be sufficiently efficient for both online and offline software environment, so that only one implementation is needed for accessing Atlas raw event. We believe this can be achieved using the Athena framework support, although not all the features we desire from the framework have been made available yet.  In Section 4, we provide a list of requirements for the Athena framework, especially StoreGate, that we believe are essential for achieving this goal. 
+
+
+1. Design Choices.
+
+The basic design choices for this IdentifiableContainer can be summarized as follows:
+
+* The Collection objects should be managed by the data store, i.e., StoreGate. Collection is a derived class of DataObject. 
+* StoreGate provides mechanism for creation-on-demand for the Collection objects.  This minimizes the developer's coding for lazy unpacking. Creation of Collection object is implemented in Athena standard converter for each storage type.
+* IdentifiableContainer stores DataLink<Collection> objects. DataLink is persistable reference to objects in StoreGate. These objects may or may not have been created yet.
+* We expect the number of all possible Collection objects to be large, up to a few thousand for each type. The HLT software may want to have random access to a small fraction of all Collection objects. It is essential to have a fast search method to find the DataLink object for a given identifier.  We choose to manager this search in IdentifiableContainer, rather than relying on StoreGate to provider the search, because it can be better optimised in CollectionContainer. The fastest way to search for an object using an identifer, if all possible identifiers are known, is to store the objects a hash table.  We require that for each IdentifiableContainer there is a hash function that will return an integer index to the hash table. The search time is therefore only proportional to one hash function operation, independent of number of collections in the IdentifiableContainer. 
+* This hash table would contain all DataLinks for all possible Collection objects, and therefore can be very big.  For each event, the hash table of the DataLinks needs to be reset. We provide a mechanism to keep track of modified entries so that we limit the cleaning operation to only those entries that have been accessed. The reset operation can be greatly reduced, if the number of accessed objects are small compared to the total number of objects. 
+
+Since we do not have any a priori constraints on the identifier, the hash function seems to be a good choice of capturing the role of the identifier.   
+
+2. Implementation Details
+
+To implement the above design choices, we first implement a template class that stores DataLink objects together with a chain for all accessed objects in a vector.  We call this class DataLinkVector. This is meant to be a general purpose container class for DataLink. It may be used in other context. 
+
+template < class T >
+class DataLinkVector :public DataObject 
+{ public:
+  typedef typename T::ID ID;
+  typedef DataLink<T> DataLinkT;
+  typedef DataLinkVector<T> MyType;
+
+  struct Entry
+  { // constructor, make DataLink with index as key. 
+    Entry(int i=0) ; 
+    Entry* first;
+    DataLinkT second;
+  }; 
+  typedef std::vector<Entry> EntryVector;
+  typedef typename EntryVector::iterator EntryVectorIt; 
+
+  class const_iterator
+  {
+  public:
+   // standard operators for iterator omitted  
+   // ... 
+   // Accessing the stored DataLink
+   DataLinkT& operator * () { checkChain(); return m_it->second; }
+   DataLinkT* operator-> () { checkChain(); return &m_it->second; }
+  protected:
+   friend class DataLinkVector<T>;
+   // make sure entry is chained If not, add entry to the chain  
+   void checkChain(){if(m_it->first==NULL)m_dlv->chainEntry(m_it);}
+   MyType* m_dlv;
+   EntryVectorIt m_it;
+  };
+
+  friend class const_iterator;
+
+  // initialize vector with nbr DataLinks, called only once.
+  void init( int nbr ) ;  
+  // return iterator on first entry
+  const_iterator begin() ;
+  // return iterator on after last entry
+  const_iterator end() l 
+  // return iterator on the found entry or end() if out of range
+  const_iterator find( int id ) ;
+  // return reference on DataLink
+  DataLinkT& operator [] ( int id ) ; 
+  // cleans up the DataLinkVector, called at beginning of event.
+  void cleanup() ; 
+  // total number of entries. 
+  int size() ;
+protected:
+
+  // add pointed entry in chain of modified entries
+  void chainEntry( Entry* e ) ; 
+  // data members 	
+  EntryVector m_vect;
+  Entry* m_last;
+};
+
+The init(int nbr) method defines how many DataLink objects are store in DataLinkVector. Each DataLink object is constructed with a key.  We would prefer to use the integer index as the key, but the current StoreGate only supports string key. So a string corresponding to the integer is made from the integer for now. 
+
+The cleanup() method should be called every event to reset the DataLink objects that have been loaded.
+
+Next we implement a derived class of DataLinkVector, IdentifiableContainer, with an additional template argument of HashFunc.  HashFunc is required to provide two functions
+
+int operator() (ID& id)   ;
+int max()      const      ;
+
+The former is used by IdentifiableContainer to convert the identifier to and hash index, and the latter is used in initialisation to define the size of the hash table in DataLinkVector. 
+IdentifiableContainer defines the same access methods through an iterator, with only one difference: the iterator provides only the valid Collection objects.  For example, 
+
+// idc is a pointer to DigitCollectionContainer , id is an identifier
+IdentifiableContainer::const_iterator itr = idc->find(id); 
+
+If the object corresponding to id does not exist, itr will be equal to end(); 
+
+A new package EventContainers is created for DataLinkVector and IdentifiableContainer implementation.  It has been committed to ATLAS CVS repository under Event/. 
+
+This has been tested against an example using LAr hits from Zebra input file. Data class definitions are in
+
+http://atlassw1.phy.bnl.gov/cgi-bin/cvsweb.cgi/hma/RawEvent_Sept01/LArSim/?cvsroot=usatlas-repository
+
+An example of a hash function (LArRegionHash) for Identifier class is also given in this package.
+
+The converters are implemented in this pacakges, 
+
+http://atlassw1.phy.bnl.gov/cgi-bin/cvsweb.cgi/hma/RawEvent_Sept01/LArHitZebraCnv/?cvsroot=usatlas-repository
+
+It requires the use of the new version of StoreGate, StoreGate-01-04-07, or later.  It is going to be release in 2.4.0. 
+
+ 
+
+
+3. Sequence:
+
+To illustrate how this IdentifiableContainer class may be used in a real application, we follow the sequence of operations.    We assume that there is an input conversion service that provides data for information about what is available in each event and the data needed for creation of each DigitCollection object.  We use the term  'registering an entry' to refer to the action needed to give StoreGate the information about how to create an object.
+
+* For each event, the input conversion service makes an entry for a IdentifiableContainer object.  In practice, it makes an IOpaqueAddress, and register it in StoreGate.
+* User accesses the IdentifiableContainer object through StoreGate. This triggers the converter for IdentifiableContainer. 
+* For the first event, a new IdentifiableContainer object is created. Using the DataObject ::addRef() method, the converter has the ownership of the object, even though it is registered in the store. Using its HashFunc, the DataLink hash table is properly initialized. 
+* The converter inspects the input data source, and figure out how many Collection objects exist for this event, and make entries in StoreGate for each of the Collection object.  
+* User accesses the Collection within the IdentifiableContainer using either begin()/end() methods, lower_bound(id)/upper_bound(id) methods or find(id) methods. The first time each Collection is accessed, DataLink provides a mechanism to retrieve the object from the store.  If the object does not exist for this event, the DataLink contains NULL pointer to Collection, and it is automatically skipped.  If it does exist, the converter for Collection is called, and a DigitCollection is created.  The pointer to Collection is cached in DataLink. 
+* For the next event, the converter for IdentifiableContainer will be called again when user accesses it.  The converter will simply call cleanup() method of IdentifiableContainer, and makes new entries for Collection objects.
+
+     It is conceivable that we may want to create the raw event containers in an Algorithm, for example, from MC hits. The algorithm that creates the IdentifiableContainer should also create the Collection objects the container is pointing to.  And both the container and the collection objects should be registered in StoreGate.   In addition, the key for the collections should be the same as hash table index that is used in the container.  For the time being, we can not register object in StoreGate with an int key.  For each collection, the identifier for the collection should be converted into an int index using the same HashFunc as in IdentifiableContainer. The index should be converted into a string, and used as a key when registering. 
+
+4. Requirements for other conponents in Athena
+
+This implementation works with the new version of StoreGate. However, the performance may not have been optimised.  Here we list a set of requirements on other software packages in Athena. The performance requirement for raw event Digit Container will be satisfied only when these features are made available in the future.   These requirements have been discussed with the developer for StoreGate, and they are foreseen to be features that will be available in the near future.
+
+* Data store should only delete registered objects if the reference count is zero.  This is currently already supported in StoreGate. We just want to emphasize that this feature is essential for IdentifiableContainer because we want to build the hash table only once.
+* StoreGate should allow integers to be used as key for the registering objects. Since we use the hash index as key for Collection objects, using integer key will be optimal.
+* DataLink should have three states, 
+o Has pointer to data object
+o Has pointer to DataProxy
+o Has key to the data object
+* DataLink should be resettable, i.e., the cached pointer to data object can be cleared.
+* A NULL pointer to data object should not be used as flag for unloaded DataLink, because we expect retrieval of data object may fail.  DataLink should cache the retrieval, so that if a user attempt to access a unavailable data object more than once, it will only try to retrieve it once.
+* DataProxy for objects in StoreGate should not be deleted every event.  This allows DataLink to hold a DataProxy to the objects, rather than retrieving the object every event.    This feature is essential because we want to avoid the key search in StoreGate since we have optimised the search operation in IdentifiableContainer using hash table. 
+* StoreGate should not require the input service to register all available entries for each event.  This feature is beneficial in the case where the number of accessed objects is much smaller than the number of available objects. We believe this may be the case for HLT application.
+* For persistency of IdentifiableContainer, we recommend the hash table be stored as an array of reference to Collection objects.  This way the hash table can be restored, and it can be used to provide fast access to Collection objects in persistency representation.
+* For raw event input conversion service, we recognize that the raw event data may be stored in ROD with different identifier, such as RESrcID as defined in RawEvent.  It is therefore necessary to provide conversion between different identifiers, so that it will end up with the same hash integer.   The difference in granularity between Collection and ROD should also be taken into account.
+
+
+5. Summary
+
+To summarize, we have implemented a raw event container class IdentifiableContainer using many of the features of Athena framework.  It has minimum constraints on the developer of raw event Digits. It is optimised towards Event Filter software. It requires  developers to provide a hash function for the identifier of the Collection, and to implement the converters for both the Container and the Collection for each storage type.
+
+6. Reference
+
+1. H. Ma, Ch. Meessen,  Raw Event Digit Container Requirements and Interface Design   http://hma.home.cern.ch/hma/DigitRequirements.ps 
