@@ -1,0 +1,23 @@
+package TrigT1ZDC
+author W. H. Bell <W.Bell@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use GaudiInterface      GaudiInterface-*        External
+
+# Needed for truth based trigger simulation
+use GeneratorObjects	GeneratorObjects-*  	Generators
+use AtlasHepMC          AtlasHepMC-*            External
+
+
+# ZDC simulation packages would go here
+
+# Trigger configuration packages
+use TrigConfigSvc       TrigConfigSvc-*         Trigger/TrigConfiguration
+use TrigConfL1Data      TrigConfL1Data-*        Trigger/TrigConfiguration
+
+# LVL1 simulation
+use TrigT1Interfaces    TrigT1Interfaces-*      Trigger/TrigT1
+
+library TrigT1ZDC *.cxx components/*.cxx
+apply_pattern component_library
