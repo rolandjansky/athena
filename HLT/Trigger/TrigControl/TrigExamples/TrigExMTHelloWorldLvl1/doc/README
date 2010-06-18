@@ -1,0 +1,31 @@
+To run the example:
+-------------------
+ 
+run the application with
+
+        ./athenaMT --file <ByteStreamFile> [jobOptions-file]
+
+The ByteStreamFile can be in gzip compressed format (ending .gz) or
+in uncompressed format.
+
+        ./athenaMT --help
+
+provides a help with all possible options.
+
+
+Alternative way to run the example (= use the default settings) 
+-----------------------------------
+
+1) make in your run directory a soft link to jobOptions.txt
+
+        ln -s MTHelloWorldLvl1Options.txt jobOptions.txt
+
+and 
+
+2) make a soft link to the gzip compressed ByteStream data file
+
+        ln -s <ByteStream-data-file>.gz  Raw.re.gz
+
+3) run application with 
+
+        ./athenaMT
