@@ -1,0 +1,25 @@
+package TrigTruthEventAthenaPool
+author Andrew Hamilton     <Andrew.Hamilton@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
+
+# use statements for data packages
+use TrigInDetEvent	 TrigInDetEvent-*	 Trigger/TrigEvent
+use TrigInDetTruthEvent	 TrigInDetTruthEvent-*	 Trigger/TrigTruthEvent
+
+# use statement for converters
+private
+use TrigTruthEventTPCnv	 TrigTruthEventTPCnv-*	 Trigger/TrigTruthEvent
+
+use RootConversions      RootConversions-*       Database/AthenaPOOL
+use AtlasROOT		 AtlasROOT-*		 External
+end_private
+
+# data class libraries
+
+apply_pattern poolcnv files="-s=${TrigInDetTruthEvent_root}/TrigInDetTruthEvent TrigInDetTrackTruthMap.h"
+
+apply_pattern declare_joboptions files="*.py"
+
+
