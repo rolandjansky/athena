@@ -1,0 +1,9 @@
+<lcgdict>
+
+<!-- TrigInDetTrackTruthMap -->
+  <class name="TrigInDetTrackTruthMap_old" />
+  <class name="TrigInDetTrackTruthMap_old_cnv"/>
+  <class name="TVirtualConverter_T<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_old>"/>
+
+</lcgdict>
+

@@ -1,0 +1,22 @@
+<lcgdict>
+
+<!-- TrigInDetTrackTruthMap -->
+
+  <class name="T_TPCnv<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp1>"/>
+  <class name="TrigInDetTrackTruthMapCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigInDetTrackTruthMapCnv_p1,TrigInDetTrackTruthMap_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp1>"/>
+
+  <class name="T_TPCnv<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp2>"/>
+  <class name="TrigInDetTrackTruthMapCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigInDetTrackTruthMapCnv_p1,TrigInDetTrackTruthMap_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigInDetTrackTruthMap,TrigInDetTrackTruthMap,TrigInDetTrackTruthMap_tlp2>"/>
+
+  <class name="ITPConverterFor<TrigInDetTrackTruthMap>"/>
+
+</lcgdict>
+
