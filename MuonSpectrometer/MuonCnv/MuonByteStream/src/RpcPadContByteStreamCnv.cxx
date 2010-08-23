@@ -1,0 +1,107 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonByteStream/RpcPadContByteStreamCnv.h"
+#include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
+
+#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamData/RawEvent.h" 
+
+//using namespace EventFormat::RawMemory ; 
+
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/CnvFactory.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/DataObject.h"
+#include "GaudiKernel/IRegistry.h"
+
+#include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/RpcSectorLogicContainer.h"
+//#include "MuonRDO/RpcPadIdHash.h"
+#include "RPCcablingInterface/RpcPadIdHash.h"
+
+#include "MuonIdHelpers/RpcIdHelper.h"
+#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+
+#include "StoreGate/StoreGateSvc.h"
+#include "CLIDSvc/CLASS_DEF.h"
+
+// Tool 
+#include "GaudiKernel/IToolSvc.h"
+
+#include <sstream>
+#include <map> 
+
+RpcPadContByteStreamCnv::RpcPadContByteStreamCnv(ISvcLocator* svcloc) :
+    Converter(ByteStream_StorageType, classID(),svcloc),
+    m_tool("Muon::RpcPadContByteStreamTool"),
+    m_byteStreamEventAccess("ByteStreamCnvSvc", "RpcPadContByteStreamCnv"),
+    m_storeGate("StoreGateSvc", "RpcPadContByteStreamCnv")
+{}
+
+RpcPadContByteStreamCnv::~RpcPadContByteStreamCnv() 
+{}
+
+const CLID& RpcPadContByteStreamCnv::classID(){
+return ClassID_traits<RpcPadContainer>::ID() ;
+}
+
+
+StatusCode RpcPadContByteStreamCnv::initialize() {
+      MsgStream log(messageService(), "RpcPadContByteStreamCnv");
+      log << MSG::DEBUG<< " initialize " <<endreq; 
+
+    // initialize base class
+      StatusCode sc = Converter::initialize(); 
+      if (StatusCode::SUCCESS != sc) 
+          return sc; 
+
+    // get ByteStreamEventAccess interface
+      if (m_byteStreamEventAccess.retrieve().isFailure())
+      {
+          log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endreq;
+          return StatusCode::FAILURE;
+      }
+
+    // retrieve Tool
+      if(m_tool.retrieve().isFailure())
+      {
+          log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
+          return StatusCode::FAILURE;
+      }
+
+      if(m_storeGate.retrieve().isFailure())
+      {
+          log << MSG::ERROR << " Can't get StoreGateSvc" << endreq;
+          return StatusCode::FAILURE;
+      }
+
+      return StatusCode::SUCCESS;
+}
+
+StatusCode 
+RpcPadContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
+   // convert Rpc pads in the container into ByteStream
+
+   MsgStream log(messageService(), "RpcPadContByteStreamCnv");
+
+   RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
+
+   RpcPadContainer* cont=NULL ; 
+   StoreGateSvc::fromStorable(pObj, cont ); 
+   if(!cont) {
+     log << MSG::ERROR << " Can not cast to RpcPadContainer " << endreq ; 
+     return StatusCode::FAILURE;    
+   } 
+
+   std::string nm = pObj->registry()->name(); 
+
+   ByteStreamAddress* addr = new ByteStreamAddress(classID(),nm,""); 
+
+   pAddr = addr; 
+
+   return m_tool->convert(cont, re, log); 
+
+}
