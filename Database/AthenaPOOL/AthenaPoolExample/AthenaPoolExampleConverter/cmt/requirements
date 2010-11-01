@@ -1,0 +1,31 @@
+package AthenaPoolExampleConverter
+
+author Peter Van Gemmeren <gemmeren@anl.gov>
+
+use AtlasPolicy           AtlasPolicy-*
+use AtlasCLHEP            AtlasCLHEP-00-*            External
+use AtlasReflex           AtlasReflex-*              External
+use GaudiInterface        GaudiInterface-*           External
+use DataModelAthenaPool   DataModelAthenaPool-01-*   Control
+use AthenaPoolCnvSvc      AthenaPoolCnvSvc-00-*      Database/AthenaPOOL
+use AthenaPoolServices    AthenaPoolServices-00-*    Database/AthenaPOOL
+use AthenaPoolUtilities   AthenaPoolUtilities-00-*   Database/AthenaPOOL
+use AthenaPoolExampleData AthenaPoolExampleData-00-* Database/AthenaPOOL/AthenaPoolExample
+
+macro_append AthenaPoolExampleConverterPoolCnvGen_dependencies " AthenaPoolExampleConverterDict "
+
+library AthenaPoolExampleConverter *.cxx
+apply_pattern linked_library
+
+apply_pattern lcgdict dict=AthenaPoolExampleConverter selectionfile=selection.xml \
+        headerfiles="../AthenaPoolExampleConverter/AthenaPoolExampleConverterDict.h"
+
+# One should provide the list of header files for the pattern "poolcnv".
+# These can be taken from a number of packages following the syntax of:
+#
+# "-s=${<package>_root}/<package> <hdr1> <hdr2>"
+#
+# which can be repeated.
+apply_pattern poolcnv files="-s=${AthenaPoolExampleData_root}/AthenaPoolExampleData ExampleHitContainer.h ExampleTrackContainer.h"
+
+apply_pattern declare_joboptions files="-s=../share *.py"
