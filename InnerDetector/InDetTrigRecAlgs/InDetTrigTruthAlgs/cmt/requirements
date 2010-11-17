@@ -1,0 +1,29 @@
+package InDetTrigTruthAlgs
+author Iwona Grabowska-Bold <Iwona.Grabowska@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*       External
+use TrkTruthData         TrkTruthData-*            Tracking/TrkEvent
+use InDetSimData         InDetSimData-*            InnerDetector/InDetRawEvent
+# Trigger dependencies:
+use TrigInterfaces      TrigInterfaces-*           Trigger/TrigSteer
+
+apply_pattern component_library
+apply_pattern declare_python_modules files ="*.py"
+
+library InDetTrigTruthAlgs *.cxx components/*.cxx
+
+private
+use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
+use StoreGate            StoreGate-*            Control
+use Particle             Particle-*                Reconstruction
+use ParticleTruth        ParticleTruth-*           Reconstruction
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+use DataModel            DataModel-*            Control
+use InDetPrepRawData     InDetPrepRawData-*        InnerDetector/InDetRecEvent
+use InDetTruthInterfaces InDetTruthInterfaces-*    InnerDetector/InDetTruth
+
+#linkage of TrigStorage
+use TrigParticle        TrigParticle-*          Trigger/TrigEvent
+
+end_private
