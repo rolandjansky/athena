@@ -1,0 +1,14 @@
+To execute the example in this directory, you have to have
+a full HLT setup.
+
+After that step, make sure '.' is on your PYTHONPATH variable:
+
+(bash) export PYTHONPATH=.:${PYTHONPATH}
+(*csh) setenv PYTHONPATH .:${PYTHONPATH}
+
+Then execute:
+
+(*sh) hltpm_part_l2ef.py -F l2efopt.py
+
+-- 
+Andre Anjos <andre.dos.anjos@cern.ch>

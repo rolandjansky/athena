@@ -1,0 +1,1534 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-data version 2.0 -->
+
+
+<!DOCTYPE oks-data [
+  <!ELEMENT oks-data (info, (include)?, (obj)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #REQUIRED
+      type CDATA #REQUIRED
+      num-of-includes CDATA #REQUIRED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "extended"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      creation-time CDATA #REQUIRED
+      last-modified-by CDATA #REQUIRED
+      last-modified-on CDATA #REQUIRED
+      last-modification-time CDATA #REQUIRED
+  >
+  <!ELEMENT include (file)+>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT obj (attr | rel)*>
+  <!ATTLIST obj
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+  <!ELEMENT attr (#PCDATA)*>
+  <!ATTLIST attr
+      name CDATA #REQUIRED
+      type (bool|s8|u8|s16|u16|s32|u32|s64|u64|float|double|date|time|string|uid|enum|class|-) "-"
+      num CDATA "-1"
+  >
+  <!ELEMENT rel (#PCDATA)*>
+  <!ATTLIST rel
+      name CDATA #REQUIRED
+      num CDATA "-1"
+  >
+]>
+
+<oks-data>
+
+<info name="" type="" num-of-includes="1" num-of-items="103" oks-format="extended" oks-version="oks-03-08-00 built &quot;Oct  4 2007&quot;" created-by="rabello" created-on="pcuwtr1.cern.ch" creation-time="5/10/07 17:31:56" last-modified-by="rabello" last-modified-on="pcuwtr1.cern.ch" last-modification-time="5/10/07 17:31:56"/>
+
+<include>
+ <file path="daq/schema/core.schema.xml"/>
+</include>
+
+
+<obj class="Computer" id="pcatb120.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"4 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">513</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb120.cern.ch-eth0"
+  "NetworkInterface" "pcatb120.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb122.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb122.cern.ch-eth0"
+  "NetworkInterface" "pcatb122.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb123.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2196</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb123.cern.ch-eth0"
+  "NetworkInterface" "pcatb123.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb124.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb124.cern.ch-eth0"
+  "NetworkInterface" "pcatb124.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb125.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2196</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb125.cern.ch-eth0"
+  "NetworkInterface" "pcatb125.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb126.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2196</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb126.cern.ch-eth0"
+  "NetworkInterface" "pcatb126.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb127.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb127.cern.ch-eth0"
+  "NetworkInterface" "pcatb127.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb129.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.40GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2396</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb129.cern.ch-eth0"
+  "NetworkInterface" "pcatb129.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb131.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.40GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2396</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb131.cern.ch-eth0"
+  "NetworkInterface" "pcatb131.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb132.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.40GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2396</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb132.cern.ch-eth0"
+  "NetworkInterface" "pcatb132.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb133.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb133.cern.ch-eth0"
+  "NetworkInterface" "pcatb133.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb134.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb134.cern.ch-eth0"
+  "NetworkInterface" "pcatb134.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb135.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"4 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1033</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb135.cern.ch-eth0"
+  "NetworkInterface" "pcatb135.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb136.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb136.cern.ch-eth0"
+  "NetworkInterface" "pcatb136.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb137.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.20GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2197</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb137.cern.ch-eth0"
+  "NetworkInterface" "pcatb137.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb138.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.40GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2396</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb138.cern.ch-eth0"
+  "NetworkInterface" "pcatb138.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb139.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) XEON(TM) CPU 2.40GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2396</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb139.cern.ch-eth0"
+  "NetworkInterface" "pcatb139.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb140.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatb140.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb141.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb141.cern.ch-eth0"
+  "NetworkInterface" "pcatb141.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb142.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb142.cern.ch-eth0"
+  "NetworkInterface" "pcatb142.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb143.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb143.cern.ch-eth0"
+  "NetworkInterface" "pcatb143.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb144.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb144.cern.ch-eth0"
+  "NetworkInterface" "pcatb144.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb145.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb145.cern.ch-eth0"
+  "NetworkInterface" "pcatb145.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb146.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb146.cern.ch-eth0"
+  "NetworkInterface" "pcatb146.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb147.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb147.cern.ch-eth0"
+  "NetworkInterface" "pcatb147.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb148.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb148.cern.ch-eth0"
+  "NetworkInterface" "pcatb148.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatb149.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 3.06GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">3066</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatb149.cern.ch-eth0"
+  "NetworkInterface" "pcatb149.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr08.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(TM) CPU 2.40GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1034</attr>
+ <attr name="CPU" type="u16">2392</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr08.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr11.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc3"</attr>
+ <attr name="Type" type="string">"4 core(s) of Dual Core AMD Opteron(tm) Processor 265"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">2022</attr>
+ <attr name="CPU" type="u16">1804</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr11.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr14.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"4 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">8162</attr>
+ <attr name="CPU" type="u16">3000</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatr14.cern.ch-eth0"
+  "NetworkInterface" "pcatr14.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr15.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"8 core(s) of Intel(R) Xeon(R) CPU           E5345  @ 2.33GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">12302</attr>
+ <attr name="CPU" type="u16">2333</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr15.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr16.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"4 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">8150</attr>
+ <attr name="CPU" type="u16">2992</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatr16.cern.ch-eth0"
+  "NetworkInterface" "pcatr16.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr17.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"4 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">8150</attr>
+ <attr name="CPU" type="u16">2992</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="2">
+  "NetworkInterface" "pcatr17.cern.ch-eth0"
+  "NetworkInterface" "pcatr17.cern.ch-eth1"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr18a.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"1 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1035</attr>
+ <attr name="CPU" type="u16">2992</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr18a.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr18b.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"1 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">1025</attr>
+ <attr name="CPU" type="u16">2992</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr18b.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr18c.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">2074</attr>
+ <attr name="CPU" type="u16">2993</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr18c.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="Computer" id="pcatr18d.cern.ch">
+ <attr name="HW_Tag" type="enum">"i686-slc4"</attr>
+ <attr name="Type" type="string">"2 core(s) of Intel(R) Xeon(R) CPU            5160  @ 3.00GHz"</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="Memory" type="u16">2056</attr>
+ <attr name="CPU" type="u16">2992</attr>
+ <attr name="RLogin" type="string">"ssh"</attr>
+ <rel name="Interfaces" num="1">
+  "NetworkInterface" "pcatr18d.cern.ch-eth0"
+ </rel>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb120.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.120"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:12:33:97"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb120.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.120"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:12:2F:4A"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb122.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.122"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BE:1E"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb122.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.122"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BE:1D"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb123.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.123"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BB:D2"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb123.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.123"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BB:D1"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb124.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.124"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BD:36"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb124.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.124"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BD:35"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb125.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.125"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BE:3E"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb125.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.125"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BE:3D"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb126.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.126"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:10:7C"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb126.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.126"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:10:7B"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb127.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.127"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BB:26"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb127.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.127"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BB:25"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb129.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.129"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:3B:22"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb129.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.129"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:3B:21"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb131.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.131"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:87:6C"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb131.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.131"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:87:6B"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb132.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.132"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:11:96"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb132.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.132"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:11:95"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb133.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.133"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:10:52"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb133.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.133"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:24:10:51"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb134.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.134"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BD:A3"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb134.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.134"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:BD:A2"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb135.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.135"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:25:2E:A9"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb135.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.135"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:25:2E:A8"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb136.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.136"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FC:2C"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb136.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.136"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FC:2B"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb137.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.137"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FC:66"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb137.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.137"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FC:65"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb138.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.138"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FE:87"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb138.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.138"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FD:8F"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb139.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.139"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FE:11"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb139.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.139"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:23:FE:10"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb140.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.140"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:5C"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb141.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.141"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:C4"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb141.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.141"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:C5"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb142.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.142"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:C0"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb142.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.142"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:C1"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb143.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.143"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:CC"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb143.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.143"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:CD"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb144.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.144"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:48"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb144.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.144"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:49"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb145.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.145"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B8:D6"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb145.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.145"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B8:D7"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb146.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.146"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:60"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb146.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.146"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:61"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb147.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.147"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:DA"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb147.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.147"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:DB"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb148.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.148"</attr>
+ <attr name="MACAddress" type="string">"00:04:23:A8:E6:72"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb148.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.148"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:70"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb149.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.227.149"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:64"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatb149.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"192.168.100.149"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:2A:B9:65"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr08.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.210.81"</attr>
+ <attr name="MACAddress" type="string">"00:02:B3:B0:64:EC"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr11.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.87"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:57:01:0D"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr14.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.120"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:89:5E:04"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr14.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.121"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:89:5E:05"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr15.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.127"</attr>
+ <attr name="MACAddress" type="string">"00:30:48:8C:16:58"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr16.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.128"</attr>
+ <attr name="MACAddress" type="string">"00:04:23:DD:5A:1A"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr16.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.129"</attr>
+ <attr name="MACAddress" type="string">"00:04:23:DD:5A:1B"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr17.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.130"</attr>
+ <attr name="MACAddress" type="string">"00:04:23:DD:5C:32"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr17.cern.ch-eth1">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.131"</attr>
+ <attr name="MACAddress" type="string">"00:04:23:DD:5C:33"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth1"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr18a.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.134"</attr>
+ <attr name="MACAddress" type="string">"00:16:3E:5D:C7:0A"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr18b.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.135"</attr>
+ <attr name="MACAddress" type="string">"00:16:3E:5D:C7:0B"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr18c.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.137"</attr>
+ <attr name="MACAddress" type="string">"00:16:3E:5D:C7:0C"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+<obj class="NetworkInterface" id="pcatr18d.cern.ch-eth0">
+ <attr name="Type" type="string">""</attr>
+ <attr name="Location" type="string">""</attr>
+ <attr name="Description" type="string">""</attr>
+ <attr name="HelpLink" type="string">""</attr>
+ <attr name="InstallationRef" type="string">""</attr>
+ <attr name="State" type="bool">1</attr>
+ <attr name="IPAddress" type="string">"137.138.224.136"</attr>
+ <attr name="MACAddress" type="string">"00:16:3E:5D:C7:0D"</attr>
+ <attr name="Label" type="enum">"NONE"</attr>
+ <attr name="InterfaceName" type="string">"eth0"</attr>
+</obj>
+
+</oks-data>
