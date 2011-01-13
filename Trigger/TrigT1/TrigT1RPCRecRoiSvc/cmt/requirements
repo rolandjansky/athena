@@ -1,0 +1,25 @@
+package TrigT1RPCRecRoiSvc
+
+author Tadashi Maeno <Tadashi.Maeno@cern.ch>
+author Alessandro Di Mattia <alessandro.dimattia@roma1.infn.it>
+
+use AtlasPolicy          AtlasPolicy-01-*
+
+use TrigT1Interfaces  TrigT1Interfaces-01-*   Trigger/TrigT1
+
+
+private
+use GaudiInterface       GaudiInterface-01-*  External
+
+use RPCcablingInterface RPCcablingInterface-00-*  MuonSpectrometer/MuonCablings
+use RPCgeometry         RPCgeometry-00-*          MuonSpectrometer/MuonCablings
+use MDTcabling          MDTcabling-00-*           MuonSpectrometer/MuonCablings
+end_private
+
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_runtime
+apply_pattern declare_joboptions files="*.txt *.py"
+
+apply_pattern declare_python_modules files="*.py"
