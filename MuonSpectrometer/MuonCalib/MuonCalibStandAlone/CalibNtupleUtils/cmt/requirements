@@ -1,0 +1,22 @@
+package CalibNtupleUtils
+author Zdenko van Kesteren
+ 
+use AtlasPolicy          AtlasPolicy-01-*
+use AtlasROOT            AtlasROOT-*            External
+
+#use MdtCalibFitters      MdtCalibFitters-*      MuonSpectrometer/MuonCalib/MdtCalib
+use MuonCalibEventBase   MuonCalibEventBase-*   MuonSpectrometer/MuonCalib
+
+apply_tag ROOTMathLibs
+apply_tag ROOTGraphicsLibs
+
+library  CalibNtupleUtils ../src/*.cxx
+
+apply_pattern installed_library
+
+#macro_append Analyse_dependencies       CalibNtupleUtils 
+#macro_append DoubleAnalyse_dependencies CalibNtupleUtils
+
+private 
+use MuonCalibIdentifier  MuonCalibIdentifier-*  MuonSpectrometer/MuonCalib
+use MuonCalibStl   	 *     	                MuonSpectrometer/MuonCalib/MuonCalibUtils

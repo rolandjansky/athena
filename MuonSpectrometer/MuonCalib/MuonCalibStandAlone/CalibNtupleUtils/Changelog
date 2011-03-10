@@ -1,0 +1,72 @@
+10-03-2011  Felix Rauscher <rauscher@cern.ch>
+	* Coverity
+	* remove unused code
+	* tagging  CalibNtupleUtils-00-00-18
+
+23-10-2010 Felix Rauscher <rauscher@cern.ch>
+	* covertity
+	* tagging CalibNtupleUtils-00-00-17
+
+19-05-2010 Felix Rauscher <rauscher@cern.ch>
+	* fix warnings
+	* tagging CalibNtupleUtils-00-00-16
+
+18-02-2009 Felix Rauscher <rauscher@cern.ch>
+	* fix compiler warnings
+	* tagging CalibNtupleUtils-00-00-15
+
+22-12-2008 David Quarrie <David.Quarrie@cern.ch>
+	* src/HistHandler.cxx:  )
+	* src/SegmentCombi.cxx: ) Add gcc 4.3 compatibility
+	* src/TimedSegment.cxx: ) 
+	* tagging CalibNtupleUtils-00-00-14
+
+18-05-2008 Zdenko van Kesteren <zkestere@nikhef.nl>
+	* added Hist-retrieval methods with std::string as argument to HistHandler
+	* tagging CalibNtupleUtils-00-00-13
+
+20-04-2008 Zdenko van Kesteren <zkestere@nikhef.nl>
+	* added option to RootDisplay to draw half lines
+	* tagging CalibNtupleUtils-00-00-12
+
+10-01-2008 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* HistHandler: add method for weighting
+	* tagging CalibNtupleUtils-00-00-11
+
+10-12-2007 David Quarrie <David.Quarrie@cern.ch>
+	* src/RootDisplay.cxx: Include <math.h> for compatibility with LCG_54
+	* tagging CalibNtupleUtils-00-00-10
+
+24-07-2007 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* use of std::pow in favour of pow
+	* tagging CalibNtupleUtils-00-00-09
+	
+20-06-2007 Zdenko van Kesteren <zkestere@nikhef.nl>
+	* created doxygen mainpage, documented classes
+	* tagging CalibNtupleUtils-00-00-08
+
+16-03-2007 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* remove obsolete line in requirements
+	* tagging as CalibNtupleUtils-00-00-07
+
+05-02-2007 Domizia Orestano <domizia.orestano@cern.ch>
+        * removal of macro for Analyse and DoubleAnalyse from requirements (problems with builds with distcc)
+        * tagging as CalibNtupleUtils-00-00-06
+
+17-01-2007 Domizia Orestano <domizia.orestano@cern.ch>
+        * fix requirements for cvs reorganization
+	* tagging CalibNtupleUtils-00-00-05
+
+22-11-2006 Zdenko van Kesteren <zkestere@nikhef.nl>
+	* Added SegmentCombi class
+	* cleaned up code: removed warnings
+	* tagging CalibNtupleUtils-00-00-04
+
+30-10-2006 Zdenko van Kesteren <zkestere@nikhef.nl>
+	* removed warnings
+	* tagging CalibNtupleUtils-00-00-02
+
+14-10-2006 Zdenko van Kesteren <zkestere@nikhef.nl>
+	* removed headerfiles 
+	* tagging CalibNtupleUtils-00-00-01
+
