@@ -1,0 +1,77 @@
+This package contains the classes for modelling the data flow from the RPC
+detector trought the Level-1 electronics. There is also a bare implementation 
+of the trigger logic, that will provide a fast Level-1 simulation algo to be 
+used into the Level-2 data pre-processing. The complete functionalities of the 
+Level-1 electronics are implemented into the package TrigT1RPChardware. Two 
+sets of libraries are created: TrigT1RPCsteering to be used into ATHENA 
+framework and RPCsteering to be used for running a standalone application.
+
+
+Basic Components:
+
+RPCtrigDataObject : Base class from which the classes managing data are 
+                    inerithed.
+
+RPCdata           : Base container holding the RPC digits, and providing access
+                    to them.
+
+RPCsimuData       : Specialization of the RPCdata container that implements the
+                    stroring/retrieving of the Muontecarlo truth associated to
+                    the RPCdigits.
+
+RPCdigits         : Basic class that holds the physics information coming from
+                    an RPC hit (signal time plus the space position of the hit)
+                    and provides also methods which supports the retrieving of
+                    informations related to the hit (geometry of the chamber,
+                    Montecarlo truth).
+
+RPCsimuDigit      : Specialization of the RPCdigits class implementing the 
+                    access to the Montecarlo truth data.
+
+MuonSimuTrack     : Class storing the Montecarlo truth (i.e. the muon track
+                    parameters.   
+
+CMAdata           : Container holding the input bit patterns to the Coincidence
+                    Matrix. It manages the replica mechanism of the RPC digits 
+                    (on the confirm stations) into different input partterns 
+                    for the CMA and provides also the interface versus the PAD
+                    container.
+
+CMApatterns       : Holds the six input patterns to the CMA, and provide the
+                    infrastructure for applying the Level-1 logic on data. It
+                    manages also the iconfiguration and the transmission of 
+                    data to the detailed simulation of the hardware.
+
+CMAtrigger        : Class modelling the trigger signals from the Coincidence
+                    Matrices.
+
+bitPATTERN        : Models the input pattern to the CMA implementing some  
+                    bit-wise operations. The connection between a raised bit 
+                    and the RPCdigit from which it come, is provided too.
+
+CMAreadout        : Interface class between the Matrix class (emulating the CMA
+                    electronics) and the MatrixReadOut class (emulating the CMA
+                    readout). It provides the infrastructure for filling, 
+                    retrieving and storing the byte stream data chunck related 
+                    to the CMA.
+
+PADreadout        : Interface class between the MatrixReadOut class and the 
+                    PadreadOut class (emulating the readout of the PAD. It 
+                    provides the infrastructure for filling, retrieving and 
+                    storing the byte stream data chunck related to the PAD.
+
+RPCbytestream     : Class managing the production and the access to the RPC
+                    bytestream.
+
+
+
+
+Use and configuration in ATHENA:
+
+    * Load and use the required DLL module with the following command lines:
+
+       ApplicationMgr.DLLs += { "TrigT1RPClogic" };
+
+    * The logic package needs the TrigT1RPChardware package to be built.
+
+    * There is no Configuration parameters:

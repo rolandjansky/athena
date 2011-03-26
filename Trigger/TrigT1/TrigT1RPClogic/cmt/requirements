@@ -1,0 +1,44 @@
+package TrigT1RPClogic
+
+author Alessandro Di Mattia <alessandro.dimattia@roma1.infn.it>
+
+use AtlasPolicy            AtlasPolicy-01-*
+use GaudiInterface         GaudiInterface-01-*          External
+
+
+use MuonCablingTools       MuonCablingTools-00-*    MuonSpectrometer/MuonCablings
+use RPCcablingInterface    RPCcablingInterface-00-* MuonSpectrometer/MuonCablings
+use RPCgeometry            RPCgeometry-00-*         MuonSpectrometer/MuonCablings
+
+use TrigT1RPChardware      TrigT1RPChardware-00-*  Trigger/TrigT1
+
+
+
+###################################################
+# Standalone library build                        #
+###################################################
+
+#macro lib_RPClogic_pp_cppflags " -DLVL1_STANDALONE "
+#library RPClogic -no_share -suffix=STN *.cxx
+#macro_append RPClogic_dependencies " install_includes"
+
+
+#########################################################
+# ATHENA librariy build                                 #
+#########################################################
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_runtime
+
+###############################################################################
+# Standalone application build                                                #
+###############################################################################
+
+
+#macro_append  datatest_pp_cppflags  " -DLVL1_STANDALONE "
+
+
+#macro_append  datatestlinkopts  " -L$(RPCGEOMETRYROOT)/${BINDIR} -L$(MUONCABLINGTOOLSROOT)/${BINDIR} -L$(RPCCABLINGROOT)/${BINDIR}  -L$(TRIGT1RPCHARDWAREROOT)/${BINDIR} -lRPClogic -lRPChardware -lRPCgeo -lRPCcab -lCablingTools "
+
+# application  datatest  ../share/DataTest.cxx
