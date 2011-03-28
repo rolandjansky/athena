@@ -2,8 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "InDetConditionsAthenaPool/InDetBSErrContainer_p1.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#undef private
+#undef protected
 #include "InDetBSErrContainerCnv_p1.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -11,15 +15,12 @@
 
 void InDetBSErrContainerCnv_p1::transToPers(const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream & /*log */) 
 {
-  InDetBSErrContainer::const_iterator it = transCont->begin();
-  InDetBSErrContainer::const_iterator itEnd = transCont->end();
+  std::vector<std::pair<IdentifierHash, int>* >::const_iterator it = transCont->begin();
+  std::vector<std::pair<IdentifierHash, int>* >::const_iterator itEnd = transCont->end();
   (persCont->m_bsErrs).reserve(transCont->size());
 
   for (; it != itEnd; ++it) {
-    // FIXME: Should change type of m_bsErrs, but don't want to cause possible
-    // back-compatibility problems.
-    std::pair<IdentifierHash, int>* ptr = const_cast<std::pair<IdentifierHash, int>*> (*it);
-    (persCont->m_bsErrs).push_back(ptr);
+    (persCont->m_bsErrs).push_back(*it);
   }
   return;
 }
