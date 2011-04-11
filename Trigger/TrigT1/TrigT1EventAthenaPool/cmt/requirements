@@ -1,0 +1,53 @@
+package TrigT1EventAthenaPool
+
+author Tadashi Maeno            <Tadashi.Maeno@cern.ch>
+author Attila Krasznahorkay Jr. <Attila.Krasznahorkay@cern.ch>
+
+# Gaudi/Athena packages:
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*      External
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# TrigT1 packages:
+use TrigT1Result        TrigT1Result-*        Trigger/TrigT1
+use TrigT1CaloEvent     TrigT1CaloEvent-*     Trigger/TrigT1
+use TrigT1Interfaces    TrigT1Interfaces-*    Trigger/TrigT1
+use TrigT1EventTPCnv    TrigT1EventTPCnv-*    Trigger/TrigT1
+
+# Create all the POOL converters:
+apply_pattern poolcnv typesWithNamespace="ROIB::RoIBResult LVL1::MuCTPICTP LVL1::EmTauCTP \
+	LVL1::JetCTP LVL1::EnergyCTP \
+	LVL1::RecMuonRoI LVL1::RecEmTauRoI LVL1::RecJetRoI \
+        LVL1::TriggerTowerCollection LVL1::JetElementCollection \
+        LVL1::CPMTowerCollection LVL1::CPMHitsCollection \
+        LVL1::CPMRoICollection LVL1::CMMCPHitsCollection LVL1::CMMJetHitsCollection \
+        LVL1::CMMRoI LVL1::CMMEtSumsCollection LVL1::JEMHitsCollection \
+        LVL1::JEMEtSumsCollection LVL1::JEMRoICollection LVL1::RODHeaderCollection" \
+	files="-s=${TrigT1Result_root}/TrigT1Result \
+                                 RoIBResult.h \
+                                 MuCTPI_RDO.h \
+                                 CTP_RDO.h \
+	       -s=${TrigT1CaloEvent_root}/TrigT1CaloEvent TriggerTowerCollection.h \
+                                 JetElementCollection.h \
+                                 CPMTowerCollection.h \
+                                 CPMHitsCollection.h \
+                                 CPMRoICollection.h \
+                                 CMMCPHitsCollection.h \
+                                 CMMJetHitsCollection.h \
+                                 CMMRoI.h \
+                                 CMMEtSumsCollection.h \
+                                 JEMHitsCollection.h \
+                                 JEMEtSumsCollection.h \
+                                 JEMRoICollection.h \
+				 RODHeaderCollection.h \
+	       -s=${TrigT1Interfaces_root}/TrigT1Interfaces \
+                                 MuCTPICTP.h \
+                                 EmTauCTP.h \
+                                 JetCTP.h \
+                                 EnergyCTP.h \
+                                 RecMuonRoI.h \
+                                 RecEmTauRoI.h \
+                                 RecJetRoI.h"
+
+apply_pattern declare_joboptions files="*.py"
