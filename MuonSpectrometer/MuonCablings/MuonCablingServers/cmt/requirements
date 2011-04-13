@@ -1,0 +1,20 @@
+package MuonCablingServers
+
+author Alessandro Di Mattia <alessandro.dimattia@roma1.infn.it>
+
+private 
+use EventInfo              EventInfo-*              Event
+use EventInfoMgt           EventInfoMgt-*           Event
+use StoreGate              StoreGate-*             Control
+
+public
+use AtlasPolicy            AtlasPolicy-01-*
+use GaudiInterface         GaudiInterface-01-*     External
+use AthenaKernel           AthenaKernel-*          Control
+
+use RPCcablingInterface    RPCcablingInterface-00-* MuonSpectrometer/MuonCablings
+use TGCcablingInterface    TGCcablingInterface-00-* MuonSpectrometer/MuonCablings
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_python_modules files="*.py"
