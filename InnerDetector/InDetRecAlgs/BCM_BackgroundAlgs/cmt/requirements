@@ -1,0 +1,21 @@
+package BCM_BackgroundAlgs
+
+author Hendrik Jansen <jansen@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-01-* 
+use StoreGate        StoreGate-02-*         Control
+use GaudiInterface   GaudiInterface-01-*    External
+
+private
+use BCM_CollisionTime    BCM_CollisionTime-*    InnerDetector/InDetRecEvent
+use InDetBCM_RawData InDetBCM_RawData-* InnerDetector/InDetRawEvent
+use Identifier       Identifier-00-*        DetectorDescription
+
+library BCM_BackgroundAlgs *.cxx -s=components *.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.txt *.py"
+
+apply_pattern declare_python_modules files="*.py"
+
