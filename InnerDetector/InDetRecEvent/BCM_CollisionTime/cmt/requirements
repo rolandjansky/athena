@@ -1,0 +1,40 @@
+package BCM_CollisionTime
+
+author Hendrik Jansen <jansen@cern.ch>
+
+private 
+
+use GaudiInterface   GaudiInterface-01-*    External
+#use AthenaKernel     AthenaKernel-00-*      Control
+#use StoreGate        StoreGate-02-*         Control
+#use DataModel        DataModel-00-*         Control
+#use AthenaBaseComps  AthenaBaseComps-*      Control
+#use CxxUtils         CxxUtils-*             Control
+
+#use AtlasDetDescr    AtlasDetDescr-00-*     DetectorDescription
+#use Identifier       Identifier-00-*        DetectorDescription
+#use GeoModelSvc      GeoModelSvc-00-*       DetectorDescription/GeoModel
+
+#use AtlasROOT        AtlasROOT-*            External
+#use AtlasCLHEP       AtlasCLHEP-00-*        External
+
+public
+use AtlasPolicy      AtlasPolicy-01-* 
+use CLIDSvc         CLIDSvc-00-*        Control
+
+#use EventInfo        EventInfo-00-*         Event
+
+#use GeneratorObjects GeneratorObjects-01-*  Generators
+
+#use InDetBCM_RawData InDetBCM_RawData-* InnerDetector/InDetRawEvent
+
+#use AtlasHepMC        AtlasHepMC-*            External
+
+library BCM_CollisionTime *.cxx -s=components *.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.txt *.py"
+
+apply_pattern declare_python_modules files="*.py"
+
