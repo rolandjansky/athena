@@ -1,0 +1,50 @@
+package DPDUtils
+
+author Sven Menke <menke@mppmu.mpg.de>
+
+use AtlasPolicy       AtlasPolicy-01-*    
+use GaudiInterface GaudiInterface-01-* External
+
+use CaloEvent         CaloEvent-*         Calorimeter
+use egammaEvent       egammaEvent-*       Reconstruction/egamma
+use muonEvent         muonEvent-*         Reconstruction/MuonIdentification
+use Particle          Particle-*          Reconstruction
+use tauEvent	      tauEvent-*	  Reconstruction	
+use NavFourMom        NavFourMom-*        Event
+use AthenaKernel      AthenaKernel-*      Control
+use JetEvent          JetEvent-*          Reconstruction/Jet
+use TagEvent          TagEvent-*	  PhysicsAnalysis/EventTag
+use StoreGate         StoreGate-*         Control
+use DBDataModel       DBDataModel-*       Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*       Database/AthenaPOOL
+
+use TrigDecisionTool  TrigDecisionTool-*  Trigger/TrigAnalysis
+
+use UserAnalysisUtils	UserAnalysisUtils-*	PhysicsAnalysis/AnalysisCommon
+use EventBookkeeperMetaData	EventBookkeeperMetaData-*	Event
+
+## PyAthena dependency: just python runtime (so no_auto_imports)
+use AthenaPython      AthenaPython-*	  Control -no_auto_imports
+use AthenaBaseComps   AthenaBaseComps-*   Control
+
+private
+use AtlasCLHEP        AtlasCLHEP-*        External
+
+
+public
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+branches src DPDUtils python
+
+public
+library DPDUtils  *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+
+apply_pattern lcgdict dict=DPDUtils selectionfile=selection.xml headerfiles="../DPDUtils/DPDUtilsDict.h"
+end_private
