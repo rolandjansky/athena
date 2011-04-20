@@ -1,0 +1,15 @@
+#############################################
+package MonteCarloReactUtils
+
+author Marc Hohlfeld <marc.hohlfeld@cern.ch>
+
+
+use AtlasPolicy                 AtlasPolicy-01-*
+
+use AtlasROOT                   AtlasROOT-*                     External
+
+library MonteCarloReactUtils *.cxx
+
+
+apply_pattern installed_library
+####################################################

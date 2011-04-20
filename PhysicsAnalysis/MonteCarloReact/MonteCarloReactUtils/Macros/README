@@ -1,0 +1,28 @@
+How to create an .mcr file:
+
+1. Check out and compile MonteCarloReactUtils
+
+2. Go to MonteCarloReactUtils/Macros/ and create a link to MonteCarloReactUtils/MonteCarloReactUtils/
+
+> ln -s ../../MonteCarloReactUtils/MonteCarloReactUtils/ MonteCarloReactUtils
+
+3. Compile MakeEff.cpp:
+
+> gmake
+
+These is just a very first test which is probalby not platform independent. It should work at CERN
+on sl4 machines. If you are on a sl3 machine it might be possible that one has to change the
+../../../../InstallArea/i686-slc4-gcc34-opt/lib/  path to the correct name.
+
+4. Run the progam:
+
+> ./MakeEff inputFile histoname DataType EffName EffType EffVersion ObjQuality ObjType ObjVersion ObjAlgorithm EffVarNames
+
+inputFile is the file that contains the efficiency maps
+histoname is the histogram that should be transformed in an mcr file
+The rest of the parameters is the MetaData
+
+So a possible command would be:
+
+> ./MakeEff efficiencies.root LooseElectronEfficiency FastSim Binned Efficiency 1 loose Electron 1 Electron DetEta pT
+
