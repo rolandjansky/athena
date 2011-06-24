@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">   
+<unifiedTestConfiguration> 
+<atn>
+   <TEST name="InDetGeometryValidation" type="script" suite="Examples">
+     <options_atn>InnerDetector/InDetValidation/InDetGeometryValidation/test/InDetGeometryValidation_Test.sh</options_atn>
+     <author>Atlas Developer</author>
+     <mailto>hays@physics.ox.ac.uk</mailto>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="InDetGeometryValidation" type="athena" suite="Examples">
+     <options_atn>InDetGeometryValidation/ReadSiDetectorElements_jobOptions.py</options_atn>
+     <timelimit>3</timelimit>
+     <author>Atlas Developer</author>
+     <mailto>hays@physics.ox.ac.uk</mailto>
+      <expectations>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="InDetGeometryValidation" type="athena" suite="Examples">
+     <options_atn>InDetGeometryValidation/ReadTRT_DetectorElements_jobOptions.py</options_atn>
+     <timelimit>3</timelimit>
+     <author>Atlas Developer</author>
+     <mailto>hays@physics.ox.ac.uk</mailto>
+      <expectations>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>
+</unifiedTestConfiguration>
