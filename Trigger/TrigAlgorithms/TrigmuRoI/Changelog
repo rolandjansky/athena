@@ -1,0 +1,21 @@
+2011-07-30 Kunihiro Nagano <nagano@mail.cern.ch>
+	* Tag as TrigmuRoI-00-00-04
+	* Remove CERNLIB dependency from requirements
+
+2010-07-07 Alessandro Di Mattia <dimattia@mail.cern.ch>
+	* Tag as TrigmuRoI-00-00-03
+	* fix for gaudi v21.
+
+2010-07-06 Alessandro Di Mattia <dimattia@mail.cern.ch>
+	* Tag as TrigmuRoI-00-00-02
+	* DEBUG printouts put under condition.
+	* Monitoring variables cleared for allowing 
+	  correct start/stop/start operations.
+
+2010-06-29 Alessandro Di Mattia <dimattia@mail.cern.ch>
+	* Tag as TrigmuRoI-00-00-01
+	* INFO printouts in execute replaced by DEBUG
+
+2010-06-29 Alessandro Di Mattia <dimattia@mail.cern.ch>
+	* Tag as TrigmuRoI-00-00-00
+	* first implementation
