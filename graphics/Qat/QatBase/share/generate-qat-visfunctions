@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Script which generates the QAT vis functions
+#
+# J. Boudreau
+
+echo xxxxxxxxxx Generate Qat Visfunctions xxxxxxxxxxx
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+QATINCLUDES=`cmt show macro_value includes`
+QATLIBS=`cmt show macro_value cmt_installarea_linkopts`
+
+cd ..
+make QATINCLUDES="$QATINCLUDES" "QATLIBS=$QATLIBS" -f Makefile.cmt
+
+
+

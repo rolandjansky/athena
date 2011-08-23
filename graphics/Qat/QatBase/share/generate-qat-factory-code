@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Script which generates the factory code needed for qat plugins
+#
+# Thomas Kittelmann, May 2007.
+
+echo "=====>"
+echo "=====>  Generating factory code for qat Plugin"
+echo "=====>"
+
+if [ "x"`basename $PWD` != "xcmt" ]; then
+    echo "$APPNAME: ERROR - must be invoked from cmt dir (pwd is: $PWD)"
+    exit 1
+fi
+
+if [ "x${CMTCONFIG}" == "x" ]; then
+    echo "$APPNAME: ERROR - CMTCONFIG not set"
+    exit 1
+fi
+if [ ! -d ../${CMTCONFIG}/ ]; then
+    echo "$APPNAME: ERROR - did not find ../$CMTCONFIG/ directory"
+    exit 1
+fi
+
+declare -a qatCLASSNAMES
+declare -a qatSTRINGS
+qatN=0
+for srcfile in ../src/*.cpp; do
+  TMP=`cat $srcfile|sed 's#//.*$##'|grep 'qatCHANNELNAMEINPLUGIN *(.*)'`
+  if [ "x$TMP" == "x" ]; then
+      continue
+  fi
+  NLINES=`echo $TMP|wc -l|awk '{print $1}'`
+  if [ "x$NLINES" == "x0" ]; then
+      continue
+  fi
+  if [ "x$NLINES" != "x1" ]; then
+    echo "$APPNAME: ERROR - Source file $srcfile had suspicious number of qatCHANNELNAMEINPLUGIN (or maybe the parsing simply failed)"
+    exit 1
+  fi
+  TMP=`echo $TMP|sed 's#^.*qatCHANNELNAMEINPLUGIN *(##'|sed 's#).*$##'`
+  #We might as well look for illegal characters at compile time:
+  TEST=`echo $TMP|grep '\['|wc -l|awk '{print $1}'`
+  if [ "x$TEST" != "x0" ]; then
+    echo "$APPNAME: ERROR - found illegal character ([) in qatCHANNELNAMEINPLUGIN macro"
+    exit 1
+  fi
+  TEST=`echo $TMP|grep '\]'|wc -l|awk '{print $1}'`
+  if [ "x$TEST" != "x0" ]; then
+    echo "$APPNAME: ERROR - found illegal character (]) in qatCHANNELNAMEINPLUGIN macro"
+    exit 1
+  fi
+  #Add the found entries:
+  qatCLASSNAMES[$qatN]=`echo $TMP|sed 's#,.*$##'`
+  qatSTRINGS[$qatN]=`echo $TMP|sed 's#^.*, *"#"#'`
+  qatN=$((qatN+1))
+done
+qatN=$((qatN-1))
+
