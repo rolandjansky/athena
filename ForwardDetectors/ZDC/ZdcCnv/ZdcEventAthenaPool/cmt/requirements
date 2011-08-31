@@ -1,0 +1,18 @@
+package ZdcEventAthenaPool
+
+author Peter Steinberg <Peter.Alan.Steinberg@cern.ch>
+
+use AtlasPolicy			AtlasPolicy-*
+
+private
+use AthenaPoolUtilities	AthenaPoolUtilities-*   Database/AthenaPOOL
+use GaudiInterface		GaudiInterface-*	   	External
+use AthenaPoolCnvSvc	AthenaPoolCnvSvc-*	   	Database/AthenaPOOL
+use ZdcEvent			ZdcEvent-*	   	   		ForwardDetectors/ZDC
+use ZDC_SimEvent		ZDC_SimEvent-*	   	   		ForwardDetectors/ZDC
+use ZdcEventTPCnv       ZdcEventTPCnv-*         ForwardDetectors/ZDC/ZdcCnv
+
+apply_pattern poolcnv files="-s=${ZdcEvent_root}/ZdcEvent ZdcDigitsCollection.h ZdcRawChannelCollection.h -s=${ZDC_SimEvent_root}/ZDC_SimEvent ZDC_SimStripHit_Collection.h ZDC_SimPixelHit_Collection.h" 
+
+macro_append ZdcEventAthenaPoolPoolCnv_shlibflags "$(ZdcEventAthenaPool_dict_linkopts)"
+
