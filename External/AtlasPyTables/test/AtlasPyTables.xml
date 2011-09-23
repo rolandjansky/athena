@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="pytables_test" type="script" suite="PyTables">
+      <package_atn>External/AtlasPyTables</package_atn>
+      <options_atn>python -c'import tables as t; t.tests.test_all.test()'</options_atn>
+      <timelimit>20</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>OK</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>

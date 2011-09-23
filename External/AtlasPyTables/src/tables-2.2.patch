@@ -1,0 +1,22 @@
+Index: tables-2.2/tables/tests/test_all.py
+===================================================================
+--- tables-2.2/tables/tests/test_all.py
++++ tables-2.2/tables/tests/test_all.py
+@@ -144,4 +144,6 @@
+     if tinfo is not None:
+         print "Blosc version:     %s (%s)" % (tinfo[1], tinfo[2])
++    from Cython.Compiler.Main import Version as Cython_Version
++    print 'Cython version:    %s' % Cython_Version.version
+     print 'Python version:    %s' % sys.version
+     if os.name == 'posix':
+Index: tables-2.2/tables/utilsExtension.pyx
+===================================================================
+--- tables-2.2/tables/utilsExtension.pyx
++++ tables-2.2/tables/utilsExtension.pyx
+@@ -615,5 +615,5 @@
+       raise HDF5ExtError(
+         "failed to get element name from HDF5 enumerated type")
+-    pyename = ename
++    pyename = str(ename)
+     free(ename)
+ 

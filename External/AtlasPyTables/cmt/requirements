@@ -1,0 +1,42 @@
+## Automatically generated CMT requirements file
+package AtlasPyTables
+author  Sebastien Binet <binet@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## Put here your package dependencies...
+use AtlasPython 	AtlasPython-*		External
+use AtlasNumPy		AtlasNumPy-*		External
+use AtlasHdf5	 	AtlasHdf5-*		External 
+
+use PyCmt		PyCmt-*			Tools -no_auto_imports
+
+include_dirs $(CMTINSTALLAREA)/$(CMTCONFIG)/include
+#apply_pattern include_path extras=$(CMTINSTALLAREA)/$(CMTCONFIG)/include
+#include_path none
+
+private
+
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+use AtlasLzo		AtlasLzo-*		External
+use AtlasBzip2		AtlasBzip2-*		External
+
+apply_pattern make_pkgbuild \
+ name=numexpr \
+ file=pkgbuild_numexpr.py
+
+apply_pattern make_pkgbuild \
+ name=pytables \
+ file=pkgbuild_pytables.py
+macro_append make_pkgbuild_pytables_dependencies " make_pkgbuild_numexpr "
+
+# macro hdf5pickle_version "0.2.1"
+# apply_pattern distutils_build \
+#  name=hdf5pickle \
+#  src_dir=$(AtlasPyTables_root)/src/hdf5pickle-$(hdf5pickle_version).tar.gz \
+#  install_dir=$(tag)/lib/python$(Python_config_version_twodigit)
+
+end_private
+
+
