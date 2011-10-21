@@ -1,0 +1,26 @@
+Py:thin_taus         INFO initializing...
+Py:thin_taus         INFO Dumping configuration:
+Py:thin_taus         INFO Container type: Analysis::TauJetContainer
+Py:thin_taus         INFO Container key:  TauRecContainer
+Py:thin_taus         INFO Filter: '<lambda>'
+Py:thin_taus         INFO running execute...
+Py:thin_taus         INFO retrieve [Analysis::TauJetContainer/TauRecContainer]
+Py:thin_taus         INFO number of elements before thinning: 8
+Py:thin_taus         INFO number of elements after  thinning: 5
+Py:thin_taus         INFO running execute...
+Py:thin_taus         INFO retrieve [Analysis::TauJetContainer/TauRecContainer]
+Py:thin_taus         INFO number of elements before thinning: 7
+Py:thin_taus         INFO number of elements after  thinning: 5
+Py:thin_taus         INFO running execute...
+Py:thin_taus         INFO retrieve [Analysis::TauJetContainer/TauRecContainer]
+Py:thin_taus         INFO number of elements before thinning: 4
+Py:thin_taus         INFO number of elements after  thinning: 3
+Py:thin_taus         INFO running execute...
+Py:thin_taus         INFO retrieve [Analysis::TauJetContainer/TauRecContainer]
+Py:thin_taus         INFO number of elements before thinning: 5
+Py:thin_taus         INFO number of elements after  thinning: 5
+Py:thin_taus         INFO running execute...
+Py:thin_taus         INFO retrieve [Analysis::TauJetContainer/TauRecContainer]
+Py:thin_taus         INFO number of elements before thinning: 5
+Py:thin_taus         INFO number of elements after  thinning: 4
+Py:thin_taus         INFO finalizing...
