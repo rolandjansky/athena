@@ -1,0 +1,52 @@
+Py:thinner_0         INFO initializing...
+Py:thinner_0         INFO Dumping configuration:
+Py:thinner_0         INFO Container type: AthExParticles
+Py:thinner_0         INFO Container key:  Particles_0
+Py:thinner_0         INFO Filter: '<lambda>'
+Py:thinner_1         INFO initializing...
+Py:thinner_1         INFO Dumping configuration:
+Py:thinner_1         INFO Container type: AthExParticles
+Py:thinner_1         INFO Container key:  Particles_1
+Py:thinner_1         INFO Filter: '<lambda>'
+Py:thinner_0         INFO running execute...
+Py:thinner_0         INFO retrieve [AthExParticles/Particles_0]
+Py:thinner_0         INFO number of elements before thinning: 10
+Py:thinner_0         INFO number of elements after  thinning: 5
+Py:thinner_1         INFO running execute...
+Py:thinner_1         INFO retrieve [AthExParticles/Particles_1]
+Py:thinner_1         INFO number of elements before thinning: 10
+Py:thinner_1         INFO number of elements after  thinning: 5
+Py:thinner_0         INFO running execute...
+Py:thinner_0         INFO retrieve [AthExParticles/Particles_0]
+Py:thinner_0         INFO number of elements before thinning: 10
+Py:thinner_0         INFO number of elements after  thinning: 5
+Py:thinner_1         INFO running execute...
+Py:thinner_1         INFO retrieve [AthExParticles/Particles_1]
+Py:thinner_1         INFO number of elements before thinning: 10
+Py:thinner_1         INFO number of elements after  thinning: 5
+Py:thinner_0         INFO running execute...
+Py:thinner_0         INFO retrieve [AthExParticles/Particles_0]
+Py:thinner_0         INFO number of elements before thinning: 10
+Py:thinner_0         INFO number of elements after  thinning: 5
+Py:thinner_1         INFO running execute...
+Py:thinner_1         INFO retrieve [AthExParticles/Particles_1]
+Py:thinner_1         INFO number of elements before thinning: 10
+Py:thinner_1         INFO number of elements after  thinning: 5
+Py:thinner_0         INFO running execute...
+Py:thinner_0         INFO retrieve [AthExParticles/Particles_0]
+Py:thinner_0         INFO number of elements before thinning: 10
+Py:thinner_0         INFO number of elements after  thinning: 5
+Py:thinner_1         INFO running execute...
+Py:thinner_1         INFO retrieve [AthExParticles/Particles_1]
+Py:thinner_1         INFO number of elements before thinning: 10
+Py:thinner_1         INFO number of elements after  thinning: 5
+Py:thinner_0         INFO running execute...
+Py:thinner_0         INFO retrieve [AthExParticles/Particles_0]
+Py:thinner_0         INFO number of elements before thinning: 10
+Py:thinner_0         INFO number of elements after  thinning: 5
+Py:thinner_1         INFO running execute...
+Py:thinner_1         INFO retrieve [AthExParticles/Particles_1]
+Py:thinner_1         INFO number of elements before thinning: 10
+Py:thinner_1         INFO number of elements after  thinning: 5
+Py:thinner_0         INFO finalizing...
+Py:thinner_1         INFO finalizing...

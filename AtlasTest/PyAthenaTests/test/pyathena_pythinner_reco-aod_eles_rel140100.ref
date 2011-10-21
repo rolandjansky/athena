@@ -1,0 +1,26 @@
+Py:thin_eles         INFO initializing...
+Py:thin_eles         INFO Dumping configuration:
+Py:thin_eles         INFO Container type: ElectronContainer
+Py:thin_eles         INFO Container key:  ElectronAODCollection
+Py:thin_eles         INFO Filter: '<lambda>'
+Py:thin_eles         INFO running execute...
+Py:thin_eles         INFO retrieve [ElectronContainer/ElectronAODCollection]
+Py:thin_eles         INFO number of elements before thinning: 17
+Py:thin_eles         INFO number of elements after  thinning: 4
+Py:thin_eles         INFO running execute...
+Py:thin_eles         INFO retrieve [ElectronContainer/ElectronAODCollection]
+Py:thin_eles         INFO number of elements before thinning: 7
+Py:thin_eles         INFO number of elements after  thinning: 0
+Py:thin_eles         INFO running execute...
+Py:thin_eles         INFO retrieve [ElectronContainer/ElectronAODCollection]
+Py:thin_eles         INFO number of elements before thinning: 8
+Py:thin_eles         INFO number of elements after  thinning: 6
+Py:thin_eles         INFO running execute...
+Py:thin_eles         INFO retrieve [ElectronContainer/ElectronAODCollection]
+Py:thin_eles         INFO number of elements before thinning: 8
+Py:thin_eles         INFO number of elements after  thinning: 2
+Py:thin_eles         INFO running execute...
+Py:thin_eles         INFO retrieve [ElectronContainer/ElectronAODCollection]
+Py:thin_eles         INFO number of elements before thinning: 4
+Py:thin_eles         INFO number of elements after  thinning: 1
+Py:thin_eles         INFO finalizing...
