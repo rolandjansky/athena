@@ -1,0 +1,308 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">   
+    <rttContactPerson>Silvia Behar (silbehar@techunix.technion.ac.il)</rttContactPerson>
+    <mailto>silbehar@tx.technion.ac.il</mailto> 
+    <refRelease>12.0.5</refRelease>
+    
+    <jobList>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Reco</displayProcess>
+        <displayComponent>Perf-CombMuon</displayComponent>
+      </classification>
+      
+      <athena userJobId="muGirlSingleMu10">
+        <doc> MuGirl Performance tests with single muons Pt10 </doc>
+        <commandLineFlags>EvtMax=5000;DetDescrVersion="ATLAS-GEO-08-00-02"</commandLineFlags>
+        <options>MuGirlTopOptions_SingleMuonsPt10.py</options>
+        <package>Reconstruction/MuonIdentification/MuGirlPerformance</package>
+        <group>MuGirlPerformance-SingleMuonsPt10</group>
+        <queue>long</queue>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.001.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.002.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.003.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.004.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.005.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.006.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.007.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.008.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.009.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.010.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.011.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.012.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.013.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.014.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.015.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.016.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.017.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.018.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.019.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.020.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.021.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.022.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.023.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.024.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.025.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.026.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.027.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.028.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.029.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.030.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.031.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.032.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.033.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.034.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.035.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.036.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.037.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.038.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.039.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_15616/digits.SingleMu_10GeV_15616.040.pool.root</dataset>
+        <castorSvcClass>atlprod</castorSvcClass>
+       <athenaCommonFlags />
+      </athena>
+            
+      <athena userJobId="muGirlSingleMu100">
+        <doc> MuGirl Performance tests with single muons Pt100 </doc>
+        <commandLineFlags>EvtMax=5000;DetDescrVersion="ATLAS-GEO-08-00-02"</commandLineFlags>
+        <options>MuGirlTopOptions_SingleMuonsPt100.py</options>
+        <package>Reconstruction/MuonIdentification/MuGirlPerformance</package>
+        <group>MuGirlPerformance-SingleMuonsPt100</group>
+        <queue>long</queue>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.001.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.002.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.003.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.004.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.005.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.006.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.007.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.008.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.009.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.010.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.011.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.012.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.013.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.014.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.015.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.016.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.017.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.018.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.019.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.020.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.021.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.022.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.023.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.024.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.025.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.026.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.027.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.028.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.029.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.030.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.031.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.032.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.033.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.034.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.035.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.036.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.037.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.038.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.039.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_100GeV_15616/digits.SingleMu_100GeV_15616.040.pool.root</dataset>
+        <castorSvcClass>atlprod</castorSvcClass>
+       <athenaCommonFlags />
+      </athena>
+      
+
+      <athena userJobId="muGirlZmumu">
+        <doc> MuGirl Performance tests with Zmumu events </doc>
+        <commandLineFlags>EvtMax=2500;DetDescrVersion="ATLAS-GEO-08-00-02"</commandLineFlags>
+        <options>MuGirlTopOptions_Zmumu.py</options>
+        <package>Reconstruction/MuonIdentification/MuGirlPerformance</package>
+        <group>MuGirlPerformance-Zmumu</group>
+        <queue>long</queue>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.001.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.002.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.003.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.004.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.005.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.006.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.007.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.008.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.009.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/digits.Zmumu_15616.010.pool.root</dataset>
+        <castorSvcClass>atlprod</castorSvcClass>
+       <athenaCommonFlags />
+      </athena>
+      
+      
+      <athena userJobId="muGirlT1">
+        <doc> MuGirl Performance tests with ttbar events </doc>
+        <commandLineFlags>EvtMax=2500;DetDescrVersion="ATLAS-GEO-08-00-02"</commandLineFlags>
+        <options>MuGirlTopOptions_T1.py</options>
+        <package>Reconstruction/MuonIdentification/MuGirlPerformance</package>
+        <group>MuGirlPerformance-T1</group>
+        <queue>long</queue>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.001.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.002.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.003.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.004.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.005.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.006.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.007.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.008.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.009.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/ttbar_15616/digits.ttbar_15616.010.pool.root</dataset>
+        <castorSvcClass>atlprod</castorSvcClass>
+       <athenaCommonFlags />
+      </athena>
+      
+      <athena userJobId="muGirlJpsimu4mu4">
+        <doc> MuGirl Performance tests with direct Jpsi events </doc>
+        <commandLineFlags>EvtMax=2500;DetDescrVersion="ATLAS-GEO-08-00-02"</commandLineFlags>
+        <options>MuGirlTopOptions_directJpsimu4mu4.py</options>
+        <package>Reconstruction/MuonIdentification/MuGirlPerformance</package>
+        <group>MuGirlPerformance-directJpsi</group>
+        <queue>long</queue>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.001.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.002.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.003.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.004.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.005.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.006.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.007.pool.root</dataset>
+        <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Jpsi_15616/digits.Jpsi_15616.008.pool.root</dataset>
+        <castorSvcClass>atlprod</castorSvcClass>
+       <athenaCommonFlags />
+      </athena>
+    </jobList>
+    
+    <jobGroups>
+      <jobGroup name="AthenaMuGirlPerformance-SingleMuonsPt10" parent="Athena">
+
+        <keepFilePattern>*.pool.root</keepFilePattern>
+        <keepFilePattern>*.gif</keepFilePattern>
+        <keepFilePattern>singleMuonsPt10.root</keepFilePattern>
+        <keepFilePattern>GlobalFitPerformance_SingleMuonsPt10.ps</keepFilePattern>
+        
+        <auxFilePattern>DataAod.C</auxFilePattern>
+        <auxFilePattern>DataAod.h</auxFilePattern>
+        <auxFilePattern>DataMuGirl.C</auxFilePattern>
+        <auxFilePattern>DataMuGirl.h</auxFilePattern>
+        <auxFilePattern>test_eff_SingleMuonsPt10.C</auxFilePattern>
+        
+        <action>
+          <modulename>RttLibraryTools</modulename>
+          <testname>ROOTMacroRunner</testname>
+          <arg>
+            <argname>macro</argname>
+            <argvalue>test_eff_SingleMuonsPt10.C</argvalue>
+          </arg>
+        </action>
+      </jobGroup>
+      
+      <jobGroup name="AthenaMuGirlPerformance-SingleMuonsPt100" parent="Athena">
+        <keepFilePattern>*.pool.root</keepFilePattern>
+        <keepFilePattern>*.gif</keepFilePattern>
+        <keepFilePattern>singleMuonsPt100.root</keepFilePattern>
+        <keepFilePattern>GlobalFitPerformance_SingleMuonsPt100.ps</keepFilePattern>
+        
+        <auxFilePattern>DataAod.C</auxFilePattern>
+        <auxFilePattern>DataAod.h</auxFilePattern>
+        <auxFilePattern>DataMuGirl.C</auxFilePattern>
+        <auxFilePattern>DataMuGirl.h</auxFilePattern>
+        <auxFilePattern>test_eff_SingleMuonsPt100.C</auxFilePattern>
+        
+        
+        <action>
+          <modulename>RttLibraryTools</modulename>
+          <testname>ROOTMacroRunner</testname>
+          <arg>
+            <argname>macro</argname>
+            <argvalue>test_eff_SingleMuonsPt100.C</argvalue>
+          </arg>
+        </action>
+      </jobGroup>
+      <jobGroup name="AthenaMuGirlPerformance-T1" parent="Athena">
+        <keepFilePattern>*.pool.root</keepFilePattern>
+        <keepFilePattern>*.gif</keepFilePattern>
+        <keepFilePattern>T1.root</keepFilePattern>
+        <keepFilePattern>GlobalFitPerformance_T1.ps</keepFilePattern>
+        
+        <auxFilePattern>DataAod.C</auxFilePattern>
+        <auxFilePattern>DataAod.h</auxFilePattern>
+        <auxFilePattern>DataMuGirl.C</auxFilePattern>
+        <auxFilePattern>DataMuGirl.h</auxFilePattern>
+        <auxFilePattern>test_eff_T1.C</auxFilePattern>
+        <action>
+          <modulename>RttLibraryTools</modulename>
+          <testname>ROOTMacroRunner</testname>
+          <arg>
+            <argname>macro</argname>
+            <argvalue>test_eff_T1.C</argvalue>
+          </arg>
+        </action>
+      </jobGroup>
+      <jobGroup name="AthenaMuGirlPerformance-Zmumu" parent="Athena">
+        <keepFilePattern>*.pool.root</keepFilePattern>
+        <keepFilePattern>*.gif</keepFilePattern>
+        <keepFilePattern>Zmumu.root</keepFilePattern>
+        <keepFilePattern>GlobalFitPerformance_Zmumu.ps</keepFilePattern>
+        
+        <auxFilePattern>DataAod.C</auxFilePattern>
+        <auxFilePattern>DataAod.h</auxFilePattern>
+        <auxFilePattern>DataMuGirl.C</auxFilePattern>
+        <auxFilePattern>DataMuGirl.h</auxFilePattern>
+        <auxFilePattern>test_eff_Zmumu.C</auxFilePattern>
+        <action>
+          <modulename>RttLibraryTools</modulename>
+          <testname>ROOTMacroRunner</testname>
+          <arg>
+            <argname>macro</argname>
+            <argvalue>test_eff_Zmumu.C</argvalue>
+          </arg>
+        </action>
+        
+        <!--
+            <action>
+              <modulename>extractRec</modulename> 
+              <testname>extract</testname>
+            </action>
+            
+            <test>
+              <modulename>didAnyTestFail</modulename>
+              <testname>CheckForFail</testname>
+            </test>-->
+            
+          </jobGroup>
+          
+          <jobGroup name="AthenaMuGirlPerformance-directJpsi" parent="Athena">
+            <keepFilePattern>*.pool.root</keepFilePattern>
+            <keepFilePattern>*.gif</keepFilePattern>
+            <keepFilePattern>directJpsi.root</keepFilePattern>
+            <keepFilePattern>GlobalFitPerformance_directJpsi.ps</keepFilePattern>
+            
+            <auxFilePattern>DataAod.C</auxFilePattern>
+            <auxFilePattern>DataAod.h</auxFilePattern>
+            <auxFilePattern>DataMuGirl.C</auxFilePattern>
+            <auxFilePattern>DataMuGirl.h</auxFilePattern>
+            <auxFilePattern>test_eff_directJpsi.C</auxFilePattern>
+            <action>
+              <modulename>RttLibraryTools</modulename>
+              <testname>ROOTMacroRunner</testname>
+              <arg>
+                <argname>macro</argname>
+                <argvalue>test_eff_directJpsi.C</argvalue>
+              </arg>
+            </action>
+      </jobGroup>
+          
+        </jobGroups>
+      </rtt>
+      
+    </unifiedTestConfiguration>
