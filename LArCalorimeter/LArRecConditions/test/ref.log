@@ -1,0 +1,24 @@
+Parsing file 'badchannels.txt'.
+Failure on line 4:	ERROR - not enough parameters in command.
+Success on line 5:	SET 65123 highNoiseMG 
+Failure on line 6:	ERROR - unrecognized problem flag: ReallyLousy
+			WARNING - action not yet implemented: ADD
+Failure on line 8:	ERROR - unrecognized action: FIX
+			ERROR - unacceptable channel ID number: 1254s
+Failure on line 9:	ERROR - unacceptable channel ID number: 435.7
+Failure on line 10:	ERROR - unacceptable channel ID number: highNoiseHG
+			ERROR - unrecognized problem flag: 34562
+Failure on line 11:	ERROR - unacceptable channel ID number: -904
+Failure on line 13:	ERROR - unacceptable channel ID number: 984d2
+Success on line 14:	SET 45763 almostDead unstable 
+Failure on line 15:	WARNING - action not yet implemented: ADD
+Failure on line 18:	ERROR - unrecognized action: sdf2
+			ERROR - unacceptable channel ID number: ?3
+			ERROR - unrecognized problem flag: c{a]l
+			ERROR - unrecognized problem flag: hK
+			ERROR - unrecognized problem flag: X<N.--2^&*(
+Success on line 20:	SET 54871 deadReadout deadCalib deadPhys 
+Success on line 21:	SET 32567 unstableNoiseMG 
+Success on line 24:	SET 47852 highNoiseHG unstableNoiseHG 
+
+Parsing finished successfully.
