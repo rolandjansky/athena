@@ -1,0 +1,22 @@
+package ZdcEventTPCnv
+
+author Peter Steinberg <peter.steinberg@bnl.gov
+
+public
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasReflex          AtlasReflex-*           External
+use ZdcEvent             ZdcEvent-*              ForwardDetectors/ZDC
+use ZDC_SimEvent         ZDC_SimEvent-*          ForwardDetectors/ZDC
+#use EventContainers      EventContainers-*       Event
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*      Database/AthenaPOOL
+
+private 
+use GaudiInterface  	 GaudiInterface-*	External
+use Identifier 		 Identifier-*		DetectorDescription
+
+public
+
+library ZdcEventTPCnv *.cxx
+apply_pattern installed_library
+
+apply_pattern lcgdict dict=ZdcEventTPCnv  selectionfile=selection.xml headerfiles="../ZdcEventTPCnv/ZdcEventTPCnvDict.h"
