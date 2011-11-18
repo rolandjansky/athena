@@ -1,0 +1,24 @@
+<lcgdict>
+
+  <class name="TruthEtIsolationsContainerCnv_p1"/>
+
+  <class name="ITPConverterFor<TruthParticleContainer>"/>
+
+  <class name="T_TPCnv<TruthParticleContainer,TruthParticleContainer_p6>"/>
+  <class name="TruthParticleContainerCnv_p6"/>
+  <class name="T_AthenaPoolTPCnvBase<TruthParticleContainer,TruthParticleContainer_p6>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TruthParticleContainer,TruthParticleContainer,TruthParticleContainer_p6>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TruthParticleContainer,TruthParticleContainer,TruthParticleContainer_p6>"/>
+
+  <class name="T_TPCnv<TruthParticleContainer,TruthParticleContainer_p5>"/>
+  <class name="TruthParticleContainerCnv_p5"/>
+  <class name="T_AthenaPoolTPCnvBase<TruthParticleContainer,TruthParticleContainer_p5>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TruthParticleContainer,TruthParticleContainer,TruthParticleContainer_p5>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TruthParticleContainer,TruthParticleContainer,TruthParticleContainer_p5>"/>
+
+  <class name="T_TPCnv<TruthParticleContainer,TruthParticleContainer_p4>"/>
+  <class name="T_AthenaPoolTPCnvBase<TruthParticleContainer,TruthParticleContainer_p4>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TruthParticleContainer,TruthParticleContainer,TruthParticleContainer_p4>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TruthParticleContainer,TruthParticleContainer,TruthParticleContainer_p4>"/>
+
+</lcgdict>
