@@ -9,7 +9,7 @@ static LUCID_RawDataCnv_p1 rawDataConv;
 
 void LUCID_RawDataContainerCnv_p1::transToPers(const LUCID_RawDataContainer* transObj, LUCID_RawDataContainer_p1* persObj, MsgStream& log) {
 
-  log << MSG::DEBUG << "In LUCID_RawDataContainerCnv_p1::transToPers" << endmsg;
+  log << MSG::DEBUG << "In LUCID_RawDataContainerCnv_p1::transToPers" << endreq;
   
   persObj->resize(transObj->size());
   
@@ -23,7 +23,7 @@ void LUCID_RawDataContainerCnv_p1::transToPers(const LUCID_RawDataContainer* tra
 
 void LUCID_RawDataContainerCnv_p1::persToTrans(const LUCID_RawDataContainer_p1* persObj, LUCID_RawDataContainer* transObj, MsgStream& log) {
 
-  log << MSG::DEBUG << "In LUCID_RawDataContainerCnv_p1::persToTrans" << endmsg;
+  log << MSG::DEBUG << "In LUCID_RawDataContainerCnv_p1::persToTrans" << endreq;
 
   transObj->reserve(persObj->size());
   
