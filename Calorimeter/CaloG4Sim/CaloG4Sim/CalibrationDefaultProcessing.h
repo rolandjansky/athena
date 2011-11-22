@@ -26,88 +26,35 @@
 // The Athena and stand-alone G4 setups have different UserAction
 // classes (though they accomplish the same thing.
 
-#include "G4AtlasTools/UserActionBase.h"
-
+#include "FadsActions/UserAction.h"
 
 // Forward declarations
-class G4Run;
 class G4Step;
 class G4VSensitiveDetector;
 
 namespace CaloG4 {
 
-  class CalibrationDefaultProcessing final : public UserActionBase {
+  class CalibrationDefaultProcessing : public FADS::UserAction {
 
   public:
 
-    CalibrationDefaultProcessing(const std::string& type, const std::string& name, const IInterface* parent);
+    CalibrationDefaultProcessing();
     virtual ~CalibrationDefaultProcessing();
 
-    virtual void Step(const G4Step*) override;
-    virtual void BeginOfEvent(const G4Event*) override;
-    
+    virtual void SteppingAction(const G4Step*);
+
     // Make the default sensitive detector available to other routines.
-    G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
-    //static void SetDefaultSD( G4VSensitiveDetector* );
-
-    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
-    
+    static G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
+    static void SetDefaultSD( G4VSensitiveDetector* );
 
   private:
 
     // The default sensitive detector to be applied to all G4Steps
     // in volumes without a CalibrationSensitiveDetector.
-    G4VSensitiveDetector* m_defaultSD;
-    std::string m_SDname;
+    static G4VSensitiveDetector* m_defaultSD;
 
   };
 
 } // namespace CaloG4
-
-// new implementation for Hive
-
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "AthenaBaseComps/AthMessaging.h"
-
-
-namespace G4UA {
-  
-  namespace CaloG4 {
-  
-
-    class CalibrationDefaultProcessing:
-    public AthMessaging, public IBeginEventAction,  public ISteppingAction
-    {
-      
-    public:
-      
-      struct Config
-      {
-	std::string SDName="Default::Dead::Uninstrumented::Calibration::Region";
-      };
-      
-      CalibrationDefaultProcessing(const Config& config);
-      /// the BoE actions
-      virtual void beginOfEvent(const G4Event*) override;
-      /// the stepping action
-      virtual void processStep(const G4Step*) override;
-
-      /// Make the default sensitive detector available to other routines.
-      G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
-
-    private:
-      Config m_config;
-      /// The default sensitive detector to be applied to all G4Steps
-      /// in volumes without a CalibrationSensitiveDetector.
-      G4VSensitiveDetector* m_defaultSD;
-    }; // class CalibrationDefaultProcessing
-    
-  } // namespace CaloG4
-    
-} // namespace G4UA
-
-
 
 #endif // CaloG4_CalibrationDefaultProcessing_h
