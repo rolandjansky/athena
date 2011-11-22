@@ -1,0 +1,23 @@
+package CaloG4Sim
+
+author William Seligman <seligman@nevis.columbia.edu>
+
+# This package contains the common Geant4 Simulation code used by 
+# LAr and Tile.
+
+use AtlasPolicy    AtlasPolicy-*
+
+# Application Action - defined in FADS.
+use FadsActions	   FadsActions-*       Simulation/G4Sim/FADS
+
+use Geant4         Geant4-*            External
+
+# Build the library (and export the headers)
+library CaloG4Sim *.cc
+apply_pattern installed_library
+
+#=======================================================
+private
+
+# Suppress warnings of unused variables.
+macro_append CaloG4Sim_cppflags  " -Wno-unused"
