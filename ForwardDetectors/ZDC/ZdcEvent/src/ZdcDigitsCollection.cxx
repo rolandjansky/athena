@@ -17,7 +17,6 @@ void ZdcDigitsCollection::print()
     {
       std::cout << "Printing Digit #" << i << std::endl;
       (*it)->print();
-      //std::cout << (*it) << std::endl;
       it++;
       i++;
     }
