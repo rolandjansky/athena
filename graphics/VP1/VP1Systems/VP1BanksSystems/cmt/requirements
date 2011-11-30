@@ -1,0 +1,16 @@
+package VP1BanksSystems
+
+author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use VP1Base VP1Base-*    graphics/VP1
+private
+use VP1Utils             VP1Utils-*             graphics/VP1
+use AthenaKernel          AthenaKernel-*        Control
+#use GaudiKernel          GaudiKernel-*
+use CLIDSvc              CLIDSvc-*              Control
+use GaudiInterface        GaudiInterface-*        External
+public
+
+apply_pattern qt4based_library
