@@ -1,0 +1,207 @@
+**This is a general description of the tools in TTPValidation. For examples, please see the 'howto' file!**
+the TTPValidation package provides tools for analyzing TTP ntuples and to organize histograms. There are several tools that all follow the same structure:
+
+1. Create an instance (call constructor)
+2. Alter default variables (with setVariable and getVariable)
+3. Analyze data	(with analyze())
+4. Save histogram in eps or root file, compare to previously produced histograms. (using print for eps file and save for root file)
+
+If not specified by the individual tools, these are the default values:
+
+signal: true  		(for signal: preselect "good" taus; includes truth matching)
+nprong: 0     		(no requirements for tau decays; 1 - 1-Prong decays; 2 - 3-Prong decays)
+maxVisEta: 2.5
+minLeadingPt: 6.0
+menu: TrigTauFlags::TAU16
+cutLevel: TrigTauSelectionManager::LOOSE
+Offline Matching: TrigTauMCTauList::TAUCUTSAFEMEDIUM
+Type of Chain: IDScan
+menuVersion: 15.6.0	(this specifies the version of the cut values)
+namingConvention: 16.0.0 (this needs to be set to 15.6.0 for ntuples produced before the change in default L2 tracking algorithm to SiTrk)
+Debug: False 		(if true: prints DEBUG messages to simplify debugging code)
+TrigTauBugFix: RDO      (needs to be changed by giving 'TrigTauBugFix::AOD' as argument for constructor if you don't run on TTPs created from RDOs) 
+TrigTauBugFix version: TTP15
+
+Filename for saving an eps file: trigtau.ntuple.eps
+Filename for saving a root file: histo.root
+Filename for saving an eps file after comparison: ntuple.eps
+
+All variables are set and read with
+
+setVariable(...);
+getVariable(...);
+
+Here is a list of all individual tools with a short description of their usage and variations of the default behaviour:
+
+
+
+1. TTPValCutStudy
+
+Description: cutStudy plots relative or absolute efficiency after each potential cut (even if the cut is turned off) as a function of visible E_t, eta and phi. Relative means that it plots the efficiency with respect to the previous level, while absolute uses all true "good" taus.
+
+Constructors:
+	TTPValCutStudy(TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP9, bool debug1 = false);
+  	TTPValCutStudy ( char * filename1 , TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP9,  bool debug1 = false);
+
+Special variables:
+
+	'type' 
+	Defines wether relative or absolute efficiencies are plotted. 0 - absolute efficiencies; 1 - relative efficiencies; default is 1.
+
+Special Functions:
+
+	'void compare(const char * reference1, const char * reference2, const char * saveName)'
+	compares output to two reference files and saves it under saveName.
+
+        void effSequencePlotsUpdate(TString name);
+        This plots the L1, L2 and EF turn-on curves in one diagram. This comes from former macro "effSequencePlot2.cxx"
+     
+
+
+
+
+2. TTPValEffTableMaker
+
+Description: tableMaker prints a list of relative or absolute efficiencies for all different decay types (including ALL) and different offline matching after each level. Relative efficiencies are calculated with respect to the previous level. The printout always includes a summary for EITHERTAU offline matching.
+
+Constructors:
+ 	TTPValEffTableMaker( TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP9,  bool debug1 = false);
+  	TTPValEffTableMaker( char * filename1, TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP9,  bool debug1 = false);
+
+Special Variables:
+	The variables for nProng and offlineMatching are not present, since efficiencies are printed for all settings.
+
+Special Functions: 
+
+	'void print( int which = 1 );' 
+	prints relative efficiency by default. when using print(0);, absolute efficiencies are printed
+
+
+
+
+3. TTPValRateTable
+
+Description: Prints number of passed events for each level for both the real trigger decision (TriggerBit) and from the simulated trigger. This way, one can estimate the accuracy of the trigger simulation. If given cross-section for the used sample and luminosity in the same units, it also returns rates for all levels.
+
+Constructors:
+	TTPValRateTable(TrigTauBugFix::POOLFILE poolfile1 = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version1 = TrigTauBugFix::TTP9, bool debug1 = false);
+ 	TTPValRateTable( char * filename1 , TrigTauBugFix::POOLFILE poolfile1 = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version1 = TrigTauBugFix::TTP9,  bool debug1 = false);
+
+Special Variables:
+
+	'doDetailedPrinting' 
+	Default value: false; prints out event information in case the triggerBit and the result from the trigger simulation don't agree.
+	
+
+Special Functions:
+
+	'void analyze(int nEvents = 10000000);'
+	One can set a number of events to be analyzed; Default value is 10,000,000.
+
+	'checkAllMenus(unsigned int nMenu = 9, unsigned int nLevels = 3, double lum = 0, double crosssec = 0)'
+	prints info for the 9 first menus and the 3 first cutLevels. If given luminocity and x-sec, it calculates rates for each of them.
+
+	'void print (double lum, double crosssec);'
+	prints info for given menu and given cutLevel. If given luminocity and x-sec, it also calculates rates.
+
+
+
+
+4. TTPValDistribution
+
+Description: Plots distribution for all variables that can be cut on.
+
+Constructors: 
+	TTPValDistribution(TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP7, bool debug1 = false);
+  	TTPValDistribution ( char * filename1 , TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP7,  bool debug1 = false);
+
+Special Variables:
+
+	'selected'
+	Default value is TRUE. If True, range of data that can be filled in histogram is preselected. That leads to histograms that don't include dummy variables that are way out of range (like eta=-99)
+
+	'logScale'
+	Default: FALSE. If True, histograms have logarithmic scale.
+	
+	'plotAllMatchedEvents = false;'
+	Default value is FALSE. If true, requires no passing of previous trigger levels.
+
+	'ignoreMatching'
+	Default value is FALSE. If true, ignores all matching with offline object.
+
+Special Functions:
+
+	'void setSelection ( bool newValue )'
+	Defines variable: SELECTED (see above)
+
+	'void setPlotAllEvents (bool newValue)'
+	Defines ignoreMatching (see above).
+
+
+
+
+5. TTPValVariables
+
+Description: Prints value of a set of variables for all Menus for ALL events. Does not require any minimum cuts.
+
+Constructors:
+
+	TTPValVariables(TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP7, bool debug1 = false);
+  	TTPValVariables ( char * filename1 , TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP7,  bool debug1 = false);
+
+Special Variables:
+
+	Uses only default variabels for menu. All minimum cut variables are set to zero. 'Signal' is False by default.
+
+Special Functions:
+
+	void analyze(int number = 10000000, bool chains=false, bool l1 = true, bool l2 = true, bool efid = true, bool ef = true);
+	The function analyze, which prints out the variables, takes in booleans if only selected output is needed.
+
+
+
+6. TTPValBackgroundStudy
+
+Description: This tool is designed to study background rates and the effect of all cuts on the background. It shows efficiency for each cut with respect to pt, eta and phi. Can print rates after each cut.
+
+Constructors:
+
+	TTPValBackgroundStudy(TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP11, bool debug1 = false);
+	  TTPValBackgroundStudy (TString filename1 , TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP11,  bool debug1 = false);
+
+Special variables:
+
+	By default "signal" is set to false, since this is supposed to run mainly on background. Additionally minLeadingPt is set to zero, since this is used for signal efficiency studies. Offline matching is set to "NONE".
+
+Special functions:
+ 
+        void print(float lum = 0, float xsection = 0);
+
+        The print function prints the rates for each cut on the screen, if luminocity and x-section is given in similar units.
+
+        compare(TString reference);
+
+	The compare function compares the output to the given reference file and saves it under ntuple.eps. Optionally, the output file name can be given as a second argument. There is also a compare function that compares the current analysis to two reference files and saves it under a specified filename (so three filenames have to be given as argument).
+
+        effSequencePlotsUpdate(TString name);
+
+        Left-over from previous version. Don't use it.
+
+
+
+7. TTPValEfficiencyMultiPlots
+
+Description: This tool prints turn-on curves for a given level for all menus.
+
+Constructors:
+
+	TTPValMultiPlots (TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP11, bool debug1 = false);
+	TTPValMultiPlots ( TString filename1 , TrigTauBugFix::POOLFILE poolfile = TrigTauBugFix::RDO, TrigTauBugFix::TTPVERSION version = TrigTauBugFix::TTP11,  bool debug1 = false);
+
+Special Variables:
+
+        none
+
+Special Functions:
+
+	none
