@@ -1,0 +1,126 @@
+#################################################
+package TrigTauPerformNtuple
+
+author Olga Igonkina <Olga.Igonkina@cern.ch>
+
+# We don't want to depend on any libraries here other than ROOT.
+use AtlasPolicy   AtlasPolicy-*
+use AtlasROOT     AtlasROOT-*          External
+use SGTools	SGTools-*	Control
+
+apply_tag ROOTMathLibs
+
+# Build the library.
+apply_pattern installed_library
+library TrigTauPerformNtuple *.cxx
+
+
+private
+
+
+macro_append TrigTauPerformNtuple_dependencies " TrigTauPerformNtupleDict "
+
+# This is copied from have_root_headers from AtlasROOT, but changed
+# so that it can work with multiple libraries in a single package.
+#pattern xhave_root_headers \
+#  macro root_headers_<headers_lib>       " -s=$(<package>_root)/<package> <root_headers> " ; \
+#  macro dict               "$(bin)dict/" ; \
+#  macro extra_root_cint_includes_<headers_lib> <extra_includes> ; \
+#  macro root_cint_includes "-I.. -I$(ROOT_home)/include  ${extra_root_cint_includes_<headers_lib>} " ; \
+#  document root_cint <headers_lib>Dict ${root_headers_<headers_lib>} ; \
+#  include_dirs "." ; \
+#  library <headers_lib> $(dict)<headers_lib>Dict.cxx ; \
+#  macro_append <headers_lib>Dict_dependencies " install_includes RootConversionsDict " ;
+
+include_dirs $(TrigTauPerformance_root)/TrigTauPerformance
+
+# These patterns build the two dictionaries.
+# It's important that they go into separate libraries!
+apply_pattern have_root_headers \
+      root_headers="TrigTauFlags.h \
+                      TrigTauTrack.h \
+                      TrigTauTrackCollection.h \
+                      TrigTauCell.h \
+                      TrigTauCaloCluster.h \
+                      TrigTauRoI.h \
+                      TrigTauEtMissL1Object.h \ 
+                      TrigTauEtMissL2Object.h \ 
+                      TrigTauEtMissEFObject.h \ 
+                      TrigTauEtMissObject.h \
+                      TrigTauJetL1Object.h \
+                      TrigTauL1Object.h \
+                      TrigTauTauObject.h \
+                      TrigTauTrueParticle.h \
+                      TrigTauL2Object.h \
+                      TrigTauRecObject.h \
+                      TrigTauDetectorStatus.h \
+                      TrigTauRecOfflineObject.h \
+                      TrigTauRecEFObject.h \
+                      TrigTauMCEvent.h \
+                      TrigTauEvent.h \
+                      TrigTauMCTau.h \
+                      TrigTauMCTauList.h \
+                      TrigTauTauChain.h \
+                      TrigTauElectron.h \ 
+		      TrigTauJet.h\
+                      TrigTauMuon.h \ 
+                      TrigTauCosmicMuon.h \ 
+                      TrigTauOfflineEvent.h \
+                      TrigTauVertex.h \
+                      TrigTauPerformNtupleLinkDef.h" \
+      headers_lib="TrigTauPerformNtuple"
+
+
+# This is copied from UnitTest_run from TestTools.
+# I added -target_tag so that we have better control over the linking
+# of the programs.
+#pattern test_run \
+#        application <unit_test>_test -target_tag -group=$(whichGroup) \
+#           -import=TestTools ../test/<unit_test>_test.cxx ; \
+#        macro_append <unit_test>_test_dependencies <test_library> ; \
+#        macro_append <unit_test>_utest_dependencies " <unit_test>_test " ; \
+#        document athenarun_launcher <unit_test>_utest -group=$(whichGroup) \
+#        athenarun_exe="'../${CMTCONFIG}/<unit_test>_test.exe'" \
+#        athenarun_pre="'source ../cmt/setup.sh'" \
+#        athenarun_opt="" \
+#        athenarun_out="' >& <unit_test>_test.log'" \
+#        athenarun_post="'post.sh <unit_test>_test'"
+
+
+# Declare our three tests.
+#apply_pattern test_run unit_test=twrite test_library=RootConversionsTest1
+#apply_pattern test_run unit_test=tread_noconv test_library=RootConversionsTest1
+#apply_pattern test_run unit_test=tread test_library=RootConversionsTest2
+
+
+# twrite_test and tread_noconv_test should link with Test1, while
+# tread_test should link with Test2.
+macro_append use_linkopts "" \
+             target_twrite_test "-lRootConversionsTest1" \
+             target_tread_noconv_test "-lRootConversionsTest1" \
+             target_tread_test "-lRootConversionsTest2"
+
+private
+#apply_pattern lcgdict dict=TrigTauPerformance selectionfile=selection.xml header
+
+
+#library TrigTauPerformance *.cxx -s=components *.cxx
+#apply_pattern component_library
+
+
+# define TrigTauPerformNtuple as installed lib 
+# let component library use this lib.
+#macro TrigTauPerformance_linkopts "-L$(bin) -lTrigTauPerformNtuple"
+
+#apply_pattern installed_library
+#library TrigTauPerformNtuple *.cxx
+
+# macro TrigTauPerformance_shlibflags  "-fPIC -ldl  $(use_linkopts) " 
+
+
+#library  TrigTauPerformance *.cxx 
+#apply_pattern installed_library
+
+
+
+#################################################
