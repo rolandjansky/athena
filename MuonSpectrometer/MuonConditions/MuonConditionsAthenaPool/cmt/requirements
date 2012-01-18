@@ -1,0 +1,25 @@
+package MuonConditionsAthenaPool
+
+author Nicola Orlando <nicola.orlando@cern.ch> 
+author Stefania Spagnolo <stefania.spagnolo@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+use  DataModel                  DataModel-*                     Control
+use  Identifier                 Identifier-*                    DetectorDescription
+use  MuonByteStreamErrors       MuonByteStreamErrors-*          MuonSpectrometer/MuonConditions
+use  AtlasReflex                AtlasReflex-*                   External
+
+
+
+public
+apply_pattern poolcnv \
+	 typesWithNamespace="Muon::RpcByteStreamErrorContainer" \
+         files="-s=${MuonByteStreamErrors_root}/MuonByteStreamErrors \
+                    RpcByteStreamErrorContainer.h "
+
+macro_append MuonConditionsAthenaPoolPoolCnvGen_dependencies " MuonConditionsAthenaPoolDict "
+apply_pattern lcgdict dict=MuonConditionsAthenaPool  selectionfile=selection.xml headerfiles="../MuonConditionsAthenaPool/MuonConditionsAthenaPoolDict.h"
+
