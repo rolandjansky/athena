@@ -1,0 +1,39 @@
+package VP1Qt
+
+author David Quarrie <David.Quarrie@cern.ch>
+author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+
+use AtlasQt4 AtlasQt4-* External
+
+#For building with qmake:
+apply_pattern declare_scripts files="create-qt4-based-lib"
+macro VP1Qt_createlib "create-qt4-based-lib "
+
+pattern qt4based_library \
+  action buildwithqmake "$(VP1Qt_createlib) "$(<package>_qt4options)" " ; \
+  private ; \
+  macro_append all_dependencies " buildwithqmake " ; \
+  macro_append buildwithqmake_dependencies " install_includes " ; \
+  end_private ; \
+  macro <package>_linkopts "-l<package> "
+
+#Examples of use in client packages:
+#
+#In order to build a package based on Qt4 (with the QtCore+QtGui libs):
+#
+#------- requirements --------
+#package MyPackage
+#use AtlasPolicy AtlasPolicy-*
+#use VP1Qt  VP1Qt-*  graphics/VP1
+#apply_pattern qt4based_library
+#-----------------------------
+#
+#If you also need, e.g. QtXml and QtNetwork, add a line:
+#
+#------- requirements --------
+#package MyPackage
+#use AtlasPolicy AtlasPolicy-*
+#use VP1Qt  VP1Qt-*  graphics/VP1
+#macro MyPackage_qt4options "need:xml need:network"
+#apply_pattern qt4based_library
+#-----------------------------
