@@ -1,0 +1,28 @@
+<unifiedTestConfiguration>
+  <atn>
+     <TEST name="MultiplePass" type="athena" suite="Examples">
+        <options_atn>-s AthenaServices/MultiplePass_test.py</options_atn>
+        <timelimit>5</timelimit>
+        <author> Paolo Calafiura </author>
+        <mailto> pcalafiura@lbl.gov </mailto>
+        <expectations>
+           <errorMessage>FAILURE (ERROR)</errorMessage>
+           <successMessage>finished pass #2</successMessage>
+           <returnValue>0</returnValue>
+        </expectations>
+     </TEST>
+  </atn>
+  <atn>
+     <TEST name="MultiplePassWithAlgFilter" type="athena" suite="Examples">
+        <options_atn>-s AthenaServices/MultiplePassWithAlgFilter_test.py</options_atn>
+        <timelimit>5</timelimit>
+        <author> Paolo Calafiura </author>
+        <mailto> pcalafiura@lbl.gov </mailto>
+        <expectations>
+           <errorMessage>FAILURE (ERROR)</errorMessage>
+           <successMessage>finished pass #2</successMessage>
+           <returnValue>0</returnValue>
+        </expectations>
+     </TEST>
+  </atn>
+</unifiedTestConfiguration>

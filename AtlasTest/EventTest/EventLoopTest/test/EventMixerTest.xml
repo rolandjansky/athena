@@ -1,0 +1,15 @@
+<unifiedTestConfiguration>
+  <atn>
+     <TEST name="EventMixer" type="athena" suite="Examples">
+        <options_atn>-s AthenaServices/MixingEventSelector_test.py</options_atn>
+        <timelimit>15</timelimit>
+        <author> Paolo Calafiura </author>
+        <mailto> pcalafiura@lbl.gov </mailto>
+        <expectations>
+           <errorMessage>FAILURE (ERROR)</errorMessage>
+           <successMessage>done processing event #300</successMessage>
+           <returnValue>0</returnValue>
+        </expectations>
+     </TEST>
+  </atn>
+</unifiedTestConfiguration>

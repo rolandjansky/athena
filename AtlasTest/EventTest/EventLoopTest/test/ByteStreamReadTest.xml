@@ -1,0 +1,15 @@
+<unifiedTestConfiguration>
+  <atn>
+     <TEST name="ByteStreamReadTest" type="athena" suite="Examples">
+        <options_atn>-s EventLoopTest/ByteStreamReadTest.py</options_atn>
+        <timelimit>5</timelimit>
+        <author> Hong Ma </author>
+        <mailto> hma@bnl.gov </mailto>
+        <expectations>
+           <errorMessage>FAILURE (ERROR)</errorMessage>
+           <successMessage>Finalizing</successMessage>
+           <returnValue>0</returnValue>
+        </expectations>
+     </TEST>
+  </atn>
+</unifiedTestConfiguration>
