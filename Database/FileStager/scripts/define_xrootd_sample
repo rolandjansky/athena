@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+#
+# usage: define_xrootd_sample [-n <sampleName>] <castorDirectory> [<numberCollectionsPerFile>] [<gridcopyPrefix>]
+#
+
+import sys
+import os
+import string, commands
+from datetime import datetime
+
+
+def ListFromCastor(prefix,castorDir):
+  searchcmd = "nsls -l "+castorDir
+  os.system(searchcmd+ " > /tmp/filelist.temp")
+  FileList=open("/tmp/filelist.temp","r").readlines()
+  FileList1=[prefix+castorDir+file.split()[8]
+             for file in FileList
+             if file.split()[4]!="0"]
+  os.system("rm /tmp/filelist.temp")
+  return FileList1,searchcmd
+
+
+def writeSampleFile(sampleName,filename,filelist,searchcmd="",noCollPerFile=-1,printFlags=True):
+
+  fileNames = []
+  timenow = datetime.today().strftime("%d%b%y.%Hh%M")
+
+  # multiple files
+  if (noCollPerFile>0):
+    fidx = 0
+    idx = 0
+    while(idx<len(filelist)):
+      if (idx % noCollPerFile == 0): 
+        if (fidx!=0): file.close()
+        filenameI = filename.replace(".def","_"+str(fidx)+".def")
+        file = open(filenameI,'w')
+        file.write("# created "+timenow+"\n")
+        file.write("# searchcmd: "+searchcmd+"\n")
+        file.write("TITLE: "+sampleName+"_"+str(fidx)+"\n")
+        file.write("FLAGS: GridCopy=0"+"\n")
+        fileNames.append(filenameI)
+        fidx += 1
+      file.write(filelist[idx] + "\n")
+      idx += 1
+    file.close()
+  # one file
+  else:
+    file = open(filename,'w')
+    fileNames.append(filename)    
+    if (printFlags):
+      file.write("# created "+timenow+"\n")
+      file.write("# searchcmd: "+searchcmd+"\n")
+      file.write("TITLE: "+sampleName+"\n")
+      file.write("FLAGS: GridCopy=1"+"\n")
+    for line in filelist:
+      file.write(line + "\n")
+    file.close()
+      
+  return fileNames
+
+
+## main
+if __name__ == "__main__":
+
+  (retcode,output) = commands.getstatusoutput("which rfdir")
+  if (retcode!=0):
+    print sys.argv[0], "ERROR: rfdir not found, cannot search for files."
+    sys.exit(1)
+
+  if (len(sys.argv)<2):
+    print "usage: ", sys.argv[0], "[-n <sampleName>] <castorDirectory> [<numberCollectionsPerFile>] [<xrootdPrefix>]"
+    sys.exit(1)
+
+  sampleName = ""
+  idx = 0
+
+  if (sys.argv[1] == "-n"):
+    if (len(sys.argv)<4):
+      print "usage: ", sys.argv[0], "[-n <sampleName>] <castorDirectory> [<numberCollectionsPerFile>] [<xrootdPrefix>]"
+      sys.exit(1)
+    else: 
+      sampleName = sys.argv[2]
+      idx = 2
+
+  print "Running: ", sys.argv[0]
+
+  # castor directory
+  castorDir = sys.argv[idx+1]
+  while ( len(castorDir)>=1 and (castorDir.rfind("/")==(len(castorDir)-1)) ): 
+    castorDir = castorDir.rstrip("/")
+  castorDir+="/"
+  print ">> castor directory:      ", castorDir
+
+  # sample
+  if (len(sampleName)==0):
+    castorSplit = castorDir.split("/")
+    sampleName = castorSplit[len(castorSplit)-2]
+  if (len(sampleName)==0): 
+    sampleName = "default"
+  sampleDir = "samples/"
+  os.system("mkdir -p "+sampleDir)
+  sampleFile = sampleDir+sampleName+"_xrootd.def"
+
+  # number of collections per file 
+  noCollPerFile = -1
+  if (len(sys.argv) >= idx+3):
+    noCollPerFile = int(sys.argv[idx+2])
+
+  # prefix
+  infileprefix = "root://castoratlast3/"
+  if (len(sys.argv) >= idx+4):
+    infileprefix = sys.argv[idx+3]
+
+  # no of collections
+  (fileList,searchcmd) = ListFromCastor(infileprefix,castorDir)
+  print ">> collections found:     ", len(fileList)
+
+  # write output to file
+  if (len(fileList)>0):
+    sampleFiles = writeSampleFile(sampleName,sampleFile,fileList,searchcmd,noCollPerFile)
+    print ">> max. collections/file: ", noCollPerFile, " (-1 = inf.)"
+    print ">> filename prefix:       ", infileprefix
+    print ">> sample output file(s): \n", sampleFiles
+

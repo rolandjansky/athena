@@ -1,0 +1,125 @@
+# Author: Max Baak (mbaak@cern.ch)
+# FileStager stand-alone makefile
+
+# -------------------------------------------------------------
+# General flags
+# -------------------------------------------------------------
+PACKAGE    = FileStager
+
+OUTPUTDIR  = ../StandAlone
+#ifneq ($(CMTCONFIG),) 
+#OUTPUTDIR  = ../$(CMTCONFIG)
+#endif
+
+CC         = g++
+CCFLAGS    = -g -m32 -Wall -W -Woverloaded-virtual -Wno-parentheses -Wno-unused-parameter -Wno-unused-variable
+LDFLAGS    = -g -m32
+#CCFLAGS    = -g -m64 -fPIC -Wall -W -Woverloaded-virtual -Wno-parentheses -Wno-unused-parameter -Wno-unused-variable
+#LDFLAGS    = -g -m64
+MFLAGS     = -MM
+WORKDIR    = ../tmp
+INCLUDES   += -I. -I../ -I../FileStager/ -I../Root/ -I$(WORKDIR) -I$(ROOTSYS)/include 
+LINKLIBS   = -L${ROOTSYS}/lib -lRIO -lNet -lCore -lCint -lTree -lHist -lMatrix -lPhysics -ldl -lm
+#-lRIO -lNet needed for root >v5.16
+CCFLAGS    += -D__FSSTANDALONE__
+
+# for cross-compilation. ATLAS env sets CPPEXPFLAGS if it is needed
+# If you want to cross-compile standalone just set CPPEXPFLAGS, for host-slc6&target-slc5 with gcc43 it is -D__USE_XOPEN2K8
+ifneq ($(strip $(CPPEXPFLAGS)),)
+CCFLAGS += $(CPPEXPFLAGS)
+endif
+
+
+# -------------------------------------------------------------
+# ROOT Cint
+# -------------------------------------------------------------
+CCLISTT    = TStagerInfo.cxx TStageFileInfo.cxx TStageManager.cxx TCopyChain.cxx TCopyFile.cxx
+HHLISTT    = TStagerInfo.h TStageFileInfo.h TStageManager.h TCopyChain.h TCopyFile.h
+CCLIST     = $(addprefix ../Root/,$(CCLISTT))
+HHLIST     = $(addprefix ../FileStager/,$(HHLISTT))
+HHLISTC    = $(HHLIST)
+
+LDEFFILE   = ../Root/LinkDef.h
+CINTFILE   = ../Root/FileStagerCint.cxx
+CINT       = stagercint
+CINTOBJ    = ../Root/FileStagerCint.o
+HHLISTC    += ../Root/FileStagerCint.h 
+
+OLIST      = $(patsubst %.cxx,%.o,$(CCLIST))
+OLISTC     = $(OLIST)
+OLISTC     += $(CINTOBJ)
+DLIST      = $(patsubst %.h,%.d,$(HHLISTC))
+
+# -------------------------------------------------------------
+# StageMonitor executable
+# -------------------------------------------------------------
+SMCC       = ../bin/StageMonitor.cxx
+SMO        = ../bin/StageMonitor.o
+SMFILE     = StageMonitor
+SMFILEEXE  = $(OUTPUTDIR)/$(SMFILE).exe
+
+# -------------------------------------------------------------
+# Libraries
+# -------------------------------------------------------------
+LIBFILE    = $(OUTPUTDIR)/lib$(PACKAGE)Lib.a
+SHLIBFILE  = $(OUTPUTDIR)/lib$(PACKAGE)Lib.so
+
+# -------------------------------------------------------------
+# Compilation
+# -------------------------------------------------------------
+
+default: $(SMFILE) $(CINT) $(SHLIBFILE) clean
+
+# Implicit rule making all dependency Makefiles included at the end of this makefile
+%.d: %.cxx $(HHLIST)
+	@set -e; $(CC) $(MFLAGS) $(CCFLAGS) $(INCLUDES) $< \
+		| awk '{ sub("^$(notdir $*).o:","$*.o $@:") ; print }' > $@ ;\
+		[ -s $@ ] || rm -f $@
+
+# Implicit rule to compile all classes
+%.o: %.cxx
+	@echo "Compiling $<"
+	$(CC) $(CCFLAGS) -c $< -o $*.o $(INCLUDES)
+
+# Rule to make StageMonitor
+$(SMFILE) : $(SMO)
+	@echo "Making $(SMFILEEXE)"
+	@mkdir -p $(OUTPUTDIR)
+	$(CC) $(CCFLAGS) -o $(SMFILEEXE) $(SMO) $(LINKLIBS)
+
+# Rule to make ROOTCINT output file
+$(CINT) : $(HHLIST)
+	@echo "Running rootcint"
+	$(ROOTSYS)/bin/rootcint -f $(CINTFILE) -c -p $(INCLUDES) $(HHLIST) $(LDEFFILE)
+	$(CC) $(CCFLAGS) -c $(CINTFILE) -o $(CINTOBJ) $(INCLUDES)
+
+## Rules to combine objects into a executable
+#$(BINFILE): $(OLIST) ../bin/$(BINFILE).o
+#	$(CC) $(LDFLAGS) -o $(BINFILEEXE) $(OLIST) ../bin/$(BINFILE).o $(LINKLIBS)
+
+# Rule to combine objects into a library
+$(LIBFILE): $(OLISTC)
+	@echo "Making $(LIBFILE)"
+	@mkdir -p $(OUTPUTDIR)
+	@rm -f $(LIBFILE)
+	@ar q $(LIBFILE) $(OLISTC)
+	@ranlib $(LIBFILE)
+
+# Rule to combine objects into a shared library
+$(SHLIBFILE): $(OLISTC)
+	@echo "Making $(SHLIBFILE)"
+	@mkdir -p $(OUTPUTDIR)
+	@rm -f $(SHLIBFILE)
+	@$(CC) $(CCFLAGS) $(OLISTC) -shared -o $(SHLIBFILE) $(LINKLIBS)
+
+-include $(DLIST)
+
+# Useful build targets
+lib: $(LIBFILE) 
+shlib: $(SHLIBFILE)
+cint: $(CINT)
+clean:
+	@rm -f ../Root/*.o ../Root/*.d ../bin/*.o ../bin/*.d
+
+.PHONY : shlib lib default clean
+

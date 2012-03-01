@@ -1,0 +1,31 @@
+Scripts
+=======
+
+* bootstrap.sh          Set up build directory (run autoreconf etc.)
+* cleanup.sh            Clean up build directory (delete files created during
+                        build etc.)
+* generate_filelists.sh Prints listing of source files for usage in Makefile.am
+* make_package.sh       Make tarball
+* standalone_build.sh   Start complete standalone build (see below)
+
+Files
+=====
+
+* configure.ac          autoconf input file
+* Makefile.am           automake input file
+* package-config.in     Template for package-config script
+
+Standalone build
+================
+
+Run ./standalone_build.sh [--prefix INSTALLDIR]
+
+Files will be installed to INSTALLDIR. The default is /usr.
+
+Make sure that the directories where config scripts of required
+packages can be found have been added to the PATH variable.
+
+After the successful installation, you will have to set
+  export PATH=INSTALLDIR/bin:$PATH
+  export LD_LIBARARY_PATH=INSTALLDIR/lib:$LD_LIBRARY_PATH
+to be able to use the package (e.g. add it to ~/.bashrc).

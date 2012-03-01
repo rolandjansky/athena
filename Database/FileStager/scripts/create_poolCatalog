@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+#
+# usage: create_poolCatalog <samplefile>
+
+import sys
+import os
+import string, commands
+from datetime import datetime
+
+def CreatePoolCatalog(sampleFile):
+  cmd = "pool_insertFileToCatalog "
+  FileList=open(sampleFile,"r").readlines()
+  for file in FileList:
+    file = file.strip()
+    if (file.find("#")==0): continue
+    elif (file.find("TITLE")==0): continue
+    elif (file.find("FLAGS")==0): continue
+    else: 
+      cmd += file + " "
+  os.system(cmd)
+  return
+
+## main
+if __name__ == "__main__":
+
+  usageline = "usage: " + sys.argv[0] + " <samplefile>"
+  if (len(sys.argv)<2):
+    print usageline
+    sys.exit(1)
+
+  if not os.access(sys.argv[1],os.F_OK):
+    print "ERROR: sample definition file <%s> not found. Exit." % sys.argv[1]
+    print usageline
+    sys.exit(1)
+
+  sampleFile = sys.argv[1]
+
+  print "# Run: %s %s" % (sys.argv[0],sampleFile)
+
+  CreatePoolCatalog(sampleFile)
+
