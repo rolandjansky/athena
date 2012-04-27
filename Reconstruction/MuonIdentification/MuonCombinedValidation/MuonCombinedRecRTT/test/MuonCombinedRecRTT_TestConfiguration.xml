@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+   <rttContactPerson>Biagio Di Micco (Biagio.Di.Micco@cern.ch)</rttContactPerson>
+   <mailto>Biagio.Di.Micco@NOSPAMcern.ch</mailto>
+   <refRelease>15.6.2</refRelease>
+   
+   <jobList>       
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Perf-CombMuon</displayComponent>
+      </classification>
+
+      <chain>
+      <chainName>MuonCombinedRecRTTjobs</chainName>
+
+         <parallel>
+
+            <chainElement>
+               <athena userJobId="Zmumu" >
+               <doc>Muon Combined Reconstruction  with Z->mumu events</doc>
+               <displayName>MuonCombinedRecRTT_Reco_Zmumu</displayName>
+               <commandLineFlags>EvtMax=-1</commandLineFlags>
+               <options>MuonCombinedRecRTT.py</options>
+               <package>Reconstruction/MuonIdentification/MuonCombinedValidation/MuonCombinedRecRTT</package>
+               <group>MuonCBRec</group>
+               <queue>long</queue>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000088.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000092.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000100.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000192.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000302.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000312.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000407.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000427.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000459.pool.root.2</datasetName>
+               </dataset_info>
+               <dataset_info>
+                  <dc2 />
+                  <datasetName>/eos/atlas/atlascerngroupdisk/perf-muon/MuonCombinedRTTInputs/Zmumu/ESD.213372._000027.pool.root.2</datasetName>
+               </dataset_info>
+
+	       <alwaysRunPostProc />
+               </athena>
+	    </chainElement>
+
+	 </parallel>
+      </chain>
+   </jobList>
+
+   <jobGroups> 
+      <jobGroup name="AthenaMuonCBRec" parent="Athena">
+          <keepFilePattern>*.gif</keepFilePattern>
+          <keepFilePattern>*.html</keepFilePattern>
+ 
+          <auxFilePattern>histos_MCP_RTT.C</auxFilePattern>
+          <auxFilePattern>histos_MCP_RTT.h</auxFilePattern>
+          <auxFilePattern>physics_MCP_RTT.C</auxFilePattern>
+          <auxFilePattern>physics_MCP_RTT.h</auxFilePattern>
+	  <auxFilePattern>MCP_RTT_makeHistos.C</auxFilePattern>
+          <auxFilePattern>MuonParamDefs.h</auxFilePattern>
+          <auxFilePattern>ALL_MuonCombinedRecRTT_Plots.html</auxFilePattern>
+
+          <action position="a">
+             <modulename>RttLibraryTools</modulename>
+              <testname>ROOTMacroRunner</testname>
+              <arg>
+                 <argname>macro</argname>
+                 <argvalue>MCP_RTT_makeHistos.C</argvalue>
+              </arg>
+          </action>
+
+      </jobGroup> 
+
+   </jobGroups>
+
+</rtt>
+</unifiedTestConfiguration>
+
