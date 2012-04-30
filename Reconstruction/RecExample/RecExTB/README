@@ -1,0 +1,147 @@
+--------------------------------------------------------------
+RecExTB: Package to run the combined test beam reconstruction
+--------------------------------------------------------------
+
+----------------------
+CONTACT PERSONS 
+----------------------
+
+General: Maria Jose Costa <Maria.Jose.Costa@cern.ch>
+
+Inner Detector: Maria Jose Costa <Maria.Jose.Costa@cern.ch>
+
+LAr:     Claire Adam Bourdarios <bourdari@mail.cern.ch>
+         David Rousseau <rousseau@lal.in2p3.fr>
+         Robert McPherson <Robert.McPherson@cern.ch>
+
+TileCal: Alexander Solodkov <Sanya.Solodkov@cern.ch>
+
+Muons: Stefano Rosati <Stefano.Rosati@cern.ch>
+
+Non-ATLAS detectors: Pierre-Antoine Delsart <delsart@lps.umontreal.ca>
+                     Rob McPherson <Robert.McPherson@cern.ch>
+                     Walter.Lampl@cern.ch
+
+Trigger: John Baines <J.T.M.Baines@rl.ac.uk>
+
+ROOT macros: Pixels: Sebastian Fleischmann <Sebastian.Fleischmann@cern.ch>
+             SCT: Carlos Escobar <cescobar@ific.uv.es>
+     	     TRT: Julia Garayoa <Julia.Garayoa@cern.ch>
+             Tile: Vincent Francois Giangiobbe <giangiob@clermont.in2p3.fr>
+	     LAr: Vincent Francois Giangiobbe <giangiob@clermont.in2p3.fr>
+             Muons: Stefano Rosati <Stefano.Rosati@cern.ch>
+
+-------------
+Documentation
+-------------
+
+Please have a look at the following web page:
+
+https://uimon.cern.ch/twiki/bin/view/Atlas/RecExTB
+
+--------------------------
+How to use this package
+-------------------------
+
+cd cmt
+cmt broadcast cmt config
+source setup.sh
+cmt broadcast cmt gmake
+cd ../run
+source ../share/RecExTB_links.sh
+athena ../share/jobOptionsFile
+
+where the different jobOptions available are described below.
+
+The output of the reconstruction is an ntuple (ntuple.root). Some histograms
+can be obtained by:
+
+cd ../root
+root
+.x monitor.cc
+and then click to the bottoms to get the desired hitograms.
+
+-------------
+jobOptions
+-------------
+-----------------------------------
+RecExTB_Combined_2004_jobOptions.py
+-----------------------------------
+JobOptions to run the CTB 2004 reconstruction for real and simulated data.
+The following flags need to be set:
+
+doSim: False (real data) True (simulated data)
+doInDet: Run Inner Detector reconstruction
+doMuons: Run Muons reconstruction
+doTile: Run Tile reconstruction
+doLAr: Run LAr reconstruction
+doBeamDetectors: Run Beam detectors recontruction
+doTrigger: Run the trigger algorithms
+doWriteESD: write a Pool file with ESD 
+readESD: read from a Pool file with ESD
+doDetailedNtuple: Write a detailed ntuple for LAr and Tile (at the level of raw 
+                  data)
+
+For each individual detector one can also fill its individual flags set in
+the following jobOptions:
+
+InDetTBRecExample/InDetTBFlags_jobOptions.py
+MuonTBRecExample/MuonTBFlags_jobOptions.py
+LArTBRec/LArTBFlags_jobOptions.py
+CaloTBRec/CaloTBFlags_jobOptions.py
+
+Real data taken in combined mode can be found in:
+
+/castor/cern.ch/atlas/testbeam/combined/2004
+
+depending on the run a combination of different detectors are present.
+
+
+Simulated data
+--------------
+To analyse simulated data set the flag: doSim=True
+
+There is simulated data for all ATLAS detectors in the test beam in:
+
+/castor/cern.ch/user/g/gallasm/Atlas_CTB/CTB-8.3.0/Time-90ns/Muons/
+ctb_MyOutputFile-Dig.root
+
+generated with the following magnetic field map:
+Simulation/G4Sim/CTB_G4Sim/data/ctb_magfield.xml 
+
+MBPS1: 
+        Bx="0.0 tesla" 
+        By="0.0 tesla"
+        Bz="-1.4 tesla"
+        Xmin="-47.5 cm"
+        Xmax="52.5 cm"
+MBPL:
+        Bx="0.0 tesla"
+        By="4.0 tesla"
+        Bz="0.0 tesla"
+MBPS2:
+        Bx="0.0 tesla"
+        By="2.0 tesla"
+        Bz="0.0 tesla"
+
+
+-----------------------------------------
+- RecExTB_SCTMuonTile_2003_jobOptions.py
+-----------------------------------------
+
+JoOptions to run SCT+Tile+Muons reconstruction over September 2003 test beam
+data. It is not yet completed.
+
+The BS files can be found in:
+
+/castor/cern.ch/atlas/testbeam/combined/2003/
+                         daq_SFO-1_combined_0001222_file01.data
+                         daq_SFO-1_combined_0001223_file01.data
+                         daq_SFO-1_combined_0001224_file01.data
+
+
+
+
+
+
+

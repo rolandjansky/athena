@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+
+  <File ID="D24D6D4A-F76E-D911-86F6-000E0C4D3945">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/atlas/ctb/test/monte_carlo/digitization/muon-/preprod_g4digit.CTB_G4Sim_mu-_50_GeV_eta_0.2_Mag_0_v1.911.00001.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="36EB5013-2B65-D911-8ACE-00D0B7B86AA8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi0A03.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="58A5C6EA-4C65-D911-860E-00D0B7B852A7">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi0A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="92FD9EA7-3465-D911-96B3-00D0B7B86AA8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi0A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="2EE9F190-5265-D911-87EB-00D0B7B852A7">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pos0A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="2494306A-3F65-D911-9C30-00D0B7B86AA8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pos0A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="848F6E18-2A65-D911-8234-00D0B7B86AA8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi0A03.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="E2A0539D-4B65-D911-9EA2-00D0B7B852A7">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi0A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="983E830B-2D65-D911-96BD-00D0B7B86AA8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi0A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="8A0CEBEF-4D65-D911-84EE-00D0B7B852A7">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pos0A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="40AD8A50-3D65-D911-8583-00D0B7B86AA8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pos0A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="FE964F96-5365-D911-83E9-00D0B7B852A7">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pos850A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="685E8D2F-5565-D911-9925-00D0B7B852A7">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pos850A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="EA83D3E2-5866-D911-8077-00D0B7B86529">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi850A03.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="E6E139A9-5966-D911-804B-00D0B7B86529">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi850A03.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="8294124A-D766-D911-98C4-00D0B7B86FC8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pos850A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="0EBBC770-DA66-D911-9B1B-00D0B7B86FC8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pos850A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="76B73FF7-E066-D911-9DD5-00D0B7B86FC8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pos850A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="1617F263-E566-D911-97AD-00D0B7B86FC8">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pos850A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="7CE36D58-4B68-D911-964D-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi850A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="4829F503-4D68-D911-9C4F-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi850A06.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="66AD5F00-5368-D911-8262-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_e850A05.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="D8C951E6-5A68-D911-89F0-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_e850A05.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="4859C932-6068-D911-9D41-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi850A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="6C4B8929-6168-D911-87CF-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi850A04.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="BE75BB4E-6568-D911-89B4-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile_pi850A09.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="446F2951-6668-D911-9462-00D0B7B8B280">
+    <physical>
+      <pfn filetype="ROOT_All" name="rfio:/castor/cern.ch/user/k/koffas/ctb_MyOutputFile-Dig_pi850A09.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

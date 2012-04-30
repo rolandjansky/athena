@@ -1,0 +1,24 @@
+--------
+Testing
+--------
+
+The automatic test of RecExTB is based on what it is used for RecExCommon.
+
+- To run it: from cmt/ gmake check
+
+- the script_pre_check.sh script is first run
+
+- then athena.py is launched using the RecExTB_Combined_2004_jobOptions.py 
+file the outputs being redirected to RecExTBTesting.log 
+
+- finally the script_post_check.sh script is run.
+This script searches for ERROR WARNING FATAL and 'Application finalised' 
+and the output is saved in RecExTBTesting.log_stripped (and it does the
+same for a Reference output file.
+The two stripped outputs are then compared and the result is given in
+result_check.
+
+
+
+
+

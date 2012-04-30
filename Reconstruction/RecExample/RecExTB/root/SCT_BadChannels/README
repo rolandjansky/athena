@@ -1,0 +1,45 @@
+
+findbad.c
+---------
+
+Macro to find SCT Dead and Noisy Channels
+
+--------------------------------------------------------
+
+For a run which is validated as good, start root in this 
+directory and run the macro:
+
+.x findbad.c (run)
+
+where run is the run number of the ntuple on castor.
+
+A hit map will be displayed and the noisy and dead channels 
+will be printed to screen.
+
+***
+The macro is not 100% efficient at spotting the noisy/dead channels
+and chips so it might be necessary to compare what is printed
+to the hit maps displayed.
+***
+
+The bad channel list is also printed to the file 
+"softmask_offl_run.txt" in the directory "archive".
+
+In some cases more noisy channels than there really are will
+be flagged so if necessary remove some entries from the text
+file produced. 
+
+Note that the text file entries are
+
+layer phi side channel status
+
+where status = 2 for noisy and 3 for dead
+(status = 0 and 1 are reserved for good and masked in ROD)
+
+
+Finally, for now the code reflects my opinion of what is a "noisy"
+channel, and other people may have their own idea!
+
+---------
+Paul Bell
+29/10/04

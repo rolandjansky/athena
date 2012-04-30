@@ -1,0 +1,15 @@
+#barrel_ec pos_neg FT  Slot Chan.  CalibLine     Status
+# nch. 195 - dead HEC cell
+ 1      1       0       11      48      77      deadReadout
+# nch. 541:
+ 1      1       1       6       63      63      highNoiseHG highNoiseMG highNoiseLG 
+# nch. 294:
+# 1      1       0       9       53      29      highNoiseHG highNoiseMG highNoiseLG
+# nch. 494 for testing only
+# 1      1       1       4       87      87      highNoiseHG highNoiseMG highNoiseLG
+# nch. 424:
+# 1      1       1       5       45      45      highNoiseHG highNoiseMG highNoiseLG
+# nch. 310:
+# 1      1       0       9       6       4    highNoiseHG highNoiseMG highNoiseLG
+# nch. 680:
+ 1      1       1       5       68      68  highNoiseHG highNoiseMG highNoiseLG
