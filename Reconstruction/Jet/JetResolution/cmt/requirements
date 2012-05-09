@@ -1,0 +1,14 @@
+package JetResolution
+
+
+use AtlasPolicy         AtlasPolicy-* 
+use AtlasROOT           AtlasROOT-*             External
+use PathResolver        PathResolver-*       Tools
+
+apply_tag ROOTMathLibs
+
+library JetResolution "../src/*.cxx ../Root/*.cxx"
+apply_pattern installed_library
+
+## This is so that the JERProviderPlots.root file gets copied to the share area
+apply_pattern declare_runtime files="*.root"

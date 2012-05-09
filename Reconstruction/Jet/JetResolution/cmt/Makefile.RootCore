@@ -1,0 +1,7 @@
+PACKAGE          = JetResolution
+PACKAGE_CXXFLAGS = -DJETRES_STANDALONE
+PACKAGE_LDFLAGS  = 
+PACKAGE_DEP      = 
+
+include $(ROOTCOREDIR)/Makefile-common
+
