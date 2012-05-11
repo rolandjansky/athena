@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>LumiBlocks_GoodDQ0</Name>
+    <Version>10</Version>
+    <Metadata Name="BadRunsList0">blacklist</Metadata>
+    <Metadata Name="Description">luminosity_Sequence0</Metadata>
+    <Metadata Name="GRLQuery">_OR_grl_topmix_mu_AND_NOT_blacklist</Metadata>
+    <Metadata Name="GoodRunsList0">grl_topmix_mu</Metadata>
+    <Metadata Name="SelectionTrigger">1</Metadata>
+    <LumiBlockCollection>
+      <Run>108175</Run>
+      <LBRange Start="875" End="883"/>
+      <LBRange Start="886" End="898"/>
+      <LBRange Start="901" End="910"/>
+      <LBRange Start="917" End="927"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+  <NamedLumiRange>
+    <Name>LumiBlocks_GoodDQ1</Name>
+    <Version>10</Version>
+    <Metadata Name="Description">luminosity_Sequence1</Metadata>
+    <Metadata Name="GRLQuery">_OR_grl_topmix_e</Metadata>
+    <Metadata Name="GoodRunsList0">grl_topmix_e</Metadata>
+    <Metadata Name="SelectionTrigger">1</Metadata>
+    <LumiBlockCollection>
+      <Run>108175</Run>
+      <LBRange Start="873" End="883"/>
+      <LBRange Start="886" End="898"/>
+      <LBRange Start="901" End="910"/>
+      <LBRange Start="917" End="929"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>

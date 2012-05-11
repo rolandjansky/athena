@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>minbias_900GeV</Name>
+    <Version>10</Version>
+    <Metadata Name="Description">Example for DQ tutorial</Metadata>
+    <LumiBlockCollection>
+      <Run>142383</Run>
+      <LBRange Start="88" End="95"/>
+      <LBRange Start="116" End="123"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>
+

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>grl_topmix_e</Name>
+    <Version>1</Version>
+    <LumiBlockCollection>
+      <Run>108175</Run>
+      <LBRange Start="806" End="806"/>
+      <LBRange Start="809" End="819"/>
+      <LBRange Start="827" End="836"/>
+      <LBRange Start="839" End="852"/>
+      <LBRange Start="855" End="867"/>
+      <LBRange Start="873" End="883"/>
+      <LBRange Start="886" End="898"/>
+      <LBRange Start="901" End="910"/>
+      <LBRange Start="917" End="929"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>
+
