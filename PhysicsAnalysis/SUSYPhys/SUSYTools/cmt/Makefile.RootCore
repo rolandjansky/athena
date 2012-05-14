@@ -1,0 +1,6 @@
+PACKAGE          = SUSYTools
+PACKAGE_CXXFLAGS =
+PACKAGE_LDFLAGS  = $(shell root-config --libs) -lPyROOT -lXMLParser
+PACKAGE_DEP      = MuonMomentumCorrections MuonEfficiencyCorrections egammaAnalysisUtils JetSelectorTools GoodRunsLists PileupReweighting
+
+include $(ROOTCOREDIR)/Makefile-common
