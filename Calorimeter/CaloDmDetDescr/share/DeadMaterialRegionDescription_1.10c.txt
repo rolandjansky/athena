@@ -1,0 +1,597 @@
+# Dead Material regions description for CaloDmDescrManager class.
+# (converted from M. Lelchuk Version_1.10draft_c.txt)
+# Author: guennadi.pospelov@cern.ch
+#
+# One dead material region is a set of dead material identifiers with same
+# subdet,type,sampling,region identifier sub-fields but different eta,phi.
+# Totally we have 57 dead material regions described in this file. Each
+# region description consist from line with region parameters, like
+#
+# key    etamin  etamax  deta  dphi  distance  isBarrel
+# 4100   0.      5.      0.1   0.1   200       1
+#
+# where key=subdet*1000 + type*100 + sampling*10 + region, 
+#
+# and line with corresponded calorimeter sampling numbers and they eta ranges:
+# CaloSampleNeighbors EMB1(0.0,1.5) EME1(1.5,2.5) EME2(2.5,3.2) FCAL0(3.0,5.0)
+#
+# this lines defines which calorimeter cells are allowed to have neighbors among dead
+# material calibration hits in given region.
+#
+# Also each DM region has text description enclosed into '{' and '}'
+
+
+###########################################################
+# subdet +-4, type=1, sampling=0, region=0-5
+###########################################################
+4100     0. 5. 0.1 0.1 200 1
+CaloSampleNeighbors Unknown
+{
+hits from default calculators
+0 < |eta| < 5    deta = 0.1    dphi = pi/32
+}
+
+4101     0. 5. 0.1 0.1 270 1
+CaloSampleNeighbors PreSamplerB(0.0,1.5) PreSamplerE(1.5,1.8) EME1(1.8,2.5) EME2(1.8,3.2) TileGap3(1.5,1.6) FCAL0(3.0,5.0) FCAL1(3.0,5.0)
+{
+1st radial layer of Inner Detector
+0 < |eta| < 5    deta = 0.1    dphi = pi/32
+}
+
+4102     0. 5. 0.1 0.1 405 1
+CaloSampleNeighbors  PreSamplerB(0.0,1.5) PreSamplerE(1.5,1.8) EME1(1.8,2.5) EME2(1.8,3.2) TileGap3(1.5,1.6) FCAL0(3.0,5.0) FCAL1(3.0,5.0)
+{
+2st radial layer of Inner Detector
+0 < |eta| < 5    deta = 0.1    dphi = pi/32
+}
+
+4103     0. 5. 0.1 0.1 595 1
+CaloSampleNeighbors  PreSamplerB(0.0,1.5) PreSamplerE(1.5,1.8) EME1(1.8,2.5) EME2(1.8,3.2) TileGap3(1.5,1.6) FCAL0(3.0,5.0) FCAL1(3.0,5.0)
+{
+3rd radial layer of Inner Detector
+0 < |eta| < 5    deta = 0.1    dphi = pi/32
+}
+
+4104     0. 5. 0.1 0.1 815 1
+CaloSampleNeighbors  PreSamplerB(0.0,1.5) PreSamplerE(1.5,1.8) EME1(1.8,2.5) EME2(1.8,3.2) TileGap3(1.5,1.6) FCAL0(3.0,5.0) FCAL1(3.0,5.0)
+{
+4th radial layer of Inner Detector
+0 < |eta| < 5    deta = 0.1    dphi = pi/32
+}
+
+4105     0. 5. 0.1 0.1 1065 1
+CaloSampleNeighbors  PreSamplerB(0.0,1.5) PreSamplerE(1.5,1.8) EME1(1.8,2.5) EME2(1.8,3.2) TileGap3(1.5,1.6) FCAL0(3.0,5.0) FCAL1(3.0,5.0)
+{
+5th radial layer of Inner Detector
+0 < |eta| < 5    deta = 0.1    dphi = pi/32
+}
+
+###########################################################
+# subdet +-4, type=1, sampling=1, region=0-7
+###########################################################
+4110     0. 1.5 0.1 0.1 1250 1
+CaloSampleNeighbors PreSamplerB(0.0,1.5) PreSamplerE(1.5,1.6)
+{
+barrel warm wall and solenoid in front of the barrel presampler,
+0 < |eta| < 1.5, deta 0.1, dphi=pi/32
+}
+
+4111     0. 1.5 0.1 0.1 1375 1
+CaloSampleNeighbors PreSamplerB(0.0,1.5)  PreSamplerE(1.5,1.6)
+{
+barrel cryostat cold wall in front of the barrel presampler,
+0 < |eta| < 1.5, deta 0.1, dphi=pi/32
+}
+
+4112     0. 1.6 0.1 0.1 1410 1
+CaloSampleNeighbors PreSamplerB(0.0,1.5)  PreSamplerE(1.5,1.6)  TileGap3(1.4,1.6)
+{
+all materials in front of the barrel presampler at radius
+larger than cold wall outer radius,
+0 < |eta| < 1.6, deta 0.1, dphi=pi/32
+}
+
+4113     0. 1.6 0.1 0.1 1490 1
+CaloSampleNeighbors PreSamplerB(0.0,1.5)  PreSamplerE(1.5,1.6) TileGap3(1.4,1.6)
+{
+all materials from the active layer of the barrel 
+presampler to the active layer of accordion,  
+0 < |eta| < 1.6, deta 0.1, dphi=pi/32 
+}
+
+4114     1.5 1.6 0.1 0.1 3300 0
+CaloSampleNeighbors PreSamplerE(1.5,1.6) TileGap3(1.5,1.6)
+{
+LAr materials in front of the scintillator and
+behind the active layer of accordion for
+1.5 < |eta| < 1.6, deta 0.1, dphi=pi/32
+(not including materials of Inner Detector and its services)
+}
+
+4115     1.5 1.8 0.1 0.1 3511 0
+CaloSampleNeighbors PreSamplerE(1.5,1.8)
+{
+LAr materials in front of the endcap presampler
+1.5 < |eta| < 1.8, deta 0.1, dphi=pi/32
+(for 1.5<|eta|<1.6: materials behind the scintillator) 
+(not including materials of Inner Detector and its services)
+}
+
+4116     1.3 3.2 0.1 0.1 3640 0
+CaloSampleNeighbors PreSamplerE(1.5,1.8) EME1(1.3,2.5) EME2(2.5,3.2) TileGap3(1.4,1.5) FCAL0(3.0,3.2)
+{
+LAr materials in front of the active layer of the spanish fan 
+(for 1.5<|eta|<1.8: materials behind the active layer of the endcap presampler)
+1.3 < |eta| < 3.2, deta 0.1, dphi=pi/32
+(not including materials of Inner Detector and its services)
+}
+
+4117     3.2 5.0 0.1 0.1 3700 0
+CaloSampleNeighbors EME2(3.0,3.2) FCAL0(3.0,5.0)  FCAL1(3.0,5.0)
+{
+LAr materials in front of FCal
+3.2 < |eta| < 5.0, deta 0.1, dphi=pi/32
+(not including materials of Inner Detector and its services)
+}
+
+###########################################################
+# subdet +-4, type=1, sampling=2, region=0-5
+###########################################################
+4120     0.0 1.0 0.1 0.1 2170 1
+CaloSampleNeighbors EMB3(0.0,1.0) TileBar0(0.0,1.0)
+{
+all materials behind the active layer of accordion
+in front the Tile barrel for |eta| < 1.0 
+deta  0.1, dphi pi/32
+}
+
+4121     0.0 1.0 0.1 0.1 2990 1
+CaloSampleNeighbors TileBar0(0.7,1.0) TileBar1(0.7,1.0)
+{
+all materials in the crack between barrel and 
+extended barrel for |eta| < 1.0
+deta  0.1, dphi pi/32
+}
+
+4122     1.0 1.5 0.1 0.1 3300 0
+CaloSampleNeighbors EMB2(1.3,1.5) EMB3(1.0,1.5) TileGap3(1.0,1.6)
+{
+all materials in front of the scintillator and
+behind the active layer of accordion 
+for 1.0 < |eta| < 1.5
+deta  0.1, dphi pi/32
+}
+
+4123     1.5 3.3 0.1 0.1 4250 0
+CaloSampleNeighbors EME3(1.5,3.3) HEC0(1.5,3.3)
+{
+all materials behind the active layer of EMEC and in front of HEC including 
+a front copper plate of HEC-1, i.e. this is the crack between active layers 
+of EMEC and HEC.
+1.5 < |eta| < 3.3
+deta  0.1, dphi pi/32
+}
+
+4124     1.5 3.3 0.1 0.1 5110 0
+CaloSampleNeighbors HEC1(1.6,3.2) HEC2(1.6,3.2)
+{
+crack between HEC wheels: ~4 cm of dead LAr + front copper plate of HEC-2 
+(such a plate is out of the regular HEC structure).
+1.5 < |eta| < 3.3
+deta  0.1, dphi pi/32
+}
+
+4125     1.0 1.7 0.1 0.1 2100 1
+CaloSampleNeighbors EMB3(1.0,1.3) EME1(1.3,1.4) EME2(1.3,1.5) HEC0(1.5,1.6) HEC1(1.6,1.7) TileExt0(1.1,1.7)
+{
+all materials in front of Tile extended barrel
+and behind the scintillator for 1.0 < |eta| < 1.5 
+or behind EMEC-HEC for 1.5 < |eta| < 1.7
+deta  0.1, dphi pi/32
+}
+
+###########################################################
+# subdet +-4, type=1, sampling=3, region=0-3
+###########################################################
+4130     1.7 5.0 0.1 0.1 6200 0
+CaloSampleNeighbors EME2(1.7,3.2) EME3(1.7,3.2) HEC0(1.7,3.2) HEC1(1.7,3.2) HEC2(1.7,3.2) HEC3(1.7,3.2) FCAL0(3.0,5.0) FCAL1(3.0,5.0) FCAL2(3.0,5.0)
+{
+Leakage outside HEC and FCal calorimeters
+1.7<|eta|<5.0, deta=0.1, dphi=pi/32
+}
+
+4131     5.0 8.0 0.2 0.1 6300 0
+CaloSampleNeighbors FCAL0(3.0,5.0) FCAL1(3.0,5.0) FCAL2(3.0,5.0)
+{
+Leakage outside HEC and FCal calorimeters
+5.0<|eta|<8.0, deta=0.2, dphi=pi/32
+}
+
+4132     8.0 10.0 2.0 2.0 6600 0
+CaloSampleNeighbors  FCAL0(3.0,5.0) FCAL1(3.0,5.0) FCAL2(3.0,5.0)
+{
+Leakage outside HEC and FCal calorimeters
+|eta|>8.0, no eta-phi subdivision
+distance=3500 means attached to inner detector cavity
+}
+
+###########################################################
+# subdet +-4, type=2, sampling=0, region=0-4
+###########################################################
+4200     0. 0.1 0.1 0.1 1550 1
+CaloSampleNeighbors PreSamplerB(0.0,0.1)
+{
+dead materials between two halves of EMB,
+sampling depths are the same as in nearest EMB part,
+0 < |eta| < 0.1
+only one cell in eta  
+dphi=pi/32
+}
+
+4201     2.45 2.55 0.1 0.1 3700 0
+CaloSampleNeighbors EME2(2.2,2.8)
+{
+dead materials between inner and outer EMEC wheels,
+sampling depths are the same as in nearest outer 
+EMEC wheel part, only one cell in eta
+2.45 < |eta| < 2.55
+dphi = pi/32
+}
+
+4202     1.5 2.5 0.1 0.2 4417 0
+CaloSampleNeighbors HEC0(1.5,2.5)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+1.5 < |eta| < 2.5   deta=0.1  
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4203     2.5 3.3 0.2 0.2 4417 0
+CaloSampleNeighbors HEC0(2.5,3.2)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+2.5 < |eta| < 3.3    deta=0.2
+   (deta=0.2 - only difference with region 2) 
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4204     3.0 3.4 0.4 0.1 4600 0
+CaloSampleNeighbors HEC1(2.8,3.2) FCAL0(3.0,3.6)
+{
+dead materials between HEC and FCal,
+sampling depths are the same as in HEC,
+3.0 < |eta| < 3.4
+only one cell in eta
+dphi = pi/32
+}
+
+4205     3.0 5.0 0.1 0.1 4340 0
+CaloSampleNeighbors HEC0(2.8,3.2) FCAL0(3.0,5.0)
+{
+dead materials before FCal near HEC,
+3.0 < |eta| < 5.0
+deta=0.1, dphi = pi/32
+}
+
+###########################################################
+# subdet +-4, type=2, sampling=1, region=0-4
+###########################################################
+4210     0.0 0.1 0.1 0.1 1600 1
+CaloSampleNeighbors EMB1(0.0,0.1)
+{
+dead materials between two halves of EMB,
+sampling depths are the same as in nearest EMB part,
+0 < |eta| < 0.1
+only one cell in eta  
+dphi = pi/32
+}
+
+4211     2.45 2.55 0.1 0.1 3800 0
+CaloSampleNeighbors EME2(2.2,2.8)
+{
+dead materials between inner and outer EMEC wheels,
+sampling depths are the same as in nearest outer 
+EMEC wheel part, only one cell in eta
+2.45 < |eta| < 2.55
+dphi = pi/32
+}
+
+4212     1.5 2.5 0.1 0.2 4825 0
+CaloSampleNeighbors HEC1(1.5,2.5)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+1.5 < |eta| < 2.5   deta=0.1  
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4213     2.5 3.3 0.2 0.2 4825 0
+CaloSampleNeighbors HEC1(2.5,3.3)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+2.5 < |eta| < 3.3    deta=0.2
+   (deta=0.2 - only difference with region 2) 
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4214     3.0 3.4 0.4 0.1 4920 0
+CaloSampleNeighbors HEC1(2.8,3.2) FCAL0(3.2,3.6)
+{
+dead materials between HEC and FCal,
+sampling depths are the same as in HEC,
+3.0 < |eta| < 3.4
+only one cell in eta
+dphi = pi/32
+}
+
+4215     3.0 5.0 0.1 0.1 4668 0
+CaloSampleNeighbors EME2(3.0,3.2) HEC0(3.0,3.2) FCAL0(3.0,5.0)
+{
+dead materials before FCal near Fcal,
+3.0 < |eta| < 5.0
+deta=0.1, dphi = pi/32
+}
+
+###########################################################
+# subdet +-4, type=2, sampling=2, region=0-4
+###########################################################
+4220     0.0 0.1 0.1 0.1 1750 1
+CaloSampleNeighbors EMB2(0.0,0.1)
+{
+dead materials between two halves of EMB,
+sampling depths are the same as in nearest EMB part,
+0 < |eta| < 0.1
+only one cell in eta  
+dphi = pi/32
+}
+
+4221     2.45 2.55 0.1 0.1 3950 0
+CaloSampleNeighbors EME2(2.2,2.8)
+{
+dead materials between inner and outer EMEC wheels,
+sampling depths are the same as in nearest outer 
+EMEC wheel part, only one cell in eta
+2.45 < |eta| < 2.55
+dphi = pi/32
+}
+
+4222     1.5 2.5 0.1 0.2 5393 0
+CaloSampleNeighbors HEC2(1.5,2.5)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+1.5 < |eta| < 2.5   deta=0.1  
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4223     2.5 3.3 0.2 0.2 5393 0
+CaloSampleNeighbors HEC2(2.5,3.3)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+2.5 < |eta| < 3.3    deta=0.2
+   (deta=0.2 - only difference with region 2) 
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4224     3.0 3.4 0.4 0.1 5400 0
+CaloSampleNeighbors HEC2(2.8,3.2) FCAL1(3.2,3.6)
+{
+dead materials between HEC and FCal,
+sampling depths are the same as in HEC,
+3.0 < |eta| < 3.4
+only one cell in eta
+dphi = pi/32
+}
+
+4225     3.0 5.0 0.1 0.1 5138 0
+CaloSampleNeighbors FCAL0(3.0,5.0) FCAL1(3.0,5.0)
+{
+dead materials between FCal1 and FCal2 modules,
+3.0 < |eta| < 5.0
+deta=0.1, dphi = pi/32
+}
+
+###########################################################
+# subdet +-4, type=2, sampling=3, region=0-4
+###########################################################
+4230     0.0 0.1 0.1 0.1 1900 1
+CaloSampleNeighbors EMB3(0.0,0.1)
+{
+dead materials between two halves of EMB,
+sampling depths are the same as in nearest EMB part,
+0 < |eta| < 0.1
+only one cell in eta  
+dphi = pi/32
+}
+
+4231     2.45 2.55 0.1 0.1 4150 0
+CaloSampleNeighbors EME3(2.2,2.8)
+{
+dead materials between inner and outer EMEC wheels,
+sampling depths are the same as in nearest outer 
+EMEC wheel part, only one cell in eta
+2.45 < |eta| < 2.55
+dphi = pi/32
+}
+
+4232     1.5 2.5 0.1 0.2 5861 0
+CaloSampleNeighbors HEC3(1.5,2.5)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+1.5 < |eta| < 2.5   deta=0.1  
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4233     2.5 3.3 0.2 0.2 5861 0
+CaloSampleNeighbors HEC3(2.5,3.3)
+{
+azimuthal cracks between HEC modules (wedges), 
+i.e. dead materials between HEC modules including 2mm 
+wide edges of copper plates.
+four sampling depths are the same as in HEC,
+2.5 < |eta| < 3.3    deta=0.2
+   (deta=0.2 - only difference with region 2) 
+azimuthal granularity: 32 cells (to keep energies 
+in 32 cracks)
+}
+
+4234     3.0 3.4 0.4 0.1 5820 0
+CaloSampleNeighbors HEC3(2.8,3.2) FCAL2(3.2,3.6)
+{
+dead materials between HEC and FCal,
+sampling depths are the same as in HEC,
+3.0 < |eta| < 3.4
+only one cell in eta
+dphi = pi/32
+}
+
+4235     3.0 5.0 0.1 0.1 5602 0
+CaloSampleNeighbors FCAL1(3.0,5.0) FCAL2(3.0,5.0)
+{
+dead materials between FCal2 and FCal3 modules,
+3.0 < |eta| < 5.0
+deta=0.1, dphi = pi/32
+}
+
+###########################################################
+# subdet +-5, type=1, sampling=0, region=0-1
+###########################################################
+5100     0.0 1.0 0.1 0.1 2295 1
+CaloSampleNeighbors Unknown
+{
+Dead material around sensitive material in Tile calorimeter. Barrel.
+Front plate of the module (fixed R, different Z, iron between LAr and Tile).
+0.0 < |eta| < 1.0
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+}
+
+5101     1.1 1.6 0.1 0.1 2295 1
+CaloSampleNeighbors Unknown
+{
+Dead material around sensitive material in Tile calorimeter. Ext. Barrel.
+Front plate of the module (fixed R, different Z, iron between LAr and Tile).
+1.1 < |eta| < 1.6
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+}
+
+###########################################################
+# subdet +-5, type=1, sampling=1, region=0-2
+###########################################################
+5110     0.7 1.1 0.1 0.1 2810 0
+CaloSampleNeighbors Unknown
+{
+Dead material around sensitive material in Tile calorimeter.
+End plate of barrel (fixed Z, different R).
+0.7 < |eta| < 1.1
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+thickness = 20 mm
+}
+
+5111     0.9 1.2 0.1 0.1 3527 0
+CaloSampleNeighbors Unknown
+{
+Dead material around sensitive material in Tile calorimeter.
+End plate of ext barrel at smaller Z (fixed Z, different R).
+0.9 < |eta| < 1.2
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+thickness = 15 mm
+}
+
+5112     1.3 1.7 0.1 0.1 6100 0
+CaloSampleNeighbors Unknown
+{
+Dead material around sensitive material in Tile calorimeter.
+End plate of ext barrel at higher Z (fixed Z, different R).
+1.3 < |eta| < 1.7
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+thickness = 20 mm
+}
+
+###########################################################
+# subdet +-5, type=1, sampling=2, region=0-2
+###########################################################
+5120     0.0 0.8 0.1 0.1 3900 1
+CaloSampleNeighbors TileBar1(0.0,0.8) TileBar2(0.0,0.8) TileGap3(0.7,0.8)
+{
+Dead material around sensitive material in Tile calorimeter.
+so-called "girder" and "finger" - iron at higher R. Barrel.
+0 < eta < 0.74 ( 8 eta bins, last bin is finger )
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+}
+
+5121     0.8 1.3 0.1 0.1 3900 1
+CaloSampleNeighbors TileBar1(0.8,0.9) TileBar2(0.8,0.9) TileExt1(0.9,1.3) TileExt2(0.9,1.3)
+{
+Dead material around sensitive material in Tile calorimeter.
+so-called "girder" and "finger" - iron at higher R. Ext. barrel.
+0.8 < |eta| < 1.27 ( 5 eta bins, last bin is finger )
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+}
+
+5122     0.74 0.8 0.06 0.1 3900 1
+CaloSampleNeighbors TileBar1(0.7,0.8) TileBar2(0.7,0.8)
+{
+Dead material around sensitive material in Tile calorimeter.
+So-called "girder" and "finger"- iron at higher R.
+part of the ext.barrel girder in the gap 0.74 < eta < 0.8
+0.74 < |eta| < 0.8
+deta=0.1 (roughly), dphi = 0.1
+exact eta boundaries are just the same as cell boundaries
+}
+
+###########################################################
+# subdet +-5, type=1, sampling=3, region=0
+###########################################################
+5130     0.0 1.7 0.1 0.1 3980 1
+CaloSampleNeighbors TileBar1(0.0,0.7) TileBar2(0.0,0.7)  TileExt1(0.8,1.7) TileExt2(0.8,1.7)
+{
+Leakage outside Tile calorimeters.
+0.0 < |eta| < 1.7
+deta=0.1, dphi=pi/32
+}
+
+###########################################################
+# subdet +-5, type=2, sampling=0, region=0
+###########################################################
+5200     0.0 0.1 0.1 0.1 4050 1
+CaloSampleNeighbors Unknown
+{
+This is a Hit, which collects energy from the envelopes of different
+Tile volumes and from the Tile envelope itself. Of course, these
+envelopes are abstract volumes but they are filled in with air and
+there is a little energy loss.
+no eta-phi subdivision
+}
