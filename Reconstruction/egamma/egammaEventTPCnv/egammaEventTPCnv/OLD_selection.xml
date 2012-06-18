@@ -1,0 +1,24 @@
+<lcgdict>
+	
+	
+  <class name="egammaContainer_p1" id="DBA382E5-52F7-4B40-8623-E807E134412E" />
+  <class name="std::vector<egamma_p1>" />
+  <class name="egamma_p1" />
+
+
+  <class name="ElectronContainer_p1"  id="48355DA8-3BCE-43E0-B29B-51525BCEEDDD" />
+  <class name="std::vector<Electron_p1>" />
+  <class name="Electron_p1" />
+
+
+  <class name="PhotonContainer_p1"   id="7D40A2D2-C03C-470C-8F0C-937592D34B5B" />
+  <class name="std::vector<Photon_p1>" />
+  <class name="Photon_p1" />
+
+
+  <class name="egDetailContainer_p1" id="C3E26ADE-A984-41AC-83DF-F430F6DF1F1F" />
+  <class name="std::vector<egDetail_p1>" />
+  <class name="egDetail_p1" />
+
+
+</lcgdict>
