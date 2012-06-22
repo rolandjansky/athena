@@ -1,0 +1,40 @@
+package HSG5DPDUtils
+
+use AtlasPolicy     AtlasPolicy-* 
+use AthenaPython    AthenaPython-*     Control    -no_auto_imports
+use AthenaBaseComps AthenaBaseComps-*  Control
+
+#use AthenaCommon                AthenaCommon-*          Control
+#use AtlasCLHEP                  AtlasCLHEP-*            External
+#use AtlasROOT                   AtlasROOT-*             External
+
+#use DataModel                   DataModel-*             Control 
+#use NavFourMom                  NavFourMom-*            Event
+#use StoreGate                   StoreGate-*             Control
+#use Navigation                  Navigation-*            Control
+#use FourMom                     FourMom-*               Event
+#use VxVertex                    VxVertex-*              Tracking/TrkEvent
+#use TrkParticleBase             TrkParticleBase-*       Tracking/TrkEvent
+#use PrimaryDPDMaker             PrimaryDPDMaker-*       PhysicsAnalysis   
+#use egammaEvent                 egammaEvent-*           Reconstruction/egamma
+
+#use JetSubStructure             JetSubStructure-*       PhysicsAnalysis/JetPhys
+#use JetSubstructureD3PDMaker    JetSubstructureD3PDMaker-*  PhysicsAnalysis/D3PDMaker
+
+private
+use GaudiInterface  GaudiInterface-* External
+use AtlasReflex     AtlasReflex-*    External   -no_auto_imports
+
+use muonEvent       muonEvent-*      Reconstruction/MuonIdentification
+use JetEvent        JetEvent-*       Reconstruction/Jet
+use NavFourMom      NavFourMom-*     Event
+
+end_private
+
+public
+library HSG5DPDUtils *.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+
