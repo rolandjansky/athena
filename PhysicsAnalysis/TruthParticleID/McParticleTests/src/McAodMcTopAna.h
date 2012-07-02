@@ -1,0 +1,80 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// McTopAna.h 
+// Header file for class McTopAna
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+#ifndef MCPARTICLETESTS_MCAOD_MCTOPANA_H
+#define MCPARTICLETESTS_MCAOD_MCTOPANA_H 1
+
+// STL includes
+#include <string>
+
+// FrameWork includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+
+// fwd declares
+class IMcVtxFilterTool;
+
+namespace McAod {
+
+class McTopAna
+  : public ::AthAlgorithm
+{ 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Public methods: 
+  /////////////////////////////////////////////////////////////////// 
+ public: 
+
+  // Copy constructor: 
+
+  /// Constructor with parameters: 
+  McTopAna( const std::string& name, ISvcLocator* pSvcLocator );
+
+  /// Destructor: 
+  virtual ~McTopAna(); 
+
+  // Assignment operator: 
+  //McTopAna &operator=(const McTopAna &alg); 
+
+  // Athena algorithm's Hooks
+  virtual StatusCode  initialize();
+  virtual StatusCode  execute();
+  virtual StatusCode  finalize();
+
+  /////////////////////////////////////////////////////////////////// 
+  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////// 
+  // Non-const methods: 
+  /////////////////////////////////////////////////////////////////// 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Private data: 
+  /////////////////////////////////////////////////////////////////// 
+ private: 
+
+  /// Default constructor: 
+  McTopAna();
+
+  /// Containers
+  
+
+}; 
+
+// I/O operators
+//////////////////////
+
+/////////////////////////////////////////////////////////////////// 
+// Inline methods: 
+/////////////////////////////////////////////////////////////////// 
+
+} //> end namespace McAod
+#endif //> !MCPARTICLETESTS_MCAOD_MCTOPANA_H

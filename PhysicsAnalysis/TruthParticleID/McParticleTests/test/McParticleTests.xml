@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="rwtest_genEvent" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/rwtest_genEvent.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="rbtest_genEvent" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/rbtest_genEvent.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="rwtest_ascii_genEvent" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/rwtest_ascii_genEvent.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="rwtest_truthParticles" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/rwtest_truthParticles.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="symlinkTest_mcAod" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/symlinkTest_mcAod.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="iotest_genEvent" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/iotest_genEvent.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="iotest_truthParticles" type="script" suite="McTruth">
+      <package_atn>PhysicsAnalysis/TruthParticleID/McParticleTests</package_atn>
+      <options_atn>chappy.py McParticleTests/iotest_truthParticles.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>
