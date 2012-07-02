@@ -1,0 +1,31 @@
+package DetDescrCondTools
+########
+# DetDescrCondTools - Tools to manage the AlignableTransforms
+########
+
+author Richard Hawkings <richard.hawking@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-* 
+use GaudiInterface      GaudiInterface-01-*      External
+use StoreGate           StoreGate-02-*           Control
+use AtlasCLHEP          AtlasCLHEP-00-*          External
+
+private
+use AtlasPOOL           AtlasPOOL-00-*           External
+use AtlasROOT           AtlasROOT-*              External
+use PoolSvc             PoolSvc-00-*             Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-00-* Database/AthenaPOOL
+use DetDescrConditions  DetDescrConditions-*  DetectorDescription/DetDescrCond
+use Identifier          Identifier-00-*          DetectorDescription
+public
+
+library DetDescrCondTools   AlignTransTool.cxx \
+                            CoolStrFileSvc.cxx \
+                            CoolHistSvc.cxx \
+                            components/*.cxx
+
+
+
+apply_pattern component_library
+
+apply_pattern declare_scripts files="coolHist_setFileIdentifier.sh coolHist_extractFileIdentifier.sh coolHist_setReference.py coolHist_insertFileToCatalog.py coolStrFileSvc_set.py"
