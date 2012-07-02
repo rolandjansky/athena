@@ -1,0 +1,35 @@
+package DetDescrConditions
+##############################################################################
+# DetDescrConditions - data classes for subdetector independent alignment info
+#                      and other conditions data (to be added)
+##############################################################################
+
+author Richard Hawkings <richard.hawkings@cern.ch>
+
+use AtlasPolicy     AtlasPolicy-*
+use GaudiInterface  GaudiInterface-01-*   External
+use CLIDSvc         CLIDSvc-00-*          Control
+use Identifier      Identifier-00-*       DetectorDescription
+use AtlasCLHEP      AtlasCLHEP-00-*       External
+use AthenaPoolUtilities AthenaPoolUtilities-00-* Database/AthenaPOOL
+
+apply_pattern installed_library
+library DetDescrConditions  \
+           AlignableTransform.cxx \
+           DetCondFloat.cxx DetCondCFloat.cxx \
+           DetCondKeyTrans.cxx DetStatus.cxx DetStatusMap.cxx
+
+private 
+use AtlasReflex	AtlasReflex-00-*	 External -no_auto_imports
+
+apply_pattern lcgdict dict=DetDescrConditions selectionfile=selection.xml headerfiles="../DetDescrConditions/DetDescrConditionsDict.h" 
+
+# Now build a special (hand-written) library to build a dictionary for AlignTransMember
+# temporarily removed for ROOT5 migration (RJH)
+#apply_pattern lcgdictfix libname=DetDescrConditions  dictfiles="DetDescrConditionsDict_dict_fixes.cxx"
+
+
+end_private
+
+
+
