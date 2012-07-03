@@ -1,0 +1,42 @@
+## Automatically generated CMT requirements file
+package FourMomUtils
+
+author  Sebastien Binet <binet@cern.ch>
+author  Rolf Seuster <seuster@mail.cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+# not yet...
+#use AtlasBoost		AtlasBoost-*		External
+
+#use CxxUtils        CxxUtils-*          Control -no_auto_imports
+use CxxUtils        CxxUtils-*          Control 
+use EventKernel		EventKernel-*		Event
+#
+use NavFourMom		NavFourMom-*		Event
+
+
+
+branches FourMomUtils src doc python
+
+library FourMomUtils *.cxx
+
+apply_pattern installed_library
+#apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+#########################
+# Dictionary generation #
+#########################
+private
+
+use FourMom		FourMom-*		Event
+use AtlasCLHEP		AtlasCLHEP-*		External
+
+use AtlasReflex      AtlasReflex-*      External -no_auto_imports
+
+apply_pattern lcgdict dict=FourMomUtils selectionfile=selection.xml \
+        headerfiles=" ../FourMomUtils/FourMomUtilsDict.h"
+end_private
+
