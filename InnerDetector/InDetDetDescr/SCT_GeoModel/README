@@ -1,0 +1,16 @@
+Package:      offline/InnerDetector/InDetDetDescr/SCT_GeoModel  
+
+Responsible:  Pat Ward <cpw1@hep.phy.cam.ac.uk>
+
+Description:  GeoModel description of the SCT. Creates the raw geometry and
+              readout elements.
+
+Inputs:       Detector Description, Identifiers
+
+Outputs:      Geometry, Detector Elements.
+
+Dependencies: Geometry Database, Identifiers, Detector Description.
+
+JobOptions:   
+
+Last modified: December 11, 2008 by Pat Ward
