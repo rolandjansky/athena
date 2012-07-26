@@ -1,0 +1,27 @@
+package SCT_G4_SD
+
+author Davide Costanzo <DCostanzo@lbl.gov>
+author Pat Ward <Patricia.Ward@cern.ch>
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+
+use AtlasDoxygen          AtlasDoxygen-*	  Tools
+use AthenaKernel          AthenaKernel-*          Control
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use InDetSimEvent         InDetSimEvent-*	  InnerDetector
+use SimHelpers            SimHelpers-*            Simulation/G4Sim
+
+private
+
+use AtlasCLHEP	          AtlasCLHEP-*            External
+use Geant4                Geant4-*                External
+use MCTruth	          MCTruth-*               Simulation/G4Sim
+
+end_private
+
+public
+# define link options
+apply_pattern component_library
+library SCT_G4_SD *.cxx
