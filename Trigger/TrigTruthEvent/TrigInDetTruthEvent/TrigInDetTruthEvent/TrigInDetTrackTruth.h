@@ -34,13 +34,15 @@
 #include "TrigSteeringEvent/MessageSvcProvider.h"
 #include <iostream>
 
+using namespace std;
+
 class TrigInDetTrackTruth {
     
  public:
 
   /** Constructors: POOL needs default constructor */
   TrigInDetTrackTruth() :  
-    m_best_match_hits(-1), m_best_Si_match_hits(-1), m_best_TRT_match_hits(-1), m_true_part_vec(0), m_nr_common_hits(0), m_family_tree()
+    best_match_hits(-1), best_Si_match_hits(-1), best_TRT_match_hits(-1), m_true_part_vec(0), m_nr_common_hits(0), m_family_tree()
     { };
 
   /** initialized constructor: easier way to construct an instance 
@@ -54,9 +56,9 @@ class TrigInDetTrackTruth {
       m_nr_common_hits.push_back( hits );
       
       // set the best match index (only 1 match so far)
-      m_best_match_hits = 0;
-      m_best_Si_match_hits = 0;
-      m_best_TRT_match_hits = 0;
+      best_match_hits = 0;
+      best_Si_match_hits = 0;
+      best_TRT_match_hits = 0;
     };
 
   // Destructor
@@ -88,20 +90,18 @@ class TrigInDetTrackTruth {
   std::vector<unsigned int> daughterIndicesInChain(unsigned int) const;
 
  private:
-  friend class TrigInDetTrackTruthCnv_p1;
-  friend class TrigInDetTrackTruthCnv_p1_test;
 
   // reference best match quantities
-  int m_best_match_hits;
-  int m_best_Si_match_hits;
-  int m_best_TRT_match_hits;
+  int best_match_hits;
+  int best_Si_match_hits;
+  int best_TRT_match_hits;
 
   // vector of HepMcParticleLink pointers and matching quantities
   std::vector<HepMcParticleLink>                  m_true_part_vec;
   std::vector<TrigIDHitStats>                     m_nr_common_hits;
   // vector<pair<int,int>> to act as bidirectional map "mother index <-> daughter index"
   // where the indices refer to the GenPaticle positions in m_true_part_vec vector
-  std::vector< std::pair<unsigned int, unsigned int> > m_family_tree; 
+  std::vector< pair<unsigned int, unsigned int> > m_family_tree; 
 
 
 };
