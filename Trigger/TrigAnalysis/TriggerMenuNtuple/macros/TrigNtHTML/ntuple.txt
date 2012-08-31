@@ -1,0 +1,19 @@
+Number of Event: 1000
+
+-----------
+Used sample
+----------- 
+DataSet       : mc08.105205.AcerMCttbar.digit.RDO.e429_s462_s520_d203/
+Athena Version: 15.3.1.6
+Trigger Config: MC_lumi1E31_physics_prescale
+
+--------
+RDO->AOD
+--------
+Athena Version: 15.5.2.5
+Trigger Menu  : Pysics_Lumi1E31_simpleL1Calib
+
+-----------
+AOD->Ntuple
+-----------
+Athena Versiin: 15.5.2.5
