@@ -71,10 +71,13 @@ std::string
 CaloCondUtils::getFullTag(const std::string& folder, const std::string& tag)
 {
   std::string folderTag("");
-  //Copy folder name, ommiting slashes
-  for (const char i : folder) {
-    if (i!='/') {
-      folderTag+=i;
+  for (std::string::const_iterator i = folder.begin(); i != folder.end(); i++) {
+    if(*i=='/'){
+      i++;
+      folderTag+=char(std::toupper(*i));
+    }
+    else{
+      folderTag+=char(std::tolower(*i));
     }
   }
   return (folderTag+"-"+tag);
@@ -110,7 +113,7 @@ CaloCondUtils::getDbCaloGain(int caloGain)
   //=== invalid gain
   {
     MsgStream log(Athena::getMessageSvc(), "CaloCondUtils::getDbCaloGain");
-    log << MSG::WARNING << "invalid gain found... probably corrupted data /badly decoded ?   returns DbCaloGain 0" << endmsg; 
+    log << MSG::WARNING << "invalid gain found... probably corrupted data /badly decoded ?   returns DbCaloGain 0" << endreq; 
     return 0;
   }
   //throw CaloCond::InvalidCaloGain("CaloCondUtils::getDbCaloGain()", caloGain);
