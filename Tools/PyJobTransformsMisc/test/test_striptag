@@ -1,0 +1,6 @@
+cp /afs/cern.ch/atlas/offline/test/POOLCollectionTools/PoolFileCatalog.xml.transform PoolFileCatalog.xml
+
+StripTAG_trf.py \
+InputTAGFile=/afs/cern.ch/atlas/offline/test/POOLCollectionTools/TAG.143392._000002.piece.root \
+InputAODFile=/afs/cern.ch/atlas/offline/test/POOLCollectionTools/AOD.143392._000002.piece.root \
+OutputTAGFile='stripped.TAG.root'
