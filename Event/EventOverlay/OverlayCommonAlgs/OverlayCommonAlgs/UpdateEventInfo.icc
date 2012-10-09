@@ -1,0 +1,30 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "StoreGate/DataHandle.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <typeinfo>
+
+template<class TypeToBeRemoved>
+void UpdateEventInfo::checkBeforeRemove(StoreGateSvc *sg)
+{
+   const std::string templateClassName = typeid(TypeToBeRemoved).name();
+
+   const DataHandle<TypeToBeRemoved> data;
+   const DataHandle<TypeToBeRemoved> dataEnd;
+   if (sg->retrieve(data, dataEnd).isSuccess()) {
+     ATH_MSG_DEBUG("checkBeforeRemove<"<<templateClassName<<">(): retrieved data = " << data.cptr() << " dataEnd = " << dataEnd.cptr() << " for removal");
+     if (data.cptr() != 0) {
+        for ( ; data != dataEnd; data++ ) {
+           ATH_MSG_DEBUG("checkBeforeRemove<"<<templateClassName<<">(): Working on p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
+           std::string key = sg->proxy(data.cptr())->name();
+           if ( sg->contains<TypeToBeRemoved>(key) ) {              
+              if (!sg->removeDataAndProxy(data.cptr()).isSuccess()) {
+                 ATH_MSG_WARNING("checkBeforeRemove<"<<templateClassName<<">(): problem removing object p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
+              }
+           }
+        }
+     }
+   }
+}

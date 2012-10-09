@@ -1,0 +1,102 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include "StoreGate/DataHandle.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <typeinfo>
+
+template<class TypeToBeCopied, class Datum>
+void CopyObjects::copyAthenaHitObject(StoreGateSvc* from, StoreGateSvc *to) {
+
+  const std::string templateClassName = typeid(TypeToBeCopied).name();
+
+  typedef std::vector<std::string> KeyList;
+  KeyList keys = from->keys<TypeToBeCopied>();
+  if(keys.empty()) {
+    ATH_MSG_WARNING("copyAthenaHitObject<"<<templateClassName<<">(): no keys found");
+  }
+
+  for (KeyList::const_iterator k=keys.begin(); k!=keys.end(); ++k) {
+    TypeToBeCopied * newObject = 0;
+    const TypeToBeCopied * oldObject=0;
+    if ( from->retrieve(oldObject, *k).isFailure() ) {
+       ATH_MSG_WARNING("copyAthenaHit<"<<templateClassName<<">(): problem retrieving container with " <<"key="<<*k);
+       continue;
+    }
+
+    newObject = new TypeToBeCopied ( oldObject->Name() );
+    typename TypeToBeCopied::const_iterator iFirst = oldObject->begin();
+    typename TypeToBeCopied::const_iterator iLast = oldObject->end();
+    for (; iFirst != iLast; ++iFirst ) {
+       Datum * element = new Datum ( **iFirst );
+       newObject->push_back ( element );
+    }
+
+    if (!to->record(newObject, *k).isSuccess()) {
+       ATH_MSG_WARNING("copyAthenaHitObject<"<<templateClassName<<">(): problem recording new container with "<<"key="<<*k);
+    }
+
+  }
+}
+
+template<class TypeToBeCopied, class Datum>
+void CopyObjects::copySDOobject(StoreGateSvc* from, StoreGateSvc *to) {
+
+  const std::string templateClassName = typeid(TypeToBeCopied).name();
+
+  typedef std::vector<std::string> KeyList;
+  KeyList keys = from->keys<TypeToBeCopied>();
+  if(keys.empty()) {
+    ATH_MSG_WARNING("copySDOobject<"<<templateClassName<<">(): no keys found");
+  }
+
+  for (KeyList::const_iterator k=keys.begin(); k!=keys.end(); ++k) {
+    TypeToBeCopied * newObject = 0;
+    const TypeToBeCopied * oldObject=0;
+    if ( from->retrieve(oldObject, *k).isFailure() ) {
+       ATH_MSG_WARNING("copySDOobject<"<<templateClassName<<">(): problem retrieving container with " <<"key="<<*k);
+       continue;
+    }
+
+    newObject = new TypeToBeCopied ();
+    typename TypeToBeCopied::const_iterator iFirst = oldObject->begin();
+    typename TypeToBeCopied::const_iterator iLast = oldObject->end();
+    for (; iFirst != iLast; ++iFirst ) {
+       Datum element ( (*iFirst).second );
+       newObject->insert ( std::make_pair( (*iFirst).first, element ) );
+    }
+
+    if (!to->record(newObject, *k).isSuccess()) {
+       ATH_MSG_WARNING("copySDOobject"<<templateClassName<<">(): problem recording new container with "<<"key="<<*k);
+    }
+
+  }
+}
+
+template<class TypeToBeCopied, class Datum> 
+void CopyObjects::copyMuonSDOobject(StoreGateSvc *from, StoreGateSvc *to, std::string k) {
+
+  const std::string templateClassName = typeid(TypeToBeCopied).name();
+
+  TypeToBeCopied * newObject = 0;
+  const TypeToBeCopied * oldObject=0;
+  if ( from->retrieve(oldObject, k).isFailure() ) {
+     ATH_MSG_WARNING("copyMuonSDOobject<"<<templateClassName<<">(): problem retrieving container with " <<"key="<<k);
+     return;
+  }
+  newObject = new TypeToBeCopied ();
+  typename TypeToBeCopied::const_iterator iFirst = oldObject->begin();
+  typename TypeToBeCopied::const_iterator iLast = oldObject->end();
+  for (; iFirst != iLast; ++iFirst ) {
+     Datum element ( (*iFirst).second );
+     newObject->insert ( std::make_pair( (*iFirst).first, element ) );
+  }
+
+  if (!to->record(newObject, k).isSuccess()) {
+    ATH_MSG_WARNING("copyMuonSDOobject"<<templateClassName<<">(): problem recording new container with "<<"key="<<k);
+  }
+
+}
+
