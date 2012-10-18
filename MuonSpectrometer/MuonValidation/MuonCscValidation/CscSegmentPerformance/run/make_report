@@ -1,0 +1,74 @@
+#!/bin/sh
+
+HELP=
+REMOVE=
+INFILE=csc_perf.root
+BASEDIR=
+OUTDIR=
+RELNAME=
+DSNAME=
+ALGNAME=
+SEGDIM=2
+while getopts hci:b:o:r:d:a:s: OPT; do
+  case $OPT in
+  h) HELP=true;;
+  c) REMOVE=true;;
+  i) INFILE=$OPTARG;;
+  b) BASEDIR=$OPTARG; OUTDIR=;;
+  o) OUTDIR=$OPTARG; BASEDIR=;;
+  r) RELNAME=$OPTARG;;
+  d) DSNAME=$OPTARG;;
+  a) ALGNAME=$OPTARG;;
+  s) SEGDIM=$OPTARG;;
+  esac
+done
+shift `expr $OPTIND - 1`
+
+if [ -n "$HELP" ]; then
+  echo Usage: "$0 [-c] [-s DIM] [-i INFILE] (-o OUTDIR | -b BASEDIR) -r RELNAME -d DSNAME -a ALGNAME"
+  echo "  -c - Remove old directory"
+  echo "  DIM = 2 or 4 (2 is default)"
+  exit 2
+fi
+
+if [ -z "$RELNAME" ]; then
+  echo Release name must be provided.
+  exit 2
+fi
+if [ -z "$DSNAME" ]; then
+  echo Dataset name must be provided.
+  exit 2
+fi
+if [ -z "$ALGNAME" ]; then
+  echo Algorithm name must be provided.
+  exit 2
+fi
+
+if [ $SEGDIM != 2 -a $SEGDIM != 4 ]; then
+  echo  Invalid value for SEGDIM: $SEGDIM
+  exit 1
+fi
+if [ -n "$BASEDIR" ]; then
+  OUTDIR=$BASEDIR/$RELNAME/$DSNAME/$ALGNAME
+fi
+if [ -z "$OUTDIR" ]; then
+  echo Output directory name must be provided.
+  exit 2
+fi
+echo Output directory: $OUTDIR
+
+if [ -n "REMOVE" ]; then
+  rm -rf $OUTDIR
+fi
+if ! mkdir -p $OUTDIR; then
+  echo Unable to create output directory.
+  exit 1
+fi
+
+rm -rf tmp.C
+echo '{
+TFile::Open("'$INFILE'");
+report'$SEGDIM'd("'$OUTDIR'", "'$RELNAME'", "'$DSNAME'", "'$ALGNAME'");
+}' > tmp.C
+root.exe -b -q tmp.C
+#rm -f tmp.C

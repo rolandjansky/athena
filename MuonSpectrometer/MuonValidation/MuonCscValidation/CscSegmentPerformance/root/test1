@@ -1,0 +1,8 @@
+#!/bin/sh
+#csc_segment_performance.exe -d 10 \
+
+rm -f csc_segperf.root
+../i686-slc4-gcc34-opt/csc_segment_performance.exe \
+  /afs/cern.ch/user/w/woochun/public/csc_simseg.root \
+  /afs/cern.ch/user/w/woochun/public/csc_segments.root >test1.log 2>&1 &
+echo Output in test1.log

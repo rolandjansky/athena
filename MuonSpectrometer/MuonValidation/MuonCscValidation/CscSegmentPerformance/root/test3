@@ -1,0 +1,18 @@
+#!/bin/sh
+
+#-s : 2D or 4D
+#-i : input file
+
+#-o : output directory
+#-b : base directory
+# if base or output directory is specified then the other doesn't have to be set
+
+#-r : release
+#-d : samples
+#-a : algorithm
+
+#output results can be reviewed by web browser.
+#index.html willl be created at $(BASEDIR)/$(RELEASE)/$(OUTPUTDIR)/$(ALGORITHM)
+
+../run/make_report -s 2 -i csc_segperf.root -b . -r 14.0.0 -d muminus_pt100GeV_GEO-02-00-00.RDO -a simple
+
