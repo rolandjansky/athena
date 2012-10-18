@@ -1,0 +1,8 @@
+
+PACKAGE          = JetUncertainties
+PACKAGE_CXXFLAGS = -DJES_STANDALONE
+PACKAGE_LDFLAGS  = 
+PACKAGE_PRELOAD  = Hist 
+
+include $(ROOTCOREDIR)/Makefile-common
+

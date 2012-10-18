@@ -1,0 +1,20 @@
+package JetUncertainties
+
+author Pier-Olivier DeViveiros < viveiros AT physics.utoronto.ca >
+author Caterina Doglioni < caterina.doglioni AT cern.ch >
+author Stefanie Adomeit < stefanie.adomeit AT physik.uni-muenchen.de >
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasROOT AtlasROOT-* External
+
+## macros
+#apply_tag ROOTBasicLibs
+#apply_tag ROOTMathLibs
+
+## Create an installed library
+library JetUncertainties "../Root/*.cxx ../src/*.cxx"
+apply_pattern installed_library
+
+## This is so that the JESUncertainty.root file gets copied to the share area
+apply_pattern declare_runtime files="*.root ../analysisPlots/*.root"
+

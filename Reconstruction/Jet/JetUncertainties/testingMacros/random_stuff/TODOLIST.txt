@@ -1,0 +1,58 @@
+---JESUncertaintyProvider
+
+- Make sure path works OK
+- TDirectory from 2012 in trunk OK
+- ? What happens to the Top2012 file? Now it's working because I changed the analysisFile...
+
+---MultijetJESUncertaintyProvider
+
+- Judith's request: NJets-dependent flavour uncertainty OK
+   - leaving old file as inclusive, adding (yet another) default argument in flavour composition and response uncertainty OK
+   - Dag's suggestions: remove isUp argument, make specialised function for NJets use, otherwise pick up default NO, not yet
+[7:22:18 PM] Petit fromage:   //FIXME: isUp argument will be deprecated 
+Current situation:
+  double getRelFlavorCompUncert(double pT, double eta, bool isUp, unsigned int nJets = 0);
+  double getRelFlavorResponseUncert(double pT, double eta, unsigned int nJets = 0);
+[7:23:56 PM] Petit fromage: 
+Better:
+   getRelFlavorCompUncertNjets(double pT, double eta, int nJets);
+   getRelFlavorCompUncert(double pT, double eta);
+
+   
+- Implementation by default of gluon fraction/gluon fraction uncertainty only OK
+   --> documentation (for Joe): 
+    1) we need to specify that isUp is not used anywhere
+    2) need to write the comments on the .cxx on what we're doing now 
+    3) need to write that we CANNOT use the _deprecated function anymore so there is no need for the Rsample 
+
+- When using the Top files, a lot of warnings happen - why? 
+  -->OK, figured out and fixed by Steven. 
+  -->Switched to (corrected) interpolation 
+
+---Merging of 2011 and 2012 tags
+
+- Check that 2012 configs work in trunk OK
+
+---Twiki & docs
+
+- Check that the getRelUncert function doesn't have pile-up arguments anymore
+- Add documentation for path mechanism: Joe
+- Clean-up the twikis and prepare for the new tag (but in a sandbox, not in the page itself otherwise people could get confused): Joe doing this
+
+---Config files
+
+--Megafolder JES_2011
+- Top 2011 preliminary OK
+- JES preliminary 2011, needs folder
+- JES final 2011, needs folder and remaking
+
+--Megafolder JES_2012
+
+
+- have AnalysisInput folder outside, in the share dir  
+
+---Cleaning of content of root files
+
+- 50/50 file might need to 
+a. take away rSample
+b. remove GCW stuff

@@ -1,0 +1,48 @@
+
+------------------------------------
+1. Plotting of the JES uncertainties
+------------------------------------
+
+To produce a pdf with plots of the uncertainties corresponding to each config, simply run:
+
+  ./run/plot_all_JES_uncertainties.sh 
+
+It should make nice plots a new folder (it will take a little while).
+The script can easily be changed to create specific plots.
+After compiling (part of script above), you can for example run:
+
+   ./bin/jes_plots.exe JES_2012/JESUncertainty2012_Sept2012.config JES_2012/MultijetJES_2012.config
+
+to plot the uncertainties corresponding to this configuration.
+Note that the path of the config files should be relative to the JetUncertainties/share folder.
+
+
+-------------------------------------------
+2. Example code for uncertainty propagation
+-------------------------------------------
+
+Some code that illustrates how to propagate the 2012 HCP uncertainties can be run by:
+
+  ./run/propagate_jes_uncert.sh
+
+This generates some toy dijet events and propagates the 7 JES uncertainty components to the
+generated sample. A pdf file is created showing the effect on various kinematic distributions.
+
+One can also run the code with dedicated config files:
+
+  ./run/propagate_jes_uncert.sh PATH_TO_JES_CONFIG PATH_TO_MJES_CONFIG
+
+By default the two files used are the JES recommendaiton for 2012 data released shortly before the HCP conference.
+
+
+-----------------------------------------------------------
+3. Macro to compare correlations for various configurations
+-----------------------------------------------------------
+
+Run:
+
+   ./run/compare_correlations.sh
+
+It should be easy to change the input files.
+This code is mainly for JES experts.
+
