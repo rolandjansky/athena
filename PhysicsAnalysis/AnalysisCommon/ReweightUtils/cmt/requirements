@@ -1,0 +1,23 @@
+package ReweightUtils
+
+author Fabian Kohn (fkohn@cern.ch)
+
+use AtlasPolicy                 AtlasPolicy-01-*
+use GaudiInterface              GaudiInterface-01-*             External
+use AthenaBaseComps             AthenaBaseComps-*               Control
+
+use AtlasROOT			AtlasROOT-*			External
+
+library ReweightUtils "../Root/*.cxx"
+apply_pattern installed_library
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTGraphicsLibs
+
+apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h"          headers_lib=ReweightUtils
+
+####To be removed once ROOT 5.32.00 gets patched
+private
+  macro_remove cppflags "-pedantic"
+end_private

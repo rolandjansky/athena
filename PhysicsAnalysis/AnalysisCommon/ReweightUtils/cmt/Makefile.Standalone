@@ -1,0 +1,96 @@
+# Author: Fabian Kohn (fkohn@cern.ch)
+# ReweightUtils stand-alone makefile (adapted from GoodRunLists package)
+
+# --- External configuration ----------------------------------
+ifeq ($(wildcard $(ROOTSYS)/test/Makefile.arch),)
+        include $(ROOTSYS)/etc/Makefile.arch
+else
+        include $(ROOTSYS)/test/Makefile.arch
+endif
+
+# -------------------------------------------------------------
+# General flags
+# -------------------------------------------------------------
+PACKAGE    = ReweightUtils
+OUTPUTDIR  = ../StandAlone
+
+# Get these from Makefile.arch above
+#CC         = g++
+#CCFLAGS    = -g -m32 -fPIC -Wall -W -Woverloaded-virtual -Wno-parentheses -Wno-unused-parameter -Wno-unused-variable
+#LDFLAGS    = -g -m32 -fPIC 
+
+MFLAGS     = -MM -Wall -W -Woverloaded-virtual
+INCLUDES   += -I${ROOTSYS}/include -I.. -I../ReweightUtils
+
+# Need these to avoid loading dependent libraries when ROOT starts
+LINKLIBS = -L${ROOTSYS}/lib -lRIO -lNet -lCore -lCint -lTree -lHist -lMatrix -lPhysics -lpthread -ldl -lm
+
+# -------------------------------------------------------------
+# Makefile variables
+# -------------------------------------------------------------
+CCLISTT    = MathTools.cxx APWeightEntry.cxx APReweightBase.cxx APReweight.cxx APReweight2D.cxx APReweight3D.cxx APReweightND.cxx APWeightHist.cxx APEvtWeight.cxx APWeightSum.cxx APWeightSumEnsemble.cxx
+CCLISTC    = $(addprefix ../Root/,$(CCLISTT))
+HHLISTCINT = MathTools.h APWeightEntry.h APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h
+HHLISTCINTC= $(addprefix ReweightUtils/,$(HHLISTCINT))
+HHLISTT    = ReweightUtils_dict.h $(HHLISTCINT)
+HHLISTC    = $(addprefix ../ReweightUtils/,$(HHLISTT)) 
+OLISTC     = $(patsubst %.cxx,%.o,$(CCLISTC))
+CCLIST     = $(CCLISTC) $(wildcard ../Root/*.cxx) $(wildcard ../Modules/*.cxx)
+HLIST      = $(wildcard ../ReweightUtils/*.h)
+OLIST      = $(patsubst %.cxx,%.o,$(CCLIST))
+DLIST      = $(patsubst %.h,%.d,$(HLIST))
+
+# -------------------------------------------------------------
+# Libraries
+# -------------------------------------------------------------
+SHLIBFILE  = $(OUTPUTDIR)/libReweightUtils.so
+
+ifeq ($(PLATFORM),macosx)
+EXTRALDFLAGS = -install_name @rpath/$(SHLIBFILE)
+endif
+
+# get libraries of ROOT
+define ldlinksuffixROOT
+   $(addsuffix $(LDLINKSUFFIX),$(Lib)) $(shell if [ "$(findstring -Ldlink2,$(OPTIONS))" ]; then echo $(addsuffix _pkgid_$(ROOTVER),$(Lib)); fi)
+endef
+
+# -------------------------------------------------------------
+# Compilation
+# -------------------------------------------------------------
+
+default: rootcint shlib
+
+# Implicit rule making all dependency Makefiles included at the end of this makefile
+%.d: %.cxx $(HLIST)
+	@echo "Making $@"
+	@set -e; $(CC) $(MFLAGS) $(CXXFLAGS) $< \
+		| awk '{ sub("^$(notdir $*).o:","$*.o $@:") ; print }' > $@ ;\
+		[ -s $@ ] || rm -f $@
+
+# Implicit rule to compile all classes
+%.o : %.cxx
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $*.o 
+
+rootcint :
+	@echo "Running rootcint"
+	@cd ..; $(ROOTSYS)/bin/rootcint -f src/ReweightUtils_dict.cxx -c -p $(HHLISTCINTC) Root/LinkDef.h
+	@mv ../src/ReweightUtils_dict.h ../ReweightUtils/
+
+# Rule to combine objects into a shared library
+$(SHLIBFILE): $(OLISTC)
+	@echo "Creating dictionary"
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c ../src/ReweightUtils_dict.cxx -o ../src/ReweightUtils_dict.o
+	@echo "Linking $(SHLIBFILE)"
+	@mkdir -p $(OUTPUTDIR)
+	@rm -f $(SHLIBFILE)
+	$(LD) $(CXXFLAGS) $(SOFLAGS) $(LINKLIBS) $(EXTRALDFLAGS) $(OLISTC) ../src/ReweightUtils_dict.o -o $(SHLIBFILE)
+
+-include $(DLIST)
+
+shlib: $(SHLIBFILE)
+
+clean:
+	@rm -f ../*/*.o ../*/*.d ../*/*.so
+	@rm -f ../ReweightUtils/ReweightUtils_dict.*
+	@rm -f ../Root/ReweightUtils_dict.*
