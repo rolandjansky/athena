@@ -1,0 +1,72 @@
+###########################################################################################################################################
+#MuonESD Containers:
+#The following pairs of ESD muon containers are equivalent in their track content 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#Combined Muons - CombinedMuon                            |  Track Particles - TrackParticle Containers  
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#MOORE/Muid 
+#CombinedMuon Container Class 	Data Access Key           |  TrackParticle Container Class 	   Data Access Key
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#StandAlone#
+#CombinedMuonContianer 	"MuidExtrCombinedMuonContainer"   |  TrackParticleContainer 	"MuidExtrTrackParticles"
+#                                                         |  TrackParticleContainer 	"MooreTrackParticles"
+
+#Combined#
+#CombinedMuonContianer 	"MuidCombinedMuonContainer"       |  TrackParticleContainer 	"MuidCombTrackParticles"
+
+#LowPT# 
+#CombinedMuonContainer 	"MuidCombinedMuonContainerLowPt"  |  TrackParticleContainer 	"MuidCombTrackParticlesLowPt"
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+#Muonboy/STACO 
+#CombinedMuon Container Class 	Data Access Key           |  TrackParticle Container Class 	   Data Access Key
+#--------------------------------------------------------------------------------------------------------------------------------------------
+#StandAlone#
+#CombinedMuonContianer 	"MboyESDMuonContainer"            |  TrackParticleContainer 	"MuonboyTrackParticles"
+#                                                         |  TrackParticleContainer 	"MuonboyMuonSpectroOnlyTrackParticles"#
+
+#Combined#
+#CombinedMuonContianer 	"StacoCombinedMuonContainer"      |  TrackParticleContainer 	"StacoTrackParticles"
+
+#LowPT# 
+#CombinedMuonContainer 	"StacoCombinedMuonContainerLowPt" |  TrackParticleContainer 	"MuTagTrackParticles"
+#                                                         |  In Inner Detector
+#							  |  TrackParticleContainer (iPat InDet) 	"TrackParticleCandidate"
+########################################################################################################################################### 
+###########################################################################################################################################
+#MuonAOD Containers:
+#The following pairs of AOD muon containers are equivalent in their track content 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#Loosely Identified Particles -Particles                  | Track Particles - TrackParticle 
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#MOORE/Muid 
+#MuonContainer Class 	Data Access Key                   |  TrackParticle Container Class 	   Data Access Key
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#StandAlone#
+#                                                         |  TrackParticleContainer 	"MooreTrackParticles"
+#                                                         |  TrackParticleContainer 	"MuidExtrTrackParticles"
+
+#Combined#
+#MuonContainer 	"MuidMuonCollection"                      |  TrackParticleContainer 	"MuidCombTrackParticles"
+
+#LowPT# 
+#                                                         |  TrackParticleContainer 	"MuidCombTrackParticlesLowPt"                
+
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#Muonboy/STACO 
+#MuonContainer Class 	Data Access Key                   |  TrackParticle Container Class 	   Data Access Key
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#StandAlone#
+#                                                         |  TrackParticleContainer 	"MuonboyMuonSpectroOnlyTrackParticles"
+#                                                         |  TrackParticleContainer 	"MuonboyTrackParticles"
+
+#Combined#
+#MuonContainer 	"StacoMuonCollection"                     |  TrackParticleContainer 	"StacoTrackParticles"
+
+#LowPT# 
+#                                                         |  TrackParticleContainer 	"MuTagTrackParticles"
+      
+#                                                         |  In Inner Detector
+#							  |  TrackParticleContainer (iPat InDet) 	"TrackParticleCandidate"
+########################################################################################################################################### 
+ 
