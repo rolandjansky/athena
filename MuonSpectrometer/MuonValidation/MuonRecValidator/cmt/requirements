@@ -1,0 +1,58 @@
+#################################################
+package MuonRecValidator
+
+author Nectarios Chr. Benekos <Nectarios.Benekos@cern.ch>
+author Matthias Schott        <Matthias.Schott@cern.ch>
+author Massimiliano Bellomo   <massimiliano.bellomo@pv.infn.it>
+
+branches src cmt doc
+branches run
+
+# The following dependencies satisfy the compile (build) time environment
+use AtlasPolicy                 AtlasPolicy-*
+use AtlasAnalysisRunTime        AtlasAnalysisRunTime-*
+use AthenaBaseComps             AthenaBaseComps-*            Control
+use AtlasROOT                   AtlasROOT-*                  External 
+use GaudiInterface              GaudiInterface-*             External
+use AtlasCLHEP                  AtlasCLHEP-*                 External
+use MuonValUtils                MuonValUtils-*               MuonSpectrometer/MuonValidation
+use StoreGate                   StoreGate-*                  Control
+
+# This dependency sets up a minimal run-time environment for PhysicsAnalysis
+use AnalysisRunTime 		AnalysisRunTime-* 	     PhysicsAnalysis/AnalysisCommon
+
+###For ESD and Truth
+#use HepMC			HepMC-*			     Simulation
+use McParticleEvent		McParticleEvent-*	     PhysicsAnalysis/TruthParticleID
+use McParticleKernel		McParticleKernel-*	     PhysicsAnalysis/TruthParticleID
+   
+use TrigMuonEvent               TrigMuonEvent-*              Trigger/TrigEvent
+ 
+private
+use AnalysisTools               AnalysisTools-*              PhysicsAnalysis/AnalysisCommon
+use AnalysisTriggerEvent        AnalysisTriggerEvent-*       PhysicsAnalysis/AnalysisTrigger
+use EventInfo                   EventInfo-*                  Event
+use ITrackToVertex		ITrackToVertex-*             Reconstruction/RecoTools
+use JetTagEvent                 JetTagEvent-*                PhysicsAnalysis/JetTagging
+use Particle                    Particle-*                   Reconstruction
+use egammaEvent                 egammaEvent-*                Reconstruction/egamma
+use muonEvent                   muonEvent-*                  Reconstruction/MuonIdentification
+use AtlasHepMC	                AtlasHepMC-*		     External
+use JetEvent	                JetEvent-*		     Reconstruction/Jet
+end_private
+
+###include_dirs "$(MuonRecValidator_root)"
+library MuonRecValidator *.cxx -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_joboptions files="-s=../share *.py"
+#apply_pattern declare_input_files files="-s=../data *.* "
+
+
+##macro MuonRecValidator_TestConfiguration "../test/MuonRecValidator_TestConfiguration.xml"
+#3apply_pattern declare_runtime extras="../test/MuonRecValidator_TestConfiguration.xml ../test/*.C ../test/*.h ../test/*.root"
+
+
+#add validation of RTT xml file
+##use TestPolicy TestPolicy-*
+##apply_pattern validate_xml
+
