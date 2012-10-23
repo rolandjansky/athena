@@ -1,0 +1,90 @@
+//  ***************************************************************************
+//  *                                                                         *
+//  *   This program is free software; you can redistribute it and/or modify  *
+//  *   it under the terms of the GNU General Public License as published by  *
+//  *   the Free Software Foundation; either version 2 of the License, or     *
+//  *   (at your option) any later version.                                   *
+//  *                                                                         *
+//  *   Author: John Morris (john.morris@cern.ch)                             *
+//  *           Queen Mary University of London                               *
+//  *                                                                         *
+//  ***************************************************************************/
+
+//
+// Pure abstract base class interface to L1CaloCells2TriggerTowers
+//
+
+#ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H_
+#define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H_
+
+#include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/IInterface.h"
+
+#include <vector>
+
+class CaloCellContainer;
+class LArDigitContainer;
+class TileDigitsContainer;
+class CaloCell;
+class Identifier;
+class LArDigit;
+class TileDigits;
+
+namespace LVL1{
+ static const InterfaceID IID_IL1CaloCells2TriggerTowers("LVL1::IL1CaloCells2TriggerTowers",1,0);
+
+  class IL1CaloCells2TriggerTowers : virtual public IAlgTool{
+    public:
+      static const InterfaceID& interfaceID();
+
+      virtual ~IL1CaloCells2TriggerTowers(){};
+
+      virtual bool initCaloCellsTriggerTowers(const CaloCellContainer& cellContainer) = 0;
+      virtual bool initLArDigitsTriggerTowers(const LArDigitContainer& larDigitContainer) = 0;
+      virtual bool initTileDigitsTriggerTowers(const TileDigitsContainer& tileDigitsContainer) = 0;
+
+      virtual std::vector<const CaloCell*> caloCells(const Identifier& ttId) const = 0;
+      virtual std::vector<std::vector<const CaloCell*> > caloCellsByLayer(const Identifier& ttId) const = 0;
+      virtual std::vector<int> layerNames(const Identifier& ttID) const = 0;
+      virtual int layerNames(const CaloCell* cell) const = 0;
+      virtual float energy(const std::vector<const CaloCell*> &cells) const = 0;
+      virtual float et(const std::vector<const CaloCell*> &cells) const = 0;
+      virtual float energy(const Identifier& ttId) const = 0;
+      virtual float et(const Identifier& ttId) const = 0;
+      virtual void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const = 0;
+      // Return a vector digits belonging the to requested trigger tower
+      virtual std::vector<double> samples(const Identifier& ttId) const = 0;
+      virtual std::vector<const LArDigit*> larDigits(const Identifier& ttId) const = 0;
+      virtual std::vector<const TileDigits*> tileDigits(const Identifier& ttId) const = 0;
+
+      virtual void dumpCaloCells() const = 0;
+      virtual void dumpCaloCells(const Identifier& ttId) const = 0;
+
+      virtual void dumpDigits(const Identifier& ttId) const = 0;
+
+      virtual void dumpLArDigits(const Identifier& ttId) const = 0; /* ttId must be a LAr TTId */
+      virtual void dumpLArDigits() const = 0;
+
+      virtual void dumpTileDigits(const Identifier& ttId) const = 0; /* ttId must be a Tile TTId */
+      virtual void dumpTileDigits() const = 0;
+
+    protected:
+      virtual float calcEnergyOrEt(const std::vector<const CaloCell*> &cells,const unsigned int mode) const = 0;
+
+      virtual void reset() = 0;
+      virtual void resetCaloCells() = 0;
+      virtual void resetLArDigits() = 0;
+      virtual void resetTileDigits() = 0;
+
+
+      virtual void dump(const std::vector<const CaloCell*>& vCells) const = 0;
+      virtual void dump(const std::vector<const LArDigit*>& vCells) const = 0;
+      virtual void dump(const std::vector<const TileDigits*>& vCells) const = 0;
+
+  };
+
+  inline const InterfaceID& IL1CaloCells2TriggerTowers::interfaceID(){
+    return IID_IL1CaloCells2TriggerTowers;
+  }  
+} // end of namespace
+#endif
