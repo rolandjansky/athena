@@ -1,0 +1,11 @@
+# Dear emacs, this is a -*- Makefile -*-
+# Author: Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+# TrigBunchCrossingTool makefile for the RootCore environment
+
+PACKAGE          = TrigBunchCrossingTool
+PACKAGE_PRELOAD  = Net Tree
+PACKAGE_CXXFLAGS =
+PACKAGE_LDFLAGS  =
+PACKAGE_DEP      = TrigAnalysisInterfaces
+
+include $(ROOTCOREDIR)/Makefile-common

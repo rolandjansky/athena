@@ -1,0 +1,46 @@
+package TrigBunchCrossingTool
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base Gaudi/Athena package(s):
+use AtlasPolicy     AtlasPolicy-*
+use GaudiInterface  GaudiInterface-*  External
+
+# Trigger package(s):
+use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+
+end_public
+
+private
+
+# Base Gaudi/Athena package(s):
+use AthenaBaseComps AthenaBaseComps-* Control
+use AthenaKernel    AthenaKernel-*    Control
+use CxxUtils        CxxUtils-*        Control
+use StoreGate       StoreGate-*       Control
+
+# EDM package(s):
+use EventInfo       EventInfo-*       Event
+
+# External package(s):
+use AtlasROOT       AtlasROOT-*       External
+
+# For reading file/DB metadata:
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AtlasCORAL          AtlasCORAL-*          External
+
+# Trigger package(s):
+use TrigConfigSvc          TrigConfigSvc-*          Trigger/TrigConfiguration
+use TrigConfL1Data         TrigConfL1Data-*         Trigger/TrigConfiguration
+
+# To get access to TSocket:
+macro_append ROOT_linkopts " -lNet "
+
+end_private
+
+# Declare the different components of the package:
+library TrigBunchCrossingTool *.cxx ../Root/*.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files=*.py

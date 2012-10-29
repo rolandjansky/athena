@@ -1,0 +1,73 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# $Id: BunchCrossingConfProvider.py 346409 2011-02-17 16:17:53Z krasznaa $
+
+## @package BunchCrossingConfProvider
+#
+# This python module holds the function which can be used to easily set up a tool
+# that can provide the Trig::IBunchCrossingConfProvider interface in an analysis
+# job. The code relies on the functions defined in BunchCrossingTool.
+#
+# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+#
+# $Revision: 346409 $
+# $Date: 2011-02-17 17:17:53 +0100 (Thu, 17 Feb 2011) $
+
+##
+# @short Function creating an instance of Trig::IBunchCrossingConfProvider
+#
+# This function is pretty much the same as BunchCrossingTool.BunchCrossingTool.
+# The only reason for having it separately is that not all the tools provided
+# by the BunchCrossingTool(...) function provide the Trig::IBunchCrossingConfProvider
+# interface.
+#
+# @returns The default configuration of the job-appropriate Trig::IBunchCrossingConfProvider
+#
+# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+#
+# $Revision: 346409 $
+# $Date: 2011-02-17 17:17:53 +0100 (Thu, 17 Feb 2011) $
+def BunchCrossingConfProvider( type = "" ):
+
+    # Get ourselves a logger:
+    from AthenaCommon.Logging import logging
+    __logger = logging.getLogger( "BunchCrossingConfProvider" )
+
+    # If the user requested some instance directly:
+    if type != "":
+        if type == "TrigConf":
+            __logger.info( "Forcing the usage of TrigConfBunchCrossingTool" )
+            from TrigBunchCrossingTool.BunchCrossingTool import TrigConfBunchCrossingTool
+            return TrigConfBunchCrossingTool()
+        elif type == "LHC":
+            __logger.info( "Forcing the usage of LHCBunchCrossingTool" )
+            from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
+            return LHCBunchCrossingTool()
+        elif type == "MC":
+            from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
+            __logger.info( "Forcing the usage of MCBunchCrossingTool" )
+            return MCBunchCrossingTool()
+        else:
+            __logger.warning( "Type = " + type + " not recognized" )
+            __logger.warning( "Will select tool type based on global flags" )
+
+    # Decide which tool to use based on the global flags:
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.DataSource() == "data":
+        from RecExConfig.RecFlags import rec
+        from RecExConfig.RecAlgsFlags import recAlgs
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly() or recAlgs.doTrigger():
+            from TrigBunchCrossingTool.BunchCrossingTool import TrigConfBunchCrossingTool
+            __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
+            return TrigConfBunchCrossingTool()
+        else:
+            __logger.info( "Trigger turned off, selecting LHCBunchCrossingTool for this job" )
+            from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
+            return LHCBunchCrossingTool()
+    else:
+        if globalflags.isOverlay():
+            __logger.warning( "Overlay jobs are not handled necessarily correctly by this tool" )
+        __logger.info( "Selecting MCBunchCrossingTool for this job" )
+        from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
+        return MCBunchCrossingTool()
