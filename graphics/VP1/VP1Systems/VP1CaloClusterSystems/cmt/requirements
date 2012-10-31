@@ -1,0 +1,17 @@
+package VP1CaloClusterSystems
+
+author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use VP1Base              VP1Base-*              graphics/VP1
+use AtlasCoinInventor    AtlasCoinInventor-*    External
+private
+use VP1Utils             VP1Utils-*             graphics/VP1
+use VP1HEPVis            VP1HEPVis-*            graphics/VP1
+use AtlasCLHEP           AtlasCLHEP-*           External
+use CaloEvent            CaloEvent-*            Calorimeter
+public
+
+apply_pattern qt4based_library
+
+
