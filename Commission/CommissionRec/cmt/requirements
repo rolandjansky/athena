@@ -1,0 +1,23 @@
+package CommissionRec
+
+author Rob McPherson <Robert.McPherson@cern.ch>
+
+use AtlasPolicy     	AtlasPolicy-*     
+
+
+use GaudiInterface      GaudiInterface-*     External
+
+private
+use AtlasCLHEP          AtlasCLHEP-*            External
+use CommissionEvent     CommissionEvent-*    Commission
+use CommissionUtils     CommissionUtils-*    Commission
+use StoreGate           StoreGate-*          Control
+use EventInfo           EventInfo-*             Event
+use TrackRecord TrackRecord-* Simulation/G4Sim
+end_private
+
+
+library CommissionRec *.cxx -s=components *.cxx
+apply_pattern component_library
+
+
