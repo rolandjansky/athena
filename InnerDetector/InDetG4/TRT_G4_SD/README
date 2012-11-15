@@ -1,0 +1,14 @@
+Package:      Offline/InnerDetector/InDetG4/TRT_G4/TRT_G4_SD
+Responsible:  	Andrei Zalite   <andrei.zalite@cern.ch>  (Primary)
+		Davide Costanzo <DCostanzo@lbl.gov>      (Primary)
+
+Content:  G4 Sensitive Detector for the TRT
+
+Inputs:       None (to be attached at run-time to the active elements)
+Outputs:      Inner Detector GEANT4 Hits
+Dependencies: GEANT4, FADS, SimHelper
+JobOoptions:  None
+G4 Macro:     trtSD.mac
+
+Last modified October 27, 2003 by Davide Costanzo
+

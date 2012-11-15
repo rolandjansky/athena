@@ -1,0 +1,11 @@
+
+/load TRT_G4_SD
+
+### Set up sensitive detector
+/SenDetector/UseSensitiveDetector TRTSensitiveDetector TRTSD
+/Geometry/AssignSD TRTBarrel GasSLog TRTSD
+/Geometry/AssignSD TRTBarrel GasLLog TRTSD
+/Geometry/AssignSD TRTForwardEndCap GasABLog TRTSD
+/Geometry/AssignSD TRTForwardEndCap GasCLog TRTSD
+/Geometry/AssignSD TRTBackwardEndCap GasABLog TRTSD
+/Geometry/AssignSD TRTBackwardEndCap GasCLog TRTSD

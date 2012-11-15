@@ -1,0 +1,23 @@
+package TRT_G4_SD
+
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+public
+
+use  AthenaKernel          AthenaKernel-*                  Control
+use  FadsSensitiveDetector FadsSensitiveDetector-*         Simulation/G4Sim/FADS
+use  InDetSimEvent         InDetSimEvent-*                 InnerDetector
+use  SimHelpers            SimHelpers-*                    Simulation/G4Sim
+use  AtlasPolicy           AtlasPolicy-*                   
+
+private
+use AthenaBaseComps        AthenaBaseComps-*               Control
+use Geant4                 Geant4-*                        External
+use MCTruth		   MCTruth-*		           Simulation/G4Sim
+use TRT_G4Utilities	   TRT_G4Utilities-* 	           InnerDetector/InDetG4
+
+
+# build a installed library
+public
+library TRT_G4_SD *.cxx
+apply_pattern linked_library

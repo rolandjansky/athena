@@ -1,0 +1,13 @@
+
+/load TRT_G4Utilities:TRT_G4_SD
+
+### Set up sensitive detector
+/SenDetector/UseSensitiveDetector TRTSensitiveDetector TRTSD
+/Geometry/AssignSD TRT TRT::Gas TRTSD
+/Geometry/AssignSD TRT TRT::GasMA TRTSD
+
+### TR Radiation from InDetSimUtils
+/load TRT_TR_Process
+/control/ReadXML TRgeomodelgeometry.xml 
+
+
