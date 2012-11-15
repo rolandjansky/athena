@@ -1,0 +1,54 @@
+ 
+ 
+   This package provides  examples of the use of 
+ LArHardwareID's through one Athena algorithm : TestLArHWID_Algo 
+ 
+   If you look at the code of the execute() method of this algorithm
+ , you will learn how :
+ 
+   1) to convert Identifiers into LArSignalChannelIDs
+   2) to convert LArSignalChannelIDs into Identifiers
+   3) to handle the LArID_Exceptions thrown by LArCablingService 
+      , LArEM_id.h , LArHEC_ID.h , LArFCAL_ID.h 
+      ( which you really have to do !! )
+   4) to use the iteration mechanism over LArSignalChannelIDs
+   5) to use the ID compactification mechanism 
+   6) A algorithm property allows you to select the subdetector
+      which gets iterated over : 
+      Detector = "ALL" , "EMB" , "EMEC" , "EM" , "HEC" , "FCAL" 
+ 
+ 
+	
+ 
+	
+ To execute this example :
+ 
+  - Read ``CMT in ATLAS'' if you are not familiar with CMT .
+  - Use the TestRelease method to create a run time environment. 
+  
+  Then follow the following instructions :
+
+ 1) in the file "TestRelease/TestRelease-xx-yy-zz/cmt/requirements" add the lines :
+ 
+  use Control Control-00-*
+  use Event   Event-00-*
+  use Generator Generator-00-* 
+  use LArCalorimeter LArCalorimeter-* 
+ 
+ 2) then , in the cmt directory under TestRelease/TestRelease-xx-yy-zz , execute :
+ 
+    cmt config
+    source setup.sh
+    gmake
+ 
+ 2) in directory "TestRelease/TestRelease-xx-yy-zz/run/"
+ 
+    athena TestLArHardwareID_test_jobOptions.txt
+ 
+ 
+******************************************************
+Documentation written by J. Collot  <collot@in2p3.fr>
+last revision : 2002-07-29 for release 4.2.0
+******************************************************
+ 
+ 
