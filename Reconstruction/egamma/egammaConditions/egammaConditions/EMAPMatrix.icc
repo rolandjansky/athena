@@ -1,0 +1,444 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//#include <assert.h>
+/********************************************************************************************/
+/// Public Implementations
+/********************************************************************************************/
+
+// helper class
+
+inline unsigned int  EMAPMatrixAxis::getNumberOfBins() const
+{ 
+  return m_vecBins.size()-1;
+}
+
+inline int EMAPMatrixAxis::getBinIndex(double x) const
+{
+  if ((x<m_vecBins[0]) || (m_vecBins[m_vecBins.size()-1]<x)) return -1;
+  for (unsigned int i=0; i<m_vecBins.size(); i++) {
+    if ((m_vecBins[i]<=x) && (x<m_vecBins[i+1])) {
+      return (int)i;
+    }
+  }
+  return -1;
+}
+
+inline bool EMAPMatrixAxis::isInRange(double x) const
+{
+  if ((x<m_vecBins[0]) || (m_vecBins[m_vecBins.size()-1]<x)) return false;
+  return true;
+}
+
+// double EMAPMatrixAxis::getMeanOfBin(unsigned int i) const
+// {
+//   if (i>=m_vecBins.size()-1) return -1.0;
+//   return 0.5*(m_vecBins[i+1]-m_vecBins[i])+m_vecBins[i];
+// }
+
+// double EMAPMatrixAxis::getWidthOfBin(unsigned int i) const
+// {
+//   if (i>=m_vecBins.size()-1) return -1.0;
+//   return (m_vecBins[i+1]-m_vecBins[i]);
+// }
+
+
+// void EMAPMatrixAxis::setName(std::string name) 
+// { 
+//   m_name = name;
+// }
+
+
+// now the real class
+
+template <class T>
+EMAPMatrix<T>::EMAPMatrix()
+{
+  //	m_emptyObject = 0;
+  clear();
+}
+
+
+template <class T>
+EMAPMatrix<T>::EMAPMatrix(std::vector<EMAPMatrixAxis> axes,  std::string textDescription)
+{
+  //	m_emptyObject = 0;
+  StatusCode sc = setupMatrix(axes);
+  if (sc.isFailure()) {
+    throw std::invalid_argument("Could not set up the EMAPMatrix.");
+  }
+  setTextDescription(textDescription);
+}
+
+
+// template <class T>
+// EMAPMatrix<T>::EMAPMatrix(std::vector<EMAPMatrixAxis> axes, T emptyObject)
+// {
+//   //	m_emptyObject = 0;
+// 	setupMatrix(axes, emptyObject);
+// }
+
+
+template <class T>
+StatusCode EMAPMatrix<T>::setupMatrix(std::vector<EMAPMatrixAxis> axes)
+{
+	
+  m_axis.clear();
+  m_dimensions=axes.size();
+	
+  for (unsigned int i=0;i<m_dimensions;++i) 
+    {
+      m_axis.push_back(axes.at(i));
+    }
+  return setupEntries();
+}
+
+
+template <class T>
+EMAPMatrix<T>::~EMAPMatrix()
+{
+  clear();
+}
+
+
+template <class T>
+EMAPMatrix<T>::EMAPMatrix(const EMAPMatrix& ob)
+{
+  m_dimensions		= ob.m_dimensions;
+  m_axis			= ob.m_axis;
+  m_matrix		= ob.m_matrix;
+  m_base			= ob.m_base;
+  m_textDescription	= ob.m_textDescription;
+}
+
+template <class T>
+void EMAPMatrix<T>::clear()
+{
+  m_dimensions  = 0;
+  m_axis.clear();
+  m_base.clear();
+  m_matrix.clear();
+  m_textDescription = "";
+}
+
+
+template <class T>
+EMAPMatrix<T>& EMAPMatrix<T>::operator = (const EMAPMatrix& ob)
+{
+  if (this != &ob) {
+    m_dimensions		= ob.m_dimensions;
+    m_axis			= ob.m_axis;
+    m_matrix		= ob.m_matrix;
+    m_base			= ob.m_base;
+    m_textDescription	= ob.m_textDescription;
+  }
+  return *this;
+}
+
+
+template <class T>
+unsigned int EMAPMatrix<T>::Index(std::vector<unsigned int> x) const 
+{
+  unsigned int index=0;
+  //assert(x.size()==m_dimensions);
+  if (x.size()!=m_dimensions)	
+    {
+      std::cout<<"EMAPMatrix ERROR: Illegal Acces of Matrix "<<std::endl;
+      return index;
+    }
+
+  for (unsigned int i=0;i<m_dimensions;++i) 
+    {
+      //assert(x.at(i)<=m_axis.at(i).getNumberOfBins());
+      if (!(x.at(i)<=m_axis.at(i).getNumberOfBins()))
+	{
+	  std::cout<<"EMAPMatrix ERROR: Illegal Acces of Matrix "<<std::endl;
+	  return index;
+	}
+      index+=m_base.at(i)*x.at(i);      
+    }
+  return index;
+}
+
+template <class T>
+std::vector<unsigned int> EMAPMatrix<T>::Index(unsigned int id)
+{
+  std::vector<unsigned int> x;
+  for (int i=(int)(m_dimensions)-1;i>=0;i--) x.push_back(0);
+  //assert(id<m_matrix.size());
+  if (!(id<m_matrix.size()))
+    {
+      std::cout<<"EMAPMatrix ERROR: Illegal Acces of Matrix "<<std::endl;
+      return x;
+    }
+
+  for (int i=m_dimensions-1;i>0;i--)
+    {
+      x[i]=int((id*1.0)/(m_base.at(i)*1.0));
+      id-=x[i]*m_base.at(i);
+    }
+  x[0]=id;
+  return x;
+}
+
+
+// template <class T>
+// T& EMAPMatrix<T>::Access(std::vector<unsigned int> x)
+// {
+// 	return m_matrix[Index(x)];
+// }
+
+                
+template <class T>
+StatusCode EMAPMatrix<T>::setBinContent(std::vector<double> x, T value)
+{
+  std::vector<unsigned int> id;
+  if (x.size()==m_dimensions) {
+    for (unsigned int i=0;i<m_dimensions;++i) {
+      int bi=m_axis.at(i).getBinIndex(x.at(i));
+      if (bi>=0) {
+	id.push_back(bi);
+      } else {
+	return StatusCode::FAILURE;
+      }
+    }
+    m_matrix[Index(id)]=value;
+    return StatusCode::SUCCESS;
+  } else {
+    return StatusCode::FAILURE;
+  }
+}
+
+template <class T>
+StatusCode EMAPMatrix<T>::setBinContent(double x, T value)
+{
+  if (m_dimensions!=1) return StatusCode::FAILURE;;
+  std::vector<double> vec;
+  vec.push_back(x);
+  return setBinContent(vec, value);
+}
+
+template <class T>
+StatusCode EMAPMatrix<T>::setBinContent(double x, double y, T value)
+{
+  if (m_dimensions!=2)  return StatusCode::FAILURE;;
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  return setBinContent(vec, value);
+}
+
+template <class T>
+StatusCode	EMAPMatrix<T>::setBinContent(double x, double y, double z, T value)
+{
+  if (m_dimensions!=3)  return StatusCode::FAILURE;;
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  vec.push_back(z);
+  return setBinContent(vec, value);
+}
+
+template <class T>
+StatusCode EMAPMatrix<T>::setBinContent(double x, double y, double z, double u, T value)
+{
+  if (m_dimensions!=4) return StatusCode::FAILURE;;
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  vec.push_back(z);
+  vec.push_back(u);
+  return setBinContent(vec, value);
+}
+
+template <class T>
+StatusCode EMAPMatrix<T>::setBinContent(double x, double y, double z, double u, double v, T value)
+{
+  if (m_dimensions!=5) return StatusCode::FAILURE;
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  vec.push_back(z);
+  vec.push_back(u);
+  vec.push_back(v);
+  return setBinContent(vec, value);
+}
+
+
+template <class T>
+const T* EMAPMatrix<T>::getBinContent(double x) const
+{
+  if (m_dimensions!=1)
+    {
+      return 0;
+    }
+  std::vector<double> vec;
+  vec.push_back(x);
+  return getBinContent(vec);
+}
+
+template <class T>
+const T* EMAPMatrix<T>::getBinContent(double x, double y) const
+{
+  if (m_dimensions!=2)
+    {
+      return 0;
+    }
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  return getBinContent(vec);
+}
+
+template <class T>
+const T* EMAPMatrix<T>::getBinContent(double x, double y, double z) const
+{
+  if (m_dimensions!=3)
+    {
+      return 0;
+    }
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  vec.push_back(z);
+  return getBinContent(vec);
+}
+
+template <class T>
+const T* EMAPMatrix<T>::getBinContent(double x, double y, double z, double u) const
+{
+  if (m_dimensions!=4)
+    {
+      return 0;
+    }
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  vec.push_back(z);
+  vec.push_back(u);
+  return getBinContent(vec);
+
+}
+
+template <class T>
+const T* EMAPMatrix<T>::getBinContent(double x, double y, double z, double u, double v) const
+{
+  if (m_dimensions!=5)
+    {
+      return 0;
+    }
+  std::vector<double> vec;
+  vec.push_back(x);
+  vec.push_back(y);
+  vec.push_back(z);
+  vec.push_back(u);
+  vec.push_back(v);
+  return getBinContent(vec);
+}
+
+
+
+
+template <class T>
+const T* EMAPMatrix<T>::getBinContent(std::vector<double> x) const
+{
+  bool statusCode = true;
+  std::vector<unsigned int> id;
+  if (x.size()==m_dimensions) 
+    {
+      for (unsigned int i=0;i<m_dimensions;++i)
+	{
+	  int bi=m_axis.at(i).getBinIndex(x.at(i));
+	  if (bi>=0) 
+	    {
+	      id.push_back(bi);
+	    } else 
+	    {
+	      statusCode=false;
+	    }
+	}
+      if (statusCode) 
+	{
+	  return &(m_matrix.at(Index(id)));
+	}
+    }
+  return 0;
+}
+
+
+    
+
+template <class T>
+StatusCode EMAPMatrix<T>::setupEntries()
+{
+
+  // just a check
+  m_dimensions  = m_axis.size();
+  for (unsigned int i=0;i<m_dimensions;++i)  {
+    for (unsigned int j=i+1;j<m_dimensions;++j) {
+      if (m_axis.at(i).getName()==m_axis.at(j).getName()) {
+	return StatusCode::FAILURE;
+      }
+    }
+  }
+	
+  unsigned int entries=1;
+  for (unsigned int i=0;i<m_dimensions;++i) {
+    entries*=m_axis.at(i).getNumberOfBins();
+  }
+  m_matrix.clear();
+
+  T dummyObject;
+  for (unsigned int i=0;i<entries;++i) {
+    m_matrix.push_back(dummyObject);
+  }
+	
+  unsigned int ib=1;
+  m_base.clear();
+  for (unsigned int i=0;i<m_dimensions;++i) 
+    {
+      m_base.push_back(ib);
+      ib*=m_axis.at(i).getNumberOfBins();
+    }
+
+  return StatusCode::SUCCESS;
+}
+
+template <class T>
+void  EMAPMatrix<T>::clearEntries()
+{
+  unsigned int entries=1;
+  for (unsigned int i=0;i<m_dimensions;++i) 
+    {
+      entries*=m_axis.at(i).getNumberOfBins();
+    }
+	
+  m_matrix.clear();
+
+  T dummyObject;
+  for (unsigned int i=0;i<entries;++i) {
+    m_matrix.push_back(dummyObject);
+  }
+}
+
+
+template <class T>
+bool EMAPMatrix<T>::isInRange(std::vector<double> x) const
+{
+  if (x.size()!=m_dimensions) return false;
+  for (unsigned int i=0;i<m_dimensions;++i) if (m_axis.at(i).isInRange(x.at(i))==false) return false;
+  return true;
+}
+
+template <class T>
+void EMAPMatrix<T>::setTextDescription(std::string text)
+{
+  m_textDescription = text;
+}
+
+template <class T>
+std::string EMAPMatrix<T>::getTextDescription() const
+{
+  return m_textDescription;
+}
