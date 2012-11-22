@@ -1,0 +1,21 @@
+package JetTaggingTagTools
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy         AtlasPolicy-01-*
+use AthenaPoolUtilities         AthenaPoolUtilities-00-*        Database/AthenaPOOL
+use GaudiInterface      GaudiInterface-01-*       External
+use AtlasCLHEP		AtlasCLHEP-00-*	          External
+
+use StoreGate           StoreGate-02-*            Control
+
+use JetEvent		JetEvent-*		  Reconstruction/Jet
+
+use TagEvent		TagEvent-00-*		  PhysicsAnalysis/EventTag
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
+
+
