@@ -1,0 +1,152 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "StoreGate/StoreGate.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/SmartDataPtr.h"
+#include "GaudiKernel/IDataProviderSvc.h"
+#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/INTupleSvc.h"
+
+static const int MAX_nParticle = 128;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+template <class PARTICLE> inline
+ReadParticle<PARTICLE>::ReadParticle(const std::string& name, ISvcLocator* pSvcLocator)
+  : Algorithm(name, pSvcLocator),
+    m_ContainerName("")
+{
+  // Declare the properties
+  declareProperty("NtupleLocID",  m_NtupleLocID);
+  declareProperty("ContainerName",m_ContainerName);
+  declareProperty("NtuplePrefix", m_prefix);
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+template <class PARTICLE> inline
+StatusCode ReadParticle<PARTICLE>::initialize()
+{
+  MsgStream log(msgSvc(), name());
+  log << MSG::DEBUG << "in initialize()" << endreq;
+
+  StatusCode sc;
+
+  // get StoreGate service
+  sc = service("StoreGateSvc",m_storeGate);
+  if (sc.isFailure())
+    {
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+  // access Ntuple
+  sc = accessNtuple();
+  if (sc.isFailure())
+    {
+      log << MSG::ERROR << "accessNtuple has failed !" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+  // add items
+  sc = m_ntuplePtr -> addItem (m_prefix+"/nParticle", m_nParticle, 0, MAX_nParticle);
+  sc = m_ntuplePtr -> addItem (m_prefix+"/pt",        m_nParticle,  m_pt);
+  
+  if (sc.isFailure())
+    {
+      log << MSG::ERROR 
+	  << "Could not add items to column wise ntuple" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+template <class PARTICLE> inline
+StatusCode ReadParticle<PARTICLE>::execute()
+{
+  MsgStream log(msgSvc(), name());
+  log << MSG::DEBUG << "in execute()" << endreq;
+
+  StatusCode sc;
+
+  // Retrieve presistified container
+  const PARTICLE * pCont;
+  sc =m_storeGate->retrieve(pCont,m_ContainerName);
+  if (sc.isFailure())
+    {
+      log << MSG::FATAL << "Container \""+m_ContainerName+"\" could not be retrieved from StoreGate !" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+ 
+  log << MSG::DEBUG << "Container->size() : " << pCont->size() << endreq;
+
+  m_nParticle = 0;
+
+  // loop over Particles
+  typename PARTICLE::const_iterator itP  = pCont->begin();
+  typename PARTICLE::const_iterator itPe = pCont->end();
+  for (; itP != itPe; ++itP)
+    {
+      if (m_nParticle >= MAX_nParticle) break;
+
+      // fill IParticle attributes
+      m_pt      [m_nParticle] = (*itP)->pt();
+
+      log << MSG::DEBUG
+	  << MSG::dec
+	  << "#" << m_nParticle
+	  << " pt:"       << m_pt[m_nParticle]
+	  << endreq;
+      
+      ++m_nParticle;
+    }
+
+ log << MSG::DEBUG << "execute() completed" << endreq;
+ 
+ return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+template <class PARTICLE> inline
+StatusCode ReadParticle<PARTICLE>::finalize()
+{
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+template <class PARTICLE> inline
+StatusCode ReadParticle<PARTICLE>::accessNtuple()
+{
+  MsgStream log(messageService(), name());
+
+  m_NtupleLocID = "/NTUPLES" + m_NtupleLocID ;
+
+  //try to access it  
+  NTuplePtr nt(ntupleService(), m_NtupleLocID );
+
+  if (static_cast<int>(nt))
+    {
+      m_ntuplePtr=nt;
+      log << MSG::INFO << "Ntuple " << m_NtupleLocID 
+	  << " reaccessed! " << endreq;
+    } 
+  else
+    {
+      log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+      return StatusCode::FAILURE;
+    }
+
+  return StatusCode::SUCCESS;
+}
+
+

@@ -1,0 +1,126 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/////////////////////////////////////////////////////////////////// 
+// WriteINav4MomAssocs.h 
+// Header file for class WriteINav4MomAssocs
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+#ifndef ANALYSISTEST_WRITEINAV4MOMASSOCS_H 
+#define ANALYSISTEST_WRITEINAV4MOMASSOCS_H 
+
+/** Algorithm to test persistency of INav4MomAssocs class
+ */
+
+// STL includes
+#include <string>
+
+// HepMC / CLHEP includes
+
+// FrameWork includes
+#include "GaudiKernel/Algorithm.h"
+
+// DataModel includes
+#include "DataModel/ClassName.h"
+
+// NqvFourMom includes
+#include "NavFourMom/INavigable4MomentumCollection.h"
+
+// Forward declaration
+class StoreGateSvc;
+
+class WriteINav4MomAssocs : public Algorithm
+{ 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Public methods: 
+  /////////////////////////////////////////////////////////////////// 
+ public: 
+
+  // Copy constructor: 
+
+  /// Constructor with parameters: 
+  WriteINav4MomAssocs( const std::string& name, ISvcLocator* pSvcLocator );
+
+  /// Destructor: 
+  virtual ~WriteINav4MomAssocs(); 
+
+  // Assignment operator: 
+  //WriteINav4MomAssocs &operator=(const WriteINav4MomAssocs &alg); 
+
+  // Athena algorithm's Hooks
+  virtual StatusCode  initialize();
+  virtual StatusCode  execute();
+  virtual StatusCode  finalize();
+
+  /////////////////////////////////////////////////////////////////// 
+  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////// 
+  // Non-const methods: 
+  /////////////////////////////////////////////////////////////////// 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Protected methods: 
+  /////////////////////////////////////////////////////////////////// 
+ protected: 
+
+  template < typename INCOLL, typename OUTCOLL >
+    StatusCode symLink( const std::string& collName ) const;
+
+  StatusCode buildAssocs( const INavigable4MomentumCollection * coll1,
+			  const INavigable4MomentumCollection * coll2 ) const;
+
+  /////////////////////////////////////////////////////////////////// 
+  // Protected data: 
+  /////////////////////////////////////////////////////////////////// 
+ protected: 
+
+  /// Default constructor: 
+  WriteINav4MomAssocs();
+
+  /// Pointer to StoreGate
+  StoreGateSvc *m_storeGate;
+
+  // Containers
+  
+  /** Input location for ParticleJet container
+   */
+  std::string m_jetsName;
+
+  /** Input location for Electron container
+   */
+  std::string m_electronsName;
+
+  /** Output location for INav4MomAssocs container
+   */
+  std::string m_inavAssocsOutputName;
+
+}; 
+
+/// I/O operators
+//////////////////////
+
+/////////////////////////////////////////////////////////////////// 
+/// Inline methods: 
+/////////////////////////////////////////////////////////////////// 
+
+template < typename INCOLL, typename OUTCOLL >
+StatusCode WriteINav4MomAssocs::symLink( const std::string& collName ) const
+{
+  const INCOLL * inColl = 0;
+  if ( m_storeGate->retrieve( inColl, collName ).isFailure() ) {
+    MsgStream log( msgSvc(), name() );
+    log << MSG::ERROR
+	<< "Could not retrieve input coll [" << ClassName<INCOLL>::name() <<"]"
+	<< " from : " << collName << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  const OUTCOLL * outColl = 0;
+  return m_storeGate->symLink( inColl, outColl );
+}
+
+#endif //> ANALYSISTEST_WRITEINAV4MOMASSOCS_H
