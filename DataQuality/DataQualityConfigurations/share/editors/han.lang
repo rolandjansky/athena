@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Syntax highlighting for han configuration files in GtkSourceView (used by gedit et al.)
+Copy this to ${PREFIX}/share/gtksourceview-2.0/language-specs
+-->
+
+<language id="han" name="han" version="2.0" _section="Others">
+  <metadata>
+    <property name="globs">*_run.config;*_minutes10.config;*_minutes30.config</property>
+    <property name="line-comment-start">#</property>
+  </metadata>
+
+  <styles>
+    <style id="keyword"   _name="Keyword"   map-to="def:keyword"/>
+    <style id="attribute" _name="Attribute" map-to="def:type"/>
+    <style id="constant"  _name="Constant"  map-to="def:special-constant"/>
+    <style id="operator"  _name="Operator"  map-to="def:operator"/>
+    <style id="comment"   _name="Comment"   map-to="def:comment"/>
+  </styles>
+
+  <default-regex-options case-sensitive="false"/>
+
+  <definitions>
+
+    <context id="keywords" style-ref="keyword">
+      <prefix>^[[:space:]]*</prefix><!-- at the beginning of the line -->
+      <keyword>dir</keyword>
+      <keyword>hist</keyword>
+      <keyword>output</keyword>
+      <keyword>reference</keyword>
+      <keyword>algorithm</keyword>
+      <keyword>compositealgorithm</keyword>
+      <keyword>thresholds</keyword>
+      <keyword>limits</keyword>
+      <keyword>metadata</keyword>
+    </context>
+
+    <context id="attributes" style-ref="attribute">
+      <prefix>^[[:space:]]*</prefix><!-- at the beginning of the line -->
+      <suffix>[[:space:]]*(?==)</suffix><!-- followed by an equal sign -->
+      <keyword>name</keyword>
+      <keyword>file</keyword>
+      <keyword>path</keyword>
+      <keyword>output</keyword>
+      <keyword>libnames</keyword>
+      <keyword>libname</keyword>
+      <keyword>reference</keyword>
+      <keyword>algorithm</keyword>
+      <keyword>subalgs</keyword>
+      <keyword>thresholds</keyword>
+      <keyword>weight</keyword>
+      <keyword>warning</keyword>
+      <keyword>error</keyword>
+      <keyword>regex</keyword>
+      <keyword>display</keyword>
+    </context>
+
+    <context id="name-constants" style-ref="constant">
+      <suffix>[[:space:]]*(?={)</suffix><!-- followed by an opening brace -->
+      <keyword>top_level</keyword>
+      <keyword>all_in_dir</keyword>
+    </context>
+
+    <context id="value-constants" style-ref="constant">
+      <prefix>(?&lt;==)[[:space:]]*</prefix><!-- preceded by an equal sign -->
+      <keyword>same_name</keyword>
+      <keyword>true</keyword>
+      <keyword>false</keyword>
+      <keyword>yes</keyword>
+      <keyword>no</keyword>
+    </context>
+
+    <context id="operators" style-ref="operator">
+      <keyword>@</keyword>
+      <keyword>\|</keyword>
+      <keyword>,</keyword>
+      <keyword>:</keyword>
+      <keyword>;</keyword>
+    </context>
+
+    <context id="comments" style-ref="comment" end-at-line-end="true">
+      <start>#</start>
+    </context>
+
+    <context id="han">
+      <include>
+        <context ref="comments"/>
+        <context ref="operators"/>
+        <context ref="value-constants"/>
+        <context ref="name-constants"/>
+        <context ref="attributes"/>
+        <context ref="keywords"/>
+      </include>
+    </context>
+
+  </definitions>
+</language>

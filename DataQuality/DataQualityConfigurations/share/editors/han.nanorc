@@ -1,0 +1,15 @@
+# syntax highlighting for han configuration files in the nano text editor
+# copy this to your ~/.nanorc file or use an "include" statement
+#
+# recognise han files by their name
+syntax "han" "_(run|minutes[[:digit:]]{1,3})\.config$"
+# keywords
+color green "\<(dir|hist|output|reference|algorithm|composite[aA]lgorithm|thresholds|limits|metadata)\>"
+# attributes
+color blue "\<(name|file|path|output|libname|libnames|reference|algorithm|subalgs|thresholds|weight|warning|error|regex|display)\> *="
+# tokens with special meaning
+color red "\<(top_level|same_name|all_in_dir|true|false|yes|no)\>"
+# operators (using "&" for composite algorithm names is only a convention)
+color red "@|\||,|:|;"
+# comments
+color cyan "#.*"
