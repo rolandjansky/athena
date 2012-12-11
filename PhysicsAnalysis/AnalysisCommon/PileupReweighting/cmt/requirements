@@ -1,0 +1,54 @@
+package PileupReweighting
+
+author Will Buttinger <will@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy                 AtlasPolicy-*
+use AtlasROOT                   AtlasROOT-*             External
+use GaudiInterface              GaudiInterface-*        External
+use AthenaBaseComps             AthenaBaseComps-*       Control
+
+
+private 
+use SGTools                     SGTools-*               Control
+use AthenaKernel                AthenaKernel-*          Control
+use EventInfo                EventInfo-*             Event
+end_private
+
+
+
+
+## macros   
+apply_tag       ROOTBasicLibs
+apply_tag       ROOTMathLibs
+
+
+## declare the directories CMT should know about
+branches python share doc src Root
+
+
+# Create a named installed library
+library PileupReweightingLib "../Root/*.cxx"
+apply_pattern named_installed_library library=PileupReweightingLib
+
+macro PileupReweightingLib_dependencies  "pileupreweighting_root_dictionary"
+## this calls rootcint
+action  pileupreweighting_root_dictionary  "( make -f Makefile.Standalone pileupreweightingcint )"
+
+apply_pattern generate_rootmap library=PileupReweightingLib
+
+## create a component library
+library PileupReweighting *.cxx components/*.cxx
+macro_append PileupReweighting_dependencies " PileupReweightingLib"
+apply_pattern component_library
+
+## install our python modules
+apply_pattern declare_python_modules files="*.py"
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
+## install default config file
+apply_pattern declare_runtime files="*.root"
+
+
