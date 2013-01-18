@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# Run RTT test.
+# This is what we expect the RTT system  to do following the
+# instructions in out xml. This test does not use the RTT system
+# of that XML interface.
+
+NAME=`basename $0`
+OUTDIR=rttdir
+ARGS=$*
+
+# Interpret command line.
+RUN_ATHENA=
+RUN_ACTION=
+if [ -z "$ARGS" ]; then
+  RUN_ATHENA=true
+  RUN_ACTION=true
+else
+  for ARG in $ARGS; do
+    if [ $ARG = athena ]; then
+      RUN_ATHENA=true
+    else if [ $ARG = action ]; then
+      RUN_ACTION=true
+    else
+      echo Invalid argument: $ARG
+      exit 1
+    fi; fi
+  done
+fi
+if [ -n "$RUN_ATHENA" ]; then
+  rm -rf $OUTDIR
+fi
+if [ ! -d $OUTDIR ]; then
+  mkdir $OUTDIR
+fi
+cd $OUTDIR
+
+echo "Running in $OUTDIR"
+
+# Run athena.
+if [ -n "$RUN_ATHENA" ]; then
+  LOG=${NAME}_athena.log
+  echo Running athena--output in $LOG
+  athena.py MuonRecRTT/MuonRecRTT_topOptions.py >$LOG 2>&1 
+  STAT=$?
+  echo Athena returned $STAT
+  if [ $STAT -ne 0 ]; then
+    exit 1
+  fi
+fi
+
+# Add share directories to PYTHONPATH.
+NEWPATH=
+for DIR in `echo $CMTPATH | sed 's/:/ /g'`; do
+  PYDIR=$DIR/InstallArea/share
+  if [ -z "$NEWPATH" ]; then
+    NEWPATH=$PYDIR
+  else
+    NEWPATH=$NEWPATH:$PYDIR
+  fi
+done
+PYTHONPATH=$NEWPATH:$PYTHONPATH
+
+# Action to build muperf report.
+if [ -n "$RUN_ACTION" ]; then
+  LOG=${NAME}_action.log
+  TFILE=action1.py
+  echo 'from MuPerfReport import *' >$TFILE
+  echo "x = MuPerfReport()" >>$TFILE
+  echo "x.run()" >>$TFILE
+  echo Running action--output in $LOG
+  python $TFILE >$LOG 2>&1
+  STAT=$?
+  echo Action returned $STAT
+  if [ $STAT -ne 0 ]; then
+    echo Python path: $PYTHONPATH
+    exit 2
+  fi
+fi
+    echo Python path: $PYTHONPATH
+
+echo Output in $LOG
