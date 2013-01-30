@@ -1,0 +1,5 @@
+SVN updates
+
+1) svn up and svn ci
+2) tagsvn.sh CoolRunQuery-00-00-14  (was immer du zum taggen benutzt)
+3) auf voatlas24 in /var/www/html/atlas-runquery: . ./switchtag.sh hoecker 00-00-14

@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:my>
+<head>
+<title>ATLAS Run Query &minus; Help</title>
+
+<LINK href="atlas-runquery-help.css" rel="stylesheet" type="text/css">
+
+<body style="background-color: #ffffff;">
+
+<table class="mytable"><tr><th class="coltitle" style="font-family: sans-serif; font-size: 100%; background: #6D7B8D; color:white; height: 40px; vertical-align: middle">ATLAS Run Query &minus; Help</th>
+</tr><tr>
+  <td height="10"</td></tr><tr>
+  <td><b>Query format:</b> <br>
+    <ul>
+    <table class="mysmallhelptable">
+      <tr>
+        <th colspan="2"><b>f(ind) [<i>condition1</i> and <i>condition2</i> and ...] / sh(ow) [<i>tag1</i> and <i>tag2</i> and ...] [/ other options]</b> </td>
+      </tr><tr>
+        <td colspan="2" height="3"></td>
+      </tr><tr>
+        <td width="100" valign="top"> <i>find</i> conditions:</td><td> Composed of <i>tag</i> and <i>argument</i>, where any of the tags defined in table below can be used. <br>
+                                 By default is used: "partition ATLAS and ftag data08*".</td>
+      </tr><tr>
+        <td valign="top"> <i>show</i> tags:</td><td> By default: run number, #lumi blocks (LB) and #events are shown for the selected runs.<br>
+                                 More tags (any of the list below) can be added. Note however that adding more tags will require
+                                 more data to be read from the DB, which increases the query delay (the same is true for the <i>find</i> conditions). </td>
+      </tr><tr>
+        <td valign="top">Other options:</td><td>Switch off use of default conditions by adding "/ nodef" to the end of the query.</td>
+      </tr><tr>
+        <td valign="top">Abbreviations:</td><td>Text in paranthesis can be dropped. <br>
+                         For example: "f" is equal to "find", "sh" is equal to "show", "r" is equal to "runs" (cf. tags below), etc.</td>
+      </tr>
+    </table> 
+  </ul>
+  </td>
+</tr><tr>
+  <td height=10 valign="bottom"><b>Available <i>find</i> and <i>show</i> tags:</b></td>
+</tr><tr>
+  <td height=7 valign="bottom"><b></b></td>
+</tr><tr>
+  <td>
+<ul>
+  <table class="myhelptable">
+    <tr>
+      <th width="80"> Tag</th><th>Format examples</th><th>Description</th>
+      </tr><tr>
+      <td class="t1">   r(uns)       </td><td class="t1"> "run 91000", "runs 91000-92000", <br>"runs 91000-(+)"(this run and all before (after)) </td><td class="t1">Run number</td>
+    </tr><tr>
+      <td class="t2">   t(ime)       </td><td class="t2"> "time 10.9.2008-30.9.2008", <br>"time 15.10.2008-(+)" (this date and all before (after)) </td><td class="t2"> Date and time of run range. <br> <font color="red">Note that the time is the CTP (LB1_start -> LBLast_end) time corresponding to the genuine running time where triggers were accepted, and NOT the Run Control time.</font> </td>
+    </tr><tr>
+      <td class="t1">   dur(ation)   </td><td class="t1"> "10d/h/m/s+/-", e.g., "2000s+" (run duration more than 2000 sec), <br> "3h-" (less than 3 hours) </td><td class="t1"> Run duration (see remark on time above)</td>
+    </tr><tr>
+      <td class="t2">   ftag         </td><td class="t2"> "ftag data08_cos,data08_cosmag",<br> "ftag data08_cos*" (wildcard can be * or %)</td><td class="t2">ProjectTag in dataset name (denoted "filenameTag" in COOL) </td>
+    </tr><tr>
+      <td class="t1">   p(artition)  </td><td class="t1"> "partition ATLAS" </td><td class="t1">DAQ partition (ATLAS for combined runs)</td>
+    </tr><tr>
+      <td class="t2">   smk          </td><td class="t2"> "smk 398", "smk 398,399"<br> (format like for run ranges)</td><td class="t2"> Super-master-key labelling trigger menu  </td>
+    </tr><tr>
+      <td class="t1">   trigk(eys)   </td><td class="t1"> "show trigkeys"<br> (attribute for "show" only)</td><td class="t1"> Show super-master-key labelling trigger menu as well as L1 and HLT prescale keys and HLT release </td>
+    </tr><tr>
+      <td class="t2">   tr(igger)   </td><td class="t2"> "trigger EF_e5* and tr L1_EM13I", <br>"sh trigger L2_E*,L2_Cosmic*" (wildcard can be * or %)</td><td class="t2"> Select and show trigger chains ("sh tr" displays all chains for all trigger levels)</td>
+    </tr><tr>
+      <td class="t1">   ev(ents)     </td><td class="t1"> "events 10000+",  "events 10000-", ... (same as for run number)</td><td class="t1"> Number of events (event filter accepts) in run</td>
+    </tr><tr>
+      <td class="t2">   alle(vents)     </td><td class="t2"> "show allevents" <br> (attribute for "show" only)</td><td class="t2"> Show all event numbers, i.e., at EF (default), SFO (from inclusive streaming), L1 and L2 levels </td>
+    </tr><tr>
+      <td class="t1">   m(agnet)     </td><td class="t1"> "magnet s(olenoid)", "magnet t(oroid)", "not magnet t(oroid)", ... </td><td class="t1"> Magnetic field configuration</td>
+    </tr><tr>
+      <td class="t2">   det(ector)   </td><td class="t2"> "detector Pixel B" (for Pixel Barrel), <br>"detector Pixel" (for Pixel B & EC), <br>"all" (for all detectors, probed detector mask is 72551459979255)</td><td class="t2"> Detectors participating in run</td>
+    </tr><tr>        
+      <td class="t1">   dq           </td><td class="t1"> "dq [<i>flag</i>] <i>status</i> [<i>folder</i>]", where the DQ status is "g(reen)", "y(ellow)", "r(ed)", "u(known)", example: dq PIXB y+ (means yellow or green status) </td><td class="t1"> Data quality (DQ) status flags per system</td>
+    </tr><tr>
+      <td class="t2">   st(ream)     </td><td class="t2"> "st physics_*", "st *IDCos*", may also select <i>show</i> fields, such as: "sh st *RPC*" </td><td class="t2"> Raw data stream (incl. physics and calibration)</td>
+    </tr><tr>
+      <td class="t1">   all     </td><td class="t1"> "show all" </td><td class="t1"> Show all available information except for trigger; to also show trigger chains, type "show all and trigger"</td>
+    </tr>
+    </table>
+  </ul>
+</ul><hr>
+<font color="#555555"><font size=-2>
+<i>Contact and support: <a href="mailto:andreas.hoecker@cern.ch"><i>Andreas Hoecker</i></a>, <a href="mailto:joerg.stelzer@cern.ch"><i>Joerg Stelzer</i></a> </font></font></td></tr>
+</table>
+</body>
+</html>

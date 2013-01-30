@@ -1,0 +1,54 @@
+table.myhelptable {
+  table-layout: fixed;
+  margin: 0em 0em 0em 0;
+  background: white;
+  border-collapse: collapse;
+}
+table.myhelptable th.coltitle, table.myhelptable th.alltitle, table.myhelptable th.alldescr, table.myhelptable td {
+  border: 2px white solid;
+  padding: 4px;
+  vertical-align: top;
+}
+table.myhelptable th {
+  text-align: left;
+  background: gainsboro;
+  padding: 4px;
+  vertical-align: top;
+}
+table.myhelptable td, td.t1, td.t2 td.out1 td.out2 {
+  font-size: 80%;
+}
+
+table.myhelptable caption {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+
+table.mysmallhelptable {
+  table-layout: fixed;
+  margin: 0em 0em 0em 0;
+  background: white;
+  border-collapse: collapse;
+}
+table.mysmallhelptable th.coltitle, table.mysmallhelptable th.alltitle, table.mysmallhelptable th.alldescr, table.mysmallhelptable td {
+  border: 2px white solid;
+  padding: 4px;
+  vertical-align: top;
+}
+table.mysmallhelptable th {
+  text-align: left;
+  background: gainsboro;
+  padding: 4px;
+  vertical-align: top;
+}
+table.mysmallhelptable td {
+  color: #555555;
+}
+table.mysmallhelptable td, td.t1, td.t2 td.out1 td.out2 {
+  font-size: 80%;
+}
+table.mysmallhelptable caption {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+

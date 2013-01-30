@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+
+#from subprocess import Popen, PIPE
+from commands import getstatusoutput,getoutput
+import sys,re
+
+def updateSNVTagInFile(newtag):
+
+    print "updating html/atlas-runquery.html to tag",newtag
+    p = re.compile("(^.*)CoolRunQuery-\d\d-\d\d-\d\d(.*$)",re.DOTALL)
+    out = []
+    f = open("html/atlas-runquery.html",'r')
+    for line in f:
+        m = p.match(line)
+        if m:
+            out += [m.group(1)+newtag+m.group(2)]
+        else:
+            out += [line]
+    f.close()
+
+    f = open("html/atlas-runquery.html",'w')
+    for l in out: f.write(l)
+    f.close()
+
+    print "updating python/AtlRunQueryVersion.py to tag",newtag
+    f = open("python/AtlRunQueryVersion.py",'w')
+    f.write("SvnVersion = '%s'" % newtag)
+    f.close()
+
+
+
+# get package URL
+#info = Popen("svn info".split(),stdout=PIPE).communicate()[0].splitlines()
+url = getoutput("svn info | grep '^URL'").splitlines()[0]
+p  = re.compile("URL: (.*)/(trunk)/?()(.*)")
+p2 = re.compile("URL: (.*)/(tags)/([^/]+)/{0,1}(.*)")
+p3 = re.compile("URL: (.*)/(branches)/([^/]+)/{0,1}(.*)")
+pkgurl = None
+
+m=p.match(url)
+if not m: m=p2.match(url)
+if not m: m=p3.match(url)
+
+if not m:
+    print "Must be in the package directory"
+    sys.exit(1)
+
+pkgurl, what, tag, subdir = m.groups()
+
+if subdir:
+    print "Must be in the package directory and not in a sub-directory"
+    sys.exit(1)
+
+if what=='tags':
+    print "Must be in the trunk or a branch"
+    sys.exit(1)
+    
+# find the last
+if what=='branches':
+    branchbase = tag[:tag.rfind('-')]
+    cmd = "svn list %s/tags | grep %s" % (pkgurl, branchbase)
+else:
+    cmd = "svn list %s/tags" % pkgurl
+    
+tags = getoutput(cmd).splitlines()
+if what=='branches': print "Last five branch tags are"
+else: print "Last five tags are"
+for l in tags[-5:]:
+    print "  "+ l.rstrip('/')
+
+last = tags[-1].rstrip('/')
+
+# new tag suggestion
+if what=='branches' and last.count('-')==3:
+    newtag = branchbase+'-01'
+else:
+    newtag = ''
+    ls = last.split('-')
+    nti = int(''.join(ls[1:]))+1
+    for x in range(len(ls)-1):
+        nti % 100
+        newtag = ("-%02i" % (nti%100)) + newtag
+        nti /= 100
+    newtag = ls[0] + newtag
+
+# extract comment from Changelog
+FH=open("ChangeLog")
+FH.readline()
+comment=FH.readline().strip().strip('*').strip()
+comment.replace("'","")
+FH.close()
+
+# edit
+updateSNVTagInFile(newtag)
+
+print "Comment: '%s'" % comment
+answer = raw_input("Would you like to edit html, commit and tag as %s? [Y/n]> " % newtag)
+
+cmdci = "svn ci -m '%s'" % comment
+
+if what=='trunk':
+    cmdtag = "svn cp -m '%s' %s/trunk %s/tags/%s" % (comment,pkgurl,pkgurl,newtag)
+else:
+    cmdtag = "svn cp -m '%s' %s/branches/%s %s/tags/%s" % (comment,pkgurl,tag,pkgurl,newtag)
+
+
+if answer.lower() in 'y':
+
+    # commit to head or branch
+    print "commiting ..."
+    status,output = getstatusoutput(cmdci)
+    print output
+    if status==0:
+        # copy to tag
+        print "tagging ..."
+        print getoutput(cmdtag)
+        print "Package tagged as '%s'" % newtag
+    else:
+        print "error during commit, will not tag"
+else:
+    print "here some help:"
+    print cmdci
+    print cmdtag
+

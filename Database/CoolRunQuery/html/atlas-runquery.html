@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>ATLAS Run Query</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"></meta>
+    <meta name="ATLAS_Run_Query" content="ATLAS Run Query"></meta>
+    
+    <link rel="stylesheet" type="text/css" href="html/atlas-runquery.css" media="screen"></link>
+    <link rel="stylesheet" type="text/css" href="html/atlas-runquery-results.css" media="screen"></link>
+    <link rel="stylesheet" type="text/css" href="html/atlas-runquery-tabview.css" media="screen"></link>
+    <!--link rel="stylesheet" type="text/css" href="atlas-runquery-print.css" media="print"-->
+    <link rel="shortcut icon" href="html/atlas1.ico"></link>
+
+    <script type="text/javascript" src="js/switcher.js"></script>
+    <script type="text/javascript" src="js/tabView.js"></script>
+
+    <script type="text/javascript" src="js/dw_event.js"></script>
+    <script type="text/javascript" src="js/dw_viewport.js"></script>
+    <script type="text/javascript" src="js/dw_tooltip.js"></script>
+    <script type="text/javascript" src="js/dw_tooltip_aux.js"></script>
+
+    <script type="text/javascript" src="js/rq.js"></script>
+    <script type="text/javascript" src="js/rq_examples.js"></script>
+    <script type="text/javascript" src="js/rq_simplepopups.js"></script>
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.popupWindow.js"></script>
+    <script type="text/javascript">
+      jQuery.fn.ratespopup = function() {
+      window.open(this[0].id,''+this[0].id,
+      'height=800,width=1000,scrollbars=1,menubar=1').focus();
+      }
+
+      $(document).ready(function(){
+      $(".ratespopup").click(function(){$(this).ratespopup();});
+      });
+    </script>
+
+    <script type="text/javascript" src="js/animatedcollapse.js"></script>
+    <script type="text/javascript">
+        animatedcollapse.addDiv('AtlRunQueryCmd', 'fade=1,speed=400')
+        animatedcollapse.ontoggle = function($, divobj, state){ //fires each time a DIV is expanded/contracted
+    }
+    animatedcollapse.init()
+    </script>
+
+  </head>
+
+  <body onload='i=document.getElementById("queryinput");i.focus();i.select();insertExamples()'>
+
+    <table class="toptable">
+      <tr style="height:45px; vertical-align:top;">
+        <td><font size="+1"><b>ATLAS Run Queries</b></font> </td>
+        <td style="padding-right: 0px;">
+          <table style="border-spacing:6px; margin-left:auto; margin-right:12px">
+            <tr>
+              <td class="dontPrint" style="border: 1px white solid; padding: 0.3em; width: 56px; text-align:center; font-size: 100%; vertical-align: middle;">
+                <a href="mailto:andreas.hoecker@cern.ch,joerg.stelzer@cern.ch" title="Contact and support">
+                  Contact
+                </a>
+              </td>
+              <td class="dontPrint" style="border: 1px white solid; padding: 0.3em; width: 35px; text-align:center; font-size: 100%">
+                <a href="javascript:helppopup()" title="Help on Run Query Formatting">
+                  Help
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr style="height:20px">
+        <td colspan="2">
+          <table class="toptableLinks">
+            <tr>
+              <td><a href="http://pcatdwww.cern.ch/atlas-point1/wmi/current/Run%20Status_wmi/index.html">Current run</a></td>
+              <td><a href="https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/">Data Summary</a></td>
+              <td><a href="http://atlas-trigconf.cern.ch/">Trigger Configuration Query</a></td>
+              <td><a href="http://ami.in2p3.fr:8080/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=512">AMI Data Search</a></td>
+              <td><a href="http://dashb-atlas-data.cern.ch/dashboard/request.py/site">DDM Dashboard</a></td>
+              <td><a href="http://atlas.web.cern.ch/Atlas/tzero/prod1/monitoring/">Tier-0 Monitoring</a></td>
+              <td><a href="http://atlasdqm.web.cern.ch/atlasdqm/">DQ Monitoring</a></td>
+              <td><a href="https://twiki.cern.ch/twiki/bin/view/Atlas/DataPreparation">Data Preparation</a></td>
+              <td><a href="http://pcatdwww.cern.ch/atlas-point1/operation.php">Operations</a></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    
+    <table class="mytable" width="95%">
+      <tr>
+        <td style="width:100%;">
+          <table class="mytable" width="100%">
+            <tr>
+              <th height="40" valign="bottom" style="font-size: 14px;width:100%">
+                Run Search &minus;  Insert Your Query:
+                <font style="font-size:12px;font-weight:100">
+                  <!--INSERTLINKCACHE-->
+                </font>
+              </th>
+            </tr>
+            <tr>
+              <td style="background-color:white">
+                <form id="RunQueryInput" action="query.py" method="get" style="margin-bottom:0px">
+                  <input id="queryinput" name="q" size="105%" value="find run last 10 and ready / show all"/>&nbsp;&nbsp;&nbsp;
+                    <input type="submit" value="Show Runs"/>
+                </form>
+              </td>
+            </tr>
+            <tr class="dontPrint">
+              <td colspan="2" style="font-size: 11px; text-align: left;"><div class="showTip LX1" style="display:inline;cursor:pointer">&nbsp;[ <i style="color:rgb(0, 0, 100)">Default query condition</i> ]</div>&nbsp;&nbsp;[ <font color="#666666"><i>Type 'f ... / show <b>all</b>' to see full info (except for DQ and trigger)</i></font> ]</td>
+            </tr>
+          </table>
+          
+        </td>
+      </tr>
+      <tr>
+        <td style="font-size:50%">&nbsp;
+        </td>
+      </tr>
+      <!--START_EXAMPLES-->
+      <tr>
+        <td>
+          <table class="mytable dontPrint" width="100%">
+            <tbody>
+              <tr>
+                <td height="20" valign="top">
+                  <font color="#111133"><i><font size="-1">Examples <font size="-2">(query format inspired by <a href="http://www.slac.stanford.edu/spires/hep/"><font color="#111133">SPIRES</font></a>)</font>:</font></i></font><br/>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="TabView" id="TabView">
+                    <!-- *** Tabs ************************************************************** -->
+                    <div class="Tabs">
+                      <a>&nbsp; Run / events &nbsp;&nbsp;</a>
+                      <a>&nbsp; Time &nbsp;&nbsp;</a>
+                      <a>&nbsp; Detectors &nbsp;&nbsp;</a>
+                      <a>&nbsp; Streams &nbsp;&nbsp;</a>
+                      <a>&nbsp; Magnets  &nbsp;&nbsp;</a>
+                      <a>&nbsp; Data quality &nbsp;&nbsp;</a>
+                      <a>&nbsp; Trigger &nbsp;&nbsp;</a>
+                      <a>&nbsp; DAQ &nbsp;</a>
+                      <a>&nbsp; Datasets &nbsp;</a>
+                      <a>&nbsp; Beamspot &nbsp;</a>
+                      <a>&nbsp; LAr &nbsp;</a>
+                      <a>&nbsp; Lumi &nbsp;</a>
+                      <a>&nbsp; LHC &nbsp;</a>
+                      <a style="border-right: #c0c0c0 1px dotted;">&nbsp;&nbsp;<font color="#FF0000">Xtras</font>&nbsp;&nbsp;</a>
+                    </div>
+                    <!-- *** Pages ************************************************************* -->
+                    <div class="Pages" style="width: 855px; height: 220px; text-align: left;">
+                      <div class="Page" id="exampleRunEvt"></div>
+                      <div class="Page" id="exampleTime"></div>
+                      <div class="Page" id="exampleDetectors"></div>
+                      <div class="Page" id="exampleStreams"></div>
+                      <div class="Page" id="exampleMagnets"></div>
+                      <div class="Page" id="exampleDQ"></div>
+                      <div class="Page" id="exampleTrigger"></div>
+                      <div class="Page" id="examplePartition"></div>
+                      <div class="Page" id="exampleDatasets"></div>
+                      <div class="Page" id="exampleBeamSpot"></div>
+                      <div class="Page" id="exampleLAr"></div>
+                      <div class="Page" id="exampleLumi"></div>
+                      <div class="Page" id="exampleLHC"></div>
+                      <div class="Page" id="exampleOther"></div>
+                    </div>
+                    <!-- *** End of Examples ************************************************** -->
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <i><font size="-1"><a href="javascript:helppopup()" title="Help on Run Query Formatting">(More formatting help)</a></font></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p></p>
+        </td>
+      </tr>
+      <!--END_EXAMPLES-->
+    </table>
+    <p></p>
+
+    <!--INSERTQUERYRESULT-->
+
+    <script language='javascript'>
+      function readAndEcho(pat)
+      {
+      fh = fopen(pat, 0);		// Open the file for reading
+      if(fh!=-1)						// If the file has been successfully opened
+      {
+      length = flength(fh);      // Get the length of the file
+      str = fread(fh, length);   // Read in the entire file
+      fclose(fh);                // Close the file
+
+      // Return the contents of the file
+      return str;
+      }
+      }
+    </script>
+    <table class="bottomtable">
+      <tr style="height:45px; vertical-align: top;">
+        <td>
+          <i>Contact and support:
+            <!--CONTACT_START-->
+            <a href="http://consult.cern.ch/xwho/people/400557">Andreas Hoecker</a>,
+            <a href="http://consult.cern.ch/xwho/people/652897">J&ouml;rg Stelzer</a>
+            <!--CONTACT_END-->
+          </i>
+          </td>
+        <td><i>CoolRunQuery-00-04-50</i></td>
+          <td style="text-align:right"><i>
+            <script language="JavaScript" type="text/javascript">
+              var date  = document.lastModified.toString();
+              if (date == "") {   // unknown date (or January 1, 1970 GMT)
+              document.writeln("Last Modified: Unknown")
+              } else {
+              document.writeln ("Last modified: " + date); }
+            </script>
+          </i></font>
+        </td>
+      </tr>
+    </table>
+
+
+    <script type="text/javascript"> 
+      $('.externalWindow').popupWindow({ 
+      scrollbars:1,
+      width:750 
+      }); 
+    </script>
+
+
+    <script type="text/javascript">
+      if(dw_Tooltip.content_vars==undefined) {
+      dw_Tooltip.content_vars = {};
+      };
+      dw_Tooltip.content_vars["LX1"] = {
+      content: '<table class="defaulttable"><tr><td>By default is added to your query: <font color="red">ptag data09*,data10*,data11*,data12* and part ATLAS</font>.</td></tr><tr><td>To switch this off append <font color="red">/ nodef</font> to query.</td></tr><tr><td> For example: <font color="red">f r 114000-114300 / sh ptag / nodef</font>.</td></tr></table>', klass: 'tip2'
+      };
+    </script>
+
+      <!-- StatCounter has been removed -->
+
+    <script type="text/javascript">
+      tabview_initialize('TabView');
+    </script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!ELEMENT LumiRangeCollection (NamedLumiRange*)>
+
+<!ELEMENT NamedLumiRange (Name?, Version?, Metadata*, LumiBlockCollection*)>
+
+<!ELEMENT Metadata (#PCDATA|Stream)*>
+<!ATTLIST Metadata Name CDATA #REQUIRED>
+
+<!ELEMENT Stream EMPTY>
+<!ATTLIST Stream
+    Name CDATA #REQUIRED
+    TotalNumOfEvents CDATA #IMPLIED
+    NumOfSelectedEvents CDATA #IMPLIED
+>
+
+<!ELEMENT LumiBlockCollection (Run, LBRange*)>
+
+<!ELEMENT Name (#PCDATA)>
+<!ELEMENT Version (#PCDATA)>
+<!ELEMENT Run (#PCDATA)>
+<!ATTLIST Run PrescaleRD0 CDATA #IMPLIED>
+<!ATTLIST Run PrescaleRD1 CDATA #IMPLIED>
+<!ELEMENT LBRange EMPTY>
+<!ATTLIST LBRange Start CDATA #REQUIRED> 
+<!ATTLIST LBRange End CDATA #IMPLIED>
+

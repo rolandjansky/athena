@@ -1,0 +1,30 @@
+Run Query - todo
+
+Features:
+
+- fix order of output
+- examples sollten gleich bleiben nach ausfuehren des queries (very difficult)
+- Show: add L1 trigger rates (eg, 'show trates')
+- Show atlas runtype
+
+- add new COOL folders from Armin about Tier-0 reconstruction efficiency
+  /afs/cern.ch/atlas/project/tzero/prod1/projects/data09/rfc/RawFileCounter.sh
+- nicify dataset info on CAF
+
+- Payload based query  
+- Query caching: have the web page saved in a cache if one wants to send the query results to someone (Andreas)
+- Add path to CASTOR for datasets (wish from Sylvie)
+- Click on column title of selected runs and sort table accordingly (number of events, LBs, duration, etc)
+
+- Create API for external access
+- Print default settings to web page
+
+- Better error report, maybe popup window
+
+- Be able to query on number of events pasing a certain trigger chain or selecting on prescales/pass through of a trigger (or PSKs) -> see email from Kenneth Johns <kjohns@mail.cern.ch>.
+
+- Add luminosity information 
+
+Bugs:
+
+- this probably does not work yet: showing the same DQ flag from two different folders
