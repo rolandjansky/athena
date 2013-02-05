@@ -1,0 +1,20 @@
+package TagEvent
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy			AtlasPolicy-*
+
+use AthenaPoolUtilities		AthenaPoolUtilities-*		Database/AthenaPOOL
+use CLIDSvc			CLIDSvc-*			Control   
+
+branches TagEvent src doc  
+
+library TagEvent *.cxx
+
+apply_pattern installed_library
+
+private
+use AtlasReflex        AtlasReflex-*        External -no_auto_imports
+
+apply_pattern lcgdict dict=TagEvent selectionfile=selection.xml \
+	headerfiles="../TagEvent/TagEventDict.h"
