@@ -1,0 +1,30 @@
+package TrackParticleAthenaPool
+
+author Andreas Wildauer <andreas.wildauer@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+private
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  GaudiInterface             GaudiInterface-*                External
+use  Particle                   Particle-*                      Reconstruction
+use  StoreGate                  StoreGate-*                     Control
+use  TrackParticleTPCnv         TrackParticleTPCnv-*            Reconstruction
+end_private
+
+branches TrackParticleAthenaPool src
+
+#macro        TrackParticleAthenaPool_poolCnvTypes ""
+#macro_append TrackParticleAthenaPool_poolCnvTypes "Rec::TrackParticleContainer "
+
+apply_pattern poolcnv typesWithNamespace="Rec::TrackParticleContainer" \
+   files="-s=${Particle_root}/Particle TrackParticleContainer.h"
+macro_append TrackParticleAthenaPoolPoolCnv_dependencies " install_includes"
+
+# ME for David Quarrie - FIX for bug somewhere in ATLAS repository crashing this package
+#private
+#macro_append AtlasCxxPolicy_pp_cppflags " -DNDEBUG "
+
+
+
