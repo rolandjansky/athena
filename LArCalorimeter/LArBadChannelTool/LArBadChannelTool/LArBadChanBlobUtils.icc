@@ -1,0 +1,60 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace LArBadChanBlobUtils {
+
+  /// Creates a BLOB of the right size and copies the content of the 
+  /// vector of pair<HWIdentifier, LArBadChannel> into the blob.
+  /// Returns a pointer to the new blob, which has to be managed 
+  /// (and eventually released) by the caller
+  template <class T>
+  void fillBlob( const std::vector< std::pair<HWIdentifier,T> >& vec, coral::Blob& blob) 
+  {
+    typedef typename T::BitWord          BitWord;
+    typedef std::pair<HWIdentifier,T>    Entry;
+
+    std::size_t nbytes = vec.size() * ( sizeof( Channel) + sizeof( BitWord));
+    blob.resize(nbytes);
+    void* adr = blob.startingAddress();
+    for ( typename std::vector<Entry>::const_iterator i=vec.begin();
+	  i != vec.end(); i++) {
+      Channel* ch = static_cast<Channel*>( adr);
+      *ch = i->first.get_identifier32().get_compact(); // assign channel
+      BitWord* st = static_cast<BitWord*>(ch+1); // st points just after channel
+      *st = i->second.packedData(); // assign status 
+      adr = static_cast<void*>(st+1); 
+    }
+  }
+		 
+  template <class T>
+  std::vector<std::pair<HWIdentifier,T> > decodeBlob( const coral::Blob* blobp,
+						      std::size_t chanSize,
+						      std::size_t stateSize,
+						      int endian,
+						      int version,
+						      MsgStream& log) 
+  {
+    typedef std::pair<HWIdentifier,T>   Entry;
+    typedef typename T::BitWord         BitWord;
+
+    std::vector<Entry> result;
+    std::size_t step = sizeof( Channel) + sizeof( BitWord);
+    if (!checkBlob( blobp, chanSize, stateSize, endian, version, step, sizeof(BitWord), log)) {
+      return result;
+    }
+
+    std::size_t vecSize = blobp->size() / step;
+    result.reserve( vecSize);
+    const void* adr = blobp->startingAddress();
+    for (std::size_t i=0; i< vecSize; i++) {
+      const Channel* ch = static_cast<const Channel*>( adr);
+      const BitWord* st = static_cast<const BitWord*>(ch+1);
+      adr = static_cast<const void*>(st+1);
+      result.push_back( Entry( HWIdentifier(Identifier32(*ch)), T(*st)));
+    }
+
+    return result;
+  }
+
+}

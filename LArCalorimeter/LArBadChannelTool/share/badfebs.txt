@@ -1,0 +1,12 @@
+0  	1       12      4  deadAll
+0      	1       18      7 deadAll
+1    	1        3      7 deadAll
+1       0       16      5	deadReadout
+1       0       16      6 deadReadout
+1       0       16      7
+1       0       16      8 deadReadout
+1       0       16      9 deadReadout deadAll
+1       0       16      10 
+0       0       27      7 deadAll
+0       0       27      7 deadReadout
+0       0       30      13 deadReadout
