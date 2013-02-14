@@ -1,0 +1,46 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// RALExperimentalHall.h
+// JFB Sep 
+
+// Access the HEC parameters from the NOVA database.
+
+#ifndef _LArGeo_RALExperimentalHall_h_
+#define _LArGeo_RALExperimentalHall_h_
+
+#include "LArGeoCode/VDetectorParameters.h"
+
+#include <limits.h>
+#include <string>
+
+namespace LArGeo {
+
+  class RALExperimentalHall : public VDetectorParameters {
+
+  public:
+
+    RALExperimentalHall();
+    virtual ~RALExperimentalHall();
+
+    virtual double GetValue(const std::string&, 
+                            const int i0 = INT_MIN,
+                            const int i1 = INT_MIN,
+                            const int i2 = INT_MIN,
+                            const int i3 = INT_MIN,
+                            const int i4 = INT_MIN );
+
+  private:
+
+
+    class Clockwork;
+    Clockwork *c;
+
+    RALExperimentalHall (const RALExperimentalHall&);
+    RALExperimentalHall& operator= (const RALExperimentalHall&);
+  };
+
+} // namespace LArGeo
+
+#endif
