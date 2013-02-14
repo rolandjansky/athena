@@ -17,8 +17,8 @@ void LArG4GlobalOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=detStore->record(this,"LArG4GlobalOptions");
+    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    result=m_detStore->record(this,"LArG4GlobalOptions");
     if(!result.isSuccess())
       std::cout << "Can not record LArG4BarrelOptions" << std::endl;
 
@@ -29,4 +29,7 @@ void LArG4GlobalOptions::printMe()
 {
   std::cout << " *** *** This is the object of type LArG4GlobalOptions *** *** \n";
   std::cout << " ** OutOfTimeCut = " << m_OutOfTimeCut << "\n *** *** \n";
+  std::cout << " ** TimeBinType = " << m_TimeBinType << "\n *** *** \n";
+  std::cout << " ** TimeBinWidth = " << m_TimeBinWidth << "\n *** *** \n";
+  std::cout << " ** doCalibHitParticleID = " << m_doCalibHitParticleID << "\n *** *** \n";
 }
