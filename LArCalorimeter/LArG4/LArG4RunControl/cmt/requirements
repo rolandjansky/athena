@@ -1,0 +1,26 @@
+package LArG4RunControl
+ 
+author    Joe Boudreau
+ 
+use AtlasPolicy        AtlasPolicy-*
+use AtlasCLHEP         AtlasCLHEP-*            External
+use CLIDSvc            CLIDSvc-*               Control
+
+private
+use AtlasReflex        AtlasReflex-*           External
+use GaudiInterface     GaudiInterface-*        External
+use StoreGate          StoreGate-*             Control
+end_private
+
+ 
+library LArG4RunControl *.cxx
+apply_pattern installed_library
+
+private 
+
+use AtlasReflex 	AtlasReflex-*	External
+
+apply_pattern lcgdict dict=LArG4RunControl \
+                headerfiles="../LArG4RunControl/LArG4RunControlDict.h" \
+                selectionfile=selection.xml
+macro_prepend LArG4RunControlDict_shlibflags " -lLArG4RunControl "
