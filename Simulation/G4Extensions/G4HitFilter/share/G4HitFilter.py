@@ -1,36 +1,28 @@
-from AthenaCommon.CfgGetter import getPublicTool
-from G4AtlasApps.SimFlags import simFlags
-if hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions():
-    # configuration for MT actions
-    from G4HitFilter.G4HitFilterConfig import addG4HitFilterTool
-    hitf = getPublicTool('G4UA::G4HitFilterTool',tryDefaultConfigurable=True)
-    addG4HitFilterTool(hitf)
-else:
-    # V1 userActions
-    try:
-        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    except ImportError:
-        from G4AtlasServices.UserActionStore import UAStore
-    hitf = getPublicTool('G4HitFilter',tryDefaultConfigurable=True)
-    UAStore.addAction(hitf,['EndOfEvent'])
+from G4AtlasApps import PyG4Atlas, AtlasG4Eng
 
-hitf.VolumeNames=[
-    "BCMHits",
-    "BLMHits",
-    "CSC_Hits",
-    "LArCalibrationHitActive",
-    "LArCalibrationHitDeadMaterial",
-    "LArCalibrationHitInactive",
-    "LArHitEMB",
-    "LArHitEMEC",
-    "LArHitFCAL",
-    "LArHitHEC",
-    "MBTSHits",
-    "MDT_Hits",
-    "PixelHits",
-    "RPC_Hits",
-    "SCT_Hits",
-    "TGC_Hits",
-    "TRTUncompressedHits",
-    "TileHitVec"
-    ]
+MyAction = PyG4Atlas.UserAction('G4HitFilter','G4HitFilter',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+
+# All of the hit collections normally found in a HITS file.
+actionProperties = {}
+actionProperties["VolumeName"] = "BCMHits"
+actionProperties["VolumeName2"] = "BLMHits"
+actionProperties["VolumeName3"] = "CSC_Hits"
+actionProperties["VolumeName5"] = "LArCalibrationHitActive"
+actionProperties["VolumeName6"] = "LArCalibrationHitDeadMaterial"
+actionProperties["VolumeName7"] = "LArCalibrationHitInactive"
+actionProperties["VolumeName8"] = "LArHitEMB"
+actionProperties["VolumeName9"] = "LArHitEMEC"
+actionProperties["VolumeName10"] = "LArHitFCAL"
+actionProperties["VolumeName11"] = "LArHitHEC"
+actionProperties["VolumeName12"] = "MBTSHits"
+actionProperties["VolumeName13"] = "MDT_Hits"
+actionProperties["VolumeName14"] = "PixelHits"
+actionProperties["VolumeName15"] = "RPC_Hits"
+actionProperties["VolumeName16"] = "SCT_Hits"
+actionProperties["VolumeName17"] = "TGC_Hits"
+actionProperties["VolumeName18"] = "TRTUncompressedHits"
+actionProperties["VolumeName19"] = "TileHitVec"
+#actionProperties["VolumeName20"] = "LucidSimHitsVector" #  LUCID is optional within the G4 setup
+
+MyAction.set_Properties(actionProperties)
+AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(MyAction)
