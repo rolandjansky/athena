@@ -1,0 +1,18 @@
+package ISF_FastCaloSimInterfaces
+	
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
+manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
+	
+use AtlasPolicy         AtlasPolicy-*
+
+################## public include ##############################
+use GaudiInterface      GaudiInterface-*             External
+
+# ISF
+use ISF_Event           ISF_Event-*                  Simulation/ISF/ISF_Core
+
+# use the following to compile with debug information
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
