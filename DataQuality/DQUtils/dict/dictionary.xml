@@ -1,0 +1,12 @@
+<lcgdict>
+<!-- In quick_retrieve.cxx -->
+    <function name="quick_retrieve" />
+
+<!-- In pythonic_coracool.cxx -->
+    <function name="browse_coracool" />
+    <function name="get_coracool_payload_spec" />
+    <function name="make_fieldselection" />
+    <function name="make_selection_vector" />
+    <class name="std::vector<const cool::IRecordSelection*>" />
+</lcgdict>
+
