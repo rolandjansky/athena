@@ -9,7 +9,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <utility>
 
-class AtlasDetectorID;
+class PixelID;
+class SCT_ID;
+class TRT_ID;
 class Identifier;
 class IdentifierHash;
 class IdDictManager;
@@ -55,23 +57,23 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   /** @copydoc Trk::ITrkEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
   virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT );
   
-  /** Return the detectorElement associated with this Identifier*/
-  virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash);
-
-  /** Return the detectorElement associated with this Identifier*/
-  virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
-
+    /** Return the detectorElement associated with this Identifier*/
+    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash);
+ 
+    /** Return the detectorElement associated with this Identifier*/
+    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
+ 
   
   private:
 
   /** use the passed identifier to recreate the pixel cluster link on the passed RIO_OnTrack*/
-  virtual const Trk::PrepRawData* pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash);
+  virtual Trk::PrepRawData* pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash);
   
   /** use the passed identifier to recreate the SCT cluster link on the passed RIO_OnTrack*/
-  virtual const Trk::PrepRawData* sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+  virtual Trk::PrepRawData* sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
   
   /** use the passed identifier to recreate the TRT Drift circle link on the passed RIO_OnTrack*/
-  virtual const Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash );
+  virtual Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash );
   
   std::string  m_pixMgrLocation;                    //!< Location of sct Manager
   const InDetDD::PixelDetectorManager*  m_pixMgr;   //!< SCT   Detector Manager
@@ -80,11 +82,11 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   std::string  m_trtMgrLocation;                    //!< Location of sct Manager
   const InDetDD::TRT_DetectorManager*   m_trtMgr;   //!< TRT   Detector Manager
   bool m_setPrepRawDataLink;                        //!< if true, attempt to recreate link to PRD
-
-
+  
 //various id helpers
-  const AtlasDetectorID     * m_IDHelper; 
-
+  const PixelID  * m_pixelIDHelper; 
+  const SCT_ID   * m_sctIDHelper; 
+  const TRT_ID   * m_trtIDHelper; 
   
   // added to check TRT existence (SLHC geo check) 
   const IdDictManager * m_idDictMgr;
