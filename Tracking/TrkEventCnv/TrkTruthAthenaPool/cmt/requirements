@@ -4,15 +4,13 @@ author  Andrei Gaponenko <agaponenko@lbl.gov>
 
 use AtlasPolicy          AtlasPolicy-*          
 use GaudiInterface       GaudiInterface-*       External
+use StoreGate            StoreGate-*            Control
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 
-private
-  use StoreGate            StoreGate-*            Control
-  use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
-  use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+use TrkTruthData         TrkTruthData-*         Tracking/TrkEvent
 
-  use TrkTruthData         TrkTruthData-*         Tracking/TrkEvent
-
-  use TrkTruthTPCnv        TrkTruthTPCnv-*     	Tracking/TrkEventCnv
+use TrkTruthTPCnv        TrkTruthTPCnv-*     	Tracking/TrkEventCnv
 
 
 apply_pattern poolcnv files="\
