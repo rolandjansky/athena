@@ -1,0 +1,149 @@
+Do this, don't do that
+
+Just include the MissingETD3PDObject and/or MissingETGoodnessD3PDObject just like in python/MissingETD3PD.py
+
+Trigger bits are automatically included with the MissingETD3PDObject
+
+If you want the truth, you must set the doTruth flag from Rec.
+
+If you want to use the calocells for the EtaRings tool, you have to set the doCells flag true in MissingETD3PDMaker.MissingETD3PDMakerFlags
+
+See the file python/MissingETD3PDMakerFlags.py for other flags that can be set (CryConeMiniJet, CellOut_Eflow)
+
+In the MissingETD3PDObject the following blocks are possibilities for inclusion or exclusion (depends on the sample):
+
+* blocks will also require activating a MissingETD3PDMaker Flag
+
+##Basic et, etx, ety, sumet, phi variables
+MET_RefFinal
+MET_Final
+MET_Cryo
+MET_CryoCone
+MET_RefEle
+MET_RefJet
+MET_SoftJets
+MET_RefMuon
+MET_RefMuon_Staco
+MET_RefMuon_Muid
+ET_RefGamma
+MET_RefTau
+MET_CellOut
+MET_CellOut_Eflow*
+MET_MuonBoy_Spectro
+MET_MuonBoy_Track
+MET_RefMuon_Track
+MET_RefMuon_Track_Staco
+MET_RefMuon_Track_Muid
+MET_LocHadTopoObj
+MET_TopoObj
+MET_CellOut_MiniJet*
+
+#components for each region of the calorimeters
+MET_RefFinal_Regions
+MET_Final_Regions
+MET_Cryo_Regions
+MET_CryoCone_Regions
+MET_RefEle_Regions
+MET_RefJet_Regions
+MET_SoftJets_Regions
+MET_RefMuon_Regions
+MET_RefMuon_Staco_Regions
+MET_RefMuon_Muid_Regions
+ET_RefGamma_Regions
+MET_RefTau_Regions
+MET_CellOut_Regions
+MET_CellOut_Eflow_Regions*
+MET_RefMuon_Track_Regions
+MET_RefMuon_Track_Staco_Regions
+MET_RefMuon_Track_Muid_Regions
+MET_LocHadTopoObj_Regions
+MET_TopoObj_Regions
+MET_CellOut_MiniJet_Regions*
+
+##Basic et, etx, ety, sumet, phi variables
+MET_Track
+MET_MuonMuid
+MET_Muid
+MET_Muid_Spectro
+MET_Muid_Track
+MET_MuonBoy_Spectro
+MET_MuonBoy_Track
+MET_Muon
+MET_Muon_Isol_Staco
+MET_Muon_NonIsol_Staco
+MET_Muon_Total_Staco
+MET_Muon_Isol_Muid
+MET_Muon_NonIsol_Muid
+MET_Muon_Total_Muid
+MET_MuonBoy
+
+##Basic et, etx, ety, sumet, phi variables
+MET_Base
+MET_Calib
+MET_Base0
+MET_Topo
+MET_CorrTopo
+MET_LocHadTopo
+
+##Fraction of SET coming from EM calorimeter
+MET_Base_EMFracSET
+MET_Calib_EMFracSET
+MET_Base0_EMFracSET
+MET_Topo_EMFracSET
+MET_CorrTopo_EMFracSET
+MET_LocHadTopo_EMFracSET
+
+
+##component for each of 24 samplings of the calorimeters.
+MET_Base_Samplings
+MET_Calib_Samplings
+MET_Base0_Samplings
+MET_Topo_Samplings
+MET_CorrTopo_Samplings
+MET_LocHadTopo_Samplings
+
+##component for each region of the calorimeters (barrel, forward, etc)
+MET_Base_Regions
+MET_Calib_Regions
+MET_Base0_Regions
+MET_Topo_Regions
+MET_CorrTopo_Regions
+MET_LocHadTopo_Regions
+
+##Basic et, etx, ety, sumet, phi variables; these are technically truth but use the plane MissingETFillers.
+MET_DM_Cryo
+MET_DM_Crack1
+MET_DM_Crack2
+MET_DM_All
+
+
+##Basic et, etx, ety, sumet, phi variables
+MET_Truth_NonInt
+MET_Truth_Int
+
+MET_Truth_PileUp_NonInt
+MET_Truth_PileUp_Int
+
+If you're doing a custom MET object, it will automatically have a detail level of zero, but blocks can be included or excluded using the following names:
+MET ##Basic et, etx, ety, sumet, phi variables
+MET_Regions ##component for each region of the calorimeters (barrel, forward, etc)
+
+Custom MissingEtCalo type objects can be made using the MissingEtCaloD3PDObject with automatic detail level 3 and the blocks can be customized using the following names:
+MET_Calo ##Basic et, etx, ety, sumet, phi variables
+MET_Calo_EmfracSET ##Fraction of SET coming from EM calorimeter
+MET_Calo_Samplings ##component for each of 24 samplings of the calorimeters.
+MET_Calo_Regions ##component for each region of the calorimeters (barrel, forward, etc)
+
+The includes for a potentially custom truth object are the same as above using the MissingETTruthD3PDObject, MET_Truth_NonInt and MET_Truth_Int
+
+The METComposition object can be included or excluded using the following block names:
+
+MET_Composition - everything
+   MET_Muon_Weights - muon terms - includes two below
+      MET_Staco_Weights - just staco terms
+      MET_Muid_Weights - just muid terms
+   MET_Electron_Weights
+   MET_Photon_Weights
+   MET_Tau_Weights
+   MET_Jet_Weights
+   MET_Cluster_Weights
