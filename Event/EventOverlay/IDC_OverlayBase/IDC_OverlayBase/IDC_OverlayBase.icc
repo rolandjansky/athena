@@ -1,0 +1,177 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Generic overlaying code for boolean-like hits.
+// Factored out from InDetOverlay.
+//
+// Andrei Gaponenko <agaponenko@lbl.gov>, 2006-2009
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+#include "DataModel/DataVector.h"
+
+#include <sstream>
+#include <typeinfo>
+
+
+namespace Overlay {
+  
+  //================================================================
+  template<class Datum>
+  void mergeChannelData(Datum& /*r1*/, const Datum& /*r2*/, IDC_OverlayBase* parent) {
+    // this is the default implementation. 
+    // We do not touch the data here, just print a warning.
+    static bool first_time = true;
+    if(first_time) {
+      first_time = false;
+      parent->msg(MSG::WARNING)<<"Overlay::mergeChannelData(): Merging of hits on the same channel is not implemented for "
+			       <<typeid(Datum).name()
+			       <<endreq;
+    }
+  }
+
+
+  //================================================================
+  template<class Collection>
+  void mergeCollectionsNew(Collection *data_coll, Collection *mc_coll, IDC_OverlayBase *parent) {
+    
+    if(data_coll->identify() != mc_coll->identify()) {
+      std::ostringstream os;
+      os<<"mergeCollectionsNew<generic>(): collection Id mismatch";
+      parent->msg(MSG::FATAL)<<os.str()<<endreq;
+      throw std::runtime_error(os.str());
+    }
+
+    const Identifier idColl = data_coll->identify();
+
+    // ----------------------------------------------------------------
+    // debug
+    static bool first_time = true;
+    if(first_time) {
+      first_time = false;
+      parent->msg(MSG::INFO)<<"IDC_OverlayBase::mergeCollectionsNew(): "
+			    <<"generic code is called for "
+			    <<typeid(*data_coll).name() 
+			    <<endreq;
+    }
+  
+    // ----------------------------------------------------------------
+
+    //DataVector<typename Collection::base_value_type> data(data_coll->identifyHash());
+    Collection data(data_coll->identifyHash());
+    data.setIdentifier(idColl);
+    data_coll->swap(data);
+
+    //DataVector<typename Collection::base_value_type> mc(mc_coll->identifyHash());
+    Collection mc(mc_coll->identifyHash());
+    mc.setIdentifier(idColl);
+    mc_coll->swap(mc);
+
+    // Just an alias
+    Collection *output = data_coll;
+  
+    //################################################################
+    // Merge by copying ptrs from data and mc to data_coll
+
+    typename Collection::size_type idata = 0;
+    typename Collection::size_type imc = 0;
+   
+    while( (idata < data.size()) || (imc < mc.size())) {
+
+      // The RDO that goes to the output at the end of this step.
+      typename Collection::base_value_type *p_rdo(0);
+    
+      if(idata == data.size()) {
+	// just copy the remaining MC inputs
+	mc.swapElement(imc++, 0, p_rdo);
+      }
+      else if(imc == mc.size()) {
+	//just copy the remaining data digits
+	data.swapElement(idata++, 0, p_rdo);
+      }
+      else {
+	// Need to decide which one goes first.  
+	// See comments in TRTDigitization.cxx about the assumption that id1<id2 <=> hash1<hash2
+	if( data[idata]->identify() < mc[imc]->identify() ) {
+	  data.swapElement(idata++, 0, p_rdo);
+	}
+	else if(mc[imc]->identify() < data[idata]->identify()) {
+	  mc.swapElement(imc++, 0, p_rdo);
+	}
+	else {
+	  // The hits are on the same channel.
+	  typename Collection::base_value_type *p2(0);
+	  mc.swapElement(imc++, 0, p2);
+	  data.swapElement(idata++, 0, p_rdo);
+	  Overlay::mergeChannelData(*p_rdo, *p2, parent);
+	  delete p2;
+	}
+      }
+
+      output->push_back(p_rdo);
+    } // <= while
+  }
+
+} // namespace Overlay
+
+
+//================================================================
+template<class Collection>
+void IDC_OverlayBase::mergeCollections(Collection *data_coll, 
+				       Collection *mc_coll)
+{
+  DataVector<typename Collection::base_value_type> data;
+  data_coll->swap(data);
+
+  DataVector<typename Collection::base_value_type> mc;
+  mc_coll->swap(mc);
+
+  // Just an alias
+  Collection *output = data_coll;
+  
+  //################################################################
+  // Merge by copying ptrs from data and mc to data_coll
+
+  typename Collection::size_type idata = 0;
+  typename Collection::size_type imc = 0;
+   
+  while( (idata < data.size()) || (imc < mc.size())) {
+
+    // The RDO that goes to the output at the end of this step.
+    typename Collection::base_value_type *p_rdo(0);
+    
+    if(idata == data.size()) {
+      // just copy the remaining MC inputs
+      mc.swapElement(imc++, 0, p_rdo);
+    }
+    else if(imc == mc.size()) {
+      //just copy the remaining data digits
+      data.swapElement(idata++, 0, p_rdo);
+    }
+    else {
+      // Need to decide which one goes first.  
+      // See comments in TRTDigitization.cxx about the assumption that id1<id2 <=> hash1<hash2
+      if( data[idata]->identify() < mc[imc]->identify() ) {
+	data.swapElement(idata++, 0, p_rdo);
+      }
+      else if(mc[imc]->identify() < data[idata]->identify()) {
+	mc.swapElement(imc++, 0, p_rdo);
+      }
+      else {
+	// The hits are on the same channel.
+	typename Collection::base_value_type *p2(0);
+	mc.swapElement(imc++, 0, p2);
+	data.swapElement(idata++, 0, p_rdo);
+	Overlay::mergeChannelData(*p_rdo, *p2, this);
+	delete p2;
+      }
+    }
+
+    output->push_back(p_rdo);
+  } // <= while
+}
+
