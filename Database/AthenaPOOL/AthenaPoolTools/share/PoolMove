@@ -1,0 +1,136 @@
+#!/bin/sh
+# -------------------------------------------------------------- #
+#
+# Usage: PoolMove "[-f]" oldfile newfile
+#
+# NOTE: this utility assumes you have done enough setup 
+#       to have the Pool FC utilities in your path
+#
+# Possible initial states for PoolMove foo.root bar.root
+# 0) foo.root does not exist
+# 1) foo.root exists, no catalog entry
+# 2) foo.root exists with catalog entry
+# 3) foo.root exists, with or w/o catalog, bar.root in catalog
+# 4) foo.root exists, with or w/o catalog, bar.root exists
+#
+# Behaviour for initial states
+# 0) fail immediately
+# 1) register foo.root, then do normal mv, FCrenamePFN
+# 2) Do normal mv, FCrenamePFN
+# 3) Fail if -f not used, otherwise FCremovePFN and then (2)
+# 4) Fail if -f not used, otherwise rm, FCremovePFN and then (2)
+#
+# -------------------------------------------------------------- #
+ 
+which FCrenamePFN
+if [ $? != 0 ]
+  then 
+    echo; echo "ERROR You need to do enough setup's to get POOL FC utilities"
+    echo "  When you can do 'which FCrenamePFN', you're ready"
+    exit 99
+fi
+
+if [ $# -lt 2 ]
+  then 
+    echo Too few arguments, usage: PoolMove "[-f]" oldfile newfile
+    exit 1
+  elif [ $# -gt 2 -a $1 != "-f" ]
+    then
+      echo Too many arguments, usage: PoolMove "[-f]" oldfile newfile
+      exit 1 
+fi
+
+# set default, no force
+force=0
+file1=$1
+file2=$2
+# check for force condition and set flag
+while getopts :f: x
+do case $x in 
+  f) force=1
+     file1=$2
+     file2=$3;;
+  \?) echo ERROR unknown option $OPTARG
+      exit 1;;
+  esac
+done
+
+# check for valid initial state in file system, 
+#   file 1 exists and file 2 does not
+if [ -e $file1 ]
+  then
+    #DEBUG echo found $file1 in file system
+    # check for file 1 in catalog
+    cnt=0
+    #DEBUG echo Searching in file catalog for $file1
+    for file in `FClistPFN | grep $file1`
+    do
+      #DEBUG echo found $file in catalog
+      cnt=`expr $cnt + 1`
+    done
+    #DEBUG echo listpfn1 $cnt
+
+    # check for file 2 in catalog
+    cnt2=0
+    #DEBUG echo Searching in file catalog for $file2
+    for file in `FClistPFN | grep $file2`
+    do
+      #DEBUG echo found $file in catalog
+      cnt2=`expr $cnt2 + 1`
+    done
+    #DEBUG echo listpfn2 $cnt2
+    # if file in catalog and force flag set, then remove it
+    if [ $cnt2 != 0 ]
+      then
+        if [ $force = 1 ]
+          then
+            # if old file2 in catalog remove that too
+            echo WARNING Removing pre-existing $file2 from catalog
+            FCdeletePFN -p $file2
+          else
+            echo ERROR File $file2 already exists in catalog
+            exit 1
+        fi
+    fi
+    # check if file2 already exists and the force condition
+    if [ -e $file2 ]
+      then 
+        #DEBUG echo found $file2 in file system
+        if [ $force = 1 ]
+          then
+            # if -f then remove the old file2
+            #DEBUG echo Since force flag set, will remove $file2 from file system
+            rm -f $file2
+          else
+            echo ERROR File $file2 exists already
+            exit 1
+        fi # force true
+    fi  # file2 exists
+    # now check whether file1 was in the catalog
+    if [ $cnt = 0 ]
+      then 
+        echo WARNING file $file1 not in PoolFileCatalog.xml, inserting it
+        pool_insertFileToCatalog $file1
+        echo insert $?
+     fi # file1 in FC
+     #DEBUG echo About to do file system move
+     mv $file1 $file2
+     if [ $? != 0 ]
+       then
+         echo ERROR mv $file1 $file2 failed
+         exit 2
+     fi
+     FCrenamePFN -p $file1 -n $file2
+     #DEBUG echo rename $?
+     if [ $? = 0 ]
+       then
+         echo SUCCESS PoolMove $file1 to $file2 successful
+         exit 0
+       else
+         echo ERROR mv worked, but FCrenamePFN failed
+         exit 3
+     fi
+  else
+    echo ERROR file $file1 does not exist
+    exit 1
+fi # file1 exists

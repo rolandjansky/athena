@@ -1,0 +1,23 @@
+package AthenaPoolTools
+
+author RD Schaffer <R.D.Schaffer@cern.ch>
+author Jack Cranshaw <cranshaw@anl.gov>
+
+use AtlasPolicy           AtlasPolicy-*
+
+apply_pattern component_library
+library AthenaPoolTools EventCount.cxx RequireUniqueEvent.cxx components/*.cxx 
+
+apply_pattern install_runtime
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern declare_runtime files="PoolMove"
+
+private
+use StoreGate             StoreGate-*        Control
+use AthenaKernel          AthenaKernel-*     Control
+use PersistentDataModel   PersistentDataModel-*      Database
+use EventInfo             EventInfo-*        Event
+use GaudiInterface        GaudiInterface-*   External 
+use TestPolicy            TestPolicy-*
+
