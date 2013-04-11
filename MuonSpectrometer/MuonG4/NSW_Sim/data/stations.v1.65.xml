@@ -1,0 +1,301 @@
+<?xml version="1.0"?>
+<AGDD>
+<section name="NSWStructure" version="1.65" date="04 April 2013" author="A Yen, D Jradi, J Montroy (, J Meyer)" top_volume="useless">
+
+
+<var	name="NSW_zPos"						value="7100." />
+<var	name="NSW_SectorGap"						value="150." />
+
+<!-- <var	name="NSW_MM_DiskThickness"					value="94." /> replaced by NSW_MM_Tck -->
+<var	name="NSW_MM_SpacerLength"					value="20." />
+<var	name="NSW_MM_SpacerThickness"				value="40." /> <!-- adjusted to designers' value, before 100 -->
+
+<var	name="NSW_MM_FrontDisk_radius"				value="982." />
+<var	name="NSW_MM_FrontDisk_standardPlateLength"		value="930." />
+<var	name="NSW_MM_FrontDisk_topPlateLength"			value="815." />
+
+<var	name="NSW_MM_FrontDisk_baseWidth"				value="582.3" />
+<var	name="NSW_MM_FrontDisk_layer2Width"			value="1145.11" />
+<var	name="NSW_MM_FrontDisk_layer3Width"			value="1707.91" />
+<var	name="NSW_MM_FrontDisk_layer4Width"			value="2270.72" />
+<var	name="NSW_MM_FrontDisk_topWidth"				value="2753.594" />
+
+<var	name="NSW_MM_BackDisk_radius"				value="1016." />
+<var	name="NSW_MM_BackDisk_bottomPlateLength"			value="930." />
+<var	name="NSW_MM_BackDisk_standardPlateLength"		value="830." />
+<var	name="NSW_MM_BackDisk_topPlateLength"			value="805." />
+
+<var	name="NSW_MM_BackDisk_baseWidth"				value="371.4" />
+<var	name="NSW_MM_BackDisk_layer2Width"				value="1158.4" />
+<var	name="NSW_MM_BackDisk_layer3Width"				value="1214.2" />
+<var	name="NSW_MM_BackDisk_layer4Width"				value="1392.9" />
+<var	name="NSW_MM_BackDisk_layer5Width"				value="1571.6" />
+<var	name="NSW_MM_BackDisk_topWidth"				value="1740.8" />
+
+<!-- <var	name="NSW_sTGC_DiskThickness"				value="50." /> replaced by NSW_sTGC_Tck -->
+<var	name="NSW_sTGC_SpacerLength"				value="10." />
+
+<var	name="NSW_sTGC_FrontDisk_bottomPlateLength"		value="692." /> <!-- stepping change - before 816. -->
+<var	name="NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps"	value="572." /> <!-- stepping change - before 466. -->
+<var	name="NSW_sTGC_FrontDisk_secondPlateLength"		value="936." /> <!-- stepping change - before 1070. -->
+<var	name="NSW_sTGC_FrontDisk_standardPlateLength"		value="1050." />
+
+<var	name="NSW_sTGC_FrontDisk_baseWidth"			value="598." />
+<var	name="NSW_sTGC_FrontDisk_layer2Width"			value="844.9" /> <!-- stepping change - before 889.2 -->
+<var	name="NSW_sTGC_FrontDisk_layer2WidthNoSteps"		value="799.7" /> <!-- stepping change - before 762.3 -->
+<var	name="NSW_sTGC_FrontDisk_layer3Width"			value="1074.7" /> <!-- stepping change - before 1143. -->
+<var	name="NSW_sTGC_FrontDisk_layer4Width"			value="1771." />
+<var	name="NSW_sTGC_FrontDisk_topWidth"				value="2393." />
+
+<var	name="NSW_sTGC_BackDisk_bottomPlateLength"		value="658." /> <!-- stepping change - before 684. -->
+<var	name="NSW_sTGC_BackDisk_bottomPlateLengthNoSteps"	value="538." /> <!-- stepping change - before 334. -->
+<var	name="NSW_sTGC_BackDisk_secondPlateLength"		value="936." /> <!-- stepping change - before 1168. -->
+<var	name="NSW_sTGC_BackDisk_standardPlateLength"		value="959.5" />
+
+<var	name="NSW_sTGC_BackDisk_baseWidth"				value="384." />
+<var	name="NSW_sTGC_BackDisk_layer2Width"			value="679.8" /> <!-- stepping change - before 691.5 -->
+<var	name="NSW_sTGC_BackDisk_layer2WidthNoSteps"		value="622." /> <!-- stepping change - before 532.1 -->
+<var	name="NSW_sTGC_BackDisk_layer3Width"			value="920.9" /> <!-- stepping change - before 1054. -->
+<var	name="NSW_sTGC_BackDisk_layer4Width"			value="1258." />
+<var	name="NSW_sTGC_BackDisk_topWidth"		        value="1462." />
+
+<var    name="NSW_sTGC_highZCutOutWidth"                        value="226.5" />
+<var    name="NSW_sTGC_highZCutOutDZ"                           value="250." />
+<var    name="NSW_sTGC_staircaseDZ"                             value="30." /> <!-- stepping change - before 87.5 -->
+
+<var    name="NSW_NbrOfLayers"					value="4"/>
+<var    name="NSW_MM_GasTck"					value="5."/>
+<var    name="NSW_MM_pcbTck"					value="11."/>
+<!-- according to designers the stacking is DP-GG-RP-GG-DP-DP-GG-RP-GG-DP  -->
+<!-- with drift panel (DP) and readout panel (RP) thickness of 11 mm and gas gap (GG) thickness of 5 mm -->
+<var    name="NSW_MM_Tck"					value="NSW_NbrOfLayers * (NSW_MM_GasTck + NSW_MM_pcbTck) + 2. * NSW_MM_pcbTck"/>
+
+<mm_Tech type="MM_1" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_MM_GasTck" pcbTck="NSW_MM_pcbTck" Tck="NSW_MM_Tck" />
+<mm_Tech type="MM_2" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_MM_GasTck" pcbTck="NSW_MM_pcbTck" Tck="NSW_MM_Tck" highZCutOuts="1" highZCutOutWidth="266.797" highZCutOutDZ="360." />
+<mm_Tech type="MM_3" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_MM_GasTck" pcbTck="NSW_MM_pcbTck" Tck="NSW_MM_Tck" lowZCutOuts="2" lowZCutOutWidth="27.9" lowZCutOutDZ="90.3" />
+
+<mmSpacer_Tech type="Spa_1" Tck="NSW_MM_SpacerThickness" />
+<mmSpacer_Tech type="Spa_2" Tck="NSW_MM_SpacerThickness" highZCutOuts="1" highZCutOutWidth="266.797" highZCutOutDZ="360." />
+<mmSpacer_Tech type="Spa_3" Tck="NSW_MM_SpacerThickness" lowZCutOuts="2" lowZCutOutWidth="27.9" lowZCutOutDZ="90.3" />
+
+<var    name="NSW_sTGC_GasTck"					value="2.6"/>
+<var    name="NSW_sTGC_pcbTck"					value="8.5"/>
+<!-- according to designers the stacking is P1-GG-P2-GG-P2-GG-P2-GG-P1  -->
+<!-- with panel 1 (P1) thickness of 6.8 mm, panel 2 (P2) thickness of 8.6 mm and gas gap (GG) thickness of 2.6 mm -->
+<!-- for simplicity P1 thickness = P2 thickness -->
+<var    name="NSW_sTGC_Tck"					value="NSW_NbrOfLayers * (NSW_sTGC_GasTck + NSW_sTGC_pcbTck) + NSW_sTGC_pcbTck"/>
+
+<sTGC_Tech type="sTGC_1" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_sTGC_GasTck" pcbTck="NSW_sTGC_pcbTck" Tck="NSW_sTGC_Tck" />
+<sTGC_Tech type="sTGC_2" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_sTGC_GasTck" pcbTck="NSW_sTGC_pcbTck" Tck="NSW_sTGC_Tck" highZCutOuts="1" highZCutOutWidth="NSW_sTGC_highZCutOutWidth" highZCutOutDZ="NSW_sTGC_highZCutOutDZ" />
+<sTGC_Tech type="sTGC_3" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_sTGC_GasTck" pcbTck="NSW_sTGC_pcbTck" Tck="NSW_sTGC_Tck" highStaircaseSteps="4" highStaircaseDZ="NSW_sTGC_staircaseDZ" />
+<sTGC_Tech type="sTGC_4" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_sTGC_GasTck" pcbTck="NSW_sTGC_pcbTck" Tck="NSW_sTGC_Tck" lowStaircaseSteps="-4" lowStaircaseDZ="NSW_sTGC_staircaseDZ" />
+
+
+<!-- large wheel -->
+<micromegas type="sMD1-1-1" tech="MM_1" subType="M0L1" sWidth="NSW_MM_FrontDisk_baseWidth" lWidth="NSW_MM_FrontDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-2-1" tech="MM_1" subType="M1L1" sWidth="NSW_MM_FrontDisk_layer2Width" lWidth="NSW_MM_FrontDisk_layer3Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-3-1" tech="MM_1" subType="M2L1" sWidth="NSW_MM_FrontDisk_layer3Width" lWidth="NSW_MM_FrontDisk_layer4Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-4-1" tech="MM_2" subType="M3L1" sWidth="NSW_MM_FrontDisk_layer4Width" lWidth="NSW_MM_FrontDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_topPlateLength" />
+
+<micromegas type="sMD1-1-2" tech="MM_1" subType="M0L2" sWidth="NSW_MM_FrontDisk_baseWidth" lWidth="NSW_MM_FrontDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-2-2" tech="MM_1" subType="M1L2" sWidth="NSW_MM_FrontDisk_layer2Width" lWidth="NSW_MM_FrontDisk_layer3Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-3-2" tech="MM_1" subType="M2L2" sWidth="NSW_MM_FrontDisk_layer3Width" lWidth="NSW_MM_FrontDisk_layer4Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-4-2" tech="MM_2" subType="M3L2" sWidth="NSW_MM_FrontDisk_layer4Width" lWidth="NSW_MM_FrontDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_topPlateLength" />
+
+<mmSpacer type="spa1-1" tech="Spa_1" sWidth="NSW_MM_FrontDisk_baseWidth" lWidth="NSW_MM_FrontDisk_layer2Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<mmSpacer type="spa1-2" tech="Spa_1" sWidth="NSW_MM_FrontDisk_layer2Width" lWidth="NSW_MM_FrontDisk_layer3Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<mmSpacer type="spa1-3" tech="Spa_1" sWidth="NSW_MM_FrontDisk_layer3Width" lWidth="NSW_MM_FrontDisk_layer4Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<mmSpacer type="spa1-4" tech="Spa_2" sWidth="NSW_MM_FrontDisk_layer4Width" lWidth="NSW_MM_FrontDisk_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_FrontDisk_topPlateLength" />
+
+<sTGC type="sTG1-1-1" tech="sTGC_3" subType="T0L1" sWidth="NSW_sTGC_FrontDisk_baseWidth" lWidth="NSW_sTGC_FrontDisk_layer2Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_bottomPlateLength" />
+
+<sTGC type="sTG1-1-2" tech="sTGC_3" subType="T0L2" sWidth="NSW_sTGC_FrontDisk_baseWidth" lWidth="NSW_sTGC_FrontDisk_layer2Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_bottomPlateLength" />
+
+<sTGC type="sTG1-2-1" tech="sTGC_4" subType="T1L1" sWidth="NSW_sTGC_FrontDisk_layer2WidthNoSteps" lWidth="NSW_sTGC_FrontDisk_layer3Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_secondPlateLength" />
+
+<sTGC type="sTG1-2-2" tech="sTGC_4" subType="T1L2" sWidth="NSW_sTGC_FrontDisk_layer2WidthNoSteps" lWidth="NSW_sTGC_FrontDisk_layer3Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_secondPlateLength" />
+
+<sTGC type="sTG1-3-1" tech="sTGC_1" subType="T2L1" sWidth="NSW_sTGC_FrontDisk_layer3Width" lWidth="NSW_sTGC_FrontDisk_layer4Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_standardPlateLength" />
+
+<sTGC type="sTG1-3-2" tech="sTGC_1" subType="T2L2" sWidth="NSW_sTGC_FrontDisk_layer3Width" lWidth="NSW_sTGC_FrontDisk_layer4Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_standardPlateLength" />
+
+<sTGC type="sTG1-4-1" tech="sTGC_2" subType="T3L1" sWidth="NSW_sTGC_FrontDisk_layer4Width" lWidth="NSW_sTGC_FrontDisk_topWidth" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_standardPlateLength" />
+
+<sTGC type="sTG1-4-2" tech="sTGC_2" subType="T3L2" sWidth="NSW_sTGC_FrontDisk_layer4Width" lWidth="NSW_sTGC_FrontDisk_topWidth" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_FrontDisk_standardPlateLength" />
+
+<!-- small wheel -->
+<micromegas type="sMD3-1-1" tech="MM_1" subType="M0S1" sWidth="NSW_MM_BackDisk_baseWidth" lWidth="NSW_MM_BackDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_bottomPlateLength" />
+
+<micromegas type="sMD3-2-1" tech="MM_3" subType="M1S1" sWidth="NSW_MM_BackDisk_layer3Width" lWidth="NSW_MM_BackDisk_layer4Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<micromegas type="sMD3-3-1" tech="MM_1" subType="M2S1" sWidth="NSW_MM_BackDisk_layer4Width" lWidth="NSW_MM_BackDisk_layer5Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<micromegas type="sMD3-4-1" tech="MM_1" subType="M3S1" sWidth="NSW_MM_BackDisk_layer5Width" lWidth="NSW_MM_BackDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_topPlateLength" />
+
+<micromegas type="sMD3-1-2" tech="MM_1" subType="M0S2" sWidth="NSW_MM_BackDisk_baseWidth" lWidth="NSW_MM_BackDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_bottomPlateLength" />
+
+<micromegas type="sMD3-2-2" tech="MM_3" subType="M1S2" sWidth="NSW_MM_BackDisk_layer3Width" lWidth="NSW_MM_BackDisk_layer4Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<micromegas type="sMD3-3-2" tech="MM_1" subType="M2S2" sWidth="NSW_MM_BackDisk_layer4Width" lWidth="NSW_MM_BackDisk_layer5Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<micromegas type="sMD3-4-2" tech="MM_1" subType="M3S2" sWidth="NSW_MM_BackDisk_layer5Width" lWidth="NSW_MM_BackDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_topPlateLength" />
+
+<mmSpacer type="spa3-1" tech="Spa_1" sWidth="NSW_MM_BackDisk_baseWidth" lWidth="NSW_MM_BackDisk_layer2Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_BackDisk_bottomPlateLength" />
+
+<mmSpacer type="spa3-2" tech="Spa_3" sWidth="NSW_MM_BackDisk_layer3Width" lWidth="NSW_MM_BackDisk_layer4Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<mmSpacer type="spa3-3" tech="Spa_1" sWidth="NSW_MM_BackDisk_layer4Width" lWidth="NSW_MM_BackDisk_layer5Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<mmSpacer type="spa3-4" tech="Spa_1" sWidth="NSW_MM_BackDisk_layer5Width" lWidth="NSW_MM_BackDisk_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_BackDisk_topPlateLength" />
+
+<sTGC type="sTG3-1-1" tech="sTGC_3" subType="T0S1" sWidth="NSW_sTGC_BackDisk_baseWidth" lWidth="NSW_sTGC_BackDisk_layer2Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_bottomPlateLength" />
+
+<sTGC type="sTG3-1-2" tech="sTGC_3" subType="T0S2" sWidth="NSW_sTGC_BackDisk_baseWidth" lWidth="NSW_sTGC_BackDisk_layer2Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_bottomPlateLength" />
+
+<sTGC type="sTG3-2-1" tech="sTGC_4" subType="T1S1" sWidth="NSW_sTGC_BackDisk_layer2WidthNoSteps" lWidth="NSW_sTGC_BackDisk_layer3Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_secondPlateLength" />
+
+<sTGC type="sTG3-2-2" tech="sTGC_4" subType="T1S2" sWidth="NSW_sTGC_BackDisk_layer2WidthNoSteps" lWidth="NSW_sTGC_BackDisk_layer3Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_secondPlateLength" />
+
+<sTGC type="sTG3-3-1" tech="sTGC_1" subType="T2S1" sWidth="NSW_sTGC_BackDisk_layer3Width" lWidth="NSW_sTGC_BackDisk_layer4Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_standardPlateLength" />
+
+<sTGC type="sTG3-3-2" tech="sTGC_1" subType="T2S2" sWidth="NSW_sTGC_BackDisk_layer3Width" lWidth="NSW_sTGC_BackDisk_layer4Width" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_standardPlateLength" />
+
+<sTGC type="sTG3-4-1" tech="sTGC_1" subType="T3S1" sWidth="NSW_sTGC_BackDisk_layer4Width" lWidth="NSW_sTGC_BackDisk_topWidth" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_standardPlateLength" />
+
+<sTGC type="sTG3-4-2" tech="sTGC_1" subType="T3S2" sWidth="NSW_sTGC_BackDisk_layer4Width" lWidth="NSW_sTGC_BackDisk_topWidth" Tck="NSW_sTGC_Tck" Length="NSW_sTGC_BackDisk_standardPlateLength" />
+
+<!-- A-SIDE -->
+<composition name="NSW" >
+
+  <!-- LARGE SECTOR -->
+  <!-- sTGC multilayer 1 -->
+  <mposPhi volume="sTG1-1-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_sTGC_FrontDisk_bottomPlateLength/2.);NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG1-2-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+(NSW_sTGC_FrontDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG1-3-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(NSW_sTGC_FrontDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG1-4-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(1.5*NSW_sTGC_FrontDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <!-- MM multilayer 1 -->
+  <mposPhi volume="sMD1-1-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_MM_FrontDisk_standardPlateLength/2.);NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD1-2-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(1.5*NSW_MM_FrontDisk_standardPlateLength)+NSW_MM_SpacerLength;NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD1-3-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(2.5*NSW_MM_FrontDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD1-4-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(3.*NSW_MM_FrontDisk_standardPlateLength)+(NSW_MM_FrontDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <!-- spacer -->
+  <mposPhi volume="spa1-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_MM_FrontDisk_standardPlateLength/2.);NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa1-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(1.5*NSW_MM_FrontDisk_standardPlateLength)+NSW_MM_SpacerLength;NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa1-3" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(2.5*NSW_MM_FrontDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa1-4" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(3.*NSW_MM_FrontDisk_standardPlateLength)+(NSW_MM_FrontDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <!-- MM multilayer 2 -->
+  <mposPhi volume="sMD1-1-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_MM_FrontDisk_standardPlateLength/2.);NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD1-2-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(1.5*NSW_MM_FrontDisk_standardPlateLength)+NSW_MM_SpacerLength;NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD1-3-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(2.5*NSW_MM_FrontDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD1-4-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(3.*NSW_MM_FrontDisk_standardPlateLength)+(NSW_MM_FrontDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap" Phi0="0." rot=" 90.; 270.; 90." />
+  <!-- sTGC multilayer 2 -->
+  <mposPhi volume="sTG1-1-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_sTGC_FrontDisk_bottomPlateLength/2.);NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG1-2-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+(NSW_sTGC_FrontDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG1-3-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(NSW_sTGC_FrontDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG1-4-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(1.5*NSW_sTGC_FrontDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.)" Phi0="0." rot=" 90.; 270.; 90." />
+
+  <!-- SMALL SECTOR -->
+  <!-- sTGC multilayer 1 -->
+  <mposPhi volume="sTG3-1-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_sTGC_BackDisk_bottomPlateLength/2.);NSW_zPos-(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG3-2-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+(NSW_sTGC_BackDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;NSW_zPos-(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG3-3-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(NSW_sTGC_BackDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);NSW_zPos-(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG3-4-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(1.5*NSW_sTGC_BackDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);NSW_zPos-(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <!-- MM multilayer 1 -->
+  <mposPhi volume="sMD3-1-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_MM_BackDisk_bottomPlateLength/2.);NSW_zPos+(NSW_MM_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD3-2-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(NSW_MM_BackDisk_standardPlateLength/2.)+NSW_MM_SpacerLength;NSW_zPos+(NSW_MM_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD3-3-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(1.5*NSW_MM_BackDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);NSW_zPos+(NSW_MM_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD3-4-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(2.*NSW_MM_BackDisk_standardPlateLength)+(NSW_MM_BackDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);NSW_zPos+(NSW_MM_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <!-- spacer -->
+  <mposPhi volume="spa3-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_MM_BackDisk_bottomPlateLength/2.);NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa3-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(NSW_MM_BackDisk_standardPlateLength/2.)+NSW_MM_SpacerLength;NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa3-3" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(1.5*NSW_MM_BackDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa3-4" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(2.*NSW_MM_BackDisk_standardPlateLength)+(NSW_MM_BackDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <!-- MM multilayer 2 -->
+  <mposPhi volume="sMD3-1-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_MM_BackDisk_bottomPlateLength/2.);NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD3-2-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(NSW_MM_BackDisk_standardPlateLength/2.)+NSW_MM_SpacerLength;NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD3-3-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(1.5*NSW_MM_BackDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sMD3-4-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(2.*NSW_MM_BackDisk_standardPlateLength)+(NSW_MM_BackDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <!-- sTGC multilayer 2 -->
+  <mposPhi volume="sTG3-1-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_sTGC_BackDisk_bottomPlateLength/2.);NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG3-2-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+(NSW_sTGC_BackDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG3-3-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(NSW_sTGC_BackDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="sTG3-4-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(1.5*NSW_sTGC_BackDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.)" Phi0="22.5" rot=" 90.; 270.; 90." />
+
+</composition>
+
+
+<!-- C-SIDE -->
+<composition name="NSWS" >
+
+  <!-- LARGE SECTOR -->
+  <!-- sTGC multilayer 1 -->
+  <mposPhi volume="sTG1-1-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_sTGC_FrontDisk_bottomPlateLength/2.);-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG1-2-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+(NSW_sTGC_FrontDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG1-3-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(NSW_sTGC_FrontDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG1-4-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(1.5*NSW_sTGC_FrontDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap-(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <!-- MM multilayer 1 -->
+  <mposPhi volume="sMD1-1-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_MM_FrontDisk_standardPlateLength/2.);-(NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD1-2-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(1.5*NSW_MM_FrontDisk_standardPlateLength)+NSW_MM_SpacerLength;-(NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD1-3-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(2.5*NSW_MM_FrontDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);-(NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD1-4-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(3.*NSW_MM_FrontDisk_standardPlateLength)+(NSW_MM_FrontDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);-(NSW_zPos+(2.5*NSW_MM_Tck)+NSW_MM_SpacerThickness+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <!-- spacer -->
+  <mposPhi volume="spa1-1" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_MM_FrontDisk_standardPlateLength/2.);-(NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa1-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(1.5*NSW_MM_FrontDisk_standardPlateLength)+NSW_MM_SpacerLength;-(NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa1-3" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(2.5*NSW_MM_FrontDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);-(NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa1-4" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(3.*NSW_MM_FrontDisk_standardPlateLength)+(NSW_MM_FrontDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);-(NSW_zPos+(3.*NSW_MM_Tck)+(1.5*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <!-- MM multilayer 2 -->
+  <mposPhi volume="sMD1-1-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_MM_FrontDisk_standardPlateLength/2.);-(NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD1-2-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(1.5*NSW_MM_FrontDisk_standardPlateLength)+NSW_MM_SpacerLength;-(NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD1-3-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(2.5*NSW_MM_FrontDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);-(NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD1-4-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(3.*NSW_MM_FrontDisk_standardPlateLength)+(NSW_MM_FrontDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);-(NSW_zPos+(3.5*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap)" Phi0="0." rot=" 90.; 90.; 90." />
+  <!-- sTGC multilayer 2 -->
+  <mposPhi volume="sTG1-1-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+(NSW_sTGC_FrontDisk_bottomPlateLength/2.);-(NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG1-2-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+(NSW_sTGC_FrontDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;-(NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG1-3-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(NSW_sTGC_FrontDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);-(NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG1-4-2" ncopy="8" R_Z="NSW_MM_FrontDisk_radius+NSW_sTGC_FrontDisk_bottomPlateLengthNoSteps+NSW_sTGC_FrontDisk_secondPlateLength+(1.5*NSW_sTGC_FrontDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);-(NSW_zPos+(4.*NSW_MM_Tck)+(2.*NSW_MM_SpacerThickness)+NSW_SectorGap+(NSW_sTGC_Tck/2.))" Phi0="0." rot=" 90.; 90.; 90." />
+
+  <!-- SMALL SECTOR -->
+  <!-- sTGC multilayer 1 -->
+  <mposPhi volume="sTG3-1-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_sTGC_BackDisk_bottomPlateLength/2.);-(NSW_zPos-(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG3-2-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+(NSW_sTGC_BackDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;-(NSW_zPos-(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG3-3-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(NSW_sTGC_BackDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);-(NSW_zPos-(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG3-4-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(1.5*NSW_sTGC_BackDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);-(NSW_zPos-(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <!-- MM multilayer 1 -->
+  <mposPhi volume="sMD3-1-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_MM_BackDisk_bottomPlateLength/2.);-(NSW_zPos+(NSW_MM_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD3-2-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(NSW_MM_BackDisk_standardPlateLength/2.)+NSW_MM_SpacerLength;-(NSW_zPos+(NSW_MM_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD3-3-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(1.5*NSW_MM_BackDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);-(NSW_zPos+(NSW_MM_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD3-4-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(2.*NSW_MM_BackDisk_standardPlateLength)+(NSW_MM_BackDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);-(NSW_zPos+(NSW_MM_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <!-- spacer -->
+<mposPhi volume="spa3-1" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_MM_BackDisk_bottomPlateLength/2.);-(NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa3-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(NSW_MM_BackDisk_standardPlateLength/2.)+NSW_MM_SpacerLength;-(NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa3-3" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(1.5*NSW_MM_BackDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);-(NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa3-4" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(2.*NSW_MM_BackDisk_standardPlateLength)+(NSW_MM_BackDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);-(NSW_zPos+NSW_MM_Tck+(NSW_MM_SpacerThickness/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <!-- MM multilayer 2 -->
+  <mposPhi volume="sMD3-1-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_MM_BackDisk_bottomPlateLength/2.);-(NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness)" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD3-2-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(NSW_MM_BackDisk_standardPlateLength/2.)+NSW_MM_SpacerLength;-(NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness)" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD3-3-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(1.5*NSW_MM_BackDisk_standardPlateLength)+(2.*NSW_MM_SpacerLength);-(NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness)" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sMD3-4-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_MM_BackDisk_bottomPlateLength+(2.*NSW_MM_BackDisk_standardPlateLength)+(NSW_MM_BackDisk_topPlateLength/2.)+(3.*NSW_MM_SpacerLength);-(NSW_zPos+(1.5*NSW_MM_Tck)+NSW_MM_SpacerThickness)" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <!-- sTGC multilayer 2 -->
+  <mposPhi volume="sTG3-1-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+(NSW_sTGC_BackDisk_bottomPlateLength/2.);-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG3-2-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+(NSW_sTGC_BackDisk_secondPlateLength/2.)+NSW_sTGC_SpacerLength;-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG3-3-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(NSW_sTGC_BackDisk_standardPlateLength/2.)+(2.*NSW_sTGC_SpacerLength);-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="sTG3-4-2" ncopy="8" R_Z="NSW_MM_BackDisk_radius+NSW_sTGC_BackDisk_bottomPlateLengthNoSteps+NSW_sTGC_BackDisk_secondPlateLength+(1.5*NSW_sTGC_BackDisk_standardPlateLength)+(3.*NSW_sTGC_SpacerLength);-(NSW_zPos+(2.*NSW_MM_Tck)+NSW_MM_SpacerThickness+(NSW_sTGC_Tck/2.))" Phi0="22.5" rot=" 90.; 90.; 90." />
+
+</composition>
+
+<composition name="NewSmallWheel" >
+  <posXYZ volume="NSW"  X_Y_Z="0.;0.;0." />
+  <posXYZ volume="NSWS" X_Y_Z="0.;0.;0." />
+</composition>
+
+</section>
+</AGDD>
