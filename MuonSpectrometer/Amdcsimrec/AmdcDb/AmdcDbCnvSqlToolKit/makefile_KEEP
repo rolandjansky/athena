@@ -1,0 +1,15 @@
+CXX = g++
+
+CCFLAGS = -g -c -w $(INCLUDES)
+
+LDFLAGS = -g 
+
+OBJS    =  main.o
+
+LIBRARIES =   
+
+main:   $(OBJS)
+	$(CXX) $(LDFLAGS) $(OBJS) $(LIBRARIES) -o main
+
+main.o: main.cc 
+	$(CXX)  $(CCFLAGS) $(INCLUDES) main.cc

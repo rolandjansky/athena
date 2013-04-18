@@ -1,0 +1,126 @@
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+
+#include <sstream>
+
+#include <cstdio>
+#include <cmath>
+
+#include <algorithm>
+#include <iterator>
+#include <list>
+#include <vector>
+#include <map>
+#include <string>
+#include <utility>
+
+int main()
+{
+
+//Open Configure file
+  std::ifstream FileConfigure ("configure.txt");
+  if(!FileConfigure) {
+    std::cout << "=> configure.txt does not exit!!!! " << std::endl;
+    std::cout << "=> Stop!!!! " << std::endl;
+    return 0;
+  }
+  if(FileConfigure.eof()) {
+    std::cout << "=> configure.txt empty!!!! " << std::endl;
+    std::cout << "=> Stop!!!! " << std::endl;
+    return 0;
+  }
+
+//Configure job
+  std::string TableName            ; 
+  int         XXX_DATA_ID_KOUNTER  ;
+  int         XXX_DATA2TAG_KOUNTER ;
+  std::string WEB_ADDRESS_FOR_TEMP_DATA_FILE            ; 
+
+  FileConfigure >> TableName 
+                >> XXX_DATA2TAG_KOUNTER 
+                >> XXX_DATA_ID_KOUNTER 
+                >> WEB_ADDRESS_FOR_TEMP_DATA_FILE ;
+  std::cout << "Work on " 
+            << " -.- " <<  std::setw(6) << TableName            
+            << " -.- " <<  std::setw(8) << XXX_DATA2TAG_KOUNTER 
+            << " -.- " <<  std::setw(8) << XXX_DATA_ID_KOUNTER  
+            << " -.- " <<  std::setw(12) << WEB_ADDRESS_FOR_TEMP_DATA_FILE
+            << std::endl;
+  FileConfigure.close ();
+
+//Open input Sql file
+  std::string FileSqlName="Out.AmdcOracle.AM." + TableName + ".PREsql";
+  std::ifstream FileSql (FileSqlName.c_str());
+  if(!FileSql) {
+    std::cout << "=> " << FileSqlName <<" does not exit!!!! " << std::endl;
+    std::cout << "=> Stop!!!! " << std::endl;
+    return 0;
+  }
+  if(FileSql.eof()) {
+    std::cout << "=> " << FileSqlName <<" empty!!!! " << std::endl;
+    std::cout << "=> Stop!!!! " << std::endl;
+    return 0;
+  }
+  
+//Open OutputSql file
+  std::string FileSqlOutputName=TableName + ".sql";
+  std::ofstream  FileSqlOutput;	    
+  FileSqlOutput.open(FileSqlOutputName.c_str());
+
+//Work Out Output Sql file
+  XXX_DATA_ID_KOUNTER = XXX_DATA_ID_KOUNTER - 1 ;
+  
+  std::string LINEFOR_XXX_DATA_ID_KOUNTER = ") values (XXX_DATA_ID_KOUNTER" ;
+
+  std::string LINEFOR_XXX_DATA_ID         = "XXX_DATA_ID_KOUNTER" ;
+  double LINEFOR_XXX_DATA_ID_SIZE = LINEFOR_XXX_DATA_ID.size();
+
+  std::string LINEFOR_XXX_DATA2TAG         = "XXX_DATA2TAG_KOUNTER" ;
+  double LINEFOR_XXX_DATA2TAG_SIZE = LINEFOR_XXX_DATA2TAG.size();
+
+  std::string LINEFOR_WEB_ADDRESS_FOR_TEMP_DATA_FILE         = "WEB_ADDRESS_FOR_TEMP_DATA_FILE" ;
+  double LINEFOR_WEB_ADDRESS_FOR_TEMP_DATA_FILE_SIZE = LINEFOR_WEB_ADDRESS_FOR_TEMP_DATA_FILE.size();
+
+  while (!FileSql.eof ())
+  {
+    std::string CurrentLine ;
+
+    std::getline (FileSql, CurrentLine);
+    
+    int iposi = CurrentLine.find(LINEFOR_XXX_DATA_ID_KOUNTER);
+    if (iposi !=-1) 
+    XXX_DATA_ID_KOUNTER = XXX_DATA_ID_KOUNTER + 1 ;
+    
+    iposi = CurrentLine.find(LINEFOR_XXX_DATA_ID);
+    if  (iposi !=-1) {
+     std::stringstream ss;
+     std::string SubtiString;
+     ss << XXX_DATA_ID_KOUNTER;
+     ss >> SubtiString;    
+     CurrentLine.replace(iposi,LINEFOR_XXX_DATA_ID_SIZE,SubtiString);
+    }
+    
+    iposi = CurrentLine.find(LINEFOR_XXX_DATA2TAG);
+    if  (iposi !=-1) {
+     std::stringstream ss;
+     std::string SubtiString;
+     ss << XXX_DATA2TAG_KOUNTER;
+     ss >> SubtiString;    
+     CurrentLine.replace(iposi,LINEFOR_XXX_DATA2TAG_SIZE,SubtiString);
+    }
+    
+    iposi = CurrentLine.find(LINEFOR_WEB_ADDRESS_FOR_TEMP_DATA_FILE);
+    if  (iposi !=-1) {
+     std::string SubtiString = WEB_ADDRESS_FOR_TEMP_DATA_FILE ;
+     CurrentLine.replace(iposi,LINEFOR_WEB_ADDRESS_FOR_TEMP_DATA_FILE_SIZE,SubtiString);
+    }
+    
+    FileSqlOutput << CurrentLine << std::endl ;
+    
+  }
+
+  FileSql.close ();
+
+}
+    
