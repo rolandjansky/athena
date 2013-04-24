@@ -1,0 +1,13 @@
+package eflowAthenaPool
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+private
+use eflowEventTPCnv      eflowEventTPCnv-*          Reconstruction
+use eflowEvent           eflowEvent-*               Reconstruction
+public
+
+apply_pattern poolcnv \
+	files="-s=${eflowEvent_root}/eflowEvent eflowObjectContainer.h "
+
