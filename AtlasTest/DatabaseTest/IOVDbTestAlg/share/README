@@ -1,0 +1,211 @@
+
+			6 November 2003  RD Schaffer
+
+
+Overview:
+
+Here we provide a bit of documentation on how to run the IOVDbTestAlg
+which can write simple conditions objects to pool and register them in
+the IOV DB and then read them back via the IOV DB.
+
+The test job is in AtlasTest/DatabaseTest/IOVDbTestAlg. There is a
+test algorithm which is designed to have a write-mode and a
+read-mode.
+
+Write scenario:
+
+During the write-mode, the idea is that one may loop over events to
+calculate a "calibration set", for example taking pedestal averages or
+analysing electronic response to calibration signals. At a particular
+moment, for example after a certain number of events or at the end of
+run, the calibration set can be written out to pool and each "object"
+written out is then registered in the IOV DB with a specified time
+interval (currently begin/end run and event numbers).
+
+Specifically for IOVDbTestAlg:
+
+IOVDbTestAlgWrite.txt are the jobOptions to write out.
+
+The MC event selector is used to just loop over dummy
+events. (Normally one would read some calibrarion events.) 
+During the event loop one may "accumulate averages".
+
+At the desired moment, e.g. after N events or at the end of the
+run/job, calculate the conditions data to be written out by creating
+the corresponding objects and store in the DetectorStore
+
+The jobOptions specify that this algorithm is a "veto" for the output
+stream which will write the objects. To trigger the writing, one sets
+the "filter passed" flag to "false" to turn off the veto and tell the
+output stream to write out the conditions objects in the
+DetectorStore. This is done with setFilterPassed method.
+
+Finally, one must fill the folders of the IOV DB for each of the sets
+of conditions written out.  This is done with the help of an AlgTool:
+FillIOVDbTool. This tool is called from the "handle" method of the
+algorithm which is called at each end of event, after the conditions
+data is written out. In this example, the fillIOV only needs to be
+given the type name of the object to be written out. As well, one
+needs to provide the interval (begin/end run and event numbers) and
+optionally a tag. In this example this is done via the FillIOVDbTool's
+jobOptions.
+
+
+Read scenario:
+
+The standard read scenario loops over events, and accesses data from
+the Detector Store. The objects may vary in time, but they are
+"guaranteed" to be correct vis-a-vis the "time" of the current event.
+
+In the jobOptions one must specify the set of folders to be used where
+there is one folder per conditions data object.
+
+Then to access any conditions object one may simply use a standard
+StoreGate retrieve from the DetectorStore at each new event.
+	         
+Retrieving at each new event is one means to assure that one has the
+up-to-date conditions object. Other possibilities are to binding a
+StoreGate handle to a specific object or requesting a call-back when a
+particular object changes. This latter possibility should be used when
+one "caches" information derived from the conditions object - the
+call-back indicates that the cache needs to be updated.
+
+
+To run:
+
+set youself up to work with a release (at least 7.3.0 or a nightly):
+
+Writing conditions:
+
+athena.exe IOVDbTestAlg/IOVDbTestAlgWrite.txt
+
+Reading conditions:
+
+athena.exe IOVDbTestAlg/IOVDbTestAlgRead.txt
+
+
+
+Job options for writing (see IOVDbTestAlg/IOVDbTestAlgWrite.txt):
+-----------------------------------------------------------------
+
+One may run athena with IOVDbTestAlgWrite multiple times. Each tiem
+one should set a different run/event number range in the jobOptions. 
+
+Parameters to be changed:
+
+// For IOVDb: set database name, and tag for data to be read
+IOVDbSvc.DBname      = "ConditionsDB_Pool_test";
+
+Developers should use their own database, e.g. ConditionsDB_<name>
+
+
+
+// Set the tag for ALL folders (not yet able to have different tags per folder)
+ToolSvc.FillIOVTool.IOVDbTag   = "DC1";
+
+
+
+// Select the following to delete and recreate the folders. Default is
+// NOT to recreate
+// ToolSvc.FillIOVTool.RecreateFolders = true;
+
+To "clean up", it should be enough to delete folders. But sometimes
+one needs to just delete the database. A tool will be provided for
+this. In the meantime, ask a DB administrator.
+
+
+
+// The following set the interval for each of the IOVDbTest folders
+// ToolSvc.FillIOVTool.BeginRun   = 4;
+// Max EndRun: 0x7FFFFFFF
+// ToolSvc.FillIOVTool.EndRun     = 2147483647; 
+// ToolSvc.FillIOVTool.EndRun     = 3; 
+// ToolSvc.FillIOVTool.BeginEvent = 0;
+// Max EndEvent: 0xFFFFFFFF
+// ToolSvc.FillIOVTool.EndEvent   = 4294967295;
+// ToolSvc.FillIOVTool.EndEvent   = 4294967295;
+// ToolSvc.FillIOVTool.IOVDbTag   = "DC1";
+
+Min value for run/event is 0 and the max values are given above. One
+adds new conditions sets by running multiple times. Each run should
+increase the min values for run/event accordingly. The max values may
+either be left at the max values or set to the be end of the interval.
+
+
+
+// Set the following when reading back to adjust the run/event numbers
+//   (don't forget ApplicationMgr.EvtMax)
+EventSelector.RunNumber=1;
+EventSelector.EventsPerRun=5;
+EventSelector.FirstEvent=1;
+
+ApplicationMgr.EvtMax = 15;
+
+For the MC event selector, one may vary the above parameters to set
+the range of run/event numbers looped over. EvtMax gives the number of
+events in the event loop.
+
+NOTE: hard coded in the IOVDbTestAlg is the writing out at run 2 event
+5.
+
+The most important AthenaPool parameter is:
+
+//PoolSvc.DbOpen = "overwrite"; // "read", "update" "create" "overwrite"
+PoolSvc.DbOpen = "update"; // "read", "update" "create" "overwrite"
+
+where "update" means that multiple writes will append conditions to the
+end of the files, and "overwrite" means that existing data will be
+overwritten. The former should be used to write multiple conditions
+sets. 
+
+NOTE: one may keep adding to the pool file, but it is what is in the
+IOV DB that determines what is read back. So in normal
+development/playing around one only needs to set
+
+// ToolSvc.FillIOVTool.RecreateFolders = true;
+
+to effectively reset and redo the writing of conditions sets.
+
+
+// IOVDbTestAmdbCorrection
+Stream2.ItemList+={"4078#*"};
+
+// IOVDbTestMDTEleMap
+Stream2.ItemList+={"4077#*"};
+
+One must list the objects to be written out to pool.
+
+
+
+Job options for reading (see IOVDbTestAlg/IOVDbTestAlgRead.txt):
+----------------------------------------------------------------
+
+
+//--------------------------------------------------------------
+// For IOVDb: set database name, and tag for data to be read
+
+IOVDbSvc.DBname      = "ConditionsDB_Pool_test";
+IOVDbSvc.GlobalTag   = "DC1";
+
+
+// Set the following when reading back to adjust the run/event numbers
+//   (don't forget ApplicationMgr.EvtMax)
+EventSelector.RunNumber=1;
+EventSelector.EventsPerRun=2;
+EventSelector.FirstEvent=1;
+
+ApplicationMgr.EvtMax = 15;
+
+See comments under write.
+
+
+// Must list the folders to be used for reading
+IOVDbSvc.Folders += { "/IOVDbTest/IOVDbTestMDTEleMap" } ;
+IOVDbSvc.Folders += { "/IOVDbTest/IOVDbTestAMDBCorrection" } ;
+
+
+
+
+
+
+
