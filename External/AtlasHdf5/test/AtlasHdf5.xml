@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="test_hdf5" type="script" suite="hdf5">
+      <package>External/AtlasHdf5</package>
+      <options>python -c'print "OK"'</options>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch</mailto>
+      <expectations>
+         <successMessage>OK</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>

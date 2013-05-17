@@ -1,0 +1,25 @@
+*******************************
+*  Output of example program  *
+*******************************
+
+Objects in the file:
+/  (Group)
+/G1  (Group)
+/G1/G2  (Group)
+/G1/G2/G3  (Group)
+
+
+**********************
+*  Output of h5dump  *
+**********************
+
+HDF5 "h5ex_g_intermediate.h5" {
+GROUP "/" {
+   GROUP "G1" {
+      GROUP "G2" {
+         GROUP "G3" {
+         }
+      }
+   }
+}
+}

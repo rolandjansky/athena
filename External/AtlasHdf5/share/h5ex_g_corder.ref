@@ -1,0 +1,37 @@
+*******************************
+*  Output of example program  *
+*******************************
+
+Traversing group using alphabetical indices:
+
+Index 0: 5
+Index 1: D
+Index 2: F
+Index 3: H
+
+Traversing group using creation order indices:
+
+Index 0: H
+Index 1: D
+Index 2: F
+Index 3: 5
+
+
+**********************
+*  Output of h5dump  *
+**********************
+
+HDF5 "h5ex_g_corder.h5" {
+GROUP "/" {
+   GROUP "index_group" {
+      GROUP "5" {
+      }
+      GROUP "D" {
+      }
+      GROUP "F" {
+      }
+      GROUP "H" {
+      }
+   }
+}
+}

@@ -1,0 +1,59 @@
+*******************************
+*  Output of example program  *
+*******************************
+
+Objects in the file:
+/  (Group)
+/group1  (Group)
+/group1/dset1  (Dataset)
+/group1/group3  (Group)
+/group1/group3/group4  (Group)
+/group1/group3/group4/group1  (Group)
+/group1/group3/group4/group2  (Group)
+
+Links in the file:
+/group1  (Group)
+/group1/dset1  (Dataset)
+/group1/group3  (Group)
+/group1/group3/dset2  (Dataset)
+/group1/group3/group4  (Group)
+/group1/group3/group4/group1  (Group)
+/group1/group3/group4/group1/group5  (Group)
+/group1/group3/group4/group2  (Group)
+/group2  (Group)
+
+
+**********************
+*  Output of h5dump  *
+**********************
+
+HDF5 "h5ex_g_visit.h5" {
+GROUP "/" {
+   GROUP "group1" {
+      DATASET "dset1" {
+         DATATYPE  H5T_STD_I32LE
+         DATASPACE  SIMPLE { ( 1, 1 ) / ( 1, 1 ) }
+         DATA {
+         (0,0): 0
+         }
+      }
+      GROUP "group3" {
+         DATASET "dset2" {
+            HARDLINK "/group1/dset1"
+         }
+         GROUP "group4" {
+            GROUP "group1" {
+               GROUP "group5" {
+                  HARDLINK "/group1"
+               }
+            }
+            GROUP "group2" {
+            }
+         }
+      }
+   }
+   GROUP "group2" {
+      HARDLINK "/group1/group3"
+   }
+}
+}

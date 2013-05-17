@@ -1,0 +1,35 @@
+## Automatically generated CMT requirements file
+package AtlasHdf5
+author  Sebastien Binet <binet@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+use PyCmt		PyCmt-*		Tools -no_auto_imports
+
+macro_append AtlasHdf5_linkopts " -lhdf5_cpp -lhdf5"
+macro_append AtlasHdf5_linkopts "" Darwin " -lz -lsz "
+
+include_path none
+apply_pattern include_path extras=$(CMTINSTALLAREA)/$(CMTCONFIG)/include
+
+private
+
+use AtlasSzip		AtlasSzip-*		External
+use AtlasBzip2		AtlasBzip2-*		External
+
+apply_pattern make_pkgbuild \
+ name=hdf5 \
+ file=pkgbuild_hdf5.py
+
+end_private
+
+private
+
+############################
+## tests
+use TestPolicy TestPolicy-* 
+
+apply_pattern declare_runtime extras="$(AtlasHdf5_root)/share *.ref *.h5"
+apply_pattern declare_scripts files="$(AtlasHdf5_root)/test/*.py"
+
+end_private
