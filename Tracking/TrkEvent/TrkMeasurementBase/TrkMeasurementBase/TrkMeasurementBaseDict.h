@@ -6,7 +6,7 @@
 #define TRKMEASUREMENTBASEDICT_H
 
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 // We need to instantiate some templates here to be able to create the
 // dictionary for them
