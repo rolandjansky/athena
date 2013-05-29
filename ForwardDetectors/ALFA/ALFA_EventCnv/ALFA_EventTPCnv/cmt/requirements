@@ -1,0 +1,41 @@
+package ALFA_EventTPCnv
+
+author  Tom Sykora <Tomas.Sykora@cern.ch>
+
+
+use AtlasPolicy          AtlasPolicy-*  
+#use AtlasCLHEP           AtlasCLHEP-*           External
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+#use DataModel            DataModel-*            Control
+use DataModelAthenaPool   DataModelAthenaPool-*   Control
+
+
+use ALFA_SimEv           ALFA_SimEv-*           ForwardDetectors/ALFA
+use ALFA_RawEv           ALFA_RawEv-*           ForwardDetectors/ALFA
+use ALFA_LocRecEv        ALFA_LocRecEv-*        ForwardDetectors/ALFA/ALFA_RecEv
+use ALFA_LocRecCorrEv    ALFA_LocRecCorrEv-*    ForwardDetectors/ALFA/ALFA_RecEv
+use ALFA_GloRecEv        ALFA_GloRecEv-*        ForwardDetectors/ALFA/ALFA_RecEv
+use ALFA_CLinkEv         ALFA_CLinkEv-*         ForwardDetectors/ALFA
+
+   
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep 
+# clients of EventInfo from seeing excess dependencies
+# private
+use AtlasReflex        AtlasReflex-*        External
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+apply_pattern lcgdict dict=ALFA_EventTPCnv  selectionfile=selection.xml headerfiles="../ALFA_EventTPCnv/ALFA_EventTPCnvDict.h
+
+# end_private
+
+private
+use Identifier           Identifier-*           DetectorDescription
+use GaudiInterface       GaudiInterface-*       External
+end_private
+
+
+library ALFA_EventTPCnv *.cxx
+apply_pattern installed_library
