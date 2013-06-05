@@ -1,0 +1,20 @@
+Package:       InnerDetector/InDetRecAlgs/PrepRawDataFormation
+responsible:   Tommaso Lari (Tommaso.Lari@cern.ch)
+content:       Silicon Clustering algorithms. Uses the algorithm tools 
+               of SiClusterizationTool to cluster pixel and strips. 
+Inputs:        Silicon RDO, Geometry
+Outputs:       cluster collection 
+Dependencies:  Control/StoreGate
+               DetectorDescription/AtlasDetDescr
+               DetectorDescription/Identifier
+               External/GaudiInterface
+               InnerDetector/InDetConditions/SCT_ConditionsAlgs
+               InnerDetector/InDetRawEvent/InDetRawData
+               InnerDetector/InDetDetDescr/InDetCabling
+               InnerDetector/InDetDetDescr/InDetIdentifier
+               InnerDetector/InDetDetDescr/InDetReadoutGeometry
+               InnerDetector/InDetRecEvent/InDetPrepRawData
+               InnerDetector/InDetRecTools/SiClusterizationTool
+               InnerDetector/InDetRecTools/TRT_DriftCircleTool
+               Tracking/TrkDetDescr/TrkSurfaces 
+JobOptions:    none
