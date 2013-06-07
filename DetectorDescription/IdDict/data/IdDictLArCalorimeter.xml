@@ -1,0 +1,306 @@
+
+
+<IdDictionary name="LArCalorimeter" >
+
+  <field name="part" begin_fixed_bits="after" >
+    <label name="LArEM"   value="1" />
+    <label name="LArHEC"  value="2" />
+    <label name="LArFCAL" value="3" />
+  </field>
+
+  <field name="barrel-endcap">
+    <label name="negative-endcap-inner-wheel" value="-3" />
+    <label name="negative-endcap-outer-wheel" value="-2" />
+    <label name="negative-barrel"             value="-1" />
+    <label name="barrel"                      value="0"  />
+    <label name="positive-barrel"             value="+1" />
+    <label name="positive-endcap-outer-wheel" value="+2" />
+    <label name="positive-endcap-inner-wheel" value="+3" />
+  </field>
+
+
+
+  <subregion name="LArFCAL-module" >
+    <range field="phi-fcal" minvalue="0" maxvalue="15" />
+  </subregion>
+
+  <subregion name="LArEM-extralarge-module" >
+    <range field="phi" minvalue="0" maxvalue="31" />
+  </subregion>
+
+  <subregion name="LArEM-large-module" >
+    <range field="phi" minvalue="0" maxvalue="63" />
+  </subregion>
+
+  <subregion name="LArEM-thin-module" >
+    <range field="phi" minvalue="0" maxvalue="255" />
+  </subregion>
+
+
+
+        <!-- EM Barrel -->
+
+  <subregion name="LArEM-barrel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-barrel positive-barrel" />
+  </subregion>
+
+  <region>
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="60" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="447" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="55" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="26" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+
+
+
+        <!-- EM outer wheel -->
+
+  <subregion name="LArEM-outer-wheel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="11" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="2" />
+    <range field="eta" minvalue="0" maxvalue="95" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="3" />
+    <range field="eta" minvalue="0" maxvalue="47" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="4" />
+    <range field="eta" minvalue="0" maxvalue="63" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="5" />
+    <range field="eta" minvalue="0" maxvalue="3" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="42" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="19" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+
+
+
+
+
+        <!-- EM inner wheel -->
+
+  <subregion name="LArEM-inner-wheel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-endcap-inner-wheel positive-endcap-inner-wheel" />
+  </subregion>
+
+  <region>
+    <reference subregion="LArEM-inner-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="6" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArEM-inner-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="6" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+
+
+
+
+      <!--
+
+          LArHEC
+
+        -->
+
+
+  <subregion name="LArHEC" >
+    <range field="part" value="LArHEC" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region>
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="0 1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="1" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="2" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="0 3" />
+    <range field="region" values="1" />
+    <range field="eta" minvalue="0" maxvalue="3" />
+    <reference subregion="LArEM-extralarge-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="1 2" />
+    <range field="region" values="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-extralarge-module" />
+  </region>
+
+
+
+
+      <!--
+
+          LArFCAL
+
+        -->
+
+  <subregion name="LArFCAL" >
+    <range field="part" value="LArFCAL" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region>
+    <reference subregion="LArFCAL" />
+    <range field="module" value="1" />
+    <range field="eta-fcal" minvalue="0" maxvalue="63" />
+    <reference subregion="LArFCAL-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArFCAL" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" minvalue="0" maxvalue="31" />
+    <reference subregion="LArFCAL-module" />
+  </region>
+
+  <region>
+    <reference subregion="LArFCAL" />
+    <range field="module" value="3" />
+    <range field="eta-fcal" minvalue="0" maxvalue="15" />
+    <reference subregion="LArFCAL-module" />
+  </region>
+
+</IdDictionary>
+
