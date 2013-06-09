@@ -1,0 +1,284 @@
+#!/bin/sh
+#
+#  Parse args
+#
+for arg
+  do
+  case $arg in
+    -stream) shift; stream=${1:?}; shift;;
+    -esd)    esd=True; shift;;
+    -cbnt)   cbnt=True; shift;;
+    -raw)    raw=True; shift;;
+    -get)    get=True; shift;;
+    -oldtag) oldtag=True; shift;;
+    -tagDataset) shift; tagContainer=${1:?}; shift;;
+    -*)      help=True; break;;
+  esac
+done
+if [ $# -lt 2 ]; then help=True; fi
+if [ "x$help" = "xTrue" ]
+  then
+  echo
+  echo "Find and optionally download files containing particular events"
+  echo
+  echo "Args are: <options> run event(s)"
+  echo
+  echo "Options:"
+  echo " -stream      Stream name, default L1Calo"
+  echo " -esd         ESD file name wanted, default"
+  echo " -cbnt        CBNT file name wanted"
+  echo " -raw         RAW file name wanted"
+  echo " -get         download files as well"
+  echo " -oldtag      Use CollectionTree for TAG"
+  echo " -tagDataset  Tag dataset to use, default last in sort order"
+  echo
+  exit
+fi
+stream=${stream:-L1Calo}
+if [ "x$esd" = "x" -a "x$cbnt" = "x" -a "x$raw" = "x" ]; then esd=True; fi
+run=$1; shift
+#
+#  Get TAG file(s)
+#
+typeID="data"
+#tagID="TAG_COMM"
+tagID="TAG"
+if [ "x$tagContainer" = "x" ]
+  then
+  tagContainer=`dq2-ls $typeID\*00$run.\*$stream.merge.$tagID.\*/ | sort | tail -1`
+  #dq2-ls $typeID\*00$run.\*$stream.merge.$tagID.\*/
+fi
+if [ "x$tagContainer" = "x" ]
+  then
+  echo "dq2-ls $typeID\*00$run.\*$stream.\*.$tagID.\*/"
+  # Try without trailing '/'
+  echo "No TAG container found with trailing /, trying without"
+  tagContainer=`dq2-ls $typeID\*00$run.\*$stream.merge.$tagID.\* | sort | tail -1`
+  if [ "x$tagContainer" = "x" ]
+    then
+    echo "No TAG container found"
+    exit
+  fi
+fi
+echo "TAG container:"
+echo $tagContainer
+tagFiles=`dq2-ls -f $tagContainer | grep "$tagID" | awk '{print $3}'`
+if [ "x$tagFiles" = "x" ]
+  then
+  echo "No TAG files found:"
+  echo "dq2-ls -f $tagContainer"
+  dq2-ls -f $tagContainer
+  exit
+fi
+echo "TAG file(s):"
+echo $tagFiles
+#
+#  Find events in TAG files.  NB. CollectionTree changed to POOLCollectionTree in 15.2.0
+#
+tagTree="POOLCollectionTree"
+if [ "x$oldtag" = "xTrue" ]
+  then
+  tagTree="CollectionTree"
+fi
+for event
+  do
+  for file in $tagFiles
+    do
+    dq2-get -f $file $tagContainer
+    pwd=`pwd`
+    filepath=`eval echo $pwd/*/$file`
+    if [ ! -r $filepath ]; then echo "Failed to download TAG file $file"; exit; fi
+    # ESD / CBNT data
+    if [ "x$esd" = "xTrue" -o "x$cbnt" = "xTrue" ]
+      then
+      # Get ESD GUID
+      /bin/rm -f temp$$.C
+      echo 'TFile* f = new TFile("'$filepath'")'                                    > temp$$.C
+      echo $tagTree'->Scan("StreamESD_ref","EventNumber=='$event'","colsize=180")' >> temp$$.C
+      echo '.q'                                                                    >> temp$$.C
+      guid=`root -b < temp$$.C 2>/dev/null | grep '\[DB=' |sed 's/^.*\[DB=//'|sed 's/\].*//'`
+      /bin/rm temp$$.C
+      if [ "x$guid" = "x" ]; then continue; fi
+      echo "ESD file GUID: $guid"
+      echo 'TFile* f = new TFile("'$filepath'")'                                       > temp$$.C
+      echo $tagTree'->Scan("EventNumber:StreamESD_ref","EventNumber>0","colsize=60")' >> temp$$.C
+      echo '.q'                                                                       >> temp$$.C
+      esdSkip=`root -b < temp$$.C 2>/dev/null | grep "$guid" | awk '{print $4}' | grep -n -x "$event" | cut -f 1 -d ":" | awk '{print $1 - 1}'`
+      echo "ESD skipEvents = $esdSkip"
+      /bin/rm temp$$.C
+      # Get ESD container
+      if [ "x$esdContainer" = "x" ]
+	then
+        esdContainer=`dq2-ls $typeID\*00$run\*$stream.\*.ESD\*/ | sort | tail -1`
+        if [ "x$esdContainer" = "x" ]
+          then
+	  echo "dq2-ls $typeID\*00$run\*$stream.\*.ESD\*/"
+	  # Try without trailing '/'
+          echo "No ESD container found with trailing /, trying without"
+	  esdContainer=`dq2-ls $typeID\*00$run\*$stream.\*.ESD\* | sort | tail -1`
+	  if [ "x$esdContainer" = "x" ]
+	    then
+	    echo "No ESD container found"
+	    exit
+	  fi
+        fi
+        echo "ESD container:"
+        echo $esdContainer
+      fi
+      # Get ESD file name
+      esdFile=`dq2-ls -f $esdContainer | grep "$guid" | awk '{print $3}'`
+      if [ "x$esdFile" = "x" ]
+        then
+	echo "ESD file not found for GUID $guid"
+	echo "dq2-ls -f $esdContainer"
+	dq2-ls -f $esdContainer
+	exit
+      fi
+      echo "ESD file:"
+      echo $esdFile
+      # Get CBNT file name
+      if [ "x$cbnt" = "xTrue" ]
+        then
+        cbntContainer=`echo $esdContainer | sed 's/ESD/CBNT/'`
+        cbntFile=`echo $esdFile | sed 's/ESD/CBNT/'`
+        testFile=`dq2-ls -f $cbntContainer | grep "$cbntFile" | awk '{print $3}'`
+        if [ "x$testFile" = "x" ]; then echo "CBNT file not found: $cbntFile"
+	else
+	  echo "CBNT container:"
+	  echo $cbntContainer
+	  echo "CBNT file"
+	  echo $cbntFile
+        fi
+      fi
+    fi
+    # RAW data
+    if [ "x$raw" = "xTrue" ]
+      then
+      # Get RAW GUID
+      /bin/rm -f temp$$.C
+      echo 'TFile* f = new TFile("'$filepath'")'                                    > temp$$.C
+      echo $tagTree'->Scan("StreamRAW_ref","EventNumber=='$event'","colsize=180")' >> temp$$.C
+      echo '.q'                                                                    >> temp$$.C
+      guid=`root -b < temp$$.C 2>/dev/null | grep '\[DB=' |sed 's/^.*\[DB=//'|sed 's/\].*//'`
+      #root -b < temp$$.C 
+      /bin/rm temp$$.C
+      if [ "x$guid" = "x" ]; then continue; fi
+      echo "RAW file GUID: $guid"
+      echo 'TFile* f = new TFile("'$filepath'")'                                       > temp$$.C
+      echo $tagTree'->Scan("EventNumber:StreamRAW_ref","EventNumber>0","colsize=60")' >> temp$$.C
+      echo '.q'                                                                       >> temp$$.C
+      rawSkip=`root -b < temp$$.C 2>/dev/null | grep "$guid" | awk '{print $4}' | grep -n -x "$event" | cut -f 1 -d ":" | awk '{print $1 - 1}'`
+      echo "RAW skipEvents = $rawSkip"
+      #root -b < temp$$.C 2>/dev/null | awk '{print $4}' >temp2
+      /bin/rm temp$$.C
+      #if [ "x$guid" = "x" ]; then continue; fi
+      # Get RAW container
+      if [ "x$rawContainer" = "x" ]
+	then
+        rawContainer=`dq2-ls $typeID\*00$run\*$stream.\*.RAW\*/ | sort | tail -1`
+        if [ "x$rawContainer" = "x" ]
+          then
+	  echo "dq2-ls $typeID\*00$run\*$stream.\*.RAW\*/"
+	  # Try without trailing '/'
+          echo "No RAW container found with trailing /, trying without"
+	  rawContainer=`dq2-ls $typeID\*00$run\*$stream.\*.RAW\* | sort | tail -1`
+	  if [ "x$rawContainer" = "x" ]
+	    then
+	    echo "No RAW container found"
+	    exit
+	  fi
+        fi
+        echo "RAW container:"
+        echo $rawContainer
+      fi
+      # Get RAW file name
+      rawFile=`dq2-ls -f $rawContainer | grep "$guid" | awk '{print $3}'`
+      if [ "x$rawFile" = "x" ]
+        then
+	echo "RAW file not found for GUID $guid"
+	echo "dq2-ls -f $rawContainer"
+	dq2-ls -f $rawContainer
+	exit
+      fi
+      echo "RAW file:"
+      echo $rawFile
+    fi
+  done
+  echo "==========================================================================="
+  if [ "x$esd" = "xTrue" ]
+    then
+    if [ "x$esdFile" = "x" ]; then echo "Run $run Event $event no ESD file found"
+    else
+      echo "Run $run Event $event ESD file is $esdFile skipEvents=$esdSkip"
+      if [ "x$esdFileList" = "x" ]; then esdFileList=$esdFile
+      else 
+	found=No
+        for file in $esdFileList
+	  do
+	  if [ "$file" = "$esdFile" ]; then found=Yes; break; fi
+        done
+	if [ "$found" = "No" ]; then esdFileList="$esdFileList $esdFile"; fi
+      fi
+      unset esdFile
+    fi
+  fi
+  if [ "x$cbnt" = "xTrue" ]
+    then
+    if [ "x$cbntFile" = "x" ]; then echo "Run $run Event $event no CBNT file found"
+    else
+      echo "Run $run Event $event CBNT file is $cbntFile"
+      if [ "x$cbntFileList" = "x" ]; then cbntFileList=$cbntFile
+      else 
+	found=No
+        for file in $cbntFileList
+	  do
+	  if [ "$file" = "$cbntFile" ]; then found=Yes; break; fi
+        done
+	if [ "$found" = "No" ]; then cbntFileList="$cbntFileList $cbntFile"; fi
+      fi
+      unset cbntFile
+    fi
+  fi
+  if [ "x$raw" = "xTrue" ]
+    then
+    if [ "x$rawFile" = "x" ]; then echo "Run $run Event $event no RAW file found"
+    else
+      echo "Run $run Event $event RAW file is $rawFile skipEvents=$rawSkip"
+      if [ "x$rawFileList" = "x" ]; then rawFileList=$rawFile
+      else 
+	found=No
+        for file in $rawFileList
+	  do
+	  if [ "$file" = "$rawFile" ]; then found=Yes; break; fi
+        done
+	if [ "$found" = "No" ]; then rawFileList="$rawFileList $rawFile"; fi
+      fi
+      unset rawFile
+    fi
+  fi
+  echo "==========================================================================="
+done
+#
+#  Download files
+#
+if [ "x$get" = "xTrue" ]
+  then
+  if [ "x$esdFileList" != "x" ]
+    then
+    echo "Downloading ESD files $esdFileList"
+    esdFileList2=`echo "$esdFileList" | sed 's/ /,/g'`
+    dq2-get -f $esdFileList2 $esdContainer
+  fi
+  if [ "x$cbntFileList" != "x" ]
+    then
+    echo "Downloading CBNT files $cbntFileList"
+    cbntFileList2=`echo "$cbntFileList" | sed 's/ /,/g'`
+    dq2-get -f $cbntFileList2 $cbntContainer
+  fi
+  if [ "x$rawFileList" != "x" ]
+    then
+    echo "Downloading RAW files $rawFileList"
+    rawFileList2=`echo "$rawFileList" | sed 's/ /,/g'`
+    dq2-get -f $rawFileList2 $rawContainer
+  fi
+fi
