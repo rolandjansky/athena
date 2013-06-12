@@ -1,0 +1,44 @@
+package AtlasHepMCAnalysis
+
+author Wolfgang Ehrenfeld <wolfgang.ehrenfeld@desy.de>
+author S. Johnert <sebastian.johnert@desy.de>
+
+use ExternalPolicy	ExternalPolicy-* 	External
+use AtlasExternalArea   AtlasExternalArea-*     External
+use AtlasFastJet	AtlasFastJet-*          External
+use AtlasCLHEP		AtlasCLHEP-*		External
+use AtlasHepMC       	AtlasHepMC-*          	External
+use AtlasROOT		AtlasROOT-*		External -no_auto_imports
+use LCG_Configuration
+#use HepPDT       	v* 			LCG_Interfaces
+
+#path_prepend LD_LIBRARY_PATH "/afs/cern.ch/sw/lcg/external/HepPDT/3.03.02/$(LCG_ext_system)/lib"
+#path_prepend LD_LIBRARY_PATH "/afs/cern.ch/sw/lcg/external/clhep/2.0.4.3/$(LCG_ext_system)/lib"
+
+#macro hepmcanalysis_native_version "3.4.11.root53200"
+macro hepmcanalysis_native_version "3.4.14"
+
+macro HepMCAnalysis_native_version "$(hepmcanalysis_native_version)_lcgcmt$(LCG_config_version)"
+
+#macro AtlasHepMCAnalysis_BASE "/afs/cern.ch/sw/lcg/external/MCGenerators_hepmc$(HepMC_config_version)/hepmcanalysis"
+#macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_hepmc$(HepMC_config_version)/hepmcanalysis"
+
+#macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt_preview/hepmcanalysis"
+macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/hepmcanalysis"
+#macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt64d/hepmcanalysis"
+macro AtlasHepMCAnalysis_SYSTEM "$(LCG_ext_system)" \
+              slc4&gcc43&32 "slc4_ia32_gcc34" \
+              slc4&gcc34&i686 "slc4_ia32_gcc34" \
+	      slc4&gcc43    "slc4_amd64_gcc34"
+
+macro AtlasHepMCAnalysis_DIR "$(AtlasHepMCAnalysis_BASE)/$(hepmcanalysis_native_version)/$(AtlasHepMCAnalysis_SYSTEM)"
+macro AtlasHepMCAnalysis_LIB_DIR "$(AtlasHepMCAnalysis_DIR)/lib"
+
+macro AtlasHepMCAnalysis_export_paths "$(AtlasHepMCAnalysis_DIR)"
+
+apply_pattern declare_installed_libraries dir="$(AtlasHepMCAnalysis_LIB_DIR)"
+macro AtlasHepMCAnalysis_linkopts " -lHepMCAnalysis "
+#macro AtlasHepMCAnalysis_linkopts "$(AtlasHepMCAnalysis_LIB_DIR)/libHepMCAnalysis.so"
+
+include_dirs "$(AtlasHepMCAnalysis_DIR)/include"
+
