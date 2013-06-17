@@ -200,20 +200,28 @@ StatusCode ZDC_PileUpTool::prepareEvent(const unsigned int nInputEvents){
 }
 
 StatusCode ZDC_PileUpTool::processBunchXing(int bunchXing,
-                                                 SubEventIterator bSubEvents,
-                                                 SubEventIterator eSubEvents) {
+					    PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+					    PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+  
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::processBunchXing() " << bunchXing );
-  SubEventIterator iEvt = bSubEvents;
-  for (; iEvt!=eSubEvents; iEvt++) {
-    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-    //PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
-                    << " bunch crossing : " << bunchXing
-                    << " time offset : " << iEvt->time()
-                    << " event number : " << iEvt->ptr()->eventNumber()
-                    << " run number : " << iEvt->ptr()->runNumber()
-                    );
-
+  
+  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+ 
+  for (; iEvt!=eSubEvents; ++iEvt) {
+    
+    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
+    const EventInfo* pEI = 0;
+   
+    if (seStore.retrieve(pEI).isSuccess()) {
+      
+      ATH_MSG_VERBOSE ( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
+			<< " bunch crossing : " << bunchXing
+			<< " time offset : "    << iEvt->time()
+			<< " event number : "   << pEI->event_ID()->event_number()
+			<< " run number : "     << pEI->event_ID()->run_number()
+			);
+    }
+    
     const ZDC_SimStripHit_Collection* tmpCollStrip = 0;
    
     if (!seStore.retrieve(tmpCollStrip, m_SimStripHitCollectionName).isSuccess()) {
