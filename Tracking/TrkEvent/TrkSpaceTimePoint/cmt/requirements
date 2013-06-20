@@ -1,0 +1,16 @@
+package TrkSpaceTimePoint
+
+manager Christian Ohm
+manager Dominique Fortin
+
+use AtlasPolicy         AtlasPolicy-*
+use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
+use EventPrimitives     EventPrimitives-*       Event
+use GeoPrimitives       GeoPrimitives-*         DetectorDescription
+
+apply_pattern installed_library
+library TrkSpaceTimePoint *.cxx
+
+private
+
+use GaudiInterface      GaudiInterface-*        External
