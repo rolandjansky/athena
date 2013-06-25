@@ -1,0 +1,18 @@
+package VP1CaloReadoutSystems
+
+author Joe Boudreau <boudreau@pitt.edu>
+
+use AtlasPolicy          AtlasPolicy-*
+use VP1Base              VP1Base-*              graphics/VP1
+use AtlasCoinInventor    AtlasCoinInventor-*    External
+
+private
+#use VP1HEPVis            VP1HEPVis-*            graphics/VP1
+use LArReadoutGeometry   LArReadoutGeometry-*   LArCalorimeter/LArGeoModel
+use LArHV                LArHV-*                LArCalorimeter/LArGeoModel
+use VP1Utils             VP1Utils-*             graphics/VP1
+#use StoreGate            StoreGate-*            Control
+public
+
+apply_pattern qt4based_library
+#macro VP1CaloReadoutSystems_cppflags " -g -O0 "

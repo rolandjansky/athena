@@ -1,0 +1,1204 @@
+<ui version="4.0" >
+ <class>CaloReadoutSystemControllerForm</class>
+ <widget class="QWidget" name="CaloReadoutSystemControllerForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>520</width>
+    <height>1121</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QToolBox" name="caloReadoutToolBox" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="subsystemsPage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>502</width>
+        <height>979</height>
+       </rect>
+      </property>
+      <attribute name="label" >
+       <string>Subsystems</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QGroupBox" name="readoutGroupBox" >
+           <property name="title" >
+            <string>Readout</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="embLabel" >
+              <property name="text" >
+               <string>EMB</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QLabel" name="emecLabel" >
+              <property name="text" >
+               <string>EMEC</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" >
+             <widget class="QLabel" name="hecLabel" >
+              <property name="text" >
+               <string>HEC</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" >
+             <widget class="QLabel" name="fcalLabel" >
+              <property name="text" >
+               <string>FCAL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="embS0CheckBox" >
+              <property name="text" >
+               <string>S0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QCheckBox" name="emecS0CheckBox" >
+              <property name="text" >
+               <string>S0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="QCheckBox" name="hecS0CheckBox" >
+              <property name="text" >
+               <string>S0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3" >
+             <widget class="QCheckBox" name="fcalS0CheckBox" >
+              <property name="text" >
+               <string>S0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QCheckBox" name="embS1CheckBox" >
+              <property name="text" >
+               <string>S1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QCheckBox" name="emecS1CheckBox" >
+              <property name="text" >
+               <string>S1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2" >
+             <widget class="QCheckBox" name="hecS1CheckBox" >
+              <property name="text" >
+               <string>S1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3" >
+             <widget class="QCheckBox" name="fcalS1CheckBox" >
+              <property name="text" >
+               <string>S1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QCheckBox" name="embS2CheckBox" >
+              <property name="text" >
+               <string>S2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QCheckBox" name="emecS2CheckBox" >
+              <property name="text" >
+               <string>S2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2" >
+             <widget class="QCheckBox" name="hecS2CheckBox" >
+              <property name="text" >
+               <string>S2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3" >
+             <widget class="QCheckBox" name="fcalS2CheckBox" >
+              <property name="text" >
+               <string>S2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QCheckBox" name="embS3CheckBox" >
+              <property name="text" >
+               <string>S3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QCheckBox" name="emecS3CheckBox" >
+              <property name="text" >
+               <string>S3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2" >
+             <widget class="QCheckBox" name="hecS3CheckBox" >
+              <property name="text" >
+               <string>S3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3" >
+             <widget class="QLabel" name="label" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="focalPointGroupBox" >
+           <property name="title" >
+            <string>Focal Points</string>
+           </property>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QCheckBox" name="emecFocalCheckBox" >
+              <property name="text" >
+               <string>EMEC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="hecFocalCheckBox" >
+              <property name="text" >
+               <string>HEC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="embAccordionCheckBox" >
+           <property name="text" >
+            <string>EMB Accordion</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>1</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>1</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="displayPage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>502</width>
+        <height>979</height>
+       </rect>
+      </property>
+      <attribute name="label" >
+       <string>Display</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QGroupBox" name="hideCellsGroupBox" >
+           <property name="title" >
+            <string>Hide otherwise enabled cells</string>
+           </property>
+           <layout class="QVBoxLayout" >
+            <item>
+             <layout class="QHBoxLayout" >
+              <item>
+               <layout class="QVBoxLayout" >
+                <item>
+                 <widget class="QLabel" name="hideSectorsLabel" >
+                  <property name="text" >
+                   <string>Hide sectors:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0" >
+                   <size>
+                    <width>20</width>
+                    <height>5</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="PhiSectionWidget" native="1" name="phiSectionWidget" >
+                <property name="sizePolicy" >
+                 <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize" >
+                 <size>
+                  <width>60</width>
+                  <height>60</height>
+                 </size>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>60</width>
+                  <height>60</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0" >
+                 <size>
+                  <width>1</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="caloColorsGroupBox" >
+           <property name="title" >
+            <string>Calorimeter Colors</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="embMatLabel" >
+              <property name="text" >
+               <string>EMB</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="VP1MaterialButton" name="embColorSel" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" >
+             <widget class="QLabel" name="hecMatLabel" >
+              <property name="text" >
+               <string>HEC</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" >
+             <widget class="VP1MaterialButton" name="hecColorSel" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="emecMatLabel" >
+              <property name="text" >
+               <string>EMEC</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="VP1MaterialButton" name="emecColorSel" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="QLabel" name="fcalMatLabel" >
+              <property name="text" >
+               <string>FCAL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3" >
+             <widget class="VP1MaterialButton" name="fcalColorSel" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="gridPositionGroupBox" >
+           <property name="title" >
+            <string>Grid Position Options</string>
+           </property>
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QRadioButton" name="backRadioButton" >
+              <property name="text" >
+               <string>Back</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="centerRadioButton" >
+              <property name="text" >
+               <string>Center</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="frontRadioButton" >
+              <property name="text" >
+               <string>Front</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>1</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>1</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="selectionFeedbackPage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>502</width>
+        <height>979</height>
+       </rect>
+      </property>
+      <attribute name="label" >
+       <string>Selection Feedback</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QCheckBox" name="geomSelectableCheckBox" >
+             <property name="text" >
+              <string>Geometry is selectable</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>16</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="printSelectionGroupBox" >
+           <property name="title" >
+            <string>Print on Selection</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>4</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="indicesCheckBox" >
+              <property name="text" >
+               <string>Indices</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="etaBoundariesCheckBox" >
+              <property name="text" >
+               <string>Eta Boundaries</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QCheckBox" name="phiBoundariesCheckBox" >
+              <property name="text" >
+               <string>Phi Boundaries</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2" >
+             <widget class="QCheckBox" name="highVoltageCheckBox" >
+              <property name="text" >
+               <string>High Volitage</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QCheckBox" name="fcalTubesCheckBox" >
+              <property name="text" >
+               <string>FCAL Tubes</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>1</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>1</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="HVTolerancePage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>-116</y>
+        <width>487</width>
+        <height>1133</height>
+       </rect>
+      </property>
+      <attribute name="label" >
+       <string>HV Status</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3" >
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QGroupBox" name="hvGeneralGroupBox" >
+           <property name="title" >
+            <string>General</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="0" colspan="2" >
+             <widget class="QCheckBox" name="normalHVDisplayCheckBox" >
+              <property name="text" >
+               <string>Display Normal HV Channels</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2" >
+             <widget class="QCheckBox" name="missingHVDisplayCheckBox" >
+              <property name="text" >
+               <string>Display Missing HV Channels</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2" >
+             <widget class="QCheckBox" name="badHVDisplayCheckBox" >
+              <property name="text" >
+               <string>Display Bad HV Channels</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QLabel" name="hvToleranceLabel" >
+              <property name="text" >
+               <string>Tolerance</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QSpinBox" name="hvToleranceSpinBox" >
+              <property name="maximum" >
+               <number>500</number>
+              </property>
+              <property name="value" >
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="readoutGroupBox_2" >
+           <property name="minimumSize" >
+            <size>
+             <width>0</width>
+             <height>200</height>
+            </size>
+           </property>
+           <property name="title" >
+            <string>HV Pathologic</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout" >
+            <item row="0" column="2" >
+             <widget class="QLabel" name="hecLabel_2" >
+              <property name="text" >
+               <string>HEC</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" >
+             <widget class="QLabel" name="fcalLabel_2" >
+              <property name="text" >
+               <string>FCAL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2" >
+             <widget class="QCheckBox" name="embCheckBoxHV" >
+              <property name="text" >
+               <string>EMB</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="QCheckBox" name="hecS0CheckBoxHV" >
+              <property name="text" >
+               <string>S0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3" >
+             <widget class="QCheckBox" name="fcalS0CheckBoxHV" >
+              <property name="text" >
+               <string>S0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2" >
+             <widget class="QCheckBox" name="embCheckBoxMods" >
+              <property name="text" >
+               <string>EMB Mods</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2" >
+             <widget class="QCheckBox" name="hecS1CheckBoxHV" >
+              <property name="text" >
+               <string>S1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3" >
+             <widget class="QCheckBox" name="fcalS1CheckBoxHV" >
+              <property name="text" >
+               <string>S1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2" >
+             <widget class="QCheckBox" name="emecCheckBoxHV" >
+              <property name="text" >
+               <string>EMEC</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2" >
+             <widget class="QCheckBox" name="hecS2CheckBoxHV" >
+              <property name="text" >
+               <string>S2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3" >
+             <widget class="QCheckBox" name="fcalS2CheckBoxHV" >
+              <property name="text" >
+               <string>S2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1" colspan="2" >
+             <widget class="QCheckBox" name="embPresamplerCheckBoxMods" >
+              <property name="text" >
+               <string>Barrel Presampler Mods</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1" colspan="2" >
+             <widget class="QCheckBox" name="emecPresamplerCheckBoxMods" >
+              <property name="text" >
+               <string>Endcap Presampler Mods</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QCheckBox" name="emecCheckBoxMods" >
+              <property name="text" >
+               <string>EMEC Mods</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" >
+             <widget class="QCheckBox" name="embPresamplerCheckBoxHV" >
+              <property name="text" >
+               <string>Barrel Presampler</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0" >
+             <widget class="QCheckBox" name="emecPresamplerCheckBoxHV" >
+              <property name="text" >
+               <string>Endcap Presampler</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2" >
+             <widget class="QCheckBox" name="hecS3CheckBoxHV" >
+              <property name="text" >
+               <string>S3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3" >
+             <widget class="QLabel" name="label_2" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="embNominalGroupBox" >
+           <property name="minimumSize" >
+            <size>
+             <width>0</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>16777215</width>
+             <height>400</height>
+            </size>
+           </property>
+           <property name="title" >
+            <string>EMB Nominal HV Settings</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="embHVLabel" >
+              <property name="text" >
+               <string>EMB</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QSpinBox" name="embNominalSpinBox" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="embPresamplerHVLabel" >
+              <property name="text" >
+               <string>EMB Presampler</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QSpinBox" name="embPresamplerNominalSpinBox" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="hecNominalGroupBox" >
+           <property name="title" >
+            <string>HEC Nominal HV Settings</string>
+           </property>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="hecHVLabel" >
+              <property name="text" >
+               <string>HEC</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="hecNominalSpinBox" >
+              <property name="maximum" >
+               <number>2000</number>
+              </property>
+              <property name="value" >
+               <number>1800</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="fcalNominalGroupBox" >
+           <property name="title" >
+            <string>FCAL Nominal HV Settings</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="fcal1HVLabel" >
+              <property name="text" >
+               <string>FCAL 1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QSpinBox" name="fcal1NominalSpinBox" >
+              <property name="maximum" >
+               <number>1000</number>
+              </property>
+              <property name="value" >
+               <number>250</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="fcal2HVLabel" >
+              <property name="text" >
+               <string>FCAL 2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QSpinBox" name="fcal2NominalSpinBox" >
+              <property name="maximum" >
+               <number>1000</number>
+              </property>
+              <property name="value" >
+               <number>375</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="fcal3HVLabel" >
+              <property name="text" >
+               <string>FCAL 3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QSpinBox" name="fcal3NominalSpinBox" >
+              <property name="maximum" >
+               <number>1000</number>
+              </property>
+              <property name="value" >
+               <number>500</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="emecNominaGroupBox" >
+           <property name="minimumSize" >
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title" >
+            <string>EMEC Nominal HV Settings</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="emecHVLabel_1" >
+              <property name="text" >
+               <string>EMEC 1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_1" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2500</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="emecHVLabel_2" >
+              <property name="text" >
+               <string>EMEC 2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_2" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2300</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="emecHVLabel_3" >
+              <property name="text" >
+               <string>EMEC 3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_3" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2100</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QLabel" name="emecHVLabel_4" >
+              <property name="text" >
+               <string>EMEC 4</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_4" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>1700</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLabel" name="emecHVLabel_5" >
+              <property name="text" >
+               <string>EMEC 5</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_5" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>1500</number>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" >
+             <widget class="QLabel" name="emecHVLabel_6" >
+              <property name="text" >
+               <string>EMEC 6</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_6" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>1250</number>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" >
+             <widget class="QLabel" name="emecHVLabel_7" >
+              <property name="text" >
+               <string>EMEC 7</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_7" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>1000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" >
+             <widget class="QLabel" name="emecHVLabel_8" >
+              <property name="text" >
+               <string>EMEC 8</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_8" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2300</number>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0" >
+             <widget class="QLabel" name="emecHVLabel_9" >
+              <property name="text" >
+               <string>EMEC 9</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1" >
+             <widget class="QSpinBox" name="emecNominalSpinBox_9" >
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>1800</number>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0" >
+             <widget class="QLabel" name="emecHVLabel_10" >
+              <property name="text" >
+               <string>EMEC Presampler</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1" >
+             <widget class="QSpinBox" name="emecPresamplerNominalSpinBox" >
+              <property name="text" stdset="0" >
+               <string>2000</string>
+              </property>
+              <property name="maximum" >
+               <number>3000</number>
+              </property>
+              <property name="value" >
+               <number>2000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QPushButton" name="acceptHVPushButton" >
+         <property name="text" >
+          <string>Accept</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PhiSectionWidget</class>
+   <extends>QWidget</extends>
+   <header>VP1Base/PhiSectionWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VP1MaterialButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1MaterialButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
