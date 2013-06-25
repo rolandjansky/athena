@@ -1,0 +1,676 @@
+<ui version="4.0" >
+ <class>frmCaloCellThresholdsLArExpert</class>
+ <widget class="QWidget" name="frmCaloCellThresholdsLArExpert" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>346</width>
+    <height>698</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>LAr Thresholds Expert</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_5" >
+   <item row="0" column="0" colspan="2" >
+    <widget class="QGroupBox" name="grbxLArEMB" >
+     <property name="title" >
+      <string>EMB</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="lblLArEMBS0Thresh" >
+        <property name="text" >
+         <string>S0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S0LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S0UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMB_S0Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="lblLArEMBS1Thresh" >
+        <property name="text" >
+         <string>S1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S1LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S1UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMB_S1Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="lblLArEMBS2Thresh" >
+        <property name="text" >
+         <string>S2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S2LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S2UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMB_S2Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="lblLArEMBS3Thresh" >
+        <property name="text" >
+         <string>S3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S3LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMB_S3UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMB_S3Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QGroupBox" name="grbxLArEMEC" >
+     <property name="title" >
+      <string>EMEC</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="lblLArEMECS0Thresh" >
+        <property name="text" >
+         <string>S0</string>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="0" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S0LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="0" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S0UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMEC_S0Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="1" column="0" >
+       <widget class="QLabel" name="lblLArEMECS1Thresh" >
+        <property name="text" >
+         <string>S1</string>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="2" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S1LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="2" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S1UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMEC_S1Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="3" column="0" >
+       <widget class="QLabel" name="lblLArEMECS2Thresh" >
+        <property name="text" >
+         <string>S2</string>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="4" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S2LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="4" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S2UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMEC_S2Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item rowspan="2" row="5" column="0" >
+       <widget class="QLabel" name="lblLArEMECS3Thresh" >
+        <property name="text" >
+         <string>S3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S3LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>250.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxEMEC_S3UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3" >
+       <widget class="QCheckBox" name="chbxNoEMEC_S3Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
+    <widget class="QGroupBox" name="grbxLArHEC" >
+     <property name="title" >
+      <string>HEC</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="lblLArHECS0Thresh" >
+        <property name="text" >
+         <string>S0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S0LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>800.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S0UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QCheckBox" name="chbxNoHEC_S0Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="lblLArHECS1Thresh" >
+        <property name="text" >
+         <string>S1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S1LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>800.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S1UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" >
+       <widget class="QCheckBox" name="chbxNoHEC_S1Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="lblLArHECS2Thresh" >
+        <property name="text" >
+         <string>S2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S2LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>800.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S2UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3" >
+       <widget class="QCheckBox" name="chbxNoHEC_S2Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="lblLArHECS3Thresh" >
+        <property name="text" >
+         <string>S3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S3LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>800.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxHEC_S3UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3" >
+       <widget class="QCheckBox" name="chbxNoHEC_S3Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2" >
+    <widget class="QGroupBox" name="grbxLArFCAL" >
+     <property name="title" >
+      <string>FCAL</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="lblLArFCALM1Thresh" >
+        <property name="text" >
+         <string>M1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxFCAL_M1LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxFCAL_M1UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QCheckBox" name="chbxNoFCAL_M1Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="lblLArFCALM2Thresh" >
+        <property name="text" >
+         <string>M2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxFCAL_M2LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxFCAL_M2UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" >
+       <widget class="QCheckBox" name="chbxNoFCAL_M2Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="lblLArFCALM3Thresh" >
+        <property name="text" >
+         <string>M3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxFCAL_M3LowerThresh" >
+        <property name="maximum" >
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" >
+       <widget class="QDoubleSpinBox" name="dspbxFCAL_M3UpperThresh" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="maximum" >
+         <double>9999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>10000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3" >
+       <widget class="QCheckBox" name="chbxNoFCAL_M3Upper" >
+        <property name="text" >
+         <string>Disable upper</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0" >
+    <spacer name="horizontalSpacer_2" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>260</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="1" >
+    <widget class="QPushButton" name="pushButton_close" >
+     <property name="text" >
+      <string>&amp;Close</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

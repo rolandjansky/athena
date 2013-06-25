@@ -1,0 +1,167 @@
+<ui version="4.0" >
+ <class>frmCaloDigitsDouble</class>
+ <widget class="QWidget" name="frmCaloDigitsDouble" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>649</width>
+    <height>589</height>
+   </rect>
+  </property>
+  <property name="font" >
+   <font>
+    <pointsize>14</pointsize>
+    <weight>75</weight>
+    <bold>true</bold>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>VP1 Calo Digits - (d)</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="1" colspan="3" >
+    <layout class="QGridLayout" >
+     <item row="0" column="0" colspan="4" >
+      <widget class="QLabel" name="lblCellName" >
+       <property name="text" >
+        <string>Cell</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4" >
+      <widget class="QLabel" name="lblTotalEnergy" >
+       <property name="text" >
+        <string>Total Energy</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="4" >
+      <widget class="QLabel" name="lblTotalTime" >
+       <property name="text" >
+        <string>Total Time</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="4" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0" colspan="3" >
+    <layout class="QGridLayout" >
+     <item row="0" column="0" colspan="4" >
+      <widget class="QLabel" name="lblPMTGain_1" >
+       <property name="font" >
+        <font>
+         <pointsize>12</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text" >
+        <string>PMT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4" >
+      <widget class="QwtPlot" name="plotDigits_1" >
+       <property name="minimumSize" >
+        <size>
+         <width>300</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="3" colspan="2" >
+    <layout class="QGridLayout" >
+     <item row="0" column="0" colspan="4" >
+      <widget class="QLabel" name="lblPMTGain_2" >
+       <property name="font" >
+        <font>
+         <pointsize>12</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text" >
+        <string>PMT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4" >
+      <widget class="QwtPlot" name="plotDigits_2" >
+       <property name="minimumSize" >
+        <size>
+         <width>300</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>81</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

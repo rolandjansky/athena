@@ -1,0 +1,362 @@
+<ui version="4.0" >
+ <class>frmCaloCellVisOptions</class>
+ <widget class="QWidget" name="frmCaloCellVisOptions" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>430</width>
+    <height>395</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Calo Cell VisOptions</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_5" >
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="grbxScale" >
+     <property name="title" >
+      <string>Length Scale</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="lblScale" >
+        <property name="text" >
+         <string>E = 10 GeV</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QDoubleSpinBox" name="dspbxScale" >
+        <property name="toolTip" >
+         <string>Set the absolute energy scale. The value here will be the length of a cluster with an energy of 10 GeV.</string>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="prefix" >
+         <string/>
+        </property>
+        <property name="suffix" >
+         <string> m</string>
+        </property>
+        <property name="decimals" >
+         <number>3</number>
+        </property>
+        <property name="minimum" >
+         <double>0.001000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>9.990000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>0.050000000000000</double>
+        </property>
+        <property name="value" >
+         <double>0.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2" >
+       <widget class="QCheckBox" name="chbxLogscale" >
+        <property name="text" >
+         <string>Logarithmic scale</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QGroupBox" name="grbxDrawOptions" >
+     <property name="title" >
+      <string>Draw options</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3" >
+      <item row="0" column="0" >
+       <widget class="QCheckBox" name="chbxShowOutlines" >
+        <property name="text" >
+         <string>Show outlines</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="VP1DrawOptionsWidget" native="1" name="wdgDrawOptions" />
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QGroupBox" name="grbxColors" >
+     <property name="title" >
+      <string>Colors</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2" >
+      <item rowspan="2" row="0" column="0" >
+       <widget class="QGroupBox" name="grbxLArColors" >
+        <property name="title" >
+         <string>LAr</string>
+        </property>
+        <layout class="QGridLayout" name="_2" >
+         <item row="0" column="1" >
+          <widget class="QLabel" name="lblLArPosColor" >
+           <property name="text" >
+            <string>Pos</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2" >
+          <widget class="QLabel" name="lblLArNegColor" >
+           <property name="text" >
+            <string>Neg</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="lblLArEMBColor" >
+           <property name="text" >
+            <string>EMB</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="VP1MaterialButton" name="matbutLArEMBColorPos" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" >
+          <widget class="VP1MaterialButton" name="matbutLArEMBColorNeg" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="lblLArEMECColor" >
+           <property name="text" >
+            <string>EMEC</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="VP1MaterialButton" name="matbutLArEMECColorPos" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" >
+          <widget class="VP1MaterialButton" name="matbutLArEMECColorNeg" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="lblLArHECColor" >
+           <property name="text" >
+            <string>HEC</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="VP1MaterialButton" name="matbutLArHECColorPos" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2" >
+          <widget class="VP1MaterialButton" name="matbutLArHECColorNeg" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" >
+          <widget class="QLabel" name="lblLArFCALColor" >
+           <property name="text" >
+            <string>FCAL</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" >
+          <widget class="VP1MaterialButton" name="matbutLArFCALColorPos" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2" >
+          <widget class="VP1MaterialButton" name="matbutLArFCALColorNeg" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="3" >
+       <widget class="QGroupBox" name="grbxTileColors" >
+        <property name="title" >
+         <string>Tile</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <item row="0" column="1" >
+          <widget class="QLabel" name="lblTilePosColor" >
+           <property name="text" >
+            <string>Pos</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2" >
+          <widget class="QLabel" name="lblTileNegColor" >
+           <property name="text" >
+            <string>Neg</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="lblTileColorPMT0" >
+           <property name="text" >
+            <string>PMT 0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="VP1MaterialButton" name="matbutTileColorPosPMT0" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" >
+          <widget class="VP1MaterialButton" name="matbutTileColorNegPMT0" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="lblTileColorPMT1" >
+           <property name="text" >
+            <string>PMT 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="VP1MaterialButton" name="matbutTileColorPosPMT1" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" >
+          <widget class="VP1MaterialButton" name="matbutTileColorNegPMT1" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="lblTileColorOposite" >
+           <property name="text" >
+            <string>Oposite energy</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="VP1MaterialButton" name="matbutTileColorPosNeg" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2" >
+          <widget class="VP1MaterialButton" name="matbutTileColorNegPos" >
+           <property name="text" >
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QLabel" name="lblMbtsColor" >
+        <property name="text" >
+         <string>MBTS</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <spacer name="horizontalSpacer" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="3" >
+       <widget class="VP1MaterialButton" name="matbutMbts" >
+        <property name="text" >
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <spacer name="horizontalSpacer_2" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>268</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1DrawOptionsWidget</class>
+   <extends>QWidget</extends>
+   <header>VP1Base/VP1DrawOptionsWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VP1MaterialButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1MaterialButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,115 @@
+<ui version="4.0" >
+ <class>frmCaloCellCuts</class>
+ <widget class="QWidget" name="frmCaloCellCuts" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>220</width>
+    <height>185</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Calo Cell Interactions</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3" >
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="grbxCaloSide" >
+     <property name="title" >
+      <string>Side</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" >
+      <property name="margin" >
+       <number>5</number>
+      </property>
+      <property name="spacing" >
+       <number>0</number>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QCheckBox" name="chbxSideA" >
+        <property name="text" >
+         <string>Side A</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QCheckBox" name="chbxSideC" >
+        <property name="text" >
+         <string>Side C</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <spacer name="horizontalSpacer_2" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>35</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="grbxDirections" >
+     <property name="title" >
+      <string>Directions</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2" >
+      <item row="0" column="0" >
+       <widget class="VP1EtaPhiCutWidget" native="1" name="wdgEtaPhiCut" />
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>88</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1EtaPhiCutWidget</class>
+   <extends>QWidget</extends>
+   <header>VP1Base/VP1EtaPhiCutWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
