@@ -16,7 +16,6 @@
 
 #include "VP1HEPVis/VP1HEPVisUtils.h"
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSelection.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>

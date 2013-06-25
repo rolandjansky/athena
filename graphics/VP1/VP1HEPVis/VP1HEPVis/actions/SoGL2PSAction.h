@@ -5,7 +5,6 @@
 #ifndef HEPVis_SoGL2PSAction_h
 #define HEPVis_SoGL2PSAction_h 
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 
 /**

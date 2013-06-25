@@ -1,5 +1,3 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -25,7 +23,6 @@
 // Code taken from CoinGL/SbRotation but by using doubles instead of floats.
 // It is used by SbPolyhedron::Transform.
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbVec4d.h>
 
 class SbVec3d;
