@@ -1,0 +1,52 @@
+#
+TOMAKE_PATH1 := \
+$(shell /bin/sh -c "ls -1t $(PACKAGE_ROOT)/srctest/*_t.cxx 2>/dev/null")
+
+TOMAKE_PATH2 := \
+$(shell /bin/sh -c "ls -1t $(PACKAGE_ROOT)/src/*_t.cxx 2>/dev/null")
+
+TOMAKE_CXX1 := $(notdir $(TOMAKE_PATH1)) 
+TOMAKE_CXX2 := $(notdir $(TOMAKE_PATH2))
+TOMAKE_CXX   = $(TOMAKE_CXX1) $(TOMAKE_CXX2) 
+TOMAKE_BASE := $(basename $(TOMAKE_CXX))
+TOMAKE_CTEST := $(addsuffix ctest,$(TOMAKE_BASE))
+
+prep :
+	@rm -f ../ctest/sum_test
+
+summ :
+	@$(TESTPOLICYROOT)/scripts/print_summary
+
+${CONSTITUENT}_dirs ::
+        gmake  -f $(bin)/mytest.make $(TOMAKE_BASE) \
+        "TARGET=$@"
+
+$(TOMAKE_BASE) ::
+	@echo ""
+	@echo "***************  "
+	@echo "*****CTEST***** $@ "
+	@echo "***************  "
+	@$(TESTPOLICYROOT)/scripts/generate_req $@ $(TESTPOLICYROOT)
+#	@mkdir -p ../ctest/ctest-00-00-01/$@/${@}-00-00-01/cmt
+
+${CONSTITUENT} :: prep $(TOMAKE_BASE) summ
+#	@echo ">>> CTEST >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+#	@echo " TOMAKE  = " $(TOMAKE)
+#	@echo " TESTPOLICYROOT  = " $(TESTPOLICYROOT)
+#	@echo " CONSTITUENT  = " $@
+#	@echo " FULLNAME     = " $^
+#	@echo " package      = " $(package)
+#	@echo " bin      = " $(bin)
+#	@echo " PACKAGE_ROOT = " $(PACKAGE_ROOT)
+#	@echo " includes     = " $(includes)
+#	@echo "<<< CTEST <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+
+${CONSTITUENT}clean ::
+	@echo " target $@ "
+	@rm -rf ../ctest
+
+
+
+
+
+

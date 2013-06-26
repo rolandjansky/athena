@@ -1,0 +1,16 @@
+${CONSTITUENT} ::
+	@if test ! -d ../run ; then mkdir -p ../run ; fi; \
+	cd ../run; \
+	$(bin)${cppunitrun_exe} ${cppunitrun_opt} ${cppunitrun_out}; \
+	testStatus=$$?; \
+	echo " " ; \
+	echo "******> Trying CppUnit test $@ in" ; \
+	echo "******> $(PACKAGE_ROOT)" ; \
+	echo "******> Running $(bin)${cppunitrun_exe} ${cppunitrun_opt} " ; \
+	echo "******> Test output (stored also in $${cppunitrun_log})"; \
+	cat $${cppunitrun_log} ; \
+	if test $${testStatus} -eq 0 ; then echo "******> Result:  ok " ; fi; \
+	if test $${testStatus} -ne 0 ; then echo "******> Result:  Error " ; fi; \
+	echo " " ; 
+
+

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+fff="../ctest/sum_test"
+
+        echo ""
+        echo " -------------------------------- "
+        echo "   SUMMARY OF COMPONENT TESTING  "
+        echo " -------------------------------- "
+        echo ""
+
+if [ ! -f $fff ]; then
+        echo " No component tests were [re]run "
+        echo ""
+        echo " -------------------------------- "
+        exit
+fi
+
+cat $fff | grep failure > /dev/null
+stat=$?
+
+if [ "$stat" != "0" ]; then
+        echo " All component tests were successful "
+        echo ""
+        echo " -------------------------------- "
+        exit
+fi
+
+        echo " Failed component tests: "
+        echo ""
+cat $fff | while read a b c d 
+do
+        if [ "$c" = "failure" ]; then
+        echo " $a with exit code $d "
+        fi 
+done
+        echo ""
+        echo " -------------------------------- "
+
+
+
+
+
+
+

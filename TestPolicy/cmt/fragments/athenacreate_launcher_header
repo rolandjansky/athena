@@ -1,0 +1,7 @@
+${CONSTITUENT} ::
+	@if test ! -d ../run ; then mkdir -p ../run ; fi; \
+	cd ../run; \
+	${athenacreate_pre}; \
+	${athenacreate_exe} ${athenacreate_opt} ${athenacreate_out}; \
+	testStatus=$$? ${athenacreate_post}; \
+	echo "${CONSTITUENT} completed"

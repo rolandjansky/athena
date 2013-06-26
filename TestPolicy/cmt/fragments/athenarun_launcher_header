@@ -1,0 +1,8 @@
+${CONSTITUENT} ::
+	@if test ! -d ../run ; then mkdir -p ../run ; fi; \
+	cd ../cmt; . ./setup.sh; \
+	cd ../run; \
+	${athenarun_pre}; \
+	${athenarun_exe} ${athenarun_opt} ${athenarun_out}; \
+	testStatus=$$? ${athenarun_post} && \
+	echo "${CONSTITUENT} completed"

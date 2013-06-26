@@ -1,0 +1,319 @@
+#!/bin/sh
+
+testname=$1
+testpolicyroot=$2
+date=`date +%w%H%M`
+#echo " generate_req args $1 -- $2 "
+shift; shift
+
+testpolicydir=`dirname $testpolicyroot`
+relroot=`dirname $testpolicydir`
+curdir=`pwd`
+
+cd ../
+ccc=`pwd`
+pkgdir=`dirname "$ccc"`
+verdir=`basename "$ccc"`
+#echo "pkgdir $pkgdir"
+#ls -t ../../ | grep '[-][0-9][0-9][-][0-9][0-9][-][0-9][0-9]' > /dev/null ; stat1=$?
+#ls -t ../../../ | grep '[-][0-9][0-9][-][0-9][0-9][-][0-9][0-9]' > /dev/null ; stat2=$?
+#ls -t ../../../../ | grep '[-][0-9][0-9][-][0-9][0-9][-][0-9][0-9]' > /dev/null ; stat3=$?
+#ls -t ../../../../../ | grep '[-][0-9][0-9][-][0-9][0-9][-][0-9][0-9]' > /dev/null ; stat4=$?
+#ls -t ../../../../../../ | grep '[-][0-9][0-9][-][0-9][0-9][-][0-9][0-9]' > /dev/null ; stat5=$?
+
+  line=`echo $CMTPATH`
+  OIFS=$IFS
+  IFS=:
+  set $line
+  IFS=$OIFS
+  name1=""
+  name2=""
+  name3=""
+  name4=""
+  name5=""
+  name6=""
+
+  if [ "$#" -ge 1 -a "$1" != "" ]; then name1=`basename $1`; fi     
+  if [ "$#" -ge 2 -a "$2" != "" ]; then name2=`basename $2`; fi    
+  if [ "$#" -ge 3 -a "$3" != "" ]; then name3=`basename $3`; fi     
+  if [ "$#" -ge 4 -a "$4" != "" ]; then name4=`basename $4`; fi     
+  if [ "$#" -ge 5 -a "$5" != "" ]; then name5=`basename $5`; fi     
+  if [ "$#" -ge 6 -a "$6" != "" ]; then name6=`basename $6`; fi     
+
+stat1=0
+stat2=0
+stat3=0
+stat4=0
+stat5=0
+stat6=0
+
+if [ "$name3" != "" ]; then ls -t ../../ | grep ^"${name3}"$ > /dev/null ; stat11=$?;fi
+if [ "$name2" != "" ]; then ls -t ../../ | grep ^"${name2}"$ > /dev/null ; stat12=$?;fi
+if [ "$name1" != "" ]; then ls -t ../../ | grep ^"${name1}"$ > /dev/null ; stat13=$?;fi
+if [ "$stat11" = "0" -o "$stat12" = "0" -o "$stat13" = "0" ]; then stat1=1; fi
+
+  if [ "$stat1" != "1" ]; then 
+  if [ "$name3" != "" ]; then ls -t ../../../ | grep ^"${name3}"$ > /dev/null ; stat21=$?;fi
+  if [ "$name2" != "" ]; then ls -t ../../../ | grep ^"${name2}"$ > /dev/null ; stat22=$?;fi
+  if [ "$name1" != "" ]; then ls -t ../../../ | grep ^"${name1}"$ > /dev/null ; stat23=$?;fi
+  if [ "$stat21" = "0" -o "$stat22" = "0" -o "$stat23" = "0" ]; then stat2=1; fi
+  fi
+
+    if [ "$stat1" != "1" -a "$stat2" != "1" ]; then
+    if [ "$name3" != "" ]; then ls -t ../../../../ | grep ^"${name3}"$ > /dev/null ; stat31=$?;fi
+    if [ "$name2" != "" ]; then ls -t ../../../../ | grep ^"${name2}"$ > /dev/null ; stat32=$?;fi
+    if [ "$name1" != "" ]; then ls -t ../../../../ | grep ^"${name1}"$ > /dev/null ; stat33=$?;fi
+    if [ "$stat31" = "0" -o "$stat32" = "0" -o "$stat33" = "0" ]; then stat3=1; fi
+    fi
+
+  if [ "$stat1" != "1" -a "$stat2" != "1" -a "$stat3" != "1" ]; then
+  if [ "$name3" != "" ]; then ls -t ../../../../../ | grep ^"${name3}"$ > /dev/null ; stat41=$?;fi
+  if [ "$name2" != "" ]; then ls -t ../../../../../ | grep ^"${name2}"$ > /dev/null ; stat42=$?;fi
+  if [ "$name1" != "" ]; then ls -t ../../../../../ | grep ^"${name1}"$ > /dev/null ; stat43=$?;fi
+  if [ "$stat41" = "0" -o "$stat42" = "0" -o "$stat43" = "0" ]; then stat4=1; fi
+  fi
+
+
+    if [ "$stat1" != "1" -a "$stat2" != "1" -a "$stat3" != "1" ]; then
+    if [ "$stat4" != "1" ]; then
+    if [ "$name3" != "" ]; then ls -t ../../../../../../ | grep ^"${name3}"$ > /dev/null ; stat51=$?;fi
+    if [ "$name2" != "" ]; then ls -t ../../../../../../ | grep ^"${name2}"$ > /dev/null ; stat52=$?;fi
+    if [ "$name1" != "" ]; then ls -t ../../../../../../ | grep ^"${name1}"$ > /dev/null ; stat53=$?;fi
+    if [ "$stat51" = "0" -o "$stat52" = "0" -o "$stat53" = "0" ]; then stat5=1; fi
+    fi
+    fi
+
+  if [ "$stat1" != "1" -a "$stat2" != "1" -a "$stat3" != "1" ]; then
+  if [ "$stat4" != "1" -a "$stat5" != "1" ]; then
+  if [ "$name3" != "" ]; then ls -t ../../../../../../../ | grep ^"${name3}"$ > /dev/null ; stat61=$?;fi
+  if [ "$name2" != "" ]; then ls -t ../../../../../../../ | grep ^"${name2}"$ > /dev/null ; stat62=$?;fi
+  if [ "$name1" != "" ]; then ls -t ../../../../../../../ | grep ^"${name1}"$ > /dev/null ; stat63=$?;fi
+  if [ "$stat61" = "0" -o "$stat62" = "0" -o "$stat63" = "0" ]; then stat6=1; fi
+  fi
+  fi
+
+level=0
+if [ "$stat6" -eq 1 ]; then level=5; fi
+if [ "$stat5" -eq 1 ]; then level=4; fi
+if [ "$stat4" -eq 1 ]; then level=3; fi
+if [ "$stat3" -eq 1 ]; then level=2; fi
+if [ "$stat2" -eq 1 ]; then level=1; fi
+if [ "$stat1" -eq 1 ]; then level=0; fi
+#echo " level $level "
+  line=$pkgdir
+  OIFS=$IFS
+  IFS=/
+  set $line
+  IFS=$OIFS
+
+  if [ "$level" -eq 0 ]; then container=""; retainer=""; fi
+  if [ "$level" -eq 1 ]; then shiftcnt=`expr $# - 1 `; shift $shiftcnt; container=""; retainer=$1; fi
+  if [ "$level" -eq 2 ]; then shiftcnt=`expr $# - 2 `; shift $shiftcnt; container=$1; retainer=$2; fi
+  if [ "$level" -eq 3 ]; then shiftcnt=`expr $# - 3 `; shift $shiftcnt; container=$1/$2; retainer=$3; fi
+  if [ "$level" -eq 4 ]; then shiftcnt=`expr $# - 4 `; shift $shiftcnt; container=$1/$2/$3; retainer=$4; fi
+  if [ "$level" -eq 5 ]; then shiftcnt=`expr $# - 5 `; shift $shiftcnt; container=$1/$2/$3/$4; retainer=$5; fi
+
+  if [ "$name1" != "" -a "$name1" = "$container" ]; then container=""; fi
+  if [ "$name2" != "" -a "$name2" = "$container" ]; then container=""; fi
+  if [ "$name3" != "" -a "$name3" = "$container" ]; then container=""; fi
+  if [ "$name4" != "" -a "$name4" = "$container" ]; then container=""; fi
+  if [ "$name5" != "" -a "$name5" = "$container" ]; then container=""; fi
+  if [ "$name6" != "" -a "$name6" = "$container" ]; then container=""; fi
+
+echo "retainer $retainer"
+echo "container $container"
+
+  compname=$testname
+  line=$testname
+  OIFS=$IFS
+  IFS=_
+  set $line
+  IFS=$OIFS
+  shiftcount=`expr $# - 1`
+  if [ "$shiftcount" -eq 1 ]; then compname=$1; fi 
+  if [ "$shiftcount" -eq 2 ]; then compname=$1/$2; fi 
+  if [ "$shiftcount" -eq 3 ]; then compname=$1/$2/$3; fi 
+  if [ "$shiftcount" -eq 4 ]; then compname=$1/$2/$3/$4; fi 
+  if [ "$shiftcount" -eq 5 ]; then compname=$1/$2/$3/$4/$5; fi 
+
+echo "component $compname"
+
+if [ ! -d srctest ]; then mkdir srctest; fi 
+if [ -f src/${testname}.cxx ]; then  cp -a src/${testname}.cxx srctest/.; fi
+if [ -f ${retainer}/${testname}.h ]; then  cp -a ${retainer}/${testname}.h srctest/.; fi
+if [ -f src/${testname}.sh ]; then  cp -a src/${testname}.sh srctest/.; fi
+if [ ! -f src/${compname}.cxx ]; then  
+echo " ERROR: no component sources ${compname}.cxx for test ${testname}.cxx "
+exit 2
+fi
+
+if [ ! -d  ctest/${compname}ttt ]; then
+mkdir -p ctest/${compname}ttt/${compname}ttt-00-00-01/cmt
+mkdir -p ctest/${compname}ttt/${compname}ttt-00-00-01/run/${CMTCONFIG}
+fi
+
+cd ctest/${compname}ttt
+if [ ! -d run ]; then mkdir run; fi
+rm -f run/${CMTCONFIG}
+ln -s ../${compname}ttt-00-00-01/run/${CMTCONFIG} run/${CMTCONFIG}
+cd ${compname}ttt-00-00-01/cmt
+
+	echo "package ${compname}ttt" > requirements
+        echo "author ctesting" >> requirements
+        echo "use AtlasPolicy AtlasPolicy-*" >> requirements
+        echo "use ${retainer} ${retainer}-* $container" >> requirements
+
+     cat  $curdir/requirements | while read sttmnt pkgg cntnt
+       do
+      if [ "cntnt" != "" ]; then
+      if [ "$sttmnt" = "use" ]; then
+      if [ "$pkgg" != "AtlasPolicy" ]; then
+        echo "use $pkgg $cntnt " >> requirements
+      fi
+      fi
+      fi
+       done
+
+     echo "include_path none" >> requirements
+     echo "include_dirs ../../../../${retainer} ${TESTPOLICYROOT}/include" >> requirements
+
+      echo " macro ${compname}ttt_dependencies ${retainer}" >> requirements
+      echo " macro ${compname}tttlinkopts "  '"-L../$(CMTCONFIG)' " -l${retainer} " '"'  >> requirements
+      echo " macro ${compname}ttt_cppflags \" -DCTEST_MAIN\"" >> requirements
+#      if [ -f ../../../../srctest/${testname}.cxx ]; then
+      echo " application ${testname} -s=${ccc}/srctest ${testname}.cxx"             >> requirements
+#      else
+#      echo " application ${testname} -s=${ccc}/src ${testname}.cxx"             >> requirements
+#      fi
+        if [ "$#" -ge 1 ]; then shift; fi
+        if [ "$#" -ge 1 ]; then shift; fi
+        if [ "$#" -ge 1 ]; then shift; fi
+        if [ "$#" -ge 1 ]; then shift; fi
+        if [ "$#" -ge 1 ]; then shift; fi
+        cmt config
+        source setup.sh
+        make
+        statmake=$?
+
+        if [ "$statmake" != "0" ]; then
+        echo ""
+        echo " ---------------------------------------------------------------"
+        echo " Make failed for test: ${testname}, package ${retainer}"
+        echo " ---------------------------------------------------------------"
+        echo ""
+        exit 1
+        fi
+
+        if [ -f ../../../../src/${testname}.cxx ]; then 
+        rm ../../../../srctest/${testname}.cxx
+        fi
+
+        cd ../
+
+        if [ -d temp ]; then rm -rf temp; fi
+        mkdir temp
+        cd temp
+        cp -a ../${CMTCONFIG}/${testname}.exe "##${testname}.exe"
+        if [ -f ..//../../../srctest/${testname}.sh ]; then 
+        cp -a  ..//../../../srctest/${testname}.sh "#${testname}.sh"
+        fi
+
+        stat=1
+        lgfn=`ls -1h ../run/${CMTCONFIG}/${compname}.log_* 2>/dev/null`
+        if [ "$lgfn" != "" ]; then
+        cp -a $lgfn "logfile"
+        cat logfile | grep "FATAL"  > /dev/null; staty=$?
+        cat logfile | grep "FAILURE" > /dev/null; statz=$?
+        if [ "$staty" = "0" -o  "$statz" = "0" ]; then stat=0; fi 
+        fi
+
+        firstfile=`ls -1t | head -1`
+        rm -f *
+        if [ "$firstfile" != "##${testname}.exe" -a "$firstfile" != "#${testname}.sh" -a "$stat" -ne 0 ]; then
+        echo ""
+        echo " ---------------------------------------------------------------"
+        echo " Nothing to do for test: ${testname}, package ${retainer}"
+        echo " ---------------------------------------------------------------"
+        echo ""
+
+        else
+
+        cd ../
+
+        if [ -d run/${CMTCONFIG} ]; then rm -rf run/${CMTCONFIG}; fi
+        if [ ! -d run/${CMTCONFIG} ]; then mkdir -p run/${CMTCONFIG}; fi
+        cd run
+        rm -f ${testname}
+        rm -f ${compname}
+        ln -s ../${CMTCONFIG}/${testname}.exe ${testname}
+        ln -s ../${CMTCONFIG}/${testname}.exe ${compname}
+        cd ${CMTCONFIG} 
+        ln -s ../../${CMTCONFIG}/${testname}.exe ${testname}
+        ln -s ../../${CMTCONFIG}/${testname}.exe ${compname}
+        scriptname="${testname}.sh"
+        if [ -f ../../../../../srctest/${testname}.sh ]; then 
+        cp -a  ../../../../../srctest/${testname}.sh .
+        fi
+  
+        if [ -f $scriptname ]; then
+        echo ""
+        echo " ---------------------------------------------------------------"
+        echo " starting script: ${scriptname}, package ${retainer}"
+        echo " ---------------------------------------------------------------"
+#        $scriptname >| tee ${compname}.log_${date} 2>&1 
+        cd ../ 
+        $CMTCONFIG/$scriptname > $CMTCONFIG/${compname}.log_${date} 2>&1
+        stat=$?
+        tail --lines=200  $CMTCONFIG/${compname}.log_${date}
+             if [ "$stat" != 0 ]; then
+             echo " ${compname} ${retainer} failure ${stat}" >> $curdir/../ctest/sum_test
+             echo " ${compname} ${retainer} FAILURE ${stat}" >> $CMTCONFIG/${compname}.log_${date}
+        echo " ---------------------------------------------------------------"
+        echo " test failed (returned ${stat})" 
+             else
+             echo " ${compname} ${retainer} success ${stat}" >> $curdir/../ctest/sum_test
+        echo " ---------------------------------------------------------------"
+        echo " test successful" 
+             fi 
+        echo " ---------------------------------------------------------------"
+        echo " finished script: ${scriptname}, package ${retainer}"
+        echo " ---------------------------------------------------------------"
+        echo ""
+
+        else
+
+        echo ""
+        echo " ---------------------------------------------------------------"
+        echo " starting test: ${testname}, package ${retainer}"
+        echo " (no testing script available)"
+        echo " ---------------------------------------------------------------"
+#        $compname >| tee ${compname}.log_${date} 2>&1 
+        cd ../
+        $CMTCONFIG/$compname > $CMTCONFIG/${compname}.log_${date} 2>&1         
+        stat=$?
+        tail --lines=200 $CMTCONFIG/${compname}.log_${date}
+             if [ "$stat" != 0 ]; then             
+             echo " ${compname} ${retainer} failure ${stat}" >> $curdir/../ctest/sum_test
+             echo " ${compname} ${retainer} FAILURE ${stat}" >> $CMTCONFIG/${compname}.log_${date}
+        echo " ---------------------------------------------------------------"
+        echo " test failed (returned ${stat})" 
+             else
+             echo " ${compname} ${retainer} success ${stat}" >> $curdir/../ctest/sum_test
+        echo " ---------------------------------------------------------------"
+        echo " test successful" 
+             fi 
+
+        echo " ---------------------------------------------------------------"
+        echo " finished test: ${testname}, package ${retainer} "
+        echo " ---------------------------------------------------------------"
+        echo ""
+        fi 
+
+
+        fi # if [ "$firstfile" != "##constituents" ]; then
+
+cd $curdir
+
+
+
+
