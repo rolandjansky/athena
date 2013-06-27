@@ -1,0 +1,335 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+//____________________________________________________________________
+inline unsigned Flex2DProfileHisto::allocSize(unsigned nbinsx,unsigned nbinsy)
+{
+  return sizeof(Flex2DProfileHisto)+FlexProfileArray::extraAllocSize((nbinsx+2)*(nbinsy+2));
+}
+
+//____________________________________________________________________
+inline Flex2DProfileHisto * Flex2DProfileHisto::create( unsigned nbinsx, const double& xmin, const double& xmax,
+							const double* xbins,
+							unsigned nbinsy, const double& ymin, const double& ymax,
+							const double* ybins,
+							const double& profparmin, const double& profparmax )
+{
+  return new(LWPools::acquire(allocSize(nbinsx,nbinsy))) Flex2DProfileHisto(nbinsx,xmin,xmax,xbins,
+									    nbinsy,ymin,ymax,ybins,
+									    profparmin,profparmax);
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::destroy(Flex2DProfileHisto * h)
+{
+  if (h) {
+    h->~Flex2DProfileHisto();
+    LWPools::release(reinterpret_cast<char*>(h),allocSize(h->getNBinsX(),h->getNBinsY()));
+  }
+}
+
+//____________________________________________________________________
+inline Flex2DProfileHisto::Flex2DProfileHisto( unsigned nbinsx, const double& xmin, const double& xmax,
+					       const double* xbins,
+					       unsigned nbinsy, const double& ymin, const double& ymax,
+					       const double* ybins,
+					       const double& profparmin, const double& profparmax)
+  : m_invDeltaX( nbinsx / ( xbins ? (xbins[nbinsx]-xbins[0]) : (xmax-xmin) ) ),
+    m_invDeltaY( nbinsy / ( ybins ? (ybins[nbinsy]-ybins[0]) : (ymax-ymin) )),
+    m_sumW(0),
+    m_sumW2(0),
+    m_sumWX(0),
+    m_sumWX2(0),
+    m_sumWY(0),
+    m_sumWY2(0),
+    m_sumWXY(0),
+    m_sumWProfiledPar(0),
+    m_sumWProfiledPar2(0),
+    m_nEntries(0),
+    m_nbinsxPlus1(nbinsx+1),
+    m_nbinsyPlus1(nbinsy+1),
+    m_nbinsxPlus2(nbinsx+2),
+    m_xmin(xbins ? xbins[0] : xmin),
+    m_xmax(xbins ? xbins[nbinsx] : xmax),
+    m_ymin(ybins ? ybins[0] : ymin),
+    m_ymax(ybins ? ybins[nbinsy] : ymax),
+    m_profParMin(profparmin),
+    m_profParMax(profparmax),
+    m_varBinsX(0),
+    m_varBinsY(0),
+    m_flexArray((nbinsx+2)*(nbinsy+2))
+{
+  assert(m_xmin<m_xmax);
+  assert(m_ymin<m_ymax);
+  assert(nbinsx>0);
+  assert(nbinsy>0);
+  assert(getNBinsX()==nbinsx);
+  assert(getNBinsY()==nbinsy);
+  if (xbins) {
+    m_varBinsX = LWPools::acquire<float>(m_nbinsxPlus1);
+    for (unsigned i = 0; i<m_nbinsxPlus1;++i)
+      m_varBinsX[i]=xbins[i];
+  }
+  if (ybins) {
+    m_varBinsY = LWPools::acquire<float>(m_nbinsyPlus1);
+    for (unsigned i = 0; i<m_nbinsyPlus1;++i)
+      m_varBinsY[i]=ybins[i];
+  }
+}
+
+//____________________________________________________________________
+inline Flex2DProfileHisto::~Flex2DProfileHisto()
+{
+  if (m_varBinsX)
+    LWPools::release(m_varBinsX,m_nbinsxPlus1);
+  if (m_varBinsY)
+    LWPools::release(m_varBinsY,m_nbinsyPlus1);
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::fill(const double& x, const double& y, const double& profiledpar)
+{
+  if (profParOutsideRange(profiledpar))
+    return;
+  unsigned binx(valueToXBin(x)), biny(valueToYBin(y));
+#ifndef NDEBUG
+  if (binx==USHRT_MAX||biny==USHRT_MAX)
+    return;
+#endif
+  m_flexArray.fill(internal_bin(binx,biny),profiledpar);
+  //Update stats (sums not for over/under flow):
+  ++m_nEntries;
+  if (binx>0&&binx<m_nbinsxPlus1
+      &&biny>0&&biny<m_nbinsyPlus1) {
+    ++m_sumW;
+    ++m_sumW2;
+    m_sumWX  += x;
+    m_sumWX2 += x*x;
+    m_sumWY  += y;
+    m_sumWY2 += y*y;
+    m_sumWXY += x*y;
+    m_sumWProfiledPar += profiledpar;
+    m_sumWProfiledPar2 += profiledpar*profiledpar;
+  }
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::fill(const double& x, const double& y, const double& profiledpar, const double& w)
+{
+  if (profParOutsideRange(profiledpar))
+    return;
+#ifndef NDEBUG
+  if (w!=w) {
+    std::cout<<"LWHisto: Saw NaN in fill weight"<<std::endl;
+    return;
+  }
+#endif
+  unsigned binx(valueToXBin(x)), biny(valueToYBin(y));
+#ifndef NDEBUG
+  if (binx==USHRT_MAX||biny==USHRT_MAX)
+    return;
+#endif
+  m_flexArray.fill(internal_bin(binx,biny),profiledpar,w);
+  //Update stats (sums not for over/under flow):
+  ++m_nEntries;
+  if (binx>0&&binx<m_nbinsxPlus1
+      &&biny>0&&biny<m_nbinsyPlus1) {
+    double z(fabs(w));
+    m_sumW += z;
+    m_sumW2 += z*z;
+    const double tmpzy(z*y);
+    m_sumWY  += tmpzy;
+    m_sumWY2 += tmpzy*y;
+    const double tmpzx(z*x);
+    m_sumWX  += tmpzx;
+    m_sumWX2 += tmpzx*x;
+    m_sumWXY += tmpzx*y;
+    z *= profiledpar;
+    m_sumWProfiledPar += z;
+    m_sumWProfiledPar2 += z*profiledpar;
+  }
+}
+
+//____________________________________________________________________
+inline unsigned Flex2DProfileHisto::valueToXBin(const double& x) const
+{
+  return LWBinUtils::valueToBin( x, m_varBinsX, m_invDeltaX, m_xmin, m_xmax, m_nbinsxPlus1 );
+}
+
+//____________________________________________________________________
+inline unsigned Flex2DProfileHisto::valueToYBin(const double& y) const
+{
+  return LWBinUtils::valueToBin( y, m_varBinsY, m_invDeltaY, m_ymin, m_ymax, m_nbinsyPlus1 );
+}
+
+//____________________________________________________________________
+inline double Flex2DProfileHisto::integral() const
+{
+  double overflowbins( getBinContent(0,0)
+		      +getBinContent(m_nbinsxPlus1,0)
+		      +getBinContent(0,m_nbinsyPlus1)
+		      +getBinContent(m_nbinsxPlus1,m_nbinsyPlus1));
+  for (unsigned ybin=1;ybin<m_nbinsyPlus1;++ybin) {
+    overflowbins += getBinContent(0,ybin);
+    overflowbins += getBinContent(m_nbinsxPlus1,ybin);
+  }
+  for (unsigned xbin=1;xbin<m_nbinsxPlus1;++xbin) {
+    overflowbins += getBinContent(xbin,0);
+    overflowbins += getBinContent(xbin,m_nbinsyPlus1);
+  }
+  return m_flexArray.integral()-overflowbins;
+}
+
+//____________________________________________________________________
+inline unsigned Flex2DProfileHisto::getEntries() const
+{
+  return m_nEntries;
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::setEntries(unsigned n)
+{
+  m_nEntries = n;
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::getBinInfo(unsigned binx, unsigned biny, double& entries, double& content, double& error ) const
+{
+  m_flexArray.getBinInfo(internal_bin(binx,biny), entries, content, error);
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::setBinContent(unsigned binx, unsigned biny, const double& c )
+{
+  //Weird root behaviour: For 2D version of setBinContent we wrap rather than ignore:
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (binx>m_nbinsxPlus1)
+    binx = m_nbinsxPlus1;
+  if (biny>m_nbinsyPlus1)
+    biny = m_nbinsyPlus1;
+#else
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1)
+    return;
+#endif
+  m_flexArray.setBinContent(internal_bin(binx,biny),c);
+  //This is how it is done in ROOT, but is it really appropriate??:
+  ++m_nEntries;
+  m_sumW = 0;//As in ROOT
+
+//   m_flexArray.setBinContent(bin,c);
+// #ifdef LW_STRICT_ROOT_BEHAVIOUR
+//   if (bin==m_nbinsPlus1)//inconsistent root behaviour for last bin...
+//     return;
+// #endif
+//   ++m_nEntries;
+//   m_sumW = 0;//As in ROOT
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::setBinError(unsigned binx,unsigned biny, const double& e )
+{
+  //Weird root behaviour: For 2D version of setBinError we ignore rather than wrap:
+   if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1)
+     return;
+  m_flexArray.setBinError(internal_bin(binx,biny),e);
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::setBinInfo(unsigned binx, unsigned biny, const double& entries, const double& content, const double& error )
+{
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+    //Annoyingly enough, root has differnt behaviour for SetBinContent
+    //(wrap) and SetBinError (ignore) in this case:
+    setBinContent(binx,biny,content);
+    //m_flexArray.forcePretendSumWMode();
+#endif
+    return;
+  }
+  m_flexArray.setBinInfo(internal_bin(binx,biny), entries, content, error);
+  ++m_nEntries;
+  m_sumW = 0;//As in ROOT
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::reset()
+{
+  m_flexArray.reset();
+  m_sumW = 0;
+  m_sumW2 = 0;
+  m_sumWX = 0;
+  m_sumWX2 = 0;
+  m_sumWY = 0;
+  m_sumWY2 = 0;
+  m_sumWXY = 0;
+  m_sumWProfiledPar = 0;
+  m_sumWProfiledPar2 = 0;
+  m_nEntries = 0;
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::setSums( const double& sumW,const double&sumW2,
+					 const double& sumWX,const double& sumWX2,
+					 const double& sumWY, const double& sumWY2,const double& sumWXY,
+					 const double& sumWProfPar,const double& sumWProfPar2 )
+{
+  m_sumW = sumW;
+  m_sumW2 = sumW2;
+  m_sumWX = sumWX;
+  m_sumWX2 = sumWX2;
+  m_sumWY = sumWY;
+  m_sumWY2 = sumWY2;
+  m_sumWXY = sumWXY;
+  m_sumWProfiledPar = sumWProfPar;
+  m_sumWProfiledPar2 = sumWProfPar2;
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::copyContents(double*entries, double*contents, double*errors) const
+{
+  m_flexArray.copyContents(entries,contents,errors);
+}
+
+inline double Flex2DProfileHisto::getBinCenterX(int bin) const
+{
+  return LWBinUtils::getBinCenter( bin, m_varBinsX, m_invDeltaX, m_xmin, m_nbinsxPlus1);
+}
+
+
+inline double Flex2DProfileHisto::getBinCenterY(int bin) const
+{
+  return LWBinUtils::getBinCenter( bin, m_varBinsY, m_invDeltaY, m_ymin, m_nbinsyPlus1);
+}
+
+#ifdef LW_DEBUG_HEAVY_USERS
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::countCall(const std::pair<void*,void*>&addresses)
+{
+  std::map<std::pair<void*,void*>,unsigned long>::iterator it = m_callmap.find(addresses);
+  if (it==m_callmap.end())
+    m_callmap[addresses]=0;
+  else
+    ++(it->second);
+}
+
+//____________________________________________________________________
+inline void Flex2DProfileHisto::produceReport(const char*histname)
+{
+  std::map<std::pair<void*,void*>,unsigned long>::iterator it,itE(m_callmap.end());
+  for(it=m_callmap.begin();it!=itE;++it) {
+    if (it->second>0) {
+      const char * caller = LWHistTraceUtils::getSymbol(it->first.second);
+      const char * calledmethod = LWHistTraceUtils::getSymbol(it->first.first);
+      std::cout<<"LWHists WARNING: Method in histogram called "<<it->second<<" times: "<<calledmethod<<" from "<<caller<<" (histogram named \""<<histname<<"\")"<<std::endl;
+      //fixme: do free on caller and calledmethod
+    }
+  }
+}
+
+#endif

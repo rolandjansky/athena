@@ -1,0 +1,63 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+inline LWPoolArea* LWPoolArea::create( unsigned chunksize,
+				       char* mem,
+				       unsigned length_of_mem,
+				       unsigned nchunks )
+{
+  assert(length_of_mem>sizeof(LWPoolArea)+sizeof(LWPoolAreaBookKeeper));
+#ifndef NDEBUG
+  //Allow valgrind to spot problems:
+  mem[0]='A';
+  mem[length_of_mem-1]='A';
+#endif
+  return new(mem) LWPoolArea(chunksize,( nchunks==UINT_MAX
+					 ? LWPoolArea::calcNChunks(chunksize,length_of_mem)
+					 : nchunks));
+}
+
+inline LWPoolArea::LWPoolArea(unsigned chunksize,unsigned nchunks)
+  : m_chunksize(chunksize),
+    m_nchunks(nchunks),
+    m_bookkeep(LWPoolAreaBookKeeper::create(reinterpret_cast<char*>(this)+sizeof(*this),nchunks)),
+    m_area(reinterpret_cast<char*>(m_bookkeep)+m_bookkeep->nBytesCovered())
+{
+}
+
+inline char* LWPoolArea::acquire()
+{
+  const unsigned index = m_bookkeep->acquireEntry();
+  return index==UINT_MAX ? 0 : m_area + m_chunksize * index;
+}
+
+inline void LWPoolArea::release(char*c)
+{
+  assert((c-m_area)%m_chunksize==0);
+  m_bookkeep->returnEntry((c-m_area)/m_chunksize);
+}
+
+inline bool LWPoolArea::isUnused() const
+{
+  return m_bookkeep->isCompletelyFull();
+
+}
+
+inline long long LWPoolArea::getMemDishedOut() const
+{
+  return static_cast<long long>(m_bookkeep->numberOfEntriesHandedOut())*m_chunksize;
+}
+
+#ifndef NDEBUG
+inline long long LWPoolArea::getMemUnusedButAllocated() const
+{
+  return m_bookkeep->numberOfAvailableEntries()*m_chunksize;
+}
+
+inline bool LWPoolArea::belongsInArea(char*c) const
+{
+  //Not the fastest in principle due to the multiplication and addition:
+  return m_area<=c && c < (m_area+(m_nchunks*m_chunksize));
+}
+#endif

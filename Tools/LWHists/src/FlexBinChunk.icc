@@ -1,0 +1,607 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#define FLEXBINCHUNK_ALLEMPTYSTAGE (static_cast<uint32_t>(0x00000000))
+#define FLEXBINCHUNK_ALLFULLSTAGE  (static_cast<uint32_t>(0xFFFFFFFF))
+#define FLEXBINCHUNK_ALLCHARSTAGE  (static_cast<uint32_t>(0x55555555))
+#define FLEXBINCHUNK_ALLSHORTSTAGE (static_cast<uint32_t>(0xAAAAAAAA))
+
+#include <cmath>
+
+template <class T> inline unsigned FlexBinChunk_stageByType() { return 0x3; }
+template <> inline unsigned FlexBinChunk_stageByType<uint8_t>() { return 0x1; }
+template <> inline unsigned FlexBinChunk_stageByType<uint16_t>() { return 0x2; }
+
+//____________________________________________________________________
+template <class T>
+template <class Told, class Tnew>
+unsigned FlexBinChunk<T>::changeBinStage(unsigned bin, unsigned offset)
+{
+  assert(bin<FLEXBINCHUNK_NBINS);
+  assert(sizeof(Told)<=sizeof(Tnew));
+  assert(offset==calcOffset(bin));
+#ifndef NDEBUG
+  T oldval = getBinContent(bin);
+#endif
+  //NB: sizeof(Told)==sizeof(Tnew) is used to indicate step from an
+  //empty stage (nb: available compile-time!):
+  const bool prevStageEmpty(sizeof(Tnew)==sizeof(Told));
+  assert(prevStageEmpty==(getStage(bin)==0x0));
+
+  //if !prevStageEmpty, then we know (compile-time) that m_data!=0:
+  if (prevStageEmpty && !m_data) {
+    //First allocation in chunk:
+    m_data = LWPools::acquire(sizeof(Tnew));
+    for (unsigned i = 0; i<sizeof(Tnew);++i)
+      m_data[i] = 0;//fixme: reinterpret cast instead of loop.
+    setStage(bin,FlexBinChunk_stageByType<Tnew>());
+    assert(getBinContent(bin)==oldval);
+    return sizeof(Tnew);
+  }
+
+  //need to swap out current m_data with a new array:
+  const int extrasize = sizeof(Tnew)+(prevStageEmpty?0:-sizeof(Told));
+  const int oldsize = LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(m_stages);//NB: we already have some of the value in "offset"
+  const int newsize(oldsize+extrasize);
+  char * newdata = LWPools::acquire(newsize);
+  //Bins before:
+  if (offset)
+    memcpy(newdata,m_data,offset);
+  //New bins (we set them afterwards actually... can't get it to work otherwise...):
+  Tnew newval(0);
+  if (!prevStageEmpty)
+    newval = (*(reinterpret_cast<Told*>(&(m_data[offset]))));
+  //Bins after:
+  if (oldsize>int(offset))
+    memcpy(&(newdata[offset+extrasize]),&(m_data[offset]),oldsize-offset);
+
+  LWPools::release(m_data,oldsize);
+  m_data = newdata;
+  setStage(bin,FlexBinChunk_stageByType<Tnew>());
+  getBinValRef<Tnew>(offset) = newval;
+  assert(getBinContent(bin)==oldval);
+  return newsize;
+}
+
+//____________________________________________________________________
+template <class T>
+template <class T2>
+T2& FlexBinChunk<T>::getBinValRef(unsigned offset)
+{
+  assert(m_data);
+  return *(reinterpret_cast<T2*>(&(m_data[offset])));
+}
+
+//____________________________________________________________________
+template <class T>
+template <class T2>
+T2 FlexBinChunk<T>::getBinVal(unsigned offset) const
+{
+  assert(m_data);
+  return *(reinterpret_cast<T2*>(&(m_data[offset])));
+}
+
+//____________________________________________________________________
+template <class T>
+unsigned FlexBinChunk<T>::calcOffset(unsigned bin ) const
+{
+  assert(bin<FLEXBINCHUNK_NBINS);
+  assert(FLEXBINCHUNK_NBINS*2==sizeof(uint32_t)*8);
+  return bin? LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(m_stages >> (2*(FLEXBINCHUNK_NBINS-bin))) : 0;
+}
+
+//____________________________________________________________________
+template <class T>
+FlexBinChunk<T>::FlexBinChunk()
+  : m_data(0), m_stages(0)
+{
+  assert(sizeof(T)*FLEXBINCHUNK_NBINS<=UCHAR_MAX+1);
+  assert(LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(FLEXBINCHUNK_ALLEMPTYSTAGE)==0);
+  assert(LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(FLEXBINCHUNK_ALLFULLSTAGE)==sizeof(T)*FLEXBINCHUNK_NBINS);
+  assert(LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(FLEXBINCHUNK_ALLCHARSTAGE)==sizeof(uint8_t)*FLEXBINCHUNK_NBINS);
+  assert(LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(FLEXBINCHUNK_ALLSHORTSTAGE)==sizeof(uint16_t)*FLEXBINCHUNK_NBINS);
+
+#ifndef NDEBUG
+  //stress-test setStage/getStage;
+
+  for (unsigned bin=0;bin<FLEXBINCHUNK_NBINS;++bin)
+    for (unsigned stagetest=0;stagetest<4;++stagetest)
+      {
+	setStage(bin,stagetest);
+	assert(stagetest==getStage(bin));
+	m_stages=0;
+      }
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+FlexBinChunk<T>::~FlexBinChunk()
+{
+  if (m_data) {
+    LWPools::release(m_data,LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(m_stages));
+    m_data = 0;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+void FlexBinChunk<T>::fill(unsigned bin)
+{
+  assert(bin<FLEXBINCHUNK_NBINS);
+
+#if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
+  //fill(x) gives priority to allcharstage.
+  if (m_stages==FLEXBINCHUNK_ALLCHARSTAGE) {
+    uint8_t* bc = &((reinterpret_cast<uint8_t*>(m_data))[bin]);
+    if (*bc==UCHAR_MAX) {
+      changeBinStage<uint8_t,uint16_t>(bin,calcOffset(bin));
+      fill(bin);
+    } else {
+      ++(*bc);
+    }
+    return;
+  }
+  if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
+    ++((reinterpret_cast<T*>(m_data))[bin]);
+    return;
+  }
+  if (m_stages==FLEXBINCHUNK_ALLSHORTSTAGE) {
+    uint16_t* bs = &((reinterpret_cast<uint16_t*>(m_data))[bin]);
+    if (*bs==USHRT_MAX) {
+      changeBinStage<uint16_t,T>(bin,calcOffset(bin));
+      fill(bin);
+    } else {
+      ++(*bs);
+    }
+    return;
+  }
+#endif
+
+  const unsigned offset = calcOffset(bin);
+  const unsigned stage = getStage(bin);
+  switch(stage) {
+  case 0x3:
+    {
+      ++(getBinValRef<T>(offset));
+      return;
+    }
+  case 0x0:
+    {
+      unsigned n = changeBinStage<uint8_t,uint8_t>(bin,offset);
+      ++(getBinValRef<uint8_t>(offset));
+      FLEXBINCHUNK_TESTMOVEALLBINS(n);
+      return;
+    }
+  case 0x1:
+    {
+      uint8_t * bc = &(getBinValRef<uint8_t>(offset));
+      if (*bc==UCHAR_MAX) {
+	unsigned n = changeBinStage<uint8_t,uint16_t>(bin,offset);
+	++(getBinValRef<uint16_t>(offset));
+	FLEXBINCHUNK_TESTMOVEALLBINS(n);
+      } else {
+	++(*bc);
+      }
+      return;
+    }
+  case 0x2:
+    {
+      uint16_t * bs = &(getBinValRef<uint16_t>(offset));
+      if (*bs==USHRT_MAX) {
+	unsigned n = changeBinStage<uint16_t,T>(bin,offset);
+	++(getBinValRef<T>(offset));
+	FLEXBINCHUNK_TESTMOVEALLBINS(n);
+      } else {
+	++(*bs);
+      }
+      return;
+    }
+  default:
+    assert(false);
+    break;
+  }
+}
+//____________________________________________________________________
+template <class T>
+unsigned FlexBinChunk<T>::moveToFullStage(unsigned bin, unsigned currentstage,unsigned offset)
+{
+  assert(currentstage!=0x3);
+  assert(currentstage==0x0||currentstage==0x1||currentstage==0x2);
+  switch(currentstage) {
+  case 0x0: return changeBinStage<T,T>(bin,offset);
+  case 0x1: return changeBinStage<uint8_t,T>(bin,offset);
+  case 0x2: return changeBinStage<uint16_t,T>(bin,offset);
+  default:
+    assert(false);
+    return 0;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+void FlexBinChunk<T>::fill(unsigned bin, const double& weight)
+{
+  assert(bin<FLEXBINCHUNK_NBINS);
+#ifndef NDEBUG
+  T expectedval(getBinContent(bin)+T(weight));//NB: ignores bounds in case of integers
+#endif
+
+#if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
+  if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
+    //Special case: all bins in full mode. Deal with this fast.
+    ((reinterpret_cast<T*>(m_data))[bin]) += static_cast<T>(weight);
+    assert(fabs(getBinContent(bin)-expectedval)<1.0e-5);
+    return;
+  }
+  //In this method we only give priority to "all-char-stage or
+  //all-short-stage" in the case of integers (because fill(x,w) usually moves directly to full)
+  if (std::numeric_limits<T>::is_integer) {
+    if (m_stages==FLEXBINCHUNK_ALLCHARSTAGE) {
+     uint8_t* bc = &((reinterpret_cast<uint8_t*>(m_data))[bin]);
+     T newval(*bc+T(weight));//fixme: ignores overflow
+     if (newval>UCHAR_MAX||newval<0) {
+       if (newval>=0&&newval<USHRT_MAX)
+	 changeBinStage<uint8_t,uint16_t>(bin,calcOffset(bin));
+       else
+	 changeBinStage<uint8_t,T>(bin,calcOffset(bin));
+       fill(bin,weight);
+     } else {
+       *bc = static_cast<uint8_t>(newval);
+     }
+     return;
+    }
+    //NB: We ignore the m_stages==FLEXBINCHUNK_ALLSHORTSTAGE for now (fixme? worth it?)
+  }
+#endif
+
+  const unsigned offset = calcOffset(bin);
+  unsigned stage = getStage(bin);
+
+  if (std::numeric_limits<T>::is_integer) {
+    //Special rounding and bounds checking - as is done in ROOT:
+
+    if (stage==0x3) {
+      getBinValRef<T>(offset)=std::min<T>(2147483647,std::max<T>(-2147483647,(getBinVal<T>(offset))+T(weight)));
+      //NB: How do we know that we don't overflow here in the
+      //    old+T(weight)???  (ROOT bug?) make validation of ROOT
+      //    compat in that scenario.
+      assert(getBinContent(bin)==expectedval);
+      return;
+    }
+
+    //Figure out the final value we are aiming for:
+    T newval = T(weight);//could also overflow here...
+
+    assert(stage!=0x3);
+    switch (stage) {
+    case 0x1: newval += (getBinVal<uint8_t>(offset)); break;
+    case 0x2: newval += (getBinVal<uint16_t>(offset)); break;
+    case 0x0: break;
+    default: assert(false); break;
+    }
+    assert(newval==expectedval);
+
+    //Do we need to move to full stage?:
+    unsigned newarrsize(0);
+    if (stage!=0x3&&(newval<0||newval>USHRT_MAX)) {
+      newarrsize = moveToFullStage(bin,stage,offset);
+      stage = 0x3;
+    }
+
+    //Standard ROOT treatment in case of full stage:
+    if (stage==0x3) {
+      if ( newval > -2147483647 && newval < 2147483647 ) {
+	(getBinValRef<T>(offset)) = newval;
+	assert(getBinContent(bin)==newval);
+	assert(getBinContent(bin)==expectedval);
+	FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+	return;
+      }
+      if (newval < -2147483647)
+	(getBinValRef<T>(offset)) = -2147483647;
+      else if (newval > 2147483647)
+	(getBinValRef<T>(offset)) = 2147483647;
+
+      assert(getBinContent(bin)==newval);
+      assert(getBinContent(bin)==expectedval);
+      FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+      return;
+    }
+    //Do we need to move to short stage?
+    if (stage!=0x2&&(newval>UCHAR_MAX)) {
+      if (stage==0x1) {
+	newarrsize = changeBinStage<uint8_t,uint16_t>(bin,offset);
+      } else {
+	assert(stage==0x0);
+	newarrsize = changeBinStage<uint16_t,uint16_t>(bin,offset);
+      }
+      stage=0x2;
+    }
+
+    if (stage==0x2) {
+      (getBinValRef<uint16_t>(offset)) = static_cast<uint16_t>(newval);
+      assert(getBinContent(bin)==newval);
+      assert(getBinContent(bin)==expectedval);
+      FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+      return;
+    }
+
+    assert(stage==0x1||stage==0x0);
+    if (stage==0x0) {
+      if (newval==0) {
+	assert(getBinContent(bin)==newval);
+	assert(getBinContent(bin)==expectedval);
+	FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+	return;
+      }
+      newarrsize = changeBinStage<uint8_t,uint8_t>(bin,offset);
+      stage=0x1;
+    }
+    (getBinValRef<uint8_t>(offset)) = static_cast<uint8_t>(newval);
+    assert(getBinContent(bin)==expectedval);
+    assert(getBinContent(bin)==newval);
+    assert(fabs(getBinContent(bin)-expectedval)<1.0e-5);
+    FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+  } else {
+    //not integer
+    unsigned newarrsize(0);
+    if (stage!=0x3) {
+      newarrsize = moveToFullStage(bin,stage,offset);
+      //stage = 0x3;//not needed...
+    }
+    assert(getStage(bin)==0x3);
+    (getBinValRef<T>(offset)) += static_cast<T>(weight);
+    assert(fabs(getBinContent(bin)-expectedval)<1.0e-5);
+    FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+T FlexBinChunk<T>::getBinContent(unsigned bin) const
+{
+  assert(bin<FLEXBINCHUNK_NBINS);
+#if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
+  if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
+    //Special case: all bins in full mode. Deal with this fast.
+    return ((reinterpret_cast<T*>(m_data))[bin]);
+  }
+#endif
+
+  const unsigned offset = calcOffset(bin);
+  const unsigned stage = getStage(bin);
+  switch (stage) {
+  case 0x3: return (getBinVal<T>(offset));
+  case 0x0: return 0;
+  case 0x1: return (getBinVal<uint8_t>(offset));
+  case 0x2: return (getBinVal<uint16_t>(offset));
+  default:
+    assert(false);
+    return 0;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+void FlexBinChunk<T>::setBinContent(unsigned bin, const T& val)
+{
+  assert(bin<FLEXBINCHUNK_NBINS);
+
+#if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
+  if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
+    //Special case: all bins in full mode. Deal with this fast.
+    ((reinterpret_cast<T*>(m_data))[bin]) = val;
+    return;
+  }
+  //Fixme/todo: for is_integer we could test for all-char-mode and all-short-mode also
+#endif
+  const unsigned offset = calcOffset(bin);
+  unsigned stage = getStage(bin);
+  unsigned newarrsize(0);
+
+  if (stage!=0x3) {
+    if (std::numeric_limits<T>::is_integer&&val>=0&&val<=USHRT_MAX) {
+      //In case of integers we might not need to move to the full stage:
+      if (val>UCHAR_MAX) {
+	//needs stage 0x2
+	unsigned newarrsize(0);
+	if (stage==0x0)
+	  newarrsize = changeBinStage<uint16_t,uint16_t>(bin,offset);
+	else if (stage==0x1)
+	  newarrsize = changeBinStage<uint8_t,uint16_t>(bin,offset);
+	assert(getStage(bin)==0x2);
+	(getBinValRef<uint16_t>(offset)) = static_cast<uint16_t>(val);
+	FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+	return;
+      } else {
+	assert(val<=UCHAR_MAX);
+	//needs stage 0x1 (or stage 0x2)
+	if (stage==0x2) {
+	  (getBinValRef<uint16_t>(offset)) = static_cast<uint16_t>(val);
+	  FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+	  return;
+	} else {
+	  unsigned newarrsize(0);
+	  if (stage==0x0)
+	    newarrsize = changeBinStage<uint8_t,uint8_t>(bin,offset);
+	  (getBinValRef<uint8_t>(offset)) = static_cast<uint8_t>(val);
+	  FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+	  return;
+	}
+      }
+      assert(false);//should have returned
+    } else {
+      newarrsize = moveToFullStage(bin,stage,offset);
+    }
+  }
+  assert(getStage(bin)==0x3);
+  (getBinValRef<T>(offset)) = val;
+  FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
+}
+
+//____________________________________________________________________
+template <class T>
+void FlexBinChunk<T>::setStage(unsigned bin, unsigned stage/*0x0, 0x1, 0x2 or 0x3*/)
+{
+  assert(getStage(bin)<=stage);
+  const unsigned shift(FLEXBINCHUNK_NBINS*2-(bin+1)*2);
+
+  //set the two target bits to zero:
+  m_stages &= (0xFFFFFFFF^(0x3<<shift));
+
+  //set the two target bits to their target values:
+  m_stages |= (stage<<shift);
+
+  //Test:
+  assert(getStage(bin)==stage);
+}
+
+//____________________________________________________________________
+template <class T>
+void FlexBinChunk<T>::copyContents(T*cont) const
+{
+  //Assumes cont is nulled out.
+
+  //In case of integers we might have avoided allocations:
+  if (std::numeric_limits<T>::is_integer&&!m_stages)
+    return;
+  assert(m_stages);
+
+#if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
+  if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
+    memcpy(cont,m_data,FLEXBINCHUNK_NBINS*sizeof(T));
+    return;
+  }
+  if (m_stages==FLEXBINCHUNK_ALLCHARSTAGE) {
+    for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin)
+      cont[ibin] = reinterpret_cast<uint8_t*>(m_data)[ibin];
+    return;
+  }
+  if (m_stages==FLEXBINCHUNK_ALLSHORTSTAGE) {
+    for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin)
+      cont[ibin] = reinterpret_cast<uint16_t*>(m_data)[ibin];
+    return;
+  }
+#endif
+
+  unsigned offset(0);
+  const uint32_t msb = LWHistBitUtils::posMSB(m_stages);
+  const unsigned firstbin=FLEXBINCHUNK_NBINS-((msb>>1)+(msb&0x1));//parantheses is (msb/2+msb%2)
+  const uint32_t lsb = LWHistBitUtils::posLSB(m_stages);
+  const unsigned lastbinplusone=(1+FLEXBINCHUNK_NBINS)-((lsb>>1)+(lsb&0x1));//parantheses is (lsb/2+lsb%2)
+  for (unsigned bin=firstbin;bin<lastbinplusone;++bin) {
+    switch (getStage(bin)) {
+    case 0x0: break;//Don't do cont[bin] = 0 since we assume cont to already be nulled out.
+    case 0x3: cont[bin] = (getBinVal<T>(offset)); offset += sizeof(T); break;
+    case 0x1: cont[bin] = (getBinVal<uint8_t>(offset)); offset += sizeof(uint8_t); break;
+    case 0x2: cont[bin] = (getBinVal<uint16_t>(offset)); offset += sizeof(uint16_t); break;
+    default:
+      assert(false);
+      break;
+    }
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline double FlexBinChunk<T>::Integral() const
+{
+  //In case of integers we might have avoided allocations:
+  if (std::numeric_limits<T>::is_integer&&!m_stages)
+    return 0.0;
+  assert(m_stages);
+  double result(0);
+  unsigned offset(0);
+  const uint32_t msb = LWHistBitUtils::posMSB(m_stages);
+  const unsigned firstbin=FLEXBINCHUNK_NBINS-((msb>>1)+(msb&0x1));//parantheses is (msb/2+msb%2)
+  const uint32_t lsb = LWHistBitUtils::posLSB(m_stages);
+  const unsigned lastbinplusone=(1+FLEXBINCHUNK_NBINS)-((lsb>>1)+(lsb&0x1));//parantheses is (lsb/2+lsb%2)
+  for (unsigned bin=firstbin;bin<lastbinplusone;++bin) {
+    switch (getStage(bin)) {
+    case 0x0: break;
+    case 0x3: result += (getBinVal<T>(offset)); offset += sizeof(T); break;
+    case 0x1: result += (getBinVal<uint8_t>(offset)); offset += sizeof(uint8_t); break;
+    case 0x2: result += (getBinVal<uint16_t>(offset)); offset += sizeof(uint16_t); break;
+    default:
+      assert(false);
+      break;
+    }
+  }
+  return result;
+}
+
+#if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
+//____________________________________________________________________
+template <class T>
+void FlexBinChunk<T>::possibleMoveAllBins(unsigned arrsize)
+{
+  assert(arrsize);
+//We only do this for chunks where we know all 16 bins will potentially be used => require last bin non-empty.
+  if ((arrsize<=(FLEXBINCHUNK_CONVERTALLTHRESHOLD*sizeof(uint8_t)))||!(m_stages&0x00000003))
+    return;
+  assert(arrsize==LWHistBitUtils::totalSummedOffsetInStages<sizeof(T)>(m_stages));
+  if (arrsize>FLEXBINCHUNK_NBINS*sizeof(uint16_t)) {
+    if (arrsize>FLEXBINCHUNK_CONVERTALLTHRESHOLD*sizeof(T)&&arrsize!=FLEXBINCHUNK_NBINS*sizeof(T)) {
+      //Move all bins to stage 0x1:
+      moveAllBinsToStage<T>(arrsize);
+    }
+  } else if (arrsize>FLEXBINCHUNK_NBINS*sizeof(uint8_t)) {
+    if (arrsize>FLEXBINCHUNK_CONVERTALLTHRESHOLD*sizeof(uint16_t)&&arrsize!=FLEXBINCHUNK_NBINS*sizeof(uint16_t)) {
+      //If there are no stages set to 0x3 we can move all bins to stage 0x2:
+      for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin)
+	if (getStage(ibin)==0x3)
+	  return;
+      moveAllBinsToStage<uint16_t>(arrsize);
+    }
+  } else {
+    assert(arrsize>FLEXBINCHUNK_CONVERTALLTHRESHOLD*sizeof(uint8_t));
+    if (arrsize!=FLEXBINCHUNK_NBINS*sizeof(uint8_t)) {
+      //If there are no stages set to 0x2 or 0x3 we can move all bins to stage 0x1:
+      if (!(m_stages&0xAAAAAAAA))
+	moveAllBinsToStage<uint8_t>(arrsize);
+    }
+  }
+}
+//____________________________________________________________________
+template <class T>
+template <class Tnew>
+void FlexBinChunk<T>::moveAllBinsToStage(uint16_t oldallocsize)
+{
+#ifndef NDEBUG
+  for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin)
+    assert(getStage(ibin)<=FlexBinChunk_stageByType<Tnew>());
+  bool moveatleastonebin(false);
+  for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin)
+    if (getStage(ibin)<FlexBinChunk_stageByType<Tnew>())
+      moveatleastonebin = true;
+  assert(moveatleastonebin);
+#endif
+  char * newdata = LWPools::acquire(FLEXBINCHUNK_NBINS*sizeof(Tnew));
+  if (sizeof(Tnew)==sizeof(T)) {
+    assert(m_stages!=FLEXBINCHUNK_ALLFULLSTAGE);
+    for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin)
+      reinterpret_cast<Tnew*>(newdata)[ibin]=static_cast<Tnew>(getBinContent(ibin));
+    m_stages = FLEXBINCHUNK_ALLFULLSTAGE;
+  } else {
+    //Note that getBinContent might return a float-type!
+    assert(sizeof(Tnew)==sizeof(uint8_t)||sizeof(Tnew)==sizeof(uint16_t));
+    for (unsigned ibin=0;ibin<FLEXBINCHUNK_NBINS;++ibin) {
+      if (std::numeric_limits<T>::is_integer) {
+	assert(getBinContent(ibin)>=0);
+	assert(getBinContent(ibin)<=(sizeof(Tnew)==sizeof(uint8_t)?UCHAR_MAX:USHRT_MAX));
+	reinterpret_cast<Tnew*>(newdata)[ibin] = static_cast<Tnew>(getBinContent(ibin));
+      } else {
+	assert(static_cast<int>(getBinContent(ibin)+0.5)>=0);
+	assert(static_cast<int>(getBinContent(ibin)+0.5)<=(sizeof(Tnew)==sizeof(uint8_t)?UCHAR_MAX:USHRT_MAX));
+	reinterpret_cast<Tnew*>(newdata)[ibin]= static_cast<Tnew>(getBinContent(ibin)+0.5);
+      }
+    }
+    assert(m_stages!=(sizeof(Tnew)==sizeof(uint8_t) ? FLEXBINCHUNK_ALLCHARSTAGE : FLEXBINCHUNK_ALLSHORTSTAGE));
+    m_stages = (sizeof(Tnew)==sizeof(uint8_t) ? FLEXBINCHUNK_ALLCHARSTAGE : FLEXBINCHUNK_ALLSHORTSTAGE);
+  }
+  LWPools::release(m_data,oldallocsize);
+  m_data=newdata;
+}
+#endif

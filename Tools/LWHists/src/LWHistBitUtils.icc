@@ -1,0 +1,154 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//____________________________________________________________________
+inline uint32_t LWHistBitUtils::posMSB( uint32_t x)
+{
+  assert(x!=0);
+  //Code snippet posted on http://www.southwindsgames.com by Juan Pablo:
+  uint32_t l=0;
+  if(x >= 1<<16) { x>>=16; l|=16; }
+  if(x >= 1<<8) { x>>=8; l|=8; }
+  if(x >= 1<<4) { x>>=4; l|=4; }
+  if(x >= 1<<2) { x>>=2; l|=2; }
+  if(x >= 1<<1) l|=1;
+  return ++l;
+}
+
+//____________________________________________________________________
+inline uint8_t LWHistBitUtils::posMSB( uint8_t x)
+{
+  assert(x!=0);
+  //Code snippet posted on http://www.southwindsgames.com by Juan Pablo:
+  uint8_t l=0;
+  if(x >= 1<<4) { x>>=4; l|=4; }
+  if(x >= 1<<2) { x>>=2; l|=2; }
+  if(x >= 1<<1) l|=1;
+  return ++l;
+}
+
+//____________________________________________________________________
+inline uint32_t LWHistBitUtils::posLSB(uint32_t x)
+{
+  assert(x!=0);
+  return ffs(x);
+}
+
+//____________________________________________________________________
+inline uint8_t LWHistBitUtils::posLSB(uint8_t x)
+{
+  assert(x!=0);
+  return ffs(x);
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline T LWHistBitUtils::countSetBits(T data)
+{
+#ifndef NDEBUG
+  //Direct method:
+  T nDirect(0);
+  for(T i=0;i<T(sizeof(T)*8);++i)
+    if (bitIsSet(data,i))
+      ++nDirect;
+#endif
+  // "Brian Kernighan's" method (needs number of steps equal to number of set bits):
+  T c(0); // c accumulates the total bits set in v
+  for (; data; ++c)
+    data &= data - 1; // clear the least significant bit set
+  assert(c==nDirect);
+  return c;
+}
+
+//____________________________________________________________________
+template <class T>
+inline T LWHistBitUtils::countSetBitsBefore(T data, T ibit)
+{
+  const T result(countSetBits(T(data<<(sizeof(T)*8-ibit))));
+#ifndef NDEBUG
+  T nDirect(0);
+  for(T i=0;i<ibit;++i)
+    if (bitIsSet(data,i))
+      ++nDirect;
+  assert(nDirect==result);
+#endif
+  return result;
+}
+
+
+//____________________________________________________________________
+template<uint8_t sizeofT>
+uint8_t LWHistBitUtils::stageOffset8Bits(uint32_t stagepattern)
+{
+#define C1 sizeof(uint8_t)
+#define C2 sizeof(uint16_t)
+#define C3 sizeofT
+
+  //Assume only the 8 rightmost bits are set:
+  assert(!(0xFFFFFF00&stagepattern));
+
+  if (!(stagepattern&0xAAAAAAAA)) {
+    //All stagepatterns are either 0x0 or 0x1, thus:
+    return stagepattern ? LWHistBitUtils::countSetBits<uint32_t>(stagepattern) * C1 : 0;
+  }
+
+  //Use lookup table:
+  static const uint8_t lookup[16]
+    = { 0, //0000
+	C1, //0001
+	C2, //0010
+	C3, //0011
+	C1, //0100
+	2*C1, //0101
+	C1+C2, //0110
+	C1+C3, //0111
+	C2, //1000
+	C2+C1, //1001
+	2*C2, //1010
+	C2+C3, //1011
+	C3, //1100
+	C3+C1, //1101
+	C3+C2, //1110
+	2*C3 //1111
+  };
+#undef C1
+#undef C2
+#undef C3
+  return lookup[ uint8_t(stagepattern & 0xF) ] + lookup[ uint8_t((stagepattern>>4)&0xF) ];
+}
+
+//____________________________________________________________________
+template<uint8_t sizeofT>
+inline uint8_t LWHistBitUtils::totalSummedOffsetInStages(uint32_t stagepattern )
+{
+#ifndef NDEBUG
+  uint32_t tmpstagepattern(stagepattern);
+  unsigned char expectedresult(0);
+  for (uint8_t ibin = 0; ibin<sizeof(uint32_t)*4;++ibin) {
+    switch((tmpstagepattern & 0x3)) {
+    case 0x1: expectedresult += sizeof(unsigned char); break;
+    case 0x2: expectedresult += sizeof(unsigned short); break;
+    case 0x3: expectedresult += sizeofT; break;
+    default:
+      //empty stage
+      break;
+    }
+    tmpstagepattern = (tmpstagepattern >> 2);
+  }
+#endif
+
+  if (!(stagepattern&0xAAAAAAAA)) {
+    //All stagepatterns are either 0x0 or 0x1, thus:
+    assert(expectedresult==LWHistBitUtils::countSetBits<uint32_t>(stagepattern) * sizeof(uint8_t));
+    return LWHistBitUtils::countSetBits<uint32_t>(stagepattern) * sizeof(uint8_t);
+  }
+  //FIXME: Use LSB/MSB trick???
+  const uint8_t result = stageOffset8Bits<sizeofT>(stagepattern & 0xFF)
+    + stageOffset8Bits<sizeofT>((stagepattern>>8) & 0xFF)
+    + stageOffset8Bits<sizeofT>((stagepattern>>16) & 0xFF)
+    + stageOffset8Bits<sizeofT>((stagepattern>>24) & 0xFF);
+  assert(expectedresult==result);
+  return result;
+}

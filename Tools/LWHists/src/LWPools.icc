@@ -1,0 +1,135 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifdef LW_DEBUG_POOLS_DEBUG_USAGE
+#include <iostream>
+#include <map>
+#endif
+
+//____________________________________________________________________
+class LWPools::PoolList {
+  //basically an array of pools which inits to null
+public:
+  LWPool * & operator[](unsigned i) { return m_poolarr[i]; }
+  const LWPool * operator[](unsigned i) const { return m_poolarr[i]; }
+  PoolList();
+  void cleanup();
+#ifdef LW_DEBUG_POOLS_DEBUG_USAGE
+  std::map<char*,unsigned> m_memoryHandedOut;
+#endif
+private:
+  void nullout();
+  LWPool * m_poolarr[LWPoolSelector::numberOfPools];
+};
+
+//____________________________________________________________________
+inline LWPool * LWPools::getPool(unsigned length)
+{
+  assert(length>0);
+  unsigned idx = LWPoolSelector::poolIndex(length);
+  if (idx==UINT_MAX)
+    return 0;
+  LWPool * pool = s_pools[idx];
+  return pool ? pool : initPool(idx,length);
+}
+
+//____________________________________________________________________
+inline char * LWPools::acquire(unsigned length)
+{
+  assert(length>0);
+  char * c;
+#ifdef LW_DEBUG_POOLS_USE_NEW
+  s_bytesDynAlloc += length;
+  c = new char[length];
+#else
+  LWPool * pool = getPool(length);
+  if (pool) {
+    c = pool->acquire();
+  } else {
+    s_bytesDynAlloc += length;
+    c = new char[length];
+  }
+#endif
+
+#ifdef LW_DEBUG_POOLS_DEBUG_USAGE
+  std::map<char*,unsigned>::const_iterator it = s_pools.m_memoryHandedOut.find(c);
+  if (it!=s_pools.m_memoryHandedOut.end()) {
+    std::cout<<"LWPools::acquire("<<length<<") INTERNAL ERROR: Handing out the same address ("<<(void*)c<<") twice!!"<<std::endl;
+    assert(false);
+  } else {
+    s_pools.m_memoryHandedOut[c] = length;
+  }
+#endif
+
+  return c;
+}
+
+//____________________________________________________________________
+inline void LWPools::release(char*c,unsigned length)
+{
+#ifdef LW_DEBUG_POOLS_DEBUG_USAGE
+  if (!c||length==0)
+    std::cout<<"LWPools::release("<<(void*)c<<", "<<length<<")"<<std::endl;
+  std::map<char*,unsigned>::iterator it = s_pools.m_memoryHandedOut.find(c);
+  if (it==s_pools.m_memoryHandedOut.end()) {
+    std::cout<<"LWPools::release("<<(void*)c<<", "<<length<<") ERROR:"
+	     <<" Releasing address which was never acquired"<<std::endl;
+    assert(false);
+  } else {
+    if (length!=it->second) {
+      std::cout<<"LWPools::release("<<(void*)c<<", "<<length<<") ERROR:"
+	       <<" Releasing address of length "<<length
+	       <<" which was previously acquired with length "<<it->second<<std::endl;
+      assert(false);
+    }
+    s_pools.m_memoryHandedOut.erase(it);
+  }
+#endif
+  assert(c&&length>0);
+#ifdef LW_DEBUG_POOLS_USE_NEW
+  s_bytesDynAlloc -= length;
+  delete[] c;
+  return;
+#endif
+  LWPool * pool = getPool(length);
+  if (pool) {
+    pool->release(c);
+  } else {
+    s_bytesDynAlloc -= length;
+    delete[] c;
+  }
+}
+
+template<class T, unsigned length>
+inline T* LWPools::acquire()
+{
+  T* t = reinterpret_cast<T*>(acquire<sizeof(T)*length>());
+  return t;
+}
+
+template<class T, unsigned length>
+inline void LWPools::release(T*t)
+{
+  release<sizeof(T)*length>(reinterpret_cast<char*>(t));
+}
+
+template<class T>
+inline T * LWPools::acquire(unsigned length)
+{
+  return reinterpret_cast<T*>(acquire(sizeof(T)*length));
+}
+
+template<class T>
+inline void LWPools::release(T*t,unsigned length)
+{
+  release( reinterpret_cast<char*>(t),sizeof(T)*length);
+}
+
+template<class T> inline void LWPools::deleteObject(T*t)
+{
+  if (t) {
+    t->~T();
+    release<sizeof(T)>(reinterpret_cast<char*>(t));
+  }
+}

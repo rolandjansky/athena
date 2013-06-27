@@ -1,0 +1,462 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+//____________________________________________________________________
+template <class T>
+inline FlexErrArray<T>::FlexErrArray( unsigned nbins )
+  : m_indices(reinterpret_cast<char*>(this)+sizeof(*this)),
+    m_fastloop_group2check(0),
+    m_nbins(nbins),
+    m_fastloop_isuper2check(0),
+    m_fastloop_igr2check(0)
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  , m_pretendSumWMode(false)
+#endif
+{
+  //Check that the implementation makes sense at all:
+  assert(sizeof(unsigned short)>sizeof(unsigned char));
+  assert(sizeof(T)>sizeof(unsigned short));
+  if (small()) {
+    memset(groups(),0,nGroupsNeeded(nbins)*sizeof(void*));
+    assert(!groups()[0]);
+    assert(!groups()[nGroupsNeeded(nbins)-1]);
+  } else {
+    memset(superGroups(),0,nSuperGroups(nbins)*sizeof(void*));
+    assert(!superGroups()[0]);
+    assert(!superGroups()[nSuperGroups(nbins)-1]);
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline FlexErrArray<T>::~FlexErrArray()
+{
+  if (small()) {
+    const unsigned n(nGroupsNeeded(m_nbins));
+    FlexErrArrayGroup<T> ** grps(groups());
+    for (unsigned igr = 0; igr < n; ++igr) {
+      FlexErrArrayGroup<T> *gr = grps[igr];
+      if (gr)
+	MP_DELETE(gr);
+    }
+  } else {
+    unsigned nsuper(nSuperGroups(m_nbins));
+    FlexErrArrayGroup<T> *** supergroups(superGroups());
+    for (unsigned isuper = 0; isuper<nsuper;++isuper) {
+      FlexErrArrayGroup<T> ** supergroup = supergroups[isuper];
+      if (supergroup) {
+	unsigned upper(isuper+1==nsuper?entriesInSuperGroup(isuper):FLEX1DERRARRAY_NGROUPSPERINDEX);
+	for (unsigned igr = 0; igr<upper;++igr) {
+	  FlexErrArrayGroup<T> *gr = supergroup[igr];
+	  if (gr)
+	    MP_DELETE(gr);
+	}
+	if (upper==FLEX1DERRARRAY_NGROUPSPERINDEX)
+	  LWPools::release<FlexErrArrayGroup<T>*,FLEX1DERRARRAY_NGROUPSPERINDEX>(supergroup);
+	else
+	  LWPools::release<FlexErrArrayGroup<T>*>(supergroup,upper);
+      }
+    }
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline unsigned FlexErrArray<T>::getNBins() const
+{
+  return m_nbins;
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::copyContents(T*__restrict__ cont,double*__restrict__ err) const
+{
+  //It is faster to null-out the entire arrays at the beginning, and
+  //then not have to null-out the missing pieces later:
+  memset(&(cont[0]),0,m_nbins*sizeof(*cont));
+  if (err)
+    memset(&(err[0]),0,m_nbins*sizeof(*err));
+  //Process group for group:
+  if (small()) {
+    const unsigned n(nGroupsNeeded(m_nbins));
+    const FlexErrArrayGroup<T> ** grps(groups());
+    for (unsigned igr = 0; igr < n; ++igr) {
+      const FlexErrArrayGroup<T> *gr = grps[igr];
+      if (gr) {
+	unsigned low(FLEXERRARRAYGROUP_MAXBINS*igr);
+	assert(low+gr->getNBins()<=m_nbins);
+	gr->copyContents(&(cont[low]),(err?&(err[low]):0));
+      }
+    }
+  } else {
+    unsigned nsuper(nSuperGroups(m_nbins));
+    const FlexErrArrayGroup<T> *** supergroups(superGroups());
+    for (unsigned isuper = 0; isuper<nsuper;++isuper) {
+      const FlexErrArrayGroup<T> ** supergroup = supergroups[isuper];
+      if (supergroup) {
+	unsigned upper(isuper+1==nsuper?entriesInSuperGroup(isuper):FLEX1DERRARRAY_NGROUPSPERINDEX);
+	for (unsigned igr = 0; igr<upper;++igr) {
+	  const FlexErrArrayGroup<T> *gr = supergroup[igr];
+	  if (gr) {
+	    unsigned low(FLEXERRARRAYGROUP_MAXBINS*(FLEX1DERRARRAY_NGROUPSPERINDEX*isuper+igr));
+	    assert(low+gr->getNBins()<=m_nbins);
+	    gr->copyContents(&(cont[low]),(err?&(err[low]):0));
+	  }
+	}
+      }
+    }
+  }
+#ifndef NDEBUG
+  for (unsigned ibin=0;ibin<m_nbins;++ibin)
+    assert(cont[ibin]==getBinContent(ibin));
+  if (err)
+    for (unsigned ibin=0;ibin<m_nbins;++ibin) {
+      const double e1(sqrt(fabs(err[ibin]))),e2(getBinError(ibin));
+      if ((fabs(e1-e2)/(1+std::max(e1,e2)))>1.0e-5&&!bothNaN(e1,e2)) {
+	std::cout<<"e1 = "<<e1<<std::endl;
+	std::cout<<"e2 = "<<e2<<std::endl;
+	std::cout<<"test: "<<(e1-e2)/(1.0+std::max(e1,e2))<<std::endl;
+	assert((e1-e2)/(1.0+std::max(e1,e2))<1.0e-3||bothNaN(e1,e2));//fixme: Investigate if really need to go up to 1.0e-3
+      }
+    }
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline double FlexErrArray<T>::Integral() const
+{
+  double result(0);
+  if (small()) {
+    const unsigned n(nGroupsNeeded(m_nbins));
+    const FlexErrArrayGroup<T> ** grps(groups());
+    for (unsigned igr = 0; igr < n; ++igr) {
+      const FlexErrArrayGroup<T> *gr = grps[igr];
+      if (gr)
+	result += gr->Integral();
+    }
+  } else {
+    unsigned nsuper(nSuperGroups(m_nbins));
+    const FlexErrArrayGroup<T> *** supergroups(superGroups());
+    for (unsigned isuper = 0; isuper<nsuper;++isuper) {
+      const FlexErrArrayGroup<T> ** supergroup = supergroups[isuper];
+      if (supergroup) {
+	unsigned upper(isuper+1==nsuper?entriesInSuperGroup(isuper):FLEX1DERRARRAY_NGROUPSPERINDEX);
+	for (unsigned igr = 0; igr<upper;++igr) {
+	  const FlexErrArrayGroup<T> *gr = supergroup[igr];
+	  if (gr)
+	    result += gr->Integral();
+	}
+      }
+    }
+  }
+  return result;
+}
+
+//____________________________________________________________________
+template <class T>
+inline  bool FlexErrArray<T>::holdsSeparateSumW2Info() const
+{
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  return m_pretendSumWMode;
+#else
+  unsigned nsuper(nSuperGroups(m_nbins));
+  if (small()) {
+    const unsigned n(nGroupsNeeded(m_nbins));
+    const FlexErrArrayGroup<T> ** grps(groups());
+    for (unsigned igr = 0; igr < n; ++igr)
+      if (grps[igr]&&grps[igr]->holdsSeparateSumW2Info())
+	return true;
+    return false;
+  } else {
+    const FlexErrArrayGroup<T> *** supergroups(superGroups());
+    for (unsigned isuper = 0; isuper<nsuper;++isuper) {
+      const FlexErrArrayGroup<T> ** supergroup = supergroups[isuper];
+      if (supergroup) {
+	unsigned upper(isuper+1==nsuper?entriesInSuperGroup(isuper):FLEX1DERRARRAY_NGROUPSPERINDEX);
+	for (unsigned igr = 0; igr<upper;++igr) {
+	  const FlexErrArrayGroup<T> *gr = supergroup[igr];
+	  if (gr&&gr->holdsSeparateSumW2Info())
+	    return true;
+	}
+      }
+    }
+    return false;
+  }
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline T FlexErrArray<T>::getBinContent(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  const FlexErrArrayGroup<T> * gr = getGroupNoAlloc(bin);
+  return gr ? gr->getBinContent(groupBin(bin)) : 0;
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline double FlexErrArray<T>::getBinError(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  const FlexErrArrayGroup<T> * gr = getGroupNoAlloc(bin);
+  return gr ? gr->getBinError(groupBin(bin)) : 0;
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::getBinContentAndError(unsigned bin, T& content, double& error ) const
+{
+  assert(bin<m_nbins);
+  const FlexErrArrayGroup<T> * gr = getGroupNoAlloc(bin);
+  if (gr) {
+    gr->getBinContentAndError(groupBin(bin),content,error);
+  } else {
+    content = 0;
+    error = 0;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::setBinContent(unsigned bin, const T& content)
+{
+  assert(bin<m_nbins);
+  FlexErrArrayGroup<T> * gr;
+  if (content==0) {
+    gr = const_cast<FlexErrArrayGroup<T> *>(getGroupNoAlloc(bin));
+    if (!gr)
+      return;
+  } else {
+    gr = getGroup(bin);
+  }
+  assert(gr);
+  gr->setBinContent(groupBin(bin),content STRICT_ROOT_PAR(m_pretendSumWMode));
+  assert(getBinContent(bin)==content||bothNaN(getBinContent(bin),content));
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::setBinError(unsigned bin, const double& error )
+{
+  assert(bin<m_nbins);
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  m_pretendSumWMode = true;
+#endif
+  FlexErrArrayGroup<T> * gr;
+  if (error==0) {
+    gr = const_cast<FlexErrArrayGroup<T> *>(getGroupNoAlloc(bin));
+    if (!gr)
+      return;
+  } else {
+    gr = getGroup(bin);
+  }
+  assert(gr);
+  gr->setBinError(groupBin(bin),error);
+  assert(fabs(getBinError(bin)-fabs(error))<1.0e-10||bothNaN(error,getBinError(bin)));
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::setBinContentAndError(unsigned bin, const T& content, const double& error )
+{
+  assert(bin<m_nbins);
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  m_pretendSumWMode = true;
+#endif
+
+  FlexErrArrayGroup<T> * gr;
+  if (content==0&&error==0) {
+    //Special case: Maybe we do not need an allocation:
+    gr = const_cast<FlexErrArrayGroup<T> *>(getGroupNoAlloc(bin));
+    if (!gr)
+      return;
+  } else {
+    gr = getGroup(bin);
+  }
+  assert(gr);
+  gr->setBinContentAndError( groupBin(bin),
+			     content,
+			     error );
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::fill(unsigned bin)
+{
+#ifndef NDEBUG
+  T expectedval = getBinContent(bin)+1;
+#endif
+  assert(bin<m_nbins);
+  getGroup(bin)->fill(groupBin(bin) STRICT_ROOT_PAR(m_pretendSumWMode));
+#ifndef NDEBUG
+  T resval=getBinContent(bin);
+  assert(fabs(resval-expectedval)/(1.0+std::max<T>(fabs(resval),fabs(expectedval)))<1.0e-5);
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::fill(unsigned bin, const double& weight)
+{
+#ifndef NDEBUG
+  T expectedval = getBinContent(bin)+T(weight);
+#endif
+  assert(bin<m_nbins);
+  getGroup(bin)->fill(groupBin(bin),weight STRICT_ROOT_PAR(m_pretendSumWMode));
+#ifndef NDEBUG
+  T resval=getBinContent(bin);
+  assert(fabs(resval-expectedval)/(1.0+std::max<T>(fabs(resval),fabs(expectedval)))<1.0e-5);
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline  FlexErrArrayGroup<T> * FlexErrArray<T>::getGroup(unsigned bin)
+{
+  FlexErrArrayGroup<T> ** gr(0);
+  unsigned isuper(0);
+  unsigned igr(0);
+  if (small()) {
+    igr = iGroup(bin);
+    gr = &(groups()[igr]);
+  } else {
+    //1) Get the super-group
+    isuper = iSuperGroup(bin);
+    FlexErrArrayGroup<T> ** supergroup = superGroups()[isuper];
+    if (!supergroup) {
+      unsigned l(entriesInSuperGroup(isuper));
+      if (l==FLEX1DERRARRAY_NGROUPSPERINDEX)
+	supergroup = LWPools::acquire<FlexErrArrayGroup<T>*,FLEX1DERRARRAY_NGROUPSPERINDEX>();
+      else
+	supergroup = LWPools::acquire<FlexErrArrayGroup<T>*>(l);
+      memset(supergroup,0,l*sizeof(supergroup[0]));
+      superGroups()[iSuperGroup(bin)] = supergroup;
+      assert(superGroupBin(bin)<l);
+    }
+    //2) Get the group
+    igr = superGroupBin(bin);
+    gr = &(supergroup[igr]);
+  }
+  assert(gr);
+
+  if (!(*gr)) {
+    unsigned nbinsGr(FLEXERRARRAYGROUP_MAXBINS);
+    unsigned lastBin(FLEXERRARRAYGROUP_MAXBINS*(isuper*FLEX1DERRARRAY_NGROUPSPERINDEX+igr+1));
+    assert(!(unsigned(igr+1)==nGroupsNeeded(m_nbins))||lastBin>=m_nbins);
+    assert(m_nbins+FLEXERRARRAYGROUP_MAXBINS>lastBin);
+    if (lastBin>m_nbins)
+      nbinsGr -= (lastBin-m_nbins);
+    FlexErrArrayGroup<T> * g = MP_NEW(FlexErrArrayGroup<T>)(nbinsGr);
+    *gr = g;
+    assert((*gr)->getNBins()==nbinsGr);
+  }
+  assert(*gr);
+  return *gr;
+}
+
+
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::fastLoop_findAndResetNextGroup( )
+{
+  //Fixme: We should actually always find the two next, and use
+  //__builtin_prefetch() on the second. We could also call "prefetch
+  //all data" on the group (since we know we will need all chunks/errchunks)
+
+  assert(!m_fastloop_group2check);
+  if (small()) {
+    const unsigned n(nGroupsNeeded(m_nbins));
+    FlexErrArrayGroup<T> ** grps(groups());
+    for (;m_fastloop_igr2check < n; ++m_fastloop_igr2check) {
+      m_fastloop_group2check = grps[m_fastloop_igr2check];
+      if (m_fastloop_group2check)
+	break;
+    }
+  } else {
+    unsigned nsuper(nSuperGroups(m_nbins));
+    FlexErrArrayGroup<T> *** supergroups(superGroups());
+    for (;m_fastloop_isuper2check<nsuper;++m_fastloop_isuper2check) {
+      FlexErrArrayGroup<T> ** supergroup = supergroups[m_fastloop_isuper2check];
+      if (supergroup) {
+	unsigned upper(m_fastloop_isuper2check+1==nsuper?entriesInSuperGroup(m_fastloop_isuper2check):FLEX1DERRARRAY_NGROUPSPERINDEX);
+	for (;m_fastloop_igr2check < upper; ++m_fastloop_igr2check) {
+	  m_fastloop_group2check = supergroup[m_fastloop_igr2check];
+	  if (m_fastloop_group2check)
+	    break;
+	}
+	if (m_fastloop_group2check)
+	  break;
+      }
+      m_fastloop_igr2check = 0;
+    }
+  }
+
+  if (m_fastloop_group2check)
+    m_fastloop_group2check->resetActiveBinLoop();
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::resetActiveBinLoop()
+{
+  m_fastloop_isuper2check = 0;
+  m_fastloop_igr2check = 0;
+  m_fastloop_group2check = 0;
+  fastLoop_findAndResetNextGroup();
+}
+
+//____________________________________________________________________
+template <class T>
+inline bool FlexErrArray<T>::getNextActiveBin(unsigned& bin, T& content, double& error)
+{
+  if (m_fastloop_group2check) {
+    //Just check the group once more:
+    if (m_fastloop_group2check->getNextActiveBin(bin, content, error)) {
+      //"bin" is now local. Put into global mode:
+      bin += ( m_fastloop_isuper2check * FLEX1DERRARRAY_NGROUPSPERINDEX + m_fastloop_igr2check) * FLEXERRARRAYGROUP_MAXBINS;//fixme: cache this offset?
+      return true;
+    }
+  }
+  m_fastloop_group2check=0;
+
+  //Attempt to find the next group (if any):
+  ++m_fastloop_igr2check;
+  if (m_fastloop_igr2check==FLEX1DERRARRAY_NGROUPSPERINDEX&&!small()) {
+    ++m_fastloop_isuper2check;
+    m_fastloop_igr2check = 0;
+  }
+  fastLoop_findAndResetNextGroup();
+
+  //Repeat:
+  return m_fastloop_group2check ? getNextActiveBin(bin,content,error) : false;
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArray<T>::scaleContentsAndErrors( const double& fact )
+{
+  //We simply use the fast-looping functionality here. Just to be
+  //safe, we save the state of the fastlooping temporary variables:
+  unsigned save_fastloop_isuper2check = m_fastloop_isuper2check;
+  unsigned save_fastloop_igr2check = m_fastloop_igr2check;
+
+  unsigned bin;  T cont;  double err;
+  resetActiveBinLoop();
+  while (getNextActiveBin(bin, cont, err))
+    setBinContentAndError(bin, static_cast<T>(cont*fact), err*fact );
+
+  m_fastloop_isuper2check = save_fastloop_isuper2check;
+  m_fastloop_igr2check = save_fastloop_igr2check;
+}

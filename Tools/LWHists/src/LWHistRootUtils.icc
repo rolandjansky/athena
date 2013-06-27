@@ -1,0 +1,306 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace LWHistRootUtilsInternals {
+
+  template <class THX_LW, class THX>
+  inline THX* allocate1DRootHisto(THX_LW* lwhist,unsigned &arraysize) {
+    arraysize = lwhist->GetNbinsX()+2;
+    float * xbins = const_cast<float*>(LWHistInt::getVarBins(lwhist));
+    return xbins
+      ? MP_NEW(THX)(lwhist->GetName(), lwhist->GetTitle(), lwhist->GetNbinsX(), xbins)
+      : MP_NEW(THX)(lwhist->GetName(), lwhist->GetTitle(), 1, lwhist->getXMin(), lwhist->getXMax());
+  }
+  template <class THX_LW, class THX>
+  inline THX* allocate2DRootHisto(THX_LW* lwhist,unsigned &arraysize) {
+    const unsigned nx(lwhist->GetNbinsX());
+    const unsigned ny(lwhist->GetNbinsY());
+    arraysize = (nx+2)*(ny+2);
+    const float * xbins_f = LWHistInt::getVarBinsX(lwhist);
+    const float * ybins_f = LWHistInt::getVarBinsY(lwhist);
+    double * xbins(0);
+    double * ybins(0);
+    if (xbins_f) {
+      xbins = LWPools::acquire<double>(nx+1);
+      for (unsigned i = 0;i<=nx;++i)
+        xbins[i]=xbins_f[i];
+    }
+    if (ybins_f) {
+      ybins = LWPools::acquire<double>(ny+1);
+      for (unsigned i = 0;i<=ny;++i)
+        ybins[i]=ybins_f[i];
+    }
+    THX * h(0);
+    if (ybins)
+      h = xbins
+        ? MP_NEW(THX)(lwhist->GetName(), lwhist->GetTitle(),
+                      lwhist->GetNbinsX(),xbins,
+                      lwhist->GetNbinsY(),ybins)
+        : MP_NEW(THX)(lwhist->GetName(), lwhist->GetTitle(),
+                      lwhist->GetNbinsX(),lwhist->getXMin(),lwhist->getXMax(),
+                      lwhist->GetNbinsY(),ybins);
+    else
+      h = xbins
+        ? MP_NEW(THX)(lwhist->GetName(), lwhist->GetTitle(),
+                      lwhist->GetNbinsX(),xbins,
+                      lwhist->GetNbinsY(),lwhist->getYMin(),lwhist->getYMax())
+        : MP_NEW(THX)(lwhist->GetName(), lwhist->GetTitle(),
+                      lwhist->GetNbinsX(),lwhist->getXMin(),lwhist->getXMax(),
+                      lwhist->GetNbinsY(),lwhist->getYMin(),lwhist->getYMax());
+    assert(h);
+    if (xbins)
+      LWPools::release(xbins,nx+1);
+    if (ybins)
+      LWPools::release(ybins,ny+1);
+    return h;
+    //Fixme: don't use binlength of 1 for 2d??? Should speed up things...
+  }
+
+  template <class THX_LW, class THX>
+  inline THX* allocateRootHisto(THX_LW* lwhist,unsigned &arraysize) { return allocate1DRootHisto<THX_LW,THX>(lwhist,arraysize); }
+  template <> inline TH2F* allocateRootHisto<TH2F_LW,TH2F>(TH2F_LW* lwhist,unsigned &arraysize) { return allocate2DRootHisto<TH2F_LW,TH2F>(lwhist,arraysize); }
+  template <> inline TH2D* allocateRootHisto<TH2D_LW,TH2D>(TH2D_LW* lwhist,unsigned &arraysize) { return allocate2DRootHisto<TH2D_LW,TH2D>(lwhist,arraysize); }
+  template <> inline TH2I* allocateRootHisto<TH2I_LW,TH2I>(TH2I_LW* lwhist,unsigned &arraysize) { return allocate2DRootHisto<TH2I_LW,TH2I>(lwhist,arraysize); }
+
+  inline double * getArrayCopy(const TArrayD*a,unsigned &n)
+  {
+    n = a ? a->GetSize() : 0;
+    if (!n) return 0;
+    double * out = LWPools::acquire<double>(n);
+    for (unsigned i=0;i<n;++i)
+      out[i]=a->GetArray()[i];
+    return out;
+  }
+  inline void setHistParameters1D(TH1*hRoot,LWHist1D*lwhist) {
+    unsigned n;
+    double * xbins = getArrayCopy(hRoot->GetXaxis()->GetXbins(),n);
+    if (xbins) {
+      hRoot->SetBins(n-1, xbins);
+      LWPools::release(xbins,n);
+    } else {
+      hRoot->SetBins(lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax());
+    }
+  }
+  inline void setHistParameters2D(TH2*/*hRoot*/,LWHist2D*/*lwhist*/) {
+//DISABLE//    unsigned nx;
+//DISABLE//    double * xbins = getArrayCopy(hRoot->GetXaxis()->GetXbins(),nx);
+//DISABLE//    unsigned ny;
+//DISABLE//    double * ybins = getArrayCopy(hRoot->GetYaxis()->GetXbins(),ny);
+//DISABLE//    if (xbins) {
+//DISABLE//      if (ybins) {
+//DISABLE//        //Both X and Y have variable binning
+//DISABLE//        hRoot->SetBins(nx-1,xbins,
+//DISABLE//                       ny-1,ybins);
+//DISABLE//      } else {
+//DISABLE//        //Just X (constructor exist, but not the corresponding setbins method)
+//DISABLE//        //assert(false);
+//DISABLE//        // hRoot->SetBins(nx-1,xbins,
+//DISABLE//        //                lwhist->GetNbinsY(), lwhist->getYMin(), lwhist->getYMax());
+//DISABLE//      }
+//DISABLE//    } else if (ybins) {
+//DISABLE//      //Just Y (doesn't exist)
+//DISABLE//      //  assert(false);
+//DISABLE//      // hRoot->SetBins(lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax(),
+//DISABLE//      //               ny-1,ybins);
+//DISABLE//    } else {
+//DISABLE//      //None
+//DISABLE//      hRoot->SetBins(lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax(),
+//DISABLE//                     lwhist->GetNbinsY(), lwhist->getYMin(), lwhist->getYMax());
+//DISABLE//    }
+//DISABLE//    if (xbins) LWPools::release(xbins,nx);
+//DISABLE//    if (ybins) LWPools::release(ybins,ny);
+  }
+  template <class THX_LW, class THX>
+  inline void setHistParameters(THX*roothist, THX_LW* lwhist) { setHistParameters1D(roothist,lwhist); }
+  template <> inline void setHistParameters<TH2F_LW,TH2F>(TH2F*roothist, TH2F_LW* lwhist) { setHistParameters2D(roothist,lwhist); }
+  template <> inline void setHistParameters<TH2D_LW,TH2D>(TH2D*roothist, TH2D_LW* lwhist) { setHistParameters2D(roothist,lwhist); }
+  template <> inline void setHistParameters<TH2I_LW,TH2I>(TH2I*roothist, TH2I_LW* lwhist) { setHistParameters2D(roothist,lwhist); }
+
+  //Trick to avoid compile warnings:
+  template <class T> void multWithCast(T& destination, const double& fact) { destination = static_cast<T>(destination*fact); }
+
+  template <class TArrayType>
+  void scaleArray(TArrayType&a, const double& fact) {
+    const unsigned n(a.fN);
+    if (n==0||!a.fArray)
+      return;
+    for (unsigned i=0;i<n;++i)
+      multWithCast(a.fArray[i],fact);//a.fArray[i] *= fact;
+  }
+
+}
+
+//____________________________________________________________________
+template <class T, class TH_LW, class TH_root, class TFlexHist>
+inline TH_root * LWHistRootUtils::createRootHisto(TH_LW* lwhist, TFlexHist * flexHist,bool& tookSumW2FromPools)
+{
+  bool saveDefaultSumw2 = TH1::GetDefaultSumw2();
+  if (saveDefaultSumw2)
+    TH1::SetDefaultSumw2(false);
+
+  unsigned arraysize;
+  TH_root * hRoot = LWHistRootUtilsInternals::allocateRootHisto<TH_LW,TH_root>(lwhist,arraysize);
+
+  //Adopt() trick to allocate the array from our pools:
+  T * cont = LWPools::acquire<T>(arraysize);
+  tookSumW2FromPools = flexHist->holdsSeparateSumW2Info();
+  double * err = tookSumW2FromPools ? LWPools::acquire<double>(arraysize) : 0;
+
+  flexHist->copyContents(cont,err);
+  hRoot->Adopt(arraysize,cont);
+  if (err) {
+    TArrayD& fSumw2 = LWHistRootUtils::getSumw2Array(hRoot);
+    assert(!fSumw2.fArray);
+    fSumw2.Adopt(arraysize,err);
+  }
+  LWHistRootUtilsInternals::setHistParameters(hRoot,lwhist);
+
+  hRoot->SetEntries(flexHist->getEntries());
+  if (saveDefaultSumw2)
+    TH1::SetDefaultSumw2(true);
+
+  return hRoot;
+}
+
+//____________________________________________________________________
+template <class THX>
+void LWHistRootUtils::deleteRootHisto(THX*rootHist, bool& sumW2IsFromPools)
+{
+  if (sumW2IsFromPools) {
+    TArrayD& fSumw2 = LWHistRootUtils::getSumw2Array(rootHist);
+    assert(fSumw2.fArray);
+    LWPools::release(fSumw2.fArray,rootHist->GetSize());
+    fSumw2.fArray = 0;
+    sumW2IsFromPools = false;
+  }
+  LWPools::release(rootHist->fArray,rootHist->GetSize());
+  rootHist->fArray=0;
+  MP_DELETE(rootHist);
+}
+
+//____________________________________________________________________
+inline TProfile * LWHistRootUtils::createRootProfileHisto(TProfile_LW* lwhist, Flex1DProfileHisto * flexHist)
+{
+  const unsigned n(lwhist->GetNbinsX()+2);
+  double * entries = LWPools::acquire<double>(n);
+  double * contents = LWPools::acquire<double>(n);
+  double * errors = LWPools::acquire<double>(n);
+  flexHist->copyContents(entries,contents,errors);
+  float * xbins = const_cast<float*>(LWHistInt::getVarBins(lwhist));
+  double ylow(flexHist->getProfParMin()), yup(flexHist->getProfParMax());
+  TProfile * hRoot(0);
+  const unsigned nbinsx(lwhist->GetNbinsX());
+  if (xbins) {
+    if (ylow==yup) {
+      hRoot=MP_NEW(TProfile)(lwhist->GetName(), lwhist->GetTitle(), nbinsx, xbins);
+    } else {
+      //Need double* array instead of float* array due to missing constructor:
+      double * xbins_d = LWPools::acquire<double>(nbinsx+1);
+      for (unsigned i = 0;i<=nbinsx;++i)
+        xbins_d[i]=xbins[i];
+      hRoot=MP_NEW(TProfile)(lwhist->GetName(), lwhist->GetTitle(), nbinsx, xbins_d,ylow,yup);
+      LWPools::release(xbins_d,nbinsx+1);
+    }
+  } else {
+    hRoot=MP_NEW(TProfile)(lwhist->GetName(), lwhist->GetTitle(), nbinsx, lwhist->getXMin(), lwhist->getXMax(),ylow,yup);
+  }
+  assert(hRoot);
+
+  hRoot->Adopt(n,contents);
+  LWHistRootUtils::getSumw2Array(hRoot).Adopt(n,errors);
+  LWHistRootUtils::getBinEntriesArray(hRoot).Adopt(n,entries);
+  //  hRoot->SetBins(lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax());
+  hRoot->SetEntries(lwhist->GetEntries());
+  hRoot->SetErrorOption(lwhist->GetErrorOption());
+  return hRoot;
+}
+
+//____________________________________________________________________
+inline TProfile2D * LWHistRootUtils::createRoot2DProfileHisto(TProfile2D_LW* lwhist, Flex2DProfileHisto * flexHist)
+{
+  const unsigned nx(lwhist->GetNbinsX());
+  const unsigned ny(lwhist->GetNbinsY());
+  const unsigned n((nx+2)*(ny+2));
+  double * entries = LWPools::acquire<double>(n);
+  double * contents = LWPools::acquire<double>(n);
+  double * errors = LWPools::acquire<double>(n);
+  flexHist->copyContents(entries,contents,errors);
+
+  const float * xbins_f = LWHistInt::getVarBinsX(lwhist);
+  const float * ybins_f = LWHistInt::getVarBinsY(lwhist);
+  double * xbins(0);
+  double * ybins(0);
+  if (xbins_f) {
+    xbins = LWPools::acquire<double>(nx+1);
+    for (unsigned i = 0;i<=nx;++i)
+      xbins[i]=xbins_f[i];
+  }
+  if (ybins_f) {
+    ybins = LWPools::acquire<double>(ny+1);
+    for (unsigned i = 0;i<=ny;++i)
+      ybins[i]=ybins_f[i];
+  }
+  TProfile2D * hRoot(0);
+
+  if (ybins)
+    hRoot = xbins
+      ? MP_NEW(TProfile2D)( lwhist->GetName(), lwhist->GetTitle(),
+                            lwhist->GetNbinsX(), xbins,
+                            lwhist->GetNbinsY(), ybins )
+      : MP_NEW(TProfile2D)( lwhist->GetName(), lwhist->GetTitle(),
+                            lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax(),
+                            lwhist->GetNbinsY(), ybins );
+  else
+    hRoot = xbins
+      ? MP_NEW(TProfile2D)( lwhist->GetName(), lwhist->GetTitle(),
+                            lwhist->GetNbinsX(), xbins,
+                            lwhist->GetNbinsY(), lwhist->getYMin(), lwhist->getYMax() )
+      : MP_NEW(TProfile2D)( lwhist->GetName(), lwhist->GetTitle(),
+                            lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax(),
+                            lwhist->GetNbinsY(), lwhist->getYMin(), lwhist->getYMax(),
+                            flexHist->getProfParMin(),flexHist->getProfParMax());
+
+  assert(hRoot);
+  if (xbins)
+    LWPools::release(xbins,nx+1);
+  if (ybins)
+    LWPools::release(ybins,ny+1);
+  hRoot->Adopt(n,contents);
+  LWHistRootUtils::getSumw2Array(hRoot).Adopt(n,errors);
+  LWHistRootUtils::getBinEntriesArray(hRoot).Adopt(n,entries);
+  //hRoot->SetBins(lwhist->GetNbinsX(), lwhist->getXMin(), lwhist->getXMax(),
+  //lwhist->GetNbinsY(), lwhist->getYMin(), lwhist->getYMax());
+  hRoot->SetEntries(lwhist->GetEntries());
+  hRoot->SetErrorOption(lwhist->GetErrorOption());
+  return hRoot;
+}
+
+//____________________________________________________________________
+template <class TProfileX>
+void LWHistRootUtils::deleteProfileHisto(TProfileX*rootHist)
+{
+  const unsigned n(rootHist->GetSize());
+
+  LWPools::release(getSumw2Array(rootHist).fArray,n);
+  getSumw2Array(rootHist).fArray = 0;
+
+  LWPools::release(getBinEntriesArray(rootHist).fArray,n);
+  getBinEntriesArray(rootHist).fArray=0;
+
+  LWPools::release(rootHist->fArray,n);
+  rootHist->fArray=0;
+
+  MP_DELETE(rootHist);
+}
+
+template <class THX>
+void LWHistRootUtils::scaleContentsAndErrors( THX*h, const double& fact )
+{
+  assert(h);
+  TArrayD& fSumw2 = LWHistRootUtils::getSumw2Array(h);
+  if (fSumw2.fN==0)
+    h->Sumw2();
+  LWHistRootUtilsInternals::scaleArray(fSumw2,fact*fact);
+  LWHistRootUtilsInternals::scaleArray(*h,fact);
+}

@@ -1,0 +1,364 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+//____________________________________________________________________
+HistValProfile::HistValProfile( const std::string& name, const std::string& title,
+                                int nbins, const double& xmin, const double& xmax,
+                                const double& profparmin, const double& profparmax )
+  : HistValBase()
+{
+  m_h1 = new TProfile(name.c_str(),title.c_str(),nbins,xmin,xmax,profparmin,profparmax,profile_test_erroroption());
+  m_h2 = TProfile_LW::create(name.c_str(),title.c_str(),nbins,xmin,xmax,profparmin,profparmax,profile_test_erroroption());
+  compareMetaData();
+
+  if (HistVal_trigger_conversion_all)
+    triggerConversionToROOTHist();
+}
+
+
+//____________________________________________________________________
+template <class TFloat>
+HistValProfile::HistValProfile( const std::string& name, const std::string& title,
+                                int nbins, const TFloat* xbins )
+  : HistValBase()
+{
+  m_h1 = new TProfile(name.c_str(),title.c_str(),nbins,xbins,profile_test_erroroption());
+  m_h2 = TProfile_LW::create(name.c_str(),title.c_str(),nbins,xbins,profile_test_erroroption());
+  compareMetaData();
+  if (HistVal_trigger_conversion_all)
+    triggerConversionToROOTHist();
+}
+
+//____________________________________________________________________
+HistValProfile::~HistValProfile()
+{
+  compareAll();
+  delete m_h1;
+  LWHist::safeDelete(m_h2);
+}
+
+//____________________________________________________________________
+unsigned HistValProfile::getXAxis_NBins() const
+{
+  return m_h1->GetXaxis()->GetNbins();
+}
+
+//____________________________________________________________________
+unsigned HistValProfile::getYAxis_NBins() const
+{
+  return m_h1->GetYaxis()->GetNbins();
+}
+
+//____________________________________________________________________
+void HistValProfile::fill(const double& x, const double& y)
+{
+  m_h1->Fill(x,y);
+  m_h2->Fill(x,y);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::fill(const double& x, const double& y, const double& w)
+{
+  if (w<0) return;//Latest root gives NaN's in case of negative weights => not worth reproducing that.
+  if (w==0)
+    return;
+  m_h1->Fill(x,y,w);
+  m_h2->Fill(x,y,w);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setBinEntries(unsigned bin, const double& entries)
+{
+  if (entries<=0)
+    return;//Fixme: this is because of some NaN resulting from ROOT internals which I can't reproduce.
+  //(entries==0 ignored due to internals being to weird)
+  m_h1->SetBinEntries(bin,entries);
+  m_h2->SetBinEntries(bin,entries);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setBinContent(unsigned bin, const double& content)
+{
+  m_h1->SetBinContent(bin,content);
+  m_h2->SetBinContent(bin,content);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setBinError(unsigned bin, const double& error)
+{
+  if (error<0)
+    return;
+  m_h1->SetBinError(bin,error);
+  m_h2->SetBinError(bin,error);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setBinInfo(unsigned bin, const double& entries, const double& content,const double& error)
+{
+  if (entries<0)
+    return;//Fixme: this is because of some NaN resulting from ROOT internals which I can't reproduce.
+  m_h1->SetBinEntries(bin,entries);
+  m_h1->SetBinContent(bin,content);
+  m_h1->SetBinError(bin,error);
+  m_h2->SetBinInfo(bin,entries,content,error);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::compareBinContents() const
+{
+  HistValFunctions::test("GetNbinsX()",int(m_h1->GetNbinsX()), int(m_h2->GetNbinsX()));
+  int n = m_h1->GetNbinsX();
+  std::ostringstream s;
+  for (int i=0;i<=n+1;++i) {
+    double entries_1 = m_h1->GetBinEntries(i);
+    double content_1 = m_h1->GetBinContent(i);
+    double error_1   = m_h1->GetBinError(i);
+    double entries_2 = m_h2->GetBinEntries(i);
+    double content_2 = m_h2->GetBinContent(i);
+    double error_2   = m_h2->GetBinError(i);
+    double entries_3, content_3, error_3;
+    const double errorCompatEpsilon(1.0e-3);
+    m_h2->GetBinInfo(i,entries_3, content_3, error_3);
+    if (!HistValFunctions::compatible(entries_1,entries_2)) {
+      s << "[TProfile vs. TProfile_LW] GetBinEntries("<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<")";
+      HistValFunctions::test(s.str(),entries_1,entries_2);
+    }
+    if (!HistValFunctions::compatible(content_1,content_2)) {
+      s << "[TProfile vs. TProfile_LW] GetBinContent("<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<")";
+      HistValFunctions::test(s.str(),content_1,content_2);
+    }
+    if (!HistValFunctions::floatCompat(error_1,error_2,errorCompatEpsilon)) {
+      s << "[TProfile vs. TProfile_LW] GetBinError("<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<")";
+      HistValFunctions::test(s.str(),error_1,error_2);
+    }
+    if (!HistValFunctions::compatible(entries_1,entries_3)) {
+      s << "[TProfile vs. TProfile_LW] entries from GetBinInfo("<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<")";
+      HistValFunctions::test(s.str(),entries_1,entries_3);
+    }
+    if (!HistValFunctions::compatible(content_1,content_3)) {
+      s << "[TProfile vs. TProfile_LW] content from GetBinInfo("<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<")";
+      HistValFunctions::test(s.str(),content_1,content_3);
+    }
+    if (!HistValFunctions::floatCompat(error_1,error_3,errorCompatEpsilon)) {
+      s << "[TProfile vs. TProfile_LW] error from GetBinInfo("<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<")";
+      HistValFunctions::test(s.str(),error_1,error_3);
+    }
+  }
+}
+
+//____________________________________________________________________
+void HistValProfile::compareMetaData() const
+{
+  HistValFunctions::compareMetaData(m_h1, m_h2);
+}
+
+//____________________________________________________________________
+void HistValProfile::compareTH1s() const
+{
+  if (converted())
+    {
+      assert(m_h1->GetName()[0]==':');
+    }
+
+  std::string name1(m_h1->GetName());
+
+  TProfile * th1_gen(0);
+  if (!converted()) {
+    m_h1->SetName((name1+"tmp").c_str());
+    LWHistControls::setCleanupOnGetROOT(false);
+    m_h2->SetName("tmpname");
+    th1_gen = m_h2->getROOTHist();
+    LWHistControls::setCleanupOnGetROOT(true);
+  } else {
+    th1_gen = m_h2->getROOTHist();
+  }
+
+
+  if (!th1_gen)
+    HistValFunctions::testfailed("getROOTHist(..) returns null!");
+
+  if (!converted())
+    HistValFunctions::test("[TH1-level] GetName()",std::string("tmpname"),th1_gen->GetName());
+  else
+    HistValFunctions::test("[TH1-level] GetName()",&(m_h1->GetName()[11]),th1_gen->GetName());//"stripping off "::trigger::"
+
+  //Test various meta data including type and other state data:
+  HistValFunctions::test("[TH1-level] GetTitle()",m_h1->GetTitle(), th1_gen->GetTitle());
+  HistValFunctions::test("[TH1-level] ClassName()",m_h1->ClassName(), th1_gen->ClassName());
+
+  HistValFunctions::test("[TH1-level] GetYmin()",m_h1->GetYmin(), th1_gen->GetYmin());
+  HistValFunctions::test("[TH1-level] GetYmax()",m_h1->GetYmax(), th1_gen->GetYmax());
+
+  HistValFunctions::compareBinContents_1D(m_h1,th1_gen,true/*relaxedErrorComparison*/);
+  HistValFunctions::compareFields(m_h1,th1_gen);
+
+  //NB: ROOT very suspicious behaviour!!!: When calling GetStats
+  //(directly or from GetRMS, GetMean, GetRMSError, GetMeanError), and
+  //fTsumwy and fTsumwy2 are both 0, it casts away the constness and
+  //sets those two variables. ARRRGH. Thus we don't call any of those
+  //methods here.
+
+  // -> And all other supported state data...
+//   HistValFunctions::test("[TH1-level] GetRMS()",m_h1->GetRMS(), th1_gen->GetRMS());
+//   HistValFunctions::test("[TH1-level] GetMean()",m_h1->GetMean(), th1_gen->GetMean());
+//   HistValFunctions::test("[TH1-level] GetMeanError()",m_h1->GetMeanError(), th1_gen->GetMeanError());
+  //HistValFunctions::test("[TH1-level] ComputeIntegral()",m_h1->ComputeIntegral(), th1_gen->ComputeIntegral());
+  HistValFunctions::test("[TH1-level] Integral()",m_h1->Integral(), th1_gen->Integral());
+
+  //TODO: Compare more axes values (like min and max, nbins etc.)!!
+  const TArrayD * h1_xbins = m_h1->GetXaxis()->GetXbins();
+  const TArrayD * gen_xbins = th1_gen->GetXaxis()->GetXbins();
+  if ((h1_xbins!=0)!=(gen_xbins!=0))
+    HistValFunctions::testfailed("2D hist has inconsistent presence of xbins");
+  if (h1_xbins&&gen_xbins)
+    HistValFunctions::test("[TH1-level] GetXaxis()->GetXbins()->GetSize()",h1_xbins->GetSize(), gen_xbins->GetSize());
+
+  HistValFunctions::compareBinContents_1D(m_h1, m_h2,true/*relaxedErrorComparison*/);
+  HistValFunctions::compareBinContents_1D(th1_gen, m_h2,true/*relaxedErrorComparison*/);
+  HistValFunctions::compareBinContents_1D(th1_gen, m_h1,true/*relaxedErrorComparison*/);
+  HistValFunctions::compareMetaData(static_cast<TProfile*>(th1_gen), m_h2,true/*ignore name*/);
+  HistValFunctions::compareMetaData(m_h1, m_h2,true/*ignore name*/);
+
+  if (!converted()) {
+    LWHistVal::clearKeptROOTHist(m_h2);//deletes th1_gen
+    m_h1->SetName(name1.c_str());
+    m_h2->SetName(name1.c_str());
+  }
+}
+
+//____________________________________________________________________
+void HistValProfile::compareFastLoop() const
+{
+}
+
+
+//____________________________________________________________________
+void HistValProfile::setXAxis_BinLabel(unsigned bin, const char* label)
+{
+  m_h1->GetXaxis()->SetBinLabel(bin,label);
+  m_h2->GetXaxis()->SetBinLabel(bin,label);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setYAxis_BinLabel(unsigned bin, const char* label)
+{
+  m_h1->GetYaxis()->SetBinLabel(bin,label);
+  m_h2->GetYaxis()->SetBinLabel(bin,label);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setXAxis_LabelSize(float s)
+{
+  m_h1->GetXaxis()->SetLabelSize(s);
+  m_h2->GetXaxis()->SetLabelSize(s);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setYAxis_LabelSize(float s)
+{
+  m_h1->GetYaxis()->SetLabelSize(s);
+  m_h2->GetYaxis()->SetLabelSize(s);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setXAxis_Title(const std::string&t)
+{
+  m_h1->GetXaxis()->SetTitle(t.c_str());
+  m_h2->GetXaxis()->SetTitle(t.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setYAxis_Title(const std::string&t)
+{
+  m_h1->GetYaxis()->SetTitle(t.c_str());
+  m_h2->GetYaxis()->SetTitle(t.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setZAxis_Title(const std::string&t)
+{
+  m_h1->GetZaxis()->SetTitle(t.c_str());
+  m_h2->GetZaxis()->SetTitle(t.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::SetMarkerColor( short c)
+{
+  m_h1->SetMarkerColor(c);
+  m_h2->SetMarkerColor(c);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::SetMarkerStyle( short s )
+{
+  m_h1->SetMarkerStyle(s);
+  m_h2->SetMarkerStyle(s);
+  assert(m_h1->GetMarkerStyle()==s);
+  assert(m_h2->GetMarkerStyle()==s);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::SetMarkerSize( float sz)
+{
+  m_h1->SetMarkerSize(sz);
+  m_h2->SetMarkerSize(sz);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setMinimum( const double& m )
+{
+  m_h1->SetMinimum(m);
+  m_h2->SetMinimum(m);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setMaximum( const double& m )
+{
+  m_h1->SetMaximum(m);
+  m_h2->SetMaximum(m);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setName(const std::string& name)
+{
+  m_h1->SetName(convertedRootName(name).c_str());
+  m_h2->SetName(name.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setTitle(const std::string& title)
+{
+  m_h1->SetTitle(title.c_str());
+  m_h2->SetTitle(title.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+void HistValProfile::setNameTitle(const std::string& name,
+                                  const std::string& title)
+{
+  m_h1->SetNameTitle(convertedRootName(name).c_str(),title.c_str());
+  m_h2->SetNameTitle(name.c_str(),title.c_str());
+  this->titleOrNameWasChanged();
+}

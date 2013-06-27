@@ -1,0 +1,30 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+//____________________________________________________________________
+inline char* LWPool::acquire()
+{
+  char * c = (m_likelyNonEmptyArea?m_likelyNonEmptyArea->acquire():0);
+  return c ? c : searchAcquire();
+}
+
+
+//____________________________________________________________________
+inline bool LWPool::belongsInArea(char*c,LWPoolArea*a) const
+{
+  return c>reinterpret_cast<char*>(a) && c<reinterpret_cast<char*>(a)+m_growsize;
+}
+
+//____________________________________________________________________
+inline void LWPool::release(char*c)
+{
+  assert(!m_likelyReleaseArea||(m_likelyReleaseArea->belongsInArea(c)==belongsInArea(c,m_likelyReleaseArea)));
+  if (!m_likelyReleaseArea||!belongsInArea(c,m_likelyReleaseArea))
+    m_likelyReleaseArea = findArea(c);
+  assert(m_likelyReleaseArea);
+  m_likelyReleaseArea->release(c);
+  if (m_likelyReleaseArea->isUnused()&&!isMotherPool())//NB: Mother pool never releases!!!!
+    freeArea(m_likelyReleaseArea);
+}

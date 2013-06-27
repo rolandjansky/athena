@@ -1,0 +1,391 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <vector>
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+HistVal1D<TH_1D,THLW_1D>::HistVal1D( const std::string& name,
+                                     const std::string& title,
+                                     int nbins,
+                                     const double& xmin,
+                                     const double& xmax )
+  : HistValBase()
+{
+  m_h1 = new TH_1D(name.c_str(),title.c_str(),nbins,xmin,xmax);
+  m_h2 = THLW_1D::create(name.c_str(),title.c_str(),nbins,xmin,xmax);
+  compareMetaData();
+
+  if (HistVal_trigger_conversion_all)
+    triggerConversionToROOTHist();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+template <class TFloat>
+HistVal1D<TH_1D,THLW_1D>::HistVal1D( const std::string& name,
+                                     const std::string& title,
+                                     int nbins,
+                                     const TFloat* xbins )
+{
+  m_h1 = new TH_1D(name.c_str(),title.c_str(),nbins,xbins);
+  m_h2 = THLW_1D::create(name.c_str(),title.c_str(),nbins,xbins);
+  compareMetaData();
+  if (HistVal_trigger_conversion_all)
+    triggerConversionToROOTHist();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+HistVal1D<TH_1D,THLW_1D>::~HistVal1D()
+{
+  compareAll();
+  delete m_h1;
+  LWHist::safeDelete(m_h2);
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+unsigned HistVal1D<TH_1D,THLW_1D>::getXAxis_NBins() const
+{
+  return m_h1->GetXaxis()->GetNbins();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+unsigned HistVal1D<TH_1D,THLW_1D>::getYAxis_NBins() const
+{
+  return m_h1->GetYaxis()->GetNbins();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setXAxis_BinLabel(unsigned bin, const char* label)
+{
+  m_h1->GetXaxis()->SetBinLabel(bin,label);
+  m_h2->GetXaxis()->SetBinLabel(bin,label);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setYAxis_BinLabel(unsigned bin, const char* label)
+{
+  m_h1->GetYaxis()->SetBinLabel(bin,label);
+  m_h2->GetYaxis()->SetBinLabel(bin,label);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setXAxis_LabelSize(float s)
+{
+  m_h1->GetXaxis()->SetLabelSize(s);
+  m_h2->GetXaxis()->SetLabelSize(s);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setYAxis_LabelSize(float s)
+{
+  m_h1->GetYaxis()->SetLabelSize(s);
+  m_h2->GetYaxis()->SetLabelSize(s);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setXAxis_Title(const std::string&t)
+{
+  m_h1->GetXaxis()->SetTitle(t.c_str());
+  m_h2->GetXaxis()->SetTitle(t.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setYAxis_Title(const std::string&t)
+{
+  m_h1->GetYaxis()->SetTitle(t.c_str());
+  m_h2->GetYaxis()->SetTitle(t.c_str());
+  this->titleOrNameWasChanged();
+}
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setZAxis_Title(const std::string&t)
+{
+  m_h1->GetZaxis()->SetTitle(t.c_str());
+  m_h2->GetZaxis()->SetTitle(t.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::SetMarkerColor( short c)
+{
+  m_h1->SetMarkerColor(c);
+  m_h2->SetMarkerColor(c);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::SetMarkerStyle( short s )
+{
+  m_h1->SetMarkerStyle(s);
+  m_h2->SetMarkerStyle(s);
+  assert(m_h1->GetMarkerStyle()==s);
+  assert(m_h2->GetMarkerStyle()==s);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::SetMarkerSize( float sz)
+{
+  m_h1->SetMarkerSize(sz);
+  m_h2->SetMarkerSize(sz);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setMinimum( const double& m )
+{
+  m_h1->SetMinimum(m);
+  m_h2->SetMinimum(m);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setMaximum( const double& m )
+{
+  m_h1->SetMaximum(m);
+  m_h2->SetMaximum(m);
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setName(const std::string& name)
+{
+  m_h1->SetName(convertedRootName(name).c_str());
+  m_h2->SetName(name.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setTitle(const std::string& title)
+{
+  m_h1->SetTitle(title.c_str());
+  m_h2->SetTitle(title.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setNameTitle(const std::string& name,
+                                            const std::string& title)
+{
+  m_h1->SetNameTitle(convertedRootName(name).c_str(),title.c_str());
+  m_h2->SetNameTitle(name.c_str(),title.c_str());
+  this->titleOrNameWasChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::fill(const double& x)
+{
+  if (int(m_h2->GetXaxis()->FindBin(x))!=m_h1->GetXaxis()->FindBin(x)) {
+    //repeat test at x+epsilon to not get false positives since
+    //LWHists use float* internally rather than double*:
+    HistValFunctions::test("[TH1-level] GetXaxis()->FindBin()",m_h1->GetXaxis()->FindBin(x+1.0e-5),int(m_h2->GetXaxis()->FindBin(x+1.0e-5)));
+  }
+  m_h1->Fill(x);
+  m_h2->Fill(x);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::fill(const double& x, const double& w)
+{
+  m_h1->Fill(x,w);
+  m_h2->Fill(x,w);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setBinContent(unsigned bin, const double& content)
+{
+  //FIXME: I can't figure out why I can't have the next ifdef uncommented!!!
+// #ifndef LW_STRICT_ROOT_BEHAVIOUR
+  if (bin>getXAxis_NBins())//problems in root even in overflow bin
+    return;
+// #else
+//   if (bin>getXAxis_NBins()+1)//problems in root even in overflow bin
+//     return;
+// #endif
+  m_h1->SetBinContent(bin,content);
+  m_h2->SetBinContent(bin,content);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setBinError(unsigned bin, const double& error)
+{
+#ifndef LW_STRICT_ROOT_BEHAVIOUR
+  if (bin>getXAxis_NBins()+1)
+    return;
+#endif
+  m_h1->SetBinError(bin,error);
+  m_h2->SetBinError(bin,error);
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::setBinContentAndError(unsigned bin, const double& content,const double& error)
+{
+#ifndef LW_STRICT_ROOT_BEHAVIOUR
+  if (bin>getXAxis_NBins()+1)
+    return;
+#endif 
+  if (bin>getXAxis_NBins()) {
+    //only fill errors (to align with if-statements above)... not great:
+    m_h1->SetBinError(bin,error);
+    m_h2->SetBinError(bin,error);
+  } else {
+    m_h1->SetBinContent(bin,content);
+    m_h1->SetBinError(bin,error);
+    m_h2->SetBinContentAndError(bin,content,error);
+  }
+  this->binContentsChanged();
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::compareBinContents() const
+{
+  HistValFunctions::compareBinContents_1D(m_h1,m_h2);
+  //Also check the getbincontentanderror:
+  const int n = m_h1->GetNbinsX();
+  double cont2, err2;
+  for (int i=0;i<=n+1;++i) {
+    m_h2->GetBinContentAndError(i,cont2,err2);
+    if (!HistValFunctions::compatible(m_h1->GetBinContent(i),cont2)) {
+      std::ostringstream s;
+      s << "["<<typeid(TH_1D).name()<<" vs. "<<typeid(THLW_1D).name()<<"] Bin content from GetBinContentAndError [ibin="<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<"]";
+      HistValFunctions::test(s.str(),m_h1->GetBinContent(i),cont2);
+    }
+    if (!HistValFunctions::compatible(m_h1->GetBinError(i),err2)) {
+      std::ostringstream s;
+      s << "["<<typeid(TH_1D).name()<<" vs. "<<typeid(THLW_1D).name()<<"] Bin error from GetBinContentAndError [ibin="<<i<<", nbins="<<n<<", ninternalbins="<<n+2<<"]";
+      HistValFunctions::test(s.str(),m_h1->GetBinError(i),err2);
+    }
+  }
+
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::compareMetaData() const
+{
+  HistValFunctions::compareMetaData(m_h1, m_h2);
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::compareTH1s() const
+{
+  assert(m_h1->GetMarkerStyle()==m_h2->GetMarkerStyle());
+  std::string name1(m_h1->GetName());
+  TH1 * th1_gen(0);
+  if (!converted()) {
+    m_h1->SetName((name1+"tmp").c_str());
+    LWHistControls::setCleanupOnGetROOT(false);
+    m_h2->SetName("tmpname");
+    th1_gen = m_h2->getROOTHist();
+    LWHistControls::setCleanupOnGetROOT(true);
+  } else {
+    th1_gen = m_h2->getROOTHist();
+  }
+  if (!th1_gen)
+    HistValFunctions::testfailed("getROOTHist(..) returns null!");
+
+  if (!converted())
+    HistValFunctions::test("[TH1-level] GetName()",std::string("tmpname"),th1_gen->GetName());
+  else
+    HistValFunctions::test("[TH1-level] GetName()",&(m_h1->GetName()[11]),th1_gen->GetName());//"stripping off "::trigger::"
+
+  //Test various meta data including type and other state data:
+  HistValFunctions::test("[TH1-level] GetTitle()",m_h1->GetTitle(), th1_gen->GetTitle());
+  HistValFunctions::test("[TH1-level] ClassName()",m_h1->ClassName(), th1_gen->ClassName());
+
+  //Should test axes also:
+  HistValFunctions::test("[TH1-level] GetXTitle()",m_h1->GetXaxis()->GetTitle(), th1_gen->GetXaxis()->GetTitle());
+  HistValFunctions::test("[TH1-level] GetYTitle()",m_h1->GetYaxis()->GetTitle(), th1_gen->GetYaxis()->GetTitle());
+  HistValFunctions::test("[TH1-level] GetZTitle()",m_h1->GetZaxis()->GetTitle(), th1_gen->GetZaxis()->GetTitle());
+
+  HistValFunctions::compareBinContents_1D(m_h1,th1_gen);
+  HistValFunctions::compareFields(m_h1,th1_gen);
+
+  // -> And all other supported state data...
+  HistValFunctions::test("[TH1-level] GetRMS()",m_h1->GetRMS(), th1_gen->GetRMS());
+  HistValFunctions::test("[TH1-level] GetMean()",m_h1->GetMean(), th1_gen->GetMean());
+  HistValFunctions::test("[TH1-level] GetMeanError()",m_h1->GetMeanError(), th1_gen->GetMeanError());
+  //HistValFunctions::test("[TH1-level] ComputeIntegral()",m_h1->ComputeIntegral(), th1_gen->ComputeIntegral());
+  HistValFunctions::test("[TH1-level] Integral()",m_h1->Integral(), th1_gen->Integral());
+
+  //TODO: Compare more axes values (like min and max, nbins etc.)!!
+  const TArrayD * h1_xbins = m_h1->GetXaxis()->GetXbins();
+  const TArrayD * gen_xbins = th1_gen->GetXaxis()->GetXbins();
+  if ((h1_xbins!=0)!=(gen_xbins!=0))
+    HistValFunctions::testfailed("2D hist has inconsistent presence of xbins");
+  if (h1_xbins&&gen_xbins)
+    HistValFunctions::test("[TH1-level] GetXaxis()->GetXbins()->GetSize()",h1_xbins->GetSize(), gen_xbins->GetSize());
+
+  HistValFunctions::compareBinContents_1D(m_h1, m_h2);
+  HistValFunctions::compareBinContents_1D(th1_gen, m_h2);
+  HistValFunctions::compareBinContents_1D(th1_gen, m_h1);
+  HistValFunctions::compareMetaData(static_cast<TH_1D*>(th1_gen), m_h2,true/*ignore name*/);
+  HistValFunctions::compareMetaData(m_h1, m_h2,true/*ignore name*/);
+
+
+  if (!converted()) {
+    LWHistVal::clearKeptROOTHist(m_h2);//deletes th1_gen
+    m_h1->SetName(name1.c_str());
+    m_h2->SetName(name1.c_str());
+  }
+
+}
+
+//____________________________________________________________________
+template <class TH_1D, class THLW_1D>
+void HistVal1D<TH_1D,THLW_1D>::compareFastLoop() const
+{
+  const unsigned nbins = m_h2->GetNbinsX();
+  std::vector<std::pair<unsigned,std::pair<double,double> > > active_bins_direct, active_bins_fastloop;
+  unsigned ibin;
+  double c,e;
+  for (ibin=0;ibin<=nbins+1;++ibin) {
+    c = m_h1->GetBinContent(ibin);
+    e = m_h1->GetBinError(ibin);
+    if (c!=0||e!=0)
+      active_bins_direct.push_back(std::pair<unsigned,std::pair<double,double> >(ibin,std::make_pair(c,e)));
+  }
+  m_h2->resetActiveBinLoop();
+  while(m_h2->getNextActiveBin(ibin, c, e))
+    active_bins_fastloop.push_back(std::pair<unsigned,std::pair<double,double> >(ibin,std::make_pair(c,e)));
+  if (!HistValFunctions::compatible(active_bins_direct,active_bins_fastloop)) {
+    std::cout<<"--> Correct bins:  "<<  HistValFunctions::toString(active_bins_direct)<<std::endl;;
+    std::cout<<"--> Fastloop bins: "<<  HistValFunctions::toString(active_bins_fastloop)<<std::endl;;
+    HistValFunctions::testfailed("Fast-looping did not return correct active bins");
+  }
+}

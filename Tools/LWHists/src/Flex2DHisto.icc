@@ -1,0 +1,621 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+//____________________________________________________________________
+template <class T>
+inline Flex2DHisto<T> * Flex2DHisto<T>::create( unsigned nbinsx, const double& xmin, const double& xmax,
+						unsigned nbinsy, const double& ymin, const double& ymax )
+{
+  return new(LWPools::acquire(sizeof(Flex2DHisto<T>)+extraAllocSize(nbinsx,nbinsy))) Flex2DHisto<T>(nbinsx,xmin,xmax,nbinsy,ymin,ymax);
+}
+
+//____________________________________________________________________
+template <class T>
+template <class TFloat>
+inline Flex2DHisto<T> * Flex2DHisto<T>::create( unsigned nbinsx, const TFloat* xbins,
+						unsigned nbinsy, const double& ymin, const double& ymax )
+{
+  return new(LWPools::acquire(sizeof(Flex2DHisto<T>)+extraAllocSize(nbinsx,nbinsy))) Flex2DHisto<T>(nbinsx,xbins,nbinsy,ymin,ymax);
+}
+
+//____________________________________________________________________
+template <class T>
+template <class TFloat>
+inline Flex2DHisto<T> * Flex2DHisto<T>::create( unsigned nbinsx, const double& xmin, const double& xmax,
+						unsigned nbinsy, const TFloat* ybins )
+{
+  return new(LWPools::acquire(sizeof(Flex2DHisto<T>)+extraAllocSize(nbinsx,nbinsy))) Flex2DHisto<T>(nbinsx,xmin,xmax,nbinsy,ybins);
+}
+
+//____________________________________________________________________
+template <class T>
+template <class TFloat>
+inline Flex2DHisto<T> * Flex2DHisto<T>::create( unsigned nbinsx, const TFloat*xbins,
+						unsigned nbinsy, const TFloat*ybins )
+{
+  return new(LWPools::acquire(sizeof(Flex2DHisto<T>)+extraAllocSize(nbinsx,nbinsy))) Flex2DHisto<T>(nbinsx,xbins,nbinsy,ybins);
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::destroy(Flex2DHisto<T> *h)
+{
+  if (h) {
+    h->~Flex2DHisto<T>();
+    LWPools::release(reinterpret_cast<char*>(h),sizeof(Flex2DHisto<T>)+extraAllocSize(h->getNBinsX(),h->getNBinsY()));
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline Flex2DHisto<T>::Flex2DHisto( unsigned nbinsx, const double& xmin, const double& xmax,
+			     unsigned nbinsy, const double& ymin, const double& ymax )
+  : m_invDeltaX(nbinsx/(xmax-xmin)),
+    m_invDeltaY(nbinsy/(ymax-ymin)),
+    m_sumW(0),
+    m_sumW2(0),
+    m_sumWX(0),
+    m_sumWX2(0),
+    m_sumWY(0),
+    m_sumWY2(0),
+    m_sumWXY(0),
+    m_nEntries(0),
+    m_nbinsxPlus1(nbinsx+1),
+    m_nbinsyPlus1(nbinsy+1),
+    m_nbinsxPlus2(nbinsx+2),
+    m_xmin(xmin),
+    m_xmax(xmax),
+    m_ymin(ymin),
+    m_ymax(ymax),
+    m_varBinsX(0),
+    m_varBinsY(0),
+    m_flexArray((nbinsx+2)*(nbinsy+2))
+{
+  assert(xmin<xmax);
+  assert(ymin<ymax);
+  assert(nbinsx>0);
+  assert(nbinsy>0);
+  assert(getNBinsX()==nbinsx);
+  assert(getNBinsY()==nbinsy);
+}
+
+//____________________________________________________________________
+template <class T>
+template <class TFloat>
+inline Flex2DHisto<T>::Flex2DHisto( unsigned nbinsx, const TFloat*xbins,
+			     unsigned nbinsy, const double& ymin, const double& ymax )
+  : m_invDeltaX(nbinsx/(xbins[nbinsx]-xbins[0])),
+    m_invDeltaY(nbinsy/(ymax-ymin)),
+    m_sumW(0),
+    m_sumW2(0),
+    m_sumWX(0),
+    m_sumWX2(0),
+    m_sumWY(0),
+    m_sumWY2(0),
+    m_sumWXY(0),
+    m_nEntries(0),
+    m_nbinsxPlus1(nbinsx+1),
+    m_nbinsyPlus1(nbinsy+1),
+    m_nbinsxPlus2(nbinsx+2),
+    m_xmin(xbins[0]),
+    m_xmax(xbins[nbinsx]),
+    m_ymin(ymin),
+    m_ymax(ymax),
+    m_varBinsX(LWPools::acquire<float>(nbinsx+1)),
+    m_varBinsY(0),
+    m_flexArray((nbinsx+2)*(nbinsy+2))
+{
+  assert(m_xmin<m_xmax);
+  assert(m_ymin<m_ymax);
+  assert(nbinsx>0);
+  assert(nbinsy>0);
+#ifndef NDEBUG
+  for (unsigned i = 0; i<nbinsx;++i)
+    assert(xbins[i]<xbins[i+1]);
+#endif
+  for (unsigned i = 0; i<m_nbinsxPlus1;++i)
+    m_varBinsX[i]=xbins[i];
+}
+
+//____________________________________________________________________
+template <class T>
+template <class TFloat>
+inline Flex2DHisto<T>::Flex2DHisto( unsigned nbinsx, const double& xmin, const double& xmax,
+			     unsigned nbinsy, const TFloat* ybins )
+  : m_invDeltaX(nbinsx/(xmax-xmin)),
+    m_invDeltaY(nbinsy/(ybins[nbinsy]-ybins[0])),
+    m_sumW(0),
+    m_sumW2(0),
+    m_sumWX(0),
+    m_sumWX2(0),
+    m_sumWY(0),
+    m_sumWY2(0),
+    m_sumWXY(0),
+    m_nEntries(0),
+    m_nbinsxPlus1(nbinsx+1),
+    m_nbinsyPlus1(nbinsy+1),
+    m_nbinsxPlus2(nbinsx+2),
+    m_xmin(xmin),
+    m_xmax(xmax),
+    m_ymin(ybins[0]),
+    m_ymax(ybins[nbinsy]),
+    m_varBinsX(0),
+    m_varBinsY(LWPools::acquire<float>(nbinsy+1)),
+    m_flexArray((nbinsx+2)*(nbinsy+2))
+{
+  assert(m_xmin<m_xmax);
+  assert(m_ymin<m_ymax);
+  assert(nbinsx>0);
+  assert(nbinsy>0);
+#ifndef NDEBUG
+  for (unsigned i = 0; i<nbinsy;++i)
+    assert(ybins[i]<ybins[i+1]);
+#endif
+  for (unsigned i = 0; i<m_nbinsyPlus1;++i)
+    m_varBinsY[i]=ybins[i];
+}
+//____________________________________________________________________
+template <class T>
+template <class TFloat>
+inline Flex2DHisto<T>::Flex2DHisto( unsigned nbinsx, const TFloat* xbins,
+			     unsigned nbinsy, const TFloat* ybins )
+  : m_invDeltaX(nbinsx/(xbins[nbinsx]-xbins[0])),
+    m_invDeltaY(nbinsy/(ybins[nbinsy]-ybins[0])),
+    m_sumW(0),
+    m_sumW2(0),
+    m_sumWX(0),
+    m_sumWX2(0),
+    m_sumWY(0),
+    m_sumWY2(0),
+    m_sumWXY(0),
+    m_nEntries(0),
+    m_nbinsxPlus1(nbinsx+1),
+    m_nbinsyPlus1(nbinsy+1),
+    m_nbinsxPlus2(nbinsx+2),
+    m_xmin(xbins[0]),
+    m_xmax(xbins[nbinsx]),
+    m_ymin(ybins[0]),
+    m_ymax(ybins[nbinsy]),
+    m_varBinsX(LWPools::acquire<float>(nbinsx+1)),
+    m_varBinsY(LWPools::acquire<float>(nbinsy+1)),
+    m_flexArray((nbinsx+2)*(nbinsy+2))
+{
+  assert(m_xmin<m_xmax);
+  assert(m_ymin<m_ymax);
+  assert(nbinsx>0);
+  assert(nbinsy>0);
+#ifndef NDEBUG
+  for (unsigned i = 0; i<nbinsx;++i)
+    assert(xbins[i]<xbins[i+1]);
+  for (unsigned i = 0; i<nbinsy;++i)
+    assert(ybins[i]<ybins[i+1]);
+#endif
+  for (unsigned i = 0; i<m_nbinsxPlus1;++i)
+    m_varBinsX[i]=xbins[i];
+  for (unsigned i = 0; i<m_nbinsyPlus1;++i)
+    m_varBinsY[i]=ybins[i];
+}
+
+//____________________________________________________________________
+template <class T>
+inline Flex2DHisto<T>::~Flex2DHisto()
+{
+  if (m_varBinsX)
+    LWPools::release(m_varBinsX,m_nbinsxPlus1);
+  if (m_varBinsY)
+    LWPools::release(m_varBinsY,m_nbinsyPlus1);
+}
+
+//____________________________________________________________________
+template <class T>
+inline unsigned Flex2DHisto<T>::valueToXBin(const double& x) const
+{
+  return LWBinUtils::valueToBin( x, m_varBinsX, m_invDeltaX, m_xmin, m_xmax, m_nbinsxPlus1 );
+}
+
+//____________________________________________________________________
+template <class T>
+inline unsigned Flex2DHisto<T>::valueToYBin(const double& y) const
+{
+  return LWBinUtils::valueToBin( y, m_varBinsY, m_invDeltaY,m_ymin, m_ymax, m_nbinsyPlus1 );
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getBinCenterX(int bin) const
+{
+  return LWBinUtils::getBinCenter( bin, m_varBinsX,m_invDeltaX, m_xmin,m_nbinsxPlus1);
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getBinCenterY(int bin) const
+{
+  return LWBinUtils::getBinCenter( bin, m_varBinsY,m_invDeltaY, m_ymin,m_nbinsyPlus1);
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::fill(const double& x, const double& y)
+{
+  unsigned binx(valueToXBin(x)), biny(valueToYBin(y));
+#ifndef NDEBUG
+  if (binx==USHRT_MAX||biny==USHRT_MAX)
+    return;
+#endif
+  m_flexArray.fill(internal_bin(binx,biny));
+  //Update stats (sums not for over/under flow):
+  ++m_nEntries;
+  if (binx>0&&binx<m_nbinsxPlus1
+      &&biny>0&&biny<m_nbinsyPlus1) {
+    ++m_sumW;
+    ++m_sumW2;
+    m_sumWX  += x;
+    m_sumWX2 += x*x;
+    m_sumWY  += y;
+    m_sumWY2 += y*y;
+    m_sumWXY += x*y;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::fill(const double& x, const double& y, const double& w)
+{
+#ifndef NDEBUG
+  if (w!=w) {
+    std::cout<<"LWHisto: Saw NaN in fill weight"<<std::endl;
+    return;
+  }
+#endif
+  unsigned binx(valueToXBin(x)), biny(valueToYBin(y));
+#ifndef NDEBUG
+  if (binx==USHRT_MAX||biny==USHRT_MAX)
+    return;
+#endif
+  m_flexArray.fill(internal_bin(binx,biny),w);
+  //Update stats (sums not for over/under flow):
+  ++m_nEntries;
+  if (binx>0&&binx<m_nbinsxPlus1
+      &&biny>0&&biny<m_nbinsyPlus1) {
+    //NB: root used to use fabs(w) instead of w in the formulas below:
+    m_sumW += w;
+    m_sumW2 += w*w;
+    const double tmpwy(w*y);
+    m_sumWY  += tmpwy;
+    m_sumWY2 += tmpwy*y;
+    const double tmpwx(w*x);
+    m_sumWX  += tmpwx;
+    m_sumWX2 += tmpwx*x;
+    m_sumWXY += tmpwx*y;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline unsigned Flex2DHisto<T>::getEntries() const
+{
+  return m_nEntries;
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::setEntries(unsigned n)
+{
+  m_nEntries = n;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumW() const
+{
+  return m_sumW;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumW2() const
+{
+  return m_sumW2;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumWX() const
+{
+  return m_sumWX;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumWX2() const
+{
+  return m_sumWX2;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumWY() const
+{
+  return m_sumWY;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumWY2() const
+{
+  return m_sumWY2;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getSumWXY() const
+{
+  return m_sumWXY;
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::setSums( const double& sumW,
+			      const double& sumW2,
+			      const double& sumWX,
+			      const double& sumWX2,
+			      const double& sumWY,
+			      const double& sumWY2,
+			      const double& sumWXY )
+{
+  m_sumW = sumW;
+  m_sumW2 = sumW2;
+  m_sumWX = sumWX;
+  m_sumWX2 = sumWX2;
+  m_sumWY = sumWY;
+  m_sumWY2 = sumWY2;
+  m_sumWXY = sumWXY;
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::copyContents(T*__restrict__ cont, double*__restrict__ err) const
+{
+  m_flexArray.copyContents(cont,err);
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::Integral() const
+{
+  double overflowbins( getBinContent(0,0)
+		      +getBinContent(m_nbinsxPlus1,0)
+		      +getBinContent(0,m_nbinsyPlus1)
+		      +getBinContent(m_nbinsxPlus1,m_nbinsyPlus1));
+  for (unsigned ybin=1;ybin<m_nbinsyPlus1;++ybin) {
+    overflowbins += getBinContent(0,ybin);
+    overflowbins += getBinContent(m_nbinsxPlus1,ybin);
+  }
+  for (unsigned xbin=1;xbin<m_nbinsxPlus1;++xbin) {
+    overflowbins += getBinContent(xbin,0);
+    overflowbins += getBinContent(xbin,m_nbinsyPlus1);
+  }
+  return m_flexArray.Integral()-overflowbins;
+}
+
+//____________________________________________________________________
+template <class T>
+inline bool Flex2DHisto<T>::holdsSeparateSumW2Info() const
+{
+  return m_flexArray.holdsSeparateSumW2Info();
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getBinContent(unsigned binx, unsigned biny) const
+{
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (binx>m_nbinsxPlus1) binx = m_nbinsxPlus1;
+  if (biny>m_nbinsyPlus1) biny = m_nbinsyPlus1;
+#else
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1)
+    return 0.0;
+#endif
+  assert(binx<m_nbinsxPlus1+1);
+  assert(biny<m_nbinsyPlus1+1);
+  return m_flexArray.getBinContent(internal_bin(binx,biny));
+}
+
+//____________________________________________________________________
+template <class T>
+inline double Flex2DHisto<T>::getBinError(unsigned binx,unsigned biny) const
+{
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (binx>m_nbinsxPlus1) binx = m_nbinsxPlus1;
+  if (biny>m_nbinsyPlus1) biny = m_nbinsyPlus1;
+#else
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1)
+    return 0.0;
+#endif
+  return m_flexArray.getBinError(internal_bin(binx,biny));
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::getBinContentAndError(unsigned binx, unsigned biny, double& cont, double& err ) const
+{
+  //float/integer version
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (binx>m_nbinsxPlus1) binx = m_nbinsxPlus1;
+  if (biny>m_nbinsyPlus1) biny = m_nbinsyPlus1;
+#else
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {
+    cont = 0;
+    err = 0;
+    return;
+  }
+#endif
+  T tmp;
+  m_flexArray.getBinContentAndError(internal_bin(binx,biny),tmp,err);
+  cont = static_cast<double>(tmp);
+}
+
+
+//____________________________________________________________________
+template <>
+inline void Flex2DHisto<double>::getBinContentAndError(unsigned binx, unsigned biny, double& cont, double& err ) const
+{
+  //double version
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (binx>m_nbinsxPlus1) binx = m_nbinsxPlus1;
+  if (biny>m_nbinsyPlus1) biny = m_nbinsyPlus1;
+#else
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {
+    cont = 0;
+    err = 0;
+    return;
+  }
+#endif
+
+  m_flexArray.getBinContentAndError(internal_bin(binx,biny),cont,err);
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::setBinContent(unsigned binx, unsigned biny, const double& c)
+{
+  //Weird root behaviour: For 2D version of setBinContent we wrap rather than ignore:
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (binx>m_nbinsxPlus1)
+    binx = m_nbinsxPlus1;
+  if (biny>m_nbinsyPlus1)
+    biny = m_nbinsyPlus1;
+#else
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1)
+    return;
+#endif
+  m_flexArray.setBinContent(internal_bin(binx,biny),static_cast<T>(c));
+  //This is how it is done in ROOT, but is it really appropriate??:
+  ++m_nEntries;
+  m_sumW = 0;//As in ROOT
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::setBinError(unsigned binx, unsigned biny, const double& e)
+{
+  //Weird root behaviour: For 2D version of setBinError we ignore rather than wrap:
+   if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {//as in root
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+     m_flexArray.forcePretendSumWMode();
+#endif
+     return;
+   }
+  m_flexArray.setBinError(internal_bin(binx,biny),e);
+}
+
+//Weird ROOT behaviour (should file bug report): for get/set
+//bincontent/binerror 1D/2D we have different choices of what to do
+//with bins out of range... (constrain to valid value vs. ignore).
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::setBinContentAndError(unsigned binx, unsigned biny, const double& cont, const double& err )
+{
+  if (binx>m_nbinsxPlus1||biny>m_nbinsyPlus1) {
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+    //Annoyingly enough, root has differnt behaviour for SetBinContent
+    //(wrap) and SetBinError (ignore) in this case:
+    setBinContent(binx,biny,cont);
+    m_flexArray.forcePretendSumWMode();
+#endif
+    return;
+  }
+  m_flexArray.setBinContentAndError(internal_bin(binx,biny),static_cast<T>(cont),err);
+  //FIXME: It seems that the next two lines are not executed for the last bin in ROOT!!!!!!!
+  ++m_nEntries;
+  m_sumW = 0;//As in ROOT
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::resetActiveBinLoop()
+{
+  m_flexArray.resetActiveBinLoop();
+}
+
+//____________________________________________________________________
+template <class T>
+inline bool Flex2DHisto<T>::getNextActiveBin(unsigned& binx, unsigned&biny, double& content, double& error)
+{
+  //float/integer version
+  unsigned internalbin;
+  T tmp;
+  if (m_flexArray.getNextActiveBin(internalbin,tmp,error)) {
+    binx = internalbin % m_nbinsxPlus2;
+    biny = (internalbin-binx) / m_nbinsxPlus2;
+    assert(internal_bin(binx,biny)==internalbin);
+    content = static_cast<double>(tmp);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+//____________________________________________________________________
+template <>
+inline bool Flex2DHisto<double>::getNextActiveBin(unsigned& binx, unsigned&biny, double& content, double& error)
+{
+  //double version
+  unsigned internalbin;
+  if (m_flexArray.getNextActiveBin(internalbin,content,error)) {
+    LWBinUtils::unpack_internal_bin(internalbin,binx,biny,m_nbinsxPlus2);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::scaleContentsAndErrors( const double& fact )
+{
+   m_sumW *= fact;
+   m_sumW2 *= fact*fact;
+   m_sumWX *= fact;
+   m_sumWX2 *= fact;
+   m_sumWY *= fact;
+   m_sumWY2 *= fact;
+   m_sumWXY *= fact;
+   m_flexArray.scaleContentsAndErrors(fact);
+}
+
+
+#ifdef LW_DEBUG_HEAVY_USERS
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::countCall(const std::pair<void*,void*>&addresses)
+{
+  std::map<std::pair<void*,void*>,unsigned long>::iterator it = m_callmap.find(addresses);
+  if (it==m_callmap.end())
+    m_callmap[addresses]=0;
+  else
+    ++(it->second);
+}
+
+//____________________________________________________________________
+template <class T>
+inline void Flex2DHisto<T>::produceReport(const char*histname)
+{
+  std::map<std::pair<void*,void*>,unsigned long>::iterator it,itE(m_callmap.end());
+  for(it=m_callmap.begin();it!=itE;++it) {
+    if (it->second>0) {
+      char * caller = LWHistTraceUtils::getSymbol(it->first.second);
+      char * calledmethod = LWHistTraceUtils::getSymbol(it->first.first);
+      std::cout<<"LWHists WARNING: Method in histogram called "<<it->second<<" times: "<<calledmethod<<" from "<<caller<<" (histogram named \""<<histname<<"\")"<<std::endl;
+      //fixme: do free on caller and calledmethod
+    }
+  }
+}
+
+#endif

@@ -1,0 +1,18 @@
+1) Compile like this (remove the -m32 for 64bit builds):
+
+g++ -m32 -Wall -fPIC -c rootspy.cxx && g++ -m32 -shared -Wl,-soname,librootspy.so rootspy.o -ldl -o librootspy.so
+g++ -m32 -Wall -fPIC `root-config --cflags` -c rootspy2.cxx && g++ -m32 `root-config --libs` -shared -Wl,-soname,librootspy2.so rootspy2.o -ldl -o librootspy2.so
+
+The reason we need both librootspy.so and librootspy2.so is that one must include root headers and one must not.
+
+2) Launch your athena/trf command like this (librootspy2.so must come before librootspy.so in the list):
+
+LD_PRELOAD=/some/path/librootspy2.so:/some/path/librootspy.so <mycommand>
+
+3) (optional) In order to trigger the printing of a report from librootspy.so, one must perform a magic call exactly like this:
+
+TH1F * hreport = new TH1F("rootspy","",1,0,1);
+hreport->Fill("rootspy_producereport",0.123456);
+delete hreport;
+
+This is done by the AthenaMonitoring framework in the first AthenaMonManager reaching ::finalize()

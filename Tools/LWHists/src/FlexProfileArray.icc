@@ -1,0 +1,436 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//NB: Could use negative numbers in the errors slot to indicate specials.
+
+#define LW_STORE_ERRORS_AS_IN_ROOT 0
+
+// When LW_STORE_ERRORS_AS_IN_ROOT is set to 1, we keep three float
+// parameters:
+//
+//   1) Entries: Sum(weight)
+//   2) Contents: Sum(weight*profpar)
+//   3) Errors: Sum(weight*profpar^2)
+//
+// When LW_STORE_ERRORS_AS_IN_ROOT is set to 0, the third parameter is
+// replaced by the following:
+//
+//   3) T: ( Sum(weight*profpar^2)*Sum(weight)-Sum(weight*profpar)^2 ) / Sum(weight)
+//
+// The reason being that the final error calculation is more resistant
+// to numerical errors with this parameter (we use only floats). One
+// can show that when filling with a new (profpar,weight) pair, the
+// increment of T becomes (weight>=0):
+//
+// delta(T) = weight/(E*(E+weight))*(C-E*profpar)^2 (if E!=0, otherwise 0)
+//            = (C-E*profpar)^2/(E*(1+E)) when weight=1
+//
+// Where E and C are the (previous) values of Entries and Contents respectively.
+//
+// To calculate an actual "error" from the three values, one does
+// (Entries==0 => 0 in both cases):
+//
+//   LW_STORE_ERRORS_AS_IN_ROOT == 1:
+//
+//        sqrt(fabs(ERR/E - (C/E)^2)/E);
+//
+//        (E, C and ERR are the three stored parameters)
+//
+//   LW_STORE_ERRORS_AS_IN_ROOT == 0:
+//
+//        sqrt(T)/E
+//
+//   (E and T are the first and third stored parameter)
+//
+
+//____________________________________________________________________
+inline FlexProfileArray::FlexProfileArray( unsigned nbins )
+  : m_nbins(nbins),
+    m_errOpt(ERRORMEAN)
+{
+  unsigned n(nGroups(nbins));
+  m_groups = reinterpret_cast<float**>(reinterpret_cast<char*>(this)+sizeof(*this));
+  memset(m_groups,0,n*sizeof(m_groups[0]));
+}
+
+//____________________________________________________________________
+inline FlexProfileArray::~FlexProfileArray()
+{
+  reset();
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::fill(unsigned bin, const double& profiledpar)
+{
+  assert(bin<m_nbins);
+  float * f = getPtr(bin);
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  ++(*(f++));//entries
+  *(f++) += profiledpar;//contents
+  *f += profiledpar*profiledpar;//errors
+#else
+  double ent(*f);
+  ++(*(f++));//entries
+  double cont(*f);
+  *(f++) += profiledpar;//contents
+  if (ent) {
+    double tmp(cont/ent-profiledpar);
+    *f += tmp*tmp*(ent/(1.0+ent));
+  }
+#endif
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::fill(unsigned bin, const double& profiledpar, const double& weight)
+{
+  assert(bin<m_nbins);
+  if (!weight)
+    return;
+  //NB: root used to use fabs(weight) instead of weight in the formulas below
+  float * f = getPtr(bin);
+#if not LW_STORE_ERRORS_AS_IN_ROOT
+  double deltaT = *f ? *(f+1)/double(*f)-profiledpar : 0;
+  deltaT *= deltaT*weight*(*f)/(*f+weight);
+#endif
+  *(f++) += weight;//entries
+  double wp(weight*profiledpar);
+  *(f++) += wp;//contents
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  *f += profiledpar*wp;//errors
+#else
+  *f += deltaT;//T
+#endif
+}
+
+//____________________________________________________________________
+inline double FlexProfileArray::getBinEntries(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  float * f = getPtrNoAlloc(bin);
+  return f ? f[0] : 0.0;
+}
+
+//____________________________________________________________________
+inline double FlexProfileArray::getBinContent(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  float * f = getPtrNoAlloc(bin);
+  return f ? (*f?f[1]/(*f):0.0) : 0.0;
+}
+
+//____________________________________________________________________
+inline double FlexProfileArray::getBinError(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  float * f = getPtrNoAlloc(bin);
+  return f ? computeBinError(f) : 0.0;
+}
+
+//____________________________________________________________________
+inline double FlexProfileArray::computeBinError(float*f) const
+{
+  //NB: It seems that newest root has "effective entries
+  //(sum(w)^2/sum(w^2) instead of sum several places below! Need to
+  //update this if possible when ATLAS move to a new root version
+  //(hopefully there is then an root version define to test against)!!
+
+  assert(f);
+  double sum = *(f++);
+  if (sum == 0)
+    return 0;
+  sum=fabs(sum);
+  static const double invsqrt12 = 1.0/sqrt(12.0);
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  double contsum = *(f++)/sum;
+  double eprim2=fabs(*f/sum - contsum*contsum);
+  if (m_errOpt==ERRORMEAN)
+    return sqrt(eprim2/sum);
+  if (m_errOpt==ERRORSPREAD)
+    return sqrt(eprim2);
+  if (m_errOpt==ERRORSPREADI) {
+    return eprim2 ? sqrt(eprim2/sum) : invsqrt12/sqrt(sum);
+  }
+#else
+  double t(fabs(*(f+1)));
+  //We do the fabs(t) because user might have called setBinContent, etc., in an inconsistent way.
+  if (m_errOpt==ERRORMEAN)
+    return sqrt(t)/sum;//sqrt(T)/E
+  if (m_errOpt==ERRORSPREAD)
+    return sqrt(t/sum);//sqrt(T/E)
+  if (m_errOpt==ERRORSPREADI) {
+    //NB : It seems there is a bug in root here, where something
+    //similar to t!=0 is also tested for. However, due to numerical
+    //problems there, that will almost certainly never happen. For
+    //this reason it will be almost impossible to be number-to-number
+    //compatible with root in this case.
+    return t ?  sqrt(t)/sum : invsqrt12/sqrt(sum);
+  }
+#endif
+  assert(m_errOpt==ERRORSPREADG);
+  return 1.0/sqrt(fabs(sum));//doesn't depend on eprim2 or t
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::setErrorOptionFromString(const char *opt)
+{
+  //A bit annoying that we get option passed as a string. However, we
+  //only accept " ", "s", "S", "i", "I", "g" and "G". Anything else
+  //will be ignored.
+
+  if (!opt||opt[0]=='\0'||opt[1]!='\0') {
+    //NULL ptr or string length not one.
+    std::cout<<"LW Profile histogram ERROR: Ignoring badly formatted error option: \""<<(opt?opt:"nullptr")<<"\""<<std::endl;
+    return;
+  }
+
+  switch(opt[0]) {
+  case ' ':
+    setErrorOption(ERRORMEAN);
+    return;
+  case 's':
+  case 'S':
+    setErrorOption(ERRORSPREAD);
+    return;
+  case 'i':
+  case 'I':
+    setErrorOption(ERRORSPREADI);
+    return;
+  case 'g':
+  case 'G':
+    setErrorOption(ERRORSPREADG);
+    return;
+  default:
+    std::cout<<"LW Profile histogram ERROR: Ignoring badly formatted error option: \""<<opt<<"\""<<std::endl;
+    return;
+  }
+}
+
+//____________________________________________________________________
+inline const char* FlexProfileArray::getErrorOptionAsString() const
+{
+  switch (m_errOpt) {
+  case ERRORSPREAD: return "s";
+  case ERRORSPREADI: return "i";
+  case ERRORSPREADG: return "g";
+  default:
+    return " ";
+  };
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::getBinInfo(unsigned bin, double&entries, double& content, double& error ) const
+{
+  assert(bin<m_nbins);
+  float * f = getPtrNoAlloc(bin);
+  if (f) {
+    error = computeBinError(f);
+    entries = *(f++);
+    content = entries ? *f/entries : 0.0;
+  } else {
+    entries = 0.0;
+    content = 0.0;
+    error = 0.0;
+  }
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::setBinEntries(unsigned bin, const double& e)
+{
+  assert(bin<m_nbins);
+  float * f;
+  if (e==0) {
+    //special case:
+    f = getPtrNoAlloc(bin);
+    if (!f)
+      return;
+  } else {
+    f = getPtr(bin);
+  }
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  *f = fabs(e);//We always assume positive!
+#else
+  if (!e) {
+    *f = 0;
+    *(f+2)=0;//T
+  } else {
+    if (*f) {
+      //Need to update T also to keep Sum(weight*profpar^2) constant, like in ROOT.
+      double cont(*(f+1));
+      *(f+2)=fabs(cont*cont*(1.0/double(*f)-1.0/fabs(e)));
+    }
+    *f = fabs(e);
+  }
+#endif
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::setBinContent(unsigned bin, const double&c)
+{
+  assert(bin<m_nbins);
+  float * f;
+  if (c==0) {
+    //special case:
+    f = getPtrNoAlloc(bin);
+    if (!f)
+      return;
+  } else {
+    f = getPtr(bin);
+  }
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  *(++f) = c;
+#else
+  //Need to update T also to keep Sum(weight*profpar^2) constant, like in ROOT.
+  double ent(*(f++));
+  double cont_old(*f);
+  *(f++) = c;
+  *f += ent ? (cont_old*cont_old-c*c)/ent : 0;
+  //assert(*f>=0);
+#endif
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::setBinError(unsigned bin, const double& e)
+{
+  assert(bin<m_nbins);
+  float * f;
+  if (e==0) {
+    //special case:
+    f = getPtrNoAlloc(bin);
+    if (!f)
+      return;
+  } else {
+    f = getPtr(bin);
+  }
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  ++f;
+  *(++f) = e*e;
+#else
+  //Need to set T to e*e - C^2/E. Special case: if E=0, we just set T to 0 also.
+  if (*f) {
+    const double cont(*(f+1));
+    *(f+2)= e*e-cont*cont/(*f);
+  } else {
+    *(f+2)= 0;
+  }
+#endif
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::setBinInfo(unsigned bin, const double& entries, const double& content, const double& error )
+{
+  assert(bin<m_nbins);
+  float * f;
+  if (entries==0&&content==0&&error==0) {
+    //special case:
+    f = getPtrNoAlloc(bin);
+    if (!f)
+      return;
+  } else {
+    f = getPtr(bin);
+  }
+  *(f++) = fabs(entries);//require >=0
+  *(f++) = content;
+#if LW_STORE_ERRORS_AS_IN_ROOT
+  *f = error*error;
+#else
+  //Need to set T to error - C^2/E. Special case: if E=0, we just set T to 0 also.
+  *f = entries ? error*error-content*content/fabs(entries) : 0;
+#endif
+}
+
+//____________________________________________________________________
+inline float* FlexProfileArray::allocateGroup()
+{
+  //NB: we are potentially over-acquiring for the last group! (fixme?)
+  float * f = LWPools::acquire<float,FLEXPROFILEARRAY_NBINSPERGROUP*3>();
+  memset(f,0,sizeof(float)*(FLEXPROFILEARRAY_NBINSPERGROUP*3));
+  return f;
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::deallocateGroup(float* f)
+{
+  if (f)
+    LWPools::release<float,FLEXPROFILEARRAY_NBINSPERGROUP*3>(f);
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::reset()
+{
+  unsigned n(nGroups(m_nbins));
+  for (unsigned i=0;i<n;++i)
+    deallocateGroup(m_groups[i]);
+  memset(m_groups,0,n*sizeof(m_groups[0]));
+}
+
+//____________________________________________________________________
+inline float * FlexProfileArray::getPtr(unsigned ibin) {
+  const unsigned igroup(groupIndex(ibin));
+  float ** gr = &(m_groups[igroup]);
+  if (!*gr)
+    *gr = allocateGroup();
+  assert(*gr);
+  return &((*gr)[indexInGroup(ibin)]);
+}
+
+//____________________________________________________________________
+inline float * FlexProfileArray::getPtrNoAlloc(unsigned ibin) const
+{
+  const unsigned igroup(groupIndex(ibin));
+  float * gr = m_groups[igroup];
+  return gr ? &(gr[indexInGroup(ibin)]) : 0;
+}
+
+//____________________________________________________________________
+inline double FlexProfileArray::integral() const
+{
+  double sum(0.0);
+  unsigned ngroups(nGroups(m_nbins));
+  float ** grE(m_groups+ngroups);
+  float **grLast = grE-1;
+  for (float ** gr = m_groups;gr!=grE;++gr) {
+    if (!*gr)
+      continue;
+    float * f = *gr;
+    float * fE = f + (gr==grLast?nbinsInLastGroup():FLEXPROFILEARRAY_NBINSPERGROUP)*3;
+    for (;f!=fE; f += 3 )
+      sum += (*f?f[1]/(*f):0.0);
+  }
+  return sum;
+}
+
+//____________________________________________________________________
+inline void FlexProfileArray::copyContents(double* entries, double*contents, double*errors) const
+{
+  memset(entries,0,m_nbins*sizeof(*entries));
+  memset(contents,0,m_nbins*sizeof(*contents));
+  memset(errors,0,m_nbins*sizeof(*errors));
+  unsigned ngroups(nGroups(m_nbins));
+  float ** grE(m_groups+ngroups);
+  float **grLast = grE-1;
+  unsigned ibin(0);
+  for (float ** gr = m_groups;gr!=grE;++gr) {
+    if (!*gr) {
+      ibin += FLEXPROFILEARRAY_NBINSPERGROUP;
+      continue;
+    }
+    float * f = *gr;
+    float * fE = f + (gr==grLast?nbinsInLastGroup():FLEXPROFILEARRAY_NBINSPERGROUP)*3;
+    for (;f!=fE;++ibin) {
+#if LW_STORE_ERRORS_AS_IN_ROOT
+      entries[ibin] = *(f++);
+      contents[ibin] = *(f++);
+      errors[ibin] = *(f++);
+#else
+      //errors = T+C^2/E (0 for E=0)
+      const double entr(*(f++));
+      entries[ibin] = entr;
+      const double cont(*(f++));
+      contents[ibin] = cont;
+      errors[ibin] = entr ? *f+cont*cont/entr : 0.0;
+      ++f;
+#endif
+    }
+  }
+}

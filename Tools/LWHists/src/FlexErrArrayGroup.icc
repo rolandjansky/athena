@@ -1,0 +1,467 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+//In principle any negative number should be fine as "magic"
+//value. However, just to be sure, we pick something a bit odd:
+#define ERRCHUNK_NOTSET_MAGICVALUE (-12345.6789)
+
+//____________________________________________________________________
+template <class T>
+inline FlexErrArrayGroup<T>::FlexErrArrayGroup(unsigned nbins)
+  : m_indices(0),
+    m_nbins(nbins),
+    m_chunksallocated(0),
+    m_sumw2allocated(0),
+    m_fastloop_nextbin2check(0)
+{
+  assert(nbins<=FLEXERRARRAYGROUP_MAXBINS);
+
+#ifndef NDEBUG
+  //Stress-test our bit handling:
+  for (int i=0;i<FLEXERRARRAYGROUP_NCHUNKS;++i) {
+    assert(LWHistBitUtils::bitIsSet<uint8_t>(0xFF,i));
+    assert(!LWHistBitUtils::bitIsSet<uint8_t>(0x0,i));
+    uint8_t data1(0), data2(0x01);
+    LWHistBitUtils::setBit<uint8_t>(data1,i); LWHistBitUtils::setBit<uint8_t>(data2,i);
+    assert(LWHistBitUtils::bitIsSet<uint8_t>(data1,i));
+    assert(LWHistBitUtils::bitIsSet<uint8_t>(data2,i));
+    assert(LWHistBitUtils::bitIsSet<uint8_t>(data2,0));
+  }
+  for (int i=0;i<4;++i) {
+    assert((i<4)==LWHistBitUtils::bitIsSet<uint8_t>(0x0F,i));
+    assert((i<4)!=LWHistBitUtils::bitIsSet<uint8_t>(0xF0,i));
+  }
+  for (int i=0;i<FLEXERRARRAYGROUP_NCHUNKS;++i) {
+    assert(LWHistBitUtils::countSetBitsBefore<uint8_t>(0xFF,i)==i);
+    assert(LWHistBitUtils::countSetBitsBefore<uint8_t>(0x0F,i)==(i<4?i:4));
+    assert(LWHistBitUtils::countSetBitsBefore<uint8_t>(0xF0,i)==(i<4?0:i-4));
+  }
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline FlexErrArrayGroup<T>::~FlexErrArrayGroup()
+{
+  unsigned nindices(0);
+  unsigned j(0);
+  const unsigned n(nIndicesUsedByChunks());
+  for(unsigned i=0;i<n;++i)
+    MP_DELETE((reinterpret_cast<FlexBinChunk<T>*>(m_indices[j++])));
+  nindices += n;
+
+  if (m_sumw2allocated!=0) {
+    unsigned j(nindices);
+    const unsigned n(nIndicesUsedByErrors());
+    for(unsigned i=0;i<n;++i)
+      LWPools::release<double,FLEXBINCHUNK_NBINS>(reinterpret_cast<double*>(m_indices[j++]));
+    nindices += n;
+  }
+  if (m_indices)
+    LWPools::release(m_indices,nindices);
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::addIndexPointer(unsigned position, void* newval)
+{
+  if (!m_indices) {
+    m_indices = LWPools::acquire<void*,1>();
+    m_indices[0] = newval;
+    return;
+  }
+  const unsigned nOld(nIndicesUsedByChunks()+nIndicesUsedByErrors());
+  void ** newindices = LWPools::acquire<void*>(nOld+1);
+  unsigned j(0);
+  for (unsigned i = 0; i<position;++i)
+    newindices[j++] = m_indices[i];
+  newindices[j++] = newval;
+  for (unsigned i = position; i<nOld;++i)
+    newindices[j++] = m_indices[i];
+  LWPools::release(m_indices,nOld);
+  m_indices = newindices;
+}
+
+//____________________________________________________________________
+template <class T>
+inline const FlexBinChunk<T>* FlexErrArrayGroup<T>::getChunkNoAlloc(unsigned igroup) const
+{
+  //returns null if not allocated:
+  if (!LWHistBitUtils::bitIsSet<uint8_t>(m_chunksallocated,igroup))
+    return 0;
+  else
+    return reinterpret_cast<FlexBinChunk<T>*>(m_indices[LWHistBitUtils::countSetBitsBefore<uint8_t>(m_chunksallocated,igroup)]);
+}
+
+//____________________________________________________________________
+template <class T>
+inline FlexBinChunk<T>* FlexErrArrayGroup<T>::getChunk(unsigned igroup)
+{
+  if (!LWHistBitUtils::bitIsSet<uint8_t>(m_chunksallocated,igroup)) {
+    //Grow index array and update status bit:
+    FlexBinChunk<T> * chunk = MP_NEW(FlexBinChunk<T>)();
+    addIndexPointer(LWHistBitUtils::countSetBitsBefore<uint8_t>(m_chunksallocated,igroup),chunk);
+    LWHistBitUtils::setBit<uint8_t>(m_chunksallocated,igroup);
+    assert(getChunk(igroup)==chunk);
+    assert(getChunkNoAlloc(igroup)==chunk);
+    return chunk;
+  } else {
+    return reinterpret_cast<FlexBinChunk<T>*>(m_indices[LWHistBitUtils::countSetBitsBefore<uint8_t>(m_chunksallocated,igroup)]);
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline double* FlexErrArrayGroup<T>::getErrChunk(unsigned igroup)
+{
+  const unsigned nbefore = nIndicesUsedByChunks()+LWHistBitUtils::countSetBitsBefore<uint8_t>(m_sumw2allocated,igroup);
+  if (m_sumw2allocated&&LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup))
+    return reinterpret_cast<double*>(m_indices[nbefore]);
+
+  double * errchunk = LWPools::acquire<double,FLEXBINCHUNK_NBINS>();
+  //Provide proper start values (= magic values indicating not used):
+  for (unsigned i=0;i<FLEXBINCHUNK_NBINS;++i)
+    errchunk[i] = ERRCHUNK_NOTSET_MAGICVALUE;
+  addIndexPointer(nbefore,errchunk);
+  LWHistBitUtils::setBit<uint8_t>(m_sumw2allocated,igroup);
+  return errchunk;
+}
+
+//____________________________________________________________________
+template <class T>
+inline const double* FlexErrArrayGroup<T>::getErrChunkNoAlloc(unsigned igroup) const
+{
+  if (m_sumw2allocated&&LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup))
+    return reinterpret_cast<double*>
+      (m_indices[nIndicesUsedByChunks()+LWHistBitUtils::countSetBitsBefore<uint8_t>(m_sumw2allocated,igroup)]);
+  return 0;
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::fill( unsigned bin
+					STRICT_ROOT_PAR(bool pretendSumWMode) )
+{
+  assert(bin<m_nbins);
+  getChunk(getGroupIndex(bin))->fill(getChunkBin(bin));
+
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (pretendSumWMode) {
+    double * errchunk = getErrChunk(getGroupIndex(bin));
+    double& err = errchunk[getChunkBin(bin)];
+    if (err!=ERRCHUNK_NOTSET_MAGICVALUE)
+      ++err;
+    else
+      err = fabs(getBinContent(bin));
+  }
+  return;
+#else
+  if (m_sumw2allocated) {
+    const unsigned igroup(getGroupIndex(bin));
+    if (LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup)) {
+      double * errchunk = getErrChunk(igroup);
+      assert(errchunk);
+      double& err = errchunk[getChunkBin(bin)];
+      if (err!=ERRCHUNK_NOTSET_MAGICVALUE)
+	++err;
+    }
+  }
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::fill( unsigned bin,
+					const double& weight
+					STRICT_ROOT_PAR(bool pretendSumWMode) )
+{
+  assert(bin<m_nbins);
+  getChunk(getGroupIndex(bin))->fill(getChunkBin(bin),weight);
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+
+  if (pretendSumWMode) {
+    double * errchunk = getErrChunk(getGroupIndex(bin));
+    double& err = errchunk[getChunkBin(bin)];
+    if (err!=ERRCHUNK_NOTSET_MAGICVALUE)
+      err += weight*weight;
+    else
+      err = ((getBinContent(bin)-weight))+weight*weight;;
+      //NB Root bug in sumw2 method. (Needs an fabs around GetBinContent(bin)).
+  }
+  return;
+#else
+  if (m_sumw2allocated) {
+    double * errchunk = const_cast<double*>(getErrChunkNoAlloc(getGroupIndex(bin)));
+    if (errchunk) {
+      double& err = errchunk[getChunkBin(bin)];
+      if (err!=ERRCHUNK_NOTSET_MAGICVALUE)
+	err += weight*weight;
+    }
+  }
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::copyContents(T*__restrict__ cont, double*__restrict__ err) const
+{
+  //Assumes that input arrays are nulled out already.
+  //content:
+  if (m_chunksallocated) {
+    unsigned chunkIndex(0);
+    const unsigned chunkupper(LWHistBitUtils::posMSB(m_chunksallocated));
+    for (unsigned ichunk = LWHistBitUtils::posLSB(m_chunksallocated)-1; ichunk<chunkupper;++ichunk) {
+      if (LWHistBitUtils::bitIsSet<uint8_t>(m_chunksallocated,ichunk)) {
+	FlexBinChunk<T>* chunk = reinterpret_cast<FlexBinChunk<T>*>(m_indices[chunkIndex++]);
+	chunk->copyContents(&(cont[ichunk*FLEXBINCHUNK_NBINS]));
+      }
+    }
+    assert(chunkIndex==nIndicesUsedByChunks());
+  }
+  //errors:
+  if (!err)
+    return;
+  if (!m_sumw2allocated) {
+    for (unsigned ibin = 0; ibin < m_nbins; ++ibin)
+      err[ibin] = cont[ibin];
+  } else {
+    unsigned index(nIndicesUsedByChunks());
+    unsigned binoffset(0);
+    for (unsigned ichunk = 0; ichunk<FLEXERRARRAYGROUP_NCHUNKS;++ichunk) {
+      unsigned ibin = binoffset;
+      unsigned binupper = ibin + FLEXBINCHUNK_NBINS;
+      if (binupper>m_nbins)
+	binupper = m_nbins;
+      if (LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,ichunk)) {
+	double * errchunk = reinterpret_cast<double*>(m_indices[index++]);
+	for (;ibin<binupper;++ibin) {
+	  assert(ibin>=binoffset);
+	  double& e = errchunk[ibin-binoffset];
+	  err[ibin] = (e==ERRCHUNK_NOTSET_MAGICVALUE?cont[ibin]:e);
+	}
+      } else {
+	for (;ibin<binupper;++ibin)
+	  err[ibin] = cont[ibin];
+      }
+      if (binupper==m_nbins)
+	break;
+      binoffset = binupper;
+    }
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline double FlexErrArrayGroup<T>::Integral() const
+{
+  double result(0);
+  if (m_chunksallocated) {
+    unsigned chunkIndex(0);
+    const unsigned chunkupper(LWHistBitUtils::posMSB(m_chunksallocated));
+    for (unsigned ichunk = LWHistBitUtils::posLSB(m_chunksallocated)-1; ichunk<chunkupper;++ichunk) {
+      if (LWHistBitUtils::bitIsSet<uint8_t>(m_chunksallocated,ichunk)) {
+	FlexBinChunk<T>* chunk = reinterpret_cast<FlexBinChunk<T>*>(m_indices[chunkIndex++]);
+	result += chunk->Integral();
+      }
+    }
+    assert(chunkIndex==nIndicesUsedByChunks());
+  }
+  return result;
+}
+
+//____________________________________________________________________
+template <class T>
+inline T FlexErrArrayGroup<T>::getBinContent(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  const FlexBinChunk<T>*  chunk = getChunkNoAlloc(getGroupIndex(bin));
+  return chunk ? chunk->getBinContent(getChunkBin(bin)) : 0;
+}
+
+//____________________________________________________________________
+template <class T>
+inline double FlexErrArrayGroup<T>::getBinError(unsigned bin) const
+{
+  assert(bin<m_nbins);
+  const double * errchunk = getErrChunkNoAlloc(getGroupIndex(bin));
+  if (errchunk) {
+    const double& err = errchunk[getChunkBin(bin)];
+    return sqrt(fabs(err==ERRCHUNK_NOTSET_MAGICVALUE?getBinContent(bin):err));
+  } else {
+    return sqrt(fabs(getBinContent(bin)));
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::getBinContentAndError(unsigned bin, T& content, double& error ) const
+{
+  assert(bin<m_nbins);
+  const unsigned igroup(getGroupIndex(bin));
+  const FlexBinChunk<T>*  chunk = getChunkNoAlloc(igroup);
+  content = (chunk ? chunk->getBinContent(getChunkBin(bin)) : 0);
+  if (LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup)) {
+    double * errchunk = reinterpret_cast<double*>
+      (m_indices[nIndicesUsedByChunks()+LWHistBitUtils::countSetBitsBefore<uint8_t>(m_sumw2allocated,igroup)]);
+    assert(errchunk);
+    double& err = errchunk[getChunkBin(bin)];
+    error = sqrt(fabs(err==ERRCHUNK_NOTSET_MAGICVALUE?content:err));
+  } else {
+    error = (content ? sqrt(fabs(content)) : 0);
+  }
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::setBinContent( unsigned bin,
+						 const T& val
+						 STRICT_ROOT_PAR(bool pretendSumWMode) )
+{
+
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  //If pretendSumWMode, this call must not change the error!  
+  double pre_error = pretendSumWMode ? getBinError(bin) : -1;
+#endif
+  assert(bin<m_nbins);
+  const unsigned igroup(getGroupIndex(bin));
+  if (val==0) {
+    FlexBinChunk<T>*  chunk = const_cast<FlexBinChunk<T>*>(getChunkNoAlloc(igroup));
+    if (chunk) {
+      chunk->setBinContent(getChunkBin(bin),val);
+      assert(chunk->getBinContent(getChunkBin(bin))==val);
+    }
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+    if (pretendSumWMode)
+      getErrChunk(igroup)[getChunkBin(bin)] = pre_error*pre_error;
+    assert(!pretendSumWMode||fabs(pre_error-getBinError(bin))<1.0e-10);
+#endif
+    return;
+  }
+  getChunk(igroup)->setBinContent(getChunkBin(bin),val);
+
+  assert(getChunk(igroup)->getBinContent(getChunkBin(bin))==val||bothNaN(getChunk(igroup)->getBinContent(getChunkBin(bin)),val));
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (pretendSumWMode)
+    getErrChunk(igroup)[getChunkBin(bin)] = pre_error*pre_error;
+  assert(!pretendSumWMode||fabs(pre_error-getBinError(bin))<1.0e-10);
+#endif
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::setBinError(unsigned bin, const double& error)
+{
+  assert(bin<m_nbins);
+  const unsigned igroup(getGroupIndex(bin));
+  double * errchunk(0);
+  const unsigned nbefore = nIndicesUsedByChunks()+LWHistBitUtils::countSetBitsBefore<uint8_t>(m_sumw2allocated,igroup);
+  if (LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup)) {
+    errchunk = reinterpret_cast<double*>(m_indices[nbefore]);
+  } else {
+    if (error==0&&getBinContent(bin)==0)
+      return;//If bin content is also zero, we avoid allocating anything!
+    errchunk = LWPools::acquire<double,FLEXBINCHUNK_NBINS>();
+    //Provide proper start values (= magic values indicating not used):
+    for (unsigned i=0;i<FLEXBINCHUNK_NBINS;++i)
+      errchunk[i] = ERRCHUNK_NOTSET_MAGICVALUE;
+    addIndexPointer(nbefore,errchunk);
+    LWHistBitUtils::setBit<uint8_t>(m_sumw2allocated,igroup);
+  }
+  errchunk[getChunkBin(bin)] = error*error;
+  assert(fabs(getBinError(bin)-fabs(error))<1.0e-10||bothNaN(getBinError(bin),error));
+}
+
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::setBinContentAndError( unsigned bin,
+							 const T& content,
+							 const double& error )
+{
+  assert(bin<m_nbins);
+  const unsigned igroup(getGroupIndex(bin));
+  bool seterror(true);
+  if (content==0) {
+    FlexBinChunk<T>* chunk = const_cast<FlexBinChunk<T>*>(getChunkNoAlloc(igroup));
+    if (chunk)
+      chunk->setBinContent(getChunkBin(bin),0);
+    if (error==0&&(!m_sumw2allocated||!LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup)))
+      seterror = false;
+  } else {
+    //Set bin content in any case:
+    getChunk(igroup)->setBinContent(getChunkBin(bin),content);
+    //If error is not already allocated *and* it is compatible with
+    //the content, then we can avoid setting it:
+    if (!m_sumw2allocated||!LWHistBitUtils::bitIsSet<uint8_t>(m_sumw2allocated,igroup)) {
+      double implied_error(sqrt(fabs(content)));
+      if (fabs(error-implied_error)/(1+std::max<double>(error,implied_error))<1.0e-10)
+	seterror = false;
+    }
+  }
+  if (seterror) {
+    //Get error chunk and set the relevant entry to "error"
+    setBinError(bin,error);//Fixme: Put only necessary code here rather than calling this:
+
+  }
+
+  assert(getBinContent(bin)==content);
+  assert(fabs(getBinError(bin)-fabs(error))<1.0e-10);
+}
+
+//____________________________________________________________________
+template <class T>
+inline void FlexErrArrayGroup<T>::resetActiveBinLoop()
+{
+  m_fastloop_nextbin2check=0;
+}
+
+//____________________________________________________________________
+template <class T>
+inline bool FlexErrArrayGroup<T>::getNextActiveBin(unsigned& bin, T& content, double& error)
+{
+  if (m_fastloop_nextbin2check>=m_nbins)
+    return false;
+  bin = m_fastloop_nextbin2check;//do looping using better aligned variable.
+  unsigned igroup(getGroupIndex(bin));
+
+  //Advance the bin until we find one which has either a binchunk or an error-chunk:
+  const FlexBinChunk<T>* chunk(0);
+  const double* errchunk(0);
+  while (bin<m_nbins) {
+    //Fixme: can do it faster than this, since variables inside stay unchanged!!
+    chunk = getChunkNoAlloc(igroup);
+    errchunk = getErrChunkNoAlloc(igroup);
+    if (!chunk&&!errchunk) {
+      //Should only happen when checking the first bin in a chunk:
+      assert(bin%FLEXBINCHUNK_NBINS==0);
+      bin += FLEXBINCHUNK_NBINS;
+      ++igroup;
+      continue;
+    }
+    //Ok, have either chunk or errchunk. See if we can find an entry
+    //in it, otherwise we progress to the next chunk:
+    unsigned chunkbin = bin-igroup*FLEXBINCHUNK_NBINS;
+    assert(chunkbin<FLEXBINCHUNK_NBINS);
+    for(;chunkbin<FLEXBINCHUNK_NBINS;++chunkbin) {
+      content = chunk ? chunk->getBinContent(chunkbin) : 0;
+      if (errchunk) {
+	const double& err = errchunk[chunkbin];
+	error = ( err == ERRCHUNK_NOTSET_MAGICVALUE ? content : err );
+      } else {
+	error = content;
+      }
+      error = ( error ? sqrt(fabs(error)) : 0 );
+      if (content!=0||error!=0) {
+	bin = igroup*FLEXBINCHUNK_NBINS+chunkbin;
+	m_fastloop_nextbin2check = bin+1;
+	return true;
+      }	
+    }
+    ++igroup;
+    bin = FLEXBINCHUNK_NBINS*igroup;
+  }
+  return false;
+}

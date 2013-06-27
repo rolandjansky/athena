@@ -1,0 +1,76 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#undef LW_FIELDS
+#define LW_FIELDS (reinterpret_cast<BitField*>(reinterpret_cast<char*>(this)+sizeof(LWPoolAreaBookKeeper)))
+
+inline bool LWPoolAreaBookKeeper::isCompletelyFull() const
+{
+  return m_nUnusedEntries==m_nEntries;
+}
+
+inline bool LWPoolAreaBookKeeper::isCompletelyEmpty() const
+{
+  return m_nUnusedEntries==0;
+}
+
+inline unsigned LWPoolAreaBookKeeper::numberOfAvailableEntries() const
+{
+  return m_nUnusedEntries;
+}
+
+inline unsigned LWPoolAreaBookKeeper::numberOfEntriesHandedOut() const
+{
+  return m_nEntries-m_nUnusedEntries;
+}
+
+//____________________________________________________________________
+inline void LWPoolAreaBookKeeper::returnEntry(unsigned iEntry)
+{
+  assert(!isCompletelyFull());
+  const unsigned iField(iEntry/LW_ENTRIESPERGROUP);
+  const unsigned iBit(iEntry%LW_ENTRIESPERGROUP);
+  BitField & b = LW_FIELDS[iField];
+  //Toggle the bit to set it:
+  assert( ! (b & 1 << iBit) );
+  b ^= 1 << iBit;
+  assert(b & 1 << iBit);
+  assert(b);
+  m_nonEmptyField = iField;
+  ++m_nUnusedEntries;
+}
+
+//____________________________________________________________________
+inline unsigned LWPoolAreaBookKeeper::acquireEntry()
+{
+  assert((m_nonEmptyField==UINT_MAX)==(!m_nUnusedEntries));
+  if (!m_nUnusedEntries)
+    return UINT_MAX;
+  assert(!isCompletelyEmpty());
+  BitField & b = LW_FIELDS[m_nonEmptyField];
+  assert(b);
+  const unsigned firstSetBit = ffs(b)-1;//ffs(..) starts at 1 if rightmost bit is set,
+				        //etc., up to 32 if only the leftmost
+				        //bit is set.
+  assert(firstSetBit<LW_ENTRIESPERGROUP);
+
+
+  //Remember:
+  //Set bit x in number: number |= 1 << x;
+  //Clear bit x in number: number &= ~(1 << x);
+  //Toggle bit x in number: number ^= 1 << x;
+
+  //Toggle the bit to clear it:
+  assert(b & 1 << firstSetBit);
+  b ^= 1 << firstSetBit;
+  assert( ! (b & 1 << firstSetBit) );
+
+  const unsigned iEntry(LW_ENTRIESPERGROUP*m_nonEmptyField+firstSetBit);
+  if (!b)
+    findNewNonEmptyField();
+  --m_nUnusedEntries;
+  assert((m_nonEmptyField==UINT_MAX)==(!m_nUnusedEntries));
+  return iEntry;
+}
+#undef LW_FIELDS
