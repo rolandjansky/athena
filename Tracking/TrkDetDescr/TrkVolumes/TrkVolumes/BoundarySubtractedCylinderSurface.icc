@@ -1,0 +1,93 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// BoundarySubtractedCylinderSurface.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+template <class Tvol> inline BoundarySubtractedCylinderSurface<Tvol>&
+   BoundarySubtractedCylinderSurface<Tvol>::operator=(const BoundarySubtractedCylinderSurface<Tvol>& bcs)
+{
+  if (this!=&bcs){
+    delete BoundarySurface<Tvol>::m_insideVolume;
+    delete BoundarySurface<Tvol>::m_outsideVolume;
+    BoundarySurface<Tvol>::m_insideVolumeArray.remRef();
+    BoundarySurface<Tvol>::m_outsideVolumeArray.remRef();
+    delete Surface::m_transform;
+    delete Surface::m_center;
+    delete Surface::m_normal;
+    delete SubtractedCylinderSurface::m_bounds;
+    BoundarySurface<Tvol>::m_insideVolume        = bcs.m_insideVolume;
+    BoundarySurface<Tvol>::m_outsideVolume       = bcs.m_outsideVolume;
+    BoundarySurface<Tvol>::m_insideVolumeArray   = bcs.m_insideVolumeArray;
+    BoundarySurface<Tvol>::m_outsideVolumeArray  = bcs.m_outsideVolumeArray;
+    Surface::m_transform  = (bcs.m_transform) ? new Amg::Transform3D(*bcs.m_transform) : 0;
+    Surface::m_center     = (bcs.m_center)    ? new Amg::Vector3D(*bcs.m_center) : 0;
+    Surface::m_normal     = (bcs.m_normal)    ? new Amg::Vector3D(*bcs.m_normal) : 0 ;
+    Surface::m_associatedDetElement   = bcs.m_associatedDetElement;   // copy by pointer as CylinderSurface does not have ownership 
+    Surface::m_associatedDetElementId = bcs.m_associatedDetElementId;
+    m_bounds =  bcs.m_bounds->clone();
+  }
+  return *this;
+
+}
+
+template <class Tvol> inline const Tvol* BoundarySubtractedCylinderSurface<Tvol>::attachedVolume(const TrackParameters& parms,
+                                                                       PropDirection dir) const
+{
+  const Tvol* attVolume = 0;
+  // (ST) buggy line - assumes the parms are at this boundary surface ! 
+  // const HepGeom::Vector3D<double>* localNormal = this->surfaceRepresentation().normal(parms.localPosition());
+  // replacing with
+  const Amg::Vector2D* locPos = this->surfaceRepresentation().globalToLocal(parms.position());
+  const Amg::Vector3D* localNormal = 0;
+  if (locPos) {
+    localNormal = this->surfaceRepresentation().normal(*locPos);
+    delete locPos;	
+  } 
+  if (!localNormal) return attVolume;
+  // (ST) end patch
+
+  if ( (*localNormal).dot(dir*parms.momentum()) > 0.){
+    attVolume = BoundarySurface<Tvol>::m_outsideVolume;
+    if (BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()){
+      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()->object(parms.position());
+    }
+  } else {
+    attVolume = BoundarySurface<Tvol>::m_insideVolume;
+    if (BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()){
+      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()->object(parms.position());
+    }
+  }
+ delete localNormal;
+ return attVolume;  
+}
+
+template <class Tvol> inline const Tvol* BoundarySubtractedCylinderSurface<Tvol>::attachedVolume(const Amg::Vector3D& pos,
+                                                                       const Amg::Vector3D& mom,
+                                                                       PropDirection dir) const
+{
+  const Tvol* attVolume = 0;
+  const Amg::Vector2D* lp = Surface::globalToLocal(pos, 2.);
+  if (lp) 
+  { const Amg::Vector3D* localNormal = CylinderSurface::normal(*lp);
+    delete lp;
+    if ( (*localNormal).dot(dir*mom) > 0.){
+      attVolume = BoundarySurface<Tvol>::m_outsideVolume;
+      if (BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()){
+        attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()->object(pos);
+      }
+    } else {
+      attVolume = BoundarySurface<Tvol>::m_insideVolume;
+      if (BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()){
+        attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()->object(pos);
+      }
+    }
+      delete localNormal;      
+   }
+
+   return attVolume;  
+}
+
+

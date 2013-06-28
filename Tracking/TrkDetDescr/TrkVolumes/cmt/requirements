@@ -1,0 +1,26 @@
+package TrkVolumes
+
+author <Andreas.Salzburger@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  GaudiInterface             GaudiInterface-*                External
+use  TrkDetDescrUtils           TrkDetDescrUtils-*              Tracking/TrkDetDescr
+use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
+use  TrkGeometrySurfaces        TrkGeometrySurfaces-*           Tracking/TrkDetDescr
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+
+library TrkVolumes *.cxx
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
+#use AtlasSEAL   AtlasSEAL-*    External -no_auto_imports
+#apply_pattern lcgdict dict=TrkSurfaces selectionfile=selection.xml headerfiles="../TrkVolumes/TrkVolumesDict.h"
