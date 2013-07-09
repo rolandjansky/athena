@@ -1,0 +1,30 @@
+package DetDescrCondExample
+# examples of DetectorDescription applications of conditions database
+
+author Richard Hawkings <richard.hawkings@cern.ch>
+
+public
+use AtlasPolicy	       AtlasPolicy-*
+
+use GaudiInterface     GaudiInterface-*     External
+use AthenaKernel       AthenaKernel-*       Control
+
+use Identifier         Identifier-*         DetectorDescription
+use GeoPrimitives      GeoPrimitives-*      DetectorDescription 
+
+private
+use AtlasROOT          AtlasROOT-*          External
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+use DetDescrConditions DetDescrConditions-* DetectorDescription/DetDescrCond
+use DetDescrCondTools  DetDescrCondTools-*  DetectorDescription/DetDescrCond
+use GeoModelInterfaces   GeoModelInterfaces-*   DetectorDescription/GeoModel
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use StoreGate          StoreGate-*          Control
+
+library DetDescrCondExample ReadAlignTrans.cxx ReadTopTrans.cxx \
+    ReadWriteCoolStrFile.cxx CoolHistExample.cxx components/*.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
