@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="NoopAlg" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_noopalg.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="NoopAlg-WriteDataHdr" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_noopalg_write_datahdr.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="NoopAlg-WriteEvtInfo" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_noopalg_write_evtinfo.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="LeakyAlg" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_leakyalg.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="BasicAlg" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_basicalg.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="BaseLine" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_baseline_bench.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="EvtGen" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_evtgen.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="TruthJets" type="script" suite="PerfMon">
+      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
+      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_truthjets.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>
