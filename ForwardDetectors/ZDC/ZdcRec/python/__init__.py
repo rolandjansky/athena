@@ -5,9 +5,9 @@
 #=======================================================================
 __version__ = '1.0.0'
 __author__  = 'David Rousseau '
-__all__ = [ 'ZdcModuleGetter'] 
+__all__ = [ 'ZdcRawChannelGetter'] 
 __doc__ =""" - Python modules for the ATLAS Reconstruction -
-         ZdcModuleGetter - build ZdcModuleContainer from ZdcTriggerTowers>
+         ZdcRawChannelGetter - build from ZdcRawChannelContainer from ZdcDigitsCollection>
          """
 __description__ ='Python interface for ATLAS reconstruction '
 
