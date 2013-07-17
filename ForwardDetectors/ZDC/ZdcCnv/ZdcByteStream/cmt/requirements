@@ -1,0 +1,34 @@
+package ZdcByteStream
+
+author Marco Leite <leite@cern.ch>
+
+public
+use     AtlasPolicy    AtlasPolicy-*
+use 	DataModel      DataModel-* 	       Control
+use     GaudiInterface GaudiInterface-* External
+
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event
+use ByteStreamData       ByteStreamData-*       Event
+use DataCollection       DataCollection-*       External
+
+private
+use SGTools              SGTools-*              Control
+use CLIDSvc              CLIDSvc-*           Control
+use StoreGate            StoreGate-*            Control
+use ZdcEvent        ZdcEvent-*          ForwardDetectors/ZDC
+use ZdcConditions	ZdcConditions-*		ForwardDetectors/ZDC
+
+#use	ZdcIdentifier	ZdcIdentifier-*		ForwardDetectors/ZDC
+
+public
+#library ZdcByteStream *.cxx components/*.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"
+
+private
+use AtlasReflex   AtlasReflex-*  External -no_auto_imports
+
+
+end_private
