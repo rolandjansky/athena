@@ -1,0 +1,76 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <stdexcept>
+class GeoStraightAccSection::Clockwork {
+
+public:
+
+  Clockwork():r1(NULL),r2(NULL){};
+
+  ~Clockwork() { 
+  }
+
+  void buildFastCache();
+  void buildSmallCache();
+  void fillFastCache();
+
+
+  class Rep1 {
+
+  public:
+
+   double xcent[1024][14];
+   double ycent[1024][14];
+   double cosu[1024][14];
+   double sinu[1024][14];
+   double halfLength[1024][14];
+
+  }; 
+
+  class Rep2 {
+
+  public:
+
+    GeoXF::Function *transfunction[14];
+    double           halfLength[14];
+  };
+
+  mutable Rep1 *r1;
+  mutable Rep2 *r2;
+
+private:
+  
+  Clockwork( const Clockwork &); 
+
+  Clockwork & operator = ( const Clockwork &); 
+};
+
+
+inline const double & GeoStraightAccSection::XCent(int stackid, int cellid)   const
+{
+  if (!c->r1) c->fillFastCache();
+  return c->r1->xcent[stackid][cellid];
+}
+inline const double & GeoStraightAccSection::YCent(int stackid, int cellid)   const
+{
+  if (!c->r1) c->fillFastCache();
+  return c->r1->ycent[stackid][cellid];
+}
+inline const double & GeoStraightAccSection::Sinu(int stackid, int cellid)       const
+{
+  if (!c->r1) c->fillFastCache();
+  return c->r1->sinu[stackid][cellid];
+}
+inline const double & GeoStraightAccSection::Cosu(int stackid, int cellid)       const
+{
+  if (!c->r1) c->fillFastCache();
+  return c->r1->cosu[stackid][cellid];
+}
+inline const double & GeoStraightAccSection::HalfLength(int stackid, int cellid)   const
+{
+  if (!c->r1) c->fillFastCache();
+  return c->r1->halfLength[stackid][cellid];
+}
+

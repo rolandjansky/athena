@@ -1,0 +1,181 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef EMBDetectorRegion_h
+#define EMBDetectorRegion_h 1
+#include "LArReadoutGeometry/EMBCellConstLink.h"
+#include "LArReadoutGeometry/EMBDetDescr.h"
+#include "GeoModelKernel/GeoVDetectorElement.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+/** 
+ *      @brief Description of a region of homogenous granularity in the 
+ *      electromagnetic barrel calorimeter
+ */
+
+/**
+ *	This class combines a description of the cell
+ *	granularity with a physical volume to create a
+ *	description of an EMB region positioned within ATLAS.
+ *	It provides access to the EMB Cells.
+ */
+
+class EMBDetectorRegion : public GeoVDetectorElement  
+{
+  
+ public:
+
+  typedef enum {NEG=0,POS=1}     DetectorSide;
+
+      
+  /**
+   *	@brief Constructor.
+   */
+  EMBDetectorRegion (const GeoVFullPhysVol *physVol, const EMBDetDescr *embDescriptor, DetectorSide endcap);
+  
+  /**
+   *    @brief Destructor    
+   */
+  ~EMBDetectorRegion();
+   
+  /**
+   *	@brief Access to Cells.
+   */
+  EMBCellConstLink getEMBCell (unsigned int ieta, unsigned int iphi) const;
+  
+  /**
+   *	@brief Returns the Descriptor for this region.
+   */
+  const EMBDetDescr * getDescriptor () const;
+  
+  /**
+   *	@brief Returns the Sampling Layer Index.
+   */
+  unsigned int getSamplingIndex () const;
+  
+  /**
+   *	@brief Returns the Region Index
+   */
+  unsigned int getRegionIndex () const;
+  
+  /**
+   *	@brief Returns the first phi index in the region.
+   */
+  unsigned int beginPhiIndex () const;
+  
+  /**
+   *	@brief Returns the end phi index in the region.
+   */
+  unsigned int endPhiIndex () const;
+    
+  /**
+   *	@brief Returns the first eta index in the region.
+   */
+  unsigned int beginEtaIndex () const;
+   
+  /**
+   *	@brief Returns the end eta index in the region.
+   */
+  unsigned int endEtaIndex () const;
+   
+  /**
+   *    @brief Returns the absolute transform of this element.
+   */
+  const Amg::Transform3D  getAbsoluteTransformAmg () const;
+
+  /**
+   *    @brief Returns the absolute transform of this element.
+   */
+  const Amg::Transform3D  getDefAbsoluteTransformAmg () const;
+  /**
+   *    @brief Returns the absolute transform of this element.
+   */
+  const HepGeom::Transform3D &  getAbsoluteTransform () const;
+   
+  /**
+   *    @brief Returns the absolute transform of this element.
+   */
+  const HepGeom::Transform3D &  getDefAbsoluteTransform () const;
+   
+  /**
+   *	@brief The endcap index.  0=negative, 1=positive.
+   */
+  EMBDetectorRegion::DetectorSide getEndcapIndex () const;
+  
+ private:
+  
+  EMBDetectorRegion(const EMBDetectorRegion &right);
+  EMBDetectorRegion & operator=(const EMBDetectorRegion &right);
+  const EMBDetDescr *descriptor;
+  EMBDetectorRegion::DetectorSide endcapIndex;
+};
+
+
+
+
+
+inline const EMBDetDescr * EMBDetectorRegion::getDescriptor () const
+{
+  
+  return descriptor;
+  
+}
+
+inline unsigned int EMBDetectorRegion::getSamplingIndex () const
+{
+  
+  return descriptor->getSamplingIndex();
+  
+}
+
+inline unsigned int EMBDetectorRegion::getRegionIndex () const
+{
+  
+  return descriptor->getRegionIndex();
+  
+}
+
+inline unsigned int EMBDetectorRegion::beginPhiIndex () const
+{
+  
+  return descriptor->getPhiBinning().getFirstDivisionNumber();
+  
+}
+
+inline unsigned int EMBDetectorRegion::endPhiIndex () const
+{
+  
+  return descriptor->getPhiBinning().getFirstDivisionNumber() + descriptor->getPhiBinning().getNumDivisions();
+  
+}
+
+inline unsigned int EMBDetectorRegion::beginEtaIndex () const
+{
+  
+  return descriptor->getEtaBinning().getFirstDivisionNumber();
+  
+}
+
+inline unsigned int EMBDetectorRegion::endEtaIndex () const
+{
+  
+  return descriptor->getEtaBinning().getFirstDivisionNumber() + descriptor->getEtaBinning().getNumDivisions();
+  
+}
+
+
+
+inline EMBDetectorRegion::DetectorSide EMBDetectorRegion::getEndcapIndex () const
+{
+  
+  return endcapIndex;
+  
+}
+
+
+
+
+
+#endif
