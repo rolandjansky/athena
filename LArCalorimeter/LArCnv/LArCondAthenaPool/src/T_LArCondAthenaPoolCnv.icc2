@@ -1,0 +1,41 @@
+template <class T> 
+T_LArCondAthenaPoolCnv<T>::T_LArCondAthenaPoolCnv(ISvcLocator* svcloc)
+ :   LArCondAthenaPoolCnvBase( svcloc)
+{
+
+}
+
+template <class T> 
+T_LArCondAthenaPoolCnv<T>::~T_LArCondAthenaPoolCnv()
+{
+
+}
+
+   /// Read an object from POOL.
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const
+std::string& token);
+
+
+template <class T> 
+  StatusCode T_LArCondAthenaPoolCnv<T>::DataObjectToPool(DataObject* pObj, std::string tname);
+{
+ persObj = obj->getCache(); 
+ return StatusCode::SUCCESS; 
+}
+
+
+template <class T> 
+ StatusCode T_LArCondAthenaPoolCnv<T>::transToPers(T* obj, PERSIST*& persObj) 
+{
+ persObj = obj->getCache(); 
+ return StatusCode::SUCCESS; 
+}
+
+
+template <class T> 
+StatusCode T_LArCondAthenaPoolCnv<T>::persToTrans(T*& transObj, PERSIST* obj) 
+{
+ transObj = new T() ; 
+ transObj->copy(obj); 
+ return StatusCode::SUCCESS;   
+}
