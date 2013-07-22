@@ -1,0 +1,16 @@
+package FadsActions
+author ADA
+branches src cmt
+
+use AtlasPolicy AtlasPolicy-*
+use Geant4 Geant4-* External
+use GaudiInterface GaudiInterface-* External
+
+include_dirs "$(FadsActions_root)"
+
+library FadsActions ../src/*.cxx
+
+apply_pattern installed_library
+
+#=======================================================
+
