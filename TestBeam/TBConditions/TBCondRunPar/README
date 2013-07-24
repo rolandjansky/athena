@@ -1,0 +1,94 @@
+TBCondRunParTool
+================
+
+This package provides a tool TBCondRunParTool to access information from
+the RunParams tables written by the online IS to the conditions database
+in the combined testbeam. The tool has access functions to read the
+run number, trigger type, detector mask, beam energy and type and filename
+mask from RunParams.RunParams, and the start of run time from RunInfo.
+Additionally, the status() function returns 0 if the run_number
+in the event matches that in the corresponding RunParam record, and 1 if
+not - this can sometimes happen for the first few spills of a new run
+due to propogation delays in the online system. 
+Additionally, some generic methods getTable and extractVals are provided
+to load a CondDBTable into memory and read the information.
+
+
+Outline example of use of Tool:
+
+  IToolSvc* p_toolsvc;
+  TBCondRunParTool* p_runpar;
+
+ // In initialisation:
+  // get TBCondRunParTool
+  if (StatusCode::SUCCESS!=service("ToolSvc", p_toolsvc)) {
+    m_log << MSG::FATAL << "ToolSvc not found" << endreq;
+    return StatusCode::FAILURE;
+  } else {
+    if (StatusCode::SUCCESS!=
+	p_toolsvc->retrieveTool("TBCondRunParTool",p_runpar))
+      return StatusCode::FAILURE;
+  }
+
+  // in execute method - extract values from tool and print:
+  m_log << MSG::INFO 
+    << "Retrieved run " << p_runpar->run_number() << " beam type: " 
+	<< p_runpar->beam_type() << " and energy " << p_runpar->beam_energy()
+    << " Trig type " << p_runpar->trigger_type() << " det mask " <<
+    p_runpar->det_mask() << " file tag:" << p_runpar->file_tag() << 
+    " SOR " << p_runpar->time_SOR() << endreq;
+
+The jobOption file TBCondRunParTool.py sets up the loading of the
+appropriate condDB folders in IOVDBSvc, and tells the tool where to look for
+them. These folders are  /tdaq/<partition>/RunParams.RunParams  (and
+RunParams.RunInfo). The default job options set it up for partition
+part_Combined - if analysing e.g. muon standalone data, this must be
+changed. The partition name for the run can be found e.g. from the AMI
+CTB_realData records. Note that the folder names include a +1 hour offset
+to compensate for time offsets in the online system (see minutes of
+2/8/04 ATLAS online database meeting).
+The TBCondRunParTool.py file assumes that RecExTB_CondDB.py has already 
+been included, to set the basic conditions database infrastructre. The
+CondDBMySQLCnvSvc is also needed - on 12/8/04 this had not yet been 
+put into RecExTB_CondDB.py but has been requested. In case it is not
+there, use:
+
+theApp.Dlls += [ "CondDBMySQLCnvSvc" ]
+EventPersistencySvc=Service("EventPersistencySvc")
+EventPersistencySvc.CnvServices += [ "CondDBMySQLCnvSvc" ]
+ProxyProviderSvc=Service("ProxyProviderSvc")
+ProxyProviderSvc.ProviderNames += [ "CondDBMySQLCnvSvc" ]
+
+
+The getTable and extractVals methods can be used as follows:
+
+  // read a muon DCS table, set some values in ntuple
+  const GenericDbTable* dcstbl=0;
+  int ncol,nrow;
+  std::vector<std::string> names,rows;
+  p_runpar->getTable("/mdt/dcs/MDT_EC_21:eca.",0,dcstbl,ncol,nrow,names,rows);
+  m_log << MSG::INFO << "DCS table has" << ncol << " col," << nrow << "rows"
+	<< endreq;
+  int mitime=-1;
+  float mirot=-1.;
+  float mierr=-1.;
+  if (StatusCode::SUCCESS!=p_runpar->extractVal(names,rows,"tsec",mitime))
+    m_log << MSG::ERROR << "Cannot find tsec time" << endreq;
+  if (StatusCode::SUCCESS!=p_runpar->extractVal(names,rows,"rot",mirot))
+    m_log << MSG::ERROR << "Cannot find DCS rot" << endreq;
+  if (StatusCode::SUCCESS!=p_runpar->extractVal(names,rows,"err",mierr))
+    m_log << MSG::ERROR << "Cannot find DCS err" << endreq;
+
+The getTable method reads the vectors of column names and values into
+string vectors, and the extractVal methods search through the column names
+and set the variable from the corresponding value, converting from
+string to int/float as neccesary.
+To use these methods, the corresponding folders must be declared in the 
+joboptions, e.g.:
+
+IOVDbSvc.Folders+= [ "/mdt/dcs/MDT_EC_21:eca.<offset>-1</offset>" ]
+
+for the muon folder "/mdt/dcs/MDT_EC_21:eca." (note the trailing "." is
+part of the name). The offset of -1 hour is needed to compensate for
+further timestamp synchronisation problems.
+
