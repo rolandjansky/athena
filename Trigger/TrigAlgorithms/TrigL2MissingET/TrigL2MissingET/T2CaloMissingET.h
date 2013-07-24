@@ -1,0 +1,107 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**********************************************************************************
+ * @Project: HLT, PESA algorithms
+ * @Package: TrigL2MissingET
+ * @Class  : L2CaloMissingET
+ *
+ * @brief  PESA algorithm that refines the MissingET from LVL1 using LVL2 muons
+ *
+ * @author  Denis Oliveira Damazio - Brookhaven National Laboratory
+ *
+ * File and Version Information:
+ * $Id: T2CaloMissingET.h 555536 2013-07-24 14:33:51Z wlampl $
+ **********************************************************************************/
+
+
+
+#ifndef TRIGL2MISSINGET_L2CALOMISSINGET_H
+#define TRIGL2MISSINGET_L2CALOMISSINGET_H
+
+
+#include "TrigInterfaces/AllTEAlgo.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "LArRecEvent/LArFebEnergyCollection.h"
+#include "IRegionSelector/RegSelEnums.h"
+#include "LArTools/LArCablingService.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArReadoutModuleService.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+
+#include <vector>
+
+class ITrigDataAccess;
+class MsgStream;
+class TrigTimerSvc;
+
+
+namespace HLT {
+  class TriggerElement;
+}
+
+class TrigMissingET;
+
+class T2CaloMissingET : public HLT::AllTEAlgo
+  {
+  public:
+
+    T2CaloMissingET(const std::string& name, ISvcLocator* pSvcLocator); //!< std Gaudi Algorithm constructor
+
+    HLT::ErrorCode hltInitialize(); //!< hlt initialize, doing nothing here
+    HLT::ErrorCode hltFinalize();   //!< hlt finalize, doing nothing here
+
+    /**
+     * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.
+     *
+     * @param input outer vector describeds the different input TE types,
+                    here we expect: 1st LVL1 energy TE; 2nd Muons;
+                    inner vector provides all TE instances of the given type
+     * @param output the output TE type
+     */
+    HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input,
+			      unsigned int output);
+
+    virtual bool reset() {m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
+    HLT::ErrorCode init(TrigMissingET *met);
+
+  private:
+     bool m_useCachedResult;
+
+     std::string m_featureLabel; //!< label for the MET feature in the HLT Navigation
+     std::string m_L2L1featureLabel; //!< label for the L2=l1 MET feature 
+
+     ToolHandle<ITrigDataAccess>   m_data;
+     MsgStream* m_log;
+     ServiceHandle<ITrigTimerSvc> m_timersvc;
+     float m_etaWidth,m_phiWidth;
+     TrigTimer* m_timer[2];
+     float m_Ex, m_Ey, m_Ez, m_met, m_E, m_Et;
+//     float m_ExT, m_EyT, m_EzT;
+     bool m_one_by_one;
+     float m_l1metDiffCut;
+     std::vector<DETID> m_detid;
+     bool m_ReadL2L1;
+
+     TrigMissingET* m_met_feature;    //!< internal caching: missing E_T feature of the first execution
+     HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
+
+     LArCablingService *m_cablingSvc;
+     const LArOnlineID *m_LArOnlineID;
+     const CaloCell_ID *m_CaloCell_ID;
+     LArReadoutModuleService m_larROModSvc;
+
+     HLT::TriggerElement* makeSeeding(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int type_out ) ;
+     std::vector<float> m_tile_lba; 
+     std::vector<float> m_tile_lbc; 
+     std::vector<float> m_tile_eba; 
+     std::vector<float> m_tile_ebc; 
+     std::vector<unsigned char> m_tile_nlba; 
+     std::vector<unsigned char> m_tile_nlbc; 
+     std::vector<unsigned char> m_tile_neba; 
+     std::vector<unsigned char> m_tile_nebc; 
+};
+
+#endif
+
