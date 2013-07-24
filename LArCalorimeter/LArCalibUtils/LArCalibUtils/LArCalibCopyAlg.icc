@@ -1,0 +1,178 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//Dear emacs, this is -*-c++-*-
+
+template<class CONDITIONSCONTAINER>
+LArCalibCopyAlg<CONDITIONSCONTAINER>::LArCalibCopyAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
+  Algorithm(name,pSvcLocator),
+  m_detStore(0),
+  m_log(NULL),
+  m_groupingType("ExtendedSubDetector"),
+  m_useCorrChannel(true)
+ {		
+  declareProperty("GroupingType",    m_groupingType); 	
+  declareProperty("InputKey",        m_inputName); 	
+  declareProperty("OutputKey",       m_outputName);
+  declareProperty("UseCorrChannels", m_useCorrChannel,
+		  "True: Use separate correction COOL channel, False: Correction + data in the same channel");
+
+}
+
+template<class CONDITIONSCONTAINER>
+LArCalibCopyAlg<CONDITIONSCONTAINER>::~LArCalibCopyAlg() {
+  delete m_log;
+}
+
+
+template<class CONDITIONSCONTAINER>
+StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::initialize() {
+  m_log=new MsgStream(msgSvc(),name());
+
+  // Get Detector store
+  StatusCode sc = service("DetectorStore", m_detStore);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Cannot locate DetectorStore " << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  //Block correction application
+  bool setFlag =   LArConditionsContainerBase::applyCorrectionsAtInit(true, false);
+  (*m_log) << MSG::INFO << "LArConditionsContainerBase::applyCorrectionsAtInit set to " << setFlag << endreq;
+
+  return StatusCode::SUCCESS;
+}
+
+
+template<class CONDITIONSCONTAINER>
+StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::stop() {
+  (*m_log) << MSG::INFO << "Entering LArCalibCopyAlg" << endreq;
+
+  const CONDITIONSCONTAINER* input=0;
+  StatusCode sc=m_detStore->retrieve(input,m_inputName);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Failed to load input container with name " << m_inputName << " from DetectorStore." << endreq;
+    return sc;
+  }
+
+  CONDITIONSCONTAINER* output=new CONDITIONSCONTAINER();
+  sc=output->setGroupingType(m_groupingType,(*m_log));
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Failed to set groupingType for ouptut container" << endreq;
+    return sc;
+  }
+  sc=output->initialize(); 
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Failed initialize output container" << endreq;
+    return sc;
+  }
+  
+  sc=m_detStore->record(output,m_outputName);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Failed to record object with key " << m_outputName
+	     << " to DetectorStore." << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  //Make symlink ....
+  if (setSymlink(output).isFailure()) return sc;
+   
+  (*m_log) << MSG::INFO << "Loaded input container " << m_inputName 
+	   << ", write to new container " << m_outputName << endreq;
+
+
+  //Start copying data ...
+
+  unsigned nDataChans=0;
+
+  for (unsigned igain=CaloGain::LARHIGHGAIN;igain<CaloGain::LARNGAIN ; ++igain ) {
+    CONTIT it=input->begin(igain);
+    CONTIT it_e=input->end(igain);
+    for (;it!=it_e;it++) {
+      const HWIdentifier chid = it.channelId();
+      const LArCondObj& payload=*it;
+      output->setPdata(chid,payload,igain);
+      ++nDataChans;
+    }//end loop over channels
+
+  } // end loop over gains
+  
+  //Same with correction channels:
+  unsigned nCorrChans=0;
+  for ( unsigned igain=CaloGain::LARHIGHGAIN;igain<CaloGain::LARNGAIN ; ++igain ) {
+    CORRIT it=input->undoCorrBegin(igain);
+    CORRIT it_e=input->undoCorrEnd(igain);
+    for (;it!=it_e;it++) {
+      const HWIdentifier chid(it->first);
+      const LArCondObj& payload=it->second;
+      sc=output->insertCorrection(chid,payload,igain,m_useCorrChannel); 
+      if (sc.isFailure()) {
+	(*m_log) << MSG::ERROR << "Failed to insert correction channel" << endreq;
+	return StatusCode::FAILURE;
+      }
+    } // end loop over channels
+    ++nCorrChans;
+  } //end loop over gains
+
+
+  (*m_log) << MSG::INFO << "Copied " << nDataChans << " data channels and " << nCorrChans << " correction channels from container '" 
+	   << m_inputName << "' to container '" << m_outputName << "'" << endreq;
+
+  return StatusCode::SUCCESS;
+}
+
+
+template<class CONDITIONSCONTAINER>
+StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArRampComplete* ramp) const {
+  StatusCode sc=m_detStore->symLink(ramp, (ILArRamp*)ramp);
+  if (sc.isFailure()) 
+    (*m_log) << MSG::ERROR << "Failed to symlink LArRampComplete to ILArRamp" << endreq;
+  return sc;
+}
+
+template<class CONDITIONSCONTAINER>
+StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArPedestalComplete* pedestal) const {
+  StatusCode sc=m_detStore->symLink(pedestal, (ILArPedestal*)pedestal);
+  if (sc.isFailure()) 
+    (*m_log) << MSG::ERROR << "Failed to symlink LArPedestalComplete to ILArPedestal" << endreq;
+  return sc;
+}
+
+template<class CONDITIONSCONTAINER>
+StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArDAC2uAMC* obj) const {
+  StatusCode sc=m_detStore->symLink(obj, (ILArDAC2uA*)obj);
+  if (sc.isFailure()) 
+    (*m_log) << MSG::ERROR << "Failed to symlink LArDAC2uAMC to ILArDAC2uA" << endreq;
+  else
+    (*m_log) << MSG::INFO << "Successfully symlinked LArDAC2uAMC to ILArDAC2uA" << endreq;
+  return sc;
+}
+
+template<class CONDITIONSCONTAINER>
+StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArTdriftComplete* obj) const {
+  StatusCode sc=m_detStore->symLink(obj, (ILArTdrift*)obj);
+  if (sc.isFailure()) 
+    (*m_log) << MSG::ERROR << "Failed to symlink LArTdriftComplete to ILArTdrift" << endreq;
+  else
+    (*m_log) << MSG::INFO << "Successfully symlinked LArTdriftComplete to ILArTdrift" << endreq;
+  return sc;
+}
+
+template<class CONDITIONSCONTAINER>
+StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArOFCComplete* ofc) const {
+  StatusCode sc=m_detStore->symLink(ofc, (ILArOFC*)ofc);
+  if (sc.isFailure()) 
+    (*m_log) << MSG::ERROR << "Failed to symlink LArOFCComplete to ILArOFC" << endreq;
+  return sc;
+}
+
+
+template<class CONDITIONSCONTAINER>
+StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArMphysOverMcalComplete* mpmc) const {
+  StatusCode sc=m_detStore->symLink(mpmc, (ILArMphysOverMcal*)mpmc);
+  if (sc.isFailure()) 
+    (*m_log) << MSG::ERROR << "Failed to symlink LArMphysOverMcalComplete to ILArMphysOverMcal" << endreq;
+  return sc;
+}
+

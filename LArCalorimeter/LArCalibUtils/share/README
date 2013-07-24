@@ -1,0 +1,22 @@
+==============================================================================
+LArCalibUtils jobOptions
+==============================================================================
+
+All jobOptions fragments used to to steer the execution of the
+LArCalibUtils algorithms are now collected in a dedicate package
+called:
+
+LArCalorimeter/LArExample/LArCalibProcessing
+
+LArCalibUtils will no longer contain any jobOptions, since these files
+are changing more frequently that the code itself (e.g. because of
+database tag or folder name changes).
+
+IMPORTANT: Dear developers, if you introduce any change in the code that
+           implies a jobOptions variation (e.g. a new algorithm
+           property), please update accordingly the corresponding
+	   jobOptions fragment in LArCalibProcessing, and notify the
+           change (and the new tag of both packages) in the ChangeLog 
+           files of both LArCalibUtils and LArCalibProcessing!
+
+-- Marco Delmastro (08/05/2008)
