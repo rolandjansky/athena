@@ -1,0 +1,11 @@
+theApp.Dlls += [ "TBCaloConditions" ]
+IOVDbSvc = Service("IOVDbSvc") 
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/TILE_LV_62/TABLE/ETA"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/TILE_LV_62/TABLE/THETA"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/TILE_LV_62/TABLE/Z"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/TILE_LV_62/TABLE/DELTA"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/SYSTEM1/TABLE/ETA"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/SYSTEM1/TABLE/THETA"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/SYSTEM1/TABLE/Z"]
+IOVDbSvc.Folders +=[CondDBCool.TILE+"/TILE/DCS/SYSTEM1/TABLE/DELTA"]
+
