@@ -1,0 +1,384 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  CscReadWriteCoolStr.icc
+ *
+ *    Description:  Implements templated functions in CscReadWriteCoolStr
+ *
+ *        Version:  1.0
+ *        Created:  08/13/09 14:50:14
+ * =====================================================================================
+ */
+
+#include "MuonCondData/CscCondDataCollection.h"
+#include "MuonIdHelpers/CscIdHelper.h"
+#include "AthenaKernel/errorcheck.h"
+
+namespace MuonCalib {
+
+  template<typename data_type>
+    StatusCode CscReadWriteCoolStr::procParameter3(std::istream & input, const std::string & name, const std::string & cat, const int & nBits, const int & shiftBits) {
+      
+      m_log << MSG::INFO <<  "Processing parameter " << name << " for entry to CSC COOL database. Using version 3 processing" << endreq;
+      //Retrieve collection of this parameter if we have seen it before.
+      //Create new one if we have.
+
+
+      //Map key is simply parameter name if there is no bit shift info. Otherwise, we append that
+      //information to map key so that we can store multiple bits for same parameter
+      std::string mapKey;
+      //if(nBits >0) { 
+      //  stringstream modNameStr;
+      //  modNameStr << name << "_" << nBits << "_" << shiftBits;
+      //  mapKey = modNameStr.str();
+      //}
+      //else {
+      mapKey = name;
+      //}
+
+      //retrieve existing collection if it exists, or create a new one.
+      //This allows us to read in the same parameter multiple times from several files if
+      //its ever convenient
+      CscCondDataCollection<data_type> * coll = NULL;
+      std::map<std::string,CscCondDataCollectionBase*>::iterator tmpItr = m_condDataMap.find(mapKey);
+      if(tmpItr == m_condDataMap.end())
+      {
+        //create new collection
+        coll = new CscCondDataCollection<data_type>;
+        coll->setParName(name);
+        coll->setParCat(cat);
+
+        //Use a utility function to set size and numCoolChannes for coll
+        //Makes sure its full of NULLs
+        CHECK(m_cscCoolStrSvc->initCscCondDataCollection(dynamic_cast<CscCondDataCollectionBase*>(coll)));
+
+        //Put in CscCondDataContainer, which is what will be submitted to CscCoolStrSvc later
+        m_condDataContainer->push_back(coll);
+        //Put pointer in map as well for easy locating later.
+        m_condDataMap[mapKey] = coll; 
+
+      }
+      else
+      {
+        //we've seen this data type before. Retrieve it from map.
+        coll = dynamic_cast< CscCondDataCollection<data_type>* >(tmpItr->second);
+      }
+
+      if(!coll)
+      {
+        m_log << MSG::ERROR << "Collection is NULL in procParameter! This is a bug!" 
+          << endreq;
+        return StatusCode::RECOVERABLE;
+      }
+
+      //Loop over lines. Each line should have form "identifier parameter_value",
+      //delimeted by whitespace. The identifier is typically a channel ID of the
+      //online sca address variety
+      while(input.good()){
+
+        std::string idString;
+        data_type datum;
+
+        input >> std::hex >>  idString >> std::dec;
+
+        m_log << MSG::VERBOSE << "storing id " << idString << endreq;
+
+        //Check if at end of this parameter 
+        if(idString == "<END_PAR>")
+          break;
+
+        unsigned int index;
+        if(!m_cscCoolStrSvc->stringIdToIndex(idString, cat, index).isSuccess())
+        {
+          m_log << MSG::ERROR << "Failed at forming index from " << idString << endreq;
+          return StatusCode::RECOVERABLE;
+        }
+        m_log << MSG::DEBUG << "Reading index " << index << " (calculated from " << idString
+          <<  ")" << endreq;
+
+        if(index >= coll->getSize()){
+          m_log << MSG::ERROR << "Index " << index << " is above maximum of " 
+            << coll->getSize() -1 << endreq;
+          return StatusCode::RECOVERABLE;
+        }
+
+        input >> datum;
+
+        m_log << MSG::VERBOSE << "Storing datum " << datum 
+          <<  " at index " << index << endreq;
+
+        if(nBits >0) {
+          data_type refDatum;
+          if((*coll)[index] != NULL){
+            refDatum = (*coll)[index]->getValue();
+          }
+          else if(!m_cscCoolStrSvc->getParameter(refDatum, name, index)){
+            //Get from service if posible, if not just set to zero
+            refDatum = 0;
+          }
+          data_type newDatum(0);
+          CHECK(mergeBits(datum,refDatum,newDatum,nBits, shiftBits));
+          datum = newDatum;
+        }
+
+
+        CscCondData<data_type> * condData = new CscCondData<data_type>(datum); 
+        if( (*coll)[index] != NULL && nBits <=0)
+        {
+          m_log << MSG::WARNING << "Writing to same index more than once (" << index 
+            << ") with value of " << datum << ". Overwriting previous value." << endreq;
+        }
+
+        //Datavector will automatically delete old entry if its there
+        (*coll)[index] = condData;
+
+      }
+      return StatusCode::SUCCESS;
+    }
+  
+  template<typename data_type>
+    StatusCode CscReadWriteCoolStr::procParameter4(std::istream & input, const std::string & name, const std::string & cat, const int & nBits, const int & shiftBits) {
+      
+      m_log << MSG::INFO <<  "Processing parameter " << name << " for entry to CSC COOL database. Using version 4 processing" << endreq;
+      //Retrieve collection of this parameter if we have seen it before.
+      //Create new one if we have.
+
+
+      //Map key is simply parameter name if there is no bit shift info. Otherwise, we append that
+      //information to map key so that we can store multiple bits for same parameter
+      std::string mapKey;
+      //if(nBits >0) { 
+      //  stringstream modNameStr;
+      //  modNameStr << name << "_" << nBits << "_" << shiftBits;
+      //  mapKey = modNameStr.str();
+      //}
+      //else {
+      mapKey = name;
+      //}
+
+      //retrieve existing collection if it exists, or create a new one.
+      //This allows us to read in the same parameter multiple times from several files if
+      //its ever convenient
+      CscCondDataCollection<data_type> * coll = NULL;
+      std::map<std::string,CscCondDataCollectionBase*>::iterator tmpItr = m_condDataMap.find(mapKey);
+      if(tmpItr == m_condDataMap.end())
+      {
+        //create new collection
+        coll = new CscCondDataCollection<data_type>;
+        coll->setParName(name);
+        coll->setParCat(cat);
+
+        //Use a utility function to set size and numCoolChannes for coll
+        //Makes sure its full of NULLs
+        CHECK(m_cscCoolStrSvc->initCscCondDataCollection(dynamic_cast<CscCondDataCollectionBase*>(coll)));
+
+        //Put in CscCondDataContainer, which is what will be submitted to CscCoolStrSvc later
+        m_condDataContainer->push_back(coll);
+        //Put pointer in map as well for easy locating later.
+        m_condDataMap[mapKey] = coll; 
+
+      }
+      else
+      {
+        //we've seen this data type before. Retrieve it from map.
+        coll = dynamic_cast< CscCondDataCollection<data_type>* >(tmpItr->second);
+      }
+
+      if(!coll)
+      {
+        m_log << MSG::ERROR << "Collection is NULL in procParameter! This is a bug!" 
+          << endreq;
+        return StatusCode::RECOVERABLE;
+      }
+
+      //Loop over lines. Each line should have form 
+      //Sector layer direction channel value 
+      //This is all whitespace delimited. Negative sectors are from eta = -1, and 
+      //all values count from 1. We are using the offline identifiers here, so 
+      //all phi channels should already be flipped
+      //X = precision channel
+      //Y = transverse channel
+
+      //Example lines:
+      //-9 3 X 100 2024
+      //6 1 Y 48 2023
+      //16 4 X 192 2036.2
+
+        if(cat != "CHANNEL"  && cat != "ASM"){
+          //since we are assuming index = hash Id, we don't know what to do if we get 
+          //a parameter that isn't one value per channel
+          m_log << MSG::FATAL << " category " << cat << " is not yet supported for input file type 04-00"  << endreq;
+          return StatusCode::FAILURE;
+        }
+
+
+        while(input.good()){
+          //see if we've reached the end datatag
+          std::string nextItem;
+          input >> nextItem;
+          //Check if at end of this parameter 
+          if(nextItem == "</DATA>")
+            break;
+
+          if(cat == "CHANNEL"){
+            //One value per line in input file. One value per index
+
+            //Prepare some variables
+            int sector;
+            unsigned int wireLayer;
+            char direction;
+            unsigned int channel;
+            data_type datum;
+
+            //the next word was already read from the stringstream to check for "</DATA>" tag. It wasn't, so it should be the sector
+            std::stringstream secSS(nextItem);
+            secSS >> sector;
+
+            //Rest of items can only be what is expected;
+            input >> wireLayer >> direction >> channel >> datum;
+
+            //Assuming CscCoolStrSvc still uses CscHashId as index for CHANNEL, this is the case as of 2011-02-22, and probably alwasy will be
+            int stationName = (abs(sector) % 2 ? 51 : 50);
+            int stationEta = (sector > 0 ? 1 : -1);
+            int stationPhi = (abs(sector)+1)/2;
+            int chamberLayer = 2;
+            int measuresPhi;
+            if(direction == 'X' || direction == 'x')
+              measuresPhi = 0;
+            else if(direction == 'Y'  || direction == 'y')
+              measuresPhi = 1;
+            else{
+              m_log << MSG::FATAL << "Direction " << direction << " isn't valid!" << endreq;
+              return StatusCode::FAILURE;
+            }
+
+            m_log << MSG::DEBUG << "looking up channel id for sector " << sector << " stationName " << stationName << " stationEta " << stationEta << " stationPhi " << stationPhi << " chamberLayer " << chamberLayer << " wireLayer " << wireLayer << " measuresPhi " << measuresPhi << " channel " << channel << endreq;
+
+            Identifier chanId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+                chamberLayer, wireLayer, measuresPhi, channel);
+            IdentifierHash hash;
+            m_cscId->get_channel_hash(chanId, hash);
+            unsigned int index = (int)hash;
+
+            m_log << MSG::DEBUG << "Reading index " << index << endreq;
+
+            if(index >= coll->getSize()){
+              m_log << MSG::ERROR << "Index " << index << " is above maximum of " 
+                << coll->getSize() -1 << endreq;
+              return StatusCode::RECOVERABLE;
+            }
+
+            m_log << MSG::VERBOSE << "Storing datum " << datum 
+              <<  " at index " << index << endreq;
+
+            if(nBits >0) {
+              data_type refDatum;
+              if((*coll)[index] != NULL){
+                refDatum = (*coll)[index]->getValue();
+              }
+              else if(!m_cscCoolStrSvc->getParameter(refDatum, name, index)){
+                //Get from service if posible, if not just set to zero
+                refDatum = 0;
+              }
+              data_type newDatum(0);
+              mergeBits(datum,refDatum,newDatum,nBits, shiftBits);
+              datum = newDatum;
+            }
+
+            //Store value in CSC Conditions data handle
+            //(Values stored this way rather than raw in vector to allow data_type independant vectors of CscCondDataBase)
+            CscCondData<data_type> * condData = new CscCondData<data_type>(datum); 
+            if( (*coll)[index] != NULL && nBits <=0)
+            {
+              m_log << MSG::WARNING << "Writing to same index more than once (" << index 
+                << ") with value of " << datum << ". Overwriting previous value." << endreq;
+            }
+
+            //Datavector will automatically delete old entry if its there
+            (*coll)[index] = condData;
+
+          }//end if(cat == "CHANNEL")
+          else if(cat == "ASM"){
+            //1 value per line in text file, but using ASM ids
+            //Each value goes into many indices in  CscCondData. Originally, this uploading system was meant for CHANNEL
+            //category (above), and is obviously a little ill-suited for ASM updates. But, it gets the job done.
+
+            //The next word was already read from the stringstream to check for "</DATA>" tag. It wasn't, so it should be the sector
+            int sector;
+            std::stringstream secSS(nextItem);
+            secSS >> sector;
+
+            //second item is string of form "asmid#"
+            //a little messy, just taking last character of asmStr, and turning it into an int
+            std::string asmStr;
+            input  >> asmStr;
+            std::stringstream asmNumSS; 
+            int asmNum;
+            asmNumSS << asmStr[asmStr.size()-1];
+            asmNumSS >> asmNum;
+
+            //last word in the line is the datum
+            data_type datum;
+            input >> datum;
+
+            //Get details chamber id
+            int stationName = (abs(sector) % 2 ? 51 : 50);
+            int stationEta = (sector > 0 ? 1 : -1);
+            int stationPhi = (abs(sector)+1)/2;
+            static const int chamberLayer = 2;
+
+            //Find range of strip numbers this corresponds to
+            int stripSince(0), stripUntil(0); //stripSince is inclusive, stripUntil is exclusive
+            int measuresPhi(0);
+            int layerSince(0), layerUntil(0);//layerSince is inclusive, layerUntil is exclusive
+            CHECK(m_cscCoolStrSvc->getAsmScope(asmNum, measuresPhi, layerSince, layerUntil, stripSince, stripUntil));
+
+            //loop through all strips this ASM covers
+            for(int layer_i = layerSince; layer_i < layerUntil; layer_i++){
+              for(int strip_i = stripSince; strip_i < stripUntil ; strip_i++){
+                Identifier chanId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+                    chamberLayer, layer_i, measuresPhi, strip_i);
+                IdentifierHash hash;
+                m_cscId->get_channel_hash(chanId, hash);
+
+                //assuming hashId = index
+                int index = hash;
+                
+                //check if we are updating specific bits of data value (only makes sense if data_type is unsigned int)
+                if(nBits >0) {
+                  data_type refDatum;
+                  if((*coll)[index] != NULL){
+                    refDatum = (*coll)[index]->getValue();
+                  }
+                  else if(!m_cscCoolStrSvc->getParameter(refDatum, name, index)){
+                    //Get from service if posible, if not just set to zero
+                    refDatum = 0;
+                  }
+                  data_type newDatum(0);
+                  mergeBits(datum,refDatum,newDatum,nBits, shiftBits);
+                  datum = newDatum;
+                }
+
+                //Store value in CSC Conditions data handle
+                //(Values stored this way rather than raw in vector to allow data_type independant vectors of CscCondDataBase)
+                CscCondData<data_type> * condData = new CscCondData<data_type>(datum); 
+                if( (*coll)[index] != NULL && nBits <=0)
+                {
+                  m_log << MSG::WARNING << "Writing to same index more than once (" << index 
+                    << ") with value of " << datum << ". Overwriting previous value." << endreq;
+                }
+
+                //Datavector will automatically delete old entry if its there
+                (*coll)[index] = condData;
+              }//end loop over strips
+            }//end loop over layers
+          }//end if(cat == "ASM")
+
+        }//end while(input.good()
+        return StatusCode::SUCCESS;
+    }
+}

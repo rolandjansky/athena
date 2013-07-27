@@ -1,0 +1,35 @@
+How to use makeRpcTriggerScripts.py script.
+-------------------------------------------
+
+The makeRpcTriggerScripts.py script is handling the writing of RPC trigger 
+thresholds for all sector logics (s00-s63) into the Cool db.
+
+It can be executed with command
+	   python makeRpcTriggerScripts.py
+
+Currently the trigger thresholds are taken from 
+   "/afs/cern.ch/atlas/testbeam/muontbh8/scratch03/Monica2/Trigger/"
+(this can be changed in variable "inputfolder" if needed).
+Script loops over all Eta and Phi s00-s63 subdirectories and for each
+of the input files it creates a python script (based on Trigger_Write.py script), e.g. 
+
+TriggerWriteEta_s00_t0_ph_c2.py  TriggerWritePhi_s00_t0_ph_c0.py
+TriggerWriteEta_s00_t0_pl_c2.py  TriggerWritePhi_s00_t0_ph_c1.py
+TriggerWriteEta_s00_t1_ph_c2.py
+.......
+which are put into a "scripts" directory which is created automatically.
+This step is rather fast (till now nothing is written into database).
+
+
+Then one just needs to execute the scripts in a shell one by one for
+instance with a bash command
+    cd scripts
+    for i in `ls *py`; do athena $i; done
+(of course one needs to put the authentication.xml file into the
+"scripts" directory).
+
+
+
+
+
+
