@@ -1,0 +1,15 @@
+package AtlasCollectionTransforms
+
+author Jack Cranshaw <Jack.Cranshaw@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use AtlasHdf5             AtlasHdf5-*              External
+use AtlasCollectionTools  AtlasCollectionTools-* Database/AthenaPOOL  -no_auto_imports
+
+apply_pattern declare_runtime files="../share/*.py ../share/*.xml"
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_scripts files="../scripts/*_trf.py"
+
+private
+use TestPolicy            TestPolicy-*
