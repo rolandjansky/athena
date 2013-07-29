@@ -1,0 +1,15 @@
+<!--  This file contains the various classes needed ATM for the ARA side of -->
+<!--  things all the other dicts needed for plain Athena should be put      -->
+<!--  elsewhere -->
+
+<lcgdict>
+
+  <class name="ITPConverterFor<RawInfoSummaryForTag>"/>
+
+  <class name="T_TPCnv<RawInfoSummaryForTag,RawInfoSummaryForTag_p1>"/>
+  <class name="RawInfoSummaryForTagCnv_p1"/>
+  <class name="T_AthenaPoolTPCnvBase<RawInfoSummaryForTag,RawInfoSummaryForTag_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<RawInfoSummaryForTag,RawInfoSummaryForTag,RawInfoSummaryForTag_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<RawInfoSummaryForTag,RawInfoSummaryForTag,RawInfoSummaryForTag_p1>"/>
+
+</lcgdict>
