@@ -1,0 +1,50 @@
+package ALFA_CLinkAlg
+
+author Libor Nozka <libor.nozka@cern.ch>
+author Petr Hamal <petr.hamal@cern.ch>
+
+branches run
+
+use GaudiInterface			GaudiInterface-*			External
+use AtlasPolicy				AtlasPolicy-*
+use StoreGate				StoreGate-*					Control
+#use AtlasAnalysisRunTime	AtlasAnalysisRunTime-*
+
+#use AtlasCLHEP				AtlasCLHEP-*				External
+#use AtlasROOT				AtlasROOT-*					External 
+#use CBNT_Utils				CBNT_Utils-*				Reconstruction
+#use GeneratorObjects		GeneratorObjects-*			Generators
+#use AthenaPoolUtilities	AthenaPoolUtilities-*    	Database/AthenaPOOL
+
+public
+use AthenaBaseComps         AthenaBaseComps-*           Control
+use AthenaKernel            AthenaKernel-*              Control
+use DataModel               DataModel-*                 Control
+end_public
+
+private
+use EventInfo               EventInfo-*                 Event
+end_private
+
+#use ALFA_RawEv		ALFA_RawEv-*		ForwardDetectors/ALFA
+#use ALFA_LocRecEv	ALFA_LocRecEv-*		ForwardDetectors/ALFA/ALFA_RecEv
+#use ALFA_LocRecCorrEv	ALFA_LocRecCorrEv-*	ForwardDetectors/ALFA/ALFA_RecEv
+#use ALFA_GloRecEv	ALFA_GloRecEv-*		ForwardDetectors/ALFA/ALFA_RecEv
+
+use ALFA_CLinkEv	ALFA_CLinkEv-*		ForwardDetectors/ALFA
+
+library ALFA_CLinkAlg *.cxx components/*.cxx
+
+#apply_tag	ROOTBasicLibs
+#apply_tag	ROOTMathLibs
+#apply_tag	ROOTSTLDictLibs
+#apply_tag	ROOTGraphicsLibs
+#apply_tag	ROOTTableLibs
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py *.C *.sh"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+#end_private
