@@ -22,10 +22,10 @@ class ALFA_ODHit
   virtual ~ALFA_ODHit();
   
   bool operator < (const ALFA_ODHit& obj) const
-    {return m_hitID < obj.m_hitID;}
+    {return hitID < obj.hitID;}
   
   int GetHitID() const
-    {return m_hitID;}
+    {return hitID;}
   
   int GetTrackID() const;
 
@@ -34,71 +34,71 @@ class ALFA_ODHit
   
 
   int GetParticleEncoding() const
-    {return m_particleEncoding;}
+    {return particleEncoding;}
   
   float GetKineticEnergy() const
-    {return m_kineticEnergy;}
+    {return kineticEnergy;}
   
   float GetEnergyDeposit() const
-    {return m_energyDeposit;}
+    {return energyDeposit;}
   
   float GetPreStepX() const
-    {return m_preStepX;}
+    {return preStepX;}
   
   float GetPreStepY() const
-    {return m_preStepY;}
+    {return preStepY;}
   
   float GetPreStepZ() const
-    {return m_preStepZ;}
+    {return preStepZ;}
   
   float GetPostStepX() const
-    {return m_postStepX;}
+    {return postStepX;}
   
   float GetPostStepY() const
-    {return m_postStepY;}
+    {return postStepY;}
   
   float GetPostStepZ() const
-    {return m_postStepZ;}
+    {return postStepZ;}
   
   float GetGlobalTime() const
-    {return m_globalTime;}
+    {return globalTime;}
   
   int GetSignFiber() const
-    {return m_sign_fiber;}
+    {return sign_fiber;}
     
   int GetODSide() const
-    {return m_OD_side;}    
+    {return OD_side;}    
         
   int GetPlateNumber() const
-    {return m_n_plate;}    
+    {return n_plate;}    
 
   int GetFiberNumber () const
-    {return m_n_fiber;}
+    {return n_fiber;}
 
   int GetStationNumber () const
-    {return m_n_station;}    
+    {return n_station;}    
           
   
  private:
-  int m_hitID; // To identify the hit
-  //int trackID;
+  int hitID; // To identify the hit
+  int trackID;
 //  HepMcParticleLink m_partLink; // link to the particle generating the hit
-  int m_particleEncoding;         // PDG id 
-  float m_kineticEnergy;          // kin energy of the particle
-  float m_energyDeposit;          // energy deposit by the hit
-  float m_preStepX;
-  float m_preStepY;
-  float m_preStepZ;
-  float m_postStepX;
-  float m_postStepY;
-  float m_postStepZ;
-  float m_globalTime;
+  int particleEncoding;         // PDG id 
+  float kineticEnergy;          // kin energy of the particle
+  float energyDeposit;          // energy deposit by the hit
+  float preStepX;
+  float preStepY;
+  float preStepZ;
+  float postStepX;
+  float postStepY;
+  float postStepZ;
+  float globalTime;
   
-  int m_sign_fiber;
-  int m_OD_side;
-  int m_n_plate;
-  int m_n_fiber;
-  int m_n_station;
+  int sign_fiber;
+  int OD_side;
+  int n_plate;
+  int n_fiber;
+  int n_station;
 };
 
 
