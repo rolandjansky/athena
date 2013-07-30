@@ -1,0 +1,85 @@
+<?xml version="1.0" ?>
+<!DOCTYPE LumiRangeCollection
+  SYSTEM 'http://atlas-runquery.cern.ch/LumiRangeCollection.dtd'>
+<!-- XML Document created by AtlRunQuery.py on 2009-11-27 15:27:17.871972 -->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>prelim_collisions</Name>
+    <Version>2.1</Version>
+    <Metadata Name="Query">find run 140541+ and partition ATLAS and db DATA and st physics_MinBias and duration 60s+ and ptag data09_900GeV and events 1000+ </Metadata>
+    <Metadata Name="SVNVersion">CoolRunQuery-unknown</Metadata>
+    <Metadata Name="Stream"/>
+    <LumiBlockCollection>
+      <Run>141749</Run>
+      <LBRange Start="22" End="102"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>141748</Run>
+      <LBRange Start="2" End="14"/>
+      <LBRange Start="27" End="27"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>141746</Run>
+      <LBRange Start="27" End="27"/>
+      <LBRange Start="31" End="41"/>
+      <LBRange Start="45" End="47"/>
+      <LBRange Start="51" End="53"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>141707</Run>
+      <LBRange Start="22" End="25"/>
+      <LBRange Start="27" End="27"/>
+      <LBRange Start="29" End="83"/>
+      <LBRange Start="92" End="101"/>
+      <LBRange Start="117" End="127"/>
+      <LBRange Start="130" End="133"/>
+      <LBRange Start="169" End="169"/>
+      <LBRange Start="171" End="172"/>
+      <LBRange Start="193" End="194"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>141565</Run>
+      <LBRange Start="10" End="10"/>
+      <LBRange Start="12" End="12"/>
+      <LBRange Start="15" End="16"/>
+      <LBRange Start="18" End="18"/>
+      <LBRange Start="26" End="27"/>
+      <LBRange Start="29" End="29"/>
+      <LBRange Start="31" End="31"/>
+      <LBRange Start="33" End="33"/>
+      <LBRange Start="37" End="37"/>
+      <LBRange Start="39" End="41"/>
+      <LBRange Start="43" End="48"/>
+      <LBRange Start="67" End="70"/>
+      <LBRange Start="72" End="77"/>
+      <LBRange Start="79" End="79"/>
+      <LBRange Start="81" End="81"/>
+      <LBRange Start="84" End="84"/>
+      <LBRange Start="98" End="98"/>
+      <LBRange Start="106" End="106"/>
+      <LBRange Start="121" End="122"/>
+      <LBRange Start="124" End="124"/>
+      <LBRange Start="126" End="126"/>
+      <LBRange Start="134" End="136"/>
+      <LBRange Start="138" End="138"/>
+      <LBRange Start="143" End="143"/>
+      <LBRange Start="154" End="154"/>
+      <LBRange Start="229" End="230"/>
+      <LBRange Start="258" End="258"/>
+      <LBRange Start="261" End="262"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>141562</Run>
+      <LBRange Start="12" End="30"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+       <Run>140571</Run>
+       <LBRange Start="5" End="31"/>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+       <Run>140541</Run>
+       <LBRange Start="126" End="165"/>
+       <LBRange Start="272" End="298"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>

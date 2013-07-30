@@ -1,0 +1,20 @@
+<!-- Trial DTD   -->
+
+<!ELEMENT  LumiRangeCollection (NamedLumiRange*)>
+
+<!ELEMENT NamedLumiRange (Name?, Version?, Metadata*, LumiBlockCollection*)>
+
+<!ELEMENT Metadata (#PCDATA)>
+<!ATTLIST Metadata Name CDATA #REQUIRED>
+
+<!ELEMENT LumiBlockCollection (Run, LBRange*)>
+
+<!ELEMENT Name (#PCDATA)>
+<!ELEMENT Version (#PCDATA)>
+<!ELEMENT Run (#PCDATA)>
+<!ELEMENT LBRange EMPTY>
+<!ATTLIST LBRange Start CDATA #REQUIRED> 
+<!ATTLIST LBRange End CDATA #IMPLIED>
+
+<!-- Note that because Start and End have character types, we can in principle support reserved strings with special meanings, like "LBStart" and "LBEnd" -->
+

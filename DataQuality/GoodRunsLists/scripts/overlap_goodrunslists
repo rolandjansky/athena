@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+import sys
+import os, os.path
+import shutil
+
+
+if __name__ == "__main__":
+
+  if len(sys.argv)<3:
+    print "usage: ", sys.argv[0], "<grl1> <grl2> [<MatchGRLInfo?False/True>]"
+    sys.exit(1)
+
+  ## directory or list with xml files to be merged
+  grl1 = sys.argv[1]
+  grl2 = sys.argv[2]
+  ## when merging grls, only merge grls with same version and metadata?
+  matchGRLInfo=False
+  if len(sys.argv)>=4: matchGRLInfo=('True'==sys.argv[3])
+
+  if not os.access(grl1,os.F_OK):
+    print "ERROR: input grl <%s> not found. Exit." % grl1
+    sys.exit(1)
+  if not os.access(grl2,os.F_OK):
+    print "ERROR: input grl <%s> not found. Exit." % grl2
+    sys.exit(1)
+
+  print ">> Now taking overlap ..."
+
+  ## Needed to correct ROOT behavior; see below
+  CWD = os.getcwd()
+  import ROOT
+  ## Importing gSystem may change the current directory to one of the
+  ## command-line arguments; chdir to original directory to have
+  ## predictable behavior
+  from ROOT import TFile, TTree, TList, TString, TKey, TObjString
+  from ROOT import gSystem
+  os.chdir(CWD)
+  ## Import the ROOT library for reading han results
+  gSystem.Load('libGoodRunsListsLib')
+  from ROOT import Root
+  ## read the goodrunslist xml files
+  reader = Root.TGoodRunsListReader()
+
+  ## now adding root and xml files to interpreter
+  reader.Reset()
+  reader.SetXMLFile(grl1)
+  reader.Interpret()
+  gc1 = reader.GetMergedGoodRunsList() ## Take the AND !
+
+  reader.Reset()
+  reader.SetXMLFile(grl2)
+  reader.Interpret()
+  gc2 = reader.GetMergedGoodRunsList() ## Take the AND !
+
+  ## get overlap (AND) of grl1 with grl2
+  gc1.SetCheckGRLInfo( matchGRLInfo )
+  overlap   = gc1.GetOverlapWith(gc2);
+
+  ## Now write out xml again ... 
+  overlap.SetVersion('20') # signature of the merge scripts ;-)
+  description = 'overlap of ' + str(gc1.GetName()) + ' and ' + str(gc1.GetName())
+  overlap.AddMetaData('Description',description)
+  overlapname = 'overlap_'+str(overlap.GetSuggestedName())+'.xml'
+  writer = Root.TGoodRunsListWriter()
+  writer.SetGoodRunsList( overlap )
+  writer.SetFilename( overlapname ) ;
+  writer.WriteXMLFile()
+

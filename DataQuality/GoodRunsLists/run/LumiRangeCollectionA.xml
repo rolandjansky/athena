@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE LumiRangeCollection SYSTEM "LumiRangeCollectionA.dtd">
+
+<!-- sample document -->
+
+<LumiRangeCollection>
+
+<NamedLumiRange>
+   <Name> "My Good Run List" </Name>
+   <Version> 2.1 </Version>
+   <Metadata Name="Query"> 
+      SELECT RunNumber, LumiBlockN from XXX where SomeDQFlag="Green" 
+   </Metadata> 
+   <Metadata Name="Stream"> EGamma </Metadata> 
+
+<LumiBlockCollection>
+   <Run> 102334</Run>
+   <LBRange Start="1" End="22"/>
+   <LBRange Start="23" End="26"/>
+   <LBRange Start="26" End="36"/>
+   <LBRange Start="38" End="46"/>
+   <LBRange Start="47" End="56"/>
+   <LBRange Start="58" />
+</LumiBlockCollection>
+
+<LumiBlockCollection>
+   <Run> 90210 </Run>
+    <LBRange Start="51" End="995"/>
+</LumiBlockCollection>
+
+</NamedLumiRange>
+
+<NamedLumiRange>
+  <Name> "Another (Run,LBN) List" </Name>
+  <Version>  2.2 </Version>
+   <Metadata Name="Query">
+      SELECT RunNumber, LumiBlockN from XXX where SomeDQFlag="Green"
+   </Metadata>
+   <Metadata Name="Stream"> EGamma </Metadata>
+
+<LumiBlockCollection>
+   <Run> 51515 </Run>
+   <LBRange Start="11" End="59" />
+</LumiBlockCollection>
+<!-- etc. -->
+
+</NamedLumiRange>
+
+</LumiRangeCollection>
+
+

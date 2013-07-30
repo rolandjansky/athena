@@ -1,0 +1,212 @@
+<?xml version="1.0" ?>
+<!DOCTYPE LumiRangeCollection
+  SYSTEM 'http://atlas-runquery.cern.ch/LumiRangeCollection.dtd'>
+<!-- XML Document created by AtlRunQuery.py on 2009-10-16 23:24:51.991183 -->
+<LumiRangeCollection>
+   <NamedLumiRange>
+      <Name>CosmicsLumiConfig</Name>
+      <Version>2.1</Version>
+      <Metadata Name="Query">find run 132350+ and partition ATLAS and db DATA and duration 60s+ and ftag data08*,data09* and events 10000+ </Metadata>
+      <Metadata Name="Stream"/>
+      <LumiBlockCollection>
+         <Run>135004</Run>
+         <LBRange Start="0" End="72"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134992</Run>
+         <LBRange Start="0" End="52"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134976</Run>
+         <LBRange Start="0" End="54"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134967</Run>
+         <LBRange Start="0" End="224"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134964</Run>
+         <LBRange Start="0" End="149"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134962</Run>
+         <LBRange Start="0" End="65"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134954</Run>
+         <LBRange Start="0" End="23"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134941</Run>
+         <LBRange Start="0" End="28"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134933</Run>
+         <LBRange Start="0" End="24"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134923</Run>
+         <LBRange Start="0" End="32"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134880</Run>
+         <LBRange Start="0" End="28"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134877</Run>
+         <LBRange Start="0" End="14"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134804</Run>
+         <LBRange Start="0" End="159"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134803</Run>
+         <LBRange Start="0" End="17"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134793</Run>
+         <LBRange Start="0" End="228"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134792</Run>
+         <LBRange Start="0" End="31"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134790</Run>
+         <LBRange Start="0" End="24"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134788</Run>
+         <LBRange Start="0" End="20"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134787</Run>
+         <LBRange Start="0" End="54"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134786</Run>
+         <LBRange Start="0" End="26"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134782</Run>
+         <LBRange Start="0" End="29"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134772</Run>
+         <LBRange Start="0" End="31"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134760</Run>
+         <LBRange Start="0" End="12"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134746</Run>
+         <LBRange Start="0" End="24"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134723</Run>
+         <LBRange Start="0" End="46"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134696</Run>
+         <LBRange Start="0" End="40"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134680</Run>
+         <LBRange Start="0" End="7"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134535</Run>
+         <LBRange Start="0" End="567"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134441</Run>
+         <LBRange Start="0" End="437"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134420</Run>
+         <LBRange Start="0" End="123"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>134249</Run>
+         <LBRange Start="0" End="2488"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133929</Run>
+         <LBRange Start="0" End="779"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133788</Run>
+         <LBRange Start="0" End="9"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133565</Run>
+         <LBRange Start="0" End="780"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133554</Run>
+         <LBRange Start="0" End="19"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133450</Run>
+         <LBRange Start="0" End="69"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133388</Run>
+         <LBRange Start="0" End="57"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133386</Run>
+         <LBRange Start="0" End="10"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133362</Run>
+         <LBRange Start="0" End="121"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133259</Run>
+         <LBRange Start="0" End="770"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>133246</Run>
+         <LBRange Start="0" End="70"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132839</Run>
+         <LBRange Start="0" End="866"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132717</Run>
+         <LBRange Start="0" End="1334"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132695</Run>
+         <LBRange Start="0" End="929"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132683</Run>
+         <LBRange Start="0" End="313"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132608</Run>
+         <LBRange Start="0" End="103"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132589</Run>
+         <LBRange Start="0" End="73"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132530</Run>
+         <LBRange Start="0" End="750"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132476</Run>
+         <LBRange Start="0" End="40"/>
+      </LumiBlockCollection>
+      <LumiBlockCollection>
+         <Run>132388</Run>
+         <LBRange Start="0" End="66"/>
+      </LumiBlockCollection>
+   </NamedLumiRange>
+</LumiRangeCollection>

@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+
+import sys
+import os, os.path
+import shutil
+
+
+if __name__ == "__main__":
+
+  if len(sys.argv)<3:
+    print "usage: ", sys.argv[0], "<grl1> <grl2> [<MatchGRLInfo?False/True>]"
+    sys.exit(1)
+
+  ## directory or list with xml files to be merged
+  grl1 = sys.argv[1]
+  grl2 = sys.argv[2]
+  ## when merging grls, only merge grls with same version and metadata?
+  matchGRLInfo=False
+  if len(sys.argv)>=4: matchGRLInfo=('True'==sys.argv[3])
+
+  if not os.access(grl1,os.F_OK):
+    print "ERROR: input grl <%s> not found. Exit." % grl1
+    sys.exit(1)
+  if not os.access(grl2,os.F_OK):
+    print "ERROR: input grl <%s> not found. Exit." % grl2
+    sys.exit(1)
+
+  print ">> Now taking diff ..."
+
+  ## Needed to correct ROOT behavior; see below
+  CWD = os.getcwd()
+  import ROOT
+  ## Importing gSystem may change the current directory to one of the
+  ## command-line arguments; chdir to original directory to have
+  ## predictable behavior
+  from ROOT import TFile, TTree, TList, TString, TKey, TObjString
+  from ROOT import gSystem
+  os.chdir(CWD)
+  ## Import the ROOT library for reading han results
+  gSystem.Load('libGoodRunsListsLib')
+  from ROOT import Root
+  ## read the goodrunslist xml files
+  reader = Root.TGoodRunsListReader()
+
+  ## now adding root and xml files to interpreter
+  reader.Reset()
+  reader.SetXMLFile(grl1)
+  reader.Interpret()
+  grl1 = reader.GetMergedGoodRunsList() ## Take the AND !
+
+  reader.Reset()
+  reader.SetXMLFile(grl2)
+  reader.Interpret()
+  grl2 = reader.GetMergedGoodRunsList() ## Take the AND !
+
+  ## get part in grl1 but NOT in grl2
+  onlyInGrl1 = grl2.GetPartOnlyIn(grl1)
+
+  ## get part in grl2 but NOT in grl1
+  onlyInGrl2 = grl2.GetPartNotIn(grl1)
+
+  ## Now write out xml again ... 
+  onlyInGrl1.SetVersion('20') # signature of the merge scripts ;-)
+  description1 = 'part of ' + str(grl1.GetName()) + ' that is NOT in ' + str(grl2.GetName())
+  onlyInGrl1.AddMetaData('Description',description1)
+  #fileName1 = 'diff_only_in_'+str(grl1.GetName())+'_'+str(onlyInGrl1.GetSuggestedName())+'.xml'
+  fileName1 = 'diff_'+str(onlyInGrl1.GetSuggestedName())+'_only_in_'+str(grl1.GetName())+'.xml'
+  if onlyInGrl1.IsEmpty():
+    print "There are no LBs in", str(grl1.GetName()), "that are not in", str(grl2.GetName())
+  else:
+    writer1 = Root.TGoodRunsListWriter()
+    writer1.SetGoodRunsList( onlyInGrl1 )
+    writer1.SetFilename( fileName1 ) 
+    writer1.WriteXMLFile()
+
+  ## Now write out xml again ... 
+  onlyInGrl2.SetVersion('20') # signature of the merge scripts ;-)
+  description2 = 'part of ' + str(grl2.GetName()) + ' that is NOT in ' + str(grl1.GetName())
+  onlyInGrl2.AddMetaData('Description',description2)
+  fileName2 = 'diff_'+str(onlyInGrl2.GetSuggestedName())+'_only_in_'+str(grl2.GetName())+'.xml'
+  if onlyInGrl2.IsEmpty():
+    print "There are no LBs in", str(grl2.GetName()), "that are not in", str(grl1.GetName())
+  else:
+    writer2 = Root.TGoodRunsListWriter()
+    writer2.SetGoodRunsList( onlyInGrl2 )
+    writer2.SetFilename( fileName2 ) 
+    writer2.WriteXMLFile()

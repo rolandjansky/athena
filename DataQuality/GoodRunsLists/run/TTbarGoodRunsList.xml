@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE LumiRangeCollection SYSTEM "LumiRangeCollectionA.dtd">
+
+<!-- sample document -->
+
+<LumiRangeCollection>
+
+<NamedLumiRange>
+   <Name> "TTbarSample" </Name>
+   <Version> 2.1 </Version>
+   <Metadata Name="Query">My query</Metadata> 
+
+   <LumiBlockCollection>
+   <Run>105200</Run>
+   <LBRange Start="0" End="7"/>
+   </LumiBlockCollection>
+
+</NamedLumiRange>
+
+</LumiRangeCollection>
+
+

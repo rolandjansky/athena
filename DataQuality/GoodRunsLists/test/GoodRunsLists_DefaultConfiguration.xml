@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!-- MB: xml file validation: http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/onlineValidation/validator.html -->
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> <!-- official -->
+
+<unifiedTestConfiguration>
+
+  <atn/>
+  <kv/>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>Max Baak</rttContactPerson>
+    <refRelease>15.5.1</refRelease>
+    
+    <jobList>
+      <chain>
+	<chainName>GoodRunsLists</chainName> <!-- Only letters allowed, no white space or punctuation -->
+	<sequential>	  
+
+	  <!-- Get all official good run lists -->
+          <chainElement>
+            <jobTransform>
+              <doc>Job that generates all official good run lists</doc>
+              <jobTransformJobName>GenerateOfficialGoodRunLists</jobTransformJobName>
+              <jobTransformCmd>
+                createall_goodrunslists GoodRunsLists.OfficialGRLs grl_ ; cp -f data/*.xml ./ ; tar cvfz goodrunlists_`date "+%Y%m%d"`.tgz data/*.xml  
+              </jobTransformCmd>
+              <group>TCTTransform</group>
+              <queue>short</queue>
+              <batchWallTime>60</batchWallTime>
+            </jobTransform>
+          </chainElement>
+
+	</sequential>
+	
+      </chain>
+      
+    </jobList>
+    
+    <jobGroups>
+
+      <jobGroup name="GoodRunsLists" parent="Transform">
+	<keepFilePattern>*.xml</keepFilePattern>
+        <keepFilePattern>*.tgz</keepFilePattern>
+      </jobGroup>
+
+    </jobGroups>
+
+  </rtt>
+</unifiedTestConfiguration>
+

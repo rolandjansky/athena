@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Create an empty goodrunslist configuration with given name
+# 
+# Usage: definenew_goodrunslist <goodrunslistname>
+#
+#
+# (C) 2009 M. Baak 14/05/2009
+#
+#
+
+# -- Check number of arguments --
+if [ $# -ne 1 ] ; then
+   echo "usage: definenew_goodrunslist <name>"
+   echo "       [to be run in (top) GoodRunsLists/ directory]"
+   exit 1
+fi
+
+# -- Check existence of template files
+if [ ! -f python/TemplateConfig ] ; then
+   echo "ERROR: Cannot find template file 'python/TemplateConfig'. Exit."
+   echo "       Be sure to run this script in the (top) GoodRunsLists/ directory?"
+   exit 1
+fi
+
+# -- Check that output doesn't exist yet --
+if [ -f python/${1}.py ] ; then
+   echo "ERROR: File \'python/${1}.py\' already exists, will not overwrite."
+   exit 1 
+fi
+
+# -- Make named instance of template
+cat python/TemplateConfig | gawk '{ gsub("TemplateConfig","'$1'") ; print $0}' > python/${1}.py
+
+echo "Done, created: python/${1}.py"
+echo "To install this, be sure to: cd cmt/; gmake; source setup.sh"
+

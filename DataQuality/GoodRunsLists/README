@@ -1,0 +1,53 @@
+Last update: 2009-10-21, by Max Baak 
+
+
+All good-run-list documentation at:
+-----------------------------------
+https://twiki.cern.ch/twiki/bin/view/Atlas/GoodRunsLists
+
+
+Good-run-list Tutorial:
+-----------------------
+https://twiki.cern.ch/twiki/bin/view/Atlas/GoodRunsListsTutorial
+
+
+Compilation:
+------------
+For within Athena, do: 
+> cd cmt
+> cmt config; gmake; source setup.sh
+
+For standalone compilation, do:  
+> cd cmt
+> gmake -f Makefile.Standalone 
+Stand-alone library stored in ../StandAlone/ directory.
+
+
+Athena examples in the package GoodRunsListsUser:
+-------------------------------------------------
+> cd run
+> athena GoodRunsListsUser/GoodRunsListsUser_jobOptions.py
+
+(take a look at the tutorial for more options.)
+
+
+Stand-alone Examples:
+---------------------
+An example root macro:
+> cd run/
+> root -l
+> .L example.C
+> test1()
+> test2()
+
+Python example:
+> cd run/
+> python -i example.py
+
+---------------------
+
+rootcint command. 
+Run in cmt/ or config/ directory.
+
+${ROOTSYS}/bin/rootcint -f ../Root/TGoodRunsListsCint.cxx -c -p  -O2 -Wall -fPIC -pthread -m32 -I${ROOTSYS}/include -D__NOLIBXML__ -I${ROOTSYS}/include -I.. -I../Root -I../GoodRunsLists TUniqueGRLString.h RegularFormula.h StrUtil.h TMsgLogger.h TGoodRunsListWriter.h TGoodRunsListReader.h TLumiBlockRange.h TGoodRun.h TGoodRunsList.h TGRLCollection.h DQHelperFunctions.h LinkDef.h
+

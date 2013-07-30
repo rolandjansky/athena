@@ -1,0 +1,157 @@
+#!/usr/bin/env python
+
+import sys
+import os, os.path
+import shutil
+
+
+def getfilelist(location):
+
+  sampleFile = location
+  directory = location
+  if ( directory.rfind("/")!=(len(directory)-1) ):
+    directory+="/"
+
+  xmlfiles = []
+  rootfiles = []
+
+  ## Search for input root and xml files in directory
+  if os.path.exists( directory ):
+    print "INFO: Opening input directory: %s" % directory
+    for file in os.listdir(directory):
+      file = directory + file
+      if file.endswith('.xml'): xmlfiles.append(file)
+      if file.endswith('.root'): rootfiles.append(file)
+  ## Get files from input textfile
+  elif os.access(sampleFile,os.F_OK):
+    print "INFO: Opening input file : %s" % sampleFile 
+    FileList=open(sampleFile).readlines()
+    for file in FileList:
+      file = file.strip()
+      if (len(file)==0):
+        continue
+      elif (file.find("#")==0):
+        continue
+      elif (file.find("TITLE")==0):
+        continue
+      elif (file.find("FLAGS")==0):
+        continue
+      else:
+        if file.endswith('.xml'): xmlfiles.append(file)
+        if file.endswith('.root'): rootfiles.append(file)
+
+  return xmlfiles,rootfiles
+
+
+
+if __name__ == "__main__":
+
+  if len(sys.argv)<2:
+    print "usage: ", sys.argv[0], "[-t <dirOrTreeNameInRootFile>] <directoryorlistwithrootorxmlfiles> [<singlemergedxmlfile>] [<MergeIntoOne?True/False>] [<MatchGRLInfo?False/True>]"
+    sys.exit(1)
+
+  ## interpret cmd-line arguments
+  ## tree name for rootfiles
+  treeName = 'tree'
+  idx = 0
+  if (sys.argv[1] == "-t"):
+    if (len(sys.argv)<4):
+      print "usage: ", sys.argv[0], "[-t <dirOrTreeInRootFile>] <directoryorlistwithrootorxmlfiles> [<singlemergedxmlfile>] [<MergeIntoOne?True/False>] [<MatchGRLInfo?False/True>]"
+      sys.exit(1)
+    else:
+      treeName = sys.argv[2]
+      idx += 2
+  ## directory with xml files to be merged
+  directory = sys.argv[idx+1]
+  ## xml output file
+  mergedxmlfile = ''
+  if len(sys.argv)>=(idx+3): mergedxmlfile=sys.argv[idx+2]
+  ## merge grls into 1 NamedLumiRange ?
+  domerging=True
+  if len(sys.argv)>=(idx+4): domerging=('True'==sys.argv[idx+3])
+  ## when merging grls, only merge grls with same version and metadata?
+  matchGRLInfo=False
+  if len(sys.argv)>=(idx+5): matchGRLInfo=('True'==sys.argv[idx+4])
+
+  ## Search for input root and xml files
+  xmlfiles,rootfiles = getfilelist( directory )
+
+  if (len(xmlfiles)>0): print ">> Found %d input xml files." % (len(xmlfiles))
+  if (len(rootfiles)>0): print ">> Found %d input root files." % (len(rootfiles))
+  print ">> Now merging ... (this takes some time)"
+
+  ## Needed to correct ROOT behavior; see below
+  CWD = os.getcwd()
+  import ROOT
+  ## Importing gSystem may change the current directory to one of the
+  ## command-line arguments; chdir to original directory to have
+  ## predictable behavior
+  from ROOT import TFile, TTree, TList, TString, TKey, TObjString
+  from ROOT import gSystem
+  os.chdir(CWD)
+  ## Import the ROOT library for reading han results
+  gSystem.Load('libGoodRunsListsLib')
+  from ROOT import Root
+  ## read the goodrunslist xml files
+  reader = Root.TGoodRunsListReader()
+
+  ## now adding root and xml files to interpreter
+
+  ## grabbing grl strings from root files 
+  for rootfile in rootfiles:
+    file = TFile.Open(rootfile)
+    if file==None: continue
+    file.cd()
+    success = False
+    ## option 1 (defautl) : grl is written in lumi directory
+    dir = file.Get(treeName)
+    if dir!=None: 
+      success = True
+      keys = dir.GetListOfKeys()
+      if keys==None: continue
+      for idx in range(len(keys)):
+        key = keys.At(idx)
+        grlobj = TObjString( dir.Get(key.GetName()) )
+        if grlobj==None: continue
+        grlstr = grlobj.GetString()
+        ## grl xml idenditifier
+        if (grlstr.BeginsWith('<?xml version=\"1.0\"?') and grlstr.Contains('DOCTYPE LumiRangeCollection')):
+          reader.AddXMLString(grlstr)
+    ## option 2 : grl is attached to tree
+    if not success:
+      tree = file.Get(treeName)
+      if tree!=None:
+        list = tree.GetUserInfo()
+        if list==None: continue
+        for idx in range(len(list)):
+          grlobj = TObjString(list.At(idx))
+          if grlobj==None: continue
+          grlstr = grlobj.GetString()
+          ## grl xml idenditifier
+          if (grlstr.BeginsWith('<?xml version=\"1.0\"?') and grlstr.Contains('DOCTYPE LumiRangeCollection')):
+            reader.AddXMLString(grlstr)
+    file.Close()
+
+  ## looping over xml files
+  for xmlfile in xmlfiles:
+    reader.AddXMLFile(xmlfile)
+
+  reader.Interpret()
+  grlcollection = reader.GetMergedGRLCollection()
+
+  print ">> Found %d independent good-runs lists. Now writing merged xml files." % len(grlcollection)
+
+  ## Now write out xml again ... 
+  grlcollection.SetVersion('20') # signature of the merge scripts ;-)
+  writer = Root.TGoodRunsListWriter()
+  writer.SetGRLCollection( grlcollection )
+
+  if len( mergedxmlfile )==0:
+    writer.WriteXMLFiles()
+  else:
+    writer.SetFilename( mergedxmlfile ) ;
+    writer.SetMergeGoodRunsLists(domerging)
+    writer.SetCheckGRLInfo(matchGRLInfo)
+    ## merging takes place here
+    writer.WriteXMLFile()
+

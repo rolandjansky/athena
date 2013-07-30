@@ -1,0 +1,45 @@
+
+from GoodRunsLists.GoodRunsListConfig import GoodRunsListConfig
+
+class TemplateConfig(GoodRunsListConfig):
+  def __init__(self):
+    GoodRunsListConfig.__init__(self)
+
+    ## name in GRLB object, and below the xml filename
+    self.name            = "TemplateConfig"
+    self.listname        = "TemplateConfig.xml"
+
+    ## Specify each selection of dq flags here.
+    ## The query is interpreted as the logical AND of all elements in the array.
+
+    ## All selection criteria at: Database/CoolRunQuery/python/AtlRunQueryParser.py
+    ## possible dq flag colors : 'n.a.', 'unknown', 'green', 'yellow', 'red'
+    ## possible detectors (incomplete): pix,sct,em,til,lar,any,... 
+
+    ## See http://atlas-runquery.cern.ch for more user examples.
+    self.querydict['run']  = ["152166+"]
+    self.querydict['ptag'] = ["data10_7TeV"]
+
+    ## See http://atlas-runquery.cern.ch for more user examples.
+    dqflagsquery = [ 	#'pix g', 
+			#'sct g', 
+			#'trtb g', 
+			#'trte g',
+                     	#'lar g', 
+			#'tile g', 
+			#'mdt g', 
+			#'rpc g', 
+			#'tgc g'
+		   ]
+
+    ## Set the dqflags query
+    self.querydict['dq'] = dqflagsquery
+
+    ## lhc beam settings
+    self.querydict['lhc']  = [ "stablebeams T",
+                               "beamenergy 3400+",
+                             ]
+
+    ## ready for physics flag
+    self.querydict['ready'] = [ '1' ]
+
