@@ -1,0 +1,19 @@
+# This is a list, one per line, of ROD IDs -- in hex format -- in the run.
+#
+# For reference, the MSB is 
+#                            31 for Barrel A, 32 for Barrel C
+#                            33 for EndCap A, 34 for EndCap C
+# The middle byte is the phi sector
+# The LSB is 00
+#
+0x311700
+0x311800
+0x311a00
+0x311b00
+0x311c00
+0x321700
+0x321800
+0x321900
+0x321a00
+0x321b00
+0x321c00

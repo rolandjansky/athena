@@ -1,0 +1,17 @@
+# MAKE SURE THE PARTS OF THE DETECTOR READ OUT ARE UNCOMMENTED AND EVERYTHING ELSE IS COMMENTED!!!
+
+# rodid sector(phi) rod_con file        
+
+# Endcap C-side
+340308	9	-1	ec_rod1l
+34030C	9	-1	ec_rod2l
+340314	9	-1	ec_rod3l
+340408	10	-1	ec_rod1l
+34040C	10	-1	ec_rod2l
+340414	10	-1	ec_rod3l
+# 340908	15	-1	ec_rod1l
+# 34090C	15	-1	ec_rod2l
+# 340914	15	-1	ec_rod3l
+# 340A08	16	-1	ec_rod1r
+# 340A0C	16	-1	ec_rod2r
+# 340A14	16	-1	ec_rod3r
