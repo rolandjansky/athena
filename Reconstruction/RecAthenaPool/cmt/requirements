@@ -1,0 +1,48 @@
+package RecAthenaPool
+
+author David Rousseau  <rousseau@lal.in2p3.fr>
+author Sebastien Binet <binet@cern.ch>
+
+private
+
+use CLIDSvc		CLIDSvc-*	Control
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use GaudiInterface       GaudiInterface-*           External
+use MissingETEvent       MissingETEvent-*           Reconstruction
+use RecTPCnv		 	 RecTPCnv-*		    		Reconstruction
+use RecEvent	 	 RecEvent-*		    Reconstruction
+use StoreGate            StoreGate-*                Control
+use muonEvent            muonEvent-*                Reconstruction/MuonIdentification
+
+public
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasSealCLHEP       AtlasSealCLHEP-*           Database -no_auto_imports
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+
+branches RecAthenaPool src
+
+macro        recAthenaPool_poolCnvTypes ""
+macro_append recAthenaPool_poolCnvTypes "MuonCaloEnergyContainer "
+macro_append recAthenaPool_poolCnvTypes "Rec::MuonSpShowerContainer "
+macro_append recAthenaPool_poolCnvTypes "Analysis::MuonContainer "
+macro_append recAthenaPool_poolCnvTypes "TPCnv::MuonCaloEnergies "
+macro_append recAthenaPool_poolCnvTypes "RecoTimingObj "
+
+apply_pattern poolcnv typesWithNamespace=$(recAthenaPool_poolCnvTypes) \
+   files="-s=${MissingETEvent_root}/MissingETEvent MissingEtCalo.h MissingEtTruth.h MissingET.h MissingETComposition.h \
+          -s=${muonEvent_root}/muonEvent MuonSpShowerContainer.h MuonCaloEnergyContainer.h MuonContainer.h \
+          -s=${RecEvent_root}/RecEvent RecoTimingObj.h \
+          -s=${RecAthenaPool_root}/src MuonCaloEnergies.h "
+
+macro_append RecAthenaPoolPoolCnv_shlibflags " $(RecAthenaPool_dict_linkopts)"
+
+macro        recAthenaPool_poolIoHdlrTypes ""
+# no ElementLink to Rec::MuonSpShowerContainer (yet?)
+#macro_append recAthenaPool_poolIoHdlrTypes "Rec::MuonSpShowerContainer "
+macro_append recAthenaPool_poolIoHdlrTypes "Analysis::MuonContainer "
+
+#apply_pattern pooliohandler \
+#   typesWithNamespace=$(recAthenaPool_poolIoHdlrTypes) \
+#   handlerFiles="-s=${muonEvent_root}/muonEvent MuonCaloEnergyContainer.h MuonContainer.h"
