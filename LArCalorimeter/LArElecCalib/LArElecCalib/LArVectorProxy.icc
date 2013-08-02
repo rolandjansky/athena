@@ -1,0 +1,124 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file LArElecCalib/LArVectorProxy.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2011
+ * @brief Proxy for accessing a range of float values like a vector.
+ */
+
+
+#include <stdexcept>
+
+
+/**
+ * @brief Default constructor. 
+ *        Creates the proxy in an invalid state.
+ */
+inline
+LArVectorProxy::LArVectorProxy()
+  : m_beg(0),
+    m_end(0)
+{
+}
+
+
+/**
+ * @brief Construct a proxy referencing an existing vector.
+ * @param vec The existing vector to reference.
+ */
+inline
+LArVectorProxy::LArVectorProxy (const std::vector<float>& vec)
+  : m_beg (&*vec.begin()),
+    m_end (m_beg + vec.size())
+{
+}
+
+
+/**
+ * @brief Construct a proxy referencing a range of vectors in memory.
+ * @param beg Pointer to the start of the range.
+ * @param end Pointer to the (exclusive) end of the range.
+   */
+inline
+LArVectorProxy::LArVectorProxy (const float* beg, const float* end)
+  : m_beg (beg),
+    m_end (end)
+{
+}
+
+
+/**
+ * @brief Test to see if the proxy has been initialized.
+ */
+inline
+bool LArVectorProxy::valid() const
+{
+  return m_beg != 0;
+}
+
+
+/**
+ * @brief Return the size of the range being proxied.
+ */
+inline
+size_t LArVectorProxy::size() const
+{
+  return m_end - m_beg;
+}
+
+
+/**
+ * @brief Vector indexing.
+ */
+inline
+float LArVectorProxy::operator[] (size_t i) const
+{
+  return m_beg[i];
+}
+
+
+/**
+ * @brief Vector indexing with bounds check.
+ */
+inline
+float LArVectorProxy::at (size_t i) const
+{
+  if (i >= size())
+    throw std::out_of_range ("LArVectorProxy::at");
+  return m_beg[i];
+}
+
+
+/**
+ * @brief Convert back to a vector.
+ */
+inline
+std::vector<float> LArVectorProxy::asVector() const
+{
+  return std::vector<float> (m_beg, m_end);
+}
+
+
+/**
+ * @brief Begin iterator.
+ */
+inline
+LArVectorProxy::const_iterator LArVectorProxy::begin() const
+{
+  return m_beg;
+}
+
+
+/**
+ * @brief End iterator.
+ */
+inline
+LArVectorProxy::const_iterator LArVectorProxy::end() const
+{
+  return m_end;
+}
+
