@@ -1,0 +1,297 @@
+TGCcabling readme
+                                      Yousuke Kataoka (original version)
+                                      H.Kurashige     (Aug. 2007)
+                                      E-mail: Hisaya.Kurashige@cern.ch 
+
+1. TGCcablingSvc
+
+  TGCcablingSvc manages all cablings in TGC electronics system.
+
+      <TGC electronics system>
+
+       ASD -- PP -- SLB -- HPB -- SL   (-- MuonCTPI)    trigger part
+                      |		
+                        -- SSW -- ROD  (-- ROS)         readout part
+
+
+      <methods> getChannel, getModule
+
+
+
+  This service also provides transformation of 3 IDs.
+
+      <IDs>   OfflineID  ... offline Muon Identifier
+
+              OnlineID   ... private numbering scheme of offline IDs
+
+              ReadoutID  ... IDs shown in RDO
+
+
+      <methods> getOfflineIDfromReadoutID, getReadoutIDfromOfflineID
+                getOfflineIDfromOnlineID,  getOnlineIDfromOfflineID
+                getOnlineIDfromReadoutID,  getReadoutIDfromOnlineID
+
+
+
+2. getChannel method
+
+  this method provide connections of channels shown below.
+
+    <channels>
+
+       ASDIn   ... detector channel in Muon ID Identifier numbering scheme
+                   this is TGC chamber channel
+
+       ASDOut  ... detector channel in private online numbering scheme
+                   this is chnanel in terms of "sector"
+
+       PPIn    ... input channel for front-end module PatchPanel
+                   this is front channel of TGC electronics
+
+       PPOut   ... output channel for front-end module PatchPanel
+                   this is channel after Oring, adjacent scheme
+
+       SLBIn   ... input channel for coincidence matrix SlaveBoard
+                   (2-station coincidence for doublets and
+                    coincidence for triplets)                   
+                   this is also used for hitmap channel in RDO
+
+       SLBOut  ... output channel for coincidence matrix SlaveBoard
+                   this is also used for coincidence channel in RDO
+
+       HPBIn   ... input channel for coincidence matrix High Pt Board
+                    (3-station coincidence )
+                    this is also used for coincidence channel in RDO
+
+
+    <connections>
+
+       ASDIn <--> ASDOut  ... nothing but numbering scheme transformation
+                              
+       ASDOut<--> PPIn    ... detector to electronics mapping
+
+       PPIn  <--> PPOut   ... 1to1, 1to2, 2to1 for Oring or adjacent 
+
+       PPOut <--> SLBIn   ... connection to second module SLB
+
+       SLBIn <--> SLBOut  ... double or triple for channel stagging
+
+       SLBOut <--> HPBIn  ... mapping between SLB chip and HPB block 
+
+3. getModule method
+
+  this method provide connections of modules shown below.
+
+    <modules>
+
+       PP  (PatchPanel)    ... BCID, Oring
+                               many modules in a sector
+
+       SLB (SlaveBoard)    ... Coincidence matrix for "LowPt"
+                               many modules in a sector, 6types WD,WT,SD,ST,WI,SI
+
+       HPB (HighPtBoard)   ... Coincedence matrix for "HighPt"
+                               some modules in a sector, 2types Wire,Strip
+
+       SL  (SectorLogic)   ... Pt decision
+                               one in each sector
+
+       SSW (StarSwitch)    ... Readout module in front-end
+                               10 modules in each readout sector (1/12 of wheel)
+
+       ROD (ReadOutDriver) ... Readout module in back-end
+                               only one in each readout sector
+
+    <connections>
+
+       PP  <--> SLB  ... 1 to 2,     consistent to PPOut <-> SLBIn
+
+       SLB <--> HPB  ... some to 1,  in the same signalType and sector
+
+       HPB <--> SL   ... some to 1,  in the same sector
+
+       SLB <--> SSW  ... some to 1,  in the same readout sector (1/12 of wheel)
+
+       SSW <--> ROD  ... some (10) to 1,    in the same readout sector 
+
+
+
+4. getOfflineIDfromReadoutID, ... methods
+
+  this method provide connections of IDs shown below.
+
+    <IDs>
+
+      offline IDs ...   offline Muon Identifier
+                        ASDIn has OfflineID
+                          see MuonSpectrometer/MuonIdHelpers/TgcIdHelper.h
+                              or ATL-MUON-2002-019
+
+ 		stationName 	Tx(E/F)
+				x  : station number 1:M1 2:M2 3:M3 4:Inner
+				E/F: Endcap / Forward
+		
+		stationEta	chmaber numbering in eta (increases with R!!!)
+				plus sign : A-side  minus sign :C-side
+                                 Ex: M1
+				     4: T8 3:T7 2:T6 1:T3 
+                                 Ex: M3
+				     5: T9 4:T8 3:T7 2:T6 1:T5 
+			
+		stationPhi	chamber numbering in phi from x-axis 
+				Endcap          1..48
+				Forward         1..24 	
+				Endcap Inner    1..21
+				Endcap Forward  1..24
+
+		channel		Wire  : 1 .. n increases with R	
+				Strip : 1 ..32 increases with Phi
+
+		
+      online IDs  ...   private numbering scheme of offline IDs
+                        ASDOut hs OnlineID 
+
+               subsystemNumber   1 for Aside(z>0), -1 for Cside(z<0)
+
+               octantNumber      0..7 increases with phi
+
+               moduleNumber
+                                   <---- phi ----      
+                          
+                                  7 6 4 3 1 0        11 10  9
+                                   8   5   2         14 13 12
+                           
+                                  [M1,M2, M3]         [EI/FI] 
+
+               layerNumber       0..6 increases with |Z|
+                                     (strip triplet 0 or 2)
+	                         7,8 for EI/FI 
+
+               rNumber           0..n increases with eta in a sector
+                                 Ex: M1
+				     1: T8 2:T7 3:T6 4:T3 
+                                 Ex: M3
+				     0: T9 1:T8 2:T7 3:T6 4:T5 
+               
+
+               wireOfStrip       0 for wire, 1 for strip
+
+               channelNumber     0..n   increases with ASD channel number in a sector
+                                 Wire:  inreases with eta 
+                                 Strip: increases with phi 
+		                   A-side FoRward chamber
+				   C-side Backward Chamber
+                                 Strip: decreases with phi 
+		                   A-side Backward  chamber
+				   C-side Forward Chamber                         
+
+      readout IDs  ...   IDs shown in RDO
+
+               subDetectorID     0x67 for Aside(z>0), 0x68 for Cside(z<0)
+
+               rodID             1 .. 12 for readout sector 0..11 
+ 
+               sswID           
+                         In a readout sector (1/12 wheel) 
+                                0,1         for endcap triplet
+				2           for forward triplet
+                                3,4,5,6     for endcap doublet
+                                7           for forward doublet
+                              
+                         In the whole wheel         
+                                8           for Inner station
+				            ( each covers 1/4 wheel)
+                                9          for SLB on SL
+					    (each covers 1/12 wheel)
+ 
+               sbLoc            0..n        unique identifer for each SLB in a SSW 
+                                see details in 'PSPack' sheet in 
+                                http://atlas.web.cern.ch/Atlas/project/TGC/www/design/tgc.xls
+                      
+               channelID         0..199 channel of SLB 
+                                   (40..199 is hitmap, 0..39 is used for coincidence info)
+
+
+       other IDs  
+               slbID             0..n   first wire, then strip
+                                        for each, larger phi sector is back
+                                        in a sector, id increases with eta
+                                 (used in TrigT1TGC not appeared in BS and RDO)   
+        
+               slbAddress        0..31  slb address which set by DIP SW on SB 
+                                        can be obtained from Readout ID by using method   
+                                         getSLBAddressfromReadoutID
+
+               rxID              0..22  input connector ID of SSW
+                                        can be used instead of sbLoc by using
+                                          getSLBIDfromRxID
+
+	      sector		 Endcap   0 .. 47
+                                 Forward  0 .. 23
+                                 Inner    0 .. 23
+                                 increases with phi 
+                                 #0 sector is in 0ctant #0
+
+				mapping between sector and station Phi
+				Endcap
+				 sector	  0   1   2   3   4   ... 
+				 Phi     47  48   1   2   3   ...
+			 	Forward 
+				 sector	  0   1   2   3   4   ... 
+				 Phi     24   1   2   3   4   ...
+			 	Endcap Inner
+				 sector	  0  1  2  3  4  5  6  7  8  9 10 11
+				 Phi     21  1  2  3  4  5  6  7  8  -  9 10
+				 sector	 12 13 14 15 16 17 18 19 20 21 22 23
+				 Phi     11 12 13 14 15  - 16 17 18  - 19 20
+			 	Forward Inner
+				 sector	  0   1   2   3   4   ... 
+				 Phi     24   1   2   3   4   ...
+
+              sectorInReadout    0 .. 11 increases with phi
+                                 ( = rodID -1)
+                                 Each readoutSector covers 4 endcap sectors and 2 forward sectors
+                                 ex) readoutSector #0 covers
+                                   Endcap sector   0 .. 3
+                                   Forward sector  0 .. 1
+                                 Inner sectors in each 1/4 wheel is covered by one readout sector
+                                 ex) readoutSector #1 covers
+                                   Endcap  Inner sector  0 .. 5 
+                                   Forward Inner sector  0 .. 5 
+
+	related properties  
+
+               isBackward        indicates Backward chamber if true
+				 F/B assignment is as follows			
+                                A-side
+                                Endcap
+                        	sector      0    1    2    3    4    5
+                                            F    B    F    B    F    B
+                                Forward
+                               	sector      0         1         2
+                                            B         B         B
+                                Endcap Inner (except for octant#5)
+                               	sector      0         1         2
+                                            F         F         B
+                                Endcap Inner (octant#5)
+                               	sector      0         1         2
+                                            F         B         -
+                                Forward Inner 
+                               	sector      0         1         2
+                                            B         B         B
+                               (F <--> B is reversed in C-side)
+
+
+					 
+
+5. necessary files (under share directory)
+       ASD2PP_12.db        connection table between ASDs and PP inputs 
+       PP_12.db                                     PP inputs and outputs (i.e. SLBs)
+       PP2SL_12.db                                  PP outputs(SLB) and SLs (trigger path)
+       SLB2ROD_12.db                                SLBs and RODs (readout path)  
+
+       These files describes connection in a 1/12 sector. i
+       All 1/12 sectors are same except for connection described by files listed below.  
+
+       ASD2PP_diff_12.db        connection table between ASDs and PP inputs
+  
