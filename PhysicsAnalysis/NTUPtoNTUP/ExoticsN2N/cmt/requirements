@@ -1,0 +1,17 @@
+package ExoticsN2N
+
+use AtlasPolicy AtlasPolicy-*
+
+
+private
+use AtlasROOT   AtlasROOT-*   External
+
+branches doc python share
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+application ExoticsMultiJetSkim ../src/ExoticsMultiJetSkim.cxx
+macro_append ExoticsMultiJetSkim_use_linkopts " -L$(ROOTSYS)/lib -lCintex -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
+
+end_private
