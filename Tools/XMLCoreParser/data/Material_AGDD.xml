@@ -1,0 +1,283 @@
+<!-- <?xml version="1.0"?>
+<!DOCTYPE AGDD SYSTEM "AGDD_1.04.dtd">
+-->
+<!--  Atlas Global Data Base: Materials
+     **********************************
+
+     version 1.3: RPC and TGC material additions and modifications
+                  (S. Goldfarb - 24 August 2000)
+
+     version 1.2: Added most densities for elements
+                  Fix bugs in densities gasses.
+
+     version 1.1: Added materials for the pixel detector
+
+     version 1.0: Initial version with all elements and some
+                  composites.
+ 
+-->
+<!-- <AGDD> -->
+
+<materials version="1.3"
+           date="Tue Mar 21, 2000"
+	   author="Stan Bentvelsen + Alexandre Rozanov"
+           DTD_version="v4" >
+
+  <!-- Define the elements -->
+
+  <element name="Hydrogen    " symbol="H "   z=" 1"   aweight="1.00797"  density="0.0708" />
+  <element name="Deuterium   " symbol="D "   z=" 1"   aweight="2.01"     density="0.162"  />
+  <element name="Helium      " symbol="He"   z=" 2"   aweight="4.0026"   density="0.125"  />
+  <element name="Lithium     " symbol="Li"   z=" 3"   aweight="6.9410"   density="0.534"  />
+  <element name="Beryllium   " symbol="Be"   z=" 4"   aweight="9.0122"   density="1.8480" />
+  <element name="Boron10     " symbol="B10"  z=" 5"   aweight="10.0"     density="2.34"   />
+  <element name="Boron11     " symbol="B11"  z=" 5"   aweight="11.0"     density="2.34"   />
+  <element name="Carbon      " symbol="C "   z=" 6"   aweight="12.011 "  density="2.2650" />
+  <element name="Nitrogen    " symbol="N "   z=" 7"   aweight="14.0067 " density="0.808"  />
+  <element name="Oxygen      " symbol="O "   z=" 8"   aweight="15.9995 " density="0.00143"/>
+  <element name="Fluorine    " symbol="F "   z=" 9"   aweight="18.9984 " density="1.1080" />
+  <element name="Neon        " symbol="Ne"   z="10"   aweight="20.179"   density="1.2070" />
+  <element name="Sodium      " symbol="Na"   z="11"   aweight="22.9898 " density="0.969"  />
+  <element name="Magnesium   " symbol="Mg"   z="12"   aweight="24.305"   density="1.735"  />
+  <element name="Aluminum    " symbol="Al"   z="13"   aweight="26.9815"  density="2.700"  />
+  <element name="Silicon     " symbol="Si"   z="14"   aweight="28.086"   density="2.33"   />
+  <element name="Phosphorus  " symbol="P "   z="15"   aweight="30.9738 " density="1.82"   />
+  <element name="Sulfur      " symbol="S "   z="16"   aweight="32.06 "   density="2.07"   />
+  <element name="Chlorine    " symbol="Cl"   z="17"   aweight="35.453 "  density="1.56"   />
+  <element name="Argon       " symbol="Ar"   z="18"   aweight="39.948"   density="0.001639"/>
+  <element name="Potassium   " symbol="K "   z="19"   aweight="39.098 "  density="0.860"  />
+  <element name="Calcium     " symbol="Ca"   z="20"   aweight="40.08 "   density="1.55"   />
+  <element name="Scandium    " symbol="Sc"   z="21"   aweight="44.956 "  density="2.98"   />
+  <element name="Titanium    " symbol="Ti"   z="22"   aweight="47.90 "   density="4.53"   />
+  <element name="Vanadium    " symbol="V "   z="23"   aweight="50.9414 " density="6.10"   />
+  <element name="Chromium    " symbol="Cr"   z="24"   aweight="51.996 "  density="7.18"   />
+  <element name="Manganese   " symbol="Mn"   z="25"   aweight="54.9830 " density="7.43"   />
+  <element name="Iron        " symbol="Fe"   z="26"   aweight="55.847"   density="7.87"   />
+  <element name="Cobalt      " symbol="Co"   z="27"   aweight="58.9332 " density="8.90"   />
+  <element name="Nickel      " symbol="Ni"   z="28"   aweight="58.70 "   density="8.876"  />
+  <element name="Copper      " symbol="Cu"   z="29"   aweight="63.546"   density="8.96"   />
+  <element name="Zinc        " symbol="Zn"   z="30"   aweight="65.38 "   density="7.112"  />
+  <element name="Gallium     " symbol="Ga"   z="31"   aweight="69.72 "   density="5.877"  />
+  <element name="Germanium   " symbol="Ge"   z="32"   aweight="72.59 "   density="5.3230" />
+  <element name="Arsenic     " symbol="As"   z="33"   aweight="74.9216 " density="5.72"   />
+  <element name="Selenium    " symbol="Se"   z="34"   aweight="78.96 "   density="4.78"   />
+  <element name="Bromine     " symbol="Br"   z="35"   aweight="79.904 "  density="3.11"   />
+  <element name="Krypton     " symbol="Kr"   z="36"   aweight="83.80"    density="2.60"   />
+  <element name="Rubidium    " symbol="Rb"   z="37"   aweight="85.4678 " density="1.529"  />
+  <element name="Strontium   " symbol="Sr"   z="38"   aweight="87.62 "   density="2.54"   />
+  <element name="Yttrium     " symbol="Y "   z="39"   aweight="88.909 "  density="4.456"  />
+  <element name="Zirconium   " symbol="Zr"   z="40"   aweight="91.22 "   density="6.494"  />
+  <element name="Niobium     " symbol="Nb"   z="41"   aweight="92.9064 " density="8.55"   />
+  <element name="Molybdenum  " symbol="Mo"   z="42"   aweight="95.94 "   density="10.20"  />
+  <element name="Technetium  " symbol="Tc"   z="43"   aweight="97 "      density="11.48"  />
+  <element name="Ruthenium   " symbol="Ru"   z="44"   aweight="101.07 "  density="12.39"  />
+  <element name="Rhodium     " symbol="Rh"   z="45"   aweight="102.905 " density="12.39"  />
+  <element name="Palladium   " symbol="Pd"   z="46"   aweight="106.04 "  density="12.00"  />
+  <element name="Silver      " symbol="Ag"   z="47"   aweight="107.868 " density="10.48"  />
+  <element name="Cadmium     " symbol="Cd"   z="48"   aweight="112.40 "  density="8.63"   />
+  <element name="Indium      " symbol="In"   z="49"   aweight="114.82 "  density="7.30"   />
+  <element name="Tin         " symbol="Sn"   z="50"   aweight="118.69 "  density="7.31"   />
+  <element name="Antimony    " symbol="Sb"   z="51"   aweight="121.75 "  density="6.679"  />
+  <element name="Tellurium   " symbol="Te"   z="52"   aweight="127.60 "  density="6.23"   />
+  <element name="Iodine      " symbol="I "   z="53"   aweight="126.9046" density="7.30"   />
+  <element name="Xenon       " symbol="Xe"   z="54"   aweight="131.30"   density="3.057"  />
+  <element name="Cesium      " symbol="Cs"   z="55"   aweight="132.905 " density="1.870"  />
+  <element name="Barium      " symbol="Ba"   z="56"   aweight="137.34 "  density="3.50"   />
+  <element name="Larthanum   " symbol="La"   z="57"   aweight="138.91 "  density="6.127"  />
+  <element name="Cerium      " symbol="Ce"   z="58"   aweight="140.12 "  density="6.637"  />
+  <element name="Praseodymium" symbol="Pr"   z="59"   aweight="140.908 " />
+  <element name="Neodymium   " symbol="Nd"   z="60"   aweight="144.24 "  />
+  <element name="Promethium  " symbol="Pm"   z="61"   aweight="145 "     />
+  <element name="Samarium    " symbol="Sm"   z="62"   aweight="150.4 "   />
+  <element name="Europium    " symbol="Eu"   z="63"   aweight="151.96 "  />
+  <element name="Gadolinium  " symbol="Gd"   z="64"   aweight="157.25 "  />
+  <element name="Terbium     " symbol="Tb"   z="65"   aweight="158.925 " />
+  <element name="Dysprosium  " symbol="Dy"   z="66"   aweight="162.50 "  />
+  <element name="Holmium     " symbol="Ho"   z="67"   aweight="164.930 " />
+  <element name="Erbium      " symbol="Er"   z="68"   aweight="167.26 "  />
+  <element name="Thulium     " symbol="Tm"   z="69"   aweight="168.934 " />
+  <element name="Ytterbium   " symbol="Yb"   z="70"   aweight="173.04 "  />
+  <element name="Lutetium    " symbol="Lu"   z="71"   aweight="174.97"   />
+  <element name="Hafnium     " symbol="Hf"   z="72"   aweight="178.49 "  />
+  <element name="Tantalum    " symbol="Ta"   z="73"   aweight="180.948 " />
+  <element name="Tungsten    " symbol="W "   z="74"   aweight="183.85 "  density="19.3"   />
+  <element name="Rhenium     " symbol="Re"   z="75"   aweight="186.207 " />
+  <element name="Osmium      " symbol="Os"   z="76"   aweight="190.2 "   />
+  <element name="Iridium     " symbol="Ir"   z="77"   aweight="192.22 "  />
+  <element name="Platinum    " symbol="Pt"   z="78"   aweight="195.09 "  />
+  <element name="Gold        " symbol="Au"   z="79"   aweight="196.967 " density="18.85"  />
+  <element name="Mercury     " symbol="Hg"   z="80"   aweight="200.59 "  />
+  <element name="Thallium    " symbol="Tl"   z="81"   aweight="204.37 "  />
+  <element name="Lead        " symbol="Pb"   z="82"   aweight="207.2 "   density="11.35"  />
+  <element name="Bismuth     " symbol="Bi"   z="83"   aweight="208.980 " density="9.37"   />
+  <element name="Polonium    " symbol="Po"   z="84"   aweight="209 "     />
+  <element name="Astatine    " symbol="At"   z="85"   aweight="210 "     />
+  <element name="Radon       " symbol="Rn"   z="86"   aweight="222"      />
+  <element name="Francium    " symbol="Fr"   z="87"   aweight="223 "     />
+  <element name="Radium      " symbol="Ra"   z="88"   aweight="226.03 "  />
+  <element name="Actinium    " symbol="Ac"   z="89"   aweight="227"      />
+  <element name="Thorium     " symbol="Th"   z="90"   aweight="232.038 " />
+  <element name="Protactinium" symbol="Pa"   z="91"   aweight="231.038 " />
+  <element name="Uranium     " symbol="U "   z="92"   aweight="238.03 "  density="18.950" />
+  <element name="Neptunium   " symbol="Np"   z="93"   aweight="237.048 " />
+
+  <!-- Define the composite materials -->
+
+  <composite name="Boron" density="2.34">
+    <addmaterial material="Boron10"> <natoms n="2"/> </addmaterial>
+    <addmaterial material="Boron11"> <natoms n="8"/> </addmaterial>
+  </composite>
+
+  <composite name="Scintillator" density="1.032">
+    <addmaterial material="Carbon">   <natoms n="9"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="10"/> </addmaterial>
+  </composite>
+
+  <composite name="Air" density="0.001214">
+    <addmaterial material="Nitrogen"> <fractionmass fraction="0.7494"/> </addmaterial>
+    <addmaterial material="Oxygen">   <fractionmass fraction="0.2369"/> </addmaterial>
+    <addmaterial material="Argon">    <fractionmass fraction="0.0129"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <fractionmass fraction="0.0008"/> </addmaterial>
+  </composite>
+
+  <composite name="CO2" density="0.001977">
+    <addmaterial material="Carbon">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="2"/> </addmaterial>
+  </composite>
+   
+  <composite name="ArCO2" density="0.0018">
+    <addmaterial material="Argon">    <fractionmass fraction="0.93"/> </addmaterial>
+    <addmaterial material="CO2">      <fractionmass fraction="0.07"/> </addmaterial>
+  </composite>
+
+  <!-- Old RPC/TGC materials left for backwards compatibility -->
+
+  <composite name="RPCgas" density="0.001977">
+    <addmaterial material="Carbon">   <natoms n="2"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="2"/> </addmaterial>
+    <addmaterial material="Fluorine"> <natoms n="4"/> </addmaterial>
+  </composite>
+
+  <composite name="RPVC" density="0.0018">
+    <addmaterial material="Carbon">   <natoms n="2"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="3"/> </addmaterial>
+    <addmaterial material="Chlorine"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+  <composite name="Bakelite" density="1.4">
+    <addmaterial material="Carbon">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="4"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="Honeycomb" density="1.4">
+    <addmaterial material="Arsenic">  <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <!-- Muon RPC Materials (S.Goldfarb, A.DiCiaccio - 24.08.2000) -->
+
+  <composite name="RPC_Bakelite" density="1.40">
+    <addmaterial material="Carbon">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="4"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="RPC_Gas" density="0.006">
+    <addmaterial material="Carbon">   <natoms n="2"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="2"/> </addmaterial>
+    <addmaterial material="Fluorine"> <natoms n="4"/> </addmaterial>
+  </composite>
+
+  <composite name="RPC_Honeycomb" density="1.40">
+    <addmaterial material="Arsenic">  <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="RPC_PVC" density="0.04">
+    <addmaterial material="Carbon">   <natoms n="2"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="3"/> </addmaterial>
+    <addmaterial material="Chlorine"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+  <composite  name="RPC_Styrene" density="0.035">
+    <addmaterial material="Carbon">   <natoms n="8"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="8"/> </addmaterial>
+  </composite>
+
+  <!-- Muon TGC Materials (S.Goldfarb, G.Mikus 24.08.2000) -->
+
+  <composite name="TGC_FR4" density="1.5">
+    <addmaterial material="Silicon">   <natoms n="5"/> </addmaterial> 
+  </composite>
+
+  <composite name="TGC_Gas" density="1.5">
+    <addmaterial material="Oxygen">   <natoms n="2"/> </addmaterial> 
+  </composite>
+
+  <composite name="TGC_Honeycomb" density="1.4">
+    <addmaterial material="Arsenic">  <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <!-- Pixel detector materials 29.10.99 A.Rozanov -->
+
+  <composite name="Nylon" density="1.14">
+    <addmaterial material="Nitrogen"> <natoms n="1"/> </addmaterial>
+    <addmaterial material="Carbon">   <natoms n="6"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="11"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="1"/> </addmaterial>
+  </composite>
+
+  <composite name="Lexan" density="1.20">
+    <addmaterial material="Carbon">   <natoms n="16"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="14"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="3"/> </addmaterial>
+  </composite>
+
+  <composite name="Mylar" density="1.39">
+    <addmaterial material="Carbon">   <natoms n="5"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="4"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="Polyethylene" density="0.95">
+    <addmaterial material="Carbon">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="Kapton" density="1.42">
+    <addmaterial material="Carbon">   <natoms n="22"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="10"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="5"/> </addmaterial>
+    <addmaterial material="Nitrogen"> <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="Plexiglas" density="1.20">
+    <addmaterial material="Carbon">   <natoms n="5"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="8"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="Polystyrene" density="1.032">
+    <addmaterial material="Carbon">   <natoms n="8"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="8"/> </addmaterial>
+  </composite>
+
+  <composite name="Teflon" density="2.20">
+    <addmaterial material="Carbon">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="Fluorine"> <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="Elsilicon" density="2.3">
+    <addmaterial material="Silicon">  <natoms n="5"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="Aluminum"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+  <composite name="CarbonCarbon" density="2.3">
+    <addmaterial material="Carbon">   <natoms n="5"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <natoms n="1"/> </addmaterial>
+    <addmaterial material="Oxygen">   <natoms n="1"/> </addmaterial>
+  </composite>
+
+</materials>
+
+<!-- </AGDD> -->

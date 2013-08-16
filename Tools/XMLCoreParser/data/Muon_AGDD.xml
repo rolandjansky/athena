@@ -1,0 +1,84 @@
+
+<!--  Atlas Generic Detector Description : test for MUON BARREL
+     ***********************************************************
+-->
+<section name        = "MU"
+         version     = "1.1"
+         date        = "Thu Oct 7"
+         author      = "Marc Virchaux"
+         top_volume  = "MU_Barrel"
+         DTD_version = "v4">
+
+<!-- create the BML 1 Station -->
+<box  name="MU_BML1_RPC1" X_Y_Z="100.  3440. 1440." material="Honeycomb" parameters="inner_RPC_1" />
+<box  name="MU_BML1_MDT1" X_Y_Z="96.96 3580. 1440." material="Air"       parameters="inner_MDT_1" />
+<box  name="MU_BML1_SPA1" X_Y_Z="317.    80. 1420." material="Aluminum" />
+<box  name="MU_BML1_MDT2" X_Y_Z="96.96 3580. 1440." material="Air"       parameters="inner_MDT_2" />
+ 
+<composition  name="MU_Stat_BML1">
+   <posXYZ  volume="MU_BML1_RPC1"  X_Y_Z="  0        0  0">  <layer value=" 1" />  </posXYZ>
+   <posXYZ  volume="MU_BML1_MDT1"  X_Y_Z="130.       0  0">  <layer value=" 2" />  </posXYZ>
+   <posXYZ  volume="MU_BML1_SPA1"  X_Y_Z="336.98 -1700. 0">  <layer value=" 3" />  </posXYZ>
+   <posXYZ  volume="MU_BML1_SPA1"  X_Y_Z="336.98     0  0">  <layer value="13" />  </posXYZ>
+   <posXYZ  volume="MU_BML1_SPA1"  X_Y_Z="336.98  1700. 0">  <layer value="23" />  </posXYZ>
+   <posXYZ  volume="MU_BML1_MDT2"  X_Y_Z="543.96     0  0">  <layer value=" 4" />  </posXYZ>
+   <posXYZ  volume="MU_BML1_RPC1"  X_Y_Z="673.96     0  0">  <layer value=" 5" />  </posXYZ>
+</composition>
+ 
+<!-- place stations in Muon barrel -->
+<composition  name="MU_Barrel">
+   <mposPhi volume="MU_Stat_BML1"  ncopy="8"  R_Z="6730.54  150.">  
+      <ring   value="1" step="1" />
+      <sector value="1" />
+   </mposPhi>
+   <mposPhi volume="MU_Stat_BML1"  ncopy="8"  R_Z="6730.54 1610.">
+      <ring   value="1" step="1" />
+      <sector value="2" />
+   </mposPhi>
+   <mposPhi volume="MU_Stat_BML1"  ncopy="8"  R_Z="6730.54 3070.">
+      <ring   value="1" step="1" />
+      <sector value="3" />
+   </mposPhi>
+   <mposPhi volume="MU_Stat_BML1"  ncopy="5"  R_Z="6730.54 4530." dPhi="45.">
+      <ring   value="1" step="1" />
+      <sector value="4" />
+   </mposPhi>
+   <posRPhiZ volume="MU_Stat_BML1" R_Phi_Z="6730.54 270. 4530.">
+      <ring   value="1" step="1" />
+      <sector value="7" />
+   </posRPhiZ>
+</composition>
+
+<!--
+<innerstruct  name="inner_MDT_1"  type="MDT"  format="1">
+         3        0.80                  | Nb. of layers  Total radiative thickness
+         30.     55.98   81.96          | dimentions of ....
+         30.     14.60   96.96          | z positions of layers
+         15.     30.     15.            | x positions of first tube of each layer
+</innerstruct>
+-->
+
+<parameters name="inner_MDT_1" type="MDT">
+  <real name="layers"              value="3"    unit="none"           comment="number of layers" />
+  <real name="radiative_thickness" value="0.80" unit="cm"             comment="total radiative thickness" />
+  <real_array name="dimensions"    values="30. 55.98 81.96" unit="cm" />
+  <real_array name="z_positions"   values="30. 14.60 96.96" unit="cm" comment="z positions of layers" />
+  <real_array name="x_positions"   values="15. 30. 15."     unit="cm" comment="x positions of first tube of each layer" />
+</parameters>
+
+<parameters name="inner_MDT_2"  type="MDT">
+
+<!--         blablabla... -->
+
+</parameters>
+
+<parameters  name="inner_RPC_1"  type="RPC">
+
+<!--         blablabla... -->
+
+</parameters>
+
+</section>
+
+
+ 

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE IdDict SYSTEM "IdDict.dtd" [
+  <!ENTITY ABCD SYSTEM "">
+]>
+
+<IdDict IdDictVersion="v1">
+
+&ABCD;
+
+</IdDict>
+

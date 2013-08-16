@@ -1,0 +1,405 @@
+
+
+<materials version="2.0"
+           date="October 3, 2001"
+	   author="Stan Bentvelsen"
+           DTD_version="v6" >
+
+
+<!--
+     Standard Isotopes
+     *****************
+
+     Definition of the isotopes.
+-->
+
+  <isotope  name='Bor_10'  z='5.000' n='10' a='10.000' />
+  <isotope  name='Bor_11'  z='5.000' n='11' a='11.000' />
+
+<!-- 
+     Standard Elements
+     *****************
+
+     Definition of all the elements. They are identified by their
+     symbol. 
+     The element can be created from an <atom>, i.e. an effective
+     atomic weight and effective atomic number. 
+     They can also be created from a list of <isotopes>.
+-->
+
+  <element symbol="H " ><atom  zeff=" 1.0"   aweight="1.00797"  /></element>
+  <element symbol="D " ><atom  zeff=" 1.0"   aweight="2.01"     /></element>
+  <element symbol="He" ><atom  zeff=" 2.0"   aweight="4.0026"   /></element>
+  <element symbol="Li" ><atom  zeff=" 3.0"   aweight="6.9410"   /></element>
+  <element symbol="Be" ><atom  zeff=" 4.0"   aweight="9.0122"   /></element>
+
+  <element symbol='B'>
+    <addisotope name="Bor_10" natoms='2' /> 
+    <addisotope name="Bor_11" natoms='8' /> 
+  </element>
+
+  <element symbol="C " ><atom  zeff=" 6.0"   aweight="12.011 "  /></element>
+  <element symbol="N " ><atom  zeff=" 7.0"   aweight="14.0067 " /></element>
+  <element symbol="O " ><atom  zeff=" 8.0"   aweight="15.9995 " /></element>
+  <element symbol="F " ><atom  zeff=" 9.0"   aweight="18.9984 " /></element>
+  <element symbol="Ne" ><atom  zeff="10.0"   aweight="20.179"   /></element>
+  <element symbol="Na" ><atom  zeff="11.0"   aweight="22.9898 " /></element>
+  <element symbol="Mg" ><atom  zeff="12.0"   aweight="24.305"   /></element>
+  <element symbol="Al" ><atom  zeff="13.0"   aweight="26.9815"  /></element>
+  <element symbol="Si" ><atom  zeff="14.0"   aweight="28.086"   /></element>
+  <element symbol="P " ><atom  zeff="15.0"   aweight="30.9738 " /></element>
+  <element symbol="S " ><atom  zeff="16.0"   aweight="32.06 "   /></element>
+  <element symbol="Cl" ><atom  zeff="17.0"   aweight="35.453 "  /></element>
+  <element symbol="Ar" ><atom  zeff="18.0"   aweight="39.948"   /></element>
+  <element symbol="K " ><atom  zeff="19.0"   aweight="39.098 "  /></element>
+  <element symbol="Ca" ><atom  zeff="20.0"   aweight="40.08 "   /></element>
+  <element symbol="Sc" ><atom  zeff="21.0"   aweight="44.956 "  /></element>
+  <element symbol="Ti" ><atom  zeff="22.0"   aweight="47.90 "   /></element>
+  <element symbol="V " ><atom  zeff="23.0"   aweight="50.9414 " /></element>
+  <element symbol="Cr" ><atom  zeff="24.0"   aweight="51.996 "  /></element>
+  <element symbol="Mn" ><atom  zeff="25.0"   aweight="54.9830 " /></element>
+  <element symbol="Fe" ><atom  zeff="26.0"   aweight="55.847"   /></element>
+  <element symbol="Co" ><atom  zeff="27.0"   aweight="58.9332 " /></element>
+  <element symbol="Ni" ><atom  zeff="28.0"   aweight="58.70 "   /></element>
+  <element symbol="Cu" ><atom  zeff="29.0"   aweight="63.546"   /></element>
+  <element symbol="Zn" ><atom  zeff="30.0"   aweight="65.38 "   /></element>
+  <element symbol="Ga" ><atom  zeff="31.0"   aweight="69.72 "   /></element>
+  <element symbol="Ge" ><atom  zeff="32.0"   aweight="72.59 "   /></element>
+  <element symbol="As" ><atom  zeff="33.0"   aweight="74.9216 " /></element>
+  <element symbol="Se" ><atom  zeff="34.0"   aweight="78.96 "   /></element>
+  <element symbol="Br" ><atom  zeff="35.0"   aweight="79.904 "  /></element>
+  <element symbol="Kr" ><atom  zeff="36.0"   aweight="83.80"    /></element>
+  <element symbol="Rb" ><atom  zeff="37.0"   aweight="85.4678 " /></element>
+  <element symbol="Sr" ><atom  zeff="38.0"   aweight="87.62 "   /></element>
+  <element symbol="Y " ><atom  zeff="39.0"   aweight="88.909 "  /></element>
+  <element symbol="Zr" ><atom  zeff="40.0"   aweight="91.22 "   /></element>
+  <element symbol="Nb" ><atom  zeff="41.0"   aweight="92.9064 " /></element>
+  <element symbol="Mo" ><atom  zeff="42.0"   aweight="95.94 "   /></element>
+  <element symbol="Tc" ><atom  zeff="43.0"   aweight="97 "      /></element>
+  <element symbol="Ru" ><atom  zeff="44.0"   aweight="101.07 "  /></element>
+  <element symbol="Rh" ><atom  zeff="45.0"   aweight="102.905 " /></element>
+  <element symbol="Pd" ><atom  zeff="46.0"   aweight="106.04 "  /></element>
+  <element symbol="Ag" ><atom  zeff="47.0"   aweight="107.868 " /></element>
+  <element symbol="Cd" ><atom  zeff="48.0"   aweight="112.40 "  /></element>
+  <element symbol="In" ><atom  zeff="49.0"   aweight="114.82 "  /></element>
+  <element symbol="Sn" ><atom  zeff="50.0"   aweight="118.69 "  /></element>
+  <element symbol="Sb" ><atom  zeff="51.0"   aweight="121.75 "  /></element>
+  <element symbol="Te" ><atom  zeff="52.0"   aweight="127.60 "  /></element>
+  <element symbol="I " ><atom  zeff="53.0"   aweight="126.9046" /></element>
+  <element symbol="Xe" ><atom  zeff="54.0"   aweight="131.30"   /></element>
+  <element symbol="Cs" ><atom  zeff="55.0"   aweight="132.905 " /></element>
+  <element symbol="Ba" ><atom  zeff="56.0"   aweight="137.34 "  /></element>
+  <element symbol="La" ><atom  zeff="57.0"   aweight="138.91 "  /></element>
+  <element symbol="Ce" ><atom  zeff="58.0"   aweight="140.12 "  /></element>
+  <element symbol="Pr" ><atom  zeff="59.0"   aweight="140.908 " /></element>
+  <element symbol="Nd" ><atom  zeff="60.0"   aweight="144.24 "  /></element>
+  <element symbol="Pm" ><atom  zeff="61.0"   aweight="145 "     /></element>
+  <element symbol="Sm" ><atom  zeff="62.0"   aweight="150.4 "   /></element>
+  <element symbol="Eu" ><atom  zeff="63.0"   aweight="151.96 "  /></element>
+  <element symbol="Gd" ><atom  zeff="64.0"   aweight="157.25 "  /></element>
+  <element symbol="Tb" ><atom  zeff="65.0"   aweight="158.925 " /></element>
+  <element symbol="Dy" ><atom  zeff="66.0"   aweight="162.50 "  /></element>
+  <element symbol="Ho" ><atom  zeff="67.0"   aweight="164.930 " /></element>
+  <element symbol="Er" ><atom  zeff="68.0"   aweight="167.26 "  /></element>
+  <element symbol="Tm" ><atom  zeff="69.0"   aweight="168.934 " /></element>
+  <element symbol="Yb" ><atom  zeff="70.0"   aweight="173.04 "  /></element>
+  <element symbol="Lu" ><atom  zeff="71.0"   aweight="174.97"   /></element>
+  <element symbol="Hf" ><atom  zeff="72.0"   aweight="178.49 "  /></element>
+  <element symbol="Ta" ><atom  zeff="73.0"   aweight="180.948 " /></element>
+  <element symbol="W " ><atom  zeff="74.0"   aweight="183.85 "  /></element>
+  <element symbol="Re" ><atom  zeff="75.0"   aweight="186.207 " /></element>
+  <element symbol="Os" ><atom  zeff="76.0"   aweight="190.2 "   /></element>
+  <element symbol="Ir" ><atom  zeff="77.0"   aweight="192.22 "  /></element>
+  <element symbol="Pt" ><atom  zeff="78.0"   aweight="195.09 "  /></element>
+  <element symbol="Au" ><atom  zeff="79.0"   aweight="196.967 " /></element>
+  <element symbol="Hg" ><atom  zeff="80.0"   aweight="200.59 "  /></element>
+  <element symbol="Tl" ><atom  zeff="81.0"   aweight="204.37 "  /></element>
+  <element symbol="Pb" ><atom  zeff="82.0"   aweight="207.2 "   /></element>
+  <element symbol="Bi" ><atom  zeff="83.0"   aweight="208.980 " /></element>
+  <element symbol="Po" ><atom  zeff="84.0"   aweight="209 "     /></element>
+  <element symbol="At" ><atom  zeff="85.0"   aweight="210 "     /></element>
+  <element symbol="Rn" ><atom  zeff="86.0"   aweight="222"      /></element>
+  <element symbol="Fr" ><atom  zeff="87.0"   aweight="223 "     /></element>
+  <element symbol="Ra" ><atom  zeff="88.0"   aweight="226.03 "  /></element>
+  <element symbol="Ac" ><atom  zeff="89.0"   aweight="227"      /></element>
+  <element symbol="Th" ><atom  zeff="90.0"   aweight="232.038 " /></element>
+  <element symbol="Pa" ><atom  zeff="91.0"   aweight="231.038 " /></element>
+  <element symbol="U " ><atom  zeff="92.0"   aweight="238.03 "  /></element>
+  <element symbol="Np" ><atom  zeff="93.0"   aweight="237.048 " /></element>
+
+<!--
+     Standard Materials
+     ******************
+-->
+  <material name="Hydrogen    " density="0.0708" state="gas" >
+     <addelement name="H " natoms="1"/>
+  </material>
+
+  <material name="Deuterium   " density="0.162"  >
+     <addelement name="D " natoms="1"/>
+  </material>
+
+  <material name="Helium      " density="0.125"  >
+     <addelement name="He" natoms="1"  />
+  </material>
+
+  <material name="Lithium     " density="0.534"  >
+     <addelement name="Li" natoms="1"  />
+  </material>
+
+  <material name="Beryllium   " density="1.8480" >
+     <addelement name="Be" natoms="1"  />
+  </material>
+
+  <material name="Boron     " density="2.34"   >
+     <addelement name="B" natoms="1"  />
+  </material>
+
+  <material name="Carbon      " density="2.2650" >
+     <addelement name="C " natoms="1"  />
+  </material>
+
+  <material name="Nitrogen    " density="0.808"  >
+     <addelement name="N " natoms="1"  />
+  </material>
+
+  <material name="Oxygen      " density="0.00143">
+     <addelement name="O " natoms="1"  />
+  </material>
+
+  <material name="Fluorine    " density="1.1080" >
+     <addelement name="F " natoms="1"  />
+  </material>
+
+  <material name="Neon        " density="1.2070" >
+     <addelement name="Ne" natoms="1"  />
+  </material>
+
+  <material name="Sodium      " density="0.969"  >
+     <addelement name="Na" natoms="1"  />
+  </material>
+
+  <material name="Magnesium   " density="1.735"  >
+     <addelement name="Mg" natoms="1"  />
+  </material>
+
+  <material name="Aluminum    " density="2.700"  >
+     <addelement name="Al" natoms="1"  />
+  </material>
+
+  <material name="Silicon     " density="2.33"   >
+     <addelement name="Si" natoms="1"  />
+  </material>
+
+  <material name="Phosphorus  " density="1.82"   >
+     <addelement name="P " natoms="1"  />
+  </material>
+
+  <material name="Sulfur      " density="2.07"   >
+     <addelement name="S " natoms="1"  />
+  </material>
+
+  <material name="Chlorine    " density="1.56"   >
+     <addelement name="Cl" natoms="1"  />
+  </material>
+
+  <material name="Argon       " density="0.001639">
+     <addelement name="Ar" natoms="1"  />
+  </material>
+
+  <material name="Potassium   " density="0.860"  >
+     <addelement name="K " natoms="1"  />
+  </material>
+
+  <material name="Calcium     " density="1.55"   >
+     <addelement name="Ca" natoms="1"  />
+  </material>
+
+  <material name="Scandium    " density="2.98"   >
+     <addelement name="Sc" natoms="1"  />
+  </material>
+
+  <material name="Titanium    " density="4.53"   >
+     <addelement name="Ti" natoms="1"  />
+  </material>
+
+  <material name="Vanadium    " density="6.10"   >
+     <addelement name="V " natoms="1"  />
+  </material>
+
+  <material name="Chromium    " density="7.18"   >
+     <addelement name="Cr" natoms="1"  />
+  </material>
+
+  <material name="Manganese   " density="7.43"   >
+     <addelement name="Mn" natoms="1"  />
+  </material>
+
+  <material name="Iron        " density="7.87"   >
+     <addelement name="Fe" natoms="1"  />
+  </material>
+
+  <material name="Cobalt      " density="8.90"   >
+     <addelement name="Co" natoms="1"  />
+  </material>
+
+  <material name="Nickel      " density="8.876"  >
+     <addelement name="Ni" natoms="1"  />
+  </material>
+
+  <material name="Copper      " density="8.96"   >
+     <addelement name="Cu" natoms="1"  />
+  </material>
+
+  <material name="Zinc        " density="7.112"  >
+     <addelement name="Zn" natoms="1"  />
+  </material>
+
+  <material name="Gallium     " density="5.877"  >
+     <addelement name="Ga" natoms="1"  />
+  </material>
+
+  <material name="Germanium   " density="5.3230" >
+     <addelement name="Ge" natoms="1"  />
+  </material>
+
+  <material name="Arsenic     " density="5.72"   >
+     <addelement name="As" natoms="1"  />
+  </material>
+
+  <material name="Selenium    " density="4.78"   >
+     <addelement name="Se" natoms="1"  />
+  </material>
+
+  <material name="Bromine     " density="3.11"   >
+     <addelement name="Br" natoms="1"  />
+  </material>
+
+  <material name="Krypton     " density="2.60"   >
+     <addelement name="Kr" natoms="1"  />
+  </material>
+
+  <material name="Rubidium    " density="1.529"  >
+     <addelement name="Rb" natoms="1"  />
+  </material>
+
+  <material name="Strontium   " density="2.54"   >
+     <addelement name="Sr" natoms="1"  />
+  </material>
+
+  <material name="Yttrium     " density="4.456"  >
+     <addelement name="Y " natoms="1"  />
+  </material>
+
+  <material name="Zirconium   " density="6.494"  >
+     <addelement name="Zr" natoms="1"  />
+  </material>
+
+  <material name="Niobium     " density="8.55"   >
+     <addelement name="Nb" natoms="1"  />
+  </material>
+
+  <material name="Molybdenum  " density="10.20"  >
+     <addelement name="Mo" natoms="1"  />
+  </material>
+
+  <material name="Technetium  " density="11.48"  >
+     <addelement name="Tc" natoms="1"  />
+  </material>
+
+  <material name="Ruthenium   " density="12.39"  >
+     <addelement name="Ru" natoms="1"  />
+  </material>
+
+  <material name="Rhodium     " density="12.39"  >
+     <addelement name="Rh" natoms="1"  />
+  </material>
+
+  <material name="Palladium   " density="12.00"  >
+     <addelement name="Pd" natoms="1"  />
+  </material>
+
+  <material name="Silver      " density="10.48"  >
+     <addelement name="Ag" natoms="1"  />
+  </material>
+
+  <material name="Cadmium     " density="8.63"   >
+     <addelement name="Cd" natoms="1"  />
+  </material>
+
+  <material name="Indium      " density="7.30"   >
+     <addelement name="In" natoms="1"  />
+  </material>
+
+  <material name="Tin         " density="7.31"   >
+     <addelement name="Sn" natoms="1"  />
+  </material>
+
+  <material name="Antimony    " density="6.679"  >
+     <addelement name="Sb" natoms="1"  />
+  </material>
+
+  <material name="Tellurium   " density="6.23"   >
+     <addelement name="Te" natoms="1"  />
+  </material>
+
+  <material name="Iodine      " density="7.30"   >
+     <addelement name="I " natoms="1"  />
+  </material>
+
+  <material name="Xenon       " density="3.057"  >
+     <addelement name="Xe" natoms="1"  />
+  </material>
+
+  <material name="Cesium      " density="1.870"  >
+     <addelement name="Cs" natoms="1"  />
+  </material>
+
+  <material name="Barium      " density="3.50"   >
+     <addelement name="Ba" natoms="1"  />
+  </material>
+
+  <material name="Larthanum   " density="6.127"  >
+     <addelement name="La" natoms="1"  />
+  </material>
+
+  <material name="Cerium      " density="6.637"  >
+     <addelement name="Ce" natoms="1"  />
+  </material>
+
+  <material name="Tungsten    " density="19.3"   >
+     <addelement name="W " natoms="1"  />
+  </material>
+
+  <material name="Gold        " density="18.85"  >
+     <addelement name="Au" natoms="1"  />
+  </material>
+
+  <material name="Lead        " density="11.35"  >
+     <addelement name="Pb" natoms="1"  />
+  </material>
+
+  <material name="Bismuth     " density="9.37"   >
+     <addelement name="Bi" natoms="1"  />
+  </material>
+
+  <material name="Uranium     " density="18.950" >
+     <addelement name="U " natoms="1"  />
+  </material>
+
+  <material name="Air         " density="0.001214">
+     <addelement name="N " natoms="0.7494"  />
+     <addelement name="O " natoms="0.2369"  />
+     <addelement name="Ar" natoms="0.0129"  />
+     <addelement name="H " natoms="0.0008"  />
+  </material>
+
+  <material name="Vacuum" 
+            zeff="1.0e-15"
+            aweight="1.0e-15"
+            density="1.0e-15"
+            x0="1.0e+17" 
+            lambda="1.0e+17" >
+  </material>
+
+</materials>

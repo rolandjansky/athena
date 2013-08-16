@@ -1,0 +1,504 @@
+
+
+<!--
+
+   The InnerDetector identifier is arranged as follows
+
+   InnerDetector
+     part=Pixel
+       side=barrel
+         layer phi_module eta_module phi_index eta_index 
+       side=endcap
+         disk phi_module eta_module phi_index eta_index 
+
+     part=SCT
+       side=barrel
+         layer phi_module eta_module side strip
+       side=endcap
+         disk phi_module eta_module side strip
+
+     part=TRT
+       side=barrel
+         layer phi_module straw_layer straw
+       side=endcap
+         wheel phi_module straw_layer straw
+
+
+  -->
+
+<IdDictionary name="InnerDetector" >
+
+  <!--
+     Start by defining some symbolic labels used for some fields
+     (other fields will be specified by numeric ranges)
+   -->
+
+  <field name="part">
+    <label name="Pixel" value="1" />
+    <label name="SCT"   value="2" />
+    <label name="TRT"   value="3" />
+  </field>
+
+  <field name="barrel_endcap">
+    <label name="negative_endcap" value="-2" />
+    <label name="negative_barrel" value="-1" />
+    <label name="barrel"          value="0" />
+    <label name="positive_barrel" value="+1"  />
+    <label name="positive_endcap" value="+2"  />
+  </field>
+
+
+
+  <!--
+
+      Pixel
+
+    -->
+
+
+  <!--
+      Define few subregions which are re-used in several id-ranges.
+   -->
+
+  <subregion name="pixel_barrel">
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" value="barrel" />
+  </subregion>
+
+  <subregion name="pixel_endcap">
+    <range field="part" value="Pixel" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+  </subregion>
+
+  <subregion name="pixel_default_eta_module">
+    <range field="phi_index" minvalue="0" maxvalue="327" />
+    <range field="eta_index" minvalue="0" maxvalue="143" />
+  </subregion>
+
+  <subregion name="pixel_phi_barrel_module">
+    <range field="eta_module" minvalue="-6" maxvalue="+6" />
+    <reference subregion="pixel_default_eta_module" />
+  </subregion>
+
+  <subregion name="pixel_phi_endcap_module">
+    <range field="eta_module" value="0" />
+    <reference subregion="pixel_default_eta_module" />
+  </subregion>
+
+  <!--
+    Then enumerate all the possible regions of the Pixel subdetector.
+    Each region corresponds to an identifier range.
+    -->
+
+  <region>
+    <reference subregion="pixel_barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="21" />
+    <range field="eta_module" minvalue="-6" maxvalue="+6" />
+    <range field="phi_index" minvalue="0" maxvalue="319" />
+    <range field="eta_index" minvalue="0" maxvalue="191" />
+  </region>
+
+  <region>
+    <reference subregion="pixel_barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" />
+    <reference subregion="pixel_phi_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="pixel_barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="55" />
+    <reference subregion="pixel_phi_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="pixel_endcap" />
+    <range field="disk" minvalue="0" maxvalue="2" />
+    <range field="phi_module" minvalue="0" maxvalue="53" />
+    <reference subregion="pixel_phi_endcap_module" />
+  </region>
+
+  <region>
+    <reference subregion="pixel_endcap" />
+    <range field="disk" minvalue="3" maxvalue="4" />
+    <range field="phi_module" minvalue="0" maxvalue="65" />
+    <reference subregion="pixel_phi_endcap_module" />
+  </region>
+
+
+  <!--
+
+      SCT
+
+    -->
+
+
+  <subregion name="SCT_barrel">
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" value="barrel" />
+  </subregion>
+
+  <subregion name="SCT_endcap">
+    <range field="part" value="SCT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+  </subregion>
+
+  <subregion name="SCT_eta_module">
+    <range field="wafer" minvalue="0" maxvalue="1" />
+    <range field="strip" minvalue="0" maxvalue="767" />
+  </subregion>
+
+
+
+
+  <subregion name="SCT_phi_negative_barrel_module">
+    <range field="eta_module" minvalue="-6" maxvalue="-1" />
+    <reference subregion="SCT_eta_module" />
+  </subregion>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" />
+    <reference subregion="SCT_phi_negative_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" />
+    <reference subregion="SCT_phi_negative_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="47" />
+    <reference subregion="SCT_phi_negative_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="55" />
+    <reference subregion="SCT_phi_negative_barrel_module" />
+  </region>
+
+
+
+
+
+  <subregion name="SCT_phi_positive_barrel_module">
+    <range field="eta_module" minvalue="+1" maxvalue="+6" />
+    <reference subregion="SCT_eta_module" />
+  </subregion>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_module" minvalue="0" maxvalue="31" />
+    <reference subregion="SCT_phi_positive_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_module" minvalue="0" maxvalue="39" />
+    <reference subregion="SCT_phi_positive_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_module" minvalue="0" maxvalue="47" />
+    <reference subregion="SCT_phi_positive_barrel_module" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_barrel" />
+    <range field="layer" value="3" />
+    <range field="phi_module" minvalue="0" maxvalue="55" />
+    <reference subregion="SCT_phi_positive_barrel_module" />
+  </region>
+
+
+
+
+
+
+
+
+  <subregion name="SCT_ring_1">
+    <range field="phi_module" minvalue="0" maxvalue="51" />
+    <range field="eta_module" value="0" />
+    <reference subregion="SCT_eta_module" />
+  </subregion>
+
+  <subregion name="SCT_ring_2">
+    <range field="phi_module" minvalue="0" maxvalue="39" />
+    <range field="eta_module" value="1" />
+    <reference subregion="SCT_eta_module" />
+  </subregion>
+
+  <subregion name="SCT_ring_2_3">
+    <range field="phi_module" minvalue="0" maxvalue="39" />
+    <range field="eta_module" minvalue="1" maxvalue="2" />
+    <reference subregion="SCT_eta_module" />
+  </subregion>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" value="0" />
+    <reference subregion="SCT_ring_1" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" value="1" />
+    <reference subregion="SCT_ring_1" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" minvalue="2" maxvalue="5" />
+    <reference subregion="SCT_ring_1" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" minvalue="6" maxvalue="7" />
+    <reference subregion="SCT_ring_1" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" value="8" />
+    <reference subregion="SCT_ring_1" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" value="0" />
+    <reference subregion="SCT_ring_2_3" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" value="1" />
+    <reference subregion="SCT_ring_2" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" minvalue="2" maxvalue="5" />
+    <reference subregion="SCT_ring_2_3" />
+  </region>
+
+  <region>
+    <reference subregion="SCT_endcap" />
+    <range field="disk" minvalue="6" maxvalue="7" />
+    <reference subregion="SCT_ring_2" />
+  </region>
+
+  <!--
+
+      TRT
+
+    -->
+
+  <subregion name="TRT_barrel">
+    <range field="part" value="TRT" />
+    <range field="barrel_endcap" values="negative_barrel positive_barrel" />
+  </subregion>
+
+  <subregion name="TRT_endcap">
+    <range field="part" value="TRT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+  </subregion>
+
+
+
+  <subregion name="TRT_layer_0">
+    <reference subregion="TRT_barrel" />
+    <range field="layer" value="0" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+  </subregion>
+
+  <region>
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" value="0" />
+    <range field="straw" minvalue="0" maxvalue="15" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="1" maxvalue="4" />
+    <range field="straw" minvalue="0" maxvalue="16" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="5" maxvalue="9" />
+    <range field="straw" minvalue="0" maxvalue="17" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="10" maxvalue="13" />
+    <range field="straw" minvalue="0" maxvalue="18" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="14" maxvalue="16" />
+    <range field="straw" minvalue="0" maxvalue="19" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" value="17" />
+    <range field="straw" minvalue="0" maxvalue="18" />
+  </region>
+
+
+
+
+
+  <subregion name="TRT_layer_1">
+    <reference subregion="TRT_barrel" />
+    <range field="layer" value="1" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+  </subregion>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" value="0" />
+    <range field="straw" minvalue="0" maxvalue="19" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="1" maxvalue="5" />
+    <range field="straw" minvalue="0" maxvalue="20" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="6" maxvalue="10" />
+    <range field="straw" minvalue="0" maxvalue="21" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="11" maxvalue="15" />
+    <range field="straw" minvalue="0" maxvalue="22" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="16" maxvalue="20" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="21" maxvalue="22" />
+    <range field="straw" minvalue="0" maxvalue="24" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" value="23" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+
+
+
+
+
+  <subregion name="TRT_layer_2">
+    <reference subregion="TRT_barrel" />
+    <range field="layer" value="2" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+  </subregion>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" value="0" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="1" maxvalue="4" />
+    <range field="straw" minvalue="0" maxvalue="24" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="5" maxvalue="9" />
+    <range field="straw" minvalue="0" maxvalue="25" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="10" maxvalue="14" />
+    <range field="straw" minvalue="0" maxvalue="26" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="15" maxvalue="19" />
+    <range field="straw" minvalue="0" maxvalue="27" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="20" maxvalue="24" />
+    <range field="straw" minvalue="0" maxvalue="28" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="25" maxvalue="28" />
+    <range field="straw" minvalue="0" maxvalue="29" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" value="29" />
+    <range field="straw" minvalue="0" maxvalue="29" />
+  </region>
+
+
+
+
+  <region>
+    <reference subregion="TRT_endcap" />
+    <range field="wheel" minvalue="0" maxvalue="5" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+    <range field="straw_layer" minvalue="0" maxvalue="15" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_endcap" />
+    <range field="wheel" minvalue="14" maxvalue="17" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+    <range field="straw_layer" minvalue="0" maxvalue="15" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+
+  <region>
+    <reference subregion="TRT_endcap" />
+    <range field="wheel" minvalue="6" maxvalue="13" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+    <range field="straw_layer" minvalue="0" maxvalue="7" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+
+
+</IdDictionary>
+

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE AGDD PUBLIC "-//ATLAS//DetectorDescription//EN"
+   "http://www.nikhef.nl/~stanb/AGDD/DTD/AGDD.dtd" [
+
+   <!--
+   The DTD for compact elements may be included by overwriting one or
+   more of the following entities:
+
+      ACDD_Muon : web adres with compact elements for the muon spectrometer
+      ACDD_Tile : web adres with compact elements for the tile calorimenter
+      ACDD_LArg : web adres with compact elements for the Liquid Argon
+      ACDD_InDet: web adres with compact elements for the inner detector
+
+   Note that you have to specify the complete web address. It is not
+   possible to point to your specialised compact DTD without web interface
+   -->
+
+   <!ENTITY % ACDD_Muon SYSTEM "http://www.nikhef.nl/~stanb/AGDD/ACDD_Muon.dtd">
+
+   <!--
+   The common materials can be retrieved from the web interface as
+   well.
+   To add more materials, just create a new file with your material
+   definitions, and refer to it.
+   Note that this xml file needs not to be retrieved via the web
+   interface
+   -->
+
+   <!ENTITY Materials    SYSTEM "http://www.nikhef.nl/~stanb/AGDD/DTD/Material_AGDD.xml">
+   <!ENTITY MyMaterials  SYSTEM "MyMaterial.xml">
+]>
+
+
+<AGDD DTD_version="v4">
+
+&Materials;
+
+<!--  Atlas Generic Detector Description : GeometryTest
+     ***************************************************
+-->
+<section name       = "CompactTest"
+         version    = "1.1"
+         date       = "Fri Jan 14, 2001"
+         author     = "Stan Bentvelsen"
+         top_volume = "ATLAS"  
+         DTD_version= "v4" >
+
+<compact name="Layer">
+   <CompactExample diameter="3" x="30" y="15" z="100" />
+</compact>
+
+<composition name="LayerRing1">
+   <mposPhi  volume="Layer"  ncopy="12"  R_Z="70 0"   />
+</composition>
+
+<box name="ATLAS_env" material="Air" X_Y_Z="200 200 200"/>
+
+<composition name="ATLAS" envelope="ATLAS_env">
+   <posXYZ volume="LayerRing1"  />
+</composition>
+
+</section>
+
+
+</AGDD>
+
+

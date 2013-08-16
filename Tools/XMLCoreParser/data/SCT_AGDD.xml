@@ -1,0 +1,57 @@
+
+<!--  Atlas Generic Detector Description : test for SCT
+     ***************************************************
+-->
+<section name        = "SCT"
+         version     = "1.1"
+         date        = "Thu Oct 7"
+         author      = "Stan Bentvelsen"
+         top_volume  = "SCT_Barrel"
+         DTD_version = "v4">
+
+
+<!-- create a wafer+hybrid board -->
+<box  name="SCT_board  "  material="Silicon"  X_Y_Z="1. 63.6 128.2"   />
+<box  name="SCT_elboard"  material="Copper"   X_Y_Z="1. 22.6 110.0"   />
+
+<!-- position wafer+hybrid board -->
+<composition name="SCT_module">
+   <posXYZ  volume="SCT_board"    X_Y_Z= " 0  11.3  0"    />
+   <posXYZ  volume="SCT_elboard"  X_Y_Z= " 0 -31.8  0"    />
+</composition>
+
+<!-- create a ski of 4 modules (Ir=1 to 12) -->
+<composition name="SCT_ski">
+   <mposZ   volume="SCT_module"  ncopy="4"  dZ="128.2"  Z0="-769.2"> 
+      <sector value="1" step="1" />  
+   </mposZ>
+</composition>
+
+<!-- make the barrel sct consisting of four (Ir=1 to 4)  rings (Iphi=1 to n)
+ of skis of 4 modules (Iz=1 to 4), each with a tilt of 10 degrees             -->
+<composition name="SCT_Barrel">
+   <mposPhi volume="SCT_ski"  ncopy="32"  R_Z="300.0 0"  rot="0 0 -10">
+      <layer value="1" />              <!-- Default step is "0" -->
+      <ring  value="1" step="1" />  
+   </mposPhi>
+   <mposPhi volume="SCT_ski"  ncopy="40"  R_Z="373.0 0"  rot="0 0 -10">
+      <layer value="2" />  
+      <ring  value="1" step="1" />  
+   </mposPhi>
+   <mposPhi volume="SCT_ski"  ncopy="48"  R_Z="447.0 0"  rot="0 0 -10">
+      <layer value="3" />  
+      <ring  value="1" step="1" />  
+   </mposPhi>
+   <mposPhi volume="SCT_ski"  ncopy="56"  R_Z="520.0 0"  rot="0 0 -10">
+      <layer value="4" />  
+      <ring  value="1" step="1" />  
+   </mposPhi>
+</composition>
+
+</section>
+
+
+
+
+
+

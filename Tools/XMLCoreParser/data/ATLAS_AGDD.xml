@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE AGDD SYSTEM "AGDD.dtd" [
+
+  <!-- +++ Define the material file     +++ -->
+  <!ENTITY Materials SYSTEM "Material_AGDD.xml">
+
+  <!-- +++ Define the XML include files +++ -->
+  <!ENTITY Muon      SYSTEM "Muon_AGDD.xml">
+  <!ENTITY SCT       SYSTEM "SCT_AGDD.xml">
+
+]>
+
+<AGDD DTD_version="v4">
+
+<!-- Include materials -->
+     &Materials;
+
+
+<!-- Include files     -->
+     &Muon;
+     &SCT;
+<!-- End of include    -->
+
+
+<!-- Atlas Generic Detector Description : volume ATLAS 
+     *************************************************
+-->
+<section name        = "ATLAS"
+         version     = "2.0"
+         date        = "Mon Nov 15"
+         author      = "Marc + Stan"
+         top_volume  = "ATLAS"
+         DTD_version = "v4">
+
+
+<composition name="ATLAS">
+   <posXYZ  volume="MU_Barrel"       />
+   <posXYZ  volume="SCT_Barrel"      /> 
+</composition>
+
+</section>
+
+
+</AGDD>
+ 
+

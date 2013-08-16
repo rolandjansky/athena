@@ -1,0 +1,288 @@
+<?xml version="1.0" ?>
+
+<!--
+  ========================================================
+     Start with general stuff, taken from Gaiane
+  ========================================================
+
+-->
+<!DOCTYPE AGDD SYSTEM "AGDD.dtd" [
+<!ENTITY Materials SYSTEM "StandardMaterials.agdd">
+]>
+<AGDD DTD_version="v6">
+
+&Materials;
+
+<section name        = "ATLAS"
+         version    = "1.1"
+         date       = "22 March 2001"
+         author     = "Gaiane Karapetian"
+         top_volume = "ATLAS"
+         DTD_version = "v6"  >
+
+ <composition name="ATLAS" >
+      <posXYZ X_Y_Z="0; 0; 0">
+        <volume name="Cryostat"/>
+      </posXYZ>
+ </composition>
+
+</section>
+
+<!--
+  ==================================================================
+    Add the cryostat: dummy for now, it is Negroni's responsibility
+  ==================================================================
+-->
+
+<section author="Claire Bourdarios" 
+	     date="Nov 22, 2001" 
+	     name="LAr_cryo" 
+	     top_volume="Cryostat" 
+             version="1.0"
+             DTD_version="v6">
+
+  <tubs name="CryoTubes" 
+        material="Air" 
+        unit_length="cm" 
+        unit_angle="deg"
+        Rio_Z="144.70; 200.35; 633.00" 
+        profile="0; 22.5"/>
+
+  <composition name="Cryostat">
+    <posXYZ X_Y_Z= "0; 0; 0">
+      <volume name="CryoTubes"/>
+    </posXYZ>
+  </composition>
+
+</section>
+
+<!--
+  =======================================
+     Here we are : create the volumes
+  =======================================
+-->
+
+<section author="Claire Bourdarios" 
+	     date="Nov 22, 2001" 
+	     name="LAr_cryo"
+	     top_volume="LAr_EMB" 
+             version="1.0"
+             DTD_version="v6">
+<!-- 
+  ========================================================
+    Ideal parameters, fixed and more or less used everywhere.
+     (All real)
+
+     Rq: a few values like (Ideal_Zmax+Ideal_Zmin)/2
+         will be computed several times. can we define them here,
+         ie define parameters as functions of other parameters ?
+  ========================================================
+-->
+
+  <var name="cm"  value="1"/>
+  <var name="pi"  value="3.1415926"/>
+  <var name="m"   value="100*cm"/>
+  <var name="deg" value="1"/>
+  <var name="rad" value="deg*pi/180"/>
+
+  <var name="Ideal_inner_radius" value="144.70 * cm"/>
+  <var name="Ideal_outer_radius" value="200.35 * cm"/>
+  <var name="Ideal_Zmax"         value="316.50 * cm"/>
+  <var name="Ideal_Zmin"         value="0.5 * cm"/>
+  <var name="Ideal_phi_orig"     value="0 * deg"/> 
+  <var name="Ideal_dphi"         value="22.5 * deg"/>
+
+  <var name="Ideal_Rhocen0"      value="150.0024 * cm"/>
+  <var name="Ideal_Rcmx"         value="152.815 * cm"/>
+  <var name="Ideal_Zcut"         value="310.674 * cm"/>
+
+  <var name="Elec_Xelf"          value="2.3 * cm"/>
+
+  <var name="G4Round"            value="0.0010 * cm"/>
+
+<!-- 
+  ========================================================
+  Bar : one enveloppe for each 1/2 barrel
+         ( polycone refering to the ideal parameters )
+  ========================================================
+-->
+  <pcon name="Half_Bar"  
+        material="Air" 
+        unit_length = "cm" 
+        unit_angle = "deg"
+        profile = "Ideal_phi_orig; Ideal_dphi">
+    <polyplane Rio_Z="Ideal_inner_radius; Ideal_outer_radius; Ideal_Zmin" />
+    <polyplane Rio_Z="Ideal_inner_radius; Ideal_outer_radius; Ideal_Zcut" />
+    <polyplane Rio_Z="Ideal_Rhocen0-G4Round; Ideal_outer_radius; Ideal_Zmax" />
+  </pcon>
+
+<!-- 
+  ========================================================================
+   Front electronics : enveloppe is a tube, which contains boards and cables
+      (material are junk for the time being)
+
+     N.B. : 1) need asin : is it available ? 
+               if not, can be replaced by an aproximation: 0.52082
+            2) do we have pi available ?
+               if not, set parameter twopi32 to 0.19635
+  ========================================================================
+-->
+
+  <var name="twopi32" value="2*pi/32 * rad"/>
+  <var name="R" value="0.6 * cm"/>
+
+  <tubs name="Elnics-box" 
+        material="Air" 
+        unit_length = "cm" 
+        unit_angle = "deg"
+        Rio_Z = "Ideal_inner_radius + G4Round; 
+                 Ideal_inner_radius + Elec_Xelf;
+                 (Ideal_Zmax+Ideal_Zmin)/2"
+        profile = "Ideal_phi_orig; Ideal_dphi" />
+
+  <box name="Board" 
+       material="Air" 
+       unit_length = "cm" 
+       unit_angle = "deg"
+       X_Y_Z = "0.43; 7.23; (Ideal_Zmax+Ideal_Zcut)/2-G4Round" />
+
+  <trd name="Cables" 
+       material="Air" 
+       unit_length = "cm" 
+       unit_angle = "deg"
+       Xmp_Ymp_Z = "0.1; 0.517; 7.; 7.; (Ideal_Zmax+Ideal_Zcut)/2-G4Round" />
+
+  <composition name="Elnicsf" envelope="Elnics-box">
+    <mposPhi ncopy="2" 
+             Phi0="twopi32/2"
+             dPhi="twopi32" 
+             R_Z = "Ideal_inner_radius+R; (Ideal_Zcut-Ideal_Zmin)/2">
+       <volume name="Board"/>
+    </mposPhi>
+    <mposPhi ncopy="2" 
+             Phi0="twopi32/2-asin(72.3/(Ideal_inner_radius+R))"
+             dPhi="twopi32"
+             R_Z = "Ideal_inner_radius+R">
+       <volume name="Cables" />
+    </mposPhi>
+    <mposPhi ncopy="2" 
+             Phi0="twopi32/2+asin(72.3/(Ideal_inner_radius+R))"
+             dPhi="twopi32" 
+             R_Z = "Ideal_inner_radius+R">
+       <volume name="Cables"/>
+    </mposPhi>
+  </composition>
+
+<!-- 
+  ===============================
+   BarrelEnd cables  -> for now plain cone. Will get better
+  ===============================
+-->
+
+  <var name="transl" value=".35 * cm" />
+
+  <cons name="BarEnd"  material="Air" unit_length = "cm" unit_angle = "deg"
+        Rio1_Rio2_Z = "Ideal_Rhocen0-3*G4Round;
+                       Ideal_Rhocen0-2*G4Round;
+                       Ideal_Rhocen0-3*G4Round;
+                       Ideal_Rcmx;
+                       (Ideal_Zmax-Ideal_Zcut-transl)"
+        profile = "Ideal_phi_orig; Ideal_dphi" />
+
+<!-- 
+  ========================================================
+   Stac :  front G10, back G10 
+           + the zigzag itself. keep a compact for now
+  ========================================================
+-->
+  <var name="Ideal_G10gap" value="1.3 * cm"/>
+  <var name="Ideal_Rhocen15" value="197.0482"/>
+  <var name="Nmod" value="54"/>
+  <var name="Nmax" value="1024"/>
+
+  <tubs name="G10f"  material="Air" unit_length = "cm" unit_angle = "deg"
+        Rio_Z = "Ideal_inner_radius + Elec_Xelf;
+                 Ideal_inner_radius + Elec_Xelf + Ideal_G10gap;
+                 (Ideal_Zcut-Ideal_Zmin)/2 - G4Round "
+        profile = "0; Nmod*2*pi/Nmax" />
+
+  <tubs name="G10b"  material="Air" unit_length = "cm" unit_angle = "deg"
+        Rio_Z = "Ideal_inner_radius + Ideal_Rhocen15;
+                 Ideal_inner_radius + Ideal_Rhocen15 + Ideal_G10gap;
+                 (Ideal_Zcut-Ideal_Zmin)/2 - G4Round "
+        profile = "0; Nmod*2*pi/Nmax" />
+
+  <parameters name="ZigZag" type="ZigZag">
+
+    <real       name="Nbrt" value="14" unit="none" />
+
+    <real_array name="Rhocen" 
+        values="1500.024; 1521.000; 1559.659; 1597.202; 1634.566; 
+                1671.019; 1707.433; 1743.067; 1778.757; 1813.753;
+                1848.873; 1883.362; 1918.024; 1952.099; 1970.482"
+         unit="mm"/>
+
+    <real_array name="Phicen" 
+        values="0.10619;  0.56959; -0.57320;  0.57653; -0.57970;
+                0.58265; -0.58547;  0.58812; -0.59066;  0.59306;
+               -0.59538;  0.59757; -0.59969;  0.60171;  0.08083"
+         unit="degree"/>
+
+    <real_array name="Delta"
+        values="46.2025; 45.0574; 43.3446; 42.4478; 40.9436;
+                40.2251; 38.8752; 38.2915; 37.0608; 36.5831;
+                35.4475; 35.0556; 33.9977; 33.6767; 0."
+         unit="degree"/>
+
+    <real       name="Eta_cut1" value="0.8" unit="none"/>
+    <real_array name="Th" values="0.281; 0.400; 1.509; 0.105; 0.170" unit="mm"/>
+    <real       name="Rint" value="2.78" unit="mm"/>
+    <real_array name="Xtip" values="2; 2; 8; 11" unit="mm"/>
+    <real       name="ZigRound" value=".001" unit="mm"/>
+
+  </parameters>
+
+  <composition name="Stac" parameters="ZigZag">
+    <mposPhi ncopy="Nmod"
+             Phi0="0"
+             R_Z ="0; (Ideal_Zcut+Ideal_Zmin)/2">
+       <volume name="G10f"/>
+    </mposPhi>
+    <mposPhi ncopy="Nmod"
+             Phi0="0"
+             R_Z ="0; (Ideal_Zcut+Ideal_Zmin)/2">
+      <volume name="G10b"/>
+    </mposPhi>
+  </composition>
+
+<!-- 
+  ==========================================================
+     That's it for the volumes, now build the russian doll 
+  ==========================================================
+-->
+
+  <composition name="subvolumes" envelope="Half_Bar">
+    <posXYZ X_Y_Z = "0; 0; 0"> <volume name="Stac"/> </posXYZ>
+    <posXYZ X_Y_Z = "0; 0; 0"> <volume name="Elnics-box"/> </posXYZ>
+    <posXYZ X_Y_Z = "0; 0; ((Ideal_Zmax+Ideal_Zcut)/2+transl)"> <volume name="BarEnd"/> </posXYZ>
+  </composition>
+
+  <composition name="LAr_EMB" >
+
+    <posXYZ X_Y_Z = "0; 0; 0"  rot = "0; 0; 0" >
+      <identifier field="pos_neg_z" value="1" />
+      <volume name="subvolumes"/>
+    </posXYZ>
+
+    <posXYZ X_Y_Z = "0; 0; 0"  rot = "0; 180; 0" >
+      <identifier field="pos_neg_z" value="-1" />
+      <volume name="subvolumes"/>
+    </posXYZ>
+  </composition>
+
+</section>
+
+</AGDD>
+
+
+

@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE AGDD SYSTEM "AGDD.dtd" [
+<!ENTITY StandardMaterials SYSTEM "StandardMaterials.agdd"> 
+]>
+
+<!--
+<!DOCTYPE CompactExample SYSTEM "CompactExample.dtd" [
+]>
+-->
+
+<AGDD DTD_version="v6">
+
+&StandardMaterials;
+
+<section name        = "Test of vars"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "comp2"
+         DTD_version = "v6">
+
+  <var name="var1" value="1."/>
+  <var name="var2" value="2."/>
+  <var name="var3" value="3."/>
+
+  <box  name="box1" X_Y_Z="var1;   var2;   var3"   material="Vacuum" />
+  <box  name="box2" X_Y_Z="var1+1; var2+1; var3+1" material="Vacuum" />
+  <box  name="box3" X_Y_Z="var1+2; var2+2; var3+2" material="Vacuum" />
+ 
+  <composition  name="comp1">
+    <posXYZ  X_Y_Z="0;  0;  0">
+      <identifier field="layer" value="1" />
+      <var name="var1" value="1.1"/>
+      <volume name="box1"/>
+    </posXYZ>
+    <posXYZ>
+      <identifier field="layer" value="2"/> 
+      <var name="var1" value="1.2"/> 
+      <volume name="box2"/>
+    </posXYZ>
+    <posXYZ> <volume name="box3"/> </posXYZ>
+  </composition>
+
+  <composition name="comp2">
+    <posXYZ>
+      <var name="var1" value="var2+0.3"/>
+      <volume name="comp1"/>
+    </posXYZ>
+    <posXYZ>
+      <var name="var1" value="sin(var2+0.4)"/>
+      <volume name="comp1"/>
+    </posXYZ>
+    <posXYZ>
+      <var name="var1" value="cos(var2+0.4)"/>
+      <volume name="comp1"/>
+    </posXYZ>
+  </composition>
+
+</section>
+
+<section name        = "Test of solids"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "comp"
+         DTD_version = "v6">
+
+  <var name="a1" value="1"/>
+  <var name="a2" value="a1 + .1"/>
+  <var name="a3" value="a2 + .1"/>
+  <var name="a4" value="a3 + .1"/>
+  <var name="a5" value="a4 + .1"/>
+  <var name="a6" value="a5 + .1"/>
+  <var name="a7" value="a6 + .1"/>
+
+  <box  name="box"  X_Y_Z="a1; a2; a3"                                  material="Vacuum" />
+  <trd  name="trd"  Xmp_Ymp_Z="a1; a2; a3; a4; a5" inclination="a6; a7" material="Vacuum" />
+  <tubs name="tubs" Rio_Z="a1; a2; a3" profile="a4; a5"                 material="Vacuum" />
+  <cons name="cons" Rio1_Rio2_Z="a1; a2; a3; a4; a5" profile="a6; a7"   material="Vacuum" />
+  <pcon name="pcon" profile="a1; a2"                                    material="Vacuum" >
+    <polyplane Rio_Z="a1;   a2;   a3"   />
+    <polyplane Rio_Z="a1+1; a2+1; a3+1" />
+    <polyplane Rio_Z="a1+2; a2+2; a3+2" />
+  </pcon>
+
+  <composition name="comp">
+    <posXYZ> <volume name="box"/> </posXYZ>
+    <posXYZ> <volume name="trd"/> </posXYZ>
+    <posXYZ> <volume name="tubs"/> </posXYZ>
+    <posXYZ> <volume name="cons"/> </posXYZ>
+    <posXYZ> <volume name="pcon"/> </posXYZ>
+  </composition>
+
+</section>
+
+<section name        = "Test of stacks"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "compa"
+         DTD_version = "v6">
+
+  <var name="a1" value="1"/>
+  <var name="a2" value="a1 + .1"/>
+  <var name="a3" value="a2 + .1"/>
+  <var name="a4" value="a3 + .1"/>
+  <var name="a5" value="a4 + .1"/>
+  <var name="a6" value="a5 + .1"/>
+  <var name="a7" value="a6 + .1"/>
+  <var name="a8" value="a7 + .1"/>
+
+  <box name="boxa" X_Y_Z="a1; a2; a3" material="Vacuum"/>
+
+  <stackX name="stack">
+    <axisPos dX="a1" dY="a2" dZ="a3" rotation="a4" shift="a5"> <volume name="boxa"/> </axisPos>
+    <axisMPos dX="a1+1" dY="a2+1" dZ="a3+1" rotation="a4+1" ncopy="a6" shift0="a7" shift="a8">
+      <volume name="boxa"/>
+    </axisMPos>
+  </stackX>
+
+  <composition name="compa">
+    <posXYZ> <volume name="stack"/> </posXYZ>
+  </composition>
+
+</section>
+
+<section name        = "Test of positioners"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "compb"
+         DTD_version = "v6">
+
+  <var name="a1" value="1"/>
+  <var name="a2" value="a1 + 1"/>
+  <var name="a3" value="a2 + 1"/>
+  <var name="a4" value="a3 + 1"/>
+  <var name="a5" value="a4 + 1"/>
+  <var name="a6" value="a5 + 1"/>
+  <var name="a7" value="a6 + 1"/>
+  <var name="a8" value="a7 + 1"/>
+
+  <box name="boxb" X_Y_Z="a1; a2; a3" material="Vacuum"/>
+
+  <composition name="compb">
+    <posXYZ> <volume name="boxb"/> </posXYZ>
+    <posRPhiZ> <volume name="boxb"/> </posRPhiZ>
+    <mposR ncopy="a1" dR="1"> <volume name="boxb"/> </mposR>
+    <mposPhi ncopy="a2"> <volume name="boxb"/> </mposPhi>
+    <mposWedge wedge_number="a3" sectors="0; 1; 2; 0; 1"> <volume name="boxb"/> </mposWedge>
+    <mposX ncopy="a4" dX="1"> <volume name="boxb"/> </mposX>
+    <mposY ncopy="a5" dY="1"> <volume name="boxb"/> </mposY>
+    <mposZ ncopy="a6" dZ="1"> <volume name="boxb"/> </mposZ>
+  </composition>
+
+</section>
+
+<!--
+<section name        = "Test of compacts"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "comp"
+         DTD_version = "v6">
+
+  <compact name="compact">
+    <CompactExample
+        layer="0" 
+        diameter="1"
+        x="3"
+        y="4"
+        z="2"/>
+  </compact>
+
+</section>
+-->
+
+<section name        = "Test of compact emulation"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "compc"
+         DTD_version = "v6">
+
+  <var name="layer" value="0"/>
+  <var name="diameter" value="1"/>
+  <var name="x" value="3"/>
+  <var name="y" value="4"/>
+  <var name="z" value="2"/>
+
+  <tubs name="aCompactTube" Rio_Z="0; diameter/2; z" material="Vacuum"/>
+
+  <composition name="compc">
+    <var name="x_number" value="x/diameter"/>
+    <var name="y_number" value="y/diameter"/>
+
+    <foreach index="iy" loops="y_number">
+      <foreach index="ix" loops="x_number - fmod(iy,2)">
+
+        <var name="xpos" value="diameter * (ix + 0.5) - x/2 + (fmod(iy,2) * diameter / 2)"/>
+        <var name="ypos" value="sqrt(3)*diameter*(iy+0.5)/2 - y/2 - diameter*(sqrt(3)/2-1)/2"/>
+
+        <posXYZ X_Y_Z="xpos; 
+                       ypos; 
+                       0">
+          <volume name="aCompactTube"/>
+        </posXYZ>
+
+      </foreach>
+    </foreach>
+  </composition>
+
+</section>
+
+<section name        = "Test of arrays"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "compd"
+         DTD_version = "v6">
+
+  <array name="a" values="1;2;3;4;5;6;7;8;9;10"/>
+  <table name="t">
+    <row values="1;2;3;4;5"/>
+    <row values="6;7;8;9;10"/>
+  </table>
+
+  <var name="a" value="1"/>
+  <var name="b" value="a*2"/>
+  <var name="c" value="a[2]*a[3]"/>
+  <var name="d" value="a[b]"/>
+  <var name="e" value="a[b*2]"/>
+  <var name="f" value="a[a[1]+a[2]]"/>
+  <var name="g" value="t[0][1]"/>
+  <var name="h" value="t[0][2]"/>
+  <var name="i" value="t[1][3]"/>
+
+  <box name="boxc" X_Y_Z="x;y;z" material="Vacuum"/>
+
+  <composition name="compd">
+    <posXYZ>
+      <var name="x" value="a"/>
+      <var name="y" value="b"/>
+      <var name="z" value="c"/>
+      <volume name="boxc"/>
+    </posXYZ>
+    <posXYZ>
+      <var name="x" value="d"/>
+      <var name="y" value="e"/>
+      <var name="z" value="f"/>
+      <volume name="boxc"/>
+    </posXYZ>
+    <posXYZ>
+      <var name="x" value="g"/>
+      <var name="y" value="h"/>
+      <var name="z" value="i"/>
+      <volume name="boxc"/>
+    </posXYZ>
+  </composition>
+
+</section>
+
+<section name        = "Test of Muon Spectrometer"
+         version     = "1"
+         date        = "2002"
+         author      = "C.Arnault"
+         top_volume  = "MU_TM1_T1_L1_Wireplane"
+         DTD_version = "v6">
+
+  <var name="xb_m" value="4.903143788"/>
+  <var name="xb_b" value="498.9234474"/>
+
+  <var name="xt_m" value="4.904511058"/>
+  <var name="xt_b" value="504.084777"/>
+
+  <array name="hs" values="
+    14.4; 28.8; 28.8; 28.8; 28.8; 28.8; 28.8; 28.8; 
+    28.8; 28.8; 28.8; 28.8; 28.8; 28.8; 28.8; 28.8; 
+    12.6; 14.4; 12.6; 14.4; 12.6; 14.4; 12.6; 14.4;
+    14.4; 14.4; 14.4; 14.4; 14.4; 14.4; 16.2; 14.4;
+    16.2; 14.4; 16.2; 14.4; 16.2; 16.2; 16.2; 16.2;
+    16.2; 16.2; 16.2; 18;   16.2; 16.2; 18;   18; 
+    16.2; 18;   18;   18;   18;   18;   18;   18;
+    18;   19.8; 18;   19.8; 18;   19.8; 18;   19.8; 
+    18;   19.8; 18;   19.8; 19.8; 18;   19.8; 19.8;
+    18;   19.8; 19.8; 19.8; 18;   19.8; 19.8; 19.8;
+    19.8; 18;   19.8; 19.8; 19.8; 19.8; 19.8; 19.8;
+    21.6; 19.8; 21.6; 19.8; 21.6; 21.6; 21.6; 21.6;
+    21.6; 21.6; 23.4; 21.6; 23.4; 23.4; 23.4; 21.6; 
+    25.2; 23.4; 23.4; 23.4; 25.2; 25.2; 23.4; 21.6"/>
+
+  <array name="zs" values="
+    -1107;   -1085.4; -1056.6; -1027.8; -999;    -970.2;  -941.4;  -912.6;
+     -883.8;  -855;    -826.2;  -797.4; -768.6;  -739.8;  -711;    -682.2;
+     -661.5;  -648;    -634.5;  -621;   -607.5;  -594;    -580.5;  -567;
+     -552.6;  -538.2;  -523.8;  -509.4; -495;    -480.6;  -465.3;  -450;
+     -434.7;  -419.4;  -404.1;  -388.8; -373.5;  -357.3;  -341.1;  -324.9;
+     -308.7;  -292.5;  -276.3;  -259.2; -242.1;  -225.9;  -208.8;  -190.8;
+     -173.7;  -156.6;  -138.6;  -120.6; -102.6;  -84.6;   -66.6;   -48.6;
+      -30.6;   -11.7;     7.2;    26.1;   45;     63.9;    82.8;   101.7;
+      120.6;   139.5;   158.4;   177.3;  197.1;  216;     234.9;   254.7;
+      273.6;   292.5;   312.3;   332.1;  351;    369.9;   389.7;   409.5;
+      429.3;   448.2;   467.1;   486.9;  506.7;  526.5;   546.3;   566.1;
+      586.8;   607.5;   628.2;   648.9;  669.6;  691.2;   712.8;   734.4;
+      756;     777.6;   800.1;   822.6;  845.1;  868.5;   891.9;   914.4;
+      937.8;   962.1;   985.5;  1008.9; 1033.2; 1058.4;  1082.7;  1103.4"/>
+
+  <var name="yb" value="0.3"/>
+  <var name="yt" value="0.3"/>
+
+  <trd name="MU_TM1_T1_L1_Wiregang"  material="Tungsten" Xmp_Ymp_Z="xb; xt; yb; yt; h" /> 
+
+  <composition name="MU_TM1_T1_L1_Wireplane">
+    <foreach index="iz" loops="112" when="iz &lt; 10 || iz > 100">
+      <posXYZ X_Y_Z="0; 0; zs[iz]">
+        <var name="xb" value="xb_m * (iz+1) + xb_b"/>
+        <var name="xt" value="xt_m * (iz+1) + xt_b"/>
+        <var name="h"  value="hs[iz]"/>
+        <volume name="MU_TM1_T1_L1_Wiregang"/>
+      </posXYZ>
+    </foreach>
+
+  </composition>
+
+  <!--
+  <compact name="CompactExample">
+    <CompactExample/>
+  </compact>
+  -->
+
+</section>
+
+
+
+</AGDD>
+ 
+

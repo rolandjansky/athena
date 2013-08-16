@@ -1,0 +1,9 @@
+
+<!ELEMENT CompactExample EMPTY>
+
+<!ATTLIST CompactExample 
+          layer       CDATA #REQUIRED
+          diameter    CDATA #REQUIRED
+          x           CDATA #REQUIRED
+          y           CDATA #REQUIRED
+          z           CDATA #REQUIRED>
