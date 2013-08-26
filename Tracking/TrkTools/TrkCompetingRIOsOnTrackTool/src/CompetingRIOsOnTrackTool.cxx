@@ -29,10 +29,7 @@ Trk::CompetingRIOsOnTrackTool::CompetingRIOsOnTrackTool(
     const std::string& na,
     const IInterface* pa ) :
         AthAlgTool(ty,na,pa),
-        m_idHelper{},
-        m_mbHelper{},
         m_compPixelToolHandle("InDet::CompetingPixelClustersOnTrackTool/CompetingPixelClustersOnTrackTool"),
-        m_compPixelTool{},
         m_compSCT_Tool("InDet::CompetingSCT_ClustersOnTrackTool/CompetingSCT_ClustersOnTrackTool"),
         m_compTRT_Tool("InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool"),
         m_compMuonDriftCircleTool(""),
@@ -78,34 +75,56 @@ StatusCode Trk::CompetingRIOsOnTrackTool::initialize() {
       ATH_MSG_DEBUG("No Tool for making CompetingPixelClustersOnTrack given.");
       m_compPixelTool = 0;
     }
-   
+       /*
+    if ( ! m_compPixelTool.empty() ) {
+      if(m_compPixelTool.retrieve().isFailure())   {
+        ATH_MSG_FATAL( "Could not retrieve the Pixel tool: "<<m_compPixelTool);
+        return StatusCode::FAILURE;
+      } else ATH_MSG_INFO( "Successfully retrieved "<<m_compPixelTool.name() );
+    }
+       */
     if ( ! m_compSCT_Tool.empty() ) {
-      ATH_CHECK(m_compSCT_Tool.retrieve()); 
+      if (m_compSCT_Tool.retrieve().isFailure()) {
+        ATH_MSG_FATAL( "Could not retrieve the SCT tool: "<< m_compSCT_Tool);
+        return StatusCode::FAILURE;
+      } else ATH_MSG_INFO( "Successfully retrieved "<< m_compSCT_Tool.name());
     }
 
     /* Get the tool to create competing TRT_DriftCircles on Track
      */
     if ( ! m_compTRT_Tool.empty() ) {
-      ATH_CHECK(m_compTRT_Tool.retrieve()); 
+      if (m_compTRT_Tool.retrieve().isFailure()) {
+        ATH_MSG_FATAL( "Could not retrieve the TRT tool: "<< m_compTRT_Tool );
+        return StatusCode::FAILURE;
+      } else ATH_MSG_INFO( "Successfully retrieved "<<m_compTRT_Tool.name() );
     }
 
     /* Get the tool to create competing MuonDriftCircles (MDT) on Track
      */
     if ( ! m_compMuonDriftCircleTool.empty() ) {
-      ATH_CHECK (m_compMuonDriftCircleTool.retrieve()); 
+      if (m_compMuonDriftCircleTool.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Could not retrieve the Muon tool: " << m_compMuonDriftCircleTool);
+        return StatusCode::FAILURE;
+      } else ATH_MSG_INFO( "Successfully retrieved " << m_compMuonDriftCircleTool.name() );
     } 
 
     /* Get the tool to create Competing CSC / RPC / TGC Clusters on Track
      */
     if ( ! m_compMuonClusterTool.empty() ) {
-      ATH_CHECK (m_compMuonClusterTool.retrieve());
+      if (m_compMuonClusterTool.retrieve().isFailure()) {
+        ATH_MSG_FATAL( "Could not retrieve the Muon tool: " << m_compMuonClusterTool );
+        return StatusCode::FAILURE;
+      } else ATH_MSG_INFO( "Successfully retrieved " << m_compMuonClusterTool.name() );
     } 
 
     // Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
-    ATH_CHECK (detStore()->retrieve(m_idHelper, "AtlasID"));
+    if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+      ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
+      return StatusCode::FAILURE;
+    }
     m_mbHelper = new MeasurementTypeID(m_idHelper);
 
-    ATH_MSG_DEBUG( " initialize() successful in " << name() );
+    ATH_MSG_INFO( " initialize() successful in " << name() );
     return StatusCode::SUCCESS;
 
 }
