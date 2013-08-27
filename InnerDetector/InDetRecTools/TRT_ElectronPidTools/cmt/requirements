@@ -1,0 +1,48 @@
+package TRT_ElectronPidTools
+
+author Troels Petersen <Troels.Petersen@cern.ch>
+
+public
+
+# ---------------------------------------------------------------------------
+#   Package              Package version           Package location
+# ---------------------------------------------------------------------------
+
+public 
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*         Control
+use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
+use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
+use GaudiInterface       GaudiInterface-*          External
+
+
+private
+use AtlasCORAL           AtlasCORAL-*              External
+
+
+use Identifier           Identifier-*              DetectorDescription
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent
+use TrkParameters        TrkParameters-*           Tracking/TrkEvent
+use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+
+use InDetRIO_OnTrack     InDetRIO_OnTrack-*        InnerDetector/InDetRecEvent
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+use TrkSurfaces          TrkSurfaces-*             Tracking/TrkDetDescr
+
+use TRT_ToT_Tools        TRT_ToT_Tools-*           InnerDetector/InDetRecTools
+# ---------------------------------------------------------------------------
+
+public
+
+apply_pattern component_library
+library TRT_ElectronPidTools *.cxx components/*.cxx
+
+#apply_pattern dual_use_library files="*.cxx"
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
