@@ -1,0 +1,7 @@
+package MuonCalibITools
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External
+use Identifier Identifier-* DetectorDescription
+use MuonCalibEventBase  MuonCalibEventBase-*  MuonSpectrometer/MuonCalib
+use MuonCalibIdentifier  MuonCalibIdentifier-*  MuonSpectrometer/MuonCalib
