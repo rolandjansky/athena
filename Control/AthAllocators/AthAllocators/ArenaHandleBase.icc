@@ -1,0 +1,33 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaHandleBase.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaHandleBase.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief Base class for all @c Handle classes, containing parts that
+ *        do not depend on the referenced type.
+ *        Inline implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Return the current Allocator which we are referencing.
+ *
+ * This may cause a new Allocator to be created.
+ *
+ * This is on the fast path for allocations, so keep it small and inline.
+ */
+inline
+ArenaAllocatorBase* ArenaHandleBase::baseAllocator() const
+{
+  return m_header->allocator (m_index);
+}
+
+
+} // namespace SG

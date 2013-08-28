@@ -1,0 +1,86 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaBlock.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaBlock.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief These are large blocks of memory that get allocated and
+ *        divided up into smaller, uniform elements.
+ *        Inline/template implementations.
+ */
+
+namespace SG {
+
+
+/**
+ * @brief Return the number of elements in the block.
+ */
+inline
+size_t ArenaBlock::size() const
+{
+  return m_size;
+}
+
+
+/**
+ * @brief Return the size of the elements in the block.
+ */
+inline
+size_t ArenaBlock::eltSize() const
+{
+  return m_elt_size;
+}
+
+
+/**
+ * @brief Return the link pointer of the block.
+ */
+inline
+ArenaBlock*& ArenaBlock::link()
+{
+  return m_link;
+}
+
+
+/**
+ * @brief Return a pointer to element @c i in the block.
+ * @param i The index of the desired element.
+ */
+inline
+ArenaBlock::pointer ArenaBlock::index (size_t i)
+{
+  return reinterpret_cast<char*>(this) +
+    ArenaBlockBodyOffset + i*eltSize();
+}
+
+
+/**
+ * @brief Return a pointer to element @c i in the block.
+ * @param i The index of the desired element.
+ * @param elt_size The block's element size.
+ *
+ * This is provided in addition to the previous function as it may
+ * allow for better inlined code in when used in a loop, if @c elt_size
+ * is saved in a local.
+ */
+inline
+ArenaBlock::pointer ArenaBlock::index (size_t i, size_t elt_size)
+{
+  return reinterpret_cast<char*>(this) + ArenaBlockBodyOffset + i*elt_size;
+}
+
+
+/**
+ * @brief Return the global number of blocks in use.
+ */
+inline
+size_t ArenaBlock::nactive()
+{
+  return s_nactive;
+}
+
+
+} // namespace SG

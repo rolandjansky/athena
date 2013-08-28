@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="AthAllocatorsTest" type="makecheck" suite="Examples">
+      <package>Control/AthAllocators</package>
+      <timelimit>40</timelimit>
+      <author> Paolo Calafiura </author>
+      <mailto> pcalafiura@lbl.gov, snyder@fnal.gov, binet@cern.ch</mailto>
+      <expectations>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <errorMessage>differ</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>

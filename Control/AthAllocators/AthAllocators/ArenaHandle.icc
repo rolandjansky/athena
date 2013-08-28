@@ -1,0 +1,126 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaHandle.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaHandle.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief User interface for allocating memory.
+ *        Inline and template implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor, passing in an index.  (For internal/testing use.)
+ * @param header The group of Arenas which this Handle may reference.
+ *               May be null to select the global default.
+ * @param index The index of this Handle's Allocator type.
+ */
+template <class T, class ALLOC>
+ArenaHandle<T, ALLOC>::ArenaHandle (ArenaHeader* header,
+                                    size_t index)
+  : ArenaHandleBaseT<T, ALLOC> (header, index)
+{
+}
+
+
+/**
+ * @brief Constructor, passing in an optional parameter set.
+ * @param params Parameters to pass to the Allocator.
+ */
+template <class T, class ALLOC>
+ArenaHandle<T, ALLOC>::ArenaHandle
+  (const typename ALLOC::Params& params)
+    : ArenaHandleBaseT<T, ALLOC> (0, typename Base::Creator (this, params))
+{
+}
+
+
+/**
+ * @brief Constructor, passing in a Header and an optional parameter set.
+ * @param header The group of Arenas which this Handle may reference.
+ *               May be null to select the global default.
+ * @param params Parameters to pass to the Allocator.
+ */
+template <class T, class ALLOC>
+ArenaHandle<T, ALLOC>::ArenaHandle
+  (ArenaHeader* header,
+   const typename ALLOC::Params& params)
+    : ArenaHandleBaseT<T, ALLOC> (header,
+                                  typename Base::Creator (this, params))
+{
+}
+
+
+/**
+ * @brief Constructor, passing in an Arena and an optional parameter set.
+ * @param arena One Arena in the group which this Handle may reference.
+ *               May be null to select the global default.
+ * @param params Parameters to pass to the Allocator.
+ */
+template <class T, class ALLOC>
+ArenaHandle<T, ALLOC>::ArenaHandle
+  (Arena* arena,
+   const typename ALLOC::Params& params)
+    : ArenaHandleBaseT<T, ALLOC> (arena ? arena->header() : 0,
+                                  typename Base::Creator (this, params))
+{
+}
+
+
+/**
+ * @brief Allocate a new element.
+ *
+ * The element's constructor will not be called; thus, the memory
+ * is returned as a @c void*.
+ *
+ * This is on the fast path for element allocation, so keep it small
+ * and inline.
+ */
+template <class T, class ALLOC>
+inline
+void* ArenaHandle<T, ALLOC>::allocate() const
+{
+  return this->allocator()->allocate();
+}
+
+
+/**
+ * @brief Internal helper: create a new Allocator instance.
+ * @param params The parameters for the Allocator.
+ */
+template <class T, class ALLOC>
+ArenaAllocatorBase* ArenaHandle<T, ALLOC>::makeAllocator
+ (const typename ALLOC::Params& params)
+{
+  typename ALLOC::Params newparams = params;
+
+  // We don't call the element constructor.
+  newparams.constructor = 0;
+
+  // The destructor is called when we free an element --- not when
+  // we return it to the system.
+  newparams.clear = newparams.destructor;
+  newparams.destructor = 0;
+
+  // We can't skip running the destructor.
+  newparams.mustClear = true;
+
+  // We can't call the destructor twice.
+  newparams.canReclear = false;
+
+  // If we need a link, it can overlap the element.
+  newparams.eltSize = std::max (sizeof(T), newparams.minSize);
+  newparams.linkOffset = 0;
+
+  // Make the Allocator.
+  return new ALLOC (newparams);
+}
+
+
+} // namespace SG

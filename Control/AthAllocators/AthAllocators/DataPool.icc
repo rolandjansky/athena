@@ -1,0 +1,130 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//-----------------------------------------------------------
+// .icc file for DataPool
+//-----------------------------------------------------------
+// includes:
+#include <algorithm>
+#include "GaudiKernel/System.h"
+//-----------------------------------------------------------
+
+/// default constructor will initialize the pool with m_minRefCount
+template <typename VALUE>
+DataPool<VALUE>::DataPool(size_type n /*= 0*/,
+                          size_type block_size /*= 0*/,
+                          SG::Arena* arena /*= 0*/)
+  : m_handle (arena,
+              typename alloc_t::initParams<VALUE> (std::max (block_size,
+                                                             static_cast<size_type>(1024u))))
+{
+  if (n > 0)
+    m_handle.reserve (n);
+}
+
+//-----------------------------------------------------------
+/// release all elements in the pool.
+template <typename VALUE>
+void DataPool<VALUE>::reset()
+{
+  m_handle.reset();
+}
+
+/// free all memory in the pool.
+template <typename VALUE>
+void DataPool<VALUE>::erase()
+{
+  m_handle.erase();
+}
+//-----------------------------------------------------------
+// reserve space for the pool
+// allocated elements will not be deleted.
+
+template <typename VALUE>
+void DataPool<VALUE>::reserve(unsigned int size)
+{
+  m_handle.reserve (size);
+}
+
+
+template <typename VALUE>
+unsigned int DataPool<VALUE>::capacity()
+{
+  return m_handle.stats().elts.total;
+}
+
+template <typename VALUE>
+unsigned int DataPool<VALUE>::allocated()
+{
+  return m_handle.stats().elts.inuse;
+}
+
+
+//-----------------------------------------------------------
+/// begin iterators over pool
+template <typename VALUE>
+typename DataPool<VALUE>::iterator DataPool<VALUE>::begin()
+{ 
+  return iterator (m_handle.begin());
+}
+
+template <typename VALUE>
+typename DataPool<VALUE>::const_iterator DataPool<VALUE>::begin() const
+{ 
+  return const_Iterator (m_handle.begin());
+}
+
+//-----------------------------------------------------------
+/// the end() method will allow looping over only valid elements
+/// and not over ALL elements of the pool 
+
+template <typename VALUE>
+typename DataPool<VALUE>::iterator DataPool<VALUE>::end()
+{ 
+  return iterator (m_handle.end());
+}
+
+template <typename VALUE>
+typename DataPool<VALUE>::const_iterator DataPool<VALUE>::end() const { 
+  return const_iterator (m_handle.end());
+}
+
+//-----------------------------------------------------------
+/// obtain the next available element in pool by pointer
+/// return as void* to minimize misuse, client usage is:
+/// MyElement* m = new(pool->mem) MyElement(...); // pool is ptr
+template <typename VALUE>
+void* DataPool<VALUE>::mem() {
+    pointer p = nextElementPtr();
+    return p;
+}
+
+/// can also say: 
+/// MyElement* m = new ((*pool)()) MyElement(...); // pool = pointer
+/// MyElement* m = new (pool()) MyElement(...); // pool = value
+
+template <typename VALUE>
+void* DataPool<VALUE>::operator()() { 
+    return mem(); 
+}
+
+//-----------------------------------------------------------
+/// typename of pool
+template <typename VALUE>
+const std::string& DataPool<VALUE>::typeName() {
+  static std::string name = System::typeinfoName (typeid (VALUE));
+  return name;
+}
+
+//-----------------------------------------------------------
+/// obtain the next available element in pool by pointer
+/// pool is resized if reached its limit
+template <typename VALUE>
+inline
+typename DataPool<VALUE>::pointer DataPool<VALUE>::nextElementPtr()
+{
+  return m_handle.allocate();
+}
+  
+

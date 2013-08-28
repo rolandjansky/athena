@@ -1,0 +1,38 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaHeader.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaHeader.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief Proxy for a group of Arenas.
+ *        Inline implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Translate an integer index to an Allocator index.
+ * @param i The index to look up.
+ *
+ * If the index isn't valid, an assertion will be tripped.
+ *
+ * This is on the fast path for element allocation, so keep
+ * it small and inline.
+ */
+inline
+ArenaAllocatorBase* ArenaHeader::allocator (size_t i)
+{
+  if (m_allocvec && i < m_allocvec->size()) {
+    ArenaAllocatorBase* allocbase = (*m_allocvec)[i];
+    if (allocbase) return allocbase;
+  }
+  return makeAllocator (i);
+}
+
+
+} // namespace SG

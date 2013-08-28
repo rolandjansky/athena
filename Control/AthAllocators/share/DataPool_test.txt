@@ -1,0 +1,11 @@
+// common job opts for SG unit tests
+
+// $Id: DataPool_test.txt,v 1.1 2003-04-02 19:35:10 calaf Exp $
+
+ApplicationMgr.DLLs += { "StoreGate" };
+MessageSvc.OutputLevel = 2;
+
+ApplicationMgr.ExtSvc += {"IncidentSvc", "ChronoStatSvc", "AuditorSvc"};
+
+//AuditorSvc.Auditors += {"ChronoAuditor", "MemStatAuditor"};
+//MemStatAuditor.OutputLevel = 4;

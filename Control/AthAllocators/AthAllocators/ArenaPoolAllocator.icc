@@ -1,0 +1,102 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaPoolAllocator.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaPoolAllocator.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief Pool-based allocator.
+ *        Inline implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Default constructor.
+ */
+inline
+ArenaPoolAllocator::iterator::iterator()
+  : iterator::iterator_adaptor_ (0),
+    m_block (0)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param p Pointer to the element.
+ * @param block Block containing the element.
+ */
+inline
+ArenaPoolAllocator::iterator::iterator (pointer p, ArenaBlock* block)
+  : iterator::iterator_adaptor_ (p),
+    m_block (block)
+{
+}
+
+
+/**
+ * @brief Default constructor.
+ */
+inline
+ArenaPoolAllocator::const_iterator::const_iterator ()
+  : const_iterator::iterator_adaptor_ (0),
+    m_block (0)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param p Pointer to the element.
+ * @param block Block containing the element.
+ */
+inline
+ArenaPoolAllocator::const_iterator::const_iterator (pointer p,
+                                                    ArenaBlock* block)
+  : const_iterator::iterator_adaptor_ (p),
+    m_block (block)
+{
+}
+
+
+/**
+ * @brief Constructor from @c iterator.
+ * @param it The iterator to copy.
+ */
+inline
+ArenaPoolAllocator::const_iterator::const_iterator (const iterator& it)
+  : const_iterator::iterator_adaptor_ (it.base_reference()),
+    m_block (it.m_block)
+{
+}
+
+
+/**
+ * @brief Allocate a new element.
+ *
+ * The fast path of this will be completely inlined.
+ */
+inline
+ArenaPoolAllocator::pointer ArenaPoolAllocator::allocate()
+{
+  // If there are no free elements get more.
+  if (m_ptr >= m_end)
+    refill();
+
+  // Take the first free element.
+  pointer ret = m_ptr;
+  m_ptr = m_ptr + m_params.eltSize;
+
+  // Update statistics.
+  ++m_stats.elts.inuse;
+
+  return ret;
+}
+
+
+} // namespace SG

@@ -1,0 +1,212 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaHandleBaseT.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaHandleBaseT.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief Base class for @c Handle classes, containing parts that
+ *        are independent of how the Allocator gets created.
+ *        Inline and template implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor, passing in an index.
+ * @param header The group of Arenas which this Handle may reference.
+ *               May be null to select the global default.
+ * @param index The index of this Handle's Allocator type.
+ */
+template <typename T, typename ALLOC>
+ArenaHandleBaseT<T, ALLOC>::ArenaHandleBaseT (ArenaHeader* header,
+                                              size_t index)
+  : Base (header, index)
+{
+}
+
+
+/**
+ * @brief Constructor, passing in a creator instance.
+ * @param header The group of Arenas which this Handle may reference.
+ *               May be null to select the global default.
+ * @param creator A @c Creator instance that will create an instance
+ *                of the Allocator we use.
+ *
+ * We'll try looking up the allocator name (from @c creator) in the
+ * registry to find the proper index.  If it's not found, we'll
+ * register @c creator.
+ */
+template <typename T, typename ALLOC>
+ArenaHandleBaseT<T, ALLOC>::ArenaHandleBaseT (ArenaHeader* header,
+                                           const Creator& creator)
+  : Base (header, creator)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param it The base iterator.
+ */
+template <typename T, typename ALLOC>
+inline
+ArenaHandleBaseT<T, ALLOC>::iterator::iterator
+  (const typename ALLOC::iterator& it)
+  : iterator::iterator_adaptor_ (it)
+{
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ */
+template <typename T, typename ALLOC>
+inline
+typename ArenaHandleBaseT<T, ALLOC>::iterator::reference
+ArenaHandleBaseT<T, ALLOC>::iterator::dereference() const
+{
+  return reinterpret_cast<T&> (*this->base_reference());
+}
+
+
+/**
+ * @brief Constructor.
+ * @param it The base iterator.
+ */
+template <typename T, typename ALLOC>
+inline
+ArenaHandleBaseT<T, ALLOC>::const_iterator::const_iterator
+  (const typename ALLOC::const_iterator& it)
+  : const_iterator::iterator_adaptor_ (it)
+{
+}
+
+
+/**
+ * @brief Constructor from a non-const iterator.
+ * @param it The non-const iterator.
+ */
+template <typename T, typename ALLOC>
+inline
+ArenaHandleBaseT<T, ALLOC>::const_iterator::const_iterator
+   (const iterator& it)
+  : const_iterator::iterator_adaptor_ (it.base_reference())
+{
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ */
+template <typename T, typename ALLOC>
+inline
+typename ArenaHandleBaseT<T, ALLOC>::const_iterator::reference
+ArenaHandleBaseT<T, ALLOC>::const_iterator::dereference() const
+{
+  return reinterpret_cast<const T&> (*this->base_reference());
+}
+
+
+/**
+ * @brief Starting iterator.
+ *
+ * This will iterate over all allocated elements (in unspecified order).
+ * It is at least a @c forward_iterator.
+ * This may only be instantiated if the underlying Allocator
+ * supports iterators.
+ */
+template <class T, class ALLOC>
+typename ArenaHandleBaseT<T, ALLOC>::iterator
+ArenaHandleBaseT<T, ALLOC>::begin()
+{
+  return const_cast<ALLOC*>(this->allocator())->begin();
+}
+
+
+/**
+ * @brief Starting const iterator.
+ *
+ * This will iterate over all allocated elements (in unspecified order).
+ * It is at least a @c forward_iterator.
+ * This may only be instantiated if the underlying Allocator
+ * supports iterators.
+ */
+template <class T, class ALLOC>
+typename ArenaHandleBaseT<T, ALLOC>::const_iterator
+ArenaHandleBaseT<T, ALLOC>::begin() const
+{
+  return const_cast<const ALLOC*>(this->allocator())->begin();
+}
+
+
+/**
+ * @brief Ending iterator.
+ *
+ * This may only be instantiated if the underlying Allocator
+ * supports iterators.
+ */
+template <class T, class ALLOC>
+typename ArenaHandleBaseT<T, ALLOC>::iterator
+ArenaHandleBaseT<T, ALLOC>::end()
+{
+  return const_cast<ALLOC*>(this->allocator())->end();
+}
+
+
+/**
+ * @brief Ending const iterator.
+ *
+ * This may only be instantiated if the underlying Allocator
+ * supports iterators.
+ */
+template <class T, class ALLOC>
+typename ArenaHandleBaseT<T, ALLOC>::const_iterator
+ArenaHandleBaseT<T, ALLOC>::end() const
+{
+  return const_cast<const ALLOC*>(this->allocator())->end();
+}
+
+
+/**
+ * @brief Free an element.
+ * @param p The element to be freed.
+ *
+ * @c clear() will be called on the element at this point,
+ * if it has been defined.
+ *
+ * This may only be instantiated if it's supported
+ * by the underlying Allocator.
+ */
+template <class T, class ALLOC>
+inline
+void ArenaHandleBaseT<T, ALLOC>::free (pointer p)
+{
+  this->allocator()->free
+    (reinterpret_cast<typename ALLOC::pointer>(p));
+}
+
+
+/**
+ * @brief Reset pool back to a previous state.
+ * @param p The pointer back to which to reset.
+ *
+ * This will free (a la @c reset) the element @c p and all elements
+ * that have been allocated after it from this allocator.
+ *
+ * This may only be instantiated if it's supported
+ * by the underlying Allocator.
+ */
+template <class T, class ALLOC>
+void ArenaHandleBaseT<T, ALLOC>::resetTo(pointer p)
+{
+  return this->allocator()->resetTo
+    (reinterpret_cast<typename ALLOC::pointer>(p));
+}
+
+
+} // namespace SG

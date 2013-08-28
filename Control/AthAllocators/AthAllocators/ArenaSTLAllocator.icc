@@ -1,0 +1,40 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaSTLAllocator.icc 470825 2011-11-25 23:20:57Z ssnyder $
+/**
+ * @file AthAllocators/ArenaSTLAllocator.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2011
+ * @brief 
+ */
+
+
+namespace SG {
+
+
+template <class BASE>
+ArenaSTLAllocator<BASE>::ArenaSTLAllocator (size_t nblock /*= 1000*/,
+                                         const std::string& name /*= ""*/)
+  : BASE (nblock, name)
+{
+}
+
+
+template <class BASE>
+ArenaSTLAllocator<BASE>::ArenaSTLAllocator (const ArenaSTLAllocator& a)
+  : BASE (a)
+{
+}
+
+
+template <class BASE>
+template <class U>
+ArenaSTLAllocator<BASE>::ArenaSTLAllocator (const ArenaSTLAllocator<U>& a)
+  : BASE (a)
+{
+}
+
+
+} // namespace SG

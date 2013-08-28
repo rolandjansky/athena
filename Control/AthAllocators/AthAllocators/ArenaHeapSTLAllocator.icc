@@ -1,0 +1,432 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaHeapSTLAllocator.icc,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
+/**
+ * @file  AthAllocators/ArenaHeapSTLAllocator.icc
+ * @author scott snyder
+ * @date Nov 2011
+ * @brief STL-style allocator wrapper for @c ArenaHeapAllocator.
+ */
+
+
+#include <cassert>
+
+
+namespace SG {
+
+
+
+//****************************************************************************
+// Generic specialization
+//
+
+
+/**
+ * @brief Constructor.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to set in the parameters structure for the
+ *               allocator name.
+ */
+template <class T>
+ArenaHeapSTLAllocator_initParams<T>::ArenaHeapSTLAllocator_initParams
+ (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
+   : Base (nblock, name)
+{
+}
+
+
+/**
+ * @brief Return an initialized parameters structure.
+ */
+template <class T>
+ArenaAllocatorBase::Params ArenaHeapSTLAllocator_initParams<T>::params() const
+{
+  // Do the base class stuff.
+  ArenaAllocatorBase::Params p =
+    Base::operator ArenaAllocatorBase::Params();
+
+  // Disable ctor/dtor.
+  p.constructor = 0;
+  p.destructor = 0;
+
+  // Overlap link over free struct.
+  p.eltSize = std::max (sizeof(T), p.minSize);
+  p.linkOffset = 0;
+
+  return p;
+}
+
+
+/**
+ * @brief Default constructor.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to set in the parameters structure for the
+ *               allocator name.
+ */
+template <class T, class VETO>
+ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
+ (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
+   : m_pool (ArenaHeapSTLAllocator_initParams<T> (nblock, name))
+{
+}
+
+
+/**
+ * @brief Constructor from another @c ArenaHeapSTLAllocator.
+ *
+ * The @c name and @c nblock parameters are copied, but the data are not.
+ */
+template <class T, class VETO>
+template <class U, class V>
+ArenaHeapSTLAllocator<T, VETO>::ArenaHeapSTLAllocator
+  (const ArenaHeapSTLAllocator<U, V>& a)
+    : m_pool (ArenaHeapSTLAllocator_initParams<T> (a.nblock(), a.name()))
+{
+}
+
+
+/**
+ * @brief Convert a reference to an address.
+ */
+template <class T, class VETO>
+inline
+typename ArenaHeapSTLAllocator<T, VETO>::pointer
+ArenaHeapSTLAllocator<T, VETO>::address (reference x) const
+{
+  return &x;
+}
+
+
+/**
+ * @brief Convert a reference to an address.
+ */
+template <class T, class VETO>
+inline
+typename ArenaHeapSTLAllocator<T, VETO>::const_pointer
+ArenaHeapSTLAllocator<T, VETO>::address (const_reference x) const
+{
+  return &x;
+}
+
+
+
+/**
+ * @brief Allocate new objects.
+ * @param n Number of objects to allocate.  Must be 1.
+ * @param hint Allocation hint.  Not used.
+ */
+template <class T, class VETO>
+inline
+typename ArenaHeapSTLAllocator<T, VETO>::pointer
+ArenaHeapSTLAllocator<T, VETO>::allocate (size_type
+#ifndef NDEBUG
+                      n
+#endif
+                      , const void* /*hint = 0*/)
+{
+  assert (n == 1);
+  return reinterpret_cast<pointer> (m_pool.allocate());
+}
+
+
+/**
+ * @brief Deallocate objects.
+ * @param n Number of objects to deallocate.  Must be 1.
+ *
+ * This implementation doesn't do anything.
+ */
+template <class T, class VETO>
+inline
+void ArenaHeapSTLAllocator<T, VETO>::deallocate (pointer p, size_type 
+#ifndef NDEBUG
+                             n
+#endif
+                             )
+{
+  assert (n == 1);
+  m_pool.free (reinterpret_cast<ArenaHeapAllocator::pointer> (p));
+}
+
+
+/**
+ * @brief Return the maximum number of objects we can allocate at once.
+ *
+ * This always returns 1.
+ */
+template <class T, class VETO>
+inline
+typename ArenaHeapSTLAllocator<T, VETO>::size_type
+ArenaHeapSTLAllocator<T, VETO>::max_size() const throw() 
+{
+  return 1;
+}
+
+
+/**
+ * @brief Call the @c T constructor.
+ * @param p Location of the memory.
+ * @param val Parameter to pass to the constructor.
+ */
+template <class T, class VETO>
+inline
+void ArenaHeapSTLAllocator<T, VETO>::construct (pointer p, const T& val)
+{
+  new (reinterpret_cast<void*>(p)) T(val);
+}
+
+
+/**
+ * @brief Call the @c T destructor.
+ * @param p Location of the memory.
+ */
+template <class T, class VETO>
+inline
+void ArenaHeapSTLAllocator<T, VETO>::destroy (pointer p)
+{
+  p->~T();
+}
+
+
+/**
+ * @brief Return the hinted number of objects allocated per block.
+ */
+template <class T, class VETO>
+inline
+size_t ArenaHeapSTLAllocator<T, VETO>::nblock() const
+{
+  return m_pool.params().nblock;
+}
+
+
+/**
+ * @brief Return the name of this allocator.
+ */
+template <class T, class VETO>
+inline
+const std::string& ArenaHeapSTLAllocator<T, VETO>::name() const
+{
+  return m_pool.name();
+}
+
+
+/**
+ * @brief Free all allocated elements.
+ *
+ * All elements allocated are returned to the free state.
+ * @c clear should be called on them if it was provided.
+ * The elements may continue to be cached internally, without
+ * returning to the system.
+ */
+template <class T, class VETO>
+void ArenaHeapSTLAllocator<T, VETO>::reset()
+{
+  m_pool.reset();
+}
+
+
+/**
+ * @brief Free all allocated elements and release memory back to the system.
+ *
+ * All elements allocated are freed, and all allocated blocks of memory
+ * are released back to the system.
+ * @c destructor should be called on them if it was provided
+ * (preceded by @c clear if provided and @c mustClear was set).
+ */
+template <class T, class VETO>
+void ArenaHeapSTLAllocator<T, VETO>::erase()
+{
+  m_pool.erase();
+}
+
+
+/**
+ * @brief Set the total number of elements cached by the allocator.
+ * @param size The desired pool size.
+ *
+ * This allows changing the number of elements that are currently free
+ * but cached.  Any allocated elements are not affected by this call.
+ *
+ * If @c size is greater than the total number of elements currently
+ * cached, then more will be allocated.  This will preferably done
+ * with a single block, but that is not guaranteed; in addition, the
+ * allocator may allocate more elements than is requested.
+ *
+ * If @c size is smaller than the total number of elements currently
+ * cached, as many blocks as possible will be released back to the system.
+ * It may not be possible to release the number of elements requested;
+ * this should be implemented on a best-effort basis.
+ */
+template <class T, class VETO>
+void ArenaHeapSTLAllocator<T, VETO>::reserve (size_t size)
+{
+  m_pool.reserve (size);
+}
+
+
+/**
+ * @brief Return the statistics block for this allocator.
+ */
+template <class T, class VETO>
+const ArenaAllocatorBase::Stats& ArenaHeapSTLAllocator<T, VETO>::stats() const
+{
+  return m_pool.stats();
+}
+
+
+/**
+ * @brief Return a pointer to the underlying allocator (may be 0).
+ */
+template <class T, class VETO>
+ArenaAllocatorBase* ArenaHeapSTLAllocator<T, VETO>::poolptr() const
+{
+  const ArenaAllocatorBase* tmp = &m_pool;
+  return const_cast<ArenaAllocatorBase*> (tmp);
+}
+
+
+//****************************************************************************
+// Vetoed specialization.
+//
+
+
+/**
+ * @brief Default constructor.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to set in the parameters structure for the
+ *               allocator name.
+ */
+template <class T>
+ArenaHeapSTLAllocator<T, T>::ArenaHeapSTLAllocator
+ (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
+    : m_nblock (nblock),
+      m_name (name),
+      m_poolptr (0)
+{
+}
+
+
+/**
+ * @brief Constructor from another @c ArenaHeapSTLAllocator.
+ *
+ * The @c name and @c nblock parameters are copied, but the data are not.
+ */
+template <class T>
+template <class U, class V>
+ArenaHeapSTLAllocator<T, T>::ArenaHeapSTLAllocator
+  (const ArenaHeapSTLAllocator<U, V>& a)
+    : m_nblock (a.nblock()),
+      m_name (a.name()),
+      m_poolptr (a.poolptr())
+{
+}
+
+
+/**
+ * @brief Return the hinted number of objects allocated per block.
+ */
+template <class T>
+inline
+size_t ArenaHeapSTLAllocator<T, T>::nblock() const
+{
+  return m_nblock;
+}
+
+
+/**
+ * @brief Return the name of this allocator.
+ */
+template <class T>
+inline
+const std::string& ArenaHeapSTLAllocator<T, T>::name() const
+{
+  return m_name;
+}
+
+
+/**
+ * @brief Free all allocated elements.
+ *
+ * All elements allocated are returned to the free state.
+ * @c clear should be called on them if it was provided.
+ * The elements may continue to be cached internally, without
+ * returning to the system.
+ */
+template <class T>
+void ArenaHeapSTLAllocator<T, T>::reset()
+{
+  if (m_poolptr)
+    m_poolptr->reset();
+}
+
+
+/**
+ * @brief Free all allocated elements and release memory back to the system.
+ *
+ * All elements allocated are freed, and all allocated blocks of memory
+ * are released back to the system.
+ * @c destructor should be called on them if it was provided
+ * (preceded by @c clear if provided and @c mustClear was set).
+ */
+template <class T>
+void ArenaHeapSTLAllocator<T, T>::erase()
+{
+  if (m_poolptr)
+    m_poolptr->erase();
+}
+
+
+/**
+ * @brief Set the total number of elements cached by the allocator.
+ * @param size The desired pool size.
+ *
+ * This allows changing the number of elements that are currently free
+ * but cached.  Any allocated elements are not affected by this call.
+ *
+ * If @c size is greater than the total number of elements currently
+ * cached, then more will be allocated.  This will preferably done
+ * with a single block, but that is not guaranteed; in addition, the
+ * allocator may allocate more elements than is requested.
+ *
+ * If @c size is smaller than the total number of elements currently
+ * cached, as many blocks as possible will be released back to the system.
+ * It may not be possible to release the number of elements requested;
+ * this should be implemented on a best-effort basis.
+ */
+template <class T>
+void ArenaHeapSTLAllocator<T, T>::reserve (size_t size)
+{
+  if (m_poolptr)
+    m_poolptr->reserve (size);
+}
+
+
+/**
+ * @brief Return the statistics block for this allocator.
+ */
+template <class T>
+const ArenaAllocatorBase::Stats&
+ArenaHeapSTLAllocator<T, T>::stats() const
+{
+  if (m_poolptr)
+    return m_poolptr->stats();
+  static ArenaAllocatorBase::Stats tmp;
+  return tmp;
+}
+
+
+/**
+ * @brief Return a pointer to the underlying allocator (may be 0).
+ */
+template <class T>
+ArenaAllocatorBase* ArenaHeapSTLAllocator<T, T>::poolptr() const
+{
+  return m_poolptr;
+}
+
+
+} // namespace SG

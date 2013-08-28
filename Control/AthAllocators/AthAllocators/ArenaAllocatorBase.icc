@@ -1,0 +1,174 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaAllocatorBase.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaAllocatorBase.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief Common base class for arena allocator classes.
+ *        Inline/template implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Make a constructor function pointer for a non-trivial constructor.
+ */
+template <class T>
+ArenaAllocatorBase::func_t*
+ArenaAllocatorBase::makeConstructor (const boost::false_type&)
+{
+  return &construct_fcn<T>;
+}
+
+
+/**
+ * @brief Make a constructor function pointer for a trivial constructor.
+ */
+template <class T>
+ArenaAllocatorBase::func_t*
+ArenaAllocatorBase::makeConstructor (const boost::true_type&)
+{
+  return 0;
+}
+
+
+/**
+ * @brief Make a constructor function pointer for a non-trivial destructor.
+ */
+template <class T>
+ArenaAllocatorBase::func_t*
+ArenaAllocatorBase::makeDestructor (const boost::false_type&)
+{
+  return &destroy_fcn<T>;
+}
+
+
+/**
+ * @brief Make a constructor function pointer for a trivial destructor.
+ */
+template <class T>
+ArenaAllocatorBase::func_t*
+ArenaAllocatorBase::makeDestructor (const boost::true_type&)
+{
+  return 0;
+}
+
+
+/**
+ * @brief Make a function pointer for a @c clear function.
+ */
+template <class T>
+ArenaAllocatorBase::func_t*
+ArenaAllocatorBase::makeClear (const boost::false_type&)
+{
+  return &clear_fcn<T>;
+}
+
+
+/**
+ * @brief Make a dummy @c clear function pointer.
+ */
+template <class T>
+ArenaAllocatorBase::func_t*
+ArenaAllocatorBase::makeClear (const boost::true_type&)
+{
+  return 0;
+}
+
+
+/**
+ * @brief Call @c T's default constructor on the object at @c p.
+ * @param p The object on which to run the constructor.
+ */
+template <typename T>
+void ArenaAllocatorBase::construct_fcn (pointer p)
+{
+  new(p) T;
+}
+
+
+/**
+ * @brief Call @c T's destructor on the object at @c p.
+ * @param p The object on which to run the destructor.
+ */
+template <typename T>
+void ArenaAllocatorBase::destroy_fcn (pointer p)
+{
+  reinterpret_cast<T*>(p)->~T();
+}
+
+
+/**
+ * @brief Call @c T::clear on the object at @c p.
+ * @param p The object on which to run the @c clear.
+ */
+template <typename T>
+void ArenaAllocatorBase::clear_fcn (pointer p)
+{
+  reinterpret_cast<T*>(p)->clear();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to set in the parameters structure for the
+ *               allocator name.
+ */
+template <typename T, bool clear, bool no_ctor, bool no_dtor>
+ArenaAllocatorBase::initParams<T, clear, no_ctor, no_dtor>::initParams
+   (size_t nblock /*=1000*/,
+    const std::string& name /*= ""*/)
+  : m_nblock (nblock),
+    m_name (name)
+{
+}
+
+
+/**
+ * @brief Return an initialized parameters structure.
+ */
+template <typename T, bool clear, bool no_ctor, bool no_dtor>
+ArenaAllocatorBase::Params
+ArenaAllocatorBase::initParams<T, clear, no_ctor, no_dtor>::params() const
+{
+  Params params;
+
+  // Fill in the parameters that were passed to our constructor.
+  params.nblock = m_nblock;
+  params.name = m_name;
+
+  // We're not setting up a link.
+  params.linkOffset = 0;
+  params.eltSize = sizeof (T);
+  params.minSize = 1;
+
+  // Defaults for these.
+  params.canReclear = true;
+  params.mustClear = false;
+
+  // Set up the constructor/destructor.
+  // We want the pointers to be null if they're trivial.
+  params.constructor =
+    makeConstructor<T> (::boost::integral_constant<bool, 
+                          ::boost::has_trivial_constructor<T>::value ||
+                          no_ctor>());
+  params.destructor =
+    makeDestructor<T> (::boost::integral_constant<bool, 
+                          ::boost::has_trivial_destructor<T>::value ||
+                          no_dtor>());
+
+  // Set up the clear function --- only if the flag is set!
+  params.clear = makeClear<T> (::boost::integral_constant<bool, !clear>());
+
+  return params;
+}
+
+
+} // namespace SG

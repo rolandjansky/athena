@@ -1,0 +1,107 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArenaHeapAllocator.icc 470529 2011-11-24 23:54:22Z ssnyder $
+/**
+ * @file  AthAllocators/ArenaPoolAllocator.icc
+ * @author scott snyder
+ * @date May 2007
+ * @brief Heap-based allocator.
+ *        Inline and template implementations.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor for parameters helper.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to set in the parameters structure for the
+ *               allocator name.
+ */
+template <typename T, bool clear, bool no_ctor, bool no_dtor>
+ArenaHeapAllocator::initParams<T, clear, no_ctor, no_dtor>::
+initParams (size_t nblock /*=1000*/, const std::string& name /*=""*/)
+  : Base (nblock, name)
+{
+}
+
+
+/**
+ * @brief Return an initialized parameters structure.
+ */
+template <typename T, bool clear, bool no_ctor, bool no_dtor>
+ArenaAllocatorBase::Params
+ArenaHeapAllocator::initParams<T, clear, no_ctor, no_dtor>::params() const
+{
+  // Do the base class stuff.
+  Params p = Base::operator ArenaAllocatorBase::Params();
+
+  // Allow space for an extra pointer.
+  struct Dummy {
+    T x;
+    pointer y;
+  };
+  p.eltSize = sizeof (Dummy);
+  Dummy* dummy = (Dummy*)0x1234;
+  p.linkOffset = (char*)&dummy->y - (char*)dummy;
+
+  // Need to allow at least enough space for a pointer.
+  p.minSize = sizeof (pointer);
+
+  return p;
+}
+
+
+/**
+ * @brief Allocate a new element.
+ *
+ * The fast path of this will be completely inlined.
+ */
+inline
+ArenaHeapAllocator::pointer ArenaHeapAllocator::allocate()
+{
+  ++m_stats.elts.inuse;
+  pointer ret = m_freeptr;
+  if (ret) {
+    m_freeptr = link (ret);
+    return ret;
+  }
+  return refill();
+}
+
+
+/**
+ * @brief Free an element.
+ * @param p The element to be freed.
+ *
+ * @c clear() will be called on the element at this point,
+ * if it has been defined.
+ */
+inline
+void ArenaHeapAllocator::free (pointer p)
+{
+  if (m_params.clear)
+    m_params.clear (p);
+  link (p) = m_freeptr;
+  m_freeptr = p;
+  --m_stats.elts.inuse;
+}
+
+
+/**
+ * @brief Return a reference to the link for an element.
+ * @param p The element.
+ */
+inline
+ArenaHeapAllocator::pointer& ArenaHeapAllocator::link (pointer p) const
+{
+  return *reinterpret_cast<pointer*> (p + m_params.linkOffset);
+}
+
+
+} // namespace SG
+
