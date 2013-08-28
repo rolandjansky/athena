@@ -1,0 +1,32 @@
+package MuonCalibNtuple
+
+author Niels van Eldik
+
+use AtlasPolicy		  AtlasPolicy-*
+
+use AtlasROOT             AtlasROOT-*               External
+
+use MuonCalibEventBase    MuonCalibEventBase-*   MuonSpectrometer/MuonCalib
+use MdtCalibInterfaces    MdtCalibInterfaces-*   MuonSpectrometer/MuonCalib/MdtCalib
+use MdtCalibFitters       MdtCalibFitters-*      MuonSpectrometer/MuonCalib/MdtCalib
+
+use MuonRDO               MuonRDO-*              MuonSpectrometer
+
+private
+
+use AtlasCLHEP            AtlasCLHEP-*           External
+use MuonCalibIdentifier   MuonCalibIdentifier-*  MuonSpectrometer/MuonCalib
+
+public
+
+library MuonCalibNtuple  *.cxx 
+
+include_dirs "$(MuonCalibNtuple_root)"
+
+macro MuonCalibNtuple_linkopts "-L$(MuonCalibNtuple_root)/lib -lMuonCalibNtuple"
+
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
