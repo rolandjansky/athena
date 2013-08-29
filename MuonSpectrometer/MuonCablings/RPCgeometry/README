@@ -1,0 +1,35 @@
+This package contains the classes for handling the geometry of the RPC system.
+The package requires the AMDB package for accessing the geometry data. Two sets
+of libraries are created: TrigT1RPCgeometry to be used into ATHENA framework, 
+and RPCgeometry to be used for running a standalone application.
+
+
+Basic Components:
+
+RPCGeometry    : singleton class handling the data structures which hold the 
+                 geometric position of the RPC strips.
+
+RPCgeoemtrySvc : interface class implementing the access to the RPCGeometry
+                 class as an ATHENA service.
+
+RPCdecoder     : class that handles the amdb <--> internal indexes conversion
+
+
+
+Use and configuration in ATHENA:
+
+    * Load and use the required DLL module with the following command lines:
+
+       ApplicationMgr.DLLs += { "TrigT1RPCgeometry" , "AmdbsimrecAthena"};
+       ApplicationMgr.ExtSvc += { "AmdbsimrecAthenaSvc", "RPCgeometrySvc" };
+
+    * The geometry database amdb_simrec.data must be accessible from the run 
+      directory.
+
+    * Configuration parameters:
+
+      DumpRPCGeometry  [false]  flag for dumping the whole geometry data
+      DumpRPCStations  [false]  flag for dumping the RPC trigger stations
+      Debug            [false]  flag for setting up the debugging
+      DumpLVL1conf     [false]  flag for producing the Cabling file (RPC only)
+      DumpFileName     ["LVL1conf.dump"]  file in which the dump is made
