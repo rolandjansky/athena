@@ -1,0 +1,52 @@
+package TriggerRateTools
+
+author Marc-Andre Dufour <Marc-Andre.Dufour@cern.ch>
+author Miika Klemetti <Miika.Klemetti@mail.mcgill.ca>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+use StoreGate           StoreGate-*             Control
+use EventInfo           EventInfo-*             Event
+#use CBNT_Utils          CBNT_Utils-*            Reconstruction
+
+use TrigT1Interfaces    TrigT1Interfaces-*      Trigger/TrigT1
+use TrigT1CaloEvent      TrigT1CaloEvent-*       Trigger/TrigT1
+#use TrigT1Config        TrigT1Config-*          Trigger/TrigT1
+#use TrigT1Result        TrigT1Result-*          Trigger/TrigT1
+use AnalysisTriggerEvent  AnalysisTriggerEvent-* PhysicsAnalysis/AnalysisTrigger
+use TrigCaloEvent       TrigCaloEvent-*         Trigger/TrigEvent
+use TrigMissingEtEvent  TrigMissingEtEvent-*    Trigger/TrigEvent
+use TrigConfL1Data      TrigConfL1Data-*        Trigger/TrigConfiguration
+use TrigConfigSvc       TrigConfigSvc-*         Trigger/TrigConfiguration
+
+#use TrigSteering        TrigSteering-*          Trigger/TrigSteer
+use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
+#use TrigDecision        TrigDecision-*          Trigger/TrigEvent
+use TrigDecisionTool    TrigDecisionTool-*	Trigger/TrigAnalysis
+
+#use TriggerMenuPython   TriggerMenuPython-*     Trigger/TriggerCommon
+#use TriggerJobOpts      TriggerJobOpts-*        Trigger/TriggerCommon
+
+use AtlasROOT           AtlasROOT-*             External
+use TrigNtDecision      TrigNtDecision-*        Trigger/TrigAnalysis
+use TriggerRateSlices   TriggerRateSlices-*     Trigger/TrigAnalysis
+
+use JetEvent            JetEvent-*              Reconstruction/Jet
+#use MissingETEvent      MissingETEvent-00-*     Reconstruction
+use InDetBCM_RawData    InDetBCM_RawData-*      InnerDetector/InDetRawEvent
+
+#library TriggerRateTools *.cxx components/*.cxx
+
+apply_tag ROOTMathLibs
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+include_dirs $(TriggerRateTools_root)/TriggerRateTools
+
+macro TriggerRateTools_linkopts "-L$(bin) -lTrigNtDecision"
+
+macro TriggerRateTools_shlibflags "$(componentshr_linkopts) $(use_linkopts) "
+apply_pattern dual_use_library files=*.cxx
+
+set TriggerRateTools_PATH "$(TriggerRateTools_root)"
