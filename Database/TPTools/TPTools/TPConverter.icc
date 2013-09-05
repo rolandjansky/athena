@@ -1,0 +1,304 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "GaudiKernel/MsgStream.h"
+
+#include <stdexcept>
+#include <memory>
+
+
+//--------------------------------------------------------------------
+/*
+ Default implementation of the 2 methods that create new objects:
+ createTransient() and  createPersistent()
+ The 2 remaining methods persToTrans() and transToPers() do not have
+ default implementations, they needs to be supplied by the user-defined
+ superclass
+*/
+
+template< class TRANS_BASE, class TRANS, class PERS >
+PERS* TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
+createPersistent(const TRANS* transObj, MsgStream &log)  {
+   std::auto_ptr<PERS> pers(new PERS());
+   transToPers(transObj, pers.get(), log);
+   return(pers.release());
+}
+
+
+template< class TRANS_BASE, class TRANS, class PERS >
+TPObjRef
+TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
+toPersistent_impl( const TRANS *trans, MsgStream &log )
+{
+   // make sure there is a storage object
+   if( !this->topConverter()->hasTLPersObject() ) {
+      this->topConverter()->createTLPersObject();
+   }
+   // make a new space in the storage vector
+   size_t	size = m_pStorage->size();
+   m_pStorage->resize( size+1 );
+
+   if( m_recursive ) {
+      // for recursive calls use temporary persistent object
+      // as the vector storage may be reallocated in a recursive invocation
+      PERS	tmp_pers;
+      transToPers( trans, &tmp_pers, log);
+      // do NOT use back() here (the vector has already grown)
+      m_pStorage->operator[]( size ) = tmp_pers;
+   } else {
+      if( m_curRecLevel > 0 && !m_ignoreRecursion) {
+	 throw std::runtime_error(
+	    std::string("T/P converter: ") + typeid(*this).name()
+	    + " called recursively! -> enable the recursive flag" );
+      }
+      m_curRecLevel++;
+      transToPers( trans, &m_pStorage->back(), log);
+      m_curRecLevel--;
+   }
+   return TPObjRef( this->m_pStorageTID, size );
+}
+
+
+template< class TRANS_BASE, class TRANS, class PERS >
+TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
+createTransient(const PERS* persObj, MsgStream &log) {
+   std::auto_ptr<TRANS>	trans(new TRANS());
+   this->persToTrans(persObj, trans.get(), log);
+   return(trans.release());
+}
+
+   
+
+//--------------------------------------------------------------------
+/*
+  persToTrans() and transToPers() implementation for a converter between
+  transient vector of T* (like DataVector<T>) and persistent vector<T>
+*/
+template<class TRANS, class PERS, class CONV>
+void TPCnvVector<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
+		TRANS* transVect,
+		MsgStream &log) {
+   CONV	element_cnv;
+   typename PERS::const_iterator it;
+   transVect->clear();
+   transVect->reserve(persVect->size());
+   for (it = persVect->begin(); it != persVect->end(); ++it) {
+      transVect->push_back(element_cnv.createTransient(&(*it), log));
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
+		PERS* persVect,
+		MsgStream &log)  {
+   size_t size = transVect->size();	
+   persVect->resize(size);
+   // convert vector entries one by one
+   CONV element_cnv;
+   typename TRANS::const_iterator it = transVect->begin();
+   typename PERS::iterator pit = persVect->begin();
+   while(size) {
+     element_cnv.transToPers( *it, &(*pit), log );
+     ++pit; ++it; --size;
+   }
+}
+
+
+
+/*
+  persToTrans() and transToPers() implementation for a converter between
+  transient vector of T and persistent vector<T>
+*/
+template<class TRANS, class PERS, class CONV>
+void TPCnvStdVector<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
+		TRANS* transVect,
+		MsgStream &log) 
+{
+   CONV	element_cnv;
+   size_t i = persVect->size(); 
+   transVect->resize( i );
+   typename PERS::const_iterator pit = persVect->begin();
+   typename TRANS::iterator it = transVect->begin();
+   while(i) {
+      element_cnv.persToTrans( &(*pit), &(*it), log );
+      it++; pit++; i--;
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvStdVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
+		PERS* persVect,
+		MsgStream &log) 
+{
+   CONV element_cnv;
+   size_t i = transVect->size();
+   persVect->resize( i );
+   typename TRANS::const_iterator it = transVect->begin();
+   typename PERS::iterator pit = persVect->begin();
+   while(i) {
+       element_cnv.transToPers( &(*it), &(*pit), log );
+       ++pit; ++it; --i;
+   }
+}
+
+//--------------------------------------------------------------------
+/*
+  persToTrans() and transToPers() implementation for a converter between
+  transient AtlasHitsVector of T* and persistent vector<T>
+*/
+template<class TRANS, class PERS, class CONV>
+void T_AtlasHitsVectorCnv<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
+							   TRANS* transCont,
+							   MsgStream &log) {
+    CONV element_cnv;
+    typename TRANS::iterator it;
+    typename PERS::const_iterator ip;
+    const typename PERS::HitVector& pvec = persCont->getVector();
+    transCont->clear();
+    transCont->resize( pvec.size() );
+    for (it=transCont->begin(), ip = pvec.begin(); ip != pvec.end(); ++ip, ++it) {
+	element_cnv.persToTrans( &*ip, &*it, log );
+    }
+    transCont->setName(persCont->name() );
+}
+ 
+template<class TRANS, class PERS, class CONV>
+void T_AtlasHitsVectorCnv<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
+							   PERS* persCont,
+							   MsgStream &log) {
+    size_t size = transCont->size();     
+    typename PERS::HitVector& pvec = persCont->m_cont;
+    pvec.resize(size);
+    // convert vector entries one by one
+    CONV element_cnv;
+    typename TRANS::const_iterator it  = transCont->begin();
+    typename PERS::iterator        pit = pvec.begin();
+    while(size) {
+	element_cnv.transToPers( &(*it), &(*pit), log ); 
+	++it; ++pit; --size;
+    }
+    persCont->m_name = transCont->Name();
+}
+
+
+//--------------------------------------------------------------------
+/*
+  persToTrans() and transToPers() implementation for a converter between
+  transient AthenaHitsVector of T* and persistent vector<T>
+*/
+template<class TRANS, class PERS, class CONV>
+void T_AthenaHitsVectorCnv<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
+							   TRANS* transCont,
+							   MsgStream &log) {
+    CONV element_cnv;
+    typename PERS::const_iterator it;
+    const typename PERS::HitVector& pvec = persCont->getVector();
+    transCont->clear();
+    transCont->reserve(pvec.size());
+    for (it = pvec.begin(); it != pvec.end(); ++it) {
+	transCont->push_back(element_cnv.createTransient(&(*it), log));
+    }
+    transCont->setName(persCont->name() );
+}
+ 
+template<class TRANS, class PERS, class CONV>
+void T_AthenaHitsVectorCnv<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
+							   PERS* persCont,
+							   MsgStream &log) {
+    size_t size = transCont->size();     
+    typename PERS::HitVector& pvec = persCont->m_cont;
+    pvec.resize(size);
+    // convert vector entries one by one
+    CONV element_cnv;
+    typename TRANS::const_iterator it  = transCont->begin();
+    typename PERS::iterator        pit = pvec.begin();
+    while(size) {
+	element_cnv.transToPers( *it, &(*pit), log );
+	++it; ++pit; --size;
+    }
+    persCont->m_name = transCont->Name();
+}
+
+
+//--------------------------------------------------------------------
+/*
+  persToTrans() and transToPers() implementation for a converter between
+  transient IdentifiableContainer<T> and persistent std::vector<T>
+  This version assumes RDO collection returns an identifier as a unsigned int.
+*/
+template<class TRANS, class PERS, class CONV>
+void TPCnvIDCont<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
+		TRANS* transCont,
+		MsgStream &log) {
+   CONV	element_cnv;
+   typename PERS::const_iterator pers_elem;
+   for (pers_elem = persCont->begin(); pers_elem != persCont->end(); ++pers_elem) {
+      COLLECTION_t* coll = element_cnv.createTransient(&(*pers_elem), log);
+      // register the rdo collection in IDC
+      //typename COLLECTION_t::ID id_coll = 
+      //IdentifierHash is_hash = hashFcn(id_coll);
+      unsigned int id_hash = transCont->idToHash((unsigned int)coll->identify());
+      StatusCode sc = transCont->addCollection(coll, id_hash);
+      if (sc.isFailure()) {
+          throw std::runtime_error("Failed to add collection to ID Container");
+      }
+      log << MSG::DEBUG << "TPCnvIDCont::persToTrans, collection, hash id=" << id_hash << ", added to Identifiable container." << endreq;
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvIDCont<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
+		PERS* persCont,
+		MsgStream &log) {
+   CONV element_cnv;
+   typename TRANS::const_iterator it_Coll = transCont->begin();
+   typename TRANS::const_iterator it_CollEnd  = transCont->end();
+   int entries;
+   for (entries = 0; it_Coll != it_CollEnd; ++entries, it_Coll++)  {
+      persCont->resize(entries + 1);
+      element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
+   }
+   log << MSG::DEBUG << "TPCnvIDCont::transToPers, container size was " << entries << endreq;
+}
+
+//--------------------------------------------------------------------
+/*
+  persToTrans() and transToPers() implementation for a converter between
+  transient IdentifiableContainer<T> and persistent std::vector<T>
+  This version assumes RDO collection returns an identifier as an Identifier
+*/
+template<class TRANS, class PERS, class CONV>
+void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
+		TRANS* transCont,
+		MsgStream &log) {
+   CONV	element_cnv;
+   typename PERS::const_iterator pers_elem;
+   for (pers_elem = persCont->begin(); pers_elem != persCont->end(); ++pers_elem) {
+      COLLECTION_t* coll = element_cnv.createTransient(&(*pers_elem), log);
+      // register the rdo collection in IDC
+      //typename COLLECTION_t::ID id_coll = 
+      //IdentifierHash is_hash = hashFcn(id_coll);
+      unsigned int id_hash = transCont->idToHash(coll->identify().get_identifier32().get_compact());
+      StatusCode sc = transCont->addCollection(coll, id_hash);
+      if (sc.isFailure()) {
+          throw std::runtime_error("Failed to add collection to ID Container");
+      }
+      log << MSG::DEBUG << "TPCnvIDContFromIdentifier::persToTrans, collection, hash id=" << id_hash << ", added to Identifiable container." << endreq;
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
+		PERS* persCont,
+		MsgStream &log) {
+   CONV element_cnv;
+   typename TRANS::const_iterator it_Coll = transCont->begin();
+   typename TRANS::const_iterator it_CollEnd  = transCont->end();
+   int entries;
+   for (entries = 0; it_Coll != it_CollEnd; ++entries, it_Coll++)  {
+      persCont->resize(entries + 1);
+      element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
+   }
+   log << MSG::DEBUG << "TPCnvIDContFromIdentifier::transToPers, container size was " << entries << endreq;
+}
