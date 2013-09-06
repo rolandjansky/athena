@@ -1,0 +1,39 @@
+<lcgdict>
+	
+	
+	
+  <class name="std::vector<Muon_p4>" />
+  <class name="MuonContainer_p4"
+         id="01887544-EFBF-E099-1116-0051F2678B09" />
+  <class name="Muon_p4" />
+
+  <class name="std::vector<Muon_p3>" />
+  <class name="MuonContainer_p3" id="FB88C580-EFBF-5CDE-EEED-AABF8DBCE9EE" />
+  <class name="Muon_p3" />
+
+  <class name="std::vector<Muon_p2>" />
+  <class name="MuonContainer_p2" id="AB37C580-4FBF-51F3-F85D-014F8DBBE9BC" />
+  <class name="Muon_p2" />
+
+  <class name="std::vector<Muon_p1>" />
+  <class name="MuonContainer_p1" id="2B37C58D-4FBF-46F3-AB5C-B1408DBB99BE" />
+  <class name="Muon_p1" />
+
+
+  <class name="CaloEnergy_p1" />
+
+
+  <class name="std::vector<DepositInCalo_p1>" />
+  <class name="DepositInCalo_p1" />
+
+  <class name="MissingET_p1" id="C0D9AEE8-A2B0-4EED-BD75-53D67DF9736F" />
+  <class name="MissingEtCalo_p1" id="877E907D-D7E1-49DE-B01F-9CDA344E6004" />  
+  <class name="MissingEtTruth_p1" id="E7D6D6B8-08A8-409E-9477-2A61467738B2" />	
+  <class name="MissingEtRegions_p1" />
+
+  <class name="MissingET_p2" id="2D9729C7-646D-4BF5-B404-380AE2D9D308" />
+  <class name="MissingEtCalo_p2" id="F16ECA98-8809-436C-A00A-06DBBF9C3087" />
+  <class name="MissingEtTruth_p2" id="291A1BDB-A25E-412D-8E49-EF0E1EA1A835" />
+  <class name="MissingEtRegions_p2"     />
+	
+</lcgdict>

@@ -1,0 +1,48 @@
+package RecTPCnv
+
+author David Rousseau  <rousseau@lal.in2p3.fr>
+author Sebastien Binet <binet@cern.ch>
+
+use AtlasPolicy		 AtlasPolicy-*
+
+use GaudiInterface	 GaudiInterface-*	    External
+use StoreGate		 StoreGate-*		    Control	
+use CLIDSvc              CLIDSvc-*                  Control
+
+# use AthenaPoolUtilities  AthenaPoolUtilities-*	    Database/AthenaPOOL
+use AthenaPoolCnvSvc	 AthenaPoolCnvSvc-*	    Database/AthenaPOOL
+use AthAllocators        AthAllocators-*            Control
+use DataModelAthenaPool	 DataModelAthenaPool-*      Control
+use EventCommonTPCnv     EventCommonTPCnv-*         Event
+
+# use egammaEventTPCnv     egammaEventTPCnv-*         Reconstruction/egamma
+use muonEvent            muonEvent-*                Reconstruction/MuonIdentification
+# use tauEvent             tauEvent-*                 Reconstruction
+# use PanTauEvent          PanTauEvent-*              Reconstruction/PanTau
+use MissingETEvent       MissingETEvent-*	    Reconstruction
+
+use ParticleEventTPCnv   ParticleEventTPCnv-*       PhysicsAnalysis/AnalysisCommon
+use TrkEventTPCnv        TrkEventTPCnv-*            Tracking/TrkEventCnv
+use RecEvent		 RecEvent-*		    Reconstruction
+# use  AtlasCLHEP                 AtlasCLHEP-*                    External
+
+private
+use AthenaKernel         AthenaKernel-*             Control
+use AtlasReflex		 AtlasReflex-*		    External
+use RootConversions      RootConversions-*          Database/AthenaPOOL
+end_private
+
+branches RecTPCnv src
+
+library RecTPCnv *.cxx
+apply_pattern tpcnv_library
+
+# 
+# Create a dictionary for the persistent representation 
+# of transient classes
+private
+apply_pattern lcgdict dict=RecTPCnv selectionfile=selection.xml headerfiles="../RecTPCnv/RecTPCnvDict.h"
+apply_pattern lcgdict dict=ARA_RecTPCnv selectionfile=ARA_selection.xml headerfiles="../RecTPCnv/RecTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_RecTPCnv selectionfile=OLD_selection.xml headerfiles="../RecTPCnv/RecTPCnvDict.h"
+end_private
+
