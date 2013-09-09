@@ -1,0 +1,48 @@
+package TrigSteeringEventTPCnv
+
+author Andrew Hamilton     <Andrew.Hamilton@cern.ch>
+author Fabrizio Salvatore  <P.F.Salvatore@sussex.ac.uk>
+
+use AtlasPolicy          AtlasPolicy-*
+private
+use AtlasReflex		     AtlasReflex-*              External
+use AthenaKernel         AthenaKernel-*             Control
+end_private
+#use CLIDSvc              CLIDSvc-*                  Control
+
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*	    Database/AthenaPOOL
+#use EventCommonTPCnv     EventCommonTPCnv-*         Event
+#use DataModel		 DataModel-*		    Control
+#use DataModelAthenaPool  DataModelAthenaPool-*      Control
+#use RootConversions      RootConversions-*          Database/AthenaPOOL
+
+
+# use statements for data packages
+#use FourMom              FourMom-*               Event
+use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
+
+#use Particle		Particle-*		Reconstruction
+#use TrackParticleTPCnv	TrackParticleTPCnv-*	Reconstruction
+
+branches TrigSteeringEventTPCnv src
+
+library TrigSteeringEventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+
+private
+
+# Create a dictionary for the persistent representation 
+# of transient classes.  If we make a single dictionary,
+# the compiler runs out of memory on the generated source.
+
+apply_pattern lcgdict dict=TrigSteeringEventTPCnv1  \
+  selectionfile=selection1.xml \
+  headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict1.h"
+
+apply_pattern lcgdict dict=OLD_TrigSteeringEventTPCnv1  \
+  selectionfile=OLD_selection1.xml \
+  headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict1.h"
+
+end_private
