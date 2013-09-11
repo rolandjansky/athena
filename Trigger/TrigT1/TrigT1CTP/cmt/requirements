@@ -1,0 +1,49 @@
+package TrigT1CTP
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Wolfgang Ehrenfeld <Wolfgang.Ehrenfeld@desy.de>
+
+public
+
+# public general packages:
+use AtlasPolicy            AtlasPolicy-*
+use StoreGate              StoreGate-*              Control
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use GaudiInterface         GaudiInterface-*         External
+use DataCollection         DataCollection-*         External
+
+# HLT based monitoring
+use TrigInterfaces         TrigInterfaces-*         Trigger/TrigSteer
+
+# public trigger configuration packages:
+use TrigConfL1Data         TrigConfL1Data-*         Trigger/TrigConfiguration
+use TrigConfigSvc          TrigConfigSvc-*          Trigger/TrigConfiguration
+
+public
+
+library TrigT1CTP *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern generic_declare_for_link kind=data files="-s=../data *.cfg" prefix=share/TrigT1CTP
+
+private
+
+# private general packages:
+use AthenaKernel           AthenaKernel-*           Control
+use AthenaMonitoring       AthenaMonitoring-*       Control
+use AtlasCLHEP             AtlasCLHEP-*             External
+use EventInfo              EventInfo-*              Event
+use CTPfragment            v* 
+use AtlasBoost             AtlasBoost-*             External
+use PathResolver           PathResolver-*           Tools
+use AthenaPoolUtilities    AthenaPoolUtilities-*    Database/AthenaPOOL
+
+# private trigger configuration packages:
+use TrigConfStorage        TrigConfStorage-*        Trigger/TrigConfiguration
+
+# private LVL1 EDM packages:
+use TrigT1Interfaces       TrigT1Interfaces-*       Trigger/TrigT1
+use TrigT1Result           TrigT1Result-*           Trigger/TrigT1
+
