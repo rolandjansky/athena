@@ -1,0 +1,10 @@
+<lcgdict>
+
+<!-- TrigElectronMuonTopoInfoContainer -->
+  <class name="ElectronMuonTopoInfoContainer_p1" id="0A775717-3FC9-4FF4-A18B-3F520B2D4DAC"/>
+
+<!-- TrigElectronMuonTopoInfo -->
+  <class name="ElectronMuonTopoInfo_p1" id="EA00CF9C-DDB0-4A70-8C46-06E532007B15"/>
+  <class name="std::vector<ElectronMuonTopoInfo_p1>" />
+
+</lcgdict>
