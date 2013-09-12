@@ -1,0 +1,17 @@
+<lcgdict>
+
+<!-- TrigMissingETContainer -->
+  <class name="TrigMissingETContainer_p3" id="F5C98A61-4F40-4FE6-A1A9-D5EF00FFFBF0"/>
+  <class name="TrigMissingETContainer_tlp1" id="23EC84A7-8614-42D6-B82D-B0861D3CE08D"/>
+  <class name="TrigMissingETContainer_p1" id="3DEC4387-2F00-4636-B645-EE380AE940A2"/> 
+  <class name="std::vector<TrigMissingETContainer_p1>" />
+
+<!-- TrigMissingET -->
+  <class name="TrigMissingET_p3"/>
+  <class name="std::vector<TrigMissingET_p3>" />
+  <class name="TrigMissingET_p2" id="9972F10B-2B6A-42A7-AF71-D8FB60F07C6D"/>
+  <class name="std::vector<TrigMissingET_p2>" />
+  <class name="TrigMissingET_p1" id="A65F0499-A789-4D66-9930-E8651FE91F8A"/>
+  <class name="std::vector<TrigMissingET_p1>" />
+
+</lcgdict>
