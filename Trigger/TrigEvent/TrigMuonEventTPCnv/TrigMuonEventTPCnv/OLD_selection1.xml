@@ -1,0 +1,12 @@
+<lcgdict>
+
+<!-- MuonFeature -->
+  <class name="MuonFeature_p1" id="3DFFECBF-3251-4BE7-9D12-B3A9FCAC486E"/>
+  <class name="std::vector<MuonFeature_p1>" />
+
+<!-- MuonFeatureContainer -->
+  <class name="MuonFeatureContainer_tlp1" id="039BE61C-DE27-48B3-A2AE-7172BB755CEE"/>
+  <class name="MuonFeatureContainer_p1" id="E21D8BCC-2F90-46A4-AA7E-38B92EB41B3F"/>
+  <class name="std::vector<MuonFeatureContainer_p1>" />
+
+</lcgdict>

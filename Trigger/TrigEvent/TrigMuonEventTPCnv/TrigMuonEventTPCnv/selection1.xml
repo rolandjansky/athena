@@ -1,0 +1,198 @@
+<lcgdict>
+
+<!-- MuonFeature -->
+  <class name="MuonFeature_p2" id="3785A9E4-7845-4B54-B49F-DCC2A24409C0"/>
+  <class name="std::vector<MuonFeature_p2>" />
+
+  <class name="MuonFeatureContainer_p3" id="5B571BCD-FE49-4C56-A357-1B535FE65829"/>
+  <class name="MuonFeature_p3" id="9B478317-F317-4251-80D3-22E53E9FA793"/>
+  <class name="std::vector<MuonFeature_p3>" />
+
+<!-- MuonFeatureContainer -->
+  <class name="MuonFeatureContainer_tlp2" id="2F4ABBC8-EA77-487B-820F-76179BB3828C"/>
+  <class name="MuonFeatureContainer_p2" id="2031F35F-B110-4D8D-A28D-55F3AF0625D3"/>
+  <class name="std::vector<MuonFeatureContainer_p2>" />
+
+<!-- MuonFeatureDetails -->
+  <class name="MuonFeatureDetails_p1" id="E841B555-766B-48EF-96F8-F4BE39EE8BCB"/>
+  <class name="std::vector<MuonFeatureDetails_p1>" />
+
+<!-- MuonFeatureDetailsContainer -->
+  <class name="MuonFeatureDetailsContainer_tlp1" id="CF2FFCB2-3936-4800-9146-52B203A47478"/>
+  <class name="MuonFeatureDetailsContainer_p1" id="D5A7E370-9243-467D-9697-7A9F3BCF11BB"/>
+  <class name="std::vector<MuonFeatureDetailsContainer_p1>" />
+
+  <class name="MuonFeatureDetailsContainer_p2" id="95327E52-C8B2-45E4-9EAF-C65A17AB27F5"/>
+  <class name="MuonFeatureDetails_p2" />
+  <class name="std::vector<MuonFeatureDetails_p2>" />
+
+  <class name="mdthit" />
+  <class name="std::vector<mdthit>" />
+  <class name="tgchit" />
+  <class name="std::vector<tgchit>" />
+  <class name="padhit" />
+  <class name="std::vector<padhit>" />
+
+
+<!-- CombinedMuonFeature -->
+  <class name="CombinedMuonFeature_tlp1" id="7B8452AC-DDD8-42C5-85BD-D2CE183065A1"/>
+  <class name="CombinedMuonFeature_p4" id="C2AC0043-490B-4F82-911C-3CFE7B90FDFE"/>
+  <class name="std::vector<CombinedMuonFeature_p4>" />
+  <class name="CombinedMuonFeature_p3" id="088018E3-99E2-42C8-86CB-69AB692BE7A1"/>
+  <class name="std::vector<CombinedMuonFeature_p3>" />
+  <class name="CombinedMuonFeature_p2" id="DA8A7EB3-96BC-4088-ACBC-28390EE2B0C7"/>
+  <class name="std::vector<CombinedMuonFeature_p2>" />
+  <class name="CombinedMuonFeature_p1" id="A3FD7994-73E0-44F5-B6F4-773028AB9D8D"/>
+  <class name="std::vector<CombinedMuonFeature_p1>" />
+
+<!-- CombinedMuonFeatureContainer -->
+  <class name="CombinedMuonFeatureContainer_tlp1" id="9C558B18-1B1D-4186-AF26-A5F3EACCBE1B"/>
+  <class name="CombinedMuonFeatureContainer_p1" id="B57A984D-B70D-4CF2-839A-8BB3F418368A"/>
+  <class name="std::vector<CombinedMuonFeatureContainer_p1>" />
+
+  <class name="CombinedMuonFeatureContainer_p4" id="A06B9B51-FFA9-4AC1-9079-8AF49C4A9B87"/>
+  <class name="CombinedMuonFeatureContainer_p3" id="02262E5F-7645-4919-9CD9-66D88796DCFA"/>
+  <class name="CombinedMuonFeatureContainer_p2" id="E9D9F99E-D64F-4114-90EA-236FAF9063BB"/>
+
+<!-- TileMuFeature -->  
+  <class name="TileMuFeature_p1" id="F853E605-AFD5-44F9-98BC-4D777CBCBEE4"/>
+  <class name="std::vector<TileMuFeature_p1>" />
+  <class name="TileMuFeature_p2" id="1A933DDD-4E9B-4EA5-95AD-1E2BF6C35C02"/>
+  <class name="std::vector<TileMuFeature_p2>" />
+
+<!-- TileMuFeatureContainer -->
+  <class name="TileMuFeatureContainer_tlp1" id="4684172D-3590-4464-BCA6-477725ADD755"/>
+  <class name="TileMuFeatureContainer_p1" id="B780A8CC-BE35-4724-B48B-BE127EF90C4C"/>
+  <class name="std::vector<TileMuFeatureContainer_p1>" />
+  <class name="TileMuFeatureContainer_p2" id="D7B3C086-B471-47EE-B8EC-E58DC4CD2AD9"/>
+
+<!-- TileTrackMuFeature -->
+  <class name="TileTrackMuFeature_tlp1" id="874F11C4-0A95-48F1-B916-DCE2BA4FF92F" />
+  <class name="TileTrackMuFeature_p3" id="79A865CE-DB81-46CC-95FE-F01EC0C61A06" />
+  <class name="std::vector<TileTrackMuFeature_p3>" />
+  <class name="TileTrackMuFeature_p2" id="4D002AE5-2F1F-4426-A204-03E5DBA1277A" />
+  <class name="std::vector<TileTrackMuFeature_p2>" />
+  <class name="TileTrackMuFeature_p1" id="5DF693A4-8062-4304-A3CD-3CF0A45717A2"/>
+  <class name="std::vector<TileTrackMuFeature_p1>" />
+
+<!-- TileTrackMuFeatureContainer -->
+  <class name="TileTrackMuFeatureContainer_tlp1" id="983ED5FE-D0A2-43AE-90A9-268C8B61E8B3"/>
+  <class name="TileTrackMuFeatureContainer_p3" id="25018D00-1D18-4B4C-9C07-37993260EADB"/>   
+  <class name="TileTrackMuFeatureContainer_p1" id="4BF941C-510D-4AD1-B853-34ADFCB0CBC2"/>   
+  <class name="std::vector<TileTrackMuFeatureContainer_p1>" />
+
+<!-- IsoMuonFeature -->
+  <class name="IsoMuonFeature_tlp1" id="31A90EEE-AF5A-4CAF-9A83-F523D141C4CF"/>
+  <class name="IsoMuonFeature_p1" id="508E7076-3361-4490-A1B3-7D532BD0D3BF"/>
+  <class name="std::vector<IsoMuonFeature_p1>" />
+
+<!-- IsoMuonFeatureContainer -->
+  <class name="IsoMuonFeatureContainer_tlp1" id="B9543660-E776-405D-8DB7-06AD06A24BAB"/>
+  <class name="IsoMuonFeatureContainer_p1" id="8C6E1BD9-40BD-4F07-8BA3-B274462092FF"/>
+  <class name="std::vector<IsoMuonFeatureContainer_p1>" />
+
+  <class name="IsoMuonFeatureContainer_p2" id="A9A660B1-DEFD-4B56-A10D-9F41178715BD"/>
+  <class name="IsoMuonFeature_p2" id="EF175C10-F000-43A2-A8E2-D89150D88134"/>
+  <class name="std::vector<IsoMuonFeature_p2>" />
+
+  <class name="IsoMuonFeatureContainer_p3" id="291897DE-5380-424C-AE8F-FFE69DCC8F15"/>
+  <class name="IsoMuonFeature_p3" id="3B4BC7C4-B08B-4F99-9707-19093869476A"/>
+  <class name="std::vector<IsoMuonFeature_p3>" />
+
+<!-- TrigMuonClusterFeature -->
+  <class name="TrigMuonClusterFeature_tlp1" id="EA03910F-A14D-4366-8C4A-98976D5929E7"/>
+  <class name="TrigMuonClusterFeature_p1" id="AE4D5D57-689D-40CB-83B3-CB047884952F"/>
+  <class name="std::vector<TrigMuonClusterFeature_p1>" />
+
+<!-- TrigMuonClusterFeatureContainer -->
+  <class name="TrigMuonClusterFeatureContainer_tlp1" id="036D8CC1-5FBD-4676-9D84-F233567F52D2"/>
+  <class name="TrigMuonClusterFeatureContainer_p1" id="7F6C11D2-DE9F-45F6-909C-A147789E0D02"/>
+  <class name="std::vector<TrigMuonClusterFeatureContainer_p1>" />
+
+<!-- TrigMuonEF -->
+  <class name="TrigMuonEF_p1"/>
+  <class name="std::vector<TrigMuonEF_p1>" />
+  <class name="TrigMuonEF_p2"/>
+  <class name="std::vector<TrigMuonEF_p2>" />
+
+<!-- TrigMuonEFContainer -->
+  <class name="TrigMuonEFContainer_p2" id="3BB5C107-2975-4F9E-AACC-9FD948C3D2A8"/>
+  <class name="TrigMuonEFContainer_tlp1" id="567E65A0-23E8-469F-94F7-A03F6E9C1C2E"/>
+  <class name="TrigMuonEFContainer_p1" id="BC483028-7B18-4E13-B96C-7AE9BECCF1A1"/>
+  <class name="std::vector<TrigMuonEFContainer_p1>" />
+
+<!-- TrigMuonEFCbTrack -->
+  <class name="TrigMuonEFCbTrack_p1"/>
+  <class name="std::vector<TrigMuonEFCbTrack_p1>" />
+  <class name="TrigMuonEFCbTrack_p2"/>
+  <class name="std::vector<TrigMuonEFCbTrack_p2>" />
+  <class name="TrigMuonEFCbTrack_p3"/>
+  <class name="std::vector<TrigMuonEFCbTrack_p3>" />  
+  <class name="TrigMuonEFCbTrack_p4"/>
+  <class name="std::vector<TrigMuonEFCbTrack_p4>" />
+  <class name="TrigMuonEFCbTrack_p6"/>
+  <class name="std::vector<TrigMuonEFCbTrack_p6>" />
+  <class name="TrigMuonEFCbTrack_p7"/>
+  <class name="std::vector<TrigMuonEFCbTrack_p7>" />
+
+<!-- TrigMuonEFTrack -->
+  <class name="TrigMuonEFTrack_p1"/>
+  <class name="std::vector<TrigMuonEFTrack_p1>" />
+  <class name="TrigMuonEFTrack_p2"/>
+  <class name="std::vector<TrigMuonEFTrack_p2>" />
+  <class name="TrigMuonEFTrack_p3"/>
+  <class name="std::vector<TrigMuonEFTrack_p3>" />
+  <class name="TrigMuonEFTrack_p4"/>
+  <class name="std::vector<TrigMuonEFTrack_p4>" />
+  <class name="TrigMuonEFTrack_p5"/>
+  <class name="std::vector<TrigMuonEFTrack_p5>" />
+  <class name="TrigMuonEFTrack_p6"/>
+  <class name="std::vector<TrigMuonEFTrack_p6>" />
+
+<!-- TrigMuonEFInfo -->
+  <class name="TrigMuonEFInfo_p1"/>
+  <class name="std::vector<TrigMuonEFInfo_p1>" />
+  <class name="TrigMuonEFInfo_p2"/>
+  <class name="std::vector<TrigMuonEFInfo_p2>" />
+  <class name="TrigMuonEFInfo_p3"/>
+  <class name="std::vector<TrigMuonEFInfo_p3>" />
+  <class name="TrigMuonEFInfo_p4"/>
+  <class name="std::vector<TrigMuonEFInfo_p4>" />
+  <class name="TrigMuonEFInfo_p5"/>
+  <class name="std::vector<TrigMuonEFInfo_p5>" />
+
+<!-- TrigMuonEFInfoContainer -->
+
+  <class name="TrigMuonEFInfoContainer_tlp2" id="AF8CBEC0-4BBF-438A-82DE-873F133F4821"/>
+
+  <class name="TrigMuonEFInfoContainer_tlp1" id="B768E99D-9CC3-4368-ADD5-36816D2A0298"/>
+  <class name="TrigMuonEFInfoContainer_p1" id="F113DB87-2E7F-496F-9F92-038F28C8E79A"/>
+  <class name="std::vector<TrigMuonEFInfoContainer_p1>"/>
+
+  <class name="TrigMuonEFInfoContainer_p2"/>
+  <class name="std::vector<TrigMuonEFInfoContainer_p2>"/>
+
+<!-- TrigMuonEFInfoTrack -->
+  <class name="TrigMuonEFInfoTrack_p1"/>
+  <class name="std::vector<TrigMuonEFInfoTrack_p1>" />
+
+<!-- TrigMuonEFInfoTrackContainer -->
+  <class name="TrigMuonEFInfoTrackContainer_p1" id="FEBCE007-8F2E-4654-B452-CF0F98FDDCB2"/>
+  <class name="std::vector<TrigMuonEFInfoTrackContainer_p1>"/>
+
+  <class name="TrigMuonEFInfoTrackContainer_p2"/>
+  <class name="std::vector<TrigMuonEFInfoTrackContainer_p2>"/>
+
+<!-- TrigMuonEFIsolation -->
+  <class name="TrigMuonEFIsolation_p1" />
+  <class name="std::vector<TrigMuonEFIsolation_p1>"/>
+
+  <class name="TrigMuonEFIsolation_p2" />
+  <class name="std::vector<TrigMuonEFIsolation_p2>"/>
+
+<!-- TrigMuonEFIsolationContainer -->
+  <class name="TrigMuonEFIsolationContainer_p1" id="5C3ECE20-F26F-4811-BA76-B2DC567858BC"/>
+
+  <class name="TrigMuonEFIsolationContainer_p2" id="B24570F4-BB65-4D5C-A8E2-C44E36E7B0B5"/>
+
+</lcgdict>
