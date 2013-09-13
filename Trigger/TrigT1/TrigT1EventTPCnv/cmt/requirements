@@ -1,0 +1,28 @@
+package TrigT1EventTPCnv
+
+author Attila Krasznahorkay Jr. <Attila.Krasznahorkay@cern.ch>
+
+# Gaudi/Athena packages:
+use AtlasPolicy         AtlasPolicy-*
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*     Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-*  Database/AthenaPOOL
+
+# TrigT1 packages:
+use TrigT1Result      TrigT1Result-*      Trigger/TrigT1
+use TrigT1CaloEvent   TrigT1CaloEvent-*   Trigger/TrigT1
+
+# Compile the converters:
+apply_pattern tpcnv_library
+library TrigT1EventTPCnv  *.cxx
+
+# Create dictionaries for the persistent classes:
+private
+
+use GaudiInterface      GaudiInterface-*       External
+use AthenaKernel        AthenaKernel-*         Control
+use AtlasReflex       AtlasReflex-*       External -no_auto_imports
+
+apply_pattern lcgdict dict=TrigT1EventTPCnv selectionfile="selection.xml" \
+   headerfiles="../TrigT1EventTPCnv/TrigT1EventTPCnvDict.h"
+
+end_private
