@@ -1,0 +1,17 @@
+package DataModel
+
+author Paolo Calafiura   <Paolo.Calafiura@cern.ch>
+author Hong Ma           <hma@bnl.gov>
+author Srini Rajagopalan <srinir@bnl.gov>
+
+use AtlasPolicy    AtlasPolicy-*
+use SGTools        SGTools-*        Control
+use AthAllocators  AthAllocators-*  Control
+use AthLinks       AthLinks-*       Control
+use AthContainers  AthContainers-*  Control
+use CxxUtils       CxxUtils-*       Control
+
+
+private 
+macro_append DOXYGEN_INPUT " ../doc" 
+
