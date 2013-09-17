@@ -1,0 +1,406 @@
+//Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Implementation of a LArRODBlockStructure class
+// This version contains LArDigits in fixed gain.
+// See .h file for more details.
+
+#include "AthenaKernel/getMessageSvc.h"
+#include <iostream>
+
+//#define LARBSDBGOUTPUT
+#ifdef  LARBSDBGOUTPUT
+#define LARBSDBG(text) logstr<<MSG::DEBUG<<text<<endreq
+#else
+#define LARBSDBG(text)
+#endif
+
+template<class DSPHEADER>
+LArRodBlockTransparentV0<DSPHEADER>::LArRodBlockTransparentV0() : LArRodBlockStructure()
+{ m_iHeadBlockSize=DSPHEADER::endtag/2; // The implicit cast rounds down to the right size 
+  //Fill array of offset to enable for-loops
+  m_BlkOffset=DSPHEADER::RawDataBlkOffset; //RawDataOffset
+  m_fixedGain=CaloGain::LARNGAIN;
+  resetPointers();
+}
+
+// clear temporary block vectors 
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::clearBlocks()
+{
+  m_RawDataBlock.clear();
+}
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::resetPointers() 
+{
+ m_RawDataCounter=0; 
+ m_RawDataIndex=0; 
+}
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::setNumberOfSamples(const uint8_t n) 
+{ uint16_t value=getVectorHeader16(DSPHEADER::NSamples);   
+  setHeader16(DSPHEADER::NSamples, (value & 0xff00) | n); 
+}
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::setTDCPhase(const uint8_t n) 
+{ uint16_t value=getVectorHeader16(DSPHEADER::NSamples);   
+  setHeader16(DSPHEADER::NSamples, (value & 0xff) | ((uint16_t) n<<8)); 
+}
+
+template<class DSPHEADER>
+uint8_t LArRodBlockTransparentV0<DSPHEADER>::getTDCPhase() const
+{
+  return (getHeader16(DSPHEADER::NSamples)>>8);
+}
+
+
+
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::setNumberOfGains(const uint8_t n) 
+{ 
+  setHeader16(DSPHEADER::NGains,n); 
+}
+
+template<class DSPHEADER>
+void
+LArRodBlockTransparentV0<DSPHEADER>::initializeFragment(std::vector<uint32_t>& fragment)
+{MsgStream logstr(Athena::getMessageSvc(), BlockType());
+  m_pRODblock=&fragment; //remember pointer to fragment
+  if (fragment.size()>m_iHeadBlockSize) {  //Got filled fragment
+    unsigned int sizeRead=0;
+    //Store existing data in the FEB-Map
+    while (sizeRead<fragment.size()) {
+      std::vector<uint32_t>::iterator m_FebIter;
+      m_FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
+      m_FebBlock=&(*m_FebIter); //Set m_FebBlock in order to use getHeader-functions.
+      uint32_t currFEBid=getHeader32(DSPHEADER::FEBID);   //Get this FEB-ID
+      uint16_t currFebSize=getHeader32(DSPHEADER::NWTot); //Size of this FEB-Block
+      if (m_FebIter+currFebSize>fragment.end()) {
+	fragment.clear(); //Clear existing vector
+	logstr << MSG::ERROR << "initializeFragment: Got inconsistent ROD-Fragment!" << endreq; 
+	return;
+      }
+      m_mFebBlocks[currFEBid].assign(m_FebIter,m_FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
+      sizeRead+=currFebSize+m_MiddleHeaderSize;
+      LARBSDBG("Found FEB-id "<< currFEBid << "in existing ROD-Fragment");
+    } // end while
+  }
+  fragment.clear(); //Clear existing vector
+  return;
+}
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::initializeFEB(const uint32_t id)
+{m_vFragment=&(m_mFebBlocks[id]);
+ //m_FebHeaderIter=m_vFragment->begin();
+ if (m_vFragment->size()<m_iHeadBlockSize) //Got empty or spoiled fragment
+  {m_vFragment->resize(m_iHeadBlockSize,0); //Initialize FEB-Header
+   setHeader32(DSPHEADER::FEBID,id);                //Set Feb ID
+  }
+}
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, const std::vector<short>& samples, const uint32_t gain)
+{   
+  MsgStream logstr(Athena::getMessageSvc(), BlockType());
+  if (channel>=m_channelsPerFEB) {
+    logstr << MSG::ERROR << "Attempt to write Raw Data for channel "<< channel << endreq; 
+    return; //Return error
+  }
+ // Expected Gain values: 
+ //0..high gain
+ //1..medium gain
+ //2..low gain
+ if (gain>2)
+   {logstr << MSG::ERROR << "Attempt to write raw data with gain "<< gain << endreq; 
+    return;
+   }
+ unsigned int nsamples = getVectorHeader16(DSPHEADER::NSamples) & 0xff;
+ LARBSDBG("Nsamples= " << nsamples);
+ if(samples.size() != nsamples) {
+   logstr << MSG::ERROR << "Number of samples mismatch!\n";
+   logstr << "  nsamples       =" << nsamples;
+   logstr << "  samples.size() =" << samples.size() << endreq;
+   exit(0);
+ }
+ //std::cout << "Size of Raw Data block # " << febgain << " = " << m_RawDataBlock.size();
+
+ // m_RawDataBlock
+
+
+ // Save data as is, we will arrange it later...
+ m_RawDataBlock.push_back(channel);
+ if(channel>=64) { // high channel number on lower 16 bits
+   m_RawDataBlock.push_back(OfflineToRawGain(gain)<<12);
+   for (unsigned int i=0;i<nsamples;i++)
+     m_RawDataBlock.push_back(samples[i]&0xffff);
+ } else { //low channel number
+   m_RawDataBlock.push_back(OfflineToRawGain(gain)<<28);
+   for (unsigned int i=0;i<nsamples;i++)
+     m_RawDataBlock.push_back(samples[i]<<16);
+ }
+}
+
+template<class DSPHEADER>
+void LArRodBlockTransparentV0<DSPHEADER>::finalizeFEB()
+{
+#ifdef LARBSDBGOUTPUT
+  MsgStream logstr(Athena::getMessageSvc(), BlockType());
+#endif
+
+  uint16_t nsamples    = getVectorHeader16(DSPHEADER::NSamples) & 0xff;
+  uint16_t ngains      = 1;
+  uint16_t size        = 0;
+  uint16_t s_size      = 0;
+
+  // Set fragment size to FEB raw data + header
+  s_size = 8 + 64 * ngains;  // Size of one sample block 16 RADD of 16 bit + 128 channels (16 bit data) 
+  size = m_iHeadBlockSize + nsamples*s_size; // Total fragment size;
+
+  //m_vFragment->resize( m_iHeadBlockSize);
+  m_vFragment->resize(size,0);
+
+  LARBSDBG("Size of block (in 32bit words) = " << size);
+  // Now fill the RADD structures
+  for(int i=0; i<nsamples;i++) {
+    uint32_t offset   = (m_iHeadBlockSize + i*s_size);
+    for(int j=0;j<8;j++) {
+      // Put a dummy code for RADDs (A | adc nb | sample nb)
+      uint32_t index  =  offset+j;
+      (*m_vFragment)[index] = 0xA000A000 | ((2*j)<<24) | (i << 16) | ((2*j+1)<<8) | i;
+    }
+  }
+  // And now the data itself
+  for (int igain=0;igain<ngains;igain++) {
+    int n = m_RawDataBlock.size();
+    for(int j=0; j<n;j+=nsamples+2) {
+      uint32_t ichannel = m_RawDataBlock[j];
+      uint32_t febgain  = m_RawDataBlock[j+1];
+      uint32_t offset;
+      offset=m_iHeadBlockSize + 8 + ((ichannel&0x3F)>>3) + ((ichannel& 0x7)<<3) + 64*igain;
+      LARBSDBG("Processing channel #" << ichannel << ".Writing samples to offset " << offset);
+      for (int s=0;s<nsamples;s++) {
+	// samples are already on the right higher/lower bits of the 32 bit word
+	uint32_t index  =  offset + s*s_size;
+	uint32_t feb_data =  (*m_vFragment)[index];
+	uint32_t sample   =  m_RawDataBlock[j+2+s];
+	feb_data =  feb_data | sample | febgain;
+	(*m_vFragment)[index] = feb_data;
+      }
+    }
+  }
+  // Set header words
+  LARBSDBG("FINAL Nsamples= " << nsamples);
+  //setHeader16(DSPHEADER::NSamples,nsamples);
+  //setNumberOfSamples(nsamples); 
+  setHeader16(DSPHEADER::NGains,ngains);
+  setHeader32(DSPHEADER::RawDataBlkOffset, m_iHeadBlockSize);
+  setHeader32(DSPHEADER::NWTot,m_vFragment->size());
+  // clear memory
+  clearBlocks();
+  return;
+}
+
+template<class DSPHEADER>
+void  LArRodBlockTransparentV0<DSPHEADER>::concatinateFEBs( )
+{
+  // std::cout << "Concatinating FEBs. Have "<< m_mFebBlocks.size() <<" febs." << std::endl;
+ FEBMAPTYPE::const_iterator feb_it_b=m_mFebBlocks.begin();
+ FEBMAPTYPE::const_iterator feb_it_e=m_mFebBlocks.end();
+ FEBMAPTYPE::const_iterator feb_it;
+ std::vector<uint32_t>::const_iterator data_it;
+ std::vector<uint32_t>::const_iterator data_it_e;
+ for (feb_it=feb_it_b;feb_it!=feb_it_e;feb_it++) {
+   if (feb_it!=feb_it_b) //Not first Feb
+/* 
+     if (fullHeader) {//Add middle header
+       m_pRODblock->push_back(fullHeader->version().full());//Format Version number
+       m_pRODblock->push_back(fullHeader->source_id());  //Source identifer
+       m_pRODblock->push_back(fullHeader->run_no());
+       m_pRODblock->push_back(fullHeader->lvl1_id());    //Level 1 identifer
+       m_pRODblock->push_back(fullHeader->bc_id());      //Bunch Crossing identifer 
+       m_pRODblock->push_back(fullHeader->lvl1_type());  //Level 1 trigger type
+       m_pRODblock->push_back(fullHeader->detev_type()); //Detector event type
+     }
+     else //No ROD-Header
+*/
+       m_pRODblock->resize( m_pRODblock->size()+m_MiddleHeaderSize);
+   
+   //Add feb data to rod data block
+   data_it=feb_it->second.begin();
+   data_it_e=feb_it->second.end();
+   for (;data_it!=data_it_e;data_it++)
+     m_pRODblock->push_back(*data_it);
+ } //end for feb_it
+
+  m_mFebBlocks.clear();
+  return;
+}
+
+template<class DSPHEADER>
+int LArRodBlockTransparentV0<DSPHEADER>::getNextRawData(int& channelNumber, std::vector<short>& samples, uint32_t& gain)
+{
+#ifdef LARBSDBGOUTPUT
+  MsgStream logstr(Athena::getMessageSvc(), BlockType());
+#endif
+ //Debug output
+  LARBSDBG("GetNextRawData for FEB 0x" << MSG::hex << (uint32_t)getHeader32(DSPHEADER::FEBID) << MSG::dec);
+  LARBSDBG("m_RawDataCounter=" << m_RawDataCounter << " m_RawDataIndex="<<  m_RawDataIndex 
+	   << " m_channelsPerFEB=" << m_channelsPerFEB);
+  LARBSDBG("requested gain= " << m_fixedGain);
+  if (m_RawDataCounter>=m_channelsPerFEB) { //Already beyond maximal number of channels
+    LARBSDBG("Maximum number of channels reached");
+    return 0;
+  }
+  const uint16_t block = getHeader32(m_BlkOffset);//Position of the raw FEB data block
+  if (!block) { //Block does not exist
+    LARBSDBG("No Raw Data Block in this FEB");
+    return 0; 
+  }
+  //The m_RawDataChannel keeps track of the last read channel
+  //std::cout << "endtag=" << DSPHEADER::endtag << " m_iHeadBlockSize=" << m_iHeadBlockSize << std::endl;
+
+  // Get next channel
+  channelNumber=m_RawDataCounter;
+  uint32_t febgain;
+  const unsigned int nsamples = getHeader16(DSPHEADER::NSamples) & 0xff;
+  const unsigned int ngains   = getHeader16(DSPHEADER::NGains);
+  LARBSDBG("This FEB has " << nsamples <<  " samples");
+  LARBSDBG("This FEB has " << ngains   <<  " gains");
+  if(ngains==0 || nsamples==0) return 0;
+  // Loop over gains to look for m_fixedGain
+  unsigned int this_gain=0;
+  int offset;
+  if (m_fixedGain!=CaloGain::LARNGAIN) { //Fixed gain: Search for gain
+    offset=block + 8 + ((channelNumber&0x3F)>>3) + ((channelNumber & 0x7)<<3);
+    for(this_gain=0;this_gain<ngains;this_gain++) {
+      int index = offset + 64*this_gain;
+      uint32_t x = m_FebBlock[index];
+      if(channelNumber>=64) 
+	x = (x & 0x3000) >> 12;
+      else 
+	x = (x & 0x30000000) >> 28;
+      int data_gain = RawToOfflineGain(x);
+      if(data_gain==m_fixedGain) break;
+    }
+  }
+  if (this_gain<ngains) { //Gain found in this fragment
+    int s_size = 8 + 64 * ngains;  // Size of one sample block 16 RADD of 16 bit + 128 channels (16 bit data) 
+    offset = block + 8 + ((channelNumber&0x3F)>>3) + ((channelNumber & 0x7)<<3) + 64*this_gain;
+    int index  =  offset;
+    uint32_t x = m_FebBlock[index];
+    if(channelNumber>=64) { //low channels on lower bits
+      // First decode gain
+      febgain = (x & 0x3000) >> 12; // gain on bits 12 and 13
+      // Than samples
+      for(unsigned int s=0;s<nsamples;s++) {
+	index  =  offset + s*s_size;
+	x = m_FebBlock[index];
+	samples.push_back((short) (x & 0x0fff));  // sample on bits 0 to 11
+      } 
+    } else { //high channels on higher bits
+      // First decode gain
+      febgain = (x & 0x30000000) >> 28; // gain on bits 12 and 13
+      // Than samples
+      for(unsigned int s=0;s<nsamples;s++) {
+	index  =  offset + s*s_size;
+	x = (m_FebBlock[index]) >> 16;
+	samples.push_back((short) (x & 0x0fff));  // sample on bits 0 to 11
+      }
+    }
+    gain=RawToOfflineGain(febgain);
+  }
+  //std::cout << "Gain= " << gain << " Febgain=" << febgain << std::endl;
+  ++m_RawDataCounter;
+  if (m_rearrangeFirstSample && m_rearrangeFirstSample<samples.size()) //FIXME: Very ugly hack! See explanation in LArRodDecoder.h file
+      {//Change e.g. 3 0 1 2 4 to 0 1 2 3 4 
+	short movedSample=samples[0];
+	for (unsigned i=1;i<=m_rearrangeFirstSample;i++)
+	  samples[i-1]=samples[i];
+	samples[m_rearrangeFirstSample]=movedSample;
+      }
+  return 1;
+}
+
+template<class DSPHEADER>
+uint32_t LArRodBlockTransparentV0<DSPHEADER>::getNumberOfSamples() const
+{ 
+  return getHeader16(DSPHEADER::NSamples); 
+}
+
+template<class DSPHEADER>
+uint32_t LArRodBlockTransparentV0<DSPHEADER>::getNumberOfGains() const
+{ 
+  return  getHeader16(DSPHEADER::NGains);
+}
+
+template<class DSPHEADER>
+uint32_t LArRodBlockTransparentV0<DSPHEADER>::getRadd(uint32_t adc, uint32_t sample)  const
+{ 
+  int ngain=getHeader16(DSPHEADER::NGains);
+  int index=getHeader32(m_BlkOffset);
+  index+=(8+64*ngain)*sample+adc/2;
+  uint32_t x=m_FebBlock[index];
+  if(adc&0x1) return x>>16;
+  return x&0xffff;
+}
+
+template<class DSPHEADER>
+uint16_t LArRodBlockTransparentV0<DSPHEADER>::getCtrl1(uint32_t adc)  const
+{ 
+  int index=getHeader32(m_BlkOffset)-16+adc/2;
+  uint32_t x=m_FebBlock[index];
+  if(adc&0x1) x=x>>16;
+  else x=x&0xffff;
+  uint16_t ctrl=x;
+  return ctrl;
+}
+
+template<class DSPHEADER>
+uint16_t LArRodBlockTransparentV0<DSPHEADER>::getCtrl2(uint32_t adc)  const
+{ 
+  int index=getHeader32(m_BlkOffset)-8+adc/2;
+  uint32_t x=m_FebBlock[index];
+  if(adc&0x1) x=x>>16;
+  else x=x&0xffff;
+  uint16_t ctrl=x;
+  return ctrl;
+}
+
+template<class DSPHEADER>
+uint16_t LArRodBlockTransparentV0<DSPHEADER>::getCtrl3(uint32_t adc)  const
+{ 
+  int nsamples = getHeader16(DSPHEADER::NSamples); 
+  int ngains   = getHeader16(DSPHEADER::NGains);
+  int offset=nsamples*(8+64*ngains)+adc/2;
+  int index=getHeader32(m_BlkOffset)+offset;
+  uint32_t x=m_FebBlock[index];
+  if(adc&0x1) x=x>>16;
+  else x=x&0xffff;
+  uint16_t ctrl=x;
+  return ctrl;
+}
+
+template<class DSPHEADER>
+uint32_t LArRodBlockTransparentV0<DSPHEADER>::getStatus()  const
+{ 
+  int nsamples = getHeader16(DSPHEADER::NSamples); 
+  int ngains   = getHeader16(DSPHEADER::NGains);
+  int offset=nsamples*(8+64*ngains)+8;
+  int index=getHeader32(m_BlkOffset)+offset;
+  uint32_t x=m_FebBlock[index];
+  return x;
+}
+
+
+#ifdef LARBSDBGOUTPUT
+#undef LARBSDBGOUTPUT
+#endif
+#undef LARBSDBG
