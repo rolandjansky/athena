@@ -1,0 +1,72 @@
+//Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TBCnv/TBDataCnv.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/CnvFactory.h"
+
+#include <string>
+
+template< class DATATYPE >
+TBDataCnv<DATATYPE>::TBDataCnv(ISvcLocator* svcloc) :
+    Converter(ByteStream_StorageType, classID(),svcloc)
+{
+}
+
+template< class DATATYPE >
+const CLID& TBDataCnv<DATATYPE>::classID(){
+  return ClassID_traits<DATATYPE>::ID() ;
+}
+
+template< class DATATYPE >
+StatusCode TBDataCnv<DATATYPE>::initialize()
+{StatusCode sc = Converter::initialize(); 
+ if (sc!=StatusCode::SUCCESS)
+    return sc; 
+ MsgStream logstr(messageService(), "TBDataCnv");
+ IToolSvc* toolSvc;
+ sc=service("ToolSvc",toolSvc);
+ if(sc!=StatusCode::SUCCESS)
+   {logstr << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    return sc;
+   }
+ sc=toolSvc->retrieveTool("TBByteStreamCnvTool",m_tool);
+  if(sc!=StatusCode::SUCCESS)
+   {logstr << MSG::ERROR << " Can't get TBByteStreamCnvTool" << endreq;
+    return sc;
+   }
+  return StatusCode::SUCCESS;
+}
+
+template< class DATATYPE >
+StatusCode TBDataCnv<DATATYPE>::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
+{ MsgStream logstr(messageService(), "TBDataCnv");
+  ByteStreamAddress *pRE_Addr;
+  pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); //Cast from OpaqueAddress to ByteStreamAddress
+  if (!pRE_Addr)
+    {logstr << MSG::ERROR << "dynamic_cast of IOpaqueAdress to ByteStreamAddress failed!" << endreq;
+     return StatusCode::FAILURE;
+    }
+  DATATYPE* tbdata; 
+  const std::string& key = *(pAddr->par()); // Get key used in the 
+                                            // StoreGateSvc::retrieve function
+  StatusCode sc=m_tool->ReadFragment(tbdata,key);
+  if (sc!=StatusCode::SUCCESS)
+    return sc;
+  pObj = SG::asStorable(tbdata) ;
+  return StatusCode::SUCCESS;
+}
+
+template< class DATATYPE >
+StatusCode TBDataCnv<DATATYPE>::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
+{  
+  std::string nm = pObj->registry()->name(); 
+  ByteStreamAddress* addr = new ByteStreamAddress(classID(),nm,""); 
+  pAddr = addr; 
+
+  return m_tool->WriteFragment();
+
+}
