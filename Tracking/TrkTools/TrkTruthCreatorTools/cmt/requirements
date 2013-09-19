@@ -1,0 +1,33 @@
+package TrkTruthCreatorTools
+author Maria Jose Costa <Maria.Jose.Costa@cern.ch>
+author Edward Moyse <edward.moyse@cern.ch>
+author Andrei Gaponenko <agaponenko@lbl.gov>
+
+private
+
+use AtlasHepMC		 AtlasHepMC-*		   External
+use GeneratorObjects	 GeneratorObjects-*	   Generators
+use TrkCompetingRIOsOnTrack       TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
+use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent
+use TrkPrepRawData 	 TrkPrepRawData-* 	   Tracking/TrkEvent
+use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+
+public
+
+use AtlasPolicy		 AtlasPolicy-*
+use DataModel 	         DataModel-*               Control
+use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription
+use GaudiInterface       GaudiInterface-*          External
+use AthenaBaseComps	 AthenaBaseComps-* 	   Control
+
+use TrkTruthData 	 TrkTruthData-* 	   Tracking/TrkEvent
+use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
+use TrkEventUtils 	 TrkEventUtils-* 	   Tracking/TrkEvent
+
+apply_pattern component_library
+library TrkTruthCreatorTools *.cxx components/*.cxx
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
