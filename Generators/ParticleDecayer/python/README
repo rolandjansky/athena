@@ -1,0 +1,23 @@
+
+
+Some python scripts to quickli inspect the generated EVGEN file.
+Because it's desirable to validate that you have generated the events the way you wanted to,
+before the full GEANT4, Digitization and Reconstruction steps.
+
+First create an NTUP_TRUTH ROOT file from the EVGEN file:
+using asetup 17.2.11.3 run:
+Reco_trf.py preExec="rec.doApplyAODFix.set_Value_and_Lock(False);from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags;D3PDMakerFlags.TruthWriteEverything=True" \
+inputEVNTFile=<EVGEN.POOL.ROOT file name> \
+outputNTUP_TRUTHFile=<NTUP_TRUTH file name>
+
+
+
+inspect_truth_file.py:
+Usage:
+./inspect_truth_file.py -f <path to NTUP_TRUTH file>
+
+This creates a ROOT file named 'histControl.root' which contains histograms of the generated events
+
+Once histControl.root has been created use plotmaker.py to make pdfs of the histograms
+Usage:
+./plotmaker.py histControl.root
