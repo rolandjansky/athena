@@ -1,0 +1,26 @@
+package ForwardTransport
+
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+public
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaKernel	AthenaKernel-*		Control
+use G4FastSimulation	G4FastSimulation-*	Simulation/G4Utilities
+use ForwardTransportSvc	ForwardTransportSvc-*	ForwardDetectors
+use ForwardTracker	ForwardTracker-*	ForwardDetectors
+
+macro ForwardTransport_linkopts " -lForwardTracker "
+
+library ForwardTransport ../src/*.cxx
+apply_pattern declare_joboptions files="*.py"
+apply_pattern linked_library
+
+private 
+
+use Geant4		Geant4-*		External
+use GaudiInterface      GaudiInterface-*        External
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
