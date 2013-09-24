@@ -1,0 +1,50 @@
+package FastCaloSimHit
+
+author Matthew Beckingham <Matthew.Beckingham@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*   Control
+use GaudiInterface       GaudiInterface-*    External
+
+use StoreGate            StoreGate-*         Control
+use CaloInterface        CaloInterface-*     Calorimeter
+
+private
+use CaloIdentifier       CaloIdentifier-*    Calorimeter
+use CaloEvent            CaloEvent-*         Calorimeter
+use LArSimEvent          LArSimEvent-*       LArCalorimeter
+ 
+use TileEvent            TileEvent-*         TileCalorimeter
+use TileConditions       TileConditions-*    TileCalorimeter
+
+use LArG4RunControl      LArG4RunControl-*   LArCalorimeter/LArG4
+
+use PileUpTools          PileUpTools-*       Control
+
+use EventInfo            EventInfo-*	     Event
+
+public
+use LArElecCalib         LArElecCalib-*      LArCalorimeter
+
+use TileSimEvent         TileSimEvent-*      TileCalorimeter
+
+use SimHelpers           SimHelpers-*        Simulation/G4Sim
+
+ignore_pattern package_tag
+
+#apply_pattern dual_use_library files="\
+#FastHitConv.cxx \
+#"
+
+apply_pattern dual_use_library files=*.cxx
+#Do not declare here, file is too large to go into CVS, has to be stored somewhere else...
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+macro_append FastCaloSimHit_cppflags " '-DFastCaloSimHit_project_release=$(q2)$(FastCaloSimHit_project_release)$(q2)' "
+macro_append FastCaloSimHit_cppflags " -DFastCaloSimHit_project_release_v1=`echo $(FastCaloSimHit_project_release) | awk -F. '{printf("'"'%d'"'",$$1)}'` " 
+macro_append FastCaloSimHit_cppflags " -DFastCaloSimHit_project_release_v2=`echo $(FastCaloSimHit_project_release) | awk -F. '{printf("'"'%d'"'",$$2)}'` " 
+macro_append FastCaloSimHit_cppflags " -DFastCaloSimHit_project_release_v3=`echo $(FastCaloSimHit_project_release) | awk -F. '{printf("'"'%d'"'",$$3)}'` " 
