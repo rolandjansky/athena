@@ -1,0 +1,25 @@
+package TrkMultiComponentStateOnSurface
+
+author Anthony Morley <a.morley@physics.unimelb.edu.au>
+
+use AtlasPolicy AtlasPolicy-*
+
+use TrkParameters       TrkParameters-*         Tracking/TrkEvent
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
+use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
+
+library TrkMultiComponentStateOnSurface *.cxx
+
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+use TrkMaterialOnTrack  TrkMaterialOnTrack-*    Tracking/TrkEvent
+use TrkMeasurementBase  TrkMeasurementBase-*    Tracking/TrkEvent
+use TrkSurfaces         TrkSurfaces-*           Tracking/TrkDetDescr    
+use GaudiInterface      GaudiInterface-*     External
+
+
+
+#use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+#apply_pattern lcgdict dict=TrkMultiComponentStateOnSurface selectionfile=selection.xml headerfiles="../TrkMultiComponentStateOnSurface/TrkMultiComponentStateOnSurfaceDict.h"
