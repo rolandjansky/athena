@@ -1,0 +1,132 @@
+<lcgdict>
+
+<!-- TrigTauTracksInfo -->
+  <class name="TrigTauTracksInfo_tlp1" id="ABF3C91C-A007-440E-8AEE-753FAA453352"  />
+  <class name="TrigTauTracksInfo_p1" id="FD7D1FE5-9771-4E0A-A29B-9B7187E52286" />
+  <class name="std::vector<TrigTauTracksInfo_p1>" />
+
+<!-- TrigTauTracksInfoCollection -->
+  <class name="TrigTauTracksInfoCollection_tlp1" id="8A208FA7-C52F-4CD3-AE20-EF1C99FC92A6"  />
+  <class name="TrigTauTracksInfoCollection_p1" id="1781A590-8892-4448-AD19-73FC92ED1B57" />
+  <class name="std::vector<TrigTauTracksInfoCollection_p1>" />
+
+  <class name="TrigTauTracksInfoCollection_p2" id="1AF8C4E5-4862-4625-B9B6-D9B53E716B17" />
+  <class name="TrigTauTracksInfo_p2" id="A714D1F9-3CED-4AED-BD41-5B06180FA5FD" />
+  <class name="std::vector<TrigTauTracksInfo_p2>" />
+
+
+<!-- TrigInDetTrack -->
+  <class name="TrigInDetTrack_p5"/>
+  <class name="std::vector<TrigInDetTrack_p5>" />
+  <class name="TrigInDetTrack_p4"/>
+  <class name="std::vector<TrigInDetTrack_p4>" />
+  <class name="TrigInDetTrack_p3"/>
+  <class name="std::vector<TrigInDetTrack_p3>" />
+  <class name="TrigInDetTrack_p2"/>
+  <class name="std::vector<TrigInDetTrack_p2>" />
+  <class name="TrigInDetTrack_p1"/>
+  <class name="std::vector<TrigInDetTrack_p1>" />
+
+<!-- TrigInDetTrackCollection -->
+  <class name="TrigInDetTrackCollection_tlp4" id="E1B8EE19-4F7B-4EF2-8FDC-45AA871BD628"/>
+  <class name="TrigInDetTrackCollection_tlp3" id="196F811B-382D-47A9-8551-D2038343BFFA"/>
+  <class name="TrigInDetTrackCollection_tlp1" id="0B5CA4CA-0A0F-43DC-8973-0E2212B2E8DA"/>
+  <class name="TrigInDetTrackCollection_tlp2" id="4DBBB46F-33C9-4571-AE5E-A2335D7A2976"/>
+  <class name="TrigInDetTrackCollection_p1" id="A7BBD36E-ACC8-48D5-B5B8-F85A7FB9368D"/>  
+  <class name="std::vector<TrigInDetTrackCollection_p1>" />
+  
+<!-- TrigInDetTrackFitPar -->
+
+	<class name="TrigInDetTrackFitPar_p3"/>
+	<class name="std::vector<TrigInDetTrackFitPar_p3>" />
+
+  <class name="TrigInDetTrackFitPar_p2"/>
+  <class name="std::vector<TrigInDetTrackFitPar_p2>" />
+
+  <class name="TrigInDetTrackFitPar_p1">
+    <field name="m_covtmp" transient="yes"/>
+  </class>
+  <class name="std::vector<TrigInDetTrackFitPar_p1>" />
+
+<!-- TrigHisto1D -->   
+  <class name="TrigHisto1D_p1" id="C304621E-2266-4863-9B47-7C3450B00399"/>
+  <class name="std::vector<TrigHisto1D_p1>" />   
+
+<!-- TrigHisto1DContainer -->
+  <class name="TrigHisto1DContainer_tlp1" id="CDC70E22-85DF-45B4-B69E-FC7FD70987A9"/>
+  <class name="TrigHisto1DContainer_p1" id="B6240954-1842-45F5-AB5B-50934C633B1E"/>
+  <class name="std::vector<TrigHisto1DContainer_p1>" />
+    
+<!-- TrigHisto2D -->
+  <class name="TrigHisto2D_p1" id="8CF4D0A0-2957-4014-AEB2-140D1A013E7F"/>
+  <class name="std::vector<TrigHisto2D_p1>" />
+
+<!-- TrigHisto2DContainer -->
+  <class name="TrigHisto2DContainer_tlp1" id="59C6A169-C537-4DEC-984D-41CE2544F96E"/>
+  <class name="TrigHisto2DContainer_p1" id="C9FE79CB-6875-4E35-A1E3-23DFA6F94DFE"/>
+  <class name="std::vector<TrigHisto2DContainer_p1>" />
+
+<!-- TrigSpacePointCounts -->
+  <class name="TrigSpacePointCounts_p4" />  
+  <class name="std::vector<TrigSpacePointCounts_p4>" />
+  <class name="TrigSpacePointCounts_p3" id="43E61EDF-2902-4F64-8A89-F625DB7DA7CC"/>  
+  <class name="std::vector<TrigSpacePointCounts_p3>" />
+  <class name="TrigSpacePointCounts_p2" id="3A6CFBCF-E2AE-4E3D-A965-091718A5CB9F"/>  
+  <class name="std::vector<TrigSpacePointCounts_p2>" />
+  <class name="TrigSpacePointCounts_p1" id="8BF48F79-C6C2-4AA7-8180-16BC6C39280F"/>
+  <class name="TrigSpacePointCounts_p1_old"/>
+  <class name="TrigSpacePointCounts_p1_old_cnv"/>
+  <class name="TVirtualConverter_T<TrigSpacePointCounts_p1,TrigSpacePointCounts_p1_old>"/>
+  <class name="std::vector<TrigSpacePointCounts_p1>" />
+
+<!-- TrigSpacePointCountsCollection -->
+  <class name="TrigSpacePointCountsCollection_p4" id="ACEDF654-09D7-49F6-9054-8E2CEE767367"/>
+  <class name="TrigSpacePointCountsCollection_tlp1" id="55733D7E-0054-4785-ADA8-3EA70D7477F2"/>
+  <class name="TrigSpacePointCountsCollection_p1" id="DD716203-F5F8-4F3E-B043-2F722B2FDF6B"/>
+  <class name="std::vector<TrigSpacePointCountsCollection_p1>" />  
+  
+<!-- TrigTrtHitCounts -->
+  <class name="TrigTrtHitCounts_p1" id="FB33CC3C-74B8-43DF-ABDA-E56BEA1D9D61"/>
+  <class name="std::vector<TrigTrtHitCounts_p1>" />
+  <class name="TrigTrtHitCounts_p2"/>
+  <class name="std::vector<TrigTrtHitCounts_p2>" />
+
+<!-- TrigTrtHitCountsCollection -->
+  <class name="TrigTrtHitCountsCollection_p2" id="47CBB4D9-381C-423E-A560-A7B5C325A5DD"/>
+  <class name="TrigTrtHitCountsCollection_tlp1" id="A0763CCA-553C-4365-8091-04CA2036FD97"/>
+  <class name="TrigTrtHitCountsCollection_p1" id="0CC00AC1-FB95-4E69-8C6E-29B6BB713AAE"/>
+  <class name="std::vector<TrigTrtHitCountsCollection_p1>" />
+
+<!-- TrigTrackCounts -->
+  <class name="TrigTrackCounts_p2" id="BD8BB599-AE38-45CC-93DB-27F67C23DB62"/>
+  <class name="std::vector<TrigTrackCounts_p2>" />
+  <class name="TrigTrackCounts_p1" id="2DCA396C-5CC1-4B6A-8B76-E3EBA4F81A61"/>
+  <class name="std::vector<TrigTrackCounts_p1>" />
+
+<!-- TrigTrackCountsCollection -->
+  <class name="TrigTrackCountsCollection_tlp1" id="FCEB4390-F8FB-4C93-9538-105BCABE487C"/>
+  <class name="TrigTrackCountsCollection_p1" id="1EAC6BDD-E73F-4629-962D-6AFC82704FDE"/>
+  <class name="std::vector<TrigTrackCountsCollection_p1>" /> 
+
+<!-- TrigVertexCounts -->
+  <class name="TrigVertexCounts_p1" id="33E83FBA-83F1-4DC5-87BE-81A09D0FD8F8"/>
+  <class name="std::vector<TrigVertexCounts_p1>" />
+
+<!-- TrigVertexCountsCollection -->
+  <class name="TrigVertexCountsCollection_tlp1" id="2A1D4A4E-D566-4C71-B051-D5D79A856753"/>
+  <class name="TrigVertexCountsCollection_p1" id="232B47D0-65CA-4883-AC51-0D76EAEA3194"/>
+  <class name="std::vector<TrigVertexCountsCollection_p1>" /> 
+ 
+<!-- TrigVertex -->
+  <class name="TrigVertex_p1"/>
+  <class name="std::vector<TrigVertex_p1>" />
+  <class name="TrigVertex_p2"/>
+  <class name="std::vector<TrigVertex_p2>" />
+  
+<!-- TrigVertexCollection -->
+  <class name="TrigVertexCollection_tlp1" id="10E18C4E-9BCA-4F25-993C-EBDF0642C119"/>
+  <class name="TrigVertexCollection_tlp2" id="438C9232-0F3E-4A8B-A16E-6F6275388DE4"/>
+  <class name="TrigVertexCollection_p1" id="50B5D385-579D-427A-835B-1FCBD24F21DD"/>
+  <class name="std::vector<TrigVertexCollection_p1>" />
+  
+</lcgdict>
