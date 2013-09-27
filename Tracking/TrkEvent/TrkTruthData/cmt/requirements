@@ -1,0 +1,24 @@
+package TrkTruthData
+
+author Maria Jose Costa <Maria.Jose.Costa@cern.ch>
+author Andrei Gaponenko
+
+use AtlasPolicy		AtlasPolicy-*
+use CLIDSvc             CLIDSvc-*            Control
+use DataModel 	        DataModel-*          Control
+use GeneratorObjects    GeneratorObjects-*   Generators
+use Identifier          Identifier-*         DetectorDescription
+use TrkTrack            TrkTrack-*           Tracking/TrkEvent
+use GeoPrimitives       GeoPrimitives-*      DetectorDescription
+private 
+
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+ 
+# apply_pattern lcgdict dict=TrkTruthData selectionfile=selection.xml headerfiles="../src/TrkTruthDataDict.h"
