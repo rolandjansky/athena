@@ -16,7 +16,7 @@
 /**
  * A PRD is mapped onto all contributing particles.
  */
-class PRD_MultiTruthCollection : public std::multimap<Identifier, HepMcParticleLink> {};
+struct PRD_MultiTruthCollection : public std::multimap<Identifier, HepMcParticleLink> {};
 
 CLASS_DEF(PRD_MultiTruthCollection, 1162521747, 1)
 
