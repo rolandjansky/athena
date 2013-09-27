@@ -1,0 +1,26 @@
+package TilePulseSimulator
+
+author  Simon Molander <simon.molander@fysik.su.se>
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasROOT           AtlasROOT-*             External
+
+private
+
+#use PathResolver        PathResolver-*         Tools
+use  GaudiInterface             GaudiInterface-*                External
+
+
+apply_tag ROOTMathLibs 
+
+end_private
+
+##
+
+branches src doc share
+
+library TilePulseSimulator  *.cxx 
+
+apply_pattern installed_library 
+apply_pattern declare_runtime files="*.root" 
+
