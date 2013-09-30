@@ -1,0 +1,26 @@
+package InDetCompetingRIOsOnTrackTool
+
+author Sebastian Fleischmann <Sebastian.Fleischmann@cern.ch>
+
+use AtlasPolicy                     AtlasPolicy-*
+use GaudiInterface                  GaudiInterface-*                    External
+use AthenaBaseComps                 AthenaBaseComps-*                   Control
+
+use TrkParameters                   TrkParameters-*                     Tracking/TrkEvent
+use InDetCompetingRIOsOnTrack       InDetCompetingRIOsOnTrack-*         InnerDetector/InDetRecEvent
+use TrkToolInterfaces               TrkToolInterfaces-*                 Tracking/TrkTools
+use GeoPrimitives                   GeoPrimitives-*                     DetectorDescription
+use EventPrimitives                 EventPrimitives-*                   Event
+
+library InDetCompetingRIOsOnTrackTool *.cxx components/*.cxx
+apply_pattern component_library	
+
+private
+use TrkEventPrimitives              TrkEventPrimitives-*                Tracking/TrkEvent
+use TrkSurfaces                     TrkSurfaces-*                       Tracking/TrkDetDescr
+use TrkExInterfaces                 TrkExInterfaces-*                   Tracking/TrkExtrapolation
+use InDetPrepRawData                InDetPrepRawData-*                  InnerDetector/InDetRecEvent
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
