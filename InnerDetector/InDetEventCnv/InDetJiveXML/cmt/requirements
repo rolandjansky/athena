@@ -1,0 +1,35 @@
+package InDetJiveXML
+
+use AtlasPolicy           AtlasPolicy-* 
+
+use JiveXML               JiveXML-*                  graphics
+
+private
+
+use AtlasCLHEP            AtlasCLHEP-*            External
+use StoreGate             StoreGate-*             Control 
+use DataModel             DataModel-*             Control
+
+use InDetIdentifier       InDetIdentifier-*       InnerDetector/InDetDetDescr
+use InDetReadoutGeometry  InDetReadoutGeometry-*  InnerDetector/InDetDetDescr
+use InDetPrepRawData      InDetPrepRawData-*      InnerDetector/InDetRecEvent  
+use InDetRawData          InDetRawData-*          InnerDetector/InDetRawEvent
+use InDetBeamSpotService   InDetBeamSpotService-* InnerDetector/InDetConditions
+use IdDictDetDescr       IdDictDetDescr-*          DetectorDescription
+
+use TrkPrepRawData        TrkPrepRawData-*        Tracking/TrkEvent
+use TrkSpacePoint         TrkSpacePoint-*         Tracking/TrkEvent
+use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkTruthData          TrkTruthData-*          Tracking/TrkEvent
+
+public
+
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use GaudiInterface        GaudiInterface-*        External
+
+
+library InDetJiveXML *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+
