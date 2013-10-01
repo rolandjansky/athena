@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="test_thinning" type="script" suite="Core">
+      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
+      <options_atn>chappy.py AthExThinning/test_thinning.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="test_pythinning" type="script" suite="Core">
+      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
+      <options_atn>chappy.py AthExThinning/test_pythinning.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="test_slimming" type="script" suite="Core">
+      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
+      <options_atn>chappy.py AthExThinning/test_slimming.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="test_pyslimming" type="script" suite="Core">
+      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
+      <options_atn>chappy.py AthExThinning/test_pyslimming.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>

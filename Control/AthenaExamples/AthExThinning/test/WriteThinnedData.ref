@@ -1,0 +1,983 @@
+WriteThinnedData     INFO Initializing WriteThinnedData...
+WriteThinnedData    DEBUG Executing WriteThinnedData...
+WriteThinnedData     INFO Performing thinning test [test1]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test1] has been performed.
+WriteThinnedData     INFO Performing thinning test [test2]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true false false false false false ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> -
+WriteThinnedData     INFO  idx 8 -> -
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Filter [false false false false false false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test2] has been performed.
+WriteThinnedData     INFO Performing thinning test [test3]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO IParticles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test3] has been performed.
+WriteThinnedData    DEBUG Executing WriteThinnedData...
+WriteThinnedData     INFO Performing thinning test [test1]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test1] has been performed.
+WriteThinnedData     INFO Performing thinning test [test2]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true false false false false false ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> -
+WriteThinnedData     INFO  idx 8 -> -
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Filter [false false false false false false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test2] has been performed.
+WriteThinnedData     INFO Performing thinning test [test3]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO IParticles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test3] has been performed.
+WriteThinnedData    DEBUG Executing WriteThinnedData...
+WriteThinnedData     INFO Performing thinning test [test1]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test1] has been performed.
+WriteThinnedData     INFO Performing thinning test [test2]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true false false false false false ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> -
+WriteThinnedData     INFO  idx 8 -> -
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Filter [false false false false false false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test2] has been performed.
+WriteThinnedData     INFO Performing thinning test [test3]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO IParticles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test3] has been performed.
+WriteThinnedData    DEBUG Executing WriteThinnedData...
+WriteThinnedData     INFO Performing thinning test [test1]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test1] has been performed.
+WriteThinnedData     INFO Performing thinning test [test2]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true false false false false false ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> -
+WriteThinnedData     INFO  idx 8 -> -
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Filter [false false false false false false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test2] has been performed.
+WriteThinnedData     INFO Performing thinning test [test3]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO IParticles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test3] has been performed.
+WriteThinnedData    DEBUG Executing WriteThinnedData...
+WriteThinnedData     INFO Performing thinning test [test1]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test1] has been performed.
+WriteThinnedData     INFO Performing thinning test [test2]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO Particles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true false false false false false ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> -
+WriteThinnedData     INFO  idx 8 -> -
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Filter [false false false false false false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test2] has been performed.
+WriteThinnedData     INFO Performing thinning test [test3]...
+WriteThinnedData    DEBUG IN particles: 10
+WriteThinnedData    DEBUG IN decay: 
+WriteThinnedData    DEBUG  p1: px= 10
+WriteThinnedData    DEBUG  p2: px= 50
+WriteThinnedData    DEBUG  l1: px= 20
+WriteThinnedData    DEBUG  l2: px= 100
+WriteThinnedData    DEBUG IN elephantino: 
+WriteThinnedData    DEBUG  leg1: px= 10
+WriteThinnedData    DEBUG  leg2: px= 50
+WriteThinnedData    DEBUG  leg3: px= 80
+WriteThinnedData    DEBUG  leg4: px= 90
+WriteThinnedData    DEBUG  ear1: px= 20
+WriteThinnedData    DEBUG  ear2: px= 100
+WriteThinnedData     INFO IParticles | filter :
+WriteThinnedData     INFO        10 | keep
+WriteThinnedData     INFO        20 | remove
+WriteThinnedData     INFO        30 | remove
+WriteThinnedData     INFO        40 | remove
+WriteThinnedData     INFO        50 | keep
+WriteThinnedData     INFO        60 | remove
+WriteThinnedData     INFO        70 | remove
+WriteThinnedData     INFO        80 | keep
+WriteThinnedData     INFO        90 | keep
+WriteThinnedData     INFO       100 | remove
+WriteThinnedData     INFO ===================
+WriteThinnedData     INFO Filter [true false false false true true true true true true ]
+WriteThinnedData     INFO ... Processing [pre-thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> 2
+WriteThinnedData     INFO  idx 6 -> 3
+WriteThinnedData     INFO  idx 7 -> 4
+WriteThinnedData     INFO  idx 8 -> 5
+WriteThinnedData     INFO  idx 9 -> 6
+WriteThinnedData     INFO Filter [true true true true true false false true true false ]
+WriteThinnedData     INFO ... Processing [thinning] ...
+WriteThinnedData     INFO ======== Index table =========
+WriteThinnedData     INFO  idx 0 -> 0
+WriteThinnedData     INFO  idx 1 -> -
+WriteThinnedData     INFO  idx 2 -> -
+WriteThinnedData     INFO  idx 3 -> -
+WriteThinnedData     INFO  idx 4 -> 1
+WriteThinnedData     INFO  idx 5 -> -
+WriteThinnedData     INFO  idx 6 -> -
+WriteThinnedData     INFO  idx 7 -> 2
+WriteThinnedData     INFO  idx 8 -> 3
+WriteThinnedData     INFO  idx 9 -> -
+WriteThinnedData     INFO Decay is now: 
+WriteThinnedData     INFO  p1: px= 10
+WriteThinnedData     INFO  p2: px= 50
+WriteThinnedData     INFO  l1: px= 20
+WriteThinnedData     INFO  l2: px= 100
+WriteThinnedData     INFO Elephantino is now: 
+WriteThinnedData     INFO  leg1: px= 10
+WriteThinnedData     INFO  leg2: px= 50
+WriteThinnedData     INFO  leg3: px= 80
+WriteThinnedData     INFO  leg4: px= 90
+WriteThinnedData     INFO  ear1: px= 20
+WriteThinnedData     INFO  ear2: px= 100
+WriteThinnedData     INFO [test3] has been performed.
+WriteThinnedData     INFO Finalizing WriteThinnedData...
+WriteThinnedData    DEBUG Calling destructor

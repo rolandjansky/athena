@@ -1,0 +1,323 @@
+ReadThinnedData      INFO Initializing ReadThinnedData...
+ReadThinnedData     DEBUG Executing ReadThinnedData...
+ReadThinnedData      INFO Reading data for [test1]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test2]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test3]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData     DEBUG Executing ReadThinnedData...
+ReadThinnedData      INFO Reading data for [test1]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test2]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test3]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData     DEBUG Executing ReadThinnedData...
+ReadThinnedData      INFO Reading data for [test1]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test2]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test3]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData     DEBUG Executing ReadThinnedData...
+ReadThinnedData      INFO Reading data for [test1]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test2]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test3]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData     DEBUG Executing ReadThinnedData...
+ReadThinnedData      INFO Reading data for [test1]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test2]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Reading data for [test3]...
+ReadThinnedData     DEBUG IN  particles: 4
+ReadThinnedData     DEBUG IN iparticles: 4
+ReadThinnedData     DEBUG IN decay: 
+ReadThinnedData     DEBUG  p1: px= 10
+ReadThinnedData     DEBUG  p2: px= 50
+ReadThinnedData     DEBUG  l1: px= [thinned!]
+ReadThinnedData     DEBUG  l2: px= [thinned!]
+ReadThinnedData     DEBUG IN elephantino: 
+ReadThinnedData     DEBUG  leg1: px= 10
+ReadThinnedData     DEBUG  leg2: px= 50
+ReadThinnedData     DEBUG  leg3: px= 80
+ReadThinnedData     DEBUG  leg4: px= 90
+ReadThinnedData     DEBUG  ear1: px= [thinned!]
+ReadThinnedData     DEBUG  ear2: px= [thinned!]
+ReadThinnedData      INFO Particles | IParticles : 
+ReadThinnedData      INFO        10 |        10
+ReadThinnedData      INFO        50 |        50
+ReadThinnedData      INFO        80 |        80
+ReadThinnedData      INFO        90 |        90
+ReadThinnedData      INFO ======================
+ReadThinnedData      INFO Finalizing ReadThinnedData...
+ReadThinnedData     DEBUG Calling destructor

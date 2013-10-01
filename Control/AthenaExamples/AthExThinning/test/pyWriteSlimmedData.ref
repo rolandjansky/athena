@@ -1,0 +1,9 @@
+Py:Slimmer           INFO ==> initialize...
+Py:Slimmer           INFO input particles [Particles_test1]
+Py:Slimmer           INFO slimming fat object at [FatObject_test1]
+Py:Slimmer           INFO particles' size: 10
+Py:Slimmer           INFO particles' size: 10
+Py:Slimmer           INFO particles' size: 10
+Py:Slimmer           INFO particles' size: 10
+Py:Slimmer           INFO particles' size: 10
+Py:Slimmer           INFO ==> finalize...

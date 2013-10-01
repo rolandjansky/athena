@@ -1,0 +1,19 @@
+Py:ReadFatObject     INFO ==> initialize...
+Py:ReadFatObject     INFO input particles: [Particles_test1]
+Py:ReadFatObject     INFO input fatobject: [FatObject_test1]
+Py:ReadFatObject     INFO particles' size: 10
+Py:ReadFatObject     INFO fat.raw.px: slimmed
+Py:ReadFatObject     INFO fat.lnk.e : slimmed
+Py:ReadFatObject     INFO particles' size: 10
+Py:ReadFatObject     INFO fat.raw.px: slimmed
+Py:ReadFatObject     INFO fat.lnk.e : slimmed
+Py:ReadFatObject     INFO particles' size: 10
+Py:ReadFatObject     INFO fat.raw.px: slimmed
+Py:ReadFatObject     INFO fat.lnk.e : slimmed
+Py:ReadFatObject     INFO particles' size: 10
+Py:ReadFatObject     INFO fat.raw.px: slimmed
+Py:ReadFatObject     INFO fat.lnk.e : slimmed
+Py:ReadFatObject     INFO particles' size: 10
+Py:ReadFatObject     INFO fat.raw.px: slimmed
+Py:ReadFatObject     INFO fat.lnk.e : slimmed
+Py:ReadFatObject     INFO ==> finalize...

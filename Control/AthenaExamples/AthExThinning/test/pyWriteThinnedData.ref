@@ -1,0 +1,1013 @@
+Py:WriteThinnedData    INFO Initializing WriteThinnedData
+Py:WriteThinnedData    INFO ==> thinning svc...: ThinningSvc
+Py:WriteThinnedData   DEBUG Executing WriteThinnedData...
+Py:WriteThinnedData    INFO Performing thinning test [test1]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test1] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test2]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, False, False, False, False, False]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> -
+Py:WriteThinnedData    INFO  idx 8 -> -
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Filter [False, False, False, False, False, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test2] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test3]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO IParticles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test3] has been performed.
+Py:WriteThinnedData   DEBUG Executing WriteThinnedData...
+Py:WriteThinnedData    INFO Performing thinning test [test1]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test1] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test2]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, False, False, False, False, False]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> -
+Py:WriteThinnedData    INFO  idx 8 -> -
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Filter [False, False, False, False, False, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test2] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test3]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO IParticles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test3] has been performed.
+Py:WriteThinnedData   DEBUG Executing WriteThinnedData...
+Py:WriteThinnedData    INFO Performing thinning test [test1]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test1] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test2]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, False, False, False, False, False]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> -
+Py:WriteThinnedData    INFO  idx 8 -> -
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Filter [False, False, False, False, False, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test2] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test3]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO IParticles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test3] has been performed.
+Py:WriteThinnedData   DEBUG Executing WriteThinnedData...
+Py:WriteThinnedData    INFO Performing thinning test [test1]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test1] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test2]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, False, False, False, False, False]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> -
+Py:WriteThinnedData    INFO  idx 8 -> -
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Filter [False, False, False, False, False, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test2] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test3]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO IParticles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test3] has been performed.
+Py:WriteThinnedData   DEBUG Executing WriteThinnedData...
+Py:WriteThinnedData    INFO Performing thinning test [test1]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test1] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test2]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO Particles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, False, False, False, False, False]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> -
+Py:WriteThinnedData    INFO  idx 8 -> -
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Filter [False, False, False, False, False, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test2] has been performed.
+Py:WriteThinnedData    INFO Performing thinning test [test3]...
+Py:WriteThinnedData    INFO particles: 10
+Py:WriteThinnedData    INFO iparticles: 10
+Py:WriteThinnedData   DEBUG IN particles: 10
+Py:WriteThinnedData   DEBUG IN decay:
+Py:WriteThinnedData   DEBUG  p1: px= 10.0
+Py:WriteThinnedData   DEBUG  p2: px= 50.0
+Py:WriteThinnedData   DEBUG  l1: px= 20.0
+Py:WriteThinnedData   DEBUG  l2: px= 100.0
+Py:WriteThinnedData   DEBUG IN elephantino:
+Py:WriteThinnedData   DEBUG  leg1: px= 10.0
+Py:WriteThinnedData   DEBUG  leg2: px= 50.0
+Py:WriteThinnedData   DEBUG  leg3: px= 80.0
+Py:WriteThinnedData   DEBUG  leg4: px= 90.0
+Py:WriteThinnedData   DEBUG  ear1: px= 20.0
+Py:WriteThinnedData   DEBUG  ear2: px= 100.0
+Py:WriteThinnedData    INFO IParticles | filter :
+Py:WriteThinnedData    INFO        10 | keep
+Py:WriteThinnedData    INFO        20 | remove
+Py:WriteThinnedData    INFO        30 | remove
+Py:WriteThinnedData    INFO        40 | remove
+Py:WriteThinnedData    INFO        50 | keep
+Py:WriteThinnedData    INFO        60 | remove
+Py:WriteThinnedData    INFO        70 | remove
+Py:WriteThinnedData    INFO        80 | keep
+Py:WriteThinnedData    INFO        90 | keep
+Py:WriteThinnedData    INFO       100 | remove
+Py:WriteThinnedData    INFO ===================
+Py:WriteThinnedData    INFO Filter [True, False, False, False, True, True, True, True, True, True]
+Py:WriteThinnedData    INFO ... Processing [pre-thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> 2
+Py:WriteThinnedData    INFO  idx 6 -> 3
+Py:WriteThinnedData    INFO  idx 7 -> 4
+Py:WriteThinnedData    INFO  idx 8 -> 5
+Py:WriteThinnedData    INFO  idx 9 -> 6
+Py:WriteThinnedData    INFO Filter [True, True, True, True, True, False, False, True, True, False]
+Py:WriteThinnedData    INFO ... Processing [thinning] ...
+Py:WriteThinnedData    INFO ======== Index table =========
+Py:WriteThinnedData    INFO  idx 0 -> 0
+Py:WriteThinnedData    INFO  idx 1 -> -
+Py:WriteThinnedData    INFO  idx 2 -> -
+Py:WriteThinnedData    INFO  idx 3 -> -
+Py:WriteThinnedData    INFO  idx 4 -> 1
+Py:WriteThinnedData    INFO  idx 5 -> -
+Py:WriteThinnedData    INFO  idx 6 -> -
+Py:WriteThinnedData    INFO  idx 7 -> 2
+Py:WriteThinnedData    INFO  idx 8 -> 3
+Py:WriteThinnedData    INFO  idx 9 -> -
+Py:WriteThinnedData    INFO Decay is now:
+Py:WriteThinnedData    INFO  p1: px= 10.0
+Py:WriteThinnedData    INFO  p2: px= 50.0
+Py:WriteThinnedData    INFO  l1: px= 20.0
+Py:WriteThinnedData    INFO  l2: px= 100.0
+Py:WriteThinnedData    INFO Elephantino is now: 
+Py:WriteThinnedData    INFO  leg1: px= 10.0
+Py:WriteThinnedData    INFO  leg2: px= 50.0
+Py:WriteThinnedData    INFO  leg3: px= 80.0
+Py:WriteThinnedData    INFO  leg4: px= 90.0
+Py:WriteThinnedData    INFO  ear1: px= 20.0
+Py:WriteThinnedData    INFO  ear2: px= 100.0
+Py:WriteThinnedData    INFO [test3] has been performed.
+Py:WriteThinnedData    INFO Finalizing WriteThinnedData...
