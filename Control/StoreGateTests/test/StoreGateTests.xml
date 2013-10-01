@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="SgProducerConsumer" type="script" suite="StoreGateTests">
+      <package_atn>Control/StoreGateTests</package_atn>
+      <options_atn>chappy.py StoreGateTests/atn_test_sgProducerConsumer_jobOptions.py</options_atn>
+      <timelimit>15</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="SgProducerConsumerDataPool" type="script" suite="StoreGateTests">
+      <package_atn>Control/StoreGateTests</package_atn>
+      <options_atn>chappy.py StoreGateTests/atn_test_sgProducerConsumerDataPool_jobOptions.py</options_atn>
+      <timelimit>15</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>All tests SUCCESSFULLY completed</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="PyClidsTestWriter" type="script" suite="StoreGateTests">
+      <package_atn>Control/StoreGateTests</package_atn>
+      <options_atn>athena.py StoreGateTests/test_recordStlClids_jobOptions.py</options_atn>
+      <timelimit>15</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>code 0: "successful run"</successMessage>
+         <errorMessage>ERROR</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>
