@@ -1,0 +1,73 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+  //================================================================
+  template<class TruthCollection>
+  bool BasicTruthCollectionFilter<TruthCollection>::operator()(typename TruthCollection::const_iterator i) const {
+    return i->second.particleLink().isValid();
+  }
+
+  template<class OStream, class TruthCollection>
+  OStream& operator<<(OStream& os, const BasicTruthCollectionFilter<TruthCollection>& f) 
+  {
+    return os<<"BasicTruthCollectionFilter()";
+  }
+
+  //================================================================
+  template<class TruthCollection>
+  PCutTruthCollectionFilter<TruthCollection>::PCutTruthCollectionFilter(double cut) 
+    : m_probabilityCut(cut)
+  {}
+
+  template<class TruthCollection>
+  bool PCutTruthCollectionFilter<TruthCollection>::operator()(typename TruthCollection::const_iterator i) const {
+    return m_basicFilter(i) && (i->second.probability() >= m_probabilityCut);
+  }
+
+  template<class OStream, class TruthCollection>
+  OStream& operator<<(OStream& os, const PCutTruthCollectionFilter<TruthCollection>& f) 
+  {
+    return os<<"PCutTruthCollectionFilter(pcut="<<f.m_probabilityCut<<")";
+  }
+
+  //================================================================
+  template<class TruthCollection>
+  StatTruthCollectionFilter<TruthCollection>::StatTruthCollectionFilter(double cut) 
+    : m_probabilityCut(cut), m_numTruthTotal(0), m_numTruthInvalid(0), m_numTruthNoVtx(0)
+  {}
+
+  template<class TruthCollection>
+  bool StatTruthCollectionFilter<TruthCollection>::operator()(typename TruthCollection::const_iterator i) const {
+    m_numTruthTotal++;
+    if(!m_basicFilter(i)) {
+      m_numTruthInvalid++;
+      return false;
+    }
+    if(!i->second.particleLink()->production_vertex()) {
+      m_numTruthNoVtx++;
+      // No return here to behave the same as PCutTruthCollectionFilter.
+      //return false; 
+    }
+    if(i->second.probability() < m_probabilityCut) {
+      return false;
+    }
+    return true;
+  }
+
+  template<class OStream, class TruthCollection>
+  OStream& operator<<(OStream& os, const StatTruthCollectionFilter<TruthCollection>& f) 
+  {
+    return os<<"StatTruthCollectionFilter(probabilityCut="<<f.probabilityCut()
+	     <<",invalid="<<f.numTruthInvalid()
+	     <<",novtx="<<f.numTruthNoVtx()
+	     <<",total="<<f.numTruthTotal()
+	     <<")" 
+      ;
+  }
+
+  //================================================================
+
+}
