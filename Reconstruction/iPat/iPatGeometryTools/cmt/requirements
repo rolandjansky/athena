@@ -1,0 +1,31 @@
+package iPatGeometryTools
+########################################################### 
+## geometry description AlgTools (specific to iPatRec)
+########################################################### 
+
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+
+private
+use InDetIdentifier		InDetIdentifier-*		InnerDetector/InDetDetDescr
+use InDetReadoutGeometry	InDetReadoutGeometry-*		InnerDetector/InDetDetDescr
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use GaudiInterface		GaudiInterface-*		External
+use Identifier			Identifier-*			DetectorDescription
+use iPatGeometry		iPatGeometry-*			Reconstruction/iPat
+use iPatInterfaces		iPatInterfaces-*		Reconstruction/iPat
+
+library iPatGeometryTools      DetectorSelection.cxx	     \
+			       LayerAllocator.cxx	     \
+			       LayerNumberAllocator.cxx	     \				      
+			       SiDetectorLocator.cxx	     \
+			       components/*.cxx
+
+apply_pattern component_library		       
+apply_pattern declare_joboptions files="*.py"
+
+private
+
+	     
