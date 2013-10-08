@@ -1,0 +1,14 @@
+package D3PDMakerRoot
+
+use AtlasPolicy                AtlasPolicy-*     
+
+private
+use GaudiInterface             GaudiInterface-*        External
+use AtlasROOT                  AtlasROOT-*             External
+use AthenaKernel               AthenaKernel-*          Control
+use D3PDMakerInterfaces        D3PDMakerInterfaces-*   PhysicsAnalysis/D3PDMaker
+end_private
+
+library D3PDMakerRoot *.cxx components/*.cxx
+apply_pattern component_library
+
