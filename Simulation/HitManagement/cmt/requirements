@@ -1,0 +1,35 @@
+package HitManagement
+
+version HitManagement-00-00-01
+
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use EventInfo		EventInfo-*		Event
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+
+use AthenaKernel        AthenaKernel-*          Control
+use AthContainers       AthContainers-*         Control
+
+private
+use TestTools		TestTools-*		AtlasTest
+end_private
+
+macro HitManagement_linkopts " "
+ 
+apply_pattern installed_library
+library HitManagement ../src/*.cxx
+
+# apply_pattern declare_runtime_extras extras=" "
+
+# add the test pattern for the TimedHitPtrCollection
+private
+apply_pattern install_runtime
+use TestTools      TestTools-*        AtlasTest -no_auto_imports
+#apply_pattern UnitTest_run unit_test=TimedHitPtr
+apply_pattern UnitTest_run unit_test=TimedHitPtrCollection
+
+
