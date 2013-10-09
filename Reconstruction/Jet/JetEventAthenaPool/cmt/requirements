@@ -1,0 +1,33 @@
+package JetEventAthenaPool
+
+author Rolf Seuster <seuster@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-* 
+
+use GaudiInterface       GaudiInterface-*           External
+
+use AtlasSealCLHEP       AtlasSealCLHEP-*           Database -no_auto_imports
+
+use JetEventTPCnv	 JetEventTPCnv-*	    Reconstruction/Jet
+
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+
+private
+use JetEvent             JetEvent-*                 Reconstruction/Jet
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+
+
+public
+
+branches JetEventAthenaPool src
+
+apply_pattern poolcnv typesWithNamespace=$(jetEventAthenaPool_poolCnvTypes) \
+   files="-s=${JetEvent_root}/JetEvent JetMomentMap.h \
+          -s=${JetEvent_root}/JetEvent JetSamplingCollection.h JetCollection.h \
+          -s=${JetEvent_root}/JetEvent JetKeyDescriptor.h"
+
+macro_append JetEventAthenaPoolPoolCnv_dependencies " JetEventAthenaPool "
+
+library JetEventAthenaPool JetTPCnvPropertiesTool.cxx -s=components *.cxx
+apply_pattern component_library
