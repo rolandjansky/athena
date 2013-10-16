@@ -1,0 +1,1 @@
+ApplicationMgr.DLLs += { "TrigFake" };

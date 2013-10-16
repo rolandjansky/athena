@@ -1,0 +1,283 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/********************************************************************
+
+NAME:     FakeLvl1RoIatFixedEtaPhi.cxx
+PACKAGE:
+
+AUTHORS: J. Baines        john.baines@rl.ac.uk based on TrigSteer/Lvl1Converstion by
+         G. Comune        gianluca.comune@cern.ch (http://cern.ch/gcomune)
+
+CREATED:  Nov, 2002
+
+PURPOSE:  Fake Lvl1 RoI for seeding Lvl2
+
+Modified :
+
+
+********************************************************************/
+
+#include <stdlib.h>
+#include <vector>
+#include <utility>
+// INCLUDE GAUDI HEADER FILES:
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+
+# include "CLHEP/Units/SystemOfUnits.h"
+
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigFake/FakeLvl1RoIatFixedEtaPhi.h"
+#include "TrigFake/FakeRoI.h"
+#include "TrigFake/Trajectory.h"
+
+#include "TrigInterfaces/AlgoConfig.h"
+#include "TrigSteering/SteeringChain.h"
+#include "TrigNavigation/Navigation.h"
+#include "TrigNavigation/TriggerElement.h"
+#include "TrigConfHLTData/HLTTriggerElement.h"
+
+#include "CLHEP/Vector/ThreeVector.h"
+
+#include "TrigT1Result/EMTauRoI.h"
+#include "TrigT1Result/JetEnergyResult.h"
+
+#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
+#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+
+
+
+
+////////////////////////////////////////////////////////////////
+//  CONSTRUCTOR:
+
+FakeLvl1RoIatFixedEtaPhi::FakeLvl1RoIatFixedEtaPhi(const std::string& name, const std::string& type,
+						   const IInterface* parent)
+  : HLT::LvlConverter(name, type, parent), 
+    m_log(0),
+    m_roiId(0),
+    m_tauRoiPhi(99.),
+    m_tauRoiEta(0.),
+    m_emRoiPhi(99.),
+    m_emRoiEta(0.),
+    m_muonRoiPhi(99.),
+    m_muonRoiEta(0.),
+    m_jetRoiPhi(99.),
+    m_jetRoiEta(0.),
+    instance(""),
+    m_lvl1ID(1)
+{
+  declareProperty( "FakeEmRoiPhi", m_emRoiPhi=99.);
+  declareProperty( "FakeEmRoiEta", m_emRoiEta);
+
+  declareProperty( "FakeTauRoiPhi", m_tauRoiPhi=99.);
+  declareProperty( "FakeTauRoiEta", m_tauRoiEta);
+
+  declareProperty( "FakeMuonRoiPhi", m_muonRoiPhi=99.);
+  declareProperty( "FakeMuonRoiEta", m_muonRoiEta);
+
+  declareProperty( "FakeJetRoiPhi", m_jetRoiPhi=99.);
+  declareProperty( "FakeJetRoiEta", m_jetRoiEta);
+
+  declareProperty( "FakeEmRoiLabel",   m_emRoiLabel  ="EM01");
+  declareProperty( "FakeMuonRoiLabel", m_muonRoiLabel="MU06");
+  declareProperty( "FakeJetRoiLabel",  m_jetRoiLabel ="JT00");
+  declareProperty( "FakeTauRoiLabel",  m_tauRoiLabel ="TAU01");
+
+}
+
+// DESTRUCTOR:
+
+FakeLvl1RoIatFixedEtaPhi::~FakeLvl1RoIatFixedEtaPhi()
+{ }
+
+
+
+/////////////////////////////////////////////////////////////////
+// INITIALIZE METHOD:
+
+HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltInitialize()
+{
+
+  m_log = new MsgStream ( msgSvc(), name() );
+
+
+
+  // MSGStream object to output messages from your algorithm
+
+
+  (*m_log) << MSG::INFO << " FakeLvl1RoIatFixedEtaPhi creating the following RoI:  " << endreq;
+  if ( m_emRoiPhi <= M_PI && m_emRoiPhi >= -M_PI ) {
+    (*m_log) << MSG::INFO << " Forming fake EMROI with name " << m_emRoiLabel  << " at phi =  " <<
+      m_emRoiPhi << " eta = "  << m_emRoiEta << endreq;
+
+  } else {
+    (*m_log) << MSG::INFO << " Not forming fake EMROI" << endreq;
+  }
+
+  if ( m_tauRoiPhi <= M_PI && m_tauRoiPhi >= -M_PI ) {
+    (*m_log) << MSG::INFO << " Forming fake TAUROI with name " << m_tauRoiLabel  << " at phi =  " <<
+      m_tauRoiPhi << " eta = "  << m_tauRoiEta << endreq;
+
+  } else {
+    (*m_log) << MSG::INFO << " Not forming fake TAUROI" << endreq;
+  }
+
+
+
+  if ( m_muonRoiPhi <= M_PI && m_muonRoiPhi >= -M_PI ) {
+    (*m_log) << MSG::INFO << " Forming fake MUONROI with name " << m_muonRoiLabel  << "  at phi =  " <<
+      m_muonRoiPhi << " eta = "   << m_muonRoiEta << endreq;
+
+  } else {
+    (*m_log) << MSG::INFO << " Not forming fake MUONROI" << endreq;
+  }
+
+
+  if ( m_jetRoiPhi <= M_PI && m_jetRoiPhi >= -M_PI ) {
+    (*m_log) << MSG::INFO << " Forming fake JETROI with name " << m_jetRoiLabel  << "  at phi =  " <<
+      m_jetRoiPhi << " eta = "  <<  m_jetRoiEta << endreq;
+
+  } else {
+    (*m_log) << MSG::INFO << " Not forming fake JETROI" << endreq;
+  }
+
+  (*m_log) << MSG::INFO << name() << ": Initialization completed successfully" << endreq;
+
+  return HLT::OK;
+}
+
+
+/////////////////////////////////////////////////////////////////
+// EXECUTE METHOD:
+
+HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringChain*>& activeSteeringChains ) {
+
+
+
+
+
+  (*m_log) << MSG::DEBUG << "Executing FakeLvl1RoIatFixedEtaPhi" << endreq;
+
+  // activate all configured chains:
+  (*m_log) << MSG::DEBUG << "activating all configured chains." << endreq;
+
+  for (std::vector<HLT::SteeringChain*>::const_iterator it = m_configuredChains->begin();
+       it != m_configuredChains->end(); ++it) {
+    // set to active:
+    (*it)->setActive();
+    // set pass through state:
+    (*it)->setPassThroughState();
+    activeSteeringChains.push_back( (*it) );
+  }
+
+  HLT::TriggerElement* initialTE = m_config->getNavigation()->getInitialNode();
+  (*m_log) << MSG::DEBUG << "initial Navigation node created." << endreq;
+
+  // set Lvl1 ID in AlgoConfig:
+  m_config->setLvl1Id(m_lvl1ID);
+
+
+  m_roiId=0;
+  const float zspread = 168.;
+  if ( m_emRoiPhi <= M_PI && m_emRoiPhi >= -M_PI ) {
+    //    getStepSequencerPointer()->addTE(createSeed((key2keyStore*)0x00000000,m_emRoiEta, m_emRoiPhi, Frame::instance()->getId2Str(m_emRoiLabel), m_roiId++));
+
+    HLT::TriggerElement* roiTE = m_config->getNavigation()->addRoINode( initialTE );
+    TrigRoiDescriptor* roiDescriptor = new TrigRoiDescriptor(0, m_lvl1ID, m_roiId,
+							     m_emRoiEta, m_emRoiEta-0.1,m_emRoiEta+0.1,
+							     m_emRoiPhi,m_emRoiPhi-0.1,m_emRoiPhi+0.1,
+							     0., -zspread, zspread);
+
+
+    std::string key;
+    m_config->getNavigation()->attachFeature( roiTE, roiDescriptor, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+
+    // build threshold TE
+    unsigned int teId;
+    TrigConf::HLTTriggerElement::getId(m_emRoiLabel.c_str(), teId);
+    m_config->getNavigation()->addNode(roiTE, teId);
+
+    (*m_log) << MSG::DEBUG << "created "<< m_emRoiLabel << endreq;
+  }
+
+  if ( m_tauRoiPhi <= M_PI && m_tauRoiPhi >= -M_PI ) {
+    //    getStepSequencerPointer()->addTE(createSeed((key2keyStore*)0x00000000,m_tauRoiEta, m_tauRoiPhi, Frame::instance()->getId2Str(m_tauRoiLabel), m_roiId++));
+
+    HLT::TriggerElement* roiTE = m_config->getNavigation()->addRoINode( initialTE );
+    TrigRoiDescriptor* roiDescriptor = new TrigRoiDescriptor(0, m_lvl1ID, m_roiId,
+							     m_tauRoiEta,m_tauRoiEta-0.4,m_tauRoiEta+0.4,
+							     m_tauRoiPhi,m_tauRoiPhi-0.4,m_tauRoiPhi+0.4,
+							     0., -zspread, zspread);
+
+
+    std::string key;
+    m_config->getNavigation()->attachFeature( roiTE, roiDescriptor, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+
+
+    // build threshold TE
+    unsigned int teId;
+    TrigConf::HLTTriggerElement::getId(m_tauRoiLabel.c_str(), teId);
+    m_config->getNavigation()->addNode(roiTE, teId);
+    (*m_log) << MSG::DEBUG << "created" << m_tauRoiLabel << endreq;
+  }
+
+  if ( m_muonRoiPhi <= M_PI && m_muonRoiPhi >= -M_PI ) {
+    //    getStepSequencerPointer()->addTE(createSeed((key2keyStore*)0x00000000, m_muonRoiEta, m_muonRoiPhi, Frame::instance()->getId2Str(m_muonRoiLabel) ,m_roiId++));
+    HLT::TriggerElement* roiTE = m_config->getNavigation()->addRoINode( initialTE );
+    TrigRoiDescriptor* roiDescriptor = new TrigRoiDescriptor(0, m_lvl1ID, m_roiId,
+							     m_muonRoiEta,m_muonRoiEta-0.1,m_muonRoiEta+0.1,
+							     m_muonRoiPhi,m_muonRoiPhi-0.1,m_muonRoiPhi+0.1,
+							     0., -zspread, zspread);
+
+
+
+
+    std::string key;
+    m_config->getNavigation()->attachFeature( roiTE, roiDescriptor, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+
+
+    // build threshold TE
+    unsigned int teId;
+    TrigConf::HLTTriggerElement::getId(m_muonRoiLabel.c_str(), teId);
+    m_config->getNavigation()->addNode(roiTE, teId);
+    (*m_log) << MSG::DEBUG << "created"<< m_muonRoiLabel << endreq;
+
+  }
+
+  if ( m_jetRoiPhi <= M_PI && m_jetRoiPhi >= -M_PI ) {
+    //    getStepSequencerPointer()->addTE(createSeed((key2keyStore*)0x00000000,m_jetRoiEta, m_jetRoiPhi, Frame::instance()->getId2Str(m_jetRoiLabel) ,m_roiId++));
+    HLT::TriggerElement* roiTE = m_config->getNavigation()->addRoINode( initialTE );
+    TrigRoiDescriptor* roiDescriptor = new TrigRoiDescriptor(0, m_lvl1ID, m_roiId,
+							     m_jetRoiEta,m_jetRoiEta-0.4,m_jetRoiEta+0.4,
+							     m_jetRoiPhi,m_jetRoiPhi-0.4,m_jetRoiPhi+0.4,   
+							     0., -zspread, zspread);
+
+    std::string key;
+    m_config->getNavigation()->attachFeature( roiTE, roiDescriptor, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+
+
+    // build threshold TE
+    unsigned int teId;
+    TrigConf::HLTTriggerElement::getId(m_jetRoiLabel.c_str(), teId);
+    m_config->getNavigation()->addNode(roiTE, teId);
+    (*m_log) << MSG::DEBUG << "created " << m_jetRoiLabel << endreq;
+  }
+
+  m_lvl1ID++;
+  return HLT::OK;
+}
+
+/////////////////////////////////////////////////////////////////
+// FINALIZE METHOD:
+
+HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltFinalize() 
+{ 
+  delete m_log; m_log = 0;
+  return HLT::OK; 
+}
