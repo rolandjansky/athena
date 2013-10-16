@@ -1,0 +1,37 @@
+package TrigCombinedEventTPCnv
+	
+author Camille B.-Champagne <camille.belanger-champagne@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*    
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+use  TrigCombinedEvent          TrigCombinedEvent-*             Trigger/TrigEvent
+use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
+private
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AtlasBoost                 AtlasBoost-*                    External
+use  AtlasReflex                AtlasReflex-*                   External
+end_private
+
+branches TrigCombinedEventTPCnv src
+
+library TrigCombinedEventTPCnv *.cxx
+apply_pattern tpcnv_library
+	
+	
+private
+
+# Create a dictionary for the persistent representation
+# of transient classes.  If we make a single dictionary,
+# the compiler runs out of memory on the generated source.
+
+apply_pattern lcgdict dict=TrigCombinedEventTPCnv1  \
+  selectionfile=selection1.xml \
+  headerfiles="../TrigCombinedEventTPCnv/TrigCombinedEventTPCnvDict1.h"
+	
+#apply_pattern lcgdict dict=OLD_TrigCombinedEventTPCnv1  \
+#  selectionfile=OLD_selection1.xml \
+#  headerfiles="../TrigCombinedEventTPCnv/TrigCombinedEventTPCnvDict1.h"
+	
+end_private

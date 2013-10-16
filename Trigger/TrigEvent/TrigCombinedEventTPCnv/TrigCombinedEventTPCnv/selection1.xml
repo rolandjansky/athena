@@ -1,0 +1,11 @@
+<lcgdict>
+
+<!-- TrigCompositeContainer -->
+  <class name="TrigCompositeContainer_p1" id="6D16EA6B-968C-41F0-B5E8-9CC6D5BD7F9A"/>
+  <class name="std::vector<TrigCompositeContainer_p1>" />
+	
+<!-- TrigComposite -->
+  <class name="TrigComposite_p1" id="53F70884-38EE-4D08-9F03-FA8BED725B63"/>
+  <class name="std::vector<TrigComposite_p1>" />
+
+</lcgdict>
