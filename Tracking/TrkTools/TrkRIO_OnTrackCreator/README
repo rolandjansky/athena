@@ -1,0 +1,24 @@
+General Info
+=============
+This package provides the central RIO_OnTrackCreator tool 
+for turning PrepRawData into RIO_OnTrack, i.e applying
+track-candidate dependent position and error corrections
+to the hits. It also provides central error scaling.
+The concrete corrections are in the responsibility of
+the sub-detectors.
+
+Documentation is on the wiki:
+Atlas.TrkToolInterfaces      (abstract interface)
+Atlas.TrkRIO_OnTrackCreator  (this package)
+
+
+Recipe for error scaling and upload to conditions:
+- set up cmt and example package (to get AthenaPOOL etc)
+- create local DB with py script from ./share:
+  python make_trkerror.py
+- try local DB out by adding to reco job options:
+  IOVDbSvc.Folders += \
+  ["<dbConnection>impl=cool;techno=sqlite;schema=mycool.db;X:OFLP130</dbConnection> /GLOBAL/TrkErrorScaling <tag>GlobalTrkErrorScaling_nominal</tag> " ]
+- once constants are considered "final", upload the local SQlite file
+  to COOL by following the instructions on
+  Atlas.CoolPublishing
