@@ -1,0 +1,10 @@
+package VP1GeometryPlugin
+
+author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+
+use AtlasPolicy        AtlasPolicy-*
+use VP1GeometrySystems VP1GeometrySystems-* graphics/VP1/VP1Systems
+use VP1GuideLineSystems  VP1GuideLineSystems-*  graphics/VP1/VP1Systems
+
+apply_pattern vp1plugin
