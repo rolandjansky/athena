@@ -1,0 +1,61 @@
+<ui version="4.0" >
+ <class>GeoSysSettingsTreeBrowserForm</class>
+ <widget class="QWidget" name="GeoSysSettingsTreeBrowserForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>214</width>
+    <height>165</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>GeoModel volume hierachy:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="VP1GeoTreeView" name="treeView_volumebrowser" />
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="_4" >
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1GeoTreeView</class>
+   <extends>QTreeView</extends>
+   <header>VP1GeometrySystems/VP1GeoTreeView.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
