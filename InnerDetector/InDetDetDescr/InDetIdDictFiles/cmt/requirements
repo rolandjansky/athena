@@ -1,0 +1,9 @@
+package InDetIdDictFiles
+
+author Grant.Gofine<Grant.Gorfine@cern.ch>
+
+use AtlasPolicy		       AtlasPolicy-*
+
+# have all xml files installed
+apply_pattern declare_xmls
+
