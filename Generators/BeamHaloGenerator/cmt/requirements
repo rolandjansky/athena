@@ -1,0 +1,29 @@
+package BeamHaloGenerator
+
+author W. H. Bell <W.Bell@cern.ch>
+
+public
+
+use AtlasHepMC          AtlasHepMC-* 		External
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface	GaudiInterface-*	External
+use GeneratorModules    GeneratorModules-* 	Generators
+
+private
+
+use AthenaKernel        AthenaKernel-*          Control
+
+public
+
+use AtlasROOT           AtlasROOT-*             External
+
+private
+
+use AtlasCLHEP		AtlasCLHEP-*		External
+use HepPDT		*			LCG_Interfaces
+
+public
+
+# Build the library (and export the headers)
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"
