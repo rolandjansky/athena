@@ -1,0 +1,22 @@
+package Gauginos
+
+version Gauginos-00-00-01
+
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+use FadsPhysics                 FadsPhysics-*                   Simulation/G4Sim/FADS
+use Geant4                      Geant4-*                        External
+
+private
+use G4AtlasControl              G4AtlasControl-*                Simulation/G4Atlas
+end_private
+
+include_dirs "$(Gauginos_root)"
+
+library Gauginos ../src/*.cxx
+
+apply_pattern linked_library
+
