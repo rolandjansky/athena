@@ -1,0 +1,33 @@
+package MinBiasScintillator
+
+author Alexander Solodkov 
+
+use AtlasPolicy            AtlasPolicy-*
+use AtlasDoxygen           AtlasDoxygen-*               Tools
+
+use AthenaKernel           AthenaKernel-*               Control
+use FadsSensitiveDetector  FadsSensitiveDetector-*      Simulation/G4Sim/FADS
+use SimHelpers             SimHelpers-*                 Simulation/G4Sim 
+use TileSimEvent           TileSimEvent-*               TileCalorimeter
+
+private
+
+use Geant4                 Geant4-*                     External
+use GaudiInterface         GaudiInterface-*             External
+use StoreGate              StoreGate-*                  Control
+use CaloIdentifier         CaloIdentifier-*             Calorimeter
+use CaloDetDescr           CaloDetDescr-*               Calorimeter
+use TileSimUtils           TileSimUtils-*               TileCalorimeter
+
+end_private
+
+library MinBiasScintillator ../src/*.cc
+
+apply_pattern linked_library
+
+#=======================================================
+private
+
+macro_append DOXYGEN_FILE_PATTERNS    " *.hh *.cc "
+
+end_private
