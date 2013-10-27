@@ -1,0 +1,13 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!ELEMENT PHBARREL (PhantomBarrel*)+>
+
+<!ELEMENT  PhantomBarrel  EMPTY>
+<!ATTLIST  PhantomBarrel
+           name                       ID     #REQUIRED
+           ZLength                    CDATA  #REQUIRED
+           RMin                       CDATA  #REQUIRED
+           RMax                       CDATA  #REQUIRED>
+
+
+

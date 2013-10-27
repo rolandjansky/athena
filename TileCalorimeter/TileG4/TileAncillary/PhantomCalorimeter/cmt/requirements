@@ -1,0 +1,39 @@
+package PhantomCalorimeter
+
+author Franck Martin 
+
+use AtlasPolicy            AtlasPolicy-*
+use AtlasDoxygen           AtlasDoxygen-*               Tools
+
+use Geant4                 Geant4-*                     External
+use FadsGeometry           FadsGeometry-*               Simulation/G4Sim/FADS
+use FadsXMLParser          FadsXMLParser-*              Simulation/G4Sim/FADS
+use FadsSensitiveDetector  FadsSensitiveDetector-*      Simulation/G4Sim/FADS
+use TileG4DetDescr         TileG4DetDescr-*             TileCalorimeter/TileG4/TileAncillary
+use TileSimEvent           TileSimEvent-*               TileCalorimeter
+
+private
+
+use AtlasXercesC           AtlasXercesC-*               External
+use GaudiInterface         GaudiInterface-*             External
+use StoreGate              StoreGate-*                  Control
+use FadsMaterial           FadsMaterial-*               Simulation/G4Sim/FADS
+use CaloIdentifier         CaloIdentifier-*             Calorimeter
+
+end_private
+
+library PhantomCalorimeter ../src/*.cc
+
+apply_pattern component_library
+
+apply_pattern declare_runtime_extras extras="phantombarrel.dtd \
+                                             phantombarrel.xml \
+                                             TileAncillary.mac \
+                                             phantomvis.mac "
+
+#=======================================================
+private
+
+macro_append DOXYGEN_FILE_PATTERNS    " *.hh *.cc "
+
+end_private

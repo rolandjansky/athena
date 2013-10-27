@@ -1,0 +1,80 @@
+/Geometry/Volumes/SetInvisible   CTB
+/Geometry/Volumes/SetInvisible   CTBLIARTILE
+
+/Geometry/Volumes/SetInvisible  TileTB
+/Geometry/Volumes/SetColor      TileTB green
+
+/Geometry/Volumes/SetVisible    TileTB::TileBarrel
+/Geometry/Volumes/SetColor      TileTB::TileBarrel green
+
+/Geometry/Volumes/SetVisible    TileTB::TileEBarrel
+/Geometry/Volumes/SetColor      TileTB::TileEBarrel red
+
+/Geometry/Volumes/SetInvisible  TileTB::TileExtended
+/Geometry/Volumes/SetColor      TileTB::TileExtended yellow
+
+/Geometry/Volumes/SetInvisible  TileTB::TileGirder
+/Geometry/Volumes/SetColor      TileTB::TileGirder gray
+
+/Geometry/Volumes/SetInvisible  TileTB::TileAbsorberChild
+
+/Geometry/Volumes/SetVisible    TileTB::TilePlug1
+/Geometry/Volumes/SetColor      TileTB::TilePlug1 yellow
+
+/Geometry/Volumes/SetVisible    TileTB::TilePlug2
+/Geometry/Volumes/SetColor      TileTB::TilePlug2 yellow
+
+/Geometry/Volumes/SetVisible    TileTB::TilePlate
+/Geometry/Volumes/SetColor      TileTB::TilePlate green
+
+/Geometry/Volumes/SetVisible    TileTB::TileAbsorber
+/Geometry/Volumes/SetColor      TileTB::TileAbsorber yellow
+
+/Geometry/Volumes/SetInvisible  TileTB::TileEPHole
+/Geometry/Volumes/SetColor      TileTB::TileEPHole black
+
+/Geometry/Volumes/SetVisible    TileTB::GirderIron
+/Geometry/Volumes/SetColor      TileTB::GirderIron blue
+/Geometry/Volumes/SetInvisible  TileTB::GirderAluminum 
+/Geometry/Volumes/SetColor      TileTB::GirderAluminum magenta
+/Geometry/Volumes/SetInvisible  TileTB::GirderElectronics
+/Geometry/Volumes/SetColor      TileTB::GirderElectronics magenta
+/Geometry/Volumes/SetInvisible  TileTB::TilePeriod
+/Geometry/Volumes/SetColor      TileTB::TilePeriod gray
+/Geometry/Volumes/SetInvisible  TileTB::TileGlue
+/Geometry/Volumes/SetColor      TileTB::TileGlue yellow
+/Geometry/Volumes/SetInvisible  TileTB::TileScintillator
+/Geometry/Volumes/SetColor      TileTB::TileScintillator blue
+/Geometry/Volumes/SetInvisible  TileTB::TileWrapper
+/Geometry/Volumes/SetColor      TileTB::TileWrapper red
+
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerRL
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerTB
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerFE
+/Geometry/Volumes/SetInvisible PhantomBarrel::IronLayerBE
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerRL
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerTB
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerFE
+/Geometry/Volumes/SetInvisible PhantomBarrel::AluLayerBE
+/Geometry/Volumes/SetInvisible PhantomBarrel 
+/Geometry/Volumes/SetVisible PhantomBarrel::LeadLayer
+/Geometry/Volumes/SetColor PhantomBarrel::LeadLayer yellow
+/Geometry/Volumes/SetVisible PhantomBarrel::IronLayer
+/Geometry/Volumes/SetColor PhantomBarrel::IronLayer red
+/Geometry/Volumes/SetVisible PhantomBarrel::ScintillatorLayer
+/Geometry/Volumes/SetColor PhantomBarrel::ScintillatorLayer blue
+
+/Geometry/Volumes/SetInvisible CombinedScintillator 
+/Geometry/Volumes/SetVisible CombinedScintillator::CScintillatorLayer
+/Geometry/Volumes/SetColor CombinedScintillator::CScintillatorLayer green
+
+/Geometry/Volumes/SetInvisible MuonWall 
+/Geometry/Volumes/SetVisible MuonWall::MuScintillatorLayer
+/Geometry/Volumes/SetColor MuonWall::MuScintillatorLayer red
+
+/Geometry/Volumes/SetInvisible DeadMaterial
+/Geometry/Volumes/SetVisible DeadMaterial::DMIronLayerX
+/Geometry/Volumes/SetColor DeadMaterial::DMIronLayerX red
+/Geometry/Volumes/SetVisible DeadMaterial::DMIronLayerZ
+/Geometry/Volumes/SetColor DeadMaterial::DMIronLayerZ green
+

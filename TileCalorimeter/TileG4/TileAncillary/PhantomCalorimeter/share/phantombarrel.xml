@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE PHBARREL SYSTEM "phantombarrel.dtd">
+
+<PHBARREL>
+
+<PhantomBarrel  name="PhantomBarrel"
+                ZLength="400."
+                RMin="1100."
+                RMax="1670."
+                />
+
+</PHBARREL>

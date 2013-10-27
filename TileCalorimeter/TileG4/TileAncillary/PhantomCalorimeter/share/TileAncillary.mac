@@ -1,0 +1,85 @@
+/load PhantomCalorimeter
+/load MuonWall
+/load CombinedScintillator
+/load DeadMaterial
+
+# i add all this :
+# phantom calorimeter :
+/Geometry/GetFacility PhantomBarrel PhantomBarrel
+/DetDescription/ReadFile phantombarrel.xml
+/PhantomBarrel/GetDescription PhantomBarrel
+/PhantomBarrel/MoveTo 3300.0 0.0 0.0 mm
+/CTBLIARTILE/AddDetector PhantomBarrel
+
+/SenDetector/UseSensitiveDetector PhantomBarrelSD PhantomBarrelSD
+/Geometry/AssignSD PhantomBarrel ScintillatorLayer PhantomBarrelSD
+/PhantomBarrelSD/GetDescription PhantomBarrel
+
+# Muon Wall
+/Geometry/GetFacility MuonWall MuonWall
+/DetDescription/ReadFile muonwall.xml
+/MuonWall/GetDescription MuonWall
+/MuonWall/MoveTo 2500.0 0.0 0.0 mm
+/CTBLIARTILE/AddDetector MuonWall
+
+/SenDetector/UseSensitiveDetector MuonWallSD MuonWallSD
+/Geometry/AssignSD MuonWall MuScintillatorLayer MuonWallSD
+/MuonWallSD/GetDescription MuonWall
+
+/echo "CTB_G4Sim: Muonwall is finished"
+
+# scintillator
+/Geometry/GetFacility CombinedScintillator CombinedScintillator
+/DetDescription/ReadFile combinedscintillator.xml
+/CombinedScintillator/GetDescription CombinedScintillator
+/CombinedScintillator/MoveTo 2800.0 0.0 2000.0 mm
+/CTBLIARTILE/AddDetector CombinedScintillator
+
+/echo "CTB_G4Sim: Combined scintillator is finished"
+
+/SenDetector/UseSensitiveDetector CombinedScintillatorSD CombinedScintillatorSD
+/Geometry/AssignSD CombinedScintillator CScintillatorLayer CombinedScintillatorSD
+/CombinedScintillatorSD/GetDescription CombinedScintillator
+
+/echo "CTB_G4Sim: C Scintillator SD  is finished"
+
+# scintillator
+/Geometry/GetFacility DeadMaterial DeadMaterial
+/DetDescription/ReadFile deadmaterial.xml
+/DeadMaterial/GetDescription DeadMaterial
+/DeadMaterial/MoveTo 2700.0 0.0 -2000.0 mm
+/CTBLIARTILE/AddDetector DeadMaterial
+
+
+/Geometry/PrintFacilities
+
+/macro/execute phantomvis.mac
+
+/load G4UserActions
+/load G4EventGraphics
+/Actions/RegisterForAction DrawEventAction BeginOfEvent
+/Actions/RegisterForAction DrawEventAction EndOfEvent
+/Geometry/Volumes/SetMaxStep IDET::IDET 5 cm
+/EventGraphics/TrackDisplayLevel 1
+/EventGraphics/TrackColorScheme 3
+/EventGraphics/TrackPtCut .3 GeV
+/EventGraphics/NeutralTracks Off
+
+##### Visualization setup
+# /vis/open VRML1FILE
+# /vis/scene/create
+# /vis/sceneHandler/attach
+# /vis/viewer/flush
+
+#==================== Visualization stuff ======================================
+# -- Visualization setup
+#/vis/open DAWNFILE
+/vis/open VRML1FILE
+/vis/scene/create
+/vis/sceneHandler/attach
+
+# --  Draw Setup
+/vis/drawVolume
+/vis/viewer/refresh
+/vis/viewer/update
+
