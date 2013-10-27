@@ -1,0 +1,36 @@
+package LarCrate
+
+author Franck Martin 
+
+use AtlasPolicy            AtlasPolicy-*
+use AtlasDoxygen           AtlasDoxygen-*               Tools
+
+use FadsGeometry           FadsGeometry-*               Simulation/G4Sim/FADS
+use FadsXMLParser          FadsXMLParser-*              Simulation/G4Sim/FADS
+use TileG4DetDescr         TileG4DetDescr-*             TileCalorimeter/TileG4/TileAncillary
+
+private
+
+use Geant4                 Geant4-*                     External
+use AtlasXercesC           AtlasXercesC-*               External
+use GaudiInterface         GaudiInterface-*             External
+use FadsMaterial           FadsMaterial-*               Simulation/G4Sim/FADS
+
+end_private
+
+library LarCrate ../src/*.cc
+
+apply_pattern component_library
+
+apply_pattern declare_runtime_extras extras="larcrate.dtd \
+                                             larcrate.xml \
+                                             material.dtd \
+                                             Tile_materials.xml \
+                                             LArCrate_materials.xml"
+
+#=======================================================
+private
+
+macro_append DOXYGEN_FILE_PATTERNS    " *.hh *.cc "
+
+end_private

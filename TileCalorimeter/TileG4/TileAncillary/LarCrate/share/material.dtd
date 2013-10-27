@@ -1,0 +1,35 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!-- @version: -->
+
+<!ELEMENT FADS (element*|composite*)+>
+
+<!ELEMENT  element  EMPTY>
+<!ATTLIST  element 
+           symbol    CDATA  #IMPLIED
+           name      ID     #REQUIRED
+           z         CDATA  #REQUIRED
+           aweight   CDATA  #REQUIRED
+           density   CDATA  #IMPLIED
+		   radlenght CDATA  #IMPLIED>
+	   
+<!ELEMENT  composite ( addmaterial)+>
+<!ATTLIST  composite
+           name     ID     #REQUIRED
+           density  CDATA  #REQUIRED
+		   radlenght CDATA  #IMPLIED>
+
+<!ELEMENT  addmaterial  ( fractionmass | natoms ) >
+<!ATTLIST  addmaterial
+           material     CDATA  #REQUIRED
+>
+
+<!ELEMENT fractionmass EMPTY>
+<!ATTLIST fractionmass
+          fraction      CDATA #REQUIRED
+>
+
+<!ELEMENT natoms EMPTY>
+<!ATTLIST natoms
+          n             CDATA #REQUIRED
+>

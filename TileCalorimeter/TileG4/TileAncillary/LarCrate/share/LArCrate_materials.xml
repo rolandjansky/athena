@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "material.dtd">
+
+<FADS>
+
+<!-- Air -->
+  <composite  name="TileAir" density="0.00129">
+    <addmaterial material="Nitrogen"> <fractionmass fraction="0.7494"/> </addmaterial>
+    <addmaterial material="Oxygen"> <fractionmass fraction="0.2369"/> </addmaterial>
+    <addmaterial material="Argon"> <fractionmass fraction="0.0129"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <fractionmass fraction="0.0008"/> </addmaterial>
+  </composite>
+
+<!-- Material in crate --> 
+  <composite  name="LArCrateMaterial" density="0.2876">
+    <addmaterial material="Aluminum"> <fractionmass fraction="0.7744"/></addmaterial>
+    <addmaterial material="SiO2CondEpox"> <fractionmass fraction="0.2216"/> </addmaterial>
+    <addmaterial material="TileAir"> <fractionmass fraction="0.0040"/> </addmaterial>
+  </composite> 
+
+</FADS>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "material.dtd">
+
+<FADS>
+
+<!-- Electronic boards -->
+
+  <composite name="SiO2" density="2.20">
+    <addmaterial material="Si"> <natoms n="1"/> </addmaterial>
+    <addmaterial material="O"> <natoms n="2"/> </addmaterial>
+  </composite>
+
+  <composite name="CondEpox" density="10.50">
+    <addmaterial material="Ag"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+  <composite name="SiO2CondEpox" density="1.7">
+    <addmaterial material="SiO2"> <fractionmass fraction="0.60"/> </addmaterial>
+    <addmaterial material="CondEpox"> <fractionmass fraction="0.40"/> </addmaterial>
+  </composite>
+
+<!-- Glue -->
+  <composite  name="Glue" density="1.0">
+    <addmaterial material="C">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="H"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+<!-- Scintillator -->
+
+  <composite  name="Scintillator" density="1.032">
+    <addmaterial material="C">   <natoms n="1"/> </addmaterial>
+    <addmaterial material="H"> <natoms n="1"/> </addmaterial>
+  </composite>
+
+<!-- Vacuum -->
+
+  <composite  name="TileVacuum" density="1E-22">
+    <addmaterial material="Nitrogen"> <fractionmass fraction="0.7494"/> </addmaterial>
+    <addmaterial material="Oxygen"> <fractionmass fraction="0.2369"/> </addmaterial>
+    <addmaterial material="Argon"> <fractionmass fraction="0.0129"/> </addmaterial>
+    <addmaterial material="Hydrogen"> <fractionmass fraction="0.0008"/> </addmaterial>
+  </composite>
+
+</FADS>
+
