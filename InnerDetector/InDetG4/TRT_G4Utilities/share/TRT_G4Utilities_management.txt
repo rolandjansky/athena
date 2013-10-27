@@ -1,0 +1,148 @@
+
+
+  < PrintListOfParameters = 0 >  0, 1
+
+
+  < PrintBarrelParameters = 0 >  0, 1
+
+  < PrintParametersOfModulesA = 0 >  0, 1, 2 (+local coordinates of straws)
+
+  < PrintParametersOfModulesB = 0 >  0, 1, 2 (+local coordinates of straws)
+
+  < PrintParametersOfModulesC = 0 >  0, 1, 2 (+local coordinates of straws)
+
+  < PrintParametersOfBarrelStraws = 0 >  0, 1
+
+  < PrintParametersOfCoolingTube = 0 >  0, 1
+
+
+  < PrintEndCapParameters = 0 >  0, 1
+
+  < PrintParametersOfWheelsA = 0 >  0, 1
+
+  < PrintParametersOfWheelsB = 0 >  0, 1
+  
+  < PrintParametersOfWheelsC = 0 >  0, 1
+
+  < PrintParametersOfStrawPlanes = 0 >  0, 1
+
+
+  < PrintParametersForBarrelHits = 0 >  0, 1, 2 (+global coordinates of straws)
+
+  < PrintParametersForEndCapHits = 0 >  0, 1
+
+
+  < PrintMessages = 0 >  0, 1 (constructors, destructors), 2 (+methods)
+
+
+  < ParameterisedStrawsInModulesBC = 1 >  0, 1, 2 (faster, more memory)
+
+
+  < WheelsC = 1 >  0, 1
+
+  < SectorsABC = 0 >  0, 1
+
+  < NumberOfSectorsAB = 24 >
+
+  Allowed numbers of sectors in straw planes A and B (and number of straws in
+    one sector): 2(384), 3(256), 4(192), 6(128), 8(96), 12(64), 16(48), 24(32),
+    32(24), 48(16), 64(12), 96(8), 128(6), 192(4), 384(2).
+
+  < NumberOfSectorsC = 24 >
+
+  Allowed numbers of sectors in straw planes C (and number of straws in one
+    sector): 2(288), 3(192), 4(144), 6(96), 8(72), 9(64), 12(48), 16(36),
+    18(32), 24(24), 32(18), 36(16), 48(12), 72(8), 96(6), 144(4),
+    288(2).
+
+  < ParameterisedSectors = 0 >  0, 1, 2 (faster, more memory)
+
+  < ParameterisedEndCapStraws = 0 >  0, 1, 2, 3 (1->2->3: faster, more memory)
+
+
+  < HitsWithZeroEnergyDeposit = 0 >  0, 1
+
+  < BarrelIdentifier = 1 >  1, 2 (faster, more memory)
+
+  < LocalCoordinatesOfHits = 1 >  1 (top transform), 2
+
+
+  < EnergyThreshold = 4.9 >  keV  (for TR energy correction)
+  
+  < ProbabilityThreshold = 0.85 >
+  
+  < EnergyDepositCorrection = 4. >  keV
+
+
+  < TestLocalCoordinatesOfHits = 0 >  0, 1
+
+
+  < PrintHits = 0 >  0, 1
+
+
+  Notations of colours:
+       1 - red,
+       2 - green,
+       3 - blue,
+       4 - yellow,
+       5 - magenta,
+       6 - cyan,
+       7 - black.
+
+
+  Visualization of detector geometry:
+
+  < Visualization = 0 >  0, 1
+
+  < VisibilityOfBarrelVolume = 2 >     0, 1, 2, 3, 4, 5, 6, 7
+  < VisibilityOfBarrelInnerSupport = 0 >
+  < VisibilityOfBarrelOuterSupport = 0 >
+  < VisibilityOfShellsA = 0 >
+  < VisibilityOfShellsB = 0 >
+  < VisibilityOfShellsC = 0 >
+  < VisibilityOfRadiatorsA = 0 >
+  < VisibilityOfRadiatorsB = 0 >
+  < VisibilityOfRadiatorsC = 0 >
+  < VisibilityOfCoolingTubes = 0 >
+  < VisibilityOfCoolingFluid = 0 >
+  < VisibilityOfStrawHoles = 0 >       0
+  < VisibilityOfStraws = 0 >           0
+  < VisibilityOfGasL = 0 >             0
+  < VisibilityOfGasS = 0 >             0
+  < VisibilityOfDeadRegions = 0 >      0
+  < VisibilityOfLongDeadRegions = 0 >  0
+  < VisibilityOfTwisters = 0 >         0
+  < VisibilityOfWires = 0 >            0
+
+  < VisibilityOfEndCapVolume = 2 >  0, 1, 2, 3, 4, 5, 6, 7
+  < VisibilityOfSCTCables = 0 >
+  < VisibilityOfSCTCooling = 0 >
+  < VisibilityOfSCTSupport = 0 >
+  < VisibilityOfWheelsA = 0 >
+  < VisibilityOfWheelsB = 0 >
+  < VisibilityOfWheelsC = 0 >
+  < VisibilityOfInnerSupportsA = 0 >
+  < VisibilityOfInnerSupportsB = 0 >
+  < VisibilityOfInnerSupportsC = 0 >
+  < VisibilityOfOuterSupportsA = 0 >
+  < VisibilityOfOuterSupportsB = 0 >
+  < VisibilityOfOuterSupportsC = 0 >
+  < VisibilityOfMainRadiatorsA = 0 >
+  < VisibilityOfThinRadiatorsA = 0 >
+  < VisibilityOfMainRadiatorsB = 0 >
+  < VisibilityOfThinRadiatorsB = 0 >
+  < VisibilityOfMiddleRadiatorsB = 0 >
+  < VisibilityOfMainRadiatorsC = 0 >
+  < VisibilityOfThinRadiatorsC = 0 >
+  < VisibilityOfStrawPlanesAB = 0 >
+  < VisibilityOfStrawPlanesC = 0 >
+  < VisibilityOfSectorsAB = 0 >
+  < VisibilityOfSectorsC = 0 >
+  < VisibilityOfStrawsAB = 0 >       0
+  < VisibilityOfStrawsC = 0 >        0
+  < VisibilityOfWiresAB = 0 >        0
+  < VisibilityOfWiresC = 0 >         0
+  < VisibilityOfDeadRegionsAB = 0 >  0
+  < VisibilityOfDeadRegionsC = 0 >   0
+  < VisibilityOfGasAB = 0 >          0
+  < VisibilityOfGasC = 0 >           0
