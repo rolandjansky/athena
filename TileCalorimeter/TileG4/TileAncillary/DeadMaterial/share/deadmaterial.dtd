@@ -1,0 +1,14 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!ELEMENT DEADMAT (DeadMaterial*)+>
+
+<!ELEMENT  DeadMaterial  EMPTY>
+<!ATTLIST  DeadMaterial
+           name                       ID     #REQUIRED
+           ZLength                    CDATA  #REQUIRED
+           YLength                    CDATA  #REQUIRED
+           XLength                    CDATA  #REQUIRED>
+
+
+
+

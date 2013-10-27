@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE DEADMAT SYSTEM "deadmaterial.dtd">
+
+<DEADMAT>
+
+<DeadMaterial  name="DeadMaterial"
+               ZLength="150."
+               YLength="1935."
+               XLength="150."
+                />
+
+</DEADMAT>
