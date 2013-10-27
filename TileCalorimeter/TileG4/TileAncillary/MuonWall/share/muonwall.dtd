@@ -1,0 +1,13 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!ELEMENT MUWALL (MuonWall*)+>
+
+<!ELEMENT  MuonWall  EMPTY>
+<!ATTLIST  MuonWall
+           name                       ID     #REQUIRED
+           ZLength                    CDATA  #REQUIRED
+           YLength                    CDATA  #REQUIRED
+           XLength                    CDATA  #REQUIRED>
+
+
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE MUWALL SYSTEM "muonwall.dtd">
+
+<MUWALL>
+
+<MuonWall  name="MuonWall"
+           ZLength="200."
+           YLength="400."
+           XLength="20."
+                />
+
+</MUWALL>
