@@ -1,0 +1,15 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!ELEMENT SCLARTIL (CombinedScintillator*)+>
+
+<!ELEMENT  CombinedScintillator  EMPTY>
+<!ATTLIST  CombinedScintillator
+           name                       ID     #REQUIRED
+           rMin                       CDATA  #REQUIRED
+           rMax                       CDATA  #REQUIRED
+           dzSci                      CDATA  #REQUIRED
+           phiPos                     CDATA  #REQUIRED
+           phiNeg                     CDATA  #REQUIRED>
+
+
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE SCLARTIL SYSTEM "combinedscintillator.dtd">
+
+<SCLARTIL>
+
+<CombinedScintillator  name="CombinedScintillator"
+                       rMin="2266.5"
+                       rMax="2281.5"
+                       dzSci="220."
+                       phiPos="2.50"
+                       phiNeg="-19.3"
+                       />
+
+</SCLARTIL>
