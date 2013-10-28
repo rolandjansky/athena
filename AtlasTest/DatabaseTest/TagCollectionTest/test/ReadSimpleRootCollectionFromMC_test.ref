@@ -1,0 +1,79 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+EventTagReader      DEBUG Initializing EventTagReader
+EventTagReader      DEBUG Collection name is EventTagCollection
+EventTagReader      DEBUG Collection type is RootCollection
+EventTagReader      DEBUG Connection is 
+EventTagReader      DEBUG Attribute list specification is:
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int
+EventTagReader      DEBUG NAME Luminosity TYPE float
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int
+EventTagReader      DEBUG NAME Stream TYPE unsigned int
+EventTagReader      DEBUG NAME TimeStamp TYPE float
+EventTagReader      DEBUG NAME VtxX TYPE float
+EventTagReader      DEBUG NAME VtxY TYPE float
+EventTagReader      DEBUG NAME VtxZ TYPE float
+EventTagReader      DEBUG NAME isCalibration TYPE bool
+EventTagReader      DEBUG NAME isRealData TYPE bool
+EventTagReader      DEBUG NAME isSimulation TYPE bool
+EventTagReader      DEBUG NAME isTestBeam TYPE bool
+ApplicationMgr       INFO Application Manager Initialized successfully
+EventTagReader      DEBUG Executing EventTagReader
+EventTagReader      DEBUG Attribute list is: 
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME Luminosity TYPE float VALUE 0
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME Stream TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TimeStamp TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxX TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxY TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxZ TYPE float VALUE 0
+EventTagReader      DEBUG NAME isCalibration TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isRealData TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isSimulation TYPE bool VALUE 1
+EventTagReader      DEBUG NAME isTestBeam TYPE bool VALUE 0
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===
+EventTagReader      DEBUG Executing EventTagReader
+EventTagReader      DEBUG Attribute list is: 
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE 2
+EventTagReader      DEBUG NAME Luminosity TYPE float VALUE 0
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME Stream TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TimeStamp TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxX TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxY TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxZ TYPE float VALUE 0
+EventTagReader      DEBUG NAME isCalibration TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isRealData TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isSimulation TYPE bool VALUE 1
+EventTagReader      DEBUG NAME isTestBeam TYPE bool VALUE 0
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+EventTagReader      DEBUG Executing EventTagReader
+EventTagReader      DEBUG Attribute list is: 
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE 3
+EventTagReader      DEBUG NAME Luminosity TYPE float VALUE 0
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME Stream TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TimeStamp TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxX TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxY TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxZ TYPE float VALUE 0
+EventTagReader      DEBUG NAME isCalibration TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isRealData TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isSimulation TYPE bool VALUE 1
+EventTagReader      DEBUG NAME isTestBeam TYPE bool VALUE 0
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+EventTagReader      DEBUG Finalizing EventTagReader
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

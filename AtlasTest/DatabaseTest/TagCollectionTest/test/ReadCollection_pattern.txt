@@ -1,0 +1,4 @@
+^EventTagReader
+start processing event
+AthenaEventLoopMgr   INFO   ===>>>  end of event
+ApplicationMgr       INFO Application Manager

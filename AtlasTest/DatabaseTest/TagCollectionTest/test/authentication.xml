@@ -1,0 +1,13 @@
+<connectionlist>
+
+<connection name="mysql://atlasdbdev.cern.ch/CollectionTest">
+  <parameter name="user" value="CollTester" />
+  <parameter name="password" value="CtAl_204" />
+</connection>
+
+<connection name="oracle://int8r/atlas_tags_test">
+  <parameter name="user" value="atlas_tags_test" />
+  <parameter name="password" value="p0st0ffice" />
+</connection>
+
+</connectionlist>

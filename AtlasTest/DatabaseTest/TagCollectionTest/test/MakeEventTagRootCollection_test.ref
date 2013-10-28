@@ -1,0 +1,514 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+RegStream1          DEBUG In initialize 
+RegStream1          DEBUG Found StoreGateSvc store.
+RegStream1          DEBUG Found EventPersistencySvc persistency service.
+RegStream1          DEBUG  Got PoolSvc
+RegStream1          DEBUG No AcceptNames found 
+RegStream1          DEBUG No AcceptAlgs found 
+RegStream1          DEBUG No RequireNames found 
+RegStream1          DEBUG No RequireAlgs found 
+RegStream1          DEBUG No VetoNames found 
+RegStream1          DEBUG No VetoAlgs found 
+RegStream1          DEBUG End initialize 
+ApplicationMgr       INFO Application Manager Initialized successfully
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]
+RegStream1          DEBUG String address [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]
+RegStream1          DEBUG Found ref for input header [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG add spec to collection
+RegStream1          DEBUG Spec of input attribute list
+RegStream1          DEBUG Cloned spec
+RegStream1          DEBUG Provenance key Stream1
+RegStream1          DEBUG Cloned spec after token addition 
+RegStream1          DEBUG  name EventNumber type unsigned int
+RegStream1          DEBUG  name Luminosity type float
+RegStream1          DEBUG  name NTrk type unsigned int
+RegStream1          DEBUG  name Nvx type unsigned int
+RegStream1          DEBUG  name RandomNumber type unsigned int
+RegStream1          DEBUG  name RunNumber type unsigned int
+RegStream1          DEBUG  name Stream type unsigned int
+RegStream1          DEBUG  name TimeStamp type float
+RegStream1          DEBUG  name VtxX type float
+RegStream1          DEBUG  name VtxY type float
+RegStream1          DEBUG  name VtxZ type float
+RegStream1          DEBUG  name isCalibration type bool
+RegStream1          DEBUG  name isRealData type bool
+RegStream1          DEBUG  name isSimulation type bool
+RegStream1          DEBUG  name isTestBeam type bool
+RegStream1          DEBUG  name LooseElectronEta1 type float
+RegStream1          DEBUG  name LooseElectronEta2 type float
+RegStream1          DEBUG  name LooseElectronEta3 type float
+RegStream1          DEBUG  name LooseElectronEta4 type float
+RegStream1          DEBUG  name LooseElectronPhi1 type float
+RegStream1          DEBUG  name LooseElectronPhi2 type float
+RegStream1          DEBUG  name LooseElectronPhi3 type float
+RegStream1          DEBUG  name LooseElectronPhi4 type float
+RegStream1          DEBUG  name LooseElectronPt1 type float
+RegStream1          DEBUG  name LooseElectronPt2 type float
+RegStream1          DEBUG  name LooseElectronPt3 type float
+RegStream1          DEBUG  name LooseElectronPt4 type float
+RegStream1          DEBUG  name LooseElectronTightness1 type unsigned int
+RegStream1          DEBUG  name LooseElectronTightness2 type unsigned int
+RegStream1          DEBUG  name LooseElectronTightness3 type unsigned int
+RegStream1          DEBUG  name LooseElectronTightness4 type unsigned int
+RegStream1          DEBUG  name NLooseElectron type unsigned int
+RegStream1          DEBUG  name LoosePhotonEta1 type float
+RegStream1          DEBUG  name LoosePhotonEta2 type float
+RegStream1          DEBUG  name LoosePhotonPhi1 type float
+RegStream1          DEBUG  name LoosePhotonPhi2 type float
+RegStream1          DEBUG  name LoosePhotonPt1 type float
+RegStream1          DEBUG  name LoosePhotonPt2 type float
+RegStream1          DEBUG  name LoosePhotonTightness1 type unsigned int
+RegStream1          DEBUG  name LoosePhotonTightness2 type unsigned int
+RegStream1          DEBUG  name NConvertedLoosePhoton type unsigned int
+RegStream1          DEBUG  name NLoosePhoton type unsigned int
+RegStream1          DEBUG  name LooseMuonEta1 type float
+RegStream1          DEBUG  name LooseMuonEta2 type float
+RegStream1          DEBUG  name LooseMuonEta3 type float
+RegStream1          DEBUG  name LooseMuonEta4 type float
+RegStream1          DEBUG  name LooseMuonIsolEt1 type float
+RegStream1          DEBUG  name LooseMuonIsolEt2 type float
+RegStream1          DEBUG  name LooseMuonIsolEt3 type float
+RegStream1          DEBUG  name LooseMuonIsolEt4 type float
+RegStream1          DEBUG  name LooseMuonIsolN1 type unsigned int
+RegStream1          DEBUG  name LooseMuonIsolN2 type unsigned int
+RegStream1          DEBUG  name LooseMuonIsolN3 type unsigned int
+RegStream1          DEBUG  name LooseMuonIsolN4 type unsigned int
+RegStream1          DEBUG  name LooseMuonPhi1 type float
+RegStream1          DEBUG  name LooseMuonPhi2 type float
+RegStream1          DEBUG  name LooseMuonPhi3 type float
+RegStream1          DEBUG  name LooseMuonPhi4 type float
+RegStream1          DEBUG  name LooseMuonPt1 type float
+RegStream1          DEBUG  name LooseMuonPt2 type float
+RegStream1          DEBUG  name LooseMuonPt3 type float
+RegStream1          DEBUG  name LooseMuonPt4 type float
+RegStream1          DEBUG  name LooseMuonTightness1 type unsigned int
+RegStream1          DEBUG  name LooseMuonTightness2 type unsigned int
+RegStream1          DEBUG  name LooseMuonTightness3 type unsigned int
+RegStream1          DEBUG  name LooseMuonTightness4 type unsigned int
+RegStream1          DEBUG  name NLooseMuon type unsigned int
+RegStream1          DEBUG  name NTau type unsigned int
+RegStream1          DEBUG  name TauJetEta1 type float
+RegStream1          DEBUG  name TauJetEta2 type float
+RegStream1          DEBUG  name TauJetLikelihood1 type float
+RegStream1          DEBUG  name TauJetLikelihood2 type float
+RegStream1          DEBUG  name TauJetNTrk1 type unsigned int
+RegStream1          DEBUG  name TauJetNTrk2 type unsigned int
+RegStream1          DEBUG  name TauJetPhi1 type float
+RegStream1          DEBUG  name TauJetPhi2 type float
+RegStream1          DEBUG  name TauJetPt1 type float
+RegStream1          DEBUG  name TauJetPt2 type float
+RegStream1          DEBUG  name BJetLikelihood1 type float
+RegStream1          DEBUG  name BJetLikelihood2 type float
+RegStream1          DEBUG  name BJetLikelihood3 type float
+RegStream1          DEBUG  name BJetLikelihood4 type float
+RegStream1          DEBUG  name BJetLikelihood5 type float
+RegStream1          DEBUG  name BJetLikelihood6 type float
+RegStream1          DEBUG  name JetEta type float
+RegStream1          DEBUG  name JetEta1 type float
+RegStream1          DEBUG  name JetEta2 type float
+RegStream1          DEBUG  name JetEta3 type float
+RegStream1          DEBUG  name JetEta4 type float
+RegStream1          DEBUG  name JetEta5 type float
+RegStream1          DEBUG  name JetEta6 type float
+RegStream1          DEBUG  name JetPhi1 type float
+RegStream1          DEBUG  name JetPhi2 type float
+RegStream1          DEBUG  name JetPhi3 type float
+RegStream1          DEBUG  name JetPhi4 type float
+RegStream1          DEBUG  name JetPhi5 type float
+RegStream1          DEBUG  name JetPhi6 type float
+RegStream1          DEBUG  name JetPt1 type float
+RegStream1          DEBUG  name JetPt2 type float
+RegStream1          DEBUG  name JetPt3 type float
+RegStream1          DEBUG  name JetPt4 type float
+RegStream1          DEBUG  name JetPt5 type float
+RegStream1          DEBUG  name JetPt6 type float
+RegStream1          DEBUG  name NBJet type unsigned int
+RegStream1          DEBUG  name NJet type unsigned int
+RegStream1          DEBUG  name MissingET type float
+RegStream1          DEBUG  name MissingETPhi type float
+RegStream1          DEBUG  name SumET type float
+RegStream1          DEBUG  name CTPWord0 type unsigned int
+RegStream1          DEBUG  name CTPWord1 type unsigned int
+RegStream1          DEBUG  name CTPWord2 type unsigned int
+RegStream1          DEBUG  name EFPassedTrigMask0 type unsigned int
+RegStream1          DEBUG  name EFPassedTrigMask1 type unsigned int
+RegStream1          DEBUG  name EFPassedTrigMask2 type unsigned int
+RegStream1          DEBUG  name L2PassedTrigMask0 type unsigned int
+RegStream1          DEBUG  name L2PassedTrigMask1 type unsigned int
+RegStream1          DEBUG  name L2PassedTrigMask2 type unsigned int
+RegStream1          DEBUG  name CSC type unsigned int
+RegStream1          DEBUG  name EMB type unsigned int
+RegStream1          DEBUG  name EME type unsigned int
+RegStream1          DEBUG  name FCAL type unsigned int
+RegStream1          DEBUG  name GSCI type unsigned int
+RegStream1          DEBUG  name GoodRun type bool
+RegStream1          DEBUG  name HEC type unsigned int
+RegStream1          DEBUG  name MDT type unsigned int
+RegStream1          DEBUG  name PIX type unsigned int
+RegStream1          DEBUG  name PRC type unsigned int
+RegStream1          DEBUG  name PRE type unsigned int
+RegStream1          DEBUG  name PSB type unsigned int
+RegStream1          DEBUG  name SCT type unsigned int
+RegStream1          DEBUG  name TCAL type unsigned int
+RegStream1          DEBUG  name TGC type unsigned int
+RegStream1          DEBUG  name TRT type unsigned int
+RegStream1          DEBUG  name BPhysWord type unsigned int
+RegStream1          DEBUG  name CombinedMuonWord type unsigned int
+RegStream1          DEBUG  name EgammaWord type unsigned int
+RegStream1          DEBUG  name ExoticWord type unsigned int
+RegStream1          DEBUG  name HiggsWord type unsigned int
+RegStream1          DEBUG  name JetMissingEtWord type unsigned int
+RegStream1          DEBUG  name JetTagWord type unsigned int
+RegStream1          DEBUG  name SMWord type unsigned int
+RegStream1          DEBUG  name SUSYWord type unsigned int
+RegStream1          DEBUG  name TauIdWord type unsigned int
+RegStream1          DEBUG  name TopWord type unsigned int
+RegStream1          DEBUG  name DatasetID type int
+RegStream1          DEBUG  name Fraction type float
+RegStream1          DEBUG  name Stream1_ref type string
+RegStream1          DEBUG Collection name: EventTagCollection
+RegStream1          DEBUG Collection type RootCollection
+RegStream1          DEBUG Collection open mode CREATE_AND_OVERWRITE
+RegStream1          DEBUG Creating attibute specif. 
+RegStream1          DEBUG New specif: 
+RegStream1          DEBUG  Created collection
+RegStream1          DEBUG  name EventNumber type unsigned int value 2
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG  name LooseElectronEta1 type float value 0
+RegStream1          DEBUG  name LooseElectronEta2 type float value 0
+RegStream1          DEBUG  name LooseElectronEta3 type float value 0
+RegStream1          DEBUG  name LooseElectronEta4 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi1 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi2 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi3 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi4 type float value 0
+RegStream1          DEBUG  name LooseElectronPt1 type float value 0
+RegStream1          DEBUG  name LooseElectronPt2 type float value 0
+RegStream1          DEBUG  name LooseElectronPt3 type float value 0
+RegStream1          DEBUG  name LooseElectronPt4 type float value 0
+RegStream1          DEBUG  name LooseElectronTightness1 type unsigned int value 0
+RegStream1          DEBUG  name LooseElectronTightness2 type unsigned int value 0
+RegStream1          DEBUG  name LooseElectronTightness3 type unsigned int value 0
+RegStream1          DEBUG  name LooseElectronTightness4 type unsigned int value 0
+RegStream1          DEBUG  name NLooseElectron type unsigned int value 0
+RegStream1          DEBUG  name LoosePhotonEta1 type float value 0
+RegStream1          DEBUG  name LoosePhotonEta2 type float value 0
+RegStream1          DEBUG  name LoosePhotonPhi1 type float value 0
+RegStream1          DEBUG  name LoosePhotonPhi2 type float value 0
+RegStream1          DEBUG  name LoosePhotonPt1 type float value 0
+RegStream1          DEBUG  name LoosePhotonPt2 type float value 0
+RegStream1          DEBUG  name LoosePhotonTightness1 type unsigned int value 0
+RegStream1          DEBUG  name LoosePhotonTightness2 type unsigned int value 0
+RegStream1          DEBUG  name NConvertedLoosePhoton type unsigned int value 0
+RegStream1          DEBUG  name NLoosePhoton type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonEta1 type float value 0
+RegStream1          DEBUG  name LooseMuonEta2 type float value 0
+RegStream1          DEBUG  name LooseMuonEta3 type float value 0
+RegStream1          DEBUG  name LooseMuonEta4 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt1 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt2 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt3 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt4 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolN1 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonIsolN2 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonIsolN3 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonIsolN4 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonPhi1 type float value 0
+RegStream1          DEBUG  name LooseMuonPhi2 type float value 0
+RegStream1          DEBUG  name LooseMuonPhi3 type float value 0
+RegStream1          DEBUG  name LooseMuonPhi4 type float value 0
+RegStream1          DEBUG  name LooseMuonPt1 type float value 0
+RegStream1          DEBUG  name LooseMuonPt2 type float value 0
+RegStream1          DEBUG  name LooseMuonPt3 type float value 0
+RegStream1          DEBUG  name LooseMuonPt4 type float value 0
+RegStream1          DEBUG  name LooseMuonTightness1 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonTightness2 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonTightness3 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonTightness4 type unsigned int value 0
+RegStream1          DEBUG  name NLooseMuon type unsigned int value 0
+RegStream1          DEBUG  name NTau type unsigned int value 0
+RegStream1          DEBUG  name TauJetEta1 type float value 0
+RegStream1          DEBUG  name TauJetEta2 type float value 0
+RegStream1          DEBUG  name TauJetLikelihood1 type float value 0
+RegStream1          DEBUG  name TauJetLikelihood2 type float value 0
+RegStream1          DEBUG  name TauJetNTrk1 type unsigned int value 0
+RegStream1          DEBUG  name TauJetNTrk2 type unsigned int value 0
+RegStream1          DEBUG  name TauJetPhi1 type float value 0
+RegStream1          DEBUG  name TauJetPhi2 type float value 0
+RegStream1          DEBUG  name TauJetPt1 type float value 0
+RegStream1          DEBUG  name TauJetPt2 type float value 0
+RegStream1          DEBUG  name BJetLikelihood1 type float value 0
+RegStream1          DEBUG  name BJetLikelihood2 type float value 0
+RegStream1          DEBUG  name BJetLikelihood3 type float value 0
+RegStream1          DEBUG  name BJetLikelihood4 type float value 0
+RegStream1          DEBUG  name BJetLikelihood5 type float value 0
+RegStream1          DEBUG  name BJetLikelihood6 type float value 0
+RegStream1          DEBUG  name JetEta type float value 0
+RegStream1          DEBUG  name JetEta1 type float value 0
+RegStream1          DEBUG  name JetEta2 type float value 0
+RegStream1          DEBUG  name JetEta3 type float value 0
+RegStream1          DEBUG  name JetEta4 type float value 0
+RegStream1          DEBUG  name JetEta5 type float value 0
+RegStream1          DEBUG  name JetEta6 type float value 0
+RegStream1          DEBUG  name JetPhi1 type float value 0
+RegStream1          DEBUG  name JetPhi2 type float value 0
+RegStream1          DEBUG  name JetPhi3 type float value 0
+RegStream1          DEBUG  name JetPhi4 type float value 0
+RegStream1          DEBUG  name JetPhi5 type float value 0
+RegStream1          DEBUG  name JetPhi6 type float value 0
+RegStream1          DEBUG  name JetPt1 type float value 0
+RegStream1          DEBUG  name JetPt2 type float value 0
+RegStream1          DEBUG  name JetPt3 type float value 0
+RegStream1          DEBUG  name JetPt4 type float value 0
+RegStream1          DEBUG  name JetPt5 type float value 0
+RegStream1          DEBUG  name JetPt6 type float value 0
+RegStream1          DEBUG  name NBJet type unsigned int value 0
+RegStream1          DEBUG  name NJet type unsigned int value 0
+RegStream1          DEBUG  name MissingET type float value 0
+RegStream1          DEBUG  name MissingETPhi type float value 0
+RegStream1          DEBUG  name SumET type float value 0
+RegStream1          DEBUG  name CTPWord0 type unsigned int value 0
+RegStream1          DEBUG  name CTPWord1 type unsigned int value 0
+RegStream1          DEBUG  name CTPWord2 type unsigned int value 0
+RegStream1          DEBUG  name EFPassedTrigMask0 type unsigned int value 0
+RegStream1          DEBUG  name EFPassedTrigMask1 type unsigned int value 0
+RegStream1          DEBUG  name EFPassedTrigMask2 type unsigned int value 0
+RegStream1          DEBUG  name L2PassedTrigMask0 type unsigned int value 0
+RegStream1          DEBUG  name L2PassedTrigMask1 type unsigned int value 0
+RegStream1          DEBUG  name L2PassedTrigMask2 type unsigned int value 0
+RegStream1          DEBUG  name CSC type unsigned int value 0
+RegStream1          DEBUG  name EMB type unsigned int value 0
+RegStream1          DEBUG  name EME type unsigned int value 0
+RegStream1          DEBUG  name FCAL type unsigned int value 0
+RegStream1          DEBUG  name GSCI type unsigned int value 0
+RegStream1          DEBUG  name GoodRun type bool value 1
+RegStream1          DEBUG  name HEC type unsigned int value 0
+RegStream1          DEBUG  name MDT type unsigned int value 0
+RegStream1          DEBUG  name PIX type unsigned int value 0
+RegStream1          DEBUG  name PRC type unsigned int value 0
+RegStream1          DEBUG  name PRE type unsigned int value 0
+RegStream1          DEBUG  name PSB type unsigned int value 0
+RegStream1          DEBUG  name SCT type unsigned int value 0
+RegStream1          DEBUG  name TCAL type unsigned int value 0
+RegStream1          DEBUG  name TGC type unsigned int value 0
+RegStream1          DEBUG  name TRT type unsigned int value 0
+RegStream1          DEBUG  name BPhysWord type unsigned int value 0
+RegStream1          DEBUG  name CombinedMuonWord type unsigned int value 0
+RegStream1          DEBUG  name EgammaWord type unsigned int value 0
+RegStream1          DEBUG  name ExoticWord type unsigned int value 0
+RegStream1          DEBUG  name HiggsWord type unsigned int value 0
+RegStream1          DEBUG  name JetMissingEtWord type unsigned int value 0
+RegStream1          DEBUG  name JetTagWord type unsigned int value 0
+RegStream1          DEBUG  name SMWord type unsigned int value 0
+RegStream1          DEBUG  name SUSYWord type unsigned int value 0
+RegStream1          DEBUG  name TauIdWord type unsigned int value 0
+RegStream1          DEBUG  name TopWord type unsigned int value 0
+RegStream1          DEBUG  name DatasetID type int value 0
+RegStream1          DEBUG  name Fraction type float value 0.360432
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG  Added extra ref to new attribute list - name: Stream1_ref [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG String address [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG Found ref for input header [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=A0C43F91-8351-DA11-8837-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG  name EventNumber type unsigned int value 3
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG  name LooseElectronEta1 type float value 0
+RegStream1          DEBUG  name LooseElectronEta2 type float value 0
+RegStream1          DEBUG  name LooseElectronEta3 type float value 0
+RegStream1          DEBUG  name LooseElectronEta4 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi1 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi2 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi3 type float value 0
+RegStream1          DEBUG  name LooseElectronPhi4 type float value 0
+RegStream1          DEBUG  name LooseElectronPt1 type float value 0
+RegStream1          DEBUG  name LooseElectronPt2 type float value 0
+RegStream1          DEBUG  name LooseElectronPt3 type float value 0
+RegStream1          DEBUG  name LooseElectronPt4 type float value 0
+RegStream1          DEBUG  name LooseElectronTightness1 type unsigned int value 0
+RegStream1          DEBUG  name LooseElectronTightness2 type unsigned int value 0
+RegStream1          DEBUG  name LooseElectronTightness3 type unsigned int value 0
+RegStream1          DEBUG  name LooseElectronTightness4 type unsigned int value 0
+RegStream1          DEBUG  name NLooseElectron type unsigned int value 0
+RegStream1          DEBUG  name LoosePhotonEta1 type float value 0
+RegStream1          DEBUG  name LoosePhotonEta2 type float value 0
+RegStream1          DEBUG  name LoosePhotonPhi1 type float value 0
+RegStream1          DEBUG  name LoosePhotonPhi2 type float value 0
+RegStream1          DEBUG  name LoosePhotonPt1 type float value 0
+RegStream1          DEBUG  name LoosePhotonPt2 type float value 0
+RegStream1          DEBUG  name LoosePhotonTightness1 type unsigned int value 0
+RegStream1          DEBUG  name LoosePhotonTightness2 type unsigned int value 0
+RegStream1          DEBUG  name NConvertedLoosePhoton type unsigned int value 0
+RegStream1          DEBUG  name NLoosePhoton type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonEta1 type float value 0
+RegStream1          DEBUG  name LooseMuonEta2 type float value 0
+RegStream1          DEBUG  name LooseMuonEta3 type float value 0
+RegStream1          DEBUG  name LooseMuonEta4 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt1 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt2 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt3 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolEt4 type float value 0
+RegStream1          DEBUG  name LooseMuonIsolN1 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonIsolN2 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonIsolN3 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonIsolN4 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonPhi1 type float value 0
+RegStream1          DEBUG  name LooseMuonPhi2 type float value 0
+RegStream1          DEBUG  name LooseMuonPhi3 type float value 0
+RegStream1          DEBUG  name LooseMuonPhi4 type float value 0
+RegStream1          DEBUG  name LooseMuonPt1 type float value 0
+RegStream1          DEBUG  name LooseMuonPt2 type float value 0
+RegStream1          DEBUG  name LooseMuonPt3 type float value 0
+RegStream1          DEBUG  name LooseMuonPt4 type float value 0
+RegStream1          DEBUG  name LooseMuonTightness1 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonTightness2 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonTightness3 type unsigned int value 0
+RegStream1          DEBUG  name LooseMuonTightness4 type unsigned int value 0
+RegStream1          DEBUG  name NLooseMuon type unsigned int value 0
+RegStream1          DEBUG  name NTau type unsigned int value 0
+RegStream1          DEBUG  name TauJetEta1 type float value 0
+RegStream1          DEBUG  name TauJetEta2 type float value 0
+RegStream1          DEBUG  name TauJetLikelihood1 type float value 0
+RegStream1          DEBUG  name TauJetLikelihood2 type float value 0
+RegStream1          DEBUG  name TauJetNTrk1 type unsigned int value 0
+RegStream1          DEBUG  name TauJetNTrk2 type unsigned int value 0
+RegStream1          DEBUG  name TauJetPhi1 type float value 0
+RegStream1          DEBUG  name TauJetPhi2 type float value 0
+RegStream1          DEBUG  name TauJetPt1 type float value 0
+RegStream1          DEBUG  name TauJetPt2 type float value 0
+RegStream1          DEBUG  name BJetLikelihood1 type float value 0
+RegStream1          DEBUG  name BJetLikelihood2 type float value 0
+RegStream1          DEBUG  name BJetLikelihood3 type float value 0
+RegStream1          DEBUG  name BJetLikelihood4 type float value 0
+RegStream1          DEBUG  name BJetLikelihood5 type float value 0
+RegStream1          DEBUG  name BJetLikelihood6 type float value 0
+RegStream1          DEBUG  name JetEta type float value 0
+RegStream1          DEBUG  name JetEta1 type float value 0
+RegStream1          DEBUG  name JetEta2 type float value 0
+RegStream1          DEBUG  name JetEta3 type float value 0
+RegStream1          DEBUG  name JetEta4 type float value 0
+RegStream1          DEBUG  name JetEta5 type float value 0
+RegStream1          DEBUG  name JetEta6 type float value 0
+RegStream1          DEBUG  name JetPhi1 type float value 0
+RegStream1          DEBUG  name JetPhi2 type float value 0
+RegStream1          DEBUG  name JetPhi3 type float value 0
+RegStream1          DEBUG  name JetPhi4 type float value 0
+RegStream1          DEBUG  name JetPhi5 type float value 0
+RegStream1          DEBUG  name JetPhi6 type float value 0
+RegStream1          DEBUG  name JetPt1 type float value 0
+RegStream1          DEBUG  name JetPt2 type float value 0
+RegStream1          DEBUG  name JetPt3 type float value 0
+RegStream1          DEBUG  name JetPt4 type float value 0
+RegStream1          DEBUG  name JetPt5 type float value 0
+RegStream1          DEBUG  name JetPt6 type float value 0
+RegStream1          DEBUG  name NBJet type unsigned int value 0
+RegStream1          DEBUG  name NJet type unsigned int value 0
+RegStream1          DEBUG  name MissingET type float value 0
+RegStream1          DEBUG  name MissingETPhi type float value 0
+RegStream1          DEBUG  name SumET type float value 0
+RegStream1          DEBUG  name CTPWord0 type unsigned int value 0
+RegStream1          DEBUG  name CTPWord1 type unsigned int value 0
+RegStream1          DEBUG  name CTPWord2 type unsigned int value 0
+RegStream1          DEBUG  name EFPassedTrigMask0 type unsigned int value 0
+RegStream1          DEBUG  name EFPassedTrigMask1 type unsigned int value 0
+RegStream1          DEBUG  name EFPassedTrigMask2 type unsigned int value 0
+RegStream1          DEBUG  name L2PassedTrigMask0 type unsigned int value 0
+RegStream1          DEBUG  name L2PassedTrigMask1 type unsigned int value 0
+RegStream1          DEBUG  name L2PassedTrigMask2 type unsigned int value 0
+RegStream1          DEBUG  name CSC type unsigned int value 0
+RegStream1          DEBUG  name EMB type unsigned int value 0
+RegStream1          DEBUG  name EME type unsigned int value 0
+RegStream1          DEBUG  name FCAL type unsigned int value 0
+RegStream1          DEBUG  name GSCI type unsigned int value 0
+RegStream1          DEBUG  name GoodRun type bool value 1
+RegStream1          DEBUG  name HEC type unsigned int value 0
+RegStream1          DEBUG  name MDT type unsigned int value 0
+RegStream1          DEBUG  name PIX type unsigned int value 0
+RegStream1          DEBUG  name PRC type unsigned int value 0
+RegStream1          DEBUG  name PRE type unsigned int value 0
+RegStream1          DEBUG  name PSB type unsigned int value 0
+RegStream1          DEBUG  name SCT type unsigned int value 0
+RegStream1          DEBUG  name TCAL type unsigned int value 0
+RegStream1          DEBUG  name TGC type unsigned int value 0
+RegStream1          DEBUG  name TRT type unsigned int value 0
+RegStream1          DEBUG  name BPhysWord type unsigned int value 0
+RegStream1          DEBUG  name CombinedMuonWord type unsigned int value 0
+RegStream1          DEBUG  name EgammaWord type unsigned int value 0
+RegStream1          DEBUG  name ExoticWord type unsigned int value 0
+RegStream1          DEBUG  name HiggsWord type unsigned int value 0
+RegStream1          DEBUG  name JetMissingEtWord type unsigned int value 0
+RegStream1          DEBUG  name JetTagWord type unsigned int value 0
+RegStream1          DEBUG  name SMWord type unsigned int value 0
+RegStream1          DEBUG  name SUSYWord type unsigned int value 0
+RegStream1          DEBUG  name TauIdWord type unsigned int value 0
+RegStream1          DEBUG  name TopWord type unsigned int value 0
+RegStream1          DEBUG  name DatasetID type int value 0
+RegStream1          DEBUG  name Fraction type float value 0.985332
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG  Added extra ref to new attribute list - name: Stream1_ref [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+RegStream1           INFO Collection Events output: 2
+RegStream1          DEBUG pointer to collection is not null
+RegStream1          DEBUG  Closed collection 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

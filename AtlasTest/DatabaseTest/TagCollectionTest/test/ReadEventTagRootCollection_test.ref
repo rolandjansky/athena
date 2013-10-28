@@ -1,0 +1,457 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+EventTagReader      DEBUG Initializing EventTagReader
+EventTagReader      DEBUG Collection name is EventTagCollection
+EventTagReader      DEBUG Collection type is RootCollection
+EventTagReader      DEBUG Connection is 
+EventTagReader      DEBUG Attribute list specification is:
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int
+EventTagReader      DEBUG NAME Luminosity TYPE float
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int
+EventTagReader      DEBUG NAME Stream TYPE unsigned int
+EventTagReader      DEBUG NAME TimeStamp TYPE float
+EventTagReader      DEBUG NAME VtxX TYPE float
+EventTagReader      DEBUG NAME VtxY TYPE float
+EventTagReader      DEBUG NAME VtxZ TYPE float
+EventTagReader      DEBUG NAME isCalibration TYPE bool
+EventTagReader      DEBUG NAME isRealData TYPE bool
+EventTagReader      DEBUG NAME isSimulation TYPE bool
+EventTagReader      DEBUG NAME isTestBeam TYPE bool
+EventTagReader      DEBUG NAME LooseElectronEta1 TYPE float
+EventTagReader      DEBUG NAME LooseElectronEta2 TYPE float
+EventTagReader      DEBUG NAME LooseElectronEta3 TYPE float
+EventTagReader      DEBUG NAME LooseElectronEta4 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPhi1 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPhi2 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPhi3 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPhi4 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPt1 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPt2 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPt3 TYPE float
+EventTagReader      DEBUG NAME LooseElectronPt4 TYPE float
+EventTagReader      DEBUG NAME LooseElectronTightness1 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseElectronTightness2 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseElectronTightness3 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseElectronTightness4 TYPE unsigned int
+EventTagReader      DEBUG NAME NLooseElectron TYPE unsigned int
+EventTagReader      DEBUG NAME LoosePhotonEta1 TYPE float
+EventTagReader      DEBUG NAME LoosePhotonEta2 TYPE float
+EventTagReader      DEBUG NAME LoosePhotonPhi1 TYPE float
+EventTagReader      DEBUG NAME LoosePhotonPhi2 TYPE float
+EventTagReader      DEBUG NAME LoosePhotonPt1 TYPE float
+EventTagReader      DEBUG NAME LoosePhotonPt2 TYPE float
+EventTagReader      DEBUG NAME LoosePhotonTightness1 TYPE unsigned int
+EventTagReader      DEBUG NAME LoosePhotonTightness2 TYPE unsigned int
+EventTagReader      DEBUG NAME NConvertedLoosePhoton TYPE unsigned int
+EventTagReader      DEBUG NAME NLoosePhoton TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonEta1 TYPE float
+EventTagReader      DEBUG NAME LooseMuonEta2 TYPE float
+EventTagReader      DEBUG NAME LooseMuonEta3 TYPE float
+EventTagReader      DEBUG NAME LooseMuonEta4 TYPE float
+EventTagReader      DEBUG NAME LooseMuonIsolEt1 TYPE float
+EventTagReader      DEBUG NAME LooseMuonIsolEt2 TYPE float
+EventTagReader      DEBUG NAME LooseMuonIsolEt3 TYPE float
+EventTagReader      DEBUG NAME LooseMuonIsolEt4 TYPE float
+EventTagReader      DEBUG NAME LooseMuonIsolN1 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonIsolN2 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonIsolN3 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonIsolN4 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonPhi1 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPhi2 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPhi3 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPhi4 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPt1 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPt2 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPt3 TYPE float
+EventTagReader      DEBUG NAME LooseMuonPt4 TYPE float
+EventTagReader      DEBUG NAME LooseMuonTightness1 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonTightness2 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonTightness3 TYPE unsigned int
+EventTagReader      DEBUG NAME LooseMuonTightness4 TYPE unsigned int
+EventTagReader      DEBUG NAME NLooseMuon TYPE unsigned int
+EventTagReader      DEBUG NAME NTau TYPE unsigned int
+EventTagReader      DEBUG NAME TauJetEta1 TYPE float
+EventTagReader      DEBUG NAME TauJetEta2 TYPE float
+EventTagReader      DEBUG NAME TauJetLikelihood1 TYPE float
+EventTagReader      DEBUG NAME TauJetLikelihood2 TYPE float
+EventTagReader      DEBUG NAME TauJetNTrk1 TYPE unsigned int
+EventTagReader      DEBUG NAME TauJetNTrk2 TYPE unsigned int
+EventTagReader      DEBUG NAME TauJetPhi1 TYPE float
+EventTagReader      DEBUG NAME TauJetPhi2 TYPE float
+EventTagReader      DEBUG NAME TauJetPt1 TYPE float
+EventTagReader      DEBUG NAME TauJetPt2 TYPE float
+EventTagReader      DEBUG NAME BJetLikelihood1 TYPE float
+EventTagReader      DEBUG NAME BJetLikelihood2 TYPE float
+EventTagReader      DEBUG NAME BJetLikelihood3 TYPE float
+EventTagReader      DEBUG NAME BJetLikelihood4 TYPE float
+EventTagReader      DEBUG NAME BJetLikelihood5 TYPE float
+EventTagReader      DEBUG NAME BJetLikelihood6 TYPE float
+EventTagReader      DEBUG NAME JetEta TYPE float
+EventTagReader      DEBUG NAME JetEta1 TYPE float
+EventTagReader      DEBUG NAME JetEta2 TYPE float
+EventTagReader      DEBUG NAME JetEta3 TYPE float
+EventTagReader      DEBUG NAME JetEta4 TYPE float
+EventTagReader      DEBUG NAME JetEta5 TYPE float
+EventTagReader      DEBUG NAME JetEta6 TYPE float
+EventTagReader      DEBUG NAME JetPhi1 TYPE float
+EventTagReader      DEBUG NAME JetPhi2 TYPE float
+EventTagReader      DEBUG NAME JetPhi3 TYPE float
+EventTagReader      DEBUG NAME JetPhi4 TYPE float
+EventTagReader      DEBUG NAME JetPhi5 TYPE float
+EventTagReader      DEBUG NAME JetPhi6 TYPE float
+EventTagReader      DEBUG NAME JetPt1 TYPE float
+EventTagReader      DEBUG NAME JetPt2 TYPE float
+EventTagReader      DEBUG NAME JetPt3 TYPE float
+EventTagReader      DEBUG NAME JetPt4 TYPE float
+EventTagReader      DEBUG NAME JetPt5 TYPE float
+EventTagReader      DEBUG NAME JetPt6 TYPE float
+EventTagReader      DEBUG NAME NBJet TYPE unsigned int
+EventTagReader      DEBUG NAME NJet TYPE unsigned int
+EventTagReader      DEBUG NAME MissingET TYPE float
+EventTagReader      DEBUG NAME MissingETPhi TYPE float
+EventTagReader      DEBUG NAME SumET TYPE float
+EventTagReader      DEBUG NAME CTPWord0 TYPE unsigned int
+EventTagReader      DEBUG NAME CTPWord1 TYPE unsigned int
+EventTagReader      DEBUG NAME CTPWord2 TYPE unsigned int
+EventTagReader      DEBUG NAME EFPassedTrigMask0 TYPE unsigned int
+EventTagReader      DEBUG NAME EFPassedTrigMask1 TYPE unsigned int
+EventTagReader      DEBUG NAME EFPassedTrigMask2 TYPE unsigned int
+EventTagReader      DEBUG NAME L2PassedTrigMask0 TYPE unsigned int
+EventTagReader      DEBUG NAME L2PassedTrigMask1 TYPE unsigned int
+EventTagReader      DEBUG NAME L2PassedTrigMask2 TYPE unsigned int
+EventTagReader      DEBUG NAME CSC TYPE unsigned int
+EventTagReader      DEBUG NAME EMB TYPE unsigned int
+EventTagReader      DEBUG NAME EME TYPE unsigned int
+EventTagReader      DEBUG NAME FCAL TYPE unsigned int
+EventTagReader      DEBUG NAME GSCI TYPE unsigned int
+EventTagReader      DEBUG NAME GoodRun TYPE bool
+EventTagReader      DEBUG NAME HEC TYPE unsigned int
+EventTagReader      DEBUG NAME MDT TYPE unsigned int
+EventTagReader      DEBUG NAME PIX TYPE unsigned int
+EventTagReader      DEBUG NAME PRC TYPE unsigned int
+EventTagReader      DEBUG NAME PRE TYPE unsigned int
+EventTagReader      DEBUG NAME PSB TYPE unsigned int
+EventTagReader      DEBUG NAME SCT TYPE unsigned int
+EventTagReader      DEBUG NAME TCAL TYPE unsigned int
+EventTagReader      DEBUG NAME TGC TYPE unsigned int
+EventTagReader      DEBUG NAME TRT TYPE unsigned int
+EventTagReader      DEBUG NAME BPhysWord TYPE unsigned int
+EventTagReader      DEBUG NAME CombinedMuonWord TYPE unsigned int
+EventTagReader      DEBUG NAME EgammaWord TYPE unsigned int
+EventTagReader      DEBUG NAME ExoticWord TYPE unsigned int
+EventTagReader      DEBUG NAME HiggsWord TYPE unsigned int
+EventTagReader      DEBUG NAME JetMissingEtWord TYPE unsigned int
+EventTagReader      DEBUG NAME JetTagWord TYPE unsigned int
+EventTagReader      DEBUG NAME SMWord TYPE unsigned int
+EventTagReader      DEBUG NAME SUSYWord TYPE unsigned int
+EventTagReader      DEBUG NAME TauIdWord TYPE unsigned int
+EventTagReader      DEBUG NAME TopWord TYPE unsigned int
+EventTagReader      DEBUG NAME DatasetID TYPE int
+EventTagReader      DEBUG NAME Fraction TYPE float
+EventTagReader      DEBUG NAME Stream1_ref TYPE string
+ApplicationMgr       INFO Application Manager Initialized successfully
+EventTagReader      DEBUG Executing EventTagReader
+EventTagReader      DEBUG Attribute list is: 
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE 2
+EventTagReader      DEBUG NAME Luminosity TYPE float VALUE 0
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME Stream TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TimeStamp TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxX TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxY TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxZ TYPE float VALUE 0
+EventTagReader      DEBUG NAME isCalibration TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isRealData TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isSimulation TYPE bool VALUE 1
+EventTagReader      DEBUG NAME isTestBeam TYPE bool VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness3 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness4 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NLooseElectron TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonTightness1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonTightness2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NConvertedLoosePhoton TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NLoosePhoton TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN3 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN4 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness3 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness4 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NLooseMuon TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NTau TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauJetEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetLikelihood1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetLikelihood2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetNTrk1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauJetNTrk2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauJetPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME NBJet TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NJet TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME MissingET TYPE float VALUE 0
+EventTagReader      DEBUG NAME MissingETPhi TYPE float VALUE 0
+EventTagReader      DEBUG NAME SumET TYPE float VALUE 0
+EventTagReader      DEBUG NAME CTPWord0 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CTPWord1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CTPWord2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EFPassedTrigMask0 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EFPassedTrigMask1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EFPassedTrigMask2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME L2PassedTrigMask0 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME L2PassedTrigMask1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME L2PassedTrigMask2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CSC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EMB TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EME TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME FCAL TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME GSCI TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME GoodRun TYPE bool VALUE 1
+EventTagReader      DEBUG NAME HEC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME MDT TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PIX TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PRC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PRE TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PSB TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME SCT TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TCAL TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TGC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TRT TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME BPhysWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CombinedMuonWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EgammaWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME ExoticWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME HiggsWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME JetMissingEtWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME JetTagWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME SMWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME SUSYWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauIdWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TopWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME DatasetID TYPE int VALUE 0
+EventTagReader      DEBUG NAME Fraction TYPE float VALUE 0.360432
+EventTagReader      DEBUG NAME Stream1_ref TYPE string VALUE [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+EventTagReader      DEBUG Executing EventTagReader
+EventTagReader      DEBUG Attribute list is: 
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE 3
+EventTagReader      DEBUG NAME Luminosity TYPE float VALUE 0
+EventTagReader      DEBUG NAME NTrk TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME Nvx TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RandomNumber TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME Stream TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TimeStamp TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxX TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxY TYPE float VALUE 0
+EventTagReader      DEBUG NAME VtxZ TYPE float VALUE 0
+EventTagReader      DEBUG NAME isCalibration TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isRealData TYPE bool VALUE 0
+EventTagReader      DEBUG NAME isSimulation TYPE bool VALUE 1
+EventTagReader      DEBUG NAME isTestBeam TYPE bool VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronEta4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPhi4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronPt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness3 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseElectronTightness4 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NLooseElectron TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonTightness1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LoosePhotonTightness2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NConvertedLoosePhoton TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NLoosePhoton TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonEta4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolEt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN3 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonIsolN4 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPhi4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonPt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness3 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME LooseMuonTightness4 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NLooseMuon TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NTau TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauJetEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetLikelihood1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetLikelihood2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetNTrk1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauJetNTrk2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauJetPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME TauJetPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME BJetLikelihood6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetEta6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPhi6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt1 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt2 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt3 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt4 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt5 TYPE float VALUE 0
+EventTagReader      DEBUG NAME JetPt6 TYPE float VALUE 0
+EventTagReader      DEBUG NAME NBJet TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME NJet TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME MissingET TYPE float VALUE 0
+EventTagReader      DEBUG NAME MissingETPhi TYPE float VALUE 0
+EventTagReader      DEBUG NAME SumET TYPE float VALUE 0
+EventTagReader      DEBUG NAME CTPWord0 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CTPWord1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CTPWord2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EFPassedTrigMask0 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EFPassedTrigMask1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EFPassedTrigMask2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME L2PassedTrigMask0 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME L2PassedTrigMask1 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME L2PassedTrigMask2 TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CSC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EMB TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EME TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME FCAL TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME GSCI TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME GoodRun TYPE bool VALUE 1
+EventTagReader      DEBUG NAME HEC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME MDT TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PIX TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PRC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PRE TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME PSB TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME SCT TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TCAL TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TGC TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TRT TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME BPhysWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME CombinedMuonWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME EgammaWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME ExoticWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME HiggsWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME JetMissingEtWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME JetTagWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME SMWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME SUSYWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TauIdWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME TopWord TYPE unsigned int VALUE 0
+EventTagReader      DEBUG NAME DatasetID TYPE int VALUE 0
+EventTagReader      DEBUG NAME Fraction TYPE float VALUE 0.985332
+EventTagReader      DEBUG NAME Stream1_ref TYPE string VALUE [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+EventTagReader      DEBUG Finalizing EventTagReader
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

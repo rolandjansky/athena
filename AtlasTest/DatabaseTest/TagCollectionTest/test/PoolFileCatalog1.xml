@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+
+  <File ID="A0C43F91-8351-DA11-8837-0002B3D87B0F">
+    <physical>
+      <pfn filetype="ROOT_All" name="EventDataCopy.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

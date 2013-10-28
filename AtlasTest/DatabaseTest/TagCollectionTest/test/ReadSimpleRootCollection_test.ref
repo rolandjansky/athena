@@ -1,0 +1,224 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+EventTagReader      DEBUG Initializing EventTagReader
+EventTagReader      DEBUG Collection name is EventTagCollection
+EventTagReader      DEBUG Collection type is RootCollection
+EventTagReader      DEBUG Connection is 
+EventTagReader      DEBUG Attribute list specification is:
+EventTagReader      DEBUG NAME TestBool TYPE bool
+EventTagReader      DEBUG NAME TestShort TYPE short
+EventTagReader      DEBUG NAME TestUShort TYPE unsigned short
+EventTagReader      DEBUG NAME TestInt TYPE int
+EventTagReader      DEBUG NAME TestUInt TYPE unsigned int
+EventTagReader      DEBUG NAME TestFloat TYPE float
+EventTagReader      DEBUG NAME TestDouble TYPE double
+EventTagReader      DEBUG NAME TestString TYPE string
+EventTagReader      DEBUG NAME NGlobal TYPE unsigned short
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned short
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned short
+EventTagReader      DEBUG NAME Luminosity TYPE float
+EventTagReader      DEBUG NAME GoodVertex TYPE bool
+EventTagReader      DEBUG NAME XVertex TYPE float
+EventTagReader      DEBUG NAME YVertex TYPE float
+EventTagReader      DEBUG NAME ZVertex TYPE float
+EventTagReader      DEBUG NAME PxMiss TYPE float
+EventTagReader      DEBUG NAME PyMiss TYPE float
+EventTagReader      DEBUG NAME NEGamma TYPE unsigned short
+EventTagReader      DEBUG NAME EEGamma_1 TYPE float
+EventTagReader      DEBUG NAME EEGamma_2 TYPE float
+EventTagReader      DEBUG NAME EEGamma_3 TYPE float
+EventTagReader      DEBUG NAME EEGamma_4 TYPE float
+EventTagReader      DEBUG NAME EEGamma_5 TYPE float
+EventTagReader      DEBUG NAME EtaEGamma_1 TYPE float
+EventTagReader      DEBUG NAME EtaEGamma_2 TYPE float
+EventTagReader      DEBUG NAME EtaEGamma_3 TYPE float
+EventTagReader      DEBUG NAME EtaEGamma_4 TYPE float
+EventTagReader      DEBUG NAME EtaEGamma_5 TYPE float
+EventTagReader      DEBUG NAME PhiEGamma_1 TYPE float
+EventTagReader      DEBUG NAME PhiEGamma_2 TYPE float
+EventTagReader      DEBUG NAME PhiEGamma_3 TYPE float
+EventTagReader      DEBUG NAME PhiEGamma_4 TYPE float
+EventTagReader      DEBUG NAME PhiEGamma_5 TYPE float
+EventTagReader      DEBUG NAME IdEGamma_1 TYPE unsigned short
+EventTagReader      DEBUG NAME IdEGamma_2 TYPE unsigned short
+EventTagReader      DEBUG NAME IdEGamma_3 TYPE unsigned short
+EventTagReader      DEBUG NAME IdEGamma_4 TYPE unsigned short
+EventTagReader      DEBUG NAME IdEGamma_5 TYPE unsigned short
+EventTagReader      DEBUG NAME NMuon TYPE unsigned short
+EventTagReader      DEBUG NAME PtMuon_1 TYPE float
+EventTagReader      DEBUG NAME PtMuon_2 TYPE float
+EventTagReader      DEBUG NAME PtMuon_3 TYPE float
+EventTagReader      DEBUG NAME PtMuon_4 TYPE float
+EventTagReader      DEBUG NAME PtMuon_5 TYPE float
+EventTagReader      DEBUG NAME CotetaMuon_1 TYPE float
+EventTagReader      DEBUG NAME CotetaMuon_2 TYPE float
+EventTagReader      DEBUG NAME CotetaMuon_3 TYPE float
+EventTagReader      DEBUG NAME CotetaMuon_4 TYPE float
+EventTagReader      DEBUG NAME CotetaMuon_5 TYPE float
+EventTagReader      DEBUG NAME PhiMuon_1 TYPE float
+EventTagReader      DEBUG NAME PhiMuon_2 TYPE float
+EventTagReader      DEBUG NAME PhiMuon_3 TYPE float
+EventTagReader      DEBUG NAME PhiMuon_4 TYPE float
+EventTagReader      DEBUG NAME PhiMuon_5 TYPE float
+EventTagReader      DEBUG NAME NTau TYPE unsigned short
+EventTagReader      DEBUG NAME ETau_1 TYPE float
+EventTagReader      DEBUG NAME ETau_2 TYPE float
+EventTagReader      DEBUG NAME ETau_3 TYPE float
+EventTagReader      DEBUG NAME ETau_4 TYPE float
+EventTagReader      DEBUG NAME ETau_5 TYPE float
+EventTagReader      DEBUG NAME EtaTau_1 TYPE float
+EventTagReader      DEBUG NAME EtaTau_2 TYPE float
+EventTagReader      DEBUG NAME EtaTau_3 TYPE float
+EventTagReader      DEBUG NAME EtaTau_4 TYPE float
+EventTagReader      DEBUG NAME EtaTau_5 TYPE float
+EventTagReader      DEBUG NAME PhiTau_1 TYPE float
+EventTagReader      DEBUG NAME PhiTau_2 TYPE float
+EventTagReader      DEBUG NAME PhiTau_3 TYPE float
+EventTagReader      DEBUG NAME PhiTau_4 TYPE float
+EventTagReader      DEBUG NAME PhiTau_5 TYPE float
+EventTagReader      DEBUG NAME NtrackTau_1 TYPE unsigned short
+EventTagReader      DEBUG NAME NtrackTau_2 TYPE unsigned short
+EventTagReader      DEBUG NAME NtrackTau_3 TYPE unsigned short
+EventTagReader      DEBUG NAME NtrackTau_4 TYPE unsigned short
+EventTagReader      DEBUG NAME NtrackTau_5 TYPE unsigned short
+EventTagReader      DEBUG NAME IdTau_1 TYPE unsigned short
+EventTagReader      DEBUG NAME IdTau_2 TYPE unsigned short
+EventTagReader      DEBUG NAME IdTau_3 TYPE unsigned short
+EventTagReader      DEBUG NAME IdTau_4 TYPE unsigned short
+EventTagReader      DEBUG NAME IdTau_5 TYPE unsigned short
+EventTagReader      DEBUG NAME NJet TYPE unsigned short
+EventTagReader      DEBUG NAME EJet_1 TYPE float
+EventTagReader      DEBUG NAME EJet_2 TYPE float
+EventTagReader      DEBUG NAME EJet_3 TYPE float
+EventTagReader      DEBUG NAME EJet_4 TYPE float
+EventTagReader      DEBUG NAME EJet_5 TYPE float
+EventTagReader      DEBUG NAME PxJet_1 TYPE float
+EventTagReader      DEBUG NAME PxJet_2 TYPE float
+EventTagReader      DEBUG NAME PxJet_3 TYPE float
+EventTagReader      DEBUG NAME PxJet_4 TYPE float
+EventTagReader      DEBUG NAME PxJet_5 TYPE float
+EventTagReader      DEBUG NAME PyJet_1 TYPE float
+EventTagReader      DEBUG NAME PyJet_2 TYPE float
+EventTagReader      DEBUG NAME PyJet_3 TYPE float
+EventTagReader      DEBUG NAME PyJet_4 TYPE float
+EventTagReader      DEBUG NAME PyJet_5 TYPE float
+EventTagReader      DEBUG NAME PzJet_1 TYPE float
+EventTagReader      DEBUG NAME PzJet_2 TYPE float
+EventTagReader      DEBUG NAME PzJet_3 TYPE float
+EventTagReader      DEBUG NAME PzJet_4 TYPE float
+EventTagReader      DEBUG NAME PzJet_5 TYPE float
+EventTagReader      DEBUG NAME BTagged_1 TYPE float
+EventTagReader      DEBUG NAME BTagged_2 TYPE float
+EventTagReader      DEBUG NAME BTagged_3 TYPE float
+EventTagReader      DEBUG NAME BTagged_4 TYPE float
+EventTagReader      DEBUG NAME BTagged_5 TYPE float
+ApplicationMgr       INFO Application Manager Initialized successfully
+EventTagReader      DEBUG Executing EventTagReader
+EventTagReader      DEBUG Attribute list is: 
+EventTagReader      DEBUG NAME TestBool TYPE bool VALUE 1
+EventTagReader      DEBUG NAME TestShort TYPE short VALUE 7
+EventTagReader      DEBUG NAME TestUShort TYPE unsigned short VALUE 0
+EventTagReader      DEBUG NAME TestInt TYPE int VALUE 4
+EventTagReader      DEBUG NAME TestUInt TYPE unsigned int VALUE 1
+EventTagReader      DEBUG NAME TestFloat TYPE float VALUE 6.41283
+EventTagReader      DEBUG NAME TestDouble TYPE double VALUE 2.65286
+EventTagReader      DEBUG NAME TestString TYPE string VALUE TestString6
+EventTagReader      DEBUG NAME NGlobal TYPE unsigned short VALUE 1
+EventTagReader      DEBUG NAME RunNumber TYPE unsigned short VALUE 1
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned short VALUE 1
+EventTagReader      DEBUG NAME Luminosity TYPE float VALUE 1.01992e+35
+EventTagReader      DEBUG NAME GoodVertex TYPE bool VALUE 0
+EventTagReader      DEBUG NAME XVertex TYPE float VALUE 1.20915
+EventTagReader      DEBUG NAME YVertex TYPE float VALUE -15.7139
+EventTagReader      DEBUG NAME ZVertex TYPE float VALUE -11.5127
+EventTagReader      DEBUG NAME PxMiss TYPE float VALUE -13329
+EventTagReader      DEBUG NAME PyMiss TYPE float VALUE -26668.1
+EventTagReader      DEBUG NAME NEGamma TYPE unsigned short VALUE 5
+EventTagReader      DEBUG NAME EEGamma_1 TYPE float VALUE 99046.1
+EventTagReader      DEBUG NAME EEGamma_2 TYPE float VALUE 3576.77
+EventTagReader      DEBUG NAME EEGamma_3 TYPE float VALUE 7553.5
+EventTagReader      DEBUG NAME EEGamma_4 TYPE float VALUE 9833.63
+EventTagReader      DEBUG NAME EEGamma_5 TYPE float VALUE 70009
+EventTagReader      DEBUG NAME EtaEGamma_1 TYPE float VALUE -7.30122
+EventTagReader      DEBUG NAME EtaEGamma_2 TYPE float VALUE -4.31456
+EventTagReader      DEBUG NAME EtaEGamma_3 TYPE float VALUE 2.74371
+EventTagReader      DEBUG NAME EtaEGamma_4 TYPE float VALUE 0.752102
+EventTagReader      DEBUG NAME EtaEGamma_5 TYPE float VALUE -1.40713
+EventTagReader      DEBUG NAME PhiEGamma_1 TYPE float VALUE 4.19913
+EventTagReader      DEBUG NAME PhiEGamma_2 TYPE float VALUE 1.87852
+EventTagReader      DEBUG NAME PhiEGamma_3 TYPE float VALUE 3.12631
+EventTagReader      DEBUG NAME PhiEGamma_4 TYPE float VALUE 3.57989
+EventTagReader      DEBUG NAME PhiEGamma_5 TYPE float VALUE 2.19734
+EventTagReader      DEBUG NAME IdEGamma_1 TYPE unsigned short VALUE 2
+EventTagReader      DEBUG NAME IdEGamma_2 TYPE unsigned short VALUE 8
+EventTagReader      DEBUG NAME IdEGamma_3 TYPE unsigned short VALUE 7
+EventTagReader      DEBUG NAME IdEGamma_4 TYPE unsigned short VALUE 0
+EventTagReader      DEBUG NAME IdEGamma_5 TYPE unsigned short VALUE 4
+EventTagReader      DEBUG NAME NMuon TYPE unsigned short VALUE 5
+EventTagReader      DEBUG NAME PtMuon_1 TYPE float VALUE 29506.4
+EventTagReader      DEBUG NAME PtMuon_2 TYPE float VALUE 59575.9
+EventTagReader      DEBUG NAME PtMuon_3 TYPE float VALUE 36580.9
+EventTagReader      DEBUG NAME PtMuon_4 TYPE float VALUE 15745.5
+EventTagReader      DEBUG NAME PtMuon_5 TYPE float VALUE 4266.02
+EventTagReader      DEBUG NAME CotetaMuon_1 TYPE float VALUE -5.82879
+EventTagReader      DEBUG NAME CotetaMuon_2 TYPE float VALUE 4.29196
+EventTagReader      DEBUG NAME CotetaMuon_3 TYPE float VALUE -12.8317
+EventTagReader      DEBUG NAME CotetaMuon_4 TYPE float VALUE 0.646193
+EventTagReader      DEBUG NAME CotetaMuon_5 TYPE float VALUE -7.68973
+EventTagReader      DEBUG NAME PhiMuon_1 TYPE float VALUE 1.39815
+EventTagReader      DEBUG NAME PhiMuon_2 TYPE float VALUE 1.59724
+EventTagReader      DEBUG NAME PhiMuon_3 TYPE float VALUE 5.89466
+EventTagReader      DEBUG NAME PhiMuon_4 TYPE float VALUE 3.60443
+EventTagReader      DEBUG NAME PhiMuon_5 TYPE float VALUE 3.76188
+EventTagReader      DEBUG NAME NTau TYPE unsigned short VALUE 5
+EventTagReader      DEBUG NAME ETau_1 TYPE float VALUE 14856.9
+EventTagReader      DEBUG NAME ETau_2 TYPE float VALUE 32971
+EventTagReader      DEBUG NAME ETau_3 TYPE float VALUE 5987.68
+EventTagReader      DEBUG NAME ETau_4 TYPE float VALUE 108649
+EventTagReader      DEBUG NAME ETau_5 TYPE float VALUE 10422.5
+EventTagReader      DEBUG NAME EtaTau_1 TYPE float VALUE -4.41129
+EventTagReader      DEBUG NAME EtaTau_2 TYPE float VALUE -3.30187
+EventTagReader      DEBUG NAME EtaTau_3 TYPE float VALUE -5.50644
+EventTagReader      DEBUG NAME EtaTau_4 TYPE float VALUE -4.60111
+EventTagReader      DEBUG NAME EtaTau_5 TYPE float VALUE 1.24548
+EventTagReader      DEBUG NAME PhiTau_1 TYPE float VALUE 4.18544
+EventTagReader      DEBUG NAME PhiTau_2 TYPE float VALUE 2.28847
+EventTagReader      DEBUG NAME PhiTau_3 TYPE float VALUE 5.08115
+EventTagReader      DEBUG NAME PhiTau_4 TYPE float VALUE 5.28079
+EventTagReader      DEBUG NAME PhiTau_5 TYPE float VALUE 2.63086
+EventTagReader      DEBUG NAME NtrackTau_1 TYPE unsigned short VALUE 5
+EventTagReader      DEBUG NAME NtrackTau_2 TYPE unsigned short VALUE 9
+EventTagReader      DEBUG NAME NtrackTau_3 TYPE unsigned short VALUE 0
+EventTagReader      DEBUG NAME NtrackTau_4 TYPE unsigned short VALUE 8
+EventTagReader      DEBUG NAME NtrackTau_5 TYPE unsigned short VALUE 4
+EventTagReader      DEBUG NAME IdTau_1 TYPE unsigned short VALUE 0
+EventTagReader      DEBUG NAME IdTau_2 TYPE unsigned short VALUE 1
+EventTagReader      DEBUG NAME IdTau_3 TYPE unsigned short VALUE 2
+EventTagReader      DEBUG NAME IdTau_4 TYPE unsigned short VALUE 5
+EventTagReader      DEBUG NAME IdTau_5 TYPE unsigned short VALUE 2
+EventTagReader      DEBUG NAME NJet TYPE unsigned short VALUE 5
+EventTagReader      DEBUG NAME EJet_1 TYPE float VALUE 40082.9
+EventTagReader      DEBUG NAME EJet_2 TYPE float VALUE 36606.1
+EventTagReader      DEBUG NAME EJet_3 TYPE float VALUE 46987.7
+EventTagReader      DEBUG NAME EJet_4 TYPE float VALUE 81003.4
+EventTagReader      DEBUG NAME EJet_5 TYPE float VALUE 32112.4
+EventTagReader      DEBUG NAME PxJet_1 TYPE float VALUE 22254.3
+EventTagReader      DEBUG NAME PxJet_2 TYPE float VALUE -62787.9
+EventTagReader      DEBUG NAME PxJet_3 TYPE float VALUE -48752.3
+EventTagReader      DEBUG NAME PxJet_4 TYPE float VALUE -13695.2
+EventTagReader      DEBUG NAME PxJet_5 TYPE float VALUE -25341.4
+EventTagReader      DEBUG NAME PyJet_1 TYPE float VALUE -66337.2
+EventTagReader      DEBUG NAME PyJet_2 TYPE float VALUE 19257.8
+EventTagReader      DEBUG NAME PyJet_3 TYPE float VALUE 22350.7
+EventTagReader      DEBUG NAME PyJet_4 TYPE float VALUE -34478.1
+EventTagReader      DEBUG NAME PyJet_5 TYPE float VALUE -116899
+EventTagReader      DEBUG NAME PzJet_1 TYPE float VALUE -64414.5
+EventTagReader      DEBUG NAME PzJet_2 TYPE float VALUE 638.592
+EventTagReader      DEBUG NAME PzJet_3 TYPE float VALUE -27476.7
+EventTagReader      DEBUG NAME PzJet_4 TYPE float VALUE 38548
+EventTagReader      DEBUG NAME PzJet_5 TYPE float VALUE -22621.3
+EventTagReader      DEBUG NAME BTagged_1 TYPE float VALUE -36526
+EventTagReader      DEBUG NAME BTagged_2 TYPE float VALUE 18472.9
+EventTagReader      DEBUG NAME BTagged_3 TYPE float VALUE 22231
+EventTagReader      DEBUG NAME BTagged_4 TYPE float VALUE -16932.5
+EventTagReader      DEBUG NAME BTagged_5 TYPE float VALUE 32788.8
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===

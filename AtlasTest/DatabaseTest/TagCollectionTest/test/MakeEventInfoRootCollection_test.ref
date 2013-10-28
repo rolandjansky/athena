@@ -1,0 +1,10 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+GlobalEventTagB...   INFO in initialize()
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr       INFO Application Manager Started successfully
+RegStream1.Regi...   INFO No Primary Key defined
+RegStream1.Regi...   INFO Collection Events output: 5
+GlobalEventTagB...   INFO Event sum copied to MetaDataStore for GlobalEventTagBuilder.GlobalEventTagTool
+ApplicationMgr       INFO Application Manager Stopped successfully
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

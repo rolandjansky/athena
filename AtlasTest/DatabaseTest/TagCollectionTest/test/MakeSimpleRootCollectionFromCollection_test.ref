@@ -1,0 +1,230 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+RegStream1          DEBUG In initialize 
+RegStream1          DEBUG Found StoreGateSvc store.
+RegStream1          DEBUG Found EventPersistencySvc persistency service.
+RegStream1          DEBUG  Got PoolSvc
+RegStream1          DEBUG No AcceptNames found 
+RegStream1          DEBUG No AcceptAlgs found 
+RegStream1          DEBUG No RequireNames found 
+RegStream1          DEBUG No RequireAlgs found 
+RegStream1          DEBUG No VetoNames found 
+RegStream1          DEBUG No VetoAlgs found 
+RegStream1          DEBUG End initialize 
+ApplicationMgr       INFO Application Manager Initialized successfully
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]
+RegStream1          DEBUG String address [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000000]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG add spec to collection
+RegStream1          DEBUG Spec of input attribute list
+RegStream1          DEBUG Cloned spec
+RegStream1        WARNING Did not find any provenance record in first DataHeader.
+RegStream1        WARNING Will continue job with metadata only.
+RegStream1          DEBUG Cloned spec after token addition 
+RegStream1          DEBUG  name EventNumber type unsigned int
+RegStream1          DEBUG  name Luminosity type float
+RegStream1          DEBUG  name NTrk type unsigned int
+RegStream1          DEBUG  name Nvx type unsigned int
+RegStream1          DEBUG  name RandomNumber type unsigned int
+RegStream1          DEBUG  name RunNumber type unsigned int
+RegStream1          DEBUG  name Stream type unsigned int
+RegStream1          DEBUG  name TimeStamp type float
+RegStream1          DEBUG  name VtxX type float
+RegStream1          DEBUG  name VtxY type float
+RegStream1          DEBUG  name VtxZ type float
+RegStream1          DEBUG  name isCalibration type bool
+RegStream1          DEBUG  name isRealData type bool
+RegStream1          DEBUG  name isSimulation type bool
+RegStream1          DEBUG  name isTestBeam type bool
+RegStream1          DEBUG Collection name: EventTagCollection2
+RegStream1          DEBUG Collection type RootCollection
+RegStream1          DEBUG Collection open mode CREATE_AND_OVERWRITE
+RegStream1          DEBUG Creating attibute specif. 
+RegStream1          DEBUG New specif: 
+RegStream1          DEBUG  Created collection
+RegStream1          DEBUG  name EventNumber type unsigned int value 1
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG Skipping storing inputRefs based on m_backNavStat
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG String address [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000001]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG  name EventNumber type unsigned int value 2
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG Skipping storing inputRefs based on m_backNavStat
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]
+RegStream1          DEBUG String address [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000002]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG  name EventNumber type unsigned int value 3
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG Skipping storing inputRefs based on m_backNavStat
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000003]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000003]
+RegStream1          DEBUG String address [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000003]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000003]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG  name EventNumber type unsigned int value 4
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG Skipping storing inputRefs based on m_backNavStat
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 4    <<<===
+RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774348,"SimpleTag") 
+RegStream1          DEBUG  get ref for (222376821,"*") 
+RegStream1          DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+RegStream1          DEBUG Retrieving proxy for 222376821 EventSelector
+RegStream1          DEBUG  found proxy for (222376821,"EventSelector") 
+RegStream1          DEBUG splitAddress 
+RegStream1          DEBUG    address :  <address_header service_type="71" clid="222376821" /> [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000004]   match :   /> 
+RegStream1          DEBUG    address_header :  <address_header service_type="71" clid="222376821" /> 
+RegStream1          DEBUG    address_data   :  [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000004]
+RegStream1          DEBUG String address [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000004]
+RegStream1          DEBUG Registering refs 
+RegStream1          DEBUG [DB=1CC9C496-5A51-DA11-92B0-0002B3D87B0F][CNT=POOLContainer_DataHeader][CLID=7A8ECDCC-88D2-410C-8B22-35144B77062A][TECH=00000202][OID=00000004-00000004]
+RegStream1          DEBUG Setting tagKey to SimpleTag
+RegStream1          DEBUG Not AthenaAttributeList, skipping (222376821,"*") 
+RegStream1          DEBUG Retrieved attribute list with Key/tagname SimpleTag
+RegStream1          DEBUG Attribute list
+RegStream1          DEBUG  name EventNumber type unsigned int value 5
+RegStream1          DEBUG  name Luminosity type float value 0
+RegStream1          DEBUG  name NTrk type unsigned int value 0
+RegStream1          DEBUG  name Nvx type unsigned int value 0
+RegStream1          DEBUG  name RandomNumber type unsigned int value 0
+RegStream1          DEBUG  name RunNumber type unsigned int value 1
+RegStream1          DEBUG  name Stream type unsigned int value 0
+RegStream1          DEBUG  name TimeStamp type float value 0
+RegStream1          DEBUG  name VtxX type float value 0
+RegStream1          DEBUG  name VtxY type float value 0
+RegStream1          DEBUG  name VtxZ type float value 0
+RegStream1          DEBUG  name isCalibration type bool value 0
+RegStream1          DEBUG  name isRealData type bool value 0
+RegStream1          DEBUG  name isSimulation type bool value 1
+RegStream1          DEBUG  name isTestBeam type bool value 0
+RegStream1          DEBUG Copied attribute list contents
+RegStream1          DEBUG Skipping storing inputRefs based on m_backNavStat
+RegStream1          DEBUG add attributes to collection
+RegStream1          DEBUG Committed collection 
+RegStream1          DEBUG add attributes to collection
+AthenaEventLoopMgr   INFO   ===>>>  end of event 5    <<<===
+RegStream1           INFO Collection Events output: 5
+RegStream1          DEBUG pointer to collection is not null
+RegStream1          DEBUG  Closed collection 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

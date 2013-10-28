@@ -1,0 +1,4 @@
+ToolSvc.LumiBlo...  DEBUG CollectionMetadata has Key@OutputLumirange;, <?xml version="1.0"?>
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #556983, run #152166 20 events processed so far  <<<===
+ToolSvc.LumiBlo...   INFO  finishUp: write lumiblocks to meta data store 
+Py:Athena            INFO leaving with code 0: "successful run"

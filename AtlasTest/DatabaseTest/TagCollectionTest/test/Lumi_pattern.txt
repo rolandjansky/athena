@@ -1,0 +1,6 @@
+INFO handle() BeginTagFile
+CollectionMetadata has Key@OutputLumirange
+finishUp: write lumiblocks to meta data store
+20 has the following (run,lumiblock) ranges
+successful run
+20 events processed
