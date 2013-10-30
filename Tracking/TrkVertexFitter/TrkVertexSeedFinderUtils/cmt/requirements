@@ -1,0 +1,33 @@
+package TrkVertexSeedFinderUtils
+
+author Nicola Giacinto Piacquadio <Nicola.Giacinto.Piacquadio@cern.ch>
+author Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
+author Andreas Wildauer <Andreas.Wildauer@cern.ch>
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use GaudiInterface         GaudiInterface-*         External
+use TrkParameters          TrkParameters-*          Tracking/TrkEvent
+use GeoPrimitives          GeoPrimitives-*          DetectorDescription 
+
+private 
+use TrkEventPrimitives     TrkEventPrimitives-*     Tracking/TrkEvent
+use EventPrimitives        EventPrimitives-*        Event
+use TrkTrack               TrkTrack-*               Tracking/TrkEvent
+use AtlasROOT              AtlasROOT-*              External
+use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
+use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
+
+
+public
+
+library TrkVertexSeedFinderUtils *.cxx components/*.cxx
+apply_pattern component_library
+
+
+#private
+#the next two lines are only for debugging purposes
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
