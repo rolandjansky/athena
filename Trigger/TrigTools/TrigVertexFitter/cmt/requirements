@@ -1,0 +1,27 @@
+package TrigVertexFitter
+
+author Dmitry Emeliyanov <D.Emeliyanov@rl.ac.uk>
+
+public
+
+# General
+use AtlasPolicy			AtlasPolicy-*
+use GaudiInterface		GaudiInterface-*          External
+use TrigInDetEvent		TrigInDetEvent-*	  Trigger/TrigEvent
+use TrigInDetToolInterfaces     TrigInDetToolInterfaces-* Trigger/TrigTools
+use TrkTrack                    TrkTrack-*                Tracking/TrkEvent
+use TrkEventPrimitives          TrkEventPrimitives-*      Tracking/TrkEvent
+
+library TrigVertexFitter "*.cxx components/*.cxx"
+    
+apply_pattern component_library
+#apply_pattern dual_use_library
+apply_pattern declare_joboptions files="*.py"
+#apply_pattern declare_non_standard_include name=doc
+
+private
+
+use StoreGate			StoreGate-*		Control
+use AtlasCLHEP 			AtlasCLHEP-*     	External
+use TrigTimeAlgs		TrigTimeAlgs-*		Trigger/TrigTools
+use TrkParameters	        TrkParameters-* 	Tracking/TrkEvent

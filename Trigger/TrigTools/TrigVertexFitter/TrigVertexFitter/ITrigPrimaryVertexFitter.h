@@ -1,0 +1,28 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef __ITRIG_PRIM_VERTEX_FITTER__
+#define __ITRIG_PRIM_VERTEX_FITTER__
+
+#include<list>
+#include<vector>
+#include "GaudiKernel/IAlgTool.h"
+#include "TrigInDetEvent/TrigInDetTrack.h"
+#include "TrigInDetEvent/TrigInDetTrackCollection.h"
+#include "TrigInDetEvent/TrigVertex.h"
+
+static const InterfaceID IID_ITrigPrimaryVertexFitter("ITrigPrimaryVertexFitter",1,0); 
+
+class ITrigPrimaryVertexFitter: virtual public IAlgTool 
+{
+
+ public:
+  static const InterfaceID& interfaceID() {
+    return IID_ITrigPrimaryVertexFitter;
+  }
+  virtual TrigVertex* fit(const TrigInDetTrackCollection*, double z=0.0) = 0;
+  virtual TrigVertex* fit(const TrigInDetTrackCollection*, std::vector<double>&, double z=0.0) = 0;
+};
+
+#endif
