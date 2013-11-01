@@ -1,0 +1,29 @@
+package MuonTimingTools
+
+author Tomo Lazovich <tomo.lazovich@cern.ch>
+
+public
+use  AtlasPolicy        AtlasPolicy-*                   
+
+private
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use GaudiInterface      GaudiInterface-*        External
+use AtlasDetDescr       AtlasDetDescr-*         DetectorDescription
+use MuonRIO_OnTrack     MuonRIO_OnTrack-*       MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonPrepRawData     MuonPrepRawData-*       MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonCompetingRIOsOnTrack MuonCompetingRIOsOnTrack-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonIdHelpers       MuonIdHelpers-*         MuonSpectrometer
+use MuonRecHelperTools  MuonRecHelperTools-*    MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonSegment         MuonSegment-*           MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use TrkParticleBase     TrkParticleBase-*       Tracking/TrkEvent
+use TrkSegment          TrkSegment-*            Tracking/TrkEvent
+use TrkSpaceTimePoint   TrkSpaceTimePoint-*     Tracking/TrkEvent
+use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
+use MuonCalibITools     MuonCalibITools-*       MuonSpectrometer/MuonCalib
+use MuonCalibIdentifier MuonCalibIdentifier-*   MuonSpectrometer/MuonCalib
+use MuonIdHelpers       MuonIdHelpers-*         MuonSpectrometer
+
+public
+library MuonTimingTools *.cxx components/*.cxx
+apply_pattern component_library
