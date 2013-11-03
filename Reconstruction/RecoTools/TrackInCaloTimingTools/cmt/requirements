@@ -1,0 +1,26 @@
+package TrackInCaloTimingTools
+
+author Christian Ohm <christian.ohm@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use TrkToolInterfaces     TrkToolInterfaces-*    Tracking/TrkTools
+use GaudiInterface        GaudiInterface-*       External
+
+# apply_pattern declare_joboptions files="*.py *.C *.sh"
+# apply_pattern declare_scripts files="-s=../share *.csh *.h *.sh"
+# apply_pattern declare_runtime files="-s=../src *.templ *.txt"
+
+library TrackInCaloTimingTools *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+
+use AthenaBaseComps       AthenaBaseComps-*      Control
+use  CaloEvent            CaloEvent-*            Calorimeter
+use  CaloIdentifier       CaloIdentifier-*       Calorimeter
+use  TrkSegment           TrkSegment-*           Tracking/TrkEvent
+use  ITrackInCaloTools    ITrackInCaloTools-*    Reconstruction/RecoTools
+use  TrkTrack             TrkTrack-*             Tracking/TrkEvent
+use  TrkParticleBase      TrkParticleBase-*      Tracking/TrkEvent
+use  TrkSpaceTimePoint    TrkSpaceTimePoint-*    Tracking/TrkEvent
+
