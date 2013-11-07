@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- The main node is called "MUCTPI_LUT" and it contains "Mioct" elements -->
+<!ELEMENT MUCTPI_LUT (Mioct+)>
+
+<!-- A Mioct node describes the configuration of one MIOCT module -->
+<!-- with all of its "logical" Look Up Tables. -->
+<!ELEMENT Mioct (BB1LUT,BB2LUT,
+                 BE11LUT,BE12LUT,BE22LUT,BE23LUT,
+                 BE34LUT,BE35LUT,BE45LUT,BE46LUT,
+                 EE1LUT,EE2LUT,EE3LUT,EE4LUT,EE5LUT,
+                 EF21LUT,EF31LUT,EF42LUT,EF52LUT,EF63LUT,
+                 FF1LUT,FF2LUT)>
+<!-- The MIOCT is also identified with a simple ID -->
+<!ATTLIST Mioct
+          IDs              CDATA            #REQUIRED
+>
+
+<!-- Barrel-Barrel overlaps are very simple, they are handled by just -->
+<!-- two LUTs. -->
+<!ELEMENT BB1LUT (BBElement*)>
+<!ELEMENT BB2LUT (BBElement*)>
+
+<!-- Each line in the BB LUT has the RoIs of the two barrel candidates -->
+<!-- and their overlap flags. -->
+<!ELEMENT BBElement EMPTY>
+<!ATTLIST BBElement
+          Ovlp1            (0|1)            #REQUIRED
+          Ovlp2            (0|1)            #REQUIRED
+          RoI1             CDATA            #REQUIRED
+          RoI2             CDATA            #REQUIRED
+>
+
+<!-- We have 8 LUTs describing the overlapping Barrel and Endcap -->
+<!-- RoIs. -->
+<!ELEMENT BE11LUT (BEElement*)>
+<!ELEMENT BE12LUT (BEElement*)>
+<!ELEMENT BE22LUT (BEElement*)>
+<!ELEMENT BE23LUT (BEElement*)>
+<!ELEMENT BE34LUT (BEElement*)>
+<!ELEMENT BE35LUT (BEElement*)>
+<!ELEMENT BE45LUT (BEElement*)>
+<!ELEMENT BE46LUT (BEElement*)>
+
+<!ELEMENT BEElement EMPTY>
+<!ATTLIST BEElement
+          BPt              (1|2|3|4|5|6)    #REQUIRED
+          EChrg            (0|1)            #REQUIRED
+          BRoI             CDATA            #REQUIRED
+          ERoI             CDATA            #REQUIRED
+>
+
+<!-- Then we have 5 Endcap-Endcap LUTs describing the 5 overlap areas in one -->
+<!-- MIOCT. -->
+<!ELEMENT EE1LUT (EEElement*)>
+<!ELEMENT EE2LUT (EEElement*)>
+<!ELEMENT EE3LUT (EEElement*)>
+<!ELEMENT EE4LUT (EEElement*)>
+<!ELEMENT EE5LUT (EEElement*)>
+
+<!-- The Endcap-Endcap LUTs have just the two translated Endcap RoIs on their -->
+<!-- input. -->
+<!ELEMENT EEElement EMPTY>
+<!ATTLIST EEElement
+          RoI1             CDATA            #REQUIRED
+          RoI2             CDATA            #REQUIRED
+>
+
+<!-- Then we can define the 5 different Endcap-Forward LUTs of the MIOCT. -->
+<!ELEMENT EF21LUT (EFElement*)>
+<!ELEMENT EF31LUT (EFElement*)>
+<!ELEMENT EF42LUT (EFElement*)>
+<!ELEMENT EF52LUT (EFElement*)>
+<!ELEMENT EF63LUT (EFElement*)>
+
+<!-- The Endcap-Forward LUT lists the translated Endcap RoIs and the regular -->
+<!-- Forward ones. -->
+<!ELEMENT EFElement EMPTY>
+<!ATTLIST EFElement
+          FRoI             CDATA            #REQUIRED
+          ERoI             CDATA            #REQUIRED
+>
+
+<!-- The Forward-Forward LUTs are the simples of them all. They just list the -->
+<!-- overlapping RoIs of the neighboring sectors without any transformation. -->
+<!ELEMENT FF1LUT (FFElement*)>
+<!ELEMENT FF2LUT (FFElement*)>
+
+<!-- Only the RoIs go into the Forward-Forward LUTs. -->
+<!ELEMENT FFElement EMPTY>
+<!ATTLIST FFElement
+          RoI1             CDATA            #REQUIRED
+          RoI2             CDATA            #REQUIRED
+>

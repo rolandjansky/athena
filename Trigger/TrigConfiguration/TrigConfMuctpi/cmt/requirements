@@ -1,0 +1,20 @@
+package TrigConfMuctpi
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+# Policy package(s):
+use DetCommonPolicy    *
+
+# External package(s):
+use XercesC            *   LCG_Interfaces
+
+private
+use Boost              *   LCG_Interfaces
+end_private
+
+# Compile the library:
+apply_pattern detcommon_shared_library
+apply_pattern detcommon_header_installer
+
+# Install the LUTs:
+apply_pattern detcommon_link_files files="-s=../data *.xml *.dtd" \
+                                   prefix=XML/TrigConfMuctpi
