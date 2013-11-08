@@ -1,0 +1,10 @@
+<lcgdict>
+   <class name="TrigConf::ICTPConfigLoader"/>
+   <class name="TrigConf::IHLTFrameLoader"/>
+   <class name="TrigConf::XMLStorageMgr"/>
+   <exclusion>
+      <class name="TrigConf::XMLStorageMgr">
+         <method name="operator="/>
+      </class>
+   </exclusion>
+</lcgdict>

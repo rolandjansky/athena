@@ -1,0 +1,1814 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Author   : Miroslav Nozicka <nozicka@mail.desy.de>
+  Modified : 01.07. 2009
+  Comment  : Update of unknowns
+-->
+<!--
+  MC Rules file for modification of the MC Trigger Configuration
+  Rules: Replace, Merge, Copy, Rename, Modify
+
+  Replace:
+    Replace online components with offline
+  Merge:
+    Merge L2 and EF parameters to offline parameter
+  Copy:
+    Copy online parameter value corresponding to offline parameter value
+  Rename:
+    Rename online algorithm or parameter to offline
+  Modify:
+    Modify parameter by replacing online substring with offline substring
+-->
+
+<Rules>
+  
+<!--   Make All algorithms verbose - debugging purposes -->
+<!--  <Replace name='OutputLevel-VERBOSE'>
+    <online>
+      <component alias="*" name="*">
+        <parameter name="OutputLevel" value="*" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="*" name="*">
+        <parameter name="OutputLevel" value="1" op="set"/>
+      </component>
+    </offline>
+  </Replace>-->
+<!--   End of: Make All algorithms verbose - debugging purposes -->
+
+<!--   Remove python class and module - make pure C++ classes -->
+<!--  <Replace name='NoPython'>
+    <online>
+      <component alias="*" name="*" py_name="*" py_name="*"/>
+    </online>
+    <offline>
+      <component alias="*" name="*" py_name="" py_name=""/>
+    </offline>
+  </Replace>-->
+<!--   End of: Remove python class and module - make pure C++ classes -->
+  
+  <Replace name='IOVSvc.StoreGateSvc'>
+    <online>
+      <component alias="IOVSvc.StoreGateSvc" name="IOVSvcTool"/>
+    </online>
+    <offline>
+    </offline>
+  </Replace>
+  
+  <Merge>
+    <component alias="ApplicationMgr" name="ApplicationMgr">
+      <parameter name="CreateSvc" value="" op="set"/>
+      <parameter name="Dlls" value="" op="set"/>
+      <parameter name="ExtSvc" value="" op="set"/>
+      <parameter name="TopAlg" value="" op="set"/>
+    </component>
+    <component alias="ByteStreamAddressProviderSvc" name="ByteStreamAddressProviderSvc">
+      <parameter name="TypeNames" value="" op="set"/>
+    </component>
+    <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr">
+      <parameter name="TopAlg" value="[]" op="set"/>
+    </component>
+    <component alias="EventPersistencySvc" name="EvtPersistencySvc">
+      <parameter name="CnvServices" value="" op="set"/>
+    </component>
+    <component alias="ClassIDSvc" name="ClassIDSvc">
+      <parameter name="CLIDDBFiles" value="[]" op="set"/>
+    </component>
+    <component alias="ProxyProviderSvc" name="ProxyProviderSvc">
+      <parameter name="ProviderNames" value="['MetaDataSvc', 'IOVDbSvc', 'ByteStreamAddressProviderSvc']" op="set"/>
+    </component>
+    <component alias="IOVDbSvc" name="IOVDbSvc">
+      <parameter name="Folders" value="[]" op="set"/>
+    </component>
+    <component alias="MessageSvc" name="MessageSvc">
+      <parameter name="setError" value="[]" op="set"/>
+    </component>
+    <component alias="AthenaRootStreamerSvc" name="AthenaRootStreamerSvc">
+      <parameter name="Streamers" value="[]" op="set"/>
+    </component>
+    <component alias="ToolSvc.AtlasExtrapolator" name="Trk::Extrapolator">
+      <parameter name="MultipleScatteringUpdators" value="[]" op="set"/>
+      <parameter name="EnergyLossUpdators" value="[]" op="set"/>
+      <parameter name="SubMEUpdators" value="[]" op="set"/>
+      <parameter name="SubPropagators" value="[]" op="set"/>
+    </component>
+    <component alias="ToolSvc.InDetTrigExtrapolator" name="Trk::Extrapolator">
+      <parameter name="MultipleScatteringUpdators" value="[]" op="set"/>
+      <parameter name="EnergyLossUpdators" value="[]" op="set"/>
+      <parameter name="SubMEUpdators" value="[]" op="set"/>
+      <parameter name="SubPropagators" value="[]" op="set"/>
+    </component>
+  </Merge>
+  
+  <Replace name="H1WeightToolCSC12Generic">
+    <online>
+      <component alias="*.H1WeightCone7H1Tower" name="H1WeightToolCSC12Generic">
+        <parameter name="wtHec2" value="*" op="set"/>
+        <parameter name="wtHec1" value="*" op="set"/>
+        <parameter name="wtEME0" value="*" op="set"/>
+        <parameter name="wtEME1" value="*" op="set"/>
+        <parameter name="wtEME2" value="*" op="set"/>
+        <parameter name="wtEMB0" value="*" op="set"/>
+        <parameter name="wtEMB1" value="*" op="set"/>
+        <parameter name="wtEMB2" value="*" op="set"/>
+        <parameter name="wtTile1" value="*" op="set"/>
+        <parameter name="wtTile2" value="*" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="*.H1WeightCone7H1Tower" name="H1WeightToolCSC12Generic">
+      </component>
+    </offline>
+  </Replace>
+  
+  <Copy name="ApplicationMgr.TopAlg">
+    <online>
+      <component alias="AthAlgSeq" name="AthSequencer" py_name="" py_package="">
+        <parameter name="Members" value="*"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name="" py_package="">
+        <parameter name="TopAlg" value="[&#39;AthSequencer/AthMasterSeq&#39;]" op="set"/>
+      </component>
+    </offline>
+  </Copy>
+  
+  <Replace name="AthSequencer">
+    <online>
+      <component alias="*" name="AthSequencer" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+    </offline>
+  </Replace>
+  
+<!--    Fix the unknowns from offline 01.07.09 nightly -->
+  <Rename name="ToolSvc.TileCondToolNoiseSample.TileCondProxyCool_NoiseAutoCr">
+    <online>
+      <component alias="ToolSvc.TileCondToolNoiseSample.TileCondProxyCool_NoiseAutoCr" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TileCondToolNoiseSample.TileCondProxyCool_NoiseAutoCr" name="TileCondProxyCool&lt;TileCalibDrawerFlt&gt;" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.exToCalo">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.exToCalo" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.exToCalo" name="ExtrapolateToCaloTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.egammaExtrapolationTool">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.egammaExtrapolationTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.egammaExtrapolationTool" name="EMExtrapolationTools" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_eGamma.egammashowershape_TrigEgammaRec_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_eGamma.egammashowershape_TrigEgammaRec_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_eGamma.egammashowershape_TrigEgammaRec_eGamma" name="egammaShowerShape" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma.egammashowershape_TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma.egammashowershape_TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma.egammashowershape_TrigEgammaRec_NoIDEF_eGamma" name="egammaShowerShape" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQpoint_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MdtDriftCircleOnTrackCreatorAdjustableT0Moore">
+    <online>
+      <component alias="ToolSvc.MdtDriftCircleOnTrackCreatorAdjustableT0Moore" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MdtDriftCircleOnTrackCreatorAdjustableT0Moore" name="Muon::MdtDriftCircleOnTrackCreator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TRTSeededInDetTrigAmbiguityProcessor">
+    <online>
+      <component alias="ToolSvc.TRTSeededInDetTrigAmbiguityProcessor" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TRTSeededInDetTrigAmbiguityProcessor" name="Trk::SimpleAmbiguityProcessorTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigConversionFinderTools">
+    <online>
+      <component alias="ToolSvc.InDetTrigConversionFinderTools" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigConversionFinderTools" name="InDet::InDetConversionFinderTools" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigConversionPropagator">
+    <online>
+      <component alias="ToolSvc.InDetTrigConversionPropagator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigConversionPropagator" name="Trk::StraightLinePropagator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TileCondToolPulseShape">
+    <online>
+      <component alias="ToolSvc.TileCondToolPulseShape" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TileCondToolPulseShape" name="TileCondToolPulseShape" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TileCondToolPulseShape.TileCondProxyCool_PulseShapePhy">
+    <online>
+      <component alias="ToolSvc.TileCondToolPulseShape.TileCondProxyCool_PulseShapePhy" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TileCondToolPulseShape.TileCondProxyCool_PulseShapePhy" name="TileCondProxyCool&lt;TileCalibDrawerFlt&gt;" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.IDScanHitFilter_Bphysics">
+    <online>
+      <component alias="ToolSvc.IDScanHitFilter_Bphysics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.IDScanHitFilter_Bphysics" name="IDScanHitFilter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigTauSeeds">
+    <online>
+      <component alias="ToolSvc.TrigTauSeeds" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigTauSeeds" name="tauSeedBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonAmbiProcessorCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonAmbiProcessorCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonAmbiProcessorCosmic" name="Trk::SimpleAmbiguityProcessorTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.ShifterTool_Cosmics">
+    <online>
+      <component alias="ToolSvc.ShifterTool_Cosmics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.ShifterTool_Cosmics" name="ShifterTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.IDScanHitFilter_Cosmics">
+    <online>
+      <component alias="ToolSvc.IDScanHitFilter_Cosmics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.IDScanHitFilter_Cosmics" name="IDScanHitFilter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.EventCnvSuperTool">
+    <online>
+      <component alias="ToolSvc.EventCnvSuperTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.EventCnvSuperTool" name="Trk::EventCnvSuperTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackSummaryToolSharedHits">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackSummaryToolSharedHits" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackSummaryToolSharedHits" name="Trk::TrackSummaryTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_muon">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_muon" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_muon" name="InDet::TRT_TrackSegmentsMaker_ATLxk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlGlobalFitTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlGlobalFitTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlGlobalFitTool" name="MuGirlNS::GlobalFitTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.IDScanZFinder_Cosmics">
+    <online>
+      <component alias="ToolSvc.IDScanZFinder_Cosmics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.IDScanZFinder_Cosmics" name="IDScanZFinder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_SeededTrackTool_photon">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_SeededTrackTool_photon" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_SeededTrackTool_photon" name="InDet::TRT_SeededTrackFinder_ATL" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonSegmentTrackBuilderCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonSegmentTrackBuilderCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonSegmentTrackBuilderCosmic" name="Muon::MuonSegmentTrackBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egfourmom_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_PhotonConversions" name="EMFourMomBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MisalignedBackExtrapolator">
+    <online>
+      <component alias="ToolSvc.MisalignedBackExtrapolator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MisalignedBackExtrapolator" name="TrigMuonBackExtrapolator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.ExtrapolTrackToCaloToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.ExtrapolTrackToCaloToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.ExtrapolTrackToCaloToolshowerdefault" name="ExtrapolTrackToCaloTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlParticleCreatorTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlParticleCreatorTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlParticleCreatorTool" name="MuGirlNS::MuGirlParticleCreatorTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MCTBExtrapolatorBlendedMat">
+    <online>
+      <component alias="ToolSvc.MCTBExtrapolatorBlendedMat" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MCTBExtrapolatorBlendedMat" name="Trk::Extrapolator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MdtDriftCircleOnTrackCreatorAdjustableT0Mboy">
+    <online>
+      <component alias="ToolSvc.MdtDriftCircleOnTrackCreatorAdjustableT0Mboy" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MdtDriftCircleOnTrackCreatorAdjustableT0Mboy" name="Muon::MdtDriftCircleOnTrackCreator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonSegmentRegionRecoveryTool">
+    <online>
+      <component alias="ToolSvc.MuonSegmentRegionRecoveryTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonSegmentRegionRecoveryTool" name="Muon::MuonSegmentRegionRecoveryTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_photon">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_photon" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_photon" name="InDet::TRT_TrackSegmentsMaker_ATLxk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.empid_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.empid_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.empid_TrigEgammaRec_PhotonConversions" name="EMPIDBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.ExtrapolTrackToCaloToolentrance">
+    <online>
+      <component alias="ToolSvc.ExtrapolTrackToCaloToolentrance" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.ExtrapolTrackToCaloToolentrance" name="ExtrapolTrackToCaloTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonPatternSegmentMakerCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonPatternSegmentMakerCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonPatternSegmentMakerCosmic" name="Muon::MuonPatternSegmentMaker" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonSTEP_Extrapolator">
+    <online>
+      <component alias="ToolSvc.MuonSTEP_Extrapolator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonSTEP_Extrapolator" name="Trk::Extrapolator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackSlimmingToolParams">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackSlimmingToolParams" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackSlimmingToolParams" name="Trk::TrackSlimmingTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQgcld_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQgcld_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQgcld_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonChi2SLTrackFitter">
+    <online>
+      <component alias="ToolSvc.MuonChi2SLTrackFitter" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonChi2SLTrackFitter" name="Trk::GlobalChi2Fitter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackFitterTRT">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackFitterTRT" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackFitterTRT" name="Trk::GlobalChi2Fitter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_StandaloneScoringTool_tau">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_tau" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_tau" name="InDet::InDetTrtTrackScoringTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonRK_Extrapolator">
+    <online>
+      <component alias="ToolSvc.MuonRK_Extrapolator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonRK_Extrapolator" name="Trk::Extrapolator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions" name="EMShowerBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_PhotonConversions.egammashowershape_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions.egammashowershape_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions.egammashowershape_TrigEgammaRec_PhotonConversions" name="egammaShowerShape" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.IDScanZFinder_Bphysics">
+    <online>
+      <component alias="ToolSvc.IDScanZFinder_Bphysics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.IDScanZFinder_Bphysics" name="IDScanZFinder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_StandaloneScoringTool_photon">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_photon" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_photon" name="InDet::InDetTrtTrackScoringTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonHoughPatternToolCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonHoughPatternToolCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonHoughPatternToolCosmic" name="MuonHoughPatternTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MdtDriftCircleOnTrackCreatorAdjustableT0Cosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MdtDriftCircleOnTrackCreatorAdjustableT0Cosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MdtDriftCircleOnTrackCreatorAdjustableT0Cosmic" name="Muon::MdtDriftCircleOnTrackCreator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonChamberHoleRecoveryToolCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonChamberHoleRecoveryToolCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonChamberHoleRecoveryToolCosmic" name="Muon::MuonChamberHoleRecoveryTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.Trk::FastVertexFitter">
+    <online>
+      <component alias="ToolSvc.Trk::FastVertexFitter" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.Trk::FastVertexFitter" name="Trk::FastVertexFitter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions.exToCalo">
+    <online>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions.exToCalo" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions.exToCalo" name="ExtrapolateToCaloTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonStraightLineExtrapolator">
+    <online>
+      <component alias="ToolSvc.MuonStraightLineExtrapolator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonStraightLineExtrapolator" name="Trk::Extrapolator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonHoleRecovery.CscClusterOnTrackCreator">
+    <online>
+      <component alias="ToolSvc.MuonHoleRecovery.CscClusterOnTrackCreator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonHoleRecovery.CscClusterOnTrackCreator" name="Muon::CscClusterOnTrackCreator" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions" name="EMTrackMatchBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.egammaExtrapolationTool">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.egammaExtrapolationTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.egammaExtrapolationTool" name="EMExtrapolationTools" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.exToCalo">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.exToCalo" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.exToCalo" name="ExtrapolateToCaloTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuGirlStauCombinedMuonTrackBuilder">
+    <online>
+      <component alias="ToolSvc.MuGirlStauCombinedMuonTrackBuilder" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuGirlStauCombinedMuonTrackBuilder" name="Rec::CombinedMuonTrackBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigAmbiguityProcessor_bphysics">
+    <online>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessor_bphysics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessor_bphysics" name="Trk::SimpleAmbiguityProcessorTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TileCondToolOfc">
+    <online>
+      <component alias="ToolSvc.TileCondToolOfc" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TileCondToolOfc" name="TileCondToolOfc" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_electron">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_electron" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_electron" name="InDet::TRT_TrackSegmentsMaker_ATLxk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_tau">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_tau" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_tau" name="InDet::TRT_TrackSegmentsMaker_ATLxk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackFitterCosmics">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackFitterCosmics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackFitterCosmics" name="Trk::GlobalChi2Fitter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlStauTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlStauTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlStauTool" name="MuGirlNS::StauTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonKalmanTrackFitter">
+    <online>
+      <component alias="ToolSvc.MuonKalmanTrackFitter" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonKalmanTrackFitter" name="Trk::KalmanFitter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonChi2TrackFitter">
+    <online>
+      <component alias="ToolSvc.MuonChi2TrackFitter" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonChi2TrackFitter" name="Trk::GlobalChi2Fitter" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonCurvedSegmentCombinerCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonCurvedSegmentCombinerCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonCurvedSegmentCombinerCosmic" name="Muon::MuonCurvedSegmentCombiner" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetL2_TRT_TrackSegmentsMaker">
+    <online>
+      <component alias="ToolSvc.InDetL2_TRT_TrackSegmentsMaker" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetL2_TRT_TrackSegmentsMaker" name="InDet::TRT_TrackSegmentsMaker_ATLxk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_StandaloneScoringTool_electron">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_electron" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_electron" name="InDet::InDetTrtTrackScoringTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigParticleCreatorToolParams">
+    <online>
+      <component alias="ToolSvc.InDetTrigParticleCreatorToolParams" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigParticleCreatorToolParams" name="Trk::TrackParticleCreatorTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonTrackExtrapolationTool">
+    <online>
+      <component alias="ToolSvc.MuonTrackExtrapolationTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonTrackExtrapolationTool" name="Muon::MuonTrackExtrapolationTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigExtScoringTool_bphysics">
+    <online>
+      <component alias="ToolSvc.InDetTrigExtScoringTool_bphysics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigExtScoringTool_bphysics" name="InDet::InDetAmbiScoringTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlSelectionTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlSelectionTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlSelectionTool" name="MuGirlNS::ANNSelectionTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiTrackMaker_bphysics">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiTrackMaker_bphysics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiTrackMaker_bphysics" name="InDet::SiTrackMaker_xk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_StandaloneScoringTool_muon">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_muon" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_muon" name="InDet::InDetTrtTrackScoringTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigZvertexMaker_bphysics">
+    <online>
+      <component alias="ToolSvc.InDetTrigZvertexMaker_bphysics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigZvertexMaker_bphysics" name="InDet::SiZvertexMaker_xk" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TMEF_MuonCombinePatternToolCosmic">
+    <online>
+      <component alias="ToolSvc.TMEF_MuonCombinePatternToolCosmic" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TMEF_MuonCombinePatternToolCosmic" name="MuonCombinePatternTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlStauGlobalFitTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlStauGlobalFitTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlStauGlobalFitTool" name="MuGirlNS::GlobalFitTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlSAGlobalFitTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlSAGlobalFitTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlSAGlobalFitTool" name="MuGirlNS::GlobalFitTool" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions" name="EMConversionBuilder" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <Rename name="Streams">
+    <online>
+      <component alias="Streams" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="Streams" name="AthSequencer" py_name="" py_package=""/>
+    </offline>
+  </Rename>
+  <!-- Fix unknowns release 15.5.1.1 -->
+  <Rename name="ToolSvc.egammaQpoint_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.empid_TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.empid_TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.empid_TrigEgammaRec_NoIDEF_eGamma" name="EMPIDBuilder" py_name="egammaEMPIDBuilderEF" py_package="TrigEgammaRec.EMPIDBuilderTrigEgammaRec"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQpoint_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQpoint_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQpoint_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonTrackSelectorTool">
+    <online>
+      <component alias="ToolSvc.MuonTrackSelectorTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonTrackSelectorTool" name="Muon::MuonTrackSelectorTool" py_name="MuonTrackSelectorTool" py_package="MuonRecExample.Moore"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics">
+    <online>
+      <component alias="ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics" name="InDet::TRT_TrackSegmentsMaker_BarrelCosmics" py_name="InDet__TRT_TrackSegmentsMaker_BarrelCosmics" py_package="TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuGirlStauCombinedMuonTrackBuilder">
+    <online>
+      <component alias="ToolSvc.MuGirlStauCombinedMuonTrackBuilder" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuGirlStauCombinedMuonTrackBuilder" name="Rec::CombinedMuonTrackBuilder" py_name="Rec__CombinedMuonTrackBuilder" py_package="MuidTrackBuilder.MuidTrackBuilderConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.LArTrackingVolumeHelper">
+    <online>
+      <component alias="ToolSvc.LArTrackingVolumeHelper" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.LArTrackingVolumeHelper" name="Trk::TrackingVolumeHelper" py_name="Trk__TrackingVolumeHelper" py_package="TrkDetDescrTools.TrkDetDescrToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackSummaryTool">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackSummaryTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackSummaryTool" name="Trk::TrackSummaryTool" py_name="Trk__TrackSummaryTool" py_package="TrkTrackSummaryTool.TrkTrackSummaryToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigClusterMakerTool">
+    <online>
+      <component alias="ToolSvc.InDetTrigClusterMakerTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigClusterMakerTool" name="InDet::ClusterMakerTool" py_name="InDet__ClusterMakerTool" py_package="SiClusterizationTool.SiClusterizationToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="ToolSvc.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="EMShowerBuilder" py_name="EMShowerBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma.egammashowershape_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma.egammashowershape_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma.egammashowershape_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="egammaShowerShape" py_name="egammaShowerShape" py_package="egammaCaloTools.egammaCaloToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigTauCommonCalcVar">
+    <online>
+      <component alias="ToolSvc.TrigTauCommonCalcVar" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigTauCommonCalcVar" name="TauCommonCalcVars" py_name="TauCommonCalcVars" py_package="tauRec.tauRecConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MdtTimingTool">
+    <online>
+      <component alias="ToolSvc.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiComTrackFinder">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiComTrackFinder" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiComTrackFinder" name="InDet::SiCombinatorialTrackFinder_xk" py_name="InDet__SiCombinatorialTrackFinder_xk" py_package="SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.L2DataLoader">
+    <online>
+      <component alias="ToolSvc.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.egammaExtrapolationTool">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.egammaExtrapolationTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.egammaExtrapolationTool" name="EMExtrapolationTools" py_name="EMExtrapolationTools" py_package="egammaTrackTools.egammaTrackToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.egammaExtrapolationTool">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.egammaExtrapolationTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.egammaExtrapolationTool" name="EMExtrapolationTools" py_name="EMExtrapolationTools" py_package="egammaTrackTools.egammaTrackToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_eGamma" name="EMShowerBuilder" py_name="EMShowerBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_eGamma.egammashowershape_TrigEgammaRec_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_eGamma.egammashowershape_TrigEgammaRec_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_eGamma.egammashowershape_TrigEgammaRec_eGamma" name="egammaShowerShape" py_name="egammaShowerShape" py_package="egammaCaloTools.egammaCaloToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma" name="EMShowerBuilder" py_name="EMShowerBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma.egammashowershape_TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma.egammashowershape_TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_NoIDEF_eGamma.egammashowershape_TrigEgammaRec_NoIDEF_eGamma" name="egammaShowerShape" py_name="egammaShowerShape" py_package="egammaCaloTools.egammaCaloToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQgcld_TrigEgammaRec_eGamma.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQgcld_TrigEgammaRec_eGamma.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQgcld_TrigEgammaRec_eGamma.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonHoleRecovery.CscClusterOnTrackCreator">
+    <online>
+      <component alias="ToolSvc.MuonHoleRecovery.CscClusterOnTrackCreator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonHoleRecovery.CscClusterOnTrackCreator" name="Muon::CscClusterOnTrackCreator" py_name="Muon__CscClusterOnTrackCreator" py_package="MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiSpacePointMakerTool">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiSpacePointMakerTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiSpacePointMakerTool" name="InDet::SiSpacePointMakerTool" py_name="InDet__SiSpacePointMakerTool" py_package="SiSpacePointTool.SiSpacePointToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlStauTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlStauTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlStauTool" name="MuGirlNS::StauTool" py_name="MuGirlNS__StauToolConfig" py_package="MuGirlStau.MuGirlStauConfig"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.L2MdtTool">
+    <online>
+      <component alias="ToolSvc.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions.exToCalo">
+    <online>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions.exToCalo" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions.exToCalo" name="ExtrapolateToCaloTool" py_name="ExtrapolateToCaloTool" py_package="TrackToCalo.TrackToCaloConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.empid_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.empid_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.empid_TrigEgammaRec_PhotonConversions" name="EMPIDBuilder" py_name="egammaEMPIDBuilderEF" py_package="TrigEgammaRec.EMPIDBuilderTrigEgammaRec"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions" name="EMTrackMatchBuilder" py_name="EMTrackMatchBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.exToCalo">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.exToCalo" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_PhotonConversions.exToCalo" name="ExtrapolateToCaloTool" py_name="ExtrapolateToCaloTool" py_package="TrackToCalo.TrackToCaloConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSCTSpacePointTool">
+    <online>
+      <component alias="ToolSvc.InDetTrigSCTSpacePointTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSCTSpacePointTool" name="InDet::SCT_TrigSpacePointTool" py_name="InDet__SCT_TrigSpacePointTool" py_package="SiTrigSpacePointFormation.SiTrigSpacePointFormationConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma" name="EMTrackMatchBuilder" py_name="EMTrackMatchBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.exToCalo">
+    <online>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.exToCalo" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emtrackmatch_TrigEgammaRec_eGamma.exToCalo" name="ExtrapolateToCaloTool" py_name="ExtrapolateToCaloTool" py_package="TrackToCalo.TrackToCaloConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQgcld_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQgcld_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQgcld_TrigEgammaRec_PhotonConversions.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigCosmicsTauExtrapolateToCaloTool">
+    <online>
+      <component alias="ToolSvc.TrigCosmicsTauExtrapolateToCaloTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigCosmicsTauExtrapolateToCaloTool" name="ExtrapolateToCaloTool" py_name="ExtrapolateToCaloTool" py_package="TrackToCalo.TrackToCaloConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egfourmom_TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_NoIDEF_eGamma" name="EMFourMomBuilder" py_name="EMFourMomBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackFitterLowPt">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackFitterLowPt" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackFitterLowPt" name="Trk::GlobalChi2Fitter" py_name="Trk__GlobalChi2Fitter" py_package="TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.Csc2dSegmentMaker">
+    <online>
+      <component alias="ToolSvc.Csc2dSegmentMaker" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.Csc2dSegmentMaker" name="Csc2dSegmentMaker" py_name="Csc2dSegmentMaker" py_package="CscSegmentMakers.CscSegmentMakersConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.L2RpcTool">
+    <online>
+      <component alias="ToolSvc.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigTauVertex">
+    <online>
+      <component alias="ToolSvc.TrigTauVertex" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigTauVertex" name="TauCommonVertex" py_name="TauCommonVertex" py_package="tauRec.tauRecConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackFitterTRT">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackFitterTRT" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackFitterTRT" name="Trk::GlobalChi2Fitter" py_name="Trk__GlobalChi2Fitter" py_package="TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigTauCosmicsTrackSelect">
+    <online>
+      <component alias="ToolSvc.TrigTauCosmicsTrackSelect" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigTauCosmicsTrackSelect" name="InDet::InDetDetailedTrackSelectorTool" py_name="InDet__InDetDetailedTrackSelectorTool" py_package="InDetTrackSelectorTool.InDetTrackSelectorToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonTrackExtrapolationTool">
+    <online>
+      <component alias="ToolSvc.MuonTrackExtrapolationTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonTrackExtrapolationTool" name="Muon::MuonTrackExtrapolationTool" py_name="MuonTrackExtrapolationTool" py_package="MuonRecExample.Moore"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MCTBExtrapolatorBlendedMat">
+    <online>
+      <component alias="ToolSvc.MCTBExtrapolatorBlendedMat" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MCTBExtrapolatorBlendedMat" name="Trk::Extrapolator" py_name="MCTBExtrapolator" py_package="MuonRecExample.Moore"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics_NoField">
+    <online>
+      <component alias="ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics_NoField" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetL2_TRT_TrackSegmentsMaker_BarrelCosmics_NoField" name="InDet::TRT_TrackSegmentsMaker_BarrelCosmics" py_name="InDet__TRT_TrackSegmentsMaker_BarrelCosmics" py_package="TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.empid_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.empid_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.empid_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="EMPIDBuilder" py_name="egammaEMPIDBuilderEF" py_package="TrigEgammaRec.EMPIDBuilderTrigEgammaRec"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_PhotonConversions.egammashowershape_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions.egammashowershape_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions.egammashowershape_TrigEgammaRec_PhotonConversions" name="egammaShowerShape" py_name="egammaShowerShape" py_package="egammaCaloTools.egammaCaloToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlStauGlobalFitTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlStauGlobalFitTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlStauGlobalFitTool" name="MuGirlNS::GlobalFitTool" py_name="MuGirlNS__GlobalFitTool" py_package="MuGirlGlobalFit.MuGirlGlobalFitConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigMuGirlSAGlobalFitTool">
+    <online>
+      <component alias="ToolSvc.TrigMuGirlSAGlobalFitTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigMuGirlSAGlobalFitTool" name="MuGirlNS::GlobalFitTool" py_name="MuGirlNS__GlobalFitTool" py_package="MuGirlGlobalFit.MuGirlGlobalFitConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQpoint_TrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQpoint_TrigEgammaRec_eGamma.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_eGamma.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQpoint_TrigEgammaRec_eGamma.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emconversion_TrigEgammaRec_PhotonConversions" name="EMConversionBuilder" py_name="EMConversionBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_TrigEgammaRec_PhotonConversions" name="EMShowerBuilder" py_name="EMShowerBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egfourmom_TrigEgammaRec_eGamma">
+    <online>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_eGamma" name="EMFourMomBuilder" py_name="EMFourMomBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigAmbiTrackSelectionTool">
+    <online>
+      <component alias="ToolSvc.InDetTrigAmbiTrackSelectionTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigAmbiTrackSelectionTool" name="InDet::InDetAmbiTrackSelectionTool" py_name="InDet__InDetAmbiTrackSelectionTool" py_package="InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egfourmom_TrigEgammaRec_PhotonConversions">
+    <online>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_PhotonConversions" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egfourmom_TrigEgammaRec_PhotonConversions" name="EMFourMomBuilder" py_name="EMFourMomBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackFitter">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackFitter" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackFitter" name="Trk::GlobalChi2Fitter" py_name="Trk__GlobalChi2Fitter" py_package="TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.empid_TrigEgammaRec_eGamma">
+    <online>
+      <component alias="ToolSvc.empid_TrigEgammaRec_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.empid_TrigEgammaRec_eGamma" name="EMPIDBuilder" py_name="egammaEMPIDBuilderEF" py_package="TrigEgammaRec.EMPIDBuilderTrigEgammaRec"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonSegmentMatchingTool">
+    <online>
+      <component alias="ToolSvc.MuonSegmentMatchingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonSegmentMatchingTool" name="Muon::MuonSegmentMatchingTool" py_name="MuonSegmentMatchingTool" py_package="MuonRecExample.Moore"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egfourmom_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.egfourmom_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egfourmom_CosmicEgamma_V2TrigEgammaRec_NoIDEF_eGamma" name="EMFourMomBuilder" py_name="EMFourMomBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiDetElementsRoadMaker">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiDetElementsRoadMaker" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiDetElementsRoadMaker" name="InDet::SiDetElementsRoadMaker_xk" py_name="InDet__SiDetElementsRoadMaker_xk" py_package="SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigAmbiguityProcessor_minBias2">
+    <online>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessor_minBias2" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessor_minBias2" name="Trk::SimpleAmbiguityProcessorTool" py_name="Trk__SimpleAmbiguityProcessorTool" py_package="TrkAmbiguityProcessor.TrkAmbiguityProcessorConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigConversionFinderTools">
+    <online>
+      <component alias="ToolSvc.InDetTrigConversionFinderTools" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigConversionFinderTools" name="InDet::InDetConversionFinderTools" py_name="InDet__InDetConversionFinderTools" py_package="InDetConversionFinderTools.InDetConversionFinderToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigAmbiguityProcessorLowPt">
+    <online>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessorLowPt" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessorLowPt" name="Trk::SimpleAmbiguityProcessorTool" py_name="Trk__SimpleAmbiguityProcessorTool" py_package="TrkAmbiguityProcessor.TrkAmbiguityProcessorConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_TrackSegmentsMaker_cosmicsN" name="InDet::TRT_TrackSegmentsMaker_ATLxk" py_name="InDet__TRT_TrackSegmentsMaker_ATLxk" py_package="TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigZvertexMaker_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigZvertexMaker_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigZvertexMaker_cosmicsN" name="InDet::SiZvertexMaker_xk" py_name="InDet__SiZvertexMaker_xk" py_package="SiZvertexTool_xk.SiZvertexTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigExtScoringTool_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigExtScoringTool_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigExtScoringTool_cosmicsN" name="InDet::InDetAmbiScoringTool" py_name="InDet__InDetAmbiScoringTool" py_package="InDetTrackScoringTools.InDetTrackScoringToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiTrackMaker_minBias2">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiTrackMaker_minBias2" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiTrackMaker_minBias2" name="InDet::SiTrackMaker_xk" py_name="InDet__SiTrackMaker_xk" py_package="SiTrackMakerTool_xk.SiTrackMakerTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigTRT_DriftCircleProviderTool">
+    <online>
+      <component alias="ToolSvc.TrigTRT_DriftCircleProviderTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigTRT_DriftCircleProviderTool" name="TrigTRT_DriftCircleProviderTool" py_name="TrigTRT_DriftCircleProviderTool" py_package="TrigOfflineDriftCircleTool.TrigOfflineDriftCircleToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiTrackMakerLowPt">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiTrackMakerLowPt" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiTrackMakerLowPt" name="InDet::SiTrackMaker_xk" py_name="InDet__SiTrackMaker_xk" py_package="SiTrackMakerTool_xk.SiTrackMakerTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigZvertexMakerLowPt">
+    <online>
+      <component alias="ToolSvc.InDetTrigZvertexMakerLowPt" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigZvertexMakerLowPt" name="InDet::SiZvertexMaker_xk" py_name="InDet__SiZvertexMaker_xk" py_package="SiZvertexTool_xk.SiZvertexTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigZvertexMaker_minBias2">
+    <online>
+      <component alias="ToolSvc.InDetTrigZvertexMaker_minBias2" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigZvertexMaker_minBias2" name="InDet::SiZvertexMaker_xk" py_name="InDet__SiZvertexMaker_xk" py_package="SiZvertexTool_xk.SiZvertexTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.TrigTRT_TrackExtensionTool.TrigTRT_DetElementRoadTool">
+    <online>
+      <component alias="ToolSvc.TrigTRT_TrackExtensionTool.TrigTRT_DetElementRoadTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.TrigTRT_TrackExtensionTool.TrigTRT_DetElementRoadTool" name="TrigTRT_DetElementRoadTool" py_name="TrigTRT_DetElementRoadTool" py_package="TrigTRT_TrackExtensionTool.TrigTRT_TrackExtensionToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigAmbiguityProcessor_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessor_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigAmbiguityProcessor_cosmicsN" name="Trk::SimpleAmbiguityProcessorTool" py_name="Trk__SimpleAmbiguityProcessorTool" py_package="TrkAmbiguityProcessor.TrkAmbiguityProcessorConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigScoringTool_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigScoringTool_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigScoringTool_cosmicsN" name="InDet::InDetAmbiScoringTool" py_name="InDet__InDetAmbiScoringTool" py_package="InDetTrackScoringTools.InDetTrackScoringToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.PixelClusterCacheTool.PixelRodDecoder">
+    <online>
+      <component alias="ToolSvc.PixelClusterCacheTool.PixelRodDecoder" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.PixelClusterCacheTool.PixelRodDecoder" name="PixelRodDecoder" py_name="PixelRodDecoder" py_package="PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigParticleCreatorToolParams">
+    <online>
+      <component alias="ToolSvc.InDetTrigParticleCreatorToolParams" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigParticleCreatorToolParams" name="Trk::TrackParticleCreatorTool" py_name="Trk__TrackParticleCreatorTool" py_package="TrkParticleCreator.TrkParticleCreatorConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTrackSlimmingToolParams">
+    <online>
+      <component alias="ToolSvc.InDetTrigTrackSlimmingToolParams" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTrackSlimmingToolParams" name="Trk::TrackSlimmingTool" py_name="Trk__TrackSlimmingTool" py_package="TrkTrackSlimmingTool.TrkTrackSlimmingToolConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigCosmicScoringTool_TRT">
+    <online>
+      <component alias="ToolSvc.InDetTrigCosmicScoringTool_TRT" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigCosmicScoringTool_TRT" name="InDet::InDetCosmicScoringTool" py_name="InDet__InDetCosmicScoringTool" py_package="InDetTrackScoringTools.InDetTrackScoringToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.SCT_ClusterCacheTool.SCT_RodDecoder">
+    <online>
+      <component alias="ToolSvc.SCT_ClusterCacheTool.SCT_RodDecoder" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.SCT_ClusterCacheTool.SCT_RodDecoder" name="SCT_RodDecoder" py_name="SCT_RodDecoder" py_package="SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigSiTrackMaker_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigSiTrackMaker_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigSiTrackMaker_cosmicsN" name="InDet::SiTrackMaker_xk" py_name="InDet__SiTrackMaker_xk" py_package="SiTrackMakerTool_xk.SiTrackMakerTool_xkConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.ConfiguredOnlineSpacePointProviderTool">
+    <online>
+      <component alias="ToolSvc.ConfiguredOnlineSpacePointProviderTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.ConfiguredOnlineSpacePointProviderTool" name="OnlineSpacePointProviderTool" py_name="ConfiguredOnlineSpacePointProviderTool" py_package="TrigOnlineSpacePointTool.TrigOnlineSpacePointTool_Config"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_StandaloneScoringTool_cosmicsN">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_cosmicsN" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_cosmicsN" name="InDet::InDetTrtTrackScoringTool" py_name="InDet__InDetTrtTrackScoringTool" py_package="InDetTrackScoringTools.InDetTrackScoringToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigTRT_StandaloneScoringTool_photon">
+    <online>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_photon" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigTRT_StandaloneScoringTool_photon" name="InDet::InDetTrtTrackScoringTool" py_name="InDet__InDetTrtTrackScoringTool" py_package="InDetTrackScoringTools.InDetTrackScoringToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.FixedErrorMuonClusterOnTrackCreator">
+    <online>
+      <component alias="ToolSvc.FixedErrorMuonClusterOnTrackCreator" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.FixedErrorMuonClusterOnTrackCreator" name="Muon::MuonClusterOnTrackCreator" py_name="Muon__MuonClusterOnTrackCreator" py_package="MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonHoughPatternTool">
+    <online>
+      <component alias="ToolSvc.MuonHoughPatternTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonHoughPatternTool" name="MuonHoughPatternTool" py_name="MuonHoughPatternTool" py_package="MuonHoughPatternTools.MuonHoughPatternToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonCombinePatternTool">
+    <online>
+      <component alias="ToolSvc.MuonCombinePatternTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonCombinePatternTool" name="MuonCombinePatternTool" py_name="MuonCombinePatternTool" py_package="MuonCombinePatternTools.MuonCombinePatternToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.MuonSegmentMomentum">
+    <online>
+      <component alias="ToolSvc.MuonSegmentMomentum" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.MuonSegmentMomentum" name="MuonSegmentMomentum" py_name="MuonSegmentMomentum" py_package="MuonSegmentMomentum.MuonSegmentMomentumConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_V2TrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_V2TrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_V2TrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_V2TrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuon_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_V2TrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_V2TrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuon_V2TrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_V2TrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_V2TrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuon_V2TrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_V2TrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egammaQpoint_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault">
+    <online>
+      <component alias="ToolSvc.egammaQpoint_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egammaQpoint_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma.CaloDepthToolshowerdefault" name="CaloDepthTool" py_name="CaloDepthToolBase" py_package="CaloDetDescr.CaloDepthToolBase"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.empid_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.empid_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.empid_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="EMPIDBuilder" py_name="egammaEMPIDBuilderEF" py_package="TrigEgammaRec.EMPIDBuilderTrigEgammaRec"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.egfourmom_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.egfourmom_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.egfourmom_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="EMFourMomBuilder" py_name="EMFourMomBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma.egammashowershape_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma.egammashowershape_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma.egammashowershape_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="egammaShowerShape" py_name="egammaShowerShape" py_package="egammaCaloTools.egammaCaloToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.emshower_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma">
+    <online>
+      <component alias="ToolSvc.emshower_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.emshower_CosmicEgammaTrigEgammaRec_NoIDEF_eGamma" name="EMShowerBuilder" py_name="EMShowerBuilder" py_package="egammaTools.egammaToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnlyTrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnlyTrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnlyTrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnlyTrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnlyTrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonTrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonTrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonTrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonTrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonTrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEF_TGCTrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuonOnly_TGCTrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEFTrigL2CosmicMuon.L2RpcTool">
+    <online>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2RpcTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2RpcTool" name="L2RpcTool" py_name="L2RpcTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEFTrigL2CosmicMuon.L2MdtTool.MdtTimingTool">
+    <online>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2MdtTool.MdtTimingTool" name="MdtTimingTool" py_name="MdtTimingTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEFTrigL2CosmicMuon.L2MdtTool">
+    <online>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2MdtTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2MdtTool" name="L2MdtTool" py_name="L2MdtTool" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="CosmicMuon_MuonEFTrigL2CosmicMuon.L2DataLoader">
+    <online>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2DataLoader" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="CosmicMuon_MuonEFTrigL2CosmicMuon.L2DataLoader" name="L2DataLoader" py_name="L2DataLoader" py_package="TrigL2CosmicMuon.TrigL2CosmicMuonConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetTrigExtScoringTool_bjet">
+    <online>
+      <component alias="ToolSvc.InDetTrigExtScoringTool_bjet" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetTrigExtScoringTool_bjet" name="InDet::InDetAmbiScoringTool" py_name="InDet__InDetAmbiScoringTool" py_package="InDetTrackScoringTools.InDetTrackScoringToolsConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetVKalVxInJetTool.VertexFitterTool">
+    <online>
+      <component alias="ToolSvc.InDetVKalVxInJetTool.VertexFitterTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetVKalVxInJetTool.VertexFitterTool" name="Trk::TrkVKalVrtFitter" py_name="Trk__TrkVKalVrtFitter" py_package="TrkVKalVrtFitter.TrkVKalVrtFitterConf"/>
+    </offline>
+  </Rename>
+  <Rename name="ToolSvc.InDetVKalVxInJetTool">
+    <online>
+      <component alias="ToolSvc.InDetVKalVxInJetTool" name="unknown" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="ToolSvc.InDetVKalVxInJetTool" name="InDet::InDetVKalVxInJetTool" py_name="InDet__InDetVKalVxInJetTool" py_package="InDetVKalVxInJetTool.InDetVKalVxInJetToolConf"/>
+    </offline>
+  </Rename>
+<!-- End of fix unknowns release 15.5.1.1 -->
+  
+</Rules>

@@ -1,0 +1,15 @@
+<lcgdict>
+ <class name="TrigConf::CTPConfig"/>
+ <class name="TrigConf::Menu"/>
+ <class name="TrigConf::TriggerItem"/>
+ <class name="TrigConf::L1DataBaseclass"/>
+ <class name="TrigConf::TrigConfData"/>
+ <class name="TrigConf::ThresholdConfig"/>
+ <class name="TrigConf::TriggerThreshold"/>
+ <class name="TrigConf::TriggerItemNode"/>
+ <class name="TrigConf::ThresholdMonitor"/>
+ <class name="std::vector<TrigConf::TriggerItem*>"/>
+ <class name="std::vector<TrigConf::TriggerThreshold*>"/>
+ <class name="std::vector<TrigConf::TriggerItemNode*>"/>
+ <class name="std::vector<TrigConf::ThresholdMonitor*>"/>
+</lcgdict>

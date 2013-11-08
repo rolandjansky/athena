@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--File was modified by Miroslav Nozicka: nozicka@mail.desy.de -->
+<!--Rules: Replace, Merge, Copy, Rename, Modify-->
+
+<!--Replace -->
+<!-- Replace online components with offline -->
+
+<!--Merge -->
+<!-- Merge L2 and EF parameters to offline parameter -->
+
+<!--Copy -->
+<!-- Copy online parameter value corresponding to offline parameter value -->
+
+<!--Rename -->
+<!-- Rename online algorithm or parameter to offline -->
+
+<!--Modify -->
+<!-- Modify parameter by replacing online substring with offline substring -->
+  
+<Rules>
+<!-- Set the logger level for all algorithms to certain value - debugging purposes -->
+<!--  <Replace name='OutputLevel-VERBOSE'>
+    <online>
+      <component alias="*" name="*">
+        <parameter name="OutputLevel" value="*" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="*" name="*">
+        <parameter name="OutputLevel" value="1" op="set"/>
+      </component>
+    </offline>
+  </Replace>-->
+<!--   Set the logger level for all algorithms to certain value - debugging purposes -->
+
+<!--   Remove python class and module - make pure C++ classes -->
+<!--  <Replace name='NoPython'>
+    <online>
+      <component alias="*" name="*" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+      <component alias="*" name="*" py_name="" py_package=""/>
+    </offline>
+  </Replace>-->
+<!--   End of: Remove python class and module - make pure C++ classes -->
+
+
+<!-- Remove CoreDumpSvc and fix the references -->
+  <Replace name='CoreDumpSvc'>
+    <online>
+      <component alias="CoreDumpSvc" name="CoreDumpSvc" py_name="*" py_package="*">
+      </component>
+    </online>
+    <offline>
+    </offline>
+  </Replace>
+  
+  <Modify name='ApplicationMgr.CreateSvc.CoreDumpSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['CoreDumpSvc/CoreDumpSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+  
+<!-- End of: Remove CoreDumpSvc and fix the references -->
+  
+<!--   Remove DataFlowConfig  -->
+  <Replace name='DataFlowConfig'>
+    <online>
+      <component alias="DataFlowConfig" name="IGNORE" py_name="*" py_package="*">
+      </component>
+    </online>
+    <offline>
+    </offline>
+  </Replace>
+  
+<!--   Replace HLTJobOptionsSvc with common JobOptionsSvc, fix the references-->
+  <Replace name='HLTJobOptionsSvc'>
+    <online>
+      <component alias="JobOptionsSvc" name="TrigConf::HLTJobOptionsSvc" py_name="*" py_package="*">
+        <parameter name="TYPE" value="NONE" op="set"/>
+        <parameter name="PATH" value="../options/job.opts" op="set"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="JobOptionsSvcType" value="TrigConf::HLTJobOptionsSvc" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="JobOptionsSvc" name="JobOptionsSvc" py_name="" py_package="">
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="JobOptionsSvcType" value="JobOptionsSvc" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+  <Modify name="HLTJobOptionsSvc">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\AExtSvc\Z" value="['TrigConf::HLTJobOptionsSvc/JobOptionsSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\AExtSvc\Z" value="['JobOptionsSvc/JobOptionsSvc']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+<!-- End of: Replace HLTJobOptionsSvc with common JobOptionsSvc, fix the references-->
+  
+<!-- Replace Lvl2ROBDataProviderSvc with RODDataProviderSvc and fix the references -->
+  <Replace name="Lvl2ROBDataProviderSvc">
+    <online>
+      <component alias="ROBDataProviderSvc" name="Lvl2ROBDataProviderSvc" py_name="*" py_package="*">
+        <parameter name="HistReceivedROBsPerCall" value=".*" op="set"/>
+        <parameter name="HistRequestedROBsPerCall" value=".*" op="set"/>
+        <parameter name="HistTimeROBretrieval" value=".*" op="set"/>
+        <parameter name="doDetailedROBMonitoring" value=".*" op="set"/>
+        <parameter name="doMonitoring" value=".*" op="set"/>
+        <parameter name="enabledROBs" value=".*" op="set"/>
+        <parameter name="ignoreROB" value=".*" op="set"/>
+        <parameter name="readROBfromOKS" value=".*" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ROBDataProviderSvc" name="ROBDataProviderSvc">
+      </component>
+    </offline>
+  </Replace>
+  
+  <Modify name="Lvl2ROBDataProviderSvc">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['Lvl2ROBDataProviderSvc/ROBDataProviderSvc']" op="set"/>
+        <parameter name="\AExtSvc\Z" value="['Lvl2ROBDataProviderSvc/ROBDataProviderSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+        <parameter name="\AExtSvc\Z" value="['ROBDataProviderSvc/ROBDataProviderSvc']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+<!--  End of Replace Lvl2ROBDataProviderSvc with RODDataProviderSvc and fix the references -->
+
+<!-- Replace ByteStreamCnvSvcBase with ByteStreamCnvSvc, fix the references -->
+  <Replace name="ByteStreamCnvSvc">
+    <online>
+      <component alias="ByteStreamCnvSvc" name="ByteStreamCnvSvcBase" py_name="*" py_package="*">
+      </component>
+    </online>
+    <offline>
+      <component alias="ByteStreamCnvSvc" name="ByteStreamCnvSvc"  py_name="" py_package="">
+        <!--<parameter name="ByteStreamOutputSvc" value="" op="set"/>
+        <parameter name="ByteStreamOutputSvcList" value="[]" op="set"/>
+        <parameter name="GetDetectorMask" value="False" op="set"/>
+        <parameter name="IsCalibration" value="False" op="set"/>
+        <parameter name="IsSimulation" value="False" op="set"/>
+        <parameter name="IsTestbeam" value="False" op="set"/>
+        <parameter name="UserType" value="RawEvent" op="set"/>-->
+      </component>
+    </offline>
+  </Replace>
+  <Modify name="ByteStreamCnvSvc">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['ByteStreamCnvSvcBase/ByteStreamCnvSvc']" op="set"/>
+        <parameter name="\AExtSvc\Z" value="['ByteStreamCnvSvcBase/ByteStreamCnvSvc']" op="set"/>
+        </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+        <parameter name="\AExtSvc\Z" value="['ByteStreamCnvSvc/ByteStreamCnvSvc']" op="set"/>
+
+        </component>
+    </offline>
+  </Modify>
+<!-- End of: Replace ByteStreamCnvSvcBase with ByteStreamCnvSvc, fix the references -->
+
+<!-- Replace EFEventLoopMgr by AthenaEventLoopMgr, fix the references, set the EventSelector and ByteStreamInputSvc -->
+  <Rename name="EFEventLoopMgr">
+    <online>
+      <component alias="EFEventLoopMgr" name="EFEventLoopMgr" py_name=".*" py_package=".*">
+      </component>
+    </online>
+    <offline>
+      <component alias="AthenaEventLoopMgr" name="EFEventLoopMgr" py_name="" py_package="">
+      </component>
+    </offline>
+  </Rename>
+  <Replace name="EFEventLoopMgr">
+    <online>
+      <component alias="AthenaEventLoopMgr" name="EFEventLoopMgr" py_name="*" py_package="*">
+        <parameter name="AllowRunNumberUpdate" op="set" value="False"/>
+        <parameter name="ApplicationName" op="set" value="athenaPT"/>
+        <parameter name="ApplicationNodeID" op="set" value="0"/>
+        <!--<parameter name="AuditFinalize" op="set" value="False"/>
+        <parameter name="AuditInitialize" op="set" value="False"/>
+        <parameter name="AuditReInitialize" op="set" value="False"/>
+        <parameter name="AuditReStart" op="set" value="False"/>
+        <parameter name="AuditServices" op="set" value="False"/>
+        <parameter name="AuditStart" op="set" value="False"/>
+        <parameter name="AuditStop" op="set" value="False"/>-->
+        <parameter name="EFResultName" op="set" value="HLTResult_EF"/>
+        <parameter name="JobOptionsType" op="set" value="NONE"/>
+        <parameter name="Lvl1CTPROBid" op="set" value="7798784"/>
+        <!--<parameter name="OutStream" op="set" value="[]"/>
+        <parameter name="OutStreamType" op="set" value="AthenaOutputStream"/>
+        <parameter name="OutputLevel" op="set" value="3"/>-->
+        <parameter name="PartialEventBuildName" op="set" value="PEBInfo_EF"/>
+        <parameter name="PartitionName" op="set" value="NONE"/>
+        <!--<parameter name="TopAlg" op="set" value="['AthSequencer/AthMasterSeq']"/>-->
+        <parameter name="disableHLTResultHandle" op="set" value="False"/>
+        <parameter name="enabledROBs" op="set" value="[]"/>
+        <parameter name="enabledSubDetectors" op="set" value="[]"/>
+        <parameter name="predefinedDetectorMask" op="set" value="0"/>
+        <parameter name="predefinedLumiBlock" op="set" value="0"/>
+        <parameter name="predefinedRunNumber" op="set" value="0"/>
+        <parameter name="setConfigFromOKS" op="set" value="True"/>
+        <parameter name="setMagFieldFromIS" op="set" value="False"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name="*" py_package="*">
+        <parameter name="EventLoop" value="EFEventLoopMgr" op="set"/>
+        <parameter name="EvtSel" value="NONE" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr" py_name="" py_package="">
+        <parameter name="ClearStorePolicy" value="EndEvent" op="set"/>
+        <!--<parameter name="EvtSel" value="EventSelector" op="set"/>-->
+        <parameter name="FailureMode" value="1" op="set"/>
+        <parameter name="HistWriteInterval" value="0" op="set"/>
+        <!--<parameter name="HistogramPersistency" op="set" value="NONE"/>-->
+        <parameter name="TimeKeeper" value="" op="set"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="EventLoop" value="AthenaEventLoopMgr" op="set"/>
+        <parameter name="EvtSel" value="EventSelector" op="set"/>
+      </component>
+      <component alias="EventSelector" name="EventSelectorByteStream">
+        <parameter name="ByteStreamInputSvc" value="ByteStreamInputSvc" op="set"/>
+        <parameter name="EventsPerLB" value="1000" op="set"/>
+        <parameter name="EventsPerRun" value="1000000" op="set"/>
+        <parameter name="FirstLB" value="0" op="set"/>
+        <parameter name="InitialTimeStamp" value="0" op="set"/>
+        <parameter name="OverrideRunNumber" value="False" op="set"/>
+        <parameter name="OverrideEventNumber" value="False" op="set"/>
+        <parameter name="OverrideTimeStamp" value="False" op="set"/>
+        <parameter name="pixel" value="True" op="set"/>
+        <parameter name="RunNumber" value="0" op="set"/>
+        <parameter name="sct" value="True" op="set"/>
+        <parameter name="SkipEvents" value="0" op="set"/>
+        <parameter name="trt" value="True" op="set"/>
+        <parameter name="TimeStampInterval" value="0" op="set"/>
+      </component>
+      <component alias="ByteStreamInputSvc" name="ByteStreamEventStorageInputSvc">
+        <parameter name="FilePrefix" value="[]" op="set"/>
+        <parameter name="FirstFile" value="[]" op="set"/>
+        <parameter name="FullFileName" value="['/afs/cern.ch/atlas/project/trigger/pesa-sw/releases/data/daq.physics1E31.20090710devval.105200.Athena._0001.data']" op="set"/>
+        <parameter name="InputDirectory" value="[]" op="set"/>
+        <parameter name="NumFile" value="[]" op="set"/>
+        <parameter name="RunNumber" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+  <Modify name="EFEventLoopMgr">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\AExtSvc\Z" value="['EFEventLoopMgr/EFEventLoopMgr']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\AExtSvc\Z" value="['AthenaEventLoopMgr/AthenaEventLoopMgr','ByteStreamEventStorageInputSvc/ByteStreamInputSvc','EventSelectorByteStream/EventSelector']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+<!-- End of: Replace EFEventLoopMgr by AthenaEventLoopMgr, fix the references, set the EventSelector and ByteStreamInputSvc -->
+
+<!-- Replace Lvl2EventLoopMgr by AthenaEventLoopMgr, fix the references, set the EventSelector and ByteStreamInputSvc -->
+  <Rename name="Lvl2EventLoopMgr">
+    <online>
+      <component alias="Lvl2EventLoopMgr" name="Lvl2EventLoopMgr" py_name=".*" py_package=".*">
+      </component>
+    </online>
+    <offline>
+      <component alias="AthenaEventLoopMgr" name="Lvl2EventLoopMgr" py_name="" py_package="">
+      </component>
+    </offline>
+  </Rename>
+  <Replace name="Lvl2EventLoopMgr">
+    <online>
+      <component alias="AthenaEventLoopMgr" name="Lvl2EventLoopMgr" py_name="*" py_package="*">
+        <parameter name="AllowRunNumberUpdate" value="False" op="set"/>
+        <parameter name="ApplicationName" op="set" value="athenaPT"/>
+        <parameter name="ApplicationNodeID" op="set" value="0"/>
+        <!--<parameter name="AuditFinalize" op="set" value="False"/>
+        <parameter name="AuditInitialize" op="set" value="False"/>
+        <parameter name="AuditReInitialize" op="set" value="False"/>
+        <parameter name="AuditReStart" op="set" value="False"/>
+        <parameter name="AuditServices" op="set" value="False"/>
+        <parameter name="AuditStart" op="set" value="False"/>
+        <parameter name="AuditStop" op="set" value="False"/>-->
+        <parameter name="ForceLvl2Accept" value="False" op="set"/>
+        <parameter name="ForceLvl2Reject" value="False" op="set"/>
+        <parameter name="JobOptionsType" op="set" value="NONE"/>
+        <parameter name="L2DebugStreamName" op="set" value="L2_PSC_DEBUG"/>
+        <parameter name="L2ForcedStreamName" op="set" value="L2_PSC_FORCED"/>
+        <parameter name="Lvl1CTPROBcheck" value="False" op="set"/>
+        <parameter name="Lvl1CTPROBid" value="7798785" op="set"/>
+        <parameter name="Lvl2ResultName" value="HLTResult_L2" op="set"/>
+        <!--<parameter name="OutStream" op="set" value="[]"/>
+        <parameter name="OutStreamType" op="set" value="AthenaOutputStream"/>
+        <parameter name="OutputLevel" op="set" value="3"/>-->
+        <parameter name="PartialEventBuildName" op="set" value="PEBInfo_EF"/>
+        <parameter name="PartitionName" op="set" value="NONE"/>
+        <!--<parameter name="TopAlg" op="set" value="['AthSequencer/AthMasterSeq']"/>-->
+        <parameter name="doMonitoring" value="False" op="set"/>
+        <parameter name="enabledROBs" op="set" value="[]"/>
+        <parameter name="enabledSubDetectors" op="set" value="[]"/>
+        <parameter name="predefinedDetectorMask" op="set" value="0"/>
+        <parameter name="predefinedLumiBlock" op="set" value="0"/>
+        <parameter name="predefinedRunNumber" op="set" value="0"/>
+        <parameter name="setConfigFromOKS" op="set" value="True"/>
+        <parameter name="setMagFieldFromIS" op="set" value="False"/>
+        <parameter name="predefinedRunNumber" value="0" op="set"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name="*" py_package="*">
+        <parameter name="EventLoop" value="Lvl2EventLoopMgr" op="set"/>
+        <parameter name="EvtSel" value="NONE" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr" py_name="" py_package="">
+        <parameter name="ClearStorePolicy" value="EndEvent" op="set"/>
+        <!--<parameter name="EvtSel" value="EventSelector" op="set"/>-->
+        <parameter name="FailureMode" value="1" op="set"/>
+        <parameter name="HistWriteInterval" value="0" op="set"/>
+        <!--<parameter name="HistogramPersistency" op="set" value="NONE"/>-->
+        <parameter name="TimeKeeper" value="" op="set"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="EventLoop" value="AthenaEventLoopMgr" op="set"/>
+        <parameter name="EvtSel" value="EventSelector" op="set"/>
+      </component>
+      <component alias="EventSelector" name="EventSelectorByteStream">
+        <parameter name="ByteStreamInputSvc" value="ByteStreamInputSvc" op="set"/>
+        <parameter name="EventsPerLB" value="1000" op="set"/>
+        <parameter name="EventsPerRun" value="1000000" op="set"/>
+        <parameter name="FirstLB" value="0" op="set"/>
+        <parameter name="InitialTimeStamp" value="0" op="set"/>
+        <parameter name="OverrideRunNumber" value="False" op="set"/>
+        <parameter name="OverrideEventNumber" value="False" op="set"/>
+        <parameter name="OverrideTimeStamp" value="False" op="set"/>
+        <parameter name="pixel" value="True" op="set"/>
+        <parameter name="RunNumber" value="0" op="set"/>
+        <parameter name="sct" value="True" op="set"/>
+        <parameter name="SkipEvents" value="0" op="set"/>
+        <parameter name="trt" value="True" op="set"/>
+        <parameter name="TimeStampInterval" value="0" op="set"/>
+      </component>
+      <component alias="ByteStreamInputSvc" name="ByteStreamEventStorageInputSvc">
+        <parameter name="FilePrefix" value="[]" op="set"/>
+        <parameter name="FirstFile" value="[]" op="set"/>
+        <parameter name="FullFileName" value="['/afs/cern.ch/atlas/project/trigger/pesa-sw/releases/data/daq.physics1E31.20090710devval.105200.Athena._0001.data']" op="set"/>
+        <parameter name="InputDirectory" value="[]" op="set"/>
+        <parameter name="NumFile" value="[]" op="set"/>
+        <parameter name="RunNumber" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+  <Modify name="ApplicationMgr.ExtSvc.Lvl2EventLoopMgr">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\AExtSvc\Z" value="['Lvl2EventLoopMgr/Lvl2EventLoopMgr']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\AExtSvc\Z" value="['AthenaEventLoopMgr/AthenaEventLoopMgr','ByteStreamEventStorageInputSvc/ByteStreamInputSvc','EventSelectorByteStream/EventSelector']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+<!-- End of: Replace Lvl2EventLoopMgr by AthenaEventLoopMgr, fix the references, set the EventSelector and ByteStreamInputSvc -->
+  
+<!-- Replace TrigMessageSvc with common MessageSvc, fix the references -->
+  <Replace name="TrigMessageSvc">
+    <online>
+      <component alias="MessageSvc" name="TrigMessageSvc" py_name="*" py_package="*">
+        <parameter name="forceOutputLevel" value=".*" op="set"/>
+        <parameter name="printEventIDLevel" value=".*" op="set"/>
+        <parameter name="publishLevel" value=".*" op="set"/>
+        <parameter name="publishStats" value=".*" op="set"/>
+        <parameter name="resetStatsAtBeginRun" value=".*" op="set"/>
+        <parameter name="suppressRunningOnly" value=".*" op="set"/>
+        <parameter name="useErs" value=".*" op="set"/>
+        <parameter name="useErsAlways" value=".*" op="set"/>
+        <parameter name="useErsDebug" value=".*" op="set"/>
+        <parameter name="useErsError" value=".*" op="set"/>
+        <parameter name="useErsFatal" value=".*" op="set"/>
+        <parameter name="useErsInfo" value=".*" op="set"/>
+        <parameter name="useErsVerbose" value=".*" op="set"/>
+        <parameter name="useErsWarning" value=".*" op="set"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name="*" py_package="*">
+        <parameter name="MessageSvcType" value="TrigMessageSvc" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="MessageSvc" name="MessageSvc" py_name="" py_package="">
+        <parameter name="loggedStreams" value="{ }" op="set"/>
+      </component>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="MessageSvcType" value="MessageSvc" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+  <Modify name="TrigMessageSvc">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\AExtSvc\Z" value="['TrigMessageSvc/MessageSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\AExtSvc\Z" value="['MessageSvc/MessageSvc']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+<!-- End of: Replace TrigMessageSvc with common MessageSvc, fix the references -->
+
+<!-- Set ApplicationMgr.StatusCodeCheck and the AuditAlgorithms to True -->
+  <Replace name="ApplicationMgr.StatusCodeCheck">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name="*" py_package="*">
+        <parameter name="StatusCodeCheck" value="False" op="set"/>
+        <parameter name="AuditAlgorithms" value="False" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="StatusCodeCheck" value="True" op="set"/>
+        <parameter name="AuditAlgorithms" value="True" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+
+<!-- Remove item ROBDataProviderSvc/ROBDataProviderSvc from ApplicationMgr.CreateSvc property -->
+  <Modify name='ApplicationMgr.CreateSvc.ROBDataProviderSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['ROBDataProviderSvc/ROBDataProviderSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+        </component>
+    </offline>
+  </Modify>
+  
+<!-- Remove item ByteStreamAddressProviderSvc/ByteStreamAddressProviderSvc from ApplicationMgr.CreateSvc property -->
+  <Modify name='ApplicationMgr.CreateSvc.ByteStreamProviderSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['ByteStreamAddressProviderSvc/ByteStreamAddressProviderSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+  
+<!-- Remove item ByteStreamCnvSvc/ByteStreamCnvSvc from ApplicationMgr.CreateSvc property -->
+  <Modify name='ApplicationMgr.CreateSvc.ByteStreamCnvSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['ByteStreamCnvSvc/ByteStreamCnvSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+
+<!-- Remove item ToolSvc/ToolSvc from ApplicationMgr.CreateSvc property -->
+  <Modify name='ApplicationMgr.CreateSvc.ToolSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['ToolSvc/ToolSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+
+<!-- Remove item DetDescrCnvSvc/DetDescrCnvSvc from ApplicationMgr.CreateSvc property -->
+  <Modify name='ApplicationMgr.CreateSvc.DetDescrCnvSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\ACreateSvc\Z" value="['DetDescrCnvSvc/DetDescrCnvSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+
+<!-- Add items GeoModelSvc, TileInfoLoader, SpecialPixelMapSvc/SpecialPixelMapSvc to ApplicationMgr.CreateSvc property -->
+  <Modify name='ApplicationMgr.CreateSvc.GeoModelSvc'>
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="[]" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\ACreateSvc\Z" value="['GeoModelSvc', 'TileInfoLoader', 'SpecialPixelMapSvc/SpecialPixelMapSvc']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+
+<!-- Set the update interval of IOVSvc to Event for offline -->
+  <Replace name="IOVSvc">
+    <online>
+      <component alias="IOVSvc" name="IOVSvc" py_name="*" py_package="*">
+        <parameter name="updateInterval" value="RUN" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="IOVSvc" name="IOVSvc">
+        <parameter name="updateInterval" value="Event" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+  
+<!-- Delete EvtSel from the AthenaEventLoopMgr - causes problems -->
+  <Replace name="AthenaEventLoopMgr.EvtSel">
+    <online>
+      <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr" py_name="*" py_package="*">
+        <parameter name="EvtSel" value="EventSelector" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr">
+      </component>
+    </offline>
+  </Replace>
+    
+<!-- Set the muFast algorithm to offline -->
+  <Replace name="muFast.OnlineRun" comment="If the OnlineRun is set to True - crash in the hltinitialize">
+    <online>
+      <component alias="*" name="muFast" py_name="*" py_package="*">
+        <parameter name="OnlineRun" value="True" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="*" name="muFast">
+        <parameter name="OnlineRun" value="False" op="set"/>
+      </component>
+    </offline>
+  </Replace>
+  
+<!-- Remove the IOVSvc.StoreGateSvc - causes problems: An alias is in use already by normal StoreGateSvc -->
+  <Replace name='IOVSvc.StoreGateSvc'>
+    <online>
+      <component alias="IOVSvc.StoreGateSvc" name="IOVSvcTool" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+    </offline>
+  </Replace>
+  
+  <!--  <Rename name='IOVSvc.StoreGateSvc' comment='The Alias is in use already by normal StoreGateSvc'>
+    <online>
+      <component alias="IOVSvc.StoreGateSvc" name="IOVSvcTool"/>
+    </online>
+    <offline>
+      <component alias="IOVSvc.IOVSvcTool" name="IOVSvcTool"/>
+    </offline>
+  </Rename>-->
+  
+  <!-- Insert the Lvl1ConsistencyChecker if missing -->
+  <Replace name="Lvl1ConsistencyChecker" comment="Lvl1ConsistencyChecker missing">
+    <online>
+      <component alias="TrigSteer_L2.Lvl1Converter" name="HLT::Lvl1Converter" py_name="*" py_package="*">
+      </component>
+    </online>
+    <offline>
+      <component alias="TrigSteer_L2.Lvl1Converter" name="HLT::Lvl1Converter">
+      </component>
+      <component alias="TrigSteer_L2.Lvl1Converter.Lvl1ConsistencyChecker" name="Lvl1ConsistencyChecker">
+      </component>
+    </offline>
+  </Replace>
+  
+<!-- Fix from 7.7.09 for 15.2.0.9 -->
+  <Replace name="H1WeightToolCSC12Generic">
+    <online>
+      <component alias="*.H1WeightCone7H1Tower" name="H1WeightToolCSC12Generic" py_name="*" py_package="*">
+        <parameter name="wtHec2" value="*" op="set"/>
+        <parameter name="wtHec1" value="*" op="set"/>
+        <parameter name="wtEME0" value="*" op="set"/>
+        <parameter name="wtEME1" value="*" op="set"/>
+        <parameter name="wtEME2" value="*" op="set"/>
+        <parameter name="wtEMB0" value="*" op="set"/>
+        <parameter name="wtEMB1" value="*" op="set"/>
+        <parameter name="wtEMB2" value="*" op="set"/>
+        <parameter name="wtTile1" value="*" op="set"/>
+        <parameter name="wtTile2" value="*" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="*.H1WeightCone7H1Tower" name="H1WeightToolCSC12Generic">
+      </component>
+    </offline>
+  </Replace>
+  
+<!-- Replace TrigMonTHistSvc with common THistSvc, set the output root files, fix the refernces -->
+  <Replace name="TrigMonTHistSvc">
+    <online>
+      <component alias="THistSvc" name="TrigMonTHistSvc" py_name="*" py_package="*">
+        <parameter name="ExcludeName" op="set" value=".*\..*"/>
+        <parameter name="ExcludeType" op="set" value="()"/>
+        <parameter name="IncludeName" op="set" value="^/((run_[0-9]+/lb_[0-9]+)|(SHIFT)|(EXPERT)|(DEBUG)|(EXPRESS)|(RUNSTAT))/.+/.+"/>
+        <parameter name="IncludeType" op="set" value=".+"/>
+        <parameter name="Output" op="set" value="[]"/>
+        <parameter name="SumUpHistograms" op="set" value="True"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="THistSvc" name="THistSvc" py_name="" py_package="">
+        <parameter name="Output" op="set" value="[&quot;SHIFT DATAFILE='shift-monitoring.root' OPT='RECREATE'&quot;, &quot;EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'&quot;, &quot;run_1 DATAFILE='lbn-monitoring.root' OPT='RECREATE'&quot;, &quot;RUNSTAT DATAFILE='runstat-monitoring.root' OPT='RECREATE'&quot;, &quot;DEBUG DATAFILE='debug-monitoring.root' OPT='RECREATE'&quot;]"/>
+      </component>
+    </offline>
+  </Replace>
+  <Modify name="TrigMonTHistSvc">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="\AExtSvc\Z" value="['TrigMonTHistSvc/THistSvc']" op="set"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr">
+        <parameter name="\AExtSvc\Z" value="['THistSvc/THistSvc']" op="set"/>
+      </component>
+    </offline>
+  </Modify>
+<!-- End of: Replace TrigMonTHistSvc with common THistSvc, fix the dependecies -->
+
+<!-- Handling the AthSequencers, merge the Members, copy its value to ApplicationMgr.TopAlg and remove it -->
+  <Merge>
+    <component alias="AthMasterSeq" name="AthSequencer" py_name=".*" py_package=".*">
+      <parameter name="Members" value=".*"/>
+    </component>
+    <component alias="AthAlgSeq" name="AthSequencer" py_name=".*" py_package=".*">
+      <parameter name="Members" value=".*"/>
+    </component>
+    <component alias="AthOutSeq" name="AthSequencer" py_name=".*" py_package=".*">
+      <parameter name="Members" value=".*"/>
+    </component>
+    <component alias="AthRegSeq" name="AthSequencer" py_name=".*" py_package=".*">
+      <parameter name="Members" value=".*"/>
+    </component>
+    <component alias="Streams" name="AthSequencer" py_name=".*" py_package=".*">
+      <parameter name="Members" value=".*"/>
+    </component>
+  </Merge>
+  
+ <Copy name="ApplicationMgr.TopAlg">
+    <online>
+      <component alias="AthAlgSeq" name="AthSequencer" py_name=".*" py_package=".*">
+        <parameter name="Members" value=".*"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+        <parameter name="TopAlg" value=".*" op="set"/>
+      </component>
+    </offline>
+  </Copy>
+    
+  <Replace name="AthSequencer">
+    <online>
+      <component alias="*" name="AthSequencer" py_name="*" py_package="*"/>
+    </online>
+    <offline>
+    </offline>
+  </Replace>
+<!-- End of: Handling the AthSequencers, merge the TopAlg, copy its value to ApplicationMgr and remove it -->
+
+<!-- Merge some of the list properties of particular algorithms -->
+  <Merge>
+    <component alias="ApplicationMgr" name="ApplicationMgr" py_name=".*" py_package=".*">
+      <parameter name="\ACreateSvc\Z" value=".*" op="set"/>
+      <parameter name="Dlls" value=".*" op="set"/>
+      <parameter name="\AExtSvc\Z" value=".*" op="set"/>
+      <parameter name="TopAlg" value=".*" op="set"/>
+    </component>
+    <component alias="ByteStreamAddressProviderSvc" name="ByteStreamAddressProviderSvc" py_name=".*" py_package=".*">
+      <parameter name="TypeNames" value=".*" op="set"/>
+    </component>
+    <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr" py_name=".*" py_package=".*">
+      <parameter name="TopAlg" value=".*" op="set"/>
+    </component>
+    <component alias="EventPersistencySvc" name="EvtPersistencySvc" py_name=".*" py_package=".*">
+      <parameter name="CnvServices" value=".*" op="set"/>
+    </component>
+    <component alias="ClassIDSvc" name="ClassIDSvc" py_name=".*" py_package=".*">
+      <parameter name="CLIDDBFiles" value=".*" op="set"/>
+    </component>
+    <component alias="ProxyProviderSvc" name="ProxyProviderSvc" py_name=".*" py_package=".*">
+      <parameter name="ProviderNames" value=".*" op="set"/>
+    </component>
+    <component alias="IOVDbSvc" name="IOVDbSvc" py_name=".*" py_package=".*">
+      <parameter name="Folders" value=".*" op="set"/>
+    </component>
+    <component alias="MessageSvc" name="MessageSvc" py_name=".*" py_package=".*">
+      <parameter name="setError" value=".*" op="set"/>
+    </component>
+    <component alias="ToolSvc.AtlasExtrapolator" name="Trk::Extrapolator" py_name=".*" py_package=".*">
+      <parameter name="MultipleScatteringUpdators" value=".*" op="set"/>
+      <parameter name="EnergyLossUpdators" value=".*" op="set"/>
+      <parameter name="SubMEUpdators" value=".*" op="set"/>
+      <parameter name="SubPropagators" value=".*" op="set"/>
+    </component>
+    <component alias="ToolSvc.InDetTrigExtrapolator" name="Trk::Extrapolator" py_name=".*" py_package=".*">
+      <parameter name="MultipleScatteringUpdators" value=".*" op="set"/>
+      <parameter name="EnergyLossUpdators" value=".*" op="set"/>
+      <parameter name="SubMEUpdators" value=".*" op="set"/>
+      <parameter name="SubPropagators" value=".*" op="set"/>
+    </component>
+  </Merge>
+<!-- End of: Merge some of the list properties of particular algorithms -->
+
+<!-- Sort particular list type properties in order to have correct sequence -->
+  <Sort position='end' name='ApplicationMgr.TopAlg.TrigSteer_L2/EF'>
+    <component alias="*" name="*" py_name="*" py_package="*">
+      <parameter name="TopAlg" value="['HLT::TrigSteer/TrigSteer_L2','HLT::TrigSteer/TrigSteer_EF']" op="set"/>
+    </component>
+    <component alias="*" name="AthSequencer" py_name="*" py_package="*">
+      <parameter name="Members" value="['HLT::TrigSteer/TrigSteer_L2','HLT::TrigSteer/TrigSteer_EF']" op="set"/>
+    </component>
+    <component alias="ProxyProviderSvc" name="ProxyProviderSvc" py_name="*" py_package="*">
+      <parameter name="ProviderNames" value="['ByteStreamAddressProviderSvc']" op="set"/>
+    </component>
+  </Sort>
+  
+<!-- Copy the sorted value of the TopAlg to the AthenaEventLoopMgr -->
+  <Copy name="AthenaEventLoopMgr.TopAlg">
+    <online>
+      <component alias="ApplicationMgr" name="ApplicationMgr" py_name="*" py_package="*">
+        <parameter name="TopAlg" value=".*"/>
+      </component>
+    </online>
+    <offline>
+      <component alias="AthenaEventLoopMgr" name="AthenaEventLoopMgr" py_name="*" py_package="*">
+        <parameter name="TopAlg" value=".*" op="set"/>
+      </component>
+    </offline>
+  </Copy>
+
+  
+</Rules>
