@@ -1,0 +1,53 @@
+This package contains the main algorithm which performs the Barrel Level-1 muon
+trigger simulation. The production of the trigger signal with the related 
+Level-1 RoI, and the communication of these data up to the muCTPI are handled.
+
+
+Basic Components:
+
+TrigT1RPC         : ATHENA algorithm class that implements the main sequence
+                    for the Level-1 barrel simulation.
+
+
+
+
+Use and configuration in ATHENA:
+
+    * Load and use the required DLL module with the following command lines:
+
+       ApplicationMgr.DLLs += { "TrigT1RPCsteering" };
+       ApplicationMgr.TopAlg = { "TrigT1RPC" };
+
+    * The steering needs all the other packages inside the branch TrigT1RPC.
+      As a consequences all the configuration steps for those packages must be
+      followed (i.e. links to configuration files, input of configuration 
+      parametrs).
+
+    * Configuration parameters:
+
+      FastDebug  [0]  unsigned int for selective debug of the fast simulation
+      Monitoring [0]  unsigned int for selective debug of the monitoring
+
+      Geometric           [false]  switch for the geometric algo simulation
+      GeometricParameters [false]  switch for computing the geo trigger windows
+      Detailed            [false]  switch for the detailed hardware simulation
+      DetailedParameters  [false]  switch for computing the cabling + TW
+      RPCbytestream       [false]  switch for activating the byte stream prod.
+      RPCbytestreamFile   [""]     file name on which the byte stream is dump.
+
+      DataDetail [false]  flag for activating the detailed dump of the data
+
+      CMAdebug  [0]  unsigned int for selective debug of the Matrix hardware
+      PADdebug  [0]  unsigned int for selective debug of the PAD hardware
+      SLdebug   [0]  unsigned int for selective debug of the SL hardware 
+
+      CMArodebug [0] unsigned int for selective debug of the Matrix readout
+      PADrodebug [0] unsigned int for selective debug of the PAD readout
+      RXrodebug  [0] unsigned int for selective debug of the Receiver readout
+      SLrodebug  [0] unsigned int for selective debug of the SL readout
+
+      CMArostructdebug [0] unsigned int for selective debug of the Matrix struc
+      PADrostructdebug [0] unsigned int for selective debug of the PAD struc
+      RXrostructdebug  [0] unsigned int for selective debug of the RX struc
+      SLrostructdebug  [0] unsigned int for selective debug of the SL struc
+
