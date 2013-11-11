@@ -1,0 +1,4 @@
+ApplicationMgr.DLLs += { "TrigT1TGCRecRoiSvc" };
+
+// RoI reconstruction service
+ApplicationMgr.ExtSvc += {"LVL1TGC::TGCRecRoiSvc"};
