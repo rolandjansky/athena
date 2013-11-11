@@ -1,0 +1,81 @@
+<!--  This file contains the various classes needed ATM for the ARA side of -->
+<!--  things all the other dicts needed for plain Athena should be put      -->
+<!--  elsewhere -->
+
+
+<lcgdict>
+
+  <function name="caloenergy_cnv_p2_register_streamer" />
+
+  <class name="TVirtualConverter_T<TauJetContainer_p1,TauJetContainer_p1_old>"/>
+<!-- XXX: should TauJetContainer_p1_old be put into the 'event' dict ? -->
+  <class name="TauJetContainer_p1_old"/>
+  <class name="TauJetContainer_p1_old_cnv"/>
+
+  <class name="ITPConverterFor<Analysis::TauJetContainer>"/>
+
+  <class name="T_TPCnv<Analysis::TauJetContainer,TauJetContainer_p1>"/>
+  <class name="TauJetContainerCnv_p1"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauJetContainer,TauJetContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p1>"/>
+
+  <class name="T_TPCnv<Analysis::TauJetContainer,TauJetContainer_p2>"/>
+  <class name="TauJetContainerCnv_p2"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauJetContainer,TauJetContainer_p2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p2>"/>
+
+  <class name="T_TPCnv<Analysis::TauJetContainer,TauJetContainer_p3>"/>
+  <class name="TauJetContainerCnv_p3"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauJetContainer,TauJetContainer_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p3>"/>
+  
+  <class name="T_TPCnv<Analysis::TauJetContainer,TauJetContainer_p4>"/>
+  <class name="TauJetContainerCnv_p4"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauJetContainer,TauJetContainer_p4>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p4>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p4>"/>
+
+  <class name="T_TPCnv<Analysis::TauJetContainer,TauJetContainer_p5>"/>
+  <class name="TauJetContainerCnv_p5"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauJetContainer,TauJetContainer_p5>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p5>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauJetContainer,Analysis::TauJetContainer,TauJetContainer_p5>"/>
+
+  <class name="T_TPCnv<Analysis::TauDetailsContainer,TauDetailsContainer_tlp1>"/>
+  <class name="TauDetailsContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TauDetailsContainerCnv_p1,TauDetailsContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TauDetailsContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauDetailsContainer,TauDetailsContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp1>"/>
+
+  <class name="T_TPCnv<Analysis::TauDetailsContainer,TauDetailsContainer_tlp2>"/>
+  <class name="TauDetailsContainerCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TauDetailsContainerCnv_p1,TauDetailsContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TauDetailsContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauDetailsContainer,TauDetailsContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp2>"/>
+
+  <class name="T_TPCnv<Analysis::TauDetailsContainer,TauDetailsContainer_tlp3>"/>
+  <class name="TauDetailsContainerCnv_tlp3"/>
+  <class name="AthenaPoolTopLevelTPConverter<TauDetailsContainerCnv_p1,TauDetailsContainer_tlp3>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TauDetailsContainer_tlp3>"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauDetailsContainer,TauDetailsContainer_tlp3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp3>"/>
+
+  <class name="T_TPCnv<Analysis::TauDetailsContainer,TauDetailsContainer_tlp4>"/>
+  <class name="TauDetailsContainerCnv_tlp4"/>
+  <class name="AthenaPoolTopLevelTPConverter<TauDetailsContainerCnv_p1,TauDetailsContainer_tlp4>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TauDetailsContainer_tlp4>"/>
+  <class name="T_AthenaPoolTPCnvBase<Analysis::TauDetailsContainer,TauDetailsContainer_tlp4>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp4>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<Analysis::TauDetailsContainer,Analysis::TauDetailsContainer,TauDetailsContainer_tlp4>"/>
+      
+  <class name="ITPConverterFor<Analysis::TauDetailsContainer>"/>
+
+</lcgdict>
