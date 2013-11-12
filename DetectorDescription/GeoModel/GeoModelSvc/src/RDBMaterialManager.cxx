@@ -1,0 +1,1194 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "RDBMaterialManager.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoElement.h"
+
+#include "StoreGate/StoreGate.h"
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/StoreGateSvc.h"
+
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+
+#include <algorithm>
+#include <iostream>
+
+bool RDBMaterialManager::_specialMaterials = false;
+
+//---------------------------Help find elements in the list-----------------------//
+class NameEquals {                                                                //
+public:                                                                           //
+  NameEquals(const std::string & name):_name(name){}                              //
+  bool operator() (const GeoElement *e) const {return _name==e->getName();}       //
+private:                                                                          //
+  std::string _name;                                                              //
+};                                                                                //
+//--------------------------------------------------------------------------------//
+
+//---------------------------Help find elements in the list-----------------------//
+class NumberEquals {                                                              //
+public:                                                                           //
+  NumberEquals(unsigned int number):_number(number){}                             //
+  bool operator() (const GeoElement *e) const {return _number==e->getZ();}        //
+private:                                                                          //
+  unsigned int _number;                                                           //
+};                                                                                //
+//--------------------------------------------------------------------------------//
+
+int CheckElement(std::string &name)
+{
+  if(name.find("::",0) == std::string::npos) {
+    return 1;
+  }
+  else {
+    return 0;	
+  }
+}
+
+int printElement ( GeoElement* &p_element)
+{
+  std::string _name;
+  std::string _symbol;
+  double      _a;
+  double      _z;
+	
+  _name = p_element->getName();
+  _symbol = p_element->getSymbol();
+  _a = p_element->getA();
+  _z = p_element->getZ();
+	
+  std::cout << " ***** CheckElement(): Print the Element:  " << _name << std::endl; 
+  std::cout << " ***** The Element: name,		symbol, 	A, 	Z " << std::endl; 
+  std::cout << " *****             "<<_name <<"		"<<_symbol <<"		"<< (_a)/(CLHEP::gram/CLHEP::mole)<<"	"<< _z <<"	"  << std::endl; 
+	
+  return 1;
+}
+
+int printElement ( const GeoElement* &p_element)
+{
+  std::string _name;
+  std::string _symbol;
+  double      _a;
+  double      _z;
+		
+  _name = p_element->getName();
+  _symbol = p_element->getSymbol();
+  _a = p_element->getA();
+  _z = p_element->getZ();
+	
+  std::cout << " ***** PrintElement(): Print the Element:  " << _name << std::endl; 
+  std::cout << " ***** The Element: name,		symbol, 	A, 	Z " << std::endl; 
+  std::cout << " *****             "<<_name <<"		"<<_symbol <<"		"<< (_a)/(CLHEP::gram/CLHEP::mole) <<"	"<< _z <<"	"  << std::endl; 
+	
+  return 1;
+}
+
+int printMaterial ( GeoMaterial* &p_material)
+{
+  std::string _name;
+  double _density;
+		
+  _name = p_material->getName();
+  _density = p_material->getDensity()/(CLHEP::gram/CLHEP::cm3);
+
+  std::cout << " ***** PrintMaterial(): Print the Material:  " << _name << std::endl; 
+  std::cout << " ***** The Material: name,	density	" << std::endl; 
+  std::cout << " *****              "<< _name <<"		"<<_density <<"		" << std::endl; 	
+	
+  return 1;
+}
+
+int printFullMaterial ( GeoMaterial* &p_material)
+{
+  std::string _name;
+  double _density;
+  int _element_number;
+	
+  const GeoElement* _tmp_element;
+  double _element_fraction;
+		
+  _name = p_material->getName();
+  _density = p_material->getDensity()/(CLHEP::gram/CLHEP::cm3);
+	
+  std::cout << " ***** PrintFullMaterial(): Print the Material:  " << _name << std::endl; 
+  std::cout << " ***** The Material: name, 	density" << std::endl; 
+  std::cout << " *****              "<< _name <<" 	 "<<_density <<"  " << std::endl; 
+	
+  p_material->lock();
+  _element_number = p_material->getNumElements();	
+		
+ 			
+  if ( _element_number  == 0){
+    std::cout << " ***** No Elements now in this printMaterial( ) " << std::endl;	
+    return 1;
+  }
+  else {
+    _element_number = p_material->getNumElements();	
+	
+    for(int i =0; i< _element_number;i ++)
+      {
+	_tmp_element = p_material->getElement(i);
+	_element_fraction = p_material->getFraction(i);
+		
+	std::cout<<" ***** ***** Number:  " << i << " Fraction:  " << _element_fraction<< std::endl;
+	printElement( _tmp_element); 
+      }	
+  }
+  return 1;
+}
+	
+	
+
+RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
+{
+  IGeoModelSvc*  iGeoModel;		
+  IRDBAccessSvc* iAccessSvc;
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 		
+
+  StatusCode sc = pSvcLocator->service("GeoModelSvc",iGeoModel);
+  if(sc.isFailure())
+    log << MSG::ERROR << "Unable to access GeoModelSvc" << endreq;
+  else
+  {
+    sc = pSvcLocator->service("RDBAccessSvc",iAccessSvc);
+ 
+    if(sc.isSuccess())
+    {
+      if(iAccessSvc->connect())
+      {
+	// --- Standard materials, elements
+	DecodeVersionKey keyAtlas(iGeoModel, "ATLAS");
+	m_elements = iAccessSvc->getRecordsetPtr("Elements",keyAtlas.tag(),keyAtlas.node());
+	if(m_elements->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting Elements with default tag" <<endreq;
+	  m_elements = iAccessSvc->getRecordsetPtr("Elements","Materials-00","Materials");
+	}
+	m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents",keyAtlas.tag(),keyAtlas.node());
+	if(m_stdmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting StdMatComponents with default tag" <<endreq;
+	  m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents","Materials-00","Materials");
+	}
+	m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials",keyAtlas.tag(),keyAtlas.node());
+	if(m_stdmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting StdMaterials with default tag" <<endreq;
+	  m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials","Materials-00","Materials");
+	}
+
+	// --- Pixel materials
+	DecodeVersionKey keyPixel(iGeoModel, "Pixel");
+	m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents",keyPixel.tag(),keyPixel.node());
+	if(m_pixmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting PixMatComponents with default tag" <<endreq;
+	  m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
+	}
+	m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials",keyPixel.tag(),keyPixel.node());
+	if(m_pixmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting PixMaterials with default tag" <<endreq;
+	  m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
+	}
+
+	// --- Pixel materials for TB
+        m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixelTBMatComponents",keyPixel.tag(),keyPixel.node());
+        if(m_pixtbmatcomponents->size()==0)
+        {
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting PixTBMatComponents with default tag" <<endreq;
+          m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
+        }
+        m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixelTBMaterials",keyPixel.tag(),keyPixel.node());
+        if(m_pixtbmaterials->size()==0)
+        {
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting PixTBMaterials with default tag" <<endreq;
+          m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
+        }
+
+	// --- SCT materials
+	DecodeVersionKey keySCT(iGeoModel, "SCT");
+	m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents",keySCT.tag(),keySCT.node());
+	if(m_sctmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting SCTMatComponents with default tag" <<endreq;
+	  m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents","SCTMatComponents-00");
+	}
+
+	m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials",keySCT.tag(),keySCT.node());
+	if(m_sctmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting SCTMaterials with default tag" <<endreq;
+	  m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials","SCTMaterials-00");
+	}
+
+	// --- TRT materials
+	DecodeVersionKey keyTRT(iGeoModel, "TRT");
+	m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents",keyTRT.tag(),keyTRT.node());
+	if(m_trtmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting TrtMatComponents with default tag" <<endreq;
+	  m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents","TrtMatComponents-00");
+	}
+	m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials",keyTRT.tag(),keyTRT.node());
+	if(m_trtmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting TrtMaterials with default tag" <<endreq;
+	  m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials","TrtMaterials-00");
+	}
+
+	// --- InDet common materials
+	DecodeVersionKey keyInDet(iGeoModel, "InnerDetector");
+	m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents",keyInDet.tag(),keyInDet.node());
+	if(m_indetmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting InDetMatComponents with default tag" <<endreq;
+	  m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents","InDetMatComponents-00");
+	}
+
+	m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials",keyInDet.tag(),keyInDet.node());
+	if(m_indetmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting InDetMaterials with default tag" <<endreq;
+	  m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials","InDetMaterials-00");
+	}
+
+	// --- LAr materials
+	DecodeVersionKey keyLAr(iGeoModel, "LAr");    
+	m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents",keyLAr.tag(),keyLAr.node());
+	if(m_larmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting LArMatComponents with default tag" <<endreq;
+	  m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents","LArMatComponents-00");
+	}
+	m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials",keyLAr.tag(),keyLAr.node());
+	if(m_larmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting LArMaterials with default tag" <<endreq;
+	  m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials","LArMaterials-00");
+	}
+
+	// --- Tile materials
+	DecodeVersionKey keyTile(iGeoModel, "TileCal");    
+	m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents",keyTile.tag(),keyTile.node());
+	if(m_tilematcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting TileMatComponents with default tag" <<endreq;
+	  m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents","TileMatComponents-00");
+	}
+	m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials",keyTile.tag(),keyTile.node());
+	if(m_tilematerials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting TileMaterials with default tag" <<endreq;
+	  m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials","TileMaterials-00");
+	}
+
+	// --- Muon
+	DecodeVersionKey keyMuon(iGeoModel, "MuonSpectrometer");
+	m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents",keyMuon.tag(),keyMuon.node());
+	if(m_muomatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting MUOMatComponents with default tag" <<endreq;
+	  m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents","MUOMatComponents-00");
+	}
+	m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials",keyMuon.tag(),keyMuon.node());
+	if(m_muomaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting MUOMaterials with default tag" <<endreq;
+	  m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials","MUOMaterials-00");  
+	}
+	m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents",keyMuon.tag(),keyMuon.node());
+	if(m_shieldmatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting ShieldMatComponents with default tag" <<endreq;
+	  m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents","ShieldMatComponents-00");
+	}
+	m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials",keyMuon.tag(),keyMuon.node());
+	if(m_shieldmaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting ShieldMaterials with default tag" <<endreq;
+	  m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials","ShieldMaterials-00");
+	}
+	m_toromatcomponents = iAccessSvc->getRecordsetPtr("ToroMatComponents",keyMuon.tag(),keyMuon.node());
+	if(m_toromatcomponents->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting ToroMatComponents with default tag" <<endreq;
+	  m_toromatcomponents =	iAccessSvc->getRecordsetPtr("ToroMatComponents","ToroMatComponents-00");
+	}
+	m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials",keyMuon.tag(),keyMuon.node());
+	if(m_toromaterials->size()==0)
+	{
+	  if(log.level()<=MSG::DEBUG)
+	    log << MSG::DEBUG << " Getting ToroMaterials with default tag" <<endreq; 
+	  m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials","ToroMaterials-00");
+	}
+    
+	iAccessSvc->disconnect();
+      }
+      else
+	log << MSG::ERROR << "Unable to fetch data from the Geometry DB" << endreq;
+    }
+    else
+      log << MSG::ERROR << "Unable to get RDBAccessSvc" << endreq;
+  }
+
+}
+
+// Destructor:
+RDBMaterialManager::~RDBMaterialManager() {
+	
+  // Unreference the materials:
+  std::map< std::string, GeoMaterial * >::iterator m, begin = _materialMap.begin(),end = _materialMap.end();
+  for (m=begin;m!=end;m++) (*m).second->unref();	
+	 	
+  // Unreference the elements:
+  for (size_t i=0;i<_elementVector.size();i++)   	_elementVector[i]->unref();
+	
+}
+
+GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name)  
+{
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+	
+  std::map< std::string, GeoMaterial * >::const_iterator m   = _materialMap.find(std::string(name));
+  std::map< std::string, GeoMaterial * >::const_iterator end = _materialMap.end();
+  	
+  if (m!=end) {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endreq;	
+    return (*m).second;
+  }
+  else {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endreq;	
+    return NULL;
+  }
+}
+
+GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name) const
+{
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+	
+  std::map< std::string, GeoMaterial * >::const_iterator m   = _materialMap.find(std::string(name));
+  std::map< std::string, GeoMaterial * >::const_iterator end = _materialMap.end();
+  if (m!=end) {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endreq;	
+    return (*m).second;
+  }
+  else {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endreq;	
+    return NULL;
+  }
+}
+
+
+GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)  
+{ 
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+	
+  NameEquals matchByName(name);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(),matchByName);
+  	
+  if (e!=_elementVector.end()) {	
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endreq;	
+    return *e;
+  }
+  else {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endreq;	
+    return NULL;
+  }
+}
+
+
+GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)  const
+{ 
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+	
+  NameEquals matchByName(name);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(),matchByName);
+  	
+  if (e!=_elementVector.end()) {	
+    if(log.level()==MSG::VERBOSE)    		
+      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endreq;	
+    return *e;
+  }
+  else {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endreq;	
+    return NULL;
+  }
+}
+
+
+GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNumber)  
+{ 
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+	
+  NumberEquals matchByNumber(atomicNumber);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(), matchByNumber);
+  	
+  if (e!=_elementVector.end()) {
+    if(log.level()==MSG::VERBOSE)  		
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+    return *e;
+  }
+  else {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+    return NULL;
+  }
+}
+
+GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNumber) const
+{ 
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+	
+  NumberEquals matchByNumber(atomicNumber);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(), matchByNumber);
+  	
+  if (e!=_elementVector.end()) {
+    if(log.level()==MSG::VERBOSE)  		
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+    return *e;
+  }
+  else {
+    if(log.level()==MSG::VERBOSE)
+      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
+    return NULL;
+  }
+}
+
+GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
+	
+  unsigned int  ind, com_ind;
+	
+  std::string _material_name;
+  std::string _tmp_name;
+  long 	    _material_id = 0;
+  double      _material_density = 0;
+	
+	
+  std::string _component_name;
+  double      _component_fraction;
+  int 	    _component_id;
+		
+  std::string detector;
+  std::string tmp_det;
+  std::string data_id;
+	
+	
+  std::string matcomponents_table;
+
+  if(!_specialMaterials)
+  {
+    buildSpecialMaterials();
+    _specialMaterials = true;
+  }
+	
+  GeoMaterial* pmaterial;
+	
+  GeoMaterial* p_com_material;
+  GeoElement*  p_com_element;
+	
+  IRDBRecordset_ptr tmp_materials;
+  IRDBRecordset_ptr tmp_matcomponents;
+	
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()<=MSG::DEBUG) 
+    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endreq;	
+ 
+
+  pmaterial = NULL;
+  pmaterial = searchMaterialMap( name);
+  if (pmaterial!= NULL) 
+      return pmaterial;
+		
+  if(name.find("std",0) == 0)
+    {
+      detector = "std";
+      tmp_materials = m_stdmaterials;
+      tmp_matcomponents = m_stdmatcomponents;
+      data_id = "STDMATERIALS_DATA_ID";
+    }
+  else if(name.find("trt",0) == 0)
+    {
+      detector = "trt";
+      tmp_materials = m_trtmaterials;
+      tmp_matcomponents = m_trtmatcomponents;
+      data_id = "TRTMATERIALS_DATA_ID";
+    }
+  else if(name.find("LAr",0) == 0)
+    {
+      detector = "LAr";
+      tmp_materials = m_larmaterials;
+      tmp_matcomponents = m_larmatcomponents;
+      data_id = "LARMATERIALS_DATA_ID";
+    }
+  else if(name.find("muo",0) == 0)
+    {
+      detector = "muo";
+      tmp_materials = m_muomaterials;
+      tmp_matcomponents = m_muomatcomponents;
+      data_id = "MUOMATERIALS_DATA_ID";
+    }
+  else if(name.find("pixtb",0) == 0)
+    {
+      detector = "pixtb";
+      tmp_materials = m_pixtbmaterials;
+      tmp_matcomponents = m_pixtbmatcomponents;
+      data_id = "PIXELTBMATERIALS_DATA_ID";
+    }
+  else if(name.find("pix",0) == 0)
+    {
+      detector = "pix";
+      tmp_materials = m_pixmaterials;
+      tmp_matcomponents = m_pixmatcomponents;
+      data_id = "PIXMATERIALS_DATA_ID";
+    }
+  else if(name.find("sct",0) == 0)
+    {
+      detector = "sct";
+      tmp_materials = m_sctmaterials;
+      tmp_matcomponents = m_sctmatcomponents;
+      data_id = "SCTMATERIALS_DATA_ID";
+    }
+  else if(name.find("indet",0) == 0)
+    {
+      detector = "indet";
+      tmp_materials = m_indetmaterials;
+      tmp_matcomponents = m_indetmatcomponents;
+      data_id = "INDETMATERIALS_DATA_ID";
+    }
+  else if(name.find("shield",0) == 0)
+    {
+      detector = "shield";
+      tmp_materials = m_shieldmaterials;
+      tmp_matcomponents = m_shieldmatcomponents;
+      data_id = "SHIELDMATERIALS_DATA_ID";
+    }
+  else if(name.find("tile",0) == 0)
+    {
+      detector = "tile";
+      tmp_materials = m_tilematerials;
+      tmp_matcomponents = m_tilematcomponents;
+      data_id = "TILEMATERIALS_DATA_ID";
+    }
+  else if(name.find("toro",0) == 0)
+    {
+      detector = "toro";
+      tmp_materials = m_toromaterials;
+      tmp_matcomponents = m_toromatcomponents;
+      data_id = "TOROMATERIALS_DATA_ID";
+    }
+  else {return 0 ;}
+	
+  for( ind = 0; ind < tmp_materials->size(); ind++)
+    {
+      const IRDBRecord* rec = (*tmp_materials)[ind];
+      _tmp_name = detector+"::"+rec->getString("NAME");
+		
+      if( name == _tmp_name){
+
+	_material_name  = rec->getString("NAME");
+	_material_id = rec->getLong(data_id);
+	_material_density = rec->getDouble("DENSITY");
+        		
+	if(log.level()<=MSG::DEBUG)
+	  log << MSG::DEBUG  << " ***** Material: name id density: "  << _material_name <<" " << _material_id <<" "<< _material_density << endreq;	
+	break;
+      }
+    }
+		
+  if (ind == tmp_materials->size()) 
+      return NULL;
+							
+  pmaterial = new GeoMaterial( _material_name,_material_density * CLHEP::gram/CLHEP::cm3);
+
+
+  bool firstComponent = true;
+  bool hasSubMaterial = false;
+  bool calculateFraction = false;
+  double totalFraction = 0.;
+  std::vector < GeoElement* > elementComponents;
+  std::vector <double>        elementFractions;
+
+  for(  com_ind = 0; com_ind <tmp_matcomponents->size(); com_ind++)
+    {
+      const IRDBRecord* com_rec = (*tmp_matcomponents)[com_ind];
+		
+      _component_id = com_rec->getLong("MATERIAL_ID");
+      if( _component_id == _material_id)
+	{
+	  _component_name = com_rec->getString("COMPNAME");
+	  _component_fraction = com_rec->getDouble("FRACTION");
+			
+	  if(firstComponent)
+	  {
+	    firstComponent = false;
+	    if(_component_fraction>=1.)
+	      calculateFraction = true;
+	  }
+
+	  if( CheckElement( _component_name) == 1)
+	    {
+	      p_com_element = getElement(_component_name);
+
+	      if(calculateFraction)
+	      {
+		totalFraction += _component_fraction*p_com_element->getA();
+		elementComponents.push_back(p_com_element);
+		elementFractions.push_back(_component_fraction);
+	      }
+	      else
+		pmaterial->add( p_com_element, _component_fraction);
+										
+	    }
+	  else{
+	    hasSubMaterial = true;
+	    p_com_material = getMaterial(_component_name);
+
+	    pmaterial->add(p_com_material, _component_fraction);
+			
+	  }		
+	}
+    }    
+
+  if(calculateFraction && hasSubMaterial && elementComponents.size()>0)
+    std::cerr << _material_name << " description should be changed. Please indicate the exact fraction for elements\n";
+
+  if(calculateFraction)
+    for(unsigned i=0; i<elementComponents.size(); i++)
+      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA()/totalFraction);
+	
+  // a table to keep the memory allocation, and easy for delete 
+  addMaterial(detector,pmaterial);
+	
+  /*	{
+	printFullMaterial ( pmaterial);
+	printAll( std:: cout);
+	}
+  */	
+  return pmaterial;
+}
+
+const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) const{
+
+  unsigned int  ind, com_ind;
+	
+  std::string _material_name;
+  std::string _tmp_name;
+  long 	    _material_id = 0;
+  double      _material_density = 0;
+	
+	
+  std::string _component_name;
+  double      _component_fraction;
+  int 	    _component_id;
+		
+  std::string detector;
+  std::string tmp_det;
+  std::string data_id;
+	
+	
+  std::string matcomponents_table;
+
+  if(!_specialMaterials)
+  {
+    buildSpecialMaterials();
+    _specialMaterials = true;
+  }
+
+	
+  GeoMaterial* pmaterial;
+	
+  GeoMaterial* p_com_material;
+  GeoElement*  p_com_element;
+	
+  IRDBRecordset_ptr tmp_materials;
+  IRDBRecordset_ptr tmp_matcomponents;
+	
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()<=MSG::DEBUG) 
+    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endreq;	
+
+  pmaterial = NULL;
+  pmaterial = searchMaterialMap( name);
+  if (pmaterial!= NULL) 
+      return pmaterial;
+		
+  if(name.find("std",0) == 0)
+    {
+      detector = "std";
+      tmp_materials = m_stdmaterials;
+      tmp_matcomponents = m_stdmatcomponents;
+      data_id = "STDMATERIALS_DATA_ID";
+    }
+  else if(name.find("trt",0) == 0)
+    {
+      detector = "trt";
+      tmp_materials = m_trtmaterials;
+      tmp_matcomponents = m_trtmatcomponents;
+      data_id = "TRTMATERIALS_DATA_ID";
+    }
+  else if(name.find("LAr",0) == 0)
+    {
+      detector = "LAr";
+      tmp_materials = m_larmaterials;
+      tmp_matcomponents = m_larmatcomponents;
+      data_id = "LARMATERIALS_DATA_ID";
+    }
+  else if(name.find("muo",0) == 0)
+    {
+      detector = "muo";
+      tmp_materials = m_muomaterials;
+      tmp_matcomponents = m_muomatcomponents;
+      data_id = "MUOMATERIALS_DATA_ID";
+    }
+  else if(name.find("pixtb",0) == 0)
+    {
+      detector = "pixtb";
+      tmp_materials = m_pixtbmaterials;
+      tmp_matcomponents = m_pixtbmatcomponents;
+      data_id = "PIXELTBMATERIALS_DATA_ID";
+    }
+  else if(name.find("pix",0) == 0)
+    {
+      detector = "pix";
+      tmp_materials = m_pixmaterials;
+      tmp_matcomponents = m_pixmatcomponents;
+      data_id = "PIXMATERIALS_DATA_ID";
+    }
+  else if(name.find("sct",0) == 0)
+    {
+      detector = "sct";
+      tmp_materials = m_sctmaterials;
+      tmp_matcomponents = m_sctmatcomponents;
+      data_id = "SCTMATERIALS_DATA_ID";
+    }
+  else if(name.find("indet",0) == 0)
+    {
+      detector = "indet";
+      tmp_materials = m_indetmaterials;
+      tmp_matcomponents = m_indetmatcomponents;
+      data_id = "INDETMATERIALS_DATA_ID";
+    }
+  else if(name.find("shield",0) == 0)
+    {
+      detector = "shield";
+      tmp_materials = m_shieldmaterials;
+      tmp_matcomponents = m_shieldmatcomponents;
+      data_id = "SHIELDMATERIALS_DATA_ID";
+    }
+  else if(name.find("tile",0) == 0)
+    {
+      detector = "tile";
+      tmp_materials = m_tilematerials;
+      tmp_matcomponents = m_tilematcomponents;
+      data_id = "TILEMATERIALS_DATA_ID";
+    }
+  else if(name.find("toro",0) == 0)
+    {
+      detector = "toro";
+      tmp_materials = m_toromaterials;
+      tmp_matcomponents = m_toromatcomponents;
+      data_id = "TOROMATERIALS_DATA_ID";
+    }
+  else {return 0 ;}
+	
+  for( ind = 0; ind < tmp_materials->size(); ind++)
+    {
+      const IRDBRecord* rec = (*tmp_materials)[ind];
+      _tmp_name = detector+"::"+rec->getString("NAME");
+		
+      if( name == _tmp_name){
+	_material_name  = rec->getString("NAME");
+	_material_id = rec->getLong(data_id);
+	_material_density = rec->getDouble("DENSITY");
+        		
+	if(log.level()<=MSG::DEBUG)
+	  log << MSG::DEBUG  << " ***** Material: name id density: "  << _material_name <<" " << _material_id <<" "<< _material_density << endreq;	
+	break;
+      }
+    }
+		
+  if (ind == tmp_materials->size()) 
+      return NULL;
+						
+  pmaterial = new GeoMaterial( _material_name,_material_density * CLHEP::gram/CLHEP::cm3);
+
+  bool firstComponent = true;
+  bool hasSubMaterial = false;
+  bool calculateFraction = false;
+  double totalFraction = 0.;
+  std::vector < GeoElement* > elementComponents;
+  std::vector <double>        elementFractions;
+
+  for(  com_ind = 0; com_ind <tmp_matcomponents->size(); com_ind++)
+    {
+      const IRDBRecord* com_rec = (*tmp_matcomponents)[com_ind];
+		
+      _component_id = com_rec->getLong("MATERIAL_ID");
+      if( _component_id == _material_id)
+	{
+	  _component_name = com_rec->getString("COMPNAME");
+	  _component_fraction = com_rec->getDouble("FRACTION");
+			
+	  if(firstComponent)
+	  {
+	    firstComponent = false;
+	    if(_component_fraction>=1.)
+	      calculateFraction = true;
+	  }
+
+	  if( CheckElement( _component_name) == 1)
+	    {
+	      p_com_element = (GeoElement *)(getElement(_component_name));
+
+	      if(calculateFraction)
+	      {
+		totalFraction += _component_fraction*p_com_element->getA();
+		elementComponents.push_back(p_com_element);
+		elementFractions.push_back(_component_fraction);
+	      }
+	      else
+		pmaterial->add( p_com_element, _component_fraction);
+										
+	    }
+	  else{
+	    hasSubMaterial = true;
+	    p_com_material = (GeoMaterial  *)getMaterial(_component_name);
+
+	    pmaterial->add(p_com_material, _component_fraction);
+			
+	  }		
+	}
+    }    
+
+  if(calculateFraction && hasSubMaterial && elementComponents.size()>0)
+    std::cerr << _material_name << " description should be changed. Please indicate the exact fraction for elements\n";
+
+  if(calculateFraction)
+    for(unsigned i=0; i<elementComponents.size(); i++)
+      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA()/totalFraction);
+
+  // a table to keep the memory allocation, and easy for delete 
+  addMaterial(detector,pmaterial);
+	
+  return pmaterial;
+}
+
+
+const GeoElement *RDBMaterialManager::getElement(const std::string & name) const{
+	
+  unsigned int ind;
+
+  std::string _element_name;
+  std::string _element_symbol;
+  std::string _tmp_name;
+	
+  double      _element_a;
+  double      _element_z;
+	
+  GeoElement *pelement;
+
+  pelement = NULL;
+  pelement = searchElementVector( name);
+  if (pelement != NULL) 
+      return pelement;
+
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()==MSG::VERBOSE)
+    log << MSG::VERBOSE << " ***** getElement(): " << name  <<endreq;
+
+  for(ind = 0; ind < m_elements->size(); ind++)
+    {
+      const IRDBRecord* rec = (*m_elements)[ind];
+		
+      _tmp_name = rec->getString("NAME");
+	
+      if( name == _tmp_name)
+	{ 
+	  _element_name   = rec->getString("NAME");
+	  _element_symbol = rec->getString("SYMBOL");
+	  _element_a = rec->getDouble("A");
+	  _element_z = rec->getDouble("Z");
+                	
+	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+
+	  // a table to keep the memory allocation, and easy for delete 
+	  pelement->ref();
+	  _elementVector.push_back( pelement);
+			
+	  break;
+	}
+    }
+  if (ind == m_elements->size()) 		return NULL;
+	
+  return pelement;
+
+}
+
+
+const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) const {
+
+  unsigned int ind;
+
+  std::string _element_name;
+  std::string _element_symbol;
+	
+  double      _element_a;
+  double      _element_z;
+	
+  GeoElement* pelement(0);
+
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()==MSG::VERBOSE)
+    log << MSG::VERBOSE << " ***** const getElement(atomicNumber) const : " << atomicNumber <<endreq;	
+
+  for(ind = 0; ind < m_elements->size(); ind++)
+    {
+      const IRDBRecord* rec = (*m_elements)[ind];
+		
+      if(atomicNumber == rec->getDouble("A"))
+	{ 
+	  _element_name   = rec->getString("NAME");
+	  _element_symbol = rec->getString("SYMBOL");
+	  _element_a = rec->getDouble("A");
+	  _element_z = rec->getDouble("Z");
+                	
+	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+
+	  // a table to keep the memory allocation, and easy for delete 
+	  pelement->ref();
+	  _elementVector.push_back( pelement);
+			
+	  break;
+	}
+    }
+  if (ind == m_elements->size()) 	return NULL;
+	
+  return pelement;
+}
+
+
+GeoElement *RDBMaterialManager::getElement(const std::string & name)  {
+
+  unsigned int ind;
+
+  std::string _element_name;
+  std::string _element_symbol;
+  std::string _tmp_name;
+	
+  double      _element_a;
+  double      _element_z;
+	
+  GeoElement *pelement;
+
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()==MSG::VERBOSE)
+    log << MSG::VERBOSE << " ***** getElement(): " << _element_name  <<endreq;
+	
+  pelement = NULL;
+  pelement = searchElementVector( name);
+  if (pelement != NULL) 
+      return pelement;
+
+  for(ind = 0; ind < m_elements->size(); ind++)
+    {
+      const IRDBRecord* rec = (*m_elements)[ind];
+		
+      _tmp_name = rec->getString("NAME");
+	
+      if( name == _tmp_name)
+	{ 
+	  _element_name   = rec->getString("NAME");
+	  _element_symbol = rec->getString("SYMBOL");
+	  _element_a = rec->getDouble("A");
+	  _element_z = rec->getDouble("Z");
+                	
+	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+
+	  // a table to keep the memory allocation, and easy for delete 
+	  pelement->ref();
+	  _elementVector.push_back( pelement);
+	  break;
+			
+	}
+    }
+  if (ind == m_elements->size()) 		return NULL;
+	
+  return pelement;
+}
+
+
+GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
+  
+  unsigned int ind;
+
+  std::string _element_name;
+  std::string _element_symbol;
+	
+  double      _element_a;
+  double      _element_z;
+	
+  GeoElement* pelement(0);
+
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()==MSG::VERBOSE)
+    log << MSG::VERBOSE << " ***** getElement(atomicNumber): " << _element_name  <<endreq;	
+	
+  for(ind = 0; ind < m_elements->size(); ind++)
+    {
+      const IRDBRecord* rec = (*m_elements)[ind];
+		
+      if(atomicNumber == rec->getDouble("A"))
+	{ 
+	  _element_name   = rec->getString("NAME");
+	  _element_symbol = rec->getString("SYMBOL");
+	  _element_a = rec->getDouble("A");
+	  _element_z = rec->getDouble("Z");
+                	
+	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+
+	  // a table to keep the memory allocation, and easy for delete 
+	  pelement->ref();
+	  _elementVector.push_back( pelement);
+			
+	  break;
+	}
+    }
+  if (ind == m_elements->size()) 	return NULL;
+	
+  return pelement;
+}
+
+void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *material) {
+
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()==MSG::VERBOSE)
+    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endreq;
+	
+  std::string key = space + std::string("::")+ std::string(material->getName());
+  // Check whether we already have materials with the same space::name defined
+  if(_materialMap.find(key)!=_materialMap.end())
+    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endreq;
+  else {
+    material->lock();             
+    material->ref();
+    _materialMap[key]=material;
+  }
+}
+
+void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *material) const {
+	
+  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
+  if(log.level()==MSG::VERBOSE)
+    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endreq;
+	
+  std::string key = space + std::string("::")+ std::string(material->getName());
+  // Check whether we already have materials with the same space::name defined
+  if(_materialMap.find(key)!=_materialMap.end())
+    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endreq;
+  else {
+    material->lock();             
+    material->ref();
+    _materialMap[key]=material;
+  }
+}
+
+StoredMaterialManager::MaterialMapIterator RDBMaterialManager::begin() const
+{
+  return _materialMap.begin();
+}
+
+StoredMaterialManager::MaterialMapIterator RDBMaterialManager::end() const
+{
+  return _materialMap.end();
+}
+
+size_t RDBMaterialManager::size()
+{
+  return _materialMap.size();
+}
+
+std::ostream &  RDBMaterialManager::printAll(std::ostream & o) const 
+{
+  o << "============Material Manager Element List========================" << std::endl;
+  std::vector<GeoElement *>::const_iterator e;
+  for (e=_elementVector.begin();e!= _elementVector.end();e++) 
+    {
+      o << (*e)->getSymbol() << '\t' << (*e)->getZ() <<  '\t' << (*e)->getA()/ (CLHEP::gram/CLHEP::mole) << '\t' << (*e)->getName() << std::endl; 
+    }
+  std::map<std::string, GeoMaterial *>::const_iterator m;
+  	
+  for (m=_materialMap.begin();m!=_materialMap.end();m++) 
+    {
+      o << "Material: " << (*m).first <<  " Density " << (*m).second->getDensity()/(CLHEP::gram/CLHEP::cm3) << std::endl;
+      for (size_t i = 0; i< (*m).second->getNumElements();i++) 
+	{
+	  o <<" ***** ***** "<< int ((*m).second->getFraction(i)*100) << "% \t"  << (*m).second->getElement(i)->getName() << std::endl;
+	}
+    }
+  	  	
+  return o;
+}
+
+void RDBMaterialManager::buildSpecialMaterials()
+{
+  // Create special materials
+  GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
+  ethElement->ref();
+  _elementVector.push_back(ethElement);
+  GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
+  ether->add(ethElement,1.);
+  addMaterial("special",ether);
+}
+
+void RDBMaterialManager::buildSpecialMaterials() const
+{
+  // Create special materials
+  GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
+  ethElement->ref();
+  _elementVector.push_back(ethElement);  
+  GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
+  ether->add(ethElement,1.);
+  addMaterial("special",ether);
+}
