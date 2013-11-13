@@ -1,0 +1,72 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// PrepRawDataCollection.icc
+//   Implementation file for class PrepRawDataCollection
+///////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+// Version 1.0 15/07/2003 Veronique Boisvert
+///////////////////////////////////////////////////////////////////
+
+//namespace Trk{
+
+template< class PrepRawDataT >
+// Constructor with parameters:
+PrepRawDataCollection< PrepRawDataT >::PrepRawDataCollection(const 
+                              IdentifierHash idHash) :
+  DataVector<PrepRawDataT>(),
+  m_idHash(idHash),
+  m_id()
+{}
+
+template< class PrepRawDataT >
+PrepRawDataCollection< PrepRawDataT >::PrepRawDataCollection() :
+  DataVector<PrepRawDataT>(),
+  m_idHash(),
+  m_id()
+{}
+
+template< class PrepRawDataT >
+PrepRawDataCollection< PrepRawDataT >::PrepRawDataCollection(const PrepRawDataCollection& prd) :
+  DataVector<PrepRawDataT>(prd),
+  m_idHash(),
+  m_id()
+{
+    // added this ctor as a temporary hack for HLT
+    // it should never be called.
+    throw Trk::PrepRawDataCollectionCopyConstructorCalled();
+}
+
+
+// Destructor:
+template< class PrepRawDataT >
+PrepRawDataCollection< PrepRawDataT >::~PrepRawDataCollection()
+{ }
+
+template< class PrepRawDataT >
+Identifier PrepRawDataCollection< PrepRawDataT >::identify() const
+{
+  return m_id;
+}
+
+template< class PrepRawDataT >
+IdentifierHash PrepRawDataCollection< PrepRawDataT >::identifyHash() const
+{
+  return m_idHash;
+}
+
+template< class PrepRawDataT >
+void PrepRawDataCollection< PrepRawDataT >::setIdentifier(Identifier id)
+{
+  m_id = id;
+}
+
+template< class PrepRawDataT >
+std::string PrepRawDataCollection< PrepRawDataT >::type() const
+{
+  return "PrepRawDataCollection";
+}
+
