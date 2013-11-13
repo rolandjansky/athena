@@ -54,10 +54,6 @@ namespace Trk{
                      const Amg::MatrixX& locerr,
                      const PerigeeSurface& assocSurf);
 
-      VertexOnTrack( const LocalParameters& locpars,
-                     const Amg::MatrixX& locerr,
-                     SurfaceUniquePtrT<const PerigeeSurface> assocSurf);
-
       /** Constructor from: RedVertex, Perigee - the perigee is needed for the measurement frame */
       VertexOnTrack( const Trk::RecVertex& rvertex, const Trk::Perigee& mperigee) throw (GaudiException);
 
