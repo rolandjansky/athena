@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="FourMomTest" type="makecheck" suite="Event">
+      <package>Event/FourMom</package>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch</mailto>
+      <expectations>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>

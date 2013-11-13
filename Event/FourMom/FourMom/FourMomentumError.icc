@@ -1,0 +1,466 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "FourMom/ErrorMatrixBase.h"
+#include "FourMom/ErrorMatrixPxPyPzE.h"
+#include "FourMom/ErrorMatrixEEtaPhiM.h"
+#include "FourMom/ErrorMatrixPtEtaPhiM.h"
+#include "FourMom/ErrorMatrixPtCotThPhiM.h"
+#include "FourMom/P4ErrorTransforms.h"
+
+
+template < class FourMom>
+FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixPxPyPzE& m, 
+					       const FourMom& p4) :
+  m_p4(p4),
+  m_PxPyPzE( new ErrorMatrixPxPyPzE(m)), 
+  m_EEtaPhiM(0),
+  m_PtEtaPhiM(0),
+  m_PtCotThPhiM(0),
+  m_originalType(PxPyPzE)
+{}
+
+template < class FourMom>
+FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixEEtaPhiM& m, 
+					       const FourMom& p4) :
+  m_p4(p4),
+  m_PxPyPzE(0), 
+  m_EEtaPhiM( new ErrorMatrixEEtaPhiM(m)),
+  m_PtEtaPhiM(0),
+  m_PtCotThPhiM(0),
+  m_originalType(EEtaPhiM)
+{}
+
+template < class FourMom>
+FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixPtEtaPhiM& m, 
+					       const FourMom& p4) :
+  m_p4(p4),
+  m_PxPyPzE(0), 
+  m_EEtaPhiM(0),
+  m_PtEtaPhiM( new ErrorMatrixPtEtaPhiM(m)),
+  m_PtCotThPhiM(0),
+  m_originalType(PtEtaPhiM)
+{}
+
+template < class FourMom>
+FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixPtCotThPhiM& m, 
+					       const FourMom& p4) :
+  m_p4(p4),
+  m_PxPyPzE(0), 
+  m_EEtaPhiM(0),
+  m_PtEtaPhiM(0),
+  m_PtCotThPhiM(new ErrorMatrixPtCotThPhiM(m)),
+  m_originalType(PtCotThPhiM)
+{}
+
+template < class FourMom>
+FourMomentumError< FourMom>::FourMomentumError( const CLHEP::HepSymMatrix& m, 
+						ParamType t, 
+						const FourMom& p4) :
+  m_p4(p4),
+  m_PxPyPzE(0), 
+  m_EEtaPhiM(0),
+  m_PtEtaPhiM(0),
+  m_PtCotThPhiM(0)
+{
+  if ( t == PxPyPzE) {
+    m_PxPyPzE = new ErrorMatrixPxPyPzE( m);
+    m_originalType = PxPyPzE;
+  }
+  if ( t == EEtaPhiM) {
+    m_EEtaPhiM = new ErrorMatrixEEtaPhiM( m);
+    m_originalType = EEtaPhiM;
+  }
+  if ( t == PtEtaPhiM) {
+    m_PtEtaPhiM = new ErrorMatrixPtEtaPhiM( m);
+    m_originalType = PtEtaPhiM;
+  }
+  if ( t == PtCotThPhiM) {
+    m_PtCotThPhiM = new ErrorMatrixPtCotThPhiM( m);
+    m_originalType = PtCotThPhiM;
+  }
+}
+
+template < class FourMom>
+FourMomentumError< FourMom>::FourMomentumError( const FourMomentumError& other) :
+  I4MomentumError(),
+  m_p4( other.m_p4),
+  m_PxPyPzE(0), 
+  m_EEtaPhiM(0),
+  m_PtEtaPhiM(0),
+  m_PtCotThPhiM(0),
+  m_originalType( other.originalType())
+{
+  if (other.originalType() == PxPyPzE) {
+    m_PxPyPzE = new ErrorMatrixPxPyPzE( *other.pxPyPzEMatrix());
+  }
+  else if (other.originalType() == EEtaPhiM) {
+    m_EEtaPhiM = new ErrorMatrixEEtaPhiM(*other.eEtaPhiMMatrix());
+  }
+  else if (other.originalType() == PtEtaPhiM) {
+    m_PtEtaPhiM = new ErrorMatrixPtEtaPhiM( *other.ptEtaPhiMMatrix());
+  }
+  else if (other.originalType() == PtCotThPhiM) {
+    m_PtCotThPhiM = new ErrorMatrixPtCotThPhiM( *other.ptCotThPhiMMatrix());
+  }
+}
+
+
+template < class FourMom>
+FourMomentumError< FourMom> &FourMomentumError<FourMom>::operator=( const FourMomentumError& other)
+{
+  if (this!=&other){
+    I4MomentumError();
+    m_p4( other.m_p4);
+    m_PxPyPzE(0);
+    m_EEtaPhiM(0);
+    m_PtEtaPhiM(0);
+    m_PtCotThPhiM(0);
+    m_originalType( other.originalType());
+
+    if (other.originalType() == PxPyPzE) {
+      m_PxPyPzE = new ErrorMatrixPxPyPzE( *other.pxPyPzEMatrix());
+    }
+    else if (other.originalType() == EEtaPhiM) {
+      m_EEtaPhiM = new ErrorMatrixEEtaPhiM(*other.eEtaPhiMMatrix());
+    }
+    else if (other.originalType() == PtEtaPhiM) {
+      m_PtEtaPhiM = new ErrorMatrixPtEtaPhiM( *other.ptEtaPhiMMatrix());
+    }
+    else if (other.originalType() == PtCotThPhiM) {
+      m_PtCotThPhiM = new ErrorMatrixPtCotThPhiM( *other.ptCotThPhiMMatrix());
+    }
+  }
+  return *this;
+}
+
+template < class FourMom>
+const ErrorMatrixPxPyPzE* FourMomentumError< FourMom>::pxPyPzEMatrix() const
+{
+  if (m_PxPyPzE == static_cast<DeepCopyPointer<ErrorMatrixPxPyPzE> >( 0)) computePxPyPzEMatrix();
+  return &(*m_PxPyPzE);
+}
+
+template < class FourMom>
+const ErrorMatrixEEtaPhiM* FourMomentumError< FourMom>::eEtaPhiMMatrix() const
+{
+  if (m_EEtaPhiM == static_cast<DeepCopyPointer<ErrorMatrixEEtaPhiM> >(0)) computeEEtaPhiMMatrix();
+  return &(*m_EEtaPhiM);
+}
+
+template < class FourMom>
+const ErrorMatrixPtEtaPhiM* FourMomentumError< FourMom>::ptEtaPhiMMatrix() const
+{
+  if (m_PtEtaPhiM == static_cast<DeepCopyPointer<ErrorMatrixPtEtaPhiM> >(0)) computePtEtaPhiMMatrix();
+  return &(*m_PtEtaPhiM);
+}
+
+template < class FourMom>
+const ErrorMatrixPtCotThPhiM* FourMomentumError< FourMom>::ptCotThPhiMMatrix() const
+{
+  return &(*m_PtCotThPhiM);
+  // FIXME not implemented yet
+}
+
+template < class FourMom>
+bool FourMomentumError< FourMom>::computePxPyPzEMatrix() const
+{
+  using namespace P4ErrorTransforms;
+
+  if (m_originalType == EEtaPhiM) {
+    m_PxPyPzE = toPxPyPzE( *m_EEtaPhiM, m_p4.e(), m_p4.eta(), m_p4.phi(), m_p4.m());
+    return true;
+  }
+  else if (m_originalType == PtEtaPhiM) {
+    //FIXME m_PxPyPzE = m_helper->pxPyPzE( *m_PtEtaPhiM);
+    return false;
+  }
+  else if (m_originalType == PtCotThPhiM) {
+    return false;  // FIXME
+  }
+  else return false; // should never happen
+}
+
+template < class FourMom>
+bool FourMomentumError< FourMom>::computeEEtaPhiMMatrix() const
+{
+  using namespace P4ErrorTransforms;
+
+  if (m_originalType == PxPyPzE) {
+    m_EEtaPhiM = toEEtaPhiM( *m_PxPyPzE, m_p4.px(), m_p4.py(), m_p4.pz(), m_p4.e());
+    return true;
+  }
+  else if (m_originalType == PtEtaPhiM) {
+    //FIXME m_EEtaPhiM = m_helper->eEtaPhiM( *m_PtEtaPhiM);
+    return false;
+  }
+  else if (m_originalType == PtCotThPhiM) {
+    return false;  // FIXME
+  }
+  else return false; // should never happen
+}
+
+template < class FourMom>
+bool FourMomentumError< FourMom>::computePtEtaPhiMMatrix() const
+{
+  if (m_originalType == PxPyPzE) {
+    //FIXME m_PtEtaPhiM = m_helper->ptEtaPhiM( *m_PxPyPzE);
+    return false;
+  }
+  else if (m_originalType == EEtaPhiM) {
+    //FIXME m_PtEtaPhiM = m_helper->ptEtaPhiM( *m_EEtaPhiM);
+    return false;
+  }
+  else if (m_originalType == PtCotThPhiM) {
+    return false;  // FIXME
+  }
+  else return false; // should never happen
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::pxError() const
+{
+  const ErrorMatrixPxPyPzE* em = pxPyPzEMatrix();
+  if (em != 0) {
+    return std::sqrt( (*em)(ErrorMatrixPxPyPzE::ipx));
+  }
+  else return 0;
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::pyError() const
+{
+  const ErrorMatrixPxPyPzE* em = pxPyPzEMatrix();
+  if (em != 0) {
+    return std::sqrt( (*em)(ErrorMatrixPxPyPzE::ipy));
+  }
+  else return 0;
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::pzError() const
+{
+  const ErrorMatrixPxPyPzE* em = pxPyPzEMatrix();
+  if (em != 0) {
+    return std::sqrt( (*em)(ErrorMatrixPxPyPzE::ipz));
+  }
+  else return 0;
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::mError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em != 0) {
+    return std::sqrt( (*em)(ErrorMatrixEEtaPhiM::im));
+  }
+  else return 0;
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::m2Error() const
+{
+  return 2* m_p4.m() * mError();
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::pError() const 
+{
+  if (m_originalType == PxPyPzE) {
+    const ErrorMatrixPxPyPzE* em = pxPyPzEMatrix();
+    if (em != 0) {
+      double pxtmp = m_p4.px(); // avoid calling virtual methods multiple times
+      double pytmp = m_p4.py();
+      double pztmp = m_p4.pz();
+      double sigma2 = 
+	sqr(pxtmp)*(*em)(ErrorMatrixPxPyPzE::ipx) +
+	sqr(pytmp)*(*em)(ErrorMatrixPxPyPzE::ipy) +
+	sqr(pztmp)*(*em)(ErrorMatrixPxPyPzE::ipz) +
+	2*pxtmp*pytmp*(*em)(ErrorMatrixPxPyPzE::ipx,ErrorMatrixPxPyPzE::ipy) +
+	2*pxtmp*pztmp*(*em)(ErrorMatrixPxPyPzE::ipx,ErrorMatrixPxPyPzE::ipz) +
+	2*pytmp*pztmp*(*em)(ErrorMatrixPxPyPzE::ipy,ErrorMatrixPxPyPzE::ipz);
+      return std::sqrt(sigma2/m_p4.p2()); // divide by p2 globally
+    }
+  }
+  else {    
+    const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+    if (em != 0) {
+      double E = m_p4.e(); // avoid calling virtual methods multiple times
+      double M = m_p4.m();
+      double sigma2 = 
+	E*E*(*em)(ErrorMatrixEEtaPhiM::ie) +
+	M*M*(*em)(ErrorMatrixEEtaPhiM::im) -
+	E*M*(*em)(ErrorMatrixEEtaPhiM::ie,ErrorMatrixEEtaPhiM::im);
+      return std::sqrt(sigma2/m_p4.p2()); // divide by p2 globally
+    }
+  }
+  // FIXME: no optimized version for PtEtaPhiM
+  return 0; // in case no error matrix, should never happen
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::p2Error() const
+{
+  return 2* m_p4.p() * pError();
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::eError() const
+{
+  if (m_originalType == PxPyPzE) {
+    const ErrorMatrixPxPyPzE* em = pxPyPzEMatrix();
+    if (em != 0) {
+      return std::sqrt( (*em)(ErrorMatrixPxPyPzE::ie));
+    }
+    else return 0;
+  }
+  else {
+    const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+    if (em != 0) {
+      return std::sqrt( (*em)(ErrorMatrixEEtaPhiM::ie));
+    }
+    else return 0;
+  }
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::etaError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em != 0) {
+    return std::sqrt( (*em)(ErrorMatrixEEtaPhiM::ieta));
+  }
+  else return 0;
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::rapidityError() const
+{
+  return etaError();
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::phiError() const
+{
+  if (m_originalType == PtEtaPhiM) {
+    const ErrorMatrixPtEtaPhiM* em = ptEtaPhiMMatrix();
+    if (em != 0) {
+      return std::sqrt( (*em)(ErrorMatrixPtEtaPhiM::iphi));
+    }
+  }
+  else {
+    const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+    if (em != 0) {
+      return std::sqrt( (*em)(ErrorMatrixEEtaPhiM::iphi));
+    }
+  }
+  return 0; // in case no error matrix, should never happen
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::etError() const
+{
+  return 0;// FIXME!
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::ptError() const
+{
+  const ErrorMatrixPxPyPzE* em = pxPyPzEMatrix();
+  if (em == 0) return 0;
+  else {
+    double pxtmp = m_p4.px(); // avoid calling virtual methods multiple times
+    double pytmp = m_p4.py();
+    double sigma2 = 
+      sqr(pxtmp)*(*em)(ErrorMatrixPxPyPzE::ipx) + 
+      sqr(pytmp)*(*em)(ErrorMatrixPxPyPzE::ipy) +
+      2*pxtmp*pytmp*(*em)(ErrorMatrixPxPyPzE::ipx,ErrorMatrixPxPyPzE::ipy);
+    return std::sqrt(sigma2)/m_p4.pt(); // divide by pt globally
+  }
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::iPtError() const
+{
+  double p2tmp = m_p4.p2();
+  return p2tmp == 0? 0 : ptError() / p2tmp;
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::cosPhiError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em == 0) return 0;
+  else {
+    return -m_p4.sinPhi() * std::sqrt( (*em)( ErrorMatrixEEtaPhiM::iphi));
+  }
+  // FIXME: missing optimization for ptEtaPhiMMatrix
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::sinPhiError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em == 0) return 0;
+  else {
+    return m_p4.cosPhi() * std::sqrt( (*em)( ErrorMatrixEEtaPhiM::iphi));
+  }
+  // FIXME: missing optimization for ptEtaPhiMMatrix
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::cosThError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em == 0) return 0;
+  else {
+    double t = exp(-m_p4.eta()); // intermediate variable
+    // derivative d(cosTheta)/d(theta/2)
+    double deriv_t = -4*t/sqr(1+t*t);
+    return std::abs( deriv_t * t) * std::sqrt( (*em)( ErrorMatrixEEtaPhiM::ieta));
+  }
+  // FIXME: missing optimization for ptEtaPhiMMatrix
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::sinThError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em == 0) return 0;
+  else {
+    double t = exp(-m_p4.eta()); // intermediate variable
+    // derivative d(cosTheta)/d(theta/2)
+    double deriv_t = 2*(1-t*t)/sqr(1+t*t);
+    return std::abs( deriv_t * t) * std::sqrt( (*em)( ErrorMatrixEEtaPhiM::ieta));
+  }
+  // FIXME: missing optimization for ptEtaPhiMMatrix
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::tanThError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em == 0) return 0;
+  else {
+    double t = exp(-m_p4.eta()); // intermediate variable
+    // derivative d(cosTheta)/d(theta/2)
+    double deriv_t = 2*(1+t*t)/sqr(1-t*t);
+    return std::abs( deriv_t * t) * std::sqrt( (*em)( ErrorMatrixEEtaPhiM::ieta));
+  }
+  // FIXME: missing optimization for ptEtaPhiMMatrix
+}
+
+template < class FourMom>
+double FourMomentumError< FourMom>::cotThError() const
+{
+  const ErrorMatrixEEtaPhiM* em = eEtaPhiMMatrix();
+  if (em == 0) return 0;
+  else {
+    double t = exp(-m_p4.eta()); // intermediate variable
+    // derivative d(cosTheta)/d(theta/2)
+    double deriv_t = -(1+t*t)/(2*t*t);
+    return std::abs( deriv_t * t) * std::sqrt( (*em)( ErrorMatrixEEtaPhiM::ieta));
+  }
+  // FIXME: missing optimization for ptEtaPhiMMatrix
+}
