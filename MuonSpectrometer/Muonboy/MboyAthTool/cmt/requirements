@@ -1,0 +1,55 @@
+package MboyAthTool
+
+author  Marc Virchaux <virchaux@hep.saclay.cea.fr>
+
+use AtlasPolicy AtlasPolicy-*
+
+use GaudiInterface       GaudiInterface-*       External
+use AthenaBaseComps      AthenaBaseComps-*     Control
+
+use MboyEDMToolInterfaces MboyEDMToolInterfaces-* MuonSpectrometer/Muonboy 
+use MboyAthToolInterfaces MboyAthToolInterfaces-* MuonSpectrometer/Muonboy 
+use MboyAthEvt            MboyAthEvt-*            MuonSpectrometer/Muonboy 
+
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
+use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkExInterfaces       TrkExInterfaces-*       Tracking/TrkExtrapolation
+use TrkParameters         TrkParameters-*         Tracking/TrkEvent
+
+use MuonRecToolInterfaces MuonRecToolInterfaces-*  MuonSpectrometer/MuonReconstruction/MuonRecTools
+
+use TrkSegment            TrkSegment-*             Tracking/TrkEvent
+use TrkTrack              TrkTrack-*               Tracking/TrkEvent
+
+private
+
+use Particle             Particle-*     Reconstruction
+
+use EventInfo             EventInfo-*            Event 
+
+use MboyCoreEvt           MboyCoreEvt-*           MuonSpectrometer/Muonboy 
+use MboySvcInterfaces     MboySvcInterfaces-*     MuonSpectrometer/Muonboy
+
+use MuonTrackFindingEvent MuonTrackFindingEvent-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRecHelperTools    MuonRecHelperTools-*     MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonIdHelpers         MuonIdHelpers-*          MuonSpectrometer
+use MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
+
+use MuonSegment           MuonSegment-*            MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRIO_OnTrack       MuonRIO_OnTrack-*        MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
+use TrkRIO_OnTrack        TrkRIO_OnTrack-*         Tracking/TrkEvent
+use TrkRoad               TrkRoad-*                Tracking/TrkEvent 
+use TrkMeasurementBase    TrkMeasurementBase-*     Tracking/TrkEvent
+use TrkEventPrimitives    TrkEventPrimitives-*     Tracking/TrkEvent
+use GeoPrimitives         GeoPrimitives-*          DetectorDescription
+use EventPrimitives       EventPrimitives-*        Event
+
+public
+
+apply_pattern dual_use_library files="*.cxx"
+
+apply_pattern declare_joboptions files="*.txt *.py"
+
+
