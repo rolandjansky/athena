@@ -1,0 +1,27 @@
+package MuonboyAth
+
+author  Marc Virchaux <virchaux@hep.saclay.cea.fr>
+
+use AtlasPolicy AtlasPolicy-*
+
+use GaudiInterface       GaudiInterface-*       External
+
+use AthenaBaseComps      AthenaBaseComps-*     Control
+
+use Identifier           Identifier-*      DetectorDescription
+
+private
+
+use MboyEDMToolInterfaces MboyEDMToolInterfaces-*     MuonSpectrometer/Muonboy 
+use MboyAthToolInterfaces MboyAthToolInterfaces-*     MuonSpectrometer/Muonboy 
+use MuonRecToolInterfaces MuonRecToolInterfaces-*     MuonSpectrometer/MuonReconstruction/MuonRecTools
+
+use MuonIdHelpers        MuonIdHelpers-*   MuonSpectrometer
+use MuonChamberT0s       MuonChamberT0s-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
+public
+
+apply_pattern dual_use_library files="*.FF90 *.cxx"
+
+apply_pattern declare_joboptions files="*.txt *.py"
+
