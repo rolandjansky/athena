@@ -1,0 +1,49 @@
+package MboySvc
+
+author  Marc Virchaux <virchaux@hep.saclay.cea.fr>
+
+use AtlasPolicy          AtlasPolicy-*
+
+use AthenaKernel         AthenaKernel-*            Control
+
+use GaudiInterface       GaudiInterface-*          External
+
+use AthenaBaseComps      AthenaBaseComps-*         Control
+
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+use TrkSegment           TrkSegment-*              Tracking/TrkEvent
+use TrkParameters        TrkParameters-*           Tracking/TrkEvent
+
+
+use MboySvcInterfaces    MboySvcInterfaces-*       MuonSpectrometer/Muonboy 
+
+
+
+private
+
+use EventInfo             EventInfo-*                 Event
+
+use StoreGate             StoreGate-*                 Control
+
+use Particle              Particle-*                  Reconstruction
+
+use TrackRecord           TrackRecord-*               Simulation/G4Sim
+
+use MuonSegment           MuonSegment-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent/
+
+use MboyCoreEvt          MboyCoreEvt-*             MuonSpectrometer/Muonboy 
+use MboyAthEvt            MboyAthEvt-*                MuonSpectrometer/Muonboy 
+use MboyEDMToolInterfaces MboyEDMToolInterfaces-*     MuonSpectrometer/Muonboy 
+use MuonboyCore           MuonboyCore-*               MuonSpectrometer/Muonboy 
+use AmdcAth               AmdcAth-*                   MuonSpectrometer/Amdcsimrec
+use AmdcCore              AmdcCore-*                  MuonSpectrometer/Amdcsimrec
+
+use MuonCondData          MuonCondData-*              MuonSpectrometer/MuonConditions/MuonCondGeneral   
+use MuonCondInterface     MuonCondInterface-*         MuonSpectrometer/MuonConditions/MuonCondGeneral
+use MuonIdHelpers MuonIdHelpers-* MuonSpectrometer/
+
+public
+
+apply_pattern dual_use_library files="*.cxx"
+
+apply_pattern declare_joboptions files="*.txt *.py"
