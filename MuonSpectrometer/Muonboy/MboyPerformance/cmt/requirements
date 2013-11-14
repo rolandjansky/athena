@@ -1,0 +1,13 @@
+package MboyPerformance
+
+author Samira Hassani <samira.hassani@cern.ch> 
+
+use AtlasPolicy AtlasPolicy-*
+use TestPolicy TestPolicy-* 
+
+private
+apply_pattern validate_xml
+public
+macro MboyPerformance_TestConfiguration "../test/MboyPerformance_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/MboyPerformance_TestConfiguration.xml ../ExtraFiles/*.C ../ExtraFiles/*.c ../ExtraFiles/*.h ../ExtraFiles/Makefile"
+apply_pattern declare_joboptions files="*.py"

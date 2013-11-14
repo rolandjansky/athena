@@ -1,0 +1,59 @@
+MboyPerformance
+================
+
+Implementation by samira hassani (samira.hassani at cern.ch)
+
+This package is for nightly testing of the muon spectrometer reconstruction programs Muonboy/Staco/MuTag  in the Run Time Tester (RTT) maintained at UCL.  Useful general info links:
+
+UCL RTT Page - http://www.hep.ucl.ac.uk/atlas/AtlasTesting/
+
+ It is divided into 2 parts:
+
+1. Reconstruction scripts (currently run on digit files):
+
+MboyPerformance_RTT.py- basic test
+runs on digit file (single-track 10,100,500 GeV muons) 
+
+Currently this file use RecExCommon to produce a AAN; and the new tracking is used if doStaco=True. 
+
+
+2.use CBNTEvent.c
+
+This reads in a generic Athena Aware Ntuple files and produces the efficiency, resolution, fakes,... 
+between generated and reconstructed tracks.  All output (png,ps, dump) files are kept.  
+
+Makefile (copied from InnerDetector/InDetValidation/InDetRTT/ExtraFiles/InDetRTT_Makefile) is compiled at runtime on the UCL RTT machines, and is called by the root script MboyPerformance.C.  
+It includes these files:
+
+ aantana.c
+ AANTEvent.c
+ AANTEvent.h
+ Analysis.c
+ Analysis.h
+ Assoc.c
+ Assoc.h
+ cbntana.c
+ CBNTEvent.c
+ CBNTEvent.h
+ Efficiency.c
+ Efficiency.h
+ Fakes.c
+ Fakes.h
+ HasEvt.c
+ HasEvt.h
+ Makefile
+ Modele.c
+ Modele.h
+ Residual.c
+ Residual.h
+ Resolution.c
+ Resolution.h
+ Staco.c
+ Staco.h
+
+All are found in ExtraFiles.
+
+----
+
+As with all RTT scripts, the joboptions files and root script MboyPerformance.C are run
+based on instructions given in test/MboyPerformance_TestConfiguration.xml
