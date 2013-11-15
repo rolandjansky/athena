@@ -1,0 +1,22 @@
+package MagFieldInterfaces
+author <elmar.ritsch@cern.ch>
+
+manager Niels van Eldik <niels.van.eldik@cern.ch>
+manager Robert Langenberg <robert.johannes.langenberg@cern.ch>
+manager Masahiro Morii <masahiro_morii@harvard.edu>
+manager Elmar Ritsch <elmar.ritsch@cern.ch>
+
+#################################################################
+# public use statements
+#################################################################
+public
+use AtlasPolicy                 AtlasPolicy-*
+use GaudiInterface              GaudiInterface-*              External
+use GeoPrimitives               GeoPrimitives-*               DetectorDescription
+
+#################################################################
+# private use statements
+#################################################################
+private
+
+end_private
