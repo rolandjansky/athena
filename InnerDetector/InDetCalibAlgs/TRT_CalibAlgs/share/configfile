@@ -1,0 +1,152 @@
+#####################################################################################################
+##												   ##
+##        General configuration file for the TRT Calibration     				   ##
+##		If you don't know how to setup, please visit Twiki:  				   ##
+##			TRTOfflineCalibration							   ##
+##												   ##
+##		This Script requieres:								   ##
+##			-Permission to use the idcalib AFS account 				   ##
+##			-Permission to use the batch queue atlasidcal				   ##
+##			-Special C++ code to do merging and calibration:			   ##
+##												   ##
+##	Please report problems, bugs, comments, ... to:	          				   ##
+##		Johan Lundqvist		<johan.lundquistNOSPAMnbi.dk>				   ##
+##		Alejandro Alonso	<alejandro.alonsoNOSPAMhep.lu.se>			   ##
+##										 		   ##
+#####################################################################################################
+
+# === e-mail address of user
+#### CHANGE UNLESS YOU WANT TO REALLY BUG ALEX!
+UserMail        = alonso@nbi.dk,grkeren@cern.ch
+
+# === Select ESD or RAW (supported multiple Runs, just: 11111,11112,11113.....)
+# In case of using RAW files, please force not to read the Tags from file. This is not working. User python RunTRTCalib.py Sub=1111 force
+
+DataType        = ESD
+Inputdir        = castor:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data12_8TeV/express_express/00215643/data12_8TeV.00215643.express_express.merge.RAW
+MinLumi         = 0
+MaxLumi         = 3000000
+Inputpattern    = *
+
+# === If "True" this one overrides both data types RAW and ESD
+
+#For MC
+IsCosmicMC      	= False
+#For Real Data:
+IsCosmic        	= False
+IsSingleBeam		= False
+IsCollision		= True
+IsHeavyIons		= False
+
+
+# === DB tags (NOT NEEDED TO SETUP; THEY WILL AUTOSETUP when running from ESDs)
+RTtag           = TrtCalibRt-bootstrap-01 
+T0tag           = TrtCalibT0-bootstrap-01
+IOVstart        = 76702 
+IOVend          = 76702
+DetDescVer      = ATLAS-GEO-20-00-02
+GLtag           = COMCOND-ES1PA-006-05
+
+
+# === Selects which jobs to submit. If "False" the shell scripts are still generated
+SubmitRecJobs   = True
+SubmitMergeJobs = True
+SubmitCalJobs   = True
+SubmitCnvJobs   = True
+
+# === Set the job prefix to be used in the lxbatch job name. Important to run different calibrations at the same time, note that the .sh files don't change the name!!
+JobPrefix       = 
+Tag             = 
+
+# === Set directories
+#Workdir         = /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/Tier0/testarea_17.2.6.5 
+#WorkdirRec      = /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/Tier0/testarea_17.2.6.5 
+#Calibdir        = /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/Tier0/testarea_17.2.6.5/InnerDetector/InDetCalibAlgs/TRT_CalibAlgs/share 
+
+
+Workdir         = /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/Tier0/testarea_17.2.7.9_XeAr
+WorkdirRec      = /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/Tier0/testarea_17.2.7.9_XeAr
+Calibdir        = /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/Tier0/testarea_17.2.7.9_XeAr/InnerDetector/InDetCalibAlgs/TRT_CalibAlgs/share 
+
+
+# === ATLAS sw release
+#Release      	= 17.2.6.5,AtlasProduction 
+#ReleaseRec      = 17.2.6.5,AtlasProduction
+
+Release      	= 17.2.7.9,AtlasProduction,slc5 
+ReleaseRec      = 17.2.7.9,AtlasProduction,slc5
+# === Magnetic field (This will be autosetup on initiazation)
+MagnetOn        = True
+
+# === Athena log output
+GetLog          = True
+OutputLevel     = INFO
+
+# === Job control
+CleanRRoot      = False
+CleanCRoot      = False
+CleanCTxt       = False
+CleanCLog       = False
+#Batchqueue      = atlasb1,1nd,2nd
+Batchqueue      = atlasb1
+DoAthenaCalib   = True
+UseHist         = True
+MaxParallel     = 60
+StartIter       = 0
+NumIter         = 1
+NumEvents       = 50,500,700,2000,2000
+
+# === Selects from where to load the calib constants for the first iteration
+#StartConst      = db
+StartConst      = /afs/cern.ch/user/a/attrtcal/TRT_Calibration/Tier0/manual/Collisions2012/run_215589_alex/calibout.215589_shifted.txt 
+
+
+# === Set calibration parameters
+MinT0           = 500
+MinRT           = 10000
+UsePol0         = False,False,False,False,False,False,False
+FloatPol3       = True
+UseChipRef      = True
+UseHist         = True
+#RtRelation      = dines
+RtRelation      = basic
+RtBinning       = t
+SplitAC         = True
+
+DoRt            = detector,detector,detector,detector,detector,detector,detector,detector,detector,detector,none,none,none
+RTglobalValues  = line:'-3 -1 -1 -1 -1 : 0 0.000000e+00 8.123064e-02 -1.417874e-03 1.676736e-05' 
+#RTglobalValues  = file:/afs/cern.ch/user/j/johan/johantest/Cosmics/MCBinned.txt
+#If you don't want to perform Rt calibration, the Rt relation to be used has to be given in the previous line
+
+DoT0            = chip,chip,chip,chip,chip,chipref,chipref,chipref,chipref
+T0globalValues  = line:'-3 -1 -1 -1 -1 : 20 0.0'
+#T0globalValues  = file:/afs/cern.ch/user/j/johan/shifter/batch_91007_RtFixed/input/calibout_04.txt 
+#If you don't want to perform T0 calibration, the global T0 to be used has to be given in the previous line
+
+
+
+# ===  For Experts: In case needed: we can calibrate the TRT Hit errors. Only set this to True. i
+# ====						Make sure the drift time size is what you expect. In case not, the change has to be done in bhadd.....
+
+DoErrorOptimization 	= False,False,False,False,False,False,False,False,False
+
+
+
+
+#MeanT0 is used only in cosmic data, to keep the average T0 fixed. Note, it requieres the script NormalizeT0.py inside package /TRTCalibration 
+#If you dont want to do it, set this value to 0
+MeanT0          = 0
+
+#Setup subdetectors to be calibrated
+doEc-2          = True
+doEc2           = True
+doBA-1          = True
+doBA1           = True
+
+# Setup Ar/Xenon mixtures: NOTE THAT THE TAG IS HARDCODED!!!!
+DoArXe		= False
+
+###  We shift the t0s in order to get the best calibration for tracks over 2GeV, so we need to change them by -0.5ns.
+#T0Offset	= 0
+T0Offset	= -0.5
+DoShift         = 0 

@@ -1,0 +1,18 @@
+
+cp ~sfratina/public/TRT/TRT_StrawStatus/report/* .
+mkdir output
+make
+
+### the .cc macro that spits out the list of problematic straws, and a txt file that the root macro will use later. the run number is specified in "run.txt" file
+cp /afs/cern.ch/user/a/attrtcal/Tier0/run_186049/straws.186049.txt .
+echo "186049" > run.txt
+./TRT_StrawStatusReport
+
+### the root macro that dumps four figures in the "output" directory
+root
+.x TRT_StrawStatusReport.C
+
+### latex that takes those figures and includes them in a single pdf
+/afs/cern.ch/atlas/offline/external/LCGCMT/LCGCMT_56c/InstallArea/i686-slc4-gcc34-opt/bin/replace xxxxxx 186049 -- TRT_StrawStatusReport.tex
+latex TRT_StrawStatusReport.tex
+

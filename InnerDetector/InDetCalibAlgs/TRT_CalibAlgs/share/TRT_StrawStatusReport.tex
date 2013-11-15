@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{a4,epsfig}
+\usepackage[T1]{fontenc}
+\usepackage[latin2]{inputenc}
+\usepackage{epsfig}
+\usepackage{amsmath}
+\setlength{\parindent}{0pt}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textwidth}{1cm}
+\addtolength{\textheight}{3cm}
+
+\graphicspath{output}
+
+\def\d{\,\mathrm{d}}
+
+\newcommand{\e}[1]{\ensuremath{\,{\textrm {#1}}}}
+\newcommand{\E}[1]{\ensuremath{\cdot 10^{#1}}}  
+\newcommand{\komma}{\e{,}}
+\def\figsizeonecolumn{0.7}
+\def\figsizetwocolumn{0.5}
+	
+\title{TRT Straw Status Report}
+\author{Run xxxxxx}			
+			
+\begin{document}
+
+\maketitle
+
+\thispagestyle{empty}
+
+\begin{figure}[h!]
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=\figsizetwocolumn\linewidth]{output/strawHitEfficiency_xxxxxx} & 
+\includegraphics[width=\figsizetwocolumn\linewidth]{output/strawHToccupancy_xxxxxx}
+\end{tabular}
+\end{center}
+\caption{The distribution of the straw hit efficiency (left) and straw HT occupancy (right). 
+Each histogram entry is the result for one straw.
+Straws that are identified as problematic (and will be masked off) are shown in color. 
+All such straws are shown in orange color. 
+The straws that are excluded based on a specific criteria (straw efficiency for the left plot, 
+and straw HT occupancy for the right plot) are shown in red. 
+The right-most bin on the right plot includes all histogram overflow. 
+ }
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=\figsizetwocolumn\linewidth]{output/numberOfHitsOnTrack_xxxxxx} &
+\includegraphics[width=\figsizetwocolumn\linewidth]{output/additionalExcludedStraws_xxxxxx} 
+\end{tabular}
+\end{center}
+\caption{The number of hits on track as a function of straw index (shown left) is used to verify the statistics 
+and if most of the mis-performing straws are excluded. The number of all excluded straws in different 
+phi sectors (right) can be used to identify any region of the detector in which many straws are excluded. }
+\end{figure}
+
+\end{document}
