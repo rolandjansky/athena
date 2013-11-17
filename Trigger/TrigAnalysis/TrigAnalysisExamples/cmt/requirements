@@ -1,0 +1,69 @@
+package TrigAnalysisExamples
+
+author Michael Begel
+author Joerg Stelzer
+author Tomasz Bold
+
+use AtlasPolicy                 AtlasPolicy-*
+use TestPolicy                  TestPolicy-*
+
+
+
+# for AthenaPython
+use AthenaPython                AthenaPython-*          Control -no_auto_imports
+
+# for example EDM access test
+use TrigCaloEvent               TrigCaloEvent-*         Trigger/TrigEvent
+use TrigInDetEvent              TrigInDetEvent-*        Trigger/TrigEvent
+use TrigParticle                TrigParticle-*          Trigger/TrigEvent
+use TrigMuonEvent               TrigMuonEvent-*         Trigger/TrigEvent
+use TrigCaloEvent               TrigCaloEvent-*         Trigger/TrigEvent
+
+
+
+
+
+
+private
+# tools for analysis
+use AnalysisUtils               AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use AthenaKernel                AthenaKernel-*          Control
+
+use AtlasBoost                  AtlasBoost-*            External
+use CaloEvent                   CaloEvent-*             Calorimeter
+use GaudiInterface              GaudiInterface-*        External
+use JetEvent                    JetEvent-*              Reconstruction/Jet
+use EventInfo                   EventInfo-*             Event
+
+use AtlasTriggerRunTime         AtlasTriggerRunTime-*
+use StoreGate                   StoreGate-*             Control
+# For the TrigBunchCrossingTool example:
+use TrigAnalysisInterfaces      TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+
+# for TrigDecisionTool test
+use TrigDecisionTool            TrigDecisionTool-*      Trigger/TrigAnalysis
+use TrigObjectMatching          TrigObjectMatching-*    Trigger/TrigAnalysis
+# for TrigMatchExamples
+use muonEvent                   muonEvent-*             Reconstruction/MuonIdentification
+
+use egammaEvent                 egammaEvent-*           Reconstruction/egamma
+use tauEvent                    tauEvent-*              Reconstruction
+
+public
+
+# library	
+library TrigAnalysisExamples *.cxx components/*.cxx
+apply_pattern component_library
+
+branches src python share doc exec
+
+apply_pattern declare_python_modules files="*.py"
+# declare test job options
+apply_pattern declare_joboptions files="*.py"
+
+private
+use AnalysisTriggerEvent        AnalysisTriggerEvent-*       PhysicsAnalysis/AnalysisTrigger
+use AtlasROOT			        AtlasROOT-*                  External
+use TrigSteeringEvent           TrigSteeringEvent-*          Trigger/TrigEvent
+use tauEvent                    tauEvent-*                   Reconstruction
