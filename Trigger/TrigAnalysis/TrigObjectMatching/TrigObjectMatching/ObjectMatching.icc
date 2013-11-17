@@ -1,0 +1,210 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TrigParticle/TrigElectronContainer.h"
+#include "TrigParticle/TrigPhotonContainer.h"
+#include "TrigMuonEvent/TrigMuonEFContainer.h"
+#include "tauEvent/TauJetContainer.h"
+#include "JetEvent/JetCollection.h"
+#include "egammaEvent/egammaContainer.h"
+
+#include "TrigObjectMatching/TraitDefs.h"
+
+#include "boost/foreach.hpp"
+
+#include <memory>
+
+/************************************/
+/*    Public Functions              */
+/************************************/
+
+template <typename T, typename U>
+float ObjectMatching::distance(const T *t, const U *u,
+    const DistanceFunctor<T, U> *metric) {
+
+  if(!metric)
+    return -1.;
+
+  return (*metric)(t, u);
+
+}
+
+template <typename T, typename U>
+float ObjectMatching::distance(const T *t, const U *u) {
+
+  return this->distance(t, u, prepareMetric<T,U>());
+
+}
+
+template <typename T, typename U>
+std::vector<const T*> ObjectMatching::matchToObjects(
+    const U* matchObject,
+    const std::vector<const T*> &targetObjects,
+    float maxDistance,
+    const DistanceFunctor<T, U> *metric) {
+
+  // record matches
+  std::vector<const T*> matches;
+
+  if(!metric)
+    return matches;
+
+  typename std::vector<const T*>::const_iterator iter;
+  for(iter = targetObjects.begin(); iter != targetObjects.end(); ++iter) {
+    float dist = this->distance<T, U>(*iter, matchObject, metric);
+    if(dist >= 0. && (dist < maxDistance || maxDistance < 0.))
+      matches.push_back(*iter);
+  }
+
+  // sort the matches
+  std::stable_sort(matches.begin(), matches.end(), 
+      ObjectMatching::DistanceCompare<T, U>(matchObject, metric));
+
+  // return the vector 
+  return matches;
+
+}
+
+template <typename T, typename U>
+std::vector<const T*> ObjectMatching::matchToObjects(
+    const U* matchObject,
+    const std::vector<const T*> &targetObjects,
+    float maxDistance) {
+
+  return this->matchToObjects(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
+
+}
+
+template <typename T, typename U>
+std::vector<const T*> ObjectMatching::matchToObjects(
+    const U* matchObject,
+    const DataVector<T> &targetObjects,
+    float maxDistance,
+    const DistanceFunctor<T, U> *metric) {
+
+  std::vector<const T*> objects;
+  objects.insert(objects.end(), targetObjects.begin(), targetObjects.end());
+
+  return this->matchToObjects(matchObject, objects, maxDistance, metric);
+
+}
+  
+template <typename T, typename U>
+std::vector<const T*> ObjectMatching::matchToObjects(
+    const U* matchObject,
+    const DataVector<T> &targetObjects,
+    float maxDistance) {
+
+  return this->matchToObjects(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
+
+}
+
+template <typename T, typename U>
+bool ObjectMatching::anyMatch(
+    const U* matchObject,
+    const std::vector<const T*> &targetObjects,
+    float maxDistance,
+    const DistanceFunctor<T, U> *metric) {
+
+  if(!metric) return false;
+
+  typename std::vector<const T*>::const_iterator iter;
+  for(iter = targetObjects.begin(); iter != targetObjects.end(); ++iter) {
+    float dist = this->distance<T, U>(*iter, matchObject, metric);
+    if(dist >= 0. && (dist < maxDistance || maxDistance < 0.))
+      return true;
+  }
+
+  return false;
+}
+
+template <typename T, typename U>
+bool ObjectMatching::anyMatch(
+    const U* matchObject,
+    const std::vector<const T*> &targetObjects,
+    float maxDistance)
+{
+  return this->anyMatch(matchObject, targetObjects, maxDistance,
+                        prepareMetric<T,U>());
+}
+
+template <typename T, typename U>
+const T* ObjectMatching::matchToObject(
+    const U* matchObject,
+    const std::vector<const T*> &targetObjects,
+    float maxDistance,
+    const DistanceFunctor<T, U> *metric) {
+
+  const T *best = 0;
+  float best_dist = maxDistance;
+  if (best_dist < 0)
+    best_dist = std::numeric_limits<float>::max();
+
+  BOOST_FOREACH (const T* o, targetObjects) {
+    float dist = this->distance<T, U>(o, matchObject, metric);
+    if (dist >= 0 && dist < best_dist) {
+      best = o;
+      best_dist = dist;
+    }
+  }
+    
+  return best;
+
+}
+
+template <typename T, typename U>
+const T* ObjectMatching::matchToObject(
+        const U* matchObject,
+        const std::vector<const T*> &targetObjects,
+        float maxDistance) {
+
+    return this->matchToObject(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
+
+}
+
+template <typename T, typename U>
+const T* ObjectMatching::matchToObject(
+        const U* matchObject,
+        const DataVector<T> &targetObjects,
+        float maxDistance,
+        const DistanceFunctor<T, U> *metric) {
+
+  const T *best = 0;
+  float best_dist = maxDistance;
+  if (best_dist < 0)
+    best_dist = std::numeric_limits<float>::max();
+
+  BOOST_FOREACH (const T* o, targetObjects) {
+    float dist = this->distance<T, U>(o, matchObject, metric);
+    if (dist >= 0 && dist < best_dist) {
+      best = o;
+      best_dist = dist;
+    }
+  }
+    
+  return best;
+
+}
+
+template <typename T, typename U>
+const T* ObjectMatching::matchToObject(
+        const U* matchObject,
+        const DataVector<T> &targetObjects,
+        float maxDistance) {
+
+    return this->matchToObject(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
+
+}
+template<typename T, typename U>
+const DistanceFunctor<T,U> *ObjectMatching::prepareMetric() {
+
+    // use traits to determine what the default metric should be.
+
+    // note that the static keyword prevents multiple initialization,
+    // so only one of each metric will be produced per run
+    static const std::auto_ptr<const typename TrigMatch::MetricTraits<T,U>::type > metric(new typename TrigMatch::MetricTraits<T,U>::type);
+
+    return metric.get();
+
+}
