@@ -1,0 +1,29 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// MuonCoinDataContainer.icc
+//   Implementation file for class MuonCoinDataContainer
+///////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+template< class CollectionT>
+MuonCoinDataContainer< CollectionT>::MuonCoinDataContainer() :
+  IdentifiableContainer<CollectionT>()
+{
+}
+
+template< class CollectionT>
+// Constructor with parameters:
+MuonCoinDataContainer< CollectionT>::MuonCoinDataContainer(unsigned int max) :
+  IdentifiableContainer<CollectionT>(max)
+{}
+
+template< class CollectionT>
+// Destructor
+MuonCoinDataContainer< CollectionT>::~MuonCoinDataContainer()
+{
+}
+
