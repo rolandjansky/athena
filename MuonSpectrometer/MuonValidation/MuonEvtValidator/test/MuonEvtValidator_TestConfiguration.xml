@@ -1,0 +1,86 @@
+<?xml version="1.0"?> 
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
+
+<unifiedTestConfiguration> 
+
+
+<atn/>
+<kv/>
+<rtt  xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+   <rttContactPerson>Nectarios Chr. Benekos (Nectarios.Benekos@cern.ch)</rttContactPerson>
+   <mailto>Nectarios.Benekos@cern.ch</mailto>
+   <refRelease>12.0.5</refRelease>
+
+ 
+<jobList>
+
+   
+<athena userJobId="MuonEvtValidator_muonSample">
+    <doc>MuonSimulation Event Validator using muon samples</doc>
+    <classification>
+    <displayClass>OfflineValidation</displayClass>
+    <displayProcess>Simul</displayProcess>
+    <displayComponent>Det-Muon</displayComponent>
+    </classification>
+    
+    <options>MuonEvtValidatorJobOpt_RTT</options>
+    <package>MuonSpectrometer/MuonValidation/MuonEvtValidator</package>
+    <group>MuonEvtValidator</group>
+    <queue>medium</queue>
+    <dataset>/castor/cern.ch/user/m/muonprod/MuonValidation/geo200/MuonHitsVal_GEO-02-00-00.muminus_pt100GeV.aan.root</dataset>
+    <dataset>/castor/cern.ch/user/m/muonprod/MuonValidation/geo200/MuonDigitsVal_GEO-02-00-00.muminus_pt100GeV.aan.root</dataset>
+</athena>
+ 
+</jobList>
+
+
+<jobGroups>
+
+      <jobGroup name="AthenaMuonEvtValidator" parent="Athena">
+
+          <keepFilePattern>MV_Hit_Eta_R_Rpp.RTT.ps</keepFilePattern>	  
+	  <keepFilePattern>MV_Hit_NameID_R_Rpp.RTT.ps</keepFilePattern>
+	  <keepFilePattern>MV_Hit_Phi_R.RTT.ps</keepFilePattern> 
+	  
+          <keepFilePattern>*.root</keepFilePattern>
+
+          <auxFilePattern>MV_Hit_Eta_R_Rpp.RTT.C</auxFilePattern>
+	  <auxFilePattern>MV_Hit_NameID_R_Rpp.RTT.C</auxFilePattern>
+	  <auxFilePattern>MV_Hit_Phi_R.RTT.C</auxFilePattern> 
+
+          <action>
+               <modulename>RttLibraryTools</modulename>
+               <testname>ROOTMacroRunner</testname>
+               <arg>
+                   <argname>macro</argname>
+                   <argvalue>MV_Hit_Eta_R_Rpp.RTT.C</argvalue>
+               </arg>
+          </action>
+
+          <action>
+               <modulename>RttLibraryTools</modulename>
+               <testname>ROOTMacroRunner</testname>
+               <arg>
+                   <argname>macro</argname>
+                   <argvalue>MV_Hit_NameID_R_Rpp.RTT.C</argvalue>
+               </arg>
+          </action>
+
+          <action>
+               <modulename>RttLibraryTools</modulename>
+               <testname>ROOTMacroRunner</testname>
+               <arg>
+                   <argname>macro</argname>
+                   <argvalue>MV_Hit_Phi_R.RTT.C</argvalue>
+               </arg>
+          </action>
+        
+      </jobGroup>
+   
+   </jobGroups>
+
+</rtt>
+
+</unifiedTestConfiguration>
+
+ 
