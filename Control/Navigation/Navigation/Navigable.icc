@@ -1,0 +1,730 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//////////////////////////////////////////////////////////////////////////////
+//                                                                          //
+// Navigable implementations                                                //
+//                                                                          //
+//////////////////////////////////////////////////////////////////////////////
+
+#include <typeinfo>
+
+// constructor
+template <typename CONT, typename RPAR, typename COLL>
+Navigable<CONT,RPAR,COLL>::Navigable() { }
+
+// destructor
+template <typename CONT, typename RPAR, typename COLL>
+Navigable<CONT,RPAR,COLL>::~Navigable() 
+{
+  m_constituents.clear();
+}
+
+	    //////////////////////////////////////////////
+	    // Navigation query handling w/o parameters //
+            //////////////////////////////////////////////
+
+//debug #include <iostream>
+
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::fillToken(INavigationToken& navToken) const 
+{
+  //////////////////////////////////
+  // Check Object Type Query Only //
+  //////////////////////////////////
+
+  // token type comparison
+  NavigationToken<constituent_type>* noParToken = 
+    dynamic_cast< NavigationToken<constituent_type>* >(&navToken);
+
+  // token type accepted
+  if ( noParToken != 0 )
+    { 
+      this->apply(*noParToken);
+      this->toKidsAfterAccept(*noParToken);
+//debug       std::cout << "[Navigable::fillToken(token)] - honored "
+//debug 		<< "NavigationToken<CONSTITUENT_TYPE>"
+//debug 		<< std::endl;
+      return;
+    } 
+
+  /////////////////////////////////////////////////////////
+  // Check Object Type & Relational Parameter Type Query //
+  /////////////////////////////////////////////////////////
+
+  // token type comparison
+  NavigationToken<constituent_type, RPAR>* parToken = 
+    dynamic_cast< NavigationToken<constituent_type, RPAR>* >(&navToken);
+
+  // token type accepted
+  if (  parToken != 0 )
+    {
+      this->apply(*parToken, RPAR());
+      this->toKidsAfterAccept(*parToken,RPAR());
+//debug       std::cout << "[Navigable::fillToken(token)] - honored "
+//debug 		<< "NavigableToken<CONSTITUENT_TYPE,REL_PARM>"
+//debug 		<< std::endl;
+      return;
+    }
+
+  ///////////////////////////////
+  // Forward Query If No Match //
+  ///////////////////////////////
+
+  this->toKidsAfterReject(navToken);
+}
+
+	    /////////////////////////////////////////////
+	    // Navigation query handling w/ parameters //
+	    /////////////////////////////////////////////
+
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::fillToken(INavigationToken& navToken,
+				       const boost::any& aParameter) const 
+{
+  //////////////////////////////////
+  // Check Object Type Query Only //
+  //////////////////////////////////
+
+  // token type comparison
+  NavigationToken<constituent_type>* noParToken =
+    dynamic_cast< NavigationToken<constituent_type>* >(&navToken);
+
+  // token type accepted
+  if (  noParToken != 0 )
+    { 
+      this->apply(*noParToken);
+      this->toKidsAfterAccept(*noParToken);
+//debug       std::cout << "[Navigable::fillToken(token,weight)] - honored "
+//debug 		<< "NavigationToken<CONSTITUENT_TYPE>"
+//debug 		<< std::endl;
+      return;
+    } 
+
+  /////////////////////////////////////////////////////////
+  // Check Object Type & Relational Parameter Type Query //
+  /////////////////////////////////////////////////////////
+
+  // token type comparison
+  NavigationToken<constituent_type, RPAR>* parToken = 
+	dynamic_cast< NavigationToken<constituent_type, RPAR>* >(&navToken);
+
+  // token type accepted
+  if ( parToken != 0 )
+    {
+      this->apply(*parToken, boost::any_cast<RPAR>(aParameter));
+      this->toKidsAfterAccept(*parToken,aParameter);
+//debug       std::cout << "[Navigable::fillToken(token,weight)] - honored "
+//debug 		<< "NavigableToken<CONSTITUENT_TYPE,REL_PARM>"
+//debug 		<< std::endl;
+      return;
+    }
+
+  ///////////////////////////////
+  // Forward Query If No Match //
+  ///////////////////////////////
+
+  this->toKidsAfterReject(navToken, aParameter);
+
+}
+
+		      /////////////////////////
+		      // Insert Constituents //
+		      /////////////////////////
+
+// insert by object pointer
+template <typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT, RPAR, COLL>::putElement(const CONT*     
+					ptrObjectContainer,
+					const constituent_type* 
+					ptrObject,
+					const RPAR&      
+					refParameter,
+                                        size_t sizeHint)
+{
+  // replacement insertion policy in 
+  if ( this->contains(ptrObject) ) this->remove(ptrObject);
+  this->insertElement(ptrObjectContainer,ptrObject,refParameter,sizeHint);
+}
+
+// insert by object index
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::putElement(const CONT*
+					ptrObjectContainer,
+					external_index_type& 
+					refIndex,
+					const RPAR& 
+					refParameter,
+                                        size_t sizeHint) 
+						  
+{
+  if ( this->contains(ptrObjectContainer,refIndex) ) 
+    this->remove(ptrObjectContainer,refIndex);
+  this->insertElement(ptrObjectContainer,refIndex,refParameter,sizeHint);
+}
+
+// insert by pointer without check on multiple insertions
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
+					   ptrObjectContainer,
+					   const constituent_type*
+					   ptrObject,
+					   const RPAR&
+					   refParameter,
+                                           size_t sizeHint)
+{ 
+  NavigationDefaults::DefaultChildColl<CONT, RPAR>::insert(
+						    this->getConstituents(), 
+						    ptrObjectContainer,
+						    ptrObject,
+						    refParameter,
+                                                    sizeHint
+						           );
+}
+
+// insert by index without check on multiple insertions
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
+					   ptrObjectContainer,
+					   external_index_type&
+					   refIndex,
+					   const RPAR&
+					   refParameter,
+                                           size_t sizeHint)
+{
+  NavigationDefaults::DefaultChildColl<CONT, RPAR>::insert(
+						    this->getConstituents(),
+						    ptrObjectContainer,
+						    refIndex,
+						    refParameter,
+                                                    sizeHint
+						          );
+}
+
+// insert by ElementLink without check on multiple insertions
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT, RPAR, COLL>::insertElement(const ElementLink<CONT>& el,
+					   const RPAR&
+					   refParameter,
+                                           size_t sizeHint)
+{
+  NavigationDefaults::DefaultChildColl<CONT, RPAR>::insert(
+						    this->getConstituents(),
+                                                    &el,
+						    refParameter,
+                                                    sizeHint
+						          );
+}
+		   ////////////////////////////////
+		   // Object Removal and Finding //
+		   ////////////////////////////////
+
+// reweight object
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT,RPAR,COLL>::reweight(const constituent_type* ptrObject,
+				    const RPAR& refParm)
+{
+  NavigationDefaults::DefaultChildColl<CONT,RPAR>::
+    changeParm(this->getConstituents(),ptrObject,refParm);
+}
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT,RPAR,COLL>::reweight(const CONT*          ptrContainer,
+				    external_index_type& refIndex,
+				    const RPAR&          refParm)
+{
+  NavigationDefaults::DefaultChildColl<CONT,RPAR>::
+    changeParm(this->getConstituents(),ptrContainer,refIndex,refParm); 
+}
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT,RPAR,COLL>::reweight(object_iter& objectIter,
+				    const RPAR&  refParm)
+{ 
+  NavigationDefaults::DefaultChildColl<CONT,RPAR>::
+    changeParm(this->getConstituents(),(*objectIter),refParm);
+}
+
+
+// remove object by pointer
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::remove(const constituent_type* ptrObject)
+{
+  // needs to be the non-const ref!
+  constituent_coll& refConstituents = this->getConstituents();
+  return 
+    NavigationDefaults::DefaultChildColl<CONT, RPAR>::remove(refConstituents,
+							     ptrObject);
+}
+
+// remove object by collection index
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::remove( const CONT* ptrObjectContainer,
+				     external_index_type& refIndex)
+{
+  return this->remove((*ptrObjectContainer)[refIndex]);
+}
+
+// replace old object container with a new container
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::replace(const CONT* newObjectContainer)
+{
+  // needs to be the non-const ref!
+  constituent_coll& refConstituents = this->getConstituents();
+  return 
+    NavigationDefaults::DefaultChildColl<CONT, RPAR>::replace(refConstituents,
+                                                              *newObjectContainer);
+
+}
+
+
+
+// test if object is in internal container
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::contains(const constituent_type* ptrObject) const
+{
+  return 
+    NavigationDefaults::DefaultChildColl<CONT, RPAR>::contains(
+						      this->getConstituents(),
+						      ptrObject
+                                                              );
+}
+
+// test if object is in internal container using index in external collection
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::contains( const CONT* ptrObjectContainer,
+				       external_index_type& 
+				       refIndex) const
+{
+  const constituent_type* ptrObject = 
+    (ptrObjectContainer->operator[])(refIndex); 
+  return this->contains(ptrObject);
+}
+
+		      //////////////////////////
+		      // Container Operations //
+		      //////////////////////////
+
+// begin() iterator
+template<typename CONT, typename RPAR, typename COLL>
+typename Navigable<CONT, RPAR, COLL>::object_iter 
+Navigable<CONT, RPAR, COLL>::begin() const
+{
+  return 
+    NavigableIterator<CONT, RPAR, COLL>(this->getConstituents()).begin();
+}
+
+// end() iterator
+template<typename CONT, typename RPAR, typename COLL>
+typename Navigable<CONT, RPAR, COLL>::object_iter 
+Navigable<CONT, RPAR, COLL>::end() const
+{
+  return 
+    NavigableIterator<CONT, RPAR, COLL>(this->getConstituents()).end();
+}
+
+// size 
+template<typename CONT, typename RPAR, typename COLL>
+unsigned int
+Navigable<CONT, RPAR, COLL>::size() const
+{
+  return this->getConstituents().size();
+}
+
+// return pointer to original data object container by object pointer
+template<typename CONT, typename RPAR, typename COLL>
+const CONT*
+Navigable<CONT, RPAR, COLL>::getContainer(const constituent_type* 
+					  aConstituent) const
+{
+  return 
+    NavigationDefaults::DefaultChildColl<CONT,RPAR>::getContPtr(
+						     this->getConstituents(),
+						     aConstituent
+						              );
+}
+
+// return pointer to original data object container by internal iterator
+template<typename CONT, typename RPAR, typename COLL>
+const CONT*
+Navigable<CONT, RPAR, COLL>::getContainer(constituent_const_iter anIter) const
+{
+  return 
+    NavigationDefaults::DefaultChildColl<CONT,RPAR>::getContPtr(anIter);
+}
+
+// return pointer to original data object container by object iterator
+template<typename CONT, typename RPAR, typename COLL>
+const CONT*
+Navigable<CONT, RPAR, COLL>::getContainer(object_iter objectIter) const
+{
+  return this->getContainer(objectIter.getInternalIterator());
+}
+
+// get index of data object in original container by object pointer
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::getIndex(const constituent_type* aConstituent,
+				      external_index_type&    theIndex) const
+{
+  return
+    NavigationDefaults::
+    DefaultChildColl<CONT,RPAR>::getContIndex(this->getConstituents(), 
+					      aConstituent,
+					      theIndex);
+}
+
+// get index of data object in original container by internal iterator
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::getIndex(constituent_const_iter anIter,
+				      external_index_type&   theIndex) const
+{
+  return
+    NavigationDefaults::
+    DefaultChildColl<CONT,RPAR>::getContIndex(anIter,theIndex);
+}
+
+
+// get index of data object in original container by object iterator
+template<typename CONT, typename RPAR, typename COLL>
+bool
+Navigable<CONT, RPAR, COLL>::getIndex(object_iter objectIter,
+				      external_index_type& theIndex) const
+{
+  return this->getIndex(objectIter.getInternalIterator(),theIndex);
+}
+
+		      /////////////////////////
+		      // Retrieve Parameters //
+		      /////////////////////////
+
+// by object pointer
+template<typename CONT, typename RPAR, typename COLL>
+RPAR
+Navigable<CONT, RPAR, COLL>::getParameter(const constituent_type* 
+					  ptrObject) const
+{
+  return 
+    getConstituentPar(
+      NavigationDefaults::DefaultChildColl<CONT, RPAR>::find(getConstituents(),
+							     ptrObject)
+                     );
+}
+
+// by collection index
+template<typename CONT, typename RPAR, typename COLL>
+RPAR
+Navigable<CONT, RPAR, COLL>::getParameter(const CONT* ptrObjectContainer,
+					  external_index_type& 
+					  refIndex) const
+{
+  const constituent_type* ptrObject = (*ptrObjectContainer)[refIndex];
+  return this->getParameter(ptrObject);
+}
+
+// by iterator
+template<typename CONT, typename RPAR, typename COLL>
+RPAR
+Navigable<CONT, RPAR, COLL>::getParameter(object_iter& refIter) const
+{
+  return refIter.getParameter();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//                         Internally Used Methods                           //
+///////////////////////////////////////////////////////////////////////////////
+
+		      //////////////////////////
+		      // Query can be honored //
+		      //////////////////////////
+
+// fill token with object pointers (no parameters)
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::apply(NavigationToken<constituent_type>& 
+				   navToken) const
+{
+  // loop on children
+  const constituent_coll& coll = this->getConstituents();
+  constituent_const_iter iCtr(coll.begin());
+  constituent_const_iter iEnd(coll.end());
+  for (; iCtr != iEnd; ++iCtr) 
+    {
+      const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+      if ( ptrObject)	
+         navToken.setObject( ptrObject );		 
+//      else 
+// 	  setBackNavigationWarning();
+    }
+}
+
+// fill with parameter
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::apply(NavigationToken<constituent_type, RPAR>&
+				   navToken,
+				   const RPAR& aParameter) const
+{
+//debug   std::cout << "[Navigable::apply(token,weight)] - invoked with "
+//debug 	    << "token @ " << &navToken
+//debug 	    << " and parameter " << aParameter
+//debug 	    << std::endl;
+
+  // loop children
+  const constituent_coll& coll = this->getConstituents();
+  constituent_const_iter iCtr(coll.begin());
+  constituent_const_iter iEnd(coll.end());
+  for (; iCtr != iEnd; ++iCtr) 
+    {
+      const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+//debug       std::cout << "[Navigable::apply(token,weight)] - set constituent @ "
+//debug 		<< ptrObject << ", incoming parameter "
+//debug 		<< aParameter
+//debug 		<< ", new parameter "
+//debug 		<< aParameter * this->getConstituentPar(iCtr)
+//debug 		<< std::endl;
+
+      if ( ptrObject)	
+	      navToken.setObject(ptrObject, 
+			 aParameter * this->getConstituentPar(iCtr));
+//      else
+//	setBackNavigationWarning();
+    }
+}
+
+			//////////////////////
+			// Forwarding query //
+			//////////////////////
+
+// no parameter, query is honored
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR,COLL>::toKidsAfterAccept(INavigationToken& navToken) const
+{
+  // loop on children
+  const constituent_coll& coll = this->getConstituents();
+  constituent_const_iter iCtr(coll.begin());
+  constituent_const_iter iEnd(coll.end());
+  for (; iCtr != iEnd; ++iCtr) 
+    {
+      const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+      if ( ptrObject)	
+        ptrObject->fillToken( navToken );    // forward query
+//      else
+//	  setBackNavigationWarning();
+  }
+}
+
+// no parameter, query is not honored
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR,COLL>::toKidsAfterReject(INavigationToken& navToken) const
+{
+  // loop on children
+  const constituent_coll& coll = this->getConstituents();
+  constituent_const_iter iCtr(coll.begin());
+  constituent_const_iter iEnd(coll.end());
+  for (; iCtr != iEnd; ++iCtr) 
+    {
+      const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+      if ( ptrObject)	{
+        navToken.trySetObject( ptrObject );  // navigating inheritance
+        ptrObject->fillToken( navToken );    // forward query
+      }
+//      else
+//	  setBackNavigationWarning();
+  }
+}
+
+// with parameter, query is honored
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::toKidsAfterAccept(INavigationToken& navToken,
+					       const boost::any& aParameter) const
+{
+  // loop on children
+  const constituent_coll& coll = this->getConstituents();
+  constituent_const_iter iCtr(coll.begin());
+  constituent_const_iter iEnd(coll.end());
+  // catch exception thrown by boost::any_cast 
+  try {
+    // only identical parameter types can be forwarded!
+    RPAR parentPar(boost::any_cast<RPAR>(aParameter));
+
+    // Do it like this to avoid creating and destroying a temp any object
+    // each time through the loop.
+    boost::any arg (parentPar);
+    RPAR* argp = boost::any_cast<RPAR> (&arg);
+
+    for (; iCtr != iEnd; ++iCtr) 
+      {
+	const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+        if ( ptrObject) {
+          *argp = parentPar * this->getConstituentPar(iCtr);
+	  ptrObject->fillToken(navToken, arg); 
+        }
+//      else
+//	  setBackNavigationWarning();
+      } 
+  } catch(boost::bad_any_cast&) {
+    // parameter type mismatch: terminate parameter forwarding only
+    for (; iCtr != iEnd; ++iCtr) 
+      { //FIXME no weight?
+	const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+	if (ptrObject)
+	  ptrObject->fillToken(navToken, aParameter);
+//      else
+//	  setBackNavigationWarning();
+      }
+  }
+}
+
+// with parameter, query is not honored
+template <typename CONT, typename RPAR, typename COLL>
+void 
+Navigable<CONT, RPAR, COLL>::toKidsAfterReject(INavigationToken& navToken,
+					       const boost::any& aParameter) const
+{
+  // loop on children
+  const constituent_coll& coll = this->getConstituents();
+  constituent_const_iter iCtr(coll.begin());
+  constituent_const_iter iEnd(coll.end());
+  // catch exception thrown by boost::any_cast 
+  try {
+    // only identical parameter types can be forwarded!
+    RPAR parentPar(boost::any_cast<RPAR>(aParameter));
+
+    // Do it like this to avoid creating and destroying a temp any object
+    // each time through the loop.
+    boost::any arg (parentPar);
+    RPAR* argp = boost::any_cast<RPAR> (&arg);
+
+    for (; iCtr != iEnd; ++iCtr) 
+      {
+	const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+ 	if (ptrObject) {
+          *argp = parentPar * this->getConstituentPar(iCtr);
+  	  navToken.trySetObject(ptrObject, arg);
+	  ptrObject->fillToken(navToken, arg);
+	}
+//      else
+//	  setBackNavigationWarning();
+					   
+      } 
+  } catch(boost::bad_any_cast&) {
+    // parameter type mismatch: terminate parameter forwarding only
+    for (; iCtr != iEnd; ++iCtr) 
+      { //FIXME no weight?
+	const constituent_type* ptrObject = this->getConstituentPtr(iCtr);
+	if (ptrObject)
+	   ptrObject->fillToken(navToken, aParameter);
+//      else
+//	  setBackNavigationWarning();
+      }
+  }
+}
+
+		 ///////////////////////////////////
+		 // Internal data object handling //
+		 ///////////////////////////////////
+
+// non-const access data objects by iterator
+template <typename CONT, typename RPAR, typename COLL>
+const typename Navigable<CONT, RPAR, COLL>::constituent_type*
+Navigable<CONT, RPAR, COLL>::getConstituentPtr(constituent_iter 
+					       iter) const
+{ 
+  return NavigationDefaults::DefaultChildColl<CONT, RPAR>::getChildPtr(iter); 
+}
+
+// access data objects by iterator
+template <typename CONT, typename RPAR, typename COLL>
+const typename Navigable<CONT, RPAR, COLL>::constituent_type*
+Navigable<CONT, RPAR, COLL>::getConstituentPtr(constituent_const_iter 
+					       iter) const
+{ 
+  return 
+    NavigationDefaults::DefaultChildColl<CONT, RPAR>::getChildPtr(iter); 
+}
+
+// access relational parameter by iterator
+template <typename CONT, typename RPAR, typename COLL>
+RPAR
+Navigable<CONT, RPAR, COLL>::getConstituentPar(constituent_const_iter 
+					      iter) const
+{ 
+  return NavigationDefaults::DefaultChildColl<CONT, RPAR>::getChildPar(iter); 
+}
+
+// access relational parameter by iterator
+template <typename CONT, typename RPAR, typename COLL>
+RPAR
+Navigable<CONT, RPAR, COLL>::getConstituentPar(constituent_iter 
+					      iter) const
+{ 
+  return NavigationDefaults::DefaultChildColl<CONT, RPAR>::getChildPar(iter); 
+}
+
+////////////////
+// Dump Store //
+////////////////
+
+// dump store
+template <typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT, RPAR, COLL>::dumpStore() const
+{
+  std::cout << "     Navigable class <"
+	    << (typeid(*this)).name()
+	    << ">  @" << this << " with " 
+	  << this->size() 
+	  << " referenced objects " << std::endl;
+  object_iter fObj = this->begin();
+  object_iter lObj = this->end();
+  for ( ; fObj != lObj; fObj++ )
+    {
+      external_index_type theIndex = size_t(-1);
+      if ( this->getIndex(fObj,theIndex) )
+	{
+	  std::cout << "          "
+		    << "Object @"
+		    << *fObj
+		    << " in Storable @"
+		    << this->getContainer(fObj)
+		    << " at index ["
+		    << theIndex
+		    << " ] with search indicator \042"
+		    << this->contains(*fObj)
+		    << "\042 and parameter "
+		    << this->getParameter(fObj)
+		    << std::endl;
+	}
+      else
+	{
+	  std::cout << "          "
+		  << "Cannot find object @"
+		  << *fObj
+		  << " in collection, search indicator \042"
+		  << this->contains(*fObj)
+		  << "\042"
+		  << std::endl;
+	} 
+
+    }
+
+}

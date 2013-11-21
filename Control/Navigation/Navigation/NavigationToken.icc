@@ -1,0 +1,174 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+////////////////////////////////////
+// Navigationtoken Implementation //
+////////////////////////////////////
+
+#include <iostream>
+#include <iomanip>
+
+// query depth control
+template<typename CHILD, typename CHILDPAR, typename HASH>
+bool
+NavigationToken<CHILD,CHILDPAR,HASH>::pushQuery(const INavigable& /*parent*/, 
+						const INavigable& /*child*/ )
+{
+  return true;
+  //  return ( m_navCondition != 0 )
+  //    ? ( m_navCondition->accept(&parent) )
+  //    : true;
+}
+
+// relational parameter access
+template<typename CHILD, typename CHILDPAR, typename HASH>
+CHILDPAR
+NavigationToken<CHILD,CHILDPAR,HASH>::getParameter(const_child_ptr data ) const
+{
+  typename NavigationToken::tokenConstIterator found = m_data.find(data);
+  return ( found != m_data.end() 
+	   ? (*found).second 
+	   : CHILDPAR() ); 
+}
+
+template<typename CHILD, typename CHILDPAR, typename HASH>
+CHILDPAR
+NavigationToken<CHILD,CHILDPAR,HASH>::getParameter( const_iterator& anIter )
+ const
+{
+  return anIter.getParameter(); 
+}
+  
+// clear/reset token
+template <typename CHILD, typename CHILDPAR, typename HASH>
+void NavigationToken<CHILD,CHILDPAR,HASH>::clear()
+{
+  m_data.clear();
+  m_data.get_allocator().reset();
+  if ( m_navSelector  != 0 ) (const_cast<INavigationSelector<CHILD,CHILDPAR>*>(m_navSelector))->reset();
+  if ( m_navCondition != 0 ) (const_cast<INavigationCondition*>(m_navCondition))->reset();
+}
+
+
+namespace Navigation_detail {
+
+
+// Add a pointer/weight pair to the map.
+template <typename MAP, typename const_child_ptr, typename CHILDPAR>
+inline
+void addToMap (MAP& map,
+               const_child_ptr data,
+               CHILDPAR weight)
+{
+  // Insert into container iff nothing already exists with this key.
+  // But return an iterator pointing at the element in any case.
+  std::pair<typename MAP::iterator, bool> ret =
+    map.insert (std::make_pair (data, weight));
+  if ( !ret.second )
+  {
+    // Didn't insert (because an element was already there).
+    // Add weights.
+    ret.first->second += weight;
+  }
+}
+
+
+// Add a pointer/weight pair to the map.
+// Specialization for the DefaultWeight case.
+template <typename MAP, typename const_child_ptr>
+inline
+void addToMap (MAP& map,
+               const_child_ptr data,
+               NavigationDefaults::DefaultWeight /*weight*/)
+{
+  // In this case, we don't need to worry about propagating or summing
+  // weights.  We just need to keep track of unique child pointers.
+  // Make sure the pointer is in the map.
+  map[data];
+}
+
+
+} // namespace Navigation_detail
+
+
+// set object in token
+template <typename CHILD, typename CHILDPAR, typename HASH>
+void NavigationToken<CHILD,CHILDPAR,HASH>::setObject(const_child_ptr data, 
+                                                     CHILDPAR weight )
+{
+  // check pointer validity
+  if ( data != 0 )
+    {
+      if ( m_navSelector == 0 || (m_navSelector !=0  && m_navSelector->accept(data,weight)) )
+	{
+          Navigation_detail::addToMap (m_data, data, weight);
+	}
+    }
+}
+
+// check if queried object is of requested type itself
+template <typename CHILD, typename CHILDPAR, typename HASH>
+bool NavigationToken<CHILD,CHILDPAR,HASH>::trySetObject(const 
+                                                        INavigable* theObject)
+{
+  // See if this is the correct type.
+  // Cache the last complete type we rejected, to cut down on the
+  // number of dynamic_cast calls.
+  const std::type_info* ti = &typeid (*theObject);
+  if (ti == m_lastReject)
+    return false;
+  const_child_ptr thePtr = dynamic_cast<const_child_ptr>(theObject);
+  if ( thePtr != 0 ) 
+    {
+      this->setObject(thePtr);
+      return true;
+    }
+  m_lastReject = ti;
+  return false;
+}
+
+// check if queried object is of requested type itself, including parameters
+template <typename CHILD, typename CHILDPAR, typename HASH> 
+bool
+NavigationToken<CHILD,CHILDPAR,HASH>::trySetObject(const
+						   INavigable* theObject,
+						   const boost::any& theWeight)
+{
+  // See if this is the correct type.
+  // Cache the last complete type we rejected, to cut down on the
+  // number of dynamic_cast calls.
+  const std::type_info* ti = &typeid (*theObject);
+  if (ti == m_lastReject)
+    return false;
+  const_child_ptr thePtr = dynamic_cast<const_child_ptr>(theObject);
+  try {
+    CHILDPAR myWeight(boost::any_cast<CHILDPAR>(theWeight));
+    if ( thePtr != 0 ) 
+      {
+	setObject(thePtr,myWeight);
+	return true;
+      }
+    m_lastReject = ti;
+  } catch(...) { }
+  return false;
+}
+
+// dump token
+template <typename CHILD, typename CHILDPAR, typename HASH>
+void NavigationToken<CHILD,CHILDPAR,HASH>::dumpStore()
+{
+  std::cout << "[NavigationToken::dumpStore] - # elements in store: "
+	    << this->size() << std::endl;
+  tokenConstIterator first = m_data.begin();
+  unsigned int iCtr = 0;
+  for ( ; first != m_data.end(); first++ )
+    {
+      iCtr++;
+      std::cout << "Element " << std::setw(6) << iCtr << ": pointer to object "
+		<< (*first).first
+		<< ", parameter "
+		<< (*first).second
+		<< std::endl;
+    }
+}
