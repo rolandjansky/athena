@@ -1,0 +1,39 @@
+package MuonTestEDM
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  GaudiInterface             GaudiInterface-*                External
+use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
+use  MuonPrepRawData            MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonRDO                    MuonRDO-*                       MuonSpectrometer
+use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
+use  MuonTrigCoinData           MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  Particle                   Particle-*                      Reconstruction
+use  StoreGate                  StoreGate-*                     Control
+use  AthenaBaseComps		AthenaBaseComps-*		Control
+use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use TrkValAlgs  TrkValAlgs-* Tracking/TrkValidation
+
+private 
+use  AthenaKernel		AthenaKernel-*			Control
+
+public
+
+library MuonTestEDM *.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+ 
+# --- Install run-time files
+apply_pattern declare_runtime files="*.py *.sh"
+apply_pattern install_xmls
+
+# --- automatic testing upon gmake check
+#apply_pattern athenarun_test name="MuonTestEDMTesting" pre_script="../test/script_pre_check.sh" options="../share/*.py" post_script="../test/script_post_check.sh"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
