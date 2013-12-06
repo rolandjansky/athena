@@ -1,0 +1,41 @@
+package TrigT1Monitoring
+
+author Johanna Fleckner
+
+use AtlasPolicy         	AtlasPolicy-*
+use GaudiInterface      	GaudiInterface-*      	External
+use AthenaMonitoring    	AthenaMonitoring-* 	Control
+use DataModel 			DataModel-*		Control 
+
+use AtlasDoxygen		AtlasDoxygen-*  	Tools
+#use AtlasROOT			AtlasROOT-*		External
+
+private
+use Identifier 			Identifier-*		DetectorDescription
+use LWHists                     LWHists-*               Tools
+use CaloEvent           	CaloEvent-*           	Calorimeter
+use CaloDetDescr		CaloDetDescr-*		Calorimeter
+use CaloIdentifier              CaloIdentifier-*        Calorimeter
+use CaloTriggerTool             CaloTriggerTool-*       Calorimeter
+use LArRecUtils                 LArRecUtils-*           LArCalorimeter
+use TileEvent                   TileEvent-*             TileCalorimeter
+use TileIdentifier              TileIdentifier-*        TileCalorimeter
+use TileConditions              TileConditions-*        TileCalorimeter
+use TileCalibBlobObjs           TileCalibBlobObjs-*     TileCalorimeter/TileCalib
+
+use TrigT1CaloCalibToolInterfaces  TrigT1CaloCalibToolInterfaces-*  Trigger/TrigT1
+use TrigT1CaloCalibConditions   TrigT1CaloCalibConditions-*  Trigger/TrigT1
+use TrigT1CaloCondSvc           TrigT1CaloCondSvc-*     Trigger/TrigT1
+use TrigT1CaloEvent             TrigT1CaloEvent-*       Trigger/TrigT1
+use TrigT1CaloToolInterfaces    TrigT1CaloToolInterfaces-*   Trigger/TrigT1
+use TrigT1Interfaces    	TrigT1Interfaces-*    	Trigger/TrigT1
+use TrigT1Result 		TrigT1Result-*		Trigger/TrigT1
+use TrigT1CaloMonitoringTools	TrigT1CaloMonitoringTools-*  Trigger/TrigT1
+use TrigConfigSvc               TrigConfigSvc-*         Trigger/TrigConfiguration
+use TrigConfL1Data              TrigConfL1Data-*        Trigger/TrigConfiguration
+end_private
+
+apply_pattern declare_joboptions files="*.py"
+
+library TrigT1Monitoring *.cxx components/*.cxx
+apply_pattern component_library
