@@ -1,0 +1,50 @@
+package TrigT1CaloCalibTools
+
+author Damien Prieur <damien.prieur@cern.ch> John Morris <john.morris@cern.ch>
+
+public
+use AtlasPolicy                 AtlasPolicy-*
+use GaudiInterface              GaudiInterface-*                External
+use AtlasROOT                   AtlasROOT-*                     External
+use AtlasCORAL                  AtlasCORAL-*                    External
+use StoreGate                   StoreGate-*                     Control
+use DataModel                   DataModel-*                     Control
+use AthenaKernel                AthenaKernel-*                  Control
+use AthenaBaseComps             AthenaBaseComps-*               Control
+use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
+use Identifier                  Identifier-*                    DetectorDescription
+use CaloEvent                   CaloEvent-*                     Calorimeter
+use CaloIdentifier              CaloIdentifier-*                Calorimeter
+use CaloDetDescr                CaloDetDescr-*                  Calorimeter
+use CaloTriggerTool             CaloTriggerTool-*               Calorimeter
+use LArRawEvent                 LArRawEvent-*                   LArCalorimeter
+use LArTools                    LArTools-*                      LArCalorimeter
+use LArIdentifier               LArIdentifier-*                 LArCalorimeter
+use LArRecConditions            LArRecConditions-*              LArCalorimeter
+use LArRecUtils                 LArRecUtils-*                   LArCalorimeter
+use TileConditions              TileConditions-*                TileCalorimeter
+use TileEvent                   TileEvent-*                     TileCalorimeter
+use TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolInterfaces-* Trigger/TrigT1
+use TrigT1CaloCalibConditions   TrigT1CaloCalibConditions-*     Trigger/TrigT1
+use TrigT1CaloMonitoringTools   TrigT1CaloMonitoringTools-*     Trigger/TrigT1
+use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
+use TrigT1CaloToolInterfaces    TrigT1CaloToolInterfaces-*      Trigger/TrigT1
+use TrigT1CaloCondSvc           TrigT1CaloCondSvc-*             Trigger/TrigT1
+use TrigT1CaloUtils             TrigT1CaloUtils-*               Trigger/TrigT1
+end_public
+
+private
+use AthenaMonitoring            AthenaMonitoring-*              Control
+use EventInfo                   EventInfo-*                     Event
+use LWHists                     LWHists-*                       Tools
+use CaloEvent                   CaloEvent-*                     Calorimeter
+use CaloIdentifier              CaloIdentifier-*                Calorimeter
+use CaloTriggerTool             CaloTriggerTool-*               Calorimeter
+use LArRawEvent                 LArRawEvent-*                   LArCalorimeter
+use LArTools                    LArTools-*                      LArCalorimeter
+use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
+end_private
+
+apply_tag ROOTGraphicsLibs
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.txt *.py"
