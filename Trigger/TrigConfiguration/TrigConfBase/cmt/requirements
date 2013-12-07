@@ -1,0 +1,52 @@
+#============================================================================
+# $ Id:$
+#============================================================================
+package TrigConfBase
+
+author  Frank Winklmeier
+author  ricardo.abreu@cern.ch
+#============================================================================
+
+#============================================================================
+# Public dependencies
+#============================================================================
+use DetCommonPolicy *
+use AtlasDoxygen * Tools
+
+#============================================================================
+# Private dependencies
+#============================================================================\
+use Boost v* LCG_Interfaces
+
+#============================================================================
+# Build rules
+#============================================================================
+
+#
+# build shared library from .cxx files in src
+#
+apply_pattern detcommon_shared_library
+
+#
+# ignore patterns from LCG_Policy
+#
+apply_pattern detcommon_ignores
+
+# link header files into InstallArea, and include the corresponding
+# directory in the compiler options
+#
+apply_pattern detcommon_header_installer
+
+#============================================================================
+private
+#============================================================================
+
+#
+# Test applications (not built by default)
+#
+application trigconf_msgsvc_test ../test/trigconf_msgsvc_test.cxx
+macro_append trigconf_msgsvc_test_dependencies TrigConfBase
+macro_remove constituents trigconf_msgsvc_test
+
+# link against boost::regex
+macro_append TrigConfBase_use_linkopts " $(Boost_linkopts_regex) "
