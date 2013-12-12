@@ -1,0 +1,14 @@
+2008-01-29 Serguei Baranov <Serguei.Baranov@cern.ch>
+	* create CUTS.py and CUTS-00 (CutA and CutB)
+	
+2007-12-12 Serguei Baranov <Serguei.Baranov@cern.ch>
+	* create SCNT.py and SCNT-00, SCNT-01
+	* rename TILB-CSC-00, TILB-CSC-00
+
+2006-09-29 Serguei Baranov <Serguei.Baranov@cern.ch>
+	* replace 26,28,27 and add 36,37,38 for modules with symmetrical 
+	*   cuts 0006/0016
+	
+2006-09-29 Serguei Baranov <Serguei.Baranov@cern.ch>
+	* cmt/requirements: A package is born.
+	* TileModules, TILB update fot Python tools
