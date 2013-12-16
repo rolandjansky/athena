@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE CTSpecs 
+[
+<!ELEMENT CTSpecs (CTSpec+) >
+<!ELEMENT CTSpec (name, type, value, comment?) > 
+<!ELEMENT name (#PCDATA) >
+<!ELEMENT type (#PCDATA) >
+<!ELEMENT value (#PCDATA) >
+<!ELEMENT comment (#PCDATA) >
+
+<!ATTLIST CTSpec ns CDATA #REQUIRED>
+]>
+
+<!--
+ Attribute ns ('namespace') specifies the version:
+    v0: Version before long shutdown I
+    v1: Version for runII (after long shutdown I)
+    v2: dummy
+    v3: dummy
+    v4: dummy
+-->
+
+<CTSpecs >
+    <CTSpec ns='v0'>
+        <name>"NumCTPINboards"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"Number of CTPIN boards"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"NumConnectorsPerCTPIN"</name> 
+        <type>u16</type>
+        <value>4</value>
+        <comment>"Number of cables that can be connected to each CTPIN board"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"NumSignalPerCTPINCable"</name> 
+        <type>u16</type>
+        <value>32</value>
+        <comment>"Number of signals that can be sent over each CTPIN cable"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"NumCTPOUTboards"</name> 
+        <type>u16</type>
+        <value>4</value>
+        <comment>"Number of CTPOUT boards"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v1'>
+        <name>"NumCTPOUTboards"</name> 
+        <type>u16</type>
+        <value>5</value>
+        <comment>"Number of CTPOUT boards"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MUON_bitnum"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"EM_bitnum"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TAU_bitnum"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JET_bitnum"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JE_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JB_bitnum"</name> 
+        <type>u16</type>
+        <value>2</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JF_bitnum"</name> 
+        <type>u16</type>
+        <value>2</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TE_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"XE_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"XS_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MBTS_bitnum"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MBTSSI_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"NIM_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"ZDC_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TRT_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BCM_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BCMCMB_bitnum"</name> 
+        <type>u16</type>
+        <value>3</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"LUCID_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"CALREQ_bitnum"</name> 
+        <type>u16</type>
+        <value>1</value>
+        <comment>"number of bits available(?)"</comment>
+    </CTSpec>
+    
+    
+    
+    
+    <CTSpec ns='v0'>
+        <name>"MUON_cable"</name> 
+        <type>u16_mult</type>
+        <value>1,8,1,1,30</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <!-- just for testing
+    <CTSpec ns='v1'>
+        <name>"MUON_cable"</name> 
+        <type>u16_mult</type>
+        <value>1,8,1,1,28</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
+        <name>"MUON_cable"</name> 
+        <type>u16_mult</type>
+        <value>1,8,1,1,25</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v3'>
+        <name>"MUON_cable"</name> 
+        <type>u16_mult</type>
+        <value>1,8,1,1,20</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>-->
+    
+    
+    <CTSpec ns='v0'>
+        <name>"EM_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 0, 0, 23</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <!-- just for testing
+    <CTSpec ns='v4'>
+        <name>"EM_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 0, 0, 20</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>-->
+    
+    <CTSpec ns='v0'>
+        <name>"TAU_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 1, 0, 23</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    
+    <!-- just for testing
+    <CTSpec ns='v2'>
+        <name>"TAU_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 1, 0, 20</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v3'>
+        <name>"TAU_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 1, 0, 20</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>-->
+    
+    <CTSpec ns='v0'>
+        <name>"JET_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 2, 0, 23</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JE_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 2, 24, 27</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JB_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 3, 0, 7</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"JF_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 7, 3, 8, 15</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TE_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 0, 0, 7</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"XE_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 0, 8, 15</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"XS_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 0, 16, 23</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MBTS_cable"</name> 
+        <type>u16_mult</type>
+        <value>2, 9, 0, 16, 18, 9, 1, 16, 18</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MBTSSI_cable"</name> 
+        <type>u16_mult</type>
+        <value>2, 9, 0, 0, 15, 9, 1, 0, 15</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"NIM_cable"</name> 
+        <type>u16_mult</type>
+        <value>3, 8, 2, 15, 27, 9, 0, 19, 30, 9, 1, 19, 30</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"ZDC_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 2, 17, 19</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TRT_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 2, 22, 22</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BCM_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 2, 0, 8</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BCMCMB_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 2, 3, 5</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"LUCID_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 2, 9, 14</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"CALREQ_cable"</name> 
+        <type>u16_mult</type>
+        <value>1, 8, 2, 28, 30</value>
+        <comment>"number of cables, slot, connector, start, stop"</comment>
+    </CTSpec>
+
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+</CTSpecs>
