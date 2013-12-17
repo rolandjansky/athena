@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="study_caching_L2" />
+
+    <hist key="time_algs" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="L2 algorithm time (ms)" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="time_cost" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="L2 cost time (ms)" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="time_event" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="L2 event time (ms)" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="time_tproc" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="L2 Tproc timer (ms)" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="time_texec" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="L2 Texec timer (ms)" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+   <hist key="alg_nexec" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="Number of algorithm executions" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+   <hist key="alg_ncache" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="Number of algorithm caches" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+   <hist key="alg_fcache" name="" title="">
+        <Xaxis bin="100"  min="0.0" max="1.0"   title="Number of algorithm caches/Total calls" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+   <hist key="alg_ntotal" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="Number of algorithm calls" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+   <hist key="seq_nexec" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="Number of sequence executions" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+   <hist key="seq_ntotal" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1.0e3" title="Number of sequence processed" />
+        <Yaxis bin="100"  min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+   <hist key="chn_pass" name="" title="">
+        <Xaxis bin="8192" min="0.0" max="8192" title="Chain counter" />
+        <Yaxis bin="1000" min="0.0" max="0.0"  title="Pass" />
+    </hist>
+
+   <hist key="event_lb" name="" title="">
+        <Xaxis bin="1000" min="0.0" max="1000" title="Lumi block" />
+        <Yaxis bin="1000" min="0.0" max="0.0"  title="Events" />
+    </hist>
+
+</histograms>

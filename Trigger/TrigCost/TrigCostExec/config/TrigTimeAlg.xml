@@ -1,0 +1,138 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="time_alg" />
+
+    <hist key="alg_timer" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call timer (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Algorithm calls" />
+    </hist>
+
+    <hist key="alg_timer_1st" name="" title="timer for 1st call">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="1st call timer (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_timer_2nd" name="" title="timer for 2nd call">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="2nd call timer (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_over_evt" name="" title="algorithm time/event time">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm timer/Event timer" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_fract_1st" name="" title="1st call time/algorithm time in event">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm 1st timer/Algorithm time in event" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_fract_2nd" name="" title="2nd call time/algorithm time in event">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm 2nd timer/Algorithm time in event" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_ncalls" name="" title="number of calls per event">
+        <Xaxis bin="20" min="0.0" max="20.0" title="Number of algorithm calls" />
+        <Yaxis bin="20" min="0.0" max=" 0.0" title="" />
+    </hist>
+
+    <hist key="alg_ncache" name="" title="number of caches per event">
+        <Xaxis bin="20" min="0.0" max="20.0" title="Number of algorithm cached calls" />
+        <Yaxis bin="20" min="0.0" max=" 0.0" title="" />
+    </hist>
+
+    <hist key="roi_alg_time" name="" title="">
+        <Xaxis bin="200" min="0.0" max="5.0e1" title="Processing time (ms)" />
+        <Yaxis bin="200" min="0.0" max="0.0"   title="Algorithm RoI calls" />
+    </hist>
+    <hist key="roi_cpu_time" name="" title="">
+        <Xaxis bin="200" min="0.0" max="5.0e1" title="Algorithm CPU time (ms)" />
+        <Yaxis bin="200" min="0.0" max="0.0"   title="Algorithm RoI calls" />
+    </hist>
+    <hist key="roi_rob_time" name="" title="">
+        <Xaxis bin="200" min="0.0" max="5.0e1" title="ROB retrieval time (ms)" />
+        <Yaxis bin="200" min="0.0" max="0.0"   title="Algorithm RoI calls" />
+    </hist>
+    <hist key="roi_rob_size" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="ROB size (kBytes)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Algorithm RoI calls" />
+    </hist>
+    <hist key="roi_rob_nreq" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Number of ROB requests" />
+        <Yaxis bin="100" min="0.0" max=" 0.0e0" title="Algorithm RoI calls" />
+    </hist>
+    <hist key="roi_rob_nids" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Number of ROB ids" />
+        <Yaxis bin="100" min="0.0" max=" 0.0e0" title="Algorithm RoI calls" />
+    </hist>
+    <hist key="roi_rob_corr_DONOTUSE" name="" title="">
+        <Xaxis bin="50" min="0.0" max="1.0e5" title="Retrieved ROB size (kBytes)" />
+        <Yaxis bin="50" min="0.0" max="1.0e2" title="ROB retrieval time (ms)" />
+    </hist>
+    <hist key="roi_alg_time_vs_eta" name="" title="">
+        <Xaxis bin="200" min="-4.0" max="+4.0"   title="RoI #eta" />
+        <Yaxis bin="200" min="0.0" max="-1.0e2" title="Mean processing time (ms)" />
+    </hist>
+    <hist key="roi_alg_time_vs_phi" name="" title="">
+        <Xaxis bin="200" min="-4.0" max="+4.0"   title="RoI #phi" />
+        <Yaxis bin="200" min="0.0" max="-1.0e2" title="Mean processing time (ms)" />
+    </hist>
+
+    <hist key="evt_alg_time" name="" title="">
+        <Xaxis bin="200" min="0.0" max="5.0e1" title="Processing time (ms)" />
+        <Yaxis bin="200" min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="evt_cpu_time" name="" title="">
+        <Xaxis bin="200" min="0.0" max="5.0e1" title="Algorithm CPU time (ms)" />
+        <Yaxis bin="200" min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="evt_rob_time" name="" title="">
+        <Xaxis bin="200" min="0.0" max="5.0e1" title="ROB retrieval time (ms)" />
+        <Yaxis bin="200" min="0.0" max="0.0"   title="Events" />
+    </hist>
+    <hist key="evt_rob_size" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Retrieved ROB size (kBytes)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+    <hist key="evt_rob_nreq" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Number of ROB requests" />
+        <Yaxis bin="200" min="0.0" max=" 0.0e0" title="Events" />
+    </hist>
+    <hist key="evt_rob_nids" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Number of ROB ids" />
+        <Yaxis bin="200" min="0.0" max=" 0.0e0" title="Events" />
+    </hist>
+    <hist key="evt_cpu_time_vs_lumi_TMP" name="" title="">
+        <Xaxis bin="500" min="0.0" max="5.0e2" title="Luminosity block number" />
+        <Yaxis bin="500" min="0.0" max="5.0e2" title="Algorithm CPU time (ms)" />
+    </hist>
+    <hist key="evt_rob_time_vs_lumi_TMP" name="" title="">
+        <Xaxis bin="500" min="0.0" max="5.0e2" title="Luminosity block number" />
+        <Yaxis bin="500" min="0.0" max="5.0e2" title="ROB request time (ms)" />
+    </hist>
+    <hist key="evt_rob_corr_DONOTUSE" name="" title="">
+        <Xaxis bin="50" min="0.0" max="1.0e5" title="Retrieved ROB size (kBytes)" />
+        <Yaxis bin="50" min="0.0" max="1.0e2" title="ROB retrieval time (ms)" />
+    </hist>
+
+
+    <hist key="evt_rob_ratio_cache" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Size of cached ROBs/Size of requested ROBs" />
+        <Yaxis bin="100" min="0.0" max=" 0.0e0" title="Events" />
+    </hist>
+    <hist key="evt_rob_ratio_retrv" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Size of retrieved ROBs/Size of requested ROBs" />
+        <Yaxis bin="100" min="0.0" max=" 0.0e0" title="Events" />
+    </hist>
+    <hist key="evt_nrob_ratio_retrv" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Number of retrieved ROBs/Number of requested ROBs" />
+        <Yaxis bin="100" min="0.0" max=" 0.0e0" title="Events" />
+    </hist>
+    <hist key="evt_nrob_ratio_cache" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0e1" title="Number of cached ROBs/Number of requested ROBs" />
+        <Yaxis bin="100" min="0.0" max=" 0.0e0" title="Events" />
+    </hist>
+
+</histograms>

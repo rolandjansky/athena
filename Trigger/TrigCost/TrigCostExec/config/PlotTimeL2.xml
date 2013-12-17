@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="time" />
+
+    <hist key="chain_time_mean" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Chain mean time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Chains" />
+    </hist>
+
+    <hist key="chain_time_rms" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Chain time RMS [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Chains" />
+    </hist>
+
+    <hist key="alg_timer_total" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Total algorithm time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Algorithms" />
+    </hist>
+
+    <hist key="alg_timer_mean" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Mean algorithm time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Algorithms" />
+    </hist>
+
+    <hist key="alg_timer_rms" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm time RMS [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Algorithms" />
+    </hist>
+
+    <hist key="alg_timer_evt_mean" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Mean algorithm event time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Algorithms" />
+    </hist>
+
+    <hist key="alg_timer_seq_mean" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Mean algorithm sequence time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Algorithms" />
+    </hist>
+
+</histograms>
