@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="time_seq" />
+
+    <hist key="seq_timer" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call timer (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="" />
+    </hist>
+
+    <hist key="seq_over_evt" name="" title="sequence time/event time">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Sequence time/Event time" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="seq_nexecs" name="" title="number of executions per event">
+        <Xaxis bin="10" min="0.0" max="10.0" title="Number of sequence executions" />
+        <Yaxis bin="20" min="0.0" max=" 0.0" title="" />
+    </hist>
+
+    <hist key="seq_alg_ncalls" name="" title="number of calls per event">
+        <Xaxis bin="20" min="0.0" max="20.0" title="Number of algorithm calls" />
+        <Yaxis bin="20" min="0.0" max=" 0.0" title="" />
+    </hist>
+
+    <hist key="seq_alg_ncache" name="" title="number of caches per event">
+        <Xaxis bin="20" min="0.0" max="20.0" title="Number of algorithm cached calls" />
+        <Yaxis bin="20" min="0.0" max=" 0.0" title="" />
+    </hist>
+
+</histograms>

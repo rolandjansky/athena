@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="timeEF" />
+
+    <hist key="chain_time_mean" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Chain mean time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Chains" />
+    </hist>
+
+    <hist key="chain_time_rms" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Chain rms time [ms]" />
+        <Yaxis bin="200" min="0.0" max="50.0" title="Chains" />
+    </hist>
+
+</histograms>

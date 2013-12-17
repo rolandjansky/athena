@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="study_time_EF" />
+
+    <hist key="time_steer" name="" title="Total event time from EF trigger steering">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="EF event time from steering (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_steer_opi" name="" title="Total event time from EF trigger steering">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="EF event time for OPI events (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_steer_off" name="" title="Total event time from EF trigger steering">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="EF event time for non OPI events (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_cost" name="" title="Total EF event time from cost tool">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="EF event time from cost (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_cpus" name="" title="Total EF event time for algorithm CPU">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="EF algorithm CPU time (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_cost_timer" name="" title="Total EF event time from cost tool">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="EF cost tool time (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+</histograms>

@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="study_time_L2" />
+
+    <hist key="time_steer" name="" title="Total event time from L2 trigger steering">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 event time from steering (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_steer_opi" name="" title="Total event time from L2 trigger steering">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 event time for OPI events (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_steer_off" name="" title="Total event time from L2 trigger steering">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 event time for non OPI events (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_cost" name="" title="Total L2 event time from cost tool">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 event time from cost (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_robs" name="" title="Total L2 event time for ROB requests">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 ROB request time (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_cpus" name="" title="Total L2 event time for algorithm CPU">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 algorithm CPU time (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_cost_timer" name="" title="Total L2 event time from cost tool">
+        <Xaxis bin="500" min="0.0" max="1.0e2" title="L2 cost tool time (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+</histograms>
