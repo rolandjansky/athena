@@ -1,0 +1,312 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ANP_REGISTRY_ICC
+#define ANP_REGISTRY_ICC
+
+#include <stdint.h>
+
+namespace Anp
+{
+  //----------------------------------------------------------------------------------
+  //
+  // Templated global functions 
+  //
+  template<typename T> bool KeyExists(const std::vector<Anp::DataPair<std::string, T> > &dvec,
+				      const std::string &key) {
+    typename std::vector<Anp::DataPair<std::string,T> >::const_iterator it = std::find(dvec.begin(), dvec.end(), key);
+    return (it != dvec.end());
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<typename T> bool RemoveKey(std::vector<Anp::DataPair<std::string,T> > &dvec,
+				      const std::string &key) {
+    typename std::vector<Anp::DataPair<std::string, T> >::iterator it = std::find(dvec.begin(), dvec.end(), key);
+    if(it != dvec.end()) {
+      dvec.erase(it);
+      return true;
+    }
+    
+    return false;       
+  }
+
+  //----------------------------------------------------------------------------------
+  template<typename T> bool GetVal(const std::vector<Anp::DataPair<std::string,T> > &dvec,
+				   const std::string &key, T &val)
+  {
+    typename std::vector<Anp::DataPair<std::string,T> >::const_iterator it = std::find(dvec.begin(), dvec.end(), key);
+    if(it != dvec.end()) {
+      val = it -> Data();
+      return true;
+    }
+    
+    return false;
+  } 
+  
+  //----------------------------------------------------------------------------------
+  template<typename T> void Print(const std::vector<Anp::DataPair<std::string,T> > &dvec,
+				  std::ostream &os,
+				  const std::string &dtype, 
+				  unsigned int margin,
+				  const std::string &key) {
+    unsigned int keyw = 0;
+    for(unsigned int i = 0; i < dvec.size(); ++i) {
+      keyw = std::max<unsigned int>(keyw, dvec[i].Key().size());
+    }
+
+    for(unsigned int i = 0; i < dvec.size(); ++i) {
+      if(!key.empty() && dvec[i].Key().find(key) == std::string::npos) continue;
+
+      for(unsigned int p = 0; p < margin; ++p) {
+	os << ' ';
+      }
+
+      os << dtype << " " << std::setw(keyw) << std::left << dvec[i].Key() 
+	 << ": "<< dvec[i].Data() << std::endl;
+    }
+  }
+
+  //----------------------------------------------------------------------------------
+  //
+  // Templated member functions 
+  //
+  template<> inline bool Registry::Get<std::string>(const std::string &key, std::string &val) const
+  {
+    return GetVal<std::string>(fStr, key, val);
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<int>(const std::string &key, int &val) const
+  {
+    double val_dbl = val;
+    if(GetVal<double>(fDbl, key, val_dbl)) {
+      val = static_cast<int>(val_dbl);
+      return true;
+    }
+    
+    return false;
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<long>(const std::string &key, long &val) const
+  {
+    double val_dbl = val;
+    if(GetVal<double>(fDbl, key, val_dbl)) {
+      val = static_cast<long>(val_dbl);
+      return true;
+    }
+    
+    return false;
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<unsigned>(const std::string &key, unsigned &val) const
+  {
+    double val_dbl = 0.0;
+    if(GetVal<double>(fDbl, key, val_dbl)) {
+      if(!(val_dbl < 0.0)) {
+	val = static_cast<unsigned>(val_dbl);
+	return true;
+      }
+      else {
+	std::cerr << "Registry::Get - double to uint conversion failed: " << val_dbl << std::endl;
+	return false;
+      }
+    }
+
+    return false;
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<uint16_t>(const std::string &key, uint16_t &val) const
+  {
+    unsigned int itmp = val;
+    if(Registry::Get(key, itmp)) {
+      if(itmp >= 65536) {
+	std::cerr << "Registry::Get - uint16_t overflow" << std::endl;
+	return false;
+      }
+      else {
+	val = itmp;
+	return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<bool>(const std::string &key, bool &val) const
+  {
+    std::string tmp;
+    if(GetVal<std::string>(fStr, key, tmp)) {
+    
+      if(tmp == "TRUE"  || tmp == "True"  || tmp == "true"  || tmp == "yes" || tmp == "Yes" || tmp == "YES") val = true;
+      if(tmp == "FALSE" || tmp == "False" || tmp == "false" || tmp == "no"  || tmp == "No"  || tmp == "NO")  val = false;
+
+      return true;
+    }
+    
+    return false;
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<double>(const std::string &key, double &val) const
+  {
+    return GetVal<double>(fDbl, key, val);
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<long double>(const std::string &key, long double &val) const
+  {
+    double tmp = val;
+    if(GetVal<double>(fDbl, key, tmp)) {
+      val = tmp;
+      return true;
+    }
+    
+    return false;
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<float>(const std::string &key, float &val) const
+  {
+    double tmp = val;
+    if(GetVal<double>(fDbl, key, tmp)) {
+      val = tmp;
+      return true;
+    }
+    
+    return false;
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<Registry>(const std::string &key, Registry &val) const
+  {
+    return GetVal<Registry>(fReg, key, val);
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<std::string>(const std::string &key, const std::string &val)
+  {
+    if(fUniqueKeys && KeyExists(key)) {
+      RemoveKey(key);
+    }
+    
+    fStr.push_back(Anp::DataPair<std::string, std::string>(key, val));
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<char>(const std::string &key, const char *var)
+  {
+    if(!var) {
+      std::cerr << "Registry::Set<char> - null char pointer for key=" << key << std::endl;
+      return;
+    }
+
+    if(fUniqueKeys && KeyExists(key)) {
+      RemoveKey(key);
+    }
+    
+    fStr.push_back(Anp::DataPair<std::string, std::string>(key, std::string(var)));
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<bool>(const std::string &key, const bool &val)
+  {
+    if(fUniqueKeys && KeyExists(key)) {
+      RemoveKey(key);
+    }
+    
+    if(val) fStr.push_back(Anp::DataPair<std::string, std::string>(key, "yes"));
+    else    fStr.push_back(Anp::DataPair<std::string, std::string>(key, "no"));
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<double>(const std::string &key, const double &val)
+  {
+    if(fUniqueKeys && KeyExists(key)) {
+      RemoveKey(key);
+    }
+
+    fDbl.push_back(Anp::DataPair<std::string, double>(key, val));
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<int>(const std::string &key, const int &val)
+  {
+    Set<double>(key, static_cast<double>(val));
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<unsigned>(const std::string &key, const unsigned &val)
+  {
+    Set<double>(key, static_cast<double>(val));
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<long>(const std::string &key, const long &val)
+  {
+    Set<double>(key, static_cast<double>(val));
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline void Registry::Set<Registry>(const std::string &key, const Registry &val)
+  {
+    if(fUniqueKeys && KeyExists(key)) {
+      RemoveKey(key);
+    }
+
+    fReg.push_back(Anp::DataPair<std::string, Anp::Registry>(key, val));
+  }
+  
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<bool>(const std::string &algorithm, 
+					     const std::string &key, 
+					     bool &val) const
+  {
+    if(Get<bool>(std::string(algorithm+"::"+key), val)) return true;
+    return Get<bool>(key, val);
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<int>(const std::string &algorithm, 
+					    const std::string &key, 
+					    int &val) const
+  {
+    if(Get<int>(std::string(algorithm+"::"+key), val)) return true;
+    return Get<int>(key, val);
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<unsigned>(const std::string &algorithm, 
+						 const std::string &key, 
+						 unsigned &val) const
+  {
+    if(Get<unsigned>(std::string(algorithm+"::"+key), val)) return true;
+    return Get<unsigned>(key, val);
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<std::string>(const std::string &algorithm, 
+						    const std::string &key, 
+						    std::string &val) const
+  {
+    if(Get<std::string>(std::string(algorithm+"::"+key), val)) return true;
+    return Get<std::string>(key, val);
+  }
+
+  //----------------------------------------------------------------------------------
+  template<> inline bool Registry::Get<double>(const std::string &algorithm, 
+					       const std::string &key, 
+					       double &val) const
+  {
+    if(Get<double>(std::string(algorithm+"::"+key), val)) return true;
+    return Get<double>(key, val);
+  }
+}
+
+#endif
