@@ -9,40 +9,40 @@ namespace FADS {
 FadsMolecule::FadsMolecule(std::string n,double density,int nc,
 	    State sta,double temp,double pressure): 
 	    FadsSimpleMaterial(n,density,sta,temp,pressure),
-	    m_ncomponents(nc),m_nadded(0)
+	    ncomponents_(nc),nadded_(0)
 {
 }
 void FadsMolecule::CreateG4Material()
 {
 // 	std::cout<<"FadsMolecule::CreateG4Material for "<<name_<<std::endl;
-	if (m_ncomponents>m_nadded) 
+	if (ncomponents_>nadded_) 
 		std::cout<<"the material is not complete!"<<std::endl;
 	else
 	{
-// 		std::cout<<" nadded "<<m_nadded<<std::endl;
+// 		std::cout<<" nadded "<<nadded_<<std::endl;
 // 		std::cout<<" name,dens "<<name_<<" "<<density_<<std::endl;
-		m_theMaterial=new G4Material(m_name,m_density,m_nadded,
-				(G4State)m_state,m_temperature,m_pressure);
-		for (int i=0;i<m_nadded;i++)
+		theMaterial=new G4Material(name_,density_,nadded_,
+				(G4State)state,temperature_,pressure_);
+		for (int i=0;i<nadded_;i++)
 		{
-			std::string nam=m_elements[i].m_name;
-			int num=m_elements[i].m_natoms;
+			std::string nam=elements[i].name;
+			int num=elements[i].natoms;
 // 			std::cout<<" getting -"<<nam<<"-"<<std::endl;
-			G4Element *el=m_matManager->GetElement(nam);
+			G4Element *el=matManager->GetElement(nam);
 // 			std::cout<<i<<" Add "<<num<<" atoms of "<<el<<std::endl;
-			m_theMaterial->AddElement(el,num);
+			theMaterial->AddElement(el,num);
 		}
 	}
 }
 void FadsMolecule::AddElement(std::string nam, int natoms)
 {
 // 	std::cout<<" This is FadsMolecule::AddElement!!! "<<nam<<std::endl;
-	if (m_matManager->FindElement(nam))
+	if (matManager->FindElement(nam))
 	{
 // 		std::cout<<" Found! "<<std::endl;
 		Element el={nam,natoms};
-		m_elements.push_back(el);
-		m_nadded++;
+		elements.push_back(el);
+		nadded_++;
 	}
 }
 

@@ -7,7 +7,11 @@
 #include "globals.hh"
 #include <map>
 #include <string>
-#include <iostream>
+#ifdef HAVE_NEW_IOSTREAMS
+	#include <iostream>
+#else
+	#include <iostream.h>
+#endif
 
 class G4Element;
 class G4Material;
@@ -23,16 +27,16 @@ typedef std::map<std::string,FadsSimpleMaterial*,std::less<std::string> > Materi
 
 class MaterialManager {
 private:
-	ElementList m_elist;
-	MaterialList m_mlist;
+	ElementList elist;
+	MaterialList mlist;
 	MaterialManager() {}
-	static MaterialManager *s_mpointer;
+	static MaterialManager *mpointer;
 public:
 	static MaterialManager* GetMaterialManager()
 	{
-                if (!s_mpointer)
-			s_mpointer=new MaterialManager;
-		return s_mpointer;
+		if (!mpointer)
+			mpointer=new MaterialManager;
+		return mpointer;
 	}
 	void StoreElement(FadsElement *);
 	G4Element* GetElement(std::string);

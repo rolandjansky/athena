@@ -7,28 +7,28 @@
 
 namespace FADS {
 
-FadsSimpleMaterial* FadsSimpleMaterial::s_currentMaterial=0;
+FadsSimpleMaterial* FadsSimpleMaterial::currentMaterial=0;
 
 FadsSimpleMaterial* FadsSimpleMaterial::GetCurrentMaterial()
 {
-	return s_currentMaterial;
+	return currentMaterial;
 }
 
 FadsSimpleMaterial::FadsSimpleMaterial(std::string n,double d,State sta,
 				double temp,double pressure): 
-				m_name(n),m_density(d),m_state(sta),
-		    	m_temperature(temp),m_pressure(pressure)
+				name_(n),density_(d),state(sta),
+		    	temperature_(temp),pressure_(pressure)
 {
-	m_theMaterial=0;
-	m_matManager=MaterialManager::GetMaterialManager();
-	m_matManager->StoreMaterial(this);
-	s_currentMaterial=this;
+	theMaterial=0;
+	matManager=MaterialManager::GetMaterialManager();
+	matManager->StoreMaterial(this);
+	currentMaterial=this;
 }
 
 G4Material* FadsSimpleMaterial::GetG4Material()
 {
-	if (!m_theMaterial) CreateG4Material();
-	return m_theMaterial;
+	if (!theMaterial) CreateG4Material();
+	return theMaterial;
 }
 
 FadsSimpleMaterial::~FadsSimpleMaterial()
@@ -37,12 +37,12 @@ FadsSimpleMaterial::~FadsSimpleMaterial()
 
 std::string FadsSimpleMaterial::name()
 {
-	return m_name;
+	return name_;
 }
 
 double FadsSimpleMaterial::density()
 {
-	return m_density;
+	return density_;
 }
 
 }	// end namespace

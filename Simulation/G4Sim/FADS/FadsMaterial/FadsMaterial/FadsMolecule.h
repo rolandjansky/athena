@@ -13,15 +13,15 @@ namespace FADS {
 
 struct Element 
 {
-	std::string m_name;
-	int m_natoms;
+	std::string name;
+	int natoms;
 };
 
 class FadsMolecule: public FadsSimpleMaterial {
 protected:
-	int m_ncomponents;
-	int m_nadded;
-	std::vector<Element> m_elements;
+	int ncomponents_;
+	int nadded_;
+	std::vector<Element> elements;
 public:
 	FadsMolecule(std::string n,double density,int nc=0,
 		    State sta=NotDefined,double temp=CLHEP::STP_Temperature,

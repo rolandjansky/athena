@@ -22,9 +22,9 @@ struct MaterialComponent
 
 class FadsMixture: public FadsSimpleMaterial {
 protected:
-	int m_ncomponents;
-	int m_nadded;
-	std::vector<MaterialComponent> m_components;
+	int ncomponents_;
+	int nadded_;
+	std::vector<MaterialComponent> components;
 public:
 	FadsMixture(std::string n,double density,int nc=0,
 		    State sta=NotDefined,double temp=CLHEP::STP_Temperature,
