@@ -1,0 +1,11 @@
+<lcgdict>
+
+   <class name="T_TPCnv<TrackRecordCollection,TrackRecordCollection_p2>"/>
+   <class name="T_AthenaHitsVectorCnv<TrackRecordCollection,TrackRecordCollection_p2,TrackRecordCnv_p1>"/>
+   <class name="T_AthenaPoolTPCnvBase<TrackRecordCollection,TrackRecordCollection_p2>"/>
+   <class name="T_AthenaPoolTPPolyCnvBase<TrackRecordCollection,TrackRecordCollection,TrackRecordCollection_p2>"/>
+   <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrackRecordCollection,TrackRecordCollection,TrackRecordCollection_p2>"/>
+   <class name="ITPConverterFor<TrackRecordCollection>"/>
+
+</lcgdict>
+

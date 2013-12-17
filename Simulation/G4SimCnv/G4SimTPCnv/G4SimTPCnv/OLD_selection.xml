@@ -1,0 +1,10 @@
+<lcgdict>
+  
+   <class name="TrackRecordCollection_p1" id="1B1EEE3B-4647-41B4-B1D4-495DF77F0D3C" />
+  
+   <!-- for TP separation backward compatibility using ROOT streamers (DC)  -->
+   <class name="TrackRecord_p0" />
+   <class name="TrackRecordStreamer_p0" />
+
+</lcgdict>
+
