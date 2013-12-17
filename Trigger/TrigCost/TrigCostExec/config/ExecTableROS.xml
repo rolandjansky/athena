@@ -1,0 +1,135 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="ExecTableROS" />
+
+    <hist key="calls_alg_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Algorithm calls" />
+    </hist>
+    <hist key="calls_cpu_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm CPU time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Algorithm calls" />
+    </hist>
+    <hist key="calls_rob_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm ROB time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Algorithm calls" />
+    </hist>
+
+    <hist key="event_alg_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+    <hist key="event_cpu_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm CPU time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+    <hist key="event_rob_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm ROB time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="event_time_frac" name="" title="algorithm time/event time">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm time/Event total time" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+
+    <hist key="calls_rob_nreq" name="" title="">
+        <Xaxis bin="20" min="0.0" max="20" title="Number of ROB data requests" />
+        <Yaxis bin="00" min="0.0" max="20" title="Algorithm calls" />
+    </hist>
+    <hist key="calls_rob_nreq_retrv" name="" title="">
+        <Xaxis bin="20" min="0.0" max="20" title="Number of ROB data retrievals" />
+        <Yaxis bin="00" min="0.0" max="20" title="Algorithm calls" />
+    </hist>
+    <hist key="calls_rob_size" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Request ROB size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Algorithm calls" />
+    </hist>
+    <hist key="calls_rob_size_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Retrieved ROB size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Algorithm calls" />
+    </hist>
+
+    <hist key="event_rob_nreq" name="" title="">
+        <Xaxis bin="20" min="0.0" max="20" title="Number of ROB data requests" />
+        <Yaxis bin="00" min="0.0" max="20" title="Events" />
+    </hist>
+    <hist key="event_rob_nreq_retrv" name="" title="">
+        <Xaxis bin="20" min="0.0" max="20" title="Number of ROB data retrievals" />
+        <Yaxis bin="00" min="0.0" max="20" title="Events" />
+    </hist>
+    <hist key="event_rob_size" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Request ROB size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Events" />
+    </hist>
+    <hist key="event_rob_size_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Retrieved ROB size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Events" />
+    </hist>
+
+    <hist key="calls_ros_size" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Request ROS size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Algorithm Calls" />
+    </hist>
+    <hist key="calls_ros_size_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Retrieved ROS size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Algorithms Calls" />
+    </hist>
+    <hist key="calls_ros_nreq" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROS data requests" />
+        <Yaxis bin="00" min="0.0" max="00" title="Algorithms Calls" />
+    </hist>
+    <hist key="calls_ros_nreq_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROS data retrievals" />
+        <Yaxis bin="00" min="0.0" max="00" title="Algorithms Calls" />
+    </hist>
+    <hist key="calls_ros_robids" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROBs in ROS data request" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROS Request Rate (Hz)" />
+    </hist>
+    <hist key="calls_ros_robids_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROBs in ROS data retrievals" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROS Retrieval Rate (Hz)" />
+    </hist>
+
+    <hist key="roi_ros_size" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Request ROS size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROIs" />
+    </hist>
+    <hist key="roi_ros_size_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Retrieved ROS size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROIs" />
+    </hist>
+    <hist key="roi_ros_nreq" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROS data requests" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROIs" />
+    </hist>
+    <hist key="roi_ros_nreq_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROS data retrievals" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROIs" />
+    </hist>
+    <hist key="roi_ros_robids" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROB requests in ROI" />
+        <Yaxis bin="00" min="0.0" max="00" title="ROS Request Rate (Hz)" />
+    </hist>
+
+    <hist key="event_ros_size" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Request ROS size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Events" />
+    </hist>
+    <hist key="event_ros_size_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Retrieved ROS size (kB)" />
+        <Yaxis bin="00" min="0.0" max="00" title="Events" />
+    </hist>
+    <hist key="event_ros_nreq" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROS data requests" />
+        <Yaxis bin="00" min="0.0" max="00" title="Events" />
+    </hist>
+    <hist key="event_ros_nreq_retrv" name="" title="">
+        <Xaxis bin="80" min="0.0" max="-1" title="Number of ROS data retrievals" />
+        <Yaxis bin="00" min="0.0" max="00" title="Events" />
+    </hist>
+
+</histograms>

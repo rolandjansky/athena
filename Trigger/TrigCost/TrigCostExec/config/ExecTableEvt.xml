@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="ExecTableEvt" />
+
+    <hist key="steer_evt_time" name="" title="Event Time (steering)">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Steering Event Time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_evt_call" name="" title="Algorithm Event Calls">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm Event Calls" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_evt_cach" name="" title="Algorithm Event Caches">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm Event Caches" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="alg_evt_time" name="" title="Event Time (alg)">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Algorithm Event Time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="rob_evt_time" name="" title="Event Time (rob)">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="ROB Event Time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="cpu_evt_time" name="" title="Event Time (cpu)">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="CPU Event Time (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+    <hist key="rob_evt_ret" name="" title="ROS Retrievals Per Event">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="ROS Retrievals" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+</histograms>

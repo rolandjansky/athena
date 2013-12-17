@@ -1,0 +1,14 @@
+produce a ROS-ROB configuration from an ATLAS partition file
+
+0) download ATLAS partition file from OKS archive
+   http://atlas-project-tdaq-cc.web.cern.ch/atlas-project-tdaq-cc/cgi/oks-archive.pl
+   and unpack it
+   (see also https://twiki.cern.ch/twiki/bin/view/Atlas/TDAQPoint1RemoteMonitoring for information
+    and the "README-download-oks-file" in this directory)
+
+1) setup the TDAQ environment.
+   An example can be found in "setup-tdaq.sh" in this directory and setup with "source setup-tdaq.sh" for bash.
+
+2) <path to script>/xml-ros-rob-config.py  partition file <xml Ros Rob mapping output file>    
+   -> produce ros-rob mapping file (default name "ros-rob.xml")
+   Caution keep the downloaded partition file and schema file in the same directory !

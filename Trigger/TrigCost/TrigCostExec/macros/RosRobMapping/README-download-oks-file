@@ -1,0 +1,62 @@
+0) Goto OKS archive WEB page
+   http://atlas-project-tdaq-cc.web.cern.ch/atlas-project-tdaq-cc/cgi/oks-archive.pl
+   (see also https://twiki.cern.ch/twiki/bin/view/Atlas/TDAQPoint1RemoteMonitoring for information)
+
+1) Page 1: ATLAS OKS Archive
+    Select database: [--> choose Point-1 (offline)]
+    [Submit Query]
+
+2) Page 2: ATLAS OKS Archive for "Point-1 (offline)" database
+   Show configurations archived between now and  [--> choose e.g. 2 days] ago
+ 
+   Select release name: [--> choose tdaq-02-00-03] 
+   [Submit Query]
+
+
+3) Page 3: ATLAS OKS Archive for "Point-1 (offline)" database
+
+   Select release name: [tdaq-02-00-03]
+
+   Show configurations archived from till CERN local time
+      (leave empty to be ignored or use ISO 8601 date-time format to provide a value)
+
+   Show user [  ] host [  ] partition [ATLAS]   <--- fill in ATLAS
+      (leave a field empty to be ignored, or put exact name, or use expression with wildcards)
+
+   User preferences
+
+   Select timezone: [CERN]
+
+   Show: [x] incremental versions [x] usage
+
+   Select optional table columns: [ ] release [ ] user [ ] host [x] size [x] description
+
+   Sort result by [partition name (desc)]
+
+   [Submit Query]
+
+4) after pressing [Submit Query] in 3) in the same web page a table shows up
+   with the different partition versions
+
+Archived Versions
+Version	Date (CERN local time)	Size	Description
+222.82.1	2010-Aug-24 12:20:19 CEST	519:209:4785	oks2coral: partition ATLAS (tdaq-02-00-03)
+	2010-Aug-24 12:20:25 CEST		partition: ATLAS run: 162620
+	2010-Aug-24 20:13:04 CEST		partition: ATLAS run: 162623
+222.78.1	2010-Aug-23 19:55:03 CEST	518:207:4784	oks2coral: partition ATLAS (tdaq-02-00-03)
+.......
+
+Choose a version which corresponds to the run which you would like to use.
+Click e.g. on 222.78.1 and after some time a download dialog should show up which
+asks where to save a file
+
+      222.78.1.tar.gz
+
+After the file was saved unpack it with
+
+   tar -zxvf 222.78.1.tar.gz
+
+You should get 3 files
+  - a log file: out.log
+  - a schema file of the form: 222.schema.xml
+  - the partition file of the form: ATLAS.222.78.data.xml

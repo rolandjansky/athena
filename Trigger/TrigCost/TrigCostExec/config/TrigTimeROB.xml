@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="time_rob" />
+
+    <hist key="evt_rob_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call timer (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="ROB requests" />
+    </hist>
+
+    <hist key="call_rob_time" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call timer (ms)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="ROB requests" />
+    </hist>
+
+    <hist key="call_cached_size" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call Cached (kB)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="ROB requests" />
+    </hist>
+    
+    <hist key="evt_cached_size" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call Request Size (kB)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="ROB requests" />
+    </hist>
+
+    <hist key="call_request_size" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call Request Size (kB)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="ROB requests" />
+    </hist>
+    
+    <hist key="evt_request_size" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Call Request Size (kB)" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="ROB requests" />
+    </hist>
+    
+    <hist key="evt_rob_requests" name="" title="timer">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Number of Requests" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="Events" />
+    </hist>
+
+</histograms>
