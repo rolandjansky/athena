@@ -1,0 +1,76 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ANP_NTUPLESVC_ICC
+#define ANP_NTUPLESVC_ICC
+
+/**********************************************************************************
+ * @Package: TrigCostBase
+ * @Class  : NtupleSvc
+ * @Author : Rustem Ospanov
+ *
+ * @Brief  : Implementation details of NtupleSvc templates
+ * 
+ **********************************************************************************/
+
+//---------------------------------------------------------------------------------
+template<class T>
+Anp::Branch<T> Anp::NtupleSvc::Branch(const std::string &branch)
+{
+  //
+  // Search for this branch
+  //
+  BranchMap::iterator bit = fBranchMap.find(branch);
+  if(bit != fBranchMap.end()) {
+    // Cast pointer to correct type
+    NtupleBase *base_ptr = bit->second;
+    Anp::Branch<T> b(dynamic_cast<NtupleData<T> *>(base_ptr));
+    
+    if(!b.IsValid()) {
+      std::cerr << "NtupleSvc::Insert(" << branch << ") - failed to cast data" << std::endl;
+    }
+
+    return b;
+  }
+  
+  // Make new ntuple class
+  NtupleData<T> *data = new NtupleData<T>(new T, true);
+  
+  // Store this unassigned branch for other users
+  fBranchMap[branch] = data;
+
+  return Anp::Branch<T>(data);
+}
+
+
+//#define REGISTER_NTUPLE_DATA(CLASS)			               
+//namespace					                       
+//{							               
+//   Anp::Handle<Anp::NtupleData<CLASS> > CreateHandle()		       
+//   {								       
+//      return Anp::Handle<Anp::NtupleData<CLASS> >                      
+//         (new Anp::NtupleData<CLASS>(#CLASS, new CLASS(), true));      
+//   }								       
+//   bool registered = Anp::Factory<Anp::NtupleData<CLASS> >::Instance().
+//      Register("ctor", CreateHandle);	                 	       
+//}
+//
+//
+// REGISTER_NTUPLE_DATA(Trig::EvtConfg) is preprocessor macro that expands to:
+// 
+//namespace 
+//{
+//  Anp::Handle<Anp::NtupleData<Trig::EvtConfg> > CreateHandle() 
+//  { 
+//    return Anp::Handle<Anp::NtupleData<Trig::EvtConfg> > 
+//      (new Anp::NtupleData<Trig::EvtConfg>("Trig::EvtConfg", new Trig::EvtConfg(), true));
+//  } 
+//  bool registered = Anp::Factory<Anp::NtupleData<Trig::EvtConfg> >::Instance().
+//     Register("ctor", CreateHandle); 
+//}
+//
+
+#endif

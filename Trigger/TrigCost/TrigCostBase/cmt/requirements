@@ -1,0 +1,40 @@
+package TrigCostBase
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasROOT           AtlasROOT-*           External
+use AtlasReflex         AtlasReflex-*         External
+use TrigMonitoringEvent TrigMonitoringEvent-* Trigger/TrigEvent
+use DetCommonPolicy *
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTGraphicsLibs
+
+apply_pattern installed_library
+library TrigCostBase *.cxx
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern trigconf_application name=TestCost
+
+private
+
+apply_pattern lcgdict dict=TrigCostBase \
+              selectionfile=selection.xml \
+              headerfiles="../TrigCostBase/TrigCostBaseDict.h"
+
+macro_append TrigCostBase_cppflags " `xml2-config --cflags`"
+macro_append TrigCostBase_use_linkopts " -lxml2" slc4-gcc34 " /usr/lib/libxml2.so.2"
+macro_append TrigCostBase_use_linkopts " -lz -lpthread "
+# macro_append TrigCostBase_use_linkopts " -lXrdRootd -lXrdSec -l XrdSeckrb5"
+
+#macro_append TrigCostBase_cppflags " -DANP_CPU_PROFILER"
+#macro_append TrigCostBase_use_linkopts " -lprofiler"
+
+#macro_append TrigCostBase_cppflags " -DANP_HEAP_PROFILER"
+#macro_append TrigCostBase_use_linkopts " -ltcmalloc"
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+
+
+end_private
