@@ -1,0 +1,81 @@
+#Each line contains 3 fields, separated by comma's:
+#atlas_release_regexp,  who_prints_it,  error_message_regexp
+# For the regular expression syntax that can be used in <error_message_regexp>, see:
+# http://docs.python.org/lib/re-syntax.html
+# Note in particular the special regexp characters that need to be backslashed if meant litteral: ()[]{}^$.*+?
+#   In constructing the total regular expression used to match the lines:
+#     - whitespace is stripped of both ends of the fields <atlas_release_regexp> and <who_prints_it>,
+#       and from the right end of <error_message_regexp>
+#     - zero or more whitespace characters are allowed between <who_prints_it> and <error_message_regexp>
+#     - if the <who_prints_it> field is empty, the <error_message_regexp> is the total regexp.
+# error detection can be tested by running on a relevant log file:
+#  checklog.py someLogFile
+
+## Errors to ignore for ALL releases
+## =================================
+# Next line is necessary to avoid tripping the CoreDumpSvc failure on trivial INFO messages
+ALL   ,.*?, INFO .+
+ALL   ,ToolSvc.CscSplitClusterFitter,ERROR   Peak-to-Val dist is [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?  Val-to-Peak dist is [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?  Shouldnot be negative value :[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?  [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)? [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
+ALL   ,AlgErrorAuditor,ERROR Illegal Return Code: Algorithm CscThresholdClusterBuilder reported an ERROR, but returned a StatusCode "SUCCESS"
+ALL   ,AlgErrorAuditor,ERROR Illegal Return Code: Algorithm InDetSCTRawDataProvider reported an ERROR, but returned a StatusCode "SUCCESS"
+ALL   ,(?:Py:)?Athena      ,  ERROR inconsistent case used in property name ".*?" of ApplicationMgr
+ALL   ,(?:Py:)?Athena      ,  ERROR Algorithm ".*?": not in TopAlg or other known list, no properties set
+ALL   ,(?:Py:)?Athena      ,  ERROR Algorithm ".*?": type missing, no properties set
+ALL   ,(?:Py:)?Athena      ,  ERROR attempt to add .* to non-existent property .*?
+ALL   ,(?:Py:)?Configurable,  ERROR .* undeclared or uses a backdoor
+ALL   ,(?:Py:)?Configurable,  ERROR children\(\) is deprecated
+ALL   ,(?:Py:)?Configurable,  ERROR getChildren\(\) returns a copy
+ALL   ,(?:Py:)?Configurable,  ERROR jobOptName\(\) is deprecated
+# Reco
+ALL   ,(?:Py:)?Configurable,  ERROR attempt to add a duplicate \(CellCalibrator.CellCalibrator.H1WeightCone7H1Tower\)
+ALL   ,(?:Py:)?ResourceLimits,ERROR failed to set max resource limits
+ALL   ,AlgErrorAuditor,       ERROR Illegal Return Code: Algorithm StreamESD reported an ERROR, but returned a StatusCode "SUCCESS"
+ALL   ,ToolSvc.LArCellBuilderFromLArRawChannelTool, ERROR Channel added twice! Data corruption.*?
+# Trigger BStoRDO 
+ALL   ,AthenaRefIOHandler,    ERROR Failed to set ElementLink
+ALL   ,ElementLink,           ERROR toPersistent: the internal state of link
+ALL   ,StoreGateSvc,          ERROR record: object not added to store
+ALL   ,StoreGateSvc,          ERROR  setupProxy:: error setting up proxy 
+ALL   ,AlgErrorAuditor,       ERROR Illegal Return Code: Algorithm MooHLTAlgo 
+ALL   ,AlgErrorAuditor,       ERROR Illegal Return Code: Algorithm TrigSteer_EF
+ALL   ,AlgErrorAuditor,       ERROR Illegal Return Code: Algorithm muFast_(?:Muon|900GeV)
+ 
+# Trigger reco_ESD 
+ALL   ,THistSvc,              ERROR already registered an object with identifier "/EXPERT/
+ALL   ,RpcRawDataNtuple  ,  ERROR .*
+ALL   ,CBNT_L1CaloROD\S+ ,  ERROR .*
+ALL   ,CBNTAA_Tile\S+    ,  ERROR .*
+ALL   ,TileDigitsMaker   ,  ERROR .*
+ALL   ,MdtDigitToMdtRDO  ,  ERROR .* 
+ALL   ,HelloWorld        ,  ERROR .*
+ALL   ,HelloWorld        ,  FATAL .*
+ALL   ,PythiaB           ,  ERROR  ERROR in PYTHIA PARAMETERS
+ALL   ,ToolSvc           ,  ERROR Tool .* not found and creation not requested
+ALL   ,ToolSvc           ,  ERROR Unable to finalize the following tools
+ALL   ,ToolSvc           ,  ERROR Factory for Tool .* not found
+ALL   ,CBNT_Audit        ,  ERROR  Memory leak!.*
+ALL   ,ToolSvc.InDetSCTRodDecoder   ,  ERROR Unknown offlineId for OnlineId*
+ALL   ,THistSvc.sysFinali,  FATAL  Standard std::exception is caught
+ALL   ,,.*Message limit reached for .*
+ALL   ,,\s+ERROR IN C-S .*=.*
+ALL   ,,.*ERROR\s+\|.*
+ALL   ,,^\s*FATAL ERROR\s*$
+ALL   ,,ERROR \(poolDb\):
+ALL   ,,ERROR \(pool\):
+ALL   ,,ERROR - G4Navigator::ComputeStep\(\)
+ALL   ,,.*ERROR OCCURED DURING A SECONDARY SCATTER AND WAS
+ALL   ,THistSvc        , ERROR already registered an object with identifier .*
+ALL   ,,ERROR MuonDetectorManager::getCscReadoutElement stNameindex out of range .*
+ALL   ,muFast_\S+      , ERROR CSM for Subsystem \d+, MrodId \d+, LinkId \d+ not found
+ALL   ,TRTDetectorManager , FATAL Unable to apply Inner Detector alignments
+ALL   ,TRTDetectorManager , ERROR AlignableTransformContainer for key \/TRT\/Align is empty
+ALL   ,,ERROR in Single_Process::CalculateTotalXSec
+ALL   ,,.*ERROR WITH DELM.*
+#ALL   ,ToolSvc.TrigTSerializer,ERROR Errors while decoding
+ALL   ,AlgErrorAuditor,ERROR Illegal Return Code: Algorithm 
+
+
+## Errors to ignore for specific releases
+## ======================================
+## This was cleaned up at PyJobTransformsCore-00-09-27, removing the old r15 and r14 errors
+

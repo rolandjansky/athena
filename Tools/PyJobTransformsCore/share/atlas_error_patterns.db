@@ -1,0 +1,79 @@
+#Each line contains 4 fields, separated by comma's:
+#atlas_release, error_acronym, who_prints_it, error_message_regexp
+# For the regular expression syntax that can be used in <error_message_regexp>, see:
+# http://docs.python.org/lib/re-syntax.html
+# Note in particular the special regexp characters that need to be backslashed if meant litteral: ()[]{}^$.*+?
+# In constructing the total regular expression used to match the lines:
+#   - whitespace is stripped of both ends of the fields <atlas_release>, <error_acronym>, and <who_prints_it>,
+#     and from the right end of <error_message_regexp>
+#   - The regexp to match the lines is the concatination of <who_prints_it> and <error_message_regexp>, 
+#     where zero or more whitespace characters are allowed between <who_prints_it> and <error_message_regexp>
+#   - if the <who_prints_it> field is empty, the <error_message_regexp> is the total regexp
+ALL  ,TRF_POOLCONF        ,EventSelectorAt...,  ERROR (PersistencySvc) pool::PersistencySvc::UserDatabase::connectForRead: PFN is not existing in the catalog
+ALL  ,TRF_EVNTSEL         ,ServiceManager    ,  ERROR Unable to initialize Service: EventSelector
+ALL  ,TRF_DISTKIT         ,JobOptionsSvc     ,  ERROR \#016
+ALL  ,TRF_PDTSETUP        ,PartPropSvc       ,  ERROR Could not open PDT file
+ALL  ,TRF_PDTFILE         ,PartPropSvc       ,  ERROR Unable to access any PDT file
+ALL  ,TRF_ATHENACRASH     ,AthenaCrash,
+ALL  ,TRF_ATHENAPROXY     ,DetectorStore     ,  ERROR retrieve(default): No valid proxy for default object
+ALL  ,TRF_PROPERTY        ,JobOptionsSvc     ,  ERROR Unable to set property
+ALL  ,TRF_DLLLOAD         ,DllClassManager   ,  ERROR System Error
+ALL  ,TRF_DLLDECL         ,ApplicationMgr    ,  ERROR Failure loading declared DLL's
+ALL  ,TRF_MOD             ,ApplicationMgr    ,WARNING Failed to load modules
+ALL  ,TRF_MOD_LOAD        ,DllClassManager   ,  ERROR Could not load module
+ALL  ,TRF_MOD_EP          ,DllClassManager   ,  ERROR Entry point .* in module
+ALL  ,TRF_ALGOINIT        ,EventLoopMgr      ,  ERROR Unable to initialize Algorithm
+ALL  ,TRF_SVRINIT         ,ServiceManager    ,  ERROR Unable to initialize [sS]ervice
+ALL  ,TRF_CBNTAUDIT       ,CBNT_Audit        ,  ERROR\s+Could not getMem
+#ALL  ,TRF_GEO_MISMATCH    ,GeoModelSvc,  ERROR.*Geometry configured through jobOptions does not match TagInfo tags
+ALL  ,TRF_SEGVIO          ,,.*[sS]egmentation violation
+ALL  ,TRF_SEGFAULT        ,,.*[sS]egmentation fault
+ALL  ,TRF_CBNTATHEXE      ,,CBNT_Athena::execute\(\)
+ALL  ,TRF_EGAMSHSHAPE     ,,ERROR  egammaShowerShape: Cluster is neither in Barrel nor in Endcap, cannot calculate ShowerShape 
+ALL  ,TRF_LAREMEC         ,,LArEMECEnergyCorrection::CalculateChargeCollection
+ALL  ,TRF_INFILE_CORRUP   ,,Error in <TBuffer::CheckByteCount>: Byte count probably corrupted
+ALL  ,TRF_TRTDIGITEXE     ,,TRTDigitization::execute\(\)
+ALL  ,TRF_INFILE_TOOFEW   ,,.*TERMINATES NORMALLY: NO MORE EVENTS IN FILE
+ALL  ,TRF_INFILE_CORRUP   ,ByteStreamInputSvc\.sysInitialize\(\),FATAL\s+Standard std::exception is caught
+ALL  ,TRF_INFILE_CORRUP   ,,.*EventStorage reading problem: error reading data from disk
+ALL  ,TRF_OUTFILE_EXISTS  ,,Output file*already exists.*
+ALL  ,TRF_EXC             ,,Output file*already exists.*
+
+#
+# athena errors
+#
+ALL  ,ATH_CON_COND        ,IOVDbSvc          ,  FATAL\s+Cannot initialize Conditions Database
+ALL  ,ATH_CON_ORA3113     ,,Error ORA-03113
+ALL  ,ATH_CON_ORA_SES     ,IOVDbSvc, FATAL dbConnection is not correctly initialized. Stop.
+ALL  ,ATH_CON_SQLITE_LOCK ,,CORAL/RelationalPlugins/sqlite    Error SQLiteStatement.*database is locked
+ALL  ,ATH_CON_MYSQL_LOST  ,,MySQL server gone away|[Ll]ost connection to MySQL
+ALL  ,ATH_DLL_LOAD        ,\s*\S*\s+,.*error in loading shared library
+ALL  ,ATH_STO_RETR_DEFAULT     ,StoreGateSvc   ,  ERROR retrieve\(default\): No valid proxy for
+ALL  ,ATH_STO_RETR_NONCONST    ,StoreGateSvc   ,  ERROR retrieve\(non-const\): No valid proxy for
+ALL  ,ATH_STO_RETR_CONST       ,StoreGateSvc   ,  ERROR retrieve\(const\): No valid proxy for
+ALL  ,ATH_STO_REC              ,StoreGateSvc   ,  ERROR record: object not added to store
+ALL  ,ATH_DETSTO_RETR_DEFAULT  ,DetectorStore  ,  ERROR retrieve\(default\): No valid proxy for
+ALL  ,ATH_DETSTO_RETR_NONCONST ,DetectorStore  ,  ERROR retrieve\(non-const\): No valid proxy for
+ALL  ,ATH_DETSTO_RETR_CONST    ,DetectorStore  ,  ERROR retrieve\(const\): No valid proxy for
+ALL  ,ATH_DETSTO_REC           ,DetectorStore  ,  ERROR record: object not added to store
+ALL  ,ATH_JOP_NOTFOUND         ,,IncludeError: include file .* can not be found
+ALL  ,ATH_OUTFILE_TOOLARGE     ,,Fill: Switching to new file: \S+\.root_1
+ALL  ,ATH_JOP_ERROR            ,Athena      ,  ERROR inconsistent case used in property name ".*?" of ApplicationMgr
+ALL  ,ATH_JOP_ERROR            ,Athena      ,  ERROR Algorithm ".*?": not in TopAlg or other known list
+ALL  ,ATH_JOP_ERROR            ,Athena      ,  ERROR Algorithm ".*?": type missing, no properties set
+ALL  ,ATH_JOP_ERROR            ,Athena      ,  ERROR attempt to add .* to non-existent property .*?
+ALL  ,ATH_JOP_ERROR            ,Configurable,  ERROR .* undeclared or uses a backdoor
+ALL  ,ATH_JOP_ERROR            ,Configurable,  ERROR children\(\) is deprecated
+ALL  ,ATH_JOP_ERROR            ,Configurable,  ERROR getChildren\(\) returns a copy
+ALL  ,ATH_JOP_ERROR            ,Configurable,  ERROR jobOptName\(\) is deprecated
+ALL  ,ATH_ELINK                ,ElementLink,  ERROR
+ALL  ,ATH_ELINK                ,.*,  ERROR .*ElementLink
+ALL  ,ATH_G4_STUCK             ,,ERROR - G4Navigator::ComputeStep\(\)
+ALL  ,ATH_G4_NONCONS           ,,\*G4QH::DecIn2:\*Boost\* 4M=
+ALL  ,ATH_ALG_TIMEOUT          ,Reason:, Timeout \(\d+ msec\) reached
+ALL  ,ATH_COREDUMP             ,,Core dump from CoreDumpSvc
+
+#
+# Something new!
+#
+#ALL  ,TRF_BADFILE              ,,*Bad file descriptor*

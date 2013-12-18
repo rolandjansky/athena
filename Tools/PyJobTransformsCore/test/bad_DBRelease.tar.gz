@@ -1,0 +1,3 @@
+This is just a file claiming to be a tar.gz file, while it is not.
+It is used to test the error handling of the DBReleaseArg argument.
+

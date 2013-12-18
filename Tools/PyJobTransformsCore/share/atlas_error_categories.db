@@ -1,0 +1,120 @@
+100,	TRF_NOTFOUND,  		Transformation not found in run directory
+60000,	TRF_SEGVIO,		segmentation violation
+60010,	TRF_SEGFAULT,		segmentation fault
+60100,	TRF_CBNTATHEXE,		CBNT_Athena::execute() error
+60101,	TRF_TRTDIGITEXE,	TRTDigitization::execute() error
+60200,	TRF_EGAMSHSHAPE,	egammaShowerShape: Cluster is neither in Barrel nor in Endcap  cannot calculate ShowerShape
+60201,	TRF_LAREMEC,		LArEMECEnergyCorrection::CalculateChargeCollection error
+60600,	TRF_KEY_INTERRUPT,	Transform Keyboard interrupt
+60701,	TRF_CBNTAUDIT,		CBNT_Audit could not allocate memory
+61000,	TRF_MOD,		ApplicationMgr Failed to load modules
+61010,	TRF_MOD_LOAD,		DllClassManager Could not load module
+61020,	TRF_MOD_EP,		DllClassManager Entry point failure in module
+61100,	TRF_ALGOINIT,		EventLoopMgr Unable to initialize Algorithm
+61200,	TRF_SVRINIT,		ServiceManager Unable to initialize Service
+62000,	TRF_SEALSVC,		ServiceManager Finalization of service AthenaSealSvc failed
+62100,	TRF_DETSTORE,		pixelRoI service_i: can not locate service DetectorStore
+62200,	TRF_POOLCONF,		pool::PersistencySvc::UserDatabase::connectForRead: PFN is not existing in the catalog
+62300,	TRF_EVNTSEL,		ServiceManager: unable to initialize Service: EventSelector
+62400,	TRF_DISTKIT,		JobOptionsSvc error
+62500,	TRF_PDTSETUP,		PartPropSvc: could not open PDT file
+62510,	TRF_PDTFILE,		PartPropSvc: unable to access any PDT file
+62600,	TRF_ATHENACRASH,	AthenaCrash
+62700,	TRF_ATHENAPROXY,	DetectorStore: no valid proxy for default object
+62800,	TRF_PROPERTY,		JobOptionsSvc: unable to set property
+62900,	TRF_DLLLOAD,		DllClassManager: system Error
+62910,	TRF_DLLDECL,		ApplicationMgr: failure loading declared DLL's
+63000,	TRF_PYT,		Transform python errors
+63010,	TRF_PYT_SYNTAX,		Transform python syntax error
+63020,	TRF_PYT_IMPORT,		Transform python import error
+63100,	TRF_ARG,		Transform argument errors
+63110,  TRF_ARG_MAXEVT_TOOFEW,  maxEvents argument: Too few events requested
+63111,  TRF_ARG_MAXEVT_TOOMANY, maxEvents argument: Too many events requested
+63200,	TRF_DEF,		Transform definition errors
+63300,	TRF_ENV,		Transform environment errors
+63400,	TRF_EXC,		Transform unknown exceptions
+63500,  TRF_TIMEOUT,    Transform execution timeout
+63600,  TRF_RETRY,      Transform execution retries exhausted
+63900,  TRF_FILE,       Transform file errors
+64000,	TRF_INFILE,		Transform input file errors
+64010,	TRF_INFILE_NOTFOUND,	Transform input file not found
+64020,	TRF_INFILE_NOTREAD,	Transform input file not readable
+64030,	TRF_INFILE_EMPTY,	Transform input file empty
+64031,  TRF_INFILE_TOOFEW,      Transform input file contains too few events
+64032,  TRF_INFILE_TOOMANY,     Transform input file contains too many events
+64033,  TRF_INFILE_NEVENTFAIL,  Transform input file: Event counting failed   
+64040,	TRF_INFILE_CORRUP,	Transform input file corrupted
+64100,	TRF_OUTFILE,		Transform output file errors
+64110,	TRF_OUTFILE_NOTFOUND,	Transform output file not found
+64120,	TRF_OUTFILE_NOTREAD,	Transform output file not readable
+64130,	TRF_OUTFILE_EMPTY,	Transform output file empty
+64131,  TRF_OUTFILE_TOOFEW,     Transform output file contains too few events
+64132,  TRF_OUTFILE_TOOMANY,    Transform output file contains too many events
+64133,  TRF_OUTFILE_NEVENTFAIL, Transform output file: Event counting failed   
+64140,	TRF_OUTFILE_CORRUP,	Transform output file corrupted
+64150,  TRF_OUTFILE_EXISTS,     Transform output file already exists
+64200,  TRF_CONFIG,             Error in transform configuration file
+65000,  TRF_DB,                 Problems with Database
+65100,  TRF_DBREL,              Problems with DBRelease
+65110,  TRF_DBREL_NOTSETUP,     DBRelease not setup
+65120,  TRF_DBREL_VERSION,      Wrong version of DBRelease setup
+65130,  TRF_DBREL_TARFILE,      Problems with the DBRelease tarfile
+65200,  TRF_GEO,                Problems with geometry tag
+65210,  TRF_GEO_MISMATCH,       Mismatch between Geometry Tag in transform argument geometryVersion and in input file
+66000,  TRF_BADFILE,            Bad file descriptor
+69999,	TRF_UNKNOWN,		Unknown Transform error
+10000,	ATH,			Athena/Transformation error
+10010,  ATH_COREDUMP,   Core dump from CoreDumpSvc (see log for more details)
+10100,	ATH_CON,		At/Tr connection error
+10102,	ATH_CON_NOV,		Nova DB problems
+10103,	ATH_CON_CAL,		Calibration DB problems
+10104,	ATH_CON_ORA3113, 	Oracle error ORA-03113
+10110,	ATH_CON_COND,		Conditions database problems
+10120,  ATH_CON_SQLITE_LOCK,    nfs lock problems with sqlite database
+10130,  ATH_CON_MYSQL_LOST,     Lost connection to MySQL server
+10140,  ATH_CON_ORA_SES,        Oracle error ORA-02391: exceeded simultaneous SESSIONS_PER_USER limit
+10200,	ATH_CRA,		Athena crashes
+10210,	ATH_CRA_INI,		Athena init failed
+10212,	ATH_CRA_INI_NOPFN,	Missing PFN in PoolFileCatalog
+10213,	ATH_CRA_INI_SVCFAIL,	AuditorSvc init failed
+10214,	ATH_CRA_INI_NOPYTHIA,	Pythia DLL not loaded
+10220,	ATH_CRA_WIN,		Input file corrupted (Wrong input)
+10300,	ATH_MOD,		ApplicationMgr Failed to load modules
+10310,	ATH_MOD_LOAD,		DllClassManager Could not load module
+10400,	ATH_DLL,		Problems loading dynamic libraries
+10410,	ATH_DLL_LOAD,		Problem loading shared library
+10420,	ATH_DLL_DECL,		ApplicationMgr: failure loading declared DLL's
+10430,  ATH_DLL_PRELOAD,        Problems loading shared libraries in LD_PRELOAD 
+10500,	ATH_JOP,		JobOptions errors
+10510,	ATH_JOP_NOTFOUND,	JobOptions file not found
+10520,  ATH_JOP_ERROR,          Error in jobOptions
+10600,	ATH_KEY_INTERRUPT,	Athena Keyboard interrupt
+10700,  ATH_STO,                Athena StoreGateSvc errors
+10710,  ATH_STO_RETR,           StoreGateSvc retrieve errors
+10711,  ATH_STO_RETR_DEFAULT,   StoreGateSvc retrieve(default): No valid proxy for object
+10712,  ATH_STO_RETR_NONCONST,  StoreGateSvc retrieve(non-const): No valid proxy for object
+10713,  ATH_STO_RETR_CONST,     StoreGateSvc retrieve(const): No valid proxy for object
+10720,  ATH_STO_REC,            StoreGateSvc record: object not added to store
+10800,  ATH_DETSTO,             Athena DetectorStore errors
+10810,  ATH_DETSTO_RETR,           DetectorStore retrieve errors
+10811,  ATH_DETSTO_RETR_DEFAULT,   DetectorStore retrieve(default): No valid proxy for object
+10812,  ATH_DETSTO_RETR_NONCONST,  DetectorStore retrieve(non-const): No valid proxy for object
+10813,  ATH_DETSTO_RETR_CONST,     DetectorStore retrieve(const): No valid proxy for object
+10820,  ATH_DETSTO_REC,            DetectorStore record: object not added to store
+10900,  ATH_SITE,               Problems with software installation
+10910,  ATH_SITE_SYSLIBS,       Missing system libraries
+10920,  ATH_SITE_LIBS,          Missing libraries
+11000,  ATH_FAILURE,            Athena non-zero exit
+11100,  ATH_ALG,                Algorithm problem
+11110,  ATH_ALG_TIMEOUT,        Algorithm timeout
+13400,	ATH_EXC,		Athena unknown exception
+13410,	ATH_EXC_PYT,		Athena python exception
+13420,	ATH_EXC_CXX,		Athena C++ exception
+14100,  ATH_OUTFILE,            Athena output file errors
+14110,  ATH_OUTFILE_TOOLARGE,   Athena pool.root file too large (root opened second file)
+15000,  ATH_ELINK,              Problems with ElementLink
+15010,  ATH_G4_STUCK,           Geant4 got stuck in event
+15011,  ATH_G4_NONCONS,         Geant4 had significant energy non-conservation
+16000,  ATH_GEN,                Generator problem
+16010,  ATH_GEN_FATALMSG,       Generator reported a fatal error
+

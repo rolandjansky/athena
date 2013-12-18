@@ -1,0 +1,17 @@
+#! /usr/bin/env bash
+
+SOURCEFILE=$1
+TEMPFILE1=$2
+TEMPFILE2=$3
+cp -f ${SOURCEFILE} ${TEMPFILE1}
+for type in `grep 'META type' ${TEMPFILE1} | cut -d= -f3 | cut -d/ -f1`; do
+    test ${type} = '"events"' && continue
+    val=`grep ${type} ${TEMPFILE1} | tail -1 | cut -d= -f3-99 | sed -e "s%&%__ampersand__%g" -e "s/%/__percentsign__/g"`
+    cat ${TEMPFILE1} | sed -e "s%${type}/%${type} value=${val}%" -e "s%__ampersand__%\&%g" -e "s/__percentsign__/%/g" -e "s/>>/>/" > ${TEMPFILE2}
+    cat ${TEMPFILE2} | grep -v -F "${type} att_value=${val}"  > ${TEMPFILE1}
+   #catch error, abort if there's a problem.
+    if [ $? != 0 ]; then
+      exit 1
+    fi
+done
+cp -f ${TEMPFILE1} ${SOURCEFILE}

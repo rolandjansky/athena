@@ -1,0 +1,16 @@
+#Each line contains 3 fields, separated by comma's:
+#atlas_release_regexp,  who_prints_it,  error_message_regexp
+# For the regular expression syntax that can be used in <error_message_regexp>, see:
+# http://docs.python.org/lib/re-syntax.html
+# Note in particular the special regexp characters that need to be backslashed if meant litteral: ()[]{}^$.*+?
+#   In constructing the total regular expression used to match the lines:
+#     - whitespace is stripped of both ends of the fields <atlas_release_regexp> and <who_prints_it>,
+#       and from the right end of <error_message_regexp>
+#     - zero or more whitespace characters are allowed between <who_prints_it> and <error_message_regexp>
+#     - if the <who_prints_it> field is empty, the <error_message_regexp> is the total regexp.
+# error detection can be tested by running on a relevant log file:
+#  checklog.py someLogFile
+
+# this file is meant to be used as Reco_trf --extraignorefilter=upgrade_error_ignore.db
+
+ALL   ,TrigConfigSvc,.*TrigConfigSvc can not return a HLTChainList object from any of the configured sources XMLL1
