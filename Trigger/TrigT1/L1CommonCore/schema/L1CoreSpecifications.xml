@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE CTSpecs 
+[
+<!ELEMENT CTSpecs (CTSpec+) >
+<!ELEMENT CTSpec (name, type, value, comment?) > 
+<!ELEMENT name (#PCDATA) >
+<!ELEMENT type (#PCDATA) >
+<!ELEMENT value (#PCDATA) >
+<!ELEMENT comment (#PCDATA) >
+
+<!ATTLIST CTSpec ns CDATA #REQUIRED>
+]>
+
+<!--
+ Attribute ns ('namespace') specifies the version:
+    v0: before moving the L1A position to the eformat-version field
+    v1: after moving the L1A position to the eformat-version field to free bits for the HLT counter
+    v2: First version of CTP data with programmable extra words (up to 50), and time difference in BC to previous L1A
+    v3: Including also the turn counter
+    v4: Version for runII (after long shutdown I) -> increased number of inputs and items
+    vZ: dummy for testing
+-->
+
+<CTSpecs >
+
+    <CTSpec ns='v0'>
+        <name>"NumPseudoHeaderWords"</name> 
+        <type>u16</type>
+        <value>0</value>
+        <comment>"Number of words in the CTP pseudo-header"</comment>
+    </CTSpec>
+
+    <CTSpec ns='v4'>
+        <name>"NumPseudoHeaderWords"</name> 
+        <type>u16</type>
+        <value>6</value>
+        <comment>"Number of words in the CTP pseudo-header"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"NumTrailerWords"</name> 
+        <type>u16</type>
+        <value>5</value>
+        <comment>"Number of words in the ROD fragment trailer"</comment>
+    </CTSpec>
+
+    <CTSpec ns='v0'>
+        <name>"NumBunchgroups"</name> 
+        <type>u16</type>
+        <value>8</value>
+        <comment>"Number of bunch groups available for masking"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"NumBunchgroups"</name> 
+        <type>u16</type>
+        <value>16</value>
+        <comment>"Number of bunch groups available for masking"</comment>
+    </CTSpec>
+    
+
+    <CTSpec ns='v0'>
+        <name>"MaxTrigItems"</name> 
+        <type>u32</type>
+        <value>256</value>
+        <comment>"Maximum number of items that can be formed in the CTPCORE"</comment>
+    </CTSpec>
+    
+    <!-- for testing only
+     <CTSpec ns='vZ'>
+        <name>"MaxTrigItems"</name> 
+        <type>u32</type>
+        <value>999</value>
+        <comment>"Maximum number of items that can be formed in the CTPCORE"</comment>
+    </CTSpec>-->
+    
+    <CTSpec ns='v4'>
+        <name>"MaxTrigItems"</name> 
+        <type>u32</type>
+        <value>512</value>
+        <comment>"Maximum number of items that can be formed in the CTPCORE"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"NumRndmTriggers"</name> 
+        <type>u16</type>
+        <value>2</value>
+        <comment>"Number of random triggers"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"NumRndmTriggers"</name> 
+        <type>u16</type>
+        <value>4</value>
+        <comment>"Number of random triggers"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"NumProgrammableExtraWords"</name> 
+        <type>u16</type>
+        <value>0</value>
+        <comment>"Number of programmable extra words"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
+        <name>"NumProgrammableExtraWords"</name> 
+        <type>u16</type>
+        <value>51</value>
+        <comment>"Number of programmable extra words"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"MaxTIPback"</name> 
+        <type>u32</type>
+        <value>160</value>
+        <comment>"Maximum number of input signals via the PIT bus"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"MaxTIPback"</name> 
+        <type>u32</type>
+        <value>320</value>
+        <comment>"Maximum number of input signals via the PIT bus"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MaxTIPfront"</name> 
+        <type>u32</type>
+        <value>0</value>
+        <comment>"Maximum number of input signals via CTPCORE front panel"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"MaxTIPfront"</name> 
+        <type>u32</type>
+        <value>192</value>
+        <comment>"Maximum number of input signals via CTPCORE front panel"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"MaxTIPtotal"</name> 
+        <type>u32</type>
+        <value>160</value>
+        <comment>"Maximum total number of input signals"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"MaxTIPtotal"</name> 
+        <type>u32</type>
+        <value>512</value>
+        <comment>"Maximum total number of input signals"</comment>
+    </CTSpec>
+
+
+    <CTSpec ns='v0'>
+        <name>"NumberTimeWords"</name> 
+        <type>u32</type>
+        <value>2</value>
+        <comment>"Number of time words that appear only once per fragment and specify the time of the trigger that caused a L1A"</comment>
+    </CTSpec>
+
+
+
+    <CTSpec ns='v0'>
+        <name>"TIPwords"</name> 
+        <type>u32</type>
+        <value>6</value>
+        <comment>"160 input bits = 5 x 32bit words, plus 32 bits BCID etc."</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"TIPwords"</name> 
+        <type>u32</type>
+        <value>17</value>
+        <comment>"160x2+192 (=512) input bits = 16 x 32bit words, plus 32 bits BCID etc."</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"AuxTIPwordPos"</name> 
+        <type>u32</type>
+        <value>6</value>
+        <comment>"word with BCID, prescaled clock and random trigger"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"AuxTIPwordPos"</name> 
+        <type>u32</type>
+        <value>17</value>
+        <comment>"word with BCID, prescaled clock and random trigger"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"TBPwords"</name> 
+        <type>u32</type>
+        <value>8</value>
+        <comment>"256 trigger items = 8 x 32bit words"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"TBPwords"</name> 
+        <type>u32</type>
+        <value>16</value>
+        <comment>"512 trigger items = 16 x 32bit words"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"TAPwords"</name> 
+        <type>u32</type>
+        <value>8</value>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"TAPwords"</name> 
+        <type>u32</type>
+        <value>16</value>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"TAVwords"</name> 
+        <type>u32</type>
+        <value>8</value>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"TAVwords"</name> 
+        <type>u32</type>
+        <value>16</value>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"DAQwordsPerBunch"</name> 
+        <type>u32</type>
+        <value>6+8+8+8</value>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v4'>
+        <name>"DAQwordsPerBunch"</name> 
+        <type>u32</type>
+        <value>17+16+16+16</value>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"TimeNanosecondsOffset"</name> 
+        <type>u32</type>
+        <value>4</value>
+        <comment>"nanoseconds are the 28 upper bits"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TimeNanosecondsTicks"</name> 
+        <type>u32</type>
+        <value>5</value>
+        <comment>"counted in units of 5 nanosec ticks"</comment>
+    </CTSpec>
+    
+    
+    
+    
+    <CTSpec ns='v0'>
+        <name>"BcidMask"</name> 
+        <type>u32</type>
+        <value>0xf</value>
+        <comment>"4 lowest bits for BCID (12 in early data)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BcidShift"</name> 
+        <type>u32</type>
+        <value>0</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BunchGroupMask"</name> 
+        <type>u32</type>
+        <value>0xff</value>
+        <comment>"8-bit word with bunch group information"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"BunchGroupMask"</name> 
+        <type>u32</type>
+        <value>0xffff</value>
+        <comment>"16-bit word with bunch group information"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"BunchGroupShift"</name> 
+        <type>u32</type>
+        <value>4</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"RandomTrigMask"</name> 
+        <type>u32</type>
+        <value>0x3</value>
+        <comment>"2 bits for 2 random triggers"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"RandomTrigMask"</name> 
+        <type>u32</type>
+        <value>0xf</value>
+        <comment>"4 bits for 4 random triggers"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"RandomTrigShift"</name> 
+        <type>u32</type>
+        <value>12</value>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"RandomTrigShift"</name> 
+        <type>u32</type>
+        <value>20</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"PrescaledClockMask"</name> 
+        <type>u32</type>
+        <value>0x3</value>
+        <comment>"2 bits for 2 prescaled-clock triggers"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"PrescaledClockShift"</name> 
+        <type>u32</type>
+        <value>14</value>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"PrescaledClockShift"</name> 
+        <type>u32</type>
+        <value>24</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"LumiBlockMask"</name> 
+        <type>u32</type>
+        <value>0xffff</value>
+        <comment>"16 lowest bits of det. event type"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"LumiBlockShift"</name> 
+        <type>u32</type>
+        <value>0</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"L1APositionMask"</name> 
+        <type>u32</type>
+        <value>0x3f</value>
+        <comment>"6 bits are reserved for L1A position"</comment>
+    </CTSpec>
+    
+	
+    <CTSpec ns='v0'>
+        <name>"L1APositionShift"</name> 
+        <type>u32</type>
+        <value>16</value>
+        <comment>"bits 16 to 21 are L1A position (v0: before moving the L1A position to the eformat-version field)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"DetEvtTypeExtraBitsMask"</name> 
+        <type>u32</type>
+        <value>0x3ff</value>
+        <comment>"10 remaining bits of det. event type (v0: before moving the L1A position to the eformat-version field)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"DetEvtTypeExtraBitsShift"</name> 
+        <type>u32</type>
+        <value>22</value>
+        <comment>"v0: before moving the L1A position to the eformat-version field"</comment>
+    </CTSpec>
+	
+    
+    <CTSpec ns='v0'>
+        <name>"HltCounterMask"</name> 
+        <type>u32</type>
+        <value>0x3ff</value>
+        <comment>"10 remaining bits of det. event type "</comment>
+    </CTSpec>
+	
+    <CTSpec ns='v0'>
+        <name>"HltCounterShift"</name> 
+        <type>u32</type>
+        <value>22</value>
+    </CTSpec>
+	
+	
+	
+	
+    
+	
+    <CTSpec ns='v1'>
+        <name>"L1APositionShift"</name> 
+        <type>u32</type>
+        <value>8</value>
+        <comment>"bits 8 to 13 are L1A position (after moving the L1A position to the eformat-version field to free bits for the HLT counter)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v1'>
+        <name>"DetEvtTypeExtraBitsMask"</name> 
+        <type>u32</type>
+        <value>0xffff</value>
+        <comment>"16 remaining bits of det. event type (after moving the L1A position to the eformat-version field to free bits for the HLT counter)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v1'>
+        <name>"DetEvtTypeExtraBitsShift"</name> 
+        <type>u32</type>
+        <value>16</value>
+        <comment>"v1: after moving the L1A position to the eformat-version field to free bits for the HLT counter"</comment>
+    </CTSpec>
+	
+    
+    <CTSpec ns='v1'>
+        <name>"HltCounterMask"</name> 
+        <type>u32</type>
+        <value>0xffff</value>
+        <comment>"16 remaining bits of det. event type "</comment>
+    </CTSpec>
+	
+    <CTSpec ns='v1'>
+        <name>"HltCounterShift"</name> 
+        <type>u32</type>
+        <value>16</value>
+    </CTSpec>
+	
+	
+	
+	
+	
+	
+    
+    <CTSpec ns='v2'>
+        <name>"L1APositionShift"</name> 
+        <type>u32</type>
+        <value>4</value>
+        <comment>"L1A position is stored in bits 4 to 9 (Version of CTP data with programmable extra words (up to 50), and time difference in BC to previous L1A)"</comment>
+    </CTSpec>
+    
+    
+    
+    
+    <CTSpec ns='v0'>
+        <name>"ProgrammableExtraWordsShift"</name> 
+        <type>u32</type>
+        <value>9999</value>
+        <comment>"extra payload not yet present in this version"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"ProgrammableExtraWordsMask"</name> 
+        <type>u32</type>
+        <value>9999</value>
+        <comment>"extra payload not yet present in this version"</comment>
+    </CTSpec>
+    
+    
+    
+    <CTSpec ns='v2'>
+        <name>"ProgrammableExtraWordsShift"</name> 
+        <type>u32</type>
+        <value>10</value>
+        <comment>"bits 10 to 15 are the number of additional programmable words (Version of CTP data with programmable extra words (up to 50), and time difference in BC to previous L1A)"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
+        <name>"ProgrammableExtraWordsMask"</name> 
+        <type>u32</type>
+        <value>0x3f</value>
+        <comment>"6 bits for the number of additional programmable words (Version of CTP data with programmable extra words (up to 50), and time difference in BC to previous L1A)"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"OffsetExtraPayload"</name> 
+        <type>u32</type>
+        <value>9999</value>
+        <comment>"extra payload not yet present in this version"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
+        <name>"OffsetExtraPayload"</name> 
+        <type>u32</type>
+        <value>1</value>
+        <comment>"between TAV and extra payload there is the time difference to previous L1A"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v3'>
+        <name>"OffsetExtraPayload"</name> 
+        <type>u32</type>
+        <value>2</value>
+        <comment>"between TAV and extra payload there is the time difference to previous L1A and the turn counter"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v0'>
+        <name>"CTPFormatVersionMask"</name> 
+        <type>u32</type>
+        <value>0xf</value>
+        <comment>"lower 4 bit of format minor version field are CTP version"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"CTPFormatVersionShift"</name> 
+        <type>u32</type>
+        <value>0</value>
+    </CTSpec>
+    
+    
+    
+    <CTSpec ns='v0'>
+        <name>"TimeNanosecondsPos"</name> 
+        <type>u32</type>
+        <value>0</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TimeSecondsPos"</name> 
+        <type>u32</type>
+        <value>1</value>
+    </CTSpec>
+    
+    
+    
+    <CTSpec ns='v0'>
+        <name>"TIPpos"</name> 
+        <type>u32</type>
+        <value>2</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"TBPpos"</name> 
+        <type>u32</type>
+        <value>8</value>
+        <comment>"TIPpos(=2)+TIPwords"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"TBPpos"</name> 
+        <type>u32</type>
+        <value>19</value>
+        <comment>"TIPpos(=2)+TIPwords"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <!-- maybe not specify all the values but express TBPpos as PITpos+PITwords, TAPpos as TBPpos+TAPwords etc..-->      
+        <name>"TAPpos"</name> 
+        <type>u32</type>
+        <value>16</value>
+        <comment>"TIPpos(=2)+TIPwords+TBPwords"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>     
+        <name>"TAPpos"</name> 
+        <type>u32</type>
+        <value>35</value>
+        <comment>"TIPpos(=2)+TIPwords+TBPwords"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"TAVpos"</name> 
+        <type>u32</type>
+        <value>24</value>
+        <comment>"TIPpos(=2)+TIPwords+TBPwords+TAPwords"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>     
+        <name>"TAVpos"</name> 
+        <type>u32</type>
+        <value>51</value>
+        <comment>"TIPpos(=2)+TIPwords+TBPwords+TAPwords"</comment>
+    </CTSpec>
+    
+    
+    
+    
+    <CTSpec ns='v0'>     
+        <name>"HeaderMarkerPos"</name> 
+        <type>u32</type>
+        <value>0</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"HeaderSizePos"</name> 
+        <type>u32</type>
+        <value>1</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"FormatVersionPos"</name> 
+        <type>u32</type>
+        <value>2</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"SourceIdPos"</name> 
+        <type>u32</type>
+        <value>3</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"DetectorTypePos"</name> 
+        <type>u32</type>
+        <value>8</value>
+    </CTSpec>
+    
+    
+    
+    <CTSpec ns='v0'>     
+        <name>"TTPhysicsCalibrationBit"</name> 
+        <type>u32</type>
+        <value>7</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"TTCalibrationDetectorCodeShift"</name> 
+        <type>u32</type>
+        <value>3</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>     
+        <name>"TTCalibrationDetectorCodeMask"</name> 
+        <type>u32</type>
+        <value>0xf</value>
+    </CTSpec>
+    
+	
+	<!--taken from CTPFiles.h-->
+	<!--<CTSpec>     
+        <name>"ALL_CTPCORELUT_SIZE"</name> 
+        <type>u32</type>
+        <value>49664</value>
+        <value_runI>49664</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"ALL_CTPCORECAM_SIZE"</name> 
+        <type>u32</type>
+        <value>8192</value>
+        <value_runI>8192</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"ALL_CTPINMONSEL_SIZE"</name> 
+        <type>u32</type>
+        <value>124</value>
+        <value_runI>124</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"ALL_CTPINMONDEC_SIZE"</name> 
+        <type>u32</type>
+        <value>4096</value>
+        <value_runI>4096</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"CTPMON_MUX_OUTPUT_NUMBER"</name> 
+        <type>u32</type>
+        <value>9</value>
+        <value_runI>9</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"CTPMON_ADDRESS_SELECTOR_NUMBER"</name> 
+        <type>u32</type>
+        <value>24</value>
+        <value_runI>24</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"ALL_CTPMONSELECTOR_SIZE"</name> 
+        <type>u32</type>
+        <value>CTPMON_MUX_OUTPUT_NUMBER * CTPMON_ADDRESS_SELECTOR_NUMBER</value>
+        <value_runI>CTPMON_MUX_OUTPUT_NUMBER * CTPMON_ADDRESS_SELECTOR_NUMBER</value_runI>
+    </CTSpec>
+	
+	<CTSpec>     
+        <name>"ALL_CTPMONDECODER_SIZE"</name> 
+        <type>u32</type>
+        <value>6656</value>
+        <value_runI>6656</value_runI>
+    </CTSpec>-->
+    
+</CTSpecs>

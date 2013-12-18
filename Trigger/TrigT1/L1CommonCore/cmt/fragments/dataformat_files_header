@@ -1,0 +1,7 @@
+
+${CONSTITUENT} : 
+	python ${LOC}/CreateCTPdataformat.py 
+	/bin/mv *.h ${INC}/
+
+${CONSTITUENT}clean ::
+	/bin/rm -f ${INC}/${CONSTITUENT}*.h

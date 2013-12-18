@@ -1,0 +1,27 @@
+package L1CommonCore
+
+author ruth.poettgen@cern.ch
+
+#use TDAQCPolicy *
+use DetCommonPolicy *
+
+
+make_fragment l1common_files -header=l1common_files_header
+document l1common_files CTPdataformat FILEPATH=../schema/ FILENAME=L1CoreSpecifications.xml INC=../L1CommonCore PY=../python LOC=../scripts
+
+
+#make_fragment dataformat_files -header=dataformat_files_header
+#document dataformat_files dataformat INC=../L1CommonCore LOC=../scripts
+
+apply_pattern detcommon_ignores
+
+#apply_pattern build_jar name=L1CommonCore src_dir=../jsrc sources="./*.java"
+
+apply_pattern detcommon_header_installer
+
+apply_pattern detcommon_link_files kind=python_scripts name=python_scripts files="-s=../scripts XMLtoHeader.py" prefix=scripts/L1CommonCore
+apply_pattern detcommon_link_files kind=python_modules name=python_mods files="-s=../python *.py " prefix=python/L1CommonCore
+
+#macro_prepend dataformat_dependencies " L1CoreSpecs "
+private
+macro_prepend install_python_modspython_modules_dependencies " CTPdataformat "
