@@ -1,0 +1,243 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// OutputConditionsAlg.cxx
+// Algorithm to provide simple writing of conditions data to outputstream
+// and optional registration in IOV database
+// Richard Hawkings, started 1/9/05, from skeleton by Walter Lampl
+
+#include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/IAthenaOutputStreamTool.h"
+#include "AthenaKernel/IClassIDSvc.h"
+#include "AthenaKernel/IOVTime.h"
+#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/MsgStream.h"
+#include "RegistrationServices/IIOVRegistrationSvc.h"
+#include "OutputConditionsAlg.h"
+
+
+OutputConditionsAlg::OutputConditionsAlg(const std::string& name, 
+					 ISvcLocator* pSvcLocator) :
+  Algorithm(name, pSvcLocator),
+  p_detstore( "DetectorStore", name ),
+  p_clidsvc ( "ClassIDSvc",    name ),
+  p_regsvc  ( "IOVRegistrationSvc", name ),
+  m_streamName("ConditionsAlgStream"),
+  par_writeIOV(false),
+  par_run1(IOVTime::MINRUN),
+  par_lumib1(IOVTime::MINEVENT),
+  par_run2(IOVTime::MAXRUN),
+  par_lumib2(IOVTime::MAXEVENT),
+  par_time1(IOVTime::MINTIMESTAMP),
+  par_time2(IOVTime::MAXEVENT), // only a 32 bit quantity (in seconds)
+  par_timestamp(false),
+  par_iovtags()
+{
+  declareProperty("StreamName",m_streamName);
+  declareProperty("ObjectList",m_objectList);
+  declareProperty("WriteIOV",par_writeIOV);
+  declareProperty("Run1",par_run1);
+  declareProperty("LB1",par_lumib1);
+  declareProperty("Run2",par_run2);
+  declareProperty("LB2",par_lumib2);
+  declareProperty("Time1",par_time1);
+  declareProperty("Time2",par_time2);
+  declareProperty("UseTime",par_timestamp);
+  declareProperty("IOVTagList",par_iovtags);
+}
+
+OutputConditionsAlg::~OutputConditionsAlg() 
+{}
+
+StatusCode OutputConditionsAlg::initialize() {
+  MsgStream log(msgSvc(), name());
+  log <<MSG::DEBUG <<"in initialize()" <<endreq;
+
+  // get pointer to detector store
+  if (StatusCode::SUCCESS!= p_detstore.retrieve()) {
+    log << MSG::FATAL << "Detector store not found" << endreq;
+    return StatusCode::FAILURE;
+  }
+  // get pointer to ClassIDSvc
+  if (StatusCode::SUCCESS!= p_clidsvc.retrieve()) {
+    log << MSG::FATAL << "ClassIDSvc not found" << endreq;
+    return StatusCode::FAILURE;
+  }
+  if (par_writeIOV) {
+    // get pointer to IOVRegistrationSvc
+    if (StatusCode::SUCCESS!=p_regsvc.retrieve()) {
+      log << MSG::FATAL << "IOVRegistrationSvc not found" << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+  m_streamer = IAthenaOutputStreamTool_t("AthenaPoolOutputStreamTool/"+
+					 m_streamName);
+  StatusCode sc = m_streamer.retrieve();
+  if (sc.isFailure()) {
+    log << MSG::ERROR << "Unable to find AthenaPoolOutputStreamTool with name " << 
+   m_streamName << endreq;
+    return StatusCode::FAILURE;
+  }  
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode OutputConditionsAlg::execute() {
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode OutputConditionsAlg::finalize() {
+  MsgStream log(messageService(), name());
+  log << MSG::INFO << "Finalize: preparing to write conditions objects "  
+  << endreq;
+
+  StatusCode sc = m_streamer->connectOutput();
+  if (sc.isFailure()) {
+    log <<MSG::ERROR <<"Could not connect stream to output" <<endreq;
+    return( StatusCode::FAILURE);
+  }
+  // create list of objects
+  std::vector<std::string> types;
+  std::vector<std::string> keys;
+  std::vector<std::string> folders;
+  std::vector<std::string> tags;
+  for (unsigned int iobj=0;iobj<m_objectList.size();++iobj) {
+    // if object name contains a '#', it represents a specific typename#key
+    std::string::size_type ihash=m_objectList[iobj].find_first_of("#");
+    if (ihash==std::string::npos) {
+      // no hash, get the default object for this class, and set key
+      // note this will only get ONE object
+      // first need to know CLID from typename
+      CLID clid;
+      if (StatusCode::SUCCESS==p_clidsvc->getIDOfTypeName(
+	       m_objectList[iobj],clid)) {
+	SG::DataProxy* proxy=p_detstore->proxy(clid);
+	if (proxy) {
+	  types.push_back(m_objectList[iobj]);
+	  keys.push_back(proxy->name());
+	  folders.push_back(proxy->name());
+	  if (iobj<par_iovtags.size()) {
+	    tags.push_back(par_iovtags[iobj]);
+	  } else {
+	    tags.push_back("");
+	  }
+	} else {
+	  log << MSG::ERROR << "Could not get default proxy for CLID " <<
+	    clid << " typename " << m_objectList[iobj] << endreq;
+	}
+      } else {
+	log << MSG::ERROR << "Could not get CLID from typename " <<
+	  m_objectList[iobj] << endreq;
+      }
+    } else {
+      types.push_back(m_objectList[iobj].substr(0,ihash));
+      // a second hash allows the folder to be specified after the key
+      // otherwise the folder name is taken to be the same as the key name
+      std::string::size_type ihash2=m_objectList[iobj].find_first_of("#",ihash+1);
+      if (ihash2==std::string::npos) {
+	std::string key=m_objectList[iobj].substr(ihash+1,std::string::npos);
+	keys.push_back(key);
+	folders.push_back(key);
+      } else {
+	keys.push_back(m_objectList[iobj].substr(ihash+1,ihash2-ihash-1));
+	folders.push_back(m_objectList[iobj].substr(ihash2+1,
+						    std::string::npos));
+      }
+      if (iobj<par_iovtags.size()) {
+        tags.push_back(par_iovtags[iobj]);
+      } else {
+        tags.push_back("");
+      }
+    }
+  }
+  // list out all typename/key pairs to be written and construct vector
+  int nObjects=types.size();
+  IAthenaOutputStreamTool::TypeKeyPairs typeKeys(nObjects);
+  log << MSG::INFO << "Identified a total of " << nObjects << 
+    " objects to write out:" << endreq;
+  // leave now if nothing to write
+  if (nObjects==0) return StatusCode::SUCCESS;
+  for (int i=0;i<nObjects;i++) {
+    typeKeys[i]=IAthenaOutputStreamTool::TypeKeyPair(types[i],keys[i]);
+    log << MSG::INFO << i << ": " << types[i] << "#" << keys[i] << 
+      "#" << folders[i] << endreq;
+    // check object actually exists, else return failure
+    CLID clid;
+    SG::DataProxy* proxy=0;
+    if (StatusCode::SUCCESS==p_clidsvc->getIDOfTypeName(types[i],clid))
+      proxy=p_detstore->proxy(clid,keys[i]);
+    if (proxy==0) {
+      log << MSG::ERROR << "Could not find proxy for object with key " <<
+	keys[i] << " - abort write" << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+    
+  // stream output (write objects)
+  sc=m_streamer->streamObjects(typeKeys);
+  if (sc.isFailure()) {
+    log <<MSG::ERROR <<"Could not stream out objects" << endreq;
+    return StatusCode::FAILURE;
+  }
+  // commit output
+  sc=m_streamer->commitOutput();
+  if (sc.isFailure()) {
+    log <<MSG::ERROR <<"Could not commit output stream" <<endreq;
+    return StatusCode::FAILURE;
+  }
+  log << MSG::INFO << "Written " << nObjects << " objects to output stream" << 
+    endreq;
+
+  if (par_writeIOV) {
+    log << MSG::INFO <<         
+      "Register objects in IOV database, interval of validity ";
+    if (par_timestamp) {
+      log << "[time] from [" << 
+	  par_time1 << "] to [" << par_time2 << "]" << endreq;
+    } else {
+      log << "[run,LB] from [" <<
+          par_run1 << "," << par_lumib1 << "] to [" << par_run2 <<
+          "," << par_lumib2 << "]" << endreq;
+    }
+    int nreg=0;
+    for (int iobj=0;iobj<nObjects;++iobj) {
+      log << MSG::INFO << "Register object " << types[iobj] << "#" << 
+	keys[iobj] << " in IOV database folder " << folders[iobj] << " ";
+      if (tags[iobj]=="") {
+	log << MSG::INFO << "without tagging" << endreq;
+      } else {
+	log << MSG::INFO << "with tag " << tags[iobj] << endreq;
+      }
+      if (par_timestamp) {
+	sc=p_regsvc->registerIOV(types[iobj],keys[iobj],
+         folders[iobj],tags[iobj],timeToNano(par_time1),timeToNano(par_time2));
+      } else {
+	sc=p_regsvc->registerIOV(types[iobj],keys[iobj],
+         folders[iobj],tags[iobj],par_run1,par_run2,par_lumib1,par_lumib2);
+      }
+      if (sc==StatusCode::SUCCESS) {
+	++nreg;
+      } else {
+	log << MSG::ERROR << "Registration failed!" << endreq;
+      }
+    }
+    log << MSG::INFO << "Registered " << nreg << " objects in IOV database"
+	<< endreq;
+  } else {
+    log << MSG::INFO << "Objects NOT registered in IOV database" << endreq;
+  }
+  return StatusCode::SUCCESS;
+}
+
+uint64_t OutputConditionsAlg::timeToNano(unsigned long int timesec) const
+{
+  // convert time specified in seconds to ns used by COOL
+  // use the magic value MAXEVENT to signal full range
+  if (timesec==IOVTime::MAXEVENT) {
+    return IOVTime::MAXTIMESTAMP;
+  } else {
+    return static_cast<uint64_t>(timesec)*1000000000;
+  }
+}
