@@ -1,0 +1,21 @@
+package LumiBlockTPCnv
+
+use AtlasPolicy          AtlasPolicy-*  
+use AthenaKernel         AthenaKernel-*         Control
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
+use LumiBlockData        LumiBlockData-*        LumiBlock
+
+private
+use AtlasReflex          AtlasReflex-*          External
+end_private
+
+branches LumiBlockTPCnv src
+library LumiBlockTPCnv *.cxx
+apply_pattern tpcnv_library
+
+private
+apply_pattern lcgdict dict=LumiBlockTPCnv  selectionfile=selection.xml headerfiles="../LumiBlockTPCnv/LumiBlockTPCnvDict.h"
+apply_pattern lcgdict dict=ARA_LumiBlockTPCnv  selectionfile=ARA_selection.xml headerfiles="../LumiBlockTPCnv/LumiBlockTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_LumiBlockTPCnv  selectionfile=OLD_selection.xml headerfiles="../LumiBlockTPCnv/LumiBlockTPCnvDict.h"
+
+end_private

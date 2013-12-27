@@ -1,0 +1,13 @@
+<lcgdict>
+  <class name="T_TPCnv<LumiBlockCollection,LumiBlockCollection_p1>"/>
+  <class name="LumiBlockCollectionCnv_p1"/>
+  <class name="T_AthenaPoolTPCnvBase<LumiBlockCollection,LumiBlockCollection_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<LumiBlockCollection,LumiBlockCollection,LumiBlockCollection_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<LumiBlockCollection,LumiBlockCollection,LumiBlockCollection_p1>"/>
+  <class name="ITPConverterFor<LumiBlockCollection>"/>
+
+  <class name="T_TPCnv<IOVRange,LumiBlockRange_p1>"/>
+  <class name="LumiBlockRangeCnv_p1"/>
+  <class name="T_AthenaPoolTPCnvBase<IOVRange,LumiBlockRange_p1>"/>
+  <class name="ITPConverterFor<IOVRange>"/>
+</lcgdict>
