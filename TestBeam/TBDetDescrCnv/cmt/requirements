@@ -1,0 +1,21 @@
+package TBDetDescrCnv
+
+author Alexander Solodkov <Sanya.Solodkov@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-*	External
+use DetDescrCnvSvc	DetDescrCnvSvc-*	DetectorDescription
+
+private
+use StoreGate		StoreGate-*		Control
+use TBDetDescr          TBDetDescr-*            TestBeam
+use GeoPrimitives       GeoPrimitives-*         DetectorDescription
+
+use FadsGeometry        FadsGeometry-*          Simulation/G4Sim/FADS
+
+apply_pattern component_library
+
+library TBDetDescrCnv  TB*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
