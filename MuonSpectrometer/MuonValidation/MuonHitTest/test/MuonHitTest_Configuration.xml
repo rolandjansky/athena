@@ -1,0 +1,56 @@
+?xml version="1.0"?> 
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
+
+<unifiedTestConfiguration> 
+
+
+<atn/>
+<kv/>
+<rtt  xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+   <rttContactPerson>Nectarios Chr. Benekos (Nectarios.Benekos@cern.ch)</rttContactPerson>
+   <mailto>Nectarios.Benekos@cern.ch</mailto>
+   <refRelease>14.X.0</refRelease>
+ 
+<jobList>
+
+    <doc>MuonSimulation Hits Validator using muon samples</doc>
+    <classification>
+    <displayClass>OfflineValidation</displayClass>
+    <displayProcess>Simul</displayProcess>
+    <displayComponent>Det-Muon</displayComponent>
+    </classification>
+
+<athena>
+    <options>HitOccupancyperChamber_BL1A_geo200.RTT</options>
+    <package>MuonSpectrometer/MuonValidation/MuonHitTest</package>
+    <group>MuonHitTest</group>
+    <queue>medium</queue>
+    <dataset>/castor/cern.ch/user/m/muonprod/MuonValidation/geo200/MuonHitsVal_BL1A_geo200_14223_muminus_pt100GeV.histo.root</dataset> 
+</athena> 
+
+</jobList>
+
+<jobGroups>
+
+      <jobGroup name="AthenaMuonHitTest" parent="Athena">
+          <keepFilePattern>HitOccupancyperChamber_BL1A_geo200.RTT.ps</keepFilePattern> 
+          <keepFilePattern>*.root</keepFilePattern>
+          <auxFilePattern>MuonHitOccup_BL1A_geo200.C</auxFilePattern> 	  	  
+          <action>
+               <modulename>RttLibraryTools</modulename>
+               <testname>ROOTMacroRunner</testname>
+               <arg>
+                   <argname>macro</argname>
+                   <argvalue>MuonHitOccup_BL1A_geo200.C</argvalue>
+               </arg>
+          </action>
+         
+      </jobGroup>
+   
+   </jobGroups>
+
+</rtt>
+
+</unifiedTestConfiguration>
+
+ 
