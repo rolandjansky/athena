@@ -1,0 +1,31 @@
+
+#######################################################################
+
+                   HOW TO CONTINUE WITH TAG UPDATE
+
+ Check that text files and database agree:
+
+   PlotChargeSharingConstants.exe \
+   		PixelChargeInterpolationData-FINALTAG \
+		ReadFromDB/PixelChargeInterpolationData-FINALTAG
+
+   PlotPixelClusterOnTrackErrors.exe \
+   		PixelClusterOnTrackErrorData-FINALTAG \
+		ReadFromDB/PixelClusterOnTrackErrorData-FINALTAG
+
+ Register the pool file in the appropriate dataset. See:
+   https://twiki.cern.ch/twiki/bin/view/Atlas/ConditionsDDM
+   !!!! USE MC DATASET IF REGISTERING BOTH FOR DATA AND MC !!!!
+
+ Upload the new tag in the central PIXEL_OFL/COMP200 database. See:
+   https://twiki.cern.ch/twiki/bin/view/Atlas/CoolPublishing
+
+ Check if the tag was copied correctly in the database. See:
+   https://twiki.cern.ch/twiki/bin/view/Atlas/AtlCoolConsole
+
+ To change the database from COMP to OFLP or similar operations see:
+   https://twiki.cern.ch/twiki/bin/view/Atlas/AtlCoolCopy
+
+#######################################################################
+
+

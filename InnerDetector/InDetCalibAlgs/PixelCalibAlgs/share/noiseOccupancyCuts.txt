@@ -1,0 +1,13 @@
+Disk1ACut 1.e-5
+Disk2ACut 1.e-5
+Disk3ACut 1.e-5
+Disk1CCut 1.e-5
+Disk2CCut 1.e-5
+Disk3CCut 1.e-5
+B-layerCut 1.e-5
+Layer1Cut 1.e-5
+Layer2Cut 1.e-5
+gangedPixelMultiplier 1.
+longPixelMultiplier 1.
+occupancyPerBC true
+nBCReadout 1

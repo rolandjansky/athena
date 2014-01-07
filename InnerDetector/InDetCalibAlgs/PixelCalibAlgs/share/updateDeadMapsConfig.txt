@@ -1,0 +1,2 @@
+minEventNumber 2000000
+minAveragePixelHitNumber 13

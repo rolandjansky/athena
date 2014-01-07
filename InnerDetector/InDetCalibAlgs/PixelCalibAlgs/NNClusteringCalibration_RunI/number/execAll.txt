@@ -1,0 +1,4 @@
+./runDir.sh $(pwd)/track_200 true 200 0.3 0.99 0.1 2
+./runDir.sh $(pwd)/noTrack_20 false 20 0.03 0.95 0.03 3
+./runDir.sh $(pwd)/noTrack_200 false 200 0.3 0.99 0.1 1
+./runDir.sh $(pwd)/track_20 true 20 0.03 0.95 0.03 4

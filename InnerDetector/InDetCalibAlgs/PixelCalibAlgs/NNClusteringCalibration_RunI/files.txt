@@ -1,0 +1,1 @@
+myChain->Add("root://castoratlas//castor/cern.ch/grid/atlas/atlasscratchdisk/user.giacinto/user.giacinto.105014.J5.NTUP.trkValidNNtraining.June2011.thetafixed.0.110624231521_sub022597893/user.giacinto.000863.TRKVAL._00001.root");

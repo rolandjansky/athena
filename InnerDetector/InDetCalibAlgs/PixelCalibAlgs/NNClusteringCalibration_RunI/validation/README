@@ -1,0 +1,36 @@
+
+Validation code for NN:
+ 
+- reads the tree NNinput of a Pixel Cluster Validation Ntuple 
+- initalize and call the the NN 
+- process the NNinput
+- produce a TrkValidation Ntuple with a "fake" CombinedInDetTracks tree with the processed clusters
+
+It is possible to use standard calibration code to produce validation plots
+
+The list of the input files has to be stored in the files: files.txt and filesOnTrack.txt
+
+
+The recommendation is to use a  reliable compiled version:
+
+ln -s ../libTJetNet.so
+ln -sf  libTJetNet.so libTJetNet.so.0
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD
+
+make clean; make
+
+./produceTrkValidation 1 false -1 outname.root
+
+arguments:
+1- number of particles
+2- use track information
+3- number of events to process
+4- output file name
+ 
+
+It is also possible to use a function inside root:
+root -l doWriteNtuple.C\(1,false\)
+
+It takes as arguments:
+1. number of particle. To produce the validation ntuple for the NN trained in the 1/2/3 particles hypothesis
+2. useTrack Info.      Use the NN traine with or without track information

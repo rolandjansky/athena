@@ -1,0 +1,28 @@
+./runDir.sh $(pwd)/noTrack_10_1_X false 10 0.1 0.999 0.05 1 true 30 200
+./runDir.sh $(pwd)/noTrack_10_1_Y false 10 0.1 0.999 0.05 1 false 30 201
+./runDir.sh $(pwd)/noTrack_10_2_X false 10 0.1 0.999 0.05 2 true 25 202
+./runDir.sh $(pwd)/noTrack_10_2_Y false 10 0.1 0.999 0.05 2 false 25 203
+./runDir.sh $(pwd)/noTrack_10_3_X false 10 0.1 0.999 0.05 3 true 20 204
+./runDir.sh $(pwd)/noTrack_10_3_Y false 10 0.1 0.999 0.05 3 false 20 205
+
+
+./runDir.sh $(pwd)/track_10_1_X true 10 0.1 0.999 0.05 1 true 30 206
+./runDir.sh $(pwd)/track_10_1_Y true 10 0.1 0.999 0.05 1 false 30 207
+./runDir.sh $(pwd)/track_10_2_X true 10 0.1 0.999 0.05 2 true 25 208
+./runDir.sh $(pwd)/track_10_2_Y true 10 0.1 0.999 0.05 2 false 25 209
+./runDir.sh $(pwd)/track_10_3_X true 10 0.1 0.999 0.05 3 true 20 210
+./runDir.sh $(pwd)/track_10_3_Y true 10 0.1 0.999 0.05 3 false 20 211
+
+./runDir.sh $(pwd)/noTrack_10faster_1_X false 10 0.2 0.98 0.05 1 true 30 2100
+./runDir.sh $(pwd)/noTrack_10faster_1_Y false 10 0.2 0.98 0.05 1 false 30 2110
+./runDir.sh $(pwd)/track_10faster_1_X true 10 0.2 0.98 0.05 1 true 30 2120
+./runDir.sh $(pwd)/track_10faster_1_Y true 10 0.2 0.98 0.05 1 false 30 2130
+
+./runDir.sh $(pwd)/noTrack_10faster_2_Y false 10 0.2 0.98 0.05 2 false 25 2030
+./runDir.sh $(pwd)/track_10faster_2_X true 10 0.2 0.98 0.05 2 true 25 2080
+./runDir.sh $(pwd)/track_10faster_2_Y true 10 0.2 0.98 0.05 2 false 25 2090
+./runDir.sh $(pwd)/noTrack_10faster_2_X false 10 0.2 0.98 0.05 2 true 25 2020
+./runDir.sh $(pwd)/noTrack_10faster_3_X false 10 0.2 0.98 0.05 3 true 20 2040
+./runDir.sh $(pwd)/noTrack_10faster_3_Y false 10 0.2 0.98 0.05 3 false 20 2050
+./runDir.sh $(pwd)/track_10faster_3_X true 10 0.2 0.98 0.05 3 true 20 2100
+./runDir.sh $(pwd)/track_10faster_3_Y true 10 0.2 0.98 0.05 3 false 20 2110

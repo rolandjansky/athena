@@ -1,0 +1,79 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TH1.h"
+#include "TF1.h"
+#include <vector>
+#include <cmath>
+
+// utility for Pixel Offline Claibration Classes
+inline double *LogaritmicBins(int NTOT, double START, double END){
+	double *bins = new double[NTOT+1];
+	for(int i = 0 ; i < NTOT + 1 ; i++) 
+		bins[i] = START * pow( END/START, double(i)/double(NTOT) );
+	return bins;
+}
+
+
+inline double *IntegerBins(int NTOT, double NSTART = 0, double PASS = 1){
+	double *bins = new double[NTOT+1];
+	for(int i = 0; i < NTOT + 1; i++) bins[i] = NSTART + PASS * i;
+	return bins;
+}
+
+inline int EtaModuleBins(double *&bins){
+	bins = IntegerBins(13,-6);
+	return 13;
+}
+
+inline int DiskEtaModuleBins(double *&bins){
+	bins = IntegerBins(2,-1);
+	return 2;
+}
+
+inline int BlayerPhiModuleBins(double *&bins){
+	bins = IntegerBins(22);
+	return 22;
+}
+
+inline int Layer1PhiModuleBins(double *&bins){
+	bins = IntegerBins(36);
+	return 36;
+}
+
+inline int Layer2PhiModuleBins(double *&bins){
+	bins = IntegerBins(52);
+	return 52;
+}
+
+inline int DiskPhiModuleBins(double *&bins){
+	bins = IntegerBins(48);
+	return 48;
+}
+
+inline std::vector<float> *getLayersBins(){
+
+	std::vector<float> *layers = new std::vector<float>();
+	for(int i =0 ; i < 8; i++ ) layers->push_back(float(i));
+	return layers;
+
+}
+
+inline void RecursiveFit(TH1 *swap, TF1 *f1, int parameter){		
+		double oldrms = 1;
+		double newrms = 0;
+		double mean = 0;
+		int nfits = 0;	
+		const char* f1name = f1->GetName();
+		swap->Fit(f1name,"RQ0");
+		while(fabs(newrms - oldrms) > oldrms*0.01 ){
+			if( nfits++ > 100 ) break;
+			oldrms = f1->GetParameter(parameter);
+			mean = f1->GetParameter(1);
+			f1->SetRange(mean-1.5*oldrms,mean+1.5*oldrms);
+			swap->Fit("f1","RQ0");
+			newrms = f1->GetParameter(parameter);
+			//std::cout << oldrms << " " << newrms << std::endl;
+		}		
+}

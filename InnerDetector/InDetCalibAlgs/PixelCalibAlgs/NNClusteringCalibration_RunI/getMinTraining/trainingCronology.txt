@@ -1,0 +1,187 @@
+-------------SETTINGS----------------
+Epochs: -1
+Updates Per Epoch: 6126
+Updating Procedure: 0
+Error Measure: 0
+Patterns Per Update: 10
+Learning Rate: 0.2
+Momentum: 0.05
+Initial Weights Width: 1
+Learning Rate Decrease: 0.98
+Activation Function: 1
+-------------LAYOUT------------------
+Input variables: 66
+Output variables: 60
+Hidden layers: 2
+Layout : 66-10-7-60
+--------------HISTORY-----------------
+History of iterations: 
+Epoch: [1] Error: 0 Test: 0.175987
+Epoch: [10] Error: 0.0230285 Test: 0.0230205
+Epoch: [20] Error: 0.022996 Test: 0.0229926
+Epoch: [30] Error: 0.0229826 Test: 0.0229794
+Epoch: [40] Error: 0.0229741 Test: 0.0229756
+Epoch: [50] Error: 0.0229635 Test: 0.0229682
+Epoch: [60] Error: 0.0229519 Test: 0.0229569
+Epoch: [70] Error: 0.0229431 Test: 0.0229515
+Epoch: [80] Error: 0.0229331 Test: 0.0229429
+Epoch: [90] Error: 0.0229275 Test: 0.0229391
+Epoch: [100] Error: 0.0229226 Test: 0.0229357
+Epoch: [110] Error: 0.0229202 Test: 0.0229345
+Epoch: [120] Error: 0.0229184 Test: 0.022933
+Epoch: [130] Error: 0.0229166 Test: 0.0229316
+Epoch: [140] Error: 0.022915 Test: 0.0229304
+Epoch: [150] Error: 0.0229134 Test: 0.0229297
+Epoch: [160] Error: 0.0229122 Test: 0.0229289
+Epoch: [170] Error: 0.022911 Test: 0.0229278
+Epoch: [180] Error: 0.0229088 Test: 0.0229252
+Epoch: [190] Error: 0.0229054 Test: 0.022923
+Epoch: [200] Error: 0.022903 Test: 0.0229215
+Epoch: [210] Error: 0.0229003 Test: 0.0229201
+Epoch: [220] Error: 0.0228989 Test: 0.0229198
+Epoch: [230] Error: 0.0228968 Test: 0.022919
+Epoch: [240] Error: 0.0228942 Test: 0.0229176
+Epoch: [250] Error: 0.0228927 Test: 0.0229165
+Epoch: [260] Error: 0.0228904 Test: 0.0229149
+Epoch: [270] Error: 0.0228895 Test: 0.0229133
+Epoch: [280] Error: 0.0228872 Test: 0.0229119
+Epoch: [290] Error: 0.0228849 Test: 0.0229099
+Epoch: [300] Error: 0.0228831 Test: 0.0229079
+Epoch: [310] Error: 0.0228814 Test: 0.0229058
+Epoch: [320] Error: 0.0228797 Test: 0.0229039
+Epoch: [330] Error: 0.0228787 Test: 0.0229025
+Epoch: [340] Error: 0.0228774 Test: 0.0229011
+Epoch: [350] Error: 0.022876 Test: 0.0228995
+Epoch: [360] Error: 0.0228747 Test: 0.022898
+Epoch: [370] Error: 0.0228737 Test: 0.0228966
+Epoch: [380] Error: 0.0228726 Test: 0.0228956
+Epoch: [390] Error: 0.0228716 Test: 0.0228943
+Epoch: [400] Error: 0.0228707 Test: 0.0228935
+Epoch: [410] Error: 0.0228698 Test: 0.0228925
+Epoch: [420] Error: 0.0228688 Test: 0.0228914
+Epoch: [430] Error: 0.0228679 Test: 0.0228906
+Epoch: [440] Error: 0.022867 Test: 0.0228897
+Epoch: [450] Error: 0.0228663 Test: 0.0228892
+Epoch: [460] Error: 0.0228658 Test: 0.0228889
+Epoch: [470] Error: 0.022865 Test: 0.0228883
+Epoch: [480] Error: 0.0228645 Test: 0.0228879
+Epoch: [490] Error: 0.0228638 Test: 0.0228874
+Epoch: [500] Error: 0.0228631 Test: 0.0228868
+Epoch: [510] Error: 0.0228626 Test: 0.0228863
+Epoch: [520] Error: 0.0228619 Test: 0.0228856
+Epoch: [530] Error: 0.0228614 Test: 0.0228854
+Epoch: [540] Error: 0.0228606 Test: 0.0228858
+Epoch: [550] Error: 0.0228599 Test: 0.0228858
+Epoch: [560] Error: 0.0228595 Test: 0.0228853
+Epoch: [570] Error: 0.0228591 Test: 0.022885
+Epoch: [580] Error: 0.0228585 Test: 0.0228846
+Epoch: [590] Error: 0.0228582 Test: 0.0228844
+Epoch: [600] Error: 0.0228578 Test: 0.022884
+Epoch: [610] Error: 0.0228575 Test: 0.0228838
+Epoch: [620] Error: 0.0228571 Test: 0.0228835
+Epoch: [630] Error: 0.0228569 Test: 0.0228833
+Epoch: [640] Error: 0.0228566 Test: 0.022883
+Epoch: [650] Error: 0.0228562 Test: 0.0228827
+Epoch: [660] Error: 0.0228559 Test: 0.0228825
+Epoch: [670] Error: 0.0228556 Test: 0.0228823
+Epoch: [680] Error: 0.0228552 Test: 0.0228819
+Epoch: [690] Error: 0.0228547 Test: 0.0228816
+Epoch: [700] Error: 0.0228545 Test: 0.0228814
+Epoch: [710] Error: 0.0228542 Test: 0.0228811
+Epoch: [720] Error: 0.022854 Test: 0.0228807
+Epoch: [730] Error: 0.0228535 Test: 0.0228805
+Epoch: [740] Error: 0.0228533 Test: 0.0228804
+Epoch: [750] Error: 0.0228532 Test: 0.0228803
+Epoch: [760] Error: 0.0228531 Test: 0.0228802
+Epoch: [770] Error: 0.0228528 Test: 0.02288
+Epoch: [780] Error: 0.0228527 Test: 0.0228799
+Epoch: [790] Error: 0.0228524 Test: 0.0228796
+Epoch: [800] Error: 0.0228523 Test: 0.0228795
+Epoch: [810] Error: 0.0228521 Test: 0.0228794
+Epoch: [820] Error: 0.0228519 Test: 0.0228793
+Epoch: [830] Error: 0.0228516 Test: 0.0228792
+Epoch: [840] Error: 0.0228514 Test: 0.022879
+Epoch: [850] Error: 0.0228513 Test: 0.0228789
+Epoch: [860] Error: 0.0228512 Test: 0.0228789
+Epoch: [870] Error: 0.022851 Test: 0.0228788
+Epoch: [880] Error: 0.0228509 Test: 0.0228787
+Epoch: [890] Error: 0.0228508 Test: 0.0228786
+Epoch: [900] Error: 0.0228506 Test: 0.0228785
+Epoch: [910] Error: 0.0228505 Test: 0.0228784
+Epoch: [920] Error: 0.0228504 Test: 0.0228783
+Epoch: [930] Error: 0.0228503 Test: 0.0228783
+Epoch: [940] Error: 0.0228501 Test: 0.0228783
+Epoch: [950] Error: 0.02285 Test: 0.0228782
+Epoch: [960] Error: 0.0228498 Test: 0.0228782
+Epoch: [970] Error: 0.0228498 Test: 0.0228781
+Epoch: [980] Error: 0.0228497 Test: 0.0228781
+Epoch: [990] Error: 0.0228496 Test: 0.0228781
+Epoch: [1000] Error: 0.0228495 Test: 0.0228781
+Epoch: [1010] Error: 0.0228494 Test: 0.022878
+Epoch: [1020] Error: 0.0228493 Test: 0.022878
+Epoch: [1030] Error: 0.0228493 Test: 0.022878
+Epoch: [1040] Error: 0.0228492 Test: 0.022878
+Epoch: [1050] Error: 0.0228491 Test: 0.0228779
+Epoch: [1060] Error: 0.022849 Test: 0.0228779
+Epoch: [1070] Error: 0.022849 Test: 0.0228779
+Epoch: [1080] Error: 0.0228489 Test: 0.0228779
+Epoch: [1090] Error: 0.0228488 Test: 0.0228779
+Epoch: [1100] Error: 0.0228488 Test: 0.0228779
+Epoch: [1110] Error: 0.0228487 Test: 0.0228779
+Epoch: [1120] Error: 0.0228486 Test: 0.0228778
+Epoch: [1130] Error: 0.0228486 Test: 0.0228778
+Epoch: [1140] Error: 0.0228486 Test: 0.0228778
+Epoch: [1150] Error: 0.0228485 Test: 0.0228778
+Epoch: [1160] Error: 0.0228485 Test: 0.0228778
+Epoch: [1170] Error: 0.0228484 Test: 0.0228778
+Epoch: [1180] Error: 0.0228484 Test: 0.0228778
+Epoch: [1190] Error: 0.0228484 Test: 0.0228778
+Epoch: [1200] Error: 0.0228483 Test: 0.0228777
+Epoch: [1210] Error: 0.0228482 Test: 0.0228777
+Epoch: [1220] Error: 0.0228482 Test: 0.0228777
+Epoch: [1230] Error: 0.0228481 Test: 0.0228777
+Epoch: [1240] Error: 0.0228481 Test: 0.0228777
+Epoch: [1250] Error: 0.0228481 Test: 0.0228777
+Epoch: [1260] Error: 0.022848 Test: 0.0228777
+Epoch: [1270] Error: 0.022848 Test: 0.0228777
+Epoch: [1280] Error: 0.022848 Test: 0.0228777
+Epoch: [1290] Error: 0.022848 Test: 0.0228777
+Epoch: [1300] Error: 0.022848 Test: 0.0228777
+Epoch: [1310] Error: 0.0228479 Test: 0.0228777
+Epoch: [1320] Error: 0.0228479 Test: 0.0228776
+Epoch: [1330] Error: 0.0228479 Test: 0.0228776
+Epoch: [1340] Error: 0.0228478 Test: 0.0228776
+Epoch: [1350] Error: 0.0228478 Test: 0.0228776
+Epoch: [1360] Error: 0.0228478 Test: 0.0228776
+Epoch: [1370] Error: 0.0228478 Test: 0.0228776
+Epoch: [1380] Error: 0.0228478 Test: 0.0228776
+Epoch: [1390] Error: 0.0228478 Test: 0.0228776
+Epoch: [1400] Error: 0.0228478 Test: 0.0228776
+Epoch: [1410] Error: 0.0228478 Test: 0.0228776
+Epoch: [1420] Error: 0.0228478 Test: 0.0228776
+Epoch: [1430] Error: 0.0228478 Test: 0.0228776
+Epoch: [1440] Error: 0.0228477 Test: 0.0228776
+Epoch: [1450] Error: 0.0228477 Test: 0.0228776
+Epoch: [1460] Error: 0.0228477 Test: 0.0228776
+Epoch: [1470] Error: 0.0228477 Test: 0.0228776
+Epoch: [1480] Error: 0.0228477 Test: 0.0228776
+Epoch: [1490] Error: 0.0228477 Test: 0.0228776
+Epoch: [1500] Error: 0.0228477 Test: 0.0228776
+Epoch: [1510] Error: 0.0228477 Test: 0.0228776
+Epoch: [1520] Error: 0.0228477 Test: 0.0228776
+Epoch: [1530] Error: 0.0228477 Test: 0.0228777
+Epoch: [1540] Error: 0.0228477 Test: 0.0228777
+Epoch: [1550] Error: 0.0228477 Test: 0.0228777
+Epoch: [1560] Error: 0.0228477 Test: 0.0228777
+Epoch: [1570] Error: 0.0228477 Test: 0.0228777
+Epoch: [1580] Error: 0.0228477 Test: 0.0228777
+Epoch: [1590] Error: 0.0228477 Test: 0.0228777
+Epoch: [1600] Error: 0.0228477 Test: 0.0228777
+Epoch: [1610] Error: 0.0228477 Test: 0.0228777
+Epoch: [1620] Error: 0.0228477 Test: 0.0228777
+Epoch: [1630] Error: 0.0228477 Test: 0.0228777
+Epoch: [1640] Error: 0.0228477 Test: 0.0228778
+Epoch: [1650] Error: 0.0228477 Test: 0.0228778
+ End of training. Minimum already on epoch: 1350
+ Now getting histograms from trainingResult
+Minimum stored from Epoch: 1350

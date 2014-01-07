@@ -1,0 +1,14 @@
+./runDir.sh $(pwd)/noTrack_200_1 false 200 0.3 0.99 0.1 1 5
+./runDir.sh $(pwd)/noTrack_200_2 false 200 0.3 0.99 0.1 2 6
+./runDir.sh $(pwd)/noTrack_200_3 false 200 0.3 0.99 0.1 3 7
+./runDir.sh $(pwd)/track_200_1 true 200 0.3 0.99 0.1 1 8
+./runDir.sh $(pwd)/track_200_2 true 200 0.3 0.99 0.1 2 9
+./runDir.sh $(pwd)/track_200_3 true 200 0.3 0.99 0.1 3 10
+./runDir.sh $(pwd)/noTrack_20_1 false 20 0.03 0.95 0.03 1 11
+./runDir.sh $(pwd)/noTrack_20_2 false 20 0.03 0.95 0.03 2 12
+./runDir.sh $(pwd)/noTrack_20_3 false 20 0.03 0.95 0.03 3 13
+./runDir.sh $(pwd)/track_20_1 true 20 0.03 0.95 0.03 1 14
+./runDir.sh $(pwd)/track_20_2 true 20 0.03 0.95 0.03 2 15
+./runDir.sh $(pwd)/track_20_3 true 20 0.03 0.95 0.03 3 16
+./runDir.sh $(pwd)/noTrack_20_3_slow false 20 0.03 0.99 0.03 3 17
+./runDir.sh $(pwd)/track_20_3_slow true 20 0.03 0.99 0.03 3 18

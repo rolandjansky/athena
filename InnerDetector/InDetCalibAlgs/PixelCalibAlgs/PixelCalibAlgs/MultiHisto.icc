@@ -1,0 +1,392 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef MultiHisto_cxx
+#define MultiHisto_cxx
+
+#include "PixelCalibAlgs/MultiHisto.h"
+#include "sstream"
+#include <vector>
+#include <string>
+#include <TROOT.h>
+#include <TCanvas.h>
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   Building up &  filling & destroing the thing
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// creating the MultiHisto
+template <class ht>
+MultiHisto<ht>::MultiHisto(const ht &histo_model,const std::vector<std::string> &nameDiv,
+		const std::vector<int> &nDiv, const std::vector<double *> &binsDiv):
+	div_Nbins(nDiv), div_names(nameDiv){
+
+// this should be added!!!  if( ! histo_model->InheritsFrom(TH1F::Class()) ) return -1;
+
+		model = new ht(histo_model);
+		int nhistos = 1;
+		for(unsigned int i=0; i < div_Nbins.size(); i++){
+			nhistos*=div_Nbins[i];
+			double *tmp = new double[div_Nbins[i]+1];
+			for(int j=0; j < div_Nbins[i]+1; j++) tmp[j] = (binsDiv[i])[j];
+			div_bins.push_back(tmp);
+		}
+		std::vector<int> indexes;
+		for(int i = 0; i < nhistos; i++){
+			ht *clone = (ht *)model->Clone();
+			myhistos.push_back(clone);
+			indexes = GetDivisionsIndexes(i);
+			myhistos[i]->SetTitle( ComposeTitle(indexes).c_str() );
+			myhistos[i]->SetName( ComposeName(indexes).c_str() );
+		}
+}
+
+template <class ht>
+MultiHisto<ht>::MultiHisto(const ht &histo_model,const std::vector<std::string> &nameDiv,
+			const std::vector<std::vector <float> > &binsDiv):
+	div_names(nameDiv){
+
+		int nBinnages = div_names.size();
+		for(int i = 0; i < nBinnages ; i++)
+			div_Nbins.push_back((binsDiv[i]).size()-1);
+		
+// this should be added!!!  if( ! histo_model->InheritsFrom(TH1F::Class()) ) return -1;
+
+		model = new ht(histo_model);
+		int nhistos = 1;
+		for(unsigned int i=0; i < div_Nbins.size(); i++){
+			nhistos*=div_Nbins[i];
+			double *tmp = new double[div_Nbins[i]+1];
+			for(int j=0; j < div_Nbins[i]+1; j++) tmp[j] = (binsDiv[i])[j];
+			div_bins.push_back(tmp);
+		}
+		std::vector<int> indexes;
+		for(int i = 0; i < nhistos; i++){
+			ht *clone = (ht *)model->Clone();
+			myhistos.push_back(clone);
+			indexes = GetDivisionsIndexes(i);
+			myhistos[i]->SetTitle( ComposeTitle(indexes).c_str() );
+			myhistos[i]->SetName( ComposeName(indexes).c_str() );
+		}
+}
+
+
+// deleting the thing
+template <class ht>
+MultiHisto<ht>::~MultiHisto(){
+}
+
+//  filling the histograms
+template <class ht>
+int MultiHisto<ht>::Fill(double xvar, double yvar,const std::vector<double> &pars){
+	int index = GetGlobalIndex(pars);
+	if( index >= 0 ) myhistos[index]->Fill(xvar,yvar);
+	return index;
+}
+
+template <class ht>
+int MultiHisto<ht>::Fill(double xvar, double yvar,const std::vector<float> &pars){
+	int index = GetGlobalIndex(pars);
+	if( index >= 0 ) myhistos[index]->Fill(xvar,yvar);
+	return index;
+}
+
+//  reading the histograms from a file
+template <class ht>
+int MultiHisto<ht>::FillFromFile(TDirectory *histodir){
+	
+	int nhistos = myhistos.size();
+	int readhistos = 0;
+	TDirectory *olddir = gDirectory;
+	if(histodir) histodir->cd();
+	for(int i=0; i < nhistos; i++){
+		std::vector <int> indexes = GetDivisionsIndexes(i);
+		std::string name = ComposeName(indexes);
+		if( ( myhistos[i] = (ht *) gDirectory->Get(name.c_str()) ) ){
+			myhistos[i]->SetDirectory(gROOT);
+			readhistos++;
+		}
+	}
+	olddir->cd();
+	return readhistos;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   Writing the histos
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// without counting bins
+template <class ht>
+int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize){
+		
+	int nhistos = myhistos.size();
+	int writtenhistos = -1;
+	TDirectory *olddir = gDirectory;
+	if(name == 0) name = model->GetName();
+	TDirectory *histodir = gDirectory->mkdir(name);
+	if(histodir){
+		histodir->cd();
+		writtenhistos++;
+		for(int i=0; i < nhistos; i++)
+			if(myhistos[i]->Write(0,option,bufsize)) writtenhistos++;
+		olddir->cd();
+	}
+	return writtenhistos;
+}
+
+template <class ht>
+int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize) const{
+	return Write(name,option,bufsize);
+}
+
+
+// counting bins
+template <class ht>
+int MultiHisto<ht>::WriteAndCount(int *nhistos, int *nbins) const{ 
+	int nwritten = Write();
+	*nhistos += nwritten;
+	*nbins += nwritten*model->GetNbinsY()*model->GetNbinsX();
+	return nwritten;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   Drawing the histos
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+// draw without canvas and without color
+template <class ht>
+void MultiHisto<ht>::Draw(const Option_t* option){
+
+	std::vector<TCanvas *> c1;
+	Draw(1,option);
+}
+
+// draw without canvas
+template <class ht>
+void MultiHisto<ht>::Draw(const int color,const Option_t* option){
+
+	std::vector<TCanvas *> c1;
+	Draw(c1,color,option);
+}
+
+
+// draw with canvases
+template <class ht>
+void MultiHisto<ht>::Draw(std::vector <TCanvas*> &c1, const int color,const Option_t* option){
+
+
+	while(c1.size() < GetNhistos()){
+		TCanvas *c = new TCanvas();
+		c1.push_back(c);
+	}
+
+	for(unsigned int i = 0 ; i < GetNhistos() ; i++){
+		ht* swap = GetHisto(i);
+		c1[i]->SetName(swap->GetName());
+		c1[i]->Print();
+		swap->SetLineColor(color);
+		swap->Draw(option);		
+	}
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   Getting global index
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// from a detailed index set
+template <class ht>
+int MultiHisto<ht>::GetGlobalIndex(const std::vector<int> &indexes) const{
+	int globalindex = 0, factor = 1;
+	for(int i = indexes.size()-1; i >= 0; i--){
+		globalindex += (indexes[i])*factor;
+		factor *= div_Nbins[i];
+	}
+	if(globalindex >= int(myhistos.size())) globalindex = -1;
+	return globalindex;
+}
+
+// from a set of parametrs
+template <class ht>
+int MultiHisto<ht>::GetGlobalIndex(const std::vector<double> &pars) const{
+	std::vector<int> indexes = GetDivisionsIndexes(pars);
+	return GetGlobalIndex(indexes);
+}
+
+template <class ht>
+int MultiHisto<ht>::GetGlobalIndex(const std::vector<float> &pars) const{
+	std::vector<int> indexes = GetDivisionsIndexes(pars);
+	return GetGlobalIndex(indexes);
+}
+	
+////////////////////////////////////////////////////////////////////////////////
+//
+//	Getting detailed indexes
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// from a global index
+template <class ht>
+std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(int globalindex) const{
+	int curr_index = globalindex, offset =0;
+	std::vector<int> indx, indxfinal;
+	for(int iNdivs = div_Nbins.size()-1; iNdivs != 0; iNdivs--){
+		offset = curr_index%div_Nbins[iNdivs];
+		indx.push_back(offset);
+		curr_index = curr_index/div_Nbins[iNdivs];
+	}
+	indxfinal.push_back(curr_index);
+	for(int i = indx.size()-1; i >= 0; i--)	indxfinal.push_back(indx[i]);
+	return indxfinal;
+}
+
+// from a set of parameters
+template <class ht>
+std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(const std::vector<double> &pars) const{
+	std::vector<int> indexes;
+	for(unsigned int i = 0; i < div_Nbins.size(); i++)
+		for(int j = 0; j < div_Nbins[i]; j++)
+			if(pars[i] >= (div_bins[i])[j]
+					&& pars[i] < (div_bins[i])[j+1]){
+				indexes.push_back(int(j));
+				break;
+			}
+	unsigned int size = indexes.size();
+	if(size < div_Nbins.size()){
+		for(unsigned int i = 0; i < size; i++) indexes.pop_back();
+		indexes.push_back(-1);
+	}
+	return indexes;
+}
+
+template <class ht>
+std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(const std::vector<float> &pars) const{
+
+	std::vector<int> indexes;
+	for(unsigned int i = 0; i < div_Nbins.size(); i++)
+		for(int j = 0; j < div_Nbins[i]; j++)
+			if(pars[i] >= (div_bins[i])[j]
+					&& pars[i] < (div_bins[i])[j+1]){
+				indexes.push_back(int(j));
+				break;
+			}
+	unsigned int size = indexes.size();
+	if(size < div_Nbins.size()){
+		for(unsigned int i = 0; i < size; i++) indexes.pop_back();
+		indexes.push_back(-1);
+	}
+	return indexes;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   Composing titles and names
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template <class ht>
+std::string  MultiHisto<ht>::NameString(int idiv, int index){
+	std::ostringstream basename;
+	std::string name = div_names[idiv];
+	size_t found = name.find("#");
+	if(found != std::string::npos) name = name.substr(found+1);
+	found = name.find(" ");
+	if(found != std::string::npos) name = name.substr(0,found);
+	basename << name << (div_bins[idiv])[index] << "-" <<
+		(div_bins[idiv])[index+1];
+	return basename.str();
+}
+
+
+
+template <class ht>
+std::string  MultiHisto<ht>::ComposeName(const std::vector<int> &indexes){
+	std::string name = std::string(model->GetName());
+	for(unsigned int i = 0; i < div_Nbins.size(); i++)
+		if(indexes[i] >= 0 && indexes[i] < div_Nbins[i]) 
+			name += "_" + NameString(i,indexes[i]);
+	return name;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+		
+template <class ht>
+std::string  MultiHisto<ht>::TitleString(int idiv, int index){
+	std::ostringstream basename;
+	std::string div_name = div_names[idiv];
+	double low = (div_bins[idiv])[index];
+	double high = (div_bins[idiv])[index+1];
+	if( (high - low) == 1 && div_name.find("ayer") != std::string::npos)
+		basename << div_name << " " <<ceil( low );
+	else if( (high - low) == 1 &&
+			div_name.find("uster") != std::string::npos &&
+			div_name.find("ize") != std::string::npos)
+		basename << div_name <<  " = " << ceil( low );
+	else
+		basename <<  low << " #leq " << div_name << " < " << high;
+	return basename.str();
+}
+
+
+template <class ht>
+std::string  MultiHisto<ht>::ComposeTitle(const std::vector<int> &indexes){
+	std::string title = std::string(model->GetTitle());
+	for(unsigned int i = 0; i < div_Nbins.size(); i++) 
+		if(indexes[i] >= 0 && indexes[i] < div_Nbins[i]) 
+			title += " - " + TitleString(i,indexes[i]);
+	return title;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//   Accessing Data
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template <class ht>
+const char * MultiHisto<ht>::GetName() const{
+	return model->GetName();		
+}
+
+template <class ht>
+const char * MultiHisto<ht>::GetTitle() const{
+	return model->GetTitle();		
+}
+
+
+template <class ht>
+unsigned int MultiHisto<ht>::GetNhistos() const{
+	return myhistos.size();	
+}
+
+
+template <class ht>
+ht* MultiHisto<ht>::GetHisto(const std::vector<int> &indexes){
+	int i = GetGlobalIndex(indexes);
+	return GetHisto(i);	
+}
+
+template <class ht>
+ht* MultiHisto<ht>::GetHisto(int i){
+	ht *current = NULL;
+	if(i >= 0 && i < int(myhistos.size())) current = myhistos[i];
+	return current; 
+}
+
+
+
+#endif
