@@ -1,0 +1,6 @@
+Package:      Offline/InnerDetector/InDetDetDescr/InDetServMatGeoModel
+
+Responsible:  Grant Gorfine <Grant.Gorfine@cern.ch>
+ Content:     Service materiel for the 3 subdetectors not in their
+	      mother volumes
+
