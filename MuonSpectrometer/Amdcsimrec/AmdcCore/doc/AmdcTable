@@ -1,0 +1,48 @@
+*Tests of AMDC and AGDD nodes tags against amdb_simrec files
+ Test ATLAS tag              i.e AMDB tag                              against amdb file
+ Ok   none                   AMDB-Q02-Test-Initial-07                  amdb_simrec.q.02_initial_test7
+ Ok   ATLAS-Rome-Initial-02  AMDB-Q02-Test-Initial-08                  amdb_simrec.q.02_initial_test8
+ Ok   ATLAS-Rome-Final-00    AMDB-Q02-Test-08                          amdb_simrec.q.02_test8
+ Ok   ATLAS-DC3-03           AMDB-R.01.01.Initial                      amdb_simrec.r.01.01.Initial			 
+ Ok   ????                   AMDB-R-01-01                              amdb_simrec.r.01.01				  
+ Ok   ????                   AMDB-R.01.01.Cosmics_Barrel_sector13.v01  amdb_simrec.r.01.01.Cosmics_Barrel_sector13.v01 
+ Ok   ATLAS-DC3-04           AMDB-R.01.01.Initial.Light                amdb_simrec.r.01.01.Initial.Light                      
+ Ok   ????                   AMDB-R.01.01.Initial.Light_Egg            amdb_simrec.r.01.01.Initial.Light_v02_Egg
+ Ok   ????                   AMDB-R.01.01.Initial.Light_Egg_Rndm       amdb_simrec.r.01.01.Initial.Light_v02_Egg_Rndm
+ Ok   ????                   AMDB-R.01.01.Initial.Light_MOD_07         amdb_simrec.r.01.01.Initial.Light_MOD_07
+
+*Table of correspondance
+ATLAS tag                    AMDB tag                                  AMDC AGDD  amdb file
+ATLAS-Rome-Initial-02        AMDB-Q02-Test-Initial-08                  01   01    amdb_simrec.q.02_initial_test8
+ATLAS-Rome-Initial-01        AMDB-Rome-Initial-00                      ?    ?     amdb_simrec.q.02_initial_test8_ShorterBOG
+ATLAS-Rome-Final-00          AMDB-Q02-Test-08                          02   01    amdb_simrec.q.02_test8
+ATLAS-00                     AMDB-00                                   none none  amdb_simrec.p.03
+ //                          AMDB-00                                   none none  amdb_simrec.p.03
+ //                          AMDB-00                                   none none  amdb_simrec.p.03
+ //                          AMDB-00                                   none none  amdb_simrec.p.03
+ //                          AMDB-00                                   none none  amdb_simrec.p.03
+ //                          AMDB-00                                   none none  amdb_simrec.p.03
+ //                          AMDB-00                                   none none  amdb_simrec.H8_2004_CTB.a.05
+????                         AMDB-Q02-Test-Initial-07                  00   00    amdb_simrec.q.02_initial_test7
+ATLAS-DC3-03                 AMDB-R.01.01.Initial                      03   02    amdb_simrec.r.01.01.Initial                     
+????                         AMDB-R-01-01                              04   02    amdb_simrec.r.01.01                              
+ATLAS-Commissioning-Muon-00  AMDB-R.01.01.Cosmics_Barrel_sector13.v01  05   02    amdb_simrec.r.01.01.Cosmics_Barrel_sector13.v01 
+ATLAS-DC3-04                 AMDB-R.01.01.Initial.Light                R-01 R-01                       
+????                         AMDB-R.01.01.Initial.Light_Egg            R-02 R-01                       
+????                         AMDB-R.01.01.Initial.Light_Egg_Rndm       R-03 R-01                       
+????                         AMDB-R.01.01.Initial.Light_MOD_07         R-04 R-03  amdb_simrec.r.01.01.Initial.Light_MOD_07
+
+*Behavior according to DetDescrVersion value
+ For DetDescrVersion  i.e ATLAS tag          geometry taken from
+ Rome-Initial         ATLAS-Rome-Initial-02  POOL
+ Rome-Initial-v00     ATLAS-Rome-Initial-01  ASCII amdb_simrec.q.02_initial_test8_ShorterBOG
+ Rome-Final           ATLAS-Rome-Final-00    POOL
+ DC2                  ATLAS-00               ASCII amdb_simrec.p.03
+ DC2-Final             //                    ASCII amdb_simrec.p.03
+ DC2-Initial           //                    ASCII amdb_simrec.p.03
+ DC1                   //                    ASCII amdb_simrec.p.03
+ DC1-Initial           //                    ASCII amdb_simrec.p.03
+ DC1-Final             //                    ASCII amdb_simrec.p.03
+ CTB                   //                    ASCII amdb_simrec.H8_2004_CTB.a.05
+ Other                 ??                    POOL 
+
