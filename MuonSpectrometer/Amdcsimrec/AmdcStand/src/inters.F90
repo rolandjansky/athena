@@ -1,0 +1,29 @@
+!
+ SUBROUTINE INTERS(NP,XP,YP,XA,YA,XB,YB,NDIM, NE,EE)
+ IMPLICIT NONE
+ INTEGER, INTENT(IN)  :: NP, NDIM
+ REAL(8), INTENT(IN)  :: XP(*),YP(*), XA,YA, XB,YB
+ INTEGER, INTENT(OUT) :: NE
+ REAL(8), INTENT(OUT) :: EE(*)
+ INTEGER :: I, IC, ID
+ REAL(8) :: DD, EAB, ECD
+ REAL(8), PARAMETER :: ZERO=0.D0, ZEROP=000001D0, ONE=1.D0, ONEP=1.000001D0
+!
+    NE = 0
+    DO I=1,NP
+      IC = I
+      ID = MOD(I,NP) + 1
+      DD = (YB-YA)*(XP(ID)-XP(IC)) - (XB-XA)*(YP(ID)-YP(IC))
+      IF( ABS(DD) < ZEROP ) CYCLE
+      EAB = ( (YP(IC)-YA)*(XP(ID)-XP(IC)) - (XP(IC)-XA)*(YP(ID)-YP(IC)) ) / DD
+      ECD = ( (XB-XA)*(YP(IC)-YA) - (YB-YA)*(XP(IC)-XA) ) / DD
+      IF( EAB <= ZERO .OR. EAB >= ONE .OR. ECD <= ZERO .OR. ECD >= ONEP ) CYCLE
+      NE = NE + 1
+      EE(NE) = EAB
+      IF( NE >= NDIM ) RETURN
+    ENDDO
+!
+    CALL CROIST(EE,NE)
+!
+ END SUBROUTINE INTERS
+!

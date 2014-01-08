@@ -1,0 +1,10 @@
+!
+ SUBROUTINE APPLY_SZT_TRANSFORMATION( Trans, SZTin, SZTout )
+ IMPLICIT NONE
+ REAL(8), INTENT(IN)  :: Trans(3,4), SZTin(3)
+ REAL(8), INTENT(OUT) :: SZTout(3)
+!
+    SZTout(1:3) = Trans(1:3,1)*SZTin(1) + Trans(1:3,2)*SZTin(2) + Trans(1:3,3)*SZTin(3) + Trans(1:3,4)
+!
+ END SUBROUTINE APPLY_SZT_TRANSFORMATION
+!

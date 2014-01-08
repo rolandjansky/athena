@@ -1,0 +1,472 @@
+!
+!>  Reads in description of matter for m.s.
+!
+ SUBROUTINE REAMAT(LUN,CARMAT,JVEMAT)
+ IMPLICIT NONE
+ CHARACTER(3), INTENT(IN) :: CARMAT
+ INTEGER     , INTENT(IN) :: LUN, JVEMAT
+!
+#include "AmdcStand/comamu.inc"
+!
+#include "AmdcStand/comama.inc"
+!
+ INTEGER :: L, K
+ REAL(8) :: ECELRDP_TOT
+!
+    IF(CARMAT == 'DES') THEN
+       IF( JVEMAT == 1 .OR. JVEMAT == 2 .OR. JVEMAT == 3 ) THEN
+         READ (LUN,1000) NBMAMA
+         IF( NBMAMA > MAMAMA ) THEN
+           PRINT 6900
+6900       FORMAT(' In REAMAT : Number of matter identifiers described  >  Parameter MAMAMA  =====>  STOP !!!')
+           STOP
+         ENDIF
+         READ(LUN,1200) IIMAMA(1:NBMAMA)
+         READ(LUN,1100) X0MAMA(IIMAMA(1:NBMAMA))
+         DO L=1,NBMAMA
+           IF( IIMAMA(L) < 1 .OR. IIMAMA(L) > MAMAMA ) THEN
+             PRINT 6901,IIMAMA(L)
+6901         FORMAT(' In REAMAT : Matter identifier',I5,' is out of range  =====>  STOP !!!')
+             STOP
+           ENDIF
+         ENDDO
+         IF( JVEMAT >= 2 ) THEN
+           READ(LUN,1100) EAMAMA(IIMAMA(1:NBMAMA))
+           READ(LUN,1100) EBMAMA(IIMAMA(1:NBMAMA))
+           IF( JVEMAT >= 3 ) THEN
+             READ(LUN,1100) ZZMAMA(IIMAMA(1:NBMAMA))
+           ENDIF
+         ENDIF
+       ELSE
+         PRINT 7000,JVEMAT
+7000     FORMAT(' In REAMAT : Format version',I4,' of Matter identifiers description is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'BAR') THEN
+       IF( JVEMAT.GE.1 .AND. JVEMAT.LE.3 ) THEN
+         CALL REMAMA(LUN,MATCRY)
+         READ (LUN,1100) RBAMIN,RBAMAX,ZBAMAX,RCURV
+         READ (LUN,1100) RCRYO,ECRYOB
+         READ (LUN,1200) NCURV,NCRYO
+         CALL REMAMA(LUN,MATCON)
+         READ (LUN,1100) ECOND,HCOND
+         READ (LUN,1200) NCURC
+         CALL REMAMA(LUN,MATVOU)
+         READ (LUN,1200) NVOUS
+         READ (LUN,1100) (ZVOUS(L),L=1,NVOUS)
+         READ (LUN,1100) TVOUSI,SVOUSI
+         READ (LUN,1100) DTVOUS,DZVOUS
+         READ (LUN,1100) DTTROU,S1TROU,S2TROU
+         CALL REMAMA(LUN,MATATT)
+         READ (LUN,1100) XATTI,ZATTI,DYATT,ZATTA
+         IF( JVEMAT.EQ.2 ) THEN
+           NBIEL = 1
+           READ (LUN,1100) DLBIEL,EPBIEL,RRBIEL
+           READ (LUN,1100) EXBIEL,ZBIELI,ZBIELA
+         ENDIF
+         READ (LUN,1100) XCATTI,ZCATTI
+         IF( JVEMAT.GE.3) CALL REMAMA(LUN,MATHEA)
+         READ (LUN,1100) XHEADI,XHEADA,DYHEAD
+         IF( JVEMAT.GE.3) THEN
+           CALL REMAMA(LUN,MATROD)
+           NBIEL = 1
+           READ (LUN,1100) DLBIEL,EPBIEL,RRBIEL
+           READ (LUN,1100) EXBIEL,ZBIELI,ZBIELA
+         ENDIF
+         CALL REMAMA(LUN,MATLAT)
+         READ (LUN,1200) NLATT
+         READ (LUN,1100) (ZLATT(L),L=1,NLATT)
+         READ (LUN,1100) DXLATT,DZLATT
+         READ (LUN,1100) DXCLAT,DZCLAT
+         CALL REMAMA(LUN,MATSTR)
+         READ (LUN,1100) TSTRUI,TSTRUA,DZSTRU
+         CALL REMAMA(LUN,MATANN)
+         READ (LUN,1100) RANNO,TANNO,ZANNO
+         READ (LUN,1200) NANNO
+       ELSE
+         PRINT 7001,JVEMAT
+7001     FORMAT(' In REAMAT : Format version',I4,' of Barrel matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'ENC') THEN
+       IF( JVEMAT.GE.1 .AND. JVEMAT.LE.3 ) THEN
+         CALL REMAMA(LUN,MATECR)
+         IF( JVEMAT.EQ.1 ) THEN
+           READ (LUN,1100) ZECMI,ZECMA,RECMI,ECRYOE
+         ELSEIF( JVEMAT.GE.2 ) THEN
+           READ (LUN,1100) ZECMI,ZECMA,RECMI
+           READ (LUN,1100) ECRYOE,ECRYOF,ECRYOR
+         ENDIF
+         READ (LUN,1100) TECMA1,TECMA2,SECMA1,SECMA2
+         IF( JVEMAT.EQ.1 ) THEN
+           READ (LUN,1100) TECTU,RECTU,DRECTU
+         ELSEIF( JVEMAT.GE.2 ) THEN
+           READ (LUN,1100) TECTU,RECTU,DRECTU,FECTU
+         ENDIF
+         READ (LUN,1200) NECTU
+         CALL REMAMA(LUN,MATECO)
+         READ (LUN,1100) ZECOMI,ZECOMA,TECOMI,TECOMA
+         READ (LUN,1100) EPECO,RCUECO
+         READ (LUN,1200) NCUECO
+         CALL REMAMA(LUN,MATEPL)
+         READ (LUN,1100) ZECAMI,ZECAMA,EPZECA
+         READ (LUN,1100) TECA1,TECA2,TECA3,TECA4
+         IF( JVEMAT.GE.3 ) THEN
+           CALL REMAMA(LUN,MATETU)
+           READ (LUN,1100) DZ1ETU,DY1ETU,RO1ETU,RI1ETU
+           READ (LUN,1100) DZ2ETU,DY2ETU,RR2ETU
+           READ (LUN,1100) DZ3ETU,DY3ETU
+         ENDIF
+       ELSE
+         PRINT 7002,JVEMAT
+7002     FORMAT(' In REAMAT : Format version',I4,' of End-cap matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'FEE') THEN
+       IF( JVEMAT.GE.1 .AND. JVEMAT.LE.3 ) THEN
+         CALL REMAMA(LUN,MATFEE)
+         READ (LUN,1200) NFEE
+         READ (LUN,1100) (ZFEE(L),L=1,NFEE)
+         READ (LUN,1100) EP1FEE,EP2FEE,DSSFEE,DSPFEE
+         READ (LUN,1100) DD1FEE,DD2FEE
+         READ (LUN,1100) DZ1FEE,DZ2FEE,DZ3FEE
+         READ (LUN,1100) TI1FEE,TM1FEE,TA1FEE
+         READ (LUN,1100) TI2FEE,TA2FEE,TA3FEE
+         READ (LUN,1100) DL1FEE,DL2FEE
+         READ (LUN,1100) DX1FEE,DX2FEE
+         READ (LUN,1100) DBXFEE,DBYFEE,DBEFEE
+         IF( JVEMAT.GE.2 ) READ (LUN,1100) DZ7FEE,DL7FEE,DT7FEE
+         XFEEBRI = 0.D0
+         IF( JVEMAT.GE.3 ) THEN
+           READ (LUN,1100) XFEEBRI,YFEEBRI
+           READ (LUN,1100) DX1FEEBRI,DX2FEEBRI,DX3FEEBRI,DX4FEEBRI
+           READ (LUN,1100) DY1FEEBRI,DY2FEEBRI,DY3FEEBRI,DY4FEEBRI
+           READ (LUN,1100) DZ1FEEBRI,DZ2FEEBRI
+         ENDIF
+         CALL REMAMA(LUN,MATBAR)
+         READ (LUN,1100) DZ1FEB,DZ2FEB,EP1FEB,EP2FEB
+         READ (LUN,1100) DX1FEB,DX2FEB,DX3FEB,DX4FEB
+         READ (LUN,1100) DY1FEB,DY2FEB,RTRFEB
+       ELSE
+         PRINT 7003,JVEMAT
+7003     FORMAT(' In REAMAT : Format version',I4,' of Feet matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'RAI') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATRAI)
+         READ (LUN,1100) ZRAIL
+         READ (LUN,1100) XRAIL1,YRAIL1,XRAIL2,YRAIL2
+         READ (LUN,1100) XRAIL3,YRAIL3,CHAMFR
+       ELSE
+         PRINT 7004,JVEMAT
+7004     FORMAT(' In REAMAT : Format version',I4,' of Rail matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'SER') THEN
+       PRINT 7005
+7005   FORMAT(' No SERVICE MATTER reading yet programmed in REAMAT  =====>  STOP !!!')
+       STOP
+!
+     ELSEIF(CARMAT.EQ.'SHI') THEN
+       IF( JVEMAT.GE.1 .AND. JVEMAT.LE.MSHIE ) THEN
+         IF( JVEMAT.EQ.1 ) THEN
+           NBSHIE = 2
+         ELSE
+           NBSHIE = JVEMAT
+         ENDIF
+         DO L=1,NBSHIE
+           CALL REMAMA(LUN,MATSHI(L))
+           READ (LUN,1100) ZISHIE(L),ZASHIE(L)
+           READ (LUN,1100) RIISHI(L),RAISHI(L),RIOSHI(L),RAOSHI(L)
+           IF( RAOSHI(L).LT.0.01D0 ) RAOSHI(L) = RIOSHI(L)
+           READ (LUN,1200) NCSHIE(L)
+         ENDDO
+       ELSE
+         PRINT 7006,JVEMAT
+7006     FORMAT(' In REAMAT : Format version',I4,' of Shielding matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'SOL') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATSOLE)
+         READ (LUN,1100) ZASOLE,RISOLE,RASOLE
+       ELSE
+         PRINT 7007,JVEMAT
+7007     FORMAT(' In REAMAT : Format version',I4,' of Solenoid matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'GIR') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATGIRD)
+         READ (LUN,1100) ZMAGIRD,ZMIGIRD,DZHGIRD
+         READ (LUN,1100) RAOGIRD,RIOGIRD,RAIGIRD,RIIGIRD
+         READ (LUN,1100) DS1GIRD,DS2GIRD
+       ELSE
+         PRINT 7008,JVEMAT
+7008     FORMAT(' In REAMAT : Format version',I4,' of Iron Girder matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'ECA') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATCALCR)
+         READ (LUN,1100) ZAECA1,ZAECA2,RIECA1
+         READ (LUN,1100) RAECA1,RAECA2
+         READ (LUN,1100) EPECA1,EPECA2,COECA1
+         CALL REMAMA(LUN,MATFEED)
+         READ (LUN,1200) NNFEED
+         READ (LUN,1100) RRFEED,HHFEED
+         CALL REMAMA(LUN,MATCOC)
+         READ (LUN,1100) ZACOCR,ZMCOCR,EPCOCR
+         READ (LUN,1100) RICOCR,RMCOCR,RACOCR,COCOCR
+         CALL REMAMA(LUN,MATPSBAR)
+         READ (LUN,1100) RIPSBAR,RAPSBAR,ZAPSBAR
+         CALL REMAMA(LUN,MATACORD1)
+         CALL REMAMA(LUN,MATACORD2)
+         CALL REMAMA(LUN,MATACORD3)
+         READ (LUN,1100) RIACORD,RAACORD,ZAACORD
+         READ (LUN,1100) ETACORD0,ETACORD1,ETACORD2,ETACORD3
+         READ (LUN,1100) DSAMPL11,DSAMPL12
+         READ (LUN,1100) DSAMPL21,DSAMPL22
+         READ (LUN,1100) DSAMPL31
+         CALL REMAMA(LUN,MATSURI)
+         READ (LUN,1100) HHSURI,AASURI,EESURI
+         READ (LUN,1200) NNSURI
+         READ (LUN,1100) (ZZSURI(L),L=1,NNSURI)
+         CALL REMAMA(LUN,MATECCR)
+         READ (LUN,1100) ZIECC1,ZIECC2,ZIECC3,ZAECC1
+         READ (LUN,1100) RIECC1,RIECC3,RAECC1,RAECC2
+         RIECC2 = RIECC1 * ZIECC2/ZIECC1
+         READ (LUN,1100) EPECC1,EPECC2,EPECC3
+         CALL REMAMA(LUN,MATFEEC)
+         READ (LUN,1200) NNFEEC
+         READ (LUN,1100) RRFEEC,HHFEEC
+         CALL REMAMA(LUN,MATECHAD1)
+         CALL REMAMA(LUN,MATECHAD2)
+         READ (LUN,1100) ZIECHAD1,ZMECHAD1,ZAECHAD1
+         READ (LUN,1100) ZIECHAD2,ZAECHAD2
+         READ (LUN,1100) RIECHAD,RMECHAD,RAECHAD
+         CALL REMAMA(LUN,MATECF1)
+         READ (LUN,1100) ZIECF1,ZAECF1,RIECF1
+         CALL REMAMA(LUN,MATECF2)
+         READ (LUN,1100) ZIECF2,ZAECF2,RIECF2
+         READ (LUN,1100) ZIECF3,ZAECF3,RIECF3
+         READ (LUN,1100) ZIECF4,ZAECF4,RIECF4
+         READ (LUN,1100) RAECFN
+         CALL REMAMA(LUN,MATECEL)
+         READ (LUN,1100) ECELIR,ECELOR,ECELIZ,ECELDEEP
+         READ (LUN,1100) ECELGBW
+         READ (LUN,1100) ECELOETA1,ECELOETA2,ECELOETA3
+         READ (LUN,1100) ECELOETA4,ECELOETA5,ECELOETA6
+         READ (LUN,1100) ECELIETA1,ECELIETA2
+         READ (LUN,1100) ECELRDP1,ECELRDP2
+         READ (LUN,1100) ECELRDP3,ECELRDP4,ECELRDP5
+         READ (LUN,1100) ECELRDP_TOT
+         ECELRDP1 = ECELRDP1 / ECELRDP_TOT
+         ECELRDP2 = ECELRDP2 / ECELRDP_TOT
+         ECELRDP3 = ECELRDP3 / ECELRDP_TOT
+         ECELRDP4 = ECELRDP4 / ECELRDP_TOT
+         ECELRDP5 = ECELRDP5 / ECELRDP_TOT
+         CALL REMAMA(LUN,MATECELPS)
+         READ (LUN,1100) ECELPSETA1,ECELPSETA2
+         READ (LUN,1100) ECELPSDEEP,ECELPSIZ
+         CALL REMAMA(LUN,MATECELC)
+         READ (LUN,1100) ECELCVIZ1,ECELCVIZ2
+         READ (LUN,1100) ECELCVOZ1,ECELCVOZ2,ECELCVOZ3
+         ECELCVIZ1 = ECELCVIZ1 + ECELPSIZ
+         ECELCVIZ2 = ECELCVIZ2 + ECELPSIZ
+         ECELCVOZ1 = ECELCVOZ1 + ECELPSIZ
+         ECELCVOZ2 = ECELCVOZ2 + ECELPSIZ
+         ECELCVOZ3 = ECELCVOZ3 + ECELPSIZ
+         READ (LUN,1100) ECELCVIR1,ECELCVIR2
+         READ (LUN,1100) ECELCVOR1,ECELCVOR2,ECELCVOR3
+         CALL REMAMA(LUN,MATECELPG)
+         READ (LUN,1100) ECELPG1IR,ECELPG1OR,ECELPG1DP,ECELPG1OZ
+         ECELPG1DP = ECELPG1OZ - ECELPG1DP
+         ECELPG1OZ = ECELPG1OZ + ECELPSIZ
+         READ (LUN,1100) ECELPG2IR,ECELPG2OR,ECELPG2IZ,ECELPG2OZ
+         ECELPG2IZ = ECELPG2IZ + ECELPSIZ
+         ECELPG2OZ = ECELPG2OZ + ECELPSIZ
+         READ (LUN,1100) ECELPG4DP
+       ELSE
+         PRINT 7009,JVEMAT
+7009     FORMAT(' In REAMAT : Format version',I4,' of Liq.Arg.Cal. matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'TIL') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATTIL)
+         READ (LUN,1100) ZABATIL,RIBATIL,RABATIL
+         READ (LUN,1100) DRBTIL1,DRBTIL2
+         READ (LUN,1100) ZIEXTIL,ZAEXTIL,RIEXTIL,RAEXTIL
+         READ (LUN,1100) DRETIL1,DRETIL2
+         READ (LUN,1100) DZITIL1,DZITIL2,DZITIL3
+         READ (LUN,1100) DRITIL1,DRITIL2,DRITIL3,DRITIL4
+         READ (LUN,1100) DRITIL5
+       ELSE
+         PRINT 7010,JVEMAT
+7010     FORMAT(' In REAMAT : Format version',I4,' of Tile Calo. matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'PIX') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATPIXR)
+         READ (LUN,1200) NPIXR
+         READ (LUN,1100) (ZAPIXR(L),L=1,NPIXR)
+         READ (LUN,1100) (RIPIXR(L),L=1,NPIXR)
+         READ (LUN,1100) EPPIXR
+         CALL REMAMA(LUN,MATPIXZ)
+         READ (LUN,1200) NPIXZ
+         READ (LUN,1100) (ZIPIXZ(L),L=1,NPIXZ)
+         READ (LUN,1100) (RIPIXZ(L),L=1,NPIXZ)
+         READ (LUN,1100) (RAPIXZ(L),L=1,NPIXZ)
+         READ (LUN,1100) EPPIXZ
+       ELSE
+         PRINT 7011,JVEMAT
+7011     FORMAT(' In REAMAT : Format version',I4,' of I.D.Pixels matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'SCT') THEN
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATSCTR)
+         READ (LUN,1200) NSCTR
+         READ (LUN,1100) ZASCTR,EPSCTR
+         READ (LUN,1100) (RISCTR(L),L=1,NSCTR)
+         CALL REMAMA(LUN,MATSCTYP)
+         READ (LUN,1200) NSCTYP
+         READ (LUN,1100) EPSCTYP
+         READ (LUN,1100) (RISCTYP(L),L=1,NSCTYP)
+         READ (LUN,1100) (RASCTYP(L),L=1,NSCTYP)
+         READ (LUN,1100) (DZSCTYP(L),L=1,NSCTYP)
+         CALL REMAMA(LUN,MATSCTZ)
+         READ (LUN,1200) NSCTZ
+         READ (LUN,1100) RASCTZ,EPSCTZ
+         READ (LUN,1100) (ZISCTZ(L),L=1,NSCTZ)
+         READ (LUN,1100) (RISCTZ(L),L=1,NSCTZ)
+         READ (LUN,1200) (IISCTZ(L),L=1,NSCTZ)
+       ELSE
+         PRINT 7012,JVEMAT
+7012     FORMAT(' In REAMAT : Format version',I4,' of I.D.SCTs matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'TRT') THEN
+       JVETRT = JVEMAT
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATTRTR)
+         READ (LUN,1100) ZITRTR,ZATRTR
+         READ (LUN,1100) RITRTR,RMTRTR,RATRTR
+         RNTRTR  = 0.d0
+         READ (LUN,1100) DZTRTZ1
+         CALL REMAMA(LUN,MATTRTZ1)
+         READ (LUN,1200) NTRTZ1
+         READ (LUN,1100) RITRTZ1,RATRTZ1
+         READ (LUN,1100) (ZITRTZ1(L),L=1,NTRTZ1)
+         CALL REMAMA(LUN,MATTRTZ2)
+         READ (LUN,1200) NTRTZ2
+         READ (LUN,1100) RITRTZ2,RATRTZ2
+         READ (LUN,1100) (ZITRTZ2(L),L=1,NTRTZ2)
+         CALL REMAMA(LUN,MATTRTZ3)
+         READ (LUN,1200) NTRTZ3
+         READ (LUN,1100) RITRTZ3,RATRTZ3
+         READ (LUN,1100) (ZITRTZ3(L),L=1,NTRTZ3)
+         DZTRTZ2 = DZTRTZ1
+         DZTRTZ3 = DZTRTZ1
+       ELSE IF( JVEMAT == 2 ) THEN
+         CALL REMAMA(LUN,MATTRTR)
+         READ (LUN,1100) ZITRTR,ZATRTR
+         READ (LUN,1100) RITRTR,RMTRTR,RATRTR,RNTRTR 
+         CALL REMAMA(LUN,MATTRTZ1)
+         READ (LUN,1200) NTRTZ1
+         READ (LUN,1100) RITRTZ1,RATRTZ1
+         READ (LUN,1100) DZTRTZ1
+         READ (LUN,1100) (ZITRTZ1(L),L=1,NTRTZ1)
+         CALL REMAMA(LUN,MATTRTZ2)
+         READ (LUN,1200) NTRTZ2
+         READ (LUN,1100) RITRTZ2,RATRTZ2
+         READ (LUN,1100) DZTRTZ2
+         READ (LUN,1100) (ZITRTZ2(L),L=1,NTRTZ2)
+         CALL REMAMA(LUN,MATTRTZ3)
+         READ (LUN,1200) NTRTZ3
+         READ (LUN,1100) RITRTZ3,RATRTZ3
+         READ (LUN,1100) DZTRTZ3
+         READ (LUN,1100) (ZITRTZ3(L),L=1,NTRTZ3)
+       ELSE
+         PRINT 7013,JVEMAT
+7013     FORMAT(' In REAMAT : Format version',I4,' of I.D.TRTs matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+!
+     ELSEIF(CARMAT.EQ.'ALI') THEN
+       DO L=1,MALIGN
+         Name_Align(L) = 'xxx'
+         Lfi_Align(L)  = 11111111
+       ENDDO
+       IF( JVEMAT.EQ.1 ) THEN
+         CALL REMAMA(LUN,MATALI1)
+         READ (LUN,1200) Nb_Align_Tub
+         DO L=1,Nb_Align_Tub
+           READ (LUN,1100) (EndPoint_Align(K,1,L),K=1,3)
+           READ (LUN,1100) (EndPoint_Align(K,2,L),K=1,3)
+           READ (LUN,1100) Diameter_Align(L),Thicknes_Align(L)
+         ENDDO
+         CALL REMAMA(LUN,MATALI2)
+         READ (LUN,1200) Nb_Align_Bar
+         DO L=Nb_Align_Tub+1,Nb_Align_Tub+Nb_Align_Bar
+           READ (LUN,1100) (EndPoint_Align(K,1,L),K=1,3)
+           READ (LUN,1100) (EndPoint_Align(K,2,L),K=1,3)
+           READ (LUN,1100) Diameter_Align(L),Thicknes_Align(L)
+         ENDDO
+       ELSEIF( JVEMAT.EQ.2 .OR. JVEMAT.EQ.3 ) THEN
+         CALL REMAMA(LUN,MATALI1)
+         READ (LUN,1200) Nb_Align_Tub
+         DO L=1,Nb_Align_Tub
+           IF( JVEMAT.EQ.3 ) READ (LUN,1300) Name_Align(L)
+           READ (LUN,1100) (EndPoint_Align(K,1,L),K=1,3)
+           READ (LUN,1100) (EndPoint_Align(K,2,L),K=1,3)
+           READ (LUN,1100) Diameter_Align(L),Thicknes_Align(L)
+           READ (LUN,1200) Lfi_Align(L)
+         ENDDO
+         CALL REMAMA(LUN,MATALI2)
+         READ (LUN,1200) Nb_Align_Bar
+         DO L=Nb_Align_Tub+1,Nb_Align_Tub+Nb_Align_Bar
+           IF( JVEMAT.EQ.3 ) READ (LUN,1300) Name_Align(L)
+           READ (LUN,1100) (EndPoint_Align(K,1,L),K=1,3)
+           READ (LUN,1100) (EndPoint_Align(K,2,L),K=1,3)
+           READ (LUN,1100) Diameter_Align(L),Thicknes_Align(L)
+           READ (LUN,1200) Lfi_Align(L)
+         ENDDO
+         CALL REMAMA(LUN,MATALI3)
+         READ (LUN,1200) Nb_Align_Axl
+         DO L=Nb_Align_Tub+Nb_Align_Bar+1,Nb_Align_Tub+Nb_Align_Bar+Nb_Align_Axl
+           IF( JVEMAT.EQ.3 ) READ (LUN,1300) Name_Align(L)
+           READ (LUN,1100) (EndPoint_Align(K,1,L),K=1,3)
+           READ (LUN,1100) (EndPoint_Align(K,2,L),K=1,3)
+           READ (LUN,1100) Diameter_Align(L),Thicknes_Align(L)
+           READ (LUN,1200) Lfi_Align(L)
+         ENDDO
+       ELSE
+         PRINT 7014,JVEMAT
+7014     FORMAT(' In REAMAT : Format version',I4,' of I.D.TRTs matter is unknown  =====>  STOP !!!')
+         STOP
+       ENDIF
+     ENDIF
+!
+1000 FORMAT(I4,I6)
+1100 FORMAT(4F10.4)
+1200 FORMAT(4I10)
+1300 FORMAT(1X,A3)
+!
+ END SUBROUTINE REAMAT
+!
