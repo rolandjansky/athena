@@ -1,0 +1,11 @@
+!
+ SUBROUTINE DEF_CENVOL(X0,Y0,Z0)
+ USE M_MB_General_Volumes
+ IMPLICIT NONE
+!
+ REAL(8), INTENT(IN) :: X0,Y0,Z0
+!
+   CenVolu(1:3,Nvolu) = (/ X0, Y0, Z0 /)
+!
+ END SUBROUTINE DEF_CENVOL
+!

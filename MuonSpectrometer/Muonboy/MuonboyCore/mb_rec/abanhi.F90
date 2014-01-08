@@ -1,0 +1,57 @@
+!
+!> Add a new RPC/TGC hit in the xBANHI arrays
+!
+ SUBROUTINE ABANHI(Ident,ICT0,IP0,SSS,Time,JJJ,IPside,Jstrip,Jspli)
+ USE M_MB_Digis
+ USE M_MB_MuGeom
+ IMPLICIT NONE
+ INTEGER, INTENT(IN) :: Ident, ICT0, IP0, JJJ, IPside, Jstrip, Jspli
+ REAL(8), INTENT(IN) :: SSS, Time
+ INTEGER :: ISDEB, ISFIN, IS, Icode, IPsideIS, IS0, IP, ICT, JBEFOR
+!
+   ISDEB = NBANH0(ICT0,IP0) + 1
+   ISFIN = NBANH0(ICT0,IP0) + NBANHI(ICT0,IP0)
+   IS0   = NBANH0(ICT0,IP0) + NBANHI(ICT0,IP0) + 1
+   DO IS=ISDEB,ISFIN
+     Icode    = KBANHI(IS) / 10
+     IPsideIS = KBANHI(IS) - 10*Icode
+     IF( IPsideIS > IPside .OR. ( IPsideIS == IPside .AND. LBANHI(IS)/10 > Jstrip ) ) THEN
+       IS0 = IS
+       EXIT
+     ELSE IF( IPsideIS < IPside .OR. LBANHI(IS)/10 < Jstrip ) THEN
+       CYCLE
+     ELSE
+       IF( JJJ < 100000000 ) JBANHI(IS) = JBEFOR( JJJ, JBANHI(IS) )
+       RETURN
+     ENDIF
+   ENDDO
+!
+   IF( SIZE(JBANHI) < NBANHT+1 ) CALL Push_MB_Digis_NBANMA
+!
+   NBANHI(ICT0,IP0) = NBANHI(ICT0,IP0) + 1
+   DO IS=NBANHT,IS0,-1
+     SBANHI(IS+1) = SBANHI(IS)
+     TBANHI(IS+1) = TBANHI(IS)
+     IBANHI(IS+1) = IBANHI(IS)
+     JBANHI(IS+1) = JBANHI(IS)
+     KBANHI(IS+1) = KBANHI(IS)
+     LBANHI(IS+1) = LBANHI(IS)
+   ENDDO
+   SBANHI(IS0) = SSS
+   TBANHI(IS0) = Time
+   IBANHI(IS0) = Ident
+   JBANHI(IS0) = JJJ
+   IF( JJJ == 0 ) JBANHI(IS0) = 66
+   KBANHI(IS0) = ICT0*1000 + IP0*10 + IPside
+   LBANHI(IS0) = Jstrip*10 + Jspli
+!
+   DO IP=IP0+1,N6M
+     NBANH0(ICT0,IP) = NBANH0(ICT0,IP) + 1
+   ENDDO
+   DO ICT=ICT0+1,NTRITO
+     NBANH0(ICT,1:N6M) = NBANH0(ICT,1:N6M) + 1
+   ENDDO
+   NBANHT = NBANHT + 1
+!
+ END SUBROUTINE ABANHI
+!

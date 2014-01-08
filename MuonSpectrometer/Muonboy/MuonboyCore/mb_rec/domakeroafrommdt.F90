@@ -1,0 +1,14 @@
+SUBROUTINE doMakeROAFromMDT
+  USE M_MB_Control
+  USE M_MB_MuGeom
+  USE M_MB_Digis
+  IMPLICIT NONE
+  INTEGER :: ISC
+!
+  IF( UseRoaMdt ) THEN
+    DO ISC=1,NMATTR
+      IF( NCHAHI(2*ISC)+NCHAHI(2*ISC-1) < 1 ) CYCLE
+      CALL makeRoaFromMdt(ISC)
+    ENDDO
+  ENDIF
+END SUBROUTINE doMakeROAFromMDT

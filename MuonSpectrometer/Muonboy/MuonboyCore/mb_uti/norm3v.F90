@@ -1,0 +1,11 @@
+!
+ SUBROUTINE NORM3V(VV)
+ IMPLICIT NONE
+ REAL(8), INTENT(INOUT) :: VV(*)
+ REAL(8) :: AA
+!
+    AA = 1.d0 / SQRT( VV(1)**2 + VV(2)**2 + VV(3)**2 )
+    VV(1:3) = AA * VV(1:3)
+!
+ END SUBROUTINE NORM3V
+!

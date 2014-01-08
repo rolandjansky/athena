@@ -1,0 +1,32 @@
+!
+!> code NN = JTYP(8bits)/JFF(8bits)/JZZ+MZZ(8bits)/JOB(8bits)
+!
+ SUBROUTINE CDECI(JTYP,JFF,JZZ,JOB, NN)
+ IMPLICIT NONE
+#include "AmdcStand/amdcsim_param.inc"
+ INTEGER, INTENT(IN)  :: JTYP, JFF, JZZ, JOB
+ INTEGER, INTENT(OUT) :: NN
+!
+    NN = JOB
+    CALL MVBITS(JZZ+MZZ,0,8,NN, 8)
+    CALL MVBITS(JFF    ,0,8,NN,16)
+    CALL MVBITS(JTYP   ,0,8,NN,24)
+!
+ END SUBROUTINE CDECI
+!
+!
+!> decode NN = JTYP(8bits)/JFF(8bits)/JZZ+MZZ(8bits)/JOB(8bits)
+!
+ SUBROUTINE IDECI(NN, JTYP,JFF,JZZ,JOB)
+ IMPLICIT NONE
+#include "AmdcStand/amdcsim_param.inc"
+ INTEGER, INTENT(IN)  :: NN
+ INTEGER, INTENT(OUT) :: JTYP, JFF, JZZ, JOB
+!
+    JTYP = IBITS(NN,24,8)
+    JFF  = IBITS(NN,16,8)
+    JZZ  = IBITS(NN, 8,8) - MZZ
+    JOB  = IBITS(NN, 0,8)
+!
+ END SUBROUTINE IDECI
+!

@@ -1,0 +1,16 @@
+!
+!> \author M.Virchaux
+!
+ REAL(8) FUNCTION CCDRATfun(ID,ISC)
+ USE M_MB_CODRAT
+ IMPLICIT NONE
+ INTEGER, INTENT(IN) :: ID,ISC
+!
+   IF( IWcross(ISC,1)+IWcross(ISC,2) < 1 ) THEN
+     CCDRATfun = CCDRAT(ID,ISC)
+   ELSE
+     CCDRATfun = 0.D0
+   ENDIF
+!
+ END FUNCTION CCDRATfun
+!

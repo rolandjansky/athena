@@ -1,0 +1,45 @@
+!
+!> \author M.Virchaux
+!
+ SUBROUTINE PLAMATXX( F0, NN, VV )
+ USE M_MB_COMATI
+ IMPLICIT NONE
+ INTEGER :: NN
+ REAL(8) :: F0, VV(*)
+ INTEGER :: L, LX, LY, LZ
+ REAL(8) :: SINF0, COSF0
+!
+   SINF0 = SIN(F0)
+   COSF0 = COS(F0)
+!
+   NPMATI = NPMATI + 1
+   NEMAT0(NPMATI) = NEMATI + 1
+   NEMAT1(NPMATI) = NEMATI + NN
+   DO L=0,NN-1
+     LX = 1 + L*3
+     LY = 2 + L*3
+     LZ = 3 + L*3
+     NEMATI = NEMATI + 1
+     NAMATI = NAMATI + 1
+     IAMATI(NEMATI) = NAMATI
+     XYZMATI(1,NAMATI) = VV(LX)*COSF0 - VV(LY)*SINF0
+     XYZMATI(2,NAMATI) = VV(LX)*SINF0 + VV(LY)*COSF0
+     XYZMATI(3,NAMATI) = VV(LZ)
+   ENDDO
+!
+   IF( NPMATI > KPLAN ) THEN
+     PRINT 1000,'KPLAN'
+     STOP
+   ENDIF
+   IF( NEMATI > KEDGE ) THEN
+     PRINT 1000,'KEDGE'
+     STOP
+   ENDIF
+   IF( NAMATI > KADGE ) THEN
+     PRINT 1000,'KADGE'
+     STOP
+   ENDIF
+!
+1000 FORMAT(//' In PLAMATXX of MUONBOY : Parameter ',A5,' is not big enough  =====>  STOP !!!')
+ END SUBROUTINE PLAMATXX
+!

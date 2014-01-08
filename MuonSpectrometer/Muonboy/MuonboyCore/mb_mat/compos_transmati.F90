@@ -1,0 +1,50 @@
+!
+!> \author M.Virchaux
+!
+ SUBROUTINE COMPOS_TRANSMATI( IT1, IT2, ITresult )
+ USE M_MB_COMATI
+ IMPLICIT NONE
+ INTEGER, INTENT(IN)  :: IT1, IT2
+ INTEGER, INTENT(OUT) :: ITresult
+ INTEGER              :: IT0, J, I, IT
+ REAL(8), PARAMETER :: EPS=0.000001D0
+!
+   IF(  IT1 < 0 .OR. IT1 > NTMATI .OR. IT2 < 0 .OR. IT2 > NTMATI ) THEN
+     ITresult = 0
+     RETURN
+   ENDIF
+   IF( IT1 == 0 ) THEN
+     ITresult = IT2
+     RETURN
+   ENDIF
+   IF( IT2 == 0 ) THEN
+     ITresult = IT1
+     RETURN
+   ENDIF
+!
+   CALL INCR_NTMATI
+   IT0 = NTMATI
+!
+   DO J=1,4
+     DO I=1,3
+       TRANSMATI(I,J,IT0) = TRANSMATI(I,1,IT2)*TRANSMATI(1,J,IT1)  &
+                          + TRANSMATI(I,2,IT2)*TRANSMATI(2,J,IT1)  &
+                          + TRANSMATI(I,3,IT2)*TRANSMATI(3,J,IT1)
+     ENDDO
+   ENDDO
+   TRANSMATI(1:3,4,IT0) = TRANSMATI(1:3,4,IT0) + TRANSMATI(1:3,4,IT2)
+!
+   DO 10 IT=1,IT0-1
+     DO J=1,4
+       DO I=1,3
+         IF(ABS(TRANSMATI(I,J,IT0)-TRANSMATI(I,J,IT)) > EPS) GO TO 10
+       ENDDO
+     ENDDO
+     ITresult = IT
+     NTMATI   = IT0 - 1
+     RETURN
+10 CONTINUE
+   ITresult = IT0
+!
+ END SUBROUTINE COMPOS_TRANSMATI
+!

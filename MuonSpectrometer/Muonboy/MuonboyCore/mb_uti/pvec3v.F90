@@ -1,0 +1,12 @@
+!
+ PURE SUBROUTINE PVEC3V(UU,VV, WW)
+ IMPLICIT NONE
+ REAL(8), INTENT(IN)  :: UU(*), VV(*)
+ REAL(8), INTENT(OUT) :: WW(*)
+!
+    WW(1) = UU(2)*VV(3) - UU(3)*VV(2)
+    WW(2) = UU(3)*VV(1) - UU(1)*VV(3)
+    WW(3) = UU(1)*VV(2) - UU(2)*VV(1)
+!
+ END SUBROUTINE PVEC3V
+!

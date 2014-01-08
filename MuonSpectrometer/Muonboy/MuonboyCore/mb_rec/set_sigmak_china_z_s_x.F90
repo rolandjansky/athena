@@ -1,0 +1,18 @@
+!
+!> \author M.Virchaux
+!
+ SUBROUTINE Set_SIGMAK_CHINA_Z_S_X(F1,F2,F3,F4)
+ USE M_MB_Control
+ USE M_MB_PACONS
+ IMPLICIT None
+ REAL(8), INTENT(IN) :: F1, F2, F3, F4
+!
+    SIGMAK  = F1
+    SIGMAK2 = F1**2 
+    CHINAZ  = F2 * SIGMAK2
+    CHINAS  = F3 * SIGMAK2
+    CHINAX  = F4 * SIGMAK2
+    IF( UseAllSeg )  CHINAS = CHINAS / 2.d0
+!
+ END SUBROUTINE Set_SIGMAK_CHINA_Z_S_X
+! 

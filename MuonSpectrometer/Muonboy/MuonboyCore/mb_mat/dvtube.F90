@@ -1,0 +1,29 @@
+!
+ SUBROUTINE DVTUBE(F0, IXYZ, XP1,YP1,ZP1, DXP1,DYP1,DZP1,  &
+                             XC1,YC1,ZC1, DXC1,DYC1,DZC1,  &
+                             XP2,YP2,ZP2, DXP2,DYP2,DZP2,  &
+                             XC2,YC2,ZC2, DXC2,DYC2,DZC2 )
+ IMPLICIT NONE
+ INTEGER :: IXYZ
+ REAL(8) :: F0
+ REAL(8) :: XP1,YP1,ZP1, DXP1,DYP1,DZP1
+ REAL(8) :: XC1,YC1,ZC1, DXC1,DYC1,DZC1
+ REAL(8) :: XP2,YP2,ZP2, DXP2,DYP2,DZP2
+ REAL(8) :: XC2,YC2,ZC2, DXC2,DYC2,DZC2
+!
+#include "AmdcStand/coforc.inc"
+!
+    IPFORC = 1
+    ICFORC = 1
+!
+    CALL DPCMAT(F0, IXYZ, XP1,YP1,ZP1, DXP1,DYP1,DZP1,  &
+                          XC1,YC1,ZC1, DXC1,DYC1,DZC1 )
+    CALL DPCMAT(F0, IXYZ, XP2,YP2,ZP2, DXP2,DYP2,DZP2,  &
+                          XC2,YC2,ZC2, DXC2,DYC2,DZC2 )
+    CALL CLOMAT
+!
+    IPFORC = 0
+    ICFORC = 0
+!
+ END SUBROUTINE DVTUBE
+!
