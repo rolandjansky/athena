@@ -1,0 +1,31 @@
+package CavernBkgGenerator
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+author Ketevi A. Assamagan <Ketevi@bnl.gov>
+
+use AtlasPolicy      AtlasPolicy-*
+use HepPDT           *			           LCG_Interfaces
+use GeneratorModules GeneratorModules-*	   Generators
+use AthenaKernel     AthenaKernel-*        Control
+use GaudiInterface   GaudiInterface-*      External
+use AtlasCLHEP       AtlasCLHEP-*          External
+use AtlasHepMC       AtlasHepMC-*          External
+private
+
+macro useCernlibCavernBkg "" target-darwin "AtlasCERNLIB AtlasCERNLIB-* External"
+use $(useCernlibCavernBkg)
+end_private
+
+apply_pattern dual_use_library files="GenerateCavernBkg.cxx \
+				       MuonBackgroundEventParser.cxx \
+ 			 	       MuonBackgroundConverter.cxx \
+				       gbkgout.F \
+                       cavbkg.F \
+                       atlrgeom.F"
+
+apply_pattern declare_joboptions files="*.py"
+
+private
+macro as_needed_tag "notAsNeeded" target-darwin "asNeeded"
+apply_tag $(as_needed_tag)
+end_private
