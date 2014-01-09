@@ -1,0 +1,88 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef InDetBeamSpotService_BEAMCOND_H
+#define InDetBeamSpotService_BEAMCOND_H
+// BeamCondSvc.h - concrete implementation of service giving beamspot data
+// Richard Hawkings, started 16/6/05
+
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGate.h"
+
+namespace Trk {
+  class RecVertex;
+}
+
+class BeamCondSvc : public virtual IBeamCondSvc, public virtual AthService
+{
+  // template <class TYPE> class SvcFactory;
+
+public:
+  BeamCondSvc(const std::string& name, ISvcLocator* svc);
+  virtual ~BeamCondSvc();
+
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+
+  virtual const InterfaceID& type() const;
+
+  virtual const Amg::Vector3D& beamPos() const;
+  virtual float beamSigma(int i) const;
+  virtual float beamSigmaXY() const;
+  virtual float beamTilt(int i) const;
+  virtual int beamStatus() const;
+  virtual const Trk::RecVertex& beamVtx() const;
+
+  virtual bool fillRec() const;
+
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
+
+private:
+  // methods
+  void initCache(int status, float x,float y, float z, 
+		 float sx, float sy, float sz,float sxy,
+		 float tx, float ty);
+  StatusCode update( IOVSVC_CALLBACK_ARGS );
+  // services
+  ServiceHandle<StoreGateSvc> p_detstore;
+
+  // properties
+  bool par_usedb;
+  int par_status;
+  float par_posx;
+  float par_posy;
+  float par_posz;
+  float par_sigx;
+  float par_sigy;
+  float par_sigz;
+  float par_sigxy;
+  float par_tiltx;
+  float par_tilty;
+  // beamspot data cache - 3D point, error parameters (sigma and tilt) 
+  // and RecVertex information
+  int m_status;
+  Amg::Vector3D m_beampos;
+  float m_errpar[6];
+  Trk::RecVertex m_vertex;
+};
+
+// inline implementations of access functions
+
+inline const Amg::Vector3D& BeamCondSvc::beamPos() const { return m_beampos; }
+
+inline float BeamCondSvc::beamSigma(int i) const { return m_errpar[i]; }
+
+inline float BeamCondSvc::beamSigmaXY() const { return m_errpar[5]; }
+
+inline float BeamCondSvc::beamTilt(int i) const { return m_errpar[3+i]; }
+
+inline int BeamCondSvc::beamStatus() const { return m_status; }
+
+inline const Trk::RecVertex& BeamCondSvc::beamVtx() const { return m_vertex; }
+
+#endif // InDetBeamSpotService_BEAMCOND_H
+
