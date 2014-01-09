@@ -30,10 +30,10 @@ public:
   /// This method is called by GenModule.  
   /// It preloads the input data event and calls 
   /// fillEmbeddedEvent().
-  virtual StatusCode fillEvt(HepMC::GenEvent* evt); 
+  virtual StatusCode fillEvt(GenEvent* evt); 
   
   /// Actual generation happens here.
-  virtual StatusCode embeddedFillEvt(HepMC::GenEvent *evt) = 0;
+  virtual StatusCode embeddedFillEvt(GenEvent *evt) = 0;
   
 protected:
 
