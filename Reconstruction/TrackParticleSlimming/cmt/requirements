@@ -1,0 +1,25 @@
+# TrackParticleSlimming Package
+
+package TrackParticleSlimming
+author  Balint Radics <Balint.Radics@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaKernel	 AthenaKernel-*		     Control
+use TrkTrack             TrkTrack-*                  Tracking/TrkEvent
+use TrkEventPrimitives   TrkEventPrimitives-*        Tracking/TrkEvent
+use TrkParametersBase    TrkParametersBase-*         Tracking/TrkEvent
+use TrkTrackSummary      TrkTrackSummary-*           Tracking/TrkEvent
+use Particle 		 Particle-*		     Reconstruction
+
+
+library TrackParticleSlimming *.cxx
+apply_pattern installed_library
+
+# Persistancy 
+private
+
+# Uncomment for debug make
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
