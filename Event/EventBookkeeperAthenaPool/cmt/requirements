@@ -1,0 +1,23 @@
+package EventBookkeeperAthenaPool
+
+author David Cote <david.cote@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+private
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  EventBookkeeperMetaData    EventBookkeeperMetaData-*       Event
+use  EventBookkeeperTPCnv       EventBookkeeperTPCnv-*          Event
+end_private
+
+
+apply_pattern poolcnv files="-s=${EventBookkeeperMetaData_root}/EventBookkeeperMetaData \
+                                 EventBookkeeperCollection.h \
+                                 EventBookkeeper.h \
+                                 SkimDecisionCollection.h \
+                                 SkimDecision.h"
+
+
+
+
