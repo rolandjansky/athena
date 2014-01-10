@@ -1,0 +1,340 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 31.03.1999, AUTHOR: OLIVER KORTNER
+// Modified: 30.05.1999, removed dynamic memory management due to copy problems
+//           02.03.2000, t(const HepDouble & r, const HepInt & option) added.
+//           25.05.2001, correct interpolation in r(r, option) and
+//                       t(r, option).
+// 02.10.2003: DANIELA REBUZZI
+//	     02.10.2003, adapted for Athena MDT_Digitizer
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include <sstream>
+#include <fstream>
+#include <cmath>
+
+inline void Rt_relation::copy(const Rt_relation & rt) {
+
+	set_rt_format(rt.rt_format());
+	set_number_of_pairs(rt.number_of_pairs());
+
+	for (int k=0; k<nb_pairs; k++) {
+		r_drift[k] = rt.r(k);
+		t_drift[k] = rt.t(k);
+		t_err[k] = rt.error(k);
+	}
+
+	return;
+}
+
+inline double Rt_relation::r(const int & k) const {
+
+	if (k<0 || k>=nb_pairs) {
+		std::cerr << "Class Rt_relation, method r: "
+			<< "illegal (r,t) pair number!" << std::endl;
+		return 0.0;
+	}
+
+	return r_drift[k];
+}
+
+inline double Rt_relation::r(const double & t, const int & option) const {
+
+	int out_of_range=0; // out-of-range flag
+
+	if (nb_pairs == 0) {
+		std::cerr << "Class Rt_relation, method r: "
+			<< "there are no (r,t) pairs!" << std::endl;
+		return 0.0;
+	}
+
+	if (t < t_drift[0]) {
+		out_of_range = -1;
+	}
+	if (t > t_drift[nb_pairs-1]) {
+		out_of_range = 1;
+	}
+
+	if (out_of_range != 0 && option == 1) {
+		std::cerr << "Class Rt_relation, method r: "
+			<< "warning: t out of range!" << std::endl;
+	}
+
+	if (out_of_range == -1) {
+		return r_drift[0];
+	}
+
+	if (out_of_range == 1) {
+		return r_drift[nb_pairs-1];
+	}
+
+	for (int k=1; k<nb_pairs; k++) {
+		if (t>=t_drift[k-1] && t<t_drift[k]) {
+			return (r_drift[k-1]+
+				(r_drift[k]-r_drift[k-1])*(t-t_drift[k-1])/
+					(t_drift[k]-t_drift[k-1]));
+		}
+	}
+
+}
+
+inline double Rt_relation::t(const int & k) const {
+
+	if (k<0 || k>=nb_pairs) {
+		std::cerr << "Class Rt_relation, method t: "
+			<< "illegal (r,t) pair number!" << std::endl;
+		return 0.0;
+	}
+
+	return t_drift[k];
+
+}
+
+inline double Rt_relation::t(const double & r, const int & option) const {
+
+	int out_of_range=0; // out-of-range flag
+
+	if (nb_pairs == 0) {
+		std::cerr << "Class Rt_relation, method r: "
+			<< "there are no (r,t) pairs!" << std::endl;
+		return 0.0;
+	}
+
+	if (r < r_drift[0]) out_of_range = -1;
+	
+	if (r > r_drift[nb_pairs-1]) out_of_range = 1;
+	
+
+	if (out_of_range != 0 && option == 1) {
+		std::cerr << "Class Rt_relation, method r: "
+			<< "warning: t out of range!" << std::endl;
+	}
+
+	if (out_of_range == -1) return t_drift[0];
+
+	else if (out_of_range == 1) return t_drift[nb_pairs-1];
+	
+
+	for (int k=1; k<nb_pairs; k++) {
+		if (r>=r_drift[k-1] && r<r_drift[k]) {
+			return (t_drift[k-1]+
+				(t_drift[k]-t_drift[k-1])*(r-r_drift[k-1])/
+					(r_drift[k]-r_drift[k-1]));
+		}
+	}
+		
+	return 0.0;
+}
+
+
+inline double Rt_relation::error(const int & k) const {
+
+	if (k<0 || k>=nb_pairs) {
+		std::cerr << "Class Rt_relation, method error: "
+			<< "illegal (r,t) pair number!" << std::endl;
+		return 0.0;
+	}
+	if (rt_type == CALIB) {
+		return r_err[k];
+	} else {
+		return t_err[k];
+	}
+}
+
+inline double Rt_relation::error(const double & t, const int & option) const {
+
+	int out_of_range=0; // out-of-range flag
+	//double scal; // "time scaling factor"
+	double err; // error
+
+	if (nb_pairs == 0) {
+		std::cerr <<  "Class Rt_relation, method r: "
+			<< "there are no (r,t) pairs!" << std::endl;
+		return 0.0;
+	}
+
+	if (t < t_drift[0]) {
+		out_of_range = -1;
+	}
+	if (t > t_drift[nb_pairs-1]) {
+		out_of_range = 1;
+	}
+
+	if (out_of_range != 0 && option == 1) {
+		std::cerr << "Class Rt_relation, method error: "
+			<< "warning: t out of range!" << std::endl;
+	}
+
+	if (out_of_range == -1) {
+		return r_err[0];
+	}
+
+	if (out_of_range == 1) {
+		return r_err[nb_pairs-1];
+	}
+
+	for (int k=1; k<nb_pairs; k++) {
+		if (t>=t_drift[k-1] && t<t_drift[k]) {
+			err = r_err[k-1]+(r_err[k]-r_err[k-1])*(t-t_drift[k-1])
+						/(t_drift[k]-t_drift[k-1]);
+			return err;
+		}
+	}
+}
+
+
+inline double Rt_relation::t_error(const double & t,const int & option) const {
+
+	int out_of_range=0; // out-of-range flag
+	double scal; // "time scaling factor"
+	double err; // error
+
+	if (nb_pairs == 0) {
+		std::cerr << "Class Rt_relation, method r: "
+			<< "there are no (r,t) pairs!" << std::endl;
+		return 0.0;
+	}
+
+	if (t < t_drift[0]) {
+		out_of_range = -1;
+	}
+	if (t > t_drift[nb_pairs-1]) {
+		out_of_range = 1;
+	}
+	if (out_of_range != 0 && option == 1) {
+		std::cerr << "Class Rt_relation, method t_error: "
+			<< "warning: t out of range!" << std::endl;
+	}
+
+	if (out_of_range == -1) {
+		return r_err[0]*fabs((t_drift[1]-t_drift[0])/
+						(r_drift[1]-r_drift[0]));
+	}
+
+	if (out_of_range == 1) {
+		return r_err[nb_pairs-1]*
+			fabs((t_drift[nb_pairs-1]-t_drift[nb_pairs-2])/
+				(r_drift[nb_pairs-2]-r_drift[nb_pairs-1]));
+	}
+
+	for (int k=1; k<nb_pairs; k++) {
+		if (t>=t_drift[k-1] && t<t_drift[k]) {
+			scal = fabs((t_drift[k]-t_drift[k-1])/
+						(r_drift[k]-r_drift[k-1]));
+			err = r_err[k-1]+(r_err[k]-r_err[k-1])*(t-t_drift[k-1])
+						/(t_drift[k]-t_drift[k-1]);
+			return scal*err;
+		}
+	}
+}
+
+inline double Rt_relation::t_error_garfield(const double & r,
+						const int & option) const {
+
+	int out_of_range=0; // out-of-range flag
+//	double err =0.; // error
+
+	if (nb_pairs == 0) {
+		std::cerr << "Class Rt_relation, method t_error_garfield: "
+			<< "there are no (r,t) pairs!" << std::endl;
+		return 0.0;
+	}
+
+	if (r < r_drift[0]) {
+		out_of_range = -1;
+	}
+	if (r > r_drift[nb_pairs-1]) {
+		out_of_range = 1;
+	}
+
+	if (out_of_range != 0 && option == 1) {
+		std::cerr << "Class Rt_relation, method t_error_garfield: "
+			<< "warning: t out of range!" << std::endl;
+	}
+
+	if (out_of_range == -1) {
+		return t_err[0];
+	}
+
+	if (out_of_range == 1) {
+		return t_err[nb_pairs-1];
+	}
+
+	for (int k=1; k<nb_pairs; k++) {
+		if (r>=r_drift[k-1] && r<r_drift[k]) {
+			return (t_err[k-1]+(t_err[k]-t_err[k-1])*(r-r_drift[k-1])/(r_drift[k]-r_drift[k-1]));
+		}
+	}
+	return 0.0;
+}
+
+inline void Rt_relation::set_number_of_pairs(const int & n_pairs) {
+
+// ADS modified
+	if (n_pairs>600) {
+		std::cerr << "Class Rt_relation, method set_number_of_pairs: "
+			<< "too many (r,t) pairs!" << std::endl;
+		return;
+	}
+
+	nb_pairs = n_pairs;
+	return;
+}
+
+inline void Rt_relation::set_rt_format(const int & rt_format) {
+	
+	if (rt_format != GARFIELD) {
+		std::cerr << std::endl
+			<< "Class Rt_relation, method set_rt_format: "
+			<< "wrong format identifier!" << std::endl;
+		return;
+	}
+
+	rt_type = rt_format;
+	return;
+}
+
+inline void Rt_relation::set_r_t(const int & k, const double & r,
+				const double & t, const double & error) {
+
+	if (k<0 || k>=nb_pairs) {
+		std::cerr << "Class Rt_relation, method set_r_t: "
+			<< "illegal (r,t) pair number!" << std::endl;
+		return;
+	}
+
+	r_drift[k] = r;
+	t_drift[k] = t;
+	r_err[k] = error;
+
+	return;
+}
+
+inline void Rt_relation::read_rt(std::ifstream& rt_file) {
+
+  // Temporary variables so as not to taint member variables
+	int read_nb_pairs = 0, read_rt_type = 0;
+
+	rt_file >> read_rt_type >> read_nb_pairs;
+	
+	set_rt_format(read_rt_type);
+	set_number_of_pairs(read_nb_pairs);
+
+// loop over the triples (r,t,error of r) //
+	for (int k=0; k<nb_pairs; ++k) {
+		rt_file >> r_drift[k];
+// WARNING! QUICK BUG FIX //
+		rt_file >> t_drift[k];
+		if (rt_type == CALIB) {
+			rt_file >> r_err[k];
+		} else {
+			rt_file >> t_err[k];
+		}
+
+	}
+	return;
+}
+

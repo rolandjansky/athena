@@ -1,0 +1,73 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 02.03.2000, AUTHOR: OLIVER KORTNER
+// 19.06.2003: ALESSANDRO DE SALVO
+//           19.06.2003, added support for GARFIELD input format
+// 02.10.2003: DANIELA REBUZZI
+//	     02.10.2003, adapted for Athena MDT_Digitizer
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+///////////////////////////////////////////////////////////////
+// IMPLEMENTATION OF THE INLINE METHODS DEFINED IN THE CLASS //
+//                       R_to_t_converter                    //
+///////////////////////////////////////////////////////////////
+
+#include "CLHEP/Random/RandFlat.h"
+
+
+inline double R_to_t_converter::p1(const double & r) const {
+
+	const double a1=0.8480, a2=0.5879;
+	return a1*exp(-a2*r);
+
+}
+
+inline double R_to_t_converter::convert(const double & r,
+					const Rt_relation & rt) const {
+
+	double t_guess; // variable for intermediate storage of drift times
+	double t_width; // variable for intermediate storage
+	double t_min, t_max; // minimum and maximum drift times used in
+			       // random number generation
+	double t; // random variable
+	double p1r;
+	double asym, gaussian; // asymetric and Gaussian part of the
+				 // resolution function
+	int flag=0; // flag that indicates a hit
+	const double sqrt_one_over_two_pi=0.39894228;
+
+// determine t_min and t_max
+
+	t_guess = rt.t(r, 0);
+	t_width = rt.t_error_garfield(r, 0);
+	
+	t_min   = t_guess - 4.0*t_width;
+	t_max   = t_guess + 4.0*t_width;
+
+// hit-or-miss loop
+	
+	do {
+	  t = CLHEP::RandFlat::shoot(t_min, t_max); //FIXME not using a particular stream 
+	                                            //RandFlat::shoot(m_rndmEngine,t_min,t_max);
+		p1r = p1(r);
+		if (rt.rt_format() == CALIB) {
+			asym = (p1r/t_width)*exp((t_guess-t)/t_width
+						- exp((t_guess-t)/t_width));
+		} else {
+			// Only add an asym tail if calib-format //
+			asym = 0;
+		}
+
+		gaussian = (1-p1r)*sqrt_one_over_two_pi
+			*exp(-(t-t_guess)*(t-t_guess)/(2.0*t_width*t_width));
+		if ((asym+gaussian)>=CLHEP::RandFlat::shoot(0.0, 1.0)) { //FIXME not using a particular stream
+			flag = 1;
+		}
+	} while(flag == 0);
+
+	return t;
+
+}
