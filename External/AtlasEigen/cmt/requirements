@@ -1,0 +1,15 @@
+package AtlasEigen
+
+use AtlasPolicy         AtlasPolicy-*
+use PyCmt               PyCmt-*         Tools -no_auto_imports
+
+include_path none
+apply_pattern include_path extras=$(CMTINSTALLAREA)/$(CMTCONFIG)/include
+
+private
+
+apply_pattern make_pkgbuild \
+ name=eigen \
+ file=pkgbuild_eigen.py
+
+end_private
