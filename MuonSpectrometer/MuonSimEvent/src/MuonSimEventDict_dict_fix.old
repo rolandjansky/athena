@@ -1,0 +1,939 @@
+// Generated at Mon Aug 15 18:21:39 2005. Do not modify it
+
+#ifdef _WIN32
+#pragma warning ( disable : 4786 )
+#ifndef LCGDICT_STRING 
+#include <string> // Included here since it is sensitive to private->public trick
+#endif
+#endif
+#define private public
+#define protected public
+#include "../MuonSimEvent/MuonSimEventDict.h"
+#undef private
+#undef protected
+#include "ReflectionBuilder/ReflectionBuilder.h"
+#include "ReflectionBuilder/CollectionProxy.h"
+#include <typeinfo>
+using namespace seal::reflect;
+
+//------Dictionary for class TGCSimHit -------------------------------
+class TGCSimHit_dict { 
+  public:
+  TGCSimHit_dict();
+  static void* constructor_2268( void*, const std::vector<void*>& );
+  static void* constructor_2269( void* );
+  static void  destructor( void* o ) { ((TGCSimHit*)o)->~TGCSimHit(); }
+  static void* constructor_2271( void*, const std::vector<void*>& );
+  static void* constructor_2272( void*, const std::vector<void*>& );
+  static void* method_2273( void* );
+  static void* method_2274( void* );
+  static void* method_2275( void* );
+  static void* method_2276( void* );
+  static void* method_2277( void* );
+  static void* operator_2278( void*, const std::vector<void*>& );
+  static void* method_2279( void* );
+  static void* method_2280( void* );
+  static void* method_2281( void* );
+  static void* method_2282( void* );
+};
+TGCSimHit_dict::TGCSimHit_dict() {
+  ClassBuilder _c_("TGCSimHit", "", typeid(TGCSimHit), sizeof(TGCSimHit),std::vector<const std::type_info*>(), false, NOCONTAINER, 0, PUBLIC | VIRTUAL);
+  _c_.addField("m_TGCid", "int", "", (size_t)(&((TGCSimHit*)64)->m_TGCid)-64, PRIVATE );
+  _c_.addField("m_globalTime", "float", "", (size_t)(&((TGCSimHit*)64)->m_globalTime)-64, PRIVATE );
+  _c_.addField("m_localPosition", "Hep3Vector", "", (size_t)(&((TGCSimHit*)64)->m_localPosition)-64, PRIVATE );
+  _c_.addField("m_localDireCos", "Hep3Vector", "", (size_t)(&((TGCSimHit*)64)->m_localDireCos)-64, PRIVATE );
+  _c_.addField("m_partLink", "HepMcParticleLink", "", (size_t)(&((TGCSimHit*)64)->m_partLink)-64, PRIVATE );
+  _c_.addMethod("TGCSimHit", "", "TGCSimHit", "TGCSimHit&", constructor_2268, PUBLIC);
+  _c_.addMethod("TGCSimHit", "", "TGCSimHit", constructor_2269, PUBLIC);
+  _c_.addMethod("~TGCSimHit", "", destructor, PUBLIC | VIRTUAL);
+  _c_.addMethod("TGCSimHit", "", "TGCSimHit", "int; double; CLHEP::Hep3Vector&; CLHEP::Hep3Vector&", constructor_2271, PUBLIC);
+  _c_.addMethod("TGCSimHit", "", "TGCSimHit", "int; double; CLHEP::Hep3Vector&; CLHEP::Hep3Vector&; int", constructor_2272, PUBLIC);
+  _c_.addMethod("globalTime", "", "double", method_2273, PUBLIC);
+  _c_.addMethod("localPosition", "", "CLHEP::Hep3Vector&", method_2274, PUBLIC);
+  _c_.addMethod("localDireCos", "", "CLHEP::Hep3Vector&", method_2275, PUBLIC);
+  _c_.addMethod("TGCid", "", "int", method_2276, PUBLIC);
+  _c_.addMethod("print", "", "std::basic_string<char>", method_2277, PUBLIC);
+  _c_.addMethod("<", "", "bool", "TGCSimHit&", operator_2278, PUBLIC);
+  _c_.addMethod("meanTime", "", "double", method_2279, PUBLIC);
+  _c_.addMethod("trackNumber", "", "int", method_2280, PUBLIC);
+  _c_.addMethod("particleLink", "", "HepMcParticleLink&", method_2281, PUBLIC);
+  _c_.addMethod("setGlobalTime", "" , "" , "double" , method_2282, PUBLIC);
+  _c_.build();
+}
+
+//------Stub functions for class TGCSimHit -------------------------------
+void* TGCSimHit_dict::constructor_2268( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) TGCSimHit(*(const TGCSimHit*)arg[0]);
+}
+
+void* TGCSimHit_dict::constructor_2269( void* mem) {
+  return ::new(mem) TGCSimHit();
+}
+
+void* TGCSimHit_dict::constructor_2271( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) TGCSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(const CLHEP::Hep3Vector*)arg[2],
+                              *(const CLHEP::Hep3Vector*)arg[3]);
+}
+
+void* TGCSimHit_dict::constructor_2272( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) TGCSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(const CLHEP::Hep3Vector*)arg[2],
+                              *(const CLHEP::Hep3Vector*)arg[3],
+                              *(const int*)arg[4]);
+}
+
+void* TGCSimHit_dict::method_2273( void* o)
+{
+  static double ret;
+  ret = ((const TGCSimHit*)o)->globalTime();
+  return &ret;
+}
+
+void* TGCSimHit_dict::method_2274( void* o)
+{
+  return (void*)&((const TGCSimHit*)o)->localPosition();
+}
+
+void* TGCSimHit_dict::method_2275( void* o)
+{
+  return (void*)&((const TGCSimHit*)o)->localDireCos();
+}
+
+void* TGCSimHit_dict::method_2276( void* o)
+{
+  static int ret;
+  ret = ((const TGCSimHit*)o)->TGCid();
+  return &ret;
+}
+
+void* TGCSimHit_dict::method_2277( void* o)
+{
+  return new std::basic_string<char>(((const TGCSimHit*)o)->print());
+}
+
+void* TGCSimHit_dict::operator_2278( void* o, const std::vector<void*>& arg)
+{
+  static bool ret;
+  ret = ((const TGCSimHit*)o)->operator <(*(const TGCSimHit*)arg[0]);
+  return &ret;
+}
+
+void* TGCSimHit_dict::method_2279( void* o)
+{
+  static double ret;
+  ret = ((const TGCSimHit*)o)->meanTime();
+  return &ret;
+}
+
+void* TGCSimHit_dict::method_2280( void* o)
+{
+  static int ret;
+  ret = ((const TGCSimHit*)o)->trackNumber();
+  return &ret;
+}
+
+void* TGCSimHit_dict::method_2281( void* o)
+{
+  return (void*)&((const TGCSimHit*)o)->particleLink();
+}
+
+void* TGCSimHit_dict::method_2282( void* o)
+{
+  return (void*)&((const TGCSimHit*)o)->setGlobalTime(*(double*)arg[0]);
+}
+
+//------Dictionary for class RPCSimHit -------------------------------
+class RPCSimHit_dict { 
+  public:
+  RPCSimHit_dict();
+  static void* constructor_2320( void*, const std::vector<void*>& );
+  static void* constructor_2321( void* );
+  static void  destructor( void* o ) { ((RPCSimHit*)o)->~RPCSimHit(); }
+  static void* constructor_2323( void*, const std::vector<void*>& );
+  static void* constructor_2324( void*, const std::vector<void*>& );
+  static void* method_2325( void* );
+  static void* method_2326( void* );
+  static void* method_2327( void* );
+  static void* method_2328( void* );
+  static void* operator_2329( void*, const std::vector<void*>& );
+  static void* method_2330( void* );
+  static void* method_2331( void* );
+  static void* method_2332( void* );
+  static void* method_2333( void* );
+};
+RPCSimHit_dict::RPCSimHit_dict() {
+  ClassBuilder _c_("RPCSimHit", "", typeid(RPCSimHit), sizeof(RPCSimHit),std::vector<const std::type_info*>(), false, NOCONTAINER, 0, PUBLIC | VIRTUAL);
+  _c_.addField("m_RPCid", "int", "", (size_t)(&((RPCSimHit*)64)->m_RPCid)-64, PRIVATE );
+  _c_.addField("m_globalTime", "float", "", (size_t)(&((RPCSimHit*)64)->m_globalTime)-64, PRIVATE );
+  _c_.addField("m_localPosition", "Hep3Vector", "", (size_t)(&((RPCSimHit*)64)->m_localPosition)-64, PRIVATE );
+  _c_.addField("m_partLink", "HepMcParticleLink", "", (size_t)(&((RPCSimHit*)64)->m_partLink)-64, PRIVATE );
+  _c_.addMethod("RPCSimHit", "", "RPCSimHit", "RPCSimHit&", constructor_2320, PUBLIC);
+  _c_.addMethod("RPCSimHit", "", "RPCSimHit", constructor_2321, PUBLIC);
+  _c_.addMethod("~RPCSimHit", "", destructor, PUBLIC | VIRTUAL);
+  _c_.addMethod("RPCSimHit", "", "RPCSimHit", "int; double; CLHEP::Hep3Vector&", constructor_2323, PUBLIC);
+  _c_.addMethod("RPCSimHit", "", "RPCSimHit", "int; double; CLHEP::Hep3Vector&; int", constructor_2324, PUBLIC);
+  _c_.addMethod("globalTime", "", "double", method_2325, PUBLIC);
+  _c_.addMethod("localPosition", "", "CLHEP::Hep3Vector&", method_2326, PUBLIC);
+  _c_.addMethod("RPCid", "", "int", method_2327, PUBLIC);
+  _c_.addMethod("print", "", "std::basic_string<char>", method_2328, PUBLIC);
+  _c_.addMethod("<", "", "bool", "RPCSimHit&", operator_2329, PUBLIC);
+  _c_.addMethod("meanTime", "", "double", method_2330, PUBLIC);
+  _c_.addMethod("trackNumber", "", "int", method_2331, PUBLIC);
+  _c_.addMethod("particleLink", "", "HepMcParticleLink&", method_2332, PUBLIC);
+  _c_.addMethod("setGlobalTime", "" , "" , "double" , method_2333, PUBLIC);
+  _c_.build();
+}
+
+//------Stub functions for class RPCSimHit -------------------------------
+void* RPCSimHit_dict::constructor_2320( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) RPCSimHit(*(const RPCSimHit*)arg[0]);
+}
+
+void* RPCSimHit_dict::constructor_2321( void* mem) {
+  return ::new(mem) RPCSimHit();
+}
+
+void* RPCSimHit_dict::constructor_2323( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) RPCSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(const CLHEP::Hep3Vector*)arg[2]);
+}
+
+void* RPCSimHit_dict::constructor_2324( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) RPCSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(const CLHEP::Hep3Vector*)arg[2],
+                              *(const int*)arg[3]);
+}
+
+void* RPCSimHit_dict::method_2325( void* o)
+{
+  static double ret;
+  ret = ((const RPCSimHit*)o)->globalTime();
+  return &ret;
+}
+
+void* RPCSimHit_dict::method_2326( void* o)
+{
+  return (void*)&((const RPCSimHit*)o)->localPosition();
+}
+
+void* RPCSimHit_dict::method_2327( void* o)
+{
+  static int ret;
+  ret = ((const RPCSimHit*)o)->RPCid();
+  return &ret;
+}
+
+void* RPCSimHit_dict::method_2328( void* o)
+{
+  return new std::basic_string<char>(((const RPCSimHit*)o)->print());
+}
+
+void* RPCSimHit_dict::operator_2329( void* o, const std::vector<void*>& arg)
+{
+  static bool ret;
+  ret = ((const RPCSimHit*)o)->operator <(*(const RPCSimHit*)arg[0]);
+  return &ret;
+}
+
+void* RPCSimHit_dict::method_2330( void* o)
+{
+  static double ret;
+  ret = ((const RPCSimHit*)o)->meanTime();
+  return &ret;
+}
+
+void* RPCSimHit_dict::method_2331( void* o)
+{
+  static int ret;
+  ret = ((const RPCSimHit*)o)->trackNumber();
+  return &ret;
+}
+
+void* RPCSimHit_dict::method_2332( void* o)
+{
+  return (void*)&((const RPCSimHit*)o)->particleLink();
+}
+
+void* RPCSimHit_dict::method_2333( void* o)
+{
+  return (void*)&((const RPCSimHit*)o)->setGlobalTime(*(double*)arg[0]);
+}
+
+//------Dictionary for class MDTSimHit -------------------------------
+class MDTSimHit_dict { 
+  public:
+  MDTSimHit_dict();
+  static void* constructor_2372( void*, const std::vector<void*>& );
+  static void* constructor_2373( void* );
+  static void  destructor( void* o ) { ((MDTSimHit*)o)->~MDTSimHit(); }
+  static void* constructor_2375( void*, const std::vector<void*>& );
+  static void* constructor_2376( void*, const std::vector<void*>& );
+  static void* method_2377( void* );
+  static void* method_2378( void* );
+  static void* method_2379( void* );
+  static void* method_2380( void* );
+  static void* method_2381( void* );
+  static void* operator_2382( void*, const std::vector<void*>& );
+  static void* method_2383( void* );
+  static void* method_2384( void* );
+  static void* method_2385( void* );
+  static void* method_2386( void* );
+};
+MDTSimHit_dict::MDTSimHit_dict() {
+  ClassBuilder _c_("MDTSimHit", "", typeid(MDTSimHit), sizeof(MDTSimHit),std::vector<const std::type_info*>(), false, NOCONTAINER, 0, PUBLIC | VIRTUAL);
+  _c_.addField("m_MDTid", "int", "", (size_t)(&((MDTSimHit*)64)->m_MDTid)-64, PRIVATE );
+  _c_.addField("m_globalTime", "float", "", (size_t)(&((MDTSimHit*)64)->m_globalTime)-64, PRIVATE );
+  _c_.addField("m_driftRadius", "float", "", (size_t)(&((MDTSimHit*)64)->m_driftRadius)-64, PRIVATE );
+  _c_.addField("m_localPosition", "Hep3Vector", "", (size_t)(&((MDTSimHit*)64)->m_localPosition)-64, PRIVATE );
+  _c_.addField("m_partLink", "HepMcParticleLink", "", (size_t)(&((MDTSimHit*)64)->m_partLink)-64, PRIVATE );
+  _c_.addMethod("MDTSimHit", "", "MDTSimHit", "MDTSimHit&", constructor_2372, PUBLIC);
+  _c_.addMethod("MDTSimHit", "", "MDTSimHit", constructor_2373, PUBLIC);
+  _c_.addMethod("~MDTSimHit", "", destructor, PUBLIC | VIRTUAL);
+  _c_.addMethod("MDTSimHit", "", "MDTSimHit", "int; double; double; CLHEP::Hep3Vector&", constructor_2375, PUBLIC);
+  _c_.addMethod("MDTSimHit", "", "MDTSimHit", "int; double; double; CLHEP::Hep3Vector&; int", constructor_2376, PUBLIC);
+  _c_.addMethod("globalTime", "", "double", method_2377, PUBLIC);
+  _c_.addMethod("driftRadius", "", "double", method_2378, PUBLIC);
+  _c_.addMethod("localPosition", "", "CLHEP::Hep3Vector&", method_2379, PUBLIC);
+  _c_.addMethod("MDTid", "", "int", method_2380, PUBLIC);
+  _c_.addMethod("print", "", "std::basic_string<char>", method_2381, PUBLIC);
+  _c_.addMethod("<", "", "bool", "MDTSimHit&", operator_2382, PUBLIC);
+  _c_.addMethod("meanTime", "", "double", method_2383, PUBLIC);
+  _c_.addMethod("trackNumber", "", "int", method_2384, PUBLIC);
+  _c_.addMethod("particleLink", "", "HepMcParticleLink&", method_2385, PUBLIC);
+  _c_.addMethod("setGlobalTime", "" , "" , "double" , method_2386, PUBLIC);
+  _c_.build();
+}
+
+//------Stub functions for class MDTSimHit -------------------------------
+void* MDTSimHit_dict::constructor_2372( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) MDTSimHit(*(const MDTSimHit*)arg[0]);
+}
+
+void* MDTSimHit_dict::constructor_2373( void* mem) {
+  return ::new(mem) MDTSimHit();
+}
+
+void* MDTSimHit_dict::constructor_2375( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) MDTSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(double*)arg[2],
+                              *(const CLHEP::Hep3Vector*)arg[3]);
+}
+
+void* MDTSimHit_dict::constructor_2376( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) MDTSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(double*)arg[2],
+                              *(const CLHEP::Hep3Vector*)arg[3],
+                              *(const int*)arg[4]);
+}
+
+void* MDTSimHit_dict::method_2377( void* o)
+{
+  static double ret;
+  ret = ((const MDTSimHit*)o)->globalTime();
+  return &ret;
+}
+
+void* MDTSimHit_dict::method_2378( void* o)
+{
+  static double ret;
+  ret = ((const MDTSimHit*)o)->driftRadius();
+  return &ret;
+}
+
+void* MDTSimHit_dict::method_2379( void* o)
+{
+  return (void*)&((const MDTSimHit*)o)->localPosition();
+}
+
+void* MDTSimHit_dict::method_2380( void* o)
+{
+  static int ret;
+  ret = ((const MDTSimHit*)o)->MDTid();
+  return &ret;
+}
+
+void* MDTSimHit_dict::method_2381( void* o)
+{
+  return new std::basic_string<char>(((const MDTSimHit*)o)->print());
+}
+
+void* MDTSimHit_dict::operator_2382( void* o, const std::vector<void*>& arg)
+{
+  static bool ret;
+  ret = ((const MDTSimHit*)o)->operator <(*(const MDTSimHit*)arg[0]);
+  return &ret;
+}
+
+void* MDTSimHit_dict::method_2383( void* o)
+{
+  static double ret;
+  ret = ((const MDTSimHit*)o)->meanTime();
+  return &ret;
+}
+
+void* MDTSimHit_dict::method_2384( void* o)
+{
+  static int ret;
+  ret = ((const MDTSimHit*)o)->trackNumber();
+  return &ret;
+}
+
+void* MDTSimHit_dict::method_2385( void* o)
+{
+  return (void*)&((const MDTSimHit*)o)->particleLink();
+}
+
+void* MDTSimHit_dict::method_2385( void* o)
+{
+  return (void*)&((const MDTSimHit*)o)->setGlobalTime(*(double*)arg[0]);
+}
+
+//------Dictionary for class CSCSimHit -------------------------------
+class CSCSimHit_dict { 
+  public:
+  CSCSimHit_dict();
+  static void* constructor_2508( void*, const std::vector<void*>& );
+  static void* constructor_2509( void* );
+  static void  destructor( void* o ) { ((CSCSimHit*)o)->~CSCSimHit(); }
+  static void* constructor_2511( void*, const std::vector<void*>& );
+  static void* constructor_2512( void*, const std::vector<void*>& );
+  static void* method_2513( void* );
+  static void* method_2514( void* );
+  static void* method_2515( void* );
+  static void* method_2516( void* );
+  static void* method_2517( void* );
+  static void* method_2518( void* );
+  static void* method_2519( void* );
+  static void* operator_2520( void*, const std::vector<void*>& );
+  static void* method_2521( void* );
+  static void* method_2522( void* );
+  static void* method_2523( void* );
+  static void* method_2524( void* );
+};
+CSCSimHit_dict::CSCSimHit_dict() {
+  ClassBuilder _c_("CSCSimHit", "", typeid(CSCSimHit), sizeof(CSCSimHit),std::vector<const std::type_info*>(), false, NOCONTAINER, 0, PUBLIC | VIRTUAL);
+  _c_.addField("m_CSCid", "int", "", (size_t)(&((CSCSimHit*)64)->m_CSCid)-64, PRIVATE );
+  _c_.addField("m_globalTime", "float", "", (size_t)(&((CSCSimHit*)64)->m_globalTime)-64, PRIVATE );
+  _c_.addField("m_energyDeposit", "float", "", (size_t)(&((CSCSimHit*)64)->m_energyDeposit)-64, PRIVATE );
+  _c_.addField("m_hitStart", "Hep3Vector", "", (size_t)(&((CSCSimHit*)64)->m_hitStart)-64, PRIVATE );
+  _c_.addField("m_hitEnd", "Hep3Vector", "", (size_t)(&((CSCSimHit*)64)->m_hitEnd)-64, PRIVATE );
+  _c_.addField("m_particleID", "int", "", (size_t)(&((CSCSimHit*)64)->m_particleID)-64, PRIVATE );
+  _c_.addField("m_partLink", "HepMcParticleLink", "", (size_t)(&((CSCSimHit*)64)->m_partLink)-64, PRIVATE );
+  _c_.addMethod("CSCSimHit", "", "CSCSimHit", "CSCSimHit&", constructor_2508, PUBLIC);
+  _c_.addMethod("CSCSimHit", "", "CSCSimHit", constructor_2509, PUBLIC);
+  _c_.addMethod("~CSCSimHit", "", destructor, PUBLIC | VIRTUAL);
+  _c_.addMethod("CSCSimHit", "", "CSCSimHit", "int; double; double; CLHEP::Hep3Vector&; CLHEP::Hep3Vector&; int", constructor_2511, PUBLIC);
+  _c_.addMethod("CSCSimHit", "", "CSCSimHit", "int; double; double; CLHEP::Hep3Vector&; CLHEP::Hep3Vector&; int; int", constructor_2512, PUBLIC);
+  _c_.addMethod("globalTime", "", "double", method_2513, PUBLIC);
+  _c_.addMethod("energyDeposit", "", "double", method_2514, PUBLIC);
+  _c_.addMethod("getHitStart", "", "CLHEP::Hep3Vector&", method_2515, PUBLIC);
+  _c_.addMethod("getHitEnd", "", "CLHEP::Hep3Vector&", method_2516, PUBLIC);
+  _c_.addMethod("particleID", "", "int", method_2517, PUBLIC);
+  _c_.addMethod("CSCid", "", "int", method_2518, PUBLIC);
+  _c_.addMethod("print", "", "std::basic_string<char>", method_2519, PUBLIC);
+  _c_.addMethod("<", "", "bool", "CSCSimHit&", operator_2520, PUBLIC);
+  _c_.addMethod("meanTime", "", "double", method_2521, PUBLIC);
+  _c_.addMethod("trackNumber", "", "int", method_2522, PUBLIC);
+  _c_.addMethod("particleLink", "", "HepMcParticleLink&", method_2523, PUBLIC);
+  _c_.addMethod("setGlobalTime", "" , "" , "double" , method_2524, PUBLIC);
+  _c_.build();
+}
+
+//------Stub functions for class CSCSimHit -------------------------------
+void* CSCSimHit_dict::constructor_2508( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) CSCSimHit(*(const CSCSimHit*)arg[0]);
+}
+
+void* CSCSimHit_dict::constructor_2509( void* mem) {
+  return ::new(mem) CSCSimHit();
+}
+
+void* CSCSimHit_dict::constructor_2511( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) CSCSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(double*)arg[2],
+                              *(const CLHEP::Hep3Vector*)arg[3],
+                              *(const CLHEP::Hep3Vector*)arg[4],
+                              *(int*)arg[5]);
+}
+
+void* CSCSimHit_dict::constructor_2512( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) CSCSimHit(*(int*)arg[0],
+                              *(double*)arg[1],
+                              *(double*)arg[2],
+                              *(const CLHEP::Hep3Vector*)arg[3],
+                              *(const CLHEP::Hep3Vector*)arg[4],
+                              *(int*)arg[5],
+                              *(const int*)arg[6]);
+}
+
+void* CSCSimHit_dict::method_2513( void* o)
+{
+  static double ret;
+  ret = ((const CSCSimHit*)o)->globalTime();
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2514( void* o)
+{
+  static double ret;
+  ret = ((const CSCSimHit*)o)->energyDeposit();
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2515( void* o)
+{
+  return (void*)&((const CSCSimHit*)o)->getHitStart();
+}
+
+void* CSCSimHit_dict::method_2516( void* o)
+{
+  return (void*)&((const CSCSimHit*)o)->getHitEnd();
+}
+
+void* CSCSimHit_dict::method_2517( void* o)
+{
+  static int ret;
+  ret = ((const CSCSimHit*)o)->particleID();
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2518( void* o)
+{
+  static int ret;
+  ret = ((const CSCSimHit*)o)->CSCid();
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2519( void* o)
+{
+  return new std::basic_string<char>(((const CSCSimHit*)o)->print());
+}
+
+void* CSCSimHit_dict::operator_2520( void* o, const std::vector<void*>& arg)
+{
+  static bool ret;
+  ret = ((const CSCSimHit*)o)->operator <(*(const CSCSimHit*)arg[0]);
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2521( void* o)
+{
+  static double ret;
+  ret = ((const CSCSimHit*)o)->meanTime();
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2522( void* o)
+{
+  static int ret;
+  ret = ((const CSCSimHit*)o)->trackNumber();
+  return &ret;
+}
+
+void* CSCSimHit_dict::method_2523( void* o)
+{
+  return (void*)&((const CSCSimHit*)o)->particleLink();
+}
+
+void* CSCSimHit_dict::method_2524( void* o)
+{
+  return (void*)&((const CSCSimHit*)o)->setGlobalTime(*(double*)arg[0]);
+}
+
+//------Dictionary for class vector<RPCSimHit*,std::allocator<RPCSimHit*> > -------------------------------
+class std__vector_RPCSimHitp__dict { 
+  public:
+  std__vector_RPCSimHitp__dict();
+  static int tobase_4657(void*);
+  static void* method_4674( void* );
+  static void* method_4677( void* );
+  static void* method_4678( void* );
+  static void* method_4679( void* );
+  static void* method_4680( void* );
+  static void* method_4685( void* );
+  static void* method_4686( void* );
+  static void* method_4687( void* );
+  static void* method_4688( void* );
+  static void* operator_4689( void*, const std::vector<void*>& );
+  static void* operator_4690( void*, const std::vector<void*>& );
+  static void  method_4691( void*, const std::vector<void*>& );
+  static void* method_4692( void*, const std::vector<void*>& );
+  static void* method_4693( void*, const std::vector<void*>& );
+  static void* constructor_4694( void*, const std::vector<void*>& );
+  static void* constructor_4695( void*, const std::vector<void*>& );
+  static void* constructor_4696( void*, const std::vector<void*>& );
+  static void* constructor_4697( void*, const std::vector<void*>& );
+  static void  destructor( void* o ) { ((std::vector<RPCSimHit*>*)o)->~vector(); }
+  static void* operator_4699( void*, const std::vector<void*>& );
+  static void  method_4700( void*, const std::vector<void*>& );
+  static void  method_4701( void*, const std::vector<void*>& );
+  static void  method_4702( void*, const std::vector<void*>& );
+  static void* method_4703( void* );
+  static void* method_4704( void* );
+  static void* method_4705( void* );
+  static void* method_4706( void* );
+  static void  method_4707( void*, const std::vector<void*>& );
+  static void  method_4708( void*, const std::vector<void*>& );
+  static void* method_4709( void*, const std::vector<void*>& );
+//  static void* method_4710( void*, const std::vector<void*>& );
+  static void  method_4711( void*, const std::vector<void*>& );
+  static void  method_4712( void*, const std::vector<void*>& );
+  static void  method_4713( void* );
+  static void* method_4714( void*, const std::vector<void*>& );
+  static void* method_4715( void*, const std::vector<void*>& );
+  static void  method_4716( void*, const std::vector<void*>& );
+  static void  method_4717( void*, const std::vector<void*>& );
+  static void  method_4718( void* );
+  static void* constructor_x9( void* );
+  static void* method_x11( void*, const std::vector<void*>& ); 
+  static void* method_x12( void*, const std::vector<void*>& ); 
+  static void* method_x13( void*, const std::vector<void*>& ); 
+};
+std__vector_RPCSimHitp__dict::std__vector_RPCSimHitp__dict() {
+  ClassBuilder _c_("std::vector<RPCSimHit*>", "", typeid(std::vector<RPCSimHit*>), sizeof(std::vector<RPCSimHit*>),std::vector<const std::type_info*>(), false, VECTOR, 0, PUBLIC);
+  _c_.addSuperClass("std::_Vector_base<RPCSimHit*,std::allocator<RPCSimHit*> >", 0, tobase_4657);
+  _c_.addMethod("get_allocator", "", "std::allocator<RPCSimHit*>", method_4674, PUBLIC);
+  _c_.addMethod("begin", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", method_4677, PUBLIC);
+  _c_.addMethod("begin", "", "__gnu_cxx::__normal_iterator<RPCSimHit* const*,std::vector<RPCSimHit*> >", method_4678, PUBLIC);
+  _c_.addMethod("end", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", method_4679, PUBLIC);
+  _c_.addMethod("end", "", "__gnu_cxx::__normal_iterator<RPCSimHit* const*,std::vector<RPCSimHit*> >", method_4680, PUBLIC);
+  _c_.addMethod("size", "", "unsigned int", method_4685, PUBLIC);
+  _c_.addMethod("max_size", "", "unsigned int", method_4686, PUBLIC);
+  _c_.addMethod("capacity", "", "unsigned int", method_4687, PUBLIC);
+  _c_.addMethod("empty", "", "bool", method_4688, PUBLIC);
+  _c_.addMethod("[]", "", "RPCSimHit*&", "unsigned int", operator_4689, PUBLIC);
+  _c_.addMethod("[]", "", "RPCSimHit*&", "unsigned int", operator_4690, PUBLIC);
+  _c_.addMethod("_M_range_check", "", "unsigned int", method_4691, PUBLIC);
+  _c_.addMethod("at", "", "RPCSimHit*&", "unsigned int", method_4692, PUBLIC);
+  _c_.addMethod("at", "", "RPCSimHit*&", "unsigned int", method_4693, PUBLIC);
+  _c_.addMethod("vector", "", "std::vector<RPCSimHit*>", "std::allocator<RPCSimHit*>&=", constructor_4694, PUBLIC);
+  _c_.addMethod("vector", "", "std::vector<RPCSimHit*>", "unsigned int; RPCSimHit*&; std::allocator<RPCSimHit*>&=", constructor_4695, PUBLIC);
+  _c_.addMethod("vector", "", "std::vector<RPCSimHit*>", "unsigned int", constructor_4696, PUBLIC);
+  _c_.addMethod("vector", "", "std::vector<RPCSimHit*>", "std::vector<RPCSimHit*>&", constructor_4697, PUBLIC);
+  _c_.addMethod("~vector", "", destructor, PUBLIC);
+  _c_.addMethod("=", "", "std::vector<RPCSimHit*>&", "std::vector<RPCSimHit*>&", operator_4699, PUBLIC);
+  _c_.addMethod("reserve", "", "unsigned int", method_4700, PUBLIC);
+  _c_.addMethod("assign", "", "unsigned int; RPCSimHit*&", method_4701, PUBLIC);
+  _c_.addMethod("_M_fill_assign", "", "unsigned int; RPCSimHit*&", method_4702, PUBLIC);
+  _c_.addMethod("front", "", "RPCSimHit*&", method_4703, PUBLIC);
+  _c_.addMethod("front", "", "RPCSimHit*&", method_4704, PUBLIC);
+  _c_.addMethod("back", "", "RPCSimHit*&", method_4705, PUBLIC);
+  _c_.addMethod("back", "", "RPCSimHit*&", method_4706, PUBLIC);
+  _c_.addMethod("push_back", "", "RPCSimHit*&", method_4707, PUBLIC);
+  _c_.addMethod("swap", "", "std::vector<RPCSimHit*>&", method_4708, PUBLIC);
+  _c_.addMethod("insert", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >; RPCSimHit*&", method_4709, PUBLIC);
+//  _c_.addMethod("insert", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", method_4710, PUBLIC);
+  _c_.addMethod("insert", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >; unsigned int; RPCSimHit*&", method_4711, PUBLIC);
+  _c_.addMethod("_M_fill_insert", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >; unsigned int; RPCSimHit*&", method_4712, PUBLIC);
+  _c_.addMethod("pop_back", "", method_4713, PUBLIC);
+  _c_.addMethod("erase", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", method_4714, PUBLIC);
+  _c_.addMethod("erase", "", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", "__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >; __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >", method_4715, PUBLIC);
+  _c_.addMethod("resize", "", "unsigned int; RPCSimHit*&", method_4716, PUBLIC);
+  _c_.addMethod("resize", "", "unsigned int", method_4717, PUBLIC);
+  _c_.addMethod("clear", "", method_4718, PUBLIC);
+  _c_.addMethod("vector", "", "std::vector<RPCSimHit*>", constructor_x9, PUBLIC);
+  _c_.addMethod("writeData", "", "void*", "std::vector<void*>", method_x11);
+  _c_.addMethod("readData", "", "void*", "std::vector<void*>", method_x12);
+  _c_.addMethod("createCollFuncTable", "", "void*", "std::vector<void*>", method_x13);
+  _c_.build();
+}
+
+int std__vector_RPCSimHitp__dict::tobase_4657( void* o ) {
+  return (size_t)(std::_Vector_base<RPCSimHit*,std::allocator<RPCSimHit*> >*)(std::vector<RPCSimHit*>*)o - (size_t)(std::vector<RPCSimHit*>*)o;
+}
+
+//------Stub functions for class vector<RPCSimHit*,std::allocator<RPCSimHit*> > -------------------------------
+void* std__vector_RPCSimHitp__dict::method_4674( void* o)
+{
+  return new std::allocator<RPCSimHit*>(((const std::vector<RPCSimHit*>*)o)->get_allocator());
+}
+
+void* std__vector_RPCSimHitp__dict::method_4677( void* o)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >(((std::vector<RPCSimHit*>*)o)->begin());
+}
+
+void* std__vector_RPCSimHitp__dict::method_4678( void* o)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit* const*,std::vector<RPCSimHit*> >(((const std::vector<RPCSimHit*>*)o)->begin());
+}
+
+void* std__vector_RPCSimHitp__dict::method_4679( void* o)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >(((std::vector<RPCSimHit*>*)o)->end());
+}
+
+void* std__vector_RPCSimHitp__dict::method_4680( void* o)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit* const*,std::vector<RPCSimHit*> >(((const std::vector<RPCSimHit*>*)o)->end());
+}
+
+void* std__vector_RPCSimHitp__dict::method_4685( void* o)
+{
+  static unsigned int ret;
+  ret = ((const std::vector<RPCSimHit*>*)o)->size();
+  return &ret;
+}
+
+void* std__vector_RPCSimHitp__dict::method_4686( void* o)
+{
+  static unsigned int ret;
+  ret = ((const std::vector<RPCSimHit*>*)o)->max_size();
+  return &ret;
+}
+
+void* std__vector_RPCSimHitp__dict::method_4687( void* o)
+{
+  static unsigned int ret;
+  ret = ((const std::vector<RPCSimHit*>*)o)->capacity();
+  return &ret;
+}
+
+void* std__vector_RPCSimHitp__dict::method_4688( void* o)
+{
+  static bool ret;
+  ret = ((const std::vector<RPCSimHit*>*)o)->empty();
+  return &ret;
+}
+
+void* std__vector_RPCSimHitp__dict::operator_4689( void* o, const std::vector<void*>& arg)
+{
+  return (void*)&((std::vector<RPCSimHit*>*)o)->operator [](*(unsigned int*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::operator_4690( void* o, const std::vector<void*>& arg)
+{
+  return (void*)&((const std::vector<RPCSimHit*>*)o)->operator [](*(unsigned int*)arg[0]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4691( void* o, const std::vector<void*>& arg)
+{
+  ((const std::vector<RPCSimHit*>*)o)->_M_range_check(*(unsigned int*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::method_4692( void* o, const std::vector<void*>& arg)
+{
+  return (void*)&((std::vector<RPCSimHit*>*)o)->at(*(unsigned int*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::method_4693( void* o, const std::vector<void*>& arg)
+{
+  return (void*)&((const std::vector<RPCSimHit*>*)o)->at(*(unsigned int*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::constructor_4694( void* mem, const std::vector<void*>& arg) {
+  if ( arg.size() == 0 ) {
+    return ::new(mem) std::vector<RPCSimHit*>();
+  }
+  else if ( arg.size() == 1 ) { 
+    return ::new(mem) std::vector<RPCSimHit*>(*(const std::allocator<RPCSimHit*>*)arg[0]);
+  }
+  return 0;
+}
+
+void* std__vector_RPCSimHitp__dict::constructor_4695( void* mem, const std::vector<void*>& arg) {
+  if ( arg.size() == 2 ) {
+    return ::new(mem) std::vector<RPCSimHit*>(*(unsigned int*)arg[0],
+                                            *(RPCSimHit* const*)arg[1]);
+  }
+  else if ( arg.size() == 3 ) { 
+    return ::new(mem) std::vector<RPCSimHit*>(*(unsigned int*)arg[0],
+                                            *(RPCSimHit* const*)arg[1],
+                                            *(const std::allocator<RPCSimHit*>*)arg[2]);
+  }
+  return 0;
+}
+
+void* std__vector_RPCSimHitp__dict::constructor_4696( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) std::vector<RPCSimHit*>(*(unsigned int*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::constructor_4697( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) std::vector<RPCSimHit*>(*(const std::vector<RPCSimHit*>*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::operator_4699( void* o, const std::vector<void*>& arg)
+{
+  return (void*)&((std::vector<RPCSimHit*>*)o)->operator =(*(const std::vector<RPCSimHit*>*)arg[0]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4700( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->reserve(*(unsigned int*)arg[0]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4701( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->assign(*(unsigned int*)arg[0],
+                                        *(RPCSimHit* const*)arg[1]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4702( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->_M_fill_assign(*(unsigned int*)arg[0],
+                                                *(RPCSimHit* const*)arg[1]);
+}
+
+void* std__vector_RPCSimHitp__dict::method_4703( void* o)
+{
+  return (void*)&((std::vector<RPCSimHit*>*)o)->front();
+}
+
+void* std__vector_RPCSimHitp__dict::method_4704( void* o)
+{
+  return (void*)&((const std::vector<RPCSimHit*>*)o)->front();
+}
+
+void* std__vector_RPCSimHitp__dict::method_4705( void* o)
+{
+  return (void*)&((std::vector<RPCSimHit*>*)o)->back();
+}
+
+void* std__vector_RPCSimHitp__dict::method_4706( void* o)
+{
+  return (void*)&((const std::vector<RPCSimHit*>*)o)->back();
+}
+
+void std__vector_RPCSimHitp__dict::method_4707( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->push_back(*(RPCSimHit* const*)arg[0]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4708( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->swap(*(std::vector<RPCSimHit*>*)arg[0]);
+}
+
+void* std__vector_RPCSimHitp__dict::method_4709( void* o, const std::vector<void*>& arg)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >(((std::vector<RPCSimHit*>*)o)->insert(*(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[0],
+                                                                                                                      *(RPCSimHit* const*)arg[1]));
+}
+
+//void* std__vector_RPCSimHitp__dict::method_4710( void* o, const std::vector<void*>& arg)
+//{
+//  return new __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >(((std::vector<RPCSimHit*>*)o)->insert(*(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[0]));
+//}
+
+void std__vector_RPCSimHitp__dict::method_4711( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->insert(*(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[0],
+                                        *(unsigned int*)arg[1],
+                                        *(RPCSimHit* const*)arg[2]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4712( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->_M_fill_insert(*(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[0],
+                                                *(unsigned int*)arg[1],
+                                                *(RPCSimHit* const*)arg[2]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4713( void* o)
+{
+  ((std::vector<RPCSimHit*>*)o)->pop_back();
+}
+
+void* std__vector_RPCSimHitp__dict::method_4714( void* o, const std::vector<void*>& arg)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >(((std::vector<RPCSimHit*>*)o)->erase(*(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[0]));
+}
+
+void* std__vector_RPCSimHitp__dict::method_4715( void* o, const std::vector<void*>& arg)
+{
+  return new __gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >(((std::vector<RPCSimHit*>*)o)->erase(*(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[0],
+                                                                                                                     *(__gnu_cxx::__normal_iterator<RPCSimHit**,std::vector<RPCSimHit*> >*)arg[1]));
+}
+
+void std__vector_RPCSimHitp__dict::method_4716( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->resize(*(unsigned int*)arg[0],
+                                        *(RPCSimHit* const*)arg[1]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4717( void* o, const std::vector<void*>& arg)
+{
+  ((std::vector<RPCSimHit*>*)o)->resize(*(unsigned int*)arg[0]);
+}
+
+void std__vector_RPCSimHitp__dict::method_4718( void* o)
+{
+  ((std::vector<RPCSimHit*>*)o)->clear();
+}
+
+void* std__vector_RPCSimHitp__dict::constructor_x9( void* mem) {
+  return ::new(mem) std::vector<RPCSimHit*>();
+}
+
+void* std__vector_RPCSimHitp__dict::method_x11( void* o, const std::vector<void*>& args)
+{
+  std::vector<RPCSimHit*>* v = (std::vector<RPCSimHit*>*)o;
+  size_t n = v->size();
+  ((void (*)(size_t&, const std::vector<void*>&))args[1])(n, args);
+  for(std::vector<RPCSimHit*>::iterator i = v->begin(); i != v->end(); i++) {
+    ((void (*)(const void*, const std::vector<void*>&))args[2])(&(*i), args);
+  }
+  return 0;
+}
+
+void* std__vector_RPCSimHitp__dict::method_x12( void* o, const std::vector<void*>& args)
+{
+  std::vector<RPCSimHit*>* v = (std::vector<RPCSimHit*>*)o;
+  size_t n = *(size_t*)args[1];
+  if (n > 0) {
+    v->resize(n);
+    for(size_t i = 0; i < n; i++) {
+      ((void (*)(const void*, const std::vector<void*>&))args[2])(&(*v)[i], args);
+    }
+  }
+  return 0;
+}
+
+void* std__vector_RPCSimHitp__dict::method_x13( void*, const std::vector<void*>&)
+{
+  return seal::reflect::Proxy<std::vector<RPCSimHit*> >::generate();
+}
+
+
+//---------  Bootstrap for building classes ------
+
+namespace {
+  struct Dictionaries {
+    Dictionaries() {
+      TGCSimHit_dict();
+      RPCSimHit_dict();
+      MDTSimHit_dict();
+      CSCSimHit_dict();
+      Class::resolvePending();
+    }
+  };
+  static Dictionaries instance;
+}
+
+//---------  Capabilities specification ------
+
+
+// This file has been generated by lcgdict with the --capabilities option
+static  const char* clnames[] = {
+//--Begin AtlasSealCLHEPDictFix
+    "LCGDict/TGCSimHit",
+    "LCGDict/RPCSimHit",
+    "LCGDict/MDTSimHit",
+    "LCGDict/CSCSimHit"
+//--End   AtlasSealCLHEPDict
+//--Final End
+};
+
+extern "C" void SEAL_CAPABILITIES (const char**& names, int& n )
+{ 
+  names = clnames;
+  n = sizeof(clnames)/sizeof(char*);
+}
