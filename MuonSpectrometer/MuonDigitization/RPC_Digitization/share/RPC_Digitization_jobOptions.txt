@@ -1,0 +1,12 @@
+
+// RPC Digitization.
+
+ApplicationMgr.DLLs += { "RPC_Digitization"};
+ApplicationMgr.TopAlg += {"RPC_Digitizer"};
+
+RPC_Digitizer.Parameters="G4RPC_Digitizer.txt";
+RPC_Digitizer.inputObjectName = "RPC_Hits";
+RPC_Digitizer.outputObjectName = "rpc_digits";
+RPC_Digitizer.WindowLowerOffset = -50.0;
+RPC_Digitizer.WindowUpperOffset =  50.0;
+RPC_Digitizer.DeadTime= 50.0; 

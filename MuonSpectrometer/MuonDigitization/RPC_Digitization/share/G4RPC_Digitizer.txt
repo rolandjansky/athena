@@ -1,0 +1,18 @@
+# parameters used by RPC_Digitizer to generate clusters
+# Based on experimental distributions.
+#
+#
+# first 5 numbers are the cluster size distribution. Probability to have cs=1,2,3,4,5
+cs 72.18 24.38 3.20 0.24 0
+# now here are the parameters of a compisite fit (gaus_const_gaus) of the fraction cs1/cs2 as a function of the impact point,
+# as shown in the Muon TDR
+# "rising gaus": norm, x0, sigma
+rising_gaus 95.9270 8.21683 2.97661
+# const value
+const_value 0.9522
+# falling gaus
+falling_gaus 94.1955 21.7523 2.91139
+# cluster spread simulation
+cs_3_par 0.6385
+cs_4_par 0.0851 0.3617 0.4468 0.1063
+# end of parameters
