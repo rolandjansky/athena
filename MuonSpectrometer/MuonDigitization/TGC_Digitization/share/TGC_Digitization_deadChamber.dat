@@ -1,0 +1,78 @@
+42  3  2 2 # A01 M1 f3  E2 L2
+46  1 47 1 # A01 M3 f0  E5 L1
+46  5  2 2 # A01 M3 f3  E1 L2
+44  3  3 2 # A02 M2 f0  E3 L2
+42  3  9 1 # A03 M1 f2  E2 L1
+42  4  8 3 # A03 M1 f1  E1 L3
+41  1  4 3 # A03 M1 f0  F  L3 0 1 
+46  3  7 1 # A03 M3 f0  E3 L1
+46  3 17 1 # A05 M3 f2  E3 L1
+46  3 17 2 # A05 M3 f2  E3 L2
+44  3 20 1 # A06 M2 f1  E3 L1
+44  4 27 1 # A08 M2 f0  E2 L1
+42  3 26 3 # A07 M1 f3  E2 L3
+44  1 32 2 # A09 M2 f1  E5 L2
+44  1 31 1 # A09 M2 f0  E5 L1
+44  1 32 1 # A09 M2 f1  E5 L1
+46  5 34 2 # A09 M3 f3  E1 L2
+42  2 38 2 # A10 M1 f3  E3 L2
+42  3 41 1 # A11 M1 f2  E2 L1
+46  4 40 2 # A11 M3 f1  E2 L2
+46  3 40 2 # A11 M3 f1  E3 L2
+44  3 44 1 # A12 M2 f1  E3 L1
+44  1 44 1 # A12 M2 f1  E5 L1
+42  3 44 3 # A12 M1 f1  E2 L3
+42  3 46 2 # A12 M1 f3  E2 L2
+47  1  7 1 # A13 M4 f6  F  L1
+47  1 18 2 # A13 M4 f17 F  L2
+42 -4 48 2 # C01 M1 f1  E1 L2
+44 -3 47 2 # C01 M2 f0  E3 L2
+44 -4  1 2 # C01 M2 f2  E2 L2
+46 -1 48 1 # C01 M3 f1  E5 L1
+46 -5  4 1 # C02 M3 f1  E1 L1
+42 -4  3 1 # C02 M1 f0  E1 L1
+42 -4  6 1 # C02 M1 f3  E1 L1
+41 -1  4 3 # C03 M1 f0  F  L3 0 1
+42 -4  9 2 # C03 M1 f2  E1 L2
+42 -1 10 2 # C03 M1 f3  E4 L2
+46 -3  8 1 # C03 M3 f1  E3 L1
+45 -1  5 1 # C03 M3 f2  F  L1 
+46 -3  8 2 # C03 M3 f1  E3 L2
+43 -1  5 1 # C03 M2 f2  F  L1
+46 -3 15 2 # C05 M3 f0  E3 L2
+42 -1 20 2 # C06 M1 f1  E4 L2
+42 -3 21 2 # C06 M1 f2  E2 L2
+42 -4 23 2 # C07 M1 f0  E1 L2
+42 -4 26 2 # C07 M1 f3  E1 L2
+46 -3 24 1 # C07 M3 f1  E3 L1
+46 -1 28 1 # C08 M3 f1  E5 L1
+44 -3 29 1 # C08 M2 f2  E3 L1
+42 -4 34 3 # C09 M1 f3  E1 L3
+45 -1 17 1 # C09 M3 f2  F  L1
+46 -3 32 2 # C09 M3 f1  E3 L2
+46 -1 36 1 # C10 M3 f1  E5 L1
+44 -3 36 1 # C10 M2 f1  E3 L1
+42 -3 38 3 # C10 M1 f3  E2 L3
+42 -3 36 2 # C10 M1 f1  E2 L2
+44 -3 39 1 # C11 M2 f0  E3 L1
+46 -3 42 2 # C11 M3 f3  E3 L2
+45 -1 22 1 # C12 M3 f0  F  L1
+42 -3 44 1 # C12 M1 f1  E2 L1
+42 -1 43 2 # C12 M1 f0  E4 L2
+42 -4 45 3 # C12 M1 f2  E1 L3
+47 -1 23 1 # C13 M4 f22 F  L1
+42  4 35 2 # A10 M1 f0  E1 L2 (from efficiency map)
+44  2 15 2 # A05 M2 f0  E4 L2 (from efficiency map)
+47  1  1 2 # A13 M4 f?? F  L2 (from efficiency map)
+47  1  4 2 # A13 M4 f?? F  L2 (from efficiency map)
+48  1  6 1 # A13 M4 f?? E  L1 (from efficiency map)
+48  1 11 1 # A13 M4 f?? E  L1 (from efficiency map)
+42 -2 13 2 # C04 M1 f2  E3 L2 (from efficiency map)
+42 -4 48 3 # C01 M1 f1  E1 L3 (from efficiency map)
+42 -4 11 3 # C04 M1 f0  E1 L3 (from efficiency map)
+48 -1  8 1 # C13 M4 f?? E  L1 (from efficiency map)
+48 -1 14 1 # C13 M4 f?? E  L1 (from efficiency map)
+48 -1 15 1 # C13 M4 f?? E  L1 (from efficiency map)
+48 -1  7 2 # C13 M4 f?? E  L2 (from efficiency map)
+48 -1 14 2 # C13 M4 f?? E  L2 (from efficiency map)
+48 -1 15 2 # C13 M4 f?? E  L2 (from efficiency map)
