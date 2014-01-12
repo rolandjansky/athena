@@ -1,0 +1,33 @@
+package TGCgeometry
+
+author Zvi Tarem <Zvi.Tarem@cern.ch>
+author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+author Shlomit Tarem <Shlomit.Tarem@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AthenaKernel               AthenaKernel-*                  Control
+use  CxxUtils                   CxxUtils-*                      Control
+use  GaudiInterface             GaudiInterface-*                External
+use  Identifier                 Identifier-*                    DetectorDescription
+use  AmdcAth                    AmdcAth-*                       MuonSpectrometer/Amdcsimrec
+private
+use  EventInfo                  EventInfo-*                     Event
+use  EventInfoMgt               EventInfoMgt-*                  Event
+use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
+use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
+use  PathResolver               PathResolver-*                  Tools
+use  StoreGate                  StoreGate-*                     Control
+use  TGCcablingInterface        TGCcablingInterface-*           MuonSpectrometer/MuonCablings
+
+public
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime files="*.lut"
+
+apply_pattern declare_python_modules files="*.py"
+
+private
+macro_append TGCgeometryLib_shlibflags " -lrt" Darwin ""
+macro_append TGCgeometry_linkopts " -lrt" Darwin ""
