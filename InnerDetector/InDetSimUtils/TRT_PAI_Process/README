@@ -1,0 +1,70 @@
+Package: InnerDetector/InDetSimUtils/TRT_PAI_Process
+Author: Thomas Kittelmann <kittel@nbi.dk>
+First version: June 2004.
+
+[NB: Since Sep 1, 2004 there are some changes to the interface content
+     as hinted in the C.L. This README needs to be updated]
+
+This package basically implements the PAI model from DICE (by
+P. Nevski) in C++.
+
+Simplified usage example (to be used within TRT_Digitization):
+
+------------------------------------------------------------------------
+#include "TRT_PAI_Process/TRT_PAI_Process.h"
+
+//<snip>
+
+TRT_PAI_Process * pTRT_PAI_Process = new TRT_PAI_Process(TRT_PAI_Process::newGas);
+  //or use TRT_PAI_Process::oldGas to get the old TRT active gas mixture)
+
+//<snip>
+
+//To get the mean free path length at a given scaled kinetic energy
+//(scaled kinetic energy means the kinetic energy of a proton with the
+//same gamma factor), and squared charge:
+
+double mfpl = pTRT_PAI_Process->GetMeanFreePath(scaledKineticEnergy,squaredCharge);
+
+//<snip>
+
+//To get a (random) energy deposit in a given cluster:
+
+double clusterEnergy = pTRT_PAI_Process->GetEnergyTransfer(scaledKineticEnergy);
+
+------------------------------------------------------------------------
+Both methods return values in standard CLHEP units (e.g. mm and MeV respectively).
+
+
+The requirement file of course needs:
+--------------------------------------------------------------------------
+use TRT_PAI_Process      TRT_PAI_Process-*      InnerDetector/InDetSimUtils
+--------------------------------------------------------------------------
+
+
+NOTES:
+1)
+The internal calculations were adopted from DICE, and are thus not
+presently performed in proper CLHEP units. The final numbers does
+however use the CLHEP SystemOfUnits, and the package should thus
+behave nicely regarding units as far as clients are concerned.
+
+2)
+Much of this package implementation was carried out before I really
+got "into" ATLAS software. Thus apart from the TRT_PAI_Process class,
+ATLAS coding conventions have not really been followed.
+
+3)
+The initialization of this class is somewhat time consuming (~10
+seconds). At some point there are several things I would like to do to
+optimize this.
+
+4)
+Presently there is a (harmless) compile warning. When 3) is taking
+care of it should go away by itself,
+
+Given time and motivation these points could be remedied of
+course. But for now the package is believed to work and to exhibit
+respectable athena behaviour as far as clients can tell.
+
+Thomas
