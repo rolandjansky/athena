@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<data>
+<run value="178211">
+  <path>root://eosatlas//eos/atlas/atlascerngroupdisk/trig-rates/ntuples/user.rsv.data11_2p76TeV.00178211.physics_MinBias.recon.RAW.r4238.130125014944</path>
+  <nMax>947</nMax>
+</run>
+<run value="185644">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data11_7TeV/NTUP_ENHBIAS/r2743/data11_7TeV.00185644.physics_EnhancedBias.recon.NTUP_ENHBIAS.r2743_tid523194_00/NTUP_ENHBIAS.523194._</path>
+  <nMax>530</nMax>
+</run>
+<run value="186923">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data11_7TeV/NTUP_ENHBIAS/r2743/data11_7TeV.00186923.physics_EnhancedBias.recon.NTUP_ENHBIAS.r2743_tid523195_00/NTUP_ENHBIAS.523195._</path>
+  <nMax>727</nMax>
+</run>
+<run value="189421">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data11_7TeV/NTUP_ENHBIAS/r2743/data11_7TeV.00189421.physics_EnhancedBias.recon.NTUP_ENHBIAS.r2743_tid523196_00/NTUP_ENHBIAS.523196._</path>
+  <nMax>667</nMax>
+</run>
+<run value="190728">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data11_7TeV/NTUP_ENHBIAS/r2743/data11_7TeV.00190728.physics_EnhancedBias.recon.NTUP_ENHBIAS.r2743_tid565711_00/NTUP_ENHBIAS.565711._</path>
+  <nMax>3898</nMax>
+</run>
+<run value="191628">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data11_7TeV/NTUP_ENHBIAS/r2743/data11_7TeV.00191628.physics_EnhancedBias.recon.NTUP_ENHBIAS.r2743_tid572340_00/NTUP_ENHBIAS.572340._</path>
+  <nMax>1053</nMax>
+</run>
+<run value="200863">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data12_8TeV/NTUP_ENHBIAS/k4_r3528/data12_8TeV.00200863.physics_EnhancedBias.recon.NTUP_ENHBIAS.k4_r3528_tid762955_00/NTUP_ENHBIAS.762955._</path>
+  <nMax>589</nMax>
+</run>
+<run value="202798">
+  <path>root://eosatlas//eos/atlas/atlasgroupdisk/trig-daq/dq2/data12_8TeV/NTUP_ENHBIAS/r3659/data12_8TeV.00202798.physics_EnhancedBias.recon.NTUP_ENHBIAS.r3659_tid00822984_00/NTUP_ENHBIAS.00822984._</path>
+  <nMax>802</nMax>
+</run>
+</data>
+
+
+
+
+
+
+
+
+
+
+
+

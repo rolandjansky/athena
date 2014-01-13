@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="ReadCool" />
+
+    <hist key="lifetime_frac" name="" title="">
+        <Xaxis bin="200" min="0.0" max="-1.0" title="Lifetime fraction" />
+        <Yaxis bin="200" min="0.0" max=" 0.0" title="L1 trigger items" />
+    </hist>
+ 
+</histograms>

@@ -1,0 +1,17 @@
+source run_pu_cost.sh 0  &> /tmp/schae/cost_mu0.log  & 
+source run_pu_cost.sh 5	 &> /tmp/schae/cost_mu5.log  &
+source run_pu_cost.sh 10 &> /tmp/schae/cost_mu10.log &
+source run_pu_cost.sh 15 &> /tmp/schae/cost_mu15.log &
+source run_pu_cost.sh 20 &> /tmp/schae/cost_mu20.log &
+source run_pu_cost.sh 24 &> /tmp/schae/cost_mu24.log &
+source run_pu_cost.sh 26 &> /tmp/schae/cost_mu26.log &
+source run_pu_cost.sh 30 &> /tmp/schae/cost_mu30.log &
+source run_pu_cost.sh 33 &> /tmp/schae/cost_mu33.log &
+source run_pu_cost.sh 35 &> /tmp/schae/cost_mu35.log &
+source run_pu_cost.sh 37 &> /tmp/schae/cost_mu37.log &
+source run_pu_cost.sh 40 &> /tmp/schae/cost_mu40.log &
+source run_pu_cost.sh 42 &> /tmp/schae/cost_mu42.log &
+source run_pu_cost.sh 45 &> /tmp/schae/cost_mu45.log &
+source run_pu_cost.sh 46 &> /tmp/schae/cost_mu46.log &
+source run_pu_cost.sh 48 &> /tmp/schae/cost_mu48.log &
+source run_pu_cost.sh 50 &> /tmp/schae/cost_mu50.log &

@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <hist key="2101" name="" title="">
+        <Xaxis bin="10" min="10.0" max="-1.0" title="number of hits MBTS A-side" />
+    </hist>
+    <hist key="2102" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0" title="total charge MBTS A-side" />
+    </hist>
+    <hist key="2103" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0" title="mean time MBTS A-side" />
+    </hist>
+    <hist key="2104" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0" title="charge weighted mean time MBTS A-side" />
+    </hist>
+
+    <hist key="2111" name="" title="">
+        <Xaxis bin="10" min="10.0" max="-1.0" title="number of hits MBTS C-side" />
+    </hist>
+    <hist key="2112" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0" title="total charge MBTS C-side" />
+    </hist>
+    <hist key="2113" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0" title="mean time MBTS C-side" />
+    </hist>
+    <hist key="2114" name="" title="">
+        <Xaxis bin="100" min="0.0" max="-1.0" title="charge weighted mean time MBTS C-side" />
+    </hist>
+
+    <hist key="2120" name="" title="">
+        <Xaxis bin="2000" min="-2.0e2" max="+2.0e2" title="time diffence MBTS A-C" />
+    </hist>
+
+    <hist key="2121" name="" title="">
+        <Xaxis bin="2000" min="-2.0e2" max="+2.0e2" title="charge weighted time diffence MBTS A-C" />
+    </hist>
+
+</histograms>

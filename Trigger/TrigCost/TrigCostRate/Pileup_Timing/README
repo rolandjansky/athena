@@ -1,0 +1,22 @@
+the ttbar_50evt contains the same data but with smaller statistics
+
+In order to digitize the ttbar data, use the script pileup_cost_que_all.sh 
+To run for 10 min bias pileup:
+~> source pileup_cost_que_all.sh 10
+
+To run 0-50, run:
+~> source submit_pileup.sh 
+
+This should create 200 ttbar events, and write a cost ntuples. 
+
+Process the ntuples using the following command:
+
+./share/runRates.py /tmp/TrigCostAL_mu0.root -k TrigCost -o /tmp/cost_html_mu0 -r /tmp/cost_mu0.root --test="RoiCpuPu" --do-time --rosXML data/rob-ros-2011.xml &> /tmp/cost_mu0.log & tail -f /tmp/cost_mu0.log
+
+Call script:
+~> submit_pu_cost.sh
+
+put the cost.root files in this area, and run genPlots.py. This dumps a root file with all of the plots versus mu/mean min bias pileup:
+
+python genPlots.py -l L2
+python genPlots.py -l EF

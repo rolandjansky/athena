@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>collisions_stablebeams_minbias_7eV</Name>
+    <Version>30</Version>
+    <Metadata Name="Query">Data quality for minbias analysis</Metadata>
+    <LumiBlockCollection>
+      <Run>152166</Run>
+      <LBRange Start="200" End="304"/>
+      <BunchId>1</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>152221</Run>
+      <LBRange Start="1" End="177"/>
+      <BunchId>1</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>152345</Run>
+      <LBRange Start="117" End="211"/>
+      <BunchId>1</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>152409</Run>
+      <LBRange Start="120" End="723"/>
+      <BunchId>1</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>152845</Run>
+      <LBRange Start="111" End="349"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>

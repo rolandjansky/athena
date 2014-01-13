@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="pu_rate" />
+
+    <hist key="rate_ratio_init" name="" title="">
+        <Xaxis bin="40" min="0.0" max="0.0" title="Initial fraction/final fraction" />
+    </hist>
+
+    <hist key="rate_ratio_sort" name="" title="">
+        <Xaxis bin="40" min="0.0" max="0.0" title="Lowest fraction/highest fraction" />
+    </hist>
+
+    <hist key="rate_max" name="" title="">
+        <Xaxis bin="40" min="0.0" max="0.0" title="Highest fraction" />
+    </hist>
+
+    <hist key="rate_last" name="" title="">
+        <Xaxis bin="40" min="0.0" max="0.0" title="Last fraction" />
+    </hist>
+
+
+    <hist key="216" name="" title="">
+        <Xaxis bin="20" min="0.5" max="20.5" title="In time signal and min-bias events" />
+    </hist>
+
+    <hist key="217_" name="" title="">
+        <Xaxis bin="25" min="0.5" max="25.5" title="In time events" />
+    </hist>
+
+    <hist key="218_" name="" title="">
+        <Xaxis bin="25" min="0.5" max="25.5" title="In time pileup events" />
+    </hist>
+
+
+    <hist key="chi2" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="#chi^{2}" />
+    </hist>
+    <hist key="par0" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 0" />
+    </hist>
+
+    <hist key="par1" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 1" />
+    </hist>
+
+    <hist key="par2" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 2" />
+    </hist>
+
+    <hist key="par3" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 3" />
+    </hist>
+
+</histograms>

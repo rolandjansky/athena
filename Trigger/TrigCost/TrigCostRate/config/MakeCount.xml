@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="MakeCount" />
+
+    <hist key="count_per_bcid" name="" title="">
+        <Xaxis bin="3564" min="0.0" max="3563" title="bcid" />
+        <Yaxis bin="0"    min="0.0" max=" 0.0" title="Counts" />
+    </hist>
+ 
+</histograms>

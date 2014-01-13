@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>collisions_stablebeams_minbias_7eV</Name>
+    <LumiBlockCollection>
+      <Run>152845</Run>
+      <LBRange Start="102" End="367"/>
+      <BunchId>1</BunchId>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>

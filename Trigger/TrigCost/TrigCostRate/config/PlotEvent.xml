@@ -1,0 +1,85 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <hist key="101" name="time_L2_str" title="">
+        <Xaxis bin="100" min="0.0" max="0.0" title="Level 2 trigger time (ms)" />
+        <Yaxis bin="100" min="0.0" max="0.0" title="Events" />
+    </hist>
+    <hist key="102" name="time_EF_str" title="">
+        <Xaxis bin="100" min="0.0" max="4000.0" title="EF time from steering [ms]" />
+    </hist>
+
+    <hist key="time_L2_seq" name="time_L2_seq" title="">
+        <Xaxis bin="100" min="0.0" max="0.0" title="L2 event time from sequences [ms]" />
+    </hist>
+    <hist key="time_EF_seq" name="time_EF_seq" title="">
+        <Xaxis bin="100" min="0.0" max="0.0" title="EF time from sequences [ms]" />
+    </hist>
+
+
+    <hist key="time_L2_alg" name="time_L2_alg" title="">
+        <Xaxis bin="100" min="0.0" max="0.0" title="L2 event time from algorithms [ms]" />
+    </hist>
+    <hist key="time_EF_alg" name="time_EF_alg" title="">
+        <Xaxis bin="100" min="0.0" max="0.0" title="EF time from algorithms [ms]" />
+    </hist>
+
+    <hist key="count_mon_chains" name="" title="">
+        <Xaxis bin="400" min="0.0" max="400.0" title="Number of TrigMonChain objects" />
+        <Yaxis bin="200" min="0.0" max=  "0.0" title="Events" />
+    </hist>
+    <hist key="count_mon_items" name="" title="">
+        <Xaxis bin="256" min="0.0" max="256.0" title="Number of TrigMonL1Item objects" />
+        <Yaxis bin="200" min="0.0" max=  "0.0" title="Events" />
+    </hist>
+
+    <hist key="201" name="" title="">
+        <Xaxis bin="100" min="0.0" max="3.0e4" title="Number of signal MC particles" />
+    </hist>
+
+    <hist key="202" name="" title="">
+        <Xaxis bin="10" min="0.0" max="10.0" title="Number of pileup MC particles" />
+    </hist>
+
+    <hist key="203" name="" title="">
+        <Xaxis bin="10" min="0.0" max="10.0" title="Number of event MC particles" />
+    </hist>
+
+    <hist key="204" name="" title="">
+        <Xaxis bin="100" min="0.0" max="2.5e3" title="Number of MC particles" />
+    </hist>
+
+
+    <hist key="210" name="" title="">
+        <Xaxis bin="100" min="0.0" max="100" title="Events" />
+    </hist>
+
+    <hist key="211" name="" title="">
+        <Xaxis bin="100" min="0.0" max="100" title="Min bias events" />
+    </hist>
+
+    <hist key="212" name="" title="">
+        <Xaxis bin="100" min="0.0" max="100" title="Cavern background events" />
+    </hist>
+
+    <hist key="213" name="" title="">
+        <Xaxis bin="100" min="0.0" max="100" title="Beam gas events" />
+    </hist>
+
+    <hist key="214" name="" title="">
+        <Xaxis bin="100" min="0.0" max="100" title="Zero bias events" />
+    </hist>
+
+    <hist key="216" name="" title="">
+        <Xaxis bin="25" min="0.0" max="25" title="In time signal and min-bias events" />
+    </hist>
+
+    <hist key="217" name="" title="">
+        <Xaxis bin="25" min="0.0" max="25" title="In time events" />
+    </hist>
+
+    <hist key="218" name="" title="">
+        <Xaxis bin="25" min="0.0" max="25" title="In time pileup events" />
+    </hist>
+
+</histograms>

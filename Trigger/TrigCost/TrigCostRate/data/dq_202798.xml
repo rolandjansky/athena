@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>Deadtime_below_0.050</Name>
+    <LumiBlockCollection>
+      <Run>202798</Run>
+      <LBRange Start="3" End="20"/>
+      <LBRange Start="23" End="26"/>
+      <LBRange Start="28" End="44"/>
+      <LBRange Start="47" End="59"/>
+      <LBRange Start="62" End="264"/>
+      <LBRange Start="267" End="279"/>
+      <LBRange Start="281" End="388"/>
+      <LBRange Start="390" End="402"/>
+      <LBRange Start="405" End="414"/>
+      <LBRange Start="416" End="438"/>
+      <LBRange Start="440" End="441"/>
+      <LBRange Start="443" End="443"/>
+      <LBRange Start="446" End="446"/>
+      <LBRange Start="448" End="576"/>
+      <LBRange Start="578" End="581"/>
+      <LBRange Start="583" End="598"/>
+      <LBRange Start="600" End="633"/>
+      <LBRange Start="644" End="652"/>
+      <LBRange Start="660" End="662"/>
+      <LBRange Start="673" End="774"/>
+      <LBRange Start="777" End="865"/>
+      <LBRange Start="867" End="920"/>
+      <LBRange Start="923" End="930"/>
+      <LBRange Start="932" End="957"/>
+      <BunchId>1</BunchId>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>

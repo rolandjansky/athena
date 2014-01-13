@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>collisions_stablebeams_minbias_900GeV</Name>
+    <Version>30</Version>
+    <Metadata Name="Query">Data quality for minbias analysis</Metadata>
+    <LumiBlockCollection>
+      <Run>141749</Run>
+      <LBRange Start="22" End="100"/>
+      <BunchId>1</BunchId>
+      <BunchId>2674</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>141811</Run>
+      <LBRange Start="126" End="165"/>
+      <BunchId>1</BunchId>
+      <BunchId>2674</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142149</Run>
+      <LBRange Start="65" End="87"/>
+      <BunchId>1</BunchId>
+      <BunchId>2674</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142154</Run>
+      <LBRange Start="22" End="35"/>
+      <BunchId>1</BunchId>
+      <BunchId>2674</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142165</Run>
+      <LBRange Start="134" End="257"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142166</Run>
+      <LBRange Start="38" End="96"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142171</Run>
+      <LBRange Start="217" End="229"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142174</Run>
+      <LBRange Start="8" End="47"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142189</Run>
+      <LBRange Start="140" End="147"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142191</Run>
+      <LBRange Start="7" End="36"/>
+      <LBRange Start="141" End="233"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142193</Run>
+      <LBRange Start="33" End="153"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142195</Run>
+      <LBRange Start="11" End="54"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>2774</BunchId>
+    </LumiBlockCollection>
+    <LumiBlockCollection>
+      <Run>142383</Run>
+      <LBRange Start="260" End="282"/>
+      <BunchId>1</BunchId>
+      <BunchId>101</BunchId>
+      <BunchId>182</BunchId>
+      <BunchId>992</BunchId>
+      <BunchId>1073</BunchId>
+      <BunchId>1883</BunchId>
+      <BunchId>1964</BunchId>
+      <BunchId>2774</BunchId>
+      <BunchId>2855</BunchId>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>

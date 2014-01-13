@@ -1,0 +1,46 @@
+package TrigCostRate
+author Rustem Ospanov
+author Josh Kunkle
+author Elliot Lipeles
+
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasCOOL           AtlasCOOL-*           External 
+use AtlasROOT           AtlasROOT-*           External
+use TrigCostBase        TrigCostBase-*        Trigger/TrigCost
+use TrigMonitoringEvent TrigMonitoringEvent-* Trigger/TrigEvent
+use TrigCostMonitor     TrigCostMonitor-*     Trigger/TrigMonitoring
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTGraphicsLibs
+
+apply_pattern installed_library
+library TrigCostRate *.cxx
+
+apply_pattern declare_xmls
+apply_pattern install_xmls
+
+apply_pattern generic_declare_for_link kind=data files="-s=../data *.js" prefix=share/TrigCostRate
+apply_pattern generic_declare_for_link kind=binaries files="-s=../share *.py" prefix=share/bin
+apply_pattern generic_declare_for_link kind=python files="-s=../python *.py" prefix=python/TrigCostRate
+
+private
+
+use AtlasCORAL          AtlasCORAL-*       External 
+use AtlasBoost 		    AtlasBoost-*       External
+
+apply_tag NEEDS_CORAL_BASE
+apply_tag NEEDS_COOL_FACTORY
+
+use TrigConfL1Data           TrigConfL1Data-*           Trigger/TrigConfiguration
+use TrigConfHLTData          TrigConfHLTData-*          Trigger/TrigConfiguration
+use TrigConfStorage          TrigConfStorage-*          Trigger/TrigConfiguration
+use TrigConfJobOptData       TrigConfJobOptData-*       Trigger/TrigConfiguration
+
+#macro_append TrigCostRate_use_linkopts " -lprofiler"
+#macro_append TrigCostRate_use_linkopts " -ltcmalloc"
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+end_private

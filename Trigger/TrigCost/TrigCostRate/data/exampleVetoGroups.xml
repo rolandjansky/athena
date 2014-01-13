@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="trigger_rates.xsl"?>
+<trigger>
+	<cplx_signature>
+		<type>Group</type>
+		<sig_name>L1_MinBias</sig_name>
+		<components>
+			<sig>
+				<sig_name>MBTS</sig_name>
+			</sig>
+			<sig>
+				<sig_name>LUCID</sig_name>
+			</sig>
+			<sig>
+				<sig_name>ZDC</sig_name>
+			</sig>
+			<sig>
+				<sig_name>BCM</sig_name>
+			</sig>
+			<sig>
+				<sig_name>L1_RD1</sig_name>
+			</sig>
+			<sig>
+				<sig_name>L1_RD0</sig_name>
+			</sig>
+			<sig>
+				<sig_name>EMPTY</sig_name>
+			</sig>
+			<sig>
+				<sig_name>UNPAIRED</sig_name>
+			</sig>
+			<sig>
+				<sig_name>BGRP0</sig_name>
+			</sig>
+			<sig>
+				<sig_name>BGRP1</sig_name>
+			</sig>
+			<sig>
+				<sig_name>L1_TRT</sig_name>
+			</sig>
+			<sig>
+				<sig_name>L1A_Mon</sig_name>
+			</sig>
+			<sig>
+				<sig_name>CALREQ</sig_name>
+			</sig>
+			<sig>
+				<sig_name>L1_NIM_</sig_name>
+			</sig>
+		</components>
+	</cplx_signature>
+</trigger>

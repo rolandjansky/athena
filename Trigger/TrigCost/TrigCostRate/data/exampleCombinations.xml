@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href=""?>
+<trigger>
+	<combination>
+            <component>
+               EF_e10_medium
+            </component>
+            <component>
+               EF_mbMbts_1_eff
+            </component>
+	</combination>
+</trigger>

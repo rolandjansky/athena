@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<trigger>
+        <lumivalues>
+               <lumivalues_data>9.9e+30</lumivalues_data>
+               <lumivalues_pred>1.000e+31</lumivalues_pred>
+               <livetime_frac>1.0</livetime_frac>
+        </lumivalues>
+        <filters>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_RD0_FILLED</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_RD0_FILLED</lv1_filter>
+                       <lv1_weight>L1_RD0_FILLED</lv1_weight>
+               </filter> 
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_EM3</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_EM3</lv1_filter>
+                       <lv1_weight>L1_EM3</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_MU0</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_MU0</lv1_filter>
+                       <lv1_weight>L1_MU0</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_TAU5</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_TAU5</lv1_filter>
+                       <lv1_weight>L1_TAU5</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_J10</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_J10</lv1_filter>
+                       <lv1_weight>L1_J10</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_FJ10</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_FJ10</lv1_filter>
+                       <lv1_weight>L1_FJ10</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_TE50</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_TE50</lv1_filter>
+                       <lv1_weight>L1_TE50</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_XE15</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_XE15</lv1_filter>
+                       <lv1_weight>L1_XE15</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_JE100</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_JE100</lv1_filter>
+                       <lv1_weight>L1_JE100</lv1_weight>
+               </filter>
+              <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_LUCID_A_C</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_LUCID_A_C</lv1_filter>
+                       <lv1_weight>L1_LUCID_A_C</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_ZDC_A_C</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_ZDC_A_C</lv1_filter>
+                       <lv1_weight>L1_ZDC_A_C</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_ZDC_AND</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_ZDC_AND</lv1_filter>
+                       <lv1_weight>L1_ZDC_AND</lv1_weight>
+               </filter>
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_RD0_FIRSTEMPTY</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_RD0_FIRSTEMPTY</lv1_filter>
+                       <lv1_weight>L1_RD0_FIRSTEMPTY</lv1_weight>
+               </filter> 
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_RD0_EMPTY</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_RD0_EMPTY</lv1_filter>
+                       <lv1_weight>L1_RD0_EMPTY</lv1_weight>
+               </filter> 
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_RD1_EMPTY</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_RD1_EMPTY</lv1_filter>
+                       <lv1_weight>L1_RD1_EMPTY</lv1_weight>
+               </filter> 
+               <filter>
+                       <filter_name>EF_L1ItemStreamer_L1_RD0_UNPAIRED_ISO</filter_name>
+                       <filter_type>default</filter_type>
+
+                       <lv1_filter>L1_RD0_UNPAIRED_ISO</lv1_filter>
+                       <lv1_weight>L1_RD0_UNPAIRED_ISO</lv1_weight>
+               </filter> 
+        </filters>
+        <bunchgroup>
+                <bunchgrouptype>
+                        <bunchgroup_name>BCRVeto</bunchgroup_name>
+                        <bunchgroup_keynum>0</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP0</bunchgroup_key>
+                        <bunchgroup_size>3543</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>Filled</bunchgroup_name>
+                        <bunchgroup_keynum>1</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP1</bunchgroup_key>
+                        <bunchgroup_size>35</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>EmptyCalib</bunchgroup_name>
+                        <bunchgroup_keynum>2</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP2</bunchgroup_key>
+                        <bunchgroup_size>51</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>Empty</bunchgroup_name>
+                        <bunchgroup_keynum>3</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP3</bunchgroup_key>
+                        <bunchgroup_size>1959</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>UnpairedBeam1</bunchgroup_name>
+                        <bunchgroup_keynum>4</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP4</bunchgroup_key>
+                        <bunchgroup_size>15</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>UnpairedBeam2</bunchgroup_name>
+                        <bunchgroup_keynum>5</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP5</bunchgroup_key>
+                        <bunchgroup_size>15</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>EmptyAfterFilled</bunchgroup_name>
+                        <bunchgroup_keynum>6</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP6</bunchgroup_key>
+                        <bunchgroup_size>105</bunchgroup_size>
+                </bunchgrouptype>
+                <bunchgrouptype>
+                        <bunchgroup_name>AllUnpaired</bunchgroup_name>
+                        <bunchgroup_keynum>7</bunchgroup_keynum>
+                        <bunchgroup_key>BGRP7</bunchgroup_key>
+                        <bunchgroup_size>30</bunchgroup_size>
+                </bunchgrouptype>
+        </bunchgroup>
+</trigger>

@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="lumi" />
+
+    <hist key="time_diff_L1_host" name="" title="Time difference between L1 and HLT host">
+        <Xaxis bin="550" min="0.0" max="1.1e3" title="Time difference between L1 and HLT host (ms)" />
+        <Yaxis bin="500" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+    <hist key="time_diff_L1_host_cor" name="" title="Time difference between L1 and HLT host">
+        <Xaxis bin="550" min="0.0" max="1.1e3" title="Time difference between L1 and HLT host (ms)" />
+        <Yaxis bin="500" min="0.0" max="0.0"   title="Events" />
+    </hist>
+
+</histograms>

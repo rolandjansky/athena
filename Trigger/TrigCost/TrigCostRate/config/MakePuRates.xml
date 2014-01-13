@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<histograms>
+
+    <dirbase dirs="pu_rate" />
+
+    <hist key="101" name="time_L2_str" title="">
+        <Xaxis bin="200" min="0.0" max="1500.0" title="L2 event time from steering [ms]" />
+    </hist>
+
+    <hist key="102" name="time_EF_str" title="">
+        <Xaxis bin="200" min="0.0" max="15000.0" title="EF event time from steering [ms]" />
+    </hist>
+
+
+    <hist key="215" name="" title="">
+        <Xaxis bin="30" min="0.0" max="30" title="In time pileup events" />
+    </hist>
+
+    <hist key="216" name="" title="">
+        <Xaxis bin="30" min="0.0" max="30" title="In time signal events" />
+    </hist>
+
+    <hist key="217" name="" title="">
+        <Xaxis bin="30" min="0.0" max="30" title="In time minbias events" />
+    </hist>
+
+
+    <hist key="chi2" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="#chi^{2}" />
+    </hist>
+
+    <hist key="ndof" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Number of degrees of freedom" />
+    </hist>
+
+    <hist key="chi2_over_ndof" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="#chi^{2}/ndof" />
+    </hist>
+
+    <hist key="par0" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 0" />
+    </hist>
+
+    <hist key="par1" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 1" />
+    </hist>
+
+    <hist key="par2" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 2" />
+    </hist>
+
+    <hist key="par3" name="" title="">
+        <Xaxis bin="50" min="0.0" max="0.0" title="Parameter 3" />
+    </hist>
+
+</histograms>

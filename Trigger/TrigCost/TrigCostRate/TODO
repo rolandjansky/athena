@@ -1,0 +1,44 @@
+* Add RunModule option to select files and events within a selected lumi block range
+
+* Compute/predict rates by bunch group: physics, unpaired, empty, etc
+
+* Read luminosity and DQ from COOL for range of lumi blocks
+
+* Fix algorithm type id: same algorithm class are used at L2 and EF
+
+* Fix problem with counting number of online events per application id and lumi block
+  - make plot for L2 and EF farms occupancy and fraction of available CPU time
+  - requires HLT counts in COOL
+
+* Merging of L2 and EF streams
+
+* TrigMonitoringEvent package:
+  - instantiate all templates within TrigMonitoringEvent library
+  - add get method for express PS
+  - add rerurn PS value
+  - allow update of groups and streams
+  - Better L1 configuration information?
+
+* TrigCostMonitor
+  - add ROI information for creating new thresholds
+  - add TE hypo variables
+
+* Fix EF rates for chains which share L2 seed
+
+* Rates for HLT trigger rejection at each signature step
+
+* Add total integrated luminosity to xml file with rate results
+
+* Add algorithm for processing ROB request time per detector and sub-detector 
+  - TrigTimeRob, similar to TrigTimeAlg
+
+
+Done:
+
+> Load two sets of PS keys and compute weight ratios and rates
+
+> Python module for pre and post processing of rates jobs
+
+> Fix problem with stream group html page?
+
+> Read full trigger configuration by run, lumi or keys
