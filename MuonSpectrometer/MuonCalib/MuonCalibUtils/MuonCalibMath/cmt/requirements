@@ -1,0 +1,21 @@
+package MuonCalibMath
+
+author Niels van Eldik
+
+use AtlasPolicy		AtlasPolicy-*
+use AtlasCLHEP		AtlasCLHEP-* External
+
+use EventPrimitives  EventPrimitives-*  Event
+
+
+include_dirs "$(MuonCalibMath_root)"
+
+macro MuonCalibMath_linkopts "-L$(MuonCalibMath_root)/lib -lMuonCalibMath"
+
+library  MuonCalibMath ../src/*.cxx
+
+apply_pattern installed_library 
+
+private
+use AtlasROOT           AtlasROOT-*   External
+use AtlasEigen           AtlasEigen-*   External
