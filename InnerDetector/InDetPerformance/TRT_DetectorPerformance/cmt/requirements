@@ -1,0 +1,65 @@
+package TRT_DetectorPerformance
+
+author Sasa Fratina <Sasa.Fratina@cern.ch>
+author Brett Jackson <Brett.Jackson@cern.ch>
+author Dominick Olivito <Dominick.Olivito@cern.ch>
+
+public
+
+use AtlasPolicy                 AtlasPolicy-*
+use GaudiInterface              GaudiInterface-*                External
+use AtlasROOT                   AtlasROOT-*                     External
+
+use Identifier                  Identifier-*                 	DetectorDescription
+
+use AthenaBaseComps             AthenaBaseComps-*               Control
+use StoreGate                   StoreGate-*                     Control
+use DataModel                   DataModel-*                  	Control
+
+use InDetPrepRawData            InDetPrepRawData-*           	InnerDetector/InDetRecEvent
+use InDetRawData                InDetRawData-*               	InnerDetector/InDetRawEvent
+use TRT_ConditionsServices      TRT_ConditionsServices-*        InnerDetector/InDetConditions
+
+use EventInfo                   EventInfo-*                     Event
+use InDetCosmicsEventPhase      InDetCosmicsEventPhase-*        InnerDetector/InDetCosmics
+use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use InDetTrackSplitterTool      InDetTrackSplitterTool-*        InnerDetector/InDetValidation
+
+private
+
+
+use AtlasHepMC                  AtlasHepMC-*                    External
+
+use PathResolver                PathResolver-*                  Tools
+
+use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+
+use InDetRIO_OnTrack            InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
+use InDetSimData                InDetSimData-*                  InnerDetector/InDetRawEvent
+use TRT_ConditionsData          TRT_ConditionsData-*            InnerDetector/InDetConditions
+use InDetRecToolInterfaces      InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
+use TRT_TrackSegmentsFinder     TRT_TrackSegmentsFinder-*       InnerDetector/InDetRecAlgs
+
+
+use TrkParameters               TrkParameters-*                 Tracking/TrkEvent
+use TrkTrackSummary             TrkTrackSummary-*               Tracking/TrkEvent
+use TrkTrack                    TrkTrack-*                      Tracking/TrkEvent
+use TrkTruthData                TrkTruthData-*                  Tracking/TrkEvent
+use TrkEventPrimitives          TrkEventPrimitives-*            Tracking/TrkEvent
+use TrkSegment                  TrkSegment-*                    Tracking/TrkEvent
+
+use CommissionEvent             CommissionEvent-*               Commission
+
+use TrigConfL1Data  		TrigConfL1Data-* 		Trigger/TrigConfiguration
+use TrigConfHLTData  		TrigConfHLTData-* 		Trigger/TrigConfiguration
+use TrigInterfaces              TrigInterfaces-*                Trigger/TrigSteer
+use TrigSteering                TrigSteering-*                  Trigger/TrigSteer
+use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
+use TrigInDetEvent              TrigInDetEvent-*        	Trigger/TrigEvent
+
+
+public
+
+apply_pattern component_library
+library TRT_DetectorPerformance *.cxx components/*.cxx
+apply_pattern declare_joboptions files="*.py"
