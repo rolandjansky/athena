@@ -1,0 +1,16 @@
+#include "GaudiKernel/DeclareFactoryEntries.h"
+
+#include "MuonPRDTest/MDTPRDValAlg.h"
+#include "MuonPRDTest/NSWPRDValAlg.h"
+
+
+DECLARE_FACTORY_ENTRIES(MuonPRDTest) 
+{
+  DECLARE_ALGORITHM( MDTPRDValAlg )
+  DECLARE_ALGORITHM( NSWPRDValAlg )
+}
+
+DECLARE_ALGORITHM_FACTORY( MDTPRDValAlg )
+DECLARE_ALGORITHM_FACTORY( NSWPRDValAlg )
+ 
+  
