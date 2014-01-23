@@ -1,0 +1,41 @@
+package InDetVertexMonitoring
+
+author Federico Meloni <federico.meloni@cern.ch>
+
+private
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use EventInfo                   EventInfo-*                     Event
+use VxVertex             	VxVertex-*                  	Tracking/TrkEvent
+#use TrkParameters		TrkParameters-*			Tracking/TrkEvent
+use AtlasROOT			AtlasROOT-*			External
+use StoreGate           	StoreGate-*                     Control
+
+use AthenaPoolUtilities		AthenaPoolUtilities-*		Database/AthenaPOOL
+
+#DEBUG CODE
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use AthenaMonitoring		AthenaMonitoring-*		Control
+use GaudiInterface		GaudiInterface-*		External
+#use TrkToolInterfaces		TrkToolInterfaces-*		Tracking/TrkTools
+#use TrkVertexAnalysisUtils 	TrkVertexAnalysisUtils-* 	Tracking/TrkVertexFitter
+use LWHists			LWHists-*			Tools
+use TrigDecisionTool		TrigDecisionTool-*		Trigger/TrigAnalysis
+
+#use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
+#use UserAnalysisUtils		UserAnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
+#use AtlasCLHEP  		AtlasCLHEP-* 			External
+#use CBNT_Utils			CBNT_Utils-*			Reconstruction
+
+library InDetVertexMonitoring *.cxx components/*.cxx 
+
+#apply_tag  ROOTBasicLibs
+#apply_tag  ROOTMathLibs
+#apply_tag  ROOTSTLDictLibs
+#apply_tag  ROOTGraphicsLibs
+#apply_tag  ROOTTableLibs
+
+apply_pattern component_library
