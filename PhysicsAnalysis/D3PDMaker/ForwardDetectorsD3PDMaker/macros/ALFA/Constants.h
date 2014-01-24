@@ -1,0 +1,29 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define RPOTSCNT 8
+#define MDLAYERSCNT	2
+#define MDPLATESCNT	10
+#define MDFIBERSCNT	64
+#define ODLAYERSCNT	2
+#define ODPLATESCNT	3
+#define ODFIBERSCNT	15
+
+#define TRIGPATCNT 16
+#define BLMCNT 6
+#define HVCHANNELCNT 216
+#define RADMONCNT 4
+#define FECNFTHRESHLOLDCNT 3
+#define FECNFGAINCNT 5
+#define TRIGSETCNT 6
+#define TRIGSETLATENCYCNT 3
+
+#define MAXNUMTRACKS 100
+#define MAXNUMGLOBTRACKS 100
+#define MAXNUMGENPARTICLES 100
+
+#endif // CONSTANTS_H
