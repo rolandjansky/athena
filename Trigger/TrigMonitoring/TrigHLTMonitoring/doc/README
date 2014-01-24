@@ -1,0 +1,42 @@
+package TrigHLTMonitoring for offline monitoring of HTL Result:
+
+For "Tier-0" monitoring, the following slices are in
+
+Muon, Tau, MissET, Jet (EF and LE), B-Jet, Egamma, IDtrack, MinBias, Bphys
+
+For "CAF" monitoring, the following silces are in
+
+Egamma, MissET, Muon, Bphys
+
+
++++++++++++++++++++ I M P O R T A N T ++++++++++++++++++++++++++++++
+
+--------------- For Release 14.1: ----------------------------------
+
+Use only the tag  TrigHLTMonitoring-00-01-09  
+in bundle with Trigger/TrigEvent/TrigCaloEvent-00-02-12
+
+
+-------------- For Release 14.2: ----------------------------------
+
+Use form tag TrigHLTMonitoring-00-01-14 to 00-02-05 and 00-02-07 
+
+
+-------------- For Release 14.4: ----------------------------------
+
+Use tag TrigHLTMonitoring-00-02-06 and
+form tag TrigHLTMonitoring-00-01-08 on
+
+
+-------------- For Release 14.5 -----------------------------------
+
+Use tag for Branche TrigHLTMonitoring-00-02-10-01 onwards,
+higher tags contain changes for new EDM model
+
+
+-------------- new EDM Model: --------------------------------------
+
+new tag TrigHLTMonitoring-00-03-00
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
