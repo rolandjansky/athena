@@ -1,0 +1,19 @@
+package ForwardTracker
+
+author P. Bussey, P. Sherwood, M.D. Baker, E. Carquin, A. Sbrizzi
+
+public
+
+use AtlasPolicy 	AtlasPolicy-*
+use AtlasCoreRunTime 	AtlasCoreRunTime-*
+use AtlasBoost 		AtlasBoost-* 		External
+
+library ForwardTracker *.cxx
+apply_pattern installed_library
+
+private
+
+macro         forwardTrackerMainlinkopts " -lForwardTracker  "
+macro_prepend forwardTrackerMainlinkopts " $(Boost_linkopts_program_options) "
+macro_append  forwardTrackerMain_dependencies " ForwardTracker "
+application   forwardTrackerMain  -s=../test forwardTrackerMain.cxx -import=Boost
