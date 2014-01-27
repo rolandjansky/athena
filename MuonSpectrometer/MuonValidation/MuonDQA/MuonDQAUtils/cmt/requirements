@@ -1,0 +1,74 @@
+package MuonDQAUtils
+
+################################################# 
+manager Nectarios Ch. Benekos	<Nectarios.Benekos@cern.ch> 
+ 
+author Nectarios Ch. Benekos    <Nectarios.Benekos@cern.ch>
+author Nectarios Chr. Benekos   <Nectarios.Benekos@cern.ch>
+author Ioannis Nomidis          <inomi@physics.auth.gr>  
+author Georgios Dedes           <gdedes@mppmu.mpg.de>
+
+branches src cmt doc
+branches run
+
+
+# The following dependencies satisfy the compile (build) time environment
+use AtlasPolicy                 AtlasPolicy-*
+use GaudiInterface              GaudiInterface-*             External
+use AtlasROOT                   AtlasROOT-*                  External
+
+use EventInfo                   EventInfo-*                  Event
+use EventKernel                 EventKernel-*                Event
+use AtlasCLHEP                  AtlasCLHEP-*                 External
+use StoreGate                   StoreGate-*                  Control
+use AthenaMonitoring	        AthenaMonitoring-*           Control
+
+# for histograming tool
+use MuonIdHelpers	        MuonIdHelpers-*	             MuonSpectrometer
+use MuonReadoutGeometry         MuonReadoutGeometry-*	     MuonSpectrometer/MuonDetDescr
+
+#For Light Weight Histograms	
+use LWHists                     LWHists-*                    Tools
+
+###For ESD and Truth
+use JetTagEvent                 JetTagEvent-*                PhysicsAnalysis/JetTagging 
+use JetEvent                    JetEvent-*                   Reconstruction/Jet
+use egammaEvent                 egammaEvent-*                Reconstruction/egamma
+use muonEvent                   muonEvent-*                  Reconstruction/MuonIdentification
+
+use ParticleEvent               ParticleEvent-*              PhysicsAnalysis/AnalysisCommon
+use AnalysisTriggerEvent        AnalysisTriggerEvent-*       PhysicsAnalysis/AnalysisTrigger
+
+use McParticleEvent		McParticleEvent-*	     PhysicsAnalysis/TruthParticleID
+use McParticleKernel		McParticleKernel-*	     PhysicsAnalysis/TruthParticleID
+
+use Particle                    Particle-*                   Reconstruction
+ 
+use TrkTrack                    TrkTrack-*                   Tracking/TrkEvent
+
+# Residual/pull 
+use TrigMuonEvent               TrigMuonEvent-*              Trigger/TrigEvent
+use TrigSteeringEvent           TrigSteeringEvent-*          Trigger/TrigEvent
+
+#library MuonDQAUtils *.cxx -s=components *.cxx
+apply_pattern dual_use_library files= *.cxx
+apply_pattern declare_runtime
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag ROOTGraphicsLibs
+
+private
+use MuonRecHelperTools          MuonRecHelperTools-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonSegment                 MuonSegment-*                MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use TrkEventPrimitives          TrkEventPrimitives-*         Tracking/TrkEvent
+use TrkExInterfaces             TrkExInterfaces-*            Tracking/TrkExtrapolation
+use TrkGeometry                 TrkGeometry-*                Tracking/TrkDetDescr  
+use TrkMeasurementBase          TrkMeasurementBase-*         Tracking/TrkEvent
+use TrkParameters               TrkParameters-*              Tracking/TrkEvent
+use TrkToolInterfaces	        TrkToolInterfaces-*	     Tracking/TrkTools 
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+
