@@ -1,0 +1,17 @@
+ESDtoESD_trf.py \
+maxEvents=100 \
+inputESDFile=\
+/home/akimasa/maxi30/data10_7TeV.00162347.express_express.recon.ESD.x39._lb0142._SFO-4._0001.1 \
+outputESDFile=myESD.pool.root \
+outputDQMonitorFile=MonitorESD.root \
+preExec='DQMonFlags.doMuonSegmentMon.set_Value_and_Lock(False)',\
+'DQMonFlags.doCaloMon.set_Value_and_Lock(False)','DQMonFlags.doTileMon.set_Value_and_Lock(False)','DQMonFlags.doLArMon.set_Value_and_Lock(False)','DQMonFlags.doJetMon.set_Value_and_Lock(False)',\
+'DQMonFlags.doPixelMon.set_Value_and_Lock(False)','DQMonFlags.doSCTMon.set_Value_and_Lock(False)','DQMonFlags.doTRTMon.set_Value_and_Lock(False)','DQMonFlags.doInDetPerfMon.set_Value_and_Lock(False)',\
+'DQMonFlags.doMissingEtMon.set_Value_and_Lock(False)','DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)','DQMonFlags.doTauMon.set_Value_and_Lock(False)','DQMonFlags.doJetTagMon.set_Value_and_Lock(False)',\
+'DQMonFlags.doHLTMon.set_Value_and_Lock(False)','DQMonFlags.doEgammaMon.set_Value_and_Lock(False)','DQMonFlags.doLucidMon.set_Value_and_Lock(False)',\
+'DQMonFlags.doMuonRawMon.set_Value_and_Lock(True)',\
+'rec.doFloatingPointException.set_Value_and_Lock(True)' \
+preInclude=RecExCommon/RecoUsefulFlags.py \
+AMI=q120 \
+
+#AMI=q120 for data
