@@ -1,0 +1,189 @@
+2014-01-30  Nektarios Benekos  <Nektarios.Benekos@cern.ch>
+	                       <nbenekos@uiuc.edu>
+	
+       * tagging MuonCalibMonitoring-01-01-01
+       * updated for AthenaMonitoring base class transition
+
+2012-08-07 R. Matt Leone
+    * MuonCalibMonitoring-00-09-03
+    * fixed <check status code> errors
+
+2011-09-12 Felix Rauscher
+    * MuonCalibMonitoring-00-09-02
+    * checkreq
+    * fix pow-abuse
+
+2011-03-01  Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-09-01
+    * Sanity check
+
+2011-02-14  Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-09-00
+    * Pulser monitoring update
+
+2010-08-23 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-08-01
+    * Mix changes
+
+2010-08-23 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-08-00
+    *  Ped monitoring : Online THold breaches counted
+
+
+2010-08-05 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-07
+    * CscCalcSlope: Stopped renaming calgraph axes
+
+2010-08-05 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-06
+    * CscCalcSlope: Now histogramming attenuation levels is optional
+
+2010-08-05 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-05
+    * Fixed binning for missing bad bin
+
+2010-06-11 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-04
+    * Fixed requirements file
+
+2010-06-11 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-03
+    * Changed default chi2 cut
+
+2010-06-10 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-02
+    * Requirements fix
+
+2010-06-10 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-01
+    * Removed duplicated chi2 booking in ped mon
+
+2010-05-28 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-07-00
+    * Removed website stuff
+
+2010-05-28 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-06-00
+    * Adding in website stuff
+    * Added in CscCoolHistory stuff
+
+2010-05-21 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-05-01
+    * Fixed checkreq warnings
+
+2010-05-20 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-05-00
+    * Added sector view of all channels
+
+2010-04-29 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-04-03
+    * Some minor property changes
+
+2010-03-09 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-04-02
+    * Increased number of bad channels to 100
+
+2010-03-03 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-04-01
+    * Fixed neighboring charge ratio bug in CscCalibSlopeMon
+    * Removed some harmless compilation warnings from CscCalibPedMOn
+
+2010-03-03 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-04-00
+    * Added text reports of status
+
+2009-12-15 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-03-00
+    * Added next-neighbor ratios to slope monitoring
+    * Moved header fils to src directory
+
+2009-12-10 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-02-00
+    * Added rms and f001
+    * Added slope fit results
+    * many other changes and tweaks
+
+
+2009-10-21 Caleb Lampen <lampen@physis.arizona.edu>
+    * MuonCalibMonitoring-00-01-00
+    * Added sampling histograms
+    * Staring to use middle version number for feature additions. Last for minor tweaks and bugfixes
+
+2009-10-0 Caleb Lampen <lampen@physis.arizona.edu>
+    * MuonCalibMonitoring-00-00-16
+    * Added RMS plots
+    * Added correlation plots
+
+2009-09 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-15
+    * More misc tweaks
+
+2009 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-14
+    * Misc tweaks
+
+2009-08-07 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-13
+    * Created a uniform histogram path creation system
+
+2009-08-06 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-12
+    * Added 2d hists. 
+    * Maybe fixed missing histograms
+
+2009-01-13 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-11
+    * Format changes: 
+    
+2009-01-13 Caleb Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-10
+    * Made changes to monitoring output file layout
+    * Made cosmetic changes (colors) to plots
+
+2008-12-18 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-09 
+    * Added cscHashToHuman.py
+
+2008-12-17 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * MuonCalibMonitoring-00-00-08
+    * Fixed cmt requirements warnings
+    * Modified output historgrams. Fixed spellings etc.
+    * Modified output directory
+
+2008-10-17 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-07
+    * Bugfix
+
+
+2008-09-26 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-06
+    * Fixed logging standards
+
+2008-09-26 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-05
+    * Produces histograms for dead channels
+    * BETA - waiting for data to test with!
+
+2008-09-22 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-05
+    * Updated to look for dead channels - no historams yet, just produces stat file.
+
+2008-09-02 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-04
+    * Removed cerr statements accidently left in from debugging in last addition
+
+2008-07-07 Caleb Parnell-lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-03
+    * Added documentation
+
+2008-07-07 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-02
+    * Modified CscCalibMonToolSlope to read calGraphs based upon CscCalibReportSlope objects
+    * Modified to create, make descisions based on, and print out fractional deviation plots in CscCalibMonToolSlope
+
+2008-07-04 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Tagged as MuonCalibMonitoring-00-00-01
+    * Got fully working pedestal histograms
+
+2008-06-20 Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+    * Initial import
