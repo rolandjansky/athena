@@ -1,0 +1,42 @@
+package TrigTauMonitoring
+
+author Martin zur Nedden <nedden@mail.cern.ch>
+author Denis Oliveira Damazio <damazio@mail.cern.ch>
+
+
+private
+
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTMathLibs
+
+use AnalysisTriggerEvent  AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+use AnalysisUtils         AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
+use AthenaMonitoring      AthenaMonitoring-*      Control
+use AtlasROOT             AtlasROOT-*             External
+use EventInfo             EventInfo-*             Event
+use GaudiInterface       GaudiInterface-*         External
+use JetEvent              JetEvent-*              Reconstruction/Jet
+use JetTagEvent           JetTagEvent-*           PhysicsAnalysis/JetTagging
+use Particle              Particle-*              Reconstruction
+use StoreGate             StoreGate-*             Control
+use TrigDecisionInterface TrigDecisionInterface-* Trigger/TrigEvent
+use TrigDecisionTool      TrigDecisionTool-*      Trigger/TrigAnalysis
+use TrigHLTMonitoring     TrigHLTMonitoring-*     Trigger/TrigMonitoring
+use tauEvent              tauEvent-*              Reconstruction
+use VxVertex              VxVertex-*              Tracking/TrkEvent
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+use TrigInDetEvent        TrigInDetEvent-*        Trigger/TrigEvent
+use TrigCaloEvent         TrigCaloEvent-*         Trigger/TrigEvent
+#use MissingETEvent       MissingETEvent-00-*     Reconstruction
+use TrigParticle          TrigParticle-*          Trigger/TrigEvent
+use TrigSteeringEvent     TrigSteeringEvent-*     Trigger/TrigEvent
+
+
+#apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+library TrigTauMonitoring *.cxx components/*.cxx
+apply_pattern component_library
+
