@@ -1,0 +1,42 @@
+
+  MooPerformance Package
+  ======================
+
+  Authors: Nectarios Benekos (Nectarios.Benekos@cern.ch)
+           Thomas Moore (tbmoore@slac.stanford.edu)
+           Stephane Willocq (Stephane.Willocq@cern.ch)
+
+  MooPerformance package is meant to contain ROOT (or PAW) macros
+  to study Moore and MuID performance. See results in the
+  validation web pages located at http://cern.ch/muondoc/Software/Validation/.
+
+  This version of the package includes macros for the study
+  of single-muon MC events based on the CBNT ntuples created by
+  MooMakeNtuplePulls, MuidInitNtuple, MuidIDNtuple, MuidNtuple, MuidCombNtuple
+  and MuidNtupleKINE
+
+    MooPerformance.C	main ROOT function to steer analysis
+    MooHists.C		loops over CBNT tree to fill a variety of histograms   
+    PhiBin.C            Defines 4 regions in phi (A,B1,C,B2) as defined in 
+                        ATL-SOFT-2003-007. 
+
+  Note: Previous tags included MooHists.C that expected a single ntuple and
+    MooHists2 that expected Moore ntuples to be in tree t4444 and Muid 
+    ntuples in t3333. MooHists2 has been renamed MooHists and the previous 
+    MooHists removed.( TBM 11/11/04)
+
+  The performance plots can be run in batch mode with:
+
+    root -q -b MooPerformance.C
+
+  ---------------------------------------------------------------------------
+
+  Addition for RTT Moore-MoMu studies
+ 
+  A new macro called MoMuPlot.C has been introduced to analyse the 
+  TrackAnalysis.root file in output from CalibrationNtuple
+  Relevant plots are generated for validation and performance studies of 
+  Moore-MoMu. 
+  Again , this is run simply by doing
+   root -q -b MoMuPlot.C
+
