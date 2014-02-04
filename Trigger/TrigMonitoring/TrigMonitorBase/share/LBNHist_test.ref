@@ -1,0 +1,68 @@
+histogram: usual
+ deregistered:  active: 
+histogram: Group
+ deregistered:  active: 
+filling for LBN: 1
+histogram: usual
+ deregistered:  active: [1,2) 
+histogram: Group
+ deregistered:  active: [1,11) 
+filling for LBN: 1
+histogram: usual
+ deregistered:  active: [1,2) 
+histogram: Group
+ deregistered:  active: [1,11) 
+filling for LBN: 1
+histogram: usual
+ deregistered:  active: [1,2) 
+histogram: Group
+ deregistered:  active: [1,11) 
+filling for LBN: 2
+filling for LBN: 2
+filling for LBN: 2
+histogram: usual
+ deregistered:  active: [1,2) [2,3) 
+histogram: Group
+ deregistered:  active: [1,11) 
+filling for LBN: 3
+filling for LBN: 3
+filling for LBN: 3
+histogram: usual
+ deregistered:  active: [1,2) [2,3) [3,4) 
+histogram: Group
+ deregistered:  active: [1,11) 
+filling for LBN: 10
+filling for LBN: 10
+filling for LBN: 10
+histogram: usual
+ deregistered: [1,2)  active: [2,3) [3,4) [10,11) 
+histogram: Group
+ deregistered:  active: [1,11) 
+filling for LBN: 11
+filling for LBN: 11
+filling for LBN: 11
+histogram: usual
+ deregistered: [1,2) [2,3)  active: [3,4) [10,11) [11,12) 
+histogram: Group
+ deregistered:  active: [1,11) [11,21) 
+filling for LBN: 16
+histogram: usual
+ deregistered: [1,2) [2,3) [3,4)  active: [10,11) [11,12) [16,17) 
+histogram: Group
+ deregistered:  active: [1,11) [11,16) [16,26) 
+filling for LBN: 15
+histogram: usual
+ deregistered: [1,2) [2,3) [3,4) [10,11)  active: [11,12) [15,16) [16,17) 
+histogram: Group
+ deregistered:  active: [1,11) [11,16) [16,26) 
+filling for LBN: 21
+histogram: usual
+ deregistered: [1,2) [2,3) [3,4) [10,11) [11,12)  active: [15,16) [16,17) [21,22) 
+histogram: Group
+ deregistered:  active: [1,11) [11,16) [16,26) 
+filling for LBN: 31
+filling for LBN: 35
+histogram: usual
+ deregistered: [1,2) [2,3) [3,4) [10,11) [11,12) [15,16) [16,17) [21,22)  active: [31,32) [35,36) [43,44) 
+histogram: Group
+ deregistered: [1,11) [11,16)  active: [16,26) [31,41) [43,53) 
