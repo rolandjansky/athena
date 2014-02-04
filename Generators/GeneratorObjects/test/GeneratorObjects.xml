@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name=T name="GeneratorObjectsTest" type="makecheck" suite="Examples">
+      <package>Generator/GeneratorObjects</package>
+      <timelimit>5</timelimit>
+      <author> Paolo Calafiura </author>
+      <mailto> pcalafiura@lbl.gov, George.Stavropoulos@cern.ch> </mailto>
+      <expectations>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+          <successMessage>check ok</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
+</atn>
