@@ -1,0 +1,25 @@
+package TrkDetDescrGeoModelCnv
+
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*
+
+use TrkGeometry      TrkGeometry-*           Tracking/TrkDetDescr
+use GeoPrimitives        GeoPrimitives-*            DetectorDescription
+
+private
+use AtlasCLHEP       AtlasCLHEP-*            External
+use TrkVolumes       TrkVolumes-*            Tracking/TrkDetDescr
+use GeoModelKernel   GeoModelKernel-*        DetectorDescription/GeoModel
+
+public
+library TrkDetDescrGeoModelCnv *.cxx
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
