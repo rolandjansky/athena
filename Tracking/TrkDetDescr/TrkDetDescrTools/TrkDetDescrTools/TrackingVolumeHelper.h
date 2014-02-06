@@ -1,0 +1,242 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// TrackingVolumeHelper.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef TRKDETDESCRTOOLS_TRACKINGVOLUMEHELPER_H
+#define TRKDETDESCRTOOLS_TRACKINGVOLUMEHELPER_H
+
+// Trk
+#include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
+#include "TrkGeometry/TrackingVolumeManipulator.h"
+// Amg
+#include "GeoPrimitives/GeoPrimitives.h"
+// Gaudi & Athena
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+// STL
+#include <algorithm>
+#include <string>
+#include <fstream>
+
+
+namespace Trk {
+
+    class ILayerArrayCreator;
+    class ITrackingVolumeArrayCreator;
+    class TrackingVolume;
+    class VolumeBounds;
+    class CylinderVolumeBounds;
+    class Material;
+
+    /** @class TrackingVolumeHelper
+
+      The TrackingVolumeHelper is a simple Tool that helps to construct
+      volumes mainly for gap regions in the fully connective geometry.      
+
+      @author Andreas.Salzburger@cern.ch   
+     */
+
+    class TrackingVolumeHelper : public AthAlgTool,
+                                 public TrackingVolumeManipulator,
+                         virtual public ITrackingVolumeHelper {
+
+      public:
+        /** Constructor */
+        TrackingVolumeHelper(const std::string&,const std::string&,const IInterface*);
+        /** Destructor */
+        virtual ~TrackingVolumeHelper();
+
+        /** AlgTool and IAlgTool interface methods */
+        static const InterfaceID& interfaceID() { return IID_ITrackingVolumeHelper; }
+
+        /** AlgTool initialize method */
+        StatusCode initialize();
+        /** AlgTool finalize method */
+        StatusCode finalize();
+
+        /** TrackingVolumeBuilder interface method - returns vector of Volumes */
+        virtual TrackingVolume* trackingVolumeCylinderLayers(
+                                                  Amg::Transform3D* trans,
+                                                  CylinderVolumeBounds* bounds,
+                                                  Material& matprop,
+                                                  std::vector<double> radii,
+                                                  std::vector<double> envelopeCovers,
+                                                  const std::string& volumeName="UndefinedVolume",
+                                                  int materialBinsRZ = 1,
+                                                  int materialBinsPhi = 1,
+                                                  BinningType btype = arbitrary,
+                                                  bool redoNavigation = false) const;
+
+        /** TrackingVolumeBuilder interface method - returns vector of Volumes */
+        virtual TrackingVolume* trackingVolumeDiscLayers(
+                                                  Amg::Transform3D* trans,
+                                                  CylinderVolumeBounds* bounds,
+                                                  Material& matprop,
+                                                  std::vector<double> zPos,
+                                                  std::vector<double> envelopeInnerCovers,
+                                                  std::vector<double> envelopeOuterCovers,
+                                                  const std::string& volumeName="UndefinedVolume",
+                                                  int materialBinsRZ = 1,
+                                                  int materialBinsPhi = 1,
+                                                  BinningType btype = arbitrary,                                                  
+                                                  bool redoNavigation = false) const;
+
+        /** TrackingVolumeHelper interface method - creation of  Gap volume with a single layer */
+        virtual TrackingVolume* createCylindricalGapVolume(
+                                                  double rMin, double rMax, double zMin, double zMax,
+                                                  Material& matprop,
+                                                  const std::string& volumeNamce ="UndefinedVolume",
+                                                  bool cylinderLayer = true,
+                                                  double coverOne = 25.,
+                                                  double coverTwo = 25.,
+                                                  int materialBinsRZ = 1,
+                                                  int materialBinsPhi = 1,
+                                                  bool redoNavigation = false) const;
+
+        /** Create a one level higher TrackingVolue - the ordering must be done in R/Z and the vector has to be so already*/
+        virtual TrackingVolume* createCylindricalTopLevelVolume(
+                                                  const std::vector<const TrackingVolume*>& volumes,
+                                                  Material& matprop,
+                                                  const std::string& volumeName ="UndefinedVolume",
+                                                  bool glue=false) const;
+
+        /** Reshape a Tracking Volume - be careful with that as the layer array is only copied */
+        virtual const TrackingVolume* resizeCylindricalTrackingVolume(
+                                                  const TrackingVolume* tvol,
+                                                  double rMin, double rMax,
+                                                  double zMin, double zMax) const;
+
+
+        /** protected method to glue two Volumes together
+            input:
+            - first TrackingVolume that keeps boundary surface
+            - face of the BoundarySurface to be kept
+            - second volume that gets glued to the first volume
+            - face of the BoundarySurface to be shared
+
+            --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+         */
+        void glueTrackingVolumes(const TrackingVolume& firstVol,
+                                 BoundarySurfaceFace firstFace,
+                                 const TrackingVolume& secondVol,
+                                 BoundarySurfaceFace secondFace) const;
+
+        /** protected method to glue two Volumes together
+            input:
+            - first TrackingVolume that keeps boundary surface
+            - face of the BoundarySurface to be kept
+            - second volume that gets glued to the first volume
+            - face of the BoundarySurface to be shared
+
+            --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+         */
+        void glueTrackingVolumes(const TrackingVolume& firstVol,
+                                 BoundarySurfaceFace firstFace,
+                                 const std::vector<const TrackingVolume*>& secondVolumes,
+                                 BoundarySurfaceFace secondFace) const;
+
+        /** protected method to glue two VolumeArrays together (at navigation level)
+            - relies on information from glueDescriptor
+            input:
+            - first TrackingVolume
+            - face of the BoundarySurface of the first volume
+            - second volume that gets glued to the first volume
+            - face of the BoundarySurface of the second volume
+            output:
+             - returns enveloping TrackingVolume with glueDescription set for consequent gluing
+
+            --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+         */
+        Trk::TrackingVolume* glueTrackingVolumeArrays(const TrackingVolume& firstVol,
+                               BoundarySurfaceFace firstFace,
+                               const TrackingVolume& secondVol,
+                               BoundarySurfaceFace secondFace, std::string name) const;
+
+        /** protected method to set inside Volume of a BoundarySurface:
+            input:
+            - the volume that holds the BoundarySurface
+            - the face type of the boundary to be set
+            - the volume to be set as inside volume
+
+            --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+         */
+        void setInsideTrackingVolume(const TrackingVolume& tvol,
+                                     BoundarySurfaceFace face,
+                                     const TrackingVolume* insidevol) const;
+
+        /** protected method to set inside VolumeArray of a BoundarySurface:
+            input:
+            - the volume that holds the BoundarySurface
+            - the face type of the boundary to be set
+            - the volume array to be set as inside volume array
+
+            --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+         */
+        void setInsideTrackingVolumeArray(const TrackingVolume& tvol,
+                                          BoundarySurfaceFace face,
+                                          BinnedArray<TrackingVolume>* insidevolarray) const;
+
+        void setInsideTrackingVolumeArray(const TrackingVolume& tvol,
+                                          BoundarySurfaceFace face,
+                                          SharedObject<BinnedArray<TrackingVolume> >insidevolarray) const;
+
+        /** protected method to set outside Volume of a BoundarySurface:
+            input:
+            - the volume that holds the BoundarySurface
+            - the face type of the boundary to be set
+            - the volume to be set as outside volume
+
+            --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+         */
+        void setOutsideTrackingVolume(const TrackingVolume& tvol,
+                                      BoundarySurfaceFace face,
+                                      const TrackingVolume* outsidevol) const;
+
+        /** protected method to set outside VolumeArray of a BoundarySurface:
+            input:
+            - the volume that holds the BoundarySurface
+            - the face type of the boundary to be set
+            - the volume array to be set as outside volume array */
+        void setOutsideTrackingVolumeArray(const TrackingVolume& tvol,
+                                           BoundarySurfaceFace face,
+                                           BinnedArray<TrackingVolume>* outsidevolarray) const;
+
+        void setOutsideTrackingVolumeArray(const TrackingVolume& tvol,
+                                           BoundarySurfaceFace face,
+                                           SharedObject<BinnedArray<TrackingVolume> >outsidevolarray) const;
+
+
+      private:
+
+        /** Private method - it takes the full vector of given volumes to create the supervolume,
+                           - it compares the volumes with the ones scheduled to build the face (could probably be done at once)
+                           - it checks whether there is a sub-structure (i.e. GlueVolumeDescriptor exists)
+                             and adds either the volume itself or the associated subvolume
+                           - volumes on glueVols level are all on navigation level*/
+        void fillGlueVolumes(const std::vector< const TrackingVolume*>& topLevelVolumes,
+                             const std::vector< const TrackingVolume*>& envelopeFaceVolumes,
+                             BoundarySurfaceFace glueFace,
+                             std::vector<const Trk::TrackingVolume*>& glueVols) const;
+
+        /** Execute the gluing  - the input volumes are all on navigation level */
+        void glueTrackingVolumes(const std::vector<const Trk::TrackingVolume*>& glueVols,
+                                 BoundarySurfaceFace glueFace,
+                                 BoundarySurfaceFace secondFace) const;
+
+
+        ToolHandle<ILayerArrayCreator>          m_layerArrayCreator;            //!< A Tool for coherent LayerArray creation
+        ToolHandle<ITrackingVolumeArrayCreator> m_trackingVolumeArrayCreator;   //!< Helper Tool to create TrackingVolume Arrays
+
+        static double                       s_layerEnvelopeDistance;            //!< avoids touching of layer and boundary surface
+        static double                       s_layerThickness;                   //!< standard layer thickness
+
+    };
+
+}
+
+#endif
+
