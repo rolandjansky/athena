@@ -1,0 +1,43 @@
+package AtlasGdb
+author  Sebastien Binet <binet@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+use PyCmt		    PyCmt-*             Tools -no_auto_imports
+use AtlasPython     AtlasPython-*       External
+use AtlasBzip2      AtlasBzip2-*        External
+
+apply_pattern declare_python_modules files="gdbhacks *.py"
+apply_pattern declare_scripts files="atlasAddress2Line"
+
+application resolveAtlasAddr2Line ../app/resolveAtlasAddr2Line.cpp
+macro_append resolveAtlasAddr2Line_dependencies "make_pkgbuild_gdb"
+
+private
+
+apply_pattern make_pkgbuild \
+ name=gdb \
+ file=pkgbuild_gdb.py
+
+end_private
+
+macro_append AtlasGdb_linkopts "" \
+  slc5&64 \
+ " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
+   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib64/libiberty.a -lz " \
+  slc5&32 \
+ " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
+   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libiberty.a -lz "   \
+  slc6&64&clang32 \ 
+ " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \ 
+   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/x86_64/libiberty.a -lz " \
+  slc6&64&icc13 \ 
+ " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \ 
+   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libiberty.a -lz " \
+  slc6&64 \
+ " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
+   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib64/libiberty.a -lz " \
+  slc6&32 \
+ " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
+   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libiberty.a -lz "
+

@@ -1,0 +1,76 @@
+=== modified file 'gdb/python/py-auto-load.c'
+--- gdb/python/py-auto-load.c	2010-11-12 17:13:12 +0000
++++ gdb/python/py-auto-load.c	2011-02-02 16:18:15 +0000
+@@ -28,6 +28,7 @@
+ #include "progspace.h"
+ #include "objfiles.h"
+ #include "python.h"
++#include "language.h"
+ #include "cli/cli-cmds.h"
+ 
+ /* Internal-use flag to enable/disable auto-loading.
+@@ -411,6 +412,32 @@
+       auto_load_objfile_script (objfile, GDBPY_AUTO_FILE_NAME);
+       auto_load_section_scripts (objfile, GDBPY_AUTO_SECTION_NAME);
+     }
++
++  /* Run an objfile hook, if defined. */
++  {
++    struct cleanup* cleanups =
++      ensure_python_env (get_objfile_arch(objfile), current_language);
++
++    PyObject* objfile_hook =
++      PyObject_GetAttrString (gdb_module, "objfile_hook");
++    if (objfile_hook) {
++      make_cleanup_py_decref (objfile_hook);
++      if (PyCallable_Check (objfile_hook)) {
++        PyObject* ret;
++        PyObject* args = Py_BuildValue ("(O)",
++                                        objfile_to_objfile_object (objfile));
++        make_cleanup_py_decref (args);
++        ret = PyObject_CallObject (objfile_hook, args);
++        if (ret)
++          Py_DECREF(ret);
++        else
++          gdbpy_print_stack ();
++      }
++    }
++
++    do_cleanups (cleanups);
++  }
++
+ }
+ 
+ /* Traversal function for htab_traverse.
+
+=== modified file 'gdb/python/python.c'
+--- gdb/python/python.c	2010-11-13 14:37:52 +0000
++++ gdb/python/python.c	2011-02-02 16:18:15 +0000
+@@ -625,26 +625,6 @@
+      clear the error indicator.  */
+   PyRun_SimpleFile (stream, file);
+ 
+-  /* Run an objfile hook, if defined. */
+-  {
+-    PyObject* objfile_hook =
+-      PyObject_GetAttrString (gdb_module, "objfile_hook");
+-    if (objfile_hook) {
+-      make_cleanup_py_decref (objfile_hook);
+-      if (PyCallable_Check (objfile_hook)) {
+-        PyObject* ret;
+-        PyObject* args = Py_BuildValue ("(O)",
+-                                        objfile_to_objfile_object (objfile));
+-        make_cleanup_py_decref (args);
+-        ret = PyObject_CallObject (objfile_hook, args);
+-        if (ret)
+-          Py_DECREF(ret);
+-        else
+-          gdbpy_print_stack ();
+-      }
+-    }
+-  }
+-
+   do_cleanups (cleanups);
+   gdbpy_current_objfile = NULL;
+ }
+

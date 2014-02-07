@@ -1,0 +1,235 @@
+=== modified file 'gdb/python/py-cmd.c'
+--- gdb/python/py-cmd.c	2010-11-12 17:13:12 +0000
++++ gdb/python/py-cmd.c	2010-11-13 14:37:52 +0000
+@@ -229,6 +229,8 @@
+   Py_DECREF (wordobj);
+   if (! resultobj)
+     {
++      if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++        quit_flag = 1;
+       /* Just swallow errors here.  */
+       PyErr_Clear ();
+       goto done;
+@@ -251,6 +253,8 @@
+ 
+ 	  if (elt == NULL || ! gdbpy_is_string (elt))
+ 	    {
++              if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++                quit_flag = 1;
+ 	      /* Skip problem elements.  */
+ 	      PyErr_Clear ();
+ 	      continue;
+
+=== modified file 'gdb/python/py-prettyprint.c'
+--- gdb/python/py-prettyprint.c	2010-11-12 17:13:12 +0000
++++ gdb/python/py-prettyprint.c	2010-11-13 14:37:52 +0000
+@@ -54,8 +54,11 @@
+ 	continue;
+ 
+       printer = PyObject_CallFunctionObjArgs (function, value, NULL);
+-      if (! printer)
++      if (! printer) {
++        if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++          quit_flag = 1;
+ 	return NULL;
++      }
+       else if (printer != Py_None)
+ 	return printer;
+ 
+@@ -83,6 +86,8 @@
+     PyObject *objf = objfile_to_objfile_object (obj);
+     if (!objf)
+       {
++        if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++          quit_flag = 1;
+ 	/* Ignore the error and continue.  */
+ 	PyErr_Clear ();
+ 	continue;
+@@ -144,6 +149,8 @@
+   pp_list = PyObject_GetAttrString (gdb_module, "pretty_printers");
+   if (pp_list == NULL || ! PyList_Check (pp_list))
+     {
++      if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++        quit_flag = 1;
+       Py_XDECREF (pp_list);
+       Py_RETURN_NONE;
+     }
+@@ -204,8 +211,11 @@
+ 	      && result != Py_None)
+ 	    {
+ 	      *out_value = convert_value_from_python (result);
+-	      if (PyErr_Occurred ())
++	      if (PyErr_Occurred ()) {
++                if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++                  quit_flag = 1;
+ 		*out_value = NULL;
++              }
+ 	      Py_DECREF (result);
+ 	      result = NULL;
+ 	    }
+
+=== modified file 'gdb/python/python.c'
+--- gdb/python/python.c	2010-11-13 14:26:28 +0000
++++ gdb/python/python.c	2010-11-13 14:37:52 +0000
+@@ -67,6 +67,60 @@
+ struct gdbarch *python_gdbarch;
+ const struct language_defn *python_language;
+ 
++#include "event-loop.h"
++
++extern void* sigint_token;
++static void* py_sigint_token = 0;
++static void* old_sigint_token = 0;
++static int old_immediate_quit;
++
++static int
++py_checksignals(void* arg)
++{
++  return PyErr_CheckSignals();
++}
++
++static void
++async_pyinterrupt (gdb_client_data arg)
++{
++  PyErr_SetInterrupt();
++  Py_AddPendingCall (py_checksignals, NULL);
++}
++
++
++static void* 
++set_pyinterrupt()
++{
++  void* oldtoken = sigint_token;
++  old_sigint_token = oldtoken;
++  if (py_sigint_token == 0)
++    py_sigint_token = create_async_signal_handler (async_pyinterrupt, NULL);
++  sigint_token = py_sigint_token;
++  if (quit_flag) {
++    async_pyinterrupt (NULL);
++    quit_flag = 0;
++  }
++  old_immediate_quit = immediate_quit;
++  immediate_quit = 1;
++  return oldtoken;
++}
++
++void
++restore_pyinterrupt (void* token)
++{
++  if (!token) {
++    if (old_sigint_token) {
++      sigint_token = old_sigint_token;
++      immediate_quit = old_immediate_quit;
++    }
++  }
++  else
++    sigint_token = token;
++  old_sigint_token = 0;
++  if (PyOS_InterruptOccurred())
++    quit_flag = 1;
++}
++
+ /* Restore global language and architecture and Python GIL state
+    when leaving the Python interpreter.  */
+ 
+@@ -75,6 +129,8 @@
+   PyGILState_STATE state;
+   struct gdbarch *gdbarch;
+   const struct language_defn *language;
++  void* old_token;
++  int old_immediate;
+ };
+ 
+ static void
+@@ -85,6 +141,10 @@
+   PyGILState_Release (env->state);
+   python_gdbarch = env->gdbarch;
+   python_language = env->language;
++  if (env->old_token) {
++    restore_pyinterrupt (env->old_token);
++    immediate_quit = env->old_immediate;
++  }
+   xfree (env);
+ }
+ 
+@@ -100,6 +160,8 @@
+   env->state = PyGILState_Ensure ();
+   env->gdbarch = python_gdbarch;
+   env->language = python_language;
++  env->old_immediate = immediate_quit;
++  env->old_token = set_pyinterrupt();
+ 
+   python_gdbarch = gdbarch;
+   python_language = language;
+@@ -177,11 +239,13 @@
+     ++arg;
+   if (arg && *arg)
+     {
++      cleanup = ensure_python_env (get_current_arch (), current_language);
+       if (PyRun_SimpleString (arg))
+ 	{
+ 	  gdbpy_print_stack ();
+ 	  error (_("Error while executing Python code."));
+ 	}
++      do_cleanups (cleanup);
+     }
+   else
+     {
+@@ -191,7 +255,6 @@
+       execute_control_command_untraced (l);
+     }
+ 
+-  do_cleanups (cleanup);
+ }
+ 
+ 
+@@ -351,6 +414,7 @@
+       char *copy = xstrdup (arg);
+       struct cleanup *cleanup = make_cleanup (xfree, copy);
+ 
++      restore_pyinterrupt (0);
+       if (to_string)
+ 	result = execute_command_to_string (copy, from_tty);
+       else
+@@ -361,6 +425,7 @@
+ 
+       do_cleanups (cleanup);
+     }
++  set_pyinterrupt();
+   GDB_PY_HANDLE_EXCEPTION (except);
+ 
+   /* Do any commands attached to breakpoint we stopped at.  */
+@@ -388,8 +453,10 @@
+ 
+   TRY_CATCH (except, RETURN_MASK_ALL)
+     {
++      restore_pyinterrupt (0);
+       result = parse_and_eval (expr_str);
+     }
++  set_pyinterrupt();
+   GDB_PY_HANDLE_EXCEPTION (except);
+ 
+   return value_to_value_object (result);
+@@ -444,6 +511,9 @@
+ void
+ gdbpy_print_stack (void)
+ {
++  if (PyErr_Occurred() == PyExc_KeyboardInterrupt)
++    quit_flag = 1;
++
+   if (gdbpy_should_print_stack)
+     {
+       PyErr_Print ();
+@@ -513,8 +583,11 @@
+     return NULL;
+ 
+   TRY_CATCH (e, RETURN_MASK_QUIT) {
++    restore_pyinterrupt (0);
++    quit_flag = 0;
+     line = gdb_readline_wrapper ((char*)prompt_str);
+   }
++  set_pyinterrupt();
+   if (e.reason < 0) {
+     PyErr_SetNone (PyExc_KeyboardInterrupt);
+     return NULL;
+

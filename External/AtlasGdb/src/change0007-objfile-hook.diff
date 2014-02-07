@@ -1,0 +1,31 @@
+=== modified file 'gdb/python/python.c'
+--- gdb/python/python.c	2010-11-12 17:13:12 +0000
++++ gdb/python/python.c	2010-11-13 14:21:20 +0000
+@@ -520,6 +520,26 @@
+      clear the error indicator.  */
+   PyRun_SimpleFile (stream, file);
+ 
++  /* Run an objfile hook, if defined. */
++  {
++    PyObject* objfile_hook =
++      PyObject_GetAttrString (gdb_module, "objfile_hook");
++    if (objfile_hook) {
++      make_cleanup_py_decref (objfile_hook);
++      if (PyCallable_Check (objfile_hook)) {
++        PyObject* ret;
++        PyObject* args = Py_BuildValue ("(O)",
++                                        objfile_to_objfile_object (objfile));
++        make_cleanup_py_decref (args);
++        ret = PyObject_CallObject (objfile_hook, args);
++        if (ret)
++          Py_DECREF(ret);
++        else
++          gdbpy_print_stack ();
++      }
++    }
++  }
++
+   do_cleanups (cleanups);
+   gdbpy_current_objfile = NULL;
+ }
+

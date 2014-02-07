@@ -1,0 +1,59 @@
+=== modified file 'gdb/python/python.c'
+--- gdb/python/python.c	2010-11-13 14:21:20 +0000
++++ gdb/python/python.c	2010-11-13 14:26:28 +0000
+@@ -28,6 +28,7 @@
+ #include "value.h"
+ #include "language.h"
+ #include "exceptions.h"
++#include "readline/history.h"
+ 
+ #include <ctype.h>
+ 
+@@ -499,6 +500,37 @@
+ 
+ 
+ 
++/* Reading.  */
++
++static PyObject* 
++gdbpy_input (PyObject* self, PyObject* args)
++{
++  const char* prompt_str = "";
++  char* line = 0;
++  volatile struct gdb_exception e;
++
++  if (!PyArg_ParseTuple (args, "|s", &prompt_str))
++    return NULL;
++
++  TRY_CATCH (e, RETURN_MASK_QUIT) {
++    line = gdb_readline_wrapper ((char*)prompt_str);
++  }
++  if (e.reason < 0) {
++    PyErr_SetNone (PyExc_KeyboardInterrupt);
++    return NULL;
++  }
++
++  if (!line) {
++    PyErr_SetNone (PyExc_EOFError);
++    return NULL;
++  }
++
++  add_history (line);
++  return PyString_FromString (line);
++}
++
++
++
+ /* The "current" objfile.  This is set when gdb detects that a new
+    objfile has been loaded.  It is only set for the duration of a call to
+    source_python_script_for_objfile; it is NULL at other times.  */
+@@ -867,6 +899,8 @@
+     "Write a string using gdb's filtered stream." },
+   { "flush", gdbpy_flush, METH_NOARGS,
+     "Flush gdb's filtered stdout stream." },
++  { "input", gdbpy_input, METH_VARARGS,
++    "Read a line of input from the user." },
+   { "selected_thread", gdbpy_selected_thread, METH_NOARGS,
+     "selected_thread () -> gdb.InferiorThread.\n\
+ Return the selected thread object." },
+

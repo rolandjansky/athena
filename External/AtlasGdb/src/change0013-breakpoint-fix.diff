@@ -1,0 +1,43 @@
+=== modified file 'gdb/ChangeLog'
+--- gdb/ChangeLog	2010-11-12 17:13:12 +0000
++++ gdb/ChangeLog	2011-02-06 20:28:19 +0000
+@@ -1,3 +1,8 @@
++2011-02-03  scott s snyder  <snyder@bnl.gov>
++
++	* linespec.c (decode_compound): Try lookup_minimal_symbol if
++	everything else fails.
++
+ 2010-09-02  Joel Brobecker  <brobecker@adacore.com>
+ 
+ 	* NEWS: Replace "Changes since GDB 7.1" by "Changes in GDB 7.2".
+
+=== modified file 'gdb/linespec.c'
+--- gdb/linespec.c	2010-11-12 17:13:12 +0000
++++ gdb/linespec.c	2011-02-06 20:28:19 +0000
+@@ -1463,6 +1463,25 @@
+   if (sym)
+     return symbol_found (funfirstline, canonical, copy, sym, NULL);
+ 
++  /* Also try it as a minimal symbol, in case debug symbols are missing. */
++
++  {
++    struct minimal_symbol* msymbol;
++    msymbol = lookup_minimal_symbol (copy, NULL, NULL);
++    if (msymbol) {
++      /* May need to skip over trailing function args. */
++      if (*p == '(') {
++        p = strchr (p, ')');
++        if (p) {
++          ++p;
++          if (*p == '\'') ++p;
++          *argptr = p;
++        }
++      }
++      return minsym_found (funfirstline, msymbol);
++    }
++  }
++
+   /* Couldn't find any interpretation as classes/namespaces, so give
+      up.  The quotes are important if copy is empty.  */
+   if (not_found_ptr)
+
