@@ -1,0 +1,19 @@
+package TrkDetDescrInterfaces
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+
+use AthenaKernel          AthenaKernel-*             Control
+use GaudiInterface        GaudiInterface-*           External
+use GeoPrimitives         GeoPrimitives-*            DetectorDescription
+
+use TrkSurfaces           TrkSurfaces-*              Tracking/TrkDetDescr
+use TrkVolumes            TrkVolumes-*               Tracking/TrkDetDescr
+use TrkDetDescrUtils      TrkDetDescrUtils-*         Tracking/TrkDetDescr
+use TrkEventPrimitives    TrkEventPrimitives-*       Tracking/TrkEvent
+use TrkMaterialOnTrack    TrkMaterialOnTrack-*       Tracking/TrkEvent
+use TrkParameters         TrkParameters-*            Tracking/TrkEvent
+
+private
+macro DOXYGEN_IMAGE_PATH "../doc/images"
