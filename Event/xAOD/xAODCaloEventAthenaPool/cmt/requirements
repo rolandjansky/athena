@@ -1,0 +1,29 @@
+package xAODCaloEventAthenaPool
+# $Id: requirements 565402 2013-10-15 09:44:40Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use GaudiInterface      GaudiInterface-*      External
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+
+# EDM package(s):
+use xAODCaloEvent       xAODCaloEvent-*       Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::CaloClusterContainer \
+                                          xAOD::CaloClusterAuxContainer" \
+                      files="-s=${xAODCaloEvent_root}/xAODCaloEvent \
+                             CaloClusterContainer.h \
+                             CaloClusterAuxContainer.h" \
+                      cnv_pfx="xAOD"
