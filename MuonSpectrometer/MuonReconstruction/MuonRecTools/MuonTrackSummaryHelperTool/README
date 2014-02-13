@@ -1,0 +1,1 @@
+This package contains a tool used by the TrkTrackSummaryTool package to avoid an explicit dependency on the Muons
