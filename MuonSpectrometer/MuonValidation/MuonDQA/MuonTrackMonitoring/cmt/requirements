@@ -1,0 +1,73 @@
+package MuonTrackMonitoring
+
+manager Nectarios Ch. Benekos <Nectarios.Benekos@cern.ch>
+author  Nectarios Ch. Benekos <Nectarios.Benekos@cern.ch>
+
+branches src cmt doc
+branches run
+
+use     AtlasPolicy             AtlasPolicy-*
+# Athena Control Dependencies 
+use     AtlasROOT               AtlasROOT-*                     External
+use     GaudiInterface          GaudiInterface-*                External
+use     StoreGate               StoreGate-*                     Control
+use     DataModel               DataModel-*                     Control 
+
+# Detector Description dependencies
+use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
+use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
+use     MuonPrepRawData         MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
+## For RPCStandaloneTracksMon
+use     RPCcablingInterface     RPCcablingInterface-*           MuonSpectrometer/MuonCablings
+
+# MuonTrackSummaryHelperTool
+#use     MuonTrackSummaryHelperTool MuonTrackSummaryHelperTool-* MuonSpectrometer/MuonReconstruction/MuonRecTools 
+
+# Athena Monitoring Dependencies 
+use     AthenaMonitoring        AthenaMonitoring-*              Control
+use     MuonDQAUtils            MuonDQAUtils-*                  MuonSpectrometer/MuonValidation/MuonDQA
+ 
+# EDM dependencies
+use     TrkParameters            TrkParameters-*                Tracking/TrkEvent
+use     TrkTrack                 TrkTrack-*                     Tracking/TrkEvent 
+
+# Track fitter
+use     TrkToolInterfaces        TrkToolInterfaces-*            Tracking/TrkTools
+
+# Trigger Decision
+use     TrigDecisionInterface    TrigDecisionInterface-*        Trigger/TrigEvent
+use     TrigConfL1Data           TrigConfL1Data-*               Trigger/TrigConfiguration
+use     TrkTrackSummary          TrkTrackSummary-*              Tracking/TrkEvent      
+
+private
+use     EventPrimitives         EventPrimitives-*               Event
+use     Identifier              Identifier-*                    DetectorDescription
+use     EventInfo               EventInfo-*                     Event 
+use     AtlasCLHEP              AtlasCLHEP-*                    External
+use     MuonRecHelperTools      MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
+use     MuonCalibIdentifier     MuonCalibIdentifier-*           MuonSpectrometer/MuonCalib
+use     MdtCalibSvc             MdtCalibSvc-*                   MuonSpectrometer/MuonCalib/MdtCalib
+use     MuonDigitContainer      MuonDigitContainer-*            MuonSpectrometer
+use     MuonRDO                 MuonRDO-*                	MuonSpectrometer
+use     MuonRIO_OnTrack         MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent  
+use     Particle                Particle-*                      Reconstruction
+use     TrkEventPrimitives      TrkEventPrimitives-*            Tracking/TrkEvent
+use     TrkMaterialOnTrack      TrkMaterialOnTrack-*            Tracking/TrkEvent
+use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent 
+use     TrkMultiComponentStateOnSurface     TrkMultiComponentStateOnSurface-*         Tracking/TrkEvent
+use     MuonRecToolInterfaces   MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
+end_private
+
+
+# build a component library
+
+library MuonTrackMonitoring *.cxx components/*.cxx
+apply_pattern declare_joboptions files="-s=../share *.py"
+apply_pattern component_library
+apply_pattern declare_runtime
+
+apply_tag ROOTGraphicsLibs
+
+ 
