@@ -1,0 +1,18 @@
+package TrigT1Lucid
+
+author  Jacob Groth-Jensen <jacob.groth-jensen@hep.lu.se>
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use GaudiInterface      GaudiInterface-*        External
+use LUCID_RawEvent 	LUCID_RawEvent-*	ForwardDetectors/LUCID 
+use TrigConfInterfaces  TrigConfInterfaces-*    Trigger/TrigConfiguration
+
+private
+use TrigConfL1Data      TrigConfL1Data-*        Trigger/TrigConfiguration
+use TrigT1Interfaces    TrigT1Interfaces-*      Trigger/TrigT1
+
+library TrigT1Lucid *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
