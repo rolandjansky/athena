@@ -39,27 +39,25 @@ class ALFA_PileUpTool: public PileUpToolBase {
 		 const std::string& name,
 		 const IInterface* parent);
   
-  virtual StatusCode initialize() override final;
-  virtual StatusCode finalize() override final;
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
   
   /// code taken from ZDC; author (highly) probably John Chapman
   /// called before the subevts loop. Not (necessarily) able to access SubEvents
-  virtual StatusCode prepareEvent(const unsigned int nInputEvents) override final;
+  virtual StatusCode prepareEvent(const unsigned int nInputEvents);
   
   /// called for each active bunch-crossing to process current SubEvents bunchXing is in ns
-  virtual  StatusCode processBunchXing(
-                                       int bunchXing,
-                                       SubEventIterator bSubEvents,
-                                       SubEventIterator eSubEvents
-                                       ) override final;
+  virtual StatusCode processBunchXing(int bunchXing, 
+				      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+				      PileUpEventInfo::SubEvent::const_iterator eSubEvents);
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
 
   /// called at the end of the subevts loop. Not (necessarily) able to access SubEvents
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent();
 
-  virtual StatusCode processAllSubEvents() override final;
+  StatusCode processAllSubEvents();
 
  private:
   
@@ -126,8 +124,10 @@ class ALFA_PileUpTool: public PileUpToolBase {
   
   
   ALFA_DigitCollection* m_digitCollection;
+  ALFA_Digit*           m_digitObject;
    
   ALFA_ODDigitCollection* m_ODdigitCollection;
+  ALFA_ODDigit*           m_ODdigitObject;   
   
   /*
   double m_ScaleStrip, m_ScalePixel; // use this to normalize the signal from the strips;
