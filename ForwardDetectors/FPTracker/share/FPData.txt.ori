@@ -1,0 +1,28 @@
+IP      1        // Interaction point
+RTYP    3        // 1 = single beam, 2 (4,5) = set of energies etc, 3 = data
+HIGG    100      // Higgs mass: scale the data momenta by this percent.
+APER    1        // Use apertures? 0|1
+MBAP    0        // MB aperture constant in mm (0 = nominal 22.02 mm)
+PGEV    0        // SUBTRACT this no. of GeV from single beam particles.
+PLNE    22000    // 1st plane.  cm.  Can use up to 50 planes
+PLNE    43555    // next plane. 
+SIMA    5000     // Silicon active edge from beamline in microns. (all planes) 
+EDGE     700     // Dead thickness inside inner silicon edge
+COL1    999      // 1st collimator value +-x 0.1mm
+COL2    999      // 2nd collimator value +-x 0.1mm
+COLC    0        // Despite collimator, continue past this plane (0/1/2) 
+HIST    0        // Histogram output?
+ODAT    0        // File of output data in final planes region? 
+MSCA    1        // 1,2= Scan ranges of Higgs masses, ignore HIGG. 5n=LPAIR
+COIN    0        // Only plot two-side coincidences. Not implemented  
+CALI    3        // Calibrate planes?  1, 2, 3=1+2.
+PSIG    1        // Impose standard Gaussian momentum smearing on beam.
+DXIP    1        // Impose standard Gaussian position smearing at IP.
+DAIP    1        // Impose standard Gaussian  smearing on beam p_t at IP.
+XSIG    10        // Impose this x track position measurement error (mu) 
+ASIG    1        // Impose this  x track angle measurement error (murad)
+YSIG    80       // Impose this y track position measurement error (mu)
+ZMAX    437.     // magnets with |z| (meters) coordinares greater then this  will be ignored  
+END
+
+

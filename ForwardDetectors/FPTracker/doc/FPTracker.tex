@@ -1,0 +1,162 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{epsfig}
+\usepackage{epsf}
+\usepackage{graphicx}
+\usepackage{draftcopy}
+\oddsidemargin 0cm
+\evensidemargin 0cm
+\textwidth 16.0cm
+\parindent 0pt
+\parskip 1ex
+\newtheorem{usecase}{Use Case}
+\newcommand{\tbd}{\textbf{To Be Discussed:\_}}
+\newcommand{\eg}{{\it e.g.}}
+\newcommand{\ie}{{\it i.e.}}
+
+\begin{document}
+\bibliographystyle{plain}
+\title{FPTracker: An OO version of FPTrack}
+\author{Peter Bussey, Peter Sherwood}
+\date{14/08/09 v0.2}
+\maketitle
+
+\section{Introduction}
+The C++ version of Peter Bussey's original FPTrack program reads LHC
+configuration data files to fill a number of arrays containing information
+on the location, type and strength of the beam line magnets and collimator settings.
+
+It has an event loop in which particles are sent down the beam line. The magnet
+information is obtained from the arrays. Code to calculate quantities for
+various physics studies is included in the event loop.
+
+FPTracker is a recast of FPTrack as an object-oriented program. The
+associations among the data of the various arrays, which is implicit in
+the array index manipulations in FPTrack, are made explicit in FPTracker
+as the data for a particular item, such as a magnet, is collected together
+in the object representing the item.
+
+FPTracker does not contain analysis code. Instead it acts as a function which
+takes a particle and transports it to an arbitrary location down the beam line.
+
+The demonstration program, FPTrackerMain.cxx, instantiates two Beamline objects
+(one each for $z>0$, $z<0$) which contain stop planes - planes at
+which the tracking calculation is terminated. FPTracker particles are generated in
+a calling program, and are passed to beam-line.track(particle) method. The particle
+may then be interrogated to find if it was lost, or whether it struck a stop plane.
+The final coordinates of the particle are available for further analysis by the
+the calling program.
+
+\section{FPTracker classes}
+FPTracker defines a small number of interfaces, and the necessary concrete
+class implementations. A beam line is a container of IBeamElement objects.
+Concrete implementations of IBeamElement include magnets, collimators and
+planes. The IBeamElement interface contains methods to allow the tracking
+of the particle down the beam line.
+
+The function magnetSet() reads in the magnet data in the same manner as
+FPTrack. The function magnetFactory instantiates the various component 
+objects (Benders for dipoles, Benders and Focusers for quadrupole magnets) and
+returns assembled magnets.
+
+The beam line elements are added to a container (the beam line), and are ordered
+by their z-coordinate.
+
+The classes for FPTracker are shown in fig~\ref{fig:FPTrackerClasses}.
+\begin{figure}
+  \begin{center}
+    \epsfig{file=./FPTracker.eps,width=0.9\textwidth}{
+      \caption{\label{fig:FPTrackerClasses} 
+        Classes for FPTracker.
+      }
+    }
+  \end{center} 
+\end{figure}
+
+\section{Object Lifetime}
+The objects representing beam elements (magnets, collimators and planes) as well as their
+internal objects, have a the same lifetime as the Beamline object. Technically, this is
+done by using Boost shared (const) pointers, and these classes have no bare pointers. The copy constructor
+and copy assignment operators are the default methods provided by the compiler.
+Thus, for example, if a beamline object is copied, a new beamline object is produced. However,
+a Beamline is implemented as a sequential container of \verb+shared_ptr<IBeamElement>+ no new 
+beam elements are constructed - only the reference count of the pointer is incremented.
+As the pointers are const, no changes can be made to the objects components.    
+
+\section{Transport}
+A particle produced by a calling routine (\eg\ an analysis program),
+and is passed to the beam line track method. The particle is tracked down
+the beam line by iterating over the beam line elements until either the 
+particle goes out of aperture, or the particle traverses a plane which marks the
+end of the tracking. The particle is available to the calling routine for
+interrogation: did the the particle leave the beam pipe? if so where? if not
+what are its position, direction and momentum at the termination plane?
+
+The FPTrackerMain code is:
+\begin{verbatim}
+#include "setupBeamline.h"
+#include "Beamline.h"
+#include "Particle.h"
+#include <iostream>
+#include <fstream>
+
+int main(){
+
+  FPTracker::Beamline beamline_0 = FPTracker::setupBeamline(0);
+  FPTracker::Beamline beamline_1 = FPTracker::setupBeamline(1);
+
+  std::cout<<"\n\n-- side 0 --";
+  std::cout<<beamline_0<<std::endl;
+  std::cout<<"\n\n-- side 1 --";
+  std::cout<<beamline_1<<std::endl;
+
+  FPTracker::Particle p01(0., 0., 0., 0., 0., -7000.);
+  std::cout<<"fpTracker: "<<p01<<std::endl;
+  p01.direction().z()<0. ? beamline_0.track(p01):beamline_1.track(p01);
+  std::cout<<"fpTracker: "<<p01<<std::endl;
+}
+\end{verbatim}
+
+The final line of output, which gives the result of tracking the particle is:
+  
+\begin{verbatim}
+fpTracker: Part: pos: x -0.097008 y  0.002286 z -420.00 dir  
+                      xp -0.000000 yp  0.000032 zp -1.000000 mom: 7000 lost false
+\end{verbatim}
+
+The actions of FPTracker are summarised in fig~\ref{fig:ActivityOverview}.
+
+\begin{figure}
+  \begin{center}
+    \epsfig{file=./ActivityOverview.eps,width=0.9\textwidth}{
+      \caption{\label{fig:ActivityOverview} 
+        Overview of the operation of FPTracker.
+      }
+    }
+  \end{center} 
+\end{figure}
+
+\subsection{Magnet Tracking}
+Of all the elements in the beam-line, magnets have the most complex tracking algorithm. The particle is first
+transported to the front face (the face closest to the interaction point) by projecting from particle from its
+current position (generally the back-end of the previous element) in a straight line. The particle is checked for being
+in the aperture. The aperture checking is done using a position measured with respect to the magnet position. If the
+particle is in aperture, the magnet's bender object is invoked to bend the particle trajectory. In the case of
+quadrupole magnets, a further object, a focus-er, is used to calculate the bend. Bending and focusing is done in 
+coordinates measured with respect to the magnet position. To facilitate the coding, the Particle class has methods
+that convert between the magnet and overall coordinate systems. 
+
+The appropriate bender and (for quadrupole benders) the appropriate vertical or horizontal focuser is placed in the
+magnet by the magnetFactory function.
+
+The sequence of calls is shown in fig~\ref{fig:MagnetTrackSeq}.
+
+\begin{figure}
+  \begin{center}
+    \epsfig{file=./MagnetTrackSeq.eps,width=0.9\textwidth}{
+      \caption{\label{fig:MagnetTrackSeq} 
+        Sequence diagram showing particle tracking through a magnet.
+      }
+    }
+  \end{center} 
+\end{figure}
+\end{document}

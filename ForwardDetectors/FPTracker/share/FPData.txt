@@ -1,0 +1,10 @@
+IP      1        // Interaction point
+APER    1        // Use apertures? 0|1
+MBAP    0.       // MB aperture constant in mm (0 = nominal 22.02 mm)
+COL1    999.     // 1st collimator half-aperture in meters
+COL2    0.002    // 2nd collimator half-aperture in meters
+ZMAX    540.     // magnets with |z| (meters) coordinares greater then this  will be ignored  
+PBEA    7000.    // magnets will be  setup for 7000. GeV beams. clib particle to have this energy 
+ENDM    500.0    // tracking ends here.
+
+

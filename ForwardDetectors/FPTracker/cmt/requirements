@@ -1,0 +1,18 @@
+package FPTracker
+
+author P. Bussey, P. Sherwood
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasBoost AtlasBoost-* External
+
+library FPTracker *.cxx
+apply_pattern installed_library 
+
+private
+
+macro fpTrackerMainlinkopts " -lFPTracker  "
+macro_prepend fpTrackerMainlinkopts " $(Boost_linkopts_program_options) "
+macro_append fpTrackerMain_dependencies " FPTracker "
+application fpTrackerMain 	-s=../test fpTrackerMain.cxx -import=Boost
+
+
