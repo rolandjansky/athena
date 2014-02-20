@@ -14,4 +14,4 @@ job += GetDetectorPositions(name="GetDetectorPositions"
 #--------------------------------------------------------------
 # Set output level threshold (DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
-job.GetDetectorPositions.OutputLevel = INFO
+job.GetDetectorPositions.OutputLevel = ERROR

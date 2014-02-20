@@ -91,7 +91,7 @@ def writeGeometryHists(name,hists):
               ,drawEndcapLines=False,drawTRTFirst=True)
 
 
-writeGeometryHists("",[iblHists,pixelHists,sctHists,trtHists])
+writeGeometryHists("",[pixelHists,sctHists,trtHists])
 
 for thisMod in range(len(drawTRTModules)):
     thisLay = drawTRTModules[thisMod][0]

@@ -6,10 +6,6 @@ def fillBarrelHists(x1,y1,z1
                     ,x2,y2,z2
                     ,theHists
                     ):
-
-    #wkd2
-    #print x1,y1,z1,x2,y2,z2
-
     # Get the nicknames for the hists
     h_geo1   = theHists.geo1[1]  
     h_geo2   = theHists.geo2[1]    
@@ -41,11 +37,9 @@ def fillBarrelHists(x1,y1,z1
 
     h_XYvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),sqrt(pow(x1 - x2,2)+pow(y1 - y2 ,2)))
 
-    #wkd2 - div by zero check
-    if not sqrt(x1*x1+y1*y1) == 0:
-        h_PhivsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*y1 - (y1 - y2)* x1))
+    h_PhivsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*y1 - (y1 - y2)* x1))
 
-        h_RvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)), (1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*x1 + (y1 - y2)* y1)))
+    h_RvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)), (1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*x1 + (y1 - y2)* y1)))
 
     h_X.Fill(x1 - x2)
     h_Y.Fill(y1 - y2)
@@ -68,9 +62,6 @@ def fillEndcapHists(x1,y1,z1
                     ,side
                     ):
 
-#---wkd2
-#    print x1, y1, z1, x2, y2, z2
-#wkd2---
 
     h_geo1   = theHists.geo1[side]
     h_geo2   = theHists.geo2[side]
@@ -102,11 +93,9 @@ def fillEndcapHists(x1,y1,z1
     
     h_XYvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),sqrt(pow(x1 - x2,2)+pow(y1 - y2 ,2)))
 
-    #wkd2 - div by 0 check
-    if not sqrt(x1*x1+y1*y1) == 0:
-        h_PhivsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*y1 - (y1 - y2)* x1))
+    h_PhivsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*y1 - (y1 - y2)* x1))
     
-        h_RvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)), (1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*x1 + (y1 - y2)* y1)))
+    h_RvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)), (1.0/sqrt(x1*x1+y1*y1)*((x1 - x2)*x1 + (y1 - y2)* y1)))
 
     h_ZvsR.Fill(sqrt(pow(x2,2) + pow(y2,2)),sqrt(pow(z1 - z2,2)))
     
@@ -232,7 +221,6 @@ def WriteHist(title
 
 # Function to read in the data from the input text files
 def readInData(inputfile):
-    m_iblElements = [] # IBL separate because it has more eta modules than the PIX.
     m_pixelElements = []
     m_sctElements = []
     m_trtElements = []
@@ -242,19 +230,11 @@ def readInData(inputfile):
         m_thisPosition = []
         for i in range(len(words)-1):
             m_thisPosition.append(float(words[i+1]))
-    
+
         # Pixel
         if words[0] == "1":
-            if words[1] == "4" or words[1] == "-4": 
-                # DBM, we're gonna lump it in with the IBL
-                m_iblElements.append(m_thisPosition)
+            m_pixelElements.append(m_thisPosition)
 
-            elif words[1] == "0" and words[2] == "0": # IBL
-                m_iblElements.append(m_thisPosition)
-
-            else:
-                m_pixelElements.append(m_thisPosition)
-            
         # SCT
         if words[0] == "2":
             m_sctElements.append(m_thisPosition)
@@ -263,7 +243,7 @@ def readInData(inputfile):
         if words[0] == "3":
             m_trtElements.append(m_thisPosition)
 
-    return m_iblElements,m_pixelElements,m_sctElements,m_trtElements
+    return m_pixelElements,m_sctElements,m_trtElements
 
 
 # Functions to draw lines on the TRT endcap plots
