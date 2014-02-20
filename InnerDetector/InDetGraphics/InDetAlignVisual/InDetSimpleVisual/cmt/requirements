@@ -1,0 +1,27 @@
+package InDetSimpleVisual
+
+author John Alison <johnda@hep.upenn.edu>
+
+public
+use AtlasPolicy          AtlasPolicy-*             
+use AthenaBaseComps      AthenaBaseComps-*         Control
+use AtlasCLHEP           AtlasCLHEP-*              External	
+use EventPrimitives      EventPrimitives-*    Event
+use GeoPrimitives      GeoPrimitives-*    DetectorDescription
+
+
+private
+use GaudiInterface       GaudiInterface-*          External
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use Identifier           Identifier-*              DetectorDescription
+
+
+public
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern component_library
+library InDetSimpleVisual *.cxx components/*.cxx
+
+
+
