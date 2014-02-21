@@ -1,0 +1,53 @@
+package LArG4FastSimulation
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaKernel		AthenaKernel-*			Control
+use GaudiInterface      GaudiInterface-*        External
+use Geant4              Geant4-*                External
+
+use G4FastSimulation    G4FastSimulation-*      Simulation/G4Utilities
+
+use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
+use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+
+# Public for TestActionEHist
+use AtlasROOT           AtlasROOT-*             External
+
+private
+use AtlasHepMC			AtlasHepMC-*			External
+use AtlasROOT			AtlasROOT-*				External
+use AtlasBoost                  AtlasBoost-*                    External
+
+use StoreGate           StoreGate-*             Control
+
+use GeoModelKernel		GeoModelKernel-*		DetectorDescription/GeoModel
+use GeoSpecialShapes	GeoSpecialShapes-*		DetectorDescription/GeoModel
+
+use LArG4Code           LArG4Code-*             LArCalorimeter/LArG4
+use LArG4FastSimSvc     LArG4FastSimSvc-*       LArCalorimeter/LArG4
+use LArG4SD             LArG4SD-*               LArCalorimeter/LArG4
+use LArG4ShowerLibSvc   LArG4ShowerLibSvc-*     LArCalorimeter/LArG4
+use LArReadoutGeometry  LArReadoutGeometry-*    LArCalorimeter/LArGeoModel
+use LArSimEvent         LArSimEvent-*           LArCalorimeter
+end_private
+
+apply_tag ROOTBasicLibs
+apply_tag ROOTMathLibs
+apply_tag ROOTSTLDictLibs
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTTableLibs
+
+library LArG4FastSimulation ../src/*.cxx -x=../src/TestAction.*.cxx
+apply_pattern installed_library
+
+library LArG4FastSimulationTestActions ../src/TestAction*.cxx
+apply_pattern named_installed_library library=LArG4FastSimulationTestActions
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+#private
+#macro_remove fflags "-O2"
+#end_private
+
