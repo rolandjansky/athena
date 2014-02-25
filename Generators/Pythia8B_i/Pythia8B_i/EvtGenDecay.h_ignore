@@ -1,0 +1,104 @@
+#include "EvtGenBase/EvtVector4R.hh"
+#include "EvtGenBase/EvtVector3R.hh"
+#include "EvtGenBase/EvtParticle.hh"
+#include "EvtGenBase/EvtParticleFactory.hh"
+
+//==========================================================================
+
+// A derived class to do EvtGen decays.
+
+class EvtGenDecay : public Pythia8::DecayHandler {
+    
+public:
+    
+  // Constructor.
+  EvtGenDecay(Pythia8::ParticleData* pdtPtrIn, Pythia8::Rndm* rndmPtrIn, EvtGen* evtGenIn) { 
+    pdtPtr = pdtPtrIn; rndmPtr = rndmPtrIn; evtGenPtr = evtGenIn;
+  }
+  // Routine for doing the decay.
+  bool decay(std::vector<int>& idProd, std::vector<double>& mProd, 
+	     std::vector<Pythia8::Vec4>& pProd, int iDec, const Pythia8::Event& event);
+  
+  // Gets all decay products from the EvtGen particle
+  void getDecayProducts(EvtParticle*, std::vector<int>&, std::vector<double>&, std::vector<Pythia8::Vec4>&);  
+ 
+private:
+        
+  // Pointer to the particle data table.
+  Pythia8::ParticleData* pdtPtr;
+    
+  // Pointer to the random number generator.
+  Pythia8::Rndm* rndmPtr;
+
+  // Pointer to EvtGen
+  EvtGen* evtGenPtr;	 
+    
+};
+
+//--------------------------------------------------------------------------
+
+// Decay via EvtGen
+
+bool EvtGenDecay::decay(std::vector<int>& idProd, std::vector<double>& mProd, 
+			vector<Pythia8::Vec4>& pProd, int iDec, const Pythia8::Event& event) {
+  std::cout << "CALLED DECAYHANDLER!!!!" << std::endl;    
+  // Get the quantities associated with the particle to be decayed
+  int id = idProd[0];
+  double m = mProd[0];
+  double px = pProd[0].px();
+  double py = pProd[0].py();
+  double pz = pProd[0].pz();
+  double e = sqrt(px*px + py*py + pz*pz + m*m);
+  std::cout<< "got here 1" << std::endl;		  
+  // Construct EvtGen objects and execute the decay
+  EvtVector4R p_init(e,px,py,pz);
+  std::cout<< "got here 2" << std::endl;
+  EvtId eid=EvtPDL::evtIdFromStdHep(id);
+  std::cout<< "got here 3" << std::endl;
+  std::cout << eid << std::endl;
+  std::cout << p_init << std::endl; 
+  EvtParticle* part=EvtParticleFactory::particleFactory(eid,p_init);
+  std::cout<< "got here 4" << std::endl;
+  evtGenPtr->generateDecay(part);
+  std::cout<< "got here 5" << std::endl;
+  // Extract the decay products and fill vectors
+  bool success(false);
+  if (part->getNDaug()!=0) { 
+    success=true;
+    getDecayProducts(part,idProd,mProd,pProd);
+  }
+
+  return success;
+    
+}
+
+//==========================================================================
+
+void EvtGenDecay::getDecayProducts(EvtParticle* theParticle,
+				   std::vector<int>& idProd, 
+				   std::vector<double>& mProd,
+				   std::vector<Pythia8::Vec4>& pProd) {
+
+  if ( theParticle->getNDaug()!=0 ) {
+
+    int ndaug=theParticle->getNDaug();
+    for( int it=0 ; it<ndaug ; it++ ) {
+                
+      double e =(theParticle->getDaug(it)->getP4Lab()).get(0);
+      double px=(theParticle->getDaug(it)->getP4Lab()).get(1);
+      double py=(theParticle->getDaug(it)->getP4Lab()).get(2);
+      double pz=(theParticle->getDaug(it)->getP4Lab()).get(3);
+      int id=EvtPDL::getStdHep(theParticle->getDaug(it)->getId());
+      idProd.push_back(id);
+      mProd.push_back(pdtPtr->m0(id)); 
+      Pythia8::Vec4 mom(px,py,pz,e);
+      pProd.push_back(mom);
+      if ( theParticle->getDaug(it)->getNDaug()!=0 ) getDecayProducts(theParticle->getDaug(it),idProd,mProd,pProd);
+     
+    }
+ }    
+
+ return;
+
+}
+
