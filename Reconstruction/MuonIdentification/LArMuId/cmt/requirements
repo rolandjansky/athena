@@ -1,0 +1,28 @@
+package LArMuId
+
+author Melissa Ridel <Melissa.Ridel@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*     External 
+use StoreGate           StoreGate-*          Control
+use CaloIdentifier	CaloIdentifier-*     Calorimeter
+use LArIdentifier 	LArIdentifier-* 	LArCalorimeter
+use LArTools 		LArTools-* 		LArCalorimeter 
+use Identifier 		Identifier-* 	DetectorDescription 
+
+
+private
+use AtlasCLHEP          AtlasCLHEP-*         External
+use CaloDetDescr        CaloDetDescr-*       Calorimeter
+use CaloEvent           CaloEvent-*             Calorimeter
+use CaloUtils      	CaloUtils-*  	Calorimeter
+use LArRawEvent 	LArRawEvent-* 		LArCalorimeter 
+use TrackToCalo         TrackToCalo-*           Reconstruction/RecoTools
+use xAODCaloEvent       xAODCaloEvent-*       Event/xAOD
+
+apply_pattern declare_joboptions files="*.py"
+
+#apply_pattern dual_use_library files=*.cxx
+
+library LArMuId *.cxx components/*.cxx
+apply_pattern component_library 
