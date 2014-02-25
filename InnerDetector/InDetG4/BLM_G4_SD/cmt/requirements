@@ -1,0 +1,23 @@
+package BLM_G4_SD
+author Bostjan Macek <Bostjan.Macek@cern.ch>
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External
+
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use InDetSimEvent         InDetSimEvent-*         InnerDetector
+use SimHelpers            SimHelpers-*            Simulation/G4Sim
+
+private
+
+use AtlasCLHEP            AtlasCLHEP-*            External
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use Geant4                Geant4-*                External
+use MCTruth               MCTruth-*               Simulation/G4Sim
+
+public
+
+apply_pattern component_library
+library BLM_G4_SD *.cxx -s=components *.cxx
