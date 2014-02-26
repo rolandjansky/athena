@@ -1,0 +1,23 @@
+package TrigExPartialEB
+
+author W. Wiedenmann  <Werner.Wiedenmann@cern.ch>
+
+use AtlasPolicy              AtlasPolicy-*
+use DataCollection           DataCollection-*            External
+use GaudiInterface           GaudiInterface-*            External
+use TrigSteeringEvent        TrigSteeringEvent-*         Trigger/TrigEvent
+use EventInfo                EventInfo-*                 Event
+use TrigROBDataProviderSvc   TrigROBDataProviderSvc-*    Trigger/TrigDataAccess
+
+private
+use AtlasBoost               AtlasBoost-*                External
+use AthenaKernel             AthenaKernel-*              Control
+use ByteStreamCnvSvcBase     ByteStreamCnvSvcBase-*      Event
+use StoreGate                StoreGate-*                 Control
+use TrigT1Result             TrigT1Result-*              Trigger/TrigT1
+use TrigDataAccessMonitoring TrigDataAccessMonitoring-*  Trigger/TrigDataAccess
+
+library TrigExPartialEB *.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
