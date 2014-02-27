@@ -1,0 +1,145 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/CnvFactory.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/DataObject.h"
+#include "GaudiKernel/IRegistry.h"
+#include "GaudiKernel/IToolSvc.h"
+
+#include "StoreGate/StoreGateSvc.h"
+#include "CLIDSvc/CLASS_DEF.h"
+#include <algorithm>
+
+template< typename TOOL> 
+CollectionByteStreamCnv< TOOL>::CollectionByteStreamCnv(ISvcLocator* svcloc) :
+    Converter(ByteStream_StorageType, classID(), svcloc), m_robDataProvider(0), m_tool(0)
+{
+
+
+}
+
+template< typename TOOL> 
+const CLID& CollectionByteStreamCnv<TOOL>::classID(){
+ return ClassID_traits<COLLECTION>::ID() ;
+} 
+
+template< typename TOOL> 
+StatusCode
+CollectionByteStreamCnv<TOOL>::initialize()
+{
+   StatusCode sc = Converter::initialize(); 
+   if(StatusCode::SUCCESS!=sc) 
+   { 
+    return sc; 
+   } 
+
+   MsgStream log(messageService(), "CollectionByteStreamCnv");
+
+   log << MSG::DEBUG<< " initialize " <<endreq; 
+
+   // Get ROBDataProvider
+   sc = service("ROBDataProviderSvc", m_robDataProvider); 
+   if(sc != StatusCode::SUCCESS ) {
+     log<<MSG::ERROR << " Cant get ROBDataProviderSvc " <<endreq;
+     return sc ;
+   } else {
+     Service* svc = dynamic_cast<Service*>(m_robDataProvider);	
+     if (svc != 0) {
+	 log<<MSG::DEBUG << " connected to RobDataProvider = " << svc->name() <<endreq;            
+     } else {
+         log<<MSG::ERROR << " Cant cast ROBDataProviderSvc to Service " <<endreq;
+     }	
+   }			
+
+  IToolSvc* toolSvc;
+  if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
+    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    return StatusCode::FAILURE; 
+  }  
+
+  std::string toolType = System::typeinfoName(typeid(TOOL)) ; 
+  log << MSG::DEBUG <<"  Tool Type = "<<toolType<<endreq; 
+  if(StatusCode::SUCCESS != toolSvc->retrieveTool(toolType,m_tool))
+  {
+    log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
+    return StatusCode::FAILURE; 
+  }
+
+  return StatusCode::SUCCESS; 
+}
+
+template< typename TOOL> 
+StatusCode
+CollectionByteStreamCnv<TOOL>::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
+  MsgStream log(messageService(), "CollectionByteStreamCnv");
+	
+  ByteStreamAddress *pBS_Addr;
+  pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); 
+  if(!pBS_Addr) {
+    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ; 
+    return StatusCode::FAILURE;    
+  }
+	
+  const std::string nm = *(pBS_Addr->par()) ; 
+  
+#ifndef NDEBUG
+  log << MSG::DEBUG<<" Creating Objects   "<<nm<<endreq; 
+#endif 
+  
+  const std::vector<uint32_t>& vID = pBS_Addr->getRobIDs(); 
+
+  IROBDataProviderSvc::VROBFRAG  robFrags ;
+  m_robDataProvider->getROBData(vID,robFrags); 
+
+  // make ROBData for the Collection Tools.
+  typedef std::vector<ROBData> VROBDATA ;
+  VROBDATA vRobData; 
+  IROBDataProviderSvc::VROBFRAG::const_iterator it = robFrags.begin(); 
+  IROBDataProviderSvc::VROBFRAG::const_iterator it_e = robFrags.end(); 
+  for(; it!=it_e;++it){ 
+	vRobData.push_back(ROBData((*it))); 
+  }    
+
+  COLLECTION* coll ;
+  StatusCode sc = m_tool->convert(vRobData, coll, pBS_Addr->ipar() , log ); 
+  if(sc != StatusCode::SUCCESS) { 
+        log << MSG::ERROR<<" Failed to create Objects   "<<nm<<endreq; 
+	return sc; 
+  }
+
+  pObj = StoreGateSvc::asStorable(coll) ;    
+  return sc;    
+}
+
+template< typename TOOL> 
+StatusCode 
+CollectionByteStreamCnv<TOOL>::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) 
+{
+  //
+  // Fill RawEvent object from DataObject
+  // 
+
+   MsgStream log(messageService(), "CollectionByteStreamCnv");
+ 
+   std::string nm = pObj->registry()->name(); 
+
+   ByteStreamAddress* addr = new
+       ByteStreamAddress(classID(),nm,""); 
+
+   pAddr = addr; 
+
+
+   log << MSG::ERROR << "  THIS METHOD SHOULD NOT BE CALLED "<< endreq ; 
+
+   StatusCode sc = StatusCode::FAILURE ; 
+   return sc; 
+}
+
+

@@ -1,0 +1,48 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef BYTESTREAMCNVSVCBASE_BYTESTREAMADDRESS_H
+#define BYTESTREAMCNVSVCBASE_BYTESTREAMADDRESS_H
+
+// Framework include files
+#include "GaudiKernel/GenericAddress.h"
+
+#include <stdint.h>
+#include <vector>
+
+/**
+ *  @class  ByteStreamAddress
+ *  @brief  IOpaqueAddress for ByteStreamCnvSvc, with ROB ids
+ *
+ *  Package     : ByteStreamCnvSvcBase
+ *
+ *  description : Definition of RawEvent address class
+ *                This class holds a vector of ROBIDs
+ *  @author     : H. Ma
+ *  Revision    : July 10, 2002, Use new eformat package
+ *  Revision    : Sept 19, 2002, Store ROB IDs, to be used with ROBDataProviderSvc
+ */
+
+class ByteStreamAddress : public GenericAddress {
+public:
+   // @brief Constructor
+   ByteStreamAddress(const CLID& clid, const std::string& fname, const std::string& cname, int p1 = 0, int p2 = 0);
+   // @brief Constructor
+   ByteStreamAddress(const CLID& clid);
+
+   // @brief Destructor
+   virtual ~ByteStreamAddress() {}; //doesn't own event
+
+   // @brief Add a rob id
+   void add(uint32_t robid);
+
+   // @brief access the ROB fragment IDs
+   const std::vector<uint32_t>& getRobIDs() const;
+
+private:
+   // @brief it holds a vector of rob ids
+   std::vector<uint32_t> m_robIDs;
+};
+
+#endif
