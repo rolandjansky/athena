@@ -1,0 +1,22 @@
+package xAODCaloEventCnv
+
+author Walter Lampl walter.lampl@cern.ch
+
+use AtlasPolicy     AtlasPolicy-*
+
+private
+
+use GaudiInterface     GaudiInterface-*     External
+use AtlasROOT          AtlasROOT-*          External
+use AthenaBaseComps    AthenaBaseComps-*    Control
+use AthenaKernel       AthenaKernel-*       Control
+
+use CaloEvent          CaloEvent-*          Calorimeter
+#use xAODBase           xAODBase-*           Event/xAOD
+use xAODCaloEvent      xAODCaloEvent-*      Event/xAOD
+
+# Make a component library:
+library  xAODCaloEventCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
