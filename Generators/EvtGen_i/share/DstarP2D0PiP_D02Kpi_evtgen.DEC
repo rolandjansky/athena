@@ -1,0 +1,9 @@
+Decay D*+
+1.0   D0  pi+                        VSS;
+Enddecay
+
+Decay D0
+1.0   K-  pi+                         PHSP;
+Enddecay
+
+End

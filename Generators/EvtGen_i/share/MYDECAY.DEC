@@ -1,0 +1,40 @@
+# Close all EvtGen B-meson and anti-B-baryon decays
+# to allow user open only decay(s) for one selected type of B hadron
+# other B-hadrons will remain closed and will effect in removing the event
+# from beign written into output
+
+Decay B0
+Enddecay
+Decay B+
+Enddecay
+Decay B_s0
+Enddecay
+Decay anti-Lambda_b0
+Enddecay
+Decay anti-Xi_b+
+Enddecay
+Decay anti-Xi_b0
+Enddecay
+Decay anti-Sigma_b+
+Enddecay
+Decay anti-Sigma_b-
+Enddecay
+Decay anti-Sigma_b0
+Enddecay
+Decay B_c+
+Enddecay
+
+Decay B0
+1.0000     J/psi  K*0T              SVV_HELAMP 0.683  0.000  0.721  0.000  0.117  0.000;
+Enddecay
+#
+Decay J/psi
+1.0000    mu+  mu-               PHOTOS  VLL;
+Enddecay
+#
+Decay K*0T
+1.0000      K+  pi-                        VSS;
+Enddecay
+#
+End
+

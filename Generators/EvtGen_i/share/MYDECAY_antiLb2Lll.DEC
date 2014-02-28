@@ -1,0 +1,62 @@
+# Close all EvtGen B-meson and anti-B-baryon decays
+# to allow user open only decay(s) for one selected type of B hadron
+# other B-hadrons will remain closed and will effect in removing the event
+# from beign written into output
+
+#Decay B0
+#Enddecay
+#Decay B+
+#Enddecay
+#Decay B_s0
+#Enddecay
+##Decay anti-Lambda_b0
+##Enddecay
+#Decay anti-Xi_b+
+#Enddecay
+#Decay anti-Xi_b0
+#Enddecay
+#Decay anti-Sigma_b+
+#Enddecay
+#Decay anti-Sigma_b-
+#Enddecay
+#Decay anti-Sigma_b0
+#Enddecay
+#Decay B_c+
+#Enddecay
+
+#Decay anti-B0
+#Enddecay
+#Decay B-
+#Enddecay
+#Decay anti-B_s0
+#Enddecay
+#Decay Lambda_b0
+#Enddecay
+#Decay Xi_b-
+#Enddecay
+#Decay Xi_b0
+#Enddecay
+#Decay Sigma_b+
+#Enddecay
+#Decay Sigma_b-
+#Enddecay
+#Decay Sigma_b0
+#Enddecay
+#Decay B_c-
+#Enddecay
+
+#Decay Lambda_b0
+#1.0000  Lambda0 mu- mu+  Lb2Lll  0 "SM" "HQET" "Unpolarized" "SD" 0 100 0;
+#Enddecay
+Decay anti-Lambda_b0
+1.0000  anti-Lambda0 mu+ mu-  Lb2Lll  0 "SM" "HQET" "Unpolarized" "SD" 0 100 0;
+Enddecay
+
+#Decay Lambda0
+#1.0000  p+ pi-  HypNonLepton  0.642 -6.5 1;
+#Enddecay
+Decay anti-Lambda0
+1.0000  anti-p- pi+  HypNonLepton  0.642 -6.5 1;
+Enddecay
+
+End
