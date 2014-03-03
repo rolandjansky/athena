@@ -1,0 +1,17 @@
+digraph class {
+  labelloc="b";
+  label="ASG Root class diagram (Jan. 2014)"
+  rankdir=BT;
+  SgTEvent [ shape=rectangle, color=lightsalmon, style=filled ];
+  MsgStream [ shape=rectangle, color=lightsalmon, style=filled ];
+  IAsgTool [ shape=rectangle, color=lightsalmon, style=filled ];
+  AsgTool [ shape=rectangle, color=lightsalmon, style=filled ];
+  IAsgHelloTool [ shape=rectangle, color=lightskyblue1, style=filled ];
+  AsgHelloTool [ shape=rectangle, color=lightskyblue2, style=filled ];
+  AsgTool -> IAsgTool
+  AsgTool -> SgTEvent [ style=dotted, arrowhead=vee ]
+  AsgTool -> MsgStream [ style=dotted, arrowhead=vee ]
+  IAsgHelloTool -> IAsgTool
+  AsgHelloTool -> AsgTool
+  AsgHelloTool -> IAsgHelloTool
+}

@@ -1,0 +1,14 @@
+package AsgExampleTools
+
+author David Adams
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+end_private
+
+library AsgExampleTools *.cxx ../Root/AsgHelloTool.cxx -s=components *.cxx
+apply_pattern component_library

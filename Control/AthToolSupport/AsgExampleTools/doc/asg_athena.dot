@@ -1,0 +1,24 @@
+digraph class {
+  labelloc="b";
+  label="ASG Athena class diagram (Jan. 2014)"
+  rankdir=BT;
+  StoreGateSvc [ shape=rectangle ];
+  AthMessaging [ shape=rectangle ];
+  IAlgTool [ shape=rectangle ];
+  AlgTool [ shape=rectangle ];
+  AthAlgTool [ shape=rectangle ];
+  IAsgTool [ shape=rectangle, color=lightsalmon, style=filled ];
+  AsgTool [ shape=rectangle, color=lightsalmon, style=filled ];
+  IAsgHelloTool [ shape=rectangle, color=lightskyblue1, style=filled ];
+  AsgHelloTool [ shape=rectangle, color=lightskyblue2, style=filled ];
+  AlgTool -> IAlgTool
+  AthAlgTool -> AlgTool
+  AthAlgTool -> AthMessaging
+  AthAlgTool -> StoreGateSvc [ style=dotted, arrowhead=vee ]
+  IAsgTool -> IAlgTool
+  AsgTool -> IAsgTool
+  AsgTool -> AthAlgTool
+  IAsgHelloTool -> IAsgTool
+  AsgHelloTool -> AsgTool
+  AsgHelloTool -> IAsgHelloTool
+}
