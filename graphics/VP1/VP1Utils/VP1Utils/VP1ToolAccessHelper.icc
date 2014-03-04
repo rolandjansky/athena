@@ -1,0 +1,102 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+template <class toolT>
+inline toolT * VP1ToolAccessHelper::getToolPointer( const QString& tooltypeandname, bool silent, bool createIfNotExists )
+{
+  //We use the typeid for dynamic type-checking, since, for unknown
+  //reasons, we have to static_cast through void pointers in order to
+  //keep correct pointers and avoid dynamic casts to null!
+  QString typeidstr(typeid(toolT*).name());
+
+  if (verbose())
+    messageVerbose("getToolPointer(..) called with tool type/name = "+tooltypeandname
+		   +", with return typeid = "+typeidstr);
+  if (!m_toolsvc) {
+    messageVerbose("getToolPointer(..) WARNING does not have toolSvc pointer. Returning NULL.");
+    return 0;
+  }
+  if (tooltypeandname.isEmpty()||!tooltypeandname.contains('/')) {
+    messageDebug("getToolPointer(..) WARNING requested tool name has incorrect format ("+tooltypeandname+")!");
+    return 0;
+  }
+
+  std::pair<QString,QString> id(tooltypeandname,typeidstr);
+  const typename std::map<std::pair<QString,QString>,IAlgTool*>::iterator it = m_toolname2pointer.find(id);
+  if (it==m_toolname2pointer.end()) {
+    //This is the first attempt at retrieval.
+
+    //Fixme/todo: Should we check that tool exists before any attempts
+    //at retrieval are done??
+
+    //Create tool handle:
+    ToolHandle<toolT> toolhandle( tooltypeandname.toStdString(),
+				  0/*public tools only*/,
+				  createIfNotExists );
+    bool exception = true;
+    bool retrieveok = false;
+    try {
+      retrieveok = !toolhandle.retrieve().isFailure();
+      exception = false;
+    } catch (std::runtime_error e) {
+      exception = true;
+    }
+    if (exception) {
+      if (silent)
+	messageVerbose("ToolHandle<>::retrieve() throws exception.");
+      else
+	messageDebug("ToolHandle<>::retrieve() throws exception.");
+      m_toolname2pointer[id] = 0;
+
+      return 0;
+    }
+    if (!retrieveok) {
+      if (silent)
+	messageVerbose("getToolPointer(..) ERROR: Failed to retrieve tool: "+tooltypeandname);
+      else
+	message("getToolPointer(..) ERROR: Failed to retrieve tool: "+tooltypeandname);
+      m_toolname2pointer[id] = 0;
+      return 0;
+    }
+
+    //Get pointer.
+    toolT * thetool = &(*toolhandle);
+    if (!thetool) {
+      message("getToolPointer(..) ERROR: Tool retrieve claimed to be succesful, but pointer is NULL!");
+      return 0;
+    }
+
+    if (!isValidInterface(thetool)) {
+      message("getToolPointer(..) ERROR: Tool retrieved is not a valid interface!");
+      thetool = 0;
+    }
+    if (verbose())
+      messageVerbose("Returning "+str(thetool)+" tool pointer.");
+    //We need the cast to void ptr to work around some WEIRD pointer
+    //values introduced by a more straight-forward casting:
+    void* voidptr = static_cast<void*>(thetool);
+    IAlgTool* algptr = static_cast<IAlgTool*>(voidptr);
+    if (verbose())
+      messageVerbose("getToolPointer(..) Storing ptr = "+str(algptr));
+    m_toolname2pointer[id] = algptr;
+    return thetool;
+  } else {
+    //Not first attempt:
+    if (!it->second) {
+      messageVerbose("getToolPointer(..) Returning null tool pointer since previous retrieval attempts failed)).");
+      return 0;
+    }
+    toolT* pointer = static_cast<toolT*>(static_cast<void*>(it->second));
+    if (!pointer) {
+      //Fixme: Respect silent flag here?
+      message("getToolPointer(..) ERROR: Could not cast IAlgTool pointer "+str(it->second)
+	      +" to type "+QString(typeid(toolT*).name())+". Returning 0.");
+      return 0;
+    }
+    if (verbose())
+      messageVerbose("getToolPointer(..) Retrieved tool pointer ("+str(pointer)+") succesfully");
+    return pointer;
+  }
+}

@@ -1,0 +1,97 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+template <typename T>
+inline const T* VP1SGAccessHelper::retrieve( const QString& key ) const
+{
+  if (verbose())
+    messageVerbose("retrieve(..) called with key = "+key+" for type "+QString(typeid(T).name()));
+
+  if (!storeGate()) {
+    message("ERROR Does not have StoreGate pointer. Returning null pointer.");
+    return 0;
+  }
+
+  if (key.isEmpty()) {
+    message("ERROR retrieve called with empty key. Returning null pointer.");
+    return 0;
+  }
+
+  if (!contains(ClassID_traits<T>::ID(),key)) {
+    messageDebug("WARNING retrieve called for key="+key+", which is not found in storeGate.");
+    return 0;
+  }
+
+  const T* t(0);
+  bool exception = true;
+  // StatusCode sc;
+  try {
+    t = storeGate()->retrieve<const T>(key.toStdString());
+    exception = false;
+  } catch (std::runtime_error e) {
+    exception = true;
+    t = 0;
+  }
+  if (exception ) {
+    message("ERROR: Exception thrown during call to StoreGateSvc::retrieve(..) with key="+key);
+    // sc.isFailure();//To make sure it is checked.
+    return 0;
+  }
+  if (!t) {
+    message("ERROR: Failed StoreGateSvc::retrieve(..) with key="+key+" claimed to be succesful, but resulted in NULL pointer.");
+    return 0;
+  }
+  if (verbose())
+    messageVerbose("Succesfully retrieved collection "+key);
+  return t;
+}
+
+template <typename T>
+inline bool VP1SGAccessHelper::retrieve( const T* & t, const QString& key ) const
+{
+  t = retrieve<T>(key);
+  return t != 0;
+}
+
+template <typename T>
+inline bool VP1SGAccessHelper::retrieve(const DataHandle<T>& begin, const DataHandle<T>& end, const bool&silent )
+{
+
+  if (verbose())
+    messageVerbose("retrieve(DataHandle<"+QString(typeid(T).name())+">,DataHandle<"
+		   +QString(typeid(T).name())+">) called.");
+  if (!storeGate()) {
+    QString str("ERROR Does not have StoreGate pointer. Returning null pointer.");
+    silent ? messageVerbose(str) : message(str);
+    return false;
+  }
+
+  bool exception = true;
+  StatusCode sc;
+  try {
+    sc = storeGate()->retrieve(begin,end);
+    exception = false;
+  } catch (std::runtime_error e) {
+    exception = true;
+  }
+  if (exception) {
+    QString str("ERROR: Exception thrown during call to StoreGateSvc::retrieve(DataHandle<"
+		+QString(typeid(T).name())+">,DataHandle<"+QString(typeid(T).name())+">)"); 
+    silent ? messageVerbose(str) : message(str);
+    sc.isFailure();//To make sure it is checked.
+    return false;
+  }
+  if (sc.isFailure()) {
+    QString str( "ERROR: Failed StoreGateSvc::retrieve(DataHandle<"
+		 +QString(typeid(T).name())+">,DataHandle<"
+		 +QString(typeid(T).name())+">)");
+    silent ? messageVerbose(str) : message(str);
+    return false;
+  }
+
+  if (verbose())
+    messageVerbose("Successfully retrieved datahandles to "+QString(typeid(T).name())+".");
+  return true;
+}
