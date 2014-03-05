@@ -1,0 +1,8 @@
+package AsgTools
+author David Adams
+
+use AtlasPolicy      AtlasPolicy-*
+use AthenaBaseComps  AthenaBaseComps-*  Control
+
+library AsgTools ../Root/MsgLevel.cxx ../Root/IAsgTool.cxx ../Root/AsgTool.cxx
+apply_pattern installed_library
