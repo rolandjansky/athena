@@ -1,0 +1,32 @@
+package TopEvent
+
+use AtlasPolicy 		AtlasPolicy-*
+use AtlasCLHEP  		AtlasCLHEP-* 		External
+use AtlasBoost 			AtlasBoost-* 		External
+use SGTools              	SGTools-*              	Control
+use AtlasBoost			AtlasBoost-*		External
+use SGTools			SGTools-*		Control
+use AtlasHepMC                  AtlasHepMC-*            External
+
+use EventKernel			EventKernel-*		Event
+use FourMom			FourMom-*		Event
+use FourMomUtils                FourMomUtils-*          Event
+
+use DataModel			DataModel-*		Control
+
+use JetEvent			JetEvent-* 		Reconstruction/Jet
+use muonEvent                   muonEvent-*             Reconstruction/MuonIdentification
+use MissingETEvent		MissingETEvent-*	Reconstruction
+use egammaEvent                 egammaEvent-*           Reconstruction/egamma
+use tauEvent                    tauEvent-*              Reconstruction
+use Particle                    Particle-*              Reconstruction
+
+use McParticleEvent     	McParticleEvent-*       PhysicsAnalysis/TruthParticleID
+
+apply_pattern installed_library
+library TopEvent *.cxx
+
+private
+use AtlasReflex			AtlasReflex-*		External -no_auto_imports
+apply_pattern lcgdict dict=TopEvent selectionfile=selection.xml headerfiles="../TopEvent/TopEventDict.h"
+end_private
