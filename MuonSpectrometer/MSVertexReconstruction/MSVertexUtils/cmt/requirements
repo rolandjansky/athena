@@ -1,0 +1,25 @@
+package MSVertexUtils
+
+author Daniel Ventura <ventura@cern.ch>
+
+use AtlasPolicy			  AtlasPolicy-*
+use AtlasROOT                     AtlasROOT-*                   External
+use GaudiInterface                GaudiInterface-*              External
+use GeoAdaptors                   GeoAdaptors-*                 DetectorDescription/GeoModel
+use GeoPrimitives                 GeoPrimitives-*               DetectorDescription
+use xAODTracking                  xAODTracking-*                Event/xAOD
+
+
+library  MSVertexUtils ../src/*.cxx
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+apply_pattern installed_library
+
+##compiler flags to run in debug mode
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
