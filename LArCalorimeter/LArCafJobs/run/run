@@ -1,0 +1,11 @@
+echo "Running on file $1"
+echo "Output will be in $TMPDIR"
+cd $TMPDIR
+Reco_trf.py --omitvalidation \
+inputBSFile=$1 \
+outputESDFile=$TMPDIR/dummy_ESD.pool.root \
+maxEvents=-1 \
+autoConfiguration='everything' \
+preInclude='RecExCommon/RecoUsefulFlags.py',,'RecJobTransforms/UseOracle.py',,'LArCafJobs/samples_tweaks.py' \
+postInclude='LArCafJobs/samplesNtuple.py' \
+>&! $TMPDIR/log &
