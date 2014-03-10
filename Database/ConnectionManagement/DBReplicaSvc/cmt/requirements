@@ -1,0 +1,16 @@
+package DBReplicaSvc
+
+author Richard Hawkings <richard.hawkings@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*          External
+use AtlasCORAL           AtlasCORAL-*              External
+
+private
+
+use PathResolver         PathResolver-*            Tools
+
+library DBReplicaSvc DBReplicaSvc.cxx \
+                          components/*.cxx
+
+apply_pattern component_library
