@@ -1,0 +1,125 @@
+#include "InDetMultipleVertexSeedFinderUtils/PVFindingTrackFilter.h"
+#include "TrkTrack/Track.h"
+#include "TrkParameters/MeasuredPerigee.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTrackSummary/TrackSummary.h"
+#include "GaudiKernel/MsgStream.h" 
+
+namespace Trk
+{
+
+ StatusCode PVFindingTrackFilter::initialize()
+ {
+  MsgStream log(msgSvc(), name());
+  StatusCode sc = AlgTool::initialize();
+  if(sc.isFailure())
+  {
+   log<<MSG::ERROR<<" Unable to initialize the AlgTool"<<endreq;
+   return StatusCode::FAILURE;
+  }
+  
+  if(m_trackSumTool.retrieve().isFailure())
+  {
+   log<<MSG::ERROR<<" Unable to retrieve "<<m_trackSumTool<<endreq;
+   return StatusCode::FAILURE;
+  }else log<<MSG::INFO<<"Track summary tool retrieved"<<endreq;  
+  return StatusCode::SUCCESS;
+ }//end of initialize method
+    
+ StatusCode PVFindingTrackFilter::finalize()
+ {
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO  << "Finalize successful" << endreq;
+  return StatusCode::SUCCESS;
+ }//end of finalize method
+    
+ PVFindingTrackFilter::PVFindingTrackFilter(const std::string& t, const std::string& n, const IInterface* p):AlgTool(t,n,p), 
+ m_minPt(500.),                                                      
+ m_maxZ0(150.),                                                       
+ m_maxD0(2.5),                                                       
+ m_maxD0overSigmaD0(3.),                                              
+ m_numberOfPixelHits(2),
+ m_numberOfBLayerHits(1)
+ { 
+  declareInterface<PVFindingTrackFilter>(this);
+  declareProperty("minPt",                    m_minPt);
+  declareProperty("maxZ0",                    m_maxZ0);
+  declareProperty("maxD0",                    m_maxD0);
+  declareProperty("maxD0overSigmaD0",         m_maxD0overSigmaD0);
+  declareProperty("numberOfPixelHits",        m_numberOfPixelHits);
+  declareProperty("numberOfBLayerHits",       m_numberOfBLayerHits);
+  declareProperty("TrackSummaryTool",         m_trackSumTool);
+ }//end of constructor
+
+ PVFindingTrackFilter::~PVFindingTrackFilter()
+ {}
+ 
+ bool PVFindingTrackFilter::decision(const Trk::Track* track) const
+ {
+  
+//  std::cout<<"Preselction started"<<std::endl; 
+//checking pointer first
+  if(0==track)
+  { 
+   MsgStream log(msgSvc(),name());
+   log << MSG::INFO << "Track preselection: Zero track pointer received. This track will not pass." << endreq;
+   return false;
+  }
+//getting the  perigee parameters of the track
+  const Trk::MeasuredPerigee * perigee = dynamic_cast<const Trk::MeasuredPerigee*>(track->perigeeParameters());
+  if(0 == perigee)
+  {
+   MsgStream log(msgSvc(),name());
+   log << MSG::INFO << "Track preselection: cannot make a measured perigee. This track will not pass." << endreq;
+   return false;
+  }
+ 
+  HepVector trackParameters = perigee->parameters();
+//  std::cout<<" Getting the perigee parameters "<<std::endl; 
+
+//d0 and z0 cuts
+  double d0 = trackParameters[Trk::d0]; 
+  if(fabs(d0) > fabs(m_maxD0)) return false;
+  
+  double z0 = trackParameters[Trk::z0];
+  if(fabs(z0) > fabs(m_maxZ0)) return false;
+   
+//transverse momentum
+  double pt = perigee->momentum().perp();    
+  if(pt<m_minPt) return false; 
+ 
+//d0 significance 
+  double d0Significance=fabs(trackParameters[Trk::d0]/perigee->localErrorMatrix().error(Trk::d0));
+  if (d0Significance>m_maxD0overSigmaD0) return false;
+  
+//  std::cout<<" Significance passed "<<std::endl;     
+  
+//number of hits, silicon hits, b-layer
+  const Trk::TrackSummary* summary = m_trackSumTool->createSummary(*(track));
+ 
+  if (0==summary )
+  { 
+   MsgStream log(msgSvc(),name());
+   log << MSG::INFO << "Track preselection: cannot create a track summary. This track will not pass." << endreq;
+   return false;
+  }
+  
+//  std::cout<<" Getting to the number of hits "<<std::endl;     
+  int nPixelHits  =  summary->get(Trk::numberOfPixelHits);
+  int nBLayerHits =  summary->get(Trk::numberOfBLayerHits); 
+   
+//  std::cout<<"Number of pixel hits: "<<nPixelHits<<"Number of b-layer hits: "<<nBLayerHits<<std::endl;
+   
+  if(nPixelHits<m_numberOfPixelHits || nBLayerHits<m_numberOfBLayerHits ) 
+  {
+   delete summary;
+   return false; 
+  } 
+  delete summary; 
+
+//  std::cout<<" It is all ok, returning true  for this track "<<std::endl;     
+
+//all ok 
+  return true;  
+ }//end of decision method
+}//end of namespace definitions
