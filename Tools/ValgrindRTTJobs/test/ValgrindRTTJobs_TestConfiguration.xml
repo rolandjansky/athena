@@ -1,0 +1,386 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn/>
+
+<kv/>                
+
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+  <!-- AUTHORS: Rolf Seuster (Rolf.Seuster AT cern.ch) -->
+  <rttContactPerson>Rolf.Seuster AT cern.ch</rttContactPerson>
+  <mailto>Rolf.Seuster@cern.ch</mailto>
+  <refRelease>15.0.0</refRelease>
+  
+  <jobList>
+    <classification>
+      <displayClass>OfflineValidation</displayClass>
+      <displayProcess>Reco</displayProcess>
+      <displayComponent>Athena-Core</displayComponent>
+    </classification>
+
+
+    
+    <jobTransform userJobId="HelloValgrind">
+      <doc>Short Testjob</doc>
+      <jobTransformJobName>HelloValgrind</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py VGHelloWorldOptions.py stacktraceDepth=50
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="GenerateEvents">
+      <doc>Short MC Job</doc>
+      <jobTransformJobName>GenerateEvents</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py McGenerationPythia.py stacktraceDepth=25
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+
+      <testToRemove>
+	<jobGroupName>Top</jobGroupName>
+	<testidentifier>CheckFileRunner0</testidentifier>
+      </testToRemove>
+      
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="collisionsRAWtoESD">
+      <doc>collisions RAW to ESD collisions all</doc>
+      <jobTransformJobName>collisionsRAWtoESD</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data11_7TeV.00178044.physics_JetTauEtmiss.merge.RAW._lb0092._SFO-4._0001.1_25events+outputESDFile=myESD.pool.root+maxEvents=2+autoConfiguration=everything+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=50
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="ESD2ESDnoreco">
+      <doc>An ESD to ESD job</doc>
+      <jobTransformJobName>ESDtoESD</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py RecExCommon/esdtoesd.py needInputFile=ESD stacktraceDepth=25 athenaOpt=rec.UserAlgs="['ValgrindRTTJobs/vgOpts.py']"
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="ESD2ESDwithreco">
+      <doc>An ESD to ESD job with reco</doc>
+      <jobTransformJobName>ESDtoESDwRec</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+inputESDFile=ESD.pool.root+outputESDFile=newESD.pool.root+preExec='"rec.doESD.unlock(),,rec.doESD.set_Value_and_Lock(True),,rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,rec.doTrigger=False,,rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+autoConfiguration=everything+postExec=topSequence.TimeOut=0+preInclude=ValgrindRTTJobs/noWriteESD.py needInputFile=ESD stacktraceDepth=15
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="ESD2AOD">
+      <doc>An ESD to AOD job</doc>
+      <jobTransformJobName>ESDtoAOD</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py RecExCommon/esdtoaod.py athenaOpt="doCBNT=False;rec.doPerfMon=False;rec.doDetailedPerfMon=False;rec.doSemiDetailedPerfMon=False;rec.UserAlgs=['ValgrindRTTJobs/vgOpts.py']" needInputFile=ESD stacktraceDepth=25
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="ESD2AOD_withPhysValMonHists">
+      <doc>An ESD to AOD job with histograms</doc>
+      <jobTransformJobName>ESDtoAODwHists</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+inputESDFile=ESD.pool.root+outputAODFile=AOD.pool.root+outputHIST_PHYSVALMONFile=pvm.root+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,rec.doTrigger=False,,'rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]'+autoConfiguration=everything+postExec=topSequence.TimeOut=0 needInputFile=ESD 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="AOD2AOD">
+      <doc>An AOD to AOD job</doc>
+      <jobTransformJobName>AODtoAOD</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py RecExCommon/aodtoaod.py needInputFile=AOD stacktraceDepth=25 athenaOpt=rec.UserAlgs="['ValgrindRTTJobs/vgOpts.py']"
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="AOD2TAG">
+      <doc>An AOD to TAG job</doc>
+      <jobTransformJobName>AODtoTAG</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py RecExCommon/aodtotag.py needInputFile=AOD stacktraceDepth=25 athenaOpt=rec.UserAlgs="['ValgrindRTTJobs/vgOpts.py']"
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="TriggerLVL2">
+      <doc>An LVL2 job</doc>
+      <jobTransformJobName>LVL2_Standalone</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py hlt.py athenaOpt='doLVL2=True' stacktraceDepth=15 recexcommonlinks=True
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="TriggerEF">
+      <doc>An EventFilter job</doc>
+      <jobTransformJobName>EventFilter_Standalone</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py hlt.py athenaOpt='doEF=True' stacktraceDepth=5 recexcommonlinks=True
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="Simulation">
+      <doc>A Simulation job</doc>
+      <jobTransformJobName>SimulationAlmostEmptyDetector</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py needInputFile=EVGEN recoTrf=Sim_trf.py+inputEvgenFile=EVGEN.pool.root+outputHitsFile=g4hits.pool.root+maxEvents=3+skipEvents=0+randomSeed=1234+geometryVersion=ATLAS-GEO-16-00-00+conditionsTag=OFLCOND-SDR-BS7T-04-02+physicsList=QGSP_BERT stacktraceDepth=15 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="ESD2DPD">
+      <doc>DPD maker job ESD 1</doc>
+      <jobTransformJobName>ESD2DPD</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py needInputFile=ESD recoTrf=Reco_trf.py+inputESDFile=ESD.pool.root+autoConfiguration=everything+outputDESDM_EGAMMAFile=dpd01.pool.root+outputDESD_PHOJETFile=dpd02.pool.root+outputDESD_SGLELFile=dpd03.pool.root+outputDESDM_MUONFile=dpd04.pool.root+outputDESD_SGLMUFile=dpd05.pool.root+outputDESDM_CALJETFile=dpd06.pool.root+outputDESDM_TRACKFile=dpd07.pool.root+outputDESD_METFile=dpd08.pool.root+outputDESD_MBIASFile=dpd09.pool.root+outputDESDM_RPVLLFile=dpd10.pool.root+outputDESD_COLLCANDFile=dpd11.pool.root+outputDESDM_BEAMSPOTFile=dpd12.pool.root+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0 stacktraceDepth=15
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+
+    <jobTransform userJobId="AOD2DPD">
+      <doc>DPD maker job AOD</doc>
+      <jobTransformJobName>AOD2DPD</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py needInputFile=AOD recoTrf=Reco_trf.py+inputAODFile=AOD.pool.root+autoConfiguration=everything+outputDAODM_SGLELFile=dpd00.pool.root+outputDAODM_SGLMUFile=dpd01.pool.root+outputDAODM_SGLPHFile=dpd02.pool.root+outputDAODM_SGLTAUFile=dpd03.pool.root+outputDAOD_2ELFile=dpd04.pool.root+outputDAOD_2MUFile=dpd05.pool.root+outputDAOD_ELMUFile=dpd06.pool.root+outputDAOD_MUTAUFile=dpd08.pool.root+outputDAOD_ELMETFile=dpd09.pool.root+outputDAOD_MUMETFile=dpd10.pool.root+outputDAOD_JETMETFile=dpd11.pool.root+outputDAOD_MUJETFile=dpd12.pool.root+outputDAOD_TAUJETFile=dpd13.pool.root+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0 stacktraceDepth=15
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="Digitization_NoPileUp">
+      <doc>A Digitization job</doc>
+      <jobTransformJobName>DigiNoPileup</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py DigiNoPileUp_All.py stacktraceDepth=10
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="Digitization_PileUp">
+      <doc>A Digitization job</doc>
+      <jobTransformJobName>DigiPileup1E33</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py DigiPileUp1E33_all.py stacktraceDepth=15 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+    
+
+
+    <jobTransform userJobId="RecoTrf_AMIq120">
+      <doc>Reco_trf.py AMI=q120</doc>
+      <jobTransformJobName>VG_Reco_trf.py_AMI_q120</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+AMI=q120+append_preExec='"rec.doPerfMon=False;rec.doDetailedPerfMon=False;rec.doSemiDetailedPerfMon=False;rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0 stacktraceDepth=25 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+
+    <jobTransform userJobId="RecoTrf_AMIq121">
+      <doc>Reco_trf.py AMI=q121</doc>
+      <jobTransformJobName>VG_Reco_trf.py_AMI_q121</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+AMI=q121+append_preExec='"rec.doPerfMon=False;rec.doDetailedPerfMon=False;rec.doSemiDetailedPerfMon=False;rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0 stacktraceDepth=25 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+
+    <jobTransform userJobId="RecoTrf_AMIq122">
+      <doc>Reco_trf.py AMI=q122</doc>
+      <jobTransformJobName>VG_Reco_trf.py_AMI_q122</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+AMI=q122+append_preExec='"rec.doPerfMon=False;rec.doDetailedPerfMon=False;rec.doSemiDetailedPerfMon=False;rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0 stacktraceDepth=25 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="Monitoring_ESD_167607">
+      <doc>Monitoring on ESD</doc>
+      <jobTransformJobName>Monitoring_ESD_167607</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+inputESDFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_ESD.AOD_50Events/data10_7TeV.00167607.physics_JetTauEtmiss.recon.ESD.f298._lb0087._SFO-4._0001.1_50Events_rel.16.0.3.8_rereco+maxEvents=50+outputHISTFile=mon.root+outputAODFile=a.pool.root+autoConfiguration=everything+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\"]"'+postExec=topSequence.TimeOut=0 stacktraceDepth=15
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+ 
+    <jobTransform userJobId="DHATcollisionsRAWtoESD">
+      <doc>collisions RAW to ESD collisions All only with DHAT</doc>
+      <jobTransformJobName>DHATcollisionsRAWtoESD</jobTransformJobName>
+      <!-- copied from "RecJobTransformTests_TestConfiguration.xml#reco_trf_ID" -->
+      <jobTransformCmd>
+        valgrind_trf.py valgrindTool=dhat recoTrf=Reco_trf.py+inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data10_7TeV.00167661.physics_JetTauEtmiss.merge.RAW._lb0377._SFO-4._0001.1_10events.data+outputESDFile=myESD.pool.root+maxEvents=5+autoConfiguration=everything+preExec=rec.doForwardDet=False,,rec.doCalo=True,,rec.doInDet=True,,rec.doMuon=True,,rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=15 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    
+    <jobTransform userJobId="CALLGRINDpileupRecoMCJobEventLoop">
+      <doc>pileup reco MC job with callgrind</doc>
+      <jobTransformJobName>CALLGRINDpileupRecoMCJob</jobTransformJobName>
+      <jobTransformCmd>
+        valgrind_trf.py valgrindTool=callgrind recoTrf=Reco_trf.py+inputRDOFile=root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1+outputESDFile=myESD.pool.root+maxEvents=5+autoConfiguration=everything+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\",\"ValgrindRTTJobs/cgOpts.py\"]"'+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=5 trackOrigins=False dumpInstr=True instrAtStart=False
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+
+    <jobTransform userJobId="CALLGRINDpileupRecoDataJobEventLoop">
+      <doc>pileup reco data job with callgrind</doc>
+      <jobTransformJobName>CALLGRINDpileupRecoDataJob</jobTransformJobName>
+      <jobTransformCmd>
+        valgrind_trf.py valgrindTool=callgrind recoTrf=Reco_trf.py+inputBSFile=/afs/cern.ch/user/s/seuster/rig/referencefiles/dataStreams_10Events/data11_7TeV.00178044.physics_JetTauEtmiss.merge.RAW._lb0092._SFO-4._0001.1_25events+outputESDFile=myESD.pool.root+maxEvents=5+autoConfiguration=everything+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,"'rec.doMonitoring.set_Value_and_Lock(True)'",,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\",\"ValgrindRTTJobs/cgOpts.py\"]"'+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=5 trackOrigins=False dumpInstr=True instrAtStart=False
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+
+    <jobTransform userJobId="CALLGRINDpileupRecoMCJobIniFirstEvent">
+      <doc>pileup reco MC job with callgrind init and 1st event</doc>
+      <jobTransformJobName>CALLGRINDpileupRecoMCJobIni</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py valgrindTool=callgrind recoTrf=Reco_trf.py+inputRDOFile=root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1+outputESDFile=myESD.pool.root+maxEvents=1+autoConfiguration=everything+preExec="'rec.Commissioning.set_Value_and_Lock(True)'",,rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\",\"ValgrindRTTJobs/cgOpts.py\"]"'+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=5 trackOrigins=False dumpInstr=True valgrindToolOpt='--trace-jump=yes --dump-before="AthSequencer::execute()"'
+    </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    <jobTransform userJobId="CALLGRINDpileupRecoDataJobIniFirstEvent">
+      <doc>pileup reco data job with callgrind init and 1st event</doc>
+      <jobTransformJobName>CALLGRINDpileupRecoDataJobIni</jobTransformJobName>
+      <jobTransformCmd>
+        valgrind_trf.py valgrindTool=callgrind recoTrf=Reco_trf.py+inputBSFile=/afs/cern.ch/user/s/seuster/rig/referencefiles/dataStreams_10Events/data11_7TeV.00178044.physics_JetTauEtmiss.merge.RAW._lb0092._SFO-4._0001.1_25events+outputESDFile=myESD.pool.root+maxEvents=1+autoConfiguration=everything+preExec=rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False,,'"rec.UserAlgs=[\"ValgrindRTTJobs/vgOpts.py\",\"ValgrindRTTJobs/cgOpts.py\"]"'+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=5 trackOrigins=False dumpInstr=True
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+
+    <jobTransform userJobId="PTRCHECKcollisionsRAWtoESD">
+      <doc>collisions RAW to ESD collisions CALO only with new tool ptrcheck</doc>
+      <jobTransformJobName>collisionsRAWtoESD_CALOptrcheck</jobTransformJobName>
+      <jobTransformCmd>
+	valgrind_trf.py recoTrf=Reco_trf.py+inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data11_7TeV.00178044.physics_JetTauEtmiss.merge.RAW._lb0092._SFO-4._0001.1_25events+outputESDFile=myESD.pool.root+maxEvents=2+trigStream=IDCosmic+autoConfiguration=everything+preExec=rec.doForwardDet=False,,rec.doCalo=True,,rec.doInDet=True,,rec.doMuon=True,,rec.doJetMissingETTag=False,,rec.doEgamma=False,,rec.doMuonCombined=False,,rec.doTau=False,,rec.doTrigger=False,,rec.doPerfMon=False,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False+postExec=topSequence.TimeOut=0+--ignoreunknown stacktraceDepth=15 valgrindTool=sgcheck 
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+    
+
+    <!-- ENDE -->
+  </jobList>
+  
+  <jobGroups>
+    <jobGroup name="Valgrind_JobTransforms" parent="Top">
+      <keepFilePattern>*.root</keepFilePattern>
+      <keepFilePattern>*.log</keepFilePattern>
+      <keepFilePattern>*.log.gz</keepFilePattern>
+      <keepFilePattern>*.txt</keepFilePattern>
+      <keepFilePattern>*.py</keepFilePattern>
+      <keepFilePattern>*.eps</keepFilePattern>
+      <keepFilePattern>*.jpg</keepFilePattern>
+      <keepFilePattern>*.html</keepFilePattern>
+      <keepFilePattern>html/*.html</keepFilePattern>
+      <keepFilePattern>processed/*.eps</keepFilePattern>
+      <keepFilePattern>valgrind.out.process.*</keepFilePattern>
+      <keepFilePattern>callgrind.out.process.*</keepFilePattern>
+      <keepFilePattern>massif.out.process.*</keepFilePattern>
+      <keepFilePattern displayColor="blue">processed/*.htm</keepFilePattern>
+      <keepFilePattern displayColor="green" info="The main report">Report.html</keepFilePattern>
+      <keepFilePattern>processed/*.gif</keepFilePattern>
+      <keepFilePattern>rec.pkg.pkl</keepFilePattern>
+      <auxFilePattern>memConsumption.C</auxFilePattern>
+      <auxFilePattern>historyNightlies.C</auxFilePattern>
+      <auxFilePattern>processValgrindOutput.sh</auxFilePattern>
+      <auxFilePattern>dhat-postprocess.pl</auxFilePattern>
+
+      
+      <test position="1" runInAtlasEnv="yes">
+        <modulename>PostProcessValgrind</modulename>
+        <testname>PostProcessValgrind</testname>
+      </test>
+
+      <testToRemove>
+        <jobGroupName>Top</jobGroupName>
+        <testidentifier>CheckFileRunner0</testidentifier>
+      </testToRemove>
+    </jobGroup>
+    
+  </jobGroups>
+  
+</rtt>
+
+</unifiedTestConfiguration>

@@ -1,0 +1,41 @@
+# Value4 is for 32 bit, Value8 is for 64 bit athena jobs
+{
+  ORACLEa32bit
+  Memcheck:Value4
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libclntsh.so.*
+}
+{
+  ORACLEa64bit
+  Memcheck:Value8
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libclntsh.so.*
+}
+{
+  ORACLEb
+  Memcheck:Cond
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libclntsh.so.*
+}
+{
+  ORACLEc32bit
+  Memcheck:Value4
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libnnz*.so
+}
+{
+  ORACLEc64bit
+  Memcheck:Value8
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libnnz*.so
+}
+{
+  ORACLEd
+  Memcheck:Cond
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libnnz*.so
+}
+{
+  ORACLEe
+  Memcheck:Addr4
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libclntsh.so.*
+}
+{
+  ORACLEf
+  Memcheck:Addr8
+  obj:/afs/cern.ch/sw/lcg/external/oracle/*/linux*/lib/libclntsh.so.*
+}
