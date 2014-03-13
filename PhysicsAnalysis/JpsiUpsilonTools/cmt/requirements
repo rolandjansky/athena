@@ -1,0 +1,39 @@
+package JpsiUpsilonTools
+
+author James Catmore <James.Catmore@cern.ch> 
+
+use DataModel            DataModel-*            Control
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps	 AthenaBaseComps-*      Control
+use GaudiInterface       GaudiInterface-*       External
+use TrkVKalVrtFitter     TrkVKalVrtFitter-*     Tracking/TrkVertexFitter
+use TrkVertexAnalysisUtils TrkVertexAnalysisUtils-* Tracking/TrkVertexFitter
+use InDetConversionFinderTools  InDetConversionFinderTools-* InnerDetector/InDetRecTools
+use HepPDT               *                      LCG_Interfaces
+#use AtlasCLHEP           AtlasCLHEP-*           External         
+#use egammaEvent          egammaEvent-*          Reconstruction/egamma
+#use egammaInterfaces     egammaInterfaces-*     Reconstruction/egamma
+
+private
+use AthenaKernel	 AthenaKernel-*		Control
+use AtlasROOT            AtlasROOT-*            External
+use StoreGate            StoreGate-*            Control
+use EventInfo		 EventInfo-*		Event
+use TrkParticleBase      TrkParticleBase-*      Tracking/TrkEvent
+use TrkV0Fitter          TrkV0Fitter-*          Tracking/TrkVertexFitter
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
+use VxVertex             VxVertex-*             Tracking/TrkEvent
+use muonEvent            muonEvent-*            Reconstruction/MuonIdentification
+#use egammaAnalysisUtils  egammaAnalysisUtils-*  Reconstruction/egamma/egammaAnalysis
+#use CaloEvent            CaloEvent-*            Calorimeter 		 	    
+use EventPrimitives      EventPrimitives-*    Event
+use Particle             Particle-*             Reconstruction
+use TrkToolInterfaces    TrkToolInterfaces-*    Tracking/TrkTools
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+public
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files=" *.py"
+
