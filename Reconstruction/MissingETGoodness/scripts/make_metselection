@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# Create empty met selection set with given name
+# 
+# Usage: make_metselection <quality> 
+#
+# (C) 20091117 Max Baak
+#
+
+## Check number of arguments
+if [ $# -ne 1 ] ; then
+   echo "usage: make_metselection <quality>"
+   echo "  quality = Loose / Medium / Tight"
+   exit 1
+fi
+
+## Check second argument
+if [ $1 != "Loose" -a $1 != "Medium" -a $1 != "Tight" ] ; then
+   echo "usage: make_metselection <quality>"
+   echo "  quality = Loose / Medium / Tight"
+   exit 1
+fi
+
+## Check existence of testarea 
+if [ -z $TestArea ]; then
+    echo "TestArea is not set"
+    exit 1
+fi
+
+BASEDIR=$TestArea/Reconstruction/MissingETGoodness
+
+if [ ! -d $BASEDIR ]; then
+    echo "Could not find local MissingETGoodness package"
+    exit 1
+fi
+
+## Check existence of template files
+if [ ! -f Template/SelectionTemplate.cxx ] ; then
+   echo "ERROR: Cannot find template file Template/SelectionTemplate.cxx"
+   echo "       Run script from directory : ${BASEDIR}"
+   exit 1
+fi
+if [ ! -f Template/SelectionTemplate.h ] ; then
+   echo "ERROR: Cannot find template file Template/SelectionTemplate.h"
+   echo "       Run script from directory : ${BASEDIR}"
+   exit 1
+fi
+
+QUALITY=$1
+VERSION=$(date "+%Y%m%d")
+#VERSION=$(date "+%Y%m%d%H%M%S")
+SELECTION="EtmissGoodness_${QUALITY}_${VERSION}"
+
+## Check that output doesn't exist yet
+if [ -f Root/${SELECTION}.cxx ] ; then
+   echo "ERROR: File named Root/${SELECTION}.cxx already exists, will not overwrite"
+   exit 1 
+fi
+if [ -f MissingETGoodness/${SELECTION}.h ] ; then
+   echo "ERROR: File named MissingETGoodness/${SELECTION}.h already exists, will not overwrite"
+   exit 1 
+fi
+
+## Make named instance of template
+cat Template/SelectionTemplate.cxx | gawk '{ gsub("SelectionTemplate","'$SELECTION'") ; print $0}' | gawk '{ gsub("QUALITY","'$QUALITY'") ; print $0}' | gawk '{ gsub("VERSION","'$VERSION'") ; print $0}' > Root/${SELECTION}.cxx
+cat Template/SelectionTemplate.h   | gawk '{ gsub("SelectionTemplate","'$SELECTION'") ; print $0}' | gawk '{ gsub("QUALITY","'$QUALITY'") ; print $0}' | gawk '{ gsub("VERSION","'$VERSION'") ; print $0}' > MissingETGoodness/${SELECTION}.h
+
+echo "Done, created:"
+echo "Root/${SELECTION}.cxx"
+echo "MissingETGoodness/${SELECTION}.h"
+echo ""
+echo "Don't forget to add this line to Root/LinkDef.h :"
+echo "#pragma link C++ class MET::${SELECTION};"
+

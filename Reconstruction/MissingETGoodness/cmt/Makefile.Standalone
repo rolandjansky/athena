@@ -1,0 +1,101 @@
+# Author: Max Baak (mbaak@cern.ch)
+# MissingETGoodness root stand-alone makefile
+
+# --- External configuration ----------------------------------
+ifeq ($(wildcard $(ROOTSYS)/test/Makefile.arch),)
+    include $(ROOTSYS)/etc/Makefile.arch
+else
+    include $(ROOTSYS)/test/Makefile.arch	
+endif
+
+# -------------------------------------------------------------
+# General flags
+# -------------------------------------------------------------
+PACKAGE    = MissingETGoodness
+OUTPUTDIR  = ../StandAlone
+MFLAGS     = -MM -Wall -W -Woverloaded-virtual
+INCLUDES   += -I${ROOTSYS}/include -I.. -I../Root -I../MissingETGoodness
+
+# Need these to avoid loading dependent libraries when ROOT starts
+LINKLIBS = -L${ROOTSYS}/lib -lRIO -lNet -lCore -lCint -lTree -lHist -lMatrix -lPhysics -lz -lpthread -ldl -lm
+CXXFLAGS   += -D__METGOODNESS_STANDALONE__
+
+# for cross-compilation. ATLAS env sets CPPEXPFLAGS if it is needed
+# If you want to cross-compile standalone just set CPPEXPFLAGS, for host-slc6&target-slc5 with gcc43 it is -D__USE_XOPEN2K8
+ifneq ($(strip $(CPPEXPFLAGS)),)
+CXXFLAGS += $(CPPEXPFLAGS)
+endif
+
+#rootcint is not ready for c++11 yet. once it is ready the next line should be corrected/removed
+CXXFLAGS_NO_C11 = $(subst -std=c++11,,$(CXXFLAGS))
+
+# -------------------------------------------------------------
+# ROOT Cint
+# -------------------------------------------------------------
+CINT       = metgoodnesscint
+LDEFFILE   = ../Root/LinkDef.h
+CINTFILE   = ../Root/TMissingETGoodnessCint.cxx
+CINTFILEH  = ../Root/TMissingETGoodness.h
+CINTOBJ    = ../Root/TMissingETGoodnessCint.o
+CCLISTT    = $(subst $(CINTFILE),,$(wildcard ../Root/*.cxx))
+CCLISTC    = $(CCLISTT) $(CINTFILE)
+HHLISTT    = $(subst ../Root,../MissingETGoodness,$(CCLISTT))
+HHLISTC    = $(patsubst %.cxx,%.h,$(HHLISTT))
+OLISTC     = $(patsubst %.cxx,%.o,$(CCLISTC))
+HLIST      = $(wildcard ../MissingETGoodness/*.h)
+DLIST      = $(patsubst %.h,%.d,$(HLIST))
+
+# -------------------------------------------------------------
+# Libraries
+# -------------------------------------------------------------
+SHLIBFILE  = $(OUTPUTDIR)/libMissingETGoodnessLib.so
+
+ifeq ($(PLATFORM),macosx)
+EXTRALDFLAGS = -install_name @rpath/$(SHLIBFILE)
+endif
+
+# get libraries of ROOT
+define ldlinksuffixROOT
+   $(addsuffix $(LDLINKSUFFIX),$(Lib)) $(shell if [ "$(findstring -Ldlink2,$(OPTIONS))" ]; then echo $(addsuffix _pkgid_$(ROOTVER),$(Lib)); fi)
+endef
+
+# -------------------------------------------------------------
+# Compilation
+# -------------------------------------------------------------
+
+default: shlib
+
+# Implicit rule making all dependency Makefiles included at the end of this makefile
+%.d: %.cxx $(HLIST)
+	@echo "Making $@"
+	@set -e; $(CC) $(MFLAGS) $(CXXFLAGS) $< \
+		| awk '{ sub("^$(notdir $*).o:","$*.o $@:") ; print }' > $@ ;\
+		[ -s $@ ] || rm -f $@
+
+# Implicit rule to compile all classes
+%.o : %.cxx
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $*.o 
+
+# Rule to make ROOTCINT output file
+$(CINTOBJ) : $(HHLISTC) $(LDEFFILE)
+	@echo "Running rootcint"
+	@$(ROOTSYS)/bin/rootcint -f $(CINTFILE) -c -p  $(CXXFLAGS_NO_C11) $(INCLUDES) $(HHLISTC) $(LDEFFILE)
+	@echo "Compiling $(CINTFILE)"
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $(CINTFILE) -o $@
+
+# Rule to combine objects into a shared library
+$(SHLIBFILE): $(OLISTC)
+	@echo "Linking $(SHLIBFILE)"
+	@mkdir -p $(OUTPUTDIR)
+	@rm -f $(SHLIBFILE)
+	@$(LD) $(CXXFLAGS) $(SOFLAGS) $(LINKLIBS) $(EXTRALDFLAGS) $(OLISTC) -o $(SHLIBFILE) 
+
+-include $(DLIST)
+
+metgoodnesscint: $(CINTOBJ)
+shlib: $(SHLIBFILE)
+
+clean:
+	@rm -f ../*/*.o ../*/*.d
+
