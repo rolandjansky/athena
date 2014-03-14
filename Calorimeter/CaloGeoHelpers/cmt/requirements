@@ -1,0 +1,18 @@
+package CaloGeoHelpers
+
+author Walter Lampl <walter.lampl@cern.ch>
+
+public
+
+# Central package(s):
+use AtlasPolicy   AtlasPolicy-*
+use CxxUtils       CxxUtils-*          Control
+
+
+library CaloGeoHelpers ../Root/*.cxx ../src/*.cxx
+apply_pattern installed_library
+
+private
+use TestTools          TestTools-*          AtlasTest
+
+apply_pattern UnitTest_run unit_test=CaloPhiRange
