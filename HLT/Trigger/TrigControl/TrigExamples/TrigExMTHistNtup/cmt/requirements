@@ -1,0 +1,20 @@
+package TrigExMTHistNtup
+author Tomasz Bold <Tomasz.Bold@cern.ch>
+author Werner Wiedenmann <Werner.Wiedenmann@cern.ch>
+
+use AtlasPolicy    AtlasPolicy-*
+use AtlasROOT      AtlasROOT-*         External
+use GaudiInterface GaudiInterface-*    External
+
+private
+use AtlasAIDA      AtlasAIDA-*         External
+use EventInfo      EventInfo-*         Event
+use StoreGate      StoreGate-*         Control
+use TrigMonitorBase TrigMonitorBase-*  Trigger/TrigMonitoring
+end_private
+
+
+library TrigExMTHistNtup *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py entries.C"
