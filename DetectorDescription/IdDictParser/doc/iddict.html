@@ -1,0 +1,610 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!-- $Id: iddict.html,v 1.1.1.1 2003-05-16 10:18:24 carnault Exp $ -->
+
+<!-- Changed by: Christian Arnault, 21-Jun-2002 -->
+<!-- Changed by: RD Schaffer, 19-Aug-2002 -->
+
+<head>
+<link rel="stylesheet" href="style.css">
+
+<center>
+<b>
+<em>
+<font color="#F58802" size="+4">
+Identifier Dictionary Documentation
+</font>
+</em>
+</b>
+</center>
+</head>
+
+
+
+<body bgcolor="white">
+<font face="Arial, Helvetica" color="#000000">     
+
+
+<blockquote>
+<p></p>
+<center>$Date: 2003-05-16 10:18:24 $<br>
+$Revision: 1.1.1.1 $<br>
+Editors: C. Arnault, RD Schaffer<br>
+</center>
+</p>
+</blockquote>
+
+
+<ul>
+  <li>1. <a href="#Overview">Overview</a></li>
+  <p></p>
+  <li>2. <a href="#IdDict-specif">IdDict specification</a></li>
+  <p></p>
+  <li>3. <a href="#range">Range and MultiRange classes</a></li>
+  <p></p>
+  <li>4. <a href="#helper">IdHelper classes and tests</a></li>
+  <p></p>
+</ul>
+
+<p></p>
+<hr></hr>
+
+<a name="Overview"></a>
+<h2>1. - Overview</h2>
+<blockquote>
+
+<p>
+
+The software notes: ATL-SOFT-2001-004 and ATL-MUON-2001-014 describe
+the offline identifier scheme for the various detectors, where the
+latter note is just for the muons. The identifiers are hierarchically
+structured following a logical decomposition of the ATLAS
+detector. For example, the top level specifies the detector system
+(InnerDetector, LArCalorimeter, TileCalorimeter, MuonSpectrometer) and
+the next level down typically specifies the detector subsystem (pixel,
+sct, etc.). Subsequently there may be a level which distinguishes
+between barrel or endcap, or a level which specifies which layer or
+defines the eta/phi numbering within a layer. The muon system scheme
+is somewhat different in that they first identify the stations of the
+muon system and then the different detector technology within each
+station.
+
+</p>
+
+<p>
+
+This scheme is currently being used to identify individual readout
+channels and as well corresponding "detector elements", where a
+detector element is a higher level grouping of a number of readout
+channels. For example, the silicon wafers server as "detector
+elements" for the pixels and SCT.
+
+</p>
+
+<p>
+
+The readout and detector element identifiers are being used in a
+variety of ways. For example, the High Level Trigger is accessing data
+limited to regions of interest by geometrical eta/phi regions into
+lists of detector element identifiers which specify which bytestream
+data to decode and make available. Another important use is to connect
+the readout data its their corresponding detector description
+information, for example, to calculate positions or energies.
+
+</p>
+
+<p></p>
+
+The software infrastructure to support this work can be split into three
+parts:
+
+<ul>
+  <li> Specification of the identifier structure
+  <li> Creation and interpretation of the identifiers
+  <li> The identifier classes themselves
+</ul>
+
+
+<p></p>
+<a name="Identifier-structure"></a>
+<h3>Identifier structure</h3>
+<blockquote>
+
+<p>
+
+The identifier specification is captured by an "identifier dictionary"
+which is in the IdDict package. The values allowed for the identifiers
+of each subsystem can be expressed in terms of a set of "regions"
+where for each region one provides the allowed values for each of the
+levels. For example, for the pixel detector, the channel numbering on
+each wafer is the same.  The number of wafers varies in each layer in
+the barrel, but the endcap disks are all similar. Thus, one is able to
+describe the pixel identifier numbering with only four regions: one
+for each of the three layers in the barrel and one for the endcaps.
+
+</p>
+
+<p>
+
+Today, the region description is specified in XML (eXtended Markup
+Language) in an ASCII file.  The dictionary reads the XML descriptions
+and maintains them in memory. There is a dictionary manager
+(IdDictMgr) which holds a dictionary for each detector system
+(InnerDetector, LArCalorimeter, TileCalorimeter, MuonSpectrometer).
+Each dictionary provides three primary functions:
+
+</p>
+
+<ul>
+
+  <li> Access to its "fields", where each level in the identifier
+  hierarchy corresponds to a single field. Thus, a client who "knows"
+  the names of the different levels in of identifier may get their
+  index or level number.
+
+  <li> Access to the allowed values for the identifiers of a
+  particular subsystem (or region). The allowed values are captured by
+  a MultiRange object, discussed in more detail in section
+  (<a href="#range">2. Range and MultiRange classes</a>). The allowed
+  values may correspond to the full identifiers down to the readout
+  channel level, or one may request the allowed values for a limited
+  number of levels, for example just for the detector elements.
+
+  <li> Packing and unpacking of compact identifiers. The MultiRange
+  objects provide identifiers in an expanded form. It is the
+  dictionary that "knows" how to compactify them. 
+
+</ul>
+
+</blockquote>
+
+<p></p>
+<a name="Identifier-creation"></a>
+<h3>Identifier creation and interpretation</h3>
+<blockquote>
+
+There are helper classes for each detector subsystem which interact
+with the identifier dictionary to allow creation of the required
+identifiers as well as their corresponding interpretation (see <a
+href="#helper">IdHelper classes and tests</a>). For the InnerDetector,
+these classes are PixelID, SCT_ID and TRT_ID which reside in the
+InDetIdentifier package. These classes are used to create Identifier
+objects, for example, when constructing a digit or a readout object by
+providing the helper class with the set of indices for the various
+levels of the identifier. One also uses the helper classes to extract
+from an Identifier object the information as to whether it belongs to
+the barrel or endcap, its layer number, etc.
+
+<p>
+
+The helpers are intialized from the information in the
+dictionary. They are stored in the Athena Detector Store and are
+accessed via the detector description managers for each system. They
+provide the interface to manipulate identifiers for the rest of the
+software, e.g. Athena algorithms.  
+
+</blockquote>
+
+<p></p>
+<a name="Identifier-classes"></a>
+<h3>Identifier classes</h3>
+<blockquote>
+
+There are three different identifier classes used in the software
+(which can be found in the Identifier package below
+DetectorDescription):
+
+<ul>
+  <li> Identifier - compact 32-bit identifier
+  <li> IdentifierHash - compact 32-bit identifier which can be used a
+  a compact hash code for direct access
+  <li> ExpandedIdentifier - an identifier whose fields are
+  "expanded", for example, into an internal vector, providing
+  fast access to the value of any field.
+</ul>
+
+<p>
+
+The first two forms, Identifier and IdentifierHash, are the objects
+which are widely used in the software to provide the identification of
+readout channels and detector elements.  The expanded form is
+primarily used by the helper classes and the dictionary.
+
+</p>
+
+<p>
+
+The Identifier class contains the id values of the different levels
+packed into a 32-bit word. For a given subsystem, one may obtain
+different Identifier objects depending upon the number of levels
+included.  For example for the pixels, an Identifier which identifies
+"detector elements" includes levels from "InnerDetector" down to "eta
+module" which corresponds to the individual wafers. Similarly for the
+muons, one can identify stations, MDT multilayers or layers or tubes
+all with different sets of Identifier objects. For any set of objects,
+e.g. a set up rpc readout strips, the identifiers can be used as a
+search key with corresponding log(N) lookup time. The interface of the
+Identifier class is quite simple. Its primary method is just the
+comparison operator (operator <) so that it behaves as a "type-safe
+unsigned int".
+
+</p>
+
+<p>
+
+The IdentifierHash class is similar the Identifier class - it
+basically is a "type-safe unsigned int".  However, it is used to
+distinguish the special where the total number N of a set of objects
+is known. In this case, one is able to transform a packed Identifier
+into a "hash" code with a value from 0 to N-1, and thus perform
+constant-time lookup, for example in a simple vector.  In general,
+hash tables provide constant-time lookup, however, one must trade-off
+the cost of converting a key into a hash code and allow for clashes
+(where two different keys may convert into the same hash code and must
+be treated specially). For our situation, it is the "detector
+elements" which in general will be identified with
+IdentifierHash. This allows a fast lookup, for example, when using
+IdentifiableContainer to collect raw data objects within regons of
+interest, or when fetching the transformation matrices for the
+detector elements from the detector store.
+
+
+</p>
+
+</blockquote>
+
+
+</blockquote>
+<p></p>
+<hr></hr>
+
+
+<a name="IdDict-specif"></a>
+<h2>2 - IdDict dictionary specification</h2>
+<blockquote>
+
+<p>
+
+The identifier dictionary describes the possible identifier
+ranges. One may describe several identifier dictionaries. Currently
+there is one dictionary for the top identifier level and one for each
+detector system.
+
+</p>
+
+A dictionary is identified by its name and may contain the follow
+three elements:
+
+<ul>
+  <li> <strong>individual identifier fields ("field") </strong>. A field
+  corresponds to a single level in an identifier specification. For
+  example, the InnerDetector defines the field "part" for the
+  subsystems Pixel, SCT and TRT: </li>
+
+<pre>  &lt;field name="part"&gt;
+    &lt;label name="Pixel" value="1" /&gt;
+    &lt;label name="SCT"   value="2" /&gt;
+    &lt;label name="TRT"   value="3" /&gt;
+  &lt;/field&gt;</pre>  
+  
+  <ul>
+
+    <li>The list of "labels" are the possible field values in terms of 
+    character strings and their corresponding numerical values. </li>
+
+    <li>This "field specification" should only be used when the field
+    values are individually labelled with names.</li>
+
+    <li>Purely numerical fields do not need to be explicitly described
+    as a field.  In this case, the possible ranges are deduced from
+    the defined regions (see next).</li>
+
+  </ul>
+
+  <li><a name="idregion"></a><strong>identifier regions
+  ("region")</strong>. A region specifies a contiguous range of
+  identifiers, where different regions should not overlap. For example,
+  for layer 0 of the pixel barrel is defined as</li>
+
+<pre>  &lt;region&gt;
+    &lt;reference subregion="pixel_barrel" /&gt;
+    &lt;range field="layer" value="0" /&gt;
+    &lt;range field="phi_module" minvalue="0" maxvalue="21" wraparound="TRUE" /&gt;
+    &lt;range field="eta_module" minvalue="-6" maxvalue="+6" /&gt;
+    &lt;range field="phi_index" minvalue="0" maxvalue="327" /&gt;
+    &lt;range field="eta_index" minvalue="0" maxvalue="191" /&gt;
+  &lt;/region&gt;</pre>  
+
+  
+  <ul>
+    <li>a region may be labelled with a "name" (not shown)</li>
+    <li>a region contains the ordered list of fields with their
+    explicit value range, where the order defines the identifier level
+    structure</li>
+    <li>each entry in this list may be</li>
+    <ul>
+      <li>a range assigned to a given field ("range"). A range can be specified as:
+      <ul>
+	<li>single value</li>
+	<li>min/max values</li>
+	<li>a space-separated list of values</li>
+      </ul>
+      Note that a range may be specified to "wraparound" as is often
+      the case of the phi coordinate.</li>
+      <li>a reference to a subregion (see below)</li>
+      <li>a reference to a separate identifier dictionary, for example 
+
+<pre>  &lt;region&gt;
+    &lt;range field="subdet" value="InnerDetector" /&gt;
+    &lt;dictionary name="InnerDetector" /&gt;
+  &lt;/region&gt;</pre>
+
+      defines the top level of the InnerDetector identifiers with the
+      rest defined in the InnerDetector dictionary</li>
+      
+    </ul>
+  </ul>
+
+  <li><strong>subregions ("subregion")</strong>. A subregion specifies
+  a subset of a region and is useful when a subregion is the same for a
+  number of region specifications in a dictionary. For example, the
+  subregion "pixel_barrel" of the above example is defined as: </li>
+
+<pre>  &lt;subregion name="pixel_barrel"&gt;
+    &lt;range field="part" value="Pixel" /&gt;
+    &lt;range field="barrel_endcap" value="barrel" /&gt;
+  &lt;/subregion&gt;</pre>
+
+  A subregion must be identified by a name.
+  
+</ul>
+
+</p>
+
+</blockquote>
+
+<p></p>
+<hr></hr>
+
+<a name="range"></a>
+<h2>3 - Range and MultiRange classes</h2>
+<blockquote>
+
+A Range class corresponds to the region specification of the
+dictionary (see <a href="#idregion">idDict region</a>).  This
+effectively captures the a range of values for each of the identifier
+levels for a region or subset of identifiers. The Range class
+interacts with the ExpandedIdentifier class. This class can be found
+in the Identifier package under DetectorDescription. The Range
+interface provides:
+
+<ul>
+  <li>a <em>match</em> method which can be used to check whether an
+  ExpandedIdentifier is "valid", i.e. within the specification
+  captured in a range object.</li>
+  <li><em>iterators</em> to be able to iterate over all ExpandedIdentifiers
+  within the range</li>
+  <li>a <em>cardinality</em> method which provides the number of
+  identifiers within the range</li>
+  <li>a <em>show</em> method with prints to std::cout the range values</li>
+  <li>an embedded <em>field</em> class to examine the fields/levels of
+  the range. The fields are accessed with <em>operator []</em></li>
+  <li><em>minumum</em> and <em>maximum</em> methods for the bounding
+  Identifiers of a range </li>
+</ul>
+
+The MultiRange class is simply a "container" class for more than one
+Range. It is a MultiRange that can represent a full Identifier
+specification for the identifiers of a subsystem.
+
+
+</blockquote>
+
+<p></p>
+<hr></hr>
+
+<a name="helper"></a>
+<h2>4 - IdHelper classes and tests</h2>
+<blockquote>
+
+<p> For each detector system there are separate helper classes for
+each subsystem which allow creation and interpretation of the various
+kinds of identifiers. These classes are the "servers" for any client
+who needs to know more about an identifier than simply using it as a
+lookup key. These classes "pre-digest" the information in the
+identifier dictionary.  We provide here some of the details of the
+helper classes developed for the InnerDetector to allow other helper
+classes to be developed.  </p>
+
+<h3>4.1 - IdDictTest algorithm</h3>
+
+<p> There is a test algorithm IdDictTest under AtlasTest/DetDescrTest
+which serves as an overall test of the idhelpers. For the inner
+detector, tests are performed by comparing detector element
+identifiers which are obtained from the detector description manager
+(derived from the geant 3 information) with the detector elements
+identifiers provided by the helpers.  This check assures that the
+sets of identifiers are identical and has been used to correct the XML
+specification which is the source for the idhelpers.</p>
+
+
+<h3>4.2 - PixelID example</h3>
+
+<p>We take as an example the PixelID class which is the helper class
+for the Pixel ids (in package InDetIdentifier under
+InnerDetector/InDetDetDescr).  </p>
+
+
+<ul>
+  <li><strong>Creating Identifier objects</strong> This class
+  constucts Identifier objects for wafers and individual pixels given
+  the correct set of indices:
+
+<pre>    // For a single crystal
+    Identifier  wafer_id ( int barrel_ec,  
+			   int layer_disk, 
+			   int phi_module, 
+			   int eta_module ) const;
+
+    // For an individual pixel
+    Identifier  pixel_id ( int barrel_ec,  
+			   int layer_disk, 
+			   int phi_module, 
+			   int eta_module, 
+			   int phi_index,  
+			   int eta_index) const;
+    Identifier  pixel_id ( const Identifier& id, 
+			   int phi_index,   
+			   int eta_index) const;</pre>
+  </li>
+<p></p> 
+  <li><strong>Id conversion </strong>Conversion between the types of identifiers is given by:
+
+<pre>    //
+    // access to IdContext's which define which levels or fields are
+    // contained in the Pixel id
+    //
+    // id for wafer
+    IdContext   wafer_context           (void) const;
+    // id for pixels
+    IdContext   pixel_context           (void) const;
+
+
+    // Create compact id from hash id (return == 0 for OK)
+    virtual int         get_id          (const IdentifierHash& hash_id,
+                                         Identifier& id,
+                                         const IdContext* context = 0) const;
+    
+    // Create hash id from compact id (return == 0 for OK)
+    virtual int         get_hash        (const Identifier& id, 
+                                         IdentifierHash& hash_id,
+                                         const IdContext* context = 0) const;
+
+    // Create Identifier from expanded id, which is returned by the
+    // id_iterators
+    int                 get_id          (const ExpandedIdentifier& old_id,
+                                         Identifier& new_id) const;</pre>
+
+Note that the IdContext objects contain the information on how
+many levels are included in an Identifier. This is needed because the
+identifiers themselves do not know how "long" they are (only an
+ExpandedIdentifier does). For example, a wafer id is missing the
+eta_channel and phi_channel fields of a pixel id, that is they are
+just set to 0. So when converting an Identifier to an IdentifierHash
+and vice-versus one must provide the IdContext.
+</li>
+<p></p>
+  <li><strong>Helper initialization</strong> Initialization of the helper is done with the method:
+<pre>    // Initialization from the identifier dictionary
+    virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr);</pre>
+
+Note that the IdHelpers are initialized with an IdDictMgr which is
+a manager that holds all of the identifier dictionaries - one for each
+detector system. This manager is obtain from the DetectorStore. See
+the InDetMgrDetDescrCnv::initIds method in the InDetMgrDetDescrCnv
+package under InnerDetector/InDetDetDescrCnv as an example.
+<br>
+The initialization itself procedures along the following steps:
+<ul>
+  <li>Query the dictionary to find out the index number of each field
+  or level. Here the idhelper "knows" only the <em>name</em> of each
+  level and asks the dictionary for its index. </li>
+  <li>The PixelID initializes two MultiRange objects - one for the
+  wafer ids and one for the pixel ids. For this one uses the following
+  methods of the class IdDictDictionary:
+
+<pre>  MultiRange build_multirange () const; 
+    /**
+     *   Get MultiRange for a specific region_id up to and including
+     *   'last_field' If last_field == "", all fields are
+     *   taken. Prepend prefix if provided.
+     */
+  MultiRange build_multirange (const ExpandedIdentifier& region_id,
+			       const Range prefix = Range(),
+			       const std::string last_field = "") const; </pre>
+
+  where the former creates a multirange for all levels, i.e. for the
+  pixel id multirange, and the latter allows one to extract a
+  multirange for just a subset of the levels, i.e. for the wafer
+  multirange. </li>
+
+  <li>With the multiranges in hand, one can initialize a vector of
+  IdentifierHashes. The easiest way to do this is to just create a
+  vector of Identifier objects. Then to get a hash given an
+  Identifier, one simple does a binary search for the Identifier in
+  the vector and creates an IdentifierHash from the vector index of
+  Identifier found.</li>
+
+  <li>Other sorts of initialization can be done at this step which may
+  help to provide further functionality. For example, to provide fast
+  access to detector elements which are adjacent neighbours in eta or
+  phi, one may want to set up tables which can be used by the
+  IdentifierHashes to get the IdentifierHash of each neighbour +/-1 in
+  eta or phi. </li>
+  
+</ul>
+</li>
+<p></p>
+<li><strong>Other methods</strong> Other useful methods are hash
+maximum sizes and iterators over the full range of identifiers:
+
+<pre>    //
+    // Hash table maximum sizes
+    //
+    size_type   wafer_hash_max          (void) const;
+    size_type   pixel_hash_max          (void) const;
+
+    //
+    // Iterators over full set of ids. Wafer iterator is sorted
+    //
+    const_id_iterator   wafer_begin                     (void) const;
+    const_id_iterator   wafer_end                       (void) const;
+    // For pixel ids, only expanded id iterators are available. Use
+    // following "get_id) method to obtain a compact identifier
+    const_expanded_id_iterator  pixel_begin             (void) const;  
+    const_expanded_id_iterator  pixel_end               (void) const;</pre>
+</li>
+<p></p>
+<li><strong>Decoding Identifiers</strong> Finally, methods are needed
+to extract the individual fields from an Identifier, for example:
+
+<pre>    // Test for barrel
+    bool	is_barrel	(const Identifier& id) const;  
+
+    // Values of different levels
+    int         barrel_ec       (const Identifier& id) const;  
+    int         layer_disk      (const Identifier& id) const; 
+    int         phi_module      (const Identifier& id) const; 
+    int         eta_module     	(const Identifier& id) const; 
+    int         phi_index       (const Identifier& id) const;
+    int         eta_index       (const Identifier& id) const;</pre>
+
+</li>
+</ul>
+
+
+</blockquote>
+
+<p></p>
+<hr></hr>
+
+
+<!--
+
+    <p></p>
+    <hr></hr>
+
+    <a name="xxxx"></a>
+    <h2>xxxx</h2>
+    <blockquote>
+    </blockquote>
+
+-->
+
+  </font>
+
+</body>
+
+<hr></hr>
+<p></p><p></p><center><i><font size="+2" color="red">Warning : this document is under construction</font></i></center>
+

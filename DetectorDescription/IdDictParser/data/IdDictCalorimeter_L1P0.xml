@@ -1,0 +1,544 @@
+
+<IdDictionary name="Calorimeter" >
+
+
+<field name="DetZside" >
+  <label name="negative_DMTile_side" value="-5" />
+  <label name="negative_DMLar_side" value="-4" />
+  <label name="negative_lvl1_side" value="-1" />
+  <label name="positive_lvl1_side" value="+1" />
+  <label name="positive_DMLar_side" value="+4" />
+  <label name="positive_DMTile_side" value="+5" />
+</field>
+
+
+<!--  Dead Material Types -->
+<!-- xxxxxxxxxxxxxxxxxxxx -->
+
+<!-- 3 types of LAr Dead Material -->
+
+ <subregion name="DMLArOutside" >
+  <range field="DetZside" values="negative_DMLar_side positive_DMLar_side" />
+  <range field="DMvalue"  value="1" />
+ </subregion>
+
+ <subregion name="DMLarInside" >
+  <range field="DetZside" values="negative_DMLar_side positive_DMLar_side" />
+  <range field="DMvalue"  value="2" />
+ </subregion>
+
+ <subregion name="DMLArBeamTest">
+  <range field="DetZside" values="negative_DMLar_side positive_DMLar_side" />
+  <range field="DMvalue" value="3" />
+ </subregion>
+
+<!-- 2 types of Tile Dead Material -->
+
+ <subregion name="DMTileOutside" >
+  <range field="DetZside" values="negative_DMTile_side positive_DMTile_side" />
+  <range field="DMvalue"  value="1" />
+ </subregion>
+
+ <subregion name="DMTileBeamTest" >
+  <range field="DetZside" values="negative_DMTile_side positive_DMTile_side" />
+  <range field="DMvalue"  value="3" />
+ </subregion>
+
+
+
+<!--  Dead Material Phi regions -->
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxx -->
+
+<!-- 3 types of Phi region -->
+
+  <subregion name="DMPhi-1" >
+    <range field="phivalue" minvalue="0" maxvalue="63" wraparound="TRUE" />
+  </subregion> 
+
+ <subregion name="DMPhi-2" >
+    <range field="phivalue" minvalue="0" maxvalue="31" wraparound="TRUE" />
+  </subregion>
+
+  <subregion name="DMPhi-3" >
+    <range field="phivalue" value="0" wraparound="TRUE" />
+  </subregion>
+
+
+
+<!-- LAr DM Samplings -->
+<!-- xxxxxxxxxxxxxxxxx -->
+
+
+<!-- 4 sampling region: 0 to 3 -->
+
+  <subregion name="DMLArSampling-0" >
+    <range field="samplingvalue" value="0" />
+  </subregion>
+
+  <subregion name="DMLArSampling-1" >
+    <range field="samplingvalue" value="1" />
+  </subregion>
+
+  <subregion name="DMLArSampling-2" >
+    <range field="samplingvalue" value="2" />
+  </subregion>
+
+  <subregion name="DMLArSampling-3" >
+    <range field="samplingvalue" value="3" />
+  </subregion>
+
+
+<!-- Tile DM Samplings -->
+<!-- xxxxxxxxxxxxxxxxx -->
+ 
+
+<!-- 4 sampling region: 0 to 3 -->
+
+
+ <subregion name="DMTileSampling-0" >
+   <range field="samplingvalue" value="0" />
+  </subregion> 
+
+ <subregion name="DMTileSampling-1" >
+   <range field="samplingvalue" value="1" />
+  </subregion> 
+
+ <subregion name="DMTileSampling-2" >
+   <range field="samplingvalue" value="2" />
+  </subregion> 
+
+ <subregion name="DMTileSampling-3" >
+   <range field="samplingvalue" value="3" />
+  </subregion> 
+
+
+
+<!-- LAr DM regions -->
+<!-- xxxxxxxxxxxxxx -->
+
+<!-- type 1, sampling 0, regions 0 to 5 -->
+
+  <region group="DM_Reg" name="DM_4_1_0_0" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-0" />
+    <range field="DMregion" minvalue="0" maxvalue="5" /> 
+    <range field="DMEta" minvalue="0" maxvalue="49" />
+    <reference subregion="DMPhi-1" />
+   </region>
+
+<!-- type 1, sampling 1, region 0 to 7-->
+
+  <region group="DM_Reg" name="DM_4_1_1_0" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="0" />
+  <range field="DMEta" minvalue="0" maxvalue="14" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_1_1" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="1" />
+   <range field="DMEta" minvalue="0" maxvalue="14" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_1_2" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="2" />
+    <range field="DMEta" minvalue="0" maxvalue="15" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_1_3" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="3" />
+    <range field="DMEta" minvalue="0" maxvalue="15" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+   <region group="DM_Reg" name="DM_4_1_1_4" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="4" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_1_5" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="5" />
+    <range field="DMEta" minvalue="0" maxvalue="2" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_1_6" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="6" />
+    <range field="DMEta" minvalue="0" maxvalue="18" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_1_7" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="7" />
+    <range field="DMEta" minvalue="0" maxvalue="17" /> 
+    <reference subregion="DMPhi-1" />
+  </region>
+
+<!-- type 1, sampling 2, region 0 to 5-->
+ 
+  <region group="DM_Reg" name="DM_4_1_2_0" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="0" />
+  <range field="DMEta" minvalue="0" maxvalue="9" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_2_1" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="1" />
+   <range field="DMEta" minvalue="0" maxvalue="9" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_2_2" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="2" />
+    <range field="DMEta" minvalue="0" maxvalue="4" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_2_3" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="3" />
+    <range field="DMEta" minvalue="0" maxvalue="17" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_2_4" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="4" />
+  <range field="DMEta" minvalue="0" maxvalue="17" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_2_5" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="5" />
+    <range field="DMEta" minvalue="0" maxvalue="6" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+
+<!-- type 1, sampling 3, region 0 to 2-->
+
+  <region group="DM_Reg" name="DM_4_1_3_0" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="0" />
+  <range field="DMEta" minvalue="0" maxvalue="32" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_3_1" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="1" />
+   <range field="DMEta" minvalue="0" maxvalue="14" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_1_3_2" >
+    <reference subregion="DMLArOutside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="2" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-3" />
+  </region>
+
+
+<!-- type 2, sampling [0,3], region 0 to 3-->
+
+  <region group="DM_Reg" name="DM_4_2_0_0" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-0" />
+    <range field="DMregion" value="0" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_0_1" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-0" />
+    <range field="DMregion" value="1" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+
+ <region group="DM_Reg" name="DM_4_2_0_2" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-0" />
+    <range field="DMregion" value="2" />
+    <range field="DMEta" minvalue="0" maxvalue="13" />
+    <reference subregion="DMPhi-2" />
+  </region>
+
+  <region group="DM_Reg" name="DM_4_2_0_3" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-0" />
+    <range field="DMregion" value="3" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+
+  <region group="DM_Reg" name="DM_4_2_1_0" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="0" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_1_1" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="1" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_1_2" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="2" />
+    <range field="DMEta" minvalue="0" maxvalue="13" />
+    <reference subregion="DMPhi-2" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_1_3" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-1" />
+    <range field="DMregion" value="3" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+
+  <region group="DM_Reg" name="DM_4_2_2_0" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="0" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_2_1" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="1" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_2_2" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="2" />
+  <range field="DMEta" minvalue="0" maxvalue="13" />
+    <reference subregion="DMPhi-2" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_2_3" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-2" />
+    <range field="DMregion" value="3" />
+  <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+
+  <region group="DM_Reg" name="DM_4_2_3_0" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="0" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_3_1" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="1" />
+    <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_3_2" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="2" />
+  <range field="DMEta" minvalue="0" maxvalue="13" />
+    <reference subregion="DMPhi-2" />
+  </region>
+
+ <region group="DM_Reg" name="DM_4_2_3_3" >
+    <reference subregion="DMLarInside" />
+    <reference subregion="DMLArSampling-3" />
+    <range field="DMregion" value="3" />
+  <range field="DMEta" value="0" />
+    <reference subregion="DMPhi-1" />
+  </region>
+
+
+<!-- TILE DM regions -->
+<!-- xxxxxxxxxxxxxxx -->
+
+<!-- type 1, sampling 0, region 0 to 1 -->
+
+   <region group="DM_Reg" name="DM_5_1_0_0" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-0" /> 
+    <range field="DMregion" value="0" /> 
+    <range field="DMEta" minvalue="0" maxvalue="9" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+   <region group="DM_Reg" name="DM_5_1_0_1" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-0" /> 
+    <range field="DMregion" value="1" /> 
+    <range field="DMEta" minvalue="0" maxvalue="4" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+<!-- type 1, sampling 1, region 0 to 2 -->
+
+   <region group="DM_Reg" name="DM_5_1_1_0" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-1" /> 
+    <range field="DMregion" value="0" /> 
+    <range field="DMEta" minvalue="0" maxvalue="3" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+   <region group="DM_Reg" name="DM_5_1_1_1" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-1" /> 
+    <range field="DMregion" value="1" /> 
+    <range field="DMEta" minvalue="0" maxvalue="2" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+   <region group="DM_Reg" name="DM_5_1_1_2" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-1" /> 
+    <range field="DMregion" value="2" /> 
+    <range field="DMEta" minvalue="0" maxvalue="3" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+
+<!-- type 1, sampling 2, region 0 to 2 -->
+
+  <region group="DM_Reg" name="DM_5_1_2_0" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-2" /> 
+    <range field="DMregion" value="0" /> 
+    <range field="DMEta" minvalue="0" maxvalue="7" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+   <region group="DM_Reg" name="DM_5_1_2_1" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-2" /> 
+    <range field="DMregion" value="1" /> 
+    <range field="DMEta" minvalue="0" maxvalue="4" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+   <region group="DM_Reg" name="DM_5_1_2_2" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-2" /> 
+    <range field="DMregion" value="2" /> 
+    <range field="DMEta" minvalue="0" maxvalue="1" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+<!-- type 1, sampling 3, region 0  -->
+
+   <region group="DM_Reg" name="DM_5_1_3_0" >
+    <reference subregion="DMTileOutside" />
+    <reference subregion="DMTileSampling-3" /> 
+    <range field="DMregion" value="0" /> 
+    <range field="DMEta" minvalue="0" maxvalue="16" />
+    <reference subregion="DMPhi-1" />
+   </region> 
+
+
+<!--       LVL1 part   -->
+<!-- xxxxxxxxxxxxxxxxx -->
+
+  <field name="LVL1sampling" >
+    <label name="EM"       value="0" />
+    <label name="Hadronic" value="1" />
+  </field>
+
+  <subregion name="LVL1" >
+     <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" /> 
+    <range field="LVL1sampling" values="EM Hadronic" />
+  </subregion>
+
+ 
+  <region group="Reg_Lvl1" name="Lvl1_0" >
+    <reference subregion="LVL1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="24" />
+    <range field="phi" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    <range field="layer" minvalue="0" maxvalue="3" />
+  </region>
+
+  <region group="Reg_Lvl1" name="Lvl1_1" >
+    <reference subregion="LVL1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <range field="phi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer" minvalue="0" maxvalue="3" />
+  </region>
+
+  <region group="Reg_Lvl1" name="Lvl1_2" >
+    <reference subregion="LVL1" />
+    <range field="region" value="2" />
+    <range field="eta" value="0" />
+    <range field="phi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer" minvalue="0" maxvalue="3" />
+  </region>
+
+
+  <region group="Reg_Lvl1" name="Lvl1_3" >
+    <reference subregion="LVL1" />
+    <range field="region" value="3" />
+    <range field="eta" minvalue="0" maxvalue="3"/>
+    <range field="phi" minvalue="0" maxvalue="15" wraparound="TRUE" />
+    <range field="layer" minvalue="0" maxvalue="1" />
+  </region> 
+
+
+
+
+
+</IdDictionary>

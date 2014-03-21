@@ -1,0 +1,268 @@
+
+<IdDictionary name="MuonSpectrometer" version="H8 2003">
+
+  <field name="stationName" >
+    <label name="BIL" value="0" />
+    <label name="BIS" />
+    <label name="BML" />
+    <label name="BMS" />
+    <label name="BOL" />
+    <label name="BOS" />
+    <label name="BEE" />
+    <label name="BIR" />
+    <label name="BMF" />
+    <label name="BOF" />
+    <label name="BOG" />
+    <label name="BOH" />
+    <label name="EIC" />
+    <label name="EIL" />
+    <label name="EEL" />
+    <label name="EES" />
+    <label name="EMC" />
+    <label name="EML" />
+    <label name="EMS" />
+    <label name="EOC" />
+    <label name="EOL" />
+    <label name="EOS" />
+    <label name="T1C" />
+    <label name="T1L" />
+    <label name="T1S" />
+    <label name="T2C" />
+    <label name="T2L" />
+    <label name="T2S" />
+    <label name="T3C" />
+    <label name="T3L" />
+    <label name="T3S" />
+    <label name="CI1" />
+    <label name="CI2" />
+    <label name="CI3" />
+    <label name="CI4" />
+    <label name="FIL" />
+    <label name="FIS" />
+    <label name="FML" />
+    <label name="FMS" />
+    <label name="FOL" />
+    <label name="FOS" />
+    <label name="T1F" />
+    <label name="T1E" />
+    <label name="T2F" />
+    <label name="T2E" />
+    <label name="T3F" />
+    <label name="T3E" />
+    <label name="T4F" />
+    <label name="T4E" />
+    <label name="EIS" />
+    <label name="CSS" />
+    <label name="CSL" />
+  </field>
+
+  <field name="technology" >
+    <label name="MDT" value="0" />
+    <label name="CSC" value="1" />
+    <label name="RPC" value="2" />
+    <label name="TGC" value="3" />
+  </field>
+
+     <!--  MDT  -->
+
+  <region group="mdt">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-2 -1" />
+    <range field="stationPhi" value="3" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="36" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="BML" />
+    <range field="stationEta" values="-2 -1" />
+    <range field="stationPhi" value="3" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="3" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="BOL" />
+    <range field="stationEta" values="-2 -1" />
+    <range field="stationPhi" value="3" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="3" />
+    <range field="tube" minvalue="1" maxvalue="72" />
+  </region>
+  
+  <region group="mdt">
+    <range field="stationName" value="EIL" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="54" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="EML" />
+    <range field="stationEta" value="-2" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="3" />
+    <range field="tube" minvalue="1" maxvalue="64" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="EMS" />
+    <range field="stationEta" value="-2" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="3" />
+    <range field="tube" minvalue="1" maxvalue="64" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="EOL" />
+    <range field="stationEta" value="-3" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="3" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="EOS" />
+    <range field="stationEta" value="-3" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="3" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="EIS" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="78" />
+  </region>
+
+     <!--  RPC  -->
+
+  <region group="rpc">
+    <range field="stationName" value="BML" />
+    <range field="stationEta" values="-2 -1 1 2" />
+    <range field="stationPhi" value="3" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" values="1 2" />
+    <range field="doubletZ"   minvalue="1" maxvalue="2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap"  minvalue="1" maxvalue="2" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+   <region group="rpc">
+    <range field="stationName" value="BOL" />
+    <range field="stationEta" values="-2 -1 1 2" />
+    <range field="stationPhi" value="3" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ"   minvalue="1" maxvalue="2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap"  minvalue="1" maxvalue="2" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+     <!-- The following is a dummy region needed to make bit
+     allocation uniform between mdt and rpc down to the technoloy
+     level (region name "dummy" is used to suppress this region
+     from being used other than adjusting the bit allocation) -->
+
+   <region group="rpc" name="dummy" >
+    <range field="stationName" value="BOG" />
+    <range field="stationEta" values="-8 8" />
+    <range field="stationPhi" value="3" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" minvalue="1" maxvalue="2" />
+    <range field="doubletZ" minvalue="1" maxvalue="2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="2" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+     <!--  TGC  -->
+
+  <region group="tgc">
+    <range field="stationName" value="T1E" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="TGC" />
+    <range field="tgcGasGap" minvalue="1" maxvalue="3" />
+    <range field="isStrip" value="0" />
+    <range field="channel" minvalue="1" maxvalue="92" />
+  </region>
+
+  <region group="tgc">
+    <range field="stationName" value="T1E" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="TGC" />
+    <range field="tgcGasGap" minvalue="1" maxvalue="3" />
+    <range field="isStrip" value="1" />
+    <range field="channel" minvalue="1" maxvalue="32" />
+  </region>
+
+  <region group="tgc">
+    <range field="stationName" value="T2E" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="TGC" />
+    <range field="tgcGasGap" minvalue="1" maxvalue="2" />
+    <range field="isStrip" value="0" />
+    <range field="channel" minvalue="1" maxvalue="111" />
+  </region>
+
+  <region group="tgc">
+    <range field="stationName" value="T2E" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="TGC" />
+    <range field="tgcGasGap" minvalue="1" maxvalue="2" />
+    <range field="isStrip" value="1" />
+    <range field="channel" minvalue="1" maxvalue="32" />
+  </region>
+
+  <region group="tgc">
+    <range field="stationName" value="T3E" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1"  />
+    <range field="technology" value="TGC" />
+    <range field="tgcGasGap" minvalue="1" maxvalue="2" />
+    <range field="isStrip" value="0" />
+    <range field="channel" minvalue="1" maxvalue="106" />
+  </region>
+
+  <region group="tgc">
+    <range field="stationName" value="T3E" />
+    <range field="stationEta" value="-1" />
+    <range field="stationPhi" value="1" />
+    <range field="technology" value="TGC" />
+    <range field="tgcGasGap" minvalue="1" maxvalue="2" />
+    <range field="isStrip" value="1" />
+    <range field="channel" minvalue="1" maxvalue="32" />
+  </region>
+  
+
+</IdDictionary>
+

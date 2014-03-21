@@ -1,0 +1,278 @@
+
+<IdDictionary name="TileCalorimeter" >
+
+  <field name="section" >
+    <label name="Online"               value="0" />
+    <label name="Barrel"               value="1" />
+    <label name="Extended-barrel"      value="2" />
+    <label name="ITC-gap-scintillator" value="3" />
+  </field>
+
+  <field name="side" >
+    <label name="positive"         value="+1" />
+    <label name="negative"         value="-1" />
+  </field>
+
+  <subregion name="cylinder1" >
+    <range field="side" />
+    <range field="module" minvalue="0" maxvalue="1" />
+  </subregion>
+
+  <subregion name="cylinder2" >
+    <range field="side" />
+    <range field="module" value="2" />
+  </subregion>
+
+  <subregion name="pmt2" >
+    <range field="pmt" minvalue="0" maxvalue="1" />
+    <range field="adc" minvalue="0" maxvalue="1" />
+  </subregion>
+
+  <subregion name="tower0" >
+    <range field="tower"    value="0" />
+    <range field="sampling" minvalue="0" maxvalue="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower1" >
+    <range field="tower"    value="1" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower2" >
+    <range field="tower"    value="2" />
+    <range field="sampling" minvalue="0" maxvalue="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower3" >
+    <range field="tower"    value="3" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower4" >
+    <range field="tower"    value="4" />
+    <range field="sampling" minvalue="0" maxvalue="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower5" >
+    <range field="tower"    value="5" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower6" >
+    <range field="tower"    value="6" />
+    <range field="sampling" minvalue="0" maxvalue="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower7" >
+    <range field="tower"    value="7" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower8" >
+    <range field="tower"    value="8" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower9" >
+    <range field="tower"    value="9" />
+    <range field="sampling" value="0" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower10" >
+    <range field="tower"    value="10" />
+    <range field="sampling" minvalue="1" maxvalue="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower11" >
+    <range field="tower"    value="11" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower12" >
+    <range field="tower"    value="12" />
+    <range field="sampling" minvalue="0" maxvalue="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower13" >
+    <range field="tower"    value="13" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower14" >
+    <range field="tower"    value="14" />
+    <range field="sampling" minvalue="0" maxvalue="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="tower15" >
+    <range field="tower"    value="15" />
+    <range field="sampling" value="0" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="D4" >
+    <range field="tower"    value="8" />
+    <range field="sampling" value="2" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <subregion name="C10" >
+    <range field="tower"    value="9" />
+    <range field="sampling" value="1" />
+    <reference subregion="pmt2" />
+  </subregion>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower0" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower1" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower2" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower3" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower4" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower5" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower6" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower7" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower8" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Barrel" />
+    <reference subregion="cylinder1" />
+    <reference subregion="tower9" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Extended-barrel" />
+    <reference subregion="cylinder2" />
+    <reference subregion="tower10" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Extended-barrel" />
+    <reference subregion="cylinder2" />
+    <reference subregion="tower11" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Extended-barrel" />
+    <reference subregion="cylinder2" />
+    <reference subregion="tower12" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Extended-barrel" />
+    <reference subregion="cylinder2" />
+    <reference subregion="tower13" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Extended-barrel" />
+    <reference subregion="cylinder2" />
+    <reference subregion="tower14" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Extended-barrel" />
+    <reference subregion="cylinder2" />
+    <reference subregion="tower15" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="ITC-gap-scintillator" />
+    <reference subregion="cylinder2" />
+    <reference subregion="D4" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="ITC-gap-scintillator" />
+    <reference subregion="cylinder2" />
+    <reference subregion="C10" />
+  </region>
+
+  <region group="tile">
+    <range field="section" value="Online" />
+    <range field="ros"     minvalue="1" maxvalue="2"  />
+    <range field="drawer"  minvalue="0" maxvalue="2" />
+    <range field="channel" minvalue="0" maxvalue="47" />
+    <range field="gain"    minvalue="0" maxvalue="1"  />
+  </region>
+
+  <subregion name="beamfrag" >
+    <field name="drawer" >
+      <label name="BeamTDC"               value="0" />
+      <label name="BeamADC"               value="1" />
+      <label name="MuonWall"              value="2" />
+      <label name="Trigger"               value="3" />
+      <label name="PatternUnit"           value="4" />
+      <label name="Laser"                 value="5" />
+      <label name="FlashADC"              value="6" />
+      <label name="Fantom"                value="7" />
+      <label name="Reserved"              value="8" />
+      <label name="DigiPar"               value="255" />
+    </field>
+  </subregion>
+
+  <region group="tile">
+    <range field="section" value="Online" />
+    <range field="ros"     value="0"  />
+    <range field="drawer"  values="0 1 2 3 4 5 6 7 8 255" />
+    <range field="channel" minvalue="0" maxvalue="15"  />
+    <range field="gain"    minvalue="0" maxvalue="0"   />
+  </region>
+
+</IdDictionary>
