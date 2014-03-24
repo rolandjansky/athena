@@ -1,0 +1,32 @@
+package TrigConfxAOD
+# $Id: requirements 581694 2014-02-05 17:04:44Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+# Basic Gaudi/Athena package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Basic Gaudi/Athena package(s):
+use GaudiInterface          GaudiInterface-*          External
+use AthenaBaseComps         AthenaBaseComps-*         Control
+use AthenaKernel            AthenaKernel-*            Control
+use StoreGate               StoreGate-*               Control
+
+# Trigger configuration package(s):
+use TrigConfL1Data          TrigConfL1Data-*          Trigger/TrigConfiguration
+use TrigConfHLTData         TrigConfHLTData-*         Trigger/TrigConfiguration
+use TrigConfInterfaces      TrigConfInterfaces-*      Trigger/TrigConfiguration
+
+# xAOD package(s):
+use xAODTrigger             xAODTrigger-*             Event/xAOD
+
+end_private
+
+# Build the library:
+library TrigConfxAOD *.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the additional files from the package:
+apply_pattern declare_joboptions files="*.py"
