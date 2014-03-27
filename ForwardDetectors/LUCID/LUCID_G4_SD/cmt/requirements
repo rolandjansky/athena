@@ -1,0 +1,39 @@
+package LUCID_G4_SD
+
+author Antonello Sbrizzi <sbrizzi@bo.infn.it>
+author Jacob Groth-Jensen <Jacob.Groth-Jensen@cern.ch>
+
+public
+
+use AtlasCLHEP		  AtlasCLHEP-*		  External
+use AtlasPolicy           AtlasPolicy-*
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use Geant4                Geant4-*                External
+use HitManagement         HitManagement-*         Simulation
+use LUCID_SimEvent        LUCID_SimEvent-*        ForwardDetectors/LUCID/LUCID_SimUtils
+use SimHelpers            SimHelpers-*            Simulation/G4Sim
+
+private
+
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use LUCID_GeoModel        LUCID_GeoModel-*        ForwardDetectors/LUCID
+use StoreGate             StoreGate-*             Control
+
+end_private
+
+include_dirs "$(LUCID_G4_SD_root)/LUCID_G4_SD"
+include_dirs "$(LUCID_GeoModel_root)/LUCID_GeoModel"
+include_dirs "$(LUCID_SimEvent_root)/LUCID_SimEvent"
+
+library LUCID_G4_SD *.cxx
+
+apply_pattern linked_library
+
+#private
+#
+#macro_remove cppflags "-O3 "
+#macro_remove cppflags "-O "
+#macro_remove cppflags "-Wall "
+#
+#macro_remove CLHEP_pp_cppflags "-DCLHEP_SQR_DEFINED "
+#macro_remove CLHEP_pp_cppflags "-DCLHEP_MAX_MIN_DEFINED "
