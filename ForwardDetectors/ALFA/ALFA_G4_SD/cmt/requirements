@@ -1,0 +1,28 @@
+package ALFA_G4_SD
+
+author Tomas Sykora <tomas.sykora@cern.ch>
+
+branches src cmt
+
+use AtlasPolicy AtlasPolicy-*
+
+#use CLIDSvc               CLIDSvc-*                    Control
+use FadsSensitiveDetector FadsSensitiveDetector-*   Simulation/G4Sim/FADS
+use SimHelpers            SimHelpers-*                 Simulation/G4Sim 
+#use HitManagement	  HitManagement-*       	  Simulation
+use GaudiInterface        GaudiInterface-*             External 
+
+use ALFA_SimEv            ALFA_SimEv-*                 ForwardDetectors/ALFA
+private
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use Geant4                 Geant4-*                     External
+end_private
+
+#library  ALFA_G4_SD *.cxx -s=components *.cxx
+library  ALFA_G4_SD *.cxx
+
+apply_pattern installed_library
+#apply_pattern linked_library
+#apply_pattern component_library
+
+# apply_pattern declare_joboptions files="MyJobOptions.py"
