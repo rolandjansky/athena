@@ -1,0 +1,18 @@
+package ZDC_SD
+author Soumya Mohapatra <soumya.mohapatra@stonybrook.edu>
+
+public
+use FadsSensitiveDetector      FadsSensitiveDetector-*         Simulation/G4Sim/FADS
+use AtlasPolicy                AtlasPolicy-*
+ 
+private
+use AthenaBaseComps	       AthenaBaseComps-*	       Control
+use AtlasCLHEP		       AtlasCLHEP-*                    External
+use AtlasReflex   	       AtlasReflex-*                   External -no_auto_imports
+use Geant4                     Geant4-*                        External
+use SimHelpers                 SimHelpers-*                    Simulation/G4Sim
+use ZDC_SimEvent               ZDC_SimEvent-*                  ForwardDetectors/ZDC
+
+public
+library ZDC_SD *.cxx
+apply_pattern installed_library

@@ -1,0 +1,16 @@
+(i__main__
+LogFile
+p0
+(dp1
+S'_installed_files'
+p2
+(dp3
+S'../../../ForwardDetectors/ZDC/ZDC_SD/i686-slc5-gcc43-opt/libZDC_SDDict.so'
+p4
+S'../../../../InstallArea/i686-slc5-gcc43-opt/lib/libZDC_SDDict.so'
+p5
+sS'../../../ForwardDetectors/ZDC/ZDC_SD/i686-slc5-gcc43-opt/libZDC_SD.so'
+p6
+S'../../../../InstallArea/i686-slc5-gcc43-opt/lib/libZDC_SD.so'
+p7
+ssb.
