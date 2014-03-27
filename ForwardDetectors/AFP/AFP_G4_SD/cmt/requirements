@@ -1,0 +1,33 @@
+package AFP_G4_SD
+
+author Libor Nozka <libor.nozka@cern.ch>
+
+branches src cmt
+
+use AtlasPolicy AtlasPolicy-*
+
+#use CLIDSvc               CLIDSvc-*                   Control
+use FadsSensitiveDetector  FadsSensitiveDetector-*      Simulation/G4Sim/FADS
+use SimHelpers             SimHelpers-*                 Simulation/G4Sim 
+#use HitManagement	   HitManagement-*	       Simulation
+use GaudiInterface         GaudiInterface-*             External 
+
+#use StoreGate              StoreGate-*                  Control
+
+#use AFP_GeoModel           AFP_GeoModel-*               ForwardDetectors/AFP 
+use AFP_SimEv              AFP_SimEv-*                  ForwardDetectors/AFP
+
+private
+use Geant4                 Geant4-*                     External
+use AFP_Geometry           AFP_Geometry-*               ForwardDetectors/AFP
+use AthenaBaseComps       AthenaBaseComps-*       Control
+end_private
+
+#library  AFP_G4_SD *.cxx -s=components *.cxx
+library  AFP_G4_SD *.cxx
+
+apply_pattern installed_library
+#apply_pattern linked_library
+#apply_pattern component_library
+
+# apply_pattern declare_joboptions files="MyJobOptions.py"
