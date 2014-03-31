@@ -1,0 +1,79 @@
+<lcgdict>
+
+  <class name="T_TPCnv<TileHitContainer,TileHitContainer_p1>"/>
+  <class name="T_TilePoolContainerCnv<TileHitContainer,TileHitContainer_p1,TileHitCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileHitContainer,TileHitContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileHitContainer,TileHitContainer,TileHitContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileHitContainer,TileHitContainer,TileHitContainer_p1>"/>
+  <class name="ITPConverterFor<TileHitContainer>"/>
+
+  <class name="T_TPCnv<TileTTL1Container,TileTTL1Container_p1>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileTTL1Container,TileTTL1Container_p1,TileTTL1Cnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileTTL1Container,TileTTL1Container_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileTTL1Container,TileTTL1Container,TileTTL1Container_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileTTL1Container,TileTTL1Container,TileTTL1Container_p1>"/>
+  <class name="ITPConverterFor<TileTTL1Container>"/>
+
+  <class name="T_TPCnv<TileL2Container,TileL2Container_p1>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileL2Container,TileL2Container_p1,TileL2Cnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileL2Container,TileL2Container_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileL2Container,TileL2Container,TileL2Container_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileL2Container,TileL2Container,TileL2Container_p1>"/>
+  <class name="ITPConverterFor<TileL2Container>"/>
+
+  <class name="T_TPCnv<TileL2Container,TileL2Container_p2>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileL2Container,TileL2Container_p2,TileL2Cnv_p2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileL2Container,TileL2Container_p2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileL2Container,TileL2Container,TileL2Container_p2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileL2Container,TileL2Container,TileL2Container_p2>"/>
+
+  <class name="T_TPCnv<TileMuContainer,TileMuContainer_p1>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileMuContainer,TileMuContainer_p1,TileMuCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileMuContainer,TileMuContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileMuContainer,TileMuContainer,TileMuContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileMuContainer,TileMuContainer,TileMuContainer_p1>"/>
+  <class name="ITPConverterFor<TileMuContainer>"/>
+
+  <class name="T_TPCnv<TileCosmicMuonContainer,TileCosmicMuonContainer_p1>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileCosmicMuonContainer,TileCosmicMuonContainer_p1,TileCosmicMuonCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileCosmicMuonContainer,TileCosmicMuonContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileCosmicMuonContainer,TileCosmicMuonContainer,TileCosmicMuonContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileCosmicMuonContainer,TileCosmicMuonContainer,TileCosmicMuonContainer_p1>"/>
+
+  <class name="T_TPCnv<TileCosmicMuonContainer,TileCosmicMuonContainer_p2>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileCosmicMuonContainer,TileCosmicMuonContainer_p2,TileCosmicMuonCnv_p2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileCosmicMuonContainer,TileCosmicMuonContainer_p2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileCosmicMuonContainer,TileCosmicMuonContainer,TileCosmicMuonContainer_p2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileCosmicMuonContainer,TileCosmicMuonContainer,TileCosmicMuonContainer_p2>"/>
+  <class name="ITPConverterFor<TileCosmicMuonContainer>"/>
+
+  <class name="T_TPCnv<TileDigitsContainer,TileDigitsContainer_p1>"/>
+  <class name="T_TilePoolContainerCnv<TileDigitsContainer,TileDigitsContainer_p1,TileDigitsCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileDigitsContainer,TileDigitsContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileDigitsContainer,TileDigitsContainer,TileDigitsContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileDigitsContainer,TileDigitsContainer,TileDigitsContainer_p1>"/>
+  <class name="ITPConverterFor<TileDigitsContainer>"/>
+
+  <class name="T_TPCnv<TileBeamElemContainer,TileBeamElemContainer_p1>"/>
+  <class name="T_TilePoolContainerCnv<TileBeamElemContainer,TileBeamElemContainer_p1,TileBeamElemCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileBeamElemContainer,TileBeamElemContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileBeamElemContainer,TileBeamElemContainer,TileBeamElemContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileBeamElemContainer,TileBeamElemContainer,TileBeamElemContainer_p1>"/>
+  <class name="ITPConverterFor<TileBeamElemContainer>"/>
+
+  <class name="T_TPCnv<TileRawChannelContainer,TileRawChannelContainer_p1>"/>
+  <class name="T_TilePoolContainerCnv<TileRawChannelContainer,TileRawChannelContainer_p1,TileRawChannelCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileRawChannelContainer,TileRawChannelContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileRawChannelContainer,TileRawChannelContainer,TileRawChannelContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileRawChannelContainer,TileRawChannelContainer,TileRawChannelContainer_p1>"/>
+  <class name="ITPConverterFor<TileRawChannelContainer>"/>
+
+  <class name="T_TPCnv<TileMuonReceiverContainer,TileMuonReceiverContainer_p1>"/>
+  <class name="T_AthenaPoolTPCnvVector<TileMuonReceiverContainer,TileMuonReceiverContainer_p1,TileMuonReceiverObjCnv_p1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TileMuonReceiverContainer,TileMuonReceiverContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TileMuonReceiverContainer,TileMuonReceiverContainer,TileMuonReceiverContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TileMuonReceiverContainer,TileMuonReceiverContainer,TileMuonReceiverContainer_p1>"/>
+  <class name="ITPConverterFor<TileMuonReceiverContainer>"/>
+
+
+</lcgdict>
