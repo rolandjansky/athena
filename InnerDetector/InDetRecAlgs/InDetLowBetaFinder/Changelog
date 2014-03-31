@@ -1,0 +1,8 @@
+2014-03-31 Niels van Eldik
+	* Migrated to new fiels svc
+	* Tagged as InDetLowBetaFinder-02-00-01
+
+2013-11-13 Nick Styles <nicholas.styles -at- cern.ch>
+	* Migrated to Eigen/newTrack EDM
+	* Tagged as InDetLowBetaFinder-02-00-00
+
