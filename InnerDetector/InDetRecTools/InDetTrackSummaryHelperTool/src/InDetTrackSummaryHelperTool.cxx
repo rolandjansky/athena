@@ -1,0 +1,399 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "InDetTrackSummaryHelperTool/InDetTrackSummaryHelperTool.h"
+// forward declares
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IPixelToTPIDTool.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+// normal includes
+#include "Identifier/Identifier.h"
+#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
+#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
+#include "InDetPrepRawData/PixelCluster.h"
+#include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "TrkTrackSummary/InDetTrackSummary.h"
+#include "TrkParameters/TrackParameters.h"
+#include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
+
+//==========================================================================
+InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
+   const std::string& t,
+   const std::string& n,
+   const IInterface*  p )
+   :
+   AthAlgTool(t,n,p),
+   m_pixelId(0),
+   m_sctId(0),
+   m_trtId(0),
+   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),	
+   m_pixeldedxtool(""),
+   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
+   m_testBLayerTool(""),
+   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",n),
+   m_doSharedHits(false),
+   m_doSplitPixelHits(true)
+{
+   declareInterface<ITrackSummaryHelperTool>(this);
+   declareProperty("AssoTool",            m_assoTool);
+   declareProperty("PixelToTPIDTool",     m_pixeldedxtool);
+   declareProperty("HoleSearch",          m_holeSearchTool);
+   declareProperty("TestBLayerTool",      m_testBLayerTool);
+   declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);
+   declareProperty("DoSharedHits",        m_doSharedHits);
+   declareProperty("DoSplitHits",         m_doSplitPixelHits);
+   declareProperty("usePixel",            m_usePixel = true);
+   declareProperty("useSCT",              m_useSCT   = true);
+   declareProperty("useTRT",              m_useTRT   = true);
+   declareProperty("OverwriteIDSummary",  m_overwriteidsummary = false);
+}
+
+//==========================================================================
+
+InDet::InDetTrackSummaryHelperTool::~InDetTrackSummaryHelperTool()
+{ }
+
+//==========================================================================
+
+StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
+{
+   if (m_usePixel) {
+      if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+         msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+         return StatusCode::FAILURE;
+      }
+   }
+
+   if (m_useSCT) {
+      if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
+         msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;
+         return StatusCode::FAILURE;
+      }
+   }
+
+   if (m_useTRT) {
+      if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
+         msg(MSG::ERROR) << "Could not get TRT_ID helper !" << endreq;
+         return StatusCode::FAILURE;
+      }
+   }
+
+   if (m_doSharedHits) {
+      if ( m_assoTool.retrieve().isFailure() ) {
+         msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
+         return StatusCode::FAILURE;
+      } else {
+         msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      }
+   }
+
+   if ( !m_pixeldedxtool.empty() && m_pixeldedxtool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve pixel dEdx tool " << m_pixeldedxtool);
+      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+      return StatusCode::FAILURE;
+   } else {
+      if ( !m_pixeldedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_pixeldedxtool << endreq;
+   }
+
+   if ( m_holeSearchTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
+      return StatusCode::FAILURE;
+   } else {
+      msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+   }
+
+   if ( !m_testBLayerTool.empty() && m_testBLayerTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve Test B Layer tool " << m_pixeldedxtool);
+      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+      return StatusCode::FAILURE;
+   } else {
+      if ( !m_testBLayerTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_pixeldedxtool << endreq;
+   }
+
+
+   if (m_useTRT && !m_TRTStrawSummarySvc.empty() && m_TRTStrawSummarySvc.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummarySvc);
+      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
+      return StatusCode::FAILURE;
+   } else {
+      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+   }
+
+
+
+   msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+   return StatusCode::SUCCESS;
+}
+
+
+//==========================================================================
+void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track, 
+                                                 const Trk::RIO_OnTrack* rot, 
+                                                 const Trk::TrackStateOnSurface* tsos,
+                                                 std::vector<int>& information, 
+                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
+{
+   const Identifier& id = rot->identify();
+   bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
+   bool  ispatterntrack =  (track.info().trackFitter()==Trk::TrackInfo::Unknown);
+
+
+   //pointer to det El (possibly 0), from pointer to PRD (which can also be zero - at the moment at least)
+   //const TrkDetElementBase* detEl = rot->detectorElement(); 
+
+   if ( m_usePixel && m_pixelId->is_pixel(id) ) {
+
+      if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
+         information[Trk::numberOfPixelOutliers]++;
+         if (m_pixelId->is_blayer(id)){
+            information[Trk::numberOfBLayerOutliers]++;
+         }
+      } else {
+
+         information[Trk::numberOfPixelHits]++;
+         if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
+         // check to see if there's an ambiguity with the ganged cluster.
+         const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
+         if ( !pix ) {
+            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast pixel RoT to PixelClusterOnTrack!"<<endreq;
+         } else {
+            const InDet::PixelCluster* pixPrd = pix->prepRawData();
+            if ( pixPrd && pixPrd->isSplit() ) information[Trk::numberOfPixelSplitHits]++;
+            if ( pixPrd && m_pixelId->is_blayer(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
+            if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
+            if ( pix->hasClusterAmbiguity() ) {
+               information[Trk::numberOfGangedPixels]++;
+               if (pix->isFake() ) 
+                  information[Trk::numberOfGangedFlaggedFakes]++;
+            }
+         }
+
+         if ( ( m_pixelId->is_barrel(id) ) ) {
+            int offset = m_pixelId->layer_disk(id); 
+            if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
+            hitPattern.set(offset); // assumes numbered consecutively
+         } else {
+            int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc
+            offset    += m_pixelId->layer_disk(id);
+            if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
+            hitPattern.set(offset); // assumes numbered consecutively
+         }
+
+         if (m_doSharedHits) {
+            // used in more than one track ?
+            if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+               if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endreq;
+               information[Trk::numberOfPixelSharedHits]++;
+               if ( (m_pixelId->is_blayer(id) ) ) {
+                  if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endreq;
+                  information[Trk::numberOfBLayerSharedHits]++;		    
+               }
+            }
+         }
+      }
+
+   } else if (m_useSCT && m_sctId->is_sct(id) ) {
+
+      if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+         information[Trk::numberOfSCTOutliers]++;
+
+      } else {
+
+
+         information[Trk::numberOfSCTHits]++;
+         const InDet::SCT_ClusterOnTrack *sctclus=dynamic_cast<const InDet::SCT_ClusterOnTrack *>(rot);
+         if ( !sctclus ) {
+            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast SCT RoT to SCT_ClusterOnTrack!"<<endreq;
+         } else {
+            if (sctclus->isBroadCluster()) information[Trk::numberOfSCTSpoiltHits]++;
+         }
+
+         if ( (m_sctId->is_barrel(id) ) ) {
+            int offset = static_cast<int>(Trk::sctBarrel0);
+            hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
+         } else {
+            int offset = static_cast<int>(Trk::sctEndCap0); //get int value of first sct endcap disc
+            hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
+         }
+
+         if (m_doSharedHits) {
+            // used in more than one track ?
+            if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+               if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endreq;
+               information[Trk::numberOfSCTSharedHits]++;
+            }
+         }
+      }
+        
+   } else if (m_useTRT && m_trtId->is_trt(id) ) {
+
+      bool isArgonStraw = false;
+      if (!m_TRTStrawSummarySvc.empty()) {
+         if (m_TRTStrawSummarySvc->getStatusHT(id) != TRTCond::StrawStatus::Good) {
+            isArgonStraw = true;
+         }
+      }
+      if (!isArgonStraw) information[Trk::numberOfTRTXenonHits ]++;
+
+     
+      if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+         information[Trk::numberOfTRTOutliers]++;
+
+         const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
+            = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
+         if ( !trtDriftCircle ) {
+            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
+         } else {
+            if ( trtDriftCircle->highLevel()==true && !isArgonStraw) information[Trk::numberOfTRTHighThresholdOutliers]++;
+         }
+
+      } else {
+
+         information[Trk::numberOfTRTHits]++;
+         double error2=rot->localCovariance()(0,0);
+         if (error2>1) information[Trk::numberOfTRTTubeHits]++;
+
+         const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
+            = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
+         if ( !trtDriftCircle ) {
+            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
+         } else {
+            if ( trtDriftCircle->highLevel()==true && !isArgonStraw) information[Trk::numberOfTRTHighThresholdHits]++;
+         }
+      }
+   }
+   return;
+}
+
+void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
+                                                 const Trk::CompetingRIOsOnTrack* crot, 
+                                                 const Trk::TrackStateOnSurface* tsos,
+                                                 std::vector<int>& information, 
+                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
+{
+   // re-produce prior behaviour (i.e. just take most probable ROT)
+   analyse(track, &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern);
+}
+
+void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track, 
+                                                        std::vector<int>& information,
+                                                        const Trk::ParticleHypothesis partHyp         ) const 
+{
+
+   // ME: this is a temporary change for getting the blayer info into the summary 
+   //if (msgLvl(MSG::WARNING))
+   //{
+   //  msg(MSG::WARNING) << "You are accessing the hole search through the InDetTrackSummaryHelperTool." << endreq;
+   //  msg(MSG::WARNING) << "This will soon be disabled. Please access the HoleSearchTool directly!" << endreq;
+   // }
+
+   ATH_MSG_DEBUG("Do hole search within HELPER, PLEASE FIX THIS AFTER 16.0.X");
+   m_holeSearchTool->countHoles(track,information,partHyp);
+
+   // this is a hack, we need to run the TestBLayer Tool somewhere
+
+   if (m_usePixel && !m_testBLayerTool.empty() ) {
+
+      if ( information[Trk::numberOfContribPixelLayers] == 0 ) {
+         ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
+         information[Trk::expectBLayerHit] = 0;
+      } else if ( information[Trk::numberOfBLayerHits] > 0) {
+         ATH_MSG_DEBUG("B-Layer hit on track, so we expect a B-Layer hit !");
+         information[Trk::expectBLayerHit] = 1;
+
+      } else {
+
+         ATH_MSG_DEBUG("Testing B-Layer using tool..");
+         if (m_testBLayerTool->expectHitInBLayer(&track) ) {
+            ATH_MSG_DEBUG("expect B-Layer hit !");
+            information[Trk::expectBLayerHit] = 1;
+         } else {
+            ATH_MSG_DEBUG("do not expect B-Layer hit !");
+            information[Trk::expectBLayerHit] = 0;
+         }
+
+      }
+   }
+
+   return;
+}
+
+
+void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &track, Trk::TrackSummary& summary) const {
+    
+    // loop over track states on surface and take pixel / sct to update the shared hit count
+    summary.m_information[Trk::numberOfPixelSharedHits]  = 0;
+    summary.m_information[Trk::numberOfBLayerSharedHits] = 0;		    
+    summary.m_information[Trk::numberOfSCTSharedHits]    = 0;
+    
+    const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();               
+    if (measurements){
+        for (auto& ms : *measurements){
+            const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(ms);
+            // check if it's a rot
+            if (rot){
+                const Identifier& id = rot->identify();
+                if ( m_doSharedHits && m_usePixel && m_pixelId->is_pixel(id) ) {
+                    // check if shared 
+                    if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+                       ATH_MSG_DEBUG("shared Pixel hit found");
+                       summary.m_information[Trk::numberOfPixelSharedHits]++;
+                       if ( (m_pixelId->is_blayer(id) ) ) {
+                          ATH_MSG_DEBUG("--> shared Pixel hit is in b-layer");
+                          summary.m_information[Trk::numberOfBLayerSharedHits]++;		    
+                       }
+                    }
+                } else if ( m_doSharedHits && m_useSCT && m_sctId->is_sct(id) ){
+                    // used in more than one track ?
+                    if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+                       if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endreq;
+                       summary.m_information[Trk::numberOfSCTSharedHits]++;
+                    }
+                }
+            } 
+        }
+    }
+    return;
+}
+
+void  InDet::InDetTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track &track, Trk::TrackSummary &summary) const {
+   if ( summary.m_indetTrackSummary && !m_overwriteidsummary){
+      ATH_MSG_DEBUG("TrackSummary already has detailed indet track summary, not adding a new one");
+      return;
+   }
+   if ( !m_usePixel ) {
+      ATH_MSG_DEBUG("Pixels are off, so no need for an detailed indet track summary");
+      return;
+   }
+   ATH_MSG_DEBUG("Adding detailed indet track summary");
+   delete summary.m_indetTrackSummary;
+   Trk::InDetTrackSummary* indetTrackSummary = new Trk::InDetTrackSummary();
+   Trk::InDetTrackSummary& trackSummary      = *indetTrackSummary;
+   if (m_usePixel && !m_pixeldedxtool.empty() && (track.perigeeParameters() || !track.trackParameters()->empty())){
+      const Trk::TrackParameters *par = track.perigeeParameters();
+      if (!par) par = *track.trackParameters()->begin();
+      double p      = (par->parameters()[Trk::qOverP]!=0) ? 1./par->parameters()[Trk::qOverP] : 1.e15;
+      double dedx   = summary.getPixeldEdx();
+      int ngoodhits = summary.numberOfUsedHitsdEdx();
+      if (ngoodhits>0 && dedx>0 && track.info().trackFitter()!=Trk::TrackInfo::Unknown && p<1.e15){
+         trackSummary.m_likelihoodspixeldedx = m_pixeldedxtool->getLikelihoods(dedx,p,ngoodhits);
+         trackSummary.m_massdedx             = m_pixeldedxtool->getMass(dedx,p,ngoodhits);
+      }
+   }
+   summary.m_indetTrackSummary = indetTrackSummary;
+}
+
+// ====================================================================================================================
+
+StatusCode InDet::InDetTrackSummaryHelperTool::finalize() {
+   return StatusCode::SUCCESS;
+}
+
