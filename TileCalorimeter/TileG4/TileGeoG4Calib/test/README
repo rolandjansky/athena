@@ -1,0 +1,41 @@
+##  Preparation
+## -------------
+## In file TileGeoG4CalibSD.h uncomment line: #define HITSINFO
+## select hit output format (txt or NTuple or both) and mode of 
+## hit generation (for all IDCalculators - 0 or for one selected from 1-6):
+    #define doHitsTXT  false
+    #define doHitsNTup true
+    #define IDcalc     0    //1-6, 0-all
+
+## make package TileGeoG4Calib
+
+
+##  Simulation
+## ------------
+cd TileCalorimeter/TileG4/TileGeoG4Calib/test
+athena.py jobOptions.G4TileCalibHitCnt_Ntup.py >&! sim.log    ## start of CalibHits Simulation
+
+
+##  Drawing of Geometry with TileCalibHit
+## ---------------------------------------
+root testHitsTXT.C    ## analysis by default: file - hits.txt, Z_R figure - for Barrel, all IDCalculators
+root testHitsNtup.C   ## analysis by default: file - hits.Ntup.root, Z_R figure - Barrel, all IDCalculators
+
+## another examples:
+root
+root[] .x testHitsTXT.C("hits.txt",1,0)  ## draw a file hits.txt, Z_R - Barrel, all IDCalculators (the same as default)
+root[] .x testHitsNtup.C("hits.Ntup.root",0,1)  ## draw a file hits.Ntup.root, 0-Z_R - the whole Tile, 1-CellIDCalculator
+root[] .x testHitsNtup.C("hits.Ntup100.root",11,2)  ## draw a file hits.Ntup100.root, 11-Z_R - zoom in Barrel (det1,reg1), 2-ScintIDCalculator
+root[] .x testHitsNtup.C("hits.Ntup500.root",24,5)  ## draw a file hits.Ntup500.root, 24-Z_R - zoom in Ext.Barrel (det2,reg4), 5-DefaultHitIDCalculator-Cell hit
+
+## Detector and zoom possibilities:
+## 0 - Z_R-Tile; 1 - Z_R-Barrel; 2 - Z_R-Ext.Barrel -- all with abs(Z)
+## 11,...,17 - zoom in Barrel regions 1-7 (with abs(Z))
+## 21,...,27 - zoom in Posirive Ext.Barrel regions 1-7
+## -21,...,-27 - zoom in Negative Ext.Barrel regions 1-7
+
+## Calculator possibilities (IDcalc): 
+## 0-All IDCalculators, 1-CellIDCalculator, 2-ScintIDCalculator,
+## 3-PlateCellIDCalculator, 4-GirderCellIDCalculator,
+## 5-DefaultHitIDCalculator-Cell hit, 6-DefaultHitIDCalculator-DM hit
+

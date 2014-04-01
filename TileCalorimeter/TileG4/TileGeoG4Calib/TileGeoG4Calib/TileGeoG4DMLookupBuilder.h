@@ -1,0 +1,83 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//************************************************************
+//
+// Class building look-up tables for TileGeoG4CalibSD
+//
+// Author: Gia Khoriauli <gia.khoriauli@cern.ch>
+//
+// May, 2005
+//
+//************************************************************
+
+#ifndef TileGeoG4DMLookupBuilder_H
+#define TileGeoG4DMLookupBuilder_H
+
+#include "TileDetDescr/TileDddbManager.h"
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "TileCalibDddbManager.h"
+
+#include <map>
+#include <string>
+
+class TileGeoG4CalibSection;
+class TileGeoG4LookupBuilder;
+class IRDBAccessSvc;
+class IGeoModelSvc;
+class StoreGateSvc;
+class IMessageSvc;
+class MsgStream;
+
+class TileGeoG4DMLookupBuilder
+{
+public:
+  TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* tile_lookup_builder, 
+			   IRDBAccessSvc* access, 
+			   IGeoModelSvc* geo_svc,
+                           StoreGateSvc* pDetStore,
+                           IMessageSvc* msgSvc);
+  ~TileGeoG4DMLookupBuilder();
+    
+  void BuildLookup(bool test_beam = false);
+  void ResetCells();
+  TileGeoG4CalibSection* GetSection(TileCalibDddbManager::TileCalibSections key) const;
+  bool GetPlateToCell();
+  
+  //Geometry constans fo DH calculator
+  double rBMin,rBMax;
+  double zBarrMaxPos,zBarrMaxNeg;
+  double dzBarrMod,dzExtBarrMod;
+  double zLegngthITC; 
+  double dzBarrPeriod,dzExtBarrPeriod;  
+  double rGirdMin;
+  double dRFront;
+  double dZEnd,dZEndSh;
+  
+  double rP1Min,rP2Min,rGapMax,rGapMin,rCrMax,rCrMin;
+
+private:
+
+  TileGeoG4DMLookupBuilder (const TileGeoG4DMLookupBuilder&);  
+  TileGeoG4DMLookupBuilder& operator= (const TileGeoG4DMLookupBuilder&); 
+
+  typedef std::map< TileCalibDddbManager::TileCalibSections, TileGeoG4CalibSection*, 
+                    std::less<TileCalibDddbManager::TileCalibSections> >  TileGeoG4CalibSectionMap;
+
+  void CreateGeoG4CalibSections(bool is_ctb);
+
+  TileCalibDddbManager* m_dbManager;
+  TileGeoG4LookupBuilder* m_lookup_builder;
+  TileGeoG4CalibSectionMap* m_sectionMap;
+
+  const TileDetDescrManager* m_theManager;
+  TileDddbManager* m_tdbManager;
+
+  IMessageSvc* m_msgSvc;
+  MsgStream * m_log;
+
+  bool plateToCell;
+};
+
+#endif
