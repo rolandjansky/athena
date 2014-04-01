@@ -1,0 +1,43 @@
+package TrigCaloEventTPCnv
+
+author Andrew Hamilton     <Andrew.Hamilton@cern.ch>
+author Fabrizio Salvatore  <P.F.Salvatore@sussex.ac.uk>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*	    Database/AthenaPOOL
+use DataModel		     DataModel-*		        Control
+use DataModelAthenaPool  DataModelAthenaPool-*      Control
+use TrigCaloEvent        TrigCaloEvent-*         Trigger/TrigEvent
+
+branches TrigCaloEventTPCnv src
+
+library TrigCaloEventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+
+private
+
+use AtlasReflex		     AtlasReflex-*		    External
+use GaudiInterface           GaudiInterface-*               External
+use AthenaKernel             AthenaKernel-*         	    Control
+use CxxUtils                 CxxUtils-*                     Control
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigCaloClusterCnv_p1
+apply_pattern UnitTest_run unit_test=TrigCaloClusterCnv_p2
+apply_pattern UnitTest_run unit_test=TrigCaloClusterCnv_p3
+
+# Create a dictionary for the persistent representation 
+# of transient classes.  If we make a single dictionary,
+# the compiler runs out of memory on the generated source.
+
+apply_pattern lcgdict dict=TrigCaloEventTPCnv1  \
+  selectionfile=selection1.xml \
+  headerfiles="../TrigCaloEventTPCnv/TrigCaloEventTPCnvDict1.h"
+
+#apply_pattern lcgdict dict=OLD_TrigCaloEventTPCnv1  \
+#  selectionfile=OLD_selection1.xml \
+#  headerfiles="../TrigCaloEventTPCnv/TrigCaloEventTPCnvDict1.h"
+
+end_private
