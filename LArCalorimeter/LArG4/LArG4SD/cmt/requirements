@@ -1,0 +1,34 @@
+package LArG4SD
+
+author Vakho Tsulaia 
+
+use AtlasPolicy    AtlasPolicy-*
+use Geant4         Geant4-*        External
+use LArG4Code      LArG4Code-*     LArCalorimeter/LArG4
+use CaloG4Sim      CaloG4Sim-*     Calorimeter
+
+use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
+
+private
+use ISF_Event      ISF_Event-*     Simulation/ISF/ISF_Core
+use MCTruth        MCTruth-*       Simulation/G4Sim 
+
+public
+
+library LArG4SD *.cc
+
+apply_pattern linked_library
+
+#=======================================================
+private
+use GaudiInterface  GaudiInterface-*     External
+use StoreGate       StoreGate-*          Control
+use MCTruth         MCTruth-*            Simulation/G4Sim
+use LArG4Barrel     LArG4Barrel-*        LArCalorimeter/LArG4
+use LArG4EC         LArG4EC-*            LArCalorimeter/LArG4
+use LArG4FCAL       LArG4FCAL-*          LArCalorimeter/LArG4
+use LArG4HEC        LArG4HEC-*           LArCalorimeter/LArG4
+use LArG4MiniFCAL   LArG4MiniFCAL-*      LArCalorimeter/LArG4
+use LArG4RunControl LArG4RunControl-*    LArCalorimeter/LArG4
+
+
