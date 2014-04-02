@@ -204,6 +204,13 @@ tag slc56   host-slc5
 tag slc57   host-slc5
 tag slc58   host-slc5
 tag slc59   host-slc5
+tag slc510   host-slc5
+tag slc511   host-slc5
+tag slc512   host-slc5
+tag slc513   host-slc5
+tag slc514   host-slc5
+tag slc515   host-slc5
+tag slc516   host-slc5
 
 tag rhel5   host-slc5
 tag rhel50  host-slc5
@@ -216,6 +223,13 @@ tag rhel56  host-slc5
 tag rhel57  host-slc5
 tag rhel58  host-slc5
 tag rhel59  host-slc5
+tag rhel510   host-slc5
+tag rhel511   host-slc5
+tag rhel512   host-slc5
+tag rhel513   host-slc5
+tag rhel514   host-slc5
+tag rhel515   host-slc5
+tag rhel516   host-slc5
 
 tag sl50    host-slc5
 tag sl51    host-slc5
@@ -227,6 +241,13 @@ tag sl56    host-slc5
 tag sl57    host-slc5
 tag sl58    host-slc5
 tag sl59    host-slc5
+tag sl510   host-slc5
+tag sl511   host-slc5
+tag sl512   host-slc5
+tag sl513   host-slc5
+tag sl514   host-slc5
+tag sl515   host-slc5
+tag sl516   host-slc5
 
 # ---------- Scientific Linux CERN 6 ----------
 
@@ -281,6 +302,13 @@ tag slc66   host-slc6
 tag slc67   host-slc6
 tag slc68   host-slc6
 tag slc69   host-slc6
+tag slc610   host-slc6
+tag slc611   host-slc6
+tag slc612   host-slc6
+tag slc613   host-slc6
+tag slc614   host-slc6
+tag slc615   host-slc6
+tag slc616   host-slc6
 
 tag rhel6   host-slc6
 tag rhel60  host-slc6
@@ -293,6 +321,14 @@ tag rhel66  host-slc6
 tag rhel67  host-slc6
 tag rhel68  host-slc6
 tag rhel69  host-slc6
+tag rhel610  host-slc6
+tag rhel611  host-slc6
+tag rhel612  host-slc6
+tag rhel613  host-slc6
+tag rhel614  host-slc6
+tag rhel615  host-slc6
+tag rhel616  host-slc6
+
 
 tag sl60    host-slc6
 tag sl61    host-slc6
@@ -304,6 +340,13 @@ tag sl66    host-slc6
 tag sl67    host-slc6
 tag sl68    host-slc6
 tag sl69    host-slc6
+tag slc610   host slc6
+tag slc611   host slc6
+tag slc612   host slc6
+tag slc613   host slc6
+tag slc614   host slc6
+tag slc615   host slc6
+tag slc616   host slc6
 
 # ------------------ Special Platform tags ------------
 
