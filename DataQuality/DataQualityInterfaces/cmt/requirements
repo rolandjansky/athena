@@ -1,0 +1,113 @@
+package DataQualityInterfaces
+author Peter Onyisi <ponyisi@cern.ch>
+
+private
+
+apply_tag ROOTGraphicsLibs
+
+end_private
+
+
+public
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasROOT           AtlasROOT-*           External
+use AtlasBoost          AtlasBoost-*          External
+use DQM_Core            DQM_Core-*            External
+
+macro_append ers_linkopts " $(tdaqc_linkopts) -lers "
+
+macro_append Boost_linkopts " $(Boost_linkopts_system) $(Boost_linkopts_regex) $(Boost_linkopts_thread) "
+
+##############################################################################
+#	library: DataQualityInterfaces
+##############################################################################
+
+library  DataQualityInterfaces  $(lib_opts) "\
+ ../src/HanAlgorithmConfig.cxx\
+ ../src/HanApp.cxx\
+ ../src/HanConfig.cxx\
+ ../src/HanConfigAlgLimit.cxx\
+ ../src/HanConfigAlgPar.cxx\
+ ../src/HanConfigParMap.cxx\
+ ../src/HanConfigAssessor.cxx\
+ ../src/HanConfigCompAlg.cxx\
+ ../src/HanConfigGroup.cxx\
+ ../src/HanConfigMetadata.cxx\
+ ../src/HanOutput.cxx\
+ ../src/MiniConfig.cxx\
+ ../src/MiniConfigTreeNode.cxx\
+ ../src/CompositeAlgorithm.cxx\
+ ../src/HanInputRootFile.cxx\
+ ../src/HanUtils.cxx\
+ ../src/ConditionsSingleton.cxx\
+ $(bin)DataQualityInterfacesRootDict.cxx"
+
+apply_pattern installed_library
+
+macro  DataQualityInterfaces_dependencies  "dqi_root_dictionary"
+
+action  dqi_root_dictionary  "( $(ROOTSYS)/bin/rootcint -f $(bin)DataQualityInterfacesRootDict.cxx -c $(includes)\ 
+ ../DataQualityInterfaces/MiniConfig.h\
+ ../DataQualityInterfaces/MiniConfigTreeNode.h\
+ ../DataQualityInterfaces/HanApp.h\
+ ../DataQualityInterfaces/HanConfig.h\
+ ../DataQualityInterfaces/HanConfigAlgLimit.h\
+ ../DataQualityInterfaces/HanConfigAlgPar.h\
+ ../DataQualityInterfaces/HanConfigParMap.h\
+ ../DataQualityInterfaces/HanConfigAssessor.h\
+ ../DataQualityInterfaces/HanConfigCompAlg.h\
+ ../DataQualityInterfaces/HanConfigGroup.h\
+ ../DataQualityInterfaces/HanConfigMetadata.h\
+ ../DataQualityInterfaces/ConditionsSingleton.h\
+ ../DataQualityInterfaces/LinkDef.h )"
+
+macro dqi_root_dictionary_dependencies " install_includes"
+
+#################
+# Persistency lib
+#################
+
+library  dqm_persistency  $(lib_opts) "\
+ ../src/dqm_persistency_impl.cxx\
+ $(bin)dqm_persistencyRootDict.cxx"
+
+apply_pattern named_installed_library library=dqm_persistency
+
+macro  dqm_persistency_dependencies  "dqmp_root_dictionary"
+
+action  dqmp_root_dictionary  "( $(ROOTSYS)/bin/rootcint -f $(bin)dqm_persistencyRootDict.cxx -c $(includes)\
+ ../DataQualityInterfaces/PAlgorithm.h\
+ ../DataQualityInterfaces/PMetadata.h\
+ ../DataQualityInterfaces/PParameter.h\
+ ../DataQualityInterfaces/PRegion.h\
+ ../DataQualityInterfaces/PResult.h\
+ ../DataQualityInterfaces/PFunctions.h\
+ ../DataQualityInterfaces/LinkDefdqmp.h )"
+
+macro dqmp_root_dictionary_dependencies " install_includes"
+
+#############################################################################
+#	application: han
+#############################################################################
+
+application  han  -no_prototypes  "../src/han.cxx"
+
+macro  han_dependencies  "DataQualityInterfaces dqm_persistency"
+
+#############################################################################
+#	application: han-config-gen
+#############################################################################
+
+application  han-config-gen  -no_prototypes  "../src/han_config_gen.cxx"
+
+macro  han-config-gen_dependencies  "DataQualityInterfaces dqm_persistency"
+
+#############################################################################
+#	application: han-config-print
+#############################################################################
+
+application  han-config-print  -no_prototypes  "../src/han_config_print.cxx"
+
+macro  han-config-print_dependencies  "DataQualityInterfaces dqm_persistency"
+
