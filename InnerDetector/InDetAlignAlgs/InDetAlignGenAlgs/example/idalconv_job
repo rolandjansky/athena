@@ -1,0 +1,138 @@
+#!/bin/ksh 
+# source this script not run
+# source idalconv_job <run1> <evt1> <run2> <evt2> <tag>
+#
+# run athena job to migrate ID alignment data for given run range (a single IOV)# and tag from condDB lisbon to COOL
+# currently setup for MC database transfer
+RUN1=$1
+EVT1=$2
+RUN2=$3
+EVT2=$4
+TAG=$5
+echo Run idalconv for run $RUN1 event $EVT1 to run $RUN2 event $EVT2 tag $TAG
+#
+rm temp.py
+cat > temp.py << EOF
+#use McEventSelector
+theApp.setup( MONTECARLO )
+include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
+include ( "IOVDbSvc/IOVDbSvc_jobOptions.py" )
+IOVDbSvc=Service("IOVDbSvc")
+#IOVDbSvc.dbConnection="impl=conddb;techno=mysql;atlobk02.cern.ch:conditions_ctb_2004:conditions:conditions"
+#IOVDbSvc.dbConnection="impl=cool;techno=sqlite;schema=mysqlfile.db;X:TBPROD"
+#password removed
+IOVDbSvc.dbConnection="impl=cool;techno=oracle;schema=ATLAS_COOL_INDET;ATLAS_COOLPROD:TBMCPROD:ATLAS_COOL_INDET:xxxx"
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.ReadCatalog+= [ "file:PoolFileCatalog.xml","file:poolcond/poolcond.xml"]
+PoolSvc.FileOpen="update"
+
+#ctbcon="<dbConnection>impl=conddb;techno=mysql;atlobk02.cern.ch:conditions_ctb_2004:conditions:conditions</dbConnection>"
+ctbcon="<dbConnection>impl=conddb;techno=mysql;atlasdbdev.cern.ch:conditions_ctbsim_2004:rdrCnCTBsDB:</dbConnection>"
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/ID"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/PIX"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/PIXB1"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/PIXB2"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/PIXB3"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/SCT"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/SCTB1"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/SCTB2"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/SCTB3"]
+IOVDbSvc.Folders+=[ ctbcon+" /Indet/Align/SCTB4"]
+
+Service("ToolSvc").InDetAlignDBTool.newDB=False
+
+include ( "RecAthenaPool/RecAthenaPool_joboptions.py" )
+include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
+
+from AthenaCommon.GlobalFlags import GlobalFlags
+GlobalFlags.DataSource.set_data()
+GlobalFlags.InputFormat.set_bytestream() 
+GlobalFlags.DetGeo.set_ctbh8()
+
+include( "InDetTBRecExample/InDetTBFlags_jobOptions.py" )
+include("InDetTBRecExample/InDetTBSetFlags_jobOptions.py")
+InDetTBFlags.TRT=False
+include ("AtlasGeoModel/SetGeometryVersion.py")
+include ("AtlasGeoModel/GeoModelInit.py")
+#include ("InDetTBRecExample/InDetTB2004DetDescr_jobOptions.py")
+GeoModelSvc.PixelTBDetectorTool.Alignable=TRUE
+GeoModelSvc.SCT_TBDetectorTool.Alignable=TRUE
+NovaCnvSvc.Host = "atlasdbdev.cern.ch"
+
+theApp.TopAlg += [ "InDetAlignNt" ]
+theApp.Dlls   += [ "InDetAlignGenAlgs","InDetAlignGenTools" ]
+# set to 1 for TRT hits
+InDetAlignNt = Service( "InDetAlignNt" )
+InDetAlignNt.TRT=1
+# set to true to read loaded alignment info from TDS
+InDetAlignNt.ReadAl=True
+InDetAlignNt.Truth=False
+# enable this to get histograms of overlap residual distributions
+InDetAlignNt.overlap=False
+InDetAlignNt.OutputLevel=3
+InDetAlignNt.NumDeriv=0
+
+# uses new Trk:Tracks (perhaps create with TrkLegacyCnvAlg)
+InDetAlignNt.newtrk=False
+#InDetAlignNt.newtrkcol="ConvertedXKalmanTracks"
+InDetAlignNt.newtrkcol="ConvertedIPatTracks"
+# this to make truth for xkalman tracks available
+InDetTrackTruthMaker = Algorithm( "InDetTrackTruthMaker" )
+#InDetTrackTruthMaker.TrackName = "ConvertedXKalmanTracks"
+InDetTrackTruthMaker.TrackName = "ConvertedIPatTracks"
+
+
+# this for running with hbook ntuples
+theApp.Dlls += [ "HbookCnv" ]
+NtupleSvc = Service( "NtupleSvc" )
+NtupleSvc.Output = [ "FILE1 DATAFILE='idalign.hb' OPT='NEW'" ]
+theApp.HistogramPersistency="HBOOK"
+HbookHistSvc = Service ( "HbookHistSvc")
+HbookHistSvc.NPAWC = 1500000 
+HistogramPersistencySvc = Service( "HistogramPersistencySvc" )
+HistogramPersistencySvc.OutputFile  = "ipathis.hbook"
+
+include( "RegistrationServices/IOVRegistrationSvc_jobOptions.py" )
+regSvc = Service( "IOVRegistrationSvc" )
+regSvc.RecreateFolders = False
+ToolSvc=Service("ToolSvc")
+ToolSvc.CondStream1.OutputFile="alignobjs2.root"
+ToolSvc.CondStream1.OutputLevel=1
+
+
+InDetAlignWrt = Service( "InDetAlignWrt" )
+theApp.TopAlg += [ "InDetAlignWrt" ]
+
+InDetAlignWrt.create=FALSE
+InDetAlignWrt.write=FALSE
+InDetAlignWrt.migrate=TRUE
+# hardwired name for migration InDetALignDBTool instance
+ToolSvc.InDetAlignMigrate.newDB=True
+# set to false to only write objects, not register in IOV database
+InDetAlignWrt.WriteIOV=TRUE
+# set these to record a specific IOV, otherwise valid for all times
+InDetAlignWrt.ValidRun1=$RUN1
+InDetAlignWrt.ValidRun2=$RUN2
+InDetAlignWrt.ValidEvent1=$EVT1
+InDetAlignWrt.ValidEvent2=$EVT2
+# set this to write data with a specific tag (otherwise HEAD tag)
+InDetAlignWrt.IOVTag="$TAG"
+
+
+EventSelector = Service( "EventSelector" )
+EventSelector.RunNumber         = $RUN1
+EventSelector.EventsPerRun      = 1
+EventSelector.FirstEvent        = 0
+EventSelector.InitialTimeStamp  = 0
+EventSelector.TimeStampInterval = 5
+theApp.EvtMax                   = 1
+
+IOVDbSvc.GlobalTag="$TAG"
+IOVDbSvc.OutputLevel=3
+EOF
+athena.py temp.py
+echo Done for run $RUN1 tag $TAG
+ls -l alignobjs.root migrate.dat migrate.check
+cat migrate.check
+
+

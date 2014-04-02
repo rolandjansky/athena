@@ -1,0 +1,131 @@
+
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+
+// --------- Setting up TRT Geometry ---------
+
+m_log << MSG::INFO << "Starting TRT Geometry" << endreq;
+
+m_managerName = "TRT";  
+
+sc = detStore().retrieve(TRTmanager, m_managerName);
+
+if (sc.isFailure() || !TRTmanager) {
+  log << MSG::FATAL << "Could not find the TRT Manager "
+      << m_managerName << " !" << endreq;
+  //    return StatusCode::FAILURE;
+} else {
+  log << MSG::INFO << "TRT Manager found" << endreq;
+}
+
+//  m_log << MSG::INFO << "Retrieving TRT manager OK" << endreq;
+
+//  m_log << MSG::INFO << "TRT manager, getNumTreeTops: " << TRTmanager->getNumTreeTops() << endreq;  
+
+enum {NMODMAX=3};                                                              //
+enum {NWHEELMAX=18};                                                           //
+enum {NPHIMAX=32};                                                             //
+enum {NSTRAWLAYMAXBR=30};                                                      //
+enum {NSTRAWLAYMAXEC=16};                                                 
+
+//  TRTBarrelElementCollection::const_iterator iterTRT;
+//    TRTEndcapElementCollection::const_iterator iterTRT;
+int imod=0;
+
+//    for (iterTRT=TRTmanager->getDetectorElementBegin();iterTRT!=TRTmanager->getDetectorElementEnd();++iterTRT)
+//     {
+for (unsigned int ec=0;ec<2;ec++) {
+  for (unsigned int mod=0;mod<NMODMAX;mod++) {
+    for (unsigned int phi=0; phi<NPHIMAX;phi++) {
+      for (unsigned int sLay=0;sLay<TRTmanager->getNumerology()->getNBarrelLayers(mod);sLay++) {
+
+	imod++;
+	//		    m_log << MSG::INFO << "TRT loop indexes: " << ec << "-" << mod << "-" << phi << "-" << sLay << endreq;
+
+
+	const TRT_BarrelElement * TRTelement = 0;
+
+	TRTelement = TRTmanager->getBarrelElement(ec,mod,phi,sLay);
+
+	if(!TRTelement) log << MSG::FATAL << "null TRT element" << endreq;
+
+	const Identifier ident = TRTelement->identify();
+
+	HepGeom::Point3D<double> center = TRTelement->transform()*HepGeom::Point3D<double>(0,0,0);
+
+	m_strawidmap[ident]=imod;
+
+	for (int istraw=1;istraw<=TRTelement->nStraws(); istraw++) {
+
+	  AlignStraw newstraw;
+
+	  newstraw.set_radius(center.r());
+	  newstraw.set_phi(center.phi());
+	  newstraw.set_z(center.z());
+	  newstraw.set_det(1);
+	  newstraw.set_index(imod+istraw);
+
+	  m_strawlist.push_back(newstraw);
+
+	  //	      if(imod<2) m_log << MSG::INFO << "printing straw x,y,z: "<< TRTelement->strawXPos(istraw) << "-" <<  TRTelement->strawYPos(istraw)<< "-" << TRTelement->strawZPos(istraw) << endreq;
+	      
+	  if(imod<2) m_log << MSG::INFO << "Module coordinates x,y,z: "<< center.x() << " - " << center.y() << " - " << center.z() << endreq;
+
+	}
+
+
+      }
+    }
+  }
+}
+
+
+/*
+    int iendcap =0;
+
+for (unsigned int ec=0;ec<2;ec++) {
+for (unsigned int whe=0;whe<NWHEELMAX;whe++) {
+for (unsigned int sLay=0;sLay<TRTmanager->getNumerology()->getNEndcapLayers(whe);sLay++) {
+
+imod++;
+iendcap++;
+
+const TRT_EndcapElement * TRTelement = TRTmanager->getEndcapElement(ec,whe,sLay);
+HepGeom::Point3D<double> center = TRTelement->transform()*HepGeom::Point3D<double>(0,0,0);
+
+const Identifier ident = TRTelement->identify();
+	  
+m_strawidmap[ident]=imod;
+const TRT_EndcapDescriptor * TRTdescriptor;
+//	  TRT_EndcapDescriptor * TRTdescriptor;
+TRTdescriptor=TRTelement->getDescriptor();	
+
+if(iendcap<(TRTmanager->getNumerology()->getNEndcapLayers(whe)+TRTmanager->getNumerology()->getNEndcapLayers(whe+1))) m_log << MSG::INFO << "ENDCAP - printing straw start phi, inner radius, str length: "<< TRTelement->getDescriptor()->startPhi() << " - " <<  TRTelement->getDescriptor()->innerRadius()<< " - " <<  TRTelement->getDescriptor()->strawLength() << endreq;
+
+if(iendcap<(TRTmanager->getNumerology()->getNEndcapLayers(whe)+TRTmanager->getNumerology()->getNEndcapLayers(whe+1))) m_log << MSG::INFO << "ENDCAP - Module coordinates x,y,z: "<< center.x() << " - " << center.y() << " - " << center.z() << endreq;
+
+for (int istraw=1;istraw<=TRTdescriptor->nStraws(); istraw++) {
+
+AlignStraw newstraw;
+
+newstraw.set_radius(center.r());
+newstraw.set_phi(center.phi());
+newstraw.set_z(center.z());
+newstraw.set_det(2);
+newstraw.set_index(imod+istraw);
+	      
+m_strawlist.push_back(newstraw);
+
+
+
+}
+	  
+}
+}
+*/
+  
+
+ATH_MSG_DEBUG( "Done SetupGeometry from GeoModel");
+//	} 	
+
+}

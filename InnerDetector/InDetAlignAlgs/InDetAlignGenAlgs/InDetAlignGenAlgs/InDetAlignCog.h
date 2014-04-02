@@ -1,0 +1,173 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef INDETALIGNGENALGS_INDETALIGNCOG_H
+#define INDETALIGNGENALGS_INDETALIGNCOG_H
+
+/** @file InDetAlignCog.h
+ *  @brief Algorithm for ID cog calculation
+ *  @author Sergio Gonzalez-Sevilla <sevilla@cern.ch>
+ *  Chi2-based version:
+ *  Pawel Bruckman de Renstrom <bruckman@cern.ch>
+ **/
+
+
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "InDetAlignGenTools/IInDetAlignDBTool.h"
+#include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
+#include "CLHEP/Geometry/Transform3D.h"
+#include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Matrix/Matrix.h"
+#include "CLHEP/Matrix/SymMatrix.h"
+
+class PixelID;
+class SCT_ID;
+class TRT_ID;
+class ITRT_AlignDbSvc;
+
+namespace InDetDD {
+  class SiDetectorManager;
+  class PixelDetectorManager;
+  class SCT_DetectorManager;
+  class TRT_DetectorManager;
+  class SiDetectorElement;
+}
+
+class InDetAlignCog : public AthAlgorithm {
+ public:
+  InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator);
+  StatusCode initialize();
+  StatusCode execute();
+  StatusCode finalize();
+  
+ private:
+  StatusCode getSiElements(const InDetDD::SiDetectorManager*,const bool);  
+  StatusCode getTRT_Elements(const bool);  
+  StatusCode shiftIDbyCog();
+  StatusCode addL1();
+
+  StatusCode enableCoG(HepGeom::Transform3D&, bool, bool, bool, bool, bool, bool);
+  StatusCode normalizeTransform(HepGeom::Transform3D&, const int);
+  void scaleTransform(HepGeom::Transform3D&, const float);
+  
+  HepGeom::Transform3D sumTransforms(const HepGeom::Transform3D&,
+			       const HepGeom::Transform3D&) const;
+
+  void prepareDerivative(const HepGeom::Transform3D&, const bool=false);
+  void accumulate(const HepGeom::Transform3D&, double* );
+  void accumulateChi2(const HepGeom::Transform3D&, CLHEP::HepSymMatrix&, CLHEP::HepVector&, const double* );
+
+  std::string printTransform(const HepGeom::Transform3D&) const;
+  bool testIdentity(const HepGeom::Transform3D&,double,double) const;
+  const HepGeom::Transform3D getL1Transform(int bec);
+ 
+ private:
+
+
+  // managers
+  const InDetDD::PixelDetectorManager *m_Pixel_Manager;
+  const InDetDD::SCT_DetectorManager *m_SCT_Manager;
+  const InDetDD::TRT_DetectorManager *m_TRT_Manager;
+  
+  // helpers
+  const PixelID *m_pixid;
+  const SCT_ID *m_sctid;
+  const TRT_ID *m_trtid;
+
+  // IInDetAlignDBTool
+  ToolHandle <IInDetAlignDBTool> m_IDAlignDBTool; 
+
+  // TRTAlignDbTool
+  // ToolHandle<ITRTAlignDbTool> m_TRTAlignDbTool; 
+  ServiceHandle<ITRT_AlignDbSvc> m_TRTAlignDbTool; 
+  
+  // Select which detectors will be considered for cog calculation 
+  int m_det;       //!< Pixel=1, SCT=2, Pixel+SCT=12, TRT=3, all (silicon and TRT)=99
+  int m_Si_bec;    //!< Barrel=1, Endcaps=+-2, all (silicon)=99
+  int m_TRT_bec;   //!< Barrel=-1, Endcaps=+-2, all (TRT)=99
+  int m_Si_layer;  //!< a particular silicon layer or all (silicon)=99
+  int m_TRT_layer; //!< a particular TRT layer or all (TRT)=99
+
+  bool m_firstEvent;
+  bool m_fullMatrix;
+  bool m_printDB;
+  bool m_SiTxtOutput;  //!< output  Si constants to txt file ?
+  bool m_TRT_TxtOutput;//!< output TRT constants to txt file ?
+  bool m_useChi2;      // if to use the Chi2 fit
+
+  double  m_errTrans; //!< acceptable value for residual global translation
+  double  m_errRot;   //!< acceptable value for residual global rotation angles
+  double  m_sigXpixB; //!< assumed error for Pixel barrel local X matchnig in the Xi2 method
+  double  m_sigYpixB;
+  double  m_sigZpixB;
+  double  m_sigXpixE; //!< assumed error for Pixel endcap local X matchnig in the Xi2 method
+  double  m_sigYpixE;
+  double  m_sigZpixE;
+  double  m_sigXsctB; //!< assumed error for SCT barrel local X matchnig in the Xi2 method
+  double  m_sigYsctB;
+  double  m_sigZsctB;
+  double  m_sigXsctE;
+  double  m_sigYsctE;
+  double  m_sigZsctE;
+  double  m_sigXtrtB; //!< assumed error for TRT barrel local X matchnig in the Xi2 method
+  double  m_sigYtrtB;
+  double  m_sigZtrtB;
+  double  m_sigXtrtE;
+  double  m_sigYtrtE;
+  double  m_sigZtrtE;
+
+  bool    m_doTX;
+  bool    m_doTY;
+  bool    m_doTZ;      //!< enable/disable writing of indivitual DoF's to the db
+  bool    m_doRX;
+  bool    m_doRY;
+  bool    m_doRZ;
+
+  bool    m_doCoG;    //!< enable/disable introducing the CoG correction to the output objects
+  bool    m_doL1;     //!< enable/disable introducing the arbitrary L1 correction to the output objects
+
+
+  double  m_traX;
+  double  m_traY;
+  double  m_traZ;     //!< translation/rotation values (CLHEP::mm, CLHEP::rad) for the arbitrary transformation
+  double  m_rotX;
+  double  m_rotY;
+  double  m_rotZ;
+
+
+  int     m_counter;  //!< normalization factor
+
+  std::string m_sitxtfile; //!< text file with dump of Si alignment constants after cog shift
+  std::string m_trt_txtfile; //!< text file with dump of TRT alignment constants after cog shift
+  std::string m_SQLiteTag; //!< SQLite tag name
+
+  // infinitesimal global transformations used to calculate derivatives
+  HepGeom::Transform3D m_glob_x;
+  HepGeom::Transform3D m_glob_y;
+  HepGeom::Transform3D m_glob_z;
+  HepGeom::Transform3D m_grot_x;
+  HepGeom::Transform3D m_grot_y;
+  HepGeom::Transform3D m_grot_z;
+
+  // Center-of-gravity 
+  double         m_cog[6];
+  HepGeom::Transform3D m_CoG;
+
+  // residual global transformation
+  double         m_resglob[6];
+  HepGeom::Transform3D m_ResGlob;
+
+  // Chi2 specific stuff:
+  CLHEP::HepVector*    V1;
+  CLHEP::HepVector*    V2;
+  CLHEP::HepVector*    A1;
+  CLHEP::HepVector*    A2;
+  CLHEP::HepSymMatrix* M1;
+  CLHEP::HepSymMatrix* M2;
+};
+
+#endif // INDETALIGNGENALGS_INDETALIGNCOG_H

@@ -1,0 +1,32 @@
+InDetAlignGenAlgs: main author richard.hawkings@cern.ch
+                   additional contributions: A.Hicheur@rl.ac.uk
+
+This package provides algorithms to produce the 'alignment ntuples' used
+for silicon alignment studies, and to manipulate the alignment information
+in the conditions database.
+Documentation in the doc subdirectory. The alignment database objects 
+are described in doc/InDetAlignDBS.txt
+
+Note: This package was previously known as InDetAlignAlgs and resided in
+the container InnerDetector/InDetAlignment/
+
+Algorithms:
+  InDetAlignNt - silicon hit/residual ntuple production 
+                 (see doc/InDetAlignNt.txt)
+  InDetAlignWrt - create the transient objects and optionally write to the
+             conditions database via FillIOVTool (see doc/InDetAlignWrt.txt)
+  InDetAlignTBEx - use the AlignTrks produced by InDetAlignNt to produce
+             residual histograms for the Si detectors in the testbeam,
+             compute alignment constant corrections, and save them back in the 
+             conditions database.
+             To be used as an infrastructure example to slot in more 
+             sophisticated alignment algorithms. This is obselete and has
+             been removed!
+
+In general this package should be run from InDetRecExample, by including a
+use statement to InDetAlignAlgs and one or more of the joboption file fragments
+in the share directory. Alternatively the example/alignjobOptions.py file
+contains a complete set of job options to run a reconstruction + alignment
+job in the InDetRecExample framework, and alignESDjobOptions.py contains
+job options to run alignment ntuple production from previously written
+ESDs.

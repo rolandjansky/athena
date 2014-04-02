@@ -1,0 +1,76 @@
+InDetAlignAlgs/doc/InDetAlignTBEx.txt - documentation for InDetAlignTBEx
+
+The algorithm InDetAlignTBEx provides an example of a complete alignment 
+algorithm for the combined testbeam. It uses the AlignTrk objects created
+in the transient store by InDetAlignNt to produce residual histograms for 
+each module, which are booked and filled according to the geometry information
+also set up by InDetAlignNt. Then on a specified event, the residual
+means are analysed to derive a set of alignment corrections, which 
+are then combined with the existing set of alignment objects to produce
+a new set, which can then be written to the conditions database ready for
+reuse on a subsequent iteration. This therefore shows the complete aligmment
+chain working in Athena, though the alignment algorithm itself is rather 
+simple.
+
+Joboptions (defaults in brackets)
+InDetAlignTBEx.AlignTrkCol("AlignTrk") - collection name for AlignTrks to read
+InDetAlignTBEx.NBin(50)   - number of bins in residual histograms
+InDetAlignTBEx.PixLim1(5) - bin limits for pixel r-phi residuals
+InDetAlignTBEx.PixLim2(5) - bin limits for pixel r-z residuals
+InDetAlignTBEx.SCTLim(5)  - bin limits for SCT r-phi/stereo residuals
+InDetAlignTBEx.TRun(0)     \ run and event to do the analysis/writing
+InDetAlignTBEx.TEvent(-1)   /
+InDetAlignTBEx.alg(1)        - algorithm to calculate corrections
+InDetAlignTBEx.ValidRun1(0)    \ first run and event of interval of validity 
+InDetAlignTBEx.ValidEvent1(0)  /
+InDetAlignTBEx.ValidRun2(0)    \ last run and event of interval of validity
+InDetAlignTBEx.ValidEvent2(0)  /
+InDetAlignTBEx.IOVTag("")      IOV tag string to use
+InDetAlignTBEx.WriteDBS(true)  - flag to actually write the database
+InDetAlignTBEx.globalX(0)      \
+InDetAlignTBEx.globalY(0)      |  global offset to move all modules by
+InDetAlignTBEx.globalZ(0)      /
+
+On the first event, the alignment algorithm books all the residual 
+histograms, then fills them with the tracking information on all subsequent
+events. When event Trun/Tevent is reached, alignment corrections are
+calculated according to the setting of InDetAlignTBEx.alg. If this is set
+to 1, the simple algorithm ComputeLocal() is called, which moves the
+SCT modules in local-x according to the means of the residual histograms,
+and moves the pixel modules in both local-x and local-y according to their
+residual histogram means in r-phi and r-z. This algorithm is very naive, 
+but at least produces convergent results for small shifts, and can serve
+as a template for more complicated algorithms.
+
+Next, CorrectGlobal(..) is used to calculate the global shift in the average
+detector position caused by the alignment corrections, and to apply a 
+compensating offset to all modules. This can be used to stop the modules
+moving off (the global posisiton is in principle unconstrained) or performing
+a global alignment to a specified external constraint. The exisiting 
+transforms are also taken into account at this point, allowing iteration
+on alignment corrections.
+
+Next, CreateTransforms() is used to create a new set of AlignableTransform
+objects describing the new alignment, according to the alignment data 'format'
+specified in InDetAlignDBS.txt. However, the AlignableTransform objects
+are not stored with Storegate keys /Indet/Align/PIXB1 etc, but with
+an additional /new prepended, e.g. /new/Indet/Align/PIXB1. This ensures
+they do not interfere with the existing transforms in memory under IOVSvc
+control.
+
+Finally, the new objects are written out, by triggering the SetFilterPassed
+method of the InDetAlignTBEx algorithm. This algorithm acts as a veto on
+the output stream Stream2 which contains the conditions objects, so once
+it is false, the objects are then written out to the POOL file. This also
+triggers the handle() method via the IncidentHandler service, which causes
+references to the objects to be written into the IOV database using the
+FillIOVTool. Note that the standard version of FillIOVTool does not 
+strip off the '/new' prefix from the objects, so will not write them into
+the correct database folders. I (Richard Hawkings) have a modified version
+of FillIOVTool that deals correctly with this - it might eventually be
+put in the official release.
+This rather convoluted writing step involving veto algorithms and incidents
+is the current 'standard' way to write conditions data from Athena, but
+may soon be simplified by using the registration service.
+
+

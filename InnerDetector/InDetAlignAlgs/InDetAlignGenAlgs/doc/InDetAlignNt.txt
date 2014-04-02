@@ -1,0 +1,89 @@
+InDetAlignAlgs/doc/InDetAlignNt.txt - documentation for InDetAlignNt
+
+This algorithmn produces the alignment ntuple containing the SCT/pixel and
+optionally TRT information. The ntuple is produced first as a transient
+class in the TES (class InDetAlignTrkInfo/AlignTrk) which can be manipulated
+by downstream algorithms and also written to an ntuple. The ntuple uses
+the standard athena interfaces so can be saved as an hbook or root file.
+Documentation on the ntuple contents can be found in the note at:
+
+http://rhawking.home.cern.ch/rhawking/atlas/aligntrk/ntup.ps.gz
+
+or on the ID alignment group web pages. Note that an extra field 'sinlocal'
+has recently been added to the ntuple 100, and fields 'hitcount' and 'dead'
+to ntuple 110, but this is not documented in the above note.
+
+The algorithm requires that iPatRec has already been run to produce the
+iPatTracks in the TES, and reads the geometry information from GeoModel.
+It can be run from the iPatRecExample package by including the file
+
+   InDetAlignAlgs/WriteSiNtuple.py
+
+in the job options after the iPatRec job options, and adding a use statement
+for InDetAlignAlgs in the requirements file. This job option file produces
+an ntuple in hbook format called idalign.hb; the ntuples (100 and 110) are
+produced in the IDAL subdirectory.
+
+Alternatively, the file
+
+   InDetAlignAlgs/WriteiPatTBNtuple.py 
+
+can be used to write ntuples using iPatRec in the testbeam geometry, and 
+the file 
+
+   InDetAlignAlgs/InDetAlignNt.py 
+
+provides the minimum fragments to turn on just the algorithm in the context
+of RecExTB, without specifying the ntuple storage technology.
+
+An option to use the new Trk::Track class is under development, and now
+provides all information for tracks coming from xKalman via the legacy
+converters. For legacy-converted iPatRec tracks, all information except
+the residuals and errors is available (waiting on track extrapolator 
+developments).
+
+An option to refit tracks using the new refitter tools (either from PRD or 
+RIO_OnTrack) has also recently been added. Refitting from RIO_OnTrack
+also allows the alignment ntuples to be produced from ESD data (in release
+10.0).
+
+A full list of the available joboptions is given below, with default values in 
+brackets:
+
+InDetAlignNt.PtMin (2000.)  - minimum reconstructed pt for considered tracks
+InDetAlignNt.Phi0 (0.)      \ centre and delta phi for considered modules
+InDetAlignNt.Delphi (3.3)   / can be used to study a small area of the detector
+InDetAlignNt.Etamin (-3.0)  \  min/max eta for considered modules
+InDetAlignNt.Etamax (3.0)   /
+InDetAlignNt.Zmin (-3000.) \  min/max z of considered modules
+InDetAlignNt.Zmax ( 3000.) /
+InDetAlignNt.TRT (0)    put TRT info in tracks ntuple (100) if >0
+InDetAlignNt.ECAL (0)   save associated ECAL information  (not implemented)
+InDetAlignNt.Layout (2) assume DC1 layout (=2) - not used
+InDetAlignNt.DMatrix (false) - save raw detector module matrices (do not use)
+InDetAlignNt.GlobAng (false) - save global track angles (do not use)
+InDetAlignNt.AlignNt (true) - save AlignTrk info in ntuples
+InDetAlignNt.Overlap (false) - produce histograms of overlaps
+InDetAlignNt.NewTrk (false)  - take input from Trk::Track - does not work yet
+InDetAlignNt.NewTrkCol("ConvertediPatTracks") - collection name for Trk::Tracks
+InDetAlignNt.ReadAl(false) - read level 3 alignment transforms into ntuple 110
+                            useful for checking if expected constants are there
+InDetAlignNt.Truth(true)  - read truth info from iPatRec - can be used to
+                            disable this if truth is flaky
+InDetAlignNt.Refit(false) - use trackrefitting tools to refit specified
+                            tracks (name from InDetAlignNt.NewTrk) using
+                            a track refit tool before producing alignment 
+                            ntuple.
+InDetAlignNt.RefitFromRIO(true) - if refitting, refit from RIO (default)
+                                  or PRD (false)
+InDetAlignNt.RefitTrim(false) - trim outliers from refitted track (option
+                                passed to refit method).
+InDetAlignNt.Refitter("TrkKalmanFitter") - refit tool to be used (only
+                                           TrkKalmanFitter tested so far)
+InDetAlignNt.ReFitName("AliRefitTracks") - Storegate collection name for
+                                           refitted tracks.
+InDetAlignNt.NumDeriv(false) - calculate derivatives numerically using 
+                               Trk extrapolation tools (makes it a bit slower)
+InDetAlignNt.PropagName("Trk::RungeKuttaPropagator") - name of propagator
+                            to use for numerical propagation (and 
+                            calculation of residuals from converted iPatTracks)

@@ -1,0 +1,122 @@
+InDetAlignAlgs/doc/InDetAlignDBS.txt - documentation for Alignment database
+
+The alignment database for the SCT and pixels provides a hierarchy of 
+transformation matrices (HepTransform3D) for all the modules in the silicon
+detectors (pixel and SCT). The interpretation of the transforms is done
+by GeoModel, which defines their precise meaning.
+The matrices are stored in AlignableTransform objects (defined in the
+DetDescrConditions package in DetectorDescription/DetDescrCond) each of which
+contains a list of alignable transforms and associated identifiers.
+The same scheme is used for both the DC1/DC2 and testbeam layouts.
+The heirarchy for the ID has 3 levels as follows:
+
+Storegate key
+level 1:
+/Indet/Align/ID     - offset of PIX,SCT barrel and each endcap 
+level 2:
+/Indet/Align/PIX    - offset of each of 3 pixel barrels and 2x3 endcap disks
+/Indet/Align/SCT    - offset of each of 4 SCT barrels and 2x9 endcap disks
+level 3:
+/Indet/Align/PIXB<n>  - (<n>=1-3) offset of modules on pixel barrel layer <n>
+/Indet/Align/PIXEA<n> - (<n>=1-3) offset of modules on pixel endcap A disk <n>
+/Indet/Align/PIXEC<n> - (<n>=1-3) offset of modules on pixel endcap C disk <n>
+/Indet/Align/SCTB<n>  - (<n>=1-4) offset of modules on SCT barrel layer <n>
+/Indet/Align/SCTEA<n> - (<n>=1-9) offset of modules on SCT endcap A disk <n>
+/Indet/Align/SCTEC<n> - (<n>=1-9) offset of modules on SCT endcap C disk <n>
+
+Endcap A is at z>0 and endcap C at z<0.
+
+The numbers of transforms stored in each object (for the DC1 layout) are thus:
+AlignableTransform::print  tagname:/Indet/Align/PIX vector size 6
+AlignableTransform::print  tagname:/Indet/Align/PIXEA1 vector size 96
+AlignableTransform::print  tagname:/Indet/Align/PIXEA2 vector size 96
+AlignableTransform::print  tagname:/Indet/Align/PIXEA3 vector size 96
+AlignableTransform::print  tagname:/Indet/Align/PIXB1 vector size 286
+AlignableTransform::print  tagname:/Indet/Align/PIXB2 vector size 494
+AlignableTransform::print  tagname:/Indet/Align/PIXB3 vector size 676
+AlignableTransform::print  tagname:/Indet/Align/SCT vector size 13
+AlignableTransform::print  tagname:/Indet/Align/SCTEA1 vector size 368
+AlignableTransform::print  tagname:/Indet/Align/SCTEA2 vector size 528
+AlignableTransform::print  tagname:/Indet/Align/SCTEA3 vector size 528
+AlignableTransform::print  tagname:/Indet/Align/SCTEA4 vector size 528
+AlignableTransform::print  tagname:/Indet/Align/SCTEA5 vector size 528
+AlignableTransform::print  tagname:/Indet/Align/SCTEA6 vector size 528
+AlignableTransform::print  tagname:/Indet/Align/SCTEA7 vector size 368
+AlignableTransform::print  tagname:/Indet/Align/SCTEA8 vector size 368
+AlignableTransform::print  tagname:/Indet/Align/SCTEA9 vector size 208
+AlignableTransform::print  tagname:/Indet/Align/SCTB1 vector size 768
+AlignableTransform::print  tagname:/Indet/Align/SCTB2 vector size 960
+AlignableTransform::print  tagname:/Indet/Align/SCTB3 vector size 1152
+AlignableTransform::print  tagname:/Indet/Align/SCTB4 vector size 1344
+AlignableTransform::print  tagname:/Indet/Align/ID vector size 4
+
+Within each level 3 object, the identifier used for each pair of 
+identifier,HepTransform3D is that of the corresponding module (wafer_id). Note
+their are separate ones for the rphi and stereo sides of the SCT modules.
+Within level 2 objects, the position of the layer or disk is represented
+with an identifier whose sector,ring (and side for SCT) are set to zero.
+Within level 1 objects, the layer number is additionally set to zero.
+
+For the combined testbeam, there are 3 pixel layers with 2 modules each,
+and 4 SCT layers with 4 modules each (counting rphi and stereo as separate
+layers). The numbers of transforms stored for the testbeam are:
+
+AlignableTransform::print  tagname:/Indet/Align/PIX vector size 3
+AlignableTransform::print  tagname:/Indet/Align/PIXB1 vector size 2
+AlignableTransform::print  tagname:/Indet/Align/PIXB2 vector size 2
+AlignableTransform::print  tagname:/Indet/Align/PIXB3 vector size 2
+AlignableTransform::print  tagname:/Indet/Align/SCT vector size 4
+AlignableTransform::print  tagname:/Indet/Align/SCTB1 vector size 4
+AlignableTransform::print  tagname:/Indet/Align/SCTB2 vector size 4
+AlignableTransform::print  tagname:/Indet/Align/SCTB3 vector size 4
+AlignableTransform::print  tagname:/Indet/Align/SCTB4 vector size 4
+AlignableTransform::print  tagname:/Indet/Align/ID vector size 2
+
+Within GeoModel, the level 3 objects are interpretated as transformations
+in the local coordinate system, which means x is along the module
+measuring direction (i.e. 'phi'), y is along the strips (SCT) or the
+'z' measuring direction (pixels), and z is out of the plane of the module.
+The coordinate systems are always right handed. The level 2 and level 1 objects
+are interpreted as transformations in the global coordinate system:
+ - for the full ATLAS detector, x horizontal, y vertical, z along the beamline
+ - for the testbeam, x is along the beamline, y vertical and z towards the
+   Saleve.
+
+All transforms are tested and working for the full ATLAS geometry (in release
+8.4.0). The level 3 transforms are known to be working for the testbeam,
+but the level 2 and level 1 are not known.
+
+The alignment database is enabled by including the joboption file ReadDBS.py
+(ATLAS geometry) or ReadTBDBS.py (testbeam geometry) . This enables
+the IOVDBSvc service (should eventually be enabled elsewhere) and sets the
+database name and tag, then adds all the needed folders to those monitored
+by IOVDBSvc. It also sets the 'Alignable' flags in the GeoModel SCT and pixel
+detector description services, causing them to pick up and monitor the
+alignment information.
+
+Currently, there is no 'production' alignment database, but some test
+cases are setup on atlasdev1.cern.ch (which is accessed by default). Contact
+Richard Hawkings if you want to try this out.
+
+A couple of tools exist to check what is actually in the alignment database.
+The algorithm ReadAlignTrans in DetDescrCondExample will list out details
+of the transforms (more if dumplen is set to true) - it was used to produce
+the detailed listings above. The following joboptions are required:
+
+theApp.Dlls += [ "DetDescrCondExample" ]
+theApp.TopAlg += [ "ReadAlignTrans" ]
+ReadAlignTrans=Service("ReadAlignTrans")
+ReadAlignTrans.dumplen=TRUE
+
+Grant Gorfine has also provided an algorithm to calculate the difference of
+the aligned module positions from the defaults. In the testbeam geometry,
+this can be used as follows:
+
+theApp.Dlls += ["InDetDetDescrExample"]
+theApp.TopAlg += ["TestSiAlignment/TestPixelAlignment"]
+theApp.TopAlg += ["TestSiAlignment/TestSCT_Alignment"]
+TestPixelAlignment=Service("TestPixelAlignment")
+TestPixelAlignment.ManagerName="Pixel"
+TestSCT_Alignment=Service("TestSCT_Alignment")
+TestSCT_Alignment.ManagerName="SCT"
+

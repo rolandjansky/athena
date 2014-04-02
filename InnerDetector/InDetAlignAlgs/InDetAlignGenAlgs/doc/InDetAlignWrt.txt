@@ -1,0 +1,180 @@
+InDetAlignAlgs/doc/InDetAlignWrt.txt - documentation for InDetAlignWrt
+
+This algorithm provides tools to create the transient objects for ID alignment
+in the TDS, to modify them (applying systematic or random misalignments)
+and then to write them to the conditions database.
+
+The objects are created during the processing of the first event, by using the 
+geometry information from InDetAlignNt, which must be run beforehand in the
+event processing sequence.
+
+Joboptions (defaults in brackets)
+InDetAlignWrt.Create(true)    create alignment datastructure on first event
+InDetAlignWrt.Write(false)    write data strructures to conditions database
+InDetAlignWrt.RFile("")       text file for reading \ see below
+InDetAlignWrt.WFile("")       text file for writing /
+InDetAlignWrt.dispFile("")    text recipe file for displacements - see below
+InDetAlignWrt.WriteRun(0)     \ run and event to do the writing
+InDetAlignWrt.WriteEvent(0)   /
+InDetAlignWrt.ValidRun1(0)    \ first run and event of interval of validity 
+InDetAlignWrt.ValidEvent1(0)  /
+InDetAlignWrt.ValidRun2(0)    \ last run and event of interval of validity
+InDetAlignWrt.ValidEvent2(0)  /
+InDetAlignWrt.IOVTag("")      IOV tag string to use
+InDetAlignWrt.DispMode(0)     apply displacements to database after creation
+InDetAlignWrt.DispDet(-1)     detectors to shift (1=pixel,2=SCT,-1=both)
+InDetAlignWrt.DispBec(-1)     barrel/endcap to shift (0=barrel, 2=e/c,-1=both)
+InDetAlignWrt.DispLayer(-1)   layers to shift (-1 =-all)
+InDetAlignWrt.DispRing(-1)   rings to shift (-1 =-all)
+InDetAlignWrt.DispSector(-1)   sectors to shift (-1 =-all)
+InDetAlignWrt.DispRphi(0.1)   rphi displacement to apply
+InDetAlignWrt.DispR(0.2)      r displacement to apply
+InDetAlignWrt.DispZ(0.3)      z displacement to apply
+InDetAlignWrt.Dispsyst(1)     shift randomly (1) or systematic (2)
+                              if 3/4 interpret (Rphi,R,Z) as (x,y,z)
+                              if (5) randomise the systematic shift (x,y)
+
+Two joboption fragments are provided to use this algorithm:
+  WriteDBS.txt - for writing the alignment database using full ATLAS geometry
+  WriteTBDBS.txt - for writing the alignment database for the combined testbeam
+They are very similar, the only differences being the default options set.
+The user must set the database name and tag (ConditionsDB_rh82 and xxxx_dc2
+or xxxx_ctb2 are given as examples), and the database will be created/updated
+on the atlasdev1 server - this has not yet been updated to use the production
+servers.
+At the end of the job, a write file catalogue mywrite.xml and an associated
+POOL file SimplePoolFile.root will be produced - these contain the actual
+conditions database objects, now pointed to by updated entries in the 
+IOV database, and they must be preserved, e.g. in the testbeam using the
+POOL file management tools disucssed in:
+
+http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/
+                          calibration/testbeam/poolcond.html
+
+In general the writing of conditions data is not trivial, and you should
+probably talk to Richard Hawkings before attempting it with this software(!).
+
+As an alternative, the file WritePool.py can be used to write only the POOL
+objects, without the corresponding IOV database entries, and the file
+ReadPool.py can be used to read the objects back. Unfortunately the latter
+does not quite work, as there is presently no way to call the GeoModel
+callbacks to enable the aligment constants to be activated without using
+the IOV service.
+
+
+Reading/writing using text files
+================================
+InDetAlignWrt now provides options to translate between POOL conditions data
+and simple text files. Setting 
+
+    InDetAlignWrt.wfile="mydb.txt"
+
+in WriteTBDBS.py (with InDetAlignWrt.write=TRUE) will write the alignment 
+constants to a simple textfile (mydb.txt) instead of to the IOVDB and POOL
+files. This can be used in two ways, either with InDetAlignWrt.create=TRUE
+to create a new set of alignment constants from scratch (possibly using
+InDetAlignWrt.dispmode to introduce some misalignments before saving them)
+or with InDetAlignWrt.create=FALSE and a set of alignment constants read
+in from the POOL file - this allows an existing POOL alignment database
+to be dumped to a text file (this only works for combined testbeam, not 
+for DC2). The writing still happens on the run/event
+specified by InDetAlignWrt.WriteRun and InDetAlignWrt.WriteEvent as
+for writing via POOL.
+
+Setting :
+
+     InDetAlignWrt.rfile="mydb.txt"
+
+will make InDetAlignWrt read in a set of alignment constants from the file 
+mydb.txt and use them to modify the AlignableTransforms created by having 
+InDetAlignWrt.create=TRUE. InDetAlignWrt.write can then also be set
+to write these constants to a POOL file - allowing alignment constants
+to be imported from a text file into the POOL conditions database.
+
+This tool has been set up primarily for the combined testbeam. Due to some
+problems with the identifiers, the 'SCT' and 'PIX' AlignableTransforms
+(which are intended for global shifts of complete layers, and are in any
+case not used by the testbeam GeoModel) cannot be read and written properly,
+and some warning messages will be printed ('Cannot find existing transform
+for ...' and 'Ident for unknown detector type in ...') These can safely
+be ignored.
+
+An example textfile database representation for the combined testbeam
+is given below, with O(mm) displacements for all the individual SCT and pixel
+modules:
+
+/Indet/Align/PIX
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/PIXB1
+1 0 0 5 0 0 -0.128733 -1.56757 -0.495015 0 0 0
+1 0 0 5 1 0 0.401012 0.402224 1.94232 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/PIXB2
+1 0 1 5 0 0 -0.610921 0.0917879 0.0772904 0 0 0
+1 0 1 5 1 0 -0.0247045 -0.274953 0.949225 0.1 0.2 0.3
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/PIXB3
+1 0 2 5 0 0 0.204861 1.43386 0.284171 0 0 0
+1 0 2 5 1 0 -0.69091 2.58871 0.122096 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/SCT
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/SCTB1
+2 0 0 1 0 0 -0.0687601 -2.18524 -1.93866 0 0 0
+2 0 0 1 0 1 0.0318488 -0.872103 1.03905 0 0 0
+2 0 0 1 1 0 0.798971 -0.545313 0.503613 0 0 0
+2 0 0 1 1 1 -1.10118 0.0970995 -1.46327 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/SCTB2
+2 0 1 1 0 0 0.635859 1.46525 0.540431 0 0 0
+2 0 1 1 0 1 -0.206773 -1.6062 0.710701 0 0 0
+2 0 1 1 1 0 -0.837394 1.35655 2.08447 0 0 0
+2 0 1 1 1 1 -0.35404 0.398366 0.105719 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/SCTB3
+2 0 2 1 0 0 -0.150866 1.41258 1.79273 0 0 0
+2 0 2 1 0 1 0.388456 2.74423 1.06971 0 0 0
+2 0 2 1 1 0 -0.501279 0.841515 0.957964 0 0 0
+2 0 2 1 1 1 0.156619 -1.51097 0.540872 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/SCTB4
+2 0 3 1 0 0 -0.141011 -1.69742 -0.0924625 0 0 0
+2 0 3 1 0 1 -0.182414 -1.29188 0.767111 0 0 0
+2 0 3 1 1 0 -0.157702 -1.70766 -1.48131 0 0 0
+2 0 3 1 1 1 -0.114899 -2.48781 -1.58852 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+/Indet/Align/ID
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0. 0. 0. 0. 0. 0.
+
+Reading from text recipe files
+==============================
+The string property InDetAlignWrt.dispFile can be used to specify a text
+file containing a list of recipes to be applied to generate misalignments.
+The format of the file is one or more lines of:
+
+<level> <syst> <det> <bec> <lay> <ring> <sector> <rphi> <R> <z>
+
+where <level> is 1-3 for level 1 - 3 transforms
+      <syst> 1=systematic rphi, 2=rndm rphi, 3=systematic xyz 4=rndm xyz,
+             5= randomised systematic
+             for xyz, <rphi> <r> <z> are interpreted as x y z             
+      <det> = -1 for both, 1 for pixel, 2 for SCT
+      <bec> = -1 for all, 0 for barrel, 2 for endcap (both of them)
+      <lay> = layer number, -1 for all layers numbered 0 to n-1
+      <ring> = ring number, -1 for all rings
+      <sector> = sector number, -1 for all sectors
+      <rphi> <R> and <z> are magnitudes (syst or RMS) in mm.
+
+This can be used to set up a set of random or systematic misalignments
+fr the different layers of detector.
