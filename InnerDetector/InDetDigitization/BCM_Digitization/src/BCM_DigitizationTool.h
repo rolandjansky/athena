@@ -38,22 +38,20 @@ class BCM_DigitizationTool : public PileUpToolBase {
   /** Constructor with parameters */
   BCM_DigitizationTool(const std::string& type, const std::string& name,const IInterface* parent);
 
-  virtual StatusCode initialize() override final;
+  virtual StatusCode initialize();
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents. */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents();
   /** PileUpToolBase methods */
-  virtual StatusCode prepareEvent(unsigned int nInputEvents) override;
-  virtual StatusCode processBunchXing(int bunchXing,
-                                      SubEventIterator bSubEvents,
-                                      SubEventIterator eSubEvents) override final;
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode prepareEvent(unsigned int nInputEvents);
+  virtual StatusCode processBunchXing(int bunchXing, PileUpEventInfo::SubEvent::const_iterator bSubEvents, PileUpEventInfo::SubEvent::const_iterator eSubEvents);
+  virtual StatusCode mergeEvent();
 
  private:
   /** Create the RDO and SDO containers */
-  StatusCode createOutputContainers();
-  void processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex);
-  void createRDOsAndSDOs();
+  virtual StatusCode createOutputContainers();
+  virtual void processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex);
+  virtual void createRDOsAndSDOs();
 
   /** Compute energy deposit depending on hit position */
   float computeEnergy(float simEner, HepGeom::Point3D<double> startPos, HepGeom::Point3D<double> endPos);
