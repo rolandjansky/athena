@@ -1,0 +1,17 @@
+1.34249   1.34249   1.34249
+1.32108   1.32108   1.32108
+1.30048   1.30048   1.30048
+1.43421   1.43421   1.43421
+1.41206   1.41206   1.41206
+1.39056   1.39056   1.39056
+1.41866   1.41866   1.41866
+1.39612   1.39612   1.39612
+1.37416   1.37416   1.37416
+1.35308   1.35308   1.35308
+1.32669   1.32669   1.32669
+#
+# 3 columns contains I0 parameter (normalization)
+# for barrel, ext barrel and ITC
+# lines 1-3 in ITC column are not used at all
+# lines 4-6 in ITC column contains numbers for cell B9
+# lines 7-9 for cell C10 and lines 10-11 for cell D4
