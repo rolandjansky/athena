@@ -1,0 +1,33 @@
+package MuonTrackThroughCalo
+
+author  David Lopez Mateos <David.Lopez@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+
+library MuonTrackThroughCalo *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+
+private
+
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use GaudiInterface        GaudiInterface-*        External
+
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
+use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
+use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
+
+use TrkParameters         TrkParameters-*         Tracking/TrkEvent
+use TrkExInterfaces       TrkExInterfaces-*       Tracking/TrkExtrapolation
+use TrkTrack              TrkTrack-*              Tracking/TrkEvent
+use Particle              Particle-*              Reconstruction
+
+use TrkExInterfaces       TrkExInterfaces-*       Tracking/TrkExtrapolation
+use RecoToolInterfaces    RecoToolInterfaces-*    Reconstruction/RecoTools
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+macro DOXYGEN_IMAGE_PATH "../doc/images"
