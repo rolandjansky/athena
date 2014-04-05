@@ -1,0 +1,24 @@
+package xAODEventFormat
+# $Id: requirements 579890 2014-01-24 09:26:59Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# General include(s):
+use AtlasPolicy AtlasPolicy-*
+use SGTools     SGTools-*     Control
+
+# Create the library:
+library xAODEventFormat ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+# Extra packages needed for the dictionary:
+use AtlasROOT   AtlasROOT-*   External
+use AtlasReflex AtlasReflex-* External -no_auto_imports
+
+# Generate the necessary Reflex dictionaries:
+apply_pattern lcgdict dict=xAODEventFormat selectionfile=selection.xml \
+                      headerfiles="../xAODEventFormat/xAODEventFormatDict.h"
