@@ -1,0 +1,33 @@
+package TopInputs
+
+use AtlasPolicy 		AtlasPolicy-*
+use CLIDSvc              	CLIDSvc-*              	Control
+use SGTools              	SGTools-*              	Control
+
+use DataModel			DataModel-*		Control
+
+use JetEvent			JetEvent-* 		Reconstruction/Jet
+use muonEvent			muonEvent-*		Reconstruction/MuonIdentification
+use egammaEvent			egammaEvent-*		Reconstruction/egamma
+use tauEvent			tauEvent-*		Reconstruction
+use MissingETEvent		MissingETEvent-*	Reconstruction
+use Particle			Particle-* 		Reconstruction
+
+use PhysicsElementLinks         PhysicsElementLinks-*   PhysicsAnalysis
+
+apply_pattern installed_library
+library TopInputs *.cxx
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep 
+# clients from seeing excess dependencies
+private
+use AtlasReflex        AtlasReflex-*        External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+apply_pattern lcgdict dict=TopInputs  selectionfile=selection.xml headerfiles="../TopInputs/TopInputsDict.h" \
+  dataLinks="MissingET"
+
+end_private
+
