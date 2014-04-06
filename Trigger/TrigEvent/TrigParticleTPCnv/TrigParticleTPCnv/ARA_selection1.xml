@@ -1,0 +1,175 @@
+<lcgdict>
+
+<!-- TrigTauContainer -->
+
+  <class name="T_TPCnv<TrigTauContainer,TrigTauContainer_tlp1>"/>
+  <class name="TrigTauContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigTauContainerCnv_p1,TrigTauContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigTauContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigTauContainer,TrigTauContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigTauContainer,TrigTauContainer,TrigTauContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigTauContainer,TrigTauContainer,TrigTauContainer_tlp1>"/>
+
+  <class name="T_TPCnv<TrigTauContainer,TrigTauContainer_p3>"/>
+  <class name="TrigTauContainerCnv_p3"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigTauContainer,TrigTauContainer_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigTauContainer,TrigTauContainer,TrigTauContainer_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigTauContainer,TrigTauContainer,TrigTauContainer_p3>"/>
+
+  <class name="ITPConverterFor<TrigTauContainer>"/>
+
+<!-- TrigTau -->
+
+  <class name="T_TPCnv<TrigTau,TrigTau_tlp1>"/>
+  <class name="TrigTauCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigTauCnv_p1,TrigTau_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigTau_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigTau,TrigTau_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigTau,TrigTau,TrigTau_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigTau,TrigTau,TrigTau_tlp1>"/>
+
+  <class name="T_TPCnv<TrigTau,TrigTau_tlp2>"/>
+  <class name="TrigTauCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigTauCnv_p2,TrigTau_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigTau_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigTau,TrigTau_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigTau,TrigTau,TrigTau_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigTau,TrigTau,TrigTau_tlp2>"/>
+
+  <class name="ITPConverterFor<TrigTau>"/>
+
+<!-- TrigElectronContainer -->
+
+  <class name="T_TPCnv<TrigElectronContainer,TrigElectronContainer_tlp2>"/>
+  <class name="TrigElectronContainerCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigElectronContainerCnv_p2,TrigElectronContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigElectronContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigElectronContainer,TrigElectronContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigElectronContainer,TrigElectronContainer,TrigElectronContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigElectronContainer,TrigElectronContainer,TrigElectronContainer_tlp2>"/>
+
+  <class name="T_TPCnv<TrigElectronContainer,TrigElectronContainer_tlp1>"/>
+  <class name="TrigElectronContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigElectronContainerCnv_p1,TrigElectronContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigElectronContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigElectronContainer,TrigElectronContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigElectronContainer,TrigElectronContainer,TrigElectronContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigElectronContainer,TrigElectronContainer,TrigElectronContainer_tlp1>"/>
+
+  <class name="T_TPCnv<TrigElectronContainer,TrigElectronContainer_p3>"/>
+  <class name="TrigElectronContainerCnv_p3"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigElectronContainer,TrigElectronContainer_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigElectronContainer,TrigElectronContainer,TrigElectronContainer_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigElectronContainer,TrigElectronContainer,TrigElectronContainer_p3>"/>
+  <class name="ITPConverterFor<TrigElectronContainer>"/>
+
+<!-- TrigPhotonContainer -->
+
+  <class name="T_TPCnv<TrigPhotonContainer,TrigPhotonContainer_tlp1>"/>
+  <class name="TrigPhotonContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigPhotonContainerCnv_p1,TrigPhotonContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigPhotonContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigPhotonContainer,TrigPhotonContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigPhotonContainer,TrigPhotonContainer,TrigPhotonContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigPhotonContainer,TrigPhotonContainer,TrigPhotonContainer_tlp1>"/>
+
+  <class name="T_TPCnv<TrigPhotonContainer,TrigPhotonContainer_tlp2>"/>
+  <class name="TrigPhotonContainerCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigPhotonContainerCnv_p2,TrigPhotonContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigPhotonContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigPhotonContainer,TrigPhotonContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigPhotonContainer,TrigPhotonContainer,TrigPhotonContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigPhotonContainer,TrigPhotonContainer,TrigPhotonContainer_tlp2>"/>
+
+  <class name="T_TPCnv<TrigPhotonContainer,TrigPhotonContainer_p3>"/>
+  <class name="TrigPhotonContainerCnv_p3"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigPhotonContainer,TrigPhotonContainer_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigPhotonContainer,TrigPhotonContainer,TrigPhotonContainer_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigPhotonContainer,TrigPhotonContainer,TrigPhotonContainer_p3>"/>
+
+  <class name="ITPConverterFor<TrigPhotonContainer>"/>
+
+
+<!-- TrigL2BphysContainer -->
+  
+  <class name="T_TPCnv<TrigL2BphysContainer,TrigL2BphysContainer_tlp1>"/>
+  <class name="TrigL2BphysContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigL2BphysContainerCnv_p1,TrigL2BphysContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigL2BphysContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigL2BphysContainer,TrigL2BphysContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigL2BphysContainer,TrigL2BphysContainer,TrigL2BphysContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigL2BphysContainer,TrigL2BphysContainer,TrigL2BphysContainer_tlp1>"/>
+  <class name="ITPConverterFor<TrigL2BphysContainer>"/>
+
+  <class name="T_TPCnv<TrigL2BphysContainer,TrigL2BphysContainer_tlp2>"/>
+  <class name="TrigL2BphysContainerCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigL2BphysContainerCnv_p1,TrigL2BphysContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigL2BphysContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigL2BphysContainer,TrigL2BphysContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigL2BphysContainer,TrigL2BphysContainer,TrigL2BphysContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigL2BphysContainer,TrigL2BphysContainer,TrigL2BphysContainer_tlp2>"/>
+
+<!-- TrigL2BjetContainer --> 
+  
+  <class name="T_TPCnv<TrigL2BjetContainer,TrigL2BjetContainer_tlp1>"/>
+  <class name="TrigL2BjetContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigL2BjetContainerCnv_p1,TrigL2BjetContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigL2BjetContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigL2BjetContainer,TrigL2BjetContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigL2BjetContainer,TrigL2BjetContainer,TrigL2BjetContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigL2BjetContainer,TrigL2BjetContainer,TrigL2BjetContainer_tlp1>"/>
+
+  <class name="T_TPCnv<TrigL2BjetContainer,TrigL2BjetContainer_tlp2>"/>
+  <class name="TrigL2BjetContainerCnv_tlp2"/> 
+  <class name="AthenaPoolTopLevelTPConverter<TrigL2BjetContainerCnv_p2,TrigL2BjetContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigL2BjetContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigL2BjetContainer,TrigL2BjetContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigL2BjetContainer,TrigL2BjetContainer,TrigL2BjetContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigL2BjetContainer,TrigL2BjetContainer,TrigL2BjetContainer_tlp2>"/>
+
+  <class name="T_TPCnv<TrigL2BjetContainer,TrigL2BjetContainer_p3>"/>
+  <class name="TrigL2BjetContainerCnv_p3"/> 
+  <class name="T_AthenaPoolTPCnvBase<TrigL2BjetContainer,TrigL2BjetContainer_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigL2BjetContainer,TrigL2BjetContainer,TrigL2BjetContainer_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigL2BjetContainer,TrigL2BjetContainer,TrigL2BjetContainer_p3>"/>
+  <class name="ITPConverterFor<TrigL2BjetContainer>"/>
+
+<!-- TrigEFBphysContainer -->
+
+  <class name="T_TPCnv<TrigEFBphysContainer,TrigEFBphysContainer_tlp1>"/>
+  <class name="TrigEFBphysContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigEFBphysContainerCnv_p1,TrigEFBphysContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigEFBphysContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigEFBphysContainer,TrigEFBphysContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigEFBphysContainer,TrigEFBphysContainer,TrigEFBphysContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigEFBphysContainer,TrigEFBphysContainer,TrigEFBphysContainer_tlp1>"/>
+  <class name="ITPConverterFor<TrigEFBphysContainer>"/> 
+
+  <class name="T_TPCnv<TrigEFBphysContainer,TrigEFBphysContainer_tlp2>"/>
+  <class name="TrigEFBphysContainerCnv_tlp2"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigEFBphysContainerCnv_p1,TrigEFBphysContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigEFBphysContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigEFBphysContainer,TrigEFBphysContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigEFBphysContainer,TrigEFBphysContainer,TrigEFBphysContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigEFBphysContainer,TrigEFBphysContainer,TrigEFBphysContainer_tlp2>"/>
+
+<!-- TrigEFBjetContainer -->
+
+  <class name="T_TPCnv<TrigEFBjetContainer,TrigEFBjetContainer_tlp1>"/>
+  <class name="TrigEFBjetContainerCnv_tlp1"/>
+  <class name="AthenaPoolTopLevelTPConverter<TrigEFBjetContainerCnv_p1,TrigEFBjetContainer_tlp1>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigEFBjetContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigEFBjetContainer,TrigEFBjetContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigEFBjetContainer,TrigEFBjetContainer,TrigEFBjetContainer_tlp1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigEFBjetContainer,TrigEFBjetContainer,TrigEFBjetContainer_tlp1>"/>
+
+  <class name="T_TPCnv<TrigEFBjetContainer,TrigEFBjetContainer_tlp2>"/>
+  <class name="TrigEFBjetContainerCnv_tlp2"/> 
+  <class name="AthenaPoolTopLevelTPConverter<TrigEFBjetContainerCnv_p2,TrigEFBjetContainer_tlp2>"/>
+  <class name="AthenaPoolTopLevelExtTPConverter<TrigEFBjetContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPCnvBase<TrigEFBjetContainer,TrigEFBjetContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<TrigEFBjetContainer,TrigEFBjetContainer,TrigEFBjetContainer_tlp2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<TrigEFBjetContainer,TrigEFBjetContainer,TrigEFBjetContainer_tlp2>"/>
+  <class name="ITPConverterFor<TrigEFBjetContainer>"/>
+
+</lcgdict>

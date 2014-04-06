@@ -1,0 +1,45 @@
+<lcgdict>
+
+<!-- TrigTau -->
+  <class name="TrigTau_tlp1" id="82AE3333-5398-4590-A51A-616832332D9B"  />
+  <class name="TrigTau_p1" id="9E512691-4402-48CC-B7EA-A9505CF22F52" />
+  <class name="std::vector<TrigTau_p1>" />
+
+<!-- TrigElectronContainer -->
+
+  <class name="TrigElectronContainer_tlp1"  id="8831D2A9-F4B6-40BE-97C1-4BD7F9468267" />
+  <class name="TrigElectronContainer_p1" id="E46087B3-5D3D-43DE-9B5E-60C69D7D3321" />
+  <class name="std::vector<TrigElectronContainer_p1>" />
+
+<!-- TrigElectron -->
+  <class name="TrigElectron_p1" />
+  <class name="std::vector<TrigElectron_p1>" />
+
+<!-- TrigPhotonContainer -->
+  <class name="TrigPhotonContainer_tlp1" id="7F4B4EF4-D7F6-4208-B522-4003A34EC664"/>
+  <class name="TrigPhotonContainer_p1" id="EFC2333B-C860-408F-AD4B-E21C32AA900D"/>
+  <class name="std::vector<TrigPhotonContainer_p1>" />
+
+<!-- TrigPhoton -->
+  <class name="TrigPhoton_p1"/>
+  <class name="std::vector<TrigPhoton_p1>" />
+
+<!-- TrigL2BjetContainer --> 
+  <class name="TrigL2BjetContainer_tlp1" id="716A64FC-6EAF-4851-A0C8-8CE73C43C051" /> 
+  <class name="TrigL2BjetContainer_p1" id="542E0A22-4E51-4693-85C8-AD7936059DF2" />    
+  <class name="std::vector<TrigL2BjetContainer_p1>" /> 
+
+<!-- TrigL2Bjet -->
+  <class name="TrigL2Bjet_p1" />
+  <class name="std::vector<TrigL2Bjet_p1>" />
+
+<!-- TrigEFBjetContainer -->
+  <class name="TrigEFBjetContainer_tlp1" id="F933A067-5788-4AD6-B696-C8B0E988EF2D" />
+  <class name="TrigEFBjetContainer_p1" id="1E2EAC70-D4B5-4FD2-A8EC-E38A02E72C81" />   
+  <class name="std::vector<TrigEFBjetContainer_p1>" />
+
+<!-- TrigEFBjet -->
+  <class name="TrigEFBjet_p1" />
+  <class name="std::vector<TrigEFBjet_p1>" />
+
+</lcgdict>

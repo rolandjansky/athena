@@ -1,0 +1,45 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**********************************************************************************
+ *
+ * @Project: Trigger
+ * @Package: TrigParticleTPCnv
+ * @Class  : TrigL2BjetCnv_p2
+ *
+ * @brief transient-persistent converter for TrigL2Bjet
+ *
+ * @author Andrea Coccaro  <Andrea.Coccaro@ge.infn.it>
+ *
+ **********************************************************************************/
+
+#ifndef TRIGPARTICLETPCNV_TRIGL2BJETCNV_P2_H
+#define TRIGPARTICLETPCNV_TRIGL2BJETCNV_P2_H
+
+
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
+
+#include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
+#include "TrigParticleTPCnv/TrigL2Bjet_p2.h"
+
+class MsgStream;
+
+
+class TrigL2BjetCnv_p2 : public T_AthenaPoolTPCnvBase<TrigL2Bjet, TrigL2Bjet_p2> {
+
+ public:
+
+  TrigL2BjetCnv_p2() : m_L2BjetCnv(0), m_p4PtEtaPhiMCnv(0) {}
+
+  virtual void persToTrans(const TrigL2Bjet_p2* persObj, TrigL2Bjet* transObj, MsgStream &log);
+  virtual void transToPers(const TrigL2Bjet* transObj, TrigL2Bjet_p2* persObj, MsgStream &log);
+  
+ protected:
+
+  TrigL2BjetCnv_p2*   m_L2BjetCnv;
+  P4PtEtaPhiMCnv_p1*  m_p4PtEtaPhiMCnv;
+
+};
+
+#endif
