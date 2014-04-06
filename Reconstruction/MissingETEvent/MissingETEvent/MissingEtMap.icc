@@ -1,0 +1,485 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+// #include <iostream>
+///////////////////////////////////// store size
+
+template<typename KEYOBJECT,typename REFSTORE>
+size_t
+MissingEtMap<KEYOBJECT,REFSTORE>::size() const
+{ 
+  return m_store.size(); 
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+size_t
+MissingEtMap<KEYOBJECT,REFSTORE>::getNumberOfKeys() const
+{
+  return this->size();
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+size_t
+MissingEtMap<KEYOBJECT,REFSTORE>::getNumberOfReferences() const
+{
+  const_iterator fKey = this->begin();
+  const_iterator lKey = this->end();
+  
+  size_t nRefs(0);
+  for ( ; fKey!=lKey; fKey++ )
+    {
+      nRefs += (fKey.getRefStore()).size();
+    }
+  return nRefs;
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+size_t
+MissingEtMap<KEYOBJECT,REFSTORE>::resize(size_t& newSize,data_t nullData)
+{
+  m_store.resize(newSize,nullData);
+  return m_store.size();
+}
+
+///////////////////////////////////// insertion
+
+template<typename KEYOBJECT,typename REFSTORE>
+void
+MissingEtMap<KEYOBJECT,REFSTORE>::insert(const key_t* pKey,
+					 const refobject_t* pRef,
+					 const double& weight)
+{
+  // forward to method with index
+  size_t iKey(this->index(this->find(pKey),this->begin()));
+  this->insert(pKey,iKey,pRef,weight);
+}
+template<typename KEYOBJECT,typename REFSTORE>
+void
+MissingEtMap<KEYOBJECT,REFSTORE>::insert(const key_t* pKey,
+					 const size_t& iKey, 
+					 const refobject_t* pRef,
+					 const double& weight)
+{
+  // get reference store and insert data (note that store is automatically
+  // extended to correct size!). Also, data insertion checks on double
+  // counting and performs weight accummulation.
+  // PETER
+  //  std::cout << "MissingEtMap::insert(const key_t* pKey = "
+  //	    << pKey
+  //	    << ",const size_t& iKey = "
+  //	    << iKey
+  //	    << ",const refobject_t* pRef = "
+  //	    << pRef
+  //	    << ",const double& weight = "
+  //	    << weight
+  //	    << "): old store size: "
+  //	    << (this->getRefStore(iKey)).size();
+  (this->getRefStore(iKey)).insert(pRef,weight);
+  // SILVIA
+  //(this->getRefStore(pKey)).insert(pRef,weight);
+  // also store object pointer
+  (m_store[iKey]).first = pKey;
+  //  std::cout << ", new store size: "
+  //	    << (this->getRefStore(iKey)).size()
+  //	    << std::endl;
+}
+
+///////////////////////////////////// removal
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::erase(iterator keyIter)
+{
+  iiterator fStore = m_store.erase(keyIter.getInternalIterator());
+  return iterator(fStore);
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::erase(const key_t* pKey)
+{
+  return this->erase(this->find(pKey));
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::erase(const size_t& iKey)
+{
+  if ( iKey >= m_store.size() ) return iterator(m_store.end());
+  m_store[iKey].first  = (const key_t*)0;
+  m_store[iKey].second.clear();
+  return this->getIterator(iKey);
+}
+
+///////////////////////////////////// data access
+
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::refstore_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getRefStore(const_iterator fKey) const
+{
+  return fKey.getRefStore();
+}
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::refstore_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getRefStore(iterator fKey)
+{
+  return fKey.getRefStore();
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::refstore_t & 
+MissingEtMap<KEYOBJECT,REFSTORE>::getRefStore(const key_t* pKey) const
+{
+  return this->find(pKey).getRefStore();
+}
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::refstore_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getRefStore(const key_t* pKey)
+{
+  iterator fKey = this->find(pKey);
+  if ( fKey == this->end() ) 
+    {
+      fKey.getRefStore().push_back(data_t(pKey,refstore_t()));
+      fKey = this->end(); fKey--;
+    }
+  return fKey.getRefStore();
+}
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::refstore_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getRefStore(const size_t& iKey) const
+{
+  return iKey < m_store.size() 
+    ? (m_store[iKey]).second : const_iterator(m_store.end()).getRefStore();
+}
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::refstore_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getRefStore(const size_t& iKey)
+{
+  //  std::cout << "MissingEtMap::getRefStore(const size_t& iKey = "
+  //	    << iKey << ") - store size: "
+  //	    << m_store.size()
+  //	    << "... ";
+  if ( iKey >= m_store.size() )
+    {
+      data_t nullData((const key_t*)0,refstore_t());
+      m_store.resize(iKey+1,nullData);
+      //      std::cout << "need to resize, new size: " 
+      //		<< m_store.size();
+    } 
+  //  std::cout << " " << std::endl;
+  return (m_store[iKey]).second;
+}
+
+///////////////////////////////////// data access
+
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::key_t*
+MissingEtMap<KEYOBJECT,REFSTORE>::getKeyPtr(const_iterator fKey) const
+{
+  return fKey.getKeyObject();
+}
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::key_t*
+MissingEtMap<KEYOBJECT,REFSTORE>::getKeyPtr(const size_t& iKey) const
+{
+  return iKey < m_store.size() ? (m_store[iKey]).first : (const key_t*)0;
+}
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::key_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getKey(const_iterator fKey) const
+{
+  return *(this->getKeyPtr(fKey));
+}
+template<typename KEYOBJECT,typename REFSTORE>
+const typename MissingEtMap<KEYOBJECT,REFSTORE>::key_t&
+MissingEtMap<KEYOBJECT,REFSTORE>::getKey(const size_t& iKey) const
+{
+  return *(this->getKeyPtr(iKey)); 
+}
+
+///////////////////////////////////// find a key
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::const_iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::find(const size_t& iKey) const
+{
+  // input key invalid or non-valid pointer in map
+  if ( iKey >= m_store.size() || (m_store[iKey]).first == 0 )
+    {
+      return this->end();
+    }
+
+  // find valid iterator
+  return this->getIterator(iKey);
+//   iconst_iterator fKey = m_store.begin();
+//   size_t iCtr(0);
+//   while ( iCtr < iKey && fKey != m_store.end() ) { iCtr++; fKey++; }
+//   return const_iterator(fKey);
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::find(const size_t& iKey)
+{
+  // input key invalid or non-valid pointer in map
+  if ( iKey >= m_store.size() || (m_store[iKey]).first == 0 )
+    {
+      return this->end();
+    }
+
+  // find valid iterator
+  return this->getIterator(iKey);
+//   iiterator fKey = m_store.begin();
+//   for ( size_t i=0; i<iKey; i++ ) { fKey++; }
+//   return iterator(fKey);
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::const_iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::find(const key_t* pKey) const
+{
+  if ( pKey == 0 ) return this->end();
+  // search our store
+  const_iterator fKey = this->begin();
+  const_iterator lKey = this->end();
+  while ( fKey != lKey && fKey.getKeyObject() != pKey ) { fKey++; }
+  return fKey;
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iterator
+MissingEtMap<KEYOBJECT,REFSTORE>::find(const key_t* pKey)
+{
+  if ( pKey == 0 ) return this->end();
+  // search our store
+  iterator fKey = this->begin();
+  iterator lKey = this->end();
+  while ( fKey != lKey && fKey.getKeyObject() != pKey ) { fKey++; }
+  return fKey;
+}
+
+///////////////////////////////
+// Reference Store Iterators //
+///////////////////////////////
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::ref_iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::begin(iterator fKey)
+{
+  return this->getRefStore(fKey).begin();
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::const_ref_iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::begin(const_iterator fKey) const
+{
+  return this->getRefStore(fKey).begin();
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::ref_iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::end(iterator fKey)
+{
+  return this->getRefStore(fKey).end();
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::const_ref_iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::end(const_iterator fKey) const
+{
+  return this->getRefStore(fKey).end();
+}
+
+////////////////
+// Debug Help //
+////////////////
+
+template<typename KEYOBJECT,typename REFSTORE>
+void MissingEtMap<KEYOBJECT,REFSTORE>::dump(MsgStream& report,
+					    MSG::Level msgLvl,
+					    const std::string& mapName) const
+{
+  size_t mapSize(this->size());
+  report << msgLvl
+	 << "MissingEtMap[\042" << this->getMapType() << "\042] <" 
+	 << mapName << "> has "
+	 << mapSize << " entries (may be pre-allocated only!)."
+	 << endreq;
+  const_iterator fMap = this->begin();
+  const_iterator lMap = this->end();
+  unsigned int nPtrs(0);
+  unsigned int nRefs(0);
+  unsigned int nNull(0);
+  std::vector<unsigned int> nHist; nHist.resize(5,0);
+  for ( ; fMap != lMap; fMap++ )
+    {
+      if ( fMap.getKeyObject() != 0 )
+	{
+	  nPtrs++;
+	  size_t iRefs((fMap.getRefStore()).size());
+	  nRefs += iRefs;
+	  if ( iRefs < nHist.size() - 1 )
+	    {
+	      (nHist[iRefs])++;
+	    }
+	  else
+	    {
+	      (nHist[nHist.size()-1])++;
+	    }
+	}
+      else
+	{
+	  nNull++;
+	}
+    }
+  if ( mapSize > 0 )
+    {
+      double xPtrs(((double)nPtrs/(double)mapSize)*10000.);
+      int    iPtrs((int)xPtrs); xPtrs = ((double)iPtrs)/100.;
+      double xRefs = nPtrs > 0
+	? ((double)nRefs)/((double)nPtrs)*100. : 0.;
+      int    iRefs((int)xRefs); xRefs = ((double)iRefs)/100.;
+      report << msgLvl << "MissingEtMap <" << mapName << "> has "
+	     << nPtrs << "/" << xPtrs << "% valid pointers, with " 
+	     << "on average " 
+	     << xRefs << " asscociations per pointer "
+	     << "(total associations: "
+	     << nRefs << ")"
+	     << endreq;
+      if ( nRefs > 0 )
+	{
+	  std::vector<double> xHist; xHist.resize(nHist.size(),0.);
+	  for ( size_t i=0; i<nHist.size(); i++ )
+	    {
+	      xHist[i] = 
+		(double)(int(((double)nHist[i] /(double)nPtrs)*10000.))/100.;
+	    }
+	  report << msgLvl << "MissingEtMap <" << mapName << "> has "
+		 << "pointers with: " << endreq;
+	  for ( size_t i=0; i<nHist.size()-1;i++ )
+	    {
+	      report << msgLvl << "        " << i << " associations: "
+		     << std::setw(5) << xHist[i] << "% (total "
+		     << nHist[i]
+		     << ")" << endreq;
+	    }
+	  report << msgLvl <<  "      >=" << nHist.size()-1 
+		 << " associations: "
+		 << std::setw(5) << xHist[nHist.size()-1] << "% (total "
+		 << nHist[nHist.size()-1]
+		 << ")" << endreq;
+	}
+      
+    }
+}
+
+// template<typename KEYOBJECT,typename REFSTORE>
+// size_t MissingEtMap<KEYOBJECT,REFSTORE>::index(iterator fKey,
+// 					       iterator bKey) const
+// {
+//   return fKey-bKey;
+// }
+
+template<typename KEYOBJECT,typename REFSTORE>
+size_t MissingEtMap<KEYOBJECT,REFSTORE>::index(const_iterator fKey,
+					       const_iterator bKey) const
+{
+  return fKey-bKey;
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+size_t MissingEtMap<KEYOBJECT,REFSTORE>::index(iterator fKey,
+					       iterator bKey) const
+{
+  return fKey-bKey;
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+template<class object_type>
+bool MissingEtMap<KEYOBJECT,REFSTORE>::getObjects(typename std::vector<const object_type*>& objects,std::vector<double>& weights) const
+{
+  objects.clear();
+  weights.clear();
+
+  const object_type * test_obj = 0;
+
+  const_iterator fMap = this->begin();
+  const_iterator lMap = this->end();
+  for ( ; fMap != lMap; fMap++ )
+  {
+    if ( fMap.getKeyObject() != 0 )
+    {
+      MissingEtDefaultRefStore::MissingEtDefaultRefStoreConstIterator itr(fMap.getRefStore().begin());
+      MissingEtDefaultRefStore::MissingEtDefaultRefStoreConstIterator end_itr(fMap.getRefStore().end());
+      for ( ; itr != end_itr; itr++ )
+      {
+        test_obj = dynamic_cast<const object_type *>(itr.getObjectPtr());
+        if (test_obj != 0)
+        {
+          if ( std::find(objects.begin(),objects.end(),test_obj) == objects.end() )
+          {
+            objects.push_back(test_obj);
+            weights.push_back(itr.getWeight());
+          }
+        }
+      }//loop over vector of objects associated to cluster
+    }//key object pointer exists
+  }//loop over rows in map
+
+  return true;
+}//end getObjects()
+
+// internal iterator access (protected methods)
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::getIterator(size_t iKey)
+{
+  return iterator(getIIterator(iKey));
+}
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::const_iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::getIterator(size_t iKey) const
+{
+  return iterator(getIIterator(iKey));
+}
+
+//template<typename KEYOBJECT,typename REFSTORE>
+//typename MissingEtMap<KEYOBJECT,REFSTORE>::iiterator 
+//MissingEtMap<KEYOBJECT,REFSTORE>::getIIterator(size_t iKey)
+//{
+//  iiterator fIter(m_store.begin());
+//  size_t iCtr(0);
+//  while ( fIter != m_store.end() && iCtr < iKey ) { ++fIter; ++iCtr; }
+//  return fIter;
+//}
+
+//FIX by Rolf to speed up MET
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iiterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::getIIterator(size_t iKey)
+{
+   // iiterator fIter(m_store.begin());
+   size_t iCtr(0);
+   // while ( fIter != m_store.end() && iCtr < iKey ) { ++fIter; ++iCtr; }
+   // return fIter;
+   iCtr =  iKey < m_store.size() ? iKey : m_store.size();
+   return (m_store.begin()+iCtr);
+}
+ 
+ 
+
+template<typename KEYOBJECT,typename REFSTORE>
+typename MissingEtMap<KEYOBJECT,REFSTORE>::iconst_iterator 
+MissingEtMap<KEYOBJECT,REFSTORE>::getIIterator(size_t iKey) const
+{
+  iiterator fIter(m_store.begin());
+  size_t iCtr(0);
+  while ( iCtr < iKey && fIter != m_store.end() ) { ++fIter; ++iCtr; }
+  return fIter;
+}
