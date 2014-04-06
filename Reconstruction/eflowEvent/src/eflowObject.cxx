@@ -127,9 +127,12 @@ const Analysis::Muon* eflowObject::muon() const         {
 
 
 // new interface supports persistency
-void eflowObject::addClus(const ElementLink<CaloClusterContainer>& clusElementLink)
+void eflowObject::addClus(ElementLink<CaloClusterContainer> clusElementLink)
 {
-  m_eflowClus.addElement(clusElementLink);
+
+  const CaloCluster* clus = *clusElementLink;
+  const CaloClusterContainer* container = clusElementLink.getDataPtr();
+  m_eflowClus.addElement(container,clus);
 }
 
 void eflowObject::addClus(const CaloCluster* clus)
@@ -142,12 +145,11 @@ void eflowObject::addClus(const CaloCluster* clus)
 }
 
 
-void eflowObject::addTrack(const ElementLink<Rec::TrackParticleContainer>& trackElementLink)
+void eflowObject::addTrack(ElementLink<Rec::TrackParticleContainer> trackElementLink)
 {
-  //const Rec::TrackParticleContainer* trackContainer = trackElementLink.getDataPtr();
-  //const Rec::TrackParticle* track = *trackElementLink;
-  //m_eflowTrack.addElement(trackContainer,track);
-  m_eflowTrack.addElement(trackElementLink);
+  const Rec::TrackParticleContainer* trackContainer = trackElementLink.getDataPtr();
+  const Rec::TrackParticle* track = *trackElementLink;
+  m_eflowTrack.addElement(trackContainer,track);
 }
 
 ////////////////
@@ -383,8 +385,8 @@ eflowObject::toToken(const CONT&  theData,
     }
 }
 
-const ElementLink<Analysis::MuonContainer>& eflowObject::muonLink() const { return m_muonElementLink;}
+ElementLink<Analysis::MuonContainer> eflowObject::muonLink() const { return m_muonElementLink;}
 
-const ElementLink<VxContainer>& eflowObject::conversionLink() const { return m_convElementLink;}
+ElementLink<VxContainer> eflowObject::conversionLink() const { return m_convElementLink;}
 		     
 	  

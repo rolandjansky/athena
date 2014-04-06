@@ -18,7 +18,7 @@ PURPOSE:  eflow tau object data class - stores information we need to pass to ea
 
 #include "Particle/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "AthLinks/ElementLinkVector.h"
+#include "DataModel/ElementLinkVector.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
