@@ -1,0 +1,212 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/********************************************************************
+
+NAME:     EMShower.icc
+
+
+AUTHORS:  J. Mitrevski
+CREATED:  May. 13, 2011
+
+PURPOSE:  Make the accessors inline
+
+*******************************************************************/
+
+/// additional wrapper methods
+inline double EMShower::e011()        const { return parameter(egammaParameters::e011)     ;} 
+inline double EMShower::e033()        const { return parameter(egammaParameters::e033)     ;} 
+inline double EMShower::e132()        const { return parameter(egammaParameters::e132)     ;} 
+inline double EMShower::e1152()       const { return parameter(egammaParameters::e1152)    ;} 
+inline double EMShower::ethad1()      const { return parameter(egammaParameters::ethad1)   ;} 
+inline double EMShower::ethad()       const { return parameter(egammaParameters::ethad)    ;} 
+inline double EMShower::ehad1()       const { return parameter(egammaParameters::ehad1)    ;} 
+inline double EMShower::f1()          const { return parameter(egammaParameters::f1)       ;} 
+inline double EMShower::f3()          const { return parameter(egammaParameters::f3)       ;} 
+inline double EMShower::f1core()      const { return parameter(egammaParameters::f1core)   ;} 
+inline double EMShower::f3core()      const { return parameter(egammaParameters::f3core)   ;} 
+inline double EMShower::e233()        const { return parameter(egammaParameters::e233)     ;} 
+inline double EMShower::e235()        const { return parameter(egammaParameters::e235)     ;} 
+inline double EMShower::e255()        const { return parameter(egammaParameters::e255)     ;} 
+inline double EMShower::e237()        const { return parameter(egammaParameters::e237)     ;} 
+inline double EMShower::e277()        const { return parameter(egammaParameters::e277)     ;} 
+inline double EMShower::e333()        const { return parameter(egammaParameters::e333)     ;} 
+inline double EMShower::e335()        const { return parameter(egammaParameters::e335)     ;} 
+inline double EMShower::e337()        const { return parameter(egammaParameters::e337)     ;} 
+inline double EMShower::e377()        const { return parameter(egammaParameters::e377)     ;} 
+inline double EMShower::weta1()       const { return parameter(egammaParameters::weta1)    ;} 
+inline double EMShower::weta2()       const { return parameter(egammaParameters::weta2)    ;} 
+inline double EMShower::e2ts1()       const { return parameter(egammaParameters::e2ts1)    ;} 
+inline double EMShower::e2tsts1()     const { return parameter(egammaParameters::e2tsts1)  ;} 
+inline double EMShower::fracs1()      const { return parameter(egammaParameters::fracs1)   ;} 
+inline double EMShower::widths1()     const { return parameter(egammaParameters::widths1)  ;}
+inline double EMShower::widths2()     const { return parameter(egammaParameters::widths2)  ;}
+inline double EMShower::poscs1()      const { return parameter(egammaParameters::poscs1)   ;}
+inline double EMShower::poscs2()      const { return parameter(egammaParameters::poscs2)   ;}
+inline double EMShower::asy1()        const { return parameter(egammaParameters::asy1)     ;} 
+inline double EMShower::pos()         const { return parameter(egammaParameters::pos)      ;} 
+inline double EMShower::pos7()        const { return parameter(egammaParameters::pos7)     ;} 
+inline double EMShower::barys1()      const { return parameter(egammaParameters::barys1)   ;} 
+inline double EMShower::wtots1()      const { return parameter(egammaParameters::wtots1)   ;} 
+inline double EMShower::emins1()      const { return parameter(egammaParameters::emins1)   ;} 
+inline double EMShower::emaxs1()      const { return parameter(egammaParameters::emaxs1)   ;} 
+inline double EMShower::etcone()      const { return parameter(egammaParameters::etcone)   ;} 
+inline double EMShower::etcone15()    const { return parameter(egammaParameters::etcone15) ;} 
+inline double EMShower::etcone20()    const { return parameter(egammaParameters::etcone20) ;} 
+inline double EMShower::etcone25()    const { return parameter(egammaParameters::etcone25) ;} 
+inline double EMShower::etcone30()    const { return parameter(egammaParameters::etcone30) ;} 
+inline double EMShower::etcone35()    const { return parameter(egammaParameters::etcone35) ;} 
+inline double EMShower::etcone40()    const { return parameter(egammaParameters::etcone40) ;} 
+inline double EMShower::etconoisedR04Sig2() const { return parameter(egammaParameters::etconoisedR04Sig2) ;} 
+inline double EMShower::etconoisedR04Sig3() const { return parameter(egammaParameters::etconoisedR04Sig3) ;} 
+inline double EMShower::etconoisedR02SigAbs2() const { return parameter(egammaParameters::etconoisedR02SigAbs2) ;} 
+inline double EMShower::etconoisedR02SigAbs3() const { return parameter(egammaParameters::etconoisedR02SigAbs3) ;} 
+inline double EMShower::etconoisedR03SigAbs2() const { return parameter(egammaParameters::etconoisedR03SigAbs2) ;} 
+inline double EMShower::etconoisedR03SigAbs3() const { return parameter(egammaParameters::etconoisedR03SigAbs3) ;} 
+inline double EMShower::etconoisedR04SigAbs2() const { return parameter(egammaParameters::etconoisedR04SigAbs2) ;} 
+inline double EMShower::etconoisedR04SigAbs3() const { return parameter(egammaParameters::etconoisedR04SigAbs3) ;} 
+inline double EMShower::r33over37allcalo()         const { return parameter(egammaParameters::r33over37allcalo)      ;} 
+inline double EMShower::ecore()       const { return parameter(egammaParameters::ecore)    ;} 
+inline double EMShower::zvertex()     const { return parameter(egammaParameters::zvertex)  ;} 
+inline double EMShower::errz()        const { return parameter(egammaParameters::errz)     ;} 
+inline double EMShower::etap()        const { return parameter(egammaParameters::etap)     ;} 
+inline double EMShower::depth()       const { return parameter(egammaParameters::depth)    ;} 
+inline double EMShower::etringnoisedR03Sig2()       const { return parameter(egammaParameters::etringnoisedR03Sig2)    ;} 
+inline double EMShower::etringnoisedR03Sig3()       const { return parameter(egammaParameters::etringnoisedR03Sig3)    ;} 
+inline double EMShower::etringnoisedR03Sig4()       const { return parameter(egammaParameters::etringnoisedR03Sig4)    ;} 
+inline double EMShower::etringnoisedR04Sig2()       const { return parameter(egammaParameters::etringnoisedR04Sig2)    ;} 
+inline double EMShower::etringnoisedR04Sig3()       const { return parameter(egammaParameters::etringnoisedR04Sig3)    ;} 
+inline double EMShower::etringnoisedR02SigAbs2()       const { return parameter(egammaParameters::etringnoisedR02SigAbs2)    ;} 
+inline double EMShower::etringnoisedR02SigAbs3()       const { return parameter(egammaParameters::etringnoisedR02SigAbs3)    ;} 
+inline double EMShower::etringnoisedR03SigAbs2()       const { return parameter(egammaParameters::etringnoisedR03SigAbs2)    ;} 
+inline double EMShower::etringnoisedR03SigAbs3()       const { return parameter(egammaParameters::etringnoisedR03SigAbs3)    ;} 
+inline double EMShower::etringnoisedR04SigAbs2()       const { return parameter(egammaParameters::etringnoisedR04SigAbs2)    ;} 
+inline double EMShower::etringnoisedR04SigAbs3()       const { return parameter(egammaParameters::etringnoisedR04SigAbs3)    ;} 
+inline int EMShower::linkIndex()       const { return (int)parameter(egammaParameters::linkIndex);} 
+inline double EMShower::ptcone20()       const { return parameter(egammaParameters::ptcone20);} 
+inline double EMShower::ptcone30()       const { return parameter(egammaParameters::ptcone30);} 
+inline double EMShower::ptcone40()       const { return parameter(egammaParameters::ptcone40);} 
+inline double EMShower::nucone20()       const { return parameter(egammaParameters::nucone20);} 
+inline double EMShower::nucone30()       const { return parameter(egammaParameters::nucone30);} 
+inline double EMShower::nucone40()       const { return parameter(egammaParameters::nucone40);} 
+inline double EMShower::ptcone20_zpv05()       const { return parameter(egammaParameters::ptcone20_zpv05);} 
+inline double EMShower::ptcone30_zpv05()       const { return parameter(egammaParameters::ptcone30_zpv05);} 
+inline double EMShower::ptcone40_zpv05()       const { return parameter(egammaParameters::ptcone40_zpv05);} 
+inline double EMShower::nucone20_zpv05()       const { return parameter(egammaParameters::nucone20_zpv05);} 
+inline double EMShower::nucone30_zpv05()       const { return parameter(egammaParameters::nucone30_zpv05);} 
+inline double EMShower::nucone40_zpv05()       const { return parameter(egammaParameters::nucone40_zpv05);} 
+inline double EMShower::etcone15_ptcorrected()    const { return parameter(egammaParameters::etcone15_ptcorrected) ;}
+inline double EMShower::etcone20_ptcorrected()    const { return parameter(egammaParameters::etcone20_ptcorrected) ;}
+inline double EMShower::etcone25_ptcorrected()    const { return parameter(egammaParameters::etcone25_ptcorrected) ;}
+inline double EMShower::etcone30_ptcorrected()    const { return parameter(egammaParameters::etcone30_ptcorrected) ;}
+inline double EMShower::etcone35_ptcorrected()    const { return parameter(egammaParameters::etcone35_ptcorrected) ;}
+inline double EMShower::etcone40_ptcorrected()    const { return parameter(egammaParameters::etcone40_ptcorrected) ;}
+inline double EMShower::etcone20_corrected()    const { return parameter(egammaParameters::etcone20_corrected) ;}
+inline double EMShower::etcone30_corrected()    const { return parameter(egammaParameters::etcone30_corrected) ;}
+inline double EMShower::etcone40_corrected()    const { return parameter(egammaParameters::etcone40_corrected) ;}
+inline double EMShower::topoetcone20()              const { return parameter(egammaParameters::topoetcone20) ;}
+inline double EMShower::topoetcone30()              const { return parameter(egammaParameters::topoetcone30) ;}
+inline double EMShower::topoetcone40()              const { return parameter(egammaParameters::topoetcone40) ;}
+inline double EMShower::topoetcone40_ptcorrected()  const { return parameter(egammaParameters::topoetcone40_ptcorrected) ;}
+inline double EMShower::topoetcone40_corrected()    const { return parameter(egammaParameters::topoetcone40_corrected) ;}
+
+//
+// set values for the different variables in the EMShower object
+//
+inline void EMShower::set_e011(double x)        {  set_parameter(egammaParameters::e011,x)     ;} 
+inline void EMShower::set_e033(double x)        {  set_parameter(egammaParameters::e033,x)     ;} 
+inline void EMShower::set_e132(double x)        {  set_parameter(egammaParameters::e132,x)     ;} 
+inline void EMShower::set_e1152(double x)       {  set_parameter(egammaParameters::e1152,x)    ;} 
+inline void EMShower::set_ethad1(double x)      {  set_parameter(egammaParameters::ethad1,x)   ;} 
+inline void EMShower::set_ethad(double x)       {  set_parameter(egammaParameters::ethad,x)    ;} 
+inline void EMShower::set_ehad1(double x)       {  set_parameter(egammaParameters::ehad1,x)    ;} 
+inline void EMShower::set_f1(double x)          {  set_parameter(egammaParameters::f1,x)       ;} 
+inline void EMShower::set_f3(double x)          {  set_parameter(egammaParameters::f3,x)       ;} 
+inline void EMShower::set_f1core(double x)      {  set_parameter(egammaParameters::f1core,x)   ;} 
+inline void EMShower::set_f3core(double x)      {  set_parameter(egammaParameters::f3core,x)   ;} 
+inline void EMShower::set_e233(double x)        {  set_parameter(egammaParameters::e233,x)     ;} 
+inline void EMShower::set_e235(double x)        {  set_parameter(egammaParameters::e235,x)     ;} 
+inline void EMShower::set_e255(double x)        {  set_parameter(egammaParameters::e255,x)     ;} 
+inline void EMShower::set_e237(double x)        {  set_parameter(egammaParameters::e237,x)     ;} 
+inline void EMShower::set_e277(double x)        {  set_parameter(egammaParameters::e277,x)     ;} 
+inline void EMShower::set_e333(double x)        {  set_parameter(egammaParameters::e333,x)     ;} 
+inline void EMShower::set_e335(double x)        {  set_parameter(egammaParameters::e335,x)     ;} 
+inline void EMShower::set_e337(double x)        {  set_parameter(egammaParameters::e337,x)     ;} 
+inline void EMShower::set_e377(double x)        {  set_parameter(egammaParameters::e377,x)     ;} 
+inline void EMShower::set_weta1(double x)       {  set_parameter(egammaParameters::weta1,x)    ;} 
+inline void EMShower::set_weta2(double x)       {  set_parameter(egammaParameters::weta2,x)    ;} 
+inline void EMShower::set_e2ts1(double x)       {  set_parameter(egammaParameters::e2ts1,x)    ;} 
+inline void EMShower::set_e2tsts1(double x)     {  set_parameter(egammaParameters::e2tsts1,x)  ;} 
+inline void EMShower::set_fracs1(double x)      {  set_parameter(egammaParameters::fracs1,x)   ;} 
+inline void EMShower::set_widths1(double x)     {  set_parameter(egammaParameters::widths1,x)  ;} 
+inline void EMShower::set_widths2(double x)     {  set_parameter(egammaParameters::widths2,x)  ;}
+inline void EMShower::set_poscs1(double x)      {  set_parameter(egammaParameters::poscs1,x)   ;} 
+inline void EMShower::set_poscs2(double x)      {  set_parameter(egammaParameters::poscs2,x)   ;} 
+inline void EMShower::set_asy1(double x)        {  set_parameter(egammaParameters::asy1,x)     ;} 
+inline void EMShower::set_pos(double x)         {  set_parameter(egammaParameters::pos,x)      ;} 
+inline void EMShower::set_pos7(double x)        {  set_parameter(egammaParameters::pos7,x)     ;} 
+inline void EMShower::set_barys1(double x)      {  set_parameter(egammaParameters::barys1,x)   ;} 
+inline void EMShower::set_wtots1(double x)      {  set_parameter(egammaParameters::wtots1,x)   ;} 
+inline void EMShower::set_emins1(double x)      {  set_parameter(egammaParameters::emins1,x)   ;} 
+inline void EMShower::set_emaxs1(double x)      {  set_parameter(egammaParameters::emaxs1,x)   ;} 
+inline void EMShower::set_etcone(double x)      {  set_parameter(egammaParameters::etcone,x)   ;} 
+inline void EMShower::set_etcone15(double x)    {  set_parameter(egammaParameters::etcone15,x) ;} 
+inline void EMShower::set_etcone20(double x)    {  set_parameter(egammaParameters::etcone20,x) ;} 
+inline void EMShower::set_etcone25(double x)    {  set_parameter(egammaParameters::etcone25,x) ;} 
+inline void EMShower::set_etcone30(double x)    {  set_parameter(egammaParameters::etcone30,x) ;} 
+inline void EMShower::set_etcone35(double x)    {  set_parameter(egammaParameters::etcone35,x) ;} 
+inline void EMShower::set_etcone40(double x)    {  set_parameter(egammaParameters::etcone40,x) ;} 
+inline void EMShower::set_etconoisedR04Sig2(double x) {  set_parameter(egammaParameters::etconoisedR04Sig2,x) ;} 
+inline void EMShower::set_etconoisedR04Sig3(double x) {  set_parameter(egammaParameters::etconoisedR04Sig3,x) ;} 
+inline void EMShower::set_etconoisedR02SigAbs2(double x) {  set_parameter(egammaParameters::etconoisedR02SigAbs2,x) ;} 
+inline void EMShower::set_etconoisedR02SigAbs3(double x) {  set_parameter(egammaParameters::etconoisedR02SigAbs3,x) ;} 
+inline void EMShower::set_etconoisedR03SigAbs2(double x) {  set_parameter(egammaParameters::etconoisedR03SigAbs2,x) ;} 
+inline void EMShower::set_etconoisedR03SigAbs3(double x) {  set_parameter(egammaParameters::etconoisedR03SigAbs3,x) ;} 
+inline void EMShower::set_etconoisedR04SigAbs2(double x) {  set_parameter(egammaParameters::etconoisedR04SigAbs2,x) ;} 
+inline void EMShower::set_etconoisedR04SigAbs3(double x) {  set_parameter(egammaParameters::etconoisedR04SigAbs3,x) ;} 
+inline void EMShower::set_r33over37allcalo(double x)         {  set_parameter(egammaParameters::r33over37allcalo,x)      ;} 
+inline void EMShower::set_ecore(double x)       {  set_parameter(egammaParameters::ecore,x)    ;} 
+inline void EMShower::set_zvertex(double x)     {  set_parameter(egammaParameters::zvertex,x)  ;} 
+inline void EMShower::set_errz(double x)        {  set_parameter(egammaParameters::errz,x)     ;} 
+inline void EMShower::set_etap(double x)        {  set_parameter(egammaParameters::etap,x)     ;} 
+inline void EMShower::set_depth(double x)       {  set_parameter(egammaParameters::depth,x)    ;} 
+inline void EMShower::set_etringnoisedR03Sig2(double x)       {  set_parameter(egammaParameters::etringnoisedR03Sig2,x)    ;} 
+inline void EMShower::set_etringnoisedR03Sig3(double x)       {  set_parameter(egammaParameters::etringnoisedR03Sig3,x)    ;} 
+inline void EMShower::set_etringnoisedR03Sig4(double x)       {  set_parameter(egammaParameters::etringnoisedR03Sig4,x)    ;} 
+inline void EMShower::set_etringnoisedR04Sig2(double x)       {  set_parameter(egammaParameters::etringnoisedR04Sig2,x)    ;} 
+inline void EMShower::set_etringnoisedR04Sig3(double x)       {  set_parameter(egammaParameters::etringnoisedR04Sig3,x)    ;} 
+inline void EMShower::set_etringnoisedR02SigAbs2(double x)       {  set_parameter(egammaParameters::etringnoisedR02SigAbs2,x)    ;} 
+inline void EMShower::set_etringnoisedR02SigAbs3(double x)       {  set_parameter(egammaParameters::etringnoisedR02SigAbs3,x)    ;} 
+inline void EMShower::set_etringnoisedR03SigAbs2(double x)       {  set_parameter(egammaParameters::etringnoisedR03SigAbs2,x)    ;} 
+inline void EMShower::set_etringnoisedR03SigAbs3(double x)       {  set_parameter(egammaParameters::etringnoisedR03SigAbs3,x)    ;} 
+inline void EMShower::set_etringnoisedR04SigAbs2(double x)       {  set_parameter(egammaParameters::etringnoisedR04SigAbs2,x)    ;} 
+inline void EMShower::set_etringnoisedR04SigAbs3(double x)       {  set_parameter(egammaParameters::etringnoisedR04SigAbs3,x)    ;} 
+inline void EMShower::set_linkIndex(int x)       {  set_parameter(egammaParameters::linkIndex,(double)x)    ;} 
+inline void EMShower::set_ptcone20(double x)       {  set_parameter(egammaParameters::ptcone20,(double)x)    ;} 
+inline void EMShower::set_ptcone30(double x)       {  set_parameter(egammaParameters::ptcone30,(double)x)    ;} 
+inline void EMShower::set_ptcone40(double x)       {  set_parameter(egammaParameters::ptcone40,(double)x)    ;} 
+inline void EMShower::set_nucone20(double x)       {  set_parameter(egammaParameters::nucone20,(double)x)    ;} 
+inline void EMShower::set_nucone30(double x)       {  set_parameter(egammaParameters::nucone30,(double)x)    ;} 
+inline void EMShower::set_nucone40(double x)       {  set_parameter(egammaParameters::nucone40,(double)x)    ;} 
+inline void EMShower::set_ptcone20_zpv05(double x)       {  set_parameter(egammaParameters::ptcone20_zpv05,(double)x)    ;} 
+inline void EMShower::set_ptcone30_zpv05(double x)       {  set_parameter(egammaParameters::ptcone30_zpv05,(double)x)    ;} 
+inline void EMShower::set_ptcone40_zpv05(double x)       {  set_parameter(egammaParameters::ptcone40_zpv05,(double)x)    ;} 
+inline void EMShower::set_nucone20_zpv05(double x)       {  set_parameter(egammaParameters::nucone20_zpv05,(double)x)    ;} 
+inline void EMShower::set_nucone30_zpv05(double x)       {  set_parameter(egammaParameters::nucone30_zpv05,(double)x)    ;} 
+inline void EMShower::set_nucone40_zpv05(double x)       {  set_parameter(egammaParameters::nucone40_zpv05,(double)x)    ;} 
+inline void EMShower::set_etcone15_ptcorrected(double x)    {  set_parameter(egammaParameters::etcone15_ptcorrected,x) ;}
+inline void EMShower::set_etcone20_ptcorrected(double x)    {  set_parameter(egammaParameters::etcone20_ptcorrected,x) ;}
+inline void EMShower::set_etcone25_ptcorrected(double x)    {  set_parameter(egammaParameters::etcone25_ptcorrected,x) ;}
+inline void EMShower::set_etcone30_ptcorrected(double x)    {  set_parameter(egammaParameters::etcone30_ptcorrected,x) ;}
+inline void EMShower::set_etcone35_ptcorrected(double x)    {  set_parameter(egammaParameters::etcone35_ptcorrected,x) ;}
+inline void EMShower::set_etcone40_ptcorrected(double x)    {  set_parameter(egammaParameters::etcone40_ptcorrected,x) ;}
+inline void EMShower::set_etcone20_corrected(double x)    {  set_parameter(egammaParameters::etcone20_corrected,x) ;}
+inline void EMShower::set_etcone30_corrected(double x)    {  set_parameter(egammaParameters::etcone30_corrected,x) ;}
+inline void EMShower::set_etcone40_corrected(double x)    {  set_parameter(egammaParameters::etcone40_corrected,x) ;}
+inline void EMShower::set_topoetcone20(double x)              {  set_parameter(egammaParameters::topoetcone20,x) ;}
+inline void EMShower::set_topoetcone30(double x)              {  set_parameter(egammaParameters::topoetcone30,x) ;}
+inline void EMShower::set_topoetcone40(double x)              {  set_parameter(egammaParameters::topoetcone40,x) ;}
+inline void EMShower::set_topoetcone40_ptcorrected(double x)  {  set_parameter(egammaParameters::topoetcone40_ptcorrected,x) ;}
+inline void EMShower::set_topoetcone40_corrected(double x)    {  set_parameter(egammaParameters::topoetcone40_corrected,x) ;}
+
