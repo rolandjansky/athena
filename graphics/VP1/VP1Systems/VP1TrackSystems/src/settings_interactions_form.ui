@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TrackSysSettingsInteractionsForm</class>
+ <widget class="QWidget" name="TrackSysSettingsInteractionsForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>319</width>
+    <height>514</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Selection Mode</string>
+     </property>
+     <layout class="QVBoxLayout">
+      <item>
+       <widget class="QRadioButton" name="radioButton_selmode_single">
+        <property name="text">
+         <string>Single object selection</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>20</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="checkBox_selsingle_printinfo">
+            <property name="text">
+             <string>Print information</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout">
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_selsingle_printinfo_verbose">
+              <property name="text">
+               <string>Verbose</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_selsingle_orientzoom">
+          <property name="text">
+           <string>Orient view/zoom</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_selmode_multitracks">
+        <property name="text">
+         <string>Multi track selection</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>20</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="checkBox_sel_printtotmom">
+          <property name="text">
+           <string>Print total mom. and mass</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_sel_showtotmom">
+          <property name="text">
+           <string>Show direction of total mom.</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_selmode_trackfits">
+        <property name="toolTip">
+         <string>Particularly useful for refit from PRDs</string>
+        </property>
+        <property name="text">
+         <string>Select PRDs from Track</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_refitting">
+     <property name="title">
+      <string>Refitting</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Fitter:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_fitters">
+        <property name="toolTip">
+         <string>Select from currently available fitters</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_fitterMode">
+        <property name="toolTip">
+         <string>Chooses the mode in which the fitter runs.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Fit PRDs</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Refit Track</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QCheckBox" name="checkBox_removeOutliers">
+        <property name="text">
+         <string>Remove Outliers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Particle Hypo:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_particleHypo">
+        <property name="toolTip">
+         <string>Chooses the mode in which the fitter runs.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Pion</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Non Interacting</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Electron</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Muon</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Kaon</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Proton</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Photon</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Output name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QLineEdit" name="lineEdit_fittedTrackCollName">
+        <property name="text">
+         <string>Fitted track</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>78</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <widget class="QPushButton" name="pushButton_refit">
+        <property name="text">
+         <string>Fit track from 0 PRDs</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Mode:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>98</width>
+         <height>18</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close">
+       <property name="text">
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

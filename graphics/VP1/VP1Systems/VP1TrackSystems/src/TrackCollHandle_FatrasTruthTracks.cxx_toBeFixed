@@ -1,0 +1,73 @@
+
+////////////////////////////////////////////////////////////////
+//                                                            //
+//  Implementation of class TrackCollHandle_FatrasTruthTracks //
+//                                                            //
+//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
+//  Initial version: March 2008                               //
+//                                                            //
+////////////////////////////////////////////////////////////////
+
+#include "VP1TrackSystems/TrackCollHandle_FatrasTruthTracks.h"
+#include "VP1TrackSystems/TrackHandle_FatrasTruthTrack.h"
+#include "VP1Utils/VP1SGContentsHelper.h"
+#include "VP1Utils/VP1SGAccessHelper.h"
+#include "VP1Utils/VP1JobConfigInfo.h"
+#include "VP1Base/IVP1System.h"
+#include "TrkTrack/TrackCollection.h"
+#include "FatrasEvent/TrackParticleStateCollection.h"
+
+//____________________________________________________________________
+QStringList TrackCollHandle_FatrasTruthTracks::availableCollections(IVP1System*sys)
+{
+  //NB: Fatras requires all ID detectors to be on, so we do as well
+  //(just in case someone persistified the tracks and we are now
+  //studying them in a different event).
+  if ( ! ( VP1JobConfigInfo::hasPixelGeometry()&&VP1JobConfigInfo::hasSCTGeometry()
+	   &&VP1JobConfigInfo::hasTRTGeometry() ) ) {
+    sys->messageDebug("TrackCollHandle_FatrasTruthTracks::availableCollections: Either"
+		      " Pixel, SCT or TRT or is unavailable. Won't"
+		      " look in event store for Trk::Track collections with Fatras Truth");
+    //Fixme: Disable this check with an env. var.
+    return QStringList();
+  }
+
+  return VP1SGContentsHelper(sys).getKeys<TrackParticleStateCollection>();
+}
+
+//____________________________________________________________________
+TrackCollHandle_FatrasTruthTracks::TrackCollHandle_FatrasTruthTracks(TrackSysCommonData *cd,
+								     const QString& name)
+  : TrackCollHandle_TrkTrack(cd,name,TrackType::FatrasTruthTrack)
+{
+}
+
+//____________________________________________________________________
+bool TrackCollHandle_FatrasTruthTracks::load()
+{
+  //Get state collection:
+  const TrackParticleStateCollection * trackStateColl(0);
+  if (!VP1SGAccessHelper(systemBase()).retrieve(trackStateColl, name())) {
+    message("Error: Could not retrieve track collection with key="+name());
+    return false;
+  }
+
+  //Make appropriate track handles:
+  hintNumberOfTracksInEvent(trackStateColl->size());
+  int i(0);
+  TrackParticleStateCollection::const_iterator it, itEnd = trackStateColl->end();
+  for ( it = trackStateColl->begin() ; it != itEnd; ++it) {
+    if (*it && &(*it)->associatedTrack()) {
+      addTrackHandle(new TrackHandle_FatrasTruthTrack(this,*it));
+    } else  {
+      messageDebug("WARNING: Ignoring null Trk::Track pointer.");
+    }
+     if (!(i++%100))
+       systemBase()->updateGUI();
+  }
+
+  //Maybe we need to show measurements, etc.:
+  //FIXME  updateVisibleAssociatedObjects(); ??
+
+  return true;
+}

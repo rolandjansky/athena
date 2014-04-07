@@ -1,0 +1,39 @@
+
+////////////////////////////////////////////////////////////////
+//                                                            //
+//  Header file for class TrackCollHandle_FatrasTruthTracks   //
+//                                                            //
+//  Description: Specialisation of TrkTracks which contains   //
+//               Fatras truth information                     //
+//                                                            //
+//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
+//  Initial version: March 2008                               //
+//                                                            //
+////////////////////////////////////////////////////////////////
+
+#ifndef TRACKCOLLHANDLE_FATRASTRUTHTRACKS_H
+#define TRACKCOLLHANDLE_FATRASTRUTHTRACKS_H
+
+#include "VP1TrackSystems/TrackCollHandle_TrkTrack.h"
+
+class TrackCollHandle_FatrasTruthTracks : public TrackCollHandle_TrkTrack {
+
+  Q_OBJECT
+
+public:
+
+  static QStringList availableCollections(IVP1System*);//For the collection widget.
+
+  TrackCollHandle_FatrasTruthTracks(TrackSysCommonData *,
+				    const QString& name);
+  virtual ~TrackCollHandle_FatrasTruthTracks() {}
+
+protected:
+  virtual bool allowColourByPID() const { return true; }
+  virtual COLOURBY defaultColourBy () const { return COLOUR_BYPID; }
+  virtual bool load();
+  virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 1.0f, 0.0f); }
+
+};
+
+#endif

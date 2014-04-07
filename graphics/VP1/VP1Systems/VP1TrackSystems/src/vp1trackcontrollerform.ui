@@ -1,0 +1,161 @@
+<ui version="4.0" >
+ <class>VP1TrackControllerForm</class>
+ <widget class="QWidget" name="VP1TrackControllerForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>332</width>
+    <height>563</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <widget class="QWidget" native="1" name="widget_settingsButtonsPlaceholder" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QPushButton" name="pushButton_settings_cuts" >
+          <property name="toolTip" >
+           <string>Configure track cuts on quantities such as eta, phi and momentum</string>
+          </property>
+          <property name="text" >
+           <string>Cuts</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QPushButton" name="pushButton_settings_colouring" >
+          <property name="toolTip" >
+           <string>Configure track colours</string>
+          </property>
+          <property name="text" >
+           <string>Colouring</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" >
+         <widget class="QPushButton" name="pushButton_settings_interactions" >
+          <property name="toolTip" >
+           <string>Settings for what happens in response to selections (printout, zooms, ...)</string>
+          </property>
+          <property name="text" >
+           <string>Interactions</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QPushButton" name="pushButton_settings_details" >
+          <property name="toolTip" >
+           <string>Configure display of objects (measurements, surfaces, errors, ...) associated with the tracks</string>
+          </property>
+          <property name="text" >
+           <string>Details</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QPushButton" name="pushButton_settings_projections" >
+          <property name="toolTip" >
+           <string>Configure projections to muon chamber sides and inner detector surfaces</string>
+          </property>
+          <property name="text" >
+           <string>Projections</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QPushButton" name="pushButton_settings_extrapolation" >
+          <property name="toolTip" >
+           <string>Configure how the curves used for visualisation are constructed based on the actual available track parameters</string>
+          </property>
+          <property name="text" >
+           <string>Propagation</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QPushButton" name="pushButton_ObjectBrowser" >
+          <property name="enabled" >
+           <bool>true</bool>
+          </property>
+          <property name="toolTip" >
+           <string>Browse tracking objects in this event, and use to navigate in 3D view (especially if zooming is turned on in Interactions)</string>
+          </property>
+          <property name="text" >
+           <string>Browser</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Preferred</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>51</width>
+         <height>89</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="collWidgetScrollArea" />
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

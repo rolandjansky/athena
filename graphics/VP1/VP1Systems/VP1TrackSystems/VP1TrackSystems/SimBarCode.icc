@@ -1,0 +1,82 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+////////////////////////////////////////////////////////////////
+//                                                            //
+//  Inline file for class SimBarCode                          //
+//                                                            //
+//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
+//  Initial version: April 2008                               //
+//                                                            //
+////////////////////////////////////////////////////////////////
+
+//____________________________________________________________________
+inline SimBarCode::SimBarCode(int barCode, HepMcParticleLink::index_type evtIndex, int pdgCode)
+  : m_barCode(barCode), m_evtIndex(evtIndex), m_pdgCode(pdgCode)
+{
+}
+
+//____________________________________________________________________
+inline SimBarCode::SimBarCode(const HepMcParticleLink& l, int pdgCode)
+  : m_barCode(l.barcode()), m_evtIndex(l.eventIndex()), m_pdgCode(pdgCode)
+{
+}
+
+//____________________________________________________________________
+inline int SimBarCode::barCode() const
+{
+  return m_barCode;
+}
+
+//____________________________________________________________________
+inline int SimBarCode::actualBarCode() const {
+  return m_barCode < 0 ? 0 : m_barCode;
+}
+
+//____________________________________________________________________
+inline HepMcParticleLink::index_type SimBarCode::evtIndex() const
+{
+  return m_evtIndex;
+}
+
+//____________________________________________________________________
+inline int SimBarCode::pdgCode() const
+{
+  return m_pdgCode;
+}
+
+//____________________________________________________________________
+inline bool SimBarCode::isNonUniqueSecondary() const {
+  return m_barCode<=0;
+}
+
+// //____________________________________________________________________
+// inline bool SimBarCode::pdgCodesCompatible(const SimBarCode& o) const
+// {
+//   return m_pdgCode == o.m_pdgCode;//fixme
+//   //  return m_pdgCode == o.m_pdgCode || m_pdgCode == unknownPDG || o.m_pdgCode == unknownPDG;
+// }
+
+// //____________________________________________________________________
+// inline bool SimBarCode::operator==(const SimBarCode& o) const
+// {
+//   if (m_barCode != o.m_barCode || m_evtIndex != o.m_evtIndex)
+//     return false;
+//   return pdgCodesCompatible(o);
+// }
+
+// //____________________________________________________________________
+// inline bool SimBarCode::operator!=(const SimBarCode& o) const
+// {
+//   return !(*this==o);
+// }
+
+//____________________________________________________________________
+inline bool SimBarCode::operator<(const SimBarCode& o) const
+{
+  if (m_evtIndex == o.m_evtIndex)
+    return m_barCode == o.m_barCode ? m_pdgCode < o.m_pdgCode : m_barCode < o.m_barCode;
+  return m_evtIndex < o.m_evtIndex;
+}
