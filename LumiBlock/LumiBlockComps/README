@@ -1,0 +1,48 @@
+
+# Some notes on usage of tools
+
+#
+# LumiCalc
+#
+
+Currently being tested with the "TopMix" datasets, which has limited amount of database info
+but usable:
+
+  user.RichardHawkings.0108173.topmix_Jet.AOD.v2
+  user.RichardHawkings.0108173.topmix_Muon.AOD.v2
+  user.RichardHawkings.0108173.topmix_Egamma.AOD.v2
+
+One way to calculate lumnosity is to calculating for a given file (this file contains LB 16302-16444):
+
+  LumiCalc.py --readoracle --mc --trigger=EF_mu20 user.RichardHawkings.0108173.topmix_Jet.AOD.v2._00115.pool.root 
+
+One can also use the xml file:
+
+  LumiCalc.py --readoracle --mc --trigger=EF_mu20 --xml LumiRangeCollection.xml
+
+
+The xml file can be made using GoodRunLists package, the following setup works for TopMix
+
+    self.querydict['partition']	 = ["ATLAS"]				# -- DAQ partition
+    self.querydict['ftag'] 	 = ["*"]			# -- projecttag: collection filename prefix
+    self.querydict['events']	 = ["100+"]				# -- number of events per run
+    self.querydict['run']	 = ["108173"]				# -- run number selection range
+    self.querydict['duration']	 = ["0s+"]				# -- duration of run selection
+    self.querydict['time']	 = []					# -- time of run selection, eg.
+    self.querydict['detector']	 = ['all']				# -- subdetectors turned on, eg. 
+    self.querydict['streams']	 = []					# -- trigger output streams, eg. 
+    self.querydict['mag']	 = [""]		# -- magnetic field configuration
+    self.querydict['dq'] = dqflagsquery
+    self.querydict['smk']	 = []					# -- super master key, eg. 
+    self.querydict['trigger']	 = []					# -- select specific triggers available, eg.
+    self.querydict['release']    = []					# -- release used, eg: '15.1.*'
+    self.querydict['ctag']       = []					# -- COOL conditions tag to use, eg: 'COMCOND-HLTC-001-00'. Default = head.
+    self.querydict['db']         = ['MC']                             # -- DATA or MC
+
+but of course this does not do any DQ selection. This is in the works now.
+
+Just a note that following command are needed
+
+  create_goodrunslist MyGoodRunsList.py
+
+

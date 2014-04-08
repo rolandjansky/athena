@@ -1,0 +1,102 @@
+#
+# This file describes the command-line options for iLumiCalc.exe
+# This must be processed using gengetopt < iLumiCalc_flags.ggo before compiling.
+# 
+# The resulting cmdline.c file needs to be copied to cmdline.cxx
+# 
+# Name of your program
+package "iLumiCalc.exe" # don't use package if you're using automake
+# Version of your program
+version "00-00-00"   # don't use version if you're using automake
+
+
+# Description of options
+
+#section "The following flags are required"
+
+section "The following flags are optional"
+
+section "Flags to specify data sample"
+
+option  "runnumber"		r "Run number, range, or comma separated list, e.g. 177986-178109,179710" string optional multiple
+
+option  "lbstart"		- "LumiBlock number begin" int optional multiple
+
+option  "lbend"			- "LumiBlock number end" int optional multiple
+
+option  "xml"			x "Input XML file name"	string  optional multiple
+
+option  "xml_blacklist"		- "Input XML file of blacklist" string optional
+
+option  "tag" 			T "Input TAG file name"	string optional multiple
+
+option  "root"			- "Input ROOT file name" string optional multiple
+
+option  "tree"			- "Name of TTree in input ROOT file to which Lumi string is attached" string optional
+
+option  "d3pd_dir"		- "Name of TDirectory in input ROOT file where Lumi string is stored" string optional
+
+
+section "Flags to control luminosity calculation"
+
+# Option
+option  "lumitag"               - "Offline luminosity database tag" string default="OflLumi-8TeV-002" optional
+
+option  "online"		- "Use online luminosity estimates instead of offline database" flag off 
+
+option  "lumichannel"           - "Luminosity estimate method by value" int default="0" optional
+
+option  "lumimethod"            - "Luminosity estimate method by string" string default="ATLAS_PREFERRED" optional
+
+option  "trigger"		t "Trigger chain name used for prescale calculation" string optional multiple
+
+option  "livetrigger"		- "L1 Trigger used for livetime calculation" string default="L1_EM30" optional 
+
+option  "lar"                   - "Calculate LAr defect fraction" flag off 
+
+option 	"lartag"		- "LAr noise burst database tag" string default="LARBadChannelsOflEventVeto-UPD4-01" optional
+
+option 	"beamspot"		- "Require online beamspot valid in trigger livefraction" flag off
+ 
+option 	"beamspottag"		- "Online beamspot database tag" string default="IndetBeamposOnl-HLT-UPD1-001-00" optional
+
+option  "scale_lumi"		- "Scale luminosity with a constant value" double default="1.0" optional	
+
+section "Flags to control output"
+
+option  "xml_out"               - "Output XML file name" string optional
+
+option  "xml_collisionlist"	- "Output XML file of lists of collision candidates" flag off
+
+option  "plots"  		- "Create some plots on demand" flag off 
+
+option  "verbose"               V "Verbose output level" flag off
+
+option  "quiet"                 - "Quiet output level" flag off
+
+############################################################
+# option  "my-opt"          m "Another integer option, \
+# this time the description of the option should be \"quite\" long to \
+# require wrapping... possibly more than one wrapping :-) \
+# especially if I\nrequire a line break"      int     optional
+#
+# option  "int-opt"         i "A int option"         int        yes
+# section "more involved options"
+#      sectiondesc="the following options\nare more complex"
+# text ""
+# 
+# option  "flag-opt"        - "A flag option"        flag       off
+# option  "funct-opt"       F "A function option"    optional
+#
+# section "last option section"
+# option  "long-opt"        - "A long option"        long       optional
+# option  "def-opt"         - "A string option with default"
+#     string default="Hello" optional
+# option  "enum-opt"         - "A string option with list of values"
+#     values="foo","bar","hello","bye" default="hello" optional
+# option  "secret"         S "hidden option will not appear in --help"
+#     int optional hidden
+# option  "dependant"         D
+#     "option that depends on str-opt" int optional dependon="str-opt"
+# text "\nAn ending text."
+     

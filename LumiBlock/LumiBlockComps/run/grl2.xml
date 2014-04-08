@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter. Ask Max Baak for details.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>grl2</Name>
+    <Version>1</Version>
+    <LumiBlockCollection>
+      <Run>108175</Run>
+      <LBRange Start="800" End="850"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>
+

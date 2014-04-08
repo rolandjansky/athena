@@ -1,0 +1,9 @@
+These instructions explain how to change the iLumiCalc.exe command-line options.
+
+The code for the command-line switches are generated automatically using the gengetopt utility.
+
+1) Modify src/iLumiCalc_flags.ggo as necessary
+2) run gengetopt < iLumiCalc_flags.ggo
+3) Copy resulting cmdline.c to cmdline.cxx
+4) Add code to iLumiCalc.cxx to handle switch
+5) Proceed with cmt as usual

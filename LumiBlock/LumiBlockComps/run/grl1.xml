@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!--This document is created by GoodRunsListWriter. Ask Max Baak for details.-->
+<LumiRangeCollection>
+  <NamedLumiRange>
+    <Name>grl1</Name>
+    <Version>1</Version>
+    <LumiBlockCollection>
+      <Run>108175</Run>
+      <LBRange Start="3472" End="3472"/>
+      <LBRange Start="3475" End="3488"/>
+      <LBRange Start="3490" End="3502"/>
+      <LBRange Start="3504" End="3510"/>
+      <LBRange Start="3518" End="3518"/>
+      <LBRange Start="3521" End="3533"/>
+    </LumiBlockCollection>
+  </NamedLumiRange>
+</LumiRangeCollection>
