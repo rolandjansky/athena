@@ -1,0 +1,306 @@
+// dear emacs, this is -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace Analysis{
+  
+    //-------------------------------------------------------------------------
+    // pi0 - pi0 cluster
+    //-------------------------------------------------------------------------
+    inline void TauPi0Cluster::setExternalVars(float DELTA_PHI, float DELTA_THETA, float ENG_FRAC_EM, float ENG_FRAC_MAX, float ENG_FRAC_CORE, float SECOND_ENG_DENS, float LATERAL, float LONGITUDINAL,
+                                               float EM1CoreFrac, float asymmetryInEM1WRTTrk, int NHitsInEM1 , int NPosECells_PS, int NPosECells_EM1, int NPosECells_EM2,
+                                               float firstEtaWRTClusterPosition_EM1, float firstEtaWRTClusterPosition_EM2, 
+                                               float secondEtaWRTClusterPosition_EM1, float secondEtaWRTClusterPosition_EM2, float BDTScore)
+    {
+      m_DELTA_PHI = DELTA_PHI;
+      m_DELTA_THETA = DELTA_THETA;
+      m_ENG_FRAC_EM = ENG_FRAC_EM;
+      m_ENG_FRAC_MAX = ENG_FRAC_MAX;
+      m_ENG_FRAC_CORE = ENG_FRAC_CORE;
+      m_SECOND_ENG_DENS = SECOND_ENG_DENS;
+      m_LATERAL = LATERAL;
+      m_LONGITUDINAL = LONGITUDINAL;
+      m_EM1CoreFrac = EM1CoreFrac;
+      m_asymmetryInEM1WRTTrk = asymmetryInEM1WRTTrk;
+      m_NHitsInEM1 = NHitsInEM1;
+      m_NPosECells_PS = NPosECells_PS;
+      m_NPosECells_EM1 = NPosECells_EM1;
+      m_NPosECells_EM2 = NPosECells_EM2;
+      m_firstEtaWRTClusterPosition_EM1 = firstEtaWRTClusterPosition_EM1;
+      m_firstEtaWRTClusterPosition_EM2 = firstEtaWRTClusterPosition_EM2;
+      m_secondEtaWRTClusterPosition_EM1 = secondEtaWRTClusterPosition_EM1;
+      m_secondEtaWRTClusterPosition_EM2 = secondEtaWRTClusterPosition_EM2;
+      m_BDTScore = BDTScore;
+    }
+    
+    //-------------------------------------------------------------------------
+    // pi0 - pi0 cluster
+    //-------------------------------------------------------------------------
+
+    inline const CaloCluster* TauPi0Cluster::cluster() const
+    {
+        return *m_cluster;
+    }
+
+    inline ElementLink<CaloClusterContainer>& TauPi0Cluster::clusterLink()
+    {
+      return m_cluster;
+    }
+    
+    inline void TauPi0Cluster::setCluster( const CaloCluster *cluster, const CaloClusterContainer *cont )
+    {
+      if( !cont )
+	   m_cluster.setElement( cluster );
+      else
+	   m_cluster.toContainedElement( *cont,  cluster );
+    }
+
+    inline const std::vector<TauShot*>& TauPi0Cluster::tauShotVec() const
+    {
+      return m_tauShotVector;
+    }
+
+    inline std::vector<TauShot*>& TauPi0Cluster::tauShotVec()
+    {
+      return m_tauShotVector;
+    }
+
+    inline void TauPi0Cluster::addTauShot(TauShot *tauShot )
+    {
+      m_tauShotVector.push_back( tauShot );
+    }
+
+    inline float TauPi0Cluster::deltaPhi() const
+    {
+        return m_DELTA_PHI;
+    }
+
+    inline void TauPi0Cluster::setDeltaPhi(float deltaPhi)
+    {
+        m_DELTA_PHI=deltaPhi;
+    }
+
+    inline float TauPi0Cluster::deltaTheta() const
+    {
+        return m_DELTA_THETA;
+    }
+
+    inline void TauPi0Cluster::setDeltaTheta(float deltaTheta)
+    {
+        m_DELTA_THETA=deltaTheta;
+    }
+
+    inline float TauPi0Cluster::engFracEM() const
+    {
+        return m_ENG_FRAC_EM;
+    }
+
+    inline void TauPi0Cluster::setEngFracEM(float engFracEM)
+    {
+        m_ENG_FRAC_EM=engFracEM;
+    }
+
+    inline float TauPi0Cluster::engFracMAX() const
+    {
+        return m_ENG_FRAC_MAX;
+    }
+
+    inline void TauPi0Cluster::setEngFracMAX(float engFracMAX)
+    {
+        m_ENG_FRAC_MAX=engFracMAX;
+    }
+
+    inline float TauPi0Cluster::engFracCore() const
+    {
+        return m_ENG_FRAC_CORE;
+    }
+
+    inline void TauPi0Cluster::setEngFracCore(float engFracCore)
+    {
+        m_ENG_FRAC_CORE=engFracCore;
+    }
+
+    inline float TauPi0Cluster::secondEngDens() const
+    {
+        return m_SECOND_ENG_DENS;
+    }
+
+    inline void TauPi0Cluster::setSecondEngDens(float secondEngDens)
+    {
+        m_SECOND_ENG_DENS=secondEngDens;
+    }
+
+    inline float TauPi0Cluster::LATERAL() const
+    {
+        return m_LATERAL;
+    }
+
+    inline void TauPi0Cluster::setLATERAL(float LATERAL)
+    {
+        m_LATERAL=LATERAL;
+    }
+
+    inline float TauPi0Cluster::LONGITUDINAL() const
+    {
+        return m_LONGITUDINAL;
+    }
+
+    inline void TauPi0Cluster::setLONGITUDINAL(float LONGITUDINAL)
+    {
+        m_LONGITUDINAL=LONGITUDINAL;
+    } 
+
+    inline float TauPi0Cluster::EM1CoreFrac() const
+    {
+        return m_EM1CoreFrac;
+    }
+
+    inline void TauPi0Cluster::setEM1CoreFrac(float EM1CoreFrac)
+    {
+        m_EM1CoreFrac=EM1CoreFrac;
+    }
+
+    inline float TauPi0Cluster::asymmetryInEM1WRTTrk() const
+    {
+        return m_asymmetryInEM1WRTTrk;
+    }
+
+    inline void TauPi0Cluster::setAsymmetryInEM1WRTTrk(float asymmetryInEM1WRTTrk)
+    {
+        m_asymmetryInEM1WRTTrk=asymmetryInEM1WRTTrk;
+    }
+
+    inline int TauPi0Cluster::NHitsInEM1() const
+    {
+        return m_NHitsInEM1;
+    }
+
+    inline void TauPi0Cluster::setNHitsInEM1(int NHitsInEM1)
+    {
+        m_NHitsInEM1=NHitsInEM1;
+    }
+
+    inline int TauPi0Cluster::NPosECells_PS() const
+    {
+        return m_NPosECells_PS;
+    }
+
+    inline void TauPi0Cluster::setNPosECells_PS(int NPosECells_PS)
+    {
+        m_NPosECells_PS=NPosECells_PS;
+    }
+
+    inline int TauPi0Cluster::NPosECells_EM1() const
+    {
+        return m_NPosECells_EM1;
+    }
+
+    inline void TauPi0Cluster::setNPosECells_EM1(int NPosECells_EM1)
+    {
+        m_NPosECells_EM1=NPosECells_EM1;
+    }
+
+    inline int TauPi0Cluster::NPosECells_EM2() const
+    {
+        return m_NPosECells_EM2;
+    }
+
+    inline void TauPi0Cluster::setNPosECells_EM2(int NPosECells_EM2)
+    {
+        m_NPosECells_EM2=NPosECells_EM2;
+    }
+
+    inline float TauPi0Cluster::firstEtaWRTClusterPosition_EM1() const
+    {
+        return m_firstEtaWRTClusterPosition_EM1;
+    }
+
+    inline void TauPi0Cluster::setFirstEtaWRTClusterPosition_EM1(float firstEtaWRTClusterPosition_EM1)
+    {
+        m_firstEtaWRTClusterPosition_EM1=firstEtaWRTClusterPosition_EM1;
+    }
+
+    inline float TauPi0Cluster::firstEtaWRTClusterPosition_EM2() const
+    {
+        return m_firstEtaWRTClusterPosition_EM2;
+    }
+
+    inline void TauPi0Cluster::setFirstEtaWRTClusterPosition_EM2(float firstEtaWRTClusterPosition_EM2)
+    {
+        m_firstEtaWRTClusterPosition_EM2=firstEtaWRTClusterPosition_EM2;
+    }
+
+    inline float TauPi0Cluster::secondEtaWRTClusterPosition_EM1() const
+    {
+        return m_secondEtaWRTClusterPosition_EM1;
+    }
+
+    inline void TauPi0Cluster::setSecondEtaWRTClusterPosition_EM1(float secondEtaWRTClusterPosition_EM1)
+    {
+        m_secondEtaWRTClusterPosition_EM1=secondEtaWRTClusterPosition_EM1;
+    }
+
+    inline float TauPi0Cluster::secondEtaWRTClusterPosition_EM2() const
+    {
+        return m_secondEtaWRTClusterPosition_EM2;
+    }
+
+    inline void TauPi0Cluster::setSecondEtaWRTClusterPosition_EM2(float secondEtaWRTClusterPosition_EM2)
+    {
+        m_secondEtaWRTClusterPosition_EM2=secondEtaWRTClusterPosition_EM2;
+    }
+
+    inline float TauPi0Cluster::BDTScore() const
+    {
+        return m_BDTScore;
+    }
+
+    inline void TauPi0Cluster::setBDTScore(float BDTScore)
+    {
+        m_BDTScore=BDTScore;
+    }
+
+    
+    //Alternative setter method
+    
+    inline void TauPi0Cluster::setPi0Cluster(
+		const CaloCluster *cluster,
+		const CaloClusterContainer *cont,
+    std::vector<TauShot*> tauShotVec,
+    float DELTA_PHI, 
+    float DELTA_THETA, 
+    float ENG_FRAC_EM,
+    float ENG_FRAC_MAX, 
+    float ENG_FRAC_CORE, 
+    float SECOND_ENG_DENS,
+    float LATERAL,
+    float LONGITUDINAL,
+		float EM1CoreFrac, 
+    float asymmetryInEM1WRTTrk,
+    int NHitsInEM1, 
+    int NPosECells_PS, 
+    int NPosECells_EM1, 
+    int NPosECells_EM2,
+    float firstEtaWRTClusterPosition_EM1, 
+    float firstEtaWRTClusterPosition_EM2,
+    float secondEtaWRTClusterPosition_EM1, 
+    float secondEtaWRTClusterPosition_EM2,
+    float BDTScore
+    )
+    {
+    this->setCluster(cluster, cont);
+    std::vector<TauShot*>::iterator itr = tauShotVec.begin();
+    for( ; itr!=tauShotVec.end(); ++itr ){
+       this->addTauShot(*itr);
+    }
+    this->setExternalVars(DELTA_PHI, DELTA_THETA, ENG_FRAC_EM, ENG_FRAC_MAX, ENG_FRAC_CORE, SECOND_ENG_DENS, LATERAL, LONGITUDINAL,
+                          EM1CoreFrac, asymmetryInEM1WRTTrk, NHitsInEM1, NPosECells_PS, NPosECells_EM1, NPosECells_EM2,
+                          firstEtaWRTClusterPosition_EM1, firstEtaWRTClusterPosition_EM2, secondEtaWRTClusterPosition_EM1, secondEtaWRTClusterPosition_EM2, BDTScore);
+    }
+    
+     
+
+} //end of namespace analysis

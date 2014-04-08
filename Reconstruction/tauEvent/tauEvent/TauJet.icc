@@ -1,0 +1,464 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///@file TauCommonDetails.icc
+///
+/// Inline function implementations for tau event details class
+///
+///Package: Reconstruction/TauEvent
+///
+///@author Thomas Burgess <tburgess-at-cern-ch>
+///
+/// Created by Thomas Burgess on 2009-01-17.
+///
+/// $Id: TauJet.icc,v 1.7 2009-03-11 15:50:06 tburgess Exp $
+
+namespace Analysis
+{
+    inline bool TauJet::operator!=( const TauJet& rhs ) const 
+    {
+        return !((*this)==rhs);
+    }
+
+    // Implementation of calorimetry info accessors
+    inline const CaloCluster *TauJet::cluster() const
+    {
+        return ( (m_cluster.isValid()) ? (*m_cluster) : 0 );
+    }
+
+    inline void TauJet::setCluster( const CaloClusterContainer *cont,
+            const CaloCluster *clust )
+    {
+        if( m_cluster.isValid() )
+            m_cluster.reset();
+        m_cluster.toContainedElement( *cont, clust);
+    }
+
+    inline const ElementLink<CaloClusterContainer> TauJet::clusterLink() const
+    {
+        return m_cluster;
+    }
+
+    inline ElementLink<CaloClusterContainer> &TauJet::clusterLink()
+    {
+        return m_cluster;
+    }
+
+    inline void TauJet::setClusterLink(
+            const ElementLink<CaloClusterContainer> &x)
+    {
+        m_cluster = x;
+    }
+
+    inline const CaloCluster *TauJet::cellCluster() const
+    {
+        return ( (m_cellCluster.isValid()) ? (*m_cellCluster) : 0 );
+    }
+
+    inline void TauJet::setCellCluster( const CaloClusterContainer *cont,
+            const CaloCluster *clust )
+    {
+        if( m_cellCluster.isValid() )
+            m_cellCluster.reset();
+        m_cellCluster.toContainedElement( *cont, clust);
+    }
+
+    inline const ElementLink<CaloClusterContainer>
+        TauJet::cellClusterLink() const
+        {
+            return m_cellCluster;
+        }
+
+    inline ElementLink<CaloClusterContainer> &TauJet::cellClusterLink()
+    {
+        return m_cellCluster;
+    }
+
+    inline void TauJet::setCellClusterLink(
+            const ElementLink<CaloClusterContainer> &x)
+    {
+        m_cellCluster = x;
+    }
+
+    // Jet accessors
+    inline const Jet *TauJet::jet() const
+    {
+        return ( (m_jet.isValid()) ? (*m_jet) : 0 );
+    }
+
+    inline void TauJet::setJet(
+            const JetCollection *cont,
+            const Jet *jet )
+    {
+        if( m_jet.isValid() )
+            m_jet.reset();
+        m_jet.toContainedElement( *cont, jet );
+    }
+
+    inline const ElementLink<JetCollection> TauJet::jetLink() const
+    {
+        return m_jet;
+    }
+
+    inline ElementLink<JetCollection> &TauJet::jetLink()
+    {
+        return m_jet;
+    }
+
+    inline void TauJet::setJetLink( const ElementLink<JetCollection> &x)
+    {
+        m_jet = x;
+    }
+
+    // Implementation of tracking info accessors
+    inline const Rec::TrackParticle *TauJet::track( unsigned int i ) const
+    {
+        if( m_tracks.size() <= i )
+            return 0;
+        else if( m_tracks[i].isValid() )
+            return *(m_tracks[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::trackLinkVector() const
+        {
+            return m_tracks;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::trackLinkVector()
+        {
+            return m_tracks;
+        }
+
+    inline void TauJet::addTrack(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle          *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_tracks.push_back( link ) ;
+    }
+
+    inline void TauJet::clearTracks()
+    {
+        return m_tracks.clear();
+    }
+
+    inline unsigned int TauJet::numTrack() const
+    {
+        return m_tracks.size();
+    }
+
+    //Implementation of conversion track accessors
+    inline const Rec :: TrackParticle * TauJet::conversionTrack(
+            unsigned int i ) const
+    {
+        if( m_conversionTracks.size() <= i )
+            return 0;
+        if( m_conversionTracks[i].isValid() )
+            return *(m_conversionTracks[i]);
+        return 0;
+    }
+
+    inline unsigned int TauJet::numConversionTrack() const
+    {
+        return m_conversionTracks.size();
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::conversionTrackLinkVector() const
+        {
+            return m_conversionTracks;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::conversionTrackLinkVector()
+        {
+            return m_conversionTracks;
+        }
+
+    inline void TauJet::addConversionTrack(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_conversionTracks.push_back( link ) ;
+    }
+
+    inline void TauJet::clearConversionTracks()
+    {
+        return m_conversionTracks.clear();
+    }
+
+    inline int TauJet::nProng() const
+    {
+        return m_tracks.size()-m_conversionTracks.size();
+    }
+
+    inline bool TauJet::isConversionTrack(
+            unsigned int i) const
+    {
+        if (m_tracks.size()<=i) return false;
+        return find (
+                m_conversionTracks.begin(),
+                m_conversionTracks.end(),
+                m_tracks[i] ) != m_conversionTracks.end();
+    }
+
+    // Implementation of seed calo tracking info accessors
+    inline const Rec::TrackParticle *TauJet::seedTrk_track( unsigned int i ) const
+    {
+        if( m_seedTrk_tracks.size() <= i )
+            return 0;
+        else if( m_seedTrk_tracks[i].isValid() )
+            return *(m_seedTrk_tracks[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::seedTrk_trackLinkVector() const
+        {
+            return m_seedTrk_tracks;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::seedTrk_trackLinkVector()
+        {
+            return m_seedTrk_tracks;
+        }
+
+    inline void TauJet::addSeedTrk_track(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle          *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_seedTrk_tracks.push_back( link ) ;
+    }
+
+    inline void TauJet::clearSeedTrk_tracks()
+    {
+        return m_seedTrk_tracks.clear();
+    }
+
+    inline unsigned int TauJet::seedTrk_numTrack() const
+    {
+        return m_seedTrk_tracks.size();
+    }
+
+    // Implementation of seed calo tracking info accessors
+    inline const Rec::TrackParticle *TauJet::seedCalo_track( unsigned int i ) const
+    {
+        if( m_seedCalo_tracks.size() <= i )
+            return 0;
+        else if( m_seedCalo_tracks[i].isValid() )
+            return *(m_seedCalo_tracks[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::seedCalo_trackLinkVector() const
+        {
+            return m_seedCalo_tracks;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauJet::seedCalo_trackLinkVector()
+        {
+            return m_seedCalo_tracks;
+        }
+
+    inline void TauJet::addSeedCalo_track(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle          *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_seedCalo_tracks.push_back( link ) ;
+    }
+
+    inline void TauJet::clearSeedCalo_tracks()
+    {
+        return m_seedCalo_tracks.clear();
+    }
+
+    inline unsigned int TauJet::seedCalo_numTrack() const
+    {
+        return m_seedCalo_tracks.size();
+    }
+
+
+
+    // Accessors for identification info
+    inline TauPID *TauJet::tauID()
+    {
+        return m_tauID;
+    }
+
+    inline const TauPID *TauJet::tauID() const
+    {
+        return m_tauID;
+    }
+
+    inline void TauJet::setTauID( TauPID *tauID )
+    {
+        delete m_tauID;
+        m_tauID = tauID;
+    }
+
+    // Accessors for detail classes
+    inline void TauJet::addDetails( const TauDetailsContainer *container,
+            TauDetails *details )
+    {
+        ElementLink<TauDetailsContainer> p_link;
+        p_link.toContainedElement( *container, details );
+        m_tauDetails.push_back( p_link );
+    }
+
+    // Author accessors
+    inline TauJetParameters::Author TauJet::author() const
+    {
+        return TauJetParameters::unknown;
+    }
+
+    inline bool TauJet::hasAuthor(
+            const TauJetParameters::Author &author ) const
+    {
+        return m_author.test( author );
+    }
+
+    inline void TauJet::setAuthor( const TauJetParameters::Author &author )
+    {
+        m_author.set( author );  // enum used as size_t
+    }
+
+    inline void TauJet::clearAuthor( const TauJetParameters::Author &author )
+    {
+        m_author.reset( author );  // enum used as size_t
+    }
+
+    // Independent number of tracks accessors
+    inline unsigned int TauJet::numberOfTracks() const
+    {
+        return m_numberOfTracks;
+    }
+
+    inline void TauJet::setNumberOfTracks( unsigned int numberOfTracks )
+    {
+        m_numberOfTracks = numberOfTracks;
+    }
+
+    inline void TauJet::setROIWord( unsigned int RoiWord )
+    {
+        m_roiWord = RoiWord;
+    }
+
+    inline unsigned int TauJet::ROIWord() const
+    {
+        return m_roiWord;
+    }
+
+    template <typename T> const T *TauJet::details(
+            const std::string &name ) const
+    {
+        const unsigned int p_size = m_tauDetails.size();
+        for( unsigned int i = 0; i != p_size; ++i ) {
+            if (!m_tauDetails[i].isValid()) continue;
+            const TauDetails *details = *m_tauDetails[i];
+            if( (m_tauDetails.elementDataID(i) == name)
+                    && (typeid( *details ).name() == typeid( const T ).name()) )
+                return dynamic_cast<const T*>( details );
+        }
+        return 0;
+    }
+
+    template <typename T> const T *TauJet::details() const
+    {
+        const unsigned int p_size = m_tauDetails.size();
+        for( unsigned int i = 0; i != p_size; ++i ) {
+            if (!m_tauDetails[i].isValid()) continue;
+            const TauDetails *details = *m_tauDetails[i];
+            if( typeid( *details ).name() == typeid( const T ).name() )
+                return dynamic_cast<const T*>( details );
+        }
+        return 0;
+    }
+
+    inline void TauJet::setE( const double ene ) 
+    {
+        return this->momentumBase().setE(ene);
+    }
+
+    inline void TauJet::setEta( const double eta ) 
+    {
+        return this->momentumBase().setEta(eta);
+    }
+
+    inline void TauJet::setPhi( const double phi ) 
+    {
+        return this->momentumBase().setPhi(phi);
+    }
+
+    inline void TauJet::setM( const double m ) 
+    {
+        return this->momentumBase().setM(m);
+    }
+
+    inline bool TauJet::hasMergedToCommonDetails() const
+    {
+        return m_hasMergedToCommonDetails;
+    }
+
+    inline void TauJet::setHasMergedToCommonDetails(
+            bool state)
+    {
+        m_hasMergedToCommonDetails = state;
+    }
+
+    inline void TauJet::storeHLV( TauJetParameters::TauCalibType type, CLHEP::HepLorentzVector hlv )
+    {
+        //Some form of sanity check should probably go here...e.g. protect if already stored
+        for(std::vector<std::pair<TauJetParameters::TauCalibType, CLHEP::HepLorentzVector> >::size_type i = 0;
+        i != m_tauHLVStorage.size(); i++)
+        {
+        if(m_tauHLVStorage[i].first==type)
+            {
+            return;
+            }
+        }
+	m_tauHLVStorage.push_back( std::make_pair(type,hlv) );
+    }
+
+    inline CLHEP::HepLorentzVector TauJet::getHLV( TauJetParameters::TauCalibType type ) const
+    {
+        //loop over m_tauHLVStorage and return the hlv paired with 'type'
+        for(std::vector<std::pair<TauJetParameters::TauCalibType, CLHEP::HepLorentzVector> >::size_type i = 0;
+        i != m_tauHLVStorage.size(); i++)
+        {
+        if(m_tauHLVStorage[i].first==type)
+            {
+            return m_tauHLVStorage[i].second;
+            }
+        }
+
+        //If we find nothing, return a trivial result
+        CLHEP::HepLorentzVector dummy;
+	return dummy;
+    }
+
+    inline std::vector<PanTau::PanTauSeed*> TauJet::getListOfPanTauSeeds() const {                             
+        return m_listOfPanTauSeeds;                                                                            
+    }                                                                                                          
+                                                                                                               
+    inline void TauJet::addPanTauSeed(PanTau::PanTauSeed* pantauSeed) {                                        
+        m_listOfPanTauSeeds.push_back(pantauSeed);                                                             
+    }                                                                             
+
+}

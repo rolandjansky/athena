@@ -1,0 +1,108 @@
+// dear emacs, this is -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace Analysis {
+  
+  inline const std::vector<TauPi0Candidate*>& TauPi0Details::pi0CandidateVector() const
+  {
+    return m_pi0CandContainer;
+  }
+
+  inline std::vector<TauPi0Candidate*>& TauPi0Details::pi0CandidateVector()
+  {
+    return m_pi0CandContainer;
+  } 
+  
+  inline void TauPi0Details::addPi0Candidate( TauPi0Candidate* theCand ) 
+  {
+    m_pi0CandContainer.push_back( theCand );
+  }
+
+  inline int TauPi0Details::nPi0Candidates() const
+  {
+    return m_pi0CandContainer.size();
+  }
+
+  inline const std::vector<TauPi0Cluster*>& TauPi0Details::pi0ClusterVector() const
+  {
+    return m_pi0ClusContainer;
+  }
+
+  inline std::vector<TauPi0Cluster*>& TauPi0Details::pi0ClusterVector()
+  {
+    return m_pi0ClusContainer;
+  }
+
+  inline void TauPi0Details::addPi0Cluster( TauPi0Cluster* theClus )
+  {
+    m_pi0ClusContainer.push_back( theClus );
+  }
+
+  inline int TauPi0Details::nPi0Clusters() const
+  {
+    return m_pi0ClusContainer.size();
+  }
+
+  inline int TauPi0Details::nPi0s() const
+  {
+    // Currently the number of reco pi0s is the number of candidates
+    return m_pi0CandContainer.size();
+  }
+
+
+  inline const std::vector<TauShot*>& TauPi0Details::shotVector() const
+  {
+    return m_shotContainer;
+  }
+
+  inline std::vector<TauShot*>& TauPi0Details::shotVector()
+  {
+    return m_shotContainer;
+  }
+
+  inline void TauPi0Details::addShot( TauShot* shot )
+  {
+    m_shotContainer.push_back( shot );
+  }
+
+  inline int TauPi0Details::nShots() const
+  {
+    return m_shotContainer.size();
+  }
+
+
+
+
+
+  // inline void TauPi0Details::doVertexCorrection(Amg::Vector3D* tauJetVertex) const
+  // {
+  //   for(unsigned iCluster=0;iCluster<unsigned (this->nPi0Clusters());++iCluster){
+  //     CaloClusterVertexCorrection::setVertex(this->pi0ClusterVector().at(iCluster)->cluster(), tauJetVertex);
+  //   }
+  // }
+
+ 
+  inline CLHEP::HepLorentzVector TauPi0Details::sumPi0hlv() const
+  {
+    CLHEP::HepLorentzVector vis4Mom(0., 0., 0., 0.);
+    for(unsigned iCandidate=0;iCandidate < unsigned (this->nPi0Candidates());++iCandidate){
+      vis4Mom+=this->pi0CandidateVector().at(iCandidate)->hlv();
+    }
+    return vis4Mom; 
+  }
+
+  inline void TauPi0Details::setVisTauhlv(CLHEP::HepLorentzVector visTauhlv)
+  {
+    m_visTau_hlv=visTauhlv;
+  }
+
+  inline CLHEP::HepLorentzVector TauPi0Details::visTauhlv() const
+  {
+    return m_visTau_hlv;
+  }
+
+}

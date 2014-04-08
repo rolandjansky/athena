@@ -1,0 +1,4 @@
+<lcgdict>
+ <enum pattern="TauJetParameters::*"/>
+ <variable pattern="TauJetParameters::*"/>
+</lcgdict>

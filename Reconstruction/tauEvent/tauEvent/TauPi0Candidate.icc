@@ -1,0 +1,83 @@
+// dear emacs, this is -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+using namespace CLHEP;
+
+namespace Analysis{
+  
+    //-------------------------------------------------------------------------
+    // clusters
+    //-------------------------------------------------------------------------
+
+    inline const TauPi0Cluster* TauPi0Candidate::pi0Cluster(unsigned int i) const
+    {
+        return m_pi0ClusterVector[i];
+    }
+
+    inline const std::vector<TauPi0Cluster*>& TauPi0Candidate::pi0ClusterVec() const
+    {
+      return m_pi0ClusterVector ;
+    }
+  
+    inline std::vector<TauPi0Cluster*>& TauPi0Candidate::pi0ClusterVec()
+    {
+      return m_pi0ClusterVector;
+    }
+
+    inline unsigned int TauPi0Candidate::nPi0Cluster() const
+    {
+        return m_pi0ClusterVector.size();
+    }
+
+    inline CLHEP::HepLorentzVector TauPi0Candidate::hlv() const
+    {
+      CLHEP::HepLorentzVector cand4Mom(0., 0., 0., 0.);
+      double mPi0 = 134.98*MeV;
+      if(this->nPi0Cluster() == 1){
+
+        // Cluster E has been measured in Calo. Cluster Pt has been calculated using a 0 mass hypthesis.
+        // Therefore recalculate Cluster Pt using pi0 mass hypothesis
+        double clusterE = this->pi0Cluster( 0 )->cluster()->e();
+        double clusterEta = this->pi0Cluster( 0 )->cluster()->eta();
+        // Make sure clusterE>=mPi0, since sqrt(clusterE*clusterE-mPi0*mPi0) is used
+        if(clusterE<mPi0) clusterE = mPi0;
+        double clusterPt = std::sqrt(clusterE*clusterE-mPi0*mPi0)/std::cosh(clusterEta);
+
+        // Set hlv. Steps are copied from /atlas/Trigger/TrigAlgorithms/TrigDiMuon/src/TrigDiMuonFast.cxx
+        double clusterPhi = this->pi0Cluster( 0 )->cluster()->phi();
+ 
+        double cot=1/std::tan(2*std::atan(std::exp(-clusterEta)));
+        double px=std::cos(clusterPhi)*clusterPt;
+        double py=std::sin(clusterPhi)*clusterPt;
+        double pz=cot*clusterPt;
+
+        cand4Mom = HepLorentzVector(px,py,pz,clusterE);
+      }
+      // TODO: Reconsider how to define the hlv for nPi0Cluster!=1. 
+      else if(this->nPi0Cluster() != 0){
+        for(unsigned iCluster=0; iCluster<this->nPi0Cluster();++iCluster){
+          cand4Mom+=this->pi0Cluster( iCluster )->cluster()->hlv();
+        }
+        // Recalculate Candidate Pt using pi0 mass hypothesis
+        double candidatePt = std::sqrt(cand4Mom.e()*cand4Mom.e()-mPi0*mPi0)/std::cosh(cand4Mom.eta());
+
+        // Set hlv. Steps are copied from /atlas/Trigger/TrigAlgorithms/TrigDiMuon/src/TrigDiMuonFast.cxx
+        double cot=1/std::tan(2*std::atan(std::exp(-cand4Mom.eta())));
+        double px=std::cos(cand4Mom.phi())*candidatePt;
+        double py=std::sin(cand4Mom.phi())*candidatePt;
+        double pz=cot*candidatePt;
+        
+        cand4Mom = HepLorentzVector(px,py,pz,cand4Mom.e());
+      }
+      return cand4Mom;
+    }
+
+    inline void TauPi0Candidate ::addPi0Cluster( TauPi0Cluster *pi0Cluster )
+    {
+      m_pi0ClusterVector.push_back( pi0Cluster );
+    }
+} //end of namespace analysis

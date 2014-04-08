@@ -1,0 +1,94 @@
+// dear emacs, this is -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace Analysis{
+  
+        
+    //-------------------------------------------------------------------------
+    // photon shot 
+    //-------------------------------------------------------------------------
+
+    inline void TauShot::setCluster( const CaloCluster *cluster, const CaloClusterContainer *cont )
+    {
+      if( !cont )
+	   m_cluster.setElement( cluster );
+      else
+	   m_cluster.toContainedElement( *cont,  cluster );
+    }
+
+    inline const CaloCluster* TauShot::cluster() const
+    {
+        return *m_cluster;
+    }
+
+    inline ElementLink<CaloClusterContainer> TauShot::clusterLink() const
+    {
+      return m_cluster;
+    }
+
+
+    inline void TauShot::setSeedCell( const CaloCell *cell, const CaloCellContainer *cont )
+    {
+      if( !cont )
+	   m_seedCell.setElement( cell );
+      else
+	   m_seedCell.toContainedElement( *cont,  cell );
+    }
+
+    inline const CaloCell* TauShot::seedCell() const
+    {
+        return *m_seedCell;
+    }
+
+    inline ElementLink<CaloCellContainer> TauShot::seedCellLink() const
+    {
+        return m_seedCell;
+    }
+
+    // other setters/getters
+    inline int   TauShot::nCellsInEta()   const      {return m_nCellsInEta;}
+    inline void  TauShot::setNCellsInEta(int set)    {m_nCellsInEta=set;}
+    inline float TauShot::pt1()   const      {return m_pt1;}
+    inline void  TauShot::setpt1(float set)  {m_pt1=set;}
+    inline float TauShot::pt3()   const      {return m_pt3;}
+    inline void  TauShot::setpt3(float set)  {m_pt3=set;}
+    inline float TauShot::pt5()   const      {return m_pt5;}
+    inline void  TauShot::setpt5(float set)  {m_pt5=set;}
+    inline float TauShot::ws5()   const      {return m_ws5;}
+    inline void  TauShot::setws5(float set)  {m_ws5=set;}
+    inline float TauShot::sdevEta5_WRTmean()   const      {return m_sdevEta5_WRTmean;}
+    inline void  TauShot::setsdevEta5_WRTmean(float set)  {m_sdevEta5_WRTmean=set;}
+    inline float TauShot::sdevEta5_WRTmode()   const      {return m_sdevEta5_WRTmode;}
+    inline void  TauShot::setsdevEta5_WRTmode(float set)  {m_sdevEta5_WRTmode=set;}
+    inline float TauShot::sdevPt5()   const      {return m_sdevPt5;}
+    inline void  TauShot::setsdevPt5(float set)  {m_sdevPt5=set;}
+    inline float TauShot::deltaPt12_min()   const      {return m_deltaPt12_min;}
+    inline void  TauShot::setdeltaPt12_min(float set)  {m_deltaPt12_min=set;}
+    inline float TauShot::Fside_3not1()   const      {return m_Fside_3not1;}
+    inline void  TauShot::setFside_3not1(float set)  {m_Fside_3not1=set;}
+    inline float TauShot::Fside_5not1()   const      {return m_Fside_5not1;}
+    inline void  TauShot::setFside_5not1(float set)  {m_Fside_5not1=set;}
+    inline float TauShot::Fside_5not3()   const      {return m_Fside_5not3;}
+    inline void  TauShot::setFside_5not3(float set)  {m_Fside_5not3=set;}
+    inline float TauShot::fracSide_3not1()   const      {return m_fracSide_3not1;}
+    inline void  TauShot::setfracSide_3not1(float set)  {m_fracSide_3not1=set;}
+    inline float TauShot::fracSide_5not1()   const      {return m_fracSide_5not1;}
+    inline void  TauShot::setfracSide_5not1(float set)  {m_fracSide_5not1=set;}
+    inline float TauShot::fracSide_5not3()   const      {return m_fracSide_5not3;}
+    inline void  TauShot::setfracSide_5not3(float set)  {m_fracSide_5not3=set;}
+    inline float TauShot::pt1OverPt3()   const      {return m_pt1OverPt3;}
+    inline void  TauShot::setpt1OverPt3(float set)  {m_pt1OverPt3=set;}
+    inline float TauShot::pt3OverPt5()   const      {return m_pt3OverPt5;}
+    inline void  TauShot::setpt3OverPt5(float set)  {m_pt3OverPt5=set;}
+    inline float TauShot::mergedScore()   const      {return m_mergedScore;}
+    inline void  TauShot::setmergedScore(float set)  {m_mergedScore=set;}
+    inline float TauShot::signalScore()   const      {return m_signalScore;} 
+    inline void  TauShot::setsignalScore(float set)  {m_signalScore=set;}
+    inline int   TauShot::nPhotons()   const      {return m_nPhotons;}
+    inline void  TauShot::setNPhotons(int set)    {m_nPhotons=set;}
+
+} //end of namespace analysis

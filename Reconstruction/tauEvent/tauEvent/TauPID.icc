@@ -1,0 +1,108 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///@file TauCommonDetails.icc
+///
+/// Inline function implementations for tau PID details class
+///
+///Package: Reconstruction/TauEvent
+///
+///@author Thomas Burgess
+///
+/// Created by Thomas Burgess on 2008-10-28.
+///
+/// $Id: TauPID.icc,v 1.2 2009-01-21 12:22:11 tburgess Exp $
+
+#include <cmath>
+
+namespace Analysis {
+    inline TauPID::TauPID()
+    {
+    }
+
+    inline TauPID::~TauPID() 
+    {
+    }
+
+    inline bool TauPID::operator!=( const TauPID& rhs ) const 
+    {
+        return !((*this)==rhs);
+    }
+
+    //-------------------------------------------------------------------------
+    // Has discriminant
+    //-------------------------------------------------------------------------
+    inline bool TauPID::hasDiscriminant(
+            TauJetParameters::TauID discID ) const
+    {
+        using namespace std;
+        vector<pair<TauJetParameters::TauID, double> >::const_iterator it =
+            m_params.begin();
+        for( ; it != m_params.end() && (*it).first != discID; ++it )
+            ;
+        return it != m_params.end();
+    }
+
+    //-------------------------------------------------------------------------
+    // Get discriminant
+    //-------------------------------------------------------------------------
+    inline double TauPID::discriminant(
+            TauJetParameters::TauID discID ) const
+    {
+        using namespace std;
+        vector<pair<TauJetParameters::TauID, double> >::const_iterator it =
+            m_params.begin();
+        for( ; it != m_params.end() && (*it).first != discID; ++it )
+            ;
+        return (it != m_params.end()) ? (*it).second : TauDetails::DEFAULT;
+    }
+
+    //-------------------------------------------------------------------------
+    // Set discriminant
+    //-------------------------------------------------------------------------
+    inline void TauPID::setDiscriminant(
+            TauJetParameters::TauID discID,
+            double disc )
+    {
+        using namespace std;
+        vector<pair<TauJetParameters::TauID, double> >::iterator it =
+            m_params.begin();
+        for( ; it != m_params.end() && (*it).first != discID; ++it )
+            ;
+        if( it != m_params.end() )
+            (*it).second = disc;
+        else
+            m_params.push_back( make_pair( discID, disc ) );
+    }
+
+    //-------------------------------------------------------------------------
+    // Accept
+    //-------------------------------------------------------------------------
+    inline bool TauPID::isTau(
+            TauJetParameters::IsTauFlag flag ) const
+    {
+        return m_isTauFlags[flag];
+    }
+
+    inline void TauPID::setIsTau(
+            TauJetParameters::IsTauFlag flag, bool value )
+    {
+        m_isTauFlags[flag] = value;
+    }
+
+    //-------------------------------------------------------------------------
+    // Veto flags accessors
+    //-------------------------------------------------------------------------
+    inline void TauPID::setFlag(
+            TauJetParameters::VetoFlags flag, bool value )
+    {
+        m_vetoFlags[flag] = value;
+    }
+
+    inline bool TauPID::flag(
+            TauJetParameters::VetoFlags flag ) const
+    {
+        return m_vetoFlags[flag];
+    }
+}

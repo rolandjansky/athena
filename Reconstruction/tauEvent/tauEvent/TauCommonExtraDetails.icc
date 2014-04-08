@@ -1,0 +1,450 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///@file TauCommonExtraDetails.icc
+///
+/// Inline function implementations for tau event extra details class
+///
+///Package: Reconstruction/TauEvent
+///
+///@author Thomas Burgess
+///
+/// Created by Thomas Burgess on 2008-10-28.
+///
+/// $Id: TauCommonExtraDetails.icc,v 1.1 2008-11-28 13:31:17 tburgess Exp $
+
+namespace Analysis{
+
+    template <class stream>
+    void TauCommonExtraDetails::printOn(stream& o) const
+    {
+        o << "TauCommonExtraDetails: {"
+            << "sumPtLooseTrk: " << m_sumPtLooseTrk << ";\n"
+            << "sumPtTrk: " << m_sumPtTrk << ";\n"
+            // m_closestEtaTrkVertCell not printed
+            // m_closestPhiTrkVertCell not printed
+            // m_closestEtaTrkCell not printed
+            // m_closestPhiTrkCell not printed
+            << "etaTrkCaloSamp: ";
+        for(std::vector<std::vector<double> >::const_iterator iter
+                = m_etaTrkCaloSamp.begin();
+                iter!=m_etaTrkCaloSamp.end(); ++iter) {
+            o << "{";
+            std::copy((*iter).begin(),
+                    (*iter).end(),
+                    std::ostream_iterator<double>(o," "));
+            o << "}";
+        }
+        o << "};\n"
+            << "phiTrkCaloSamp: {";
+        for(std::vector<std::vector<double> >::const_iterator iter
+                = m_phiTrkCaloSamp.begin();
+                iter!=m_phiTrkCaloSamp.end(); ++iter) {
+            o << "{";
+            std::copy((*iter).begin(),
+                    (*iter).end(),
+                    std::ostream_iterator<double>(o," "));
+            o << "}";
+        }
+        o << "};\n";
+        for(std::vector<std::vector<double> >::const_iterator iter
+                = m_etaLooseTrkCaloSamp.begin();
+                iter!=m_etaLooseTrkCaloSamp.end(); ++iter) {
+            o << "{";
+            std::copy((*iter).begin(),
+                    (*iter).end(),
+                    std::ostream_iterator<double>(o," "));
+            o << "}";
+        }
+        o << "};\n"
+            << "phiLooseTrkCaloSamp: {";
+        for(std::vector<std::vector<double> >::const_iterator iter
+                = m_phiLooseTrkCaloSamp.begin();
+                iter!=m_phiLooseTrkCaloSamp.end(); ++iter) {
+            o << "{";
+            std::copy((*iter).begin(),
+                    (*iter).end(),
+                    std::ostream_iterator<double>(o," "));
+            o << "}";
+        }
+        o << "};\n"
+            << "seedCalo_nEMCell: " << m_seedCalo_nEMCell << ";\n"
+            << "seedCalo_stripEt: " << m_seedCalo_stripEt << ";\n"
+            << "seedCalo_EMCentFrac: " << m_seedCalo_EMCentFrac << ";\n"
+            << "seedCalo_sumCellEnergy: " << m_seedCalo_sumCellEnergy << ";\n"
+            << "seedCalo_sumEMCellEnergy: " << m_seedCalo_sumEMCellEnergy << ";"
+            << "};";
+    }
+
+    inline bool TauCommonExtraDetails::operator!=( 
+            const TauCommonExtraDetails& rhs ) const 
+    {
+        return !((*this)==rhs);
+    }
+
+    //
+    // Common for track and calo seeded tau reconstruction
+    //
+
+    //-------------------------------------------------------------------------
+    // sumPtLooseTrk - sum of p_T for loose tracks
+    //-------------------------------------------------------------------------
+
+
+    inline double TauCommonExtraDetails::sumPtLooseTrk() const
+    {
+        return m_sumPtLooseTrk;
+    }
+
+    inline void TauCommonExtraDetails::setSumPtLooseTrk(
+            double pt)
+    {
+        m_sumPtLooseTrk=pt;
+    }
+
+    //-------------------------------------------------------------------------
+    // sumPtTrk - sum of p_T for tracks
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonExtraDetails::sumPtTrk() const
+    {
+        return m_sumPtTrk;
+    }
+
+    inline void TauCommonExtraDetails::setSumPtTrk(
+            double pt)
+    {
+        m_sumPtTrk = pt;
+    }
+
+    //-------------------------------------------------------------------------
+    // closestEtaTrkVertCell
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestEtaTrkVertCell() const
+        {
+            return m_closestEtaTrkVertCell;
+        }
+
+    inline std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestEtaTrkVertCell()
+        {
+            return m_closestEtaTrkVertCell;
+        }
+
+    inline const CaloCell *TauCommonExtraDetails::closestEtaTrkVertCell( int itrk, int num ) const
+    {
+        if( m_closestEtaTrkVertCell[itrk][num].isValid() )
+            return *m_closestEtaTrkVertCell[itrk][num];
+        else
+            return 0;
+    }
+
+
+    inline void TauCommonExtraDetails::setClosestEtaTrkVertCell(
+            const std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+            closestEtaTrkVertCell)
+    {
+        m_closestEtaTrkVertCell = closestEtaTrkVertCell;
+    }
+
+    inline void TauCommonExtraDetails :: setClosestEtaTrkVertCell(
+            const CaloCell *val,
+            const CaloCellContainer *cont, int itrk, int num )
+    {
+        m_closestEtaTrkVertCell[itrk][num].toContainedElement( *cont,val );
+    }
+
+
+    //-------------------------------------------------------------------------
+    // closestPhiTrkVertCell
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestPhiTrkVertCell() const
+        {
+            return m_closestPhiTrkVertCell;
+        }
+
+    inline std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestPhiTrkVertCell()
+        {
+            return m_closestPhiTrkVertCell;
+        }
+
+
+    inline const CaloCell *TauCommonExtraDetails::closestPhiTrkVertCell( int itrk, int num ) const
+    {
+        if( m_closestPhiTrkVertCell[itrk][num].isValid() )
+            return *m_closestPhiTrkVertCell[itrk][num];
+        else
+            return 0;
+    }
+
+    inline void TauCommonExtraDetails::setClosestPhiTrkVertCell(
+            const std::vector<std::vector<ElementLink<CaloCellContainer> > >& closestPhiTrkVertCell)
+    {
+        m_closestPhiTrkVertCell = closestPhiTrkVertCell;
+    }
+
+    inline void TauCommonExtraDetails :: setClosestPhiTrkVertCell( const CaloCell *val,
+            const CaloCellContainer *cont, int itrk, int num )
+    {
+        m_closestPhiTrkVertCell[itrk][num].toContainedElement( *cont,val );
+    }
+
+
+
+
+    //-------------------------------------------------------------------------
+    // closestEtaTrkCell
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestEtaTrkCell() const
+        {
+            return m_closestEtaTrkCell;
+        }
+
+    inline std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestEtaTrkCell()
+        {
+            return m_closestEtaTrkCell;
+        }
+
+    inline const CaloCell *TauCommonExtraDetails::closestEtaTrkCell( int itrk, int num ) const
+    {
+        if( m_closestEtaTrkCell[itrk][num].isValid() )
+            return *m_closestEtaTrkCell[itrk][num];
+        else
+            return 0;
+    }
+
+
+    inline void TauCommonExtraDetails::setClosestEtaTrkCell(
+            const std::vector<std::vector<ElementLink<CaloCellContainer> > >& closestEtaTrkCell)
+    {
+        m_closestEtaTrkCell = closestEtaTrkCell;
+    }
+
+    inline void TauCommonExtraDetails :: setClosestEtaTrkCell( const CaloCell *val,
+            const CaloCellContainer *cont, int itrk, int num )
+    {
+        m_closestEtaTrkCell[itrk][num].toContainedElement( *cont,val );
+    }
+
+
+
+    //-------------------------------------------------------------------------
+    // closestPhiTrkCell
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestPhiTrkCell() const
+        {
+            return m_closestPhiTrkCell;
+        }
+
+    inline std::vector<std::vector<ElementLink<CaloCellContainer> > >&
+        TauCommonExtraDetails::closestPhiTrkCell()
+        {
+            return m_closestPhiTrkCell;
+        }
+
+    inline const CaloCell *TauCommonExtraDetails::closestPhiTrkCell( int itrk, int num ) const
+    {
+        if( m_closestPhiTrkCell[itrk][num].isValid() )
+            return *m_closestPhiTrkCell[itrk][num];
+        else
+            return 0;
+    }
+
+
+    inline void TauCommonExtraDetails::setClosestPhiTrkCell(
+            const std::vector<std::vector<ElementLink<CaloCellContainer> > >& closestPhiTrkCell)
+    {
+        m_closestPhiTrkCell = closestPhiTrkCell;
+    }
+
+    inline void TauCommonExtraDetails :: setClosestPhiTrkCell( const CaloCell *val,
+            const CaloCellContainer *cont, int itrk, int num )
+    {
+        m_closestPhiTrkCell[itrk][num].toContainedElement( *cont,val );
+    }
+
+
+
+    //-------------------------------------------------------------------------
+    // etaTrkCaloSamp
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<double> > &
+        TauCommonExtraDetails::etaTrkCaloSamp() const
+        {
+            return m_etaTrkCaloSamp;
+        }
+
+    inline std::vector<std::vector<double> > &
+        TauCommonExtraDetails::etaTrkCaloSamp()
+        {
+            return m_etaTrkCaloSamp;
+        }
+
+    inline void TauCommonExtraDetails::setEtaTrkCaloSamp(
+            const std::vector<std::vector<double> > &etaTrkCaloSamp)
+    {
+        m_etaTrkCaloSamp = etaTrkCaloSamp;
+    }
+
+    //-------------------------------------------------------------------------
+    // phiTrkCaloSamp
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<double> > &
+        TauCommonExtraDetails::phiTrkCaloSamp() const
+        {
+            return m_phiTrkCaloSamp;
+        }
+
+    inline std::vector<std::vector<double> > &
+        TauCommonExtraDetails::phiTrkCaloSamp()
+        {
+            return m_phiTrkCaloSamp;
+        }
+
+    inline void TauCommonExtraDetails::setPhiTrkCaloSamp(
+            const std::vector<std::vector<double> > &phiTrkCaloSamp)
+    {
+        m_phiTrkCaloSamp = phiTrkCaloSamp;
+    }
+
+
+    //-------------------------------------------------------------------------
+    // etaLooseTrkCaloSamp
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<double> > &
+        TauCommonExtraDetails::etaLooseTrkCaloSamp() const
+        {
+            return m_etaLooseTrkCaloSamp;
+        }
+
+    inline std::vector<std::vector<double> > &
+        TauCommonExtraDetails::etaLooseTrkCaloSamp()
+        {
+            return m_etaLooseTrkCaloSamp;
+        }
+
+    inline void TauCommonExtraDetails::setEtaLooseTrkCaloSamp(
+            const std::vector<std::vector<double> > &etaLooseTrkCaloSamp)
+    {
+        m_etaLooseTrkCaloSamp = etaLooseTrkCaloSamp;
+    }
+
+    //-------------------------------------------------------------------------
+    // phiTrkCaloSamp
+    //-------------------------------------------------------------------------
+
+    inline const std::vector<std::vector<double> > &
+        TauCommonExtraDetails::phiLooseTrkCaloSamp() const
+        {
+            return m_phiLooseTrkCaloSamp;
+        }
+
+    inline std::vector<std::vector<double> > &
+        TauCommonExtraDetails::phiLooseTrkCaloSamp()
+        {
+            return m_phiLooseTrkCaloSamp;
+        }
+
+    inline void TauCommonExtraDetails::setPhiLooseTrkCaloSamp(
+            const std::vector<std::vector<double> > &phiLooseTrkCaloSamp)
+    {
+        m_phiLooseTrkCaloSamp = phiLooseTrkCaloSamp;
+    }
+
+
+
+
+    //
+    // Applicable for calo seeded tau reconstruction
+    //
+
+    //-------------------------------------------------------------------------
+    // seedCalo_nEMCell -  number of EM cells
+    //-------------------------------------------------------------------------
+
+    inline int TauCommonExtraDetails::seedCalo_nEMCell() const
+    {
+        return m_seedCalo_nEMCell;
+    }
+
+    inline void TauCommonExtraDetails::setSeedCalo_nEMCell(
+            int n)
+    {
+        m_seedCalo_nEMCell = n;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_stripEt - sum of ET in strip layer
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonExtraDetails::seedCalo_stripEt() const
+    {
+        return m_seedCalo_stripEt;
+    }
+
+    inline void TauCommonExtraDetails::setSeedCalo_stripEt(
+            double et)
+    {
+        m_seedCalo_stripEt = et;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_EMCentFrac -  EM Centrality Fraction
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonExtraDetails::seedCalo_EMCentFrac() const
+    {
+        return m_seedCalo_EMCentFrac;
+    }
+
+    inline void TauCommonExtraDetails::setSeedCalo_EMCentFrac(
+            double fraction)
+    {
+        m_seedCalo_EMCentFrac=fraction;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_sumCellEnergy - Energy sum
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonExtraDetails::seedCalo_sumCellEnergy() const
+    {
+        return m_seedCalo_sumCellEnergy;
+    }
+
+    inline void TauCommonExtraDetails::setSeedCalo_sumCellEnergy(
+            double energy)
+    {
+        m_seedCalo_sumCellEnergy = energy;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_sumEMCellEnergy - EM energy sum
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonExtraDetails::seedCalo_sumEMCellEnergy() const
+    {
+        return m_seedCalo_sumEMCellEnergy;
+    }
+
+    inline void TauCommonExtraDetails::setSeedCalo_sumEMCellEnergy(
+            double energy)
+    {
+        m_seedCalo_sumEMCellEnergy = energy;
+    }
+
+}

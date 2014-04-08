@@ -1,0 +1,1673 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///@file TauCommonDetails.icc
+///
+/// Inline function implementations for tau event details class
+///
+///Package: Reconstruction/TauEvent
+///
+///@author Noel Dawe, Thomas Burgess
+///
+/// Created by Thomas Burgess on 2008-10-28.
+///
+/// $Id: TauCommonDetails.icc,v 1.3 2009-02-08 21:25:25 slai Exp $
+
+namespace Analysis {
+    template <class stream>
+        void TauCommonDetails::printOn(stream& o) const
+        {	
+            o << "TauCommonDetails: {"
+                << "ipZ0SinThetaSigLeadTrk: "<<m_ipZ0SinThetaSigLeadTrk<<";\n"
+                << "etOverPtLeadTrk: "<<m_etOverPtLeadTrk<<";\n"
+                << "etOverPtLeadLooseTrk: "<<m_etOverPtLeadLooseTrk<<";\n"
+                << "leadTrkPt: "<<m_leadTrkPt<<";\n"
+                << "leadLooseTrkPt: "<<m_leadLooseTrkPt<<";\n"
+                << "ipSigLeadTrk: "<<m_ipSigLeadTrk<<";\n"
+                << "ipSigLeadLooseTrk: "<<m_ipSigLeadLooseTrk<<";\n"
+                << "looseTrk: {";
+            for(ElementLinkVector<Rec::TrackParticleContainer>::const_iterator itrk
+                    = m_looseTrk.begin(); itrk!=m_looseTrk.end(); ++itrk)
+                o << *(*itrk) << " ";
+            o << "};\n"
+                << "looseConvTrk: {";
+            for(ElementLinkVector<Rec::TrackParticleContainer>::const_iterator itrk
+                    = m_looseConvTrk.begin(); itrk!=m_looseConvTrk.end(); ++itrk)
+                o << *(*itrk) << " ";
+            o << "};\n"	
+                << "chrgLooseTrk: "<<m_chrgLooseTrk<<";\n"
+                // m_cellEM012Cluster not printed
+                <<"sumPi0Vec: "<<m_sumPi0Vec<<";\n"
+                << "massTrkSys: "<<m_massTrkSys<<";\n"
+                << "trkWidth2: "<<m_trkWidth2<<";\n"
+                << "trFlightPathSig: "<<m_trFlightPathSig<<";\n"
+                << "secVtx: ";
+            if (m_secVtx==0) o<< "0"; else m_secVtx->dump(o);
+            o << ";\n"	
+                << "etEflow: "<<m_etEflow<<";\n"
+                << "mEflow: "<<m_mEflow<<";\n"
+
+
+                <<"m_Ele_E237E277: "<< m_Ele_E237E277<<";\n"
+                <<"m_Ele_PresamplerFraction: "<< m_Ele_PresamplerFraction<<";\n"
+                <<"m_Ele_ECALFirstFraction: "<< m_Ele_ECALFirstFraction<<";\n"
+
+                //topocluster ID variables		
+                <<"m_numCells: "<< m_numCells<<";\n"
+                <<"m_numTopoClusters: "<< m_numTopoClusters<<";\n"
+                <<"m_numEffTopoClusters: "<< m_numEffTopoClusters<<";\n"
+                <<"m_topoInvMass: "<< m_topoInvMass<<";\n"
+                <<"m_effTopoInvMass: "<< m_effTopoInvMass<<";\n"
+                <<"m_topoMeanDeltaR: "<< m_topoMeanDeltaR<<";\n"
+                <<"m_effTopoMeanDeltaR: "<< m_effTopoMeanDeltaR<<";\n"
+
+                //
+                //Applicable for calo seeded tau reconstruction
+                //
+
+                // m_pi0 not printed 
+                <<"seedCalo_nIsolLooseTrk: "<<m_seedCalo_nIsolLooseTrk<<";\n"
+                <<"seedCalo_EMRadius: "<<m_seedCalo_EMRadius<<";\n"
+                <<"seedCalo_hadRadius: "<<m_seedCalo_hadRadius<<";\n"
+                <<"seedCalo_etEMAtEMScale: "<<m_seedCalo_etEMAtEMScale<<";\n"
+                <<"seedCalo_etHadAtEMScale: "<<m_seedCalo_etHadAtEMScale<<";\n"
+                <<"seedCalo_isolFrac: "<<m_seedCalo_isolFrac<<";\n"
+                <<"seedCalo_centFrac: "<<m_seedCalo_centFrac<<";\n"
+                <<"seedCalo_stripWidth2: "<<m_seedCalo_stripWidth2<<";\n"
+                <<"seedCalo_nStrip: "<<m_seedCalo_nStrip<<";\n"
+                <<"seedCalo_etEMCalib: "<<m_seedCalo_etEMCalib<<";\n"
+                <<"seedCalo_etHadCalib: "<<m_seedCalo_etHadCalib<<";\n"
+                <<"seedCalo_eta: "<<m_seedCalo_eta<<";\n"
+                <<"seedCalo_phi: "<<m_seedCalo_phi<<";\n"
+                <<"seedCalo_trkAvgDist: "<<m_seedCalo_trkAvgDist<<";\n"
+                <<"seedCalo_trkRmsDist: "<<m_seedCalo_trkRmsDist<<";\n"
+                <<"seedCalo_lead2ClusterEOverAllClusterE: "<<m_seedCalo_lead2ClusterEOverAllClusterE<<";\n"
+                <<"seedCalo_lead3ClusterEOverAllClusterE: "<<m_seedCalo_lead3ClusterEOverAllClusterE<<";\n"
+                <<"seedCalo_caloIso: "<<m_seedCalo_caloIso<<";\n"                
+                <<"seedCalo_caloIsoCorrected: "<<m_seedCalo_caloIsoCorrected<<";\n"  
+                <<"seedCalo_dRmax: "<<m_seedCalo_dRmax<<";\n"              
+
+                //
+                //Applicable for track seeded tau reconstruction	
+                //
+
+                <<"seedTrk_EMRadius: "<<m_seedTrk_EMRadius<<";\n"
+                <<"seedTrk_isolFrac: "<<m_seedTrk_isolFrac<<";\n"
+                <<"seedTrk_etChrgHadOverSumTrkPt: "
+                <<m_seedTrk_etChrgHadOverSumTrkPt<<";\n"
+                <<"seedTrk_isolFracWide: "<<m_seedTrk_isolFracWide<<";\n"
+                <<"seedTrk_etHadAtEMScale: "<<m_seedTrk_etHadAtEMScale<<";\n"
+                <<"seedTrk_etEMAtEMScale: "<<m_seedTrk_etEMAtEMScale<<";\n"
+                <<"seedTrk_etEMCL: "<<m_seedTrk_etEMCL<<";\n"
+                <<"seedTrk_etChrgEM: "<<m_seedTrk_etChrgEM<<";\n"
+                <<"seedTrk_etNeuEM: "<<m_seedTrk_etNeuEM<<";\n"
+                <<"seedTrk_etResNeuEM: "<<m_seedTrk_etResNeuEM<<";\n"
+                <<"seedTrk_hadLeakEt: "<<m_seedTrk_hadLeakEt<<";\n"
+                << "seedTrk_etChrgEM01Trk: {";
+            std::copy(m_seedTrk_etChrgEM01Trk.begin(),
+                    m_seedTrk_etChrgEM01Trk.end(),
+                    std::ostream_iterator<double>(o," "));
+            o << "};\n"
+                << "seedTrk_etResChrgEMTrk){";
+            std::copy(m_seedTrk_etResChrgEMTrk.begin(),
+                    m_seedTrk_etResChrgEMTrk.end(),
+                    std::ostream_iterator<double>(o," "));
+            o << "};\n"
+                <<"seedTrk_sumEMCellEtOverLeadTrkPt: "
+                <<m_seedTrk_sumEMCellEtOverLeadTrkPt<<";\n"
+                <<"seedTrk_secMaxStripEt: "<<m_seedTrk_secMaxStripEt<<";\n"
+                <<"seedTrk_stripWidth2: "<<m_seedTrk_stripWidth2<<";\n"
+                <<"seedTrk_nStrip: "<<m_seedTrk_nStrip<<";\n"
+                <<"seedTrk_etChrgHad: "<<m_seedTrk_etChrgHad<<";\n"
+                <<"seedTrk_nOtherCoreTrk: "<<m_seedTrk_nOtherCoreTrk<<";\n"
+                <<"seedTrk_nIsolTrk: "<<m_seedTrk_nIsolTrk<<";\n"
+                <<"seedTrk_etIsolEM: "<<m_seedTrk_etIsolEM<<";\n"
+                <<"seedTrk_etIsolHad: "<<m_seedTrk_etIsolHad<<";\n"
+		            <<"EM_TES_scale: "<<m_EM_TES_scale<<";\n"
+		            <<"LC_TES_precalib: "<<m_LC_TES_precalib<<";\n"
+		            <<"cellBasedEnergyRing1: "<<m_cellBasedEnergyRing1<<";\n"
+		            <<"cellBasedEnergyRing2: "<<m_cellBasedEnergyRing2<<";\n"
+		            <<"cellBasedEnergyRing3: "<<m_cellBasedEnergyRing3<<";\n"
+		            <<"cellBasedEnergyRing4: "<<m_cellBasedEnergyRing4<<";\n"
+		            <<"cellBasedEnergyRing5: "<<m_cellBasedEnergyRing5<<";\n"
+		            <<"cellBasedEnergyRing6: "<<m_cellBasedEnergyRing6<<";\n"
+		            <<"cellBasedEnergyRing7: "<<m_cellBasedEnergyRing7<<";\n"
+		            <<"TRT_NHT_OVER_NLT: " <<m_TRT_NHT_OVER_NLT<<";\n"
+
+		            //Tau Jet Vertex Fraction
+		            <<"TauJetVtxFraction: " <<m_TauJetVtxFraction<<";\n"
+
+                //Track filter and generic pi0 cone
+		            <<"TrackFilterProngs: "<<m_TrackFilterProngs<<";\n"
+		            <<"TrackFilterQuality: "<<m_TrackFilterQuality<<";\n"
+		            <<"Pi0ConeDR: "<<m_Pi0ConeDR<<";\n"
+
+                //End
+                << "};";
+        }
+
+    inline bool TauCommonDetails::operator!=( 
+            const TauCommonDetails& rhs ) const 
+    {
+        return !((*this)==rhs);
+    }
+
+    /////////////////////////////////////////////////////////////////////
+    //
+    // Common for track and calo seeded tau reconstruction
+    //
+    /////////////////////////////////////////////////////////////////////
+
+    //-------------------------------------------------------------------------
+    // ipZ0SinThetaSigLeadTrk - Significance of z0SinTheta
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::ipZ0SinThetaSigLeadTrk() const
+    {
+        return m_ipZ0SinThetaSigLeadTrk;
+    }
+
+    inline void TauCommonDetails::setIpZ0SinThetaSigLeadTrk(
+            double significance )
+    {
+        m_ipZ0SinThetaSigLeadTrk = significance;
+    }
+
+    //-------------------------------------------------------------------------
+    // etOverPtLeadTrk - leading E_T to p_T ratio
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::etOverPtLeadTrk() const
+    {
+        return m_etOverPtLeadTrk;
+    }
+
+    inline void TauCommonDetails::setEtOverPtLeadTrk(double ratio)
+    {
+        m_etOverPtLeadTrk=ratio;
+    }
+
+    // --------------------------------------------------------------
+    // etOverPtLeadLooseTrk - Tau candidate E_T over leading loose track p_T
+    // --------------------------------------------------------------
+
+    inline double TauCommonDetails::etOverPtLeadLooseTrk() const
+    {
+        return m_etOverPtLeadLooseTrk;
+    }
+
+    inline void TauCommonDetails::setEtOverPtLeadLooseTrk(
+            double ratio )
+    {
+        m_etOverPtLeadLooseTrk = ratio;
+    }
+
+    //-------------------------------------------------------------------------
+    // leadTrkPt - leading track p_T
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::leadTrkPt() const
+    {
+        return m_leadTrkPt;
+    }
+
+    inline void TauCommonDetails::setLeadTrkPt(double pt)
+    {
+        m_leadTrkPt=pt;
+    }
+
+    //-----------------------------------------------------------------------
+    // leadLooseTrkPt - p_T of leading loose track
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::leadLooseTrkPt() const
+    {
+        return m_leadLooseTrkPt;
+    }
+
+    inline void TauCommonDetails::setLeadLooseTrkPt(
+            double pT )
+    {
+        m_leadLooseTrkPt=pT;
+    }
+
+    // --------------------------------------------------------------
+    // ipSigLeadTrk - impact parameter significance
+    // --------------------------------------------------------------
+
+    inline double TauCommonDetails::ipSigLeadTrk() const
+    {
+        return m_ipSigLeadTrk;
+    }
+
+    inline void TauCommonDetails::setIpSigLeadTrk(
+            double significance )
+    {
+        m_ipSigLeadTrk = significance;
+    }
+
+    // --------------------------------------------------------------
+    // ipSigLeadLooseTrk - impact parameter significance
+    // --------------------------------------------------------------
+
+    inline double TauCommonDetails::ipSigLeadLooseTrk() const
+    {
+        return m_ipSigLeadLooseTrk;
+    }
+
+    inline void TauCommonDetails::setIpSigLeadLooseTrk(
+            double significance )
+    {
+        m_ipSigLeadLooseTrk = significance;
+    }
+
+    //-----------------------------------------------------------------------
+    // LooseTrk - collection of loose tracks
+    //-----------------------------------------------------------------------
+
+    inline const Rec::TrackParticle *TauCommonDetails::looseTrk(
+            unsigned int i ) const
+    {
+        if( m_looseTrk.size() <= i )
+            return 0;
+        else if( m_looseTrk[i].isValid() )
+            return *(m_looseTrk[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::looseTrk() const
+        {
+            return m_looseTrk;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::looseTrk()
+        {
+            return m_looseTrk;
+        }
+
+    inline void TauCommonDetails::addLooseTrk(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_looseTrk.push_back( link ) ;
+    }
+
+    inline unsigned int TauCommonDetails::nLooseTrk() const
+    {
+        return m_looseTrk.size();
+    }
+
+    //-----------------------------------------------------------------------
+    // LooseConvTrk - collection of loose conversion tracks
+    //-----------------------------------------------------------------------
+
+    inline const Rec::TrackParticle *TauCommonDetails::looseConvTrk(
+            unsigned int i ) const
+    {
+        if( m_looseConvTrk.size() <= i )
+            return 0;
+        else if( m_looseConvTrk[i].isValid() )
+            return *(m_looseConvTrk[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::looseConvTrk() const
+        {
+            return m_looseConvTrk;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::looseConvTrk()
+        {
+            return m_looseConvTrk;
+        }
+
+    inline void TauCommonDetails::addLooseConvTrk(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_looseConvTrk.push_back( link ) ;
+    }
+
+    inline unsigned int TauCommonDetails::nLooseConvTrk() const
+    {
+        return m_looseConvTrk.size();
+    }
+
+
+    inline int TauCommonDetails::nProngLoose() const
+    {
+        return m_looseTrk.size()-m_looseConvTrk.size();
+    }
+
+    inline bool TauCommonDetails::isLooseConvTrk(
+            unsigned int i) const
+    {
+        if (m_looseTrk.size()<=i) return false;
+        return find ( 
+                m_looseConvTrk.begin(), 
+                m_looseConvTrk.end(), 
+                m_looseTrk[i] ) != m_looseConvTrk.end();
+    }
+
+
+    //-----------------------------------------------------------------------
+    // Seed Calo Wide Trk - collection of SeedCalo wide tracks
+    //-----------------------------------------------------------------------
+
+    inline const Rec::TrackParticle *TauCommonDetails::seedCalo_wideTrk(
+            unsigned int i ) const
+    {
+        if( m_seedCalo_wideTrk.size() <= i )
+            return 0;
+        else if( m_seedCalo_wideTrk[i].isValid() )
+            return *(m_seedCalo_wideTrk[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::seedCalo_wideTrk() const
+        {
+            return m_seedCalo_wideTrk;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::seedCalo_wideTrk()
+        {
+            return m_seedCalo_wideTrk;
+        }
+
+    inline void TauCommonDetails::addSeedCalo_wideTrk(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_seedCalo_wideTrk.push_back( link ) ;
+    }
+
+    inline unsigned int TauCommonDetails::seedCalo_nWideTrk() const
+    {
+        return m_seedCalo_wideTrk.size();
+    }
+
+    //-----------------------------------------------------------------------
+    // Seed Trk Wide Trk - collection of seedTrk wide tracks
+    //-----------------------------------------------------------------------
+
+    inline const Rec::TrackParticle *TauCommonDetails::seedTrk_wideTrk(
+            unsigned int i ) const
+    {
+        if( m_seedTrk_wideTrk.size() <= i )
+            return 0;
+        else if( m_seedTrk_wideTrk[i].isValid() )
+            return *(m_seedTrk_wideTrk[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::seedTrk_wideTrk() const
+        {
+            return m_seedTrk_wideTrk;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::seedTrk_wideTrk()
+        {
+            return m_seedTrk_wideTrk;
+        }
+
+    inline void TauCommonDetails::addSeedTrk_wideTrk(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_seedTrk_wideTrk.push_back( link ) ;
+    }
+
+    inline unsigned int TauCommonDetails::seedTrk_nWideTrk() const
+    {
+        return m_seedTrk_wideTrk.size();
+    }
+
+    //-----------------------------------------------------------------------
+    // OtherTrk - collection of other tracks
+    //-----------------------------------------------------------------------
+
+    inline const Rec::TrackParticle *TauCommonDetails::otherTrk(
+            unsigned int i ) const
+    {
+        if( m_otherTrk.size() <= i )
+            return 0;
+        else if( m_otherTrk[i].isValid() )
+            return *(m_otherTrk[i]);
+        else
+            return 0;
+    }
+
+    inline const ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::otherTrk() const
+        {
+            return m_otherTrk;
+        }
+
+    inline ElementLinkVector<Rec::TrackParticleContainer>&
+        TauCommonDetails::otherTrk()
+        {
+            return m_otherTrk;
+        }
+
+    inline void TauCommonDetails::addOtherTrk(
+            const Rec::TrackParticleContainer *cont,
+            const Rec::TrackParticle *track )
+    {
+        ElementLink<Rec::TrackParticleContainer> link;
+        link.toContainedElement( *cont,  track ) ;
+        m_otherTrk.push_back( link ) ;
+    }
+
+    inline unsigned int TauCommonDetails::nOtherTrk() const
+    {
+        return m_otherTrk.size();
+    }
+
+
+    //-------------------------------------------------------------------------
+    // chrgLooseTrk - charge of loose tracks
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::chrgLooseTrk() const
+    {
+        return m_chrgLooseTrk;
+    }
+
+    inline void TauCommonDetails::setChrgLooseTrk(double charge)
+    {
+        m_chrgLooseTrk = charge;
+    }
+
+    //-------------------------------------------------------------------------
+    // cellEM0Cluster - EM calorimeter cell cluster
+    //-------------------------------------------------------------------------
+
+    inline const CaloCluster *TauCommonDetails::cellEM012Cluster() const
+    {
+        //Return cluster if valid cluster is set, 0 otherwise
+        return ( (m_cellEM012Cluster.isValid()) ? (*m_cellEM012Cluster) : 0 );
+    }
+
+    inline void TauCommonDetails::setCellEM012Cluster(
+            const CaloClusterContainer *cont,
+            const CaloCluster *clust )
+    {
+        //Reset if allready set
+        if( m_cellEM012Cluster.isValid() )
+            m_cellEM012Cluster.reset();
+        m_cellEM012Cluster.toContainedElement( *cont, clust);
+    }
+
+    inline const ElementLink<CaloClusterContainer>&
+        TauCommonDetails::cellEM012ClusterLink() const
+        {
+            return m_cellEM012Cluster;
+        }
+
+    inline ElementLink<CaloClusterContainer>&
+        TauCommonDetails::cellEM012ClusterLink()
+        {
+            return m_cellEM012Cluster;
+        }
+
+    inline void TauCommonDetails::setCellEM012ClusterLink(
+            const ElementLink<CaloClusterContainer> &x)
+    {
+        m_cellEM012Cluster = x;
+    }
+
+    //-------------------------------------------------------------------------
+    // m_sumPi0Vec - Pi0 energy sum vector
+    //-------------------------------------------------------------------------
+
+    inline const CLHEP::HepLorentzVector &TauCommonDetails::sumPi0Vec() const
+    {
+        return m_sumPi0Vec;
+    }
+
+    inline void TauCommonDetails::setSumPi0Vec(
+            const CLHEP::HepLorentzVector &sum )
+    {
+        m_sumPi0Vec = sum;
+    }
+
+
+    //-------------------------------------------------------------------------
+    // massTrkSys - track system invariant mass
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::massTrkSys() const
+    {
+        return m_massTrkSys;
+    }
+
+    inline void TauCommonDetails::setMassTrkSys(double mass)
+    {
+        m_massTrkSys = mass;
+    }
+
+    //-------------------------------------------------------------------------
+    // trkWidth2 - track width ^2
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::trkWidth2() const
+    {
+        return m_trkWidth2;
+    }
+
+    inline void TauCommonDetails::setTrkWidth2(double trkWidth2)
+    {
+        m_trkWidth2 = trkWidth2;
+    }
+
+    //-------------------------------------------------------------------------
+    // trFlightPathSig - Set Transverse flight path significance
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::trFlightPathSig() const
+    {
+        return m_trFlightPathSig;
+    }
+
+    inline void TauCommonDetails::setTrFlightPathSig(
+            double significance )
+    {
+        m_trFlightPathSig=significance;
+    }
+
+    //-------------------------------------------------------------------------
+    // secVtx - Set secondary vertex
+    //-------------------------------------------------------------------------
+
+    inline const Trk::RecVertex* TauCommonDetails::secVtx() const
+    {
+        return m_secVtx;
+    }
+
+    inline void TauCommonDetails::setSecVtx(
+            const Trk::RecVertex* secVtx )
+    {
+        delete m_secVtx;
+        m_secVtx = new Trk::RecVertex(*secVtx);
+    }
+
+    //-------------------------------------------------------------------------
+    // etEflow - E_T from energy flow
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::etEflow() const
+    {
+        return m_etEflow;
+    }
+
+    inline void TauCommonDetails::setEtEflow(
+            double et )
+    {
+        m_etEflow = et;
+    }
+
+    //-------------------------------------------------------------------------
+    // mEflow - mass from energy flow
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::mEflow() const
+    {
+        return m_mEflow;
+    }
+
+    inline void TauCommonDetails::setMEflow(
+            double m )
+    {
+        m_mEflow = m;
+    }
+
+    //-------------------------------------------------------------------------
+    // pi0 - pi0 cluster
+    //-------------------------------------------------------------------------
+
+    inline const CaloCluster* TauCommonDetails::pi0(
+            unsigned int i) const
+    {
+        return *m_pi0[i];
+    }
+
+    inline const ElementLinkVector<CaloClusterContainer>&
+        TauCommonDetails::pi0LinkVec() const
+        {
+            return m_pi0;
+        }
+
+    inline ElementLinkVector<CaloClusterContainer>&
+        TauCommonDetails::pi0LinkVec()
+        {
+            return m_pi0;
+        }
+
+    inline unsigned int TauCommonDetails::nPi0() const
+    {
+        return  m_pi0.size();
+    }
+
+    inline void TauCommonDetails::addPi0(
+            const CaloCluster *pi0,
+            const CaloClusterContainer *cont )
+    {
+        ElementLink<CaloClusterContainer> link;
+        if( !cont )
+            link.setElement( pi0 );
+        else
+            link.toContainedElement( *cont,  pi0 );
+        m_pi0.push_back( link );
+    }
+
+
+    /// name accessors for electron LLH variables
+
+    /// get ratio of energy in window of 3X7 cells over 7X7 cells in second layer of ECAL
+    inline double TauCommonDetails::ele_E237E277() const
+    {
+        return m_Ele_E237E277;
+    }
+
+    /// set ratio of energy in window of 3X7 cells over 7X7 cells in second layer of ECAL
+    inline void TauCommonDetails::setEle_E237E277( double value )
+    {
+        m_Ele_E237E277 = value;
+    }
+
+    /// get fraction of EM cluster energy in presampler
+    inline double TauCommonDetails::ele_PresamplerFraction() const
+    {
+        return m_Ele_PresamplerFraction;
+    }
+
+    /// set fraction of EM cluster energy in presampler
+    inline void TauCommonDetails::setEle_PresamplerFraction( double value )
+    {
+        m_Ele_PresamplerFraction = value;
+    }
+
+
+    /// get fraction of EM cluster energy in first layer of ECAL
+    inline double TauCommonDetails::ele_ECALFirstFraction() const
+    {
+        return m_Ele_ECALFirstFraction;
+    }
+
+    /// set fraction of EM cluster energy in first layer of ECAL
+    inline void TauCommonDetails::setEle_ECALFirstFraction( double value )
+    {
+        m_Ele_ECALFirstFraction = value;
+    }
+
+
+    /// name accessors for topocluster ID variables
+
+    /// get number of cells associated to tau candidate
+    inline unsigned int TauCommonDetails::numCells() const
+    {
+        return m_numCells;
+    }
+
+    /// set number of cells associated to tau candidate
+    inline void TauCommonDetails::setNumCells( unsigned int value )
+    {
+        m_numCells = value;
+    }
+
+
+    /// get number of topoclusters associated to tau candidate
+    inline unsigned int TauCommonDetails::numTopoClusters() const
+    {
+        return m_numTopoClusters;
+    }
+
+    /// set number of topoclusters associated to tau candidate
+    inline void TauCommonDetails::setNumTopoClusters( unsigned int value )
+    {
+        m_numTopoClusters = value;
+    }
+
+
+    /// get number of topoclusters associated to tau candidate
+    inline double TauCommonDetails::numEffTopoClusters() const
+    {
+        return m_numEffTopoClusters;
+    }
+
+    /// set number of topoclusters associated to tau candidate
+    inline void TauCommonDetails::setNumEffTopoClusters( double value )
+    {
+        m_numEffTopoClusters = value;
+    }
+
+
+
+    /// get invariant mass of topoclusters associated to tau candidate
+    inline double TauCommonDetails::topoInvMass() const
+    {
+        return m_topoInvMass;
+    }
+
+    /// set invariant mass of topoclusters associated to tau candidate
+    inline void TauCommonDetails::setTopoInvMass( double value )
+    {
+        m_topoInvMass = value;
+    }
+
+
+    /// get invariant mass of effective topoclusters associated to tau candidate
+    inline double TauCommonDetails::effTopoInvMass() const
+    {
+        return m_effTopoInvMass;
+    }
+
+    /// set invariant mass of effective topoclusters associated to tau candidate
+    inline void TauCommonDetails::setEffTopoInvMass( double value )
+    {
+        m_effTopoInvMass = value;
+    }
+
+
+    /// get mean distance to leading topocluster for  topoclusters associated to tau candidate
+    inline double TauCommonDetails::topoMeanDeltaR() const
+    {
+        return m_topoMeanDeltaR;
+    }
+
+    /// set mean distance to leading topocluster for  topoclusters associated to tau candidate
+    inline void TauCommonDetails::setTopoMeanDeltaR( double value )
+    {
+        m_topoMeanDeltaR = value;
+    }
+
+
+    /// get mean distance to leading topocluster for  effective topoclusters associated to tau candidate
+    inline double TauCommonDetails::effTopoMeanDeltaR() const
+    {
+        return m_effTopoMeanDeltaR;
+    }
+
+    /// set mean distance to leading topocluster for  effective topoclusters associated to tau candidate
+    inline void TauCommonDetails::setEffTopoMeanDeltaR( double value )
+    {
+        m_effTopoMeanDeltaR = value;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////
+    //
+    // Applicable for calo seeded tau reconstruction
+    //
+    /////////////////////////////////////////////////////////////////////
+
+    //-------------------------------------------------------------------------
+    // seedCalo_EMRadius - E_T radius
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_EMRadius() const
+    {
+        return m_seedCalo_EMRadius;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_EMRadius(
+            double EMRadius)
+    {
+        m_seedCalo_EMRadius=EMRadius;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCaol_hadRadius - Hadron calorimeter radius
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_hadRadius() const
+    {
+        return m_seedCalo_hadRadius;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_hadRadius(
+            double hadRadius)
+    {
+        m_seedCalo_hadRadius=hadRadius;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_etEMAtEMScale - EM energy at EM scale
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_etEMAtEMScale() const
+    {
+        return m_seedCalo_etEMAtEMScale;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_etEMAtEMScale(
+            double energy)
+    {
+        m_seedCalo_etEMAtEMScale=energy;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_etHadAtEMScale - Hadronic energy at EM scale
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_etHadAtEMScale() const
+    {
+        return m_seedCalo_etHadAtEMScale;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_etHadAtEMScale(
+            double energy)
+    {
+        m_seedCalo_etHadAtEMScale=energy;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_isolFrac - Isolation fraction
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_isolFrac() const
+    {
+        return m_seedCalo_isolFrac;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_isolFrac(
+            double isolFrac)
+    {
+        m_seedCalo_isolFrac=isolFrac;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_centFrac - Centrality fraction
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_centFrac() const
+    {
+        return m_seedCalo_centFrac;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_centFrac(
+            double centFrac)
+    {
+        m_seedCalo_centFrac=centFrac;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_stripWidth2 - Strip width ^2
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_stripWidth2() const
+    {
+        return m_seedCalo_stripWidth2;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_stripWidth2(
+            double stripWidth2)
+    {
+        m_seedCalo_stripWidth2=stripWidth2;
+    }
+
+    //-------------------------------------------------------------------------
+    // seedCalo_nStrip - Number of strips
+    //-------------------------------------------------------------------------
+
+    inline int TauCommonDetails::seedCalo_nStrip() const
+    {
+        return m_seedCalo_nStrip;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_nStrip(
+            int nStrip)
+    {
+        m_seedCalo_nStrip=nStrip;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedCalo_etEMCalib - Calibrated EM E_T
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_etEMCalib() const
+    {
+        return m_seedCalo_etEMCalib;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_etEMCalib(
+            double etEMCalib)
+    {
+        m_seedCalo_etEMCalib=etEMCalib;
+    }
+    //-----------------------------------------------------------------------
+    // seedCalo_etHadCalib - Calibrated hadronic E_T
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_etHadCalib() const
+    {
+        return m_seedCalo_etHadCalib;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_etHadCalib(
+            double etHadCalib)
+    {
+        m_seedCalo_etHadCalib=etHadCalib;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedCalo_eta - TauJet Eta from calorimeter
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_eta() const
+    {
+        return m_seedCalo_eta;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_eta(
+            double eta)
+    {
+        m_seedCalo_eta=eta;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedCalo_phi - TauJet phi from calorimeter
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_phi() const
+    {
+        return m_seedCalo_phi;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_phi(
+            double phi)
+    {
+        m_seedCalo_phi=phi;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedCalo_nIsolLooseTrk - Number of isolated track
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_nIsolLooseTrk() const
+    {
+        return m_seedCalo_nIsolLooseTrk;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_nIsolLooseTrk(
+            double nIsolTRk )
+    {
+        m_seedCalo_nIsolLooseTrk=nIsolTRk;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedCalo_trkAvgDist - average track distance from calo seed
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_trkAvgDist() const
+    {
+        return m_seedCalo_trkAvgDist;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_trkAvgDist(
+            double trkAvgDist )
+    {
+        m_seedCalo_trkAvgDist=trkAvgDist;
+    }
+
+
+    //-----------------------------------------------------------------------
+    // seedCalo_trkRmsDist - RMS of track distance from calo seed
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_trkRmsDist() const
+    {
+        return m_seedCalo_trkRmsDist;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_trkRmsDist(
+            double trkRmsDist )
+    {
+        m_seedCalo_trkRmsDist=trkRmsDist;
+    }
+    
+    //-----------------------------------------------------------------------   
+    // sum of 2 leading cluster energy over all cluster energy
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedCalo_lead2ClusterEOverAllClusterE() const
+    {
+      return m_seedCalo_lead2ClusterEOverAllClusterE;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_lead2ClusterEOverAllClusterE( double lead2ClusterEOverAllClusterE )
+    {
+       m_seedCalo_lead2ClusterEOverAllClusterE = lead2ClusterEOverAllClusterE;
+    }
+    
+    //-----------------------------------------------------------------------   
+    // sum of 3 leading cluster energy over all cluster energy
+    //-----------------------------------------------------------------------
+    inline double TauCommonDetails::seedCalo_lead3ClusterEOverAllClusterE() const 
+    {
+      return m_seedCalo_lead3ClusterEOverAllClusterE;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_lead3ClusterEOverAllClusterE( double lead3ClusterEOverAllClusterE ) 
+    {
+       m_seedCalo_lead3ClusterEOverAllClusterE = lead3ClusterEOverAllClusterE;
+    }
+
+    //-----------------------------------------------------------------------   
+    // sum of transvers energy of clusters around jet seed within 0.2 < dR < 0.4
+    //-----------------------------------------------------------------------
+    inline double TauCommonDetails::seedCalo_caloIso() const
+    {
+      return m_seedCalo_caloIso;
+    }
+    
+    inline void TauCommonDetails::setSeedCalo_caloIso( double caloIso )
+    {
+       m_seedCalo_caloIso = caloIso;
+    }
+
+    //-----------------------------------------------------------------------   
+    // sum of transvers energy of clusters around jet seed within 0.2 < dR < 0.4  (pile up corrected)
+    //-----------------------------------------------------------------------
+    inline double TauCommonDetails::seedCalo_caloIsoCorrected() const
+    {
+      return m_seedCalo_caloIsoCorrected;
+    }
+    
+    inline void TauCommonDetails::setSeedCalo_caloIsoCorrected( double caloIsoCorrected )
+    {
+       m_seedCalo_caloIsoCorrected = caloIsoCorrected;
+    }
+
+    //-----------------------------------------------------------------------   
+    // maximal dR of tracks associated to calo-seeded tau
+    //-----------------------------------------------------------------------   
+    inline double TauCommonDetails::seedCalo_dRmax() const
+    {
+      return m_seedCalo_dRmax;
+    }
+
+    inline void TauCommonDetails::setSeedCalo_dRmax( double dRmax )
+    {
+      m_seedCalo_dRmax = dRmax;
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////////
+    //
+    // Applicable for track seeded tau reconstruction
+    //
+    /////////////////////////////////////////////////////////////////////
+
+    //-------------------------------------------------------------------------
+    // m_seedTrk_EMRadius - EM Radius
+    //-------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_EMRadius() const
+    {
+        return m_seedTrk_EMRadius;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_EMRadius(
+            double EMRadius )
+    {
+        m_seedTrk_EMRadius = EMRadius;
+    }
+
+    //------------------------------------------------------------------------
+    // m_seedTrk_isolFrac - isolation fraction
+    //------------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_isolFrac() const
+    {
+        return m_seedTrk_isolFrac;
+    }
+
+    inline void  TauCommonDetails::setSeedTrk_isolFrac(
+            double isolFrac )
+    {
+        m_seedTrk_isolFrac = isolFrac;
+    }
+
+    //-----------------------------------------------------------------------
+    // etChrgHadOverSumTrkPt - E_T over P_t
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etChrgHadOverSumTrkPt () const
+    {
+        return m_seedTrk_etChrgHadOverSumTrkPt ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etChrgHadOverSumTrkPt (
+            double ratio )
+    {
+        m_seedTrk_etChrgHadOverSumTrkPt  = ratio;
+    }
+
+    //-----------------------------------------------------------------------
+    // isolFracWide - wide isolation fraction
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_isolFracWide() const
+    {
+        return m_seedTrk_isolFracWide;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_isolFracWide(
+            double fraction )
+    {
+        m_seedTrk_isolFracWide = fraction;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etHadAtEMScale
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etHadAtEMScale () const
+    {
+        return m_seedTrk_etHadAtEMScale ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etHadAtEMScale (
+            double et )
+    {
+        m_seedTrk_etHadAtEMScale  = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etEMAtEMScale
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etEMAtEMScale () const
+    {
+        return m_seedTrk_etEMAtEMScale ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etEMAtEMScale (
+            double et )
+    {
+        m_seedTrk_etEMAtEMScale  = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etEMCL
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etEMCL () const
+    {
+        return m_seedTrk_etEMCL ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etEMCL (
+            double et )
+    {
+        m_seedTrk_etEMCL = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etChrgEM - E_T of charged EM cells
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etChrgEM () const
+    {
+        return m_seedTrk_etChrgEM ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etChrgEM (
+            double et )
+    {
+        m_seedTrk_etChrgEM = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etNeuEM - E_T of neutral EM cells
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etNeuEM () const
+    {
+        return m_seedTrk_etNeuEM ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etNeuEM (
+            double et )
+    {
+        m_seedTrk_etNeuEM = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etResNeuEM - eflow correction term
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etResNeuEM () const
+    {
+        return m_seedTrk_etResNeuEM ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etResNeuEM (
+            double et )
+    {
+        m_seedTrk_etResNeuEM = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_sumEMCellEtOverLeadTrkPt - LAr+EM E_T/leading track p_T
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_sumEMCellEtOverLeadTrkPt() const
+    {
+        return m_seedTrk_sumEMCellEtOverLeadTrkPt ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_sumEMCellEtOverLeadTrkPt(
+            double ratio )
+    {
+        m_seedTrk_sumEMCellEtOverLeadTrkPt = ratio;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_hadLeakEt - hadronic leakage in EM summed over all cells
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_hadLeakEt () const
+    {
+        return m_seedTrk_hadLeakEt ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_hadLeakEt (
+            double et )
+    {
+        m_seedTrk_hadLeakEt = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etChrgEM01Trk - E_T around track
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etChrgEM01Trk(
+            unsigned int i ) const
+    {
+        return ( m_seedTrk_etChrgEM01Trk.size()>i) ?
+            m_seedTrk_etChrgEM01Trk[i] : 0.;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etChrgEM01Trk(
+            unsigned int i,
+            double et )
+    {
+        if( m_seedTrk_etChrgEM01Trk.size() < i )
+            m_seedTrk_etChrgEM01Trk[i] = et;
+    }
+
+    inline void TauCommonDetails::addSeedTrk_etChrgEM01Trk(
+            double et )
+    {
+        m_seedTrk_etChrgEM01Trk.push_back( et );
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etResChrgEMTrk - correction term for eflow
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etResChrgEMTrk(
+            unsigned int i ) const
+    {
+        return ( m_seedTrk_etResChrgEMTrk.size()>i) ?
+            m_seedTrk_etResChrgEMTrk[i] : 0.;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etResChrgEMTrk(
+            unsigned int i,
+            double et )
+    {
+        if( m_seedTrk_etResChrgEMTrk.size() < i )
+            m_seedTrk_etResChrgEMTrk[i] = et;
+    }
+
+    inline void TauCommonDetails::addSeedTrk_etResChrgEMTrk(
+            double et )
+    {
+        m_seedTrk_etResChrgEMTrk.push_back( et );
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_secMaxStripEt - secondary maximum
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_secMaxStripEt () const
+    {
+        return m_seedTrk_secMaxStripEt ;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_secMaxStripEt (
+            double et )
+    {
+        m_seedTrk_secMaxStripEt = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_StripWidth^2 - strip width ^2
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_stripWidth2() const
+    {
+        return m_seedTrk_stripWidth2;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_stripWidth2(
+            double stripWidth2 )
+    {
+        m_seedTrk_stripWidth2 = stripWidth2;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_nStrip - number of strips
+    //-----------------------------------------------------------------------
+    inline int TauCommonDetails::seedTrk_nStrip() const
+    {
+        return m_seedTrk_nStrip;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_nStrip(
+            int nStrip )
+    {
+        m_seedTrk_nStrip=nStrip;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etChrgHad - Charged E_T in Had calo in hadronic calorimeter
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etChrgHad() const
+    {
+        return m_seedTrk_etChrgHad;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etChrgHad(
+            double et )
+    {
+        m_seedTrk_etChrgHad = et;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_nOtherCoreTrk - number of other tracks
+    //-----------------------------------------------------------------------
+
+    inline int TauCommonDetails::seedTrk_nOtherCoreTrk() const
+    {
+        return m_seedTrk_nOtherCoreTrk;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_nOtherCoreTrk(
+            int n )
+    {
+        m_seedTrk_nOtherCoreTrk = n;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_nIsolTrk - number of isolated tracks
+    //-----------------------------------------------------------------------
+
+    inline int TauCommonDetails::seedTrk_nIsolTrk() const
+    {
+        return m_seedTrk_nIsolTrk;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_nIsolTrk(
+            int n )
+    {
+        m_seedTrk_nIsolTrk = n;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etIsolEM - transverse energy in EM calo
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etIsolEM() const
+    {
+        return m_seedTrk_etIsolEM;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etIsolEM(
+            double etIsolEM )
+    {
+        m_seedTrk_etIsolEM=etIsolEM;
+    }
+
+    //-----------------------------------------------------------------------
+    // seedTrk_etIsolHad - Get transverse energy in Had calo
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::seedTrk_etIsolHad() const
+    {
+        return m_seedTrk_etIsolHad;
+    }
+
+    inline void TauCommonDetails::setSeedTrk_etIsolHad(
+            double etIsolHad )
+    {
+        m_seedTrk_etIsolHad = etIsolHad;
+    }
+
+    ///////////////////////////////////////////////////
+    //
+    // Energy Scale getter/setters
+    //
+    ///////////////////////////////////////////////////
+
+    /// get EM+TES final scale
+    inline double TauCommonDetails::EM_TES_scale() const
+    {
+        return m_EM_TES_scale;
+    }
+
+    /// set EM+TES final scale
+    inline void TauCommonDetails::set_EM_TES_scale(double value)
+    {
+        m_EM_TES_scale = value;
+    }
+
+    /// get LC+TES precalibration
+    inline double TauCommonDetails::LC_TES_precalib() const
+    {
+        return m_LC_TES_precalib;
+    }
+
+    /// set LC+TES precalibration
+    inline void TauCommonDetails::set_LC_TES_precalib(double value)
+    {
+        m_LC_TES_precalib = value;
+    }
+    //@}
+
+    //////////////////////////////////////////////////////////////////////
+    //
+    // Cell-based energies in rings getters/setters
+    //
+    //////////////////////////////////////////////////////////////////////
+    /// Ring 1: 0.00  < R < 0.05
+    inline double TauCommonDetails::cellBasedEnergyRing1() const
+    {
+        return m_cellBasedEnergyRing1;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing1(double value)
+    {
+	m_cellBasedEnergyRing1 = value;
+
+    }
+	
+    /// Ring 2: 0.05  < R < 0.075
+    inline double TauCommonDetails::cellBasedEnergyRing2() const
+    {
+        return m_cellBasedEnergyRing2;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing2(double value)
+    {
+	m_cellBasedEnergyRing2 = value;
+
+    }
+
+    /// Ring 3: 0.075 < R < 0.10
+    inline double TauCommonDetails::cellBasedEnergyRing3() const
+    {
+        return m_cellBasedEnergyRing3;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing3(double value)
+    {
+	m_cellBasedEnergyRing3 = value;
+
+    }
+
+    /// Ring 4: 0.10  < R < 0.125
+    inline double TauCommonDetails::cellBasedEnergyRing4() const
+    {
+        return m_cellBasedEnergyRing4;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing4(double value)
+    {
+	m_cellBasedEnergyRing4 = value;
+
+    }
+
+    /// Ring 5: 0.125 < R < 0.15
+    inline double TauCommonDetails::cellBasedEnergyRing5() const
+    {
+        return m_cellBasedEnergyRing5;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing5(double value)
+    {
+	m_cellBasedEnergyRing5 = value;
+
+    }
+
+    /// Ring 6: 0.15  < R < 0.2
+    inline double TauCommonDetails::cellBasedEnergyRing6() const
+    {
+        return m_cellBasedEnergyRing6;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing6(double value)
+    {
+	m_cellBasedEnergyRing6 = value;
+
+    }
+
+    /// Ring 7: 0.2   < R < 0.4
+    inline double TauCommonDetails::cellBasedEnergyRing7() const
+    {
+        return m_cellBasedEnergyRing7;
+
+    }
+
+    inline void TauCommonDetails::setCellBasedEnergyRing7(double value)
+    {
+	m_cellBasedEnergyRing7 = value;
+
+    }
+
+    /// TRT hits high thresholds over low thresholds
+    inline double TauCommonDetails::TRT_NHT_OVER_NLT() const
+    {
+	return m_TRT_NHT_OVER_NLT;
+    }
+
+    inline void TauCommonDetails::setTRT_NHT_OVER_NLT(double value)
+    {
+	m_TRT_NHT_OVER_NLT = value;
+    }
+
+    //-----------------------------------------------------------------------
+    // TJVF - TauJetVtxFraction getter/setter
+    //-----------------------------------------------------------------------
+
+    inline double TauCommonDetails::TauJetVtxFraction() const
+    {
+        return m_TauJetVtxFraction;
+    }
+
+    inline void TauCommonDetails::setTauJetVtxFraction(double value )
+    {
+        m_TauJetVtxFraction = value;
+    }
+
+    //-----------------------------------------------------------------------
+    // Track Filter and Generic Pi0 Cone
+    //-----------------------------------------------------------------------
+
+    // vector bool of which tracks pass the track filter
+    inline std::vector<bool> TauCommonDetails::TrackFilterPass() const
+    {
+        return m_TrackFilterPass;
+    }
+
+    inline void TauCommonDetails::setTrackFilterPass(std::vector<bool> value)
+    {
+        m_TrackFilterPass = value;
+    }
+
+    // nProng based on what the track filter passes
+    inline int TauCommonDetails::TrackFilterProngs() const
+    {
+        return m_TrackFilterProngs;
+    }
+
+    inline void TauCommonDetails::setTrackFilterProngs(int value)
+    {
+        m_TrackFilterProngs = value;
+    }
+
+    // flag used to ID probable fake taus by the track filter
+    inline int TauCommonDetails::TrackFilterQuality() const
+    {
+        return m_TrackFilterQuality;
+    }
+
+    inline void TauCommonDetails::setTrackFilterQuality(int value)
+    {
+        m_TrackFilterQuality = value;
+    }
+
+    // generic cone size (dR)
+    inline double TauCommonDetails::Pi0ConeDR() const
+    {
+        return m_Pi0ConeDR;
+    }
+
+    inline void TauCommonDetails::setPi0ConeDR(double value)
+    {
+        m_Pi0ConeDR = value;
+    }
+
+}
