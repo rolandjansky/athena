@@ -1,0 +1,719 @@
+<ui version="4.0" >
+ <class>TrackingGeometryControllerForm</class>
+ <widget class="QWidget" name="TrackingGeometryControllerForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>566</width>
+    <height>941</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QGroupBox" name="groupBox_3" >
+     <property name="title" >
+      <string>TrackingGeometry Selection</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QLabel" name="label_TrackingGeometrySvcName" >
+        <property name="text" >
+         <string>TrackingGeometrySvcName:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_TrackingGeometrySvcName" />
+      </item>
+      <item>
+       <widget class="QLabel" name="label_TrackingGeometryName" >
+        <property name="text" >
+         <string>TrackingGeometryName:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_TrackingGeometryName" />
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_Retrieve" >
+        <property name="text" >
+         <string>Retrieve</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolBox" name="toolBox" >
+     <property name="frameShape" >
+      <enum>QFrame::Panel</enum>
+     </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="InnerDetector" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>512</width>
+        <height>411</height>
+       </rect>
+      </property>
+      <attribute name="label" >
+       <string>Inner Detector</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QCheckBox" name="checkBox_TrackingVolumes" >
+         <property name="text" >
+          <string>TrackingVolumes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_idandcalogeometry_2" >
+         <property name="title" >
+          <string>Active Surfaces</string>
+         </property>
+         <layout class="QGridLayout" >
+          <item rowspan="2" row="0" column="0" >
+           <widget class="QCheckBox" name="checkBox_PixelSurfacesECA" >
+            <property name="text" >
+             <string>Pixel EC A</string>
+            </property>
+           </widget>
+          </item>
+          <item rowspan="2" row="1" column="1" >
+           <widget class="QCheckBox" name="checkBox_SctSurfacesBarrel" >
+            <property name="text" >
+             <string>SCT Barrel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QCheckBox" name="checkBox_PixelSurfacesBarrel" >
+            <property name="text" >
+             <string>Pixel Barrel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QCheckBox" name="checkBox_PixelSurfacesECC" >
+            <property name="text" >
+             <string>Pixel EC C</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" >
+           <widget class="QCheckBox" name="checkBox_SctSurfacesECC" >
+            <property name="text" >
+             <string>SCT EC C</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QCheckBox" name="checkBox_SctSurfacesECA" >
+            <property name="text" >
+             <string>SCT EC A</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_idandcalogeometry" >
+         <property name="title" >
+          <string>Active Layers</string>
+         </property>
+         <layout class="QGridLayout" >
+          <item rowspan="2" row="0" column="0" >
+           <widget class="QCheckBox" name="checkBox_PixelLayersECA" >
+            <property name="text" >
+             <string>Pixel EC A</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QCheckBox" name="checkBox_SctLayersECA" >
+            <property name="text" >
+             <string>SCT EC A</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <widget class="QCheckBox" name="checkBox_TrtLayersECA" >
+            <property name="text" >
+             <string>TRT EC A</string>
+            </property>
+           </widget>
+          </item>
+          <item rowspan="2" row="1" column="1" >
+           <widget class="QCheckBox" name="checkBox_SctLayersBarrel" >
+            <property name="text" >
+             <string>SCT Barrel</string>
+            </property>
+           </widget>
+          </item>
+          <item rowspan="2" row="1" column="2" >
+           <widget class="QCheckBox" name="checkBox_TrtLayersBarrel" >
+            <property name="text" >
+             <string>TRT Barrel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QCheckBox" name="checkBox_PixelLayersBarrel" >
+            <property name="text" >
+             <string>Pixel Barrel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QCheckBox" name="checkBox_PixelLayersECC" >
+            <property name="text" >
+             <string>Pixel EC C</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" >
+           <widget class="QCheckBox" name="checkBox_SctLayersECC" >
+            <property name="text" >
+             <string>SCT EC C</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" >
+           <widget class="QCheckBox" name="checkBox_TrtLayersECC" >
+            <property name="text" >
+             <string>TRT EC C</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_idandcalogeometry_3" >
+         <property name="title" >
+          <string>Passive Layers</string>
+         </property>
+         <layout class="QVBoxLayout" >
+          <item>
+           <widget class="QCheckBox" name="checkBox_BeamPipeLayer" >
+            <property name="text" >
+             <string>Beampipe</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QCheckBox" name="checkBox_LayersECA" >
+              <property name="text" >
+               <string>Endcap A</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_LayersBarrel" >
+              <property name="text" >
+               <string>Barrel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_LayersECC" >
+              <property name="text" >
+               <string>Endcap C</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>319</width>
+           <height>101</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>319</width>
+           <height>101</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Calorimeter" >
+      <attribute name="label" >
+       <string>Calorimeter</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="MuonSpectrometer" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>365</width>
+        <height>450</height>
+       </rect>
+      </property>
+      <attribute name="label" >
+       <string>Muon Spectrometer</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QGroupBox" name="groupBox_muonframe" >
+           <property name="title" >
+            <string>Frame</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="frame_00" >
+              <property name="text" >
+               <string>barrel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QLabel" name="frame_01" >
+              <property name="text" >
+               <string>endcap A</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" >
+             <widget class="QLabel" name="frame_02" >
+              <property name="text" >
+               <string>endcap C</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="checkBox_MuonStaticFrameB" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QCheckBox" name="checkBox_MuonStaticFrameI" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="QCheckBox" name="checkBox_MuonStaticFrameO" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_muonactivematerial" >
+           <property name="title" >
+            <string>Active Material</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="1" colspan="3" >
+             <widget class="QLabel" name="active_10" >
+              <property name="text" >
+               <string>Volumes</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4" colspan="3" >
+             <widget class="QLabel" name="active_11" >
+              <property name="text" >
+               <string>Layers</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="active_1" >
+              <property name="text" >
+               <string>Barrel(BI/BM/BO)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QCheckBox" name="checkBoxBIVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="QCheckBox" name="checkBoxBMVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3" >
+             <widget class="QCheckBox" name="checkBoxBOVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4" >
+             <widget class="QCheckBox" name="checkBoxBILay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="5" >
+             <widget class="QCheckBox" name="checkBoxBMLay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="6" >
+             <widget class="QCheckBox" name="checkBoxBOLay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="active_2" >
+              <property name="text" >
+               <string>EndCap(EI/EM/EO)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QCheckBox" name="checkBoxEIVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2" >
+             <widget class="QCheckBox" name="checkBoxEMVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3" >
+             <widget class="QCheckBox" name="checkBoxEOVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="4" >
+             <widget class="QCheckBox" name="checkBoxEILay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="5" >
+             <widget class="QCheckBox" name="checkBoxEMLay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="6" >
+             <widget class="QCheckBox" name="checkBoxEOLay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QLabel" name="active_3" >
+              <property name="text" >
+               <string>CSC Stations</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QCheckBox" name="checkBoxCSCVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="4" >
+             <widget class="QCheckBox" name="checkBoxCSCLay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLabel" name="active_4" >
+              <property name="text" >
+               <string>TGC Stations</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QCheckBox" name="checkBoxTGCVol" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="4" >
+             <widget class="QCheckBox" name="checkBoxTGCLay" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_muoninertmaterial" >
+           <property name="title" >
+            <string>Inert Material</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="1" >
+             <widget class="QLabel" name="inert_10" >
+              <property name="text" >
+               <string>Envelopes</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" >
+             <widget class="QLabel" name="inert_11" >
+              <property name="text" >
+               <string>DenseVols/Layers</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="inert_1" >
+              <property name="text" >
+               <string>Barrel Toroids</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QCheckBox" name="checkBoxBTEnv" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="QCheckBox" name="checkBoxBTDL" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="inert_2" >
+              <property name="text" >
+               <string>Endcap Toroids</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QCheckBox" name="checkBoxETEnv" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2" >
+             <widget class="QCheckBox" name="checkBoxETDL" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QLabel" name="inert_3" >
+              <property name="text" >
+               <string>Shieldings</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QCheckBox" name="checkBoxShEnv" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2" >
+             <widget class="QCheckBox" name="checkBoxShDL" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLabel" name="inert_4" >
+              <property name="text" >
+               <string>Feet</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QCheckBox" name="checkBoxFeetEnv" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2" >
+             <widget class="QCheckBox" name="checkBoxFeetDL" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" >
+             <widget class="QLabel" name="inert_5" >
+              <property name="text" >
+               <string>Rails</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1" >
+             <widget class="QCheckBox" name="checkBoxRailEnv" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2" >
+             <widget class="QCheckBox" name="checkBoxRailDL" >
+              <property name="text" >
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="DisplayOptions" >
+      <attribute name="label" >
+       <string>Display Options</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="groupBox_4" >
+         <property name="title" >
+          <string>Display Options</string>
+         </property>
+         <layout class="QVBoxLayout" >
+          <item>
+           <widget class="QCheckBox" name="checkBox_ClipPlane" >
+            <property name="text" >
+             <string>Clip Plane</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>319</width>
+       <height>31</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
