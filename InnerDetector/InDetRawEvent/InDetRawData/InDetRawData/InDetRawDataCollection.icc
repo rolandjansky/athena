@@ -1,0 +1,75 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// InDetRawDataCollection.icc
+//   Implementation file for class InDetRawDataCollection
+///////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+// Version 1.0 13/08/2002 Veronique Boisvert
+///////////////////////////////////////////////////////////////////
+
+//#include "InDetRawData/InDetRawDataCollection.h"
+
+template< class RawDataT >
+// Constructor with parameters:
+InDetRawDataCollection< RawDataT >::InDetRawDataCollection(const 
+							   IdentifierHash idHash) :
+  m_idHash(idHash),
+  m_id()
+{}
+
+template< class RawDataT >
+// Constructor with parameters:
+InDetRawDataCollection< RawDataT >::InDetRawDataCollection() 
+{}
+
+// Destructor:
+template< class RawDataT >
+InDetRawDataCollection< RawDataT >::~InDetRawDataCollection()
+{ }
+
+template< class RawDataT >
+Identifier InDetRawDataCollection< RawDataT >::identify() const
+{
+  return m_id;
+}
+
+template< class RawDataT >
+IdentifierHash InDetRawDataCollection< RawDataT >::identifyHash() const
+{
+  return m_idHash;
+}
+
+template< class RawDataT >
+void InDetRawDataCollection< RawDataT >::setIdentifier(Identifier id)
+{
+  m_id = id;
+}
+
+
+template< class RawDataT >
+MsgStream& operator << ( MsgStream& sl, const InDetRawDataCollection< RawDataT >& coll){
+    sl << "InDetRawDataCollection "
+       << "identify()="<< coll.identify()
+       << ", RDO=[";	  
+    typename InDetRawDataCollection< RawDataT >::const_iterator it = coll.begin();
+    typename InDetRawDataCollection< RawDataT >::const_iterator itEnd = coll.end();
+    for (;it!=itEnd;++it) sl<< (**it)<<", ";
+    sl <<" ]"<<std::endl; 
+    return sl;		  
+}
+
+template< class RawDataT >
+std::ostream& operator << ( std::ostream& sl, const InDetRawDataCollection< RawDataT >& coll) {
+    sl << "InDetRawDataCollection "
+       << "identify()="<< coll.identify()
+       << ", RDO=[";	  
+    typename InDetRawDataCollection< RawDataT >::const_iterator it = coll.begin();
+    typename InDetRawDataCollection< RawDataT >::const_iterator itEnd = coll.end();
+    for (;it!=itEnd;++it) sl<< (**it)<<", ";
+    sl <<" ]"<<std::endl; 
+    return sl;		  
+}
