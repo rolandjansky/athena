@@ -1,0 +1,28 @@
+package xAODTrigCalo
+# $Id: requirements 592214 2014-04-09 19:27:48Z krasznaa $
+
+author Arantxa Ruiz Martinez <aranzazu.ruiz.martinez@cern.ch>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+
+use SGTools                 SGTools-*                 Control
+use AthContainers           AthContainers-*           Control
+
+use xAODCore                xAODCore-*                Event/xAOD
+
+use CaloGeoHelpers 	    CaloGeoHelpers-* 	      Calorimeter
+
+library xAODTrigCalo ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex             AtlasReflex-*             External
+use AtlasROOT               AtlasROOT-*               External
+use AthLinks                AthLinks-*                Control
+
+apply_pattern lcgdict dict=xAODTrigCalo selectionfile=selection.xml \
+                      headerfiles="../xAODTrigCalo/xAODTrigCaloDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
