@@ -1,0 +1,139 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// SiCluster.cxx
+//   Implementation file for class SiCluster
+///////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+// Version 1.0 15/07/2003 Veronique Boisvert
+///////////////////////////////////////////////////////////////////
+
+#include "InDetPrepRawData/SiCluster.h"
+#include "GaudiKernel/MsgStream.h"
+
+namespace InDet{
+
+
+// Constructor for EF:
+SiCluster::SiCluster(
+        const Identifier &RDOId,
+        const Amg::Vector2D& locpos, 
+        const std::vector<Identifier>& rdoList, 
+        const InDet::SiWidth& width,
+        const InDetDD::SiDetectorElement* detEl,
+        const Amg::MatrixX* locErrMat
+        ) :
+        PrepRawData(RDOId, locpos, rdoList, locErrMat), //call base class constructor
+        m_width(width),
+        m_globalPosition(0),
+        m_gangedPixel(0),
+        m_detEl(detEl) {}
+
+// Destructor:
+SiCluster::~SiCluster()
+{
+	delete m_globalPosition;
+	// do not delete m_detEl since owned by DetectorStore
+}
+
+// Default constructor:
+SiCluster::SiCluster():
+	PrepRawData(),
+	m_globalPosition(0),
+	m_gangedPixel(0),
+	m_detEl(0)
+{}
+
+//copy constructor:
+SiCluster::SiCluster(const SiCluster& RIO):
+	PrepRawData( RIO ),
+	m_width( RIO.m_width ),
+	m_globalPosition( 0 ),
+	m_gangedPixel( RIO.m_gangedPixel ),
+	m_detEl( RIO.m_detEl )
+
+{
+  // copy only if it exists
+  m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+}
+
+//assignment operator
+SiCluster& SiCluster::operator=(const SiCluster& RIO){
+      if (&RIO !=this) {
+		delete m_globalPosition;
+		m_width = RIO.m_width;
+		m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+		m_gangedPixel = RIO.m_gangedPixel;
+		m_detEl =  RIO.m_detEl ;
+       }
+       return *this;
+} 
+
+MsgStream& SiCluster::dump( MsgStream&    stream) const
+{
+	stream << "SiCluster object"<<std::endl;
+	
+	// have to do a lot of annoying checking to make sure that PRD is valid. 
+	if ( &(this->globalPosition() )!=0 ) 
+	{
+		stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
+			<<this->globalPosition().y()<<", "
+			<<this->globalPosition().z()<<")"<<std::endl;
+	}
+	
+	if ( gangedPixel()==true ) 
+	{
+		stream << "and is a ganged pixel. "<<std::endl;
+	} else {
+		stream << "and is not a ganged pixel. "<<std::endl;
+	}
+
+        stream << "SiWidth: " << m_width << std::endl;
+
+        stream << "Base class (PrepRawData):" << std::endl;
+        this->PrepRawData::dump(stream);
+
+	return stream;
+}
+
+std::ostream& SiCluster::dump( std::ostream&    stream) const
+{
+	stream << "SiCluster object"<<std::endl;
+	if ( &(this->globalPosition() )!=0 ) 
+	{
+		stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
+			<<this->globalPosition().y()<<", "
+			<<this->globalPosition().z()<<")"<<std::endl;
+	}
+	
+	if ( gangedPixel()==true ) 
+	{
+		stream << "and is a ganged pixel. "<<std::endl;
+	} else {
+		stream << "and is not a ganged pixel. "<<std::endl;
+	}
+
+        stream << "SiWidth: " << m_width << std::endl;
+
+       stream << "Base Class (PrepRawData): " << std::endl;
+       this->PrepRawData::dump(stream);
+
+	return stream;
+}
+
+
+    MsgStream&    operator << (MsgStream& stream,    const SiCluster& prd)
+    {
+        return prd.dump(stream);
+    }
+
+    std::ostream& operator << (std::ostream& stream, const SiCluster& prd)
+    {
+        return prd.dump(stream);
+    }
+
+
+}//end of ns
