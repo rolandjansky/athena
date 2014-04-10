@@ -1,0 +1,250 @@
+/* -*- C++ -*- */
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <algorithm>  /* make_pair */
+#include <cassert>
+#include <string>
+
+/* #include "boost/concept_check.hpp" */
+#include "GaudiKernel/System.h"
+#include "GaudiKernel/StatusCode.h"
+
+#include "AthenaKernel/ITriggerTime.h"
+#include "StoreGate/ActiveStoreSvc.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "CLIDSvc/tools/ClassID_traits.h"
+#include "EventInfo/EventID.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+namespace {
+  template <class DATALINK, typename KEY> 
+  void fillLink(DATALINK& l, const KEY& k, IProxyDictWithPool* sg = 0)
+  { l.toIdentifiedObject(k, sg); }
+
+  struct NoKey {};
+  //MsgStream& operator <<(MsgStream& os, const NoKey&) { os << "Default"; return os; }  
+
+  template <class DATALINK> 
+  void fillLink(DATALINK&, const NoKey&, IProxyDictWithPool*)
+  { /*leave it in default state*/ }
+}
+
+///retrieve keyed DATA obj for the original event
+template <typename KEY, typename DATA>
+StatusCode 
+PileUpMergeSvc::retrieveOriginal(const KEY& dataKey, const DATA*& data) {
+  StatusCode sc(StatusCode::FAILURE);
+  const PileUpEventInfo* pEvent = getPileUpEvent();
+  if (pEvent) {
+    // access the sub events DATA objects...
+    PileUpEventInfo::SubEvent::const_iterator iEvt = pEvent->beginSubEvt();
+    PileUpEventInfo::SubEvent::const_iterator endEvt = pEvent->endSubEvt();
+    if (iEvt != endEvt) {
+      assert(iEvt->pSubEvtSG);
+      //here we assume that the original event is the first in pEvent list
+      sc = iEvt->pSubEvtSG->retrieve(data, dataKey);
+    }
+  }
+  return sc;
+}
+
+///retrieve keyed DATA objs for all sub-events and attach a time to them
+template <typename KEY, typename TIMEDDATA>
+StatusCode 
+PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
+				    TIMEDDATA& timedData, unsigned int& numberOfSimHits)
+{
+  numberOfSimHits=0;
+  typedef typename TIMEDDATA::value_type value_type;  //pair<time_t,DataLink..
+  typedef typename value_type::second_type DataLink_t;
+  typedef typename DataLink_t::value_type data_t;
+  //the tdefs above in practice check that TIMEDDATA is what we want
+  //FIXME we still have to check we are dealing with a sequence:
+  //  boost::function_requires < boost::SequenceConcept<TIMEDDATA> > ();
+  const PileUpEventInfo* pEvent = getPileUpEvent();
+  if (pEvent) {
+    // access the sub events DATA objects...
+    PileUpEventInfo::SubEvent::const_iterator iEvt = pEvent->beginSubEvt();
+    PileUpEventInfo::SubEvent::const_iterator endEvt = pEvent->endSubEvt();
+    while (iEvt != endEvt) {
+      assert(iEvt->pSubEvtSG);
+      assert(iEvt->pSubEvt);
+      //skip if dobj not active for this xing 
+      //FIXME      if (!isLive<data_t>(dataKey, int(iEvt->time()))) {
+      //FIXME turning the double iEvt->time() is fraught with peril. Luckily 
+      //FIXME it just works, but we should have the beam xing in iEvt
+      if (!isLive(ClassID_traits<data_t>::ID(), dataKey, int(iEvt->time()))) {
+#ifndef NDEBUG
+	ATH_MSG_VERBOSE ( "retrieveSubEvtsData: object of type "
+			  << System::typeinfoName(typeid(data_t)) << " with key "
+			  << dataKey << " OUT OF XING RANGE: SKIPPING " );
+#endif
+      } else {
+	p_activeStore->setStore(iEvt->pSubEvtSG);  //FIXME DANGEROUS!
+	DataLink_t dLink;
+	fillLink(dLink, dataKey, iEvt->pSubEvtSG);
+	double sigTime(0.0);
+	unsigned int evtIndex(0);
+	if (dLink.isValid()) {
+	  if (m_returnTimedData.value()) {
+	    sigTime=iEvt->time();
+	    if (!m_pITriggerTime.empty()) sigTime-= m_pITriggerTime->time();
+	    evtIndex = iEvt->index();
+	  }
+	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex), dLink);
+	  numberOfSimHits+=tData.second->size();
+	  timedData.push_back(tData);
+	  ATH_MSG_DEBUG ( "added entry from store " << iEvt->pSubEvtSG->name()
+			  << " for object of type " << System::typeinfoName(typeid(data_t)) 
+			  << "\n with key " << dataKey ); 
+	}
+#ifndef NDEBUG
+	if (msg().level() <= MSG::VERBOSE) {
+	  msg() << MSG::VERBOSE
+		<< "SubEvt EventInfo : "
+		<< " event: " << iEvt->pSubEvt->event_ID()->event_number() 
+		<< " run: " << iEvt->pSubEvt->event_ID()->run_number();
+	  if (m_returnTimedData.value()) {
+	    msg() << " time offset: " << sigTime
+		  << " event index: " << evtIndex;
+	  }
+	  msg() << endreq;    
+	}
+#endif
+      }
+      ++iEvt;	
+    }  
+    //reset active store pointer to default event store FIXME DANGEROUS
+    p_activeStore->setStore(&*p_overStore);
+  } else {		
+    ATH_MSG_DEBUG ( "default PileUpEventInfo not found, trying with EventInfo" ); 
+    const EventInfo* pSimpleEvent;
+    if (((*p_activeStore)->retrieve(pSimpleEvent)).isSuccess()) {
+      DataLink_t dLink;
+      fillLink(dLink, dataKey);
+      if (dLink.isValid()) {
+	timedData.push_back(std::make_pair(0, dLink));
+      }
+    } else {
+      ATH_MSG_FATAL ( "no PileUpEventInfo and no EventInfo object found!" ); 
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+///retrieve keyed DATA objs for all sub-events and attach a time to them
+template <typename KEY, typename TIMEDDATA>
+StatusCode 
+PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
+				    TIMEDDATA& timedData)
+{
+  typedef typename TIMEDDATA::value_type value_type;  //pair<time_t,DataLink..
+  typedef typename value_type::second_type DataLink_t;
+  typedef typename DataLink_t::value_type data_t;
+  //the tdefs above in practice check that TIMEDDATA is what we want
+  //FIXME we still have to check we are dealing with a sequence:
+  //  boost::function_requires < boost::SequenceConcept<TIMEDDATA> > ();
+  const PileUpEventInfo* pEvent = getPileUpEvent();
+  if (pEvent) {
+    // access the sub events DATA objects...
+    PileUpEventInfo::SubEvent::const_iterator iEvt = pEvent->beginSubEvt();
+    PileUpEventInfo::SubEvent::const_iterator endEvt = pEvent->endSubEvt();
+    while (iEvt != endEvt) {
+      assert(iEvt->pSubEvtSG);
+      assert(iEvt->pSubEvt);
+      //skip if dobj not active for this xing 
+      //FIXME      if (!isLive<data_t>(dataKey, int(iEvt->time()))) {
+      //FIXME turning the double iEvt->time() is fraught with peril. Luckily 
+      //FIXME it just works, but we should have the beam xing in iEvt
+      if (!isLive(ClassID_traits<data_t>::ID(), dataKey, int(iEvt->time()))) {
+#ifndef NDEBUG
+	ATH_MSG_VERBOSE ( "retrieveSubEvtsData: object of type "
+			  << System::typeinfoName(typeid(data_t)) << " with key "
+			  << dataKey << " OUT OF XING RANGE: SKIPPING " );
+#endif
+      } else {
+	p_activeStore->setStore(iEvt->pSubEvtSG);  //FIXME DANGEROUS!
+	IProxyDictWithPool* pSG(const_cast<StoreGateSvc*>(iEvt->pSubEvtSG));
+        DataLink_t dLink;
+	fillLink(dLink, dataKey, pSG);
+	double sigTime(0.0);
+	unsigned int evtIndex(0);
+	if (dLink.isValid()) {
+	  if (m_returnTimedData.value()) {
+	    sigTime=iEvt->time();
+	    if (!m_pITriggerTime.empty()) sigTime-= m_pITriggerTime->time();
+	    evtIndex = iEvt->index();
+	  }
+	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex), dLink);
+	  timedData.push_back(tData);
+	  ATH_MSG_DEBUG ( "added entry from store " << iEvt->pSubEvtSG->name()
+			  << " for object of type " << System::typeinfoName(typeid(data_t)) 
+			  << "\n with key " << dataKey ); 
+	}
+#ifndef NDEBUG
+	if (msg().level() <= MSG::VERBOSE) {
+	  msg() << MSG::VERBOSE
+		<< "SubEvt EventInfo : "
+		<< " event: " << iEvt->pSubEvt->event_ID()->event_number() 
+		<< " run: " << iEvt->pSubEvt->event_ID()->run_number();
+	  if (m_returnTimedData.value()) {
+	    msg() << " time offset: " << sigTime
+		  << " event index: " << evtIndex;
+	  }
+	  msg() << endreq;    
+	}
+#endif
+      }
+      ++iEvt;	
+    }  
+    //reset active store pointer to default event store FIXME DANGEROUS
+    p_activeStore->setStore(&*p_overStore);
+  } else {		
+    ATH_MSG_DEBUG ( "default PileUpEventInfo not found, trying with EventInfo" ); 
+    const EventInfo* pSimpleEvent;
+    if (((*p_activeStore)->retrieve(pSimpleEvent)).isSuccess()) {
+      DataLink_t dLink;
+      fillLink(dLink, dataKey);
+      if (dLink.isValid()) {
+	timedData.push_back(std::make_pair(0, dLink));
+      }
+    } else {
+      ATH_MSG_FATAL ( "no PileUpEventInfo and no EventInfo object found!" ); 
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+// ///retrieve default DATA objs for all sub-events and attach a time to them
+// template <typename TIMEDDATA>
+// StatusCode 
+// PileUpMergeSvc::retrieveSubEvtsData(TIMEDDATA& timedData)
+// {
+//   return retrieveSubEvtsData(NoKey(), timedData);
+// }
+
+
+template <typename DATA, typename KEY>
+bool
+PileUpMergeSvc::isLive(const KEY& dataKey, int iXing) {
+  return isLive(ClassID_traits<DATA>::ID(), std::string(dataKey), iXing);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
