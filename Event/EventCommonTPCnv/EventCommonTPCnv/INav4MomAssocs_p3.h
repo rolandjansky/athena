@@ -1,0 +1,89 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// INav4MomAssocs_p3.h 
+// Header file for class INav4MomAssocs_p3
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+#ifndef EVENTCOMMONTPCNV_INAV4MOMASSOCS_p3_H 
+#define EVENTCOMMONTPCNV_INAV4MOMASSOCS_p3_H 
+
+// STL includes
+#include <string>
+#include <vector>
+#include <utility>
+
+// DataModelAthenaPool
+#include "DataModelAthenaPool/DataLink_p2.h"
+#include "DataModelAthenaPool/ElementLink_p3.h"
+
+// Forward declaration
+class INav4MomAssocsCnv_p3;
+
+class INav4MomAssocs_p3
+{ 
+  /////////////////////////////////////////////////////////////////// 
+  // Friend classes
+  /////////////////////////////////////////////////////////////////// 
+
+  // Make the AthenaPoolCnv class our friend
+  friend class INav4MomAssocsCnv_p3;
+
+  /////////////////////////////////////////////////////////////////// 
+  // Public typedefs: 
+  /////////////////////////////////////////////////////////////////// 
+ public:
+  // some typedefs as a workaround for templated classes with a long name
+  typedef std::vector<ElementLinkInt_p3>	ElemLinkVect_t;
+  typedef std::pair<ElementLinkInt_p3,
+		    ElemLinkVect_t>		AssocElem_t;
+  typedef std::vector<AssocElem_t>		Assocs_t;
+  typedef DataLinkVector_p2              	INav4MomStores_t;
+
+   /////////////////////////////////////////////////////////////////// 
+  // Public methods: 
+  /////////////////////////////////////////////////////////////////// 
+ public: 
+
+  /** Default constructor: 
+   */
+  INav4MomAssocs_p3();
+
+  /** Destructor: 
+   */
+  ~INav4MomAssocs_p3(); 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////// 
+  // Non-const methods: 
+  /////////////////////////////////////////////////////////////////// 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Protected data: 
+  /////////////////////////////////////////////////////////////////// 
+ protected: 
+  Assocs_t                m_assocs;
+  INav4MomStores_t        m_assocStores;
+
+}; 
+
+/////////////////////////////////////////////////////////////////// 
+/// Inline methods: 
+/////////////////////////////////////////////////////////////////// 
+
+inline 
+INav4MomAssocs_p3::INav4MomAssocs_p3() :
+  m_assocs(),
+  m_assocStores()
+{}
+
+inline INav4MomAssocs_p3::~INav4MomAssocs_p3()
+{}
+
+#endif //> EVENTCOMMONTPCNV_INAV4MOMASSOCS_p3_H

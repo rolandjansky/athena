@@ -1,0 +1,80 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// P4IPtCotThPhiMCnv_p1.cxx 
+// Implementation file for class P4IPtCotThPhiMCnv_p1
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+
+
+// STL includes
+
+// Framework includes
+#include "GaudiKernel/MsgStream.h"
+
+// NavFourMom includes
+#define private public
+#define protected public
+#include "FourMom/P4IPtCotThPhiM.h"
+#undef protected
+#undef private
+
+// EventCommonTPCnv includes
+#include "EventCommonTPCnv/P4IPtCotThPhiMCnv_p1.h"
+
+/////////////////////////////////////////////////////////////////// 
+// Public methods: 
+/////////////////////////////////////////////////////////////////// 
+
+// Constructors
+////////////////
+
+// Destructor
+///////////////
+
+/////////////////////////////////////////////////////////////////// 
+// Const methods: 
+///////////////////////////////////////////////////////////////////
+
+void 
+P4IPtCotThPhiMCnv_p1::persToTrans( const P4IPtCotThPhiM_p1* persObj, 
+				   P4IPtCotThPhiM* transObj, 
+				   MsgStream &/*log*/ )
+{
+  transObj->m_iPt   = (double)persObj->m_iPt;
+  transObj->m_cotTh = (double)persObj->m_cotTh;
+  transObj->m_phi   = (double)persObj->m_phi;
+  transObj->m_m     = (double)persObj->m_mass;
+  return;
+}
+
+void 
+P4IPtCotThPhiMCnv_p1::transToPers( const P4IPtCotThPhiM* transObj, 
+				   P4IPtCotThPhiM_p1* persObj, 
+				   MsgStream &/*log*/ )
+{
+  persObj->m_iPt   = (float)transObj->m_iPt;
+  persObj->m_cotTh = (float)transObj->m_cotTh;
+  persObj->m_phi   = (float)transObj->m_phi;
+  persObj->m_mass  = (float)transObj->m_m;
+  return;
+}
+
+/////////////////////////////////////////////////////////////////// 
+// Non-const methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/////////////////////////////////////////////////////////////////// 
+// Protected methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/////////////////////////////////////////////////////////////////// 
+// Const methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/////////////////////////////////////////////////////////////////// 
+// Non-const methods: 
+/////////////////////////////////////////////////////////////////// 

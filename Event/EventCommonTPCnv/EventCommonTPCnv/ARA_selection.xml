@@ -1,0 +1,28 @@
+<lcgdict>
+  <class name="T_TPCnv<INav4MomLinkContainer,INav4MomLinkContainer_p1>"/>
+  <class name="INav4MomLinkContainerCnv_p1"/>
+  <class name="T_AthenaPoolTPCnvBase<INav4MomLinkContainer,INav4MomLinkContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<INav4MomLinkContainer,INav4MomLinkContainer,INav4MomLinkContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<INav4MomLinkContainer,INav4MomLinkContainer,INav4MomLinkContainer_p1>"/>
+  <class name="ITPConverterFor<INav4MomLinkContainer>"/>
+
+  <class name="T_TPCnv<IParticleLinkContainer,IParticleLinkContainer_p1>"/>
+  <class name="IParticleLinkContainerCnv_p1"/>
+  <class name="T_AthenaPoolTPCnvBase<IParticleLinkContainer,IParticleLinkContainer_p1>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<IParticleLinkContainer,IParticleLinkContainer,IParticleLinkContainer_p1>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<IParticleLinkContainer,IParticleLinkContainer,IParticleLinkContainer_p1>"/>
+  <class name="ITPConverterFor<IParticleLinkContainer>"/>
+
+  <class name="T_TPCnv<INav4MomAssocs,INav4MomAssocs_p2>"/>
+  <class name="INav4MomAssocsCnv_p2"/>
+  <class name="T_AthenaPoolTPCnvBase<INav4MomAssocs,INav4MomAssocs_p2>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<INav4MomAssocs,INav4MomAssocs,INav4MomAssocs_p2>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<INav4MomAssocs,INav4MomAssocs,INav4MomAssocs_p2>"/>
+
+  <class name="T_TPCnv<INav4MomAssocs,INav4MomAssocs_p3>"/>
+  <class name="INav4MomAssocsCnv_p3"/>
+  <class name="T_AthenaPoolTPCnvBase<INav4MomAssocs,INav4MomAssocs_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<INav4MomAssocs,INav4MomAssocs,INav4MomAssocs_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<INav4MomAssocs,INav4MomAssocs,INav4MomAssocs_p3>"/>
+  <class name="ITPConverterFor<INav4MomAssocs>"/>
+</lcgdict>

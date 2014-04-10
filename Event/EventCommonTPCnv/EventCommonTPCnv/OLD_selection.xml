@@ -1,0 +1,9 @@
+<lcgdict>
+
+  <class name="INav4MomAssocs_p1" id="85027AE1-4FD4-4808-B151-5485634ACD5D" />
+
+  <class name="INav4MomAssocs_p2" id="8040BEAA-BC65-43B8-B468-A7157C89ACB3" />
+  <class name="INav4MomAssocs_p2::Assocs_t" />
+  <class name="INav4MomAssocs_p2::AssocElem_t" />
+
+</lcgdict>
