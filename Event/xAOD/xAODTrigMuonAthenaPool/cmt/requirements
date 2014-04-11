@@ -1,0 +1,26 @@
+package xAODTrigMuonAthenaPool
+
+author Masaki Ishitsuka <ishitsuka@hep.phys.titech.ac.jp>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy        AtlasPolicy-*
+
+private
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTrigMuon       xAODTrigMuon-*         Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::L2StandAloneMuonContainer \
+                                          xAOD::L2StandAloneMuonAuxContainer" \
+                      files="-s=${xAODTrigMuon_root}/xAODTrigMuon \
+                             L2StandAloneMuonContainer.h \
+                             L2StandAloneMuonAuxContainer.h" \
+                      cnv_pfx="xAOD"
