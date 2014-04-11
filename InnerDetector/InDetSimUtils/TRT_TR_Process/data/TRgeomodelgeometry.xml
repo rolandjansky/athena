@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "TRgeometryinformation.dtd">
+
+<FADS>
+
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::FibreRadiator0" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.08"
+        RadiatorBARRELorENDCAP	="0"/>
+
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::FibreRadiator1" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.08"
+        RadiatorBARRELorENDCAP	="0"/>
+
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::FibreRadiator2" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.08"
+        RadiatorBARRELorENDCAP	="0"/>
+
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::MainRadiatorA" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.10"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::ThinRadiatorA" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.10"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::MainRadiatorB" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.225"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::MiddleRadiatorB" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.15"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRT"
+        RadiatorName		="TRT::ThinRadiatorB" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.15"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+
+</FADS>

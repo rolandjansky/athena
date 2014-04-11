@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "TRgeometryinformation.dtd">
+
+<FADS>
+
+<TRRegionParameters 
+        DetectorPart            ="TRTBarrel"
+        RadiatorName		="RadiatorALog" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.120"
+        RadiatorBARRELorENDCAP	="0"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTBarrel"
+        RadiatorName		="RadiatorBLog" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.120"
+        RadiatorBARRELorENDCAP	="0"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTBarrel"
+        RadiatorName		="RadiatorCLog" 
+        RadiatorFoilThickness	="0.012"
+        RadiatorGasThickness	="0.120"
+        RadiatorBARRELorENDCAP	="0"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTForwardEndCap"
+        RadiatorName		="MainRadiatorALog" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.200"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTForwardEndCap"
+        RadiatorName		="ThinRadiatorALog" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.200"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTForwardEndCap"
+        RadiatorName		="MainRadiatorBLog" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.300"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTForwardEndCap"
+        RadiatorName		="MiddleRadiatorBLog" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.200"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+<TRRegionParameters 
+        DetectorPart            ="TRTForwardEndCap"
+        RadiatorName		="ThinRadiatorBLog" 
+        RadiatorFoilThickness	="0.015"
+        RadiatorGasThickness	="0.200"
+        RadiatorBARRELorENDCAP	="1"/>
+	
+</FADS>
