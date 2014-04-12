@@ -1,0 +1,19 @@
+package ParticlesInConeTools
+
+author Niels van Eldik
+
+public
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*       External
+use xAODTracking           xAODTracking-*         Event/xAOD
+use xAODTruth              xAODTruth-*            Event/xAOD
+use xAODCaloEvent          xAODCaloEvent-*        Event/xAOD
+private
+
+use AthenaBaseComps        AthenaBaseComps-*      Control
+use AthContainers          AthContainers-*        Control
+
+public	
+apply_pattern component_library
+library ParticlesInConeTools *.cxx components/*.cxx                   
+
