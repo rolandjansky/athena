@@ -1,0 +1,36 @@
+Athena               INFO including file "AthenaPoolUtilities/EventCount.py"
+ClassIDSvc           INFO  getRegistryEntries: read 69 CLIDRegistry entries for module EventSelectorAthenaPool
+ApplicationMgr       INFO Successfully loaded modules : EventSelectorAthenaPool
+Athena               INFO including file "AthenaPoolUtilities/EventCount_jobOptions.py"
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-02-00
+EventSelector        INFO Create PoolCollectionConverter -  CollectionType: ImplicitROOT Connection:  InputCollection: AthenaPoolMultiTest_Missed.root
+EventSelector        INFO EventSelection with query 
+EventSelector        INFO ----- EventSelectorAthenaPool Initialized Properly
+EventCount           INFO in initialize()
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector        INFO EventSelector: End of input
+EventCount           INFO ---------- INPUT FILE SUMMARY ----------
+EventCount           INFO Input contained: 1 events
+EventCount           INFO  -- Event Range ( 3 .. 3 )
+EventCount           INFO Input contained: 1 runs
+EventCount           INFO  -- 0
+EventCount           INFO Input contained the following Event Types
+EventCount           INFO  -- Detector
+EventCount           INFO  -- Physics
+EventCount           INFO  -- Simulation
+EventCount           INFO Input contained references to the following File GUID's
+EventCount           INFO  -> Stream1
+EventCount           INFO       - B2602C85-29D6-DA11-93A8-000E0C4D1919
+EventCount           INFO Input contained the following CLIDs and Keys
+EventCount           INFO  -> 2101 EventInfo (1) 
+EventCount           INFO       - McEventInfo
+EventCount           INFO  -> 9102 Unknown (1) 
+EventCount           INFO       - MyHits
+EventCount           INFO  -> 9876 Unknown (1) 
+EventCount           INFO       - MyData
+EventCount           INFO  -> 1287802 Unknown (1) 
+EventCount           INFO       - MultiTestTrigMap
+EventCount           INFO  -> 222376821 DataHeader (1) 
+EventCount           INFO       - Others
+EventCount           INFO ----------------------------------------
+EventSelector     WARNING Service already offline

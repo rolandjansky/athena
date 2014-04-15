@@ -1,0 +1,31 @@
+-------------------------------------------------
+UTILITY how-to
+-------------------------------------------------
+EventCount
+
+Purpose: 
+  Count events and objects. Provide summary of available keys
+
+Properties and defaults:
+  Dump (bool:false) determines whether to provide count of objects, otherwise 
+  it just counts events and run numbers.
+
+Examples:
+  athena -c "In=['<pool file>']" AthenaPoolMultiTest/EventCount.py
+
+-------------------------------------------------
+EventCheck
+
+Purpose:
+  Call accessData method of StoreGateSvc for all object/key combinations 
+  listed in the DataHeader for the specified number of events.
+
+Properties and defaults
+  CheckData (bool:false) determines whether to call accessData. on/off switch.
+  MaxCheck (int:10) number of events to check with accessData.
+  ExcludeCLIDS(vector<string>:empty) any CLIDs which are known problems.
+
+Examples:
+  athena -c "In=['<pool file>']" AthenaPoolMultiTest/EventCount.py
+
+

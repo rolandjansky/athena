@@ -1,0 +1,21 @@
+AthAlgSeq            INFO Member list: RunEventTagWriter, EventCount, RegistrationStream/RegStream1
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query RunNumber != 1000000 && EventNumber > 0
+RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
+RootCollection Info File SplittableCollection.root opened
+EventSelector        INFO Using standard collection ref 
+Domain[ROOT_All] Info                           AthenaPoolMultiTest_Splittable0.root
+RootDatabase.open Success AthenaPoolMultiTest_Splittable0.root File version:53413
+DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+RootCollection Info Closing open collection 'SplittableCollection.root'
+RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
+RootCollection Info File SplittableCollection.root opened
+RegStream1.Regi...   INFO No Primary Key defined
+RootCollection Info Closing open collection 'SplittableCollection.root'
+AthenaPoolMultiTest_Splittable0.root Info Database being retired...
+RootCollection Info Opening Collection File NullableCollection.root in mode: READ
+RootCollection Info File NullableCollection.root opened
+RootCollection Info Closing open collection 'NullableCollection.root'
+RegStream1.Regi...   INFO Collection Events output: 19
+DecisionSvc          INFO List of registered 1 Streams: RegStream1 

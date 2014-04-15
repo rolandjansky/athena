@@ -1,0 +1,28 @@
+Athena               INFO including file "AthenaPoolMultiTest/EventCheck.py"
+ApplicationMgr       INFO Successfully loaded modules: EventSelectorAthenaPool
+EventSelectorAthenaPool_jobOptions.py
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-01-03
+EventSelector        INFO Create PoolCollectionConverter -  CollectionType: ImplicitROOT Connection:  InputCollection: /afs/cern.ch/atlas/offline/data/testfile/dc2.002885.pyt_z_ee.g4dig805._0001.pool.root
+EventSelector        INFO EventSelection with query 
+EventSelector        INFO ----- EventSelectorAthenaPool Initialized Properly
+EventCheck           INFO in initialize()
+Stream1              INFO Data output: EventCheck_out.root
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector        INFO EventSelector: End of input
+EventCheck           INFO -------***- S U C C E S S -***-------
+EventCheck           INFO   2101 EventInfo
+EventCheck           INFO   2540 PixelRDO_Container
+EventCheck           INFO   2541 SCT_RDO_Container
+EventCheck           INFO   2542 TRT_RDO_Container
+EventCheck           INFO   2543 InDetSimDataCollection
+EventCheck           INFO   2721 LArRawChannelContainer
+EventCheck           INFO   2927 TileRawChannelContainer
+EventCheck           INFO   4183 CscRawDataContainer
+EventCheck           INFO   4186 TgcRdoContainer
+EventCheck           INFO   4187 MdtCsmContainer
+EventCheck           INFO   4190 RpcPadContainer
+EventCheck           INFO   6000 ROIB::RoIBResult
+EventCheck           INFO   6270 MuCTPI_RDO
+EventCheck           INFO   133273 McEventCollection
+EventCheck           INFO   1235574503 TrackRecordCollection
+EventCheck           INFO -------***-----------------***-------

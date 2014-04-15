@@ -1,0 +1,535 @@
+AthAlgSeq            INFO Member list: AthPoolEx::ReadData/ReadData
+ReadData             INFO in initialize()
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 0 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 4.4 y = -8.0 z = 122.1 detector = DummyHitDetector
+ReadData             INFO Hit x = 7.6 y = -13.7 z = 78.3 detector = DummyHitDetector
+ReadData             INFO Hit x = 10.8 y = -19.3 z = 63.7 detector = DummyHitDetector
+ReadData             INFO Hit x = 14.0 y = -25.0 z = 56.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 17.2 y = -30.7 z = 52.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 20.4 y = -36.4 z = 49.1 detector = DummyHitDetector
+ReadData             INFO Hit x = 23.7 y = -42.0 z = 47.0 detector = DummyHitDetector
+ReadData             INFO Hit x = 26.9 y = -47.7 z = 45.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 30.1 y = -53.4 z = 44.3 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 6 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 601.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 604.4 y = -8.0 z = -477.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 607.6 y = -13.7 z = -521.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 610.8 y = -19.3 z = -536.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 614.0 y = -25.0 z = -543.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 617.2 y = -30.7 z = -547.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 620.4 y = -36.4 z = -550.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 623.7 y = -42.0 z = -552.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 626.9 y = -47.7 z = -554.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 630.1 y = -53.4 z = -555.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 9 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 901.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 904.4 y = -8.0 z = -777.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 907.6 y = -13.7 z = -821.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 910.8 y = -19.3 z = -836.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 914.0 y = -25.0 z = -843.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 917.2 y = -30.7 z = -847.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 920.4 y = -36.4 z = -850.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 923.7 y = -42.0 z = -852.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 926.9 y = -47.7 z = -854.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 930.1 y = -53.4 z = -855.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 12 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1201.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1204.4 y = -8.0 z = -1077.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1207.6 y = -13.7 z = -1121.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1210.8 y = -19.3 z = -1136.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1214.0 y = -25.0 z = -1143.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1217.2 y = -30.7 z = -1147.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1220.4 y = -36.4 z = -1150.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1223.7 y = -42.0 z = -1152.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1226.9 y = -47.7 z = -1154.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1230.1 y = -53.4 z = -1155.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 15 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1501.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1504.4 y = -8.0 z = -1377.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1507.6 y = -13.7 z = -1421.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1510.8 y = -19.3 z = -1436.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1514.0 y = -25.0 z = -1443.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1517.2 y = -30.7 z = -1447.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1520.4 y = -36.4 z = -1450.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1523.7 y = -42.0 z = -1452.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1526.9 y = -47.7 z = -1454.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1530.1 y = -53.4 z = -1455.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 16 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1601.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1604.4 y = -8.0 z = -1477.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1607.6 y = -13.7 z = -1521.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1610.8 y = -19.3 z = -1536.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1614.0 y = -25.0 z = -1543.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1617.2 y = -30.7 z = -1547.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1620.4 y = -36.4 z = -1550.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1623.7 y = -42.0 z = -1552.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1626.9 y = -47.7 z = -1554.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1630.1 y = -53.4 z = -1555.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream1
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 18 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1801.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1804.4 y = -8.0 z = -1677.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1807.6 y = -13.7 z = -1721.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1810.8 y = -19.3 z = -1736.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1814.0 y = -25.0 z = -1743.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1817.2 y = -30.7 z = -1747.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1820.4 y = -36.4 z = -1750.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1823.7 y = -42.0 z = -1752.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1826.9 y = -47.7 z = -1754.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1755.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 1 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 101.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 104.4 y = -8.0 z = 22.1 detector = DummyHitDetector
+ReadData             INFO Hit x = 107.6 y = -13.7 z = -21.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 110.8 y = -19.3 z = -36.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 114.0 y = -25.0 z = -43.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 117.2 y = -30.7 z = -47.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 120.4 y = -36.4 z = -50.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 123.7 y = -42.0 z = -52.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 126.9 y = -47.7 z = -54.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 130.1 y = -53.4 z = -55.6 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 2 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 201.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 204.4 y = -8.0 z = -77.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 207.6 y = -13.7 z = -121.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 210.8 y = -19.3 z = -136.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 214.0 y = -25.0 z = -143.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 217.2 y = -30.7 z = -147.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 220.4 y = -36.4 z = -150.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 223.7 y = -42.0 z = -152.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 226.9 y = -47.7 z = -154.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 230.1 y = -53.4 z = -155.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 4 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 401.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 404.4 y = -8.0 z = -277.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 407.6 y = -13.7 z = -321.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 410.8 y = -19.3 z = -336.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 414.0 y = -25.0 z = -343.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 417.2 y = -30.7 z = -347.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 420.4 y = -36.4 z = -350.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 423.7 y = -42.0 z = -352.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 426.9 y = -47.7 z = -354.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 430.1 y = -53.4 z = -355.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 5 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 501.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 504.4 y = -8.0 z = -377.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 507.6 y = -13.7 z = -421.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 510.8 y = -19.3 z = -436.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 514.0 y = -25.0 z = -443.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 517.2 y = -30.7 z = -447.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 520.4 y = -36.4 z = -450.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 523.7 y = -42.0 z = -452.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 526.9 y = -47.7 z = -454.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 530.1 y = -53.4 z = -455.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 7 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 701.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 704.4 y = -8.0 z = -577.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 707.6 y = -13.7 z = -621.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 710.8 y = -19.3 z = -636.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 714.0 y = -25.0 z = -643.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 717.2 y = -30.7 z = -647.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 720.4 y = -36.4 z = -650.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 723.7 y = -42.0 z = -652.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 726.9 y = -47.7 z = -654.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 730.1 y = -53.4 z = -655.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 8 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 801.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 804.4 y = -8.0 z = -677.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 807.6 y = -13.7 z = -721.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 810.8 y = -19.3 z = -736.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 814.0 y = -25.0 z = -743.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 817.2 y = -30.7 z = -747.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 820.4 y = -36.4 z = -750.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 823.7 y = -42.0 z = -752.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 826.9 y = -47.7 z = -754.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 830.1 y = -53.4 z = -755.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 10 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1001.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1004.4 y = -8.0 z = -877.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1007.6 y = -13.7 z = -921.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1010.8 y = -19.3 z = -936.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1014.0 y = -25.0 z = -943.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1017.2 y = -30.7 z = -947.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1020.4 y = -36.4 z = -950.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1023.7 y = -42.0 z = -952.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1026.9 y = -47.7 z = -954.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1030.1 y = -53.4 z = -955.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 11 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1101.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1104.4 y = -8.0 z = -977.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1107.6 y = -13.7 z = -1021.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1110.8 y = -19.3 z = -1036.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1114.0 y = -25.0 z = -1043.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1117.2 y = -30.7 z = -1047.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1120.4 y = -36.4 z = -1050.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1123.7 y = -42.0 z = -1052.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1126.9 y = -47.7 z = -1054.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1130.1 y = -53.4 z = -1055.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 13 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1301.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1304.4 y = -8.0 z = -1177.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1307.6 y = -13.7 z = -1221.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1310.8 y = -19.3 z = -1236.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1314.0 y = -25.0 z = -1243.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1317.2 y = -30.7 z = -1247.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1320.4 y = -36.4 z = -1250.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1323.7 y = -42.0 z = -1252.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1326.9 y = -47.7 z = -1254.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1330.1 y = -53.4 z = -1255.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 14 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1401.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1404.4 y = -8.0 z = -1277.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1407.6 y = -13.7 z = -1321.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1410.8 y = -19.3 z = -1336.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1414.0 y = -25.0 z = -1343.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1417.2 y = -30.7 z = -1347.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1420.4 y = -36.4 z = -1350.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1423.7 y = -42.0 z = -1352.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1426.9 y = -47.7 z = -1354.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1430.1 y = -53.4 z = -1355.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 17 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1701.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1704.4 y = -8.0 z = -1577.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1707.6 y = -13.7 z = -1621.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1710.8 y = -19.3 z = -1636.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1714.0 y = -25.0 z = -1643.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1717.2 y = -30.7 z = -1647.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1720.4 y = -36.4 z = -1650.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1723.7 y = -42.0 z = -1652.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1726.9 y = -47.7 z = -1654.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1730.1 y = -53.4 z = -1655.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 5
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream3
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventStreamInfo: Number of events = 7
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Stream2
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 19 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 1901.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 1904.4 y = -8.0 z = -1777.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1907.6 y = -13.7 z = -1821.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 1910.8 y = -19.3 z = -1836.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 1914.0 y = -25.0 z = -1843.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 1917.2 y = -30.7 z = -1847.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1920.4 y = -36.4 z = -1850.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 1923.7 y = -42.0 z = -1852.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 1926.9 y = -47.7 z = -1854.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 1930.1 y = -53.4 z = -1855.7 detector = DummyHitDetector
+ReadData             INFO EventStreamInfo: Number of events = 0
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO EventStreamInfo: Number of events = 1
+ReadData             INFO EventStreamInfo: ItemList:
+ReadData             INFO CLID = 2101, key = McEventInfo
+ReadData             INFO CLID = 9102, key = MyHits
+ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
+ReadData             INFO CLID = 222376821, key = Others
+ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
+ReadData             INFO TagInfo: 
+ReadData             INFO EventInfo event: 3 run: 0
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Hit x = 301.2 y = -2.3 z = inf detector = DummyHitDetector
+ReadData             INFO Hit x = 304.4 y = -8.0 z = -177.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 307.6 y = -13.7 z = -221.6 detector = DummyHitDetector
+ReadData             INFO Hit x = 310.8 y = -19.3 z = -236.2 detector = DummyHitDetector
+ReadData             INFO Hit x = 314.0 y = -25.0 z = -243.5 detector = DummyHitDetector
+ReadData             INFO Hit x = 317.2 y = -30.7 z = -247.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 320.4 y = -36.4 z = -250.8 detector = DummyHitDetector
+ReadData             INFO Hit x = 323.7 y = -42.0 z = -252.9 detector = DummyHitDetector
+ReadData             INFO Hit x = 326.9 y = -47.7 z = -254.4 detector = DummyHitDetector
+ReadData             INFO Hit x = 330.1 y = -53.4 z = -255.7 detector = DummyHitDetector
+ReadData             INFO in finalize()

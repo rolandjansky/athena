@@ -1,0 +1,33 @@
+AthAlgSeq            INFO Member list: PassNoneFilter, RunEventMetaWriter, StoreDump
+StreamBSFileOutput  DEBUG In initialize 
+StreamBSFileOutput  DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: StreamBSFileOutput with no Algs
+StreamBSFileOutput  DEBUG Trying to add PassNoneFilter of stream StreamBSFileOutput to AcceptAlg list
+StreamBSFileOutput  DEBUG End initialize 
+StreamBSFileOutput  DEBUG In initialize
+StreamBSFileOutput  DEBUG Found StoreGateSvc store.
+ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-06
+ByteStreamEvent...   INFO Reinitialization...
+StreamBSFileOutput   INFO Found HelperTools = PrivateToolHandleArray([])
+StreamBSFileOutput   INFO Data output: ByteStreamEventStorageOutputSvc
+StreamBSFileOutput   INFO I/O reinitialization...
+StreamBSFileOutput  DEBUG End initialize
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x72ff890 --- key: RunEventTag
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x72ff890 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x72ff890 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamAttLi...   INFO ByteStreamAttListMetadataSvc::toBSMetadata
+ByteStreamAttLi...   INFO Found RunEventTag in DetectorStore
+ByteStreamAttLi...  DEBUG  name RunNumber type unsigned int value 88
+ByteStreamAttLi...   INFO About to push back RunNumber, 88
+ByteStreamAttLi...  DEBUG  name EventNumber type unsigned int value 99
+ByteStreamAttLi...   INFO About to push back EventNumber, 99
+StreamBSFileOutput  DEBUG handle() incident type: MetaDataStop
+StreamBSFileOutput  DEBUG Leaving handle
+StreamBSFileOutput  DEBUG finalize: Optimize output
+StreamBSFileOutput  DEBUG finalize: end optimize output
+ByteStreamEvent...   INFO number of events written: 0
+DecisionSvc          INFO List of registered 1 Streams: StreamBSFileOutput 
