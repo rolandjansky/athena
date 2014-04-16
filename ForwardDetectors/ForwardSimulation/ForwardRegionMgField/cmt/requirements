@@ -1,0 +1,28 @@
+package ForwardRegionMgField
+
+author Ladislav Chytka <ladislav.chytka@cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+
+use FadsField           FadsField-*             Simulation/G4Sim/FADS
+use Geant4              Geant4-*                External
+use AtlasCLHEP     AtlasCLHEP-*        External
+
+private
+use AthenaKernel   AthenaKernel-*      Control
+use PathResolver          PathResolver-*             Tools
+end_private
+
+use GaudiInterface GaudiInterface-* External
+
+library ForwardRegionMgField *.cxx
+apply_pattern installed_library
+
+apply_pattern declare_runtime files="-s=../share/ *.dat"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+#end_private
