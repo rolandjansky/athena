@@ -1,0 +1,33 @@
+package MuonCombinedEventStoreAlgs
+
+manager MCP group
+
+public
+use AtlasPolicy 	AtlasPolicy-*
+
+private
+use GaudiInterface      GaudiInterface-*      External
+use AthenaBaseComps     AthenaBaseComps-*     Control
+use CaloEvent           CaloEvent-*           Calorimeter
+use CaloUtils           CaloUtils-*           Calorimeter
+use muonEvent           muonEvent-*           Reconstruction/MuonIdentification
+#use MuonCombinedEvent   MuonCombinedEvent-*   Reconstruction/MuonIdentification
+use MuonRecHelperTools MuonRecHelperTools-* MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonRecToolInterfaces MuonRecToolInterfaces-*  MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonSegment MuonSegment-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use TrkExInterfaces TrkExInterfaces-* Tracking/TrkExtrapolation
+use TrkGeometry TrkGeometry-* Tracking/TrkDetDescr
+use TrkParameters TrkParameters-* Tracking/TrkEvent
+use TrkTrack TrkTrack-* Tracking/TrkEvent
+use xAODCaloEvent xAODCaloEvent-* Event/xAOD
+use AthenaKernel        AthenaKernel-*          Control
+use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
+
+public
+library MuonCombinedEventStoreAlgs *.cxx components/*.cxx
+apply_pattern component_library
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
