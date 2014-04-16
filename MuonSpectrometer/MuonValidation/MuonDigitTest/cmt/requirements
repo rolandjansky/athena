@@ -1,0 +1,46 @@
+package MuonDigitTest
+ 
+author Nectarios Ch. Benekos <Nectarios.Benekos@cern.ch> 
+author Daniela Rebuzzi <daniela.rebuzzi@pv.infn.it>
+author Matthias Schott <Matthias.Schott@physik.uni-muenchen.de>
+
+##based on MuonDigiExample
+
+branches src cmt doc
+branches run
+
+use AtlasPolicy             AtlasPolicy-*
+use GaudiInterface          GaudiInterface-*        External
+use AtlasCLHEP		    AtlasCLHEP-*	    External
+use AtlasROOT               AtlasROOT-*             External
+use StoreGate               StoreGate-*             Control
+use MuonIdHelpers           MuonIdHelpers-*         MuonSpectrometer
+
+include_dirs "$(MuonDigitTest_root)"
+
+# build a component library
+library MuonDigitTest ../src/*.cxx 
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+#apply_pattern declare_runtime extras="../test/MuonDigitTest_Configuration.xml ../test/*.C"
+#macro MuonDigitTest_Configuration "../test/MuonDigitTest_Configuration.xml"
+ 
+private
+
+use AnalysisTools           AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
+use AtlasHepMC              AtlasHepMC-*            External
+use EventInfo               EventInfo-*             Event 
+use FadsUtilities           FadsUtilities-*         Simulation/G4Sim/FADS 	
+use GeneratorObjects        GeneratorObjects-*      Generators
+use GeoAdaptors             GeoAdaptors-*           DetectorDescription/GeoModel
+use Identifier              Identifier-*            DetectorDescription
+use MdtCalibSvc             MdtCalibSvc-*           MuonSpectrometer/MuonCalib/MdtCalib
+use MuonCalibEvent          MuonCalibEvent-*        MuonSpectrometer/MuonCalib
+use MuonDigitContainer	    MuonDigitContainer-*    MuonSpectrometer 
+use MuonReadoutGeometry     MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr 
+use MuonSimData             MuonSimData-*           MuonSpectrometer
+use MuonSimEvent            MuonSimEvent-*          MuonSpectrometer 
+use MuonSimValUtils         MuonSimValUtils-*       MuonSpectrometer/MuonValidation
+use TrackRecord             TrackRecord-*           Simulation/G4Sim 
