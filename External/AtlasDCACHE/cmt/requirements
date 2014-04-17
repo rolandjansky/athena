@@ -12,6 +12,6 @@ use AtlasExternalArea AtlasExternalArea-* External
 # the -I<path> and -L<path> -l<library> are setup at build time. The useDCACHE tag can be
 # used to override this default.
 
-macro dache_use  "" useDCACHE "dcache_client v* LCG_Interfaces"
+macro dache_use  "" useDCACHE "dcap v* LCG_Interfaces"
 use ${dache_use}
 
