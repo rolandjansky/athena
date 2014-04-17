@@ -36,21 +36,7 @@ namespace Muon
     m_rio.setElement(RIO);
   }
 
-  // Alternate constructor that doesn't dereference the RIO link.
-  sTgcClusterOnTrack::sTgcClusterOnTrack(
-                                         const ElementLinkToIDC_STGC_Container& RIO,
-                                         const Trk::LocalParameters& locpos,
-                                         const Amg::MatrixX& locerr,
-                                         const Identifier& id,
-                                         const MuonGM::sTgcReadoutElement* detEl,
-                                         double positionAlongStrip)
-    : MuonClusterOnTrack(locpos, locerr, id, positionAlongStrip),
-      m_rio (RIO),
-      m_detEl( detEl )
-  {
-  }
-
-// Destructor:
+  // Destructor:
   sTgcClusterOnTrack::~sTgcClusterOnTrack()
   {
     // we don't own the m_rio object (it belongs to SG), so don't delete it.
@@ -74,7 +60,7 @@ namespace Muon
 
     MuonClusterOnTrack::dump(stream); 
 
-    stream<<"}"<<endmsg;
+    stream<<"}"<<endreq;
     return stream;
   }
 

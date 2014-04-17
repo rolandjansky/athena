@@ -46,19 +46,6 @@ TgcClusterOnTrack::TgcClusterOnTrack(
     m_rio.setElement(RIO);
 }
 
-TgcClusterOnTrack::TgcClusterOnTrack(
-                     const ElementLinkToIDC_TGC_Container& RIO,
-                     const Trk::LocalParameters& locpos,
-                     const Amg::MatrixX& locerr,
-                     const Identifier& id,
-                     const MuonGM::TgcReadoutElement* detEl,
-                     double positionAlongStrip) :
-  MuonClusterOnTrack(locpos, locerr, id, positionAlongStrip), //call base class constructor
-  m_rio(RIO),
-  m_detEl( detEl )
-{
-}
-
 // Destructor:
 TgcClusterOnTrack::~TgcClusterOnTrack()
 {
@@ -83,7 +70,7 @@ MsgStream& TgcClusterOnTrack::dump( MsgStream&    stream) const
 
     MuonClusterOnTrack::dump(stream); 
 
-    stream<<"}"<<endmsg;
+    stream<<"}"<<endreq;
     return stream;
 }
 

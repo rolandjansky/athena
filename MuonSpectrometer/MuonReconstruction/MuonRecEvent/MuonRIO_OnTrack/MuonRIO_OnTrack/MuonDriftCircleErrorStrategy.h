@@ -14,7 +14,7 @@ typedef std::bitset<23> MuonDriftCircleErrorStrategyInput;
 
 class MuonDriftCircleErrorStrategy {
 public:
-  enum Strategy {Moore=0, Muonboy=1, Muon=2, UnknownStrategy=0x7}; // FIXME - better names
+  enum Strategy {Moore=0, Muonboy=1, UnknownStrategy=0x7}; // FIXME - better names
   enum CreationParameter{ BroadError=3,// Bit 3. Create with broad errors. 
                           ScaledError, // Error scaling is turned on (this is applied after eveyrthing else)
                           FixedError, //!< A fixed error is given to this hit (user defined via jobProperties)
@@ -107,8 +107,6 @@ Muon::MuonDriftCircleErrorStrategy::strategy() const {
     return Moore;
   case 1:
     return Muonboy;
-  case 2:
-    return Muon;
   default:
     return UnknownStrategy;
   }
@@ -125,9 +123,6 @@ inline std::ostream& operator << ( std::ostream& sl, const Muon::MuonDriftCircle
       break;
     case 1:
       sl << "Muonboy";
-      break;
-    case 2:
-      sl << "Muon";
       break;
     default:
       sl << "Unknown Strategy";
@@ -147,9 +142,6 @@ inline MsgStream& operator << ( MsgStream& sl, const Muon::MuonDriftCircleErrorS
       break;
     case 1:
       sl << "Muonboy";
-      break;
-    case 2:
-      sl << "Muon";
       break;
     default:
       sl << "Unknown Strategy";

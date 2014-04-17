@@ -58,25 +58,6 @@ namespace Muon
     m_rio.setElement(RIO);
 }
 
-  CscClusterOnTrack::CscClusterOnTrack(
-                       const ElementLinkToIDC_CSC_Container& RIO,
-                       const Trk::LocalParameters& locpos,
-                       const Amg::MatrixX& locerr,
-                       const Identifier& id,
-                       const MuonGM::CscReadoutElement*  detEl,
-                       double positionAlongStrip,
-                       CscClusterStatus status,
-                       CscTimeStatus timeStatus,
-                       float time ) :
-    MuonClusterOnTrack(locpos, locerr, id, positionAlongStrip), //call base class constructor
-    m_rio( RIO ),
-    m_detEl( detEl ),
-    m_status( status ),
-    m_timeStatus( timeStatus ),
-    m_time(time)
-{
-}
-
   // Destructor:
   CscClusterOnTrack::~CscClusterOnTrack()
   {
@@ -109,7 +90,7 @@ namespace Muon
     stream << "Cluster Status: "<<toString(m_status)<<std::endl;
     stream << "Cluster Time Status: "<<toString(m_timeStatus)<<std::endl;
 
-    stream<<"}"<<endmsg;
+    stream<<"}"<<endreq;
     return stream;
   }
 

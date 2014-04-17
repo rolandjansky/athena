@@ -25,8 +25,6 @@
 #include "TrkSurfaces/Surface.h"
 // needed classes
 
-class MuonClusterOnTrackCnv_p1;
-
 namespace Muon {
 
   /** @brief Base class for Muon cluster RIO_OnTracks.*/
@@ -94,8 +92,6 @@ namespace Muon {
     double                                          m_positionAlongStrip;
     
   private:
-    friend class  ::MuonClusterOnTrackCnv_p1;
-
     /** Used by custom convertors*/
     virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*) = 0 ;
     

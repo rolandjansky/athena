@@ -74,19 +74,6 @@ public:
         float time=9999.0
     );
 
-    // Alternate constructor that doesn't dereference the RIO link.
-    CscClusterOnTrack(
-        const ElementLinkToIDC_CSC_Container& RIO,
-        const Trk::LocalParameters& locpos,
-        const Amg::MatrixX& locerr,
-        const Identifier& id,
-        const MuonGM::CscReadoutElement*  detEL,
-        double positionAlongStrip,
-        CscClusterStatus status,
-        CscTimeStatus timeStatus=Muon::CscTimeStatusUndefined,
-        float time=9999.0
-    );
-
     /** Destructor*/
     virtual ~CscClusterOnTrack();
 
@@ -95,7 +82,6 @@ public:
 
     /** @brief Returns the CscPrepData - is a CscPrepData in this scope*/
     virtual const CscPrepData* prepRawData() const;
-    const ElementLinkToIDC_CSC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, associated with the PRD of this class*/
     virtual const MuonGM::CscReadoutElement* detectorElement() const;
@@ -128,7 +114,7 @@ private:
     /** PrepRawData object assoicated with this measurement*/
     ElementLinkToIDC_CSC_Container      m_rio;
 
-    /** The detector element, associated with this measurement*/
+    /** The detector element, assoicated with this measurement*/
     const MuonGM::CscReadoutElement*    m_detEl;
 
     /** cluster position measurement status */
@@ -155,12 +141,6 @@ inline const CscPrepData* CscClusterOnTrack::prepRawData() const
     if (m_rio.isValid()) return m_rio.cachedElement(); 
     //std::cout<<"CscClusterOnTrack::WARNING invalid PRD"<<std::endl;
     return 0;
-}
-
-inline const ElementLinkToIDC_CSC_Container&
-CscClusterOnTrack::prepRawDataLink() const
-{
-  return m_rio;
 }
 
 inline const MuonGM::CscReadoutElement*  CscClusterOnTrack::detectorElement() const

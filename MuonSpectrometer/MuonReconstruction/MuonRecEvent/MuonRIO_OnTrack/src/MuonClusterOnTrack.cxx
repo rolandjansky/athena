@@ -72,12 +72,20 @@ MsgStream& MuonClusterOnTrack::dump( MsgStream&    stream) const
 
   Trk::RIO_OnTrack::dump(stream); 
   
+
   stream << "Global position (x,y,z) = (";
-  stream  <<this->globalPosition().x()<<", "
-          <<this->globalPosition().y()<<", "
-          <<this->globalPosition().z()<<")"<<std::endl;
+  if ( &(this->globalPosition() )!=0 )
+  {
+      stream  <<this->globalPosition().x()<<", "
+              <<this->globalPosition().y()<<", "
+              <<this->globalPosition().z()<<")"<<std::endl;
+  } else {
+      stream<<"NULL!), "<<std::endl;
+  }
+  
   stream << "Position along strip: "<<m_positionAlongStrip<<std::endl;
-  stream<<"}"<<endmsg;
+  
+  stream<<"}"<<endreq;
   return stream;
 }
 
