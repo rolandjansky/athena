@@ -6,7 +6,7 @@ use LCG_Configuration
 author  Georgios Stavropoulos <George.Stavropoulos@cern.ch>
 # Adapt standard macros for export
 
-macro Hijing_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/hijing"
+macro Hijing_home "$(LCG_external)/MCGenerators/hijing"
 macro Hijing_version "1.383bs.2"
 macro Hijing_native_version "$(Hijing_version)_lcgcmt$(LCG_config_version)"
 macro Hijing_system "$(LCG_ext_system)" \
