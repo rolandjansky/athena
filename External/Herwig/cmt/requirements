@@ -8,7 +8,7 @@ use LCG_Configuration
 
 # Adapt standard macros for export
 
-macro Herwig_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/herwig"
+macro Herwig_home "$(LCG_external)/MCGenerators/herwig"
 macro herwig_native_version "6.520.2"
 macro Herwig_native_version "$(herwig_native_version)_lcgcmt$(LCG_config_version)"
 macro Herwig_system "$(LCG_ext_system)" \
