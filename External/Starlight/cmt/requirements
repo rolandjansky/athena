@@ -6,7 +6,7 @@ use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
 # Adapting stantard macros for export
-macro Starlight_home 	    "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/starlight"
+macro Starlight_home 	    "$(LCG_external)/MCGenerators/starlight"
 macro starlight_native_version "r43"
 macro Starlight_native_version "$(starlight_native_version)_lcgcmt$(LCG_config_version)"
 
