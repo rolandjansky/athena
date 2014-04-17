@@ -6,7 +6,7 @@ author  Ian Hinchliffe <I_Hinchliffe@lbl.gov>
 use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
-macro Pythia_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/pythia6"
+macro Pythia_home "$(LCG_external)/MCGenerators/pythia6"
 macro pythia_native_version "428.2"
 macro Pythia_native_version "$(pythia_native_version)_lcgcmt$(LCG_config_version)"
 macro Pythia_system "$(LCG_ext_system)" \
