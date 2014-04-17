@@ -5,7 +5,7 @@ author Witek Pokorski <Witold.Pokorski@cern.ch>
 use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
-macro Photos_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/photos"
+macro Photos_home "$(LCG_external)/MCGenerators/photos"
 macro photos_native_version "215.4"
 macro Photos_native_version "$(photos_native_version)_lcgcmt$(LCG_config_version)"
 
