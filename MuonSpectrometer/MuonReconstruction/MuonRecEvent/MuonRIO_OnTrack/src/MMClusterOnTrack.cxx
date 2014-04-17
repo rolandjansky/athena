@@ -1,0 +1,80 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
+#include "TrkEventPrimitives/LocalParameters.h"
+
+namespace Muon
+{
+
+  // Default constructor:
+  MMClusterOnTrack::MMClusterOnTrack():
+    MuonClusterOnTrack(), // call base class ctor
+    m_rio(),
+    m_detEl(0)
+  {}
+
+  // copy constructor:
+  MMClusterOnTrack::MMClusterOnTrack( const MMClusterOnTrack& rot):
+    MuonClusterOnTrack(rot), // base clas ctor
+    m_rio(rot.m_rio),
+    m_detEl(rot.m_detEl)
+  {}
+
+  // Constructor with parameters
+  MMClusterOnTrack::MMClusterOnTrack(
+					 const MMPrepData* RIO,
+					 const Trk::LocalParameters& locpos,
+					 const Amg::MatrixX& locerr,
+					 double positionAlongStrip) :
+    MuonClusterOnTrack(locpos, locerr, RIO->identify(), positionAlongStrip), //call base class constructor
+    m_detEl( RIO->detectorElement() )
+  {
+    //Set EL
+    // m_rio = ElementLinkToIDC_TGC_Container("TGC_Measurements", RIO->getHashAndIndex().hashAndIndex(), RIO);
+    m_rio.setElement(RIO);
+  }
+
+  // Destructor:
+  MMClusterOnTrack::~MMClusterOnTrack()
+  {
+    // we don't own the m_rio object (it belongs to SG), so don't delete it.
+  }
+
+  // assignment operator:
+  MMClusterOnTrack& MMClusterOnTrack::operator=( const MMClusterOnTrack& rot)
+  {
+    if ( &rot != this)
+      {
+        MuonClusterOnTrack::operator=(rot);//base class ass. op.
+        m_rio = rot.m_rio;
+        m_detEl = rot.m_detEl;
+      }
+    return *this;
+  }
+
+  MsgStream& MMClusterOnTrack::dump( MsgStream&    stream) const
+  {
+    stream << MSG::INFO<<"MMClusterOnTrack {"<<std::endl;
+
+    MuonClusterOnTrack::dump(stream); 
+
+    stream<<"}"<<endreq;
+    return stream;
+  }
+
+  std::ostream& MMClusterOnTrack::dump( std::ostream&    stream) const
+  {
+    stream << "MMClusterOnTrack {"<<std::endl;
+
+    MuonClusterOnTrack::dump(stream); 
+
+    stream<<"}"<<std::endl;
+    return stream;
+  }
+
+
+}
+
+
