@@ -8,7 +8,7 @@ author  Jon Butterworth <J.Butterworth@ucl.ac.uk>
 # Adapt standard macros for export
 
 
-macro Jimmy_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/jimmy"
+macro Jimmy_home "$(LCG_external)/MCGenerators/jimmy"
 macro jimmy_native_version "4.31.3"
 macro Jimmy_native_version "$(jimmy_native_version)_lcgcmt$(LCG_config_version)"
 macro Jimmy_system "$(LCG_ext_system)" \
