@@ -6,7 +6,7 @@ use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
 public
-macro Pyquen_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/pyquen"
+macro Pyquen_home "$(LCG_external)/MCGenerators/pyquen"
 macro pyquen_native_version "1.5.1"
 macro Pyquen_native_version $(pyquen_native_version)_lcgcmt$(LCG_config_version) 
 
