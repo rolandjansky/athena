@@ -1,0 +1,44 @@
+package TrkEventAthenaPool
+
+author  Andreas Wildauer <Andreas.Wildauer@cern.ch>
+author  Edward Moyse <edward.moyse@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+private
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+use  GaudiInterface             GaudiInterface-*                External
+use  StoreGate                  StoreGate-*                     Control
+use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
+use  TrkEventCnvTools           TrkEventCnvTools-*              Tracking/TrkEventCnv
+use  TrkEventTPCnv              TrkEventTPCnv-*                 Tracking/TrkEventCnv
+use  TrkMaterialOnTrack         TrkMaterialOnTrack-*            Tracking/TrkEvent
+use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkPseudoMeasurementOnTrack                                TrkPseudoMeasurementOnTrack-*   Tracking/TrkEvent
+use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
+use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
+use  TrkSpacePoint              TrkSpacePoint-*                 Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkV0Vertex                TrkV0Vertex-*                   Tracking/TrkEvent
+use  VxMultiVertex              VxMultiVertex-*                 Tracking/TrkEvent
+use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+end_private
+
+public
+
+apply_pattern poolcnv typesWithNamespace="Trk::SegmentCollection Trk::TrackParticleBaseCollection" \ 
+  files="-s=$(TrkSpacePoint_root)/TrkSpacePoint SpacePointCollection.h \
+ -s=$(TrkSpacePoint_root)/TrkSpacePoint SpacePointContainer.h \
+ -s=$(TrkTrack_root)/TrkTrack TrackCollection.h \
+ -s=${VxMultiVertex_root}/VxMultiVertex MVFVxContainer.h \
+ -s=${VxVertex_root}/VxVertex VxContainer.h \
+ -s=${TrkV0Vertex_root}/TrkV0Vertex V0Container.h \
+ -s=${TrkSegment_root}/TrkSegment SegmentCollection.h" 
+
+# ME for David Quarrie - FIX for bug somewhere in ATLAS repository crashing this package
+private
+macro_append AtlasCxxPolicy_pp_cppflags " -DNDEBUG "
