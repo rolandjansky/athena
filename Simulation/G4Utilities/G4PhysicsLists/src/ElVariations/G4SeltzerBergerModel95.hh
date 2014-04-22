@@ -23,64 +23,72 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+// -------------------------------------------------------------------
 //
-// $Id: G4EmStandardPhysics.hh,v 1.5 2010-06-02 17:21:29 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+// GEANT4 Class header file
 //
-//---------------------------------------------------------------------------
 //
-// ClassName:   G4EmStandardPhysics
+// File name:     G4SeltzerBergerModel95
 //
-// Author:      V.Ivanchenko 09.11.2005
+// Author:        Andreas Schaelicke & Vladimir Ivantchenko
 //
-// Modified:
-// 05.12.2005 V.Ivanchenko add controlled verbosity
-// 23.11.2006 V.Ivanchenko remove mscStepLimit option and improve cout
+// Creation date: 25.09.2011
 //
-//----------------------------------------------------------------------------
+// Modifications:
 //
-// This class provides construction of default EM standard physics
+//
+// Class Description:
+//
+// Implementation of the bremssrahlung model using
+// S.M. Seltzer and M.J. Berger Atomic data and Nuclear Data 
+// Tables 35 (1986) 345
+
+// -------------------------------------------------------------------
 //
 
-#ifndef G4EmStandardPhysics_MuBias_h
-#define G4EmStandardPhysics_MuBias_h 1
+#ifndef G4SeltzerBergerModel95_h
+#define G4SeltzerBergerModel95_h 1
 
-#include "G4VPhysicsConstructor.hh"
+#include "G4eBremsstrahlungRelModel95.hh"
 #include "globals.hh"
 
-struct biasValues {
-	double bremsBias;
-	double pairBias;
-	biasValues(): bremsBias(1.),pairBias(1.) {}
-	biasValues(int a,int b): bremsBias(a),pairBias(b) {}
-};
+class G4Physics2DVector95;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class G4EmStandardPhysics_MuBias : public G4VPhysicsConstructor
+class G4SeltzerBergerModel95 : public G4eBremsstrahlungRelModel95
 {
+
 public:
-  G4EmStandardPhysics_MuBias(G4int ver = 0);
 
-  // obsolete
-  G4EmStandardPhysics_MuBias(G4int ver, const G4String& name);
+  G4SeltzerBergerModel95(const G4ParticleDefinition* p = 0, 
+		       const G4String& nam = "eBremSB");
 
-  virtual ~G4EmStandardPhysics_MuBias();
+  virtual ~G4SeltzerBergerModel95();
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&);
+
+  virtual void SampleSecondaries(std::vector<G4DynamicParticle*>*,
+				 const G4MaterialCutsCouple*,
+				 const G4DynamicParticle*,
+				 G4double cutEnergy,
+				 G4double maxEnergy);
+
+protected:
+
+  virtual G4double ComputeDXSectionPerAtom(G4double gammaEnergy);
 
 private:
-  G4int  verbose;
-  biasValues biases;
+
+  void ReadData(size_t Z, const char* path = 0);
+
+  // hide assignment operator
+  G4SeltzerBergerModel95 & operator=(const  G4SeltzerBergerModel95 &right);
+  G4SeltzerBergerModel95(const  G4SeltzerBergerModel95&);
+
+  std::vector<G4Physics2DVector95*> dataSB;
+
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
 
 #endif
-
-
-
-
-
-

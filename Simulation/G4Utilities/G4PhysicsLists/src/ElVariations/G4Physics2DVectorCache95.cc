@@ -23,64 +23,31 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+// --------------------------------------------------------------
+//      GEANT 4 class implementation file
 //
-// $Id: G4EmStandardPhysics.hh,v 1.5 2010-06-02 17:21:29 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+//  G4Physics2DVectorCache.cc
 //
-//---------------------------------------------------------------------------
+//  Author:        Vladimir Ivanchenko 
+//                 on base of  Hisaya Kurashige 1D class
 //
-// ClassName:   G4EmStandardPhysics
-//
-// Author:      V.Ivanchenko 09.11.2005
-//
-// Modified:
-// 05.12.2005 V.Ivanchenko add controlled verbosity
-// 23.11.2006 V.Ivanchenko remove mscStepLimit option and improve cout
-//
-//----------------------------------------------------------------------------
-//
-// This class provides construction of default EM standard physics
-//
+//  Creation date: 25.09.2011
+// --------------------------------------------------------------
 
-#ifndef G4EmStandardPhysics_MuBias_h
-#define G4EmStandardPhysics_MuBias_h 1
+#include "G4Physics2DVectorCache95.hh"
 
-#include "G4VPhysicsConstructor.hh"
-#include "globals.hh"
 
-struct biasValues {
-	double bremsBias;
-	double pairBias;
-	biasValues(): bremsBias(1.),pairBias(1.) {}
-	biasValues(int a,int b): bremsBias(a),pairBias(b) {}
-};
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class G4EmStandardPhysics_MuBias : public G4VPhysicsConstructor
+G4Physics2DVectorCache95::G4Physics2DVectorCache95()
 {
-public:
-  G4EmStandardPhysics_MuBias(G4int ver = 0);
+  Clear();
+}
 
-  // obsolete
-  G4EmStandardPhysics_MuBias(G4int ver, const G4String& name);
+G4Physics2DVectorCache95::~G4Physics2DVectorCache95()
+{
+}
 
-  virtual ~G4EmStandardPhysics_MuBias();
-
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
-
-private:
-  G4int  verbose;
-  biasValues biases;
-};
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#endif
-
-
-
-
-
-
+void G4Physics2DVectorCache95::Clear()
+{
+  lastX = lastY = lastValue = 0.0;
+  lastBinX = lastBinY = 0;  
+}

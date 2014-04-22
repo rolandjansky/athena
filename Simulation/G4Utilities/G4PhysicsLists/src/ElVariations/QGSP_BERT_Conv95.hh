@@ -23,34 +23,32 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id$
+// $Id: QGSP_BERT_Conv95.hh,v 1.1 2006-10-31 11:35:09 gunter Exp $
+// GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
-// Author: Alberto Ribon
-// Date:   April 2016
 //
-// New physics list FTFP_BERT_ATL.
-// This is a modified version of the FTFP_BERT physics list for ATLAS.
-// The physics list FTFP_BERT_ATL has the transition between Bertini (BERT)
-// intra-nuclear cascade model and Fritiof (FTF) string model in the
-// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
+// ClassName:   QGSP_BERT_Conv95
+//
+// Author:      V.Ivanchenko 01.03.2013 for Geant4 9.4p04
+//
+// Modified:
+//
 //----------------------------------------------------------------------------
 //
-#ifndef TFTFP_BERT_ATL_h
-#define TFTFP_BERT_ATL_h 1
+#ifndef TQGSP_BERT_Conv95_h
+#define TQGSP_BERT_Conv95_h 1
 
-#include <CLHEP/Units/SystemOfUnits.h>
-
-#include "globals.hh"
 #include "G4VModularPhysicsList.hh"
+#include "globals.hh"
 #include "CompileTimeConstraints.hh"
 
 template<class T>
-class TFTFP_BERT_ATL: public T
+class TQGSP_BERT_Conv95: public T
 {
 public:
-  TFTFP_BERT_ATL(G4int ver = 1);
-  virtual ~TFTFP_BERT_ATL();
+  TQGSP_BERT_Conv95(G4int ver = 1);
+  virtual ~TQGSP_BERT_Conv95();
   
 public:
   // SetCuts() 
@@ -59,8 +57,11 @@ public:
 private:
   enum {ok = CompileTimeConstraints::IsA<T, G4VModularPhysicsList>::ok };
 };
-#include "FTFP_BERT_ATL.icc"
-typedef TFTFP_BERT_ATL<G4VModularPhysicsList> FTFP_BERT_ATL;
+
+#include "QGSP_BERT_Conv95.icc"
+typedef TQGSP_BERT_Conv95<G4VModularPhysicsList> QGSP_BERT_Conv95;
 
 #endif
+
+
 

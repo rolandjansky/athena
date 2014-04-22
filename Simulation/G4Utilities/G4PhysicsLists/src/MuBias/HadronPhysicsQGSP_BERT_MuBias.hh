@@ -68,11 +68,6 @@
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER<1000
-#  define G4ThreadLocalStatic static
-#  define G4ThreadLocal 
-#endif
 
 class G4HadronPhysicsQGSP_BERT_MuBias : public G4VPhysicsConstructor
 {
@@ -85,7 +80,7 @@ class G4HadronPhysicsQGSP_BERT_MuBias : public G4VPhysicsConstructor
     virtual void ConstructParticle();
     virtual void ConstructProcess();
 
-    void SetQuasiElastic(G4bool value) {m_QuasiElastic = value;}; 
+    void SetQuasiElastic(G4bool value) {QuasiElastic = value;}; 
 
   private:
     void CreateModels();
@@ -114,9 +109,9 @@ class G4HadronPhysicsQGSP_BERT_MuBias : public G4VPhysicsConstructor
       G4VCrossSectionDataSet * xsNeutronInelasticXS;
       G4VCrossSectionDataSet * xsNeutronCaptureXS;
     };
-    static G4ThreadLocal ThreadPrivate* s_tpdata;
+    static G4ThreadLocal ThreadPrivate* tpdata;
 
-    G4bool m_QuasiElastic;
+    G4bool QuasiElastic;
 };
 
 #endif

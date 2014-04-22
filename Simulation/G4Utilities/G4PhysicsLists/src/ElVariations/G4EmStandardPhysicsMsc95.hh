@@ -24,55 +24,45 @@
 // ********************************************************************
 //
 //
-// $Id: G4EmStandardPhysics.hh,v 1.5 2010-06-02 17:21:29 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+// $Id: G4EmStandardPhysicsMsc95.hh,v 1.5 2010-06-02 17:21:29 vnivanch Exp $
+// GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
 //
-// ClassName:   G4EmStandardPhysics
+// ClassName:   G4EmStandardPhysicsMsc95
 //
-// Author:      V.Ivanchenko 09.11.2005
+// Author:      V.Ivanchenko 01.03.2013 for Geant4 9.4p04
 //
 // Modified:
-// 05.12.2005 V.Ivanchenko add controlled verbosity
-// 23.11.2006 V.Ivanchenko remove mscStepLimit option and improve cout
 //
 //----------------------------------------------------------------------------
 //
 // This class provides construction of default EM standard physics
 //
 
-#ifndef G4EmStandardPhysics_MuBias_h
-#define G4EmStandardPhysics_MuBias_h 1
+#ifndef G4EmStandardPhysicsMsc95_h
+#define G4EmStandardPhysicsMsc95_h 1
 
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 
-struct biasValues {
-	double bremsBias;
-	double pairBias;
-	biasValues(): bremsBias(1.),pairBias(1.) {}
-	biasValues(int a,int b): bremsBias(a),pairBias(b) {}
-};
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class G4EmStandardPhysics_MuBias : public G4VPhysicsConstructor
+class G4EmStandardPhysicsMsc95 : public G4VPhysicsConstructor
 {
 public:
-  G4EmStandardPhysics_MuBias(G4int ver = 0);
+  G4EmStandardPhysicsMsc95(G4int ver = 0);
 
   // obsolete
-  G4EmStandardPhysics_MuBias(G4int ver, const G4String& name);
+  G4EmStandardPhysicsMsc95(G4int ver, const G4String& name);
 
-  virtual ~G4EmStandardPhysics_MuBias();
+  virtual ~G4EmStandardPhysicsMsc95();
 
   virtual void ConstructParticle();
   virtual void ConstructProcess();
 
 private:
   G4int  verbose;
-  biasValues biases;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

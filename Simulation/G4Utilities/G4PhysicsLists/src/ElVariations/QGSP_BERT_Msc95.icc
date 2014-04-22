@@ -23,23 +23,21 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id$
+// $Id: QGSP_BERT_Msc95.icc,v 1.8 2010-08-16 07:14:44 kurasige Exp $
+// GEANT4 tag $Name: not supported by cvs2svn $
 //
 //---------------------------------------------------------------------------
-// Author: Alberto Ribon
-// Date:   April 2016
 //
-// New physics list FTFP_BERT_ATL.
-// This is a modified version of the FTFP_BERT physics list for ATLAS.
-// The physics list FTFP_BERT_ATL has the transition between Bertini (BERT)
-// intra-nuclear cascade model and Fritiof (FTF) string model in the
-// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
+// ClassName:   QGSP_BERT_Msc95
+//
+// Author:      V.Ivanchenko 01.03.2013 for Geant4 9.4p04
+//
+// Modified:
+//
 //----------------------------------------------------------------------------
 //
-#include <iomanip>   
 
 #include "globals.hh"
-#include "G4ios.hh"
 #include "G4ProcessManager.hh"
 #include "G4ProcessVector.hh"
 #include "G4ParticleTypes.hh"
@@ -47,9 +45,11 @@
 
 #include "G4Material.hh"
 #include "G4MaterialTable.hh"
+#include "G4ios.hh"
+#include <iomanip>   
 
 #include "G4DecayPhysics.hh"
-#include "G4EmStandardPhysics.hh"
+#include "G4EmStandardPhysicsMsc95.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4StoppingPhysics.hh"
@@ -57,32 +57,34 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "G4HadronPhysicsFTFP_BERT_ATL.hh"
+#include "G4HadronPhysicsQGSP_BERT.hh"
 
-template<class T> TFTFP_BERT_ATL<T>::TFTFP_BERT_ATL(G4int ver):  T()
+#include "CLHEP/Units/PhysicalConstants.h"
+
+template<class T> TQGSP_BERT_Msc95<T>::TQGSP_BERT_Msc95(G4int ver):  T()
 {
-  // default cut value  (1.0mm) 
-  // defaultCutValue = 1.0*CLHEP::mm;
+
   G4DataQuestionaire it(photon);
-  G4cout << "<<< Geant4 Physics List simulation engine: FTFP_BERT_ATL 2.0"<<G4endl;
+  G4cout << "<<< Geant4 Physics List simulation engine: QGSP_BERT_Msc95 >>>"<<G4endl;
   G4cout <<G4endl;
+
   this->defaultCutValue = 0.7*CLHEP::mm;  
   this->SetVerboseLevel(ver);
 
- // EM Physics
-  this->RegisterPhysics( new G4EmStandardPhysics(ver));
+  // EM Physics
+  this->RegisterPhysics( new G4EmStandardPhysicsMsc95(ver) );
 
   // Synchroton Radiation & GN Physics
   this->RegisterPhysics( new G4EmExtraPhysics(ver) );
 
-  // Decays 
+  // Decays
   this->RegisterPhysics( new G4DecayPhysics(ver) );
 
    // Hadron Elastic scattering
   this->RegisterPhysics( new G4HadronElasticPhysics(ver) );
 
-   // Hadron Physics
-  this->RegisterPhysics(  new G4HadronPhysicsFTFP_BERT_ATL(ver));
+  // Hadron Physics
+  this->RegisterPhysics( new G4HadronPhysicsQGSP_BERT(ver));
 
   // Stopping Physics
   this->RegisterPhysics( new G4StoppingPhysics(ver) );
@@ -92,22 +94,23 @@ template<class T> TFTFP_BERT_ATL<T>::TFTFP_BERT_ATL(G4int ver):  T()
   
   // Neutron tracking cut
   this->RegisterPhysics( new G4NeutronTrackingCut(ver));
+
 }
 
-template<class T> TFTFP_BERT_ATL<T>::~TFTFP_BERT_ATL()
+template<class T> TQGSP_BERT_Msc95<T>::~TQGSP_BERT_Msc95()
 {
 }
 
-template<class T> void TFTFP_BERT_ATL<T>::SetCuts()
+template<class T> void TQGSP_BERT_Msc95<T>::SetCuts()
 {
   if (this->verboseLevel >1){
-    G4cout << "FTFP_BERT_ATL::SetCuts:";
+    G4cout << "QGSP_BERT_Msc95::SetCuts:";
   }  
   //  " G4VUserPhysicsList::SetCutsWithDefault" method sets 
   //   the default cut value for all particle types 
 
   this->SetCutsWithDefault();   
- 
-//  if (this->verboseLevel > 0)
+  
+//  if (this->verboseLevel >0)
 //    G4VUserPhysicsList::DumpCutValuesTable();  
 }

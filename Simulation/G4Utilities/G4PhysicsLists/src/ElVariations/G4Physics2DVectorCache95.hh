@@ -24,63 +24,43 @@
 // ********************************************************************
 //
 //
-// $Id: G4EmStandardPhysics.hh,v 1.5 2010-06-02 17:21:29 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+// 
+// ---------------------------------------------------------------
+// GEANT 4 class header file
 //
-//---------------------------------------------------------------------------
+// G4Physics2DVectorCache95
 //
-// ClassName:   G4EmStandardPhysics
+// Class description:
 //
-// Author:      V.Ivanchenko 09.11.2005
-//
-// Modified:
-// 05.12.2005 V.Ivanchenko add controlled verbosity
-// 23.11.2006 V.Ivanchenko remove mscStepLimit option and improve cout
-//
-//----------------------------------------------------------------------------
-//
-// This class provides construction of default EM standard physics
-//
+// This class includes cache data in use by G4Physics2DVector.
 
-#ifndef G4EmStandardPhysics_MuBias_h
-#define G4EmStandardPhysics_MuBias_h 1
+//  Author:        Vladimir Ivanchenko 
+//                 on base of  Hisaya Kurashige 1D class
+//
+//  Creation date: 25.09.2011
+// ---------------------------------------------------------------
 
-#include "G4VPhysicsConstructor.hh"
+#ifndef G4Physics2DVectorCache95_h
+#define G4Physics2DVectorCache95_h 1
+
 #include "globals.hh"
 
-struct biasValues {
-	double bremsBias;
-	double pairBias;
-	biasValues(): bremsBias(1.),pairBias(1.) {}
-	biasValues(int a,int b): bremsBias(a),pairBias(b) {}
-};
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class G4EmStandardPhysics_MuBias : public G4VPhysicsConstructor
+class G4Physics2DVectorCache95 
 {
-public:
-  G4EmStandardPhysics_MuBias(G4int ver = 0);
+public:  
 
-  // obsolete
-  G4EmStandardPhysics_MuBias(G4int ver, const G4String& name);
+  G4Physics2DVectorCache95();
 
-  virtual ~G4EmStandardPhysics_MuBias();
+  ~G4Physics2DVectorCache95();
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void Clear();
 
-private:
-  G4int  verbose;
-  biasValues biases;
+  G4double lastX;
+  G4double lastY;
+  G4double lastValue;
+  size_t   lastBinX;
+  size_t   lastBinY;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-
-
-
-
-
-
