@@ -22,7 +22,6 @@ use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use TrkExInterfaces              TrkExInterfaces-*             Tracking/TrkExtrapolation 
 use TrkFitterInterfaces          TrkFitterInterfaces-*         Tracking/TrkFitter 
 use TrkToolInterfaces            TrkToolInterfaces-*           Tracking/TrkTools
-use TrkSurfaces			 TrkSurfaces-* 		       Tracking/TrkDetDescr
 
 use MagFieldInterfaces           MagFieldInterfaces-*          MagneticField
 

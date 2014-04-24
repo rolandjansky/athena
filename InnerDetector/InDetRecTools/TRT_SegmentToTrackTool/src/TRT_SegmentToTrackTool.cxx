@@ -6,7 +6,6 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "TrkSurfaces/Surface.h"
 
 ///Needed for the track refitter
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -67,13 +66,13 @@ namespace InDet {
 
     StatusCode sc = AthAlgTool::initialize();
 
-    msg(MSG::DEBUG) << "Initializing TRT_SegmentToTrackTool" << endmsg;
+    msg(MSG::DEBUG) << "Initializing TRT_SegmentToTrackTool" << endreq;
 
     //Get the refitting tool
     //
     if(m_doRefit){
       if(m_fitterTool.retrieve().isFailure()) {
-	msg(MSG::FATAL) << "Could not get " << m_fitterTool << endmsg; return StatusCode::FAILURE;
+	msg(MSG::FATAL) << "Could not get " << m_fitterTool << endreq; return StatusCode::FAILURE;
       }
       else {
 	ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
@@ -82,7 +81,7 @@ namespace InDet {
 
     sc = m_extrapolator.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -90,38 +89,38 @@ namespace InDet {
     //
     if(m_useasso){
       if(m_assotool.retrieve().isFailure()) {
-	msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endmsg; return StatusCode::FAILURE;
+	msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endreq; return StatusCode::FAILURE;
       }
     }
 
     // Get the scoring tool
     //
     if(m_scoringTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Could not get "<<m_scoringTool<<endmsg; return StatusCode::FAILURE;
+      msg(MSG::FATAL)<<"Could not get "<<m_scoringTool<<endreq; return StatusCode::FAILURE;
     }
 
     if (m_magFieldSvc.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endreq;
       return StatusCode::FAILURE;
     }
 
     StoreGateSvc* detStore = 0;
     sc = service( "DetectorStore", detStore );
     if (sc.isFailure()){
-      msg(MSG::FATAL) << "Could not get DetectorStore"<<endmsg;
+      msg(MSG::FATAL) << "Could not get DetectorStore"<<endreq;
       return sc;
     }
 
     sc = detStore->retrieve(m_trtId, "TRT_ID");
     if (sc.isFailure()){
-      msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
+      msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endreq;
       return StatusCode::FAILURE;
     }
 
     // Get output print level
     //
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << (*this) << endmsg;
+      msg(MSG::DEBUG) << (*this) << endreq;
     }
 
     return sc;
@@ -271,7 +270,6 @@ namespace InDet {
     points.reserve(40);
     double oldphi=0;
 
-
     // loop over the measurements in track segment (tS)
     for(int it=0; it<int(tS.numberOfMeasurementBases()); it++){
 
@@ -401,43 +399,17 @@ namespace InDet {
 
 	// get estimate of parameters
 	double sx=0,sy=0,sxx=0,sxy=0,d=0;
-	float zmin=0, zmax=0;
 	// loop over all points 
 	for (unsigned int i=0;i<points.size();i++) {
 	  sx  += points[i].first;
 	  sy  += points[i].second;
 	  sxy += points[i].first*points[i].second;
 	  sxx += points[i].first*points[i].first;
-	  if (fabs(points[i].first)>fabs(zmax)){
-	    zmax = points[i].first;
-	  }
-	  if (fabs(points[i].first)<fabs(zmin)){
-	    zmin = points[i].first;
-	  }
 	}
-
-	if (fabs(pseudotheta)<1.e-6) {
-	  ATH_MSG_DEBUG("pseudomeasurements missing on the segment?");
-	  const float Rinn= 644., Rout=1004.;
-	  if (zmax*zmin>0.){
-	    pseudotheta = atan2(Rout-Rinn,zmax-zmin);
-	  }
-	  else if (std::abs(zmax*zmin)<1.e-6){
-	    if (std::abs(zmax)>1.e-6){
-	      pseudotheta = atan2(Rout, zmax) ;
-	    } else {
-	      ATH_MSG_DEBUG("no points in endcap?");
-	    }
-	  }
-	  else {
-	    pseudotheta = atan2(2.*Rout,zmax-zmin);
-	  }
-	}
-
 	// get q/p
 	d             = (points.size()*sxx-sx*sx);
 	double dphidz = ((points.size()*sxy-sy*sx)/d);
-	myqoverp      = (fabs(pseudotheta)>1e-6) ? -dphidz/(0.6*tan(pseudotheta)) : 1000.;
+	myqoverp      = -dphidz/(0.6*tan(pseudotheta));
 	// std::cout << "pt: " << sin(pseudotheta)/myqoverp << std::endl;    
 
 	// some geometry stuff to estimate further paramters...
@@ -579,10 +551,9 @@ namespace InDet {
       const Trk::TrackParameters *firstmeaspar=0;
       DataVector<const Trk::TrackParameters>::const_iterator parit = fitTrack->trackParameters()->begin();
       do {
-	// skip pesudo measurements on perigee
-	if ( (*parit)->covariance() && ((*parit)->associatedSurface()  == tS.associatedSurface())) firstmeaspar = *parit;
-	++parit;
-      } while (firstmeaspar==0 && parit != fitTrack->trackParameters()->end());
+	parit++;
+	if ( (*parit)->covariance()) firstmeaspar = *parit;
+      } while (firstmeaspar==0);
 
       //Create new perigee starting from the modified first measurement that has a more reasonable covariance matrix
       // const Trk::Perigee* perTrack=dynamic_cast<const Trk::Perigee*>(fitTrack->perigeeParameters());
@@ -597,7 +568,7 @@ namespace InDet {
 	if(firstmeaspar && firstmeaspar->position().perp()<2000*mm && std::abs(firstmeaspar->position().z())<3000*mm){
 
 	  // Modify first measurement so that it has reasonable errors on z and theta
-	  AmgSymMatrix(5)* fcovmat = new AmgSymMatrix(5)(*(firstmeaspar->covariance()));
+	  AmgSymMatrix(5)* fcovmat = new AmgSymMatrix(5)(*firstmeaspar->covariance());
 	  // factors by which we like to scale the cov, this takes the original segment errors into account
 	  double scaleZ     = sqrt(tS.localCovariance()(1,1))/sqrt( (*fcovmat)(1,1));
 	  double scaleTheta = sqrt(tS.localCovariance()(3,3))/sqrt( (*fcovmat)(3,3));
