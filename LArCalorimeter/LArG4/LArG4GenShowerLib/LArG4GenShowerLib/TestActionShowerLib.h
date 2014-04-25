@@ -10,6 +10,10 @@
 #include <string>
 #include <vector>
 
+// athena simulation includes
+#include "FadsActions/UserAction.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // forward declarations in namespaces
 namespace ShowerLib {
@@ -35,58 +39,50 @@ class G4AffineTransform;
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: TestActionShowerLib.h 767177 2016-08-10 08:49:45Z disimone $
+   * @version \$Id: TestActionShowerLib.h 498105 2012-04-27 11:38:03Z gsedov $
    *
    */
 
+class TestActionShowerLib: public FADS::UserAction {
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+ public:
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-namespace G4UA{
+  //! default constructor
+  TestActionShowerLib(std::string s);
+
+  ~TestActionShowerLib();
+
+  //! run code at begin of event
+  void BeginOfEventAction(const G4Event*);
+  //! run code at end of event
+  void EndOfEventAction(const G4Event*);
+  //! run code at begin of run
+  void BeginOfRunAction(const G4Run*);
+  //! run code at end of event
+  void EndOfRunAction(const G4Run*);
+  //! run code after each step
+  void SteppingAction(const G4Step*);
+
+
+ private:
+
+  /* data members */
+
+  LArVCalculator* m_current_calculator;
+  G4VSolid* m_current_solid;
+  G4AffineTransform* m_current_transform;
+
+  // calculators 
+  LArVCalculator* m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
+  LArVCalculator* m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
   
-  
-  class TestActionShowerLib:
-  public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
-  {
-    
-  public:
-    TestActionShowerLib();
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
-  private:
-    
-    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-    /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
-    /// Pointer to StoreGate (detector store by default)
-    mutable StoreGateSvc_t m_detStore;
-    
-    /* data members */
-    
-    LArVCalculator* m_current_calculator;
-    G4VSolid* m_current_solid;
-    G4AffineTransform* m_current_transform;
-    
-    // calculators 
-    LArVCalculator* m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
-    LArVCalculator* m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
-    
-    
-    ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
+  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+  StoreGateSvc_t m_storeGateSvc;                  //!< pointer to StoreGate service
+  //! return pointer to StoreGate service
+  StoreGateSvc_t storeGateSvc() const;
 
-}; // class TestActionShowerLib
+  ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
 
-
-} // namespace G4UA 
-
+};
 
 #endif // TestActionShowerLib_H

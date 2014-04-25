@@ -1,7 +1,7 @@
 #!/usr/bin/env physh
 # print command line for logging
 from optparse import OptionParser
-parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateShowerLib.py 767177 2016-08-10 08:49:45Z disimone $")
+parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateShowerLib.py 575758 2013-12-16 17:03:28Z gsedov $")
 
 parser.add_option("--inputEvtFileList",    dest="inputevt",    action="append",                       help="select the input file name")
 parser.add_option("--inputStructFileList", dest="inputstruct", action="append",                       help="select the output file name")
@@ -14,9 +14,9 @@ parser.set_defaults(inputevt=[],inputstruct=[],nevents=-1,skipevents=0,geometry=
 (options, args) = parser.parse_args()
 
 if len(options.inputevt) == 0 :
-    print "No input, aborting"
-    import sys
-    sys.exit(1)
+	print "No input, aborting"
+	import sys
+	sys.exit(1)
 
 if len(options.condition) == 0 :
     print "No condition tag set, aborting"
@@ -40,22 +40,21 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.ConditionsTag = options.condition
 
 ## Simulation flags
-from G4AtlasApps.SimFlags import simFlags
-simFlags.load_atlas_flags()
-simFlags.CalibrationRun.set_Off()
-simFlags.EventFilter.set_off()
+from G4AtlasApps.SimFlags import SimFlags
+SimFlags.load_atlas_flags()
+SimFlags.CalibrationRun.set_Off()
 
-## Layout tags: see simFlags.SimLayout for allowed values
+## Layout tags: see SimFlags.SimLayout for allowed values
 ## Use the default layout:
-#simFlags.SimLayout.set_On()
+#SimFlags.SimLayout.set_On()
 ## Set a specific layout tag:
 if len(options.geometry) > 0 :
-    simFlags.SimLayout = options.geometry
+    SimFlags.SimLayout = options.geometry
 else :
-    simFlags.SimLayout.set_On()
+    SimFlags.SimLayout.set_On()
 
 if len(options.physlist) > 0 :
-    simFlags.PhysicsList = options.physlist
+    SimFlags.PhysicsList = options.physlist
 
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -66,7 +65,7 @@ athenaCommonFlags.PoolHitsOutput.set_Off()
 athenaCommonFlags.PoolEvgenInput=options.inputevt
 
 ## Set the LAr parameterization
-simFlags.LArParameterization = 0
+SimFlags.LArParameterization = 0
 
 # get service manager
 from AthenaCommon.AppMgr import ServiceMgr
@@ -74,15 +73,19 @@ from AthenaCommon.AppMgr import ServiceMgr
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 from random import randint
-simFlags.RandomSeedOffset = randint(1,443921180)
+SimFlags.RandomSeedOffset = randint(1,443921180)
 
 #add G4 function
+def add_my_user_action():
+	from G4AtlasApps import PyG4Atlas,AtlasG4Eng
+	MyAction = PyG4Atlas.UserAction( 'LArG4GenShowerLib','TestActionShowerLib',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+	AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(MyAction)
 
-from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+SimFlags.InitFunctions.add_function("postInit", add_my_user_action)
 
 topSeq += PyG4AtlasAlg()
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("LArG4GenShowerLib")
+from LArG4GenShowerLib.LArG4GenShowerLibConf import LArG4GenShowerLib
+topSeq += LArG4GenShowerLib()
+
 topSeq.LArG4GenShowerLib.LibStructFiles = options.inputstruct
