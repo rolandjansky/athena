@@ -1,0 +1,21 @@
+package ForwardRegionProperties
+
+author Ladislav Chytka <ladislav.chytka@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaBaseComps       AthenaBaseComps-*        Control
+use AtlasCLHEP     AtlasCLHEP-*        External
+
+private
+use GaudiInterface        GaudiInterface-*         External
+end_private
+
+use ForwardRegionGeoModel	ForwardRegionGeoModel-*	ForwardDetectors/ForwardSimulation
+
+library ForwardRegionProperties *.cxx components/*.cxx
+apply_pattern component_library
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+#end_private
