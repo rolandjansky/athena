@@ -1,0 +1,65 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TGCElectronicsSystem_hh
+#define TGCElectronicsSystem_hh
+
+#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCEvent.h"
+#include "TrigT1TGC/TGCReadoutIndex.h"
+
+//TileMu
+#include "TrigT1TGC/TGCTMDB.h"
+
+namespace LVL1TGCTrigger {
+
+const int NumberOfSide = 2;
+const int NumberOfOctant = 8;
+const int NumberOfModule = 15; 
+const int NumberOfSignalTypes = 2; // 1=WireGroup, 2=Strip
+const int NumberOfLayers = 9;      // 0,1,2: Tpl, 3,4: Dbl, 5,6: Inner 8,9
+const int NumberOfRegions = 2;     // 1=Forward, 2=ENdcap 
+
+class TGCASDOut;
+class TGCDatabaseManager;
+class TGCSector;
+
+class TGCElectronicsSystem {
+public:
+  void distributeSignal(TGCEvent* event);
+  int getNumberOfSide() const { return NumberOfSide;};
+  int getNumberOfSector() const { return NumberOfOctant*NumberOfModule;};
+  int getNumberOfOctant() const { return NumberOfOctant;};
+  int getNumberOfModule() const { return NumberOfModule;};
+
+  TGCRegionType getRegionType(int mod) const;
+  TGCForwardBackwardType getForwardBackward(int side, int oct, int mod) const;
+  int getSectorId(int side, int oct, int mod) const;
+  TGCSector* getSector(TGCReadoutIndex index) const;
+  TGCSector* getSector(int side, int oct, int mod) const { 
+    if ( (side<0) || (oct<0) || (mod<0) ) return 0;
+    return sector[side][oct][mod];
+  };
+  TGCTMDB* getTMDB() const {return tmdb;}
+
+  void setAtlasFlag(bool f){fAtlas=f;};
+  bool isAtlas() const {return fAtlas;};
+
+  TGCElectronicsSystem(TGCDatabaseManager* database, bool isAtlas=true);
+  ~TGCElectronicsSystem();
+
+  TGCElectronicsSystem(const TGCElectronicsSystem& right);
+  TGCElectronicsSystem& operator=(const TGCElectronicsSystem& right);
+
+private:
+  TGCDatabaseManager* DB;
+  TGCSector* sector[NumberOfSide][NumberOfOctant][NumberOfModule];
+  TGCTMDB*   tmdb;
+  bool fAtlas; 
+};
+
+
+} //end of namespace bracket
+
+#endif // TGCElectronicsSystem_hh

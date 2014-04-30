@@ -1,0 +1,42 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TGCInnerTrackletSlotHolder_hh
+#define TGCInnerTrackletSlotHolder_hh
+
+#include "TrigT1TGC/TGCInnerTrackletSlot.hh"
+
+namespace LVL1TGCTrigger {
+  //  class TGCInnerTrackletSlot;
+
+  class TGCInnerTrackletSlotHolder {
+  public: 
+    /** Constructor */
+    TGCInnerTrackletSlotHolder();
+    /** Destructor */
+    ~TGCInnerTrackletSlotHolder() {};
+
+    void clearTriggerBits();
+    bool setTriggerBit(const int sideId, const int slotId, 
+		       const unsigned int region, const unsigned int readout, 
+		       const unsigned int iBit, const bool triggerBit);
+    const TGCInnerTrackletSlot* getInnerTrackletSlot(const int sideId, const int slotId) const;
+    void getInnerTrackletSlots(const int sideId, const int octId, const int moduleId, 
+			       const TGCInnerTrackletSlot* innerTrackletSlots[]) const;
+    
+    enum {
+      NUMBER_OF_SIDES = 2, // Side A and Side C
+      NUMBER_OF_SLOTS = 24, // Slot01 - Slot24
+      FIRST_SLOT = 1,
+      NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR = 4 
+      // slot23, slot24, slot01, slot02 go to A01 phi0/phi1 Endcap SL
+    };
+
+  private:
+    TGCInnerTrackletSlot m_innerTrackletSlot[NUMBER_OF_SIDES][NUMBER_OF_SLOTS];
+  };
+
+} //end of namespace bracket
+
+#endif // TGCInnerTrackletSlotHolder_hh

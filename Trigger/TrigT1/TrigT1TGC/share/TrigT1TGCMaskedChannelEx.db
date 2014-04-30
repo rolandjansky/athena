@@ -1,0 +1,23 @@
+/// =======
+/// format
+/// =======----------------------------------------------------------
+/// id_type   		<< 1=OnlineID, 2=ReadoutID, 3=OfflienID >>
+/// 0/1 [channel id 1]
+/// 0/1 [channel id 2]
+/// .....
+/// 0/1 [channel id N]
+/// -----------------------------------------------------------------
+/// Remark
+/// first column         for 0=MASK 1=FIRE BY FORCE
+/// after second columns for channel ID
+/// -- OnlineID  = { subsystemNumber, octantNumber, moduleNumber, layerNumber, rNumber, wireOrStrip, channelNumber }
+/// * -99=all -> this is available only for subsystemNumber and octantNumber
+/// -- ReadoutID = { subdetectorID, rodId, sswID, slbId, channelId }
+/// -- OfflineID = { 32-bits unique number }
+/// example 
+/// 1) mask channel with id={z=fwd,oct=2,mod=5,layer=5, rNumber=3, strip, ch=3}
+/// 2) fire channel with id={z=back,oct=1,mod=4,layer=1, rNumber=4, wire, ch=129}
+1
+0 1 2 5 5 3 1 3
+1 -1 1 4 1 4 0 129
+

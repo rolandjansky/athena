@@ -1,0 +1,172 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// LVL1TGCTrigger.h
+#ifndef __LVL1TGCTRIGGER_H__
+#define __LVL1TGCTRIGGER_H__
+
+#include <fstream>
+
+// STL
+#include <string>
+#include <vector>
+#include <map>
+
+// Gaudi includes
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
+// TGC
+#include "TrigT1TGC/TGCElectronicsSystem.hh"
+#include "TrigT1TGC/TGCTimingManager.hh"
+#include "TrigT1TGC/TGCDatabaseManager.hh"
+
+// Other stuff
+#include "TrigT1Interfaces/SlinkWord.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
+#include "Identifier/Identifier.h"
+
+// EIFI-SL connection
+#include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
+
+class TgcRdo;
+class TgcRawData;
+class ITGCcablingSvc ;
+
+namespace TrigConf {
+  class ILVL1ConfigSvc;
+}
+
+namespace LVL1TGCTrigger {
+
+  /**
+   *
+   *  @short Dump LVL1TGCTrigger::LVL1TGCTrigger for main algorithm
+   *  
+   *  Input  : TgcDigitContainer (digits)
+   *  Output : LVL1MUONIF::Lvl1MuSectorLogicData (trigger decision)
+   *
+   *  @see TgcDigitContainer
+   *  @see LVL1MUONIF::Lvl1MuSectorLogicData
+   * 
+   *  @author Chihiro Omachi <omati@phys.sci.kobe-u.ac.jp>
+   *  @author Masaya Ishino <Masaya.Ishino@cern.ch>
+   *  @author Naoko Kanaya <Naoko.Kanaya@cern.ch>
+   *  @author Hisaya Kurashige <Hisaya.Kurashige@cern.ch>
+   *
+   * 
+   */
+class TGCSector;
+class TGCSLSelectorOut;
+
+class LVL1TGCTrigger : public Algorithm
+{
+
+ public:
+
+  /** standard constructor and destructor for algorithms
+   */
+  LVL1TGCTrigger( const std::string& name, ISvcLocator* pSvcLocator ) ;
+  ~LVL1TGCTrigger();
+  
+  // standard algorithm methods:
+  StatusCode initialize() ;
+  StatusCode execute() ;
+  StatusCode finalize() ;
+
+ private:
+  // Fill TMDB event data
+  StatusCode fillTMDB();
+
+  // record bare-RDO for LowPT coincidences (on m_OutputTgcRDO=True):
+  void recordRdoSLB(TGCSector *);
+
+  // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
+  void recordRdoHPT(TGCSector *);
+
+  // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
+  void recordRdoSL(TGCSector *, unsigned int );
+
+  std::map<std::pair<int, int>, TgcRdo*>  m_tgcrdo;
+  
+  // Strip masking
+  StatusCode doMaskOperation();
+  std::map<Identifier, int> m_MaskedChannel;   
+
+  // pointers to various external services
+  ServiceHandle<StoreGateSvc> m_sgSvc;  
+  StoreGateSvc *m_detectorStore;
+  const ITGCcablingSvc*       m_cabling ;
+
+  // useful functions
+  int getCharge(int dR, int Zdir);  
+  void extractFromString(std::string, std::vector<int>&);    
+  void addRawData(TgcRawData *);
+  int getLPTTypeInRawData(int type);
+  void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
+			   TGCSLSelectorOut *selectorOut, 
+			   unsigned int subsystem);
+  
+  // Properties
+ 
+  // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
+  StringProperty m_keyMuCTPIInput_TGC;
+
+  // Version of Coincidence Window
+  StringProperty m_VerCW;
+
+  // Location of TgcDigitContainer
+  StringProperty m_keyTgcDigit ;
+
+  // Location of TileMuonReceiverContainer
+  StringProperty m_keyTileMu ;
+  
+  StringProperty m_MaskFileName ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+  StringProperty m_MaskFileName12 ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+  ShortProperty m_CurrentBunchTag;  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+  BooleanProperty m_OutputTgcRDO;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+  
+  // expert usage
+  BooleanProperty   m_STRICTWD;
+  BooleanProperty   m_STRICTWT;
+  BooleanProperty   m_STRICTSD;
+  BooleanProperty   m_STRICTST;
+  BooleanProperty   m_OUTCOINCIDENCE; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+  BooleanProperty   m_SINGLEBEAM; // for the single beam run
+  BooleanProperty   m_MUHALO; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
+  BooleanProperty   m_SHPTORED; // flag for E1/E2 chamber ORED in STRIP HPT
+  BooleanProperty   m_USEINNER; // flag for using Inner Station for SL
+  BooleanProperty   m_INNERVETO; // flag for using VETO by Inner Station for SL
+  BooleanProperty   m_FULLCW;   // flag for using differne CW for each octant
+  BooleanProperty   m_TILEMU;   // flag for using TileMu
+
+  TGCDatabaseManager *db;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+  TGCTimingManager *TimingManager;
+  TGCElectronicsSystem *system;
+  
+  int nEventInSector;
+
+  // flag for ATLAS configuration (1/12 sector cabling service)
+  //      or OldSimulation (octant cabling service)
+  bool isAtlas;
+
+  // EIFI-SL connection
+  TGCInnerTrackletSlotHolder m_innerTrackletSlotHolder;
+  
+  // getCabling method 
+  StatusCode getCabling();
+
+  // log 
+  mutable MsgStream   m_log;
+  bool                m_debuglevel;
+}; // class LVL1TGCTrigger
+  
+
+} // namespace LVL1TGCTrigger
+
+#endif // __LVL1TGCTRIGGER_H__

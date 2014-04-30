@@ -1,0 +1,70 @@
+/// Note That:
+/// Optimization of mask operation is on-going. This mask may not give the best performance.
+/// List of masked channels
+/// =======
+/// format
+/// =======----------------------------------------------------------
+/// id_type   		<< 1=OnlineID, 2=ReadoutID, 3=OfflienID >>
+/// 0/1 channel 1       << the first column 0=mask 1=fire>>
+/// 0/1 channel 2
+/// 0/1 ...
+/// 0/1 channel N
+/// -----------------------------------------------------------------
+/// -- OnlineID  = { subsystemNumber, octantNumber, moduleNumber, layerNumber, rNumber, wireOrStrip, channelNumber }
+/// * -99=all -> this is available only for subsystemNumber and octantNumber
+/// -- ReadoutID = { subdetectorID, rodId, sswID, slbId, channelId }
+/// -- OfflineID = { 32-bits unique number }
+1
+0 -99 -99 6 5 4 1 0
+0 -99 -99 6 6 4 1 0
+0 -99 -99 7 5 4 1 0
+0 -99 -99 7 6 4 1 0
+0 -99 -99 6 5 3 1 0
+0 -99 -99 6 6 3 1 0
+0 -99 -99 7 5 3 1 0
+0 -99 -99 7 6 3 1 0
+0 -99 -99 6 5 2 1 0
+0 -99 -99 6 6 2 1 0
+0 -99 -99 7 5 2 1 0
+0 -99 -99 7 6 2 1 0
+0 -99 -99 6 5 1 1 0
+0 -99 -99 6 6 1 1 0
+0 -99 -99 7 5 1 1 0
+0 -99 -99 7 6 1 1 0
+0 -99 -99 6 5 0 1 0
+0 -99 -99 6 6 0 1 0
+0 -99 -99 7 5 0 1 0
+0 -99 -99 7 6 0 1 0
+0 -99 0 2 5 0 1 31
+0 -99 0 2 6 0 1 31
+0 -99 0 8 5 0 1 0
+0 -99 0 8 6 0 1 0
+0 -99 1 2 5 0 1 0
+0 -99 1 2 6 0 1 0
+0 -99 1 8 5 0 1 31
+0 -99 1 8 6 0 1 31
+0 -99 2 2 5 0 1 31
+0 -99 2 2 6 0 1 31
+0 -99 2 8 5 0 1 0
+0 -99 2 8 6 0 1 0
+0 -99 3 2 5 0 1 0
+0 -99 3 2 6 0 1 0
+0 -99 3 8 5 0 1 31
+0 -99 3 8 6 0 1 31
+0 -99 4 2 5 0 1 31
+0 -99 4 2 6 0 1 31
+0 -99 4 8 5 0 1 0
+0 -99 4 8 6 0 1 0
+0 -99 5 2 5 0 1 0
+0 -99 5 2 6 0 1 0
+0 -99 5 8 5 0 1 31
+0 -99 5 8 6 0 1 31
+0 -99 6 2 5 0 1 31
+0 -99 6 2 6 0 1 31
+0 -99 6 8 5 0 1 0
+0 -99 6 8 6 0 1 0
+0 -99 7 2 5 0 1 0
+0 -99 7 2 6 0 1 0
+0 -99 7 8 5 0 1 31
+0 -99 7 8 6 0 1 31
+

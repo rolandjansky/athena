@@ -1,0 +1,19 @@
+//-------------------------------------------------------
+// RPhiCoincidenceMap.db
+//-------------------------------------------------------
+// define pT values of RPhiCoincidenceMaps
+//
+//
+//                  Date      Who      Explanation of Changes
+//               --------- ---------  -----------------------
+// Verson   0.01 7-Oct-11 H.Kurashige   Creation for ion run 2011
+//   same as setI except for pt=1 is not used and pt2 is set to Mu_0
+//-------------------------------------------------------
+//
+# 0     0
+# 1     0 
+# 2     4 
+# 3     6 
+# 4    10
+# 5    15
+# 6    20

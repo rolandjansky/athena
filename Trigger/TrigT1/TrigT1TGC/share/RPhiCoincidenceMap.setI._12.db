@@ -1,0 +1,21 @@
+//-------------------------------------------------------
+// RPhiCoincidenceMap.db
+//-------------------------------------------------------
+// define pT values of RPhiCoincidenceMaps
+//
+//
+//                  Date      Who      Explanation of Changes
+//               --------- ---------  -----------------------
+// Verson   0.01 10-Aug-11 H.Kurashige   Creation for 1E31 
+//  setI for 2011 run is set to default 
+//  setI is same as setH except CWs for pt=1 
+//  pt=1 of setI is partially 2-st coincidence (i.e. MU4') 
+//-------------------------------------------------------
+//
+# 0     0
+# 1     4
+# 2     6
+# 3    10
+# 4    11
+# 5    15
+# 6    20
