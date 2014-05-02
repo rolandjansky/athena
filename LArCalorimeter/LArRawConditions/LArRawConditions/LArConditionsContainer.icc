@@ -1,0 +1,1257 @@
+//Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file LArConditionContainer.icc
+ *
+ * @brief This file defines the methods for the template class
+ *  LArConditionsContainer used for transient conditions data 
+ *
+ * @author RD Schaffer  <R.D.Schaffer@cern.ch>
+ * @author Hong Ma      <hma@bnl.gov>
+ * @author Walter Lampl <wlampl@mail.cern.ch>
+ *
+ * $Id: LArConditionsContainer.icc,v 1.17 2009-04-23 09:19:22 wlampl Exp $
+ */
+// Services/helpers
+#include "LArIdentifier/LArOnlineID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "LArTools/LArCablingService.h" 
+
+#include <algorithm>
+#include <deque>
+//#include <typeinfo>
+
+
+template<class T> 
+inline
+LArConditionsContainer<T>::~LArConditionsContainer() 
+{}
+
+
+template<class T> 
+inline
+LArConditionsContainer<T>::LArConditionsContainer()
+	:
+	LArConditionsContainerBase(),
+	m_hashVecValid(false),
+	m_correctionsApplied(false)
+
+
+{} 
+
+template<class T> 
+inline
+LArConditionsContainer<T>::LArConditionsContainer(GroupingType type)
+	:
+	LArConditionsContainerBase(type),
+	m_hashVecValid(false),
+	m_correctionsApplied(false)
+
+{} 
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::Reference
+LArConditionsContainer<T>::empty() const 
+{
+  return Traits::empty();
+} 
+
+
+template<class T> 
+inline 
+void
+LArConditionsContainer<T>::sortSubsets()
+{
+    // Sort subsets according to their channel number and refill the
+    // map from cool channel number to index
+
+
+//     typedef DataVector<Subset>           SubsetDV;
+//     typedef typename SubsetDV::iterator  iterator;
+//     iterator it    = SubsetDV::begin();
+//     iterator itEnd = SubsetDV::end();
+    
+    this->sort (SubsetSort());
+//     std::sort (it, itEnd, SubsetSort());
+
+    // Reset and refill cool channel numbers and lookup table
+    this->resetChannelNumbers();
+    m_channelToMultChanCollIndex = std::vector<unsigned int>(m_febIdChanMap.totalChannels(), 9999);
+    for (unsigned int i = 0; i < this->size(); ++i) {
+	unsigned int coolChannel = this->at(i)->channel();
+	m_channelToMultChanCollIndex[coolChannel] = i;
+	this->add(coolChannel);
+    }
+
+//     for (unsigned int i = 0; i < this->size(); ++i) {
+// 	unsigned int coolChannel = this->at(i)->channel();
+// 	m_channelToMultChanCollIndex[coolChannel] = i;
+// 	add(coolChannel);
+//     }
+
+
+
+
+
+}
+
+
+template<class T> 
+inline
+StatusCode  
+LArConditionsContainer<T>::updateConditionsMap(FebId febId, unsigned int gain, 
+					       ConditionsMap& conditionsMap)
+{
+
+    // The conditions map is not yet initialized for this
+    // FEB. Now find the conditions for this FEB in the
+    // LArConditionsSubsets, creating a new subset if
+    // necessary 
+
+    // Get COOL channel number and corresponding index into
+    // CondMultChanCollection vector 
+    unsigned int coolChannel = 0;
+    unsigned int index;
+
+//      std::cout << "LArConditionsContainer::updateConditionsMap:  febid, gain, conditionmap size group type "
+//  	      << std::hex << febId << " "  << std::dec
+//  	      << gain << " " << conditionsMap.size() << " " << m_groupType
+//  	      << std::endl; 
+
+    if (m_febIdChanMap.getChannel(febId, gain, coolChannel)) {
+
+//  	std::cout << "updateConditionsMap:  coolChannel, index map size, chan size "
+//  		  << coolChannel << " " << m_channelToMultChanCollIndex.size() 
+//  		  << " " << chan_size()
+//  		  << std::endl; 
+
+	// Get subset
+	Subset* subset = 0;
+
+
+	// Check whether cool channel has already been added
+	// to CondMultChanCollection
+	bool exist = false;
+	if (coolChannel < m_channelToMultChanCollIndex.size()) {
+	    index = m_channelToMultChanCollIndex[coolChannel];
+	    if (index < chan_size()) {
+		exist = true;
+		subset = this->at(index);
+	    }
+	}
+	else {
+	    std::cout << "LArConditionsContainer::updateConditionsMap:  Invalid Cool channel: chan/max "
+		      << coolChannel << " " << m_channelToMultChanCollIndex.size()
+		      << std::endl; 
+	    return (StatusCode::FAILURE);
+	}
+
+
+	if (!exist) {
+	    // Cool channel does not yet exist. Add new
+	    // LArConditionsSubset to CondMultChanCollection
+	    // and add setup the DB to point to new subset
+
+	    // add new subset
+	    subset = new LArConditionsSubset<T>(m_febIdChanMap.febIdVector(gain, coolChannel), gain);
+	    // Set attributes
+	    subset->setGain(gain);
+	    subset->setChannel(coolChannel);
+	    subset->setGroupingType(m_groupType);
+	    this->push_back(subset);
+	    // sort the subsets, adding in the cool channel number as appropriate
+	    sortSubsets();
+
+//   	    std::cout << "updateConditionsMap:  Added New Subset - gain, coolChannel, grouping type "
+//   		      << gain << " " << coolChannel << " " << m_groupType
+//   		      << std::endl; 
+
+	}
+		
+	// LArConditionsSubset exists, now find ChannelVector
+	// for FEB ID
+
+	typename LArConditionsSubset<T>::SubsetIt  subsetIt = subset->findChannelVector(febId);
+	if (subsetIt == subset->subsetEnd()) {
+	    std::cout << " LArConditionsContainer::updateConditionsMap:  unable to get ChannelVector for febId: febId/gain/index "
+		      << std::hex << febId << " "  << std::dec
+		      << gain << " " << index
+		      << std::endl; 
+	    return (StatusCode::FAILURE);
+	}
+
+	// Now add pointer to ChannelVector to Conditions map DB
+        FebPairReference pair = *subsetIt;
+        conditionsMap.add(febId, &pair.second);
+
+	// This invalids the hash vector
+	m_hashVecValid=false;
+    }
+    else {
+	std::cout << " LArConditionsContainer::updateConditionsMap:  unable to get channel: febid/gain "
+		  << std::hex << febId << " "  << std::dec << gain
+		  << std::endl; 
+	return (StatusCode::FAILURE);
+    }
+	    
+    return (StatusCode::SUCCESS);
+}
+
+template<class T> 
+inline 
+void 
+LArConditionsContainer<T>::setPdata(const HWIdentifier id, 
+				    const T& payload, 
+				    unsigned int gain ) 
+{
+//     std::cout<<" LArConditionsContainer::setPdata 1 "
+// 	     << std::hex << id << " "  << std::dec << gain << " " << this->size()
+// 	     << std::endl; 
+
+    unsigned int maxGain = m_febIdChanMap.minGain() + m_febIdChanMap.nGains();
+    if(gain < maxGain) {
+
+//     std::cout<<" LArConditionsContainer::setPdata 2 "
+// 	     << std::hex << id << " "  << std::dec << gain << " " << this->size()
+// 	     << " online helper " << m_onlineHelper
+// 	     << std::endl; 
+
+	// Extract FEB id and channel number from id
+	const unsigned int febId      = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+	const int          febChannel = m_onlineHelper->channel(id);
+
+//     std::cout<<" LArConditionsContainer::setPdata 3 "
+// 	     << std::hex << id << " "  << std::dec << gain << " " << this->size()
+// 	     << std::endl; 
+
+	// Get cached conditions map DB for this gain, create if necessary
+	GainMapIterator gainMapIt =  m_cached.find(gain);
+
+//     std::cout<<" LArConditionsContainer::setPdata 4 "
+// 	     << std::hex << id << " "  << std::dec << gain << " " << this->size()
+// 	     << std::endl; 
+
+	if(gainMapIt == m_cached.end()) {
+	    // Insert new conditions map and set iterator
+
+// 	    std::cout<<" LArConditionsContainer::setPdata:  insert gain map "<<std::endl; 
+
+	    gainMapIt = (m_cached.insert(GainPair(gain, ConditionsMap(gain)))).first; 
+	}
+
+//     std::cout<<" LArConditionsContainer::setPdata 5 "
+// 	     << std::hex << id << " "  << std::dec << gain << " " << this->size()
+// 	     << std::endl; 
+
+	ConditionsMap& conditionsMap = (*gainMapIt).second;
+
+//     std::cout<<" LArConditionsContainer::setPdata 6 "
+// 	     << std::hex << id << " "  << std::dec << gain << " " << this->size()
+// 	     << std::endl; 
+
+	// Now see if FEB ID exists in DB, if not we must add it with
+	// a pointer the ChannelVector which is in one of the
+	// LArConditionsSubset. This may require to create the
+	// LArConditionsSubset. 
+
+	if (!(conditionsMap.exist(febId))) {
+
+	    // Initialize the conditions map for this feb id
+	    StatusCode sc = updateConditionsMap(febId, gain, conditionsMap);
+	    if (sc != StatusCode::SUCCESS) {
+		std::cout<<" LArConditionsContainer::setPdata:  unable to updateConditionsMap "<<std::endl; 
+		return;
+	    }
+	}
+	
+	// Now add in the new payload
+	conditionsMap.set(febId,febChannel,payload);
+
+    } 
+    else {
+	std::cout<<" LArConditionsContainer::setPdata:  Invalid Gain "<<std::endl; 
+    } 
+}
+
+template<class T> 
+inline 
+typename LArConditionsContainer<T>::ConstReference
+LArConditionsContainer<T>::get(const HWIdentifier id, 
+			       unsigned int gain) const
+{
+    // Extract FEB id and channel number from id
+    const unsigned int febId   = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+    const int          channel = m_onlineHelper->channel(id);
+
+    // Get cached conditions map DB for this gain, create if necessary
+    ConstGainMapIterator it =  m_cached.find(gain);
+    if(it!=m_cached.end()) {
+	return (*it).second.get(febId, channel);
+    } 
+    else  {
+	return (empty());
+    }
+
+}
+
+template<class T> 
+inline 
+typename LArConditionsContainer<T>::ConstReference
+LArConditionsContainer<T>::get_offline(const Identifier id, 
+				       unsigned int gain) const
+{
+  const IdentifierHash hId=this->offlineHelper()->calo_cell_hash(id);
+  return this->get(hId,gain);//Creates a hash-indexed vector of pointers to the payload object
+}
+
+
+
+template<class T> 
+inline 
+typename LArConditionsContainer<T>::Reference
+LArConditionsContainer<T>::get(const HWIdentifier id, 
+			       unsigned int gain)
+{
+    const unsigned int febId   = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+    const int          channel = m_onlineHelper->channel(id);
+
+    GainMapIterator gainMapIt =  m_cached.find(gain);
+    if(gainMapIt == m_cached.end()) {
+	gainMapIt = (m_cached.insert(GainPair(gain,ConditionsMap(gain)))).first;
+    }
+    ConditionsMap& conditionsMap = (*gainMapIt).second;
+
+    // Now see if FEB ID exists in DB, if not we must add it with
+    // a pointer the ChannelVector which is in one of the
+    // LArConditionsSubset. This may require to create the
+    // LArConditionsSubset. 
+
+    if (!conditionsMap.exist(febId)) {
+
+	// Initialize the conditions map for this feb id
+	StatusCode sc = updateConditionsMap(febId, gain, conditionsMap);
+	if (sc != StatusCode::SUCCESS) {
+	    std::cout<<" LArConditionsContainer::get:  unable to updateConditionsMap "<<std::endl; 
+	    return (empty());
+	}
+    }
+	
+    return (gainMapIt->second.getNonConst(febId,channel));
+}
+
+template<class T> 
+inline 
+typename LArConditionsContainer<T>::ConstReference
+LArConditionsContainer<T>::get(const IdentifierHash hashId,
+			       unsigned int gain) const
+{
+  if (!m_hashVecValid) initHashVec();
+  TVectorMapIterator it =  m_hashVec.find(gain);
+  if(it!=m_hashVec.end()) {
+    ConstPointer elm_ptr =  (*it).second[hashId];
+    if (elm_ptr) { //Check if NULL pointer 
+      return *elm_ptr;
+    }
+    else {
+	return (empty());
+    }
+  } 	
+  return (empty());
+} 
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::coolChannel (const HWIdentifier id,
+					unsigned int gain) const
+{
+    // Extract FEB id
+    const unsigned int febId       = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+    unsigned int       coolChannel = 0;
+
+    // Look for cool channel in map,  == 9999 if not found
+    m_febIdChanMap.getChannel(febId, gain, coolChannel);
+    return (coolChannel);
+}
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::groupingType() const
+{
+    return (m_groupType);
+}
+
+template<class T> 
+inline
+std::string
+LArConditionsContainer<T>::groupingTypeToString() const
+{
+    return (groupingTypeToString());
+}
+
+    
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::groupNumber(unsigned int coolChannel) const
+{
+    return (m_febIdChanMap.groupNumber(coolChannel));
+}
+    
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::nGroups() const
+{
+    return (m_febIdChanMap.nGroups());
+}
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::minGain() const
+{
+    return (m_febIdChanMap.minGain());
+}
+    
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::nGains() const
+{
+    return (m_febIdChanMap.nGains());
+}
+
+
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::chan_const_iterator 
+LArConditionsContainer<T>::chan_begin() const
+{
+    return (MultChanCollection::chan_begin());
+}
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::chan_const_iterator 
+LArConditionsContainer<T>::chan_end  () const
+{
+    return (MultChanCollection::chan_end());
+}
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::chan_size_type
+LArConditionsContainer<T>::chan_size() const
+{
+    return (MultChanCollection::chan_size());
+}
+    
+template<class T> 
+inline
+typename LArConditionsContainer<T>::iov_const_iterator
+LArConditionsContainer<T>::iov_begin() const
+{
+    return (MultChanCollection::iov_begin());
+}
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::iov_const_iterator
+LArConditionsContainer<T>::iov_end  () const
+{
+    return (MultChanCollection::iov_end());
+}
+    
+template<class T> 
+inline
+typename LArConditionsContainer<T>::iov_size_type
+LArConditionsContainer<T>::iov_size() const
+{
+    return (MultChanCollection::iov_size());
+}
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::conditionsPerChannel(unsigned int coolChannel) const
+{
+    if (coolChannel < m_channelToMultChanCollIndex.size()) {
+	unsigned int index = m_channelToMultChanCollIndex[coolChannel];
+	if (index < chan_size()) {
+	    // Subset exists
+	    const Subset* subset = this->at(index);
+	    return (subset->nConditions());
+	}
+    }
+    return (0);  // not found
+}
+
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::conditionsPerGroup(unsigned int group) const
+{
+    unsigned int tot = 0;
+    const_iterator it    = SubsetDV::begin();
+    const_iterator endIt = SubsetDV::end();
+    for (; it != endIt; ++it) {
+	const Subset* subset = (*it);
+	if (m_febIdChanMap.groupNumber(subset->channel()) == group) {
+	    tot += subset->nConditions();
+	}
+    }
+    return (tot);
+}
+
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::conditionsPerGain(unsigned int gain) const
+{
+    unsigned int tot = 0;
+    const_iterator it    = SubsetDV::begin();
+    const_iterator endIt = SubsetDV::end();
+    for (; it != endIt; ++it) {
+	const Subset* subset = (*it);
+	if ((unsigned int)subset->gain() == gain) {
+	    tot += subset->nConditions();
+	}
+    }
+    return (tot);
+}
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::totalNumberOfConditions() const
+{
+    unsigned int tot = 0;
+    const_iterator it    = SubsetDV::begin();
+    const_iterator endIt = SubsetDV::end();
+    for (; it != endIt; ++it) {
+	tot += (*it)->nConditions();
+    }
+    return (tot);
+}
+
+template<class T> 
+inline
+unsigned int
+LArConditionsContainer<T>::totalNumberOfCorrections() const
+{
+    unsigned int tot = 0;
+    const_iterator it    = SubsetDV::begin();
+    const_iterator endIt = SubsetDV::end();
+    for (; it != endIt; ++it) {
+	tot += (*it)->correctionVecSize();
+    }
+    return (tot);
+}
+
+
+template<class T> 
+inline
+void LArConditionsContainer<T>::initHashVec() const 
+{
+    const unsigned hashMax=m_offlineHelper->calo_cell_hash_max();
+    ConstGainMapIterator it_gain = m_cached.begin() ; 
+    ConstGainMapIterator it_gain_e = m_cached.end() ; 
+
+    try { 
+	// loop lover gains 
+	for(; it_gain!=it_gain_e;++it_gain) { 
+	    unsigned int gain = (*it_gain).first; 
+	    const ConditionsMap& db = (*it_gain).second; 
+
+	    TVector& hashVec= m_hashVec[gain];
+	    hashVec.clear();
+	    hashVec.resize(hashMax,0);
+
+	    //std::vector<T*>::const_iterator it=m_hashVec.begin();
+	    //std::vector<T*>::const_iterator it_e=m_hashVec.end();
+
+//    typedef  ConditionsMap::const_iterator P_IT; 
+	    ConstConditionsMapIterator it_chan   = db.begin(m_onlineHelper); 
+	    ConstConditionsMapIterator it_chan_e = db.end(m_onlineHelper); 
+
+	    // loop over available channels for this gain 
+	    for(; it_chan!=it_chan_e;++it_chan) {
+		HWIdentifier hid = m_onlineHelper->channel_Id(
+		    HWIdentifier(it_chan.getFebId()), it_chan.getChannel());
+		if (m_larCablingSvc->isOnlineConnected(hid)) {
+		  Identifier id = m_larCablingSvc->cnvToIdentifier(hid); 
+		  IdentifierHash hash = m_offlineHelper->calo_cell_hash(id);
+		  //if (hash>hashVec.size()) std::cout << "Hash too big" << std::endl;
+                  ConstReference ref = *it_chan;
+		  hashVec[(unsigned int)hash]=&ref;
+		}
+	    }
+	}
+	m_hashVecValid=true;
+    }
+    catch (LArID_Exception & except) {
+	std::cout<<" LArConditionsContainer: ERROR Failed to get hash id"<<std::endl;
+	m_hashVecValid=false;
+    }
+    return;
+}
+
+// template<class T> 
+// void LArConditionsContainer<T>::copy ( const GainMap* p) 
+// {
+//   GainMapIterator it   = p->begin(); 
+//   GainMapIterator it_e = p->end(); 
+  
+//   for(; it!=it_e;++it){
+//     m_cached[(*it).first] = (*it).second; 
+//   } 
+
+//   return ; 
+// }
+
+    /// Have corrections been applied?
+template<class T> 
+inline
+bool     
+LArConditionsContainer<T>::correctionsApplied() const
+{
+    return (m_correctionsApplied);
+}
+
+
+template<class T> 
+inline
+StatusCode
+LArConditionsContainer<T>::applyCorrections()
+{
+  //const char* nameOfT=typeid(T).name();
+  //std::cout << "LArConditionsContainer<"<<nameOfT<<">::applyCorrections Applying corrections" << std::endl;
+    // Currently the logic is that one must undo corrections before
+    // one may reapply them
+    if (m_correctionsApplied) {
+      std::cout << "LArConditionsContainer<T>::applyCorrections: WARNING corrections already applied. NOT APPLYING THEM." << std::endl;
+      return (StatusCode::SUCCESS);
+    }
+
+    // Save number of gain values and the minimum gain - not
+    // necessarily 0
+    const unsigned int nGains  = m_febIdChanMap.nGains();
+    //const unsigned int minGain = m_febIdChanMap.minGain(); 
+    // Check whether CorrectionVector is correct size     
+    if (m_correctionsUndo.size() < nGains) m_correctionsUndo.resize(nGains);
+
+    m_correctionsApplied = true;
+    
+    std::deque<Subset*> subsetsWithCorrections;
+
+    //Loop over all underlying subsets
+    typename MultChanCollection::const_iterator its=MultChanCollection::begin();
+    typename MultChanCollection::const_iterator its_e=MultChanCollection::end();
+    for(;its!=its_e;++its) {
+      if ((*its)->correctionVecSize()>0) { //Have corrections
+	if ((*its)->nConditions()==0) //Have only corrections -> apply at the end
+	  subsetsWithCorrections.push_back(*its);
+	else //Corrections in regular subsets are applied first
+	  subsetsWithCorrections.push_front(*its);
+      }
+    }
+
+    typename std::deque<Subset*>::const_iterator it=subsetsWithCorrections.begin();
+    typename std::deque<Subset*>::const_iterator it_e=subsetsWithCorrections.end();
+    for (;it!=it_e;++it) {
+      Subset* subset=*it;
+      const int gain=subset->gain();
+      //std::cout << "Applying Corrections found in channel " << subset->channel() << std::endl;
+      GainMapIterator mapIt  = m_cached.find(gain);
+      if (mapIt !=  m_cached.end()) {
+	ConditionsMap& conditionsMap = (*mapIt).second;
+
+	CorrectionVector& undo = m_correctionsUndo[gain];
+	// Loop over corrections inside subset
+	ConstCorrectionVecIt itc  = subset->correctionVecBegin();
+	ConstCorrectionVecIt itc_e = subset->correctionVecEnd();
+	for (;itc!=itc_e;++itc) {
+	  const HWIdentifier id((*itc).first);
+	  // Extract FEB id and channel number from id
+	  const unsigned int febId      = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+	  const int          febChannel = m_onlineHelper->channel(id);
+	  
+	  if (conditionsMap.exist(febId)) {
+	    // Save old value
+	    T old = conditionsMap.get(febId, febChannel); 
+	    // Set new value
+	    conditionsMap.set(febId, febChannel, (*itc).second); 
+	    // Save undo values
+	    undo.push_back(CorrectionPair(id.get_identifier32().get_compact(), old));
+	  }
+	}//end loop over corrections in this subset
+	}// end if find gain
+    }//end loop over subsets in deque
+
+    return (StatusCode::SUCCESS);
+}
+
+    
+template<class T> 
+inline
+StatusCode
+LArConditionsContainer<T>::undoCorrections()
+{
+    // If correction not already applied, return
+    if (!m_correctionsApplied) {
+	std::cout << "LArConditionsContainer<T>::undoCorrections: WARNING corrections NOT already applied." << std::endl;
+	return (StatusCode::SUCCESS);
+    }
+
+    m_correctionsApplied = false;
+    
+    // Save number of gain values and the minimum gain - not
+    // necessarily 0
+    unsigned int nGains  = m_febIdChanMap.nGains();
+    unsigned int minGain = m_febIdChanMap.minGain(); 
+
+    // Loop over the corrections for each gain and apply them to the
+    // corresponding subsets
+    for (unsigned int igain = 0; igain < nGains; ++igain) {
+
+	unsigned int gain = igain + minGain; // gain value, not index
+
+	// Get current corrections undo vector
+	CorrectionVector& undo = m_correctionsUndo[igain];
+
+	// May not have all gains
+	GainMapIterator mapIt  = m_cached.find(gain);
+	if (mapIt !=  m_cached.end()) {
+
+	    ConditionsMap& conditionsMap = (*mapIt).second;
+
+	    // Loop over undo corrections
+	    ConstCorrectionIt it  = undo.begin();
+	    ConstCorrectionIt end = undo.end();
+	    for (; it != end; ++it) {
+
+		// Find the corresponding channel to correct,
+		// replace it and save overridden value
+		HWIdentifier id((*it).first);
+		// Extract FEB id and channel number from id
+                unsigned int febId      = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+		int          febChannel = m_onlineHelper->channel(id);
+		    
+		if (conditionsMap.exist(febId)) {
+		    // Set undo value
+		    conditionsMap.set(febId, febChannel, (*it).second); 
+		}
+	    }
+	}
+	// Reset undo vector
+	undo.clear();
+    }
+    return (StatusCode::SUCCESS);
+}
+
+/*
+
+
+  The following methods are commented out because they don't work any more and/or don't
+  make sense any more since we have now the option to store corrections in the same subsets
+  as the regular data. (And not used anywhere anyway).
+
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstCorrectionIt
+LArConditionsContainer<T>::findCorrection  (HWIdentifier channelId,
+					    unsigned int gain) const
+{
+    // Loop over corrections
+    std::vector<unsigned int> indexes;
+    correctionIndexes(gain, indexes);
+    for (unsigned int i = 0; i < indexes.size(); ++i) {
+        unsigned int index = indexes[i];
+        if (index < m_channelToMultChanCollIndex.size()) {
+            const Subset* corrections = this->at(index);
+            ConstCorrectionIt it = corrections->findConditionsObj(channelId);
+            if (it != corrections->correctionVecEnd()) return (it);
+        }
+    }
+    return (m_emptyCorrectionVec.end());
+}
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstCorrectionIt
+LArConditionsContainer<T>::findCorrectionEnd() const
+{
+    // Simply return the empty end 
+    return (m_emptyCorrectionVec.end());
+}
+
+
+template<class T> 
+inline
+void                  
+LArConditionsContainer<T>::correctionIndexes(unsigned int gain,
+                                             std::vector<unsigned int>& indexes) const
+{
+    // Find indexed into data vector for the correction sets
+    indexes.clear();
+    std::vector<unsigned int> coolChannels;
+    if (m_febIdChanMap.getCorrectionSetChannels(gain, coolChannels)) {
+        // loop over cool channels and look for indexes
+        indexes.reserve(coolChannels.size());
+        for (unsigned int i = 0; i < coolChannels.size(); ++i) {
+            if (coolChannels[i] < m_channelToMultChanCollIndex.size()) {
+                indexes.push_back(m_channelToMultChanCollIndex[coolChannels[i]]);
+            }
+	}
+    }
+}
+
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstCorrectionIt
+LArConditionsContainer<T>::correctionsBegin(unsigned int index) const
+{
+    if (index < m_channelToMultChanCollIndex.size()) {
+	const Subset* corrections = this->at(index);
+	return (corrections->correctionVecBegin());
+    }
+    else {
+	return (m_emptyCorrectionVec.begin());
+    }
+}
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstCorrectionIt
+LArConditionsContainer<T>::correctionsEnd(unsigned int index)   const
+{
+    if (index < m_channelToMultChanCollIndex.size()) {
+	const Subset* corrections = this->at(index);
+	return (corrections->correctionVecEnd());
+    }
+    else {
+	return (m_emptyCorrectionVec.end());
+    }
+}
+
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::size_type  
+LArConditionsContainer<T>::correctionsSize(unsigned int gain) const
+{
+    // Loop over corrections
+    size_type ncorr = 0;
+    std::vector<unsigned int> indexes;
+    correctionIndexes(gain, indexes);
+    for (unsigned int i = 0; i < indexes.size(); ++i) {
+        unsigned int index = indexes[i];
+        if (index < m_channelToMultChanCollIndex.size()) {
+            const Subset* corrections = this->at(index);
+            ncorr +=  (corrections->correctionVecSize());
+        }
+    }
+    return (ncorr);
+}
+
+*/
+
+template<class T> 
+inline
+std::vector<unsigned> 
+LArConditionsContainer<T>::completeCorrectionChannels() {
+
+  std::vector<unsigned> result;
+
+  typedef std::map<unsigned int,std::pair<HWIdentifier,unsigned> > INSERTMAP;
+  INSERTMAP idsToInsert;
+  typename MultChanCollection::const_iterator cit=MultChanCollection::begin();
+  typename MultChanCollection::const_iterator cit_e=MultChanCollection::end();
+  for(;cit!=cit_e;++cit) {
+    const unsigned gain=(*cit)->gain();
+    //msg << MSG::INFO << "Checking COOL channel " << (*it)->channel() << " Gain " << gain << endreq;;
+    if ((*cit)->subsetBegin()!=(*cit)->subsetEnd()) { //not empty subset
+      const HWIdentifier febId((*(*cit)->subsetBegin()).first);
+      unsigned int index;
+      unsigned int coolChannel;
+      correctionIndexAndCoolChannel(febId, gain, index, coolChannel);
+      if (m_channelToMultChanCollIndex.size() <= index && idsToInsert.find(coolChannel)==idsToInsert.end()) {
+	//msg << MSG::WARNING << "Correction channel " << coolChannel << " does not exit" << endreq;
+	idsToInsert[coolChannel]=std::make_pair(febId,gain);
+      }
+    }//end if non-empty subset
+  }//end loop over COOL channels
+
+  INSERTMAP::const_iterator it1=idsToInsert.begin();
+  INSERTMAP::const_iterator it1_e=idsToInsert.end();
+  for (;it1!=it1_e;it1++) {
+    const unsigned gain=it1->second.second;
+    const int coolChannel=it1->first;
+    result.push_back(coolChannel);
+      //(*m_log) << MSG::INFO << "Inserting channel " << chid.get_compact() << " gain " << gain
+      //     << " to create correction channel " << it1->first << endreq;
+
+     // index is size before new push_back 
+    //index  =  chan_size(); 
+    // add new corrections subset
+    Subset* subset = new LArConditionsSubset<T>(gain);
+    // Set attributes
+    subset->setGain(gain);
+    subset->setChannel(coolChannel);
+    subset->setGroupingType(m_groupType);
+    this->push_back(subset);
+  }
+  // sort the subsets, adding in the cool channel number as appropriate
+  sortSubsets();
+  
+  return result;
+}
+
+
+template<class T> 
+inline
+StatusCode
+LArConditionsContainer<T>::insertCorrection (HWIdentifier id, 
+					     const T& cond, 
+					     unsigned int gain,
+					     bool corrChannel /*=true*/)
+{
+    unsigned int id32 = id.get_identifier32().get_compact();
+    if (corrChannel) {
+        unsigned int index;
+        unsigned int coolChannel;
+        correctionIndexAndCoolChannel(id, gain, index, coolChannel);
+
+//       std::cout << "insertCorrection: Gain, index, size " 
+//   	      << gain << " " << index << " "
+//   	      << m_channelToMultChanCollIndex.size() << " "
+//   	      << std::endl;
+    
+
+        Subset* subset = 0;
+        if (m_channelToMultChanCollIndex.size() <= index) {
+            // Create new SubSet
+
+            // index is size before new push_back 
+            index  =  chan_size(); 
+            // add new corrections subset
+            subset = new LArConditionsSubset<T>(gain);
+            // Set attributes
+            subset->setGain(gain);
+            subset->setChannel(coolChannel);
+            subset->setGroupingType(m_groupType);
+            this->push_back(subset);
+            // sort the subsets, adding in the cool channel number as appropriate
+            sortSubsets();
+
+//  	    std::cout << "insertCorrection - added subset : gain, index, coolchannel " 
+//  		      << gain << " " << index << " " << coolChannel 
+//  		      << std::endl;
+
+        }
+        else {
+            subset = this->at(index);
+        }
+        //std::cout << "Inserting correction at correction channel " << subset->channel() << std::endl;
+        subset->insertCorrection(id32, cond);
+    }
+    else { //Store correction in regular subset
+        unsigned int febId      = m_onlineHelper->feb_Id(id).get_identifier32().get_compact();
+        unsigned int coolChannel = 0;
+        if (m_febIdChanMap.getChannel(febId, gain, coolChannel)) {
+            if (coolChannel < m_channelToMultChanCollIndex.size()) {
+                const unsigned int index = m_channelToMultChanCollIndex[coolChannel];
+                Subset* subset = this->at(index);
+                //std::cout << "Inserting correction at regular channel " << subset->channel() << std::endl;
+                subset->insertCorrection(id32, cond);
+                //	return StatusCode::SUCCESS;
+            }//end if coolChannel < size
+            else {
+                std::cout << "LArConditionsContainer::insertCorrection: ERROR COOL channel " << coolChannel << " does not exist." 
+                          << " Can't insert correction." << std::endl;
+                return StatusCode::FAILURE;
+            }
+        }//end if getChannel
+        else {
+            std::cout << "LArConditionsContainer::insertCorrection: ERROR Failed to get COOL channel for gain "
+                      << gain << " channel " << id.get_compact() << std::endl;
+            return StatusCode::FAILURE;
+        }
+    }//end else corrChannel
+    return StatusCode::SUCCESS;
+}
+
+
+
+ ///get iterator over the Undo-Vector for a certain gain
+template<class T> 
+typename LArConditionsContainer<T>::ConstCorrectionIt   
+LArConditionsContainer<T>::undoCorrBegin(unsigned int gain) const {
+  if (gain<m_correctionsUndo.size())
+    return m_correctionsUndo[gain].begin();
+  else
+    return m_dummyCorrIt;
+}
+ 
+template<class T> 
+typename LArConditionsContainer<T>::ConstCorrectionIt   
+LArConditionsContainer<T>::undoCorrEnd(unsigned int gain) const {
+ if (gain<m_correctionsUndo.size())
+    return m_correctionsUndo[gain].end();
+  else
+    return m_dummyCorrIt;
+
+}
+
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstConditionsMapIterator
+LArConditionsContainer<T>::begin( unsigned int gain ) const
+{ 
+    ConstGainMapIterator it = m_cached.find(gain) ; 
+    if(it!=m_cached.end() ) { 
+	return (*it).second.begin(m_onlineHelper); 
+    } 
+
+    return ConstConditionsMapIterator() ;
+
+} 
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstConditionsMapIterator
+LArConditionsContainer<T>::begin(unsigned int gain,
+				 const std::vector<FebId>& febIds) const 
+{ 
+
+  ConstGainMapIterator it = m_cached.find(gain) ; 
+  if(it!=m_cached.end() ) { 
+    return (*it).second.begin(m_onlineHelper, febIds); 
+  } 
+  
+  return ConstConditionsMapIterator() ;
+  
+} 
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstConditionsMapIterator
+LArConditionsContainer<T>::begin(unsigned int gain,
+				 const HWIdentifier& febId) const 
+{ 
+  std::vector<FebId> febIds;
+
+  febIds.push_back(febId.get_identifier32().get_compact());
+
+  return begin(gain, febIds);
+
+} 
+
+
+template<class T> 
+inline
+typename LArConditionsContainer<T>::ConstConditionsMapIterator
+LArConditionsContainer<T>::end( unsigned int gain ) const
+{ 
+    ConstGainMapIterator it = m_cached.find(gain) ; 
+    if(it!=m_cached.end() ) { 
+	return (*it).second.end(m_onlineHelper); 
+    } 
+
+    return  ConstConditionsMapIterator() ; 
+} 
+
+template<class T> 
+void
+LArConditionsContainer<T>::removeConditions()
+{
+    // Remove all subsets NOT in group == 0
+    for (unsigned int i = 0; i < this->size(); ++i) {
+	Subset* subset = this->at(i);
+	if (0 != groupNumber(subset->channel()))delete subset;
+    }
+    // Reset cache
+    m_cached.clear();
+    // Reset the vector mapping the COOL channel to the DataVector.
+    m_channelToMultChanCollIndex = std::vector<unsigned int>(m_febIdChanMap.totalChannels(), 9999);
+}
+
+/*
+  The following methods are commented out because they don't work any more and/or don't
+  make sense any more since we have now the option to store corrections in the same subsets
+  as the regular data. (And not used anywhere anyway).
+
+template<class T> 
+void
+LArConditionsContainer<T>::removeCorrections()
+{
+    // Remove all subsets in group == 0  ONLY FOR OLD CORRECTIONS,
+    // I.E. THE FIRST THREE CHANNELS 
+    for (unsigned int i = 0; i < this->size(); ++i) {
+	Subset* subset = this->at(i);
+	if (0 == groupNumber(subset->channel())) {
+            delete subset;
+            this->at(i) = 0;
+        }
+    }
+
+    // Remove the new correction subsets for all gains
+    unsigned int nGains  = m_febIdChanMap.nGains();
+    unsigned int minGain = m_febIdChanMap.minGain(); 
+
+    for (unsigned int igain = 0; igain < nGains; ++igain) {
+        unsigned int gain = igain + minGain; // gain value, not index
+
+        // Loop over corrections
+        std::vector<unsigned int> indexes;
+        correctionIndexes(gain, indexes);
+        for (unsigned int i = 0; i < indexes.size(); ++i) {
+            unsigned int index = indexes[i];
+            if (index < m_channelToMultChanCollIndex.size()) {
+                const Subset* subset = this->at(index);
+                delete subset;
+                this->at(i) = 0;
+            }
+        }
+    }
+}
+
+*/
+
+template<class T> 
+void
+LArConditionsContainer<T>::removeConditionsChannel(unsigned int coolChannel)
+{
+
+  typename MultChanCollection::iterator it=MultChanCollection::begin();
+  typename MultChanCollection::iterator it_e=MultChanCollection::end();
+
+  for (;it!=it_e && coolChannel!=(*it)->channel();++it)
+    ; //Search for COOL channel
+
+  if (it!=it_e) { //found the channel
+    const unsigned int gain = (*it)->gain();
+    // Loop over FebIds and remove from DB map
+    GainMapIterator gainMapIt =  m_cached.find(gain);
+    if(gainMapIt != m_cached.end()) {
+      ConditionsMap& conditionsMap = (*gainMapIt).second;
+      typename Subset::ConstSubsetIt   first = (*it)->subsetBegin();
+      typename Subset::ConstSubsetIt   last  = (*it)->subsetEnd();
+      for (; first != last; ++first) {
+	conditionsMap.erase((*first).first);
+      }
+    }
+    if ((*it)->channel()<m_channelToMultChanCollIndex.size())
+      m_channelToMultChanCollIndex[(*it)->channel()] = 9999;
+    this->erase(it);
+  }
+}
+
+template<class T> 
+StatusCode  
+LArConditionsContainer<T>::initialize()
+{
+    if (!m_isInitialized) {
+	// if this constainer has already been filled with subsets,
+	// use them to define the grouping. This is needed when
+	// subsets are read in
+	if (this->size() == 0) {
+	    // Setup group mapping
+	    StatusCode sc = initializeBase();
+	    if (sc != StatusCode::SUCCESS) return (sc);
+	}
+	else {
+	    // only need to use the first one
+	    Subset* subset = this->at(0);
+	    //m_groupType = (int)subset->groupingType();
+	    if (subset->groupingType() == Unknown) {
+		m_groupType = Unknown;
+	    }
+	    else if (subset->groupingType() == SingleGroup) {
+		m_groupType = SingleGroup;
+	    }
+	    else if (subset->groupingType() == SubDetectorGrouping) {
+		m_groupType = SubDetectorGrouping;
+	    }
+	    else if (subset->groupingType() == FeedThroughGrouping) {
+		m_groupType = FeedThroughGrouping;
+	    }
+	    else if (subset->groupingType() == ExtendedFTGrouping) {
+		m_groupType = ExtendedFTGrouping;
+	    }
+	    else if (subset->groupingType() == ExtendedSubDetGrouping) {
+	      m_groupType = ExtendedSubDetGrouping;
+	      
+	    }
+	    // Setup group mapping
+	    StatusCode sc = initializeBase();
+	    if (sc != StatusCode::SUCCESS) return (sc);
+	    // Setup index map
+	    chan_const_iterator  it    = chan_begin();
+	    chan_const_iterator  itEnd = chan_end  ();
+	    for (unsigned int i = 0; it != itEnd; ++i, ++it) {
+		if ((*it) < m_channelToMultChanCollIndex.size()) {
+		    m_channelToMultChanCollIndex[*it] = i;
+		}
+		else {
+		    std::cout << "LArConditionsContainer<T>::initialize() - chan/index map too small - size, cool chan, index "
+			      << m_channelToMultChanCollIndex.size() << " "
+			      << (*it) << " "
+			      << i 
+			      << std::endl;
+		    return (StatusCode::FAILURE);
+		}
+
+		// The conditions map is not yet initialized. For each
+		// subset, add to the conditions map pointers to the
+		// non-empty channel vectors and their feb ids.
+		Subset* subset = this->at(i);
+		unsigned int gain = subset->gain();
+
+		// Get cached conditions map DB for this gain, create if necessary
+		GainMapIterator gainMapIt =  m_cached.find(gain);
+		if(gainMapIt == m_cached.end()) {
+		    // Insert new conditions map and set iterator
+		    gainMapIt = (m_cached.insert(GainPair(gain, ConditionsMap(gain)))).first; 
+		}
+		ConditionsMap& conditionsMap = (*gainMapIt).second;
+
+		typename Subset::SubsetIt   first = subset->subsetBegin();
+		typename Subset::SubsetIt   last  = subset->subsetEnd();
+		for (; first != last; ++first) {
+
+		    // select non-zero subsets
+		    if ((*first).second.size()) {
+			// Now add pointer to ChannelVector to Conditions map DB
+                        FebPairReference pair = *first;
+                        conditionsMap.add(pair.first, &pair.second);
+		    }
+		}
+	    }//end loop over COOL channels
+	    //When reading in from DB we apply corrections at init 
+	    // unless explicilty inhibeted. Check static flag first
+	    if (applyCorrectionsAtInit()) {
+	      StatusCode sc=applyCorrections();
+	      if (sc != StatusCode::SUCCESS) return (sc);
+	    }
+	}//end else have subsets
+    }//end if isInitialized()
+    
+    return (StatusCode::SUCCESS);
+}
+
+
+

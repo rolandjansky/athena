@@ -1,0 +1,81 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file LArRawConditions/LAr2DWaveBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2011
+ * @brief Per-channel class holding wave information in time bins.
+ */
+
+
+#include <cassert>
+
+
+/**
+ * @brief Default constructor.
+ */
+inline
+LAr2DWaveBase::LAr2DWaveBase()
+  : m_timeOffset(0),
+    m_timeBinWidth(25./24.)
+{
+} 
+
+
+/**
+ * @brief Is there any data in this channel?
+ */
+inline
+bool LAr2DWaveBase::isEmpty() const
+{
+  return m_waves[0].empty();
+}
+
+
+/**
+ * @brief Return the time offset for this channel.
+ */
+inline
+float LAr2DWaveBase::timeOffset() const
+{
+  return m_timeOffset;
+}
+
+
+/**
+ * @brief Return the time bin width for this channel.
+ */
+inline
+float LAr2DWaveBase::timeBinWidth() const
+{
+  return m_timeBinWidth;
+}
+
+
+/**
+ * @brief Return the number of time bins for a wave.
+ * @param which The type of wave to query.
+ */
+inline
+size_t LAr2DWaveBase::waveSize(unsigned int which) const
+{
+  assert (which < nWaves);
+  return m_waves[which].size();
+}
+
+
+/**
+ * @brief Return wave data.
+ * @param which The type of wave to return.
+ * @param tbin The time bin to return.
+ */
+inline
+LArVectorProxy LAr2DWaveBase::wave (unsigned int which, size_t tbin) const
+{
+  assert (which < nWaves);
+  return m_waves[which].at (tbin);
+}
+

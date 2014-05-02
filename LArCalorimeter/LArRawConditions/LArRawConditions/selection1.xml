@@ -1,0 +1,323 @@
+<lcgdict>
+  <!-- base class for all vscalib -->
+  <class name="LArConditionsVsCalibBase" >
+    <field name="m_init"         transient="true" />
+    <field name="m_detStore"     transient="true" />
+    <field name="m_cablingSvc"   transient="true" />
+    <field name="m_onlineHelper" transient="true" />
+  </class>
+
+  <!-- patterns for all vscalib -->
+  <!--<class pattern="LArConditionsVsCalib<*>" /> -->
+
+
+  <!-- LArRtermP -->
+<!--
+  <class name="LArRtermP" />
+  <class name="LArRtermVsCalib" id="FC0FDC55-5A44-4E86-8408-57CD2A0D9614" />
+
+  <class name="std::vector<LArRtermP>" />
+  <class pattern="std::pair*LArRtermP*"/>
+  <class pattern="std::vector<LArRtermP>"/>
+  <class pattern="*iterator*LArRtermP*"/>
+-->
+
+  <!-- base class for all containers -->
+  <class name="LArConditionsContainerBase" />
+
+  <!-- patterns for all containers -->
+  <class pattern="LArConditionsContainer<*>"  /> 
+  <class pattern="LArConditionsContainerDB<*>"  /> 
+  <class pattern="LArConditionsContainerDB<*>::const_iterator"  /> 
+
+  <!-- LArAutoCorrP -->
+  <class name="LArAutoCorrComplete" />
+  <class name="LArAutoCorrMC" />
+  <class name="LArAutoCorrP" />
+  <class name="LArAutoCorrP1" />
+  <class name="LArConditionsSubset<LArAutoCorrP>"  id="4E7E36E9-2121-4327-88C5-8A516D6D6D2A" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArAutoCorrP*"/>
+  <class pattern="std::vector<LArAutoCorrP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArAutoCorrP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArAutoCorrP> > >"/>
+  <class pattern="*iterator<const*LArAutoCorrP*"/>
+
+  <!-- LArCaliPulseParamsP -->
+  <class name="LArCaliPulseParamsComplete" />
+  <class name="LArCaliPulseParamsP" />
+
+  <class name="LArConditionsSubset<LArCaliPulseParamsP>"  id="D1D15524-04F0-4A75-ABC7-948D90491504" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class name="LArConditionsVsCalibDB<LArCaliPulseParamsP>" />
+
+  <class name="LArConditionsVsCalib<LArCaliPulseParamsP>" />
+
+  <class name="LArCaliPulseParamsVsCalib" id="E36381CB-C436-4FF4-8A91-9D24BA23B836" />
+
+
+  <class pattern="std::pair<unsigned*LArCaliPulseParamsP*"/>
+  <class pattern="std::vector<LArCaliPulseParamsP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArCaliPulseParamsP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArCaliPulseParamsP> > >"/>
+  <class pattern="*iterator<const*LArCaliPulseParamsP*"/>
+
+  <!-- LArDAC2uAP -->
+  <class name="LArDAC2uAComplete" />
+  <class name="LArDAC2uAMC" />
+  <class name="LArDAC2uAP" />
+  <class name="LArConditionsSubset<LArDAC2uAP>"  id="00BB980F-D174-4AD7-A5C7-DC66BA71C4D2" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArDAC2uAP*"/>
+  <class pattern="std::vector<LArDAC2uAP>"/>
+  <class pattern="std::vector<std::pair<unsigned int,LArDAC2uAP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int,std::vector<LArDAC2uAP> > >"/>
+  <class pattern="*iterator<const*LArDAC2uAP*"/>
+
+
+  <!-- LArDetCellParamsP -->
+  <class name="LArDetCellParamsComplete" />
+  <class name="LArDetCellParamsP" />
+  <class name="LArConditionsSubset<LArDetCellParamsP>"  id="11272A20-3A6B-4E1B-B96C-27117868ED09" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArDetCellParamsP*"/>
+  <class pattern="std::vector<LArDetCellParamsP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArDetCellParamsP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArDetCellParamsP> > >"/>
+  <class pattern="*iterator<const*LArDetCellParamsP*"/>
+
+  <!-- LArfSamplP -->
+  <class name="LArfSamplComplete" />
+  <class name="LArfSamplMC" />
+  <class name="LArfSamplP" />
+  <class name="LArConditionsSubset<LArfSamplP>"  id="6E808031-FCAD-4DB6-9246-E5D926790FED" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArfSamplP*"/>
+  <class pattern="std::vector<LArfSamplP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArfSamplP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArfSamplP> > >"/>
+  <class pattern="*iterator<const*LArfSamplP*"/>
+
+  <!-- LArH6OscillationP -->
+  <class name="LArH6OscillationComplete" />
+  <class name="LArH6OscillationP" />
+  <class name="LArConditionsSubset<LArH6OscillationP>"  id="425EBF82-9EC7-4A2E-A112-49439F26E45B" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArH6OscillationP*"/>
+  <class pattern="std::vector<LArH6OscillationP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArH6OscillationP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector>LArH6OscillationP> > >"/>
+  <class pattern="*iterator<const*LArH6OscillationP*"/>
+
+  <!-- LArHVScaleCorrComplete -->
+  <class name="LArHVScaleCorrComplete" />
+
+  <!-- LArSingleFloat subset -->
+  <class name="LArSingleFloatP" />
+  <class name="LArConditionsSubset<LArSingleFloatP>" />
+  <class pattern="std::pair<unsigned*LArSingleFloatP*"/>
+  <class pattern="std::vector<LArSingleFloatP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArSingleFloatP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArSingleFloatP> > >"/>
+  <class pattern="*iterator<const*LArSingleFloatP*"/>
+
+
+  <!-- LArMinBiasP -->
+  <class name="LArMinBiasComplete" />
+  <class name="LArMinBiasMC" />
+  <class name="LArMinBiasP" />
+  <class name="LArConditionsSubset<LArMinBiasP>"  id="71652545-4809-45A5-9125-5ACA8FB5AC0C" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArMinBiasP*"/>
+  <class pattern="std::vector<LArMinBiasP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArMinBiasP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArMinBiasP> > >"/>
+  <class pattern="*iterator<const*LArMinBiasP*"/>
+
+  <!-- LArMinBiasAverageP -->
+  <class name="LArMinBiasAverageComplete" />
+  <class name="LArMinBiasAverageMC" />
+  <class name="LArMinBiasAverageP" />
+  <class name="LArConditionsSubset<LArMinBiasAverageP>"  id="3235F39A-7C1D-4FB9-9F56-6A6251AC3360" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+
+  <class pattern="std::pair<unsigned*LArMinBiasAverageP*"/>
+  <class pattern="std::vector<LArMinBiasAverageP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArMinBiasAverageP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArMinBiasAverageP> > >"/>
+  <class pattern="*iterator<const*LArMinBiasAverageP*"/>
+
+  <!-- LArMphysOverMcalP -->
+  <class name="LArMphysOverMcalComplete" />
+  <class name="LArMphysOverMcalMC" />
+  <class name="LArMphysOverMcalP" />
+  <class name="LArMphysOverMcalP1" />
+  <class name="LArConditionsSubset<LArMphysOverMcalP>"  id="9C53AC43-3FD6-470F-A6FF-1DF80E85ACBF" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArMphysOverMcalP*"/>
+  <class pattern="std::vector<LArMphysOverMcalP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArMphysOverMcalP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArMphysOverMcalP> > >"/>
+  <class pattern="*iterator<const*LArMphysOverMcalP*"/>
+
+  <!-- LArNoiseP -->
+  <class name="LArNoiseComplete" />
+  <class name="LArNoiseMC" />
+  <class name="LArNoiseP" />
+  <class name="LArConditionsSubset<LArNoiseP>"  id="A96F4520-9C5E-49E6-89A3-5E26A781CE11" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArNoiseP*"/>
+  <class pattern="std::vector<LArNoiseP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArNoiseP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArNoiseP> > >"/>
+  <class pattern="*iterator<const*LArNoiseP*"/>
+
+
+  <!-- LAr2DWaveBase -->
+  <class name="LAr2DWaveBase"/>
+
+
+  <!-- LArOFCP -->
+  <class name="LArOFCComplete" >
+    <field name="m_cache" transient="true" />
+  </class>
+  <class name="LArOFCMC" />
+  <class name="LArOFCP" />
+  <class name="LArConditionsSubset<LArOFCP>"  id="3E5389EF-D163-4099-91D9-D3F0EE06C1CD" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArOFCP*"/>
+  <class pattern="std::vector<LArOFCP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArOFCP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArOFCP> > >"/>
+  <class pattern="*iterator<const*LArOFCP*"/>
+  
+
+  <!-- LArPedestalP -->
+  <class name="LArPedestalMC"
+	id="C147EFC8-5283-4DAE-AD20-0E2CB79E54B6" />
+  <class name="LArPedestalP" />
+  <class name="LArPedestalP1" />
+  <class name="LArPedestalComplete" />
+  <class name="LArConditionsSubset<LArPedestalP>"  id="E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArPedestalP*"/>
+  <class pattern="std::vector<LArPedestalP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArPedestalP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArPedestalP> > >"/>
+  <class pattern="*iterator<const*LArPedestalP*"/> 
+
+
+
+  <!-- LArPhysCaliTdiffP -->
+  <class name="LArPhysCaliTdiffComplete" />
+  <class name="LArPhysCaliTdiffP" />
+  <class name="LArConditionsSubset<LArPhysCaliTdiffP>"  id="A7FB91FF-4535-4EB7-87F8-A34BA477ECE0" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LArPhysCaliTdiffP*"/>
+  <class pattern="std::vector<LArPhysCaliTdiffP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArPhysCaliTdiffP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArPhysCaliTdiffP> > >"/>
+  <class pattern="*iterator<const*LArPhysCaliTdiffP*"/>
+
+  <!-- LArRampP -->
+  <class name="LArRampCompleteBase" />
+  <class name="LArRampComplete" />
+  <class name="LArRampMC" />
+  <class name="LArRampP" />
+  <class name="LArRampP1" />
+  <class name="LArConditionsSubset<LArRampP>"  id="4019776D-D528-4401-9CBD-7956C4B00607" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+  <class pattern="std::pair<unsigned*LArRampP*"/>
+  <class pattern="std::vector<LArRampP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LArRampP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArRampP> > >"/>
+  <class pattern="*iterator<const*LArRampP*"/>
+
+
+  <!-- LAruA2MeVP -->
+  <class name="LAruA2MeVComplete" />
+  <class name="LAruA2MeVMC" />
+  <class name="LAruA2MeVP" />
+  <class name="LArConditionsSubset<LAruA2MeVP>"  id="CBF815A2-F18C-4C18-9E93-A8EE67CEE59F" >
+    <field name="m_subsetMap" transient="true" />
+  </class>
+
+  <class pattern="std::pair<unsigned*LAruA2MeVP*"/>
+  <class pattern="std::vector<LAruA2MeVP>"/>
+  <class pattern="std::vector<std::pair<unsigned int, LAruA2MeVP> >"/>
+  <class pattern="std::vector<std::pair<unsigned int, std::vector<LAruA2MeVP> > >"/>
+  <class pattern="*iterator<const*LAruA2MeVP*"/>
+
+
+  <!-- LArDPSThresholds -->
+  <class name="LArDSPThresholdsComplete" />
+  <class name="LArDSPThresholdsP" />
+
+
+  <exclusion>
+    <!-- Remove all methods for LArConditionsContainerDB  -->
+    <class pattern="LArConditionsContainerDB<*>" > 
+      <method pattern="*" />
+    </class>
+    <!-- Remove all 'set' methods from container -->
+    <class pattern="LArConditionsContainer<*>" > 
+      <method pattern="remove*" />
+      <method pattern="initial*" />
+      <method pattern="insert*" />
+    </class>
+    <!-- Remove all methods except constructor for LArConditionsSubset  -->
+    <class pattern="LArConditionsSubset<*>" > 
+      <method pattern="f*" />
+      <method pattern="s*" />
+      <method pattern="c*" />
+      <method pattern="g*" />
+      <method pattern="n*" />
+      <method pattern="i*" />
+    </class>
+    <!-- Remove all methods for LAr*CompleteBase 
+	 - should be in interface in LArElecCalib  -->
+    <class pattern="LAr*CompleteBase" > 
+      <method pattern="*" />
+    </class>
+
+    <class pattern="*_Rb_tree_iterator*"/>
+
+    <class pattern="*<LArConditionsSubset*" />
+
+    <class name="random_access_iterator_tag" />
+
+    <class pattern="*_Vector_base*"/>
+    <class pattern="*_Base*"/>
+    <class pattern="*reverse_iterator*"/>
+    <class pattern="*::iterator*"/>
+    <class pattern="*allocator*"/>
+
+  </exclusion>
+</lcgdict>
