@@ -1,0 +1,12 @@
+package GeoModelKernel
+
+author	  Joe Boudreau
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasCLHEP  AtlasCLHEP-*       External
+
+library GeoModelKernel *.cxx
+apply_pattern installed_library
+
+
+
