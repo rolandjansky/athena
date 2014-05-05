@@ -1,0 +1,175 @@
+This is TeX, Version 3.14159 (Web2C 7.3.1) (format=latex 2002.10.29)  22 JAN 2003 17:48
+**main
+(main.tex
+LaTeX2e <2000/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, i
+talian, nohyphenation, loaded.
+(/usr/share/texmf/tex/latex/base/article.cls
+Document Class: article 2000/05/19 v1.4b Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/size10.clo
+File: size10.clo 2000/05/19 v1.4b Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/share/texmf/tex/generic/babel/babel.sty
+Package: babel 2001/03/01 v3.7h The Babel package
+
+(/usr/share/texmf/tex/generic/babel/english.ldf
+Language: english 2001/02/07 v3.3k English support from the babel system
+
+(/usr/share/texmf/tex/generic/babel/babel.def
+File: babel.def 2001/03/01 v3.7h Babel common definitions
+\babel@savecnt=\count87
+\U@D=\dimen103
+)
+\l@canadian = a dialect from \language\l@english 
+))
+(/usr/share/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/usr/share/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 1999/02/16 v1.0l Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/share/texmf/tex/latex/config/graphics.cfg)
+Package graphics Info: Driver file: dvips.def on input line 80.
+
+(/usr/share/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen104
+\Gin@req@width=\dimen105
+) (main.aux)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 10.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 10.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 10.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 51.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 51.
+ [1
+
+] (qwave.tex
+File: qwave.eps Graphic file (type eps)
+
+<qwave.eps>) (bqwave.tex
+File: bqwave.eps Graphic file (type eps)
+ <bqwave.eps>) [2] [3]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 143.
+
+
+(/usr/share/texmf/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 143.
+ [4]
+Underfull \hbox (badness 10000) in paragraph at lines 175--175
+[]\OT1/cmtt/m/n/10 static const G4double
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 177--177
+[]\OT1/cmtt/m/n/10 static const G4double
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 193--193
+[]\OT1/cmtt/m/n/10 static const G4double
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 195--195
+[]\OT1/cmtt/m/n/10 static const G4double
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 197--197
+[]\OT1/cmtt/m/n/10 static const unsigned int
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 204--204
+[]\OT1/cmtt/m/n/10 static LArWheelSolid*
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 205--205
+[]\OT1/cmtt/m/n/10 static LArWheelSolid*
+ []
+
+
+Overfull \hbox (24.0pt too wide) in paragraph at lines 171--209
+ [][] 
+ []
+
+[5] [6] (qwave_prime.tex
+File: qwave_prime.eps Graphic file (type eps)
+ <qwave_prime.eps>) [7] (bqwave_prime.tex
+File: bqwave_prime.eps Graphic file (type eps)
+
+<bqwave_prime.eps>) [8]
+Overfull \hbox (53.04793pt too wide) in paragraph at lines 320--328
+\OT1/cmr/m/n/10 the num-ber of one of the nearest-to-the-point fans is de-ter-m
+ined. \OT1/cmtt/m/n/10 ZeroFanPhi[]ForDetNeaFan
+ []
+
+[9] (out_iter.tex
+File: out_iter.eps Graphic file (type eps)
+ <out_iter.eps> [10]) [11] [12] [13]
+Overfull \hbox (5.08783pt too wide) in paragraph at lines 571--584
+\OT1/cmr/m/n/10 where $\OML/cmm/m/it/10 q$ \OT1/cmr/m/n/10 is in-ter-sec-tion o
+f the line $[] + []\OML/cmm/m/it/10 t$ \OT1/cmr/m/n/10 with the sur-face of the
+ cur-rent \OT1/cmtt/m/n/10 FanSection\OT1/cmr/m/n/10 .
+ []
+
+
+Overfull \hbox (1.33304pt too wide) in paragraph at lines 597--602
+\OT1/cmr/m/n/10 side, the func-tion tries to find out the en-trance point into 
+the \OT1/cmtt/m/n/10 BoundingPolycone\OT1/cmr/m/n/10 ,
+ []
+
+[14] [15] (reflist.tex [16]) [17] (main.aux) ) 
+Here is how much of TeX's memory you used:
+ 878 strings out of 20887
+ 9595 string characters out of 197362
+ 65656 words of memory out of 350001
+ 3842 multiletter control sequences out of 10000+15000
+ 9756 words of font info for 38 fonts, out of 400000 for 1000
+ 15 hyphenation exceptions out of 10000
+ 25i,14n,21p,536b,328s stack positions out of 3000i,100n,1500p,50000b,4000s
+
+Output written on main.dvi (17 pages, 52040 bytes).
