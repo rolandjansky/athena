@@ -1,0 +1,677 @@
+<ui version="4.0" >
+ <class>VP1MaterialButtonForm</class>
+ <widget class="QWidget" name="VP1MaterialButtonForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>545</width>
+    <height>292</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Edit Material</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <layout class="QGridLayout" >
+     <item row="0" column="0" >
+      <widget class="QStackedWidget" name="stackedWidget" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_simple" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label_10" >
+             <property name="toolTip" >
+              <string>Material colour</string>
+             </property>
+             <property name="text" >
+              <string>Colo&amp;ur:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>colbutton_simple_colour</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="VP1ColorSelectButton" name="colbutton_simple_colour" >
+             <property name="toolTip" >
+              <string>Material colour</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <item row="0" column="1" >
+            <widget class="QSlider" name="slider_simple_brightness" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Material brightness</string>
+             </property>
+             <property name="maximum" >
+              <number>100</number>
+             </property>
+             <property name="value" >
+              <number>20</number>
+             </property>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" >
+            <widget class="QLabel" name="label_num_simple_brightness" >
+             <property name="minimumSize" >
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Material brightness</string>
+             </property>
+             <property name="text" >
+              <string>20</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_15" >
+             <property name="toolTip" >
+              <string>Transparency of the material</string>
+             </property>
+             <property name="text" >
+              <string>&amp;Transparency:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>slider_simple_transparency</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QSlider" name="slider_simple_transparency" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Transparency of the material</string>
+             </property>
+             <property name="maximum" >
+              <number>100</number>
+             </property>
+             <property name="value" >
+              <number>0</number>
+             </property>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QLabel" name="label_num_simple_transparency" >
+             <property name="minimumSize" >
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Transparency of the material</string>
+             </property>
+             <property name="text" >
+              <string>0</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_13" >
+             <property name="toolTip" >
+              <string>Material brightness</string>
+             </property>
+             <property name="text" >
+              <string>Br&amp;ightness:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>slider_simple_brightness</cstring>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_detailed" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <layout class="QGridLayout" >
+             <item row="0" column="0" >
+              <widget class="QLabel" name="label_3" >
+               <property name="toolTip" >
+                <string>Base colour of the material.</string>
+               </property>
+               <property name="text" >
+                <string>D&amp;iffuse colour:</string>
+               </property>
+               <property name="buddy" >
+                <cstring>colbutton_diffuse</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="VP1ColorSelectButton" name="colbutton_diffuse" >
+               <property name="toolTip" >
+                <string>Base colour of the material.</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="label_5" >
+               <property name="toolTip" >
+                <string>Reflected colour in response to the ambient lighting in the scene</string>
+               </property>
+               <property name="text" >
+                <string>A&amp;mbient colour:</string>
+               </property>
+               <property name="buddy" >
+                <cstring>colbutton_ambient</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="VP1ColorSelectButton" name="colbutton_ambient" >
+               <property name="toolTip" >
+                <string>Reflected colour in response to the ambient lighting in the scene</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QLabel" name="label_8" >
+               <property name="toolTip" >
+                <string>Reflective quality of highlights</string>
+               </property>
+               <property name="text" >
+                <string>S&amp;pecular colour:</string>
+               </property>
+               <property name="buddy" >
+                <cstring>colbutton_specular</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" >
+              <widget class="VP1ColorSelectButton" name="colbutton_specular" >
+               <property name="toolTip" >
+                <string>Reflective quality of highlights</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" >
+              <widget class="QLabel" name="label_9" >
+               <property name="toolTip" >
+                <string>Colour emitted by the material</string>
+               </property>
+               <property name="text" >
+                <string>&amp;Emissive colour:</string>
+               </property>
+               <property name="buddy" >
+                <cstring>colbutton_emissive</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1" >
+              <widget class="VP1ColorSelectButton" name="colbutton_emissive" >
+               <property name="toolTip" >
+                <string>Colour emitted by the material</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label" >
+             <property name="toolTip" >
+              <string>Degree of shininess, ranging from 0 for a diffuse surface with no shininess to 100 for a highly polished surface</string>
+             </property>
+             <property name="text" >
+              <string>S&amp;hininess:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>slider_shininess</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QSlider" name="slider_shininess" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Degree of shininess, ranging from 0 for a diffuse surface with no shininess to 100 for a highly polished surface</string>
+             </property>
+             <property name="maximum" >
+              <number>100</number>
+             </property>
+             <property name="value" >
+              <number>20</number>
+             </property>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" >
+            <widget class="QLabel" name="label_num_shininess" >
+             <property name="minimumSize" >
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Degree of shininess, ranging from 0 for a diffuse surface with no shininess to 100 for a highly polished surface</string>
+             </property>
+             <property name="text" >
+              <string>20</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_2" >
+             <property name="toolTip" >
+              <string>Transparency of the material</string>
+             </property>
+             <property name="text" >
+              <string>&amp;Transparency:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>slider_transparency</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QSlider" name="slider_transparency" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Transparency of the material</string>
+             </property>
+             <property name="maximum" >
+              <number>100</number>
+             </property>
+             <property name="value" >
+              <number>0</number>
+             </property>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QLabel" name="label_num_transparency" >
+             <property name="minimumSize" >
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip" >
+              <string>Transparency of the material</string>
+             </property>
+             <property name="text" >
+              <string>0</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>16</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="2" >
+      <widget class="QWidget" native="1" name="widget_3dpreview" >
+       <property name="minimumSize" >
+        <size>
+         <width>200</width>
+         <height>200</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2" >
+      <layout class="QHBoxLayout" >
+       <item>
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>Preview:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_cone" >
+         <property name="toolTip" >
+          <string>Use a cone for the preview above</string>
+         </property>
+         <property name="text" >
+          <string>C&amp;one</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_box" >
+         <property name="toolTip" >
+          <string>Use a box for the preview above</string>
+         </property>
+         <property name="text" >
+          <string>&amp;Box</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_lines" >
+         <property name="toolTip" >
+          <string>Use lines for the preview above</string>
+         </property>
+         <property name="text" >
+          <string>&amp;Lines</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::MinimumExpanding</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>1</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>527</width>
+       <height>16</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QPushButton" name="pushButton_switch_mode" >
+       <property name="text" >
+        <string>&amp;Switch to xxxxxx mode</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_apply" >
+       <property name="toolTip" >
+        <string>Apply current settings</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_reset" >
+       <property name="toolTip" >
+        <string>Reset to last applied settings</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="toolTip" >
+        <string>Close material editor [Esc]</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1ColorSelectButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1ColorSelectButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>colbutton_simple_colour</tabstop>
+  <tabstop>slider_simple_brightness</tabstop>
+  <tabstop>slider_simple_transparency</tabstop>
+  <tabstop>colbutton_diffuse</tabstop>
+  <tabstop>colbutton_ambient</tabstop>
+  <tabstop>colbutton_specular</tabstop>
+  <tabstop>colbutton_emissive</tabstop>
+  <tabstop>slider_shininess</tabstop>
+  <tabstop>slider_transparency</tabstop>
+  <tabstop>radioButton_cone</tabstop>
+  <tabstop>radioButton_box</tabstop>
+  <tabstop>radioButton_lines</tabstop>
+  <tabstop>pushButton_switch_mode</tabstop>
+  <tabstop>pushButton_apply</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>slider_shininess</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_num_shininess</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>213</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>231</x>
+     <y>175</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_close</sender>
+   <signal>clicked()</signal>
+   <receiver>VP1MaterialButtonForm</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>534</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>544</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>slider_simple_brightness</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_num_simple_brightness</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>177</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>223</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

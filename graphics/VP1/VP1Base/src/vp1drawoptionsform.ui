@@ -1,0 +1,146 @@
+<ui version="4.0" >
+ <class>DrawOptionsForm</class>
+ <widget class="QWidget" name="DrawOptionsForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>174</width>
+    <height>89</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" colspan="2" >
+    <layout class="QGridLayout" >
+     <property name="verticalSpacing" >
+      <number>-1</number>
+     </property>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="label_linewidths" >
+       <property name="toolTip" >
+        <string>Adjust line widths</string>
+       </property>
+       <property name="text" >
+        <string>Line widths:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QSlider" name="horizontalSlider_linewidths" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip" >
+        <string>Adjust line widths</string>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="label_pointsizes" >
+       <property name="toolTip" >
+        <string>Adjust point sizes</string>
+       </property>
+       <property name="text" >
+        <string>Point sizes:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QSlider" name="horizontalSlider_pointsizes" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip" >
+        <string>Adjust point sizes</string>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" >
+      <widget class="QLabel" name="label_curve_realism" >
+       <property name="toolTip" >
+        <string>Controls the number of edges used in the represenation of of curved surfaces such as  cones, spheres and cylinders.</string>
+       </property>
+       <property name="text" >
+        <string>Curve realism:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" >
+      <widget class="QSlider" name="horizontalSlider_complexity" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip" >
+        <string>Controls the number of edges used in the represenation of of curved surfaces such as  cones, spheres and cylinders.</string>
+       </property>
+       <property name="maximum" >
+        <number>20</number>
+       </property>
+       <property name="value" >
+        <number>6</number>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QCheckBox" name="checkBox_useBaseLightModel" >
+     <property name="toolTip" >
+      <string>Use a less advanced light model for the tracks. This might lead to more clearly visible lines (but transparency won't be taken into account)</string>
+     </property>
+     <property name="text" >
+      <string>Use base lighting</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>1</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

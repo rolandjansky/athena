@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VP1CustomStereoEditorForm</class>
+ <widget class="QWidget" name="VP1CustomStereoEditorForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>579</width>
+    <height>680</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edit Custom STEREO View</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox_parameters">
+     <property name="title">
+      <string>Parameters</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Focal distance:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_focal">
+        <property name="text">
+         <string>text</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_focal">
+        <property name="text">
+         <string>Update</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_setToFocal30">
+        <property name="toolTip">
+         <string>Sets the camera's and viewer's offset to: (current Focal Legnth) / 30</string>
+        </property>
+        <property name="text">
+         <string>Set offsets to Focal/30</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_camera">
+     <property name="title">
+      <string>Camera settings</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QWidget" name="widget_utilityZoomContents" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="pushButton_defCamera">
+           <property name="toolTip">
+            <string>Sets the offset to 0.1, 
+which is the approximate distance 
+between the human eyes; 
+and the Balance to 1.0, 
+which means that the Zero Parallax Plan is put at the Focal Distance.</string>
+           </property>
+           <property name="text">
+            <string>Set Defaults</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="toolTip">
+            <string>Sets the stereo adjustment.
+This is the distance between the left
+ and right &quot;eye&quot; when doing stereo rendering.
+The default distance is 0.1, 
+ which is chosen since it's the approximate distance 
+ between the human eyes.</string>
+           </property>
+           <property name="whatsThis">
+            <string>To create a nice looking and visible stereo effect, the application programmer will often have to adjust this value. If all you want to do is examine simple stand-alone 3D objects, it is possible to calculate a stereo offset based on the bounding box of the 3D model (or scale the model down to an appropriate size).
+
+However, if you have a large scene, where you want to fly around in the scene, and see stereo on different objects as you approach them, you can't calculate the stereo offset based on the bounding box of the scene, but rather use a stereo offset based on the scale of the individual objects/details you want to examine.</string>
+           </property>
+           <property name="text">
+            <string>Offset</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_offset">
+           <property name="toolTip">
+            <string>the offset between the two cameras. 
+The default value is 0.10, 
+which is the approximate distance between the two human eyes</string>
+           </property>
+           <property name="suffix">
+            <string> m</string>
+           </property>
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="minimum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>99999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="toolTip">
+            <string>Sets the stereo balance adjustment.
+ This is a factor that enables you to move
+ the zero parallax plane. 
+ Geometry in front of the zero parallax plane
+ will appear to be in front of the screen.
+The balance adjustment is multiplied
+ with the focal distance to find the zero parallax plane.</string>
+           </property>
+           <property name="text">
+            <string>Balance/Parallax</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_parallax">
+           <property name="toolTip">
+            <string>The default value is 1.0, and the zero parallax plane is then at the focal point</string>
+           </property>
+           <property name="prefix">
+            <string>x </string>
+           </property>
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="minimum">
+            <double>-3.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_refresh">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Apply</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_cameraRendering">
+        <property name="title">
+         <string>Camera stereo rendering</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QRadioButton" name="radioButton_left">
+             <property name="toolTip">
+              <string>Show only the left eye image</string>
+             </property>
+             <property name="text">
+              <string>left eye</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_right">
+             <property name="toolTip">
+              <string>Show only the right eye image</string>
+             </property>
+             <property name="text">
+              <string>right eye</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_standard">
+             <property name="toolTip">
+              <string>NO STEREO mode</string>
+             </property>
+             <property name="text">
+              <string>standard view</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_S3Dcalculations">
+     <property name="title">
+      <string>S3D calculations</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_8">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QLabel" name="label_imageWidth">
+          <property name="text">
+           <string>Image/Screen width:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_imageWidth_meter">
+          <property name="suffix">
+           <string> m</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_imageWidth_inch">
+          <property name="suffix">
+           <string> inch</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <double>100000.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_nativeParal">
+            <property name="toolTip">
+             <string>The Native Parallax is (Offset / Image width).
+ You should make sure to keep the maximum positive parallax under the Native value.</string>
+            </property>
+            <property name="text">
+             <string>Native parallax:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_nativeParalValue">
+            <property name="text">
+             <string>n.d.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QLabel" name="label_minObjDist">
+            <property name="text">
+             <string>1/30 Rule - Minimum object distance:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_minObjDistValue">
+            <property name="text">
+             <string>n.d.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_viewer">
+     <property name="title">
+      <string>Viewer settings</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QWidget" name="widget_utilityZoomContents_2" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="pushButton_defViewer">
+           <property name="toolTip">
+            <string>Sets the offset to 0.1, 
+which is the approximate distance 
+between the human eyes</string>
+           </property>
+           <property name="text">
+            <string>Set Defaults</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="toolTip">
+            <string>Sets the stereo adjustment. This is the distance between the left and right &quot;eye&quot; when doing stereo rendering.
+
+The default distance is 0.1, which is chosen since it's the approximate distance between the human eyes.</string>
+           </property>
+           <property name="whatsThis">
+            <string>To create a nice looking and visible stereo effect, the application programmer will often have to adjust this value. If all you want to do is examine simple stand-alone 3D objects, it is possible to calculate a stereo offset based on the bounding box of the 3D model (or scale the model down to an appropriate size).
+
+However, if you have a large scene, where you want to fly around in the scene, and see stereo on different objects as you approach them, you can't calculate the stereo offset based on the bounding box of the scene, but rather use a stereo offset based on the scale of the individual objects/details you want to examine.</string>
+           </property>
+           <property name="text">
+            <string>Offset</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_offset_viewer">
+           <property name="toolTip">
+            <string>the offset between the two cameras</string>
+           </property>
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="minimum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>99999999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>6</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_refreshViewer">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Apply</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>stereo type</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QRadioButton" name="radioButton_noStereo">
+             <property name="text">
+              <string>No Stereo</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QRadioButton" name="radioButton_anaglyph">
+               <property name="toolTip">
+                <string>Set the Red/Cyan 3D mode. You don't need special hardware for this, but you need a pair of common Red/Cyan 3D glasses to see the effect</string>
+               </property>
+               <property name="text">
+                <string>Anaglyph (Red/Cyan)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_quadbuffer">
+               <property name="toolTip">
+                <string>Sets the QUAD-buffer 3D mode. You need specail hardware to use it</string>
+               </property>
+               <property name="statusTip">
+                <string/>
+               </property>
+               <property name="text">
+                <string>QUADBUFFER</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_int_rows">
+               <property name="toolTip">
+                <string>Sets the Interleaved-rows 3D mode. You need special hardware to use this</string>
+               </property>
+               <property name="text">
+                <string>INTERLEAVED_ROWS</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_int_cols">
+               <property name="toolTip">
+                <string>Sets the Interleaved-columns 3D mode. You need special hardware to use this</string>
+               </property>
+               <property name="text">
+                <string>INTERLEAVED_COLUMNS</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+        <zorder></zorder>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string/>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QRadioButton" name="radioButton_left_viewer">
+             <property name="toolTip">
+              <string>Show only the stereo LEFT eye in REAL COLORS</string>
+             </property>
+             <property name="text">
+              <string>left eye</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_right_viewer">
+             <property name="statusTip">
+              <string>Show only the stereo RIGHT eye in REAL COLORS</string>
+             </property>
+             <property name="text">
+              <string>right eye</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_standard_viewer">
+             <property name="toolTip">
+              <string>Standard Red/Cyan anaglyph stereo view</string>
+             </property>
+             <property name="text">
+              <string>standard view</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>groupBox_camera</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_utilityZoomContents</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>241</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>79</x>
+     <y>256</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

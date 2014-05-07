@@ -1,0 +1,131 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+////////////////////////////////////////////////////////////////
+//                                                            //
+//  Inline file for class VP1Interval                         //
+//                                                            //
+//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
+//  Initial version: May 2008                                 //
+//                                                            //
+////////////////////////////////////////////////////////////////
+
+inline VP1Interval::VP1Interval()
+  : m_lower(0), m_upper(0), m_openLower(true), m_openUpper(true)
+{
+}
+
+inline void VP1Interval::setOpenLower(bool openLower)
+{
+  m_openLower = openLower;
+}
+
+inline void VP1Interval::setOpenUpper(bool openUpper)
+{
+  m_openUpper = openUpper;
+}
+
+inline void VP1Interval::setOpen(bool openLower,bool openUpper)
+{
+  m_openLower = openLower;
+  m_openUpper = openUpper;
+}
+
+inline void VP1Interval::setLower(const double& lower)
+{
+  m_lower = lower;
+  testSanity();
+}
+
+inline void VP1Interval::setUpper(const double& upper)
+{
+  m_upper = upper;
+  testSanity();
+}
+
+inline void VP1Interval::translate(const double& t)
+{
+  m_lower += t;
+  m_upper += t;
+  testSanity();
+}
+
+inline double VP1Interval::lower() const
+{
+  return m_lower;
+}
+
+inline double VP1Interval::upper() const
+{
+  return m_upper;
+}
+
+inline double VP1Interval::openLower() const
+{
+  return m_openLower;
+}
+
+inline double VP1Interval::openUpper() const
+{
+  return m_openUpper;
+}
+
+inline bool VP1Interval::isEmpty() const
+{
+  if (m_upper<m_lower)
+    return true;
+  if (m_lower<m_upper)
+    return false;
+  return m_openLower || m_openUpper;
+}
+
+inline bool VP1Interval::noLowerBound() const
+{
+  return m_lower==-inf();
+}
+
+inline bool VP1Interval::noUpperBound() const
+{
+  return m_upper==inf();
+}
+
+inline bool VP1Interval::isAllR() const
+{
+  return noLowerBound() && noUpperBound();
+}
+
+inline bool VP1Interval::isSane() const
+{
+  return m_lower==m_lower && m_upper==m_upper && m_lower<=m_upper;
+}
+
+inline bool VP1Interval::excludedByLower(const double&x) const
+{
+  return !noLowerBound() && (m_openLower? x <= m_lower : x < m_lower );
+}
+
+inline bool VP1Interval::excludedByUpper(const double&x) const
+{
+  return !noUpperBound()  && (m_openUpper? x >= m_upper : x > m_upper );
+}
+
+inline bool VP1Interval::contains(const double& x) const
+{
+  return !excludedByLower(x) && !excludedByUpper(x);
+}
+
+inline QString VP1Interval::toString() const
+{
+  return (m_openLower||noLowerBound()?"]":"[")+QString::number(m_lower)+", "+QString::number(m_upper)+(m_openUpper||noUpperBound()?"[":"]");
+}
+
+inline double VP1Interval::length() const { return m_upper-m_lower; }
+
+inline bool VP1Interval::operator==( const VP1Interval & other ) const
+{
+  if (m_lower!=other.m_lower||m_upper!=other.m_upper)
+    return false;
+  return (m_openLower==other.m_openLower||noLowerBound()) && (m_openUpper==other.m_openUpper||noUpperBound());
+}

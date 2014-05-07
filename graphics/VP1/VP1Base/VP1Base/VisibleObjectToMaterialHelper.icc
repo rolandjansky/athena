@@ -1,0 +1,87 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+////////////////////////////////////////////////////////////////
+//                                                            //
+//  Implementation of VisibleObjectToMaterialHelper inlines   //
+//                                                            //
+//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
+//  Initial version: February 2008                            //
+//                                                            //
+////////////////////////////////////////////////////////////////
+
+#include <QtCore/QTimer>
+
+//____________________________________________________________________
+template <class objectT>
+inline VisibleObjectToMaterialHelper<objectT>::VisibleObjectToMaterialHelper(QObject * parent,IVP1System*sys)
+  : VisibleObjectToMaterialHelper_Base(parent),
+    VP1HelperClassBase(sys,"VisibleObjectToMaterialHelper"),
+    m_hasscheduledupdate(false)
+{
+}
+
+//____________________________________________________________________
+template <class objectT>
+inline VisibleObjectToMaterialHelper<objectT>::~VisibleObjectToMaterialHelper()
+{
+  setNoVisibleObjects();
+}
+
+
+//____________________________________________________________________
+template <class objectT>
+inline void VisibleObjectToMaterialHelper<objectT>::setState( const objectT* t, SoMaterial *mat )
+{
+  if (!t) {
+    message("setState WARNING: Called with null pointer");
+    return;
+  }
+  if (verbose())
+    messageVerbose("setState Called");
+
+  typename std::map<const objectT*,SoMaterial*>::iterator it = m_visobjects.find(t);
+
+  if (mat) {
+    if (it==m_visobjects.end()||it->second!=mat) {
+      m_visobjects[t] = mat;
+      scheduleUpdate();
+    }
+  } else {
+    if (it!=m_visobjects.end()) {
+      m_visobjects.erase(it);
+      scheduleUpdate();
+    }
+  }
+}
+
+//____________________________________________________________________
+template <class objectT>
+inline void VisibleObjectToMaterialHelper<objectT>::setNoVisibleObjects()
+{
+  bool hadobjects = ! m_visobjects.empty();
+  m_visobjects.clear();
+  if (hadobjects)
+    emitSignal(); // Don't do scheduleUpdate here, as can cause crash at end of event.
+}
+
+//____________________________________________________________________
+template <class objectT>
+inline void VisibleObjectToMaterialHelper<objectT>::scheduleUpdate()
+{
+  if (m_hasscheduledupdate)
+    return;
+  m_hasscheduledupdate = true;
+  messageVerbose("Schedule emission of visibleObjectsChanged()");
+  QTimer::singleShot(0, this, SLOT(emitSignal()));
+}
+
+//____________________________________________________________________
+template <class objectT>
+inline void VisibleObjectToMaterialHelper<objectT>::emitSignal()
+{
+  m_hasscheduledupdate = false;
+  visibleObjectsChanged();
+}

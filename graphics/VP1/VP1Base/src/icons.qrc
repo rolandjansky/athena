@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>icons/crystalicon_zoom.png</file>
+        <file>icons/crystalicon_zoom_editted_minus.png</file>
+        <file>icons/crystalicon_zoom_editted_plus.png</file>
+        <file>icons/fileprint.png</file>
+        <file>icons/home.png</file>
+        <file>icons/ortho.png</file>
+        <file>icons/perspective.png</file>
+        <file>icons/pick.png</file>
+        <file>icons/seek.png</file>
+        <file>icons/set_home.png</file>
+        <file>icons/view.png</file>
+        <file>icons/view_all.png</file>
+        <file>icons/x.png</file>
+        <file>icons/y.png</file>
+        <file>icons/z.png</file>
+        <file>icons/xy.png</file>
+        <file>icons/rz.png</file>
+        <file>icons/rphi.png</file>
+    </qresource>
+</RCC>
