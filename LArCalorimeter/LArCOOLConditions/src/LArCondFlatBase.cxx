@@ -1,0 +1,74 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "LArCOOLConditions/LArCondFlatBase.h"
+
+
+// Services/helpers
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArTools/LArCablingService.h" 
+
+// Gaudi/Athena
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/IService.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/DataHandle.h"
+#include "AthenaKernel/getMessageSvc.h"
+
+LArCondFlatBase::LArCondFlatBase() :
+  m_isInitialized(false),
+  m_onlineHelper(NULL),
+  m_larCablingSvc(NULL),
+  m_log(NULL) {}
+
+LArCondFlatBase::~LArCondFlatBase() {
+  delete m_log;
+}
+  
+StatusCode LArCondFlatBase::initializeBase(const char* context) {
+
+  std::string sContext;
+  if (context==NULL || context[0]=='\0')//empty string
+    sContext="LArCondFlatBase";
+  else
+    sContext=context;
+  m_log=new MsgStream(Athena::getMessageSvc(), sContext);
+  (*m_log) << MSG::DEBUG << "initializeBase "<< endreq;
+
+  if (m_isInitialized) {
+    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endreq;
+    return (StatusCode::SUCCESS);
+  }
+  //Get LArOnlineID....
+  ISvcLocator* svcLoc = Gaudi::svcLocator( );
+  StoreGateSvc* detStore;
+  StatusCode sc = svcLoc->service("DetectorStore",detStore);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
+    return sc;
+  }
+  sc = detStore->retrieve(m_onlineHelper,"LArOnlineID");
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Cannot get LArOnlineID!" << endreq;
+    return sc;
+  }
+
+  IToolSvc* toolSvc;
+  sc = svcLoc->service( "ToolSvc",toolSvc  );
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endreq;
+    return sc;
+  }
+  //sc = toolSvc->retrieveTool("LArSuperCellCablingTool",m_larCablingSvc);
+  sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Cannot get LArSuperCellCablingTool!" << endreq;
+    return sc;
+  }
+
+  m_isInitialized = true;
+  (*m_log) << MSG::DEBUG << "end initializeBase " << endreq;
+  return (StatusCode::SUCCESS);
+}
