@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Writing an Athena algorithm in Python</title>
+  </head>
+
+  <body>
+    <h1>Writing an Athena algorithm in Python</h1>
+
+To define an algorithm directly in Python, derive from the
+Gaudi Python class <samp>PyAlgorithm</samp>.
+A complete usage example is shown below.
+To actually run this file, you'll need to replace the name of the
+input data file with some data file that you have.  If it's not
+fast simulation, then you may also need to change the collection
+name used in the <samp>getElectrons</samp> call.
+
+<pre>
+# read AOD
+include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
+EventSelector = Service( "EventSelector" )
+EventSelector.InputCollections = [
+# Replace this with some input file that you can read.
+  "AODfile.pool.root",
+]
+include( "ParticleEventAthenaPool/AOD_PoolCnv_jobOptions.py" )
+theApp.Dlls += ["TruthParticleAlgs"]
+include ("PyAnalysisCore/InitPyAnalysisCore.py")
+
+class Alg (PyAlgorithm):
+    def execute (self):
+        # This is set up for reading fast simulation data.
+        # Replace the collection name below if needed.
+        for e in PyParticleTools.getElectrons ('AtlfastElectronCollection'):
+            print e.pt(),
+        print
+        return 1
+
+theApp.initialize()
+theApp.addAlgorithm (Alg ('alg'))
+theApp.run(100)
+theApp.finalize()
+
+</pre>
+
+    <hr>
+    <address><a href="mailto:snyder@bnl.gov">sss</a></address>
+<!-- Created: Sat Apr  2 12:03:18 EST 2005 -->
+<!-- hhmts start -->
+Last modified: Wed Jul 27 17:18:08 EDT 2005
+<!-- hhmts end -->
+  </body>
+</html>

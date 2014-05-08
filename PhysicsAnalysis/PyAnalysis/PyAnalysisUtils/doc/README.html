@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Python Analysis Utilities</title>
+  </head>
+
+  <body>
+    <h1>Python Analysis Utilities</h1>
+
+Here are some pieces of Python code of more-or-less general
+applicability.  All these modules may be imported
+from <samp>PyAnalysisUtils</code>.  The available modules are listed
+below, classified according to their dependencies.
+
+
+<h2>No Dependencies</h2>
+
+The following modules are stand-alone and have no dependencies besides
+Python.
+
+<ul>
+      <li> <samp>PDG</samp> This module contains names for the various
+        PDG particle ID codes.  The names are the same as in
+        <samp>EventKernel/PdtPdg.h</samp>.  The module also contains
+        a function <samp>pdgid_to_name</samp> to convert a PDG ID code
+        back to a printable string.  Example:
+<pre>
+    from PyAnalysisUtils import PDG
+    if particle.pdgId() != PDG.mu:
+        print PDG.pdgid_to_name (particle.pdgId())
+</pre>
+
+        <li> <samp>combo</samp> This module contains functions for
+        generating all combinations and permutations from a list of
+        items.  These functions return generators, so you may iterate
+        over them or retrieve successive values with
+        <samp>next()</samp>.  Given a sequence <samp>items</samp>,
+        you can iterate over the list of unique pairwise combinations
+        with
+<pre>
+    for (i1, i2) in combo.combinations (items, 2):
+</pre>
+
+        The functions contained in this module are:
+        <ul>
+          <li> <samp>combinations(items,n)</samp> Yields all
+            unique subsequences of length <samp>n</samp> from
+            <samp>items</samp>.  
+          <li> <samp>all_combinations(items,n)</samp> Similar, but
+            differences in ordering are considered significant.  For
+            example, <samp>all_combinations([1,2,3],2)</samp> will yield
+            both <samp>[1,2]</samp> and <samp>[2,1]</samp>.
+          <li> <samp>permutations(items)</samp> Yields all
+            permutations of <samp>items</samp>.  Equivalent
+            to <samp>all_combinations(items,len(items))</samp>.
+          <li> <samp>selections(items,n)</samp> Returns all possible
+            ways of picking <samp>n</samp> items from
+            <samp>items</samp>, where any given item may be picked
+            multiple times.
+        </ul>
+        This module was copied from
+        <a href="http://aspn.activestate.com/">ASPN</a>
+        with some changes of names.
+
+      <li> <samp>interpolate</samp> This module does polynomial
+        interpolation with in a table.  It is a python version of the
+        code in <samp>CaloClusterCorrection/interpolate</samp> and
+        derives from the <samp>divdif</samp> cernlib routine.
+        Simple example of usage:
+<pre>
+    from PyAnalysisUtils.interpolate import interpolate
+    points = [[0.05, 0.4424],
+              [0.15, 0.4058],
+              [0.25, 0.4753],
+              [0.35, 0.7823],
+              [0.45, 0.8636],
+              [0.55, 0.9798],
+              [0.65, 0.8224],
+              [0.75, 0.7925]]
+    print interpolate (points, 0.27, 3)
+</pre>
+
+        <li> <samp>normphi</samp> contains a function to normalize an
+        angle to within the range -pi to pi.  Example:
+<pre>
+    from PyAnalysisUtils.normphi import normphi
+    angle = normphi (angle)
+</pre>
+
+        The implementation here is intended for the case where the angle
+        is known not to be huge (for example, the result of addition
+        or subtraction of normalized angles).
+
+      <li> <samp>rtime</samp> This module is used to measure the CPU
+        time taken to execute a function.  For example, to time
+        the call <samp>func(arg)</samp>, do:
+<pre>
+    from PyAnalysisUtils.rtime import rtime
+    rtime (func, arg)
+</pre>
+        The report will be printed when the function returns.
+</ul>
+
+<h2>PyROOT Utilities</h2>
+
+The following modules are intended to be used with PyROOT.
+
+    <ul>
+      <li> <samp>draw_obj</samp> has some helpers for drawing ROOT
+        objects.
+        <p>
+          The main function in here is <samp>draw_obj(obj [,
+          options])</samp>.
+          This is similar to <samp>obj->Draw(options)</samp>, but some
+          extra functionality is added:
+        <ul>
+          <li> Automatic zone handling.  You can split the canvas into
+            subpads (zones) with <samp>zone()</samp>.  Each call to
+            <samp>draw_obj()</samp> will
+            plot into the next sequential pad (unless SAME was specified).
+            Selecting a pad by clicking with button 2 will change
+            the sequence so that the next objects is drawn in the
+            selected pad.  <samp>draw_obj</samp> also takes an
+            optional <samp>padnum</samp>
+            argument to explicitly specify the pad number to use.
+          
+          <li> If the SAME option is given, then the new object will be
+            superimposed on an existing one in the current pad.
+            In the case of 1D histograms, we change the line
+            type of the new histogram, and also rescale the vertical
+            axis, if needed to make the new histogram fit.
+
+          <li> The option MERGE is like SAME, except that we step through
+            the pads as normal.  The new plot will be made on top of
+            whatever happens to be on that pad.  By default, the line
+            type used will be the same as one would get the first time
+            one overlays a plot with SAME; to override this, put a number
+            directly after the option, like `MERGE2'.
+
+          <li> The option NORM draws the histogram normalized to 1.
+
+          <li> The option LOGY draws the histogram using a logarithmic
+            y-axis.
+
+          <li> The line type will recycle after four histograms have
+            been superimposed.  If the LINECOLORS option is given, then
+            the new histograms will be drawn in a different color.
+
+          <li> <samp>draw_obj</samp> takes optional <samp>min</samp>
+            and <samp>max</samp> parameters to set the
+            minimum and maximum values for the y-axis of the histogram
+            being drawn.
+        </ul>
+        <p>
+          Besides <samp>draw_obj</samp>, a few other functions are
+          available.
+          <ul>
+          <li> <samp>zone(nx,ny)</samp> was already mentioned.
+          <li> <samp>printeps(fname)</samp> is a shortcut to print an
+            eps file from the current canvas.
+          <li> <samp>get_canvas()</samp> returns the canvas currently
+            being used for drawing.
+          <li> <samp>get_pad()</samp> returns the pad currently being
+            used for drawing.
+          </ul>
+
+      <li> <samp>rebin2</samp> This module allows rebinning 2D
+        histograms.  For example, to rebin a 10x10 histogram into
+        a 5x2 histogram, use:
+<pre>
+    from PyAnalysisUtils.rebin2 import rebin2
+    # Group together 2 bins in x, 5 in y.
+    hnew = rebin2 (h, 'newname', 2, 5)
+</pre>
+
+      <li> <samp>root_pickle</samp> This module allows pickling python
+        objects into a root file.  The python objects may contain
+        references to named root objects.  If one has set up a structure
+        of python objects to hold root histograms, this provides a
+        convenient way of saving and restoring your histograms.
+        The pickled python data are stored in an additional string
+        object in the root file; any root objects are stored as usual.
+        (Thus, root files written by <samp>root_pickle</samp> can be
+        read just like any other root file if you don't care about the
+        python data.)
+
+        Here's an example of writing a pickle:
+<pre>
+    import ROOT
+    from PyAnalysisUtils.root_pickle import dump_root
+    hlist = []
+    for i in range (10):
+        name = 'h%d' % i
+        hlist.append (ROOT.TH1F (name, name, 10, 0, 10))
+    dump_root (hlist, 'test.root')
+
+</pre>
+        This writes a list of histograms to <samp>test.root</samp>.
+        The histograms may be read back like this:
+<pre>
+    import ROOT
+    from PyAnalysisUtils.root_pickle import load_root
+    hlist = load_root ('test.root')
+</pre>
+
+        The following additional notes apply.
+        <ul>
+          <li> In addition to <samp>dump_root</samp> and
+            <samp>load_root</samp>, the module also provides
+            <samp>dump</samp> and <samp>load</samp> functions, which
+            take root <samp>TFile</samp> objects instead of file names.
+
+          <li> The present version of <samp>root_pickle</samp> will
+            not work correctly for the case of python objects deriving
+            from root objects.  It will probably also not work for the
+            case of root objects which do not derive from
+            <samp>TObject</samp>.
+
+          <li> When the pickled data are being read, if a class
+            doesn't exist, <samp>root_pickle</samp> will create a
+            dummy class with no methods and use that.  This is
+            different from the standard pickle behavior (where it
+            would be an error), but it simplifies usage in the common
+            case where the class is being used to hold histograms, and
+            its methods are entirely concerned with filling the
+            histograms.
+        </ul>
+
+      <li> <samp>style</samp> This module centralizes the style
+        settings I use for root plots.
+
+      <li> <samp>pydraw</samp> provides in python functionality
+            similar to <samp>TTree::Draw</samp> and
+            <samp>TTree::Scan</samp>.  The major conceptual differences are:
+       <ul>
+         <li> All expressions are written in python (and not the specialized
+              <samp>TTree::Draw</samp> language).
+         <li> This can be applied to any type of object providing a
+               simple loop interface, not just to <samp>TTree</samp>'s.
+               (A <samp>TTree</samp> will work too!)
+       </ul>
+       In addition, this style of query may be somewhat
+       easier to type interactively.
+
+       Here are some examples of plotting commands to give you the flavor:
+
+       <ul>
+        <li><samp>d tt.metx</samp>
+        <li><samp>d tt.ele_pt$i; 50 0 100*gev</samp>
+        <li><samp>d tt.metx:mety</samp>
+        <li><samp>d tt[100:1000].muo$i.pt() if abs(muo.eta)&lt;2</samp>
+        <li><samp>d tt.(ele$i+ele$j).m() if $i&lt;$j; same</samp>
+        <li><samp>scan tt.metx:mety</samp>
+       </ul>
+
+       For full details, see pydraw.py.
+
+    </ul>
+
+
+<h2>Athena Utilities</h2>
+
+    These modules are intended to be used within an Athena-based
+    analysis.
+
+    <ul>
+      <li> <samp>truth</samp> This module contains the function
+        <samp>dump_truth</samp>, which tries do dump out the MC truth
+        information in a readable format.  Here's an example:
+
+<pre>
+ 14 H0                    19.8 -3.30 -3.10 290.7  -19.8   -0.9 -267.0  395.2
+ 15 Z0                    87.8 -0.52  0.06  89.4   87.6    5.1  -47.4  134.0
+ 16 Z0                   107.6 -1.46 -3.09  91.8 -107.4   -6.0 -219.6  261.2
+ 17 TAU-   86             33.1 -0.33  1.58   1.8   -0.2   33.1  -11.2   34.9
+ 18 TAU+   88  271        92.2 -0.38 -0.31   1.8   87.8  -27.9  -36.2   99.0
+ 19 MU-                   34.7 -1.73  1.99   0.1  -14.3   31.7  -94.8  101.0
+ 20 MU+                  100.5 -1.04 -2.76   0.1  -93.2  -37.7 -124.7  160.2
+ 21 U                      0.3 -0.17 -1.22   0.3    0.1   -0.3   -0.1    0.4
+ 25 UBAR                   2.9  0.79  2.37   0.3   -2.1    2.0    2.6    3.9
+ 26 D                      0.4  0.50  0.21   0.3    0.4    0.1    0.2    0.5
+ 27 U                      2.1 -5.75  2.70   0.3   -1.9    0.9 -325.6  325.6
+ 33 GLUE                   1.4  3.50  1.29   0.0    0.4    1.3   22.8   22.9
+ 37 U                      0.6  2.20 -2.28   0.0   -0.4   -0.5    2.8    2.9
+ 39 UBAR                   0.6  0.55  0.86   0.0    0.4    0.5    0.4    0.7
+ 40 U                      0.5  5.35 -0.89   0.0    0.3   -0.4   47.6   47.6
+ 41 UBAR                   0.5  5.20  2.25  -0.0   -0.3    0.4   40.8   40.8
+ 42 D                      0.4 -2.01 -2.50   0.0   -0.3   -0.2   -1.4    1.5
+ 43 DBAR                   0.4 -6.05  0.64   0.0    0.3    0.2  -83.5   83.5
+ 81 GLUE                   0.4  4.61  2.64  -0.0   -0.3    0.2   19.5   19.5
+ 86 NUT                   25.7 -0.36  1.58   0.0   -0.2   25.7   -9.4   27.3
+ 88 ANUT                  11.6 -0.38 -0.31  -0.0   11.1   -3.5   -4.5   12.5
+271 PHOT                  12.8 -0.42 -0.30  -0.0   12.2   -3.7   -5.5   13.9
+</pre>
+
+        The first number is the particle barcode number.  This is
+        followed by the particle type, and then by the barcode numbers
+        of any decay daughters (up to 3).  This is followed by the
+        four-momemtum in two versions: first as pt, eta, phi, m, and
+        then as px, py, pz, e.
+    </ul>
+
+
+
+    <hr>
+    <address><a href="mailto:snyder@bnl.gov">sss</a></address>
+<!-- Created: Sun Apr  3 17:50:03 EDT 2005 -->
+<!-- hhmts start -->
+Last modified: Mon Jan 26 06:33:22 CET 2009
+<!-- hhmts end -->
+  </body>
+</html>
