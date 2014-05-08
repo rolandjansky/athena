@@ -1,0 +1,35 @@
+package G4AtlasUtilities
+
+branches src cmt
+
+use AtlasPolicy             AtlasPolicy-*
+use AtlasCLHEP              AtlasCLHEP-*            External
+use AthenaKernel            AthenaKernel-*          Control
+use FadsKinematics          FadsKinematics-*        Simulation/G4Sim/FADS
+use Geant4                  Geant4-*                External
+
+private
+#use AthenaBaseComps         AthenaBaseComps-*       Control
+use EventInfo               EventInfo-*             Event
+use SGTools                 SGTools-*               Control
+use StoreGate               StoreGate-*             Control
+use AtlasReflex             AtlasReflex-*           External
+use GaudiInterface          GaudiInterface-*        External
+use FadsRun                 FadsRun-*               Simulation/G4Sim/FADS
+use G4DetectorEnvelopes     G4DetectorEnvelopes-*   Simulation/G4Utilities
+use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
+use InDetBeamSpotService    InDetBeamSpotService-*  InnerDetector/InDetConditions
+end_private
+
+include_dirs "$(G4AtlasUtilities_root)" "$(G4AtlasUtilities_root)/dict"
+
+library G4AtlasUtilities *.cxx
+apply_pattern component_library
+
+private
+apply_pattern lcgdict dict=G4AtlasUtilities \
+    headerfiles="../G4AtlasUtilities/G4AtlasUtilitiesDict.h" \
+    selectionfile=selection.xml
+
+macro_prepend G4AtlasUtilitiesDict_shlibflags " -lG4DetectorEnvelopes -lG4AtlasUtilities "
+end_private
