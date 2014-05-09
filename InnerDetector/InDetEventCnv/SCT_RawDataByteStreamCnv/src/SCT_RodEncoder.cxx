@@ -1,0 +1,459 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** Implementation of SCT_RodEncoder class */
+#include "SCT_RodEncoder.h" 
+
+///SCT
+#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+
+///InDet
+#include "InDetIdentifier/SCT_ID.h"
+
+///Athena
+#include "Identifier/IdentifierHash.h"
+#include "Identifier/Identifier.h"
+
+///STL
+#include <set>
+
+namespace{
+ int rodLinkFromOnlineId(const uint32_t id){
+   SCT_OnlineId online(id);
+   uint32_t f(online.fibre());
+   int formatter((f/12) & 0x7);
+   int linknb = (f - (formatter*12)) & 0xF ;
+   int rodlink = (formatter << 4) | linknb ;
+   return rodlink;
+ } 
+ bool isOdd(const int someNumber){
+   return bool(someNumber & 1); 
+ }
+ 
+ bool isEven(const int someNumber){
+   return !isOdd(someNumber);
+ }
+ 
+ bool swappedCable(const int moduleSide, const int linkNumber){
+   return isOdd(linkNumber)?(moduleSide==0) : (moduleSide==1);
+ }
+}//end of anon namespace
+
+
+SCT_RodEncoder::SCT_RodEncoder
+( const std::string& type, const std::string& name,const IInterface* parent )
+  :  AthAlgTool(type,name,parent),
+     m_cabling("SCT_CablingSvc",name),
+     m_bsErrs("SCT_ByteStreamErrorsSvc",name),
+     m_sct_id(0)
+{
+  declareInterface< ISCT_RodEncoder  >( this );
+  declareProperty("CondensedMode",m_condensed=true);
+}
+
+
+/** destructor  */
+SCT_RodEncoder::~SCT_RodEncoder() {
+  //nop
+}
+
+
+StatusCode SCT_RodEncoder::initialize() {
+
+  StatusCode sc = AlgTool::initialize(); 
+  msg(MSG::INFO) <<"SCT_RodEncoder::initialize()"<<endreq;
+  
+  /** Retrieve cabling service */
+  sc = m_cabling.retrieve();
+  if (sc.isFailure()) {
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_cabling << endreq;
+    return sc;
+  } else 
+    msg(MSG::DEBUG) << "Retrieved service " << m_cabling << endreq;
+
+  sc = detStore()->retrieve(m_sct_id,"SCT_ID") ;
+  if (sc.isFailure()) {
+    msg(MSG::FATAL) << "Cannot retrieve SCT Id helper!"  << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  if (m_bsErrs.retrieve().isFailure()) 
+    msg(MSG::FATAL) <<"Failed to get ByteStreamErrorSvc"<<endreq;
+
+  return sc;
+}
+
+StatusCode SCT_RodEncoder::finalize() {
+  return StatusCode::SUCCESS;
+}
+
+///=========================================================================
+///  fillROD convert SCT RDO to a vector of 32bit words
+///=========================================================================  
+
+void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid, 
+			     vRDOs& rdoVec) {
+  
+  /** retrieve errors from SCT_ByteStreamErrorsSvc */
+  
+  std::set<IdentifierHash>* timeOutErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TimeOutError);
+  std::set<IdentifierHash>* l1idErrors =
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::LVL1IDError);
+  std::set<IdentifierHash>* bcidErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::BCIDError);
+  std::set<IdentifierHash>* preambleErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::PreambleError);
+  std::set<IdentifierHash>* formatterErrors =
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::FormatterError);
+  std::set<IdentifierHash>* trailerErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TrailerError);
+  std::set<IdentifierHash>* headertrailerErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::HeaderTrailerLimitError);
+  std::set<IdentifierHash>* traileroverflowErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TrailerOverflowError);
+  std::set<IdentifierHash>* rawErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::RawError);
+  std::set<IdentifierHash>* abcdErrors = 
+    m_bsErrs->getErrorSet(SCT_ByteStreamErrors::ABCDError);  
+
+  std::vector<int> vtbin ;
+  std::vector<uint16_t> v16data ;
+  int strip1    = 0 ;
+  int theTimeBin      = 0 ;
+  int groupsize = 0 ;
+  
+  /** loop over errors here - just add headers (w/ errors), trailers (w/errors), 
+   * and raw and abcd errors */
+
+  addHeadersWithErrors(robid, timeOutErrors, TIMEOUT_ERR, v16data);
+  addHeadersWithErrors(robid, l1idErrors, L1_ERR, v16data);
+  addHeadersWithErrors(robid, bcidErrors, BCID_ERR, v16data);
+  addHeadersWithErrors(robid, preambleErrors, PREAMBLE_ERR, v16data);
+  addHeadersWithErrors(robid, formatterErrors, FORMATTER_ERR, v16data);
+  //
+  addTrailersWithErrors(robid, trailerErrors, TRAILER_ERR, v16data);
+  addTrailersWithErrors(robid, headertrailerErrors, HEADER_TRAILER_ERR, v16data);
+  addTrailersWithErrors(robid, traileroverflowErrors, TRAILER_OVFLW_ERR, v16data);
+  //
+  addSpecificErrors(robid, abcdErrors, ABCD_ERR, v16data);
+  addSpecificErrors(robid, rawErrors, RAWDATA_ERR, v16data);
+  
+
+  vRDOs::iterator  rdo_it = rdoVec.begin();   
+  vRDOs::iterator  rdo_it_end = rdoVec.end() ;
+  uint32_t lastHeader = 0;
+  bool firstInRod = true;
+  uint16_t lastTrailer=0;
+  for(; rdo_it!=rdo_it_end; ++rdo_it) {   
+    const RDO * rawdata = (*rdo_it) ;
+    if (rawdata == 0) {
+      msg(MSG::ERROR) << "RDO pointer is NULL. skipping this hit." <<endreq;
+      continue;
+    }
+    uint16_t header = this->getHeaderUsingRDO(rawdata);
+    if (header != lastHeader) {
+      if (! firstInRod) {
+        v16data.push_back(lastTrailer);
+      }
+      firstInRod = false;
+      v16data.push_back(header);
+      lastHeader = header;
+      lastTrailer = getTrailer(0);
+    }
+    if (m_condensed) { /** Condensed mode  */
+      strip1= strip(rawdata) ;
+      groupsize = groupSize(rawdata) ;
+      if(groupsize == 1) { /** For single hit */
+        int gSize = 1 ;
+        int strip2 = strip1;
+        encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
+      }
+      /** Sim rdo could have groupe size > 1 then I need to split 
+       * them 2 by 2 to built the condensed BS data */
+      else { /** Encoding in condensed BS paired data from groupe size > 1 */
+        int n_pairedRdo = groupsize/2 ;
+        for (int i = 0; i< n_pairedRdo; i++ ) {
+          int gSize = 2 ;
+          int strip2 = strip1+ (2*i) ;
+          encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
+        } 
+        if((groupsize != 0) && isOdd(groupsize)) {/** The last hit from a cluster with odd group size */
+          int gSize = 1 ;
+          int strip2 = strip1+ (groupsize - 1) ;
+          encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
+        }  
+      }  
+      
+    } /** end of condensed Mode */
+    
+    else {/** Expanded mode */
+      
+      vtbin.clear() ;
+      const RDO * rawdata   = (*rdo_it) ;
+      strip1    = strip(rawdata) ;
+      theTimeBin      = tbin(rawdata) ;
+      groupsize = groupSize(rawdata) ;
+      
+      for(int t = 0; t < groupsize; t++) {
+        vtbin.push_back(theTimeBin) ;
+        strip1++ ;
+      }
+      int strip2 = strip(rawdata) ;
+      int gSize = groupSize(rawdata) ;
+      encodeData(vtbin,v16data,rawdata,gSize,strip2) ;
+      
+    }  // End of (else) Expanded
+  } //end of RDO loop
+  
+  /** 16 bits TO 32 bits and pack into 32 bit vectors */
+  packFragments(v16data,v32rod) ;
+  
+  return ;
+  
+} // end of fillROD(...)
+
+void SCT_RodEncoder::addHeadersWithErrors(const uint32_t robid,const std::set<IdentifierHash> * errors, ErrorWords errType, std::vector<uint16_t> & v16data){
+  std::set<IdentifierHash>::iterator step(errors->begin());
+  const std::set<IdentifierHash>::iterator end(errors->end());
+  for (;step != end;++step){
+    IdentifierHash linkHash(*step);
+    uint32_t errRobId(m_cabling->getRobIdFromHash(linkHash));
+    if (errRobId == robid) {
+      uint16_t header = getHeaderUsingHash(linkHash,errType);
+      v16data.push_back(header);
+      uint16_t trailer = getTrailer(NULL_TRAILER_ERR);
+      v16data.push_back(trailer);
+    }
+  }
+} 
+
+//
+void SCT_RodEncoder::addTrailersWithErrors(const uint32_t robid, const std::set<IdentifierHash> * errors, ErrorWords errType, std::vector<uint16_t> & v16data){
+  std::set<IdentifierHash>::iterator step(errors->begin());
+  const std::set<IdentifierHash>::iterator end(errors->end());
+  for (;step != end;++step){
+    IdentifierHash linkHash(*step);
+    uint32_t errRobId(m_cabling->getRobIdFromHash(linkHash));
+    if (errRobId == robid) {
+      uint16_t header = getHeaderUsingHash(linkHash,NULL_HEADER_ERR);
+      uint16_t trailer = getTrailer(errType);
+      v16data.push_back(header);
+      v16data.push_back(trailer);
+    }
+  }
+}
+
+void SCT_RodEncoder::addSpecificErrors(const uint32_t robid, const std::set<IdentifierHash> * errors, ErrorWords errType, std::vector<uint16_t> & v16data){
+  std::set<IdentifierHash>::iterator step(errors->begin());
+  const std::set<IdentifierHash>::iterator end(errors->end());
+  for (;step != end;++step){
+    IdentifierHash linkHash(*step);
+    uint32_t errRobId(m_cabling->getRobIdFromHash(linkHash));
+    if (errRobId == robid) {
+      uint16_t header = getHeaderUsingHash(linkHash,NULL_HEADER_ERR);
+      uint16_t trailer = getTrailer(NULL_TRAILER_ERR);
+      v16data.push_back(header);
+      v16data.push_back(errType);
+      v16data.push_back(trailer);
+    }
+  }
+}
+
+///=========================================================================
+///  Encode Data function
+///========================================================================= 
+
+void SCT_RodEncoder::encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& v16, const RDO *rdo, int gSize, int strip2) {
+  
+  ///-------------------------------------------------------------------------------------
+  /// Check if the strip has to be swapped (swap phi readout direction)
+  ///-------------------------------------------------------------------------------------
+  
+  int encodedSide    = side(rdo) << 14 ; 
+  int strip1  = strip2 ;
+  
+  Identifier idColl = offlineId(rdo) ;
+  if( std::find(m_swapModuleId.begin(), m_swapModuleId.end(),idColl) != m_swapModuleId.end() ) {
+    strip1= 767 - strip1;
+    strip1= strip1-(gSize-1) ;
+  }
+  
+  int chipNb            = ((strip1/128) & 0x7)           << 11 ;
+  int clustBaseAddr     = ((strip1-(chipNb*128)) & 0x7F) << 4 ;
+  int theTimeBin              = 0 ;  
+  int firstHitErr       = 0 << 2  ;     
+  int secondHitErr      = 0 << 3  ;
+  
+  const SCT3_RawData* rdoCosmic = dynamic_cast<const SCT3_RawData*>(rdo);
+  if (rdoCosmic != 0) {       
+    theTimeBin              = tbin(rdoCosmic) ;
+    firstHitErr       = ((rdoCosmic)->FirstHitError())    << 2  ;
+    secondHitErr      = ((rdoCosmic)->SecondHitError())   << 3  ;
+  }
+  
+  ///-------------------------------------------------------------------------------------
+  ///   Condensed
+  ///-------------------------------------------------------------------------------------
+  if(m_condensed){/** single Hit on condensed Mode */
+    
+    if(gSize == 1) {/** Groupe size = 1 */
+      uint16_t HitCondSingle = 0x8000 | encodedSide | chipNb | clustBaseAddr | firstHitErr;
+      v16.push_back(HitCondSingle);
+      m_singleCondHitNumber++;
+    } 
+    else if(gSize == 2) {/** paired strip Hits on condensed Mode  */
+      uint16_t HitCondPaired = 0x8001 | encodedSide | chipNb | clustBaseAddr | secondHitErr | firstHitErr;
+      v16.push_back(HitCondPaired);
+      m_pairedCondHitNumber++ ;
+    }    
+  }  /// end of condensed
+  
+  ///-------------------------------------------------------------------------------------
+  ///   Expanded
+  ///-------------------------------------------------------------------------------------
+  else{  
+    int nEven = (vtbin.size() - 1)/2 ;
+    /** First hit */
+    uint16_t HitExpFirst = 0x8000 | encodedSide | chipNb | clustBaseAddr | theTimeBin;
+    v16.push_back(HitExpFirst);
+    m_firstExpHitNumber++ ;
+    /** Even consecutive strips to the first one 1DDD 1st consec strip 1DDD 2nd consec strip */
+    for(int i=1; i<=nEven; i++) {
+      uint16_t HitExpEven = 0x8088 | ((vtbin[(2*i-1)] & 0xF) << 4) | (vtbin[2*i] & 0xF);
+      v16.push_back(HitExpEven); 
+      m_evenExpHitNumber++ ;
+    }
+    /** Last bin of the Odd next hits    */
+    if( (not vtbin.empty() ) and isEven(vtbin.size()) ) {
+      uint16_t HitExpLast = 0x8008 | (vtbin[vtbin.size()-1] & 0xF);
+      v16.push_back(HitExpLast);
+      m_lastExpHitNumber++ ;
+    }  
+
+  } /** end of  expanded */
+  
+  return ;
+}  /** end of encodeData */
+
+///=========================================================================
+///  Converting the 16 bit vector v16 to 32 bit words v32
+///=========================================================================  
+void SCT_RodEncoder::packFragments( std::vector<uint16_t>& v16, std::vector<uint32_t>& v32) const { 
+  int n16words = v16.size() ;
+  if(isOdd(n16words)){
+    /** just add an additional 16bit words to make even size v16 to in the 32 bits word 0x40004000  */
+    v16.push_back(0x4000); 
+    n16words++;
+  }
+  /** now merge 2 consecutive 16 bit words in 32 bit words */
+  const unsigned short int nWords     = 2;
+  unsigned short int position[nWords] = { 0, 16 };
+  unsigned short int v16words[nWords] = { 0, 0 };
+  for (int i=0; i<n16words; ) {
+    v16words[i%nWords]     = v16[i+1];
+    v16words[(i+1)%nWords] = v16[i];
+    uint32_t v32word       = set32bits(v16words,position,nWords);
+    v32.push_back(v32word);
+    i += nWords;
+#ifdef SCT_DEBUG
+    log<<MSG::INFO<<"SCT encoder -> PackFragments: Output rod "<<std::hex<<v32word<<endreq ;
+#endif
+  }
+  
+  return;
+}
+
+///=========================================================================
+///  set the 16 bit word v16 to 32 bit words v32
+///=========================================================================  
+
+uint32_t SCT_RodEncoder::set32bits(const unsigned short int * v16, const unsigned short int * pos, const unsigned short int n) const { 
+  uint32_t v32 = 0;
+  uint32_t p=0, v=0;
+  for(uint16_t i=0; i<n; i++){
+    v   = (uint32_t) (*(v16+i));
+    p   = (uint32_t) (*(pos+i));
+    v32 = v32 | ( v<<p );
+  } 
+  return v32;
+}
+
+///=========================================================================
+///  Link and Side Numbers 
+///=========================================================================
+/** RDO ID  */
+Identifier SCT_RodEncoder::offlineId(const RDO * rdo) {
+  Identifier rdoId     = rdo->identify() ;               
+  return m_sct_id->wafer_id(rdoId) ;
+}
+
+/** ROD online ID  */
+uint32_t  SCT_RodEncoder::onlineId(const RDO * rdo) {
+  Identifier rdoId     = rdo->identify() ;               
+  Identifier thisId = m_sct_id->wafer_id(rdoId) ; 
+  IdentifierHash offlineIdHash = m_sct_id->wafer_hash(thisId);
+  uint32_t thisOnlineId    = m_cabling->getOnlineIdFromHash(offlineIdHash) ;
+  return thisOnlineId ;
+}
+
+/** ROD Link Number In the ROD header data  */
+int  SCT_RodEncoder::rodLink(const RDO * rdo) {
+  return rodLinkFromOnlineId(onlineId(rdo));
+}
+
+/** Side Info */
+int  SCT_RodEncoder::side(const RDO * rdo) {
+  Identifier rdoId      = rdo->identify() ;    
+  int s              = m_sct_id->side(rdoId) ;
+  /** see if we need to swap sides due to cabling weirdness */
+  int linknb = rodLink(rdo) & 0xF;
+  if (swappedCable(s,linknb)) s = 1-s;
+  return s ;
+}
+
+/** Time Bin Info */
+int  SCT_RodEncoder::tbin(const RDO * rdo) {
+  int theTimeBin = 0 ;
+  const SCT3_RawData* rdoCosmic = dynamic_cast<const SCT3_RawData*>(rdo) ;
+  if (rdoCosmic != 0) theTimeBin = rdoCosmic->getTimeBin() ;
+  return theTimeBin ;
+}
+
+///-------------------------------------------------------------------------------------
+///   Link header
+///-------------------------------------------------------------------------------------
+
+uint16_t 
+SCT_RodEncoder::getHeaderUsingRDO(const RDO* rdo) {
+  //Identifier rdoId     = rdo->identify() ;               
+  //Identifier thisId = m_sct_id->wafer_id(rdoId) ; 
+  //IdentifierHash offlineIdHash = m_sct_id->wafer_hash(thisId);
+  int rodlink = rodLink(rdo);
+  uint16_t LinkHeader = 0x2000 
+  | (m_condensed << 8) 
+  |  rodlink  ;
+  m_headerNumber++ ;
+  return LinkHeader;
+}
+
+///-------------------------------------------------------------------------------------
+///   Link trailer
+///-------------------------------------------------------------------------------------
+uint16_t 
+SCT_RodEncoder::getTrailer(int errorword) {
+  uint16_t LinkTrailer = 0x4000 | errorword;
+  m_trailerNumber++ ;
+  return LinkTrailer;
+}
+
+uint16_t 
+SCT_RodEncoder::getHeaderUsingHash(IdentifierHash linkHash, int errorWord) {
+  int rodlink = rodLinkFromOnlineId(m_cabling->getOnlineIdFromHash(linkHash));
+  uint16_t LinkHeader = 0x2000 | errorWord | (m_condensed << 8) |  rodlink  ;
+  m_headerNumber++ ;
+  return LinkHeader;
+}
+
