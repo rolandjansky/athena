@@ -1,0 +1,32 @@
+package TrkVertexWeightCalculators
+
+author Johanna Bronner
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*     External
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* 	Tracking/TrkVertexFitter/	
+use AtlasROOT		AtlasROOT-*	      External
+use xAODTracking        xAODTracking-*        Event/xAOD 
+use GeoPrimitives       GeoPrimitives-*         DetectorDescription
+
+private
+use VxVertex            VxVertex-*              Tracking/TrkEvent
+use TrkParameters       TrkParameters-*         Tracking/TrkEvent
+use TrkNeuralNetworkUtils  TrkNeuralNetworkUtils-* Tracking/TrkUtilityPackages
+use GeneratorObjects    GeneratorObjects-*      Generators
+
+#macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+public
+library TrkVertexWeightCalculators *.cxx components/*.cxx
+apply_pattern component_library
+
+#apply_pattern dual_use_library files="*.cxx"
+#apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime files="-s=../share *.root"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+apply_tag ROOTMathLibs
