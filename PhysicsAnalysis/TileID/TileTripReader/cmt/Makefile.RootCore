@@ -1,0 +1,8 @@
+PACKAGE          = TileTripReader
+PACKAGE_PRELOAD  = Hist MathCore
+PACKAGE_CXXFLAGS = -DROOTCORE
+PACKAGE_LDFLAGS  = 
+PACKAGE_BINFLAGS  = 
+PACKAGE_DEP      = 
+
+include $(ROOTCOREDIR)/Makefile-common
