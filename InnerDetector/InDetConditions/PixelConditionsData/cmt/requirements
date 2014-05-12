@@ -1,0 +1,31 @@
+package PixelConditionsData
+
+author Wei-Ming Yao <Wei-Ming.Yao@cern.ch> \
+       Christoph Ruwiedel <ruwiedel@physik.uni-bonn.de>
+
+use AtlasPolicy          AtlasPolicy-*
+
+use Identifier           Identifier-*                   DetectorDescription
+
+use CLIDSvc              CLIDSvc-*                      Control
+use DataModel            DataModel-*                    Control
+
+use PixelCoralClientUtils PixelCoralClientUtils-*       InnerDetector/InDetConditions
+
+private
+
+use AthenaKernel         AthenaKernel-*                 Control
+
+use GaudiInterface       GaudiInterface-*               External
+use AtlasCORAL           AtlasCORAL-*                   External
+use AtlasCLHEP           AtlasCLHEP-*                   External
+
+public
+library PixelConditionsData *.cxx
+
+apply_pattern installed_library
+
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
