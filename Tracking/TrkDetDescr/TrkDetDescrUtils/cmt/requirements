@@ -1,0 +1,31 @@
+package TrkDetDescrUtils
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy             AtlasPolicy-*
+use CLIDSvc                 CLIDSvc-*                   Control 
+#use DataModel               DataModel-*                 Control
+use GaudiInterface          GaudiInterface-*            External
+
+use GeoPrimitives           GeoPrimitives-*             DetectorDescription
+
+#################################################################
+# private use statements
+private
+#use AtlasReflex             AtlasReflex-*               External
+
+public
+library TrkDetDescrUtils *.cxx
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
+
+#apply_pattern lcgdict dict=TrkDetDescrUtils selectionfile=selection.xml headerfiles="../TrkDetDescrUtils/TrkDetDescrUtilsDict.h"
