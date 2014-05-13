@@ -1,0 +1,5 @@
+//job opts for IOVSvcTool unit test
+ApplicationMgr.DLLs += { "StoreGate", "IOVSvc" };
+ApplicationMgr.CreateSvc += { "StoreGateSvc/DetectorStore" };
+
+MessageSvc.OutputLevel = 2;

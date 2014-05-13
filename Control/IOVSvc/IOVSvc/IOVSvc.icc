@@ -1,0 +1,341 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef IOVSVC_IOVSVC_ICC
+#define IOVSVC_IOVSVC_ICC
+
+/*****************************************************************************
+ *
+ *  IOVSvc.icc
+ *  IOVSvc
+ *
+ *  Author: Charles Leggett
+ *  $Id: IOVSvc.icc,v 1.17 2004-04-19 23:10:27 leggett Exp $
+ *
+ *  Provides automatic updating and callbacks for time dependent data
+ *
+ *****************************************************************************/
+
+#ifndef BOOST_BIND_HPP_INCLUDED
+ #include "boost/bind.hpp"
+#endif
+
+#ifndef GAUDIKERNEL_MSGSTREAM_H
+ #include "GaudiKernel/MsgStream.h"
+#endif
+#ifndef GAUDIKERNEL_SYSTEM_H
+ #include "GaudiKernel/System.h"
+#endif
+#ifndef ATHENAKERNEL_IPROXYPROVIDERSVC_H
+ #include "AthenaKernel/IProxyProviderSvc.h"
+#endif
+#ifndef STOREGATE_DATASTORE_H
+ #include "SGTools/DataStore.h"
+#endif
+
+#ifndef ATHENAKERNEL_IOVRANGE_H
+ #include "AthenaKernel/IOVRange.h"
+#endif
+
+#ifndef ATHENAKERNEL_ICLASSIDSVC_H
+ #include "AthenaKernel/IClassIDSvc.h"
+#endif
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+//  template <typename H>
+//  StatusCode IOVSvc::regHandle( DataHandle<H>& handle, 
+//  			      const std::string& key) {
+//    MsgStream log( msgSvc(), name() );
+
+//    CLID id = ClassID_traits<H>::ID();
+//    std::string tname;
+//    p_CLIDSvc->getTypeNameOfID(id, tname);
+
+//    std::string fullname = tname + "[" + key + "]";
+
+//    log << MSG::ERROR << "regHandle(): DataHandle must be const: " << fullname 
+//        << endreq;
+
+//    return StatusCode::FAILURE;
+//  }
+
+//  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+//  template <typename H>
+//  StatusCode IOVSvc::regHandle( const DataHandle<H>& handle, 
+//  			      const std::string& key) {
+
+//    MsgStream log( msgSvc(), name() );
+
+//    CLID id = ClassID_traits<H>::ID();
+//    std::string tname;
+//    p_CLIDSvc->getTypeNameOfID(id, tname);
+
+//    std::string fullname = tname + "[" + key + "]";
+
+//    log << MSG::DEBUG << "regHandle: " << fullname << endreq;
+
+//    // bind the handle to the key, creates an invalid DataProxy
+//    if (p_cndSvc->bind(handle,key).isFailure()) {
+//      log << MSG::ERROR << "could not bind handle to " << tname
+//  	<< " to key: " << key << endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    // register the proxy
+//    SG::DataProxy* dp = p_PPSvc->retrieveProxy(ClassID_traits<H>::ID(), key, 
+//  					*(p_cndSvc->store()));
+
+//    if ( dp == 0 ) {
+//      log << MSG::ERROR << "could not get proxy for handle " << fullname
+//  	<<  endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    return regProxy(dp,key);
+
+//  }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+//  template <typename T, typename H>
+//  StatusCode IOVSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
+//  			  const T* obj, DataHandle<H>& handle, 
+//  			  const std::string& key, bool trigger=false) {
+
+//    MsgStream log( msgSvc(), name() );
+
+//    CLID id = ClassID_traits<H>::ID();
+//    std::string tname;
+//    p_CLIDSvc->getTypeNameOfID(id, tname);
+
+//    std::string fullname = tname + "[" + key + "]";
+
+//    log << MSG::ERROR << "regFcn(): DataHandle must be const: " << fullname 
+//        << endreq;
+
+//    return StatusCode::FAILURE;
+
+//  }
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+//  template <typename T, typename H>
+//  StatusCode IOVSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
+//  			  const T* obj, const DataHandle<H>& handle, 
+//  			  const std::string& key, bool trigger=false) {
+
+//    MsgStream log( msgSvc(), name() );
+
+//    CLID id = ClassID_traits<H>::ID();
+//    std::string tname;
+//    p_CLIDSvc->getTypeNameOfID(id, tname);
+
+//    std::string fullname = tname + "[" + key + "]";
+
+//    // bind the handle to the key, creates an invalid DataProxy
+//    if (p_cndSvc->bind(handle,key).isFailure()) {
+//      log << MSG::ERROR << "could not bind handle to " << tname
+//  	<< " to key: " << key << endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    // register the proxy
+//    SG::DataProxy* dp = p_PPSvc->retrieveProxy(id, key, *(p_cndSvc->store()));
+
+//    if ( dp == 0 ) {
+//      log << MSG::ERROR << "could not get proxy for handle " << fullname 
+//  	<<  endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    if (regProxy(dp,key).isFailure()) {
+//      return StatusCode::FAILURE;
+//    }
+
+//    CallBackID c(updFcn,obj);
+
+//  }
+
+//  StatusCode IOVSvc::regFcn(SG::DataProxy* dp, 
+//  			  const CallBackID& c, 
+//  			  const IOVSvcCallBackFcn& fcn;
+//  			  bool trigger=false) {
+
+//    // see if proxy already bound
+//    if (m_proxies.find( dp ) == m_proxies.end()) {
+//      log << MSG::ERROR << "Cannot register object " << c.name()
+//  	<< " with DataHandle " << fullname 
+//  	<< " -> Need to bind DataHandle first" 
+//  	<< endreq;
+//      return StatusCode::FAILURE;
+//    } else {
+//      m_names[dp] = fullname;
+//    }
+
+//    // if using old compiler, can't detect between non-virtual functions,
+//    // so issue an error.
+
+//    #if (__GNUC__ < 3)
+//    if (c.offset() == 0x7fff) {
+//      log << MSG::ERROR << "Callback function " << c.name() << " is not virtual."
+//  	<< " Cannot bind it to " << fullname << endreq;
+//      return StatusCode::FAILURE;
+//    }
+//    #endif
+
+
+//    // check if this prox/function pair already registered
+  
+//    std::pair<pmITR,pmITR> fitr = m_proxyMap.equal_range( dp );
+//    for (pmITR p=fitr.first; p!=fitr.second; ++p) {
+//      if ( m_fcnMap[p->second] == c ) {
+//        log << MSG::ERROR << "CallBack function " << c.name()
+//  	  << " already registered against " << fullname << endreq;
+//        return StatusCode::FAILURE;
+//      }
+//    }
+
+//    // this function could have already been registered against another
+//    // DataProxy, so see if we can find it.
+//    BFCN *obs;
+//    if (m_cbidMap.find(c) == m_cbidMap.end()) {
+//      //    obs = new BFCN (boost::bind(updFcn,const_cast<T*>(obj),_1,_2));
+//      obs = new BFCN(fcn);
+//      m_cbidMap[c] = obs;
+//      m_fcnMap[obs] = c;
+//    } else {
+//      obs = m_cbidMap[c];
+//    }
+
+//    m_proxyMap.insert(std::pair<const SG::DataProxy*,BFCN* >(dp,obs));
+//    m_bfcnMap.insert(std::pair<BFCN*, const SG::DataProxy*> (obs,dp));
+
+//    log << MSG::INFO << "register by " << c.name() << " bound to " << fullname 
+//        << endreq;
+
+//    if (trigger) {
+//      if (m_first) {
+//        log << MSG::ERROR << "Still in initialize phase, not tiggering callback."
+//  	  << endreq;
+//      } else {
+//        return triggerCallback(obs, dp->name());
+//      }
+//    }
+    
+
+//    return StatusCode::SUCCESS;
+
+//  }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+//  template <typename T1, typename T2>
+//  StatusCode IOVSvc::regFcn( StatusCode (T1::*updFcn1)(IOVSVC_CALLBACK_ARGS), 
+//  			   const T1* obj1, 
+//  			   StatusCode (T2::*updFcn2)(IOVSVC_CALLBACK_ARGS), 
+//  			   const T2* obj2, bool trigger=false ) {
+
+
+//    CallBackID c1(updFcn1, obj1);
+//    CallBackID c2(updFcn2, obj2);
+
+
+//  StatusCode 
+//  IOVSvc::regFcn(const CallBackID& c1,
+//  	       const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
+//  	       bool trigger=false) {
+
+
+//    MsgStream log( msgSvc(), name() );
+
+//    if (c1 == c2) {
+//      log << MSG::ERROR << "Cannot register 2nd callback function and assocaited"
+//  	<< " object with itself" << endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    // Check if first function has been registered
+//    if (m_cbidMap.find(c1) == m_cbidMap.end()) {
+//      log << MSG::ERROR << "CallBack function " << c2.name()
+//  	<< " cannot be registered since function " << c1.name()
+//  	<< " has not been registered first" << endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    // Check if second function has been registered with same proxy
+//    BFCN *obs1 = m_cbidMap[c1];
+//    BFCN *obs2;
+//    std::set<const SG::DataProxy*> proxyset;
+//    if (m_cbidMap.find(c2) != m_cbidMap.end()) {
+//      obs2 = m_cbidMap[c2];
+
+//      std::pair<fnITR,fnITR> fi1 = m_bfcnMap.equal_range( obs1 );
+//      for (fnITR fitr1= fi1.first; fitr1!=fi1.second; ++fitr1) {
+//        const SG::DataProxy* prx1 = fitr1->second;
+
+//        std::pair<fnITR,fnITR> fi2 = m_bfcnMap.equal_range( obs2 );
+//        for (fnITR fitr2=fi2.first; fitr2!=fi2.second; ++fitr2) {
+//  	const SG::DataProxy* prx2 = fitr2->second;
+
+//  	if (prx1 == prx2) {
+//  	  log << MSG::WARNING << "Callback function " << c2.name()
+//  	      << " cannot be registered since it has already been registered "
+//  	      << "against " << m_names[prx1] << endreq;
+//  	} else {
+//  	  proxyset.insert(prx1);    // don't care if it gets done many times
+//  	}
+//        }
+//      }
+//    } else {
+//  //      obs2 = new BFCN( boost::bind(updFcn2,const_cast<T2*>(obj2),_1,_2));
+//      obs2 = new BFCN( fcn2 );
+//      m_cbidMap[c2] = obs2;
+//      m_fcnMap[obs2] = c2;
+
+//      // get all proxies that fcn1 is registered against
+//      std::pair<fnITR,fnITR> fi1 = m_bfcnMap.equal_range( obs1 );
+//      for(fnITR fitr1=fi1.first; fitr1!=fi1.second; ++fitr1) {
+//        const SG::DataProxy *prx1 = fitr1->second;
+//        proxyset.insert(prx1);
+//      }
+//    }
+
+//    if (proxyset.size() == 0) {
+//      log << MSG::ERROR << "Callback function " << c2.name() 
+//  	<< " cannot be registered, since it has already been registered"
+//  	<< " against everything it can be." << endreq;
+//      return StatusCode::FAILURE;
+//    }
+
+//    // Link fcn2 to all proxies known to fcn1
+//    std::set<const SG::DataProxy*>::iterator pitr;
+//    std::list<std::string> klist;
+//    for (pitr=proxyset.begin(); pitr!=proxyset.end(); ++pitr) {
+//      const SG::DataProxy* prx = *pitr;
+//      m_proxyMap.insert(std::pair<const SG::DataProxy*,BFCN* >(prx,obs2));
+//      m_bfcnMap.insert(std::pair<BFCN*,const SG::DataProxy*>(obs2,prx));
+	
+//      log << MSG::INFO << "register by " << c2.name() << " bound to "
+//  	<< m_names[prx] << endreq;
+//      klist.push_back( prx->name() );
+//    }
+
+//    if (trigger) {
+//      if (m_first) {
+//        log << MSG::ERROR << "Still in initialize phase, not tiggering callback."
+//  	  << endreq;
+//      } else {
+//        return triggerCallback(obs2, *(klist.begin()) );
+//      }
+//    }
+
+//    return StatusCode::SUCCESS;
+
+//  }
+
+//  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+#endif

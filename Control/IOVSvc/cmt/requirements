@@ -1,0 +1,24 @@
+package IOVSvc
+
+author Charles Leggett <Charles.Leggett@cern.ch>
+
+branches src cmt
+
+use AtlasPolicy    AtlasPolicy-*
+use SGTools        SGTools-*           Control
+use AthenaKernel   AthenaKernel-*      Control
+use AtlasBoost     AtlasBoost-*        External
+use GaudiInterface GaudiInterface-*     External
+
+apply_pattern declare_joboptions files="IOVSvc.txt IOVSvc.py"
+
+apply_pattern dual_use_library files="*.cxx"
+
+
+private
+use StoreGate      StoreGate-*      Control
+use EventInfo      EventInfo-*      Event
+use TestTools      TestTools-*        AtlasTest 
+apply_pattern UnitTest_run unit_test=IOVSvcTool extrapatterns="^HistogramPersis.* INFO"
+end_private
+
