@@ -1,0 +1,205 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// TrackingGeometry.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+//Trk
+#include "TrkGeometry/TrackingGeometry.h"
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/DetachedTrackingVolume.h"
+#include "TrkGeometry/Layer.h"
+#include "TrkGeometry/MaterialProperties.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
+// GaudiKernel
+#include "GaudiKernel/MsgStream.h"
+
+Trk::TrackingGeometry::TrackingGeometry(const Trk::TrackingVolume* highestVolume, Trk::NavigationLevel navLev)
+: m_world(highestVolume),
+  m_navigationLevel(navLev)
+{
+    // for the time being only world
+    if(m_world) registerTrackingVolumes(*m_world);
+}
+
+Trk::TrackingGeometry::~TrackingGeometry()
+{
+    delete m_world;
+}
+
+const Trk::TrackingVolume* Trk::TrackingGeometry::lowestTrackingVolume(const Amg::Vector3D& gp) const
+{
+    const Trk::TrackingVolume* searchVolume = m_world;
+    const Trk::TrackingVolume* currentVolume = 0;
+    while (currentVolume != searchVolume && searchVolume) {
+        currentVolume = searchVolume;
+        searchVolume  = searchVolume->associatedSubVolume(gp);
+    }
+    return(currentVolume);
+}
+
+std::vector<const Trk::DetachedTrackingVolume*>* Trk::TrackingGeometry::lowestDetachedTrackingVolumes(const Amg::Vector3D& gp) const
+{
+    double tol = 0.001;
+    const Trk::TrackingVolume* currentVolume = lowestStaticTrackingVolume(gp);
+    if (currentVolume) return currentVolume->assocDetachedSubVolumes(gp,tol);
+    return 0;
+}
+
+const Trk::TrackingVolume* Trk::TrackingGeometry::lowestStaticTrackingVolume(const Amg::Vector3D& gp) const
+{
+    const Trk::TrackingVolume* searchVolume = m_world;
+    const Trk::TrackingVolume* currentVolume = 0;
+    while (currentVolume != searchVolume && searchVolume ) {
+        currentVolume = searchVolume;
+        if (!(searchVolume->confinedDetachedVolumes()) ) searchVolume  = searchVolume->associatedSubVolume(gp);
+    }
+    return(currentVolume);
+}
+
+
+
+void Trk::TrackingGeometry::registerTrackingVolumes(const Trk::TrackingVolume& tvol, const Trk::TrackingVolume* mvol, int lvl)
+{
+    int sublvl = lvl+1;
+    std::string indent = "";
+    for (int l=0; l<lvl; ++l, indent += "  ");
+
+    tvol.setMotherVolume(mvol);
+    ATH_MSG_VERBOSE( "registerTrackingVolumes() ... " << indent << tvol.volumeName() << "... in mother volume: " << tvol.getMotherVolume() );
+    m_trackingVolumes[tvol.volumeName()] = (&tvol);
+    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+    if (confinedVolumes){
+        const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
+        ATH_MSG_VERBOSE( "registerTrackingVolumes() ... " << volumes.size() << " confined volumes found" );
+        for (auto& volumesIter: volumes)
+            if (volumesIter) registerTrackingVolumes(*volumesIter, &tvol, sublvl);
+    }
+
+    const std::vector<const Trk::TrackingVolume* >* confinedDenseVolumes = tvol.confinedDenseVolumes();
+    if (confinedDenseVolumes){
+        ATH_MSG_VERBOSE( "registerTrackingVolumes() ... " << confinedDenseVolumes->size() << " confined dense volumes found" );
+        for (auto& volumesIter : (*confinedDenseVolumes) )
+            if (volumesIter) registerTrackingVolumes(*volumesIter, &tvol, sublvl);
+    }
+    /** should detached tracking volumes be part of the tracking geometry ? */
+    const std::vector< const Trk::DetachedTrackingVolume* >* confinedDetachedVolumes = tvol.confinedDetachedVolumes();
+    if (confinedDetachedVolumes){
+        ATH_MSG_VERBOSE( "registerTrackingVolumes() ... " << confinedDetachedVolumes->size() << " confined detached volumes found" );
+        for (auto& volumesIter : (*confinedDetachedVolumes) )
+            if (volumesIter && tvol.inside(volumesIter->trackingVolume()->center(),0.) )
+                registerTrackingVolumes(*(volumesIter->trackingVolume()), &tvol, sublvl);
+    }
+}
+
+void Trk::TrackingGeometry::compactify(MsgStream& msg, const TrackingVolume* vol) const
+{
+    msg << MSG::VERBOSE << "====== Calling TrackingGeometry::compactify() ===== " << std::endl;
+    const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
+    size_t cSurfaces = 0;
+    size_t tSurfaces = 0;
+    if (tVolume) tVolume->compactify(cSurfaces,tSurfaces);
+    msg << MSG::VERBOSE << "  --> set TG ownership of " << cSurfaces << " out of " << tSurfaces << std::endl;
+    msg << MSG::VERBOSE << endreq;
+
+}
+
+void Trk::TrackingGeometry::synchronizeLayers(MsgStream& msg, const TrackingVolume* vol) const
+{
+    msg << MSG::VERBOSE << "====== Calling TrackingGeometry::synchronizeLayers() ===== " << endreq;
+    const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
+    tVolume->synchronizeLayers(msg);    
+}
+
+const Trk::TrackingVolume* Trk::TrackingGeometry::checkoutHighestTrackingVolume() const
+{
+    const Trk::TrackingVolume* checkoutVolume = m_world;
+    m_world = 0;
+    return checkoutVolume;
+}
+
+void Trk::TrackingGeometry::printVolumeHierarchy(MsgStream& msg) const
+{
+    msg << "TrackingGeometry Summary : " << std::endl;
+    const Trk::TrackingVolume* highestVolume = highestTrackingVolume();
+    int level = 0;
+    if (highestVolume) printVolumeInformation(msg, *highestVolume, level);
+    msg << endreq;
+}
+
+void Trk::TrackingGeometry::printVolumeInformation(MsgStream& msg, const Trk::TrackingVolume& tvol, int lvl) const
+{
+    int sublevel = lvl+1;
+
+    for (int indent=0; indent<sublevel; ++indent)
+        msg << "  ";
+    msg << "TrackingVolume ( at : " << (&tvol) <<") name: " << tvol.volumeName() << std::endl;
+
+    const Trk::BinnedArray< Trk::Layer >* confinedLayers = tvol.confinedLayers();
+    if (confinedLayers) {
+        const std::vector<const Trk::Layer*>& layers = confinedLayers->arrayObjects();
+        for (int indent=0; indent<sublevel; ++indent)
+            msg << "  ";
+        msg << "- found : " << layers.size() << " confined Layers" << std::endl;  
+    }
+
+    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+    if (confinedVolumes) {
+        const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
+
+        for (int indent=0; indent<sublevel; ++indent)
+            msg << "  ";
+        msg << "- found : " << volumes.size() << " confined TrackingVolumes" << std::endl;
+
+        for (auto& volumesIter : volumes )
+            if (volumesIter) printVolumeInformation(msg, *volumesIter, sublevel);
+    }
+
+    const std::vector<const Trk::TrackingVolume* >* confinedDenseVolumes = tvol.confinedDenseVolumes();
+    if (confinedDenseVolumes){
+        for (int indent=0; indent<sublevel; ++indent)
+            msg << "  ";
+        msg << "- found : " << confinedDenseVolumes->size() << " confined unordered (dense) TrackingVolumes" << std::endl;
+
+        for (auto& volumesIter : (*confinedDenseVolumes) )
+            if (volumesIter) printVolumeInformation(msg, *volumesIter, sublevel);
+    }
+}
+
+void Trk::TrackingGeometry::indexStaticLayers(GeometrySignature geosit, int offset) const
+{
+    if (m_world) m_world->indexContainedStaticLayers(geosit, offset);
+}
+
+bool Trk::TrackingGeometry::atVolumeBoundary( const Amg::Vector3D& gp, const Trk::TrackingVolume* vol, double tol) const
+{
+    bool isAtBoundary = false;
+    if (!vol) return isAtBoundary;
+    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
+    for (unsigned int ib=0; ib< bounds.size(); ib++) {
+        const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+        if ( surf.isOnSurface(gp,true,tol,tol)  ) isAtBoundary = true;
+    }
+    return isAtBoundary;
+} 
+
+/** check position at volume boundary + navigation link */
+bool Trk::TrackingGeometry::atVolumeBoundary(const Amg::Vector3D& gp, const Amg::Vector3D& mom, const TrackingVolume* vol, 
+        const TrackingVolume*& nextVol, Trk::PropDirection dir, double tol) const
+{
+    bool isAtBoundary = false;
+    nextVol = 0;
+    if (!vol) return isAtBoundary;
+    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
+    for (unsigned int ib=0; ib< bounds.size(); ib++) {
+        const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+        if ( surf.isOnSurface(gp,true,tol,tol) ) {
+            isAtBoundary = true;
+            const Trk::TrackingVolume* attachedVol = (bounds[ib].getPtr())->attachedVolume(gp,mom,dir);
+            if (!nextVol && attachedVol) nextVol=attachedVol;
+        }
+    }
+    return isAtBoundary;
+} 
