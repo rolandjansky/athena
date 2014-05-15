@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>
+MuonDigitContainer
+</title>
+</head>
+<body>
+<H2> MuonDigitContainer </H2>
+
+Version 0.0
+<br>
+11sep02 1650 EDT
+
+<P><HR><P>
+
+This package provides containers for muon digits. They may be filled
+directly or (eventually) from raw data, zebra and standard StoreGate
+formats such as objectivity and root.
+<p>
+The design for this package may be found at
+<a href=http://www.usatlas.bnl.gov/~dladams/mudigi>http://www.usatlas.bnl.gov/~dladams/mudigi</a>.
+
+<P><HR><P>
+
+<H2>Status</H2>
+The transient part of the MDT digit container is implemented.
+
+<P><HR><P>
+
+<H2>Components</H2>
+
+The components here are listed in dependency order. Each component depends
+only on those listed above it.
+
+<H3>
+MdtDigit (<a href=../MuonDigitContainer/MdtDigit.h>header</a>,
+<a href=../src/MdtDigit.cxx>source</a>,
+<a href=../src/MdtDigit_t.cxx>test</a>)
+</H3>
+Temporary description of an MDT digit. This class should be moved to another
+package.
+
+<H3>
+MdtDigitContainer (<a href=../MuonDigitContainer/MdtDigitContainer.h>header</a>,
+<a href=../src/MdtDigitContainer.cxx>source</a>,
+<a href=../src/MdtDigitContainer_t.cxx>test</a>)
+</H3>
+Container for MDT digits.
+
+<H3>
+RpcDigit (<a href=../MuonDigitContainer/RpcDigit.h>header</a>,
+<a href=../src/RpcDigit.cxx>source</a>,
+<a href=../src/RpcDigit_t.cxx>test</a>)
+</H3>
+RPC digit.
+
+<P>
+<HR><A HREF=mailto:dladams@bnl.gov>dladams@bnl.gov</A></P>
+</body>
+</html>
