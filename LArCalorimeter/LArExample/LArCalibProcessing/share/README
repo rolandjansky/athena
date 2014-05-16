@@ -1,0 +1,26 @@
+==============================================================================
+LArCalibProcessing jobOptions (last update: 08/05/2008)
+==============================================================================
+
+* 'P3C' jobOptions:
+
+These are the most up-to-date jobOptions fragments for all the
+electronics calibration jobs (the ones you should use!). The
+Electronic Calibration developers are taking care to migrate them to
+the latest reelase, see the following list for compatibility.
+
+Please note that all these jobOptions file are NOT supposed to
+modified directly: all default settings can be externally set on the
+Athena command line, or trough a topOptions file. Examples for the
+different jobs are provided, please refer to them for guidelines.
+
+* 'CTB04' jobOptions:
+
+These are still here for hystorical reasons, even if they are
+certainly outdated and might not run on latest releases.
+
+* 'Example' jobOptions:
+
+There are 'uncommon' jobOptions documenting the possibile use cases of
+special algorithms. They might well be outdated.
+
