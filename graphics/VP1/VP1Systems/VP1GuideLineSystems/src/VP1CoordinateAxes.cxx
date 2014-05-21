@@ -14,7 +14,6 @@
 
 #include "VP1GuideLineSystems/VP1CoordinateAxes.h"
 #include "VP1Base/VP1QtUtils.h"
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoCylinder.h>

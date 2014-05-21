@@ -19,7 +19,6 @@
 
 #include "VP1Base/VP1Controller.h"
 #include "VP1Utils/InDetProjFlags.h"
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbColor4f.h>
 class SoMaterial;
 
