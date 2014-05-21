@@ -1,0 +1,139 @@
+<ui version="4.0" >
+ <class>VP1TrackingVolumesForm</class>
+ <widget class="QWidget" name="VP1TrackingVolumesForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>236</width>
+    <height>158</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <layout class="QGridLayout" name="gridLayout" >
+     <item row="0" column="0" >
+      <widget class="QCheckBox" name="checkBox_ID" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="toolTip" >
+        <string>More formally, in the TrackingVolumes service, this is known as the CalorimeterEntryLayer</string>
+       </property>
+       <property name="text" >
+        <string>Inner Detector</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="VP1MaterialButton" name="matButton_ID" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QCheckBox" name="checkBox_Calo" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="text" >
+        <string>Calorimeters</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="VP1MaterialButton" name="matButton_Calo" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" >
+      <widget class="QCheckBox" name="checkBox_MS" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="text" >
+        <string>MuonSpectrometer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" >
+      <widget class="VP1MaterialButton" name="matButton_MS" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="_2" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>1</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1MaterialButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1MaterialButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

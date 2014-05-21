@@ -1,0 +1,294 @@
+<ui version="4.0" >
+ <class>VP1GuidesSysSettingsFloorAndLettersForm</class>
+ <widget class="QWidget" name="VP1GuidesSysSettingsFloorAndLettersForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>283</width>
+    <height>188</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QGroupBox" name="groupBox_3" >
+     <property name="title" >
+      <string>Floor/Letters</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>4</number>
+      </property>
+      <property name="topMargin" >
+       <number>4</number>
+      </property>
+      <property name="rightMargin" >
+       <number>4</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>4</number>
+      </property>
+      <item row="0" column="0" >
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QCheckBox" name="checkBox_floorenabled" >
+          <property name="text" >
+           <string>Floor</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="VP1ColorSelectButton" name="colorButton_floor" >
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_12" >
+            <property name="text" >
+             <string>Transp.:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox_floortransp" >
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="suffix" >
+             <string> %</string>
+            </property>
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>5</number>
+            </property>
+            <property name="value" >
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" colspan="2" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>1</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="2" >
+       <layout class="QHBoxLayout" >
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="checkBox_acdesignations" >
+            <property name="text" >
+             <string>A+C letters</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="VP1MaterialButton" name="matButton_letters" >
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_9" >
+            <property name="text" >
+             <string>Height:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_floorheight" >
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="suffix" >
+             <string> m</string>
+            </property>
+            <property name="minimum" >
+             <double>-99.989999999999995</double>
+            </property>
+            <property name="value" >
+             <double>-11.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="2" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>1</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="0" colspan="3" >
+       <layout class="QHBoxLayout" >
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_8" >
+            <property name="text" >
+             <string>Spacing:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_floorspacing" >
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="suffix" >
+             <string> m</string>
+            </property>
+            <property name="minimum" >
+             <double>0.010000000000000</double>
+            </property>
+            <property name="maximum" >
+             <double>40.000000000000000</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.250000000000000</double>
+            </property>
+            <property name="value" >
+             <double>2.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
+             <string>Extent:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_floorextent" >
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="suffix" >
+             <string> m</string>
+            </property>
+            <property name="minimum" >
+             <double>1.000000000000000</double>
+            </property>
+            <property name="value" >
+             <double>16.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>1</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1MaterialButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1MaterialButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>VP1ColorSelectButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1ColorSelectButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

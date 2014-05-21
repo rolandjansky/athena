@@ -1,0 +1,308 @@
+<ui version="4.0" >
+ <class>VP1GuidesSysSettingsEtaConeForm</class>
+ <widget class="QWidget" name="VP1GuidesSysSettingsEtaConeForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>220</width>
+    <height>211</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>Cones of constant eta</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>4</number>
+      </property>
+      <property name="topMargin" >
+       <number>4</number>
+      </property>
+      <property name="rightMargin" >
+       <number>4</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>4</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>4</number>
+      </property>
+      <item row="0" column="0" >
+       <layout class="QVBoxLayout" >
+        <property name="spacing" >
+         <number>2</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>3</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="checkBox_etacone1" >
+              <property name="text" >
+               <string>eta =</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_etaval1" >
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="minimum" >
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum" >
+               <double>10.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value" >
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="VP1MaterialButton" name="matButton_etaCone1" >
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>3</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="checkBox_etacone2" >
+              <property name="text" >
+               <string>eta =</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_etaval2" >
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="minimum" >
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum" >
+               <double>10.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value" >
+               <double>2.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="VP1MaterialButton" name="matButton_etaCone2" >
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="spacing" >
+           <number>3</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="checkBox_etacone3" >
+              <property name="text" >
+               <string>eta =</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_etaval3" >
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="minimum" >
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum" >
+               <double>10.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value" >
+               <double>3.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="VP1MaterialButton" name="matButton_etaCone3" >
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>16</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="2" >
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QLabel" name="label_6" >
+          <property name="text" >
+           <string>Extent:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_etaconeextent" >
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="suffix" >
+           <string> m</string>
+          </property>
+          <property name="minimum" >
+           <double>0.010000000000000</double>
+          </property>
+          <property name="singleStep" >
+           <double>0.250000000000000</double>
+          </property>
+          <property name="value" >
+           <double>4.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_etaconeextentisr" >
+          <property name="text" >
+           <string>r</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_etaconeextentisz" >
+          <property name="text" >
+           <string>Z</string>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>1</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1MaterialButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1MaterialButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
