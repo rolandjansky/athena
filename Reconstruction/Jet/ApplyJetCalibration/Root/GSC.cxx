@@ -27,15 +27,15 @@
 #include <TObjString.h>
 
 GSCTool::GSCTool()
-  :   _binSize(0.1), _trackWIDTHMaxEtaBin(25), _nTrkMaxEtaBin(25), _Tile0MaxEtaBin(17), _EM3MaxEtaBin(35), _etaGapMin(0), _etaGapMax(0), _punchThroughMinPt(50)
+  :   _binSize(0.1), _depth(0), _trackWIDTHMaxEtaBin(25), _nTrkMaxEtaBin(25), _Tile0MaxEtaBin(17), _EM3MaxEtaBin(35), _etaGapMin(0), _etaGapMax(0), _punchThroughMinPt(50)
 {
 
 }
 
-GSCTool::GSCTool(TString jetAlgo, TString GSCFactorsFile)
-  :   _binSize(0.1), _trackWIDTHMaxEtaBin(25), _nTrkMaxEtaBin(25), _Tile0MaxEtaBin(17), _EM3MaxEtaBin(35), _etaGapMin(0), _etaGapMax(0), _punchThroughMinPt(50)
+GSCTool::GSCTool(TString jetAlgo, TString GSCFactorsFile, TString DepthString)
+  :   _binSize(0.1), _depth(0), _trackWIDTHMaxEtaBin(25), _nTrkMaxEtaBin(25), _Tile0MaxEtaBin(17), _EM3MaxEtaBin(35), _etaGapMin(0), _etaGapMax(0), _punchThroughMinPt(50)
 {
-  initGSC(jetAlgo, GSCFactorsFile);
+  initGSC(jetAlgo, GSCFactorsFile, DepthString);
 }
 
 GSCTool::~GSCTool()
@@ -97,40 +97,47 @@ double GSCTool::GetPunchThroughResponse(double E, double eta_det, int Nsegments)
     if(eta_det >= _punchThroughEtaBins[i] && eta_det < _punchThroughEtaBins[i+1]) etabin = i;
   }
   if(etabin<0) error("There was a problem determining the eta bin to use for the punch through correction.");
-  double PunchThroughResponse = ReadPtjetPropertyHisto(E,Nsegments,_respFactorsPunchThrough[etabin]);
+  double PunchThroughResponse = ReadPtjetPropertyHisto(E,log(Nsegments),_respFactorsPunchThrough[etabin]);
   if ( PunchThroughResponse > 1 ) return 1;
   return PunchThroughResponse;
 }
 
 double GSCTool::GetGSCCorrection(TLorentzVector jet, double eta, 
-				 double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, 
-				 int depth) {
+				 double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments) {
   //eta bins have size _binSize=0.1 and are numbered sequentially from 0, so |eta|=2.4 is in eta bin #24
   int etabin = eta/_binSize;
   double Corr=1;
   //Using bit sequence check to determine which GS corrections to apply.
-  if(depth & ApplyTile0)      Corr*=1./GetTile0Response(jet.Pt(), etabin, Tile0);
-  if(depth & ApplyEM3)        Corr*=1./GetEM3Response(jet.Pt()*Corr, etabin, EM3);
-  if(depth & ApplynTrk)       Corr*=1/GetnTrkResponse(jet.Pt()*Corr, etabin, nTrk);
-  if(depth & ApplytrackWIDTH) Corr*=1/GettrackWIDTHResponse(jet.Pt()*Corr,etabin,trackWIDTH); 
+  if (_depth & ApplyTile0)      Corr*=1./GetTile0Response(jet.Pt(), etabin, Tile0);
+  if (_depth & ApplyEM3)        Corr*=1./GetEM3Response(jet.Pt()*Corr, etabin, EM3);
+  if (_depth & ApplynTrk)       Corr*=1/GetnTrkResponse(jet.Pt()*Corr, etabin, nTrk);
+  if (_depth & ApplytrackWIDTH) Corr*=1/GettrackWIDTHResponse(jet.Pt()*Corr,etabin,trackWIDTH); 
   if ( jet.Pt() < _punchThroughMinPt ) return Corr; //Applying punch through correction to low pT jets introduces a bias, default threshold is 50 GeV
   //eta binning for the punch through correction differs from the rest of the GSC, so the eta bin is determined in the GetPunchThroughResponse method
-  else if(depth & ApplyPunchThrough) {
+  else if (_depth & ApplyPunchThrough) {
     jet*=Corr; //The punch through correction is binned in E instead of pT, so we determine E from the corrected jet here
     Corr*=1/GetPunchThroughResponse(jet.E(),eta,Nsegments);
   }
   return Corr;
 }
 
-void GSCTool::initGSC(TString jetAlgo, TString GSCFile) {
+void GSCTool::initGSC(TString jetAlgo, TString GSCFile, TString DepthString) {
 
-  if(GSCFile=="") error("No GSC factors file specified.");
-  if(jetAlgo=="") error("No jet algorithm specified.");
+  if (GSCFile=="") error("No GSC factors file specified.");
+  if (jetAlgo=="") error("No jet algorithm specified.");
 
   printf("\n\n");
   printf("===================================\n\n");
   printf("  Initializing the Global Sequential Calibration tool\n");
   printf("  for %s jets\n\n",jetAlgo.Data());
+
+  //set the depth private variable, used to determine which parts of the GS calibration are applied
+      if ( DepthString.Contains("PunchThrough") || DepthString.Contains("Full") ) _depth = ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH | ApplyPunchThrough;
+      else if ( DepthString.Contains("trackWIDTH") ) _depth = ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH;
+      else if ( DepthString.Contains("nTrk") ) _depth = ApplyTile0 | ApplyEM3 | ApplynTrk;
+      else if ( DepthString.Contains("EM3") ) _depth = ApplyTile0 | ApplyEM3;
+      else if ( DepthString.Contains("Tile0") ) _depth = ApplyTile0;
+      else error("GSCDepth flag not properly set, please check your config file.");
 
   //find the ROOT file containing response histograms, path comes from the config file.
   TString fn = FindFile(GSCFile);
@@ -144,25 +151,26 @@ void GSCTool::initGSC(TString jetAlgo, TString GSCFile) {
   std::vector<TString> histoNames;
   //fill the names of the TKeys into a vector of TStrings
   TIter ikeys(keys);
-  while(TKey *iterobj = (TKey*)ikeys()) { histoNames.push_back(iterobj->GetName()); }
+  while ( TKey *iterobj = (TKey*)ikeys() ) { histoNames.push_back( iterobj->GetName() ); }
 
   //Grab the TH2Fs from the ROOT file and put them into a vectors of TH2Fs
-  for(uint ihisto=0; ihisto<histoNames.size(); ++ihisto) {
-    if(!histoNames[ihisto].Contains(jetAlgo.Data())) continue;
-    else if(ihisto>0 && histoNames[ihisto].Contains(histoNames[ihisto-1].Data())) continue;
-    else if(histoNames[ihisto].Contains("EM3") && _respFactorsEM3.size() < _EM3MaxEtaBin) _respFactorsEM3.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
-    else if(histoNames[ihisto].Contains("nTrk") && _respFactorsnTrk.size() < _nTrkMaxEtaBin) _respFactorsnTrk.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
-    else if(histoNames[ihisto].Contains("Tile0") && _respFactorsTile0.size() < _Tile0MaxEtaBin) _respFactorsTile0.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
-    else if(histoNames[ihisto].Contains("trackWIDTH") && _respFactorstrackWIDTH.size() < _trackWIDTHMaxEtaBin) _respFactorstrackWIDTH.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
-    else if(histoNames[ihisto].Contains("PunchThrough") ) _respFactorsPunchThrough.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
+  for (uint ihisto=0; ihisto<histoNames.size(); ++ihisto) {
+    if ( !histoNames[ihisto].Contains( jetAlgo.Data() ) ) continue;
+    else if ( ihisto>0 && histoNames[ihisto].Contains( histoNames[ihisto-1].Data() ) ) continue;
+    else if ( histoNames[ihisto].Contains("EM3") && _respFactorsEM3.size() < _EM3MaxEtaBin) _respFactorsEM3.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
+    else if ( histoNames[ihisto].Contains("nTrk") && _respFactorsnTrk.size() < _nTrkMaxEtaBin) _respFactorsnTrk.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
+    else if ( histoNames[ihisto].Contains("Tile0") && _respFactorsTile0.size() < _Tile0MaxEtaBin) _respFactorsTile0.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
+    else if ( histoNames[ihisto].Contains("trackWIDTH") && _respFactorstrackWIDTH.size() < _trackWIDTHMaxEtaBin) _respFactorstrackWIDTH.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
+    else if ( histoNames[ihisto].Contains("PunchThrough") ) _respFactorsPunchThrough.push_back( (TH2F*)GetHisto(inputFile,histoNames[ihisto]) );
   }
 
   //Make sure we put something in the vectors of TH2Fs
-  if(_respFactorsEM3.size()<3) error("Vector of EM3 histograms may be empty. Please check your GSCFactors file: "+GSCFile);
-  else if(_respFactorsnTrk.size()<3) error("Vector of nTrk histograms may be empty. Please check your GSCFactors file: "+GSCFile);
-  else if(_respFactorsTile0.size()<3) error("Vector of Tile0 histograms may be empty. Please check your GSCFactors file: "+GSCFile);
-  else if(_respFactorstrackWIDTH.size()<3) error("Vector of trackWIDTH histograms may be empty. Please check your GSCFactors file: "+GSCFile);
-  else printf("\n  GSC Tool has been initialized with binning and eta fit factors from %s\n", fn.Data());
+  if ( (_depth & ApplyEM3) && _respFactorsEM3.size() < 3 ) error("Vector of EM3 histograms may be empty. Please check your GSCFactors file: "+GSCFile);
+  else if ( (_depth & ApplynTrk) &&_respFactorsnTrk.size() < 3 ) error("Vector of nTrk histograms may be empty. Please check your GSCFactors file: "+GSCFile);
+  else if ( (_depth & ApplyTile0) && _respFactorsTile0.size() < 3 ) error("Vector of Tile0 histograms may be empty. Please check your GSCFactors file: "+GSCFile);
+  else if ( (_depth & ApplytrackWIDTH) && _respFactorstrackWIDTH.size() < 3 ) error("Vector of trackWIDTH histograms may be empty. Please check your GSCFactors file: "+GSCFile);
+  else if ( (_depth & ApplyPunchThrough) && _respFactorsPunchThrough.size() < 2 ) error("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: "+GSCFile);
+  else printf ("\n  GSC Tool has been initialized with binning and eta fit factors from %s\n", fn.Data());
 
 }
 

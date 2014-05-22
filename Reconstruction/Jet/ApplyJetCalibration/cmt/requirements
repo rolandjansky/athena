@@ -14,19 +14,19 @@ private
 #use JetEvent        JetEvent-*        Reconstruction/Jet
 use AthenaKernel        AthenaKernel-*          Control
 use GaudiInterface	GaudiInterface-*	External 
+use VxVertex		VxVertex-*		Tracking/TrkEvent
 use EventInfo         EventInfo-*             Event
 
 
-#use JetUtils        JetUtils-*        Reconstruction/Jet
+use JetUtils        JetUtils-*        Reconstruction/Jet
 use  PathResolver               PathResolver-*                  Tools
 
 use AsgTools            AsgTools-*              Control/AthToolSupport
 # use xAODJet            xAODJet-*            Event/xAOD
 use JetInterface        JetInterface-*          Reconstruction/Jet
-use xAODTracking         xAODTracking-*            Event/xAOD 
 
 public
-#use JetCalibTools   JetCalibTools-*   Reconstruction/Jet
+use JetCalibTools   JetCalibTools-*   Reconstruction/Jet
 
 ## macros
 apply_tag       ROOTBasicLibs
@@ -44,7 +44,7 @@ branches ApplyJetCalibration src doc python share Root data
 # apply_pattern component_library
 # 
 
-apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+#apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
 
 apply_pattern declare_joboptions files="*.py"

@@ -27,7 +27,7 @@ class GSCTool : public TNamed {
  public:
 
   GSCTool();
-  GSCTool(TString jetAlgo, TString GSCFactorsFile);
+  GSCTool(TString jetAlgo, TString GSCFactorsFile, TString DepthString = "Full"); //Apply the full GS calibration by default
   virtual ~GSCTool();
 
 #ifdef ROOTCORE
@@ -42,7 +42,8 @@ class GSCTool : public TNamed {
   enum _GSCseq { ApplyTile0 = 1, ApplyEM3 = 2, ApplynTrk = 4, ApplytrackWIDTH = 8, ApplyPunchThrough = 16 };
   //end shared typedefs
 
-  void initGSC(TString jetAlgo, TString GSCFile);
+  void initGSC(TString jetAlgo, TString GSCFile,
+	       TString DepthString);
 
   double GettrackWIDTHResponse(double pT, uint etabin, double trackWIDTH);
   double GetnTrkResponse(double pT, uint etabin, double nTrk);
@@ -51,8 +52,7 @@ class GSCTool : public TNamed {
   double GetPunchThroughResponse(double E, double eta_det, int Nsegments);
 
   double GetGSCCorrection(TLorentzVector jet, double eta,
-			  double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments,
-			  int depth = ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH | ApplyPunchThrough);
+			  double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments);
 
   double GetjetPropertyMax(TString jetPropName, unsigned int etabin) {
     if ( jetPropName.Contains("EM3") && etabin < _EM3MaxEtaBin ) return _respFactorsEM3[etabin]->GetYaxis()->GetXmax();
@@ -103,7 +103,7 @@ class GSCTool : public TNamed {
   VecTH2F _respFactorsEM3, _respFactorsnTrk, _respFactorstrackWIDTH, _respFactorsTile0, _respFactorsPunchThrough;
 
   double _binSize;
-  uint _trackWIDTHMaxEtaBin, _nTrkMaxEtaBin, _Tile0MaxEtaBin, _EM3MaxEtaBin;
+  uint _depth, _trackWIDTHMaxEtaBin, _nTrkMaxEtaBin, _Tile0MaxEtaBin, _EM3MaxEtaBin;
   double _etaGapMin, _etaGapMax;
   VecD _punchThroughEtaBins;
   double _punchThroughMinPt;

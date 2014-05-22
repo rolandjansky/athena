@@ -2,21 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ApplyJetCalibrationAthena.h"
+#include "JetUtils/JetSignalStateHelper.h"
+#include "ApplyJetCalibration/ApplyJetCalibrationAthena.h"
 #include "AthenaKernel/errorcheck.h"
+#include "VxVertex/VxContainer.h"
 #include "PathResolver/PathResolver.h"
-#include "xAODTracking/VertexContainer.h"
 
 #include "EventInfo/EventInfo.h"
 
-ApplyJetCalibrationAthena::ApplyJetCalibrationAthena( const std::string& n ) :   asg::AsgTool(n)
+ApplyJetCalibrationAthena::ApplyJetCalibrationAthena( const std::string& s1, const std::string& s2, const IInterface* i ) :
+  JetCalibratorAthena(s1,s2,i)
 {
   declareProperty("AlgoType", m_algoType);
   declareProperty("ConfigFile", m_configfile);
   declareProperty("RhoKey", m_rhoKey="ClusterRhoKt4EM");
   declareProperty("IsData", m_isData);
   declareProperty("OnlyOffsetSubstraction", m_onlyOffset=false);
-  declareProperty("VertexContainer", m_vtxContName="PrimaryVertices");
 
 }
 
@@ -31,59 +32,70 @@ StatusCode ApplyJetCalibrationAthena::initialize() {
   return StatusCode::SUCCESS;
 }
 
-int ApplyJetCalibrationAthena::modify(xAOD::JetContainer& jets) const {
-
-  double rho = 0;
-  int npv=0;
-  double mu=0;
-
-  StatusCode sc = userStore()->retrieve( m_rhoKey, rho);
+StatusCode ApplyJetCalibrationAthena::initializeEvent()  {
+  m_rho = 0;
+  StatusCode sc = userStore()->retrieve( m_rhoKey, m_rho);
   if (sc.isFailure() ) ATH_MSG_WARNING(" Rho is 0 for "<< m_rhoKey);
 
-  const xAOD::VertexContainer * vtxCont = 0;
-  sc = evtStore()->retrieve(vtxCont, m_vtxContName) ;
+  const VxContainer * vtxCont = 0;
+  sc = evtStore()->retrieve(vtxCont, "VxPrimaryCandidate") ;
   if (sc.isFailure() ) ATH_MSG_WARNING(" no Primary Vertex ");
   else {
-    npv = 0;
-    for (auto vtxIter = vtxCont->begin(); vtxIter != vtxCont->end(); ++vtxIter) { 
-      if((*vtxIter)->nTrackParticles() >= 2)  npv++;
+    m_npv = 0;
+    for (VxContainer::const_iterator vtxIter(vtxCont->begin()); 
+         vtxIter != vtxCont->end(); ++vtxIter) { 
+      if((*vtxIter)->vxTrackAtVertex()->size() >= 2)  m_npv++;
     }
   }
-  ATH_MSG_DEBUG( " initializeEvent : rho="<<rho <<"  npv="<<npv);
+  ATH_MSG_DEBUG( " initializeEvent : rho="<<m_rho <<"  npv="<<m_npv);
   const EventInfo* eventInfo;
-  sc = evtStore()->retrieve( eventInfo ) ;
-  if(sc.isFailure() ) {ATH_MSG_ERROR("Cant retrieve EventInfo"); return 0;}
-  mu = eventInfo->averageInteractionsPerCrossing();
+  CHECK( evtStore()->retrieve( eventInfo ) );
+  m_mu = eventInfo->averageInteractionsPerCrossing();
 
-
-  // Iterate over jets :
-  for ( xAOD::Jet* pjet : jets ) {
-    xAOD::JetFourMom_t fv = pjet->jetP4(xAOD::JetConstitScaleMomentum);
-    double eraw = fv.E();
-    double eta  = fv.Eta();
-    double phi  = fv.Phi();
-    double m    = fv.M();
-    xAOD::JetFourMom_t varea = pjet->getAttribute<xAOD::JetFourMom_t>("ActiveArea4vec");
-    double Ax   = varea.Px();
-    double Ay   = varea.Py();
-    double Az   = varea.Pz();
-    double Ae   = varea.E();
-    TLorentzVector jetfv;  
-    if ( m_onlyOffset ) {
-      jetfv = m_applyJES->ApplyJetAreaOffset(eraw,eta,phi,m,Ax,Ay,Az,Ae,rho,mu,npv);
-    } else {
-      // intermediary step to compute the jes factor
-      jetfv = m_applyJES->ApplyJetAreaOffsetOrigin(eraw,eta,phi,eta,phi,m,Ax,Ay,Az,Ae,rho,mu,npv);
-      double jes = m_applyJES->GetJES(jetfv.E(), eta);
-      pjet->setAttribute<float>("JES", jes);
-      jetfv = m_applyJES->ApplyJetAreaOffsetEtaJES(eraw,eta,phi,m,Ax,Ay,Az,Ae,rho,mu,npv);
-    }
-    ATH_MSG_DEBUG("rho,mu,npv" << rho<< "," << mu<< "," <<npv << " | jet at ("
-                  << eta << "," << phi << ") " << eraw << " Ax=" << Ax << " Ae=" << Ae
-                  << " | cal E=" << jetfv.E() << "  Eta=" << jetfv.Eta());
-    pjet->setJetP4(xAOD::JetFourMom_t(jetfv.Pt(), jetfv.Eta(), jetfv.Phi(), jetfv.M() ) );
-  }
-
-  return 1;
+  return StatusCode::SUCCESS;
 }
 
+
+bool ApplyJetCalibrationAthena::compute_corrections(const Jet* jet_in ){
+
+
+  JetSignalStateHelper sh(jet_in, P4SignalState::JETCONSTITUENTSCALE);
+  double Eraw    = jet_in->e();
+  double eta     = jet_in->eta();
+  double phi     = jet_in->phi();
+  double m       = jet_in->m();
+  double Ax      = jet_in->getMoment("ActiveAreaPx");
+  double Ay      = jet_in->getMoment("ActiveAreaPy");
+  double Az      = jet_in->getMoment("ActiveAreaPz");
+  double Ae      = jet_in->getMoment("ActiveAreaE");
+
+
+  
+  TLorentzVector jet;  
+
+  if(m_onlyOffset) jet= m_applyJES->ApplyJetAreaOffset(Eraw,eta,phi,m,Ax,Ay,Az,Ae,m_rho,m_mu,m_npv);
+  else{
+    // intermediary step to compute the jes factor
+    jet= m_applyJES->ApplyJetAreaOffsetOrigin(Eraw,eta,phi,eta,phi,m,Ax,Ay,Az,Ae,m_rho,m_mu,m_npv);
+    double jes =  m_applyJES->GetJES(jet.E(),eta);
+    jet_in->setMoment("JES",jes);
+    jet= m_applyJES->ApplyJetAreaOffsetEtaJES(Eraw,eta,phi,m,Ax,Ay,Az,Ae,m_rho,m_mu,m_npv);
+  }
+
+  ATH_MSG_DEBUG("rho,mu,npv"<< m_rho<< ","<< m_mu<< ","<<m_npv<< " | jet at ("<< eta << ","<<phi<<") "<<Eraw << " Ax="<<Ax<< " Ae="<<Ae << " | cal E="<< jet.E()<<"  Eta="<<jet.Eta());
+  m_corrections.clear();
+  m_corrections.push_back(jet.Px());
+  m_corrections.push_back(jet.Py());
+  m_corrections.push_back(jet.Pz());
+  m_corrections.push_back(jet.E());
+
+  return true;
+
+}
+
+bool ApplyJetCalibrationAthena::correct_4mom( Jet* jet_in ){
+  
+  Jet::hlv_t hlv(m_corrections[0],m_corrections[1],m_corrections[2],m_corrections[3]);
+  jet_in->set4Mom(hlv);
+  return true;
+}

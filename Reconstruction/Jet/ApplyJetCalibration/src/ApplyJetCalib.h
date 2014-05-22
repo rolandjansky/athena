@@ -15,13 +15,13 @@
 
 class Jet;
 
-class ApplyJetCalibrationAthena : 
+class ApplyJetCalib : 
   public asg::AsgTool ,
   virtual public IJetModifier 
 {
-  ASG_TOOL_CLASS(ApplyJetCalibrationAthena, IJetModifier)
+  ASG_TOOL_CLASS(ApplyJetCalib, IJetModifier)
 public:
-  ApplyJetCalibrationAthena( const std::string& s1 ) ;  
+  ApplyJetCalib( const std::string& s1 ) ;  
 
 
   virtual StatusCode initialize()  ;
@@ -39,7 +39,6 @@ protected:
   JetAnalysisCalib::JetCalibrationTool *m_applyJES;
 
 
-  std::string m_vtxContName;
   std::string m_algoType;
   std::string m_configfile;
   std::string m_rhoKey;

@@ -19,7 +19,6 @@
 #pragma link C++ class JetAnalysisCalib::JetCalibrationTool+;
 #pragma link C++ class GSCTool+;
 #pragma link C++ class NPVBeamspotCorrectionTool+;
-#pragma link C++ class KojiOriginCorrectionTool+;
 
 #endif
 

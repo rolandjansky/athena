@@ -17,7 +17,6 @@
 #include "Root/ApplyJetCalibration.cxx"
 #include "Root/GSC.cxx"
 #include "Root/NPVBeamspotCorrection.cxx"
-#include "Root/KojiOriginCorrection.cxx"
 
 /*
  *   This macro draws the the varios jet calibration correction factors versus jet energy, eta, etc.

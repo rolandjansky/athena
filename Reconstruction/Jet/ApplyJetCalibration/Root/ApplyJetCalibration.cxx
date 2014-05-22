@@ -26,7 +26,7 @@ namespace JetAnalysisCalib {
       _mu_ref(0), _NPV_ref(1), _offsetBins(0), _resOffsetBins(0),
       _offsetDesc(""), _resOffsetDesc(""), _basePath(dir), _GeV(1000),
       _insituCorr(0),_insituEtaMax(0),_insituPtMin(0),_insituPtMax(3000),
-      _gsc(0), _npv(0), _muSF(1.0), _kojiorigin(0), _rand(0)
+      _gsc(0), _npv(0), _muSF(1.0), _rand(0)
   {
     init(jetAlgo,JESsettingFile,isData); 
   }
@@ -37,7 +37,7 @@ namespace JetAnalysisCalib {
     _mu_ref(0), _NPV_ref(1), _offsetBins(0), _resOffsetBins(0),
     _offsetDesc(""), _resOffsetDesc(""), _basePath(""), 
     _GeV(1000), _insituCorr(0),_insituEtaMax(0),_insituPtMin(0),_insituPtMax(3000),
-    _useFullJetArea4vectorCorr(0),_gsc(0), _npv(0), _muSF(1.0), _kojiorigin(0), _rand(0) { }
+    _useFullJetArea4vectorCorr(0),_gsc(0), _npv(0), _muSF(1.0), _rand(0) { }
 
   JetCalibrationTool::~JetCalibrationTool() {
   
@@ -46,7 +46,6 @@ namespace JetAnalysisCalib {
     if(_offsetBins) delete _offsetBins;
     if(_gsc) delete _gsc;
     if(_npv) delete _npv;
-    if(_kojiorigin) delete _kojiorigin;
     if(_rand) delete _rand;
   
   }
@@ -139,7 +138,7 @@ namespace JetAnalysisCalib {
     //Apply the global sequential calibration correction if it was requested in the config file
     //Note: for now it expects to receive pT in GeV, hence feed it pT_corr/_GeV 
     jet.SetPtEtaPhiM(jet.Pt()/_GeV,jet.Eta(),jet.Phi(),jet.M()/_GeV);
-    return _gsc->GetGSCCorrection(jet, fabs(eta_det), trackWIDTH, nTrk, Tile0, EM3, Nsegments, _GSCDepth);
+    return _gsc->GetGSCCorrection(jet, fabs(eta_det), trackWIDTH, nTrk, Tile0, EM3, Nsegments);
   }
 
   double JetCalibrationTool::GetLogPolN(const double *factors, double x) {
@@ -283,11 +282,11 @@ namespace JetAnalysisCalib {
   TLorentzVector  JetCalibrationTool::ApplyJetAreaOffset( double E_det, double eta_det, double phi_det, double m_det,
 							  double Ax, double Ay, double Az, double Ae, double rho,
 							  double mu, double NPV) {
-    return ApplyJetAreaOffsetOrigin(E_det,eta_det,phi_det,eta_det,phi_det,m_det,Ax,Ay,Az,Ae,rho,mu,NPV);
+    return ApplyJetAreaOffsetOrigin(E_det,eta_det,phi_det,m_det,eta_det,phi_det,m_det,Ax,Ay,Az,Ae,rho,mu,NPV);
   }
 
   // Same as above, but also applies the origin correction
-  TLorentzVector  JetCalibrationTool::ApplyJetAreaOffsetOrigin( double E_det, double eta_det, double /*phi_det*/,
+  TLorentzVector  JetCalibrationTool::ApplyJetAreaOffsetOrigin( double E_det, double eta_det, double phi_det, double mass_uncorr,
 								double eta_origin, double phi_origin, double m_origin,
 								double Ax, double Ay, double Az, double Ae, double rho,
 								double mu, double NPV) {
@@ -297,13 +296,15 @@ namespace JetAnalysisCalib {
 		 method.Data(),m_origin/_GeV,E_det/_GeV));
 
     // calculate the pT using the origin corrected variables
-    double pT = sqrt(E_det*E_det - m_origin*m_origin)/cosh(eta_origin);
+    double pT_origin = sqrt(E_det*E_det - m_origin*m_origin)/cosh(eta_origin);
+    double pT = sqrt(E_det*E_det - mass_uncorr*mass_uncorr)/cosh(eta_det);
 
     TLorentzVector jet, jetArea;
-    jet.SetPtEtaPhiM(pT,eta_origin,phi_origin,m_origin);
+    jet.SetPtEtaPhiM(pT,eta_det,phi_det,mass_uncorr);
     jetArea.SetPxPyPzE(Ax,Ay,Az,Ae);
  
     // Full jet area 4 vector correction -- not implemented yet
+    // REMINDER: The origin correction won't work in the current implementation of the jet area 4 vector correction.
     if ( _useFullJetArea4vectorCorr ) {
 	jet -= rho*jetArea;
 	jet *= GetResidualOffsetSF(jet.Pt(),eta_det,mu,NPV);
@@ -317,6 +318,7 @@ namespace JetAnalysisCalib {
     // "Normal" offset correction, applied as scale factor. 2012 default
     double pT_offset_corr = pT - rho*jetArea.Pt() - GetResidualOffset(eta_det,mu,NPV);
     double offset_SF = pT_offset_corr >=0 ? pT_offset_corr / pT: 0.01*_GeV/pT;
+    jet.SetPtEtaPhiM(pT_origin,eta_origin,phi_origin,m_origin);
     jet*=offset_SF;
     return jet;
   }
@@ -329,16 +331,16 @@ namespace JetAnalysisCalib {
 							       double Ax, double Ay, double Az, double Ae, double rho,
 							       double mu, double NPV) {
     // Uses const-scale eta,phi,m as "origin corrected" ones
-    return ApplyJetAreaOffsetOriginEtaJES(E_det,eta_det,phi_det,eta_det,phi_det,m_det,Ax,Ay,Az,Ae,rho,mu,NPV);
+    return ApplyJetAreaOffsetOriginEtaJES(E_det,eta_det,phi_det,m_det,eta_det,phi_det,m_det,Ax,Ay,Az,Ae,rho,mu,NPV);
   }
 
   // Same as above, but also applies the origin correction
-  TLorentzVector  JetCalibrationTool::ApplyJetAreaOffsetOriginEtaJES( double E_det, double eta_det, double phi_det,
+  TLorentzVector  JetCalibrationTool::ApplyJetAreaOffsetOriginEtaJES( double E_det, double eta_det, double phi_det, double mass_uncorr,
 								      double eta_origin, double phi_origin, double m_origin,
 								      double Ax, double Ay, double Az, double Ae, double rho,
 								      double mu, double NPV) {
 
-    TLorentzVector jet = ApplyJetAreaOffsetOrigin(E_det,eta_det,phi_det,
+    TLorentzVector jet = ApplyJetAreaOffsetOrigin(E_det,eta_det,phi_det,mass_uncorr,
 						  eta_origin,phi_origin,m_origin,
 						  Ax,Ay,Az,Ae,rho,mu,NPV);
 						
@@ -386,26 +388,7 @@ namespace JetAnalysisCalib {
     return jet;
   }
 
-  //Applies the GSC correction after the Jet area + residual offset, JES, and origin corrections
   TLorentzVector JetCalibrationTool::ApplyJetAreaOffsetOriginEtaJESGSC( double E_uncorr, double eta_det, double phi, double mass_uncorr,
-									double Ax, double Ay, double Az, double Ae, double rho,
-									TVector3 PV, int samplingMax,
-									double trackWIDTH, double nTrk, double Tile0, double EM3, double Nsegments,
-									double mu, double NPV) {
-
-    TH2D *insituCorr_orig = _insituCorr;
-    _insituCorr = 0; //GSC doesn't take insitu correction into account yet, so we make sure it doesn't get applied.
-    TLorentzVector jet = ApplyJetAreaOffsetEtaJES(E_uncorr, eta_det, phi, mass_uncorr, Ax, Ay, Az, Ae, rho, mu, NPV);
-    _insituCorr = insituCorr_orig;
-
-    jet = ApplyKojiOriginCorrection(jet,PV,samplingMax);
-    jet *= GetGSC(jet, eta_det, trackWIDTH, nTrk, Tile0, EM3, Nsegments);
-    if ( _isData && _insituCorr ) jet *= GetInsituCorr(jet.Pt(),eta_det);
-
-    return jet;
-  }
-
-  TLorentzVector JetCalibrationTool::ApplyJetAreaOffsetOriginEtaJESGSC( double E_uncorr, double eta_det, double phi,
 									double eta_origin, double phi_origin, double m_origin,
 									double Ax, double Ay, double Az, double Ae, double rho,
 									double trackWIDTH, double nTrk, double Tile0, double EM3, double Nsegments,
@@ -413,7 +396,7 @@ namespace JetAnalysisCalib {
 
     TH2D *insituCorr_orig = _insituCorr;
     _insituCorr = 0; //GSC doesn't take insitu correction into account yet, so we make sure it doesn't get applied.
-    TLorentzVector jet = ApplyJetAreaOffsetOriginEtaJES(E_uncorr, eta_det, phi, eta_origin, phi_origin, m_origin, Ax, Ay, Az, Ae, rho, mu, NPV);
+    TLorentzVector jet = ApplyJetAreaOffsetOriginEtaJES(E_uncorr, eta_det, phi, mass_uncorr, eta_origin, phi_origin, m_origin, Ax, Ay, Az, Ae, rho, mu, NPV);
     _insituCorr = insituCorr_orig;
     jet *= GetGSC(jet, eta_det, trackWIDTH, nTrk, Tile0, EM3, Nsegments);
     if ( _isData && _insituCorr ) jet *= GetInsituCorr(jet.Pt(),eta_det);
@@ -458,20 +441,6 @@ namespace JetAnalysisCalib {
 							      double mu, double NPV, double MUref, double NPVref) {
     return ApplyOffsetEtaJES(E_uncorr*(1.0-bch_corr_cell)/(1.0-bch_corr_jet),
 			     eta_det,eta,phi,mass_uncorr,mu,NPV,MUref,NPVref);
-  }
-
-  TLorentzVector JetCalibrationTool::ApplyKojiOriginCorrection( const TLorentzVector injet, const TVector3 PV, int samplingMax ) {
-    if(!_applyKojiOriginCorrection) error("You can't apply the Koji origin correction unless you specify ApplyKojiOriginCorrection: true in the configuration file.");
-    TLorentzVector jet = _kojiorigin->ApplyApproximateOriginCorr(injet,PV,samplingMax);
-    return jet;
-  }
-
-  TLorentzVector JetCalibrationTool::ApplyKojiOriginCorrection( const TLorentzVector injet, const TVector3 PV, int samplingMax, double eta_det ) {
-    if(!_applyKojiOriginCorrection) error("You can't apply the Koji origin correction unless you specify ApplyKojiOriginCorrection: true in the configuration file.");
-    TLorentzVector jet = _kojiorigin->ApplyApproximateOriginCorr(injet,PV,samplingMax,eta_det);
-    double eta = jet.Eta() + GetEtaCorr(injet.E(), eta_det);
-    jet.SetPtEtaPhiM( jet.P()/cosh(eta), eta, jet.Phi(), jet.M() );
-    return jet;
   }
 
   double JetCalibrationTool::GetEtaCorr(double Ecorr, double eta_det) {
@@ -805,22 +774,24 @@ namespace JetAnalysisCalib {
 
     _applyGSCCorrection = settings->GetValue("ApplyGSCCorrection",false);
     if(_applyGSCCorrection) { 
-      TString GSCFile = settings->GetValue("GSCFactorsFile","");
-      _gsc = new GSCTool(jetAlgo,GSCFile);
       printf("\n  Global Sequential Calibration correction will be applied.\n"); 
-      _GSCDepthString = settings->GetValue("GSCDepth","Full");
-      //Using bit-wise addition of the _GSseq enumeration defined in GSC.h
-      if(_GSCDepthString.Contains("PunchThrough") || _GSCDepthString.Contains("Full")) {
-	_GSCDepth = _gsc->ApplyTile0 | _gsc->ApplyEM3 | _gsc->ApplynTrk | _gsc->ApplytrackWIDTH | _gsc->ApplyPunchThrough;
+      TString GSCFile = settings->GetValue("GSCFactorsFile","empty");
+      if ( GSCFile.EqualTo("empty") ) error("GSCFactorsFile flag not set in your config, can't the apply Global Sequential Calibration");
+      TString GSCDepthString = settings->GetValue("GSCDepth","Full");
+      if( !GSCDepthString.Contains("Tile0") && !GSCDepthString.Contains("EM3") && !GSCDepthString.Contains("nTrk") && !GSCDepthString.Contains("trackWIDTH") && !GSCDepthString.Contains("PunchThrough")
+	  && !GSCDepthString.Contains("Full") )
+	error("GSCDepth flag not properly set, please check your config file.");
+
+      //Initialize the GSCTool class
+      _gsc = new GSCTool(jetAlgo,GSCFile,GSCDepthString);
+
+      //Set punchthrough eta binning and minimum pT
+      if(GSCDepthString.Contains("PunchThrough") || GSCDepthString.Contains("Full")) {
 	_gsc->SetPunchThroughEtaBins( VectorizeD( settings->GetValue("PunchThroughEtaBins","") ) );
 	_gsc->SetPunchThroughMinPt( settings->GetValue("PunchThroughMinPt",50) );
       }
-      else if(_GSCDepthString.Contains("trackWIDTH")) _GSCDepth = _gsc->ApplyTile0 | _gsc->ApplyEM3 | _gsc->ApplynTrk | _gsc->ApplytrackWIDTH;
-      else if (_GSCDepthString.Contains("nTrk")) _GSCDepth = _gsc->ApplyTile0 | _gsc->ApplyEM3 | _gsc->ApplynTrk;
-      else if (_GSCDepthString.Contains("EM3")) _GSCDepth = _gsc->ApplyTile0 | _gsc->ApplyEM3;
-      else if(_GSCDepthString.Contains("Tile0")) _GSCDepth = _gsc->ApplyTile0;
-      else error("GSCDepth flag not properly set, please check your config file.");
-      printf("\n  Global sequential calibration depth set to: %s",_GSCDepthString.Data());
+
+      printf("\n  Global sequential calibration depth set to: %s",GSCDepthString.Data());
     }
 
     /*
@@ -834,13 +805,6 @@ namespace JetAnalysisCalib {
       printf("\n  NPV beamspot correction will be applied.\n");
     }
 
-    /*
-     *  7. initialization of KojiOriginTool, a class for calculating an approximate origin correction
-     */
-    
-    _applyKojiOriginCorrection = settings->GetValue("ApplyKojiOriginCorrection",false);
-    if(_applyKojiOriginCorrection) _kojiorigin = new KojiOriginCorrectionTool();
-      
     printf("\n===================================\n\n");
   
     //we don't need this anymore

@@ -25,7 +25,6 @@
 
 #include "GSC.h"
 #include "NPVBeamspotCorrection.h"
-#include "KojiOriginCorrection.h"
 
 namespace JetAnalysisCalib {
   class JetCalibrationTool : public TNamed {
@@ -113,12 +112,6 @@ namespace JetAnalysisCalib {
 						double mu, double NPV);
 
     TLorentzVector ApplyJetAreaOffsetOriginEtaJESGSC( double E_uncorr, double eta_det, double phi, double mass_uncorr,
-						      double Ax, double Ay, double Az, double Ae, double rho,
-						      TVector3 PV, int samplingMax,
-						      double trackWIDTH, double nTrk, double Tile0, double EM3, double Nsegments,
-						      double mu, double NPV);
-
-    TLorentzVector ApplyJetAreaOffsetOriginEtaJESGSC( double E_uncorr, double eta_det, double phi,
 						      double eta_origin, double phi_origin, double m_origin,
 						      double Ax, double Ay, double Az, double Ae, double rho,
 						      double trackWIDTH, double nTrk, double Tile0, double EM3, double Nsegments,
@@ -128,7 +121,7 @@ namespace JetAnalysisCalib {
 				       double Ax, double Ay, double Az, double Ae, double rho,
 				       double mu, double NPV);
     
-    TLorentzVector ApplyJetAreaOffsetOrigin( double E_det, double eta_det, double phi_det, 
+    TLorentzVector ApplyJetAreaOffsetOrigin( double E_det, double eta_det, double phi_det, double mass_uncorr,
 					     double eta_origin, double phi_origin, double m_origin,
 					     double Ax, double Ay, double Az, double Ae, double rho,
 					     double mu, double NPV);
@@ -137,7 +130,7 @@ namespace JetAnalysisCalib {
 					     double Ax, double Ay, double Az, double Ae, double rho,
 					     double mu, double NPV);
     
-    TLorentzVector ApplyJetAreaOffsetOriginEtaJES( double E_det, double eta_det, double phi_det,
+    TLorentzVector ApplyJetAreaOffsetOriginEtaJES( double E_det, double eta_det, double phi_det, double mass_uncorr,
 						   double eta_origin, double phi_origin, double m_origin,
 						   double Ax, double Ay, double Az, double Ae, double rho,
 						   double mu, double NPV);
@@ -151,8 +144,6 @@ namespace JetAnalysisCalib {
 					    double bch_corr_cell, double bch_corr_jet,
 					    double mu, double NPV, double MUref=-99, double NPVref=-99);
 
-    TLorentzVector ApplyKojiOriginCorrection( const TLorentzVector injet, const TVector3 PV, int samplingMax );
-    TLorentzVector ApplyKojiOriginCorrection( const TLorentzVector injet, const TVector3 PV, int samplingMax, double eta_det );
 
     inline TString AbsoluteJES_Description() { return _jesDesc; };
     inline TString OffsetCorr_Description()  { return _offsetDesc; };
@@ -232,16 +223,11 @@ namespace JetAnalysisCalib {
     
     GSCTool *_gsc;
     bool _applyGSCCorrection;
-    TString _GSCDepthString;
-    int _GSCDepth;
     
     NPVBeamspotCorrectionTool *_npv;
     bool _applyNPVBeamspotCorrection;
     double _muSF;
 
-    KojiOriginCorrectionTool *_kojiorigin;
-    bool _applyKojiOriginCorrection;
-    
     TRandom3 *_rand;
   };
 }
