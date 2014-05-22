@@ -1,0 +1,34 @@
+#
+#  Settings for Rel 17 Jet calibration
+#
+#####################
+
+# ----------------
+# 1. Absolute JES
+
+  # The file with the absolute JES factors
+AbsoluteJES.CalibFile:	       CalibrationFactors/AbsoluteJES_Rel17.0.config
+AbsoluteJES.Description:       JES for release 17 data derived from MC11_valid
+
+# ----------------
+# 2. Pile-up correction
+
+  # What offset correction to apply
+OffsetCorrection.Name:        OffsetThreshold10
+
+  # These corrections should correspond to the
+  # conditions of the absolute JES calibration
+OffsetCorrection.DefaultMuRef:   5.4
+OffsetCorrection.DefaultNPVRef:  4.9
+
+  # additional config files to include
+Includes:	      CalibrationFactors/MCBasedOffset_muScan.config
+
+# ----------------
+# 3. Residual in-situ correction - applied to data only!
+
+#DataJES.Shift:	      1.02
+
+
+######################
+
