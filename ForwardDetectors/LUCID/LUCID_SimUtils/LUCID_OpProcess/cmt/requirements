@@ -1,0 +1,18 @@
+package LUCID_OpProcess
+
+author Antonello Sbrizzi <antonio.sbrizzi@bo.infn.it>
+
+branches src cmt
+
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-*        External
+use FadsPhysics		FadsPhysics-*		Simulation/G4Sim/FADS
+
+private
+
+use Geant4     		Geant4-*     	External
+
+library LUCID_OpProcess ../src/*.cxx
+
+apply_pattern linked_library
+apply_pattern declare_runtime files="-s=../data *.dtd *.xml"
