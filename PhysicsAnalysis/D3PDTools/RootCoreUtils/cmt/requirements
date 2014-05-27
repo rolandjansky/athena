@@ -1,0 +1,23 @@
+## automatically generated CMT requirements file
+package RootCoreUtils
+author  cburgard
+
+## for athena policies: this has to be the first use statement
+use  AtlasPolicy AtlasPolicy-*
+use  AtlasROOT                  AtlasROOT-*                     External
+
+## for gaudi tools, services and objects
+
+## put here your package dependencies...
+
+##
+
+branches Root
+
+# create an installed library, i.e., one where others can inherit from
+library RootCoreUtils ../Root/*.cxx
+apply_pattern installed_library
+
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+end_private
