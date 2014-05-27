@@ -1,0 +1,33 @@
+<lcgdict>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArAutoCorrP1>, LArAutoCorrSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArOFCP1>, LArOFCSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArPedestalMC, LArPedestalMC_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArPedestalP1>, LArPedestalSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArRampP1>, LArRampSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArShapeP1>, LArShapeSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArShapeP2>, LArShapeSubset_p2 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArMphysOverMcalP1>, LArMphysOverMcalSubset_p1 >" /> 
+
+  <class name="T_TPCnv<LArConditionsSubset<LArSingleFloatP>, LArSingleFloatSubset_p1 >" /> 
+
+  <class name="T_TPCnv<LArConditionsSubset<LArOFCBinP>, LArSingleIntSubset_p1 > " />
+
+  <class name="T_TPCnv<LArConditionsSubset<LArCaliWaveVec>, LArCaliWaveSubset_p1 >"/>
+  
+  <class name="T_TPCnv<LArConditionsSubset<LArCaliWaveVec>, LArCaliWaveSubset_p2 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArPhysWave>, LArPhysWaveSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArDSPThresholdsP>, LArDSPThresholdsSubset_p1 >"/>
+
+  <class name="T_TPCnv<LArConditionsSubset<LArPedestalP1>, LArPedestalSubset_p2 >"/>
+
+</lcgdict>

@@ -1,0 +1,7 @@
+<lcgdict>
+	
+  <class name="LArShapeSubset_p1" id="95B61750-4C45-412D-B4D4-9758E9DB40D1" />
+  <class name="LArCaliWaveSubset_p1" id="9E61BE2D-3274-4459-A5C2-3BBFB7056EBA" />
+  <class name="LArPedestalSubset_p1" id="E365F747-264B-4A0C-B80A-570DBE099881" />
+	
+</lcgdict>
