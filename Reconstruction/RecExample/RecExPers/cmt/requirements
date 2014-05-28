@@ -1,0 +1,11 @@
+package RecExPers
+
+author Davide Costanzo <davide.costanzo@cern.ch>
+
+private
+
+use AtlasPolicy		       AtlasPolicy-*
+
+# ---
+branches run share
+apply_pattern declare_joboptions files="*.py"
