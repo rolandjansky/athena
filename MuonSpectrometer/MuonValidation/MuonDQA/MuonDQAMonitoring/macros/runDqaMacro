@@ -1,0 +1,94 @@
+#!/bin/bash
+#
+# For help, type ./runDqaMacro in command line 
+#
+
+if [ $# -lt 1 ] ; then
+    echo "//   ROOT Macro for extracting to a single PDF all Monitoring Histos useful to Offline DQA."       
+    echo "Authors:  I. Nomidis (AUTh - Thessaloniki)  -  N. Benekos(Illinois)  Feb. 2008"
+    echo "========================================================="
+    echo "Usage: ./runDqaMacro \$1 \$2 \$3 \$4 \$5 \$6 \$7 \$8 \$9 "
+    echo "========================================================="
+    echo "\$1: \"filename.root\""
+    echo "\$2: true/false (display Raw Data Monitoring plots, DEFAULT=true)"
+    echo "\$3: true/false (display Track Monitoring plots, DEFAULT=true)"
+    echo "\$4: true/false (display Segment Monitoring plots, DEFAULT=true)"
+    echo "\$5: true/false (display MuonBoy Tracks, DEFAULT=true)"
+    echo "\$6: true/false (display MOORE Tracks, DEFAULT=true)"
+    echo "\$7: true/false (display MuonBoy Segments, DEFAULT=true)"
+    echo "\$8: true/false (display MOORE Segments, DEFAULT=true)"
+    echo "\$9: true/false (do extended printing, DEFAULT=true)"
+    exit
+fi
+
+echo 
+echo ">>> Arguments___________________________________"
+filename=$1
+echo "* input filename: $filename"
+
+if [ -z "$2" ] ; then
+    doRawDataMon=true
+else 
+    doRawDataMon=$2
+fi
+echo "* display Raw Data Monitoring plots: $doRawDataMon"
+
+if [ -z "$3" ] ; then
+    doTrackMon=true
+else
+    doTrackMon=$3
+fi
+echo "* display Track Monitoring plots: $doTrackMon"
+
+if [ -z "$4" ] ; then
+    doSegmMon=true
+else
+    doSegmMon=$4
+fi
+echo "* display Segment Monitoring plots: $doSegmMon"
+
+if [ -z "$5" ] ; then
+    doMBoyTracks=true
+else 
+    doMBoyTracks=$5
+fi
+echo "* display MuonBoy Tracks: $doMBoyTracks"
+
+if [ -z "$6" ] ; then
+    doMOORETracks=true
+else
+    doMOORETracks=$6
+fi
+echo "* display MOORE Tracks: $doMOORETracks"
+
+if [ -z "$7" ] ; then
+    doMBoySegms=true
+else 
+    doMBoySegms=$7
+fi
+echo "* display MuonBoy Segments: $doMBoySegms"
+
+if [ -z "$8" ] ; then
+    doMOORESegms=true
+else
+    doMOORESegms=$8
+fi
+echo "* display MOORE Segments: $doMOORESegms"
+
+if [ -z "$9" ] ; then
+    doExtendedMon=true
+else 
+    doExtendedMon=$9
+fi
+echo "* do extended printing: $doExtendedMon"
+
+
+cat > domacro-temp << EOF
+{ 
+gROOT->ProcessLine(".x MuonDQAHistPlot.cc(\"$filename\",$doRawDataMon,$doTrackMon,$doSegmMon,$doMBoyTracks,$doMOORETracks,$doMBoySegms,$doMOORESegms,$doExtendedMon,false)");
+}
+EOF
+
+root -l -b domacro-temp 
+rm -f domacro-temp
+

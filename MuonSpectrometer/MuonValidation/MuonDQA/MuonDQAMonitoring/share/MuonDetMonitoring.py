@@ -1,0 +1,218 @@
+#======================================================================
+# Offline Athena Muon Monitoring configuration
+#======================================================================
+# TOP JobOptions to run on MuonDQAMonitoring
+#======================================================================  
+#print '\n****************************************************************************************\n'
+#print "   ******** Welcome to the Offline MuonDQAMonitoring package      ***** "  
+#print "   ******** Documentation may be found at:******** "  
+#print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MuonOfflineDQA ***** "  
+#print '\n****************************************************************************************\n'
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
+from MuonRecExample.MuonRecFlags import muonRecFlags
+from RecExConfig.RecFlags import rec as recFlags
+
+##################################################################
+### To fix the bug --> https://savannah.cern.ch/bugs/?45447
+### This will make sure RegSelSvc is correctly configured
+from AthenaCommon.AppMgr import ServiceMgr
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+RegSelSvcMuonMon = RegSelSvcDefault()
+RegSelSvcMuonMon.enableMuon = True
+ServiceMgr += RegSelSvcMuonMon 
+##################################################################
+ 
+if not 'MuonDQADetFlags' in dir():
+    print "MuonDQADetFlags.py: MuonDQADetFlags not yet imported - I import them now"
+    from MuonDQAMonFlags.MuonDQAProperFlags import MuonDQADetFlags
+
+MuonDQADetFlags.doMuonMonitoring = True
+
+## --- sudetector specific flags
+if muonRecFlags.doCSCs():
+    MuonDQADetFlags.doCSCMon = True
+    MuonDQADetFlags.doCSCClusMon = True
+else:
+    MuonDQADetFlags.doCSCMon = False
+    MuonDQADetFlags.doCSCClusMon = False
+
+if muonRecFlags.doMDTs():
+    MuonDQADetFlags.doMDTMon = True
+else:
+    MuonDQADetFlags.doMDTMon = False
+
+if muonRecFlags.doRPCs():    
+    MuonDQADetFlags.doRPCL1Mon = True
+    MuonDQADetFlags.doRPCMon = True
+else:
+    MuonDQADetFlags.doRPCL1Mon = False
+    MuonDQADetFlags.doRPCMon = False
+    
+if muonRecFlags.doMDTs() and muonRecFlags.doRPCs():
+    MuonDQADetFlags.doMDTRPCMon = True
+else:
+    MuonDQADetFlags.doMDTRPCMon = False
+    
+if muonRecFlags.doMDTs() and muonRecFlags.doTGCs():
+    MuonDQADetFlags.doMDTTGCL1Mon = True
+else:
+    MuonDQADetFlags.doMDTTGCL1Mon = False
+
+if muonRecFlags.doTGCs():
+    MuonDQADetFlags.doTGCMon = True
+    MuonDQADetFlags.doTGCL1Mon = True
+else:
+    MuonDQADetFlags.doTGCMon = False
+    MuonDQADetFlags.doTGCL1Mon = False
+    
+# --- Muon Segm Monitoring
+MuonDQADetFlags.doMuonSegmMon = False
+MuonDQADetFlags.doCSCSegmMon = False
+
+## --- Muon StandAlone Trk Monitoring and MuonCombined options
+MuonDQADetFlags.doMuonTrackMon = False
+
+## --- MuonTrk Trigger Aware Monitoring options
+MuonDQADetFlags.MuonTrkMonDoTrigger = False 
+
+# --- Muon Alignment Monitoring
+MuonDQADetFlags.doMuonTrkAlignMon = False
+
+# --- MuonPhysics Monitoring options
+MuonDQADetFlags.doMuonPhysMon = False
+
+from RecExConfig.RecFlags import rec
+MuonDQADetFlags.doMuTrkMon = rec.doInDet()
+
+# --- HighLvl Muon Monitoring options
+#MuonDQADetFlags.doMuonTrkPhysMon = rec.doMuon()
+
+#MuonDQADetFlags.doMuonTrkPhysMon = True
+#
+if recFlags.doInDet() and recFlags.doMuon():
+    MuonDQADetFlags.doMuonTrkPhysMon = True
+    MuonDQADetFlags.doMuonCbTrkAlignMon = False
+else:
+    MuonDQADetFlags.doMuonTrkPhysMon = False
+    MuonDQADetFlags.doMuonCbTrkAlignMon = False
+
+#----------------------#
+# Muon raw monitoring  #
+#----------------------#
+if DQMonFlags.monManEnvironment() == 'online':
+    MuonRawMon=True
+    MuonESDMon=True
+elif DQMonFlags.monManEnvironment() == 'tier0Raw':
+    MuonRawMon=True
+    MuonESDMon=False
+elif DQMonFlags.monManEnvironment() == 'tier0ESD':
+    MuonRawMon=False
+    MuonESDMon=True
+elif DQMonFlags.monManEnvironment() == 'tier0': 
+    MuonRawMon=True
+    MuonESDMon=True
+
+## add an AthenaMonManager algorithm to the list of algorithms to be ran
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+        
+muonOutputLevel=INFO
+if DQMonFlags.doMuonRawMon():
+    try:
+        if MuonRawMon:
+            if MuonDQADetFlags.doRPCL1Mon():
+                include ("RpcRawDataMonitoring/RpcRawBS_MonitoringOptions.py") 
+            if MuonDQADetFlags.doCSCMon() or MuonDQADetFlags.doCSCClusMon():
+                include ("CscRawDataMonitoring/CscRawBS_MonitoringOptions.py")
+        if MuonESDMon:
+            if MuonDQADetFlags.doMDTMon():
+                include ("MdtRawDataMonitoring/MdtRaw_MonitoringOptions.py")
+            if MuonDQADetFlags.doRPCMon():
+                include ("RpcRawDataMonitoring/RpcRawESD_MonitoringOptions.py")
+            if MuonDQADetFlags.doTGCMon() or MuonDQADetFlags.doTGCL1Mon:
+                include ("TgcRawDataMonitoring/TgcRaw_MonitoringOptions.py")
+            if MuonDQADetFlags.doCSCMon():
+                include ("CscRawDataMonitoring/CscRawESD_MonitoringOptions.py")
+            if MuonDQADetFlags.doMDTRPCMon():
+                include ("MdtVsRpcRawDataMonitoring/MdtVsRpcRaw_MonitoringOptions.py")
+            if MuonDQADetFlags.doMDTTGCL1Mon():
+                include ("MdtVsTgcRawDataMonitoring/MdtVsTgcRaw_MonitoringOptions.py")
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon raw monitoring")
+#-------------------------#
+# Muon segment monitoring #
+#-------------------------#
+if DQMonFlags.doMuonSegmentMon():
+    try:
+        if MuonDQADetFlags.doMuonSegmMon():
+            include ("MuonSegmMonitoring/MuonSegmDQA_options.py")
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon segment monitoring")
+    try:
+        if MuonDQADetFlags.doCSCSegmMon():
+            include ("MuonSegmMonitoring/MuonCSCSegmDQA_options.py")    
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon CSC segment monitoring")
+
+#------------- ---------#
+# Muon track monitoring #
+#------------- ---------#
+if DQMonFlags.doMuonTrackMon():
+   try:
+       if MuonDQADetFlags.doMuonTrackMon():
+           include ("MuonTrackMonitoring/MuonTrackDQA_options.py")
+           if DQMonFlags.useTrigger() and MuonDQADetFlags.MuonTrkMonDoTrigger():
+               include ("MuonTrackMonitoring/MuonTrigTrackDQA_options.py")
+   except Exception:
+       treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon track monitoring")
+
+##-------------------------------#
+## MuonCombined track monitoring #
+##-------------------------------#
+#if DQMonFlags.doMuonCombinedMon():
+#    try:
+#        if MuonDQADetFlags.doMuonCombTrackMon():
+#            include ("MuonCombinedTrackMonitoring/MuonCombinedTrackDQA_options.py")
+#    except Exception:
+#        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon CombTrack monitoring")
+ 
+#---------------------------#
+# Muon alignment monitoring #
+#---------------------------#
+if DQMonFlags.doMuonAlignMon():
+    try:
+        if MuonDQADetFlags.doMuonTrkAlignMon():
+            include ("MuonAlignMonitoring/MuonAlignDQA_options.py")
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon alignment monitoring")
+
+#-------------------------#
+# MuonTrkPhys  monitoring #
+#-------------------------#
+if DQMonFlags.doMuonTrkPhysMon():
+    try:
+        if MuonDQADetFlags.doMuonTrkPhysMon():
+            include ("MuonTrkPhysMonitoring/MuonTrkPhysDQA_options.py")
+        if MuonDQADetFlags.doMuonCbTrkAlignMon():
+            include ("MuonTrkPhysMonitoring/MuonCbTrkAlignMon_options.py")    
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon TrkPhys monitoring")
+
+
+#-------------------------#
+# Muon physics monitoring #
+#-------------------------#
+if DQMonFlags.doMuonPhysicsMon():
+    try:
+        if MuonDQADetFlags.doMuonPhysMon():
+            include ("MuonPhysicsMonitoring/MuonPhysicsDQA_options.py")
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon physics monitoring")
+    try:            
+        if MuonDQADetFlags.doMuTrkMon():
+            include ("MuonPhysicsMonitoring/MuonTrackPhysicsDQA_options.py")
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up MuonTrk physics monitoring")
