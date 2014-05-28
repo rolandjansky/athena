@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-data version 2.0 -->
+
+
+<!DOCTYPE oks-data [
+  <!ELEMENT oks-data (info, (include)?, (obj)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #REQUIRED
+      type CDATA #REQUIRED
+      num-of-includes CDATA #REQUIRED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "extended"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      creation-time CDATA #REQUIRED
+      last-modified-by CDATA #REQUIRED
+      last-modified-on CDATA #REQUIRED
+      last-modification-time CDATA #REQUIRED
+  >
+  <!ELEMENT include (file)+>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT obj (attr | rel)*>
+  <!ATTLIST obj
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+  <!ELEMENT attr (#PCDATA)*>
+  <!ATTLIST attr
+      name CDATA #REQUIRED
+      type (bool|s8|u8|s16|u16|s32|u32|float|double|date|time|string|uid|enum|-) "-"
+      num CDATA "-1"
+  >
+  <!ELEMENT rel (#PCDATA)*>
+  <!ATTLIST rel
+      name CDATA #REQUIRED
+      num CDATA "-1"
+  >
+]>
+
+<oks-data>
+
+<info name="" type="" num-of-includes="3" num-of-items="15" oks-format="extended" oks-version="oks-03-06-02 built &quot;Jan 24 2007&quot;" created-by="" created-on="" creation-time="1/4/07 1:00:00" last-modified-by="hadavand" last-modified-on="pcatlas3206.cern.ch" last-modification-time="17/4/07 14:11:08"/>
+
+<include>
+ <file path="dqm_config/schema/DQM.schema.xml"/>
+ <file path="dqm_config/data/DQM_algorithms.data.xml"/>
+</include>
+

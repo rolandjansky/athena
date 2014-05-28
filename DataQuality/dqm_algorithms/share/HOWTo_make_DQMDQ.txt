@@ -1,0 +1,30 @@
+Function:
+Creates a DQMF configuration for histograms in a given directory in a root file applying the same algorithm to all histograms.  One may dump
+different DQThresholds and DQAlgorithmParameters for each histograms associated to a DQParamter as well to modify in oks_data_editor or in an editor.
+ 
+Example:
+./make_DQMDB.pl -c 1 (-i root_dumpfile) (-r Region) -o test_2060.data.xml -s 0 -d CaloClusterVecMon/Energy -a Simple_gaus_Fit --red Mean=7 --green Mean=3 --red Sigma=1 --green Sigma=-0.1 --param xmin=-1 --param xmax=1
+
+Options:
+bool -c: 1: Dump a txt file which contains a list of histograms from the given root file
+        0: don't dump the file instead use the existing one provided by -i option
+
+string -i: Optional:Input file containing list of histograms in a root file
+
+string -o: Output file to put DQMF configuration 
+
+bool   -s: 1: Create new DQAlgorithmParameters and DQThreshold objects for each DQParameter, or histogram.  Values are default one filled in at command
+              line but can be modified by user.
+           0: Use same DQAlgorithmParamters and DQThresholds
+string -d: Directory in root file from which you would like to use histograms to make DQParameters
+
+string -a: Algorithm name you dqm_print_algorithms command to see list of available algorithm names
+
+string -r: Optional: Region name to which include all DQParameters. 
+
+--red String=float : Use this structure to set RedThresholds example: --red Mean=7
+
+--green String=float:Use this structure to set GreenThresholds example: --green Mean=2  
+
+--param String=float:Use this structure to set DQAlgorithmParameters example: --param xmin=7
+
