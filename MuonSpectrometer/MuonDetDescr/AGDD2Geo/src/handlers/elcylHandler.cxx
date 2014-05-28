@@ -1,0 +1,31 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "AGDD2Geo/elcylHandler.h"
+#include "AGDD2Geo/XercesParser.h"
+#include "AGDD2Geo/AGDDElcyl.h"
+#include <iostream>
+
+
+
+elcylHandler::elcylHandler(std::string s):XMLHandler(s)
+{
+//	std::cout<<"Creating handler for tubs"<<std::endl;
+}
+
+void elcylHandler::ElementHandle()
+{
+	bool res;
+	std::string name=getAttributeAsString("name",res);
+	std::string material=getAttributeAsString("material",res);
+	std::vector<double> vvv=getAttributeAsVector("RXio_RYio_Z",res);
+
+	AGDDElcyl *v=new AGDDElcyl(name);
+	v->SetMaterial(material);
+	v->SetRXio_RYio_Z(vvv);
+		
+	std::string col=getAttributeAsString("color",res);
+	if (res)
+		v->SetColor(col);
+}
