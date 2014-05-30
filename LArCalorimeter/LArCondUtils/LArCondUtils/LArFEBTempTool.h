@@ -1,0 +1,60 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef LARFEBTEMPTOOL_H
+#define LARFEBTEMPTOOL_H
+
+/**
+ @class LArFEBTempTool
+ @brief concrete tool to provide FEB TEMP DCS information.
+
+ Environment:
+      Software developed for the ATLAS Detector at the CERN LHC
+
+ @author 
+      Kirill Skovpen <kskovpen@cern.ch>
+*/
+
+// Includes for Gaudi
+#include "GaudiKernel/AlgTool.h"
+
+#include "LArElecCalib/ILArFEBTempTool.h"
+#include "StoreGate/DataHandle.h" 
+#include "Identifier/Identifier.h" 
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+
+// forward declaration
+using namespace coral;
+class StoreGateSvc; 
+class AttributeList;
+class HWIdentifier;
+class LArOnlineID;
+class CondAttrListCollection; 
+
+class LArFEBTempTool: public AlgTool, virtual public ILArFEBTempTool
+{
+ 
+ public: 
+   LArFEBTempTool(const std::string& type, const std::string& name,
+		  const IInterface* parent);
+   
+   virtual ~LArFEBTempTool();
+   
+   virtual StatusCode initialize();
+   virtual StatusCode finalize(){return StatusCode::SUCCESS;}
+   
+   // Given a FEB ID, return std::vector of temp1 and temp2 values
+   FEBTemp getFebTemp( const HWIdentifier& id )  ;
+
+ private:
+   
+   StoreGateSvc* m_detStore;
+   StoreGateSvc* StoreGate;
+   std::string m_foldername;
+   
+   const CondAttrListCollection* m_atrlistcol;
+   bool m_isinit;
+};
+
+#endif

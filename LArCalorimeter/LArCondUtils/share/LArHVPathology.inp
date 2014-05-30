@@ -1,0 +1,42 @@
+###########################################################################
+#                                                                         #
+#    This is a sample input file used by LArHVPathologyDbAlg in           #
+#    order to write LAr HV Pathologies into COOL                          #
+#                                                                         #
+# Organization of the file:                                               #
+# The file consists of sections, one per LAr subsystem folder.            #
+#                                                                         #
+# Each folder section starts with the name of the folder. The name is     #
+# followed by list of electrode pathologies of the form:                  #
+# <Cell ID> <Electrode index within the cell> <Pathology type>            #
+#                                                                         #
+# NB.                                                                     #
+# 1. If the list of electrode pathologies is empty, then an empty         #
+# container object will be recorded into COOL                             #
+#                                                                         #
+# 2. If there is more than one section for some subsystem, then only      #
+# first one is used                                                       #
+###########################################################################
+
+# EMB
+
+#/LAR/HVPathologies/EMB
+#10001	0	0
+#10002	2	4
+#10003	4	8
+#10004	8	16
+
+# EMEC
+
+#/LAR/HVPathologies/EMEC
+#10101	0	0
+#10102	2	4
+#10103	4	8
+#10104	8	16
+
+
+# HEC
+#/LAR/HVPathologies/HEC
+
+# FCAL
+#/LAR/HVPathologies/FCAL
