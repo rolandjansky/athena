@@ -1,0 +1,55 @@
+<RCC>
+  <qresource prefix="/vp1/icons">
+    <file>icons/list_add_font_001.png</file>
+    <file>icons/list_add_font.png</file>
+    <file>icons/rotateleft.png</file>
+    <file>icons/rotateright.png</file>
+    <file>icons/zoomin.png</file>
+    <file>icons/zoomout.png</file>
+    <file>icons/fileprint.png</file>
+    <file>icons/3d_glasses_24x24.png</file>
+    <file>icons/3D_mode_24x24.png</file>
+    <file>icons/event_display_32x32.jpg</file>
+    <file>icons/3d_32x32.png</file>
+    <file>icons/back_32x32.png</file>
+    <file>icons/button_cancel_32x32.png</file>
+    <file>icons/button_ok_32x32.png</file>
+    <file>icons/down_32x32.png</file>
+    <file>icons/edit_32x32.png</file>
+    <file>icons/editcopy_32x32.png</file>
+    <file>icons/fileclose_32x32.png</file>
+    <file>icons/filefind_32x32.png</file>
+    <file>icons/filenew_32x32.png</file>
+    <file>icons/fileopen_32x32.png</file>
+    <file>icons/fileprint_32x32.png</file>
+    <file>icons/filequickprint_32x32.png</file>
+    <file>icons/filesave_32x32.png</file>
+    <file>icons/filesaveas_32x32.png</file>
+    <file>icons/forward_32x32.png</file>
+    <file>icons/help_32x32.png</file>
+    <file>icons/info_32x32.png</file>
+    <file>icons/kcalc_32x32.png</file>
+    <file>icons/kchart_32x32.png</file>
+    <file>icons/kivio_32x32.png</file>
+    <file>icons/launch_32x32.png</file>
+    <file>icons/network_64x64.png</file>
+    <file>icons/network_disconnect_64x64.png</file>
+    <file>icons/no3D_32x32.png</file>
+    <file>icons/package_settings_32x32.png</file>
+    <file>icons/redo_32x32.png</file>
+    <file>icons/undo_32x32.png</file>
+    <file>icons/window_fullscreen_32x32.png</file>
+    <file>icons/window_list_32x32.png</file>
+    <file>icons/window_nofullscreen_32x32.png</file>
+    <file>icons/yast_route_32x32.png</file>
+    <file>icons/camera.png</file>
+  </qresource>
+  <qresource prefix="/vp1/images">
+    <file>images/ATLAS-chrome-logo-URL-blue_600px.png</file>
+    <file>images/ATLAS-chrome-logo-URL-blue_450px.png</file>
+    <file>images/ATLAS-chrome-logo-URL-blue_300px.png</file>
+    <file>images/ATLAS-chrome-logo-URL_600px.png</file>
+    <file>images/ATLAS-chrome-logo-URL_450px.png</file>
+    <file>images/ATLAS-chrome-logo-URL_300px.png</file>
+  </qresource>
+</RCC>
