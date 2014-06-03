@@ -1,0 +1,27 @@
+package TileEventAthenaPool
+
+author Alexandre Solodkov <Sanya.Solodkov@cern.ch>
+
+private
+
+use GaudiInterface	GaudiInterface-*		External
+use StoreGate		StoreGate-*			Control
+use AthenaPoolCnvSvc	AthenaPoolCnvSvc-*		Database/AthenaPOOL
+use CaloIdentifier	CaloIdentifier-*		Calorimeter
+use CaloDetDescr        CaloDetDescr-*			Calorimeter
+use TileSimEvent	TileSimEvent-*			TileCalorimeter
+use TileTPCnv           TileTPCnv-*			TileCalorimeter/TileSvc
+use TileEvent		TileEvent-*			TileCalorimeter
+
+public
+
+use AtlasPolicy		AtlasPolicy-*
+use AthenaPoolUtilities	AthenaPoolUtilities-*		Database/AthenaPOOL
+
+apply_pattern poolcnv files="-s=${TileSimEvent_root}/TileSimEvent TileHitVector.h \
+  -s=${TileEvent_root}/TileEvent TileHitContainer.h TileDigitsContainer.h TileRawChannelContainer.h TileBeamElemContainer.h \
+     TileCellContainer.h TileMuContainer.h TileL2Container.h TileTTL1Container.h \
+	 TileTriggerContainer.h TileCosmicMuonContainer.h TileCosmicMuon.h TileMuonReceiverContainer.h"
+
+macro_append TileEventAthenaPoolPoolCnv_shlibflags "$(TileEventAthenaPool_dict_linkopts)"
+
