@@ -1,0 +1,64 @@
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar   decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+fcal  decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn    decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+mod   decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+depth decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   ff9fffffffffffff 53 2  9  indexes                     mode  both_bounded  
+eta   decode 0 vals 0:8             mask/zero mask/shift/bits/offset f   ffe1ffffffffffff 49 4  11 indexes                     mode  both_bounded  
+phi   decode 0 vals 0:85            mask/zero mask/shift/bits/offset 7f  fffe03ffffffffff 42 7  15 indexes                     mode  both_bounded  
+initialize_from_dict : 
+ channel range -> 4/3/-2,2/0/0:3/0/0:85 | 4/3/-2,2/0/0:3/1/0:79 | 4/3/-2,2/0/0:3/2/0:73 | 4/3/-2,2/0/0:3/3/0:66 | 4/3/-2,2/0/0:3/4/0:60 | 4/3/-2,2/0/0:3/5/0:54 | 4/3/-2,2/0/0:3/6/0:47 | 4/3/-2,2/0/0:3/7/0:41 | 4/3/-2,2/0/0:3/8/0:35
+ module range -> 4/3/-2,2/0
+ depth range -> 4/3/-2,2/0/0:3
+ disconnected channel range -> 
+ disconnected module range -> 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar   decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+fcal  decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn    decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+mod   decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+depth decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   ff9fffffffffffff 53 2  9  indexes                     mode  both_bounded  
+eta   decode 0 vals 0:8             mask/zero mask/shift/bits/offset f   ffe1ffffffffffff 49 4  11 indexes                     mode  both_bounded  
+phi   decode 0 vals 0:85            mask/zero mask/shift/bits/offset 7f  fffe03ffffffffff 42 7  15 indexes                     mode  both_bounded  
+initialize_from_dict : 
+ channel range -> 4/3/-2,2/0/0:3/0/0:85 | 4/3/-2,2/0/0:3/1/0:79 | 4/3/-2,2/0/0:3/2/0:73 | 4/3/-2,2/0/0:3/3/0:66 | 4/3/-2,2/0/0:3/4/0:60 | 4/3/-2,2/0/0:3/5/0:54 | 4/3/-2,2/0/0:3/6/0:47 | 4/3/-2,2/0/0:3/7/0:41 | 4/3/-2,2/0/0:3/8/0:35
+ module range -> 4/3/-2,2/0
+ depth range -> 4/3/-2,2/0/0:3
+ disconnected channel range -> 
+ disconnected module range -> 
+LArMiniFCAL_ID::init_neighbors 
+LArMiniFCAL_ID::init_neighbors_from_file 
+LArMiniFCAL_ID       INFO Reading file /home/sss/atlas/supercell2/build/share/FCal2DNeighbors-DC3-05-Comm-01.txt
+LArMiniFCAL_ID::init_neighbors_from_file 
+LArMiniFCAL_ID       INFO Reading file /home/sss/atlas/supercell2/build/share/FCal3DNeighborsNext-DC3-05-Comm-01.txt
+LArMiniFCAL_ID::init_neighbors_from_file 
+LArMiniFCAL_ID       INFO Reading file /home/sss/atlas/supercell2/build/share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt
+test_basic
+[4.3.2.0.0.0.0] hex(3600000000000000)
+[4.3.2.0.1.0.0] hex(3620000000000000)
+[4.3.2.0.2.0.0] hex(3640000000000000)
+[4.3.-2.0.0.0.0] hex(3400000000000000)
+[4.3.-2.0.1.0.0] hex(3420000000000000)
+[4.3.-2.0.2.0.0] hex(3440000000000000)
+test_connected
+  nchannel 4392
+  nmodule 2
+Sampling
+0            1098
+1            1098
+2            1098
+3            1098
+Total        4392
+Region [4.3.-2.0.0.0.0]   eta: 4.750000 0.150000 0   8 phi: 0.0 0.174533 0  85
+Region [4.3.2.0.0.0.0]    eta: 4.750000 0.150000 0   8 phi: 0.0 0.174533 0  85
+test_disco
+test_exceptions
+Exception 1: LArID_Exception - Error code: 6 
+ LArMiniFCAL_ID::module_id() result is not OK: ID, range = 4/3/99/0 , 4/3/-2,2/0
+Exception 2: LArID_Exception - Error code: 10 
+ LArMiniFCAL_ID::channel_id() result is not OK: ID, range = 4/3/2/0/0/0/999 , 4/3/-2,2/0/0:3/0/0:85 | 4/3/-2,2/0/0:3/1/0:79 | 4/3/-2,2/0/0:3/2/0:73 | 4/3/-2,2/0/0:3/3/0:66 | 4/3/-2,2/0/0:3/4/0:60 | 4/3/-2,2/0/0:3/5/0:54 | 4/3/-2,2/0/0:3/6/0:47 | 4/3/-2,2/0/0:3/7/0:41 | 4/3/-2,2/0/0:3/8/0:35
+test_neighbors

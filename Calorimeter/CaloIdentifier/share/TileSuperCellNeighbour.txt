@@ -1,0 +1,36 @@
+# $Id: TileSuperCellNeighbour.txt,v 1.0 2014-04-16 17:29:11 menke Exp $
+# $Name: not supported by cvs2svn $
+#	
+# format of the file:
+# cell name:   prev_eta cell1, ... celln;  next_eta; prev_samp; next_samp;
+# all cell names MUST be separated by space or <TAB>
+# all neighbours of one kind for a given cell are ordered according to eta
+# only negative eta side is given
+# second one is obtained by mirroring
+#
+# super cells for the full towers are called 'S' while super cells
+# corresponding to the 'D' layer of normal cells are called 'V'
+#
+S-1:	S-2;		S+1;   none; none;
+S-2:	S-3;		S-1;   none; none;
+S-3:	S-4;		S-2;   none; none;
+S-4:	S-5;		S-3;   none; none;
+S-5:	S-6;		S-4;   none; none;
+S-6:	S-7;		S-5;   none; none;
+S-7:	S-8;		S-6;   none; none;
+S-8:	S-9;		S-7;   none; none;
+S-9:	S-10;		S-8;   none; none;
+S-10:	S-11;	        S-9;   none; none;
+S-11:	S-12;	        S-10;  none; none;
+S-12:	S-13;		S-11;  none; none;
+S-13:	S-14;		S-12;  none; none;
+S-14:	S-15;		S-13;  none; none;
+S-15:	S-16;		S-14;  none; none;
+S-16:	none;		S-15;  none; none;
+#
+V*0:	V-1;		V+1;   none; none;
+V-1:	V-2;		V*0;   none; none;
+V-2:	V-3;		V-1;   none; none;
+V-3:	none;		V-2;   none; none;
+V-5:	V-6;		none;  none; none;
+V-6:	none;		V-5;   none; none;

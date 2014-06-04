@@ -1,0 +1,307 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CaloIdentifier/CaloIDHelper.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date May, 2013
+ * @brief Base class to factor out code common among Calo ID helpers.
+ *        Inline implementations.
+ */
+
+
+/**
+ * @brief Initialize.
+ * @param parent The parent ID helper (in which @c idfunc is defined).
+ * @param type A string to add on to the name.
+ * @param full_range The @c MultiRange for to this group.
+ * @param idfunc Function to convert from an @c ExpandedIdentifier
+ *               to an @c Identifier for this group.
+ * @param end_index The ending index for the context for this group.
+ * @return 0 on success; non-zero on failure.
+ */
+template <class T>
+inline
+int
+CaloIDHelper::HashGroup::init (const T& parent,
+                               const std::string& type,
+                               const MultiRange& full_range,
+                               Identifier (T::*idfunc)
+                                 (const ExpandedIdentifier&) const,
+                               size_type end_index)
+{
+  std::set<Identifier> ids;
+  for (unsigned int i = 0; i < full_range.size(); ++i) {
+    const Range& range = full_range[i];
+    Range::const_identifier_factory first = range.factory_begin();
+    Range::const_identifier_factory last  = range.factory_end();
+    for (; first != last; ++first) {
+      const ExpandedIdentifier& exp_id = (*first);
+      Identifier id = (parent.*idfunc) (exp_id);
+      if(!(ids.insert(id)).second){
+        MsgStream log (parent.msgSvc(), "CaloIDHelper::HashGroup");
+        log << MSG::ERROR << parent.name() << "init_hashes "
+            << " duplicated id for channel id. nids= " << ids.size()
+            << " compact Id  " << parent.show_to_string(id)
+            << endreq;
+      }
+    }
+  }
+  return init (parent.name() + "." + type,
+               ids, end_index, parent.msgSvc(), &full_range);
+}
+
+
+/**
+ * @brief Return one more than the largest hash code.
+ */
+inline
+CaloIDHelper::size_type CaloIDHelper::HashGroup::hash_max() const
+{
+  return m_id_vec.size();
+}
+
+
+/**
+ * @brief Return a begin iterator over the group's Identifiers.
+ */
+inline
+CaloIDHelper::id_iterator CaloIDHelper::HashGroup::begin() const
+{
+  return m_id_vec.begin();
+}
+
+
+/**
+ * @brief Return an end iterator over the group's Identifiers.
+ */
+inline
+CaloIDHelper::id_iterator CaloIDHelper::HashGroup::end() const
+{
+  return m_id_vec.end();
+}
+
+
+/**
+ * @brief Return a iterator range over the group's Identifiers.
+ */
+inline
+CaloIDHelper::id_range CaloIDHelper::HashGroup::range() const
+{
+  return id_range(begin(), end());
+}
+
+
+/**
+ * @brief Return the identifier for a given hash code (no checking).
+ */
+inline
+Identifier CaloIDHelper::HashGroup::id (IdentifierHash hashId) const
+{
+  return m_id_vec[hashId];
+}
+
+
+/**
+ * @brief Look up the hash code corresponding to an Identifier.
+ *        Uses binary search.
+ * @param id The identifier to look up.
+ * @return The corresponding hash code.
+ *         An invalid IdentifierHash will be returned if the Identifier
+ *         is not found.
+ */
+inline
+IdentifierHash CaloIDHelper::HashGroup::hash (Identifier id) const
+{
+  IdentifierHash ret;
+  get_hash (id, ret);
+  return ret;
+}
+
+
+/**
+ * @brief Return a vector of all Identifiers for this group.
+ */
+inline
+const std::vector<Identifier>& CaloIDHelper::HashGroup::ids() const
+{
+  return m_id_vec;
+}
+
+
+/**
+ * @brief Return the ending index of the context for this group.
+ */
+inline
+CaloIDHelper::size_type CaloIDHelper::HashGroup::end_index() const
+{
+  return m_end_index;
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Return the @c HashGroup for channels (cells).
+ */
+inline
+const CaloIDHelper::HashGroup& CaloIDHelper::channels() const
+{
+  return m_channels;
+}
+
+
+/**
+ * @brief Return the @c HashGroup for regions.
+ */
+inline
+const CaloIDHelper::HashGroup& CaloIDHelper::regions() const
+{
+  return m_regions;
+}
+
+
+/**
+ * @brief Return the channel Identifier for a given hash code (no checking).
+ */
+inline
+Identifier CaloIDHelper::channel_id (IdentifierHash hashId) const
+{
+  return m_channels.id(hashId);
+}
+
+
+/**
+ * @brief Return the region Identifier for a given hash code (no checking).
+ */
+inline
+Identifier CaloIDHelper::region_id (IdentifierHash hashId) const
+{
+  return m_regions.id(hashId);
+}
+
+
+/**
+ * @brief Convert a connected channel (cell) Identifier to a hash code.
+ *        Some subdetector helpers may override this with a faster version.
+ */
+inline
+IdentifierHash CaloIDHelper::channel_hash (Identifier channelId) const
+{
+  return m_channels.hash (channelId);
+}
+
+
+/**
+ * @brief Convert a connected region Identifier to a hash code.
+ *        Some subdetector helpers may override this with a faster version.
+ */
+inline
+IdentifierHash CaloIDHelper::region_hash (Identifier regionId) const
+{
+  return m_regions.hash (regionId);
+}
+
+
+
+/**
+ * @brief One more than the largest channel (cell) hash code.
+ */
+inline
+CaloIDHelper::size_type CaloIDHelper::channel_hash_max() const
+{
+  return m_channels.hash_max();
+}
+
+
+/**
+ * @brief One more than the largest region hash code.
+ */
+inline
+CaloIDHelper::size_type CaloIDHelper::region_hash_max() const
+{
+  return m_regions.hash_max();
+}
+
+
+/**
+ * @brief Return the context for channels (cells).
+ */
+inline
+IdContext CaloIDHelper::channel_context() const
+{
+  return m_channels.context();
+}
+
+
+/**
+ * @brief Return the context for regions.
+ */
+inline
+IdContext CaloIDHelper::region_context() const
+{
+  return m_regions.context();
+}
+
+
+/**
+ * @brief Return the vector of @c IdDictRegion, accessed via region hash.
+ */
+inline
+const std::vector<const IdDictRegion*>& CaloIDHelper::dictRegions() const
+{
+  return m_vecOfDictRegions;
+}
+
+
+/**
+ * @brief Return the @c HashGroup for channels (cells).  non-const.
+ */
+inline
+CaloIDHelper::HashGroup& CaloIDHelper::channels()
+{
+  return m_channels;
+}
+
+
+/**
+ * @brief Return the @c HashGroup for regions.  non-const.
+ */
+inline
+CaloIDHelper::HashGroup& CaloIDHelper::regions()
+{
+  return m_regions;
+}
+
+
+/**
+ * @brief Return the dictionary for this subdetector.
+ */
+inline
+const IdDictDictionary* CaloIDHelper::dict() const
+{
+  return m_dict;
+}
+
+
+/**
+ * @brief Return the name for this helper.
+ */
+inline
+std::string CaloIDHelper::name() const
+{
+  return m_name;
+}
+
+
+/**
+ * @brief Return the message service for this helper.
+ */
+inline
+IMessageSvc* CaloIDHelper::msgSvc() const
+{
+  return m_msgSvc;
+}

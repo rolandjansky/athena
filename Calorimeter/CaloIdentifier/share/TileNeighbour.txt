@@ -1,0 +1,54 @@
+# $Id: TileNeighbour.txt,v 1.4 2004-05-04 17:29:11 menke Exp $
+# $Name: not supported by cvs2svn $
+#	
+# format of the file:
+# cell name:   prev_eta cell1, ... celln;  next_eta; prev_samp; next_samp;
+# all cell names MUST be separated by space or <TAB>
+# all neighbours of one kind for a given cell are ordered according to eta
+# only negative eta side is given
+# second one is obtained by mirroring
+#
+A-1:	A-2;		A+1;		none;		BC-1;
+A-2:	A-3;		A-1;		none;		BC-1, BC-2;
+A-3:	A-4;		A-2;		none;		BC-2, BC-3;
+A-4:	A-5;		A-3;		none;		BC-3, BC-4;
+A-5:	A-6;		A-4;		none;		BC-4, BC-5;
+A-6:	A-7;		A-5;		none;		BC-5, BC-6;
+A-7:	A-8;		A-6;		none;		BC-6, BC-7;
+A-8:	A-9;		A-7;		none;		BC-7, BC-8;
+A-9:	A-10;		A-8;		none;		BC-8, B-9;
+A-10:	E-2, A-12;	A-9;		none;		B-9,  C-10, B-11, E-1;
+A-12:	A-13;		A-10, E-2;	E-3;		E-1,  B-11;
+A-13:	A-14;		A-12;		E-3;		B-11, B-12;
+A-14:	A-15;		A-13;		E-3, E-4;	B-12, B-13;
+A-15:	A-16;		A-14;		E-4;		B-13, B-14;
+A-16:	none;		A-15;		E-4;		B-14, B-15;
+#
+BC-1:	BC-2;		BC+1;		A-1, A-2;	D*0;
+BC-2:	BC-3;		BC-1;		A-2, A-3;	D*0, D-1;
+BC-3:	BC-4;		BC-2;		A-3, A-4;	D-1;
+BC-4:	BC-5;		BC-3;		A-4, A-5;	D-1, D-2;
+BC-5:	BC-6;		BC-4;		A-5, A-6;	D-2;
+BC-6:	BC-7;		BC-5;		A-6, A-7;	D-2, D-3;
+BC-7:	BC-8;		BC-6;		A-7, A-8;	D-3;
+BC-8:	B-9, C-10;	BC-7;		A-8, A-9;	D-3, D-4;
+B-9:  C-10, B-11, E-1;	BC-8;		A-9, A-10;	D-4;
+C-10:	B-11;		BC-8, B-9;	A-10, E-1;	D-4, D-5;
+B-11:	B-12;		B-9, C-10, E-1;	A-10, A-12, A-13; D-5;
+B-12:	B-13;		B-11;		A-13, A-14;	D-5;
+B-13:	B-14;		B-12;		A-14, A-15;	D-5, D-6;
+B-14:	B-15;		B-13;		A-15, A-16;	D-6;
+B-15:	none;		B-14;		A-16;		D-6;
+#
+D*0:	D-1;		D+1;		BC+2, BC+1, BC-1, BC-2;	none;
+D-1:	D-2;		D*0;		BC-2, BC-3, BC-4;	none;
+D-2:	D-3;		D-1;		BC-4, BC-5, BC-6;	none;
+D-3:	D-4;		D-2;		BC-6, BC-7, BC-8;	none;
+D-4:	D-5;		D-3;		BC-8, B-9,  C-10;	none;
+D-5:	D-6;		D-4;		C-10, B-11, B-12, B-13;	none;
+D-6:	none;		D-5;		B-13, B-14, B-15;	none;
+#
+E-1:	B-11;		B-9;		A-10, E-2, A-12;	C-10;
+E-2:	A-12;		A-10;		E-3;			E-1;
+E-3:	none;		none;		E-4;	E-2, A-12, A-13, A-14;
+E-4:	none;		none;		none;	E-3, A-14, A-15, A-16;

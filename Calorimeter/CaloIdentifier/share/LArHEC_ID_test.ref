@@ -1,0 +1,90 @@
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+hec  decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn   decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+samp decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+reg  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffbfffffffffffff 54 1  9  indexes                     mode  both_bounded  
+eta  decode 0 vals 0:9             mask/zero mask/shift/bits/offset f   ffc3ffffffffffff 50 4  10 indexes                     mode  both_bounded  
+phi  decode 0 vals 0:63            mask/zero mask/shift/bits/offset 3f  fffc0fffffffffff 44 6  14 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffff7ffffffffff 43 1  20 indexes                     mode  both_bounded  
+initialize_from_dict : 
+ channel range -> 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
+ region range -> 4/2/-2,2/0/0 | 4/2/-2,2/1/0 | 4/2/-2,2/2/0 | 4/2/-2,2/3/0 | 4/2/-2,2/0/1 | 4/2/-2,2/1/1 | 4/2/-2,2/2/1 | 4/2/-2,2/3/1
+ disconnected channel range -> 4/-2/-2,2/2/0/0/0:63 | 4/-2/-2,2/3/0/0:1/0:63 | 4/-2/-2,2/1/1/3/0:31 | 4/-2/-2,2/2/1/3/0:31
+ disconnected region range -> 4/-2/-2,2/2/0 | 4/-2/-2,2/3/0 | 4/-2/-2,2/1/1 | 4/-2/-2,2/2/1
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+hec  decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn   decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+samp decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+reg  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffbfffffffffffff 54 1  9  indexes                     mode  both_bounded  
+eta  decode 0 vals 0:9             mask/zero mask/shift/bits/offset f   ffc3ffffffffffff 50 4  10 indexes                     mode  both_bounded  
+phi  decode 0 vals 0:63            mask/zero mask/shift/bits/offset 3f  fffc0fffffffffff 44 6  14 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffff7ffffffffff 43 1  20 indexes                     mode  both_bounded  
+initialize_from_dict : 
+ channel range -> 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
+ region range -> 4/2/-2,2/0/0 | 4/2/-2,2/1/0 | 4/2/-2,2/2/0 | 4/2/-2,2/3/0 | 4/2/-2,2/0/1 | 4/2/-2,2/1/1 | 4/2/-2,2/2/1 | 4/2/-2,2/3/1
+ disconnected channel range -> 4/-2/-2,2/2/0/0/0:63 | 4/-2/-2,2/3/0/0:1/0:63 | 4/-2/-2,2/1/1/3/0:31 | 4/-2/-2,2/2/1/3/0:31
+ disconnected region range -> 4/-2/-2,2/2/0 | 4/-2/-2,2/3/0 | 4/-2/-2,2/1/1 | 4/-2/-2,2/2/1
+ LArHEC_Base_ID::init_neighbors 
+test_basic
+[4.2.2.1.0.0.1.0] hex(3280100000000000)
+[4.2.2.2.0.2.10.0] hex(3308a00000000000)
+[4.2.2.3.1.0.20.0] hex(33c1400000000000)
+[4.2.-2.1.0.0.1.0] hex(3080100000000000)
+[4.2.-2.2.0.2.10.0] hex(3108a00000000000)
+[4.2.-2.3.1.0.20.0] hex(31c1400000000000)
+test_connected
+  nchannel 5632
+  nregion 16
+Sampling   Outer         Inner
+0            1280           256
+1            1280           192
+2            1152           192
+3            1024           256
+Total        4736           896   Grand total:   5632
+Region [4.2.-2.0.0.0.0.0] eta: 1.500000 0.100000 0   9 phi: 0.0 0.098175 0  63
+Region [4.2.-2.0.1.0.0.0] eta: 2.500000 0.200000 0   3 phi: 0.0 0.196350 0  31
+Region [4.2.-2.1.0.0.0.0] eta: 1.500000 0.100000 0   9 phi: 0.0 0.098175 0  63
+Region [4.2.-2.1.1.0.0.0] eta: 2.500000 0.200000 0   2 phi: 0.0 0.196350 0  31
+Region [4.2.-2.2.0]       eta: 1.600000 0.100000 1   9 phi: 0.0 0.098175 0  63
+Region [4.2.-2.2.1.0.0.0] eta: 2.500000 0.200000 0   2 phi: 0.0 0.196350 0  31
+Region [4.2.-2.3.0]       eta: 1.700000 0.100000 2   9 phi: 0.0 0.098175 0  63
+Region [4.2.-2.3.1.0.0.0] eta: 2.500000 0.200000 0   3 phi: 0.0 0.196350 0  31
+Region [4.2.2.0.0.0.0.0]  eta: 1.500000 0.100000 0   9 phi: 0.0 0.098175 0  63
+Region [4.2.2.0.1.0.0.0]  eta: 2.500000 0.200000 0   3 phi: 0.0 0.196350 0  31
+Region [4.2.2.1.0.0.0.0]  eta: 1.500000 0.100000 0   9 phi: 0.0 0.098175 0  63
+Region [4.2.2.1.1.0.0.0]  eta: 2.500000 0.200000 0   2 phi: 0.0 0.196350 0  31
+Region [4.2.2.2.0]        eta: 1.600000 0.100000 1   9 phi: 0.0 0.098175 0  63
+Region [4.2.2.2.1.0.0.0]  eta: 2.500000 0.200000 0   2 phi: 0.0 0.196350 0  31
+Region [4.2.2.3.0]        eta: 1.700000 0.100000 2   9 phi: 0.0 0.098175 0  63
+Region [4.2.2.3.1.0.0.0]  eta: 2.500000 0.200000 0   3 phi: 0.0 0.196350 0  31
+test_disco
+  nchan 512
+Sampling   Outer         Inner
+0               0             0
+1               0            64
+2             128            64
+3             256             0
+Total         384           128   Grand total:    512
+test_exceptions
+Exception 1: LArID_Exception - Error code: 7 
+ LArHEC_Base_ID::region_id() result is not OK: ID, range = 4/2/0/99/0 , 4/2/-2,2/0/0 | 4/2/-2,2/1/0 | 4/2/-2,2/2/0 | 4/2/-2,2/3/0 | 4/2/-2,2/0/1 | 4/2/-2,2/1/1 | 4/2/-2,2/2/1 | 4/2/-2,2/3/1
+Exception 2: LArID_Exception - Error code: 8 
+ LArHEC_Base_ID::channel_id() result is not OK: ID, range = 4/2/0/99/0/0/0/0 , 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
+Exception 3: LArID_Exception - Error code: 8 
+ LArHEC_Base_ID::channel_id(regId) result is not OK: ID, range = 4/2/2/0/0/0/-99/0 , 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
+test_neighbors
+test_hec

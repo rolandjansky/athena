@@ -1,0 +1,64 @@
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+test_basic
+[5.5.1.0.0.0.0.0] hex(5600000000000000)
+[5.6.1.1.10.2.0.0] hex(5a0d400000000000)
+[5.5.-1.0.0.0.0.0] hex(5400000000000000)
+[5.6.-1.1.10.2.0.0] hex(580d400000000000)
+test_connected
+  ncell 2752
+  nmodule 256
+  nregion 4
+  ntower 2048
+  npmt 2752
+  nadc 2752
+Sampling  Barrel     Ext Barrel     Gap      Other
+ 0          1152         896          0          0
+ 1             0           0          0          0
+ 2           448         256          0          0
+ 3             0           0          0          0
+Total       1600        1152          0          0   Grand total: 2752
+Region [5.5.-1.0.0.0.0.0] eta:  0   0  0   8 phi:  63
+Region [5.5.1.0.0.0.0.0]  eta:  0   0  0   8 phi:  63
+Region [5.6.-1.0]         eta:  9  15  9  15 phi:  63
+Region [5.6.1.0]          eta:  9  15  9  15 phi:  63
+test_exceptions
+Exception 1: TileID_Exception - Error code: 1
+Tile_Base_ID::region_id() result is not OK: ID, range = 5/255/1 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 2: TileID_Exception - Error code: 1
+Tile_Base_ID::module_id() result is not OK: ID, range = 5/5/1/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 3: TileID_Exception - Error code: 1
+Tile_Base_ID::tower_id() result is not OK: ID, range = 5/5/1/0/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 4: TileID_Exception - Error code: 1
+Tile_Base_ID::cell_id() result is not OK: ID, range = 5/5/1/0/0/99 , 5/5/-1/0:63/0/0 | 5/5/1/0:63/0/0,2 | 5/5/-1/0:63/1/0 | 5/5/1/0:63/1/0 | 5/5/-1/0:63/2/0,2 | 5/5/1/0:63/2/0,2 | 5/5/-1/0:63/3/0 | 5/5/1/0:63/3/0 | 5/5/-1/0:63/4/0,2 | 5/5/1/0:63/4/0,2 | 5/5/-1/0:63/5/0 | 5/5/1/0:63/5/0 | 5/5/-1/0:63/6/0,2 | 5/5/1/0:63/6/0,2 | 5/5/-1/0:63/7/0 | 5/5/1/0:63/7/0 | 5/5/-1/0:63/8/0 | 5/5/1/0:63/8/0 | 5/6/-1,1/0:63/9/0 | 5/6/-1,1/0:63/10/0,2 | 5/6/-1,1/0:63/11/0 | 5/6/-1,1/0:63/12/0,2 | 5/6/-1,1/0:63/13/0 | 5/6/-1,1/0:63/14/0 | 5/6/-1,1/0:63/15/0
+Exception 5: TileID_Exception - Error code: 1
+Tile_Base_ID::pmt_id() result is not OK: ID, range = 5/5/1/1/8/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 6: TileID_Exception - Error code: 1
+Tile_Base_ID::pmt_id() result is not OK: ID, range = 5/5/1/0/0/0/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 7: TileID_Exception - Error code: 1
+Tile_Base_ID::adc_id() result is not OK: ID, range = 5/5/1/0/0/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 8: TileID_Exception - Error code: 1
+Tile_Base_ID::adc_id() result is not OK: ID, range = 5/5/1/0/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 9: TileID_Exception - Error code: 1
+Tile_Base_ID::adc_id() result is not OK: ID, range = 5/5/1/0/0/0/0/99 , 5/5/-1 | 5/5/1 | 5/6/-1,1
+Exception 10: TileID_Exception - Error code: 1
+Tile_Base_ID::cell_id(hash_id) - hash_id out of range 
+Exception 11: TileID_Exception - Error code: 1
+Tile_Base_ID::cell_hash(cell_id) - cell_id out of range 
+test_to_string
+2 5/5/1
+2 5/5/1
+3 5/5/1/0
+3 5/5/1/0
+4 5/5/1/0/4
+4 5/5/1/0/4
+5 5/5/1/0/4/2
+5 5/5/1/0/4/2
+6 5/5/1/0/4/2/0
+6 5/5/1/0/4/2/0
+7 5/5/1/0/4/2/0/0
+7 5/5/1/0/4/2/0/0
