@@ -1,0 +1,103 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+
+///////////////////////////////////////////////////////////////
+// The rest of the file contains doxygen documentation only! //
+/////////////////////////////////////////////////////////////// 
+
+/*! @class xAOD::MissingETComponentMap_v1
+ *  @brief Data object to store the composition of the fully reconstructed MET
+ *
+ *  The composition of a MET term is described by the MET contribution, as represented by the MissingETComponent_v1 object. The composition
+ *  of the fully reconstructed MET is then a collection of these contributions. It is stored in a data object of type MissingETComponentMap, and
+ *  can be managed and queried by a set of functions provided in the MissingETComposition structure. While the basic motivation for the composition
+ *  map is to have one for each MET contribution, there is no particular enforcement of this rule by the software.
+ *
+ *  <b>Principal design guidelines</b>
+ *
+ *  The MET composition describing a fully configured MET (@f$ E_{\rm T}^{\rm miss} @f$) contains a list of MET terms, which in general should add up to
+ *  @f E_{\rm T}^{\miss} @f$. Each MET term is represented by a MET contribution object of type MissingETComponent_v1. The sequence with which these
+ *  contributions are recorded into the composition is given by the tool sequence invoked to reconstruct the corresponding terms. This suggests a 
+ *  random access container object for the composition. The basic model chosen for implementation is ::DataVector<xAOD::MissingETComponent_v1>. 
+ *  While this base class provides all necessary features to manage the MET composition, it lacks (1) support for map-like  data access using keys, 
+ *  (2) the enforcement of the order of MET contribution objects to reflect the MET reconstruction sequence, and (3) enforcing a possible 
+ *  uniqueness requirement concerning the MET contributions and the contributing physics or signal objects therein.
+ *  
+ *  The support indicated in (1) is added by extending the base class behaviours provided by DataVector<xAOD::MissingETComponent_v1> with a set of 
+ *  methods implementing queries and other functionality which is typical for keyed data lookup. Because the underlying storage technology provides a
+ *  linear store with random access by vector index, searches for a given MET contribution (MissingETComponent_v1 object) are linear, with at most
+ *  @f$ N_{\rm contrib} @f$ iterations, where @f$ N_{\rm contrib} = 6 @f$ is the (typical) total number of MET terms represented by a MET contribution
+ *  data object. Optimizations are considered in that the previous search result is cached.
+ *
+ *  The enforcement of a certain order of MET terms in the composition map (2) is not implemented for right now, as random access is the most common
+ *  access method. This means that outside of framework supported technologies, there is no reliable link provided between the MissingETComponent_v1 
+ *  object sequence and a corresponding tool invocation sequence.     
+ *
+ *  Methods implementing checks to determine if a certain physics or signal object is already registered in a MET contribution in the MET composition
+ *  map are provided to support the uniqueness requirement (3). The corresponding data is organized in a dedicated cache tracking the object use.
+ *  This cache is transient only at this time.   
+ *
+ *  <b> Store organization </b>
+ *
+ *  This store is an implementation of a DataVector<xAOD::MissingETContributiooon_v1>. Each MET term is one entry in this vector, with its contributions completely described by 
+ *  the MissingETComponent_v1 typed object. This object contains a link to the MET object (type MissingET_v1) representing the kinematic properties, name, and source
+ *  for the term. In addition, it contains a status word providing additional information about the MET contrbution (see MissingETBase::Status), a vector of links to the 
+ *  contributing physics or signal objects, and an index-parallel vector of kinematic weights quantifying the contribution. The actual data store for the MissingETComponent_v1 
+ *  object is set up in the (storable) MissingETAuxCompositionMap_v1 object associated with each MissingETComponentMap_v1 object. 
+ *
+ *  In addition to the persistifiable composition using the store provided by the MissingETAuxCompositionMap_v1 object, there are the already mentioned temporary (transient) 
+ *  caches keeping track of all contributing objects, including the used calorimeter clusters and ID tracks. These are described below.
+ *
+ *  <b> Transient store organization </b>
+ *
+ *  These caches are provided to help with quickly tracing the contributions from physics and signal objects to a MET term and/or the fully reconstructed MET. The idea here 
+ *  is to provide support for fast (random access) look-up to find contributing calorimeter clusters and ID tracks, and to maintain a map for all other objects (binary search). 
+ *  These caches are completely transparent to clients. They can be suppressed if they  are not needed.
+ *
+ *  In read-only mode (e.g., after retrieval of a MissingETComponentMap_v1 object from a persistent store), the look-up tables can be partially refilled from the data
+ *  content of the composition map. As this is a potentially costly operation, this refill can be  suppressed in the constructor of the MissingETComponentMap_v1 object.
+ *
+ *  @anchor metcomp_cache_features
+ *  <b>Transient store features</b> (@ref metcomp_cache Link to code documentation)
+ * 
+ *  The internal caches support fast lookup of @ref metcomp_cache_lookup "(1)" the MET object a given physics or signal object contributes to, and 
+ *  @ref metcomb_cache_signals "(2)" the use of basic calorimeter (cluster) 
+ *  and ID (tracks) signals. While (1) is useful for all clients, (2) is mostly useful for keeping track of the basis signal use and thus for signal ambiguity resolution.
+ * 
+ *  @anchor metcomp_cache_lookup
+ *  (1) <i>Fast object contribution look-up</i>
+ *
+ *  The look-up of which MissingET_v1 object a given objects contributes to, is implemented as a keyed map, with the key being the pointer to
+ *  the given physics object, and the data being the index of the corresponding MissingETComponent_v1 object in the MissingETComponentMap_v1 map, paired with
+ *  the index of the given physics object in the MissingETComponent_v1 object referenceed by the first index.
+ *
+ *  The search for a given object includes a binary search in this keyed map, as there is no unique direct index available for @a any object type (indices are only unique 
+ *  for objects stored in the same container). If the given object is a xAOD::CaloCluster or a xAOD::TrackParticle, the search is skipped and the indices of the 
+ *  MissingETComponent_v1 object and the object the cluster or track are associated with, are retrieved from the random access look-up caches described 
+ *  @ref metcomp_cache_signals "below". This strategy avoids repeated storage 
+ *  of the same information for a potentially large amount of clusters and tracks. It also allows for a faster look-up of not only cluster and track contributions by 
+ *  avoiding a (binary) search. In addition, this strategy considerably reduces the size of the keyed map, because only a relatively small number of physics objects 
+ *  contributing to MET enters into it.
+ *
+ *  @anchor metcomp_cache_signals
+ *  (2) <i>Signal object contribution look-up</i>
+ *
+ *  Signal objects relevant for MET are TopoCluster and TrackParticles. Under the assumption that there is only one container for each of
+ *  those for each event (this is a requirement to do signal overlap resolution on a common base in MET reconstruction), the index of 
+ *  a given signal object in its respective container is a unique identifier for this object. This index can then be used for random access look-up
+ *  of the indices of the MissingETComponent_v1 object and the physics object the cluster or track is associated with. All relevant information
+ *  describing the contribution can be retrieved from the referenced MissingETComponent_v1 object and the index into its contributing object list.
+ *   
+ *  @author  Donatella Cavalli <a href="Donatella.Cavalli@cern.ch"><Donatella.Cavalli_AT_cern.ch></a>
+ *  @author  Teng Jian Khoo <a href="mailto:khoo@hep.phy.cam.ac.uk"><khoo_AT_hep.phy.cam.ac.uk></a>
+ *  @author  Peter Loch <a href="mailto:loch@physics.arizona.edu"><loch_AT_physics.arizona.edu></a>
+ *  @author  Caterina Pizio <a href="mailto:Caterina.Pizio@mi.infn.it"><Caterina.Pizio_AT_mi.infn.it></a> 
+ *  @author  Silvia Resconi <a href="mailto:Silvia.Resconi@cern.ch"><Silvia.Resconi_AT_cern.ch></a>
+ *  @date    February 11, 2014
+ *  @version 1.0 (for 19.0.1)
+ */

@@ -1,0 +1,343 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef XAODMISSINGET_VERSIONS_MISSINGETCOMPONENTMAP_V1_H
+#define XAODMISSINGET_VERSIONS_MISSINGETCOMPONENTMAP_V1_H
+
+#include "AthContainers/DataVector.h"
+
+#include "xAODBase/ObjectType.h"
+
+#include "xAODMissingET/versions/MissingETCompositionBase.h"
+#include "xAODMissingET/versions/MissingET_v1.h"
+#include "xAODMissingET/versions/MissingETComponent_v1.h"
+
+#include <string>
+#include <vector>
+#include <map>
+
+namespace xAOD
+{
+  class MissingETComponentMap_v1 : public DataVector<MissingETComponent_v1>
+  {
+  public:
+
+    /*! @brief Default constructor */
+    MissingETComponentMap_v1(SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
+    /*! @brief Constructor from iterators */
+    MissingETComponentMap_v1(MissingETComponentMap_v1::iterator first, MissingETComponentMap_v1::iterator last,
+			     SG::OwnershipPolicy own=SG::OWN_ELEMENTS, SG::IndexTrackingPolicy trackIndices = SG::DEFAULT_TRACK_INDICES);
+    /*! @brief Base class destructor */
+    virtual ~MissingETComponentMap_v1();
+
+    /*! @name Find methods */
+    /*!@{*/
+    /*! @brief Find MET object referenced by pointer
+     *
+     *  @return Const iterator referencing a non-modifiable xAOD::MissingETComponent_v1 object linking to the given MET object. If the MET object is not in the ccomposition map,
+     *          an end const iterator is returned.
+     *
+     *  @param[in] pMET pointer to the xAOD::MissingET_v1 object searched for in the composition map.   
+     */
+    const_iterator find(const MissingET_v1* pMET)   const;
+    /*! @brief Find MET object referenced by name
+     *
+     *  @return Const iterator referencing a non-modifiable xAOD::MissingETComponent_v1 object linking to the given MET object. If the MET object is not in the ccomposition map,
+     *          an end const iterator is returned.
+     *
+     *  @param[in] name reference to non-modifiable string storing the name of the xAOD::MissingET_v1 object searched for.  
+     *
+     *  @note It is generally expected that the name of the xAOD::MissingET_v1 object is unique for this composition. If not, the iterator referencing the first  
+     *        xAOD::MissingETComponent_v1 object containing a link to a xAOD::MissingET_v1 object with the requested name is returned.   
+     */
+    const_iterator find(const std::string& name) const;
+    /*! @brief Find MET object referenced by source indicator
+     *
+     *  @return Const iterator referencing a non-modifiable xAOD::MissingETComponent_v1 object linking to the given MET object. If the MET object is not in the ccomposition map,
+     *          an end const iterator is returned.
+     *
+     *  @param[in] src bit pattern with the requested source indicator.
+     *
+     *  @note It is generally expected that the source of the xAOD::MissingET_v1 object is unique for this composition. If not, the iterator referencing the first  
+     *        xAOD::MissingETComponent_v1 object containing a link to a xAOD::MissingET_v1 object with the requested source is returned.   
+     */
+    const_iterator find(MissingETBase::Types::bitmask_t src)           const;
+    /*! @brief Find MET object referenced by pointer
+     *
+     *  @return Iterator referencing a modifiable xAOD::MissingETComponent_v1 object linking to the given MET object. If the MET object is not in the ccomposition map,
+     *          an end iterator is returned.
+     *
+     *  @param[in] pMET pointer to the xAOD::MissingET_v1 object searched for in the composition map.   
+     */
+    iterator find(const MissingET_v1* pMET);
+    /*! @brief Find MET object referenced by name
+     *
+     *  @return Iterator referencing a modifiable xAOD::MissingETComponent_v1 object linking to the given MET object. If the MET object is not in the ccomposition map,
+     *          an end iterator is returned.
+     *
+     *  @param[in] name reference to non-modifiable string storing the name of the xAOD::MissingET_v1 object searched for.  
+     *
+     *  @note It is generally expected that the name of the xAOD::MissingET_v1 object is unique for this composition. If not, the iterator referencing the first  
+     *        xAOD::MissingETComponent_v1 object containing a link to a xAOD::MissingET_v1 object with the requested name is returned.   
+     */
+    iterator find(const std::string& name);
+    /*! @brief Find MET object referenced by source indicator
+     *
+     *  @return Iterator referencing a modifiable xAOD::MissingETComponent_v1 object linking to the given MET object. If the MET object is not in the ccomposition map,
+     *          an end iterator is returned.
+     *
+     *  @param[in] src bit pattern with the requested source indicator.
+     *
+     *  @note It is generally expected that the source of the xAOD::MissingET_v1 object is unique for this composition. If not, the iterator referencing the first  
+     *        xAOD::MissingETComponent_v1 object containing a link to a xAOD::MissingET_v1 object with the requested source is returned.   
+     */
+    iterator find(MissingETBase::Types::bitmask_t src);
+    size_t findIndex(const MissingET_v1* pMET) const;
+    size_t findIndex(const std::string& name) const;
+    size_t findIndex(MissingETBase::Types::bitmask_t sw) const;
+    /*! @brief Retrieve MissingET_v1 object by name
+     *
+     *  @return Valid pointer to MissingET_v1 typed object representing a MET term. If the requested object cannot be found,
+     *          NULL is returned. 
+     *
+     *  @param[in] name reference to non-modifiable dataword holding the name of the requested MET object. 
+     */
+    const MissingET_v1* retrieveMissingET(const std::string& name) const;
+    /*! @brief Retrieve MissingET_v1 object by source indicator
+     *
+     *  @return Valid pointer to MissingET_v1 typed object representing a MET term. If the requested object cannot be found,
+     *          NULL is returned. 
+     *
+     *  @param[in] src   bit pattern defining the source of the requested MET object.
+     *  @param[in] excl  flag controlling the bit pattern test - if @c false, the pointer to the first MET object found with a source indicator 
+     *                   containing the requested bit pattern is returned; if @c true, the first MET object found with exactly the requested 
+     *                   bit pattern as a source indicator is returned. 
+     */
+    const MissingET_v1* retrieveMissingET(MissingETBase::Types::bitmask_t src,bool excl=false) const;
+    /*! @brief Retrieve MissingET_v1 object by source indicator and status word
+     *
+     *  @copydetails retrieveMissingET(MissingETBase::Types::bitmask_t)
+     *
+     *  @param[in] sw    bit pattern defining the status of the MET contribution linking to the requested MET object.
+     *
+     *  @note While the MissingET_v1 object name should be unique within a given MET composition, MET objects can have the same source with a different
+     *        contribution status. This method supports a query for a MET object with a given source/status combination.
+     */
+    const MissingET_v1* retrieveMissingET(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw,bool excl=false) const;
+    /*!@}*/
+
+  public:
+
+    /*! @name Client interactions with local cache */
+    /*!@{*/
+    /*! @brief Check if a given object is already used in MET
+     *
+     *  @return @c true if the referenced signal object is already used.
+     * 
+     *  @param[in] pPart generic (base class) pointer to signal object (xAOD::CaloCluster or xAOD::TrackParticle).
+     *  @param[in] p     tags signal type to be checked to usage (optional, default is MissingETBase::UsageHandler::OnlyCluster).   
+     */
+    bool checkUsage(const IParticle* pPart,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const;
+    /*! @brief Check a list of objects for prior usage in MET reconstruction
+     *
+     *  @return @c true if any of the objects in the list has already been used in another MET contribution. The iput object list contains 
+     *          pointer references to objects which have not yet been used.
+     *
+     *  @param[inout] signals reference to modifiable list of objects.
+     *  @param[in]    p       tags signal type to be checked to usage (optional, default is MissingETBase::UsageHandler::OnlyCluster).   
+     *
+     *  @note The list of signals on input can contain various signal (object) types. The modified list contains only references to objects 
+     *        with types determined by the MissingETBase::UsageHandler::Policy. By default, those are clusters. 
+     *  @note Usage is always measured with respect to the type given by MissingETBase::UsageHandler::Policy. For example, if the input signal
+     *        list has mixed object types, its content on return contains only references to objects of the type determined by the MissingETBase::UsageHandler::Policy. 
+     *        By default, those are clusters. This modification of the input list does not indicate that any clusters in this list have already been used. This
+     *        is done by the return value.         
+     */
+    bool checkUsage(MissingETBase::Types::object_vector_t& signals,MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::OnlyCluster) const; 
+    //
+    bool addObjects(const MissingET_v1* pMET,const IParticle* pPart,const MissingETBase::Types::object_vector_t& signalList,
+		    MissingETBase::UsageHandler::Policy p = MissingETBase::UsageHandler::OnlyCluster);
+    bool setClusters(const MissingET_v1* pMET,const IParticle* pPart,const MissingETBase::Types::object_vector_t& signalList);
+    bool setTracks(const MissingET_v1* pMET,const IParticle* pPart,const MissingETBase::Types::object_vector_t&  signalList);
+    bool setObjects(const MissingET_v1* pMET,const IParticle* pPart,const MissingETBase::Types::object_vector_t& objectList);
+    size_t getComponentIndex(const IParticle* pPart) const;
+    size_t getObjectIndex(const IParticle* pPart) const;
+    /*!@}*/
+
+  protected:
+
+    /*! @name Internal types for local cache handling */
+    /*!@{*/
+    typedef size_t                              signal_key_t;     /*!< @brief Key type for signals (clusters, tracks) is type of index in container */
+    typedef const IParticle*                    particle_key_t;   /*!< @brief Key type for physics objects is the base pointer type of these objects */
+    typedef MissingETBase::Types::indexedlink_t indexedlink_t;      /*!< @brief Type for the description of the link locations
+								   *
+								   *   This is a two-component type which allows holding the index of the xAOD::MissingETComponent_v1 object a physics or
+								   *   signal object is linked from, and the index of this linked object in the contributing object list.
+								   */
+    typedef std::vector<indexedlink_t>             signal_vector_t; /*!< @brief Indexed list type for signal object link locations
+								   *
+								   *   In case of a signal (xAOD::CaloCluster, xAOD::TrackParticle) object look-up, the index of these objects can be 
+								   *   directly used to check if they have already been used in the actual MET composition (random access in this index
+								   *   parallel store - with respect to the actual xAOD::CaloClusterContainer and the xAOD::TrackParticleContainer).   
+								   */
+    typedef std::map<particle_key_t,indexedlink_t> particle_map_t;  /*!< @brief Map type for physics object
+								   *
+								   *   In case of physics objects, a map look-up is implemented as the lack of a common container for these objects
+								   *   does not allow using the index as a unique key. The object pointer is used instead, and the look-up is provided
+								   *   by a standard map (binary search). Typically, the number of entries in this map is rather small (much less than 
+								   *   100) so that this storage technology should not introduce performance problems.  
+								   */
+    /*!@}*/
+
+    /*! @name Internal data for local cache */
+    /*!@{*/
+    mutable signal_vector_t m_clusterLinks;  /*!< @brief Store for linked cluuster signal information lookup 
+					      *   @copydetails signal_vector_t
+					      */
+    mutable signal_vector_t m_trackLinks;    /*!< @brief Store for linked track signal information lookup 
+					      *   @copydetails signal_vector_t
+					      */
+    mutable particle_map_t  m_particleLinks; /*!< @brief Store for linked physics object information lookup
+					      *   @copydetails particle_map_t 
+					      */
+    /*!@}*/
+
+    /*! @name Internal functions for local cache handling  */
+    /*!@{*/
+    template<int N> size_t f_getIndex(const IParticle* pPart) const
+    {
+      // check on cluster signal
+      if ( pPart->type() == Type::CaloCluster ) 
+	{ size_t idx(pPart->index()); return idx < m_clusterLinks.size() ? m_clusterLinks.at(idx).get<N>() : MissingETBase::Numerical::invalidIndex(); }
+      // check on track signal
+      if ( pPart->type() == Type::TrackParticle )
+	{ size_t idx(pPart->index()); return idx < m_trackLinks.size() ? m_trackLinks.at(idx).get<N>() : MissingETBase::Numerical::invalidIndex(); }
+      // 
+      particle_map_t::const_iterator fPart(m_particleLinks.find(pPart));
+      return fPart != m_particleLinks.end() ? (fPart->second).get<N>() : MissingETBase::Numerical::invalidIndex();
+    }
+    /*!@}*/
+
+    /*! @name Internal object lookup cache handlers */
+    /*!@{*/
+    /*! @brief Check signal object usage
+     *
+     *  @return @c true if any of the signal objects in the inout list is already marked as used. In addition, all used objects are removed from the input (signal) object list.
+     *          If none of the objects in this list is already used, @c false is returned.
+     *
+     *  @param[inout] signals reference to modifiable list of signal objects to be checked for usage in MET reconstruction.
+     *  @param[in]    signalLinks reference to modifiable list of signals already used (means linked to a MET contribution).
+     *
+     *  @note This method does not add yet unused signal  objects to the signal link list, as this decision is controlled by the specific MET reconstruction tool.   
+     */
+    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& signals,signal_vector_t& signalLinks) const ;
+    /*! @brief Check physics object usage
+     *
+     *  @return @c true if any of the physics objects in the input list is already marked as used. In addition, all used objects are removed from the input (physics) object list.
+     *          If none of the objects in this list is already used, @c false is returned.
+     *
+     *  @param[inout] objects reference to modifiable list of physics objects to be checked for usage in MET reconstruction.
+     *  @param[in]    physicsLinks reference to modifiable map of link descriptors for physics objects already used (means linked to a MET contribution).
+     *
+     *  @note This method does not add yet unused physics objects to the signal link list, as this decision is controlled by the specific MET reconstruction tool.   
+     */
+    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects,particle_map_t& physicsLinks) const;
+    /*! @brief Fill the lookup cache from the composition map data content */
+    void f_fillLookupCache();
+    /*! @brief Clear the lookup cache */
+    void f_clearLookupCache();
+    /*! @brief Set up the signal object lookup */
+    void f_setupLookupCache(signal_vector_t& signalLinks,size_t reserve);
+    /*! @brief Signal type extractor
+     *
+     *  @return @c true if input object list contains requested signal type, else @c false. The input object list is filtered on return, meaning it only contains 
+     *          objects of the requested type. A return of @c false thus indicates an empty list.   
+     *
+     *  @tparam SIGNAL signal type of extracted objects.
+     * 
+     *  @param[inout] signals reference to modifiable list of signal objects to be checked for usage in MET reconstruction.
+     */
+    template<int OBJTYPE>
+    bool f_extractSignal(MissingETBase::Types::object_vector_t& signals) const
+    {
+      MissingETBase::Types::object_vector_t::iterator fSign(signals.begin());
+      while ( fSign != signals.end() ) { if ( (*fSign)->type() != OBJTYPE ) { fSign = signals.erase(fSign); } else { ++fSign; } }
+      return !signals.empty(); 
+    }
+    /*!@}*/
+		
+    /*! @name Internal lookup cache */
+    /*!@{*/
+    /*!@}*/
+
+    /*! @name Internal find methods for constant access */
+    /*!@{*/
+    /*! @brief Find contribution by MET object pointer
+     *
+     *  This method finds a xAOD::MissingETComponent_v1 object linked to the specified xAOD::MissingET_v1 object. It is invoked internally by find(const MissingET_v1*).
+     *  It uses an internal cache to determine if this  MET object has been found in the latest invocation of the find method, and returns without further action in this case.
+     *  If a different MET object is searched for, it initiates a linear search and updates the internal cache with the new pointer (will be NULL if referenced MET object 
+     *  not found) and the datawords storing the const_iterator and the iterator referencing the non-modifiable and modifiable xAOD::MissingETComponent_v1 object in the
+     *  composition map, respectively (both iterators will be set to the corresponding end iterator if the MET object is not in the composition map). 
+     *
+     *  @return Valid const iterator referencing the MissingETComponent_v1 object linking ot the requested MET object. If this MET object is not in the list, 
+     *          MissingETComponentMap_v1::end() is returned.
+     * 
+     *  @param[in] pMET pointer to non-modifiable MissingET_v1 object to be found in the composition map.  
+     */
+    const_iterator f_findConst(const MissingET_v1* pMET) const;
+    /*! @brief Find contribution by MET object name 
+     *
+     *  This method finds a xAOD::MissingETComponent_v1 object linked to the specified xAOD::MissingET_v1 object. It is invoked internally by find(const std::string&).
+     *  It uses an internal cache to determine if this  MET object has been found in the latest invocation of the find method, and returns without further action in this case.
+     *  If a different MET object is searched for, it initiates a linear search and updates the internal cache with the new pointer (will be NULL if referenced MET object 
+     *  not found) and the datawords storing the const_iterator and the iterator referencing the non-modifiable and modifiable xAOD::MissingETComponent_v1 object in the
+     *  composition map, respectively (both iterators will be set to the corresponding end iterator if the MET object is not in the composition map). 
+     *
+     *
+     *  @return Valid const iterator referencing the MissingETComponent_v1 object linking ot the requested MET object. If this MET object is not in the list, 
+     *          MissingETComponentMap_v1::end() is returned.
+     * 
+     *  @param[in] name reference to the non-modifiable data word storing the name of the requested MET object.
+     */
+    const_iterator f_findConst(const std::string& name) const;
+    const_iterator f_findConst(MissingETBase::Types::bitmask_t src) const;
+    void f_setConstCache(const_iterator fCont) const;
+    /*!@}*/
+
+
+    iterator f_find(const MissingET_v1* pMET);
+    iterator f_find(const std::string& name);
+    iterator f_find(MissingETBase::Types::bitmask_t src);
+    void f_setCache(iterator fCont);
+
+    const MissingET_v1* f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src)              const;
+    const MissingET_v1* f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const;
+    const MissingET_v1* f_retrieveMissingETIncl(MissingETBase::Types::bitmask_t src)              const;
+    const MissingET_v1* f_retrieveMissingETIncl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const;
+
+  private:
+
+    mutable const MissingET_v1* m_lastMETObject;
+    mutable size_t              m_lastContribIndex;
+
+    static size_t m_clusterLinkReserve;
+    static size_t m_trackLinkReserve; 
+    static size_t m_maxClusterSize;
+    static size_t m_maxTrackSize;
+    static size_t m_maxSignalSize;
+
+  }; // class xAOD::MissingETComponentMap_v1
+} // namespace xAOD
+
+#ifndef XAOD_STANDALONE
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF(xAOD::MissingETComponentMap_v1,36625032,1 )
+#endif
+
+
+#endif

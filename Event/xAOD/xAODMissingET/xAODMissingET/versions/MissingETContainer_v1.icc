@@ -1,0 +1,124 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+///////////////////////////////////////////////////////////////
+// The rest of the file contains doxygen documentation only! //
+/////////////////////////////////////////////////////////////// 
+
+/*! @class xAOD::MissingETContainer_v1
+ *
+ *  Each xAOD::MissingET_v1 object in the xAOD::MissingETContainer_v1 represents a contribution to MET from a given physics object or signal type. The
+ *  sequence of the objects in the collection is the sequence with which the MET terms have been calculated, i.e. the object at index 0 in the collection
+ *  has the highest priority with respect to its MET contribution.
+ *
+ *  This sequence can only be relied on if the components are constructed by the recommended MET tool sequence, and the xAOD::MissingET_v1 objects 
+ *  are recorded in this sequence. For fail safe and random access, each xAOD::MissingET_v1 object has a unique name (key) to indicate the 
+ *  contribution it represents. The corresponding additional functionality for this random accesss is added on top of the base class features.
+ *  This includes access operators using the name of a given xAOD::MissingET object by its name and, in addition, by its source type
+ *  (see MissingETBase::Source).
+ *
+ *  It is expected that at least one of the MET object identifiers (name or source indicator) is unique within the objects stored in this container (it should
+ *  be the name!). There is no enforcement of this policy, though. The functions randomly accessing MET objects will return the pointer to the object with the
+ *  first name or source indicator match.    
+ */
+
+//////////////////
+// Constructors //
+//////////////////
+
+/*! @fn xAOD::MissingETContainer_v1::MissingETContainer_v1(SG::OwnershipPolicy ownPolicy,SG::IndexTrackingPolicy trackIndices) 
+ * 
+ *  Constructs a DataVector< xAOD::MissingET_v1 > container.
+ *
+ *  @param[in] ownPolicy    ownership policy (optional, defaults to SG::OWN_ELEMENTS - the objects pointed to by the entries in this container are owned by the container).
+ *  @param[in] trackIndices track indices policy (optional, defaults to SG::DEFAULT_TRACK_INDICES - track indices default).
+ */
+
+/*! @fn const xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](const std::string& name) const
+ *
+ *  @return Valid pointer to a non-modifiable xAOD::MissingET_v1 object with requested name if found, else a @c NULL pointer.
+ *
+ *  @param[in] name reference to non-modifiable string holding the requested MET object name (key)
+ *
+ *  @note The pointer to the first object with a matching name is returned. 
+ */
+
+/*! @fn const xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src) const
+ *
+ *  @return Valid pointer to a non-modifiable xAOD::MissingET_v1 object with requested source indicator if found, else a @c NULL pointer.
+ *
+ *  @param[in] src requested source indicator.
+ *
+ *  @note The pointer to the first object with a matching source indicator is returned. 
+ */
+
+/*! @fn xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](const std::string& name);
+ *
+ *  @return Valid pointer to a modifiable xAOD::MissingET_v1 object with requested name if found, else a @c NULL pointer.
+ *
+ *  @param[in] name reference to non-modifiable string holding the requested MET object name (key)
+ *
+ *  @note The pointer to the first object with a matching name is returned. 
+ */
+
+/*! @fn xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src)
+ *
+ *  @return Valid pointer to a modifiable xAOD::MissingET_v1 object with requested source indicator if found, else a @c NULL pointer.
+ *
+ *  @param[in] src requested source indicator.
+ *
+ *  @note The pointer to the first object with a matching source indicator is returned. 
+ */
+
+/////////////////////
+// Object Searches //
+/////////////////////
+
+/*! @fn xAOD::MissingETContainer_v1::const_iterator xAOD::MissingETContainer_v1::find(const std::string& name) const
+ *
+ *  This operation is a linear search, which requires up to @c N iterations, if @c N is the number of xAOD::MissingET_v1 objects in the container.
+ *
+ *  @return Const iterator with a valid reference to a non-modifiable xAOD::MissingET_v1 object, if found, else DataVector<xAOD::MissingET_v1>::end() const.
+ *
+ *  @param[in] name name identifying a MET object in the container.   
+ *
+ *  @note The iterator referencing the first object with a matching name is returned, if any. 
+ */
+
+/*! @fn xAOD::MissingETContainer_v1::iterator xAOD::MissingETContainer_v1::find(const std::string& name)
+ *
+ *  This operation is a linear search, which requires up to @c N iterations, if @c N is the number of xAOD::MissingET_v1 objects in the container.
+ *
+ *  @return Iterator with a valid reference to a modifiable xAOD::MissingET_v1 object, if found, else DataVector<xAOD::MissingET_v1>::end().
+ *
+ *  @param[in] name name identifying a MET object in the container.   
+ *
+ *  @note The iterator referencing the first object with a matching name is returned, if any. 
+ */
+
+/*! @fn xAOD::MissingETContainer_v1::const_iterator xAOD::MissingETContainer_v1::find(MissingETBase::Types::bitmask_t src) const
+ *
+ *  This operation is a linear search, which requires up to @c N iterations, if @c N is the number of xAOD::MissingET_v1 objects in the container.
+ *
+ *  @return Const iterator with a valid reference to a non-modifiable xAOD::MissingET_v1 object, if found, else DataVector<xAOD::MissingET_v1>::end() const.
+ *
+ *  @param[in] src source indicator identifying a MET object in the container.   
+ *
+ *  @note The iterator referencing the first object with a matching key is returned, if any. 
+ */
+
+/*! @fn xAOD::MissingETContainer_v1::iterator xAOD::MissingETContainer_v1::find(MissingETBase::Types::bitmask_t src)
+ *
+ *  This operation is a linear search, which requires up to @c N iterations, if @c N is the number of xAOD::MissingET_v1 objects in the container.
+ *
+ *  @return Iterator with a valid reference to a modifiable xAOD::MissingET_v1 object, if found, else DataVector<xAOD::MissingET_v1>::end().
+ *
+ *  @param[in] src source indicator identifying a MET object in the container.   
+ *
+ *  @note The iterator referencing the first object with a matching key is returned, if any. 
+ */
+

@@ -1,0 +1,889 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+////////////////////////////////////////////////////
+// Inlined Methods for MissingETComponent::Weight //
+////////////////////////////////////////////////////
+
+inline xAOD::MissingETComponent_v1::Weight::Weight()
+  : m_wpx(MissingETBase::Numerical::wpxDefault())
+  , m_wpy(MissingETBase::Numerical::wpyDefault())
+  , m_wet(MissingETBase::Numerical::wetDefault())
+{ }
+
+inline xAOD::MissingETComponent_v1::Weight::Weight(double wpx,double wpy,double wet)
+  : m_wpx(wpx), m_wpy(wpy), m_wet(wet)
+{ }
+
+inline xAOD::MissingETComponent_v1::Weight::Weight(const Weight& wght)
+  : m_wpx(wght.wpx()), m_wpy(wght.wpy()), m_wet(wght.wet())
+{ }
+
+inline xAOD::MissingETComponent_v1::Weight::~Weight()
+{ }
+
+inline bool xAOD::MissingETComponent_v1::Weight::operator!=(const Weight& wght) const
+{ return !this->operator==(wght); }
+
+// ------------------------------------------------------------------ Accessors
+inline double  xAOD::MissingETComponent_v1::Weight::wpx() const { return m_wpx; }
+inline double  xAOD::MissingETComponent_v1::Weight::wpy() const { return m_wpy; }
+inline double  xAOD::MissingETComponent_v1::Weight::wet() const { return m_wet; }
+inline double& xAOD::MissingETComponent_v1::Weight::wpx() { return m_wpx; }
+inline double& xAOD::MissingETComponent_v1::Weight::wpy() { return m_wpy; }
+inline double& xAOD::MissingETComponent_v1::Weight::wet() { return m_wet; }
+
+// -------------------------------------------------------------------- Setters 
+inline void xAOD::MissingETComponent_v1::Weight::setWpx(double wpx) { this->wpx() = wpx; }
+inline void xAOD::MissingETComponent_v1::Weight::setWpy(double wpy) { this->wpy() = wpy; }
+inline void xAOD::MissingETComponent_v1::Weight::setWet(double wet) { this->wet() = wet; }
+
+////////////////////////////////////////////
+// Inlined Methods for MissingETComponent //
+////////////////////////////////////////////
+
+template<class POBJ,class LINK> 
+void xAOD::MissingETComponent_v1::f_setObject(const POBJ* pObj,LINK& elemLink)
+{
+  if ( pObj == 0 ) { return; /* FIXME throw some kind of exception */ }
+  typename LINK::BaseConstPointer pCont = 
+    dynamic_cast<typename LINK::BaseConstPointer>(pObj->container());
+  // valid pointer to container of (storable) object
+  if ( pCont != 0 ) { elemLink.toIndexedElement(*pCont,pObj->index()); }
+  // POD, not storable - we still use ElementLink to hold the pointer
+  else { elemLink.setElement(pObj); }
+}
+
+
+template<class LINK>
+bool xAOD::MissingETComponent_v1::f_setLink(LINK& elemLink)
+{ 
+  // no object linked
+  if ( *(elemLink) == 0 ) { return false; }
+  // check if object is storable 
+  else 
+    {
+      typename LINK::BaseConstPointer pCont = dynamic_cast<typename LINK::BaseConstPointer>((*(elemLink))->container()); 
+      // complete link
+      if ( pCont != 0 ) { elemLink.toIndexedElement(*pCont,(*(elemLink))->index()); return true; }
+      else { return false; }
+    }
+}
+
+inline bool xAOD::MissingETComponent_v1::addObject(const IParticle* pPart,const Weight& wght)
+{ return this->addObject(pPart,wght.wpx(),wght.wpy(),wght.wet()); }
+
+// ------------------------------------------------------------------- MET link
+inline const MissingETBase::Types::metlink_t& xAOD::MissingETComponent_v1::metLink() const 
+{ static SG::AuxElement::Accessor<MissingETBase::Types::metlink_t> acc("metLink"); return acc(*this); }
+inline MissingETBase::Types::metlink_t& xAOD::MissingETComponent_v1::f_metLink()           
+{ static SG::AuxElement::Accessor<MissingETBase::Types::metlink_t> acc("metLink"); return acc(*this); }
+
+// ---------------------------------------------------------------- object link
+inline const MissingETBase::Types::objlink_vector_t& xAOD::MissingETComponent_v1::objectLinks() const 
+{ static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
+inline MissingETBase::Types::objlink_vector_t& xAOD::MissingETComponent_v1::f_objectLinks()
+{ static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
+
+// ---------------------------------------------------------- kinematic weights
+inline const std::vector<double>& xAOD::MissingETComponent_v1::wpx() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpx"); return acc(*this); }
+inline double xAOD::MissingETComponent_v1::wpx(const IParticle* pPart) const
+{ return this->wpx(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETComponent_v1::wpy() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpy"); return acc(*this); }
+inline double xAOD::MissingETComponent_v1::wpy(const IParticle* pPart) const
+{ return this->wpy(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETComponent_v1::wet() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("wet"); return acc(*this); }
+inline double xAOD::MissingETComponent_v1::wet(const IParticle* pPart) const
+{ return this->wet(this->findIndex(pPart)); }
+
+inline std::vector<double>& xAOD::MissingETComponent_v1::f_wpx() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpx"); return acc(*this); }
+
+inline std::vector<double>& xAOD::MissingETComponent_v1::f_wpy() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("wpy"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETComponent_v1::f_wet() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("wet"); return acc(*this); }
+
+// -- non-coventional Weight generator
+inline xAOD::MissingETComponent_v1::Weight xAOD::MissingETComponent_v1::weight(const IParticle* pPart) const
+{ return this->weight(this->findIndex(pPart)); } 
+
+// ---------------------------------------------------------------- status word
+inline MissingETBase::Types::bitmask_t xAOD::MissingETComponent_v1::statusWord() const
+{ static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("statusWord"); return acc(*this); }
+
+inline MissingETBase::Types::bitmask_t& xAOD::MissingETComponent_v1::f_statusWord()
+{ static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("statusWord"); return acc(*this); }
+// --------------------------------------------------- MET object and container
+inline const xAOD::MissingET_v1* xAOD::MissingETComponent_v1::metObject() const
+{ return *(this->metLink()); }
+
+inline const xAOD::MissingETContainer_v1* xAOD::MissingETComponent_v1::metObjectContainer() const 
+{ return this->metObject() != 0 ? this->metLink().getStorableObjectPointer() : (const MissingETContainer_v1*)0; }
+
+inline size_t xAOD::MissingETComponent_v1::metObjectIndex() const
+{ return this->metObject() != 0 ? this->metLink().index() : MissingETBase::Numerical::invalidIndex(); }
+// ------------------------------------------------------------ List management
+inline size_t xAOD::MissingETComponent_v1::size() const { return this->objectLinks().size(); }
+inline bool xAOD::MissingETComponent_v1::empty() const  { return this->objectLinks().empty(); }
+inline bool xAOD::MissingETComponent_v1::removeContrib(size_t pIdx)
+{ return ( pIdx != MissingETBase::Numerical::invalidIndex() && pIdx < this->size() ) ? this->f_removeContrib(pIdx) : false; }
+inline bool xAOD::MissingETComponent_v1::removeContrib(const IParticle* pPart) { return this->removeContrib(this->findIndex(pPart)); }
+inline bool xAOD::MissingETComponent_v1::resetContrib(const IParticle* pPart)  { return this->resetContrib(this->findIndex(pPart)); }
+// ---------------------------------------------------------------- Comparators
+inline bool xAOD::MissingETComponent_v1::operator!=(const xAOD::MissingETComponent_v1& compDescr) const
+{ return !this->operator==(compDescr); }
+// ------------------------------------------------ Set contribution parameters
+inline bool xAOD::MissingETComponent_v1::setWpx(const IParticle* pPart,double wpx)
+{ return this->setWpx(this->findIndex(pPart),wpx); }
+inline bool xAOD::MissingETComponent_v1::setWpy(const IParticle* pPart,double wpy)
+{ return this->setWpy(this->findIndex(pPart),wpy); }
+inline bool xAOD::MissingETComponent_v1::setWet(const IParticle* pPart,double wet)
+{ return this->setWet(this->findIndex(pPart),wet); }
+inline bool xAOD::MissingETComponent_v1::setWeight(const IParticle* pPart,const Weight& wght)
+{ return this->setWeight(this->findIndex(pPart),wght.wpx(),wght.wpy(),wght.wet()); }
+inline bool xAOD::MissingETComponent_v1::setWeight(const IParticle* pPart,double wpx,double wpy,double wet)
+{ return this->setWeight(this->findIndex(pPart),wpx,wpy,wet); }
+inline bool xAOD::MissingETComponent_v1::setWeight(size_t pIdx,const Weight& wght)
+{ return this->setWeight(pIdx,wght.wpx(),wght.wpy(),wght.wet()); }
+// ----------------------------------------- Set MET object link and statusword
+inline bool xAOD::MissingETComponent_v1::setStatusWord(MissingETBase::Types::bitmask_t sw)
+{ if ( sw == this->statusWord() ) { return false; } else { this->f_statusWord() = sw; return true; } } 
+inline bool xAOD::MissingETComponent_v1::mergeStatusWord(MissingETBase::Types::bitmask_t sw)
+{ if ( sw == this->statusWord() ) { return false; } else { this->f_statusWord() |= sw; return true; } }
+inline bool xAOD::MissingETComponent_v1::clearStatusWord()
+{ return this->setStatusWord(MissingETBase::Status::clearedStatus()); }
+
+////////////////////////////////////////
+// Inlined Global Namespace Operators //
+////////////////////////////////////////
+
+inline MissingETBase::Types::weight_t operator+(const MissingETBase::Types::weight_t& w0,const MissingETBase::Types::weight_t& w1)
+{ MissingETBase::Types::weight_t w(w0); w += w1; return w; }
+
+inline MissingETBase::Types::weight_t operator-(const MissingETBase::Types::weight_t& w0,const MissingETBase::Types::weight_t& w1)
+{ MissingETBase::Types::weight_t w(w0); w -= w1; return w; }
+
+inline MissingETBase::Types::weight_t operator*(const MissingETBase::Types::weight_t& w0,const MissingETBase::Types::weight_t& w1)
+{ MissingETBase::Types::weight_t w(w0); w *= w1; return w; }
+
+inline MissingETBase::Types::weight_t operator/(const MissingETBase::Types::weight_t& w0,const MissingETBase::Types::weight_t& w1)
+{ MissingETBase::Types::weight_t w(w0); w /= w1; return w; }
+
+inline MissingETBase::Types::weight_t operator*(const MissingETBase::Types::weight_t& wght,double scale)
+{ MissingETBase::Types::weight_t w(wght); w *= scale; return w; }
+
+inline MissingETBase::Types::weight_t operator*(double scale,const MissingETBase::Types::weight_t& wght)
+{ MissingETBase::Types::weight_t w(wght); w *= scale; return w; }
+
+inline MissingETBase::Types::weight_t operator/(const MissingETBase::Types::weight_t& wght,double scale)
+{ MissingETBase::Types::weight_t w(wght); w /= scale; return w; } 
+
+///////////////////////////////////////////////////////////////
+// The rest of the file contains doxygen documentation only! //
+/////////////////////////////////////////////////////////////// 
+
+/*! @class xAOD::MissingETComponent_v1
+ *
+ *  <b>Overview</b>
+ * 
+ *  This class provides a data object with links to physics or signal objects contributing to a given MET term. 
+ *  Each component object features (1) a link to the MissingET_v1 object it describes, (2) the reconstruction status of the MET term, 
+ *  (3) links to the contributing signal/physics objects, and (4) a list of kinematic weights characterizing each object contribution.
+ *
+ *  MissingETComponent_v1 supports adding and removing objects from  a MET contribution, and the modification of the kinematic weights of existing entries. 
+ *  It provides constructors for a @link xAOD::MissingETComponent_v1::MissingETComponent_v1(bool) non-functional default object @endlink without data store 
+ *  attached, and for various fully functional objects with (initially internal) data store wwith different initial data loads. The most basic functional 
+ *  object is constructed with just a link to the corresponding xAOD::MissingET_v1 
+ *  @link xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1*,MissingETBase::Types::bitmask_t) object and an optional statusword @endlink. 
+ *  Other options construct objects with the link to the MET object, the optional statusword, and a reference to the first contributing physics or signal
+ *  object and the associated kinematic weight, which can be provided using a xAOD::MissingETComponent::Weight 
+ *  @link xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1*,const IParticle*,const Weight&,MissingETBase::Types::bitmask_t) object @endlink, 
+ *  or by 
+ *  @link xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1*,const IParticle*,double,double,double,MissingETBase::Types::bitmask_t) three weight 
+ *  parameters @endlink.  
+ * 
+ *  The MET component object is not storable by itself. It needs to collected into a xAOD::MissingETComponentMap_v1, with an attached xAOD::MissingETAuxComponentMap_v1 object
+ *  implementing the storable data structure..
+ *
+ *  (1) Link to MissingET_v1 object
+ *
+ *  This link is realized by an ElementLink (EL) from the component to the xAOD::MissingET_v1 object. The specific type of this EL is given by 
+ *  MissingETBase::Types::metlink_t. The EL can be incomplete, meaning it can be instantiated with a plain-old-data (POD) MissingET_v1 object not 
+ *  collected into a storable MissingETContainer_v1 yet. Once the MissingET_v1 object is collected into a container, the link can be updated using
+ *  MissingETComponent_v1::updateMETLink(). 
+ *
+ *  (2) Status
+ *
+ *  The MET term can be qualified with a status indicator as provided in MissingETBase::Status. Logical combinations of these status indicators are possible. The status is
+ *  a dataword of type MissingETBase::Types::bitmask_t. The statusword is typically set by the tool reconstructing a specific MET term. It should not be confused
+ *  with the source of the MET object, which hhholds different information using the same MissingETBase::Types::bitmask_t. 
+ *
+ *  (3) Links to contributing objects
+ *
+ *  The links to the objects contributing to a given MET object are stored in a vector of type MissingETBase::Types::objlink_vector_t. Each
+ *  signal/physics object should contribute only once to a given MET. Any attempt to add the same object reference again leads to 
+ *  addition of the provided kinematic weights to the stored kinematic weights. This behaviour can produce unrealistic weights this way, suggesting 
+ *  that adding physics or signal objects should be done within the well controlled context of a MET reconstruction tool.  
+ * 
+ *  (4) Kinematic weights
+ * 
+ *  The kinematic weights @f$ (w_{x},w_{y},w_{\rm T}) @f$ are scale factors applied to the object kinematics @f$ (p_{x},p_{y},p_{\rm T}) @f$ such that 
+ *  the contribution to the corresponding MET variables 
+ *  @f$ (p_{x}^{\rm miss}, p_{y}^{\rm miss}, \Sigma E_{\rm T}) @f$ is given by @f$ (w_{x} p_{x}, w_{y} p_{y}, w_{\rm T} p_{\rm T}) @f$. The overall MET contribution 
+ *  of all @f$ i = 1 \ldots N @f$ objects of the same type (e.g., electrons, photons, jets,...) is then given by 
+ *  @f{eqnarray}{
+ *     p_{x}^{\rm miss} & = & - \sum_{i = 1}^{N} w_{x,i} p_{x,i} \	\
+ *     p_{y}^{\rm miss} & = & - \sum_{i = 1}^{N} w_{y,i} p_{y,i} \	\
+ *     \Sigma E_{\rm T} & = & \sum_{i = 1}^{N} w_{{\rm T},i} p_{{\rm T},i}
+ *  @f}
+ *  The individual weights are stored in vectors index-parallel to the link vector.  
+ *
+ *  @anchor contrib_set_intro
+ *  <b>Setting data in a MET component</b>
+ *  (@ref contrib_set "link to code documentation")
+ *  
+ *  These methods establish a link to the xAOD::MissingET_v1 object in a (new) MET contribution. The link list to the contributing object and the lists 
+ *  storing the kinematic weights and the list of statuswords are empty. One of these methods needs to be invoked before attempting to set 
+ *  object data for the referenced MET object. 
+ *
+ *  If this method is invoked for a component which already had links to contributing objects, the corresponding lists are purged, and the EL to the 
+ *  xAOD::MissingET_v1 object may be overwritten, if the pointer refers to a different object than the one in the original EL. This method acts like a reset of
+ *  the MET component object. 
+ *
+ *  @anchor contrib_add_intro
+ *  <b>Adding data to the contribution</b>
+ *  (@ref contrib_add "link to code documentation")
+ *
+ *  Add a signal or physics object contribution to the MET object. A new link is added to linked object list if the referenced object is not yet in this list. 
+ *  If the referenced object is already in the list, the given kinematic weights are added to the weights already stored for the contribution. 
+ *  No new list entry is generated in this case.
+ *
+ *  @anchor contrib_manip_intro
+ *  <b>Manipulating the contribution data</b>
+ *  (@ref contrib_manip "link to code documentation")
+ *
+ *  The parameters of the contribution from a given object to MET can be modified after the MET component object is created. This involves
+ *  a linear search in the list of contributing objects. In addition, objects can be removed from the linked object vector. This again involves a linear search.
+ *  Some behaviour is implemented to suppress searches for the same entities and just use the result from the previous search,
+ *                                                                                                                                                                         
+ *  Other functions allow updating the EL to the MissingET_v1 object, and all other linked physics and signal objects. This is done by setting the 
+ *  container pointer in these ELs. At most, it involves a loop on all contributing objects, plus the update of the MissingET_v1 link
+ *
+ *  @anchor contrib_alloc_intro
+ *  <b> Allocating and accessing contributing objects</b>
+ *  (@ref contrib_alloc "link to code documentation")
+ *
+ *  All allocators (finders) allow to parse the list of contributing objects and find contributions from a given object, as specified by its pointer.
+ *  A linear search is performed to find the correct entries in the object lists. The returned results are represented by iterators referencing
+ *  valid link objects (ElementLinks) if the requested object is in the contributing store, else a reference to the end of the store is returned. 
+ *
+ *  Contributing objects and their associated parameters can be accessed individually using iterators for const and non-const access. In addition, public references
+ *  to the whole contributing object store are available.  
+ * 
+ *  Accessing MET and contributing object, object container, and object index does not include an internal validity check. A returned object pointer can be
+ *  NULL. It is necessary for clients to test the returned pointer value. The returned value for the index in case of an invalid ElementLink is the default 
+ *  value of this data type.  
+ *
+ *  @anchor contrib_comp_intro
+ *  <b>Comparisons</b>
+ *  (@ref contrib_comp "link to code documentation") 
+ *
+ *  Comparators apply equality rules as follows: two MissingETComponent_v1 objects are identical if (1) the are linked to the same MissingET_v1 object,
+ *  (2) they have the same status, (3) they have the same number of contributing objects, and (4) they have identical lists of contributing objects
+ *  and kinematic weights.
+ *  The comparisons are applied in the numerical order displayed. The MissingETComponent_v1::operator!= operator is implemented, as it
+ *  allows a (fast) return when the first difference between the compared  data words is detected.
+ */
+
+/*! @fn template<class POBJ,class LINK> void xAOD::MissingETComponent_v1::f_setObject(const POBJ* pObj,LINK& elemLink)
+ *
+ *  Inserts link data into ElementLink, even if incomplete. At least, the pointer of linked object will be set (except if NULL). 
+ *
+ *  @tparam POBJ linked object type
+ *  @tparam LINK specific ElementLink type
+ *
+ *  @param[in] pObj     pointer to non-modifiable object to be linked
+ *  @param[in] elemLink reference to modifiable ElementLink object. Initial data content of this object are overwritten.
+ *
+ *  @note This is the generalized implementation for e.g. MissingETComponent_v1::setMET and MissingETComponent_v1::addObject
+ */
+
+// ----------- MissingETComponent_v1::Weight ------------
+
+/*! @class xAOD::MissingETComponent_v1::Weight MissingETComposition_v1.h "versions/MissingETComposition_v1.h"
+ *                                                                                                                                                                     
+ *  This object is purely transient. It allows a compact extraction and setting of kinematic weights for component descriptions for MET. In addition,                            
+ *  it helps to implement a clean and well defined algebra for these weights. This structure is not used in the auxiliary data store holding
+ *  the data for a  MissingETComponent_v1 object.                                                                                    
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight::Weight()
+ *                                                                                                                                                                   
+ *  Constructs a kinematic weight object with settings  @f$ (w_{x} = 1, w_{y} = 1, w_{\rm T} = 1) @f$.                                                               
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight::Weight(double wpx,double wpy,double wet)
+ *                                                                                                                                                                   
+ *  Construct a kinematic weight object with client provided weights. All numerical values are accepted, there is no consistency or numerical range check on the weights.
+ *
+ *  @param[in] wpx @f$ w_{x} @f$                                                                                                                                     
+ *  @param[in] wpy @f$ w_{y} @f$                                                                                                                                     
+ *  @param[in] wet @f$ w_{\rm T} @f$                                                                                                                                 
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight(const Weight& wght)
+ *                                                                                                                                                                   
+ *  @param[in] wght reference to non-modifiable @c Weight object (source).                                                                                                
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight::operator+=(const Weight& wght)
+ *                                                                                                                                                                   
+ *  This operation updates the internal store of @c this object and yields                                                                                           
+ *  @f[                                                                                                                                                              
+ *     \mathcal{W} + \mathcal{W}^{\prime} = \left(\begin{array}{c}                                                                                                   
+ *                                w_{x} + w_{x}^{\prime} \\                                                                                                          
+ *                                w_{y} + w_{y}^{\prime} \\                                                                                                          
+ *                                w_{\rm T} + w_{\rm T}^{\prime}                                                                                                     
+ *                                \end{array} \right)                                                                                                                
+ *  @f]                                                                                                                                                              
+ *  for two weights @f$ \mathcal{W}, \mathcal{W}^{\prime} @f$ added. The result replaces the data content of @f$ \mathcal{W} @f$.                                    
+ *                                                                                                                                                                   
+ *  @return Reference to self.                                                                                                                                       
+ *  @param[in] wght reference to non-modifiable @c Weight object to be added.                                                                                        
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight& xAOD::MissingETComponent_v1::Weight::operator-=(const Weight& wght)
+ * 
+ *  This operation updates the internal store of @c this object and yields                                                                                           
+ *  @f[                                                                                                                                                              
+ *     \mathcal{W} - \mathcal{W}^{\prime} = \left(\begin{array}{c}                                                                                                   
+ *                                w_{x} - w_{x}^{\prime} \\                                                                                                          
+ *                                w_{y} - w_{y}^{\prime} \\                                                                                                          
+ *                                w_{\rm T} - w_{\rm T}^{\prime}                                                                                                     
+ *                                \end{array} \right)                                                                                                                
+ *  @f]                                                                                                                                                              
+ *  for weight @f$ \mathcal{W}^{\prime} @f$ subtracted from @f$  \mathcal{W}^{\prime} @f$. The result replaces the data content of                                   
+ *  @f$ \mathcal{W} @f$.                                                                                                                                             
+ *                                                                                                                                                                   
+ *  @return Reference to self.                                                                                                                                       
+ *  @param[in] wght reference to non-modifiable @c Weight object to be subtracted.                                                                                   
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight& xAOD::MissingETComponent_v1::Weight::operator*=(const Weight& wght)                                                                                                                                      
+ *                                                                                                                                                                   
+ *  This operation updates the internal store of @c this object and yields                                                                                           
+ *  @f[                                                                                                                                                              
+ *    s \times \mathcal{W} = \left( \begin{array}{c}                                                                                                                 
+ *                            w_{x} \times w_{x}^{\prime} \\                                                                                                         
+ *                            w_{y} \times w_{y}^{\prime} \\                                                                                                         
+ *                            w_{\rm T} \times = w_{\rm T}^{\prime}                                                                                                  
+ *                            \end{array} \right)                                                                                                                    
+ *  @f]                                                                                                                                                              
+ *  for weight @f$ \mathcal{W} @f$ multiplied by another weight @f$ \mathcal{W}^{\prime} = (w_{x}^{\prime},w_{y}^{\prime},w_{\rm T}^{\prime}) @f$.                   
+ *  The internal data content of @f$ \mathcal{W} @f$ is  modified.                                                                                                   
+ *                                                                                                                                                                   
+ *  @return Reference to self.                                                                                                                                       
+ *  @param[in] wght weight @f$ \mathcal{W}*{\prime} @f$                                                                                                              
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight& xAOD::MissingETComponent_v1::Weight::operaotr/=(const Weight& wght)      
+ *                                                                                                                                                                   
+ *  This operation updates the internal store of @c this object and yields                                                                                           
+ *  @f[                                                                                                                                                              
+ *    \mathcal{W} / s = \left( \begin{array}{c}                                                                                                                      
+ *                            w_{x} / w_{x}^{\prime} \\                                                                                                              
+ *                            w_{y} / w_{y}^{\prime} \\                                                                                                              
+ *                            w_{\rm T} / w_{\rm T}^{\prime} / s                                                                                                     
+ *                            \end{array} \right)                                                                                                                    
+ *  @f]                                                                                                                                                              
+ *  for weight @f$ \mathcal{W} @f$ divided by another weight @f$ \mathcal{W}^{\prime} = (w_{x}^{\prime},w_{y}^{\prime},w_{\rm T}^{\prime}) @f$.                      
+ *  The internal data content of @f$ \mathcal{W} @f$ is modified.                                                                                                    
+ *                                                                                                                                                                   
+ *  @note In case any of the components of @f$ \mathcal{W}^{\prime} @f$ are invalid (have the value 0), the components of the original weight                        
+ *  @f$ \mathcal{W} @f$ are set to (0,0,0).                                                                                                                          
+ *                                                                                                                                                                   
+ *  @return Reference to self.                                                                                                                                       
+ *  @param[in] wght weight @f$ \mathcal{W}*{\prime} @f$                                                                                                              
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight& xAOD::MissingETComponent_v1::Weight::operator*=(double scale)
+ *                                                                                                                                                                   
+ *  This operation updates the internal store of @c this object and yields                                                                                           
+ *  @f[                                                                                                                                                              
+ *    s \times \mathcal{W} = \left( \begin{array}{c}                                                                                                                 
+ *                            s \times w_{x} \\                                                                                                                      
+ *                            s \times w_{y} \\                                                                                                                      
+ *                            s \times w_{\rm T}                                                                                                                     
+ *                            \end{array} \right)                                                                                                                    
+ *  @f]                                                                                                                                                              
+ *  for weight @f$ \mathcal{W} @f$ multiplied by a scale factor @f$ s @f$. The internal data content of @f$ \mathcal{W} @f$ is  modified.                            
+ *                                                                                                                                                                   
+ *  @return Reference to self.                                                                                                                                       
+ *  @param[in] scale scale factor @f$ s @f$.                                                                                                                         
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::Weight& xAOD::MissingETComponent_v1::Weight::operator/=(double scale)
+ *                                                                                                                                                                   
+ *  This operation updates the internal store of @c this object and yields                                                                                           
+ *  @f[                                                                                                                                                              
+ *    \mathcal{W} / s = \left( \begin{array}{c}                                                                                                                      
+ *                            w_{x} / s \\                                                                                                                           
+ *                            w_{y} / s \\                                                                                                                           
+ *                            w_{\rm T} / s                                                                                                                          
+ *                            \end{array} \right)                                                                                                                    
+ *  @f]                                                                                                                                                              
+ *  for weight @f$ \mathcal{W} @f$ divided by a scale factor @f$ s @f$. The internal data content of @f$ \mathcal{W} @f$ is modified.                                
+ *                                                                                                                                                                   
+ *  @note In case an invalid scale factor ( @f$ s = 0 @f$ ) is provided, the original weight @f$ \mathcal{W} @f$ is set to (0,0,0).                                  
+ *                                                                                                                                                                   
+ *  @return Reference to self.                                                                                                                                       
+ *  @param[in] scale scale factor @f$ s @f$.                                                                                                                         
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::Weight::operator==(const Weight& wght)
+ *                                                                                                                                                                   
+ *  @return @c true if two weights have equal components within the precision defined in MissingETBase::Numerical::precision().                                                           
+ *
+ *  @param[in] wght reference to non-modifiable Weight object to be compared to.
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::Weight::operator!=(const Weight& wght)
+ *                                                                                                                                                                   
+ *  @return @c true if two weights are not equal according to the rules applied in Weight::operator==().         
+ *
+ *  @param[in] wght reference to non-modifiable Weight object to be compared to.
+ */
+
+// ----------- MissingETComponent_v1 --------------------
+
+/*! @fn xAOD::MissingETComponent_v1::MissingETComponent_v1(bool createStore)
+ *
+ *  Instantiates a MissingETComponent_v1 object.
+ *  
+ *  @param[in] createStore controls the creation of dedicated store for this data object (optional, default is @c false - no store created).
+ *
+ *  @warning The capabilities of the generated object are strongly depend on the input parameter.
+ *  If the default argument or an explicit argument @c false is used, the created object not have a store for its data. 
+ *  It cannot be used as a plain old data (POD) object in this case, and any attempt to set or get data will likely cause undesired behaviour
+ *  and/or program crashes. When instantiated with this state, It needs  to be stored in a xAOD::MissingETComponentMap_v1 object prior to any use.
+ *  Providing an explicit argument @c true instantiates a standalone, fully functional POD object with a private store attached. When this 
+ *  object is stored in a MissingETComponentMap_v1, the data content of this store is copied to the attached MissingETAuxComponentMap_v1 object
+ *  and  the private store is disabled.  
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1* pmetObj,MissingETBase::Types::bitmask_t sw)
+ *
+ *  Instantiates an empty component descriptor for a given MET (xAOD::MissingET_v1) object with a private store attached. 
+ *
+ *  @note The object instantiated with this constructor is a fully functional, yet empty (no links to any contributing 
+ *        object, but with a link to a MET object), POD object. To persistify its data content, it needs to be store 
+ *        in a xAOD::MissingETComponentMap_v1 object.  
+ *
+ *  @param[in] pmetObj pointer to non-modifiable xAOD::MissingET_v1 object
+ *  @param[in] sw   status word characterizing the MET term (optional, default is MissingETBase::Status::clearedStatus())
+ *
+ *  @note If the xAOD::MissingET_v1 object pointed to is not associated with a xAOD::MissingETContainer_v1, the link stored here is incomplete. 
+ *        It is therefore highly recommended to first store the xAOD::MissingET_V1 object before creating a component descriptor. There is also a recovery method 
+ *        xAOD::MissingETComponent_v1::updateMETLink() available to perform a link update after the MET object is stored in its container.   
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1* pmetObj,const IParticle* pPart,const Weight& wght,MissingETBase::Types::bitmask_t sw)
+ *
+ *  This allows construction of a MissingETComponent_v1 object with an initial contribution.  This object has then all the features and behaviours as the one
+ *  instantiated by xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1*,MissingETBase::Types::bitmask_t), but a contributing objects link
+ *  store and the corresponding stores for the kinematic weights filled with first data.  
+ *
+ *  @param[in] pmetObj  pointer to object representing a MET term
+ *  @param[in] pPart pointer to non-modifiable @c IParticle typed object
+ *  @param[in] wght  kinematic weights (optional, default are xAOD::MissingETComponent_v1::Weight object defaults)
+ *  @param[in] sw    status word (optional, default is MissingETBase::Status::clearedStatus())
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1* pmetObj,const IParticle* pPart,double wpx,double wpy,double wet,MissingETBase::Types::bitmask_t sw)
+ *
+ *  Instantiates the same object as xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingET_v1*,const IParticle*,const Weight&,MissingETBase::Types::bitmask_t),
+ *  but allows to use individual weight components instead of weight components collected into a xAOD::MissingETComponent_v1::Weight typed object.  
+ *
+ *  @param[in] pmetObj   pointer to object representing a MET term
+ *  @param[in] pPart  pointer to non-modifiable @c IParticle typed object
+ *  @param[in] wpx    weight @f$ w_{x} @f$
+ *  @param[in] wpy    weight @f$ w_{y} @f$
+ *  @param[in] wet    weight @f$ w_{\rm T} @f$
+ *  @param[in] sw     status word (optional, default is MissingETBase::Status::clearedStatus())
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compRef)
+ * 
+ *  This constructor performs a deep copy. The link to the source auxiliary store is severed for the copy, and a POD xAOD::MissingETComponent_v1 object 
+ *  is instantiated. The ElementLink objects used to establish the links to the xAOD::MissingET_v1 object and the contributing signal objects are copied, as well as the
+ *  lists of kinematic weights and the status word. 
+ *
+ *  @param[in[] compRef reference to non-modifiable MET component description (the source).
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compRef,MissingETBase::Types::bitmask_t sw)
+ *
+ *  This constructor performs a deep copy. The link to the source auxiliary store is severed for the copy, and a POD xAOD::MissingETComponent_v1 object 
+ *  is instantiated. The ElementLink objects used to establish the links to the xAOD::MissingET_v1 object and the contributing signal objects are copied, as well as the
+ *  lists of kinematic weights. A new status word can be specified (can be same as the as the one in the source object - no restriction on value).  
+ *
+ *  @param[in] compRef reference to non-modifiable MET component description (the source).
+ *  @param[in] sw      status word
+ */
+
+/*! @fn xAOD::MissingETComponent_v1& xAOD::MissingETComponent_v1::operator=(const MissingETComponent_v1& compRef)
+ *
+ *  @return Reference to component description object with data copied from the source.
+ *
+ *  @param[in] compRef reference to non-modifiable MET component description (the source).
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::setMET(const MissingET_v1* pmetObj,MissingETBase::Types::bitmask_t sw)
+ * 
+ * This function sets a new link to the MET object reference given in its first argument. This can mean that a previously stored link 
+ * is overwritten. 
+ *  
+ *  @return @c true if no previous ElementLink to the referenced xAOD::MissingET_v1 object existed. In case of a reset, @c false is returned.
+ *
+ *  @param[in] pmetObj pointer to non-modifiable MET object.
+ *  @param[in] sw   status word (optional, default is MissingETBase::Status::clearedStatus())
+ *
+ *  @note If the referenced xAOD::MissingET_v1 object is not yet stored in a xAOD::MissingETContainer_v1 container, the ElementLink in the component description is not complete. 
+ *        It can be completed invoking xAOD::MissingETComponent_v1::updateMETLink() at any time - assuming the MissingET_v1 object is then stored in a container. 
+ *
+ *  (@ref contrib_set_intro "More info")
+ */
+
+/*! @fn xAOD::MissingETComponent_v1::setMET(const MissingETContainer_v1* pmetCont,size_t pmetIdx,MissingETBase::Types::bitmask_t sw)
+ *
+ *  @overload bool xAOD::MissingETComponent_v1::setMET(const MissingET_v1* pmetObj,MissingET::Types::bitmask_t sw)
+ *  
+ *  @return @c true if no previous ElementLink to the referenced xAOD::MissingET_v1 object existed. In case of a reset, @c false is returned.
+ *
+ *  @param[in] pmetCont pointer to non-modifiable MET object container
+ *  @param[in] pmetIdx  index to MET object in container
+ *  @param[in] sw   status word (optional, default is MissingETBase::Status::clearedStatus())
+ *
+ *  @note If the referenced xAOD::MissingET_v1 object is not yet stored in a xAOD::MissingETContainer_v1 container, the ElementLink in the component description is not complete. 
+ *        It can be completed invoking xAOD::MissingETComponent_v1::updateMETLink() at any time - assuming the MissingET_v1 object is then stored in a container. 
+ *
+ *  (@ref contrib_set_intro "More info")
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::addObject(const IParticle* pPart,const Weight& wght)
+ *
+ *  @return @c true if new contribution is added. A return value of @c false indicates that the referenced object already contributes to the MET term. There is no  
+ *          specific failure mode for this operation.  
+ * 
+ *  @param[in] pPart pointer to non-modifiable xAOD::IParticle object
+ *  @param[in] wght  kinematic weight of object in MET (optional, default is defined in the xAOD::MissingETComponent_v1::Weight::Weight() constructor
+ *
+ *  @note If a contribution from the referenced xAOD::IParticle object already exists, the weights are summed by applying the rules implemented in  
+ *        xAOD::MissingETCompnent_v1::Weight::operator+=(const Weight&) .
+ *
+ *  (@ref contrib_add_intro "More info") 
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::addObject(const IParticle* pPart,double wpx,double wpy,double wet);
+ *
+ *  @overload bool xAOD::MissingETComponent_v1::addObject(const IParticle* pPart,const Weight& wght)
+ *
+ *  @return @c true if new contribution is added. A return value of @c false indicates that the referenced object already contributes to the MET term. There is no  
+ *          specific failure mode for this operation.  
+ *
+ *  @param[in] pPart  pointer to non-modifiable IParticle object
+ *  @param[in] wpx    kinematic weight @f$ w_{x} @f$
+ *  @param[in] wpy    kinematic weight @f$ w_{y} @f$
+ *  @param[in] wet    kinematic weight @f$ w_{\rm T} @f$
+ *
+ *  (@ref contrib_add_intro "More info") 
+ */
+
+/*! @fn bool xAOD::MissingETComposition_v1::removeObject(const IParticle* pPart)
+ *
+ *  Removing an entry from the internal list of contributing objects requires to also remove the corresponding entries from the lists storing the kinematic weight components. 
+ *  This is handled internally in a consistent way by this method. 
+ *
+ *  @return @c true indicates a successful execution. If the referenced object cannot be found in the list of contributing objects, @c false is returned.
+ * 
+ *  @param[in] pPart pointer to non-modifiable object to be removed from the contribution.
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::resetContrib(const IParticle* pPart)
+ *
+ *  Presently only resets the kinematic weight to its default value (defined in xAOD::MissingETComponent_v1::Weight::Weight()). 
+ * 
+ *  @note The default weight is not necessarily <tt>(wpx=0, wpy=0, wet=0)</tt> (check MissingETBase::Numerical::wpxDefault(), MissingETBase::Numerical::wpyDefault() and 
+ *        MissingETBase::Numerical::wetDefault() for the respective default values)! If zero weights are desired, xAOD::MissingETComponent_v1::setWeight(const IParticle*,const Weight&)
+ *        should be used with argument <tt>wght = Weight(0.,0.,0.)</tt> (failsafe with this respect).
+ *
+ *  @return @c true if object is found and successfully reset, @c false if object not found in list of contributing objects.
+ *
+ *  @param[in] pPart pointer to non-modifiable object searched for in the list of contributing objects
+ *
+ *  @note This method has the same behaviour as the xAOD::MissingETComponent_v1::setWeight method with its default arguments.
+ */
+
+/*! @fn bool xAOD::MisssingETComponent_v1::setWeight(const IParticle* pPart,const Weight& wght)
+ *
+ *  This methods sets the kinematic weight for a given object in the MET component description. 
+ *  Invoking this method with its default weight argument is identical to a reset, as discussed in the documentation for
+ *  xAOD::MissingETComponent_v1::resetContrib. 
+ *
+ *  @note This is a true setter implementation, the original weight stored for the referenced particle will be 
+ *        overwritten!
+ *
+ *  @return @c true if object is found and data is successfully set, @c false if object not found in list of contributing objects.
+ *
+ *  @param[in] pPart pointer to non-modifiable object searched for in the list of contributing objects
+ *  @param[in] wght kinematic weight (optional, defaults to weight defined in xAOD::MissingETComponent_v1::Weight::Weight()
+ */
+
+/*! @fn bool xAOD::MissingET_v1::setWeight(const IParticle* pPart,double wpx,double wpy,double wet)
+ *
+ *  @overload xAOD::MissingETComponent_v1::setWeight(const IParticle* pPart,const Weight& wght)
+ *
+ *  @note This is a true setter implementation, the original weight stored for the referenced particle will be 
+ *        overwritten!
+ *
+ *  @return @c true if object is found and data is successfully set, @c false if object not found in list of contributing objects.
+ *
+ *  @param[in] pPart  pointer to non-modifiable object searched for in the list of contributing objects
+ *  @param[in] wpx    kinematic weight @f$ w_{x} @f$
+ *  @param[in] wpy    kinematic weight @f$ w_{y} @f$
+ *  @param[in] wet    kinematic weight @f$ w_{\rm T} @f$
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::setWpx(const IParticle* pPart,double wpx)
+ *
+ *  @return @c true if referenced object is in list of contributing objects, else @c false.
+ *
+ *  @param[in] pPart  pointer to non-modifiable object searched for in the list of contributing objects
+ *  @param[in] wpx    kinematic weight component @f$ w_{x} @f$
+ * 
+ *  @note This is a true setter implementation, the original weight component stored for the referenced particle will be 
+ *        overwritten!
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::setWpy(const IParticle* pPart,double wpy) 
+ *  @return @c true if referenced object is in list of contributing objects, else @c false.
+ *
+ *  @param[in] pPart  pointer to non-modifiable object searched for in the list of contributing objects
+ *  @param[in] wpy    kinematic weight component @f$ w_{y} @f$
+ * 
+ *  @note This is a true setter implementation, the original weight component stored for the referenced particle will be 
+ *        overwritten!
+ */
+
+/*! @fn bool xAOD::MissingETCompoonent_v1::setWet(const IParticle* pPart,double wet)
+ * 
+ *  @return @c true if referenced object is in list of contributing objects, else @c false.
+ *
+ *  @param[in] pPart  pointer to non-modifiable object searched for in the list of contributing objects
+ *  @param[in] wet    kinematic weight @f$ w_{\rm T} @f$
+ * 
+ *  @note This is a true setter implementation, the original weight component stored for the referenced particle will be 
+ *        overwritten!
+ */
+
+/*! @fn bool xAOD::MissingETComponent_v1::setStatus(MissingETBase::Types::bitmask_t sw)
+ * 
+ *  Invoking this method with its default argument is identical to invoking xAOD::MissingETComponent_v1::clearStatus();
+ * 
+ *  @return @c true if this is a new status word, else @c false.  
+ * 
+ *  @param[in] sw    new statusword (optional, default is MissingETBase::Status::clearedStatus())
+ *
+ *  @note This method is a true setter method and  thus replaces the stored statusword with the specified one.  
+ */
+
+/*! @fn bool xAOD::MissingETCompsition_v1::mergeStatus(MissingETBase::Types::bitmask_t sw)
+ * 
+ *  @return @c true if this is a new status word, else @c false.  
+ * 
+ *  @param[in] sw  bit pattern to be merged with stored pattern. 
+ *
+ *  @note This method merges the stored status word with the specified one by applying a bitwise @c OR operation.  
+ */
+
+/*! @fn xAOD::MissingETComposition_v1::clearStatus()
+ * 
+ *  Resets the stored bit pattern completely.  
+ *
+ *  @return  @c true if the stored bit pattern was not of cleared (unknown) (MissingETBase::Status::clearedStatus()) status.
+ */
+
+/*! @fn const std::vector<double>& xAOD::MissingETComponent_v1::wpx() const; 
+ *
+ *  Retrieve the vector containing a weight component for all contributing objects.
+ *
+ *  @return Reference to non-modifiable vector of weight components. 
+ *
+ *  @warning This method is implemented to follow a convention introduced for other data objects in the xAOD framework. In MissingETComponent_v1, the internal 
+ *           data stores are understood to be highly linked (index parallel), and the behaviour of this object is designed to support random access to all
+ *           of these stores in a synchronized fashion (including replacement and removeable). Clients should not directly access these lists, to assure 
+ *           consistent data access.
+ */
+/*! @fn bool xAOD::::MissingETComponent_v1::setWpx(const std::vector<double>& wcv)
+ *
+ *  Fill the vector containing a weight component for all contributing objects.
+ *
+ *  @param[in] wcv reference to non-modifiable vector of weight components.
+ *
+ *  @warning This method is implemented to follow a convention introduced for other data objects in the xAOD framework. In MissingETComponent_v1, the internal 
+ *           data stores are understood to be highly linked (index parallel), and the behaviour of this object is designed to support coherent setting of contributing
+ *           object links and weight components. Setting this data for a given configuration without taking advantage of the particular behaviour implemented
+ *           in the xAOD::MissingETComponent::setMET and xAOD::add methods is strongly discouraged. But if these direct setters are used, clients need to make sure
+ *           that the data is coherent and the store sizes match. Anything else will lead to uncontrollable behaviour and program crashes.   
+ */
+/*! @fn  const std::vector<double>& xAOD::MissingETComponent_v1::wpy() const
+ *
+ *  @copydetails xAOD::MissingETComponent_v1::wpx()
+ */
+/*! @fn  void xAOD::MissingETComponent_v1::setWpy(const std::vector<double>& wcv)
+ *
+ *  @copydetails xAOD::MissingETComponent_v1::setWpx(const std::vector<double>&)
+ */
+/*! @fn const std::vector<double>& xAOD::MissingETComponent_v1::wet() const
+ *
+ *  copydetails xAOD::MissingETComponent_v1::wpx()
+ */
+/*! @fn bool xAOD::MissingETComponent_v1::setWet(const std::vector<double>& wcv)
+ *
+ *  @copydetails xAOD::MissingETComponent_v1::setWpx(const std::vector<double>&)
+ */
+/*! @fn const MissingETBase::Types::metlink_t& xAOD::MissingETComponent::metLink() const
+ *
+ *  Retrieve the link to the MET object.
+ *
+ *  @return Reference to non-modifiable link object holding the link to the xAOD::MissingET_v1 object. 
+ */
+/*! @fn bool setMetLink(const MissingETBase::Types::metlink_t& metLnk)
+ *
+ *  Set the link to the MET object.
+ *
+ *  @param[in] metLnk link object referencing a xAOD::MissingET_v1 object. 
+ *
+ *  @warning Setting the link to the MET object should be done using xAOD::MissingETComponent_v1::setMET . This method assures 
+ *           the correct behaviour and allows to set the statusword at the same time.
+ */
+/*! @fn const MissingETBase::Types::objlink_vector_t& xAOD::MissingETComponent_v1::objectLinks() const
+ *
+ *  Retrieve the vector of links to the contributing objects.
+ *
+ *  @return Reference to a non-modifiable vector of link objects holding references to contributing physics or signal objects. 
+ *
+ *  @note Scanning just the vector of links to contributing objects is insufficient to understand the contribution to MET, as this is 
+ *        only fully described when the associated kinematic weights are included. 
+ */
+/*! @fn bool xAOD::MissingETComponent_v1::setObjectLinks(const MissingETBase::Types::objlink_vector_t& objLnks)
+ *
+ *  Set the list of links for objects contributing to MET. 
+ *
+ *  @param[in] objLnks vector of link objects. 
+ * 
+ *  @warning This method is implemented to follow a convention introduced for other data objects in the xAOD framework. In MissingETComponent_v1, the internal 
+ *           data stores are understood to be highly linked (index parallel), and the behaviour of this object is designed to support coherent setting of contributing
+ *           object links and weight components. Setting this data for a given configuration without taking advantage of the particular behaviour implemented
+ *           in the xAOD::MissingETComponent::setMET and xAOD::add methods is strongly discouraged. But if these direct setters are used, clients need to make sure
+ *           that the data is coherent and the store sizes match. Anything else will lead to uncontrollable behaviour and program crashes.   
+ */
+/*! @fn MissingETBase::Types::bitmask_t xAOD::MissingETComponent_t::statusWord() const
+ *
+ *  Retrieve the statusword.
+ *
+ *  @return Statusword associated with this MET component. 
+ */
+
+/*! @fn const xAOD::MissingET_v1* xAOD::MissingETComponent_v1::metObject() const
+ * 
+ *  @return Pointer to non-modifiable object representing the MET object the linked objects (see MissingETComponent_v1::objects() ) contribute to. 
+ */
+
+/*! @fn const xAOD::MissingETContainer_v1* xAOD::MissingETComposition_v1::metObjectContainer() const
+ *
+ *  @return Pointer to non-modifiable object container holding the MET object the linked object (see MissingETComponent::objects() ) contributes to.
+ */
+  
+/*! @fn size_t xAOD::MissingETComponent_v1::metObjectIndex() const
+ *
+ *  @return Index of MET object in its container. 
+ */
+
+/*! @fn std::vector<const xAOD::IParticle*> xAOD::MissingETComponent_v1::objects() const
+ *
+ *  This method returns all objects stored in the link list.
+ * 
+ *  @return List of non-modifiable contributing objects pointers.
+ */
+
+/*! @fn std::vector<const xAOD::IParticle*> xAOD::MissingETComponent_v1::objects(std::vector<Weight>& kinePars) const
+ *
+ *  This method returns pointer references to all objects stored in the link list, and fills vectors with (index-parallel) kinematic weights and status words.
+ * 
+ *  @return List of non-modifiable contributing objects pointers.
+ *
+ *  @param[out] kinePars reference to modifiable list of kinematic weights
+ *
+ *  @note The kinematic parameter list is cleared, to assure index-parallel filling with the returned object pointer list. 
+ */
+
+/*! @fn std::vector<const xAOD::IParticle*> xAOD::MissingETComponent_1::objects(const std::vector<double>* wpxPtr,const std::vector<double>* wpyPtr,const std::vector<double>* wetPtr)
+ *
+ *  This method returns pointerr references to all objects stored in the link list, and assigns references to non-modifiable vectors of weight components to the corresponding  arguments.
+ * 
+ *  @return List of non-modifiable contributing objects pointers.
+ *
+ *  @param[inout] wpxPtr dataword holding pointer reference to non-modifiable list of @f$ w_{x} @f$ weight components.
+ *  @param[inout] wpyPtr dataword holding pointer reference to non-modifiable list of @f$ w_{y} @f$ weight components.
+ *  @param[inout] wetPtr dataword holding pointer reference to non-modifiable list of @f$ w_{\rm T} @f$ weight components.
+ *
+ *  @note The difference to the behaviour of xAOD::MissingETComponent_v1::objects(std::vector<Weight>&) is that clients cannot modify the lists of weight components.
+ */
+
+/*! @fn double xAOD::MissingETComponent_v1::wpx(const IParticle* pPart) const
+ *
+ *  @return Stored weight component @f$ w_{x} @f$ for a given contributing object if the corresponding objecct reference is found in the 
+ *          contributing obbject list. 
+ *
+ *  @param[in] pPart  pointer to non-modifiable (contributing) object
+ *
+ *  @note Involves linear search.
+ */
+
+/*    Weight weight(size_t pIdx) const */
+  
+    // /*! @brief Component weight @f$ w_{y} @f$
+    //  *
+    //  *  @return Stored component weight @f$ w_{y} @f$ for a given contributing object. 
+    //  *
+    //  *  @param[in] pPart  pointer to non-modifiable (contributing) object
+    //  *
+    //  *  @note Involves linear search.
+    //  */    
+    // double wpy(const IParticle* pPart) const;
+
+    //  *
+    //  *  @return Stored component weight @f$ w_{\rm T} @f$ for a given contributing object. 
+    //  *
+    //  *  @param[in] pPart  pointer to non-modifiable (contributing) object
+    //  *
+    //  *  @note Involves linear search.
+    //  */
+
+    // Weight weight(const IParticle* pPart) const;                                /*!< @brief Get kinematic weight for a given object */
+    // /*! @brief Component weight object
+    //  *
+    //  *  @return Weight object with actually stored component weights. If the given object reference is not valid, the default weight 
+    //  *          MissingETComponent_v1::Weight::Weight() is returned. 
+    //  */
