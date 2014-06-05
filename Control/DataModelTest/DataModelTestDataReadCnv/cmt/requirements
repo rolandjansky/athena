@@ -1,0 +1,41 @@
+#
+# $Id: requirements,v 1.4 2008-11-12 12:51:25 schaffer Exp $
+#
+# @file  cmt/requirements
+# @author scott snyder
+# @date Nov 2005
+# @brief DataModelTestDataWriteCnv cmt requirements file.
+#
+
+package DataModelTestDataReadCnv
+
+author scott snyder <snyder@bnl.gov>
+
+use AtlasPolicy             AtlasPolicy-*
+use AthenaPoolUtilities     AthenaPoolUtilities-*     Database/AthenaPOOL
+
+private
+use DataModelTestDataRead    DataModelTestDataRead-*    Control/DataModelTest
+use DataModelTestDataCommon  DataModelTestDataCommon-*  Control/DataModelTest
+end_private
+
+apply_pattern poolcnv \
+ typesWithNamespace="DMTest::BVec DMTest::DVec \
+                     DMTest::DDer DMTest::BDer DMTest::ELVec \
+                     DMTest::BAux DMTest::BAuxVec DMTest::BAuxStandalone \
+                     DMTest::C_v1 DMTest::CVec_v1 DMTest::CAuxContainer_v1 \
+                     DMTest::CInfoAuxContainer_v1 \
+                     DMTest::CTrigAuxContainer_v1 " \
+ files="-s=${DataModelTestDataRead_root}/DataModelTestDataRead \
+             BVec.h BDer.h DVec.h DDer.h ELVec.h \
+        -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
+           BAux.h BAuxVec.h BAuxStandalone.h \
+           versions/C_v1.h versions/CVec_v1.h versions/CAuxContainer_v1.h \
+           versions/CInfoAuxContainer_v1.h \
+           versions/CTrigAuxContainer_v1.h "
+
+private
+# poolcnv pattern doesn't support headers in subdirectories.
+# work around.
+macro_append use_pp_cppflags -I$(DataModelTestDataCommon_root)/DataModelTestDataCommon
+end_private
