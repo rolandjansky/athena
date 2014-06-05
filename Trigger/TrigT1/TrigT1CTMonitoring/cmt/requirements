@@ -1,0 +1,37 @@
+package TrigT1CTMonitoring
+
+author David Berge <David.Berge@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaMonitoring           AthenaMonitoring-*              Control
+use  AtlasCOOL                  AtlasCOOL-*                     External
+use  GaudiInterface             GaudiInterface-*                External
+use  StoreGate                  StoreGate-*                     Control
+#use  TrigConfigSvc              TrigConfigSvc-*                 Trigger/TrigConfiguration
+use  TrigConfInterfaces		TrigConfInterfaces-*		Trigger/TrigConfiguration
+use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
+use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+private
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+use  AtlasCORAL                 AtlasCORAL-*                    External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  CoraCool                   CoraCool-*                      Database
+use  EventInfo			EventInfo-*			Event
+use  LWHists                    LWHists-*                       Tools
+use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
+use  TrigConfStorage            TrigConfStorage-*               Trigger/TrigConfiguration
+use  TrigT1CTP                  TrigT1CTP-*                     Trigger/TrigT1
+use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
+use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
+end_private
+
+apply_pattern dual_use_library  files="*.cxx"
+
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern declare_python_modules files="*.py"
+
+apply_pattern declare_xmls
+apply_pattern install_xmls
+apply_pattern generic_declare_for_link kind=data files="-s=../scripts *.py" prefix=share/bin
