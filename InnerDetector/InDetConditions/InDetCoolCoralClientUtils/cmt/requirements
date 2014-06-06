@@ -1,0 +1,22 @@
+package InDetCoolCoralClientUtils
+
+author B.DiGirolamo D.Whittington
+
+use DetCommonPolicy 	DetCommonPolicy-*
+
+use CORAL		v*		LCG_Interfaces
+use COOL		v*		LCG_Interfaces
+use Boost		v*		LCG_Interfaces
+#use oracle		v*		LCG_Interfaces
+
+#apply_pattern detcommon_shared_library_settings
+
+library InDetCoolCoralClientUtils *.cpp 
+
+apply_pattern detcommon_shared_library
+apply_pattern detcommon_ignores
+apply_pattern detcommon_header_installer
+
+# DRQ: Temporary hack to allow builds on MacOSX (which don't yet an an Oracle client library)
+private
+macro_remove oracle_linkopts "" Darwin "-lclntsh"
