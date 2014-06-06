@@ -1,0 +1,24 @@
+package xAODTrigMuonCnv
+
+author Mark Owen (markowen@cern.ch)
+
+use  AtlasPolicy		AtlasPolicy-*
+
+public
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  DataModel       		DataModel-*         		Control
+use  FourMomUtils		FourMomUtils-*			Event
+use  GaudiInterface		GaudiInterface-*                External
+use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+end_private
+
+# Make a component library:
+library xAODTrigMuonCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files="xAODTrigMuonCnvConfig.py xAODTrigMuonCnvConfigDb.py"
+apply_pattern declare_joboptions     files="addEFMuonxAODCnv_jobOptions.py runEFMuonAODCnvAlg_topOptions.py"

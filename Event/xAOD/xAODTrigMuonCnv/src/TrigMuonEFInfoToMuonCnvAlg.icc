@@ -1,0 +1,25 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//
+//  TrigMuonEFInfoToMuonCnvAlg.icc
+//
+//  Created by Mark Owen on 13/03/2014.
+//
+
+namespace xAODMaker {
+  /// Utility function to record xAOD containers to the event store
+  template<class CONT, class AUXCONT>
+  inline
+  StatusCode TrigMuonEFInfoToMuonCnvAlg::recordxAODContainers(const std::string& containerName, const std::string& auxContainerName, CONT& xaod, AUXCONT& aux) {
+
+    CHECK( evtStore()->record( &xaod, containerName ) );
+    CHECK( evtStore()->record( &aux, auxContainerName ) );
+    xaod.setStore( &aux );
+    ATH_MSG_DEBUG( "Recorded xAOD container with key: " << containerName );
+    return StatusCode::SUCCESS;
+  }
+}//namespace xAODMaker
