@@ -25,8 +25,8 @@ SeededSuperRoiAllTEAlgo::SeededSuperRoiAllTEAlgo(const std::string& name, ISvcLo
   declareProperty("prefetchPIX",  m_prefetchPIX=false, "register ROB requests for pixels");
   declareProperty("prefetchSCT",  m_prefetchSCT=false, "register ROB requests for SCT");
   declareProperty("UseRoiSizes",  m_useRoiSizes=true, "User RoI sizes rather than width parameters");
-  declareProperty("EtaHalwWidth",  m_etaHalfWidth=0.1, "RoI eta half width");
-  declareProperty("PhiHalwWidth",  m_phiHalfWidth=0.1, "RoI phi half width");
+  declareProperty("EtaHalfWidth",  m_etaHalfWidth=0.1, "RoI eta half width");
+  declareProperty("PhiHalfWidth",  m_phiHalfWidth=0.1, "RoI phi half width");
   declareProperty("RegionSelectorTool",    m_regionSelectorName = "RegSelSvc", "instance of the RegionSelector service");
 }
 
