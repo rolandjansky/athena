@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+   <atn>
+      <TEST name="ByteStreamTest" type="makecheck" suite="Examples">
+         <timelimit>20</timelimit>
+         <author>Jack Cranshaw</author>
+         <mailto>Jack.Cranshaw@cern.ch</mailto>
+         <expectations>
+            <errorMessage> ERROR</errorMessage>
+            <successMessage> OK</successMessage>   
+            <returnValue>0</returnValue>
+         </expectations>
+      </TEST>
+   </atn>
+
+   <TEST name="SharedReader" type="script" suite="ByteStreamTest">
+      <doc>Test shared reader MP mode</doc>
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Event</displayProcess>
+         <displayComponent>ByteStream</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/runmp_shared_reader</options_atn>
+      <timelimit>5</timelimit>
+      <author>JackCranshaw</author>
+      <mailto>cranshaw@anl.gov</mailto>
+      <expectations>
+         <errorMessage>ERROR </errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="SharedQueue" type="script" suite="ByteStreamTest">
+      <doc>Test shared queue MP mode</doc>
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Event</displayProcess>
+         <displayComponent>ByteStream</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/runmp_shared_queue</options_atn>
+      <timelimit>5</timelimit>
+      <author>JackCranshaw</author>
+      <mailto>cranshaw@anl.gov</mailto>
+      <expectations>
+         <errorMessage>ERROR </errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</unifiedTestConfiguration>

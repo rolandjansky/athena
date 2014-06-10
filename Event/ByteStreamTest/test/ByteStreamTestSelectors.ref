@@ -1,0 +1,315 @@
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-08
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-08
+EventSelector        INFO reinitialization...
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector       DEBUG Calling EventSelectorByteStream::start()
+ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore
+ByteStreamInputSvc  DEBUG  run parameters  =  
+ByteStreamInputSvc  DEBUG Number of Free meta data strings: 0
+ByteStreamInputSvc   INFO Picked valid file: /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data
+EventSelector       DEBUG Opened block/file /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2435536
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 400
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x69de000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 232
+EventSelector.E...   INFO EvenEventsSelectorTool::postNext
+EventSelector.E...   INFO BLARG Found attribute list
+EventSelector.E...   INFO Spec element RunNumber (long) : 183003
+EventSelector.E...   INFO Spec element EventNumber (long) : 82201
+EventSelector.E...   INFO Spec element Lumiblock (int) : 183
+EventSelector.E...   INFO Spec element BunchID (int) : 148
+EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1306973682
+EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 0
+EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
+EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 82201
+EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 229
+EventSelector.E...   INFO Spec element L1TriggerInfo_0 (unsigned int) : 1079152255
+EventSelector.E...   INFO Spec element L1TriggerInfo_1 (unsigned int) : 50470127
+EventSelector.E...   INFO Spec element L1TriggerInfo_2 (unsigned int) : 2149584511
+EventSelector.E...   INFO Spec element L1TriggerInfo_3 (unsigned int) : 2218672511
+EventSelector.E...   INFO Spec element L1TriggerInfo_4 (unsigned int) : 10301362
+EventSelector.E...   INFO Spec element L1TriggerInfo_5 (unsigned int) : 193733632
+EventSelector.E...   INFO Spec element L1TriggerInfo_6 (unsigned int) : 271681088
+EventSelector.E...   INFO Spec element L1TriggerInfo_7 (unsigned int) : 8427659
+EventSelector.E...   INFO Spec element L1TriggerInfo_8 (unsigned int) : 1079152255
+EventSelector.E...   INFO Spec element L1TriggerInfo_9 (unsigned int) : 50470127
+EventSelector.E...   INFO Spec element L1TriggerInfo_10 (unsigned int) : 2149584511
+EventSelector.E...   INFO Spec element L1TriggerInfo_11 (unsigned int) : 2218672511
+EventSelector.E...   INFO Spec element L1TriggerInfo_12 (unsigned int) : 10301362
+EventSelector.E...   INFO Spec element L1TriggerInfo_13 (unsigned int) : 193733632
+EventSelector.E...   INFO Spec element L1TriggerInfo_14 (unsigned int) : 271681088
+EventSelector.E...   INFO Spec element L1TriggerInfo_15 (unsigned int) : 8427659
+EventSelector.E...   INFO Spec element L1TriggerInfo_16 (unsigned int) : 1079152255
+EventSelector.E...   INFO Spec element L1TriggerInfo_17 (unsigned int) : 50470127
+EventSelector.E...   INFO Spec element L1TriggerInfo_18 (unsigned int) : 2149584511
+EventSelector.E...   INFO Spec element L1TriggerInfo_19 (unsigned int) : 2218672511
+EventSelector.E...   INFO Spec element L1TriggerInfo_20 (unsigned int) : 10301362
+EventSelector.E...   INFO Spec element L1TriggerInfo_21 (unsigned int) : 193733632
+EventSelector.E...   INFO Spec element L1TriggerInfo_22 (unsigned int) : 271681088
+EventSelector.E...   INFO Spec element L1TriggerInfo_23 (unsigned int) : 8427659
+EventSelector.E...   INFO Spec element L2TriggerInfo_0 (unsigned int) : 536870912
+EventSelector.E...   INFO Spec element L2TriggerInfo_1 (unsigned int) : 33816576
+EventSelector.E...   INFO Spec element L2TriggerInfo_2 (unsigned int) : 570425344
+EventSelector.E...   INFO Spec element L2TriggerInfo_3 (unsigned int) : 6386704
+EventSelector.E...   INFO Spec element L2TriggerInfo_4 (unsigned int) : 1979731968
+EventSelector.E...   INFO Spec element L2TriggerInfo_6 (unsigned int) : 196608
+EventSelector.E...   INFO Spec element L2TriggerInfo_7 (unsigned int) : 2952790024
+EventSelector.E...   INFO Spec element L2TriggerInfo_8 (unsigned int) : 8192
+EventSelector.E...   INFO Spec element L2TriggerInfo_9 (unsigned int) : 1074266116
+EventSelector.E...   INFO Spec element L2TriggerInfo_10 (unsigned int) : 13312
+EventSelector.E...   INFO Spec element L2TriggerInfo_12 (unsigned int) : 4352
+EventSelector.E...   INFO Spec element L2TriggerInfo_13 (unsigned int) : 2
+EventSelector.E...   INFO Spec element L2TriggerInfo_14 (unsigned int) : 4194304
+EventSelector.E...   INFO Spec element L2TriggerInfo_15 (unsigned int) : 7
+EventSelector.E...   INFO Spec element L2TriggerInfo_16 (unsigned int) : 260055044
+EventSelector.E...   INFO Spec element L2TriggerInfo_18 (unsigned int) : 229376
+EventSelector.E...   INFO Spec element L2TriggerInfo_19 (unsigned int) : 4227072
+EventSelector.E...   INFO Spec element L2TriggerInfo_20 (unsigned int) : 404750369
+EventSelector.E...   INFO Spec element L2TriggerInfo_23 (unsigned int) : 262144
+EventSelector.E...   INFO Spec element L2TriggerInfo_24 (unsigned int) : 33554432
+EventSelector.E...   INFO Spec element L2TriggerInfo_25 (unsigned int) : 1064960
+EventSelector.E...   INFO Spec element L2TriggerInfo_26 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element L2TriggerInfo_27 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element L2TriggerInfo_28 (unsigned int) : 64
+EventSelector.E...   INFO Spec element L2TriggerInfo_29 (unsigned int) : 16
+EventSelector.E...   INFO Spec element L2TriggerInfo_30 (unsigned int) : 263112
+EventSelector.E...   INFO Spec element L2TriggerInfo_31 (unsigned int) : 1073741888
+EventSelector.E...   INFO Spec element L2TriggerInfo_32 (unsigned int) : 49296
+EventSelector.E...   INFO Spec element L2TriggerInfo_35 (unsigned int) : 603979776
+EventSelector.E...   INFO Spec element L2TriggerInfo_40 (unsigned int) : 1614809097
+EventSelector.E...   INFO Spec element L2TriggerInfo_41 (unsigned int) : 1610613248
+EventSelector.E...   INFO Spec element L2TriggerInfo_51 (unsigned int) : 64
+EventSelector.E...   INFO Spec element L2TriggerInfo_63 (unsigned int) : 12582912
+EventSelector.E...   INFO Spec element L2TriggerInfo_69 (unsigned int) : 12288
+EventSelector.E...   INFO Spec element L2TriggerInfo_72 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element L2TriggerInfo_78 (unsigned int) : 16
+EventSelector.E...   INFO Spec element L2TriggerInfo_101 (unsigned int) : 25165824
+EventSelector.E...   INFO Spec element L2TriggerInfo_102 (unsigned int) : 64
+EventSelector.E...   INFO Spec element L2TriggerInfo_106 (unsigned int) : 16
+EventSelector.E...   INFO Spec element L2TriggerInfo_125 (unsigned int) : 131072
+EventSelector.E...   INFO Spec element L2TriggerInfo_126 (unsigned int) : 538968576
+EventSelector.E...   INFO Spec element L2TriggerInfo_127 (unsigned int) : 8200
+EventSelector.E...   INFO Spec element L2TriggerInfo_132 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element L2TriggerInfo_138 (unsigned int) : 268435456
+EventSelector.E...   INFO Spec element L2TriggerInfo_156 (unsigned int) : 2048
+EventSelector.E...   INFO Spec element L2TriggerInfo_159 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element L2TriggerInfo_168 (unsigned int) : 83886080
+EventSelector.E...   INFO Spec element L2TriggerInfo_173 (unsigned int) : 50348032
+EventSelector.E...   INFO Spec element L2TriggerInfo_175 (unsigned int) : 1024
+EventSelector.E...   INFO Spec element EFTriggerInfo_1 (unsigned int) : 262144
+EventSelector.E...   INFO Spec element EFTriggerInfo_2 (unsigned int) : 570425344
+EventSelector.E...   INFO Spec element EFTriggerInfo_3 (unsigned int) : 32
+EventSelector.E...   INFO Spec element EFTriggerInfo_4 (unsigned int) : 1677742080
+EventSelector.E...   INFO Spec element EFTriggerInfo_6 (unsigned int) : 196608
+EventSelector.E...   INFO Spec element EFTriggerInfo_7 (unsigned int) : 2952790016
+EventSelector.E...   INFO Spec element EFTriggerInfo_8 (unsigned int) : 8192
+EventSelector.E...   INFO Spec element EFTriggerInfo_9 (unsigned int) : 1073741828
+EventSelector.E...   INFO Spec element EFTriggerInfo_10 (unsigned int) : 13312
+EventSelector.E...   INFO Spec element EFTriggerInfo_12 (unsigned int) : 768
+EventSelector.E...   INFO Spec element EFTriggerInfo_13 (unsigned int) : 16777218
+EventSelector.E...   INFO Spec element EFTriggerInfo_14 (unsigned int) : 4194304
+EventSelector.E...   INFO Spec element EFTriggerInfo_16 (unsigned int) : 260055044
+EventSelector.E...   INFO Spec element EFTriggerInfo_18 (unsigned int) : 229376
+EventSelector.E...   INFO Spec element EFTriggerInfo_19 (unsigned int) : 4227072
+EventSelector.E...   INFO Spec element EFTriggerInfo_20 (unsigned int) : 134217729
+EventSelector.E...   INFO Spec element EFTriggerInfo_23 (unsigned int) : 262144
+EventSelector.E...   INFO Spec element EFTriggerInfo_24 (unsigned int) : 33554432
+EventSelector.E...   INFO Spec element EFTriggerInfo_25 (unsigned int) : 1048576
+EventSelector.E...   INFO Spec element EFTriggerInfo_27 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element EFTriggerInfo_28 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element EFTriggerInfo_29 (unsigned int) : 1753219088
+EventSelector.E...   INFO Spec element EFTriggerInfo_30 (unsigned int) : 8
+EventSelector.E...   INFO Spec element EFTriggerInfo_31 (unsigned int) : 1073774144
+EventSelector.E...   INFO Spec element EFTriggerInfo_32 (unsigned int) : 128
+EventSelector.E...   INFO Spec element EFTriggerInfo_35 (unsigned int) : 603979776
+EventSelector.E...   INFO Spec element EFTriggerInfo_40 (unsigned int) : 1614807040
+EventSelector.E...   INFO Spec element EFTriggerInfo_41 (unsigned int) : 512
+EventSelector.E...   INFO Spec element EFTriggerInfo_51 (unsigned int) : 64
+EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 524288
+EventSelector.E...   INFO Spec element EFTriggerInfo_78 (unsigned int) : 16
+EventSelector.E...   INFO Spec element EFTriggerInfo_101 (unsigned int) : 25165824
+EventSelector.E...   INFO Spec element EFTriggerInfo_102 (unsigned int) : 64
+EventSelector.E...   INFO Spec element EFTriggerInfo_106 (unsigned int) : 16
+EventSelector.E...   INFO Spec element EFTriggerInfo_125 (unsigned int) : 131072
+EventSelector.E...   INFO Spec element EFTriggerInfo_126 (unsigned int) : 538968576
+EventSelector.E...   INFO Spec element EFTriggerInfo_127 (unsigned int) : 8192
+EventSelector.E...   INFO Spec element EFTriggerInfo_132 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element EFTriggerInfo_138 (unsigned int) : 268435456
+EventSelector.E...   INFO Spec element EFTriggerInfo_159 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element EFTriggerInfo_173 (unsigned int) : 50348032
+EventSelector.E...   INFO Spec element DISCARD (string) : physics
+EventSelector.E...   INFO Spec element EFCostMonitoring (string) : calibration
+EventSelector.E...   INFO Spec element Egamma (string) : physics
+EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
+EventSelector.E...   INFO Spec element JetTauEtmiss (string) : physics
+EventSelector.E...   INFO Spec element L1Calo (string) : physics
+EventSelector.E...   INFO Spec element L2CostMonitoring (string) : calibration
+EventSelector.E...   INFO Spec element LArCells (string) : calibration
+EventSelector.E...   INFO Spec element MinBias (string) : physics
+EventSelector.E...   INFO Spec element PixelBeam (string) : calibration
+EventSelector.E...   INFO Spec element Standby (string) : physics
+EventSelector.E...   INFO Spec element beamspot (string) : calibration
+EventSelector.E...   INFO Spec element express (string) : express
+EventSelector.E...   INFO BLARG <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2975576
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 400
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x767e000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2435784
+EventSelector.E...   INFO EvenEventsSelectorTool::postNext
+EventSelector.E...   INFO BLARG Found attribute list
+EventSelector.E...   INFO Spec element RunNumber (long) : 183003
+EventSelector.E...   INFO Spec element EventNumber (long) : 82202
+EventSelector.E...   INFO Spec element Lumiblock (int) : 183
+EventSelector.E...   INFO Spec element BunchID (int) : 112
+EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1306973682
+EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 0
+EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
+EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 82202
+EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 229
+EventSelector.E...   INFO Spec element L1TriggerInfo_0 (unsigned int) : 3226636159
+EventSelector.E...   INFO Spec element L1TriggerInfo_1 (unsigned int) : 54925551
+EventSelector.E...   INFO Spec element L1TriggerInfo_2 (unsigned int) : 2158167679
+EventSelector.E...   INFO Spec element L1TriggerInfo_3 (unsigned int) : 2499494255
+EventSelector.E...   INFO Spec element L1TriggerInfo_4 (unsigned int) : 48590522
+EventSelector.E...   INFO Spec element L1TriggerInfo_5 (unsigned int) : 193471488
+EventSelector.E...   INFO Spec element L1TriggerInfo_6 (unsigned int) : 305202752
+EventSelector.E...   INFO Spec element L1TriggerInfo_7 (unsigned int) : 8427659
+EventSelector.E...   INFO Spec element L1TriggerInfo_8 (unsigned int) : 3226636159
+EventSelector.E...   INFO Spec element L1TriggerInfo_9 (unsigned int) : 54925551
+EventSelector.E...   INFO Spec element L1TriggerInfo_10 (unsigned int) : 2158167679
+EventSelector.E...   INFO Spec element L1TriggerInfo_11 (unsigned int) : 2499494255
+EventSelector.E...   INFO Spec element L1TriggerInfo_12 (unsigned int) : 48590522
+EventSelector.E...   INFO Spec element L1TriggerInfo_13 (unsigned int) : 193471488
+EventSelector.E...   INFO Spec element L1TriggerInfo_14 (unsigned int) : 305202752
+EventSelector.E...   INFO Spec element L1TriggerInfo_15 (unsigned int) : 8427659
+EventSelector.E...   INFO Spec element L1TriggerInfo_16 (unsigned int) : 3226636159
+EventSelector.E...   INFO Spec element L1TriggerInfo_17 (unsigned int) : 54925551
+EventSelector.E...   INFO Spec element L1TriggerInfo_18 (unsigned int) : 2158167679
+EventSelector.E...   INFO Spec element L1TriggerInfo_19 (unsigned int) : 2499494255
+EventSelector.E...   INFO Spec element L1TriggerInfo_20 (unsigned int) : 48590522
+EventSelector.E...   INFO Spec element L1TriggerInfo_21 (unsigned int) : 193471488
+EventSelector.E...   INFO Spec element L1TriggerInfo_22 (unsigned int) : 305202752
+EventSelector.E...   INFO Spec element L1TriggerInfo_23 (unsigned int) : 8427659
+EventSelector.E...   INFO Spec element L2TriggerInfo_0 (unsigned int) : 2013265922
+EventSelector.E...   INFO Spec element L2TriggerInfo_1 (unsigned int) : 33816576
+EventSelector.E...   INFO Spec element L2TriggerInfo_2 (unsigned int) : 570433536
+EventSelector.E...   INFO Spec element L2TriggerInfo_3 (unsigned int) : 6366224
+EventSelector.E...   INFO Spec element L2TriggerInfo_4 (unsigned int) : 4127281152
+EventSelector.E...   INFO Spec element L2TriggerInfo_5 (unsigned int) : 7
+EventSelector.E...   INFO Spec element L2TriggerInfo_6 (unsigned int) : 402849792
+EventSelector.E...   INFO Spec element L2TriggerInfo_7 (unsigned int) : 2952790280
+EventSelector.E...   INFO Spec element L2TriggerInfo_8 (unsigned int) : 8192
+EventSelector.E...   INFO Spec element L2TriggerInfo_9 (unsigned int) : 1074266116
+EventSelector.E...   INFO Spec element L2TriggerInfo_10 (unsigned int) : 9216
+EventSelector.E...   INFO Spec element L2TriggerInfo_11 (unsigned int) : 2112
+EventSelector.E...   INFO Spec element L2TriggerInfo_12 (unsigned int) : 4352
+EventSelector.E...   INFO Spec element L2TriggerInfo_13 (unsigned int) : 201359378
+EventSelector.E...   INFO Spec element L2TriggerInfo_14 (unsigned int) : 4194304
+EventSelector.E...   INFO Spec element L2TriggerInfo_15 (unsigned int) : 50332423
+EventSelector.E...   INFO Spec element L2TriggerInfo_16 (unsigned int) : 109060612
+EventSelector.E...   INFO Spec element L2TriggerInfo_18 (unsigned int) : 163840
+EventSelector.E...   INFO Spec element L2TriggerInfo_19 (unsigned int) : 4227072
+EventSelector.E...   INFO Spec element L2TriggerInfo_20 (unsigned int) : 402653217
+EventSelector.E...   INFO Spec element L2TriggerInfo_23 (unsigned int) : 262144
+EventSelector.E...   INFO Spec element L2TriggerInfo_24 (unsigned int) : 33619968
+EventSelector.E...   INFO Spec element L2TriggerInfo_25 (unsigned int) : 1312768
+EventSelector.E...   INFO Spec element L2TriggerInfo_26 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element L2TriggerInfo_27 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element L2TriggerInfo_28 (unsigned int) : 64
+EventSelector.E...   INFO Spec element L2TriggerInfo_29 (unsigned int) : 16
+EventSelector.E...   INFO Spec element L2TriggerInfo_30 (unsigned int) : 262152
+EventSelector.E...   INFO Spec element L2TriggerInfo_31 (unsigned int) : 1073741888
+EventSelector.E...   INFO Spec element L2TriggerInfo_32 (unsigned int) : 49296
+EventSelector.E...   INFO Spec element L2TriggerInfo_35 (unsigned int) : 603979776
+EventSelector.E...   INFO Spec element L2TriggerInfo_40 (unsigned int) : 1610614784
+EventSelector.E...   INFO Spec element L2TriggerInfo_41 (unsigned int) : 1610613248
+EventSelector.E...   INFO Spec element L2TriggerInfo_51 (unsigned int) : 64
+EventSelector.E...   INFO Spec element L2TriggerInfo_63 (unsigned int) : 12582912
+EventSelector.E...   INFO Spec element L2TriggerInfo_69 (unsigned int) : 4096
+EventSelector.E...   INFO Spec element L2TriggerInfo_72 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element L2TriggerInfo_78 (unsigned int) : 16
+EventSelector.E...   INFO Spec element L2TriggerInfo_87 (unsigned int) : 4194304
+EventSelector.E...   INFO Spec element L2TriggerInfo_101 (unsigned int) : 25165824
+EventSelector.E...   INFO Spec element L2TriggerInfo_102 (unsigned int) : 64
+EventSelector.E...   INFO Spec element L2TriggerInfo_106 (unsigned int) : 16
+EventSelector.E...   INFO Spec element L2TriggerInfo_125 (unsigned int) : 131072
+EventSelector.E...   INFO Spec element L2TriggerInfo_126 (unsigned int) : 538968576
+EventSelector.E...   INFO Spec element L2TriggerInfo_127 (unsigned int) : 8200
+EventSelector.E...   INFO Spec element L2TriggerInfo_138 (unsigned int) : 268435456
+EventSelector.E...   INFO Spec element L2TriggerInfo_156 (unsigned int) : 2048
+EventSelector.E...   INFO Spec element L2TriggerInfo_159 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element L2TriggerInfo_169 (unsigned int) : 24576
+EventSelector.E...   INFO Spec element L2TriggerInfo_173 (unsigned int) : 50348032
+EventSelector.E...   INFO Spec element L2TriggerInfo_175 (unsigned int) : 1024
+EventSelector.E...   INFO Spec element EFTriggerInfo_0 (unsigned int) : 402653184
+EventSelector.E...   INFO Spec element EFTriggerInfo_1 (unsigned int) : 262144
+EventSelector.E...   INFO Spec element EFTriggerInfo_2 (unsigned int) : 570490880
+EventSelector.E...   INFO Spec element EFTriggerInfo_3 (unsigned int) : 48
+EventSelector.E...   INFO Spec element EFTriggerInfo_4 (unsigned int) : 3254784000
+EventSelector.E...   INFO Spec element EFTriggerInfo_5 (unsigned int) : 15
+EventSelector.E...   INFO Spec element EFTriggerInfo_6 (unsigned int) : 402849792
+EventSelector.E...   INFO Spec element EFTriggerInfo_7 (unsigned int) : 2952790344
+EventSelector.E...   INFO Spec element EFTriggerInfo_8 (unsigned int) : 536879104
+EventSelector.E...   INFO Spec element EFTriggerInfo_9 (unsigned int) : 1074266116
+EventSelector.E...   INFO Spec element EFTriggerInfo_10 (unsigned int) : 8192
+EventSelector.E...   INFO Spec element EFTriggerInfo_11 (unsigned int) : 64
+EventSelector.E...   INFO Spec element EFTriggerInfo_12 (unsigned int) : 768
+EventSelector.E...   INFO Spec element EFTriggerInfo_13 (unsigned int) : 151027730
+EventSelector.E...   INFO Spec element EFTriggerInfo_14 (unsigned int) : 4194304
+EventSelector.E...   INFO Spec element EFTriggerInfo_15 (unsigned int) : 50332167
+EventSelector.E...   INFO Spec element EFTriggerInfo_16 (unsigned int) : 8196
+EventSelector.E...   INFO Spec element EFTriggerInfo_18 (unsigned int) : 163840
+EventSelector.E...   INFO Spec element EFTriggerInfo_19 (unsigned int) : 4227072
+EventSelector.E...   INFO Spec element EFTriggerInfo_20 (unsigned int) : 268435489
+EventSelector.E...   INFO Spec element EFTriggerInfo_23 (unsigned int) : 262144
+EventSelector.E...   INFO Spec element EFTriggerInfo_24 (unsigned int) : 33619968
+EventSelector.E...   INFO Spec element EFTriggerInfo_25 (unsigned int) : 1050624
+EventSelector.E...   INFO Spec element EFTriggerInfo_27 (unsigned int) : 2147483648
+EventSelector.E...   INFO Spec element EFTriggerInfo_29 (unsigned int) : 1753219088
+EventSelector.E...   INFO Spec element EFTriggerInfo_31 (unsigned int) : 1073774144
+EventSelector.E...   INFO Spec element EFTriggerInfo_32 (unsigned int) : 128
+EventSelector.E...   INFO Spec element EFTriggerInfo_35 (unsigned int) : 603979776
+EventSelector.E...   INFO Spec element EFTriggerInfo_40 (unsigned int) : 1610612736
+EventSelector.E...   INFO Spec element EFTriggerInfo_41 (unsigned int) : 1073742336
+EventSelector.E...   INFO Spec element EFTriggerInfo_51 (unsigned int) : 64
+EventSelector.E...   INFO Spec element EFTriggerInfo_72 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element EFTriggerInfo_75 (unsigned int) : 524288
+EventSelector.E...   INFO Spec element EFTriggerInfo_78 (unsigned int) : 16
+EventSelector.E...   INFO Spec element EFTriggerInfo_87 (unsigned int) : 4194304
+EventSelector.E...   INFO Spec element EFTriggerInfo_101 (unsigned int) : 25165824
+EventSelector.E...   INFO Spec element EFTriggerInfo_102 (unsigned int) : 64
+EventSelector.E...   INFO Spec element EFTriggerInfo_106 (unsigned int) : 16
+EventSelector.E...   INFO Spec element EFTriggerInfo_125 (unsigned int) : 131072
+EventSelector.E...   INFO Spec element EFTriggerInfo_126 (unsigned int) : 538968576
+EventSelector.E...   INFO Spec element EFTriggerInfo_127 (unsigned int) : 8192
+EventSelector.E...   INFO Spec element EFTriggerInfo_159 (unsigned int) : 67108864
+EventSelector.E...   INFO Spec element EFTriggerInfo_173 (unsigned int) : 50348032
+EventSelector.E...   INFO Spec element DISCARD (string) : physics
+EventSelector.E...   INFO Spec element EFCostMonitoring (string) : calibration
+EventSelector.E...   INFO Spec element Egamma (string) : physics
+EventSelector.E...   INFO Spec element EnhancedBias (string) : physics
+EventSelector.E...   INFO Spec element JetTauEtmiss (string) : physics
+EventSelector.E...   INFO Spec element L1Calo (string) : physics
+EventSelector.E...   INFO Spec element L2CostMonitoring (string) : calibration
+EventSelector.E...   INFO Spec element LArCells (string) : calibration
+EventSelector.E...   INFO Spec element MinBias (string) : physics
+EventSelector.E...   INFO Spec element PixelBeam (string) : calibration
+EventSelector.E...   INFO Spec element Standby (string) : physics
+EventSelector.E...   INFO Spec element beamspot (string) : calibration
+EventSelector.E...   INFO Spec element express (string) : express
+EventSelector.E...   INFO Rejecting event
+EventSelector.E...   INFO BLARG <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: ByteStreamEventInfo
+EventSelector        INFO Request skipping event from: EventSelector.EvenEventsSelectorTool
+EventSelector        INFO skipping event 2
+EventSelector        INFO End of input file list reached
+EventSelector       DEBUG Event source found no more valid files left in input list
+EventSelector       DEBUG Calling EventSelectorByteStream::stop()
+ByteStreamInputSvc  DEBUG Calling ByteStreamInputSvc::stop()
+EventSelector.E...  DEBUG Calling destructor

@@ -1,0 +1,15 @@
+AthAlgSeq            INFO Member list: StoreDump
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-r575100
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-r575100
+EventSelector        INFO reinitialization...
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore
+ByteStreamInputSvc  DEBUG  run parameters  =  
+ByteStreamInputSvc  DEBUG Number of Free meta data strings: 0
+ByteStreamInputSvc   INFO Picked valid file: /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data
+EventSelector     WARNING skipping more events 10 than in file /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data, try next
+ByteStreamInputSvcWARNING Clearing input metadata store
+EventSelector        INFO End of input file list reached
+EventSelector       FATAL Unable to open any file in initialize
+ServiceManager      ERROR Unable to start Service: EventSelector
+ToolSvc.ByteStr...  FATAL  Exception with tag=Gaudi::StateMachine::ChangeState is caught 
