@@ -1,0 +1,70 @@
+package InDetAlignmentMonitoring
+
+author Beate Heinemann <BHEHeinemann@lbl.gov>
+
+# General
+use AtlasPolicy AtlasPolicy-*
+
+private
+apply_tag ROOTMathLibs
+use EventInfo		           EventInfo-*                    Event
+
+use InDetIdentifier                InDetIdentifier-*              InnerDetector/InDetDetDescr
+use InDetReadoutGeometry           InDetReadoutGeometry-*         InnerDetector/InDetDetDescr
+use InDetPrepRawData               InDetPrepRawData-*             InnerDetector/InDetRecEvent
+use InDetRIO_OnTrack               InDetRIO_OnTrack-*             InnerDetector/InDetRecEvent
+use TrkGeometry                    TrkGeometry-*                  Tracking/TrkDetDescr
+use TrkSurfaces                    TrkSurfaces-*                  Tracking/TrkDetDescr
+use TrkExInterfaces                TrkExInterfaces-*              Tracking/TrkExtrapolation
+use TrkTrackSummary                TrkTrackSummary-*              Tracking/TrkEvent
+use TrkRIO_OnTrack                 TrkRIO_OnTrack-*               Tracking/TrkEvent
+
+use TrkPseudoMeasurementOnTrack    TrkPseudoMeasurementOnTrack-*  Tracking/TrkEvent
+
+use LWHists                        LWHists-*                      Tools
+
+use AtlasCLHEP                     AtlasCLHEP-*                   External
+use AtlasDetDescr                  AtlasDetDescr-*                DetectorDescription
+use AtlasHepMC                     AtlasHepMC-*                   External
+use TrkParticleBase                TrkParticleBase-*              Tracking/TrkEvent
+
+use TrkTruthData                   TrkTruthData-*                 Tracking/TrkEvent
+#use TrkValInterfaces              TrkValInterfaces-*             Tracking/TrkValidation
+use InDetAlignGenTools             InDetAlignGenTools-*           InnerDetector/InDetAlignTools
+
+use InDetTrackSplitterTool         InDetTrackSplitterTool-*       InnerDetector/InDetValidation
+use InDetBeamSpotService           InDetBeamSpotService-*         InnerDetector/InDetConditions
+use TRT_ConditionsServices         TRT_ConditionsServices-*       InnerDetector/InDetConditions
+
+use Identifier                     Identifier-*                   DetectorDescription
+use TrkEventPrimitives             TrkEventPrimitives-*           Tracking/TrkEvent
+use TrkTrack                       TrkTrack-*                     Tracking/TrkEvent
+use VxVertex                       VxVertex-*                     Tracking/TrkEvent
+
+use Particle                   Particle-*            Reconstruction
+use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
+
+# needed for the event phase
+
+public
+
+use EventPrimitives		   EventPrimitives-*		  Event    
+#use IdDictDetDescr                 IdDictDetDescr-*               DetectorDescription
+use AtlasROOT                      AtlasROOT-*                    External
+
+use AthenaMonitoring               AthenaMonitoring-*             Control
+use DataModel                      DataModel-*                    Control
+use GaudiInterface                 GaudiInterface-*               External
+use AthenaBaseComps                AthenaBaseComps-*              Control
+
+use TrkParameters                  TrkParameters-*                Tracking/TrkEvent
+use TrkToolInterfaces              TrkToolInterfaces-*            Tracking/TrkTools
+use CommissionEvent                CommissionEvent-*              Commission
+
+
+library  InDetAlignmentMonitoring *.cxx components/*.cxx
+apply_pattern component_library
+#apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"
+
+macro_append cppflags ""
