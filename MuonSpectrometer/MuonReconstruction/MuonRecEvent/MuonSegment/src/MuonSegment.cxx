@@ -153,10 +153,9 @@ void MuonSegment::copyMeasurementsToROTs() const
 //  std::cout<<"copyMeasurementsToROTs :"<<this<<" with measurements: "<<containedMeasurements().size()<<std::endl;
   m_cachedRots = new std::vector<const Trk::RIO_OnTrack*>;
   m_cachedRots->reserve(containedMeasurements().size());
-  DataVector<const Trk::MeasurementBase>::const_iterator rotIter = containedMeasurements().begin();
-  for (; rotIter!=containedMeasurements().end(); ++rotIter){
+  for (const Trk::MeasurementBase* m : containedMeasurements()) {
     // cast to RIO_OnTrack
-    const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*rotIter);
+    const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(m);
     if( rot ) m_cachedRots->push_back(rot);    
   }
   //std::cout<<"copyMeasurementsToROTs :"<<this<<" with rots: "<<m_cachedRots->size()<<std::endl;
