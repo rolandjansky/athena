@@ -1,0 +1,5 @@
+A description of the muon tagging strategy and a  study of the performance
+is given in the ATL-COM-DAQ-2003-001. 
+This was performed using a stand-alone fortran  program on which the 
+current implementation is based.  
+For more information see www.pi.infn.it/~usai/muons/tilemuid.html   
