@@ -38,7 +38,6 @@ namespace Muon {
 
     /** Constructor */   
     MuonSegmentQuality( double chi2, int ndof, const std::vector<Identifier>& channelsWithoutHit, bool isStrict=false );
-    MuonSegmentQuality( double chi2, int ndof, std::vector<Identifier>&& channelsWithoutHit, bool isStrict=false );
 
     /** Destructor */
     virtual ~MuonSegmentQuality() {}
