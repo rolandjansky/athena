@@ -1,0 +1,689 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//Dear emacs, this is -*-c++-*-
+
+#include "CaloIdentifier/CaloGain.h"
+
+template<class CONDITIONSCONTAINER>
+LArCalibValidationAlg<CONDITIONSCONTAINER>::LArCalibValidationAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
+  Algorithm(name,pSvcLocator),
+  m_log(NULL),m_myMsgLvl(MSG::ERROR),
+  m_detStore(0),
+  //m_badChannelTool("LArBadChanTool"),
+  m_badChannelTool("LArBadChanTool"),
+  m_badChanMaskingTool("LArBadChannelMasker"),
+  m_larCablingSvc("LArCablingService"),
+  m_onlineHelper(NULL),m_emId(NULL),m_hecId(NULL),m_fcalId(NULL),m_caloId(NULL),
+  m_reference(NULL),m_validation(NULL),m_nc_validation(NULL),
+  m_nChecked(0),m_nFailedValidation(0),m_nValidated(0),m_nBad(0),m_nNoReference(0) {
+  declareProperty("ValidationKey",m_validationKey="",
+		  "SG key of the LArConditionsContainer to be validated");
+  declareProperty("ReferenceKey",m_referenceKey="",
+		  "SG key of the LArConditionsContainer used as reference");
+  declareProperty("BadChannelMaskingTool",m_badChanMaskingTool,
+		  "BadChannelMaskingTool to be used");
+
+  declareProperty("UseBadChannelInfo",m_useBCInfo=true,
+		  "Use bad-channel info to skip validation for some type of bad-channels and for channel-description");
+
+  declareProperty("CheckCompletness",m_checkCompleteness=true,
+		  "Check if all FEBs of each COOL channel are present");
+
+  declareProperty("CheckNumberOfCoolChannels",m_checkNumberOfCoolChannels=true,
+		  "Compare COOL channel numbers in reference and validation containers");
+
+  declareProperty("MsgLevelForDeviations", m_myMsgLvlProp=MSG::ERROR,
+		  "Message Level for reporting deviations");
+
+  declareProperty("ListOfDevChannels",m_chanFileName="",
+		  "File name to store list of deviating channels");
+  declareProperty("ListOfDevFEBs",m_febFileName="",
+		  "File name to store list of FEBs with deviating channels");
+
+  declareProperty("ThinnedValContainer",m_thinValContKey="",
+		  "Container to store deviating values");
+  declareProperty("ThinnedRefContainer",m_thinRefContKey="",
+		  "Container to store reference for deviating values");
+  
+  declareProperty("PatchMissingFEBs",m_patchMissingFEBs=false,
+		  "Patch missing FEBs using values from reference container.");
+
+  declareProperty("MaxNumberMessages",m_maxmessages=2000,
+		  "Maximum number of messages to be printed");
+
+  declareProperty("PrintFailedPattern",m_printFailedPattern=true,
+		  "Identifiy FEBs and Calib-lines with many deviating channels");
+
+  declareProperty("DoFebAverages",m_doFebAverages=true,
+		  "Compare also FEB averages");
+
+  declareProperty("UseCorrChannels",m_useCorrChannel=true,
+		  "True: Use separate correction COOL channel, False: Correction + data in the same channel");
+
+  m_gainMap.push_back(std::string("HG"));
+  m_gainMap.push_back(std::string("MG"));
+  m_gainMap.push_back(std::string("LG"));
+}
+
+template<class CONDITIONSCONTAINER>
+LArCalibValidationAlg<CONDITIONSCONTAINER>::~LArCalibValidationAlg() {
+  delete m_log;
+}
+
+
+template<class CONDITIONSCONTAINER>
+StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::initialize() {
+  m_log=new MsgStream(msgSvc(),name());
+  m_myMsgLvl=MSG::Level(m_myMsgLvlProp);
+  if (m_patchMissingFEBs) m_checkCompleteness=true;
+  return StatusCode::SUCCESS; 
+}
+
+template<class CONDITIONSCONTAINER>
+StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
+  (*m_log) << MSG::INFO << "Entering LArCalibValidationAlg/"<<name() << endreq; 
+  StatusCode sc = service("DetectorStore", m_detStore);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << " Cannot locate DetectorStore " << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  /// Get LAr Online ID helper class
+  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  /// Get helper class for EM_ID
+  sc = m_detStore->retrieve(m_emId, "LArEM_ID");
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Could not get LArEM_ID helper !" << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  /// Get helper class for HEC_ID
+  sc = m_detStore->retrieve(m_hecId, "LArHEC_ID");
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Could not get LArHEC_ID helper !" << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  /// Get helper class for FCAL_ID
+  sc = m_detStore->retrieve(m_fcalId, "LArFCAL_ID");
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Could not get LArFCAL_ID helper !" << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  /// Get helper class for generic CaloCell_ID
+  sc = m_detStore->retrieve(m_caloId, "CaloCell_ID");
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Could not get CaloCell_ID helper !" << endreq;
+    return StatusCode::FAILURE;
+  } 
+
+  /// Get bad-channel tool 
+  if (m_useBCInfo) {
+    sc=m_badChanMaskingTool.retrieve();
+    if (sc.isFailure()) {
+      (*m_log) << MSG::ERROR << "Could not retrieve BadChannelMaskingTool"
+	       << m_badChanMaskingTool << endreq;
+      return StatusCode::FAILURE;
+    }
+    sc=m_badChannelTool.retrieve();
+    if (sc.isFailure()) {
+      (*m_log) << MSG::ERROR << "Could not retrieve BadChannelTool "
+	       << m_badChannelTool << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  /// Get LAr Cabling Service
+  sc=m_larCablingSvc.retrieve();
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Could not retrieve LArCablingService" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+
+  /// Open files for text output
+  if (m_chanFileName.size()>0) {
+    m_chanFile.open(m_chanFileName.c_str());
+    if (!m_chanFile.is_open()) 
+      (*m_log) << MSG::ERROR << "Failed to open output file " << m_chanFileName << ". No output will be written." 
+	       << endreq;
+  }
+
+  if (m_febFileName.size()>0) {
+    m_febFile.open(m_febFileName.c_str());
+    if (!m_febFile.is_open()) 
+      (*m_log) << MSG::ERROR << "Failed to open output file " << m_febFileName << ". No output will be written." 
+	       << endreq;
+    else
+      m_febFile << "barelEC side FT slot gain (coolChannel) : bad/total" <<std::endl;
+  }
+
+
+  /// Retrieve reference container
+  sc=m_detStore->retrieve(m_reference,m_referenceKey);
+  if (sc.isFailure()) {
+    (*m_log) << MSG::ERROR << "Failed to retrieve reference LArConditionsContainer with key " << m_referenceKey 
+	     << " from DetectorStore." << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  /// Retrieve container to be validated
+  if (m_patchMissingFEBs) { //want to patch -> non-const container needed
+    sc=m_detStore->retrieve(m_nc_validation,m_validationKey);
+    if (sc.isFailure()) {
+      (*m_log) << MSG::ERROR << "Failed to retrieve non-const validation LArConditionsContainer with key " << m_validationKey 
+	       << " from DetectorStore." << endreq;
+      return StatusCode::FAILURE;
+    }
+    m_validation=m_nc_validation;
+  }
+  else { //no patching -> need only non-const container
+    m_nc_validation=NULL;
+    sc=m_detStore->retrieve(m_validation,m_validationKey);
+    if (sc.isFailure()) {
+      (*m_log) << MSG::ERROR << "Failed to retrieve validation LArConditionsContainer with key " << m_validationKey 
+	     << " from DetectorStore." << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+  if (m_validation==m_reference) //compare pointers
+    (*m_log) << MSG::WARNING << "The same container is used as reference!" << endreq; 
+
+
+
+  CONDITIONSCONTAINER* thinValCont=NULL;
+  CONDITIONSCONTAINER* thinRefCont=NULL;
+
+  if (m_thinValContKey.size()) {
+    thinValCont=new CONDITIONSCONTAINER;
+    thinValCont->setGroupingType(CONDITIONSCONTAINER::SingleGroup);
+    sc=thinValCont->initialize();
+    if (sc.isFailure()) {
+      (*m_log) << MSG::ERROR << "Failed to initialize output container with key " << m_thinValContKey << endreq;
+      return sc;
+    }
+    sc=m_detStore->record(thinValCont,m_thinValContKey);
+    if (sc.isFailure())
+      (*m_log) << MSG::ERROR << "Failed to register container with key " << m_thinValContKey << endreq;
+  }
+
+  if (m_thinRefContKey.size()) {
+    thinRefCont=new CONDITIONSCONTAINER;
+    thinRefCont->setGroupingType(CONDITIONSCONTAINER::SingleGroup);
+    sc=thinRefCont->initialize();
+    if (sc.isFailure()) {
+      (*m_log) << MSG::ERROR << "Failed to initialize reference container with key " << m_thinRefContKey << endreq;
+      return sc;
+    }
+    sc=m_detStore->record(thinRefCont,m_thinRefContKey);
+    if (sc.isFailure())
+      (*m_log) << MSG::ERROR << "Failed to register container with key " << m_thinRefContKey << endreq;
+  }
+
+
+
+  sc=preLoop(); // Call preLoop method of derived algorithm
+  if (sc.isFailure())
+    return sc;
+
+  /// Reset counters:
+  m_nChecked=0;
+  m_nFailedValidation=0;
+  m_nValidated=0;
+  m_nBad=0;
+  m_nNoReference=0;
+
+  m_checkedIds.resize(CaloGain::LARNGAIN); //For the three gains
+
+  for (unsigned igain=CaloGain::LARHIGHGAIN; 
+       igain<CaloGain::LARNGAIN ; ++igain ) {
+    CONTIT it=m_validation->begin(igain);
+    CONTIT it_e=m_validation->end(igain);
+    for (;it!=it_e;it++) {
+      const HWIdentifier chid = it.channelId();
+      // ignore empty or disconnected instances
+      if (it->isEmpty() || !m_larCablingSvc->isOnlineConnected(chid)) continue; 
+      ++m_nChecked;
+
+      if (m_useBCInfo) {
+	if (m_badChanMaskingTool->cellShouldBeMasked(chid,igain)) {
+	  (*m_log) << MSG::DEBUG << channelDescription(chid,igain) << " known to be bad by bad-channel tool. Ignore." << endreq;
+	  ++m_nBad;
+	  continue;
+	}
+      }
+      //(*m_log) << MSG::INFO << "Working on " << channelDescription(chid,gain) << endreq;
+      const LArCondObj& val=*it;
+      const LArCondObj& ref=m_reference->get(chid,igain);
+      //Check if we actually got a reference channel. 
+      //If not: Consider as an error because we can't validate!
+     if (ref.isEmpty()) {
+	(*m_log) << MSG::ERROR << "Reference for " << channelDescription(chid,igain) << " is empty!" << endreq;
+	//Report als missing reference as 'bad' for feb-summary
+	m_checkedIds[igain].push_back(std::make_pair(chid,false));
+	++m_nNoReference;
+	continue;
+      }
+      //Call the overloaded validation method for an individual channel
+      const bool isGood=validateChannel(ref,val,chid,igain);
+      m_checkedIds[igain].push_back(std::make_pair(chid,isGood));
+      if (isGood)
+	++m_nValidated;
+      else {
+	++m_nFailedValidation;
+	if (thinValCont) thinValCont->setPdata(chid,val,igain); 
+	if (thinRefCont) thinRefCont->setPdata(chid,ref,igain); 
+      }
+    }//end loop over container
+  }//end loop over gain
+
+  if (m_checkCompleteness) checkCoolChannelCompleteness();
+
+  if (m_checkNumberOfCoolChannels) checkNumberOfCoolChannels();
+
+  //call summary method
+  findFailedPatterns();
+  sc=summary();
+
+  if (m_febFile.is_open()) m_febFile.close();
+  if (m_chanFile.is_open()) m_chanFile.close();
+  
+  //W.L 27.4.2009: Always return sucess as athena rel >=15.1.0 apparently doesn't like recoverable in finalize
+  sc.ignore();
+  return StatusCode::SUCCESS;
+}
+
+template<class CONDITIONSCONTAINER>
+StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::preLoop() {
+  return StatusCode::SUCCESS;
+}
+
+
+template<class CONDITIONSCONTAINER>
+StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::summary() {
+
+  (*m_log) << MSG::INFO << "Checked " << m_nChecked << " channels from container \"" << m_validationKey 
+	   << "\" against container \"" <<  m_referenceKey << "\"" << endreq;
+
+  if (m_useBCInfo)
+    (*m_log) << MSG::INFO << "Number of channels skipped according to masking tool " << m_badChanMaskingTool.name()
+	     <<": " << m_nBad <<endreq;
+
+  if (m_nNoReference)
+    (*m_log) << MSG::ERROR << "No reference found for " << m_nNoReference << " channels" << endreq;
+
+  if (m_nFailedValidation) 
+    (*m_log) << m_myMsgLvl << "Found " << m_nFailedValidation << " channels with calibration deviating significantly from reference" << endreq;
+
+  if (m_nNoReference==0 && m_nFailedValidation==0)
+    (*m_log) << MSG::INFO << "All " << m_nValidated << " Channels passed the validation criteria" << endreq;
+  else
+    (*m_log) << MSG::INFO << "Found " << m_nValidated << " Channels that passed the validation criteria" << endreq;
+  
+ 
+  if (m_nFailedValidation || m_nNoReference)
+    return StatusCode::RECOVERABLE;
+  else
+    return StatusCode::SUCCESS;  
+}
+
+ 
+template<class CONDITIONSCONTAINER>
+void LArCalibValidationAlg<CONDITIONSCONTAINER>::findFailedPatterns() {
+  unsigned gain=0;
+  std::vector<CHECKEDID_t>::const_iterator it_gain=m_checkedIds.begin();
+  std::vector<CHECKEDID_t>::const_iterator it_gain_e=m_checkedIds.end();
+  for (;it_gain!=it_gain_e;++it_gain,++gain) {//loop over gains
+
+    //That's the data type to keep track of the number 'good' and 'bad' channels in each FEB
+    //For each FEB (whose id is the key of map) we have a pair of numbers (the pair is the payload of the map)
+    //The first number of the pair counts the good channes in this FEB, the second one counts the bad channels
+    typedef std::map<HWIdentifier,std::pair<unsigned,unsigned> > COUNTING_t;
+    COUNTING_t statiPerFEB;
+    //The same thing for the calibration line...
+    COUNTING_t statiPerCalibLine;
+
+    CHECKEDID_t::const_iterator it_id=it_gain->begin();
+    CHECKEDID_t::const_iterator it_id_e=it_gain->end();
+    for (;it_id!=it_id_e;++it_id) { //loop over identifiers of suspicious channels
+      const HWIdentifier chid=it_id->first;
+      const bool isGood=it_id->second;
+      //Fill channel status fer FEB
+      const HWIdentifier febId=m_onlineHelper->feb_Id(chid);
+      if (isGood)
+	statiPerFEB[febId].first++;
+      else
+        statiPerFEB[febId].second++;
+	     
+      //Fill channel status per calibLine
+      const std::vector<HWIdentifier>& calibIdvec=m_larCablingSvc->calibSlotLine(chid);
+      for (std::vector<HWIdentifier>::const_iterator itc=calibIdvec.begin(); itc!=calibIdvec.end();itc++) 
+	if (isGood)
+	  statiPerCalibLine[*itc].first++;
+	else
+	  statiPerCalibLine[*itc].second++;
+    }//end loop over identifiers of suspicious channels
+    //Check fraction of failed channels per FEBs
+    //Reminder: second.first -> good second.second -> bad
+    
+    COUNTING_t::const_iterator itFEB=statiPerFEB.begin();
+    COUNTING_t::const_iterator itFEB_e=statiPerFEB.end();
+    for (;itFEB!=itFEB_e;++itFEB) {
+      const float badFrac=float(itFEB->second.second)/(itFEB->second.first+itFEB->second.second);
+      febOutput(itFEB->first,gain, itFEB->second.first,itFEB->second.second);
+      if (m_printFailedPattern && badFrac>0.2)
+	(*m_log) <<  m_myMsgLvl << channelDescription(itFEB->first,gain,true) << " has " << badFrac*100 << "% suspicious channels" << endreq;
+    }
+    
+
+    /* Commented out until apparent bug in calib-line mapping EMEC special crate is fixed
+    if (m_printFailedPattern) {
+      //Check fraction of failed channels per calibLine
+      COUNTING_t::const_iterator itCalibLine=statiPerCalibLine.begin();
+      COUNTING_t::const_iterator itCalibLine_e=statiPerCalibLine.end();
+      for (;itCalibLine!=itCalibLine_e;++itCalibLine) {
+	if (itCalibLine->second.second>=itCalibLine->second.first) {//if at least half of the readout channels belonging to a calib-line are suspicious..
+	  (*m_log) << m_myMsgLvl << channelDescription(itCalibLine->first,gain) <<": " << itCalibLine->second.second 
+		   << " channels out of " << itCalibLine->second.first+itCalibLine->second.second << " are suspicious." << endreq;
+	}
+      }
+    }
+    */
+  }//end loop over gains
+  return;
+}
+
+
+template<class CONDITIONSCONTAINER>
+void LArCalibValidationAlg<CONDITIONSCONTAINER>::febOutput(const HWIdentifier& febid, const unsigned gain, const unsigned nGood, const unsigned nBad){
+  const float frac=float(nBad)/(nGood+nBad);
+  
+  if (m_febFile.is_open() && nBad>0) {
+    m_febFile << m_onlineHelper->barrel_ec(febid) << " " 
+	      << m_onlineHelper->pos_neg(febid) << " "
+	      << m_onlineHelper->feedthrough(febid) << " "
+	      << m_onlineHelper->slot(febid) << " ";
+    if (gain==0) m_febFile << "H";
+    else if (gain==1) m_febFile << "M";
+    else if (gain==2) m_febFile << "L";
+    else m_febFile << "?";
+      
+    m_febFile << " (" << m_validation->coolChannel(febid,gain) << ")" 
+	      << " : " << nBad << "/" << nGood+nBad << " ";
+
+    for (unsigned i=0;i<unsigned(4*frac);i++)
+      m_febFile << "*";
+             
+    m_febFile << std::endl;
+  }
+  return;
+}
+
+
+ 
+template<class CONDITIONSCONTAINER>
+const std::string LArCalibValidationAlg<CONDITIONSCONTAINER>::channelDescription(const HWIdentifier& chid, 
+										 const unsigned gain,
+										 bool isFeb) const {
+  std::ostringstream output;
+
+  bool isCalib=false;
+  if (!isFeb) isCalib=m_onlineHelper->isCalibration(chid);
+
+  if (gain<3) 
+  //  output << "Gain:"<< gain << " ";
+    output << m_gainMap[gain] << " ";
+  if (isFeb) 
+    output << "FEB [";
+  else if (isCalib)
+    output << "Calib Line [";
+  else 
+    output << "Channel [";
+  //output << " id=0x" << std::hex <<  chid.get_compact() << std::dec << " ";
+  if (m_onlineHelper->barrel_ec(chid)==0) 
+    output << "Bar";
+  else
+    output << "End";
+      
+  //  output << ",Side:";
+  if (m_onlineHelper->pos_neg(chid)==0)
+    output << ",C";
+  else
+    output << ",A";
+
+  output << ",FT:"  << m_onlineHelper->feedthrough(chid) 
+	 << ",Sl:" << m_onlineHelper->slot(chid);
+
+  if (isFeb) 
+    output << ",CC:" << m_validation->coolChannel(chid,gain);
+
+  if (!isFeb) {
+    output << ",Ch:" << m_onlineHelper->channel(chid);
+    if (!isCalib) {
+      try {
+	//if (m_larCablingSvc->isOnlineConnected(chid)) {
+	  if (m_onlineHelper->isFCALchannel(chid))
+	    output << ",FCAL";
+	  if (m_onlineHelper->isHECchannel(chid))
+	    output << ",HEC";
+	  if (m_onlineHelper->isEMBchannel(chid))
+	    output << ",EMB";
+	  if (m_onlineHelper->isEMECchannel(chid))
+	    output << ",EMEC";
+	  const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+	  output << ",Samp:" << m_caloId->sampling(id); 
+	  //Could add Eta, phi....
+	//}//end if is connected
+	//else
+	//  output << ",disconnected";
+      }
+      catch (LArID_Exception&) {}
+    }//end if !isCalibration
+  }//end if !isFeb
+  output << "]"; 
+
+  if (!isFeb && !isCalib && m_useBCInfo)
+    if (!(m_badChannelTool->status(chid).good()))
+      output << " BC [0x" << std::hex << m_badChannelTool->status(chid).packedData()<<"]" << std::dec;
+  
+  return output.str();
+}
+
+template<class CONDITIONSCONTAINER>
+bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkCoolChannelCompleteness() {
+  bool retVal=true;
+  FEBANDGAIN_t missing; //Keep track of missing FEBs
+  //typedef typename CONDITIONSCONTAINER::MultChanCollection MULTICHANCOLL;
+  typedef typename CONDITIONSCONTAINER::Subset SUBSET;
+  const MULTICHANCOLL* multiChanColl=m_validation; //Cast to base-class
+  typename MULTICHANCOLL::const_iterator it=multiChanColl->begin();
+  typename MULTICHANCOLL::const_iterator it_e=multiChanColl->end();
+  unsigned subsetIndex=0;
+  for (;it!=it_e;++it) {
+    //const SUBSET* subset=*it;
+    typename SUBSET::ConstSubsetIt febIt=(*it)->subsetBegin();
+    typename SUBSET::ConstSubsetIt febIt_e=(*it)->subsetEnd();
+    const unsigned gain=(*it)->gain();
+    for (;febIt!=febIt_e;++febIt) {
+      const HWIdentifier febId(febIt->first);
+      const typename SUBSET::ChannelVector& data=febIt->second;
+      (*m_log) << MSG::DEBUG << "Subset #" << subsetIndex << " " << channelDescription(febId,gain,true) << " has " << data.size() << " channels" << endreq;
+      if (data.size()==0) {
+	if (m_patchMissingFEBs) {
+	  (*m_log) << MSG::WARNING << "Found incomplete COOL channel!"
+	      << channelDescription(febId,gain,true) << " missing! Will try to patch..." << endreq;
+	  missing.push_back(FEBANDGAIN_t::value_type(febId,gain)); //remember missing FEB/gain pair
+	}
+	else {
+	  retVal=false;
+	  (*m_log) << MSG::ERROR << "Found incomplete COOL channel! " << channelDescription(febId,gain,true) << " missing!" << endreq;
+	}
+      }
+    }//End loop over FEBs in subset
+    ++subsetIndex;
+  }//End loop over subsets in container
+  if (missing.size()) 
+    retVal=patchMissingFEBs(missing);
+
+  if (m_patchMissingFEBs && m_useCorrChannel) {
+    const std::vector<unsigned> completedChans = m_nc_validation->completeCorrectionChannels();
+    if (completedChans.size()>0) {
+      (*m_log) << MSG::INFO << "Artificially inserted correction subsets in COOL channels";
+      for(size_t j=0;j<completedChans.size();++j) 
+	(*m_log) << MSG::INFO << " " << completedChans[j];
+      (*m_log) << MSG::INFO << endreq;
+    }
+  }
+  if (retVal) 
+    (*m_log) << MSG::INFO << "All Cool channel completly filled (" << multiChanColl->size() << " subsets)"  << endreq;
+  else
+    (*m_log) << MSG::ERROR << "Not all COOL channnels completely filled" << endreq;
+  return retVal;
+}
+
+
+template<class CONDITIONSCONTAINER>
+bool LArCalibValidationAlg<CONDITIONSCONTAINER>::patchMissingFEBs(const FEBANDGAIN_t& febAndGain) {
+  unsigned nGood=0;
+  FEBANDGAIN_t::const_iterator missingIt=febAndGain.begin();
+  FEBANDGAIN_t::const_iterator missingIt_e=febAndGain.end();
+  for (;missingIt!=missingIt_e;++missingIt) {
+    const HWIdentifier febId=missingIt->first;
+    const unsigned gain=missingIt->second;
+    const int nChan=m_onlineHelper->channelInSlotMax(febId);
+    
+    //Insert at least one (dummy) value for the missing FEB so it showes up the feb-map. 
+    //Creating corrections for inexisting channels causes problems.
+    const HWIdentifier firstChannel=m_onlineHelper->channel_Id(febId,0);
+    const typename CONDITIONSCONTAINER::LArCondObj dummy;
+    m_nc_validation->setPdata(firstChannel,dummy,gain);
+    
+    //Loop over all channels of this FEB and insert corrections for it
+    int nMissing=0;
+    for (int ch=0;ch<nChan;ch++) {
+      const HWIdentifier chid=m_onlineHelper->channel_Id(febId,ch);
+      const LArCondObj& obj =m_reference->get(chid,gain);
+      if (obj.isEmpty()) { //Can't get reference object
+	if (m_larCablingSvc->isOnlineConnected(chid)) { //Don't care if not connected
+	  (*m_log) << MSG::ERROR << "Channel " << ch << " of missing " <<  channelDescription(febId,gain,true) 
+		   << " can't be found in reference container either." << endreq;
+	  ++nMissing;
+	}//end if isConnected
+      }//end if isEmpty
+      else {
+	StatusCode sc=m_nc_validation->insertCorrection(chid,obj,gain,m_useCorrChannel);
+	if (sc.isFailure()) {
+	  ++nMissing;
+	  (*m_log) << MSG::ERROR << "Failed to insert correction for channel " << ch << " of missing " <<  channelDescription(febId,gain,true) << endreq;
+	}
+	else {
+	  (*m_log) << MSG::DEBUG << "Copied channel " << ch << " of missing " <<  channelDescription(febId,gain,true) 
+		   << " from reference container" << endreq;
+	}
+      ++nGood;
+      }
+    }//end loop over channels of feb
+    if (nMissing==0)
+      (*m_log) << MSG::INFO << "Sucessfully patched " << channelDescription(febId,gain,true) << " using values from the reference container." << endreq; 
+    else 
+      (*m_log) << MSG::ERROR << "Failed to patch all channels of FEB" << channelDescription(febId,gain,true) << endreq; 
+      
+  }//end loop over all pairs of missing febid and gain
+
+  if (nGood>0) 
+    return true;
+  else
+    return false; //Looks like this FEB isn't in the reference container either.
+}
+
+
+
+template<class CONDITIONSCONTAINER>
+bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkNumberOfCoolChannels() const {
+
+  //Map of COOL channel number and first FEB (as example)
+  typedef std::map<unsigned,std::pair<unsigned,HWIdentifier> > CHANMAP;
+
+  CHANMAP cc_val, cc_ref; 
+
+  const MULTICHANCOLL* multiChanColl;
+  typename MULTICHANCOLL::const_iterator it;
+  typename MULTICHANCOLL::const_iterator it_e;
+
+  //Get Cool Channels from validation container:
+  multiChanColl=m_validation; //Cast to base-class
+  it=multiChanColl->begin();
+  it_e=multiChanColl->end();
+  for (;it!=it_e;++it) {
+    if ((*it)->subsetSize()==0 && ! m_useCorrChannel ) continue; //Empty (=correction only) subset
+   
+    const unsigned cc=(*it)->channel();
+    const unsigned gain=(*it)->gain();
+    HWIdentifier fId;//Example FEB id
+    if ((*it)->subsetSize()>0) 
+      fId=HWIdentifier((*it)->subsetBegin()->first);
+      
+    cc_val[cc]=std::make_pair(gain,fId);
+  }
+
+  //Get Cool Channels from reference container:
+  multiChanColl=m_reference; //Cast to base-class
+  it=multiChanColl->begin();
+  it_e=multiChanColl->end();
+  for (;it!=it_e;++it) {
+    if ((*it)->subsetSize()==0 && ! m_useCorrChannel ) continue; //Empty (=correction only) subset
+   
+    const unsigned cc=(*it)->channel();
+    const unsigned gain=(*it)->gain();
+    HWIdentifier fId;//Example FEB id
+    if ((*it)->subsetSize()>0) 
+      fId=HWIdentifier((*it)->subsetBegin()->first);
+    
+    CHANMAP::iterator ccPosInVal=cc_val.find(cc);
+    if (ccPosInVal!=cc_val.end()) {
+      // The COOL channel is in the refernce as well as in the validation container
+      // Thats perfect, so we can delete it from the map
+      cc_val.erase(ccPosInVal); 
+    }
+    else {
+      // This channel is not in the validation container. Remember it
+      cc_ref[cc]=std::make_pair(gain,fId);
+    }
+  }
+
+  //Now report discrepancies:
+  if (cc_val.size()==0 && cc_ref.size()==0) {
+    *m_log << MSG::INFO << "Same number of COOL channels in validation and in reference container" << endreq;
+    return 0;
+  }
+ 
+
+  CHANMAP::const_iterator cit;
+  for (cit=cc_val.begin();cit!=cc_val.end();++cit) {
+    const HWIdentifier fId=cit->second.second;
+    *m_log << MSG::ERROR  << "COOL Channel " << cit->first << " not part of the reference container! ";
+    if (fId.is_valid())
+      *m_log << MSG::ERROR << "Example:" << channelDescription(fId,cit->second.first,true) << endreq;
+    else  //Correction channel
+      *m_log << MSG::ERROR  << "Correction Gain=" << cit->second.first << endreq;
+  }
+
+  for (cit=cc_ref.begin();cit!=cc_ref.end();++cit) {
+    const HWIdentifier fId=cit->second.second;
+    *m_log << MSG::ERROR << "COOL Channel " << cit->first << " missing! ";
+    if (fId.is_valid())
+      *m_log << MSG::ERROR << "Example: " << channelDescription(fId,cit->second.first,true) << endreq;
+    else
+      *m_log << MSG::ERROR  << "Correction Gain=" << cit->second.first << endreq;
+  }
+
+  return false;
+}
