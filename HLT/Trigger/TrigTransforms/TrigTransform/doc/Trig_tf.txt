@@ -1,0 +1,275 @@
+
+***** 
+scripts/Trig_tf_main.py
+***** 
+
+  ***** 
+  Code
+  *****
+  This is the new transform class to run the transforms using the new transforms infrastructure (see below).
+    A list of requirements for the new trigger transforms are here:
+    https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerTransformRequirements
+  /scripts/Trig_tf_main.py -> The script containing the transform
+    So far just runs MT will add PT later, but matches all the arguments in the simple script + all the arguments used by athenaMT in the ATN tests 
+  /python/trigUpdateArgs.py -> The class which takes care of the argument changes from the input format to those needed by athena
+  /python/trigPreRun.py -> The class where actions can be performed before running the transform
+  /python/trigExe.py -> The class which inherits from the base transform, with changes needed for athenaMT/PT
+  /python/trigPostRun.py -> The class where actions can be performed after running the transform
+
+  /scripts/Trig_reco_tf.py -> runs HLT_standalone along with the stand reco_tf transforms
+  /python/trigRecoExe.py -> The class which inherits from athenaExecutor and is used to rename the HLTMON output file
+  
+  *****
+  Example of running:
+  *****
+  Current release I've tested with:
+    asetup 17.1.4.7.1,AtlasCAFHLT,here
+  Checkout
+    svn co svn+ssh://svn.cern.ch/reps/atlasoff/HLT/Trigger/TrigTransforms/TrigTransform/trunk HLT/Trigger/TrigTransforms/TrigTransform/
+    cd HLT/Trigger/TrigTransforms/TrigTransform/cmt && cmt config && cd -
+  Make  
+    cd HLT/Trigger/TrigTransforms/TrigTransform/cmt && make && cd -
+  Current example of how to test code being passed to athenaMT:
+    Trig_tf_main.py --athenaoptsMT='-f test1 -D' --inputBSFile test3,test6 --outputRAWFile test4  --connection TRIGGERDBATN --smk 1111 --lvl1ps 2222 --hltps 3333 --run_number=202798 --maxEvents 10 --post_commands='ignoreOnlineKeys;confMagFromDCS;setHardTimeout;costMonitor'
+    gives:
+    athenaMT.py --postcommand L2_PROCESS_postCommands.py --save-output ['test4'] --run-number 202798 --event-modifier TrigTransform.PreloadL2 --use-database DBServer=TRIGGERDBATN:DBSMKey=1111:DBHLTPSKey=3333:DBLV1PSKey=2222 --number-of-events 10 --file ['test3', 'test6'] --joboptionsvc-type TrigConf::HLTJobOptionsSvc -f test1 -D
+    This will setup the transform infrastructure and run, passing the options to athenaMT.
+    The -D flag then shows what has been passed to athenaMT.
+      -> it shows that the input file list correctly gets all 3 files listed above (even though 1 is in the optsMT arg)
+    The postcommands option also now creates the py file with most of the features of the existing transform
+    
+    In addition can add --verbose or --loglevel DEBUG to see many of the trig transform statements
+      Could also switch on the debug logging of just the trigger transform by doing something like:
+      export TRF_LOGCONF=~graemes/public/trf/logging/logging.conf-debug
+  
+  *****
+  Base Transform Code
+  *****
+  Trigger Transform relies on the code from the package (rev 518534 onwards):
+    https://svnweb.cern.ch/trac/atlasoff/browser/Tools/PyJobTransforms/trunk/
+    For example use: pkgco.py PyJobTransforms -A
+                     cd Tools/PyJobTransforms/cmt/ && make && cd -
+    Originally used the code from the branch (rev 512541 onwards):
+    https://svnweb.cern.ch/trac/atlasoff/browser/Tools/PyJobTransforms/branches/PyJobTransforms-01-01-13-branch
+    use: pkgco.py PyJobTransforms-01-01-13-branch  (or pkgco.py PyJobTransforms -A)
+  Documentation:
+  https://twiki.cern.ch/twiki/bin/viewauth/Atlas/JobTransformDesiderata
+  https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TransformWorkflow
+  Summary of execution:
+    Initialise  Setup signal handling
+                Read command line args (Check validity, no clashes, completeness)
+                Setup job to be run
+    Execute     Run job and monitor
+    Finalise    Read job exit status
+                Parse log files for errors
+                Generate reports (Metadata for outputs, Job reports in other formats)
+                Final transform exit status  
+                
+  Originally all the base transform code was located in one place. Now the code controlling the reco steps is here:
+  https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/RecJobTransforms/
+  so additionally the code here is needed:
+  pkgco.py RecJobTransforms -A
+  cd Reconstruction/RecJobTransforms/cmt/ && make && cd -
+
+  In addition some other skeleton files are now located in: PATJobTransforms -not yet tested! (and SimuJobTransforms too)
+
+***** 
+scripts/Trig_reco_tf.py
+***** 
+  Similar to scripts/Trig_tf_main.py in that it uses the base transforms
+  Code is actually based on: https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/RecJobTransforms/trunk/scripts/Reco_tf.py
+  Difference is that the aim is to run HLT_standalone directly with athena
+  Accepts a few options to then run BS->BS (using TriggerRelease/runHLT_standalone.py) and then BS->ESD, etc
+  Some of the options used in with runHLT_standalone have different names to be used here:
+  Trigger option = option to set in transform
+  testPhysicsV4 = testPhysicsV4
+  writeBS = writeBS *requires updated TriggerRelease, see below
+  BSRDOInput = inputBS_RDOFile
+  EvtMax = maxEvents
+
+  Example of Trig_reco_tf version in use:
+  asetup devval,rel_2,here
+  Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data --outputESDFile=testESD2 --maxEvents=5  | tee outputLOG.txt
+  creates:
+  tmp.BS (bs) and testESD2 (esd)
+  
+  Extra options that can be added:
+  1) ability to change release (b2r = BS->BS with HLTstandalone, r2e BS->ESD)
+     can define just one of the steps to be different to that already in or both
+     --asetup b2r:devval,rel_2 r2e:devval,rel_2 
+  2) name of temporary BS file, by default set to tmp.BS 
+     --outputBSFile=out.BS
+  3) To save the HLTMON file can add it to the outputs and also rename the file
+     --outputHIST_HLTMONFile=expert-monitoring-new.root
+  
+  Options now set automatically so no longer required above:
+  --testPhysicsV4=true 
+  --writeBS=true
+
+  ***** 
+  TriggerRelease
+  ***** 
+  To make use of writeBS the TriggerRelease package needs to be updated:
+  pkgco.py TriggerRelease-00-10-07
+  cd Trigger/TriggerRelease/cmt && cmt config && cd -
+  cd Trigger/TriggerRelease/cmt && make && cd -  
+  
+***** 
+share/Trig_tf_simple.py
+***** 
+  
+  This was a starting point from Simon George on how to create a simple job transform
+  Documentation:
+  https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerTransformDevStatus
+  
+  *****
+  Example of running:
+  *****
+  python ./TrigTransformNew/share/Trig_tf_simple.py --inputBSFile test1 --outputRAWFile test2 --connection TRIGGERDBATN --smk 1111 --lvl1ps 2222 --hltps 3333
+  gives: 
+  athenaMT.py -f test1 -o test2 -J TrigConf::HLTJobOptionsSvc -b "DBServer=TRIGGERDBATN:DBSMKey=1111:DBHLTPSKey=3333:DBLV1PSKey=2222"
+  
+***** 
+athenaMT/PT options added
+***** 
+          long        = short
+  ---------------------------
+  --file              = -f
+  --save-output       = -o 
+  --joboptionsvc-type = -J    
+  --use-database      = -b    
+  --postcommand       = -C
+  --run-number        = -R
+  --number-of-events  = -n
+  --event-modifier    = -Z
+
+***** 
+BatchHLTTrf_wrap.py
+***** 
+  https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerTransformOldDoc
+  asetup AtlasCAFHLT,17.1.4.7.1,here
+  Recipe to run a checked out version 
+    # create a working directory somewhere with about 10 GB free, e.g. /tmp/$USER on lxplus or your afs scratch space. 
+    pkgco.py TrigTransformOld
+    cd HLT/Trigger/TrigTransforms/TrigTransformOld/cmt && make && cd -
+  Data file
+    xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data .
+  Keys
+    can use ../UploadMenuKeys/exportMenuKeys.sh
+    or take from:
+      http://atlas-computing.web.cern.ch/atlas-computing/links/buildDirectory/nightlies/17.1.X.Y.Z-VAL/AtlasCAFHLT/rel_5/NICOS_area/NICOS_atntest171XYZVALAtlasCAFHLT32BS5G4AtlasCAFHLTOpt/trigp1test_testconfiguration_work/TrfTestPPV4/atn_test.log
+    hltpsk=475
+    l1psk=33
+    smk=2382
+  then run with:
+    BatchHLTTrf_wrap.py inputBSFile=data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data outputRAWFile=RAW.999999._000001.data.1 doStreaming=True filters="express" stream_out=debug connection=TRIGGERDBATN smk=${smk} lvl1ps=${l1psk} hltps=${hltpsk} outputNTUP_TRIGCOSTEFFile=NTUP_TRIGCOSTEF.root outputNTUP_TRIGCOSTL2File=NTUP_TRIGCOSTL2.root outputNTUP_TRIGRATEEFFile=NTUP_TRIGRATEEF.root outputNTUP_TRIGRATEL2File=NTUP_TRIGRATEL2.root outputHIST_HLTMONEFFile=HIST_HLTMONEF.root outputHIST_HLTMONL2File=HIST_HLTMONL2.root max_events=10
+  which in turn runs:
+    BatchHLTApps.py data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data --run_number=191628 --job_id=999999_000001 --doEF --doDummyStreaming --connection=TRIGGERDBATN --hltps=475 --lvl1ps=33 --smk=2382 --file_prefix=data11_7TeV.00191628 --filters=express --stream_out=debug --max_events=10 --doL2 --file_stream=physics_eb_zee_zmumu --post_commands='ignoreOnlineKeys;confMagFromDCS;setHardTimeout;costMonitor' --doStreaming -v 
+  executing:
+    athenaMT.py -R 191628 -C 'include("L2_PROCESS_postCommands.py")' -n 10 -f [ "data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data" ] -o data11_7TeV.00191628.physics_eb_zee_zmumu.AthenaMTout_1.RAW._lb0000._CAF_999999_000001 -J TrigConf::HLTJobOptionsSvc --use-database DBServer=TRIGGERDBATN:Instance=L2:DBHLTPSKey=475:DBSMKey=2382:DBL1PSKey=33 -Z TrigTransformOld.PreloadL2
+        
+     
+***** 
+ATN test
+*****    
+        
+  http://atlas-computing.web.cern.ch/atlas-computing/links/buildDirectory/nightlies/17.1.X.Y.Z-VAL/AtlasCAFHLT/rel_5/NICOS_area/NICOS_atntest171XYZVALAtlasCAFHLT32BS5G4AtlasCAFHLTOpt/trigp1test_testconfiguration_work/TrfTestPPV4/atn_test.log        
+        
+
+    BatchHLTTrf_wrap.py: arguments : ['inputBSFile=data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data', 
+                                      'outputRAWFile=RAW.999999._000001.data.1', 
+                                      'doStreaming=True', 'filters=express', 
+                                      'stream_out=debug', 'connection=TRIGGERDBATN', 
+                                      'smk=2382', 'lvl1ps=33', 'hltps=475', 
+                                      'outputNTUP_TRIGCOSTEFFile=NTUP_TRIGCOSTEF.root', 
+                                      'outputNTUP_TRIGCOSTL2File=NTUP_TRIGCOSTL2.root', 
+                                      'outputNTUP_TRIGRATEEFFile=NTUP_TRIGRATEEF.root', 
+                                      'outputNTUP_TRIGRATEL2File=NTUP_TRIGRATEL2.root', 
+                                      'outputHIST_HLTMONEFFile=HIST_HLTMONEF.root', 
+                                      'outputHIST_HLTMONL2File=HIST_HLTMONL2.root', 
+                                      'max_events=10']
+    BatchHLTTrf_wrap.py: arg map   : {'outputHIST_HLTMONEFFile': 'HIST_HLTMONEF.root', 
+                                      'outputNTUP_TRIGRATEEFFile': 'NTUP_TRIGRATEEF.root', 
+                                      'inputBSFile': ['data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data'], 
+                                      'outputNTUP_TRIGCOSTL2File': 'NTUP_TRIGCOSTL2.root', 
+                                      'outputHIST_HLTMONL2File': 'HIST_HLTMONL2.root', 
+                                      'lvl1ps': 33, 'hltps': 475, 'max_events': 10, 
+                                      'connection': 'TRIGGERDBATN', 'smk': 2382, 
+                                      'outputNTUP_TRIGCOSTEFFile': 'NTUP_TRIGCOSTEF.root', 
+                                      'filters': 'express', 'stream_out': 'debug', 
+                                      'outputRAWFile': 'RAW.999999._000001.data.1', 
+                                      'outputNTUP_TRIGRATEL2File': 'NTUP_TRIGRATEL2.root', 
+                                      'doStreaming': True}
+    BatchHLTTrf_wrap.py: arg map 2  : {'outputHIST_HLTMONEFFile': '#HIST_HLTMONEF.root', 
+                                       'outputNTUP_TRIGRATEEFFile': '#NTUP_TRIGRATEEF.root', 
+                                       'inputBSFile': ['#data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data'], 
+                                       'outputNTUP_TRIGCOSTL2File': '#NTUP_TRIGCOSTL2.root', 
+                                       'outputHIST_HLTMONL2File': '#HIST_HLTMONL2.root', 
+                                       'lvl1ps': 33, 'hltps': 475, 'max_events': 10, 
+                                       'connection': 'TRIGGERDBATN', 'smk': 2382, 
+                                       'outputNTUP_TRIGCOSTEFFile': '#NTUP_TRIGCOSTEF.root', 
+                                       'filters': 'express', 'stream_out': 'debug', 
+                                       'outputRAWFile': '#RAW.999999._000001.data.1', 
+                                       'outputNTUP_TRIGRATEL2File': '#NTUP_TRIGRATEL2.root', 
+                                       'doStreaming': True}
+    BatchHLTTrf_wrap.py: signArgMap: {'outputRAWFiles': '#RAW.999999._000001.data.1', 
+                                      'outputRateEF': '#NTUP_TRIGRATEEF.root', 
+                                      'outputRoot': '#HIST_HLTMONL2.root', 
+                                      'outputRateL2': '#NTUP_TRIGRATEL2.root', 
+                                      'outputCostL2': '#NTUP_TRIGCOSTL2.root', 
+                                      'inputRAWFiles': ['#data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data'], 
+                                      'outputCostEF': '#NTUP_TRIGCOSTEF.root', 
+                                      'applicationConfig': {'lvl1ps': 33, 'hltps': 475, 
+                                                            'connection': 'TRIGGERDBATN', 'smk': 2382, 
+                                                            'filters': 'express', 'stream_out': 'debug', 
+                                                            'max_events': 10, 'doStreaming': True}, 
+                                      '_partid': '999999_000001'}
+   ***BatchHLTTrf
+     '_partid': '999999_000001',
+     'applicationConfig': {'connection': 'TRIGGERDBATN',
+                         'doStreaming': True,
+                         'filters': 'express',
+                         'hltps': 475,
+                         'lvl1ps': 33,
+                         'max_events': 10,
+                         'smk': 2382,
+                         'stream_out': 'debug'},
+     'inputRAWFiles': ['#data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data'],
+     'outputCostEF': '#NTUP_TRIGCOSTEF.root',
+     'outputCostL2': '#NTUP_TRIGCOSTL2.root',
+     'outputRAWFiles': '#RAW.999999._000001.data.1',
+     'outputRateEF': '#NTUP_TRIGRATEEF.root',
+     'outputRateL2': '#NTUP_TRIGRATEL2.root',
+     'outputRoot': '#HIST_HLTMONL2.root'}
+     {'outputRAWFiles': ['#RAW.999999._000001.data.1'], 'outputRateEF': '#NTUP_TRIGRATEEF.root', 'outputRoot': '#HIST_HLTMONL2.root', 'outputRateL2': '#NTUP_TRIGRATEL2.root', 'outputCostL2': '#NTUP_TRIGCOSTL2.root', 'inputRAWFiles': ['#data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data'], 'outputCostEF': '#NTUP_TRIGCOSTEF.root', 'applicationConfig': {'connection': 'TRIGGERDBATN', 'hltps': 475, 'lvl1ps': 33, 'smk': 2382, 'filters': 'express', 'stream_out': 'debug', 'max_events': 10, 'doStreaming': True}, '_partid': '999999_000001'}
+     set outdsname to  ['']
+     Peaking into first input raw data file data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data ...
+     FileCollection: getFileInfo INFO EventStorage DataReader: runNumber=202798 projectTag=data12_8TeV stream=physics_EnhancedBias
+     FileCollection: getFileInfo INFO From input data file: runNumber=202798 runType=data12_8TeV streamType=physics streamName=EnhancedBias
+     FileCollection: getFileInfo INFO From input data file name: runNumber=00202798 runType=data12_8TeV streamType=physics streamName=eb_zee_zmumu_cc
+     FileCollection: getFileInfo INFO Setting value for runType from file contents
+     FileCollection: getFileInfo INFO Setting value for runNumber from file contents
+     FileCollection: getFileInfo INFO Setting value for streamType from file contents
+     FileCollection: getFileInfo INFO Setting value for streamName from file contents
+     FileCollection: getFileInfo INFO From input data (final): 
+     runNumber=202798 runType=data12_8TeV streamType=physics streamName=EnhancedBias
+   runs:
+     BatchHLTApps.py data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data 
+       --run_number=202798 --job_id=999999_000001 --doEF --doDummyStreaming --connection=TRIGGERDBATN 
+       --hltps=475 --lvl1ps=33 --smk=2382 --file_prefix=data12_8TeV.00202798 --filters=express --stream_out=debug 
+       --max_events=10 --doL2 --file_stream=physics_EnhancedBias 
+       --post_commands='ignoreOnlineKeys;confMagFromDCS;setHardTimeout;costMonitor' --doStreaming
+   updated to:
+     BatchHLTApps.py data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data --run_number=202798 --job_id=999999_000001 
+       --doEF --doDummyStreaming --connection=TRIGGERDBATN --hltps=475 --lvl1ps=33 --smk=2382 
+       --file_prefix=data12_8TeV.00202798 --filters=express --stream_out=debug --max_events=10
+       --doL2 --file_stream=physics_EnhancedBias 
+     --post_commands='ignoreOnlineKeys;confMagFromDCS;setHardTimeout;costMonitor' --doStreaming -v  
+   executing:
+     athenaMT.py -R 202798 -C 'include("L2_PROCESS_postCommands.py")' -n 10 
+                 -f [ "data12_8TeV.00202798.physics_eb_zee_zmumu_cc._0001.data" ] 
+                 -o data12_8TeV.00202798.physics_EnhancedBias.AthenaMTout_1.RAW._lb0000._CAF_999999_000001 
+                 -J TrigConf::HLTJobOptionsSvc 
+                 --use-database DBServer=TRIGGERDBATN:Instance=L2:DBHLTPSKey=475:DBSMKey=2382:DBL1PSKey=33 
+                 -Z TrigTransformOld.PreloadL2
+   
