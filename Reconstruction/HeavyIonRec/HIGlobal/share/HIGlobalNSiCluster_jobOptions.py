@@ -1,0 +1,1 @@
+theApp.TopAlg   += [ "HIGlobalNSiCluster" ]
