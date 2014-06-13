@@ -1,0 +1,72 @@
+package MuGirlStau
+
+author shikma bressler <sshikma@tx.technion.ac.il>
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+public
+use  AtlasCLHEP			AtlasCLHEP-*			External
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AtlasROOT                  AtlasROOT-*                     External
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  CaloEvent                  CaloEvent-*                     Calorimeter
+use  DataModel                  DataModel-*                     Control
+use  GaudiInterface             GaudiInterface-*                External
+use  ITrackInCaloTools          ITrackInCaloTools-*             Reconstruction/RecoTools
+use  InDetCosmicsEventPhase     InDetCosmicsEventPhase-*        InnerDetector/InDetCosmics
+use  InDetPrepRawData           InDetPrepRawData-*              InnerDetector/InDetRecEvent
+use  InDetRIO_OnTrack           InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
+use  MuGirlInterfaces           MuGirlInterfaces-*              Reconstruction/MuonIdentification
+use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
+use  MuonRIO_OnTrack            MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  StoreGate                  StoreGate-*                     Control
+use  SGTools			SGTools-*			Control
+use  TRT_ConditionsServices     TRT_ConditionsServices-*        InnerDetector/InDetConditions
+use  TRT_DriftFunctionTool      TRT_DriftFunctionTool-*         InnerDetector/InDetRecTools
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
+use  EventInfo                  EventInfo-*                     Event
+private
+use  EventInfoMgt               EventInfoMgt-*                  Event
+use  Identifier                 Identifier-*                    DetectorDescription
+use  MdtCalibData               MdtCalibData-*                  MuonSpectrometer/MuonCalib/MdtCalib
+use  MdtCalibSvc                MdtCalibSvc-*                   MuonSpectrometer/MuonCalib/MdtCalib
+use  PathResolver               PathResolver-*                  Tools
+
+end_private
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+#apply_pattern component_library
+#apply_pattern installed_library
+#library MuGirlStau *.cxx components/*.cxx
+
+apply_pattern dual_use_library files="*.cxx components/*.cxx"
+
+
+
+### dict generation ###
+private
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+ 
+apply_pattern lcgdict dict=iMuGirlStau \
+ selectionfile=selection.xml \
+ headerfiles="../MuGirlStau/MuGirlStauDict.h" \
+ dataLinks="MuGirlNS::StauContainer" \
+ elementLinks="StauCollection"
+
+ 
+end_private
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
