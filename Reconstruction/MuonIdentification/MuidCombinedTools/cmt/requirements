@@ -1,0 +1,42 @@
+package MuidCombinedTools
+
+author			Michela Biglietti <michela.biglietti@na.infn.it>
+author			Gabriella Cataldi <Gabriella.Cataldi@le.infn.it>
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+author			Daniela Rebuzzi <daniela@mppmu.mpg.de>
+
+private
+use AtlasCLHEP			AtlasCLHEP-*			External
+use InDetRIO_OnTrack		InDetRIO_OnTrack-*		InnerDetector/InDetRecEvent
+use MuidEvent			MuidEvent-*			Reconstruction/MuonIdentification
+use MuonCombinedToolInterfaces	MuonCombinedToolInterfaces-*	Reconstruction/MuonIdentification
+use MuonRIO_OnTrack             MuonRIO_OnTrack-*               \
+                                    MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use TrkEventPrimitives		TrkEventPrimitives-*		Tracking/TrkEvent
+use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
+use TrkExUtils			TrkExUtils-*			Tracking/TrkExtrapolation
+use TrkMeasurementBase		TrkMeasurementBase-*		Tracking/TrkEvent
+use TrkPseudoMeasurementOnTrack	TrkPseudoMeasurementOnTrack-*	Tracking/TrkEvent
+use TrkSurfaces			TrkSurfaces-*			Tracking/TrkDetDescr
+use TrkToolInterfaces		TrkToolInterfaces-*		Tracking/TrkTools
+use TrkTrack			TrkTrack-*			Tracking/TrkEvent
+use TrkTrackSummary		TrkTrackSummary-*		Tracking/TrkEvent
+use TrkiPatFitterUtils		TrkiPatFitterUtils-*		Tracking/TrkFitter
+use iPatTrackParameters		iPatTrackParameters-*		Reconstruction/iPat
+use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
+use VxVertex			VxVertex-*			Tracking/TrkEvent
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use GaudiInterface		GaudiInterface-*		External
+use MuidInterfaces		MuidInterfaces-*		Reconstruction/MuonIdentification
+use MagFieldInterfaces          *                               MagneticField
+use TrkParameters		TrkParameters-*			Tracking/TrkEvent
+
+library MuidCombinedTools	MuidBackTracker.cxx	\
+				MuidMatchMaker.cxx	\
+				MuidVertexCombiner.cxx	\
+				components/*.cxx
+
+apply_pattern component_library								
