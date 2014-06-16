@@ -1,0 +1,11 @@
+<lcgdict>
+  <class name="TestClassPrimitives" id="4E1F4DBB-1973-1974-1999-204F37331A00"/>
+  <class name="SimpleTestClass" id="4E1F4DBB-1973-1974-1999-204F37331A01"/>
+  <class name="TestClassSimpleContainers" id="4E1F4DBB-1973-1974-1999-204F37331A02"/>
+  <class name="TestClassVectors" id="4E1F4DBB-1973-1974-1999-204F37331A03"/>
+  <class name="std::vector<std::vector<double> >"/>
+  <class name="std::map<std::basic_string<char>,long int>"/>
+  <class name="std::set<short unsigned int>"/>
+  <class name="std::deque<float>"/>
+  <class name="std::list<double>"/>
+</lcgdict>

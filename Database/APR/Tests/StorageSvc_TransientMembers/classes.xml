@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="TestClassWithTransients" id="A1111111-B111-C111-D111-E22111111121">
+  <field name="transientData" transient="true"/>
+  <field name="transientPointer" transient="true"/>
+  <field name="transientObject" transient="true"/>
+  <field name="transientIntArray" transient="true"/>
+  <field name="transientObjectArray" transient="true"/>
+  </class>
+</lcgdict>
