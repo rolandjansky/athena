@@ -1,0 +1,2 @@
+from TrigTauDiscriminant.TrigTauDiscriGetter import TrigTauDiscriGetter
+TrigTauDiscriGetter()

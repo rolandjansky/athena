@@ -1,0 +1,66 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//
+/********************************************************************
+ *
+ * NAME:     TrigTauRecDiscriminant.h
+ * PACKAGE:  Trigger/TrigAlgorithms/TrigTauDiscriminant
+ *
+ * AUTHOR:   M. Morgenstern (based on tauDiscriBuilder)
+ * CREATED:  
+  *********************************************************************/
+
+#ifndef TRIGTAUDISCRIBUILDER_H
+#define TRIGTAUDISCRIBUILDER_H
+
+#include "TrigInterfaces/FexAlgo.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "TauDiscriminant/TauDiscriToolBase.h"
+#include <vector>
+
+namespace HLT {
+  class TriggerElement;
+}
+
+using namespace std;
+
+class TrigTauDiscriBuilder: public HLT::FexAlgo {
+ public:
+  /**  constructor */
+  TrigTauDiscriBuilder(const std::string& name, ISvcLocator* pSvcLocator);
+
+  /** destructor */
+  ~TrigTauDiscriBuilder();
+  // Gaudi algorithm hooks
+
+  /** HLT method to initialize */
+  HLT::ErrorCode  hltInitialize();
+
+  /** HLT method to finalize */
+  HLT::ErrorCode hltFinalize();
+
+  /** HLT method to execute FEX algo on a given TE.
+   input is last TE from EF ID, output is TE for EF tauRec hypo execution */
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);
+
+ private:
+  /** internal tool store */
+  ToolHandleArray<TauDiscriToolBase>  tools;
+
+  TauDetailsManager*                  manager;
+
+  /** vector of Timers */
+  std::vector<TrigTimer* > m_mytimers;
+
+  /** Monitoring : m_LLHScore obtained */
+  double  m_LLHScore; 
+
+  /** Monitoring : m_BDTScore obtained */
+  double  m_BDTScore; 
+
+};
+#endif
