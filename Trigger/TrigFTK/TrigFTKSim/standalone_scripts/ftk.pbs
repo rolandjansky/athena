@@ -1,0 +1,92 @@
+#!/bin/sh
+
+#PBS -q uct3
+#PBS -l cput=24:00:00
+#PBS -l walltime=24:00:00
+#PBS -m e
+
+if [ "$#" -ge "3" ]; then
+    echo "Using cmd line arguments..."
+    rundir=$1
+    fin=$2
+    app=$3
+else
+    echo "Using environment variables..."
+fi;
+
+# see if any of the arguments were given on command line
+if [ "$#" -ge "4" ]; then
+    delay=$4
+fi;
+if [ "$#" -ge "5" ]; then
+    EXTRA_ARGS=$5
+fi;
+if [ "$#" -ge "6" ]; then
+    mROOTSYS=$6
+fi;
+if [ "$#" -ge "7" ]; then
+    mLD_LIBRARY_PATH=$7
+fi;
+if [ "$#" -ge "8" ]; then
+    mPATH=$8
+fi;
+if [ "$#" -ge "9" ]; then
+    mPYTHONPATH=$9
+fi;
+
+# see if user requested to override any environment settings
+if [ -n "$mROOTSYS" ]; then
+    export ROOTSYS=$mROOTSYS
+fi;
+if [ -n "$mPATH" ]; then
+    export PATH=$mPATH
+fi;
+if [ -n "$mLD_LIBRARY_PATH" ]; then
+    export LD_LIBRARY_PATH=$mLD_LIBRARY_PATH
+fi;
+if [ -n "$mPYTHONPATH" ]; then
+    export PYTHONPATH=$mPYTHONPATH
+fi;
+
+# for PBS jobs, see if it comes with its own environment setup script
+if [ -n "${FTK_ENV_SETUP}" -a ! -s "${FTK_ENV_SETUP}" ]; then
+    echo "FTK_ENV_SETUP is defined (${FTK_ENV_SETUP}) but not found on disk. FTK disk may be unmounted on ${HOSTNAME}!"
+fi
+if [ -s "${FTK_ENV_SETUP}" ]; then
+    echo "Exporting environment:"
+    cat ${FTK_ENV_SETUP}
+    source ${FTK_ENV_SETUP}
+fi
+
+echo "Submitting on ${PBS_O_HOST}"
+echo "Running on ${HOSTNAME} in ${rundir}"
+echo "Arguments: $@"
+echo "ROOTSYS = ${ROOTSYS}"
+echo "App = ${app}"
+echo "Fin = ${fin}"
+echo "EXTRA_ARGS = ${EXTRA_ARGS}"
+echo "PWD = ${PWD}"
+echo "PATH = ${PATH}"
+echo "LD_LIBRARY_PATH = ${LD_LIBRARY_PATH}"
+echo "PYTHONPATH = ${PYTHONPATH}"
+
+#export LD_PRELOAD=/opt/d-cache/dcap/lib/libpdcap.so 
+
+# ROOTSYS must be set by now - either via environment, or as a command line argument
+if [ ! -n "$ROOTSYS" ]; then
+    echo "Warning: ROOTSYS not set!"
+    exit -1
+fi;
+export PATH=$ROOTSYS/bin:$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib
+
+cd ${rundir}
+if [ "${delay}" ]; then
+    echo "Sleeping for ${delay} seconds..."
+    date
+    sleep ${delay}
+fi;
+echo 'Running:' ${app} ${fin}  ${EXTRA_ARGS}
+time ${app} ${fin} ${EXTRA_ARGS}
+cd - 2>/dev/null 1>/dev/null
+echo "DONE!"

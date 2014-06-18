@@ -1,0 +1,10 @@
+#!/bin/bash
+LD_PRELOAD=/opt/d-cache/dcap/lib/libpdcap.so
+exec < $@
+while read line
+do
+head -n1 $line 2>/dev/zero | grep -q 'R' || if [ 1 ]; then echo "Failed R: $line"; continue; fi;
+tail -n1 $line 2>/dev/zero | grep -q 'L' || if [ 1 ]; then echo "Failed L: $line"; continue; fi;
+awk '$1=="S"{if(NF!=14) print "AHA",NR,NF}' $line 2>/dev/zero | grep -q 'AHA' && if [ 1 ]; then echo "Failed NF: $line";continue; fi;
+echo "$line"
+done

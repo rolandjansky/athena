@@ -1,0 +1,37 @@
+# run as <CODE_PATH>/standalone/track_fitter trackfitter_tmpl.in
+# reads the merged roads and fit the tracks in the whole detector
+
+# verbosity level
+VERBOSITY 3
+# plane-map
+PMAP_FILE       ./map_file/raw_11L.pmap
+# Number of coordinates used in the fits
+NCOORDS 14
+# chi2 cut for complete tracks [def. 17 @95%]
+CHI2_CUT 22
+# chi2 cut for majority tracks [def. 14 @95%]
+CHI2_CUT5 19
+# enable Hit-Warrior algorithm
+HITWARRIOR 2
+# decide max number of different points
+HW_NDIFF 3
+# path of the files with the HW tollerances
+HWSDEV_FILE ./hwsdev_file/raw_14.hw
+# If 1 keep the HW rejected tracks, marking them as rejected, 2 keep bad chi2
+KEEP_REJECTED  2
+# if >0 fit combination in removed roads, marking them as rejected
+FIT_REMOVED     1
+# this setup the number of banks and the number of regions
+BANKS_SETUP 8 4
+# for each bank there are 3 arguments: #bank, #subreg, bank pat
+BANK $reg $sub
+./gcon/corrgen_raw_11L_4M_reg$reg_sub$sub.gcon
+# number of event to process
+NEVENTS 10000
+# output directory, in single file-name mode use OUT_FILE
+OUT_DIR output_dir/tracks_merged
+# 1 if there will an output file for each input file
+MULT_OUT 1
+
+# path of an input file
+INPUTFILE output_dir/roads_merged/ftkroads_ftksim_hit_raw-9090.root

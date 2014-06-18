@@ -1,0 +1,128 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef FTKHIT_H
+#define FTKHIT_H
+
+#include <Rtypes.h>
+
+#include <vector>
+#include <istream>
+#include <ostream>
+#include "MultiTruth.h"
+
+/** class describing a generic coordinate */
+class FTKCoord {
+ private:
+  int m_dim; // dimension
+  
+  float *m_coord; //[m_dim] coordinate
+  bool m_includesGangedHits;
+  
+ public:
+  FTKCoord();
+  FTKCoord(int); // construct passing the dimension
+  FTKCoord(const FTKCoord&);
+  FTKCoord& operator=(const FTKCoord&); // assignment operator
+  virtual ~FTKCoord();
+  
+  void setDim(int);
+  int getDim() const { return m_dim; };
+  bool getIncludesGanged() const { return m_includesGangedHits; };
+  void setIncludesGanged(bool b) { m_includesGangedHits = b; };
+  
+  float &operator[](int i) { return m_coord[i]; }
+  float &operator[](int i) const { return m_coord[i]; }
+
+  friend bool operator==(const FTKCoord &left, const FTKCoord &right);
+  friend std::ostream &operator<<(std::ostream&,const FTKCoord&);
+
+  ClassDef(FTKCoord,3)
+};
+
+/** this class describe one hit as is used by the
+    FTKSim structures */
+class FTKHit {
+protected:
+  unsigned int m_IdentifierHash;
+  int m_sector;
+  int m_plane;
+  int m_etaWidth; // clustering width along eta
+  int m_phiWidth; // clustering width in phi direction
+  int m_n_strips; // # of strips in a cluster for SCT; time-over-threshold for pixels
+  int m_bankID; // bank ID for 8L banks
+  FTKCoord m_coord;
+  MultiTruth m_truth;
+  std::vector<FTKHit> m_channels; // channels within the current
+
+public:
+  FTKHit(); // default constructor needed for ROOT
+  FTKHit(const int); // base constructor needs the dimension
+  FTKHit(const FTKHit&); // copy constructor
+  FTKHit& operator=(const FTKHit&); // assignment operator
+  virtual ~FTKHit();
+
+  unsigned int getIdentifierHash() const { return m_IdentifierHash; }
+  bool getIncludesGanged() const { 
+    for (unsigned int i=0; i<getNChannels(); i++) 
+      if (getChannel(i).getCoord().getIncludesGanged()) 
+	return true;
+    if (getNChannels()==0 && this->getCoord().getIncludesGanged()) 
+      return true;
+    return false;
+  }
+  int getSector() const { return  m_sector; }
+  int getPlane() const { return m_plane; }
+  int getEtaCode() const { return m_sector%1000; }
+  int getIsBarrel() const { return m_coord.getDim()!=3? (m_sector%1000 < 20 ? 1 : 0) : 0; }
+  int getASide() const { return m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 == 0) : 0; }
+  int getCSide() const { return m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 != 0) : 0; }
+  int getEtaWidth() const { return m_etaWidth; }
+  int getPhiWidth() const { return m_phiWidth; }
+  int getEtaModule() const { return m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1; }
+  int getPhiModule() const { return m_coord.getDim()!=3 ? m_sector/1000 : m_sector/10000; }
+  int getSection() const { return m_coord.getDim()!=3 ? (m_sector%1000 < 20 ? 0 : m_sector%10) : 0; }
+  int getDim() const { return m_coord.getDim(); }
+  FTKCoord getCoord() const { return m_coord; }
+  FTKCoord &getCoord() { return m_coord; }
+  float getCoord(int i) const { return m_coord[i]; }
+  float getLocalCoord(int i) const;
+  const MultiTruth& getTruth() const;
+
+  void setIdentifierHash(unsigned int val) { m_IdentifierHash = val; }
+  void setSector(int v) { m_sector = v; }
+  void setPlane(int v) { m_plane = v; }
+  void setEtaWidth(int v) { m_etaWidth = v; }
+  void setPhiWidth(int v) { m_phiWidth = v; }
+  void setDim(int v) { m_coord.setDim(v); }
+  void setCoord(int i, float v) { m_coord[i] = v; }
+  void setTruth(const MultiTruth&);
+
+  // special accessors for SCTTRK case:
+  // reuse existing variables to store 8L road and track info
+  int getBankID() const { return m_bankID; }
+  int getRoadID() const { return m_phiWidth; }
+  int getTrackID() const { return m_etaWidth; }
+  int getNStrips() const { return m_n_strips; }
+  int getTot() const { return m_n_strips; }
+  void setBankID(int v) { m_bankID = v; }
+  void setRoadID(int v) { m_phiWidth = v; }
+  void setTrackID(int v) { m_etaWidth = v; }
+  void setNStrips(int v) { m_n_strips = v; }
+  void setTot(int v) { m_n_strips = v; }
+
+  // clustering debugging features
+  void addChannel(const FTKHit &hit) { m_channels.push_back(hit); }
+  const FTKHit& getChannel(unsigned int pos) const { return m_channels[pos]; }
+  unsigned int getNChannels() const { return m_channels.size(); }
+
+  float &operator[](int i) { return m_coord[i]; }
+  float &operator[](int i) const { return m_coord[i]; }
+
+  friend bool operator==(const FTKHit &left, const FTKHit &right);
+  friend std::ostream &operator<<(std::ostream&,const FTKHit&);
+
+  ClassDef(FTKHit,6)
+};
+#endif // FTKHIT_H

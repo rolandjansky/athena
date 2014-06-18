@@ -1,0 +1,25 @@
+#PIX ENDCAP PHYSICAL_LAYER MIN_PHI MAX_PHI N_PHI MIN_ETA MAX_ETA N_ETA
+
+0
+1       0       0       -1      -1      22      -1      -1      13
+1       0       1       8       11      38      0       6       13
+
+
+For each logical layer we must calculate a "local module ID" that is used to calculate the SS within a tower.
+SStower = "local module ID" * maxSSmodule + SSmodule
+Where maxSSmodule is the maximum number of superstrips within a module,
+SSmodule is the local superstrip number calculated within a module.
+
+For the vertical slice the "local module ID"  is calculated starting from data in the map file in this way:
+local module ID 0 is the one with the least phi number and least eta number
+module ID id calculated as 
+local module ID = localEta*nphi+localPhi;
+where localEta = eta-MIN_ETA;
+localPhi = phi-MIN_PHI; (accounting for wrap around 2pi)
+nphi = MAX_PHI - MIN_PHI +1; (accounting for wrap around 2pi)
+
+
+# reference code
+# unsigned int FTKRegionMap::getLocalModuleID(const FTKHit &hit, unsigned int TowerID)
+# in file https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigFTK/TrigFTKSim/trunk/src/FTKRegionMap.cxx
+

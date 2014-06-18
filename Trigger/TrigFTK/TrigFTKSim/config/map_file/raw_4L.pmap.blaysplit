@@ -1,0 +1,10 @@
+3 pixel barrel
+3 pixel endcap
+1 SCTtrk
+pixel 0 -1 0 dim 2 plane 0 phi 44 eta 13
+pixel 0 -1 1 dim 2 plane 1 phi 38 eta 13
+pixel 0 -1 2 dim 2 plane 2 phi 52 eta 13
+pixel 1 0 0 dim 2 plane 2 phi 48 eta 1
+pixel 1 1 1 dim 2 plane 2 phi 48 eta 1
+pixel 1 2 2 dim 2 plane 1 phi 48 eta 1
+SCTtrk 0 dim 3 plane 3 phi 52 cott 72 curv 4

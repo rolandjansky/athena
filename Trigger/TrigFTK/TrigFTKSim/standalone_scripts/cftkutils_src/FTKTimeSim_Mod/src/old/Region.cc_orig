@@ -1,0 +1,292 @@
+#include "Region.hh"
+
+
+
+Region::Region(int region_index)
+  : IOTimeBase(bd_index, RG_T_IN, RG_T_OUT, RG_T_PROC, RG_T_DELAY)
+{
+  this->region_index = region_index;
+  std::vector<IOTimeBase> temp;
+  IOTimeBase time;
+  time.SetFwIn (0);
+  time.SetFwOut(0);
+  time.SetEwIn (0);
+  time.SetEwOut(0);
+  time.SetPriFwIn (0);
+  time.SetPriFwOut(0);
+  time.SetPriEwIn (0);
+  time.SetPriEwOut(0);
+  time.SetBuff(0);
+  time.SetBuff2(0);
+  
+  for(int idx=0;idx<NDATAFORMATTER;idx++) {
+    DataFormatter sDF(idx);
+    cDF.push_back(sDF);
+    temp.push_back(time);  cDF[idx].Set(temp); // Dont use cDF[n].Get(n+1) Seg V // init
+  }
+  temp.clear();
+
+  
+  for(int idx=0;idx<NDATAORGANIZER;idx++) {
+    DataOrganizer sDO(idx);
+    cDO.push_back(sDO);
+    temp.push_back(time);  cDO[idx].Set(temp); // Dont use cDF[n].Get(n+1) Seg V //init
+  }
+  temp.clear();
+
+  for(int idx=0;idx<NASSOCIATIVEMEMORY;idx++) {
+    AssociativeMemory sAM(idx);
+    cAM.push_back(sAM);
+    temp.push_back(time);  cAM[idx].Set(temp); // Dont use cDF[n].Get(n+1) Seg V //init
+  }
+  temp.clear();
+  
+  for(int idx=0;idx<NDATAORGANIZER;idx++) {
+    SecDataOrganizer sSecDO(idx);
+    cSecDO.push_back(sSecDO);
+    temp.push_back(time);  cSecDO[idx].Set(temp); // Dont use cDF[n].Get(n+1) Seg V //init
+  }
+  temp.clear();
+    
+  for(int idx=0;idx<NTRACKFITTER;idx++) {
+    TrackFitter sTF(idx);
+    cTF.push_back(sTF);
+    temp.push_back(time);  cTF[idx].Set(temp); // Dont use cDF[n].Get(n+1) Seg V //init
+  }
+  temp.clear();
+
+  //  make_heap(cTF.begin(), cTF.end(), CompEwOut()); // currently not useing
+}
+
+void
+Region::Calc()
+{
+  std::vector<IOTimeBase> temp;
+  IOTimeBase time;
+  int temp_MinFwOut;
+  int temp_MaxEwOut;
+  int temp_MinFwIn;
+  int temp_MaxEwIn;
+  int temp_PriMinFwOut;
+  int temp_PriMaxEwOut;
+  int temp_PriMinFwIn;
+  int temp_PriMaxEwIn;
+
+  // **** set initial time parameter **** //
+  for(int idx=0 ; idx<NDATAORGANIZER ; idx++){
+    //time.SetFwIn(-999+idx); // for test
+    //time.SetFwOut(-888+idx);// for test
+    //time.SetEwIn(-777+idx);// for test
+    //time.SetEwOut(-666+idx);// for test
+    time.SetFwIn(0);
+    time.SetFwOut(0);
+    time.SetEwIn(0);
+    time.SetEwOut(0);
+    time.SetPriFwIn(0);
+    time.SetPriFwOut(0);
+    time.SetPriEwIn(0);
+    time.SetPriEwOut(0);
+    temp.push_back(time);
+  }
+
+  // *
+  // ***** DataFormatter ***** //
+ // *
+  //    for(int idx=0;idx<NDATAFORMATTER;idx++) {
+  //      cDF[idx].SetInputValue(this->iv);
+  //      cDF[idx].Calc();
+  //    }
+  //    sort_heap(cDF.begin(), cDF.end(), CompEwOut());
+  //    temp.clear();
+  //    copy(cDF.begin(), cDF.end(), back_inserter(temp));
+
+  // *** set the temp privious event's full borad iotime for buffer study *** //
+  vector<IOTimeBase> temp_DO;
+  for(int i=0 ; i<NDATAORGANIZER; i++) temp_DO.push_back(cDO[i].Get(i));
+  vector<IOTimeBase> temp_AM;
+  for(int i=0 ; i<NASSOCIATIVEMEMORY; i++) temp_AM.push_back(cAM[i].Get(i));
+  vector<IOTimeBase> temp_SecDO;
+  for(int i=0 ; i<NDATAORGANIZER; i++) temp_SecDO.push_back(cSecDO[i].Get(i));
+  vector<IOTimeBase> temp_TF;
+  for(int i=0 ; i<NTRACKFITTER; i++) temp_TF.push_back(cTF[i].Get(i));
+  
+  // *
+  // ***** DataOrganizer ***** //
+  // *
+  if(FTKTimeSim_Debug>3) cout<<"llllllllllll  DataOrganizer llllllllllll"<<endl;
+  for(int idx=0;idx<NDATAORGANIZER;idx++) {
+    if(FTKTimeSim_Debug>3)
+      cout<<"calc Data Organizer!  --  DATAORGANIZER# is "<<idx<<endl;
+    cDO[idx].SetInputValue(this->iv);  // Is it need? Sure! Nn??????
+    //    cDO[idx].SetPre(cDO[idx].GetV()); // iotime of previous events
+    cDO[idx].SetPre(temp_DO); // iotime of previous events
+    cDO[idx].SetSPPre(temp_AM); // for buffer size study, iotime of privious TF ew out!!!
+    cDO[idx].SetSP2Pre(temp_TF); // for buffer size study, iotime of privious TF ew out!!!
+    cDO[idx].Set(temp);
+    cDO[idx].Calc();
+  }
+  // ** sort **//
+  //  sort_heap(cDO.begin(), cDO.end(), CompEwOut());
+  temp.clear();
+  //  copy(cDO[0].iotime.begin(), cDO[0].iotime.end(), back_inserter(temp));
+  for(int i=0 ; i<NDATAORGANIZER ; i++) temp.push_back(cDO[i].Get(i));
+  temp_MinFwOut=GetMinFwOut(temp);
+  temp_MaxEwOut=GetMaxEwOut(temp);
+  temp_MinFwIn=GetMinFwIn(temp);
+  temp_MaxEwIn=GetMaxEwIn(temp);
+  temp_PriMinFwOut=GetPriMinFwOut(temp);
+  temp_PriMaxEwOut=GetPriMaxEwOut(temp);
+  temp_PriMinFwIn= GetPriMinFwIn(temp);
+  temp_PriMaxEwIn= GetPriMaxEwIn(temp);
+
+  // ** conection ** // for if each AM have delay....
+  temp.clear();
+  for(int idx=0 ; idx<NASSOCIATIVEMEMORY ; idx++){
+    time.SetFwIn(0);
+    time.SetFwOut(temp_MinFwOut);
+    time.SetEwIn(0);
+    time.SetEwOut(temp_MaxEwOut);
+    time.SetPriFwIn(0);
+    time.SetPriFwOut(temp_PriMinFwOut);
+    time.SetPriEwIn(0);
+    time.SetPriEwOut(temp_PriMaxEwOut);
+    temp.push_back(time);
+  }
+  // ** Debug ** //
+  if(FTKTimeSim_Debug>3){
+    cout<<"============ iotime conection DO to AM ============="<<endl;
+    for(int i=0 ; i<NDATAORGANIZER ; i++){
+      cout<<"DO "<<i<<"  fw_out = "<<cDO[i].Get(i).GetFwOut()<<"   ew_out = "<<cDO[i].Get(i).GetEwOut()<<endl;
+    }
+    cout<<" DO (for AM in) : MinFwOut = "<<temp_MinFwOut<<",   MaxEwOut = "<<temp_MaxEwOut<<endl;
+    cout<<"===================================================="<<endl;
+  }
+
+  // * 
+  // ***** AssociativeMemory ***** //
+  // *
+  if(FTKTimeSim_Debug>3) cout<<"llllllllllll  AssociativeMemory llllllllllll"<<endl;
+  for(int idx=0;idx<NASSOCIATIVEMEMORY;idx++) {
+    if(FTKTimeSim_Debug>3)
+      cout<<"calc AssociativeMemory!  --  ASSOCIATIVEMEMORY# is "<<idx<<endl;
+    cAM[idx].SetInputValue(this->iv);
+    cAM[idx].SetPre(temp_AM); // iotime of previous events
+    cAM[idx].Set(temp);
+    cAM[idx].Calc();
+  }
+  // ** sort **//
+  temp.clear();
+  for(int i=0 ; i<NASSOCIATIVEMEMORY ; i++) temp.push_back(cAM[i].Get(i));
+  temp_MinFwOut=GetMinFwOut(temp);
+  temp_MaxEwOut=GetMaxEwOut(temp);
+  temp_MinFwIn=GetMinFwIn(temp);
+  temp_MaxEwIn=GetMaxEwIn(temp);
+  temp_PriMinFwOut=GetPriMinFwOut(temp);
+  temp_PriMaxEwOut=GetPriMaxEwOut(temp);
+  temp_PriMinFwIn= GetPriMinFwIn(temp);
+  temp_PriMaxEwIn= GetPriMaxEwIn(temp);
+
+
+  // ** conection ** //
+  temp.clear();
+  for(int idx=0 ; idx<NDATAORGANIZER ; idx++){
+    time.SetFwIn(0);
+    time.SetFwOut(temp_MinFwOut);
+    time.SetEwIn(0);
+    time.SetEwOut(temp_MaxEwOut);
+    time.SetPriFwIn(0);
+    time.SetPriFwOut(temp_PriMinFwOut);
+    time.SetPriEwIn(0);
+    time.SetPriEwOut(temp_PriMaxEwOut);
+    temp.push_back(time);
+  }
+  // ** Debug ** //
+  if(FTKTimeSim_Debug>3){
+    cout<<"============ iotime conection AM to DO2 ============="<<endl;
+    for(int i=0 ; i<NASSOCIATIVEMEMORY ; i++){
+      cout<<"AM "<<i<<"  fw_out = "<<cAM[i].Get(i).GetFwOut()<<"   ew_out = "<<cAM[i].Get(i).GetEwOut()<<endl;
+    }
+    cout<<" AM (for DO2 in) : MinFwOut = "<<temp_MinFwOut<<",   MaxEwOut = "<<temp_MaxEwOut<<endl;
+    cout<<"===================================================="<<endl;
+  }
+
+  // * 
+  // ***** Second DataOrganizer ***** //
+  // *
+  if(FTKTimeSim_Debug>3) cout<<"llllllllllll  Second DataOrganizer llllllllllll"<<endl;
+  for(int idx=0;idx<NDATAORGANIZER;idx++) {
+    if(FTKTimeSim_Debug>3)
+      cout<<"calc Second DataOrganizer!  --  SecDATAORGANIZER# is "<<idx<<endl;
+    cSecDO[idx].SetInputValue(this->iv);
+    cSecDO[idx].SetPre(temp_SecDO); // iotime of previous events
+    cSecDO[idx].Set(temp);
+    cSecDO[idx].Calc();
+  }
+  // ** sort **//
+  temp.clear();
+  for(int i=0 ; i<NDATAORGANIZER ; i++) temp.push_back(cSecDO[i].Get(i));
+  temp_MinFwOut=GetMinFwOut(temp);
+  temp_MaxEwOut=GetMaxEwOut(temp);
+  temp_MinFwIn=GetMinFwIn(temp);
+  temp_MaxEwIn=GetMaxEwIn(temp);
+  temp_PriMinFwOut=GetPriMinFwOut(temp);
+  temp_PriMaxEwOut=GetPriMaxEwOut(temp);
+  temp_PriMinFwIn= GetPriMinFwIn(temp);
+  temp_PriMaxEwIn= GetPriMaxEwIn(temp);
+
+  // ** conection ** //
+  temp.clear();
+  for(int idx=0 ; idx<NTRACKFITTER ; idx++){
+    time.SetFwIn(0);
+    time.SetFwOut(temp_MinFwOut);
+    time.SetEwIn(0);
+    time.SetEwOut(temp_MaxEwOut);
+    time.SetPriFwIn(0);
+    time.SetPriFwOut(temp_PriMinFwOut);
+    time.SetPriEwIn(0);
+    time.SetPriEwOut(temp_PriMaxEwOut);
+    temp.push_back(time);
+  }
+  // ** Debug ** //
+  if(FTKTimeSim_Debug>3){
+    cout<<"============ iotime conection SecDO to TF ============="<<endl;
+    for(int i=0 ; i<NDATAORGANIZER ; i++){
+      cout<<"SecDO "<<i<<"  fw_out = "<<cSecDO[i].Get(i).GetFwOut()<<"   ew_out = "<<cSecDO[i].Get(i).GetEwOut()<<endl;
+    }
+    cout<<" SecDO (for TF in) : MinFwOut = "<<temp_MinFwOut<<",   MaxEwOut = "<<temp_MaxEwOut<<endl;
+    cout<<"===================================================="<<endl;
+  }
+
+  // * 
+  // ***** TrackFitter ***** //
+  // *
+  for(int idx=0;idx<NTRACKFITTER;idx++) {
+    cTF[idx].SetInputValue(this->iv);
+    cTF[idx].SetPre(temp_TF); // iotime of previous events
+    cTF[idx].Set(temp);
+    cTF[idx].Calc();
+  }
+  // ** sort **//
+  temp.clear();
+  for(int i=0 ; i<NTRACKFITTER ; i++) temp.push_back(cTF[i].Get(i));
+  temp_MinFwOut=GetMinFwOut(temp);
+  temp_MaxEwOut=GetMaxEwOut(temp);
+  temp_MinFwIn=GetMinFwIn(temp);
+  temp_MaxEwIn=GetMaxEwIn(temp);
+  temp_PriMinFwOut=GetPriMinFwOut(temp);
+  temp_PriMaxEwOut=GetPriMaxEwOut(temp);
+  temp_PriMinFwIn= GetPriMinFwIn(temp);
+  temp_PriMaxEwIn= GetPriMaxEwIn(temp);
+
+  //cout<<temp_MaxEwOut<<"   checkkkkkkkkkkkkkkkkkkkkkkkkkkkkk "<<endl;
+  this->t_fw_out=temp_MinFwOut;
+  this->t_ew_out=temp_MaxEwOut;
+  this->t_fw_in=temp_MinFwIn;
+  this->t_ew_in=temp_MaxEwIn;
+  this->primary_fw_out=temp_PriMinFwOut;
+  this->primary_ew_out=temp_PriMaxEwOut;
+  this->primary_fw_in= temp_PriMinFwIn;
+  this->primary_ew_in= temp_PriMaxEwIn;
+
+  
+}

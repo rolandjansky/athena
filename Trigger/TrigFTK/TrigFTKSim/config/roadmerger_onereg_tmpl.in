@@ -1,0 +1,33 @@
+# run as <CODE_PATH>/standalone/road_merger roadfinder_onereg_tmpl.in NREG
+# where NREG is the region number
+# it merges in the same files the roads in the sub-regions
+
+# the PMAP file is set can be used to improve the RW perfomances
+PMAP_FILE       ./map_file/raw_11L.pmap
+# the SCT pairing if used the RW rejection in same configuration
+SCT_PAIR 	0
+# maximum number of missing planes
+MAX_MISSING_PLANES    1
+# if 0 RW removed roads are deleted from the bank
+KEEP_REMOVED 1
+# output directory
+OUTDIR output_dir/roads_reg$2
+# number of the banks will be merged
+NBANKS 8
+# number of sub-regions in each bank
+NSUBREGIONS 4
+# list of regions to skip during the merging procedure
+#  -1 means all, to use within NOSKIPREGIONS
+SKIPREGIONS -1
+NOSKIPREGIONS $2
+# number of output file in each sub-region
+NFILES 1
+# maximum number of events
+NEVENTS 10000
+# the next line declare the region and subregion IDs 
+# and the number of files. The files list is opened
+# by the pattern bank path
+BANK $2 $j
+./patt/sectors_raw_11L_4M_reg$2_sub$j.patt
+./output_dir/roads_reg$2_sub$j/ftkroads_ftksim_hit_raw-9090.root
+

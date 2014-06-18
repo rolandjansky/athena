@@ -1,0 +1,11 @@
+! ***           RECONSTRUCTION GEOMETRY CONSTANTS               ***
+
+Version 2       ! File format version number
+
+! ***           PHI is now in GLOBAL coordinate system          ***
+ NPLANES
+ 11
+ NSECTORS
+ 0
+ NDIM
+ 2

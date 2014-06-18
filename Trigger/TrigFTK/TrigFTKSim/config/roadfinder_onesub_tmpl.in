@@ -1,0 +1,54 @@
+# run as <CODE_PATH>/standalone/road_finder roadfinder_onesub_tmpl.in NREG NSUB
+# where NREG is the region number, NSUB the sub-region number
+# it finds the road in a single sub-region
+
+# bad module file path
+BADMOD_FILE       ../share/badModulemap_FTK.bmap
+#BADMOD_FILE       dammy
+
+
+# 1 for barrel only, 0 barre+endcap
+BARREL_ONLY     0
+# PMAP file path
+PMAP_FILE       ./map_file/raw_11L.pmap
+# region map path
+RMAP_FILE       ./map_file/raw_11L.rmap
+# 1 for RAW mode
+RAW_MODE 	1
+
+# 1 to enable the simulation, 0 just to debug the init
+ENABLE_FTKSIM   1
+# 1 enables timing output (TODO)
+TIMING_OUT	1
+
+# maximum number of missing planes
+MAX_MISSING_PLANES    1
+# 1 enables in-sector RW, 2 cross-sector, 0 nothing [suggested 1]
+ROADWARRIOR 	1
+# 1 flag the RW removed roads, 0 remove from the list
+KEEP_REMOVED    1
+# 1 pairs the associated SCT, 0 not [0 suggested]
+SCT_PAIR 0
+
+# enable the diagonal clustering
+DIAG_CLUSTERING         1
+# enable the duplication of hits in the ganged area
+DUPLICATE_GANGED        1
+
+# Super-Strip file
+SS_FILE         ./ss_file/raw_50x64x144.ss
+
+# file with a list of input files
+FTKDAT_LIST     ./input/inputprod_raw_mydatalist.list
+
+# number of events to be processed
+events#		10000
+
+OUT_DIR    ./output_dir/roads_reg$2_sub$3
+MULT_OUT 	1
+
+# set the number of AM banks, one per geometrical region
+NBANKS  8
+# set the bank passing its ID and the maximum number of pattern (-1 means all)
+BANK $2 5000000
+./patt/patterns_raw_11L_50x64x144c_4M_reg$2_sub$3.patt

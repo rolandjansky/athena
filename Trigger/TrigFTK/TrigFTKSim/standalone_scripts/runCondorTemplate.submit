@@ -1,0 +1,21 @@
+# Define environment and executable
+universe = vanilla
+
+executable = CONDOR_EXE
+
+output = CONDOR_OUTPUT
+error  = CONDOR_ERROR
+log    = CONDOR_LOG
+
+# Change this to use your username.
++AccountingGroup = "group_uct3.USERNAME"
+
+# Require that the node has the ATLAS CVMFS mounts
+#requirements = ((HAS_CVMFS =?= TRUE))
+requirements = ((HAS_CVMFS =?= TRUE) && (HAS_TIER3_DATA =?= TRUE))
+
+#transfer_input_files =gridproxy.cert,bStudyLib.tgz,ROICount/inputFile_7.txt,ROICount/copyCMD_7.sh
+
+#arguments = 
+
+queue

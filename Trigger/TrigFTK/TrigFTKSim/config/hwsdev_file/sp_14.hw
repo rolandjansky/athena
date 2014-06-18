@@ -1,0 +1,23 @@
+Version 1
+! Format
+!
+!
+! spacepoint version (x = local phi in rads, z in mm)
+! i  tolerance
+! i = 0..13; ordering = x1,z1;x2,z2;x3,z3;x4,z4;x5,z5;x6,z6;x7,z7
+N 14
+N 14
+0  2e-3
+1  1.82
+2  2e-3
+3  1.82
+4  2e-3
+5  1.82
+6  2e-3
+7  1.82
+8  2e-3
+9  1.82
+10  2e-3
+11  1.82
+12  2e-3
+13  1.82

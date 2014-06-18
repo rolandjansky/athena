@@ -1,0 +1,9 @@
+Configuration files in this directory are intended as example, read
+carefully the documentation in the TWiki pages and changes the values
+according your local configuration and you purposes.
+
+For the TWiki pages refer to:
+
+https://twiki.cern.ch/twiki/bin/view/Atlas/FastTrackerNewSimulation
+
+https://twiki.cern.ch/twiki/bin/view/Atlas/FastTrackerNewTutorial

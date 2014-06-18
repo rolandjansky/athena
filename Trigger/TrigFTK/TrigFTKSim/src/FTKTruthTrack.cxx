@@ -1,0 +1,21 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TrigFTKSim/FTKTruthTrack.h"
+
+FTKTruthTrack::FTKTruthTrack() :
+  TObject(),
+  m_x(0.),
+  m_y(0.),
+  m_z(0.),
+  m_q(0),
+  m_px(0.),
+  m_py(0.),
+  m_pz(0.),
+  m_pdgcode(0),
+  m_barcode(0),
+  m_evtindex(0)
+{
+  // nothing special to do
+}

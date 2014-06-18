@@ -1,0 +1,10 @@
+# This scripts produce dataflow table and standard plots using ftk_explorer.py
+# run as: ftk_explorer.py --batch -r X -s Y -L Z <outputdir> -i FTKEXplorerDFStudy.in
+study single default
+print save FTKExplorerDFStudy.data
+set PresentPrefix=FTKDF
+set PresentExt=eps
+present nclusters nss nroads ntfhits nfits ntracks
+set PresentExt=png
+present nclusters nss nroads ntfhits nfits ntracks
+exit

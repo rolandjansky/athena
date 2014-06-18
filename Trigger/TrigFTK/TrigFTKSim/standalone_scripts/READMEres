@@ -1,0 +1,25 @@
+
+# Get Ntuple from ftk_explorer.py
+
+#
+#  Fill the resolutions histograms
+#   There are options to make various differnet studies
+#   do --h for details
+#
+
+> python resStudy.py  --in resStudy5000_1st.root --out resStudyHists_1st.root
+
+#
+# Fit the resolutions histograms
+#
+
+python fitResPlots.py --input resStudyHists_1st.root --output fitResPlots_1st.root
+
+#
+# To combine the output of different fitResPlots calls
+#
+
+python compResPlots.py --input1 fitResPlots_2nd.root  --input2 fitResPlots_1st.root --output compResPlots.root 
+
+
+

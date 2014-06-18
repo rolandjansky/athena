@@ -1,0 +1,32 @@
+# run as <CODE_PATH>/standalone/track_merge trackmerger_onreg_tmpl.in
+# reads the tracks from separate files and merged them in a single file
+
+# number of banks to read
+NBANKS	8
+# number of coordinates
+NCOORDS 14
+# enable Hit-Warrior algorithm
+HITWARRIOR 1
+# decide max number of different points
+HW_NDIFF 3
+# path of the files with the HW tollerances
+HWSDEV_FILE ./hwsdev_file/raw_14.hw
+# If 1 keep the HW rejected tracks, marking them as rejected, 2 keep bad chi2
+KEEP_REJECTED  2
+# number of input file for each bank
+NFILES 1
+# this values is used if the output is grouped in a numebr of files <=NBANKS
+# - 1 if each bank as a corresponding output files
+# - NBANKS if there is just one single files to collect the global output
+# intermediate values means groped output
+GROUP_SIZE	1
+# if 1
+OUT_DIR	./output_dir/tracks_merged
+
+# maximum number of events
+NEVENTS 10000
+# the next line declare the region and subregion IDs 
+# and the number of files. The files list is opened
+# by the pattern bank path
+BANK $reg	
+./output_dir_5M/tracks_reg$reg/ftktracks_ftksim_hit_raw-9090.root

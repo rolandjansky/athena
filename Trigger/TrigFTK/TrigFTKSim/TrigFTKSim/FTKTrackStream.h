@@ -1,0 +1,120 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef FTKTRACKSTREAM_H
+#define FTKTRACKSTREAM_H
+
+#include "FTKTrack.h"
+
+#include <TClonesArray.h>
+
+#include <iostream>
+#include <utility>
+
+class FTKTrackStream {
+private:
+  unsigned long m_run_number; // run number
+  unsigned long m_event_number; // event number
+
+  int m_ntracks; // number of stored tracks
+  TClonesArray *m_tracks; //-> list of stored tracks
+
+  int m_ncombs; // number of combinations
+  int m_nfits; // number of fitted combinations
+  int m_nfits_maj; // number of fitted combinations in majority roads
+  int m_nfits_rec; // number of full fits attempted to recover
+  int m_nfits_addrec; // additional fits performed because the recovery
+  int m_nfits_bad; // # fits with a bad chi^2
+  int m_nfits_rej; // # of fits rejected because the HW
+  int m_nfits_badmaj; // # fits with a bad chi^2
+  int m_nfits_rejmaj; // # of fits rejected because the HW
+  /* PS: m_ntracks, if only good tracks are saved, has to be equal
+     to m_nfits-m_nfits_bad-m_nfits_rej */
+  
+  int m_ntracksI; // number of stored tracks in the intermediate step
+  TClonesArray *m_tracksI; //-> list of stored tracks in the intermedieate step
+
+
+  // duplicate the counters for the 2nd stage
+  int m_ncombsI;
+  int m_nfitsI;
+  int m_nfits_majI;
+  int m_nfits_recI;
+  int m_nfits_addrecI;
+  int m_nfits_badI;
+  int m_nfits_rejI;
+  int m_nfits_badmajI;
+  int m_nfits_rejmajI;
+
+  std::map< std::pair<int,int>, int > m_trackIdMap; //! Not saved on disk.  
+  // Used to optimize the findTrack function. 
+
+public:
+  FTKTrackStream();
+  virtual ~FTKTrackStream();
+
+  const unsigned long& runNumber() const { return m_run_number; }
+  const unsigned long& eventNumber() const { return m_event_number; }
+  void setRunNumber(const unsigned long& val) { m_run_number = val; }
+  void setEventNumber(const unsigned long& val) { m_event_number = val; }
+
+  void addTrack(const FTKTrack&);
+  FTKTrack* getTrack(int) const;
+  int findTrack(int,int); // cy
+  int getNTracks() const { return m_ntracks; }
+  void buildTrackMap(); 
+
+  void addTrackI(const FTKTrack&);
+  FTKTrack* getTrackI(int) const;
+  int getNTracksI() const { return m_ntracksI; }
+
+  void addNCombs(int v) { m_ncombs += v; }
+  void addNFits(int v) { m_nfits += v; }
+  void addNFitsMajority(int v) { m_nfits_maj += v; }
+  void addNFitsRecovery(int v) { m_nfits_rec += v; }
+  void addNAddFitsRecovery(int v) { m_nfits_addrec += v; }
+  void addNFitsBad(int v) { m_nfits_bad += v; }
+  void addNFitsHWRejected(int v) { m_nfits_rej += v; }
+  void addNFitsBadMajority(int v) { m_nfits_badmaj += v; }
+  void addNFitsHWRejectedMajority(int v) { m_nfits_rejmaj += v; }
+
+  int getNCombs() const { return m_ncombs; }
+  int getNFits() const { return m_nfits; }
+  int getNFitsMajority() const { return m_nfits_maj; }
+  int getNFitsRecovery() const { return m_nfits_rec; }
+  int getNAddFitsRecovery() const { return m_nfits_addrec; }
+  int getNFitsBad() const { return m_nfits_bad; }
+  int getNFitsHWRejected() const { return m_nfits_rej; }
+  int getNFitsBadMajority() const { return m_nfits_badmaj; }
+  int getNFitsHWRejectedMajority() const { return m_nfits_rejmaj; }
+
+  void addNCombsI(int v) { m_ncombsI += v; }
+  void addNFitsI(int v) { m_nfitsI += v; }
+  void addNFitsMajorityI(int v) { m_nfits_majI += v; }
+  void addNFitsRecoveryI(int v) { m_nfits_recI += v; }
+  void addNAddFitsRecoveryI(int v) { m_nfits_addrecI += v; }
+  void addNFitsBadI(int v) { m_nfits_badI += v; }
+  void addNFitsHWRejectedI(int v) { m_nfits_rejI += v; }
+  void addNFitsBadMajorityI(int v) { m_nfits_badmajI += v; }
+  void addNFitsHWRejectedMajorityI(int v) { m_nfits_rejmajI += v; }
+
+  int getNCombsI() const { return m_ncombsI; }
+  int getNFitsI() const { return m_nfitsI; }
+  int getNFitsMajorityI() const { return m_nfits_majI; }
+  int getNFitsRecoveryI() const { return m_nfits_recI; }
+  int getNAddFitsRecoveryI() const { return m_nfits_addrecI; }
+  int getNFitsBadI() const { return m_nfits_badI; }
+  int getNFitsHWRejectedI() const { return m_nfits_rejI; }
+  int getNFitsBadMajorityI() const { return m_nfits_badmajI; }
+  int getNFitsHWRejectedMajorityI() const { return m_nfits_rejmajI; }
+
+  void clear();
+
+  int Print(int level=0,std::ostream &out=std::cout);
+
+  ClassDef(FTKTrackStream,9)
+};
+
+
+#endif // FTKTRACKSTREAM_H
