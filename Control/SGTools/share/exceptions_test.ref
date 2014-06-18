@@ -1,0 +1,3 @@
+test1
+Bad cast of DataProxy with CLID 123 to type int
+ExcProxyCollision: proxy collision for clid/key 123 / abc (primary 456 / def).

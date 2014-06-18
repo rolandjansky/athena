@@ -1,0 +1,102 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef SGTOOLS_CLASS_DEF_H
+#define SGTOOLS_CLASS_DEF_H
+/** @file CLASS_DEF.h
+ *  @brief macros to associate a CLID to a type
+ *
+ *  @author Paolo Calafiura <pcalafiura@lbl.gov>
+ *  $Id: CLASS_DEF.h,v 1.3 2009-01-15 19:07:29 binet Exp $
+ */
+
+#include "SGTools/ClassID_traits.h"
+#include "CxxUtils/unused.h"
+#include <boost/preprocessor/stringize.hpp>
+
+/** @def CLASS_DEF(NAME, CID , VERSION) 
+ *  @brief associate a clid and a version to a type
+ *  eg 
+ *  @code 
+ *  CLASS_DEF(std::vector<Track*>,8901, 1)
+ *  @endcode 
+ *  @param NAME 	type name
+ *  @param CID 		clid
+ *  @param VERSION 	not yet used
+ */
+#define CLASS_DEF(NAME, CID , VERSION)		\
+  template <>					\
+  struct ClassID_traits< NAME > {				 \
+    typedef boost::is_base_and_derived<DataObject, NAME> isDObj_t;	\
+    BOOST_STATIC_CONSTANT(bool, s_isDataObject = isDObj_t::value);	\
+    typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;	\
+    typedef type_tools::true_tag has_classID_tag;			\
+    static const CLID& ID() { static CLID c(CID); return  c; }		\
+    static const std::string& typeName() {				\
+      static const std::string s_name = #NAME;				\
+      return s_name;							\
+    }									\
+    static  Athena::PackageInfo packageInfo() {				\
+      static Athena::PackageInfo __pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  ); \
+      return __pi;							\
+    }									\
+    static const std::type_info& typeInfo() {				\
+      return typeid (NAME);						\
+    }									\
+    typedef type_tools::true_tag has_version_tag;			\
+    BOOST_STATIC_CONSTANT(int, s_version = VERSION);			\
+    BOOST_STATIC_CONSTANT(bool, s_isConst = false);                     \
+  };									\
+  namespace detail {							\
+    const bool UNUSED(clidEntry_ ## CID) =                              \
+      CLIDRegistry::addEntry<CID>(ClassID_traits< NAME >::typeName(),	\
+				  ClassID_traits< NAME >::packageInfo(), \
+				  ClassName< NAME >::name());		\
+  } 
+
+
+/** @def CLASS_DEF2(ARG1, ARG2, CID , VERSION) 
+ *  @brief hack to use instead of CLASS_DEF when type name contains a comma ','
+ *  eg
+ *  @code 
+ *    CLASS_DEF2(map<int,string>,8900, 1)
+ *  @endcode 
+ *  @param ARG1         type name (1st part)
+ *  @param ARG2 	type name (2nd part)
+ *  @param CID 		clid
+ *  @param VERSION 	not yet used
+ */
+#define CLASS_DEF2(ARG1, ARG2, CID , VERSION)	\
+  template <>					\
+  struct ClassID_traits< ARG1,ARG2 > {					\
+    typedef boost::is_base_and_derived<DataObject, ARG1, ARG2 > isDObj_t; \
+    BOOST_STATIC_CONSTANT(bool, s_isDataObject = isDObj_t::value);	\
+    typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;	\
+    typedef type_tools::true_tag has_classID_tag;			\
+    static const CLID& ID() {						\
+      static CLID c(CID); return  c;					\
+    }									\
+    static const std::string& typeName() {				\
+      static const std::string s_name = #ARG1 "," #ARG2;		\
+      return s_name;							\
+    }									\
+    static const std::type_info& typeInfo() {				\
+      return typeid (ARG1,ARG2);					\
+    }									\
+    static  Athena::PackageInfo packageInfo() {				\
+      return Athena::PackageInfo("Package-00-00-00");			\
+    }									\
+    typedef type_tools::true_tag has_version_tag;			\
+    BOOST_STATIC_CONSTANT(int, s_version = VERSION);			\
+    BOOST_STATIC_CONSTANT(bool, s_isConst = false);                     \
+  };									\
+  namespace detail {							\
+    const bool UNUSED(clidEntry_ ## CID) =                              \
+      CLIDRegistry::addEntry<CID> \
+      (ClassID_traits< ARG1,ARG2 >::typeName(),				\
+       ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
+       ClassName< ARG1,ARG2 >::name());					\
+  } 
+
+#endif // not SGTOOLS_CLASS_DEF_H

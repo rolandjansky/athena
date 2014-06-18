@@ -1,0 +1,7 @@
+test1
+addRef 1 1
+addRef 2 1
+release 1 0
+release 2 0
+addRef 2 1
+release 2 0

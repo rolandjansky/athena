@@ -1,0 +1,56 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef SGTOOLS_CALLBACKID_ICC
+#define SGTOOLS_CALLBACKID_ICC
+
+/*****************************************************************************
+ *
+ *  CallBackID.h
+ *  IOVSvc
+ *
+ *  Author: Charles Leggett
+ *  $Id: CallBackID.icc,v 1.4 2005-11-08 22:01:30 ssnyder Exp $
+ *
+ *  Provides means to identify a callback function.
+ *
+ *****************************************************************************/
+
+#ifndef _CPP_SSTREAM
+ #include <sstream>
+#endif
+#ifndef _STDIO_H
+ #include "stdio.h"
+#endif
+#ifndef GAUDIKERNEL_SYSTEM_H
+ #include "GaudiKernel/System.h"
+#endif
+
+template<typename T>
+void CallBackID::set( StatusCode (T::*updF)(IOVSVC_CALLBACK_ARGS), 
+		      const T *obj)
+{
+  union {
+    StatusCode (T::*updF)(IOVSVC_CALLBACK_ARGS);
+    long i;
+  } u;
+  u.updF = updF;
+
+  p_obj = (void*) obj;
+  m_offset = u.i;
+  
+  // make allowances for various versions of gcc
+  #if (__GNUC__ < 3)
+     m_offset /= 0x10000;
+  #endif
+
+  std::ostringstream ost;
+  ost << std::hex << "[0x" << (long)p_obj << "]+" << m_offset;
+  
+  m_objName = System::typeinfoName(typeid(*obj));
+  m_name = m_objName + ost.str();
+  
+}
+
+#endif
