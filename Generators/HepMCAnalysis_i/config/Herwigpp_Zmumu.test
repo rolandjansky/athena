@@ -1,0 +1,6 @@
+enable=1
+runnumber=108295
+ecm=8000
+jobconf=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.108295.Herwigpp_UEEE4_CTEQ6L1_Zmumu.py
+jobdescr="Generator: Herwig++, Process: Z->mu,mu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV"
+analist="JetAnalysis ZAnalysis EtmissAnalysis"

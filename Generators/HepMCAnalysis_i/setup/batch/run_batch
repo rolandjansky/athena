@@ -1,0 +1,17 @@
+#!/bin/bash
+
+PROCESS=$1
+export ITERATION=$2
+
+echo "Batch job running"
+echo "in directory " `pwd`
+echo "produce reference plot for " $PROCESS " process"
+echo "Job segment " $ITERATION
+echo "pick inputs from / save output in: " $INPUT_PREFIX
+
+#setup environment
+cd $INPUT_PREFIX/../../
+source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh rel_0,here
+cd -
+
+$INPUT_PREFIX/setup/run $PROCESS

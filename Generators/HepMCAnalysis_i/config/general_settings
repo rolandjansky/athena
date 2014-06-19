@@ -1,0 +1,7 @@
+# ---------- Common settings for all tests ---------------
+#path to MC generation job Option python scripts
+josearchpath=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC12JobOptions/latest/common
+#batch queue, available: short, medium, long queues
+batchqueue=medium  
+#number of generated events
+nevents=50000

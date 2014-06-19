@@ -1,0 +1,40 @@
+#!/bin/bash
+
+targetdir=/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i
+
+echo "updating RTT reference plots"
+
+TESTLIST=`cd config && ls *.test | cut -d. -f1`
+
+for JID in $TESTLIST
+  do
+    source config/$JID.test
+    if [[ $enable != 1 ]]
+    then
+	continue
+    fi
+
+    if [[ ! -e reference/RTT_${JID}_reference.root ]]
+    then
+	echo "reference plot for process $JID not found in reference dir"
+	continue
+    fi
+
+    diff reference/RTT_${JID}_reference.root $targetdir/RTT_${JID}_reference.root >& /dev/null
+    if [[ $? == 0 ]]
+    then
+	echo "RTT_${JID}_reference.root in reference/ and in $targetdir coincides, skipping"
+	continue
+    fi
+
+#    echo "save backup copy:"
+#    echo $refname.bck
+#    mv $targetdir/RTT_${JID}_reference.root $targetdir/RTT_${JID}_reference.root.bck
+
+    cp reference/RTT_${JID}_reference.root $targetdir/RTT_${JID}_reference.root
+done
+
+
+
+
+

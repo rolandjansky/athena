@@ -1,0 +1,4 @@
+This is the test configuration directory, general settings
+like the number of events and the batch queue are set in 
+the general_settings configuration file
+To add a test create a <testname>.test file.

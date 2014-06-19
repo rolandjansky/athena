@@ -1,0 +1,64 @@
+#!/bin/bash
+
+if [[ -z $INPUT_PREFIX ]]
+    then
+    INPUT_PREFIX=`pwd`
+fi
+
+if [ -z $1 ]
+    then
+    echo "usage:"
+    echo "$0 <process> [<events per job>]"
+    echo "available processes are:"
+    cd ${INPUT_PREFIX}/config/ 
+    ls *.test | cut -d. -f1
+    exit -1
+fi
+
+JID=$1
+
+if [[ ! -e ${INPUT_PREFIX}/config/$JID.test ]]
+then
+    echo "configuration file for process $JID not found in config/"
+    echo "available processes are:"
+    cd ${INPUT_PREFIX}/config/ 
+    ls *.test | cut -d. -f1
+    exit -1
+fi
+
+source ${INPUT_PREFIX}/config/general_settings
+source ${INPUT_PREFIX}/config/$JID.test
+
+if [ ! -z $2 ]
+    then
+    nevents=$2
+fi
+
+valgrind="n"
+if [ ! -z $3 ]
+    then
+    if [[ $3 == "valgrind" ]]
+    then
+	valgrind="y"
+    else
+	echo "invalid option $3, to perform memory check specify \"valgrind\""
+	exit -1
+    fi
+fi
+
+rndseed="123456"
+#rndseed="\$RANDOM"
+
+gentrf=`which Generate_tf.py`
+
+#Add here options to valgrind
+valgrindcmd="valgrind"
+
+if [[ $valgrind == "y" ]]
+then
+    echo $valgrindcmd python ${gentrf} Generate_tf.py --ecmEnergy=${ecm}. --runNumber=${runnumber} --firstEvent=1 --maxEvents=${nevents} --randomSeed=$rndseed --jobConfig=$jobconf --outputEVNTFile=EVNT.$JID.root --postInclude=HepMCAnalysisJO_${JID}.py
+else
+    echo Generate_tf.py --ecmEnergy=${ecm}. --runNumber=${runnumber} --firstEvent=1 --maxEvents=${nevents} --randomSeed=$rndseed --jobConfig=$jobconf --outputEVNTFile=EVNT.$JID.root --postInclude=HepMCAnalysisJO_${JID}.py
+fi
+
+#echo "JOBOPTSEARCHPATH=${josearchpath}:\$JOBOPTSEARCHPATH Generate_trf.py ecmEnergy=${ecm}. runNumber=${runnumber} firstEvent=1 maxEvents=${nevents} randomSeed=\$RANDOM jobConfig=$jobconf outputEVNTFile=EVNT.$JID.root postInclude=HepMCAnalysisJO_${JID}.py; Reco_trf.py inputEVNTFile=EVNT.$JID.root outputNTUP_TRUTHFile=truth.ntup.$JID.root preExec=\"rec.doApplyAODFix.set_Value_and_Lock(False)\""

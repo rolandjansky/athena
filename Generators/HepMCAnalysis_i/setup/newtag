@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [[ -z $1 ]]
+    then
+    echo "usage: $0 <tag>"
+    echo
+    lasttag=`svn ls $SVNROOT/Generators/HepMCAnalysis_i/tags | tail -n 1 |cut -d/ -f 1`
+    echo "last tag was ${lasttag#HepMCAnalysis_i-}"
+    exit
+fi
+
+tag=HepMCAnalysis_i-$1
+
+echo "making new tag ${tag}"
+echo "return to confirm Ctrl-C to abort"
+read conf
+
+svn cp $SVNROOT/Generators/HepMCAnalysis_i/trunk $SVNROOT/Generators/HepMCAnalysis_i/tags/${tag}

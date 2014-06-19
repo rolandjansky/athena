@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# ---------- SETTINGS -------------
+queue=8nh
+#queue=1nh
+#queue=8nm
+N=1
+# -------- END SETTINGS -----------
+
+if [ -z $1 ]
+    then
+    echo "usage:"
+    echo "$0 <process1> [<process2> [<process3> ... ]]"
+    echo "available processes are:"
+    ls config/*.test | cut -d. -f1 |cut -d'/' -f 2
+    exit -1
+fi
+
+export INPUT_PREFIX=`pwd`
+
+for JID in $@
+do
+    #check process exists
+    if [[ ! -e config/$JID.test ]]
+    then
+	echo "configuration file for process $JID not found in config/"
+	echo "available processes are:"
+	ls config/*.test | cut -d. -f1 |cut -d'/' -f 2
+	continue
+    fi
+    
+    echo "submit $N segments for process $JID..."
+    bsub -J "${JID}[1-${N}]" -o log/${JID}_%I_%J -q $queue `pwd`/setup/batch/run_batch $JID \$LSB_JOBINDEX
+done

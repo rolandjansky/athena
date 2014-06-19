@@ -1,0 +1,101 @@
+<?xml version="1.0" ?>
+<!--
+ DCube configuration XML file = HepMCAnalysis_i_MC12.147816.Pythia8_AU2CTEQ6L1_Zee_dcube_cfg.xml
+ auto-generated using DCube 4.6692016 ($Rev: 217525 $ $Date$) by Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
+ on Wed, 18 Apr 2012 08:39:48 CEST
+ from Root reference file: /afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i/RTT.MC12.147816.Pythia8_AU2CTEQ6L1_Zee_reference.root
+ Statistics tests:
+ "['KS']"
+ Legend:
+ * KS    - Kolmogorov-Smirnov test (default)
+ * chi2  - chi2 test
+ * bbb   - bin-by-bin comparision
+ * meany - avg eff mean y [TProfiles only!]
+ * all   - all above tests
+ Tweaks:
+ [1] remove or comment out (using HTML comments tags) histograms not relevant
+     to your analysis
+ [2] provide a new content to "ref_desc" and "mon_desc" tags to something
+     more meaningful
+ [3] and of course feel free to change attribute "tests" in each "hist" tag
+ [4] limits of p-value warning and failure can be set by changing attributes
+     in <plimit> tag
+ [5] if you want to make plots FOR EVERY histogram in your monitored file
+     change attribute "inclusive" in <mode> tag to "true"
+-->
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <!--
+  ###################################################
+  DCubeClient for:
+  [1] branch: *
+  [2] install: *
+  [3] cmtconfig: *
+  [4] project: *
+  [5] jobId: *
+  [6] reference root file: /afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i/RTT.MC12.147816.Pythia8_AU2CTEQ6L1_Zee_reference.root
+  [7] p-values limits FAIL = 0.010000 WARN = 0.100000
+  ###################################################
+-->
+  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i/RTT.MC12.147816.Pythia8_AU2CTEQ6L1_Zee_reference.root"/>
+  <ref_desc>
+   PUT YOUR REFERENCE DESCRIPTION HERE
+  </ref_desc>
+  <test_desc>
+   PUT YOUR TEST DESCRIPTION HERE
+  </test_desc>
+  <plimit fail="0.01" warn="0.1"/>
+  <TDirectory name="/">
+   <TDirectory name="Jet">
+    <hist1D name="Jet_0_jet_DR_leadingJet_secondJet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_Dphi_leadingJet_secondJet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_Deta_leadingJet_secondJet" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Jet_0_charged_particle_rms_pt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Jet_0_charged_particle_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_charged_particle_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_charged_particle_multiplicity" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_eta" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_phi" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_secondleadingjet_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_secondleadingjet_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_leadingjet_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_leadingjet_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_count" plotopts="" tests="KS" type="TH1D"/>
+   </TDirectory>
+   <TDirectory name="Z">
+    <hist1D name="Z_0_charged_particle_pdgID" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Z_0_charged_particle_rms_pt" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Z_0_charged_particle_mean_pt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Z_0_Z_charged_particle_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_charged_particle_multiplicity" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_Z_mass_prop_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_Z_mass_prop" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Z_0_Z_mass_logscale" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Z_0_Z_mass" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Z_0_Z_phi_prop" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_Z_eta_prop" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Z_0_Z_phi" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Z_0_Z_eta" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Z_0_Z_pt_high_prop_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_Z_pt_high_prop" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Z_0_Z_pt_high_logscale" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Z_0_Z_pt_high" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Z_0_Z_pt_prop_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_Z_pt_prop" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Z_0_Z_pt_logscale" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Z_0_Z_pt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Z_0_leadingjet_pt_high_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_leadingjet_pt_high" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Z_0_jet_count" plotopts="" tests="KS" type="TH1D"/>
+   </TDirectory>
+   <TDirectory name="EtMiss">
+    <hist1D name="EtMiss_0_METSumTruth" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="EtMiss_0_METTruth" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="EtMiss_0_METTruthY" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="EtMiss_0_METTruthX" plotopts="" tests="KS" type="TH1D"/>
+   </TDirectory>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>

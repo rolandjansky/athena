@@ -1,0 +1,137 @@
+<?xml version="1.0" ?>
+<!--
+ DCube configuration XML file = HepMCAnalysis_i_MC12.147812.Pythia8_AU2CTEQ6L1_Wtaunu_dcube_cfg.xml
+ auto-generated using DCube 4.6692016 ($Rev: 217525 $ $Date$) by Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
+ on Wed, 18 Apr 2012 08:39:47 CEST
+ from Root reference file: /afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i/RTT.MC12.147812.Pythia8_AU2CTEQ6L1_Wtaunu_reference.root
+ Statistics tests:
+ "['KS']"
+ Legend:
+ * KS    - Kolmogorov-Smirnov test (default)
+ * chi2  - chi2 test
+ * bbb   - bin-by-bin comparision
+ * meany - avg eff mean y [TProfiles only!]
+ * all   - all above tests
+ Tweaks:
+ [1] remove or comment out (using HTML comments tags) histograms not relevant
+     to your analysis
+ [2] provide a new content to "ref_desc" and "mon_desc" tags to something
+     more meaningful
+ [3] and of course feel free to change attribute "tests" in each "hist" tag
+ [4] limits of p-value warning and failure can be set by changing attributes
+     in <plimit> tag
+ [5] if you want to make plots FOR EVERY histogram in your monitored file
+     change attribute "inclusive" in <mode> tag to "true"
+-->
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <!--
+  ###################################################
+  DCubeClient for:
+  [1] branch: *
+  [2] install: *
+  [3] cmtconfig: *
+  [4] project: *
+  [5] jobId: *
+  [6] reference root file: /afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i/RTT.MC12.147812.Pythia8_AU2CTEQ6L1_Wtaunu_reference.root
+  [7] p-values limits FAIL = 0.010000 WARN = 0.100000
+  ###################################################
+-->
+  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/Generators/HepMCAnalysis_i/RTT.MC12.147812.Pythia8_AU2CTEQ6L1_Wtaunu_reference.root"/>
+  <ref_desc>
+   PUT YOUR REFERENCE DESCRIPTION HERE
+  </ref_desc>
+  <test_desc>
+   PUT YOUR TEST DESCRIPTION HERE
+  </test_desc>
+  <plimit fail="0.01" warn="0.1"/>
+  <TDirectory name="/">
+   <TDirectory name="Jet">
+    <hist1D name="Jet_0_jet_DR_leadingJet_secondJet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_Dphi_leadingJet_secondJet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_Deta_leadingJet_secondJet" plotopts="" tests="KS" type="TH1D"/>
+<!--     <hist1D name="Jet_0_charged_particle_rms_pt" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Jet_0_charged_particle_pt_logscale" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Jet_0_charged_particle_pt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Jet_0_charged_particle_multiplicity" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_eta" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_phi" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_secondleadingjet_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_secondleadingjet_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_leadingjet_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_leadingjet_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Jet_0_jet_count" plotopts="" tests="KS" type="TH1D"/>
+   </TDirectory>
+   <TDirectory name="WplusJet">
+    <hist1D name="WplusJet_34_WplusJet_0_jet_DR_leadingJet_lepton_multijet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_33_WplusJet_0_jet_DR_leadingJet_lepton_singlejet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_32_WplusJet_0_jet_DR_leadingJet_lepton" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_31_WplusJet_0_jet_Dphi_leadingJet_lepton_multijet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_30_WplusJet_0_jet_Dphi_leadingJet_lepton_singlejet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_29_WplusJet_0_jet_Dphi_leadingJet_lepton" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_28_WplusJet_0_jet_Deta_leadingJet_lepton_multijet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_27_WplusJet_0_jet_Deta_leadingJet_lepton_singlejet" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_26_WplusJet_0_jet_Deta_leadingJet_lepton" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_25_WplusJet_0_leadingjet_pt_high_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_24_WplusJet_0_leadingjet_pt_high" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_23_WplusJet_0_jet_count" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="WplusJet_22_WplusJet_0_charged_particle_rms_pt" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="WplusJet_20_WplusJet_0_WplusJet_charged_particle_pt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="WplusJet_18_WplusJet_0_charged_particle_multiplicity" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_17_WplusJet_0_lepton_pdgid" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_16_WplusJet_0_lepton_phi" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_15_WplusJet_0_lepton_eta" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="WplusJet_14_WplusJet_0_lepton_pt_high_logscale" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="WplusJet_13_WplusJet_0_lepton_pt_high" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="WplusJet_10_WplusJet_0_lepton_count" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="WplusJet_9_WplusJet_0_W_phi" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_8_WplusJet_0_W_rapidity" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_7_WplusJet_0_W_eta" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_6_WplusJet_0_W_pt_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_5_WplusJet_0_W_pt" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_4_WplusJet_0_W_pt_high_logscale" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="WplusJet_3_WplusJet_0_W_pt_high" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="WplusJet_2_WplusJet_0_W_trans_mass_logscale" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="WplusJet_1_WplusJet_0_W_trans_mass" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="WplusJet_0_WplusJet_0_W_count" plotopts="" tests="KS" type="TH1D"/> -->
+   </TDirectory>
+   <TDirectory name="Wtaunu">
+    <hist1D name="Wtaunu_0_nu_zoom_pz" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_nu_zoom_py" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_nu_zoom_px" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_nu_pz" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_nu_py" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_nu_px" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Wtaunu_0_nu_pt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Wtaunu_0_Delta_Phi_TauNeutrino" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_nTrack_tau" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_tau_phi" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_tau_eta" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Wtaunu_0_tau_pt" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Wtaunu_0_tau_mass" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Wtaunu_0_phistable_charged" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_etastable_charged" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Wtaunu_0_ptstable_charged" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Wtaunu_0_charged_particle_pdgID" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_charged_particle" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_W_rapidity" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_W_phi" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_W_eta" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_W_pt" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Wtaunu_0_W_trans_mass" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="Wtaunu_0_W_mt" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="Wtaunu_0_W_mass" plotopts="" tests="KS" type="TH1D"/>
+    <hist1D name="Wtaunu_0_W_charge" plotopts="" tests="KS" type="TH1D"/>
+<!--    <hist1D name="Wtaunu_0_W_count" plotopts="" tests="KS" type="TH1D"/> -->
+   </TDirectory>
+   <TDirectory name="EtMiss">
+<!--    <hist1D name="EtMiss_0_METSumTruth" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="EtMiss_0_METTruth" plotopts="" tests="KS" type="TH1D"/> -->
+<!--    <hist1D name="EtMiss_0_METTruthY" plotopts="" tests="KS" type="TH1D"/> -->
+    <hist1D name="EtMiss_0_METTruthX" plotopts="" tests="KS" type="TH1D"/>
+   </TDirectory>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>

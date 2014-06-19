@@ -1,0 +1,6 @@
+enable=1
+runnumber=147900
+ecm=8000
+jobconf=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147900.Pythia8_AU2CT10_jetjet_JZ0.py
+jobdescr="Generator: Pythia 8, Process: dijet, Tune: AU2, PDF CT10, sqrt(s): 8 TeV"
+analist="JetAnalysis EtmissAnalysis"
