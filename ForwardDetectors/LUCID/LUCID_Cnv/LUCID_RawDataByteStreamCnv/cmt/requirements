@@ -1,0 +1,20 @@
+package LUCID_RawDataByteStreamCnv
+
+author Antonello Sbrizzi <Antonio.Sbrizzi@bo.infn.it>
+author Jacob Groth-Jensen <jacob.groth-jensen@cern.ch>
+
+use AthenaKernel         AthenaKernel-*                 Control
+use AtlasPolicy          AtlasPolicy-*  
+use AthenaBaseComps      AthenaBaseComps-*              Control
+use LUCID_RawEvent       LUCID_RawEvent-*               ForwardDetectors/LUCID
+use ByteStreamData       ByteStreamData-*               Event
+
+use StoreGate            StoreGate-*                    Control
+use GaudiInterface       GaudiInterface-*               External
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*         Event 
+use DataCollection       DataCollection-*               External
+
+apply_pattern component_library
+library LUCID_RawDataByteStreamCnv *.cxx components/*.cxx
+
+apply_pattern declare_joboptions files="*.py"
