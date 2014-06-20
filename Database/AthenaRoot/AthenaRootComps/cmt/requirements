@@ -1,0 +1,49 @@
+package AthenaRootComps
+
+author Sebastien Binet <binet@cern.ch>
+author Peter van Gemmeren <gemmeren@anl.gov>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+use AtlasROOT	    AtlasROOT-*         External
+use SGTools         SGTools-*           Control
+
+private
+
+use TestPolicy      TestPolicy-*
+use GaudiInterface  GaudiInterface-* 	External
+
+use CxxUtils        CxxUtils-*          Control
+use AthenaKernel    AthenaKernel-*	Control
+use DataModelRoot   DataModelRoot-*     Control
+use StoreGate		StoreGate-*		Control
+use AthenaBaseComps	AthenaBaseComps-*	Control
+use AthenaPython	AthenaPython-*		Control -no_auto_imports
+
+use EventInfo		EventInfo-*		Event
+
+use AthenaRootKernel AthenaRootKernel-* Database/AthenaRoot
+
+##
+
+branches src src/components doc python share
+
+## default is to make a component library
+library AthenaRootComps *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py tests/*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_scripts files="$(AthenaRootComps_root)/test/*.sh $(AthenaRootComps_root)/test/ref.*"
+
+#macro test_patter_opt_only "athenarun_test" \
+#      debug       ""
+
+#apply_pattern athenarun_test name="AthenaRootCompsFilter" pre_script="../test/pre_check.sh AthenaRootCompsFilter" options="AthenaRootComps/test_athena_ntuple_filter.py" post_script="../test/post_check.sh AthenaRootCompsFilter"
+
+apply_pattern athenarun_test name="AthenaRootCompsEventless" pre_script="../test/pre_check.sh AthenaRootCompsEventless" options="AthenaRootComps/test_athena_ntuple_eventless.py" post_script="../test/post_check.sh AthenaRootCompsEventless"
+
+# for TGraph...
+macro_append ROOT_linkopts " -lGraf"
+
+end_private
