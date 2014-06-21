@@ -1,0 +1,20 @@
+package G4TruthStrategies
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+
+use MCTruth 		MCTruth-*		Simulation/G4Sim
+
+private
+use Geant4              Geant4-*                External
+use SimHelpers          SimHelpers-*         Simulation/G4Sim
+use AtlasCLHEP			AtlasCLHEP-*			External
+end_private
+
+include_dirs "$(G4TruthStrategies_root)"
+
+library G4TruthStrategies ../src/*.cxx
+
+apply_pattern installed_library
