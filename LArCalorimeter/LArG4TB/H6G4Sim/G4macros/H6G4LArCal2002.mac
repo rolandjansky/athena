@@ -1,0 +1,5 @@
+/load LArG4TBH6:LArG4HitManagement
+/Geometry/GetFacility LArTB2002H6 LArTB2002H6
+/LArTB2002H6/SetAsWorld
+
+
