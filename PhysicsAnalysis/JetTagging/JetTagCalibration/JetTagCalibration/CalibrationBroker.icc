@@ -1,0 +1,46 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TObject.h"
+#include <string>
+#include <utility>
+#include <algorithm>
+
+namespace Analysis {
+
+  template <class T> std::pair<T*, bool> CalibrationBroker::retrieveTObject(const std::string& folder, const std::string& channel, const std::string& hname) const {
+    T* h = 0;
+    bool updated = false;  
+    std::string longFolder(m_folderRoot); longFolder+=folder;
+    std::string channelAlias = this->channelAlias(channel);
+    ATH_MSG_DEBUG( "#BTAG# retrieving " << hname 
+		   << " (channel " << channel << " -> " << channelAlias << ") "
+		   << " in folder " << longFolder );
+    for(unsigned int i=0;i<m_folders.size();i++) {
+      if(longFolder==m_folders[i]) {
+	std::string fname = this->fullHistoName(channelAlias,hname);
+	ATH_MSG_DEBUG( "#BTAG#    folder " << longFolder << " found in pos " << i
+		       << " , retrieving " << fname);
+	std::map<std::string, std::pair<TObject*, bool> >::const_iterator mI = m_histos[i].find(fname);
+	std::map<std::string, std::pair<TObject*, bool> >::const_iterator mE = m_histos[i].end();
+	if(mI!=mE) {
+	  ATH_MSG_DEBUG( "#BTAG#    histo found" );
+	  h = dynamic_cast<T*> ( (*mI).second.first );
+	  updated = (*mI).second.second;
+	  if(h) {
+	    ATH_MSG_DEBUG( "#BTAG#    histo pointer is valid. Updated: " << updated );
+	    //h->Print();
+	  } else {
+	    ATH_MSG_DEBUG( "#BTAG#    histo pointer is NOT valid" );
+	  }
+	  break;
+	} else {
+	  ATH_MSG_DEBUG( "#BTAG#    histo not found in folder." );
+	}
+      }
+    }
+    return std::make_pair(h, updated);
+  }
+
+}

@@ -1,0 +1,123 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef JETTAGCALIBRATION_CALIBRATIONBROKER_H
+#define JETTAGCALIBRATION_CALIBRATIONBROKER_H
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/DataHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/Property.h"
+#include <map>
+#include <string>
+#include <utility>
+#include <set>
+
+class ICoolHistSvc;
+class TH1;
+class TObject;
+
+namespace Analysis {
+
+  /**
+  @ class CalibrationBroker
+
+  This class retrieves or stores calibration histograms in COOL for the taggers.
+  Each tagger corresponds to a folder in COOL. The folders are subdivided in 
+  channels, each channel being associated to a jet type (Cone4Topo, Kt6, etc).
+
+  Any further substructure (track categories, signal/background) is hidden to COOL 
+  and is defined by the actual name of the histogram.
+
+  This class holds the collection of maps between the histogram name and the pointer 
+  to the histogram, the latter being kept up-to-date via a callback.
+  Each tagger in its initialize() method must register the histograms needed with the 
+  registerHistogram() method.
+
+  The geometry tag corresponding to the calibrations, the type of physics events used, 
+  the tracking algorithm, etc, are all defined by a DB tag.
+
+  @author laurent.vacavant@cern.ch
+  */
+
+
+class CalibrationBroker : public AthAlgTool {
+
+public:
+  CalibrationBroker (const std::string& type,
+            const std::string& name, const IInterface* parent);
+  virtual ~CalibrationBroker();
+
+  static const InterfaceID& interfaceID();
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
+  virtual StatusCode registerCallBack();
+  void registerHistogram(const std::string& folder, 
+                         const std::string& histoname);
+  template <class T> std::pair<T*,bool> retrieveTObject(const std::string& folder, 
+                                                 const std::string& channel,
+                                                 const std::string& objectname) const;
+  std::pair<TH1*,bool> retrieveHistogram(const std::string& folder, 
+                                         const std::string& channel,
+                                         const std::string& histoname) const;
+  void updateHistogramStatus(const std::string& folder, 
+                             const std::string& channel,
+                             const std::string& histoname,
+			     bool status);
+  void printStatus() const;
+  virtual StatusCode callBack( IOVSVC_CALLBACK_ARGS );
+  // helper functions:
+  std::string channelName(const std::string& fullHistoName) const;
+  std::string histoName(const std::string& fullHistoName) const ;
+  std::string taggerName(const std::string& folderName) const ;
+  std::string fullHistoName(const std::string& channel, const std::string& histoName) const;
+  std::string channelAlias(const std::string& originalChannel) const;
+  void updateHistoStatusTaggerList(const std::string& longfolder, const std::string& fname);
+  void updateHistogramStatusPerTagger(const std::string& folder, 
+				      const std::string& channel, 
+				      const std::string& hname, 
+				      bool status, 
+				      const std::string& taggerName);
+  bool updatedTagger(const std::string& folder, 
+		     const std::string& channel, 
+		     const std::string& hname, 
+		     const std::string& taggerName);
+
+private:
+
+  StatusCode createHistoMap( std::list<std::string> keys);
+  std::vector<std::string> tokenize(std::string str, std::string delim);
+
+  StoreGateSvc* p_detstore;
+  ICoolHistSvc* p_coolhistsvc;
+  int m_nrefresh;
+  bool m_callBackRegistered;
+  static const unsigned int s_nmax_callbacks;
+
+  std::string m_folderRoot;
+  std::vector< std::string > m_folders; 
+  std::vector< std::string > m_channels;
+  std::vector< std::string > m_originalChannels;
+  /* aliases for channels: 
+   * to specifiy an alias, enter a string "channelA->channelAA" (or a list of strings)
+   * this will force to use channelAA from the DB wherever channelA was mentioned */
+  StringArrayProperty m_channelAliases;
+  bool m_shadowFoldersAndChannels;
+  bool m_recreateHistoMap;
+  std::string m_singleFolderName;
+  std::map< std::string, std::string > m_channelAliasesMap;
+  std::map< std::string, std::vector<std::string> >  m_channelAliasesMultiMap;
+  std::vector<std::vector<std::string> > m_foldersHists;
+  /* all the histograms associated with a flag to know if they have been updated recently: */
+  std::vector< std::map<std::string, std::pair<TObject*, bool> > > m_histos;
+
+  /// if the tagger name is in the set it means that the tagger tool already knows about the update
+  std::map<std::string, std::set<std::string> > m_folderTaggerUpdateAliases;
+
+};
+
+}
+#include "JetTagCalibration/CalibrationBroker.icc"
+#endif // JETTAGCALIBRATION_CALIBRATIONBROKER_H

@@ -1,0 +1,23 @@
+package JetTagCalibration
+
+author Laurent Vacavant <vacavant@in2p3.fr>
+
+use AtlasPolicy AtlasPolicy-*
+use GaudiInterface GaudiInterface-* External
+use AthenaBaseComps      AthenaBaseComps-*       Control
+
+use StoreGate StoreGate-* Control
+use AtlasROOT           AtlasROOT-*             External
+
+private
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use DetDescrCondTools DetDescrCondTools-* DetectorDescription/DetDescrCond
+end_private
+
+# Set the path to use images in doxygen
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+apply_pattern dual_use_library files="*.cxx"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime files="-s=../share *.root *.db *.xml"
+
