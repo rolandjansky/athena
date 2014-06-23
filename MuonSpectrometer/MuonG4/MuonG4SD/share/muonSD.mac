@@ -1,0 +1,9 @@
+/load MuonG4SD
+/SenDetector/UseSensitiveDetector MDTSens AMS
+/Geometry/AssignSD MuonSystem Sensitivegas AMS
+/SenDetector/UseSensitiveDetector RPCSens RMS
+/Geometry/AssignSD MuonSystem gazGap RMS
+/SenDetector/UseSensitiveDetector TGCSens TMS
+/Geometry/AssignSD MuonSystem  TGCGas TMS
+/SenDetector/UseSensitiveDetector CSCSens CMS
+/Geometry/AssignSD MuonSystem CscArCO2 CMS

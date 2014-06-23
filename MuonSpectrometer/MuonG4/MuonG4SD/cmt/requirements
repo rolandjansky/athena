@@ -1,0 +1,35 @@
+package MuonG4SD
+
+
+author Daniela Rebuzzi	      <Daniela.Rebuzzi@cern.ch>
+author Adele Rimoldi          <Adele.Rimoldi@cern.ch>
+
+public
+use AtlasPolicy 		AtlasPolicy-*
+use FadsSensitiveDetector 	FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use MuonSimEvent		MuonSimEvent-*		MuonSpectrometer
+use SimHelpers			SimHelpers-*		Simulation/G4Sim
+
+private
+use GaudiInterface		GaudiInterface-* 	External
+use Geant4 			Geant4* 		External
+use MCTruth			MCTruth-*		Simulation/G4Sim
+use StoreGate 			StoreGate-*             Control
+use GeoPrimitives		GeoPrimitives-*		DetectorDescription
+
+public
+library MuonG4SD ../src/*.cxx
+
+apply_pattern component_library
+
+#apply_pattern declare_runtime_extras extras=" muonSD.mac"
+#=======================================================
+#private
+#
+#macro_remove cppflags "-O3 "
+#macro_remove cppflags "-O "
+#macro_remove cppflags "-Wall "
+#
+## get rid of CLHEP_SQR_DEFINED
+#macro_remove CLHEP_pp_cppflags "-DCLHEP_SQR_DEFINED "
+#macro_remove CLHEP_pp_cppflags "-DCLHEP_MAX_MIN_DEFINED "
