@@ -1,0 +1,36 @@
+package xAODBTaggingAthenaPool
+# $Id: requirements 602344 2014-06-18 10:14:07Z rticseto $
+
+author Magdalena Slawinska <Magdalena.Slawinska@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use GaudiInterface      GaudiInterface-*      External
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+use AtlasROOT AtlasROOT-* External
+use xAODTracking           xAODTracking-*           Event/xAOD
+
+# EDM package(s):
+use xAODBTagging         xAODBTagging-*       Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::BTaggingContainer \
+                                          xAOD::BTaggingAuxContainer \
+                                          xAOD::BTagVertexContainer \
+                                          xAOD::BTagVertexAuxContainer" \
+                      files="-s=${xAODBTagging_root}/xAODBTagging \
+                             BTaggingContainer.h \
+                             BTaggingAuxContainer.h \
+                             BTagVertexContainer.h \
+                             BTagVertexAuxContainer.h" \
+                      cnv_pfx="xAOD"
