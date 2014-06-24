@@ -1,0 +1,31 @@
+package AtlasFastJet
+
+author  Alexander Richards <richards@hep.ucl.ac.uk>
+
+use AtlasExternalArea AtlasExternalArea-00-* External
+use AtlasFortranPolicy AtlasFortranPolicy-*
+
+macro AtlasFastJet_home "$(LCG_EXTERNAL)/fastjet"
+macro AtlasFastJet_native_version "3.0.3" 
+
+macro AtlasFastJet_system "$(LCG_ext_system)"
+macro AtlasFastJet_dir "$(AtlasFastJet_home)/$(AtlasFastJet_native_version)/$(AtlasFastJet_system)"
+macro AtlasFastJet_lib "$(AtlasFastJet_dir)/lib"
+
+macro AtlasFastJet_prepend  "" \
+      notAsNeeded           "" \
+      asNeeded              " $(notAsNeeded_linkopt)"
+macro AtlasFastJet_postpend "" \
+      notAsNeeded           "" \
+      asNeeded              " $(asNeeded_linkopt)"
+
+macro AtlasFastJet_linkopts "-L$(AtlasFastJet_lib) $(AtlasFastJet_prepend) -lfastjet -lfastjetplugins -lfastjettools -lsiscone -lsiscone_spherical $(AtlasFastJet_postpend)"
+
+macro AtlasFastJet_export_paths "$(AtlasFastJet_dir)"
+macro AtlasFastJet_include "$(AtlasFastJet_dir)/include"
+
+include_path none
+include_dirs "$(AtlasFastJet_include)"
+
+private
+apply_pattern declare_installed_libraries dir=$(AtlasFastJet_lib)
