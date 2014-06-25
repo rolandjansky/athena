@@ -1,0 +1,195 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGMON_CONFIG_ICC
+#define TRIGMON_CONFIG_ICC
+
+// Hide template code from ROOTCINT and GCCXML
+#ifndef __CINT__
+#ifndef __GCCXML__
+
+//
+// Template implementations and specilizations
+//
+
+// Local
+#include "TrigMonitoringEvent/TrigMonChain.h"
+#include "TrigMonitoringEvent/TrigMonL1Item.h"
+#include "TrigMonitoringEvent/TrigMonSeq.h"
+#include "TrigMonitoringEvent/TrigMonTE.h"
+
+// C/C++
+#include <algorithm>
+#include <iostream>
+
+// template specialization for const begin() and end() functions
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::begin<TrigConfChain>() const {
+  return m_chain.begin();
+}
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::end<TrigConfChain>() const {
+  return m_chain.end();
+}
+
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::begin<TrigConfSeq>() const{
+  return m_seq.begin();
+}
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::end  <TrigConfSeq>() const {
+  return m_seq.end();
+} 
+
+// template specialization for non-const getVec() functions
+template<> inline std::vector<TrigConfChain>& TrigMonConfig::getVec<TrigConfChain>() {
+  return m_chain;
+}
+template<> inline std::vector<TrigConfSeq>& TrigMonConfig::getVec<TrigConfSeq>() {
+  return m_seq;
+}
+
+// template specialization for const getVec() functions
+template<> inline const std::vector<TrigConfChain>& TrigMonConfig::getVec<TrigConfChain>() const {
+  return m_chain;
+}
+template<> inline const std::vector<TrigConfSeq>& TrigMonConfig::getVec<TrigConfSeq>() const {
+  return m_seq;
+}
+
+// template specialization for Size() function
+template<> inline unsigned int TrigMonConfig::size<TrigConfChain>() const {
+  return m_chain.size();
+}
+template<> inline unsigned int TrigMonConfig::size<TrigConfSeq>() const {
+  return m_seq.size();
+}
+template<> inline unsigned int TrigMonConfig::size<TrigConfVar>() const {
+  return m_var_id.size();
+}
+
+// template specialization for at() function
+template<> inline const TrigConfChain& TrigMonConfig::at<TrigConfChain>(unsigned int i) const {
+  return m_chain[i];
+}
+template<> inline const TrigConfSeq& TrigMonConfig::at<TrigConfSeq>(unsigned int i) const {
+  return m_seq[i];
+}
+
+// template specialization for std::vector<TrigConfChain>::const_iterator findChain(T &key) function
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::findChain<TrigConfChain>(const TrigConfChain &key) const {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::findChain<TrigMonChain>(const TrigMonChain &key) const {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::findChain<TrigMonL1Item>(const TrigMonL1Item &key) const {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::findChain<TrigMonSeq>(const TrigMonSeq &key) const {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::findChain<std::string>(const std::string &key) const {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::const_iterator TrigMonConfig::findChain<uint32_t>(const uint32_t &key) const {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+
+// template specialization for std::vector<TrigConfChain>::iterator findChainIter(T &key) function
+template<> inline std::vector<TrigConfChain>::iterator TrigMonConfig::findChainIter<TrigConfChain>(const TrigConfChain &key) {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::iterator TrigMonConfig::findChainIter<TrigMonChain>(const TrigMonChain &key) {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::iterator TrigMonConfig::findChainIter<TrigMonL1Item>(const TrigMonL1Item &key) {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::iterator TrigMonConfig::findChainIter<TrigMonSeq>(const TrigMonSeq &key) {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::iterator TrigMonConfig::findChainIter<std::string>(const std::string &key) {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+template<> inline std::vector<TrigConfChain>::iterator TrigMonConfig::findChainIter<uint32_t>(const uint32_t &key) {
+  return std::find(m_chain.begin(), m_chain.end(), key);
+}
+
+// template specialization for std::vector<TrigConfSeq>::const_iterator findSeq(T &key) function
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::findSeq<TrigConfSeq>(const TrigConfSeq &key) const {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::findSeq<TrigMonSeq>(const TrigMonSeq &key) const {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::findSeq<TrigMonTE>(const TrigMonTE &key) const {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::findSeq<std::string>(const std::string &key) const {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::const_iterator TrigMonConfig::findSeq<uint32_t>(const uint32_t &key) const {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+
+// template specialization for std::vector<TrigConfSeq>::iterator find(T &key) function
+template<> inline std::vector<TrigConfSeq>::iterator TrigMonConfig::findSeqIter<TrigConfSeq>(const TrigConfSeq &key) {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::iterator TrigMonConfig::findSeqIter<TrigMonSeq>(const TrigMonSeq &key) {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::iterator TrigMonConfig::findSeqIter<TrigMonTE>(const TrigMonTE &key) {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::iterator TrigMonConfig::findSeqIter<std::string>(const std::string &key) {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+template<> inline std::vector<TrigConfSeq>::iterator TrigMonConfig::findSeqIter<uint32_t>(const uint32_t &key) {
+  return std::find(m_seq.begin(), m_seq.end(), key);
+}
+
+// template specialization for Add() function
+template<> inline bool TrigMonConfig::add<TrigConfChain>(const TrigConfChain &obj) { 
+  if(findChain<TrigConfChain>(obj) != m_chain.end()) { 
+    std::cerr << "TrigMonConfig::add<TrigConfChain> - chain already exists: " << obj.getName() << std::endl;
+    return false;
+  }
+  
+  for(unsigned int i = 0; i < m_chain.size(); ++i) {
+    const TrigConfChain &chn = m_chain[i];
+    if(obj.getLevel() == chn.getLevel() && obj.getCounter() == chn.getCounter()) {
+      std::cerr << "TrigMonConfig::add<TrigConfChain> - duplicate chain counter: " 
+		<< obj.getCounter() << " for " << obj.getLevel() << std::endl;
+      return false;	
+    }
+  }
+  
+  m_chain.push_back(obj);
+  return true;
+}
+template<> inline bool TrigMonConfig::add<TrigConfVar>(const TrigConfVar &obj) {
+  for(unsigned int i = 0; i < m_var_name.size(); ++i) {
+    if(obj.name() == m_var_name[i]) {
+      std::cerr << "TrigMonConfig::add<TrigConfVar> error! Duplicate name: " << obj.name() << std::endl;
+      return false;
+    }
+  }
+  
+  m_var_id.push_back(obj.id());
+  m_var_name.push_back(obj.name());
+  return true;
+}
+template<> inline bool TrigMonConfig::add<TrigConfSeq>(const TrigConfSeq &obj) { 
+  if(findSeq<TrigConfSeq>(obj) != m_seq.end()) { 
+    std::cerr << "TrigMonConfig::add<TrigConfSeq> - sequence already exists: " << obj.getName() << std::endl;
+    return false;
+  }
+  
+  m_seq.push_back(obj);
+  return true;
+}
+
+#endif
+#endif
+#endif

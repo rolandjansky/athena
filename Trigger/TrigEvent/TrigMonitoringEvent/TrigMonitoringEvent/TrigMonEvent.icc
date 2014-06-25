@@ -1,0 +1,103 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGMON_EVENT_ICC
+#define TRIGMON_EVENT_ICC
+
+// Hide template code from ROOTCINT and GCCXML
+#ifndef __CINT__
+#ifndef __GCCXML__
+
+//
+// Template specilizations only, there are no default implementations.
+//
+
+// C/C++
+#include <algorithm>
+#include <iostream>
+
+
+// template specialization for Beg() and End() functions
+template<> inline std::vector<TrigMonROB>::const_iterator TrigMonEvent::begin<TrigMonROB>() const {
+  return m_rob.begin();
+}
+template<> inline std::vector<TrigMonROB>::const_iterator TrigMonEvent::end<TrigMonROB>() const {
+  return m_rob.end();
+}
+
+template<> inline std::vector<TrigMonRoi>::const_iterator TrigMonEvent::begin<TrigMonRoi>() const {
+  return m_roi.begin();
+}
+template<> inline std::vector<TrigMonRoi>::const_iterator TrigMonEvent::end<TrigMonRoi>() const {
+  return m_roi.end();
+}
+
+template<> inline std::vector<TrigMonSeq>::const_iterator TrigMonEvent::begin<TrigMonSeq>() const {
+  return m_seq.begin();
+}
+template<> inline std::vector<TrigMonSeq>::const_iterator TrigMonEvent::end<TrigMonSeq>() const {
+  return m_seq.end();
+}
+
+template<> inline std::vector<TrigMonTE>::const_iterator TrigMonEvent::begin<TrigMonTE>() const {
+  return m_te.begin();
+}
+template<> inline std::vector<TrigMonTE>::const_iterator TrigMonEvent::end<TrigMonTE>() const {
+  return m_te.end();
+}
+
+// template specialization for Size() function
+template<> inline unsigned int TrigMonEvent::size<TrigMonROB>() const { return m_rob.size(); }
+template<> inline unsigned int TrigMonEvent::size<TrigMonRoi>() const { return m_roi.size(); }
+template<> inline unsigned int TrigMonEvent::size<TrigMonSeq>() const { return m_seq.size(); }
+template<> inline unsigned int TrigMonEvent::size<TrigMonTE>()  const { return m_te.size(); }
+
+// template specialization for at() function
+template<> inline const TrigMonROB& TrigMonEvent::at<TrigMonROB>(unsigned int i) const { return m_rob[i]; }
+template<> inline const TrigMonRoi& TrigMonEvent::at<TrigMonRoi>(unsigned int i) const { return m_roi[i]; }
+template<> inline const TrigMonSeq& TrigMonEvent::at<TrigMonSeq>(unsigned int i) const { return m_seq[i]; }
+template<> inline const TrigMonTE&  TrigMonEvent::at<TrigMonTE> (unsigned int i) const { return m_te[i]; }
+
+// template specialization for GetVec() function
+template<> inline std::vector<TrigMonROB>& TrigMonEvent::getVec<TrigMonROB>() { return m_rob; }
+template<> inline std::vector<TrigMonRoi>& TrigMonEvent::getVec<TrigMonRoi>() { return m_roi; }
+template<> inline std::vector<TrigMonSeq>& TrigMonEvent::getVec<TrigMonSeq>() { return m_seq; }
+template<> inline std::vector<TrigMonTE>&  TrigMonEvent::getVec<TrigMonTE>()  { return m_te; }
+
+template<> inline const std::vector<TrigMonROB>& TrigMonEvent::getVec<TrigMonROB>() const { return m_rob; }
+template<> inline const std::vector<TrigMonRoi>& TrigMonEvent::getVec<TrigMonRoi>() const { return m_roi; }
+template<> inline const std::vector<TrigMonSeq>& TrigMonEvent::getVec<TrigMonSeq>() const { return m_seq; }
+template<> inline const std::vector<TrigMonTE>&  TrigMonEvent::getVec<TrigMonTE>()  const { return m_te; }
+
+// template specialization for add() function
+template<> inline bool TrigMonEvent::add<TrigMonChain>(const TrigMonChain &obj) { 
+  m_hlt.push_back(obj.getEncoded());
+  return true;
+}
+template<> inline bool TrigMonEvent::add<TrigMonL1Item>(const TrigMonL1Item &obj) { 
+  m_l1.push_back(obj.getEncoded());
+  return true;
+}
+template<> inline bool TrigMonEvent::add<TrigMonROB>(const TrigMonROB &obj) { 
+  m_rob.push_back(obj);
+  return true;
+}
+template<> inline bool TrigMonEvent::add<TrigMonRoi>(const TrigMonRoi &obj) { 
+  m_roi.push_back(obj);
+  return true;
+}
+template<> inline bool TrigMonEvent::add<TrigMonSeq>(const TrigMonSeq &obj) { 
+  m_seq.push_back(obj);
+  return true;
+}
+template<> inline bool TrigMonEvent::add<TrigMonTE>(const TrigMonTE &obj) { 
+  m_te.push_back(obj);
+  return true;
+}
+
+#endif
+#endif
+#endif
