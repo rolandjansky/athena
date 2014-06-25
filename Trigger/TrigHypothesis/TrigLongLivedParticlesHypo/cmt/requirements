@@ -1,0 +1,33 @@
+package TrigLongLivedParticlesHypo
+
+author Antonio Policicchio <antonio.policicchio@cern.ch>
+author Stefano Giagu <stefano.giagu@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use TrigMuonEvent	TrigMuonEvent-*		Trigger/TrigEvent
+use TrigSteeringEvent	TrigSteeringEvent-*	Trigger/TrigEvent
+use TrigInterfaces      TrigInterfaces-* 	Trigger/TrigSteer
+use TrigInDetEvent      TrigInDetEvent-*	Trigger/TrigEvent
+use TrigTimeAlgs        TrigTimeAlgs-*          Trigger/TrigTools
+use TrigCaloEvent       TrigCaloEvent-*         Trigger/TrigEvent
+
+private
+use AtlasCLHEP          AtlasCLHEP-*            External
+use AtlasROOT           AtlasROOT-*             External
+use GaudiInterface      GaudiInterface-*        External
+use CaloEvent           CaloEvent-*             Calorimeter
+use CxxUtils            CxxUtils-*              Control
+
+
+private
+apply_tag ROOTMathLibs
+end_private
+
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+apply_pattern component_library
+library TrigLongLivedParticlesHypo *.cxx components/*.cxx
+
