@@ -1,0 +1,12 @@
+After the DB was created with the combined-startup script in TrigDb
+it can be filled with the provided example by running
+
+xml2db.py -u triguser -n MyTestDB -m host -p trigconfig \
+          --l2setup ../XML/examples/HLTSetupL2.xml \
+          --efsetup ../XML/examples/HLTSetupEF.xml \
+          ../XML/examples/HLTRelease.xml ../XML/examples/HLTSignature.xml ../XML/examples/HLTSequence.xml
+
+
+available hosts are pcatr07 (Andreas machine) and pcatr13 (Joergs machine)
+
+and you should chose a better name for your database

@@ -1,0 +1,7 @@
+
+# scripts
+get_files -scripts xml2db.py ConvertSetupPythonToXML.py
+
+# XML files
+get_files -xmls chainlist.dtd sequencelistnewformat.dtd
+
