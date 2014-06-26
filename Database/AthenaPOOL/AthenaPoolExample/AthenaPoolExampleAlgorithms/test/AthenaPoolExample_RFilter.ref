@@ -1,0 +1,290 @@
+Thu Jun 26 15:36:17 CEST 2014
+Preloading tcmalloc_minimal.so
+Athena               INFO including file "AthenaCommon/Preparation.py"
+Athena               INFO including file "AthenaCommon/Bootstrap.py"
+Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Athena               INFO including file "AthenaCommon/Execution.py"
+Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RFilterJobOptions.py"
+Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
+Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf - ['MboyEDMTool.MboyEDMToolConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Athena               INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-58-02-01
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+AthAlgSeq            INFO Member list: AthPoolEx::ReadData/ReadData
+ReadData             INFO in initialize()
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-41-13
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-58-02-01
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-41-13
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-41-13
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-13
+AthenaRootStrea...   INFO POOL/ROOT class loader initialized
+AthenaRootStrea...   INFO 9 ROOT streamers declared
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-02
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc             DEBUG OutputLevel is 2
+PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc             DEBUG POOL ReadCatalog is file:Catalog.xml
+PoolSvc             DEBUG POOL ReadCatalog is file:Catalog1.xml
+PoolSvc              INFO POOL WriteCatalog is file:Catalog2.xml
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Info Xerces-c initialization Number 0
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Debug Xerces-c initialization Number 1
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Debug Xerces-c initialization Number 2
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-31
+TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-02-41-13
+Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
+RootCollection Info Opening Collection File SimplePoolCollection5.root in mode: READ
+RootCollection Debug File SimplePoolCollection5.root exists.
+RootCollection Info File SimplePoolCollection5.root opened
+RootCollection Info Root collection opened, size = 10
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query EventNumber > 9
+EventSelector       DEBUG Try item: "SimplePoolCollection3.root" from the collection list.
+RootCollection Info Opening Collection File SimplePoolCollection3.root in mode: READ
+RootCollection Info File SimplePoolCollection3.root opened
+RootCollection Info Root collection opened, size = 20
+EventSelector        INFO Using standard collection ref 
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-31
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-41-13
+ApplicationMgr       INFO Application Manager Initialized successfully
+InputMetaDataStore   INFO Start InputMetaDataStore
+MetaDataStore        INFO Start MetaDataStore
+TagMetaDataStore     INFO Start TagMetaDataStore
+RootCollection Info Closing open collection 'SimplePoolCollection3.root'
+EventSelector       DEBUG Try item: "SimplePoolCollection3.root" from the collection list.
+RootCollection Info Opening Collection File SimplePoolCollection3.root in mode: READ
+RootCollection Info File SimplePoolCollection3.root opened
+RootCollection Info Root collection opened, size = 20
+StoreGateSvc         INFO Start StoreGateSvc
+ApplicationMgr       INFO Application Manager Started successfully
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000]
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] ????
+Domain[ROOT_All] Info                           SimplePoolFile5.root
+RootDatabase.open Success SimplePoolFile5.root File version:53413
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 0 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 10 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1018.38 eta = -9.76 phi = 149.13 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 1 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000B].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000B].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000001]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000001]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 1 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 11 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1118.13 eta = -9.69 phi = 163.78 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 2 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000C].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000C].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000002]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000002]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 2 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 12 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1217.93 eta = -9.63 phi = 178.43 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 3 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000D].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000D].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000003]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000003]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 3 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 13 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1317.76 eta = -9.57 phi = 193.09 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 4 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000E].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000E].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000004]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000004]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 4 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 14 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1417.61 eta = -9.53 phi = 207.74 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 5 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000F].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000F].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000005]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000005]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 5 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 15 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1517.49 eta = -9.49 phi = 222.39 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 6 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000010].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000010].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000006]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000006]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 6 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 16 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1617.37 eta = -9.46 phi = 237.04 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 7 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000011].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000011].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000007]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000007]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 7 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 17 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1717.27 eta = -9.43 phi = 251.69 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 8 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000012].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000012].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000008]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000008]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 8 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 18 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1817.19 eta = -9.41 phi = 266.34 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 9 events processed so far  <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 3
+EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000013].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000013].
+EventSelector.T...  DEBUG Remapped Token: Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000009]
+EventSelector       DEBUG found AthenaAttribute, name = Stream1_derived_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000009]
+AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 9 events processed so far  <<<===
+ReadData            DEBUG in execute()
+ReadData          WARNING Could not find EventStreamInfo
+ReadData             INFO EventInfo event: 19 run: 1
+ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Track pt = 1917.11 eta = -9.38 phi = 281 detector = Track made in: DummyHitDetector
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 10 events processed so far  <<<===
+RootCollection Info Closing open collection 'SimplePoolCollection3.root'
+AthenaEventLoopMgr   INFO No more events in event selection 
+StoreGateSvc         INFO Stop StoreGateSvc
+StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
+MetaDataSvc         DEBUG Releasing MetaDataTools
+TagMetaDataStore     INFO Stop TagMetaDataStore
+SimplePoolFile5.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+MetaDataStore        INFO Stop MetaDataStore
+InputMetaDataStore   INFO Stop InputMetaDataStore
+ApplicationMgr       INFO Application Manager Stopped successfully
+ReadData             INFO in finalize()
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-41-13
+TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-02-41-13
+PoolSvc              INFO I/O finalization...
+PoolXMLFileCatalog Info XercesC termination number 0
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-41-13
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-41-13
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+RootCollection Info Closing open collection 'SimplePoolCollection5.root'
+EventSelector.T...  DEBUG Calling destructor
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+AthenaSealSvc::...   INFO Time User   : Tot=   64 [ms] Ave/Min/Max=   32(+-    3)/   29/   35 [ms] #=  2
+AthenaSealSvc::...   INFO Time User   : Tot=   69 [ms] Ave/Min/Max=   23(+- 13.6)/    4/   35 [ms] #=  3
+AthenaSealSvc::...   INFO Time User   : Tot=  121 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 5.33  [s]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Athena               INFO leaving with code 0: "successful run"
+CORAL/Services/ConnectionService Info Deleting the ConnectionPool

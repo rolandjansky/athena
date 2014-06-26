@@ -1,0 +1,9 @@
+< XMLFileCatalog Debug There were no updates in the catalog
+< POOLCollFactory Debug  ---  found catalog guid=????
+< POOLCollFactory Info  -- removing ???? from the catalog
+< XMLFileCatalog Debug There were no updates in the catalog
+> PoolXMLFileCatalog Debug filename SimplePoolFile3.root does not exist
+> XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+> PoolXMLFileCatalog Debug filename RootCollection||PFN:SimplePoolCollection3.root does not exist
+> XMLFileCatalog Info Updating the catalog
+> POOLCollFactory Debug  ---  found catalog guid=

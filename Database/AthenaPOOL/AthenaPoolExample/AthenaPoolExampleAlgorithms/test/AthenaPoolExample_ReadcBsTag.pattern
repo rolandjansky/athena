@@ -1,0 +1,4 @@
+< EventSelector       DEBUG record AthenaAttribute, name = StreamRAW_ref = \[DB=\?\?\?\?\]\[CNT=\]\[CLID=!!!!\]\[TECH=00001000\]\[OID=00000000-0049825C\].
+> EventSelector       DEBUG record AthenaAttribute, name = StreamRAW_ref = \[DB=\?\?\?\?\]\[CNT=\]\[CLID=!!!!\]\[TECH=00001000\]\[OID=00000000-0091678C\].
+< EventSelector       DEBUG found AthenaAttribute, name = StreamRAW_ref = \[DB=\?\?\?\?\]\[CNT=\]\[CLID=!!!!\]\[TECH=00001000\]\[OID=00000000-0049825C\]
+> EventSelector       DEBUG found AthenaAttribute, name = StreamRAW_ref = \[DB=\?\?\?\?\]\[CNT=\]\[CLID=!!!!\]\[TECH=00001000\]\[OID=00000000-0091678C\]

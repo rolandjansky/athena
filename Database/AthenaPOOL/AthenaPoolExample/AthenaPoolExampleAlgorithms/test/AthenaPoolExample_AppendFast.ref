@@ -1,0 +1,1016 @@
+Thu Jun 26 15:40:38 CEST 2014
+Preloading tcmalloc_minimal.so
+Athena               INFO including file "AthenaCommon/Preparation.py"
+Athena               INFO including file "AthenaCommon/Bootstrap.py"
+Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Athena               INFO including file "AthenaCommon/Execution.py"
+Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py"
+Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
+Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf - ['MboyEDMTool.MboyEDMToolConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Athena               INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-58-02-01
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+AthAlgSeq            INFO Member list: AthPoolEx::WriteData/WriteData, AthPoolEx::WriteTag/WriteTag, AthenaOutputStream/Stream2, RegistrationStream/RegStream2
+WriteData            INFO in initialize()
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-41-13
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-58-02-01
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-41-13
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-41-13
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-13
+AthenaRootStrea...   INFO POOL/ROOT class loader initialized
+AthenaRootStrea...   INFO 9 ROOT streamers declared
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-02
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc             DEBUG OutputLevel is 2
+PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Info Xerces-c initialization Number 0
+WriteTag             INFO in initialize()
+Stream2             DEBUG In initialize 
+Stream2             DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: Stream2 with no Algs
+Stream2             DEBUG End initialize 
+Stream2             DEBUG In initialize
+Stream2             DEBUG Found StoreGateSvc store.
+Stream2             DEBUG Found MetaDataStore store.
+ItemListSvc          INFO ItemListSvc initialize
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-58-02-01
+Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version OutputStreamAthenaPool-00-02-70
+Stream2.Stream2...   INFO streamProperty ProcessingTag = Stream2
+Stream2.Stream2...  DEBUG In connectServices
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-41-13
+Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-70
+Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
+Stream2              INFO Data output: SimplePoolFileB.root
+Stream2              INFO I/O reinitialization...
+Stream2             DEBUG End initialize
+RegStream2          DEBUG In initialize 
+RegStream2          DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: RegStream2 with no Algs
+RegStream2          DEBUG End initialize 
+RegStream2          DEBUG In initialize 
+RegStream2          DEBUG Found  'StoreName':StoreGateSvc store.
+RegStream2.TagTool  DEBUG In initialize 
+RegStream2.TagTool  DEBUG Found  'StoreName':StoreGateSvc store.
+RegStream2.TagTool  DEBUG Found metadata store.
+RegStream2.TagTool  DEBUG  Got PoolSvc
+RegStream2.TagTool  DEBUG streamProperty CollectionType = ExplicitROOT
+RegStream2.TagTool  DEBUG streamProperty Connection = 
+RegStream2.TagTool  DEBUG streamProperty OutputCollection = SimplePoolCollection2.root
+RegStream2.TagTool  DEBUG streamProperty CollectionOpenMode = UPDATE
+RegStream2.TagTool  DEBUG streamProperty StoreName = StoreGateSvc
+RegStream2.TagTool  DEBUG End initialize 
+RegStream2          DEBUG  Tool initialized
+RegStream2          DEBUG Retrieved IncidentSvc
+RegStream2          DEBUG Added MetaDataStop listener
+RegStream2          DEBUG  Not class requested by Tool, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2          DEBUG End initialize 
+HistogramPersis...WARNING Histograms saving not required.
+EventSelector        INFO  Enter McEventSelector Initialization 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-41-13
+ApplicationMgr       INFO Application Manager Initialized successfully
+InputMetaDataStore   INFO Start InputMetaDataStore
+MetaDataStore        INFO Start MetaDataStore
+StoreGateSvc         INFO Start StoreGateSvc
+DetectorStore        INFO Start DetectorStore
+ApplicationMgr       INFO Application Manager Started successfully
+EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+AthenaEventLoopMgr   INFO   ===>>>  start of run 2    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #20, run #2 0 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 20  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 20  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_MAX_SIZE to 1099511627776L
+AthenaPoolCnvSvc    DEBUG setAttribute DEFAULT_SPLITLEVEL to 0
+AthenaPoolCnvSvc    DEBUG setAttribute STREAM_MEMBER_WISE to 1
+AthenaPoolCnvSvc    DEBUG setAttribute DEFAULT_BUFFERSIZE to 32000
+PoolXMLFileCatalog Debug filename SimplePoolFileB.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info                           SimplePoolFileB.root
+RootDatabase.open Success SimplePoolFileB.root File version:53413
+SimplePoolFileB.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Shapes
+???? Debug Opened container ##Shapes of type ROOT_Tree
+##Shapes Debug No objects passing selection criteria... Container has 0 Entries in total.
+SimplePoolFileB.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Links
+???? Debug Opened container ##Links of type ROOT_Tree
+##Links Debug No objects passing selection criteria... Container has 0 Entries in total.
+SimplePoolFileB.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Params
+???? Debug Opened container ##Params of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+##Params Debug No objects passing selection criteria... Container has 0 Entries in total.
+RootDatabase.setOption Debug Request TREE_AUTO_FLUSH 
+RootDatabase.setOption Debug File name SimplePoolFileB.root
+RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_AUTO_FLUSH to 0 for db: SimplePoolFileB.root and cont: TTree=POOLContainer
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info EventInfo_p4 [????]
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+???? Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --->Adding Shape[0 , ????]:  [1 Column(s)] 
+SimplePoolFileB.root Debug ---->Class:EventInfo_p4
+SimplePoolFileB.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeaderForm_p5 [????]
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [202]  (4 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --->Adding Shape[1 , ????]:  [1 Column(s)] 
+SimplePoolFileB.root Debug ---->Class:DataHeaderForm_p5
+SimplePoolFileB.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeader_p5 [????]
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
+POOLContainer(DataHeader) Debug Setting AUTO_FLUSH for TTree: POOLContainer to value: 0
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLContainer(DataHeader) [202]  (5 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --->Adding Shape[2 , ????]:  [1 Column(s)] 
+SimplePoolFileB.root Debug ---->Class:DataHeader_p5
+SimplePoolFileB.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info Token [????]
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
+???? Debug Opened container POOLCollectionTree(Token) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLCollectionTree(Token) [202]  (6 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --->Adding Shape[3 , ????]:  [1 Column(s)] 
+SimplePoolFileB.root Debug ---->Class:Token
+SimplePoolFileB.root Debug ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info unsigned int [????]
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
+???? Debug Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLCollectionTree(RunNumber) [202]  (7 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFileB.root Debug ---->Class:unsigned int
+SimplePoolFileB.root Debug ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
+???? Debug Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLCollectionTree(EventNumber) [202]  (8 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(MagicNumber)
+???? Debug Opened container POOLCollectionTree(MagicNumber) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLCollectionTree(MagicNumber) [202]  (9 , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+SimplePoolFileB.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
+???? Debug Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
+SimplePoolFileB.root Debug --->Adding Assoc :????/POOLContainer(basic/DataHeader) [202]  (a , ffffffff)
+SimplePoolFileB.root Debug ---->ClassID:????
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG outcoll = SimplePoolCollection2.root
+RegStream2.TagTool  DEBUG initCollection
+RegStream2.TagTool  DEBUG Collection name:  'OutputCollection':SimplePoolCollection2.root
+RegStream2.TagTool  DEBUG Collection type RootCollection
+RegStream2.TagTool  DEBUG Collection open mode  'CollectionOpenMode':UPDATE
+PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
+RootCollection Info Opening Collection File SimplePoolCollection2.root in mode: UPDATE
+RootCollection Debug File SimplePoolCollection2.root exists.
+RootCollection Info File SimplePoolCollection2.root opened
+RootCollection Info Root collection opened, size = 20
+RegStream2.TagTool  DEBUG  Created collection
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #20, run #2 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #21, run #2 1 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 21  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 21  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 2
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #21, run #2 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22, run #2 2 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 22  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 22  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 3
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000002] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000002]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22, run #2 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #23, run #2 3 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 23  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 23  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 4
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000003] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000003]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #23, run #2 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #24, run #2 4 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 24  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 24  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 5
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000004] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000004]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #24, run #2 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #25, run #2 5 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 25  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 25  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 6
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000005] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000005]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #25, run #2 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #26, run #2 6 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 26  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 26  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 7
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000006] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000006]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #26, run #2 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #27, run #2 7 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 27  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 27  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 8
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000007] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000007]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #27, run #2 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #28, run #2 8 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 28  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 28  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 9
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000008] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000008]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #28, run #2 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #29, run #2 9 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 29  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 29  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 10
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000009] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000009]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #2 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #30, run #2 10 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 30  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 30  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 11
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000A] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000A]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #30, run #2 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #31, run #2 11 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 31  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 31  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 12
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000B] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000B]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #31, run #2 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #32, run #2 12 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 32  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 32  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 13
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000C] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000C]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #32, run #2 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #33, run #2 13 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 33  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 33  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 14
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000D] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000D]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #33, run #2 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #34, run #2 14 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 34  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 34  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 15
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000E] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000E]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #34, run #2 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35, run #2 15 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 35  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 35  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 16
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000F] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000F]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35, run #2 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #36, run #2 16 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 36  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 36  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 17
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000010] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000010]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #36, run #2 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #37, run #2 17 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 37  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 37  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 18
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000011] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000011]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #37, run #2 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #38, run #2 18 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 38  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 38  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 19
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000012] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000012]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #38, run #2 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #39, run #2 19 events processed so far  <<<===
+WriteData           DEBUG in execute()
+WriteData            INFO EventInfo event: 39  run: 2
+WriteData            INFO registered all data
+WriteTag             INFO EventInfo event: 39  run: 2
+WriteTag             INFO registered all data
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(2101,"*") called
+Stream2             DEBUG            Key:*
+Stream2             DEBUG  Added object 2101,"McEventInfo"
+Stream2             DEBUG  Collected objects:
+Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 20
+Stream2.Stream2...  DEBUG In commitOutput
+RegStream2          DEBUG RegistrationStream execute
+RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
+RegStream2          DEBUG  get ref for (222376821,"Stream2") 
+RegStream2          DEBUG Retrieved DataHeader with key Stream2
+RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000013] for Stream2
+RegStream2          DEBUG Setting tagKey to RunEventTag
+RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
+RegStream2.TagTool  DEBUG RSTool::fill dumping inputs
+RegStream2.TagTool  DEBUG tagKey = RunEventTag
+RegStream2.TagTool  DEBUG refs
+RegStream2.TagTool  DEBUG Stream2 [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000013]
+RegStream2.TagTool  DEBUG CollDesc after token addition 
+RegStream2.TagTool  DEBUG Token Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: Stream2_ref   Type: Token
+RegStream2.TagTool  DEBUG  Metadata Attributes for fragment 0
+RegStream2.TagTool  DEBUG Name: RunNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: EventNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Name: MagicNumber   Type: unsigned int
+RegStream2.TagTool  DEBUG Retrieved attribute list with Key/tagname RunEventTag
+RegStream2.TagTool  DEBUG Attribute list
+RegStream2.TagTool  DEBUG Set the row buffer attributelist to a size=3
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #39, run #2 20 events processed so far  <<<===
+DetectorStore        INFO Stop DetectorStore
+StoreGateSvc         INFO Stop StoreGateSvc
+StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
+Stream2             DEBUG handle() incident type: MetaDataStop
+Stream2.Stream2...  DEBUG In connectServices
+Stream2.Stream2...  DEBUG In connectOutput
+Stream2.Stream2...  DEBUG Connected to SimplePoolFileB.root
+Stream2.Stream2...  DEBUG Recorded DataHeader with key Stream2
+Stream2             DEBUG addItemObjects(167728019,"Stream2") called
+Stream2             DEBUG            Key:Stream2
+Stream2             DEBUG  Added object 167728019,"Stream2"
+Stream2             DEBUG addItemObjects(1316383046,"*") called
+Stream2             DEBUG            Key:*
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info EventStreamInfo_p3 [????]
+Stream2.Stream2...  DEBUG In commitOutput
+Stream2.Stream2...  DEBUG In connectServices
+Stream2              INFO Records written: 21
+Stream2             DEBUG Leaving handle
+RegStream2          DEBUG handle() incident type: MetaDataStop
+RegStream2.TagTool   INFO Collection Events output: 20
+RegStream2.TagTool  DEBUG pointer to collection is not null
+XMLFileCatalog Info Updating the catalog
+XMLFileCatalog Info Updating the catalog
+RegStream2.TagTool  DEBUG Found metadata store, MetaDataStore
+RegStream2.TagTool  DEBUG Looking for key Input
+RegStream2.TagTool  DEBUG Committed collection 
+RootCollection Info Closing open collection 'SimplePoolCollection2.root'
+RegStream2.TagTool  DEBUG  Closed collection 
+SimplePoolFileB.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+MetaDataStore        INFO Stop MetaDataStore
+InputMetaDataStore   INFO Stop InputMetaDataStore
+ApplicationMgr       INFO Application Manager Stopped successfully
+WriteData            INFO in finalize()
+WriteTag             INFO in finalize()
+Stream2             DEBUG finalize: Optimize output
+Stream2             DEBUG finalize: end optimize output
+RegStream2          DEBUG In finalize
+RegStream2.TagTool  DEBUG In finalize: 20
+RegStream2.TagTool  DEBUG Calling destructor
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-41-13
+EventSelector        INFO finalize
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-02-41-13
+ItemListSvc          INFO -- OUTPUT STREAM ITEM OVERLAP SUMMARY --
+ItemListSvc          INFO STREAM Stream2 has (2) items
+DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
+DecisionSvc          INFO List of registered 2 Streams: RegStream2 Stream2 
+DecisionSvc          INFO Finalized successfully.
+AthenaPoolCnvSvc    DEBUG releasing all workers
+PoolSvc              INFO I/O finalization...
+XMLFileCatalog Info Updating the catalog
+PoolXMLFileCatalog Info XercesC termination number 0
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-41-13
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-41-13
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+Stream2.Stream2...  DEBUG in finalize()
+Stream2.Stream2...  DEBUG Calling destructor
+Stream2.Stream2...  DEBUG Calling destructor
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+AthenaSealSvc::...   INFO Time User   : Tot=   95 [ms]                                             #=  1
+AthenaSealSvc::...   INFO Time User   : Tot=  278 [ms] Ave/Min/Max= 55.6(+- 56.8)/   20/  169 [ms] #=  5
+AthenaSealSvc::...   INFO Time User   : Tot=  282 [ms] Ave/Min/Max= 56.4(+-   59)/    0/  170 [ms] #=  5
+ChronoStatSvc        INFO Time User   : Tot= 5.03  [s]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Athena               INFO leaving with code 0: "successful run"
+CORAL/Services/ConnectionService Info Deleting the ConnectionPool

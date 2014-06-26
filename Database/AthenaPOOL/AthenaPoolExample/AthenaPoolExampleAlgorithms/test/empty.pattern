@@ -1,0 +1,38 @@
+< Athena               INFO using release 
+< Preloading tcmalloc.so
+> Preloading tcmalloc_minimal.so
+< Py:ConfigurableDb WARNING 
+> Py:ConfigurableDb WARNING 
+> Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+< Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+< PoolSvc              INFO Database \([a-zA-Z0-9]*.root\) attribute \[FILE_SIZE\]:
+> PoolSvc              INFO Database \([a-zA-Z0-9]*.root\) attribute \[FILE_SIZE\]:
+< PoolSvc              INFO Database \(SimplePoolFile[1234].root\) attribute \[TREE_CACHE_LEARN_EVENTS\]: 6
+< PoolSvc              INFO Database \(SimplePoolFile[1234].root\) attribute \[TREE_CACHE_SIZE\]: 100000
+< PoolSvc              INFO Database \(SimplePoolFile[1234].root\) attribute \[BYTES_READ\]:
+> PoolSvc              INFO Database \(SimplePoolFile[1234].root\) attribute \[BYTES_READ\]:
+< PoolSvc              INFO Database \(SimplePoolFile[1234].root\) attribute \[READ_CALLS\]:
+> PoolSvc              INFO Database \(SimplePoolFile[1234].root\) attribute \[READ_CALLS\]:
+< AthenaPoolAddre...   INFO BackNavigationScope for: ExampleHitContainer#MyHits :: Stream1
+> RegStream[1234].Regi...   INFO No Primary Key defined
+> AthenaPoolCnvSvc    DEBUG setAttribute
+> AthenaPoolCnvSvc    DEBUG releasing all workers
+> AthenaPoolCnvSvc    DEBUG Calling destructor
+#> SG::fromStorable  WARNING can't convert stored DataObject 0x\?\?\?\? to type \(ExampleHitContainer\)
+#>  Unless you are following a symlink, it probably means you have a duplicate CLID = 1
+#DeprecationWarning: object.__new__\(\) takes no parameters
+#newobj = object.__new__\( cls, \*args, \*\*kwargs \)
+> AthenaPoolAddre...  DEBUG updateAddress: Cannot find DataHeader in StoreGate
+> [a-zA-Z0-9]*.root Info Database being retired...
+> [a-zA-Z0-9]*.root Debug --> Deaccess DbContainer
+< [a-zA-Z0-9]*.root Info Database being retired...
+< [a-zA-Z0-9]*.root Debug --> Deaccess DbContainer
+< ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = [0-9]*
+> ReadData             INFO CollectionMetadata, key = UnixTimestamp, value = [0-9]*
+< TEnvRec::ChangeValue:0: RuntimeWarning: duplicate entry
+< Note: \(file \"\(tmpfile\)\", line 2\) File
+< Stream[1-5]_FH           INFO
+< Stream[1-5]_FH.Defa...   INFO
+< RootDbase: all good: 
+< evt no, per run
+< WARNING: TCMALLOCDIR not defined, will use libc malloc

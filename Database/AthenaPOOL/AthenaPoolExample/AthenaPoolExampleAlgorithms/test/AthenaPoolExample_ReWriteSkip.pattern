@@ -1,0 +1,8 @@
+< RootCollection Debug File SimplePoolCollection3.root exists.
+< TREE   POOLContainer_DataHeaderForm                      0.00     0.00       20        1        3
+> RegStream1          DEBUG Adding ref for Stream1
+> RootCollection Debug File SimplePoolCollection3.root does not exist.
+> RegStream1.Regi...  DEBUG Event 0
+> RegStream1.Regi...  DEBUG ref name Stream1_ref already used
+> TREE   POOLContainer_DataHeaderForm                      0.01     0.00       20        1        3
+

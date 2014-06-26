@@ -1,0 +1,11 @@
+< Error in <TFile::Init>: file TruncatedPoolFile.root is truncated at
+> Error in <TFile::Init>: file TruncatedPoolFile.root is truncated at
+< Error in <TFile::ReadBuffer>: error reading all requested bytes from file TruncatedPoolFile.root, got
+> Error in <TFile::ReadBuffer>: error reading all requested bytes from file TruncatedPoolFile.root, got
+< RootFileHandler     ERROR Unable to open ROOT file \"NotFoundPoolFile.root\" with options \"READ\"
+< FileMgr           WARNING open of file \"NotFoundPoolFile.root\", tech: \"ROOT\", flags: \"READ\" failed
+< RootDBase.open Error unable to open \"NotFoundPoolFile.root\" for READ
+< RootFileHandler     ERROR Unable to open ROOT file \"TruncatedPoolFile.root\" with options \"READ\"
+< FileMgr           WARNING open of file \"TruncatedPoolFile.root\", tech: \"ROOT\", flags: \"READ\" failed
+< RootDBase.open Error unable to open \"TruncatedPoolFile.root\" for READ
+
