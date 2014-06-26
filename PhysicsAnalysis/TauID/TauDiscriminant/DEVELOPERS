@@ -1,0 +1,13 @@
+A Message to Developers
+-----------------------
+ 
+
+
+
+* Your Athena-based algorithms MUST inherit from
+TauDiscriToolBase and implement the interface there.
+
+* If you want your id method to be useable by
+TauIDReader on ROOT ntuples, your underlying id
+class MUST inherit from MethodBase (and implement
+the interface) and MUST NOT depend on Athena-based headers.

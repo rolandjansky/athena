@@ -1,0 +1,236 @@
+#!/usr/bin/env python
+
+from optparse import OptionParser
+
+parser = OptionParser(usage="%prog [options] file1.root file2.root ...")
+parser.add_option("-t","--tree", action="store", type="str", dest="treename",
+                  default="tau", help="name of tree in D3PD")
+parser.add_option("-m","--methods", action="store", type="str", dest="methods",
+                  default="BDT,BDTE,PI0P,PI0S,LLH", help="list of methods to run separated by commas")
+parser.add_option("-d","--derived-methods", action="store", type="str", dest="extramethods",
+                  default="BBDTCUTS,SBDTCUTS", help="list of derived methods to run separated by commas, set to NONE if you wish to skip these")
+parser.add_option("--clone", action="store_true", dest="clonetree",
+                  default=False, help="copy all branches from each input tree into each output tree")
+parser.add_option("--friend", action="store_true", dest="friendtree",
+                  default=False, help="make each input tree a friend of each output tree")
+parser.add_option("--idir", action="store", type="str", dest="inputdir",
+                  default="", help="the directory in which the input tree is located in each ROOT file")
+parser.add_option("--odir", action="store", type="str", dest="outputdir",
+                  default="", help="the directory in which to write the output tree in each output ROOT file")
+parser.add_option("--flat", action="store_true", dest="flat",
+                  default=False, help="the ntuples are flat (D4PD)")
+parser.add_option("-v","--verbose", action="store_true", dest="verbose",
+                  default=False, help="show verbose output")
+options, args = parser.parse_args()
+
+import sys
+
+if not args:
+    print "specify at least one input ROOT file"
+    sys.exit(1)
+
+try:
+    import ROOT
+except:
+    sys.exit("Could not import ROOT module. Is PyROOT installed?")
+
+try:
+    import PyCintex
+    from ROOT import TauID
+except:
+    try:
+        ROOT.gSystem.Load("libTauDiscriminant.so")
+        from ROOT import TauID
+    except:
+        print "Could not import TauID module"
+        print "Be sure to do one of the following:"
+        print '    1) Setup Athena, compile TauDiscriminant with "make", and source setup.sh'
+        print '    2) Compile standalone TauDiscriminant with "make -f Makefile.Standalone", and source setup.sh'
+        sys.exit(1)
+
+import os
+import time
+
+def find_file(filename, search_path_var='PATH', include_working=True):
+    """
+    find filename in PATH with the option of including
+    the current working directory in the search
+    """
+    if not os.environ.has_key(search_path_var):
+        sys.exit("Environment variable $%s is not defined"% search_path_var)
+    search_path = os.environ[search_path_var]
+    paths = search_path.split(os.pathsep)
+    if include_working:
+        paths = ['.'] + paths
+    for path in paths:
+        fullpath = os.path.join(path, filename)
+        if os.path.exists(fullpath):
+            return os.path.abspath(fullpath)
+    sys.exit("Could not find %s in %s"%(filename, search_path_var))
+
+if options.flat:
+    variables = [                
+		  ("AUTHOR","I"),
+		  ("ETA","F"),
+                  ("TRKAVGDIST","F"),                
+                  ("ETOVERPTLEADTRK","F"),
+                  ("EMFRACTIONATEMSCALE","F"),
+                  ("TRT_NHT_OVER_NLT","F"),
+                  ("NUM_PILEUP_AND_PRIMARY_VERTICES","I"),
+                  ("DRMAX","F"),
+                  ("ABS_ETA_LEAD_TRACK","F"),
+                  ("CHPIEMEOVERCALOEME","F"),
+                  ("SECMAXSTRIPET","F"),
+                  ("HADLEAKET","F"),
+                  ("SUMEMCELLETOVERLEADTRKPT","F"),
+                  ("CORRFTRK","F"),
+                  ("CORRCENTFRAC","F"),
+                  ("ISOLFRAC","F"),
+                  ("HADRADIUS","F"),
+                  ("EMPOVERTRKSYSP","F"),
+                  ("PSSFRACTION","F"),
+                  ("NSTRIP","I"),
+                  ("NUMTRACK","I"),
+                  ("PT","F"),
+                  ("NUMWIDETRACK","I"),
+                  ("MASSTRKSYS","F"),
+                  ("IPSIGLEADTRK","F"),
+                  ("TRFLIGHTPATHSIG","F"),
+                  ("TAU_PTRATIO","F"),
+                  ("TAU_PI0_N","I"),
+                  ("TAU_PI0_VISTAU_M","F"),
+                  ("EMFRACTIONATEMSCALE_MOVEE3","F"),                  
+                  ("TAU_ABSDELTAETA","F"),
+                  ("TAU_SEEDTRK_SECMAXSTRIPETOVERPT","F"),
+                  ("TAU_ABSDELTAPHI","F"),
+
+                ]
+else:
+    variables = [ ("AUTHOR","VI"),
+		  ("ETA","VF"),
+                  ("TRKAVGDIST","VF"),                
+                  ("ETOVERPTLEADTRK","VF"),
+                  ("EMFRACTIONATEMSCALE","VF"),
+                  ("TRT_NHT_OVER_NLT","VF"),
+                  ("NUM_PILEUP_AND_PRIMARY_VERTICES","I"),
+                  ("DRMAX","VF"),
+                  ("ABS_ETA_LEAD_TRACK","VF"),
+                  ("CHPIEMEOVERCALOEME","VF"),
+                  ("SECMAXSTRIPET","VF"),
+                  ("HADLEAKET","VF"),
+                  ("SUMEMCELLETOVERLEADTRKPT","VF"),
+                  ("CORRFTRK","VF"),
+                  ("CORRCENTFRAC","VF"),
+                  ("ISOLFRAC","VF"),
+                  ("HADRADIUS","VF"),
+                  ("EMPOVERTRKSYSP","VF"),
+                  ("PSSFRACTION","VF"),
+                  ("NSTRIP","VI"),
+                  ("NUMTRACK","VI"),
+                  ("PT","VF"),
+                  ("NUMWIDETRACK","VI"),
+                  ("MASSTRKSYS","VF"),
+                  ("IPSIGLEADTRK","VF"),
+                  ("TRFLIGHTPATHSIG","VF"),
+                  ("TAU_PTRATIO","VF"),
+                  ("TAU_PI0_N","VI"),
+                  ("TAU_PI0_VISTAU_M","VF"),
+                  ("EMFRACTIONATEMSCALE_MOVEE3","VF"),                  
+                  ("TAU_ABSDELTAETA","VF"),
+                  ("TAU_SEEDTRK_SECMAXSTRIPETOVERPT","VF"),
+                  ("TAU_ABSDELTAPHI","VF"),
+                ]
+
+#cutsfile = find_file("cuts.txt","DATAPATH",True)
+jetBDTfile = find_file("jet.BDT.bin","DATAPATH",True)
+eleBDTfile = find_file("ele.BDT.bin","DATAPATH",True)
+pi0pBDTfile = find_file("pi0Primary.BDT.bin","DATAPATH",True)
+pi0sBDTfile = find_file("pi0Secondary.BDT.bin","DATAPATH",True)
+llh_files = find_file("pdfs_tau.root","DATAPATH",True)+","+find_file("pdfs_jet.root","DATAPATH",True)+","+find_file("LMTCutsLLH.root","DATAPATH",True)
+
+sBDTCutsfile = find_file("sig.bits.jet.BDT.txt","DATAPATH",True)
+bBDTCutsfile = find_file("bkg.bits.jet.BDT.txt","DATAPATH",True)
+
+options.methods = list(set(options.methods.split(',')))
+options.extramethods = list(set(options.extramethods.split(',')))
+
+methods = {
+#    "CUTS":     (TauID.Types.CUTS, "CUTS", cutsfile, 3),
+    "BDT":      (TauID.Types.BDT, "BDTJetScore", jetBDTfile, 1),
+    "BDTE":     (TauID.Types.BDT, "BDTEleScore", eleBDTfile, 1),
+    "PI0P":     (TauID.Types.BDT, "Pi0PrimaryScore",pi0pBDTfile,1),
+    "PI0S":     (TauID.Types.BDT, "Pi0SecondaryScore",pi0sBDTfile,1),
+    "LLH":      (TauID.Types.LLH, "llhsafe",llh_files,4),
+}
+
+extraMethods = {
+    "SBDTCUTS": (TauID.Types.CUTS, "SBDTJetScore", sBDTCutsfile, 3),
+    "BBDTCUTS": (TauID.Types.CUTS, "BBDTJetScore", bBDTCutsfile, 3),
+}
+
+methodVariables = [
+    ("BDT","F","BDTJetScore"),
+    ("BDTE","F","BDTEleScore"),
+    ("PI0P","F","Pi0PrimaryScore"),
+    ("PI0S","F","Pi0SecondaryScore"),
+    ("LLH","F","llhsafe"),
+    
+    
+]
+
+reader = TauID.TauIDReader(options.verbose)
+
+for variable,typename in variables:
+    if not reader.addVariable(variable,typename):
+        sys.exit("Abort")
+
+for method in options.methods:
+    if methods.has_key(method):      
+        if not reader.bookMethod(*methods[method]):
+            sys.exit("Aborted")
+    else:
+        sys.exit("Method %s is not defined"% method)
+
+for variable,typename,branch in methodVariables:
+    if not reader.addVariable(variable, typename, branch):
+        sys.exit("Abort")
+        
+if extraMethods:    
+    for method in options.extramethods:
+        if not method == "NONE":
+            if extraMethods.has_key(method):	  
+                if not reader.bookMethod(*extraMethods[method]):
+                    sys.exit("Aborted")
+            else:
+                sys.exit("Method %s is not defined"% method)
+
+# Suppress warnings
+ROOT.gErrorIgnoreLevel = ROOT.kError
+
+if options.verbose:
+    print "============================================="
+totalTime = 0.
+totalEntries = 0
+for filename in args:
+    print "Processing %s..."% filename
+    outputfilename = filename+".tauid-redo.root"
+    if not reader.setOutput(outputfilename, options.outputdir):
+        sys.exit("Aborted")
+    t1 = time.time() 
+    entries = reader.classify(options.treename, options.treename, filename, options.inputdir, options.friendtree, options.clonetree)
+    if entries <= 0:
+        
+        sys.exit("Aborted")
+    dt = time.time() - t1
+    totalTime += dt
+    totalEntries += entries
+    if options.verbose:
+        print "Total time: %.3f [sec]"%dt
+        print "<Time per entry>: %i [microsec]"%int(1000000*dt/entries)
+        print "Finished processing %s"% filename
+        print "============================================="
+if options.verbose:
+    print "Total time for all files: %.3f [min]"% (totalTime/60)
+    if totalEntries > 0:
+        print "<Time per entry> over all files: %i [microsec]"%int(1000000*totalTime/totalEntries)
+print "Done"

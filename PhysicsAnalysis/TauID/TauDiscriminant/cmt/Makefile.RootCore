@@ -1,0 +1,5 @@
+PACKAGE          = TauDiscriminant
+PACKAGE_PRELOAD  = Tree Hist Matrix
+PACKAGE_CXXFLAGS = -D__STANDALONE
+
+include $(ROOTCOREDIR)/Makefile-common
