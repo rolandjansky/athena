@@ -1,0 +1,10 @@
+package			RecExOnline
+
+author			Max Baak <max.baak@cern.ch>
+author			Sebastian Boeser <sboeser@hep.ucl.ac.uk>
+
+use			AtlasPolicy		AtlasPolicy-* 
+
+apply_pattern		declare_scripts		files="../scripts/*.sh" 
+apply_pattern		declare_joboptions	files="*.py"
+apply_pattern		declare_python_modules	files="*.py"
