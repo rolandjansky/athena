@@ -1,0 +1,24 @@
+package xAODEventFormatCnv
+# $Id: requirements 580655 2014-01-29 14:36:01Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+# Base package(s):
+use AtlasPolicy     AtlasPolicy-*
+use GaudiInterface  GaudiInterface-*  External
+
+# xAOD package(s):
+use xAODEventFormat xAODEventFormat-* Event/xAOD
+
+private
+
+use AthenaBaseComps AthenaBaseComps-* Control
+use AthenaKernel    AthenaKernel-*    Control
+use StoreGate       StoreGate-*       Control
+use AthContainers   AthContainers-*   Control
+
+end_private
+
+# Make a component library:
+library xAODEventFormatCnv *.cxx components/*.cxx
+apply_pattern component_library
