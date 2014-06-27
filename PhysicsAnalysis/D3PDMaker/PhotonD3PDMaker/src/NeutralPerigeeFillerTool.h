@@ -1,0 +1,54 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef PHOTOND3PDMAKER_NEUTRALPERIGEEFILLERTOOL_H
+#define PHOTOND3PDMAKER_NEUTRALPERIGEEFILLERTOOL_H
+
+#include "D3PDMakerUtils/BlockFillerTool.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
+
+
+namespace D3PD {
+  
+  class NeutralPerigeeFillerTool
+    : public D3PD::BlockFillerTool<Trk::NeutralPerigee>
+  {
+  public:
+    NeutralPerigeeFillerTool (const std::string& type,
+			      const std::string& name,
+			      const IInterface* parent);
+    
+    virtual StatusCode book();
+    
+    virtual StatusCode fill (const Trk::NeutralPerigee &p);
+    
+  private:
+    
+    bool m_fillMomentum;
+    bool m_fillPerigee;
+    bool m_fillThetaAndQoverP;
+    
+    /// Parameter: Should the phi variable be filled?
+    bool m_fillPhi;
+      
+    /// Parameter: Value to which to set variables if they don't get filled.
+    float m_defaultValue;
+      
+    /* NTuple variables: **/
+    // track parameters at perigee
+    float *m_d0;
+    float *m_z0;
+    float *m_phi;
+    float *m_theta;
+    float *m_qoverp;
+    
+    // momentum
+    float *m_pt;
+    float *m_eta;
+    
+  }; // class NeutralPerigeeFillerTool
+  
+} // namespace D3PD
+
+#endif // not PHOTOND3PDMAKER_NEUTRALPERIGEEFILLERTOOL_H
