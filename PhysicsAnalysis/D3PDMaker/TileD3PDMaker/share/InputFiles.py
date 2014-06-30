@@ -1,0 +1,4 @@
+# INSERT (A) STRING/(COMMA SEPARATED) STRINGS FOR THE EXACT LOCATION OF THE FILE(S)
+# INSIDE THE LIST NAMED INPUTFILES WHEN RUNNING LOCALLY
+# E.G. inputFiles = ["/afs/cern.ch/.../<filename.pool.root>",...]
+inputFiles = []
