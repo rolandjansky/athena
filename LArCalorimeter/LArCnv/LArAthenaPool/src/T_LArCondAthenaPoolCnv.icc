@@ -1,0 +1,32 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+template <class T> 
+T_LArCondAthenaPoolCnv<T>::T_LArCondAthenaPoolCnv(ISvcLocator* svcloc)
+ :   LArCondAthenaPoolCnvBase( svcloc)
+{
+
+}
+
+template <class T> 
+T_LArCondAthenaPoolCnv<T>::~T_LArCondAthenaPoolCnv()
+{
+
+}
+
+template <class T> 
+ StatusCode T_LArCondAthenaPoolCnv<T>::transToPers(T* obj, PERSIST*& persObj) 
+{
+ persObj = obj->getPersistent(); 
+ return StatusCode::SUCCESS; 
+}
+
+
+template <class T> 
+StatusCode T_LArCondAthenaPoolCnv<T>::persToTrans(T*& transObj, PERSIST* obj) 
+{
+ transObj = new T() ; 
+ transObj->setPersistent(obj); 
+ return StatusCode::SUCCESS;   
+}
