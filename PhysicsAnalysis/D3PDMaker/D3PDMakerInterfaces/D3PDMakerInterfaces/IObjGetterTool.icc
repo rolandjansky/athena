@@ -1,0 +1,101 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerInterfaces/IObjGetterTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2009
+ * @brief Template implementations for IObjGetterTool.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Type-safe wrapper for @c get.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * Return the object as a pointer to @c T.
+ * Return 0 if the get fails or if the pointer can't be converted.
+ *
+ * This is implemented in terms of @c getTypeinfo().
+ */
+template <class T>
+const T* IObjGetterTool::get (bool allowMissing /*= false*/)
+{
+  return reinterpret_cast<const T*> (this->getTypeinfo (typeid(T),
+                                                        allowMissing));
+}
+
+
+/**
+ * @brief Test type compatibility.
+ *
+ * Test to see if the object being returned by the tool can be converted
+ * to a pointer to @c T.  This can be used to perform type checks during job
+ * initialization.
+ *
+ * This is implemented in terms of @c configureTypeinfo.
+ */
+template <class T>
+StatusCode IObjGetterTool::configureD3PD()
+{
+  return this->configureTypeinfo (typeid(T));
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c getUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+inline
+void IObjGetterTool::releaseObjectUntyped (const void* /*p*/)
+{
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ * @param ti The type of p.
+ *
+ * Call this when you are done with the object returned by
+ * @c getUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+inline
+void IObjGetterTool::releaseObjectTypeinfo (const void* /*p*/,
+                                            const std::type_info& /*ti*/)
+{
+}
+
+
+/**
+ * @brief Type-safe wrapper for @c releaseObjectUntyped.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c get().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ *
+ * This is implemented in terms of @c releaseObjectTypeinfo().
+ */
+template <class T>
+void IObjGetterTool::releaseObject (const T* p)
+{
+  this->releaseObjectTypeinfo (p, typeid(T));
+}
+
+
+} // namespace D3PD

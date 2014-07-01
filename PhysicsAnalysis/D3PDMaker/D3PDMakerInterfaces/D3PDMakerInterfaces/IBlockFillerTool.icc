@@ -1,0 +1,59 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerInterfaces/IBlockFillerTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2009
+ * @brief Abstract interface for tool to fill a block in the D3PD.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief StatusCode check helper: change @c AGAIN or @c EMPTY to @c SUCCESS.
+ * @param sc The StatusCode to check.
+ *
+ * If @a sc is @c AGAIN or @c EMPTY, then return @c SUCCESS.
+ * Otherwise, return @a sc.
+ */
+inline
+StatusCode IBlockFillerTool::againok (StatusCode sc)
+{
+  if (sc == AGAIN || sc == EMPTY)
+    sc.setCode (StatusCode::SUCCESS);
+  return sc;
+}
+
+
+/**
+ * @brief StatusCode check helper: change @c AGAIN or @c EMPTY to @c SUCCESS.
+ * @param sc The StatusCode to check.
+ * @param scout[out] Accumulated status code.
+ *
+ * If @a sc is @c AGAIN or @c EMPTY, then return @c SUCCESS.
+ * Otherwise, return @a sc.
+ *
+ * If @a sc is @c AGAIN, then @a scout will be set to @c AGAIN.
+ * Otherwise, if @a sc is not @c EMPTY, then @c scout will be set to @c sc.
+ */
+inline
+StatusCode IBlockFillerTool::againok (StatusCode sc, StatusCode& scout)
+{
+  if (sc == AGAIN) {
+    sc.setCode (StatusCode::SUCCESS);
+    scout.setCode (AGAIN);
+  }
+  if (sc == EMPTY)
+    sc.setCode (StatusCode::SUCCESS);
+  else
+    scout = sc;
+  return sc;
+}
+
+
+} // namespace D3PD

@@ -1,0 +1,32 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerInterfaces/IIteration.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2010
+ * @brief Abstract interface for iterating over a set of things.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c nextUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+inline
+void IIteration::releaseElementUntyped (const void* /*p*/)
+{
+}
+
+
+} // namespace D3PD

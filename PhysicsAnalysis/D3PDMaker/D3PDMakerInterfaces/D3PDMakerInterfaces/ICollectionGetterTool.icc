@@ -1,0 +1,85 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerInterfaces/ICollectionGetterTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2009
+ * @brief Template implementations for ICollectionGetterTool.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Type-safe wrapper for @c next.
+ *
+ * Return the next element from the collection as a pointer to @c T.
+ * Return 0 if the pointer can't be converted or at the end of the
+ * iteration.
+ *
+ * This is implemented in terms of @c nextTypeinfo().
+ */
+template <class T>
+const T* ICollectionGetterTool::next()
+{
+  return reinterpret_cast<const T*> (nextTypeinfo (typeid(T)));
+}
+
+
+/**
+ * @brief Test type compatibility.
+ *
+ * Test to see if the object being returned by the tool can be converted
+ * to a pointer to @c T.  This can be used to perform type checks during job
+ * initialization.
+ *
+ * This is implemented in terms of @c configureElementTypeinfo.
+ */
+template <class T>
+StatusCode ICollectionGetterTool::configureD3PD()
+{
+  return configureElementTypeinfo (typeid(T));
+}
+
+
+/**
+ * @brief Type-safe wrapper for @c releaseElementUntyped.
+ * @param p The element to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c next().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ *
+ * This is implemented in terms of @c releaseElementTypeinfo().
+ */
+template <class T>
+void ICollectionGetterTool::releaseElement (const T* p)
+{
+  this->releaseElementTypeinfo (p, typeid(T));
+}
+
+
+/**
+ * @brief Release an element retrieved from the getter.
+ * @param p The element to release.
+ * @param ti The type of p.
+ *
+ * Call this when you are done with the element returned by
+ * @c nextUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+inline
+void
+ICollectionGetterTool::releaseElementTypeinfo (const void* /*p*/,
+                                               const std::type_info& /*ti*/)
+{
+}
+
+
+} // namespace D3PD

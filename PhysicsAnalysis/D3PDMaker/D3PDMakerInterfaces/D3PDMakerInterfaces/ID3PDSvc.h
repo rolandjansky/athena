@@ -1,0 +1,62 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerInterfaces/ID3PDSvc.h
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2009
+ * @brief Abstract interface for service to create D3PD trees.
+ */
+
+
+#ifndef D3PDMAKERINTERFACES_ID3PDSVC_H
+#define D3PDMAKERINTERFACES_ID3PDSVC_H
+
+#include "GaudiKernel/IService.h"
+#include <string>
+
+
+namespace D3PD {
+
+
+class ID3PD;
+
+
+/// Interface definition.
+static const InterfaceID IID_ID3PDSvc ("D3PD::ID3PDSvc", 1, 0);
+
+
+/**
+ * @brief Abstract interface for service to create D3PD trees.
+ */
+class ID3PDSvc
+  : virtual public IService
+{
+public:
+  /// Gaudi interface definition.
+  static const InterfaceID& interfaceID() { return IID_ID3PDSvc; }
+
+
+  /**
+   * @brief Create a new D3PD tree.
+   * @param name The name of the new tree.
+   * @param d3pd[out] The created tree.
+   */
+  virtual StatusCode make (const std::string& name, ID3PD* & d3pd) = 0;
+
+private:
+  ID3PDSvc& operator= (const ID3PDSvc&);
+#if !defined(__REFLEX__) && __cplusplus >= 201103
+  ID3PDSvc& operator= (ID3PDSvc&&);
+#endif
+};
+
+
+} // namespace D3PD
+
+
+#endif // not D3PDMAKERINTERFACES_ID3PDSVC_H

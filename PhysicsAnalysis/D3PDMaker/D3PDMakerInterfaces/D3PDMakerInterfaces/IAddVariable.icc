@@ -1,0 +1,133 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerInterfaces/IAddVariable.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2009
+ * @brief Template implementations for IAddVariable.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Add a variable to the tuple.
+ * @param name The name of the variable.
+ * @param ptr Pointer to the type of the variable.
+ *            The pointer need not be initialized;
+ *            the D3PD software will set the pointer
+ *            prior to calling @c fill().
+ * @param docstring Documentation string for this variable.
+ *                  (Presently unimplemented!)
+ *
+ * If called from the constructor, the only effect is to clear @c ptr.
+ */
+template <class T>
+StatusCode IAddVariable::addVariable (const std::string& name,
+                                      T* & ptr,
+                                      const std::string& docstring /*= ""*/)
+{
+  return addVariable (name,
+                      typeid (T),
+                      reinterpret_cast<void*&>(ptr),
+                      docstring);
+}
+
+
+/**
+ * @brief Add a variable to the tuple.
+ * @param name The name of the variable.
+ * @param ptr Pointer to the type of the variable.
+ *            The pointer need not be initialized;
+ *            the D3PD software will set the pointer
+ *            prior to calling @c fill().
+ * @param docstring Documentation string for this variable.
+ *                  (Presently unimplemented!)
+ * @param defval Pointer to the default value to use for this variable.
+ *               Only works for basic types.
+ *
+ * If called from the constructor, the only effect is to clear @c ptr.
+ */
+template <class T, class U>
+StatusCode IAddVariable::addVariable (const std::string& name,
+                                      T* & ptr,
+                                      const std::string& docstring,
+                                      const U& defval)
+{
+  T d = defval;
+  return addVariable (name,
+                      typeid (T),
+                      reinterpret_cast<void*&>(ptr),
+                      docstring,
+                      &d);
+}
+
+
+/**
+ * @brief Add a variable to the tuple.
+ * @param name The name of the variable.
+ * @param ptr Pointer to the type of the variable.
+ *            The pointer need not be initialized;
+ *            the D3PD software will set the pointer
+ *            prior to calling @c fill().
+ * @param dim Dimension for the variable.
+ *            (Presently unimplemented!)
+ * @param docstring Documentation string for this variable.
+ *                  (Presently unimplemented!)
+ *
+ * If called from the constructor, the only effect is to clear @c ptr.
+ */
+template <class T>
+StatusCode
+IAddVariable::addDimensionedVariable (const std::string& name,
+                                      T* & ptr,
+                                      const std::string& dim,
+                                      const std::string& docstring /*= ""*/)
+{
+  return addDimensionedVariable (name,
+                                 typeid (T),
+                                 reinterpret_cast<void*&>(ptr),
+                                 dim,
+                                 docstring);
+}
+
+
+/**
+ * @brief Add a variable to the tuple.
+ * @param name The name of the variable.
+ * @param ptr Pointer to the type of the variable.
+ *            The pointer need not be initialized;
+ *            the D3PD software will set the pointer
+ *            prior to calling @c fill().
+ * @param dim Dimension for the variable.
+ *            (Presently unimplemented!)
+ * @param docstring Documentation string for this variable.
+ *                  (Presently unimplemented!)
+ * @param defval Pointer to the default value to use for this variable.
+ *               Only works for basic types.
+ *
+ * If called from the constructor, the only effect is to clear @c ptr.
+ */
+template <class T, class U>
+StatusCode
+IAddVariable::addDimensionedVariable (const std::string& name,
+                                      T* & ptr,
+                                      const std::string& dim,
+                                      const std::string& docstring,
+                                      const U& defval)
+{
+  T d = defval;
+  return addDimensionedVariable (name,
+                                 typeid (T),
+                                 reinterpret_cast<void*&>(ptr),
+                                 dim,
+                                 docstring,
+                                 &d);
+}
+
+
+} // namespace D3PD
