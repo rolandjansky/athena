@@ -1,0 +1,104 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGT1RESULTBYTESTREAM_RECROIBRESULTBYTESTREAMTOOL_ICC
+#define TRIGT1RESULTBYTESTREAM_RECROIBRESULTBYTESTREAMTOOL_ICC
+
+// Gaudi/Athena include(s):
+#include "eformat/SourceIdentifier.h"
+
+// Trigger include(s):
+#include "TrigT1Interfaces/RecEmTauRoI.h"
+#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigT1Interfaces/RecJetRoI.h"
+#include "TrigT1Result/RecRoIBResult.h"
+
+/**
+ * Conversion from eformat::ROBFragments to RIO
+ */
+template< class ROBF >
+StatusCode RecRoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
+                                                 ROIB::RecRoIBResult*& result ) {
+
+   MsgStream log( msgSvc(), name() );
+   log << MSG::DEBUG << "executing convert() from ROBFragments to RIO" << endreq;
+
+   /* Object defs */
+   std::vector< LVL1::RecEmTauRoI > emTauContent;
+   std::vector< LVL1::RecMuonRoI >  muonContent;
+   std::vector< LVL1::RecJetRoI >   jetContent;
+
+   // Loop over all ROB fragments:
+   for( unsigned int i = 0; i < robs.size(); ++i ) {
+
+     const ROBF& rob = robs[ i ];
+
+     /* get ROD source ID */
+     uint32_t rodId = rob.rod_source_id();
+
+     /* EmTau ROD */
+     eformat::helper::SourceIdentifier helpEmTauID_0( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, 0 );
+     eformat::helper::SourceIdentifier helpEmTauID_1( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, 1 );
+     eformat::helper::SourceIdentifier helpEmTauID_2( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, 2 );
+     eformat::helper::SourceIdentifier helpEmTauID_3( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, 3 );
+     if( rodId == helpEmTauID_0.code() || rodId == helpEmTauID_1.code() ||
+         rodId == helpEmTauID_2.code() || rodId == helpEmTauID_3.code() ) {
+
+       /* Create content body */
+       DataType it_data;
+       rob.rod_data( it_data );
+       uint32_t ndata = rob.rod_ndata();
+       for( uint32_t i = 0; i < ndata; ++i, ++it_data ) {
+         LVL1::RecEmTauRoI thisRoI( static_cast< uint32_t >( *it_data ), &m_emtauConfig );
+         emTauContent.push_back( thisRoI );
+       }
+
+     }
+
+     /* Jet ROD */
+     eformat::helper::SourceIdentifier helpJetID_0( eformat::TDAQ_CALO_JET_PROC_ROI, 0 );
+     eformat::helper::SourceIdentifier helpJetID_1( eformat::TDAQ_CALO_JET_PROC_ROI, 1 );
+     if( rodId == helpJetID_0.code() || rodId == helpJetID_1.code() ) {
+
+       /* Create content body */
+       DataType it_data;
+       rob.rod_data( it_data );
+       uint32_t ndata = rob.rod_ndata();
+       for( uint32_t i = 0; i < ndata; ++i, ++it_data ) {
+         LVL1::RecJetRoI thisRoI( static_cast< uint32_t >( *it_data ), &m_jetConfig );
+         jetContent.push_back( thisRoI );
+       }
+
+     }
+
+     /* Muon ROD */
+     eformat::helper::SourceIdentifier helpMuonID( eformat::TDAQ_MUON_CTP_INTERFACE, 1 );
+     if( rodId == helpMuonID.code() ) {
+
+       /* Create content body */
+       DataType it_data;
+       rob.rod_data( it_data );
+       uint32_t ndata = rob.rod_ndata();
+       for( uint32_t i = 0; i < ndata; ++i, ++it_data ) {
+         LVL1::RecMuonRoI thisRoI( static_cast< uint32_t>( *it_data ),
+                                   m_muRoISvcPresent ? m_rpcRoISvc.operator->() : 0,
+                                   m_muRoISvcPresent ? m_tgcRoISvc.operator->() : 0,
+                                   &m_muonConfig );
+         muonContent.push_back( thisRoI );
+       }
+
+     }
+
+   } // end of loop over all ROBs
+
+   /* create the top object and fill it. */
+   result = new ROIB::RecRoIBResult( emTauContent, muonContent, jetContent );
+
+   return StatusCode::SUCCESS;
+
+}
+
+#endif // TRIGT1RESULTBYTESTREAM_RECROIBRESULTBYTESTREAMTOOL_ICC

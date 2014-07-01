@@ -1,0 +1,41 @@
+package TrigT1ResultByteStream
+
+use AtlasPolicy      AtlasPolicy-*
+use GaudiInterface   GaudiInterface-*   External
+use StoreGate        StoreGate-*        Control
+use SGTools          SGTools-*          Control
+use ByteStreamData   ByteStreamData-*   Event
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event 
+use ByteStreamCnvSvc ByteStreamCnvSvc-* Event 
+use DataCollection   DataCollection-*   External
+use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
+use TrigT1Result     TrigT1Result-*     Trigger/TrigT1
+use TrigConfigSvc    TrigConfigSvc-*    Trigger/TrigConfiguration
+use TrigConfL1Data   TrigConfL1Data-*   Trigger/TrigConfiguration
+
+private
+# eformat CTP data specification
+use CTPfragment      v*
+
+author Hong Ma <hma@bnl.gov> 
+author Tadashi Maeno <Tadashi.Maeno@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author David Berge <David.Berge@cern.ch>
+author Christian Ohm <Christian.Ohm@cern.ch>
+
+#
+# create the reguTrigT1Result dual_use_lib for the Container converters 
+#
+apply_pattern dual_use_library files="*.cxx"
+apply_pattern declare_joboptions files="*.py"
+
+# The following MacOSX-specific customization allows this package to build on MacOSX,
+# but it's not functional because of the missing eformat libCTPfragment.so library
+
+# eformat CTP data specification
+macro_append TrigT1ResultByteStreamLib_shlibflags " -lCTPfragment " Darwin ""
+
+private
+macro ttr_allow_undefined "_noAllowUndefined" Darwin "allowUndefined"
+apply_tag $(ttr_allow_undefined)
+end_private

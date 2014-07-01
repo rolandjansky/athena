@@ -1,0 +1,294 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_ICC
+#define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_ICC
+
+// Gaudi/Athena include(s):
+#include "GaudiKernel/MsgStream.h"
+
+// eformat include(s):
+#include "eformat/SourceIdentifier.h"
+
+// Trigger include(s):
+#include "TrigT1Result/RoIBResult.h"
+
+/**
+ * Conversion from eformat::ROBFragments to RDO.
+ * This is called from the RoIBResultByteStreamCnv::createObj method.
+ */
+template< class ROBF >
+StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
+                                              ROIB::RoIBResult*& result ) {
+
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "executing convert() from ROBFragments to RDO" << endreq;
+
+  /* Create all RDOs */
+  ROIB::CTPResult cTPResult;
+  ROIB::MuCTPIResult muCTPIResult;
+  std::vector< ROIB::EMTauResult > eMTauResult( 4 );
+  std::vector< ROIB::JetEnergyResult > jetEnergyResult( 2 );
+
+  /* Create a few flags indicating whether or not ROB fragment was found. */
+  bool cTPFound( false ), muCTPIFound( false );
+  bool jetEnergyFound[ 2 ] = { false, false };
+  bool eMTauFound[ 4 ] = { false, false, false, false };
+
+  /* Loop over ROB fragments. */
+  for( unsigned int i = 0; i < robs.size(); ++i ) {
+
+    /* Select the current ROB fragment. */
+    const ROBF rob = robs[i];
+
+    /* Get format version and event number of fragment. */
+    uint32_t formatVersion = rob.rod_version();
+    uint32_t evtNum = rob.rod_lvl1_id();
+    uint32_t robFragSize = rob.fragment_size_word();
+    uint32_t rodFragSize = rob.rod_fragment_size_word();
+    uint32_t robId = rob.source_id();
+
+    /* get ROD source ID */
+    uint32_t rodId = rob.rod_source_id();
+    DataType status;
+    rob.rod_status( status );
+    uint32_t nstatus = rob.rod_nstatus();
+    log << MSG::VERBOSE << "Number of status words: " << nstatus << endreq;
+    for( uint32_t i = 0; i < nstatus; ++i, ++status ) {
+       log << MSG::VERBOSE << "   Status word: 0x" << MSG::hex << std::setw( 8 )
+           << std::setfill( '0' ) << *status << endreq;
+    }
+    rob.rod_status( status );
+
+    /* Care for the errors. */
+    uint32_t errorStat( 0 );
+    if( nstatus > 0 ) errorStat = static_cast< uint32_t >( *status );
+    uint32_t statInfo( 0 );
+    if( nstatus > 1 ) {
+       ++status;
+       statInfo = static_cast< uint32_t >( *status );
+    }
+
+    log << MSG::DEBUG << "ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x" 
+        << rodId << MSG::dec << " ROB fragment size " 
+        << robFragSize << " ROD fragment size " << rodFragSize << endreq;
+
+    /* CTP ROB */
+    eformat::helper::SourceIdentifier helpCTPID( eformat::TDAQ_CTP, m_ctpModuleID );
+    eformat::helper::SourceIdentifier helpCTPID_II( eformat::TDAQ_CTP, 0 );
+
+	 log << MSG::DEBUG << "Check ROD ID against 0x" << MSG::hex 
+		  << helpCTPID.code() << MSG::dec << endreq;
+    if( rodId == helpCTPID.code() || 
+        // this is a hack to catch the early data with the old CTP
+        // firmware, which assigns 0x770000 to both DAQ and LVL2 ROD
+        // fragment - for this data we readout always multiple
+        // bunches for the DAQ ROD, therefore rodFragSize=46 should
+        // identify the LVL2 ROD fragment 
+        ( rodId == helpCTPID_II.code() && rodFragSize == 46 ) ) {
+
+      if( rodId == helpCTPID_II.code() && rodFragSize == 46 ) {
+        log << MSG::DEBUG << "Take CTP ROD fragment with ID 0x" << MSG::hex << rodId << MSG::dec  << endreq;
+      }
+      log << MSG::DEBUG << "   Found CTP ROB." << endreq;
+      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+
+      /* Celebrate finding the ROD */
+      cTPFound = true;
+      /* Create header */
+      ROIB::Header cTPHead( rodId, evtNum, formatVersion );
+      /* Create content body */
+      DataType data;
+      rob.rod_data( data );
+      uint32_t ndata = rob.rod_ndata();
+      std::vector< ROIB::CTPRoI > cTPContent;
+      for( uint32_t i = 0; i < ndata; ++i, ++data ) {
+        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ) << endreq;
+        ROIB::CTPRoI thisRoI( static_cast<uint32_t>( *data ) );
+        cTPContent.push_back( thisRoI );
+      }
+      /* Create Trailer */
+      std::vector< uint32_t > words;
+      words.push_back( errorStat );         // error status
+      words.push_back( statInfo );          // status info
+      words.push_back( 2 );                 // number of status words
+      words.push_back( cTPContent.size() ); // number of data words
+      words.push_back( 1 );                 // status block position
+      ROIB::Trailer cTPTrail( words );
+
+      /* Create CTPResult object */
+      cTPResult = ROIB::CTPResult( cTPHead, cTPTrail, cTPContent );
+
+    } /* end of CTP ROB */
+
+    /* MuCTPI ROB */
+    eformat::helper::SourceIdentifier helpMuonID( eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID );
+    if( rodId == helpMuonID.code() ) {
+
+      log << MSG::DEBUG << "   Found MuCTPI ROB." << endreq;
+      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+
+      /* Celebrate finding the ROB */
+      muCTPIFound = true;
+      /* Create header */
+      ROIB::Header muCTPIHead( rodId, evtNum, formatVersion);
+      /* Create content body */
+      DataType data;
+      rob.rod_data( data );
+      uint32_t ndata = rob.rod_ndata();
+      std::vector< ROIB::MuCTPIRoI > muCTPIContent;
+      for( uint32_t i = 0; i < ndata; ++i, ++data ) {
+        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ) << endreq;
+        ROIB::MuCTPIRoI thisRoI( static_cast< uint32_t >( *data ) );
+        muCTPIContent.push_back( thisRoI );
+      }
+
+      /* Create trailer */
+      std::vector< uint32_t > words;
+      words.push_back( errorStat );            // error status
+      words.push_back( statInfo );             // status info
+      words.push_back( 2 );                    // number of status words
+      words.push_back( muCTPIContent.size() ); // number of data words
+      words.push_back( 1 );                    // status block position
+      ROIB::Trailer muCTPITrail( words );
+
+      /* Create MuCTPIResult object */
+      muCTPIResult = ROIB::MuCTPIResult( muCTPIHead, muCTPITrail, muCTPIContent );
+
+    } /* end of MuCTPI ROB */
+
+    /* Jet ROBs. */
+	 eformat::helper::SourceIdentifier helpJetID_0( eformat::TDAQ_CALO_JET_PROC_ROI, m_jetModuleID[0] );
+	 eformat::helper::SourceIdentifier helpJetID_1( eformat::TDAQ_CALO_JET_PROC_ROI, m_jetModuleID[1] );
+    if( rodId == helpJetID_0.code() || rodId == helpJetID_1.code() ) {
+
+      log << MSG::DEBUG << "   Found Jet/Energy ROB." << endreq;
+      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+
+      /* Create header */
+      ROIB::Header jetEnergyHead( rodId, evtNum, formatVersion );
+      /* Create content body */
+      DataType data;
+      rob.rod_data( data );
+      uint32_t ndata = rob.rod_ndata();
+      std::vector< ROIB::JetEnergyRoI > jetEnergyContent;
+      for( uint32_t i = 0; i < ndata; ++i, ++data ) {
+        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ) << endreq;
+        ROIB::JetEnergyRoI thisRoI( static_cast< uint32_t >( *data ) );
+        jetEnergyContent.push_back( thisRoI );
+      }
+      /* Create trailer */
+      std::vector< uint32_t > words;
+      words.push_back( errorStat );               // error status
+      words.push_back( statInfo );                // status info
+      words.push_back( 2 );                       // number of status words
+      words.push_back( jetEnergyContent.size() ); // number of data words
+      words.push_back( 1 );                       // status block position
+      ROIB::Trailer jetEnergyTrail( words );
+
+      /* Create JetEnergyResult object */
+      int jetEnergySlink( rodId - helpJetID_0.code() );
+      if( jetEnergySlink == 0 || jetEnergySlink == 1 ) {
+        jetEnergyResult[ jetEnergySlink ] = ROIB::JetEnergyResult( jetEnergyHead, jetEnergyTrail, jetEnergyContent );
+        jetEnergyFound[ jetEnergySlink ] = true;
+      }
+
+    } /* end of JetEnergy ROBs */
+
+    /* EMTau ROBs */
+	 eformat::helper::SourceIdentifier helpEMTauID_0( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, m_emModuleID[0] );
+	 eformat::helper::SourceIdentifier helpEMTauID_1( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, m_emModuleID[1] );
+	 eformat::helper::SourceIdentifier helpEMTauID_2( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, m_emModuleID[2] );
+	 eformat::helper::SourceIdentifier helpEMTauID_3( eformat::TDAQ_CALO_CLUSTER_PROC_ROI, m_emModuleID[3] );
+    if( rodId == helpEMTauID_0.code() || rodId == helpEMTauID_1.code() ||
+        rodId == helpEMTauID_2.code() || rodId == helpEMTauID_3.code() ) {
+
+      log << MSG::DEBUG << "   Found EM/Tau ROB." << endreq;
+      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+
+      /* Create header */
+      ROIB::Header eMTauHead( rodId, evtNum, formatVersion );
+      /* Create content body */
+      DataType data;
+      rob.rod_data( data );
+      uint32_t ndata = rob.rod_ndata();
+      std::vector<ROIB::EMTauRoI> eMTauContent;
+      for( uint32_t i = 0; i < ndata; ++i, ++data ) {
+        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ) << endreq;
+        ROIB::EMTauRoI thisRoI( static_cast<uint32_t>( *data ) );
+        eMTauContent.push_back( thisRoI );
+      }
+      /* Create Trailer */
+      std::vector< uint32_t > words;
+      words.push_back( errorStat );           // error status
+      words.push_back( statInfo );            // status info
+      words.push_back( 2 );                   // number of status words
+      words.push_back( eMTauContent.size() ); // number of data words
+      words.push_back( 1 );                   // status block position
+      ROIB::Trailer eMTauTrail( words );
+
+      /* Create EMTauResult object */
+      int eMTauSlink( rodId - helpEMTauID_0.code() );
+      if( eMTauSlink==0 || eMTauSlink==1 || eMTauSlink==2 || eMTauSlink==3) {
+        eMTauResult[ eMTauSlink ] = ROIB::EMTauResult( eMTauHead, eMTauTrail, eMTauContent );
+        eMTauFound[ eMTauSlink ] = true;
+      }
+
+    } /* end of EMTau ROBs */
+
+  } /* End of loop over all ROB fragments. */
+
+  /* create the top object and fill it. */
+  if( cTPFound && muCTPIFound && jetEnergyFound[ 0 ] && jetEnergyFound[ 1 ] &&
+      eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
+    // all RoIBs found
+    result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult, eMTauResult );
+    log << MSG::DEBUG << "All RoI Builder ROB fragments found" << endreq;
+
+  }else if( cTPFound && muCTPIFound  &&  eMTauFound[ 0 ] && eMTauFound[ 1 ] && 
+	    eMTauFound[ 2 ] && eMTauFound[ 3 ] && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ]) {
+    // Jet/Energy not found
+    std::vector< ROIB::JetEnergyResult > jetEnergyResult0;
+    result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult0, eMTauResult );
+    log << MSG::DEBUG << "Jet/Energy fragments not found, built RoIBResult object without it." << endreq;
+
+  } else if( cTPFound && jetEnergyFound[ 0 ] && jetEnergyFound[ 1 ] &&
+             eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] && !muCTPIFound) {
+    // MuCTPI not found
+    result = new ROIB::RoIBResult( cTPResult, eMTauResult, jetEnergyResult );
+    log << MSG::DEBUG << "MuCTPI ROB fragment not found, built RoIBResult object without it." << endreq;
+
+  } else if( cTPFound && eMTauFound[ 0 ] && eMTauFound[ 1 ] &&
+             eMTauFound[ 2 ] && eMTauFound[ 3 ] && !muCTPIFound && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ] ) {
+    // MuCTPI and jet/energy not found
+    result = new ROIB::RoIBResult( cTPResult, eMTauResult );
+    log << MSG::DEBUG << "MuCTPI and Jet/Energy fragments not found, built RoIBResult object without them." << endreq;
+
+  } else if( cTPFound && muCTPIFound && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ] && 
+	     !eMTauFound[ 0 ] && !eMTauFound[ 1 ] && ! eMTauFound[ 2 ] && !eMTauFound[ 3 ]  ) {
+	  // jetEnergyResult and eMTauResult are empty
+    result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult, eMTauResult );
+    log << MSG::DEBUG << "Calo fragments not found, built RoIBResult from CTPResult and MuCTPIResult only." << endreq;
+
+  } else if( cTPFound &&  !muCTPIFound && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ] &&
+      !eMTauFound[ 0 ] && !eMTauFound[ 1 ] && !eMTauFound[ 2 ] && !eMTauFound[ 3 ] ) {
+
+    result = new ROIB::RoIBResult( cTPResult );
+    log << MSG::DEBUG << "MuCTPI and calo fragments not found, built RoIBResult from CTPResult only." << endreq;
+
+  } else {
+    result = new ROIB::RoIBResult();
+    log << MSG::DEBUG << "No LVL1 fragments found, create empty RoIBResult." << endreq;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+#endif // TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_ICC

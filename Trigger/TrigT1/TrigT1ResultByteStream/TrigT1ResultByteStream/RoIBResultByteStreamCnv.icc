@@ -1,0 +1,154 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_ICC
+#define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_ICC
+
+// Gaudi/Athena include(s):
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IRegistry.h"
+
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddressL1R.h"
+#include "ByteStreamData/RawEvent.h"
+
+#include "SGTools/StorableConversions.h"
+
+// Trigger include(s):
+#include "TrigT1Result/RoIBResult.h"
+
+// Local include(s):
+#include "TrigT1ResultByteStream/L1SrcIdMap.h"
+
+/**
+ * The constructor sets up all the ToolHandle and ServiceHandle objects and initialises the
+ * base class in the correct way.
+ */
+template< class ROBF >
+RoIBResultByteStreamCnv< ROBF >::RoIBResultByteStreamCnv( ISvcLocator* svcloc )
+  : Converter( ByteStream_StorageType, classID(), svcloc ),
+    m_tool( "RoIBResultByteStreamTool" ),
+    m_ByteStreamCnvSvc( "ByteStreamCnvSvc", "RoIBResultByteStreamCnv" ) {
+
+}
+
+/**
+ * Function telling the framework the Class ID of the object that this converter
+ * is for (RoIBResult).
+ */
+template< class ROBF >
+const CLID& RoIBResultByteStreamCnv< ROBF >::classID(){
+  return ClassID_traits< ROIB::RoIBResult >::ID();
+}
+
+
+/**
+ * Init method gets all necessary services etc.
+ */
+template< class ROBF >
+StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
+
+  //
+  // Initialise the base class:
+  //
+  StatusCode sc = Converter::initialize();
+  if( sc.isFailure() ) {
+    return sc;
+  }
+
+  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
+  log << MSG::DEBUG << "In initialize()" << endreq;
+
+  //
+  // Get ByteStreamCnvSvc:
+  //
+  sc = m_ByteStreamCnvSvc.retrieve();
+  if( sc.isFailure() ) {
+    log << MSG::FATAL << "Can't get ByteStreamCnvSvc" << endreq;
+    return sc;
+  } else {
+    log << MSG::DEBUG << "Connected to ByteStreamCnvSvc" << endreq;
+  }
+
+  //
+  // Get RoIBResultByteStreamTool:
+  //
+  sc = m_tool.retrieve();
+  if( sc.isFailure() ) {
+    log << MSG::FATAL << "Can't get RoIBResultByteStreamTool" << endreq;
+    return sc;
+  } else {
+    log << MSG::DEBUG << "Connected to RoIBResultByteStreamTool" << endreq;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+/**
+ * This function creates the RoIBResult object from the BS data. It collects all the
+ * ROB fragments coming from the RoI Builder and gives them to RoIBResultByteStreamTool
+ * for conversion.
+ */
+template< class ROBF >
+StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
+
+  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
+  log << MSG::DEBUG << "createObj() called" << endreq;
+
+  ByteStreamAddressL1R *pAddrL1;
+  pAddrL1 = dynamic_cast< ByteStreamAddressL1R* >( pAddr );
+  if( ! pAddrL1 ) {
+    log << MSG::ERROR << " Cannot cast to ByteStreamAddressL1R" << endreq ;
+    return StatusCode::FAILURE;
+  }
+
+  ROIB::RoIBResult* result;
+
+  const std::vector< ROBF >& robs = pAddrL1->getPointers();
+
+  // Convert to Object
+  StatusCode sc = m_tool->convert( robs, result );
+  if( sc.isFailure() ) {
+    log << MSG::ERROR << "Couldn't convert the robs into RoIBResult" << endreq;
+    return sc;
+  }
+
+  log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) <<endreq;
+
+  pObj = SG::asStorable( result ) ;
+  return StatusCode::SUCCESS;
+
+}
+
+/**
+ * This function receives an RoIBResult object as input, and adds all the ROB fragments
+ * of the RoI Builder to the current raw event using the IByteStreamEventAccess
+ * interface.
+ */
+template< class ROBF >
+StatusCode RoIBResultByteStreamCnv< ROBF >::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
+
+  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
+  log << MSG::DEBUG << "createRep() called" << endreq;
+
+  RawEventWrite* re = m_ByteStreamCnvSvc->getRawEvent();
+
+  ROIB::RoIBResult* result;
+
+  if( ! SG::fromStorable( pObj, result ) ) {
+    log << MSG::ERROR << " Cannot cast to RoIBResult" << endreq ;
+    return StatusCode::FAILURE;
+  }
+
+  ByteStreamAddress* addr = new ByteStreamAddress( classID(), pObj->registry()->name(), "" );
+
+  pAddr = addr;
+
+  return m_tool->convert( result, re );
+
+}
+
+#endif // TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMCNV_ICC
