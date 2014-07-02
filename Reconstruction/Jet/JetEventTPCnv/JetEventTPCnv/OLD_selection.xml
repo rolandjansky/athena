@@ -1,0 +1,27 @@
+<lcgdict>
+
+  <class name="JetCollection_tlp2" id="668B769E-E190-4904-BE2C-1677279A9803"/>
+  <class name="std::vector<JetCollection_p4>" />
+  <class name="JetCollection_p4" />
+  <class name="std::vector<Jet_p4>" />
+  <class name="Jet_p4">
+  </class>
+
+
+  <class name="JetCollection_p3" id="8CC411B4-8369-4C61-9B15-8A806DBFBBD1" />
+  <class name="std::vector<Jet_p3>" />
+  <class name="Jet_p3">
+    <field name="m_ownPointers" transient="true"/>
+  </class>
+
+  <class name="JetCollection_p2" id="0260D9A5-9C75-45FF-AC97-EA220FB11380" />
+  <class name="std::vector<Jet_p2>" />
+  <class name="Jet_p2">
+    <field name="m_ownPointers" transient="true"/>
+  </class>
+
+  <class name="JetCollection_p1" id="9B8CE942-1457-4392-A98A-A1A464990B9A" />
+  <class name="std::vector<Jet_p1>" />
+  <class name="Jet_p1" />
+
+</lcgdict>
