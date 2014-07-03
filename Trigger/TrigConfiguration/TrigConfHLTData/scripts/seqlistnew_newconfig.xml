@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- hlt_setup.name="dummy", hlt_setup.version="0.0" -->
+<!-- hlt_release.name="11.0.4" -->
+
+<SEQUENCE_LIST>
+
+<SEQUENCE input="EM40ROI"           algorithm="dummyAlgL2/gamma/g4"                            output="g"          />
+<SEQUENCE input="g"                 algorithm="dummyAlgEF/gamma4/g3"                           output="g4"         />
+<SEQUENCE input="g4"                algorithm="dummyAlgEF/gamma40/g1"                          output="g40"        />
+<SEQUENCE input="g40"               algorithm="dummyAlgEF/gamma40i/g1"                         output="g40i"       />
+
+<SEQUENCE input="EM20ROI"           algorithm="dummyAlgL2/elec/e4"                             output="e_cand"     />
+<SEQUENCE input="sc_hits"           algorithm="dummyAlgL2/sc/sc1"                              output="track_cand" />
+
+<SEQUENCE input="e_cand track_cand" algorithm="dummyAlgEF/neweleccand/e3"                      output="e_tr"       />
+<SEQUENCE input="e_tr"              algorithm="dummyAlgEF/newelec20/e1"                        output="e20_tr"     />
+<SEQUENCE input="e20_tr"            algorithm="dummyAlgEF/newelec20i/e1"                       output="e20i_tr"    />
+ 
+<SEQUENCE input="MU20ROI"           algorithm="dummyAlgL2/muon/m1"                             output="mu"         />
+<SEQUENCE input="mu"                algorithm="dummyAlgL2/muon20/m2"                           output="mu20"       />
+<SEQUENCE input="mu20"              algorithm="dummyAlgEF/muon20iA/m2 dummyAlgEF/muon20iB/m2"  output="mu20i"      />
+
+</SEQUENCE_LIST>

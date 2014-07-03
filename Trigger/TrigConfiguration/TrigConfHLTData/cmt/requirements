@@ -1,0 +1,31 @@
+package TrigConfHLTData
+
+author  David.Berge@cern.ch, Joerg.Stelzer@cern.ch
+manager Joerg.Stelzer@cern.ch
+
+
+use DetCommonPolicy   *
+use Boost             v*                LCG_Interfaces
+use TrigConfL1Data    TrigConfL1Data-*  Trigger/TrigConfiguration
+#private
+#end_private
+
+
+#============================================================================
+# Build rules
+#============================================================================
+
+#macro_append TrigConfHLTData_extra_shlibflags " $(Boost_linkopts_system) "
+macro_append TrigConfHLTData_use_linkopts " $(Boost_linkopts_system) "
+
+apply_pattern detcommon_shared_library
+apply_pattern detcommon_ignores
+apply_pattern detcommon_header_installer
+
+
+#============================================================================
+private
+#============================================================================
+
+#apply_pattern detcommon_lcgdict dict=TrigConfHLTData selectionfile=selection.xml headerfiles="../TrigConfHLTData/TrigConfHLTDataDict.h"
+

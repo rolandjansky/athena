@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- xml script created Sat Nov 26 00:08:05 2005 on pc2-hoecker -->
+<!-- hlt_master_table.name="lumi_1",     hlt_master_table.version="0.1" -->
+<!-- hlt_trigger_menu.name="lumi_1",     hlt_trigger_menu.version="0.1" -->
+<!-- hlt_prescale_set.name="prA_lumi1",  hlt_prescale_set.version="0.1" -->
+
+<CHAIN_LIST>
+
+   <CHAIN chain_id="e25" chain_counter="1" level="L2" lower_sig="EM25" prescale="1" pass_through="0">
+   
+      <SIGNATURE_LIST>
+   
+         <SIGNATURE signature_id="te_e25" step="1" logic="1">
+            <TRIGGERELEMENT te_name="te_e25"></TRIGGERELEMENT>
+         </SIGNATURE>
+         <SIGNATURE signature_id="te_e25_tr" step="2" logic="1">
+            <TRIGGERELEMENT te_name="te_e25_tr"></TRIGGERELEMENT>
+         </SIGNATURE>
+         <SIGNATURE signature_id="te_e25_ma" step="3" logic="1">
+   	    <TRIGGERELEMENT te_name="te_e25_ma"></TRIGGERELEMENT>
+         </SIGNATURE>
+   
+      </SIGNATURE_LIST>
+   
+   </CHAIN>
+   
+   <CHAIN chain_id="2e15" chain_counter="2" level="L2" lower_sig="2EM15" prescale="10" pass_through="0">
+   
+      <SIGNATURE_LIST>
+   
+         <SIGNATURE signature_id="2te_e15" step="1" logic="1">
+            <TRIGGERELEMENT te_name="te_e15"></TRIGGERELEMENT>
+            <TRIGGERELEMENT te_name="te_e15"></TRIGGERELEMENT>
+         </SIGNATURE>
+         <SIGNATURE signature_id="2te_e15_tr" step="2" logic="1">
+            <TRIGGERELEMENT te_name="te_e15_tr"></TRIGGERELEMENT>
+            <TRIGGERELEMENT te_name="te_e15_tr"></TRIGGERELEMENT>
+         </SIGNATURE>
+         <SIGNATURE signature_id="2te_e15_ma" step="3" logic="1">
+            <TRIGGERELEMENT te_name="te_e15_ma"></TRIGGERELEMENT>
+   	    <TRIGGERELEMENT te_name="te_e15_ma"></TRIGGERELEMENT>
+         </SIGNATURE>
+      </SIGNATURE_LIST>
+
+   </CHAIN>
+
+   <CHAIN chain_id="mu25" chain_counter="3" level="L2" lower_sig="MU25" prescale="100" pass_through="0">
+
+      <SIGNATURE_LIST>
+
+         <SIGNATURE signature_id="te_mu25" step="1" logic="1">
+   	    <TRIGGERELEMENT te_name="te_mu25"></TRIGGERELEMENT>
+         </SIGNATURE>
+         <SIGNATURE signature_id="te_mu25_i" step="2" logic="1">
+   	    <TRIGGERELEMENT te_name="te_mu25_i"></TRIGGERELEMENT>
+         </SIGNATURE>
+         <SIGNATURE signature_id="te_mu25_i" step="3" logic="1">
+   	    <TRIGGERELEMENT te_name="te_mu25_i"></TRIGGERELEMENT>
+         </SIGNATURE>
+   
+      </SIGNATURE_LIST>
+   
+   </CHAIN>
+
+</CHAIN_LIST>
+

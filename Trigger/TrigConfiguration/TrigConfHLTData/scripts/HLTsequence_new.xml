@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- xml script created Sat Nov 26 00:08:05 2005 on pc2-hoecker -->
+<!-- hlt_setup.name="TrigElectronMuon", hlt_setup.version="1.0" -->
+<!-- hlt_release.name="hlt-image-0.X" -->
+
+<SEQUENCE_LIST>
+ 
+   <SEQUENCE level="L2" step="1" input="tt_EM25"    algorithm="t2_calo/t2_calo_e25/not_used" 	  output="te_e25"	 />
+   <SEQUENCE level="L2" step="2" input="te_e25"	    algorithm="id_scan/id_scan_e25/not_used" 	  output="te_e25_tr"	 />
+   <SEQUENCE level="L2" step="3" input="te_e25_tr"  algorithm="match/match_e25/not_used" 	  output="te_e25_ma"	 />
+
+   <SEQUENCE level="L2" step="1" input="tt_EM15"    algorithm="t2_calo/t2_calo_e15/not_used" 	  output="te_e15"	 />
+   <SEQUENCE level="L2" step="2" input="te_e15"	    algorithm="id_scan/id_scan_e15/not_used" 	  output="te_e15_tr"	 />
+   <SEQUENCE level="L2" step="3" inpyut="te_e15_tr" algorithm="match/match_e15/not_used" 	  output="te_e15_ma"	 />
+
+   <SEQUENCE level="L2" step="1" input="tt_MU25"    algorithm="mu_fast/mu_fast_mu25/not_used" 	  output="te_mu25"	 />
+   <SEQUENCE level="L2" step="2" input="te_mu25"    algorithm="isolation/isolation_mu25/not_used" output="te_mu25_i"	 />
+   <SEQUENCE level="L2" step="3" input="te_mu25"    algorithm="isolation/isolation_mu25/not_used" output="te_mu25_i"	 />
+
+</SEQUENCE_LIST>
+
