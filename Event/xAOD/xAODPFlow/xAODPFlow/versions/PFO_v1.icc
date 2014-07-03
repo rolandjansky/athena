@@ -1,0 +1,45 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include "xAODPFlow/versions/PFOAttributesAccessor_v1.h"
+
+namespace xAOD{
+
+  template<class T> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const T& anAttribute) {
+    (*(PFOAttributesAccessor_v1<T>::accessor(AttributeType)))(*this) = anAttribute;
+  }
+  
+  template<class T> bool PFO_v1::attribute(PFODetails::PFOAttributes AttributeType, T& anAttribute) const {
+    
+    Accessor<T>* acc = PFOAttributesAccessor_v1<T>::accessor(AttributeType);
+    //check if accessor pointer is NULL
+    if( ! acc ) {  return false ;}
+    //check if variable is avaialable
+    if( ! acc->isAvailable( *this ) ) return false;
+    //set variable and return true
+    anAttribute =( *acc )( *this );
+    return  true;
+  }
+
+  template<class T> void PFO_v1::setAttribute(const std::string& AttributeType, const T& anAttribute) {
+
+    static Accessor<T> acc(AttributeType);
+    acc(*this) = anAttribute;
+
+  }
+
+  template<class T> bool PFO_v1::attribute(const std::string& AttributeType, T& anAttribute) const {
+    static Accessor<T> acc(AttributeType);
+    //Check if variable is available
+    if( !acc.isAvailable( *this ) ) return false;
+    else {
+      anAttribute = acc(*this);
+      return true;
+    }
+  }
+
+  
+
+}//namespace xAOD
