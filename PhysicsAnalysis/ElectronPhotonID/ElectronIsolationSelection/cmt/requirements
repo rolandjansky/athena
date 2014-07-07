@@ -1,0 +1,30 @@
+#################################################
+package ElectronIsolationSelection
+
+author John Morris <john.morris@cern.ch>
+
+use AtlasPolicy                AtlasPolicy-*     
+use AtlasROOT                  AtlasROOT-*              External
+
+use AsgTools                   AsgTools-*               Control/AthToolSupport
+use PATCore                    PATCore-*                PhysicsAnalysis/AnalysisCommon
+
+use egammaAnalysisUtils        egammaAnalysisUtils-*    Reconstruction/egamma/egammaAnalysis
+
+use xAODEgamma                 xAODEgamma-*             Event/xAOD
+use xAODEventInfo              xAODEventInfo-*          Event/xAOD
+use xAODTracking               xAODTracking-*           Event/xAOD
+
+apply_pattern installed_library
+              library ElectronIsolationSelection "../Root/*.cxx ../src/*.cxx ../src/components/*.cxx"
+apply_pattern component_library                           
+
+apply_pattern declare_runtime files="-s=../share *.root *.xml"
+
+private
+
+use GaudiInterface             GaudiInterface-*         External
+use xAODCaloEvent              xAODCaloEvent-*          Event/xAOD
+
+end_private
+#################################################
