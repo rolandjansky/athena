@@ -1,0 +1,63 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+@mainpage  LArCalibTools
+@author Marco.Delmastro@cern.ch
+
+@section LArCalibToolsIntro Introduction
+
+This package containes the algorithms to dump the LAr calibration constants
+into ROOT TTrees to be used for debugging, displaying, monitoring and analysis
+purposes.
+
+@todo
+   
+   - Uniform TTree variables names/meaning 
+   - Support for HEC and FCAL is to be added to   
+         - LArAverages2Ntuple
+         - LArMphysOverMcalFromTuple
+         - LArParams2Ntuple
+         - LArPhysWaveFromTuple 
+         - LArWFParams2Ntuple
+   - LArShape2PhysWave is to be renamed and possibly moved to LArCalibUtils.
+   - Cleanup/update of the exaple jobOptions is needed.
+   - All the algorithms need to be migrated to configurable.
+   - Doxygen description of classes and methods is missing.
+
+@section LArCalibToolsOverview Class Overview
+  
+  The LArCalibTools package contains of following classes:
+
+   - LArAutoCorr2Ntuple
+   - LArAverages2Ntuple
+   - LArMphysOverMcalFromTuple
+   - LArOFC2Ntuple
+   - LArParams2Ntuple
+   - LArParamsProperties
+   - LArPedestals2Ntuple
+   - LArPhysWaveFromTuple
+   - LArRamps2Ntuple
+   - LArReadParamsFromFile
+   - LArShape2PhysWave
+   - LAruA2MeV2Ntuple
+   - LArWaves2Ntuple
+   - LArWFParams2Ntuple
+
+@ref used_LArCalibTools
+
+@ref requirements_LArCalibTools
+
+*/
+
+/**
+@page used_LArCalibTools Used Packages
+@htmlinclude used_packages.html
+*/
+
+/**
+@page requirements_LArCalibTools Requirements
+@include requirements
+*/
+

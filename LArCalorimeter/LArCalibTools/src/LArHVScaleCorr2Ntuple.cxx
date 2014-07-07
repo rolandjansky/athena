@@ -1,0 +1,64 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "LArCalibTools/LArHVScaleCorr2Ntuple.h"
+#include "LArRawConditions/LArHVScaleCorrComplete.h"
+#include "CaloIdentifier/CaloGain.h"
+
+LArHVScaleCorr2Ntuple::LArHVScaleCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
+  LArCond2NtupleBase(name, pSvcLocator) { 
+  m_contKey = "LArHVScaleCorr";
+  declareProperty("ContainerKey",m_contKey);
+
+  m_ntTitle="HV Scale Correction";
+  m_ntpath="/NTUPLES/FILE1/HVSCALE";
+
+}
+
+LArHVScaleCorr2Ntuple::~LArHVScaleCorr2Ntuple() 
+{}
+
+StatusCode LArHVScaleCorr2Ntuple::stop() {
+ 
+  const LArHVScaleCorrComplete* larHVScaleCorrComplete;
+  StatusCode sc=m_detStore->retrieve(larHVScaleCorrComplete,m_contKey);
+  if (sc!=StatusCode::SUCCESS) {
+    (*m_log)  << MSG::ERROR << "Unable to retrieve LArHVScaleCorrComplete with key " 
+	      << m_contKey << " from DetectorStore" << endreq;
+    return StatusCode::FAILURE;
+    } 
+
+ NTuple::Item<float> corr;
+
+ sc=m_nt->addItem("hvcorr",corr,-1000.,2.);
+ if (sc!=StatusCode::SUCCESS)
+   {(*m_log)  << MSG::ERROR << "addItem 'corr' failed" << endreq;
+    return StatusCode::FAILURE;
+   }
+
+
+ unsigned cellCounter=0;
+ std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
+ std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
+ for(; itOnId!=itOnIdEnd;++itOnId){
+     const HWIdentifier hwid = *itOnId;
+     if (m_larCablingSvc->isOnlineConnected(hwid)) {
+       const LArHVScaleCorrComplete::LArCondObj hvScale_obj=
+	 larHVScaleCorrComplete->get(hwid);
+       if (!hvScale_obj.isEmpty()) {
+	 fillFromIdentifier(hwid);       
+	 corr=hvScale_obj.m_data;
+	 sc=ntupleSvc()->writeRecord(m_nt);
+	 if (sc!=StatusCode::SUCCESS) {
+	   (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;
+	   return StatusCode::FAILURE;
+	 }
+       }// end if object exists
+     }//end if isConnected
+  cellCounter++;
+ }//end loop over online ID
+
+ (*m_log)  << MSG::INFO << "LArHVScaleCorr2Ntuple has finished." << endreq;
+ return StatusCode::SUCCESS;
+}// end finalize-method.
