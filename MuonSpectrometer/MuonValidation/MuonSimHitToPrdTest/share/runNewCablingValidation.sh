@@ -1,0 +1,7 @@
+#
+#ln -sf /afs/cern.ch/work/s/stefspa/atlas/sw/rpc/samples/rel17singleMuForCabling/geantinosHitsRel27_25k.pool.root ./HITS.pool.root
+ln -sf /afs/cern.ch/work/s/stefspa/atlas/sw/rpc/samples/rel17singleMuForCabling/SimulatedHitsFeet_25k.pool.root ./HITS.pool.root
+
+#Digi_trf.py inputHitsFile=HITS.pool.root  maxEvents=100 geometryVersion=ATLAS-GEO-20-00-01 conditionsTag=OFLCOND-MC12-SDR-06 preExec='from AthenaCommon.DetFlags import DetFlags;DetFlags.ID_setOff();DetFlags.Calo_setOff();DetFlags.Muon_setOn();DetFlags.MDT_setOff();DetFlags.CSC_setOff();DetFlags.TGC_setOff();DetFlags.RPC_setOn();DetFlags.digitize.MDT_setOff();DetFlags.digitize.TGC_setOff();DetFlags.digitize.RPC_setOn();DetFlags.digitize.CSC_setOff();DetFlags.Truth_setOn()' postExec='from AthenaCommon.AppMgr import ServiceMgr as svcMgr;svcMgr.GeoModelSvc.IgnoreTagDifference=True' postInclude=NtupleFragmentTestCabOnly.py
+##
+Digi_trf.py inputHitsFile=HITS.pool.root  maxEvents=-1 geometryVersion=ATLAS-GEO-20-00-01 conditionsTag=OFLCOND-MC12-SDR-06 preExec='from AthenaCommon.DetFlags import DetFlags;DetFlags.ID_setOff();DetFlags.Calo_setOff();DetFlags.Muon_setOn();DetFlags.MDT_setOff();DetFlags.CSC_setOff();DetFlags.TGC_setOff();DetFlags.RPC_setOn();DetFlags.digitize.MDT_setOff();DetFlags.digitize.TGC_setOff();DetFlags.digitize.RPC_setOn();DetFlags.digitize.CSC_setOff();DetFlags.Truth_setOn()' postExec='from AthenaCommon.AppMgr import ServiceMgr as svcMgr;svcMgr.GeoModelSvc.IgnoreTagDifference=True' postInclude=NtupleFragmentTestCabOnly.py
