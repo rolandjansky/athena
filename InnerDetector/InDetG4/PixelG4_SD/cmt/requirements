@@ -1,0 +1,28 @@
+package PixelG4_SD
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+use AthenaKernel          AthenaKernel-*          Control
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use InDetSimEvent 	  InDetSimEvent-* 	  InnerDetector
+
+private
+
+use AtlasDoxygen          AtlasDoxygen-*          Tools
+use AtlasCLHEP            AtlasCLHEP-*            External
+use Geant4                Geant4-*                External	
+use MCTruth		  MCTruth-*		  Simulation/G4Sim
+use SimHelpers		  SimHelpers-* 		  Simulation/G4Sim
+	
+end_private
+
+public
+
+# define link options
+apply_pattern component_library
+library PixelG4_SD *.cxx
+
+
+

@@ -1,0 +1,11 @@
+Package:      Offline/InnerDetector/InDetG4/PixelG4/PixelG4_SD  
+Responsible:  Davide Costanzo <DCostanzo@lbl.gov>      (Primary)
+Content:  G4 Sensitive Detector for the pixel
+
+Inputs:       None (to be attached at run-time to the active elements)
+Outputs:      Inner Detector GEANT4 Hits
+Dependencies: GEANT4, FADS, SimHelper
+JobOoptions:  None
+G4 Macro:     pixelsensitive.mac
+
+Last modified October 27, 2003 by Davide Costanzo
