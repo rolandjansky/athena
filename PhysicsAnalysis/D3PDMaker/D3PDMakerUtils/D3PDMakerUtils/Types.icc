@@ -1,0 +1,39 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/Types.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2014
+ * @brief A simple tuple of multiple types.
+ *
+ * This file is used with boost.preprocessor to expand the specializations
+ * of @c SelectType.
+ */
+
+
+#ifdef BOOST_PP_IS_ITERATING
+
+
+namespace D3PD {
+
+
+#define n BOOST_PP_ITERATION()
+
+
+template <BOOST_PP_ENUM_PARAMS(D3PD_MAX_TYPE_CHOICES, class T)>
+struct SelectType<Types<BOOST_PP_ENUM_PARAMS(D3PD_MAX_TYPE_CHOICES, T)>, n>
+{
+  typedef BOOST_PP_CAT(T, n) type;
+};
+
+
+#undef n
+
+
+} // namespace D3PD
+
+
+#endif

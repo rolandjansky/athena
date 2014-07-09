@@ -1,0 +1,272 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/SingleAssociationToolMulti.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jun, 2012
+ * @brief A specialization of SingleAssociationTool that can accept one
+ *        of several types.
+ */
+
+
+#ifndef BOOST_PP_IS_ITERATING
+
+
+//**************************************************************************
+// Single-argument specialization
+//
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <class T0, class TO_T>
+SingleAssociationTool<Types<T0>, TO_T>::SingleAssociationTool
+  (const std::string& type,
+   const std::string& name,
+   const IInterface* parent)
+    : SingleAssociationToolTo<TO_T> (type, name, parent),
+      m_which(0),
+      m_fromTypeinfo(0)
+{
+}
+
+
+/**
+ * @brief Configure during initialization: type-check.
+ * @param tree Our parent for tuple making.
+ * @param ti Gives the type of the object being passed to @c fillUntyped.
+ *
+ * @c configureD3PD should check that the type of the object coming as input
+ * is compatible with what it expects, and raise an error otherwise.
+ */
+template <class T0, class TO_T>
+StatusCode
+SingleAssociationTool<Types<T0>, TO_T>::configureD3PD
+  (IAddVariable* tree,
+   const std::type_info& ti)
+{
+  std::vector<const std::type_info*> tis;
+  push_ti (tis);
+  StatusCode sc = this->configureMulti (tree, ti, tis, m_which);
+  if (m_which < tis.size())
+    m_fromTypeinfo = tis[m_which];
+  return sc;
+}
+
+
+/**
+ * @brief Return the @c std::type_info for the source of the association.
+ */
+template <class T0, class TO_T>
+const std::type_info&
+SingleAssociationTool<Types<T0>, TO_T>::fromTypeinfo() const
+{
+  return *m_fromTypeinfo;
+}
+
+
+/**
+ * @brief Return the @c std::type_info for the source of the association.
+ */
+template <class T0, class TO_T>
+const std::type_info&
+SingleAssociationTool<Types<T0>, TO_T>::typeinfo() const
+{
+  return multiTypeInfo ((TO_T*)0, m_which);
+}
+
+
+/**
+ * @brief Release an object retrieved from the association.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c get().  The default implementation is a no-op,
+ * but if the association dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class T0, class TO_T>
+inline
+void
+SingleAssociationTool<Types<T0>, TO_T>::releaseObject
+  (const typename SelectType<TO_T, 0>::type* /*p*/)
+{
+}
+
+
+/**
+ * @brief Release an object retrieved from the association.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c getUntyped().  The default implementation is a no-op,
+ * but if the association dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class T0, class TO_T>
+inline
+void
+SingleAssociationTool<Types<T0>, TO_T>::releaseObjectUntyped (const void* p)
+{
+  this->releaseObject (reinterpret_cast<const typename SelectType<TO_T, 0>::type*> (p));
+}
+
+
+/**
+ * @brief Return the target object.
+ * @param p The source object for the association.
+ *
+ * Return the target of the association, or 0.
+ * Should be of the type given by @c typeinfo.
+ */
+template <class T0, class TO_T>
+const void*
+SingleAssociationTool<Types<T0>, TO_T>::getUntyped
+  (const void* p)
+{
+  p = this->doConversion (p);
+  if (!p) return 0;
+  return doGetUntyped (p);
+}
+
+
+/**
+ * @brief Helper to decide which which @c get method to call.
+ *
+ * This either calls @c get using the last type
+ * in our template argument list, or chains to the base class.
+ *
+ * It's virtual so that we can call the most-derived one from
+ * @c getUntyped in the base class, but we also declare it as inline
+ * so that the base class chaining can be inlined.
+ */
+template <class T0, class TO_T>
+inline
+const void*
+SingleAssociationTool<Types<T0>, TO_T>::doGetUntyped (const void* p)
+{
+  if (this->m_which == 0)
+    return this->get (*reinterpret_cast<const T0*> (p));
+  std::abort();
+}
+
+
+/**
+ * @brief Helper to collect the list of @c type_info's that we accept.
+ *
+ * This first chains to the base class to pick up its list.
+ * Then we add the @c type_info corresponding to the last type
+ * in the template argument list.
+ */
+template <class T0, class TO_T>
+void
+SingleAssociationTool<Types<T0>, TO_T>::push_ti (std::vector<const std::type_info*>& tis)
+{
+  tis.reserve (1);
+  tis.push_back (&typeid(T0));
+}
+
+
+} // namespace D3PD
+
+
+#include "boost/preprocessor/cat.hpp"
+#include "boost/preprocessor/repetition/enum_params.hpp"
+#include "boost/preprocessor/arithmetic/inc.hpp"
+
+
+#endif // not BOOST_PP_IS_ITERATING
+
+
+
+#ifdef BOOST_PP_IS_ITERATING
+
+
+//**************************************************************************
+// Multiple-argument specializations
+//
+
+
+#define n BOOST_PP_ITERATION()
+#define nargs BOOST_PP_INC(n)
+#define Tlast BOOST_PP_CAT(T, n)
+
+
+namespace D3PD {
+
+
+/**
+ * @brief A specialization of SingleAssociationTool that can accept one
+ *        of several types.
+ *
+ * This specialization is for the case of more than one argument.
+ * It is preprocessed multiple times by boost.preprocessor to generate
+ * a separate specialization for each number of arguments.  We expect
+ * these definitions:
+ *
+ *   n     - Index of the argument being defined.  >= 1.
+ *   nargs - Total number of arguments for this specialization.   n+1
+ *   Tlast - The name of the last template argument.   T<n>
+ */
+template <BOOST_PP_ENUM_PARAMS(nargs, class T), class TO_T>
+class SingleAssociationTool<Types<BOOST_PP_ENUM_PARAMS(nargs, T)>, TO_T>
+  : public SingleAssociationTool<Types<BOOST_PP_ENUM_PARAMS(n, T)>, TO_T>
+{
+public:
+  typedef SingleAssociationTool<Types<BOOST_PP_ENUM_PARAMS(n, T)>, TO_T> Base;
+  SingleAssociationTool (const std::string& type,
+                         const std::string& name,
+                         const IInterface* parent)
+    : Base (type, name, parent)
+  {}
+
+  virtual void push_ti (std::vector<const std::type_info*>& tis) override
+  {
+    tis.reserve (nargs);
+    Base::push_ti (tis);
+    tis.push_back (&typeid(Tlast));
+  }
+
+  using Base::get;
+  virtual const typename SelectType<TO_T, n>::type* get (const Tlast& p) = 0;
+
+  virtual const void* doGetUntyped (const void* p) override
+  {
+    if (this->m_which == n)
+      return this->get (*reinterpret_cast<const Tlast*> (p));
+    return Base::doGetUntyped (p);
+  }
+
+  using Base::releaseObject;
+  virtual void releaseObject (const typename SelectType<TO_T, n>::type* /*p*/) {}
+
+  virtual void releaseObjectUntyped (const void* p) override
+  {
+#define BODY(Z,N,DATA) if (this->m_which == N) { this->releaseObject(reinterpret_cast<const typename SelectType<TO_T, N>::type*>(p)); return; }
+    BOOST_PP_REPEAT(nargs, BODY, dum)
+#undef BODY
+    std::abort();
+  }
+};
+
+
+#undef nargs
+#undef n
+#undef Tlast
+
+
+} // namespace D3PD
+
+
+#endif // BOOST_PP_IS_ITERATING
+

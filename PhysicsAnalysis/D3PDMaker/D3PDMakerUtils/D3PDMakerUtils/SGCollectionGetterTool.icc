@@ -1,0 +1,103 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/SGCollectionGetterTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2009
+ * @brief Collection getter tool retrieving a container from StoreGate.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <class CONT>
+SGCollectionGetterTool<CONT>::SGCollectionGetterTool
+  (const std::string& type,
+   const std::string& name,
+   const IInterface* parent)
+    : SGGetterImpl (name, this->evtStore()),
+      CollectionGetterTool<CONT> (type, name, parent)
+{
+  SGGETTERIMPL_PROPS;
+
+  if (this->setProperty ("TypeName",
+                         ClassID_traits<CONT>::typeName()).isFailure())
+  {
+    REPORT_MESSAGE (MSG::ERROR) << "Can't set TypeName property for tool "
+                                << type << "/" << name;
+  }
+}
+
+
+/**
+ * @brief Standard Gaudi initialize method.
+ */
+template <class CONT>
+StatusCode SGCollectionGetterTool<CONT>::initialize()
+{
+  if (this->getProperty ("TypeName").toString() !=
+      ClassID_traits<CONT>::typeName())
+  {
+    REPORT_MESSAGE (MSG::ERROR) << "TypeName property for tool "
+                                << this->type() << "/" << this->name()
+                                << " was changed; should be "
+                                << ClassID_traits<CONT>::typeName();
+  }
+
+  CHECK( SGGetterImpl::initializeImpl() );
+  return CollectionGetterToolImpl::initialize();
+}
+
+
+/**
+ * @brief Return the type of object retrieved by this tool.
+ */
+template <class CONT>
+const std::type_info& SGCollectionGetterTool<CONT>::typeinfo() const
+{
+  return typeid(CONT);
+}
+
+
+/**
+ * @brief Return the target object.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * Should be of the type given by @c typeinfo.
+ * Return 0 on failure.
+ */
+template <class CONT>
+const void*
+SGCollectionGetterTool<CONT>::getUntyped (bool allowMissing /*= false*/)
+{
+  return SGGetterImpl::getUntyped (allowMissing);
+}
+
+
+/**
+ * @brief Type-safe wrapper for @c get.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * Return the object as a pointer to @c T.
+ * Return 0 if the get fails or if the pointer can't be converted.
+ */
+template <class CONT>
+const CONT* SGCollectionGetterTool<CONT>::get (bool allowMissing /*= false*/)
+{
+  return reinterpret_cast<const CONT*> (getUntyped (allowMissing));
+}
+
+
+} // namespace D3PD

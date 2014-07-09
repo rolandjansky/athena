@@ -1,0 +1,84 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/TypeConverter.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2009
+ * @brief Template and inline definitions for TypeConverter.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Alternate form of @c init, passing the destination
+ *        type as a template argument.
+ * @param src_ti The source type for the conversion.
+ *
+ * The types should be for the pointer value types.
+ * I.e, if we want to convert from T* to U*,
+ * pass typeid(T) as @c src_ti and @c U as the template argument.
+ *
+ * Returns @c FAILURE if the conversion is not allowable.
+ * Either derived -> base or base -> derived conversions are allowed.
+ */
+template <typename T>
+StatusCode TypeConverter::init (const std::type_info& src_ti)
+{
+  return this->init (src_ti, typeid(T));
+}
+
+
+/**
+ * @brief Convert pointer.
+ * @param The pointer to convert, as a pointer to the source type.
+ * @return The converted pointer, as a @c T*.
+ *
+ * @c T must be the same as the previously configured destination type.
+ *
+ * Will return 0 if the converter isn't properly initialized, or if
+ * the conversion fails (for a base -> derived conversion).
+ */
+template <class T>
+const T* TypeConverter::convert (const void* p) const
+{
+  assert (typeid(T) == *m_dstTypeinfo);
+  return reinterpret_cast<const T*> (convertUntyped (p));
+}
+
+
+/**
+ * @brief Test to see if this converter has been properly initialized.
+ */
+inline
+bool TypeConverter::isValid() const
+{
+  return m_strategy != INVALID;
+}
+
+
+/**
+ * @brief Return the configured source type.
+ */
+inline
+const std::type_info& TypeConverter::srcTypeinfo() const
+{
+  return *m_srcTypeinfo;
+}
+
+
+/**
+ * @brief Return the configured destination type.
+ */
+inline
+const std::type_info& TypeConverter::dstTypeinfo() const
+{
+  return *m_dstTypeinfo;
+}
+
+
+} // namespace D3PD

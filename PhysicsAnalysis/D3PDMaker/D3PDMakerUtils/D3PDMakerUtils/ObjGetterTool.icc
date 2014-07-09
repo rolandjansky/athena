@@ -1,0 +1,88 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/ObjGetterTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2009
+ * @brief Template definitions for ObjGetterTool.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <class T>
+ObjGetterTool<T>::ObjGetterTool (const std::string& type,
+                                 const std::string& name,
+                                 const IInterface* parent)
+  : ObjGetterToolImpl (type, name, parent)
+{
+}
+
+
+/**
+ * @brief Return the target object.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * Should be of the type given by @c typeinfo.
+ * Return 0 on failure.
+ */
+template <class T>
+const void* ObjGetterTool<T>::getUntyped (bool allowMissing /*= false*/)
+{
+  return get (allowMissing);
+}
+
+
+/**
+ * @brief Return the type of object retrieved by this tool.
+ */
+template <class T>
+const std::type_info& ObjGetterTool<T>::typeinfo() const
+{
+  return typeid(T);
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c get().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class T>
+void ObjGetterTool<T>::releaseObject (const T* /*p*/)
+{
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c getUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class T>
+void ObjGetterTool<T>::releaseObjectUntyped (const void* p)
+{
+  releaseObject (reinterpret_cast<const T*> (p));
+}
+
+
+} // namespace D3PD

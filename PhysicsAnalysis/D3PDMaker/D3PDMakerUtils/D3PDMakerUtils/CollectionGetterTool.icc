@@ -1,0 +1,220 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/CollectionGetterTool.h 
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2009
+ * @brief Type-safe wrapper for collection getter tools.
+ */
+
+
+#include "boost/type_traits/remove_pointer.hpp"
+
+
+namespace D3PD {
+
+
+/****************************************************************************
+ * Helpers to deal with dereferencing container iterators.
+ *
+ * We want to return a pointer to an element.  For an ordinary CONT<T>,
+ * it's easy, we just need &*it.
+ *
+ * However, a DataVector<T> actually contains T*'s, so in this case,
+ * we need to return the container element directly, not a pointer to it.
+ * (Note that null pointers in a DV will automatically be skipped in the
+ * iteration.)  Similarly, if we have containers of @c ElementLink
+ * or @c DataLink, then we don't want to return a pointer to the link;
+ * we want to dereference the link and return a pointer to the target.
+ * ??? Is this really the proper behavior for a link?
+ */
+
+
+template <class CONT, class T = typename CONT::value_type>
+struct Deref
+{
+  typedef typename CONT::const_iterator iterator;
+  typedef T type;
+  static const type* deref (const iterator& it) { return &*it; }
+};
+
+template <class CONT, class T>
+struct Deref<CONT, T*>
+{
+  typedef typename CONT::const_iterator iterator;
+  typedef T type;
+  static const type* deref (const iterator& p) { return *p; }
+};
+
+template <class CONT, class T>
+struct Deref<CONT, ElementLink<T> >
+{
+  typedef typename CONT::const_iterator iterator;
+  typedef typename ElementLink<T>::ElementType ElementType;
+  typedef typename boost::remove_pointer<ElementType>::type type;
+  static const type* deref (const iterator& p) { return *(p->cptr()); }
+};
+
+template <class CONT, class T>
+struct Deref<CONT, DataLink<T> >
+{
+  typedef typename CONT::const_iterator iterator;
+  typedef T type;
+  static const type* deref (const iterator& p) { return **p; }
+};
+
+
+/****************************************************************************/
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <class CONT>
+CollectionGetterTool<CONT>::CollectionGetterTool (const std::string& type,
+                                                  const std::string& name,
+                                                  const IInterface* parent)
+  : CollectionGetterToolImpl (type, name, parent)
+{
+}
+
+
+/**
+ * @brief Return the target object.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * Should be of the type given by @c typeinfo.
+ * Return 0 on failure.
+ *
+ * This is implemented by calling @c get().
+ */
+template <class CONT>
+const void*
+CollectionGetterTool<CONT>::getUntyped (bool allowMissing /*= false*/)
+{
+  return get (allowMissing);
+}
+
+
+/**
+ * @brief Return the type of the collection object retrieved by this tool.
+ */
+template <class CONT>
+const std::type_info& CollectionGetterTool<CONT>::typeinfo() const
+{
+  return typeid(CONT);
+}
+
+
+/**
+ * @brief Return the element type of the collection.
+ *
+ * I.e., @c nextUntyped returns a pointer to this type.
+ */
+template <class CONT>
+const std::type_info&
+CollectionGetterTool<CONT>::elementTypeinfo() const
+{
+  return typeid(typename Deref<CONT>::type);
+}
+
+
+/**
+ * @brief Reset the iteration to the start of the collection.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * Return failure if the container cannot be retrieved.
+ */
+template <class CONT>
+StatusCode CollectionGetterTool<CONT>::reset (bool allowMissing /*= false*/)
+{
+  const CONT* cont = get (allowMissing);
+  if (!cont) {
+    m_it = m_end;
+    return allowMissing ? StatusCode::SUCCESS : StatusCode::FAILURE;
+  }
+
+  m_it = cont->begin();
+  m_end = cont->end();
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Return a pointer to the next element in the collection.
+ *
+ * Return 0 when the collection has been exhausted.
+ */
+template <class CONT>
+const void* CollectionGetterTool<CONT>::nextUntyped()
+{
+  // Don't return 0 until we get to the end of the iteration.
+  while (m_it != m_end) {
+    const void* ret = Deref<CONT>::deref (m_it);
+    ++m_it;
+    if (ret) return ret;
+  }
+  return 0;
+}
+
+
+/**
+ * @brief Return an estimate of the number of elements in the iteration.
+ * @param allowMissing If true, then we should not generate errors
+ *        if the requested object is missing.
+ *
+ * This can be used to pre-allocate memory.
+ * (It's possible that this isn't known in advance of
+ * iterating over the entire collection, for example
+ * if a selection is being applied, so this is only a hint.)
+ */
+template <class CONT>
+size_t CollectionGetterTool<CONT>::sizeHint (bool allowMissing /*= false*/)
+{
+  const CONT* cont = get (allowMissing);
+  if (cont)
+    return cont->size();
+  return 0;
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c get().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class CONT>
+void CollectionGetterTool<CONT>::releaseObject (const CONT* /*p*/)
+{
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c getUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class CONT>
+void CollectionGetterTool<CONT>::releaseObjectUntyped (const void* p)
+{
+  releaseObject (reinterpret_cast<const CONT*> (p));
+}
+
+
+} // namespace D3PD

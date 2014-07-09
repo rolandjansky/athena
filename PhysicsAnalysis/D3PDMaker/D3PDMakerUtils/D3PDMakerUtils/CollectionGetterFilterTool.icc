@@ -1,0 +1,80 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/CollectionGetterFilterTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2009
+ * @brief A collection getter that filters the results of another.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <class T>
+CollectionGetterFilterTool<T>::CollectionGetterFilterTool
+  (const std::string& type,
+   const std::string& name,
+   const IInterface* parent)
+    : CollectionGetterFilterToolImpl (type, name, parent)
+{
+}
+
+
+/**
+ * @brief Return the element type of the collection.
+ *
+ * I.e., @c nextUntyped returns a pointer to this type.
+ */
+template <class T>
+const std::type_info& CollectionGetterFilterTool<T>::elementTypeinfo() const
+{
+  return typeid (T);
+}
+
+
+/**
+ * @brief Return a pointer to the next element in the collection.
+ *
+ * Return 0 when the collection has been exhausted.
+ */
+template <class T>
+const void* CollectionGetterFilterTool<T>::nextUntyped()
+{
+  // Loop until the filter passes.
+  while (const T* p = m_getter->next<T>()) {
+    if (filter (p))
+      return p;
+    else 
+      m_getter->releaseElement<T> (p);
+  }
+  return 0;
+}
+
+
+/**
+ * @brief Release an object retrieved from the getter.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c nextUntyped().  The default implementation is a no-op,
+ * but if the getter dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <class T>
+void CollectionGetterFilterTool<T>::releaseElementUntyped (const void* p)
+{
+  m_getter->releaseElementUntyped (p);
+}
+
+
+} // namespace D3PD

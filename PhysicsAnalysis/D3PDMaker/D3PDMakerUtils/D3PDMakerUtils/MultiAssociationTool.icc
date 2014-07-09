@@ -1,0 +1,135 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/MultiAssociationTool.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2009
+ * @brief Type-safe wrapper for multiple-target associator tools.
+ */
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <typename TO_T>
+MultiAssociationToolTo<TO_T>::MultiAssociationToolTo
+  (const std::string& type,
+   const std::string& name,
+   const IInterface* parent)
+    : MultiAssociationToolImpl (type, name, parent)
+{
+}
+
+
+/**
+ * @brief Return the element type for the target of the association.
+ *
+ * I.e., @c nextUntyped returns a pointer to this type.
+ */
+template <typename TO_T>
+const std::type_info&
+MultiAssociationToolTo<TO_T>::elementTypeinfo () const
+{
+  return typeid (TO_T);
+}
+
+
+/**
+ * @brief Return a pointer to the next element in the association.
+ *
+ * Return 0 when the association has been exhausted.
+ */
+template <typename TO_T>
+const void*
+MultiAssociationToolTo<TO_T>::nextUntyped ()
+{
+  return next();
+}
+
+
+/**
+ * @brief Release an object retrieved from the association.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c next().  The default implementation is a no-op,
+ * but if the association dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <typename TO_T>
+void MultiAssociationToolTo<TO_T>::releaseElement (const TO_T* /*p*/)
+{
+}
+
+
+/**
+ * @brief Release an object retrieved from the association.
+ * @param p The object to release.
+ *
+ * Call this when you are done with the object returned by
+ * @c nextUntyped().  The default implementation is a no-op,
+ * but if the association dynamically allocated the object which
+ * it returned, this gives it a chance to free it.
+ */
+template <typename TO_T>
+void
+MultiAssociationToolTo<TO_T>::releaseElementUntyped (const void* p)
+{
+  return releaseElement (reinterpret_cast<const TO_T*> (p));
+}
+
+
+//=========================================================================
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+template <typename FROM_T, typename TO_T>
+MultiAssociationTool<FROM_T, TO_T>::MultiAssociationTool
+  (const std::string& type,
+   const std::string& name,
+   const IInterface* parent)
+    : MultiAssociationToolTo<TO_T> (type, name, parent)
+{
+}
+
+
+/**
+ * @brief Return the @c std::type_info for the source of the association.
+ */
+template <typename FROM_T, typename TO_T>
+const std::type_info&
+MultiAssociationTool<FROM_T, TO_T>::fromTypeinfo () const
+{
+  return typeid (FROM_T);
+}
+
+
+/**
+ * @brief Start the iteration for a new association.
+ * @param p The object from which to associate.
+ */
+template <typename FROM_T, typename TO_T>
+StatusCode
+MultiAssociationTool<FROM_T, TO_T>::resetUntyped (const void* p)
+{
+  const FROM_T* pp = reinterpret_cast<const FROM_T*> (this->doConversion (p));
+  if (!pp) return StatusCode::FAILURE;
+  return reset (*pp);
+}
+
+
+} // namespace D3PD

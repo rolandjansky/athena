@@ -1,0 +1,30 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file D3PDMakerUtils/SGKeyResolver.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Feb, 2010
+ * @brief Helper to resolve the SG key to use.
+ */
+
+
+#include "SGTools/ClassID_traits.h"
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Initialize, from a type.
+ */
+template <typename T>
+StatusCode SGKeyResolver::initialize()
+{
+  return initialize (ClassID_traits<T>::ID(), ClassID_traits<T>::typeName());
+}
+
+
+} // namespace D3PD
