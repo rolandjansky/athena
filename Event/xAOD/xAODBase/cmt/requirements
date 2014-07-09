@@ -1,0 +1,25 @@
+package xAODBase
+# $Id: requirements 592971 2014-04-15 14:13:50Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+# Base package(s):
+use AtlasPolicy   AtlasPolicy-*
+use AtlasROOT     AtlasROOT-*     External
+use SGTools       SGTools-*       Control
+
+# EDM package(s):
+use AthContainers AthContainers-* Control
+
+apply_tag ROOTMathLibs
+
+library xAODBase ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+use AthLinks      AthLinks-*      Control
+
+apply_pattern lcgdict dict=xAODBase selectionfile=selection.xml \
+                      headerfiles="../xAODBase/xAODBaseDict.h"

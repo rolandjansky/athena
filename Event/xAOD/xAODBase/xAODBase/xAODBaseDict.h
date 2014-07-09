@@ -1,0 +1,107 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: xAODBaseDict.h 598585 2014-05-23 09:23:14Z krasznaa $
+#ifndef XAODBASE_XAODBASEDICT_H
+#define XAODBASE_XAODBASEDICT_H
+
+// STL include(s):
+#include <vector>
+
+// EDM include(s):
+#include "AthLinks/DataLink.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
+
+// Local include(s):
+#include "xAODBase/ObjectType.h"
+#include "xAODBase/IParticleContainer.h"
+
+namespace {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODBASE {
+      xAOD::IParticleContainer c1;
+      DataLink< xAOD::IParticleContainer > l1;
+      ElementLink< xAOD::IParticleContainer > l2;
+      ElementLinkVector< xAOD::IParticleContainer > l3;
+      std::vector< DataLink< xAOD::IParticleContainer > > l4;
+      std::vector< ElementLink< xAOD::IParticleContainer > > l5;
+      std::vector< ElementLinkVector< xAOD::IParticleContainer > > l6;
+      std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > l7;
+   };
+}
+
+template
+bool& xAOD::IParticle::auxdata< bool >( const std::string& name,
+                                        const std::string& clsname = "" );
+
+template
+float& xAOD::IParticle::auxdata< float >( const std::string& name,
+                                          const std::string& clsname = "" );
+
+template
+int& xAOD::IParticle::auxdata< int >( const std::string& name,
+                                      const std::string& clsname = "" );
+
+template
+unsigned int&
+xAOD::IParticle::auxdata< unsigned int >( const std::string& name,
+                                          const std::string& clsname = "" );
+
+template
+uint8_t& xAOD::IParticle::auxdata< uint8_t >( const std::string& name,
+                                              const std::string& clsname = "" );
+
+template
+const bool&
+xAOD::IParticle::auxdata< bool >( const std::string& name,
+                                  const std::string& clsname = "" ) const;
+
+template
+const float&
+xAOD::IParticle::auxdata< float >( const std::string& name,
+                                   const std::string& clsname = "" ) const;
+
+template
+const int&
+xAOD::IParticle::auxdata< int >( const std::string& name,
+                                 const std::string& clsname = "" ) const;
+
+template
+const unsigned int&
+xAOD::IParticle::auxdata< unsigned int >( const std::string& name,
+                                          const std::string& clsname = "" ) const;
+
+template
+const uint8_t&
+xAOD::IParticle::auxdata< uint8_t >( const std::string& name,
+                                     const std::string& clsname = "" ) const;
+
+template
+bool
+xAOD::IParticle::isAvailable< bool >( const std::string& name,
+                                      const std::string& clsname = "" ) const;
+
+template
+bool
+xAOD::IParticle::isAvailable< float >( const std::string& name,
+                                       const std::string& clsname = "" ) const;
+
+template
+bool
+xAOD::IParticle::isAvailable< int >( const std::string& name,
+                                     const std::string& clsname = "" ) const;
+
+template
+bool
+xAOD::IParticle::isAvailable< unsigned int >( const std::string& name,
+                                              const std::string& clsname = "" ) const;
+
+template
+bool
+xAOD::IParticle::isAvailable< uint8_t >( const std::string& name,
+                                         const std::string& clsname = "" ) const;
+
+#endif // XAODBASE_XAODBASEDICT_H
