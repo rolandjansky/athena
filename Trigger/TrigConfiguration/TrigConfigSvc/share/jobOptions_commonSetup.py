@@ -1,0 +1,2 @@
+
+theApp.Dlls += [ "TrigConfigSvc" ]
