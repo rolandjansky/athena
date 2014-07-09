@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="TrigConfStorageTest" type="makecheck" suite="trigger">
+      <package></package>
+      <timelimit>5</timelimit>
+      <author> Joerg Stelzer </author>
+      <mailto> stelzer@cern.ch</mailto>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
