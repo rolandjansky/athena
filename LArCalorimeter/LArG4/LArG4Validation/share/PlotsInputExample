@@ -1,0 +1,70 @@
+######################################
+# LArG4Validation plotter config file
+# Everything after # is a comment
+# Several option are supported:
+#       hist	varx			lowx	highx	nbinsx		logy	name of the hist
+#       hist2d	varx	vary				nbinsx	nbinsy		name of the 2dhist
+#       prof	varx	vary		lowx	highx	nbinsx		logy	name of the prof
+#       prof2d	varx	vary	varz			nbinsx	nbinsy		name of the 2dprof
+# where
+#       hist, hist2d, prof, prof2d - type of plot
+#       varx, vary, varz - name of variable to be plotted on the corresponding axis
+#                          you can write +var which will result in var being abs()'ed
+#       lowx, highx - hard limits for the X axis (final plot may have stricter limits if possible. leave 0 for auto)
+#       nbinsx, nbinsy - number of the bins on trhe corresponding axis
+#       logy - 0 if you want linear scale, 1 if logarithmic
+#       everything else - displayed name of the plot. If you want to use TeX in names, you should replace "#" with "%"
+# also supported:
+#       restrict var low..high [low..high]
+# where
+#       var - variable the restrict to be put on
+#       low - lower bound of the variable acceptance interval (if no given, some really big negative number assumed)
+#       high - higher bound of the variable acceptance interval (same applies)
+#
+# This will result in only those events to be included in the plots, in which the restricted variables have
+# values inside the provided intervals.
+# The restrictions are applied to the recent plot. If the restriction is described before any plots,
+# it applies to every plot.
+#
+# also supported:
+#       axisname var name to be displayed
+# where
+#       var - variable, the axis of which should get new name
+#       everything else - actual name. If you want to use TeX in names, you should replace "#" with "%"
+#                         all aliases already have TeX axisnames wherever possible.
+
+# Possible values:
+#    For Generation-level plotter:
+# Aliases (preferrable): erec egen cpu eta phi pt FC1_DeltaR erecegen
+# Variables: Eta Pt BarrelX BarrelY BarrelZ Phi
+# S0_C00 S0_SumE S0_Hits S0_DeltaPhi S0_SigmaPhi S0_DeltaEta S0_SigmaEta S0_Time S0_WidthX S0_WidthY
+# S1_C00 S1_SumE S1_Hits S1_DeltaPhi S1_SigmaPhi S1_DeltaEta S1_SigmaEta S1_Time S1_WidthX S1_WidthY
+# S2_C00 S2_SumE S2_Hits S2_DeltaPhi S2_SigmaPhi S2_DeltaEta S2_SigmaEta S2_Time S2_WidthX S2_WidthY
+# S3_C00 S3_SumE S3_Hits S3_DeltaPhi S3_SigmaPhi S3_DeltaEta S3_SigmaEta S3_Time S3_WidthX S3_WidthY
+# S4_C00 S4_SumE S4_Hits S4_DeltaPhi S4_SigmaPhi S4_DeltaEta S4_SigmaEta S4_Time S4_WidthX S4_WidthY
+# S5_C00 S5_SumE S5_Hits S5_DeltaPhi S5_SigmaPhi S5_DeltaEta S5_SigmaEta S5_Time S5_WidthX S5_WidthY
+# S6_C00 S6_SumE S6_Hits S6_DeltaPhi S6_SigmaPhi S6_DeltaEta S6_SigmaEta S6_Time S6_WidthX S6_WidthY
+# S7_C00 S7_SumE S7_Hits S7_DeltaPhi S7_SigmaPhi S7_DeltaEta S7_SigmaEta S7_Time S7_WidthX S7_WidthY
+# S8_C00 S8_SumE S8_Hits S8_DeltaPhi S8_SigmaPhi S8_DeltaEta S8_SigmaEta S8_Time S8_WidthX S8_WidthY
+# S9_C00 S9_SumE S9_Hits S9_DeltaPhi S9_SigmaPhi S9_DeltaEta S9_SigmaEta S9_Time S9_WidthX S9_WidthY
+# S10_C00 S10_SumE S10_Hits S10_DeltaPhi S10_SigmaPhi S10_DeltaEta S10_SigmaEta S10_Time S10_WidthX S10_WidthY
+# S11_C00 S11_SumE S11_Hits S11_DeltaPhi S11_SigmaPhi S11_DeltaEta S11_SigmaEta S11_Time S11_WidthX S11_WidthY
+# FC1_C00 FC1_SumE FC1_Hits FC1_DeltaX FC1_SigmaX FC1_DeltaY FC1_SigmaY FC1_Time FC1_WidthX FC1_WidthY
+# FC2_C00 FC2_SumE FC2_Hits FC2_DeltaX FC2_SigmaX FC2_DeltaY FC2_SigmaY FC2_Time FC2_WidthX FC2_WidthY
+# FC3_C00 FC3_SumE FC3_Hits FC3_DeltaX FC3_SigmaX FC3_DeltaY FC3_SigmaY FC3_Time FC3_WidthX FC3_WidthY
+# CPU TrackEnergy ParticleID DepositedEnergy
+
+#    For Reconstruction-level plotter:
+# Aliases (preferrable): hadrleak e237oe277 e2tsts1 e2tsts1demins erec erecegen eta pt egen
+# Variables: eta energy pt e237 e277 weta1 weta2 e2tsts1 emins1 fracs1 wtots1 f1 f1core ethad1 et truth_energy truth_px truth_py truth_pz
+######################################
+
+#example
+#restrict egen ..50 #global restriction on on energy
+#prof egen erecegen 0 0 50 0 Erec/Egen vs Egen (EMB) #plot the profile with auto borders, 100 bins, in linear scale
+#restrict eta -1.5..1.5 #personal restrict for this plot - only in EMB area
+#prof egen erecegen 0 0 50 0 Erec/Egen vs Egen (EMEC) #same profile
+#restrict eta 1.5.. ..-1.5 #restrict of eta. only eta less then -1.5 or more then 1.5 is allowed
+#prof +eta erecegen 0 0 100 0 Erec/Egen vs eta #profile over eta, only now we want the absolute meaning of eta
+#                                               this way we'll have one common profile, for both left and right parts of the detector
+

@@ -1,0 +1,6 @@
+#file root			color thickness markertype markersize name
+#file FS_NEWGEO_GAP0.21_06062011.gen.tuple.root	4 2 1 0.6 Some File. #Blue, thick, without markers, size doesn't matter
+#file FULL_OLDDB_15062011.gen.tuple.root		7 1 0 0.6 Some Other File. #Light blue, total filling
+#file FS_OLDDB_GAP0.22_15062011.gen.tuple.root	6 1 20 0.6 Some totally other file. #Violet, thin, markers are filled circles
+#file FS_NEWGAP_NEWCOND_03062011.gen.tuple.root	2 2 1 0.6 And yet another file. #Thick red line without markers.
+#restrict phi 0..1.57

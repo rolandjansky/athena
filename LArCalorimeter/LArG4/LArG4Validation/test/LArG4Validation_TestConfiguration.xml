@@ -1,0 +1,64 @@
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+  <unifiedTestConfiguration>
+    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+      <rttContactPerson>Sedov George (radist.morse@gmail.com), Sasha Glazov (glazov.sasha@googlemail.com), Stas Shushkevich (shushkev@mail.desy.de)</rttContactPerson>
+      <mailto>shushkev@mail.desy.de</mailto>
+      
+         <!--
+	don't forget to check the xml file with
+	python /afs/cern.ch/user/r/rtt/public/validateXML.py LArG4Validation_TestConfiguration.xml
+
+and to update the twiki page:
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
+
+    -->    
+      
+      
+      <jobList>
+
+        <classification>
+          <displayClass>OfflineValidation</displayClass>
+          <displayProcess>Simul</displayProcess>
+          <displayComponent>Det-LAr</displayComponent>
+        </classification>
+      
+
+	<chain>
+	<chainName>LArG4Validation_FCAL</chainName>
+	<chainElement>
+	    <jobTransform userJobId="LArG4Validation_FCAL_Validation">
+	      <doc>Simulate events and compare result with the reference</doc>
+	      <jobTransformJobName>LArG4Validation_FCAL_validate</jobTransformJobName>
+	      <jobTransformCmd>LArG4ValidationGenerate.py --inputFile=/afs/cern.ch/atlas/offline/ProdData/17.2.X/17.2.6.2/e_E50_eta34_49.EVNT.pool.root --geometry=ATLAS-GEO-20-00-01_VALIDATION --condition=OFLCOND-MC12-SIM-00 --parameterize=2 --nevents=500; LArG4ValidationPlotter.py sp.tuple.root -o mon.data.root
+	      </jobTransformCmd>
+	      <group>GenerateFastSim</group>
+	      <queue>medium</queue>
+	      <test position="1">
+	        <modulename>RttLibraryTools</modulename>
+		<testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>LArG4Validation_DCube.xml</argvalue>  
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>ref.data.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>mon.data.root</argvalue>
+		  </arg>
+	      </test>
+	      </jobTransform>
+	</chainElement>
+	</chain>
+
+      </jobList>
+
+      <jobGroups>
+        <jobGroup name="AthenaGenerateFastSim" parent="Top">
+          <keepFilePattern info="GeneratedHistograms">*.root</keepFilePattern>
+        </jobGroup>
+      </jobGroups>
+    </rtt>
+  </unifiedTestConfiguration>

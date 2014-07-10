@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!--
+
+ DCube configuration XML file = /afs/cern.ch/user/z/zmarshal/testarea/13.0.30/Tools/DCubeClient/python/generateRTT_EMB_RefFull.histo_dcube.xml
+ auto-generated using DCube 3.1.4 by Krzysztof D. Ciba
+ on Sat, 03 Nov 2007 03:27:01 CET
+ from Root reference file:/afs/cern.ch/user/z/zmarshal/testarea/13.0.30/Tools/DCubeClient/python/generateRTT_EMB_RefFull.histo.root
+ Statistics tests
+ "['KS', 'chi2', 'bbb']"
+ Legend:
+  KS   - Kolmogorov-Smirnov test (default)
+  chi2 - chi2 test
+  bbb  - bin-by-bin comparision
+  all  - all above tests
+
+ Tweaks:
+ [1] remove or comment out (using HTML comments tags) histograms not relevant
+     to your analysis
+ [2] provide a new content to "ref_desc" and "mon_desc" tags to something
+     more meaningful
+ [3] and of course feel free to change attribute "tests" in each "hist" tag
+ [4] limits of p-value warning and failure can be set by changing attributes
+     in <plimit> tag
+
+ [5] if you want to make plots FOR EVERY histogram in your monitored file
+     change attribute "inclusive" in <mode> tag to "true"
+
+-->
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <!--
+  ###################################################
+  DCubeClient for:
+  [1] branch: *
+  [2] install: *
+  [3] cmtconfig: *
+  [4] project: *
+  [5] jobId: *
+  [6] reference root file: /afs/cern.ch/user/z/zmarshal/referenceLArG4Validation/generateRTT_EMB_RefFast.histo.root
+  [7] p-values limits FAIL = 0.750000 WARN = 0.950000
+  ###################################################
+-->
+
+  <!-- ABSOLUTE PATH TO REFERENCE FILE -->
+  <reference file="/afs/cern.ch/atlas/project/RTT/Results/reference/offline/LArCalorimeter/LArG4/LArG4Validation/generateRTT_EMB_RefFull.histo.root"/>
+
+  <!-- REFERENCE FILE DESCRIPTION -->
+  <ref_desc>EMB Full Simulation generate Ref</ref_desc>
+
+  <!-- MONITORED FILE DESCRIPTION -->
+  <test_desc>EMB Fast Simulation generate Mon</test_desc>
+
+  <!-- P-VALUES TO MARK WARNINIG AND FAILURE THRESHOLD FOR STATS TESTS -->
+  <plimit warn="0.9" fail="0.7" />
+
+  <!-- TDirectory /Electron -->
+  <TDirectory name="/">
+    <TDirectory name="Electron">
+      <hist1D name="E_Dep" tests="KS,chi2,bbb" />
+      <hist1D name="Energy" tests="bbb" />
+      <hist1D name="PDG_ID" tests="bbb" />
+      <hist1D name="cpuTime" tests="chi2" />
+      <hist1D name="eta" tests="bbb" />
+      <hist1D name="phi" tests="KS,chi2,bbb" />
+      <hist1D name="pos_x" tests="KS,chi2,bbb" />
+      <hist1D name="pos_y" tests="KS,chi2,bbb" />
+      <hist1D name="pos_z" tests="bbb" />
+      <hist1D name="pt" tests="bbb" />
+      <hist1D name="emb0_cell" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_dEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_dPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_hits" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_sEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_sPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_sumE" tests="KS,chi2,bbb" />
+      <hist1D name="emb0_time" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_cell" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_dEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_dPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_hits" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_sEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_sPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_sumE" tests="KS,chi2,bbb" />
+      <hist1D name="emb1_time" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_cell" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_dEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_dPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_hits" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_sEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_sPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_sumE" tests="KS,chi2,bbb" />
+      <hist1D name="emb2_time" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_cell" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_dEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_dPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_hits" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_sEta" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_sPhi" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_sumE" tests="KS,chi2,bbb" />
+      <hist1D name="emb3_time" tests="bbb" />
+
+    </TDirectory>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>
