@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+  <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn>
+
+  <TEST name="TileSimulation" type="athena" suite="Examples">
+     <options_atn> TileSimEx/jobOptions_TileTB_Sim.py </options_atn>
+     <timelimit>15</timelimit>
+     <author>Jana Novakova</author>
+     <mailto>Jana.novakova@cern.ch </mailto>
+     <prescript> TileSimEx_links.sh </prescript>        
+     <package_atn>TileCalorimeter/TileExample/TileSimEx</package_atn>
+     <expectations>
+        <successMessage>Terminated successfully</successMessage>
+     </expectations>
+  </TEST>
+
+</atn>
+
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt" >
+<mailto> jana.novakova@cern.ch </mailto>
+<refRelease>15.2.0</refRelease>
+
+<jobList>
+
+    <classification>
+      <displayClass>OfflineValidation</displayClass>
+      <displayProcess>Simul</displayProcess>
+      <displayComponent>Det-TileCal</displayComponent>
+    </classification>
+
+          <athena>            
+             <doc> RTT test for Simulations - eta scan </doc>
+             <displayName> TileTB_Sim_ele_20GeV_eta0.35 </displayName>
+             <commandLineFlags> doEtaScan=True;Eta=0.35;EvtMax=5000 </commandLineFlags>
+             <options> TileSimEx/jobOptions_TileTB_Sim_RTT.py </options>
+             <package>TileCalorimeter/TileExample/TileSimEx</package>
+             <group>TestingTileSimEx</group>      
+             <queue>long</queue>
+
+             <action position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ROOTMacroRunner</testname>
+                <arg>
+                    <argname>macro</argname>
+                    <argvalue>TileSimEx_eta_macro.C</argvalue>
+                </arg>
+             </action>
+          </athena>
+
+          <athena>
+             <doc> RTT test for Simulations - eta scan </doc>
+             <displayName> TileTB_Sim_ele_20GeV_eta0.55 </displayName>
+             <commandLineFlags> doEtaScan=True;Eta=0.55;EvtMax=5000 </commandLineFlags>
+             <options> TileSimEx/jobOptions_TileTB_Sim_RTT.py </options>
+             <package>TileCalorimeter/TileExample/TileSimEx</package>
+             <group>TestingTileSimEx</group>
+             <queue>long</queue>
+
+             <action position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ROOTMacroRunner</testname>
+                <arg>
+                    <argname>macro</argname>
+                    <argvalue>TileSimEx_eta_macro.C</argvalue>
+                </arg>
+             </action>
+          </athena>
+
+          <athena>
+             <doc> RTT test for Simulations - 90 degrees scan </doc>
+             <displayName> TileTB_Sim_ele_20GeV_90deg_z2795 </displayName>
+             <commandLineFlags> doEtaScan=False;Z=2795.0;EvtMax=5000 </commandLineFlags>
+             <options> TileSimEx/jobOptions_TileTB_Sim_RTT.py </options>
+             <package>TileCalorimeter/TileExample/TileSimEx</package>
+             <group>TestingTileSimEx</group>
+             <queue>long</queue>
+
+             <action position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ROOTMacroRunner</testname>
+                <arg>
+                    <argname>macro</argname>
+                    <argvalue>TileSimEx_90deg_macro.C</argvalue>
+                </arg>
+             </action>
+          </athena>
+
+          <athena>
+             <doc> RTT test for Simulations - 90 degrees scan </doc>
+             <displayName> TileTB_Sim_ele_20GeV_90deg_z3215 </displayName>
+             <commandLineFlags> doEtaScan=False;Z=3215.0;EvtMax=5000 </commandLineFlags>
+             <options> TileSimEx/jobOptions_TileTB_Sim_RTT.py </options>
+             <package>TileCalorimeter/TileExample/TileSimEx</package>
+             <group>TestingTileSimEx</group>
+             <queue>long</queue>
+
+             <action position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ROOTMacroRunner</testname>
+                <arg>
+                    <argname>macro</argname>
+                    <argvalue>TileSimEx_90deg_macro.C</argvalue>
+                </arg>
+             </action>
+          </athena>
+
+</jobList>
+
+<jobGroups>
+   <jobGroup name="AthenaTestingTileSimEx" parent="Athena">
+       <keepFilePattern displayColor="blue" info="output ntuples"> tiletb_aa.root </keepFilePattern>
+       <keepFilePattern displayColor="blue" info="output histograms"> Histo.root </keepFilePattern>
+       <keepFilePattern displayColor="pink" info="Result plots"> *.png </keepFilePattern>
+       <keepFilePattern displayColor="green" info="Result summary"> *.txt </keepFilePattern>
+       <keepFilePattern displayColor="purple" info="Performance monitoring">ntuple.pmon.gz</keepFilePattern>
+       <auxFilePattern>TileSimEx*.C</auxFilePattern>
+   </jobGroup>
+</jobGroups>
+</rtt>
+
+</unifiedTestConfiguration>
