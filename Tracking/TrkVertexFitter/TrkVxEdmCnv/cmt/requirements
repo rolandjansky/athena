@@ -1,0 +1,36 @@
+## automatically generated CMT requirements file
+package TrkVxEdmCnv
+author  Simone Pagan Griso <simone.pagan.griso@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+
+
+private
+use  StoreGate                  StoreGate-*                     Control
+use  TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
+use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+use  TrkTrackLink               TrkTrackLink-*                  Tracking/TrkEvent
+use  TrkLinks			TrkLinks-*			Tracking/TrkEvent
+end_private
+
+branches src src/components doc python share
+
+public
+## Must be dual-use..
+apply_pattern dual_use_library files="*.cxx components/*.cxx"
+
+#.. if we decide to split interface can go back to components
+#library TrkVxEdmCnv *.cxx components/*.cxx
+#apply_pattern component_library
+
+## Debug options
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+end_private
+
+
