@@ -1,0 +1,6 @@
+#!/bin/sh
+
+LOG=$0.log
+echo Running $0.
+echo Output in $LOG
+athena.py $0.py 1>$LOG 2>&1 &
