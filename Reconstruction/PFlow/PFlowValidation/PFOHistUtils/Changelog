@@ -1,0 +1,23 @@
+11 July 2014 M. Hodgkinson
+Added new module to define histograms for CaloClusters
+PFOHistUtils-00-00-06
+
+8 July 2014 M. Hodgkinson
+Fix longitudinal moment histogram, so we fill it
+PFOHistUtils-00-00-05	
+
+7 July 2014 M. Hodgkinson
+Add new cluster moment histogram tool	
+PFOHistUtils-00-00-04
+
+23 May 2014 M. Hodgkinson
+Update histogram binnings
+Tag as PFOHistUtils-00-00-03
+
+13 May 2014 M. Hodgkinson
+Update histogram binnings to be more reasonable
+Tag as PFOHistUtils-00-00-02
+
+29 April 2014 M. Hodgkinson
+Create PFOHistUtils package with 4-vector histograms at both LC and EM scales
+Tag as PFOHistUtils-00-00-01
