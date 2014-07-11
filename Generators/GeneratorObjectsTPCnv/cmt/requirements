@@ -1,0 +1,34 @@
+package GeneratorObjectsTPCnv
+
+author  Davide Costanzo       <davide.costanzo@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*  
+
+use GaudiInterface	 GaudiInterface-*	   External
+
+use AthenaKernel     AthenaKernel-*        Control
+use SGTools		     SGTools-*		       Control
+use DataModel		 DataModel-*	   	   Control
+use AthenaPoolCnvSvc AthenaPoolCnvSvc-*    Database/AthenaPOOL
+
+use AtlasHepMC		     AtlasHepMC-*	       External
+use AtlasCLHEP		     AtlasCLHEP-*	       External
+use GeneratorObjects	 GeneratorObjects-*	   Generators
+
+branches doc src GeneratorObjectsTPCnv
+
+apply_pattern tpcnv_library
+library GeneratorObjectsTPCnv *.cxx 
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep 
+# clients of EventInfo from seeing excess dependencies
+private
+use AtlasReflex        AtlasReflex-*        External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+apply_pattern lcgdict dict=GeneratorObjectsTPCnv  selectionfile=selection.xml headerfiles="../GeneratorObjectsTPCnv/GeneratorObjectsTPCnvDict.h"
+apply_pattern lcgdict dict=ARA_GeneratorObjectsTPCnv  selectionfile=ARA_selection.xml headerfiles="../GeneratorObjectsTPCnv/GeneratorObjectsTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_GeneratorObjectsTPCnv  selectionfile=OLD_selection.xml headerfiles="../GeneratorObjectsTPCnv/GeneratorObjectsTPCnvDict.h"
+

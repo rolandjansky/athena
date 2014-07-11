@@ -1,0 +1,27 @@
+<lcgdict>
+
+  <class name="McEventCollection_p1" id="BF93438C-D1D3-4F1C-8850-EB690AB7C416" />
+  <class name="GenEvent_p1" />
+  <class name="std::vector<GenEvent_p1>" />
+  <class name="GenVertex_p1" />
+  <class name="std::vector<GenVertex_p1>" />
+  <class name="GenParticle_p1" />
+  <class name="std::vector<GenParticle_p1>" />
+
+  <class name="McEventCollection_p2" id="851BB1D2-1964-4B0A-B83A-6BD596CFB5E2" />
+  <class name="GenEvent_p2" />
+  <class name="std::vector<GenEvent_p2>" />
+  <class name="GenVertex_p2" />
+  <class name="std::vector<GenVertex_p2>" />
+  <class name="GenParticle_p2" />
+  <class name="std::vector<GenParticle_p2>" />
+
+  <class name="McEventCollection_p3" id="6FC41599-64D6-4DB9-973E-9493166F6291" />
+  <class name="std::vector<GenEvent_p3>" />
+  <class name="GenEvent_p3" />
+  <class name="std::vector<GenVertex_p3>" />
+  <class name="GenVertex_p3" />
+  <class name="std::vector<GenParticle_p3>" />
+  <class name="GenParticle_p3" />
+
+</lcgdict>

@@ -1,0 +1,27 @@
+<lcgdict>
+
+  <!-- T/P converter dictionaries: needed for ARA -->
+  <class name="ITPConverterFor<McEventCollection>"/>
+
+  <!-- version _p3 -->
+  <class name="T_TPCnv<McEventCollection,McEventCollection_p3>"/>
+  <class name="McEventCollectionCnv_p3"/>
+  <class name="T_AthenaPoolTPCnvBase<McEventCollection,McEventCollection_p3>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<McEventCollection,McEventCollection,McEventCollection_p3>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<McEventCollection,McEventCollection,McEventCollection_p3>"/>
+
+  <!-- version _p4 -->
+  <class name="T_TPCnv<McEventCollection,McEventCollection_p4>"/>
+  <class name="McEventCollectionCnv_p4"/>
+  <class name="T_AthenaPoolTPCnvBase<McEventCollection,McEventCollection_p4>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<McEventCollection,McEventCollection,McEventCollection_p4>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<McEventCollection,McEventCollection,McEventCollection_p4>"/>
+
+  <!-- version _p5 -->
+  <class name="T_TPCnv<McEventCollection,McEventCollection_p5>"/>
+  <class name="McEventCollectionCnv_p5"/>
+  <class name="T_AthenaPoolTPCnvBase<McEventCollection,McEventCollection_p5>"/>
+  <class name="T_AthenaPoolTPPolyCnvBase<McEventCollection,McEventCollection,McEventCollection_p5>"/>
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase<McEventCollection,McEventCollection,McEventCollection_p5>"/>
+
+</lcgdict>
