@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<connectionlist>
+
+<connection name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_TRIGGER">
+  <parameter name="user" value="ATLAS_COOL_READER" />
+  <parameter name="password" value="COOLRED4PRO" />
+</connection>
+
+<connection name="oracle://ATLAS_COOLPROD/ATLAS_COOL_SCT">
+  <parameter name="user" value="ATLAS_COOL_READER" />
+  <parameter name="password" value="COOLRED4PRO" />
+</connection>
+
+<connection name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_DCS">
+  <parameter name="user" value="ATLAS_COOL_READER" />
+  <parameter name="password" value="COOLRED4PRO" />
+</connection>
+
+<connection name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_SCT">
+  <parameter name="user" value="ATLAS_COOL_READER" />
+  <parameter name="password" value="COOLRED4PRO" />
+</connection>
+
+# remove displaced pwd for ATLAS_COOLOFL_GLOBAL
+<connection name="oracle://ATLAS_COOLWRITE/ATLAS_COOLOFL_GLOBAL">
+  <parameter name="user" value="ATLAS_COOLOFL_GLOBAL_W" />
+  <parameter name="password" value="" />
+</connection>
+
+</connectionlist>
