@@ -1,0 +1,50 @@
+package RootFileTools
+author Ilija Vukotic, Gerhard Brandt
+
+use AtlasPolicy           AtlasPolicy-* 
+
+public
+use GaudiInterface        GaudiInterface-*    External 
+
+private
+
+use AthenaBaseComps       AthenaBaseComps-*   Control  
+use AtlasROOT             AtlasROOT-*         External 
+use AtlasReflex           AtlasReflex-*       External -no_auto_imports
+use PersistentDataModel   PersistentDataModel-*   Database
+
+branches python 
+
+#alias createDictionary createDictionary.py
+alias orderFile     orderFile.py
+alias optimizeBasketsSizes    optimizeBS.py
+# alias optimizeFile  optimizeFile.py # to be provided if needed
+alias showTrees showTrees.py
+alias mergeD3PD mergeD3PD.exe
+
+apply_pattern declare_scripts files="orderFile.py optimizeBS.py showTrees.py"
+#createDictionary.py optimizeFile.py
+
+application mergePOOL merge.cxx
+
+application mergeD3PD mergeD3PD.cxx       
+application checkCache checkCache.cxx
+# application releaseFileCache releaseFileCache.cxx 
+action releaseFileCache "$(cpp_name) $(src)releaseFileCache.cxx -o $(bin)releaseFileCache.exe;mkdir -p $(CMTINSTALLAREA)/$(tag)/bin; cd $(CMTINSTALLAREA)/$(tag)/bin;rm -f releaseFileCache.exe; ln -s ../../../Database/AthenaPOOL/RootFileTools/$(tag)/releaseFileCache.exe releaseFileCache.exe "
+
+#application dumpRootFile dumpRootFile.cxx
+
+
+library RootFileTools -import=Reflex cobs.cxx RootFileTransformationsTool.cxx DumpAll.cxx HistoPile.cxx components/*.cxx
+apply_pattern component_library
+
+
+# apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+apply_pattern lcgdict dict=RootFileTools  selectionfile=selection.xml headerfiles="../RootFileTools/RootFileToolsDict.h"
+
+
+private
+macro_append all_dependencies  " releaseFileCache"
+end_private
