@@ -1,0 +1,34 @@
+package TrigT1CaloByteStream
+
+use AtlasPolicy          AtlasPolicy-*
+use DataModel            DataModel-*            Control
+use GaudiInterface       GaudiInterface-*       External
+
+author Peter Faulkner <P.J.W.Faulkner@bham.ac.uk> 
+
+# use this line to exclude test algorithms
+library TrigT1CaloByteStream *.cxx components/*.cxx
+# use this line to include test algorithms
+#library TrigT1CaloByteStream *.cxx ../test/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+
+private
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event 
+use ByteStreamData       ByteStreamData-*       Event
+use DataCollection       DataCollection-*       External
+use StoreGate            StoreGate-*            Control
+use SGTools              SGTools-*              Control
+use EventInfo            EventInfo-*            Event
+
+use TrigT1CaloEvent      TrigT1CaloEvent-*      Trigger/TrigT1
+use TrigT1CaloUtils      TrigT1CaloUtils-*      Trigger/TrigT1
+use TrigT1CaloMappingToolInterfaces TrigT1CaloMappingToolInterfaces-* Trigger/TrigT1
+
+# Only needed for test algorithms
+#use TrigT1Interfaces     TrigT1Interfaces-*     Trigger/TrigT1
+#use StoreGate            StoreGate-*            Control
+
+macro_append DOXYGEN_FILE_PATTERNS    " *.icc"

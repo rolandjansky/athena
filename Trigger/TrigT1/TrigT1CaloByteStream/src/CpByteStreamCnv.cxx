@@ -1,0 +1,115 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include <vector>
+
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+
+#include "ByteStreamData/RawEvent.h"
+#include "ByteStreamData/ROBData.h"
+
+#include "DataModel/DataVector.h"
+
+#include "GaudiKernel/CnvFactory.h"
+#include "GaudiKernel/DataObject.h"
+#include "GaudiKernel/IOpaqueAddress.h"
+#include "GaudiKernel/IRegistry.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/StatusCode.h"
+
+#include "SGTools/ClassID_traits.h"
+#include "SGTools/StorableConversions.h"
+
+#include "TrigT1CaloEvent/CPBSCollection.h"
+
+#include "CpByteStreamCnv.h"
+#include "CpByteStreamTool.h"
+
+namespace LVL1BS {
+
+CpByteStreamCnv::CpByteStreamCnv( ISvcLocator* svcloc )
+    : Converter( ByteStream_StorageType, classID(), svcloc ),
+      m_name("CpByteStreamCnv"),
+      m_tool("LVL1BS::CpByteStreamTool/CpByteStreamTool"),
+      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
+      m_log(msgSvc(), m_name), m_debug(false)
+{
+}
+
+CpByteStreamCnv::~CpByteStreamCnv()
+{
+}
+
+// CLID
+
+const CLID& CpByteStreamCnv::classID()
+{
+  return ClassID_traits<LVL1::CPBSCollection>::ID();
+}
+
+//  Init method gets all necessary services etc.
+
+#ifndef PACKAGE_VERSION
+#define PACKAGE_VERSION "unknown"
+#endif
+
+StatusCode CpByteStreamCnv::initialize()
+{
+  m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
+  m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
+                      << PACKAGE_VERSION << endreq;
+
+  StatusCode sc = Converter::initialize();
+  if ( sc.isFailure() )
+    return sc;
+
+  //Get ByteStreamCnvSvc
+  sc = m_ByteStreamEventAccess.retrieve();
+  if ( sc.isFailure() ) {
+    m_log << MSG::ERROR << "Failed to retrieve service "
+          << m_ByteStreamEventAccess << endreq;
+    return sc;
+  } else {
+    m_log << MSG::DEBUG << "Retrieved service "
+          << m_ByteStreamEventAccess << endreq;
+  }
+
+  // Retrieve Tool
+  sc = m_tool.retrieve();
+  if ( sc.isFailure() ) {
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endreq;
+    return sc;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
+
+  return StatusCode::SUCCESS;
+}
+
+// createRep should create the bytestream from RDOs.
+
+StatusCode CpByteStreamCnv::createRep( DataObject* pObj,
+                                        IOpaqueAddress*& pAddr )
+{
+  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endreq;
+
+  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
+
+  LVL1::CPBSCollection* cp = 0;
+  if( !SG::fromStorable( pObj, cp ) ) {
+    m_log << MSG::ERROR << " Cannot cast to CPBSCollection" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  const std::string nm = pObj->registry()->name();
+
+  ByteStreamAddress* addr = new ByteStreamAddress( classID(), nm, "" );
+
+  pAddr = addr;
+
+  // Convert to ByteStream
+  return m_tool->convert( cp, re );
+}
+
+} // end namespace
