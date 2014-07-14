@@ -1,0 +1,1391 @@
+D3PD maker design notes v2.4 (2009/09/24)
+
+* Goals
+-------
+
+Some desiderata for the design:
+
+ - The proposal here is not intended for performing analysis.
+   Rather, the goal is to allow building a root tuple from EDM
+   objects in StoreGate in a flexible and consistent manner.
+
+   The assumption is that any analysis results that are to be saved
+   in the tuple will be computed by upstream Athena algorithms and
+   stored in StoreGate.
+
+   While there is nothing in the design that prevents carrying out
+   non-trivial calculations in the tools that select input objects
+   or fill the tuple, this won't be encouraged.
+
+ - This proposal is focused on making flat root tuples; that is,
+   without embedded C++ objects that require dictionaries to read
+   (with the possible exception of vectors of basic types).
+
+   However, the design should not preclude adding such objects
+   to the tuple (especially those that are built into root,
+   such as TLorentzVector).
+
+   See also the section `Notes on structured analysis of flat tuples', below.
+
+ - Variables put in the ntuple should be groups into blocks at some
+   relatively fine level of granularity.  Each block is associated
+   with some `level of detail'.  Blocks should be selectable either
+   individually or by level of detail.
+
+ - Tasks like selecting objects and making associations between
+   objects should rely on abstract tools.  Generic implementations should
+   be provided for common cases (such as selecting a container from SG).
+
+ - Configuration should be simple for the common case; but it should
+   be possible, if desired, to enable/disable individual blocks,
+   rename tuple variables, and change the implementations used
+   for any of the abstract tools.
+
+ - The tuple should be easily extensible by user code without requiring
+   additions to the tuple maker packages.
+
+ - Dependencies on root should be isolated in a service, to allow for the
+   possibility of writing to something other than root trees (hdf5,
+   user data, etc.) with the same user-level code.
+
+
+* Overview
+----------
+
+We write some number of root files.
+
+Each file contains some number of trees.
+Each tree is written by a separate algorithm instance.
+
+Each tree contains a set of _objects_.  Each object is typically
+built from a single C++ object or container of objects retrieved from
+StoreGate; all variables for an object will generally start with
+a common prefix.  Each object is managed by a tool; these tools
+are intended to be generic and independent of the C++ objects on which
+they're operating.
+
+Retrieving the objects on which to operate is done by instances of
+an abstract _getter_ interface.  Predefined getter tools are provided
+for fetching objects from StoreGate.
+
+Each object consists of a set of _blocks_; each block is filled by an
+instance of a tool.  These tools are what users are generally expected
+to write.  A block filler tool gets a pointer to the input object and
+fills output variables.  These tools always get single objects as input;
+iterating over objects in a container is handled by the parent, object-level
+tools.
+
+Special block filler tools are provided for forming associations
+between objects.
+
+
+* Design
+--------
+
+Note: Details of interfaces and implementations are set off in sections
+prefixed with `! '.  These may be skipped if you're not interested in
+all the details.
+
+Areas that need more thought are marked with `TODO:'.
+
+All identifiers defined here are within the `D3PD' namespace.
+For clarity, the namespace prefix will generally be omitted.
+
+
+** Generic object handling.
+
+The core D3PD maker tools can manipulate objects of any type,
+via untyped pointers.  Type-safe template wrappers are provided,
+and it is expected that user code will use these wrappers.
+
+!DETAILS:
+! Some of the components need to handle objects of multiple types.
+! There are several ways in which this can be implemented:
+!
+!  - Requiring everything to derive from a common base class.
+!    This is likely not flexible enough for what we're trying to do here.
+!    (This is the approach that EventView took, handling only objects
+!    derived from INavigable4Momentum.)
+!
+!  - Template all components on the object type.
+!    This rapidly becomes unwieldy, as all the specializations
+!    need to be declared to Gaudi.  (And actually, you need to
+!    derive a specific non-templated class from the template specializations,
+!    as the Gaudi plugin registration macros can't handle template
+!    classes.)
+!
+!  - Use void*, and keep track of the type separately.
+!    This is what's done in the current implementation.
+!
+!  - Use something like boost::any.
+!    This would simplify the code considerably, but boost::any has
+!    considerably more overhead.
+!
+! Generally, the interfaces here that produce objects have a method
+! fooUntyped() that returns a void* and another method typeinfo() that
+! returns the corresponding std::type_info.  Interfaces that consume
+! objects have an fooUntyped() method that takes a void* and a
+! configure() method that takes the corresponding std::type_info as an
+! argument.  This allows type checking to be done during
+! job initialization.  A utility class TypeConverter is used
+! to convert pointers based on the std::type_info's.  The information
+! for this comes from the SG_BASE and DATAVECTOR_BASE macros;
+! some additions to the core (SGTools and DataModel) are needed
+! for this to actually work.
+!
+! Here's a summary of the TypeConverter interface:
+!
+! class TypeConverter
+! {
+! public:
+!   TypeConverter();
+!
+!   // Specify source and destination types.
+!   StatusCode init (const std::type_info& src_ti,
+!                    const std::type_info& dst_ti);
+!   template <typename T> StatusCode init (const std::type_info& src_ti);
+!
+!   // Do the conversion.
+!   const void* convertUntyped (const void* p) const;
+!   template <class T> const T* convert (const void* p) const;
+!
+!   // Information.
+!   bool isValid() const;
+!   const std::type_info& srcTypeinfo() const;
+!   const std::type_info& dstTypeinfo() const;
+!   std::string srcName() const;
+!   std::string dstName() const;
+! };
+!
+!
+! TODO: Consider switching to boost::any, or something similar.
+!       Need to analyze the time/space cost in more detail.
+!       This will likely require extending the core DataBucket
+!       interface in such a way that everything will need
+!       to be recompiled.  Some additional interfaces/logic will
+!       be needed if we want to be able to continue to do type
+!       checking during job configuration, before any data
+!       objects are available.
+!
+
+
+** Common variable booking interface
+
+Many components support a common interface for booking variables,
+defined by IAddVariable.
+
+!DETAILS
+! class IAddVariable
+! {
+! public:
+!   virtual ~IAddVariable() {}
+!   template <class T>
+!   StatusCode addVariable (const std::string& name,
+!                           T* & ptr,
+!                           const std::string& dim = "");
+!   virtual StatusCode addVariable (const std::string& name,
+!                                   const std::type_info& ti,
+!                                   void* & ptr,
+!                                   const std::string& dim = "") = 0;
+! };
+!
+! The interface takes a name, a reference to a pointer of the appropriate
+! type, and the std::type_info for the data type being booked.
+! A templated wrapper is available to supply the type_info argument;
+! this is what user code is expected to use.
+!
+! The dim parameter is used for the case of an array of objects.
+! This is not currently implemented (see tuple interface section below).
+!
+! Tools remember their variable prefix, but don't pass it down to
+! children.  Instead, an addVariable request goes back through the
+! chain of parents, each adding the prefix as required.
+!
+! In most cases, then, the IAddVariable interface can be implemented
+! by AddVariable:
+!
+! class AddVariable
+!   : public IAddVariable
+! {
+! public:
+!   AddVariable (const std::string& prefix);
+!   StatusCode configure (IAddVariable* tree);
+!   virtual StatusCode addVariable (const std::string& name,
+!                                   const std::type_info& ti,
+!                                   void* & ptr,
+!                                   const std::string& dim = "");
+! };
+!
+! The constructor here gets a reference to the prefix property.
+! The configure method is called during job initialization
+! with the parent component.  The addVariable method then
+! adds the prefix to the name and forwards the request to the parent.
+
+
+TODO: Should there be a way to specify the default value of a variable,
+to which it gets initialized on a reset?  Currently, fundamental types
+are always reset to 0, but current practice is typically to use -999
+or some such instead for missing values.  In general, though, having
+a present/missing flag would be better than magic values.
+
+
+** Tuple interface
+
+The root dependencies are factored out into a separate service, to allow
+the possibility of writing to a different backend.  The service
+is defined by the interface ID3PDSvc.  It creates an object
+of type ID3PD.  Implementations of these for ROOT are provided,
+RootD3PDSvc and RootD3PD.
+
+!DETAILS:
+!
+! The service has only a method to make a new tuple:
+!
+! class ID3PDSvc
+!   : virtual public IService
+! {
+! public:
+!   virtual ~ID3PDSvc() {}
+!   static const InterfaceID& interfaceID();
+!   virtual StatusCode make (const std::string& name, ID3PD* & d3pd) = 0;
+! };
+!
+! Here's the tuple interface:
+!
+! class ID3PD
+!   : public IAddVariable
+! {
+! public:
+!   typedef unsigned int Dim_t;
+!
+!   virtual ~ID3PD() {}
+!
+!   virtual StatusCode redim (const Dim_t* ptr) = 0;
+!   virtual StatusCode capture () = 0;
+!   virtual StatusCode clear () = 0;
+! };
+!
+! This uses the common IAddVariable interface to book variables.
+! After a variable is booked, the pointer should be pointing at an object
+! of the appropriate type.  The storage is managed by the tuple.
+! capture() captures the current state of all booked objects and writes
+! a new tuple row.
+!
+! clear() will erase all the tuple objects.
+!   - Simple types are filled with 0.
+!   - Container types will be called via clear().
+!   - If clear() is defined in the class, then it will be called.
+!   - Otherwise, the object will be freed and reallocated with the
+!     default constructor.
+!
+! redim() is not yet implemented.
+! The purpose of this is to allow one to give an array of numbers directly
+! to root rather than using an STL container.  The idea is that when
+! a variable is booked, the dim argument names another variable that
+! serves as the dimension for the array.  (Some way also needs to be
+! defined for an array of constant size.)  When filling the tuple,
+! you first set the dimension variable appropriately, then call
+! redim(), passing in the pointer to the dimension variable.
+! All arrays that use this as a dimension will then be resized.
+!
+! TODO: Either implement this or remove the interfaces.
+!       Also need to think about supporting matrices?
+!
+! TODO: Have a general mechanism for renaming variables?
+!
+! RootD3PDSvc has these properties:
+!  HistSvc      - The THistSvc to use.
+!  DoBranchRef  - If true, then add branches to support TRef.
+!                 Defaults to true.
+!  MasterTree   - If set, the name of a tree in the same directory.
+!                 The tree being built will be made a friend
+!                 of the master tree.
+!                 Defaults to CollectionTree.
+!  IndexMajor   - Major indexing variable.  Defaults to RunNumber.
+!  IndexMinor   - Minor indexing variable.  Defaults to EventNumber.
+!                 If these are set, then a tree index will be built
+!                 with BuildIndex.  An index will also be built
+!                 for the master tree, if it was specified.
+!  BasketSize   - Size to use for the basket buffers.  Defaults to 2048.
+!  EntryOffsetLen-Size to use for the entry offset buffers.  Defaults to 512.
+!
+
+
+TODO: There should be some warning if we have duplicate variable names.
+
+
+** Trees
+
+We write one or more root files, each containing one or more root trees.
+Each tree is created by a separate algorithm of type MakerAlg.
+
+!DETAILS:
+! The algorithm has these properties:
+!   D3PDSvc   - The ID3PDSvc to use to create the tuple.
+!   TuplePath - The name of the tuple to give to the service.
+!   Tools     - List of (IObjFillerTool) object filler tools.
+
+
+** Objects
+
+Each tree consists of a set of _objects_.  Each of these will generally
+correspond to one C++ object, or set of objects in a container.
+Each object is filled by a tool of type IObjFillerTool.
+(These tools are intended to be generic; the object-specific code
+is in block filling, below).  For the case of objects in a container,
+all the filled tuple leaves should start with a common prefix
+(eg, `el_'), and a count leaf will be automatically added (`el_n').
+For single objects not in a container, a prefix is optional; but if
+present should be common to all the leaves of the object.
+
+Inputs to object filler tools are provided by `getter' tools; see below.
+
+!DETAILS:
+! Here's the IObjFillerTool interface:
+!
+! class IObjFillerTool
+!   : virtual public IAlgTool
+! {
+! public:
+!   static const InterfaceID& interfaceID();
+!   virtual StatusCode configure (IAddVariable* tree) = 0;
+!   virtual StatusCode book () = 0;
+!   virtual StatusCode fill() = 0;
+! };
+!
+! configure() is called during initialization; the parent tree is passed
+! to it.  (This is usually the ID3PD object.)
+! book() is called at the start of the first event.  It should declare
+! all tuple variables.  It's done at the start of the first event rather
+! than during initialization to allow the set of variables to depend
+! on the event data.
+! fill() is then called once for each event.  It should:
+!   - Fetch the input.
+!   - If it's a container, loop over the contents.
+!   - Loop over the contained block filler tools.
+
+Three concrete object filler tools are provided.
+ObjFillerTool handles single objects, and VectorFillerTool
+handles collections of objects, putting the results in
+std::vector objects within the tuple.  VectorFillerTool will
+also automatically add a count branch (`n') for the object.
+
+It is also possible to have `objects' that do not have explicit EDM inputs.
+(An example is global trigger decision bits.)  Such objects are handled
+by VoidObjFillerTool.  For this tool, the type given to the child
+block filler tools will be `void', to indicate that no object
+is provided.
+
+
+!DETAILS:
+! All three tools have these properties:
+!   Prefix - A string to add to the front of all the variables
+!            created for this object.
+!   BlockFillers - List of block filler (IBlockFillerTool) tools.
+!
+! All except VoidObjFillerTool also have these properties:
+!   Getter - The getter tool to retrieve the input.
+!            For ObjFillerTool, this is an IObjGetterTool;
+!            For VectorFillerTool, it's an ICollectionGetterTool.
+!   AllowMissing - If true, then it is not considered an error for the
+!                  input object to be missing.
+!
+! ObjFiller tool is quite simple; here is the fill() method:
+!
+!   StatusCode
+!   ObjFillerTool::fill()
+!   {
+!     const void* obj = m_getter->getUntyped();
+!     if (!obj) {
+!       REPORT_MESSAGE(MSG::ERROR) << "Can't get input object.";
+!       return StatusCode::FAILURE;
+!     }
+!
+!     for (size_t i = 0; i < m_blockFillers.size(); i++)
+!       CHECK( m_blockFillers[i]->fillUntyped (obj) );
+!
+!     return StatusCode::SUCCESS;
+!   }
+!
+! Just get the input object and pass it to all the block filler tools.
+!
+! The configuration step looks like this:
+!
+!   StatusCode
+!   ObjFillerTool::configure (IAddVariable* tree)
+!   {
+!     const std::type_info& ti = m_getter->typeinfo();
+!
+!     CHECK( AddVariable::configure (tree) );
+!     for (size_t i = 0; i < m_blockFillers.size(); i++)
+!       CHECK( m_blockFillers[i]->configure (this, ti) );
+!     return StatusCode::SUCCESS;
+!   }
+!
+! ObjFillerTool uses the generic AddVariable implementation;
+! we pass the parent tree to that.  Then we configure each of the
+! block filler tools.  To each we pass this tool as the parent
+! and also the type of input object that it will be getting.
+! (If this leads to a type error, the block filler tool will
+! return an error here.)
+!
+! VectorFillerTool is a bit more complicated since it needs to keep
+! track of the variables.  When we get a call to addVariable
+! for a type T, we remember the pointer locally.  Then we construct
+! the type for vector<T> and pass that to addVariable() for our parent.
+! Then for each object over which we iterate, we need to extend
+! the vectors by one element and reset the remembered pointers
+! to point at the tail.
+!
+! The manipulation of the vector<> objects here is done via Reflex,
+! so there must be dictionaries available for these types.  (But
+! these are the types that are being written to the tuple, so we must
+! also have the dictionaries available for that reason.)
+!
+! TODO: Have another tool that supports writing arrays of objects,
+!       rather than std::vector's.
+
+
+** Getters
+
+The input to an object filler tool is provided by a tool of type
+IObjGetterTool.  This will return an object or an object container
+of a given type.  It is expected that the usual case for this will
+be to fetch an object from StoreGate; generic code will be provided
+for this case and for the case of retrieving the results of a particle
+selection algorithm.  Other tools can be defined for specific
+special cases, such as using selections stored in a top inputs object,
+or for performing additional selections.
+
+!DETAILS:
+!
+! Here's the IObjGetterTool interface.
+!
+! class IObjGetterTool
+!   : virtual public IAlgTool
+! {
+! public:
+!   static const InterfaceID& interfaceID();
+!
+!   virtual const void* getUntyped (bool allow_missing = false) = 0;
+!   virtual const std::type_info& typeinfo() const = 0;
+!
+!
+!   template <class T> StatusCode configure();
+!   template <class T> const T* get();
+!
+!   virtual const void* getTypeinfo (const std::type_info& ti) = 0;
+!   virtual StatusCode configureTypeinfo (const std::type_info& ti) = 0;
+! };
+!
+! The main portion of the interface is getUntyped() and typeinfo().
+! getUntyped() returns a pointer to the input object retrieved, or 0.
+! If allow_missing is true, then it should not issue any errors if the
+! requested object is not present,
+! typeinfo() returns the type of this pointer.  (I.e., if getUntyped()
+! returns a T* as a void*, typeinfo() returns typeid(T).)
+!
+! get() provides a type-safe interface for retrieving the input.
+! It is implemented in terms of getTypeinfo(), which returns the
+! pointer cast to the type given by ti.  configure() allows checking
+! type compatibility during job initialization; it is implemented
+! in terms  of configureTypeinfo().
+
+If a collection is being retrieved, an ICollectionGetterTool
+should be used instead.  This extends the IObjGetterTool to allow
+iterating over the elements of a collection.  The tool holds the
+iterator; there are methods reset() to go to the start of the collection
+and next() to iterate within the collection.
+
+!DETAILS:
+!
+! Here's the ICollectionGetterTool interface.
+!
+! class ICollectionGetterTool
+!   : virtual public IObjGetterTool
+! {
+! public:
+!   static const InterfaceID& interfaceID();
+!
+!   virtual const std::type_info& elementTypeinfo() const = 0;
+!   virtual StatusCode reset (bool allow_missing = false) = 0;
+!   virtual const void* nextUntyped() = 0;
+!   virtual size_t sizeHint() = 0;
+!
+!   template <class T> StatusCode configure();
+!   template <class T> const T* next();
+!
+!   virtual const void* nextTypeinfo (const std::type_info& ti) = 0;
+!   virtual StatusCode configureElementTypeinfo (const std::type_info& ti) = 0;
+! };
+!
+! This derives from IObjGetterTool; the get* methods from there are expected
+! to return the collection itself.  The additional methods here support
+! iterating within the collection.
+!
+! The main interface is given by these methods:
+!   reset (bool allow_missing) --- Reset the iteration to the start of the 
+!                     collection.  If allow_missing is true, then don't
+!                     issue any errors (and return SUCCESS) if the requested
+!                     object is missing.  (nextUntyped should return
+!                     null immediately in that case.)
+!   nextUntyped() --- Return the next element from the collection,
+!                     as a void*.  Returns null at the end of the collection.
+!   elementTypeinfo() --- Return the type of the collection element.
+!                         I.e., if nextUntyped() returns a T* cast to void*,
+!                         then this returns typeid(T).
+!   sizeHint() --- An estimate of the number of elements being returned,
+!                  to allow for pre-allocating memory.
+!                  (It's possible that this isn't known in advance of
+!                  iterating over the entire collection, for example
+!                  if a selection is being applied, so this is only a hint.)
+!
+! Note that if the collection contains pointers, then these will be
+! dereferenced by the iteration.  For example, for vector<int>, the
+! element type we return will be `int'.  But for vector<int*>, the
+! element type will still be `int'.  (This is for easier support
+! of DataVector.)
+!
+! The remaining methods provide a type-safe wrapper for accessing the
+! iteration, and work in the same way as similar methods of IObjGetterTool.
+
+To write new getter tools for specific types, one will generally derive
+from the wrapper classes ObjGetterTool<T> and CollectionGetterTool<CONT>.
+
+!DETAILS:
+!
+! Here's an inheritance diagram for these classes:
+!
+!    IAlgTool<---------------------AthAlgTool
+!        ^                             ^
+!        |                             |
+!        |                             |
+!    IObjGetterTool<---------------ObjGetterToolImpl<--+
+!        ^                             ^               |
+!        |                             |            ObjGetterToool<T>
+!        |                             |
+!    ICollectionGetterTool<--------CollectionGetterToolImpl<--+
+!                                                             |
+!                                                             |
+!                                                   CollectionGetterTool<CONT>
+!
+!
+! The *Impl classes basically factor out the parts of the implementation
+! that do not depend on the object type.  ObjGetterTool is templated
+! on the type of the object being returned, and CollectionGetterTool<CONT>
+! is templated on the container type.  Both implement all the required
+! interface methods in terms of one additional virtual function:
+!
+!     virtual const T* get() = 0;
+!
+! (or const CONT* in the case of the collection getter).
+! For CollectionGetterTool, the container must be a Forward Container;
+! CollectionGetterTool handles the iteration.
+
+Tools are supplied for retrieving objects from StoreGate.
+SGObjGetterTool retrieves single objects; it can handle any object type.
+SGCollectionGetterTool<CONT> retrieves containers; it is templated
+on the container type.
+Finally, SGDataVectorGetterTool can handle any DataVector or DataList
+collections from StoreGate.
+
+Tools retrieving objects from StoreGate take the object key as a parameter.
+This can either be a single key or a list of (comma or space-separated) keys.
+If it's a list, the first time the tool is called, it will iterate
+over the list and pick the first key that actually exists in the
+event store.
+
+TODO: We should record some sort of metadata in the output tuple
+      saying what keys were actually used.
+
+An example of deriving a tool for a specific container type is provided
+in the prototype is IN4MCollectionGetterTool.  This should not be
+needed anymore, though, as the generic SGDataVectorGetterTool
+can be used.
+
+
+!DETAILS:
+!
+! Here's an inheritance diagram for these classes:
+!
+!             +---------->IObjGetterTool               ...
+!             |                 ^                       |
+!     ObjGetterToolImpl         |                CollectionGetterToolImpl
+!             ^                 |                       ^            |
+!             |                 |                       |            +--------+
+!             |                 |                       |                     |
+!             |                 |                CollectionGetterTool<CONT>   |
+!             |                 |                       ^                     |
+!             |   +-------->SGGetterImpl<---------+     |                     |
+!             |   |               |               |     |                     |
+!     SGObjGetterTool             |              SGCollectionGetterTool<CONT> |
+!                                 |                     ^                     |
+!                                 |                     |                     |
+!                                 |                     |                     |
+!                                 +-----+        IN4MCollectionGetterTool     |
+!                                       |                                     |
+!                                       |                                     |
+!                                       |                +--------------------+
+!                                       |                |
+!                                      SGDataVectorGetterTool
+!
+!
+!
+! The code that actually interacts with StoreGate is factored out
+! into SGGetterImpl.
+!
+! SGObjGetterTool has these properties:
+!
+!   ClassIDSvc --- Name of the class ID service.
+!   TypeName   --- Name of the type to retrieve from SG.
+!                  Can also be a comma or space-separated list.
+!                  In that case, the first key that actually exists
+!                  in the data store will be used.
+!   SGKey      --- StoreGate key of the object to retrieve.
+!
+! IN4MCollectionTool has the same properties.  In this case, though,
+! one would not normally set the TypeName property, as it will default
+! to INavigable4MomentumCollection.
+
+
+** Blocks
+
+Each object consists of a set of _blocks_.  A block is a small set of
+related tuple variables for some object.  Blocks represent the
+intended granularity for enabling or disabling variables (though it
+is possible to control individual variables through the remapping
+mechanism).  Blocks are filled by tools of type IBlockFillerTool.
+Blocks (and the associated tools) will generally be specific for
+a particular object type (i.e., fill the egamma PID variables)
+A few, however, will be more generic: for example, there should be
+one block tool for filling 4-vector information that's used by all
+object types (that implement 4-vectors).
+
+Each block is associated with a specific `level of detail' in job
+configuration.  This allows enabling a preselected set of blocks.
+
+Each block has a default variable name for each leaf filled.
+This is concatenated with the object prefix (if any) to produce
+the full name for the leaf.  It will be possible to configure
+the filler tools to change the names of the tuple leaves
+(this should be implemented with generic code in a base class).
+The same mechanism may be used to disable specific leaves
+entirely by remapping to a null name.
+
+TODO: As mentioned earlier, the remapping feature is not implemented
+      in the prototype.
+
+In some cases, multiple blocks for a given object type may be implemented
+with generic code.  This is possible for objects in which many object
+variables are accessible through a single `detail' method.  The common
+tool would be configured with the enum code (or possibly names) of the
+desired details and the corresponding tuple leaf names.
+
+Filling the tuple variables is a two-step process: first, declare the
+variables, and then fill them.  Here's an example of how this
+might look, to fill a single variable from Foo::thing():
+
+  class FooFiller : public BlockFiller<Foo>
+  {
+  public:
+    float* m_thing; // Variable to record in tuple.
+
+    virtual StatusCode book() {
+      return addVariable ("thing", m_thing);
+    }
+
+    virtual StatusCode fill (const Foo& foo) {
+      *m_thing = foo.thing();
+      return StatusCode::SUCCESS;
+    }
+  };
+
+We register with the base class a pointer to the object we're
+filling.  Before calling fill(), the base class initializes these pointers
+appropriately.  With this style of filling, the code in the specific
+block filling classes does not need to know whether it's dealing
+with a single object or with objects from a container; that distinction
+is handled generically.  Handling of the object prefix is also done
+by the base class.  Other operations, such as clearing the set
+of block variables, can also be done generically (see the
+`Tuple interface' section).  While the example here uses a simple
+variable type, it is possible to book as well class types into
+the tuple (provided appropriate dictionary definitions are available).
+
+!DETAILS
+!
+! Here's the interface for IBlockFillerTool:
+!
+! class IBlockFillerTool
+!   : virtual public IAlgTool
+! {
+! public:
+!   static const InterfaceID& interfaceID();
+!
+!   virtual StatusCode configure (IAddVariable* tree,
+!                                 const std::type_info& ti) = 0;
+!   virtual StatusCode book () = 0;
+!   virtual StatusCode fillUntyped (const void* p) = 0;
+! };
+!
+! During job configuration, configure() is called; the arguments are the
+! parent and the type of pointer which will be passed to fillUntyped.
+! configure() should return an error if the type is incompatible.
+! If ti==typeid(void), then no input will be provided.
+! book() will be called at the start of the first event.
+! fillUntyped() is then called for each object to be processed.
+
+User-written block filler tools are expected to derive from
+the wrapper class BlockFillerTool<T>, which takes care of the
+type conversions.
+
+!DETAILS:
+!
+! BlockFillerTool<T> implements the configure and fillUntyped() methods
+! from the interface and introduces a new virtual methods:
+!
+!   virtual StatusCode book () = 0;
+!   virtual StatusCode fill (const T& p) = 0;
+!
+! book() is called at the start of the first event; it should perform
+! the variable registration.  fill() is then called for each object
+! to be processed.
+!
+! BlockFillerTool also has the specialization BlockFillerTool<void>
+! (defined in VoidBlockFillerTool.h).  For this specialization,
+! fill() takes no arguments.
+
+Several block filler tools are present in the prototype code as examples:
+
+  EventInfoFillerTool --- Fills the run and event number from an
+                          EventInfo object.
+  FourMomFillerTool --- Takes an INavigable4Momentum and fills variables
+                        pt, eta, and phi.
+  egammaDetailFillerTool --- Generic tool for filling variables from
+                             egamma object details.
+
+                             Takes a property `Details'.  This is a list
+                             of strings that are taken pairwise.  The first
+                             of a pair is the enumeration code for
+                             an egamma detail (an int), expressed
+                             as a string.  The second of a pair
+                             is the corresponding variable name.
+
+! TODO: The variable filling interface used here requires mentioning
+!       each variable in three places.  It would be nice to reduce that.
+
+
+** Associations
+
+It is often necessary to represent associations between objects.
+There are two ways that have generally been used to represent associations
+within a flat tuple.  Take for example associating between an electron
+and a truth particle.  One way is to do the association via `containment'.
+I.e., we have variables like:
+
+    el_n           // counter of electrons
+    el_pt          // electron variable
+    ...
+    el_tru_matched // flag that association is valid
+    el_tru_pt      // associated truth particle variable
+    ...
+
+This style is convenient to use, but it has a fundamental limitation in that
+it really only represents one direction of the association.  It's easy
+to access the truth particle associated with an electron.  It's not
+so easy if you want instead to loop over all truth particles --- and indeed,
+unassociated truth particles may not even be present.
+
+An alternate representation is to use indexes:
+
+    el_n           // counter of electrons
+    el_pt          // electron variable
+    ...
+    el_tru_index   // index of associated truth particle, or -1
+    ..
+    tru_n          // counter of truth particles.
+    tru_pt         // truth particle variable
+    ...
+    tru_el_index   // (optional) index of associated electron, or -1
+
+This solves the issues mentioned above, allowing representing bidirectional
+associations.  Moreover, we also have the complete sets of unassociated
+objects, and it's easy to loop over either electrons or truth particles.
+This is somewhat more awkward to use interactively, though; and there is
+an increased change of error as one has to implicitly know to which
+tuple object an index is referring.  This last point can be mitigated
+somewhat through consistent naming conventions (as in the example here).
+
+Neither of these methods supports multiway associations
+(i.e, 1-n or n-n, as opposed to 1-1).  However, the index method
+readily generalizes to allow this by allowing the index variables to be
+lists of indices rather then single numbers.
+
+Which of these is most appropriate depends on the specific goals of the tuple;
+there is not one choice that is best for all applications.  Accordingly,
+the software should support all these, selectable via job configuration.
+
+There are two separate pieces used to handle associations.  First are a
+set of tools to establish associations between objects: given an object
+as input, they find either a single object or set of objects with which
+it is associated.  Second are tools to represent the association
+in the tuple.
+
+Tools for forming associations derive from IMultiAssociationTool.
+Given an input object, such a tool returns a set of objects with which
+the input object is associated.  This is specialized by the interface
+ISingleAssociationTool for the case in which the target of the association
+is a single object.
+
+!DETAILS:
+!
+! Here's the IMultiAssociationTool interface:
+!
+! class IMultiAssociationTool
+!   : virtual public IAlgTool
+! {
+! public:
+!   static const InterfaceID& interfaceID();
+!
+!   virtual StatusCode configure (IAddVariable* tree,
+!                                 const std::type_info& ti) = 0;
+!   virtual StatusCode book () = 0;
+!   virtual const std::type_info& elementTypeinfo() const = 0;
+!   virtual StatusCode resetUntyped (const void* p) = 0;
+!   virtual const void* nextUntyped() = 0;
+! };
+!
+! This is modeled after the ICollectionGetterTool interface.
+!
+! configure() is called during job initialization.  This provides
+! the parent (an association tool may itself book variables, for example, DR)
+! and the type of the input object.  The association is started
+! by calling resetUntyped(); the parameter is the input object.
+! The results of the association are then retrieved by calling
+! nextUntyped(); this returns 0 when there are no more objects in the
+! association result.  The type returned by nextUntyped()
+! is given by elementTypeinfo().
+!
+! Associations for which the target is a single object, rather than
+! a set, use instead ISingleAssociationTool:
+!
+! class ISingleAssociationTool
+!   : public IMultiAssociationTool
+! {
+! public:
+!   ISingleAssociationTool();
+!   static const InterfaceID& interfaceID();
+!
+!   virtual StatusCode configure (IAddVariable* tree,
+!                                 const std::type_info& ti) = 0;
+!   virtual StatusCode book () = 0;
+!   virtual const void* getUntyped (const void* p) = 0;
+!   virtual const std::type_info& typeinfo() const = 0;
+!
+!   virtual const std::type_info& elementTypeinfo() const;
+!   virtual StatusCode resetUntyped (const void* p);
+!   virtual const void* nextUntyped();
+! };
+!
+! This implements the IMultiAssociationTool interface in terms
+! of the new virtual methods getUntyped() and typeinfo().
+
+User-written association tools would generally derive from the
+wrapper classes MultiAssociationTool<FROM_T, TO_T> and
+SingleAssociationTool<FROM_T, TO_T>.
+
+!DETAILS:
+!
+! template <typename FROM_T, typename TO_T = FROM_T>
+! class MultiAssociationTool
+!   : public MultiAssociationToolImpl
+! {
+! public:
+!   MultiAssociationTool (const std::string& type,
+!                         const std::string& name,
+!                         const IInterface* parent);
+!
+!   virtual const std::type_info& elementTypeinfo() const;
+!   virtual const std::type_info& fromElementTypeinfo() const;
+!   virtual StatusCode resetUntyped (const void* p);
+!   virtual const void* nextUntyped();
+!
+!   virtual StatusCode reset (const FROM_T& p) = 0;
+!   virtual const TO_T* next () = 0;
+! };
+!
+! MultiAssociationTool implements the interface in terms of the new
+! virtual methods reset() and next().
+!
+! template <typename FROM_T, typename TO_T = FROM_T>
+! class SingleAssociationTool
+!   : public SingleAssociationToolImpl
+! {
+! public:
+!   SingleAssociationTool (const std::string& type,
+!                          const std::string& name,
+!                          const IInterface* parent);
+!
+!   virtual const void* getUntyped (const void* p);
+!   virtual const std::type_info& typeinfo() const;
+!   virtual const std::type_info& typeinfoFrom() const;
+!
+!   virtual const TO_T* get (const FROM_T& p) = 0;
+!
+! private:
+! };
+!
+! SingleAssociationTool similarly implements its interface in terms
+! of the new virtual method get().
+
+Two concrete instances of these tools are present in the prototype.
+DRAssociationTool associates an INavigable4Momentum with the single
+closest one in a collection defined by a getter.
+DRConeAssociationTool is similar, but the result is the set of objects
+within a DR cone.  DRAssociationTool also adds a variable `dr'
+to the tuple.
+
+!DETAILS:
+!
+! They take the same properties:
+!   Getter --- The getter tool defining the target collection.
+!   DRCut  --- DR cut to apply.
+!              For the single association tool, the association fails
+!              if there are no target objects within this DR cut.
+!              For the multiple association tool, this gives
+!              the cone radius.
+
+Representations of the associations are written to the output tuple
+by special block filler tools.  There are three of these in the prototype:
+
+  ContainedAssociationFillerTool
+    Represents single associations by containment.
+  IndexAssociationFillerTool
+    Represents single associations by index.
+  IndexMultiAssociationFillerTool
+    Represents multiple associations by a vector of indices.
+
+All three of these take an association tool as a property.
+
+ContainedAssociationFillerTool takes as a property a list
+of block filler tools, to be run on the associated object.
+It takes an additional property `Matched' giving the name of a flag
+variable to be added to the tuple.  This variable will be set to true
+if the association succeeds.  The name of the variable defaults
+to `matched'; setting it to null disables writing it to the tuple.
+
+The index association tools add a variable `index', which is either
+a single number or a vector.  In the single association case, the index
+is set to -1 if the association fails.
+
+In order to calculate the index, we need to somehow get the collection
+within which we want to define the index.  (This is not necessarily
+the same collection as was used to define the association target,
+so we can't just use that.)  What's currently done is to copy the
+getter tool that was used in the object filler tool.  When a getter
+tool is created, it can optionally be given a string label; a good
+value to use for this would be the block prefix.  The
+association filler tools are also configured with this label; they use
+this to look up the proper getter tool.
+
+
+!DETAILS:
+!
+! Properties for ContainedAssociationFillerTool:
+!   Associator   --- Association tool to use (ISingleAssociationTool).
+!   Prefix       --- Prefix to add onto contained variables.
+!   BlockFillers --- List of contained block filler tools (IBlockFillerTool).
+!
+! Properties for IndexAssociationFillerTool:
+!   Associator   --- Association tool to use (ISingleAssociationTool).
+!   Prefix       --- Prefix to add onto contained variables.
+!   Target       --- Name of the getter to use to define the indices.
+!   CollectionGetterRegistry --- Tool to hold the collection of labeled
+!                                collection getter tools.  This property
+!                                is set automatically by the algorithm
+!                                configurable.
+!
+! Properties for IndexMultiAssociationFillerTool:
+!   Associator   --- Association tool to use (IMultiAssociationTool).
+!   Prefix       --- Prefix to add onto contained variables.
+!   Target       --- Name of the getter to use to define the indices.
+!   CollectionGetterRegistry --- Tool to hold the collection of labeled
+!                                collection getter tools.  This property
+!                                is set automatically by the algorithm
+!                                configurable.
+
+
+** Object tagging
+
+It's sometimes useful to flag in the tuple that an object satisfies
+some condition; for example, to flag that an electron passes the medium
+cuts or to flag that an object is considered an overlap.  Given a tool
+interface to calculate this flag, we can define a useful generic block
+filler for these.
+
+We have tools of type ISelectorTool which are given an object and
+return a flag saying whether this object passes some specific condition.
+(TBD: Can we just use the existing ISelector interface here?  That
+requires an IParticle --- will that be general enough?)
+
+Then we can define a TagBlockFiller that takes a list of selector
+tools and a corresponding list of variable names.  It fills in a boolean
+variable for each of the selector tools.
+
+TODO: This is not implemented in the prototype.
+
+
+** Configuration
+----------------
+
+During job configuration, each block of each object has a name and an
+associated level of detail.  Blocks can be enabled or disabled individually
+by name, or a level of detail can be specified to select a predefined
+set of blocks.
+
+For each object type there would be a python object for it,
+which can create a Configurable class for the appropriate
+IObjFillerTool.  This would then define the individual block filler
+tools along with their level-of-detail.
+
+One starts by defining a tree by creating a MakerAlg algorithm.
+This is done with the MakerAlg function like this:
+
+    alg = D3PDMakerCoreComps.MakerAlg(tuplename = 'tree',
+                                      seq = topSequence,
+                                      file = 'out.root')
+
+This creates the tree `tree' within the output file `out.root'.
+The MakerAlg function adds the new algorithm to the end of the supplied
+sequence.  It also registers the tree with the THistSvc, and also
+creates a new AANTupleStream algorithm, if required.
+
+For each object type in the tree, one creates a python object with D3PDObject:
+
+ElectronD3PDObject = D3PDObject (makeElectronD3PDObject, 'el_')
+
+Here, the first argument is a function that will create the Configurable
+for the object filler tool and the second argument is the default prefix
+for objects of this type within the tree.
+
+The supplied maker function is called with two fixed arguments: the name
+for the object filler tool, and the prefix to use.  Other arguments
+may also be passed through to override defaults.  Here's an example
+of what a typical maker function looks like:
+
+
+def makeElectronD3PDObject (name, prefix,
+                            getter = None,
+                            sgkey = 'ElectronAODCollection'):
+    if not getter:
+        getter = D3PDMakerCoreComps.SGDataVectorGetterTool \
+                 (name + '_Getter',
+                  TypeName = 'ElectronContainer',
+                  SGKey = sgkey)
+
+    return D3PDMakerCoreComps.VectorFillerTool (name,
+                                                Prefix = prefix,
+                                                Getter = getter)
+
+If a getter tool is not supplied, this function creates one.
+It then creates the Configurable for the object filler tool.
+
+For the common cases where objects are to be retrieved from StoreGate,
+some helper functions are available to streamline this.
+
+For retrieving a single object from StoreGate, make_SG_D3PDObject may be
+used.  Example:
+
+  METD3PDObject = make_SG_D3PDObject ('MissingET',
+                                      D3PDMakerFlags.MissingETSGKey(),
+                                      'met_')
+
+For retrieving a DataVector container from StoreGate,
+make_SGDataVector_D3PDObject may be used.  For example, the following
+is equivalent to the example above:
+
+  ElectronD3PDObject = \
+             make_SGDataVector_D3PDObject ('ElectronContainer',
+                                           'ElectronAODCollection',
+                                           'el_')
+
+
+
+Definitions for block filler tools are then attached to the filler's python
+object, like this:
+
+ElectronD3PDObject.defineBlock (0, 'Kinematics',
+                                EventCommonD3PDMaker.FourMomFillerTool)
+
+The three arguments are the level of detail, a name, and a function to create
+the tool's Configurable.  The level of detail is an integer; all blocks with
+a level of detail less than or equal to that which the user requested will
+be included in the tree.
+
+defineBlock takes an optional `prefix' argument to specify an addition prefix
+to be added to all variable names in the block.
+
+Any additional arguments will be passed through to the creation function;
+this can be used to set tool properties.  For example:
+
+ElectronD3PDObject.defineBlock (1, 'Trk',
+                                D3PDMaker.egammaDetailFillerTool,
+                                Details = [egammaParameters.EtaCorrMag,
+                                             'EtaCorrMag',
+                                           egammaParameters.EoverP,
+                                             'EoverP'
+                                    ])
+
+One then adds an object to a tree like this:
+
+    alg += ElectronD3PDObject (level)
+
+where `level' is the desired level of detail.
+
+So one can construct a complete tree with a function like this:
+
+
+def makeTestD3PD (file,
+                  level = 10,
+                  tuplename = 'test',
+                  seq = topSequence,
+                  D3PDSvc = 'D3PD::RootD3PDSvc'):
+
+    alg = D3PDMakerCoreComps.MakerAlg(tuplename, seq,
+                                      file = file, D3PDSvc = D3PDSvc)
+    alg += D3PDMaker.TestFiller('TestFiller')
+    alg += EventInfoD3PDObject (level)
+    alg += ElectronD3PDObject (level)
+    alg += JetD3PDObject (level)
+    return alg
+
+
+Default StoreGate keys to use for various objects are specified
+in D3PDMakerConfig.D3PDMakerFlags.
+
+
+*** Fine control of blocks.
+----------------------------------------------
+
+
+When you make the call to create a new object in the d3pd, 
+you pass a level of detail.  There are now some other arguments 
+that can be passed: 
+ 
+  include: list of block names to include, regardless of LOD. 
+  exclude: list of block names to exclude, regardless of LOD. 
+  blockargs: arguments to pass to block filler tools.  A dictionary 
+             where the keys are block names and the values 
+             are keyword argument dictionaries. 
+  Any other argument of the form BLOCKNAME_PARAM is also 
+  recognized as a block filler tool argument. 
+ 
+In defineBlock, the level of detail is currently an integer. 
+Now, it can also be a function.  This is called with two arguments: 
+ 
+  - The requested level of detail. 
+    This is either what was specified, or 999/-999 if the block 
+    was listed in the include/exclude list. 
+  - Dictionary of arguments to the block filler tool. 
+ 
+The function should return a truth value to say if the block 
+should be included.  It may also alter the arguments. 
+
+
+*** Configuring simple, contained associations
+----------------------------------------------
+
+Suppose we have a generic tool that tuples
+Perigee objects, producing variables z0, d0, etc.  Suppose that
+we also have an `electron' object that has a method to return
+a Perigee.  We want to use the Perigee filling tool to tuple
+these variables as a new block.
+
+We can do this by creating an associator tool that will go from
+an electron object to its contained Perigee object.  We then configure
+things by creating a ContainedAssociationFillerTool using this
+associator.  We then add this as a block to the electron object,
+and then add a Perigee block to the associator block.  
+
+The amount of boilerplate configuration code needed to do this
+can be reduced by using the D3PDMakerCoreComps.SimpleAssociation helper.
+
+Usage is something like this:
+
+   ElectronObject = ...
+   ElectronPerigee = SimpleAssocation (ElectronObject,
+                                       electronPerigeeAssociator)
+   ElectronPerigee.defineBlock (1, 'Perigee', PerigeeFillerTool)
+
+If the electron prefix is `el_', this would create variables
+`el_z0', etc.  With `prefix="track"', the names would be
+`el_trackz0', etc.
+
+If we add `matched="hastrack"', then this will add a boolean
+variable `el_hastrack', which is true if the association succeeded.
+
+Similarly, there is a helper EventCommonD3PDMaker.DRAssociation
+for forming an association based on retrieving a container from StoreGate
+and finding the element within it which is closest in DR.
+
+
+
+** Packaging
+------------
+
+The code is broken into several packages to reduce dependencies.
+All packages are under PhysicsAnalysis/D3PDMaker.
+
+  D3PDMakerInterfaces
+    All I* interface classes.  No compiled code.
+
+  D3PDMakerUtils
+    Utility library.  No Gaudi components.
+    This contains the code which user classes depend on (BlockFillerTool, etc),
+    as well as utility code used by the core (AddVariable, TypeConverter, etc).
+
+  D3PDMakerCoreComps
+    Gaudi components for the D3PD maker core.  A component library.
+    Contains:
+      CollectionGetterRegistryTool
+      ContainedAssociationFillerTool
+      IndexAssociationFillerTool
+      IndexMultiAssociationFillerTool
+      MakerAlg
+      ObjFillerTool
+      SGDataVectorGetterTool
+      SGObjGetterTool
+      VectorFillerTool
+
+  D3PDMakerRoot
+    The D3PDSvc for writing to root.  A component library.
+
+  EventCommonD3PDMaker
+    Tools generically useful for the Atlas EDM.  Presently includes:
+      ChargeFillerTool
+      DRAssociationTool
+      DRConeAssociationTool
+      EventIDFillerTool
+      FourMomFillerTool
+      IN4MCollectionGetterTool
+
+
+** Notes on structured analysis of flat tuples
+----------------------------------------------
+
+This section is not directly relevant to the prototype code;
+instead, it talks about ideas for analyzing the produced tuples.
+
+There have been numerous arguments over the use of flat vs. structured tuples.
+While the core code in the prototype is meant to be agnostic on this
+question, the emphasis for the new tuples has been on a flat organization.
+
+It's worth pointing out, though, that it is possible to take a flat tuple
+and view it, with the help of appropriate wrapper functions, as though
+it were structured.
+
+I have a working implementation of this in python.  To use it, one writes
+classes like this:
+
+class Fourvec (object):
+  pt = treeinfo.float
+  eta = treeinfo.float
+  phi = treeinfo.float
+  ...
+
+
+class Electron (Fourvec):
+  isem = treeinfo.int
+  ...
+
+
+and then constructs a tree object like this:
+
+tree = ...  # Set this to the root tree
+tt = make_wrapper (tree)
+tt.add_list (Electron, 'el')
+
+Then one can use
+
+tt.el[0].pt
+
+to access the variable `el_pt[0]'.
+
+Methods can of course also be defined on these objects.
+
+This of course doesn't work with TTree::Draw, but an analogous
+python facility is available (see PyAnalysisUtils/python/pydraw.py).
+
+It should be possible (though more work) to do something similar in C++.
+By combining ideas from the python implementation sketched here with ARA,
+one should be able to build something that works efficiently with TTree::Draw.
+Here's an outline.
+
+ - One still writes C++ classes for the structured objects.
+   However, they do not hold data members directly; instead, they
+   hold references to the data contained within the flat tuple.
+   These objects are created once and are retained throughout the
+   analysis; they act as proxies into the flat tuple.  In the case
+   of a collection, a permanent collection of proxy objects is created.
+
+   Example:
+
+     class Foo { ...
+       Var<float> m_pt;
+
+       // Reference variables in tree starting with prefix,
+       // at index i within a collection.
+       Foo (TTree* tree, string prefix, int i) :
+         m_pt (tree, prefix + "pt", i),
+         ...
+     };
+
+   Since normally the address of a variable in the tuple doesn't change
+   from event to event, it should be possible to efficiently cache
+   the results of the variable look up.
+
+ - One then creates, analogously to ARA, an `analysis' tree which hosts
+   these analysis objects, and which is friended with the flat tuple.
+   (cf. TBranchAlias.)  In that way, one can use all the usual TTree tools
+   on the analysis objects.
+!
+ LocalWords:  EDM StoreGate TLorentzVector ntuple SG hdf TODO namespace Gaudi
+!  LocalWords:  EventView INavigable templated plugin fooUntyped typeinfo init
+!  LocalWords:  TypeConverter DATAVECTOR SGTools DataModel StatusCode const src
+!  LocalWords:  dst typename convertUntyped bool isValid srcTypeinfo srcName eg
+!  LocalWords:  dstTypeinfo dstName DataBucket IAddVariable addVariable ptr STL
+!  LocalWords:  backend PDSvc RootD IService InterfaceID interfaceID redim AANT
+!  LocalWords:  MakerAlg TuplePath IObjFillerTool IAlgTool ObjFillerTool typeid
+!  LocalWords:  VectorFillerTool IObjGetterTool ICollectionGetterTool ObjFiller
+!  LocalWords:  BlockFillers IBlockFillerTool getUntyped blockFillers sizeHint
+!  LocalWords:  fillUntyped getTypeinfo configureTypeinfo elementTypeinfo pre
+!  LocalWords:  nextUntyped nextTypeinfo configureElementTypeinfo DataVector dr
+!  LocalWords:  ObjGetterTool CollectionGetterTool AthAlgTool ObjGetterToolImpl
+!  LocalWords:  ObjGetterToool CollectionGetterToolImpl Impl SGObjGetterTool tt
+!  LocalWords:  SGCollectionGetterTool MCollectionGetterTool MomentumCollection
+!  LocalWords:  SGGetterImpl ClassIDSvc TypeName SGKey MCollectionTool egamma
+!  LocalWords:  PID enum FooFiller BlockFiller BlockFillerTool EventInfo tru el
+!  LocalWords:  EventInfoFillerTool FourMomFillerTool egammaDetailFillerTool
+!  LocalWords:  multiway indices IMultiAssociationTool ISingleAssociationTool
+!  LocalWords:  resetUntyped MultiAssociationTool SingleAssociationTool DRCut
+!  LocalWords:  MultiAssociationToolImpl IInterface fromElementTypeinfo TBD alg
+!  LocalWords:  SingleAssociationToolImpl typeinfoFrom DRAssociationTool sgkey
+!  LocalWords:  DRConeAssociationTool ContainedAssociationFillerTool stateful
+!  LocalWords:  IndexAssociationFillerTool IndexMultiAssociationFillerTool eles
+!  LocalWords:  ISelectorTool ISelector IParticle TagBlockFiller PDMaker Trk
+!  LocalWords:  tuplename topSequence THistSvc AANTupleStream PDObject EoverP
+!  LocalWords:  ElectronD makeElectronD ElectronAODCollection defineBlock JetD
+!  LocalWords:  egammaParameters EtaCorrMag makeTestD TestFiller EventInfoD
+!  LocalWords:  Fourvec treeinfo isem PyAnalysisUtils TTree friended tuple TRef
+!  LocalWords:  TBranchAlias tuples typedef resized HistSvc DoBranchRef Getters
+ LocalWords:  MasterTree CollectionTree IndexMajor RunNumber IndexMinor boolean
+ LocalWords:  EventNumber BuildIndex BasketSize EntryOffsetLen dereferenced
+ LocalWords:  SGDataVectorGetterTool DataList Associator PDMakerCoreComps METD
+ LocalWords:  CollectionGetterRegistry ElectronContainer EventCommonD trackz
+ LocalWords:  PhysicsAnalysis PDMakerInterfaces PDMakerUtils PDMakerRoot
+ LocalWords:  CollectionGetterRegistryTool ChargeFillerTool EventIDFillerTool
+ LocalWords:  VoidObjFillerTool VoidBlockFillerTool associator ElectronObject
+ LocalWords:  SimpleAssociation ElectronPerigee SimpleAssocation hastrack
+ LocalWords:  electronPerigeeAssociator PerigeeFillerTool AllowMissing metadata
+ LocalWords:  MissingET PDMakerFlags MissingETSGKey SGDataVector PDMakerConfig
+ LocalWords:  DRAssociation

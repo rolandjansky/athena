@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+       <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+        
+            <rttContactPerson>Lei Zhou</rttContactPerson>
+            <mailto>leizhou@nevis.columbia.edu</mailto>
+
+            <jobList>
+              <classification>
+                  <displayClass>OfflineValidation</displayClass>
+                  <displayProcess>Reco</displayProcess>
+                  <displayComponent>Athena-Core</displayComponent>
+              </classification>
+
+<jobTransform userJobId="COMMON-Egamma-AOD-DCube-test">
+        <doc>COMMON-Egamma-AOD-DCube-test</doc>
+        <jobTransformJobName>COMMON-Egamma-AOD-DCube-test</jobTransformJobName>
+        <jobTransformCmd>
+             Reco_trf.py preExec="from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag='BTagCalibALL-07-05';from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMissingET.set_Value_and_Lock(False)" inputAODFile=root://eosatlas.cern.ch//eos/atlas/user/g/gbrooijm/dpd-rtt/data12_8TeV.00206299.physics_Egamma.merge.AOD.f450_m1170._lb0069._0001.1 autoConfiguration=everything maxEvents=50 --ignoreerrors=False outputNTUP_COMMONFile=NTUP_COMMON.root
+        </jobTransformCmd>
+        <group>DPDvalid</group>
+        <queue>medium</queue>
+
+        <test position="1">
+          <modulename>RttLibraryTools</modulename>
+          <testname>DCubeRunner</testname>
+          <arg>
+            <argname>DCubeCfg</argname>
+            <argvalue>CONFIGNAME.Egamma.xml</argvalue>
+          </arg>
+          <arg>
+            <argname>DCubeRef</argname>
+            <argvalue>NTUP_COMMON.Egamma.reference.root</argvalue>
+          </arg>
+          <arg>
+            <argname>DCubeMon</argname>
+            <argvalue>COMMON-Egamma-DCube-check.root</argvalue>
+          </arg>
+        </test>
+
+</jobTransform>
+
+</jobList>
+
+</rtt>
+
+</unifiedTestConfiguration>

@@ -1,0 +1,589 @@
+TRIGGER BITS
+[These were originally spec'd as part of the electron/photon objects.
+However, these are applicable to the entire event, not a specific object.
+So they're broken out here, and do not get an object prefix.]
+
+                  Specified             Implemented       Comment
+Detail 0
+egammaBits0       EF_2e5medium          EF_2e5_medium     passes primary trigger chain
+egammaBits0       EF_e10medium          EF_e10_medium     passes primary trigger chain
+egammaBits0       EF_e20loose           EF_e20_loose      passes primary trigger chain
+egammaBits0       EF_em105passHLT       EF_em105_passHLT  passes primary trigger chain
+egammaBits0       EF_g20loose           EF_g20_loose      passes primary trigger chain
+---                                                       EF_AllSupportingEgammaTriggers?
+
+Detail 1
+egammaBits1       L1_EM3                "                 passes trigger
+egammaBits1       L1_EM7                "                 passes trigger
+egammaBits1       L1_EM13               "                 passes trigger
+egammaBits1       L1_EM13I              "                 passes trigger
+egammaBits1       L1_EM18               "                 passes trigger
+egammaBits1       L1_EM18I              "                 passes trigger
+egammaBits1       L1_EM23I              "                 passes trigger
+egammaBits1       L1_EM100              "                 passes trigger
+---                                                       L1_AllSupportingEgammaTriggersIfAny?
+egammaBits1       L2_2e5medium          L2_2e5_medium     passes trigger
+egammaBits1       L2_e10medium          L2_e10_medium     passes trigger
+???               L2_e20medium          xxx (not in menu) passes trigger
+egammaBits1       L2_e20loose           L2_e20_loose      passes trigger
+egammaBits1       L2_em105passHLT       L2_em105_passHLT  passes trigger
+egammaBits1       L2_g20loose           L2_g20_loose      passes trigger
+
+egammaBits1                             L2_g5_NoCut
+egammaBits1                             L2_e5_NoCut
+egammaBits1                             L2_g3_NoCut
+egammaBits1                             L2_e3_NoCut
+egammaBits1                             L2_g5_loose
+egammaBits1                             L2_e5_loose
+egammaBits1                             L2_e5_loose_IdScan
+egammaBits1                             L2_e5_loose_TRT
+egammaBits1                             L2_e5_medium
+egammaBits1                             L2_e5_medium_IdScan
+egammaBits1                             L2_e5_medium_TRT
+egammaBits1                             L2_e5_loose_NoIDTrkCut
+
+egammaBits1                             EF_g5_NoCut
+egammaBits1                             EF_e5_NoCut
+egammaBits1                             EF_g3_NoCut
+egammaBits1                             EF_e3_NoCut
+egammaBits1                             EF_g5_loose
+egammaBits1                             EF_e5_loose
+egammaBits1                             EF_e5_loose_IdScan
+egammaBits1                             EF_e5_loose_TRT
+egammaBits1                             EF_e5_medium
+egammaBits1                             EF_e5_medium_IdScan
+egammaBits1                             EF_e5_medium_TRT
+egammaBits1                             EF_e5_loose_NoIDTrkCut
+
+---                                                       L2_AllSupportingEgammaTriggers?
+
+Detail 2
+---                                                       L2_AllOtherEgammaTriggers?
+---                                                       EF_AllOtherEgammaTriggers?
+
+
+ELECTRONS
+                  Specified             Implemented       Comment
+Detail 0
+
+Kinematics        eta                   "
+Kinematics        phi                   "
+Kinematics        E                     "
+Kinematics        Et                    "
+Kinematics        px                    "                 Redundant?
+Kinematics        py                    "                 Redundant?
+Kinematics        pz                    "                 Redundant?
+Kinematics                              pt
+Charge            charge                "
+Author            author                "                 author of object
+IsEM              isEM                  "                 Should we have one for each flavour of isEM?
+IsEMCuts                                loose
+IsEMCuts                                medium
+IsEMCuts                                mediumIso
+IsEMCuts                                tight
+IsEMCuts                                tightIso
+Truth                                   truth_matched
+Truth             truth_eta             "
+Truth             truth_phi             "
+Truth             truth_pt              "
+Truth             truth_E               "
+Truth             truth_type            "                 PDG type
+Truth             truth_mothertype      "                 PDG of mother
+Truth                                   truth_barcode
+Truth                                   truth_status
+Truth                                   truth_motherbarcode
+Conversion0                             convFlag
+Conversion0                             isConv
+Conversion0                             nConv
+Conversion0                             nSingleTrackConv
+Conversion0                             nDoubleTrackConv
+TruthBrem         truth_hasHardBrem                       a hard brem happened to this electron
+
+
+Detail 1
+
+TruthClassification                     type
+TruthClassification                     origin
+HadLeakage        Ethad                 "                 ET leakage into had calo [ethad]
+HadLeakage        Ethad1                "                 Et leakage into 1st sampling of had calo [ethad1]
+Layer2Shape       E233                  "                 uncorrected energy in 3x3 cells in em sampling 2  [e233]
+Layer2Shape       E237                  "                 uncorrected energy in 3x7 cells in em sampling 2  [e237]
+Layer2Shape       E277                  "                 uncorrected energy in 7x7 cells in em sampling 2 [e277]
+Retaphi           reta                                    Ratio in eta of cell E in 3 × 7 versus 7 × 7 cells in S2.
+Retaphi           rphi                                    Ratio in f of cell energies in 3 × 3 versus 3 × 7 cells in S2.
+Iso               rphiallcalo           "                 ratio of E in 3x3 / 3x7 cells all calo=iso=r33over37allcalo
+ConvFlags                               convanglematch    true if conv is matched to the track associated to cluster
+ConvFlags                               convtrackmatch    true if conv is matched within an angle of 0.05 to cluster
+Conversion                              hasconv
+Conversion                              Rconv             radius of conversion
+Conversion                              zconv             z of conversion
+Conversion                              pt1conv           pt of track1 of conversion
+Conversion                              pt2conv           pt of track2 of conversion
+Conversion                              ptconv            pt of conversion tracks 1+2
+Conversion                              pzconv            pz of conversion tracks 1+2
+Conversion                              convvtxchi2       conversion vertex chi2
+Conversion                              convvtxx          conversion vertex x
+Conversion                              convvtxy          conversion vertex y
+Conversion                              convvtxz          conversion vertex z  ??? identical to zconv?
+Conversion                              convtrk1nBLHits   conversion track 1 number of B layer hits
+Conversion                              convtrk1nPixHits  conversion track 1 number of pixel hits
+Conversion                              convtrk1nSCTHits  conversion track 1 number of SCT hits
+Conversion                              convtrk1nTRTHits  conversion track 1 number of TRT hits
+Conversion                              convtrk2nBLHits   conversion track 2 number of B layer hits
+Conversion                              convtrk2nPixHits  conversion track 2 number of pixel hits
+Conversion                              convtrk2nSCTHits  conversion track 2 number of SCT hits
+Conversion                              convtrk2nTRTHits  conversion track 2 number of TRT hits
+Layer1Shape       f1                    "                 fraction of energy found in em Sampling 1 [f1]
+Layer1Shape       f1core                "                 E1(3× 1)/E  [f1core]
+Layer3Shape       f3                    "                 fraction of energy found in em Sampling 3 [f3]
+Layer3Shape       f3core                "                 E3(3× 3)/E  [f3core]
+Layer1Shape       Emins1                "                 energy of strip with min between max 1 & 2 =emin [emins1]
+Layer1Shape       fside                 "                 strips : [ E(+-3) - E(+-1)]/E(+-1)=fracm=fracs1  [fracs1]
+Layer1Shape       Emax2                 "                 2nd maximum in strips=e2tsts1  [e2tsts1]
+Layer1Shape       ws3                   "                 3-strip shower width weta1=weta1c [weta1]
+Layer1Shape       wstot                 "                 40-strip shower width.  [wtots1]
+Layer1Shape                             emaxs1
+Layer2Shape       weta2                 "                 3x5 window width [weta2 ??? use a different block?]
+Layer1ShapeExtra  deltaEs               "                 diff btn 2nd max and 1st minimum in strips (e2tsts1-emins1)
+UDLayer1Shape     deltaEmax2                              E of 2nd max in 1st sampling ~e2tsts1/(1000+const_lumi*et)
+Trk               pos7                  "                 Track/shower distance in units of distance between the strips
+Iso               Etcone20              "                 Energy in cone of 0.20
+Iso               Etcone30              "                 Energy in cone of 0.30
+Iso               Etcone40              "                 Energy in cone of 0.40
+Iso               Etcone45              "                 Energy in cone of 0.45 ???
+Iso                                     ptcone30          Summed pt of tracks in a cone with half-opening angle 0.3
+FwdEVars          firstEdens            "                 energy density (moment for forward electron)
+FwdEVars          cellmaxfrac           "                 tot clust E in cell with max E (moment for forward electron)
+FwdEVars          longitudinal          "                 relative longitudinal moment  (moment for forward electron)
+FwdEVars          secondlambda          "                 second lambda  (moment for forward electron)
+FwdEVars          lateral               "                 relative laterial moment  (moment for forward electron)
+FwdEVars          secondR               "                 second R  (moment for forward electron)
+FwdEVars          centerlambda          "                 centre lambda  (moment for forward electron)
+TrkMatch          etacorrmag            "                 eta of track extrap to first samp  [EtaCorrMag]  ??? obsolete
+TrkMatch          deltaeta1             "                 delta eta of trk extrapolated to calo S1 [deltaEta1]
+TrkMatch          deltaeta2             "                 delta eta of trk extrapolated to calo S2 [deltaEta2]
+TrkMatch          deltaphi2             "                 delta phi of trk extrapolated to calo S2 [deltaPhi2]
+TrkMatch                                deltaphiRescaled
+TrkInfo                                 hastrack
+Trk               trackqoverp           "                 needed to make E/p      q/p
+Trk               trackpt               "                 pt
+Trk               tracketa              "                 eta
+Trk               trackd0               "                 d0
+Trk               trackz0               "                 z0
+Trk               tracktheta            "                 theta0
+Trk               trackphi              "                 phi0
+BeamSpotAndPVImpact                     trackd0beam       d0 wrt beamspot
+BeamSpotAndPVImpact                     tracksigd0beam    uncertainty of d0 wrt beamspot
+BeamSpotAndPVImpact                     trackd0pv         d0 wrt primary vertex
+BeamSpotAndPVImpact                     tracksigd0pv      uncertainty of d0 wrt primary vertex
+BeamSpotAndPVImpact                     trackz0pv         z0 wrt primary vertex
+BeamSpotAndPVImpact                     tracksigz0pv      uncertainty of z0 wrt primary vertex
+BeamSpotAndPVImpact                     trackd0pvunbiased d0 wrt primary vertex (unbiased)
+BeamSpotAndPVImpact                     tracksigd0pvunbiased uncertainty of d0 wrt primary vertex (unbiased)
+BeamSpotAndPVImpact                     trackz0pvunbiased z0 wrt primary vertex (unbiased)
+BeamSpotAndPVImpact                     tracksigz0pvunbiased uncertainty of z0 wrt primary vertex (unbiased)
+IsIso                                   isIso             Mask of failing MVA isolation cuts.
+MVAIso                                  mvaptcone20       Sum of track transverse momenta within a cone of radius 0.2, as calculated by the egammaIsolationMVATopTool.
+MVAIso                                  mvaptcone30       Sum of track transverse momenta within a cone of radius 0.3, as calculated by the egammaIsolationMVATopTool.
+MVAIso                                  mvaptcone40       Sum of track transverse momenta within a cone of radius 0.4, as calculated by the egammaIsolationMVATopTool.
+IDHits            nBLHits               "                 number of B-layer hits on track
+IDHits            nPixHits              "                 number of pixel hits on track
+IDHits            nSCTHits              "                 number of SCT hits on track
+IDHits            nTRTHits              "                 number of TRT hits on track
+IDHits            nPixHoles             "                 number of pixel holes in track
+IDHits            nSCTHoles             "                 number of SCT holes in track
+IDHits            nTRTHighTHits         "                 number of TRT high threshold hits on track
+IDHits            nTRTOutliers          "                 number of TRT outliers near track
+IDHits            nTRTHighTOutliers     "                 number of TRT high threshold outliers near track
+IDHits                                  nBLSharedHits
+IDHits                                  nPixSharedHits
+IDHits                                  nSCTSharedHits
+IDHits            nSiHits               "                 number of silicon hits on track
+IDHits            TRTHighTHitsRatio     "                 TRT high threshold hits ratio
+L1Info                                  L1_dr
+L1Index                                 L1_Index
+L2Info                                  L2_dr
+L2Index                                 L2_Index
+EFInfo                                  EF_dr
+EFIndex                                 EF_Index
+TrackSummaryPID                         eProbabilityComb
+TrackSummaryPID                         eProbabilityHT
+TrackSummaryPID                         eProbabilityToT
+TrackSummaryPID                         eProbabilityBrem
+calibHitsShowerDepth                    calibHitsShowerDepth  Shower depth as defined by the calib hits cluster correction
+
+Detail 2
+
+ClusterKin                              cl_E
+ClusterKin                              cl_pt
+ClusterKin                              cl_eta
+ClusterKin                              cl_phi
+Samplings         Es0                   "                 calo energy in PS
+Samplings         Es1                   "                 calo energy in S1
+Samplings         Es2                   "                 calo energy in S2
+Samplings         Es3                   "                 calo energy in S3
+Samplings         etas0                 "                 eta of PS calo cluster
+Samplings         etas1                 "                 eta of S1 calo cluster
+Samplings         etas2                 "                 eta of S2 calo cluster
+Samplings         etas3                 "                 eta of S3 calo cluster
+Samplings         phis0                 "                 phi of PS calo cluster
+Samplings         phis1                 "                 phi of S1 calo cluster
+Samplings         phis2                 "                 phi of S2 calo cluster
+Samplings         phis3                 "                 phi of S3 calo cluster
+RawClusterKin                           rawcl_E
+RawClusterKin                           rawcl_pt
+RawClusterKin                           rawcl_eta
+RawClusterKin                           rawcl_phi
+RawSamplings                            rawcl_Es0
+RawSamplings                            rawcl_Es1
+RawSamplings                            rawcl_Es2
+RawSamplings                            rawcl_Es3
+RawSamplings                            rawcl_etas0
+RawSamplings                            rawcl_etas1
+RawSamplings                            rawcl_etas2
+RawSamplings                            rawcl_etas3
+RawSamplings                            rawcl_phis0
+RawSamplings                            rawcl_phis1
+RawSamplings                            rawcl_phis2
+RawSamplings                            rawcl_phis3
+Rings             EtringnoisedR03sig2   "                 Et in a ring : (0.1<DR<0.3) with energy > 2 sigma above noise
+Rings             EtringnoisedR03sig3   "                 Et in a ring : (0.1<DR<0.3) with energy > 3 sigma above noise
+Rings             EtringnoisedR03sig4   "                 Et in a ring : (0.1<DR<0.3) with energy > 4 sigma above noise
+???               isolationlikelihood                     isolation discriminant
+ElecDiscrim       isolationlikelihoodjets "               isolation discriminant
+ElecDiscrim       isolationlikelihoodhqelectrons "        isolation discriminant
+ElecDiscrim       electronweight        "                 electron likelihood discriminant
+ElecDiscrim       electronbgweight      "                 electron likelihood discriminant
+ElecDiscrim       softeweight           "                 electron likelihood discriminant
+ElecDiscrim       softebgweight         "                 electron likelihood discriminant
+ElecDiscrim       neuralnet             "                 electron discriminant
+ElecDiscrim       Hmatrix               "                 electron discriminant
+ElecDiscrim       Hmatrix5              "                 electron discriminant
+ElecDiscrim       adaboost              "                 electron discriminant
+ElecDiscrim       softeneuralnet        "                 electron discriminant
+Pointing          zvertex               "                 pointing z at vertex reconstructed from the cluster
+Pointing          errz                  "                 associated error on zvertex
+Pointing          etap                  "                 pointing eta from the cluster (first and second sampling)
+Pointing          depth                 "                 pointing depth of the shower as calculated in
+TrkFitQuality     trackfitchi2          "                 chi2 of track
+TrkFitQuality     trackfitndof          "                 number of DOF in track fit
+Vertex            vertx                 "                 x of vertex
+Vertex            verty                 "                 y of vertex
+Vertex            vertz                 "                 z of vertex
+EMTrackFit                              refittedTrack_n   Number of fitted tracks.
+EMTrackFitDetails                       refittedTrack_chi2
+EMTrackFitDetails                       refittedTrack_LMqoverp
+EMTrackFitDetails                       refittedTrack_bremRadiusErr
+EMTrackFitDetails                       refittedTrack_bremZErr
+EMTrackFitDetails bremradius            refittedTrack_bremRadius estimated brem radius (mm) [x-y plane]
+EMTrackFitDetails bremtrackauthor       refittedTrack_author EMTrackFit variable
+EMTrackFitDetails hasbrem               refittedTrack_hasBrem EMTrackFit variable
+EMTrackFitDetails bremdeltaqoverp       refittedTrack_bremZ EMTrackFit variable
+EMTrackFitDetails refittedtrackqoverp   refittedTrack_qoverp EMTrackFit variable
+EMTrackFitDetails refittedtrackd0       refittedTrack_d0  EMTrackFit variable
+EMTrackFitDetails refittedtrackz0       refittedTrack_z0  EMTrackFit variable
+EMTrackFitDetails refittedtracktheta    refittedTrack_theta EMTrackFit variable
+EMTrackFitDetails refittedtrackphi      refittedTrack_phi EMTrackFit variable
+                  bremmaterialtraversed [deleted]         EMTrackFit variable
+                  breminvpt             [deleted]         1/pT estimate according to EMBremFit
+                  bremx                 [deleted]         EMBremfitted track impact in 2nd. samp - cluster dist (mm)
+                  bremclusterradius     [deleted]         cluster radius (mm) [x-y plane]
+                  breminvpterr          [deleted]         error associated to 1/pT
+JetMatch          imatchrecjet          jet_matched       matches a reco jet  ??? simple dr match
+JetMatch          deltaRrecjet          jet_dr            deltaR to reco jet
+JetKinematics     jet_eta               "                 eta of matched jet
+JetKinematics     jet_phi               "                 phi of matched jet
+JetKinematics     jet_pt                "                 pt of matched jet
+JetKinematics     jet_E                 "                 E of matched jet
+JetKinematics                           jet_m
+???               jet_selected1j
+???               jet_selected2j
+TrueJetMatch      jet_imatchtruejet     jet_truth_matched jet is matched to a truth jet
+TrueJetMatch                            jet_truth_dr
+TrueJetKinematics jet_truth_eta         "                 eta of truth jet
+TrueJetKinematics jet_truth_phi         "                 phi of truth jet
+TrueJetKinematics jet_truth_pt          "                 pt of truth jet
+TrueJetKinematics jet_truth_E           "                 E of truth jet
+TrueJetKinematics                       jet_truth_m
+???               jet_truth_parton                        parton of truth jet
+EgammaJetSignedIPAndPTRel               jetcone_ptrel
+EgammaJetSignedIPAndPTRel               jetcone_dr
+EgammaJetSignedIPAndPTRel               jetcone_signedIP
+EgammaJetSignedIPAndPTRel               jetcone_index
+EgammaJetSignedIPAndPTRel               jetcone_n
+EgammaJetSignedIPAndPTRelKin            jetcone_E
+EgammaJetSignedIPAndPTRelKin            jetcone_pt
+EgammaJetSignedIPAndPTRelKin            jetcone_eta
+EgammaJetSignedIPAndPTRelKin            jetcone_phi
+EgammaJetSignedIPAndPTRelKin            jetcone_m
+PAUVariables                            Etcone40_corrected
+PAUVariables                            Etcone40_ED_corrected
+PAUVariables                            Etcone40_pt_corrected
+
+
+Detail 3
+
+TrkCovDiag        trackcovd0            "                 track parameter covariances
+TrkCovDiag        trackcovz0            "                 track parameter covariances
+TrkCovDiag        trackcovphi           "                 track parameter covariances
+TrkCovDiag        trackcovtheta         "                 track parameter covariances
+TrkCovDiag        trackcovqoverp        "                 track parameter covariances
+TrkCovOffDiag     trackcovd0z0          "                 track parameter covariances
+TrkCovOffDiag     trackcovz0phi         "                 track parameter covariances
+TrkCovOffDiag     trackcovz0theta       "                 track parameter covariances
+TrkCovOffDiag     trackcovz0qoverp      "                 track parameter covariances
+TrkCovOffDiag     trackcovd0phi         "                 track parameter covariances
+TrkCovOffDiag     trackcovd0theta       "                 track parameter covariances
+TrkCovOffDiag     trackcovd0qoverp      "                 track parameter covariances
+TrkCovOffDiag     trackcovphitheta      "                 track parameter covariances
+TrkCovOffDiag     trackcovphiqoverp     "                 track parameter covariances
+TrkCovOffDiag     trackcovthetaqoverp   "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovd0    "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovz0    "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovphi   "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovtheta "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovqoverp "                track parameter covariances
+RefittedTrkCov    refittedtrackcovd0z0  "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovz0phi "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovz0theta "               track parameter covariances
+RefittedTrkCov    refittedtrackcovz0qoverp "              track parameter covariances
+RefittedTrkCov    refittedtrackcovd0phi "                 track parameter covariances
+RefittedTrkCov    refittedtrackcovd0theta "               track parameter covariances
+RefittedTrkCov    refittedtrackcovd0qoverp "              track parameter covariances
+RefittedTrkCov    refittedtrackcovphitheta "              track parameter covariances
+RefittedTrkCov    refittedtrackcovphiqoverp "             track parameter covariances
+RefittedTrkCov    refittedtrackcovthetaqoverp "           track parameter covariances
+                                                          truth_InfoInAConeAroundRecoObject?
+
+
+
+PHOTONS
+                  Specified             Implemented       Comment
+Detail 0
+
+Kinematics        eta                   "
+Kinematics        phi                   "
+Kinematics        E                     "
+Kinematics        Et                    "
+Kinematics        px                    "                 Redundant?
+Kinematics        py                    "                 Redundant?
+Kinematics        pz                    "                 Redundant?
+Kinematics                              pt
+Author            author                "                 author of object
+IsEM              isEM                  "                 Should we have one for each flavour of isEM?
+IsEMCuts                                loose
+IsEMCuts                                tight
+IsEMCuts                                tightIso
+Truth                                   truth_matched
+Truth                                   truth_matched
+Truth             truth_eta             "
+Truth             truth_phi             "
+Truth             truth_pt              "
+Truth             truth_E               "
+Truth             truth_type            "                 PDG type
+Truth             truth_mothertype      "                 PDG of mother
+Truth                                   truth_barcode
+Truth                                   truth_status
+Truth                                   truth_motherbarcode
+Conversion0       convFlag
+Conversion0       isConv
+Conversion0                             nConv
+Conversion0                             nSingleTrackConv
+Conversion0                             nDoubleTrackConv
+Author            isRecovered
+???               isBrem
+UDTruthFlags      truth_isConv          "
+UDTruthFlags      truth_isBrem          "
+UDTruthFlags      truth_isFromHardProc  "
+UDTruthFlags      truth_isPhotonFromHardProc "
+???               truth_imatchParton
+---               truth_iRecPhoton      n/a    
+Truth             truth_deltaRRecPhoton "
+
+Detail 1
+
+TruthClassification                     type
+TruthClassification                     origin
+HadLeakage        Ethad                 "                 ET leakage into had calo
+HadLeakage        Ethad1                "                 Et leakage into 1st sampling of had calo
+Layer2Shape       E233                  "                 uncorrected energy in 3x3 cells in em sampling 2
+Layer2Shape       E237                  "                 uncorrected energy in 3x7 cells in em sampling 2
+Layer2Shape       E277                  "                 uncorrected energy in 7x7 cells in em sampling 2
+Retaphi           reta                                    Ratio in h of cell E in 3 × 7 versus 7 × 7 cells in S2.
+Retaphi           rphi                                    Ratio in f of cell E in 3 × 3 versus 3 × 7 cells in S2.
+Iso               rphiallcalo           "                 ratio of energy in 3x3 over 3x7 cells=iso=r33over37allcalo
+Layer1Shape       f1                    "                 fraction of energy found in em Sampling 1
+Layer1Shape       f1core                "                 E1(3× 1)/E
+Layer3Shape       f3                    "                 fraction of energy found in em Sampling 3
+Layer3Shape       f3core                "                 E3(3× 3)/E
+Layer1Shape       Emins1                "                 energy of strip with min between max 1 & 2=emin
+Layer1Shape       fside                 "                 strips [ E(+-3) - E(+-1)]/E(+-1) =fracm=fracs1
+Layer1Shape       Emax2                 "                 2nd maximum in strips=emax2
+Layer1Shape       ws3                   "                 3-strip shower width weta1=weta1c [weta1]
+Layer1Shape       wstot                 "                 40-strip shower width.  [wtots1]
+Layer1Shape                             emaxs1
+Layer2Shape       weta2                 "                 3x5 window width [weta2 ??? use a different block?]
+Layer1ShapeExtra  deltaEs               "                 diff btn 2nd max and 1st minimum in strips (e2tsts1-emins1)
+UDLayer1Shape     deltaEmax2                              E of 2nd max in 1st sampling ~e2tsts1/(1000+const_lumi*et)
+IsIso                                   isIso             Mask of failing MVA isolation cuts.
+MVAIso                                  mvaptcone20       Sum of track transverse momenta within a cone of radius 0.2, as calculated by the egammaIsolationMVATopTool.
+MVAIso                                  mvaptcone30       Sum of track transverse momenta within a cone of radius 0.3, as calculated by the egammaIsolationMVATopTool.
+MVAIso                                  mvaptcone40       Sum of track transverse momenta within a cone of radius 0.4, as calculated by the egammaIsolationMVATopTool.
+Layer1Shape       E033                  "                 ???
+Layer1Shape       E132                  "                 ???
+Layer1Shape       E1152                 "                 ???
+Iso               Etcone20              "                 Energy in cone of 0.20
+Iso               Etcone30              "                 Energy in cone of 0.30
+Iso               Etcone40              "                 Energy in cone of 0.40
+Iso               Etcone45              "                 Energy in cone of 0.45 ???
+Iso                                     ptcone30          Summed pt of tracks in a cone with half-opening angle 0.3
+ConvFlags         convanglematch        "                 true if conv is matched to the track associated to cluster
+ConvFlags         convtrackmatch        "                 true if conv is matched within an angle of 0.05 to cluster
+Conversion                              hasconv
+Conversion        Rconv                 "                 radius of conversion
+Conversion        zconv                 "                 z of conversion
+UDTruthConv       truth_Rconv           "
+UDTruthConv       truth_zconv           "
+Conversion        pt1conv               "                 pt of track1 of conversion
+Conversion        pt2conv               "                 pt of track2 of conversion
+Conversion        ptconv                "                 pt of conversion tracks 1+2
+Conversion        pzconv                "                 pz of conversion tracks 1+2
+???               convvtxRmin                             ??? Don't know what this is supposed to be.
+Conversion        convvtxchi2           "                 conversion vertex chi2
+Conversion        convvtxx              "                 conversion vertex x
+Conversion        convvtxy              "                 conversion vertex y
+Conversion        convvtxz              "                 conversion vertex z  ??? identical to zconv?
+Conversion        convtrk1BLHits        convtrk1nBLHits   conversion track 1 number of B layer hits
+Conversion        convtrk1nPixHits      "                 conversion track 1 number of pixel hits
+Conversion        convtrk1nSCTHits      "                 conversion track 1 number of SCT hits
+Conversion        convtrk1nTRTHits      "                 conversion track 1 number of TRT hits
+Conversion        convtrk2nBLHits       "                 conversion track 2 number of B layer hits
+Conversion        convtrk2nPixHits      "                 conversion track 2 number of pixel hits
+Conversion        convtrk2nSCTHits      "                 conversion track 2 number of SCT hits
+Conversion        convtrk2nTRTHits      "                 conversion track 2 number of TRT hits
+L1Info                                  L1_matched
+L1Index                                 L1_Index
+L2Info                                  L2_dr
+L2Index                                 L2_Index
+EFInfo                                  EF_dr
+EFIndex                                 EF_Index
+calibHitsShowerDepth                    calibHitsShowerDepth  Shower depth as defined by the calib hits cluster correction
+
+
+Detail 2
+
+ClusterKin                              cl_E
+ClusterKin                              cl_pt
+ClusterKin                              cl_eta
+ClusterKin                              cl_phi
+Samplings         Es0                   "                 calo energy in PS
+Samplings         Es1                   "                 calo energy in S1
+Samplings         Es2                   "                 calo energy in S2
+Samplings         Es3                   "                 calo energy in S3
+Samplings         etas0                 "                 eta of PS calo cluster
+Samplings         etas1                 "                 eta of S1 calo cluster
+Samplings         etas2                 "                 eta of S2 calo cluster
+Samplings         etas3                 "                 eta of S3 calo cluster
+Samplings         phis0                 "                 phi of PS calo cluster
+Samplings         phis1                 "                 phi of S1 calo cluster
+Samplings         phis2                 "                 phi of S2 calo cluster
+Samplings         phis3                 "                 phi of S3 calo cluster
+RawClusterKin                           rawcl_E
+RawClusterKin                           rawcl_pt
+RawClusterKin                           rawcl_eta
+RawClusterKin                           rawcl_phi
+RawSamplings                            rawcl_Es0
+RawSamplings                            rawcl_Es1
+RawSamplings                            rawcl_Es2
+RawSamplings                            rawcl_Es3
+RawSamplings                            rawcl_etas0
+RawSamplings                            rawcl_etas1
+RawSamplings                            rawcl_etas2
+RawSamplings                            rawcl_etas3
+RawSamplings                            rawcl_phis0
+RawSamplings                            rawcl_phis1
+RawSamplings                            rawcl_phis2
+RawSamplings                            rawcl_phis3
+Rings             EtringnoisedR03sig2   "                 Et in a ring : (0.1<DR<0.3) with energy > 2 sigma above noise
+Rings             EtringnoisedR03sig3   "                 Et in a ring : (0.1<DR<0.3) with energy > 3 sigma above noise
+Rings             EtringnoisedR03sig4   "                 Et in a ring : (0.1<DR<0.3) with energy > 4 sigma above noise
+???               isolationlikelihood                     isolation discriminant
+PhotDiscrim       isolationlikelihoodjets "               isolation discriminant
+PhotDiscrim       isolationlikelihoodhqelectrons          isolation discriminant
+PhotDiscrim       neuralnet             "                 photon discriminant
+PhotDiscrim       Hmatrix               "                 photon discriminant
+PhotDiscrim       Hmatrix5              "                 photon discriminant
+PhotDiscrim       adaboost              "                 photon discriminant
+---               ptisolationcone                         placeholder for isolation vrariable
+PhotDiscrim       loglikelihood         "                 ??? (same as photonweight?)
+???               selected                                passed the id cuts +standard isolation cuts ??? redundant with tightIso?
+PhotDiscrim       photonweight          "                 photon likelihood discriminant
+PhotDiscrim       photonbgweight        "                 photon likelihood discriminant
+Pointing          zvertex               "                 pointing z at vertex reconstructed from the cluster
+Pointing          errz                  "                 associated error on zvertex
+Pointing          etap                  "                 pointing eta from the cluster (first and second sampling)
+Pointing          depth                 "                 pointing depth of the shower as calculated in
+TopoMatch                               topomatched
+TopoMatch                               topodr
+TopoKinematics    topoeta                                 topo cluster eta
+TopoKinematics    topopt                                  topo cluster pt
+TopoKinematics    topophi
+TopoEMMatch                             topoEMmatched
+TopoEMMatch                             topoEMdr
+TopoEMKinematics  topoEMeta                               topo cluster EM eta
+TopoEMKinematics  topoEMphi                               topo cluster EM phi
+TopoEMKinematics  topoEMpt                                topo cluster EM pt
+UDTopoCones       topoEtcone20                            Energy in cone of 0.20
+UDTopoCones       topoEtcone40                            Energy in cone of 0.40
+UDTopoCones       topoEtcone60                            Energy in cone of 0.45
+JetMatch          imatchrecjet          jet_matched       matches a reco jet ??? simple DR match
+JetMatch          deltaRrecjet          jet_dr            deltaR to rec jet
+JetKinematics     jet_eta               "                 eta of matched jet
+JetKinematics     jet_phi               "                 phi of matched jet
+JetKinematics     jet_pt                "                 pt of matched jet
+JetKinematics     jet_E                 "                 E of matched jet
+JetKinematics                           jet_m
+TrueJetMatch      jet_imatchtruejet     jet_truth_matched jet is matched to a truth jet
+TrueJetMatch                            jet_truth_dr
+TrueJetKinematics jet_truth_eta         "                 eta of truth jet
+TrueJetKinematics jet_truth_phi         "                 phi of truth jet
+TrueJetKinematics jet_truth_pt          "                 pt of truth jet
+TrueJetKinematics jet_truth_E           "                 E of truth jet
+TrueJetKinematics                       jet_truth_m
+???               jet_truth_parton                        parton of truth jet
+PAUVariables                            convIP
+PAUVariables                            convIPRev
+PAUVariables                            ptIsolationCone
+PAUVariables                            ptIsolationConePhAngle
+PAUVariables                            Etcone40_corrected
+PAUVariables                            Etcone40_ED_corrected
+PAUVariables                            Etcone40_pt_corrected
+AllSamplings                            E_EMB1
+AllSamplings                            E_EMB2
+AllSamplings                            E_EMB3
+AllSamplings                            E_EME1
+AllSamplings                            E_EME2
+AllSamplings                            E_EME3
+AllSamplings                            E_FCAL0
+AllSamplings                            E_FCAL1
+AllSamplings                            E_FCAL2
+AllSamplings                            E_HEC0
+AllSamplings                            E_HEC1
+AllSamplings                            E_HEC2
+AllSamplings                            E_HEC3
+AllSamplings                            E_PreSamplerB
+AllSamplings                            E_PreSamplerE
+AllSamplings                            E_TileBar0
+AllSamplings                            E_TileBar1
+AllSamplings                            E_TileBar2
+AllSamplings                            E_TileExt0
+AllSamplings                            E_TileExt1
+AllSamplings                            E_TileExt2
+AllSamplings                            E_TileGap1
+AllSamplings                            E_TileGap2
+AllSamplings                            E_TileGap3
+
+
+Detail 3
+
+

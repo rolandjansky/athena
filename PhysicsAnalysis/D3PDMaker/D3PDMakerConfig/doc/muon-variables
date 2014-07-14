@@ -1,0 +1,233 @@
+TRIGGER BITS
+
+Detail 0
+
+MuonBits0                               EF_mu10
+MuonBits0                               L2_mu10
+MuonBits0                               L1_MU10
+MuonBits0                               EF_mu20
+MuonBits0                               EF_mu20_MSonly
+MuonBits0                               L2_mu20
+MuonBits0                               L2_mu20_MSonly
+MuonBits0                               L1_MU20
+MuonBits0                               EF_2mu4
+MuonBits0                               L2_2mu4
+MuonBits0                               L1_2MU4
+MuonBits0                               EF_mu6
+MuonBits0                               EF_mu4
+MuonBits0                               EF_2mu10
+
+
+Detail 1
+
+MuonBits1                               L2_mu6
+MuonBits1                               L2_mu4
+MuonBits1                               L2_2mu10
+MuonBits1                               L1_MU6
+MuonBits1                               L1_MU4
+MuonBits1                               L1_2MU10
+
+
+
+MUONS	Comment	Description						
+								
+
+Detail 0
+
+(objfiller)     N                       n
+Kinematics      eta                     "
+Kinematics      phi                     "
+Kinemtaics      pt                      "
+Kinematics      px                      "
+Kinematics      py                      "
+Kinematics      pz                      "
+Kinematics      e                       E
+Kinematics      m                       "
+Charge          charge                  "
+AllAuthor       allauthor               "
+Truth                                   truth_matched
+Truth                                   truth_dr
+Truth                                   truth_eta
+Truth                                   truth_phi
+Truth                                   truth_pt
+Truth                                   truth_E
+Truth                                   truth_type        PDG type
+Truth                                   truth_mothertype  PDG of mother
+Truth                                   truth_barcode
+
+
+Detail 1
+
+Authors         author                  "
+TrkInfo                                 hastrack
+TrkParameters   d                       trackd0
+TrkParameters   z                       trackz0
+TrkParameters   theta                   tracktheta
+TrkParameters   qOverp                  trackqoverp
+TrkParameters                           trackphi
+TrkMatchQuality matchChi2               matchchi2
+TrkMatchQuality matchNumberDoF          matchndof
+TrkFitQuality   fitChi2                 trackfitchi2
+TrkFitQuality   fitNumberDoF            trackfitndof
+Isolation       etcone20                "
+Isolation       etcone30                "
+Isolation       etcone40                "
+Isolation       nucone20                "
+Isolation       nucone30                "
+Isolation       nucone40                "
+Isolation       ptcone20                "
+Isolation       ptcone30                "
+Isolation       ptcone40                "
+CaloEnergyLoss  energyLossPar           "
+CaloEnergyLoss  energyLossMeas          "
+AcceptMethods   bestMatch               "
+AcceptMethods   isStandAloneMuon        "
+AcceptMethods   isCombinedMuon          "
+AcceptMethods   isLowPtReconstructedMuon"
+TrkCovDiag      d_cov                   trackcov_d0
+TrkCovDiag      z_cov                   trackcov_z0
+TrkCovDiag      phi_cov                 trackcov_phi
+TrkCovDiag      theta_cov               trackcov_theta
+TrkCovDiag      qOverp_cov              trackcov_qoverp
+                numberOfSegments
+                extendedTrack
+                idTrackID
+                idTrackMS
+ParametersAtPV                          d0_exPV
+ParametersAtPV                          z0_exPV
+ParametersAtPV                          phi_exPV
+ParametersAtPV                          theta_exPV
+ParametersAtPV                          qoverp_exPV
+CovarianceAtPV                          cov_d0_exPV
+CovarianceAtPV                          cov_z0_exPV
+CovarianceAtPV                          cov_phi_exPV
+CovarianceAtPV                          cov_theta_exPV
+CovarianceAtPV                          cov_qoverp_exPV
+CovarianceAtPV                          cov_d0_z0_exPV
+CovarianceAtPV                          cov_d0_phi_exPV
+CovarianceAtPV                          cov_d0_theta_exPV
+CovarianceAtPV                          cov_d0_qoverp_exPV
+CovarianceAtPV                          cov_z0_phi_exPV
+CovarianceAtPV                          cov_z0_theta_exPV
+CovarianceAtPV                          cov_z0_qoverp_exPV
+CovarianceAtPV                          cov_phi_theta_exPV
+CovarianceAtPV                          cov_phi_qoverp_exPV
+CovarianceAtPV                          cov_theta_qoverp_exPV
+EFInfo                                  EF_matched
+EFInfo                                  EF_dr
+EFDetail                                EF_muoncode
+EFKinematics                            EF_cb_pt
+EFKinematics                            EF_cb_eta
+EFKinematics                            EF_cb_phi
+EFKinematics                            EF_ms_pt
+EFKinematics                            EF_ms_eta
+EFKinematics                            EF_ms_phi
+EFKinematics                            EF_me_pt
+EFKinematics                            EF_me_eta
+EFKinematics                            EF_me_phi
+L2CBInfo                                L2CB_matched
+L2CBInfo                                L2CB_dr
+L2CBKinematics                          L2CB_pt
+L2CBKinematics                          L2CB_eta
+L2CBKinematics                          L2CB_phi
+L2CBDetail1                             L2CB_id_pt
+L2CBDetail1                             L2CB_ms_pt
+L1Info                                  L1_matched
+L1Info                                  L1_dr
+L1Kinematics                            L1_eta
+L1Kinematics                            L1_phi
+L1Detail1                               L1_threshold
+ComponentTrkParameters                  ms_d0
+ComponentTrkParameters                  ms_z0
+ComponentTrkParameters                  ms_phi
+ComponentTrkParameters                  ms_theta
+ComponentTrkParameters                  ms_qoverp
+ComponentTrkParameters                  id_d0
+ComponentTrkParameters                  id_z0
+ComponentTrkParameters                  id_phi
+ComponentTrkParameters                  id_theta
+ComponentTrkParameters                  id_qoverp
+ComponentTrkParameters                  me_d0
+ComponentTrkParameters                  me_z0
+ComponentTrkParameters                  me_phi
+ComponentTrkParameters                  me_theta
+ComponentTrkParameters                  me_qoverp
+ComponentTrkParameters                  ie_d0
+ComponentTrkParameters                  ie_z0
+ComponentTrkParameters                  ie_phi
+ComponentTrkParameters                  ie_theta
+ComponentTrkParameters                  ie_qoverp
+Quality                                 loose
+Quality                                 medium
+Quality                                 tight
+
+
+Detail 2
+
+MuonHitsSummary numberOfBLayerHits      nBLHits
+MuonHitsSummary numberOfPixelHits       nPixHits
+MuonHitsSummary numberOfSCTHits         nSCTHits
+MuonHitsSummary numberOfTRTHits         nTRTHits
+MuonHitsSummary numberOfTRTHighThresholdHits nTRTHighTHits
+MuonHitsSummary numberOfBLayerSharedHits nBLSharedHits
+MuonHitsSummary numberOfPixelSharedHits nPixSharedHits
+MuonHitsSummary numberOfPixelHoles      nPixHoles
+MuonHitsSummary numberOfSCTSharedHits   nSCTSharedHits
+MuonHitsSummary numberOfSCTHoles        nSCTHoles
+MuonHitsSummary numberOfTRTOutliers     nTRTOutliers
+MuonHitsSummary numberOfTRTHighThresholdOutliers nTRTHighTOutliers
+MuonHitsSummary numberOfMDTHits         nMDTHits
+MuonHitsSummary numberOfMDTHoles        nMDTHoles
+MuonHitsSummary numberOfCSCEtaHits      nCSCEtaHits
+MuonHitsSummary numberOfCSCEtaHoles     nCSCEtaHoles
+MuonHitsSummary numberOfCSCPhiHits      nCSCPhiHits
+MuonHitsSummary numberOfCSCPhiHoles     nCSCPhiHoles
+MuonHitsSummary numberOfRPCEtaHits      nRPCEtaHits
+MuonHitsSummary numberOfRPCEtaHoles     nRPCEtaHoles
+MuonHitsSummary numberOfRPCPhiHits      nRPCPhiHits
+MuonHitsSummary numberOfRPCPhiHoles     nRPCPhiHoles
+MuonHitsSummary numberOfTGCEtaHits      nTGCEtaHits
+MuonHitsSummary numberOfTGCEtaHoles     nTGCEtaHoles
+MuonHitsSummary numberOfTGCPhiHits      nTGCPhiHits
+MuonHitsSummary numberOfTGCPhiHoles     nTGCPhiHoles
+MuonHitsSummary numberOfGangedPixels    nGangedPixels
+MuonHitsSummary numberOfOutliersOnTrack nOutliersOnTrack
+MuonSpectrometerHitSummary              nMDTBIHits
+MuonSpectrometerHitSummary              nMDTBMHits
+MuonSpectrometerHitSummary              nMDTBOHits
+MuonSpectrometerHitSummary              nMDTEIHits
+MuonSpectrometerHitSummary              nMDTEMHits
+MuonSpectrometerHitSummary              nMDTEOHits
+MuonSpectrometerHitSummary              nRPCLayer1EtaHits
+MuonSpectrometerHitSummary              nRPCLayer2EtaHits
+MuonSpectrometerHitSummary              nRPCLayer3EtaHits
+MuonSpectrometerHitSummary              nRPCLayer1PhiHits
+MuonSpectrometerHitSummary              nRPCLayer2PhiHits
+MuonSpectrometerHitSummary              nRPCLayer3PhiHits
+MuonSpectrometerHitSummary              barrelSectors
+MuonSpectrometerHitSummary              endcapSectors
+TrkCovOffDiag   z_d_cov                 trackcov_d0_z0
+TrkCovOffDiag   z_phi_cov               trackcov_z0_phi
+TrkCovOffDiag   z_theta_cov             trackcov_z0_theta
+TrkCovOffDiag   z_qOverp_cov            trackcov_z0_qoverp
+TrkCovOffDiag   d_phi_cov               trackcov_d0_phi
+TrkCovOffDiag   d_theta_cov             trackcov_d0_theta
+TrkCovOffDiag   d_qOverp_cov            trackcov_d0_qoverp
+TrkCovOffDiag   phi_theta_cov           trackcov_phi_theta
+TrkCovOffDiag   phi_qOverp_cov          trackcov_phi_qoverp
+TrkCovOffDiag   theta_qOverp_cov        trackcov_theta_qoverp
+                segmentINFO
+                numberOfMultilayer
+                BFieldIntegral?
+L2CBDetail2                             L2CB_nPixHits
+L2CBDetail2                             L2CB_nSCTHits
+L2CBDetail2                             L2CB_nTRTHits
+L2CBDetail2                             L2CB_nTRTHighTHits
+L1Detail2                               L1_thrNumber
+L1Detail2                               L1_RoINumber
+L1Detail2                               L1_sectorAddress
+L1Detail2                               L1_firstCandidate
+L1Detail2                               L1_moreCandInRoI
+L1Detail2                               L1_moreCandInSector
+L1Detail2                               L1_source
+L1Detail2                               L1_hemisphere
