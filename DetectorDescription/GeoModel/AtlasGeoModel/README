@@ -1,0 +1,63 @@
+General Usage notes.
+===================
+
+To initialize the geometry simply put in your joboptions:
+
+ DetDescrVersion = "DC2"  # or "Rome-Initial" or "CTB"
+ include( "AtlasGeoModel/SetGeometryVersion.py" )
+ include( "AtlasGeoModel/GeoModelInit.py" )
+
+There are other possibilities for the values of DetDescrVersion.
+See SetGeometryVersion.py to see full list of values that the 
+DetDescrVersion variable can have.
+
+You can turn off detectors using DetFlags. The scripts also look at GlobalFlags
+to determine if it is CTB or DC1 geometries which require special
+treatment (they still have NOVA dependencies and CTB uses different libraries) 
+As long as these flags are set correctly the correct geometry should be
+loaded.
+
+
+Job option fragments for GeoModel detector description.
+======================================================
+
+GeoModelInit.py		        Initializes GeoModel. Loads GeoModelSvc.
+                                Also Nova for DC1 and CTB geometries.
+
+SetGeometryVersion.py           Sets the appropriate Geometry tags based
+                                on the variable DetDescrVersion. In the
+                                future this will not be needed for
+                                reconstruction as the geometry version will
+                                be determined from the POOL file or CondDB.
+                                The script also sets a few other items not
+                                yet controlled by the database, but these
+                                are in the process of being put in the database.
+
+
+The following job options are used by the above. Users do not need to call
+them directly. Users can turn off detectors using DetFlags.
+                                
+GeoModelInitStandard.py         Standard initialization.
+GeoModelInitDC1.py              Initialization for DC1.
+GeoModelInitCTB.py              Initialization fro CTB.
+    
+InDetGeoModel.py		Inner Detector Det Descr. 
+MuonGeoModel.py			Muon Det Descr
+LArGeoModel.py			LAr Det Descr
+TileGeoModel.py			Tile Det Descr
+MiscGeoModel.py			Other Det Descr. Contains beam pipe.
+
+InDetGeoModelCTB.py		Inner Detector CTB Descr. 
+MuonGeoModelCTB.py		Muon CTB Descr
+TileGeoModelCTB.py		Tile CTB Descr
+
+
+Graphics
+========
+GeoModelGraphics.py		Graphics display of all ATLAS (or CTB)
+GeoModelGraphicsCTB.py		Graphics display of CTB
+
+
+
+
+
