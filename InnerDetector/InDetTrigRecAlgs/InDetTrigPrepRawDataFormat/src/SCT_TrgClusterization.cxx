@@ -1,0 +1,757 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//***************************************************************************
+// 
+// Implementation for SCT_TrgClusterization.
+// (see class definition)
+//
+//****************************************************************************
+
+#include "InDetTrigPrepRawDataFormat/SCT_TrgClusterization.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
+#include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
+
+
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+
+#include "InDetRawData/SCT_RDORawData.h"
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+
+#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "Identifier/Identifier.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"    
+
+
+//Gaudi includes
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "AthenaKernel/Timeout.h"
+
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
+
+//Trigger
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRoiDescriptor.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+namespace InDet{
+
+  using namespace InDet;
+  static const std::string maxRDOsReached("SCT_TrgClusterization: Exceeds max RDOs");
+
+  //----------------------------------  
+  //           Constructor:
+  //----------------------------------------------------------------------------
+  SCT_TrgClusterization::SCT_TrgClusterization(const std::string &name, 
+					       ISvcLocator *pSvcLocator) :
+    //----------------------------------------------------------------------------
+    HLT::FexAlgo(name, pSvcLocator),
+    m_rawDataProvider("InDet::TrigSCTRawDataProvider"),
+    m_clusteringTool("InDet::SCT_ClusteringTool"),
+    m_managerName("SCT"),
+    m_clustersName("SCT_TrigClusters"),
+    m_idHelper(0),
+    m_regionSelector("RegSelSvc", name),
+    m_doFullScan(false),
+    m_etaHalfWidth(0.1),
+    m_phiHalfWidth(0.1),
+    m_sctRDOContainerName("SCT_RDOs"),
+    m_bsErrorSvc("SCT_ByteStreamErrorsSvc",name),
+    m_robDataProvider("ROBDataProviderSvc", name),
+    m_pSummarySvc("SCT_ConditionsSummarySvc", name),
+    m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
+    m_checkBadModules(true),
+    m_maxRDOs(0),
+    m_doTimeOutChecks(true),
+    m_timerSGate(0),
+    m_timerCluster(0),
+    m_timerRegSel(0),
+    m_timerDecoder(0)
+  {  
+    // Get parameter values from jobOptions file
+    declareProperty("DetectorManagerName", m_managerName);
+    declareProperty("SCT_RDOContainerName",m_sctRDOContainerName);
+    declareProperty("clusteringTool",      m_clusteringTool);
+    declareProperty("ClustersName",        m_clustersName);
+    declareProperty("RegionSelectorTool",  m_regionSelector );
+    declareProperty("doFullScan",          m_doFullScan );
+
+    declareProperty("EtaHalfWidth",        m_etaHalfWidth);
+    declareProperty("PhiHalfWidth",        m_phiHalfWidth);
+    declareProperty("RawDataProvider",     m_rawDataProvider);
+
+    declareProperty("conditionsSummarySvc", m_pSummarySvc);
+    declareProperty("bytestreamErrorSvc",   m_bsErrorSvc);
+    declareProperty("flaggedConditionsSvc", m_flaggedConditionSvc);
+    declareProperty("checkBadModules",      m_checkBadModules);
+    declareProperty("maxRDOs",              m_maxRDOs);
+    declareProperty("doTimeOutChecks",      m_doTimeOutChecks);
+
+    declareMonitoredVariable("numSctClusters", m_numSctClusters    );
+    declareMonitoredVariable("numSctIds", m_numSctIds    );
+    declareMonitoredStdContainer("SctHashId", m_ClusHashId);
+    declareMonitoredStdContainer("SctBSErr",  m_SctBSErr);
+    declareMonitoredStdContainer("SctOccupancyHashId",  m_occupancyHashId);
+    
+
+    m_clusterCollection = NULL;
+
+    // error strategy
+    //
+    // 0 : broad errors (cluster width/sqrt(12) )
+    //     as in old clustering code (release 6 and 7)
+    // 1 : narrow errors (strip pitch/sqrt(12.) )
+    //     DEFAULT - should be more accurate, and still conservative
+    //declareProperty("ErrorStrategy",m_errorStrategy);
+  }
+
+  //----------------------------------  
+  //          beginRun method:
+  //----------------------------------------------------------------------------
+  HLT::ErrorCode SCT_TrgClusterization::hltBeginRun() {
+
+
+    msg() << MSG::INFO << "SCT_TrgClusterization::beginRun() configured with ";
+    msg() << MSG::INFO << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth;
+    if (m_doFullScan) msg() << MSG::INFO << "FullScan mode";
+    msg() << MSG::INFO << "will be driven by RoI objects" << endreq;
+
+    /*
+    StatusCode sc = m_rawDataProvider->initContainer();
+    if (sc.isFailure())
+      msg() << MSG::WARNING << "RDO container cannot be registered" << endreq;
+    */
+    return HLT::OK;
+  }
+
+
+  //----------------------------------  
+  //          Initialize method:
+  //----------------------------------------------------------------------------
+  HLT::ErrorCode SCT_TrgClusterization::hltInitialize() {
+    //----------------------------------------------------------------------------
+ 
+    msg() << MSG::DEBUG << "SCT_TrgClusterization::initialize()" << endreq;
+    
+    
+    // get the InDet::MergedPixelsTool
+    if ( m_clusteringTool.retrieve().isFailure() ) {
+      msg() << MSG::FATAL << m_clusteringTool.propertyName() << ": Failed to retrieve tool " << m_clusteringTool.type() << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    else {
+      msg() << MSG::INFO << m_clusteringTool.propertyName() << ": Retrieved tool " << m_clusteringTool.type() << endreq;
+    }
+    
+    // Retrieving Region Selector Tool:
+    if ( m_regionSelector.retrieve().isFailure() ) {
+      msg() << MSG::FATAL 
+	    << m_regionSelector.propertyName()
+	    << " : Unable to retrieve RegionSelector tool "  
+	    << m_regionSelector.type() << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    
+    // get the detector description.
+    StoreGateSvc* detStore(0);
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()){
+      msg() << MSG::FATAL << "Detector service not found !" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    } 
+    else{
+      msg() << MSG::VERBOSE << "Detector service found !" << endreq;
+    }
+    
+    sc = detStore->retrieve(m_manager,m_managerName);
+    if (sc.isFailure()){
+      msg() << MSG::FATAL << "Cannot retrieve detector manager!" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    } 
+    else{
+      msg() << MSG::VERBOSE << "Detector manager found !" << endreq;
+    }
+    
+    const SCT_ID * IdHelper(0);
+    if (detStore->retrieve(IdHelper, "SCT_ID").isFailure()) {
+      msg() << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    m_idHelper = IdHelper;
+    
+
+    // register the IdentifiableContainer into StoreGate
+    // ------------------------------------------------------
+    if(!store()->transientContains<SCT_ClusterContainer>(m_clustersName)){
+      
+      // declare the container, starting the keys after the maximum pixel key
+      m_clusterContainer = new SCT_ClusterContainer(m_idHelper->wafer_hash_max());
+
+      if (store()->record(m_clusterContainer, m_clustersName).isFailure()) {
+	msg() << MSG::WARNING << " Container " << m_clustersName
+	      << " could not be recorded in StoreGate !" 
+	      << endreq;
+      } 
+      else {
+	msg() << MSG::INFO << "Container " << m_clustersName 
+	      << " registered  in StoreGate" << endreq;  
+      }
+    }
+    else {    
+      sc = store()->retrieve(m_clusterContainer, m_clustersName);
+
+      if (sc.isFailure()) {
+	msg() << MSG::ERROR << "Failed to get Cluster Container" << endreq;
+	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
+      else { 
+	msg() << MSG::INFO << "Got Cluster Container from TDS: " << m_clustersName << endreq;
+      }
+    }
+    m_clusterContainer->addRef();
+
+    //symlink the collection
+    const SiClusterContainer* symSiContainer(0);
+    sc = store()->symLink(m_clusterContainer, symSiContainer);
+    if (sc.isFailure()) {
+      msg() << MSG::WARNING 
+	    << "SCT clusters could not be symlinked in StoreGate !" << endreq;
+    } 
+    else if (msgLvl() <= MSG::DEBUG){
+      msg() << MSG::DEBUG << "SCT clusters '" << m_clustersName 
+	    << "' symlinked in StoreGate"
+	    << endreq;
+    } 
+
+    //retrieve rob data provider service
+    if (m_robDataProvider.retrieve().isFailure()) {
+      msg() << MSG::FATAL << "Failed to retrieve " << m_robDataProvider << endreq;
+      return StatusCode::FAILURE;
+    } else
+      msg() << MSG::INFO << "Retrieved service " << m_robDataProvider << " in SCT_trgClusterization. " << endreq;
+
+    //decoding tool
+    if (m_rawDataProvider.retrieve().isFailure()){
+      msg() << MSG::ERROR 
+	    << "Raw data provider not available"  << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+
+
+    //BS Error Svc
+    if (m_bsErrorSvc.retrieve().isFailure()){
+      msg() << MSG::FATAL << "Could not retrieve " << m_bsErrorSvc << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+ 
+    if (m_checkBadModules){
+      if (m_pSummarySvc.retrieve().isFailure()){
+	msg() << MSG::ERROR << "Could not retrieve " << m_pSummarySvc << endreq;
+      } else {
+	msg() << MSG::INFO << "Using " << m_pSummarySvc << " in clusterization" << endreq;
+      }
+      if (m_flaggedConditionSvc.retrieve().isFailure()){
+	msg() << MSG::ERROR << "Could not retrieve " << m_flaggedConditionSvc << endreq;
+      } else {
+	msg() << "Flagging bad modules with " <<  m_flaggedConditionSvc << endreq;
+      }
+    }
+
+    m_timerSGate   = addTimer("SGate");
+    m_timerCluster  = addTimer("Cluster");
+    m_timerRegSel = addTimer("RegSel");
+    m_timerDecoder    = addTimer("Decoder");
+
+    return HLT::OK;
+  }
+  
+  //--------------------------------
+  //         Execute method:
+  //----------------------------------------------------------------------------
+  HLT::ErrorCode SCT_TrgClusterization::hltExecute(const HLT::TriggerElement*, 
+						   HLT::TriggerElement* outputTE) {
+    //----------------------------------------------------------------------------
+
+    if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "SCT_TrgClusterization::hltExecute()"  << endreq;
+
+    //initialisation of monitored quantities
+    m_numSctIds = 0;
+    m_numSctClusters = 0;
+    m_clusterCollection = NULL;
+    m_listOfSctIds.clear();
+    m_ClusHashId.clear();
+    m_SctBSErr.clear();
+    m_occupancyHashId.clear();
+
+    StatusCode sc;
+
+    if(doTiming()) m_timerSGate->resume();
+
+    // register the IdentifiableContainer into StoreGate
+    // ------------------------------------------------------
+    if(!store()->transientContains<SCT_ClusterContainer>(m_clustersName)){
+      
+      // The cluster container is cleant up only at the begining of the event.
+      m_clusterContainer->cleanup();
+      
+      if (store()->record(m_clusterContainer,
+                          m_clustersName, false).isFailure()) {
+        msg() << MSG::WARNING << " Container " << m_clustersName
+              << " could not be recorded in StoreGate !" 
+              << endreq;
+      } 
+      else {
+        if (msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG << "REGTEST: Container " << m_clustersName 
+                << " registered  in StoreGate" << endreq;  
+      }
+      
+      // ------------------------------------------------------
+    }
+    else {    
+      if (msgLvl() <= MSG::DEBUG) 
+        msg() << MSG::DEBUG << "Container '" << m_clustersName 
+              << "' existed already  in StoreGate. " 
+              << endreq;
+    }
+    
+
+    if(doTiming()) m_timerSGate->pause();
+
+    //---------------------------
+    // Trigger specific part:
+    //---------------------------
+    //   Get from the Trigger Element the RoI
+    //   Ask the Region Selector for the list of hash indexes for this ROI.
+    //   Transform those indexes into a RDO collection.
+    //-------------------------------------------------------------------------
+
+    //handling of decoding problems
+    StatusCode scdec = StatusCode::SUCCESS;
+    m_bsErrorSvc->resetCounts();
+
+    // Get RoiDescriptor
+    const TrigRoiDescriptor* roi;
+    if ( HLT::OK != getFeature(outputTE, roi) ) {
+      msg() << MSG::WARNING << "Can't get RoI" << endreq;
+      return HLT::NAV_ERROR;
+    }
+    
+    if (!roi){
+      msg() << MSG::WARNING << "Received NULL RoI" << endreq;
+      return HLT::NAV_ERROR;
+    }
+    
+    double RoiEtaWidth = roi->etaPlus() - roi->etaMinus();
+    double RoiPhiWidth = roi->phiPlus() - roi->phiMinus();
+    const double M_2PI = 2*M_PI;
+    const float  M_PIF = float(M_PI);
+    while ( RoiPhiWidth> M_PIF ) RoiPhiWidth -= M_2PI;
+    while ( RoiPhiWidth<-M_PIF ) RoiPhiWidth += M_2PI;
+    if ( RoiPhiWidth> M_PI ) RoiPhiWidth -= 1e-7;
+    if ( RoiPhiWidth<-M_PI ) RoiPhiWidth += 1e-7;
+
+    if (!roi->isFullscan()){
+      if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
+	if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "ROI range is different from configuration: " << endreq;
+	  msg() << MSG::DEBUG << "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() << endreq;
+	  msg() << MSG::DEBUG << "etaHalfWidth from config: " << m_etaHalfWidth << endreq;
+	}
+      }
+      
+    } 
+    else {
+      if (m_etaHalfWidth<2.5 || m_phiHalfWidth<3.) {
+	msg() << MSG::WARNING << "FullScan RoI and etaHalfWidth from config: " << m_etaHalfWidth << endreq;
+	msg() << MSG::WARNING << "FullScan RoI and phiHalfWidth from config: " << m_phiHalfWidth << endreq;
+      }
+    }
+
+    if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
+    }
+      
+    if(doTiming()) m_timerDecoder->start();
+    scdec = m_rawDataProvider->decode(roi);
+    if(doTiming()) m_timerDecoder->stop();
+
+    
+    if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
+    }
+    
+    if(doTiming()) m_timerDecoder->start();
+    scdec = m_rawDataProvider->decode(roi);
+    if(doTiming()) m_timerDecoder->stop();
+    
+    
+    //   Get the SCT RDO's:
+    //     - First get the SCT ID's using the RegionSelector
+    //     - Retrieve from SG the RDOContainer: 
+    //       Identifiable Container that contains pointers to all the RDO 
+    //        collections (one collection per detector)
+    //     - Retrieve from StoreGate the RDO collections.
+    //       (the ByteStreamConvertors are called here).
+
+
+    if (scdec.isSuccess()){
+      //check for recoverable errors
+
+      int n_err_total = 0;
+       
+      int bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
+      
+      for (size_t idx = 0; idx<size_t(SCT_ByteStreamErrors::NUM_ERROR_TYPES); idx++){
+	int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
+	n_err_total += n_errors;
+	bsErrors[idx] = n_errors;
+      }
+
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "decoding errors: " << n_err_total;
+
+      if (n_err_total){
+	for (size_t idx = 0; idx<size_t(SCT_ByteStreamErrors::NUM_ERROR_TYPES); idx++){
+	  //	  m_SctBSErr.push_back(bsErrors[idx]);
+	  if (bsErrors[idx])
+	    m_SctBSErr.push_back(idx);
+
+	  msg() << MSG::DEBUG << " " << bsErrors[idx];
+	}
+      }
+
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << endreq;
+
+    } else {
+      msg() << MSG::DEBUG << " m_rawDataProvider->decode failed" << endreq;
+    }
+
+
+    if (!(roi->isFullscan())){
+      if(doTiming()) m_timerRegSel->start();
+      m_regionSelector->DetHashIDList(SCT, *roi, m_listOfSctIds );
+      if(doTiming()) m_timerRegSel->stop();
+      
+      m_numSctIds = m_listOfSctIds.size();
+      
+      
+      if (msgLvl() <= MSG::DEBUG) 
+	msg() << MSG::DEBUG << "REGTEST: SCT : Roi contains " 
+	      << m_numSctIds << " det. Elements" << endreq;
+    }
+
+
+    if(doTiming()) m_timerSGate->resume();
+
+    const SCT_RDO_Container* p_sctRDOContainer;
+    sc = store()->retrieve(p_sctRDOContainer,  m_sctRDOContainerName);
+
+    if (sc.isFailure() ) {
+      msg() << MSG::WARNING << "Could not find the SCT_RDO_Container " 
+	    << m_sctRDOContainerName << endreq;
+
+      // Activate the TriggerElement anyhow.
+      // (FEX algorithms should not cut and it could be that in the Pixel/TRT 
+      // tracks can anyhow be reconstructed) 
+      return HLT::OK;
+    } 
+    else if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << " Found the SCT_RDO_Container " 
+	    << m_sctRDOContainerName << endreq;
+    }
+
+    if(doTiming()) m_timerSGate->pause();
+    
+    if(!(roi->isFullscan())){
+
+      if(doTiming()) m_timerCluster->resume();
+
+      for (unsigned int i=0; i<m_listOfSctIds.size(); i++) {
+
+	SCT_RDO_Container::const_iterator 
+	  RDO_collection_iter = p_sctRDOContainer->indexFind(m_listOfSctIds[i]); 
+	
+	if (RDO_collection_iter == p_sctRDOContainer->end()) continue;
+
+	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
+	  msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
+	}
+
+    
+	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (*RDO_collection_iter);
+               
+	if (!RDO_Collection) continue;
+
+	//optionally check for bad modules
+	bool goodModule=true;
+
+	if (m_checkBadModules && m_pSummarySvc){
+	  goodModule = m_pSummarySvc->isGood(RDO_Collection->identifyHash());
+	  if (not goodModule and msgLvl()<=MSG::DEBUG)
+	    msg() << "" << endreq;
+	}
+	
+	
+	const size_t rdosize = RDO_Collection->size();
+	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
+	  if (m_flaggedConditionSvc){
+	    const int hid = RDO_Collection->identifyHash();
+	    m_flaggedConditionSvc->flagAsBad(hid, maxRDOsReached);
+	    m_flaggedModules.insert(hid);
+	    m_occupancyHashId.push_back(hid);
+	  }
+	  continue;
+	}
+	
+	if (rdosize>0 and goodModule) {
+	  // Use one of the specific clustering AlgTools to make clusters
+	  
+	  m_clusterCollection =  m_clusteringTool->clusterize(*RDO_Collection,
+							      *m_manager,
+							      *m_idHelper);
+	  
+	  // -me- fix test
+	  if (m_clusterCollection->size()!=0) {
+	    
+	    m_numSctClusters+= m_clusterCollection->size();
+	    sc = m_clusterContainer->addCollection(m_clusterCollection,
+						   m_clusterCollection->identifyHash());
+	    m_ClusHashId.push_back(m_clusterCollection->identifyHash());
+	    
+	    if (!sc.isSuccess()) {
+	      if (msgLvl() <= MSG::VERBOSE)
+		msg() << MSG::VERBOSE << "Failed to add Cluster collection : "
+		      << m_clusterCollection->identifyHash() << endreq;
+	      delete m_clusterCollection;
+	    }
+	  }
+	  else{
+ 
+	    delete m_clusterCollection;
+	    if (msgLvl() <= MSG::DEBUG){
+	      msg() << MSG::DEBUG << "Clustering algorithm found no clusters" 
+		    << endreq;
+	    }
+	  }
+	}
+      }
+      if(doTiming()) m_timerCluster->pause();
+    }
+
+    else{   //fullScan
+
+      //p_sctRDOContainer->clID(); 	// anything to dereference the DataHandle
+      // will trigger the converter
+
+      SCT_RDO_Container::const_iterator rdoCollections    = p_sctRDOContainer->begin();
+      SCT_RDO_Container::const_iterator rdoCollectionsEnd = p_sctRDOContainer->end();
+      
+      AtlasDetectorID detType;
+      
+      if(doTiming()) m_timerCluster->resume();
+
+      for(;rdoCollections!=rdoCollectionsEnd;++rdoCollections){
+	const InDetRawDataCollection<SCT_RDORawData>* rd(*rdoCollections);
+	
+	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
+	  msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
+	}
+	
+	const size_t rdosize = rd->size();
+
+	// if (!rd) continue;
+	if (msgLvl() <= MSG::DEBUG)
+	  msg() << MSG::VERBOSE << "RDO collection size=" 
+		<< rdosize 
+		<< ", ID=" << rd->identify() 
+		<< endreq;
+        
+	//optionally check for bad modules
+	bool goodModule=true;
+	if (m_checkBadModules && m_pSummarySvc){
+	  goodModule = m_pSummarySvc->isGood(rd->identifyHash());
+	  if (not goodModule and msgLvl()<=MSG::DEBUG)
+	    msg() << "" << endreq;
+	}
+	
+	
+	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
+	  if (m_flaggedConditionSvc){
+	    const int hid = rd->identifyHash();
+	    m_flaggedConditionSvc->flagAsBad(hid, maxRDOsReached);
+	    m_flaggedModules.insert(hid);
+	    m_occupancyHashId.push_back(hid);
+	  }
+	  continue;
+	}
+
+	if (rdosize>0 && goodModule){
+	  // Use one of the specific clustering AlgTools to make clusters
+	  m_clusterCollection = m_clusteringTool->clusterize(*rd,
+							     *m_manager,
+							     *m_idHelper);
+
+
+	  if (m_clusterCollection) {          
+	    if (m_clusterCollection->size() != 0) {
+	      // -me- new IDC does no longer register in Storegate if hash is used !
+	      //sc = m_clusterContainer->addCollection(clusterCollection, clusterCollection->identify());
+	      m_numSctClusters+= m_clusterCollection->size();
+	      sc = m_clusterContainer->addCollection(m_clusterCollection, 
+						     m_clusterCollection->identifyHash());
+	      m_ClusHashId.push_back(m_clusterCollection->identifyHash());
+	      
+	      if (sc.isFailure()){
+		if (msgLvl() <= MSG::VERBOSE)
+		  msg() << MSG::VERBOSE 
+			<< "Clusters could not be added to container !"
+			<< endreq;
+		delete m_clusterCollection;
+	      } 
+	      else{
+		if (msgLvl() <= MSG::VERBOSE)
+		  msg() << MSG::VERBOSE << "Clusters with key '" << m_clusterCollection->identify() 
+			<< "' added to Container"
+			<< endreq;
+	      } 
+	    } 
+	    else{
+	      if (msgLvl() <= MSG::DEBUG)
+		msg() << MSG::DEBUG << "Don't write empty collections" << endreq;
+	      // -me- clean up memory
+	      delete m_clusterCollection;
+	    }
+	  }
+	  else{
+	    if (msgLvl() <= MSG::DEBUG)
+	      msg() << MSG::DEBUG << "Clustering algorithm found no clusters" 
+		    << endreq;
+	  }
+	}
+      }
+      if(doTiming()) m_timerCluster->pause();
+    }
+    
+    if( doTiming() ){
+      m_timerSGate->stop();
+      m_timerCluster->stop();
+    }
+
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "REGTEST: Number of reconstructed clusters = " << m_numSctClusters 
+	    << endreq;
+
+    return HLT::OK;
+  }
+
+  //-----------------------------------
+  //          Finalize method:
+  //----------------------------------------------------------------------------
+  HLT::ErrorCode SCT_TrgClusterization::hltFinalize() 
+  //----------------------------------------------------------------------------
+  {
+    // Get the messaging service, print where you are
+    msg() << MSG::INFO << "SCT_TrgClusterization::hltFinalize()" << endreq;
+
+    m_clusterContainer->cleanup();
+
+    //delete m_globalPosAlg;  
+    //delete m_clusterContainer;
+    
+    //igb -fix me- it crashes
+    m_clusterContainer->release();
+
+    //printout statistics on flagged modules
+    if (m_maxRDOs>0){
+      msg() << MSG::INFO << "REGTEST: " << m_flaggedModules.size() << " modules flagged as noisy" << endreq;
+      std::set<IdentifierHash>::const_iterator itr(m_flaggedModules.begin());
+      std::set<IdentifierHash>::const_iterator end(m_flaggedModules.end());
+      for (int num(0); (itr != end) && (num < 10) ; ++itr, ++num) {
+        msg() << MSG::INFO << "Noisy: "
+	      << m_idHelper->print_to_string(m_idHelper->wafer_id(*itr))
+	      << endreq;
+      }
+
+    }
+    return HLT::OK;
+  }
+  //----------------------------------  
+  //          endRun method:
+  //----------------------------------------------------------------------------
+  HLT::ErrorCode SCT_TrgClusterization::hltEndRun() {
+
+    // Get the messaging service, print where you are
+    msg() << MSG::INFO << "SCT_TrgClusterization::hltEndRun()" << endreq;
+
+    return HLT::OK;
+  }
+
+  //---------------------------------------------------------------------------
+
+
+
+  //-------------------------------------------------------------------------
+  HLT::ErrorCode SCT_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {
+
+    msg() << MSG::INFO << "Running prepareRobRequests in SCT_trgClusterization. " << endreq;
+ 
+    // Calculate ROBs needed  - this code should be shared with hltExecute to avoid slightly different requests
+    const TrigRoiDescriptor* roi = 0;
+
+    if (getFeature(inputTE, roi, "forID") != HLT::OK || roi == 0) {
+      getFeature(inputTE, roi);
+    }
+ 
+    if ( roi==NULL ) { 
+      msg() <<  MSG::WARNING << "REGTEST / Failed to find RoiDescriptor " << endreq;
+      return HLT::NAV_ERROR;
+    }
+
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST prepareROBs / event"
+				      << " RoI id " << roi->roiId()
+				      << " located at   phi = " <<  roi->phi()
+				      << ", eta = " << roi->eta()
+				      << endreq;
+
+
+    //const TrigRoiDescriptor fs(true);
+
+    std::vector<unsigned int> uIntListOfRobs;
+    m_regionSelector->DetROBIDListUint( SCT, *roi, uIntListOfRobs );
+    //m_regionSelector->DetROBIDListUint( SCT, fs, uIntListOfRobs );
+
+    if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "list of pre-registered ROB ID in SCT: "  << endreq;
+      for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
+	msg() << MSG::DEBUG << uIntListOfRobs.at(i_lid) << endreq;
+    }
+
+    //m_robDataProvider->addROBData( uIntListOfRobs );
+    config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
+    uIntListOfRobs.clear();
+
+    return HLT::OK;
+
+  }
+
+
+
+
+}
+//---------------------------------------------------------------------------
