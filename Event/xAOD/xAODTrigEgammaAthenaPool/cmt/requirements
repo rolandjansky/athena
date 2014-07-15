@@ -1,0 +1,29 @@
+package xAODTrigEgammaAthenaPool
+
+# Change!
+author Gordon Watts <gwatts@uw.edu>
+
+public
+
+# Base package(s):
+use AtlasPolicy        AtlasPolicy-*
+
+private
+
+# Base package(s):
+use GaudiInterface      GaudiInterface-*      External
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTrigEgamma         xAODTrigEgamma-*         Event/xAOD
+
+# Declare the pool converter(s): (add extra ones onto the string with line continuations)
+apply_pattern poolcnv typesWithNamespace="xAOD::TrigPhotonContainer xAOD::TrigElectronContainer" \
+                      files="-s=${xAODTrigEgamma_root}/xAODTrigEgamma \
+                             TrigPhotonContainer.h \
+                             TrigPhotonAuxContainer.h \
+                             TrigElectronContainer.h \
+                             TrigElectronAuxContainer.h" \
+                      cnv_pfx="xAOD"
