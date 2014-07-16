@@ -33,8 +33,6 @@ build_menu target=p1hlt menu="DC14"
 #build_menu target=p1hlt menu="DC14_tight_mc_prescale"
 #build_menu target=p1hlt menu="Physics_pp_v4"
 #build_menu target=p1hlt menu="MC_pp_v4"
-# Heavy Ion 2015
-build_menu target=p1hlt menu="Physics_HI_v3"
 # Heavy Ion 2012
 #build_menu target=p1hlt menu="Physics_HI_v2"
 #build_menu target=p1hlt menu="MC_HI_v2"

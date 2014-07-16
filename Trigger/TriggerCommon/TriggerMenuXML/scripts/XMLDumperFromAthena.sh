@@ -14,7 +14,7 @@ uploadLog=TriggerMenuUpload.log
 doDBUpload="false"
 
 # Can be removed once relase 18 is no longer in use
-if echo $menu | egrep -q '_v5|LS1_v1|DC14|HI_v3'; then
+if echo $menu | egrep -q '_v5|LS1_v1|DC14'; then
     print "Setting USE_NEW_TM=1 for menu "$menu
     export USE_NEW_TM=1
 else
