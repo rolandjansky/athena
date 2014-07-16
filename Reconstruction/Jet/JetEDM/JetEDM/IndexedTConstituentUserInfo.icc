@@ -1,0 +1,44 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// IndexedTConstituentUserInfo.cxx
+
+#include "JetEDM/IndexedTConstituentUserInfo.h"
+#include "JetEDM/LabelIndex.h"
+
+//**********************************************************************
+
+template<typename T>
+jet::IndexedTConstituentUserInfo<T>::IndexedTConstituentUserInfo()
+: m_ppar(nullptr) { }
+
+//**********************************************************************
+
+template<typename T>
+jet::IndexedTConstituentUserInfo<T>::
+IndexedTConstituentUserInfo(const T& par, Index idx, const jet::LabelIndex* pli)
+: BaseIndexedConstituentUserInfo(idx, pli), m_ppar(&par) { }
+
+//**********************************************************************
+
+template<typename T>
+const SG::AuxElement* jet::IndexedTConstituentUserInfo<T>::element() const {
+  return m_ppar;
+}
+
+//**********************************************************************
+
+template<typename T>
+const xAOD::IParticle* jet::IndexedTConstituentUserInfo<T>::particle() const {
+  return nullptr;
+}
+
+//**********************************************************************
+
+template<typename T>
+const T* jet::IndexedTConstituentUserInfo<T>::object() const {
+  return m_ppar;
+}
+
+//**********************************************************************
