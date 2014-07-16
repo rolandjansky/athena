@@ -1,0 +1,24 @@
+package AtlasFastJetContrib
+
+author  Miles Wu <mileswu@uchicago.edu>
+
+use AtlasExternalArea AtlasExternalArea-00-* External
+use AtlasFastJet AtlasFastJet-* External
+
+macro AtlasFastJetContrib_home "$(ATLAS_EXTERNAL)/fastjet/contrib"
+macro AtlasFastJetContrib_native_version "1.013"
+
+macro AtlasFastJetContrib_system "$(LCG_ext_system)"
+macro AtlasFastJetContrib_dir "$(AtlasFastJetContrib_home)/$(AtlasFastJetContrib_native_version)/$(AtlasFastJetContrib_system)"
+macro AtlasFastJetContrib_lib "$(AtlasFastJetContrib_dir)/lib"
+
+macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lConstituentSubtractor -lEnergyCorrelator -lGenericSubtractor -lJetCleanser -lJetFFMoments -lJetsWithoutJets -lNsubjettiness -lRecursiveTools -lScJet -lSubjetCounting -lVariableR"
+
+macro AtlasFastJetContrib_export_paths "$(AtlasFastJetContrib_dir)"
+macro AtlasFastJetContrib_include "$(AtlasFastJetContrib_dir)/include"
+
+include_path none
+include_dirs "$(AtlasFastJetContrib_include)"
+
+private
+apply_pattern declare_installed_libraries dir=$(AtlasFastJetContrib_lib)
