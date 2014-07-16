@@ -1,0 +1,62 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// IParticleDecayHelper.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef ISF_FATRASINTERFACES_IPARTICLEDECAYHELPER_H
+#define ISF_FATRASINTERFACES_IPARTICLEDECAYHELPER_H
+
+// Gaudi
+#include "GaudiKernel/IAlgTool.h"
+
+namespace ISF
+{
+  class ISFParticle;
+}
+
+namespace iFatras
+{
+
+
+  static const InterfaceID IID_IParticleDecayHelper("IParticleDecayHelper", 1, 0);
+
+  /** 
+      @class IParticleDecayHelper
+      
+      Interface definition for the Particle decay helper in Fatras,
+      the particle transport of the particle is also matter of
+      the particle decayer.
+      
+      It returns a track (if there's a charged particle) up to the decay
+      point or 0 if no trace is left.
+      
+      The decay products are registered in decay collection through the ICollectionManager.
+
+      @author Joerg.Mechning -at- cern.ch
+      @author Andreas.Salzburger - at- cern.ch
+  */
+  
+  class IParticleDecayHelper : virtual public IAlgTool
+  {
+  public:
+    
+    /** Virtual destructor */
+    virtual ~IParticleDecayHelper(){}
+    
+    /** AlgTool interface methods */
+    static const InterfaceID& interfaceID() { return IID_IParticleDecayHelper; }
+
+    /** free path estimator (-1 for stable particle) */
+    virtual double freePath(const ISF::ISFParticle& isp) const = 0;
+
+    /** decay */
+    virtual void decay(const ISF::ISFParticle& isp) const = 0;
+  };
+  
+}
+
+#endif // ISF_FATRASINTERFACES_IPARTICLEDECAYHELPER_H
+
