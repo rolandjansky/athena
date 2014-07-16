@@ -1,0 +1,200 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// implementation of TileRawDataContainer 
+
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "StoreGate/StoreGate.h"
+#include "Identifier/IdentifierHash.h"
+#include "TileConditions/TileCablingService.h"
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+template <typename _TCollection> 
+void TileRawDataContainer<_TCollection>::initialize(bool createColl, TYPE type,
+                                                    SG::OwnershipPolicy ownPolicy)
+{
+    // initialize HashFunc
+    this->m_hashFunc.initialize(TileCablingService::getInstance()->getTileHWID(),type); 
+    // initialize base class
+    DLV::init(this->m_hashFunc.max());
+
+    if (createColl) {
+        int ncoll = this->m_hashFunc.max();
+        for(int i=0; i<ncoll;++i){
+            TileFragHash::ID frag = this->m_hashFunc.identifier(i);
+            _TCollection * coll = new _TCollection(frag,ownPolicy) ;
+            StatusCode sc = this->addCollection(coll,static_cast<IdentifierHash>(i));
+            if (sc.isFailure() ) {
+                ISvcLocator* svcLoc = Gaudi::svcLocator( );
+                IMessageSvc*  msgSvc;
+                sc = svcLoc->service( "MessageSvc", msgSvc  );
+                if ( sc.isFailure() ) {
+                    std::cout << "TileRawDataContainer   ERROR Can not retrieve MessageSvc" << std::endl;
+                    std::cout << "TileRawDataContainer   ERROR Can not create collection for frag 0x" << std::hex << frag
+                              << " in container with CLID " << std::dec << this->clID() << std::endl;
+                } else {
+                    MsgStream log(msgSvc, "TileRawDataContainer");
+                    log << MSG::ERROR <<" Can not create collection for frag 0x" << MSG::hex << frag
+                        << " in container with CLID " << MSG::dec << this->clID() << endreq;
+                }
+            }
+        }
+    }
+    
+    return; 
+}
+
+template <typename _TCollection> 
+TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
+                                                         TYPE type,
+                                                         UNIT unit,
+                                                         SG::OwnershipPolicy ownPolicy)
+    : MyBase(0) // 0 = do not initialize DLV in base class.
+    , m_unit(unit)
+    , m_type(type)
+    , m_bsflags(0)
+{
+    // initialize all the rest
+    initialize(createColl,m_type,ownPolicy);
+    return; 
+}
+
+template <typename _TCollection> 
+TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
+                                                         SG::OwnershipPolicy ownPolicy)
+    : MyBase(0) // 0 = do not initialize DLV in base class.
+    , m_unit(TileRawChannelUnit::ADCcounts)
+    , m_type(TileFragHash::Digitizer)
+    , m_bsflags(0)
+{
+    // initialize all the rest
+    initialize(createColl,m_type,ownPolicy); 
+    return; 
+}
+
+template <typename _TCollection> 
+void TileRawDataContainer<_TCollection>::clear()
+{
+    TContainer_const_iterator it1 = this->begin();
+    TContainer_const_iterator it2 = this->end();
+
+    for(;it1!=it2;++it1){
+        const _TCollection * const_coll = *it1; 
+        _TCollection * coll = const_cast<_TCollection *>(const_coll);
+        coll->clear();
+    }
+
+    return; 
+}
+
+template <typename _TCollection> 
+void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
+                                             SG::OwnershipPolicy ownPolicy)
+{
+    if (this->m_hashFunc.max() == 0 && TileCablingService::getInstance()->getTileHWID() != 0) {
+        // not initialized yet - initialize hash function
+        initialize(false,m_type);
+    }
+
+    //if (isLocked()) {
+    //    std::cout << " Can not change TileRawDataContainer anymore, It is locked"<<std::endl;
+    //    return ; 
+    //}
+                                
+    _TCollection * coll; 
+
+    int frag = rc->frag_ID();
+    IdentifierHash fragHash = static_cast<IdentifierHash>(m_hashFunc(frag));
+                              
+    TContainer_const_iterator it = MyBase::indexFind(fragHash);
+
+    if( it == MyBase::end() ){ // collection doesn't exist
+
+        // do not create collection, because it'll not work anyhow:
+        // the fact that collection doesn't exist cashed already
+        // waitng for update of core package
+        // createColl = false;
+
+        if (createColl) {
+
+            coll = new _TCollection(frag,ownPolicy);
+            StatusCode sc = this->addCollection(coll,fragHash);
+            if (sc.isFailure() ) {
+
+                ISvcLocator* svcLoc = Gaudi::svcLocator( );
+                IMessageSvc*  msgSvc;
+                sc = svcLoc->service( "MessageSvc", msgSvc  );
+                if ( sc.isFailure() ) {
+                    std::cout << "TileRawDataContainer   ERROR Can not retrieve MessageSvc" << std::endl;
+                    std::cout << "TileRawDataContainer   ERROR Can not create collection for frag 0x" << std::hex << frag
+                              << " in container with CLID " << std::dec << this->clID() << std::endl;
+                } else {
+                    MsgStream log(msgSvc, "TileRawDataContainer");
+                    log << MSG::ERROR <<" Can not create collection for frag 0x" << MSG::hex << frag
+                        << " in container with CLID " << MSG::dec << this->clID() << endreq;
+                }
+                return ;
+            }
+
+        } else {
+            
+            ISvcLocator* svcLoc = Gaudi::svcLocator( );
+            IMessageSvc*  msgSvc;
+            StatusCode sc = svcLoc->service( "MessageSvc", msgSvc  );
+            if ( sc.isFailure() ) {
+                std::cout << "TileRawDataContainer   ERROR Can not retrieve MessageSvc" << std::endl;
+                std::cout << "TileRawDataContainer   ERROR Collection for frag 0x" << std::hex << frag 
+                          << " in container with CLID " << std::dec << this->clID()
+                          << " does not exist " << std::endl; 
+            } else {
+                MsgStream log(msgSvc, "TileRawDataContainer");
+                log << MSG::ERROR <<" Collection for frag 0x" << MSG::hex << frag 
+                    << " in container with CLID " << MSG::dec << this->clID()
+                    << " does not exist " << endreq; 
+            }
+            return ;
+          } 
+    } else { // collection exists
+
+        const _TCollection * const_coll = *it; 
+        coll = const_cast<_TCollection *>(const_coll);
+    }
+    
+    coll->push_back(rc);         
+    return ;
+}                             
+                              
+template <typename _TCollection> 
+void TileRawDataContainer<_TCollection>::print() const
+{
+    std::cout << (std::string) (*this) << std::endl;
+}
+
+template <typename _TCollection> 
+TileRawDataContainer<_TCollection>::operator std::string() const
+{
+    std::ostringstream text(std::ostringstream::out);
+
+    text << whoami();
+    text << " size = " << this->size() << std::endl;
+
+    std::string result(text.str());
+    std::string newline("\n");
+
+    TContainer_const_iterator it1 = this->begin();
+    TContainer_const_iterator it2 = this->end();
+
+    const _TCollection * coll;
+    
+    for(;it1!=it2;++it1){
+        coll = (*it1);
+        result += (std::string) (*coll) + newline;
+    }
+
+    return result;
+}

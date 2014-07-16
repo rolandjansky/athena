@@ -1,0 +1,84 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// implementation of TileRawDataCollection 
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+/*
+// 
+template <typename _TElement> 
+void TileRawDataCollection<_TElement>::setTT(const TT_ID& id,
+         TCollection_const_iterator b, TCollection_const_iterator e)
+{
+  m_Map[id] = ITPAIR(b,e); 
+  return ;
+}
+
+template <typename _TElement> 
+void TileRawDataCollection<_TElement>::getTT(const TT_ID& id, 
+         TCollection_const_iterator& b, TCollection_const_iterator& e) const 
+{
+   ID_IT_MAP_ITER itPair = m_Map.find(id); 
+
+   if(itPair!=m_Map.end()){
+        // get the begin and end iterator 
+        b = (*itPair).second.first; 
+        e = (*itPair).second.second; 
+        return; 
+   }
+
+// can't find it, return end() ; 
+
+   b = end(); 
+   e = end(); 
+
+   return ; 
+}
+*/
+
+template <typename _TElement> 
+void TileRawDataCollection<_TElement>::clear()
+{
+    m_lvl1Id = 0;
+    m_lvl1Type = 0;
+    m_detEvType = 0;
+    m_rodBCID = 0;
+
+    DataVector<_TElement>::clear();
+}
+
+template <typename _TElement> 
+void TileRawDataCollection<_TElement>::print() const
+{
+    std::cout << (std::string) (*this) << std::endl;
+}
+
+template <typename _TElement> 
+TileRawDataCollection<_TElement>::operator std::string() const
+{
+    std::ostringstream text(std::ostringstream::out);
+
+    text << whoami();
+    text << " Id = 0x"   << std::hex << identify();
+    text << " size = " << std::dec << this->size() << std::endl;
+
+    std::string result(text.str());
+    std::string newline("\n");    
+    
+    TCollection_const_iterator it1 = this->begin();
+    TCollection_const_iterator it2 = this->end();
+
+    const _TElement * elem;
+
+    for(;it1!=it2;++it1){
+        elem = (*it1);
+        result += (std::string)(*elem) + newline;
+    }
+
+    return result;
+}
+

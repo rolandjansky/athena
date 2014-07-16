@@ -1,0 +1,39 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// implementation of TileContainer 
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+template <typename _TElement> 
+void TileContainer<_TElement>::print() const
+{
+    std::cout << (std::string) (*this) << std::endl;
+}
+
+template <typename _TElement> 
+TileContainer<_TElement>::operator std::string() const
+{
+    std::ostringstream text(std::ostringstream::out);
+
+    text << whoami();
+    text << " size = " << this->size() << std::endl;
+
+    std::string result(text.str());
+    std::string newline("\n");    
+    
+    my_const_iterator it1 = this->begin();
+    my_const_iterator it2 = this->end();
+
+    const _TElement * elem;
+    
+    for(;it1!=it2;++it1){
+        elem = (*it1);
+        result += (std::string)(*elem) + newline;
+    }
+
+    return result;
+}
