@@ -12,6 +12,9 @@ private
 use AthenaKernel AthenaKernel-* Control
 use GaudiInterface GaudiInterface-* External
 
+# Declare the ROOT components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
+
 apply_tag ROOTGraphicsLibs
 end_private
 
