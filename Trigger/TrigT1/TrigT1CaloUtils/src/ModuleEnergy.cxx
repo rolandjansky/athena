@@ -1,0 +1,237 @@
+/***************************************************************************
+                          ModuleEnergy.cxx  -  description
+                             -------------------
+    begin                : Tues Sep 4 2007
+    copyright            : (C) 2007 Alan Watson
+                           Loosely based on Ed Moyse's JetEnergyModule
+    email                : Alan.Watson@cern.ch
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+#include "TrigT1CaloUtils/ModuleEnergy.h"
+#include "TrigT1CaloUtils/QuadLinear.h"
+
+#include <math.h>
+
+namespace LVL1 {
+
+ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsigned int crate,
+                           unsigned int module, int JEThresholdEtSum, int JEThresholdEtMiss, const std::map<int, int>* TEMasks, int slice):
+  m_jetElementThresholdEtSum(JEThresholdEtSum),
+  m_jetElementThresholdEtMiss(JEThresholdEtMiss),
+  m_Et(0),
+  m_Ex(0),
+  m_Ey(0),
+  m_EtComp(0),
+  m_ExComp(0),
+  m_EyComp(0),
+  m_signX(1),
+  m_signY(1),
+  m_crate(crate),
+  m_module(module),
+  m_debug(false)
+{
+  // Only fill ModuleEnergys where crate, module numbers valid
+  if (m_debug) std::cout << "Create ModuleEnergy for crate "
+                         << crate << " module " << module << std::endl;
+  if (m_crate <= 1 && m_module <= 15) {
+    /** Set up Ex, Ey signs for this module */
+    m_signY = ( (module < 8) ? 1 : -1 );
+    m_signX = ( (crate == 0) ? m_signY : -m_signY );
+    /** Look for the JetElements associated with this module */
+    JetEnergyModuleKey get;
+    std::vector<unsigned int> keys = get.jeKeys(crate, module);
+    std::vector<unsigned int>::const_iterator it = keys.begin();
+    for (; it != keys.end(); it++) {
+      std::map<int, JetElement*>::const_iterator test=JEContainer->find(*it);
+      if (test != JEContainer->end()) {
+	/** Check JE not masked in TE trigger */
+	double eta = test->second->eta();
+	int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
+	/// Use jet element if it is not in the masked list
+	if (TEMasks == 0 || TEMasks->find(ieta) == TEMasks->end()) {
+          /** Test for saturation */
+          if (test->second->isSaturated()) {
+            m_Ex += (1<<m_ExyBits)-1;
+            m_Ey += (1<<m_ExyBits)-1;
+            m_Et += (1<<m_EtBits)-1;
+          }
+          else {
+            /** Get ET for requested time slice */
+            int jetElementET;
+            if (slice < 0) jetElementET = test->second->energy();
+            else           jetElementET = test->second->sliceEnergy(slice);
+            /** Test against ETmiss algorithm threshold */
+            if (jetElementET > m_jetElementThresholdEtMiss) {
+              /** Get sin, cos factors for this JetElement */
+              double phi = test->second->phi();
+              int cosPhi = 0;
+              int sinPhi = 0;
+              getSinCos(eta,phi,cosPhi,sinPhi);
+                /** Convert to Ex, Ey and sum. Replicate integer arithmetic used in hardware */
+              unsigned int EnergyX = ((jetElementET*cosPhi) & 0x7ffffc00);
+              unsigned int EnergyY = ((jetElementET*sinPhi) & 0x7ffffc00);
+              m_Ex += EnergyX;
+              m_Ey += EnergyY;
+              if (m_debug) std::cout << "JE phi = " << phi << ", ET = " << jetElementET
+                                   << ", Ex = " << (EnergyX>>10) << ", Ey = " << (EnergyY>>10) << std::endl;
+            }
+            /** Test against ETsum algorithm threshold & add if passes */
+            if ( jetElementET > m_jetElementThresholdEtSum )
+               m_Et += jetElementET;
+          } // End of processing of unsaturated jetElement
+        } // End processing of unvetoed element
+      } // End check for end of container
+    } // End loop through keys
+
+    /** Compressed results */
+    m_EtComp = QuadLinear::Compress(m_Et);
+    /** Convert Ex, Ey back to 1 GeV/count integers and compress */
+    m_ExComp = QuadLinear::Compress(m_Ex>>12);
+    m_EyComp = QuadLinear::Compress(m_Ey>>12);
+    /** Uncompress results to give right precision in outputs */
+    m_Et = QuadLinear::Expand(m_EtComp);
+    m_Ex = QuadLinear::Expand(m_ExComp);
+    m_Ey = QuadLinear::Expand(m_EyComp);
+    if (m_debug) {
+      std::cout << "Crate " << crate << " Module " << module <<
+                   " uncompressed sums: " << std::endl;
+      std::cout << "  Ex = " << static_cast<int>(m_Ex)*m_signX << std::endl; 
+      std::cout << "  Ey = " << static_cast<int>(m_Ey)*m_signY << std::endl;
+      std::cout << "  Et = " << m_Et << std::endl;
+    }
+  }
+}
+
+ModuleEnergy::ModuleEnergy(unsigned int crate, unsigned int module,
+                           unsigned int etComp, unsigned int exComp,
+			   unsigned int eyComp) :
+  m_jetElementThresholdEtSum(0),
+  m_jetElementThresholdEtMiss(0),
+  m_Et(0),
+  m_Ex(0),
+  m_Ey(0),
+  m_EtComp(0),
+  m_ExComp(0),
+  m_EyComp(0),
+  m_signX(1),
+  m_signY(1),
+  m_crate(crate),
+  m_module(module),
+  m_debug(false)
+{
+  // Only fill ModuleEnergys where crate, module numbers valid
+  if (m_debug) std::cout << "Create ModuleEnergy for crate "
+                         << crate << " module " << module << std::endl;
+  if (m_crate <= 1 && m_module <= 15) {
+    /** Set up Ex, Ey signs for this module */
+    m_signY = ( (module < 8) ? 1 : -1 );
+    m_signX = ( (crate == 0) ? m_signY : -m_signY );
+    /** Uncompressed results */
+    m_Et = QuadLinear::Expand(etComp);
+    m_Ex = QuadLinear::Expand(exComp);
+    m_Ey = QuadLinear::Expand(eyComp);
+    /** Compressed results */
+    m_EtComp = etComp;
+    m_ExComp = exComp;
+    m_EyComp = eyComp;
+    if (m_debug) {
+      std::cout << "Crate " << crate << " Module " << module <<
+                   " uncompressed sums: " << std::endl;
+      std::cout << "  Ex = " << static_cast<int>(m_Ex)*m_signX << std::endl; 
+      std::cout << "  Ey = " << static_cast<int>(m_Ey)*m_signY << std::endl;
+      std::cout << "  Et = " << m_Et << std::endl;
+    }
+  }
+}
+
+
+ModuleEnergy::~ModuleEnergy(){
+}
+
+/** return crate number */
+unsigned int ModuleEnergy::crate(){
+  return m_crate;
+}
+/** return module number */
+unsigned int ModuleEnergy::module(){
+  return m_module;
+}
+
+/** return Et, Ex, Ey sums of contained JEs (up to 32 JEs) */
+unsigned int ModuleEnergy::et(){
+  return m_Et;
+}
+unsigned int ModuleEnergy::ex(){
+  return m_Ex;
+}
+unsigned int ModuleEnergy::ey(){
+  return m_Ey;
+}
+
+/** return 8 bit compressed Et, Ex, Ey sums */
+unsigned int ModuleEnergy::etCompressed(){
+  return m_EtComp;
+}
+unsigned int ModuleEnergy::exCompressed(){
+  return m_ExComp;
+}
+unsigned int ModuleEnergy::eyCompressed(){
+  return m_EyComp;
+}
+
+/** return signs of Ex and Ey for this module */
+int ModuleEnergy::signX() {
+  return m_signX;
+}
+int ModuleEnergy::signY() {
+  return m_signY;
+}
+
+/** return cos, sin coefficients for a given JetElement */
+void ModuleEnergy::getSinCos(double eta, double phi, int& cosPhi, int& sinPhi) {
+    
+  /** Different phi granularities in central and forward calorimeters */
+  unsigned int m_SinCos[8]    = {401,1187,1928,2594,3161,3607,3913,4070};
+  unsigned int m_fwdSinCos[4] = {794,2261,3384,3992};
+
+  /** Each module spans 1 quadrant in phi. Hence want phi position relative to module edge */
+  float modPhi = fmod(phi, M_PI/2.);
+
+  /// Barrel and endcap calorimeters
+  if (fabs(eta) < 3.2) {
+    int phiBin = (int)(modPhi*16/M_PI);
+    if (m_crate > 0) {                  /// Even quadrants, modPhi measured from horizontal
+       cosPhi = m_SinCos[phiBin];
+       sinPhi = m_SinCos[7-phiBin];
+    }
+    else {                              /// Odd quadrants, modPhi measured from vertical
+       cosPhi = m_SinCos[7-phiBin];
+       sinPhi = m_SinCos[phiBin];
+    }
+  }
+  /// Forward calorimeters
+  else {
+    int phiBin = (int)(modPhi*8/M_PI);
+    if (m_crate > 0) {
+       cosPhi = m_fwdSinCos[phiBin];
+       sinPhi = m_fwdSinCos[3-phiBin];
+    }
+    else {
+       cosPhi = m_fwdSinCos[3-phiBin];
+       sinPhi = m_fwdSinCos[phiBin];
+    }
+  }
+
+} // end of getSinCos
+
+} // end of namespace bracket
+
+
