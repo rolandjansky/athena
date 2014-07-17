@@ -1,0 +1,44 @@
+#
+# $Id: requirements,v 1.7 2008-06-12 05:25:52 ssnyder Exp $
+#
+# @file  cmt/requirements
+# @author snyder@bnl.gov
+# @date Nov 2005
+# @brief DataModelTestDataRead cmt requirements file.
+#
+
+package DataModelTestDataRead
+
+author scott snyder <snyder@bnl.gov>
+
+use AtlasPolicy             AtlasPolicy-*
+use AthContainers           AthContainers-*           Control
+use AthLinks                AthLinks-*                Control
+use DataModelAthenaPool     DataModelAthenaPool-*     Control
+use DataModelTestDataCommon DataModelTestDataCommon-* Control/DataModelTest
+use GaudiInterface          GaudiInterface-*          External
+use CLIDSvc                 CLIDSvc-*                 Control
+use SGTools                 SGTools-*                 Control
+
+
+private
+use CxxUtils                CxxUtils-*                Control
+use AthenaKernel            AthenaKernel-*            Control
+use StoreGate               StoreGate-*               Control
+use AthenaBaseComps         AthenaBaseComps-*         Control
+use xAODCore                xAODCore-*                Event/xAOD
+end_private
+
+apply_pattern component_library
+library DataModelTestDataRead *.cxx components/*.cxx
+
+private
+use AtlasReflex  AtlasReflex-*  External  -no_auto_imports
+
+macro elemLinks_DataModelTestDataRead "DataVector<DMTest::B>"
+
+apply_tag no_rootmap
+apply_pattern lcgdict dict=DataModelTestDataRead selectionfile=selection.xml\
+  headerfiles="../DataModelTestDataRead/DataModelTestDataReadDict.h" \
+  elementLinks="$(elemLinks_DataModelTestDataRead)"
+
