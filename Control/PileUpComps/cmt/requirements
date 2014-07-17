@@ -1,0 +1,17 @@
+package PileUpComps
+author P. Calafiura   <Paolo.Calafiura@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+private
+use AtlasCLHEP          AtlasCLHEP-*      External
+use AtlasBoost          AtlasBoost-*      External
+use GaudiInterface      GaudiInterface-*  External
+use AthenaKernel        AthenaKernel-*    Control
+use AthenaBaseComps     AthenaBaseComps-* Control
+use StoreGate           StoreGate-*       Control
+use PileUpTools         PileUpTools-*     Control
+use EventInfo           EventInfo-*       Event
+
+
+library PileUpComps  *.cxx -s=components *.cxx
+apply_pattern component_library
