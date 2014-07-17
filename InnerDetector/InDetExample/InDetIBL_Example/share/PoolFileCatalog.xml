@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="E2D96AD1-620A-DF11-A5F9-0030487CC326">
+    <physical>
+      <pfn filetype="ROOT_All" name="AtlasLayerMaterial-ATLAS-IBL-00-00-00v13.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="04B43382-AA7E-DF11-92F0-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="singleMuon_IBL_Hits.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="A696A6EE-AA7E-DF11-987D-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="singleMuon_IBL_Digits.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="78AD761A-AD7E-DF11-BE72-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="InDetRecESD.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="50BE3E4B-AD7E-DF11-BE72-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="InDetRecAOD.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="B02D34BD-097D-DF11-9AF4-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/user/g/gwilliam/public/IBLESD.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="CE079287-D87E-DF11-BAE3-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="Test.ESD.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="CEBF54EE-D87E-DF11-BAE3-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="AOD.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="56E78320-DC7E-DF11-BC8E-000423D94F74">
+    <physical>
+      <pfn filetype="ROOT_All" name="ESD.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="DAAAB92E-BD9E-DF11-BABE-0024E87649D1">
+    <physical>
+      <pfn filetype="ROOT_All" name="../../../../../mc09_14TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e564_s855_d339_tid156029_00/RDO.156029._001514.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="A6E86A99-96A4-DF11-BECE-003048D2BD0C">
+    <physical>
+      <pfn filetype="ROOT_All" name="myESD.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

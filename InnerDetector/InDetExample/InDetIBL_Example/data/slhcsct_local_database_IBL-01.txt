@@ -1,0 +1,100 @@
+// PixelCommon table
+// Inner radius (mm)
+PixelCommon:RMIN 31         //33
+
+// PixelBarrelGeneral table
+// Inner radius (mm)
+PixelBarrelGeneral:RMIN 31          //35
+// Outer radius (mm)
+//PixelBarrelGeneral:RMAX 245.0
+// Barrel half-length (mm)
+//PixelBarrelGeneral:HALFLENGTH 460.0
+// Pixel 
+PixelBarrelGeneral:NLAYER 4
+//PBNFRAMEIN 0
+//PBNFRAMEOUT 0
+// Easy way to turn off individual layers
+PixelBarrelGeneral:USELAYER_0 1
+PixelBarrelGeneral:USELAYER_1 1
+PixelBarrelGeneral:USELAYER_2 1
+PixelBarrelGeneral:USELAYER_3 1
+
+// Layer radius (mm)
+PixelLayer:RLAYER#0 33.25          //37.5
+// Number of sectors (ladders/staves) in phi
+PixelLayer:NSECTORS#0 14          //15
+//??
+//PixelLayer:THICKLAYER#0 1.0
+// Tilt angle in phi (degrees)
+PixelLayer:STAVETILT#0 -14       //-16
+// Possible offset in phi (degrees)
+PixelLayer:PHIOFMODULEZERO#0 0.0
+// Full length of silicon sensor (mm)
+PixelModule:BOARDLENGTH#1 41.3          //63.0
+// Full width of silicon sensor (mm)
+PixelModule:BOARDWIDTH#1 18.8
+// Full thickness of silicon sensor (mm)
+PixelModule:BOARDTHICK#1 0.3          //0.25
+// Full length of hybrid (mm)
+PixelModule:HYBRIDLENGTH#1 41.3          //61.4
+// Full width of hybrid (mm)
+PixelModule:HYBRIDWIDTH#1 19.1          //19.0
+// Full thickness of hybrid (mm)
+PixelModule:HYBRIDTHICK#1 0.2     //0.3          //0.182
+// Full length of chip (mm)
+PixelModule:CHIPLENGTH#1 40.1          //60.6
+// Full width of chip (mm)
+PixelModule:CHIPWIDTH#1 16.8          //22.0
+// Full thickness of chip (mm)
+PixelModule:CHIPTHICK#1 0.25        //.022
+
+
+// PixelStave table (means "ladder")
+// in mm
+// Number of modules in z
+PixelStave:NMODULE#1 16          //13
+// Pitch between modules in z -- use to set overlap in z
+PixelStave:MODULEDZ#1 41.3         //61.718
+// Module tilt in theta direction (degrees): default
+PixelStave:MODULETILT#1 0.0          //1.1
+// Special treatment of center module in the shingling; shift in r (mm)
+PixelStave:CENTRMODULESHIFT#1 0.0         //-1.2
+
+// PixelModule -- hybrids could be different for each layer, but not now
+// in mm
+// Z of active zone
+//PMDZELEB 6.08
+// Balcony for flex module (mm)
+//PMDXELEB 0.0
+// Gap between closest detector and lader
+//PMXGAPLADD 0.065
+// These aren't read from the text file yet
+// The "board" is the silicon wafer
+
+PixelReadout#1:PITCHPHI 0.050
+PixelReadout#1:PITCHETA 0.250
+
+PixelReadout#1:ROWSPERCHIP 336
+PixelReadout#1:COLSPERCHIP 80
+
+PixelReadout#1:NCHIPSPHI 1
+PixelReadout#1:NCHIPSETA 2
+
+
+//added for PixelGeoModel-00-09-09
+//----------------------------------------------------------------------------------
+// Need temporarily as the field does not exist in the database           
+PixelReadout#ALL:PITCHETAEND  0
+
+// Layout type 0:Standard ATLAS, 1:No services, but ATLAS TMT, 2: No services or TMT, 3: Rectangular stave support
+PixelStave#1:LAYOUT 2
+
+PixelStave#1:SUPPORTTHICK 2
+PixelStave#1:SUPPORTWIDTH 7
+
+
+PixelReadout#1:PITCHETALONG 0.450
+
+// Set to 1 to *not* skip etaModule = 0 when there are even number of modules.
+PixelStave#1:NOSKIPZERO 1
+//----------------------------------------------------------------------------------

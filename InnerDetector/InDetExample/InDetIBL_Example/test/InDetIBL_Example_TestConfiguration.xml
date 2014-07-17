@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+ <atn>
+
+   <TEST name="InDetIBL_ExampleSim" type="athena" suite="Sim">
+      <options_atn> InDetIBL_Example/jobOptions_simulation_IBL.py </options_atn>
+      <timelimit>30</timelimit>
+      <author> Silvia Miglioranzi </author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript> source ${ATN_PACKAGE}/test/script_pre_check.sh </prescript>
+      <postscript> source ${ATN_PACKAGE}/test/script_post_check.sh </postscript>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="InDetIBL_ExampleDigi" type="athena" suite="Digi">
+      <options_atn> InDetIBL_Example/jobOptions_digitization_IBL.py </options_atn>
+      <timelimit>20</timelimit>
+      <author> Silvia Miglioranzi </author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prerequisite>Sim</prerequisite>
+      <prescript> source ${ATN_PACKAGE}/test/script_pre_check.sh </prescript>
+      <postscript> source ${ATN_PACKAGE}/test/script_post_check.sh </postscript>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="InDetIBL_ExampleReco" type="athena" suite="Reco">
+      <options_atn> InDetIBL_Example/jobOptions_tracking_IBL.py </options_atn>
+      <timelimit>20</timelimit>
+      <author> Silvia Miglioranzi </author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prerequisite>Digi</prerequisite>
+      <prescript> source ${ATN_PACKAGE}/test/script_pre_check.sh </prescript>
+      <postscript> source ${ATN_PACKAGE}/test/script_post_check.sh </postscript>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="AtlasG4_trf_IBL_single_particle_sim" type="script" suite="IBL_Example_trf">
+      <options_atn>
+        AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=OUT.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --geometryVersion=ATLAS-IBL-03-00-00_VALIDATION --conditionsTag=OFLCOND-SDR-BS14T-IBL-CORR-07-02 --postInclude='sim:RecJobTransforms/UseFrontier.py'
+      </options_atn>
+      <timelimit>30</timelimit>
+      <author>Silvia Miglioranzi</author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/*</prescript>
+      <expectations>
+            <errorMessage>FAILURE (ERROR)</errorMessage>
+            <returnValue>0</returnValue>
+       </expectations>
+   </TEST>
+
+
+   <TEST name="Digi_trf_IBL_single_particle_digi" type="script" suite="IBL_Example_trf">
+      <options_atn>
+        Digi_tf.py --inputHITSFile=OUT.HITS.pool.root --outputRDOFile=OUT.RDO.pool.root --geometryVersion=ATLAS-IBL-03-00-00 --maxEvents=10 --skipEvents=0 --digiSeedOffset1=11 --digiSeedOffset2=22 --postInclude='HITtoRDO:InDetIBL_Example/postOptions.IBL_Digitization.py,RecJobTransforms/UseFrontier.py' --conditionsTag=OFLCOND-SDR-BS14T-IBL-CORR-07-02
+      </options_atn>
+      <timelimit>20</timelimit>
+      <author>Silvia Miglioranzi</author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/OUT.RDO.pool.root </prescript>
+      <expectations>
+            <errorMessage>FAILURE (ERROR)</errorMessage>
+            <returnValue>0</returnValue>
+       </expectations>
+   </TEST>
+
+   <TEST name="Reco_trf_IBL_single_particle_reco" type="script" suite="IBL_Example_trf">
+      <options_atn>
+        Reco_trf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root outputNTUP_TRKVALIDFile=OUT.NTUP.root outputDESDM_TRACKFile=OUT.D3PD.root topOptions=InDetIBL_Example/jobOptions_tracking_IBL_trf.py postInclude=RecJobTransforms/UseFrontier.py --omitvalidation=ALL --test
+      </options_atn>
+      <timelimit>20</timelimit>
+      <author>Silvia Miglioranzi</author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/OUT.ESD.root $ATN_WORK_AREA/OUT.AOD.root $ATN_WORK_AREA/OUT.D3PD.root </prescript>
+      <expectations>
+            <errorMessage>FAILURE (ERROR)</errorMessage>
+            <returnValue>0</returnValue>
+       </expectations>
+   </TEST>
+
+   <TEST name="Reco_trf_IBL_single_particle_reco_ESDtoESD" type="script" suite="IBL_Example_trf">
+      <options_atn>
+        Reco_trf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=RecJobTransforms/UseFrontier.py topOptions=InDetIBL_Example/jobOptions_tracking_IBL_trf.py  --omitvalidation=ALL --test
+      </options_atn>
+      <timelimit>20</timelimit>
+      <author>Silvia Miglioranzi</author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/OUT.ESD.copy.root </prescript>
+      <expectations>
+            <errorMessage>FAILURE (ERROR)</errorMessage>
+            <returnValue>0</returnValue>
+       </expectations>
+   </TEST>
+
+<!-- transforms persistency check tests - read fixed 32bitID scheme release HITS and RDO files -->
+
+
+   <TEST name="Digi_trf_IBL_single_particle_digi_32bitHITS" type="script" suite="IBL_Example_trf">
+      <options_atn>
+        Digi_tf.py --inputHITSFile=/afs/cern.ch/atlas/maxidisk/d33/IBL/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_17.1.4.2_IBL_HITS.pool.root --outputRDOFile=OUT.32bitinputHITS.RDO.pool.root --geometryVersion=ATLAS-IBL-02-00-00 --maxEvents=10 --skipEvents=0 --digiSeedOffset1=11 --digiSeedOffset2=22 --postInclude='HITtoRDO:InDetIBL_Example/postOptions.IBL_Digitization.py,RecJobTransforms/UseFrontier.py' --conditionsTag=OFLCOND-SDR-BS14T-IBL-04
+      </options_atn>
+      <timelimit>20</timelimit>
+      <author>Silvia Miglioranzi</author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/OUT.32bitinputHITS.RDO.pool.root </prescript>
+      <expectations>
+            <errorMessage>FAILURE (ERROR)</errorMessage>
+            <returnValue>0</returnValue>
+       </expectations>
+   </TEST>
+
+   <TEST name="Reco_trf_IBL_single_particle_reco_32bitRDO" type="script" suite="IBL_Example_trf">
+      <options_atn>
+        Reco_trf.py inputRDOFile=/afs/cern.ch/atlas/maxidisk/d33/IBL/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_17.1.4.2_IBL_RDO.pool.root outputESDFile=OUT.32bitinputRDO.ESD.root outputNTUP_TRKVALIDFile=OUT.32bitinputRDO.NTUP.root outputDESDM_TRACKFile=OUT.32bitinputRDO.D3PD.root preExec_r2e="InDetFlags.doPixelClusterSplitting=False;" geometryVersion=ATLAS-IBL-02-00-00 conditionsTag=OFLCOND-SDR-BS14T-IBL-04 preInclude=InDetIBL_Example/NewLayerMaterial.py postInclude=RecJobTransforms/UseFrontier.py topOptions=InDetIBL_Example/jobOptions_tracking_IBL_trf.py  --omitvalidation=ALL --test
+      </options_atn>
+      <timelimit>20</timelimit>
+      <author>Silvia Miglioranzi</author>
+      <mailto> Silvia.Miglioranzi@cern.ch,chapman@hep.phy.cam.ac.uk </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/OUT.32bitinputRDO.ESD.root $ATN_WORK_AREA/OUT.32bitinputRDO.NTUP.root $ATN_WORK_AREA/OUT.32bitinputRDO.D3PD.root </prescript>
+      <expectations>
+            <errorMessage>FAILURE (ERROR)</errorMessage>
+            <returnValue>0</returnValue>
+       </expectations>
+   </TEST>
+
+
+
+ </atn>
+</unifiedTestConfiguration>
