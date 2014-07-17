@@ -1,0 +1,41 @@
+#
+# $Id: requirements,v 1.7 2008-06-12 05:24:59 ssnyder Exp $
+#
+# @file  cmt/requirements
+# @author scott snyder
+# @date Nov 2005
+# @brief DataModelTestDataWrite cmt requirements file.
+#
+
+package DataModelTestDataWrite
+
+author scott snyder <snyder@bnl.gov>
+
+use AtlasPolicy             AtlasPolicy-*
+use AthLinks                AthLinks-*                Control
+use AthContainers           AthContainers-*           Control
+use DataModelAthenaPool     DataModelAthenaPool-*     Control
+use DataModelTestDataCommon DataModelTestDataCommon-* Control/DataModelTest
+use GaudiInterface          GaudiInterface-*          External
+use CLIDSvc                 CLIDSvc-*                 Control
+use SGTools                 SGTools-*                 Control
+
+
+private
+use AthenaKernel            AthenaKernel-*            Control
+use StoreGate               StoreGate-*               Control
+use AthenaBaseComps         AthenaBaseComps-*         Control
+end_private
+
+apply_pattern component_library
+library DataModelTestDataWrite *.cxx components/*.cxx
+
+private
+use AtlasReflex  AtlasReflex-*  External  -no_auto_imports
+
+macro elemLinks_DataModelTestDataWrite "DataVector<DMTest::B>"
+
+apply_tag no_rootmap
+apply_pattern lcgdict dict=DataModelTestDataWrite selectionfile=selection.xml\
+  headerfiles="../DataModelTestDataWrite/DataModelTestDataWriteDict.h" \
+  elementLinks="$(elemLinks_DataModelTestDataWrite)"
