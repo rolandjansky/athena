@@ -1,0 +1,276 @@
+///////////////////////////////////////////////////////////////////
+// L1EtTools.cxx, (c) Alan Watson (see header file for license)
+///////////////////////////////////////////////////////////////////
+
+#include "TrigT1CaloTools/L1EtTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigConfL1Data/L1DataDef.h"
+
+namespace LVL1 {
+
+//================ Constructor =================================================
+
+L1EtTools::L1EtTools(const std::string& t,
+			  const std::string& n,
+			  const IInterface*  p )
+  :
+  AlgTool(t,n,p),
+  m_TEMasks(0),
+  m_log(msgSvc(),n),
+  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n)
+{
+  declareInterface<IL1EtTools>(this);
+
+  declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
+
+  // Allow user to specify JetElement thresholds
+  m_jetElementThresholdEtSum = 0;
+  m_jetElementThresholdEtMiss = 0;
+  declareProperty(  "EtSumJEThresh",   m_jetElementThresholdEtSum );
+  declareProperty(  "EtMissJEThresh",   m_jetElementThresholdEtMiss );
+
+}
+
+//================ Destructor =================================================
+
+L1EtTools::~L1EtTools()
+{
+}
+
+
+//================ Initialisation =================================================
+
+StatusCode L1EtTools::initialize()
+{
+  m_log.setLevel(outputLevel());
+
+  m_log << MSG::INFO << "Initialising Algtool" << endreq;
+  StatusCode sc = AlgTool::initialize();
+  if (sc.isFailure()) {
+    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
+    return sc;
+  }
+
+  m_log << MSG::INFO << "get pointer to config svc " << endreq;
+  sc = m_configSvc.retrieve();
+  if ( sc.isFailure() ) {
+    m_log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
+        << endreq;
+  }
+  
+  /** Fill map of JE masked out of TE trigger */
+  
+  m_log << MSG::INFO << "Initialization completed" << endreq;
+  
+  return sc;
+}
+
+//================ Finalisation =================================================
+
+StatusCode LVL1::L1EtTools::finalize()
+{
+  StatusCode sc = AlgTool::finalize();
+  delete m_TEMasks;
+  m_TEMasks = 0;
+  return sc;
+}
+
+//================ Fill map of JE masked out of TE trigger ======================
+
+void L1EtTools::fillMaskedOutMap() {
+
+  /** Fill map of JE masked out of TE trigger */
+  m_TEMasks = new std::map<int, int>;
+  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+  std::vector<TriggerThreshold*>::const_iterator it;
+  L1DataDef def;
+  /// Loop over all thresholds. For each TE threshold check whether the "turn-off" value has been set for any eta bin
+  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
+    if ( (*it)->type() == def.teType() ) {
+      for (int ieta = -49; ieta < 49; ++ieta) {
+        TriggerThresholdValue* tv = (*it)->triggerThresholdValue(ieta,0);       
+        if (tv != 0) {
+          int thresholdValue = (*tv).thresholdValueCount();
+          if (thresholdValue >= 0x3fff) {
+            // Is this one already flagged? If not, flag it
+            std::map<int, int>::iterator itMask=m_TEMasks->find( ieta );
+            if (itMask == m_TEMasks->end()) m_TEMasks->insert(std::map<int, int>::value_type(ieta,1));
+          }
+        }
+      }
+    }
+  } 
+}
+
+//================ Having map of JetElements facilitates JE->JEM association =====
+
+void L1EtTools::mapJetElements(const DataVector<JetElement>* jetelements,
+                                     std::map<int, JetElement*>* jeContainer){
+
+  // Clear map before filling
+  jeContainer->clear();
+  
+  // Step over JEs and put into map
+  DataVector<JetElement>::const_iterator it ;
+  JetElementKey testKey(0.0, 0.0);
+
+  for( it = jetelements->begin(); it < jetelements->end(); ++it ){
+     double jetElementPhi=(*it)->phi();
+     double jetElementEta=(*it)->eta();
+     int key = testKey.jeKey(jetElementPhi,jetElementEta);
+     std::map<int, JetElement*>::iterator test=jeContainer->find( key );
+     if (test == jeContainer->end()){
+       // add it to the map
+         jeContainer->insert(std::map<int, JetElement*>::value_type(key,*it)); //and put it in the map.
+     }
+     else{
+          m_log << MSG::ERROR
+                << "JetElement already in map (shouldn't happen!) " <<endreq ;
+     }
+  }//endfor
+  
+}
+
+//=====================Form JEM ET sums ====================
+
+void L1EtTools::moduleSums(const DataVector<JetElement>* jetelements,
+                           DataVector<ModuleEnergy>* modules, int slice) {
+
+  modules->clear();
+  if (!m_TEMasks) fillMaskedOutMap();
+  
+  // Need map of JetElements as input to ModuleEnergy class creator
+  std::map<int, JetElement*>* jeContainer = new std::map<int, JetElement*>;
+  mapJetElements(jetelements, jeContainer);
+
+  // Loop over crates, modules and create set of ModuleEnergy objects
+  for (int crate = 0; crate < 2; ++crate) {
+    for (int module = 0; module < 16; ++module) {
+      modules->push_back( new ModuleEnergy(jeContainer, crate, module, m_jetElementThresholdEtSum, m_jetElementThresholdEtMiss, m_TEMasks, slice) );
+    }
+  }
+  
+  // Clean up after ourselves
+  delete jeContainer;
+    
+}
+
+//=====================Form JEM ET sums ====================
+
+void L1EtTools::moduleSums(const std::map<int, JetElement*>* jemap,
+                           DataVector<ModuleEnergy>* modules, int slice) {
+
+  modules->clear();
+  if (!m_TEMasks) fillMaskedOutMap();
+  
+  // Loop over crates, modules and create set of ModuleEnergy objects
+  for (int crate = 0; crate < 2; ++crate) {
+    for (int module = 0; module < 16; ++module) {
+      modules->push_back( new ModuleEnergy(jemap, crate, module, m_jetElementThresholdEtSum, m_jetElementThresholdEtMiss, m_TEMasks, slice) );
+    }
+  }
+      
+}
+
+//=====================Form JE Crate ET sums ====================
+
+void L1EtTools::crateSums(const DataVector<ModuleEnergy>* modules, DataVector<CrateEnergy>* crates) {
+
+  crates->clear();
+  // Loop over crates and create set of CrateEnergy objects
+  for (int crate = 0; crate < 2; ++crate) {
+    crates->push_back( new CrateEnergy(crate, modules) );
+  }
+  
+  return;
+}
+
+//=====================Form System ET sums ====================
+
+SystemEnergy L1EtTools::systemSums(const DataVector<CrateEnergy>* crates) {
+
+  // This class will take crate sums and form system sums, apply thresholds, etc
+  SystemEnergy result(crates, m_configSvc);
+  
+  return result ;
+}
+
+//=====================Return JE Crate ET sums directly =============
+
+void L1EtTools::crateSums(const DataVector<JetElement>* jetelements,
+                          DataVector<CrateEnergy>* crates, int slice) {
+
+  crates->clear();
+  
+  // First need to form module sums
+  DataVector<ModuleEnergy>* modules = new DataVector<ModuleEnergy>;
+
+  moduleSums(jetelements, modules, slice);
+  
+  // Loop over crates and create set of CrateEnergy objects
+   for (int crate = 0; crate < 2; ++crate) {
+     crates->push_back( new CrateEnergy(crate, modules) );
+   }
+
+  delete modules;
+  
+  return;
+}
+
+//=====================Return JE Crate ET sums directly =============
+
+void L1EtTools::crateSums(const std::map<int, JetElement*>* jemap,
+                          DataVector<CrateEnergy>* crates, int slice) {
+
+  crates->clear();
+  
+  // First need to form module sums
+  DataVector<ModuleEnergy>* modules = new DataVector<ModuleEnergy>;
+
+  moduleSums(jemap, modules, slice);
+  
+  // Loop over crates and create set of CrateEnergy objects
+   for (int crate = 0; crate < 2; ++crate) {
+     crates->push_back( new CrateEnergy(crate, modules) );
+   }
+
+  delete modules;
+  
+  return;
+}
+
+//=====================Return final System ET sums directly =============
+
+SystemEnergy L1EtTools::systemSums(const DataVector<JetElement>* jetelements, int slice) {
+
+  // First need to form modules and crates
+  DataVector<CrateEnergy>* crates = new DataVector<CrateEnergy>;
+
+  crateSums(jetelements, crates, slice);
+
+  // Then do the final summing, thresholding etc
+  SystemEnergy result(crates, m_configSvc);
+
+  delete crates;
+  return result;
+}
+
+//=====================Return final System ET sums directly =============
+
+SystemEnergy L1EtTools::systemSums(const std::map<int, JetElement*>* jemap, int slice) {
+
+  // First need to form modules and crates
+  DataVector<CrateEnergy>* crates = new DataVector<CrateEnergy>;
+
+  crateSums(jemap, crates, slice);
+
+  // Then do the final summing, thresholding etc
+  SystemEnergy result(crates, m_configSvc);
+
+  delete crates;
+  return result;
+}
+
+//============================================================================================
+
+} // end of ns
