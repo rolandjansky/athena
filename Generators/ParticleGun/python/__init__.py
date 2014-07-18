@@ -1,0 +1,108 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from GeneratorModules.EvgenAlg import EvgenAlg
+from ParticleGun.samplers import *
+from ParticleGun.histsampling import TH1, TH2
+from AthenaPython.PyAthena import HepMC, StatusCode
+import McParticleEvent.Pythonizations
+
+__author__ = "Andy Buckley <andy.buckley@cern.ch>"
+
+
+class ParticleGun(EvgenAlg):
+    """
+    A simple but flexible algorithm for generating events from simple distributions.
+    """
+
+    def __init__(self, name="ParticleGun", randomSvcName="AtRndmGenSvc", randomStream="ParticleGun"):
+        super(ParticleGun, self).__init__(name=name)
+        self.samplers = [ParticleSampler()]
+        self.randomStream = randomStream
+        self.randomSvcName = randomSvcName
+
+
+    @property
+    def sampler(self):
+        "Get the first (and presumed only) sampler"
+        return self.samplers[0] if self.samplers else None
+    @sampler.setter
+    def sampler(self, s):
+        "Set the samplers list to include only a single sampler, s"
+        self.samplers = [s]
+
+
+    def initialize(self):
+        """
+        Pass the AtRndmGenSvc seed to Python's random module (or fall back to a fixed value for reproducibility).
+
+        TODO: Also allow directly specifying the seed as a constructor/Athena property -> self.randomSeed=None?
+        """
+        seed = "123456"
+        randomSvc = getattr(svcMgr, self.randomSvcName, None)
+        if randomSvc is not None:
+            for seedstr in randomSvc.Seeds:
+                if seedstr.startswith(self.randomStream):
+                    seed = seedstr
+                    self.msg.info("ParticleGun: Using random seed '%s'" % seed)
+        else:
+            self.msg.warning("ParticleGun: Failed to find random number service called '%s'" % self.randomSvcName)
+        random.seed(seed)
+        return StatusCode.Success
+
+
+    def fillEvent(self, evt):
+        """
+        Sample a list of particle properties, which are then used to create a new GenEvent in StoreGate.
+        """
+        ## Set event weight(s)
+        # TODO: allow weighted sampling?
+        evt.weights().push_back(1.0)
+
+        ## Make and fill particles
+        for s in self.samplers:
+            particles = s.shoot()
+            for p in particles:
+                ## Debug printout of particle properties
+                #print p.pid, p.mom.E(), p.mom.M()
+                #print "(px,py,pz,E) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
+                #print "(eta,phi,pt,m) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Eta(), p.mom.Phi(), p.mom.Pt(), p.mom.M())
+                #print "(x,y,z,t) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.pos.X(), p.pos.Y(), p.pos.Z(), p.pos.T())
+
+                ## Make particle-creation vertex
+                # TODO: do something cleverer than one vertex per particle?
+                pos = HepMC.FourVector(p.pos.X(), p.pos.Y(), p.pos.Z(), p.pos.T())
+                gv = HepMC.GenVertex(pos)
+                ROOT.SetOwnership(gv, False)
+                evt.add_vertex(gv)
+
+                ## Make particle with status == 1
+                mom = HepMC.FourVector(p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
+                gp = HepMC.GenParticle()
+                gp.set_pdg_id(p.pid)
+                gp.set_momentum(mom)
+                gp.set_status(1)
+                ROOT.SetOwnership(gp, False)
+                gv.add_particle_out(gp)
+
+        return StatusCode.Success
+
+
+## PyAthena HepMC notes
+#
+## evt.print() isn't valid syntax in Python2 due to reserved word
+# TODO: Add a Pythonisation, e.g. evt.py_print()?
+#getattr(evt, 'print')()
+#
+## How to check that the StoreGate key exists and is an McEventCollection
+# if self.sg.contains(McEventCollection, self.sgkey):
+#     print self.sgkey + " found!"
+#
+## Modifying an event other than that supplied as an arg
+# mcevts = self.sg[self.sgkey]
+# for vtx in mcevts[0].vertices: # only way to get the first vtx?!
+#     gp2 = HepMC.GenParticle()
+#     gp2.set_momentum(HepMC.FourVector(1,2,3,4))
+#     gp2.set_status(1)
+#     vtx.add_particle_out(gp2)
+#     break
