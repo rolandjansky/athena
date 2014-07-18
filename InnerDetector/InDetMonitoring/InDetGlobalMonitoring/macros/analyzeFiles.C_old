@@ -1,0 +1,525 @@
+#include <iostream>
+#include <bitset>
+
+#include "TFile.h"
+
+#include <TAxis.h>
+#include <TCanvas.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TGraphErrors.h>
+#include <TText.h>
+#include <TString.h>
+#include <TLatex.h>
+#include <TStyle.h>
+#include <TMatrixT.h>
+#include <TMinuit.h>
+#include <iostream>
+#include <TVirtualFitter.h>
+
+using namespace std;
+
+#include "RealTrackTree.h"
+#include "TApplication.h"
+#include "TFile.h"
+#include "TStyle.h"
+#include <iostream>
+#include "TString.h"
+#include "TChain.h"
+
+
+void ATLAS_PRELIMINARY_LABEL(Double_t x,Double_t y,bool Preliminary=true,Color_t color=1) 
+{
+  
+  TLatex l;
+  //l.SetTextAlign(12); l.SetTextSize(tsize); 
+  l.SetNDC();
+  
+  l.SetTextFont(72);
+  
+  l.SetTextColor(color);
+  
+
+  double delx = 0.115*696*gPad->GetWh()/(472*gPad->GetWw());
+  
+
+  l.DrawLatex(x,y,"ATLAS");
+  
+  if (Preliminary) 
+  {
+    
+    TLatex p;
+     
+    p.SetNDC();
+    
+    p.SetTextFont(42);
+    
+    p.SetTextColor(color);
+    
+    p.DrawLatex(x+delx,y,"Preliminary");
+    
+    TLatex u;
+    
+    u.SetNDC();
+    
+    u.SetTextFont(42);
+
+    u.SetTextColor(color);
+    
+    u.DrawLatex(x,y-0.065,"#sqrt{s} = 7 TeV");
+
+    //    p.DrawLatex(x,y,"#sqrt{s}=900GeV");
+  }
+  
+}
+
+//void ATLAS_PRELIMINARY_LABEL(Double_t x,Double_t y,Color_t color=1) {
+//
+//  TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
+//  l.SetNDC();
+//  l.SetTextFont(72);
+//  l.SetTextColor(color);
+//  l.DrawLatex(x,y,"ATLAS preliminary");
+//}
+
+
+// the rest is taken from the ATLAS style wiki, and adjusted that it actually compiles ...
+TStyle* AtlasStyle() 
+{
+  TStyle *atlasStyle = new TStyle("ATLAS","Atlas style");
+
+  // use plain black on white colors
+  Int_t icol=0; // WHITE
+  atlasStyle->SetFrameBorderMode(icol);
+  atlasStyle->SetFrameFillColor(icol);
+  atlasStyle->SetCanvasBorderMode(icol);
+  atlasStyle->SetCanvasColor(icol);
+  atlasStyle->SetPadBorderMode(icol);
+  atlasStyle->SetPadColor(icol);
+  atlasStyle->SetStatColor(icol);
+  //atlasStyle->SetFillColor(icol); // don't use: white fill color for *all* objects
+
+  // set the paper & margin sizes
+  atlasStyle->SetPaperSize(20,26);
+
+  // set margin sizes
+  atlasStyle->SetPadTopMargin(0.05);
+  atlasStyle->SetPadRightMargin(0.05);
+  atlasStyle->SetPadBottomMargin(0.16);
+  atlasStyle->SetPadLeftMargin(0.16);
+
+  // set title offsets (for axis label)
+  atlasStyle->SetTitleXOffset(1.4);
+  atlasStyle->SetTitleYOffset(1.4);
+
+  // use large fonts
+  //Int_t font=72; // Helvetica italics
+  Int_t font=42; // Helvetica
+  Double_t tsize=0.05;
+  atlasStyle->SetTextFont(font);
+
+  atlasStyle->SetTextSize(tsize);
+  atlasStyle->SetLabelFont(font,"x");
+  atlasStyle->SetTitleFont(font,"x");
+  atlasStyle->SetLabelFont(font,"y");
+  atlasStyle->SetTitleFont(font,"y");
+  atlasStyle->SetLabelFont(font,"z");
+  atlasStyle->SetTitleFont(font,"z");
+  
+  atlasStyle->SetLabelSize(tsize,"x");
+  atlasStyle->SetTitleSize(tsize,"x");
+  atlasStyle->SetLabelSize(tsize,"y");
+  atlasStyle->SetTitleSize(tsize,"y");
+  atlasStyle->SetLabelSize(tsize,"z");
+  atlasStyle->SetTitleSize(tsize,"z");
+
+  // use bold lines and markers
+  atlasStyle->SetMarkerStyle(20);
+  atlasStyle->SetMarkerSize(1.2);
+  atlasStyle->SetHistLineWidth(2);
+  atlasStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
+
+  // get rid of X error bars 
+  //atlasStyle->SetErrorX(0.001);
+  // get rid of error bar caps
+  atlasStyle->SetEndErrorSize(0.);
+
+  // do not display any of the standard histogram decorations
+  atlasStyle->SetOptTitle(0);
+//  atlasStyle->SetOptStat(111111);
+  atlasStyle->SetOptStat(0);
+//  atlasStyle->SetOptFit(1111111);
+  atlasStyle->SetOptFit(0);
+
+  // put tick marks on top and RHS of plots
+  atlasStyle->SetPadTickX(1);
+  atlasStyle->SetPadTickY(1);
+
+  atlasStyle->SetPalette(1);
+  
+  return atlasStyle;
+
+}
+
+void SetAtlasStyle ()
+{
+   std::cout << "\nApplying ATLAS style settings...\n" << std::endl ;
+   TStyle* atlasStyle = AtlasStyle();
+   gROOT->SetStyle("ATLAS");
+   gROOT->ForceStyle();
+}
+
+void analyzeFiles()
+{
+
+  SetAtlasStyle();
+
+  TFile* inputFile=new TFile("outputFile.root");
+
+  TGraphErrors* krms_z_vs_ntrk=(TGraphErrors*)inputFile->Get("scaleFactorZ_RMS");
+  TGraphErrors* kgs_z_vs_ntrk=(TGraphErrors*)inputFile->Get("scaleFactorZ_Fit");
+  TGraphErrors* krms_z_vs_pt=(TGraphErrors*)inputFile->Get("scaleFactorZvsPt_RMS");
+  TGraphErrors* kgs_z_vs_pt=(TGraphErrors*)inputFile->Get("scaleFactorZvsPt_Fit");
+  TGraphErrors* krms_x_vs_ntrk=(TGraphErrors*)inputFile->Get("scaleFactorX_RMS");
+  TGraphErrors* kgs_x_vs_ntrk=(TGraphErrors*)inputFile->Get("scaleFactorX_Fit");
+  TGraphErrors* krms_x_vs_pt=(TGraphErrors*)inputFile->Get("scaleFactorXvsPt_RMS");
+  TGraphErrors* kgs_x_vs_pt=(TGraphErrors*)inputFile->Get("scaleFactorXvsPt_Fit");
+
+  TFile* outputFile=new TFile("outputFile_processed.root","recreate");
+  
+
+  double minimum[4];
+  bool isMinimum[4];
+  for (int i=0;i<4;i++)
+  {
+    isMinimum[i]=false;
+  }
+  
+
+  int bins[4];
+  bins[0]=kgs_z_vs_ntrk->GetN();
+  bins[1]=kgs_z_vs_pt->GetN();
+  bins[2]=kgs_x_vs_ntrk->GetN();
+  bins[3]=kgs_x_vs_pt->GetN();
+  
+
+  TString fourStrings[4];
+  fourStrings[0]="profileX_Ntrk_bin";
+  fourStrings[1]="profileX_vsPt_bin";
+  fourStrings[2]="profileZ_Ntrk_bin";
+  fourStrings[3]="profileZ_vsPt_bin";
+  
+  TGraphErrors* graphErrors[4];
+  graphErrors[0]=kgs_z_vs_ntrk;
+  graphErrors[1]=kgs_z_vs_pt;
+  graphErrors[2]=kgs_x_vs_ntrk;
+  graphErrors[3]=kgs_x_vs_pt;
+
+
+  TH1D* similar[4];
+  similar[0]=new TH1D("similar1","similar1",100,0,70.);
+  similar[1]=new TH1D("similar2","similar2",100,0,10.);
+  similar[2]=new TH1D("similar3","similar3",100,0,70.);
+  similar[3]=new TH1D("similar4","similar4",100,0,10.);
+  
+
+  TH1D* AllPlots[400][4];
+  
+  int nLimit=25000;//for sumpt
+  int nLimit2=25000;//for ntrk
+  double sigmas=2;
+
+  TGraphErrors* finalPlots[4];
+
+  for (int i=0;i<4;i++)
+  {
+    TString name=fourStrings[i];
+    std::cout << "Executing n. " << i << " n. bins: " << bins[i] << std::endl;
+
+    double X[400];
+    double X_err[400];
+    double Y[400];
+//    double X_err[400];
+    double Y_err[400];
+    
+    TH1D* histo=0;
+
+    int nActual=0;
+    int nEntries=0;
+    int startBin=0;
+
+    for (int u=0;u<bins[i];u++)
+    {
+
+      if ((i==1 || i==1) && 
+          u<4)
+    {
+        continue;
+      }
+
+      if ((i==1 || i==3) && 
+          similar[i]->GetBinCenter(u)<0.5)
+      {
+        continue;
+      }
+      
+      
+      TString nameBin=name;
+      nameBin+=u;
+      
+      TH1D* myGraph=
+          (TH1D*)inputFile->Get(nameBin);
+
+//      if (myGraph->GetBinContent
+
+      if (myGraph==0) {
+        cout << " not found: " << nameBin << std::endl;
+        continue;
+      }
+
+      if (myGraph->GetEntries()==0) continue;
+
+//      myGraph->Rebin(2);
+
+
+      if (histo==0)
+      {
+        TString histoName(name);
+        histoName+="_histo";
+        histo=(TH1D*)myGraph->Clone(histoName);
+        startBin=u;
+        if (isMinimum[i]==false)
+        {
+          minimum[i]=similar[i]->GetBinCenter(u);
+          isMinimum[i]=true;
+        }
+        
+      }
+      else
+      {
+        histo->Add(myGraph);
+      }
+
+      TString histoName2(name);
+      histoName2+="_bin";
+      histoName2+=u;
+      histo->SetName(histoName2);
+
+      if (nEntries>0)
+      {
+        X_err[nActual]+=similar[i]->GetBinCenter(u)-similar[i]->GetBinCenter(u-1);
+//        X[nActual]=(X[nActual]*(double)nEntries+
+//                    similar[i]->GetBinCenter(u)*(double)myGraph->GetEntries())/
+//            ((double)nEntries+(double)myGraph->GetEntries());
+        
+        X[nActual]=(similar[i]->GetBinCenter(startBin)+similar[i]->GetBinCenter(u))/2.;
+      }
+      else
+      {
+          X[nActual]=similar[i]->GetBinCenter(u);
+          X_err[nActual]=similar[i]->GetBinCenter(u)-similar[i]->GetBinCenter(u-1);
+      }
+      
+      std::cout << " bin " << nActual << " initial " << similar[i]->GetBinCenter(startBin) << " new " << 
+          similar[i]->GetBinCenter(u) << endl;
+      
+      nEntries+=(int)myGraph->GetEntries();
+
+      double actualSigma=0;
+      double actualSigmaErr=0;
+
+      if ((((i==0 || i==2) && nEntries>nLimit2)||((i==1 || i==3) && nEntries>nLimit)) || u==bins[i]-1 )//doFit
+      {
+        histo->Fit("gaus","Q","",-2,2);
+        TF1* func=histo->GetFunction("gaus");
+//        func->SetParNames("K_{PV}.q(#inf)","x_{o}","#sigma");
+        actualSigma=func->GetParameter(2);
+        actualSigmaErr=func->GetParError(2);
+
+        for (int u=0;u<10;u++)
+        {
+          cout << "Fitting =" << u << endl;
+          histo->Fit("gaus","Q","",-sigmas*actualSigma,sigmas*actualSigma);
+          func=histo->GetFunction("gaus");
+//          func->SetParNames("K_{PV}.q(#inf)","x_{o}","#sigma");
+          actualSigma=func->GetParameter(2);
+          actualSigmaErr=func->GetParError(2);
+        }
+
+        std::cout << " bin: " << nActual << " sigma: " << actualSigma << " +/- " << actualSigmaErr << std::endl;
+        Y[nActual]=actualSigma;
+        Y_err[nActual]=actualSigmaErr;
+        X_err[nActual]=X_err[nActual]/2.;
+        nActual+=1;
+        X_err[nActual]=0;
+        nEntries=0;
+        histo->Write();
+        histo=0;
+      }
+      //now you added the bin, what do you want to do now
+    }//iterate over all TH1D - pT or ntrk bins
+    
+    TString nameFinal=fourStrings[i];
+    finalPlots[i]=new TGraphErrors(nActual,X,Y,X_err,Y_err);
+    finalPlots[i]->SetName(nameFinal);
+    finalPlots[i]->Write();
+    
+  }//end iterating on 4 possibilities
+  
+
+  outputFile->Write();
+
+
+  
+
+    gStyle->SetOptFit(0);
+    
+    for (int i=0;i<4;i++)
+  {
+
+    TString canvasName("c1");
+    
+    TString useName=canvasName;
+    useName+=i;
+    TCanvas* c1=new TCanvas(useName,useName,1000,600);
+
+//    gPad->SetLogx(true);
+    finalPlots[i]->SetTitle(finalPlots[i]->GetName());
+    if (i==0 || i==1)
+    {
+      finalPlots[i]->GetYaxis()->SetRangeUser(0.85,1.05);
+    }
+    else
+    {
+      finalPlots[i]->GetYaxis()->SetRangeUser(0.85,1.05);
+    }
+    
+    
+
+
+//    if (i==2 || i==0)
+//    {
+
+    TString nameSave2=fourStrings[i];
+    nameSave2.ReplaceAll("profile","functionCorrection");
+
+      TF1* functionTurnOn=new TF1(nameSave2,"[0]/(1+exp(-(x-[1])^2/2/[2]^2))",0,50);
+      functionTurnOn->SetLineColor(kRed); 
+
+      functionTurnOn->SetParNames("K_{PV}","x_{o}","#sigma");
+      if (i==2||i==0)
+      {
+        functionTurnOn->SetParameter(0,0.9478);
+        functionTurnOn->SetParameter(1,-0.69*50./5.);
+        functionTurnOn->SetParameter(2,0.372*50./5.);
+      }
+      else
+      {
+        functionTurnOn->SetParameter(0,0.9478);
+        functionTurnOn->SetParameter(1,-0.69);
+        functionTurnOn->SetParameter(2,0.372);
+      }
+      
+      finalPlots[i]->Fit(functionTurnOn,"","",minimum[i]*0.85,50);
+
+  
+
+      finalPlots[i]->SetMarkerSize(1);
+
+//    }
+
+      if (i==0 || i==2)
+      {
+        finalPlots[i]->GetXaxis()->SetTitle("Number of fitted tracks"); 
+      }
+      if (i==1 || i==3)
+      {
+        finalPlots[i]->GetXaxis()->SetTitle("#sqrt{p_{T}^{2} (average)} [GeV]");
+      }
+
+      if (i==0 || i==1)
+      {
+        finalPlots[i]->GetYaxis()->SetTitle("x scale factor");
+      }
+      else
+      {
+        finalPlots[i]->GetYaxis()->SetTitle("z scale factor");
+      }
+      
+      std::cout << " minimum " << i << " " << minimum[i] << std::endl;
+
+    finalPlots[i]->Draw("AP");
+    
+    functionTurnOn->Write();
+
+//TMatrixD matrix(3,3,gMinuit->GetCovarianceMatrix());
+    
+    nameSave2+="matrix";
+//    matrix.SetName(nameSave2);
+
+    TH1D* histoResult=new TH1D(nameSave2,nameSave2,6,0,10);
+    double matrix[3][3];
+    gMinuit->mnemat(&matrix[0][0],3);
+
+    for (int u=0;u<3;u++)
+    {
+      for (int j=0;j<3;j++)
+      {
+        std::cout << " matrix[ " << u << "," << j << "] = " << matrix[u][j] << std::endl;
+      }
+    }
+
+    histoResult->SetBinContent(1,matrix[0][0]);
+    histoResult->SetBinContent(2,matrix[1][1]);
+    histoResult->SetBinContent(3,matrix[2][2]);
+    histoResult->SetBinContent(4,matrix[0][1]);
+    histoResult->SetBinContent(5,matrix[0][2]);
+    histoResult->SetBinContent(6,matrix[1][2]);
+
+    histoResult->Write();
+
+    if (i==0||i==2)
+    {
+//      TLatex * x_text1 = new TLatex(6., 1.,"#sqrt{s} = 7 TeV");
+//      x_text1->Draw();
+      
+//      TLatex * x_text2 = new TLatex(6., 0.97,"Atlas preliminary");
+//      x_text2->SetTextColor(kRed);
+//      x_text2->Draw();
+
+    ATLAS_PRELIMINARY_LABEL(0.65,0.85);
+     
+      
+    }
+    else
+    {
+//      TLatex * x_text1 = new TLatex(1.5,1.,"#sqrt{s} = 7 TeV");
+//      x_text1->Draw();
+      
+//      TLatex * x_text2 = new TLatex(1.5, 0.97,"Atlas preliminary");
+//      x_text2->SetTextColor(kRed);
+//      x_text2->Draw();
+      
+     ATLAS_PRELIMINARY_LABEL(0.65,0.85);
+
+   }
+      TString nameSave=fourStrings[i];
+      nameSave.ReplaceAll("profile","resolutionCorrected");
+      nameSave.ReplaceAll("_bin",".eps");
+
+      c1->SaveAs(nameSave);
+
+
+  }
+  
+  
+}//end analyzeFiles()
+
+  
+
+   
+  
+/////FIT function: (x<[2])*([0]*(x-[2])+[1])+(x>[2])*[1]
+/////PERFECT FIT function: [0]/(1+exp(-(x-[1])^2/2/[2]^2))

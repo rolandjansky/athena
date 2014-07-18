@@ -1,0 +1,28 @@
+This directory holds some code that should be useful for reading back some of
+the trigger information from D3PDs. Some information dumped by the TriggerD3PDMaker
+package needs expert knowledge to decode, this is where these classes should help.
+
+The Makefile is configured to create a library called libTriggerD3PDHelpers.so.
+It only needs a functioning ROOT release for this, you can compile the helper
+library without Athena. (But it also compiles within the athena environment of
+course.)
+
+The tool needs branches created by TrigDecisionD3PDObject and
+addTrigCongMetadata(...) to function. If these are not present, it will complain.
+
+A simple interactive usage of the library would look like this:
+
+> root -l myD3PD.root
+...
+root [1] .L libTriggerD3PDHelpers.so
+root [2] TTree* confTree = ( TTree* ) _file0->Get( "egammaMeta/TrigConfTree" );
+root [3] D3PD::TrigDecisionToolD3PD tool( egamma, confTree );
+root [4] tool.GetEntry( 5 );
+root [5] cout << tool.IsPassed( "L1_MBTS_1_1" ) << endl;
+  Will be probably 0 because of prescaling...
+root [6] cout << tool.IsPassed( "L1_MBTS_1_1", 4 ) << endl;
+  Will probably be 1 for collision events...
+
+At the moment the code is more or less just a prototype, more functionality
+will be added gradually. For more information you should look at the Doxygen
+documentation put into the source files.
