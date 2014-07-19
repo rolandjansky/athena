@@ -1,0 +1,24 @@
+Index: xAODCore/Root/AuxContainerBase.cxx
+===================================================================
+--- xAODCore/Root/AuxContainerBase.cxx  (revision 606421)
++++ xAODCore/Root/AuxContainerBase.cxx  (working copy)
+@@ -204,6 +204,20 @@
+         }
+      }
+
++      if (m_vecs[auxid]->size() == 0) {
++        // This can happen if this item was added to the container
++        // via schema evolution.  In that case, when the static aux container
++        // is read in, the new container will remain defaulted.
++        // Search to see if we can find another non-empty container,
++        // and set the size of this one from that.
++        for (auxid_t id : m_auxids) {
++          if (id < m_vecs.size() && m_vecs[id] && m_vecs[id]->size() > 0) {
++            m_vecs[auxid]->resize (m_vecs[id]->size());
++            break;
++          }
++        }
++      }
++
+      return m_vecs[ auxid ]->toPtr();
+   }

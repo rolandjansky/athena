@@ -1,0 +1,29 @@
+package TauAnalysisTools
+
+public
+
+use AtlasPolicy     AtlasPolicy-*
+
+use AsgTools        AsgTools-*        Control/AthToolSupport
+use PATCore         PATCore-*         PhysicsAnalysis/AnalysisCommon
+
+use xAODTau         xAODTau-*         Event/xAOD
+use AtlasROOT       AtlasROOT-*       External
+
+private
+
+use GaudiInterface  GaudiInterface-*  External
+use xAODEventInfo   xAODEventInfo-*   Event/xAOD
+use AthenaBaseComps AthenaBaseComps-* Control
+
+end_private
+
+# Declare the library:
+library TauAnalysisTools *.cxx ../Root/*.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the jobOptions:
+apply_pattern declare_joboptions files=*.py
+
+# Install 
+apply_pattern declare_runtime files="*.root ../share/EfficiencyCorrections/*.root ../share/Smearing/*.root" 
