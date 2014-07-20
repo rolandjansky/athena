@@ -1,0 +1,72 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "EMTauInputProvider.h"
+
+#include <math.h>
+
+#include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
+
+#include "TrigT1Interfaces/CPRoIDecoder.h"
+
+#include "L1TopoEvent/ClusterTOB.h"
+#include "L1TopoEvent/TopoInputEvent.h"
+
+
+using namespace std;
+using namespace LVL1;
+
+EMTauInputProvider::EMTauInputProvider(const std::string& type, const std::string& name, 
+                                       const IInterface* parent) :
+   base_class(type, name, parent),
+   m_emTauLocation(TrigT1CaloDefs::EmTauROILocation)
+{
+   declareProperty( "EmTauROILocation", m_emTauLocation, "Storegate key for the EMTAU ROIs" );
+}
+
+EMTauInputProvider::~EMTauInputProvider()
+{}
+
+StatusCode
+EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+
+   /** this will be the new format
+       https://indico.cern.ch/conferenceDisplay.py?confId=284687
+       Electron ROI:
+       | 0 0 1 0 | 2b Crate | 4b CPM Num | 3b CPChip | 3b Local coords | 0 0 0 | 5b electron isolation/veto | 8b electron energy |
+       Tau ROI:
+       | 0 0 1 1 | 2b Crate | 4b CPM Num | 3b CPChip | 3b Local coords | 0 0 0 | 5b tau isolation/veto      | 8b tau energy      |
+   */
+
+   // Retrieve EMTAU RoIs (they are built by EMTAUTrigger)
+   DataVector<EmTauROI> * emTauROIs = new DataVector<EmTauROI>;
+   if( ! evtStore()->retrieve(emTauROIs, m_emTauLocation).isSuccess()) {
+      ATH_MSG_ERROR("No EMTAU ROI container found in the event. Configuration issue.");
+      return StatusCode::FAILURE;
+   }
+
+   ATH_MSG_DEBUG("Filling the input event. Number of EMTAU ROIs: " << emTauROIs->size());
+   for(const EmTauROI * roi: *emTauROIs) {
+      // double eta, phi;
+      // CalculateCoordinates(roiWord, eta, phi);
+      ATH_MSG_DEBUG("EMTAU ROI: e = " << setw(3) << roi->energy() << ", eta = " << setw(2) << roi->eta() <<", phi = " << roi->phi() << ", w   = " << hex << roi->roiWord() << dec);
+      TCS::ClusterTOB cl(roi->energy(), 0, round(10*roi->eta()), round(10*roi->phi()) );
+      cl.setEtaDouble( roi->eta() );
+      cl.setPhiDouble( roi->phi() );
+      inputEvent.addCluster( cl );
+   }
+
+   return StatusCode::SUCCESS;
+}
+
+void 
+EMTauInputProvider::CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const {
+   static CPRoIDecoder get;
+   static double TwoPI = 2 * M_PI;
+   CoordinateRange coordRange = get.coordinate( roiWord );
+   
+   eta = coordRange.eta();
+   phi = coordRange.phi();
+   if( phi > M_PI ) phi -= TwoPI;
+}

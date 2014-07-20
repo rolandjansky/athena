@@ -1,0 +1,26 @@
+package L1TopoSimulation
+
+author Joerg Stelzer
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AthenaMonitoring           AthenaMonitoring-*              Control
+use  GaudiInterface             GaudiInterface-*                External
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
+use  L1TopoCoreSim              L1TopoCoreSim-*                 Trigger/TrigT1/L1Topo
+use  L1TopoEvent                L1TopoEvent-*                   Trigger/TrigT1/L1Topo
+use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
+use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+end_private
+
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern declare_python_modules files="*.py"
