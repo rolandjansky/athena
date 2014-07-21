@@ -19,6 +19,7 @@
  */
 
 #include "TrkParameters/TrackParameters.h"    // no forward declare for now because needed in cast
+#include "TrkNeutralParameters/NeutralParameters.h" // no forward declare for now because needed in cast
 
 namespace Trk
 {
@@ -41,6 +42,9 @@ namespace Trk
 
     /** return the track parameters of the track or TrackParticleBase) */
     virtual const TrackParameters* parameters() const = 0;
+
+    /** return the neutral parameters of the NeutralParticle) */
+    virtual const NeutralParameters* neutralParameters() const = 0;
 
     /**return number of parameters currently created*/
     ////DRQ: Commented out because not implemented
