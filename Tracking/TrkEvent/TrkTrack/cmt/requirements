@@ -8,6 +8,7 @@ use CLIDSvc             CLIDSvc-*            Control
 use DataModel           DataModel-*          Control
 use TrkEventPrimitives  TrkEventPrimitives-* Tracking/TrkEvent
 use TrkParameters       TrkParameters-*      Tracking/TrkEvent
+use TrkNeutralParameters TrkNeutralParameters-*      Tracking/TrkEvent
 use TrkMeasurementBase  TrkMeasurementBase-* Tracking/TrkEvent
 use TrkMaterialOnTrack  TrkMaterialOnTrack-* Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent

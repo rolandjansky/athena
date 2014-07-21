@@ -9,6 +9,7 @@
 #include "DataModel/ElementLink.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h" 
 
 
 namespace Trk
@@ -30,6 +31,9 @@ namespace Trk
    
     /** return the track parameters of the track (to which the EL< TrackCollection > points) */
     const TrackParameters* parameters() const;
+
+    /** return the neutral parameters of the NeutralParticle) */
+    const NeutralParameters* neutralParameters() const {return NULL;};
     
     /** method to clone the LinkToTrack object */
     LinkToTrack * clone() const ;
