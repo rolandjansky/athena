@@ -1,0 +1,27 @@
+package MuonRegionSelector
+
+author Mark Sutton <sutt -at- cern.ch>
+
+public
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use GaudiInterface       GaudiInterface-*  	External 
+use RegSelLUT	         RegSelLUT-*            DetectorDescription
+use AtlasPolicy          AtlasPolicy-* 
+use GeoPrimitives        GeoPrimitives-*        DetectorDescription
+
+
+private
+use AtlasCLHEP	         AtlasCLHEP-*	  	External
+use Identifier		 Identifier-*		DetectorDescription
+use MuonMDT_Cabling      MuonMDT_Cabling-*      MuonSpectrometer/MuonCablings
+
+use MuonReadoutGeometry   MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr
+# use MuonSimEvent          MuonSimEvent-*          MuonSpectrometer
+# use MuonPrepRawData       MuonPrepRawData-*       MuonSpectrometer/MuonReconstruction/MuonRecEvent     
+
+public
+library MuonRegionSelector *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+
