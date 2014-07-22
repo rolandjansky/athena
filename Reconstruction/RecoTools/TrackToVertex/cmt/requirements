@@ -1,0 +1,39 @@
+package TrackToVertex
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+public
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use ITrackToVertex        ITrackToVertex-*        Reconstruction/RecoTools
+use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkExInterfaces       TrkExInterfaces-*       Tracking/TrkExtrapolation
+use TrkParameters         TrkParameters-*         Tracking/TrkEvent
+use TrkNeutralParameters  TrkNeutralParameters-*  Tracking/TrkEvent
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
+use EventPrimitives       EventPrimitives-*       Event
+#use xAODTracking          xAODTracking-*          Event/xAOD
+
+private
+use StoreGate             StoreGate-*             Control
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkDetDescrUtils      TrkDetDescrUtils-*      Tracking/TrkDetDescr
+use TrkExInterfaces       TrkExInterfaces-*       Tracking/TrkExtrapolation
+use TrkEventPrimitives	  TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkParameters         TrkParameters-*         Tracking/TrkEvent
+use TrkParticleBase	  TrkParticleBase-*       Tracking/TrkEvent
+use TrkTrack              TrkTrack-*              Tracking/TrkEvent
+use VxVertex              VxVertex-*              Tracking/TrkEvent
+use Particle              Particle-*              Reconstruction
+use InDetBeamSpotService  InDetBeamSpotService-*  InnerDetector/InDetConditions
+
+public
+library TrackToVertex *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+macro DOXYGEN_IMAGE_PATH "../doc/images"
