@@ -1,0 +1,130 @@
+This package provides Efficiency values and Scale Factors for Muons.
+It is intended for use with CMT/Athena or RootCore within the xAOD framework. 
+
+Contents of this Readme:
+   1 - Some source files possibly interesting for reference
+   2 - Supported working points
+   3 - Supported data periods
+   4 - Detailed instructions for ROOTCore use 
+   5 - Evaluation of Systematics 
+
+
+1) Reference material:
+- The IMuonEfficiencyScaleFactor interface class provides an overview of user methods
+- utils/MuonEfficiencyCorrectionsRootCoreTest.cxx is an example application within ROOTCore
+- share/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
+
+2) Supported working points:
+So far, there is support for the following muon working points:
+   - "CB": Combined muons only. 
+   - "CBandST": Combined or Segment-tagged muons. Equivalent to Medium+
+   - "HighPt" : Special cuts applied in some high-mass resonance searches. 
+   - "SMT" : Muons used for the soft lepton tagger
+
+3) Supported data periods:
+So far, there is support for the following data taking periods:
+   - "2011": 2011 7TeV pp data
+   - "2012": 2012 8TeV pp data
+   The future 13 TeV data will be added when available, using the period tag
+   - "2015" 
+   
+4) Detailed Instructions (RootCore)
+- include the header: 
+
+         #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
+    
+- create your tool 
+    *  with ROOTCore:
+    
+        CP::MuonEfficiencyScaleFactors m_effi_corr("SomeNameYouLike");
+    
+- configure it:
+    * provide a Working point - if you only use Combined Muons, this should be "CB". 
+      If you use Combined and segment Tagged muons (i.e. Medium+), use "CBandST"
+
+        m_effi_corr.setProperty("WorkingPoint","CB");
+    
+    * provide a data taking period
+        
+        m_effi_corr.setProperty("DataPeriod","2012");
+        
+    * OPTIONAL: You can override the tool's default lumi information (taken from the AllGood GRLs).
+      The Lumis are provided as a map<std::string, double>, containing pairs of periods/runs and lumis.
+      Only necessary if your desired lumi setup deviates significantly from the one in AllGood, or if 
+      you want to look at specific runs/periods. 
+      
+        // this will define three dummy periods, with different int lumi values. 
+        std::map<std::string, double> custom_lumis;
+        custom_lumis["A"] = 1;
+        custom_lumis["B"] = 42;
+        custom_lumis["C"] = 1337;
+        // (...)
+        m_effi_corr.setProperty("LumiWeights",custom_lumis);
+        
+        
+        // alternatively, we could define per run lumis. 
+        // The tool should recognize automatically that you are configuring per run
+        std::map<std::string, double> custom_lumis;
+        custom_lumis["200123"] = 1;
+        custom_lumis["200126"] = 42;
+        custom_lumis["200145"] = 1337;
+        // (...)
+        m_effi_corr.setProperty("LumiWeights",custom_lumis);
+        
+- initialize the tool 
+        
+    CHECK (!m_effi_corr.initialize().isFailure());
+        
+- there are two ways of retrieving information:
+     * direct access: 
+     
+         float sf = 0.0;
+         CHECK( m_effi_corr.getScaleFactor( my_muon, sf ) );
+         // sf will now contain the scale factor for my_muon
+            
+     * decorating mode: 
+     
+         CHECK( m_effi_corr.applyFullInformation(mu) );
+         
+         // now, the muon aux data will contain Efficieny, EfficiencyScaleFactor, 
+         // EfficiencyScaleFactorStatError and EfficiencyScaleFactorSysError entries
+         double my_sf = my_muon.auxdata< float >( "EfficiencyScaleFactor" )
+
+5) Evaluating Uncertainties:
+There are two contributions to the SF uncertainties, systematic and statistical ones.
+- The systematic uncertainty is retrieved via 
+        getScaleFactorSysUnc( const xAOD::Muon& mu,float& sf_err )
+  or added to the muon object as "EfficiencyScaleFactorSysError" with 
+        applyScaleFactorSysUnc( xAOD::Muon& mu )
+  or as part of 
+        applyFullInformation( xAOD::Muon& mu )
+  The SF should be varied by the systematic uncertainty to evaluate the effect of this uncertainty.
+  
+  
+- The statistical uncertainty of the SF can be estimated in two ways:
+
+    * overconservative, easy to use:
+       Simply retrieve the stat error via 
+         getScaleFactorStatUnc( const xAOD::Muon& mu,float& sf_err )
+       or decorate the Muon with an "EfficiencyScaleFactorStatError" using 
+        applyScaleFactorStatUnc( xAOD::Muon& mu ) / applyFullInformation( xAOD::Muon& mu )
+      Vary the SF by the error to get an overconservative estimate of the uncertainty from SF statistics
+      
+    * more correct, some additional effort required:
+       A more correct approach takes into account the fact that the stat uncertainties of the different histogram bins 
+       are fully uncorrelated.
+       This is why the above approach is overconservative.
+       For a better estimate, the tool can automatically generate 'Replicas', Scale factor maps that are randomly varied based on 
+       their statistical uncertainties.
+       The method 
+         getScaleFactorReplicas( const xAOD::Muon& mu, std::vector<float> & sf_err ) // here, you get sf_err.size() replicas! 
+          or 
+         applyScaleFactorReplicas( xAOD::Muon& mu, int nreplicas=50 )   // here, you get nreplicas replicas! 
+       will retrieve / decorate the muon with a vector of scale factors drawn from Replicas generated in the tool. 
+       If you compute your final observable for each of the replicas, the width of the resulting distribution can be used
+       as a more accurate measure of the systematic from SF statistics. 
+- finally, add the statistical and systematic SF uncertainty components in quadrature for the full muon efficiency systematic.        
+       
+   
+ 
+         

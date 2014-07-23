@@ -1,0 +1,33 @@
+package MuonEfficiencyCorrections
+
+author Max Goblirsch <goblirsc@cern.ch>
+
+public
+
+use AtlasPolicy     AtlasPolicy-*
+
+use AsgTools        AsgTools-*        Control/AthToolSupport
+
+use xAODMuon        xAODMuon-*        Event/xAOD
+use AtlasROOT       AtlasROOT-*       External
+use xAODEventInfo       xAODEventInfo-*        Event/xAOD
+use AtlasBoost       AtlasBoost-*      External
+use PATInterfaces   PATInterfaces-*   PhysicsAnalysis/AnalysisCommon
+
+
+private
+
+use GaudiInterface  GaudiInterface-*  External
+use AthenaBaseComps AthenaBaseComps-* Control
+
+
+end_private
+
+# Declare the library:
+library MuonEfficiencyCorrections *.cxx ../Root/*.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the jobOptions:
+apply_pattern declare_joboptions files=../share/*.py
+# and the data files (for now stored in the package)
+apply_pattern declare_runtime files="../data/*.root "
