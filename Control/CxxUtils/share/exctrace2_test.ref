@@ -1,0 +1,7 @@
+Exception: yo mama
+ 0x08048b4e bar() ../test/exctrace1_test.cxx:7 + 0xea [../i686-slc4-gcc34-dbg/exctrace1_test.exe]
+ 0x08048b68 fee() ../test/exctrace1_test.cxx:13 + 0x18 [../i686-slc4-gcc34-dbg/exctrace1_test.exe]
+ 0x08048b87 foo() ../test/exctrace1_test.cxx:18 + 0x19 [../i686-slc4-gcc34-dbg/exctrace1_test.exe]
+ 0x08048c12 main ../test/exctrace1_test.cxx:29 + 0x2e [../i686-slc4-gcc34-dbg/exctrace1_test.exe]
+ 0x0082ddf3 __libc_start_main + 0xd3 [/lib/tls/libc.so.6]
+ 0x080489e1 __gxx_personality_v0 + 0x49 [../i686-slc4-gcc34-dbg/exctrace1_test.exe]

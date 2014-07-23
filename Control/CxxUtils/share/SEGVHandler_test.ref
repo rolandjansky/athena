@@ -1,0 +1,42 @@
+*** SEGVHandler_test starts ***
+sigaction installing handler returned 0
+@pInt=0x1d2d620
+@pString=0x1d2e620
+@pPair=0x1d2f620
+PageAccessControl::protectPage DEBUG: set protection 0 for page range 0x1d2d000 - 0x1d2dfff containing address range=0x1d2d620 - 0x1d2d623
+PageAccessControl::protectPage DEBUG: set protection 0 for page range 0x1d2e000 - 0x1d2efff containing address range=0x1d2e620 - 0x1d2e627
+PageAccessControl::protectPage DEBUG: set protection 0 for page range 0x1d2f000 - 0x1d2ffff containing address range=0x1d2f620 - 0x1d2f62f
+page fault @address=0x1d2d620
+page fault signo=11
+page fault errno=0
+this page fault failed because you tried to access a protected address
+PageAccessControl::restorePageProt DEBUG: restored protection 3 for page 0x1d2d000 containing address 0x1d2d000 
+ FIXME NOT Freeing memory at (nil) 
+accessing pInt 11
+reading again from pInt 11
+try to write 33
+read 33
+PageAccessControl::protectPage DEBUG: set protection 0 for page range 0x1d2e000 - 0x1d2efff containing address range=0x1d2e620 - 0x1d2e627
+page fault @address=0x1d2e620
+page fault signo=11
+page fault errno=0
+this page fault failed because you tried to access a protected address
+PageAccessControl::restorePageProt DEBUG: restored protection 3 for page 0x1d2e000 containing address 0x1d2e000 
+ FIXME NOT Freeing memory at (nil) 
+reading from string bar
+reading again from string bar
+page fault @address=0x1d2f628
+page fault signo=11
+page fault errno=0
+this page fault failed because you tried to access a protected address
+PageAccessControl::restorePageProt DEBUG: restored protection 3 for page 0x1d2f000 containing address 0x1d2f000 
+ FIXME NOT Freeing memory at (nil) 
+reading double from pair 2
+reading again double from pair 2
+try to read 33
+read 33
+accessed ptrs
+@0x1d2d620
+@0x1d2e620
+@0x1d2f628
+*** SEGVHandler_test OK ***

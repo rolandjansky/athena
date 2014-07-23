@@ -1,0 +1,320 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CxxUtils/pointer_list.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2009, from earlier code.
+ * @brief A fast way to store a variable-sized collection of pointers.
+ */
+
+
+#include <cassert>
+#include <algorithm>
+
+
+namespace CxxUtils {
+
+
+/**
+ * @brief Size in bytes of a block holding @c nelt elements.
+ *        (excluding the end-pointer).
+ * @param nelt Number of elements.
+ */
+inline
+size_t pointer_list_base::list_block::size (size_t nelt)
+{
+  return sizeof(list_block) + nelt * sizeof(value_type);
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Allocate a new block.
+ */
+inline
+pointer_list_base::list_block*
+pointer_list_base::allocator::allocate()
+{
+  // Get a new chunk if needed.
+  if (m_nthis == m_nblock)
+    refill();
+  return &m_chunks->m_blocks[(m_nthis++) * (m_nelt+1)];
+}
+
+
+/**
+ * @brief Return the number of pointers per block (excluding the end-pointer).
+ */
+inline
+size_t
+pointer_list_base::allocator::nelt() const
+{
+  return m_nelt;
+}
+
+
+/**
+ * @brief Current number of allocated chunks.
+ */
+inline
+size_t
+pointer_list_base::allocator::nchunks() const
+{
+  return m_nchunks;
+}
+
+
+/**
+ * @brief Test to see if we're looking at the end of a block.
+ * @param p The pointer to test.
+ */
+inline
+bool
+pointer_list_base::allocator::at_end (const void* p) const
+{
+  return (reinterpret_cast<unsigned long>(p) & m_end_mask) == m_end_offs;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nblock Number of blocks to allocate per chunk.
+ */
+template <size_t NELT>
+pointer_list<NELT>::allocator::allocator (size_t nblock /*= 100*/)
+  : pointer_list_base::allocator (NELT, nblock, END_MASK, END_OFFS)
+{
+}
+
+
+/**
+ * @brief Test to see if we're looking at the end of a block.
+ * @param p The pointer to test.
+ */
+template <size_t NELT>
+inline
+bool
+pointer_list<NELT>::allocator::at_end_static (const void* p)
+{
+  return (reinterpret_cast<unsigned long>(p) & END_MASK) == END_OFFS;
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Equality comparison.
+ */
+template <size_t NELT>
+inline
+bool
+pointer_list<NELT>::iterator::operator== (const iterator& other) const
+{
+  return m_p == other.m_p;
+}
+
+
+/**
+ * @brief Inequality comparison.
+ */
+template <size_t NELT>
+inline
+bool
+pointer_list<NELT>::iterator::operator!= (const iterator& other) const
+{
+  return m_p != other.m_p;
+}
+
+
+/**
+ * @brief Dereference.
+ */
+template <size_t NELT>
+inline
+typename pointer_list<NELT>::iterator::reference
+pointer_list<NELT>::iterator::operator*() const
+{
+  return *m_p;
+}
+
+
+/**
+ * @brief Advance (pre-increment).
+ */
+template <size_t NELT>
+inline
+typename pointer_list<NELT>::iterator&
+pointer_list<NELT>::iterator::operator++()
+{
+  // Move forward.
+  ++m_p;
+
+  // If we've hit the end, chain to the next block,
+  // if there is one.  Otherwise, stay at the end;
+  // that will be where the end iterator points.
+  if (pointer_list::allocator::at_end_static (m_p)) {
+    list_block* next = reinterpret_cast<list_block*> (*m_p);
+    if (next)
+      m_p = &next->m_data[0];
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Advance (post-increment).
+ */
+template <size_t NELT>
+inline
+typename pointer_list<NELT>::iterator
+pointer_list<NELT>::iterator::operator++(int)
+{
+  iterator ret = *this;
+  ++*this;
+  return ret;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param p A value within a @c pointer_list.
+ */
+template <size_t NELT>
+inline
+pointer_list<NELT>::iterator::iterator (value_type* p)
+  : m_p (p)
+{
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param pool The allocator for this container.
+ */
+inline
+pointer_list_base::pointer_list_base (pool_type& pool)
+  : m_head (0),
+    m_insert (0),
+    m_size (0),
+    m_pool (pool)
+{
+}
+
+
+/**
+ * @brief Add a new element to the end of the container.  O(1)
+ */
+inline
+void pointer_list_base::push_back (value_type p)
+{
+  // If the container is empty, allocate the first block.
+  if (!m_head)
+    firstblock();
+
+  // Otherwise, if we're at the end of the current block, allocate a new one.
+  else if (m_pool.at_end (m_insert))
+    nextblock();
+
+  // Add the value to the list.
+  *m_insert = p;
+  ++m_insert;
+  ++m_size;
+
+  // If we're at the end of this block, and a following block exists,
+  // move to the following block.
+  if (m_pool.at_end (m_insert)) {
+    value_type next = *m_insert;
+    if (next)
+      m_insert = reinterpret_cast<value_type*> (next);
+  }
+}
+
+
+/**
+ * @brief The current size of the container.  O(1)
+ */
+inline
+size_t pointer_list_base::size() const
+{
+  return m_size;
+}
+
+
+/**
+ * @brief Test to see if the container is empty.
+ */
+inline
+bool pointer_list_base::empty() const
+{
+  return m_size == 0;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param pool The allocator for this container.
+ */
+template <size_t NELT>
+inline
+pointer_list<NELT>::pointer_list (pool_type& pool)
+  : pointer_list_base (pool)
+{
+}
+
+
+/**
+ * @brief Iterator at the beginning of the container.
+ */
+template <size_t NELT>
+inline
+typename pointer_list<NELT>::iterator pointer_list<NELT>::begin()
+{
+  // Start by pointing at the first element
+  // (or null, if the container's empty).
+  return iterator (m_head ? &m_head->m_data[0] : 0);
+}
+
+
+/**
+ * @brief Iterator at the end of the container.
+ */
+template <size_t NELT>
+inline
+typename pointer_list<NELT>::iterator pointer_list<NELT>::end()
+{
+  // Point at the current insertion point.
+  // (This will be null if the container's empty.)
+  return iterator (m_insert);
+}
+
+
+/**
+ * @brief Erase one element.  O(n)
+ * @param it The element to erase.
+ */
+template <size_t NELT>
+void pointer_list<NELT>::erase (iterator it)
+{
+  // We just copy the elements back by one.
+  iterator next = it;
+  ++next;
+  next = std::copy (next, end(), it);
+
+  // New insertion point is where the copy stopped.
+  m_insert = next.m_p;
+
+  // One less element.
+  --m_size;
+}
+
+
+} // namespace CxxXUtils

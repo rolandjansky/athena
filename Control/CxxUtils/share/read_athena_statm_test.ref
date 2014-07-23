@@ -1,0 +1,3 @@
+*** read_statm_test starts ***
+read_athena_statm reports process size (in pages): VM 5654 RSS 399
+*** read_statm_test OK ***

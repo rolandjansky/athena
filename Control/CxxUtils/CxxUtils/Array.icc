@@ -1,0 +1,789 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: Array.icc,v 1.1 2009-03-20 20:44:22 ssnyder Exp $
+/**
+ * @file  Array.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date June, 2004
+ * @brief Simple multidimensional arrays (inline and template implementations).
+ */
+
+
+#include <cassert>
+
+
+namespace CxxUtils {
+
+
+/**
+ * @brief Construct an @c Array<N>::const_iterator.
+ * @param rep @c Arrayrep from which to initialize the iterator.
+ * @param offs Offset of the first element referenced by the iterator
+ *             within @a rep.
+ * @return The new iterator.
+ */
+template <unsigned int N>
+inline
+typename ArrayIteratorChooser<N>::const_iterator
+ArrayIteratorChooser<N>::make_iterator (const Arrayrep* rep,
+                                        unsigned int offs)
+{
+  return const_iterator (rep, offs);
+}
+
+
+/**
+ * @brief Construct an @c Array<1>::const_iterator.
+ * @param rep @c Arrayrep from which to initialize the iterator.
+ * @param offs Offset of the first element referenced by the iterator
+ *             within @a rep.
+ * @return The new iterator.
+ */
+inline
+ArrayIteratorChooser<1>::const_iterator
+ArrayIteratorChooser<1>::make_iterator (const Arrayrep* rep,
+                                        unsigned int offs)
+{
+  return rep ? &rep->m_data[offs] : 0;
+}
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Default constructor.
+ *
+ * This produces an invalid @c Array that is not associated with
+ * an @c Arrayrep.  @c valid() will return @c false for such an array.
+ * The only other thing that it is legal to do with an invalid array
+ * is to assign to it (which may make it valid).
+ */
+template <unsigned int N>
+Array<N>::Array ()
+  : m_rep (0),
+    m_offs (0)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param rep @c Arrayrep from which to initialize the array.
+ *
+ * Initialize an array from an @c Arrayrep.  The new array will
+ * represent the entire @c Arrayrep.  The dimension @c N must
+ * match the length of the @c Arrayrep's shape.
+ */
+template <unsigned int N>
+Array<N>::Array (const Arrayrep& rep)
+  : m_rep (&rep),
+    m_offs (0)
+{
+  assert (m_rep->m_shape.size() == N);
+  assert (m_rep->m_sizes.size() == m_rep->m_shape.size());
+}
+
+
+/**
+ * @brief Test for validity.
+ * @return True if the @c Array is associated with an @c Arrayrep,
+ *         false if not.
+ */
+template <unsigned int N>
+bool Array<N>::valid() const
+{
+  return m_rep != 0;
+}
+
+
+/**
+ * @brief Return the array shape.
+ * @return The array shape.
+ *
+ * The array shape is vector with one element for each array dimension,
+ * giving the size of the array along that dimension.
+ */
+template <unsigned int N>
+std::vector<unsigned int> Array<N>::shape() const
+{
+  return std::vector<unsigned int>
+    (m_rep->m_shape.begin() + m_rep->m_shape.size() - N,
+     m_rep->m_shape.end());
+}
+
+
+/**
+ * @brief Return the size of the array along one dimension.
+ * @param dim The dimension of the size to retrieve.
+ *            Must be less than the number of dimensions.
+ *
+ * As a special case, the size of an invalid array will always be 0.
+ * @return The array size along dimension @dim.
+ */
+template <unsigned int N>
+unsigned int Array<N>::size (unsigned int dim /*=0*/) const
+{
+  assert (dim < N);
+  if (!m_rep) return 0;
+  return m_rep->m_shape[m_rep->m_shape.size() - N + dim];
+}
+
+
+/**
+ * @brief Array indexing.
+ * @param i The desired index.  Must be less than the array size
+ *          along this dimension.
+ * @return The @a i'th @c N-1 dimensional subarray in the array.
+ *
+ * Note that this operation is not available if @c N is 0.
+ */
+template <unsigned int N>
+inline
+Array<N-1> Array<N>::operator[] (unsigned int i) const
+{
+  assert (i < m_rep->m_shape[m_rep->m_shape.size() - N]);
+  return Array<N-1> (*m_rep, m_offs + i * m_rep->m_sizes[N-1]);
+}
+
+
+/**
+ * @brief Return a direct pointer to array elements.
+ * @return A pointer to the first array elements.
+ *
+ * Subsequent elements follow in standard C indexing order.
+ */
+template <unsigned int N>
+inline
+const Arrayelt* Array<N>::ptr () const
+{
+  return &m_rep->m_data[m_offs];
+}
+
+
+/**
+ * @brief Return an iterator pointing at the beginning of the container.
+ * @return An iterator pointing at the beginning of the container.
+ */
+template <unsigned int N>
+inline
+typename Array<N>::const_iterator Array<N>::begin () const
+{
+  return ArrayIteratorChooser<N>::make_iterator (m_rep, m_offs);
+}
+
+
+/**
+ * @brief Return an iterator pointing past the end of the container.
+ * @return An iterator pointing past the end of the container.
+ */
+template <unsigned int N>
+inline
+typename Array<N>::const_iterator Array<N>::end () const
+{
+  unsigned int offs = m_rep ? m_offs + size() * m_rep->m_sizes[N-1] : 0;
+  return ArrayIteratorChooser<N>::make_iterator (m_rep, offs);
+}
+
+
+/**
+ * @brief Private constructor for array indexing.
+ * @param rep @c Arrayrep from which to initialize the array.
+ * @param offs Offset of the first element of the new array
+ *             within @a rep.
+ *
+ * This is a private constructor used to make the @c Array
+ * instances returned from an indexing operation.
+ */
+template <unsigned int N>
+inline
+Array<N>::Array (const Arrayrep& rep, unsigned int offs)
+  : m_rep (&rep),
+    m_offs (offs)
+{
+}
+
+
+/**
+ * @brief Default constructor.
+ *
+ * This produces an invalid @c Array that is not associated with
+ * an @c Arrayrep.  @c valid() will return @c false for such an array.
+ * The only other thing that it is legal to do with an invalid array
+ * is to assign to it (which may make it valid).
+ */
+inline
+Array<0>::Array ()
+  : m_elt (0)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param rep @c Arrayrep from which to initialize the array.
+ *
+ * Initialize an array from an @c Arrayrep.  The new array will
+ * represent the entire @c Arrayrep.  The dimension @c N must
+ * match the length of the @c Arrayrep's shape.
+ */
+inline
+Array<0>::Array (const Arrayrep& rep)
+  : m_elt (&rep.m_data[0])
+{
+  assert (rep.m_shape.size() == 0);
+  assert (rep.m_sizes.size() == rep.m_shape.size());
+}
+
+
+/**
+ * @brief Test for validity.
+ * @return True if the @c Array is associated with an @c Arrayrep,
+ *         false if not.
+ */
+inline
+bool Array<0>::valid() const
+{
+  return m_elt != 0;
+}
+
+
+/**
+ * @brief Return the array shape.
+ * @return The array shape.
+ *
+ * The array shape is vector with one element for each array dimension,
+ * giving the size of the array along that dimension.
+ * For @c Array<0>, this will always be an empty array.
+ */
+inline
+std::vector<unsigned int> Array<0>::shape() const
+{
+  return std::vector<unsigned int> ();
+}
+
+
+/**
+ * @brief Return the size of the array along one dimension.
+ * @param dim The dimension of the size to retrieve.
+ *            Must be less than the number of dimensions.
+ * @return The array size along dimension @dim.
+ *
+ * For @c Array<0>, @a dim must be 0, and the function
+ * will always return 1.
+ */
+inline
+unsigned int Array<0>::size (unsigned int 
+#ifndef NDEBUG
+                             dim
+#endif
+                             /*=0*/) const
+{
+  assert (dim == 0);
+  return 1;
+}
+
+
+/**
+ * @brief Convert to a number.
+ * @return The @c Array<0> contents as a number.
+ */
+inline
+Array<0>::operator Arrayelt() const
+{
+  return *m_elt;
+}
+
+
+/**
+ * @brief Convert to an integer.
+ * @return The @c Array<0> contents as an integer.
+ */
+inline
+int Array<0>::asint() const
+{
+  return static_cast<int> (*m_elt);
+}
+
+
+/**
+ * @brief Private constructor for array indexing.
+ * @param rep @c Arrayrep from which to initialize the array.
+ * @param offs Offset of the first element of the new array
+ *             within @a rep.
+ *
+ * This is a private constructor used to make the @c Array
+ * instances returned from an indexing operation.
+ */
+inline
+Array<0>::Array (const Arrayrep& rep, unsigned int offs)
+  : m_elt (&rep.m_data[offs])
+{
+}
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Proxy constructor.
+ * @param i The iterator that is being dereferenced.
+ */
+template <unsigned int N>
+ArrayIterator<N>::pointer::pointer (const ArrayIterator& i)
+  : m_a (*i)
+{
+}
+
+
+/**
+ * @brief Dereference the proxy.
+ * @return A copy of the @c Array proxy.
+ */
+template <unsigned int N>
+typename ArrayIterator<N>::value_type
+ArrayIterator<N>::pointer::operator* () const
+{
+  return m_a;
+}
+
+
+/**
+ * @brief Dereference the proxy.
+ * @return A pointer to the @c Array proxy.
+ *         This proxy is only until the @c pointer instance
+ *         is destroyed.
+ */
+template <unsigned int N>
+const typename ArrayIterator<N>::value_type*
+ArrayIterator<N>::pointer::operator-> () const
+{
+  return &m_a;
+}
+
+
+/**
+ * @brief Default constructor.
+ *        Makes an invalid iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N>::ArrayIterator ()
+  : m_rep (0),
+    m_offs (0)
+{
+}
+
+
+/**
+ * @brief Constructor from @c Arrayrep and offset.
+ * @param rep The underlying array representation.
+ * @param offs The offset in the representation of the
+ *             first element referenced by this iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N>::ArrayIterator (const Arrayrep* rep, unsigned int offs)
+  : m_rep (rep),
+    m_offs (offs)
+{
+}
+
+
+/**
+ * @brief Equality comparison.
+ * @param other The other object with which to compare.
+ * @return True if the iterators are equal.
+ */
+template <unsigned int N>
+bool ArrayIterator<N>::operator== (const ArrayIterator<N>& other) const
+{
+  return m_rep == other.m_rep && m_offs == other.m_offs;
+}
+
+
+/**
+ * @brief Inequality comparison.
+ * @param other The other object with which to compare.
+ * @return True if the iterators are not equal.
+ */
+template <unsigned int N>
+bool ArrayIterator<N>::operator!= (const ArrayIterator<N>& other) const
+{
+  return !(*this == other);
+}
+
+
+/**
+ * @brief Less-than comparison.
+ * @param other The other object with which to compare.
+ * @return True if this iterator is less than @a other.
+ *         This will always return false for iterators
+ *         over different arrays.
+ */
+template <unsigned int N>
+bool ArrayIterator<N>::operator< (const ArrayIterator<N>& other) const
+{
+  return m_rep == other.m_rep && m_offs < other.m_offs;
+}
+
+
+/**
+ * @brief Greater-than comparison.
+ * @param other The other object with which to compare.
+ * @return True if this iterator is greater than @a other.
+ *         This will always return false for iterators
+ *         over different arrays.
+ */
+template <unsigned int N>
+bool ArrayIterator<N>::operator> (const ArrayIterator<N>& other) const
+{
+  return other < *this;
+}
+
+
+/**
+ * @brief Less-than-or-equal comparison.
+ * @param other The other object with which to compare.
+ * @return True if this iterator is less than or equal to @a other.
+ *         This will always return false for iterators
+ *         over different arrays.
+ */
+template <unsigned int N>
+bool ArrayIterator<N>::operator<= (const ArrayIterator<N>& other) const
+{
+  return m_rep == other.m_rep && m_offs <= other.m_offs;
+}
+
+
+/**
+ * @brief Greater-than-or-equal comparison.
+ * @param other The other object with which to compare.
+ * @return True if this iterator is less than or equal to @a other.
+ *         This will always return false for iterators
+ *         over different arrays.
+ */
+template <unsigned int N>
+bool ArrayIterator<N>::operator>= (const ArrayIterator<N>& other) const
+{
+  return other <= *this;
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ * @return The value that the iterator points to.
+ *         Note that this method returns a @c value_type, not
+ *         a @c reference.  (Thus, this class does not quite
+ *         conform to the iterator requirements.)
+ */
+template <unsigned int N>
+typename ArrayIterator<N>::value_type ArrayIterator<N>::operator* () const
+{
+  assert (m_offs < m_rep->m_data.size());
+  return Array<N-1> (*m_rep, m_offs);
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ * @return A proxy for the iterator element.
+ *
+ * This method will return a proxy for the array, which you
+ * can then dereference.  Note that if you get a C++ pointer
+ * from this, then it will be valid only until the proxy
+ * object gets destroyed.
+ */
+template <unsigned int N>
+typename ArrayIterator<N>::pointer ArrayIterator<N>::operator-> () const
+{
+  return pointer (*this);
+}
+
+
+/**
+ * @brief Advance the iterator.
+ * @returns This iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N>& ArrayIterator<N>::operator++ ()
+{
+  m_offs += m_rep->m_sizes[N-1];
+  return *this;
+}
+
+
+/**
+ * @brief Advance the iterator.
+ * @returns The iterator before being advanced.
+ */
+template <unsigned int N>
+ArrayIterator<N> ArrayIterator<N>::operator++ (int)
+{
+  ArrayIterator tmp (*this);
+  m_offs += m_rep->m_sizes[N-1];
+  return tmp;
+}
+
+
+/**
+ * @brief Back up the iterator.
+ * @returns This iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N>& ArrayIterator<N>::operator-- ()
+{
+  m_offs -= m_rep->m_sizes[N-1];
+  return *this;
+}
+
+
+/**
+ * @brief Back up the iterator.
+ * @returns The iterator before being backed up.
+ */
+template <unsigned int N>
+ArrayIterator<N> ArrayIterator<N>::operator-- (int)
+{
+  ArrayIterator tmp (*this);
+  m_offs -= m_rep->m_sizes[N-1];
+  return tmp;
+}
+
+
+/**
+ * @brief Array indexing relative to the iterator.
+ * @param n The array index.
+ * @return The array item at an offset of @a n from the
+ *         current iterator position.
+ *         Note that this method returns a @c value_type, not
+ *         a @c reference.  (Thus, this class does not quite
+ *         conform to the iterator requirements.)
+ */
+template <unsigned int N>
+typename ArrayIterator<N>::value_type
+ArrayIterator<N>::operator[] (difference_type n) const
+{
+  unsigned int offs = m_offs + n * m_rep->m_sizes[N-1];
+  assert (offs < m_rep->m_data.size());
+  return Array<N-1> (*m_rep, offs);
+}
+
+
+/**
+ * @brief Advance the iterator.
+ * @param n Number of steps by which to advance the iterator.
+ * @return This iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N>& ArrayIterator<N>::operator+= (difference_type n)
+{
+  m_offs += n * m_rep->m_sizes[N-1];
+  return *this;
+}
+
+
+/**
+ * @brief Return a new iterator pointing @a n steps ahead.
+ * @param n Number of steps by which to advance.
+ * @return The new iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N> ArrayIterator<N>::operator+ (difference_type n) const
+{
+  return ArrayIterator (m_rep, m_offs + n * m_rep->m_sizes[N-1]);
+}
+
+
+/**
+ * @brief Back up the iterator.
+ * @param n Number of steps by which to advance the iterator.
+ * @return This iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N>& ArrayIterator<N>::operator-= (difference_type n)
+{
+  m_offs -= n * m_rep->m_sizes[N-1];
+  return *this;
+}
+
+
+/**
+ * @brief Return a new iterator pointing @a n steps behind.
+ * @param n Number of steps by which to back up.
+ * @return The new iterator.
+ */
+template <unsigned int N>
+ArrayIterator<N> ArrayIterator<N>::operator- (difference_type n) const
+{
+  return ArrayIterator (m_rep, m_offs - n * m_rep->m_sizes[N-1]);
+}
+
+
+/**
+ * @brief Return the difference between two iterators.
+ * @param other The other iterator for the comparison.
+ * @return The number of elements difference between
+ *         this iterator and @a other.
+ *         Undefined if the two iterators do not point
+ *         into the same array.
+ */
+template <unsigned int N>
+typename ArrayIterator<N>::difference_type
+ArrayIterator<N>::operator- (const ArrayIterator& other) const
+{
+  return (m_offs - other.m_offs) / m_rep->m_sizes[N-1];
+}
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param rep @c Arrayrep from which to initialize the array.
+ *
+ * Initialize an array from an @c Arrayrep.  The new array will
+ * represent the entire @c Arrayrep.  The dimension @c N must
+ * match the length of the @c Arrayrep's shape.
+ */
+template <unsigned int N>
+inline
+WritableArray<N>::WritableArray (Arrayrep& rep)
+  : Array<N> (rep)
+{
+}
+
+
+/**
+ * @brief Array indexing.
+ * @param i The desired index.  Must be less than the array size
+ *          along this dimension.
+ * @return The @a i'th @c N-1 dimensional subarray in the array.
+ *
+ * Note that this operation is not available if @c N is 0.
+ */
+template <unsigned int N>
+inline
+WritableArray<N-1> WritableArray<N>::operator[] (unsigned int i) const
+{
+  assert (i < this->m_rep->m_shape[this->m_rep->m_shape.size() - N]);
+  return WritableArray<N-1> (const_cast<Arrayrep&> (*this->m_rep),
+                             this->m_offs + i * this->m_rep->m_sizes[N-1]);
+}
+
+
+/**
+ * @brief Return a direct pointer to array elements.
+ * @return A pointer to the first array elements.
+ *
+ * Subsequent elements follow in standard C indexing order.
+ */
+template <unsigned int N>
+inline
+Arrayelt* WritableArray<N>::ptr ()
+{
+  return const_cast<Arrayelt*> (&this->m_rep->m_data[this->m_offs]);
+}
+
+
+/**
+ * @brief Private constructor for array indexing.
+ * @param rep @c Arrayrep from which to initialize the array.
+ * @param offs Offset of the first element of the new array
+ *             within @a rep.
+ *
+ * This is a private constructor used to make the @c Array
+ * instances returned from an indexing operation.
+ */
+template <unsigned int N>
+inline
+WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
+  : Array<N> (rep, offs)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param rep @c Arrayrep from which to initialize the array.
+ *
+ * Initialize an array from an @c Arrayrep.  The new array will
+ * represent the entire @c Arrayrep.  The dimension @c N must
+ * match the length of the @c Arrayrep's shape.
+ */
+inline
+WritableArray<0>::WritableArray (Arrayrep& rep)
+  : Array<0> (rep)
+{
+}
+
+
+/**
+ * @brief Assignment.
+ * @param elt The RHS of the assignment.
+ * @return This object.
+ *
+ * Assign into the array.
+ */
+inline
+WritableArray<0>& WritableArray<0>::operator= (Arrayelt elt)
+{
+  *const_cast<Arrayelt*> (m_elt) = elt;
+  return *this;
+}
+
+
+/**
+ * @brief Private constructor for array indexing.
+ * @param rep @c Arrayrep from which to initialize the array.
+ * @param offs Offset of the first element of the new array
+ *             within @a rep.
+ *
+ * This is a private constructor used to make the @c Array
+ * instances returned from an indexing operation.
+ */
+inline
+WritableArray<0>::WritableArray (Arrayrep& rep, unsigned int offs)
+  : Array<0> (rep, offs)
+{
+}
+
+
+//**********************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param shape The shape of the array, as a C array.
+ *              Should be @c N elements long.   \
+ *
+ * The shape is the size of the array along each dimension.
+ */
+template <unsigned int N>
+WritableArrayData<N>::WritableArrayData(const unsigned int shape[])
+  : Arrayrep (shape, N),
+    WritableArray<N> (*static_cast<Arrayrep*>(this))
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param shape The shape of the array, as a std::vector.
+ *              Should be @c N elements long.
+ *
+ * The shape is the size of the array along each dimension.
+ */
+template <unsigned int N>
+WritableArrayData<N>::WritableArrayData(const std::vector<unsigned int>& shape)
+  : Arrayrep (shape),
+    WritableArray<N> (*static_cast<Arrayrep*>(this))
+{
+  assert (shape.size() == N);
+}
+
+
+} // namespace CxxUtils

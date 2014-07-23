@@ -1,0 +1,7 @@
+The English word alphabet came into Middle English from the Late Latin word alphabetum, which in turn originated in the Greek αλφαβητος (alphabetos), from α and β, the first two letters of the Greek alphabet. -- Wikipedia
+The English word alphabet came into Middle English from the Late Latin word alphabetum, which in turn originated in the Greek \alpha{}\lambda{}\phi{}\alpha{}\beta{}\eta{}\tau{}\omicron{}\varsigma{} (alphabetos), from alpha and beta, the first two letters of the Greek alphabet. -- Wikipedia
+The English word alphabet came into Middle English from the Late Latin word alphabetum, which in turn originated in the Greek &alpha;&lambda;&phi;&alpha;&beta;&eta;&tau;&omicron;&vsigma; (alphabetos), from alpha and beta, the first two letters of the Greek alphabet. -- Wikipedia
+The English word alphabet came into Middle English from the Late Latin word alphabetum, which in turn originated in the Greek &alpha;&lambda;&phi;&alpha;&beta;&eta;&tau;&omicron;&vsigma; (alphabetos), from alpha and beta, the first two letters of the Greek alphabet. -- Wikipedia
+\textbf{hello world!} $3^2+4^{ 2 } = 5^{2}$
+<b>hello world!</b> <span class='math' style='font-style:italic'>3<sup>2</sup>+4<sup>2</sup> = 5<sup>2</sup></span>
+hello world! 3²+4² = 5²

@@ -1,0 +1,88 @@
+prefetch address: 0 size: 1
+  prefetch address: 0
+  prefetch address: 0
+prefetch address: 0x1 size: 1
+  prefetch address: 0x1
+  prefetch address: 0x1
+prefetch address: 0x3f size: 1
+  prefetch address: 0x3f
+  prefetch address: 0x3f
+prefetch address: 0x40 size: 1
+  prefetch address: 0x40
+  prefetch address: 0x40
+prefetch address: 0 size: 2
+  prefetch address: 0
+  prefetch address: 0x1
+prefetch address: 0x1 size: 2
+  prefetch address: 0x1
+  prefetch address: 0x2
+prefetch address: 0x3e size: 2
+  prefetch address: 0x3e
+  prefetch address: 0x3f
+prefetch address: 0x3f size: 2
+  prefetch address: 0x3f
+  prefetch address: 0x40
+prefetch address: 0x40 size: 2
+  prefetch address: 0x40
+  prefetch address: 0x41
+prefetch address: 0 size: 64
+  prefetch address: 0
+  prefetch address: 0x3f
+prefetch address: 0x1 size: 64
+  prefetch address: 0x1
+  prefetch address: 0x40
+prefetch address: 0x3f size: 64
+  prefetch address: 0x3f
+  prefetch address: 0x7e
+prefetch address: 0x40 size: 64
+  prefetch address: 0x40
+  prefetch address: 0x7f
+prefetch address: 0 size: 67
+  prefetch address: 0
+  prefetch address: 0x40
+  prefetch address: 0x42
+prefetch address: 0x1 size: 67
+  prefetch address: 0x1
+  prefetch address: 0x41
+  prefetch address: 0x43
+prefetch address: 0x3d size: 67
+  prefetch address: 0x3d
+  prefetch address: 0x7d
+  prefetch address: 0x7f
+prefetch address: 0x3e size: 67
+  prefetch address: 0x3e
+  prefetch address: 0x7e
+  prefetch address: 0x80
+prefetch address: 0x3f size: 67
+  prefetch address: 0x3f
+  prefetch address: 0x7f
+  prefetch address: 0x81
+prefetch address: 0x40 size: 67
+  prefetch address: 0x40
+  prefetch address: 0x80
+  prefetch address: 0x82
+prefetch address: 0xa size: 32
+  prefetch address: 0xa
+  prefetch address: 0x29
+prefetch address: 0xa size: 64
+  prefetch address: 0xa
+  prefetch address: 0x49
+prefetch address: 0xa size: 128
+  prefetch address: 0xa
+  prefetch address: 0x4a
+  prefetch address: 0x89
+prefetch address: 0xa size: 256
+  prefetch address: 0xa
+  prefetch address: 0x4a
+  prefetch address: 0x8a
+  prefetch address: 0xca
+  prefetch address: 0x109
+test6
+  prefetch address: 0x100
+  prefetch address: 0x127
+  prefetch address: 0x400
+  prefetch address: 0x427
+  prefetch address: 0x480
+  prefetch address: 0x4a7
+  prefetch address: 0x480
+  prefetch address: 0x4a7

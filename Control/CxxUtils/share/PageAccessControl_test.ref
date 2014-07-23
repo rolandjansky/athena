@@ -1,0 +1,6 @@
+*** PageAccessControl_test starts ***
+PageAccessControl::protectPage DEBUG: set protection 0 for page range 0x804e000 - 0x804efff containing address range=0x804e980 - 0x804e983
+PageAccessControl::restorePageProt DEBUG: restored protection 7 for page 0x804e000 containing address 0x804e000 
+ FIXME NOT Freeing memory at (nil) 
+accessing restored pointer 2
+*** PageAccessControl_test OK ***

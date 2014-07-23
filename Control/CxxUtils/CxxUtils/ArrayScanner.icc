@@ -1,0 +1,39 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ArrayScanner.icc,v 1.1 2009-03-20 20:44:37 ssnyder Exp $
+/**
+ * @file  ArrayScanner.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date June, 2004
+ * @brief Helper class for converting strings to Array's
+ * (template definitions).
+ */
+
+
+namespace CaloRec {
+
+
+/**
+ * @brief Read number.
+ * @param elt[out] The number read.
+ * @return True if successful.
+ *
+ * Consume any white space at the head of the stream.
+ * If we're then looking at a number that can be converted to type @c T,
+ * read it and return true.  The value is returned in @a elt.
+ * If there's a comma following it, consume that too.
+ * Otherwise, return false.
+ */
+template <class T>
+bool ArrayScanner::at_num (T& elt)
+{
+  m_is >> elt;
+  return at_num_common();
+}
+
+
+} // namespace CaloRec
+
+

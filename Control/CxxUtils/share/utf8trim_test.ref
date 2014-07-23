@@ -1,0 +1,14 @@
+'hello world!' has length 12, should be 12
+'Oh Süßes Nichtstun!' has length 19, should be 19
+'[1mOh Süßes Nichtstun![0m' has length 19, should be 19
+'hello world!        '
+'        hello world!'
+'    hello world!    '
+'    hello world!    '
+'Oh Süßes'
+'Oh Süßes...'
+'Süßes Nichts'
+'...Süßes Nichts...'
+'Nichtstun!'
+'...Nichtstun!'
+'...[1mNichtstun![0m'
