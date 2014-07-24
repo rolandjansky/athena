@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="EventInfoTest" type="makecheck" suite="Examples">
+     <package>Event/EventInfo</package>
+     <timelimit>10</timelimit>
+     <author> Paolo Calafiura </author>
+     <mailto> pcalafiura@lbl.gov, r.d.schaffer@cern.ch</mailto>
+     <expectations>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
+         <returnValue>0</returnValue>
+     </expectations>
+  </TEST>
+</atn>
