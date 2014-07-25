@@ -1,0 +1,12 @@
+RPC LVL1 configuration files
+Version ATLAS.v6.4, online since April, 8 2010
+Thresholds:   mu0 mu6 mu10 mu11 mu15 mu20 
+
+Road version "nominal.v2"
+threshold   road-eta  road-phi
+mu0         mu0       mu0
+mu6         mu6       -
+mu10        mu10      mu6
+mu11        mu11      mu0-high
+mu15        mu15      -
+mu20        mu20      mu15
