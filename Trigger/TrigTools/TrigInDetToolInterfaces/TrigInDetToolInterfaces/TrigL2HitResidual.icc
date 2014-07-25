@@ -1,0 +1,60 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "GaudiKernel/MsgStream.h"
+#include "Identifier/Identifier.h"
+
+TrigL2HitResidual::TrigL2HitResidual(Identifier id, int reg, 
+				     double phiR, double phiP) : 
+  m_id(id), m_region(reg), m_phiRes(phiR), m_phiPull(phiP) {
+
+  m_etaRes=0.0;m_etaPull=0.0;	
+}
+
+TrigL2HitResidual::TrigL2HitResidual(Identifier id, int reg, 
+				     double phiR, double phiP, 
+				     double etaR, double etaP) : 
+  m_id(id), m_region(reg), m_phiRes(phiR), m_phiPull(phiP), m_etaRes(etaR), m_etaPull(etaP) {
+
+}
+
+double TrigL2HitResidual::phiResidual() const {
+  return m_phiRes;
+}
+
+double TrigL2HitResidual::etaResidual() const {
+  return m_etaRes;
+}
+
+double TrigL2HitResidual::phiPull() const {
+  return m_phiPull;
+}
+
+double TrigL2HitResidual::etaPull() const {
+  return m_etaPull;
+}
+
+Identifier TrigL2HitResidual::identify() const {
+  return m_id;
+}
+
+int TrigL2HitResidual::regionId() const {
+  return m_region;
+}
+
+std::string str( const TrigL2HitResidual& v ) { 
+
+  std::stringstream ss; 
+  ss << "Residual: region "<<v.regionId() 
+      <<" phi: "<<v.phiResidual() 
+      <<" / "<<v.phiPull() 
+      <<" eta: "<<v.etaResidual() 
+     <<" / "<<v.etaPull();
+  return ss.str();   
+} 
+  
+MsgStream& operator<< ( MsgStream& m, const TrigL2HitResidual& v ) { 
+  m << str(v); 
+  return m; 
+} 
