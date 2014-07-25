@@ -35,11 +35,16 @@ createPersistent( xAOD::TriggerTowerContainer* trans ) {
 xAOD::TriggerTowerContainer* xAODTriggerTowerContainerCnv::createTransient() {
    // The known ID(s) for this container:
    static pool::Guid v1_guid( "DE2A7891-B5FE-4811-8178-EF106743312C" );
+   static pool::Guid v2_guid( "730DE7B8-C24A-4567-A66D-0386DC50E9AC" );   
 
    // Check if we're reading the most up to date type:
-   if( compareClassGuid( v1_guid ) ) {
+   if( compareClassGuid( v2_guid ) ) {
       return poolReadObject< xAOD::TriggerTowerContainer >();
    }
+   if( compareClassGuid( v1_guid ) ) {
+    throw std::runtime_error( "Version 1 of xAOD::TriggerTowerContainer found - bail out for now" );
+    return 0;    
+   }   
 
    // If we didn't recognise the ID, let's complain:
    throw std::runtime_error( "Unsupported version of "

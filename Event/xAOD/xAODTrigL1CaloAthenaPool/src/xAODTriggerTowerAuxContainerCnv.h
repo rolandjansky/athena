@@ -28,8 +28,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TriggerTowerAuxContainer,
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  * @author John Morris <john.morris@cern.ch>
  *
- * $Revision: 576324 $
- * $Date: 2013-12-19 17:07:53 +0100 (Thu, 19 Dec 2013) $
+ * $Revision: 576323 $
+ * $Date: 2013-12-19 17:07:14 +0100 (Thu, 19 Dec 2013) $
  */
 class xAODTriggerTowerAuxContainerCnv :
    public xAODTriggerTowerAuxContainerCnvBase {
