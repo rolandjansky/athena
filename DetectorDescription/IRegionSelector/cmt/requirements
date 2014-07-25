@@ -1,0 +1,20 @@
+package IRegionSelector
+
+author Mark Sutton <sutt@mail.desy.de>
+
+use AtlasPolicy AtlasPolicy-*
+use AthenaKernel	AthenaKernel-*	Control
+
+use CLIDSvc CLIDSvc-* Control
+use GaudiInterface GaudiInterface-* External 
+
+# use StoreGate StoreGate-* Control
+
+# Identifier
+use Identifier Identifier-* DetectorDescription 
+
+# for locating data files
+# use PathResolver PathResolver-00-*  Tools
+
+# apply_pattern declare_non_standard_include name=doc
+
