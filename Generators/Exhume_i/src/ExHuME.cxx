@@ -183,7 +183,7 @@ StatusCode ExHuME::genFinalize() {
 return StatusCode::SUCCESS;
 }
 
-StatusCode ExHuME::fillEvt(HepMC::GenEvent* evt){
+StatusCode ExHuME::fillEvt(GenEvent* evt){
  
   if(msgLvl(MSG::INFO)){   
     msg(MSG::INFO) << "Filing Event...." << endreq;
