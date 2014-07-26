@@ -1,0 +1,18 @@
+#################################################
+package egammaAnalysisTools
+
+author Mike Hance <mike.hance@cern.ch>
+author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+
+use AtlasPolicy                AtlasPolicy-*     
+
+
+
+#library egammaAnalysisTools "*.cxx components/*.cxx"
+#apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+
+
+#################################################
+
