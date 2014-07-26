@@ -1,0 +1,62 @@
+package Exhume_i
+
+author Andrew Pilkington <Andrew.Pilkington@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+use GaudiInterface      GaudiInterface-*      External
+use GeneratorModules    GeneratorModules-*    Generators
+use AthenaKernel        AthenaKernel-*        Control
+use AtlasCLHEP          AtlasCLHEP-*       	  External
+use AtlasHepMC          AtlasHepMC-*          External
+use Pythia              Pythia-*           	  External
+use Lhapdf         	    Lhapdf-*              External
+use Tauola_i            Tauola_i-*            Generators
+use GeneratorModules    GeneratorModules-*    Generators
+
+private
+use TruthUtils      TruthUtils-*        Generators
+use StoreGate       StoreGate-*	        Control
+end_private
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the notAsNeeded tag on Linux and the allowUndefined tag on MacOSX
+private
+macro exhume_i_linkopt_modifier "notAsNeeded" target-darwin "allowUndefined"
+apply_tag $(exhume_i_linkopt_modifier)
+end_private
+
+apply_pattern dual_use_library files=	"ExHuME.cxx \
+					Event.cpp \
+					GG.cpp \
+					QQ.cpp \
+					Higgs.cpp \
+					DiPhoton.cpp \
+					CrossSection.cpp \
+					Weight.cpp \
+					TwoSpace.cpp \
+					pdfset.f \
+					HDecay.f \
+					PythiaInterface.cpp \
+					pyinit.f \
+					simps64.F \
+					pyr.F \
+					PythiaDummies/visaje.F \
+					PythiaDummies/sugra.F \
+					PythiaDummies/pytime.F \
+					PythiaDummies/pykcut.F \
+					PythiaDummies/pyevwt.F \
+					PythiaDummies/pytaud.F \
+					PythiaDummies/ssmssm.F \
+					PythiaDummies/upveto.F \
+					PythiaDummies/fhhiggscorr.F \
+					PythiaDummies/fhsetflags.F \
+					PythiaDummies/fhsetpara.F"
+
+macro_append Exhume_i_shlibflags  "$(HepMC_IO_linkopts)"
+
+## How to stop the gfortran warnings about "unused" functions passed as args? This flag does not exist:
+#macro_append Exhume_i_fflags  " -Wno-unused-dummy-argument"
+
+apply_pattern declare_joboptions files="*.py"

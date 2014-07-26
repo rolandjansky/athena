@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Exhume\_i: An interface to Athena for the ExHuME Monte Carlo}
+\author{Andrew Pilkington}
+%\date{06/03/06}                                      % Activate to display a given date or no date
+
+\begin{document}
+\vspace{-3cm}
+\maketitle
+%\section{}
+%\subsection{}
+
+ExHuME is a Monte Carlo Event generator for central exclusive production (for more information see  \cite{exhume}). This package runs ExHuME from inside the Athena framework and the events are stored in the transient event store in HepMC format. For final-state parton showering and hadronisation, ExHuME uses the JETSET interface of Pythia and thus the External/Pythia package is used to link in the Pythia library. ExHuME also links to LHAPDF (External/Lhapdf\_i), CERNLIB (External/AtlasCERNLIB) and CLHEP (External/AtlasCLHEP).
+
+The relevent ExHuME parameters should be set using the jobOptions service (see the example provided with the package). The following lines are needed to run ExHuME:
+\begin{verbatim}
+theAppDLLs  += [ "Exhume_i"]
+theAppTopAlg = ["ExHuME"]
+\end{verbatim}
+At present there are 4 types of sub-process available in ExHuME. However, more are being validated and this package will be updated when they are ready. The current available process types are \texttt{Higgs}, \texttt{QQ}, \texttt{GG} and \texttt{DiPhoton} and are set by:
+\begin{verbatim}
+Exhume = Algorithm("ExHuME")
+Exhume.Process = "Higgs"
+\end{verbatim}
+Currently, ExHuME runs on a card file structure (which will be phased out in the coming months) where some default parameters can be changed (see \cite{exhume}). An example of a default parameter that can be changed is the PDF used. A card file can be specified by:
+\begin{verbatim}
+Exhume.ExhumeRunControl = "CardFileName"
+\end{verbatim}
+There are a few additional controls that must be set for ExHuME to run. Because of the low mass central systems typical of central exclusive production, ExHuME allows the mass, $M_X$, of the central object to be set. The default range is set to 100GeV $< M_X < $500GeV, but can be reset by the user by:
+\begin{verbatim}
+Exhume.MassMin = 50
+Exhume.MassMax = 75
+\end{verbatim}
+
+The remainder of the options available to the user are process specific. For Higgs production, the decay type of the Higgs can be set by using the PDG code of the decay product. For example
+\begin{verbatim}
+Exhume.HiggsDecay = 24
+\end{verbatim}
+would set the decay channel to $H\rightarrow WW^{*}$. For two particle final states, the following parameters can be set:
+\begin{verbatim}
+Exhume.CosThetaMax = 0.99
+Exhume.ETMin = 50
+\end{verbatim}
+Originally, two particle final states were run in ExHuME by setting the maximum value of $cos(\theta)$ - the angle in the COM frame of an outgoing particle. This is still available, but should be set high. More practically, the variable \texttt{ETMin} has been introduced to allow the minimum transverse energy of an outgoing particle to be set. If a user specifies a \texttt{EtMin} $> 0.5$ \texttt{MassMax}, the mass bounds will be reset accordingly. For the \texttt{QQ} sub-process, the quark type can be set by the PDF code. For example
+\begin{verbatim}
+Exhume.SetQuarkType = 5
+\end{verbatim}
+would set $b\bar{b}$ production. Note that the user, at present, must make sure that \texttt{MassMin} $> 2M_q$ otherwise event generation goes badly wrong.
+
+{\large \bf Random Numbers}
+
+The random numbers are supplied to ExHuME by the \texttt{AtRndmGenSvc}. The user can override the defaults provided by \texttt{AtRndmGenSvc} via the following command in the jobOptions file:
+\begin{verbatim}
+AtRndmGenSvc = Service("AtRndmGenSvc")
+AtRndmGenSvc.Seeds = ["ExhumeRand 447236 98323"]
+\end{verbatim}
+which sets the seeds of the stream \texttt{ExhumeRand} to 447236 and 98323. During event generation, the seeds are saved in the HepMC event record.
+
+\begin{thebibliography}{10}
+
+\bibitem{exhume}
+J.~Monk and A.~Pilkington,
+%``ExHuME: A Monte Carlo Event Generator for Exclusive Diffraction,''
+arXiv:hep-ph/0502077.
+%%CITATION = HEP-PH 0502077;%%
+
+\end{thebibliography}
+
+\end{document}   
