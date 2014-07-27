@@ -1,0 +1,21 @@
+package TrigSteeringTest
+
+author Gianluca Comune <Gianluca.Comune@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*             External
+#use StoreGate      	StoreGate-*  		     Control
+
+use TrigInterfaces      TrigInterfaces-*             Trigger/TrigSteer
+use TrigSteeringEvent	TrigSteeringEvent-*          Trigger/TrigEvent
+
+library TrigSteeringTest *.cxx -s=components *.cxx
+apply_pattern component_library
+
+private
+use AthenaKernel 	AthenaKernel-* 		     Control
+use TrigNavigation      TrigNavigation-*             Trigger/TrigEvent
+use TrigTimeAlgs	TrigTimeAlgs-*               Trigger/TrigTools
+
+#apply_pattern lcgdict dict=TrigSteeringTest selectionfile=selection.xml headerfiles="../TrigSteeringTest/TrigSteeringTestDict.h"
+end_private
