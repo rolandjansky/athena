@@ -1,0 +1,24 @@
+package FlowAfterburner
+
+author Andrzej Olszewski <Andrzej.Olszewski@ifj.edu.pl>
+
+use AtlasPolicy      AtlasPolicy-*
+
+use AthenaKernel     AthenaKernel-*        Control
+use AthenaBaseComps  AthenaBaseComps-*     Control
+use GaudiInterface   GaudiInterface-*      External
+use AtlasCLHEP       AtlasCLHEP-*          External
+use AtlasROOT        AtlasROOT-*           External
+use AtlasGSL         AtlasGSL-*            External
+use GeneratorObjects GeneratorObjects-*    Generators
+use TruthHelper      TruthHelper-*         Generators/GenAnalysisTools
+
+private
+use AtlasHepMC       AtlasHepMC-*          External
+use TruthUtils       TruthUtils-*          Generators
+use StoreGate        StoreGate-*           Control
+end_private
+
+apply_pattern dual_use_library files=" *.cxx "
+
+apply_pattern declare_joboptions files="*.txt *.py"
