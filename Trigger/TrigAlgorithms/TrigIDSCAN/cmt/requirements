@@ -1,0 +1,73 @@
+package TrigIDSCAN
+
+author Nikos Konstantinidis <nk@hep.ucl.ac.uk>
+
+# =====================================================================
+
+public
+
+# General
+use AtlasPolicy			AtlasPolicy-*
+use AtlasROOT                   AtlasROOT-*          External
+use GaudiInterface		GaudiInterface-*     External
+
+# For detector masking
+use DataCollection		DataCollection-*	External
+
+# Trigger
+use TrigInterfaces              TrigInterfaces-*	Trigger/TrigSteer
+
+use TrigSiSpacePointTool	TrigSiSpacePointTool-*	Trigger/TrigTools
+
+use TrigInDetEvent		TrigInDetEvent-*	Trigger/TrigEvent
+use TrigSteeringEvent           TrigSteeringEvent-*     Trigger/TrigEvent
+
+
+
+private
+# ROB DataProvider for ROB_Preloader
+use ByteStreamCnvSvcBase	ByteStreamCnvSvcBase-* 	Event
+use IRegionSelector             IRegionSelector-*       DetectorDescription
+use AthenaKernel                AthenaKernel-*          Control
+use EventInfo 			EventInfo-* 		Event
+use TrigInDetTrackUtils         TrigInDetTrackUtils-*   Trigger/TrigEvent
+# Tracking
+use TrkTrack		        TrkTrack-* 		Tracking/TrkEvent
+use TrigTimeAlgs		TrigTimeAlgs-*		Trigger/TrigTools
+use InDetBeamSpotService        InDetBeamSpotService-*  InnerDetector/InDetConditions
+use StoreGate			StoreGate-*		Control
+use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*  Trigger/TrigTools
+
+
+# =====================================================================
+
+#apply_pattern declare_runtime_extras   extras="*.xml"
+apply_pattern declare_python_modules files="*.py"
+
+
+apply_pattern component_library
+library TrigIDSCAN  *.cxx components/*.cxx 
+
+# private
+
+# stuff to include and compile the root dictionary for the 
+# spacepoint dumping code
+#
+# to *enable* the writing out of the spacepoints, you need to uncomment
+# the following four lines...
+
+# use AtlasROOT                   AtlasROOT-02-*          External
+
+# macro_append TrigIDSCAN_dependencies " TrigIDSCANDict TrigIDSCANsetup.make "
+
+# apply_pattern have_root_headers root_headers="IDScanEventHeader.h IDScanRoIHeader.h IDScanSpacePoint.h" \
+#                headers_lib="TrigIDSCAN" 
+
+# macro_append cppflags  " -DIDSCANDUMP "
+ 
+# These four above lines perform the following actions... 
+#   a) tell cmt that TrigIDSCAN also depends on the idscan root dictionary
+#   b) include the root include files in the include path during compilation
+#   c) build the root dictionary from the dump classes
+#   d) define the IDSCANDUMP token so the code in IdScanMain is included during compilation   
+
