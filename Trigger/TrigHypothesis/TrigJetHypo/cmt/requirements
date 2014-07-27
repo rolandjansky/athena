@@ -1,0 +1,41 @@
+package TrigJetHypo
+
+author Kyle Cranmer <cranmer@cern.ch>
+author Ester Segura <segura@ifae.es>
+
+use 	AtlasPolicy         	AtlasPolicy-*
+#use   	AtlasAIDA 		AtlasAIDA-* 		External
+#use 	CLIDSvc CLIDSvc-* 	Control
+use 	GaudiInterface 		GaudiInterface-* 	External
+#use    TrigData            	TrigData-*              Trigger/TrigSteer
+use     TrigSteeringEvent      	TrigSteeringEvent-* 	Trigger/TrigEvent
+
+
+use     TrigTimeAlgs            TrigTimeAlgs-*          Trigger/TrigTools
+#use    TrigT1Interfaces    	TrigT1Interfaces-*      Trigger/TrigT1
+#use    TrigSteering        	TrigSteering-*          Trigger/TrigSteer
+ 
+use TrigCaloEvent	TrigCaloEvent-*		     Trigger/TrigEvent
+use TrigParticle            TrigParticle-*              Trigger/TrigEvent
+
+use     JetEvent                JetEvent-*              Reconstruction/Jet
+use     TrigInterfaces          TrigInterfaces-*        Trigger/TrigSteer
+
+#use     TrigSerializeResult     TrigSerializeResult-*   Trigger/TrigDataAccess
+#use     AnalysisTriggerEvent    AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_runtime
+apply_pattern declare_joboptions files="jobOfragment_*.py TriggerConfig_*.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+use     AtlasCLHEP              AtlasCLHEP-*            External
+use     EventKernel             EventKernel-*           Event
+use     FourMomUtils            FourMomUtils-*          Event
+use     TrigNavigation          TrigNavigation-*        Trigger/TrigEvent
+use     TrigMissingEtEvent      TrigMissingEtEvent-*    Trigger/TrigEvent
+use     JetUtils                JetUtils-*              Reconstruction/Jet
+use     CaloEvent               CaloEvent-*             Calorimeter
+use     xAODJet                 xAODJet-*                Event/xAOD
+use     xAODCaloEvent           xAODCaloEvent-*          Event/xAOD
