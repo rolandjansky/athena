@@ -1,0 +1,233 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ********************************************************************
+//
+// NAME:     T2AllRoiUnpacking.h
+// PACKAGE:  Trigger/TrigAlgorithms/T2AllRoiUnpacking
+//
+// AUTHOR:   gerbaudo@cern.ch
+//
+// Description: Unpack several L2 calorimeter ROIs and store them in a single output grid.
+//              Used T2L1Unpacking (by Matthew Tamsett) as a template for this AllTEAlgo.
+// Updates:
+// Apr2012 (gerbaudo@cern.ch)
+//         add the option to merge EM cells to a coarser granularity.
+// ********************************************************************
+
+#ifndef TRIGT2CALOJET_T2ALLROIUNPACKING_H
+#define TRIGT2CALOJET_T2ALLROIUNPACKING_H
+
+#include "TrigT2CaloJet/Trig3MomentumMerger.h"
+#include "TrigT2CaloJet/T2CaloJetGridFromCells.h"
+#include "TrigInterfaces/AllTEAlgo.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <ostream>
+
+class ITrigTimerSvc;
+class TrigT2Jet;
+class Trig3Momentum;
+//class ITrigDataAccess;
+
+class T2AllRoiUnpacking: public HLT::AllTEAlgo {
+
+
+ public:
+  T2AllRoiUnpacking(const std::string & name, ISvcLocator* pSvcLocator);
+  ~T2AllRoiUnpacking();
+  HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input,
+                            unsigned int output);
+  HLT::ErrorCode hltInitialize();
+  HLT::ErrorCode hltFinalize();
+  //! N of elements initially allocated in the grid
+  /*! This is just a reasonable initial size for the vector (currently
+    using 2^13, which corresponds to ~10 ROI at low lumi after noise
+    suppr.). Also, this should be a static member (problems without
+    namespace?).
+   */
+  const size_t kAllocatedGridCells_;
+ private:
+  // functions
+  //! Process one trigger element
+  /*!
+    Cells are stored in m_grid, which should be allocated beforehand.
+    @param te TriggerElement to be processed
+    @param grid where the cells are stored
+   */
+  HLT::ErrorCode processTriggerElement(const HLT::TriggerElement *te,
+				       std::vector<Trig3Momentum> *grid);
+  bool initializeTimers(); //!< initialize the timers
+  bool initializeHelperTools(); //!< initialize tools
+  void resetTimers(); //!< reset the monitoring timers
+  bool inputIsValid(const std::vector<std::vector<HLT::TriggerElement*> >& input) const;
+  HLT::TriggerElement* setupOutputTe(unsigned int type_out) ; //!< prepare the output trigger element
+  void storeTimers(); //!< store timings in the monitoring variables
+  HLT::ErrorCode finalizeOutput(HLT::TriggerElement* outputTE); //! finalize the output TE (allocate TrigT2Jet and attach its grid)
+  void finalizeAccessories();  //!< finalize everything that's not the output
+  void determineOverlaps(const EtaPhiRectangle &l2Roi); //!< determine overlaps and store them in m_overlapRegions
+  // Properties:
+  std::string  m_jetOutputKey;
+  double m_roiEtaHalfWidth; //!< half width (in eta) of the L2 ROI that will be read out
+  double m_roiPhiHalfWidth; //!< half width (in phi) of the L2 ROI that will be read out
+  bool m_mergeEmCells;      //!< whether or not the EM cells shoud be merged
+  // non-configurable datamembers (see T2CaloJetGridFromCells.cxx for details)
+  std::vector<Trig3Momentum>  m_tmpGrid;  //!< tmp grid used to extract before merge
+  std::vector<int> m_ttEmSamplings;       //!< all possible EM samplings values
+  std::vector<int> m_ttHecSamplings;      //!< all possible HEC samplings values
+  int m_tileSampling;                     //!< tilecal sampling
+  bool m_prepare;                         //!< prepare T2CaloJetGridFromCells
+  Trig3MomentumMerger m_tmm;              //!< cell merger
+
+
+ protected:
+  ToolHandle< T2CaloJetGridFromCells > m_caloGridFromCellsTool;
+  bool m_retrievedGridTool;
+  std::vector<Trig3Momentum>* m_grid;
+  //! (\eta,\phi) regions that have been already processed
+  /*! This datamember is reset at each event */
+  std::vector< EtaPhiRectangle > m_processedRegions;
+  //! (\eta,\phi) regions that overlap with regions that have already been processed
+  /*! This datamember is reset at each TriggerElement */
+  std::vector< EtaPhiRectangle > m_overlapRegions;
+  /** For Logging, in all tools we should use (*m_log) to avoid recalling of the MsgStream all the time. */
+  MsgStream* m_log;
+  
+  TrigTimer *m_cell_unpacking_timer; //!< unpacking time ('addCell' only)
+  TrigTimer *m_unpacking_timer;      //!< unpacking time (geometry, overlap, and 'addCell')
+  TrigTimer *m_RoI_timer;            //!< time required to set up the output TE ('addRoI')
+  TrigTimer *m_merge_timer;          //!< time required merge the EM cells ('mergeEmCells')
+
+  // output
+  TrigT2Jet     *m_jet;
+  
+  // Monitored Variables
+  float               m_UnpckTime;      //!< see corresponding timer for details
+  float               m_cellUnpckTime;  //!< see corresponding timer for details
+  float               m_RoITime;        //!< see corresponding timer for details
+  float               m_mergeTime;      //!< see corresponding timer for details
+};
+
+//----------------------------------------------------------
+//
+// helper classes
+//
+//----------------------------------------------------------
+
+/*! \brief A class describing a rectangle in \eta , \phi
+ *
+ * An EtaPhiRectangle object can be used to keep track of a rectangle
+ * in these coordinates. It is meant to be a simple object that takes
+ * care of the 2\pi ambigiuties and that can perform simple operations
+ * such as compute the overlap between two rectangles.  While the
+ * minimum and maximum \phi values can be provided in any range,
+ * internally all \phi angles are stored and handled within
+ * (-\pi,+\pi].
+ * Maybe at some point you could use TVector2.h (but they store x,y) or gsl::polar.
+ */
+
+//! \todo should probably define an EtaPhiPair instead of EtaPhiPoint...and use it everywhere
+typedef std::pair< double, double > EtaPhiPoint;
+//----------------------------------------------------------
+class EtaPhiRectangle{
+ public:
+  //! default c'tor
+  EtaPhiRectangle():
+    etaMin_(0.), etaMax_(0.), etaCen_(0.), etaHw_(0.),
+    phiMin_(0.), phiMax_(0.), phiCen_(0.), phiHw_(0.),
+    wrapsAroundPi_(false) {};
+  //! constructor: defined like this because these are usually the edges we get for an ROI
+  EtaPhiRectangle(const double &etaMin, const double &etaMax,
+		 const double &phiMin, const double &phiMax);
+  double area() const { return 2.0*etaHw_*2.0*phiHw_; };
+  double eta() const { return etaCen_; };
+  double phi() const { return phiCen_; };
+  double etaMin() const { return etaMin_; };
+  double etaMax() const { return etaMax_; };
+  double phiMin() const { return phiMin_; };
+  double phiMax() const { return phiMax_; };
+  double etaHalfWidth() const {return etaHw_; };
+  double phiHalfWidth() const {return phiHw_; };
+  //! determine whether a given point in (\eta,\phi) is inside this EtaPhiRectangle
+  bool contains(const EtaPhiPoint &point) const;
+  //! same as above, but less safe agaist eta-phi swap
+  bool contains(const double &eta, const double &phi) const { return contains(std::make_pair(eta,phi));};
+  //! determine whether two rectangles overlap
+  static double overlappingArea(const EtaPhiRectangle &lhs,
+				const EtaPhiRectangle &rhs);
+  //! compute the rectangle corresponding to the overlapping area
+  static EtaPhiRectangle overlappingRectangle(const EtaPhiRectangle &lhs,
+					     const EtaPhiRectangle &rhs);
+  //! convert any angle to its equivalent in ( -\pi , +\pi ]
+  static double phi_mpi_pi(const double &val);
+  //! convert any angle to its equivalent in ( 0 , +2\pi ]
+  static double phi_zero_2pi(const double &val);
+  //! print the rectangle
+  void print(std::ostream& stream) const;
+
+ protected:
+  //! compute the location of the center of the rectangle
+  /*! In fact this method is initializing the internal representation
+    of the rectangle, with center, half width, etc.
+   */
+  void computeCenterCoord();
+ private:
+  double etaMin_; //!< minimum eta
+  double etaMax_; //!< maximum eta
+  double etaCen_; //!< central eta
+  double etaHw_;  //!< eta half width
+  double phiMin_; //!< minimum phi
+  double phiMax_; //!< maximum phi
+  double phiCen_; //!< central phi
+  double phiHw_;  //!< phi half width
+  bool wrapsAroundPi_; //!< whether the rectangle crosses over \phi = \pi
+
+}; // end EtaPhiRectangle
+
+std::ostream& operator<< (std::ostream& stream, const EtaPhiRectangle &epr);
+
+//----------------------------------------------------------
+
+/*! \brief compute L2 roi boundaries
+
+Given a L1 ROI descriptor, compute the boundaries of a calorimeter
+L2 ROI. We want to the ROI dimensions (halfWidths) to be
+configurable, so we pass them in through the c'tor. The
+calculation is done accounting for upper boundaries, and treating
+for the FCAL in a special way.
+
+\param trd the L1 ROI descriptor
+\param etaHalfWidth desired half width in eta at L2 (usually 0.5)
+\param phiHalfWidth desired half width in phi at L2 (usually 0.5)
+*/
+class L2CaloRoiBoundsCalculator {
+ public:
+  L2CaloRoiBoundsCalculator(const TrigRoiDescriptor* trd,
+			    const double &etaHalfWidth,
+			    const double &phiHalfWidth);
+  double etaMin() const {return m_etaMin; } ;
+  double etaMax() const {return m_etaMax; } ;
+  double phiMin() const {return m_phiMin; } ;
+  double phiMax() const {return m_phiMax; } ;
+ private:
+  //! actually compute and store the bounds
+  void computeBounds(const TrigRoiDescriptor* trd,
+		     const double &etaHalfWidth,
+		     const double &phiHalfWidth);
+  double m_etaMin, m_etaMax;  //!< eta range
+  double m_phiMin, m_phiMax;  //!< phi range
+  double m_roiEtaLimit;       //!< a reasonable maximum in \eta (4.8, does not include FCAL)
+  double m_fcalEtaMin;	      //!< FCAL minumum \eta (3.0)
+  double m_fcalEtaMax;	      //!< FCAL maxumum \eta (5.0)
+  double m_minFcalEtaCenter;  //!< if the \eta center is above this (3.2), then we think it's FCAL
+}; // end L2CaloRoiBoundsCalculator
+
+//----------------------------------------------------------
+
+
+//----------------------------------------------------------
+
+
+#endif
