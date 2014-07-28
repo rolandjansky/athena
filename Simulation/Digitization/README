@@ -1,0 +1,59 @@
+         Simulation/Digitization
+	------------------------
+
+This package is a collection of scripts to run Digitization. It serves 
+both DC2 and Rome production.
+The main jobOptions is AtlasDigitization.py and a configuration script is 
+provided in DigitizationConfig.py
+
+
+
+
+Use of the Package:
+-------------------
+get_files PDGTABLE.MeV
+get_files DigitizationConfig.py
+
+Edit the file DigitizationConfig.py to set your options, and run it with:
+
+athena DigitizationConfig.py Digitization/AtlasDigitization.py
+
+
+Scripts to run Digitization:
+-------------------------
+Scripts to run simulation (transformations) are provided in the script 
+directory for the Rome "configration". rome.g4digit.trf and 
+rome.g4digit.MuonDigit.trf serve this purpose. The latter one 
+provides a work around to avoid the creation of RDOs in the muon and save 
+MuonDigits into the pool files. This is because RDO creation for the Muons 
+does not work yet in 9.0.x.  LSF wrappers are also in the script 
+directory
+
+Note for Digitization of events with Muon layout Q:
+--------------------------------------------------
+This applies to Rome-Initial layout in release 9. 
+Use the script rome.g4digit.MuonDigit.trf when digitizing events
+with muon layout Q with all avaiable releases. Or add the following to 
+DigitizationConfig.py:
+
+DetDescrVersion = 'Rome-Initial'
+#--------------------------------------------------------------
+# Write Muon digits instead of RDOs
+#--------------------------------------------------------------
+writeMuonDigit = True
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.writeRDOPool.Muon_setOff() 
+
+Note for release 9.0.2
+----------------------
+Some packages need to be checked out: (they will go in 9.0.3)
+cmt co Simulation/Digitization
+The lines where the RomeRDBConfig.py files is created need to be uncommented
+
+Note for release 9.0.3
+----------------------
+A file RomeIOVConfig.py is created and needs to be called right after the 
+Digitization.py jobOptions. This sets the db table to InitLayout-A as required
+to have the latest LAr conditions
+
+

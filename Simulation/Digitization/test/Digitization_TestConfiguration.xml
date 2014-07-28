@@ -1,0 +1,378 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <atn/>
+  <kv/>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>John Chapman</rttContactPerson>
+    <mailto>atlas-simulation-testreports@cern.ch</mailto>
+    <refRelease>17.2.1</refRelease>
+   
+    <jobList>   
+      <classification> 
+	<displayClass>OfflineValidation</displayClass> 
+	<displayProcess>Digi</displayProcess> 
+	<displayComponent>Det-Combined</displayComponent> 
+      </classification> 
+      <!-- NO PILEUP PER DOMAIN -->
+      <jobTransform trendId="core_noRDOs" userJobId="core_noRDOs" doMonitoring="True">
+	<doc>digitize BCM and Tile - use for determining core vmem</doc>
+	<jobTransformJobName>bcmtile</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc' --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.BCM_setOn'()',,DetFlags.Tile_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="bcm_only_noRDOs" userJobId="bcm_only_noRDOs" doMonitoring="True">
+        <doc>digitize beam conditions monitor only - use for determining core vmem</doc>
+        <jobTransformJobName>bcm</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.BCM_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="tile_only_noRDOs" userJobId="tile_only_noRDOs" doMonitoring="True">
+        <doc>digitize Tile calorimeter only - use for determining core vmem</doc>
+        <jobTransformJobName>tile</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Tile_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="id_noRDOs" userJobId="id_noRDOs" doMonitoring="True">
+        <doc>digitize ID only - no output</doc>
+        <jobTransformJobName>id_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="calo_noRDOs" userJobId="calo_noRDOs" doMonitoring="True">
+        <doc>digitize calorimeter only - no output</doc>
+        <jobTransformJobName>calo_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="muon_noRDOs" userJobId="muon_noRDOs" doMonitoring="True">
+        <doc>digitize muon system only - no output</doc>
+        <jobTransformJobName>muon_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="id_calo_noRDOs" userJobId="id_calo_noRDOs" doMonitoring="True">
+        <doc>digitize ID+calorimeter only - no output</doc>
+        <jobTransformJobName>id_calo_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="id_muon_noRDOs" userJobId="id_muon_noRDOs" doMonitoring="True">
+        <doc>digitize ID+muon system only - no output</doc>
+        <jobTransformJobName>id_muon_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Muon_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="calo_muon_noRDOs" userJobId="calo_muon_noRDOs" doMonitoring="True">
+        <doc>digitize calorimeter+muon system only - no output</doc>
+        <jobTransformJobName>calo_muon_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="id_calo_muon_noRDOs" userJobId="id_calo_muon_noRDOs" doMonitoring="True">
+        <doc>digitize ID+calorimeter+muon system only - no output</doc>
+        <jobTransformJobName>id_calo_muon_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+       <jobTransform trendId="all_noRDOs" userJobId="all_noRDOs" doMonitoring="True">
+        <doc>digitize ID,calo,muons and truth, no LVL1, no RDOs</doc>
+        <jobTransformJobName>all_noLVL1_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()',,DetFlags.Truth_setOn'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="all_LVL1_noRDOs" userJobId="all_LVL1_noRDOs" doMonitoring="True">
+        <doc>digitize all, no RDOs</doc>
+        <jobTransformJobName>all_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()',,DetFlags.Truth_setOn'()',,DetFlags.LVL1_setOn'()' triggerConfig=default</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="all_LVL1_RDOs" userJobId="all_LVL1_RDOs" doMonitoring="True">
+        <doc>digitize full atlas, LVL1 on, perfmon on</doc>
+        <jobTransformJobName>all</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 outputRDOFile=DigitizationOutput.pool.root maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True triggerConfig=default</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <!-- Remove mc08_full_atlas_no_pileup once per domain tests use all_LVL1 RDOs-->
+      <jobTransform trendId="mc08_full_atlas_no_pileup" userJobId="mc08_full_atlas_no_pileup" doMonitoring="True">
+        <doc>digitize full atlas, LVL1 on, perfmon on</doc>
+        <jobTransformJobName>all_perfmon</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 outputRDOFile=DigitizationOutput.pool.root maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True triggerConfig=default</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="id_nobcm_noRDOs" userJobId="id_nobcm_noRDOs" doMonitoring="True">
+        <doc>digitize id only without BCM</doc>
+        <jobTransformJobName>id_nobcm_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.BCM_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="id_nopixel_noRDOs" userJobId="id_nopixel_noRDOs" doMonitoring="True">
+        <doc>digitize id only without pixel detector</doc>
+        <jobTransformJobName>id_nopixel_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.pixel_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="id_nosct_noRDOs" userJobId="id_nosct_noRDOs" doMonitoring="True">
+        <doc>digitize id only without SCT</doc>
+        <jobTransformJobName>id_nosct_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.SCT_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="id_notrt_noRDOs" userJobId="id_notrt_noRDOs" doMonitoring="True">
+        <doc>digitize id without TRT</doc>
+        <jobTransformJobName>id_notrt_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.TRT_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="calo_nolar_noRDOs" userJobId="calo_nolar_noRDOs" doMonitoring="True">
+        <doc>digitize calorimeters without LAr calorimeters (=em+HEC+FCal)</doc>
+        <jobTransformJobName>calo_nolar_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()',,DetFlags.LAr_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="calo_notile_noRDOs" userJobId="calo_notile_noRDOs" doMonitoring="True">
+        <doc>digitize calorimeters without Tile calorimeter</doc>
+        <jobTransformJobName>calo_notile_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()',,DetFlags.Tile_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="muon_nocsc_noRDOs" userJobId="muon_nocsc_noRDOs" doMonitoring="True">
+        <doc>digitize muon system without CSC</doc>
+        <jobTransformJobName>muon_nocsc_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.CSC_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="muon_nomdt_noRDOs" userJobId="muon_nomdt_noRDOs" doMonitoring="True">
+        <doc>digitize muon system without MDT</doc>
+        <jobTransformJobName>muon_nomdt_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.MDT_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="muon_norpc_noRDOs" userJobId="muon_norpc_noRDOs" doMonitoring="True">
+        <doc>digitize muon system without RPC</doc>
+        <jobTransformJobName>muon_norpc_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.RPC_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="muon_notgc_noRDOs" userJobId="muon_notgc_noRDOs" doMonitoring="True">
+        <doc>digitize muon system without TGC</doc>
+        <jobTransformJobName>muon_notgc_noRDO</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/MC12/digitization/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-18-01-03 conditionsTag=OFLCOND-SDR-BS7T-05-14 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.TGC_setOff'()'</jobTransformCmd>
+        <group>DigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <!-- 3.5E33 PILEUP PER DOMAIN -->
+      <jobTransform trendId="pileup3_5E33_core_noRDOs" userJobId="pileup3_5E33_core_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of BCM and Tile - use for determining core vmem</doc>
+        <jobTransformJobName>bcmtile_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.BCM_setOn'()',,DetFlags.Tile_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_bcm_only_noRDOs" userJobId="pileup3_5E33_bcm_only_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of beam conditions monitor only - use for determining core vmem</doc>
+        <jobTransformJobName>bcm_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.BCM_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="pileup3_5E33_tile_only_noRDOs" userJobId="pileup3_5E33_tile_only_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of Tile calorimeter only - use for determining core vmem</doc>
+        <jobTransformJobName>tile_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Tile_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_id_noRDOs" userJobId="pileup3_5E33_id_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of ID only - no output</doc>
+        <jobTransformJobName>id_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_calo_noRDOs" userJobId="pileup3_5E33_calo_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of calorimeter only - no output</doc>
+        <jobTransformJobName>calo_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_muon_noRDOs" userJobId="pileup3_5E33_muon_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of muon system only - no output</doc>
+        <jobTransformJobName>muon_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+         <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_id_calo_noRDOs" userJobId="pileup3_5E33_id_calo_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of ID+calorimeter only - no output</doc>
+        <jobTransformJobName>id_calo_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_id_muon_noRDOs" userJobId="pileup3_5E33_id_muon_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of ID+muon system only - no output</doc>
+        <jobTransformJobName>id_muon_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Muon_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_calo_muon_noRDOs" userJobId="pileup3_5E33_calo_muon_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of calorimeter+muon system only - no output</doc>
+        <jobTransformJobName>calo_muon_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_id_calo_muon_noRDOs" userJobId="pileup3_5E33_id_calo_muon_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of ID+calorimeter+muon system only - no output</doc>
+        <jobTransformJobName>id_calo_muon_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_all_noRDOs" userJobId="pileup3_5E33_all_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of ID,calo,muons and truth, no LVL1, no RDOs</doc>
+        <jobTransformJobName>all_noLVL1_noRDO_3.5E33pileup</jobTransformJobName>
+      	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()',,DetFlags.Truth_setOn'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_all_LVL1_noRDOs" userJobId="pileup3_5E33_all_LVL1_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of all, no RDOs</doc>
+        <jobTransformJobName>all_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.Calo_setOn'()',,DetFlags.Muon_setOn'()',,DetFlags.Truth_setOn'()',,DetFlags.LVL1_setOn'()' triggerConfig=default preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_all_LVL1_RDOs" userJobId="pileup3_5E33_all_LVL1_RDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of full atlas, LVL1 on, RDOs on</doc>
+        <jobTransformJobName>all_perfmon_3.5E33pileup</jobTransformJobName>
+ 	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 outputRDOFile=DigitizationOutput.pool.root maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True triggerConfig=default preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_id_nobcm_noRDOs" userJobId="pileup3_5E33_id_nobcm_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of id only without BCM Digitization/MC09PileUpLumi3.5E33_25ns.py</doc>
+        <jobTransformJobName>id_nobcm_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.BCM_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="pileup3_5E33_id_nopixel_noRDOs" userJobId="pileup3_5E33_id_nopixel_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of id only without pixel detector</doc>
+        <jobTransformJobName>id_nopixel_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.pixel_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="pileup3_5E33_id_nosct_noRDOs" userJobId="pileup3_5E33_id_nosct_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of id only without SCT</doc>
+        <jobTransformJobName>id_nosct_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.SCT_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>       
+      <jobTransform trendId="pileup3_5E33_id_notrt_noRDOs" userJobId="pileup3_5E33_id_notrt_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of id without TRT</doc>
+        <jobTransformJobName>id_notrt_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.ID_setOn'()',,DetFlags.TRT_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_calo_nolar_noRDOs" userJobId="pileup3_5E33_calo_nolar_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of calorimeters without LAr calorimeters (=em+HEC+FCal)</doc>
+        <jobTransformJobName>calo_nolar_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()',,DetFlags.LAr_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_calo_notile_noRDOs" userJobId="pileup3_5E33_calo_notile_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of calorimeters without Tile calorimeter</doc>
+        <jobTransformJobName>calo_notile_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Calo_setOn'()',,DetFlags.Tile_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_muon_nocsc_noRDOs" userJobId="pileup3_5E33_muon_nocsc_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of muon system without CSC</doc>
+        <jobTransformJobName>muon_nocsc_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.CSC_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_muon_nomdt_noRDOs" userJobId="pileup3_5E33_muon_nomdt_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of muon system without MDT</doc>
+        <jobTransformJobName>muon_nomdt_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.MDT_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_muon_norpc_noRDOs" userJobId="pileup3_5E33_muon_norpc_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of muon system without RPC</doc>
+        <jobTransformJobName>muon_norpc_noRDO_3.5E33pileup</jobTransformJobName>
+ 	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.RPC_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+       <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+      <jobTransform trendId="pileup3_5E33_muon_notgc_noRDOs" userJobId="pileup3_5E33_muon_notgc_noRDOs" doMonitoring="True">
+        <doc>3.5E33 pileup digitization of muon system without TGC</doc>
+        <jobTransformJobName>muon_notgc_noRDO_3.5E33pileup</jobTransformJobName>
+	<jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 Digi_trf.py inputHitsFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/pileupInputs/mc09_14TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e564_s851_tid149330_00/HITS.149330._000232.pool.root.1 maxEvents=25 skipEvents=0 geometryVersion=ATLAS-GEO-10-00-00 conditionsTag=OFLCOND-SIM-BS14T-00 digiSeedOffset1=11 digiSeedOffset2=22 digiRndmSvc='AtDSFMTGenSvc'  --athenaopts=--stdcmalloc preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMonitoring=True,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,from@AthenaCommon.DetFlags@import@DetFlags,,DetFlags.Muon_setOn'()',,DetFlags.TGC_setOff'()' preInclude=Digitization/MC09PileUpLumi3.5E33_25ns.py --ignoreerrors=True</jobTransformCmd>
+        <group>PileUpDigiTrends</group>
+        <queue>medium</queue>
+      </jobTransform>
+   </jobList> 
+
+   <jobGroups>                                                                                                                                                             
+      <jobGroup name="DigiTrends" parent="Transform">
+      <keepFilePattern>ntuple.perfmon.*</keepFilePattern>
+      <keepFilePattern>out.perfmon.*</keepFilePattern>
+      <keepFilePattern>ntuple.pmon.gz</keepFilePattern>
+      <keepFilePattern>*.out</keepFilePattern>
+      <keepFilePattern>*.log</keepFilePattern>
+      <testToRemove>
+	<jobGroupName>Top</jobGroupName>
+	<testidentifier>CheckFileRunner0</testidentifier>
+      </testToRemove>
+      </jobGroup>                                           
+      <jobGroup name="PileUpDigiTrends" parent="Transform">
+      <keepFilePattern>ntuple.perfmon.*</keepFilePattern>
+      <keepFilePattern>out.perfmon.*</keepFilePattern>
+      <keepFilePattern>ntuple.pmon.gz</keepFilePattern>
+      <keepFilePattern>*.out</keepFilePattern>
+      <keepFilePattern>*.log</keepFilePattern>
+      <testToRemove>
+	<jobGroupName>Top</jobGroupName>
+	<testidentifier>CheckFileRunner0</testidentifier>
+      </testToRemove>
+      </jobGroup>                                           
+   </jobGroups>
+
+</rtt>
+</unifiedTestConfiguration>
