@@ -1,0 +1,28 @@
+#
+#  Makefile fragment to merge a <package>Dict.dsomap file into 
+#  a single <project>Dict.rootmap file in the install area
+#
+
+dsoMapFile    := ${dict_dir}/${dictionary}/${dictionary}Dict.dsomap
+dsoMapStamp   := $(dsoMapFile).stamp
+mergedDictMap := ${CMTINSTALLAREA}/$(tag)/lib/$(project)Dict.rootmap
+
+# drive the running of this fragment off of a <package>Dict.dsomap.stamp file
+${CONSTITUENT} ::  $(dsoMapStamp) $(mergedDictMap)
+
+$(mergedDictMap) : ${CMTINSTALLAREA}/$(tag)/lib
+	touch $(mergedDictMap)
+
+$(dsoMapFile) :
+	touch $(dsoMapFile)
+
+ifeq ($(MAKE_VERSION),3.79.1)          # slc3
+$(dsoMapStamp)   : $(dsoMapFile) $(mergedDictMap)
+else
+$(dsoMapStamp)   : $(mergedDictMap) | $(dsoMapFile)
+endif
+	@echo "Running merge_dict_rootmap  ${CONSTITUENT}. Map: ${mergedDictMap}" ; 
+	$(merge_dict_rootmap_cmd) $(dsoMapFile) $(mergedDictMap)
+
+${CONSTITUENT}clean ::
+	$(cleanup_silent) $(uninstall_command) $(dsoMapStamp)

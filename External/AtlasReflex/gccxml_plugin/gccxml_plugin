@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import sys
+import os
+
+if len(sys.argv) < 2 or sys.argv[1] == '--print':
+   print ('gccxml_plugin')
+   sys.exit(0)
+
+def pathsearch (file, path):
+   for p in path.split(':'):
+      pp = os.path.join (p, file)
+      if os.path.exists (pp):
+         return pp
+   return None
+
+
+# Search LD_LIBRARY_PATH for the plugin.
+plugin_name = 'libgccxml_plugin'
+plugin_path = pathsearch (plugin_name + '.so', os.environ['LD_LIBRARY_PATH'])
+if not plugin_path:
+   print ("Can't find gccxml plugin", plugin_name, "in LD_LIBRARY_PATH",
+          file = sys.stderr)
+   sys.exit(1)
+
+cxxflags = []
+while len(sys.argv) >= 3 and sys.argv[1] == '--gccxml-cxxflags':
+   cxxflags.append (sys.argv[2])
+   del sys.argv[1:3]
+
+if len(sys.argv)<3 or not sys.argv[2].startswith ('-fxml='):
+   print ("Second argument should be -fxml=", file = sys.stderr)
+   sys.exit(1)
+xml_file = sys.argv[2][6:]
+
+args = ['gcc', '-x', 'c++', '--std=c++11', '-S']
+args.append ('-fplugin=' + plugin_path)
+args.append ('-D__GCCXML__')
+args.append ('-D__REFLEX__')
+args.append ('-Wno-deprecated')
+args.append ('-fplugin-arg-%s-xml=%s' % (plugin_name, xml_file))
+args += cxxflags
+args.append (sys.argv[1])
+args += sys.argv[3:]
+cmd = ' '.join(args)
+cmd = cmd.replace ('"', '\\"')
+if '-v' in sys.argv[3:]:
+   print(cmd)
+ret = os.system (cmd)
+sys.exit (ret)
+
+
+
