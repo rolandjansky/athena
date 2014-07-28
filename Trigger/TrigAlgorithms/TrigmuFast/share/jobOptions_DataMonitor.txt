@@ -1,0 +1,52 @@
+// setup AMDC for the H8 TestBeam geometry 
+#include "AmdcAth/AmdcAth_jobOptions.txt"
+AmdcsimrecAthenaSvc.NameOfTheAmdbFile = "amdb_simrec.H8_2004_CTB.a.02";
+
+
+// load the L2 standalone configuration for the H8 RPC geometry
+ApplicationMgr.DLLs += { "RPCgeometry" };
+ApplicationMgr.DLLs += { "RPCcabling" };
+
+ApplicationMgr.ExtSvc += { "RPCgeometrySvc" };
+ApplicationMgr.ExtSvc += { "RPCcablingSvc" };
+
+RPCcablingSvc.ConfFileName = "TB_1_LVL1conf.data";
+RPCcablingSvc.CorrFileName = "TB_1_LVL1conf.corr";
+RPCgeometrySvc.H8testbeam  = true;
+
+RPCgeometrySvc.DumpRPCStations = true;
+RPCgeometrySvc.DumpRPCGeometry = true;
+
+// load the L2 standalone configuration for the H8 MDT geometry
+ApplicationMgr.DLLs   += { "MDTcabling" };
+ApplicationMgr.ExtSvc += { "MDTcablingSvc" };
+//MDTcablingSvc.RODfile    = "TB_1_RODmap.data" ;
+//MDTcablingSvc.RODfile    = "TB_2_RODmap.data" ;
+MDTcablingSvc.RODfile    = "TB_3_RODmap.data" ;
+
+MDTcablingSvc.H8testbeam = true;
+
+MDTcablingSvc.MapFlag = true;
+MDTcablingSvc.CheFlag = true;
+MDTcablingSvc.GeoFlag = true;
+//MDTcablingSvc.RemFlag = true;
+
+
+
+// load other L2 services
+ApplicationMgr.ExtSvc += { "MuRoadsSvc", "MuLUTSvc" };
+
+// Load the DataMonitor Algorithm
+ApplicationMgr.DLLs   += { "TrigmuFast" };
+ApplicationMgr.TopAlg += { "DataMonitor" };
+
+DataMonitor.MdtId = {1,2,3,4,5,6,9,10,11,12,13,14};
+//DataMonitor.RobId = { 91649,  90378,  90379  };
+DataMonitor.RobId = { 91649,  90369,  90370,  90883  };
+//                    RPCROB  MDTROB  MDTROB  MDTROB
+
+DataMonitor.OutputLevel = 2;
+
+DataMonitor.MUlvl1INFO = true;
+
+DataMonitor.SectorId = 31;

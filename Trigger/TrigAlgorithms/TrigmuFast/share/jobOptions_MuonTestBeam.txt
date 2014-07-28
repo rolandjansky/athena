@@ -1,0 +1,34 @@
+// Initialize old detector description
+#include "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.txt"
+#include "MuonDetMgrDetDescrCnv/MuonDetMgrDetDescrCnv_joboptions.txt"
+
+ApplicationMgr.DLLs += {"MuonDetMgrDetDescrCnv"};
+DetDescrCnvSvc.DecodeIdDict = true;
+DetDescrCnvSvc.MuonIDFileName  = "IdDictMuonSpectrometer_H8_2004.xml";
+DetDescrCnvSvc.ReadFromROOT = true;
+
+
+//Initialize Muon Test Beam Cabling and Calibration Services
+ApplicationMgr.DLLs += {"MuonTBConditions"};
+ApplicationMgr.ExtSvc += { "MuonTBMdtCablingSvc" } ;
+ApplicationMgr.ExtSvc += { "MuonTBCalibrationSvc" } ;
+
+// Default file name for the MDT cabling map
+//MuonTBMdtCablingSvc.InputFile = "H8MdtEleMap_TB04.data";
+MuonTBMdtCablingSvc.InputFile = "H8MdtEleMap_TB04_Combined.data";
+
+ApplicationMgr.ExtSvc += { "MuonTBRpcCablingSvc" } ;
+
+// Default file name for the RPC cabling map
+MuonTBRpcCablingSvc.InputFile = "H8RpcEleMap_TB04.data";
+
+
+//MuonTBMdtCablingSvc.ReadFromAscii = true;
+MuonTBMdtCablingSvc.ReadFromConditions = false;
+
+// Muon Test Beam libraries
+ApplicationMgr.DLLs += { "MuonTestBeamCnv" };
+
+
+RpcROD_Decoder.DecodeTDC = false;
+

@@ -1,0 +1,53 @@
+//**************************************************************
+//
+// jopOptions file for reading test beam ByteStream 
+//   
+//==============================================================
+// Input 
+
+// ByteStreamCnvSvc options
+//
+#include "ByteStreamCnvSvc/TBEventSelector_jobOptions.txt"
+#include "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.txt"
+#include "ByteStreamCnvSvcBase/BSAddProvSvc_RIO_jobOptions.txt"
+
+
+// Specify input file
+// Directory 
+ByteStreamInputSvc.InputDirectory += {"/castor/cern.ch/atlas/testbeam/tbmuon/2004" }; 
+// Prefix 
+ByteStreamInputSvc.FilePrefix += { "daq_SFI-61_muons" }; 
+// Run number 
+ByteStreamInputSvc.RunNumber = { 600381 }; 
+
+
+
+// Specify the Converters
+ApplicationMgr.ExtSvc += { "ByteStreamCnvSvc" };
+ByteStreamCnvSvc.InitCnvs += { "MdtCsm" };
+//ByteStreamCnvSvc.InitCnvs += { "RpcPad" };
+
+
+
+// setup the standard Testbeam services (DetDescr, Cabling, Calib, Converters)
+#include "TrigmuFast/jobOptions_MuonTestBeam.txt"
+ToolSvc.RpcColROD_Decoder.DecodeTDC = false;
+
+
+// setup the L2 environment and the Data Monitor algor
+#include "TrigmuFast/jobOptions_DataMonitor.txt"
+
+
+// Output level & events
+MessageSvc.OutputLevel      = 5;
+ApplicationMgr.EvtMax = 10000;
+
+
+//---------------------------------------------------------------
+// Ntuple service output
+//---------------------------------------------------------------
+ApplicationMgr.HistogramPersistency="HBOOK";
+NTupleSvc.Output    = { "FILE1 DATAFILE='trigger.ntup' OPT='NEW'" };
+HistogramPersinstencySvc.OutputFile = "trigger.hbook";
+HbookHistSvc.OutputFile = "trigger.his";
+~
