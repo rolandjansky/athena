@@ -1,0 +1,59 @@
+  // Fixme: these should be directly coded into TRTFastORAlg.cxx after the code settles.
+
+  //Barrel Trigger patterns//
+  //Patterns all contained within one phi stack
+  const int Bar_trigConf_0[29] = { 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 1 2 7 8
+  const int Bar_trigConf_1[29] = { 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 3 4 5 6
+  //Patterns requirng looking in same stack and adjacent stack +1, adjacent stack boards in ()  
+  //Looking at boards to cover phi gap when just using primary 1,2,7,8 and 3,4,5,6 patterns
+  const int Bar_trigConf_2[29] = { 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 2 (3 5) 8
+  const int Bar_trigConf_3[29] = { 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 2 (3 5) 7
+
+  //Transition Trigger patterns//
+  const int Tran_trigConf_0[29] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 0 9 10 11
+  const int Tran_trigConf_1[29] = { 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 1 9 10 11
+  const int Tran_trigConf_2[29] = { 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 1 2 9 10
+  const int Tran_trigConf_3[29] = { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 0 4 9 10
+
+  //Endcap Trigger patterns//
+  const int EC_trigConf_set4_0[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // consecutive sets of 4
+  const int EC_trigConf_set4_1[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_2[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_3[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_4[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_5[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_6[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_7[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_8[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_9[29]   = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_10[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_11[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_12[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 };
+  const int EC_trigConf_set4_13[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 };
+  const int EC_trigConf_set4_14[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 };
+  const int EC_trigConf_set4_15[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0 };
+  const int EC_trigConf_set4_16[29]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
+
+  //Base threshold pattern
+  const int Bar_trigPat_0[29]  = { 0, 6, 8, 0, 0, 0, 0, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int Bar_trigPat_1[29]  = { 0, 0, 0, 5, 5, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int Bar_trigPat_2[29]  = { 0, 0, 8, 4, 0, 6, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int Bar_trigPat_3[29]  = { 0, 0, 8, 4, 0, 6, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+  const int Tran_trigPat_0[29] = { 5, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int Tran_trigPat_1[29] = { 0, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int Tran_trigPat_2[29] = { 0, 6, 8, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const int Tran_trigPat_3[29] = { 5, 0, 0, 0, 4, 0, 0, 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+  //Define a new set of arrays to simplify things in the source code
+  const int*  Bar_trigConf[4]      = {Bar_trigConf_0, Bar_trigConf_1, Bar_trigConf_2, Bar_trigConf_3};
+  const int*  Tran_trigConf[4]     = {Tran_trigConf_0, Tran_trigConf_1, Tran_trigConf_2, Tran_trigConf_3};
+  const int*  Bar_trigPat[4]       = {Bar_trigPat_0, Bar_trigPat_1, Bar_trigPat_2, Bar_trigPat_3};
+  const int*  Tran_trigPat[4]      = {Tran_trigPat_0, Tran_trigPat_1, Tran_trigPat_2, Tran_trigPat_3};
+  const int*  EC_trigConf_set4[17] = {
+                                      EC_trigConf_set4_0,  EC_trigConf_set4_1,  EC_trigConf_set4_2,  EC_trigConf_set4_3,
+                                      EC_trigConf_set4_4,  EC_trigConf_set4_5,  EC_trigConf_set4_6,  EC_trigConf_set4_7,
+                                      EC_trigConf_set4_8,  EC_trigConf_set4_9,  EC_trigConf_set4_10, EC_trigConf_set4_11,
+                                      EC_trigConf_set4_12, EC_trigConf_set4_13, EC_trigConf_set4_14, EC_trigConf_set4_15, 
+                                      EC_trigConf_set4_16
+                                     }; 

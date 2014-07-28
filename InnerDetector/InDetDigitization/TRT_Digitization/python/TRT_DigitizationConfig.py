@@ -1,0 +1,119 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# The earliest bunch crossing time for which interactions will be sent
+# to the TRT Digitization code.
+def TRT_FirstXing():
+    return -50
+
+# The latest bunch crossing time for which interactions will be sent
+# to the TRT Digitization code.
+def TRT_LastXing():
+    return 50
+
+def getTRTRange(name="TRTRange", **kwargs):
+    #this is the time of the xing in ns
+    kwargs.setdefault('FirstXing', TRT_FirstXing() )
+    kwargs.setdefault('LastXing', TRT_LastXing() )
+    kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset
+    kwargs.setdefault('ItemList', ["TRTUncompressedHitCollection#TRTUncompressedHits"] )
+    from AthenaCommon import CfgMgr
+    return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+def BasicTRTDigitizationTool(name, **kwargs):
+
+    from AthenaCommon.Resilience import protectedInclude
+    protectedInclude ("TRT_Digitization/TRT_Digitization_CommonOptions.py")
+    # Sasha: added trt_pai_optional for Argon straw simulation
+    # WARNING Sasha temprorary for test!!! comment out these two lines below to return to normal
+    kwargs.setdefault("PAI_Tool", "TRT_PAI_Process")
+    kwargs.setdefault("PAI_Tool_optional", "TRT_PAI_Process_optional")
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    #flag from Simulation/Digitization
+    if not digitizationFlags.doInDetNoise.get_Value():
+      kwargs.setdefault("Override_noiseInSimhits", 0)
+      kwargs.setdefault("Override_noiseInUnhitStraws", 0)
+    #kwargs.setdefault("Override_useMagneticFieldMap=0)
+    # Import Beam job properties
+    from AthenaCommon.BeamFlags import jobproperties
+    if jobproperties.Beam.beamType == "cosmics" :
+       kwargs.setdefault("PrintDigSettings", True)
+       kwargs.setdefault("Override_cosmicFlag", 0)
+       kwargs.setdefault("Override_doCosmicTimingPit", 1)
+       kwargs.setdefault("Override_jitterTimeOffset", 0.)
+       kwargs.setdefault("Override_timeCorrection", 0)
+
+    #choose random number service
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doXingByXingPileUp():
+        kwargs.setdefault("FirstXing", TRT_FirstXing())
+        kwargs.setdefault("LastXing",  TRT_LastXing())
+
+    ##else:
+    ##    from AthenaCommon.DetFlags import DetFlags
+    ##    from AthenaCommon.AppMgr import ServiceMgr
+    ##    from PileUpComps.PileUpCompsConf import PileUpXingFolder
+    ##    if DetFlags.pileup.TRT_on():
+    ##        TRTRange = PileUpXingFolder( "TRTRange" )
+    ##        TRTRange.ItemList += ["TRTUncompressedHitCollection#TRTUncompressedHits"]
+    ##        #this is the time of the xing in ns
+    ##        TRTRange.FirstXing = TRT_FirstXing()
+    ##        TRTRange.LastXing  = TRT_LastXing()
+    ##        TRTRange.CacheRefreshFrequency = 1.0; #default 0 no dataproxy reset
+    ##        # add TRTRange to known pileuo intervals
+    ##        ServiceMgr.PileUpMergeSvc.Intervals += [TRTRange]
+
+    from AthenaCommon import CfgMgr
+    return CfgMgr.TRTDigitizationTool(name,**kwargs)
+
+def GenericTRTDigitizationTool(name,**kwargs):
+    #configure random generator streams
+    from Digitization.DigitizationFlags import digitizationFlags
+    digitizationFlags.rndmSeedList.addSeed( "TRT_ElectronicsNoise", 123, 345 )
+    digitizationFlags.rndmSeedList.addSeed( "TRT_Noise", 1234, 3456 )
+    digitizationFlags.rndmSeedList.addSeed( "TRT_ThresholdFluctuations", 12345, 34567 )
+    digitizationFlags.rndmSeedList.addSeed( "TRT_ProcessStraw", 123456, 345678 )
+    digitizationFlags.rndmSeedList.addSeed( "TRT_PAI", 12345678, 34567890 )
+    digitizationFlags.rndmSeedList.addSeed( "TRT_StreamerToHT", 3591, 2309736 )
+    digitizationFlags.rndmSeedList.addSeed( "TRT_FakeConditions", 123456789, 345678901 )
+    #This last one should, however, never be changed (unless you want a different layout of noisy channels etc.):
+    return BasicTRTDigitizationTool(name,**kwargs)
+
+def TRTDigitizationTool(name="TRTDigitizationTool",**kwargs):
+    kwargs.setdefault("OutputObjectName", "TRT_RDOs")
+    kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    return GenericTRTDigitizationTool(name,**kwargs)
+
+def TRTDigitizationToolHS(name="TRTDigitizationToolHS",**kwargs):
+    kwargs.setdefault("OutputObjectName", "TRT_RDOs")
+    kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 1)
+    return GenericTRTDigitizationTool(name,**kwargs)
+
+def TRTDigitizationToolPU(name="TRTDigitizationToolPU",**kwargs):
+    kwargs.setdefault("OutputObjectName", "TRT_PU_RDOs")
+    kwargs.setdefault("OutputSDOName", "TRT_PU_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 2)
+    return BasicTRTDigitizationTool(name,**kwargs)
+
+def TRT_SimDriftTimeTool(name="TRT_SimDriftTimeTool",**kwargs):
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    kwargs.setdefault("RndServ", digitizationFlags.rndmSvc())
+    digitizationFlags.rndmSeedList.addSeed( "TRT_SimDriftTime", 1234567, 3456789 )
+
+    from AthenaCommon import CfgMgr
+    return CfgMgr.TRT_SimDriftTimeTool(name,**kwargs)
+
+def TRTDigitizationHS(name="TRTDigitizationHS",**kwargs):
+    kwargs.setdefault("DigitizationTool", "TRTDigitizationToolHS")
+    from TRT_Digitization.TRT_DigitizationConf import TRTDigitization
+    return TRTDigitization(name,**kwargs)
+
+def TRTDigitizationPU(name="TRTDigitizationPU",**kwargs):
+    kwargs.setdefault("DigitizationTool", "TRTDigitizationToolPU")
+    from TRT_Digitization.TRT_DigitizationConf import TRTDigitization
+    return TRTDigitization(name,**kwargs)
