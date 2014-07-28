@@ -1,0 +1,219 @@
+#################################################
+#                                               #
+# Level-1 configuration File for H8 2004        #
+#                                               #
+# Author: A. Di Mattia                          #
+# Date: 10/03/2004                              #
+#                                               #
+#################################################
+
+
+Version 1.8  Testbeam H8
+
+
+
+#       +----------------------------> Start of geometry block
+#       |   +------------------------> Sector type
+#       |   |           +------------> Station number (1/2/3 = Low/Pivot/Hi)
+#       |   |           |          +-> Number of chamber composing
+#       |   |           |          |
+# RPC GEOM  X : station X made of XX chamber. Strips in connectors: eta 4 phi 8
+#                                                                       |     |
+#                              strip modularity of eta connectors <-----+     |
+#                              strip modularity of phi connectors <-----------+
+#
+#
+#
+# cham  1 BML-  1 1 1 2   Eview  32  01    Pview  64  01
+#       |  |    | | | |           |   |            |   |
+#       |  |    | | | |           |   |            |   +--> Phi Readout schema:
+#       |  |    | | | |           |   |            |        -------------------- 
+#       |  |    | | | |           |   |            |         01 means 
+#       |  |    | | | |           |   |            |         gap 0 in CMA lay 0
+#       |  |    | | | |           |   |            |         gap 1 in CMA lay 1
+#       |  |    | | | |           |   |            |        --------------------
+#       |  |    | | | |           |   |            |         10 means 
+#       |  |    | | | |           |   |            |         gap 0 in CMA lay 1
+#       |  |    | | | |           |   |            |         gap 1 in CMA lay 0
+#       |  |    | | | |           |   |            |        
+#       |  |    | | | |           |   |            +------> Phi readout strips
+#       |  |    | | | |           |   +-------------------> Eta readout schema
+#       |  |    | | | |           +-----------------------> Eta readout strips
+#       |  |    | | | |
+#       |  |    | | | +-----------------------------------> Phi readout multipl.
+#       |  |    | | +-------------------------------------> DoubletZ
+#       |  |    | +---------------------------------------> DoubletR
+#       |  |    +-----------------------------------------> StationEta
+#       |  +----------------------------------------------> ChamberName
+#       |
+#       +-------------------------------------------------> Chamber number
+   
+
+
+#           +--------------------> Sector type
+#           |           +--------> Station number (1/2/3 = Low/Pivot/Hi)
+#           |           |
+# WIRED OR  X : station X
+#
+# hard wired phi chamber  1     01 - 02
+#                         |     |    |
+#                         |     |    +-----> Stop chamber for hard wired or
+#                         |     +----------> Start chamber for hard wired or
+#                         +----------------> Wired or number
+
+
+#       +------------------------> Sector type
+#       |
+# CMAs  X : pivot segmentation
+#
+#       +---------------------------------------------> Matrix type
+#       |     +---------------------------------------> Matrix sequential numb.
+#       |     |     +---------------------------------> Matrix eta global index
+#       |     |     |      +--------------------------> Matrix phi global index
+#       |     |     |      |      +-------------------> PAD index
+#       |     |     |      |      |      +------------> Matrix index inside PAD
+#       |     |     |      |      |      |     +------> Station giving Pivot
+#       |     |     |      |      |      |     |  +---> Station giving Low Pt
+#       |     |     |      |      |      |     |  |  +> Station giving High Pt
+#       |     |     |      |      |      |     |  |  |
+# eta matrix 01 : eta 1  phi 1  PAD 1  Idx 1   2  1  3     01 : 01 - 01 : 32
+#                                                           |    |     |    |
+#                                                           |    |     |    |
+# RPC chamber to which the following strip belong        <--+    |     |    |
+# RPC strip to be connected to the first matrix channel  <-------+     |    |
+# RPC chamber to which the following strip belong        <-------------+    |
+# RPC strip to be connected to the last matrix channel   <------------------+ 
+#
+#
+#       +------------------------------------------------> Matrix type
+#       |     +------------------------------------------> Matrix sec. coverage
+#       |     |  +---------------------------------------> Matrix seq. number
+#       |     |  |     +---------------------------------> Matrix eta global Id
+#       |     |  |     |      +--------------------------> Matrix phi global Id
+#       |     |  |     |      |      +-------------------> PAD Id
+#       |     |  |     |      |      |      +------------> Matrix Id inside PAD
+#       |     |  |     |      |      |      |     +------> Pivot Station Id
+#       |     |  |     |      |      |      |     |  +---> Low Pt Station Id
+#       |     |  |     |      |      |      |     |  |  +> High Pt Station Id
+#       |     |  |     |      |      |      |     |  |  |
+# phi matrix odd 01 : eta 1  phi 1  PAD 1  Idx 1  2  1  3   01 : 48 - 01 : 25
+#                                                           |    |     |    |
+#                                                           |    |     |    |
+# RPC chamber to which the following strip belong        <--+    |     |    |
+# RPC strip to be connected to the first matrix channel  <-------+     |    |
+# RPC chamber to which the following strip belong        <-------------+    |
+# RPC strip to be connected to the last matrix channel   <------------------+ 
+
+
+#       +------------------------> Sector Type
+#       |
+#       |
+# CMAs  X : eta cabling
+#
+#
+#                 +-----------------------------> CMA eta index
+#                 |      +----------------------> CMA phi index
+#                 |      |          +-----------> number of connectors
+#                 |      |          |    +------> first connector (global coo)
+#                 |      |          |    |    +-> last connector (global coo)
+#                 |      |          |    |    |
+# eta matrix  eta 0  phi 0 : low Pt 09 , 01 - 09    high Pt 11 , 01 - 11
+#                                                           |    |    |
+#             number of connectors           <--------------+    |    |
+#             first connector (global coo)   <-------------------+    |
+#             last connector (global coo)    <------------------------+
+
+
+# Start Sector type enumeration
+
+# allow for 8 sectors to include StationPhi=3 (logic sectors 7 and 8)
+SECTOR TYPES ( 32 - 32 ):   1  
+SECTOR TYPES ( 63 - 63 ):   1  
+
+
+###############################################################################
+#################################### TYPE 1 ###################################
+###############################################################################
+
+# rimangono da definire gli indici 01 10
+RPC GEOM  1 : station 1 made of  4 chamber. Strips in connectors: eta 4 phi 8
+{
+ cham  1 BML-D  1 1 1 2   Eview  32  01    Pview  64  01 
+ cham  2 BML-D  1 1 2 2   Eview  32  01    Pview  64  01 
+ cham  3 BML-D  2 1 1 2   Eview  32  01    Pview  64  01 
+ cham  4 BML-D  2 1 2 2   Eview  32  01    Pview  64  01 
+}
+
+WIRED OR  1 : station 1
+{
+ hard wired phi chamber  1     01 - 02
+ hard wired phi chamber  2     03 - 04
+}
+
+RPC GEOM  1 : station 2 made of 4 chamber. Strips in connectors: eta 8 phi 8
+{
+ cham  1 BML-D  1 2 1 2   Eview  32  01    Pview  64  01 
+ cham  2 BML-D  1 2 2 2   Eview  32  01    Pview  64  01 
+ cham  3 BML-D  2 2 1 2   Eview  32  01    Pview  64  01 
+ cham  4 BML-D  2 2 2 2   Eview  32  01    Pview  64  01 
+}
+
+WIRED OR  1 : station 2
+{
+ hard wired phi chamber  1     01 - 02
+ hard wired phi chamber  2     03 - 04
+}
+
+###############################################################################
+
+CMAs  1 : pivot segmentation 
+{
+  eta matrix 01 : eta 0  phi 0  PAD 1  Idx 1   2  1  3     01 : 01 - 01 : 32
+  eta matrix 02 : eta 1  phi 0  PAD 1  Idx 0   2  1  3     02 : 01 - 02 : 32
+  eta matrix 03 : eta 2  phi 0  PAD 2  Idx 1   2  1  3     03 : 01 - 03 : 32
+  eta matrix 04 : eta 3  phi 0  PAD 2  Idx 0   2  1  3     04 : 01 - 04 : 32
+
+
+  phi matrix even 01 : eta 0  phi 0  PAD 1  Idx 1   2  1  3    01 : 64 - 01 : 33
+  phi matrix even 02 : eta 0  phi 1  PAD 1  Idx 0   2  1  3    01 : 32 - 01 : 01
+  phi matrix even 03 : eta 1  phi 0  PAD 2  Idx 1   2  1  3    02 : 64 - 02 : 33
+  phi matrix even 04 : eta 1  phi 1  PAD 2  Idx 0   2  1  3    02 : 32 - 02 : 01
+
+  phi matrix odd  01 : eta 0  phi 0  PAD 1  Idx 1   2  1  3    01 : 64 - 01 : 33
+  phi matrix odd  02 : eta 0  phi 1  PAD 1  Idx 0   2  1  3    01 : 32 - 01 : 01
+  phi matrix odd  03 : eta 1  phi 0  PAD 2  Idx 1   2  1  3    02 : 64 - 02 : 33
+  phi matrix odd  04 : eta 1  phi 1  PAD 2  Idx 0   2  1  3    02 : 32 - 02 : 01
+}
+
+
+CMAs  1 : eta cabling
+{
+ eta matrix  eta  0  phi  0 : low Pt 08 , 01 - 08    high Pt 08 , 01 - 08
+ eta matrix  eta  1  phi  0 : low Pt 08 , 09 - 16    high Pt 08 , 09 - 16
+ eta matrix  eta  2  phi  0 : low Pt 08 , 17 - 24    high Pt 08 , 17 - 24
+ eta matrix  eta  3  phi  0 : low Pt 08 , 25 - 32    high Pt 08 , 25 - 32
+}
+
+
+
+###############################################################################
+
+RPC GEOM  1 : station 3 made of 12 chamber. Strips in connectors: eta 4 phi 8
+{
+ cham  1 BOL-  1 1 1 2   Eview  32  01    Pview  80  01 
+ cham  2 BOL-  1 1 2 2   Eview  32  01    Pview  80  01 
+ cham  3 BOL-  2 1 1 2   Eview  32  01    Pview  80  01 
+ cham  4 BOL-  2 1 2 2   Eview  32  01    Pview  80  01 
+}
+
+WIRED OR  1 : station 3
+{
+ hard wired phi chamber  1     01 - 02
+ hard wired phi chamber  2     03 - 04
+}
+
+
+###############################################################################
+#################################### TYPE 2 ###################################
+###############################################################################
+

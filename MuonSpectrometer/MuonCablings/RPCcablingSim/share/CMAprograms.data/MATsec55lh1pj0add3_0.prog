@@ -1,0 +1,105 @@
+th 1 maj_reg 2
+th 1 thr_reg 00 00000000 0001fffc 
+th 1 thr_reg 01 00000000 0003fff8 
+th 1 thr_reg 02 00000000 0007fff0 
+th 1 thr_reg 03 00000000 000fffc0 
+th 1 thr_reg 04 00000000 001fff80 
+th 1 thr_reg 05 00000000 007fff00 
+th 1 thr_reg 06 00000000 00fffe00 
+th 1 thr_reg 07 00000000 01fffc00 
+th 1 thr_reg 08 00000000 03fff800 
+th 1 thr_reg 09 00000000 07fff000 
+th 1 thr_reg 10 00000000 0fffc000 
+th 1 thr_reg 11 00000000 1fffc000 
+th 1 thr_reg 12 00000000 7fff0000 
+th 1 thr_reg 13 00000000 fffe0000 
+th 1 thr_reg 14 00000001 fffe0000 
+th 1 thr_reg 15 00000003 fffc0000 
+th 1 thr_reg 16 00000007 fff80000 
+th 1 thr_reg 17 0000001f fff00000 
+th 1 thr_reg 18 0000003f ffc00000 
+th 1 thr_reg 19 000000ff ff800000 
+th 1 thr_reg 20 000000ff ff000000 
+th 1 thr_reg 21 000003ff fe000000 
+th 1 thr_reg 22 000007ff fc000000 
+th 1 thr_reg 23 00000fff f8000000 
+th 1 thr_reg 24 00003fff f0000000 
+th 1 thr_reg 25 00007fff c0000000 
+th 1 thr_reg 26 0000ffff 80000000 
+th 1 thr_reg 27 0001ffff 00000000 
+th 1 thr_reg 28 0003fffe 00000000 
+th 1 thr_reg 29 0007fffc 00000000 
+th 1 thr_reg 30 000ffff8 00000000 
+th 1 thr_reg 31 001ffff0 00000000 
+th 2 maj_reg 2
+th 2 thr_reg 00 00000000 00003fe0 
+th 2 thr_reg 01 00000000 00007fc0 
+th 2 thr_reg 02 00000000 0000ffc0 
+th 2 thr_reg 03 00000000 0001ff00 
+th 2 thr_reg 04 00000000 0007fe00 
+th 2 thr_reg 05 00000000 000ffc00 
+th 2 thr_reg 06 00000000 000ff000 
+th 2 thr_reg 07 00000000 003fc000 
+th 2 thr_reg 08 00000000 007fc000 
+th 2 thr_reg 09 00000000 00ff8000 
+th 2 thr_reg 10 00000000 01fe0000 
+th 2 thr_reg 11 00000000 03fe0000 
+th 2 thr_reg 12 00000000 07fc0000 
+th 2 thr_reg 13 00000000 0ff80000 
+th 2 thr_reg 14 00000000 1ff00000 
+th 2 thr_reg 15 00000000 7fc00000 
+th 2 thr_reg 16 00000000 ffc00000 
+th 2 thr_reg 17 00000001 ff000000 
+th 2 thr_reg 18 00000007 fe000000 
+th 2 thr_reg 19 0000000f fe000000 
+th 2 thr_reg 20 0000001f f8000000 
+th 2 thr_reg 21 0000003f f0000000 
+th 2 thr_reg 22 0000007f e0000000 
+th 2 thr_reg 23 000001ff c0000000 
+th 2 thr_reg 24 000003ff 00000000 
+th 2 thr_reg 25 000003fe 00000000 
+th 2 thr_reg 26 00000ffc 00000000 
+th 2 thr_reg 27 00001ff8 00000000 
+th 2 thr_reg 28 00007ff0 00000000 
+th 2 thr_reg 29 0000ffc0 00000000 
+th 2 thr_reg 30 0001ff80 00000000 
+th 2 thr_reg 31 0001ff80 00000000 
+th 3 maj_reg 2
+th 3 thr_reg 00 00000000 00001fc0 
+th 3 thr_reg 01 00000000 00003f00 
+th 3 thr_reg 02 00000000 00007e00 
+th 3 thr_reg 03 00000000 0000fe00 
+th 3 thr_reg 04 00000000 0001f800 
+th 3 thr_reg 05 00000000 0003f000 
+th 3 thr_reg 06 00000000 0007e000 
+th 3 thr_reg 07 00000000 000fc000 
+th 3 thr_reg 08 00000000 001f0000 
+th 3 thr_reg 09 00000000 003e0000 
+th 3 thr_reg 10 00000000 007e0000 
+th 3 thr_reg 11 00000000 00fc0000 
+th 3 thr_reg 12 00000000 03f80000 
+th 3 thr_reg 13 00000000 0fe00000 
+th 3 thr_reg 14 00000000 1fc00000 
+th 3 thr_reg 15 00000000 1f800000 
+th 3 thr_reg 16 00000000 3f000000 
+th 3 thr_reg 17 00000000 fe000000 
+th 3 thr_reg 18 00000001 f8000000 
+th 3 thr_reg 19 00000003 f0000000 
+th 3 thr_reg 20 00000007 e0000000 
+th 3 thr_reg 21 0000000f c0000000 
+th 3 thr_reg 22 0000001f 80000000 
+th 3 thr_reg 23 0000003f 80000000 
+th 3 thr_reg 24 000000ff 00000000 
+th 3 thr_reg 25 000003fc 00000000 
+th 3 thr_reg 26 000007f8 00000000 
+th 3 thr_reg 27 000007e0 00000000 
+th 3 thr_reg 28 00003fc0 00000000 
+th 3 thr_reg 29 0000ff80 00000000 
+th 3 thr_reg 30 0000ff00 00000000 
+th 3 thr_reg 31 0000fe00 00000000 
+
+overlap1 00000000
+overlap2 00000000
+trig_local_direc_i 7
+trig_local_direc_j 7
+trig_k_readout 0

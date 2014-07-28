@@ -1,0 +1,84 @@
+This package contains the classes for handling the cabling configuration of 
+the RPC barrel system. The cabling package can be run without any other service
+loaded, but the RPCgeometrySvc is required if the RDO online <-> offline mapping
+has to be used. Two sets of libraries are created: RPCcabling to be used into
+ATHENA framework and RPCcab to be used for running a standalone application.
+
+
+Basic Components:
+
+CablingRPC       : singleton class handling the whole configuration of the RPC
+                   cabling.
+
+RPCcablingSvc    : interface class implementing the access to the RPCcabling
+                   class as an ATHENA service.
+
+CablingObject    : Implements the common funcionalities  of the cabling
+                   configuration classes.
+
+RDOindex         : maps the online indexes of a PAD into Sector Logic, ROD,
+                   ROB indexes. It contains also a facility i for mapping the
+                   PAD using the offline identifiers.
+
+SectorLogicSetup : holds the configuration (chamber,wired or, coincidence 
+                   matrices) of a sector logic type.
+
+RPCchamber       : stores the cabling parameters for the RPC chamber and models 
+                   the eta strip connections to the Coincidence Matrix. 
+
+WiredOR          : models the phi strip connections from the RPCcahmaber (one 
+                   side) up to the coincidence matix (other side).
+
+CMAparameters    : contains the standard functionalities for storing and
+                   retriving the configuration parameters of a coincidence 
+                   matrix (cabling map, threshold registers, identifing 
+                   indexes). 
+
+EtaCMA           : provides a specialization of the basic CMAparameters class
+                   implementing the cabling schema for the Eta view.
+
+EvenPhiCMA       : provides a specialization of the basic CMAparameters class
+                   implementing the cabling schema for the Phi view into the
+                   right phi side of the trigger station.
+
+OddPhiCMA        : provides a specialization of the basic CMAparameters class
+                   implementing the cabling schema for the Phi view into the
+                   left phi side of the trigger station.
+
+CMAidentity      : stores the CMA identification indexes.
+
+TRIGGERidentity  : implements the definitions for the RPC trigger types.
+
+CMAprogram       : holds the configuration program for the Coincidence Matrix
+                   (threshold registers, overlap bits, majority type etc.).
+
+RPCchamberdata   : reads the RPCchamber sections into the ASCII database and
+                   creates the related classes in memory.
+
+WiredORdata      : reads the WiredOR sections into the ASCII database and 
+                   creates the related classes in memory.
+
+CMApivotdata     : reads the CMA pivot sections into the ASCII database and
+                   creates the related classes in memory.
+
+CMAcablingdata   : reads the CMA cabling section (for confirm planes) into the
+                   ASCII database and creates the related clesses in memory.
+
+
+
+
+
+Use and configuration in ATHENA:
+
+    * Load and use the required DLL module with the following command lines:
+
+       ApplicationMgr.DLLs += { "RPCcabling" };
+       ApplicationMgr.ExtSvc += { "RPCcablingSvc" };
+
+    * The configuration parameters put into the share directory (LVL1conf.data
+      file and CMAprograms directory) must be accessible from the run directory.
+      To run the CablingSvc make a link to those file.
+
+    * Configuration parameters:
+
+      ConfFileName     ["LVL1conf.data"]  file holding the Level-1 cabling data
