@@ -1,0 +1,92 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// PseudoMeasurementOnTrack.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
+#define TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
+
+#include "TrkMeasurementBase/MeasurementBase.h"
+//#include "TrkEventPrimitives/GlobalPosition.h"
+#include "EventPrimitives/EventPrimitives.h"  
+#include "GeoPrimitives/GeoPrimitives.h" 
+#include <ostream>
+
+class MsgStream;
+class TrackCollectionCnv;
+
+namespace Trk{
+
+  class Surface;
+
+/**
+ @brief Class to handle pseudo-measurements in fitters and on track objects.
+
+ Such virtual measurements are typically used to feed crude values into
+ track fitters for otherwise unconstraint fit parameters.
+ Inherits from the common Trk::MeasurementBase but NOT from Trk::RIO_OnTrack
+ since it is not necessarily connected to a "real" identifier, PRD
+ or detectorElement. Through the Trk::MeasurementBase inheritance this
+ class is stored and persistified on ESD.
+
+ @author Common Tracking SW Group
+
+ */
+
+  class PseudoMeasurementOnTrack : public MeasurementBase {
+
+    friend class ::TrackCollectionCnv;
+
+    public:
+      //! Default Constructor for POOL 
+      PseudoMeasurementOnTrack();
+      //! Copy Constructor 
+      PseudoMeasurementOnTrack(const PseudoMeasurementOnTrack& pmot);
+      //! Assignment operator 
+      PseudoMeasurementOnTrack& operator=(const PseudoMeasurementOnTrack& pmot);
+
+      //! Constructor with (LocalParameters*, LocalErrorMatrix*, Surface&) Note: the associated surface is cloned 
+      PseudoMeasurementOnTrack( const LocalParameters& locpars,
+                                const Amg::MatrixX&     locerr,
+                                const Surface&         assocSurf);
+
+      //! Destructor 
+      virtual ~PseudoMeasurementOnTrack();
+
+      //! virtual constructor, not absolutely needed but given for EDM symmetry 
+      PseudoMeasurementOnTrack* clone() const;
+
+      //! returns the surface for the local to global transformation (interface from MeasurementBase)
+      const Surface& associatedSurface() const;
+
+
+      //! returns the global Position (interface from MeasurementBase)
+      const Amg::Vector3D& globalPosition() const;
+
+      //! produces logfile output about its content in MsgStream form. 
+      virtual MsgStream&    dump( MsgStream& out ) const;
+      //! produces logfile output about its content in stdout form. 
+      virtual std::ostream& dump( std::ostream& out ) const;
+
+    protected:
+
+      //! holds the surface to which the PMoT is associated. The surface is responsible for the correct local-to-global transformation.
+      mutable const Surface* m_associatedSurface;
+
+      //! Global position of the PMoT
+      mutable const Amg::Vector3D*  m_globalPosition;
+  };
+
+  inline PseudoMeasurementOnTrack* PseudoMeasurementOnTrack::clone() const 
+  { return new PseudoMeasurementOnTrack(*this); }
+
+  inline const Surface& PseudoMeasurementOnTrack::associatedSurface() const
+  { return *m_associatedSurface; }
+
+}
+
+#endif // TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
+
