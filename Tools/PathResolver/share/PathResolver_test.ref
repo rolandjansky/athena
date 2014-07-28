@@ -1,0 +1,6 @@
+*** PathResolver_test starts ***
+filename a.txt
+fileLocation ../test/A/a.txt
+filename B/a.txt
+fileLocation ../test/B/a.txt
+*** PathResolver_test ends ***
