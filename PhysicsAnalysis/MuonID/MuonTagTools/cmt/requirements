@@ -1,0 +1,27 @@
+package MuonTagTools
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaPoolUtilities AthenaPoolUtilities-*        		Database/AthenaPOOL
+use GaudiInterface      GaudiInterface-*       			External
+use AthenaBaseComps	AthenaBaseComps-*	                Control
+# use StoreGate           StoreGate-*            			Control
+use TagEvent		TagEvent-*		  		PhysicsAnalysis/EventTag
+
+private
+#use muonEvent           muonEvent-*                             Reconstruction/MuonIdentification
+use xAODMuon		xAODMuon-*				Event/xAOD 
+use AnalysisUtils	AnalysisUtils-*				PhysicsAnalysis/AnalysisCommon
+use ITrackToVertex      ITrackToVertex-*                        Reconstruction/RecoTools
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
+use MuonIdHelpers           MuonIdHelpers-*      MuonSpectrometer
+# use MuonRecHelperTools  MuonRecHelperTools-*                    MuonSpectrometer/MuonReconstruction/MuonRecTools
+use TrkTrackSummary     TrkTrackSummary-*                       Tracking/TrkEvent
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
+
+
