@@ -1,0 +1,18 @@
+package TrigT2Tau
+
+use     AtlasPolicy             AtlasPolicy-01-*
+use     GaudiInterface          GaudiInterface-01-*     External
+use     TrigCaloEvent           TrigCaloEvent-00-*      Trigger/TrigEvent
+use     TrigInDetEvent          TrigInDetEvent-*        Trigger/TrigEvent
+use     TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
+use     TrigParticle            TrigParticle-*          Trigger/TrigEvent
+use     TrigInterfaces          TrigInterfaces-*        Trigger/TrigSteer
+use     TrigTimeAlgs            TrigTimeAlgs-*          Trigger/TrigTools
+use     FourMom                 FourMom-*               Event
+
+ 
+ 
+apply_pattern dual_use_library files=*.cxx
+#apply_pattern declare_runtime
+#apply_pattern declare_joboptions files="TriggerConfig_*.py jobOfragment_*.py"
+apply_pattern declare_python_modules files="*.py"
