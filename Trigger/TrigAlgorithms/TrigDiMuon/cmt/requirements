@@ -1,0 +1,57 @@
+package TrigDiMuon
+
+author Shlomit Tarem <Shlomit.Tarem@cern.ch>
+author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+
+use AtlasPolicy           *
+use GaudiInterface        * External
+#use DataModel		  * Control
+#use StoreGate       	  * Control
+use ByteStreamCnvSvcBase  * Event
+use TrigInterfaces	  * Trigger/TrigSteer
+use TrigInDetEvent	  * Trigger/TrigEvent
+use TrigMuonEvent	  * Trigger/TrigEvent
+use TrigBphysicsEvent	  * Trigger/TrigEvent
+use TrigTimeAlgs          * Trigger/TrigTools
+use TrigParticle	  * Trigger/TrigEvent
+use TrigInDetEvent	  * Trigger/TrigEvent
+use MuonRDO		  * MuonSpectrometer
+use MDTcabling            * MuonSpectrometer/MuonCablings
+use RPCcablingInterface	  * MuonSpectrometer/MuonCablings
+use RPCgeometry           * MuonSpectrometer/MuonCablings
+use TGCgeometry           * MuonSpectrometer/MuonCablings
+use MuonCnvToolInterfaces * MuonSpectrometer/MuonCnv
+use TrigT1RPClogic        * Trigger/TrigT1
+use TrigSteeringEvent     * Trigger/TrigEvent
+use AtlasCLHEP            * External
+
+private
+
+use EventInfo             * Event
+use GeneratorObjects      * Generators
+use MuonContainerManager  * MuonSpectrometer/MuonCnv
+use MuonDigitContainer    * MuonSpectrometer
+use MuonReadoutGeometry   * MuonSpectrometer/MuonDetDescr
+use PathResolver          * Tools
+use RegionSelector        * DetectorDescription
+use TrackRecord           * Simulation/G4Sim
+use TrigT1Interfaces      * Trigger/TrigT1
+use TrigInDetToolInterfaces * Trigger/TrigTools
+use TrigVertexFitter    TrigVertexFitter-*       Trigger/TrigTools
+
+
+#macro cppdebugflags '\$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+public
+
+branches TrigDiMuon src
+
+library TrigDiMuon *.cxx components/*.cxx
+
+apply_pattern component_library
+#apply_pattern declare_runtime
+#apply_pattern declare_runtime_extras extras="*.xml *.sh *.cfg *.data"
+apply_pattern declare_joboptions files="TrigDiMuon*.txt TrigDiMuon*.py TriggerConfig*.py jobO*.py"
+apply_pattern declare_runtime files="Lut*.txt" extras="*.xml *.sh *.cfg *.data"
+apply_pattern declare_python_modules files="*.py"
