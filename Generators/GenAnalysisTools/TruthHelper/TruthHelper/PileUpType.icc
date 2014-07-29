@@ -1,0 +1,151 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+// Author: Ketevi A. Assamagan
+// Date:   February 2008
+
+template<class Selector>
+void PileUpType::signal_particles( std::vector<const HepMC::GenParticle*>& particleList,
+                                   const Selector& select ) const
+{
+   HepMC::GenEvent::particle_const_iterator istart = this->signal_particle_begin();
+   HepMC::GenEvent::particle_const_iterator iend   = this->signal_particle_end();
+   for ( ; istart != iend; ++istart ) {
+     if ( select(*istart) ) particleList.push_back ( *istart );
+   }
+}
+
+template<class Selector>
+void PileUpType::in_time_minimum_bias_particles( std::vector<const HepMC::GenParticle*>& particleList,
+                                                 const Selector& select ) const
+{
+   McEventCollection::const_iterator ievent_begin = this->in_time_minimum_bias_event_begin();
+   McEventCollection::const_iterator ievent_end   = this->in_time_minimum_bias_event_end();
+   for ( ; ievent_begin != ievent_end; ++ievent_begin ) {
+     HepMC::GenEvent::particle_const_iterator it = (*ievent_begin)->particles_begin();
+     HepMC::GenEvent::particle_const_iterator en = (*ievent_begin)->particles_end();
+     for ( ; it != en; ++it ) {
+       if ( select(*it) ) particleList.push_back(*it); 
+     }
+   }
+}
+
+template<class Selector>
+void PileUpType::in_time_particles( std::vector<const HepMC::GenParticle*>& particleList,
+                                    const Selector& select ) const 
+{
+   particleList.clear();
+   this->signal_particles( particleList, select );
+   this->in_time_minimum_bias_particles( particleList, select );
+
+}
+
+/** return the MC events in [-2BC, +2BC], including the signal McEvent at BC=0 */
+template<class Selector>
+void PileUpType::particles_in_two_bunch_crossings( std::vector<const HepMC::GenParticle*>& particleList,
+                                                   const Selector& select ) const
+{
+   particleList.clear();
+
+   /** add the in-time particles at BC=0 */
+   this->in_time_particles( particleList, select );
+
+   /** find the ranges of the out-of-time particles in [-2BC, +2BC] */
+   const unsigned int colSize = m_particleList->size();
+   unsigned int istart = 0;
+   unsigned int iend = 0;
+   for (unsigned int i=1; i<colSize; ++i) 
+   {
+      // start of the out-of-time in [-2BC,+2BC]
+      if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i+1;
+      if ( i >= istart ) 
+      {
+         // end of the out-of-time in [-2BC,+2BC]
+         if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 )
+         { 
+           iend=i-1;
+           break;
+         }
+      }
+   }
+
+   /** collect the out-of-time particles within [-2BC,+2BC] */
+   for (unsigned int i=istart; i<iend; ++i) 
+   {
+      HepMC::GenEvent::particle_const_iterator it = (m_particleList->at(i))->particles_begin();
+      HepMC::GenEvent::particle_const_iterator en = (m_particleList->at(i))->particles_end();
+      for (; it != en; ++it) {
+	if ( select(*it) ) particleList.push_back(*it);
+      }
+   }
+}
+
+/** return the MC events in [-inf,-2BC] and [+2BC,+inf], excluding the cavern background and the beam halo */
+template<class Selector>
+void PileUpType::particles_outside_two_bunch_crossings( std::vector<const HepMC::GenParticle*>& particleList,
+                                                        const Selector& select ) const
+{
+   particleList.clear();
+   const unsigned int colSize = m_particleList->size();
+   unsigned int istart = 0;
+   unsigned int iend = 0;
+   for (unsigned int i=1; i<colSize; ++i)
+   {
+      // start of the out-of-time in [-2BC, +2BC]
+      if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i+1;
+      if ( i >= istart )
+      {
+         // start of the out-of-time in [-Inf,-2BC] and [+2BC,+Inf]
+         if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i+1;
+         if ( i >= istart )
+         {
+            // end of the out-of-time in [-Inf,-2BC] and [+2Bc,+Inf]
+            if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 )
+            {
+              iend=i-1;
+              break;
+            }
+         }
+      }
+   }
+
+   /** collect the out-of-time particles within [-Inf, -2BC] and [+2BC,+Inf] */
+   for (unsigned int i=istart; i<iend; ++i)
+   {
+      HepMC::GenEvent::particle_const_iterator it = (m_particleList->at(i))->particles_begin();
+      HepMC::GenEvent::particle_const_iterator en = (m_particleList->at(i))->particles_end();
+      for (; it != en; ++it) {
+        if ( select(*it) ) particleList.push_back(*it);
+      }
+   }
+}
+ 
+/** return the MC events of the cavern background */
+template<class Selector>
+void PileUpType::cavern_background_particles( std::vector<const HepMC::GenParticle*>& particleList,
+                                              const Selector& select ) const
+{
+   particleList.clear();
+   const unsigned int colSize = m_particleList->size();
+   unsigned int istart = 0;
+   for (unsigned int i=1; i<colSize; ++i)
+   {
+      // the cavern is at the end so, the last of this condition is the start of the cavern 
+      if ( (m_particleList->at(i))->event_number() == -1 && (m_particleList->at(i))->signal_process_id() == 0 ) istart=i;
+   }
+
+   /** collect the cavern background particles */
+   for (unsigned int i=istart+1; i<colSize; ++i)
+   {
+      HepMC::GenEvent::particle_const_iterator it = (m_particleList->at(i))->particles_begin();
+      HepMC::GenEvent::particle_const_iterator en = (m_particleList->at(i))->particles_end();
+      for (; it != en; ++it) {
+        if ( select(*it) ) particleList.push_back(*it);
+      }
+   }
+}
+
+
+

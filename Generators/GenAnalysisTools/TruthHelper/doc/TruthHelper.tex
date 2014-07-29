@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}           
+
+\begin{document}
+\title{TruthHelper -- Predicates for selecting particles\\
+release 5.3.0 and later\\ 
+January 29, 2003}
+\author{ Ian Hinchliffe (I\_Hinchliffe@lbl.gov),\\
+         updated by Ewelina Lobodzinska (ewelina@mail.desy.de)}
+
+\maketitle   
+
+The installed library   TruthHelper in
+Generators/GenAnalysisTools/TruthHelper
+ provides a set of predicates that can be used in order to select
+ partilces of certain types. It runs against the HepMC events that are
+ produced either by GeneratorModules or GenzModule and hides the
+ complex status codes from the user.
+
+The available predicates are as follows
+
+
+\begin{itemize}
+\item IsGenerator  returns true on particles that were part of the
+  event that came from the event generator. Partilces produced by
+  Geant are returned false
+\item IsGenNonInteracting returns true on neutrinos and other non
+  interacting particles such as those from supersymmetry. It returns a
+  complete list including any geant secondaries. Is has more partilces
+  than results from the combination of IsGenStable and a subseqent
+  selection on the IsGenNonInteracting PDG ID codes.
+\item IsGenStable returns  true on all stable particles. In the case of events
+  from GenzModule these are all the partilces that are passed as input
+  to Geant as either non-interacting or as particles that are
+  subsequently interact and decay in Geant
+\item IsGenSimulStable returns true on all stable particles during generation and simulation
+\item IsGenInteractinging is a subset of IsGenStable that excludes non
+  interacting particles. It includes electrons, photons, muons, and
+  hadrons that are considered as imput to geant such as pions, kaons
+  and $K_L$.
+\item IsGenType allows a list of PDG ID codes to be specified and
+  returns true on all the partilces in the record (independent of
+  their status codes) that have these the specifed code (or its
+  negative) For example code 11 would return all electrons  and
+  positrons including
+  those from Geant showers. Code 24 would find all the W bosons,
+  (including any maked as documentaries which may not be physical)
+\item IsConversion returns true for the particles that convert into the $e^+e^-$ pair
+\item isBremsstrahlung returns true for the input particles in the Bremsstrahlung process
+\end{itemize}
+
+An example of the use of these predicates can be found in
+GeneratorModules/src/TruthDemo.cxx which makes a histogram of all the
+stables and shows that the total energy of these is the CM energy of
+the PP collision. The critical code parts are
+\begin{verbatim}
+StatusCode TruthDemo::initialize(){
+......
+  m_tesIO = new GenAccessIO();
+\end{verbatim}
+which provides access to the event
+
+ \begin{verbatim}
+StatusCode TruthDemo::execute() {
+...
+ float totenergy = 0.;
+  float pxbalance = 0.;
+  float pybalance = 0.;
+    // Iterate over MC particles  We are using the IsGenStable predicate from
+    IsGenStable ifs;
+  vector<const HepMC::GenParticle*> particles;
+  StatusCode stat = m_tesIO->getMC(particles, &ifs);
+  for (vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();
+       pitr != particles.end(); pitr++) {          
+    pxbalance += (*pitr)->momentum().x();
+    pybalance += (*pitr)->momentum().y();
+    totenergy += (*pitr)->momentum().e();
+\end{verbatim}
+which is summing up the momentum and energy of all the stables. 
+ 
+\end{document}
+
+
+
+
