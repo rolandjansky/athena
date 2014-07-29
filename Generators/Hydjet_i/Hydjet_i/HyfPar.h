@@ -39,15 +39,15 @@ private:
       int    	nhyd;
     };
 
-    static HYFPAR* s_hyfpar;
+    static HYFPAR* _hyfpar;
 };
 
 // set pointer to zero at start
-HyfPar::HYFPAR* HyfPar::s_hyfpar =0;
+HyfPar::HYFPAR* HyfPar::_hyfpar =0;
 
 inline void
 HyfPar::init(void)
-{ if (!s_hyfpar) s_hyfpar = static_cast<HYFPAR*>(hyfpar_address_()); }
+{ if (!_hyfpar) _hyfpar = static_cast<HYFPAR*>(hyfpar_address_()); }
 
 // Constructor
 inline
@@ -63,35 +63,35 @@ inline  double&
 HyfPar::bgen	(void)
 {
     init();
-    return s_hyfpar->bgen;
+    return _hyfpar->bgen;
 }
 
 inline double&
 HyfPar::nbcol	(void)
 {
     init();
-    return s_hyfpar->nbcol;
+    return _hyfpar->nbcol;
 }
 
 inline double&
 HyfPar::npart	(void)
 {
     init();
-    return s_hyfpar->npart;
+    return _hyfpar->npart;
 }
 
 inline int&
 HyfPar::npyt	(void)
 {
     init();
-    return s_hyfpar->npyt;
+    return _hyfpar->npyt;
 }
 
 inline int&
 HyfPar::nhyd	(void)
 {
     init();
-    return s_hyfpar->nhyd;
+    return _hyfpar->nhyd;
 }
 
 #endif

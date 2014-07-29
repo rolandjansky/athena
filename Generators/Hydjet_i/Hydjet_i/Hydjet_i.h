@@ -53,7 +53,7 @@ public:
     virtual StatusCode	genInitialize	();
     virtual StatusCode 	callGenerator	();
     virtual StatusCode 	genFinalize	();
-    virtual StatusCode 	fillEvt		(HepMC::GenEvent* evt);
+    virtual StatusCode 	fillEvt		(GenEvent* evt);
 
 protected:
 
