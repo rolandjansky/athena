@@ -15,6 +15,9 @@
 
 namespace Trk
 {
+  class Vertex;
+  class RecVertex;
+  class VxCandidate;
   class Track;
   class TrackParticleBase;
   class IExtrapolator;
@@ -23,18 +26,7 @@ namespace Trk
   
   /** This class implements a full vertex fitting algorithm as proposed by P. Billoir.
   this algorithm tries to estimate the vertex position with refitting the track
-  parameters.
-
-  Changes:
-
-  David Shope <david.richard.shope@cern.ch> (2016-04-19)
-
-  EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
-                          from Trk::RecVertex   to xAOD::Vertex,
-                          from Trk::Vertex      to Amg::Vector3D
-
-  */
-
+  parameters. */
   class FullVertexFitter : public AthAlgTool, virtual public IVertexFitter
   {
   public:
@@ -46,69 +38,69 @@ namespace Trk
     virtual ~FullVertexFitter(); //!< standard destructor
 
     /** Interface for Track with starting point */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*> & vectorTrk,
-                               const Amg::Vector3D& startingPoint);
+    virtual VxCandidate * fit(const std::vector<const Trk::Track*> & vectorTrk,
+                              const Vertex& startingPoint);
 
     /** Interface for Track with vertex constraint */
     /** the position of the constraint is ALWAYS the starting point */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk,
-                               const xAOD::Vertex& constraint);
+    virtual VxCandidate * fit(const std::vector<const Trk::Track*>& vectorTrk,
+                              const RecVertex& constraint);
 
     /** Interface for TrackParticleBase with starting point */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                               const Amg::Vector3D& startingPoint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
+                              const Vertex& startingPoint);
 
     /** Interface for TrackParticleBase with vertex constraint */
     /** the position of the constraint is ALWAYS the starting point */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-                               const xAOD::Vertex& constraint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
+                              const RecVertex& constraint);
 
     /** Interface for ParametersBase with starting point */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-                               const Amg::Vector3D& startingPoint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+                              const Vertex& startingPoint);
 
     /** Interface for TrackParameters and NeutralParameters with starting point */
-    xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
-		       const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
-		       const Amg::Vector3D& startingPoint) {msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const Amg::Vector3D&) ignoring neutrals" << endreq; return fit(perigeeList, startingPoint);};
+    VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
+		      const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
+		      const Vertex& startingPoint) {msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const Vertex&) ignoring neutrals" << endreq; return fit(perigeeList, startingPoint);};
 
     /** Interface for ParametersBase with vertex constraint */
     /** the position of the constraint is ALWAYS the starting point */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-                               const xAOD::Vertex& constraint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+                              const RecVertex& constraint);
     
     /** Interface for TrackParameters and NeutralParameters with RecVertex starting point */
-    xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
-		       const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
-		       const xAOD::Vertex& constraint){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const xAOD::Vertex&) ignoring neutrals" << endreq; return fit(perigeeList, constraint);};
+    VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
+		      const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
+		      const RecVertex& constraint){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const RecVertex&) ignoring neutrals" << endreq; return fit(perigeeList, constraint);};
 
     /**
     * Fit interface with no starting point or constraint. (0,0,0) will be assumed.
     */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*>& perigeeList);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList);
 
-    xAOD::Vertex * fit(const std::vector<const TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&) ignoring neutrals" << endreq; return fit(perigeeList);};
+    VxCandidate * fit(const std::vector<const TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&) ignoring neutrals" << endreq; return fit(perigeeList);};
 
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk);
+    virtual VxCandidate * fit(const std::vector<const Trk::Track*>& vectorTrk);
 
 
     /**  	     *Interface for xAOD::TrackParticle with starting point  */ 
-    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const Amg::Vector3D& startingPoint); 
+    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const Vertex& startingPoint); 
 
      /**  	     *Interface for xAOD::TrackParticle and NeutralParticle with starting point  */ 
     xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
 		       const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
-		       const Amg::Vector3D& startingPoint){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const Amg::Vector3D&) ignoring neutrals" << endreq; return fit(vectorTrk, startingPoint);}; 
+		       const Vertex& startingPoint){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const Vertex&) ignoring neutrals" << endreq; return fit(vectorTrk, startingPoint);}; 
 
     /**  	     * Interface for xAOD::TrackParticle with vertex constraint		     
      * the position of the constraint is ALWAYS the starting point  	     */     
-    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const xAOD::Vertex& constraint); 
+    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const RecVertex& constraint); 
 
     /**  	     * Interface for xAOD::TrackParticle and NeutralParticle with vertex constraint			     
      * the position of the constraint is ALWAYS the starting point  	     */ 
     xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
 		       const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
-		       const xAOD::Vertex& constraint){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const xAOD::Vertex&) ignoring neutrals" << endreq; return fit(vectorTrk, constraint);}; 
+		       const RecVertex& constraint){msg(MSG::WARNING) << "FullVertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const RecVertex&) ignoring neutrals" << endreq; return fit(vectorTrk, constraint);}; 
     
   private:
     unsigned int    m_maxIterations;

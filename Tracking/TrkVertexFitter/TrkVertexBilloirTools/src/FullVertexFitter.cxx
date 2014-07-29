@@ -6,8 +6,10 @@
                         FullVertexFitter.cxx  -  Description
  ***************************************************************************/
 #include "TrkVertexBilloirTools/FullVertexFitter.h"
+#include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/LinearizedTrack.h"
+#include "VxVertex/VxCandidate.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -143,21 +145,16 @@ namespace Trk
 	FullVertexFitter::~FullVertexFitter() {}
 
 	/** Interface for Track with starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::Track*> & vectorTrk,
-	                                       const Amg::Vector3D& firstStartingPoint )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::Track*> & vectorTrk,
+	                                      const Vertex& firstStartingPoint )
 	{
-                xAOD::Vertex constraint;
-                constraint.makePrivateStore();
-                constraint.setPosition( firstStartingPoint );
-                constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
-                constraint.setFitQuality( 0.,0.);
-		return fit ( vectorTrk, constraint );
+		return fit ( vectorTrk, RecVertex ( firstStartingPoint ) );
 	}
 
 	/** Interface for Track with vertex constraint */
 	/** the position of the constraint is ALWAYS the starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk,
-	                                       const xAOD::Vertex& firstStartingPoint )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk,
+	                                      const RecVertex& firstStartingPoint )
 	{
 		// push_back measured perigees of track into vector<const Trk::ParametersBase*>
 		std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -167,46 +164,32 @@ namespace Trk
 			measuredPerigees.push_back ( ( *trItr )->perigeeParameters() );
 		}
 
-		xAOD::Vertex * FittedVertex = fit ( measuredPerigees, firstStartingPoint );
+		Trk::VxCandidate* fittedVxCandidate = fit ( measuredPerigees, firstStartingPoint );
 
-		if ( FittedVertex == 0 ) return FittedVertex;
+		if ( fittedVxCandidate == 0 ) return fittedVxCandidate;
 
-		// assign the used tracks to the fitted vertex through VxTrackAtVertices
+		// assign the used tracks to the VxCandidate
 		for ( unsigned int k = 0 ; k < vectorTrk.size() ; ++k )
 		{
 			LinkToTrack* link = new LinkToTrack;
 			link->setElement ( vectorTrk[k] );
 			// vxtrackatvertex takes ownership!!
-			( FittedVertex->vxTrackAtVertex() ) [k].setOrigTrack ( link );
+			( * ( fittedVxCandidate->vxTrackAtVertex() ) ) [k]->setOrigTrack ( link );
 		}
-
-                //*******************************************************************
-                // TODO: Starting from a vector of Trk::Tracks, can't currently store
-                // separately from the vxTrackAtVertex vector the links to the
-                // original tracks (only links to xAOD::TrackParticles and
-                // xAOD::NeutralParticles can be stored)
-                // TODO: look at VxCandidateXAODVertex.cxx line 205
-                //*******************************************************************
-
-		return FittedVertex;
+		return fittedVxCandidate;
 	}
 
 	/** Interface for TrackParticleBase with starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-	                                       const Amg::Vector3D& firstStartingPoint )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
+	                                      const Vertex& firstStartingPoint )
 	{
-                xAOD::Vertex constraint;
-                constraint.makePrivateStore();
-                constraint.setPosition( firstStartingPoint );
-                constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
-                constraint.setFitQuality( 0.,0.);
-		return fit ( vectorTrk, constraint );
+		return fit ( vectorTrk, RecVertex ( firstStartingPoint ) );
 	}
 
 	/** Interface for TrackParticleBase with vertex constraint */
 	/** the position of the constraint is ALWAYS the starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-	                                       const xAOD::Vertex& firstStartingPoint )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
+	                                      const RecVertex& firstStartingPoint )
 	{
 		// push_back measured perigees of track into vector<const Trk::ParametersBase*>
 		std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -216,9 +199,9 @@ namespace Trk
 			measuredPerigees.push_back ( & ( ( *trItr )->definingParameters() ) );
 		}
 
-		xAOD::Vertex * FittedVertex = fit ( measuredPerigees, firstStartingPoint );
+		Trk::VxCandidate* fittedVxCandidate = fit ( measuredPerigees, firstStartingPoint );
 
-		if ( FittedVertex == 0 ) return FittedVertex;
+		if ( fittedVxCandidate == 0 ) return fittedVxCandidate;
 
 		// assign the used tracks to the VxCandidate
 		for ( unsigned int k = 0 ; k < vectorTrk.size() ; ++k )
@@ -226,36 +209,22 @@ namespace Trk
 			LinkToTrackParticleBase* link = new LinkToTrackParticleBase;
 			link->setElement ( vectorTrk[k] );
 			// vxtrackatvertex takes ownership!!
-			( FittedVertex->vxTrackAtVertex() ) [k].setOrigTrack ( link );
+			( * ( fittedVxCandidate->vxTrackAtVertex() ) ) [k]->setOrigTrack ( link );
 		}
-
-                //*******************************************************************
-                // TODO: Starting from a vector of Trk::Tracks, can't currently store
-                // separately from the vxTrackAtVertex vector the links to the
-                // original tracks (only links to xAOD::TrackParticles and
-                // xAOD::NeutralParticles can be stored)
-                // TODO: look at VxCandidateXAODVertex.cxx line 205
-                //*******************************************************************
-
-		return FittedVertex;
+		return fittedVxCandidate;
 	}
 
 	/** Interface for ParametersBase with starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
-	                                       const Amg::Vector3D& firstStartingPoint )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
+	                                      const Vertex& firstStartingPoint )
 	{
-                xAOD::Vertex constraint;
-                constraint.makePrivateStore();
-                constraint.setPosition( firstStartingPoint );
-                constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
-                constraint.setFitQuality( 0.,0.);
-		return fit ( originalPerigees, constraint );
+		return fit ( originalPerigees, RecVertex ( firstStartingPoint ) );
 	}
 
 	/** Interface for ParametersBase with vertex constraint */
 	/** the position of the constraint is ALWAYS the starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
-	                                       const xAOD::Vertex& firstStartingPoint )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
+	                                      const RecVertex& firstStartingPoint )
 	{
 		if ( originalPerigees.empty() )
 		{
@@ -263,7 +232,6 @@ namespace Trk
 			ATH_MSG_VERBOSE("No tracks to fit in this event.");
 			return 0;
 		}
-
 		/* Initialisation of variables */
 		double chi2 = 2000000000000.;
 		unsigned int nRP = originalPerigees.size();  // Number of tracks to fit
@@ -281,17 +249,13 @@ namespace Trk
 		}
 
 		double chi2New=0.;
-
-		Amg::Vector3D linPoint ( firstStartingPoint.position() ); // linearization point for track parameters (updated for every iteration)
-
+		Trk::Vertex linPoint ( firstStartingPoint ); // linearization point for track parameters (updated for every iteration)
 		Amg::Vector3D p0;
 
 		std::vector<Amg::Vector3D> mom_at_Origin;
 
-		xAOD::Vertex * fittedVertex = new xAOD::Vertex;
-                fittedVertex->makePrivateStore(); // xAOD::VertexContainer will take ownership of AuxStore when ActualVertex is added to it
-
-		std::vector<VxTrackAtVertex> tracksAtVertex;
+		RecVertex fittedVertex;
+		std::vector<VxTrackAtVertex*> tracksAtVertex;
 		std::vector<BilloirTrack> billoirTracks;
 
 		/* Iterate fits until the fit criteria are met, or the number of max
@@ -299,7 +263,7 @@ namespace Trk
 		for ( unsigned int niter=0; niter < m_maxIterations; ++niter )
 		{
 			ATH_MSG_VERBOSE("Start of iteration " << niter << ", starting point ("
-			<< linPoint [0] << ", " << linPoint [1] << ", " << linPoint [2]
+			<< linPoint.position() [0] << ", " << linPoint.position() [1] << ", " << linPoint.position() [2]
 			<< ") and " << originalPerigees.size() << " tracks.");
 
 			billoirTracks.clear();
@@ -309,9 +273,8 @@ namespace Trk
 			BilloirVertex billoirVertex;
 
 			/* Linearize the track parameters wrt. starting point of the fit */
-			Amg::Vector3D globalPosition = linPoint;
+			Amg::Vector3D globalPosition ( linPoint.position()[0],linPoint.position()[1],linPoint.position()[2] );
 			Trk::PerigeeSurface perigeeSurface ( globalPosition );
-
 			/* Extrapolate the perigees to the startpoint of the fit */
 			unsigned int count(0);
 			for ( std::vector<const Trk::TrackParameters*>::const_iterator iter = originalPerigees.begin(); iter != originalPerigees.end() ; ++iter )
@@ -336,11 +299,11 @@ namespace Trk
 					}
 				}
 
-				// FOR NOW THE ONLY WAY TO CHECK IF EXTRAPOLATION WORKED IS TO CHECK THE RETURN POINTER
-				// if it is ZERO then take the original perigee
-				// there is a tiny tiny chance that the extrapolation fails because of a non converging runge kutta procedure
-				// in all other cases it did not extrapolate because the reference surface of the original perigee
-				// is already given to the extrapolation point (or very close nearby)
+// FOR NOW THE ONLY WAY TO CHECK IF EXTRAPOLATION WORKED IS TO CHECK THE RETURN POINTER
+// if it is ZERO then take the original perigee
+// there is a tiny tiny chance that the extrapolation fails because of a non converging runge kutta procedure
+// in all other cases it did not extrapolate because the reference surface of the original perigee
+// is already given to the extrapolation point (or very close nearby)
 
 				LinearizedTrack* linTrack = m_linFactory->linearizedTrack ( *iter, linPoint );
 				if ( linTrack==0 )
@@ -424,9 +387,9 @@ namespace Trk
 				Amg::Vector3D constraintPosInBilloirFrame;
 				constraintPosInBilloirFrame.setZero();
 				// this will be 0 for first iteration but != 0 from second on
-				constraintPosInBilloirFrame[0] = firstStartingPoint.position() [0]-linPoint [0];
-				constraintPosInBilloirFrame[1] = firstStartingPoint.position() [1]-linPoint [1];
-				constraintPosInBilloirFrame[2] = firstStartingPoint.position() [2]-linPoint [2];
+				constraintPosInBilloirFrame[0] = firstStartingPoint.position() [0]-linPoint.position()[0];
+				constraintPosInBilloirFrame[1] = firstStartingPoint.position() [1]-linPoint.position()[1];
+				constraintPosInBilloirFrame[2] = firstStartingPoint.position() [2]-linPoint.position()[2];
 
 				V_del     += firstStartingPoint.covariancePosition().inverse() *constraintPosInBilloirFrame;
 				V_wgt_mat += firstStartingPoint.covariancePosition().inverse();
@@ -471,8 +434,8 @@ namespace Trk
                                         return 0;
 				}
 				mom_at_Origin[iRP] ( 2 ) += delta_P[2];
-				// 	mom_at_Origin[iRP](0) -= M_PI > M_PI ? M_PI : 0;
-				// 	mom_at_Origin[iRP](0) += M_PI < -M_PI ? M_PI : 0;
+// 	mom_at_Origin[iRP](0) -= M_PI > M_PI ? M_PI : 0;
+// 	mom_at_Origin[iRP](0) += M_PI < -M_PI ? M_PI : 0;
 				//correct phi, theta coordinates
 				while ( fabs ( mom_at_Origin[iRP] ( 0 ) ) > M_PI ) mom_at_Origin[iRP] ( 0 ) += ( mom_at_Origin[iRP] ( 0 ) > 0 ) ? -2*M_PI : 2*M_PI;
 				while ( mom_at_Origin[iRP] ( 1 ) > 2*M_PI ) mom_at_Origin[iRP] ( 1 ) -= 2*M_PI;
@@ -499,13 +462,13 @@ namespace Trk
 				//some intermediate calculations to get 5x5 matrix
 				//cov(V,V)
 				AmgMatrix(3,3) V_V_mat; V_V_mat.setZero();  V_V_mat = cov_delta_V_mat ;
-				//          std::cout<<"V_V_mat = "<<V_V_mat<<std::endl;
+//          std::cout<<"V_V_mat = "<<V_V_mat<<std::endl;
 				//cov(V,P)
 				AmgMatrix(3,3) V_P_mat; V_P_mat.setZero(); V_P_mat =  -cov_delta_V_mat*locP.Gi_mat*locP.Ci_inv ;
-				//          std::cout<<"V_P_mat = "<<V_P_mat<<std::endl;
+//          std::cout<<"V_P_mat = "<<V_P_mat<<std::endl;
 				//cov(P,P)
 				AmgMatrix(3,3) P_P_mat; P_P_mat.setZero(); P_P_mat =  locP.Ci_inv + locP.BCi_mat.transpose() *cov_delta_V_mat*locP.BCi_mat ;
-				//          std::cout<<"P_P_mat = "<<P_P_mat<<std::endl;
+//          std::cout<<"P_P_mat = "<<P_P_mat<<std::endl;
 
 				AmgMatrix(6,6) cov_mat;
 				cov_mat.setZero();
@@ -515,9 +478,9 @@ namespace Trk
 				cov_mat.block<3,3>(3,3) = P_P_mat ;
 
 				// cov_delta_P calculation
-				//          std::cout<<"trans_mat = "<<trans_mat<<std::endl;
+//          std::cout<<"trans_mat = "<<trans_mat<<std::endl;
 				cov_delta_P_mat[iRP] = trans_mat*cov_mat*trans_mat.transpose() ;
-				//          std::cout<<"cov_delta_P_mat[iRP] = "<<cov_delta_P_mat[iRP]<<std::endl;
+//         std::cout<<"cov_delta_P_mat[iRP] = "<<cov_delta_P_mat[iRP]<<std::endl;
 
 				++iRP;
 
@@ -539,42 +502,34 @@ namespace Trk
 				deltaTrk.setZero();
 				// last term will also be 0 again but only in the first iteration
 				//                  = calc. vtx in billoir frame - (    constraint pos. in billoir frame    )
-				deltaTrk[0] = delta_V[0] - ( firstStartingPoint.position() [0] - linPoint [0] );
-				deltaTrk[1] = delta_V[1] - ( firstStartingPoint.position() [1] - linPoint [1] );
-				deltaTrk[2] = delta_V[2] - ( firstStartingPoint.position() [2] - linPoint [2] );
+				deltaTrk[0] = delta_V[0] - ( firstStartingPoint.position() [0] - linPoint.position()[0] );
+				deltaTrk[1] = delta_V[1] - ( firstStartingPoint.position() [1] - linPoint.position()[1] );
+				deltaTrk[2] = delta_V[2] - ( firstStartingPoint.position() [2] - linPoint.position()[2] );
 				chi2New  += ( deltaTrk.transpose() * firstStartingPoint.covariancePosition().inverse() * deltaTrk ) [0];
 			}
 
 			/* assign new linearization point (= new vertex position in global frame) */
-			Amg::Vector3D tmpPos ( linPoint );
+			Amg::Vector3D tmpPos ( linPoint.position() );
 			tmpPos[0] += delta_V[0];   tmpPos[1] += delta_V[1];   tmpPos[2] += delta_V[2];
-			linPoint = tmpPos;
+			linPoint = Trk::Vertex ( tmpPos );
 
 			if ( chi2New < chi2 )
 			{
 				/* Store the vertex */
 				chi2 = chi2New;
-				//const AmgMatrix(3,3) * newCovarianceMatrix =  &cov_delta_V_mat ;
-				//const AmgMatrix(3,3) newErrorMatrix = newCovarianceMatrix->inverse().eval();
-				//fittedVertex = RecVertex ( linPoint.position(), newErrorMatrix, ndf, chi2 );
-
-                                //the cov_delta_V_mat is already the inverted form.  -katy 2/2/16
-				fittedVertex->setPosition( linPoint );
-                                fittedVertex->setCovariancePosition( cov_delta_V_mat );
-                                fittedVertex->setFitQuality( chi2, ndf );
-
+				const AmgMatrix(3,3) * newCovarianceMatrix =  &cov_delta_V_mat ;
+				const AmgMatrix(3,3) newErrorMatrix = newCovarianceMatrix->inverse().eval();
+				fittedVertex = RecVertex ( linPoint.position(), newErrorMatrix, ndf, chi2 );
 				// new go through vector and delete entries
-				/* // TODO: not needed anymore, tracksAtVertex doesn't store pointers - just the objects themselves <David Shope> (EDM Migration) 03/21/16
 				for ( std::vector<Trk::VxTrackAtVertex*>::const_iterator itr = tracksAtVertex.begin();
 				        itr != tracksAtVertex.end(); ++itr )
 				{
 					delete ( *itr );
 				}
-				*/
-
+				//
 				tracksAtVertex.clear();
 				/* Store the tracks at vertex */
-				Amg::Vector3D Vertex(linPoint[0], linPoint[1], linPoint[2]);
+				Amg::Vector3D Vertex(linPoint.position()[0], linPoint.position()[1], linPoint.position()[2]);
 				const Trk::PerigeeSurface Surface ( Vertex );
 				TrackParameters * refittedPerigee ( 0 );
 				unsigned int iter= 0;
@@ -582,49 +537,40 @@ namespace Trk
 				for ( BTIter = billoirTracks.begin(); BTIter != billoirTracks.end() ; ++BTIter )
 				{
 					const AmgMatrix(5,5) * newTrackCovarianceMatrix =  &cov_delta_P_mat[iter] ;
-					//Covariance matrix does not need to be inverted:
-					//					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->inverse().eval();
-					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->eval();
+					AmgMatrix(5,5)  newTrackErrorMatrix = (AmgMatrix(5,5)) newTrackCovarianceMatrix->inverse().eval();
 					refittedPerigee = new Trk::Perigee ( 0.,0.,mom_at_Origin[iter][0],mom_at_Origin[iter][1],mom_at_Origin[iter][2], Surface, &newTrackErrorMatrix );
-					Trk::VxTrackAtVertex* tmpVxTrkAtVtx = new Trk::VxTrackAtVertex ( ( *BTIter ).chi2, refittedPerigee, ( *BTIter ).originalPerigee );
-					tracksAtVertex.push_back ( *tmpVxTrkAtVtx );
-					// TODO: here is where the vxTracksAtVertex pointers are deleted
-					delete tmpVxTrkAtVtx; // TODO: is this ok?
+					tracksAtVertex.push_back ( new Trk::VxTrackAtVertex ( ( *BTIter ).chi2, refittedPerigee, ( *BTIter ).originalPerigee ) );
 					iter ++;
 				}
 			}
 		} // end of iteration
-		fittedVertex->vxTrackAtVertex() = tracksAtVertex;
-		//ATH_MSG_VERBOSE("Final Vertex Fitted: " << fittedVxCandidate->recVertex()); // TODO: can no longer print vertex after converting to xAOD
-		return fittedVertex;
+
+		// now the pointers where tracksAtVertex point to belong to VxCandidate
+		Trk::VxCandidate * fittedVxCandidate = new Trk::VxCandidate ( fittedVertex, tracksAtVertex );
+		ATH_MSG_VERBOSE("Final Vertex Fitted: " << fittedVxCandidate->recVertex());
+		return fittedVxCandidate;
+	}
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*>& perigeeList )
+	{
+		Vertex tmpVtx;
+		return fit ( perigeeList, tmpVtx );
 	}
 
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*>& perigeeList )
+	VxCandidate * FullVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk )
 	{
-                Amg::Vector3D tmpVtx(0.,0.,0.);
-                return fit ( perigeeList, tmpVtx );
-	}
-
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk )
-	{
-		Amg::Vector3D tmpVtx(0.,0.,0.);
+		Vertex tmpVtx;
 		return fit ( vectorTrk, tmpVtx );
 	}
 
- 		//xAOD interfaced methods. Required to un-block the current situation  
+ //xAOD interfaced methods. Required to un-block the current situation  
  		// with the xAOD tracking design. 
- 		 xAOD::Vertex * FullVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const Amg::Vector3D& startingPoint) 
- 		 {
-                  xAOD::Vertex constraint;
-                  constraint.makePrivateStore();
-                  constraint.setPosition( startingPoint );
-                  constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
-                  constraint.setFitQuality( 0.,0.);
- 		  return fit(vectorTrk, constraint);                                
+ 		 xAOD::Vertex * FullVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const Vertex& startingPoint) 
+ 		 {                        
+ 		  return fit(vectorTrk, RecVertex(startingPoint));                                
  		 }//end of the xAOD starting point fit method 
  		 
  		     
- 		 xAOD::Vertex * FullVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const xAOD::Vertex& constraint) 
+ 		 xAOD::Vertex * FullVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const RecVertex& constraint) 
  		 { 
  		   if(vectorTrk.size() == 0) 
  		   { 
@@ -632,7 +578,7 @@ namespace Trk
  		    return 0; 
  		   } 
  		    
- 		   //making a list of perigee out of the vector of tracks   
+ 		//making a list of perigee out of the vector of tracks   
  		   std::vector<const Trk::TrackParameters*> measuredPerigees; 
  		    
  		   for(std::vector<const xAOD::TrackParticle*>::const_iterator i = vectorTrk.begin(); i!= vectorTrk.end();++i) 
@@ -640,18 +586,18 @@ namespace Trk
  		    const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters()); 
  		   
  		    if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer); 
- 		    else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+ 		    else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; 
  		   } 
  		    
  		    
- 		   xAOD::Vertex* fittedVertex = fit( measuredPerigees, constraint ); 
+ 		   Trk::VxCandidate* fittedVxCandidate = fit( measuredPerigees, constraint ); 
  		 
- 		   //assigning the input tracks to the fitted vertex through VxTrackAtVertices
- 		   if(fittedVertex !=0) 
+ 		//assigning the input tracks to the fitted vertex    
+ 		   if(fittedVxCandidate !=0) 
  		   { 
- 		    if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check! 
+ 		    if(fittedVxCandidate->vxTrackAtVertex() != 0) 
  		    { 
- 		     if(fittedVertex->vxTrackAtVertex().size() !=0) 
+ 		     if(fittedVxCandidate->vxTrackAtVertex()->size() !=0) 
  		     { 
  		      for(unsigned int i = 0; i <vectorTrk.size(); ++i) 
  		      { 
@@ -659,43 +605,17 @@ namespace Trk
  		       LinkToXAODTrackParticle * linkTT = new LinkToXAODTrackParticle; 
  		       linkTT->setElement(vectorTrk[i]); 
  		 
- 		       // vxtrackatvertex takes ownership! 
- 		       ( fittedVertex->vxTrackAtVertex() )[i].setOrigTrack(linkTT); 
+ 		// vxtrackatvertex takes ownership! 
+ 		       (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(linkTT); 
  		      }//end of loop for setting orig tracks in. 
  		     }//end of protection against unsuccessfull updates (no tracks were added) 
  		    }//end of vector of tracks check 
- 		   }//end of pointer check
-
-                   //now set links to xAOD::TrackParticles directly in the xAOD::Vertex
-                   unsigned int VTAVsize = fittedVertex->vxTrackAtVertex().size();
-                   for (unsigned int i = 0 ; i < VTAVsize ; ++i)
-                   {
-                     Trk::VxTrackAtVertex* VTAV = &( fittedVertex->vxTrackAtVertex().at(i) );
-                     //TODO: Will this pointer really hold 0 if no VxTrackAtVertex is found?
-                     if (not VTAV){
-                       ATH_MSG_WARNING (" Trying to set link to xAOD::TrackParticle. The VxTrackAtVertex is not found");
-                       continue;
-                     }
-
-                     Trk::ITrackLink* trklink = VTAV->trackOrParticleLink();
-
-                     // See if the trklink is to an xAOD::TrackParticle
-                     Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trklink);
-                     if (linkToXAODTP)
-                     {
-
-                       //Now set the new link to the xAOD vertex
-                       fittedVertex->addTrackAtVertex(*linkToXAODTP, VTAV->weight());
-
-                     } else {
-                       ATH_MSG_WARNING ("Skipping track. Trying to set link to something else than xAOD::TrackParticle. Neutrals not supported.");
-                     }
-                   } //end of loop
-
- 		   return fittedVertex;
-
+ 		   }//end of pointer check 
+		   
+ 		   xAOD::Vertex * return_vertex(0);    
+ 		   if(fittedVxCandidate) m_xaodConverter->createXAODVertex(*fittedVxCandidate,return_vertex); 
+ 		   return return_vertex; 
  		 }//end of the xAOD constrained fit method 
-
 
 
 }
