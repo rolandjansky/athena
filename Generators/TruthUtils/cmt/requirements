@@ -1,0 +1,12 @@
+package TruthUtils
+
+author Andy Buckley
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasHepMC          AtlasHepMC-*          External
+use AtlasBoost          AtlasBoost-*          External
+use AtlasFastJet        AtlasFastJet-*        External
+use AtlasROOT           AtlasROOT-*           External
+
+library TruthUtils *.cxx
+apply_pattern installed_library
