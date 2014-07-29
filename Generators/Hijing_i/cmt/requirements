@@ -1,0 +1,31 @@
+package Hijing_i
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*
+use Hijing           Hijing-*              External
+use GeneratorModules GeneratorModules-*    Generators
+use AtlasCLHEP       AtlasCLHEP-*          External
+
+private
+use AthenaKernel     AthenaKernel-*        Control
+use AtlasHepMC       AtlasHepMC-*          External
+use GaudiInterface   GaudiInterface-*      External
+use GeneratorObjects GeneratorObjects-*    Generators
+use GeneratorUtils   GeneratorUtils-*      Generators
+use TruthUtils       TruthUtils-*          Generators
+use StoreGate        StoreGate-*           Control
+
+#public
+# new to store hijing event parameters
+# ------------------------------------
+# use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+# use AtlasPOOL            AtlasPOOL-*            External
+# --------------------------------------------------------------------
+
+private
+apply_tag notAsNeeded
+end_private
+
+apply_pattern dual_use_library files=" *.cxx *.F Hijing_modified/*.f"
+macro_append Hijing_i_pp_cppflags '-DHIJINGVERSION=\"$(Hijing_version)\" '
+apply_pattern declare_joboptions files="*.py"

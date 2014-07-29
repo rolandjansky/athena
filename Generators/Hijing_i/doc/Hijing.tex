@@ -1,0 +1,147 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{Hijing\_i: An interface between Hijing and Athena\\
+Version in release 6.5.0 and later}
+\author{ Georgios Stavropoulos (George.Stavropoulos@cern.ch)}
+%\today
+
+\maketitle           
+
+This package runs Hijing from within Athena, puts the events into the
+transient store in HepMC format. See the documentation on GenModule  for
+general information. The note refers only to Hijing specific
+material. The External/Hijing package is used to set up the paths to
+the Hijing library. This works with Hijing version 1.381.
+
+The module is activated from the jobOptions service. \\See the example
+in {\bf Hijing\_i/share/jobOptions.hijing.py }
+
+The hijing parameters are set from the job options service. The
+default parameters initialize Hijing for pp colisions at c.m. energy of 14 TeV.
+
+{ \bf Note that all parameters passed to Hijing are in the units specified
+in the Hijing manual. In particular, energies and masses are in GeV,
+not the standard atlas units of MeV. }
+
+The default jobOptions.hijing.py file will have been copied to your TestRelease
+area when you set up athena under CMT.
+The following is needed if you wish to run Hijing
+\begin{verbatim}
+theApp.DLLs  += [ "Hijing\_i"]
+theApp.TopAlg = ["Hijing"]
+\end{verbatim}
+The initialization parameters can be changed via the following line in the jobOptions.py
+file.
+
+\begin{verbatim}Hijing.Initialize = ["variable index value", "variable1 index1 value1"]
+\end{verbatim} 
+
+Each quoted string sets one parameter. You can have as many as you like
+seperated by commas. 
+{\bf variable} must be one of the following variable names and
+must be in lower case.\\
+efrm\\
+frame\\
+proj\\
+targ\\
+iap\\
+izp\\
+iat\\
+izt\\
+bmin\\
+bmax\\
+nseed\\
+hipr1\\
+ihpr2\\
+hint1\\
+ihnt2\\
+An error message is returned if the specified variable is not in the above list. The job continues
+to run but the behaviour may not be what you expect.\\
+The variables efrm to izt are the input parameters to Hijing initialization routine hijset
+(see http://www-nsdth.lbl.gov/$\sim$xnwang/hijing/). Their default values are:
+efrm=14000., frame='CMS', proj='P', targ='P', iap=izp=iat=izt=1.\\
+The variables bmin and bmax are the input parameters to hijing routine\\
+(see http://www-nsdth.lbl.gov/$\sim$xnwang/hijing/)
+and their default
+value is bmin=bmax=0.\\
+The variables hipr1 to ihnt2 are the arrays in the hiparnt common block. A detailed explanation
+of these variables can be found in http://www-nsdth.lbl.gov/$\sim$xnwang/hijing/ \\
+
+{\bf index} is the index in the arrays hipr1, ihpr2, hint1 and ihnt2. For the other variables
+has no meaning and SHOULD be omitted.\\
+
+{\bf value} is the parameter's value.\\
+
+Example:\\
+The following generates events for Au+Au collisions at 200 GeV c.m energy, switches off jet quenching,
+switches on triggered jet production and sets the pt range of the triggered jets.
+\begin{verbatim}Hijing.Initialize = ["efrm 200", "frame CMS", "proj A", "targ A", 
+                           "iap 197", "izp 79", "iat 197", "izt 79",
+                           "ihpr2 4 0", "ihpr2 3 1", "hipr1 10 -20"]
+\end{verbatim} 
+
+
+{\large \bf Random Numbers}\\
+
+ Hijing\_i is using the AtRndmGenSvc Athena Service to provide to Hijing (via the ran function,
+ found in Hijing\_i/src/ran.F) the necessary random numbers. This service is using the RanecuEngine of CLHEP,
+ and is based on the ``stream'' logic, each stream being able to provide an idependent sequence of random
+ numbers. Hijing\_i is using two streams: HIJING\_INIT and HIJING. The first stream is used to provide
+ random numbers for the initialization phase of Hijing and the second one for the event generation. The user
+ can set the initial seeds of each stream via the following option in the jobOption file.
+
+ \begin{verbatim} 
+ AtRndmGenSvc.Seeds = [``HIJING_INIT 2345533 9922199'', ``HIJING 5498921 659091'']
+ \end{verbatim}
+
+ The above sets the seeds of the HIJING\_INIT stream to 2345533 and 9922199 and of the HIJING one to
+ 5498921 and 659091. If the user will not set the seeds of a stream then the AtRndmGenSvc will use default
+ values.
+
+ The seeds of the Random number service are saved for each event in the HepMC Event record and they are printed
+ on screen by DumpMC. In this way an event can be reproduced easily. The user has to rerun the job by simply seting
+ the seeds of the HIJING stream (the seeds of the HIJING\_INIT stream should stay the same) to the seeds of that
+ event.
+
+ Additionaly the AtRndmGenSvc is dumping into a file (AtRndmGenSvc.out) the seeds of all the streams at the end
+ of the job. This file can be read back by the service if the user set the option
+ \begin{verbatim} AtRndmGenSvc.ReadFromFile = true \end{verbatim} (default = false). In this case the file
+ AtRndmGenSvc.out is read and the streams saved in this file are created with seeds as in this file. The name of
+ the file to be read can be set by the user via the option
+ \begin{verbatim} AtRndmGenSvc.FileToRead = MyFileName \end{verbatim}
+
+ The above file is also written out when a job crashes. {\bf This last option (when job crashing) is currently not
+   working, waiting for a modification in Athena}.
+
+ The {\bf Hijing\_i/share/jobOptions.hijing.py } contains the above options.\\
+
+{\large \bf User modifications}\\
+
+If you are trying to replace an existing routine that is in the Hijing library this is straightforward.
+Assume that you are trying to replace test.f that exists in Hijing.
+Check out Hijing\_i under CMT,  (use cmt co -r Hijing\_i-xx-xx-xx  Generators/Hijing\_i where
+xx-xx-xx is the version in the release that you are running against), put your version of test.f
+into the /src area of the checked out code. Then in the /cmt area edit the requirements file and add test.f
+into the list of files that get complied. Note that each generator has its own library. You must therefore put
+your file in the right place. \\
+
+
+\end{document}
+
+
+
+
+
+
+

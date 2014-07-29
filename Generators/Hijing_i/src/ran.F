@@ -1,0 +1,10 @@
+      FUNCTION RAN(IDUMMY)
+
+      REAL RAN, ATL_RAN
+      INTEGER IDUMMY
+
+ 100  RAN = ATL_RAN(IDUMMY)
+      if(RAN.LE.0. .OR. RAN.GE.1.) GOTO 100
+      
+      RETURN
+      END
