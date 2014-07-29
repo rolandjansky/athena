@@ -1,0 +1,43 @@
+package InDetCalibStream  
+
+author Belmiro Pinto
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*         Control
+use ByteStreamData       ByteStreamData-*          Event
+use GaudiInterface       GaudiInterface-*          External
+
+private
+
+use Particle             Particle-*                Reconstruction
+use DataCollection       DataCollection-*          External
+
+use PixelCabling         PixelCabling-*            InnerDetector/InDetDetDescr
+use SCT_Cabling          SCT_Cabling-*             InnerDetector/InDetDetDescr
+use TRT_Cabling          TRT_Cabling-*             InnerDetector/InDetDetDescr
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr 
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
+use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*    Event
+use EventInfo            EventInfo-*               Event
+use IdDictDetDescr       IdDictDetDescr-*          DetectorDescription
+use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use TrigInDetEvent       TrigInDetEvent-00-*       Trigger/TrigEvent
+use TrigInDetTruthEvent  TrigInDetTruthEvent-*     Trigger/TrigTruthEvent
+use TrigDecisionTool     TrigDecisionTool-*        Trigger/TrigAnalysis
+use TrigSteeringEvent    TrigSteeringEvent-*       Trigger/TrigEvent
+use IRegionSelector	 IRegionSelector-*         DetectorDescription
+use Identifier           Identifier-*              DetectorDescription
+use AtlasROOT            AtlasROOT-*               External
+use GeneratorObjects     GeneratorObjects-*        Generators
+
+public
+
+library InDetCalibStream *.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="ConfiguredCalibStream.py"
+
+
+
