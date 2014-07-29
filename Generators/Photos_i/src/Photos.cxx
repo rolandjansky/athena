@@ -30,7 +30,15 @@
 //
 //------------------------------------------------------------------------
 
+using namespace std;
+
+// To fix the HepMC bug get to the protected GenVertex::set_parent_vertex_
+/// @todo Fix this properly!!!
+#define private public
+#define protected public
 #include "Photos_i/Photos.h"
+#undef private
+#undef protected
 
 #include "TruthUtils/GeneratorName.h"
 
@@ -50,8 +58,6 @@
 // Random numbers
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-
-using namespace std;
 
 int PrintChildTree_photo( const HepMC::GenParticle* p, int tabN);
 
@@ -110,6 +116,12 @@ Photos::Photos(const std::string& name, ISvcLocator* pSvcLocator)
 
 Photos::~Photos()
 {
+  /// @todo BUG in HepMC 2.0: the parent_event from vertices and particles is not fixed in the event copying!!
+  for (HepMC::GenEvent::vertex_iterator vtx = m_genEvt.vertices_begin(); vtx != m_genEvt.vertices_end(); ++vtx ) {
+    if ((*vtx)->m_event != &m_genEvt) {
+      (*vtx)->m_event= &m_genEvt;
+    }
+  }
 }
 
 
@@ -394,7 +406,7 @@ StatusCode Photos::genFinalize() {
 //---------------------------------------------------------------------------
 
 
-StatusCode Photos::fillEvt(HepMC::GenEvent* evt) {
+StatusCode Photos::fillEvt(GenEvent* evt) {
   ATH_MSG_DEBUG(" ATLAS PHOTOS Filling...  \n");
   //HepMC::HEPEVT_Wrapper::print_hepevt();
 
@@ -407,6 +419,13 @@ StatusCode Photos::fillEvt(HepMC::GenEvent* evt) {
   evt->set_alphaQED(m_eventqed) ;
   evt->set_alphaQCD(m_eventqcd) ;
 
+  /// @todo BUG in HepMC 2.0: the parent_event from vertices and particles is not fixed in the event copying!!
+  for ( HepMC::GenEvent::vertex_iterator vtx = evt->vertices_begin();
+        vtx != evt->vertices_end(); ++vtx ) {
+    if ((*vtx)->m_event != evt) {
+      (*vtx)->m_event=evt;
+    }
+  }
   //  evt->print();
 
   // std::cout << "Number of particles in HepMC " <<  evt->particles_size() << std::endl;

@@ -40,7 +40,7 @@ public:
     int phlun;
   };
 
-  static PHOLUN* s_ffpholun;
+  static PHOLUN* _ffpholun;
 };
 
 #include "Photos_i/Ffpholun.icc"
