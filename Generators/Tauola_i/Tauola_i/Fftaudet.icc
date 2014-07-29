@@ -1,0 +1,10 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for fftaudet
+
+// initialise pointer
+void Fftaudet::init(void) {
+  if (!_fftaudet) _fftaudet = static_cast<TAUDET*>(fftaudet_address_());
+}

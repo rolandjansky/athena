@@ -1,0 +1,10 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for fftau 
+
+// initialise pointer
+void Ffinout::init(void) {
+  if (!_ffinout) _ffinout = static_cast<INOUT*>(ffinout_address_());
+}

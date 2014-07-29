@@ -1,0 +1,10 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for fftau 
+
+// initialise pointer
+void Fftau::init(void) {
+  if (!_fftau) _fftau = static_cast<FFTAU*>(fftau_address_());
+}
