@@ -1,0 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Pyint1
+
+// initialise pointer
+void Pyint1::init(void) {
+  if (!_pyint1) _pyint1 = static_cast<PYINT1*>(pyint1_address_());
+}
+

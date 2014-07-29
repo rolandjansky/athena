@@ -1,0 +1,281 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}           
+
+\begin{document}
+\title{Pythia\_i: An interface between Pythia and Athena}
+\author{ Ian Hinchliffe (I\_Hinchliffe@lbl.gov), G. Stavropoulos (George.Stavropoulos@cern.ch)}
+%\today
+
+\maketitle           
+
+This package runs Pythia from within Athena, puts the events into the
+transient store in HepMC format. See the documentation on GenModule  for
+general information. The note refers only to Pythia specific
+material. The External/Pythia package is used to set up the paths to
+the Pythia  library which is now pointing to the release maintained by
+Genser. The current Pythia version interfaced is 6.410
+
+The module is activated from the jobOptions service. \\See the examples
+in {\bf Pythia\_i/share/jobOptions.pythia.py }
+
+The pythia parameters are set from the job options service.
+{\bf Note that all parameters passed to Pythia are in the units
+  specified in the Pythia manual. In particular, energies and
+  masses are in GeV, not the standard atlas units of MeV.}
+The following is needed if you wish to run Pythia
+\begin{verbatim}
+theAppDLLs  += [ "Pythia_i"]
+theAppTopAlg = ["Pythia"]
+\end{verbatim}
+The parameters are passed via the following line in the jobOptions.py
+file.
+
+\begin{verbatim}Pythia.PythiaCommand = ["common_block_name variable index value", 
+"common_block_name1 variable1 index1 value1"]
+\end{verbatim} 
+
+Each quoted string sets one parameter. You can have as many as you like
+seperated by commas. 
+{\bf common\_block\_name} must be one of the following common block names and
+must be in lower case.\\
+pydatr\\
+pydat1\\
+pydat2\\
+pydat3\\
+pypars\\
+pymssm\\
+pysubs\\
+pyint2\\
+pyinit\\
+pystat\\
+The pyinit deals with parameters associated with the job setup, while the pystat one deals
+with the setting of the print level of the PYSTAT routine (called at the end of the run). 
+An error message is returned if the common block is not one of
+these. The job continues to run but the behaviour may not be what you
+expect.
+{\bf variable} must be the variable name that you are adjusting.
+Valid names are as follows (lower case is required)\\
+for pydatr -- mrpy and rrpy\\
+for pydat1 -- mstu paru mstj and parj. Do not change mstu(11) (see below)\\
+for pydat2 -- kchg pmas parf and vckm\\
+for pydat3 -- mdcy mdme brat and kfdp\\
+for pymssm -- imss and rmss\\
+for pypars -- mstp parp msti and pari\\
+for pysubs -- msel msub kfin and ckin\\
+for pyint2 -- iset kfpr coef and icol\\
+The following do not correspond to a common block but the parsing is
+similar\\
+pyinit  access variable that are either passed in the call to PYINIT
+or to variables that control the listing. The choices are
+pyinit -- pbar (changes one of the incoming particles to pbar), user
+(changes the process selection to user code for connection to external
+processes, a string then specifies the specific procees, see
+discussion of external processes below), FIXT which switches to fixed
+target operation, win
+(changes the center of mass energy, units are GeV) output (controls
+redirection of output) pylisti (gives
+the number to be passed to pylist on the setup)  pylistf  (gives
+the number to be passed to pylist on the dumped events) dumpr (is two
+integers specifying the range of events to be written out).
+%rndm\_IO
+%(dumps/reads the random seeds used by PYTHIA to/from a file).\\
+{\bf Settings in the pyinit groups should come before others. This
+  is essential if you are using an external process such as comphep or
+AcerMC}\\
+pystat sets the print level of the PYSTAT routine (called at the end of the run).
+
+Again an error message is returned if the common block is not one of
+these. The job continues to run but the behaviour may not be what you
+expect.
+
+The remainder of the values in the " " specify the indices (if any) of
+the variable and the value that you are setting it to. The range of
+the indices is as described in the Pythia manual (Do not try to be
+clever and offset them). You must specify the indices and value
+completely. The number of quantities that you must provide depends on
+the variable. The order is "(first\_index) (second\_index) value"; if
+there is no corresponding index, omit it.
+ There is currently minimal  error checking here so you will get junk or a 
+core dump if you make a mistake. The variable and common block names are 
+parsed and checked. A message is sent to the Athena LOG if an error is
+detected but the job does not abort. 
+
+Examples should make it clear\\
+
+\noindent
+"pysubs msel 13" will turn on Z/gamma+jet production\\
+"pysubs ckin 3 18." will set the minimum $p_T$ to 18 GeV\\
+"pypars mstp 43 2" wiil turn off the photon and Z/photon
+interference.\\
+"pyinit win 1800." changes the center of mass energy to 1800 GeV\\
+Note that the entries are seperated by a single space and that reals
+must have a decimal point.\\
+"pyinit pylisti 12" dumps all the particle and decay data (see pythia
+manual)  after initialization.\\
+"pyinit output junk.dat" causes all the pythia output to dump into a
+file junk.dat (it resets mstu(11))\\
+"pyinit  pylistf 1 " dumps the complete event record for the specified
+events\\
+"pyinit dumpr 3 12 " causes events 6 through 12 to be written out\\
+``pystat 3 5 7'' sets the PYSTAT print levels. Pystat is called as many times
+as integers after pystat. In the example, pystat will be called with prin-level 3 followed by
+a call with print-level 5 and then by a call with print-level 7. The default is to call pystat
+once with print-level 1.\\
+"pydat2 pmas 4000011 1 1000." will set the mass of particle with {\bf KF code} 4000011 to 1000 GeV.
+{\bf WARNING: Someone has to give the KF and NOT the KC code. The KF code is converted (via a call to
+PYCOMP) to the KC code internally in Pythia.cxx}\\
+
+% The format of the rndm\_IO option of the pyinit ``menu'' is the following\\
+% "pyinit rndm\_IO file\_name Switch FirstEvent SkipEvents MOVE"\\
+% Where\\
+% {\bf file\_name } is the name of the file to/from where PYTHIA dumps/reads the rndm seeds\\
+% {\bf Switch } Control variable : 0 (default)=NO action,
+% 1=Write (pyrget is called, paragarph 4.3 of PYTHIA manual), 2=Read (pyrset is called).An Athena
+% INFO message is printed for every event generated with rndm seeds read from the file.\\
+% {\bf FirstEvent } For Switch=1 is the first Event to be dumped in the file. For Switch=2
+% is the first record in the file to be read. Default value is 1. Values $<$ 1 are not allowed
+% and the Switch flag is set to 0 internally by the program (an Athena error message is printed)\\
+% {\bf SkipEvents } For Switch=1 is the number of events to be skipped before the next
+% event to be dumped in the file. For Switch=2 is the number of records to be skipped before
+% the next record is read. Default value is 0. Values $<$ 0 are not allowed
+% and the Switch flag is set to 0 internally by the program (an Athena error message is printed)\\
+% {\bf MOVE } Sets the MOVE (2nd argument) of the pyrget and pyrset subroutines of PYTHIA
+% (Paragarph 4.3 of PYTHIA manual). Default value is 0. Setting this variable to a
+% value different than 0 when Switch=2, ignores FirstEvent and SkipEvents.
+
+The jobOptions.tex file that has this example is contained in {\bf Pythia\_i/share/jobOptions.pythia.py }\\
+
+
+{\large \bf Default Parameters}\\
+
+The ATLAS settings are set inside Pythia.cxx. The default initialization corresponds to $pp$ collsions at 14 TeV, PYLIST is called 
+as PYLIST(11) after initialization.
+The current set of defaults is the ones in the Pythia release 6.410 with the 
+following exceptions.
+\begin{itemize}
+\item pmas(6,1)=175.;  // top quark mass
+\item pmas(24,1)=80.42; // W mass
+\item pmas(24,2)=2.124; // W width
+\item pmas(23,1)=91.19; // Z0 mass
+\item pmas(23,2)=2.495; // Z0 width
+\item mstp(128)=1;     // fix junk output for documentary particles
+\item mstu(21)=1;     // error handling switch
+\item mstp(81)=21; // ATLAS default for MI and also for the associated
+treatment of initial- and final-state showers and beam remnants. MI on; new model for PYEVNW.
+\item mstp(70)=2;      // (virtuality scale for ISR)
+\item mstp(72)=0;
+\item mstp(82)=4;      // (mutiple interaction model)
+\item mstp(84)=1;
+\item mstp(85)=1;
+\item mstp(86)=2;
+\item mstp(87)=4;
+\item mstp(88)=0;
+\item mstp(89)=1;
+\item mstp(90)=1;
+\item mstp(95)=1;
+\item parp(78)=0.2;
+\item parp(80)=0.01;
+\item parp(82)=1.9;    // (cut off scale)
+\item parp(83)=0.3;
+\item parp(84)=0.5;    // (matter distribution)
+\item parp(89)=1800.;
+\item parp(90)=0.22;   // (cut off scale)
+\item mstj(11)=3;      // (select peterson for charm fragmentation)
+\item mstj(22)=2;      // (Make K\_S, Lambda stable)
+\item parj(54)=-0.07;  // (c hadronization)
+\item parj(55)=-0.006; // (b hadronization)
+\item parj(81)=0.14;
+\item mstp(52)=2;      // (needed for CTEQ6L)
+\item mstp(54)=2;      // (needed for CTEQ6L)
+\item mstp(56)=2;      // (needed for CTEQ6L)
+\item mstp(51)=10042;  // (needed for CTEQ6L)
+\item mstp(53)=10042;  // (needed for CTEQ6L)
+\item mstp(55)=10042;  // (needed for CTEQ6L)
+\end{itemize}
+
+
+{\large \bf Random Numbers}\\
+
+ Pythia.cxx is using the AtRndmGenSvc Athena Service to provide to Pythia (via the pyr function,
+ found in Pythia\_i/src/pyr.F) the necessary random numbers. This service is using the RanecuEngine of CLHEP,
+ and is based on the ``stream'' logic, each stream being able to provide an idependent sequence of random
+ numbers. Pythia.cxx is using two streams: PYTHIA\_INIT and PYTHIA. The first stream is used to provide
+ random numbers for the initialization phase of Pythia and the second one for the event generation. The user
+ can set the initial seeds of each stream via the following option in the jobOption file.
+
+ \begin{verbatim} 
+ AtRndmGenSvc.Seeds = [``PYTHIA_INIT 2345533 9922199'', ``PYTHIA 5498921 659091'']
+ \end{verbatim}
+
+ The above sets the seeds of the PYTHIA\_INIT stream to 2345533 and 9922199 and of the PYTHIA one to
+ 5498921 and 659091. If the user will not set the seeds of a stream then the AtRndmGenSvc will use default
+ values.
+
+ The seeds of the Random number service are saved for each event in the HepMC Event record and they are printed
+ on screen by DumpMC. In this way an event can be reproduced easily. The user has to rerun the job by simply seting
+ the seeds of the PYTHIA stream (the seeds of the PYTHIA\_INIT stream should stay the same) to the seeds of that
+ event.
+
+ Additionaly the AtRndmGenSvc is dumping into a file (AtRndmGenSvc.out) the seeds of all the streams at the end
+ of the job. This file can be read back by the service if the user set the option
+ \begin{verbatim} AtRndmGenSvc.ReadFromFile = True \end{verbatim} (default = False). In this case the file
+ AtRndmGenSvc.out is read and the streams saved in this file are created with seeds as in this file. The name of
+ the file to be read can be set by the user via the option
+ \begin{verbatim} AtRndmGenSvc.FileToRead = MyFileName \end{verbatim}
+
+ The above file is also written out when a job crashes.
+ 
+ The {\bf Pythia\_i/share/jobOptions.pythia.py } contains the above options.\\
+ 
+ {\large \bf User modifications}\\
+
+Two types of user modifications are common
+
+\begin{itemize}
+\item If you are trying to replace an existing routine that is in the
+  Pythia library this is straightforward.
+Assume that you are trying to replace test.f that exists in Pythia.
+Check out Pythia\_i under CMT,  (use cmt co -r Pythia\_i-xx-xx-xx  Generators/Pythia\_i where
+xx-xx-xx is the version in the release that you are running against), put your version of test.f into the /src area of the checked out
+code. Then in the /cmt area edit the requirements file and add test.f
+into the list of files that get complied. Note that each generator has
+its own library. You must therefore put your file in the right
+place. For Pythia, here is the example.
+\item If you want to access ``External Process''. This is done in
+  Pythia by setting ``USER''(see section 9.9 of the 6.4 Pythia
+  manual). External procesess usually read a file containting events.  At present several externals are available,
+  CompHep, AcerMC, Alpgen, Matchig, HvGen, MadCUP, MadGraph, TopRex, GR@PPA,
+  and the fourth is a dummy that users can adapt to their
+  needs by following one of the examples above. To find out how to run these external processes
+  please refer to the documentation of these generators. \\
+  To add your own external, create your own  inituser.f and useuser.f,
+  put these filenames into the cmt/requirements so that they are built
+  into libPythia\_i.so and then rebuild the Pythia\_i  package  (cmt make) and then
+  set\\ 
+  "pyinit user user''
+
+{\large \bf Note on LHApdf stucture functions}
+
+In the case you want to run Pythia with the LHAPDF structure functions you need to
+set the mstp(52), mstp(54) and mstp(56) variables equal to 2 and the mstp(51),
+mstp(53) and mstp(55) ones to the LHAPDF set/member index (see the documentation
+of the Generators/Lhapdf\_i package for the LHAPDF set/member index settings).
+
+\end{itemize}
+
+
+
+\end{document}
+
+
+
+
+
+
+

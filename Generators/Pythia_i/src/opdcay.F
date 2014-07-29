@@ -1,0 +1,21 @@
+      INTEGER FUNCTION OPDCAY(FNAME,LUN,MODE)
+      IMPLICIT NONE
+      CHARACTER*(*) FNAME
+      CHARACTER*1 MODE
+      INTEGER LUN
+
+      IF (MODE.eq.'W') THEN
+ccc      OPEN(UNIT=LUN,NAME=FNAME,ERR=99) ! gfortran incompatible
+         OPEN(UNIT=LUN,FILE=FNAME,ERR=99)
+      ELSE
+ccc      OPEN(UNIT=LUN,NAME=FNAME,STATUS='OLD',ERR=99)! gfortran incompatible
+         OPEN(UNIT=LUN,FILE=FNAME,STATUS='OLD',ERR=99)
+      ENDIF
+      
+      OPDCAY=0
+      RETURN
+
+C     ERROR OPENING FILE
+ 99   OPDCAY=1
+      RETURN
+      END

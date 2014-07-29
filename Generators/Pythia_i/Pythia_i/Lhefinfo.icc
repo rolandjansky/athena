@@ -1,0 +1,14 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Lhefinfo  
+
+// initialise pointer
+void Lhefinfo::init() 
+{
+  if ( !_lhefinfo ) {
+    _lhefinfo = static_cast< LHEFINFO* >( lhefinfo_address_() );
+  }
+}
+

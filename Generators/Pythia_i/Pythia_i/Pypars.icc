@@ -1,0 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Pypars
+
+// initialise pointer
+void Pypars::init(void) {
+  if (!_pypars) _pypars = static_cast<PYPARS*>(pypars_address_());
+}
+
