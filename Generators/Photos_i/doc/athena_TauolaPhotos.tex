@@ -1,0 +1,476 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{latexsym}
+\usepackage{graphics}
+\usepackage{epsfig}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{times}
+
+
+% etc
+\setlength\topmargin{10pt}
+\setlength\oddsidemargin {-30pt}
+\setlength\evensidemargin{-30pt}
+\setlength\textwidth{500pt}
+\renewcommand{\floatpagefraction}{0.95}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.1}
+
+\DeclareOldFontCommand{\tt}{\normalfont\sf\small}{\mathtt}
+\renewcommand{\tablename}{{\bf Table}}
+\renewcommand{\thetable}{{\bf \arabic{table}}}
+\renewcommand{\figurename}{{\bf Fig.}}
+\renewcommand{\thefigure}{{\bf \arabic{figure}}}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\renewcommand{\arraystretch}{0.9}
+\newcommand{\authorrunning}[1]{\edef\authorrun{#1}}
+\newcommand{\titlerunning}[1]{\edef\titlerun{#1}}
+\usepackage{fancyhdr}
+\cfoot{}\rfoot{}\lfoot{}
+\lhead{\sffamily\small \authorrun:}
+\chead{\hspace{4.5cm}\sffamily\small \titlerun}
+\rhead{\sffamily\small \thepage}
+\pagestyle{fancy}
+
+\newcommand{\athena}{{\tt ATHENA }}
+\newcommand{\acermc}{{\tt AcerMC }}
+\newcommand{\pythia}{{\tt PYTHIA }}
+\newcommand{\herwig}{{\tt HERWIG }}
+\newcommand{\tauola}{{\tt TAUOLA }}
+\newcommand{\photos}{{\tt PHOTOS }}
+\newcommand{\sherpa}{{\tt SHERPA }}
+
+\begin{document}
+
+
+\titlerunning{TAUOLA and PHOTOS\ldots}
+
+\authorrunning{{B. P. Kersevan,E. Richter-Was}}
+
+\title{Processing generated events with TAUOLA and PHOTOS using the Athena interface}
+
+\author{
+Borut Paul Kersevan \\
+\small Faculty of Mathematics and Physics, University of Ljubljana,
+ Jadranska 19, SI-1000 Ljubljana, Slovenia. \\ \small and  \\
+\small  Jozef Stefan Institute, Jamova 39, SI-1000 Ljubljana, Slovenia.\\[10pt]
+El\. zbieta Richter-W\c{a}s\\
+\small CERN, EP Division, 1211 Geneva 23, Switzerland, \\ \small and\\
+\small Institute of Computer Science, Jagellonian University, 30-072 Krakow,
+ ul. Nawojki 11, Poland.\\ \small and\\
+\small Institute of Nuclear Physics, 31-342 Krakow, ul. Radzikowskiego 152, Poland.
+}
+
+\maketitle
+
+\abstract{\it This note describes the basic steps of how to process the events hadronised by either 
+\pythia, \herwig, \sherpa or {\tt ParticleGenerator} with \tauola and/or \photos by using the ATLAS \athena interface.}
+
+%\begin{picture}(0,0)
+%\put(300,480){\large ATL-COM-SOFT-2003-007}
+%\end{picture}
+\newpage
+\boldmath
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Where to Start}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+This note describes the basic steps of how to produce simulated events
+in which the $\tau$-lepton decays are handled by \tauola \cite{TAUOLA}
+and the final state QED radiation of leptons and hadrons is added by
+the \photos generator \cite{PHOTOS}. Both \tauola and
+\photos interfaces to the \athena setup are described.
+
+In what follows the detailed guideline for the two interfaces is provided.
+
+\boldmath
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Using \tauola and \photos in the \athena framework}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+\enlargethispage{0.8cm}
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Installing and Running}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+There are certainly many ways of how the user can set up his athena framework
+using the {\tt cmt} tool; the user is referred to:
+\begin{center}
+{\it http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/Development/SwDevUserGuide/userguide.html}
+\end{center}
+and 
+\begin{center}
+{\it http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/tools/cmt/Tutorial.html}
+\end{center}
+for generic up-to-date {\tt cmt \& athena} instructions and to
+\begin{center}
+{\it http://www-theory.lbl.gov/~ianh/monte/Generators/}
+\end{center}
+for the specific {\tt Generators} package information.
+
+The easiest way to set up the {\tt athena} environment is to {\it checkout} the
+{\tt TestRelease} package:
+\begin{center}
+{\tt cmt co TestRelease}
+\end{center}
+in the user's cmt development directory\footnote{The user might want subsequently to
+modify the {\tt TestRelease} {\tt requirements} file in order not to link the
+entire {\tt ATLAS} software setup but only the required packages. It is not
+mandatory but the {\tt athena} running time gets somewhat shorter.}. After
+performing the usual:
+\begin{itemize}
+\item {\tt cd Testrelease/TestRelease-xx-xx-xx/cmt}
+\item {\tt source setup.sh}
+\item {\tt gmake}
+\item {\tt cd ../run}
+\end{itemize}
+the user should have the setup ready to run the \athena interface.
+\newpage
+
+A number of {\tt jobOptions} files which enable one to process the events in the \athena
+framework using \pythia, \herwig or \sherpa  with \tauola and/or \photos is provided, the names
+should be self-explanatory:
+\begin{center}
+{\tt jobOptions.Pythia.AtlasTauola.txt},
+{\tt jobOptions.Pythia.AtlasTauolaPhotos.txt},\\
+{\tt jobOptions.Herwig.AtlasTauola.txt},
+{\tt jobOptions.Herwig.AtlasTauolaPhotos.txt},\\
+{\tt jobOptions.ParticleGenerator.AtlasTauola.txt}\ldots
+
+\end{center}
+
+The files should serve as templates that can be expanded and modified
+further according to the purpose/scope of the user. The switches used
+for steering \tauola and/or
+\photos are described in section  Section \ref{s:steering}.
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Details of the \athena interface}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+The \tauola and \photos are interfaced to \athena through the modules {\tt
+Tauola\_i} and {\tt Photos\_i} residing in the {\tt Generators} package. 
+The passing of the {\tt HEPEVT} event record
+between various modules (e.g. \pythia and {\tt Tauola\_i}, \herwig and {\tt
+Photos\_i} etc..) is done by a new {\tt Atlas\_HEPEVT} class which in stored
+to and/or read from the StoreGate persistency during the consecutive steps in
+accordance with the ATLAS programming strategies. The sequence is sketched in
+the following diagram:
+
+\begin{center}
+\epsfig{file=acdia_athena_atlas2.eps,width=0.65\linewidth}
+\end{center}
+
+In addition, the interface to ParticleGenerator (generating single taus) is now in place.
+The HepMC entry is in this case used to fill the HEPEVT event record using the HEPEVT::Wrapper
+class methods and the AtlasHEPEVT class is subsequently used to pass it around as in \pythia case. 
+
+Furthermore \sherpa is now interfaced to \tauola and \photos; this is done by a dedicated 
+converter from HepMC to HEPEVT data format using the the HEPEVT::Wrapper
+class methods. Note that the various \sherpa processes still need some checking; it has been verified to work with the jets+Z-boson processes.
+
+\clearpage
+\boldmath
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Steering \tauola and \photos \label{s:steering}} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+It is highly recommended that in case \tauola is used for $\tau$ decays that
+\photos is also activated and the setting {\tt photos pmode} is set at least to {\tt 2}
+in order to keep the $\tau$-leptons radiating (see below), since it gives 
+the necessary contribution to the expected $\tau$ branching ratios.
+
+\vspace{0.2cm}\noindent
+The switches and settings specific to the \tauola library are set in the 
+{\tt Tauola.TauolaCommand} vector in the {\tt jobOptions} file :
+\begin{itemize}
+\item{\tt  tauola polar} (D=1)\ : \ Polarisation switch for tau decays \\
+{\tt tauola polar 0} - switch polarisation off \\
+{\tt tauola polar 1} - switch polarisation on 
+\item{\tt  tauola radcor} (D=1)\ : \ Order(alpha) radiative corrections for tau decays\\
+{\tt tauola radcor 0} - switch corrections off\\
+{\tt tauola radcor 1} - switch corrections on
+\item{\tt  tauola phox} (D=0.01)\ : \ Radiative cutoff used in tau decays\\ 
+{\tt tauola phox 0.01} - default value by TAUOLA authors
+\item{\tt  tauola dmode} (D=0)\ : \ Tau and tau pair decay mode\\
+{\tt tauola dmode 0} - all decay modes allowed\\
+{\tt tauola dmode 1} - (LEPTON-LEPTON): only leptonic  decay modes\\
+{\tt tauola dmode 2} - (HADRON-HADRON): only hadronic  decay modes\\
+{\tt tauola dmode 3} - (LEPTON-HADRON): one tau decays into leptons and the other one into hadrons\\
+{\tt tauola dmode 4} - ($\tau \to \pi \nu$)  : taus are restricted to decay to a pion and neutrino
+\item{\tt  tauola jak1/tauola jak2}\ : \ Decay modes of taus according to charge, the list is
+taken from the \tauola output. The listing gives only $\tau^-$ modes, the
+$\tau^+$ are charge conjugate, neutrinos are omitted. {\tt tauola jak1}\ : \  decay
+mode of $\tau^+$, {\tt tauola jak2}\ : \  decay mode of $\tau^-$:\\
+{\tt tauola jak1/2  1}   - $\tau^-  \to  e- $\\
+{\tt tauola jak1/2  2}   - $\tau^-  \to  \mu-$  \\
+{\tt tauola jak1/2  3}   - $\tau^-  \to  \pi^-$ \\
+{\tt tauola jak1/2  4}   - $\tau^-  \to  \pi^-, \pi^0 $\\
+{\tt tauola jak1/2  5}   - $\tau^-  \to  A_1^-$ (two subch)\\
+{\tt tauola jak1/2  6}   - $\tau^-  \to  K^- $\\
+{\tt tauola jak1/2  7}   - $\tau^-  \to  K^{*-}$ (two subch)\\
+{\tt tauola jak1/2  8}   - $\tau^-  \to  2\pi^-,  \pi^0,  \pi^+$\\
+{\tt tauola jak1/2  9}   - $\tau^-  \to  3\pi^0,        \pi^-$\\
+{\tt tauola jak1/2  10}  - $\tau^-  \to  2\pi^-,  \pi^+, 2\pi^0$ \\
+{\tt tauola jak1/2  11}  - $\tau^-  \to  3\pi^-, 2\pi^+$\\
+{\tt tauola jak1/2  12}  - $\tau^-  \to  3\pi^-, 2\pi^+,  \pi^0 $\\
+{\tt tauola jak1/2  13}  - $\tau^-  \to  2\pi^-,  \pi^+, 3\pi^0$\\
+{\tt tauola jak1/2  14}  - $\tau^-  \to  K^-, \pi^-,  K^+$\\
+{\tt tauola jak1/2  15}  - $\tau^-  \to  K^0, \pi^-, \bar{K^0} $\\
+{\tt tauola jak1/2  16}  - $\tau^-  \to  K^-,  K^0, \pi^0 $\\
+{\tt tauola jak1/2  17}  - $\tau^-  \to  \pi^0  \pi^0   K^-$\\
+{\tt tauola jak1/2  18}  - $\tau^-  \to  K^-  \pi^-  \pi^+ $\\
+{\tt tauola jak1/2  19}  - $\tau^-  \to  \pi^- \bar{K^0}  \pi^0  $\\
+{\tt tauola jak1/2  20}  - $\tau^-  \to  \eta  \pi^-  \pi^0$\\
+{\tt tauola jak1/2  21}  - $\tau^-  \to  \pi^-  \pi^0  \gamma$\\
+{\tt tauola jak1/2  22}  - $\tau^-  \to  K^-  K^0$
+
+\item{\tt missing boson identity}\ : \ In case of \sherpa and some other generators the
+original boson entry might be missing from the event record; in order
+to use proper polarisation information for tau pair production the
+boson is ambiguous and might be supplied by hand; by default ID is set
+to Z$^0$=23:\\ {\tt tauola boson ID} (D=23).
+\end{itemize}
+
+\vspace{0.2cm}\noindent
+The switches and settings specific to the \photos routines are set are set in the 
+{\tt Photos.PhotosCommand} vector in the {\tt jobOptions} file:
+\begin{itemize}
+\item{\tt  photos pmode} (D=1)\ : \ Radiation mode of photos:\\
+{\tt photos pmode 1} - enable radiation of photons for leptons and hadrons\\
+{\tt photos pmode 2} - enable radiation of photons for $\tau$-leptons only\\
+{\tt photos pmode 3} - enable radiation of photons for leptons only
+\item{\tt  photos xphcut} (D=0.01)\ : \ Infrared cutoff for photon radiation:\\
+{\tt photos xphcut 0.01} - default value by PHOTOS authors
+\item{\tt  photos alpha}\ : \ Alpha(QED) value used in \photos:\\
+{\tt photos alpha $\rm <$ 0} - leave default (D=0.00729735039)
+\item{\tt  photos interf} (D=1)\ : \ Photon interference weight switch\\ 
+{\tt photos interf 1} - interference is switched on\\
+{\tt photos interf 0} - interference is switched off
+\item{\tt  photos isec} (D=1)\ : \ Double bremsstrahlung switch:\\
+{\tt photos isec 1} - double bremsstrahlung is switched on\\
+{\tt photos isec 0} - double bremsstrahlung is switched off
+\item{\tt  photos itre} (D=1)\ : \ Higher bremsstrahlung switch:\\
+{\tt photos itre 1} - higher bremsstrahlung is switched on\\
+{\tt photos itre 0} - higher bremsstrahlung is switched off
+\item{\tt  photos iexp} (D=1)\ : \ Exponential bremsstrahlung switch:\\
+{\tt photos iexp 1} - exponential bremsstrahlung is switched on\\
+{\tt photos iexp 0} - exponential bremsstrahlung is switched off
+\item{\tt  photos iftop} (D=0)\ : \ Switch for $gg(qq) \to t\bar{t}$ process radiation:\\ 
+{\tt photos iftop 1} - the procedure is is switched on\\
+{\tt photos iftop 0} - the procedure is is switched off
+\end{itemize}
+
+Specific information produced by \tauola and \photos is stored in respective
+files {\sf atlastauola.out} and {\sf atlasphotos.out}. A point to stress is that
+in case the tau decay was restricted the hard process cross-section given by the
+main generator (\pythia, \herwig, \acermc \ldots) should be multiplied by a
+branching ratio as detailed at the end of {\sf atlastauola.out}, for example:
+\begin{verbatim}
+         ------< TAUOLA BRANCHING RATIO FOR TAU DECAYS >------
+           THE TAU DECAYS ARE RESTRICTED TO A:
+ 
+                    LEPTON-HADRON  DECAY MODE
+
+          THE PROCESS CROSS-SECTION MUST BE MULTIPLIED BY:
+
+           -> A BRANCHING RATIO =   0.459303E+00 FOR TWO TAUS
+ 
+          IN THE HARD PROCESS DECAY PRODUCTS!!!
+          ------> TAUOLA BRANCHING RATIO FOR TAU DECAYS <------
+\end{verbatim}
+
+In addition further settings are needed for \pythia and \herwig steering:
+\begin{itemize}
+\item  When using \tauola for $\tau$ decays in \pythia the $\tau$ decays have to be
+switched off by adding:\\[3pt]
+\hspace*{2cm} {\tt "pydat3 mdcy 15 1 0",}\\[3pt]
+to the {\tt Pythia.PythiaCommand} vector. 
+\item  When using \photos for generation of radiation off leptons in \pythia the
+\pythia lepton radiation has to be switched off by adding:\\[3pt]
+\hspace*{2cm}{\tt "pydat1 parj 90  20000.",}\\[3pt]
+to the {\tt Pythia.PythiaCommand} vector. 
+\item   When using \tauola for $\tau$ decays in \herwig the \herwig process has to be
+notified by adding:\\[3pt]
+\hspace*{2cm}{\tt "taudec TAUOLA",}\\[3pt]
+to the {\tt Herwig.HerwigCommand} vector.
+\item Since no lepton QED radiation for photons is implemented in \herwig no
+additional switches are necessary.
+\end{itemize}
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Technical description of \tauola and \photos interfaces to \pythia and \herwig} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Interface of \tauola to \pythia, \herwig} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+\begin{itemize}
+\item{\tt Interface to \pythia}:
+\end{itemize}
+
+The choice of \tauola library in \pythia sets the $\tau$-s to be stable by
+setting {\tt MDCJ(15,1)=0}, thus leaving them to be treated by \tauola
+procedures. The
+\tauola library is called via the {\tt TAUOLA\_HEPEVT(IMODE)} routine, where {\tt
+IMODE=-1,0,1} represent the initialisation, operation and finalisation
+respectively. In the operation mode the call to {\tt TAUOLA\_HEPEVT(0)} is made
+after the {\tt PYEVNT} and {\tt PYHEPC(1)} calls which generate the full event and
+translate and fill it into the {\tt HEPEVT} common block. Tauola now decays the previously
+undecayed resonances so no subsequent calls to \pythia are needed. It was
+decided against using the provided \pythia interface via the {\tt PYTAUD}
+routine since this routine is called for each occurrence of a $\tau$-lepton
+separately so no (complex) polarisation options can be included without
+substantial changes to \pythia routines.
+%Pythia is finally used to decay the unstable resonances left undecayed by Tauola. 
+
+\begin{itemize}
+\item{\tt Interface to \herwig}:
+\end{itemize}
+The present version 6.5 of \herwig contrary to \pythia does internal tracking of
+the polarisations of the $\tau$-leptons for the more complex built-in processes
+(e.g. Higgs decays); contrariwise nothing can be done for the external hard
+processes passed to \herwig for hadronisation. In order to preserve this feature
+the {\tt HWDTAU} routine has been modified to perform the \tauola calls only for
+internal \herwig processes which provide the $\tau$ polarisation information; other
+$\tau$-lepton decays are again executed via a call to {\tt TAUOLA\_HEPEVT}. Since
+\herwig is using the {\tt HEPEVT} common block already as the internal event
+record no translation of events is needed. In order to also keep other \herwig
+parameters current (e.g. {\tt IDHW} of the particle) a call to a new routine 
+{\tt HWHEPC} is provided; this new routine also corrects the vertex positions of
+the $\tau$ decay products and sets the status codes of new particles to the
+\herwig recognisable values. Tauola now decays the previously
+undecayed resonances so no subsequent calls to \herwig are needed. 
+%Subsequently a call to {\tt HWDHAD} is made in
+%order to decay any undecayed particles.
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Interface of \photos to \pythia and \herwig} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+\begin{itemize}
+\item{\tt Interface to \pythia}:
+\end{itemize}
+
+Choosing \photos to provide the QED final state radiation sets the parameter
+{\tt PARJ(90)= $2 \cdot 10^{4}$} order to prevent \pythia to radiate photons off leptons,
+thus inducing double counting. The parameter is representing the threshold in
+GeV below which leptons do not radiate. Pythia does not contain the routines to
+handle radiation of hadrons however some caution is necessary due to some
+exceptions/specific decays (e.g. $\pi^0 \to e^+ e^- \gamma$) which are 
+generally recognised by \photos itself. The initialisation, execution and finalisation
+are done by calls to the new {\tt PHOTOS\_HEPEVT(IMODE), IMODE=-1,0,1} subroutine, constructed
+for this purpose by the authors. Since \photos operates on the {\tt HEPEVT}
+record the calls to {\tt PYHEPC} routine are again necessary.
+
+\begin{itemize}
+\item{\tt Interface to \herwig}:
+\end{itemize}
+The present version 6.5 of \herwig does itself not provide the final state QED
+radiation of any kind, thus the inclusion of \photos is simple and possibly also
+rather necessary. The call sequence is the same as in \pythia, with no
+need for event record conversion. 
+
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Details of the \tauola implementation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+The \tauola library is built from the latest distribution source with the {\it
+Cleo} setup option. The native random generator was replaced with a link to the
+\athena random generator thus the corresponding random seeds/streams need to be
+initialised in the \athena interface.
+
+The {\tt TAUOLA\_HEPEVT} routine is a modification
+of the original {\tt TAUOLA} routine provided in the file {\sf tauface\_jetset.f}
+in the \tauola distribution. The modifications were restricted to allow for the
+'overloaded' use of the HEPEVT record by \pythia and \herwig, where respective mother
+and daughter pointers (which should match) sometimes point to different
+particles (e.g. hard process copies and similar). The original {\tt TAUOLA}
+routine already worked when interfaced to \pythia, albeit requiring the
+non-default setting of {\tt MSTP(128)=1}, whereby all the (sometimes useful)
+links to the hard record were lost. The modified version also works with the
+default \pythia {\tt MSTP(128)=0} setting. 
+
+Additional modifications were made in
+order to use the parameters set in {\sf tauola.card} and the call to {\tt
+INIMAS} routine was replaced by a call to {\tt TAU\_INIMAS}, which is a copy of
+the former but sets the particle masses to the values of \pythia or \herwig
+defaults. 
+
+A routine {\tt TAUBRS} that defines the special decay modes (e.g. LEPTON-HADRON,
+where one tau decays hadronically and the other one leptonically) was written;
+it operates by modifying the internal {\tt GAMPRT} array on an event by event
+basis. A related routine {\tt TAUBR\_PRINT} prints the value of the branching
+ratio into the {\sf tauola.out} file.No changes to the native tauola code was 
+necessary (and therefore not made). 
+
+\boldmath 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Details of the \photos implementation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\unboldmath
+
+The \photos is also built from the latest distribution source. As in \tauola The
+native random generator was replaced with a link to the
+\athena random generator thus the corresponding random seeds/streams need to be
+initialised in the \athena interface.
+
+The {\tt PHOTOS\_HEPEVT} routine and the subsequently called {\tt
+PHOTOS\_HEPEVT\_MAKE} are newly written routines that inspects the {\tt HEPEVT}
+record for charged particles and finds their highest 'mother' particle, which is
+consequently passed to \photos routines as the starting point. \photos itself then
+walks down the branches and performs radiation where possible. A bookkeeping of
+the starting points is made in {\tt PHOTOS\_HEPEVT} in order to prevent multiple
+invocations of radiation on the same particle.
+
+Original \photos code had to be modified due to the 'overloaded' {\tt HEPEVT}
+record, since its requirements for matching mother-daughter pointers were too
+strict for either \pythia (with external processes and/or {\tt MSTP(128)=0}
+setting) or \herwig. The modification was limited to {\tt PHOTOS\_MAKE} and {\tt
+PHOBOS} routines. In addition the tracking of {\tt IDHW} array was added to {\tt
+PHOTOS\_MAKE} to accommodate the \herwig event record. A further modification was
+however necessary in the {\tt PHOIN} routine since in \herwig the entry {\tt
+JMOHEP(2,I)} is not empty but filled with colour flow information, which in turn
+inhibited \photos radiation off participating particles\footnote{\photos expects
+the non-zero second 'mother' {\tt JMOHEP(2,I)} entry only for $gg(qq) \to
+t\bar{t}$ process, which is treated by a set of dedicated routines; this in turn
+clashes with \herwig 'overloaded' {\tt JMOHEP(2,I)} entry.}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{thebibliography}{99}
+
+
+\bibitem{TAUOLA}
+S. Jadach, J. H. Kuhn, Z. Was, Comput. Phys. Commun. {\bf 64} (1990) 275;
+M. Jezabek, Z. Was, S. Jadach, J. H. Kuhn, Comput. Phys. Commun. {\bf 70}
+(1992) 69; R. Decker, S. Jadach, J. H. Kuhn, Z. Was, Comput. Phys. Commun. {\bf 76} 
+(1993) 361.  
+
+\bibitem{PHOTOS}
+E. Barberio and Z. Was, Comp. Phys. Commun. {\bf 79} (1994) 291.
+
+\bibitem{athena_ac}
+B. Kersevan, E. Richter-Was, ATLAS Internal Note, ATL-COM-SOFT-2003-001 (2003).
+
+\end{thebibliography}
+
+\end{document}
