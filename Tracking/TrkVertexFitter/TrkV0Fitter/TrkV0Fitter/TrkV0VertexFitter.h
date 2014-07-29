@@ -74,14 +74,28 @@ namespace Trk
     virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
                               const Vertex& startingPoint);
 
+    /** Interface for TrackParameters and NeutralParameters with starting point */
+    VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
+		      const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
+		      const Vertex& startingPoint) {msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const Vertex&) ignoring neutrals" << endreq; return fit(perigeeList, startingPoint);};
+ 
+
     /** Interface for TrackParameters with RecVertex starting point */
     virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
                               const RecVertex& constraint);
+
+    /** Interface for TrackParameters and NeutralParameters with RecVertex starting point */
+    VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
+		      const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
+		      const RecVertex& constraint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const RecVertex&) ignoring neutrals" << endreq; return fit(perigeeList, constraint);};
+
     
     /**
     * Fit interface with no starting point or constraint. (0,0,0) will be assumed.
     */
     virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList);
+
+    VxCandidate * fit(const std::vector<const TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&) ignoring neutrals" << endreq; return fit(perigeeList);};
 
     virtual VxCandidate * fit(const std::vector<const Trk::Track*>& vectorTrk);
 
@@ -90,6 +104,14 @@ namespace Trk
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const Vertex& startingPoint);
 
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const RecVertex& constraint);
+
+    xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+		       const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
+		       const Vertex& startingPoint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const Vertex&) ignoring neutrals" << endreq; return fit(vectorTrk, startingPoint);}; 
+    xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+		       const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
+		       const RecVertex& constraint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const RecVertex&) ignoring neutrals" << endreq; return fit(vectorTrk, constraint);}; 
+
     
    /**
     * Methods specific for the V0 fitter
