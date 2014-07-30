@@ -1,0 +1,4 @@
+theApp.Dlls += [ "TrigOfflineSpacePointTool" ]
+
+
+

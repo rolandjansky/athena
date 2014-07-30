@@ -1,0 +1,34 @@
+package TrigOfflineSpacePointTool 
+
+use AtlasPolicy 		AtlasPolicy-*
+use GaudiInterface 		GaudiInterface-* 		External
+use InDetPrepRawData          	InDetPrepRawData-*              InnerDetector/InDetRecEvent
+use TrkSpacePoint        	TrkSpacePoint-*	          	Tracking/TrkEvent
+use IRegionSelector          	IRegionSelector-*               DetectorDescription
+use TrigInDetEvent		TrigInDetEvent-*        	Trigger/TrigEvent
+use SiClusterizationTool 	SiClusterizationTool-* 	        InnerDetector/InDetRecTools 
+use SiSpacePointTool 		SiSpacePointTool-* 		InnerDetector/InDetRecTools
+use TrigSiSpacePointTool        TrigSiSpacePointTool-*          Trigger/TrigTools
+use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*       Trigger/TrigTools
+use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent 
+
+library TrigOfflineSpacePointTool "*.cxx components/*.cxx"
+    
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+private
+
+use StoreGate             	StoreGate-*             	Control
+use AtlasDetDescr 		AtlasDetDescr-* 		DetectorDescription
+use ByteStreamCnvSvcBase 	ByteStreamCnvSvcBase-*   	Event
+use DataModel 			DataModel-* 			Control
+use Identifier			Identifier-*	    		DetectorDescription
+use TrkPrepRawData 		TrkPrepRawData-* 		Tracking/TrkEvent
+use InDetIdentifier	 	InDetIdentifier-*	    	InnerDetector/InDetDetDescr
+use InDetRawData 		InDetRawData-* 	        	InnerDetector/InDetRawEvent
+use InDetReadoutGeometry 	InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
+use InDetTrigToolInterfaces     InDetTrigToolInterfaces-*       InnerDetector/InDetTrigRecTools
+use TrigTimeAlgs		TrigTimeAlgs-*		        Trigger/TrigTools
+
+
