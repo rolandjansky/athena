@@ -1,0 +1,22 @@
+
+#include "TrigT1CaloEvent/CMMEtSums.h"
+#include "TrigT1CaloEvent/CMMJetHits.h"
+#include "TrigT1CaloEvent/CMMRoI.h"
+#include "TrigT1CaloEvent/JEMRoI.h"
+#include "TrigT1CaloEvent/JEPRoIBSCollection.h"
+
+namespace LVL1 {
+
+JEPRoIBSCollection::JEPRoIBSCollection(
+                    const DataVector<JEMRoI>*     jemRoiCollection,
+		    const CMMRoI*                 cmmRoi,
+                    const DataVector<CMMJetHits>* cmmHitCollection,
+		    const DataVector<CMMEtSums>*  cmmEtCollection)
+                    : m_jemRoiCollection(jemRoiCollection),
+		      m_cmmRoi(cmmRoi),
+		      m_cmmHitCollection(cmmHitCollection),
+		      m_cmmEtCollection(cmmEtCollection)
+{
+}
+
+} // end namespace
