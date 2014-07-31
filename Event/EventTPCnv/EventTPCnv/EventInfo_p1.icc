@@ -1,0 +1,24 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file EventInfo_p1.icc
+ *
+ * @brief This class is the persistent representation of EventInfo
+ * @author Marcin.Nowak@cern.ch
+ */
+
+inline
+EventInfo_p1::EventInfo_p1() : m_trigger_info(0)
+{}
+
+inline
+EventInfo_p1::~EventInfo_p1()
+{
+   if( m_trigger_info )
+      delete m_trigger_info;
+}
+
+
+

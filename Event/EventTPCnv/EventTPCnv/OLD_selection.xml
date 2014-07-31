@@ -1,0 +1,24 @@
+<lcgdict>
+
+    <class name="EventInfo_p1"       id="A3053CD9-47F4-4C0F-B73A-A6F93F5CC7B7" />
+    <class name="EventInfo_p2"       id="22006E19-F0DA-4EFB-AF55-6FBDA421BF06" />
+
+    <class name="EventStreamInfo_p1" id="9998C282-403B-4EA5-A795-C8C9BA9909C3" />
+
+    <class name="TriggerInfo_p1" />
+    <class name="MergedEventInfo_p1" id="9540DED6-51E8-48A3-8F86-05CB1D9CC812" />
+    
+    <class name="PileUpEventInfo_p1" id="1A399605-8E31-4150-B766-2049FD689485" />
+    <class name="PileUpEventInfo_p1::SubEvent" />
+    <class name="std::vector<PileUpEventInfo_p1::SubEvent>" />
+
+    <class name="PileUpEventInfo_p2" id="C2A54FC3-759C-4F01-AF7E-668D9198E10F" />
+    <class name="PileUpEventInfo_p2::SubEvent" />
+    <class name="std::vector<PileUpEventInfo_p2::SubEvent>" />
+
+    <class name="PileUpEventInfo_p3" id="32A54198-BCDF-0AB5-DC0B-542CAE9866C2" />
+    <class name="PileUpEventInfo_p3::SubEvent" />
+    <class name="std::vector<PileUpEventInfo_p3::SubEvent>" />
+   
+	<!--  -->
+</lcgdict>

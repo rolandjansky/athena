@@ -1,0 +1,30 @@
+package EventTPCnv
+
+author RD Schaffer <R.D.Schaffer@cern.ch>
+author Kyle Cranmer <cranmer@cern.ch>
+author Marcin.Nowak@cern.ch
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasReflex          AtlasReflex-*              External
+
+use EventInfo            EventInfo-*                Event
+use ByteStreamData       ByteStreamData-*           Event
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+
+
+private
+use AthenaKernel         AthenaKernel-*             Control
+end_private
+
+
+library EventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+apply_pattern lcgdict dict=EventTPCnv  selectionfile=selection.xml headerfiles="../EventTPCnv/EventTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_EventTPCnv  selectionfile=OLD_selection.xml headerfiles="../EventTPCnv/EventTPCnvDict.h"
+
+
+private
+use TestTools       TestTools-*         AtlasTest
+
+apply_pattern UnitTest_run unit_test=vectorize
