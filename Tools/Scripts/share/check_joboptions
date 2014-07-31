@@ -1,0 +1,187 @@
+
+#set -x
+
+all_jos=
+all_dlls=
+all_libs=
+all_missing_libs=
+all_comps=
+
+function find_shared_library ()
+{
+  name=$1
+  shift
+
+  for f in `echo ${LD_LIBRARY_PATH} | sed -e 's#:# #g'`; do
+    #echo $f
+    a=`if test -d ${f} ; then find ${f} -path "*/${name}"; fi`
+    if test ! "${a}" = ""; then
+      break
+    fi
+  done
+
+  echo ${a}
+}
+
+function find_joboptions_file ()
+{
+  name=$1
+  shift
+
+  #f=`pwd`
+  #s=`if test -d ${f} ; then find ${f} -path "*/${name}"; fi`
+
+  #echo name=${name}
+
+  #if test "${s}" = ""; then
+    for f in `echo ${JOBOPTSEARCHPATH} | sed -e 's#:# #g'`; do
+      #echo $f
+      s=`if test -d ${f} ; then find ${f} -path "*/${name}"; fi`
+      if test ! "${s}" = ""; then
+        break
+      fi
+    done
+  #fi
+
+  echo ${s}
+}
+
+function tab ()
+{
+  level=$1
+  shift
+
+  t=
+  while test "${level}" -gt 0; do
+    t="${t}.."
+    level=`expr ${level} - 1`
+  done
+  echo ${t}
+}
+
+function check ()
+{
+  target=$1
+  shift
+
+  s=`echo "${all_jos}" | egrep -e "[ ]${target}[ ]"`
+  if test "${s}" = ""; then
+    all_jos="${all_jos} ${target} "
+  else
+    return
+  fi
+
+  level=$1
+  shift
+
+  tabulation=`tab ${level}`
+  file=`find_joboptions_file ${target}`
+
+  if test "${file}" = ""; then
+    echo "### ${target} not found"
+    return
+  fi
+
+  ##echo file=${file}
+
+  #echo "------ DLLs:"
+  for f in `awk '/(DLLs).*{/,/}/ {print}' ${file} | sed -e 's#[^{]*{##' -e 's#}.*##' -e 's#[",]##g'`; do
+    #echo ${tabulation}${f}
+
+    s=`echo "${all_dlls}" | egrep -e "[ ]${f}[ ]"`
+    if test "${s}" = ""; then
+      all_dlls="${all_dlls} ${f} "
+    fi
+
+    g=`find_shared_library lib${f}.so`
+    if test "${g}" = ""; then
+      echo "#### lib${f}.so not found"
+    else
+      for a in `ldd ${g} | grep found | awk '{print $1}'`; do
+        s=`echo "${all_missing_libs}" | egrep -e "[ ]${a}[ ]"`
+        if test "${s}" = ""; then
+          all_missing_libs="${all_missing_libs} ${a} "
+        fi
+      done
+
+      ###echo "all_libs=${all_libs}"
+
+      for a in `ldd ${g} | awk '{print $1 ":" $3}'`; do
+        n=`echo ${a} | cut -d: -f1`
+        s=`echo "${all_libs}" | egrep -e "[ ]${n}[:]"`
+        if test "${s}" = ""; then
+          all_libs="${all_libs} ${n}:${f} "
+        else
+          m=`echo "${all_libs}" | sed -e "s#.*[ ]${n}[:]##" -e 's#[ ].*##'`
+          mm=`echo "${m}" | egrep -e "[:,]${f}"`
+          ###echo "#2##n=${n} m=${m} f=${f} mm=${mm}"
+          if test "${mm}" = ""; then
+            all_libs=`echo "${all_libs}" | sed -e "s#[ ]${n}[:][^ ]*#&,${f}#"`
+          fi
+        fi
+      done
+
+      #echo "------ Components:"
+      for a in `nm -C ${g} | egrep 'V vtable for.*Factory' | sed -e 's#.*<##' -e 's#>.*##'`; do
+        s=`echo "${all_comps}" | egrep -e "[ ]${a}[ ]"`
+        if test "${s}" = ""; then
+          all_comps="${all_comps} ${a} "
+        fi
+      done
+    fi
+  done
+
+#  echo "------ ExtSvcs"
+#  for f in `awk '/(ExtSvc).*{/,/}/ {print}' ${file} | sed -e 's#[^{]*{##' -e 's#}.*##' -e 's#[",]##g' -e "s#/.*##" | sort -u`; do
+#    echo ${tabulation}${f}
+#  done
+
+#  echo "------ includes"
+  incs=`grep '^#include' ${file} | sed -e 's#[^"]*"##' -e 's#".*##'`
+
+  for inc in `echo ${incs}`; do
+    #echo "inc=${inc}"
+    #jo=`find_joboptions_file ${inc}`
+    check ${inc} `expr ${level} + 1`
+  done
+}
+
+
+target=$1
+shift
+
+if test "${target}" = ""; then
+  echo "> checkjo.sh <jo-file>"
+  exit 1
+fi
+
+check ${target} 1
+
+echo "#------ dlls"
+for f in `echo ${all_dlls}`; do
+  echo ${f}
+done
+
+echo "#------ missing libraries"
+for f in `echo ${all_missing_libs}`; do
+  echo ${f}
+done
+
+echo "#------ libraries"
+for f in `echo ${all_libs}`; do
+  g=`echo ${f} | sed -e 's#[:]# from #'`
+  echo ${g}
+done
+
+echo "#------ joboption files"
+for f in `echo ${all_jos}`; do
+  echo ${f}
+done
+
+echo "#------ components"
+for f in `echo ${all_comps}`; do
+  echo ${f}
+done
+
+
+

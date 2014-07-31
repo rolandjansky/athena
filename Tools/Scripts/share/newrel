@@ -1,0 +1,185 @@
+#!/usr/bin/env sh
+
+# Author: Amir Farbin (afarbin@cern.ch)
+#
+# Instructions to modify this script to run at other sites:
+#
+# Simply change the ATLASDistArea and CMTDefault to point to where kits (or releases) are
+# installed at your site. Also appropriately set "CMTSite". You may also change the default
+# CVSROOT by specifying one below. Examples of more customization at the bottom of this
+# script.
+# 
+#
+# Wishlist: write a cleaner version in python!
+
+if [ X$DistArea = "X" ] 
+    then
+    ATLASDistArea="/afs/cern.ch/atlas/software/dist"
+fi
+
+CMTDefault="/afs/cern.ch/sw/contrib/CMT/v1r18p20050501"
+CMTSite="CERN"
+CVSRoot=""
+CVSRootNightlies=":kserver:atlas-sw.cern.ch:/atlascvs" # This is only used for nightlies at CERN
+
+release=$1
+directory=$2
+
+
+if [ $# -ne 2 ]
+    then
+    echo 
+    echo "Create a new ATLAS Athena test release. Using the appropriate"
+    echo "cmt version for requested given release."
+    echo
+    echo Usage:
+    echo "  newrel <ReleaseVersion> <ReleaseDirectory>"
+    echo 
+    echo "  <ReleaseVersion>: Athena release version. (ex: 10.0.1)"    
+    echo "  Note: you may use atlrel_N for nightly release N.     "
+    echo
+    echo "  <ReleaseDirectory>: Target directory for requirements"
+    echo "      and setup files (ie new your working directory)."
+    echo "      A new directory will be created if <ReleaseDirectory>"
+    echo "      does not exist. "
+    echo 
+    echo "Current Distribution Area set to " $ATLASDistArea
+    echo "(You may change this by setting the ATLASDistArea environment"
+    echo "variable.)"
+    echo
+    echo "Note: Instructions for modifying this script for other sites "
+    echo "are in the script itself."
+    exit 1;
+fi
+
+nightlycheck=`echo $release | grep "atlrel" | wc | tr -s " " | cut -d " " -f2`
+
+postfix=$3
+
+if  test $nightlycheck -eq 1 
+    then
+    echo "Nightly Release"
+    distarea=$ATLASDistArea
+    release="nightlies/rel/$release"
+else
+    distarea=$ATLASDistArea
+fi
+
+# Try to figure out the proper CMT version from setup file
+
+setupfile="$distarea/$release/Reconstruction/RecExample/RecExCommon/RecExCommon-*/cmt/setup.sh"
+
+#echo $setupfile
+if [ -e $setupfile ] 
+    then
+    cmtdir=`grep "CMTROOT=" $setupfile  | cut -d "=" -f2 | cut -d ";" -f1`
+
+    if [ -e $cmtdir ] 
+	then
+	echo Using $cmtdir
+    else
+	cmtdir=$CMTDefault # Default
+	echo Failed to figure out the cmt Version
+	echo Defaulting to $cmtdir
+    fi
+fi
+
+
+currentdir=`pwd`
+
+mkdir -p $directory
+
+rm -f $directory/setup.sh
+rm -f $directory/setup.csh
+
+touch $directory/setup.sh
+touch $directory/setup.csh
+
+#rm -f $directory/requirements
+#touch $directory/requirements
+
+if [ -e $directory/requirements ] 
+    then
+    echo $directory/requirements found. No requirements file written. 
+    echo Please make sure $directory/requirements file includes:
+    echo path_prepend CMTPATH \"$currentdir/$directory\"
+else
+    touch $directory/requirements
+    
+    cat >> $directory/requirements <<EOF 
+
+################################# Atlas requirements file #######################
+#                                   Setup Environment
+#
+# Created by "newrel" script by Amir Farbin
+#
+#
+
+set CMTSITE $CMTSite
+ 
+macro ATLAS_DIST_AREA "$distarea"
+ 
+#
+# Select releases as they are available
+#
+ 
+macro ATLAS_RELEASE "$release"
+
+apply_tag  opt
+
+use AtlasSettings v* \$(ATLAS_DIST_AREA)
+
+path_remove  CMTPATH "$currentdir/$directory"
+path_prepend CMTPATH "$currentdir/$directory"
+
+################################# Atlas requirements file #####################
+
+EOF
+
+fi
+
+if  test $nightlycheck -eq 1 
+    then
+    echo "set CVSROOT \"$CVSRootNightlies\" " >> $directory/requirements 
+fi
+
+if [ X$CVSRoot = "X" ]
+    then
+    echo Using Default CVSROOT.
+else
+    echo "set CVSROOT \"$CVSRoot\" " >> $directory/requirements 
+    echo Using CVSROOT = $CVSRoot.
+fi
+
+cd $directory
+source $cmtdir/mgr/setup.sh
+cmt config
+mv setup.sh setup.cmt.sh
+mv setup.csh setup.cmt.csh
+cd -
+
+
+# You may add any additional environment setup here... make sure you do it for both sh and csh.
+# Some examples  are commented out below.
+
+# Pre-setup a kit
+# echo "source $ATLASDistArea/setup.sh" >> $directory/setup.sh
+
+echo "source setup.cmt.sh"  >> $directory/setup.sh
+
+# Setup local version of ROOT
+#echo "export ROOTSYS=/share/data1/app/atlasinteractive/root3" >> $directory/setup.sh
+
+# Add something to LD_LIBRARY_PATH
+#echo "export LD_LIBRARY_PATH=/share/data1/app/atlasinteractive/root3/lib\${LD_LIBRARY_PATH}" >> $directory/setup.sh
+
+
+
+#echo "source $kitdir/$release$postfix/setup.csh" >> $directory/setup.csh
+
+echo "source setup.cmt.csh"  >> $directory/setup.csh
+
+#echo "setenv ROOTSYS /share/data1/app/atlasinteractive/root3" >> $directory/setup.csh
+#echo "setenv LD_LIBRARY_PATH /share/data1/app/atlasinteractive/root3/lib:\${LD_LIBRARY_PATH}" >> $directory/setup.csh
+
+#setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${distarea}/$release/usr/lib"  >> $directory/setup.csh

@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+
+#
+# purpose: create a new package
+# author : Dieter.Best@cern.ch
+# date   : 22.November.2005
+#
+
+function usage() { 
+   echo
+   echo " usage: "
+   echo " newpkg <package name> <algorithm name>"
+   echo
+   echo " example: "
+   echo " newpkg MyPackage MyAlgorithm"
+   echo
+   exit
+} 
+
+#######################################################################
+#
+#  M A I N 
+#
+#######################################################################
+
+#
+# input parameter
+#
+if [ $# -eq 0 ] ; then 
+   usage; exit 0; 
+fi
+
+# will be a parameter, set a default here
+PKG="MyAnalysis"
+ALG="MyAlg"
+PKG=$1
+ALG=$2
+
+# cd into your workdir
+
+cmt create ${PKG} ${PKG}-00-00-01
+cd ${PKG}/${PKG}-00-00-01/cmt
+cat > requirements <<EOF
+#################################################
+package ${PKG}
+
+author ATLAS $USER
+
+use AtlasPolicy    AtlasPolicy-01-*
+use GaudiInterface GaudiInterface-01-* External
+
+library ${PKG} *.cxx -s=components *.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="${ALG}_jobOptions.py"
+#################################################
+EOF
+
+cd ../src/
+cat > ${ALG}.cxx<<EOF
+#include "${PKG}/${ALG}.h"
+#include "GaudiKernel/MsgStream.h"
+
+/////////////////////////////////////////////////////////////////////////////
+
+${ALG}::${ALG}(const std::string& name, ISvcLocator* pSvcLocator) :
+Algorithm(name, pSvcLocator)
+{
+
+// Part 2: Properties go here
+
+
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode ${ALG}::initialize(){
+
+// Part 1: Get the messaging service, print where you are
+MsgStream log(msgSvc(), name());
+log << MSG::INFO << "initialize()" << endreq;
+
+return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode ${ALG}::execute() {
+
+// Part 1: Get the messaging service, print where you are
+MsgStream log(msgSvc(), name());
+log << MSG::INFO << "execute()" << endreq;
+
+// Part 2: Print out the different levels of messages
+log << MSG::INFO << "Your new package and algorithm are successfully installed" << endreq;
+
+return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode ${ALG}::finalize() {
+
+// Part 1: Get the messaging service, print where you are
+MsgStream log(msgSvc(), name());
+log << MSG::INFO << "finalize()" << endreq;
+
+return StatusCode::SUCCESS;
+}
+EOF
+
+mkdir components
+cd components
+cat > ${PKG}_entries.cxx <<EOF
+#include "${PKG}/${ALG}.h"
+#include "GaudiKernel/DeclareFactoryEntries.h"
+
+DECLARE_ALGORITHM_FACTORY( ${ALG} );
+
+DECLARE_FACTORY_ENTRIES(${PKG}) {
+DECLARE_ALGORITHM( ${ALG} );
+}
+EOF
+cat > ${PKG}_load.cxx <<EOF
+#include "GaudiKernel/LoadFactoryEntries.h"
+LOAD_FACTORY_ENTRIES(${PKG})
+EOF
+#
+# include files
+#
+cd ../../
+mkdir ${PKG}
+cd ${PKG}
+cat > ${ALG}.h<<EOF
+#include "GaudiKernel/Algorithm.h"
+class ${ALG}:public Algorithm {
+public:
+${ALG} (const std::string& name, ISvcLocator* pSvcLocator);
+StatusCode initialize();
+StatusCode execute();
+StatusCode finalize();
+};
+EOF
+cd ..
+#
+# jobOptions
+#
+mkdir share
+cd share
+cat > ${ALG}_jobOptions.py<<EOF
+#
+# Job options file
+#
+#==============================================================
+
+#--------------------------------------------------------------
+# ATLAS default Application Configuration options
+#--------------------------------------------------------------
+
+theApp.setup( MONTECARLO )
+
+#--------------------------------------------------------------
+# Private Application Configuration options
+#--------------------------------------------------------------
+
+#load relevant libraries
+theApp.Dlls += [ "${PKG}" ]
+
+#top algorithms to be run
+theApp.TopAlg = [ "${ALG}" ]
+${ALG} = Algorithm( "${ALG}" )
+
+#--------------------------------------------------------------
+# Set output level threshold (DEBUG, INFO, WARNING, ERROR, FATAL)
+#--------------------------------------------------------------
+
+MessageSvc.OutputLevel = INFO
+
+#--------------------------------------------------------------
+# Event related parameters
+#--------------------------------------------------------------
+
+# Number of events to be processed (default is 10)
+theApp.EvtMax = 1
+
+#==============================================================
+#
+# End of job options file
+#
+###############################################################
+EOF
+
+cd ../cmt
+cmt config
+source setup.sh
+make
+
+exit 0 

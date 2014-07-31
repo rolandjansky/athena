@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+#
+# purpose: create a new package
+# author : Dieter.Best@cern.ch
+# date   : 22.November.2005
+#
+
+function usage() { 
+   echo
+   echo " create a new package "
+   echo
+   echo " usage: "
+   echo " `basename $0` <package name>"
+   echo
+   echo " example: "
+   echo " `basename $0` MyPackage"
+   echo
+   exit
+} 
+
+#######################################################################
+#
+#  M A I N 
+#
+#######################################################################
+
+#
+# input parameter
+#
+if [ $# -eq 0 ] ; then 
+   usage; exit 0; 
+fi
+
+# will be a parameter, set a default here
+PKG="MyAnalysis"
+PKG=$1
+
+cmt create ${PKG} ${PKG}-00-00-01
+
+HERE=`pwd`
+PACK=${HERE}/${PKG}/${PKG}-00-00-01
+
+# setup dir
+cd ${PACK}/cmt
+cat > requirements <<EOF
+package ${PKG}
+author ATLAS $USER
+use AtlasPolicy    AtlasPolicy-01-*
+use GaudiInterface GaudiInterface-01-* External
+library ${PKG} *.cxx -s=components *.cxx
+apply_pattern component_library
+EOF
+
+# sources
+mkdir -p ${PACK}/src/components
+cd ${PACK}/src/components
+cat > ${PKG}_entries.cxx <<EOF
+#include "GaudiKernel/DeclareFactoryEntries.h"
+DECLARE_FACTORY_ENTRIES(${PKG}) {
+}
+EOF
+cat > ${PKG}_load.cxx <<EOF
+#include "GaudiKernel/LoadFactoryEntries.h"
+LOAD_FACTORY_ENTRIES(${PKG})
+EOF
+
+# include files
+mkdir ${PACK}/${PKG}
+
+# job options
+mkdir ${PACK}/share
+
+# run dir
+mkdir ${PACK}/run
+
+# setup
+cd ${PACK}/cmt; cmt config; source setup.sh; 
+#make
+
+exit 0 

@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+# Author: Amir Farbin (afarbin@cern.ch)
+#
+# Wishlist: write a cleaner version in python! This script can be so much nicer...
+
+
+if [ $# -ne 1 ]
+    then
+    echo 
+    echo "Remove an existing ATLAS Athena Algorithm. Must be run from the"
+    echo "base or cmt directory of a package. The Algorithm should have been"
+    echo "created by newalg script."
+    echo
+    echo Usage:
+    echo "  delalg <AlgorithmName>"
+    echo 
+    echo " <AlgorithmName>: Name of the algorithm."
+    exit 1;
+fi
+
+algname=$1
+
+myPWD=`pwd`
+
+incmtdir=`pwd | grep cmt | wc | tr -s " " | cut -d" " -f 3`
+
+if test $incmtdir -lt 1
+    then
+    cd cmt
+    incmtdir=`pwd | grep cmt | wc | tr -s " " | cut -d" " -f 3`
+    if test $incmtdir -lt 1
+	then
+	cd ../cmt
+	incmtdir=`pwd | grep cmt | wc | tr -s " " | cut -d" " -f 3`
+    fi
+fi
+
+if test $incmtdir -lt 1
+    then
+    echo Could not find cmt directory for package. Try switching to the"
+    echo "base or cmt directory of this package.
+    exit 1
+fi
+
+packagename=`cmt show macro_value package`
+
+if [ "X$packagename" = "X" ]
+    then
+    echo Could not determine package name. 
+    exit 1
+fi
+
+echo Package name: $packagename
+cd ..
+
+rm -i src/${algname}.cxx 
+rm -i ${packagename}/${algname}.h 
+mv src/components/${packagename}_entries.cxx src/components/${packagename}_entries.cxx.bak
+grep -v "XXX${algname}XXX" src/components/${packagename}_entries.cxx.bak > src/components/${packagename}_entries.cxx

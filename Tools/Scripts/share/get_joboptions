@@ -1,0 +1,39 @@
+
+#set -x
+
+function find_file ()
+{
+  name=$1
+
+  f=`pwd`
+  a=`if test -d ${f} ; then find ${f} -path "*/${name}"; fi`
+
+  if test "${a}" = ""; then
+    for f in `echo ${JOBOPTSEARCHPATH} | sed -e 's#:# #g'`; do
+      a=`if test -d ${f} ; then find ${f} -path "*/${name}"; fi`
+      if test ! "${a}" = ""; then
+        break
+      fi
+    done
+  fi
+
+  echo ${a}
+}
+
+all=$*
+
+for g in `echo ${all}`; do
+  allfiles=`find_file ${g}`
+  for file in `echo ${allfiles}`; do
+    n=`basename ${file}`
+    d=`dirname ${file}`
+    if test ! "${d}" = `pwd`; then
+      d=`echo ${d} | sed -e 's#/InstallArea.*##'`
+      d=`basename ${d}`
+      echo "Copying file ${n} from ${d}"
+      cp ${file} ./
+    else
+      echo "file ${n} already in current directory"
+    fi
+  done
+done

@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# 18-Oct-2007 Igor Kachaev <Igor.Katchaev@cern.ch>
+# Version based on one proposed by Shuwei YE <yesw@bnl.gov>
+# This script depends on java version and 'classes/taginfo.jar' file
+# from AtlasCore 'taginfo' package. System version of java
+# (1.5.0_12 from SLC4.5) and taginfo any version (say AtlasCore 13.0.25)
+# are ok. Java version from GRID (1.4.0_15) breaks the stuff.
+# So I make a copy of 'taginfo.jar' 13.0.25 in the directory where script
+# is located and in AtlasCore 'Tools/Scripts' package. System
+# version of java is used. This eliminates dependence on 'latest'
+# link to AtlasCore and on GRID enviroment.
+# Uncomment one line below if we prefer to use taginfo from AtlasCore.
+# 12-Jun-2008 Igor Kachaev <Igor.Katchaev@cern.ch>
+#   Eliminate stupid message from java - move JAVA_OPTIONS into command line.
+#   Eliminate blank lines by grep.
+
+package=$1
+if [ -z "${package}" ] || [ "${package}" = "-h" ] ; then cat <<EOD
+
+Usage: get_tag <full_package_name> [[-r] <release>]
+
+This script prints cvs tag used for given package in specified release.
+If release number is absent, tags for all releases are printed.
+There are next ways to specify release number:
+
+For monolithic releases (prior to 11.2.0) just give it as is:
+% get_tag Tools/Scripts 11.1.0
+
+For project based releases give it with '-r' option:
+% get_tag Tools/Scripts -r 12.0.3
+
+or specify release number of the project package_name is belong to
+% get_tag Tools/Scripts 2.0.3
+
+For project based releases the last option (without '-r') is much faster.
+For release 13,14 one can omit '-r' since all projects have the same version.
+EOD
+exit 0
+fi
+
+isAtRel=
+shift; release=$1
+if [ "$release" = "-r" ]; then
+  isAtRel=yes; shift; release=$1
+fi
+
+if test -z "${release}"; then
+  release="latest"
+fi
+
+package=/`echo $package | sed "s#/*##"`
+
+# Uncomment this if we prefer to initialize taginfo properly
+# cd /afs/cern.ch/atlas/software/builds/AtlasCore/latest/taginfo
+# source cmt/setup.sh
+
+# Uncomment next line if we prefer to use taginfo.jar from AtlasCore
+# classPath=/afs/cern.ch/atlas/software/builds/AtlasCore/latest/taginfo/classes
+
+classPath=`dirname $0`
+
+if [ ! -r $classPath/taginfo.jar ]; then
+  echo "Error: no taginfo available, no file $classPath/taginfo.jar"
+  exit 1
+fi
+
+# Eliminate stupid message from java - insert options into command line.
+source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
+export -n _JAVA_OPTIONS
+alias taginfo="`which java` $_JAVA_OPTIONS -cp $classPath/taginfo.jar taginfo"
+
+userel=
+if [ $release != "latest" ]; then
+  userel="-releaseName=${release}" 
+fi
+if [ -z "$isAtRel" ]; then
+  # echo "Using Project release ${release} (faster)"
+  taginfo AMI TCGetPackageVersionHistory -repositoryName="AtlasOfflineRepository" \
+  -project=TagCollector -processingStep=production $userel -fullPackageName=${package} \
+  | grep ${package} | cut -f1,3,4,5 -d';' | sort -n
+else
+  # echo "Using Atlas offline release ${release}"
+  taginfo AMI TCFormGetDependencyPackageVersionTree -project=TagCollector \
+  -processingStep=production -groupName=AtlasOffline -expandedPackageID="*" \
+  $userel -filter=${package} | grep ${package} | sort -n
+fi
+exit 0

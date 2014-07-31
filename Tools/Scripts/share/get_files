@@ -1,0 +1,193 @@
+#!/bin/sh
+#
+#   get_files [options] [files] [options] [files] ... 
+#
+#   Unix script to copy files from search path into current directory.
+#   See help text below for description.
+#
+#   1.00 source unknown
+#   2.00 rewritten by I.Kachaev 16/10/2006
+#        Multiple files are handled correctly;
+#        First match is returned for each file requested;
+#        duplicates can not be reported. Partial directory specification
+#        can be specified to resolve ambiguity.
+#        Much faster than before.
+#   2.01 modified by I.Kachaev 18/10/2006
+#        for 'get_files -jo', i.e. only options but no files,
+#        change exit status from 1 to 0.
+#   2.02 do 'exit 0' if file not found, 19/10/2006
+#   2.10 modified by I.Kachaev  20/10/2006
+#        Permit wildcards in file names/directories;
+#        Add '-warn' to print warning about multiple files found;
+#        Add '-list' to list files without copying.
+#   2.20 modified by I.Kachaev  31/10/2006
+#        Parse arguments according to get_files_header CMT pattern
+#   2.21 eliminate null-size arguments from CMT pattern 31/10/2006
+#
+
+print_help() {
+cat <<EOD
+Usage: get_files [options] [file_list] [options] [file_list] ...
+
+  Options:
+  -jo        : get joboption files from JOBOPTSEARCHPATH
+  -data      : get data files from DATAPATH
+  -scripts   : get scripts from PATH
+  -xmls      : get XML files form XMLPATH
+  -copy      : switch to copying files [default]
+  -symlink   : switch to symlinking files
+  -keep      : keep existing files, do not overwrite [default]
+  -remove    : permit to overwrite files in current directory
+  -warn      : print warning if more than one file matches specification. Slow.
+  -list      : list all matches but do not copy anything
+  -help      : print this help text
+
+This script copies files from search path to the current directory.
+Command line is parsed from left to right; each option found sets
+defaults to process the following (possibly zero length) 'file_list'.
+In any case, the first match is returned for each file requested.
+If no option is specified, file is looked up in all areas; this is SLOW.
+Duplicates are reported only if '-warn' was specified. This is slow.
+Partial directory specification can be specified to resolve ambiguity.
+Wildcards are permitted in file names/directories.
+
+  Examples:
+
+% get_files -symlink -jo jobOptions.py -scripts -data  # example from CMT
+% get_files -jo -list '*Example/*.py'
+% get_files -jo -warn ReadDBS.py                       # two files match
+% get_files -jo -remove InDetAlignGenAlgs/ReadDBS.py   # ambiguity resolved
+EOD
+}
+
+get_one_file() {
+  # Lookup one file according to current options.
+  file=$1
+  if [ -z "$options" ]; then
+    options="jo data scripts xmls"
+    echo "Warning: get_files without '-jo|-data|-scripts|-xmls' is SLOW !"
+  fi
+  # echo "get_one_file: file $file; options=$options"
+  # Next loop is written with idea to break it when first match is found
+  status=
+  for opt in $options; do
+    if [ "$opt" == "jo" ]; then
+      path_opt="./ ${JOBOPTSEARCHPATH//:/ }"
+    elif [ "$opt" == "data" ]; then
+      path_opt=${DATAPATH//:/ }
+    elif [ "$opt" == "scripts" ]; then
+      # Only keep PATH entries located in the installation areas to find scripts.
+      path_opt=$(echo -e ${PATH//:/'\n'} | fgrep /InstallArea/)
+    elif [ "$opt" == "xmls" ]; then
+      path_opt=${XMLPATH//:/ }
+    fi
+
+  # Find strategy:
+  #   ignore CVS stuff and backup files;
+  #   use 'find -path' to honor package name (partial directory
+  #   specification) and permit wildcard requests.
+ 
+  for dir in ${path_opt}; do
+    if [ -d $dir ]; then
+      find $dir -mindepth 1 -maxdepth 2 -path "*/${file}" | \
+        egrep -v '~|CVS' >>${tempfile}
+      if [ -s ${tempfile} ]; then status="FOUND"; fi
+      if [[ -n "$status" && -z "$do_warn" ]]; then break; fi
+    fi
+  done
+
+  # echo "Results from find:"
+  # echo "---------------------------------------------------"
+  # cat ${tempfile}
+  # echo "---------------------------------------------------"
+
+  if [[ -n "$status" && -z "$do_warn" ]]; then break; fi
+  done # end loop over options
+
+  # Copy/link file into current directory if something was found.
+  # Do nothing if found file is from current directory;
+  # Handle possible multiple matches - the first one is returned in any case.
+  # Do not copy file if '-list' was specified.
+
+  if [ -n "$status" ]; then
+    nfile=$(wc -l < ${tempfile}) ; nfile=$(echo $nfile) # strip spaces
+    if [[ $nfile != "1" || -n "$do_list" ]]; then
+      msg="Warning:"; if [ -n "$do_list" ]; then msg="Note:"; fi
+      echo "$msg ${nfile} files found for '${file}':"
+      echo "---------------------------------------------------"
+      cat ${tempfile}
+      echo "---------------------------------------------------"
+    fi
+    read fspec < ${tempfile}
+    rm -f ${tempfile}
+    if [ -z "$do_list" ]; then
+      bname=${fspec##*/}  # bname=$(basename $fspec)
+      echo -e "Willing to acquire file ${file} from\n${fspec}"
+      if [[ "$fspec" == "./$bname" || "$fspec" == "$PWD/$bname" ]]; then
+        echo "File $fspec is from current directory"
+      else
+        msg="copy"; if [ -z "$do_copy" ]; then msg="symlink"; fi
+        if [ -f ./$bname ]; then
+          echo "File $bname exists in the current directory"
+          if [ -n "$do_keep" ]; then
+            echo "Keep $bname"
+          else
+            echo "Remove and $msg $bname"
+            rm -f $bname
+            $copycmd ${fspec} $bname
+          fi
+        else
+          echo "$msg $bname"
+          $copycmd ${fspec} $bname
+        fi
+      fi
+    fi
+  else
+    echo "Warning: get_files: nothing found for ${file}"
+    if [ -z "$do_list" ]; then final_status=1; fi
+  fi
+}
+
+#
+# Start of main program.
+#
+
+# echo "get_files $@"
+if [ $# -eq 0 ]; then print_help; exit 0; fi
+
+do_copy=yes	# if yes, copy files, else symlink them
+do_keep=yes	# if yes, never overwrite existing files
+do_warn=	# if yes, continue search after first match
+do_list=	# if yes, list files found but do not copy
+
+basic_copycmd="cp -f -L -R"
+basic_linkcmd="ln -s -f -n"
+copycmd=${basic_copycmd}
+
+# Add 'exit' here to make script interruptable; do not trap signal 0.
+tempfile="/tmp/getfile_$$"
+trap '/bin/rm -f ${tempfile}; exit 1' 1 2 15
+/bin/rm -f ${tempfile}
+
+set -o noglob	# disable wildcard expansion
+final_status=0	# nonzero if some requested file was not found
+
+options=
+for f in $*; do
+  case $f in
+    -jo)      options=jo;;
+    -data)    options=data;;
+    -scripts) options=scripts;;
+    -xmls)    options=xmls;;
+    -copy)    do_copy=yes; copycmd=${basic_copycmd};;
+    -symlink) do_copy=;    copycmd=${basic_linkcmd};;
+    -keep)    do_keep=yes;;
+    -remove)  do_keep=;;
+    -warn)    do_warn=yes;;
+    -list)    do_warn=yes; do_list=yes;;
+    -h*)      print_help; exit 0;;
+    -*)       echo "Bad option $f"; print_help; exit 1;;
+    *)        get_one_file "$f";;
+  esac
+done
+exit 0	# exit $final_status

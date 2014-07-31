@@ -1,0 +1,153 @@
+#!/usr/bin/env sh
+
+# Author: Amir Farbin (afarbin@cern.ch)
+#
+# Wishlist: write a cleaner version in python! This script can be so much nicer...
+
+if [ $# -ne 1 ]
+    then
+    echo 
+    echo "Create an empty ATLAS Athena Algorithm. Must be run from the"
+    echo "base or cmt directory of a package."
+    echo
+    echo Usage:
+    echo "  newalg <AlgorithmName>"
+    echo 
+    echo " <AlgorithmName>: Name of new algorithm."
+    exit 1;
+fi
+
+algname=$1
+
+myPWD=`pwd`
+
+incmtdir=`pwd | grep cmt | wc | tr -s " " | cut -d" " -f 3`
+
+if test $incmtdir -lt 1
+    then
+    cd cmt
+    incmtdir=`pwd | grep cmt | wc | tr -s " " | cut -d" " -f 3`
+    if test $incmtdir -lt 1
+	then
+	cd ../cmt
+	incmtdir=`pwd | grep cmt | wc | tr -s " " | cut -d" " -f 3`
+    fi
+fi
+
+if test $incmtdir -lt 1
+    then
+    echo Could not find cmt directory for package. Try switching to the"
+    echo "base or cmt directory of this package.
+    exit 1
+fi
+
+packagename=`cmt show macro_value package`
+
+if [ "X$packagename" = "X" ]
+    then
+    echo Could not determine package name. 
+    exit 1
+fi
+
+echo Package name: $packagename
+cd ..
+
+algnameup=`echo $algname | tr 'a-z' 'A-Z'`
+
+if [ -e src/${algname}.cxx ] || [ -e ${packagename}/${algname}.h ] 
+    then
+    echo Algorithm with name ${algname} already exists... Exiting.
+    exit 1
+fi
+
+echo "Adding algorithm $algname to package $packagename."
+
+echo "Adding src/${algname}.cxx."
+cat > src/${algname}.cxx <<EOF
+
+#include "${packagename}/${algname}.h"
+#include "GaudiKernel/Algorithm.h"
+
+${algname}::${algname}(const std::string& name, ISvcLocator* pSvcLocator) : 
+  Algorithm(name,pSvcLocator) 
+{ }
+
+${algname}::~${algname}()
+{ }
+
+StatusCode ${algname}::initialize() {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode ${algname}::execute() {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode ${algname}::finalize() {
+  return StatusCode::SUCCESS;
+}
+
+EOF
+
+echo "Adding ${packagename}/${algname}.h."
+
+cat > ${packagename}/${algname}.h <<EOF
+
+#ifndef ${algnameup}_H
+#define ${algnameup}_H
+
+#include "GaudiKernel/Algorithm.h"
+#include <string>
+
+class ${algname} : public Algorithm
+{
+ public:
+  ${algname}(const std::string& name,ISvcLocator* pSvcLocator);
+  virtual ~${algname}();
+
+  StatusCode initialize();
+  StatusCode execute();
+  StatusCode finalize();  
+
+};
+
+#endif // ${algnameup}_H
+
+EOF
+
+testfiles=`grep ${algname} src/components/${packagename}_entries.cxx | wc | tr -s " " | cut -d " " -f2`
+
+if test $testfiles -gt 0
+    then
+    echo Algorithm ${algname} appears to have been previously added to components. Components unchanged.
+    exit 0
+else
+
+# Update entries file
+    
+    echo "Updating src/components/${packagename}_entries.cxx."
+    
+    mv src/components/${packagename}_entries.cxx src/components/${packagename}_entries.cxx.bak
+    grep -h "include" src/components/${packagename}_entries.cxx.bak >> src/components/${packagename}_entries.cxx
+    echo "#include \"${packagename}/${algname}.h\" // XXX${algname}XXX Keep this comment for remove-athena-algorithm " >>  src/components/${packagename}_entries.cxx
+    grep -h "DECLARE_ALGORITHM_FACTORY" src/components/${packagename}_entries.cxx.bak >> src/components/${packagename}_entries.cxx
+    grep -h "DECLARE_TOOL_FACTORY" src/components/${packagename}_entries.cxx.bak >> src/components/${packagename}_entries.cxx
+    echo "DECLARE_ALGORITHM_FACTORY( ${algname} ) ; // XXX${algname}XXX Keep this comment for remove-athena-algorithm" >>  src/components/${packagename}_entries.cxx
+    echo "DECLARE_FACTORY_ENTRIES( ${packagename} ) {" >>  src/components/${packagename}_entries.cxx
+    grep -h "DECLARE_ALGORITHM" src/components/${packagename}_entries.cxx.bak | grep -v "FACTORY" >> src/components/${packagename}_entries.cxx
+    grep -h "DECLARE_TOOL" src/components/${packagename}_entries.cxx.bak | grep -v "FACTORY" >> src/components/${packagename}_entries.cxx
+    echo "DECLARE_ALGORITHM( ${algname} ) ; // XXX${algname}XXX Keep this comment for remove-athena-algorithm" >>  src/components/${packagename}_entries.cxx
+    echo "}" >>  src/components/${packagename}_entries.cxx
+    
+# Update load file
+    
+#    echo "Updating src/components/${packagename}_load.cxx."
+#    cp src/components/${packagename}_load.cxx src/components/${packagename}_load.cxx.bak
+#    echo "LOAD_FACTORY_ENTRIES(${algname})"  >>  src/components/${packagename}_load.cxx
+fi
+
+echo To use ${algname} add the following to your jobOptions file:
+echo "theApp.Dlls += [ \"${algname}\" ]"
+echo "${algname} = Algorithm( \"${algname}\" )"
+
+cd $myPWD

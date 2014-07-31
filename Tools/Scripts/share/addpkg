@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+# Author: Amir Farbin (afarbin@cern.ch)
+#
+# Wishlist: write a cleaner version in python! 
+
+pkgName=$1
+rel=$2
+#base=/afs/cern.ch/atlas/software/dist
+base=$SITEROOT/atlas/software/dist
+
+if [ $# -eq 0 ] ; then
+    echo
+    echo Checkout an ATLAS Athena package from CVS repository.
+    echo
+    echo Usage:
+    echo "  addpkg <PackageName> [ <Release>/<Tag> ]"
+    echo 
+    echo "<PackageName>: the full name of the package."
+    echo "   (ex:  Reconstruction/RecExample/RecExCommon)"
+    echo
+    echo "<Release>: the Athena release version. This is an optional parameter."
+    echo "   If no release or tag is specified, addpkg will attempt to checkout "
+    echo "   version corresponding to your present release version."
+    echo
+    echo "<Tag>: may be supplied instead of <Release>. (ex: RecExCommon-00-03-42)"
+    exit 1;
+fi
+
+
+if [ "X$rel" = "X" ] ; then
+    rel=`cmt show macro_value ATLAS_RELEASE`
+    echo Using release $rel.
+fi
+
+if [ -e $base/$rel ] ; then
+    pkgPath=$base/$rel/$pkgName
+    tag=`ls $pkgPath`
+    cmt co -r $tag $pkgName
+else
+    cmt co -r $rel $pkgName
+fi
