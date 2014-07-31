@@ -1,0 +1,179 @@
+Version 1 - Max Baak, 20090303
+
+Instructions for Tools/Tier0ChainTests package:
+-----------------------------------------------
+
+... are found below.
+
+test/ directory:
+----------------
+Contains the xml files for tct tests defined for specific atlas projects. Eg:
+
+####
+# test/Tier0ChainTests_DefaultConfiguration.xml
+# test/Tier0ChainTests_devval_AtlasOffline.xml
+
+When installing the Tier0ChainTests package, cmt searches for the file with name:
+> echo "test/Tier0ChainTests_`echo $AtlasArea | cut -d "/" -f 8,9 | sed 's/\//_/'`.xml"
+(best to give this command a try yourself ;-)
+
+If this file is not found, the fall-back file is: 
+test/Tier0ChainTests_DefaultConfiguration.xml
+
+
+scripts/ directory:
+-------------------
+Contains wrapper run scripts called by the tct xml files.
+Just calling a script will print a usage line.
+Each script has a dryrun option that can be used for testing purposes. Do:
+> tct_script -d arg1 arg2 arg3 etc
+
+When the dryrun option is given, the tct_script wrapper is run, setting up the entire configuration, 
+but the underlying command is not executed.
+
+####
+# scripts/tct_getAmiTag.py
+
+Scripts for getting the latest Recotrf.py configuration from ami.
+Usage:
+> tct_getAmiTag.py latest ami_recotrf.cmdargs
+or eg
+> tct_getAmiTag.py f85 myami_recotrf.cmdargs
+
+the runarguments (eg preinclude, etc.) are then stored in the file: ami_recotrf.cmdargs.
+This file can then be used by the script: scripts/tct_recotrf.sh
+
+####
+# scripts/tct_recotrf.sh
+
+Script that calls the Recotrf.
+Usage:
+> tct_recotrf.sh 0 IDCosmic 3 500 /castor/cern.ch/grid/atlas/DAQ/2008/91890 ami_recotrf.cmdargs
+where:
+- 0: is the job id number
+- IDCosmic: is the selected trigger stream
+- 500: is the number of event to run over
+- /castor/cern.ch/grid/atlas/DAQ/2008/91890: is the castor directory to get collections from.
+  In this example files are taken from: /castor/cern.ch/grid/atlas/DAQ/2008/91890/physics_IDCosmic
+  Where IDCosmis is the chosen trigstream.
+- ami_recotrf.cmdargs: are the command arguments obtained from running tct_getAmiTag.py.
+
+####
+# scripts/tct_generate_copyscript.py
+
+Called by scripts/tct_recotrf.sh. This script generates a dynamic script called: 
+copyscript.sh 
+which copies a unique set of input collections from castor to local disk.
+These are the input collection for Recotrf.
+
+####
+# scripts/tct_recotrf_Prod.sh
+# scripts/tct_recotrf_Tier0.sh
+
+At date of writing, these are copies of scripts/tct_recotrf.sh
+It is foreseen that AtlasTier0 or AtlasProduction may have different Recotrf.py occasionally.
+Use these scripts to account for possible differences.
+
+####
+# scripts/tct_mergeMonHistograms.sh
+
+Script for merging monitoring histograms:
+Usage:
+> tct_mergeMonHistograms.sh myMergedMonitoring.root myMergedMonitoring_IDCosmic_0.root myMergedMonitoring_IDCosmic_1.root etc
+where:
+- myMergedMonitoring.root: is the output file, and 
+- myMergedMonitoring_IDCosmic_0.root myMergedMonitoring_IDCosmic_1.root etc
+  are all input files to be merged.
+
+####
+# scripts/tct_dqwebdisplay.sh
+
+Scripts for setting up the dq webdisplay. Usage:
+> tct_dqwebdisplay.sh myMergedMonitoring.root Tier0ChainTests.TCTDQWebDisplayCosmics cosmics_run.latest.hcfg cosmics_minutes10.latest.hcfg cosmics_minutes30.latest.hcfg
+where
+- myMergedMonitoring.root : is the output produced by scripts/tct_mergeMonHistograms.sh
+- Tier0ChainTests.TCTDQWebDisplayCosmics: is the dqwebdisplay configuration setup, found in the python/ directory. 
+  Default setup is for local running: Tier0ChainTests.LocalDQWebDisplayCosmics
+- cosmics_run.latest.hcfg cosmics_minutes10.latest.hcfg cosmics_minutes30.latest.hcfg: are han configuration files.
+  In case not set, fall-back han files are:
+  hanconfigfile=/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_run.1.80.hcfg
+  hanconfigfile=/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_minutes10.1.12.hcfg
+  hanconfigfile=/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_minutes30.1.9.hcfg
+
+####
+# scripts/tct_CreateDB.py
+
+Scripts for setting up a dummy cool db. Used for testing of uploading dq flags.
+This script is used inside: scripts/tct_dqwebdisplay.sh
+
+####
+# scripts/tct_dqutil.py
+
+Utility script used by: scripts/tct_dqwebdisplay.sh
+Specifically, used for interpreting the dqwebdisplay configuration, eg Tier0ChainTests.TCTDQWebDisplayCosmics
+
+####
+# scripts/tct_fixhanrootnames.py
+
+Utility script used by: scripts/tct_dqwebdisplay.sh
+Specifically, used for renaming produced han root files. 
+
+####
+# scripts/tct_tagupload.sh
+
+Script for testing of uploading tag files to db.
+(In tct, called after AODtoTAG_trf.py command.)
+Usage:
+tct_tagupload.sh myTag.pool.root
+
+
+####
+# scripts/tct_dqupdatereferences.sh
+
+Script to create new han config files based on old han config files and new han root files.
+Usage:
+> tct_dqupdatereferences.sh cosmics_minutes30.latest.hcfg run__minutes30_1_han.root new_cosmics_minutes30.latest.hcfg 91890
+where :
+- cosmics_minutes30.latest.hcfg is input han config file
+- run__minutes30_1_han.root is the han root file
+- new_cosmics_minutes30.latest.hcfg is the new han config file
+- 91890 is the runnumber the han root file corresponds with.
+
+####
+# scripts/tct_changehanreferences.py
+
+Utility script called by scripts/tct_dqupdatereferences.sh
+Does the actual replacing of histogram references and creates the new han config file.
+
+
+####
+#scripts/tct_finishedMail.py
+
+Send a mail when finished. Usage:
+> scripts/tct_finishedMail.py email@cern.ch messagebody 
+
+####
+# scripts/tct_runAll.sh
+
+Script for runnign the entire tct chain in your shell.
+Usage:
+> tct_runAll.sh 2 IDCosmic 1 100 /castor/cern.ch/grid/atlas/DAQ/2008/0096544
+
+to run two reco jobs, 1 bs collection each and over 100 events, over
+IDCosmic collections from the castor directory
+/castor/cern.ch/grid/atlas/DAQ/2008/0096544
+
+
+python/ directory:
+------------------
+
+####
+# python/CastorFileTool.py
+
+Utility class used by scripts/tct_generate_copyscript.py
+
+####
+# python/LocalDQWebDisplayCosmics.py
+# python/TCTDQWebDisplayCosmics.py
+
+Two possible DQ webdisplay configuration settings. Local is the default, used for local running. TCT is run by the rtt.
