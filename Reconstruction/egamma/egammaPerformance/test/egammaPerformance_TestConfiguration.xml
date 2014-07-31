@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+<rttContactPerson>Yao Ming,Gabriel Ybeles Smit,Kamal Benslama</rttContactPerson>
+<mailto>yming@mail.cern.ch,ybeles@mail.cern.ch,kamal.benslama@gmail.com</mailto>
+
+   <refRelease>17.2</refRelease>
+   <jobList>   
+
+        <classification>
+          <displayClass>OfflineValidation</displayClass>
+          <displayProcess>Reco</displayProcess>
+          <displayComponent>Perf-Egamma</displayComponent>
+        </classification>
+
+
+        <athena userJobId="egsingle">
+          <doc>egammaPerformance, mc12_valid1.107061.singlepart_e_E100, https://twiki.cern.ch/twiki/bin/view/Atlas/ElectronGamma</doc>
+          <commandLineFlags>DetDescrVersion="ATLAS-GEO-03-00-00"</commandLineFlags>
+          <options>egammaPerformance/egammaPerformance_RTT_topOptions</options>
+          <package>Reconstruction/egammaPerformance</package>
+          <group>egammaPerformance</group>
+          <queue>medium</queue>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000019.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000036.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000042.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000073.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000076.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000094.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000099.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000118.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000120.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000124.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.107061.singlepart_e_E100.digit.RDO.e1127_s1469_d701_tid790115_00/RDO.790115._000167.pool.root.1</dataset>
+        </athena>
+        <athena userJobId="egzee">
+          <doc>egammaPerformance, mc12_valid1.106046.PythiaZee_1Lepton, https://twiki.cern.ch/twiki/bin/view/Atlas/ElectronGamma</doc>
+          <commandLineFlags>DetDescrVersion="ATLAS-GEO-03-00-00"</commandLineFlags>
+          <options>egammaPerformance/egammaPerformance_RTT_topOptions</options>
+          <package>Reconstruction/egammaPerformance</package>
+          <group>egammaPerformance</group>
+          <queue>medium</queue>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000012.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000052.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000063.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000065.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000091.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000123.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000145.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000180.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/perf-egamma/rtt/mc12_valid1.106046.PythiaZee_no_filter.digit.RDO.e1127_s1469_d701_tid790116_00/RDO.790116._000187.pool.root.1</dataset>
+        </athena>
+
+   </jobList>
+
+   <jobGroups>
+      <jobGroup name="AthenaegammaPerformance" parent="Athena">
+      
+         <keepFilePattern>*.root</keepFilePattern>
+         <keepFilePattern>*.ps</keepFilePattern>
+         <keepFilePattern>*.hist</keepFilePattern>
+               
+
+         
+
+         <auxFilePattern>egamma*.C</auxFilePattern>
+
+         <action>
+             <modulename>RttLibraryTools</modulename>
+             <testname>ROOTMacroRunner</testname>
+             <arg>
+                  <argname>macro</argname>
+                  <argvalue>egammaPerformanceRunMacros.C</argvalue>
+             </arg>
+         </action>
+
+      </jobGroup>
+      
+      
+   </jobGroups>
+</rtt>
+</unifiedTestConfiguration>
