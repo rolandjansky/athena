@@ -1,0 +1,144 @@
+
+README.user_finsel: README file for re-organized user_finsel.F 
+                    and it's extensions
+
+Author : W. Walkowiak, 2006-04-04
+Changes: w.w., 2006-04-09 -- added uf_BsJpsimumuphiKK.F
+         p.r., 2010-08-26 -- added uf_BdJpsimumuK0starKpi.F
+
+-----------------------------------------------------------------------------
+
+  I. Introduction
+ II. Status of implemented uf_XXXXX.F files
+III. Instructions for users
+ IV. Instructions for experts
+
+I. INTRODUCTION
+===============
+Now, the FORTRAN subroutine user_finsel() should only provide switching 
+to the appropriate uf_XXXXX() subroutine which is located in the 
+appropriate uf_XXXXX.F file.  For selecting the choosen uf_XXXX() the 
+jobOption switch 
+   PythiaB.ForceDecayChannel = "XXXXX" 
+has been provided.
+In addition, up to ten parameters (type double) may be passed to the
+uf_XXXXX() subroutine via the jobOption 
+   PythiaB.DecayChannelParameters = [0.0, 0.0, ..., 0.0] .
+The meaning of the parameters is defined by the author of the uf_XXXXX.F file.
+A skeleton file (uf_Skeleton.F) has been provided for code development.
+
+
+II. STATUS OF IMPLEMENTED uf_XXXXX.F FILES
+==========================================
+uf_Skeleton.F:
+   Skeleton provided for user development and testing of 
+   user_finsel code.  
+   See below for instructions on how to use it.
+
+uf_DsPhiX.F:
+   user_finsel code for the decays B0s->Ds(PhiPi)Pi, B0s->Ds(PhiPi)A1
+   and B0s->Ds(PhiPi)MuNu.  
+   See the example jobOptions files for sample settings and use
+   of parameters to select the wanted decays.  
+   This code has been tested.
+
+uf_LambdabmumuLambda.F:
+   Code provided by Pavel R.  
+   Compiles but hasn't been tested.
+
+uf_LambdabJpsimumuLambda.F:
+   Code provided by Michigan group.
+   Compiles but hasn't been tested.
+
+uf_BsJpsimumuphiKK.F:
+   Code provided by James Catmore.
+   Compiles but hasn't been tested. 
+
+uf_bbmumu.F
+   Code provided by Sergey Sivoklokov.
+   compiles but hasn't been tested.
+
+uf_ChHadr.F
+   Code provided by Leonid Gladilin
+   for selection 9 charm hadron decays with backgrounds.
+   This code has been tested.
+
+uf_BdJpsimumuK0starKpi.F:
+   Code provided by Pavel Reznicek (but based on James's BsJpsimumuphiKK)
+   This code has been tested.
+
+
+III. INSTRUCTIONS FOR USERS
+===========================
+The integration of code for a new (signal) decay chain in user_finsel
+should proceed according to the following steps:
+1) Edit uf_Skeleton.F and add your code there.  
+   Note, that you may access the ten double precision parameters
+   which are set by PythiaB.DecayChannelParameters =[]
+   via the double precision array cufdcp(i).  
+   These parameters are simply passed through from the jobOptions
+   to uf_Skeleton.F.
+2) Add 
+     PythiaB.ForceDecayChannel = "Skeleton"
+     PythiaB.DecayChannelParameters = [0.0, 0.0, ..., 0.0]
+   to your jobOptions file.
+   It is helpful to document the meaning of your parameters
+   in uf_Skeleton.F as well as the jobOptions file.
+3) Run and test your code.
+4) Once you are satisfied, please email the code, ie your 
+   modified version of uf_Skeleton.F and an example jobOptions file
+   together with your suggestion for naming the decay ("XXXXX") to
+     Maria Smizanska <Maria.Smizanska@cern.ch> and
+     Wolfgang Walkowiak <walkowiak@hep.physik.uni-siegen.de>
+   who will take care of the integration of your code into PythiaB as 
+   a new uf_XXXXXX() subroutine using your naming suggestion if appropriate.
+
+
+IV. INSTRUCTIONS FOR EXPERTS
+=============================
+The integration of new uf_XXXXX() subroutines is simple:
+1) Decide upon the name, e.g. XXXXX = NewDecaySelection
+2) Rename the user supplied uf_Skeleton.F to uf_XXXXX, e.g. 
+   uf_NewDecaySelection.F and edit the file accordingly 
+   to adjust the subroutine name to uf_XXXXX(IRET), 
+   e.g. uf_NewDecaySelection(IRET).
+3) Edit user_finsel.F and add a call to uf_XXXXX() to
+   the following section, e.g.:
+     c
+     c select user defined decay channel
+     c
+     c  0: decay channel skeleton
+           if ( iufdc .eq. 0 ) call uf_Skeleton(iret)
+     ...
+     c
+     c  4: NewDecaySelection (provided by NewAnalysisGroup)
+           if ( iufdc .eq. 4 ) call uf_NewDecaySelection(iret)
+     c
+   Please choose the next free integer label for the decay
+   (4 in this example), take note of it.
+4) Edit PythiaB.cxx and add a new switch for XXXXX to the following 
+   section (e.g.):
+     //    New channels need to have a number assigned here!
+       int idc = -1;
+       if ( m_forceDecayChannel == "none" ) {
+         idc = -1;
+       } else if ( m_forceDecayChannel == "Skeleton" ) {
+         idc = 0;
+       ...
+       } else if ( m_forceDecayChannel == "NewDecayChannel" ) {
+         idc = 4;   // Add the integer label here!
+       } else {
+       ...
+   Make sure you add the correct integer label here and choose
+   the character string for the jobOption switch accordingly.
+5) Check the user supplied jobOptions example file and modify the line 
+     PythiaB.ForceDecayChannel = "Skeleton"
+   to 
+     PythiaB.ForceDecayChannel = "NewDecayChannel" 
+   and copy the file to the PythiaB/share/ directory.
+
+
+
+ 
+ 
+ 

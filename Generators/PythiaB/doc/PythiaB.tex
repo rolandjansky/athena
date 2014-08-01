@@ -1,0 +1,855 @@
+\documentstyle[12pt,epsfig]{article}
+%\documentclass[11pt]{cernrep}
+
+\topmargin 0cm
+%\headheight 0pt
+%\headsep 0pt
+\topskip 0pt
+
+\oddsidemargin  -5mm
+%\evensidemargin -3mm
+\textheight 22cm
+\textwidth 160mm
+%\parindent 7mm
+\itemsep -5mm
+\newcommand{\tabulka}[3]{
+  \begin{table}[h]
+    \begin{center}
+      #1
+      \end{center}
+   \caption{#2}
+    \label{#3}
+ \end{table}}
+
+\newcommand{\psubt}{\mbox{$p_{T}\ $}}
+\newcommand{\bquark}{\mbox{$\rm b\ $}}
+\newcommand{\abquark}{\mbox{$\rm \overline{b}\ $}}
+\newcommand{\bab}{\mbox{$\rm b\overline{b}\ $}}
+
+\begin{document}
+\title{\Large{ \bf PythiaB} \\
+\large{\bf interface to Pythia6 dedicated to simulation of beauty events.}}
+\author{ \normalsize Maria Smizanska (maria.smizanska@cern.ch)\\
+  University Lancaster}
+
+
+\normalsize
+%\today
+
+\maketitle
+
+
+%\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}rrr}
+\begin{scriptsize}
+\begin{tabular}{|l|l|l|l|}
+\hline
+
+release 3.1.0  & PythiaBModule - algorithm & new  & M.Smizanska based on  \\
+  April 2002   &    and related code       &      & PythiaModule and atgenb \\ \hline
+release 4.4.0  & PythiaBModule             & update    &  \\
+ Oct.2002      & Event store at repeated hadronization  & &  M.Muller,  P.Calafiura      \\
+               & bbbb, bbcc if forced decay& & M.Smizanska \\ \cline{2-4}
+
+               & BSignalFiler - algorithm & new &   M.Muller based on \\
+           &                          &  &EventFilter and HistSample \\
+\hline
+release 5.0.0  & Btune.py & new    &  M.Smizanska \\
+ 2.Dec.2002              &           &          & Pythia6 B-tuned parameters \\ \cline{2-4}
+               &  $\rm PythiaB\_Signal.py$    & updated & M.Smizanska\\
+               &  $\rm PythiaB\_bbmu6X.py$     &     "  &  " \\ \hline
+ release 6.5.0 & PythiaBModule renamed to PythiaB                        & reorganization   & G.Stavropoulos,  \\
+ 3.Aug.2003    &   replaced from former & of Generators  &I.Hinchcliffe\\
+               & /Generators/GeneratorModules/PythiaBModule & &\\
+               & to /Generators/PythiaB  & &\\ \cline{2-4}
+               &  $\rm PythiaB\_Signal.py$    & updated to  & M.Smizanska\\
+               &   $\rm PythiaB\_bbmu6X.py$ &  new  Rndm Number     &  \\ 
+               &    &    service      &   \\ \hline
+\end{tabular}
+
+\end{scriptsize}
+\tableofcontents
+\newpage
+\section{Shortly}
+\begin{tabular}{|l|l|}
+ \hline
+& \\
+ \bf{athena $\rm PythiaB\_bbmu6X.py$} &simulate $\rm \bab \rightarrow
+\mu(6GeV) X$ \\
+& \\
+\hline & \\
+\bf{athena  $\rm PythiaB\_Signal.py$} & simulate one exclusive B-channel \\
+   &     default   $ \rm B_{s} \rightarrow J/\psi(\mu\mu) \phi $ \\
+   &     other examples  inside $\rm PythiaB\_Signal.py $\\
+\hline
+\end{tabular}
+\section{What PythiaB provides }
+
+{\bf PythiaB} provides an interface to Pythia6 allowing to: {\bf
+1.}~speed up B events simulations, {\bf 2.}~simulate only wanted
+decay channel,  {\bf 3.}~apply selection cuts organized in several
+levels: after parton showering ( before hadronization), after
+hadronization: trigger-like cuts and off-line type of cuts, {\bf
+4.}~define b-production  parameters - optimal parameters are
+prepared as default. User can control 1.-4. by datacards contained
+in jobOptions.py file.
+
+  PythiaB inherits from Pythia and GenModule, so the event is converted
+  from Pythia common block HEPEVT to c++  HepMc tree structure
+  and stored in Storegate as a transient object and finally written to a root persistency.
+  
+\section{Where to use PythiaB}
+
+PythiaB can be used for a generation of beauty events 
+written into a persistent root file, which can serve as an input into 
+a detector simulation
+(atlsim) or into ATFAST. PythiaB can also work in the same job with ATLFAST 
+  in this case the HepMC tree is passed from PythiaB to ATLFAST in
+  a transient form. 
+\section{How to use PythiaB}
+
+
+
+\subsection{Just changing jobOptions.py, linking only PythiaB files}
+
+
+To work just with PythiaB avoiding to connect large number of
+ unwanted files to your
+TestRelease area      you simply do following:
+
+
+\begin{enumerate}
+
+\vspace{-3mm}\item set up athena under cmt,  see cmt manual
+\cite{cmt} and Athena manual \cite{athena}.
+\vspace{3mm}\item cmt co TestRelease 
+\vspace{-3mm} \item cd TestRelease/TestRelease-00-*/cmt
+\vspace{-3mm} \item edit requirements
+and change following lines:
+%\end{enumerate}
+
+\begin{verbatim}
+
+     O R I G I N A L 
+  
+ use AtlasRelease AtlasRelease-* 
+  
+\end{verbatim}
+
+\begin{verbatim}
+
+     R E W R I T T E N 
+  
+#use AtlasRelease AtlasRelease-*
+use PythiaB PythiaB-00-* Generators
+use AthenaCommon AthenaCommon-* Control
+use AtlasROOT           AtlasROOT-*        External  
+use EventHdrAthenaRoot EventHdrAthenaRoot-* Event
+use EventSelectorAthenaRoot EventSelectorAthenaRoot-* Database/AthenaRoot
+
+
+\end{verbatim}
+
+%\begin{enumerate}
+ \vspace{-3mm} \item  source setup.sh 
+\vspace{-3mm}\item  gmake
+\vspace{-3mm} \item  cd TestRelease/TestRelease-00-*/run
+\vspace{-3mm} \item  edit and adopt jobOptions.py to your needs
+ \vspace{-3mm}\item  to run interactively: athena jobOptions.py $>$output.log
+\end{enumerate}
+
+
+
+
+
+
+
+
+\subsection{Changing an existing Athena code}
+I want to change some of the existing code, e.g. apply dedicated
+selection criteria in user$\_$finsel.F, or change PythiaB.cxx.
+Then do following: \\
+
+\begin{enumerate}
+\vspace{-3mm}\item set up Athena under cmt
+\vspace{-3mm}\item cmt co TestRelease
+\vspace{-3mm}\item cmt co Generators/PythiaB
+\vspace{-3mm}\item cd Generators/PythiaB/src/
+\vspace{-3mm}\item edit and adopt user$\_$finsel.F
+\vspace{-3mm}\item edit and adopt PythiaB.cxx
+\vspace{-3mm}\item cd TestRelease/TestRelease-00-*/cmt
+\vspace{-3mm}\item change the default requirements to the
+requirements as written at the item 4 of the  subsection 4.1
+\vspace{-3mm}\item source setup.sh
+\vspace{-3mm}\item cmt broadcast gmake
+\vspace{-3mm}\item cd TestRelease/TestRelease-00-*/run
+\vspace{-3mm}\item (edit and adopt jobOptions.py if you need)
+\vspace{-3mm}\item to run interactively: athena jobOptions.py $>$
+output.log
+ \end{enumerate}
+ 
+ The release 6.5.0 allows also running in the InstallArea, 
+ so you can as well do the last three points as follows:
+ 
+ \begin{itemize}
+ \vspace{-3mm}\item[11.] cd InstallArea/jobOptions/PythiaB 
+\vspace{-3mm}\item[12.] (edit and adopt jobOptions.pyif you need)
+\vspace{-3mm}\item[13.] to run interactively: athena jobOptions.py $>$
+output.log
+ \end{itemize}
+ 
+
+\subsection{Changing an existing Pythia6 subroutine }
+I have my own physics model in fortran.
+I want to pluck it into an existing PYTHIA6 subroutine PYxyz.F.
+It is similar to previous case. 
+So you do following: \\
+
+
+
+\begin{enumerate}
+\vspace{-3mm}\item set up Athena under cmt
+\vspace{-3mm}\item cmt co TestRelease
+\vspace{-3mm}\item cmt co Generators/PythiaB
+\vspace{-3mm}\item cd Generators/PythiaB/src/
+\vspace{-3mm}\item cp ${\$}$MYSPACE/PYxyz.F ./
+\vspace{-3mm}\item cd Generators/PythiaB/cmt/
+edit requirements 
+and change following lines:
+
+\begin{verbatim}
+
+     O R I G I N A L 
+  
+                                       charm.F \
+                                       children.F \  
+  
+\end{verbatim}
+
+\begin{verbatim}
+
+     R E W R I T T E N 
+                                       charm.F \
+               PYxyz.F  \
+                                       children.F \  
+
+
+\end{verbatim}
+
+\vspace{-3mm}\item cd TestRelease/TestRelease-00-*/cmt
+\vspace{-3mm}\item change the default requirements to the
+requirements as written at the point 4 of the  subsection 4.1
+\vspace{-3mm}\item source setup.sh
+\vspace{-3mm}\item cmt broadcast gmake
+\vspace{-3mm}\item cd TestRelease/TestRelease-00-*/run
+\vspace{-3mm}\item (edit and adopt jobOptions.py if you need)
+\vspace{-3mm}\item to run interactively: athena jobOptions.py $>$ output.log
+
+
+
+
+ \end{enumerate}
+
+  or
+  
+  
+\begin{itemize}
+ \vspace{-3mm}\item[11.] cd InstallArea/jobOptions/PythiaB 
+\vspace{-3mm}\item[12.] (edit and adopt jobOptions.py if you need)
+\vspace{-3mm}\item[13.] to run interactively: athena jobOptions.py $>$
+output.log
+ \end{itemize}
+ 
+\section{Why dedicated code for b-physics }
+
+\subsection{Speed up simulation}
+Pythia6 is a phenomenological model that provides  three
+mechanisms to produce b-quark. They are classified as a flavour
+creation ($ \rm gg \rightarrow b \overline{b}$, $ \rm qq
+\rightarrow b \overline{b}$), flavour excitation ($\rm gb
+\rightarrow gb$) and gluon splitting ($g \rightarrow b
+\overline{b}$). All these three mechanisms are activated if
+following Pythia processes are allowed:
+ isub=11 f + f' $\rightarrow$ f + f' (QCD) ,
+ isub=12 f + fbar $\rightarrow$ f' + fbar' ,
+ isub=13 f + fbar $\rightarrow$ g + g  ,
+ isub=28 f + g $\rightarrow$ f + g   ,
+ isub=53 g + g $\rightarrow$ f + fbar ,
+ isub=68 g + g $\rightarrow$ g + g ,
+  with parameter "pysubs msel=1".
+ In this regime beauty quark is
+produced approximately in $1\%$ of events (the number depends on
+the selected phase space). There is another mechanism which is
+activated by selecting "pysubs msel 5" - here b-quark is produced
+in each event in a hard scattering processes of type: $ \rm gg
+\rightarrow b \overline{b}$, $ \rm qq \rightarrow b \overline{b}$
+using mass matrix elements. This mechanism however does not
+describe known b-production data from Fermilab. The difference is
+so large that it is not suggested to use it for simulations. The
+details can be found for instance in \cite{my5}.
+
+In order to speed up the simulation in "pysubs msel 1" mode
+PythiaB interrupts a simulation after the parton development (just
+before the hadronization) to check for the presence of $b
+\overline{b}$ quarks satisfying user's defined limits in \psubt
+and $\eta$. If user wants the hadronization is repeated several
+(MHAD) times using the same parton part of the event. The
+resulting cross section is then divided by MHAD. It is suggested
+that user selects MHAD such that the average number of accepted
+events with the same parton part is close to 1. The latter value
+is printed out by PythiaB in an output log file.
+
+
+\subsection{Simulate only wanted channel}
+It is not difficult to select only wanted channel in Pythia.
+PythiaB does nothing special - just saves your time and work:
+1.~by providing an interface to datacards allowing user to close
+and open channels without an intervention in the code, 2.~by
+providing special datacard files allowing to close large groups of
+unwanted channels. For more details see section 6.2. PythiaB
+provides also datacards allowing user  to apply trigger-like cuts
+and offline-like selection cuts.
+
+\subsection{How should I calculate a cross section}
+
+If a user  did not force any of B-decays, then the  cross section
+is calculated in PythiaB and appeares in the output.log file under
+the name:
+  CROSSSECTION OF YOUR B-CHANNEL IS. If you forced any channel in B-decay chain
+  you should multiply the PythaBModule cross section by a branching ratio for this
+  channel.
+\tabulka{\begin{tabular}{||c|c|c|c||} \hline 
+ 
+ MEANING     &     ATLAS VALUE     &           Pythia6 default \\
+ \hline
+ b-quark production-related parameters              &                     &\\          
+ Structure fuction                     &   "pypars mstp 51 1 (CTEQ3)" &   CTEQ5 \\       
+Min bias               &          "pysubs msel 1", &  1 \\
+Max parton virtuality           &  &  \\
+factor to multiply $Q^2_{\mbox{hard}}$ &  "pypars parp 67 1", &  1\\
+The factorization scale  $Q^2_{\mbox{hard}}= $&                     &\\
+$\psubt^2 (P_1^2 + P_2^2 + m_3^2+m_4^2)/2$  &          "pypars mstp 32 8"  &           8 \\
+
+\hline     
+B hadron related parameters                 &                     &\\
+
+
+Spin s=1 probability            &  "pydat1 parj 13 0.65"                   &  0.75\\ 
+j=1  l=1 s=0                    &        "pydat1 parj 14 0.12", &     0\\
+j=0  l=1 s=1            &        "pydat1 parj 15 0.04", &     0\\
+j=1  s=1 l=1            &        "pydat1 parj 16 0.12", &     0\\
+j=2  s=1 l=1                    &        "pydat1 parj 17 0.2", &     0\\
+Peterson fragmentation   $\epsilon_b$      &   "pydat1 parj 55 -.006"                 & -.005   \\    
+           
+            
+No B-oscillations            & "pydat1 mstj 26 0", &\\
+            
+         
+         \hline
+            
+Multiple   interactions parameters   &                     &\\
+Model           & "pypars mstp 82 4 (double gauss)", & 1 (step fcn)\\
+ Regularization \psubt scale          & "pypars parp 82 1.4",  &     1.9\\
+ Double gauss parameters           &"pypars parp 83 0.5",   &    0.5\\
+   "        & "pypars parp 84 0.4",   &    0.2\\
+  Gluon probability          &"pypars parp 85 0.9",   &    0.33\\
+ Two gluon probability          & "pypars parp 86 0.95",  &    0.66\\
+ Energy scale for parp 82          & "pypars parp 89 1800",  &    1000\\
+ Power of energy rescaling           &"pypars parp 90 0.25".  &    0.16 \\ 
+            
+         \hline 
+  \end{tabular}}
+           {The optimized set of B-physics-related Pythia6 parameters, values  for ATLAS simulations.}
+           {table:abab} 
+
+
+
+
+
+
+
+\subsection{Optimal B-simulation parameters}
+PythiaB provides an interface to datacards allowing user to define
+beauty production  parameters. The optimal  values of these
+parameters were selected in \cite{my6} and are summarized in
+the  Table \ref{table:abab}. This set is provided by PythiaB
+as a default.
+  The new structure functions CTEQ5
+('mstp 51 7' ) fails to describe  the b-production data
+while the older CTEQ3 ('mstp 51 1') fits fairly well \cite{my6}.
+The reason is that Pythia contains many parameters that influence the
+b-production and a complex tuning have been done 
+by phenomenologists only for CTEQ3, \cite{Py6,Py6Nor}. For CTEQ5 the job still needs to be
+done.  Such a  job exceeds possibilities of our
+group. Currently we recommend user to use 'mstp 51 1' in a combination with the other 
+parameter values of the optimized set provided by PythiaB.  
+%We do not
+%see this inconsistent with the fact that ATLAS minimum bias events
+%are simulated with CTEQ5.
+
+
+
+
+\section{Datacards}
+
+
+In Athena a user controls the simulation using the datacards
+contained in files jobOptions.py. For PythiaB  you will find in
+release two prepared files: {\bf $\rm PythiaB\_bbmu6X.py$} and
+{\bf $\rm PythiaB\_Signal.py$} from which you can easily derive
+your case. File {\bf $\rm PythiaB\_bbmu6X.py$} simulates events
+$\bab \rightarrow \mu6 X$. File {\bf $\rm PythiaB\_Signal.py$}
+simulates one exclusive B-channel ( default is for $ \rm B_{s}
+\rightarrow J/\psi(\mu\mu) \phi $).
+
+
+\subsection{ Job control Datacards  }
+\begin{tabular}{|p{75mm}|p{90mm}|}
+\hline  & \\
+
+\verb!Generator.Members = [!& \\ \hline
+ \verb!"PythiaB",! & Simulate b-event in HepMc into  transient
+ store\\ \hline
+ \verb!"DumpMC" ,!  & Dump HepMc for each accepted event into  log file\\
+             & do not use with large statistics \\ \hline
+ \verb! "BSignalFilter"]!    & Finds all B-decay chains and store in ntuple\\
+    &  for print  level=2 also dumps B chains into log file \\
+ \hline
+\verb!ApplicationMgr.EvtMax = 10! & Number of events to be accepted \\
+\hline
+\verb!EventSelector.RunNumber = 1;!& Defines a Run numb. in the job \\
+\hline
+\verb!EventSelector.FirstEvent  = 1;!& Defines the first evt numb. in the job\\
+\hline
+\verb!AtRndmGenSvc.Seeds =! & User random number seeds\\
+\verb!["PYTHIA 4789899 989240512", ! &\\
+\verb!"PYTHIA_INIT 820021 2347532"]! &\\ \hline
+
+
+ 
+\end{tabular}
+
+
+
+\subsection{  Opening - closing decay channels }
+
+
+
+\begin{tabular}{|p{75mm}|p{90mm}|}
+\hline  & Channel\\ \hline
+  & \\
+\verb!#include "CloseAntibQuark.py";
+      PythiaB.PythiaCommand+=[
+                                    "pydat3 mdme 1120 1 1",
+                                    "pydat3mdme 996 1 0",
+                                    "pydat3 mdme 998 1 0" ]! &
+    $ \rm B_{s} \rightarrow J/\psi(\mu\mu) \phi $                                 \\
+
+ & \\ \hline
+\verb!#include "CloseAntibQuark.py";
+      #include"Dsphipi.py";
+      PythiaB.PythiaCommand += [
+                "pydat3 mdme 1105 1 1"]! &
+ $ \rm B_{s} \rightarrow D_{s} (\phi \pi) \pi$     \\ \hline
+
+& \\
+ \verb!#include "CloseAntibQuark.py";
+ PythiaB.PythiaCommand+= [
+                                      "pydat3 mdme 1027 1 1",
+                                      "pydat3 mdme 996 1 0",
+                                      "pydat3 mdme 998 1 0" ]! &
+$ \rm B_{s} \rightarrow J/\psi(\mu\mu) K^0(\pi^{+}\pi^{-}) $                                      \\
+                                      \hline
+
+\end{tabular}
+
+
+
+Be carefull: there should be just one space between numbers in
+'datacards mdme'. If you put two or more - program will not
+complain, but ignore your 'datacard'.
+
+\subsection{ How to change Pythia parameters}
+
+ The optimized Pythia6 B-physics-related parameters (Table.\ref{table:abab})
+  are defined in ATHENA by the file Btune.py, 
+ which is  included in the standard $\rm PythiaB\_Signal.py$ and  
+ $\rm PythiaB\_bbmu6X.py$. To change any value you can just copy a 
+ corresponding line from  Btune.py into $\rm PythiaB\_Signal.py$ 
+ placing it after the line \verb!#include "Btune.py"! and changing the value
+ of parameter to a wanted one. It is suggested that the large background samples 
+ of general use are always generated using the values defined in Btune.py.
+
+  
+  
+%\begin{tabular}{|p{75mm}|p{90mm}|}
+%\hline
+
+%\verb!PythiaB.PythiaCommand += { ! & \\
+
+%                \verb!"pysubs ckin 3 10.",! & \psubt limit of hard scattering\\
+%                \verb!"pysubs ckin 9 -3.5",! & $\eta$ limit of hard scattering  for the\\
+%                \verb!"pysubs ckin 10 3.5",! & \hspace{16mm}  product with larger $|\eta$| \\
+%                \verb!"pysubs ckin 11 -3.5",! & $\eta$ limit of hard scattering   for the\\
+%                \verb!"pysubs ckin 12 3.5",! & \hspace{16mm} product with smaller $|\eta$| \\
+%                \verb!"pysubs msel 1",!  & 1=all \bab production mechanisms  \\
+%                                         & 5=\bab massive matrix el. \\
+%                \verb!"pydat1 mstj 26 0",! & 0= B mixing off, 1=B mixing on\\
+%                \verb! "pypars mstp 51 1"};! & 1=CTEQ3(use CTEQ3) \hspace{3mm}
+%                7=CTEQ5\\ \hline
+
+
+%\end{tabular}
+
+
+
+\subsection{ Define your selection cuts   }
+
+\begin{tabular}{|p{85mm}|p{80mm}|}
+\hline
+
+\verb!PythiaB.cutbq = !
+& b-quark cuts: pT,  eta, and(or)    \\
+\verb!["7. 3.5 or 7. 3.5"]! &antib-quark cuts: pT,  eta\\
+
+\hline
+\verb!PythiaB.lvl1cut = { 1., 6., 2.5};! & lvl1 single muon cuts: switch on(1)/off(0) pT eta\\
+
+\hline
+ \verb!PythiaB.lvl2cut = !&lvl2 second lepton cuts: \\
+\verb![ 0., 13., 6., 2.5]!& switch on(1)/off(0),
+PID(13mu~or~11e),pT, eta\\ \hline
+ \verb!PythiaB.offcut = !  & offline cuts: applied on stable particles \\
+ \verb![ 1., 0.5, 2.5, 0.5, 2.5, 0.5, 2.5]!        & at the end of B-decay chain \\
+            & switch
+on(1)/off(0),  pT, eta of K/pi/p,
+                                 pT, eta of muon,  pT, eta of electron \\
+\hline
+\verb!PythiaB.mhadr =  10. ;! &   number of repeated hadronizations  \\
+
+&   select MHAD such that the average number of accepted
+events with the same parton part is close to 1. The latter value
+is printed out by PythiaB in the output log file.  \\
+\hline
+\verb!BSignalFilter.SignaltoNtup =  50.; ! &  For how many events store B-chains into NTUPLE  \\
+
+
+\hline
+\verb!PythiaB.SignalDumptoAscii = 0.; ! &  For how many events store exclusive signal B-chain into ascii fort.50 \\
+\hline
+\verb!PythiaB.flavour =  5.;! & wanted heavy flavour b(5) or c(4-not yet installed)\\
+\hline
+
+
+
+
+\end{tabular}
+
+
+
+
+\subsection{  Data cards to define output files }
+
+Data cards to define output files are  in the section {\bf Output files}.
+
+
+
+\section{  Output files }
+
+\subsection{NTUPLE file for B-decays chains}
+
+\begin{verbatim}
+
+//--------------------------------------------------------------
+// NTuple output file
+//--------------------------------------------------------------
+
+NTupleSvc.Output = [ "FILE1
+                      DATAFILE='pythiaB.ntup'
+                      OPT='NEW'
+                      TYP='HBOOK'" ]
+
+
+\end{verbatim}
+
+
+For each secondary particle from a B-signal and any other B-decay
+chain in the event a following values in column-wise Ntuple are
+written:
+
+\begin{verbatim}
+            "particles",
+            "event_number",
+            "chain_number",
+            "particle_number",
+            "id",
+            "status",
+            "child_of",
+
+            "px",
+            "py",
+            "pz",
+            "pe",
+            "pt",
+            "mass",
+
+            "phi",
+            "rapidity",
+            "pseudorapidity"
+
+
+\end{verbatim}
+
+
+
+
+\subsection{B-signal chain, ascii file  }
+
+Formated ascii file fort.50 containing lines each with one
+particle from a B-signal chain.  Was used before BSignaFilter was
+written. The file is created automatically if user defines non
+zero values in PythiaB.SignalDumptoAscii = 10. and in
+PythiaB.offcut = { 1., ...}.
+
+
+Each line contains following information:
+\begin{verbatim}
+
+           float(ieve) ! this accepted ev number
+           float(ITB)  ! # of evs hadronised to get this one
+           float(ntree)! # of particles in B-chain
+           float(itree)! this particle number in Bchain
+           float(I)    ! this particle number in PYJET
+
+           float(K(I,1))
+           float(K(I,2))
+           float(K(I,3))
+           float(K(I,4))
+           float(K(I,5))
+
+           P(I,1)
+           P(I,2)
+           P(I,3)
+           P(I,4)
+           P(I,5)
+
+           V(I,1)
+           V(I,2)
+           V(I,3)
+           V(I,4)
+           V(I,5)
+
+
+\end{verbatim}
+
+
+
+\subsection{Output log file}
+
+
+
+Contains Pythia messages. List of all input datacards.
+Pylist12 - list of all decay channels including status: opened-closed.
+Cross section table. Summary of principle parameters and cuts.
+Here is a part of log file:
+\begin{verbatim}
+
+ ==============================================================================
+ I                                  I                            I            I
+ I            Subprocess            I      Number of points      I    Sigma   I
+ I                                  I                            I            I
+ I----------------------------------I----------------------------I    (mb)    I
+ I                                  I                            I            I
+ I N:o Type                         I    Generated         Tried I            I
+ I                                  I                            I            I
+ ==============================================================================
+ I                                  I                            I            I
+ I   0 All included subprocesses    I         3095         32166 I  1.138E+00 I
+ I  11 f + f' -> f + f' (QCD)       I           72           783 I  2.631E-02 I
+ I  12 f + fbar -> f' + fbar'       I            3             6 I  3.266E-04 I
+ I  13 f + fbar -> g + g            I            2             4 I  4.345E-04 I
+ I  28 f + g -> f + g               I          818         10581 I  2.974E-01 I
+ I  53 g + g -> f + fbar            I           67           262 I  2.491E-02 I
+ I  68 g + g -> g + g               I         2133         20530 I  7.886E-01 I
+ I                                  I                            I            I
+ ==============================================================================
+
+ ********* Fraction of events that fail fragmentation cuts =  0.00000 *********
+
+I=====================================================================================
+I   CROSSSECTION OF YOUR B-CHANNEL IS                   I
+I                       BX= PX*NB/AC/MHAD=              I    2.77963e-05 mbarn
+I                                                       I
+I   IN CASE YOU FORCED ANY DECAY YOU SHOULD             I
+I   CORRECT CROSS SECTION BX FURTHER, MULTIPLYING       I
+I   BX BY BRANCHING RATIO(S) OF YOUR FORCED             I
+I   DECAY(S) AND BY A FACTOR OF 2 FOR SYMMETRY          I
+I                                                       I
+I   MORE DETAILS ON CROSS SECTION                       I
+I   PYTHIA MSEL=1     CROSS SECTION IS    PX=           I    1.13794 mbarn
+I   NUMBER OF   ACCEPTED  MSEL=1 EVENTS   AC=           I    32166
+I   NUMBER OF   ACCEPTED    B-EVENTS   IS NB=           I    11
+I   REPEATED HADRONIZATIONS IN EACH EVENT MHAD=         I    14
+I   AVERAGE NUM OF ACCEPTED EVTS IN HADRONIZATION LOOP  I    1.1
+I   IN CASE YOU FORCED ANY DECAY YOU SHOULD             I
+I   CORRECT CROSS SECTION BX FURTHER, MULTIPLYING       I
+I   BX BY BRANCHING RATIO(S) OF YOUR FORCED             I
+I   DECAY(S) AND BY A FACTOR OF 2 FOR SYMMETRY          I
+I                                                       I
+I=====================================================================================
+
+I=====================================================================================
+I          YOUR  MAIN SIMULATION PARAMETERS AND CUTS
+I=====================================================================================
+I   HARD SCATTERING  CUT  pysubs().ckin(3)             PT      I 15
+I   STRUCTURE FCN (1=CTEQ3 7=CTEQ5) pypars().mstp(51)          I  1
+I   CUTS ON b and/or anti b QUARK                              I  0 ; 102.5 ; and ; 10 ; 2.5
+I   LVL1 MUON CUTS:                               PT AND ETA   I  6 ;  2.5
+I   LVL2 CUTS:         ON(1)/OFF(0); PARTICLE-ID; PT AND ETA   I  0 ;  13 ;  6 ;  2.5
+I   CUTS FOR STABLE PARTICLES IN B-DECAY:         ON(1)/OFF(0) I  1
+I    CHARGED HADRONS:                             PT AND ETA   I  0.5 ;  2.5
+I    MUONS:                                       PT AND ETA   I  3 ;  2.5
+I    ELECTRONS:                                   PT AND ETA   I  0.5 ;  2.5
+I=====================================================================================
+
+
+\end{verbatim}
+
+
+\subsection{AthenaRoot Persistency}
+
+Produced Pythia B events are stored in root persistent file
+PythiaB.root. This file  serves as an input to atlsim (detector simulation)
+or atlfast.
+
+\begin{verbatim}
+//--------------------------------------------------------------
+// AthenaRoot Persistency
+//--------------------------------------------------------------
+
+ApplicationMgr.DLLs += [ "EventHdrAthenaRoot", "GeneratorObjectsAthenaRoot"]
+ApplicationMgr.DLLs += [ "RootSvcModules", "EventSelectorAthenaRoot", "AthenaRootCnvSvc"]
+ApplicationMgr.ExtSvc += [ "RootSvc", "AthenaRootCnvSvc" ]
+ApplicationMgr.DLLs += ["McEventSelector"]
+ApplicationMgr.ExtSvc += [ "McCnvSvc", "McEventSelector/EventSelector" ]
+EventPersistencySvc.CnvServices += [ "McCnvSvc" ]
+ApplicationMgr.OutStream = [ "Stream1" ]
+ApplicationMgr.OutStreamType = "AthenaOutputStream";
+// for StoreGate
+Stream1.ItemList = [ "2101#*", "133273#*"]
+RootSvc.Output =["PythiaB.root"]
+EventPersistencySvc.CnvServices += [ "AthenaRootCnvSvc" ]
+Stream1.EvtConversionSvc = "AthenaRootCnvSvc"
+
+\end{verbatim}
+
+%\section{Bookeeping and cataloging}
+\subsection{Which output  files we store in CASTOR}
+B-physics group has a space in CASTOR
+/afs/cern.ch/atlas/project/bphys/.
+For password  into this area contact maria.smizanska@cern.ch.
+Following files are to be stored:
+
+\begin{itemize}
+\vspace{-3mm}\item  PythiaB.root
+\vspace{-3mm}\item  pythiaB.ntup
+\vspace{-3mm}\item  output.log
+\end{itemize}
+
+
+%\subsection{Logical file names for Generator production.}
+
+%Ouput files are recognized by their Logical File name defined
+%as: \\
+% \verb!LFN=$PROJECT.$DSET.$STEP.$PARTNR.$PGROUP.$DESCRIPTOR!.
+
+%\begin{tabular}{|p{60mm}|p{100mm}|}
+%\hline
+
+%&    \\
+% PROJECT  & =dc1 or dc2  \\ \hline
+% DSET     & Number taken from a range of DSET numbers -
+%            given to B-physics group.
+%           Each institute participating in B-group will be given a subset
+%         according to their request.
+%          Contact maria.Smizanska@cern.ch     \\ \hline
+% STEP     & =evgen  \\ \hline
+% OUTPARTNR    &   one DSET have several OUTPARTNR assigned at atlsim simulation step.
+%               e.q. 5000 Generator events with one DSET number will be simulated
+%                  in atlsim in bunches of 500 events they will have 10
+%              OUTPARTNR numbers \\ \hline
+% PARTNR    &   one DSET have several OUTPARTNR assigned when sending jobs.
+%               e.q. 5000 Generator events with one DSET number will be generated
+%           in 5 bunches of 1000 events they will have 5
+%               OUTPARTNR numbers \\ \hline
+
+% PGROUP   & =Bphys \\ \hline
+%DESCRIPTOR & e.q. \verb! Bd_Jpsi_mu6mu3_K0!  \
+%                  \verb! bb_Jpsi_mumu_X !  \  \verb! Bs_Ds_phi_KK_pi ! \\
+%          &    \\ \hline
+
+
+%\end{tabular}
+
+
+\section{List of all ATHENA files  dedicated to B-physics simulation  }
+\begin{itemize}
+\vspace{-3mm}\item PythiaB/src/PythiaB.cxx \vspace{-3mm}\item
+PythiaB/src/$\rm PythiaB\_entries.cxx$
+ \vspace{-3mm}\item
+PythiaB/src/$\rm PythiaB\_load.cxx$ \vspace{-3mm}\item
+PythiaB/src/*.F \vspace{-3mm}\item PythiaB/PythiaB/PythiaB.h
+
+\vspace{-3mm}\item PythiaB/share/$\rm PythiaB\_Signal.py$
+\vspace{-3mm}\item PythiaB/share/$\rm PythiaB\_bbmu6X.py$
+\vspace{-3mm}\item PythiaB/share/Btune.py \vspace{-3mm}\item
+PythiaB/share/CloseAntibQuark.py \vspace{-3mm}\item
+PythiaB/share/Dsphipi.py
+
+?
+
+
+\vspace{12mm} \vspace{-3mm}\item
+GeneratorFilters/src/BSignalFilter.cxx \vspace{-3mm}
+\item
+GeneratorFilters/GeneratorFilters/BSignalFilter.h
+
+\end{itemize}
+
+\section{Classes PythiaB inheriths from}
+Pythia, GenModule
+
+%\newpage
+%\section{Structure of PythiaB code - Fig.}
+%\begin{figure}[h]
+%    \mbox{\epsfig{file=img2.eps,height=16.cm,width=17.cm}}
+% \end{figure}
+
+%\newpage
+%\section{ PythiaB I$/$O - Fig.}
+% \begin{figure}[h]
+%    \mbox{\epsfig{file=img3.eps,height=16.cm,width=17.cm}}
+% \end{figure}
+
+\begin{thebibliography}{9}
+
+\bibitem{cmt} ATLAS software developers guide, 
+   \begin{verbatim} http://atlas-sw.cern.ch/cgi-bin/cvsweb.cgi/~checkout~/offline/ 
+AtlasDoc/doc/SwDevUserGuide/userguide.html
+\end{verbatim}
+and cmt manual
+\begin{verbatim} http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/tools/cmt/Tutorial.html
+\end{verbatim}
+\bibitem{athena} Athena User Guide, 
+
+\begin{verbatim} http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/architecture/General/index.html
+\end{verbatim}
+
+\bibitem{Py6} T. Sjostrand et al,  PYTHIA 6.206 manual, LU TP 01-21 [hep-ph/0108264], 
+
+\bibitem{Py6Nor} E.Norrbin, QCD phenomenology of Heavy particle dynamics, PhD theses, Lun University, Oct.2000.
+\bibitem{my5}  S.P.Baranov, M.Smizanska, Phys.Rev.D62:014012,2000 and ATL-PHYS-98-133.
+\bibitem{my6} Pythia6 Tuning for B-physics simulations in ATLAS.
+NOTE under the preparation.
+
+\end{thebibliography}
+\end{document}
