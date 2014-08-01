@@ -1,0 +1,50 @@
+#
+# $Id: requirements 361213 2011-04-23 18:26:44Z bartoldu $
+#
+
+package TrigT2BeamSpot
+
+author Rainer Bartoldus    <bartoldu@slac.stanford.edu>
+author David W. Miller     <David.W.Miller@cern.ch>
+author Su Dong             <sudong@slac.stanford.edu>
+
+#------------------------------
+# Public Requirements
+#------------------------------
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+
+use TrigInterfaces          TrigInterfaces-*          Trigger/TrigSteer
+use TrigSteeringEvent       TrigSteeringEvent-*       Trigger/TrigEvent
+use TrigInDetEvent          TrigInDetEvent-*          Trigger/TrigEvent
+
+#------------------------------
+# Private Requirements
+#------------------------------
+
+private
+
+use GaudiInterface          GaudiInterface-*          External
+use AtlasCLHEP              AtlasCLHEP-*              External
+use EventInfo               EventInfo-*               Event
+use InDetBeamSpotService    InDetBeamSpotService-*    InnerDetector/InDetConditions
+use TrigNavigation          TrigNavigation-*          Trigger/TrigEvent
+use TrigVertexFitter        TrigVertexFitter-*        Trigger/TrigTools
+use TrigTimeAlgs            TrigTimeAlgs-*            Trigger/TrigTools
+use DataModel               DataModel-*               Control
+
+#------------------------------------------------------------------
+
+apply_pattern component_library
+library TrigT2BeamSpot *.cxx components/TrigT2*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+# update the version.h file with an svn Id tag
+# note that $ signs need to be quoted for make
+
+action version_tag "sed -i -e 's/\$$Id[^$$]*/$$Id/' $(src)version.cxx"
+# macro_append TrigT2BeamSpot_dependencies " version_tag "
