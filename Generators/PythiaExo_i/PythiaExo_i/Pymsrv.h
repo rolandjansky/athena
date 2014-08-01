@@ -49,10 +49,10 @@ private:
     double rvlamb[3][3][3];
   };
 
-  double m_dummy;
-  double m_realdummy;
+  double _dummy;
+  double _realdummy;
 
-  static PYMSRV* s_pymsrv;
+  static PYMSRV* _pymsrv;
 };
 
 #include "Pythia_i/Pymsrv.icc"

@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pytcsm::init(void) {
-  if (!s_pytcsm) s_pytcsm = static_cast<PYTCSM*>(pytcsm_address_());
+  if (!_pytcsm) _pytcsm = static_cast<PYTCSM*>(pytcsm_address_());
 }
 

@@ -31,28 +31,28 @@ public:
   int& imss(int n);
   double& rmss(int n);
 
-  int lenImss() const {return s_lenImss;}
-  int lenRmss() const {return s_lenRmss;}
+  int lenImss() const {return _lenImss;}
+  int lenRmss() const {return _lenRmss;}
 
   inline void init();
 
 private: 
 
-  static const int s_lenImss = 100;
-  static const int s_lenRmss = 100;
+  static const int _lenImss = 100;
+  static const int _lenRmss = 100;
 
   struct PYMSSM;
   friend struct PYMSSM;
 
   struct PYMSSM {
-    int imss[s_lenImss];
-    double rmss[s_lenRmss];
+    int imss[_lenImss];
+    double rmss[_lenRmss];
   };
 
-  int m_dummy;
-  double m_realdummy;
+  int _dummy;
+  double _realdummy;
 
-  static PYMSSM* s_pymssm;
+  static PYMSSM* _pymssm;
 };
 
 #include "PythiaExo_i/Pymssm.icc"
