@@ -1,0 +1,26 @@
+BLOCK QNUMBERS 3000006 # faket
+         1 -2  #
+         2 2  #
+         3 3  #
+         4 1  #
+#
+#
+#
+BLOCK MASS  # Mass Spectrum
+# PDG code           mass       particle
+         6     182.500000000   # b-quark pole mass calculated from mb(mb)_Msbar
+       3000006     162.500000000   # b-quark pole mass calculated from mb(mb)_Msbar
+#
+
+#   PDG           Width
+
+
+DECAY    3000006     1.07329
+
+
+#     BR       NDA       ID1      ID2
+    
+
+      0.000030   2       -24       -1    # (BR tbar -> W-  db)
+      0.001764   2       -24       -3    # (BR tbar -> W-  sb)  
+      0.998206   2       -24       -5    # (BR tbar -> W-  bb) 

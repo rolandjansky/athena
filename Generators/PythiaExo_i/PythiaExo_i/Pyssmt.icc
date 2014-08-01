@@ -1,0 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Pyssmt
+
+// initialise pointer
+void Pyssmt::init(void) {
+  if (!_pyssmt) _pyssmt = static_cast<PYSSMT*>(pyssmt_address_());
+}
+

@@ -1,0 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Pydatr
+
+// initialise pointer
+void Pydatr::init(void) {
+  if (!_pydatr) _pydatr = static_cast<PYDATR*>(pydatr_address_());
+}
+
