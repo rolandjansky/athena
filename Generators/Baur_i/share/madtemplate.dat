@@ -1,0 +1,285 @@
+<LesHouchesEvents version="1.0">
+<header>
+<!--
+#*********************************************************************
+#                                                                    *
+#                       MadGraph/MadEvent                            *
+#                                                                    *
+#                      The new web generation                        *
+#                                                                    *
+#                   http://madgraph.hep.uiuc.edu                     *
+#                   http://madgraph.phys.ucl.ac.be                   *
+#                   http://madgraph.roma2.infn.it                    *
+#                                                                    *
+#            CP3 team                      Tim Stelzer               *
+#      Universite de Louvain          University of Illinois         *
+#                                                                    *
+#....................................................................*
+#                                                                    *
+# This file contains all the information necessary to reproduce      *
+# the events generated:                                              *
+#                                                                    *
+# 1. software version                                                *
+# 2. proc_card.dat      : code generation info including model       *
+# 3. param_card.dat     : model primary parameters in the LH format  *
+# 4. run_card.dat       : running parameters (collider and cuts)     *
+# 5. pythia_card.dat    : present only in the pythia event file      *
+# 6. pgs_card.dat       : present only in the pgs event file         *
+#                                                                    *
+#                                                                    *
+#*********************************************************************
+-->
+<MGVersion>
+# MG/ME version    : 4.2.6
+# madgraph version : 4.2.3
+# template version : 2.2.4
+# helas version    : 3.2
+# model version    : sm_1.1
+</MGVersion>
+<MGProcCard>
+#*********************************************************************
+#                        MadGraph/MadEvent                           *
+#                   http://madgraph.hep.uiuc.edu                     *
+#                                                                    *
+#                          proc_card.dat                             *
+#                                                                    *
+# This file is used to generate the code for a specific process.     *
+# Some notation/conventions:                                         *
+#                                                                    *
+# 0. Do not modify the TAGS and their order.                         *
+# 1. hash/pound is a comment.                                        *
+# 2. The charcter after the @ is used as an identifier for the class *
+#    of processes. It can be a single or a digit.                    *
+# 3. The number of lines for the max couplings depends on how many   *
+#    different classes of couplings are present in the model         *
+#    In the SM these are just two: QED (which include EW) and QCD    *
+# 4. Write "end_coup" after  the couplings list,                     *
+#    to tell MG that the couplings input is over.                    *
+# 5. Write "done" after the proc list to                             *
+#    to tell MG that the proc input is over.                         *
+# 6. Some model names available at present are:                      *
+#    sm     =  Standard Model                                        *
+#    sm_ckm =  Standard Model with Cabibbo matrix                    *
+#    mssm   =  Minimal Supersymmetric Standard Model                 *
+#    2hdm   =  Generic Two Higgs Doublet model                       *
+#    heft   =  Higgs EFT (+Standard Model)                           *
+#    usrmod =  User Model                                            *
+# 7. Don't leave spaces between the particles name in the            *
+#    definition of the multiparticles.                               *
+#*********************************************************************
+#*********************************************************************
+# Process(es) requested : mg2 input                                  *
+#*********************************************************************
+# Begin PROCESS # This is TAG. Do not modify this line
+pp>z>l+l-jj   #  Process 
+QCD=99   # max qcd order
+QED=99   # max qed order
+end_coup   # the coupling list is over
+done       # the process list is over
+# End PROCESS  # This is TAG. Do not modify this line
+#*********************************************************************
+# Model information                                                  *
+#*********************************************************************
+# Begin MODEL  # This is TAG. Do not modify this line
+sm 
+# End   MODEL  # This is TAG. Do not modify this line
+#*********************************************************************
+# Start multiparticle definitions                                    *
+#*********************************************************************
+# Begin MULTIPARTICLES # This is TAG. Do not modify this line
+p uu~dd~ss~cc~g 
+j uu~dd~ss~cc~g
+l+ e+mu+ 
+l- e-mu- 
+vl vevm 
+vl~ ve~vm~
+# End  MULTIPARTICLES # This is TAG. Do not modify this line
+</MGProcCard>
+<slha>
+#******************************************************************
+#                      MadGraph/MadEvent                          *
+#******************************************************************
+#   Les Houches friendly file for the SM parameters of MadGraph   *
+#        Spectrum and decay widths produced by SMCalc             *
+#******************************************************************
+#*Please note the following IMPORTANT issues:                     *
+#                                                                 *
+#0. REFRAIN from editing this file by hand! Some of the parame-   *
+#   ters are not independent                                      *
+#   (such as G_Fermi, alpha_em, sin(theta_W),MZ,MW) and serious   *
+#   problems might be encountered (such as violation of unitarity *
+#   or gauge invariance).  Always use a calculator.               *
+#                                                                 *
+#1. alpha_S(MZ) has been used in the calculation of the parameters*
+#   but, for consistency, it will be reset by madgraph to the     *
+#   value expected IF the pdfs for collisions with hadrons are    *
+#   used. This value is KEPT by madgraph when no pdf are used     *
+#   lpp(i)=0 .                                                    *
+#                                                                 *
+#2. Values of the charm and bottom kinematic (pole) masses are    *
+#   those used in the matrix elements and phase space UNLESS they *
+#   are set to ZERO from the start in the model (particles.dat)   *
+#   This happens, for example,  when using 5-flavor QCD where     *
+#   charm and bottom are treated as partons in the initial state  *
+#   and a zero mass might be hardwired in the model definition.   *
+#                                                                 *
+#******************************************************************
+Block SMINPUTS      # Standard Model inputs
+     1         1.32506980E+02   # alpha_em(MZ)(-1) SM MSbar
+     2         1.16639000E-05   # G_Fermi
+     3         1.18000000E-01   # alpha_s(MZ) SM MSbar
+     4         9.11880000E+01   # Z mass (as input parameter)
+Block MGYUKAWA     # Yukawa masses m/v=y/sqrt(2)
+#    PDG          YMASS
+     5         4.20000000E+00   # mbottom for the Yukawa  y_b
+     4         1.42000000E+00   # mcharm  for the Yukawa  y_c
+     6         1.64500000E+02   # mtop    for the Yukawa  y_t
+    15         1.77700000E+00   # mtau    for the Yukawa  y_ta
+Block MGCKM     # CKM elements for MadGraph
+     1   1     9.75000000E-01   # Vud for Cabibbo matrix
+Block MASS      #  Mass spectrum (kinematic masses)
+#       PDG       Mass
+         5     4.70000000E+00   # bottom   pole mass
+         6     1.74300000E+02   # top      pole mass
+        15     1.77700000E+00   # tau      mass
+        23     9.11880000E+01   # Z        mass
+        24     8.04190000E+01   # W        mass
+        25     1.20000000E+02   # H        mass
+#            PDG       Width
+DECAY         6     1.50833649E+00   # top width
+DECAY        23     2.44140351E+00   # Z   width
+DECAY        24     2.04759951E+00   # W   width
+DECAY        25     5.75308848E-03   # H   width
+#        BR           NDA        ID1       ID2
+     8.27451012E-02    2           4        -4   # BR( H -> c  cbar  )
+     7.17809696E-01    2           5        -5   # BR( H -> b  bbar  )
+     0.00000000E+00    2           6        -6   # BR( H -> t  tbar  )
+     4.31720144E-02    2          15       -15   # BR( H -> tau- tau+)
+     6.90597075E-03    2          23        23   # BR( H -> Z   Z^(*))
+     7.45906395E-02    2          24       -24   # BR( H -> W   W^(*))
+     3.01765558E-02    2          21        21   # BR( H -> g   g    )
+     1.42800773E-03    2          22        22   # BR( H -> A   A    )
+</slha>
+<MGRunCard>
+#*********************************************************************
+#                       MadGraph/MadEvent                            *
+#                  http://madgraph.hep.uiuc.edu                      *
+#                                                                    *
+#                        run_card.dat                                *
+#                                                                    *
+#  This file is used to set the parameters of the run.               *
+#                                                                    *
+#  Some notation/conventions:                                        *
+#                                                                    *
+#   Lines starting with a '# ' are info or comments                  *
+#                                                                    *
+#   mind the format:   value    = variable     ! comment             *
+#*********************************************************************
+#
+#*******************                                                 
+# Running parameters
+#*******************                                                 
+#                                                                    
+#*********************************************************************
+# Tag name for the run (one word)                                    *
+#*********************************************************************
+  'fermi'     = run_tag ! name of the run 
+#*********************************************************************
+# Number of events and rnd seed                                      *
+#*********************************************************************
+  10000       = nevents ! Number of unweighted events requested 
+     233 = iseed   ! rnd seed (0=assigned automatically=default))
+#*********************************************************************
+# Collider type and energy                                           *
+#*********************************************************************
+        1     = lpp1  ! beam 1 type (0=NO PDF)
+        1     = lpp2  ! beam 2 type (0=NO PDF)
+     7000     = ebeam1  ! beam 1 energy in GeV
+     7000     = ebeam2  ! beam 2 energy in GeV
+#*********************************************************************
+# Beam polarization from -100 (left-handed) to 100 (right-handed)    *
+#*********************************************************************
+        0     = polbeam1 ! beam polarization for beam 1
+        0     = polbeam2 ! beam polarization for beam 2
+#*********************************************************************
+# PDF CHOICE: this automatically fixes also alpha_s and its evol.    *
+#*********************************************************************
+ 'cteq6l1'    = pdlabel     ! PDF set                                     
+#*********************************************************************
+# Renormalization and factorization scales                           *
+#*********************************************************************
+ F        = fixed_ren_scale  ! if .true. use fixed ren scale
+ F        = fixed_fac_scale  ! if .true. use fixed fac scale
+ 91.1880  = scale            ! fixed ren scale
+ 91.1880  = dsqrt_q2fact1    ! fixed fact scale for pdf1
+ 91.1880  = dsqrt_q2fact2    ! fixed fact scale for pdf2
+ 1        = scalefact        ! scale factor for event-by-event scales
+#*********************************************************************
+# Matching - Warning! ickkw > 0 is still beta
+#*********************************************************************
+ 1        = ickkw            ! 0 no matching, 1 MLM, 2 CKKW matching
+#*********************************************************************
+#                                                                    
+#*******************                                                 
+# Standard Cuts
+#*******************                                                 
+#                                                                    
+#*********************************************************************
+# Minimum pt's                                                       *
+#*********************************************************************
+ 15  = ptj ! minimum pt for the jets 
+ 15  = ptb ! minimum pt for the b 
+ 10  = pta ! minimum pt for the photons 
+ 10  = ptl ! minimum pt for the charged leptons 
+#*********************************************************************
+# Minimum energy (in the lab frame)                                  *
+#*********************************************************************
+  0  = ej ! minimum E for the jets 
+  0  = eb ! minimum E for the b 
+  0  = ea ! minimum E for the photons 
+  0  = el ! minimum E for the charged leptons 
+#*********************************************************************
+# Maximum rapidity                                                   *
+#*********************************************************************
+ 5  = etaj ! max rap for the jets 
+ 5  = etab ! max rap for the b 
+ 2.7  = etaa ! max rap for the photons 
+ 2.7  = etal ! max rap for the charged leptons 
+#*********************************************************************
+# Minimum DeltaR distance                                            *
+#*********************************************************************
+ 0.001 = drjj ! distance between jets 
+ 0.001   = drbb ! distance between b's 
+ 0.4 = drll ! distance between leptons 
+ 0.4 = draa ! distance between gammas 
+ 0.001   = drbj ! distance between b and jet 
+ 0.4 = draj ! distance between gamma and jet 
+ 0.4 = drjl ! distance between jet and lepton 
+ 0   = drab ! distance between gamma and b 
+ 0   = drbl ! distance between b and lepton 
+ 0.4 = dral ! distance between gamma and lepton 
+#*********************************************************************
+# Minimum invariant mass for pairs                                   *
+#*********************************************************************
+ 0  = mmjj ! min invariant mass of a jet pair 
+ 0  = mmbb ! min invariant mass of a b pair 
+ 0  = mmaa ! min invariant mass of gamma gamma pair
+ 0  = mmll ! min invariant mass of l+l- (same flavour) lepton pair
+#*********************************************************************
+# Inclusive cuts                                                     *
+#*********************************************************************
+ 0  = xptj ! minimum pt for at least one jet  
+ 0  = xptb ! minimum pt for at least one b 
+ 0  = xpta ! minimum pt for at least one photon 
+ 0  = xptl ! minimum pt for at least one charged lepton 
+#*********************************************************************
+# WBF cuts                                                           *
+#*********************************************************************
+ 0  = xetamin ! minimum rapidity for two jets in the WBF case  
+ 0  = deltaeta ! minimum rapidity for two jets in the WBF case 
+#*********************************************************************
+# Jet measure cuts                                                   *
+#*********************************************************************
+ 15  = xqcut   ! minimum kt jet measure between partons
+#*********************************************************************
+</MGRunCard>

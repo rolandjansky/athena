@@ -1,0 +1,30 @@
+2          !hbook
+2          !unix
+2          !generation (1 el, 2 mu)
+1          !p p (1) p pbar (2)
+14000.      !ecm in GeV
+10000.      !max rootshat
+10        !min pt photon
+0.        !min pt lepton
+0.7         !min separation
+10.0        !ycut photon
+10.0       !ycut lepton
+40.        !min mass of lepton pair
+40.       !min llg mass
+10000         !ncall1 100000
+50000         !ncall2 30000000  5000000
+1.        !min mass gen.
+1.         !drell yan
+1.         !z gamma only?
+1.         ! rad. z decay only?
+1.         ! an. couplings only
+19070      !LHAPDF number
+n          !xn
+n          !anom. couplings
+zgamma_zmm_LHC.dat
+y               ! ouput file is formatted Y/N
+447189       ! random seed
+y          !ready
+-2         !his no
+n          !paw file?
+n          !topdrawer files?
