@@ -67,21 +67,21 @@ public:
   virtual StatusCode genFinalize();
   //	Pyint5& pyint5();
 		
-  virtual StatusCode fillEvt(HepMC::GenEvent* evt);
+  virtual StatusCode fillEvt(GenEvent* evt);
 		
 private:
   StatusCode storeBEvent();
-  long pCounter(HepMC::GenEvent* myEvt) const;
+  long pCounter(GenEvent* myEvt) const;
 		
-  McEventCollection m_BEventBuffer;
-  // HepMC::GenEvent currentEvent;
+  McEventCollection BEventBuffer;
+  // GenEvent currentEvent;
 		
   CommandVector m_cutbqVector;
-  string m_cutbqandor; 
+  string cutbqandor; 
   std::vector<double> m_lvl1cut;
   std::vector<double> m_lvl2cut;
   std::vector<double> m_offcut;
-  double m_cutbqp, m_cutbqe, m_cutabqp, m_cutabqe;
+  double cutbqp, cutbqe, cutabqp, cutabqe;
   double m_mhad;
   double m_xhad;
   double m_fla;
@@ -91,8 +91,8 @@ private:
   string m_forceDecayChannel;
   std::vector<double> m_decayChannelParameters;	
 
-  string m_forceb;
-  string m_forcec;
+  string forceb;
+  string forcec;
 
 };
 
