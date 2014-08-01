@@ -1,0 +1,219 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// *****************************************************
+//
+// NAME:     TrigMuTagIMOHypo.cxx
+// PACKAGE:  Trigger/TrigHypothesis/TrigMuonHypo
+//
+// AUTHOR:   Andrea Coccaro (AT ge DOT infn DOT it)
+//
+// *****************************************************
+
+#include "TrigMuonHypo/TrigMuTagIMOHypo.h"
+#include "TrigMuonEvent/TrigMuonEFInfo.h"
+#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
+#include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
+#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
+#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
+
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+
+class ISvcLocator;
+
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+TrigMuTagIMOHypo::TrigMuTagIMOHypo(const std::string & name, ISvcLocator* pSvcLocator) :
+  HLT::HypoAlgo(name, pSvcLocator)
+{
+  declareProperty("AcceptAll", m_acceptAll = false);
+  std::vector<float> def_bins;
+  def_bins.push_back(0);
+  def_bins.push_back(2.5); 
+  std::vector<float> def_thrs;
+  def_thrs.push_back(10.*CLHEP::GeV);
+  declareProperty("PtBins", m_ptBins=def_bins);
+  declareProperty("PtThresholds", m_ptThresholds=def_thrs);
+
+  declareMonitoredVariable("CutCounter", m_cutCounter);
+  declareMonitoredVariable("Pt",         m_pt);
+  declareMonitoredVariable("Eta",        m_eta);
+  declareMonitoredVariable("Phi",        m_phi);
+
+  m_bins = 0;
+
+}
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+TrigMuTagIMOHypo::~TrigMuTagIMOHypo(){}
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+HLT::ErrorCode TrigMuTagIMOHypo::hltInitialize() { 
+
+  if(m_acceptAll)
+    msg() << MSG::INFO << "Accepting all the events" << endreq;
+  else {
+    m_bins = m_ptBins.size() - 1;
+    if (m_bins != m_ptThresholds.size()) {
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
+      return HLT::BAD_JOB_SETUP;   
+    }
+     
+    for (std::vector<float>::size_type i=0; i<m_bins;++i)
+      msg() << MSG::INFO << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1] << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV << " GeV" << endreq;
+
+  }
+
+  msg() << MSG::INFO << "Initialization completed successfully" << endreq;
+
+  return HLT::OK;
+}
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
+  
+  if(msgLvl() <= MSG::DEBUG) 
+    msg() << MSG::DEBUG << "Executing TrigMuTagIMOHypo" << endreq;
+  
+  //* initialise monitoring variables *//
+  m_cutCounter = -1;
+
+  //* AcceptAll declare property setting *//
+  if (m_acceptAll) {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events" << endreq;
+    m_cutCounter = 1;
+    pass = true;
+    return HLT::OK;
+  } else 
+    msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying selection" << endreq;
+  
+ //* Get RoI descriptor *//
+  const TrigRoiDescriptor* roiDescriptor = 0;
+  HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor, "");
+  
+  if (stat == HLT::OK) {
+    if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "Using outputTE: " 
+	    << "RoI id " << roiDescriptor->roiId()
+	    << ", Phi = " <<  roiDescriptor->phi()
+	    << ", Eta = " << roiDescriptor->eta() << endreq;
+    }
+  } else {
+    if (msgLvl() <= MSG::WARNING) 
+      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
+
+    return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::MISSING_FEATURE);
+  }
+
+  bool result = false;
+
+  //* Get vector of TrigMuonEFInfo *//
+  const TrigMuonEFInfoContainer* trigMuonEFInfoColl = 0;
+  if (getFeature(outputTE, trigMuonEFInfoColl, "MuTagIMO_EF") != HLT::OK) {
+
+    if (msgLvl() <= MSG::WARNING)
+      msg() << MSG::WARNING << "Failed to get TrigMuTagIMO collection" << endreq;
+
+    return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::MISSING_FEATURE); 
+
+  } else if (!trigMuonEFInfoColl) {
+
+    if (msgLvl() <= MSG::WARNING)
+      msg() << MSG::WARNING << "Empty TrigMuTagIMO collection" << endreq;
+    
+    return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::MISSING_FEATURE); 
+
+  } else {
+
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "Got collection with " << trigMuonEFInfoColl->size() << " TrigMuonEF" << endreq;
+  }
+
+  if (!(trigMuonEFInfoColl->size())) {
+
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "No TrigMuonEFInfo to analyse" << endreq;
+
+    return HLT::OK;
+  }
+
+  //* To separate bad input TE and true behaviour *//
+  m_cutCounter++;
+
+  float threshold = 0;
+
+  TrigMuonEFInfoContainer::const_iterator pMuonEFInfo = trigMuonEFInfoColl->begin();
+  TrigMuonEFInfoContainer::const_iterator lastMuonEFInfo = trigMuonEFInfoColl->end();
+
+  for ( ; pMuonEFInfo != lastMuonEFInfo; pMuonEFInfo++) { 
+
+    TrigMuonEFInfoTrackContainer* m_trigMuonEFInfoTrackContainer = (*pMuonEFInfo)->TrackContainer();
+
+    if (!(m_trigMuonEFInfoTrackContainer->size())) {
+
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "No TrigMuonEFInfoTrack to analyse" << endreq;
+
+      continue;
+    }
+
+    TrigMuonEFInfoTrack* m_infoTrack = (*m_trigMuonEFInfoTrackContainer->begin());
+    if (m_infoTrack->MuonType() != 9) continue;
+
+    TrigMuonEFCbTrack* m_combinedTrack = (*pMuonEFInfo)->CombinedTrack();
+
+    //* Fill monitoring histos
+    m_pt  = m_combinedTrack->pt()  ? m_combinedTrack->pt()  : -999;
+    m_eta = m_combinedTrack->eta() ? m_combinedTrack->eta() : -999;
+    m_phi = m_combinedTrack->eta() ? m_combinedTrack->phi() : -999;
+
+    double eta=-log(sqrt(1+(m_combinedTrack->cotTh())*(m_combinedTrack->cotTh()))-(m_combinedTrack->cotTh()));
+    float absEta = fabs(eta);
+
+    for (std::vector<float>::size_type k=0; k<m_bins; ++k)
+      if (absEta > m_ptBins[k] && absEta < m_ptBins[k+1])
+	threshold = m_ptThresholds[k]; 
+
+    if (fabs(m_combinedTrack->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)) 
+      result = true;
+
+    if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << " REGTEST muon pt is " << m_combinedTrack->pt()/CLHEP::GeV << " GeV " << " with Charge " << m_combinedTrack->charge()
+	    << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" << " so hypothesis is " << (result?"true":"false") << endreq;
+
+  }
+
+  if(result) m_cutCounter++;
+  pass = result;
+
+  return HLT::OK;
+}  
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+HLT::ErrorCode TrigMuTagIMOHypo::hltFinalize() {
+
+  if (msgLvl() <= MSG::INFO) 
+    msg() << MSG::INFO << "Finalizing TrigMuTagIMOHypo" << endreq;
+
+  return HLT::OK;
+}
+
