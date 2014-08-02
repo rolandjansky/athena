@@ -1,0 +1,65 @@
+package TrigEgammaValidation
+
+author Danilo Enoque Ferreira de Lima <Danilo.Enoque.Ferreira.De.Lima@cern.ch>
+author Denis Oliveira Damazio <Denis.Oliveira.Damazio@cern.ch>
+
+#private
+#apply_tag no_genconf
+#end_private
+
+use AtlasPolicy AtlasPolicy-*
+
+branches run
+
+use AtlasROOT			AtlasROOT-*			External
+use GaudiInterface		GaudiInterface-*		External
+use StoreGate           	StoreGate-*			Control
+use AnalysisTriggerEvent	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger
+use egammaEvent			egammaEvent-*			Reconstruction/egamma
+use CaloEvent			CaloEvent-*			Calorimeter
+use TrigCaloEvent		TrigCaloEvent-*			Trigger/TrigEvent
+use TrigInDetEvent		TrigInDetEvent-*		Trigger/TrigEvent
+#use TrigDecision TrigDecision-* Trigger/TrigEvent
+use TrigDecisionTool		TrigDecisionTool-*		Trigger/TrigAnalysis
+use TrigConfHLTData             TrigConfHLTData-*               Trigger/TrigConfiguration
+use TrigNavigation              TrigNavigation-*                Trigger/TrigEvent
+use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
+
+private
+use AtlasTriggerRunTime            AtlasTriggerRunTime-*
+use CaloDetDescr                CaloDetDescr-*                  Calorimeter
+use GeneratorObjects            GeneratorObjects-*		Generators
+#use ITrackToCalo        ITrackToCalo-*          Reconstruction/RecoTools
+use RecoToolInterfaces		RecoToolInterfaces-*		Reconstruction/RecoTools
+use Particle                    Particle-*                      Reconstruction
+use EventInfo                   EventInfo-*                     Event
+use FourMom                     FourMom-*                       Event
+use TrigSteering                TrigSteering-*                  Trigger/TrigSteer
+
+public
+
+library TrigEgammaValidation *.cxx components/*.cxx
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+# For RTT
+#macro TrigEgammaValidation_TestConfiguration "../test/TrigEgammaValidation_TestConfiguration.xml"
+
+apply_pattern declare_runtime files="*.C *.py *.root *.xml" extras="-s=../test TrigEgammaValidation_TestConfiguration.xml"
+
+apply_pattern declare_docs  files="-s=../doc/Summary-dev *.php *.html content.xml style.css *.gif"
+
+private
+
+#add validation of RTT xml file
+use TestPolicy TestPolicy-*
+apply_pattern validate_xml
+
+end_private

@@ -1,0 +1,1244 @@
+
+<validation>
+  <title>TrigEgammaValidation Results</title>
+  <group>AthenaTrigEgammaNewValidation</group>
+  <package>TrigEgammaValidation</package>
+
+  <item mode="raw" title="Overall Results" menu-title="Overall Results">
+    <url>table.php</url>
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_off_Nav_se" group="AthenaTrigEgammaNewNavValidation" title="Single Electron 25 GeV RDO Chain Efficiency w.r.t. Offline" menu-title="Single Electron 25 GeV [RDO]">
+    <chainlist id="chains">
+      <chain pattern="e5_medium" title="e5_medium"/>
+      <chain pattern="e5_medium1" title="e5_medium1"/>
+      <chain pattern="e6_medium" title="e6_medium"/>
+      <chain pattern="e6_medium1" title="e6_medium1"/>
+      <chain pattern="e7_medium" title="e6_medium"/>
+      <chain pattern="e10_medium" title="e10_medium" menu-title="e10_medium"/>
+      <chain pattern="e12_medium" title="e12_medium" menu-title="e12_medium"/>
+      <chain pattern="e15_medium" title="e15_medium" menu-title="e15_medium"/>
+      <chain pattern="e15i_medium" title="e15i_medium" menu-title="e15i_medium"/>
+      <chain pattern="e20_loose" title="e20_loose" menu-title="e20_loose"/>
+      <chain pattern="e20i_loose" title="e20i_loose" menu-title="e20i_loose"/>
+      <chain pattern="e22i_tight" title="e22i_tight" menu-title="e22i_tight"/>
+      <chain pattern="e25i_loose" title="e25i_loose"/>
+      <chain pattern="e25_loose" title="e25_loose"/>
+      <chain pattern="e25i_medium1" title="e25i_medium1"/>
+      <chain pattern="e10Ringer" title="e10Ringer"/>
+    </chainlist>
+
+    <item mode="chain" alias="" id="chains">
+
+      <item mode="graph" alias="L1_SE_e5m" title="Level 1 Results" menu-title="Level 1">
+        <section title="Level 1 Efficiency plots">
+          <img src= "OfflineEfficiencies-TE_L1_Et.gif" ></img>
+          <img src= "OfflineEfficiencies-TE_L1_Eta.gif" ></img>
+          <img src= "OfflineEfficiencies-TE_L1_Phi.gif" ></img>
+        </section>
+      </item>
+
+      <item mode= "graph" alias= "L2_Step1_SE_e5m" title="Level 2 Step1 Results" menu-title= "Level 2 Step1">
+        <section title="Level 2 Step1 Efficiency plots">
+          <img src="OfflineEfficiencies-TE_L2_Step1_Et.gif"/>
+          <img src="OfflineEfficiencies-TE_L2_Step1_Eta.gif"/>
+          <img src="OfflineEfficiencies-TE_L2_Step1_Phi.gif"/>
+        </section> 
+      </item>
+
+      <item mode= "graph" alias= "L2_Step2_SE_e5m" title="Level 2 Step2 Results" menu-title= "Level 2 Step2">
+        <section title="Level 2 Step2 Efficiency plots">
+          <img src="OfflineEfficiencies-TE_L2_Step2_Et.gif"/>
+          <img src="OfflineEfficiencies-TE_L2_Step2_Eta.gif"/>
+          <img src="OfflineEfficiencies-TE_L2_Step2_Phi.gif"/>
+        </section> 
+      </item>
+
+      <item mode= "graph" alias= "L2_Step3_SE_e5m" title="Level 2 Step3 Results" menu-title= "Level 2 Step3">
+        <section title="Level 2 Step3 Efficiency plots">
+          <img src="OfflineEfficiencies-TE_L2_Step3_Et.gif"/>
+          <img src="OfflineEfficiencies-TE_L2_Step3_Eta.gif"/>
+          <img src="OfflineEfficiencies-TE_L2_Step3_Phi.gif"/>
+        </section> 
+      </item>
+
+      <item mode= "graph" alias= "EF_Step1_SE_e5m" title="EF Step1 Results" menu-title= "EF Step1">
+        <section title="EF Step1 Efficiency plots">
+          <img src="OfflineEfficiencies-TE_EF_Step1_Et.gif"/>
+          <img src="OfflineEfficiencies-TE_EF_Step1_Eta.gif"/>
+          <img src="OfflineEfficiencies-TE_EF_Step1_Phi.gif"/>
+        </section>
+      </item>
+
+      <item mode= "graph" alias= "EF_Step2_SE_e5m" title="EF Step2 Results" menu-title= "EF Step2">
+        <section title="EF Step2 Efficiency plots">
+          <img src="OfflineEfficiencies-TE_EF_Step2_Et.gif"/>
+          <img src="OfflineEfficiencies-TE_EF_Step2_Eta.gif"/>
+          <img src="OfflineEfficiencies-TE_EF_Step2_Phi.gif"/>
+        </section>
+      </item>
+
+      <item mode= "graph" alias= "EF_Step3_SE_e5m" title="EF Step3 Results" menu-title= "EF Step3">
+        <section title="EF Step3 Efficiency plots">
+          <img src="OfflineEfficiencies-TE_EF_Step3_Et.gif"/>
+          <img src="OfflineEfficiencies-TE_EF_Step3_Eta.gif"/>
+          <img src="OfflineEfficiencies-TE_EF_Step3_Phi.gif"/>
+        </section>
+      </item>
+    </item>
+  </item> 
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_truth_Nav_se" group="AthenaTrigEgammaNewNavValidation" title="Single Electron 25 GeV RDO Chain Efficiency w.r.t. Truth" menu-title="Single Electron 25 GeV [RDO]">
+    <chainlist id="chains">
+      <chain pattern="e5_medium" title="e5_medium"/>
+      <chain pattern="e5_medium1" title="e5_medium1"/>
+      <chain pattern="e6_medium" title="e6_medium"/>
+      <chain pattern="e6_medium1" title="e6_medium1"/>
+      <chain pattern="e7_medium" title="e6_medium"/>
+      <chain pattern="e10_medium" title="e10_medium" menu-title="e10_medium"/>
+      <chain pattern="e12_medium" title="e12_medium" menu-title="e12_medium"/>
+      <chain pattern="e15_medium" title="e15_medium" menu-title="e15_medium"/>
+      <chain pattern="e15i_medium" title="e15i_medium" menu-title="e15i_medium"/>
+      <chain pattern="e20_loose" title="e20_loose" menu-title="e20_loose"/>
+      <chain pattern="e20i_loose" title="e20i_loose" menu-title="e20i_loose"/>
+      <chain pattern="e22i_tight" title="e22i_tight" menu-title="e22i_tight"/>
+      <chain pattern="e25i_loose" title="e25i_loose"/>
+      <chain pattern="e25_loose" title="e25_loose"/>
+      <chain pattern="e25i_medium1" title="e25i_medium1"/>
+      <chain pattern="e10Ringer" title="e10Ringer"/>
+    </chainlist>
+
+    <item mode="chain" alias="" id="chains">
+
+      <item mode="graph" alias="L1_SE_e5m" title="Level 1 Results" menu-title="Level 1">
+        <section title="Level 1 Efficiency plots">
+          <img src= "Efficiencies-TE_L1_Et.gif" ></img>
+          <img src= "Efficiencies-TE_L1_Eta.gif" ></img>
+          <img src= "Efficiencies-TE_L1_Phi.gif" ></img>
+        </section>
+      </item>
+
+      <item mode= "graph" alias= "L2_Step1_SE_e5m" title="Level 2 Step1 Results" menu-title= "Level 2 Step1">
+        <section title="Level 2 Step1 Efficiency plots">
+          <img src="Efficiencies-TE_L2_Step1_Et.gif"/>
+          <img src="Efficiencies-TE_L2_Step1_Eta.gif"/>
+          <img src="Efficiencies-TE_L2_Step1_Phi.gif"/>
+        </section> 
+      </item>
+
+      <item mode= "graph" alias= "L2_Step2_SE_e5m" title="Level 2 Step2 Results" menu-title= "Level 2 Step2">
+        <section title="Level 2 Step2 Efficiency plots">
+          <img src="Efficiencies-TE_L2_Step2_Et.gif"/>
+          <img src="Efficiencies-TE_L2_Step2_Eta.gif"/>
+          <img src="Efficiencies-TE_L2_Step2_Phi.gif"/>
+        </section> 
+      </item>
+
+      <item mode= "graph" alias= "L2_Step3_SE_e5m" title="Level 2 Step3 Results" menu-title= "Level 2 Step3">
+        <section title="Level 2 Step3 Efficiency plots">
+          <img src="Efficiencies-TE_L2_Step3_Et.gif"/>
+          <img src="Efficiencies-TE_L2_Step3_Eta.gif"/>
+          <img src="Efficiencies-TE_L2_Step3_Phi.gif"/>
+        </section> 
+      </item>
+
+      <item mode= "graph" alias= "EF_Step1_SE_e5m" title="EF Step1 Results" menu-title= "EF Step1">
+        <section title="EF Step1 Efficiency plots">
+          <img src="Efficiencies-TE_EF_Step1_Et.gif"/>
+          <img src="Efficiencies-TE_EF_Step1_Eta.gif"/>
+          <img src="Efficiencies-TE_EF_Step1_Phi.gif"/>
+        </section>
+      </item>
+
+      <item mode= "graph" alias= "EF_Step2_SE_e5m" title="EF Step2 Results" menu-title= "EF Step2">
+        <section title="EF Step2 Efficiency plots">
+          <img src="Efficiencies-TE_EF_Step2_Et.gif"/>
+          <img src="Efficiencies-TE_EF_Step2_Eta.gif"/>
+          <img src="Efficiencies-TE_EF_Step2_Phi.gif"/>
+        </section>
+      </item>
+
+      <item mode= "graph" alias= "EF_Step3_SE_e5m" title="EF Step3 Results" menu-title= "EF Step3">
+        <section title="EF Step3 Efficiency plots">
+          <img src="Efficiencies-TE_EF_Step3_Et.gif"/>
+          <img src="Efficiencies-TE_EF_Step3_Eta.gif"/>
+          <img src="Efficiencies-TE_EF_Step3_Phi.gif"/>
+        </section>
+      </item>
+    </item>
+  </item> 
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_e" title="Z -> e + e RDO w.r.t. Truth" menu-title="Zee [RDO] w.r.t. Truth">
+
+    <item mode="graph" alias="L1_Zee" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="ZeeValidation_Dump_L1EmClus.gif"></img>
+        <img src="ZeeValidation_Dump_L1EmIsol.gif"/>
+        <img src="ZeeValidation_Dump_L1HadCore.gif"/>
+        <img src="ZeeValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="ZeeValidation_L1TruthEfficiencies.gif"></img>
+      </section>
+
+      <section title="Level 1 Resolution plots">
+        <img src="ZeeValidation_Resolution_ResEtL1TruthEt.gif"></img>
+        <img src="ZeeValidation_Resolution_ResEtL1TruthEta.gif"></img>
+      </section>
+
+    </item>
+
+    <item mode="graph" alias="L2_Zee" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="ZeeValidation_Dump_L2CaloRcore.gif"/>
+        <img src="ZeeValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="ZeeValidation_Dump_L2CaloEt.gif"/>
+        <img src="ZeeValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="ZeeValidation_L2TruthEfficiencies.gif"></img>
+      </section>
+      <section title="Level 1 Resolution plots">
+        <img src="ZeeValidation_Resolution_ResEtL2TruthEt.gif"></img>
+        <img src="ZeeValidation_Resolution_ResEtL2TruthEta.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDScan_Zee" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="ZeeValidation_Dump_L2IDScanPt.gif"/>
+        <img src="ZeeValidation_Dump_L2IDScanEP.gif"/>
+        <img src="ZeeValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="ZeeValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="ZeeValidation_Dump_L2IDScanA0.gif"/>
+        <img src="ZeeValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="ZeeValidation_L2IDScanTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_Zee" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="ZeeValidation_Dump_L2IDSiPt.gif"/>
+        <img src="ZeeValidation_Dump_L2IDSiEP.gif"/>
+        <img src="ZeeValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="ZeeValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="ZeeValidation_Dump_L2IDSiA0.gif"/>
+        <img src="ZeeValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="ZeeValidation_L2IDSiTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_Zee" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="ZeeValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="ZeeValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="ZeeValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="ZeeValidation_EFScanCaloTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_Zee" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="ZeeValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="ZeeValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="ZeeValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="ZeeValidation_EFSiCaloTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_Zee" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="ZeeValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="ZeeValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="ZeeValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="ZeeValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="ZeeValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="ZeeValidation_EFScanTrackTruthEfficiencies.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_Zee" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="ZeeValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="ZeeValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="ZeeValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="ZeeValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="ZeeValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="ZeeValidation_EFSiTrackTruthEfficiencies.gif"></img>
+      </section>
+
+    </item>
+
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_off_e" title="Z -> e + e RDO w.r.t. Offline" menu-title="Zee [RDO] w.r.t. Offline">
+
+    <item mode="graph" alias="L1_Zee_Off" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="ZeeOfflineValidation_Dump_L1EmClus.gif"></img>
+        <img src="ZeeOfflineValidation_Dump_L1EmIsol.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L1HadCore.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="ZeeOfflineValidation_L1OffEfficiencies.gif"></img>
+      </section>
+<!--
+      <section title="Level 1 Resolution plots">
+        <img src="ZeeOfflineValidation_Resolution_ResEtL1OffEt.gif"></img>
+        <img src="ZeeOfflineValidation_Resolution_ResEtL1OffEta.gif"></img>
+      </section>
+-->
+    </item>
+
+    <item mode="graph" alias="L2_Zee_Off" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="ZeeOfflineValidation_Dump_L2CaloRcore.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2CaloEt.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="ZeeOfflineValidation_L2OffEfficiencies.gif"></img>
+      </section>
+<!--
+      <section title="Level 2 Resolution plots">
+        <img src="ZeeOfflineValidation_Resolution_ResEtL2OffEt.gif"></img>
+        <img src="ZeeOfflineValidation_Resolution_ResEtL2OffEta.gif"></img>
+      </section>
+-->
+    </item>
+
+    <item mode="graph" alias="L2IDScan_Zee_Off" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="ZeeOfflineValidation_Dump_L2IDScanPt.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDScanEP.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDScanA0.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="ZeeOfflineValidation_L2IDScanOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_Zee_Off" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="ZeeOfflineValidation_Dump_L2IDSiPt.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDSiEP.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDSiA0.gif"/>
+        <img src="ZeeOfflineValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="ZeeOfflineValidation_L2IDSiOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_Zee_Off" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="ZeeOfflineValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="ZeeOfflineValidation_EFScanCaloOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_Zee_Off" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="ZeeOfflineValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="ZeeOfflineValidation_EFSiCaloOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_Zee_Off" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="ZeeOfflineValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="ZeeOfflineValidation_EFScanTrackOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_Zee_Off" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="ZeeOfflineValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="ZeeOfflineValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="ZeeOfflineValidation_EFSiTrackOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_se" title="Single Electron RDO w.r.t. Truth" menu-title="Single Electron [RDO] w.r.t. Truth">
+
+    <item mode="graph" alias="L1_SE" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="SingleElectronValidation_Dump_L1EmClus.gif"></img>
+        <img src="SingleElectronValidation_Dump_L1EmIsol.gif"/>
+        <img src="SingleElectronValidation_Dump_L1HadCore.gif"/>
+        <img src="SingleElectronValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="SingleElectronValidation_L1TruthEfficiencies.gif"></img>
+      </section>
+      <section title="Level 1 Resolution plots">
+        <img src="SingleElectronValidation_Resolution_ResEtL1TruthEt.gif"></img>
+        <img src="SingleElectronValidation_Resolution_ResEtL1TruthEta.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2_SE" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="SingleElectronValidation_Dump_L2CaloRcore.gif"/>
+        <img src="SingleElectronValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="SingleElectronValidation_Dump_L2CaloEt.gif"/>
+        <img src="SingleElectronValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="SingleElectronValidation_L2TruthEfficiencies.gif"></img>
+      </section>
+      <section title="Level 2 Resolution plots">
+        <img src="SingleElectronValidation_Resolution_ResEtL2TruthEt.gif"></img>
+        <img src="SingleElectronValidation_Resolution_ResEtL2TruthEta.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDScan_SE" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="SingleElectronValidation_Dump_L2IDScanPt.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDScanEP.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDScanA0.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="SingleElectronValidation_L2IDScanTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_SE" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="SingleElectronValidation_Dump_L2IDSiPt.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDSiEP.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDSiA0.gif"/>
+        <img src="SingleElectronValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="SingleElectronValidation_L2IDSiTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_SE" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="SingleElectronValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="SingleElectronValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="SingleElectronValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="SingleElectronValidation_EFScanCaloTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_SE" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="SingleElectronValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="SingleElectronValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="SingleElectronValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="SingleElectronValidation_EFSiCaloTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_SE" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="SingleElectronValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="SingleElectronValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="SingleElectronValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="SingleElectronValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="SingleElectronValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="SingleElectronValidation_EFScanTrackTruthEfficiencies.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_SE" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="SingleElectronValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="SingleElectronValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="SingleElectronValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="SingleElectronValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="SingleElectronValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="SingleElectronValidation_EFSiTrackTruthEfficiencies.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_off_se" title="Single Electron RDO w.r.t. Offline" menu-title="Single Electron [RDO] w.r.t. Offline">
+
+    <item mode="graph" alias="L1_SE_Off" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="SingleElectronOfflineValidation_Dump_L1EmClus.gif"></img>
+        <img src="SingleElectronOfflineValidation_Dump_L1EmIsol.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L1HadCore.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="SingleElectronOfflineValidation_L1OffEfficiencies.gif"></img>
+      </section>
+<!--
+      <section title="Level 1 Resolution plots">
+        <img src="SingleElectronOfflineValidation_Resolution_ResEtL1TruthEt.gif"></img>
+        <img src="SingleElectronOfflineValidation_Resolution_ResEtL1TruthEta.gif"></img>
+      </section>
+-->
+    </item>
+
+    <item mode="graph" alias="L2_SE_Off" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="SingleElectronOfflineValidation_Dump_L2CaloRcore.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2CaloEt.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="SingleElectronOfflineValidation_L2OffEfficiencies.gif"></img>
+      </section>
+<!--
+      <section title="Level 2 Resolution plots">
+        <img src="SingleElectronOfflineValidation_Resolution_ResEtL2TruthEt.gif"></img>
+        <img src="SingleElectronOfflineValidation_Resolution_ResEtL2TruthEta.gif"></img>
+      </section>
+-->
+    </item>
+
+    <item mode="graph" alias="L2IDScan_SE_Off" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="SingleElectronOfflineValidation_Dump_L2IDScanPt.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDScanEP.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDScanA0.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="SingleElectronOfflineValidation_L2IDScanOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_SE_Off" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="SingleElectronOfflineValidation_Dump_L2IDSiPt.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDSiEP.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDSiA0.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="SingleElectronOfflineValidation_L2IDSiOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_SE_Off" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="SingleElectronOfflineValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="SingleElectronOfflineValidation_EFScanCaloOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_SE_Off" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="SingleElectronOfflineValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="SingleElectronOfflineValidation_EFSiCaloOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_SE_Off" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="SingleElectronOfflineValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="SingleElectronOfflineValidation_EFScanTrackOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_SE_Off" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="SingleElectronOfflineValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="SingleElectronOfflineValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="SingleElectronOfflineValidation_EFSiTrackOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_h" title="H -> gamma + gamma RDO w.r.t. Truth" menu-title="H -> gamma + gamma [RDO] w.r.t. Truth">
+
+    <item mode="graph" alias="L1_Hgg" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="HggValidation_Dump_L1EmClus.gif"></img>
+        <img src="HggValidation_Dump_L1EmIsol.gif"/>
+        <img src="HggValidation_Dump_L1HadCore.gif"/>
+        <img src="HggValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="HggValidation_L1TruthEfficiencies.gif"></img>
+      </section>
+      <section title="Level 1 Resolution plots">
+        <img src="HggValidation_Resolution_ResEtL1TruthEt.gif"></img>
+        <img src="HggValidation_Resolution_ResEtL1TruthEta.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2_Hgg" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="HggValidation_Dump_L2CaloRcore.gif"/>
+        <img src="HggValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="HggValidation_Dump_L2CaloEt.gif"/>
+        <img src="HggValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="HggValidation_L2TruthEfficiencies.gif"></img>
+      </section>
+      <section title="Level 2 Resolution plots">
+        <img src="HggValidation_Resolution_ResEtL2TruthEt.gif"></img>
+        <img src="HggValidation_Resolution_ResEtL2TruthEta.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDScan_Hgg" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="HggValidation_Dump_L2IDScanPt.gif"/>
+        <img src="HggValidation_Dump_L2IDScanEP.gif"/>
+        <img src="HggValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="HggValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="HggValidation_Dump_L2IDScanA0.gif"/>
+        <img src="HggValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="HggValidation_L2IDScanTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_Hgg" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="HggValidation_Dump_L2IDSiPt.gif"/>
+        <img src="HggValidation_Dump_L2IDSiEP.gif"/>
+        <img src="HggValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="HggValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="HggValidation_Dump_L2IDSiA0.gif"/>
+        <img src="HggValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="HggValidation_L2IDSiTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_Hgg" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="HggValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="HggValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="HggValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="HggValidation_EFScanCaloTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_Hgg" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="HggValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="HggValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="HggValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="HggValidation_EFSiCaloTruthEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_Hgg" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="HggValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="HggValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="HggValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="HggValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="HggValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="HggValidation_EFScanTrackTruthEfficiencies.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_Hgg" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="HggValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="HggValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="HggValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="HggValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="HggValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="HggValidation_EFSiTrackTruthEfficiencies.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_off_h" title="H -> gamma + gamma RDO w.r.t. Offline" menu-title="H -> gamma + gamma [RDO] w.r.t. Offline">
+
+    <item mode="graph" alias="L1_Hgg_Off" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="HggOfflineValidation_Dump_L1EmClus.gif"></img>
+        <img src="HggOfflineValidation_Dump_L1EmIsol.gif"/>
+        <img src="HggOfflineValidation_Dump_L1HadCore.gif"/>
+        <img src="HggOfflineValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="HggOfflineValidation_L1OffEfficiencies.gif"></img>
+      </section>
+<!--
+      <section title="Level 1 Resolution plots">
+        <img src="HggValidation_Resolution_ResEtL1OffEt.gif"></img>
+        <img src="HggValidation_Resolution_ResEtL1OffEta.gif"></img>
+      </section>
+-->
+    </item>
+
+    <item mode="graph" alias="L2_Hgg_Off" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="HggOfflineValidation_Dump_L2CaloRcore.gif"/>
+        <img src="HggOfflineValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="HggOfflineValidation_Dump_L2CaloEt.gif"/>
+        <img src="HggOfflineValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="HggOfflineValidation_L2OffEfficiencies.gif"></img>
+      </section>
+<!--
+      <section title="Level 2 Resolution plots">
+        <img src="HggValidation_Resolution_ResEtL2OffEt.gif"></img>
+        <img src="HggValidation_Resolution_ResEtL2OffEta.gif"></img>
+      </section>
+-->
+    </item>
+
+    <item mode="graph" alias="L2IDScan_Hgg_Off" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="HggOfflineValidation_Dump_L2IDScanPt.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDScanEP.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDScanA0.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="HggOfflineValidation_L2IDScanOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_Hgg_Off" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="HggOfflineValidation_Dump_L2IDSiPt.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDSiEP.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDSiA0.gif"/>
+        <img src="HggOfflineValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="HggOfflineValidation_L2IDSiOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_Hgg_Off" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="HggOfflineValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="HggOfflineValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="HggOfflineValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="HggOfflineValidation_EFScanCaloOffEfficiencies.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_Hgg_Off" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="HggOfflineValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="HggOfflineValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="HggOfflineValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="HggOfflineValidation_EFSiCaloOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_Hgg_Off" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="HggOfflineValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="HggOfflineValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="HggOfflineValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="HggOfflineValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="HggOfflineValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="HggOfflineValidation_EFScanTrackOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_Hgg_Off" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="HggOfflineValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="HggOfflineValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="HggOfflineValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="HggOfflineValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="HggOfflineValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="HggOfflineValidation_EFSiTrackOffEfficiencies.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_j" title="17 GeV jets RDO" menu-title="17 GeV jets [RDO]">
+
+    <item mode="graph" alias="L1_Jet" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="JetValidation_Dump_L1EmClus.gif"></img>
+        <img src="JetValidation_Dump_L1EmIsol.gif"/>
+        <img src="JetValidation_Dump_L1HadCore.gif"/>
+        <img src="JetValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="JetValidation_L1Rates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2_Jet" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="JetValidation_Dump_L2CaloRcore.gif"/>
+        <img src="JetValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="JetValidation_Dump_L2CaloEt.gif"/>
+        <img src="JetValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="JetValidation_L2Rates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDScan_Jet" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="JetValidation_Dump_L2IDScanPt.gif"/>
+        <img src="JetValidation_Dump_L2IDScanEP.gif"/>
+        <img src="JetValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="JetValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="JetValidation_Dump_L2IDScanA0.gif"/>
+        <img src="JetValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="JetValidation_L2IDScanRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_Jet" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="JetValidation_Dump_L2IDSiPt.gif"/>
+        <img src="JetValidation_Dump_L2IDSiEP.gif"/>
+        <img src="JetValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="JetValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="JetValidation_Dump_L2IDSiA0.gif"/>
+        <img src="JetValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="JetValidation_L2IDSiRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_Jet" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="JetValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="JetValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="JetValidation_EFScanCaloRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_Jet" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="JetValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="JetValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="JetValidation_EFSiCaloRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_Jet" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="JetValidation_EFScanTrackRates.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_Jet" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="JetValidation_EFSiTrackRates.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+
+  <item mode="job" job="TrigEgammaValidation_RTT_testOptions_bs_j" title="17 GeV jets BS" menu-title="17 GeV jets [BS]">
+
+    <item mode="graph" alias="L1_JetBS" title="Level 1 Results" menu-title="Level 1">
+
+      <section title="Level 1 Calo Histograms (E25i)">
+        <img src="JetValidation_Dump_L1EmClus.gif"></img>
+        <img src="JetValidation_Dump_L1EmIsol.gif"/>
+        <img src="JetValidation_Dump_L1HadCore.gif"/>
+        <img src="JetValidation_Dump_L1HadIsol.gif"/>
+      </section>
+
+      <section title="Level 1 Efficiency plots">
+        <img src="JetValidation_L1Rates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2_JetBS" title="Level 2 Results" menu-title="Level 2">
+
+      <section title="Level 2 Calo Histograms (e25i)">
+        <img src="JetValidation_Dump_L2CaloRcore.gif"/>
+        <img src="JetValidation_Dump_L2CaloRstrip.gif"/>
+        <img src="JetValidation_Dump_L2CaloEt.gif"/>
+        <img src="JetValidation_Dump_L2CaloHadEt.gif"/>
+      </section>
+
+      <section title="Level 2 Efficiency plots">
+        <img src="JetValidation_L2Rates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDScan_JetBS" title="Level 2 ID Scan Results" menu-title="Level 2 ID Scan">
+
+      <section title="Level 2 ID (ID Scan) Histograms">
+        <img src="JetValidation_Dump_L2IDScanPt.gif"/>
+        <img src="JetValidation_Dump_L2IDScanEP.gif"/>
+        <img src="JetValidation_Dump_L2IDScanDphi.gif"/>
+        <img src="JetValidation_Dump_L2IDScanDeta.gif"/>
+        <img src="JetValidation_Dump_L2IDScanA0.gif"/>
+        <img src="JetValidation_Dump_L2IDScanZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Scan) Efficiency plots">
+        <img src="JetValidation_L2IDScanRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="L2IDSi_JetBS" title="Level 2 ID Si Results" menu-title="Level 2 ID Si">
+
+      <section title="Level 2 ID (ID Si) Histograms">
+        <img src="JetValidation_Dump_L2IDSiPt.gif"/>
+        <img src="JetValidation_Dump_L2IDSiEP.gif"/>
+        <img src="JetValidation_Dump_L2IDSiDphi.gif"/>
+        <img src="JetValidation_Dump_L2IDSiDeta.gif"/>
+        <img src="JetValidation_Dump_L2IDSiA0.gif"/>
+        <img src="JetValidation_Dump_L2IDSiZ0.gif"/>
+      </section>
+
+      <section title="Level 2 ID (ID Si) Efficiency plots">
+        <img src="JetValidation_L2IDSiRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFScanCalo_JetBS" title="Event Filter Calo (after L2ID Scan Match) Results" menu-title="Event Filter Calo (Scan)">
+
+      <section title="Event Filter Calo (L2ID Scan Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFScanCaloDeta.gif"/>
+        <img src="JetValidation_Dump_EFScanCaloDphi.gif"/>
+        <img src="JetValidation_Dump_EFScanCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Scan Match) Efficiency plots">
+        <img src="JetValidation_EFScanCaloRates.gif"></img>
+      </section>
+    </item>
+
+    <item mode="graph" alias="EFSiCalo_JetBS" title="Event Filter Calo (after L2ID Si Track Match) Results" menu-title="Event Filter Calo (Si)">
+
+      <section title="Event Filter Calo (L2ID Si Track Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFSiCaloDeta.gif"/>
+        <img src="JetValidation_Dump_EFSiCaloDphi.gif"/>
+        <img src="JetValidation_Dump_EFSiCaloEt.gif"/>
+      </section>
+
+      <section title="Event Filter (L2ID Si Track Match) Efficiency plots">
+        <img src="JetValidation_EFSiCaloRates.gif"></img>
+      </section>
+
+    </item>
+
+    <item mode="graph" alias="EFScanTrack_JetBS" title="Event Filter ID (after L2ID Scan Match) Results" menu-title="Event Filter ID (Scan)">
+
+      <section title="Event Filter ID (L2ID Scan Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFScanTrackD0.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackZ0.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackEta.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackPhi.gif"/>
+        <img src="JetValidation_Dump_EFScanTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Scan Match) Efficiency plots">
+        <img src="JetValidation_EFScanTrackRates.gif"></img>
+      </section>
+
+    </item>
+ 
+    <item mode="graph" alias="EFSiTrack_JetBS" title="Event Filter ID (after L2ID Si Match) Results" menu-title="Event Filter ID (Si)">
+
+      <section title="Event Filter ID (L2ID Si Track Match) Histograms (e25i)">
+        <img src="JetValidation_Dump_EFSiTrackD0.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackZ0.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackEta.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackPhi.gif"/>
+        <img src="JetValidation_Dump_EFSiTrackPt.gif"/>
+      </section>
+
+      <section title="Event Filter ID (L2ID Si Track Match) Efficiency plots">
+        <img src="JetValidation_EFSiTrackRates.gif"></img>
+      </section>
+
+    </item>
+<!--
+      <item mode="dump" title="Log file" menu-title="Log">
+      <url>log.txt</url>
+    </item>
+    -->
+  </item>
+</validation>
+
