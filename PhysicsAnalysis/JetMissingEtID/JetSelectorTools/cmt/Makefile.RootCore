@@ -1,0 +1,9 @@
+# Author: Karsten Koeneke (karsten.koeneke@cernSPAMNOT.ch)
+# JetSelectorTools root stand-alone makefile
+
+PACKAGE          = JetSelectorTools
+PACKAGE_CXXFLAGS = 
+PACKAGE_LDFLAGS  =
+PACKAGE_DEP      = AsgTools PATCore xAODJet JetInterface
+
+include $(ROOTCOREDIR)/Makefile-common
