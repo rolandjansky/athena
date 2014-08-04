@@ -1,0 +1,33 @@
+4 August 2014 Mark Hodgkinson
+Bug fix so that topocluster phys val code has python module generated
+Change name of folder used for topocluster histograms
+Tag as PFODQA-00-00-07	
+
+11 July 2014 Mark Hodgkinson
+Add topocluster physics validation modules
+Tag as PFODQA-00-00-06
+
+7 July 2014 Mark Hodgkinson
+Update to fill cluster moment histograms for PFO	
+Tag as PFODQA-00-00-05
+
+30 May 2014 Mark Hodgkinson
+Make filling of em scale 4-vector histograms an option via a flag
+Move histograms from Summary to PFlow folder	
+Tag as PFODQA-00-00-04
+	
+13 May 2014 Mark Hodgkinson
+Update to use PFlowUtils/RetrievePFOTool to get PFO
+Also add two strings, settable in python, that control naming of histogram folders
+Tag as PFODQA-00-00-03
+
+29 April 2013 Mark Hodgkinson
+Change output directory of histograms to be consistent with other domains
+Tag as PFODQA-00-00-02
+
+29 April 2013 Mark Hodgkinson
+Update cmt/requirements file
+Tag as PFODQA-00-00-01
+
+29 April 2013 Mark Hodgkinson
+Creation of PFODQA package with options to make 4-vector histograms at both energy scales
