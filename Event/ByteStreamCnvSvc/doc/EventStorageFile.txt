@@ -1,0 +1,68 @@
+
+	The testbeam data are written by DataFlow's EventStorage
+package.  A few options are available when reading into Athena.  
+The full set of jobOpts are listed below: 
+
+
+# the instance of ByteStreamEventStorageInputSvc 
+ByteStreamInputSvc = Service( "ByteStreamInputSvc" )
+# EventSelector
+EventSelector = Serivce("EventSelector") 
+
+1. ByteStreamInputSvc.RunNumber
+ vector<int>,  input run number 
+
+2. ByteStreamInputSvc.InputDirectory 
+ vector<string>, input directory, one for each run
+
+3. ByteStreamInputSvc.FilePrefix   
+ vector<string>, input file prefix, one for each run 
+
+4. ByteStreamInputSvc.FirstFile, default=1
+ vector<int>, first file number, one for each run
+
+5. ByteStreamInputSvc.NumFile, default = 10000
+ vector<int>, number of files to process, one for eah run
+
+6. EventSelector.SkipEvents 
+ int,  number of events to skip at the beginning of the job. 
+
+for 2-5), if the vector is shorter than that of 1), the last one is
+applied to all the subsequent runs. 
+
+Example: 
+
+A.  Process all events for run 100001 and 100002 in dir1, with prefix
+daq_SFI-1_File. 
+
+ByteStreamInputSvc.InputDirectory =["dir1"]
+ByteStreamInputSvc.FilePrefix  = ["daq_SFI-1_Tile"]
+ByteStreamInputSvc.RunNumber = [100001,100102] 
+
+B.  Process run 100001 in dir1, with prefix daq_SFI-1_Tile,
+starting from file number 2 for 3 files; and run 100102 in dir2, with
+prefix daq_SFI-1_Calo, starting from file 1 for 4 files. Skip 1000
+events at the beginning. 
+
+ByteStreamInputSvc.InputDirectory =["dir1", "dir2"]
+ByteStreamInputSvc.FilePrefix  = ["daq_SFI-1_Tile", "daq_SFI-1_Calo"]  
+ByteStreamInputSvc.RunNumber = [100001,100102] 
+ByteStreamInputSvc.FirstFile = [2,1] 
+ByteStreamInputSvc.NumFile = [3,4] 
+EventSelector.SkipEvents=1000
+
+----------------------------------------------------------------
+Aug 7, 2004
+  DC2 Bytestream data are written inot EventStorage files.
+  To facilitate the DC2 data reading process, we add one additional
+property in ByteStreamEventStorageInputSvc:
+
+ByteStreamInputSvc.FullFileName  =["MyDir1/daq_SFI-1_Tile_0320041_file01.data"]
+ByteStreamInputSvc.FullFileName +=["MyDir2/daq_SFI-1_Tile_0320042_file01.data"]
+
+If this property is set,  1)-4) ( as specified above) are ignored, and 
+5) and 6) still apply.
+
+It should be emphasized that the physical file name should have the
+last three fields: run number in 7 digit form, file0X and .data.
+

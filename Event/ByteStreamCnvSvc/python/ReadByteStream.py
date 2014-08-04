@@ -1,0 +1,55 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+###############################################################
+#
+# module for reading EventStorage BS input file.
+#==============================================================
+
+from AthenaCommon import CfgMgr
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr import theApp
+
+# Load ByteStreamEventStorageInputSvc
+if not hasattr (svcMgr, 'ByteStreamInputSvc'):
+    svcMgr += CfgMgr.ByteStreamEventStorageInputSvc ("ByteStreamInputSvc")
+
+# Load ROBDataProviderSvc
+if not hasattr (svcMgr, 'ROBDataProviderSvc'):
+    svcMgr += CfgMgr.ROBDataProviderSvc ("ROBDataProviderSvc")
+
+# Load EventSelectorByteStream
+if not hasattr (svcMgr, 'EventSelector'):
+    svcMgr += CfgMgr.EventSelectorByteStream ("EventSelector")
+theApp.EvtSel = "EventSelector"
+
+# Load ByteStreamCnvSvc
+if not hasattr (svcMgr, 'ByteStreamCnvSvc'):
+    svcMgr += CfgMgr.ByteStreamCnvSvc ("ByteStreamCnvSvc")
+
+# Properties
+svcMgr.EventSelector.ByteStreamInputSvc = "ByteStreamInputSvc";
+
+svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
+
+# Load ProxyProviderSvc
+if not hasattr (svcMgr, 'ProxyProviderSvc'):
+    svcMgr += CfgMgr.ProxyProviderSvc()
+
+# Add in ByteStreamAddressProviderSvc
+if not hasattr (svcMgr, 'ByteStreamAddressProviderSvc'):
+    svcMgr += CfgMgr.ByteStreamAddressProviderSvc ("ByteStreamAddressProviderSvc")
+svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
+
+# Add in MetaDataSvc
+if not hasattr (svcMgr, 'MetaDataSvc'):
+    svcMgr += CfgMgr.MetaDataSvc ("MetaDataSvc")
+svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
+
+# Enable ByteStream to read MetaData
+svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
+if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
+    svcMgr.ToolSvc += CfgMgr.ByteStreamMetadataTool()
+
+# User metadata in FMD
+if not hasattr (svcMgr, 'ByteStreamAttListMetadataSvc'):
+    svcMgr += CfgMgr.ByteStreamAttListMetadataSvc ("ByteStreamAttListMetadataSvc")

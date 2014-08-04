@@ -1,0 +1,22 @@
+Events to copy: 14350 14356 14382 
+Checking file /afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
+Created DataWriter for file test.data in directory .
+
+File:/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
+Event index: 1
+Run:         20720
+Event ID:    14350
+LumiBlock:   18
+
+File:/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
+Event index: 2
+Run:         20720
+Event ID:    14356
+LumiBlock:   19
+
+File:/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
+Event index: 3
+Run:         20720
+Event ID:    14382
+LumiBlock:   19
+Wrote 3 events to file test.data

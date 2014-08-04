@@ -1,0 +1,421 @@
+
+	Byte Stream Conversion Service and Converters.
+
+	ByteStream conversion Service (ByteStreamCnvSvc) provides a means to
+convert the raw data in the ByteStream format to and from the transient 
+representation, Raw Data Objects (RDO).   In Gaudi's terminology, ByteStream
+can be considered as a persistency for reading and storing raw data. In 
+practice, the source of the ByteStream can be a file, or the online data 
+source (or its emulation) through network, for example.   Together with the 
+IdentifiableContainer, used to contain the Raw Data Objects, ByteStreamCnvSvc
+provides a mechanism for creating the RDOs on demand.
+
+	 In the current scheme, where the event data comes from MC
+simulation, the raw data objects are output of the simulation, including 
+noise and pileup addition as well as ROD emulation. To use the 
+ByteStreamCnvSvc for a particular detector, the RDO and its Collection 
+and Container classes have to be defined and  implemented.  
+The RDOs should be stored in Collection classes, and 
+the Collections are stored in  IdentifiableContainer<Collection>.   
+See the separate notes on how to  implement the Collection and how to use 
+IdentifiableContainer. 
+
+---- Packages  and related Documentation
+
+    There are two basic packages for ByteStream, 
+
+Event/ByteStreamData
+Event/ByteStreamCnvSvc
+
+ByteStreamData:
+	
+	The Atlas raw event format is defined in eformat package in 
+DataCollection release.   The first version of ByteStreamCnvSvc used a 
+older implementation of event format.  The new implementation using 
+eformat is developed after release 4.1.0 .   The offline software accesses 
+the DataCollection  release through an interface package, 
+External/DataCollection .
+
+	eformat package defines the raw event data in terms of fragments, 
+starting from FullEvent, to SubDetector, ROS, ROB and ROD.  
+In addition, the data can be stored in different storage type, such as 
+RawMemory or File.   In the package ByteStreamData, we define two typedefs.
+RawEvent   == FullEventFragment (in RawMemoryStorageType ), and 
+ByteStream == RawMemoryStorageType (a block a memory for holding the event). 
+  
+        RawEvent is used in the conversion process, and ByteStream is what we 
+store in Transient store if we want to store the ByteStream data in the 
+transient  store (or eventually to persistency). 
+ 
+	Note that the event format related things are defined in 
+
+"The Event Format in the ATLAS DAQ/EF Prototype-1" ATL-DAQ-98-129
+(there is an updated version)
+    
+There is a well defined identifier (raw event Source ID),  consisting of a 
+32 bit word.  The unsigned integer is used to store this 32 bit word.
+The identifier is divided into three fields.  Each detector group is 
+responsible for defining the module ID field. 
+
+ByteStreamCnvSvc package implements the necessary classes for a
+Gaudi conversion service.   See the Athena Developer Guide V 2.0.2, 
+Chapter 15 for the general description of conversion service and converter.
+While a concrete conversion service provides infrastructure for reading and
+writing to and from a particular persistency, the converters are responsible
+for converting a particular data type to and from persistency. 
+
+Each subdetector should have a Converter package that provides the converters
+for the raw data objects.  For example, for LAr, there is 
+LArCalorimeter/LArCnv/LArByteStream package, which provides converters for
+LArRawChannelCollection and LArRawChannelContainer.   RDOs are stored in 
+Collections, and the  Collections are accessed through  Container (subclass of 
+IdentifiableContainer<T>).  Both Collection and Container are Athena data 
+objects in the Transient Store.  For each sub-detector, there has to be a 
+converter for the Collection and a converter for the Container.
+
+The essential part of a converter is the two basic virtual methods:
+createObj(IOpaqueAddress*,  DataObject*&)
+createRep(DataObject*, IOpaqueAddress*& )
+ 
+The first one creates a DataObject from persistent information, captured in
+IOpaqueAddress, and the second is supposed to write the DataObject to 
+a persistent representation. 
+
+IOpaqueAddress is an interface class for passing persistent information
+in the conversion process.  Each persistency technology implements a concrete
+address class.  In this case, it is ByteStreamAddress. 
+ByteStreamAddress's baseclass contains a CLID, two 
+strings and two integers.   CLID is used by Gaudi service to call the 
+appropriate converter for the data class, while the other variables can be 
+used to carry information about this particular instance. 
+In addition, ByteStreamAddress class containers a vector of ROB identifiers. 
+These can be used to retrieve ROB data from ROBDataProviderSvc. 
+
+     The basic fragment of ByteStream is ROD fragment.  To help assemble 
+all the ROD fragments from all sub-detectors into a ByteStream, a helper class
+FullEventAssembler, is provided.   Given a list of ROD data, each associated 
+with a ROBID, the assembler class can put together an Event Fragment, 
+provided the mapping from ROBID to upper level ID is given through another 
+class ( a simple mapping class, SrcIdMap, is provided in ByteStreamCnvSvc 
+package, but it really depends how the RODIDs are defined) .
+
+--- Writing RDOs to ByteStream ( createRep method ) :
+
+     At end of an event, after all RDOs are created in transient store, 
+the conversion service will be called.  ByteStreamCnvSvc will first create
+a RawEvent instance, then all the converters will be called to fill 
+the RawEvent instance with all the ROD objects.  The RawEvent instance can be
+accessed by 'const RawEvent* ByteStreamCnvSvc::getRawEvent()' method. 
+
+    The converter for the Container should convert all the RDO data in the 
+Collections into ByteStream,  while the createRep method of the converter
+for the Collection need not be implemented, and should not be called.
+
+	The jobOptions for the OutputStream should be configured to 
+persistify only the Container (and not the Collection object) in 
+the transient store.
+
+--- Creating RDOs from ByteStream (createObj method ) 
+
+    The creation of RDOs has to follow the requirement that they should be
+created only on demand.    Therefore, the createObj method of the 
+Collection has to be implemented.
+
+  For reading the ByteStream data, there is a interface class 
+ByteStreamInputSvc, which defines the methods for getting the 
+RawEvent from a source.  The concrete service (ByteStreamFileInputSvc, 
+for example) is implemented for a specific data source(from a binary file, 
+in this case).  There could be  ByteStreamTranInputSvc, for example, to get 
+the ByteStream data from transient data store.
+
+   The current Athena requires each data input source to implement the 
+EventSelctor/EventIterator interface.  EventSelectorByteStream locates a 
+ByteStreamInputSvc using a service whose name is specified in the jobOptions.
+This way, EventSelectorByteStream does not have dependency on the concrete 
+service. EventSelectorByteStream::next() reads in the next event
+by calling ByteStreamInputSvc::nextEvent.  In 
+EventSelectorByteStream::reference(), an address object is created for 
+EventInfo, as required by the framework.   In addition, a set of 
+RawEventAddress objects will be created according to a predefined list. 
+See BS_TDSItems class. 
+These address objects will be registered in the StoreGate. 
+The list should contain the CLID and the name of the objects. 
+Most likely, these will include the top level container of the RDOs that we 
+have converters for, and know how to create out of the ByteStream.
+The address object created for the Container has no information other than
+the CLID and the name of the Container. 
+This hardwired list has to be expanded when a new detector is included.
+
+  When the container object is accessed through the transient store, 
+the container converter will  be called. It is the responsibility of the 
+container converter to create the entries in StoreGate for the collections.   
+The container converter should have access to map for 
+associating each  Collection with a set of ROBid.  With these ROBid, a  
+ByteStreamAddress  object can be created, and recorded in StoreGate. 
+In addition, we require the hash index for the Collection be stored in
+the ByteStreamAddress.  If each ROB is for a few collections, then you may 
+use other variables to indicate the sub-components in the ROB.  There are two
+integer and one string variables in IOpaqueAddress that we can use for that 
+purpose.  The string variable is used as the name of the object, and 
+the first int parameter is the hash index, and the second int parameter
+can be used to carry additional information. 
+
+	 For efficiency purpose, it is probably desirable to decode a ROB
+once, and create all the collections that corresponds to this ROB.  These 
+additional Collections created in the process  can be sent to StoreGate  
+with this method:   
+StoreGate::updateProxy(CLID, Key, DataObject*).   
+( We can not use the  regular StoreGate::record method because there is 
+already an entry made for this CLID/Key.... CHECK ....). 
+
+	The converter for the Collection should be a template class for 
+ROBDataProvider.  The converter class first gets the ROBids from 
+ByteStreamAddress, then using these ROBid, to get ROBData from 
+ROBDataProvider.    The ROBDataProvider is a template because
+the online and offline data source can be very different, and 
+ROBData class has different StorageType in online and offline context.
+
+	The templated converter class should be specialized with a concrete
+ROBDataProvider.  For example, RMS_ROBDataProviderSvc is provided in 
+ByteStreamCnvSvc package for offline.    The specialized converter class
+should have the appropriate Gaudi factory entries in a component shared 
+library.   The correspond specialized converter class should be made in 
+a similar, but separate, shared library.
+
+------  Converter implementation
+	
+	To separate infrastructure part of the conversion from the detector
+specific part, a template Collection  converter is provided in 
+ByteStreamCnvSvc package.  Detector software  developers are only required 
+to provide components for the conversion as defined below.  
+ 
+  template <typename RDP, class TOOL > 
+  class CollectionByteStreamCnv: public Converter {
+  // ... 
+  };
+  
+  RDP:   ROBDataProviderSvc.  The offline version is RMS_ROBDataProviderSvc
+	 in ByteStreamCnvSvc.  
+	 Requirements:
+	  1) Gaudi Service class.
+	  2) typedef for ROBFragment and ROBData
+	     (for example, 
+	       typedef EventFormat::RawMemory::ROBFragment ROBFragment ; 
+	       typedef EventFormat::RawMemory::ROBData< ROBFragment > ROBData; 
+	     )
+
+	  3) method for retrieve ROBData
+	      void getROBData(const std::vector<uint32_t>& ids,
+                                  std::vector<ROBData>& v) ; 
+
+	 This class is to be implemented for offline, L2, EF env. 
+	 Detetor software developers do not need to worry about that. 
+
+  TOOL:  An AlgTool class for converting ROBData into RDO Collection.
+         Requirements:
+	  1) template class for ROBData
+	     This class has to work with ROBData defined in offline and online.
+	  2) AlgTool subclass 
+	  3) typedef for COLLECTION 
+	      (for example: typedef LArRawChannelCollection COLLECTION; )
+	  4) a method for converting a vector of ROBData to a Collection.
+              StatusCode convert(VROBDATA& r, LArRawChannelCollection*& coll,
+			const int* i, MsgStream& log);
+	      ( int* i = the int parameters from IOpaqueAddress )
+
+
+   This scheme divides the Collector converter into a few components, and a 
+concrete converter is assembled when a factory entry for the Gaudi Converter 
+is  declared. 
+
+For example, in 
+LArByteStream/src/RMS/RMS_LArRawChannelCollByteStreamCnv_entries.cxx, 
+
+// ROBData defined in RMS_ROBDataProviderSvc
+typedef RMS_ROBDataProviderSvc::ROBData ROBData; 
+// Specialized TOOL 
+typedef LArRawChannelCollByteStreamTool<ROBData> LARTOOL; 
+DECLARE_TOOL_FACTORY( LARTOOL) ; 
+// specialized Collection Converter. 
+typedef CollectionByteStreamCnv<RMS_ROBDataProviderSvc, LARTOOL> 
+			       RMS_LArRawChannelCollByteStreamCnv ;
+
+DECLARE_CONVERTER_FACTORY( RMS_LArRawChannelCollByteStreamCnv );
+DECLARE_FACTORY_ENTRIES( RMS_LArByteStream) {
+    DECLARE_CONVERTER(RMS_LArRawChannelCollByteStreamCnv )
+}
+
+The cmt/requirements is set up in such a way that a separate shared library, 
+RMS_LArByteStream, is made for the Collection converter. 
+
+The HLT will provide different ROBDataProviderSvc.  For example, 
+LVL2 has L2ROBDataProviderSvc.   There will be correspoding _entries
+files for the Collection converter, separate shared library will be 
+created.
+
+	The converter for the Container has to be implemented in 
+each detector ByteStream converter package, although it is possible in
+the future we want to separate the converter into well defined
+components and have a common template converter class.  This will
+require common interface for mapping the Collection ID to the ROBID. 
+
+	In the meantime, we request the conversion from RDO container to 
+the ByteStream be implemented in a AlgTool class. 
+See LArByteStream/LArRawChannelContByteStrealTool.h for example. 
+The address object for each collection should be registered only once in
+createObj() method, with the following StoreGate method, 
+
+	p_storeGate->recordAddress(addr, false);
+
+The second variable (false) is to flag that this address object should
+not be deleted by StoreGate every event.
+     
+-----   Running Athena jobs
+
+      We expect each converter package to provide a jobOptions fragment, 
+WriteXyzBS_jobOptions.txt, where Xyz is LAr, SiTracker, etc. 
+A top level jobOptions is provided in ByteStreamCnvSvc, 
+
+WriteBS_jobOptions.txt 
+
+which configures the job, and #include converter jobOptions. 
+ 
+WriteXyzBS_jobOptions.txt should define how the RDOs are created, and 
+what needs to be written into ByteStream. 
+
+Here is the jobOptions from LArByteStream. 
+ 
+// define how the LArRawChannels are created. 
+// ... omitted. 
+ApplicationMgr.DLLs += {"LArByteStream", "RMS_LArByteStream" }  ;
+// Select types to be written
+StreamBS.Itemlist +={"2721#*"} ; 
+			  
+The CLID number (2721) is the CLID of the Container.  
+The RDOs are converted to ByteStream by the Container converters. 
+
+    This will produce a binary file RawEvent.re. 
+
+    Similarly, each converter package is supposed to supply another jobOptions
+ReadXyzBS_jobOptions.txt, to be used by ReadBS_jobOptions.txt to test
+reading the ByteStream back. 
+
+    Note that the job to write ByteStream file will exit with error if the 
+ByteStream file already exist.   Remove the file before running the job. 
+
+----- Example: 
+
+      A working example  is 
+
+LArCalorimeter/LArCnv/LArByteStream
+
+	It provides conversion of the LAr Raw Data Object, LArRawChannel, 
+defined in 
+
+LArCalorimeter/LArRawEvent
+
+	The ROD format produced by the current package reflects the
+current understanding of the ROD data format. The jobOptions for reading 
+and writing and be found in  the share directory of the package. 
+    
+----- Releases: 
+
+     ByteStreamCnvSvc, ByteStreamData and LArByteStream is released in 3.0.1, 
+with the old event format. 
+
+     The packages are modified to use the new eformat package in 
+release 4.2.0. 
+
+     In release 4.3.0, we use DataCollection release DC-00-01-00.  This 
+is, unfortunately, compiled on Redhat-7.2, while Athena is compiled on Redhat-6.2.
+The offline packages compile with this DC release OK, but there is a runtime error.
+A temporary fix can be made by defining a symlink in $CMTCONFIG directory of 
+your TestRelease,
+
+> ln -sf /usr/local/gcc-alt-2.95.2/lib/libstdc++-3-libc6.1-2-2.10.0.so \
+  ../$CMTCONFIG/libstdc++-libc6.2-2.so.3
+
+	In release 4.5.0 - 5.0.0, eformat is compiled on RH 6.1.  No
+special fix is needed. 
+
+	In release 5.0.0, there are converters from Tile, InDet, LAr. 
+
+	The runtime dependency (for using WriteBS_jobOptions.txt and 
+ReadBS_jobOptions.txt) is : 
+
+ use LArHitZebraCnv     LArHitZebraCnv-*        LArCalorimeter/LArCnv
+ use LArDigitization    LArDigitization-*       LArCalorimeter
+ use LArConditions      LArConditions-* LArCalorimeter
+ use LArROD             LArROD-*        LArCalorimeter
+ use LArSim             LArSim-*        LArCalorimeter
+ use LArByteStream      LArByteStream-* LArCalorimeter/LArCnv
+ use LArDetMgrDetDescrCnv LArDetMgrDetDescrCnv-* LArCalorimeter/LArCnv/
+
+ use CBNT_Athena        CBNT_Athena-*   Reconstruction
+ use TDRDetDescrAthenaRoot TDRDetDescrAthenaRoot-* DetectorDescription
+ use ByteStreamCnvSvc   ByteStreamCnvSvc-*      Event
+
+ use InDetMgrDetDescrCnv InDetMgrDetDescrCnv-* InnerDetector/InDetDetDescrCnv
+ use SiTrackerReadExample SiTrackerReadExample-* InnerDetector/InDetExample
+ use InDetRawDataByteStream InDetRawDataByteStream-* InnerDetector/InDetEventCnv
+ use SiTrackerTDR_Cnv   SiTrackerTDR_Cnv-* InnerDetector/InDetRawAlgs
+
+ use TileByteStream     TileByteStream-*        TileCalorimeter/TileSvc
+ use TileHitZebraCnv    TileHitZebraCnv-*       TileCalorimeter/TileSvc
+ use TileDetMgrDetDescrCnv TileDetMgrDetDescrCnv-* TileCalorimeter/TileSvc
+ use TileConditions     TileConditions-*        TileCalorimeter
+ use TileSimAlgs        TileSimAlgs-*   TileCalorimeter
+ use TileRecAlgs        TileRecAlgs-*   TileCalorimeter
+
+
+ use AthenaCommon       AthenaCommon-*  Control
+ apply_pattern install_xmls
+ apply_pattern install_runtime
+
+
+
+----------- Creating Prepared RDOs from Zebra input directly.  Jan ,2003
+
+     To allow the creation of prepared-RDOs from RDOs in one job, i.e,
+
+Zebra -> RDOs -> BS -> Prepared-RDOs
+
+A new  ByteStreamOutputSvc subclass is added, which allows ByteStreamCnvSvc 
+to send the output BS to ROBDataProvider.   So in the above sequence, BS is 
+held in the RMS_ROBDataProviderSvc.  In addition, the proxy for the
+prepared-RDOs are also made.
+
+   A new jobOption is made available in ByteStreamCnvSvc/share, 
+PRDO_BS_jobOptions.txt.  This is a top level jobOption that run the job 
+for the sequence above.  I.e., the input is ZEBRA, BS is created in memory 
+and stored in ROBDataProvider, and LArCells in IDC are created from BS.
+All done in the same job.
+
+
+---------- Splitting classes to  ByteStreamCnvSvcBase   Sept-1 2003
+
+1) ByteStreamCnvSvc package is now split into two package,
+ByteStreamCnvSvcBase and ByteStreamCnvSvc.   ByteStreamCnvSvcBase will
+only contain the classes needed by L2 in HLT, while ByteStreamCnvSvc
+still contains the rest for offline (and probably Event Filter) to read
+and write events.
+
+2) A new interface IRODBDataProviderSvc is defined in
+ByteStreamCnvSvcBase, as well as concrete implementation
+ROBDataProviderSvc.   Currently, the HLT and offline shares the same
+implementation, although they are allowed to diverge in the future if
+necessary.  This is made possible because we now use the common eformat
+fragment types for HLT and offline.
+
+RMS_ROBDataProviderSvc is removed from ByteStreamCnvSvc.
+
+3) The collection converter used to have two template parameters, RDP
+and TOOL, now it should only have one template parameter for TOOL.
+The AlgTool for the collection conversion has been a template class with
+ROBData as a template parameter.  This still works, as ROBData is still
+defined in ByteStreamData package. ROBData is still used in the
+interface between the CollectioCnv and the CollectionTool.  It is, 
+however, not required to implement the CollectionTool as a template 
+class.  It can use explicitly the ROBdata class.
+
+

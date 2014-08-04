@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="TestByteStreamEvent" type="makecheck" suite="Examples">
+      <timelimit>10</timelimit>
+      <author>Peter Van Gemmeren</author>
+      <mailto>Peter.van.Gemmeren@cern.ch</mailto>
+      <expectations>
+         <errorMessage> FAILURE</errorMessage>
+         <errorMessage> ERROR</errorMessage>
+         <successMessage> check ok</successMessage>   
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
