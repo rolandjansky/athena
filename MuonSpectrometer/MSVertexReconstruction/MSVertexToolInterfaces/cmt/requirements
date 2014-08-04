@@ -1,0 +1,11 @@
+package MSVertexToolInterfaces
+
+author Daniel Ventura <ventura@cern.ch>
+
+# ============================================================================================
+public
+
+use AtlasPolicy			AtlasPolicy-*
+use GaudiInterface		GaudiInterface-*		External
+use MSVertexUtils		MSVertexUtils-*			MuonSpectrometer/MSVertexReconstruction
+
