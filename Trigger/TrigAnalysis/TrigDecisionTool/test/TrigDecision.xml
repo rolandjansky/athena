@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="TrigDecisionToolTest" type="makecheck" suite="trigger">
+      <package>Trigger/TrigEvent/TrigNavigation</package>
+      <timelimit>5</timelimit>
+      <author> Tomasz Bold </author>
+      <mailto> Tomasz.Bold@cern.ch</mailto>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>

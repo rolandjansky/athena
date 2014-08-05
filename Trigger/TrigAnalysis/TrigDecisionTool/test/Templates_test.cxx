@@ -1,0 +1,124 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "iostream"
+#include "vector"
+
+#include "TrigNavigation/NavigationInit.h"
+
+//#include "TestTools/initGaudi.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "DataModel/DataVector.h"
+#include "GaudiKernel/ClassID.h"
+
+
+#include "AnalysisTriggerEvent/Muon_ROI.h"
+#include "AnalysisTriggerEvent/EmTau_ROI.h"
+#include "AnalysisTriggerEvent/Jet_ROI.h"
+#include "AnalysisTriggerEvent/JetET_ROI.h"
+#include "AnalysisTriggerEvent/EnergySum_ROI.h"
+#include "AnalysisTriggerEvent/LVL1_ROI.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigMuonEvent/MuonFeature.h"
+#include "TrigMuonEvent/TrigMuonEFContainer.h"
+
+
+
+#include "TrigDecisionTool/TrigDecisionTool.h"
+//#include "TrigDecisionTool/DecisionAccess.h"
+#include "CxxUtils/unused.h"
+
+using namespace std;
+
+class TrigInDetTrack {
+public:
+  TrigInDetTrack(int arg){a = arg;}
+  ~TrigInDetTrack() { std::cerr << " deleting Track: "<< a << std::endl; }
+  int a;
+};
+
+CLASS_DEF(TrigInDetTrack, 6421, 1)
+
+class TrigInDetTrackCollection : public DataVector<TrigInDetTrack>{};
+CLASS_DEF(TrigInDetTrackCollection, 64210, 1)
+
+class TrigCaloCluster {
+public:
+  TrigCaloCluster(int arg){a = arg;}
+  ~TrigCaloCluster() { std::cerr << " deleting Cluster: "<< a << std::endl; }
+  int a;
+};
+
+class TrigCaloClusterContainer : public DataVector<TrigCaloCluster>{};
+
+CLASS_DEF(TrigCaloCluster, 6422, 1)
+CLASS_DEF(TrigCaloClusterContainer, 64220, 1)
+
+
+void  nevercalled() {
+  HLT::RegisterType<TrigCaloCluster,TrigCaloClusterContainer>::instan();
+  HLT::RegisterType<TrigInDetTrack,TrigInDetTrackCollection>::instan();
+}
+
+
+using namespace Trig;
+void testFeatureGroup() {
+  TrigDecisionTool* tdt(0);
+  FeatureContainer f = tdt->features("EF_mu6");
+
+  vector< Feature<TrigInDetTrack> >   tracks = f.get<TrigInDetTrack>();
+  vector< Feature<TrigCaloCluster> > clusters = f.get<TrigCaloCluster>();
+  
+  std::vector<Trig::Combination>::const_iterator fIt;
+
+  for ( fIt = f.getCombinations().begin(); fIt != f.getCombinations().end(); ++fIt ) {
+    vector< Feature<TrigCaloCluster> > cCont = fIt->get<TrigCaloCluster>();
+    const TrigCaloCluster* UNUSED(cluster) = 0;
+    if (!cCont.empty())
+      cluster = cCont[0];
+    
+    vector< Feature<TrigInDetTrack> > tCont = fIt->get<TrigInDetTrack>();
+    const TrigInDetTrack* UNUSED(track) = 0;
+    if ( !tCont.empty() ) 
+      track = tCont[0];
+    
+    Feature<TrigCaloCluster> matchingCl = tdt->ancestor<TrigCaloCluster>(tCont[0].te());
+    if (!matchingCl.empty()) {}
+
+    tdt->ancestor<Muon_ROI>(tCont[0].te());
+    tdt->ancestor<Jet_ROI>(tCont[0].te());
+    tdt->ancestor<EmTau_ROI>(tCont[0].te());
+
+    Feature<TrigCaloCluster> a;
+    Feature<TrigCaloCluster> b;
+    sameObject(a, b);
+  }
+}
+
+void testFeatureLink() {
+  TrigDecisionTool* tdt(0);
+  TrigFeatureLink fl;
+  tdt->featureLink2Object<TrigRoiDescriptor>(fl);
+  tdt->featureLink2ElementLink<TrigRoiDescriptor>(fl);
+
+  tdt->featureLink2Object<MuonFeature>(fl);
+  tdt->featureLink2ElementLink<MuonFeature>(fl);
+  tdt->featureLink2Object<TrigMuonEF>(fl);
+  tdt->featureLink2ElementLink<TrigMuonEF>(fl);
+
+}
+
+
+/**/
+//////////////////////////////////////////////////////////////////
+
+
+
+int main() {  
+  //  FeatureGroupUTest fg_test;
+  //  fg_test.testIterate();
+  std::cout << "done" << std::endl;
+  return 0;
+}

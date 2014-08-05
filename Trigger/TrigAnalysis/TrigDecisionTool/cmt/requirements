@@ -1,0 +1,74 @@
+package TrigDecisionTool
+author Michael Begel <Michael.Begel@cern.ch>
+author Nicolas Berger <Nicolas.Berger@cern.ch>
+author Tomasz Bold <Tomasz.Bold@cern.ch>
+author Joerg Stelzer <Joerg.Stelzer@cern.ch>
+
+use  AtlasPolicy                AtlasPolicy-*
+
+public
+use  DataModel                  DataModel-*                     Control
+use  GaudiInterface             GaudiInterface-*                External
+use  TrigDecisionEvent          TrigDecisionEvent-*             Trigger/TrigEvent
+use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
+use  AtlasBoost                 AtlasBoost-*                    External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  StoreGate                  StoreGate-*                     Control
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
+use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
+use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
+use  AnalysisTriggerEvent       AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
+use  xAODTrigger		xAODTrigger-*			Event/xAOD
+
+use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
+
+end_public
+
+private
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AthenaBaseComps		AthenaBaseComps-*		Control
+use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+#use  EventInfo                  EventInfo-*                     Event  
+use  CxxUtils                   CxxUtils-*                      Control
+# for the test suites
+use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+
+
+end_private
+
+# Build a dual-use library:
+apply_pattern dual_use_library files=*.cxx
+
+private 
+
+# 
+apply_pattern declare_scripts files="checkTriggerEDM.py checkTriggerProcessingErrors.py -s=$(PyUtils_root)/share"
+
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+apply_pattern   lcgdict     dict=TrigDecisionTool \
+                            selectionfile=selection.xml \
+                            headerfiles="../TrigDecisionTool/TrigDecisionToolDict.h"
+
+use TestTools      TestTools-*         AtlasTest
+
+# this can be used to test if templated code compiles ... but it is not easy to setup running env for it to realy complete
+apply_pattern UnitTest_run unit_test=Templates extrapatterns=".*" 
+#apply_pattern UnitTest_run unit_test=ChainGroup extrapatterns=".*" 
+
+macro TrigDecisionTool_extralibs "-lPyROOT"
+macro_append TrigDecisionToolLiblinkopts " $(TrigDecisionTool_extralibs) "
+macro_append TrigDecisionToolLib_shlibflags " $(TrigDecisionTool_extralibs) "
+
+end_private
+
+apply_pattern declare_python_modules files="*.py"
