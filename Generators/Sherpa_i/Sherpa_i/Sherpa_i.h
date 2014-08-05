@@ -12,8 +12,6 @@
 
 namespace SHERPA {
   class Sherpa;
-  class HepMC2_Interface;
-  class Output_Base;
 }
 
 namespace HepMC {
@@ -31,8 +29,7 @@ public:
 
 protected:
   
-  SHERPA::Sherpa * p_generator;
-  SHERPA::HepMC2_Interface * p_hepmc2_i;
+  SHERPA::Sherpa * p_sherpa;
 
   std::string m_path;
   std::vector<std::string> m_params;
