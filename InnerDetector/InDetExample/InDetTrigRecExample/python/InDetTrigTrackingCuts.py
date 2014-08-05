@@ -136,6 +136,7 @@ class InDetTrigTrackingCuts :
     # --- now start tighening cuts level by level
     # --------------------------------------
     #
+    mxlevel = 11
     if self.__indetflags.cutLevel() >= 2:
       # --- cutLevel() == 3, defaults for 2011 first processing
       self.__minPT                     = 0.4 * Units.GeV
@@ -188,8 +189,8 @@ class InDetTrigTrackingCuts :
     if self.__indetflags.cutLevel() >= 10:
       self.__doZBoundary              = True
 
-    if self.__indetflags.cutLevel() >= 11:
-      print 'InDetTrigTrackingCuts WARNING unimplemented cutLevel ', self.__indetflags.cutLevel() 
+    if self.__indetflags.cutLevel() >= mxlevel:
+      print 'InDetTrigTrackingCuts INFO using cutLevel %d/%d' % (mxlevel,self.__indetflags.cutLevel())
 
     # --- SLHC setup
     if mode == "SLHC":
