@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="6A842473-7252-DB11-8D7B-000E0C4D38D6">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/atlas/conditions/poolcond/stat0/tbcond.000004.conditions.recon.pool.v0000/tbcond.000004.conditions.recon.pool.v0000._0001.pool.root"/>
+    </physical>
+    <logical>
+           <lfn name="tbcond.000004.conditions.recon.pool.v0000._0001.pool.root"/>
+    </logical>
+  </File>
+
+  <File ID="94B41321-195A-DB11-88FF-000E0C4D397B">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/atlas/conditions/poolcond/stat0/tbcond.000004.conditions.recon.pool.v0000/tbcond.000004.conditions.recon.pool.v0000._0002.pool.root"/>
+    </physical>
+    <logical>
+           <lfn name="tbcond.000004.conditions.recon.pool.v0000._0002.pool.root"/>
+    </logical>
+  </File>
+
+  <File ID="AEB06F46-C25F-DB11-96A1-000E0C4DE4B0">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/atlas/conditions/poolcond/stat0/tbcond.000004.conditions.recon.pool.v0000/tbcond.000004.conditions.recon.pool.v0000._0003.pool.root"/>
+    </physical>
+    <logical>
+           <lfn name="tbcond.000004.conditions.recon.pool.v0000._0003.pool.root"/>
+    </logical>
+  </File>
+
+  <File ID="AE6CE616-925F-DB11-93D3-000E0C4DE4B0">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/atlas/conditions/poolcond/stat0/tbcond.000004.conditions.recon.pool.v0000/tbcond.000004.conditions.recon.pool.v0000._0004.pool.root"/>
+    </physical>
+    <logical>
+           <lfn name="tbcond.000004.conditions.recon.pool.v0000._0004.pool.root"/>
+    </logical>
+  </File>
+
+  <File ID="DA0BC8DD-046A-DB11-8A93-000E0C4D4295">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/atlas/conditions/poolcond/stat0/tbcond.000004.conditions.recon.pool.v0000/tbcond.000004.conditions.recon.pool.v0000._0005.pool.root"/>
+    </physical>
+    <logical>
+           <lfn name="tbcond.000004.conditions.recon.pool.v0000._0005.pool.root"/>
+    </logical>
+  </File>
+
+  <File ID="5AF2EF3F-C8A5-DC11-9609-001125293114">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/ipp-garching.mpg.de/home/s/smenke/public/EMFrac_classify_normalized_to_e_20071208_RZG.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="B0273A4F-D4A5-DC11-9823-001125293114">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/ipp-garching.mpg.de/home/s/smenke/public/H1ClusterCellWeights_20071208_RZG.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="E4C89255-C8A5-DC11-8A95-001125293114">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/ipp-garching.mpg.de/home/s/smenke/public/OOC_correction_Pi0_20071208_RZG.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="B0041F26-B6A8-DC11-873B-001125293114">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/ipp-garching.mpg.de/home/g/gdp/public/HadDMCoeff2/HadDMCoeff2_11122007.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+    <File ID="424D676B-C9A5-DC11-9A19-001125293114">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/ipp-garching.mpg.de/home/s/smenke/public/OOC_correction_Pi+-_20071208_RZG.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

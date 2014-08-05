@@ -1,0 +1,12 @@
+TBPlaneTrackingAlgo.CalibFileName = "BPCAlignment_2003TB.txt"
+TBPlaneTrackingAlgo.BPCnames =  ["BPC0","BPC1","BPC2","BPC3","BPC4","BPC5"]
+TBPlaneTrackingAlgo.BPCposX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCposY = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCposZX = [ 0, 177, 11076, 11219, 27645, 27745]
+TBPlaneTrackingAlgo.BPCposZY = [31, 208, 11154, 11294, 27676, 27776]
+TBPlaneTrackingAlgo.BPCerrposX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrposY = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrposZX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrposZY = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrmeasX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrmeasY = [0.,0.,0.,0.,0.,0.]
