@@ -1,0 +1,86 @@
+PhotonIDTool REAME - Last update: 2011-01-21, Marco Delmastro
+
+The PhotonIDTool class emulates the EGamma isEM menus for photons.
+The code relies on the PtEtaCollection class, and works both as ROOT
+CINT macros and compiled code. An example on how to use it with a PAU
+ntuple is contained in the PAUisEMPerf.C root macro. 
+
+The instances of the PhotonIDTool class are initialized with the
+calorimetric discriminating variable values, as well as as with the
+photon candidate eta in the calorimeter second layer ("eta2"), its
+cluster p_T, and The conversion flag. The default constructor uses the
+base EGamma variables:
+
+  PhotonIDTool( double pt     ,
+                double eta2   ,
+                double ethad1 ,
+                double ethad  ,
+                double e277   ,
+                double e237   ,
+                double e233   ,
+                double weta2  ,
+                double f1     ,
+                double emax   ,
+                double emax2  ,
+                double emin2  ,
+                double fracm  ,
+                double wtot   ,
+                double w1     ,
+                int conv      );
+
+An alternative constructor is provided, initializing on the derived
+EGamma variables that are used in the selection:
+
+  PhotonIDTool( double pt     ,
+		double eta2   ,
+		double rhad1  ,
+		double rhad   ,
+		double e277   ,
+		double reta   ,
+		double rphi   ,
+		double weta2  ,
+		double f1     ,
+		double fside  ,
+		double wtot   ,
+		double w1     ,
+		double deltae ,
+		double eratio ,
+		int conv      );
+
+Both give the very same results, provided that you properly compute
+the derived variables in your code: see the PAUisEM.C sample for a
+example about how to do it. The second constructor is probably more
+suited to apply fudge factors to the derived discriminating variables.
+
+PhotonIDTool implements several isEM menus, plus a series of
+undocumented features that you may try to discover by yourself, or ask
+me about. What you will mostly care about are the following methods:
+
+bool PhotonIDTool::PhotonCutsLoose(int tune); // LOOSE cuts (several menus)
+
+     tune = 1 -> Rel 15 default loose menu
+     tune = 2 -> Loose menu optimized for 2010 data analysis (full eta range)
+     tune = 3 -> Loose menu optimized for 2011 data analysis (full eta range)
+
+bool PhotonIDTool::Photoncutstight(int tune); // TIGHT cuts (several menus)
+
+     tune = 0 -> "Leysin" tight menu
+     tune = 1 -> Rel 15 default tight  menu 
+     tune = 3 -> First "robust" tight menu (relax cuts on Reta and weta2, used for 880 nb-1 inclusive photon analysis)
+     tune = 4 -> "Robust" tight menu optimized for 2010 data analysis (full eta range)
+     tune = 5 -> "Robust" tight menu optimized for 2010 data analysis, including fix on Ws3 cuts (Rel 16)
+     tune = 6 -> "Robust" tight menu optimized for 2011 data analysis
+
+unsigned int PhotonIDTool::isEM(int tuneloose, int tunetight); // isEM bitmask (LOOSE and TIGHT bits)
+
+     Use the 'tuneloose' and'tunetight' listed above. Note that not
+     all the loose and tight menus are compatible. Typical
+     combinations are:
+
+     PhotonIDTool::isEM(1,1); // Rel 15 default isEM
+     PhotonIDTool::isEM(1,3); // Rel 15 default isEM using first "robust" tight menu
+     PhotonIDTool::isEM(2,4); // Optimized isEM for 2010 data analysis (full eta range)
+     PhotonIDTool::isEM(2,5); // Optimized isEM for 2010 data analysis (full eta range, to be used on Rel 16)
+     PhotonIDTool::isEM(3,6); // Optimized isEM for 2011 data analysis, to be used on 2010 data in case ones want to mix 2010 and 2011 samples
+
+Have fun, M.

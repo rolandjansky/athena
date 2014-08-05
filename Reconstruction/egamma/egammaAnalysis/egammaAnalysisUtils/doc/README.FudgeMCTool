@@ -1,0 +1,95 @@
+FudgeMCTool README - Last update: 2012-05-30, Leonardo Carminati (leonardo.carminati@cern.ch)
+
+
+The FudgeMCTool class provides a collection of so-called Fudge Factors (FF) for several pre-selection of showers in DATA and MC.
+For a given collection, a new set of 'fudged' ID shapes can be retrieved in order to estimate ID efficiencies and systematics. 
+
+The code relies on the PtEtaCollection class, and works both as ROOT
+CINT macros and compiled code. An example on how to use it with a PAU
+ntuple is contained in the PAUEffFF.C root macro. 
+
+The instances of the PhotonIDTool class are initialized with the
+calorimetric discriminating variables, the photon candidate eta in the calorimeter second layer ("eta2"), its
+cluster p_T, and the conversion flag. 
+
+A collection of FF sets is available, corresponding to different preselections that have been applied to both Data and MC to 
+extract the FFs (<Data>-<MC>).
+
+They can be set calling 
+
+FudgeMCTool::SetPreselection ( int ps )
+
+where    ps = 0 : RobustTight  + isolation   ( DEFAULT. New ID menu (tune tight 5 in PhotonIDTool). 		                rel16 Data period I , MC10 JF17,35,70,140,240 )
+	 ps = 1 : RobustLoose  + isolation   ( New ID menu (tune loose 3 in PhotonIDTool).                                      rel16 Data period I , MC10 JF17,35,70,140,240 )
+	 ps = 2 : RobustTightX + isolation   ( New ID menu (tune tight 5 in PhotonIDTool - varX).                               rel16 Data period I , MC10 JF17,35,70,140,240 )	
+	 ps = 3 : RobustTightY + isolation   ( New ID menu (tune tight 5 in PhotonIDTool - varX -varY(highly correlated to X)). rel16 Data period I , MC10 JF17,35,70,140,240 )
+
+	 ps = 4 : RobustTight  + isolation   ( New ID menu (tune 5 in PhotonIDTool)).      rel16 Data period I , MC10 GEO-16-11-00 JF17,35,70,140,240 . For material systematics)
+	 
+	 ps = 5 : RobustTight  + isolation   ( FF from 2011 data . New ID menu (tune 6 in PhotonIDTool))
+
+	 ps = 6 : RobustTight                ( FF from 2011 data . New ID menu (tune 6 in PhotonIDTool). No Isolation applied.)
+
+	 ps = 10: RobustTight + isolation    ( 'Old' ID menu (tune 3 in PhotonIDTool).                                          rel15 Data period A-E3 , MC09 JF17,35,70      )	
+
+
+- The most important method for everyone is probably:
+
+void FudgeMCTool::FudgeShowers( double  pt     ,
+			   double  eta2   ,
+			   double& rhad1  ,
+			   double& rhad   ,
+			   double& e277   ,
+			   double& reta   ,
+			   double& rphi   ,
+			   double& weta2  ,
+			   double& f1     ,
+			   double& fside  ,
+			   double& wtot   ,
+			   double& w1     ,
+			   double& deltae ,
+			   double& eratio ,
+			   int     isConv ,
+			   int     preselection = -999);
+
+which returns the new showers after applying the FFs (depending on pt, eta2, isConv and preselection (0 by default)). 
+NOTE: It follows the 'alternative' constructor of PhotonIDTool.
+
+Please check PAUEffFF.C macro for an example of how to use it (OBS: you need also PhotonIDTool for this to run).
+
+- A given FF value is accesible via  
+
+ double GetFF_Rhad1 (...) 
+ ...
+ double GetFF_W1(...)
+
+methods. 
+
+
+- A single variable can also be shifted via
+
+ double Fudge_Rhad1 (double rhad1, ... )
+ ...
+ double Fudge_W1 (double rhad1, ... )
+
+methods.
+
+- (NEW) It is now possible to get a TGraphErrors with all FFs vs Pt for a given variables and eta region  [i presume it can be useful for people trying some extrapolation (i.e. at high Et)]. 
+
+  TGraphErrors* GetFFmap_Rhad1(double eta, int isConv, int preselection )
+  ...
+  TGraphErrors* GetFFmap_Eratio(double eta, int isConv, int preselection )
+
+  **** Call it without arguments to use the current configuration.  
+
+
+Other features are available/will come soon...
+
+Please take a look and let me know if you find some problems/have suggestions of any kind. 
+
+Enjoy it, Martin
+
+
+* tune 13 a brief description : tune 13 has been extracted comparing data12
+in period A with MC12 JFXX samples after pileup re-weighing. The chi2 method has 
+been used instead of the simple mean shift as it looks more robust.  

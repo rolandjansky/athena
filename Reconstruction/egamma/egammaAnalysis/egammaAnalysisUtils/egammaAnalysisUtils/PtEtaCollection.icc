@@ -1,0 +1,115 @@
+//Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include <math.h>
+
+template <class T>
+inline
+PtEtaCollection<T>::PtEtaCollection()
+ : m_PtBins(0),
+   m_EtaBins(0),
+   m_PtArray(0),
+   m_EtaArray(0),   
+   m_PayloadArray(0),
+   m_DefaultPayload(0)
+{} 
+
+
+template <class T>
+inline
+PtEtaCollection<T>::PtEtaCollection(unsigned int PtBins, 
+				    unsigned int EtaBins, 
+				    double PtArray[], 
+				    double EtaArray[], 
+				    T* PayloadArray,
+				    T DefaultPayload)
+  : m_PtBins(PtBins),
+    m_EtaBins(EtaBins),
+    m_PtArray(PtArray),
+    m_EtaArray(EtaArray),   
+    m_PayloadArray(PayloadArray),
+    m_DefaultPayload(DefaultPayload)
+{}
+
+template <class T>
+inline
+PtEtaCollection<T>::~PtEtaCollection()
+{}
+
+template <class T>
+inline
+void PtEtaCollection<T>::Initialize(unsigned int PtBins, 
+				    unsigned int EtaBins, 
+				    double PtArray[],		    
+				    double EtaArray[], 
+				    T* PayloadArray,
+				    T DefaultPayload)			       
+{
+  m_PtBins   = PtBins;
+  m_EtaBins  = EtaBins;
+  m_PtArray  = PtArray;
+  m_EtaArray = EtaArray;
+  m_PayloadArray = PayloadArray;
+  m_DefaultPayload = DefaultPayload;
+}
+
+template <class T>
+inline
+int PtEtaCollection<T>::PtBin(double Pt)
+{
+  for (unsigned i=0;i<m_PtBins;++i) {
+    double PtMin = 0.;
+    if (i) PtMin = m_PtArray[i-1];
+    double PtMax = m_PtArray[i];
+    if ( PtMin <= Pt && Pt < PtMax ) 
+      return i;
+  }
+  return -1;
+}
+
+template <class T>
+inline
+int PtEtaCollection<T>::EtaBin(double Eta)
+{
+  Eta = fabs(Eta);
+  for (unsigned i=0;i<m_EtaBins;++i) {
+    double EtaMin = 0.;
+    if (i) EtaMin = m_EtaArray[i-1];
+    double EtaMax = m_EtaArray[i];    
+    if ( EtaMin <= Eta && Eta < EtaMax ) 
+      return i;
+  }
+  return -1;
+}
+
+template <class T> 
+inline
+T PtEtaCollection<T>::Get(double pt, double eta) 
+{
+  int iPtBin  = PtBin(pt);
+  int iEtaBin = EtaBin(eta);
+  if ( iPtBin >=0 && iEtaBin >=0 ) {    
+    unsigned index = iPtBin*(m_EtaBins)+iEtaBin;
+    return m_PayloadArray[index];  
+  } else {    
+    return m_DefaultPayload;
+  }
+}
+
+template <class T> 
+inline
+void PtEtaCollection<T>::Set(double pt, double eta, T Payload) 
+{
+  int iPtBin  = PtBin(pt);
+  int iEtaBin = EtaBin(eta);
+  if ( iPtBin >=0 && iEtaBin >=0 ) {
+    unsigned index = iPtBin*(m_EtaBins)+iEtaBin;    
+    m_PayloadArray[index] = Payload;
+    return;
+  } 
+  return;
+}

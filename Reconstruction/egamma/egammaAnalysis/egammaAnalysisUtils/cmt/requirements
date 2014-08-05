@@ -1,0 +1,33 @@
+
+#################################################
+package egammaAnalysisUtils
+
+author Olivier Arnaez <olivier.arnaez@gmail.com>
+author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+
+use AtlasPolicy                AtlasPolicy-*     
+use AtlasROOT                  AtlasROOT-*              External
+
+
+# Create stand-alone test applications:
+
+apply_pattern installed_library
+              library egammaAnalysisUtils "../Root/*.cxx ../src/*.cxx"
+
+apply_pattern declare_runtime files="-s=../share *.root *.xml"
+
+private
+macro_append rootBasicLibs " -lTMVA "  
+apply_tag  ROOTMathLibs
+apply_tag  ROOTRooFitLibs
+
+use PathResolver               PathResolver-*           Tools
+use AtlasReflex                AtlasReflex-*         External -no_auto_import
+
+apply_pattern declare_calib files="../share/*.root" 
+apply_pattern lcgdict dict=egammaAnalysisUtils \
+              selectionfile=selection.xml \
+              headerfiles="../egammaAnalysisUtils/egammaAnalysisUtilsDict.h"
+
+end_private
+#################################################
