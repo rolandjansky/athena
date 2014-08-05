@@ -1,0 +1,82 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file egammaD3PDAnalysis/src/egammaRedoOQAlg.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2010
+ * @brief Recalculate OQ flags for Electron objects.
+ *        This is a template class, and can't be used directly as an Algorithm.
+ *        Derive a non-templated class from this to actually use.
+ */
+
+
+#include "AthenaKernel/errorcheck.h"
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi algorithm constructor.
+ * @param name The algorithm name.
+ * @param svcloc The service locator.
+ */
+template <typename CONT, typename AUXSTORE>
+egammaRedoOQAlg<CONT, AUXSTORE>::egammaRedoOQAlg (const std::string& name,
+                                                  ISvcLocator* svcloc)
+  : egammaRedoOQAlgBase (name, svcloc),
+    m_outlist (0),
+    m_auxstore (0)
+{
+}
+
+
+/**
+ * @brief Create the container if we haven't done so yet.
+ */
+template <typename CONT, typename AUXSTORE>
+void egammaRedoOQAlg<CONT, AUXSTORE>::checkCont()
+{
+  if (!m_outlist) {
+    m_outlist = new CONT;
+    m_auxstore = new AUXSTORE;
+    m_outlist->setStore (m_auxstore);
+  }
+}
+
+
+/**
+ * @brief Clone EG and add it to the output list.
+ */
+template <typename CONT, typename AUXSTORE>
+xAOD::Egamma* egammaRedoOQAlg<CONT, AUXSTORE>::cloneEG (const xAOD::Egamma* eg)
+{
+  Element* elt = new Element;
+  checkCont();
+  m_outlist->push_back (elt);
+  *elt = *static_cast<const Element*>(eg);
+  return elt;
+}
+
+
+/**
+ * @brief Store the output list in SG.
+ */
+template <typename CONT, typename AUXSTORE>
+StatusCode egammaRedoOQAlg<CONT, AUXSTORE>::commit ()
+{
+  checkCont();
+
+  CHECK( evtStore()->record (m_outlist, m_outputkey) );
+  CHECK( evtStore()->record (m_auxstore, m_outputkey + "Aux.") );
+  
+  m_outlist = 0;
+  m_auxstore = 0;
+  return StatusCode::SUCCESS;
+}
+
+
+} // namespace D3PD
