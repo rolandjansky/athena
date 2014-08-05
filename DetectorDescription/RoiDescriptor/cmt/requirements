@@ -1,0 +1,14 @@
+package RoiDescriptor
+
+author M Sutton <sutt@cern.ch> 
+
+use AtlasPolicy       AtlasPolicy-*
+use IRegionSelector   IRegionSelector-*  DetectorDescription  
+# use GaudiInterface  GaudiInterface-*   External
+
+
+library RoiDescriptor RoiDescriptor.cxx
+apply_pattern installed_library 
+
+
+
