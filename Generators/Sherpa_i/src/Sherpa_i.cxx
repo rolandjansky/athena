@@ -10,18 +10,8 @@
 
 //needed from Sherpa EvtGenerator
 #include "SHERPA/Main/Sherpa.H"
-#include "SHERPA/Tools/HepMC2_Interface.H"
-#include "SHERPA/Single_Events/Event_Handler.H"
-#include "SHERPA/Initialization/Initialization_Handler.H"
-#include "SHERPA/PerturbativePhysics/Matrix_Element_Handler.H"
-#include "PDF/Main/ISR_Handler.H"
-#include "ATOOLS/Phys/Blob_List.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
-#include "ATOOLS/Org/MyStrStream.H"
-#include "ATOOLS/Org/CXXFLAGS.H"
-#include "SHERPA/Tools/Output_Base.H"
-#include "SHERPA/Tools/Output_Sherpa.H"
 
 #include <cstdio>
 #include <cstring>
@@ -31,13 +21,11 @@
 CLHEP::HepRandomEngine* p_rndEngine;
 
 Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator) 
-  : GenModule(name, pSvcLocator),
-    p_generator(NULL), p_hepmc2_i(NULL)
+  : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
   declareProperty("RunPath", m_path = ".");
   declareProperty("Parameters", m_params);
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
-  declareProperty("ResetWeight", m_resetweight=1);
 }
 
 
@@ -51,8 +39,7 @@ StatusCode Sherpa_i::genInitialize(){
   long int si2 = sip[1];
   atRndmGenSvc().CreateStream(si1, si2, "SHERPA");
 
-  p_generator = new SHERPA::Sherpa();
-  p_hepmc2_i = new SHERPA::HepMC2_Interface();
+  p_sherpa = new SHERPA::Sherpa();
 
 
   /***
@@ -72,12 +59,12 @@ StatusCode Sherpa_i::genInitialize(){
     int argc;
     char** argv;
     getParameters(argc, argv);
-    p_generator->InitializeTheRun(argc,(char **)argv);
+    p_sherpa->InitializeTheRun(argc,(char **)argv);
     delete [] argv;
   }
   catch (ATOOLS::Exception exception) {
     if (exception.Class()=="Amegic" && exception.Type()==ATOOLS::ex::normal_exit) {
-      delete p_generator;
+      delete p_sherpa;
 
       ATH_MSG_INFO("Have to compile Amegic libraries");
       std::string tmp="cd "+m_path+"; ./makelibs && cd -;";
@@ -93,8 +80,8 @@ StatusCode Sherpa_i::genInitialize(){
       int argc;
       char** argv;
       getParameters(argc, argv);
-      p_generator = new SHERPA::Sherpa();
-      p_generator->InitializeTheRun(argc,(char **)argv);
+      p_sherpa = new SHERPA::Sherpa();
+      p_sherpa->InitializeTheRun(argc,(char **)argv);
       delete [] argv;
     }
     else {
@@ -107,7 +94,7 @@ StatusCode Sherpa_i::genInitialize(){
     ATH_MSG_ERROR("std::exception caught.");
     return StatusCode::FAILURE;
   }
-  p_generator->InitializeTheEventHandler();
+  p_sherpa->InitializeTheEventHandler();
 
   return StatusCode::SUCCESS;
 }
@@ -116,12 +103,9 @@ StatusCode Sherpa_i::genInitialize(){
 StatusCode Sherpa_i::callGenerator() {
   ATH_MSG_DEBUG("Sherpa_i in callGenerator()");
 
-  p_generator->GenerateOneEvent();
+  p_sherpa->GenerateOneEvent();
   
-  if (ATOOLS::rpa->gen.NumberOfGeneratedEvents()%10000==0) {
-    ATH_MSG_WARNING("Passed "<<ATOOLS::rpa->gen.NumberOfGeneratedEvents()<<" events.");
-  }
-  else if (ATOOLS::rpa->gen.NumberOfGeneratedEvents()%1000==0) {
+  if (ATOOLS::rpa->gen.NumberOfGeneratedEvents()%1000==0) {
     ATH_MSG_INFO("Passed "<<ATOOLS::rpa->gen.NumberOfGeneratedEvents()<<" events.");
   }
 
@@ -131,35 +115,10 @@ StatusCode Sherpa_i::callGenerator() {
 StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
   ATH_MSG_DEBUG( "Sherpa_i Filling event");
 
-  // Fill event from Sherpa
-  ATOOLS::Blob_List* blobs=p_generator->GetEventHandler()->GetBlobs();
-
-  double weight = blobs->Weight();
-  // if evgen mode is unweighted, then set the weight to
-  // 1.0(/enhancefactor if present) to avoid confusion with the weights
-  // being constant but != 1.0
-  SHERPA::Matrix_Element_Handler* meh=p_generator->GetInitHandler()->GetMatrixElementHandler();
-  if (meh->EventGenerationMode()==1 && m_resetweight) {
-    if (weight>0.0) weight=1.0;
-    else weight=-1.0;
-    ATOOLS::Blob* signal=blobs->FindFirst(ATOOLS::btp::Signal_Process);
-    if (signal) {
-      ATOOLS::Blob_Data_Base* data = (*signal)["Enhance"];
-      if (data) {
-        weight /= data->Get<double>();
-      }
-      else ATH_MSG_WARNING("Did not find Enhance factor information.");
-    }
-    else {
-      ATH_MSG_WARNING("Did not find signal blob.");
-    }
-  }
-  p_hepmc2_i->Sherpa2HepMC(blobs, *event, weight);
-
-  // Set beam particle status = 4
-  if (event->valid_beam_particles()) {
-    event->beam_particles().first->set_status(4);
-    event->beam_particles().second->set_status(4);
+  p_sherpa->FillHepMCEvent(*event);
+  if (event->weights().size()>2) {
+    event->weights()[0]/=event->weights()[2];
+    while (event->weights().size()>1) event->weights().pop_back();
   }
 
   GeVToMeV(event); //unit check
@@ -172,23 +131,17 @@ StatusCode Sherpa_i::genFinalize() {
   ATH_MSG_INFO("Sherpa_i finalize()");
 
   std::cout << "MetaData: generator = Sherpa " << SHERPA_VERSION << "." << SHERPA_SUBVERSION << std::endl;
-  std::cout << "MetaData: cross-section (nb)= " 
-            << p_generator->GetEventHandler()->TotalXS()/1000.0 << std::endl;
+  std::cout << "MetaData: cross-section (nb)= " << p_sherpa->TotalXS()/1000.0 << std::endl;
   if (m_xsscale!=1.0) {
     std::cout << "MetaData: cross-section*CrossSectionScaleFactor (nb)= " 
-              << p_generator->GetEventHandler()->TotalXS()/1000.0*m_xsscale << std::endl;
+              << p_sherpa->TotalXS()/1000.0*m_xsscale << std::endl;
     std::cout << "MetaData: CrossSectionScaleFactor = " << m_xsscale << std::endl;
   }
 
-  std::string pdf = "Unknown";
-  if (p_generator->GetInitHandler()->GetISRHandler(PDF::isr::hard_process) &&
-      p_generator->GetInitHandler()->GetISRHandler(PDF::isr::hard_process)->PDF(0))
-    pdf=p_generator->GetInitHandler()->GetISRHandler(PDF::isr::hard_process)->PDF(0)->Type();
-  std::cout << "MetaData: PDF = " << pdf << std::endl;
+  std::cout << "MetaData: PDF = " << p_sherpa->PDFInfo() << std::endl;
 
-
-  p_generator->SummarizeRun();
-  delete p_generator;
+  p_sherpa->SummarizeRun();
+  delete p_sherpa;
   
   return StatusCode::SUCCESS;
 }
@@ -198,20 +151,11 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   std::vector<std::string> params;
 
   // set some ATLAS specific default values as a starting point
-  params.push_back("EVENTS=1"); // will be ignored and steered by Athenas EvtMax
   params.push_back("PATH="+m_path);
   params.push_back("EXTERNAL_RNG=Atlas_RNG");
-  params.push_back("MASS[6]=172.5");
-  params.push_back("MASS[23]=91.1876");
-  params.push_back("MASS[24]=80.399");
-  params.push_back("WIDTH[23]=2.4952");
-  params.push_back("WIDTH[24]=2.085");
+  params.push_back("MAX_PROPER_LIFETIME=10.0");
   params.push_back("BEAM_1=2212");
   params.push_back("BEAM_2=2212");
-  params.push_back("BEAM_ENERGY_1=3500");
-  params.push_back("BEAM_ENERGY_2=3500");
-  params.push_back("MAX_PROPER_LIFETIME=10.0");
-  params.push_back("MI_HANDLER=Amisic");
 
   /***
       Adopt Atlas Debug Level Scheme
@@ -250,6 +194,7 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
     strcpy(argv[i+1], params[i].c_str());
   }
   ATH_MSG_INFO("End Sherpa_i Argument List");
+  ATH_MSG_INFO("Further Sherpa initialisation output will be redirected to the LOG_FILE specified above.");
 
 }
 
@@ -273,8 +218,10 @@ double Atlas_RNG::Get(){
 }
 
 // some getter magic to make this random number generator available to sherpa
-DECLARE_GETTER(Atlas_RNG_Getter,"Atlas_RNG",External_RNG,RNG_Key);
-External_RNG *Atlas_RNG_Getter::operator()(const RNG_Key &) const
+DECLARE_GETTER(Atlas_RNG,"Atlas_RNG",External_RNG,RNG_Key);
+
+External_RNG *ATOOLS::Getter<External_RNG,RNG_Key,Atlas_RNG>::operator()(const RNG_Key &) const
 { return new Atlas_RNG(p_rndEngine); }
-void Atlas_RNG_Getter::PrintInfo(std::ostream &str,const size_t) const
+
+void ATOOLS::Getter<External_RNG,RNG_Key,Atlas_RNG>::PrintInfo(std::ostream &str,const size_t) const
 { str<<"Atlas RNG interface"; }

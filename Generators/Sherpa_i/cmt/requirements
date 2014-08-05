@@ -4,9 +4,9 @@ author Joseph Virzi <Joseph.Virzi@cern.ch>
 
 private
 use AtlasCLHEP          AtlasCLHEP-*			External
+use AtlasHepMC          AtlasHepMC-*                    External
 use AthenaKernel        AthenaKernel-*			Control
 use AthenaBaseComps     AthenaBaseComps-*               Control
-use AtlasHepMC          AtlasHepMC-*                    External
 apply_tag notAsNeeded 
 end_private
 
