@@ -1,0 +1,156 @@
+<html>
+	
+  <head>	
+    <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+    <meta name="generator" content="Carlo Schiavi">
+    <title>TrigInDetAnalysis package</title>
+  </head>
+
+  <body>
+    <center>
+      <font color="#f80028" size="6">TrigInDetAnalysis package</font>
+    </center>
+		
+    <p><hr></p>
+
+    <p><font color="#f80028" size="4">General description</font><br>
+       The <b>TrigInDetAnalysis</b> package is devoted to the study and analysis of the performance of LVL2 tracking algorithms.<br>
+       Two ROOT based macros are currently available:
+       <dir>
+       <li><b>Efficiency.cpp:</b> evaluates efficiency for the tracking algorithms and the amount of fake reconstructed tracks as a
+       function of &eta; and p<sub>T</sub>; it also provides overall efficiency values and an average track multiplicities per event as a
+       function of the number of linked space points requested for the good tracks.</li>
+       <li><b>Resolution.cpp:</b> evaluates track parameters resolution (&eta;, &phi;, z<sub>0</sub>, p<sub>T</sub>, d<sub>0</sub>)
+       using the reconstructed tracks linked to a kine by a minimum number of space points.</li>
+       </dir>
+    </p>
+
+    <p><hr></p>
+
+    <p><font color="#f80028" size="4">Variables definitions</font><br>
+       The meaning of the quantities we refer to when describing the plots produced by the analysis macros is here summarized as follows:
+       <dir>
+       <li><b>Reconstructible kine track:</b> a kine track passing all the geometrical selection cuts (being contained in one of the
+       RoIs, crossing the pixel B-layer, being a primary track) and an optional p<sub>T</sub> cut;</li>
+       <li><b>Good track:</b> a reconstructed track linked to a good kine by at least <i>n</i> space points, where <i>n</i> is a user
+       selectable integer number ranging from 1 to the maximum number of space points used to build a track; the geometrical and
+       p<sub>T</sub> cuts used for the kine apply also to the reconstructed tracks;</li>
+       <li><b>Best track:</b> for each reconstructible kine, more than one good track can be available; we define the best track as
+       the one with the most precise &eta;-&phi; matching w.r.t. the linked kine;</li>
+       <li><b>Fake track:</b> a reconstructed track (passing geometrical and p<sub>T</sub> cuts) which is not a good track;</li>
+       <li><b>Efficiency:</b> ratio between best tracks and reconstructible kines;</li>
+       <li><b>Fake fraction:</b> ratio between fake tracks and all the recostructed tracks passing the applied cuts;</li>
+       <li><b>Track multiplicity:</b> the average number of reconstructed tracks per event passing the applied cuts.</li>
+       </dir>
+    </p>
+
+    <p><hr></p>
+ 
+    <p><font color="#f80028" size="4">Plot description</font><br>
+       Each analysis macro produces a set of histograms; their are here briefly described.<br>
+       <dir>
+       <li><b>Efficiency.cpp:</b> by default good tracks must have at least two kine hits;</li>
+           <dir>
+           <li><u>top:</u> the efficiency is plotted as a function of p<sub>T</sub> and &eta;; for the &eta; plot the optional
+           p<sub>T</sub> cut is applied;</li>
+           <li><u>center:</u> the fake fraction is plotted as a function of p<sub>T</sub> and &eta;;</li>
+           <li><u>bottom:</u> the left plot shows the overall efficiency (integrated over &eta; and p<sub>T</sub>, above the optional cut)
+           as a function of the minimum number of kine hits required for a good track; the right plot shows the average track multiplicity
+           as a function of the minimum number of kine hits, so that the first bin corresponds to the average multiplicity for all the
+           recostructed tracks.</li>
+           </dir>
+       <li><b>Resolution.cpp:</b> by default resolution plots are filled using the best tracks with at least two kine hits; optionally
+           is possible to apply a pt cut, to vary the minimum number of kine hits for good tracks and to fill the plots with all the good
+           tracks and not only with the best ones.<br>
+           Moving from left to right and from top to bottom the parameters displayed are: &eta;, &phi;, z<sub>0</sub>, 1/p<sub>T</sub>,
+           d<sub>0</sub>.</li>
+       </dir>
+    </p>
+
+    <p><hr></p>
+ 
+    <p><font color="#f80028" size="4">Instructions for running the analysis macros</font><br>
+       Both the analysis tools take three strings as input arguments, like in
+       <dd><i><font color="#3333FF">./efficiency DatasetLabel AlgoritmList [Options]</font></i><br><br>
+       where <i>DatasetLabel</i> defines the set of ROOT files to be analyzed, <i>AlgorithmList</i> specifies the list of algorithms to be
+       compared in the plots and the optional parameter <i>Options</i> sets up the available running options.
+       <br><br>
+       
+       <font color="#f80028"><b><i>Specifying the dataset</b></i></font><br>
+       The dataset to be analyzed is selected using a case-insensitive label which must be defined in the <i>datasets.dat</i> file. For
+       each dataset it must contain an entry like
+       <pre>
+       BEGIN_LABEL DatasetLabel
+         PARAMETER ParameterValue
+         PARAMETER ParameterValue
+	 ...
+       END_LABEL</pre>
+       where <i>DatasetLabel</i> is the label used to tag a particular set of ROOT files, while the parameters, specifying the place where
+       data files physically reside, are
+       <dir>
+       <li><b>PATH:</b> the directory where the ROOT files are stored; if the directory lays in a remote file system (like CASTOR) the
+       string must begin with <b>rfio:</b>; example:
+       <b>rfio:/castor/cern.ch/user/b/baines/trigprod/rel702++2003-12-12/lumi02/002026/his/</b>;</li>
+       <li><b>FILE:</b> the names of files sequentially produced with the standard job submission tools are structured like
+       <b>description_number.root</b>; the FILE parameter specifies the <b>description</b> part of the filename; example:
+       <b>ntuple_e25_lumi02_002026_</b>;</li>
+       <li><b>FIRST:</b> selects the first file to be processed within the sequential list selected by the FILE parameter;</li>
+       <li><b>LAST:</b> selects the last file to be processed within the sequential list selected by the FILE parameter;</li>
+       <li><b>TREE:</b> specifies the name and path of the ROOT tree where CBNT info is stored inside the file; the default value is set to
+       <b>CBNT/t3333</b>.</li>
+       </dir>
+
+       <font color="#f80028"><b><i>Selecting the algorithms</b></i></font><br>
+       The list of algorithms to be compared is passed to the macro as a single string; the names of the various algorithms can be
+       separated by any character (or even no character at all) and the recognition is case-insensitive; the only valid algorithm names
+       are:
+       <b>IdScanOff</b>, <b>SiTrack</b>, <b>IdScanOn</b>, <b>TRTXk</b>.
+       <br><br>
+
+       <font color="#f80028"><b><i>Setting the available options</b></i></font><br>
+       The running options are passed to the macros as a string composed by <b>KEY = value;</b> blocks where <b>KEY</b> identifies a
+       particular option, the equal sign links the KEY field to its selected value and the semicolon is the separator between different
+       options.<br>
+       Here follows the list of valid option keys for the two analysis tools.
+       <dir>
+       <li><b>Efficiency:</b> the options and their meaning for this macro are:
+           <dir>
+           <li><b>PtCut:</b> a float number which corresponds to the optional p<sub>T</sub> cut applied; default value: <b>0.0</b>;</li>
+           <li><b>MinKine:</b> the minimum number of kine hits needed to tag a reconstructed track as a good track; default value:
+           <b>2</b>;</li>
+           <li><b>Width:</b> display window width; automatic width is mantained selecting -1; default value: <b>-1</b>;</li>
+           <li><b>Height:</b> display window height; automatic height is mantained selecting -1; default value: <b>-1</b>;</li>
+           <li><b>Print:</b> boolean flag enabling or disabling <i>eps</i> and <i>gif</i> files production; if this option is enabled, the
+	   plot filenames are built as follows: <i>eff-DatasetLabel-PtCut.eps [.gif]</i>; default value: <b>false</b>.</li>
+           </dir>
+       </dir>
+       <dir>
+       <li><b>Resolution:</b> the options and their meaning for this macro are:
+           <dir>
+           <li><b>PtCut:</b> a float number which corresponds to the optional p<sub>T</sub> cut applied; default value: <b>0.0</b>;</li>
+           <li><b>MinKine:</b> the minimum number of kine hits needed to tag a reconstructed track as a good track; default value:
+           <b>2</b>;</li>
+           <li><b>Width:</b> display window width; automatic width is mantained selecting -1; default value: <b>-1</b>;</li>
+           <li><b>Height:</b> display window height; automatic height is mantained selecting -1; default value: <b>-1</b>;</li>
+           <li><b>UseBest:</b> boolean flag choosing wether resolutions are evaluated using all the <i>good</i> tracks or only the
+	   <i>best</i> ones; default value: <b>true</b>;
+           <li><b>Print:</b> boolean flag enabling or disabling <i>eps</i> and <i>gif</i> files production; if this option is enabled, the
+	   plot filenames are built as follows: <i>res-DatasetLabel-PtCut.eps [.gif]</i>; default value: <b>false</b>.</li>
+           </dir>
+       </dir>
+    </p>
+
+    <p><hr></p>
+ 
+    <p><font color="#f80028" size="4">Results</font><br>
+       Some plots produced with the TrigInDetAnalysis package are available on the
+       <a href="http://www.ge.infn.it/ATLAS/LVL2/Performance/Tracking/Tracking.html">LVL2 tracking algorithms performance page</a>.
+    </p>
+
+    <p><hr></p>
+ 
+    <p>Contact person: <a href="mailto:Carlo.Schiavi@ge.infn.it">Carlo Schiavi</a>
+  
+  </body>
+
+</html>
