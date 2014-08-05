@@ -1,19 +1,5 @@
-This JO can be used to generate events using Generate_trf:
+Please refer to
 
-  Generate_trf.py ecmEnergy=8000 runNumber=999999 firstEvent=1 randomSeed=1 jobConfig=MC12.999999.Sherpa_Example.py outputEVNTFile=/tmp/pool.root
+  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/SherpaForAtlas#MC12
 
-It will take a few minutes to initialise the generator,
-e.g. performing the phase space integrations over the
-Z+0 and Z+1 jet process. The initialisation results will
-be written out to two directories, Process/ and Results/.
-
-To avoid the initialisation step for multiple evgen runs
-it is advisable to create a tarball containing the Process/
-and Results/ directories and pass that on to Generate_trf
-as an argument:
-
-  Generate_trf.py ecmEnergy=8000 runNumber=999999 firstEvent=1 randomSeed=1 jobConfig=MC12.999999.Sherpa_Example.py outputEVNTFile=/tmp/pool.root inputGenConfFile=input.tar.gz
-
-This is also possible for central production, in which
-case not only the JO has to be provided to the MC production
-team but also that tarball.
+for information and instructions on how to use Sherpa JOs.

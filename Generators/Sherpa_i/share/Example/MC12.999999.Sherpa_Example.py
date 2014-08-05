@@ -2,7 +2,7 @@ evgenConfig.description = "Sherpa example JO, Z+0,1-jet production."
 evgenConfig.keywords = [ "Example", "DrellYan" ]
 evgenConfig.contact  = ["frank.siegert@cern.ch"]
 
-evgenConfig.process="""
+sherpaRunCard="""
 (processes){
   Process 93 93 -> 11 -11 93{1}
   Order_EW 2
