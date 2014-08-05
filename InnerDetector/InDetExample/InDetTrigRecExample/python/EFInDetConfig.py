@@ -325,10 +325,10 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
         ]
     elif seqType=="InsideOutMerged":
       algos = [
-               ("InDetTrigPRD_MultiTruthMaker",""), 
                #("SiTrigTrackSeededFinder",""),
                ("TrigAmbiguitySolver",""),
                ("TRTDriftCircleMaker",""),
+               ("InDetTrigPRD_MultiTruthMaker",""), 
                ("TRTTrackExtAlg",""),
                ("TrigExtProcessor",""),
                ("InDetTrigTrackSlimmer",""),
