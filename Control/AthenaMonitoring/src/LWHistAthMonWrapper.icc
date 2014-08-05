@@ -1,0 +1,53 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+
+struct LWHistAthMonWrapper::LWHistAthenaMonCustomData
+{
+  std::string streamName;
+  std::string key;
+};
+
+inline void LWHistAthMonWrapper::setStreamName(LWHist*h, const std::string& streamName)
+{
+
+  if (!h->getCustomData())
+    h->setCustomData(new LWHistAthenaMonCustomData);
+  reinterpret_cast<LWHistAthenaMonCustomData*>(h->getCustomData())->streamName = streamName;
+}
+
+inline void LWHistAthMonWrapper::setKey(LWHist*h, const std::string& key)
+{
+  if (!h->getCustomData())
+    h->setCustomData(new LWHistAthenaMonCustomData);
+  reinterpret_cast<LWHistAthenaMonCustomData*>(h->getCustomData())->key = key;
+}
+
+inline const std::string& LWHistAthMonWrapper::streamName(LWHist*h)
+{
+  assert(h->getCustomData());
+  return reinterpret_cast<LWHistAthenaMonCustomData*>(h->getCustomData())->streamName;
+
+}
+
+inline const std::string& LWHistAthMonWrapper::key(LWHist*h)
+{
+  assert(h->getCustomData());
+  return reinterpret_cast<LWHistAthenaMonCustomData*>(h->getCustomData())->key;
+}
+
+inline void LWHistAthMonWrapper::removeCustomData(LWHist*h)
+{
+  char *c = reinterpret_cast<char*>(h->getCustomData());
+  if (c)
+    delete reinterpret_cast<LWHistAthenaMonCustomData*>(c);
+  h->setCustomData(0);
+}
+
+inline void LWHistAthMonWrapper::deleteLWHist(LWHist*h)
+{
+  removeCustomData(h);
+  LWHist::safeDelete(h);
+}
