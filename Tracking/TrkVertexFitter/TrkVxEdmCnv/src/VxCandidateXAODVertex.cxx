@@ -31,6 +31,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkTrackLink/ITrackLink.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "TrkLinks/LinkToXAODNeutralParticle.h"
 
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 
@@ -149,6 +150,19 @@ StatusCode VxCandidateXAODVertex::finalize()
       //push back into collection
       tavCollection.push_back(tav);      
      }//end of loop over all tracks
+     //Same for neutrals
+     for (auto t : xAODVx.neutralParticleLinks())      {
+       Trk::VxTrackAtVertex *tav = new VxTrackAtVertex();
+       //create ITrackLink to xAOD::NeutralParticle
+       Trk::LinkToXAODNeutralParticle *elNeutralParticle = new Trk::LinkToXAODNeutralParticle( t );
+       tav->setOrigTrack(elNeutralParticle);
+       //linearize with respect to given vertex (do we need/want it here?)
+       Trk::Vertex myVtx(xAODVx.position());
+       Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(elNeutralParticle->neutralParameters(),myVtx);
+       tav->setLinTrack(myLinearizedTrack);
+       //push back into collection
+       tavCollection.push_back(tav);      
+     }//end of loop over all neutrals
     }//end of the xod check
 
     RecVertex recVtx(xAODVx.position(), xAODVx.covariancePosition(), xAODVx.chiSquared(), xAODVx.numberDoF());
@@ -188,15 +202,18 @@ StatusCode VxCandidateXAODVertex::finalize()
 #endif
       
       Trk::ITrackLink*      trklink = VTAV->trackOrParticleLink();
-      //do we need really to check this? or can we assume xAOD::TrackParticle objects to be there?
-      // definitely we don't want those to be Rec::TrackParticle do avoid mixing up things
       Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trklink);
-      if (!linkToXAODTP) 
+      if (linkToXAODTP) 
       {
-	ATH_MSG_WARNING ("Skipping track. Trying to convert to xAOD::Vertex a Trk::VxCandidate with links to something else than xAOD::TrackParticle.");
-      } else {
 	//Now set the newlink to the new xAOD vertex
 	xAODVx->addTrackAtVertex(*linkToXAODTP, VTAV->weight());
+      } else {
+	Trk::LinkToXAODNeutralParticle* linkToXAODTPneutral = dynamic_cast<Trk::LinkToXAODNeutralParticle*>(trklink);
+	if (!linkToXAODTPneutral)
+	  ATH_MSG_WARNING ("Skipping track. Trying to convert to xAOD::Vertex a Trk::VxCandidate with links to something else than xAOD::TrackParticle or xAOD::NeutralParticle.");
+	else
+	  //Now set the newlink to the new xAOD vertex
+	  xAODVx->addNeutralAtVertex(*linkToXAODTPneutral, VTAV->weight());
       }
     }//end of loop
 
