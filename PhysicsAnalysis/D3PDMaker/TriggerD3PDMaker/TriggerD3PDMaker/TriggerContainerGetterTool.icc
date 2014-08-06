@@ -1,0 +1,123 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TriggerContainerGetterTool.icc 273921 2010-01-19 16:48:22Z krasznaa $
+#ifndef TRIGGERD3PDMAKER_TRIGGERCONTAINERGETTERTOOL_ICC
+#define TRIGGERD3PDMAKER_TRIGGERCONTAINERGETTERTOOL_ICC
+
+// Gaudi/Athena include(s):
+#include "AthenaKernel/errorcheck.h"
+
+namespace D3PD {
+
+   template< class Cont, class Elem >
+   TriggerContainerGetterTool< Cont, Elem >::TriggerContainerGetterTool( const std::string& type,
+                                                                         const std::string& name,
+                                                                         const IInterface* parent )
+      : CollectionGetterToolImpl( type, name, parent ), m_features(), m_itr( 0 ),
+        m_itrValid( false ), m_firstEvent( true ),
+        m_trigDecTool( "Trig::TrigDecisionTool/TrigDecisionTool" ),
+        m_chainGroup( 0 ), m_triggerNames() {
+
+      declareProperty( "TrigDecisionTool", m_trigDecTool );
+
+      declareProperty( "TriggerNames", m_triggerNames );
+      declareProperty( "TriggerLabel", m_label = "" );
+      declareProperty( "Condition", m_condition = TrigDefs::Physics );
+      declareProperty( "TEName", m_teName = "" );
+   }
+
+   template< class Cont, class Elem >
+   StatusCode TriggerContainerGetterTool< Cont, Elem >::initialize() {
+
+      CHECK( m_trigDecTool.retrieve() );
+
+      m_chainGroup = m_trigDecTool->getChainGroup( m_triggerNames );
+      if( ! m_chainGroup ) {
+         REPORT_MESSAGE( MSG::ERROR ) << "Couldn't construct chain group from triggers: "
+                                      << m_triggerNames;
+         return StatusCode::FAILURE;
+      } else {
+         ATH_MSG_VERBOSE( "Constructed chain group from triggers: " << m_triggerNames );
+      }
+
+      return StatusCode::SUCCESS;
+   }
+
+   template< class Cont, class Elem >
+   const std::type_info& TriggerContainerGetterTool< Cont, Elem >::typeinfo() const {
+
+      return typeid( Cont );
+   }
+
+   template< class Cont, class Elem >
+   const void* TriggerContainerGetterTool< Cont, Elem >::getUntyped( bool ) {
+
+      REPORT_MESSAGE( MSG::WARNING ) << "This function is not supposed to be called. "
+                                     << "Check jobO configuration.";
+      return 0;
+   }
+
+   template< class Cont, class Elem >
+   const std::type_info& TriggerContainerGetterTool< Cont, Elem >::elementTypeinfo() const {
+
+      return typeid( Elem );
+   }
+
+   template< class Cont, class Elem >
+   StatusCode TriggerContainerGetterTool< Cont, Elem >::reset( bool ) {
+
+      if( m_firstEvent ) {
+         REPORT_MESSAGE( MSG::INFO ) << "Using triggers: " << m_triggerNames;
+         m_firstEvent = false;
+      }
+
+      Trig::FeatureContainer container = m_trigDecTool->features( m_chainGroup );
+      const std::vector< Trig::Feature< Cont > > containers =
+         container.get< Cont >( m_label, m_condition, m_teName );
+
+      m_features.clear();
+      typename std::vector< Trig::Feature< Cont > >::const_iterator cont_itr = containers.begin();
+      typename std::vector< Trig::Feature< Cont > >::const_iterator cont_end = containers.end();
+      for( ; cont_itr != cont_end; ++cont_itr ) {
+         typename Cont::const_iterator obj_itr = cont_itr->cptr()->begin();
+         typename Cont::const_iterator obj_end = cont_itr->cptr()->end();
+         for( ; obj_itr != obj_end; ++obj_itr ) {
+            m_features.push_back( *obj_itr );
+         }
+      }
+      m_itr = m_features.begin();
+      m_itrValid = true;
+
+      return StatusCode::SUCCESS;
+   }
+
+   template< class Cont, class Elem >
+   const void* TriggerContainerGetterTool< Cont, Elem >::nextUntyped() {
+
+      if( ! m_itrValid ) return 0;
+      if( m_itr == m_features.end() ) return 0;
+
+      const Elem* obj = *m_itr;
+      ++m_itr;
+
+      return obj;
+   }
+
+   template< class Cont, class Elem >
+   size_t TriggerContainerGetterTool< Cont, Elem >::sizeHint( bool ) {
+
+      if( m_itrValid ) {
+         return m_features.size();
+      }
+
+      Trig::FeatureContainer container = m_trigDecTool->features( m_chainGroup );
+      return container.get< Cont >( m_label, m_condition, m_teName ).size();
+   }
+
+} // namespace D3PD
+
+#endif // TRIGGERD3PDMAKER_TRIGGERCONTAINERGETTERTOOL_ICC
