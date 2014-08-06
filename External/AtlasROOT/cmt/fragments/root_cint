@@ -1,0 +1,13 @@
+# Body fragment for root_cint:
+#
+# For each file specified in the "document root_cint" statement, the
+# fully qualified FILE NAME is copied into a file of the same name in
+# the directory $(dict).
+#
+# See root_cint_header for more complete documentation
+#
+$(dict)${NAME}.h :: ${FULLNAME} 
+	@echo "root_cint: File ${NAME} will be added to dictionary ${CONSTITUENT}";
+	echo ${FULLNAME} > $@;
+
+

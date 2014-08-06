@@ -1,0 +1,21 @@
+# Trailer for root_cint fragment:
+#
+# This fragment runs root cint.
+#
+# See root_cint_header for more complete documentation
+#
+
+# Dependency on ${OBJS} - the full list of $(dict)${NAME}.h, is needed
+# for parallel build
+$(dict)${CONSTITUENT}.cxx :: ${OBJS} #$(dict)${CONSTITUENT}.stamp 
+	cd $(src); $(rootcint) -f $(dict)${CONSTITUENT}.cxx -c ${root_cint_includes} `cat ${OBJS}`  
+
+# cleanup:
+clean :: ${CONSTITUENT}clean
+	@cd .
+
+${CONSTITUENT}clean :: 
+	$(cleanup_echo) ROOT dictionary
+	-$(cleanup_silent) rm -fr $(dict)
+
+

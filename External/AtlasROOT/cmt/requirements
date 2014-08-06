@@ -1,0 +1,131 @@
+package AtlasROOT
+
+author Alexander Undrus <undrus@bnl.gov>
+
+use ExternalPolicy ExternalPolicy-* External
+use ROOT v* LCG_Interfaces
+
+# Only supply linkage against the the RFIO library (and therefore libshift)
+# if the ROOTRFIOLibs tag is specified.
+
+macro use_shift    "" \
+      ROOTRFIOLibs "AtlasShift AtlasShift-00-* External"
+use $(use_shift)
+
+#users are expected to select libraries that they want to link against
+#by applying specific tags in requirements files of their packages;  
+#for instance the following statement adds graphics libraries to linkset: 
+#    apply_tag ROOTGraphicsLibs
+#
+#by default only basic libraries are included in linkset 
+#                                                04/13/04  AU 
+
+
+macro _rootBasicLibs "-L$(ROOT_home)/lib -lCore -lCint -lTree -lpthread -lMathCore -lHist" \
+        ROOT_GE_6_00  "-L$(ROOT_home)/lib -lCore -lTree -lpthread -lMathCore -lHist"
+        
+macro rootBasicLibs ""  \
+        ROOTBasicLibs $(_rootBasicLibs)
+
+macro _rootCintexLibs "-lCintex" \
+        ROOT_GE_6_00 ""
+
+macro rootCintexLibs "" \
+        ROOTCintexLibs $(_rootCintexLibs)
+
+macro rootRFIOLibs "" \
+          ROOTRFIOLibs "-L$(ROOT_home)/lib -lRFIO" 
+macro rootMathLibs "" \
+          ROOTMathLibs "-L$(ROOT_home)/lib  -lMathMore -lMinuit -lMinuit2 -lMatrix -lPhysics -lHistPainter -lHist -lRint"
+		  
+macro rootGenVectorLibs "" \
+          ROOTGenVectorLibs "-L$(ROOT_home)/lib -lGenVector"
+
+macro rootGraphicsLibs "" \
+          ROOTGraphicsLibs "-L$(ROOT_home)/lib -lGraf -lGraf3d -lGpad -lHtml -lPostscript -lGui -lGX11TTF -lGX11"
+
+macro rootTableLibs "" \
+          ROOTTableLibs "-L$(ROOT_home)/lib -lTable"
+
+macro rootRooFitLibs "" \
+          ROOTRooFitLibs "-L$(ROOT_home)/lib -lRooFitCore -lRooFit"
+
+## prevent people from messing around with CINT dictionaries:
+##  ATLAS is using Reflex dictionaries, they don't mix well...
+macro rootSTLDictLibs "" \
+          ROOTSTLDictLibs ""
+
+# default tag:
+apply_tag ROOTBasicLibs
+
+macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) "
+
+# Define pattern for packages with root files which need root cint to
+# be run.
+#
+#   Here we define the following macros:
+#
+#     root_headers        - the files to be added to the dictionary
+#     root_cint_includes  - the required include path. 
+#     dict		  - the directory for generated files
+#
+#  Usage:
+#
+
+# In requirements file of package with header files to be added to the
+# root cint dictionary, one should add:
+#
+#     apply_pattern have_root_headers root_headers=" <list of .h files> " \
+#		    headers_lib=<library name> \
+#                   [extra_root_cint_includes=<-Iextra_dirs>]
+#
+# Here the <list of .h files> are the .h files to be processed by
+# cint. They are assumed to be in the <package> directory with other
+# headers. One MUST specify which library (headers_lib) to add the
+# dictionary to, e.g. this could just be the package name. Note that
+# you must make sure that the corresponding .cxx files are also put
+# into the same library, e.g. library <headers_lib> xxx.cxx.
+#
+# The default include path is set to:
+#
+#   -I.. -I${ROOTSYS}/include  -I${ROOTKERNELROOT}
+#
+# One can optionally add in extra include paths with 
+#
+#   extra_root_cint_includes="-I<extra_dirs>"
+#
+pattern have_root_headers \
+  macro root_headers       " -s=$(<package>_root)/<package> <root_headers> " ; \
+  macro dict               "$(bin)dict/" ; \
+  macro extra_root_cint_includes <extra_includes> ; \
+  macro_append extra_root_cint_includes "" Darwin " -I${ROOTSYS}/cint/cint/include -I${ROOTSYS}/cint/cint/lib -I${ROOTSYS}/cint/cint/stl " ; \
+  macro root_cint_includes "-I.. -I${ROOTSYS}/include ${extra_root_cint_includes} " ; \
+  document root_cint <headers_lib>Dict ${root_headers} ; \
+  include_dirs "." ; \
+  library <headers_lib> $(dict)<headers_lib>Dict.cxx ; \
+  macro_append <headers_lib>_dependencies " <headers_lib>Dict " ;
+
+# Declaration of makefile fragments for building cint dictionary
+make_fragment root_cint -suffix=h -header=root_cint_header -trailer=root_cint_trailer 
+
+# should add to make_fragment: -dependencies
+
+macro  rootcint  "rootcint" 
+
+
+ 
+
+make_fragment install_pcms -header=install_pcms_header 
+
+pattern RootDictionary_ROOT5 \
+   document rootcint <package>RootDict <headerfiles> 
+
+pattern RootDictionary_ROOT6 \
+   document rootcint <package>RootDict <headerfiles> ;  \
+   macro InstallingPCM_dependencies <package>RootDict ;  \
+   document install_pcms InstallingPCM <headerfiles>
+   
+pattern RootDictionary \
+   macro RootDictionary_patternname "RootDictionary_ROOT5" \
+                       ROOT_GE_6_00 "RootDictionary_ROOT6" ; \
+   apply_pattern ${RootDictionary_patternname} headerfiles="<headerfiles>"
