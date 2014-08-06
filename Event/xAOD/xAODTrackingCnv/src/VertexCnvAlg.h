@@ -41,6 +41,8 @@ namespace xAODMaker {
       std::string m_xaodContainerName;
       /// The key for the track particle links Container
       std::string m_TPContainerName;
+      /// The key for the neutral particle links Container
+      std::string m_NPContainerName;
 
    }; // class VertexCnvAlg
 

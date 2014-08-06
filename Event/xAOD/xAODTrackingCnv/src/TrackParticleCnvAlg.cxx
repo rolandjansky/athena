@@ -179,6 +179,12 @@ namespace xAODMaker {
         continue;
       }
       xAOD::TrackParticle* particle = createParticle(*xaod, container, **itr);
+
+      if(!particle){
+	ATH_MSG_WARNING("Failed to create a TrackParticle");
+	continue;
+      }
+
       m_nTrackParticlesCreated++;
       //
       // --------- statistics

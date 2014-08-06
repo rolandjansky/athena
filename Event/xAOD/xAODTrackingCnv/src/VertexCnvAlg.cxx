@@ -12,6 +12,8 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkTrackLink/ITrackLink.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
+#include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "TrkLinks/LinkToXAODNeutralParticle.h"
 
 // Local include(s):
 #include "VertexCnvAlg.h"
@@ -28,6 +30,8 @@ namespace xAODMaker {
       m_xaodContainerName = "PrimaryVertices" );
     declareProperty( "TPContainerName",
       m_TPContainerName = "InDetTrackParticles" );
+    declareProperty( "NPContainerName",
+      m_NPContainerName = "VertexNeutralParticles" );
   }
 
   StatusCode VertexCnvAlg::initialize() {
@@ -36,6 +40,7 @@ namespace xAODMaker {
     ATH_MSG_INFO( "AODContainerName  = " << m_aodContainerName );
     ATH_MSG_INFO( "xAODContainerName = " << m_xaodContainerName );
     ATH_MSG_INFO( "TPContainerName = " << m_TPContainerName );
+    ATH_MSG_INFO( "NPContainerName = " << m_NPContainerName );
 
       // Return gracefully:
     return StatusCode::SUCCESS;
@@ -83,17 +88,24 @@ namespace xAODMaker {
             Trk::VxTrackAtVertex* VTAV = (*((*itr)->vxTrackAtVertex()))[i];
             Trk::ITrackLink*      trklink = VTAV->trackOrParticleLink();
             Trk::LinkToTrackParticleBase* linkToTrackPB = dynamic_cast<Trk::LinkToTrackParticleBase*>(trklink);  
-            if (!linkToTrackPB) 
-                {
-                 ATH_MSG_DEBUG ("Cast of element link failed, skip this track !!!!!");
-                } 
-            else
-                {
+            if (linkToTrackPB)                 {
                  ElementLink<xAOD::TrackParticleContainer> newLink;
                  newLink.resetWithKeyAndIndex( m_TPContainerName, linkToTrackPB->index());
                  //Now set the newlink to the new xAOD vertex
                  vertex->addTrackAtVertex(newLink, VTAV->vtxCompatibility()); 
                 } 
+            else                {
+	      Trk::LinkToXAODNeutralParticle* linkToTrackNP = dynamic_cast<Trk::LinkToXAODNeutralParticle*>(trklink);  
+	      if (linkToTrackNP)                 {
+		ElementLink<xAOD::NeutralParticleContainer> newLink;
+		newLink.resetWithKeyAndIndex( m_NPContainerName, linkToTrackNP->index());
+		//Now set the newlink to the new xAOD vertex
+		vertex->addNeutralAtVertex(newLink, VTAV->vtxCompatibility()); 
+	      } 
+	      else {
+		ATH_MSG_DEBUG ("Cast of element link failed, skip this VxTrack/NeutralAtVertex !!!!!");
+	      }
+	    } 
           }
     } 
     // Return gracefully:

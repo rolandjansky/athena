@@ -24,6 +24,7 @@ use  TrkTrackLink               TrkTrackLink-*                  Tracking/TrkEven
 use  TrkTruthData               TrkTruthData-*                  Tracking/TrkEvent
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  TrkLinks                   TrkLinks-*              	Tracking/TrkEvent
 end_private
 
 # Make a component library:
