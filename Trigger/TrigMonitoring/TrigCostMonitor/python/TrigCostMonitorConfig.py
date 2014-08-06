@@ -1,0 +1,757 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from TrigCostMonitor.TrigCostMonitorConf import *
+from AthenaCommon.Logging import logging
+
+#----------------------------------------------------------------------
+# Global constants
+#
+steeringL2_online_doOperationalInfo=10  # frequency of operartional info collection at L2
+steeringEF_online_doOperationalInfo=1   # frequency of operartional info collection at EF
+steeringHLT_online_doOperationalInfo=1  # frequency of operartional info collection at HLT
+
+#----------------------------------------------------------------------
+# Base class which defines target() method used by TrigSteer config
+#
+class TrigCostTool_Target(TrigCostTool):
+    __slots__ = []
+    
+    def __init__(self, name):
+        super(TrigCostTool, self).__init__(name)
+
+        from TrigSteering.TrigSteeringConfig import RandomScaler
+        self.scalerTool = RandomScaler('TrigCostScaler')
+        
+    def target(self):
+        return [self.monitoringTarget]
+
+#----------------------------------------------------------------------
+# Prepare TrigCostTool instance using target as clue
+#
+def prepareCostTool(target):
+    
+    log  = logging.getLogger('prepareCostTool:'+str(target))
+    tool = TrigCostTool_Target("Trig"+target)
+
+    developmentMode = False
+    useSaveTools = False
+    
+    if target.count('L2') == 1:
+        tool.level = 'L2'
+        tool.monitoringStream = 'L2CostMonitoring'
+    elif target.count('EF') == 1:
+        tool.level = 'EF'
+        tool.monitoringStream = 'EFCostMonitoring'
+    elif target.count('HLT') == 1:
+        tool.level = 'HLT'
+        # TODO - Migrate this to HLT 24-june-14 try HLT
+        log.info('Setting up in prepareCostTool - using monitoringStream = HLTCostMonitoring')
+        tool.monitoringStream = 'HLTCostMonitoring'
+    else:
+        raise Exception('Unknown target level: '+target)
+    
+    tool.monitoringLogic  = 'no-calib no-debug no-physics'
+    tool.monitoringTarget = target
+    tool.purgeCostStream  = True
+    tool.writeAlways      = False #This is set to True by postSetupCostForCAF()
+    tool.writeConfig      = False #Overridden by writeAlways
+    tool.saveExtraWords   = True
+    tool.saveEventTimers  = False
+    tool.stopAfterNEvent  = 800
+    tool.execPrescale     = 1.0
+    
+    tool.toolConf = Trig__TrigNtConfTool('Conf'+target)
+    tool.toolConf.useDB = False  # Save online keys from DB
+    tool.toolConf.useConfSvc = True # Save current keys from ConfSvc
+    
+    tool_elem = Trig__TrigNtElemTool('Elem'+target)
+    tool_exec = Trig__TrigNtExecTool('Exec'+target)
+    tool_lvl1 = Trig__TrigNtLvl1Tool('Lvl1'+target)
+    tool_hlt2 = Trig__TrigNtHltRTool('Hlt2'+target) # Not currently used
+    tool_robs = Trig__TrigNtRobsTool('Robs'+target)
+
+    ## INFO: If using this tool to get the HLT result from storegate in the combined trigger,
+    ## TrigSteering needs re-ordering as the OPIMonitoring tools are run before the ResultBuilder.
+    ## Alternativly, don't use tool_hlt2 and get the chains with TrigCostTool
+    if tool.level == "HLT":
+        tool_hlt2.keyResult = 'HLTResult_HLT'
+    else:
+        tool_hlt2.keyResult = 'HLTResult_L2'
+
+    # HLT result also stores which XPU node the trigger was running on
+    tool.keyResult = 'HLTResult_HLT'
+
+    #
+    # Add TrigNtSaveTool tool for offline running of athenaMT/PT
+    #
+    if useSaveTools:
+        save_cost = Trig__TrigNtSaveTool('SaveCost_'+target)
+        save_rate = Trig__TrigNtSaveTool('SaveRate_'+target)
+        #
+        save_cost.fileName      = 'TrigCost'+tool.level+'.root'
+        save_cost.writeFile     = True
+        save_cost.writeCostOnly = True
+        save_cost.writeRateOnly = False
+        #
+        save_rate.fileName      = 'TrigRate'+tool.level+'.root'
+        save_rate.writeFile     = True
+        save_rate.writeCostOnly = False
+        save_rate.writeRateOnly = True
+
+    if developmentMode: # This will generate a lot of output
+        tool_exec.printOPI         = True
+        tool_exec.printSEQ         = True 
+        tool_robs.printDebug       = True
+        tool.toolConf.printConfig  = False #This is a crazy amout of output 
+        tool.printEvent            = True
+    
+    if target.count('CostExec') == 1:
+        
+        # Old settings
+        #tool_robs.cleanROBs      = False
+        #tool_robs.keepSubDet     = False
+        #tool_elem.saveNavigation = False
+        #tool_exec.saveSeqTimer   = False
+
+        # Updating CostExec to save more by default
+        # New settings
+        tool.doTiming         = True
+        tool.saveEventTimers  = True
+        tool.saveFailedChains = True
+        #
+        tool_robs.cleanROBs        = False
+        tool_robs.keepSubDet       = False
+        tool_elem.saveNavigation   = True
+        tool_elem.filterTE         = True
+        tool_exec.saveSeqTimer     = True
+                
+        if   tool.level == "L2":
+            tool.eventTools += [ tool_lvl1 ]
+            tool.scaleTools += [ tool_elem ]
+            tool.scaleTools += [ tool_exec ]
+            tool.scaleTools += [ tool_robs ]
+        elif tool.level == "EF":
+            tool.scaleTools += [ tool_elem ]
+            tool.scaleTools += [ tool_exec ]
+            # tool_hlt2 removed
+        elif tool.level == "HLT":
+            tool.eventTools += [ tool_lvl1 ]
+            tool.scaleTools += [ tool_elem ]
+            tool.scaleTools += [ tool_exec ]
+            tool.scaleTools += [ tool_robs ]
+            # tool_hlt2 removed
+
+        # Removing by default the Save tools - we now have the D3PDMaker for this
+        if useSaveTools:
+            tool.alwaysTools += [save_cost, save_rate]
+            
+    elif target.count('CostAthena') == 1:
+        ## INFO: Can we remove this? I think we can...
+
+        tool.writeAlways      = True
+        tool.monitoringTarget = 'CostAthena'
+        tool.execPrescale     = 0.0
+        tool.doTiming         = True
+        tool.saveEventTimers  = True
+        
+        tool_robs.cleanROBs      = False
+        tool_elem.saveNavigation = True
+        tool_elem.filterTE       = True
+        tool_exec.saveSeqTimer   = True
+        
+        if   tool.level == "L2":
+            tool.eventTools += [ tool_lvl1 ]
+            tool.eventTools += [ tool_exec ]
+            tool.eventTools += [ tool_robs ]
+        elif tool.level == "EF":
+            tool.eventTools += [ tool_elem ]
+            tool.eventTools += [ tool_exec ]
+        elif tool.level == "HLT":
+            tool.eventTools += [ tool_lvl1 ]
+            tool.eventTools += [ tool_elem ]
+            tool.eventTools += [ tool_exec ]
+            tool.eventTools += [ tool_robs ] 
+                    
+    else:
+        raise Exception('Unknown target: '+target)
+    
+    return tool
+        
+#----------------------------------------------------------------------
+# List of available monitoring tools for TrigSteering
+#
+TrigCostToolsList = [ prepareCostTool('CostExecL2'),
+                      prepareCostTool('CostExecEF'),
+                      prepareCostTool('CostExecHLT'),
+                      prepareCostTool('CostAthenaL2'),
+                      prepareCostTool('CostAthenaEF'),
+                      prepareCostTool('CostAthenaHLT') ]
+
+#----------------------------------------------------------------------
+# prepare TrigCostRun configuration
+#
+def prepareTrigSerialize(log):
+    
+    from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
+    from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
+    
+    trigCnv = TrigSerializeConvHelper(doTP = True)
+    trigSer = TrigSerTPTool('TrigSerTPTool')
+
+    from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList, getTPList
+
+    trigSer.TPMap = getTPList()
+    trigSer.ActiveClasses = getL2BSTypeList()+getEFBSTypeList()
+    
+    from AthenaCommon.AppMgr import ToolSvc
+
+    if not hasattr(ToolSvc, trigSer.name()):
+        ToolSvc += trigSer
+        log.info('Added TrigSerTPTool to ToolSvc')
+    else:
+        log.info('TrigSerTPTool already exists')
+        
+    if not hasattr(ToolSvc, trigCnv.name()):
+        ToolSvc += trigCnv
+        log.info('Added TrigSerializeConvHelper to ToolSvc')
+    else:
+        log.info('TrigSerializeConvHelper already exists')
+    
+#----------------------------------------------------------------------
+# prepare TrigCostRun configuration
+#
+def prepareCostRun(name, option = 'hlt'):
+    
+    log = logging.getLogger('prepareCostRun')
+
+    log.info('Setup for BS reading...')
+    prepareTrigSerialize(log)
+
+    from TrigEDMConfig.TriggerEDM import EDMLibraries
+    from TrigNavigation.TrigNavigationConfig import HLTNavigationOnline
+
+    run = TrigCostRun(name)
+
+    run.printEvent  = True
+    run.keyStream   = ''
+    
+    run.keyResultL2  = 'HLTResult_L2'
+    run.keyResultEF  = 'HLTResult_EF'
+    run.keyResultHLT = 'HLTResult_HLT'
+
+    run.keyConfigL2  = 'HLT_TrigMonConfigCollection_OPI_L2_monitoring_config'
+    run.keyConfigEF  = 'HLT_TrigMonConfigCollection_OPI_EF_monitoring_config'
+    run.keyConfigHLT = 'HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config'
+   
+    run.keyEventL2   = 'HLT_TrigMonEventCollection_OPI_L2_monitoring_event'
+    run.keyEventEF   = 'HLT_TrigMonEventCollection_OPI_EF_monitoring_event' 
+    run.keyEventHLT  = 'HLT_TrigMonEventCollection_OPI_HLT_monitoring_event'  
+
+    run.doL2 = False
+    run.doEF = False
+    run.doHLT = False
+
+    if option.count('l2'):
+      run.doL2 = True
+
+    if option.count('ef'):
+      run.doEF = True
+
+    if option.count('hlt'):
+      run.doHLT = True
+	
+    run.navigation = HLTNavigationOnline()    
+    run.navigation.ReferenceAllClasses = False
+    run.navigation.Dlls = EDMLibraries
+
+    tool_conf = Trig__TrigNtConfTool('RunCostConf')
+    tool_post = Trig__TrigNtPostTool('RunCostPost')    
+    
+    tool_conf.printConfig  = False
+    tool_conf.useDB        = True
+
+    #
+    # Configure output
+    #
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'THistSvc'):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc()
+
+    svcMgr.THistSvc.Output += ["TrigCostReadBS DATAFILE='TrigCostReadBS.root' OPT='RECREATE'"]
+
+    save_cost = Trig__TrigNtSaveTool('RunCostSave_full')
+    save_cost.writeFile        = False
+    save_cost.fileName         = ''
+    save_cost.streamConfig     = 'TrigCostReadBS'
+    save_cost.streamEvent      = 'TrigCostReadBS'
+    save_cost.writeRateOnly    = False
+
+    save_rate = Trig__TrigNtSaveTool('RunCostSave_rate')
+    save_rate.writeFile        = False
+    save_rate.fileName         = ''
+    save_rate.streamConfig     = ''
+    save_rate.streamEvent      = 'TrigCostReadBS'
+    save_rate.writeRateOnly    = True
+    save_rate.treeNameEvent    = 'event_rate_only'
+    save_rate.treeNameConfig   = ''
+    save_rate.printPostSummary = False
+    
+    run.tools     = [tool_conf, tool_post]
+    run.toolsSave = [save_cost, save_rate]
+
+    if option.count('emon'):
+        run.tools = []
+        try:            
+            from TrigCost2IS.TrigCost2ISConf import Trig__TrigNtCost2IS
+            tool_2is = Trig__TrigNtCost2IS('RunCost2IS')
+            
+            log.info('Configuring emon algorithm')
+            log.info('Picked up HLT tool: RunCost2IS')
+
+            run.tools = [tool_2is]
+        except:
+            log.info('HLT tools are not available... continue without them')
+
+    log.info('Prepared TrigCostRun algorithm instance: '+run.getName())
+    return run
+
+#----------------------------------------------------------------------
+# prepare TrigCostAlg configuration for running offline trigger
+#
+def prepareCostAlg(name, option, suffix):
+
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'THistSvc'):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc()
+
+    alg = TrigCostAlg(name)
+    log = logging.getLogger('prepareCostAlg')
+
+    conf_tool = Trig__TrigNtConfTool('CostConf_'+suffix)
+    post_tool = Trig__TrigNtPostTool('CostPost_'+suffix)    
+    vars_tool = Trig__TrigNtVarsTool('CostVars_'+suffix)
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    conf_tool.triggerMenuSetup = TriggerFlags.triggerMenuSetup.get_Value()
+    conf_tool.L1PrescaleSet    = TriggerFlags.L1PrescaleSet.get_Value()
+    conf_tool.HLTPrescaleSet   = TriggerFlags.HLTPrescaleSet.get_Value()
+
+    alg.mergeEvent      = True
+    alg.printEvent      = True
+    vars_tool.collectTD = False
+
+    #
+    # Add all tools except TrigNtSaveTool - these tools have to be last in tool sequence
+    #
+    alg.tools += [conf_tool, vars_tool, post_tool]
+
+    #
+    # Attempt to add additional tools
+    #
+    try:
+        from TrigCostAthena.TrigCostAthenaConfig import CostAthenaToolsList
+        
+        for atool in CostAthenaToolsList:
+            alg.tools += [ atool ]
+            log.info('Added TrigCostAthena tool: '+atool.name())
+    except:
+        log.info('TrigCostAthena extra tools are not available... continue without them')
+            
+    #
+    # Add TrigNtSaveTool tool(s) - last after all other tools
+    #
+    if option.count('cost'):
+        svcMgr.THistSvc.Output += ["TrigCostAL DATAFILE='TrigCostAL.root' OPT='RECREATE'"]
+
+        save_cost = Trig__TrigNtSaveTool('CostSave_full_'+suffix)
+        save_cost.streamConfig  = 'TrigCostAL'
+        save_cost.streamEvent   = 'TrigCostAL'
+        save_cost.writeFile     = False
+        save_cost.writeRateOnly = False
+        
+        alg.tools += [save_cost]
+        
+    if option.count('rate'):
+        svcMgr.THistSvc.Output += ["TrigRateAL DATAFILE='TrigRateAL.root' OPT='RECREATE'"]
+
+        save_rate = Trig__TrigNtSaveTool('CostSave_rate_'+suffix)
+        save_rate.streamConfig  = 'TrigRateAL'
+        save_rate.streamEvent   = 'TrigRateAL'
+        save_rate.writeFile     = False
+        save_rate.writeRateOnly = True
+
+        alg.tools += [save_rate]
+
+    return alg
+
+#----------------------------------------------------------------------
+# Configure full offline cost algorithm
+#
+def setupCostAlg(config = ''):
+
+    log = logging.getLogger('setupCostAlg')
+    
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSeq = AlgSequence()
+
+    if not hasattr(topSeq, 'TrigDecMaker'):
+        log.info('Setup TrigDecisionMaker...')
+        from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
+        trigDecWriter = WriteTrigDecision()
+            
+    topSeq += prepareCostAlg('TrigCostAlg_offline', 'cost rate', 'offline')
+    
+#----------------------------------------------------------------------
+# prepare TrigCostAlg configuration for reading online LV1 and HLT results
+#
+def prepareReadOnlineAlg(name, suffix):
+
+    log = logging.getLogger('prepareReadOnlineAlg')
+    log.warning('TrigCost Online has not been updated yet for combined HLT running!')
+    
+    # TODO NOTE:
+    # This function has not been updated yet for combined HLT running.
+
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'THistSvc'):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc()
+
+    alg = TrigCostAlg(name)
+    alg.mergeEvent = True
+    alg.printEvent = True
+
+    conf_tool = Trig__TrigNtConfTool('CostNtConf_'+suffix)
+    lvl1_tool = Trig__TrigNtLvl1Tool('CostNtLvl1_'+suffix)
+    hlt2_tool = Trig__TrigNtHltRTool('CostNtHlt2_'+suffix)
+    hlt3_tool = Trig__TrigNtHltRTool('CostNtHlt3_'+suffix)
+    post_tool = Trig__TrigNtPostTool('CostNtPost_'+suffix)
+    save_tool = Trig__TrigNtSaveTool('CostNtSave_'+suffix)
+
+    conf_tool.useDB     = True
+    hlt2_tool.keyResult = 'HLTResult_L2'
+    hlt3_tool.keyResult = 'HLTResult_EF'
+
+    svcMgr.THistSvc.Output += ["TrigRateOnline DATAFILE='TrigRateOnline.root' OPT='RECREATE'"]
+       
+    save_tool.streamConfig  = 'TrigRateOnline'
+    save_tool.streamEvent   = 'TrigRateOnline'
+    save_tool.writeFile     = False
+    save_tool.writeRateOnly = True
+    
+    #
+    # Add all tools. If using combined trigger - then no HLT l3
+    #
+    if not TriggerFlags.doHLT():
+        alg.tools += [conf_tool, lvl1_tool, hlt2_tool, hlt3_tool, post_tool, save_tool]
+    else:
+        hlt2_tool.keyResult = 'HLTResult_HLT'
+        alg.tools += [conf_tool, lvl1_tool, hlt2_tool, post_tool, save_tool]
+    
+    return alg
+        
+#----------------------------------------------------------------------
+# Configure full offline cost algorithm
+#
+def setupCostExtras(config = ''):
+
+    log = logging.getLogger('setupCostExtras')
+    
+    from AthenaCommon.AppMgr import theApp
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        
+    if not hasattr(svcMgr, "AthenaEventLoopMgr"):
+        from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+        svcMgr += AthenaEventLoopMgr()
+
+    svcMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
+    log.info('Set AthenaEventLoopMgr.EventPrintoutInterval = 100')
+    
+    if not hasattr(svcMgr, "AtRndmGenSvc"):
+        from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+        svcMgr += AtRndmGenSvc()
+        
+    svcMgr.AtRndmGenSvc.OutputLevel = 4
+    log.info('Set AtRndmGenSvc.OutputLevel = 4')
+
+    if not hasattr(svcMgr, "AtRanluxGenSvc"):
+        from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+        svcMgr += AtRanluxGenSvc()
+
+    svcMgr.AtRanluxGenSvc.OutputLevel = 4
+    log.info('Set AtRanluxGenSvc.OutputLevel = 4')
+        
+    if config.count('TIME') > 0:
+        log.info('Configure TrigTimerSvc...')
+        from TrigTimeAlgs.TrigTimeAlgsConf import TrigTimerSvc
+        
+        if not hasattr(svcMgr, 'TrigTimerSvc'):
+            svcMgr += TrigTimerSvc()
+        
+        svcMgr.TrigTimerSvc.IncludeName = ".+"
+        svcMgr.TrigTimerSvc.ExcludeName = "()"
+        svcMgr.TrigTimerSvc.OutputLevel = 4
+        
+        log.info('Setup detailed timing:')
+        print svcMgr.TrigTimerSvc    
+
+#----------------------------------------------------------------------
+# Configure TrigSteering algorithm
+#
+def configSteeringOPI(topSeq, name, config, log):
+    
+    if not hasattr(topSeq, name):
+        log.info(name+' does not exist at AlgSequence') 
+        return
+
+    trigSteer = getattr(topSeq, name)
+    
+    trigSteer.doTiming=True
+    trigSteer.doOperationalInfo=1
+
+    log.info('Set '+name+'.doTiming=True')
+    log.info('Set '+name+'.doOperationalInfo='+str(trigSteer.doOperationalInfo))
+
+    if config.count('NOPS'):
+        trigSteer.LvlConverterTool.ignorePrescales=True
+        log.info('Set '+name+'.LvlConverterTool.ignorePrescales=True')
+        
+        if name.count('L2') or name.count('HLT'):
+            trigSteer.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True
+            log.info('Set '+name+'.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True')
+        
+            if trigSteer.LvlConverterTool.properties().has_key('ignoreL1Prescales'):
+                trigSteer.LvlConverterTool.ignoreL1Prescales = True
+                log.info('Set '+name+'.LvlConverterTool.ignoreL1Prescales = True')
+            else:
+                log.info('Missing property: '+name+'.LvlConverterTool.ignoreL1Prescales')            
+
+    if trigSteer.properties().has_key('OPITools'):
+        for tool in trigSteer.OPITools:
+            if tool.getType().count('TrigCostTool'):
+                tool.writeAlways = True
+                log.info('Set '+name+'.'+tool.name()+'.writeAlways = True')
+
+#----------------------------------------------------------------------
+# Set various trigger options needed for typical offline cost/rate job
+#
+def setupCostJob(config = 'OPI ROB NOPS'):
+
+    log = logging.getLogger('setupCostJob')
+    
+    if config.count('OPI'):
+        log.info('Configure TrigSteer algorithm(s)')
+
+        from AthenaCommon.AlgSequence import AlgSequence    
+        topSeq = AlgSequence()
+        
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        if TriggerFlags.doHLT():
+            configSteeringOPI(topSeq, 'TrigSteer_HLT', config, log)
+        else: 
+            if TriggerFlags.doEF():
+                configSteeringOPI(topSeq, 'TrigSteer_EF', config, log)
+            if TriggerFlags.doLVL2():
+                configSteeringOPI(topSeq, 'TrigSteer_L2', config, log)
+        
+    if config.count('ROB'):
+        log.info('Will try to configure online monitoring for ROBDataProviderSvc...')
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        
+        try:
+            log.info('ROBDataProviderSvc type: '+svcMgr.ROBDataProviderSvc.getType())
+            
+            if svcMgr.ROBDataProviderSvc.getType() == 'Lvl2ROBDataProviderSvc':
+                log.info('Job already uses online version ROBDataProvider')
+            else:
+                from AthenaCommon.Include import include
+                include('TrigDataAccessMonitoring/MonROBDataProviderSvc.py')
+                log.info('Setup "online" monitoring for ROBDataProvider')
+        except:
+            log.warning('Failed to setup "online" version of ROBDataProvider')
+            
+        try:
+            from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
+            svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
+            log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
+        except:
+            log.warning('Failed to set ROBDataProviderSvc.doDetailedROBMonitoring')
+            
+#----------------------------------------------------------------------
+# Setup debug parameters for steering
+#
+def setSteerDebug(name, option, log):
+
+    from AthenaCommon.AlgSequence import AlgSequence    
+    topSeq = AlgSequence()
+    
+    if hasattr(topSeq, name):
+        trigSteer = getattr(topSeq, name)
+        
+        if not trigSteer.properties().has_key('OPITools'):
+            return
+        
+        for tool in trigSteer.OPITools:
+            if tool.getType().count('TrigCostTool'):
+                tool.OutputLevel = 2
+                log.info('Setup debug options for: '+tool.name())
+                
+                if option.count('evt') or option.count('event'):
+                    tool.printEvent = True
+                    log.info('Set evt debug option')
+                    
+                for nt in tool.scaleTools:
+                    if nt.getType().count("TrigNtExec") > 0 and option.count('opi') > 0:
+                        nt.printSEQ = True
+                        nt.printOPI = True
+                        log.info('Setup opi debug option for: '+nt.name())
+
+                    if nt.getType().count("TrigNtRobs") > 0 and option.count('rob') > 0:
+                        nt.printDebug = True
+                        nt.OutputLevel = 2
+                        log.info('Setup rob debug option for: '+nt.name())
+                        
+#----------------------------------------------------------------------
+# Setup debug parameters for cost
+#                   
+def setupCostDebug(option = "cost"):
+
+    log = logging.getLogger('setupCostDebug')
+
+    from AthenaCommon.AlgSequence import AlgSequence    
+    topSeq = AlgSequence()    
+    print topSeq
+
+    setSteerDebug('TrigSteer_L2', option, log)
+    setSteerDebug('TrigSteer_EF', option, log)
+    setSteerDebug('TrigSteer_HLT', option, log)
+
+    if option.count('cost') > 0 and hasattr(topSeq, 'TrigCostAlg_cost'):
+        trigCost = getattr(topSeq, 'TrigCostAlg_cost')
+        trigCost.OutputLevel = 2
+        log.info('Setup debug options for TrigCostAlg_cost')
+        
+    if option.count('rate') > 0 and hasattr(topSeq, 'TrigCostAlg_rate'):
+        trigCost = getattr(topSeq, 'TrigCostAlg_rate')
+        trigCost.OutputLevel = 2
+        log.info('Setup debug options for TrigCostAlg_rate')
+        
+#----------------------------------------------------------------------
+# Enable cost monitoring on every event
+#
+def postSetupOnlineCost():
+    
+    log = logging.getLogger('postSetupOnlineCost')
+
+    global steeringL2_online_doOperationalInfo
+    global steeringEF_online_doOperationalInfo
+    
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr        
+    from AthenaCommon.AlgSequence import AlgSequence
+    
+    topSeq = AlgSequence()
+    
+    if hasattr(topSeq, 'TrigSteer_L2'):        
+        topSeq.TrigSteer_L2.doOperationalInfo=steeringL2_online_doOperationalInfo
+        log.info('Set TrigSteer_L2.doOperationalInfo='+str(topSeq.TrigSteer_L2.doOperationalInfo))
+        
+        if svcMgr.ROBDataProviderSvc.properties().has_key('doDetailedROBMonitoring'):
+            svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
+            log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
+            
+    if hasattr(topSeq, 'TrigSteer_EF'):
+        topSeq.TrigSteer_EF.doOperationalInfo=steeringEF_online_doOperationalInfo
+        log.info('Set TrigSteer_EF.doOperationalInfo='+str(topSeq.TrigSteer_EF.doOperationalInfo))
+        
+    if hasattr(topSeq, 'TrigSteer_HLT'):        
+        topSeq.TrigSteer_HLT.doOperationalInfo=steeringHLT_online_doOperationalInfo
+        log.info('Set TrigSteer_HLT.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
+        
+        if svcMgr.ROBDataProviderSvc.properties().has_key('doDetailedROBMonitoring'):
+            svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
+            log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
+
+#----------------------------------------------------------------------
+# Set options for running cost on CAF - used together with CostExecL2/EF options!!!
+#
+def preSetupCostForCAF():
+    log = logging.getLogger('preSetupCostForCAF')
+    
+    global steeringL2_online_doOperationalInfo
+    global steeringEF_online_doOperationalInfo
+    global steeringHLT_online_doOperationalInfo
+
+    steeringL2_online_doOperationalInfo=1
+    steeringEF_online_doOperationalInfo=1
+    steeringHLT_online_doOperationalInfo=1
+
+    log.info('Set global flag for L2: doOperationalInfo=%d' %steeringL2_online_doOperationalInfo)
+    log.info('Set global flag for EF: doOperationalInfo=%d' %steeringEF_online_doOperationalInfo)
+    log.info('Set global flag for HLT: doOperationalInfo=%d' %steeringHLT_online_doOperationalInfo)
+
+#----------------------------------------------------------------------
+# Set options for running cost on CAF - used together with CostExecL2/EF options!!!
+#
+def postSetupCostForCAF():
+
+    log = logging.getLogger('postSetupCostForCAF')
+
+    from AthenaCommon.AlgSequence import AlgSequence
+    
+    topSeq = AlgSequence()
+    
+    if hasattr(topSeq, 'TrigSteer_L2'):        
+        if topSeq.TrigSteer_L2.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_L2.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.writeAlways = True
+                    log.info('Set '+tool.name()+'.writeAlways = True')
+
+    if hasattr(topSeq, 'TrigSteer_EF'):
+        if topSeq.TrigSteer_EF.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_EF.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.writeAlways = True
+                    log.info('Set '+tool.name()+'.writeAlways = True')
+                    
+    if hasattr(topSeq, 'TrigSteer_HLT'):
+        if topSeq.TrigSteer_HLT.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_HLT.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.writeAlways = True
+                    log.info('Set '+tool.name()+'.writeAlways = True')
+                    
+#----------------------------------------------------------------------
+# Read input files form local text file
+#
+def readInputFiles(filename = 'input_files.txt', file_key = 'RDO'):
+    log = logging.getLogger('TrigCostMonitor:readInputFiles')
+    
+    import os, string, sys
+    filelist = []
+
+    try:
+        log.info('reading input files from: '+filename)
+        mylist = open(filename)
+        
+        for line in mylist.readlines():        
+            if len(file_key) > 0 and line.count(file_key) < 1:
+                continue
+
+            file = line.rstrip()
+            fdir = os.path.dirname(file)
+            
+            if os.path.isdir(fdir) and not os.path.isfile(file):
+                log.warning('Skipped non existing file: '+file)
+                continue
+            
+            filelist.append(file)
+            log.info('Added input file: '+file)
+                
+        mylist.close()
+    except:
+        log.warning('Exception when reading file: '+filename)
+    
+    return filelist
