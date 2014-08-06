@@ -1,0 +1,175 @@
+###################   ATLAS Tier0 TagDB Loading   ################
+##
+##################################################################
+## STEP 1: setting up the run environment ...
+##################################################################
+ 
+Using Atlas release from run environment
+##################################################################
+## STEP 2: preparing the run ...
+##################################################################
+ 
+CollListAttrib.exe -src PFN:TAG.070907._000005.pool.root.1 RootCollection mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53 RelationalCollection  -srcconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc
+##################################################################
+## STEP 3: running the executable ...
+##################################################################
+ 
+CollListAttrib.exe -src PFN:TAG.070907._000005.pool.root.1 RootCollection mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53 RelationalCollection  -srcconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc >& validatt.log
+0
+
+
+ 
+## ... job finished with (retcode1,retcode2) = (0,256)
+## ... total elapsed time:  11  sec
+## ... CMT setup time:      0  sec
+## ... TAG uploading time:  11  sec
+ 
+## ... logfile fragment
+...
+...skipping...
+...
+About to write file CollListAttrib.exe.xml
+RootCollection Info Opening Collection File TAG.070907._000005.pool.root.1 in mode: READ
+RootCollection Info File TAG.070907._000005.pool.root.1 opened
+RootCollection Info Found old Collection TTree name: CollectionTree
+RootCollection Info Root collection opened, size = 9950
+pool::RelationalCollection:open Info  Opening relational collection in READ mode
+PluginManager Info PluginManager creating CORAL/Services/ConnectionService component
+PluginManager Info PluginManager needs to load CORAL/Services/ConnectionService component
+PluginManager Info PluginManager loaded ConnectionService library
+PluginManager Info PluginManager loaded CORAL/Services/ConnectionService factory from ConnectionService library
+PluginManager Info PluginManager loaded CORAL/Services/ConnectionService2 factory from ConnectionService library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IRelationalService: CORAL/Services/RelationalService
+PluginManager Info PluginManager creating CORAL/Services/RelationalService component
+PluginManager Info PluginManager needs to load CORAL/Services/RelationalService component
+PluginManager Info PluginManager loaded RelationalService library
+PluginManager Info PluginManager loaded CORAL/Services/RelationalService factory from RelationalService library
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "coral" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "frontier" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "mysql" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "oracle" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "sqlite" with native implementation
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "coral" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "frontier" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "mysql" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "oracle" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "sqlite" is native
+PluginManager Info PluginManager creating CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager needs to load CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager loaded OracleAccess library
+PluginManager Info PluginManager loaded CORAL/RelationalPlugins/oracle factory from OracleAccess library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IAuthenticationService: CORAL/Services/XMLAuthenticationService
+PluginManager Info PluginManager creating CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager needs to load CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager loaded XMLAuthenticationService library
+PluginManager Info PluginManager loaded CORAL/Services/XMLAuthenticationService factory from XMLAuthenticationService library
+CORAL/Services/XMLAuthenticationService Info Authentication using /afs/cern.ch/atlas/project/tzero/prod1/var/authentication.xml file
+CORAL/RelationalPlugins/oracle Warning Oracle major version 11 is not yet fully supported. Type conversion will assume the Oracle 9 SQL types.
+CORAL/Services/ConnectionService Info Connection to service "atlas_tag_write_db.desy.de" established. Id=ed0927ca-b2de-11de-bd70-003048947478
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=ed0927ca-b2de-11de-bd70-003048947478
+pool::RelationalCollection::init Info Opening collection `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' in read mode 
+pool::Exception: Collection fragment `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' does not exist. ( POOL : "RelationalCollection::retrieveCollectionFragmentDescriptions" from "RelationalCollection" )
+Unable to open collection mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53
+---> STOPPING HERE
+retcodes = ( 0 , 256 , 256 )
+False   False   False   False
+ 
+##
+##################################################################
+## End of job.
+##################################################################
+ 
+ 
+###################   ATLAS Tier0 TagDB Loading   ################
+##
+##################################################################
+## STEP 1: setting up the run environment ...
+##################################################################
+ 
+Collection name =  mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53
+Using Atlas release from run environment
+##################################################################
+## STEP 2: preparing the run ...
+##################################################################
+ 
+ 
+##################################################################
+## STEP 3: running the executable ...
+##################################################################
+ 
+CollAppend -src PFN:TAG.070907._000005.pool.root.1 RootCollection -dst mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53 RelationalCollection -dstconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc -nevtcached 5000 -merge  -nevtpercommit 500000
+ 
+which CollAppend ; CollAppend -src PFN:TAG.070907._000005.pool.root.1 RootCollection -dst mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53 RelationalCollection -dstconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc -nevtcached 5000 -merge  -nevtpercommit 500000 >& log
+
+##################################################################
+## STEP 4: generating the return code ...
+##################################################################
+ 
+/afs/cern.ch/atlas/offline/external/LCGCMT/LCGCMT_56c/InstallArea/i686-slc4-gcc34-opt/bin/CollAppend
+ 
+## ... job finished with (retcode1,retc_err,retc_conn) = (62600,62601,0)
+## ... total elapsed time:         130 sec
+## ... CMT setup time:             0 sec
+## ... number of appended events:  0
+## ... TAG uploading time:         130 sec
+ 
+## ... logfile fragment
+...
+...skipping...
+...
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "sqlite" with native implementation
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "coral" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "frontier" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "mysql" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "oracle" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "sqlite" is native
+PluginManager Info PluginManager creating CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager needs to load CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager loaded OracleAccess library
+PluginManager Info PluginManager loaded CORAL/RelationalPlugins/oracle factory from OracleAccess library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IAuthenticationService: CORAL/Services/XMLAuthenticationService
+PluginManager Info PluginManager creating CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager needs to load CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager loaded XMLAuthenticationService library
+PluginManager Info PluginManager loaded CORAL/Services/XMLAuthenticationService factory from XMLAuthenticationService library
+CORAL/Services/XMLAuthenticationService Info Authentication using /afs/cern.ch/atlas/project/tzero/prod1/var/authentication.xml file
+CORAL/RelationalPlugins/oracle Warning Oracle major version 11 is not yet fully supported. Type conversion will assume the Oracle 9 SQL types.
+CORAL/Services/ConnectionService Info Connection to service "atlas_tag_write_db.desy.de" established. Id=f328c322-b2de-11de-8c4b-003048947478
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=f328c322-b2de-11de-8c4b-003048947478
+pool::RelationalCollection::init Info Opening collection `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' in read mode 
+CollAppend Warning Destination Collection `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' does not exist; A new one will be created; 
+CollAppend Info Number of input collections: 1
+CollAppend Info Opening source collection PFN:TAG.070907._000005.pool.root.1 of type RootCollection
+RootCollection Info Opening Collection File TAG.070907._000005.pool.root.1 in mode: READ
+RootCollection Info File TAG.070907._000005.pool.root.1 opened
+RootCollection Info Found old Collection TTree name: CollectionTree
+RootCollection Info Root collection opened, size = 9950
+CollAppend Info Opened source collection PFN:TAG.070907._000005.pool.root.1
+CollAppend Info Creating query for the source collection
+CollAppend Info Executing query for the source collection
+CollAppend Info Creating destination collection mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53 of type RelationalCollection
+pool::RelationalCollection:open Info  Opening relational collection 
+pool::RelationalCollection:open Info Setting Coral DB connection retry period to 120 seconds
+pool::RelationalCollection:open Info Setting Coral DB connection timeout 3600 seconds
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=f328c322-b2de-11de-8c4b-003048947478
+pool::RelationalCollection::init Info Opening collection `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' in create mode 
+pool::RelationalCollection::init Info Executing database procedure POOL_COLLECTION_INIT(mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53) 
+CORAL/RelationalPlugins/oracle Error ORA-00942: table or view does not exist
+ORA-06512: at "ATLAS_TAGS_MC.CREATE_SYN4EXIST_OBJ", line 11
+ORA-06512: at "ATLAS_TAGS_MC.POOL_COLLECTION_INIT", line 7 (Executing the statement)
+pool::RelationalCollection::init Error Error executing database procedure POOL_COLLECTION_INIT(mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53) : Error calling "POOL_COLLECTION_INIT" ( CORAL : "ISchema::callProcedure" from "CORAL/RelationalPlugins/oracle" )
+pool::RelationalCollection::init Info Removing collection mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53
+CollAppend Info Could not create destination collection mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53 - testing again if the collection exists already 
+pool::RelationalCollection:open Info  Opening relational collection in READ mode
+pool::RelationalCollection:open Info Setting Coral DB connection retry period to 120 seconds
+pool::RelationalCollection:open Info Setting Coral DB connection timeout 3600 seconds
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=f328c322-b2de-11de-8c4b-003048947478
+pool::RelationalCollection::init Info Opening collection `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' in read mode 
+PoolXMLFileCatalog Info XercesC termination number 0
+pool::Exception: Collection fragment `mc08_PythiaMadgraph_leptonjets_ee_PT50_e416_s462_r635_t53' does not exist. ( POOL : "RelationalCollection::retrieveCollectionFragmentDescriptions" from "RelationalCollection" )
+ERROR: commands.gso execution problem!
+ 
+##
+##################################################################
+## End of job.
+##################################################################

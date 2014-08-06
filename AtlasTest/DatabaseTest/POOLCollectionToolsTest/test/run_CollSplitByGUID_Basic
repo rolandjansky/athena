@@ -1,0 +1,19 @@
+#!/bin/sh
+
+export CORAL_MSGLEVEL=2
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+TESTFILE=$DATADIR/fdr08_run2_physics_Minbias_o3_f8_m10_1217278983_user.root
+TRF=CollSplitByGUID
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+#cmd="$TRF -src PFN:$TESTFILE RootCollection -minevents 500 -splitref StreamESD_ref"
+cmd="$TRF -src PFN:$TESTFILE RootCollection"
+echo $cmd
+$cmd 
+#$cmd | wc -l
+

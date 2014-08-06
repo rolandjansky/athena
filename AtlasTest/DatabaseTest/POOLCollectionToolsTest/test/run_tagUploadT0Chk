@@ -1,0 +1,23 @@
+#!/bin/sh
+
+INPUT1=/afs/cern.ch/atlas/offline/test/POOLCollectionTools/knownerrors.log
+INPUT2=/afs/cern.ch/atlas/offline/test/POOLCollectionTools/errors.log
+INPUT3=/afs/cern.ch/atlas/offline/test/POOLCollectionTools/data10_7TeV.00155116.physics_RNDM.merge.TAG.r1647_p306_p307_p372.upload2desy_re.task._0001.job.TMP.log.1
+TRF=tagUpload_logChecks_trf.py
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF $INPUT1"
+echo $cmd
+$cmd
+cmd="$TRF $INPUT2"
+echo $cmd
+$cmd
+cmd="$TRF $INPUT3"
+echo $cmd
+$cmd
+

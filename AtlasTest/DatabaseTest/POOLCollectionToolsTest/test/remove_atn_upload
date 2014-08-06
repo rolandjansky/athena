@@ -1,0 +1,28 @@
+#!/bin/sh
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+CONNSTRING=oracle://int8r_nolb/atlas_tags_loading_test
+TESTTABLET0=fdr08_run2_physics_Egamma_o3_f8_m10
+TESTTABLEAP=atn_test_AtlasPOOL
+TESTTABLEA=atn_test_atlas
+TESTTABLECOPY=atn_ATN_AtlasPOOL_Copy
+
+ln -s $DATADIR/authentication.xml .
+
+cleanup="CollRemove -src $TESTTABLET0 RelationalCollection -srcconnect $CONNSTRING"
+echo $cleanup
+$cleanup
+
+cleanup="CollRemove -src $TESTTABLEAP RelationalCollection -srcconnect $CONNSTRING"
+echo $cleanup
+$cleanup
+
+cleanup="CollRemove -src $TESTTABLEA RelationalCollection -srcconnect $CONNSTRING"
+echo $cleanup
+$cleanup
+
+cleanup="CollRemove -src $TESTTABLECOPY RelationalCollection -srcconnect $CONNSTRING"
+echo $cleanup
+$cleanup
+
+
+

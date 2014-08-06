@@ -1,0 +1,232 @@
+###################   ATLAS Tier0 TagDB Loading   ################
+##
+##################################################################
+## STEP 1: setting up the run environment ...
+##################################################################
+ 
+Using Atlas release from run environment
+##################################################################
+## STEP 2: preparing the run ...
+##################################################################
+ 
+CollListAttrib.exe -src PFN:TAG.065269._00066.pool.root.8 RootCollection mc08_PythiaWhadtaunu_e347_s462_r635_t53 RelationalCollection  -srcconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc
+##################################################################
+## STEP 3: running the executable ...
+##################################################################
+ 
+CollListAttrib.exe -src PFN:TAG.065269._00066.pool.root.8 RootCollection mc08_PythiaWhadtaunu_e347_s462_r635_t53 RelationalCollection  -srcconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc >& validatt.log
+0
+
+
+ 
+## ... job finished with (retcode1,retcode2) = (0,256)
+## ... total elapsed time:  10  sec
+## ... CMT setup time:      0  sec
+## ... TAG uploading time:  10  sec
+ 
+## ... logfile fragment
+...
+...skipping...
+...
+ NAME: L2PassedTrigMask1            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask10           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask11           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask12           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask13           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask14           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask15           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask16           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask17           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask18           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask19           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask2            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask20           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask21           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask22           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask23           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask24           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask25           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask26           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask27           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask28           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask29           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask3            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask30           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask31           TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask4            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask5            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask6            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask7            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask8            TYPE: unsigned int        INFO: 
+ NAME: L2PassedTrigMask9            TYPE: unsigned int        INFO: 
+ NAME: Level1TriggerType            TYPE: unsigned int        INFO: 
+ NAME: StatusBTGB                   TYPE: unsigned short      INFO: 
+ NAME: StatusBTGEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusBTGEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusCSCEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusCSCEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusEIDB                   TYPE: unsigned short      INFO: 
+ NAME: StatusEIDEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusEIDEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusEMBA                   TYPE: unsigned short      INFO: 
+ NAME: StatusEMBC                   TYPE: unsigned short      INFO: 
+ NAME: StatusEMECA                  TYPE: unsigned short      INFO: 
+ NAME: StatusEMECC                  TYPE: unsigned short      INFO: 
+ NAME: StatusFCALA                  TYPE: unsigned short      INFO: 
+ NAME: StatusFCALC                  TYPE: unsigned short      INFO: 
+ NAME: StatusHECA                   TYPE: unsigned short      INFO: 
+ NAME: StatusHECC                   TYPE: unsigned short      INFO: 
+ NAME: StatusHLTEF                  TYPE: unsigned short      INFO: 
+ NAME: StatusHLTL2                  TYPE: unsigned short      INFO: 
+ NAME: StatusJETB                   TYPE: unsigned short      INFO: 
+ NAME: StatusJETEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusJETEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusL1CAL                  TYPE: unsigned short      INFO: 
+ NAME: StatusL1CTP                  TYPE: unsigned short      INFO: 
+ NAME: StatusL1MU                   TYPE: unsigned short      INFO: 
+ NAME: StatusMDTBA                  TYPE: unsigned short      INFO: 
+ NAME: StatusMDTBC                  TYPE: unsigned short      INFO: 
+ NAME: StatusMDTEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusMDTEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusMET                    TYPE: unsigned short      INFO: 
+ NAME: StatusMIDB                   TYPE: unsigned short      INFO: 
+ NAME: StatusMIDEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusMIDEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusPIXB                   TYPE: unsigned short      INFO: 
+ NAME: StatusPIXEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusPIXEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusRPCBA                  TYPE: unsigned short      INFO: 
+ NAME: StatusRPCBC                  TYPE: unsigned short      INFO: 
+ NAME: StatusSCTB                   TYPE: unsigned short      INFO: 
+ NAME: StatusSCTEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusSCTEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusTGCEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusTGCEC                  TYPE: unsigned short      INFO: 
+ NAME: StatusTIEBA                  TYPE: unsigned short      INFO: 
+ NAME: StatusTIEBC                  TYPE: unsigned short      INFO: 
+ NAME: StatusTILBA                  TYPE: unsigned short      INFO: 
+ NAME: StatusTILBC                  TYPE: unsigned short      INFO: 
+ NAME: StatusTRTB                   TYPE: unsigned short      INFO: 
+ NAME: StatusTRTEA                  TYPE: unsigned short      INFO: 
+ NAME: StatusTRTEC                  TYPE: unsigned short      INFO: 
+ NAME: BPhysWord                    TYPE: unsigned int        INFO: 
+ NAME: CombinedMuonWord             TYPE: unsigned int        INFO: 
+ NAME: EgammaWord                   TYPE: unsigned int        INFO: 
+ NAME: ExoticWord                   TYPE: unsigned int        INFO: 
+ NAME: HeavyIonWord                 TYPE: unsigned int        INFO: 
+ NAME: HiggsWord                    TYPE: unsigned int        INFO: 
+ NAME: JetMissingEtWord             TYPE: unsigned int        INFO: 
+ NAME: JetTagWord                   TYPE: unsigned int        INFO: 
+ NAME: SMWord                       TYPE: unsigned int        INFO: 
+ NAME: SUSYWord                     TYPE: unsigned int        INFO: 
+ NAME: TauIdWord                    TYPE: unsigned int        INFO: 
+ NAME: TopWord                      TYPE: unsigned int        INFO: 
+ NAME: DatasetID                    TYPE: int                 INFO: 
+ NAME: Fraction                     TYPE: float               INFO: 
+---------------------------------------------------------
+
+Number of collections scanned is: 2
+
+RootCollection Info Closing open collection 'TAG.065269._00066.pool.root.8'
+retcodes = ( 0 , 256 , 256 )
+False   False   False   False
+ 
+##
+##################################################################
+## End of job.
+##################################################################
+ 
+ 
+###################   ATLAS Tier0 TagDB Loading   ################
+##
+##################################################################
+## STEP 1: setting up the run environment ...
+##################################################################
+ 
+Collection name =  mc08_PythiaWhadtaunu_e347_s462_r635_t53
+Using Atlas release from run environment
+##################################################################
+## STEP 2: preparing the run ...
+##################################################################
+ 
+ 
+##################################################################
+## STEP 3: running the executable ...
+##################################################################
+ 
+CollAppend -src PFN:TAG.065269._00066.pool.root.8 RootCollection -dst mc08_PythiaWhadtaunu_e347_s462_r635_t53 RelationalCollection -dstconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc -nevtcached 5000 -merge  -nevtpercommit 500000
+ 
+which CollAppend ; CollAppend -src PFN:TAG.065269._00066.pool.root.8 RootCollection -dst mc08_PythiaWhadtaunu_e347_s462_r635_t53 RelationalCollection -dstconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc -nevtcached 5000 -merge  -nevtpercommit 500000 >& log
+
+##################################################################
+## STEP 4: generating the return code ...
+##################################################################
+ 
+/afs/cern.ch/atlas/offline/external/LCGCMT/LCGCMT_56c/InstallArea/i686-slc4-gcc34-opt/bin/CollAppend
+ 
+## ... job finished with (retcode1,retc_err,retc_conn) = (62600,0,0)
+## ... total elapsed time:         20 sec
+## ... CMT setup time:             0 sec
+## ... number of appended events:  0
+## ... TAG uploading time:         20 sec
+ 
+## ... logfile fragment
+...
+...skipping...
+...
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IRelationalService: CORAL/Services/RelationalService
+PluginManager Info PluginManager creating CORAL/Services/RelationalService component
+PluginManager Info PluginManager needs to load CORAL/Services/RelationalService component
+PluginManager Info PluginManager loaded RelationalService library
+PluginManager Info PluginManager loaded CORAL/Services/RelationalService factory from RelationalService library
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "coral" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "frontier" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "mysql" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "oracle" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "sqlite" with native implementation
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "coral" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "frontier" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "mysql" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "oracle" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "sqlite" is native
+PluginManager Info PluginManager creating CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager needs to load CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager loaded OracleAccess library
+PluginManager Info PluginManager loaded CORAL/RelationalPlugins/oracle factory from OracleAccess library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IAuthenticationService: CORAL/Services/XMLAuthenticationService
+PluginManager Info PluginManager creating CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager needs to load CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager loaded XMLAuthenticationService library
+PluginManager Info PluginManager loaded CORAL/Services/XMLAuthenticationService factory from XMLAuthenticationService library
+CORAL/Services/XMLAuthenticationService Info Authentication using /afs/cern.ch/atlas/project/tzero/prod1/var/authentication.xml file
+CORAL/RelationalPlugins/oracle Warning Oracle major version 11 is not yet fully supported. Type conversion will assume the Oracle 9 SQL types.
+CORAL/Services/ConnectionService Info Connection to service "atlas_tag_write_db.desy.de" established. Id=09dc7874-b3ad-11de-9e6f-00304894400e
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=09dc7874-b3ad-11de-9e6f-00304894400e
+pool::RelationalCollection::init Info Opening collection `mc08_PythiaWhadtaunu_e347_s462_r635_t53' in read mode 
+CollAppend Info Number of input collections: 1
+CollAppend Info Opening source collection PFN:TAG.065269._00066.pool.root.8 of type RootCollection
+RootCollection Info Opening Collection File TAG.065269._00066.pool.root.8 in mode: READ
+RootCollection Info File TAG.065269._00066.pool.root.8 opened
+RootCollection Info Found old Collection TTree name: CollectionTree
+RootCollection Info Root collection opened, size = 10000
+CollAppend Info Opened source collection PFN:TAG.065269._00066.pool.root.8
+CollAppend Info Creating query for the source collection
+CollAppend Info Executing query for the source collection
+pool::RelationalCollection:open Info  Opening relational collection 
+pool::RelationalCollection:open Info Setting Coral DB connection retry period to 120 seconds
+pool::RelationalCollection:open Info Setting Coral DB connection timeout 3600 seconds
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=09dc7874-b3ad-11de-9e6f-00304894400e
+pool::RelationalCollection::init Info Opening collection `mc08_PythiaWhadtaunu_e347_s462_r635_t53' in update mode 
+CollAppend Info Iterating over the source collection
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=09dc7874-b3ad-11de-9e6f-00304894400e
+CORAL/RelationalPlugins/oracle Warning Oracle major version 11 is not yet fully supported. Type conversion will assume the Oracle 9 SQL types.
+CORAL/Services/ConnectionService Info Connection to service "atlas_tag_write_db.desy.de" established. Id=141119c6-b3ad-11de-9e6f-00304894400e
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=141119c6-b3ad-11de-9e6f-00304894400e
+PoolXMLFileCatalog Info XercesC termination number 0
+std::exception: ISession::transaction ( CORAL : "No connection to the server is active" from "CORAL/RelationalPlugins/oracle" )
+ERROR: commands.gso execution problem!
+ 
+##
+##################################################################
+## End of job.
+##################################################################

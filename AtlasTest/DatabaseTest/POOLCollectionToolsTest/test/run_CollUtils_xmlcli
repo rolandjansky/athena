@@ -1,0 +1,30 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+TESTFILE2=$DATADIR/TAG.102268._000025.pool.root.1
+XMLINPUT=$DATADIR/tagExtract_PUR.xml
+UTIL=CollListAttrib
+
+# remove detritus from previous tests
+rm -f PoolCollectionCatalog.xml
+
+# run the test
+which $UTIL
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $UTIL not found"
+  exit 2
+fi
+
+# run with xml and cli - default (disregard cli)
+cmd3="$UTIL -xmlInput $XMLINPUT -src PFN:$TESTFILE2 RootCollection"
+echo $cmd3
+$cmd3
+# run with xml and cli - override (with cli)
+cmd4="$UTIL -xmlInput $XMLINPUT -xmlMode OVERRIDE -src PFN:$TESTFILE2 RootCollection"
+echo $cmd4
+$cmd4
+# run with xml and cli - append
+cmd5="$UTIL -xmlInput $XMLINPUT -xmlMode APPEND -src PFN:$TESTFILE2 RootCollection"
+echo $cmd5
+$cmd5
+

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+CONNSTRING=oracle://int8r_nolb/atlas_tags_loading_test
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+
+PICKLE=tagUploadT0.pickle
+#TRF=tagUploadT0_trf.py
+#TRF=tagUpload_trf.py
+TRF=TAGUpload_Tier0Wrapper_trf.py
+
+# remove detritus from previous tests
+rm -f $PICKLE
+rm -f authentication.xml
+rm -f PoolCollectionCatalog.xml
+ln -s $DATADIR/authentication.xml .
+#cleanup="CollRemove -src $TESTTABLE RelationalCollection -srcconnect $CONNSTRING"
+#echo $cleanup
+#$cleanup
+
+get_files -data $PICKLE
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF --argdict=$PICKLE"
+echo $cmd
+$cmd
+

@@ -1,0 +1,19 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+TESTFILE1=$DATADIR/Collection_Split1.root
+#TESTFILE2=$DATADIR/fdr08_run2.0052304.physics_Egamma.merge.TAG.o3_f8_m10._0001.1
+TESTFILE2=$DATADIR/data11_7TeV.00178044.physics_Muons.merge.TAG.f354_m765_m764._0001.1
+TRF=CollListAttrib
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF -src PFN:$TESTFILE1 RootCollection PFN:$TESTFILE2 RootCollection"
+echo $cmd
+$cmd 
+#$cmd | wc -l
+

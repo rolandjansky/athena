@@ -1,0 +1,15 @@
+(dp0
+S'dbConnect'
+p1
+S'oracle://int8r_nolb/atlas_tags_loading_test'
+p2
+sS'inputTagFile'
+p3
+(lp4
+S'PCT_MC.111.ATN.test.TAG.r1#/afs/cern.ch/atlas/offline/test/POOLCollectionTools/TAG.00828528._000001.pool.root.1'
+p5
+asS'dbCollection'
+p6
+S'atn_t0test_111_MC_2'
+p7
+s.

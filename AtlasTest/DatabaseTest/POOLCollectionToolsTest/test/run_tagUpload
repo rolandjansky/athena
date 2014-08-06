@@ -1,0 +1,29 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+TESTTABLE=atn_test_102268_Prov
+CONNSTRING=oracle://int8r_nolb/atlas_tags_loading_test
+#TESTFILE=$DATADIR/fdr08_run2_physics_Minbias_o3_f8_m10_1217278983_user.root
+TESTFILE=$DATADIR/TAG.102268._000029.pool.root.1
+#TESTFILE=/afs/cern.ch/user/c/cranshaw/maxidisk/workarea/AtlasTest/DatabaseTest/AthenaPoolMultiTest/run/Collection_Split1.root
+TRF=tagUpload_trf.py
+RELEASE=Atlas,takeFromEnv
+
+# remove detritus from previous tests
+rm -f authentication.xml
+rm -f PoolCollectionCatalog.xml
+ln -s $DATADIR/authentication.xml .
+cleanup="CollRemove -src $TESTTABLE RelationalCollection -srcconnect $CONNSTRING"
+#echo $cleanup
+#$cleanup
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF $TESTFILE $TESTTABLE $RELEASE $CONNSTRING"
+echo $cmd
+$cmd
+

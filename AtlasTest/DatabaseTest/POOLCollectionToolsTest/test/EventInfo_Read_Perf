@@ -1,0 +1,86 @@
+#!/bin/sh
+
+AODFILE=/afs/cern.ch/atlas/maxidisk/d18/Cranshaw/perffiles/data10_7TeV.00158582.physics_MuonswBeam.merge.AOD.f273_m543._lb0210-lb0211.1
+TAGFILE=/afs/cern.ch/atlas/maxidisk/d18/Cranshaw/perffiles/data10_7TeV.00158582.physics_MuonswBeam.test.TAG.f273_m543._lb0210-lb0211.root
+
+# build catalog
+rm -f PoolFileCatalog.xml
+catcmd="pool_insertFileToCatalog ${AODFILE}"
+$catcmd
+
+get_files TAGperf.py
+
+# Do AOD file with full events
+cmd="athena.py -c In=['${AODFILE}'] AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& aodlog1
+
+# Do TAG file with full events
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog1
+
+# Do AOD file with half events
+cmd="athena.py -c In=['${AODFILE}'];EvtMax=12241 AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& aodlog2
+
+# Do TAG file with half events (sequential)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';EvtMax=12241 AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog2
+
+# Do TAG file with half events (random)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';Query='RandomNumber<0.5' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog21
+
+# Do TAG file with 0.1 events (random)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';Query='RandomNumber<0.1' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog3
+
+# Do TAG file with 0.05 events (random)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';Query='RandomNumber<0.05' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog4
+
+# Do TAG file with 0.01 events (random)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';Query='RandomNumber<0.01' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog5
+
+# Do TAG file with 0.005 events (random)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';Query='RandomNumber<0.005' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog6
+
+# Do TAG file with 0.001 events (random)
+cmd="athena.py -c In=['${TAGFILE}'];CollType='ExplicitROOT';Query='RandomNumber<0.001' AthenaPoolTools/EventCount.py"
+echo $cmd
+$cmd >& taglog7
+
+rm -f stat.perf
+
+cmd2="./TAGperf.py aodlog1 86 14 FullAOD"
+$cmd2
+cmd2="./TAGperf.py taglog1 86 14 FullTAG"
+$cmd2
+cmd2="./TAGperf.py aodlog2 45 8 0.5AOD"
+$cmd2
+cmd2="./TAGperf.py taglog2 45 8 0.5TAG(sequential)"
+$cmd2
+cmd2="./TAGperf.py taglog21 45 8 0.5TAG(random)"
+$cmd2
+cmd2="./TAGperf.py taglog3 18 5 0.1TAG(random)"
+$cmd2
+cmd2="./TAGperf.py taglog4 12 4 0.05TAG(random)"
+$cmd2
+cmd2="./TAGperf.py taglog5 9 3 0.01TAG(random)"
+$cmd2
+cmd2="./TAGperf.py taglog6 9 3 0.005TAG(random)"
+$cmd2
+cmd2="./TAGperf.py taglog7 9 3 0.001TAG(random)"
+$cmd2
+
+cat stat.perf

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+#TESTFILE=$DATADIR/fdr08_run2_physics_Minbias_o3_f8_m10_1217278983_user.root
+TESTFILE=$DATADIR/TAG.102268._000003.pool.root.1
+TESTFILE2=$DATADIR/TAG.102268._000025.pool.root.1
+TRF=CollListAttrib
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+# run with command line
+cmd="$TRF -src PFN:$TESTFILE RootCollection"
+echo $cmd
+$cmd 
+cat $TRF.xml | grep datum
+# run with xml
+cmd2="$TRF -compatibility V1 -xmlInput $DATADIR/CollListAttrib.V1.xml -xmlOut run_CollListAttrib_Atlas_2"
+echo $cmd2
+$cmd2
+cat $TRF.xml | grep datum
+# run with xml and cli - default (disregard cli)
+cmd3="$TRF -xmlInput $TRF.xml -xmlOut run_CollListAttrib_Atlas_2 -src PFN:$TESTFILE2 RootCollection"
+echo $cmd3
+$cmd3
+# run with xml and cli - override (with cli)
+cmd4="$TRF -xmlInput $TRF.xml -xmlOut run_CollListAttrib_Atlas_2 -xmlMode OVERRIDE -src PFN:$TESTFILE2 RootCollection"
+echo $cmd4
+$cmd4
+# run with xml and cli - append
+cmd5="$TRF -xmlInput $TRF.xml -xmlOut run_CollListAttrib_Atlas_2 -xmlMode APPEND -src PFN:$TESTFILE2 RootCollection"
+echo $cmd5
+$cmd5
+#$cmd | wc -l
+

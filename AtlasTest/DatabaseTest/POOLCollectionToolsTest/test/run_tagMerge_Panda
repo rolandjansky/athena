@@ -1,0 +1,34 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+#INPUT=$DATADIR/Ryan_Buckingham_data10_7TeV_debugrec_hltacc_f243_m435_READ_1271245689_.root
+#INPUT2=$DATADIR/Sky_French_data10_7TeV_physics_MinBias_f238_m427_READ_1271338106_.root
+INPUT=$DATADIR/TAG.102268._000025.pool.root.1
+INPUT2=$DATADIR/TAG.102268._000029.pool.root.1
+OUTPUT=atn_test_tagMerge_panda.root
+TRF=merge_trf.py
+
+# remove detritus from previous tests
+#rm -f $TRF
+#rm -f PoolCollectionCatalog.xml
+rm -f $OUTPUT
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+
+# Do first file
+cmd="$TRF -i $INPUT $INPUT2 -o $OUTPUT -m tag"
+echo $cmd
+$cmd
+# Dump metadata
+cmd="CollListMetadata -src PFN:$OUTPUT RootCollection"
+echo $cmd
+$cmd
+# Dump metadata
+cmd="cat metadata.xml"
+$cmd
+

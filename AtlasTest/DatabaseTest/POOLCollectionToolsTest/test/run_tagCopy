@@ -1,0 +1,28 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+TESTOUTPUT=oracle://int8r_nolb/atlas_tags_loading_test/atn_ATN_AtlasPOOL_Copy
+TESTINPUT=oracle://int8r_nolb/atlas_tags_loading_test/atn_REF_AtlasPOOL_Copy
+#TESTINPUT=oracle://atlarc.cern.ch/ATLAS_TAGS_DATA_R_DEC2010/data10_7TeV_physics_Standby_r1647_p306_p307_p372_READ
+RUNS=165703
+TRF=tagCopy_trf.py
+RELEASE=Atlas,takeFromEnv
+
+# remove detritus from previous tests
+rm -f authentication.xml
+rm -f PoolCollectionCatalog.xml
+ln -s $DATADIR/authentication.xml .
+cleanup="CollRemove -src $TESTTABLE RelationalCollection -srcconnect $CONNSTRING"
+#echo $cleanup
+#$cleanup
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF $TESTINPUT $TESTOUTPUT $RUNS $RELEASE"
+echo $cmd
+$cmd
+

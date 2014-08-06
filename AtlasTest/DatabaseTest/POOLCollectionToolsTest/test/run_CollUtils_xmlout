@@ -1,0 +1,26 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+XMLINPUT=$DATADIR/tagExtract_PUR.xml
+XMLOUTPUT=run_CollUtils
+UTIL=CollListAttrib
+
+# remove detritus from previous tests
+rm -f PoolCollectionCatalog.xml
+
+# run the test
+which $UTIL
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $UTIL not found"
+  exit 2
+fi
+
+# Check CollListAttrib with the CollAppend xml
+cmd="$UTIL -xmlInput $XMLINPUT -xmlOut $XMLOUTPUT"
+echo $cmd
+$cmd
+# run CollListAttrib with output xml
+cmd3="$UTIL -xmlInput $XMLOUTPUT.xml"
+echo $cmd3
+$cmd3
+

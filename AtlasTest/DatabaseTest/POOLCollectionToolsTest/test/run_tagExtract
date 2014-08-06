@@ -1,0 +1,29 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+#INPUTCOLLS=fdr08_run2_physics_Minbias_o3_f8_m10:fdr08_run2_physics_Muon_o3_f8_m10
+INPUTCOLLS=data12_8TeV_express_express_f446_m1148_m1147_READ:data12_8TeV_physics_JetTauEtmiss_f446_m1148_m1147_READ
+OUTFILE=ExtractAtlas.root
+QUERY="NLooseElectron>2"
+TRF=tagExtract_trf.py
+RELEASE=Atlas,takeFromEnv
+CONNECT="oracle://atlas_tags/ATLAS_TAGS_DATA_F_2012"
+LUMI="Query%3A%0ASELECT+distinct+%27user_RichardHawkings_topmix_Jet_v2_READ%27+as+stream_name%2CRunNumber%2CLumiBlockN+FROM+user_RichardHawkings_topmix_Jet_v2_READ+WHERE+%28RunNumber+%3D+108173%29+and+%28RunNumber+in+%28select+distinct+run_number+from+ATLAS_TAGS_METADATA.coma_runs"
+
+# remove detritus from previous tests
+rm -f authentication.xml
+rm -f PoolCollectionCatalog.xml
+rm -f $OUTFILE
+
+ln -s $DATADIR/authentication.xml .
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF $INPUTCOLLS $OUTFILE $QUERY $LUMI $RELEASE $CONNECT True $PWD"
+echo $cmd
+$cmd
+

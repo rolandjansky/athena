@@ -1,0 +1,20 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+TESTFILE=$DATADIR/user_data09_2TeV_physics_MinBias_r988_p62_READ_1265241701_.root
+TRF=CollSplitByRun.exe
+
+# run the test
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF -src PFN:$TESTFILE RootCollection -splitref StreamESD_ref"
+#cmd="$TRF -src PFN:$TESTFILE RootCollection"
+echo $cmd
+$cmd 
+cmd2="CollListMetadata -src sub_collection_1 RootCollection"
+$cmd2
+#$cmd | wc -l
+

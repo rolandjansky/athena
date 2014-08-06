@@ -1,0 +1,11 @@
+#!/bin/sh
+
+DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+CAT=$DATADIR/BSCopy.xml
+TAGFILE=$DATADIR/myTAG_COMM
+OUTFILE=PCTT_atn.data
+
+#cmd=""AtlCopyBSEvent.exe --src $TAGFILE RootCollection --query "EventNumber<476500" --catalog file:$CAT -o $OUTFILE""
+#echo $cmd
+#$cmd
+AtlCopyBSEvent.exe --src $TAGFILE RootCollection --query "EventNumber<476500" --catalog file:$CAT -o $OUTFILE

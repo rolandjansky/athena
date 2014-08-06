@@ -1,0 +1,175 @@
+###################   ATLAS Tier0 TagDB Loading   ################
+##
+##################################################################
+## STEP 1: setting up the run environment ...
+##################################################################
+ 
+Using Atlas release from run environment
+##################################################################
+## STEP 2: preparing the run ...
+##################################################################
+ 
+CollListAttrib.exe -src PFN:TAG.066398._00002.pool.root.1 RootCollection mc08_CompHep_tprime_j_300_e405_a84_t53 RelationalCollection  -srcconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc
+##################################################################
+## STEP 3: running the executable ...
+##################################################################
+ 
+CollListAttrib.exe -src PFN:TAG.066398._00002.pool.root.1 RootCollection mc08_CompHep_tprime_j_300_e405_a84_t53 RelationalCollection  -srcconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc >& validatt.log
+0
+
+
+ 
+## ... job finished with (retcode1,retcode2) = (0,256)
+## ... total elapsed time:  10  sec
+## ... CMT setup time:      0  sec
+## ... TAG uploading time:  10  sec
+ 
+## ... logfile fragment
+...
+...skipping...
+...
+About to write file CollListAttrib.exe.xml
+RootCollection Info Opening Collection File TAG.066398._00002.pool.root.1 in mode: READ
+RootCollection Info File TAG.066398._00002.pool.root.1 opened
+RootCollection Info Found old Collection TTree name: CollectionTree
+RootCollection Info Root collection opened, size = 5000
+pool::RelationalCollection:open Info  Opening relational collection in READ mode
+PluginManager Info PluginManager creating CORAL/Services/ConnectionService component
+PluginManager Info PluginManager needs to load CORAL/Services/ConnectionService component
+PluginManager Info PluginManager loaded ConnectionService library
+PluginManager Info PluginManager loaded CORAL/Services/ConnectionService factory from ConnectionService library
+PluginManager Info PluginManager loaded CORAL/Services/ConnectionService2 factory from ConnectionService library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IRelationalService: CORAL/Services/RelationalService
+PluginManager Info PluginManager creating CORAL/Services/RelationalService component
+PluginManager Info PluginManager needs to load CORAL/Services/RelationalService component
+PluginManager Info PluginManager loaded RelationalService library
+PluginManager Info PluginManager loaded CORAL/Services/RelationalService factory from RelationalService library
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "coral" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "frontier" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "mysql" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "oracle" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "sqlite" with native implementation
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "coral" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "frontier" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "mysql" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "oracle" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "sqlite" is native
+PluginManager Info PluginManager creating CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager needs to load CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager loaded OracleAccess library
+PluginManager Info PluginManager loaded CORAL/RelationalPlugins/oracle factory from OracleAccess library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IAuthenticationService: CORAL/Services/XMLAuthenticationService
+PluginManager Info PluginManager creating CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager needs to load CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager loaded XMLAuthenticationService library
+PluginManager Info PluginManager loaded CORAL/Services/XMLAuthenticationService factory from XMLAuthenticationService library
+CORAL/Services/XMLAuthenticationService Info Authentication using /afs/cern.ch/atlas/project/tzero/prod1/var/authentication.xml file
+CORAL/RelationalPlugins/oracle Warning Oracle major version 11 is not yet fully supported. Type conversion will assume the Oracle 9 SQL types.
+CORAL/Services/ConnectionService Info Connection to service "atlas_tag_write_db.desy.de" established. Id=47b6fb48-b34d-11de-ae8a-003048947572
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=47b6fb48-b34d-11de-ae8a-003048947572
+pool::RelationalCollection::init Info Opening collection `mc08_CompHep_tprime_j_300_e405_a84_t53' in read mode 
+pool::Exception: Collection fragment `mc08_CompHep_tprime_j_300_e405_a84_t53' does not exist. ( POOL : "RelationalCollection::retrieveCollectionFragmentDescriptions" from "RelationalCollection" )
+Unable to open collection mc08_CompHep_tprime_j_300_e405_a84_t53
+---> STOPPING HERE
+retcodes = ( 0 , 256 , 256 )
+False   False   False   False
+ 
+##
+##################################################################
+## End of job.
+##################################################################
+ 
+ 
+###################   ATLAS Tier0 TagDB Loading   ################
+##
+##################################################################
+## STEP 1: setting up the run environment ...
+##################################################################
+ 
+Collection name =  mc08_CompHep_tprime_j_300_e405_a84_t53
+Using Atlas release from run environment
+##################################################################
+## STEP 2: preparing the run ...
+##################################################################
+ 
+ 
+##################################################################
+## STEP 3: running the executable ...
+##################################################################
+ 
+CollAppend -src PFN:TAG.066398._00002.pool.root.1 RootCollection -dst mc08_CompHep_tprime_j_300_e405_a84_t53 RelationalCollection -dstconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc -nevtcached 5000 -merge  -nevtpercommit 500000
+ 
+which CollAppend ; CollAppend -src PFN:TAG.066398._00002.pool.root.1 RootCollection -dst mc08_CompHep_tprime_j_300_e405_a84_t53 RelationalCollection -dstconnect oracle://atlas_tag_write_db.desy.de/atlas_tags_mc -nevtcached 5000 -merge  -nevtpercommit 500000 >& log
+
+##################################################################
+## STEP 4: generating the return code ...
+##################################################################
+ 
+/afs/cern.ch/atlas/offline/external/LCGCMT/LCGCMT_56c/InstallArea/i686-slc4-gcc34-opt/bin/CollAppend
+ 
+## ... job finished with (retcode1,retc_err,retc_conn) = (62600,0,0)
+## ... total elapsed time:         400 sec
+## ... CMT setup time:             0 sec
+## ... number of appended events:  0
+## ... TAG uploading time:         400 sec
+ 
+## ... logfile fragment
+...
+...skipping...
+...
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (124 sec old) made by lxbra5908.cern.ch/atlast0 on collection mc08_Pythia_LRSM_WR_800_N_50_300_1000_e420_a84_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (24 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (34 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (44 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (54 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (65 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (75 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (85 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (95 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (106 sec old) made by lxbra5702.cern.ch/atlast0 on collection mc08_Pythia_DYee_250M400_e447_s495_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (22 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (33 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (43 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (53 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (63 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (73 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (84 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (94 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (104 sec old) made by lxbra5709.cern.ch/atlast0 on collection mc08_CompHep_tprime_j_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (24 sec old) made by lxbra4902.cern.ch/atlast0 on collection mc08_CompHep_tprime_jB_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Sleeping for 10s
+pool::RelationalCollection::DBLock Warning  Permanent collection database lock detected (34 sec old) made by lxbra4902.cern.ch/atlast0 on collection mc08_CompHep_tprime_jB_300_e405_s462_r635_t53
+pool::RelationalCollection::DBLock Warning  Wait time exceeded: maximum specified wait time: 300 sec - giving up
+CollAppend Info Could not create destination collection mc08_CompHep_tprime_j_300_e405_a84_t53 - testing again if the collection exists already 
+pool::RelationalCollection:open Info  Opening relational collection in READ mode
+pool::RelationalCollection:open Info Setting Coral DB connection retry period to 120 seconds
+pool::RelationalCollection:open Info Setting Coral DB connection timeout 3600 seconds
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_tag_write_db.desy.de" started for user "atlas_tags_mc". Connection Id=4dd8d938-b34d-11de-9905-003048947572
+pool::RelationalCollection::init Info Opening collection `mc08_CompHep_tprime_j_300_e405_a84_t53' in read mode 
+PoolXMLFileCatalog Info XercesC termination number 0
+pool::Exception: Collection fragment `mc08_CompHep_tprime_j_300_e405_a84_t53' does not exist. ( POOL : "RelationalCollection::retrieveCollectionFragmentDescriptions" from "RelationalCollection" )
+ERROR: commands.gso execution problem!
+ 
+##
+##################################################################
+## End of job.
+##################################################################

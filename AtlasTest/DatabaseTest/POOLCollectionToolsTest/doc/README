@@ -1,0 +1,10 @@
+****
+
+Testing package for 	APR/CollectionUtilities
+			Database/AthenaPOOL/AtlasCollectionTools
+			Database/AthenaPOOL/AtlasCollectionTransforms
+
+See test/POOLCollectionToolsTest_TestConfiguration.xml for individual 
+test descriptions
+
+****
