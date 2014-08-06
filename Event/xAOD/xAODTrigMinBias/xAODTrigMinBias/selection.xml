@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="xAOD::TrigSpacePointCounts_v1" />
+  <class name="xAOD::TrigSpacePointCountsContainer_v1" id="519EBE61-C135-46C7-AD7D-C661DC6FC4B5" />
+  <class name="xAOD::TrigSpacePointCountsAuxContainer_v1" id="C682FD32-73CC-4773-ACBF-30B2657C5991" />
+  <class name="xAOD::TrigT2MbtsBits_v1" />
+  <class name="xAOD::TrigT2MbtsBitsContainer_v1" id="FF96BF06-1206-11E4-9605-02163E00A892" />
+  <class name="xAOD::TrigT2MbtsBitsAuxContainer_v1" id="0055818E-1207-11E4-9C7B-02163E00A892" />
+  <class name="xAOD::TrigHisto2D_v1" />
+  <class name="xAOD::TrigHisto2DContainer_v1" id="0116E8A6-1207-11E4-8724-02163E00A892" />
+  <class name="xAOD::TrigHisto2DAuxContainer_v1" id="05B28A1E-1207-11E4-84E2-02163E00A892" />
+  <class name="xAOD::TrigTrackCounts_v1" />
+  <class name="xAOD::TrigTrackCountsContainer_v1" id="0650DED0-1207-11E4-9CD1-02163E00A892" />
+  <class name="xAOD::TrigTrackCountsAuxContainer_v1" id="0701BEB0-1207-11E4-9D08-02163E00A892" />
+  <class name="xAOD::TrigVertexCounts_v1" />
+  <class name="xAOD::TrigVertexCountsContainer_v1" id="07EE6B72-1207-11E4-8B69-02163E00A892" />
+  <class name="xAOD::TrigVertexCountsAuxContainer_v1" id="70E7BDFE-1207-11E4-ACEF-02163E00A892" />
+</lcgdict>
