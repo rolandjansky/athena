@@ -1,0 +1,4 @@
+# Whether to use the D3PDReader if it is present.  If you experience
+# incompatibilities between your object selectors and the D3PDReader,
+# you can turn it off here
+USE_D3PDREADER = yes
