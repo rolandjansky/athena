@@ -1,0 +1,64 @@
+#! /usr/bin/env python
+
+#This script is executed automatically by the compilation of this package ("gmake").
+#It defines the valid arguments of each job transform for the Production System
+#Syntax is Key:value --> "trf_name":[list_of_all_possible_args]
+
+import os
+import pickle
+import sys
+
+ProdSysDic={} 
+noProblem=True
+
+# Reco_trf
+try:
+    from PATJobTransforms.Reco_trf import FlexibleRecoTransform
+    RecoTrf = FlexibleRecoTransform({})
+    ProdSysDic['Reco_trf.py']=RecoTrf.getPotentialArgs()
+    del RecoTrf
+except Exception, e:
+    print "WARNING: unable to generate ProdSysDic entry for Reco_trf (%s)" % e
+    noProblem=False
+    
+# Merging_trf
+try:
+    from PATJobTransforms.Merging_trf import MergingTransform
+    MergingTrf = MergingTransform({})
+    ProdSysDic['Merging_trf.py']=MergingTrf.getPotentialArgs()
+    del MergingTrf
+except Exception, e:
+    print "WARNING: unable to generate ProdSysDic entry for Merging_trf (%s)" % e
+    noProblem=False
+
+# MergeNTUP_trf
+#try:
+#    from PATJobTransforms.Merging_trf import MergeNTUPJobTransform
+#    MergeNTUPTrf = MergeNTUPJobTransform({})
+#    ProdSysDic['MergeNTUP_trf.py']=MergeNTUPTrf.getPotentialArgs()
+#    del MergeNTUPTrf
+#except Exception, e:
+#    print "WARNING: unable to generate ProdSysDic entry for Merging_trf (%s)" % e
+#    noProblem=False
+
+
+# Output pickle file
+try:
+    outFileName=sys.argv[1]
+    f = open(outFileName, 'w')
+    pickle.dump(ProdSysDic, f)
+    f.close()
+    if noProblem: 
+        print outFileName, "successfully created"
+    else: 
+        print outFileName, "created but had problems"
+except Exception, e:
+    print "WARNING: unable to write JobTransformsSignatures.pickle (%s)" % e
+
+# Garbage removal (from job transforms instantiations above)
+filesToDelete=['jobReport_Reco_trf.pickle','jobReport_Merging_trf.pickle','jobReport.pickle']
+for file in filesToDelete:
+    if os.access(file,os.F_OK):
+        os.remove(file)
+
+
