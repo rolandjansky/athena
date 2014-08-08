@@ -1,0 +1,10 @@
+ToolSvc.BPCAlignTrackMon.OutputLevel=WARNING
+ToolSvc.BPCAlignTrackMon.histoPathBase="/stat/BeamDetectors/BPC/TrackingAlignment/"
+ToolSvc.BPCAlignTrackMon.SGTrackkey="Track"
+ToolSvc.BPCAlignTrackMon.BPCnames=["BPC0","BPC1","BPC2","BPC3","BPC4","BPC5"]
+ToolSvc.BPCAlignTrackMon.BPCmaxPos=[300,300,300,300,300,300]
+ToolSvc.BPCAlignTrackMon.BPCminPos=[-300,-300,-300,-300,-300,-300]
+ToolSvc.BPCAlignTrackMon.BPCbinNum=[30000,30000,15000,15000,7500,7500]
+ToolSvc.BPCAlignTrackMon.AlignFile="BPCAlignment_2004TB_RunI.txt"
+ToolSvc.BPCAlignTrackMon.Flag=0
+ToolSvc.BPCAlignTrackMon.Widths=[0.5, 0.5, 1.0, 1.0, 2.0, 2.0]

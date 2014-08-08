@@ -1,0 +1,84 @@
+#include "AthenaCommon/Atlas.UnixStandardJob.txt"
+
+#include "DetDescrCnvSvc/DetStore_joboptions.txt"
+DetDescrCnvSvc.DetectorManagers+= {"CaloTTDescrManager"};
+DetDescrCnvSvc.DetectorManagers += { "CaloMgr" };
+
+#include "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_joboptions.txt"
+#include "TileDetMgrDetDescrCnv/TileDetMgrDetDescrCnv_jobOptions.txt"
+
+//
+//---- EMTB-Files input --------------------
+//
+ApplicationMgr.DLLs += {"LArTBCnv"};
+ApplicationMgr.ExtSvc += { "LArTBCnvSvc" , "LArTBEventSelector/EventSelector"};
+ApplicationMgr.EvtSel = "EventSelector";
+
+EventPersistencySvc.CnvServices     += { "LArTBCnvSvc" };
+EventSelector.InputFiles = {"/afs/cern.ch/user/r/rmcphers/w0/data/rd13_run220113.dat"};
+
+//--- LArMonitoring ---------------------------
+ApplicationMgr.DLLs += { "AthenaMonitoring"};
+
+ApplicationMgr.TopAlg += { "AthenaMon/athenamon" };
+
+ApplicationMgr.DLLs += { "TBMonitoring" };
+
+
+athenamon.AthenaMonTools = {"BeamDetectorMonTool/beamdetmon"};
+
+
+
+// ToolSvc.beamdetmon.histoPathBase = "/toto";
+
+ToolSvc.beamdetmon.MonitorBPC = true;
+ToolSvc.beamdetmon.MonitorBPCRaw = false;
+ToolSvc.beamdetmon.MonitorScint = false;
+ToolSvc.beamdetmon.MonitorTrack = false;
+ToolSvc.beamdetmon.MonitorTDC = false;
+ToolSvc.beamdetmon.MonitorTrigPat = true;
+
+ToolSvc.beamdetmon.FakeDetectors = false;
+
+ToolSvc.beamdetmon.BPCNames = {"BPC1","BPC2"};
+ToolSvc.beamdetmon.BPCMaxPos = 10;
+ToolSvc.beamdetmon.BPCMinPos = -10;
+ToolSvc.beamdetmon.BPCBinNum = 100;
+
+
+ToolSvc.beamdetmon.TDCBinNum = 100;
+ToolSvc.beamdetmon.TDCMax = 1023;
+ToolSvc.beamdetmon.TDCMin = 0;
+
+// ToolSvc.beamdetmon.TriggFlags = {0x00000001,0x00000002,0x00000004,0x00000008,0x00000010,0x00000011};
+ToolSvc.beamdetmon.TriggFlags = {1,2,4,8,16,32};
+
+// -- use root histos --
+ApplicationMgr.DLLs += { "RootHistCnv" };
+ApplicationMgr.HistogramPersistency = "ROOT";
+HistogramPersistencySvc.OutputFile  = "test.root";
+
+// -- Use auditors --
+ApplicationMgr.DLLs += { "GaudiAud" };
+
+// write out a summary of the time spent
+//
+AuditorSvc.Auditors  += { "ChronoAuditor"};
+
+// write out a short message upon entering or leaving each algorithm
+//
+// AuditorSvc.Auditors  += { "NameAuditor" };
+
+
+//-------------------------------------------------------------------------
+// user driving parameters
+//
+
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtMax = 100;
+
+// Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+MessageSvc.OutputLevel =3;
+
+// Dump all objects available
+//StoreGateSvc.Dump = true ;
