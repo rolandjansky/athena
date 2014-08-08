@@ -1,0 +1,10 @@
+*.o
+*.make
+*.stamp
+*.shstamp
+*.cmtref
+*.d
+*.dep
+*.in
+*.makesav
+*.makecmtsave

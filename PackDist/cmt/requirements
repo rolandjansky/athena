@@ -1,0 +1,35 @@
+package PackDist
+
+author Grigori Rybkine <Grigori.Rybkine@cern.ch>
+author Christian Arnault <arnault@lal.in2p3.fr>
+
+# Tools to Package projects based software
+# and facilitate its Distribution
+
+set PACKCFG "../config/pack-nightly-bugfix.cfg"
+
+set PACKOPTS "${PACKOPTS}"
+set_remove PACKOPTS "-w"
+set_append PACKOPTS " -w "
+
+macro PACKREPO "../run"
+macro PACKINSTALL "../installation"
+
+macro urlget "wget" \
+      Darwin "curl -L -O"
+
+private
+macro main "$(PACKAGE_ROOT)/scripts/proj-run.sh"
+macro version_info "`$(main) -v`"
+macro doc_proj-run_sh "pack project(s), external package(s)"
+macro doc_pack-relocate_sh "relocate or transform distribution kit"
+end_private
+
+make_fragment pack_run -header=pack_run_header
+document pack_run Run -group=run $(main)
+
+make_fragment pack_install -header=pack_install_header
+document pack_install Installation -group=installation -s=. $(PACKREPO)
+
+make_fragment help2doc -header=help2doc_header -trailer=help2doc_trailer
+document help2doc Doc -group=doc $(main) ../share/pack-relocate.sh

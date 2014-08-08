@@ -1,0 +1,22 @@
+# File: PackDist/cmt/fragments/pack_run
+# Author: Grigori Rybkine <Grigori.Rybkine@cern.ch>
+
+# Pack...
+
+.PHONY: ${CONSTITUENT} ${CONSTITUENT}clean 
+
+${CONSTITUENT} :: $(PACKREPO)
+	test -d $(PACKREPO) || mkdir $(PACKREPO)
+	if [ -n "`printenv PACKCFG`" ]; then \
+	  $(FULLNAME) $(PACKOPTS) -C $(PACKREPO) -L $(bin) $(PACKEXTRAOPTS);\
+	  else \
+	  $(FULLNAME) -c $(PACKCFG) $(PACKOPTS) -C $(PACKREPO) -L $(bin) $(PACKEXTRAOPTS); fi
+
+$(PACKREPO) :
+	mkdir $(PACKREPO)
+
+${CONSTITUENT}clean ::
+	$(cleanup_echo) $(PACKREPO)/*
+	$(cleanup_silent) \rm -rf $(PACKREPO)/*
+	$(cleanup_echo) ../run
+	$(cleanup_silent) test ! -d ../run || \rm -rf ../run

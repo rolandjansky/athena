@@ -1,0 +1,58 @@
+%%undefine _enable_debug_packages
+%%global __os_install_post /usr/lib/rpm/brp-compress %%{nil}
+
+Name:           %(name)s
+Version:        %(version)s
+Release:        1
+Epoch:          0
+Summary:        %(summary)s
+
+Group:          Application/Physics
+License:        ATLAS
+URL:            http://atlas.web.cern.ch/Atlas
+Packager:       ATLAS Offline
+Source0:        %%{name}.tar.gz
+BuildRoot:      %%{_tmppath}/%%{name}-%%{version}-%%{release}-root-%%(%%{__id_u} -n)
+
+AutoReqProv:    no
+Requires:       %(requires)s
+Provides:       %(provides)s
+
+Prefix:         /opt/atlas
+
+%%description
+High Energy Physics Application
+
+%%prep
+
+%%build
+
+%%define _fixowner  [ `%%{__id_u}` = '0' ] && %%{__chown_Rhf} root
+%%define _fixgroup  [ `%%{__id_u}` = '0' ] && %%{__chgrp_Rhf} root
+
+%%install
+%%{__rm} -rf $RPM_BUILD_ROOT
+%%{__mkdir_p} $RPM_BUILD_ROOT%%{prefix}
+cd $RPM_BUILD_ROOT%%{prefix}
+%%{__gzip} -dc %%{SOURCE0} | %%{__tar} -xvvf -
+STATUS=$?
+if [ $STATUS -ne 0 ]; then
+  exit $STATUS
+fi
+%%{_fixowner} .
+%%{_fixgroup} .
+%%{_fixperms} .
+
+%%clean
+%%{__rm} -rf $RPM_BUILD_ROOT
+
+%%files
+%%defattr(-,root,root,-)
+
+%%changelog
+* Thu Dec 06 2012 Grigori Rybkine <Grigori.Rybkine@cern.ch>
+- Undefine _enable_debug_packages macro (so as to disable building debuginfo packages)
+- Override system __os_install_post macro
+- Define _fixowner, _fixgroup macros since they are missing with RPM 4.8.0 and later
+- In %%%%install section, do not exit (so as to let RPM run __spec_install_post actions)
+

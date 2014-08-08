@@ -1,0 +1,47 @@
+#
+# !!! DO NOT EDIT - GENERATED AUTOMATICALLY !!!
+#
+# Usage:
+# 
+# . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=<project>,<release>[,<cmtconfig>]
+#
+# or
+#
+# export ATLAS_TEST_AREA=<path-to-your-development-area>
+# . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=<project>,<release>,<type>[,<cmtconfig>]
+#
+# where <type> is one of the following: simpleTest, oneTest, projectTest
+#
+# Two additional styles of override of the default CMTCONFIG value are possible:
+#   1. Specifying the forceConfig tag on the command line in which case the CMTCONFIG
+#      environment variable is used to setup the build and runtime environments
+#   2. Specifying a subset of the opt/dbg, gcc34/gcc43, 32/64 and slc4/slc5 tags on
+#      the command line, in which case the default configuration will be overridden
+#      accordingly.
+# 
+# Report bugs to <hn-atlas-releaseKitProblem@cern.ch>.
+#
+
+set CMTSITE STANDALONE
+set SITEROOT @INSTALL_PREFIX@
+
+macro ATLAS_DIST_AREA ${SITEROOT}
+
+apply_tag noTest
+tag_exclude simpleTest noTest
+tag_exclude oneTest noTest
+tag_exclude projectTest noTest
+
+apply_tag projectArea
+macro SITE_PROJECT_AREA ${SITEROOT}
+macro EXTERNAL_PROJECT_AREA ${SITEROOT}
+
+use AtlasLogin AtlasLogin-* $(ATLAS_DIST_AREA)
+
+#
+# This will be overridden by a known CMTCONFIG value (i.e. listed below),
+# if set via AtlasLogin above
+#
+macro cmtconfig_default @CMTCONFIG@
+
+set CMTCONFIG $(cmtconfig_default)

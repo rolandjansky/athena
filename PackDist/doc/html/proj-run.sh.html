@@ -1,0 +1,117 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of PROJ-RUN.SH</TITLE>
+</HEAD><BODY>
+<H1>PROJ-RUN.SH</H1>
+Section: Packaging and Distribution Tools (1)<BR>Updated: August 2013<BR><A HREF="#index">Index</A>
+<A HREF="http://localhost/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+proj-run.sh - pack project(s), external package(s)
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>proj-run.sh</B>
+
+[<I>OPTION</I>]...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Pack project with external packages it depends upon, or only external package(s).
+<DL COMPACT>
+<DT><B>-L</B> &lt;path&gt;<DD>
+create log file in directory &lt;path&gt;
+<DT><B>-C</B> &lt;path&gt;<DD>
+create packages in directory &lt;path&gt;
+<DT><B>-X</B> &lt;path&gt;<DD>
+create external packages in directory &lt;path&gt;
+(takes precedence over <B>-C</B> value)
+<DT><B>-J</B> &lt;path&gt;<DD>
+create project packages in directory &lt;path&gt;
+(takes precedence over <B>-C</B> value)
+<DT><B>-o</B> &lt;path&gt;<DD>
+create RPMs in directory &lt;path&gt;
+<DT><B>-x</B> &lt;path&gt;<DD>
+create external RPMs in directory &lt;path&gt;
+(takes precedence over <B>-o</B> value)
+<DT><B>-j</B> &lt;path&gt;<DD>
+create project RPMs in directory &lt;path&gt;
+(takes precedence over <B>-o</B> value)
+<DT><B>-b</B> &lt;path&gt;<DD>
+pack project located in project base directory &lt;path&gt;
+<DT><B>-P</B> &lt;project&gt;<DD>
+pack project &lt;project&gt;
+<DT><B>-r</B> &lt;id&gt;<DD>
+pack project release &lt;id&gt;
+<DT><B>-p</B> &lt;package&gt;<DD>
+pack external package &lt;package&gt; (may be multiple)
+<DT><B>-D</B><DD>
+pack debug build
+<DT><B>-I</B><DD>
+create debug information packages (for not debug build)
+<DT><B>-S</B> &lt;suffix&gt;<DD>
+suffix of debug information files (for not debug build)
+<DT><B>-t</B> &lt;tag&gt;[,&lt;tag&gt;...]<DD>
+use additional tag(s) for setup (may be multiple)
+<DT><B>-T</B> &lt;cmtconfig&gt;<DD>
+force CMTCONFIG &lt;cmtconfig&gt; (platform tag) for setup
+<DT><B>-d</B><DD>
+pack documentation files also
+<DT><B>-F</B><DD>
+overwrite existing tarballs of external packages
+<DT><B>-U</B><DD>
+overwrite existing tarballs of project packages
+<DT><B>-k</B><DD>
+keep existing tarballs of settings packages
+(default is overwrite if their versions differ from those in use)
+<DT><B>-R</B><DD>
+recursively pack projects required by the project being packed
+<DT><B>-V</B><DD>
+verify that existing tarballs (of project and/or external packages) are up-to-date
+<DT><B>-w</B><DD>
+wait until packing completion
+<DT><B>-q</B><DD>
+do not write anything to standard output
+<DT><B>-n</B><DD>
+do not execute, only dump configuration
+<DT><B>-B</B> &lt;path&gt;<DD>
+use directory &lt;path&gt; for temporary files
+<DT><B>-c</B> &lt;path&gt;<DD>
+use configuration file &lt;path&gt;
+<DT><B>-h</B><DD>
+display this help and exit
+<DT><B>-v</B><DD>
+output version information and exit
+</DL>
+<P>
+
+The PACKOPTS environment variable specifies a space separated list of default options
+to be placed in front of any explicit options.
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Written by Grigori Rybkine.
+<A NAME="lbAF">&nbsp;</A>
+<H2>REPORTING BUGS</H2>
+
+Report bugs to &lt;<A HREF="mailto:Grigori.Rybkine@cern.ch">Grigori.Rybkine@cern.ch</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">AUTHOR</A><DD>
+<DT><A HREF="#lbAF">REPORTING BUGS</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 15:16:06 GMT, August 20, 2013
+</BODY>
+</HTML>

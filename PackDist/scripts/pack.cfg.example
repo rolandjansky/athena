@@ -1,0 +1,145 @@
+# This is an example configuration file for the pack-run.sh and proj-run.sh scripts.
+# 
+# The configuration files read by the scripts are defaults.cfg,
+# ~/.pack.cfg, the file specified in the environment variable PACKCFG,
+# the file specified with the -c command line option
+# (values from "earlier" files are overridden by "later" files).
+#
+# The format is: option = value # comments
+#            or: option : value # comments
+#
+# (Command line options override values from the configuration files.)
+#
+# Report bugs to <Grigori.Rybkine@cern.ch>.
+#
+
+#cmthome: $HOME/cmthome-latest
+
+# AtlasSetup package root
+#setuproot = /afs/cern.ch/atlas/software/dist/AtlasSetup
+
+# (command line option -L)
+#logdir: $HOME/log
+
+# directory to create packages in (command line option -C)
+#pacmancache=/data/pacman
+
+#patchdir: $HOME/patches
+
+# (command line option -b)
+#projbase=/afs/cern.ch/atlas/software/builds
+
+# the release to package
+# (command line option -r)
+#release=10.4.0
+
+# this option is only currently used to pack monolithic releases
+# as 'AtlasRelease' project
+# use the 'container' option for all (other) projects if needed
+#mainpkg=AtlasRelease # this is default
+
+# the packages to pack
+# (command line option -p)
+# (value accumulates over configuration files and -p command line options)
+#packages =    		   AtlasShift      	oracle
+
+#mode = dbg
+
+# overwrite (yes) or not (no) existing tarballs of external packages
+# (command line option -F)
+#overwrite : yes  # (boolean option)
+
+
+# The options ONLY supported by the proj-run.sh script.
+#
+
+# directory to create external packages in, takes precedence over pacmancache value
+# (command line option -X)
+#externcache = /data/Proj/extern
+
+# directory to create project packages in, takes precedence over pacmancache value
+# (command line option -J)
+#projcache = /data/Proj/proj
+
+# directory to create RPMs in (command line option -o)
+#rpmdir=/data/rpms
+
+# directory to create external RPMs in, takes precedence over rpmdir value
+# (command line option -x)
+#externdir = /data/Proj/extern
+
+# directory to create project RPMs in, takes precedence over rpmdir value
+# (command line option -j)
+#projdir = /data/Proj/proj
+
+# the project to pack
+# (command line option -P)
+#project = AtlasSimulation #AtlasCore #AtlasConditions
+
+# container package specification for the project to pack
+# this option is useful if the cmt/project.cmt file
+# does not specify the container package
+#container: container-name [access-path]
+
+# additional tag(s) for setup
+# (command line option -t)
+# the value may be a space or comma separated list
+#tags: 32 # to pack 32-bit build on 64-bit machine
+
+# CMTCONFIG (platform tag) for setup
+# (command line option -T)
+# the value shall be a CMTCONFIG value recognised by the setup procedure/tool
+#cmtconfig: x86_64-slc6-gcc47-opt 
+
+# package (yes) or not (no) documentation files
+# (command line option -d)
+#docfiles: yes # (boolean option)
+
+# overwrite (yes) or not (no) existing tarballs of project packages
+# (command line option -U)
+#upgrade: yes # (boolean option)
+
+# keep (yes) existing tarballs of settings packages or overwrite (no) them
+# if their versions differ from those in use
+# (command line option -k)
+#keep: yes # (boolean option)
+
+# recursively pack projects required by the project being packed
+# (command line option -R)
+# yes if starts with y or Y or is 1, no - otherwise
+# (the same applies to the other boolean options)
+#recursive: Yep # nope # (boolean option)
+
+# verify (yes) or not (no) that existing tarballs are up-to-date
+# (command line option -V)
+#verify: yes # (boolean option)
+
+# wait (yes) or not (no) until packaging completion
+# (command line option -w)
+#waiting: yes # (boolean option)
+
+# do not write anything to standard output
+# (command line option -q)
+#quiet: no # yes # (boolean option)
+
+# do not execute, only dump configuration
+# (command line option -n)
+#configure: no # yes # (boolean option)
+
+# directory to use for temporary files during packaging 
+# (with enough space to copy the project into)
+# defaults to the TMPDIR environment variable if set, or /tmp
+# (command line option -B)
+#builddir = /data/kitbuild
+
+# CMT cache location
+# defaults to the CMT site cache (http://www.cmtsite.org/pacman/cache)
+#cmtcache = http://cern.ch/atlas-computing/links/kitsDirectory/CMT/pacman/cache
+
+# create (yes) or not (no) debug information packages (for not debug build)
+# (command line option -I)
+#debuginfo: no # (boolean option)
+
+# extention of debug information files (for not debug build)
+# (command line option -S)
+#debuginfosuffix = .debug

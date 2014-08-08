@@ -1,0 +1,9 @@
+# File: PackDist/cmt/fragments/help2doc_trailer
+# Author: Grigori Rybkine <Grigori.Rybkine@cern.ch>
+
+${CONSTITUENT} :: $(MAN) $(HTML)
+	$(echo) ${CONSTITUENT} done
+
+${CONSTITUENT}clean ::
+	$(cleanup_echo) $(MAN) $(HTML)
+	$(cleanup_silent) \rm -f $(MAN) $(HTML)

@@ -1,0 +1,9 @@
+CVS
+*~
+*.pyc
+*.pyo
+*.stamp
+*.shstamp
+*.cmtref
+.svn
+.__afs*

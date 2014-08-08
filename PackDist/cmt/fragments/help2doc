@@ -1,0 +1,17 @@
+# File: PackDist/cmt/fragments/help2doc
+# Author: Grigori Rybkine <Grigori.Rybkine@cern.ch>
+
+MAN_${NAME}_${FILEEXTENSION} = ../man/man1/${FILENAME}.1
+HTML_${NAME}_${FILEEXTENSION} = ../doc/html/${FILENAME}.html
+
+$(MAN_${NAME}_${FILEEXTENSION}) : ${FULLNAME}
+	mkdir -p $(@D)
+	help2man -o $@ -n "$(doc_${NAME}_${FILEEXTENSION})" \
+	-m "Packaging and Distribution Tools" -N -h -h -v -v $<
+
+$(HTML_${NAME}_${FILEEXTENSION}) : $(MAN_${NAME}_${FILEEXTENSION})
+	mkdir -p $(@D)
+	man2html $< >|$@
+
+MAN += $(MAN_${NAME}_${FILEEXTENSION})
+HTML += $(HTML_${NAME}_${FILEEXTENSION})

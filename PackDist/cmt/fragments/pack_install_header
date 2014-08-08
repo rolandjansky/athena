@@ -1,0 +1,8 @@
+# File: PackDist/cmt/fragments/pack_install_header
+# Author: Grigori Rybkine <Grigori.Rybkine@cern.ch>
+
+${CONSTITUENT} ::
+	@\printf "\n%s\n\n" \
+	"$(version_info)"
+
+# End of file: PackDist/cmt/fragments/pack_install_header

@@ -1,0 +1,56 @@
+# File: PackDist/cmt/fragments/pack_install
+# Author: Grigori Rybkine <Grigori.Rybkine@cern.ch>
+
+# Install the most recently modified (binary, if available) package
+# from repository PACKREPO in directory PACKINSTALL
+
+PKG = $(PACKINSTALL)/pkg
+UNPACK = $(PACKINSTALL)/pacman
+DOWNLOAD = $(PACKINSTALL)/pacman-latest.tar.gz
+URL = http://atlas-computing.web.cern.ch/atlas-computing/links/monolith
+#URL = http://physics.bu.edu/pacman/sample_cache/tarballs
+
+.PHONY: ${CONSTITUENT} ${CONSTITUENT}clean 
+.PHONY: get $(PKG)
+
+${CONSTITUENT} :: get
+
+get : $(PKG) $(UNPACK)
+	cd $(UNPACK); . ./setup.sh; cd -; \
+	cd $(<D); \
+	pacman -allow trust-all-caches tar-overwrite; \
+	pacman -get `cat $(<F)` -ask none; retval=$$?; \
+	rm -f $(<F); exit $$retval
+
+$(PKG) : $(PACKREPO)
+	@find $(<) -type f -name "*.pacman" >$(bin)pkglist
+	@test -s $(bin)pkglist || { echo Empty repository: $<; exit 1; }
+	@rm -f $(bin)pkg
+	@ls -1t `cat $(bin)pkglist` | grep '\(opt\|dbg\)[^/]*\.pacman' | head -n 1 | \
+	sed -e 's!\(.*\)/\([^/]\{1,\}\)!\1:\2!' -e 's!\.pacman!!' >$(bin)pkg
+	@test -s $(bin)pkg || { echo No binary packages in repository: $<; \
+	rm -f $(bin)pkg; \
+	ls -1t `cat $(bin)pkglist` | head -n 1 | \
+	sed -e 's!\(.*\)/\([^/]\{1,\}\)!\1:\2!' -e 's!\.pacman!!' >$(bin)pkg; }
+	@mkdir -p $(@D)
+	@cp -p $(bin)pkg $@
+	@echo Package: `cat $@`
+
+$(PACKREPO) :
+	@echo No such repository: $@; exit 1
+
+$(UNPACK) : $(DOWNLOAD)
+	rm -f $@
+	mkdir -p $(@D)
+	cd $(@D); tar zxf $<
+	@top=`ls -1dt \`find $(@D) -maxdepth 1 -type d -name "pacman-*"\`|head -n 1`; \
+	test -d "$$top" || { echo Cannot find pacman: $(@D); ls -ltr; exit 1; }; \
+	ln -sfnv `basename $$top` $@
+
+$(DOWNLOAD) :
+	mkdir -p $(@D)
+	cd $(@D); $(urlget) $(URL)/$(@F)
+
+${CONSTITUENT}clean ::
+	$(cleanup_echo) $(PACKINSTALL)/*
+	$(cleanup_silent) \rm -rf $(PACKINSTALL)/*

@@ -1,0 +1,67 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of PACK-RELOCATE.SH</TITLE>
+</HEAD><BODY>
+<H1>PACK-RELOCATE.SH</H1>
+Section: Packaging and Distribution Tools (1)<BR>Updated: August 2013<BR><A HREF="#index">Index</A>
+<A HREF="http://localhost/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+pack-relocate.sh - relocate or transform distribution kit
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>pack-relocate.sh</B>
+
+[<I>OPTION</I>]... <I>SOURCE DEST</I>
+<BR>
+
+<B>pack-relocate.sh</B>
+
+[<I>OPTION</I>]... <I>-t PATH</I>...
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+In first form, relocate the ATLAS distribution kit from SOURCE to DEST.
+In second form, locate the ATLAS distribution kit in PATH and transform
+as described for <B>-t</B> option (implies <B>-i</B> option).
+<DL COMPACT>
+<DT><B>-i</B><DD>
+edit files in-place, without moving them from SOURCE to DEST
+<DT><B>-c</B><DD>
+only relocate files in cmtsite
+<DT><B>-t</B><DD>
+transform setup scripts so that full paths in them may be changed by setting ATLAS_RELEASE_BASE environment variable
+<DT><B>-h</B><DD>
+display this help and exit
+<DT><B>-v</B><DD>
+output version information and exit
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Written by Grigori Rybkine.
+<A NAME="lbAF">&nbsp;</A>
+<H2>REPORTING BUGS</H2>
+
+Report bugs to &lt;<A HREF="mailto:Grigori.Rybkine@cern.ch">Grigori.Rybkine@cern.ch</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">AUTHOR</A><DD>
+<DT><A HREF="#lbAF">REPORTING BUGS</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://localhost/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 14:57:23 GMT, August 20, 2013
+</BODY>
+</HTML>
