@@ -1,0 +1,469 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{epsfig}
+\usepackage{geometry}
+\geometry{verbose,a4paper,tmargin=2.9cm,bmargin=2.3cm,lmargin=2.5cm,rmargin=2.5cm}
+\usepackage[english]{babel}
+\input newcommands.tex
+%\usepackage{rotate}
+
+%opening
+\title{B-Tagging EDM and Implementation}
+%\author{F. {\AA}kesson, A. Wildauer}
+% 
+\special{!userdict begin /bop-hook{gsave 130 130 translate
+90 rotate /Palatino-Bold findfont 25 scalefont setfont 100 90 moveto 0.7 setgray 
+  (03.12.2004 - B-Tagging Draft 0.3) show grestore}def end}
+
+% -------------------------------------------------------------------
+\author{
+  F. {\AA}kesson, CERN, Geneva, Switzerland\\
+  A. Wildauer, Leopold-Franzens-University, Innsbruck, Austria
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+For various physics analyses in ATLAS, reliable and efficient b-tagging
+algorithms are important. In the harsh enviroment of the LHC ($\sim$23
+inelastic collisions every 25 ns) this task turns out to be particularily 
+challenging. One of the guiding principles in developing the b-tagging 
+packages is a strong focus on modularity and defined interfaces using the 
+advantages of object oriented C++. The benefit is the easy expandability 
+of the b-tagging with additional tag strategies integrated in the Athena 
+framework. Various implementations of tagging tools and strategies 
+dedicated to b-tagging using the full reconstruction of simulated ATLAS 
+events are presented.
+\end{abstract}
+
+\newpage
+
+\section{Introduction}\label{intro}
+This section will describe the need and necessity of b-tagging algorithms
+for the future physics program of ATLAS.
+
+\section{Theoretical Background}\label{theorie}
+Due to the relatively long life-time of the b-flavoured mesons the decay 
+will on average take place a few mm from the primary vertex. The signature 
+in the detector will be a secondary vertex which can be reconstructed with 
+the tools presented here. In addition to the secondary vertex finding other 
+characteristics of jets, such as jet-kinematics, semi-leptonic decays of 
+the B-mesons, and impact parameters can be used to separate b-flavoured jets 
+from jets with lighter flavours. The resulting b-tagging objects will be 
+part of the AOD production and will support physicists searching for 
+processes with final state b-jets.
+
+\begin{itemize}
+\item Lifetime information: signed impact parameters, secondary vertexing, etc.
+\item Leptonic decays: Even if it is a small fraction ($\approx 10\%$) of the
+b-mesons decaying leptonically the leptons have characteristic properties.
+\item Kinematic properties of the b-jet.
+\end{itemize}
+
+\section{Common Interfaces and Data Flow}\label{interfaces}
+The basic information flow of the b-tagging is shown in 
+fig.~\ref{fig:infoflow}. The {\tt BJetBuilder} algorithm 
+(sec.~\ref{fig:bjetalg}) reads the reconstructed primary vertex and jets 
+from the transient data storage, creates a BJet (sec.~\ref{sec:bjet}) for
+each jet to be tagged and
+passes it on for tagging to the different Athena tagging tools.
+The tools creates a tag specific {\tt BInfo}-object which is added to the
+{\tt BJet}. The collection of BJets from the event are added to the 
+AOD-stream. The information can also be written out into a ntuple file.
+
+\begin{figure}[htbp]
+  \centerline{\epsfig{file=images/InfoFlow.eps,width=12.0cm}}
+  \caption[]{\label{fig:infoflow}\sl
+    The schematic information flow for the b-tagger. The BJetBuilder algorithm
+    reads the reconstructed primary vertex and jets from the transient data 
+    storage, creates a BJet which is passed on for tagging to the different 
+    Athena tagging tools. The collection of BJets from the event are added to
+    the AOD-stream. The information can also be written out into a ntuple file.}
+\end{figure}
+
+\subsection{The {\tt BJetBuilder} Algorithm}\label{sec:bjetalg}
+The b-tagging top algorithm has the following tasks:
+\begin{itemize}
+  \item Read the jets and the primary vertex from the transient data storage
+  \item Perform basic preselection on the tracks in the jet
+  \item Call the different b-tagging tools
+  \item Combine the results of the b-tagging tools
+  \item Write the resulting BJets to the transient data storage
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centerline{\epsfig{file=images/BTagBasic.eps,width=5.0cm}}
+  \caption[]{\label{fig:btagbasic}\sl
+    The scematic implementation of the reconstructed vertex class.}
+\end{figure}
+
+\subsection{The {\tt BJet}-Object}\label{sec:bjet}
+The BJet class is the container for all b-tagging related properties 
+of the jet. To ensure common interfaces with other AOD particle objects the
+BJet inherits from {\tt ParticleBase} and {\tt P4PxPyPzE} 
+(fig.~\ref{fig:bjet}a). The {\tt ParticleBase} gives the particle basic 
+attributes, e.g. charge, originating vertex and if the jet is reconstructed 
+from simulated data, while the {\tt P4PxPyPzE} inheritance gives the BJet 
+the basic kinematic attributes, e.g. $p_t$ and Energy. The BJet is a 
+navigable of {\tt Jet}.
+
+\begin{figure}[htbp]
+  \centerline{
+    \epsfig{file=images/BJet.eps,width=6.0cm}
+    \epsfig{file=images/BInfoBasic.eps,width=6.0cm}}
+  \caption[]{\label{fig:bjet}\sl
+    a) The inheritance structure of the BJet ensures common interfaces with
+    the other AOD objects. The BJet has a vector of IBInfo objects which
+    contain the tagging information from the various tagging tools. b) The 
+    information from each tag is stored in a BInfo-object. All 
+    BInfo-objects inherit from the interface base-class IBInfo.}
+\end{figure}
+
+\subsection{The {\tt BInfo}-Object}\label{sec:binfo}
+Every tag has its distinctive BInfo object where all necessary tagging 
+information is stored. To enable the combination of the tags all 
+BInfo-objects inherit from a common interface base-class {\tt IBInfo}
+(fig.~\ref{fig:bjet}b). The {\tt IBInfo}-object forces the implementation 
+of the signal- and background-likelihood needed for a correctly normalised 
+statistical combination of the tags in the main algorithm.  
+
+%\begin{figure}[htbp]
+%  \centerline{\epsfig{file=images/BInfoBasic.eps,width=5.0cm}}
+%  \caption[]{\label{fig:binfo}\sl
+%    The information from each tag is stored in a BInfo-object. All 
+%    BInfo-objects inherit from the interface base-class IBInfo.}
+%\end{figure}
+
+
+
+\section{Implementation}\label{implementation}
+
+\subsection{Implemented B-Tagging Tools}
+
+\begin{figure}[htbp]
+  \centerline{\epsfig{file=images/BTag.eps,width=12.0cm}}
+  \caption[]{\label{fig:recvertex}\sl
+    The scematic implementation of the reconstructed vertex class
+    {\tt RecVertex}.}
+\end{figure}
+
+
+
+
+
+
+
+% -------------------------------------------------------------------------
+
+\subsection{Lifetime Tag}
+The lifetime tag uses the larger impact significances of tracks comming 
+from decaying b-flavoured particles. Due to the on average longer lifetime
+of b-mesons and b-baryons the decay will take place away from the primary
+vertex and this resulting in larger impact significances. The impact 
+significance $s$ is defined as
+\begin{equation}
+  s=\frac{d}{\sigma_d},
+\end{equation}
+where $d$ can be the distance in $z$ (1D), in the $r\phi$-plane (2D)
+or the three-dimensional distance in $z-r\phi$ (3D) of the point of
+closest approach of the track to the reconstructed primary vertex. The
+sign of $s$ is determined by the crossing point of the track with
+respect to the jet-axis. If the track crosses ahead(behind) of the
+primary vertex $s$ gets a positive(negative) sign (see
+Fig.~\ref{fig:ipsign})
+.
+\begin{table}[h]
+  \begin{center}\caption[]{\label{tab:lumi_st}\sl 
+    Tracks passing the below quality cuts are used in the signed
+    impact parameter tag. $d_0$ and $z_0$ are given with respect to
+    the reconstructed primary vertex.\\}
+    \begin{tabular}{|l|l|} \hline
+      Cut   & Value \\ \hline
+      $p_t$ & $\ge$ 1~\gev \\
+      $d_0$ & $\le$ 3.5~mm \\
+      $z_0$ & $\le$ 5~mm \\
+      Number of Pixel+SCT Hits & $\ge$ 9 \\
+      Number of Pixel Hits & $\ge$ 2 \\
+      Number of B-Layer Hits & $\ge$ 1 \\ \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\begin{figure}[htbp]
+  \centerline
+  {
+    \epsfig{file=images/SignedImpactSignificance1D.eps,width=5.5cm}
+    \epsfig{file=images/SignedImpactSignificance2D.eps,width=5.5cm}
+    \epsfig{file=images/SignedImpactSignificance3D.eps,width=5.5cm}
+  }
+  \caption[]{\label{fig:recvertex}\sl The distributions of the signed
+    impact parameter determined from (a) the $z$-distance (1D), (b)
+    the $r\phi$-plane distance (2D), and (c) from the $z-r\phi$
+    distance (3D) of the point of closest approach of the track to the
+    reconstructed primary vertex.}
+\end{figure}
+
+\subsection{Secondary Vertex Fit}
+In addition to the higher values of the impact significance it is
+possible to reconstruct secondary vertices in the b-flavoured jets.
+There are several ways of seeding the secondary verices and assigning
+tracks to the vertices. One way is to fit vertices with all pairs of
+tracks, retaining the fit with the highest probability and fitting the
+remaining tracks of the jet to this vertex. All tracks below a certain
+fit probability will be rejected. This approach is implemented in the
+build-up (BU) algorithm. An other approach is to start with all tracks
+in the jet, fit a vertex, and reject tracks below a certain fixed fit
+probability. This has been implemented in the tear-down (TD)
+algorithm.  
+
+After the secondary vertex finding properties of the vertex, such as
+mass, fit probability, multiplicity and distance from the
+reconstructed primary vertex can be studied. In Fig.~\ref{fig:BUvars}
+and Fig.~\ref{fig:TDvars} the properties of the vertex found by the
+build-up and the tear-down method respectively is shown.
+
+\begin{figure}[htbp]
+  \centerline
+  {
+    \epsfig{file=images/BUSecVtxMass.eps,width=5.5cm}
+    \epsfig{file=images/BUSecVtxMultiplicity.eps,width=5.5cm}
+    \epsfig{file=images/BUSecVtxProb.eps,width=5.5cm}
+  }  
+  \centerline
+  {
+    \epsfig{file=images/BU2DSecVtxDistance.eps,width=5.5cm}
+    \epsfig{file=images/BU3DSecVtxDistance.eps,width=5.5cm}
+  }
+  \caption[]{\label{fig:BUvars}\sl
+    Discriminating variables from the build-up secondary vertex tag.  }
+\end{figure}
+
+\begin{figure}[htbp]
+  \centerline
+  {
+    \epsfig{file=images/TDSecVtxMass.eps,width=5.5cm}
+    \epsfig{file=images/TDSecVtxMultiplicity.eps,width=5.5cm}
+    \epsfig{file=images/TDSecVtxProb.eps,width=5.5cm}
+  }  
+  \centerline
+  {
+    \epsfig{file=images/TD2DSecVtxDistance.eps,width=5.5cm}
+    \epsfig{file=images/TD3DSecVtxDistance.eps,width=5.5cm}
+  }
+  \caption[]{\label{fig:TDvars}\sl
+    Discriminating variables from the tear-down secondary vertex tag.  }
+\end{figure}
+
+
+The resulting likelihood, combining the vertex mass, multiplicity, 
+fit probability and the two-dimensional distance can be seen in 
+Fig.~\ref{fig:secvtxlh}.
+
+\begin{figure}[htbp]
+  \centerline
+  {
+    \epsfig{file=images/BULikelihood.eps,width=5.5cm}
+    \epsfig{file=images/TDLikelihood.eps,width=5.5cm}
+  }
+  \caption[]{\label{fig:TDvars}\sl
+    Discriminating variables from the tear-down secondary vertex tag.  }
+\end{figure}
+
+
+\section{Combined b-Tagging Likelihood}
+In the default configuration the b-Tagger combines the following 
+tags in one likelihood to deliver the combined b-tag of a jet:
+\begin{itemize}
+\item 1D Signed impact significance
+\item 2D Signed impact significance
+\item Build-up secondary vertex fit
+\end{itemize}
+The distribution of the combined likelihood is shown in Fig.~\ref{fig:comblh}(a)
+and the efficiency for bottom- and light-jets is shown in Fig.~\ref{fig:comblh}(b). 
+
+\begin{figure}[htbp]
+  \centerline
+  {
+    \epsfig{file=images/CombinedLikelihood.eps,width=7.0cm}
+    \epsfig{file=images/CombinedEfficiency.eps,width=7.0cm}
+  }
+  \caption[]{\label{fig:comblh}\sl (a) The distribution of the
+    combined likelihood and (b) the efficiency for bottom- and
+    light-jets is shown in Fig.~\ref{fig:comblh}(b).}
+\end{figure}
+
+
+
+
+% -------------------------------------------------------------------------
+
+\begin{appendix}
+
+\section{How to Run the B-Tagger}
+This section describes how to use the b-tagger as a user within the 
+athena framework.
+
+The default version of the release can be used by including the following line 
+\begin{verbatim}
+  include( "BTaggingAlgs/BTagging_jobOptions.py" ); 
+\end{verbatim}
+into your Python job-options file. Please note that the b-tagger must
+run after the tracking, the primary vertex finding and the {\tt TrackParticle}
+creation. Currently external jet-finding is not needed for the b-tagging
+since the jet-finding is done on-the-fly when running the algorithm.
+This, however, can be changed to use any other jet-finding algorithm you
+may desire.   
+
+The output level of the b-tagger can be set with
+\begin{verbatim}
+  BJetBuilder.OutputLevel = DEBUG;
+\end{verbatim}
+
+\subsection{"Jet input flow" for the BTagger}
+The Btagger can be run with different kind of jets.
+\begin{enumerate}
+\item KtTowerJets based on Cells: since the BTagger needs tracks to
+perform the tags, TrackParticles have to be associated to the found
+Jets. This is automatically done by the TrackParticleAndJetMerger
+algorithm.
+\item KtJets based on TrackParticles (an instance of the JetAlgorithm
+will be run by the BTagger with TrackParticles as input)
+\item Jets from either (1) or (2) can be sent through a TruthMatching
+algorithm which either only take out "true" BJets (if in SIG modus,
+see Appendix about flags) or only take light jets (when in BKG
+modus). By default the TruthMatching algorithm is turned of (NONE
+flag).
+\end{enumerate} 
+
+The possible Jet input is illustrated in Figure XX.
+\begin{figure}[htbp]
+ \centerline{\epsfig{file=images/BTaggin_jetSourceFlow.eps}}
+ \caption[]{\label{fig:jetinput}\sl Possible Jet input collections for
+    the BTagger. It can either take Jets based on TrackParticles or
+    Cells (with TrackParticles associated to Jets). In addition a
+    truth matching can be done before the JetCollection is given to
+    the b-tagging algorithm. The flags used to steer the input are
+    written in the diagram. If applied they have to be suffixed with
+    \textit{BTaggingAlgsFlags.}. }
+\end{figure}
+
+
+
+
+
+\subsection{General steering of the BTagger}
+From within your jobOptions file you can set general steering
+variables which control the execution of the BTagger. These global
+python flags enable the user to control the BTagging without the
+necessity of going into its jobOptions files. All flags have default
+values so that the BTagger can also be run without any modifications.
+
+If you want to use the global steering flags you have to import them
+in your jobOptions file with:
+\begin{verbatim}
+if not 'BTaggingAlgsFlags' in dir():
+  from BTaggingAlgs.BTaggingAlgsFlags import BTaggingAlgsFlags
+\end{verbatim}
+If you want to change a flag from its default value you have to do so
+\textbf{after} the import lines and \textbf{before} including the
+general BTagging jobOptions file. E.g. for changing the modus the
+BTagger should run in from \textit{analysis} (which is default) to
+\textit{reference} you just need to add this line:
+\begin{verbatim}
+BTaggingAlgsFlags.modus = 'reference'
+\end{verbatim}
+The next tables give a detailed description of the flags, their
+default values and all possible values they can be set to (remember,
+to change a flag you always need to add \textit{BTaggingAlgsFlags.} in
+front of it).
+
+\begin{tabular}{l|l|l|l}
+Flag & default & others & description \\ \hline modus & 'analysis' &
+'reference' & choose the mode the BTagger should run in \\
+jetFinderBasedOn & 'TrackParticle' & 'Cells" & Jets should be found on
+the basis of TrackParticles or Cells \\ truthMatching & 'NONE' &
+'SIG', 'BKG' & the algorithm can do a truth matching to be 'sure' that
+it was a bjet or a light jet \\ \hline trackerUsedForRefHistos &
+'xKal' & 'iPat' & choose the tracker with which the ref samples were
+made. Right now only xKalmann is supported.\\ sampleUsedForRefHistos &
+'Hxx' & 'Zxx' & choose which sample was used for the reference
+histos. Default is Hbb for signal and Huu for background.\\
+%\caption[]{\label{table:generalflags}\sl
+%Flags to steer the general behaviour of the BTagger.}
+\end{tabular} 
+
+\begin{tabular}{l|l|l}
+  Flag & default & description\\ \hline
+  doBTagCBNT & OFF & to run the BTagging CBNT algorithms.\\
+  doBTagJetCBNT & OFF & to run the CBNT of the JetAlgorithm.\\
+\end{tabular} 
+
+\begin{tabular}{l|c|l}
+Flag & default & description\\ \hline
+lifetime1D & OFF & lifetime tag based on $z_0$\\
+lifetime2D & ON & lifetime tag based on $d_0$ ($R-\phi$ plane)\\
+lifetime3D & OFF & lifetime tag based on the 3-dimensional impact parameter $a_0$\\
+secVtxFitBU & ON & secondary vertex tag based on a build-up vertex finder strategy\\
+secVtxFitTD & OFF & secondary vertex tag based on a tear-down vertex finder strategy\\
+\end{tabular} 
+
+\begin{tabular}{l|c|l}
+Flag & default & description\\
+\hline
+useLifetime1DForLH & ON & include lifetime1D info in the combined LH calculation\\
+useLifetime2DForLH & ON & include lifetime2D info in the combined LH calculation\\
+useLifetime3DForLH & ON & include lifetime3D info in the combined LH calculation\\
+useSecVtxFitBUForLH & ON & include secVtxFitBU info in the combined LH calculation\\
+useSecVtxFitTDForLH & ON & include secVtxFitTD info in the combined LH calculation\\
+\end{tabular} 
+
+\subsection{How to Control the Used Tags and Variables}
+If you want to select specific tags to run or variables to use within
+the tags you can comfortably control this with job-options.
+To select a specific tag, in this example the {\tt BJetLifetimeTag}, you 
+add the tagging tool name and an instance name:
+\begin{verbatim}
+  BJetBuilder.useTools += [ "BJetLifetimeTag" ];
+  BJetBuilder.toolInstanceNames += [ "myBJetLifetimeTagTool1D" ];
+\end{verbatim}
+That will cause the {\tt BJetBuilder} to run the {\tt BJetLifetimeTag} with
+the specified instance name "myBJetLifetimeTagTool1D". For this instance you
+may want to specify certain cuts and variables. This is done with the 
+job-options:
+\begin{verbatim}
+  Z0LifetimeTagTool = Service ("ToolSvc.myBJetLifetimeTagTool1D")
+  Z0LifetimeTagTool.LifetimeModus = "1D"
+  Z0LifetimeTagTool.useVariables = [ "significance1D" ]
+  Z0LifetimeTagTool.minpt = 1.*GeV           # min pt of track
+  Z0LifetimeTagTool.maxd0wrtPrimVtx = 3.5*mm # wrt to prim vertex
+  Z0LifetimeTagTool.maxz0wrtPrimVtx = 5.*mm  # wrt to prim vertex
+\end{verbatim}
+This tells the tool to use the one-dimensional signed impact significance
+(in $z$-direction) {\tt "significance1D"} and to apply the stated quality cuts on the 
+tracks. The same tool can be run multiple times with different instance names:
+\begin{verbatim}
+  BJetBuilder.useTools += [ "BJetLifetimeTag" ];
+  BJetBuilder.toolInstanceNames += [ "myBJetLifetimeTagTool2D" ];
+\end{verbatim}
+and specific job-options for this tag:
+\begin{verbatim}
+  D0LifetimeTagTool = Service ("ToolSvc.myBJetLifetimeTagTool2D")
+  D0LifetimeTagTool.LifetimeModus = "2D"
+  D0LifetimeTagTool.useVariables = [ "significance2D" ]
+  D0LifetimeTagTool.minpt = 2.*GeV           # min pt of track
+  D0LifetimeTagTool.maxd0wrtPrimVtx = 2.5*mm # wrt to prim vertex
+  D0LifetimeTagTool.maxz0wrtPrimVtx = 3.*mm  # wrt to prim vertex
+\end{verbatim}
+This tells the tool to run the instance using the two-dimensional signed
+impact significance ($r-\phi$-plane) as well. All specified and executed 
+tags are then combined (with a one-dimensional likelihood method so far) 
+in the {\tt BJetBuilder}. 
+
+\section{How to Add Your Favourite Tag}
+
+\end{appendix}
+
+\input literature.tex
+\end{document}
+
