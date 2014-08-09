@@ -1,0 +1,30 @@
+package ElectronPhotonTagTools
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy         	AtlasPolicy-*
+
+use AthenaPoolUtilities	  	AthenaPoolUtilities-*   Database/AthenaPOOL
+use GaudiInterface         GaudiInterface-*        External
+use StoreGate              StoreGate-*             Control
+use AthenaBaseComps        AthenaBaseComps-*       Control
+
+use EventInfo              EventInfo-*             Event
+use TagEvent               TagEvent-*              PhysicsAnalysis/EventTag
+use xAODEgamma		   xAODEgamma-*	 	   Event/xAOD 
+use xAODMissingET	   xAODMissingET-*	   Event/xAOD 
+
+private
+use AnalysisUtils          AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
+end_private
+
+private
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTMathLibs
+
+
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"
+
+
+
