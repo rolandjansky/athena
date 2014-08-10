@@ -17,6 +17,10 @@ use  PathResolver               PathResolver-*                  Tools
 use  RDBAccessSvc               RDBAccessSvc-*                  Database/AthenaPOOL
 use  StoreGate                  StoreGate-*                     Control
 use  MagFieldInterfaces         *            MagneticField
+
+# Apply cmake-specific pattern to specify dependency against Eigen
+apply_pattern cmake_add_command command="find_package(Eigen)"
+
 #
 public
 library BFieldAth *.F *.cxx components/*.cxx
