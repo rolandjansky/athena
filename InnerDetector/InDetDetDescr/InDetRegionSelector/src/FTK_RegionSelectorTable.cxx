@@ -52,18 +52,18 @@ FTK_RegionSelectorTable::FTK_RegionSelectorTable(const std::string& type,
 
 StatusCode 
 FTK_RegionSelectorTable::initialize(){
-  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endmsg;
-  msg(MSG::INFO)  << "Tool Properties" << endmsg;
-  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
+  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endreq;
+  msg(MSG::INFO)  << "Tool Properties" << endreq;
+  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endreq;
+  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endreq;
   if( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
-    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
-    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endmsg;
+    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endreq;
+    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endreq;
+    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endreq;
   }    
 
   if (m_managerName.empty()) {
-    msg(MSG::WARNING) << "no manager found - so far none for the FTK tables" << endmsg;
+    msg(MSG::WARNING) << "no manager found - so far none for the FTK tables" << endreq;
   } 
  
   StatusCode  sc;
@@ -93,12 +93,12 @@ RegSelEtaPhiLUT* FTK_RegionSelectorTable::getLUT() const
 StatusCode 
 FTK_RegionSelectorTable::createTable()
 {
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
+  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endreq;
   RegSelEtaPhiLUT* rd = new RegSelEtaPhiLUT();  /// NB: use default internal size parameters here
 
   /// Whay hey!!! so here we actually need to somehow create the lookup objects and
   /// add them to the table
-  msg(MSG::INFO) << " initialising new map " << endmsg;
+  msg(MSG::INFO) << " initialising new map " << endreq;
   std::string detName;
   std::string newkey;
   newkey  = "FTKRegSelEtaPhiLUT";
@@ -119,7 +119,7 @@ FTK_RegionSelectorTable::createTable()
   int Nphi = 32;
   double deta = 6./Neta;
   double dphi = 2*M_PI/Nphi;
-  msg(MSG::INFO) << "generating dummy FTK modules" << endmsg;
+  msg(MSG::INFO) << "generating dummy FTK modules" << endreq;
   for ( int i=0; i<Neta ; i++ ) { 
     for ( int j=0; j<Nphi ; j++ ) { 
       double eta=-3+i*deta;
@@ -128,7 +128,7 @@ FTK_RegionSelectorTable::createTable()
       /// is just a wrapper to an int, but has no ++ operator etc
       RegSelEtaPhiLUT::EtaPhiModule m(  eta, eta+deta, phi, phi+dphi,  hashid++ );
       rd->addModule( m );
-      msg(MSG::DEBUG) << "\t" << m << endmsg;
+      msg(MSG::DEBUG) << "\t" << m << endreq;
     }
   }    
   
@@ -137,17 +137,17 @@ FTK_RegionSelectorTable::createTable()
   // save new map in StoreGate RegSelEtaPhiLUT
   StatusCode sc = detStore()->contains< RegSelEtaPhiLUT >(newkey);
   if (sc == StatusCode::SUCCESS ) {
-    msg(MSG::FATAL) << " RegSelEtaPhiLUT " << newkey << " already exists " << endmsg;
+    msg(MSG::FATAL) << " RegSelEtaPhiLUT " << newkey << " already exists " << endreq;
   } else {
     // create and store LUT
     // needs to be modifiable so we can enable/disable modules 
     // from the RegSelSvc (probably not for FTK however)
     sc = detStore()->record(rd, newkey, true);
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << " could not register " << detName << " RegSelEtaPhiLUT" << endmsg;
+      msg(MSG::ERROR) << " could not register " << detName << " RegSelEtaPhiLUT" << endreq;
       return( StatusCode::FAILURE );
     } else {
-      msg(MSG::INFO) << detName << " RegSelEtaPhiLUT successfully saved in detector Store" << endmsg;
+      msg(MSG::INFO) << detName << " RegSelEtaPhiLUT successfully saved in detector Store" << endreq;
     }
   }
 #endif
@@ -158,7 +158,7 @@ FTK_RegionSelectorTable::createTable()
 
 
 StatusCode FTK_RegionSelectorTable::finalize() {
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 

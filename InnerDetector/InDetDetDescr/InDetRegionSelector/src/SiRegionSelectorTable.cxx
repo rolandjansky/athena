@@ -45,7 +45,6 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),
      m_printTable(false),
-     m_noDBM(true),
      m_pixIdMapping("PixelCablingSvc", name),
      m_sctCablingSvc("SCT_CablingSvc",name)
 {
@@ -57,7 +56,6 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
   declareProperty("OutputFile",  m_roiFileName);
   declareProperty("PrintHashId", m_printHashId);
   declareProperty("PrintTable",  m_printTable);
-  declareProperty("NoDBM",       m_noDBM=true);
 
 }
 
@@ -67,20 +65,20 @@ StatusCode
 SiRegionSelectorTable::initialize(){
 
   //  MsgStream log(msgSvc(), name());
-  //  log << MSG::INFO << "initialize()" << endmsg;
-  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endmsg;
+  //  log << MSG::INFO << "initialize()" << endreq;
+  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endreq;
 
-  msg(MSG::INFO)  << "Tool Properties" << endmsg;
-  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
+  msg(MSG::INFO)  << "Tool Properties" << endreq;
+  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endreq;
+  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endreq;
   if( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
-    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
-    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endmsg;
+    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endreq;
+    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endreq;
+    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endreq;
   }    
 
   if (m_managerName.empty()) {
-    msg(MSG::WARNING) << "Tool disabled." << endmsg;
+    msg(MSG::WARNING) << "Tool disabled." << endreq;
     return StatusCode::FAILURE;
   } 
  
@@ -113,7 +111,7 @@ StatusCode
 SiRegionSelectorTable::createTable()
 {
 
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
+  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endreq;
 
   StatusCode sc;
 
@@ -123,20 +121,20 @@ SiRegionSelectorTable::createTable()
 
   if (sc.isFailure()) {
     msg(MSG::FATAL) << "Could not find the Manager: "
-	<< m_managerName << " !" << endmsg;
+	<< m_managerName << " !" << endreq;
     return StatusCode::FAILURE;
   } else {
-    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
+    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endreq;
   }
 
   if (manager->isPixel()) {
     if (m_pixIdMapping.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endmsg;
+      msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endreq;
       return StatusCode::FAILURE;
     }
   } else { // SCT
     if (m_sctCablingSvc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT cabling service." << endmsg;
+      msg(MSG::ERROR) << "Can't get the SCT cabling service." << endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -159,7 +157,7 @@ SiRegionSelectorTable::createTable()
 
       IdentifierHash hashId = element->identifyHash();    
       
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endmsg;
+      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endreq;
    
       ////   double etaMin,etaMax,phiMin,phiMax,rz;
       ////   element->getEtaPhiRegion(m_deltaZ,etaMin,etaMax,phiMin,phiMax,rz);
@@ -184,14 +182,11 @@ SiRegionSelectorTable::createTable()
 	const PixelID* pixelId = dynamic_cast<const PixelID*>(element->getIdHelper());
 	if ( pixelId!=0 ) { 
 	  barrelEC  = pixelId->barrel_ec(element->identify());
-
-	  if ( m_noDBM && std::fabs(barrelEC)>3 ) continue; // skip DBM modules
-
 	  layerDisk = pixelId->layer_disk(element->identify());
 	  robId=m_pixIdMapping->getRobID(element->identify());
 	}
 	else { 
-	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endmsg;
+	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endreq;
 	}
       } else { // Its an SCT.
 
@@ -202,7 +197,7 @@ SiRegionSelectorTable::createTable()
 	  robId=m_sctCablingSvc->getRobIdFromOfflineId(element->identify());       
 	}
 	else { 
-	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;
+	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endreq;
 	}
       }
 
@@ -215,10 +210,10 @@ SiRegionSelectorTable::createTable()
 	rd->addModule(smod);
       }
       else { 
-	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endmsg;
+	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endreq;
       }
       
-      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endmsg;
+      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endreq;
 	
       if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "      " 
 						    << " deltaZ = " << m_deltaZ/CLHEP::mm << " mm, " 
@@ -227,24 +222,21 @@ SiRegionSelectorTable::createTable()
 						    << ", layerDisk = " << layerDisk 
 						    << ", phiMin, phiMax = " << phiMin/CLHEP::degree << " " << phiMax/CLHEP::degree
 						    << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm"  
-						    << endmsg;
-
-
-      //      if   ( manager->isPixel() ) std::cout << "SUTT-DBM " << smod << std::endl;
+						    << endreq;
 
     }
   }
 
-  msg(MSG::INFO) << " initialising new map " << endmsg;
+  msg(MSG::INFO) << " initialising new map " << endreq;
 
   rd->initialise();
 
   // write out new new LUT to a file if need be
-  if ( m_printTable ) {
+  if ( m_printTable ) { 
     if ( manager->isPixel() ) rd->write("NewPixel"+m_roiFileName);
     else                      rd->write("NewSCT"+m_roiFileName);
   }
-
+  
   //  std::string key;
   std::string detName;
 
@@ -267,17 +259,17 @@ SiRegionSelectorTable::createTable()
   // save new map in StoreGate RegSelSiLUT
   sc = detStore()->contains< RegSelSiLUT >(newkey);
   if (sc == StatusCode::SUCCESS ) {
-    msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endmsg;
+    msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endreq;
   } else {
     // create and store LUT
     // needs to be modifiable so we can enable/disable modules 
     // from the RegSelSvc
     sc = detStore()->record(rd, newkey, true);
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << " could not register " << detName << " RegSelSiLUT" << endmsg;
+      msg(MSG::ERROR) << " could not register " << detName << " RegSelSiLUT" << endreq;
       return( StatusCode::FAILURE );
     } else {
-      msg(MSG::INFO) << detName << " RegSelSiLUT successfully saved in detector Store" << endmsg;
+      msg(MSG::INFO) << detName << " RegSelSiLUT successfully saved in detector Store" << endreq;
     }
   }
 #endif
@@ -288,7 +280,7 @@ SiRegionSelectorTable::createTable()
 
 
 StatusCode SiRegionSelectorTable::finalize() {
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 

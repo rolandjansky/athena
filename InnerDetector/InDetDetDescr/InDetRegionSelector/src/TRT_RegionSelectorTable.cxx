@@ -66,19 +66,19 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 StatusCode TRT_RegionSelectorTable::initialize(){
 
   //  MsgStream msglog(msgSvc(), name());
-  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endmsg;
+  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endreq;
 
-  msg(MSG::INFO)  << "Tool Properties" << endmsg;
-  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
+  msg(MSG::INFO)  << "Tool Properties" << endreq;
+  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endreq;
+  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endreq;
   if ( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
-    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
-    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endmsg;
+    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endreq;
+    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endreq;
+    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endreq;
   }
 
   if (m_managerName.empty()) {
-    msg(MSG::WARNING) << "Tool disabled." << endmsg;
+    msg(MSG::WARNING) << "Tool disabled." << endreq;
     return StatusCode::FAILURE;
   } 
  
@@ -105,22 +105,22 @@ RegSelSiLUT* TRT_RegionSelectorTable::getLUT() const
 StatusCode 
 TRT_RegionSelectorTable::createTable()
 {
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
+  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endreq;
   StatusCode sc;
   // Retrieve manager
   const TRT_DetectorManager* manager;
   sc=detStore()->retrieve(manager, m_managerName);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endmsg;
+    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endreq;
     return StatusCode::FAILURE;
   } else {
-    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
+    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endreq;
   }
   
   // Get Tool Service
   IToolSvc* toolSvc;
   if (StatusCode::SUCCESS != service("ToolSvc", toolSvc))    {
-    msg(MSG::ERROR) << " Can't get ToolSvc " << endmsg;
+    msg(MSG::ERROR) << " Can't get ToolSvc " << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -128,13 +128,13 @@ TRT_RegionSelectorTable::createTable()
   sc = m_TRT_IdMapping.retrieve();
 
   if (sc != StatusCode::SUCCESS){
-    msg(MSG::ERROR) << " Can't get TRTCablingSvc " << endmsg;
+    msg(MSG::ERROR) << " Can't get TRTCablingSvc " << endreq;
     return StatusCode::FAILURE;
   }
   // Get the id helper 
   const TRT_ID* idHelper = NULL;
   if ( detStore()->retrieve( idHelper, "TRT_ID" ).isFailure() ) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -227,7 +227,7 @@ TRT_RegionSelectorTable::createTable()
 
   // MS: new region selector lookup table
   // initialise and save the new look up table
-  msg(MSG::INFO) << " initialising new trt map " << endmsg;
+  msg(MSG::INFO) << " initialising new trt map " << endreq;
   rtrt->initialise();
 
   // save pointer for access from the ToolSvc
@@ -240,15 +240,15 @@ TRT_RegionSelectorTable::createTable()
   std::string newtrtKey = "TRTRegSelSiLUT";
   sc = detStore()->contains< RegSelSiLUT >(newtrtKey);
   if (sc == StatusCode::SUCCESS ) {
-    msg(MSG::FATAL) << " TRTRegSelSiLUT " << newtrtKey << " already exists " << endmsg;
+    msg(MSG::FATAL) << " TRTRegSelSiLUT " << newtrtKey << " already exists " << endreq;
   } else {
     // create and store LUT
     sc = detStore()->record(rtrt, newtrtKey, true);
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << " could not register trt RegSelSiLUT" << endmsg;
+      msg(MSG::ERROR) << " could not register trt RegSelSiLUT" << endreq;
       return( StatusCode::FAILURE );
     } else {
-      msg(MSG::INFO) << "trt RegSelSiLUT successfully saved in detector Store" << endmsg;
+      msg(MSG::INFO) << "trt RegSelSiLUT successfully saved in detector Store" << endreq;
     }
   }
 #endif
@@ -274,7 +274,7 @@ StatusCode TRT_RegionSelectorTable::execute() {
 StatusCode TRT_RegionSelectorTable::finalize() {
 
   //  MsgStream msglog(msgSvc(), name());
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
   
   return StatusCode::SUCCESS;
 }
