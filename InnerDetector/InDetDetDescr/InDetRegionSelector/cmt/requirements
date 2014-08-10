@@ -11,6 +11,8 @@ use PixelCabling         PixelCabling-*   	InnerDetector/InDetDetDescr
 use RegSelLUT	         RegSelLUT-*            DetectorDescription
 use SCT_Cabling          SCT_Cabling-*   	InnerDetector/InDetDetDescr
 
+# Specify an explicit dependency on tdaq-common (cmake-specific) 
+apply_pattern cmake_add_command command="find_package(tdaq-common)"
 
 private
 use AtlasCLHEP	         AtlasCLHEP-*	  	External
