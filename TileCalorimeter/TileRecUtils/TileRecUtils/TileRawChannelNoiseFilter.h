@@ -1,0 +1,77 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+#ifndef TILERAWCHANNELNOISEFILTER_H
+#define TILERAWCHANNELNOISEFILTER_H
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+// Tile includes
+#include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileRecUtils/TileBeamInfoProvider.h"
+#include "TileRecUtils/ITileRawChannelTool.h"
+
+// forward declarations
+class TileHWID;
+class TileRawChannel;
+class TileRawChannelContainer;
+class TileRawChannelCollection;
+
+/**
+ @class TileRawChannelNoiseFilter
+ @brief This tool subtracts common-mode noise from all TileRawChannels in one container
+ */
+class TileRawChannelNoiseFilter: public AthAlgTool,
+    virtual public ITileRawChannelTool {
+  public:
+
+    /** AlgTool like constructor */
+    TileRawChannelNoiseFilter(const std::string& type, const std::string& name,
+        const IInterface* parent);
+
+    /** Virtual destructor */
+    virtual ~TileRawChannelNoiseFilter() {
+    }
+    ;
+
+    /** AlgTool InterfaceID */
+    static const InterfaceID& interfaceID();
+
+    /** AlgTool initialize method.*/
+    virtual StatusCode initialize();
+    /** AlgTool finalize method */
+    virtual StatusCode finalize();
+
+    /** proceed the coherent noise subtruction algorithm and correct TileRawChannel amplitudes */
+    virtual StatusCode process(const TileRawChannelContainer *rchCnt);
+
+    /** Callback to handle Data-driven GeoModel initialisation */
+    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
+
+  private:
+
+    const TileHWID* m_tileHWID; //!< Pointer to TileHWID
+
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool;   //!< Tile Bad Channel tool
+    ToolHandle<TileBeamInfoProvider> m_beamInfo; //!< Beam Info tool to get the DQ Status object
+
+    // properties
+    float m_truncationThresholdOnAbsEinSigma;
+    float m_minimumNumberOfTruncatedChannels;
+    bool m_useTwoGaussNoise;
+    bool m_useGapCells;
+};
+
+#endif // TILERAWCHANNELNOISEFILTER_H
