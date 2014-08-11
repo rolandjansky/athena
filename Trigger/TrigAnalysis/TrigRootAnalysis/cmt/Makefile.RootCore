@@ -1,0 +1,11 @@
+# Dear emacs, this is a -*- Makefile -*-
+# Author: Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+# TrigRootAnalysis makefile for the RootCore environment
+
+PACKAGE          = TrigRootAnalysis
+PACKAGE_PRELOAD  = Tree
+PACKAGE_CXXFLAGS =
+PACKAGE_LDFLAGS  =
+PACKAGE_DEP      =
+
+include $(ROOTCOREDIR)/Makefile-common
