@@ -16,7 +16,6 @@ private
 
 use GaudiInterface       GaudiInterface-*       External 
 use SiSpacePoint         SiSpacePoint-*         InnerDetector/InDetRecEvent
-use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
 use InDetIdentifier	 InDetIdentifier-*	InnerDetector/InDetDetDescr
 
