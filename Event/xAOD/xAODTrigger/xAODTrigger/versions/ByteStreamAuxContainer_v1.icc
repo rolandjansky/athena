@@ -1,0 +1,71 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ByteStreamAuxContainer_v1.icc 601493 2014-06-12 17:36:33Z ssnyder $
+#ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_ICC
+#define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_ICC
+
+// System include(s):
+#include <iostream>
+
+// EDM include(s):
+#include "AthContainers/AuxTypeRegistry.h"
+#include "xAODCore/tools/AuxPersVector.h"
+
+#ifndef AUX_VARIABLE
+
+/// Convenience macro for declaring an auxiliary variable
+///
+/// Should be used in the constructor of the derived class, like:
+///   <code>
+///      AUX_VARIABLE( etcone20 );
+///   </code>
+#define AUX_VARIABLE( VAR ) regAuxVar( #VAR, VAR )
+
+#endif // not AUX_VARIABLE
+
+namespace xAOD {
+
+   /// The user is expected to use this function inside the constructor of
+   /// the derived class.
+   ///
+   /// @param name The name of the variable. Same as the C++ variable's name.
+   /// @param vec A reference to the auxiliary variable inside the object
+   ///
+   template< typename T >
+   void ByteStreamAuxContainer_v1::regAuxVar( const std::string& name,
+                                              std::vector< T >& vec ) {
+
+      // Ask the registry for the number of this variable:
+      const auxid_t auxid =
+         SG::AuxTypeRegistry::instance().template getAuxID< T >( name );
+
+      // Make sure that the internal vector is big enough:
+      if( m_staticVecs.size() <= auxid ) {
+         m_staticVecs.resize( auxid + 1 );
+      }
+
+      // Check if this variable name was already registered:
+      if( m_staticVecs[ auxid ] ) {
+         std::cerr << "WARNING xAOD::AuxContainerBase::regAuxVec "
+                   << "Re-registering variable with name \""
+                   << name.c_str() << "\"" << std::endl;
+         delete m_staticVecs[ auxid ];
+      }
+
+      // Register the variable:
+      m_staticVecs[ auxid ] = new AuxPersVector< T >( vec );
+
+      // Remember that we are now handling this variable:
+      m_auxids.insert( auxid );
+      ++m_tick;
+
+      return;
+   }
+
+} // namespace xAOD
+
+#endif // XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_ICC

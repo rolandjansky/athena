@@ -1,0 +1,25 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TrigComposite_v1.icc 580010 2014-01-24 14:06:54Z krasznaa $
+#ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
+#define XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
+
+namespace xAOD {
+
+   template< typename TYPE >
+   bool TrigComposite_v1::hasDetail( const std::string& name ) {
+
+      // Object used to check for the existence of an object:
+      Accessor< TYPE > acc( name );
+
+      // Use the Accessor object for the check:
+      return acc.isAvailable( *this );
+   }
+
+} // namespace xAOD
+
+#endif // XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
