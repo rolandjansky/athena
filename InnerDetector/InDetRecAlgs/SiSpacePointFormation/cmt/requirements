@@ -1,0 +1,37 @@
+package SiSpacePointFormation
+
+manager Maria Jose Costa <Maria.Jose.Costa@cern.ch> 
+author Maria Jose Costa <Maria.Jose.Costa@cern.ch> 
+
+public
+
+use AtlasPolicy          AtlasPolicy-*             
+#use AtlasCLHEP           AtlasCLHEP-*              External
+use GaudiInterface       GaudiInterface-*          External
+use AthenaBaseComps      AthenaBaseComps-*         Control
+use DataModel            DataModel-*               Control
+use Identifier           Identifier-*              DetectorDescription
+use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use SiSpacePointTool     SiSpacePointTool-*        InnerDetector/InDetRecTools
+use InDetPrepRawData     InDetPrepRawData-*        InnerDetector/InDetRecEvent
+use TrkSpacePoint        TrkSpacePoint-*           Tracking/TrkEvent
+use GeoPrimitives        GeoPrimitives-*        DetectorDescription
+
+private
+
+use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription
+use EventInfo            EventInfo-*               Event
+use InDetBeamSpotService InDetBeamSpotService-*    InnerDetector/InDetConditions
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+#use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
+
+public
+
+# needed by trigger using some classes
+apply_pattern dual_use_library files="*.cxx"
+#library SiSpacePointFormation  *.cxx components/*.cxx
+#apply_pattern component_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
