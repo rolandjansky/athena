@@ -1,0 +1,194 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file SCT_CalibEventInfo.h
+ * Implementation file for the SCT_CalibEventInfo class
+ * @author Shaun Roe
+**/
+#include <limits>
+//STL, boost
+#include <boost/lexical_cast.hpp>
+#include "SCT_CalibEventInfo.h"
+#include "SCT_CalibUtilities.h"
+#include "EventInfo/EventInfo.h"
+
+#include "EventInfo/EventID.h"
+//coral/cool
+#include "CoralBase/TimeStamp.h"
+
+namespace{
+  const int INTMIN(std::numeric_limits<int>::min());
+  const int INTMAX(std::numeric_limits<int>::max());
+  const long long oneBillion(1000000000LL);
+}
+
+SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * svc):AthService(name,svc),
+  m_storegateSvc ( "StoreGateSvc", name ),
+  m_incidentSvc ( "IncidentSvc", name ),
+  m_evt(0),
+  m_timeStampBegin(INTMAX),
+  m_timeStampEnd(INTMIN),
+  m_timeStampMax(INTMIN),
+  m_LBBegin(INTMAX),
+  m_LBEnd(INTMIN),
+  m_numLB(0),
+  m_source("UNKNOWN"),
+  m_runNumber(0),
+  m_eventNumber(0),
+  m_lumiBlock(0),
+  m_timeStamp(0),
+  m_bunchCrossing(0),
+  m_counter(0){
+}
+
+StatusCode 
+SCT_CalibEventInfo::initialize(){
+   msg( MSG::INFO)<<"Initialize of evtInfo in "<<PACKAGE_VERSION<<endreq;
+   //agrohsje const int pri(100);
+   const int pri(500);
+   m_incidentSvc->addListener( this, "BeginRun",   pri, true, true );
+   m_incidentSvc->addListener( this, "BeginEvent", pri, true );
+   return StatusCode::SUCCESS;
+}
+
+StatusCode 
+SCT_CalibEventInfo::finalize(){
+  msg( MSG::INFO ) << "----- in finalize() ----- " << endreq;
+  return StatusCode::SUCCESS; 
+}
+
+StatusCode 
+SCT_CalibEventInfo::queryInterface(const InterfaceID & riid, void** ppvInterface ){
+  if ( ISCT_CalibEvtInfo::interfaceID().versionMatch(riid) ) {
+   *ppvInterface = dynamic_cast<ISCT_CalibEvtInfo*>(this);
+  } else {
+   return AthService::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
+}
+
+int SCT_CalibEventInfo::lumiBlock() const{
+  return m_lumiBlock;
+}
+
+void
+SCT_CalibEventInfo::handle(const Incident &){
+
+  if (m_storegateSvc->retrieve( m_evt ).isFailure()) 
+    msg( MSG::ERROR ) << "SCT_CalibEventInfo: Unable to get eventinfo !" << endreq;
+  if (not m_evt) return;
+  if ( m_source == "BS" ) {
+    msg( MSG::VERBOSE ) << SCT_CalibAlgs::eventInfoAsString(m_evt) << endreq;
+    //--- TimeStamp/LB range analyzed
+    const int timeStamp = m_evt->event_ID()->time_stamp();
+    const int lumiBlock = m_evt->event_ID()->lumi_block();
+    setTimeStamp(std::min(timeStamp, m_timeStampBegin), std::max(timeStamp, m_timeStampEnd));
+    setLumiBlock(std::min(lumiBlock, m_LBBegin), std::max(lumiBlock, m_LBEnd));
+    m_lumiBlock=lumiBlock;
+    m_timeStamp=timeStamp;
+  } else if ( m_source == "HIST" ) {
+      EventInfo* eventInfo = const_cast<EventInfo*>( m_evt );
+      eventInfo->event_ID()->set_run_number( m_runNumber );
+      eventInfo->event_ID()->set_time_stamp( m_timeStampBegin );
+      msg( MSG::DEBUG ) << SCT_CalibAlgs::eventInfoAsString(m_evt)<<endreq;
+  } else msg( MSG::FATAL ) << "SCT_CalibEventInfo: Unknown source!" << endreq;
+}
+
+void
+SCT_CalibEventInfo::setTimeStamp(const int begin, const int end){
+  m_timeStampBegin=begin;
+  m_timeStampEnd=end;
+  m_duration=m_timeStampEnd-m_timeStampBegin;
+  m_tsBeginString=toUtc(begin);
+  m_tsEndString=toUtc(end);
+}
+
+int SCT_CalibEventInfo::duration() const{
+  return m_duration;
+}
+
+void
+SCT_CalibEventInfo::setTimeStamp(const std::string & begin, const std::string & end){
+	int ibegin=boost::lexical_cast<int>(begin);
+	int iend=boost::lexical_cast<int>(end);
+	setTimeStamp(ibegin,iend);
+}
+
+void
+SCT_CalibEventInfo::setTimeStamp(const int ts){
+  m_timeStamp=ts;
+}
+void
+SCT_CalibEventInfo::setLumiBlock(const int begin, const int end){
+  m_LBBegin=begin;
+  m_LBEnd=end;
+  m_numLB=end-begin+1;
+}
+void
+SCT_CalibEventInfo::setLumiBlock(const int lb){
+  m_lumiBlock=lb;
+}
+void 
+SCT_CalibEventInfo::setSource(const std::string source){
+    m_source=source;
+}
+void
+SCT_CalibEventInfo::setRunNumber(const int rn){
+  m_runNumber=rn;
+}
+void
+SCT_CalibEventInfo::setBunchCrossing(const int bc){
+  m_bunchCrossing=bc;
+}
+
+void 
+SCT_CalibEventInfo::getTimeStamps(std::string & begin, std::string & end) const{
+  begin=m_tsBeginString;
+  end=m_tsEndString;
+}
+
+void 
+SCT_CalibEventInfo::getTimeStamps(int & begin, int & end) const{
+  begin=m_timeStampBegin;
+  end=m_timeStampEnd;
+}
+
+int
+SCT_CalibEventInfo::timeStamp() const{
+  return m_timeStamp;
+}
+
+int
+SCT_CalibEventInfo::runNumber() const{
+  return m_runNumber;
+}
+
+int
+SCT_CalibEventInfo::counter() const{
+  return m_counter;
+}
+
+void
+SCT_CalibEventInfo::incrementCounter(){
+  ++m_counter;
+}
+
+void
+SCT_CalibEventInfo::setCounter(const int counterVal){
+  m_counter=counterVal;
+}
+
+int 
+SCT_CalibEventInfo::numLumiBlocks() const{
+  return m_numLB;
+}
+
+std::string 
+SCT_CalibEventInfo::toUtc(const int timestamp) const{
+  coral::TimeStamp::ValueType nsTime = timestamp*oneBillion;
+  coral::TimeStamp utc( nsTime );
+  return utc.toString();
+}
