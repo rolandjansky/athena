@@ -1,0 +1,72 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $
+#ifndef D3PDREADER_VARPROXY_ICC
+#define D3PDREADER_VARPROXY_ICC
+
+// ROOT include(s):
+#include <TError.h>
+
+namespace D3PDReader {
+
+   template< typename Type >
+   VarProxy< Type >::VarProxy( const VarHandle< std::vector< Type >* >& handle,
+                               size_t i )
+      : fHandle( const_cast< VarHandle< std::vector< Type >* >* >( &handle ) ),
+        fIndex( i ), fDummy() {
+
+   }
+
+   template< typename Type >
+   VarProxy< Type >::VarProxy( const VarProxy< Type >& parent )
+      : VarProxyBase(), fHandle( parent.fHandle ), fIndex( parent.fIndex ),
+        fDummy() {
+
+   }
+
+   template< typename Type >
+   VarProxy< Type >& VarProxy< Type >::operator=( const VarProxy< Type >& parent ) {
+
+      fHandle = parent.fHandle;
+      fIndex  = parent.fIndex;
+
+      return *this;
+   }
+
+   template< typename Type >
+   ::Bool_t VarProxy< Type >::IsAvailable() const {
+
+      return fHandle->IsAvailable();
+   }
+
+   template< typename Type >
+   typename VarProxy< Type >::result_type VarProxy< Type >::operator()() {
+
+      if( fHandle->IsAvailable() ) {
+         return ( ( *( *fHandle )() ) )[ fIndex ];
+      } else {
+         ::Warning( ::TString( "D3PDReader::VarProxy::" ) + fHandle->GetName() + "()",
+                    "Variable not available on input. Returning 0" );
+         return fDummy;
+      }
+   }
+
+   template< typename Type >
+   typename VarProxy< Type >::const_result_type VarProxy< Type >::operator()() const {
+
+      if( fHandle->IsAvailable() ) {
+         return ( ( *( *fHandle )() ) )[ fIndex ];
+      } else {
+         ::Warning( ::TString( "D3PDReader::VarProxy::" ) + fHandle->GetName() + "()",
+                    "Variable not available on input. Returning 0" );
+         return fDummy;
+      }
+   }
+
+} // namespace D3PDReader
+
+#endif // D3PDREADER_VARPROXY_ICC
