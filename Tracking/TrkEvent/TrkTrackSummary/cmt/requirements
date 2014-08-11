@@ -1,0 +1,24 @@
+package TrkTrackSummary
+
+author Edward Moyse <Edward.Moyse@cern.ch>
+manager Edward Moyse <Edward.Moyse@cern.ch>
+
+private
+use GaudiInterface GaudiInterface-* External
+
+public
+use AtlasPolicy AtlasPolicy-*
+use Identifier Identifier-* DetectorDescription
+library TrkTrackSummary *.cxx
+apply_pattern installed_library
+
+private
+use AtlasReflex      AtlasReflex-*      External
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+apply_pattern lcgdict dict=TrkTrackSummary selectionfile=selection.xml headerfiles="../TrkTrackSummary/SummaryDict.h"

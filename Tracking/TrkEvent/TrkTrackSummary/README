@@ -1,0 +1,6 @@
+This package contains the Trk::Track summary object. This object is 
+used to store information about the Track, such as the number of pixel hits/holes etc.
+
+Use TrkSummaryTool to get TrackSummary objects from a Track.
+
+Edward Moyse (edward.moyse@cern.ch)
