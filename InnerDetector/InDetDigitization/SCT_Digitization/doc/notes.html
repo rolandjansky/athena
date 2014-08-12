@@ -1,0 +1,56 @@
+<p>
+This page contains some old notes about changes in the code. These notes have been moved from the
+top of the source files to here. The Changelog file is the recomended place for such notes.
+</p>
+
+<p>
+<h2>Notes from SCT_Digitization.h:</h2>
+// Based on PixelDigitization and SCT_TestBeamDigitization<br>
+// Szymon Gadomski 30.07.2001<br>
+// 27.11.01 SG: use IdentifiableContainer instead of ObjectIdentifierMap<br>
+// version 1.2 Awatif Belymam 29.10.2002<br>
+// 29.10.2002 AB: gets thickness from the objects of SCT_ModuleSideDesign type.<br>
+// 10/6/4  Paul Bell: Allows use of local class SCT_ActualDisabledCellGenerator for bad channel processing<br>
+// 12/12/4 Paul Bell: Read masked channels from DB<br>
+//                    SCT_ActualDisableCellGenerator retired<br>
+// 21/4/05 Paul Bell: Cosmic run specific changes.<br>
+</p>
+
+<p>
+<h2>Notes from SCT_Digitization.cxx:</h2>
+// Based on PixelDigitization and SCT_TestBeamDigitization<br>
+// Szymon Gadomski 30.07.2001<br>
+// 27.11.01 SG: use IdentifiableContainer instead of ObjectIdentifierMap<br>
+// version 1.3 Awatif Belymam 29.10.2002: <br>
+// 29.10.2002 AB: the thickness of sensors is obtained from the objects <br>
+// of SCT_ModuleSideDesign type, instead from its jobOptions file.<br>
+// 6.1.2004 TC: Change to CLHEP units (mm, MeV, ns).<br>
+// 23/06/04 Paul Bell: Uses local class SCTActualDisableCellGenerator for<br>
+//                     bad channel processing<br>
+//                     select "TBbadchannels" in job options to read from list<br>
+//                     otherwise uses random bad cell generator<br>
+// 12/12/04 Paul Bell: Now reads channels which are masked in the ROD<br>
+//                     from the conditions database<br>
+//                     SCT_ActualDisabledCellGenerator no longer needed.<br>
+//                     In principal masked channels can change event to <br>
+//                     event (this is how the DB must work, even though<br>
+//                     unlikely in practice). So "storing" the charged<br>
+//                     diode processor for the masked channels on initialise<br>
+//                     can no longer work. Instead, we now throw away masked<br>
+//                     channels in the RDO making phase.<br>
+// 21/04/05 Paul Bell: Changes for simulating cosmic run. Call tool<br>
+//                     ModuleStatus to see which modules are present.<br>
+//                     Intended to be temporary until we have the coolDB<br>
+// 01/09/05 Paul Bell: COOL implementaion of former "ModuleStatus"<br>
+//                     We fill a map of the present modules and then<br>
+//                     use this to get the module serial number (MSN)<br>
+//                     of the hits in each event.<br>
+//                     **Digitization now knows about module serial numbers**<br>
+//                     FUTURE: want to use this MSN info to access further<br>
+//                     module conditions which affect digitization<br>
+// 21/11/05 Paul Bell: Now use the new conditions tool SCT_ModuleConditionsTool<br>
+//                     CTB and cosmic conditions are in the COOL DB<br>
+//                     Remove old CTB specific channel masking operations<br>
+//                     -channels are masked in same way in CTB and cosmic sim<br>
+//                     Use the config data to see which modules present in cosmic run<br>
+</p>
