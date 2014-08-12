@@ -21,27 +21,16 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 
-//#include "TrigConfHLTData/HLTTriggerElement.h"
-
-//#include "TrigSteeringEvent/TriggerElement.h"
-//#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/Enums.h"
-
 #include "TrigJetHypo/TrigEFJetHypo.h"
-
-// #include "JetEvent/JetCollection.h"
-// #include "JetEvent/Jet.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
 
-//#include "FourMomUtils/P4DescendingSorters.h"
 #include "JetUtils/JetCaloQualityUtils.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigPassBits.h"
-
-
 
 class ISvcLocator;
 
@@ -239,14 +228,15 @@ HLT::ErrorCode TrigEFJetHypo::hltExecute(const HLT::TriggerElement* outputTE,
     ATH_MSG_WARNING("Failed to get JetCollection");
     return ec;
   } else {
-    ATH_MSG_DEBUG("Obtained JetCollection");
+    ATH_MSG_DEBUG("Obtained JetContainer");
   }
 
   m_cutCounter = 0;
+
   if(outJets == 0){
-    ATH_MSG_DEBUG("Jet collection pointer is 0");
+    ATH_MSG_WARNING("Jet collection pointer is 0");
     m_errors++;
-    if (m_acceptAll) m_cutCounter = 1;
+    if (m_acceptAll){m_cutCounter = 1;}
     return HLT::ERROR;
   }
 
@@ -273,11 +263,11 @@ HLT::ErrorCode TrigEFJetHypo::hltExecute(const HLT::TriggerElement* outputTE,
   ///  now add the TrigPassBits for the jets to specify whether each jet 
   ///  passes the hypo etc
 
-  TrigPassBits* bits = HLT::makeTrigPassBits( outJets );
+  TrigPassBits* bits = HLT::makeTrigPassBits(outJets);
 
 
-  unsigned int  cut_multiplicity = 0;
-  unsigned int      multiplicity = 0;
+  unsigned int cut_multiplicity = 0;
+  unsigned int multiplicity = 0;
   for (const xAOD::Jet* aJet : theJets) {
     double etjet = aJet->p4().Et();
     double etajet = aJet->eta();
@@ -346,15 +336,6 @@ HLT::ErrorCode TrigEFJetHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-
-    //    const TrigRoiDescriptor* roiDescriptor = 0;
-    
-    //    if ( getFeature(outputTE, roiDescriptor)==HLT::OK || roiDescriptor == 0 ) {
-    //      ATH_MSG_DEBUG("Jets from RoI:" << *roiDescriptor);
-    //    }else {
-    //      ATH_MSG_DEBUG("Jets from RoI unknown! ");
-    //    }
-    
 
     ATH_MSG_DEBUG("found multiplicity: "
                   << multiplicity

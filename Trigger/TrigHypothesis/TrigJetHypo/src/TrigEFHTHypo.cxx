@@ -30,8 +30,12 @@
 
 #include "TrigJetHypo/TrigEFHTHypo.h"
 
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
+// #include "JetEvent/JetCollection.h"
+// #include "JetEvent/Jet.h"
+
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/Jet.h"
+
 #include "FourMomUtils/P4DescendingSorters.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -134,6 +138,14 @@ HLT::ErrorCode TrigEFHTHypo::hltFinalize(){
   return HLT::OK;
 }
 
+struct DescendingEt:std::binary_function<const xAOD::Jet*,
+                                         const xAOD::Jet*,
+                                         bool> {
+  bool operator()(const xAOD::Jet* l, const xAOD::Jet* r)  const {
+    return l->p4().Et() > r->p4().Et();
+  }
+};
+
 // ----------------------------------------------------------------------
 HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   // ----------------------------------------------------------------------
@@ -152,40 +164,38 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   pass=false;
   
-  const JetCollection* outJets(0);
+  // const JetCollection* outJets(0);
+  const xAOD::JetContainer* outJets(0);
   HLT::ErrorCode ec = getFeature(outputTE, outJets);
 
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+    ATH_MSG_WARNING(" Failed to get JetContainer");
     return ec;
+  }else{
+    ATH_MSG_DEBUG("Obtained JetContainer");
   }
 
   m_cutCounter = 0;
 
-  if( outJets == 0 ){
-    msg() << MSG::WARNING << " Got no JetCollections associated to the TE! " << endreq;
+  if(outJets == 0){
+    ATH_MSG_WARNING("JetContainer pointer is 0");
+    m_errors++;
+    return HLT::ERROR;
+  }
+
+  //check size of JetCollection not empty
+  if( outJets->size() == 0){
+    ATH_MSG_DEBUG("JetContainer is empty");
     m_errors++;
     return HLT::OK;
   }
-
-
 
   ///  now add the TrigPassBits for the jets to specify whether each jet 
   ///  passes the hypo etc
-  TrigPassBits* bits = HLT::makeTrigPassBits( outJets );
-
-
+  TrigPassBits* bits = HLT::makeTrigPassBits(outJets);
 
   // JetCollection -> jetcolletcion_t
-  std::vector<const Jet*> theJets(outJets->begin(), outJets->end());
-
-  //check size of JetCollection not empty
-  if( theJets.size() == 0){
-    msg()<< MSG::WARNING << " Size of JetCollection is 0! " << endreq;
-    m_errors++;
-    //    if (m_timersvc) m_timers[0]->stop();
-    return HLT::OK;
-  }
+  std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
 
   m_cutCounter = 1;
 
@@ -217,14 +227,14 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   
   
   //Ordering Jets
-  std::sort (theJets.begin(), theJets.end(), P4Sorters::Descending::Et());
+  std::sort (theJets.begin(), theJets.end(), DescendingEt());
 
-  for (const Jet* aJet : theJets) {
+  for (const xAOD::Jet* aJet : theJets) {
     double jetet    = -999; 
     double jetphi   = -999;
     double jeteta   = -999;
     
-    jetet  = aJet->et();
+    jetet  = aJet->p4().Et();
     jetphi = aJet->phi();
     jeteta = aJet->eta();
     
@@ -267,15 +277,21 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
     pass = true;
     m_accepted++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << ">>>>> TRIGGER PASSED <<<<<       HT: " << m_HT << " PASSED HT cut of " << m_HTCut << endreq;
+    ATH_MSG_DEBUG(">>>>> TRIGGER PASSED <<<<<       HT: "
+                  << m_HT
+                  << " PASSED HT cut of "
+                  << m_HTCut);
     m_cutCounter = 2;
-  }
-
-  else {
+  }else{
     pass = false;
     m_nJets_failedHT = m_nJets_passedCuts;
     m_rejected++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << ">>>>> TRIGGER FAILED <<<<<       HT: " << m_HT << " FAILED HT cut of " << m_HTCut << endreq;
+    if(msgLvl() <= MSG::DEBUG){
+      ATH_MSG_DEBUG(">>>>> TRIGGER FAILED <<<<<       HT: "
+                    << m_HT 
+                    << " FAILED HT cut of " 
+                    << m_HTCut);
+    }
   }
 
   m_HT=m_HT/CLHEP::GeV;
@@ -283,8 +299,15 @@ HLT::ErrorCode TrigEFHTHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   if(msgLvl() <= MSG::DEBUG){
     int nJet=0;
-    for (const Jet* testJet : theJets) {
-      msg() << MSG::DEBUG << " Jet "<< (nJet+1) << " | TrigPassBit: " << HLT::isPassing( bits, testJet, outJets ) << " Et: "<< testJet->et() << " Eta: "<< testJet->eta() << endreq;
+    for (const xAOD::Jet* testJet : theJets) {
+      ATH_MSG_DEBUG(" Jet "
+                    << (nJet+1) 
+                    << " | TrigPassBit: " 
+                    << HLT::isPassing( bits, testJet, outJets ) 
+                    << " Et: "
+                    << testJet->p4().Et()
+                    << " Eta: "
+                    << testJet->eta());
       nJet++;
     }
     
