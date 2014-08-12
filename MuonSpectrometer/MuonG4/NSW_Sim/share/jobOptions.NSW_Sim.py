@@ -19,13 +19,13 @@ DetFlags.Truth_setOn()
 from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.ConditionsTag = "OFLCOND-MC12b-SIM-00"
 
-#from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-#Agdd2GeoSvc = AGDD2GeoSvc()
-#Agdd2GeoSvc.PrintSections = True
-#Agdd2GeoSvc.XMLFiles += ["stations.v1.64.xml"]
-#Agdd2GeoSvc.Sections += ["NewSmallWheel"]
-#Agdd2GeoSvc.DisableSections = False
-#Agdd2GeoSvc.PrintLevel = 1
+from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
+Agdd2GeoSvc = AGDD2GeoSvc()
+Agdd2GeoSvc.PrintSections = True
+Agdd2GeoSvc.XMLFiles += ["stations.v1.68.xml"]
+Agdd2GeoSvc.Sections += ["NewSmallWheel"]
+Agdd2GeoSvc.DisableSections = False
+Agdd2GeoSvc.PrintLevel = 1
 
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
