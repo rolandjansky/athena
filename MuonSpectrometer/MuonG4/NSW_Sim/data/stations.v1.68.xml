@@ -1,0 +1,536 @@
+<?xml version="1.0"?>
+<AGDD>
+<section name="NSW_Parameters" version="1.0" top_volume="useless"
+ date=" June 12, 2014 " author="ADA" >
+<!-- Global variables-->
+
+<var    name="NSW_NbrOfLayers"					value="4"/>
+<var    name="NSW_sTGC_GasTck"                  value="2.6"/>
+<var    name="NSW_sTGC_pcbTck"                  value="8.5"/>
+<!-- according to designers the stacking is P1-GG-P2-GG-P2-GG-P2-GG-P1  -->
+<!-- with panel 1 (P1) thickness of 6.8 mm, panel 2 (P2) thickness of 8.6 mm and gas gap (GG) thickness of 2.6 mm -->
+<!-- for simplicity P1 thickness = P2 thickness -->
+<var    name="NSW_sTGC_Tck"                                     value="NSW_NbrOfLayers * (NSW_sTGC_GasTck + NSW_sTGC_pcbTck) + NSW_sTGC_pcbTck"/>
+
+</section>
+
+
+
+<section name="NSW_sTGC_Parameters" version="2.0" top_volume="useless"
+ date=" June 11, 2014 " author="Daniel Lellouch" >
+<!-- Global variables-->
+
+<var name="STGC_Q_TCK" value="50.49" />
+<var name="STGC_WIRE_PITCH" value="1.8" />
+<var name="STGC_STRIP_PITCH" value="3.2" />
+<var name="STGC_SIDE_FRAME" value="26" />
+<var name="STGC_H_FRAME_NOCAP" value="11" />
+<var name="STGC_H_FRAME_CAP" value="14" />
+<array name="STGC_LAYERS_DELTA_Z" values="-16.88;-5.64;5.63;16.88" />
+
+<!-- Small Pivot -->
+<var name="STGC_SP_ZCENTER" value="7394.5" />
+<var name="STGC_SP1_RCENTER" value="1563." />
+<var name="STGC_SP2_RCENTER" value="2831.5" />
+<var name="STGC_SP3_RCENTER" value="3942.5" />
+<var name="STGC_SP_OPENING" value="17" />
+
+<!-- Small Confirm -->
+<var name="STGC_SC_ZCENTER" value="7104.5" />
+<var name="STGC_SC1_RCENTER" value="1563." />
+<var name="STGC_SC2_RCENTER" value="2831.5" />
+<var name="STGC_SC3_RCENTER" value="3942.5" />
+<var name="STGC_SC_OPENING" value="17" />
+
+<!-- Large Pivot -->
+<var name="STGC_LP_ZCENTER" value="7528.5" />
+<var name="STGC_LP1_RCENTER" value="1577.4" />
+<var name="STGC_LP2_RCENTER" value="2831.5" />
+<var name="STGC_LP3_RCENTER" value="4035.3" />
+<var name="STGC_LP_OPENING" value="28" />
+
+<!-- Large Confirm -->
+<var name="STGC_LC_ZCENTER" value="7818.5" />
+<var name="STGC_LC1_RCENTER" value="1577.4" />
+<var name="STGC_LC2_RCENTER" value="2831.5" />
+<var name="STGC_LC3_RCENTER" value="4035.3" />
+<var name="STGC_LC_OPENING" value="28" />
+
+</section>
+
+<section name="NewSmallWheelsTGC" version="2.0" top_volume="useless"
+ date=" June 11, 2014 " author="Daniel Lellouch" >
+
+<composition name="NSW_sTGC" >
+
+<sTGC_Tech type="sTGC_1" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_sTGC_GasTck" pcbTck="NSW_sTGC_pcbTck" Tck="NSW_sTGC_Tck" f4="STGC_H_FRAME_NOCAP" f5="STGC_H_FRAME_NOCAP" f6="STGC_SIDE_FRAME" />
+
+<!-- Small Pivot -->
+
+<sTGC type="sTG1-QS1P" tech="sTGC_1" subType="QS1P"
+ sWidth="341.87" lWidth="738.1"
+ Length="1325.6" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_CAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_SP_ZCENTER" Radius="STGC_SP1_RCENTER" PhiStart="15." />
+
+<sTGC_readout sPadWidth="279.32" lPadWidth="667.18" padH="80;80;80.24;80.24"
+ nPadX="4;4;3;3" anglePadX="5"
+ firstPadPhi="-5;-5;-2.5;-2.5" PadPhiShift="2;-2;2;-2"
+ nPadH="17;17;17;17" firstPadH="65.8;65.8;28.67;28.67" firstPadRow="1;1;1;1"
+ nWires="371;370;370;370" firstWire="-333;-331.65;-332.55;-332.1"
+ wireGroupWidth="20" nStrips="406"
+ firstTriggerBand="6;6;6;6" nTriggerBands="28;28;28;28"
+ firstStripInTrigger="59;59;60;60" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="13;12;13;12;13;12;13;12;13;12;13; 12;13;12;13;12;13;12;13;12;13; 12;13;12;13;12;13;10"
+ StripsInBandsLayer2="13;12;13;12;13;13;12;13;12;13;12; 13;12;13;12;13;12;13;12;13;12; 13;13;12;13;12;13;8"
+ StripsInBandsLayer3="13;12;13;12;13;13;12;13;12;13;12; 13;12;13;12;13;12;13;12;13;12; 13;13;12;13;12;13;8"
+ StripsInBandsLayer4="13;12;13;13;12;13;12;13;12;13;12; 13;12;13;13;12;13;12;13;12;13; 12;13;13;12;13;12;8"
+ nWireGroups="19;20;19;19" firstWireGroup="20;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QS1P" radius="STGC_SP1_RCENTER" zPos="STGC_SP_ZCENTER" type="ENDCAP" chamberType="sTGS" phi0="22.5" />
+
+<sTGC type="sTG1-QS2P" tech="sTGC_1" subType="QS2P"
+ sWidth="741.08" lWidth="1097.2"
+ Length="1191.4" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_SP_ZCENTER" Radius="STGC_SP2_RCENTER" PhiStart="15." />
+
+<sTGC_readout sPadWidth="677.64" lPadWidth="1026.28" padH="80;80;80.24;80.24"
+ nPadX="2;2;3;3" anglePadX="7.5"
+ firstPadPhi="0;0;-3.75;-3.75" PadPhiShift="2;-2;2;-2"
+ nPadH="15;15;15;15" firstPadH="93.2;93.2;60.22;60.22" firstPadRow="18;18;18;18"
+ nWires="569;570;570;570" firstWire="-511.2;-511.65;-512.55;-512.1"
+ wireGroupWidth="20" nStrips="365"
+ firstTriggerBand="34;34;34;34" nTriggerBands="30;30;30;30"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="4;13;12;13;12;13;12;13;12;12; 12;12;13;12;13;12;13;12;13;12; 13;12;13;12;13;12;13;12;13;11"
+ StripsInBandsLayer2="5;12;13;12;13;12;13;12;13;13; 13;12;13;12;13;12;13;12;13;12; 13;12;13;12;13;12;13;12;13;10"
+ StripsInBandsLayer3="5;12;13;12;13;12;13;12;13;13; 13;12;13;12;13;12;13;12;13;12; 13;12;13;12;13;12;13;12;13;10"
+ StripsInBandsLayer4="7;12;13;12;13;13;12;13;12;12; 12;13;12;13;12;13;13;12;13;12; 13;12;13;12;13;13;12;13;12;7"
+ nWireGroups="29;30;29;29" firstWireGroup="20;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QS2P" radius="STGC_SP2_RCENTER" zPos="STGC_SP_ZCENTER" type="ENDCAP" chamberType="sTGS" phi0="22.5" />
+
+<sTGC type="sTG1-QS3P" tech="sTGC_1" subType="QS3P"
+ sWidth="1100.9" lWidth="1401.54"
+ Length="1005.8" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_SP_ZCENTER" Radius="STGC_SP3_RCENTER" PhiStart="15." />
+
+<sTGC_readout sPadWidth="1037.46" lPadWidth="1330.62" padH="80;80;80.24;80.24"
+ nPadX="2;2;3;3" anglePadX="7.5"
+ firstPadPhi="0;0;-3.75;-3.75" PadPhiShift="2;-2;-2;-2"
+ nPadH="12;12;13;13" firstPadH="89.4;89.4;60.08;60.08" firstPadRow="33;33;33;33"
+ nWires="739;739;738;738" firstWire="-664.2;-664.65;-663.3;-663.3"
+ wireGroupWidth="20" nStrips="307"
+ firstTriggerBand="64;64;64;64" nTriggerBands="26;26;25;25"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="3;12;13;12;13;12;13;12;13;13; 13;12;13;12;12;13;12;13;12;13; 12;13;12;13;12;5"
+ StripsInBandsLayer2="6;12;13;12;13;13;12;13;12;12; 12;13;12;13;12;13;12;13;12;13; 13;12;13;12;13;3"
+ StripsInBandsLayer3="6;12;13;12;13;13;12;13;12;12; 12;13;12;13;12;13;12;13;12;13; 12;13;13;12;13"
+ StripsInBandsLayer4="7;13;12;13;12;13;12;13;12;12; 13;12;13;12;13;12;13;12;13;12; 13;13;12;13;11"
+ nWireGroups="37;38;38;38" firstWireGroup="20;5;15;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QS3P" radius="STGC_SP3_RCENTER" zPos="STGC_SP_ZCENTER" type="ENDCAP" chamberType="sTGS" phi0="22.5" />
+
+
+<!-- Small Confirm -->
+
+<sTGC type="sTG1-QS1C" tech="sTGC_1" subType="QS1C"
+ sWidth="341.87" lWidth="738.1"
+ Length="1325.6" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_CAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_SC_ZCENTER" Radius="STGC_SC1_RCENTER" PhiStart="15." />
+
+<sTGC_readout sPadWidth="293.48" lPadWidth="681.33" padH="76.86;76.86;77.1;77.1"
+ nPadX="4;4;4;4" anglePadX="5"
+ firstPadPhi="-6.25;-3.75;-6.25;-3.75" PadPhiShift="2;-2;2;-2"
+ nPadH="17;17;17;17" firstPadH="84.92;84.92;49.54;49.54" firstPadRow="2;2;2;2"
+ nWires="371;370;370;370" firstWire="-333;-331.65;-332.55;-332.1"
+ wireGroupWidth="20" nStrips="406"
+ firstTriggerBand="5;5;6;6" nTriggerBands="32;32;31;31"
+ firstStripInTrigger="28;28;41;41" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12;12;7"
+ StripsInBandsLayer2="12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12;12;7"
+ StripsInBandsLayer3="12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;13;12; 12;12;12;12;12;12;12;12;12;12;12;5"
+ StripsInBandsLayer4="12;12;12;12;12;12;12;12;12; 12;12;13;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12;13;4"
+ nWireGroups="19;20;19;19" firstWireGroup="20;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QS1C" radius="STGC_SC1_RCENTER" zPos="STGC_SC_ZCENTER" type="ENDCAP" chamberType="sTGS" phi0="22.5" />
+
+<sTGC type="sTG1-QS2C" tech="sTGC_1" subType="QS2C"
+ sWidth="741.08" lWidth="1097.2"
+ Length="1191.4" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_SC_ZCENTER" Radius="STGC_SC2_RCENTER" PhiStart="15." />
+
+<sTGC_readout sPadWidth="691.8" lPadWidth="1040.43" padH="76.86;76.86;77.1;77.1"
+ nPadX="3;3;3;3" anglePadX="7.5"
+ firstPadPhi="-1.87;-5.62;-1.87;-5.62" PadPhiShift="2;-2;2;-2"
+ nPadH="16;16;16;16" firstPadH="58.86;58.86;27.64;27.64" firstPadRow="19;19;19;19"
+ nWires="569;570;570;570" firstWire="-511.2;-511.65;-512.55;-512.1"
+ wireGroupWidth="20" nStrips="365"
+ firstTriggerBand="37;37;37;37" nTriggerBands="31;31;31;31"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="6;12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;11"
+ StripsInBandsLayer2="12;12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;13;12;12;12;12;12;7"
+ StripsInBandsLayer3="7;12;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;13;12;12;12;12;12;7"
+ StripsInBandsLayer4="9;12;12;12;12;13;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;13;12;12;12;12;12;12;6"
+ nWireGroups="29;30;29;29" firstWireGroup="20;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QS2C" radius="STGC_SC2_RCENTER" zPos="STGC_SC_ZCENTER" type="ENDCAP" chamberType="sTGS" phi0="22.5" />
+
+<sTGC type="sTG1-QS3C" tech="sTGC_1" subType="QS3C"
+ sWidth="1100.9" lWidth="1401.54"
+ Length="1005.8" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_SC_ZCENTER" Radius="STGC_SC3_RCENTER" PhiStart="15." />
+
+<sTGC_readout sPadWidth="1051.61" lPadWidth="1344.78" padH="76.86;76.86;77.1;77.1"
+ nPadX="3;3;3;3" anglePadX="7.5"
+ firstPadPhi="-1.87;-5.62;-5.62;-5.62" PadPhiShift="2;-2;-2;-2"
+ nPadH="13;13;13;13" firstPadH="84.75;84.75;57.43;57.43" firstPadRow="35;35;35;35"
+ nWires="739;739;738;738" firstWire="-664.2;-664.65;-663.3;-663.3"
+ wireGroupWidth="20" nStrips="307"
+ firstTriggerBand="68;68;68;68" nTriggerBands="26;26;25;25"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="2;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;13;12;12"
+ StripsInBandsLayer2="6;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;12;13;12"
+ StripsInBandsLayer3="6;12;12;12;12;12;12;12;12;12; 12;12;12;12;12;12;12;12;12;12; 12;12;12;12;13"
+ StripsInBandsLayer4="7;12;12;12;12;12;12;12;12;12; 12;12;12;13;12;12;12;12;12;12; 12;12;12;13;11"
+ nWireGroups="37;38;38;38" firstWireGroup="20;5;15;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QS3C" radius="STGC_SC3_RCENTER" zPos="STGC_SC_ZCENTER" type="ENDCAP" chamberType="sTGS" phi0="22.5" />
+
+<!-- Large Pivot -->
+
+<sTGC type="sTG1-QL1P" tech="sTGC_1" subType="QL1P"
+ sWidth="537.46" lWidth="1184.11"
+ Length="1296.8" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_CAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_LP_ZCENTER" Radius="STGC_LP1_RCENTER" PhiStart="0." />
+
+<sTGC_readout sPadWidth="476.42" lPadWidth="1109.11" padH="81.45;81.45;81.7;81.7"
+ nPadX="6;6;7;7" anglePadX="5"
+ firstPadPhi="-10;-10;-12.5;-12.5" PadPhiShift="2;-2;2;-2"
+ nPadH="16;16;16;16" firstPadH="54.8;54.8;98.64;98.64" firstPadRow="1;1;2;2"
+ nWires="611;610;610;610" firstWire="-549;-547.65;-548.55;-548.1"
+ wireGroupWidth="20" nStrips="397"
+ firstTriggerBand="5;5;5;5" nTriggerBands="28;28;28;28"
+ firstStripInTrigger="44;44;45;45" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="13;12;13;13;12;13;13;13;12;13; 13;12;13;13;13;12;13;13;12;13; 13;13;12;13;13;12;13;11"
+ StripsInBandsLayer2="13;12;13;13;13;12;13;13;12;13; 13;13;12;13;13;13;12;13;13;13; 12;13;13;13;12;13;13;10"
+ StripsInBandsLayer3="13;12;13;13;13;12;13;13;13;12; 13;13;13;12;13;13;13;12;13;13; 13;12;13;13;13;12;13;9"
+ StripsInBandsLayer4="13;12;13;13;13;12;13;13;13;13; 12;13;13;13;12;13;13;13;13;12; 13;13;13;12;13;13;13;8"
+ nWireGroups="31;32;31;31" firstWireGroup="20;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QL1P" radius="STGC_LP1_RCENTER" zPos="STGC_LP_ZCENTER" type="ENDCAP" chamberType="sTGL" />
+
+<sTGC type="sTG1-QL2P" tech="sTGC_1" subType="QL2P"
+ sWidth="1189.1" lWidth="1783.2"
+ Length="1191.4" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_LP_ZCENTER" Radius="STGC_LP2_RCENTER" PhiStart="0." />
+
+<sTGC_readout sPadWidth="1126.56" lPadWidth="1708.2" padH="81.45;81.45;81.7;81.7"
+ nPadX="4;4;3;3" anglePadX="7.5"
+ firstPadPhi="-7.5;-7.5;-3.75;-3.75" PadPhiShift="2;-2;2;-2"
+ nPadH="15;15;14;14" firstPadH="54.25;54.25;101.99;101.99" firstPadRow="17;17;18;18"
+ nWires="943;943;943;944" firstWire="-847.8;-848.25;-847.35;-848.7"
+ wireGroupWidth="20" nStrips="365"
+ firstTriggerBand="33;33;33;33" nTriggerBands="30;30;30;29"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="4;13;13;12;13;13;12;13;13;13;12;13;13; 13;13;12;13;13;12;13;13;13;12;13; 13;12;13;13;13;12;5"
+ StripsInBandsLayer2="5;12;13;13;13;12;13;13;13;12;13;13;13; 12;12;13;13;13;12;13;13;12;13;13; 13;12;13;13;13;12;4"
+ StripsInBandsLayer3="6;13;13;13;12;13;13;13;12;13;13;13;13; 13;13;13;13;12;13;13;13;12;13;13; 13;12;13;13;13;12;2"
+ StripsInBandsLayer4="7;13;12;13;13;13;13;12;13;13;13;12;12; 13;13;13;12;13;13;13;13;12;13;13; 13;12;13;13;13;13"
+ nWireGroups="57;48;48;48" firstWireGroup="15;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QL2P" radius="STGC_LP2_RCENTER" zPos="STGC_LP_ZCENTER" type="ENDCAP" chamberType="sTGL" />
+
+<sTGC type="sTG1-QL3P" tech="sTGC_1" subType="QL3P"
+ sWidth="1789.38" lWidth="2098.15"
+ Length="1191.4" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="569" >
+ 
+<sTGC_position Zposition="STGC_LP_ZCENTER" Radius="STGC_LP3_RCENTER" PhiStart="0." />
+ 
+<sTGC_readout sPadWidth="1726.85" lPadWidth="2046.15" padH="81.45;81.45;81.7;81.7"
+
+ nPadX="4;4;3;3" anglePadX="7.5"
+ firstPadPhi="-7.5;-7.5;-3.75;-3.75" PadPhiShift="2;-2;-2;-2"
+ nPadH="15;15;15;15" firstPadH="72.24;72.24;41.95;41.95" firstPadRow="32;32;32;32"
+ nWires="1135;1135;1134;1134" firstWire="-1020.6;-1021.05;-1019.7;-1019.7"
+ wireGroupWidth="20" nStrips="365"
+ firstTriggerBand="63;63;63;62" nTriggerBands="28;28;28;29"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="10;12;13;13;12;13;13;13;12;13; 13;12;13;13;13;12;13;13;12;13; 13;13;12;13;13;12;13;13"
+ StripsInBandsLayer2="11;12;13;13;13;12;13;13;13;12; 13;13;12;13;13;13;12;13;13;13; 12;13;13;13;12;13;13;13"
+ StripsInBandsLayer3="13;13;12;13;13;13;12;13;13;13; 12;13;13;13;12;13;13;13;12;13; 13;13;12;13;13;13;12;13"
+ StripsInBandsLayer4="1;13;13;12;13;13;13;13;12;13;13; 13;12;13;13;13;13;12;13;13;13; 12;13;13;13;13;12;13;13"
+ nWireGroups="57;58;57;57" firstWireGroup="20;5;15;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QL3P" radius="STGC_LP3_RCENTER" zPos="STGC_LP_ZCENTER" type="ENDCAP" chamberType="sTGL" />
+
+<!-- Large Confirm -->
+
+<sTGC type="sTG1-QL1C" tech="sTGC_1" subType="QL1C"
+ sWidth="537.46" lWidth="1184.11"
+ Length="1296.8" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_CAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_LC_ZCENTER" Radius="STGC_LC1_RCENTER" PhiStart="0." />
+
+<sTGC_readout sPadWidth="490.84" lPadWidth="1123.54" padH="84.6;84.6;84.84;84.84"
+ nPadX="6;6;6;6" anglePadX="5"
+ firstPadPhi="-11.25;-8.75;-11.25;-8.75" PadPhiShift="2;-2;2;-2"
+ nPadH="15;15;16;16" firstPadH="72.17;72.17;32.68;32.68" firstPadRow="1;1;1;1"
+ nWires="611;610;610;610" firstWire="-549;-547.65;-548.55;-548.1"
+ wireGroupWidth="20" nStrips="397"
+ firstTriggerBand="6;5;5;5" nTriggerBands="28;29;29;29"
+ firstStripInTrigger="37;24;25;25" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="13;13;14;13;13;13;13;14;13; 13;13;14;13;13;13;13;14;13;13; 13;13;14;13;13;13;13;14;4"
+ StripsInBandsLayer2="13;13;13;14;13;13;13;14;13;13; 13;14;13;13;13;13;14;13;13;13; 14;13;13;13;13;14;13;13;4"
+ StripsInBandsLayer3="13;13;13;14;13;13;13;14;13;13; 13;14;13;13;13;14;13;13;13;14; 13;13;13;14;13;13;13;14;2"
+ StripsInBandsLayer4="13;13;13;14;13;13;14;13;13;13; 14;13;13;13;14;13;13;13;14;13; 13;14;13;13;13;14;13;13;2"
+ nWireGroups="31;32;31;31" firstWireGroup="20;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QL1C" radius="STGC_LC1_RCENTER" zPos="STGC_LC_ZCENTER" type="ENDCAP" chamberType="sTGL" />
+
+<sTGC type="sTG1-QL2C" tech="sTGC_1" subType="QL2C"
+ sWidth="1189.1" lWidth="1783.2"
+ Length="1191.4" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="0" >
+ 
+<sTGC_position Zposition="STGC_LC_ZCENTER" Radius="STGC_LC2_RCENTER" PhiStart="0." />
+
+<sTGC_readout sPadWidth="1140.99" lPadWidth="1722.62" padH="84.6;84.6;84.84;84.84"
+ nPadX="4;4;4;4" anglePadX="7.5"
+ firstPadPhi="-9.37;-5.62;-9.37;-5.62" PadPhiShift="2;-2;2;-2"
+ nPadH="15;15;14;14" firstPadH="37.34;37.34;86.35;86.35" firstPadRow="16;16;17;17"
+ nWires="943;943;943;944" firstWire="-847.8;-848.25;-847.35;-848.7"
+ wireGroupWidth="20" nStrips="365"
+ firstTriggerBand="34;34;34;34" nTriggerBands="28;28;28;28"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="12;13;13;13;13;14;13;13;13; 14;13;13;13;13;14;13;13;13;13; 14;13;13;13;13;14;13;13;10"
+ StripsInBandsLayer2="12;13;14;13;13;13;14;13;13; 13;13;14;13;13;13;14;13;13;13; 13;14;13;13;13;14;13;13;9"
+ StripsInBandsLayer3="14;13;13;13;14;13;13;13;14; 13;13;13;14;13;13;13;14;13;13; 13;14;13;13;13;14;13;13;7"
+ StripsInBandsLayer4="14;13;14;13;13;14;13;13;13; 14;13;13;13;14;13;13;13;14;13; 13;14;13;13;13;14;13;13;6"
+ nWireGroups="57;48;48;48" firstWireGroup="15;5;10;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QL2C" radius="STGC_LC2_RCENTER" zPos="STGC_LC_ZCENTER" type="ENDCAP" chamberType="sTGL" />
+
+<sTGC type="sTG1-QL3C" tech="sTGC_1" subType="QL3C"
+ sWidth="1789.38" lWidth="2098.15"
+ Length="1191.4" Tck="STGC_Q_TCK"
+ xFrame="STGC_SIDE_FRAME" ysFrame="STGC_FRAME_NOCAP"
+ ylFrame="STGC_FRAME_CAP" yCutout="569" >
+ 
+<sTGC_position Zposition="STGC_LC_ZCENTER" Radius="STGC_LC3_RCENTER" PhiStart="0." />
+
+<sTGC_readout sPadWidth="1741.27" lPadWidth="2046.15" padH="84.6;84.6;84.84;84.84"
+ nPadX="4;4;4;4" anglePadX="7.5"
+ firstPadPhi="-9.37;-5.62;-5.62;-5.62" PadPhiShift="2;-2;-2;-2"
+ nPadH="14;14;14;14" firstPadH="102.5;102.5;70.34;70.34" firstPadRow="31;31;31;31"
+ nWires="1135;1135;1134;1134" firstWire="-1020.6;-1021.05;-1019.7;-1019.7"
+ wireGroupWidth="20" nStrips="365"
+ firstTriggerBand="62;62;62;62" nTriggerBands="29;29;28;28"
+ firstStripInTrigger="1;1;1;1" firstStripWidth="1.6;3.2;1.6;3.2"
+ StripsInBandsLayer1="5;13;14;13;13;13;14;13;13;13;13; 14;13;13;13;13;14;13;13;13;13; 14;13;13;13;13;14;13;3"
+ StripsInBandsLayer2="6;14;13;13;13;13;14;13;13;13;14; 13;13;13;14;13;13;13;13;14;13; 13;13;14;13;13;13;13;2"
+ StripsInBandsLayer3="8;14;13;13;13;14;13;13;13;14;13; 13;13;14;13;13;13;14;13;13;13; 14;13;13;13;14;13;12"
+ StripsInBandsLayer4="9;14;13;13;14;13;13;13;14;13;13; 13;14;13;13;13;14;13;13;14;13; 13;13;14;13;13;13;11"
+ nWireGroups="57;58;57;57" firstWireGroup="20;5;15;15" />
+</sTGC>
+
+<chamberPosition volume="sTG1-QL3C" radius="STGC_LC3_RCENTER" zPos="STGC_LC_ZCENTER" type="ENDCAP" chamberType="sTGL" />
+
+</composition>
+
+</section>
+
+<section name="NSW_MM_Parameters" version="1.0" top_volume="useless"
+ date=" June 12, 2014 " author="ADA" >
+<!-- FRAME  -->
+<!-- f1,f4 = frame thickness close to the trapezium large side, f2,f5 = frame thickness close to the trapezium small side, f3,f6 = frame thickness close to the trapezium oblique side  -->
+<var    name="NSW_MM_f1"                                        value="30."/>
+<var    name="NSW_MM_f2"                                        value="30."/>
+<var    name="NSW_MM_f3"                                        value="100."/>
+
+<var    name="NSW_sTGC_f4"                                      value="30."/>
+<var    name="NSW_sTGC_f5"                                      value="30."/>
+<var    name="NSW_sTGC_f6"                                      value="100."/>
+
+<var    name="NSW_MM_GasTck"					value="5."/>
+<var    name="NSW_MM_pcbTck"					value="11."/>
+
+<var    name="NSW_MM_Tck"					value="NSW_NbrOfLayers * (NSW_MM_GasTck + NSW_MM_pcbTck) + 2. * NSW_MM_pcbTck"/>
+
+<var    name="NSW_MM_Tck"					value="NSW_NbrOfLayers * (NSW_MM_GasTck + NSW_MM_pcbTck) + 2. * NSW_MM_pcbTck"/>
+
+
+<var	name="NSW_MM_SpacerLength"				value="20." />
+<var	name="NSW_MM_SpacerThickness"				value="40." /> <!-- adjusted to designers' value, before 100 -->
+
+<var	name="NSW_MM_FrontDisk_radius"				value="982." />
+<var	name="NSW_MM_FrontDisk_standardPlateLength"		value="2310." />
+<var	name="NSW_MM_FrontDisk_topPlateLength"			value="1410." />
+
+<var	name="NSW_MM_FrontDisk_baseWidth"			value="660." />
+<var	name="NSW_MM_FrontDisk_layer2Width"			value="2042." />
+<var	name="NSW_MM_FrontDisk_topWidth"			value="2220." />
+
+<var	name="NSW_MM_BackDisk_radius"				value="1016." />
+<var	name="NSW_MM_BackDisk_bottomPlateLength"		value="930." />
+<var	name="NSW_MM_BackDisk_standardPlateLength"		value="2210." />
+<var	name="NSW_MM_BackDisk_topPlateLength"			value="1350." />
+
+<var	name="NSW_MM_BackDisk_baseWidth"			value="460." />
+<var	name="NSW_MM_BackDisk_layer2Width"			value="1300." />
+<var	name="NSW_MM_BackDisk_topWidth"				value="1780." />
+
+<var name="LS_ZCENTER" value="(STGC_LP_ZCENTER+STGC_LC_ZCENTER)/2."/>
+<var name="SS_ZCENTER" value="(STGC_SP_ZCENTER+STGC_SC_ZCENTER)/2."/>
+
+
+</section>
+ 
+<section name="NewSmallWheelsMM" version="1.0" top_volume="useless"
+ date=" June 12, 2014 " author="ADA" >
+
+<!-- Technologies  -->
+<mm_Tech type="MM_1" geometryLevel="1" nLayers="NSW_NbrOfLayers" gasTck="NSW_MM_GasTck" pcbTck="NSW_MM_pcbTck" Tck="NSW_MM_Tck" f1="NSW_MM_f1" f2="NSW_MM_f2" f3="NSW_MM_f3" />
+
+<mmSpacer_Tech type="Spa_1" Tck="NSW_MM_SpacerThickness" />
+
+
+
+<!-- large wheel -->
+<micromegas type="sMD1-1-1" tech="MM_1" subType="M1L1" sWidth="NSW_MM_FrontDisk_baseWidth" lWidth="NSW_MM_FrontDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-2-1" tech="MM_1" subType="M2L1" sWidth="NSW_MM_FrontDisk_layer2Width" lWidth="NSW_MM_FrontDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_topPlateLength" />
+
+
+<micromegas type="sMD1-1-2" tech="MM_1" subType="M1L2" sWidth="NSW_MM_FrontDisk_baseWidth" lWidth="NSW_MM_FrontDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<micromegas type="sMD1-2-2" tech="MM_1" subType="M2L2" sWidth="NSW_MM_FrontDisk_layer2Width" lWidth="NSW_MM_FrontDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_FrontDisk_topPlateLength" />
+
+
+
+<mmSpacer type="spa1-1" tech="Spa_1" sWidth="NSW_MM_FrontDisk_baseWidth" lWidth="NSW_MM_FrontDisk_layer2Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_FrontDisk_standardPlateLength" />
+
+<mmSpacer type="spa1-2" tech="Spa_1" sWidth="NSW_MM_FrontDisk_layer2Width" lWidth="NSW_MM_FrontDisk_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_FrontDisk_topPlateLength" />
+
+
+<!-- small wheel -->
+<micromegas type="sMD3-1-1" tech="MM_1" subType="M1S1" sWidth="NSW_MM_BackDisk_baseWidth" lWidth="NSW_MM_BackDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<micromegas type="sMD3-2-1" tech="MM_1" subType="M2S1" sWidth="NSW_MM_BackDisk_layer2Width" lWidth="NSW_MM_BackDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_topPlateLength" />
+
+
+<micromegas type="sMD3-1-2" tech="MM_1" subType="M1S2" sWidth="NSW_MM_BackDisk_baseWidth" lWidth="NSW_MM_BackDisk_layer2Width" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<micromegas type="sMD3-2-2" tech="MM_1" subType="M2S2" sWidth="NSW_MM_BackDisk_layer2Width" lWidth="NSW_MM_BackDisk_topWidth" Tck="NSW_MM_Tck" Length="NSW_MM_BackDisk_topPlateLength" />
+
+
+
+<mmSpacer type="spa3-1" tech="Spa_1" sWidth="NSW_MM_BackDisk_baseWidth" lWidth="NSW_MM_BackDisk_layer2Width" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_BackDisk_standardPlateLength" />
+
+<mmSpacer type="spa3-2" tech="Spa_1" sWidth="NSW_MM_BackDisk_layer2Width" lWidth="NSW_MM_BackDisk_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_BackDisk_topPlateLength" />
+
+<composition name="NSW_MM" >
+<!-- A-SIDE -->
+
+  <!-- LARGE SECTOR -->
+
+    <!-- MM multilayer 1 -->
+  <chamberPosition volume="sMD1-1-1" radius="2078." zPos="LS_ZCENTER-NSW_MM_Tck/2.-NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="0." />
+  <chamberPosition volume="sMD1-2-1" radius="3943.+NSW_MM_SpacerLength" zPos="LS_ZCENTER-NSW_MM_Tck/2.-NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="0." />
+ 
+  <!-- spacer -->
+  <mposPhi volume="spa1-1" ncopy="8" R_Z="2078.;LS_ZCENTER" Phi0="0." rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa1-2" ncopy="8" R_Z="3943.+NSW_MM_SpacerLength;LS_ZCENTER" Phi0="0." rot=" 90.; 270.; 90." />
+  
+  <!-- MM multilayer 2 -->
+  
+  <chamberPosition volume="sMD1-1-2" radius="2078." zPos="LS_ZCENTER+NSW_MM_Tck/2.+NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="0." />
+  <chamberPosition volume="sMD1-2-2" radius="3943.+NSW_MM_SpacerLength" zPos="LS_ZCENTER+NSW_MM_Tck/2.+NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="0." />
+
+
+  <!-- SMALL SECTOR -->
+
+   <!-- MM multilayer 1 -->
+
+  <chamberPosition volume="sMD3-1-1" radius="2000." zPos="SS_ZCENTER-NSW_MM_Tck/2.-NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="22.5" />
+  <chamberPosition volume="sMD3-2-1" radius="3785.+NSW_MM_SpacerLength" zPos="SS_ZCENTER-NSW_MM_Tck/2.-NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="22.5" />
+ 
+  <!-- spacer -->
+  <mposPhi volume="spa3-1" ncopy="8" R_Z="2000.;SS_ZCENTER" Phi0="22.5" rot=" 90.; 270.; 90." />
+  <mposPhi volume="spa3-2" ncopy="8" R_Z="3785.+NSW_MM_SpacerLength;SS_ZCENTER" Phi0="22.5" rot=" 90.; 270.; 90." />
+
+  <!-- MM multilayer 2 -->
+  <chamberPosition volume="sMD3-1-2" radius="2000." zPos="SS_ZCENTER+NSW_MM_Tck/2.+NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="22.5" />
+  <chamberPosition volume="sMD3-2-2" radius="3785.+NSW_MM_SpacerLength" zPos="SS_ZCENTER+NSW_MM_Tck/2.+NSW_MM_SpacerThickness/2." type="ENDCAP" phi0="22.5" />
+
+<!-- C-SIDE -->
+
+  <!-- LARGE SECTOR -->
+ 
+  <!-- spacer -->
+  <mposPhi volume="spa1-1" ncopy="8" R_Z="2078.;-LS_ZCENTER" Phi0="0." rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa1-2" ncopy="8" R_Z="3943.+NSW_MM_SpacerLength;-LS_ZCENTER" Phi0="0." rot=" 90.; 90.; 90." />
+  
+
+  <!-- SMALL SECTOR -->
+
+
+  <!-- spacer -->
+  <mposPhi volume="spa3-1" ncopy="8" R_Z="2000.;-SS_ZCENTER" Phi0="22.5" rot=" 90.; 90.; 90." />
+  <mposPhi volume="spa3-2" ncopy="8" R_Z="3785.+NSW_MM_SpacerLength;-SS_ZCENTER" Phi0="22.5" rot=" 90.; 90.; 90." />
+
+</composition>
+ 
+</section>
+
+ 
+<section name="NewSmallWheels" version="1.0" top_volume="useless"
+ date=" June 12, 2014 " author="ADA" >
+ 
+<composition name="NewSmallWheel" >
+  <posXYZ volume="NSW_sTGC" X_Y_Z="0.;0.;0." />
+  <posXYZ volume="NSW_MM" X_Y_Z="0.;0.;0." />
+</composition>
+
+</section>
+
+</AGDD>
