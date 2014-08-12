@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+   <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+   <unifiedTestConfiguration>
+      <atn/>
+      <kv/>
+      <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt" >
+         <rttContactPerson>George Redlinger (redlinger@bnl.gov)</rttContactPerson>
+         <mailto>redlinger@bnl.gov</mailto>
+         <jobList>
+
+           <chain>
+            <chainName>FilterOverlayReco</chainName>
+
+
+             <sequential>
+               <chainElement>
+                  <jobTransform userJobId="BSFilter_trf">
+                  <doc>Create G4 hits for MC</doc>
+                  <jobTransformJobName>BSFilter</jobTransformJobName>
+                  <jobTransformCmd>
+               BSFilter_trf.py inputBSFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay//user.haastyle.BSmultipleselector.GRL.test9_EXT0.merge.32430.test12.120127073036/user.haastyle.101200.EXT5._00001.Zerobias1327678194q.bit-1.stream5.RAW OutputBSFilterFile=simpledummy.RAW EventIdFile=events.txt TriggerBit=5 skipEvents=0 maxEvents=5; AtlasG4_tf.py --DataRunNumber=2011 --inputEVNTFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_tid454603_00/EVNT.454603._000006.pool.root.1 --outputHITSFile=testRTT.HITS.pool.root --maxEvents=2 --skipEvents=0 --randomSeed=123456789 --geometryVersion=ATLAS-GEO-16-00-00 --conditionsTag=COMCOND-BLKPST-005-08 --physicsList=QGSP_BERT --preInclude='sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' --postInclude='sim:EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/Rt_override.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py'
+                  </jobTransformCmd>
+                  <group>Overlay_JobTransforms</group>
+                  <queue>medium</queue>
+                  </jobTransform>
+                  <chainfileout>testRTT.HITS.pool.root</chainfileout>
+               </chainElement>
+
+               <parallel>
+                 <chainElement>
+                   <jobTransform userJobId="BSFilter_trf_Reg">
+                   <doc>Regression test for BSFilter_trf"</doc>
+                   <jobTransformJobName>BSFilter_Reg</jobTransformJobName>
+                   <jobTransformCmd>
+                     sim_reg_test.py BSFilter_trf testRTT.HITS.pool.root HITS.pool
+                   </jobTransformCmd>
+                   <group>Overlay_JobTransforms</group>
+                   <queue>short</queue>
+                   <test>
+                     <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                     <testname>FlexibleDiffPoolFilesRunner</testname>
+                     <testidentifier>HITS_RegressionTestRunner</testidentifier>
+                     <arg>
+                       <argname>platformDependent</argname>
+                       <argvalue>True</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>doDetailedChecks</argname>
+                       <argvalue>True</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>fileName</argname>
+                       <argvalue>today.HITS.pool.root</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>refFileName</argname>
+                       <argvalue>yesterday.HITS.pool.root</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>optionString</argname>
+                       <argvalue>--ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings</argvalue>
+                     </arg>
+                     <keepFilePattern>today.HITS.pool.root_yesterday.HITS.pool.root.diffPool</keepFilePattern>
+                   </test>
+                   <testToRemove>
+                     <jobGroupName>RTT:Top</jobGroupName>
+                     <testidentifier>CheckFileRunner0</testidentifier>
+                   </testToRemove>
+                   </jobTransform>
+                 </chainElement>
+
+
+                 <!-- comment -->
+                 <chainElement>
+                   <jobTransform userJobId="overlay_bs_trf">
+                     <doc>Overlay G4 hits and zero-bias data</doc>
+                     <jobTransformJobName>overlay_bs</jobTransformJobName>
+                     <jobTransformCmd>
+                       overlay_bs_trf.py --omitvalidation=ALL inputHitsFile=testRTT.HITS.pool.root outputRDOFile=testRTT.RDO.pool.root pileupBSFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay/user.haastyle.BSmultipleselector.GRL.test9_EXT0.merge.32430.test12.120127073036/user.haastyle.101200.EXT5._00001.Zerobias1327678194q.bit-1.stream5.RAW maxEvents=2 skipEvents=0 geometryVersion=ATLAS-GEO-16-00-00 digiSeedOffset1=211 digiSeedOffset2=122 conditionsTag=COMCOND-BLKPST-005-08 jobConfig='[EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/custom.py]' samplingFractionDbTag=QGSP_BERT fSampltag=LARElecCalibMCfSampl-CSC02-D- postInclude='EventOverlayJobTransforms/Rt_override.py'
+                     </jobTransformCmd>
+                     <group>Overlay_JobTransforms</group>
+                     <chaindataset_info>
+                       <jobTransformData />
+                       <chaindatasetName>testRTT.HITS.pool.root</chaindatasetName>
+                       <dataset_info>
+                         <dc2 />
+                         <datasetName>/eos/atlas/user/r/redlinge/overlay/output.nightly.HITS.pool.root</datasetName>
+                       </dataset_info>
+                     </chaindataset_info>
+                    <queue>medium</queue>
+                   </jobTransform>
+                   <chainfileout>testRTT.RDO.pool.root</chainfileout>
+                 </chainElement>
+               </parallel>
+
+               <parallel>
+                 <chainElement>
+                   <jobTransform userJobId="overlay_bs_trf_Reg">
+                   <doc>Regression test for overlay_bs_trf"</doc>
+                   <jobTransformJobName>overlay_bs_Reg</jobTransformJobName>
+                   <jobTransformCmd>
+                     sim_reg_test.py overlay_bs_trf testRTT.RDO.pool.root RDO.pool
+                   </jobTransformCmd>
+                   <group>Overlay_JobTransforms</group>
+                   <queue>short</queue>
+                   <test>
+                     <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                     <testname>FlexibleDiffPoolFilesRunner</testname>
+                     <testidentifier>RDO_RegressionTestRunner</testidentifier>
+                     <arg>
+                       <argname>platformDependent</argname>
+                       <argvalue>True</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>doDetailedChecks</argname>
+                       <argvalue>True</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>fileName</argname>
+                       <argvalue>today.RDO.pool.root</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>refFileName</argname>
+                       <argvalue>yesterday.RDO.pool.root</argvalue>
+                     </arg>
+                     <keepFilePattern>today.RDO.pool.root_yesterday.RDO.pool.root.diffPool</keepFilePattern>
+                   </test>
+                   <testToRemove>
+                     <jobGroupName>RTT:Top</jobGroupName>
+                     <testidentifier>CheckFileRunner0</testidentifier>
+                   </testToRemove>
+                   </jobTransform>
+                 </chainElement>
+
+                 <chainElement>
+                   <jobTransform userJobId="Reco_trf">
+                     <doc>Reco of MC+Data overlay</doc>
+                     <jobTransformJobName>Reco</jobTransformJobName>
+                     <jobTransformCmd>
+                       Reco_trf.py inputRDOFile=testRTT.RDO.pool.root geometryVersion=ATLAS-GEO-16-00-00 conditionsTag=COMCOND-BLKPST-005-08 preInclude=EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py postInclude=EventOverlayJobTransforms/Rt_override.py,EventOverlayJobTransforms/muAlign_reco.py outputESDFile=testRTT.ESD.pool.root preExec_r2e='include.block("TrigT2CaloCommon/LArCellBuilding.py")'
+                     </jobTransformCmd>
+                     <group>Overlay_JobTransforms</group>
+                     <chaindataset_info>
+                       <jobTransformData />
+                       <chaindatasetName>testRTT.RDO.pool.root</chaindatasetName>
+                       <dataset_info>
+                         <dc2 />
+                         <datasetName>/eos/atlas/user/r/redlinge/overlay/output.nightly.RDO.pool.root</datasetName>
+                       </dataset_info>
+                     </chaindataset_info>
+                     <queue>medium</queue>
+                   </jobTransform>
+                   <chainfileout>testRTT.ESD.pool.root</chainfileout>
+                 </chainElement>
+               </parallel>
+
+               <parallel>
+                 <chainElement>
+                   <jobTransform userJobId="Reco_trf_Reg">
+                   <doc>Regression test for Reco_trf"</doc>
+                   <jobTransformJobName>Reco_Reg</jobTransformJobName>
+                   <jobTransformCmd>
+                     sim_reg_test.py Reco_trf testRTT.ESD.pool.root ESD.pool
+                   </jobTransformCmd>
+                   <group>Overlay_JobTransforms</group>
+                   <queue>short</queue>
+                   <test>
+                     <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                     <testname>FlexibleDiffPoolFilesRunner</testname>
+                     <testidentifier>ESD_RegressionTestRunner</testidentifier>
+                     <arg>
+                       <argname>platformDependent</argname>
+                       <argvalue>True</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>doDetailedChecks</argname>
+                       <argvalue>True</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>fileName</argname>
+                       <argvalue>today.ESD.pool.root</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>refFileName</argname>
+                       <argvalue>yesterday.ESD.pool.root</argvalue>
+                     </arg>
+                     <arg>
+                       <argname>optionString</argname>
+                       <argvalue>--ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_timings RecoTimingObj_p1_RAWtoESD_mems TrackParticleAssocs_p1_GSFTrackAssociation</argvalue>
+                     </arg>
+                     <keepFilePattern>today.ESD.pool.root_yesterday.ESD.pool.root.diffPool</keepFilePattern>
+                   </test>
+                   <testToRemove>
+                     <jobGroupName>RTT:Top</jobGroupName>
+                     <testidentifier>CheckFileRunner0</testidentifier>
+                   </testToRemove>
+                   </jobTransform>
+                 </chainElement>
+               </parallel>
+
+             </sequential>
+
+
+
+           </chain>
+         </jobList>
+
+
+
+         <jobGroups>
+
+
+             <jobGroup name="Overlay_JobTransforms" parent="Transform">
+                 <keepFilePattern>*</keepFilePattern>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                 </test>
+             </jobGroup>
+
+
+         </jobGroups>
+
+      </rtt>
+   </unifiedTestConfiguration>
