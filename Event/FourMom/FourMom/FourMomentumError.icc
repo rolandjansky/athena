@@ -111,7 +111,6 @@ template < class FourMom>
 FourMomentumError< FourMom> &FourMomentumError<FourMom>::operator=( const FourMomentumError& other)
 {
   if (this!=&other){
-    I4MomentumError();
     m_p4( other.m_p4);
     m_PxPyPzE(0);
     m_EEtaPhiM(0);
