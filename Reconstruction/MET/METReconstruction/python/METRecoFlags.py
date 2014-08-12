@@ -1,0 +1,36 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
+
+class METRecoFlags(JobPropertyContainer):
+    pass
+
+class DoRegions(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class METConfigs(JobProperty):
+    statusOn = True
+    allowedTypes = ['dict'] 
+    StoredValue  = {}
+
+class METRecoTools(JobProperty):
+    statusOn = True
+    allowedTypes = ['dict'] 
+    StoredValue  = {}
+
+class METOutputList(JobProperty):
+    statusOn = True
+    allowedTypes = ['list'] 
+    StoredValue  = []
+
+jobproperties.add_Container(METRecoFlags)
+
+jobproperties.METRecoFlags.add_JobProperty(DoRegions)
+jobproperties.METRecoFlags.add_JobProperty(METConfigs)
+jobproperties.METRecoFlags.add_JobProperty(METOutputList)
+jobproperties.METRecoFlags.add_JobProperty(METRecoTools)
+
+metFlags = jobproperties.METRecoFlags
