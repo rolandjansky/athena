@@ -1,0 +1,41 @@
+<!-- Args2Container.dtd    -->
+<!-- Jack.Cranshaw@cern.ch -->
+
+<!-- Example
+
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE ArgList>
+<ArgList>
+
+  <ToolInfo date="Mon May 24 18:13:30 2010&#xA;" toolID="CollAppend.exe">
+    <CliArg name="QueryInfo" option="-query">
+      <datum>RunNumber=153200 AND (bitand(L1PassedTrigMaskTAV7, power(2,36)) = 0)</datum>
+    </CliArg>
+    <CliArg name="DstInfo" option="-dst">
+      <datum>PFN:testmulti5.root</datum>
+      <datum>RootCollection</datum>
+    </CliArg>
+    <CliArg name="SrcInfo" option="-src">
+      <datum>data10_7TeV_debugrec_hltacc_f249_m455_READ</datum>
+      <datum>RelationalCollection</datum>
+    </CliArg>
+    <CliArg name="SrcInfo" option="-srcconnect">
+      <datum>oracle://tagspic.pic.es/ATLAS_TAGS_DATA_F_2010</datum>
+    </CliArg>
+    <CliArg name="MetaInfo" option="-merge"/>
+  </ToolInfo>
+
+</ArgList>
+
+-->
+
+<!ELEMENT ArgList (ToolInfo+)>
+<!ELEMENT ToolInfo (CliArg*)>
+<!ATTLIST ToolInfo
+	date    	CDATA	#IMPLIED> 
+      	toolID    	ID   	#REQUIRED>
+<!ELEMENT CliArg (datum*)>
+<!ATTLIST CliArg
+	name 	ID	#REQUIRED>
+	option		CDATA	#REQUIRED>
+<!ELEMENT datum ANY> 
