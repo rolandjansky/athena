@@ -1,0 +1,22 @@
+package SiTrackMakerTool_xk
+
+author Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
+
+private
+
+use TrkRIO_OnTrack            TrkRIO_OnTrack-*            Tracking/TrkEvent
+use TrkCaloClusterROI         TrkCaloClusterROI-*         Tracking/TrkEvent
+use InDetPrepRawData          InDetPrepRawData-*          InnerDetector/InDetRecEvent
+
+public
+
+use AtlasPolicy               AtlasPolicy-*
+use GaudiInterface            GaudiInterface-*            External 
+use AthenaBaseComps           AthenaBaseComps-*           Control
+use MagFieldInterfaces *      MagneticField
+use InDetRecToolInterfaces    InDetRecToolInterfaces-*    InnerDetector/InDetRecTools
+use TrkGeometry               TrkGeometry-*               Tracking/TrkDetDescr
+
+library SiTrackMakerTool_xk *.cxx components/*.cxx 
+apply_pattern component_library
+
