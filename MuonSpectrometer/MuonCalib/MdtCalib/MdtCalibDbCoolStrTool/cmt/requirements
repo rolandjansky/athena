@@ -9,6 +9,9 @@ use MdtCalibInterfaces   MdtCalibInterfaces-*  MuonSpectrometer/MuonCalib/MdtCal
 use MuonCalibITools MuonCalibITools-* MuonSpectrometer/MuonCalib
 use AtlasCLHEP AtlasCLHEP-* External
 
+# Apply cmake-specific customization to link against the -lz library (transparent on CMT side)
+apply_pattern cmake_add_libraries target=MdtCalibDbCoolStrTool libraries=z
+
 library MdtCalibDbCoolStrTool  *.cxx components/*.cxx
 
 apply_pattern component_library
