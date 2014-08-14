@@ -1,0 +1,69 @@
+package tauRec
+
+author S. Rajagopalan <srinir@bnl.gov>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
+use  CxxUtils                   CxxUtils-*                      Control
+use  AtlasBoost                 AtlasBoost-*                    External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  CaloInterface              CaloInterface-*                 Calorimeter
+use  CaloUtils                  CaloUtils-*                     Calorimeter
+use  AthLinks                   AthLinks-*                      Control
+use  GaudiInterface             GaudiInterface-*                External
+use  ITrackToVertex             ITrackToVertex-*                Reconstruction/RecoTools
+#use  JetMomentTools             JetMomentTools-*                Reconstruction/Jet
+use  JetEDM                     JetEDM-*                        Reconstruction/Jet
+use  Particle                   Particle-*                      Reconstruction
+use  ParticleEvent              ParticleEvent-*                 PhysicsAnalysis/AnalysisCommon
+use  tauEvent                   tauEvent-*                      Reconstruction
+use  xAODTau                    xAODTau-*                       Event/xAOD
+use  xAODJet                    xAODJet-*                       Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
+
+private
+use  AthContainers              AthContainers-*                 Control
+use  CaloEvent                  CaloEvent-*                     Calorimeter
+use  EventKernel                EventKernel-*                   Event
+use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
+use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
+use  AtlasAIDA                  AtlasAIDA-*                     External
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+use  CaloIdentifier             CaloIdentifier-*                Calorimeter
+use  EventInfo                  EventInfo-*                     Event
+use  FourMom                    FourMom-*                       Event
+use  FourMomUtils               FourMomUtils-*                  Event
+use  NavFourMom                 NavFourMom-*                    Event
+use  InDetRecToolInterfaces     InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
+use  JetEvent                   JetEvent-*                      Reconstruction/Jet
+use  PathResolver               PathResolver-*                  Tools
+use  RecoToolInterfaces         RecoToolInterfaces-*            Reconstruction/RecoTools
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkParticleBase            TrkParticleBase-*               Tracking/TrkEvent
+use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
+use  TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
+use  TrkVertexFitters           TrkVertexFitters-*              Tracking/TrkVertexFitter
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use TrkVxEdmCnv                 TrkVxEdmCnv-*           Tracking/TrkVertexFitter
+use TrkLinks                    TrkLinks-*              Tracking/TrkEvent
+use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+end_private
+
+
+public
+
+#macro_append tauRec_shlibflags "-L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
+macro_append ROOT_linkopts " -lTMVA"
+
+apply_pattern dual_use_library files="*.cxx *.c"
+
+apply_pattern declare_joboptions files="*.txt *.py"
+
+apply_pattern declare_runtime files="*.root *.dat *.xml" 
+
+apply_pattern declare_python_modules files="*.py"

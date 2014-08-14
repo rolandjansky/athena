@@ -1,0 +1,88 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TAUREC_PHOTONCONVERSIONVERTEX_H
+#define TAUREC_PHOTONCONVERSIONVERTEX_H
+
+#include "tauRec/TauToolBase.h"
+#include "GaudiKernel/ToolHandle.h"
+
+namespace Analysis {
+    class TauJetContainer;
+}
+
+namespace Rec {
+    class TrackParticle;
+}
+
+namespace InDet {
+    class IVertexFinder;
+}
+
+/**
+ * @brief Class that runs the tau conversion finding algorithm
+ * 
+ *  This tool identifies conversion candidates
+ *  in/near (definable) a tau decay cone by reconstructing the conversion vertices 
+ *  and applying a set of cuts optimized for tau conversions on the vertex parameters.
+ * 
+ * @author KG Tan <Kong.Guan.Tan@cern.ch>
+ * 
+ */
+
+class PhotonConversionVertex : public TauToolBase {
+public:
+    //-------------------------------------------------------------
+    //! Constructor and Destructor
+    //-------------------------------------------------------------
+    PhotonConversionVertex(const std::string& type,
+            const std::string& name,
+            const IInterface* parent);
+    ~PhotonConversionVertex();
+
+    //-------------------------------------------------------------
+    //! Algorithm functions
+    //-------------------------------------------------------------
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
+    virtual StatusCode eventFinalize(TauCandidateData *data);
+
+private:
+    //-------------------------------------------------------------
+    //! Convenience functions to handle storegate objects
+    //-------------------------------------------------------------
+    template <class T>
+    bool openContainer(T* &container, std::string containerName);
+
+    template <class T>
+    bool saveContainer(T* &container, std::string containerName);
+
+    template <class T>
+    bool retrieveTool(T &tool);
+
+    //-------------------------------------------------------------
+    //! Gets the minimum dR between a particle and a set of taus
+    //-------------------------------------------------------------
+    double getMinDrTauDecay(const xAOD::TauJetContainer* tauJetCont, const xAOD::TrackParticle *trackParticle);
+
+private:
+    //-------------------------------------------------------------
+    //! Storegate names of input containers and output containers
+    //-------------------------------------------------------------
+    std::string m_inputTauJetContainerName;
+    std::string m_inputTrackParticleContainerName;
+    std::string m_outputConversionVertexContainerName;
+
+    //-------------------------------------------------------------
+    //! Input parameters for conversion finding
+    //-------------------------------------------------------------
+    double m_maxTauJetDr;
+
+    //-------------------------------------------------------------
+    //! Tool used by conversion finding, initialised in job options
+    //-------------------------------------------------------------
+    ToolHandle<InDet::IVertexFinder> m_vertexFinderTool;
+};
+
+#endif
