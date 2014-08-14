@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE SEQUENCE_LIST SYSTEM "sequencelist.dtd">
+
+<SEQUENCE_LIST>
+
+<SEQUENCE level="L2" input="MUONROI"	
+
+algorithm="
+TrigIdScan::IdScanMain/IdScan_IdScanMain/1
+TrigDiMuonFast/TrigDiMuonFast1/1
+TrigTimeNtuple/TrigTimeNtuple/1
+"
+output="di_muon" />
+
+<SEQUENCE level="L2" input="di_muon"	algorithm="JpsiHypo/JpsiHypo1/1"	output="jpsi"/>
+
+</SEQUENCE_LIST>

@@ -1,0 +1,143 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// *******************************************************************
+//
+// NAME:     TrigL2BMuMuFex.h
+// PACKAGE:  Trigger/TrigHypothesis/TrigBphysHypo
+// AUTHOR:   Sergey Sivoklokov
+//
+// *******************************************************************
+
+#ifndef TRIG_TrigL2BMuMuCombo_H
+#define TRIG_TrigL2BMuMuCombo_H
+
+#include <string>
+
+#include "GaudiKernel/ToolHandle.h"
+
+#include "TrigInterfaces/ComboAlgo.h"
+
+#include "TrigInDetEvent/TrigVertexCollection.h"
+#include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
+#include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
+
+#include "TrigParticle/TrigL2BphysContainer.h"
+
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
+class TriggerElement;
+class CombinedMuonFeature;
+
+class ITrigVertexFitter;
+class ITrigL2VertexFitter;
+class ITrigVertexingTool;
+
+class TrigL2BMuMuFex: public HLT::ComboAlgo {
+
+  public:
+
+    TrigL2BMuMuFex(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigL2BMuMuFex();
+
+    HLT::ErrorCode hltInitialize();
+    HLT::ErrorCode hltFinalize();
+    HLT::ErrorCode hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE);
+    HLT::ErrorCode acceptInputs(HLT::TEConstVec& inputTE, bool& pass );  // TODO: move all to hltExecute ?
+
+  private:
+
+    // Invariant mass helper calculators (TODO: move to InvMass.cxx tool-box)
+    double invariantMass(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2);
+    double invariantMass(const CombinedMuonFeature* mu1, const MuonFeature* mu2);
+
+    bool isUnique(const  TrigInDetTrack* id1, const  TrigInDetTrack* id2);
+
+    // Variables to keep pre-results from acceptInput to hltExecute
+    const CombinedMuonFeature *m_muon1;
+    const CombinedMuonFeature *m_muon2;
+
+    // Configurable properties - mass window cuts
+    float m_lowerMassCut;
+    float m_upperMassCut;
+
+    // Configurable properties - boolean switches
+    bool  m_ApplyupperMassCut;
+    bool  m_doVertexFit;
+    bool  m_acceptAll;
+    bool  m_oppositeCharge;
+    bool  m_noId;
+
+    // Configurable properties - vertexing tools
+    ToolHandle<ITrigL2VertexFitter> m_L2vertFitter;
+    ToolHandle<ITrigVertexingTool>  m_vertexingTool;
+
+    // Timers
+    TrigTimer* m_BmmHypTot;
+    TrigTimer* m_BmmHypVtx;
+
+    // Counters
+    int m_lastEvent;
+    int m_lastEventPassed;
+    unsigned int m_countTotalEvents;
+    unsigned int m_countTotalRoI;
+    unsigned int m_countPassedEvents;
+    unsigned int m_countPassedRoIs;
+    unsigned int m_countPassedmumuPairs;
+    unsigned int m_countPassedBsMass;
+    unsigned int m_countPassedVtxFit;
+
+    // Output collections
+    TrigL2BphysContainer* m_trigBphysColl;
+    TrigVertexCollection* m_VertexColl;
+
+    // Monitored variables
+    std::vector<int>   mon_Errors;
+    std::vector<int>   mon_Acceptance;
+    float              mon_TotalRunTime;
+    std::vector<float> mon_ROIEta;
+    std::vector<float> mon_ROIPhi;
+    std::vector<float> mon_Roi1Roi2dEta;
+    std::vector<float> mon_Roi1Roi2dPhi;
+    std::vector<float> mon_Roi1Roi2dR;
+    // - two combined muons
+    std::vector<float> mon_MucombROIdR;
+    std::vector<float> mon_MucombTrkdR;
+    std::vector<float> mon_MucombPt;
+    std::vector<float> mon_MutrkPt;
+    std::vector<float> mon_MutrkPt_wideRange;
+    std::vector<float> mon_MutrkEta;
+    std::vector<float> mon_MutrkPhi;
+    std::vector<float> mon_Mutrk1Mutrk2dEta;
+    std::vector<float> mon_Mutrk1Mutrk2dPhi;
+    std::vector<float> mon_Mutrk1Mutrk2dR;
+    std::vector<float> mon_SumPtMutrk12;
+    std::vector<float> mon_InvMass_comb;
+    std::vector<float> mon_InvMass_comb_wideRange;
+    std::vector<float> mon_FitMass;
+    std::vector<float> mon_FitMass_wideRange;
+    std::vector<float> mon_InvMass_comb_okFit;
+    std::vector<float> mon_Chi2toNDoF;
+    std::vector<float> mon_Chi2toNDoFProb;
+    std::vector<float> mon_FitTotalPt;
+    std::vector<float> mon_SumPtMutrk12_okFit;
+    std::vector<float> mon_FitVtxR;
+    std::vector<float> mon_FitVtxZ;
+    float              mon_VertexingTime;
+    // - one combined + one standalone muon
+    std::vector<float> mon_MustandROIdR;
+    std::vector<float> mon_MustandPt;
+    std::vector<float> mon_MustandPt_wideRange;
+    std::vector<float> mon_MustandEta;
+    std::vector<float> mon_MustandPhi;
+    std::vector<float> mon_MutrkMustanddEta;
+    std::vector<float> mon_MutrkMustanddPhi;
+    std::vector<float> mon_MutrkMustanddR;
+    std::vector<float> mon_SumPtMutrkMustand;
+    std::vector<float> mon_InvMass_stand;
+    std::vector<float> mon_InvMass_stand_wideRange;
+
+};
+
+#endif

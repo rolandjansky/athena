@@ -1,0 +1,63 @@
+package TrigBphysHypo
+
+author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+
+public
+
+use  AtlasPolicy              AtlasPolicy-*                   
+use  DataModel                DataModel-*                Control
+use  GaudiInterface           GaudiInterface-*           External
+use  Particle                 Particle-*                 Reconstruction
+use  StoreGate                StoreGate-*                Control
+use  TrigCaloEvent            TrigCaloEvent-*            Trigger/TrigEvent
+use  TrigInDetEvent           TrigInDetEvent-*           Trigger/TrigEvent
+use  TrigInDetToolInterfaces  TrigInDetToolInterfaces-*  Trigger/TrigTools
+use  TrigInterfaces           TrigInterfaces-*           Trigger/TrigSteer
+use  TrigMuonEvent            TrigMuonEvent-*            Trigger/TrigEvent
+use  TrigParticle             TrigParticle-*             Trigger/TrigEvent
+use  TrigSteeringEvent        TrigSteeringEvent-*        Trigger/TrigEvent
+use  TrigT1Interfaces         TrigT1Interfaces-*         Trigger/TrigT1
+use  TrigTimeAlgs             TrigTimeAlgs-*             Trigger/TrigTools
+use  TrigVertexFitter         TrigVertexFitter-*         Trigger/TrigTools
+use  TrkParameters            TrkParameters-*            Tracking/TrkEvent
+use  TrkVKalVrtFitter         TrkVKalVrtFitter-*         Tracking/TrkVertexFitter
+use  TrkTrack                 TrkTrack-*                 Tracking/TrkEvent
+use TrigBphysicsEvent   TrigBphysicsEvent-*          Trigger/TrigEvent
+
+
+# xAOD inputs 
+use xAODEventInfo             xAODEventInfo-*            Event/xAOD
+use xAODMuon                    xAODMuon-*          Event/xAOD
+
+use xAODTracking           xAODTracking-*           Event/xAOD
+use xAODTrigBphys          xAODTrigBphys-*          Event/xAOD
+
+
+private
+use  AtlasCLHEP               AtlasCLHEP-*               External
+use  AtlasROOT                AtlasROOT-*                External
+use  EventInfo                EventInfo-*                Event
+use  GeneratorObjects         GeneratorObjects-*         Generators
+use  InDetBeamSpotService     InDetBeamSpotService-*     InnerDetector/InDetConditions
+use  MuidEvent                MuidEvent-*                Reconstruction/MuonIdentification
+use  TrigNavigation           TrigNavigation-*           Trigger/TrigEvent
+use  TrkTrack                 TrkTrack-*                 Tracking/TrkEvent
+use  VxVertex                 VxVertex-*                 Tracking/TrkEvent
+use  AthenaKernel             AthenaKernel-*             Control
+
+# use EventPrimitives      EventPrimitives-*    Event
+use GeoPrimitives      GeoPrimitives-*    DetectorDescription
+end_private
+
+
+
+#branches TrigBphysHypo src
+
+library TrigBphysHypo *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_runtime_extras extras="*.xml *.sh *.cfg *.data"
+apply_pattern declare_joboptions files="TriggerConfig*.py TrigBphysHypo*.py jobO*.py"
+apply_pattern declare_python_modules files="*.py"
+
+
