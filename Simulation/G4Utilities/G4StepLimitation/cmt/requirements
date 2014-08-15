@@ -1,0 +1,21 @@
+package G4StepLimitation
+
+version G4StepLimitation-00-00-01
+
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+use FadsPhysics 	FadsPhysics-*		Simulation/G4Sim/FADS
+
+private
+use Geant4              Geant4-*                        External
+end_private
+
+include_dirs "$(G4StepLimitation_root)"
+
+library G4StepLimitation ../src/*.cxx
+
+apply_pattern component_library
+
