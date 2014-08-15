@@ -1,0 +1,23 @@
+package G4FastSimulation
+
+use AtlasPolicy		AtlasPolicy-*
+use Geant4		Geant4-*		External
+use FadsPhysics		FadsPhysics-*		Simulation/G4Sim/FADS
+
+private
+use AtlasReflex         AtlasReflex-*           External
+use GaudiInterface      GaudiInterface-*        External
+use FadsUtilities       FadsUtilities-*         Simulation/G4Sim/FADS
+use AtlasReflex         AtlasReflex-*           External
+end_private
+
+library G4FastSimulation ../src/*.cxx
+apply_pattern installed_library
+ 
+private 
+
+apply_pattern lcgdict dict=G4FastSimulation \
+                   headerfiles="../G4FastSimulation/G4FastSimulationDict.h" \
+                   selectionfile=selection.xml
+macro_prepend G4AtlasDict_shlibflags " -lG4FastSimulation "
+
