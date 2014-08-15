@@ -1,0 +1,55 @@
+package TrigEgammaMonitoring
+
+author Martin zur Nedden <nedden@mail.cern.ch>
+author Denis Oliveira Damazio <damazio@mail.cern.ch>
+author Alessandro Tricoli <alessandro.tricoli@mail.cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*        External
+use ITrackToVertex       ITrackToVertex-*        Reconstruction/RecoTools
+use xAODTrigCalo		xAODTrigCalo-*		Event/xAOD
+use xAODTrigger		xAODTrigger-*		Event/xAOD
+use xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
+
+private
+# xAOD material
+use xAODTracking		xAODTracking-*		Event/xAOD
+use xAODTrigEgamma		xAODTrigEgamma-*	Event/xAOD
+use xAODEgamma		xAODEgamma-*	Event/xAOD
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTMathLibs
+use EventInfo            EventInfo-*             Event
+use LArRecEvent         LArRecEvent-*       LArCalorimeter
+use CaloDetDescr         CaloDetDescr-*          Calorimeter
+#use ITrackToCalo         ITrackToCalo-*          Reconstruction/RecoTools
+use RecoToolInterfaces    RecoToolInterfaces-*    Reconstruction/RecoTools
+use Particle             Particle-*              Reconstruction
+use AtlasBoost          AtlasBoost-*            External
+end_private
+
+use AtlasROOT            AtlasROOT-*             External
+use TrigInDetEvent        TrigInDetEvent-*        Trigger/TrigEvent
+
+use StoreGate            StoreGate-*             Control
+use CaloEvent            CaloEvent-*             Calorimeter
+use TrigCaloEvent	 TrigCaloEvent-*	 Trigger/TrigEvent
+
+use egammaEvent          egammaEvent-*           Reconstruction/egamma
+use TrigParticle         TrigParticle-*          Trigger/TrigEvent
+
+use AnalysisTriggerEvent AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+use TrigHLTMonitoring	 TrigHLTMonitoring-*	 Trigger/TrigMonitoring
+
+use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
+
+#AT: To access Lumi
+use LumiBlockComps	 LumiBlockComps-*	LumiBlock
+#use AtlasCOOL            AtlasCOOL-*            External
+#use AtlasCORAL           AtlasCORAL-*           External
+#use CoraCool             CoraCool-*             Database
+
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern dual_use_library files=*.cxx
+
