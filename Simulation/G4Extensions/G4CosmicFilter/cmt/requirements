@@ -1,0 +1,28 @@
+package G4CosmicFilter
+
+author Jamie Boyd <Jamie.Boyd@cern.ch>
+
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*     External
+
+use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+
+use StoreGate 		StoreGate-* 	 	Control	
+
+private
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use Geant4              Geant4-*             External
+use TrackRecord		TrackRecord-*		Simulation/G4Sim
+use MCTruth             MCTruth-*               Simulation/G4Sim
+end_private
+
+include_dirs "$(G4CosmicFilter_root)"
+
+library G4CosmicFilter ../src/*.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
