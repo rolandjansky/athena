@@ -1,0 +1,26 @@
+## automatically generated CMT requirements file
+package MuonHistUtils
+author  Felix Socher <felix.socher@cern.ch>
+
+## for athena policies: this has to be the first use statement
+public
+use AtlasPolicy         AtlasPolicy-*
+
+## put here your package dependencies...
+use AtlasROOT           AtlasROOT-*            External
+#use xAODBase            xAODBase-*             Event/xAOD
+use xAODMuon            xAODMuon-*             Event/xAOD
+use xAODTruth           xAODTruth-*            Event/xAOD
+use TrkValHistUtils     TrkValHistUtils-*      Tracking/TrkValidation
+
+private
+use xAODTracking        xAODTracking-*         Event/xAOD
+use MuonIdHelpers       MuonIdHelpers-*        MuonSpectrometer
+use GeoPrimitives       GeoPrimitives-*        DetectorDescription
+
+
+##
+public
+library MuonHistUtils ../src/*.cxx
+apply_pattern installed_library
+
