@@ -1,0 +1,20 @@
+package G4ScoringProcess
+
+
+author Andrea Di Simone <Andrea.Di.Simone@cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+
+private
+use Geant4	Geant4-*	External
+end_private
+
+use FadsPhysics FadsPhysics-*	Simulation/G4Sim/FADS
+
+include_dirs "$(G4ScoringProcess_root)"
+
+library G4ScoringProcess ../src/*.cxx
+
+apply_pattern linked_library
