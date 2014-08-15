@@ -1,0 +1,285 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CaloD3PDMaker/src/ClusterSamplingFillerTool.cxx
+ * @author maarten boonekamp snyder <maarten.boonekamp@cea.fr>
+ * @date Sep, 2009
+ * @brief Block filler tool for samplings from a CaloCluster.
+ */
+
+
+#include "ClusterSamplingFillerTool.h"
+#include "CaloUtils/CaloCellDetPos.h"
+#include "CaloEvent/CaloCluster.h"
+#include "AthenaKernel/errorcheck.h"
+#include <sstream>
+#include <algorithm>
+
+
+namespace D3PD {
+
+
+/**
+ * @brief Standard Gaudi tool constructor.
+ * @param type The name of the tool type.
+ * @param name The tool name.
+ * @param parent The tool's Gaudi parent.
+ */
+ClusterSamplingFillerTool::ClusterSamplingFillerTool
+    (const std::string& type,
+     const std::string& name,
+     const IInterface* parent)
+  : Base (type, name, parent)
+{
+  declareProperty ("Samplings", m_samplings,
+                   "Samplings to write.  Empty means to write all.");
+  declareProperty ("EmHadEnergies",    m_writeEmHadEnergies = true,
+                   "Should total E/Had energies be written?");
+  declareProperty ("SamplingEnergies", m_writeSamplingEnergies = false,
+                   "Should per-sampling energies be written?");
+  declareProperty ("SamplingEtaPhi",   m_writeSamplingEtaPhi = false,
+                   "Should per-sampling eta/phi be written?");
+  declareProperty ("SamplingEtaPhiRaw",   m_writeSamplingEtaPhiRaw = false,
+                   "Should per-sampling raw eta/phi be written?");
+  declareProperty ("SamplingEtamax",   m_writeSamplingEtamax = false,
+                   "Should per-sampling maximum eta be written?");
+  declareProperty ("WriteRecoStatus",m_writeRecoStatus=false,
+                   "Should reconstruction status word be written?");
+
+  m_Eem = 0;
+  m_Ehad = 0;
+  m_RecoStatus = 0;
+  std::fill (m_Es,       m_Es + NSAMP,       (float*)0);
+  std::fill (m_etas,     m_etas + NSAMP,     (float*)0);
+  std::fill (m_phis,     m_phis + NSAMP,     (float*)0);
+  std::fill (m_raw_etas, m_raw_etas + NSAMP, (float*)0);
+  std::fill (m_raw_phis, m_raw_phis + NSAMP, (float*)0);
+  std::fill (m_etamax,   m_etamax + NSAMP,   (float*)0);
+}
+
+
+/**
+ * @brief Book variables for this block.
+ */
+StatusCode ClusterSamplingFillerTool::book()
+{
+  if( m_writeEmHadEnergies ) {
+    CHECK( addVariable ("E_em", m_Eem) );
+    CHECK( addVariable ("E_had", m_Ehad) );
+  }
+
+  std::string samplingnames[NSAMP] = 
+    {"PreSamplerB", "EMB1", "EMB2", "EMB3",
+     "PreSamplerE", "EME1", "EME2", "EME3",
+     "HEC0", "HEC1", "HEC2", "HEC3",
+     "TileBar0", "TileBar1", "TileBar2",
+     "TileGap1", "TileGap2", "TileGap3",
+     "TileExt0", "TileExt1", "TileExt2",
+     "FCAL0", "FCAL1", "FCAL2"};
+
+  if (m_samplings.empty()) {
+    for (unsigned int i = 0; i < NSAMP; i++)
+      m_samplings.push_back (i);
+  }
+
+  if (m_samplings.size() > NSAMP) {
+    REPORT_MESSAGE(MSG::ERROR) << "Too many samplings requested: "
+                               << m_samplings.size()
+                               << "; max is " << /*NSAMP*/24;
+    return StatusCode::FAILURE;
+  }
+  
+  for (unsigned int i = 0; i < m_samplings.size(); i++) {
+    unsigned int s = m_samplings[i];
+    if (s >= NSAMP) {
+      REPORT_MESSAGE(MSG::ERROR) << "Requested sampling index "
+                                 << s << " which is out of range.";
+      return StatusCode::FAILURE;
+    }
+
+    const std::string& sname = samplingnames[s];
+
+    if( m_writeSamplingEnergies )
+      CHECK( addVariable ("E_" + sname,   m_Es[i],
+                          "Energy in sampling " + sname) );
+
+    if( m_writeSamplingEtaPhi ) {
+      CHECK( addVariable ("eta_" + sname, m_etas[i],
+                          "Aligned eta barycenter in sampling " + sname) );
+      CHECK( addVariable ("phi_" + sname, m_phis[i],
+                          "Aligned phi barycenter in sampling " + sname) );
+    }
+
+    if( m_writeSamplingEtaPhiRaw ) {
+      CHECK( addVariable ("raw_eta_" + sname, m_raw_etas[i],
+                          "Raw eta barycenter in sampling " + sname,
+                          -999) );
+      CHECK( addVariable ("raw_phi_" + sname, m_raw_phis[i],
+                          "Raw phi barycenter in sampling " + sname,
+                          -999) );
+    }
+
+    if( m_writeSamplingEtamax ) {
+      CHECK( addVariable ("etamax_" + sname, m_etamax[i],
+                          "Eta of maximum cell in sampling " + sname) );
+    }
+  }
+  
+  if(m_writeRecoStatus)
+      CHECK(addVariable("RecoStatus",m_RecoStatus));
+ 
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Fill one block --- type-safe version.
+ * @param p The input object.
+ *
+ * This is called once per object.  The caller
+ * is responsible for arranging that all the pointers for booked variables
+ * are set appropriately upon entry.
+ */
+StatusCode ClusterSamplingFillerTool::fill (const CaloCluster& p)
+{
+  std::vector<double> eSamp;
+  p.getEInSamples(eSamp);
+
+  std::vector<double> etaSamp;
+  p.getEtaInSamples(etaSamp);
+
+  std::vector<double> phiSamp;
+  p.getPhiInSamples(phiSamp);
+
+  CHECK( fillEtamax(p) );
+  CHECK( fillSamplings (eSamp, etaSamp, phiSamp) );
+
+  if(m_writeRecoStatus)
+    *m_RecoStatus= p.getRecoStatus().getStatusWord();
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Fill one block --- type-safe version.
+ * @param p The input object.
+ *
+ * This is called once per object.  The caller
+ * is responsible for arranging that all the pointers for booked variables
+ * are set appropriately upon entry.
+ */
+StatusCode ClusterSamplingFillerTool::fill (const xAOD::CaloCluster& p)
+{
+  std::vector<double> eSamp (NSAMP);
+  std::vector<double> etaSamp (NSAMP);
+  std::vector<double> phiSamp (NSAMP);
+
+  for (unsigned int i=0; i < NSAMP; i++) {
+    eSamp[i] = p.eSample (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]));
+    etaSamp[i] = p.etaSample (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]));
+    phiSamp[i] = p.phiSample (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]));
+  }
+
+  CHECK( fillEtamax(p) );
+  CHECK( fillSamplings (eSamp, etaSamp, phiSamp) );
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Fill etamax/reco status.
+ * @param p The input object.
+ */
+template <class T>
+StatusCode ClusterSamplingFillerTool::fillEtamax (const T& p)
+{
+  if( m_writeSamplingEtamax ) {
+    for(unsigned int i=0; i<m_samplings.size(); i++)
+      *m_etamax[i] =
+        p.etamax (static_cast<CaloSampling::CaloSample>(m_samplings[i]));
+  }
+  
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Fill sampling variables.
+ * @param eSamp Energy per sample.
+ * @param etaSamp Eta per sample.
+ * @param phiSamp Phi per sample.
+ */
+StatusCode
+ClusterSamplingFillerTool::fillSamplings (const std::vector<double>& eSamp,
+                                          const std::vector<double>& etaSamp,
+                                          const std::vector<double>& phiSamp)
+{
+  CaloCellDetPos detpos;
+
+  if( m_writeEmHadEnergies && eSamp.size() >= NSAMP) {
+    *m_Eem = 
+      eSamp[CaloSampling::PreSamplerB] +
+      eSamp[CaloSampling::EMB1] +
+      eSamp[CaloSampling::EMB2] +
+      eSamp[CaloSampling::EMB3] +
+      eSamp[CaloSampling::PreSamplerE] +
+      eSamp[CaloSampling::EME1] +
+      eSamp[CaloSampling::EME2] +
+      eSamp[CaloSampling::EME3] +
+      eSamp[CaloSampling::FCAL0];
+    *m_Ehad =
+      eSamp[CaloSampling::HEC0] + 
+      eSamp[CaloSampling::HEC1] + 
+      eSamp[CaloSampling::HEC2] + 
+      eSamp[CaloSampling::HEC3] + 
+      eSamp[CaloSampling::TileBar0] + 
+      eSamp[CaloSampling::TileBar1] + 
+      eSamp[CaloSampling::TileBar2] + 
+      eSamp[CaloSampling::TileGap1] + 
+      eSamp[CaloSampling::TileGap2] + 
+      eSamp[CaloSampling::TileGap3] + 
+      eSamp[CaloSampling::TileExt0] + 
+      eSamp[CaloSampling::TileExt1] + 
+      eSamp[CaloSampling::TileExt2] + 
+      eSamp[CaloSampling::FCAL1] + 
+      eSamp[CaloSampling::FCAL2];
+  }
+
+  if( m_writeSamplingEnergies ) {
+    
+    if( eSamp.size() >= NSAMP )
+      for(unsigned int i=0; i<m_samplings.size(); i++)
+	*m_Es[i] = eSamp[m_samplings[i]];
+  }
+
+  if( etaSamp.size()==NSAMP && phiSamp.size()==NSAMP ) {
+    for(unsigned int i=0; i<m_samplings.size(); i++) {
+      if (m_writeSamplingEtaPhi) {
+        *m_etas[i] = etaSamp[m_samplings[i]];
+        *m_phis[i] = phiSamp[m_samplings[i]];
+      }
+      if (m_writeSamplingEtaPhiRaw) {
+        double eta_raw=0, phi_raw=0;
+        if (detpos.getDetPosition (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]),
+                                   etaSamp[m_samplings[i]],
+                                   phiSamp[m_samplings[i]],
+                                   eta_raw,
+                                   phi_raw))
+        {
+          *m_raw_etas[i] = eta_raw;
+          *m_raw_phis[i] = phi_raw;
+        }
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+} // namespace D3PD
