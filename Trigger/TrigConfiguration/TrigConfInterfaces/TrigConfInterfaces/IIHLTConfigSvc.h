@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IIHLTConfigSvc.h 580466 2014-01-28 14:54:00Z krasznaa $
+// $Id: IIHLTConfigSvc.h 612008 2014-08-15 13:35:58Z krasznaa $
 #ifndef TRIGCONFINTERFACES_IIHLTCONFIGSVC_H
 #define TRIGCONFINTERFACES_IIHLTCONFIGSVC_H
 
@@ -20,11 +20,11 @@ namespace TrigConf {
    class HLTSequenceList;
 
    /**
-    * Interface for all services that provide HLT menu configuration
+    * Interface for all services/tools that provide HLT menu configuration
     * information.
     *
-    * $Revision: 580466 $
-    * $Date: 2014-01-28 15:54:00 +0100 (Tue, 28 Jan 2014) $
+    * $Revision: 612008 $
+    * $Date: 2014-08-15 15:35:58 +0200 (Fri, 15 Aug 2014) $
     */
    class IIHLTConfigSvc {
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IILVL1ConfigSvc.h 580466 2014-01-28 14:54:00Z krasznaa $
+// $Id: IILVL1ConfigSvc.h 612008 2014-08-15 13:35:58Z krasznaa $
 #ifndef TRIGCONFINTERFACES_IILVL1CONFIGSVC_H
 #define TRIGCONFINTERFACES_IILVL1CONFIGSVC_H
 
@@ -22,11 +22,11 @@ namespace TrigConf {
    class BunchGroupSet;
 
    /**
-    * Interface for all services that provide LVL1 menu configuration
+    * Interface for all services/tools that provide LVL1 menu configuration
     * information
     *
-    * $Revision: 580466 $
-    * $Date: 2014-01-28 15:54:00 +0100 (Tue, 28 Jan 2014) $
+    * $Revision: 612008 $
+    * $Date: 2014-08-15 15:35:58 +0200 (Fri, 15 Aug 2014) $
     */
    class IILVL1ConfigSvc {
 

@@ -8,8 +8,8 @@
    @author Joerg Stelzer        <Joerg.Stelzer@cern.ch>
    @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
-   $Revision: 580580 $
-   $Date: 2014-01-29 09:44:43 +0100 (Wed, 29 Jan 2014) $
+   $Revision: 612008 $
+   $Date: 2014-08-15 15:35:58 +0200 (Fri, 15 Aug 2014) $
 
    @section TrigConfInterfacesOverview Overview
 
@@ -35,6 +35,10 @@
      - TrigConf::ITrigConfigSvc: Interface providing all aspects of the
        trigger configuration for offline usage. This is the most often used
        interface for analysis purposes.
+
+   And finally, there is an interface that can be used in the same way in
+   and outside of Athena: TrigConf::ITrigConfigTool. This is an interface
+   for dual-use ASG tools that are meant for trigger aware analysis.
 
    @htmlinclude used_packages.html
 
