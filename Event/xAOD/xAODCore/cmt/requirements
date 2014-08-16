@@ -1,0 +1,38 @@
+package xAODCore
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+use AthenaKernel            AthenaKernel-*            Control
+use SGTools                 SGTools-*                 Control
+use AthLinks                AthLinks-*                Control
+use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthContainers           AthContainers-*           Control
+
+use AtlasROOT               AtlasROOT-*               External
+
+# This library and all its children have to use Cintex:
+apply_tag ROOTCintexLibs
+macro_append xAODCore_shlibflags $(rootCintexLibs)
+macro_append xAODCore_linkopts   $(rootCintexLibs)
+
+library xAODCore ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex             AtlasReflex-*             External
+apply_tag ROOTGenVectorLibs
+
+apply_pattern lcgdict dict=xAODCoreRflx selectionfile=selection.xml \
+                      headerfiles="../xAODCore/xAODCoreRflxDict.h"
+
+apply_pattern lcgdict dict=xAODCoreAthena selectionfile=selectionAthena.xml \
+                      headerfiles="../xAODCore/xAODCoreAthenaDict.h"
+
+apply_pattern have_root_headers root_headers="tools/ReadStats.h \
+                                              tools/PerfStats.h \
+                                              ../Root/LinkDef.h" \
+              headers_lib=xAODCore

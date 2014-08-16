@@ -1,0 +1,3 @@
+CMT compilation needs an src/ directory in order to generate CINT
+dictionaries without printing an error message. So let's keep this
+empty directory around for now...

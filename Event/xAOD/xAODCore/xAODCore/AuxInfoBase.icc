@@ -1,0 +1,72 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: AuxInfoBase.icc 600059 2014-06-03 09:55:09Z ssnyder $
+#ifndef XAODCORE_AUXINFOBASE_ICC
+#define XAODCORE_AUXINFOBASE_ICC
+
+// System include(s):
+#include <iostream>
+
+// EDM include(s):
+#include "AthContainers/AuxTypeRegistry.h"
+
+// Local include(s):
+#include "xAODCore/tools/AuxPersInfo.h"
+
+#ifndef AUX_VARIABLE
+
+/// Convenience macro for declaring an auxiliary variable
+///
+/// Should be used in the constructor of the derived class, like:
+///   <code>
+///      AUX_VARIABLE( RunNumber );
+///   </code>
+#  define AUX_VARIABLE( VAR ) regAuxVar( #VAR, VAR )
+
+#endif // not AUX_VARIABLE
+
+namespace xAOD {
+
+   /// The user is expected to use this function inside the constructor of
+   /// the derived class.
+   ///
+   /// @param name The name of the variable. Same as the C++ variable's name.
+   /// @param vec A reference to the auxiliary variable inside the object
+   template< typename T >
+   void AuxInfoBase::regAuxVar( const std::string& name,
+                                T& info ) {
+
+      // Ask the registry for the number of this variable:
+      const auxid_t auxid =
+         SG::AuxTypeRegistry::instance().template getAuxID< T >( name );
+
+      // Make sure that the internal vector is big enough:
+      if( m_vecs.size() <= auxid ) {
+         m_vecs.resize( auxid + 1 );
+      }
+
+      // Check if this variable name was already registered:
+      if( m_vecs[ auxid ] ) {
+         std::cout << "WARNING xAOD::AuxInfoBase::regAuxVar "
+                   << "Re-registering variable with name \""
+                   << name.c_str() << "\"" << std::endl;
+         delete m_vecs[ auxid ];
+      }
+
+      // Register the variable:
+      m_vecs[ auxid ] = new AuxPersInfo< T >( info );
+
+      // Remember that we are now handling this variable:
+      m_auxids.insert( auxid );
+      ++m_tick;
+
+      return;
+   }
+
+} // namespace xAOD
+
+#endif // XAODCORE_AUXINFOBASE_ICC
