@@ -1,0 +1,48 @@
+## automatically generated CMT requirements file
+package ElectronEfficiencyCorrection
+author  kkoeneke
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use AtlasPyROOT                 AtlasPyROOT-*           External
+use AtlasROOT                   AtlasROOT-*             External
+use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
+use AsgTools                    AsgTools-*              Control/AthToolSupport
+use xAODBase                    xAODBase-*              Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+
+## put here your package dependencies...
+private
+use  GaudiInterface             GaudiInterface-*                External
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  PathResolver               PathResolver-*                  Tools
+
+
+end_private
+##
+
+## macros   
+apply_tag       ROOTBasicLibs
+apply_tag       ROOTMathLibs
+
+
+## declare the directories CMT should know about
+branches ElectronEfficiencyCorrection python share src Root data
+
+# Create a dual-use library
+apply_pattern dual_use_library files="../Root/*.cxx"
+
+## install our python modules
+apply_pattern declare_python_modules files="*.py"
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
+## install the xml files (in the data/ directory)
+apply_pattern declare_xmls extras="-s=../data *.root"
+
+## For reflex dictionary generation
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=ElectronEfficiencyCorrection selectionfile=selection.xml headerfiles="..\/ElectronEfficiencyCorrection/ElectronEfficiencyCorrectionDict.h"
