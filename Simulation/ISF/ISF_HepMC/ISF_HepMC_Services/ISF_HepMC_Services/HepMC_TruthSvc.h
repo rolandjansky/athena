@@ -1,0 +1,107 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// HepMC_TruthSvc.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef ISF_SERVICES_HEPMC_TRUTHSVC_H
+#define ISF_SERVICES_HEPMC_TRUTHSVC_H 1
+
+// STL includes
+#include <string>
+
+// FrameWork includes
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthService.h"
+
+// ISF include
+#include "ISF_Interfaces/ITruthSvc.h"
+
+// DetectorDescription
+#include "AtlasDetDescr/AtlasRegion.h"
+
+// McEventCollection
+#include "GeneratorObjects/McEventCollection.h"
+
+// forward declarations
+class StoreGateSvc;
+
+namespace Barcode {
+  class IBarcodeSvc;
+}
+
+namespace HepMC {
+  class GenEvent;
+}
+
+namespace ISF {
+
+  class ITruthStrategy;
+  typedef ToolHandleArray<ITruthStrategy>     TruthStrategyArray;
+
+  /** @class HepMC_TruthSvc
+  
+      HepMC based version of the ISF::ITruthSvc,
+      currently it takes an ITruthIncident base class (!@TODO resolve to HepMC_TruthIncident )
+      
+      
+      @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
+     */
+  class HepMC_TruthSvc : public AthService, public ITruthSvc {
+    public: 
+      
+      //** Constructor with parameters */
+      HepMC_TruthSvc( const std::string& name, ISvcLocator* pSvcLocator );
+      
+      /** Destructor */
+      virtual ~HepMC_TruthSvc(); 
+      
+      /** Athena algorithm's interface method initialize() */
+      StatusCode  initialize();
+      /** Athena algorithm's interface method finalize() */
+      StatusCode  finalize();
+
+      /** Register a truth incident */
+      void registerTruthIncident( ITruthIncident& truthincident);
+
+      /** Initialize the Truth Svc at the beginning of each event */
+      StatusCode initializeTruthCollection();
+
+      /** Finalize the Truth Svc at the end of each event*/
+      StatusCode releaseEvent();
+      
+      /** Query the interfaces. **/
+	    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  
+    private:
+      StoreGateSvc                             *m_storeGate;            //!< The storegate svc
+      ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
+      Barcode::IBarcodeSvc                     *m_barcodeSvcQuick;      //!< The Barcode service for quick access
+
+      std::string                               m_collectionName;       //!< name of the output McEventCollection
+      McEventCollection                        *m_mcEventCollection;    //!< pointer to the McEventCollection
+      HepMC::GenEvent                          *m_mcEvent;
+
+      /** the truth strategie applied (as AthenaToolHandle Array) */
+      TruthStrategyArray                        m_geoStrategyHandles[AtlasDetDescr::fNumAtlasRegions];
+      /** for faster access: using an internal pointer to the actual ITruthStrategy instances */
+      ITruthStrategy**                          m_geoStrategies[AtlasDetDescr::fNumAtlasRegions];
+      unsigned short                            m_numStrategies[AtlasDetDescr::fNumAtlasRegions];
+
+      /** MCTruth steering */
+      bool                                      m_skipIfNoSecondaries;    //!< do not record incident if numSecondaries==0
+      bool                                      m_skipIfNoPrimaryBarcode; //!< do not record if primaryBarcode==fUndefinedBarcode
+      bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
+
+      std::string                               m_screenOutputPrefix;
+      std::string                               m_screenEmptyPrefix;      
+
+      bool                                      m_storeExtraBCs;
+  }; 
+}
+
+
+#endif //> !ISF_SERVICES_HEPMC_TRUTHSVC_H
