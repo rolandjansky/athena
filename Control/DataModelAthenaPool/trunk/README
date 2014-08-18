@@ -1,0 +1,4 @@
+DataModel schema evolution classes.
+To use, include DataModelAthenaPool/DataModelAthenaPool_jobOptions.py
+before defining any algorithms that look at event data.
+

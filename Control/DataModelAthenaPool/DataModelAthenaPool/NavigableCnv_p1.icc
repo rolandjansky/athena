@@ -1,0 +1,161 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file NavigableCnv_p1.icc
+ *  @brief This file contains the implementation for the NavigableCnv_p1 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include <stdexcept>
+
+#include "Navigation/Navigable.h"
+
+//#include <iostream>
+
+//#define NAV_P1_DEBUG
+
+template <typename NAV, typename RPAR>
+void
+NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t* trans,
+					PersNavigable_t* pers,
+					MsgStream& msg) 
+{
+  // collect all element links into a temporary vector
+  ElementLinkVect_t			   elv;
+  elv.reserve(trans->size());
+  /// FIXME: should we also reserve some space for pers->m_parameters ?!?
+  //pers->m_parameters.reserve( pers->m_parameters.size() + link_coll.size() );
+
+  typename NAV::object_iter iter = trans->begin();
+  typename NAV::object_iter end  = trans->end();
+
+  while( iter != end ) {
+    #ifdef NAV_P1_DEBUG
+    msg << MSG::DEBUG << "NavigableCnv_p1::transToPers(): Weight["
+	<< pers->m_parameters.size()-1 <<"]="
+	<< pers->m_parameters[pers->m_parameters.size()-1] << endreq;
+    #endif
+    elv.push_back( iter.getElement() );
+    pers->m_parameters.push_back( iter.getParameter() );
+    ++iter;
+  }
+  // this is not needed (and might actually crash if thinning occurred!)
+  // as this is done by the ELVCnv::transToPers
+  //elv.toPersistent();
+  
+  // convert the link vector to persistent
+  m_linkCnv.transToPers(elv, pers->m_links, msg);
+}
+
+   
+template <typename NAV, typename RPAR >
+void NavigableCnv_p1<NAV, RPAR >::persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& msg) 
+{
+  // create a temporary link vector from persistent
+   ElementLinkVect_t	elv;   
+   m_linkCnv.persToTrans(pers->m_links, elv, msg);
+   elv.toTransient();
+
+   // copy from link vector into navigable
+   size_t	size = elv.size();
+   trans->removeAll();
+   for( size_t i = 0; i < size; ++i ) {
+     trans->insertElement (elv[i], pers->m_parameters[i], size);
+      #ifdef NAV_P1_DEBUG
+      msg << MSG::DEBUG << "NavigableCnv_p1::PersToTrans(): Weight[" <<i <<"]="
+	  <<  pers->m_parameters[i] << endreq;
+      #endif
+   }
+}
+
+
+template <typename NAV, typename RPAR>
+inline
+void
+NavigableCnv_p1<NAV, RPAR>
+::transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& msg) 
+{
+   this->transToPers(&trans, &pers, msg);
+}
+
+
+template <typename NAV, typename RPAR >
+inline
+void
+NavigableCnv_p1<NAV, RPAR >
+::persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& msg) 
+{
+   this->persToTrans(&pers, &trans, msg);
+}
+
+
+//-----------------------------------------------------
+// Specialized version of the converter for Navigables without weight parameters
+
+template <typename NAV >
+void
+NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& msg) 
+{
+  // collect all element links into a temporary vector
+  ElementLinkVect_t			 elv;
+  elv.reserve(trans->size());
+  /// FIXME: should we also reserve some space for pers->m_parameters ?!?
+  //pers->m_parameters.reserve( pers->m_parameters.size() + link_coll.size() );
+
+  typename NAV::object_iter iter = trans->begin();
+  typename NAV::object_iter end  = trans->end();
+
+  while( iter != end ) {
+    elv.push_back( iter.getElement() );
+    iter++;
+  }
+  // this is not needed (and might actually crash if thinning occurred!)
+  // as this is done by the ELVCnv::transToPers
+  //elv.toPersistent();
+
+  // convert the link vector to persistent
+  m_linkCnv.transToPers(elv, pers->m_links, msg);
+}
+
+
+template <typename NAV >
+inline
+void
+NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& msg) 
+{
+   this->transToPers(&trans, &pers, msg);
+}
+
+
+//--------------------  persToTrans()  ----------------------------------
+   
+template <typename NAV >
+void
+NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& msg) 
+{
+  // create a temporary link vector from persistent
+   ElementLinkVect_t	elv;   
+   m_linkCnv.persToTrans(pers->m_links, elv, msg);
+   elv.toTransient();
+
+   // copy from link vector into navigable
+   size_t	size = elv.size();
+   trans->removeAll();
+   for( size_t i = 0; i < size; ++i ) {
+     trans->insertElement (elv[i], NavigationDefaults::DefaultWeight(), size);
+   }
+}
+
+
+template <typename NAV >
+inline
+void
+NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& msg) 
+{
+   this->persToTrans(&pers, &trans, msg);
+}

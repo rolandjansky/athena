@@ -1,0 +1,58 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file VectorElementLinkCnv_p1.icc
+ *  @brief This file contains the implementation for the VectorElementLinkCnv_p1 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+
+template <typename LINK_VECT>
+void VectorElementLinkCnv_p1<LINK_VECT>::transToPers(const LinkVect_t* trans, PersLinkVect_t* pers, MsgStream& msg) 
+{
+   size_t link_n = trans->size();
+   pers->resize( link_n );
+
+   typename LinkVect_t::const_iterator  ti = trans->begin();
+   typename PersLinkVect_t::iterator    pi = pers->begin();
+   while( link_n-- ) {
+      m_elLinkCnv.transToPers( *ti++, *pi++, msg );
+   }
+   return;
+}
+
+
+template <typename LINK_VECT >
+void VectorElementLinkCnv_p1< LINK_VECT >::persToTrans(const PersLinkVect_t* pers, LinkVect_t* trans, MsgStream& msg) 
+{
+   size_t link_n = pers->size();
+   trans->resize( link_n );
+   typename  PersLinkVect_t::const_iterator     pi = pers->begin();
+   typename  LinkVect_t::iterator               ti = trans->begin();
+   while( link_n-- ) {
+      m_elLinkCnv.persToTrans( *pi++, *ti++, msg );
+   }
+}
+
+
+
+
+template <typename LINK_VECT>
+inline
+void
+VectorElementLinkCnv_p1<LINK_VECT>
+::transToPers(const LinkVect_t& trans, PersLinkVect_t& pers, MsgStream& msg) 
+{
+   this->transToPers(&trans, &pers, msg);
+}
+
+
+template <typename LINK_VECT >
+inline
+void
+VectorElementLinkCnv_p1< LINK_VECT >
+::persToTrans(const PersLinkVect_t& pers, LinkVect_t& trans, MsgStream& msg) 
+{
+   this->persToTrans(&pers, &trans, msg);
+}

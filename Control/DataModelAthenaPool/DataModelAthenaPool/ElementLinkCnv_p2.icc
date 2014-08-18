@@ -1,0 +1,322 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file ElementLinkCnv_p2.icc
+ *  @brief This file contains the implementation for the ElementLinkCnv_p2 template methods.
+ *  @author R.D.Schaffer@cern.ch
+ **/
+
+#include <stdexcept>
+
+#include "AthLinks/ElementLink.h"
+#include "ElementLinkContNames_p2.h"
+#include "AthenaKernel/IThinningSvc.h"
+
+//#define ELLINK_DEBUG
+
+
+template <typename LINK_TYPE>
+inline
+ElementLinkCnv_p2<LINK_TYPE>::
+ElementLinkCnv_p2()
+	:
+	m_lookupTable(0),
+	m_clookupTable(0),
+	m_lastNameIndex(0),
+        m_isPersistible(false)
+{
+    // Init both last names
+    m_lastNameFound = defaultLastName();
+    m_lastNameAdded = *m_lastNameFound;
+}
+
+template <typename LINK_TYPE>
+inline
+ElementLinkCnv_p2<LINK_TYPE>::
+ElementLinkCnv_p2(bool isPersistible)
+	:
+	m_lookupTable(0),
+	m_clookupTable(0),
+	m_lastNameIndex(0),
+        m_isPersistible(isPersistible)
+{
+    // Init both last names
+    m_lastNameFound = defaultLastName();
+    m_lastNameAdded = *m_lastNameFound;
+}
+
+template <typename LINK_TYPE>
+inline
+std::string* 
+ElementLinkCnv_p2<LINK_TYPE>::defaultLastName () const
+{
+    static std::string lastName = "NO LAST NAME";
+    return (&lastName);
+}
+
+template <typename LINK_TYPE>
+inline
+void
+ElementLinkCnv_p2<LINK_TYPE>::resetForCnv(ElementLinkContNames_p2& lookupTable)
+{
+    // Save lookup table and reset element link index and map
+    m_lookupTable      = &lookupTable;
+    m_clookupTable     = 0;
+    m_nameIndexMap.clear();
+    m_lastNameFound    = defaultLastName();
+    m_lastNameAdded    = *m_lastNameFound;
+    m_lastNameIndex    = 0;
+}
+
+template <typename LINK_TYPE>
+inline
+void
+ElementLinkCnv_p2<LINK_TYPE>::resetForCnv(const ElementLinkContNames_p2& lookupTable)
+{
+    // Save lookup table and reset element link index and map
+    m_lookupTable      = 0;
+    m_clookupTable     = &lookupTable;
+    m_nameIndexMap.clear();
+    m_lastNameFound    = defaultLastName();
+    m_lastNameAdded    = *m_lastNameFound;
+    m_lastNameIndex    = 0xFFFFFFFF;
+}
+
+template <typename LINK_TYPE>
+inline
+void ElementLinkCnv_p2<LINK_TYPE>::
+transToPers(const Link_t* trans, PersLink_t* pers, MsgStream&
+#ifdef  ELLINK_DEBUG
+	    msg
+#endif
+	    ) 
+{
+#ifdef  ELLINK_DEBUG
+//    trans->printState();
+#endif
+
+  static const std::string s_empty = "";
+  if( trans->isDefault() ) {
+    pers->m_contIndex    = getNameIndex(s_empty); // Must save empty string for default EL
+    pers->m_elementIndex = 0; // value not used, but 0 compresses better
+  } else {
+    IThinningSvc * thinningSvc = IThinningSvc::instance();
+    const SG::DataProxy* dp = trans->proxy();
+    const bool thinning = thinningSvc && 
+      (dp 
+       ? thinningSvc->thinningOccurred(dp) 
+       // otherwise, use the event-level one
+       : thinningSvc->thinningOccurred());
+
+    if (thinning) {
+      // here is the problem: in case the ElementLink was directly created w/
+      // only a pointer to the element, _and_ if the the pointed-at element 
+      // has been thinned away, EL::index() will throw b/c
+      // IndexingPolicy::setIndex will fail.
+      std::size_t idx = IThinningSvc::RemovedIdx;
+      try {
+        idx = trans->index();
+      } catch ( const SG::maybe_thinning_error& err ) {
+	// ok. that's the corner case we talked about above.
+#ifdef  ELLINK_DEBUG
+        msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
+            << err.what() << "]"
+            << endreq
+            << "(this is an expected case of the EL-state-phase-space "
+            << "when thinning is active)"
+            << endreq;
+#endif
+      }
+      const std::size_t persIdx = dp ?
+        thinningSvc->index(dp,idx) :
+        thinningSvc->index(trans->getStorableObjectPointer(), idx);
+      if ( IThinningSvc::RemovedIdx == persIdx ) {
+        // this element has been thinned away. So the persistent equivalent
+        // of a null pointer is a default persistent pointer.
+	  
+        // Must save empty string for default EL
+        pers->m_contIndex    = getNameIndex(s_empty); 
+        // Index value not used, but 0 compresses better
+        pers->m_elementIndex = 0; 
+      } else {
+        if (!m_isPersistible)const_cast<Link_t*>(trans)->toPersistent();
+        if (!m_lookupTable) {
+#ifdef  ELLINK_DEBUG
+          msg << MSG::ERROR 
+              << "Empty link name table ptr - must use resetForCnv "
+              << endreq;
+#endif
+        }
+        else {
+          // Save container name index and element link index
+          pers->m_contIndex     = getNameIndex(trans->dataID());
+          pers->m_elementIndex  = persIdx;
+        }
+      }
+    } else {
+      if (!m_isPersistible)const_cast<Link_t*>(trans)->toPersistent();
+      // convert string to index
+      if (!m_lookupTable) {
+#ifdef  ELLINK_DEBUG
+        msg << MSG::ERROR
+            << "Empty link name table ptr - must use resetForCnv " 
+            << endreq;
+#endif
+      }
+      else {
+        // Save container name index and element link index
+        pers->m_contIndex     = getNameIndex(trans->dataID());
+        pers->m_elementIndex  = trans->index();
+      }
+    }
+#ifdef  ELLINK_DEBUG
+    msg << MSG::DEBUG << "ElementLinkCnv_p2::transToPer(): KEY= "
+        <<  trans->dataID() << ", IDX= " << trans->index() 
+        <<  ", pers cont index= " << pers->m_contIndex
+        <<  ", ele index= " << pers->m_elementIndex
+        << endreq;
+#endif
+  }
+}
+
+
+template <typename LINK_TYPE >
+inline
+void ElementLinkCnv_p2< LINK_TYPE >
+::persToTrans(const PersLink_t* pers, Link_t* trans, MsgStream&
+//#ifdef  ELLINK_DEBUG
+	      log
+//#endif
+	      ) 
+{
+    // convert index to string
+    std::string* contName = 0;
+    // Get container name from name index
+    getContName(pers->m_contIndex, contName, log);
+#ifdef  ELLINK_DEBUG
+    if (contName) {
+        log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): container name" << 
+            (*contName) << endreq;
+    }
+    else {
+        log << MSG::ERROR << "ElementLinkCnv_p2::PersToTrans(): container name EMPTY"
+            << endreq;
+    }
+#endif
+    if( contName->empty() ) {
+        // If container name is empty, this is a default ElementLink
+        // To be safe, reset to the default state, e.g. may be reusing
+        // existing EL from DataPool
+	trans->reset();
+#ifdef  ELLINK_DEBUG
+	log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): reading EL in Default state" << endreq;
+#endif
+    } else {
+	// reset trans ELink with key and index - changeds to identified state
+	trans->resetWithKeyAndIndex((*contName), pers->m_elementIndex);
+
+#ifdef  ELLINK_DEBUG
+	log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): KEY="
+	    << (*contName) << ", IDX=" << pers->m_elementIndex << endreq;
+	if ((*contName) == "NO LAST NAME") {
+	    log << MSG::ERROR << "ElementLinkCnv_p2::PersToTrans(): INCORRECT KEY  KEY="
+		<< (*contName) << ", IDX=" << pers->m_elementIndex << endreq;
+	}
+#endif
+    }
+}
+
+
+
+
+template <typename LINK_TYPE >
+inline		
+void ElementLinkCnv_p2< LINK_TYPE >::
+persToTrans(const PersLink_t& pers, Link_t& trans, MsgStream& log)  {
+    persToTrans( &pers, &trans, log);
+}
+
+
+template <typename LINK_TYPE >
+inline
+void ElementLinkCnv_p2< LINK_TYPE >::
+transToPers(const Link_t& trans, PersLink_t& pers, MsgStream& log)  {
+    transToPers( &trans, &pers, log);
+}
+
+
+template <typename LINK_TYPE >
+inline
+unsigned int
+ElementLinkCnv_p2< LINK_TYPE >::getNameIndex    (const std::string& name) 
+{
+    // Add this name to the lookup table, retrieving and index. 
+
+    unsigned int nameIndex;
+
+    // Only need to save name if container name has
+    // changed for this element link
+    if (name == m_lastNameAdded) return (m_lastNameIndex);
+
+    // check if name has already been added, if so use the index
+    // found, other make a new entry
+
+    // NOTE: the map is part of this converter object and not the
+    // lookup table itself
+
+    IndexMap::const_iterator it = m_nameIndexMap.find(name);
+    if (it != m_nameIndexMap.end()) {
+	nameIndex   =  (it->second);
+    }
+    else {
+	// Add new name to lookup table and map
+	nameIndex = m_lookupTable->m_names.size();
+	m_lookupTable->m_names.push_back(name);
+	m_nameIndexMap[name] = nameIndex;
+    }
+
+    // Save last name and index
+
+    // Note: m_lastNameAdded is a copy of a string and not a ptr into
+    // the lookup table. This is required because the lookup table may
+    // be extended/reallocated elsewhere in memory and thus invalidate
+    // ptrs into it.
+    m_lastNameIndex = nameIndex;
+    m_lastNameAdded = m_lookupTable->m_names[nameIndex];
+    return (nameIndex);
+}
+
+template <typename LINK_TYPE >
+inline
+void
+ElementLinkCnv_p2< LINK_TYPE >::getContName (unsigned int nameIndex, 
+                                             std::string*& name, 
+                                             MsgStream& log)
+{
+
+    // Only need to get new name if index has changed for this element
+    // link
+    if (nameIndex == m_lastNameIndex) {
+	name = const_cast<std::string*>(m_lastNameFound);
+	return;
+    }
+    
+    // Get the container name with the name index from the lookup table
+    if (!m_clookupTable || m_clookupTable->m_names.size() < nameIndex + 1) {
+        if (!m_clookupTable) {
+            log << MSG::ERROR << "Empty link name table ptr" << endreq;
+        }
+        else {
+            log << MSG::ERROR << "Empty name vector in lookup table - looking for index "
+                << nameIndex << " size " << m_clookupTable->m_names.size() << endreq;
+        }
+	return;
+    }
+    name = const_cast<std::string*>(&(m_clookupTable->m_names[nameIndex]));
+
+    // Save last name and index
+    m_lastNameFound = name;
+    m_lastNameIndex = nameIndex;
+    return;
+}

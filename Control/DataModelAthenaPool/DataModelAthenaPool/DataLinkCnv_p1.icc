@@ -1,0 +1,56 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file DataLinkCnv_p1.icc
+ *  @brief This file contains the implementation for the DataLinkCnv_p1 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include <stdexcept>
+
+
+template <typename DLINK_TYPE>
+inline
+void DataLinkCnv_p1<DLINK_TYPE>::transToPers(const DLink_t* trans, PersDLink_t* pers, MsgStream& /*log*/) 
+{
+   const_cast<DLink_t*>(trans)->toPersistent(); // ??? May not be needed now.
+   pers->m_SGKeyHash = trans->key();
+}
+
+template <typename DLINK_TYPE>
+inline
+void
+DataLinkCnv_p1<DLINK_TYPE>
+::transToPers(const DLink_t& trans, PersDLink_t& pers, MsgStream& log) 
+{
+   this->transToPers(&trans, &pers, log);
+}
+
+
+   
+template <typename DLINK_TYPE >
+inline
+void DataLinkCnv_p1< DLINK_TYPE >::persToTrans(const PersDLink_t* pers, DLink_t* trans, MsgStream& /*log*/) 
+{
+  if ( !pers->m_link.empty() ) {
+    trans->toIdentifiedObject(pers->m_link);
+    if( !trans->toTransient() ) {
+      throw std::runtime_error("persToTrans: failed to convert DataLink.");
+    }
+  }
+  else if (pers->m_SGKeyHash != 0) {
+    trans->toIdentifiedObject (pers->m_SGKeyHash);
+  }
+  else
+    trans->clear();
+}
+ 
+template <typename DLINK_TYPE >
+inline
+void
+DataLinkCnv_p1< DLINK_TYPE >
+::persToTrans(const PersDLink_t& pers, DLink_t& trans, MsgStream& log) 
+{
+   this->persToTrans(&pers, &trans, log);
+}

@@ -1,0 +1,295 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file NavigableVectorCnv_p2.icc
+ *  @brief This file contains the implementation for the NavigableVectorCnv_p2 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include <stdexcept>
+
+#include "Navigation/Navigable.h"
+
+//#include <iostream>
+//using namespace std;
+
+//#define NAV_P2_DEBUG
+
+
+// Elemental methods to convert a single Navigable
+
+template <typename NAVVECT, typename RPAR>
+inline
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::startTransToPers(PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = &pers;
+   m_log = &log;
+}
+
+
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::addTransNavigable( const Navigable_t& trans ) 
+{
+   size_t new_link_n = trans.size();
+   size_t insert_pos = m_pers->m_links.size();
+   m_pers->m_links.resize( insert_pos + new_link_n );
+   m_pers->m_navigableSizes.push_back( new_link_n );
+
+  typename Navigable_t::object_iter iter = trans.begin();
+  typename Navigable_t::object_iter end  = trans.end();
+
+  while( iter != end ) {
+    m_linkCnv.transToPers( &iter.getElement(),
+                           &m_pers->m_links[insert_pos], *m_log );
+    m_pers->m_parameters.push_back( iter.getParameter() );
+    iter++; insert_pos++;
+  }
+}
+
+
+template <typename NAVVECT, typename RPAR>
+inline
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::finishTransToPers() 
+{
+}
+
+
+//  standard transToPers() method for the whole vector
+   
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::transToPers(const NavigableVector_t* trans, PersNavigableVector_t* pers, MsgStream& log) 
+{
+   startTransToPers( *pers, log );
+   for( typename NAVVECT::const_iterator navI = trans->begin(); navI != trans->end(); navI++ ) {
+      addTransNavigable( *navI );
+   }
+   finishTransToPers();
+}
+
+
+// -----------------------------------------------------------
+// -------------------------   persToTrans
+
+
+// Elemental methods to convert a single element link
+
+template <typename NAVVECT, typename RPAR>
+inline
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::startPersToTrans(const PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = const_cast< PersNavigableVector_t* >(&pers);
+   m_log = &log;
+   
+   // reset iterators
+   m_linkIterator = 0;
+   m_navigableIterator = 0;
+
+}
+
+
+// convert a single navigable
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::getNextNavigable( Navigable_t& trans )
+{
+   // how many links in this navigable
+   size_t	elements = m_pers->m_navigableSizes[ m_navigableIterator ];
+
+   ElementLink<typename Navigable_t::container_type> el;
+   for( size_t i = 0; i < elements; i++ ) {
+      m_linkCnv.persToTrans( m_pers->m_links[m_linkIterator], el, *m_log ); 
+      trans.insertElement (el, m_pers->m_parameters[m_linkIterator], elements);
+      m_linkIterator++;
+   }
+   m_navigableIterator++;
+}
+
+
+template <typename NAVVECT, typename RPAR>
+inline
+void NavigableVectorCnv_p2<NAVVECT, RPAR>::finishPersToTrans()
+{
+}
+
+//  standard persToTrans() method for the whole vector
+   
+template <typename NAV, typename RPAR >
+void NavigableVectorCnv_p2<NAV, RPAR >::persToTrans(const PersNavigableVector_t* pers, NavigableVector_t* trans, MsgStream& log) 
+{
+   startPersToTrans( *pers, log );
+   size_t	size = pers->size();
+   trans->resize( size );
+   for( size_t nav = 0; nav < size; nav++ ) {
+      getNextNavigable( (*trans)[ nav ] );
+   }
+   finishPersToTrans();
+}
+
+
+
+// ---------------------- helpers: using references instead of pointers
+
+template <typename NAV, typename RPAR>
+inline
+void
+NavigableVectorCnv_p2<NAV, RPAR>
+::transToPers(const NavigableVector_t& trans, PersNavigableVector_t& pers, MsgStream& log) 
+{
+   this->transToPers(&trans, &pers, log);
+}
+
+
+template <typename NAV, typename RPAR >
+inline
+void
+NavigableVectorCnv_p2<NAV, RPAR >
+::persToTrans(const PersNavigableVector_t& pers, NavigableVector_t& trans, MsgStream& log) 
+{
+   this->persToTrans(&pers, &trans, log);
+}
+
+
+
+
+
+//-----------------------------------------------------
+// Specialized version of the converter for NavigableVectors without weight parameters
+
+
+// Elemental methods to convert a single Navigable
+
+template <typename NAVVECT >
+inline
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::startTransToPers(PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = &pers;
+   m_log = &log;
+}
+
+
+template <typename NAVVECT>
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::addTransNavigable( const Navigable_t& trans ) 
+{
+   size_t new_link_n = trans.size();
+   size_t insert_pos = m_pers->m_links.size();
+   m_pers->m_links.resize( insert_pos + new_link_n );
+   m_pers->m_navigableSizes.push_back( new_link_n );
+
+  typename Navigable_t::object_iter iter = trans.begin();
+  typename Navigable_t::object_iter end  = trans.end();
+
+  while( iter != end ) {
+    m_linkCnv.transToPers( &iter.getElement(),
+                           &m_pers->m_links[insert_pos], *m_log );
+    iter++; insert_pos++;
+  }
+}
+
+
+template <typename NAVVECT>
+inline
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::finishTransToPers() 
+{
+}
+
+
+//  standard transToPers() method for the whole vector
+   
+template <typename NAVVECT>
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::transToPers(const NavigableVector_t* trans, PersNavigableVector_t* pers, MsgStream& log) 
+{
+   startTransToPers( *pers, log );
+   for( typename NAVVECT::const_iterator navI = trans->begin(); navI != trans->end(); navI++ ) {
+      addTransNavigable( *navI );
+   }
+   finishTransToPers();
+}
+
+
+// -----------------------------------------------------------
+// -------------------------   persToTrans
+
+
+// Elemental methods to convert a single element link
+
+template <typename NAVVECT>
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::startPersToTrans(const PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = const_cast< PersNavigableVector_t* >(&pers);
+   m_log = &log;
+
+   m_linkIterator = 0;
+   m_navigableIterator = 0;
+
+}
+
+
+// convert a single navigable
+template <typename NAVVECT>
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::getNextNavigable( Navigable_t& trans )
+{
+   // how many links in this navigable
+   size_t	elements = m_pers->m_navigableSizes[ m_navigableIterator ];
+
+   ElementLink<typename Navigable_t::container_type> el;
+   for( size_t i = 0; i < elements; i++ ) {
+      m_linkCnv.persToTrans( m_pers->m_links[m_linkIterator], el, *m_log ); 
+      trans.insertElement (el, NavigationDefaults::DefaultWeight(), elements);
+      m_linkIterator++;
+   }
+   m_navigableIterator++;
+}
+
+
+template <typename NAVVECT>
+inline
+void NavigableVectorCnv_p2<NAVVECT, NavigationDefaults::DefaultWeight >
+::finishPersToTrans()
+{
+}
+
+
+//  standard persToTrans() method for the whole vector
+   
+template <typename NAV>
+void NavigableVectorCnv_p2<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigableVector_t* pers, NavigableVector_t* trans, MsgStream& log) 
+{
+   startPersToTrans( *pers, log );
+   size_t	size = pers->size();
+   trans->resize( size );
+   for( size_t nav = 0; nav < size; nav++ ) {
+      getNextNavigable( (*trans)[ nav ] );
+   }
+   finishPersToTrans();
+}
+
+
+
+
+template <typename NAV >
+inline
+void
+NavigableVectorCnv_p2<NAV, NavigationDefaults::DefaultWeight >
+::transToPers(const NavigableVector_t& trans, PersNavigableVector_t& pers, MsgStream& log) 
+{
+   this->transToPers(&trans, &pers, log);
+}
+
+
+template <typename NAV >
+inline
+void
+NavigableVectorCnv_p2<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigableVector_t& pers, NavigableVector_t& trans, MsgStream& log) 
+{
+   this->persToTrans(&pers, &trans, log);
+}
+
+

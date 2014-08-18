@@ -1,0 +1,365 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file NavigableVectorCnv_p1.icc
+ *  @brief This file contains the implementation for the NavigableVectorCnv_p1 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include <stdexcept>
+
+#include "Navigation/Navigable.h"
+
+//#include <iostream>
+//using namespace std;
+
+//#define NAV_P1_DEBUG
+
+
+// Elemental methods to convert a single element link
+
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::startTransToPers(PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = &pers;
+   m_log = &log;
+   //   m_tempLinkVect.resize(0);   // using the ELV as a member and using resize crashes 
+   m_tempLinkVect = new ElementLinkVect_t;
+}
+
+
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::addTransNavigable( const Navigable_t& trans ) 
+{
+   // collect all element links from one Navigable into the temporary vector
+  typename Navigable_t::object_iter iter = trans.begin();
+  typename Navigable_t::object_iter end  = trans.end();
+
+  while( iter != end ) {
+    m_tempLinkVect->push_back( iter.getElement() );
+    m_pers->m_parameters.push_back( iter.getParameter() );
+    iter++;
+  }
+  m_pers->m_navigableSizes.push_back( trans.size() );
+}
+
+
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::finishTransToPers() 
+{
+   //change state of the links
+   m_tempLinkVect->toPersistent();
+   // convert the link vector to persistent
+   m_linkCnv.transToPers(m_tempLinkVect, &m_pers->m_links, *m_log);
+//   m_tempLinkVect.resize(0);
+   delete m_tempLinkVect;
+}
+
+
+//  standard transToPers() method for the whole vector
+   
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::transToPers(const NavigableVector_t* trans, PersNavigableVector_t* pers, MsgStream& log) 
+{
+   startTransToPers( *pers, log );
+   for( typename NAVVECT::const_iterator navI = trans->begin(); navI != trans->end(); navI++ ) {
+      addTransNavigable( *navI );
+   }
+   finishTransToPers();
+}
+
+
+// -----------------------------------------------------------
+// -------------------------   persToTrans
+
+
+// Elemental methods to convert a single element link
+
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::startPersToTrans(const PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = const_cast< PersNavigableVector_t* >(&pers);
+   m_log = &log;
+   //m_tempLinkVect.resize(0);
+   m_tempLinkVect = new ElementLinkVect_t;
+   
+   // create a temporary link vector from persistent 
+   m_linkCnv.persToTrans( &pers.m_links, m_tempLinkVect, log );
+   m_tempLinkVect->toTransient();   
+
+   // reset iterators
+//   m_linkIterator = m_tempLinkVect->begin();
+   m_linkIterator = 0;
+   m_navigableIterator = 0;
+
+}
+
+
+// convert a single navigable
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::getNextNavigable( Navigable_t& trans )
+{
+   // how many links in this navigable
+   int	elements = m_pers->m_navigableSizes[ m_navigableIterator ];
+
+   while( elements ) {
+     trans.insertElement ((*m_tempLinkVect)[m_linkIterator],
+                          m_pers->m_parameters[m_linkIterator],
+                          elements);
+      m_linkIterator++; elements--;
+   }
+   m_navigableIterator++;
+}
+
+
+template <typename NAVVECT, typename RPAR>
+void NavigableVectorCnv_p1<NAVVECT, RPAR>::finishPersToTrans()
+{
+//   m_tempLinkVect.resize(0);
+   delete m_tempLinkVect;
+}
+
+//  standard persToTrans() method for the whole vector
+   
+template <typename NAV, typename RPAR >
+void NavigableVectorCnv_p1<NAV, RPAR >::persToTrans(const PersNavigableVector_t* pers, NavigableVector_t* trans, MsgStream& log) 
+{
+   startPersToTrans( *pers, log );
+   size_t	size = pers->size();
+   trans->resize( size );
+   for( size_t nav = 0; nav < size; nav++ ) {
+      getNextNavigable( (*trans)[ nav ] );
+   }
+   finishPersToTrans();
+}
+
+
+
+// ---------------------- helpers: using references instead of pointers
+
+template <typename NAV, typename RPAR>
+inline
+void
+NavigableVectorCnv_p1<NAV, RPAR>
+::transToPers(const NavigableVector_t& trans, PersNavigableVector_t& pers, MsgStream& log) 
+{
+   this->transToPers(&trans, &pers, log);
+}
+
+
+template <typename NAV, typename RPAR >
+inline
+void
+NavigableVectorCnv_p1<NAV, RPAR >
+::persToTrans(const PersNavigableVector_t& pers, NavigableVector_t& trans, MsgStream& log) 
+{
+   this->persToTrans(&pers, &trans, log);
+}
+
+
+
+
+
+//-----------------------------------------------------
+// Specialized version of the converter for NavigableVectors without weight parameters
+
+
+// Elemental methods to convert a single element link
+
+template <typename NAVVECT >
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::startTransToPers(PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = &pers;
+   m_log = &log;
+   //   m_tempLinkVect.resize(0);   // using the ELV as a member and using resize crashes 
+   m_tempLinkVect = new ElementLinkVect_t;
+}
+
+
+template <typename NAVVECT>
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::addTransNavigable( const Navigable_t& trans ) 
+{
+  // collect all element links from one Navigable into the temporary vector
+  typename Navigable_t::object_iter iter = trans.begin();
+  typename Navigable_t::object_iter end  = trans.end();
+
+  while( iter != end ) {
+    m_tempLinkVect->push_back( iter.getElement() );
+    iter++;
+  }
+  m_pers->m_navigableSizes.push_back( trans.size() );
+}
+
+
+template <typename NAVVECT>
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::finishTransToPers() 
+{
+   //change state of the links
+   m_tempLinkVect->toPersistent();
+   // convert the link vector to persistent
+   m_linkCnv.transToPers(m_tempLinkVect, &m_pers->m_links, *m_log);
+//   m_tempLinkVect.resize(0);
+   delete m_tempLinkVect;
+}
+
+
+//  standard transToPers() method for the whole vector
+   
+template <typename NAVVECT>
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::transToPers(const NavigableVector_t* trans, PersNavigableVector_t* pers, MsgStream& log) 
+{
+   startTransToPers( *pers, log );
+   for( typename NAVVECT::const_iterator navI = trans->begin(); navI != trans->end(); navI++ ) {
+      addTransNavigable( *navI );
+   }
+   finishTransToPers();
+}
+
+
+// -----------------------------------------------------------
+// -------------------------   persToTrans
+
+
+// Elemental methods to convert a single element link
+
+template <typename NAVVECT>
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::startPersToTrans(const PersNavigableVector_t& pers, MsgStream& log)
+{
+   m_pers = const_cast< PersNavigableVector_t* >(&pers);
+   m_log = &log;
+   //m_tempLinkVect.resize(0);
+   m_tempLinkVect = new ElementLinkVect_t;
+   
+   // create a temporary link vector from persistent 
+   m_linkCnv.persToTrans( &pers.m_links, m_tempLinkVect, log );
+   m_tempLinkVect->toTransient();   
+
+   // reset iterators
+//   m_linkIterator = m_tempLinkVect->begin();
+   m_linkIterator = 0;
+   m_navigableIterator = 0;
+
+}
+
+
+// convert a single navigable
+template <typename NAVVECT>
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::getNextNavigable( Navigable_t& trans )
+{
+   // how many links in this navigable
+   int	elements = m_pers->m_navigableSizes[ m_navigableIterator ];
+
+   while( elements ) {
+     trans.insertElement ((*m_tempLinkVect)[m_linkIterator],
+                          NavigationDefaults::DefaultWeight(),
+                          elements);
+      m_linkIterator++; elements--;
+   }
+   m_navigableIterator++;
+}
+
+
+template <typename NAVVECT>
+void NavigableVectorCnv_p1<NAVVECT, NavigationDefaults::DefaultWeight >
+::finishPersToTrans()
+{
+//   m_tempLinkVect.resize(0);
+   delete m_tempLinkVect;
+}
+
+
+//  standard persToTrans() method for the whole vector
+   
+template <typename NAV>
+void NavigableVectorCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigableVector_t* pers, NavigableVector_t* trans, MsgStream& log) 
+{
+   startPersToTrans( *pers, log );
+   size_t	size = pers->size();
+   trans->resize( size );
+   for( size_t nav = 0; nav < size; nav++ ) {
+      getNextNavigable( (*trans)[ nav ] );
+   }
+   finishPersToTrans();
+}
+
+
+
+
+
+template <typename NAV >
+inline
+void
+NavigableVectorCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::transToPers(const NavigableVector_t& trans, PersNavigableVector_t& pers, MsgStream& log) 
+{
+   this->transToPers(&trans, &pers, log);
+}
+
+
+template <typename NAV >
+inline
+void
+NavigableVectorCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigableVector_t& pers, NavigableVector_t& trans, MsgStream& log) 
+{
+   this->persToTrans(&pers, &trans, log);
+}
+
+
+
+
+
+/*
+template <typename NAV >
+void
+NavigableVectorCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::transToPers(const NavigableVector_t* trans, PersNavigableVector_t* pers, MsgStream& log) 
+{
+   // collect all element links into a temporary vector
+   ElementLinkVect_t				temp_linkvect;
+   const typename NAV::constituent_coll &	link_coll = trans->getConstituents();
+   typename NAV::constituent_const_iter		iter = link_coll.begin();
+   while( iter != link_coll.end() ) {
+      temp_linkvect.push_back( *(NAV::navhelper_t::getElementPtr(iter)) );
+      iter++;
+   }
+   temp_linkvect.toPersistent();
+
+   // convert the link vector to persistent
+   m_linkCnv.transToPers(temp_linkvect, pers->m_links, log);
+}
+
+
+
+//--------------------  persToTrans()  ----------------------------------
+   
+template <typename NAV >
+void
+NavigableVectorCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::persToTrans(const PersNavigableVector_t* pers, NavigableVector_t* trans, MsgStream& log) 
+{
+  // create a temporary link vector from persistent
+   ElementLinkVect_t	temp_linkvect;   
+   m_linkCnv.persToTrans(pers->m_links, temp_linkvect, log);
+   temp_linkvect.toTransient();
+
+   // copy from link vector into navigable
+   size_t	size = temp_linkvect.size();
+   trans->getConstituents().reserve( size );
+   typename ElementLinkVect_t::const_iterator	iter = temp_linkvect.begin();
+   while( iter != temp_linkvect.end() ) {
+      trans->getConstituents().push_back( *iter );	
+      iter++;
+   }
+}
+
+
+*/

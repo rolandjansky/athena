@@ -1,0 +1,137 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file ElementLinkCnv_p1.icc
+ *  @brief This file contains the implementation for the ElementLinkCnv_p1 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include <stdexcept>
+
+#include "AthLinks/ElementLink.h"
+#include "AthenaKernel/IThinningSvc.h"
+//#define ELLINK_DEBUG
+
+template <typename LINK_TYPE>
+void ElementLinkCnv_p1<LINK_TYPE>::
+transToPers(const Link_t* trans, PersLink_t* pers, MsgStream&
+           #ifdef  ELLINK_DEBUG
+            msg
+           #endif
+	    ) 
+{
+#ifdef  ELLINK_DEBUG
+//  trans->printState();
+#endif
+  if( trans->isDefault() ) {
+     //   pers->m_contName <- empty string (default value)
+     pers->m_elementIndex = 0; // value not used, but 0 compresses better
+  } else {
+    IThinningSvc * thinningSvc = IThinningSvc::instance();
+    const SG::DataProxy* dp = trans->proxy();
+    const bool thinning = thinningSvc && 
+      (dp 
+       ? thinningSvc->thinningOccurred(dp) 
+       // otherwise, use the event-level one
+       : thinningSvc->thinningOccurred());
+    // easy and simple case first
+    if( !thinning ) {
+       const_cast<Link_t*>(trans)->toPersistent();
+       // pers->m_contName      = trans->dataID();
+       pers->m_SGKeyHash        = trans->key(); 
+       pers->m_elementIndex     = trans->index();
+    } else {
+      // the not so simple case: some thinning occurred
+
+      // here is the problem: in case the ElementLink was directly created w/
+      // only a pointer to the element, _and_ if the the pointed at element 
+      // has been thinned away, EL::index() will throw b/c
+      // IndexingPolicy::setIndex will fail.
+      std::size_t idx = IThinningSvc::RemovedIdx;
+      try {
+        idx = trans->index();
+      } catch ( const SG::maybe_thinning_error& err ) {
+	// ok. that's the corner case we talked about above.
+#ifdef  ELLINK_DEBUG
+        msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
+            << err.what() << "]"
+            << endreq
+            << "(this is an expected case of the EL-state-phase-space "
+            << "when thinning is active)"
+            << endreq;
+#endif
+      }
+      const std::size_t persIdx = dp ?
+        thinningSvc->index(dp, idx) :
+        thinningSvc->index(trans->getStorableObjectPointer(), idx);
+
+      if ( IThinningSvc::RemovedIdx == persIdx ) {
+        // this element has been thinned away. So the persistent equivalent
+        // of a null pointer is a default persistent pointer.
+
+        //pers->m_contName     <- empty string (default value)
+        pers->m_elementIndex = 0; // value not used, but 0 compresses better
+      } else {
+        const_cast<Link_t*>(trans)->toPersistent();
+        // pers->m_contName     = trans->dataID(); 
+        pers->m_SGKeyHash       = trans->key(); 
+        pers->m_elementIndex    = persIdx;
+      }
+    }
+#ifdef  ELLINK_DEBUG
+    msg << MSG::INFO << "ElementLinkCnv_p1::transToPer(): SG Container="
+	<<  pers->m_contName << ", Key Hash=" << pers->m_SGKeyHash
+        << ", IDX=" << pers->m_elementIndex << endreq;
+#endif
+  }
+}
+
+
+template <typename LINK_TYPE >
+void ElementLinkCnv_p1< LINK_TYPE >
+::persToTrans(const PersLink_t* pers, Link_t* trans, MsgStream&
+             #ifdef  ELLINK_DEBUG
+	      msg
+             #endif
+	      ) 
+{
+   if( !pers->m_contName.empty() ) {
+#ifdef  ELLINK_DEBUG
+      msg << MSG::DEBUG << "ElementLinkCnv_p1::PersToTrans(): SGContainer="
+	  << pers->m_contName << ", IDX=" << pers->m_elementIndex << endreq;
+#endif
+      *trans = Link_t(pers->m_contName, pers->m_elementIndex);
+   }
+   else if( pers->m_SGKeyHash != 0 ) {
+#ifdef  ELLINK_DEBUG
+      msg << MSG::DEBUG << "ElementLinkCnv_p1::PersToTrans(): SGContainer hash="
+	  << pers->m_SGKeyHash << ", IDX=" << pers->m_elementIndex << endreq;
+#endif
+      *trans = Link_t( (typename Link_t::sgkey_t)pers->m_SGKeyHash, pers->m_elementIndex);
+   }
+   else {
+#ifdef  ELLINK_DEBUG
+      msg << MSG::DEBUG << "ElementLinkCnv_p1::PersToTrans(): reading EL in Default state" << endreq;
+#endif
+      // set the transient ELink to the default state.
+      trans->reset();
+   } 
+}
+
+
+
+template <typename LINK_TYPE >
+inline
+void ElementLinkCnv_p1< LINK_TYPE >::
+persToTrans(const PersLink_t& pers, Link_t& trans, MsgStream& log)  {
+   persToTrans( &pers, &trans, log);
+}
+
+
+template <typename LINK_TYPE >
+inline
+void ElementLinkCnv_p1< LINK_TYPE >::
+transToPers(const Link_t& trans, PersLink_t& pers, MsgStream& log)  {
+   transToPers( &trans, &pers, log);
+}

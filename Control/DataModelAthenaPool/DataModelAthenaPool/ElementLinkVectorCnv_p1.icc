@@ -1,0 +1,169 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file ElementLinkVectorCnv_p1.icc
+ *  @brief This file contains the implementation for the ElementLinkVectorCnv_p1 template methods.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include <stdexcept>
+
+#include "AthLinks/ElementLinkVector.h"
+#include "AthenaKernel/IThinningSvc.h"
+
+//#include <iostream>
+//using namespace std;
+
+//#define ELVEC_DEBUG
+
+template <typename LINK_TYPE>
+void ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t* trans, PersLinkVect_t* pers, MsgStream& msg) 
+{
+  const_cast<LinkVect_t*>(trans)->doRemap();
+
+  IThinningSvc * thinningSvc = IThinningSvc::instance();
+  const bool thinningOccurred= thinningSvc && thinningSvc->thinningOccurred();
+    
+  // easy case first
+  if ( !thinningOccurred ) {
+    std::vector<typename LinkVect_t::DataLinkVector::size_type> shortrefs;
+    const_cast<LinkVect_t*>(trans)->toPersistent(shortrefs);
+    // copy the container keys
+    m_DLinkVectorCnv.transToPers(&trans->hostDObjs(), &pers->m_links, msg);
+    
+    // copy the element links in the compact form
+    size_t link_n = trans->size();
+    pers->m_elementRefs.reserve(link_n);
+    for ( std::size_t i=0; i!=link_n; ++i ) {
+      typedef typename PersLinkVect_t::ElementRef PElemRef_t;
+      size_t idx = IThinningSvc::RemovedIdx;
+      if (shortrefs[i] != IThinningSvc::RemovedIdx)
+        idx = trans->elementIndex(i);
+      pers->m_elementRefs.push_back( PElemRef_t (idx, shortrefs[i]) );
+    }
+    return;
+  }
+
+  // the not so easy case: thinning occured...
+
+  // Note: we can't use ElementLinkVector::toPersistent.
+  // we have to first handle the DataLinks and then the elementlink refs
+  // otherwise we:
+  //  - corrupt the ElementLinks
+  //  - generate many-many ERRORs (when the EL points at a thinned away elmt)
+
+  // set all DataLinks to persistent state
+  const_cast<LinkVect_t*>(trans)->toPersistentDL();
+
+  // copy the container keys
+  m_DLinkVectorCnv.transToPers(&trans->hostDObjs(), &pers->m_links, msg);
+  //std::cout << "*** -- ElementLinkVectorCnv: KEY=" << *iter << std::endl;
+
+  // copy the element links in the compact form
+  size_t link_n = trans->size();
+  pers->m_elementRefs.reserve(link_n);
+  typedef typename LinkVect_t::ElemLink    EL;
+  for ( std::size_t ilink = 0; ilink != link_n; ++ilink ) {
+    // note the _copy_ of the original
+    // (needed for multi-stream thinning)
+    EL el = (*trans)[ilink];
+    // here is the problem: in case the ElementLink was directly created w/
+    // only a pointer to the element, _and_ if the the pointed-at element 
+    // has been thinned away, EL::index() will throw b/c
+    // IndexingPolicy::setIndex will fail.
+    std::size_t orig_idx = IThinningSvc::RemovedIdx;
+    try {
+      orig_idx = el.index();
+    } catch ( const SG::maybe_thinning_error& err ) {
+      // ok. that's the corner case we talked about above.
+      msg << MSG::DEBUG
+	  << "caught a maybe_thinning_error: [" << err.what() << "]"
+	  << endreq
+	  << "(this is an expected case of the EL-state-phase-space "
+	  << "when thinning is active)"
+	  << endreq;
+    }
+    const SG::DataProxy* dp = el.proxy();
+    const std::size_t idx = dp ? 
+      thinningSvc->index(dp, orig_idx) :
+      thinningSvc->index(el.getStorableObjectPointer(), orig_idx);
+
+    typename LinkVect_t::size_type shortref = 0;
+    if ( idx == IThinningSvc::RemovedIdx ) {
+      // that element has been thinned away.
+      shortref = idx; //< 'special' well-known value
+    } else {
+      // element not thinned away
+      typename LinkVect_t::DataLinkVector::const_iterator ihost =
+        trans->findHostDObj (el);
+      if (ihost != trans->endHostDObjs())
+        shortref = std::distance (trans->beginHostDObjs(), ihost);
+      else {
+        msg << MSG::WARNING
+            << "link not found in ElemLinkVector" << endreq;
+      }
+    }
+    typedef typename PersLinkVect_t::ElementRef PersELRef;
+    pers->m_elementRefs.push_back( PersELRef (idx, shortref) );
+  }
+}
+
+
+template <typename LINK_TYPE >
+void ElementLinkVectorCnv_p1< LINK_TYPE >::persToTrans(const PersLinkVect_t* pers, LinkVect_t* trans, MsgStream& msg) 
+{
+   // copy the container keys
+   typename LinkVect_t::DataLinkVector dl;
+   m_DLinkVectorCnv.persToTrans(&pers->m_links, &dl, msg);
+   trans->clear();
+   trans->moveHostDObjs (dl);
+   trans->toTransient();
+   // cout << "*** -- ElementLinkVectorCnv: KEY=" << *iter << endl;
+   // copy the element links in the compact form
+   size_t link_n = pers->m_elementRefs.size();
+   trans->reserve(link_n);
+   typename  PersLinkVect_t::ElementRefVector::const_iterator link_iter = pers->m_elementRefs.begin();
+   while(link_n--) {
+      // This test needed for 32/64 bit compatibility.
+      if ( link_iter->m_nameIndex == static_cast<uint32_t>(IThinningSvc::RemovedIdx) &&
+	   link_iter->m_elementIndex == static_cast<Index_t>(IThinningSvc::RemovedIdx) )
+      {
+	// thinned-away element...
+        trans->push_back (IThinningSvc::RemovedIdx, IThinningSvc::RemovedIdx);
+      }
+      else
+        trans->push_back (link_iter->m_nameIndex, link_iter->m_elementIndex);
+
+      #ifdef ELVEC_DEBUG
+      msg << MSG::DEBUG 
+	  << "ElementLinkVectorCnv_p1::PersToTrans(): KEY="
+	  <<  pers->m_links[link_iter->m_nameIndex].m_link
+	  << ", IDX=" << link_iter->m_elementIndex 
+	  << endreq;
+      #endif
+      link_iter++;
+   }
+}
+
+
+
+
+template <typename LINK_TYPE>
+inline
+void
+ElementLinkVectorCnv_p1<LINK_TYPE>
+::transToPers(const LinkVect_t& trans, PersLinkVect_t& pers, MsgStream& msg) 
+{
+   this->transToPers(&trans, &pers, msg);
+}
+
+
+template <typename LINK_TYPE >
+inline
+void
+ElementLinkVectorCnv_p1< LINK_TYPE >
+::persToTrans(const PersLinkVect_t& pers, LinkVect_t& trans, MsgStream& msg) 
+{
+   this->persToTrans(&pers, &trans, msg);
+}
