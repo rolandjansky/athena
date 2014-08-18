@@ -1,0 +1,17 @@
+// common job opts for SG unit tests
+
+#pragma print off
+ApplicationMgr.DLLs += { "StoreGate" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", 
+			   "StoreGateSvc/DetectorStore", 
+			   "StoreGateSvc/HistoryStore" };
+
+ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
+AuditorSvc.Auditors   += { "AlgContextAuditor"};
+
+StoreGateSvc.OutputLevel = 2;
+StoreGateSvc.ActivateHistory = false;
+MessageSvc.useColors = false;
+MessageSvc.OutputLevel = 3;
+
+#include "IOVSvc/IOVSvc.txt"
