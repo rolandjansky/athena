@@ -1,0 +1,399 @@
+// emacs, this is -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////                                                        /////////// 
+// Public:                                                     Signal State //
+///////////                                                        ///////////
+
+#include <sstream>
+#include <algorithm>
+
+inline const std::vector<Jet::mkey_t> Jet::infoKeys() const
+{
+  // the vector might has empty elements, because not necessarily all
+  //  taginfos are filled for every event
+  std::vector<mkey_t> vKeys;
+  if ( bool(m_tagInfoStore) )
+    for ( tagstore_t::iterator itr = m_tagInfoStore->begin();
+	  itr != m_tagInfoStore->end(); itr++ )
+      if ( bool(*itr) )
+	vKeys.push_back( (*itr)->infoType() );
+  return vKeys;
+}
+
+inline Jet::signalstate_t Jet::constituentSignalState() const
+{
+  return m_constituentSigState;
+}
+
+
+///////////                                                        /////////// 
+// Public:                                            Four-momentum Setters //
+///////////                                                        ///////////
+
+inline void Jet::setP(const hlv_t& rVec) { this->set4Mom(rVec); }
+
+
+///////////                                                        /////////// 
+// Public:                                            Jet Algebra Operators //
+///////////                                                        ///////////
+
+
+inline void Jet::setE (double e ) { this->momentumBase().setE (e ); }
+inline void Jet::setPx(double px) { this->momentumBase().setPx(px); }
+inline void Jet::setPy(double py) { this->momentumBase().setPy(py); }
+inline void Jet::setPz(double pz) { this->momentumBase().setPz(pz); }
+
+inline void Jet::setE (double e , signalstate_t s) { this->momentumBase(s).setE (e ); }
+inline void Jet::setPx(double px, signalstate_t s) { this->momentumBase(s).setPx(px); }
+inline void Jet::setPy(double py, signalstate_t s) { this->momentumBase(s).setPy(py); }
+inline void Jet::setPz(double pz, signalstate_t s) { this->momentumBase(s).setPz(pz); }
+
+inline bool Jet::operator==(const Jet& rJet) const 
+{ return this->isIdentical(rJet); }
+inline bool Jet::operator==(const Jet* pJet) const 
+{ return this->isIdentical(pJet); }
+inline bool Jet::operator!=(const Jet& rJet) const 
+{ return !(this->isIdentical(rJet)); }
+inline bool Jet::operator!=(const Jet* pJet) const 
+{ return !(this->isIdentical(pJet)); }
+
+inline bool Jet::isIdentical(const Jet& rJet) const
+{ return this->isIdentical(&rJet); }
+
+inline Jet& Jet::operator=(const Jet& rJet)
+{
+  // Check for illegal self-assignment
+  // Otherwise constituents will be duplicated
+  if(this != &rJet)
+    copy_from_jet(&rJet, CopyAll); 
+  return *this;
+}
+
+inline MsgStream& Jet::operator<<( MsgStream& out) {
+  return ( out << str() );
+}
+
+
+///////////                                                        /////////// 
+// Public:                                           Access to Constituents //
+///////////                                                        ///////////
+
+// inline const Jet::constituent_coll_t& Jet::getConstituentStore() const
+// { return *((this->navigableBase()).getPtrToConstituents()); }
+
+inline Jet::const_iterator Jet::begin() const
+{ return (this->navigableBase()).begin(); }
+inline Jet::const_iterator Jet::end() const
+{ return (this->navigableBase()).end(); }
+
+inline size_t Jet::size() const
+{ return (this->navigableBase()).size(); }
+
+inline bool Jet::contains(const constituent_t* pConst) const
+{ return (this->navigableBase()).contains(pConst); }
+inline bool Jet::contains(const collection_t* pColl,index_t ind) const
+{ return (this->navigableBase()).contains(pColl,ind); }
+
+inline double Jet::getWeight(const constituent_t* pConst) const
+{ return this->getParameter(pConst); }
+inline double Jet::getWeight(const collection_t* pColl,index_t ind) const
+{ return this->getParameter(pColl,ind); }
+inline double Jet::getWeight(const_iterator fConst) const
+{ return this->getParameter(fConst); }
+
+inline Jet* Jet::getOverlap(const Jet& rJet, bool noKine /*= false*/) const
+{ return this->getOverlap(&rJet, noKine); }
+
+/** @detail Iterator to first constituent. 
+ @warning To be phased out! Use @c Jet::begin() instead!
+*/
+inline Jet::const_iterator Jet::firstConstituent() const
+{ return this->begin(); }
+/** @detail Terminating constituent iterator.
+  @warning To be phased out! Use @c Jet::end() instead!
+ */
+inline Jet::const_iterator Jet::lastConstituent() const
+{ return this->end(); }
+
+///////////                                                        /////////// 
+// Protected:                                        Access to Constituents //
+///////////                                                        ///////////
+
+inline double Jet::getParameter(const constituent_t* pConst) const
+{ return (this->navigableBase()).getParameter(pConst); }
+inline double Jet::getParameter(const collection_t* pColl,index_t ind) const
+{ return (this->navigableBase()).getParameter(pColl,ind); }
+inline double Jet::getParameter(const_iterator fConst) const
+{ return (this->navigableBase()).getParameter(fConst); }
+
+inline const Jet::collection_t* 
+Jet::getContainer(const constituent_t* pConst) const
+{ return (this->navigableBase()).getContainer(pConst); }
+inline const Jet::collection_t* 
+Jet::getContainer(const_iterator fConst) const
+{ return (this->navigableBase()).getContainer(fConst); }
+
+inline bool Jet::getIndex(const constituent_t* pConst,index_t& ind) const
+{ return (this->navigableBase()).getIndex(pConst,ind); }
+inline bool Jet::getIndex(const_iterator fConst,index_t& ind) const 
+{ return (this->navigableBase()).getIndex(fConst,ind); }
+
+///////////                                                        /////////// 
+// Public:                                           Constituent Management //
+///////////                                                        ///////////
+
+inline bool Jet::removeConstituent(const collection_t* pColl,index_t ind)
+{
+  return 
+    ind < pColl->size() 
+    ? this->removeConstituent((pColl->operator[])(ind))
+    : false;
+}
+
+inline bool Jet::removeConstituent(bool reset)
+{
+  // reset four-momentum if needed
+  if ( reset ) this->set4Mom(hlv_t(0.,0.,0.,0.));
+  return this->remove();
+}
+
+///////////                                                        /////////// 
+// Protected:                                        Constituent Management //
+///////////                                                        ///////////
+
+inline void Jet::putElement(const collection_t*  pColl,
+			    const constituent_t* pConst,
+			    double wght,
+			    size_t sizeHint)
+{ (this->navigableBase()).putElement(pColl,pConst,wght,sizeHint); m_constituentsN++;}
+inline void Jet::putElement(const collection_t*  pColl,
+			    index_t              ind,
+			    double              wght,
+			    size_t               sizeHint)
+{ (this->navigableBase()).putElement(pColl,ind,wght,sizeHint); m_constituentsN++;}
+
+inline void Jet::insertElement(const collection_t*  pColl,
+			       const constituent_t* pConst,
+			       double              wght,
+			       size_t               sizeHint)
+{ (this->navigableBase()).insertElement(pColl,pConst,wght,sizeHint); m_constituentsN++;}
+inline void Jet::insertElement(const collection_t*  pColl,
+			       index_t              ind,
+			       double              wght,
+			       size_t               sizeHint)
+{ (this->navigableBase()).insertElement(pColl,ind,wght,sizeHint); m_constituentsN++;}
+
+// inline void Jet::reweight(const constituent_t* pConst,double wght)
+// { (this->navigableBase()).reweight(pConst,wght); }
+// inline void Jet::reweight(const collection_t* pColl,index_t ind,double wght)
+// { (this->navigableBase()).reweight(pColl,ind,wght); }
+
+inline bool Jet::remove(const constituent_t* pConst)
+{ if ( (this->navigableBase()).remove(pConst) ) {m_constituentsN--;return true;} return false; }
+inline bool Jet::remove(const collection_t* pColl,index_t ind)
+{ if ( (this->navigableBase()).remove(pColl,ind) ){ m_constituentsN--;return true;} return false; }
+inline bool Jet::remove()
+{ if ( (this->navigableBase()).removeAll() ){ m_constituentsN=0;return true;} return false;}
+
+///////////                                                        /////////// 
+// Public:                                                       Navigation //
+///////////                                                        ///////////
+
+inline void Jet::fillToken(INavigationToken& navToken) const 
+{ (this->navigableBase()).fillToken(navToken); }
+inline void Jet::fillToken(INavigationToken& navToken,
+			   const boost::any& par) const 
+{ (this->navigableBase()).fillToken(navToken,par); }
+
+///////////                                                        /////////// 
+// Public:                                             Access to Jet Shapes //
+///////////                                                        ///////////
+
+inline void Jet::setMoment(const mkey_t& shapeName,shape_t shape,
+			   bool createIfMissing) const
+{ this->setShape(shapeName,shape,createIfMissing); }
+
+inline Jet::shape_t Jet::getMoment(const mkey_t& shapeName,
+				   bool createIfMissing) const
+{ return this->getShape(shapeName,createIfMissing); }
+
+inline std::vector<Jet::mkey_t> Jet::getMomentKeys() const
+{ return this->getShapeKeys(); }
+
+
+inline bool Jet::checkKey(const mcat_t& cat,
+			  const mkey_t& key,
+			  size_t& aInd,
+			  bool createIfMissing) const
+{
+  // get index for data word
+  aInd = keyDesc()->getIndex(cat,key,createIfMissing);
+  return keyDesc()->isValid(aInd);
+}
+
+///////////                                                        /////////// 
+// Public:                                               Access to Tag Info //
+///////////                                                        ///////////
+
+inline const Jet::tagstore_t Jet::jetTagInfoVector(void) const
+{
+
+  //BRANCHmerge
+  tagstore_t store;
+  //
+  // the vector might has empty elements, because not necessarily all
+  //  taginfos are filled for every event. Need to return a copy
+  //  of the TagInfoStore with all zeros removed
+  if ( bool(m_tagInfoStore) )
+    for ( tagstore_t::iterator itr = m_tagInfoStore->begin();
+  	  itr != m_tagInfoStore->end(); itr++ )
+      if ( bool(*itr) )
+  	store.push_back( (*itr) );
+  return store;
+
+}
+
+inline const Jet::taginfo_t* Jet::tagInfo(const mkey_t& key) const
+{
+  size_t aInd(keyDesc()->getIndex(JetKeyConstants::TagCat,key,false));
+  return bool(m_tagInfoStore) && aInd < m_tagInfoStore->size()
+    ? (m_tagInfoStore->operator[])(aInd) : (const taginfo_t*)0;
+
+}
+
+template<typename TAGINFO>
+const TAGINFO* Jet::getTagInfo(const mkey_t& key,bool /*useLink*/) const
+{
+  return this->getObject<TAGINFO,tagstore_t>(key,m_tagInfoStore,JetKeyConstants::TagCat, false);
+}
+
+template<class TAGINFO>
+const TAGINFO* Jet::tagInfo(const mkey_t& key) const
+{
+  return this->getTagInfo<TAGINFO>(key);
+}
+
+template<class TAGINFO>
+void Jet::addInfo(const TAGINFO* tag) const
+{
+  this->setTagInfo( tag->infoType(), tag );
+}
+
+
+
+
+///////////                                                        /////////// 
+// Public:                                                     Associations //
+///////////                                                        ///////////
+
+template<typename ASSOC> const ASSOC* 
+Jet::getAssociation(const mkey_t& key, bool /*useLink*/ ) const
+{
+  return this->getObject<ASSOC,assostore_t>(key,m_assocStore,JetKeyConstants::AssoCat, false);
+}
+  
+template <class T>
+void Jet::setAssociation(const T* pAssoc,bool /*useLink*/) const
+{
+  // use check function
+  size_t aInd(size_t(-1));
+  std::string key = pAssoc->name();
+  //
+  if ( ! bool(m_assocStore) )
+    // checkKey automatically build new store !!!
+    m_assocStore = new assostore_t();
+  
+  if ( this->checkKeyStore(JetKeyConstants::AssoCat,key,m_assocStore,aInd, true) ) {
+    removeAssociation(aInd);
+    (m_assocStore->operator[])(aInd) = pAssoc;
+  }
+}
+
+inline void Jet::removeAssociation( const mkey_t& key ) const
+{
+  if ( bool(m_assocStore) ) {
+    size_t aInd;
+    if ( this->checkKeyStore(JetKeyConstants::AssoCat,key,m_assocStore,aInd, false) ) {
+      removeAssociation(aInd);
+    }
+  }
+}
+
+inline void Jet::removeAssociation (const size_t index) const
+{
+  delete (m_assocStore->operator[])(index);
+  (m_assocStore->operator[])(index) = 0;
+}
+
+/////////////////////////////////////////
+/// constituent and jet signal states ///
+/////////////////////////////////////////
+inline void Jet::setConstituentSignalState( Jet::signalstate_t s ) const
+{
+  m_constituentSigState = s;
+}
+
+/////////////////////////////////////////
+/// Compatibility with JetAnalysisEDM
+/////////////////////////////////////////
+
+// Write helper  class to allow specialization for std::vector<T>
+template <typename T>
+struct JetAnalysisEDMHelper {
+  static T get(const Jet* j, const std::string & mName){
+    return j->getMoment(mName);
+  }
+  static void set(const Jet* j, const std::string & mName, const T & v){
+    j->setMoment(mName,v);
+  }
+};
+
+template <typename T>
+struct JetAnalysisEDMHelper<std::vector<T> > {
+  static std::vector<T> get(const Jet* j, const std::string & mName){
+    std::vector<std::string> allMoms =  j->getMomentKeys() ;
+    std::vector<std::string> matchingMoms;
+
+    std::vector<T> val;
+    
+    std::string prefix = mName+"_";
+    size_t msize = prefix.size();
+    size_t nMatch=0;
+
+    //  match all moments starting by "mName_"
+    for( size_t i=0; i< allMoms.size(); i++){
+      std::string & mom = allMoms[i];
+      if(mom.compare(0,msize, prefix)==0) matchingMoms.push_back(mom);
+    }
+    // We need "mName_0", "mName_1", etc... but matchingMoms  also contains moments
+    // in the form "mName_something_0", ... etc.  So sort them
+    std::sort(matchingMoms.begin(), matchingMoms.end() );
+    val.reserve( matchingMoms.size());
+
+    for( size_t i=0; i< matchingMoms.size(); i++){
+      std::stringstream  s;s<< prefix<< i;
+      if( s.str() == matchingMoms[i]) val.push_back( j->getMoment(matchingMoms[i] ));
+      else break; //
+    }
+    return val;
+  }
+
+
+  static void set(const Jet* j, const std::string & mName, const std::vector<T> & v){    
+    for(size_t  i=0;i<v.size();i++){ 
+      std::stringstream s;
+      s << mName << "_"<< i;
+      j->setMoment(s.str(),v[i]);
+    }
+  }
+};
+
+template<typename T>
+T Jet::get(const std::string & mName) const {  return JetAnalysisEDMHelper<T>::get(this,mName); }
+
+template<typename T>
+void Jet::set(const std::string & mName, const T& v) const {   return JetAnalysisEDMHelper<T>::set(this,mName,v); }

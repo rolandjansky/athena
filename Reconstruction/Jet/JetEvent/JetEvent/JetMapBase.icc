@@ -1,0 +1,165 @@
+// -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include <algorithm>
+#include <iterator>
+
+#include <cmath>
+
+// -*- C++ -*-
+template<class P>
+typename JetMapBase<P>::data_t JetMapBase<P>::m_nullData = data_t();
+
+template<class P>
+inline 
+JetMapBase<P>::JetMapBase()  //: m_lastIndex(0)
+{
+  m_end = m_store.end();
+  m_ownPolicy = SG::OWN_ELEMENTS;
+}
+
+template<class P>
+inline
+JetMapBase<P>::JetMapBase(const JetMapBase& /*base*/)
+//  : m_lastIndex(base.m_lastIndex)
+{
+
+  m_end = m_store.end();
+  // not yet clear what we have to do here.
+
+
+  // std::copy(base.m_store.begin(),base.m_store.end(),
+  //           std::back_insert_iterator<map_t>(m_store));
+}
+
+template<class P>
+inline
+JetMapBase<P>::~JetMapBase()
+{ clear() ;}
+
+
+template<class P>
+bool JetMapBase<P>::addRecord(size_t jetIndex) const
+{
+  if (m_store.find(jetIndex) == m_end ){
+    m_store[jetIndex] =  record_ptr_t();
+    return true;
+  }
+  // the record already existed
+  return false;
+}
+
+template<class P>
+const typename JetMapBase<P>::record_t* JetMapBase<P>::getRecord(size_t jetIndex) const
+{
+  typename map_t::iterator jetpos = m_store.find(jetIndex);
+  // if record does not exist, create it
+  if ( jetpos == m_end ) return NULL;
+  return (*jetpos).second.get();
+}
+
+template<class P>
+void
+JetMapBase<P>::assignRecord(size_t jetIndex, record_t* rec) const
+{
+  record_ptr_t & rec_p = m_store[jetIndex];
+  if( rec_p.isValid() ) rec_p.destroy();
+  rec_p.set(rec);
+}
+
+template<class P>
+void
+JetMapBase<P>::removeRecord(size_t jetIndex) const
+{
+  typename map_t::iterator jetpos = m_store.find(jetIndex);
+  if ( jetpos == m_end ) return;
+  (*jetpos).second.destroy();
+  m_store.erase( jetpos ) ;
+}
+
+
+template<class P>
+void
+JetMapBase<P>::transferRecord(const JetMapBase<P>* fromMap, size_t oldIndex, size_t newIndex ) const {
+  typename map_t::iterator jetpos = fromMap->m_store.find(oldIndex);
+  if ( jetpos == fromMap->m_end ) return;  
+  if((*jetpos).second.isValid()) m_store[newIndex] = (*jetpos).second;
+  if(  m_ownPolicy == SG::OWN_ELEMENTS ) fromMap->m_store.erase(jetpos);
+}
+
+template<class P>
+void
+JetMapBase<P>::addData(size_t jetIndex,size_t keyIndex,const data_t& data) 
+  const
+{
+
+  // typename map_t::iterator jetpos = m_store.find(jetIndex);
+  // // if record does not exist, create it
+  // if ( jetpos == m_end ) jetpos = m_store.insert(m_end, std::pair<key_t, record_t*>(jetIndex, new record_t()) );
+
+  record_ptr_t & rec_ptr = m_store[jetIndex];
+  if( ! rec_ptr.isValid() ) rec_ptr.set( new record_t() ) ;
+  record_t & record = *rec_ptr;
+  if ( keyIndex >= record.size() ) 
+    record.resize(keyIndex+1,data_t());
+  record[keyIndex] = data;
+
+}
+
+template<class P>
+bool 
+JetMapBase<P>::retrieveData(size_t jetIndex,size_t keyIndex,data_t& data) const
+{
+  // check jet and moment index validity 
+  typename map_t::iterator jetpos = m_store.find(jetIndex);
+  if ( jetpos == m_end ) return false;
+  record_ptr_t & record = (*jetpos).second;
+  if( ! record.isValid() ) return false;// this should never happen
+  if ( keyIndex >= record->size() ) return false;
+
+  data= record->operator[](keyIndex) ;
+  return true;
+}
+
+template<class P>
+const typename JetMapBase<P>::data_t& 
+JetMapBase<P>::accessData(size_t jetIndex,size_t keyIndex) const
+{
+  // check jet and moment index validity 
+  typename map_t::iterator jetpos = m_store.find(jetIndex);
+  if ( jetpos == m_end ) return m_nullData;
+  record_ptr_t & record = (*jetpos).second;
+  if( ! record.isValid() ) return m_nullData; // this should never happen
+  if ( keyIndex >= record->size() ) return m_nullData;
+  
+  return record->operator[](keyIndex) ;
+}
+
+template<class P>
+size_t JetMapBase<P>::numberOfMoments(size_t jetIndex) const
+{
+  typename map_t::iterator jetpos = m_store.find(jetIndex);
+  if ( jetpos == m_end ) return 0;
+  if((*jetpos).second.isValid()) return (*jetpos).second->size() ;
+  return 0;
+}
+
+template<class P>
+inline typename JetMapBase<P>::map_t& JetMapBase<P>::map() { return m_store; }
+
+template<class P>
+inline const typename JetMapBase<P>::map_t& JetMapBase<P>::map() const 
+{ return m_store; }
+
+template<class P>
+void JetMapBase<P>::clear(){
+  if(  m_ownPolicy == SG::OWN_ELEMENTS ) {
+    typename map_t::iterator it = m_store.begin();  
+    for(;it != m_end; it++){  (*it).second.destroy() ; }
+    m_store.clear();
+  }
+}
