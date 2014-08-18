@@ -1,0 +1,60 @@
+package MCTruthClassifier
+
+author Oleg Fedin  <Oleg.Fedin@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*     
+# use StoreGate      StoreGate-*          Control
+use AthenaBaseComps  AthenaBaseComps-*    Control
+use GaudiInterface   GaudiInterface-*     External
+use HepPDT           v*                   LCG_Interfaces
+
+use xAODTruth        xAODTruth-*          Event/xAOD
+use xAODEgamma       xAODEgamma-*         Event/xAOD
+use xAODMuon         xAODMuon-*           Event/xAOD
+use xAODJet          xAODJet-*            Event/xAOD
+
+private
+use xAODTracking     xAODTracking-*       Event/xAOD
+use xAODCaloEvent    xAODCaloEvent-*      Event/xAOD
+use GeneratorObjects GeneratorObjects-*   Generators
+use AtlasHepMC       AtlasHepMC-*         External
+use RecoToolInterfaces    RecoToolInterfaces-*   Reconstruction/RecoTools
+use CaloDetDescr          CaloDetDescr-*         Calorimeter
+use TrkEventPrimitives    TrkEventPrimitives-*   Tracking/TrkEvent
+
+apply_pattern declare_python_modules files="*.py"
+
+# pattern dual_use_library must be declared public
+# so that clients can link against its public library
+public
+apply_pattern dual_use_library files=*.cxx
+end_public
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep
+# clients of EventInfo from seeing excess dependencies
+private
+use AtlasReflex      AtlasReflex-*        External -no_auto_imports
+	
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+	
+# Must temporarily omit emission of methods - fails
+apply_pattern lcgdict dict=MCTruthClassifier selectionfile=selection.xml headerfiles="../MCTruthClassifier/MCTruthClassifierDict.h"
+	
+
+# Split the enums off into a separate dictionary,
+# so that we can get them from python without having to load all the EDM
+# classes.
+
+apply_pattern lcgdict dict=MCTruthClassifierEnums \
+selectionfile=selectionEnums.xml \
+headerfiles="../MCTruthClassifier/MCTruthClassifierEnumsDict.h"
+
+
+#remove use_linkopts
+macro MCTruthClassifierEnumsDict_shlibflags "$(componentshr_linkopts) $(Reflex_linkopts) $(egammaInterfaces_extra_shlibflags)"
