@@ -1,0 +1,23 @@
+package xAODEventInfo
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+# Base package(s):
+use AtlasPolicy   AtlasPolicy-*
+use AthContainers AthContainers-* Control
+use AthLinks      AthLinks-*      Control
+use SGTools       SGTools-*       Control
+
+# EDM package(s):
+use xAODCore      xAODCore-*      Event/xAOD
+
+library xAODEventInfo ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+use AtlasROOT     AtlasROOT-*     External
+
+apply_pattern lcgdict dict=xAODEventInfo selectionfile=selection.xml \
+                      headerfiles="../xAODEventInfo/xAODEventInfoDict.h"
