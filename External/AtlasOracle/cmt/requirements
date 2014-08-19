@@ -1,0 +1,24 @@
+package AtlasOracle
+
+author Alexandre Vaniachine <vaniachine@anl.gov>
+author RD Schaffer <R.D.Schaffer@cern.ch>
+
+use ExternalPolicy ExternalPolicy-00-* External
+use oracle v* LCG_Interfaces
+#use cx_oracle v* LCG_Interfaces
+use pytools * LCG_Interfaces
+
+# instruct Oracle not to change floating point precision
+# this should eventually go to LCGCMT rather than ATLAS package
+set ORA_FPU_PRECISION 'EXTENDED'
+
+path_remove DYLD_LIBRARY_PATH "" host-darwin "/oracle/"
+path_append DYLD_LIBRARY_PATH "" host-darwin "$(oracle_home)/lib"
+
+# This was added for releases that no longer include
+# DBRelease in the distribution kit (releases of 19 series)
+# and should be dropped when/if this part is again exported via
+# oracle v* LCG_Interfaces from LCGCMT project
+macro AtlasOracle_native_version "$(oracle_native_version)"
+macro AtlasOracle_export_paths "" ATLAS "$(TNS_ADMIN)"
+macro AtlasOracle_follow_symlinks yes
