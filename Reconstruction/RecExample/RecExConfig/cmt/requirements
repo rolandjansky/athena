@@ -1,0 +1,30 @@
+package RecExConfig
+ 
+author  David Rousseau <david.rousseau@cern.ch> 
+
+branches run
+
+# put here the uses of the packages which need to be reached by cmt broadcast
+# Packages to be reached by cmt broadcast should be used either directly
+#
+# (the package should appear when typing cmt show uses) 
+
+
+
+use AtlasPolicy AtlasPolicy-*
+
+#use AtlasAnalysisRunTime AtlasAnalysisRunTime-*
+
+
+#put jobOption in InstallArea
+apply_pattern declare_joboptions files="*.py tests/*.py"
+
+#scripts
+apply_pattern declare_scripts files="RecExConfig_links.sh"
+
+apply_pattern declare_python_modules files="*.py tests/*.py"
+
+
+
+
+ 
