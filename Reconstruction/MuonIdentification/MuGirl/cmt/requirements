@@ -1,0 +1,58 @@
+package MuGirl
+
+author Shlomit Tarem <Shlomit.Tarem@cern.ch>
+author Zvi Tarem <Zvi.Tarem@cern.ch>
+author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+use  TrkExUtils                 TrkExUtils-*                    Tracking/TrkExtrapolation
+use  MuonCombinedEvent          MuonCombinedEvent-*             Reconstruction/MuonIdentification
+
+private
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  DataModel                  DataModel-*                     Control
+
+use  CaloIdentifier             CaloIdentifier-*                Calorimeter
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+
+use  EventInfo                  EventInfo-*                     Event
+
+use  RegionSelector             RegionSelector-*                DetectorDescription
+
+use  Particle                   Particle-*                      Reconstruction
+use  ICaloTrkMuIdTools          ICaloTrkMuIdTools-*             Reconstruction/MuonIdentification
+use  MuGirlInterfaces           MuGirlInterfaces-*              Reconstruction/MuonIdentification
+use  muonEvent                  muonEvent-*                     Reconstruction/MuonIdentification
+use  RecoToolInterfaces         RecoToolInterfaces-*            Reconstruction/RecoTools
+
+use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
+use  MuonChamberT0s             MuonChamberT0s-*                MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
+use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
+use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonHoughPatternTools      MuonHoughPatternTools-*         MuonSpectrometer/MuonReconstruction/MuonPatternFinders/MuonPatternFinderTools
+use  MuonLayerHough             MuonLayerHough-*                MuonSpectrometer/MuonReconstruction/MuonRecUtils
+
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkCompetingRIOsOnTrack    TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
+use  TrkRoad                    TrkRoad-*                       Tracking/TrkEvent
+use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation
+
+use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+
+use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
+
+
+public
+
+library MuGirl *.cxx -s=components *.cxx
+
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+
