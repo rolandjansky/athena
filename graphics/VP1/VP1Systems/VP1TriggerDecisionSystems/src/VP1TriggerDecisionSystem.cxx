@@ -12,7 +12,6 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/Lvl1Result.h"
 
 class VP1TriggerDecisionSystem::Clockwork
 {
@@ -28,7 +27,7 @@ public:
 };
 
 VP1TriggerDecisionSystem::Clockwork::Clockwork()
-  : m_trigDec("TrigDec::TrigDecisionTool",0), theclass{}
+  : m_trigDec("TrigDec::TrigDecisionTool",0)
 {
 }
 
@@ -151,10 +150,10 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
   if(key.find("L1",0)!= std::string::npos) {
     os << "	LV1: " << key << std::endl;
     const LVL1CTP::Lvl1Item*  l1iterm = m_trigDec->ExperimentalAndExpertMethods()->getItemDetails(key);
-    if(l1iterm) {
+    if(!l1iterm) {
       os << "	LV1 " << l1iterm->name() << " isPassed: " 	<< l1iterm->isPassed() << std::endl;
       os << "	LV1 " << l1iterm->name() << " isPrescaled: " 	<< l1iterm->isPrescaled()
-	        << " : "  <<  l1iterm->prescaleFactor()   << std::endl;
+	 << " : "  <<  l1iterm->prescaleFactor()   << std::endl;
       os << "	LV1 " << l1iterm->name() << " isVeto: " 		<< l1iterm->isVeto() << std::endl;
     }
   }
