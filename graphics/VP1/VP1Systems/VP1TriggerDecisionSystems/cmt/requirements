@@ -1,0 +1,18 @@
+package VP1TriggerDecisionSystems
+
+author Weiyi Zhang <wyizhang@cern.ch>
+manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use VP1Base VP1Base-*    graphics/VP1
+private
+#use StoreGate            StoreGate-*            Control
+#use AthenaKernel         AthenaKernel-*         Control
+#use GaudiInterface       GaudiInterface-*       External
+use TrigSteering     	 TrigSteering-*         Trigger/TrigSteer
+use TrigDecision         TrigDecision-*         Trigger/TrigEvent
+use TrigDecisionTool     TrigDecisionTool-*      Trigger/TrigAnalysis
+use TrigSteeringEvent    TrigSteeringEvent-*    Trigger/TrigEvent
+public
+
+apply_pattern qt4based_library
