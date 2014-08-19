@@ -1,0 +1,276 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: EventInfoCnvTool.cxx 612505 2014-08-19 11:59:55Z krasznaa $
+
+// Gaudi/Athena include(s):
+#include "AthenaKernel/errorcheck.h"
+
+// EDM include(s):
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
+#include "EventInfo/TriggerInfo.h"
+#include "EventInfo/PileUpEventInfo.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfoContainer.h"
+
+// Local include(s):
+#include "EventInfoCnvTool.h"
+
+namespace xAODMaker {
+
+   /// Hard-coded location of the beam position information
+   static const std::string INDET_BEAMPOS = "/Indet/Beampos";
+
+   EventInfoCnvTool::EventInfoCnvTool( const std::string& type,
+                                       const std::string& name,
+                                       const IInterface* parent )
+      : AthAlgTool( type, name, parent ),
+        m_beamCondSvc( "BeamCondSvc", name ),
+        m_beamCondSvcAvailable( false ) {
+
+      // Declare the interface(s) provided by the tool:
+      declareInterface< IEventInfoCnvTool >( this );
+
+      // Declare the tool's properties:
+      declareProperty( "BeamCondSvc", m_beamCondSvc );
+   }
+
+   StatusCode EventInfoCnvTool::initialize() {
+
+      // Greet the user:
+      ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+
+      // Check if the beam position will be available or not:
+      if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {
+         m_beamCondSvcAvailable = true;
+      } else {
+         ATH_MSG_WARNING( "Beam conditions service not available" );
+         ATH_MSG_WARNING( "Will not fill beam spot information into "
+                          "xAOD::EventInfo" );
+         m_beamCondSvcAvailable = false;
+      }
+
+      // Try to access the beam conditions service:
+      if( m_beamCondSvcAvailable ) {
+         CHECK( m_beamCondSvc.retrieve() );
+      }
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   /**
+    * This is the important function of the tool. It takes the EventInfo object
+    * available in Athena, and fills an xAOD::EventInfo object with its contents.
+    *
+    * @param aod The AOD's EventInfo object
+    * @param xaod The xAOD::EventInfo object to fill
+    * @param pileUpInfo <code>true</code> for pile-up EventInfo objects
+    * @returns <code>StatusCode::SUCCESS</code> if all went fine,
+    *          something else if not
+    */
+   StatusCode EventInfoCnvTool::convert( const EventInfo* aod,
+                                         xAOD::EventInfo* xaod,
+                                         bool pileUpInfo ) {
+
+      if( ! aod ) {
+         ATH_MSG_WARNING( "Null pointer received for input!" );
+         return StatusCode::SUCCESS;
+      }
+
+      // Copy the basic properties into the xAOD object:
+      if( aod->event_ID() ) {
+         xaod->setRunNumber( aod->event_ID()->run_number() );
+         xaod->setEventNumber( aod->event_ID()->event_number() );
+         xaod->setLumiBlock( aod->event_ID()->lumi_block() );
+         xaod->setTimeStamp( aod->event_ID()->time_stamp() );
+         xaod->setTimeStampNSOffset( aod->event_ID()->time_stamp_ns_offset() );
+         xaod->setBCID( aod->event_ID()->bunch_crossing_id() );
+         xaod->setDetectorMask( aod->event_ID()->detector_mask0(),
+                                aod->event_ID()->detector_mask1() );
+      }
+
+      // Copy the event type properties:
+      if( aod->event_type() ) {
+         EventType::NameTagPairVec detDescrTags;
+         aod->event_type()->get_detdescr_tags( detDescrTags );
+         xaod->setDetDescrTags( detDescrTags );
+         uint32_t eventTypeBitmask = 0;
+         if( aod->event_type()->test( EventType::IS_SIMULATION ) ) {
+            eventTypeBitmask |= xAOD::EventInfo::IS_SIMULATION;
+         }
+         if( aod->event_type()->test( EventType::IS_TESTBEAM ) ) {
+            eventTypeBitmask |= xAOD::EventInfo::IS_TESTBEAM;
+         }
+         if( aod->event_type()->test( EventType::IS_CALIBRATION ) ) {
+            eventTypeBitmask |= xAOD::EventInfo::IS_CALIBRATION;
+         }
+         xaod->setEventTypeBitmask( eventTypeBitmask );
+         // Only add MC information for simulation files:
+         if( xaod->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+            xaod->setMCChannelNumber( aod->event_type()->mc_channel_number() );
+            xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
+            std::vector< float >
+               eventWeights( aod->event_type()->n_mc_event_weights(), 0.0 );
+            for( unsigned int i = 0; i < aod->event_type()->n_mc_event_weights();
+                 ++i ) {
+               eventWeights[ i ] = aod->event_type()->mc_event_weight( i );
+            }
+            xaod->setMCEventWeights( eventWeights );
+         }
+      }
+
+      // Copy the trigger properties into the xAOD object:
+      if( aod->trigger_info() && ( ! pileUpInfo ) ) {
+         xaod->setStatusElement( aod->trigger_info()->statusElement() );
+         xaod->setExtendedLevel1ID( aod->trigger_info()->extendedLevel1ID() );
+         xaod->setLevel1TriggerType( aod->trigger_info()->level1TriggerType() );
+         std::vector< xAOD::EventInfo::StreamTag > streamTags;
+         std::vector< TriggerInfo::StreamTag >::const_iterator st_itr =
+            aod->trigger_info()->streamTags().begin();
+         std::vector< TriggerInfo::StreamTag >::const_iterator st_end =
+            aod->trigger_info()->streamTags().end();
+         for( ; st_itr != st_end; ++st_itr ) {
+            streamTags.push_back(
+                xAOD::EventInfo::StreamTag( st_itr->name(), st_itr->type(),
+                                            st_itr->obeysLumiblock(),
+                                            st_itr->robs(), st_itr->dets() ) );
+         }
+         xaod->setStreamTags( streamTags );
+      }
+ 
+      // Copy the pileup information:
+      if( ! pileUpInfo ) {
+         xaod->setActualInteractionsPerCrossing(
+            aod->actualInteractionsPerCrossing() );
+         xaod->setAverageInteractionsPerCrossing(
+            aod->averageInteractionsPerCrossing() );
+      }
+
+      // Construct the maps for the flag copying:
+      static std::map< xAOD::EventInfo::EventFlagSubDet,
+                       EventInfo::EventFlagSubDet > subDetMap;
+      if( ! subDetMap.size() ) {
+         subDetMap[ xAOD::EventInfo::Pixel ]      = EventInfo::Pixel;
+         subDetMap[ xAOD::EventInfo::SCT ]        = EventInfo::SCT;
+         subDetMap[ xAOD::EventInfo::TRT ]        = EventInfo::TRT;
+         subDetMap[ xAOD::EventInfo::LAr ]        = EventInfo::LAr;
+         subDetMap[ xAOD::EventInfo::Tile ]       = EventInfo::Tile;
+         subDetMap[ xAOD::EventInfo::Muon ]       = EventInfo::Muon;
+         subDetMap[ xAOD::EventInfo::ForwardDet ] = EventInfo::ForwardDet;
+         subDetMap[ xAOD::EventInfo::Core ]       = EventInfo::Core;
+         subDetMap[ xAOD::EventInfo::Background ] = EventInfo::Background;
+         subDetMap[ xAOD::EventInfo::Lumi ]       = EventInfo::Lumi;
+      }
+      static std::map< EventInfo::EventFlagErrorState,
+                       xAOD::EventInfo::EventFlagErrorState > errorStateMap;
+      if( ! errorStateMap.size() ) {
+         errorStateMap[ EventInfo::NotSet ]  = xAOD::EventInfo::NotSet;
+         errorStateMap[ EventInfo::Warning ] = xAOD::EventInfo::Warning;
+         errorStateMap[ EventInfo::Error ]   = xAOD::EventInfo::Error;
+      }
+
+      // Copy the sub-detector flags:
+      std::map< xAOD::EventInfo::EventFlagSubDet,
+                EventInfo::EventFlagSubDet >::const_iterator sd_itr =
+         subDetMap.begin();
+      std::map< xAOD::EventInfo::EventFlagSubDet,
+                EventInfo::EventFlagSubDet >::const_iterator sd_end =
+         subDetMap.end();
+      for( ; sd_itr != sd_end; ++sd_itr ) {
+         // Set the event flags for this sub-detector:
+         xaod->setEventFlags( sd_itr->first, aod->eventFlags( sd_itr->second ) );
+
+         // Look up the error state of this sub-detector:
+         std::map< EventInfo::EventFlagErrorState,
+                   xAOD::EventInfo::EventFlagErrorState >::const_iterator state =
+            errorStateMap.find( aod->errorState( sd_itr->second ) );
+         if( state == errorStateMap.end() ) {
+            REPORT_MESSAGE( MSG::FATAL )
+               << "Unknown error state found for sub-detector "
+               << sd_itr->second << ": " << aod->errorState( sd_itr->second );
+            return StatusCode::FAILURE;
+         }
+
+         // Set the error state for the sub-detector:
+         xaod->setErrorState( sd_itr->first, state->second );
+      }
+
+      // Check if it is a PileUpEventInfo object:
+      const PileUpEventInfo* puei =
+         dynamic_cast< const PileUpEventInfo* >( aod );
+      if( puei ) {
+         // Construct the map for the SubEvent translation:
+         static std::map< PileUpEventInfo::SubEvent::pileup_type,
+                          xAOD::EventInfo::PileUpType > subTypeMap;
+         if( ! subTypeMap.size() ) {
+            subTypeMap[ PileUpTimeEventIndex::Unknown ] =
+               xAOD::EventInfo::Unknown;
+            subTypeMap[ PileUpTimeEventIndex::Signal ] =
+               xAOD::EventInfo::Signal;
+            subTypeMap[ PileUpTimeEventIndex::MinimumBias ] =
+               xAOD::EventInfo::MinimumBias;
+            subTypeMap[ PileUpTimeEventIndex::Cavern ] =
+               xAOD::EventInfo::Cavern;
+            subTypeMap[ PileUpTimeEventIndex::HaloGas ] =
+               xAOD::EventInfo::HaloGas;
+            subTypeMap[ PileUpTimeEventIndex::ZeroBias ] =
+               xAOD::EventInfo::ZeroBias;
+         }
+
+         // Create the sub-event objects to fill into the output object:
+         std::vector< xAOD::EventInfo::SubEvent > subEvents;
+         PileUpEventInfo::SubEvent::const_iterator itr = puei->beginSubEvt();
+         PileUpEventInfo::SubEvent::const_iterator end = puei->endSubEvt();
+         for( ; itr != end; ++itr ) {
+            // Look up the sub-event type:
+            std::map< PileUpEventInfo::SubEvent::pileup_type,
+               xAOD::EventInfo::PileUpType >::const_iterator type_itr =
+               subTypeMap.find( itr->type() );
+            if( type_itr == subTypeMap.end() ) {
+               ATH_MSG_WARNING( "Unknown sub-event type ("
+                                << itr->type() << ") encountered" );
+            }
+            const xAOD::EventInfo::PileUpType type =
+               ( type_itr != subTypeMap.end() ? type_itr->second :
+                 xAOD::EventInfo::Unknown );
+
+            // Construct the link to the pile-up EventInfo object:
+            ElementLink< xAOD::EventInfoContainer > link;
+            link.resetWithKeyAndIndex( "PileUpEventInfo", itr->index() );
+
+            // Add the new object
+            subEvents.push_back( xAOD::EventInfo::SubEvent( itr->time(),
+                                                            type, link ) );
+         }
+
+         // Add the vector to the EventInfo:
+         xaod->setSubEvents( subEvents );
+      }
+
+      // Fill the beam spot variables if the necessary service is available:
+      if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
+         xaod->setBeamPos( m_beamCondSvc->beamPos()[ Amg::x ],
+                           m_beamCondSvc->beamPos()[ Amg::y ],
+                           m_beamCondSvc->beamPos()[ Amg::z ] );
+         xaod->setBeamPosSigma( m_beamCondSvc->beamSigma( 0 ),
+                                m_beamCondSvc->beamSigma( 1 ),
+                                m_beamCondSvc->beamSigma( 2 ) );
+         xaod->setBeamPosSigmaXY( m_beamCondSvc->beamSigmaXY() );
+         xaod->setBeamTiltXZ( m_beamCondSvc->beamTilt( 0 ) );
+         xaod->setBeamTiltYZ( m_beamCondSvc->beamTilt( 1 ) );
+         xaod->setBeamStatus( m_beamCondSvc->beamStatus() );
+      }
+
+      // Finish with some printout:
+      ATH_MSG_VERBOSE( "Finished converting: " << *xaod );
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+} // namespace xAODMaker
