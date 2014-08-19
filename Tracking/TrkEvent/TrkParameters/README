@@ -1,0 +1,9 @@
+This is the *prototype* of a suggested new common TrackParameters class.
+
+This is code in development, and is changing rapidly, but is now reaching some level of maturity. Please let me know if there is anything missing, or if it is unclear. I 
+strongly suggest that you use the doxygen generated documentation, available here:
+http://atlas.web.cern.ch/Atlas/GROUPS/INNER_DETECTOR/SOFTWARE/OnlineDoc.html
+
+(follow the "Tracking" link in the doxygen section, top right of the screen)
+
+Ed Moyse (edward.moyse@cern.ch)
