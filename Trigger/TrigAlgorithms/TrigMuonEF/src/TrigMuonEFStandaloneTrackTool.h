@@ -1,0 +1,362 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGMUONEF_TRIGMUONEFSTANDALONETRACKTOOL_H
+#define TRIGMUONEF_TRIGMUONEFSTANDALONETRACKTOOL_H
+
+#include <vector>
+
+#include "SegmentCache.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "TrkTrack/TrackCollection.h"
+
+#include "TrigMuonToolInterfaces/ITrigMuonStandaloneTrackTool.h"
+#include "TrigMuonToolInterfaces/TrigMuonEFMonVars.h"
+#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
+#include "MuonRecToolInterfaces/IMuonCombiTrackMaker.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonSegment/MuonSegmentCombinationCollection.h"
+#include "MuonPattern/MuonPatternCombinationCollection.h"
+#include "MuonSegment/MuonSegmentCombination.h"
+#include "TrkSegment/SegmentCollection.h"
+#include "TrigInterfaces/IMonitoredAlgo.h"
+#include "MuonPrepRawData/MdtPrepDataCollection.h"
+#include "MuonPrepRawData/CscPrepDataCollection.h"
+#include "MuonPrepRawData/RpcPrepDataCollection.h"
+#include "MuonPrepRawData/TgcPrepDataCollection.h"
+#include "IRegionSelector/RegSelEnums.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include <fstream>
+
+#define DEBUG_ROI_VS_FULL false
+
+/**
+   @file TrigMuonEFStandaloneTrackTool.h
+   @class TrigMuonEFStandaloneTrackTool
+
+   @brief Tool to find segments for TrigMuonEF
+
+   @author Robert Harrington <roberth@cern.ch>
+   @author Martin Woudstra <martin.woudstra@cern.ch>
+   @date 10/21/2011
+ */
+
+namespace HLT {
+  class TriggerElement;
+  class Algo;
+}
+
+namespace Muon {
+  class IMooSegmentCombinationFinder;
+  class IMuonPatternSegmentAssociationTool;
+  class IMuonRdoToPrepDataTool;
+  class IMuonTrackFinder;
+  class MboyMooSegmentCombinationFinder;
+}
+namespace MuonCombined {
+  class IMuonCandidateTool;
+}
+
+namespace Rec {
+  class IMuidBackTracker;
+}
+
+namespace Trk {
+  class ITrackSummaryTool;
+  class ITrackParticleCreatorTool;
+}
+
+class ICscClusterBuilder;  
+class TrigMuonEFInfoContainer;
+class TrigTimer;
+class StoreGateSvc;
+class ActiveStoreSvc;
+class IRegSelSvc;
+class IIncidentSvc;
+
+class MdtIdHelper;
+class CscIdHelper;
+class RpcIdHelper;
+class TgcIdHelper;
+
+class IRoiDescriptor;
+
+class TrigMuonEFStandaloneTrackTool : public AthAlgTool, 
+  public virtual ITrigMuonStandaloneTrackTool, 
+  public virtual IIncidentListener
+{
+  
+ public:
+  
+  TrigMuonEFStandaloneTrackTool(const std::string& type,
+			      const std::string& name,
+			      const IInterface* parent);
+  
+  virtual ~TrigMuonEFStandaloneTrackTool();
+  
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
+  
+  /** Run segment finding only */
+  virtual HLT::ErrorCode getSegments(const IRoiDescriptor* muonRoI,
+				     TrigMuonEFMonVars& monvars,
+				     std::vector<TrigTimer*>& timers);
+
+  /** Run segment finding and spectrometer track building */
+  virtual HLT::ErrorCode getSpectrometerTracks(const IRoiDescriptor* muonRoI,
+					       TrigMuonEFMonVars& monVars,
+					       std::vector<TrigTimer*>& timers);
+
+  /** Run segment finding, spectrometer track building and extrapolation */
+  virtual HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
+					       MuonCandidateCollection& candidateCollection,
+					       TrigMuonEFMonVars& monvars,
+					       std::vector<TrigTimer*>& timers);
+  
+
+  /** return last created MuonSegmentCombinationCollection. Caller is responsible for deletion of object.
+      Call this function if you want to attach the object to the TriggerElement */
+  virtual const MuonSegmentCombinationCollection* segmentCombisToAttach();
+
+  /** return last created MuonPatternCombinationCollection. Caller is responsible for deletion of object.
+      Call this function if you want to attach the object to the TriggerElement */
+  virtual const MuonPatternCombinationCollection* patternCombisToAttach();
+
+  /** return last created Trk::SegmentCollection. Caller is responsible for deletion of object.
+      Call this function if you want to attach the object to the TriggerElement */
+  virtual const Trk::SegmentCollection* segmentsToAttach();
+
+  /** return last created TrackCollection with muon spectrometer tracks. Caller is responsible for deletion of object.
+      Call this function if you want to attach the object to the TriggerElement */
+  virtual const TrackCollection* spectrometerTracksToAttach();
+
+  /** return last created TrackCollection with extrapolated tracks. Caller is responsible for deletion of object.
+      Call this function if you want to attach the object to the TriggerElement */
+  virtual const TrackCollection* extrapolatedTracksToAttach();
+
+  /** return last created TrackParticleContainer with extrapolated tracks. Caller is responsible for deletion of object.
+      Call this function if you want to attach the object to the TriggerElement */
+  virtual const xAOD::TrackParticleContainer* trackParticleContainerToAttach();
+  virtual const xAOD::TrackParticleAuxContainer* trackParticleAuxContainerToAttach();
+
+  /** return last created MuonSegmentCombinationCollection. Object will be deleted by tool at the end of the event.
+      NB: You can not attach this object to the TriggerElement */
+  virtual const MuonSegmentCombinationCollection* segmentCombis();
+
+  /** return last created MuonPatternCombinationCollection. Object will be deleted by tool at the end of the event.
+      NB: You can not attach this object to the TriggerElement */
+  virtual const MuonPatternCombinationCollection* patternCombis();
+
+  /** return last created Trk::SegmentCollection. Object will be deleted by tool at the end of the event.
+      NB: You can not attach this object to the TriggerElement */
+  virtual const Trk::SegmentCollection* segments();
+
+  /** return last created TrackCollection with muon spectrometer tracks. Object will be deleted by tool at the end of the event.
+      NB: You can not attach this object to the TriggerElement */
+  virtual const TrackCollection* spectrometerTracks();
+
+  /** return last created TrackCollection with extrapolated tracks. Object will be deleted by tool at the end of the event.
+      NB: You can not attach this object to the TriggerElement */
+  virtual const TrackCollection* extrapolatedTracks();
+
+  int segmentMonitoring(const std::vector<const Muon::MuonSegment*>& segmentVector,
+			TrigMuonEFSegmentMonVars& monVars);
+		         
+  int segmentMonitoring(const MuonSegmentCombinationCollection* segmentCombiColl,
+			TrigMuonEFSegmentMonVars& monVars);
+  
+  virtual void handle(const Incident &inc);
+
+  virtual void recordSegments();
+  virtual void recordPatterns();
+  virtual void recordSpectrometerTracks();
+
+  virtual void declareSegmentMonitoringVariables     (HLT::Algo* fexAlgo, TrigMuonEFMonVars& monVars);
+  virtual void declareSpectrometerMonitoringVariables(HLT::Algo* fexAlgo, TrigMuonEFMonVars& monVars);
+  virtual void declareExtrapolatedMonitoringVariables(HLT::Algo* fexAlgo, TrigMuonEFMonVars& monVars);
+
+  virtual void setSegmentTimers     (HLT::Algo* fexAlgo, std::vector<TrigTimer*>& timers);
+  virtual void setSpectrometerTimers(HLT::Algo* fexAlgo, std::vector<TrigTimer*>& timers);
+  virtual void setExtrapolatedTimers(HLT::Algo* fexAlgo, std::vector<TrigTimer*>& timers);
+  
+  virtual const std::vector<uint32_t>& getMdtRobList( const IRoiDescriptor* muonRoI);
+  virtual const std::vector<uint32_t>& getRpcRobList( const IRoiDescriptor* muonRoI);
+  virtual const std::vector<uint32_t>& getTgcRobList( const IRoiDescriptor* muonRoI);
+  virtual const std::vector<uint32_t>& getCscRobList( const IRoiDescriptor* muonRoI);
+  virtual void clearRoiCache();
+  
+ private:
+
+  void cleanSegmentCollections();
+
+
+  /** Run segment finding only */
+  HLT::ErrorCode getSegments(const IRoiDescriptor* muonRoI,
+			     SegmentCache*& cache,
+			     TrigMuonEFMonVars& monvars,
+			     std::vector<TrigTimer*>& timers);
+  
+  /** Run segment finding and spectrometer track building */
+  HLT::ErrorCode getSpectrometerTracks(const IRoiDescriptor* muonRoI,
+				       SegmentCache*& cache,
+				       TrigMuonEFMonVars& monVars,
+				       std::vector<TrigTimer*>& timers);
+
+  /** Run segment finding, spectrometer track building and extrapolation */
+  HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
+				       MuonCandidateCollection& candidateCollection,
+				       SegmentCache*& cache,
+				       TrigMuonEFMonVars& monvars,
+				       std::vector<TrigTimer*>& timers);
+  
+
+  /** Find segments in input ROI */
+  HLT::ErrorCode findSegments(const IRoiDescriptor* muonRoI,
+			      SegmentCache*& cache,
+			      TrigMuonEFSegmentMonVars& monvars,
+			      std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
+
+  /** Build tracks out of input segments */
+  HLT::ErrorCode buildTracks(const MuonSegmentCombinationCollection* segments,
+			     const Trk::SegmentCollection* segment_collection,
+			     SegmentCache* cache,
+			     TrigMuonEFMSMonVars& monVars,
+			     std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
+
+  /** Extrapolate input track to IP */
+  HLT::ErrorCode extrapolate(const xAOD::TrackParticleContainer* spectrometerTrackParticles,
+			     MuonCandidateCollection& candidateCollection,			     
+			     SegmentCache* cache,
+			     TrigMuonEFSAMonVars& monvars,
+			     std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
+
+#if DEBUG_ROI_VS_FULL
+  void sanity_check(const std::vector<IdentifierHash>& input_hash_ids, const std::vector<IdentifierHash>& hash_ids_withData,const std::string& technology, std::ostream& outfile);
+#endif
+  
+  void unpackTimers( std::vector<TrigTimer*>& timers, unsigned int firstIndex,
+		     TrigTimer*& dataPrepTime,  TrigTimer*& algTime, TrigTimer*& dataOutputTime );
+
+  // Region Selector
+  ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+
+  // Pointers to sub-algoritms
+  ToolHandle<Muon::IMooSegmentCombinationFinder>       m_segmentsFinderTool; //<! pointer to the segment finder
+  ToolHandle<Muon::IMuonPatternSegmentAssociationTool> m_assocTool;          //<! pointer to association tool
+  ToolHandle<Muon::IMuonTrackFinder>                   m_trackBuilderTool;   //<! pointer to the track finder in the 3rd chain implementation
+
+  ToolHandle<Trk::ITrackSummaryTool >    m_trackSummaryTool;
+
+  // handles to the RoI driven data access
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
+  ToolHandle<ICscClusterBuilder>           m_cscClusterProvider;
+
+  // Cache the ActiveStoreSvc ptr
+  ActiveStoreSvc* p_ActiveStore;
+
+  // Muon Id Helpers
+  const CscIdHelper* m_cscIdHelper;
+  const MdtIdHelper* m_mdtIdHelper;
+  const RpcIdHelper* m_rpcIdHelper;
+  const TgcIdHelper* m_tgcIdHelper;
+
+  //Cache Rob Lists
+  std::vector<uint32_t> m_MdtRobList;
+  std::vector<uint32_t> m_RpcRobList;
+  std::vector<uint32_t> m_TgcRobList;
+  std::vector<uint32_t> m_CscRobList;
+
+  bool m_HasMdtRobList;
+  bool m_HasRpcRobList;
+  bool m_HasTgcRobList;
+  bool m_HasCscRobList;
+
+  // true before first event done (used to initialize in first event)
+  bool m_firstEvent;
+
+  // job-opt properties
+
+  // if true do caching
+  bool m_doCache;
+  
+  bool m_useCscData;
+  bool m_useRpcData;
+  bool m_useTgcData;
+  bool m_useTGCInPriorNextBC;
+  unsigned int m_useMdtData;
+
+  bool   m_useRoIDrivenDataAccess;
+  bool   m_RobBasedRoiDecoding;
+  //  timeout awareness
+  bool m_doTimeOutChecks;
+
+  // timeout guard (checks on number of hits)
+  bool m_doTimeOutGuard;
+
+  // conditions to prevent events with excessive processing times
+  int m_maxCscHits;
+  int m_maxMdtHits;
+  int m_maxRpcHits;
+  int m_maxTgcHits;
+
+  //Map to cache
+  std::map<std::vector<std::vector<IdentifierHash> >, SegmentCache*> m_SFCacheSCMap;
+  
+  // list of IdentifierHash for PRD in RoI
+  std::vector<std::vector<IdentifierHash> > m_hashlist;
+
+  // features written to TriggerElement
+  TrigMuonEFInfoContainer*                m_myMuonEFInfoCont;
+  const MuonSegmentCombinationCollection* m_segmentCombiColl;
+  const MuonPatternCombinationCollection* m_patternCombiColl;
+  const Trk::SegmentCollection*           m_segments;
+  const TrackCollection*                  m_spectrometerTracks;
+  TrackCollection*                        m_extrapolatedTracks;
+  xAOD::TrackParticleContainer*           m_spectrometerTrackParticles;
+  xAOD::TrackParticleAuxContainer*        m_spectrometerTrackParticlesAux;
+  unsigned short int m_roi_num_seg;
+  unsigned short int m_roi_num_mstrk;
+  unsigned short int m_roi_num_satrk;
+
+  unsigned int m_totalSegmentCalls;
+  unsigned int m_cachedSegmentCalls;
+  unsigned int m_totalSpectrometerCalls;
+  unsigned int m_cachedSpectrometerCalls;
+  unsigned int m_totalExtrapolatedCalls;
+  unsigned int m_cachedExtrapolatedCalls;
+
+  // tracks stored in cache for deletion at end of event
+  std::vector<const TrackCollection*> m_spectrometerTracksCache;
+  std::vector<TrackCollection*> m_extrapolatedTracksCache;
+  std::vector<const MuonPatternCombinationCollection*> m_patternCombisCache;
+  std::vector<const MuonSegmentCombinationCollection*> m_segmentCombisCache;
+  std::vector<const Trk::SegmentCollection*> m_segmentsCache;
+
+  /// tool to create muon candidates
+  ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool;
+
+  /// tool to create track particles from Trk::Tracks
+  ToolHandle<Trk::ITrackParticleCreatorTool> m_TrackToTrackParticleConvTool;
+
+#if DEBUG_ROI_VS_FULL
+  std::ofstream m_fileWithHashIds_rpc;
+  std::ofstream m_fileWithHashIds_tgc;
+  std::ofstream m_fileWithHashIds_mdt;
+  std::ofstream m_fileWithHashIds_csc;
+#endif
+
+};
+
+#endif // TRIGMUONEF_TRIGMUONEFSTANDALONETRACKTOOL_H
+

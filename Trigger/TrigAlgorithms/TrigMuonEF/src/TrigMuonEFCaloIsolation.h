@@ -1,0 +1,79 @@
+// This file is really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGMUONEF_TRIGMUONEFCALOISOLATION_H__
+#define TRIGMUONEF_TRIGMUONEFCALOISOLATION_H__
+
+#include "TrigInterfaces/FexAlgo.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
+class StoreGateSvc;
+class IsoMuonFeature;
+
+// fwd declare calorimeter isolation tool interface
+class ITrackInCaloTools;
+
+namespace xAOD{
+  class ICaloIsolationTool;
+}
+
+/**
+ * @class TrigMuonEFCaloIsolation
+ *
+ * @brief Algorithm to fill etcone calorimeter isolation for EF muons
+ *
+ * This class calculates calorimeter isolation for EF muons. It uses
+ * the last created calorimeter cell containter from TrigCaloRec as input to
+ * the offline TrackInCaloTools algorithm to calculate the isolation.
+ *
+ * @author Graham Jones (Graham.Jones@cern.ch)
+ */
+class TrigMuonEFCaloIsolation : public virtual HLT::FexAlgo,
+				public virtual IIncidentListener
+{
+ public:
+
+  /// Constructor
+  TrigMuonEFCaloIsolation (const std::string& name, ISvcLocator* pSvcLocator);
+  /// Destructor
+  ~TrigMuonEFCaloIsolation();
+
+  /// Initialize the algorithm
+  HLT::ErrorCode hltInitialize();
+  /// Execute - called per trigger element
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
+  /// Finalize the algorithm
+  HLT::ErrorCode hltFinalize();
+
+ private:
+
+  /// Fill et-cone isolation values for xAOD muons
+  void fillCaloIsolation(const xAOD::MuonContainer* muons);
+
+  /// Require that EF muons are combined
+  bool m_requireCombined;
+
+  /// flag to see if debug is enabled
+  bool m_debug;
+
+  /// Tools to calculate the isolation
+  ToolHandle<ITrackInCaloTools>        m_trackInCaloTool;
+  ToolHandle<xAOD::ICaloIsolationTool> m_caloIsolationTool;
+
+  /// Monitoring Histograms
+  StringProperty m_histo_path_base;     // set the histo path for Monitoring
+  std::vector<double > m_etiso_cone1;
+  std::vector<double > m_etiso_cone2;
+  std::vector<double > m_etiso_cone3;
+  std::vector<double > m_etiso_cone4;
+
+  void handle(const Incident &);
+
+}; //class TrigMuonEFCaloIsolation
+
+#endif //TRIGMUONEF_TRIGMUONEFCALOISOLATION_H__
