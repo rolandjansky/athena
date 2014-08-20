@@ -1,0 +1,72 @@
+Read test starting...
+Creating CollectionService
+Creating Collection Description
+Creating Collection
+Renaming primary Token column
+Primary Token column is now RenamedEvRef
+Adding 30 elements to the collection.
+>>  writing uint64: 0  0   0
+>>  writing uint64: 1  1   1
+>>  writing uint64: 65536  65536   65536
+>>  writing uint64: 65537  65537   65537
+>>  writing uint64: 8070450532247994369  8.07045e+18   8070450532247994368
+>>  writing uint64: 9223372036854775808  9.22337e+18   9223372036854775808
+>>  writing uint64: 9223372036854775809  9.22337e+18   9223372036854775808
+>>  writing uint64: 9223372036854841344  9.22337e+18   9223372036854841344
+>>  writing uint64: 9223372036854841345  9.22337e+18   9223372036854841344
+>>  writing uint64: 17293822569102770177  1.72938e+19   17293822569102770176
+Collection author metadata inserted: This collection has been created by readTest from RootCollection package
+Done.
+Commiting the collection.
+Closing the collection.
+[OVAL] finished hopefully
+Creating CollectionService
+Getting handle to existing collection ( opened for read-only transactions by default )
+Executing query that only selects event reference column (the default)
+Iterating over query results...
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+Token : [DB=][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Meta data : 
+10 records read back
+Executing query that selects 2 meta data columns.
+0 records read back
+
+Executing query on 64bit unsigned int attribute:
+Meta data : [attr64bit (unsigned long long) : 0]
+Meta data : [attr64bit (unsigned long long) : 1]
+Meta data : [attr64bit (unsigned long long) : 65536]
+Meta data : [attr64bit (unsigned long long) : 65537]
+Meta data : [attr64bit (unsigned long long) : 8070450532247994369]
+Meta data : [attr64bit (unsigned long long) : 9223372036854775808]
+Meta data : [attr64bit (unsigned long long) : 9223372036854775809]
+Meta data : [attr64bit (unsigned long long) : 9223372036854841344]
+Meta data : [attr64bit (unsigned long long) : 9223372036854841345]
+Meta data : [attr64bit (unsigned long long) : 17293822569102770177]
+10 records read back
+
+Collection author metadata: This collection has been created by readTest from RootCollection package
+
+Dumping all metadata
+  Metadata Key=Author,  Value=This collection has been created by readTest from RootCollection package
+  Metadata Key=POOLCollectionID,  Value=2B1DB790-F76A-6842-8AFE-BCD262CC3053
+  Metadata Key=empty,  Value=
+  Metadata Key=last,  Value=xxx
+  Metadata Key=random1,  Value=overwritten random metadata 1
+  Metadata Key=random5,  Value=random metadata 5

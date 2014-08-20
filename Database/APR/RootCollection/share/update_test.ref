@@ -1,0 +1,52 @@
+Update test starting...
+Creating CollectionService
+Creating Collection Description
+Creating Collection
+Adding 20 elements to the collection.
+Done.
+Commiting the collection.
+Closing the collection.
+[OVAL] finished hopefully
+Creationg CollectionService
+Getting handle to existing collection for reading
+Executing query that only selects event reference column (the default)
+Iterating over query results...
+Token : [DB=testToken_100][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Token : [DB=testToken_101][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Token : [DB=testToken_102][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Token : [DB=testToken_103][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+Token : [DB=testToken_104][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+5 records read
+Creationg CollectionService
+Getting handle to existing collection for update
+Adding new 10 elements to the collection.
+Done.
+Commiting the collection.
+Closing the collection.
+Creationg CollectionService
+Getting handle to existing collection for update
+Adding new 10 elements to the collection.
+Done.
+Commiting the collection.
+Closing the collection.
+Creationg CollectionService
+Getting handle to existing collection for update
+Adding new 10 elements to the collection.
+Done.
+Commiting the collection.
+Closing the collection.
+
+
+Creationg CollectionService
+Getting handle to existing collection for reading
+Creating query: 'attr1 > 111 && attr1 <127 && strstr(attr2,"5")'.
+[OVAL] Token : [DB=testToken_125][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+[OVAL] Meta data : [attr1 (int) : 125], [attr2 (string) : testString_125], [attr3 (double) : 41.6667]
+[OVAL] Token : [DB=testToken_125][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+[OVAL] Meta data : [attr1 (int) : 125], [attr2 (string) : testString_125], [attr3 (double) : 41.6667]
+[OVAL] Token : [DB=testToken_125][CNT=][CLID=00000000-0000-0000-0000-000000000000][TECH=00000000][OID=FFFFFFFF-FFFFFFFF]
+[OVAL] Meta data : [attr1 (int) : 125], [attr2 (string) : testString_125], [attr3 (double) : 41.6667]
+3 records read back
+Done.
+Closing the collection.
+[OVAL] finished successfully

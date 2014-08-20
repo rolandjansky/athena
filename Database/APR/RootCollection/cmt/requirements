@@ -1,0 +1,51 @@
+package RootCollection
+
+# imported to ATLAS by:
+author Marcin Nowak
+
+use AtlasPolicy		AtlasPolicy-*
+
+
+#======= PLUGIN LIBRARY
+use AtlasROOT           AtlasROOT-*   	        External
+
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore Hist Tree TreePlayer Net RIO)"
+
+
+apply_pattern RootDictionary headerfiles="$(PACKAGE_ROOT)/${package}/AttributeListLayout.h"
+macro RootCollection_dependencies ${package}RootDict
+
+macro_append RootCollection_shlibflags " -lTree -lTreePlayer -lHist -lMatrix -lGraf -lGraf3d -lNet -lGpad "
+library RootCollection "*.cpp  $(bin)dict/AttributeListLayoutDict.cpp"
+apply_pattern installed_library
+
+apply_pattern generate_rootmap library=RootCollection
+apply_pattern optdebug_library name=RootCollection
+
+
+private
+use GaudiInterface	GaudiInterface-*	External
+use AtlasCORAL		AtlasCORAL-*		External
+use PersistentDataModel PersistentDataModel-*   Database
+use POOLCore            POOLCore-*              Database/APR
+use CollectionBase	CollectionBase-*	Database/APR
+use FileCatalog         FileCatalog-* 	        Database/APR
+
+# HAVE_GAUDI_PLUGINSVC tag is activated or not in GAUDI (GaudiPluginService)
+# for patterns depending on HAVE_GAUDI_PLUGINSVC tag
+# - use_if, use_unless below - to function properly
+# they must be used after GAUDI uses
+use_if pkg=Gaudi tag=HAVE_GAUDI_PLUGINSVC ver="*" 
+ 
+use_unless pkg=AtlasReflex tag=HAVE_GAUDI_PLUGINSVC ver=AtlasReflex-* root=External
+use_unless pkg=PersistencySvc tag=HAVE_GAUDI_PLUGINSVC ver=PersistencySvc-* root=Database/APR
+
+#=======   TESTS
+use TestTools      TestTools-*         AtlasTest
+
+apply_pattern install_runtime
+apply_pattern UnitTest_run unit_test=read
+apply_pattern UnitTest_run unit_test=update
+
+macro_append read_test_dependencies " update_test "
