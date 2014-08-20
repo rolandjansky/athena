@@ -3,7 +3,7 @@
 */
 
 //////////////////////////////////////////////////////////////////
-// LayerMaterialMap.h, (c) ATLAS Detector software
+// LayerMaterialMapCnv.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef TRK_LAYERMATERIALMAP_CNV_H
@@ -52,7 +52,7 @@ private:
   IMessageSvc                     *m_msgSvc;
   MsgStream                       m_log;
 
-  LayerMaterialMapCnv_tlp1 m_TPConverter_tlp1;
+  LayerMaterialMapCnv_tlp1        m_TPConverter_tlp1;
 };
 
 #endif // TRK_LAYERMATERIALMAP_CNV_H
