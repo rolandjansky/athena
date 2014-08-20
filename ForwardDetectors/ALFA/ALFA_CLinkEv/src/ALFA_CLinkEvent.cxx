@@ -119,7 +119,7 @@ void ALFA_CLinkEvent::SetDCSFolderID(eDCSItem eItem, const unsigned long long ul
 	}
 }
 
-void ALFA_CLinkEvent::SetDCSFolderIDs(const DCSID* pDCSIds)
+void ALFA_CLinkEvent::SetDCSFolderIDs(const PDCSID pDCSIds)
 {
 	if(pDCSIds!=NULL) memcpy(&m_DCSId,pDCSIds,sizeof(DCSID));
 }
