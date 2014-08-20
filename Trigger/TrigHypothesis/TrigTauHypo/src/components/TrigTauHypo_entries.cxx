@@ -1,0 +1,47 @@
+#include "TrigTauHypo/T2CaloTauHypo.h"
+#include "TrigTauHypo/T2IDTauHypo.h"
+#include "TrigTauHypo/T2IDCoreTauHypo.h"
+#include "TrigTauHypo/T2IDIsoTauHypo.h"
+#include "TrigTauHypo/T2TauHypo.h"
+#include "TrigTauHypo/EFTauInvHypo.h"
+#include "TrigTauHypo/EFTauMVHypo.h"
+#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "TrigTauHypo/EFHadCalibHypo.h"
+#include "TrigTauHypo/T2TauTauCombHypo.h"
+#include "TrigTauHypo/T2TauTauCombFexAlgo.h"
+#include "TrigTauHypo/EFTauTauCombHypo.h"
+#include "TrigTauHypo/EFTauTauCombFexAlgo.h"
+#include "TrigTauHypo/HLTCaloPreSelHypo.h"
+#include "TrigTauHypo/HLTTrackPreSelHypo.h"
+
+DECLARE_ALGORITHM_FACTORY( T2CaloTauHypo )
+DECLARE_ALGORITHM_FACTORY( T2IDTauHypo )
+DECLARE_ALGORITHM_FACTORY( T2IDCoreTauHypo )
+DECLARE_ALGORITHM_FACTORY( T2IDIsoTauHypo )
+DECLARE_ALGORITHM_FACTORY( T2TauHypo )
+DECLARE_ALGORITHM_FACTORY( EFTauInvHypo )
+DECLARE_ALGORITHM_FACTORY( EFTauMVHypo )
+DECLARE_ALGORITHM_FACTORY( EFHadCalibHypo )
+DECLARE_ALGORITHM_FACTORY( T2TauTauCombHypo )
+DECLARE_ALGORITHM_FACTORY( T2TauTauCombFexAlgo )
+DECLARE_ALGORITHM_FACTORY( EFTauTauCombHypo )
+DECLARE_ALGORITHM_FACTORY( EFTauTauCombFexAlgo )
+DECLARE_ALGORITHM_FACTORY( HLTCaloPreSelHypo )
+DECLARE_ALGORITHM_FACTORY( HLTTrackPreSelHypo )
+
+DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
+  DECLARE_ALGORITHM( T2CaloTauHypo );
+  DECLARE_ALGORITHM( T2IDTauHypo );
+  DECLARE_ALGORITHM( T2IDCoreTauHypo );
+  DECLARE_ALGORITHM( T2IDIsoTauHypo );
+  DECLARE_ALGORITHM( T2TauHypo );
+  DECLARE_ALGORITHM( EFTauInvHypo );
+  DECLARE_ALGORITHM( EFTauMVHypo );
+  DECLARE_ALGORITHM( EFHadCalibHypo );      
+  DECLARE_ALGORITHM( T2TauTauCombHypo );      
+  DECLARE_ALGORITHM( T2TauTauCombFexAlgo );      
+  DECLARE_ALGORITHM( EFTauTauCombHypo );
+  DECLARE_ALGORITHM( EFTauTauCombFexAlgo );
+  DECLARE_ALGORITHM( HLTCaloPreSelHypo );
+  DECLARE_ALGORITHM( HLTTrackPreSelHypo );
+}
