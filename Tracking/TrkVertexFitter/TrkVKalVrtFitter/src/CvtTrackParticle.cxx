@@ -127,10 +127,122 @@ namespace Trk {
     return StatusCode::SUCCESS;
   }
 
+//--------------------------------------------------------------------
+//  Extract xAOD::NeutralParticles
+//
+
+ StatusCode TrkVKalVrtFitter::CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& InpTrk,
+         long int& ntrk) {
+
+    std::vector<const xAOD::NeutralParticle*>::const_iterator   i_ntrk;
+    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    const  NeutralPerigee*        m_mPer=0;
+    double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
+    double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
+    double fx,fy,m_BMAG_FIXED;
+//
+// ----- Set reference frame to (0.,0.,0.) == ATLAS frame
+// ----- Magnetic field is taken in reference point
+//
+     m_refFrameX=m_refFrameY=m_refFrameZ=0.;
+     m_fitField->setAtlasMagRefFrame( 0., 0., 0.);
+//
+//  Cycle to determine common reference point for the fit
+//
+     int counter =0;
+     Amg::Vector3D perGlobalVrt,perGlobalPos;
+     m_trkControl.clear(); m_trkControl.reserve(InpTrk.size());
+     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
+//-- (Measured)Perigee in xAOD::NeutralParticle
+       m_mPer = &(*i_ntrk)->perigeeParameters(); 
+       if( m_mPer==0 ) continue; // No perigee!!!
+       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
+       perGlobalPos =  m_mPer->position();    //Global position of perigee point
+       if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
+       if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
+       tmp_refFrameX += perGlobalPos.x() ;	// Reference system calculation
+       tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise 
+       tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
+       TrkMatControl tmpMat;
+       tmpMat.trkRefGlobPos=Amg::Vector3D( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
+       tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
+       tmpMat.rotateToField=false; if(m_useMagFieldRotation)tmpMat.rotateToField=true;
+       tmpMat.extrapolationType=2;                   // Perigee point strategy
+       tmpMat.TrkPnt=NULL;           //No reference point for neutral particle for the moment
+       tmpMat.prtMass = 139.5702;
+       if(counter<(int)m_MassInputParticles.size())tmpMat.prtMass = m_MassInputParticles[counter];
+       tmpMat.TrkID=counter; m_trkControl.push_back(tmpMat);
+       counter++;
+    }
+    if(counter == 0) return StatusCode::FAILURE;
+    tmp_refFrameX /= counter;                          // Reference frame for the fit
+    tmp_refFrameY /= counter;
+    tmp_refFrameZ /= counter;
+    m_refGVertex = Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ);
+//
+//std::cout.setf( std::ios::scientific); std::cout.precision(5);
+//std::cout<<" VK ref.frame="<<tmp_refFrameX<<", "<<tmp_refFrameY<<", "<<tmp_refFrameZ<<'\n';
+//
+//  Common reference frame is ready. Start extraction of parameters for fit.
+//
+
+    for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
+//
+//-- (Measured)Perigee in TrackParticle
+//
+       m_mPer = &(*i_ntrk)->perigeeParameters(); 
+       if( m_mPer==0 ) continue; // No perigee!!!
+       VectPerig    =  m_mPer->parameters(); 
+       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
+       perGlobalPos =  m_mPer->position();    //Global position of perigee point
+       if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
+       m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame
+       m_fitField->getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(), // Magnetic field
+                                                                  fx, fy, m_BMAG_FIXED);                                // at track perigee point
+       if(fabs(m_BMAG_FIXED) < 0.01) m_BMAG_FIXED=0.01;
+
+
+       VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
+              (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
+                     m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
+       m_ich[ntrk]=0;
+       if(m_apar[ntrk][4]<0){ m_apar[ntrk][4]  = -m_apar[ntrk][4];      // Charge=0 is always equal to Charge=+1
+                              m_awgt[ntrk][10] = -m_awgt[ntrk][10];
+                              m_awgt[ntrk][11] = -m_awgt[ntrk][11];
+                              m_awgt[ntrk][12] = -m_awgt[ntrk][12];
+                              m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
+//
+// Check if propagation to common reference point is needed and make it
+       m_refFrameX=perGlobalVrt.x();  // initial track reference position
+       m_refFrameY=perGlobalVrt.y();
+       m_refFrameZ=perGlobalVrt.z();
+       m_fitField->setAtlasMagRefFrame( m_refFrameX, m_refFrameY, m_refFrameZ);
+       double dX=tmp_refFrameX-perGlobalVrt.x();   // Track shift for VKalVrtCore
+       double dY=tmp_refFrameY-perGlobalVrt.y();
+       double dZ=tmp_refFrameZ-perGlobalVrt.z();
+       if(fabs(dX)+fabs(dY)+fabs(dZ) != 0.) {
+	  double pari[5],covi[15]; double vrtini[3]={0.,0.,0.}; double vrtend[3]={dX,dY,dZ};
+	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
+	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
+          myPropagator.Propagate(ntrk, 0, pari, covi, vrtini, vrtend,&m_apar[ntrk][0], &m_awgt[ntrk][0]);
+       }
+
+       ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
+    }
+//-------------- Finally setting new reference frame common for ALL tracks
+    m_refFrameX=tmp_refFrameX;
+    m_refFrameY=tmp_refFrameY;
+    m_refFrameZ=tmp_refFrameZ;
+    m_fitField->setAtlasMagRefFrame( m_refFrameX, m_refFrameY, m_refFrameZ);
+
+    return StatusCode::SUCCESS;
+  }
+
+
 
 
 //--------------------------------------------------------------------
-//  Extract TrackParticles
+//  Extract Rec::TrackParticles
 //
 
  StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk,

@@ -89,15 +89,15 @@ namespace Trk{
                                   const Vertex& startingPoint);
 
         VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
-			  const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
-			  const Vertex& startingPoint) {msg(MSG::WARNING) << "TrkVKalVrtFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const Vertex&) ignoring neutrals" << endreq; return fit(perigeeList, startingPoint);};
+			  const std::vector<const NeutralParameters*> & /*neutralPerigeeList*/,
+			  const Vertex& startingPoint);
  
         VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
                                   const RecVertex& constraint);
 
         VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
-			  const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
-			  const RecVertex& constraint){msg(MSG::WARNING) << "TrkVKalVrtFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const RecVertex&) ignoring neutrals" << endreq; return fit(perigeeList, constraint);};
+			  const std::vector<const NeutralParameters*> & /*neutralPerigeeList*/,
+			  const RecVertex& constraint);
 
         /*--------------   Interface for xAOD    -------------*/ 
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
@@ -105,12 +105,12 @@ namespace Trk{
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
                                  const RecVertex& constraint); 
 
-        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-			   const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
-			   const Vertex& startingPoint){msg(MSG::WARNING) << "TrkVKalVrtFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const Vertex&) ignoring neutrals" << endreq; return fit(vectorTrk, startingPoint);}; 
-        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
-			   const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
-			   const RecVertex& constraint){msg(MSG::WARNING) << "TrkVKalVrtFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const RecVertex&) ignoring neutrals" << endreq; return fit(vectorTrk, constraint);}; 
+        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>   & vectorTrk,
+			   const std::vector<const xAOD::NeutralParticle*> & vectorNeu, 
+			   const Vertex& startingPoint);
+        xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>   & vectorTrk, 
+			   const std::vector<const xAOD::NeutralParticle*> & vectorNeu, 
+			   const RecVertex& constraint);
 
 
         VxCandidate * fit(const std::vector<const TrackParticleBase*> & vectorTrk,
@@ -119,9 +119,9 @@ namespace Trk{
         VxCandidate * fit(const std::vector<const TrackParticleBase*>& vectorTrk,
 	                          const RecVertex& constraint);
 
-        VxCandidate * fit(const std::vector<const TrackParameters*>& perigeeList);
-        VxCandidate * fit(const std::vector<const TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/){msg(MSG::WARNING) << "TrkVKalVrtFitter::fit(fit(const std::vector<const TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&) ignoring neutrals" << endreq; return fit(perigeeList);};
-        VxCandidate * fit(const std::vector<const Track*>& vectorTrk);
+        VxCandidate * fit(const std::vector<const TrackParameters*> & );
+        VxCandidate * fit(const std::vector<const TrackParameters*> &, const std::vector<const Trk::NeutralParameters*> & );
+        VxCandidate * fit(const std::vector<const Track*>& );
 
 //
 //  Cascade fitter interface
@@ -148,6 +148,7 @@ namespace Trk{
 //------ Personal VKalVrt staff
 
         StatusCode VKalVrtFit(const std::vector<const xAOD::TrackParticle*>&,
+                              const std::vector<const xAOD::NeutralParticle*>&,
                               Amg::Vector3D&         Vertex,
                               TLorentzVector&     Momentum,
 	                      long int&           Charge,
@@ -172,6 +173,7 @@ namespace Trk{
 		              std::vector< std::vector<double> >& TrkAtVrt,
 		              double& Chi2 );
         StatusCode VKalVrtFit(const std::vector<const TrackParameters*>&,
+                              const std::vector<const NeutralParameters*>&,
                               Amg::Vector3D&         Vertex,
                               TLorentzVector&     Momentum,
 	                      long int&           Charge,
@@ -201,11 +203,10 @@ namespace Trk{
         StatusCode VKalGetMassError( std::vector<int> ListOfTracks , 
                                    double& Mass, double& MassError);
         int VKalGetNDOF();
-        template <class inputObject>
-        VxCandidate * makeVxCandidate(const std::vector<const inputObject*>& ,
+        VxCandidate * makeVxCandidate( int ,
                 const Amg::Vector3D& , const std::vector<double> & , 
 	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
-        xAOD::Vertex * makeXAODVertex(const std::vector<const xAOD::TrackParticle*>& ,
+        xAOD::Vertex * makeXAODVertex( int ,
                 const Amg::Vector3D& , const std::vector<double> & , 
 	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
 //-----
@@ -389,9 +390,10 @@ namespace Trk{
   
         StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,              long int& ntrk);
         StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,  long int& ntrk);
-        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,  long int& ntrk);
+        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,   long int& ntrk);
+        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list, long int& ntrk);
         StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,  long int& ntrk);
-//        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,long int& ntrk);
+        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,long int& ntrk);
 
         void VKalVrtSetOptions(long int NInputTracks);
         void    VKalToTrkTrack( double, double  , double  , double ,

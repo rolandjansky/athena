@@ -163,15 +163,14 @@ namespace Trk {
  }
 
 
-/*   Normal version doesn't exist for the moment
  StatusCode TrkVKalVrtFitter::CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,
         long int& ntrk) {
 
     //MsgStream log(msgSvc(), name());
-    std::vector<const TrackParameters*>::const_iterator   i_pbase;
+    std::vector<const NeutralParameters*>::const_iterator   i_pbase;
     AmgVector(5) VectPerig;
+    Amg::Vector3D perGlobalPos,perGlobalVrt;
     const NeutralPerigee* m_mPerN=0;
-    AmgSymMatrix(5) *CovMtx;
     double CovVertTrk[15];
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,fz,m_BMAG_FIXED;
@@ -193,7 +192,6 @@ namespace Trk {
 //  Cycle to determine common reference point for the fit
 //
      int counter =0;
-     HepGeom::Point3D<double> perGlobalPos,perGlobalVrt;
      m_trkControl.clear(); m_trkControl.reserve(InpTrk.size());
      for (i_pbase = InpTrk.begin(); i_pbase != InpTrk.end(); ++i_pbase) {
        perGlobalPos =  (*i_pbase)->position();                  //Global position of hit
@@ -203,9 +201,7 @@ namespace Trk {
        tmp_refFrameY += perGlobalPos.y() ;
        tmp_refFrameZ += perGlobalPos.z() ;
        TrkMatControl tmpMat;                                    // Here we create structure to control material effects
-       tmpMat.trkRefGlobPos.setX(perGlobalPos.x());             // on track extrapolation
-       tmpMat.trkRefGlobPos.setY(perGlobalPos.y());             //
-       tmpMat.trkRefGlobPos.setZ(perGlobalPos.z());             //
+       tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z()); // on track extrapolation
        tmpMat.rotateToField=false;
        tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        tmpMat.extrapolationType=0;   //First measured point strategy
@@ -241,7 +237,8 @@ namespace Trk {
          if( m_mPerN == 0) {   delete neuparN;  return StatusCode::FAILURE; }
          VectPerig    =  m_mPerN->parameters(); 
          perGlobalPos =  m_mPerN->position();    //Global position of perigee point
-         perGlobalVrt =  m_mPerN->vertex();      //Global position of reference point
+         //perGlobalVrt =  m_mPerN->vertex();      //Global position of reference point
+         perGlobalVrt =  m_mPerN->associatedSurface().center();      //Global position of reference point
          if( !convertAmg5SymMtx(m_mPerN->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
          delete neuparN;
          m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame for safety
@@ -258,14 +255,12 @@ namespace Trk {
        VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
-       if( trkparO==0 ) {                                              //neutral track
-         m_ich[ntrk]=0; 
-         if(m_apar[ntrk][4]<0){ m_apar[ntrk][4]  = -m_apar[ntrk][4];      // Charge=0 is always equal to Charge=+1
-                                m_awgt[ntrk][10] = -m_awgt[ntrk][10];
-                                m_awgt[ntrk][11] = -m_awgt[ntrk][11];
-                                m_awgt[ntrk][12] = -m_awgt[ntrk][12];
-                                m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
-       }
+       m_ich[ntrk]=0; 
+       if(m_apar[ntrk][4]<0){ m_apar[ntrk][4]  = -m_apar[ntrk][4];      // Charge=0 is always equal to Charge=+1
+                              m_awgt[ntrk][10] = -m_awgt[ntrk][10];
+                              m_awgt[ntrk][11] = -m_awgt[ntrk][11];
+                              m_awgt[ntrk][12] = -m_awgt[ntrk][12];
+                              m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
        ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
     }
 //-------------- Finally setting new reference frame common for ALL tracks
@@ -276,6 +271,5 @@ namespace Trk {
 
     return StatusCode::SUCCESS;
   }
-*/
 
 } // end of namespace bracket

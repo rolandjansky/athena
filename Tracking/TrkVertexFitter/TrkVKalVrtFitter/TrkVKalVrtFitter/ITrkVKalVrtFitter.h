@@ -42,7 +42,8 @@ namespace Trk{
 //---------------------------------------------------------------------------
 //Interface itself
 
-      virtual StatusCode VKalVrtFit(const  std::vector<const xAOD::TrackParticle*> & list,
+      virtual StatusCode VKalVrtFit(const  std::vector<const xAOD::TrackParticle*>   & listC,
+                                    const  std::vector<const xAOD::NeutralParticle*> & listN,
                        Amg::Vector3D&         Vertex,
                        TLorentzVector&     Momentum,
                        long int&           Charge,
@@ -66,7 +67,8 @@ namespace Trk{
                        std::vector<double>&     Chi2PerTrk,
                        std::vector< std::vector<double> >& TrkAtVrt,
                        double& Chi2 ) =0;
-      virtual StatusCode VKalVrtFit(const std::vector<const TrackParameters*> & list,
+      virtual StatusCode VKalVrtFit(const std::vector<const TrackParameters*> & listC,
+                                    const std::vector<const NeutralParameters*>& listN,
                        Amg::Vector3D&         Vertex,
                        TLorentzVector&   Momentum,
                        long int&           Charge,

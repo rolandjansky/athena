@@ -74,7 +74,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParticle*>& InpTrk,
+
+
+StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParticle*>   & InpTrkC,
+                                        const std::vector<const xAOD::NeutralParticle*> & InpTrkN,
         Amg::Vector3D& Vertex,
 	TLorentzVector&   Momentum,
 	long int& Charge,
@@ -94,33 +97,54 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 //------  extract information about selected tracks
 //
     long int ntrk=0;
-    std::vector<const TrackParameters*> tmpInput(0);
-    std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
-    StatusCode sc;
+    std::vector<const TrackParameters*>   tmpInputC(0);
+    std::vector<const NeutralParameters*> tmpInputN(0);
+    StatusCode sc; sc.setCode(0);
     if(m_firstMeasuredPoint){               //First measured point strategy
-       unsigned int index; 
-       for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-          if ((*i_ntrk)->indexOfParameterAtPosition(index, xAOD::FirstMeasurement)){
-             tmpInput.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(index)));
+       unsigned int index=0; 
+       //------
+       if(InpTrkC.size()){
+          std::vector<const xAOD::TrackParticle*>::const_iterator     i_ntrk;
+          for (i_ntrk = InpTrkC.begin(); i_ntrk < InpTrkC.end(); ++i_ntrk) {
+             if ((*i_ntrk)->indexOfParameterAtPosition(index, xAOD::FirstMeasurement)){
+                tmpInputC.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(index)));
+             }
+          }
+          sc=CvtTrackParameters(tmpInputC,ntrk);
+          if(sc.isFailure()){
+            for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
+            return StatusCode::FAILURE;
           }
        }
-       sc=CvtTrackParameters(tmpInput,ntrk);
-       if(sc.isFailure()){
-         for(unsigned int i=0; i<tmpInput.size(); i++) delete tmpInput[i]; 
-         return StatusCode::FAILURE;
+       //------
+       if(InpTrkN.size()){
+          std::vector<const xAOD::NeutralParticle*>::const_iterator   i_nneu;
+          for (i_nneu = InpTrkN.begin(); i_nneu < InpTrkN.end(); ++i_nneu) {
+             tmpInputN.push_back(new NeutralPerigee((*i_nneu)->perigeeParameters()));
+          }
+          sc=CvtNeutralParameters(tmpInputN,ntrk);
+          if(sc.isFailure()){
+            for(unsigned int i=0; i<tmpInputN.size(); i++) delete tmpInputN[i]; 
+            for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
+            return StatusCode::FAILURE;
+          }
        }
     }else{
-       sc=CvtTrackParticle(InpTrk,ntrk);
+       if(InpTrkC.size()){sc=CvtTrackParticle(InpTrkC,ntrk);   if(sc.isFailure())return StatusCode::FAILURE;}
+       if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
     }
     if(sc.isFailure())return StatusCode::FAILURE;
 //--
     long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
 //--
-    for(unsigned int i=0; i<tmpInput.size(); i++) delete tmpInput[i]; 
+    for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
+    for(unsigned int i=0; i<tmpInputN.size(); i++) delete tmpInputN[i]; 
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }
+
+
 
 StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBase*>& InpTrk,
         Amg::Vector3D& Vertex,
@@ -160,7 +184,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
     return StatusCode::SUCCESS;
 }
 
-StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*>& InpTrk,
+
+
+StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*>    & InpTrkC,
+                                        const std::vector<const NeutralParameters*>  & InpTrkN,
         Amg::Vector3D& Vertex,
 	TLorentzVector&   Momentum,
 	long int& Charge,
@@ -180,9 +207,16 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //------  extract information about selected tracks
 //
     long int ntrk=0;
-    StatusCode sc=CvtTrackParameters(InpTrk,ntrk);
-    if(sc.isFailure())return StatusCode::FAILURE;
-
+    StatusCode sc; sc.setChecked();
+    if(InpTrkC.size()>0){
+      sc=CvtTrackParameters(InpTrkC,ntrk);
+      if(sc.isFailure())return StatusCode::FAILURE;
+    }
+    if(InpTrkN.size()>0){
+      sc=CvtNeutralParameters(InpTrkN,ntrk);
+      if(sc.isFailure())return StatusCode::FAILURE;
+    }
+    
     if(m_ApproximateVertex.size()==0 && m_globalFirstHit){  //Initial guess if absent
 	m_ApproximateVertex.reserve(3);
         m_ApproximateVertex.push_back(m_globalFirstHit->position().x());
