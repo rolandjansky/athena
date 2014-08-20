@@ -7,7 +7,7 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "DataModel/DataModel/DataLink.h"
+#include "DataModel/DataLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include <map>
