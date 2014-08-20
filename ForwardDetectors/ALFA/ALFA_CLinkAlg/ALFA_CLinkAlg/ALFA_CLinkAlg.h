@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataModel/DataLink.h"
+#include "DataModel/DataLink.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IIOVSvc.h"
