@@ -1,0 +1,65 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# -------------------------------------------------------------
+# L1 Getter of the result
+# -------------------------------------------------------------
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaCommon.GlobalFlags import jobproperties
+from CaloRec.CaloCellFlags import jobproperties
+from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.Constants import *
+from AthenaCommon.Logging import logging  # loads logger
+from AthenaCommon.Include import include  # to include old style job options
+from AthenaCommon.AppMgr import theApp
+
+from RecExConfig.RecFlags  import rec
+from RecExConfig.RecAlgsFlags import recAlgs
+
+
+from RecExConfig.Configured import Configured
+from RecExConfig.ObjKeyStore import objKeyStore
+
+class Lvl1ResultBuilderGetter(Configured):
+    #_output = {"CTP_Decision":"CTP_Decision", "LVL1_ROI":"LVL1_ROI"}
+
+    def configure(self):
+        log = logging.getLogger( "LVL1ResultBuilderGetter.py" )
+
+        #         from AthenaServices.AthenaServicesConf import AthenaOutputStream
+        #         from AthenaCommon.AppMgr import ServiceMgr
+        #         from AthenaCommon.AlgSequence import AlgSequence
+        #         topSequence = AlgSequence()
+
+        #         ### the following was gotten from the LVL1TriggerGetter not sure if needed when not simulation
+        #         if not (TriggerFlags.fakeLVL1() or TriggerFlags.doLVL1()):
+        #            DetFlags.readRIOPool.LVL1_setOn()
+
+        #         # ***Temp : needed to enable required combination of thresholds
+        #         #           mu4,mu6,mu10,mu11,mu20,mu40
+        #         # Will be replaced by config. from Lvl1ConfigSvc
+        #         if hasattr(ServiceMgr,'RPCcablingSimSvc'):
+        #             ServiceMgr.RPCcablingSimSvc.HackFor1031 = True
+        if jobproperties.Global.InputFormat() == 'bytestream':
+            theApp.Dlls += [ "TrigT1Calo" ]
+            include("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
+        #         ###
+
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
+
+
+        if recAlgs.doTrigger():
+            if (rec.doESD() or rec.doAOD()) and (not(rec.readAOD() or \
+                                                         rec.readESD())):
+                from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
+                    RoIBResultToAOD
+                topSequence += RoIBResultToAOD("RoIBResultToxAOD")
+                pass
+            pass
+
+        from TrigEDMConfig.TriggerEDM import getLvl1ESDList
+        objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
+        from TrigEDMConfig.TriggerEDM import getLvl1AODList
+        objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
+
+        return True

@@ -1,0 +1,67 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# -------------------------------------------------------------
+# L1 configuration
+# -------------------------------------------------------------
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaCommon.GlobalFlags import GlobalFlags
+from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.Constants import *
+from AthenaCommon.Logging import logging  # loads logger
+from AthenaCommon.Include import include  # to include old style job options
+from AthenaCommon.AppMgr import theApp
+        
+if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
+    from TrigT1CTP.TrigT1CTPConfig import CTPSimulation
+    from TrigT1RoIB.TrigT1RoIBConf import ROIB__RoIBuilder
+
+    import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
+    import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
+    import TrigT1RPCsteering.TrigT1RPCsteeringConfig
+    import TrigT1TGC.TrigT1TGCConfig
+    from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
+    from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
+
+
+from RecExConfig.Configured import Configured 
+
+
+
+class Lvl1SimulationGetter (Configured):
+    _output = {"CTP_Decision":"CTP_Decision", "LVL1_ROI":"LVL1_ROI"}
+
+    def configure(self):
+        log = logging.getLogger( "Lvl1TriggerOnlineGetter.py" )
+
+        from AthenaServices.AthenaServicesConf import AthenaOutputStream
+        from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.AlgSequence import AlgSequence 
+        topSequence = AlgSequence()
+        
+        # initialize LVL1ConfigSvc
+        if not hasattr( ServiceMgr, 'LVL1ConfigSvc' ):
+            from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
+            LVL1ConfigSvc = LVL1ConfigSvc("LVL1ConfigSvc")
+            LVL1ConfigSvc.XMLFile = TriggerFlags.inputLVL1configFile()
+            ServiceMgr += LVL1ConfigSvc
+        else:
+            log.info( "LVL1ConfigSvc already created. Will ignore configuration from xml file="+TriggerFlags.inputLVL1configFile()\
+                      +" and use file="+ServiceMgr.LVL1ConfigSvc.XMLFile )
+
+        if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
+            if TriggerFlags.useCaloTTL():
+                include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1.py")
+            else:
+                include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_Cell.py")
+            topSequence += LVL1__TrigT1MBTS()
+
+            topSequence += L1Muctpi()
+            
+            log.info("adding ctp simulation to the topSequence")
+            topSequence += CTPSimulation("CTPSimulation")
+            
+            log.info("adding ROIB simulation to the topSequence")
+            topSequence += ROIB__RoIBuilder("RoIBuilder")
+
+        return True
+# end of class  Lvl1SimulationGetter
