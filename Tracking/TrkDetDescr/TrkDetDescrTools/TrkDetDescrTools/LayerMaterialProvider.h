@@ -60,6 +60,8 @@ namespace Trk {
         //!< boolean switch for assignLayerMaterial
         mutable const LayerMaterialMap*             m_layerMaterialMap;
         std::string                                 m_layerMaterialMapName;
+        
+        int                                         m_ignoreLayer; //!< ajustment for R2 19.1.1 geometry
                         
         
     };
