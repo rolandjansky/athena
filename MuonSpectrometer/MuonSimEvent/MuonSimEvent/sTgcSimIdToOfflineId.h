@@ -28,7 +28,7 @@ Identifier sTgcSimIdToOfflineId::convert( int simId ) const {
   int multilayer = m_simIdHelper->GetMultiLayer(simId);
   int layer = m_simIdHelper->GetLayer(simId);
   int side = m_simIdHelper->GetSide(simId);
-  return m_idHelper->channelID( stationName[2] == 'L' ?  "STL" : "STS",
+  return m_idHelper->channelID( stationName[1] == 'L' ?  "STL" : "STS",
 				side == 1 ? stationEta+1 : -stationEta-1,
 				(stationPhi-1)/2+1,multilayer,layer,1,1 );
 }
