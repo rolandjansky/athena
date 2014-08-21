@@ -19,8 +19,8 @@ sTgcHitIdHelper* sTgcHitIdHelper::GetHelper(){
 }
 
 static char v1[] = {'T'};
-static char v2[] = {'0','1','2','3','4'};
-static char v3[] = {'S','L'};
+static char v2[] = {'S','L'};
+static char v3[] = {'0','1','2','3','4'};
 static char v4[] = {'1','2'};
 
 	
