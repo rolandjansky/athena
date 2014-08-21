@@ -1,0 +1,138 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// RobustTrackingGeometryBuilder.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef INDETTRACKINGGEOMETRY_ROBUSTTRACKINGGEOMETRYBUILDER_H
+#define INDETTRACKINGGEOMETRY_ROBUSTTRACKINGGEOMETRYBUILDER_H
+
+//Trk
+#include "TrkDetDescrInterfaces/IGeometryBuilder.h"
+#include "TrkDetDescrUtils/BinningType.h"
+#include "TrkGeometry/TrackingVolumeManipulator.h"
+// Gaudi
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+// STL
+#include <vector>
+#include <string>
+
+namespace Trk {
+ class TrackingGeometry;
+ class ILayerBuilder;
+ class ITrackingVolumeCreator;
+ class ILayerArrayCreator;
+ class IMagneticFieldTool;
+ class Layer;
+ class Material;
+ class MagneticFieldProperties;
+}
+ 
+class IEnvelopeDefSvc; 
+ 
+namespace InDet {
+     
+
+  /** @class RobustTrackingGeometryBuilder
+
+      New Geometry builder that adapts to different layer setups
+      
+      Only a few parameters are not automated:
+       - m_outwardsFraction: this defines how much you orient yourself on the next bigger layer
+                             if you wrap an outer volume around an inner 0.5 would lead to a boundary fully in bewteen
+                            1. at the outer boundary, 0. at the inner boundary
+      
+      @author Andreas.Salzburger@cern.ch
+    
+    */
+    
+  class RobustTrackingGeometryBuilder : public AthAlgTool, 
+                                        public Trk::TrackingVolumeManipulator,
+                                        virtual public Trk::IGeometryBuilder {
+    
+    
+    public:
+      /** Constructor */
+      RobustTrackingGeometryBuilder(const std::string&,const std::string&,const IInterface*);
+      
+      /** Destructor */
+      virtual ~RobustTrackingGeometryBuilder();
+        
+      /** AlgTool initailize method.*/
+      StatusCode initialize();
+      /** AlgTool finalize method */
+      StatusCode finalize();
+      /** TrackingGeometry Interface methode */
+      const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const; 
+
+      /** The unique signature */
+      Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
+      
+    private:
+      /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers */
+      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::Layer*>& negLayers,
+                                                  const std::vector<const Trk::Layer*>& centralLayers,
+                                                  const std::vector<const Trk::Layer*>& posLayers,
+                                                  double rMin, double rMax,
+                                                  double zMin, double zPosCentral,
+                                                  const std::string& baseName="UndefinedVolume",
+                                                  int colorCode = 21,
+                                                  int barrelEntryLayerConfig = 0,
+                                                  int endcapEntryLayerConfig = 0,
+                                                  Trk::BinningType bintype=Trk::arbitrary) const;      
+      
+      /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap volumes */
+      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::TrackingVolume*>& negVolumes,
+                                                  const std::vector<const Trk::TrackingVolume*>& centralVolumes,
+                                                  const std::vector<const Trk::TrackingVolume*>& posVolumes,
+                                                  const std::string& baseName="UndefinedVolume") const;
+
+      // helper tools for the geometry building
+      ToolHandle<Trk::ILayerBuilder>                 m_beamPipeBuilder;          //!< BeamPipe builder (is different from layers)
+      ToolHandleArray<Trk::ILayerBuilder>            m_layerBuilders;            //!< Helper Tools for the Layer creation   
+      ToolHandle<Trk::ITrackingVolumeCreator>        m_trackingVolumeCreator;    //!< Helper Tool to create TrackingVolumes
+      ToolHandle<Trk::ILayerArrayCreator>            m_layerArrayCreator;        //!< Helper Tool to create BinnedArrays
+
+      // configurations for the layer builders
+      std::vector<int>                               m_layerBinningType;         //!< binning type for the provided layers      
+      std::vector<int>                               m_barrelEntryLayerConfig;   //!< Barrel Entry Layer Config : (0 - no , 1 - cyl , 2 - disc)
+      std::vector<int>                               m_endcapEntryLayerConfig;   //!< Endcap Entry Layer Config : (0 - no , 1 - cyl , 2 - disc)
+      std::vector<int>                               m_colorCodesConfig;         //!< Color codes    
+
+      // additional layers
+      std::vector<double>                            m_additionalEndcapCylinder; //!< fill gaps if needed
+      std::vector<double>                            m_additionalBarrelCylinder; //!< fill gaps if needed
+
+      // enclosing endcap/cylinder layer 
+      ServiceHandle<IEnvelopeDefSvc>                 m_enclosingEnvelopeSvc;                //!< the service to provide the ID envelope size
+      int                                            m_enclosingBarrelEntryLayerConfig;     //!< the entry layer config for the enclosing volume
+      std::vector<double>                            m_enclosingCylinderRadius;             //!< the cylinder layer inside the enclosing volume
+      int                                            m_enclosingEndcapEntryLayerConfig;     //!< the entry layer config for the enclosing volume
+      std::vector<double>                            m_enclosingDiscPositionZ;              //!< the disc position inside the enclosing volume
+      
+      
+      // magnetic & material field configuration
+      mutable Trk::Material*                         m_materialProperties;       //!< overal material properties of the ID
+      mutable Trk::MagneticFieldProperties*          m_magneticFieldProperties;  //!< overal mag field properties of the ID
+      // outer envelope        
+      double                                         m_outwardsFraction;         //!< defines how much you orient yourself in an outwards way (see above)                                                  
+      double                                         m_innerEnvelope;            //!< inner evnelop cover
+      double                                         m_outerEnvelope;            //!< outer envelope cover
+      // robust layer indexing                                                   
+      bool                                           m_indexStaticLayers;        //!< forces robust indexing for layers
+      // naming schema                                                           
+      std::string                                    m_namespace;                //!< identificaton namespace 
+      // ID container                                                            
+      std::string                                    m_exitVolume;                //!< the final ID container             
+      bool                                           m_isSLHC;                   //!< changes volume boundary calculation for SLHC layouts      
+  };
+
+} // end of namespace
+
+#endif //INDETTRACKINGGEOMETRY_ROBUSTTRACKINGGEOMETRYBUILDER_H
+
+
