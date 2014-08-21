@@ -1,0 +1,50 @@
+package TileCalibAlgs
+
+author Karl Gellerstedt <Karl.Gellerstedt@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*
+use AthenaBaseComps	AthenaBaseComps-*	Control
+
+use GaudiInterface		GaudiInterface-*		External
+use AtlasROOT			AtlasROOT-*			External
+use StoreGate			StoreGate-*			Control
+
+use Identifier			Identifier-*			DetectorDescription
+
+use CaloInterface		CaloInterface-*			Calorimeter
+use CaloIdentifier		CaloIdentifier-*		Calorimeter
+use CaloDetDescr		CaloDetDescr-*			Calorimeter
+
+use TileConditions		TileConditions-*		TileCalorimeter
+
+use TrigT1CaloCalibToolInterfaces        TrigT1CaloCalibToolInterfaces-*          Trigger/TrigT1
+
+private 
+
+use AtlasCLHEP			AtlasCLHEP-*			External
+use AtlasCORAL			AtlasCORAL-*			External
+use RegistrationServices 	RegistrationServices-*		Database
+use AthenaPoolUtilities		AthenaPoolUtilities-*		Database/AthenaPOOL
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
+use ByteStreamCnvSvcBase 	ByteStreamCnvSvcBase-* 		Event
+use AthenaKernel	AthenaKernel-*		Control
+
+use CaloEvent			CaloEvent-*			Calorimeter
+
+use TileIdentifier		TileIdentifier-*		TileCalorimeter
+use TileEvent			TileEvent-*			TileCalorimeter
+use TileRecUtils		TileRecUtils-*			TileCalorimeter
+use TileByteStream      	TileByteStream-*        	TileCalorimeter/TileSvc
+use TileCalibBlobObjs   	TileCalibBlobObjs-*		TileCalorimeter/TileCalib
+
+use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
+
+end_private
+
+library TileCalibAlgs Tile*.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTMathLibs
