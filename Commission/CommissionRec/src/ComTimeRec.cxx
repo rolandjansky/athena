@@ -10,9 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "CommissionRec/ComTimeRec.h"
 #include "CommissionEvent/ComTime.h"
 #include "CommissionUtils/CosmicTriggerTimeTool.h"
