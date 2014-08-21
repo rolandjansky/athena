@@ -1,0 +1,64 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file RootConversions/VectorConverter.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2009, from previous code.
+ * @brief Template for streamer converter for vector<T> -> vector<U>,
+ *        assuming T is convertable to U.
+ */
+
+
+namespace RootConversions {
+
+
+/**
+ * @brief Constructor.
+ * @param tname The name of the vector element type T.
+ */
+template <typename T, typename U>
+VectorConverter<T, U>::VectorConverter (const char* tname)
+{
+  std::string vname = "vector<";
+  vname += tname;
+  if (vname[vname.size()-1] == '>')
+    vname += ' ';
+  vname += '>';
+  m_cl = gROOT->GetClass (vname.c_str());
+}
+
+
+/**
+ * @brief Run the streamer.
+ * @param b Buffer from which to read.
+ * @param pmember Pointer to the object into which to read.
+ * @param size Number of instances to read.
+ */
+template <typename T, typename U>
+void VectorConverter<T, U>::operator() (TBuffer& b,
+                                        void* pmember, 
+                                        Int_t size /*=0*/)
+{
+  // This only works for reading!
+  assert (b.IsReading());
+
+  // The transient object.
+  std::vector<U>* obj = reinterpret_cast<std::vector<U>*> (pmember);
+
+  // We'll read into this object.
+  std::vector<T> tmp;
+
+  while (size-- > 0) {
+    // Read into tmp and copy data to *obj.
+    tmp.clear();
+    m_cl->Streamer (&tmp, b);
+    obj->assign (tmp.begin(), tmp.end());
+    ++obj;
+  }
+}
+
+
+} // namespace RootConversions

@@ -1,0 +1,77 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TVirtualConverter.icc,v 1.2 2006-12-19 04:11:20 ssnyder Exp $
+/**
+ * @file TVirtualConverter.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2006
+ * @brief Base class for Root converters --- template implementations.
+ */
+
+
+/**
+ * @brief Constructor, with class pointers.
+ * @param trans_cls  The transient class to which we will be converting.
+ * @param pers_cls   The persistent class to which we will be converting.
+ *
+ * The checksum will be calculated automatically from the provided classes.
+ *
+ * If either of the class pointers is defaulted to 0, the class pointer
+ * will be computed from the appropriate template parameter.
+ */
+template <class TTrans, class TPers>
+TVirtualConverter_T<TTrans, TPers>::TVirtualConverter_T
+  (TClass* trans_class /*= 0*/,
+   TClass* pers_class /*= 0*/)
+  : TVirtualConverter (trans_class ?
+                       trans_class :
+                       TVirtualConverter::ToClass (typeid (TTrans)),
+                       pers_class ?
+                       pers_class :
+                       TVirtualConverter::ToClass (typeid (TPers)))
+{}
+
+
+/**
+ * @brief Constructor, with checksum and class pointers.
+ * @param checksum   The Root checksum of the persistent class we'll convert.
+ * @param trans_cls  The transient class to which we will be converting.
+ * @param pers_cls   The persistent class to which we will be converting.
+ *
+ * If either of the class pointers is defaulted to 0, the class pointer
+ * will be computed from the appropriate template parameter.
+ */
+template <class TTrans, class TPers>
+TVirtualConverter_T<TTrans, TPers>::TVirtualConverter_T 
+  (UInt_t checksum,
+   TClass* trans_class /*= 0*/,
+   TClass* pers_class /*= 0*/)
+  : TVirtualConverter (checksum,
+                       trans_class ?
+                       trans_class :
+                       TVirtualConverter::ToClass (typeid (TTrans)),
+                       pers_class ?
+                       pers_class :
+                       TVirtualConverter::ToClass (typeid (TPers)))
+{}
+
+
+/**
+ * @brief Do the conversion.
+ * @param transobj Pointer to an instance of the transient class.
+ * @param persobj Pointer to an instance of the persistent class.
+ *
+ * This implementation simply calls the @c Convert below
+ * with the appropriate casting.
+ */
+template <class TTrans, class TPers>
+void TVirtualConverter_T<TTrans, TPers>::ConvertVoid (void* transobj,
+                                                      const void* persobj)
+{
+  this->Convert (reinterpret_cast<TTrans*> (transobj),
+                 reinterpret_cast<const TPers*> (persobj));
+}
+
+
