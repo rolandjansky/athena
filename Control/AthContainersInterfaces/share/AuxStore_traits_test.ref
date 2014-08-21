@@ -1,0 +1,9 @@
+int SG::NoAuxStore SG::NoAuxStore SG::NoAuxStore SG::NoAuxStore
+vector<int> SG::NoAuxStore SG::NoAuxStore SG::NoAuxStore SG::NoAuxStore
+DV<int> SG::NoAuxStore SG::NoAuxStore SG::NoAuxStore SG::NoAuxStore
+D SG::IAuxStore SG::IConstAuxStore SG::IAuxStore SG::IConstAuxStore
+DV<D> SG::IAuxStore SG::IConstAuxStore SG::IAuxStore SG::IConstAuxStore
+W SG::IAuxStore SG::IConstAuxStore SG::IAuxStore SG::IConstAuxStore
+X Y Z Y Z
+W* SG::IAuxStore SG::IConstAuxStore SG::IAuxStore SG::IConstAuxStore
+X* Y Z Y Z
