@@ -1,0 +1,104 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/tools/ForwardIndexingPolicy.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2013
+ * @brief Indexing policy for a vector-like container.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Test to see if an index is valid.
+ * @param index The index to test.
+ */
+template <class CONT>
+inline
+bool ForwardIndexingPolicy<CONT>::isValid (stored_index_type index)
+{
+  return index != static_cast<stored_index_type>(INVALID);
+}
+
+
+/**
+ * @brief Convert from stored to external index types.
+ * @param index The stored index.
+ */
+template <class CONT>
+inline
+typename ForwardIndexingPolicy<CONT>::index_type
+ForwardIndexingPolicy<CONT>::storedToExternal (stored_index_type index)
+{
+  if (index == static_cast<stored_index_type>(INVALID))
+    return INVALID;
+  return index;
+}
+
+
+/**
+ * @brief Make an index invalid.
+ * @param index[out] The index to reset.
+ */
+template <class CONT>
+inline
+void ForwardIndexingPolicy<CONT>::reset (stored_index_type& index)
+{
+  index = static_cast<stored_index_type>(INVALID);
+}
+
+
+/**
+ * @brief Retrieve from a container the element corresponding to an index.
+ * @param index The index to fetch.
+ * @param data The container.
+ *
+ * Will throw SG::ExcBadForwardLink if the index is invalid.
+ */
+template <class CONT>
+inline
+typename ForwardIndexingPolicy<CONT>::ElementType
+ForwardIndexingPolicy<CONT>::lookup (index_type index, const CONT& data)
+{ 
+  if (!isValid(index) || (data.size() <= index)) {
+    SG::throwExcBadForwardLink (index, data.size());
+  }
+
+  const_iterator iter = data.begin();
+  std::advance(iter, index);
+  return *iter;
+}
+
+
+/**
+ * @brief Find the index of the (first) instance of ELEMENT in DATA.
+ * @param data The container to search.
+ * @param element The element to find.
+ * @param index[out] The index in the container of @c element.
+ *
+ * Throws SG::ExcElementNotFound if the element is not in the container.
+ */
+template <class CONT>
+void ForwardIndexingPolicy<CONT>::reverseLookup(const CONT& data,
+                                                ElementConstReference element,
+                                                index_type& index)
+{
+  //compiler checks we can compare elements
+  ::boost::function_requires<typename ::boost::EqualityComparableConcept<ElementType> >();
+
+  // Note that reverse lookup redoes the lookup even if m_isValid is true.
+  // Must ensure that we get correct index before persistency
+  index = INVALID;
+  typename CONT::size_type cindex;
+  if (!SG::findInContainer (data, element, cindex))
+    throwExcElementNotFound ("reverseLookup");
+  index = cindex;
+}
+
+
+} // namespace SG

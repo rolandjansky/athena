@@ -1,0 +1,273 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/////////////////////////////////
+// Constructors and Destructor //
+/////////////////////////////////
+
+template<class OBJCONT,class ASSCONT>
+AssociationMap<OBJCONT,ASSCONT>::AssociationMap()
+{ }
+
+template<class OBJCONT,class ASSCONT>
+AssociationMap<OBJCONT,ASSCONT>::~AssociationMap() 
+{
+  m_associationMap.clear();
+}
+
+////////////////////////////////////
+// Add Association Implementation //
+////////////////////////////////////
+
+// add using indices
+template<class OBJCONT,class ASSCONT>
+void
+AssociationMap<OBJCONT,ASSCONT>::addAssociation(const object_container_type*
+						objectContainer,
+						const object_index_type& 
+						objectIndex,
+						const asso_container_type*
+						assoContainer,
+						const asso_index_type&
+						assoIndex)
+{
+  // object link
+  object_link objectLink( *objectContainer, objectIndex );
+  objectLink.setElement( (*objectContainer)[objectIndex] );
+
+  // association link
+  asso_link assoLink( *assoContainer, assoIndex );
+  assoLink.setElement( (*assoContainer)[assoIndex]);
+
+  // add to store
+  this->addToStore(objectLink,assoLink);
+}
+
+// add using pointers
+template<class OBJCONT,class ASSCONT>
+void
+AssociationMap<OBJCONT,ASSCONT>::addAssociation(const object_container_type*
+						objectContainer,
+						const object_type*
+						objectPointer,
+						const asso_container_type*
+						assoContainer,
+						const asso_type*
+						assoPointer)
+{
+  // add to store
+  this->addToStore( object_link( objectPointer, *objectContainer ),
+		    asso_link  ( assoPointer,   *assoContainer   ) );
+}
+
+/////////////////////
+// Iterator Access //
+/////////////////////
+
+// first object
+template<class OBJCONT,class ASSCONT>
+inline typename AssociationMap<OBJCONT,ASSCONT>::object_iterator
+AssociationMap<OBJCONT,ASSCONT>::beginObject() const
+{ 
+  return object_iterator(m_associationMap).begin(); 
+}
+
+// last object ++
+template<class OBJCONT,class ASSCONT>
+inline typename AssociationMap<OBJCONT,ASSCONT>::object_iterator
+AssociationMap<OBJCONT,ASSCONT>::endObject() const
+{ 
+  return object_iterator(m_associationMap).end(); 
+}
+
+template<class OBJCONT,class ASSCONT>
+inline typename AssociationMap<OBJCONT,ASSCONT>::asso_iterator
+AssociationMap<OBJCONT,ASSCONT>::beginAssociation(const object_iterator&
+						  objectIter ) const
+{
+  return this->beginAssociation(objectIter.getObject());
+}
+
+template<class OBJCONT,class ASSCONT>
+inline typename AssociationMap<OBJCONT,ASSCONT>::asso_iterator
+AssociationMap<OBJCONT,ASSCONT>::endAssociation(const object_iterator&
+						objectIter ) const
+{
+  return this->endAssociation(objectIter.getObject());
+}
+
+// association begin iterator
+template<class OBJCONT,class ASSCONT>
+typename AssociationMap<OBJCONT,ASSCONT>::asso_iterator
+AssociationMap<OBJCONT,ASSCONT>::beginAssociation(const object_type* 
+						  objectPointer) const
+{
+  // find object
+  object_iterator foundIter = this->findObject(objectPointer);
+
+  // object found
+  if ( foundIter != this->endObject() )
+    {
+      return foundIter.getFirstAssociation();
+    }
+  // dummy end()
+  else
+    {
+      return object_iterator(m_associationMap, 
+			     m_associationMap.end()).getLastAssociation();
+    }
+}
+
+// association end iterator
+template<class OBJCONT,class ASSCONT>
+typename AssociationMap<OBJCONT,ASSCONT>::asso_iterator
+AssociationMap<OBJCONT,ASSCONT>::endAssociation(const object_type*
+						objectPointer) const
+{
+  // find object
+  object_iterator foundIter = this->findObject(objectPointer);
+
+  // object found
+  if ( foundIter != this->endObject() )
+    {
+      return foundIter.getLastAssociation();
+    }
+  // dummy end()
+  else
+    {
+      return object_iterator(m_associationMap, 
+			     m_associationMap.end()).getLastAssociation();
+    }
+}
+
+////////////////////////////
+// Store Parameter Access //
+////////////////////////////
+
+template<class OBJCONT,class ASSCONT>
+size_t
+AssociationMap<OBJCONT,ASSCONT>::size(const object_type* objectPointer) const
+{
+  object_iterator foundIter = this->findObject(objectPointer);
+  if ( foundIter != this->endObject() )
+    {
+      return this->size(foundIter);
+    }
+  return 0;
+}
+
+/////////////
+// Finders //
+/////////////
+	   
+
+// find association for given object
+template<class OBJCONT,class ASSCONT>
+typename AssociationMap<OBJCONT,ASSCONT>::asso_iterator
+AssociationMap<OBJCONT,ASSCONT>::findAssociation(const object_type* objectPointer,
+						 const asso_type* assoPointer)
+  const
+{
+  // find object first
+  object_iterator foundIter = object_iterator(m_associationMap).find(objectPointer);
+  if ( foundIter == this->endObject() )
+    {
+      return object_iterator(m_associationMap, 
+			     m_associationMap.end()).getLastAssociation();
+    }
+  // find association
+  return (foundIter.second()).find(assoPointer);
+}
+
+// check on association for a given object
+template<class OBJCONT,class ASSCONT>
+bool 
+AssociationMap<OBJCONT,ASSCONT>::containsAssociation(const object_type* objectPointer,
+						     const asso_type* assoPointer) const
+{
+  const object_iterator obj = this->findObject( objectPointer );
+  if ( obj != endObject() ) {
+    return obj.containsAssociation(assoPointer);
+  } else {
+    return false;
+  }
+}
+
+// find if it contains association anywhere
+template<class OBJCONT,class ASSCONT>
+bool
+AssociationMap<OBJCONT,ASSCONT>::containsAssociation(const asso_type* 
+						     assoPointer) 
+  const
+{
+  const object_iterator lastObj  = this->endObject();
+  for ( object_iterator objItr = this->beginObject(); 
+	objItr != lastObj; 
+	++objItr ) {
+    asso_iterator lastAsso = this->endAssociation( objItr );
+    for ( asso_iterator assItr = this->beginAssociation(objItr);
+	  assItr != lastAsso;
+	  ++assItr ) {
+      if ( *assItr == assoPointer ) {
+	return true;
+      }
+    }//> end loop over associated objects
+  }//> end loop over objects
+
+  return false;
+}
+
+// retrieve all objects for a given association
+template<class OBJCONT,class ASSCONT>
+bool
+AssociationMap<OBJCONT,ASSCONT>::getObjects(const asso_type* assoPointer,
+					    object_list& theObjects) const
+{
+  const object_iterator objEnd = this->endObject();
+  for ( object_iterator objItr = this->beginObject(); 
+	objItr != objEnd; 
+	++objItr ) {
+    const object_type* pObj = objItr.getObject();
+    if ( this->containsAssociation(pObj,assoPointer) ) {
+      theObjects.push_back(pObj);
+    }
+  }
+  return theObjects.size() > 0;
+}
+
+// retrieve all associated-objects for a given object
+template<class OBJCONT,class ASSCONT>
+bool
+AssociationMap<OBJCONT,ASSCONT>::getAssociations(const object_type* objPointer,
+						 asso_list& assocs) const
+{
+  const size_t origSize = assocs.size();
+  const asso_iterator assocEnd = this->endAssociation(objPointer);
+  for ( asso_iterator assocItr = this->beginAssociation(objPointer); 
+	assocItr != assocEnd; 
+	++assocItr ) {
+    assocs.push_back( *assocItr );
+  }
+  return assocs.size() > origSize;
+}
+
+/////////////////////////////////////////////////////////////////// 
+/// Protected methods: 
+/////////////////////////////////////////////////////////////////// 
+
+template<class OBJCONT,class ASSCONT>
+bool
+AssociationMap<OBJCONT,ASSCONT>::addToStore(const object_link& objectLink, 
+					    const asso_link& assoLink)
+{
+  // check if already in (no association to be stored twice)
+  if ( this->internalFind(objectLink,assoLink) != m_associationMap.end() ) { 
+    return false; 
+  } else {
+    // store
+    m_associationMap[objectLink].push_back(assoLink);
+    return true;
+  }
+}
+

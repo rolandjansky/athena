@@ -1,0 +1,617 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/ElementLink.h
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2014
+ * @brief a persistable pointer to an element of a STORABLE (data object)
+ */
+
+
+#include "AthLinks/exceptions.h"
+
+
+/**
+ * @brief Return the CLID for the class that we reference.
+ */
+template <class STORABLE>
+inline
+const CLID& ElementLink<STORABLE>::classID()
+{
+  return ClassID_traits<value_type>::ID(); 
+}
+
+
+/**
+ * @brief Default constructor.  Makes a null link.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink()
+{
+}
+
+
+/**
+ * @brief Construct a link from a string storable key and an index.  O(1)
+ * @param dataID Key of the object.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink(const ID_type& dataID, index_type elemID, 
+                                   IProxyDictWithPool* sg /*= 0*/)
+  : Base (dataID, classID(), elemID, sg)
+{
+}
+
+
+/**
+ * @brief Construct a link from a hashed storable key and an index.  O(1)
+ * @param key Hashed key of the object.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink(sgkey_t key, index_type elemID, 
+                                   IProxyDictWithPool* sg /*= 0*/)
+  : Base (key, classID(), elemID, sg)
+{
+}
+
+
+/**
+ * @brief Construct from a string storable key, index, AND pointer to element.  O(1)
+ * @param dataID Key of the object.
+ * @param elemID The index of the element within the container.
+ * @param pEl Pointer to the element.
+ * @param sg Associated store.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink(const ID_type& dataID,
+                                   index_type elemID,
+                                   ElementType pEl,
+                                   IProxyDictWithPool* sg /*= 0*/)
+  : Base (dataID, classID(), elemID, pEl, sg)
+{
+}
+
+
+/**
+ * @brief Construct from a hashed storable key, index, AND pointer to element.  O(1)
+ * @param key Hashed key of the object.
+ * @param elemID The index of the element within the container.
+ * @param pEl Pointer to the element.
+ * @param sg Associated store.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (sgkey_t key,
+                                    index_type elemID,
+                                    ElementType pEl,
+                                    IProxyDictWithPool* sg /*= 0*/)
+  : Base (key, classID(), elemID, pEl, sg)
+{
+}
+
+
+/**
+ * @brief Construct a link from an index and reference to the container. O(1)
+ * @param data Reference to the container (storable).
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ * 
+ * If @c sg is 0, we take the global default.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (BaseConstReference data,
+                                    index_type elemID, 
+                                    IProxyDictWithPool* sg /* = 0*/)
+  : Base (&data, classID(), elemID, sg)
+{
+}
+
+
+/**
+ * @brief Construct from an element and reference to the container. O(N)
+ * @param element The element to reference.
+ * @param data Reference to the container (storable).
+ * @param sg Associated store.
+ *
+ * Does the same thing as the default ctor followed by @c toContainedElement.
+ * Note the reversed parameter order compared to the previous
+ * constructor.  This is to prevent ambiguities in the case that
+ * the contained type is convertable to an int.
+ *
+ * Will throw @c SG::ExcElementNotFound if the element is not
+ * in the container.
+ * 
+ * If @c sg is 0, we take the global default.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::ElementLink (const ElementType& element, 
+                                    BaseConstReference data,
+                                    IProxyDictWithPool* sg /*= 0*/)
+{
+  toContainedElement (data, element, sg);
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced container object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::const_pointer
+ElementLink<STORABLE>::getDataPtr() const
+{
+  return reinterpret_cast<const_pointer> (this->storable());
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced container object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::pointer
+ElementLink<STORABLE>::getDataNonConstPtr()
+{
+  return reinterpret_cast<pointer> (this->storableNonConst());
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced container object.
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::BaseConstPointer
+ElementLink<STORABLE>::getStorableObjectPointer() const
+{
+  return getDataPtr();
+}
+
+
+/**
+ * @brief Return a reference to the currently-referenced container object.
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::BaseConstReference
+ElementLink<STORABLE>::getStorableObjectRef() const
+{
+  return *getDataPtr();
+}
+
+
+/**
+ * @brief Return a pointer to the referenced element.
+ *
+ * Be aware: if the element is a pointer, then this will yield
+ * a pointer to a pointer.
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::ElementConstPointer
+ElementLink<STORABLE>::cptr() const
+{
+  ElementConstPointer ret = 0;
+  if (this->getCachedElement (ret))
+    return ret;
+
+  const STORABLE* ptr = this->getDataPtr();
+  if (ptr && IndexingPolicy::isValid(this->storedIndex())) {
+    this->setCachedElement (IndexingPolicy::lookup(this->storedIndex(), *ptr));
+    this->getCachedElement (ret);
+  }
+  return ret;
+}
+
+
+/**
+ * @brief Return a reference to the referenced element.
+ *
+ * Will throw an exception if the link is not valid.
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::ElementConstReference
+ElementLink<STORABLE>::operator* () const
+{
+  ElementConstPointer ptr = cptr();
+  if (!ptr)
+    SG::throwExcInvalidLink (classID(), this->dataID(), this->key());
+  return *ptr;
+}
+
+
+/**
+ * @brief Return a pointer to the referenced element.
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::ElementConstPointer
+ElementLink<STORABLE>::operator->() const
+{
+  return cptr();
+}
+
+
+/**
+ * @brief Convert to a pointer to the referenced element.
+ */
+template <class STORABLE>
+inline
+ElementLink<STORABLE>::operator ElementConstPointer () const
+{
+  return cptr();
+}
+
+
+/**
+ * @brief Test to see if the link can be dereferenced.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::isValid() const
+{
+  return (0 != cptr());
+}
+
+
+/**
+ * @brief Test to see if the link can not be dereferenced.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::operator!() const
+{
+  return !isValid();
+}
+
+
+/**
+ * @brief Return the cached element, if any.
+ */
+template <class STORABLE>
+inline
+typename ElementLink<STORABLE>::ElementType
+ElementLink<STORABLE>::cachedElement() const
+{ 
+  ElementConstPointer ret = 0;
+  if (this->getCachedElement (ret))
+    return *ret;
+  return ElementType();
+}
+
+
+/**
+ * @brief Set the link to an element given by index and pointer to container.
+ * @param data Reference to the container (storable).
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class STORABLE>
+inline
+bool
+ElementLink<STORABLE>::toIndexedElement(BaseConstReference data,
+                                        index_type elemID,
+                                        IProxyDictWithPool* sg /*= 0*/)
+{
+  return Base::toIndexedElement (&data, classID(), elemID, sg);
+}
+
+
+/**
+ * @brief Set from element pointer and a reference to the container (storable)
+ * @param data Reference to the container (storable).
+ * @param element The element.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * O(N) for sequences!
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
+                                               ElementType element,
+                                               IProxyDictWithPool* sg /*= 0*/)
+{
+  index_type index = this->index();
+  IndexingPolicy::reverseLookup (data, element, index);
+  bool ret = Base::toIndexedElement (&data, classID(), index, sg);
+  if (ret)
+    this->setCachedElement (element);
+  return ret;
+}
+
+
+/**
+ * @brief Set to point to an element.
+ * @param element The element.
+ * @returns True if the link was changed.
+ *
+ * The collection and the element can be specified independently
+ * using @c setElement and @c setStorableObject.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::setElement(ElementType element)
+{
+  if (!this->isDefaultIndex() || this->hasCachedElement())
+    return false;
+  this->setCachedElement (element);
+  const STORABLE* ptr = this->getDataPtr();
+  if (ptr) {
+    index_type index = this->index();
+    IndexingPolicy::reverseLookup (*ptr, element, index);
+    this->setIndex (index);
+  }
+  return true;
+}
+
+
+/**
+ * @brief Set link to point to a new container (storable).
+ * @param data Reference to the container (storable).
+ * @param replace True if we can change an existing link.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged unless @c replace is set.  The @c replace argument
+ * should be set if the element is now in a new storable container;
+ * e.g. element ptr has been put in a new view container.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::setStorableObject(BaseConstReference data,
+                                              bool replace /*= false*/,
+                                              IProxyDictWithPool* sg /*= 0*/)
+{
+  bool ret = Base::setStorableObject (&data, classID(), replace, sg);
+  if (ret) {
+    ElementConstPointer elt = 0;
+    if (this->isDefaultIndex() && this->getCachedElement (elt)) {
+      index_type index = this->index();
+      IndexingPolicy::reverseLookup (data, *elt, index);
+      this->setIndex (index);
+      return true;
+    }
+  }
+  return ret;
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param dataID Key of the object.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class STORABLE>
+inline
+void ElementLink<STORABLE>::resetWithKeyAndIndex(const ID_type& dataID,
+                                                 index_type elemID, 
+                                                 IProxyDictWithPool* sg /*= 0*/)
+{
+  Base::resetWithKeyAndIndex (dataID, classID(), elemID, sg);
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param key Hashed key of the object.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class STORABLE>
+inline
+void ElementLink<STORABLE>::resetWithKeyAndIndex(sgkey_t key,
+                                                 index_type elemID, 
+                                                 IProxyDictWithPool* sg /*= 0*/)
+{
+  Base::resetWithKeyAndIndex (key, classID(), elemID, sg);
+}
+
+
+/**
+ * @brief Return a (void) pointer to the currently-referenced
+ *        container object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <class STORABLE>
+inline
+const void* ElementLink<STORABLE>::storable() const
+{
+  typedef STORABLE* fn_t (SG::DataProxy*);
+  fn_t* fn = &SG::DataProxy_cast<STORABLE>;
+  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID());
+}
+
+
+/**
+ * @brief Return a (void) pointer to the currently-referenced
+ *        container object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <class STORABLE>
+inline
+void* ElementLink<STORABLE>::storableNonConst()
+{
+  typedef STORABLE* fn_t (SG::DataProxy*);
+  fn_t* fn = &SG::DataProxy_cast<STORABLE>;
+  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID());
+}
+
+
+/**
+ * @brief Ordering relation for @c ElementLink (less-than)
+ * @param lhs Left-hand-side EL.
+ * @param rhs Right-hand-side EL.
+ */
+template <typename STORABLE>
+bool operator < (const ElementLink<STORABLE>& lhs,
+		 const ElementLink<STORABLE>& rhs)
+{
+  if (lhs.isDefault() && rhs.isDefault()) return false;
+  if (lhs.key() == 0 || rhs.key() == 0 || lhs.isDefaultIndex() || rhs.isDefaultIndex())
+    SG::throwExcIncomparableEL();
+  if (lhs.key() < rhs.key()) return true;
+  if (lhs.key() > rhs.key()) return false;
+  if (lhs.index() < rhs.index()) return true;
+  return false;
+} 
+
+
+/**
+ * @brief Ordering relation for @c ElementLink (greater-than)
+ * @param lhs Left-hand-side EL.
+ * @param rhs Right-hand-side EL.
+ */
+template <typename STORABLE>
+inline
+bool operator > (const ElementLink<STORABLE>& lhs,
+		 const ElementLink<STORABLE>& rhs)
+{
+  return (rhs < lhs);
+}
+
+
+/**
+ * @brief Equality relation for @c ElementLink.
+ * @param lhs Left-hand-side EL.
+ * @param rhs Right-hand-side EL.
+ */
+template <typename STORABLE>
+inline
+bool operator == (const ElementLink<STORABLE>& lhs,
+		  const ElementLink<STORABLE>& rhs)
+{
+  return !((lhs < rhs) || (rhs < lhs));
+}
+
+
+/**
+ * @brief Inequality relation for @c ElementLink.
+ * @param lhs Left-hand-side EL.
+ * @param rhs Right-hand-side EL.
+ */
+template <typename STORABLE>
+inline
+bool operator != (const ElementLink<STORABLE>& lhs,
+		  const ElementLink<STORABLE>& rhs)
+{
+  return !(lhs == rhs);
+}
+
+
+namespace SG_detail {
+
+
+/**
+ * @brief See if an EL is being remapped.
+ * @param sgkey_in Original hashed key of the EL.
+ * @param index_in Original index of the EL.
+ * @param sgkey_out[out] New hashed key for the EL.
+ * @param index_out[out] New index for the EL.
+ * @return True if there is a remapping; false otherwise.
+ *
+ * This version is for the case where the EL index is a @c size_t.
+ * For other index types, the the templated version below is used
+ * (which doesn't allow remapping indices).
+ */
+inline
+bool checkForRemap (IProxyDictWithPool* sg,
+                    SG::sgkey_t sgkey_in,
+                    size_t index_in,
+                    SG::sgkey_t& sgkey_out,
+                    size_t& index_out)
+{
+  return sg->tryELRemap (sgkey_in, index_in, sgkey_out, index_out);
+}
+
+
+/**
+ * @brief See if an EL is being remapped.
+ * @param sgkey_in Original hashed key of the EL.
+ * @param dum_in Ignored.
+ * @param sgkey_out[out] New hashed key for the EL.
+ * @param dum_out[out] Ignored.
+ * @return True if there is a remapping; false otherwise.
+ *
+ * This version catches the cases where the container index type
+ * isn't a @c size_t.  We don't support changing the index in this case.
+ */
+template <class T>
+inline
+bool checkForRemap (IProxyDictWithPool* sg,
+                    SG::sgkey_t sgkey_in,
+                    const T& /*dum_in*/,
+                    SG::sgkey_t& sgkey_out,
+                    T& /*dum_out*/)
+{
+  size_t index_in = 0;
+  size_t index_out;
+  return sg->tryELRemap (sgkey_in, index_in, sgkey_out, index_out);
+}
+
+
+} // namespace SG_detail

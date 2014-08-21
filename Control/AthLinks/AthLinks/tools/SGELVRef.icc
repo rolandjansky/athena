@@ -1,0 +1,207 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include <cassert>
+
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/IThinningSvc.h"
+
+/* #define __ELVDEBUG */
+
+// Standard Constructor
+template <typename DOBJ>
+SG::ELVRef<DOBJ>::ELVRef ( const ElemLink& link ) : 
+  m_link( link ), m_shortRef( 0 ), m_index(link.index())
+{
+}
+
+// copy constructor
+template <typename DOBJ>
+SG::ELVRef<DOBJ>::ELVRef(const ELVRef& rhs) :
+      m_link(rhs.m_link), 
+      m_shortRef(rhs.m_shortRef),
+      m_index (rhs.m_index)
+{ }
+
+// constructor from indices.
+template <typename DOBJ>
+SG::ELVRef<DOBJ>::ELVRef
+  (typename DataLinkVector::size_type hostIndex,
+   index_type elementIndex,
+   const ElemLinkVec& owner)
+    : m_shortRef (hostIndex),
+      m_index(elementIndex)
+{
+  toTransient (owner);
+}
+
+// return the index
+template <typename DOBJ>
+typename SG::ELVRef<DOBJ>::index_type
+SG::ELVRef<DOBJ>::elementIndex() const
+{
+  return m_link.index();
+}
+
+// return the key
+template <typename DOBJ>
+typename SG::ELVRef<DOBJ>::ID_type
+SG::ELVRef<DOBJ>::dataID() const {
+  return m_link.dataID();
+}
+
+// Move to persistent state
+template <typename DOBJ>
+bool
+SG::ELVRef<DOBJ>::toPersistent
+  (const ElemLinkVec& owner)
+{
+  // Handle null reference.
+  if (m_link.isDefault())
+    return true;
+
+  // Do the contained EL.
+  if (!m_link.toPersistent())
+    return false;
+
+  // Transfer the index.
+  index_type index;
+  try {
+    index = this->m_link.index();
+  }
+  catch (const SG::ExcElementNotFound&)
+  {
+    index = IThinningSvc::generateRemovedIdx<index_type>();
+  }
+  m_index = index;
+
+  // Calculate the distance in DataLinkVector
+  typename DataLinkVector::const_iterator iHost(owner.findHostDObj(m_link));
+
+  if ( iHost != owner.endHostDObjs() ) {
+    m_shortRef = std::distance(owner.beginHostDObjs(), iHost);
+  } 
+  else {
+    MsgStream log(Athena::getMessageSvc(), "SG::ELVRef");
+    log << MSG::WARNING
+	<< "link not found in ElemLinkVector" << endreq;
+    return false;
+  }
+
+  return true;
+}
+
+// Move to persistent state and return shortref.
+template <typename DOBJ>
+inline
+bool
+SG::ELVRef<DOBJ>::toPersistent
+  (const ElemLinkVec& owner,
+   typename DataLinkVector::size_type& shortref)
+{
+  bool ret = toPersistent (owner);
+  shortref = m_shortRef;
+  return ret;
+}
+
+
+// Move to transient state
+template <typename DOBJ>
+bool
+SG::ELVRef<DOBJ>::toTransient
+  (const ElemLinkVec& owner)
+{
+  bool success = true;
+
+  // handle thinned-away/null elements
+  if ( IThinningSvc::isThinned (m_shortRef) ||
+       !IndexingPolicy::isValid(m_index))
+  {
+    m_link = ElemLink();
+    return success;
+  }
+
+  // locate DataLink
+  typename DataLinkVector::const_iterator iHost(owner.beginHostDObjs());
+
+  if (m_shortRef >= (unsigned)(owner.endHostDObjs() - iHost)) {
+    MsgStream log(Athena::getMessageSvc(), "ElementLinkVector");
+    log << MSG::ERROR
+        << "ELVRef::toTransient: shortref index of " << m_shortRef
+        << " is beyond the end of the host container (size "
+        << owner.endHostDObjs() - iHost << ")" << endreq;
+    m_link = ElemLink();
+    return false;
+  }
+
+  std::advance(iHost, m_shortRef);
+  assert(iHost != owner.endHostDObjs());
+
+  // create a new ElementLink
+  m_link = ElemLink(iHost->key(), this->index());
+
+  return success;
+}
+
+template <typename DOBJ>
+bool
+SG::ELVRef<DOBJ>::doRemap()
+{
+  SG::sgkey_t new_key;
+  index_type new_index;
+  if (this->m_link.isDefault())
+    return false;
+  index_type index;
+  try {
+    index = this->m_link.index();
+  }
+  catch (const SG::ExcElementNotFound&)
+  {
+    index = IThinningSvc::generateRemovedIdx<index_type>();
+  }
+
+  if (SG_detail::checkForRemap (this->m_link.source(),
+                                this->m_link.key(),
+                                index,
+                                new_key,
+                                new_index))
+  {
+    this->m_link.resetWithKeyAndIndex (new_key, new_index);
+    return true;
+  }
+  return false;
+}
+
+
+// operator =
+template <typename DOBJ>
+SG::ELVRef<DOBJ>&
+SG::ELVRef<DOBJ>::operator=(const ELVRef& rhs) {
+#ifdef __ELVDEBUG
+    MsgStream log(Athena::getMessageSvc(), "SG::ELVRef");
+    log << MSG::DEBUG 
+	<< "operator= called on " << dataID() << '/' << index()
+	<< " with  rhs " << rhs.dataID() << '/' << rhs.index() 
+	<< std::endl;
+#endif
+
+  if (&rhs != this) {
+    m_index = rhs.m_index;
+    m_link = rhs.m_link; 
+    m_shortRef = rhs.m_shortRef;
+  }
+#ifdef __ELVDEBUG
+    MsgStream log(Athena::getMessageSvc(), "SG::ELVRef");
+    log << MSG::DEBUG
+	<< "operator= result is " << dataID() << '/' << index() 
+	<< std::endl;	
+#endif
+
+  return *this;
+}
+

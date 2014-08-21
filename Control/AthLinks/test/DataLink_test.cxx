@@ -1,0 +1,386 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/test/DataLink_test.cxx
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2013
+ * @brief Regression tests for DataLink
+ */
+
+#undef NDEBUG
+#include "AthLinks/DataLink.h"
+#include "AthLinks/tools/SGgetDataSource.h"
+#include "SGTools/IProxyDictWithPool.h"
+#include "SGTools/CLASS_DEF.h"
+#include "SGTools/StorableConversions.h"
+#include "SGTools/DataProxy.h"
+#include "SGTools/ClassID_traits.h"
+#include "SGTools/TransientAddress.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include <iostream>
+#include <cstdlib>
+#include <cassert>
+
+
+#include "TestStore.icc"
+#include "expect_exception.icc"
+
+
+IProxyDictWithPool* storePtr2 = &store;
+
+
+struct Foo
+{
+  Foo (int the_x) : x (the_x) {}
+  virtual ~Foo() {}
+  int x;
+};
+const unsigned int fooclid = 23423556;
+CLASS_DEF (Foo, fooclid, 1)
+
+
+struct Bar
+  : public Foo
+{
+  Bar (int the_x) : Foo (the_x) {}
+  virtual ~Bar() {}
+};
+const unsigned int barclid = 23423557;
+CLASS_DEF (Bar, barclid, 1)
+
+
+void test1()
+{
+  std::cout << "test1\n";
+
+  DataLink<Foo> dl1;
+  assert (dl1.isDefault());
+  assert (!dl1.isValid());
+  assert (!dl1);
+  assert (dl1.cptr() == 0);
+  assert (dl1.getDataPtr() == 0);
+  assert (dl1.getDataNonConstPtr() == 0);
+  assert (dl1.dataID() == "");
+  assert (dl1.key() == 0);
+  assert (dl1.source() == 0);
+
+  assert (dl1.classID() == fooclid);
+
+  DataLink<Foo> dl2 ((Foo*)0);
+  assert (dl2.isDefault());
+  assert (!dl2.isValid());
+  assert (!dl2);
+  assert (dl2.cptr() == 0);
+  assert (dl2.getDataPtr() == 0);
+  assert (dl2.getDataNonConstPtr() == 0);
+  assert (dl2.dataID() == "");
+  assert (dl2.key() == 0);
+  assert (dl2.source() == 0);
+
+  assert (dl1 == dl2);
+  assert (! (dl1 != dl2));
+
+  Foo* foo2 = new Foo(10);
+
+  store.record (foo2, "foo2");
+  DataLink<Foo> dl3 (foo2);
+  assert (!dl3.isDefault());
+  assert (dl3.isValid());
+  assert (!!dl3);
+  assert (dl3.cptr() == foo2);
+  assert (dl3->x == 10);
+  assert ((*dl3).x == 10);
+  const Foo* foo2a = dl3;
+  assert (foo2a = foo2);
+  assert (foo2 == dl3.getDataPtr());
+  assert (foo2 == dl3.getDataNonConstPtr());
+  assert (dl3.source() == &store);
+
+  Bar* bar = new Bar (5);
+  store.record (bar, "bar");
+
+  EXPECT_EXCEPTION (SG::ExcCLIDMismatch, DataLink<Foo> dlx (bar));
+
+  DataLink<Bar> dlb (bar);
+  assert (dlb.isValid());
+
+  DataLink<Foo> dl4 (dl3);
+  assert (dl4.cptr() == foo2);
+  assert (dl4 == dl3);
+  assert (dl4 != dl1);
+  assert (dl4.dataID() == "foo2");
+  assert (dl4.key() == store.stringToKey ("foo2", fooclid));
+
+  dl4.clear();
+  assert (dl4.isDefault());
+  assert (dl4.cptr() == 0);
+  dl4 = dl3;
+  assert (dl4.cptr() == foo2);
+  dl4.clear();
+  assert (dl4.isDefault());
+  assert (dl4.cptr() == 0);
+
+  const Foo& foo2b = *foo2;
+  DataLink<Foo> dl5 (foo2b);
+  assert (dl5.cptr() == foo2);
+
+  DataLink<Foo> dl6 ("foo2");
+  assert (!dl6.isDefault());
+  assert (dl6.isValid());
+  assert (!!dl6);
+  assert (dl6.cptr() == foo2);
+  assert (dl6->x == 10);
+
+  TestStore::sgkey_t sgkey = store.stringToKey ("foo2", fooclid);
+  DataLink<Foo> dl7 (sgkey);
+  assert (!dl7.isDefault());
+  assert (dl7.isValid());
+  assert (!!dl7);
+  assert (dl7.cptr() == foo2);
+  assert (dl7->x == 10);
+
+  EXPECT_EXCEPTION (SG::ExcCLIDMismatch,
+                    {
+                      TestStore::sgkey_t sgkey_x =
+                        store.stringToKey ("bar", barclid);
+                      DataLink<Foo> dlx (sgkey_x);
+                    });
+
+  TestStore store2;
+  Foo* foo3 = new Foo(20);
+  store2.record (foo3, "foo2");
+
+  DataLink<Foo> dl8 (foo3, &store2);
+  assert (dl8.cptr() == foo3);
+  DataLink<Foo> dl9 (*foo3, &store2);
+  assert (dl9.cptr() == foo3);
+  DataLink<Foo> dl10 ("foo2", &store2);
+  assert (dl10.cptr() == foo3);
+  DataLink<Foo> dl11 (sgkey, &store2);
+  assert (dl11.cptr() == foo3);
+  assert (dl11.source() == &store2);
+
+  Foo* foo4 = new Foo(40);
+
+  EXPECT_EXCEPTION (SG::ExcCLIDMismatch, dl3.toStorableObject (*bar));
+
+  store.record (foo4, "foo4");
+  dl3.toStorableObject (*foo4);
+  assert (dl3.cptr() == foo4);
+  dl3.toStorableObject (*foo3, &store2);
+  assert (dl3.cptr() == foo3);
+
+  dl3.toIdentifiedObject ("foo2", &store);
+  assert (dl3.cptr() == foo2);
+  dl3.toIdentifiedObject ("foo4");
+  assert (dl3.cptr() == foo4);
+
+  dl3.toIdentifiedObject (sgkey);
+  assert (dl3.cptr() == foo2);
+  dl3.toIdentifiedObject (sgkey, &store2);
+  assert (dl3.cptr() == foo3);
+
+  EXPECT_EXCEPTION (SG::ExcCLIDMismatch, 
+                    {
+                      TestStore::sgkey_t sgkey_x =
+                        store.stringToKey ("bar", barclid);
+                      dl3.toIdentifiedObject (sgkey_x, &store);
+                    });
+
+  Foo* foox = new Foo(50);
+  store.record (foox, "");
+  dl4.toDefaultObject();
+  assert (dl4.cptr() == foox);
+
+  DataLink<Foo> dl30;
+
+  EXPECT_EXCEPTION (SG::ExcInvalidLink, *dl30);
+
+  dl30.toIdentifiedObject ("foo30");
+  EXPECT_EXCEPTION (SG::ExcInvalidLink, *dl30);
+
+  Foo* foo30 = new Foo(30);
+  store.record (foo30, "foo30");
+  const Foo& rfoo30 = *dl30;
+  assert (&rfoo30 == foo30);
+}
+
+
+class DataLinkBase_test
+{
+public:
+  static void setLink (DataLinkBase& l, DataLinkBase::sgkey_t key)
+  {
+    l.m_persKey = key;
+  }
+};
+
+
+// toTransient, toPersistent
+void test2()
+{
+  std::cout << "test2\n";
+
+  TestStore::sgkey_t sgkey = store.stringToKey ("foo5", fooclid);
+
+  Foo* foo5 = new Foo(50);
+  store.record (foo5, "foo5");
+  DataLink<Foo> dl;
+  DataLinkBase_test::setLink (dl, sgkey);
+  dl.toTransient();
+  assert (dl.cptr() == foo5);
+
+  DataLink<Foo> dl2;
+  dl2.toPersistent();
+  assert (!dl2);
+  dl2.toIdentifiedObject ("foo5");
+  assert (dl2.cptr() == foo5);
+  dl2.toPersistent();
+  assert (dl2.cptr() == foo5);
+
+  
+  Foo* foo6 = new Foo(60);
+  store.record (foo6, "foo6");
+  Foo* foo7 = new Foo(70);
+  store.record (foo7, "foo7");
+  store.remap<Foo> ("foo6", "foo7");
+
+  dl2.toIdentifiedObject ("foo6");
+  assert (dl2.cptr() == foo6);
+  dl2.toPersistent();
+  assert (dl2.cptr() == foo7);
+}
+
+
+IProxyDictWithPool** getTestDataSourcePointer2 (const std::string&)
+{
+  return &storePtr2;
+}
+
+// default store setting
+void test3()
+{
+  std::cout << "test3\n";
+
+  assert (DataLinkBase::defaultDataSource() == &store);
+
+  SG::getDataSourcePointerFunc_t* old_fn = SG::getDataSourcePointerFunc;
+  SG::getDataSourcePointerFunc = getTestDataSourcePointer2;
+  assert (DataLinkBase::defaultDataSource() == &store);
+
+  TestStore store2;
+  storePtr2 = &store2;
+  assert (DataLinkBase::defaultDataSource() == &store);
+  DataLinkBase::resetCachedSource();
+  assert (DataLinkBase::defaultDataSource() == &store2);
+
+  SG::getDataSourcePointerFunc = old_fn;
+  DataLinkBase::resetCachedSource();
+}
+
+
+// dummy proxy creation.
+void test4()
+{
+  std::cout << "test4\n";
+
+  DataLink<Foo> dl1;
+  dl1.toIdentifiedObject ("foo20");
+  assert (!dl1.isDefault());
+  assert (dl1.dataID() == "foo20");
+  assert (dl1.classID() == fooclid);
+  assert (!dl1.isValid());
+
+  TestStore::sgkey_t sgkey = store.stringToKey ("foo20", fooclid);
+  assert (dl1.key() == sgkey);
+  Foo* foo20 = new Foo(20);
+  store.record (foo20, "foo20");
+  assert (dl1.isValid());
+  assert (dl1.cptr() == foo20);
+
+  TestStore store2;
+  TestStore::sgkey_t sgkey2 = store2.stringToKey ("foo21", fooclid);
+
+  DataLink<Foo> dl2;
+  dl2.toIdentifiedObject (sgkey2);
+  assert (!dl2.isDefault());
+  assert (dl2.key() == sgkey2);
+  assert (dl2.dataID() == "");
+  assert (dl2.classID() == fooclid);
+  assert (!dl2.isValid());
+
+  Foo* foo21 = new Foo(21);
+  store.record (foo21, "foo21");
+  assert (dl2.isValid());
+  assert (dl2.cptr() == foo21);
+
+  TestStore::sgkey_t sgkey3 = store.stringToKey ("foo22", fooclid);
+
+  DataLink<Foo> dl3;
+  dl3.toIdentifiedObject (sgkey3);
+  assert (!dl3.isDefault());
+  assert (dl3.key() == sgkey3);
+  assert (dl3.dataID() == "foo22");
+  assert (dl3.classID() == fooclid);
+  assert (!dl3.isValid());
+
+  Foo* foo22 = new Foo(22);
+  store.record (foo22, "foo22");
+  assert (dl3.isValid());
+  assert (dl3.cptr() == foo22);
+
+  TestStore::sgkey_t sgkey4 = store.stringToKey ("foo23", barclid);
+  DataLink<Foo> dl4;
+  EXPECT_EXCEPTION (SG::ExcCLIDMismatch, dl4.toIdentifiedObject (sgkey4));
+}
+
+
+// references to pointers not in SG.
+void test5()
+{
+  std::cout << "test5\n";
+
+  Foo* foo1 = new Foo(101);
+  DataLink<Foo> dl1 (foo1);
+  assert (!dl1.isDefault());
+  assert (dl1.isValid());
+  assert (!!dl1);
+  assert (dl1.cptr() == foo1);
+  assert (dl1.getDataPtr() == foo1);
+  assert (dl1.getDataNonConstPtr() == foo1);
+  assert (dl1.key() == 0);
+  assert (dl1.dataID() == "");
+
+  EXPECT_EXCEPTION (SG::ExcPointerNotInSG, dl1.source());
+  EXPECT_EXCEPTION (SG::ExcPointerNotInSG, dl1.toPersistent());
+
+  store.record (foo1, "foo101");
+  assert (dl1.dataID() == "foo101");
+  assert (dl1.source() == &store);
+  assert (dl1.key() == 0);
+  dl1.toPersistent();
+
+  TestStore::sgkey_t sgkey101 = store.stringToKey ("foo101", fooclid);
+  assert (dl1.key() == sgkey101);
+
+  Foo* foo2 = new Foo(102);
+  dl1.toStorableObject (*foo2);
+  assert (dl1.cptr() == foo2);
+  assert (dl1.key() == 0);
+}
+
+
+int main()
+{
+  Athena::getMessageSvcQuiet = true;
+  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  test1();
+  test2();
+  test3();
+  test4();
+  test5();
+  return 0;
+}

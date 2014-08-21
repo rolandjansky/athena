@@ -1,0 +1,9 @@
+test1
+SG::ExcPointerNotInSG: The object referenced by a DataLink / ElementLink is not registered in StoreGate: 0x1234.
+SG::ExcCLIDMismatch: Attempt to set DataLink / ElementLink with CLID 456 to object with CLID 123
+SG::ExcInvalidLink: Attempt to dereference invalid DataLink / ElementLink [123/key] (765)
+SG::ExcBadForwardLink: ForwardIndexingPolicy: internal link state is invalid: m_index =123 is >=  data container size =345
+SG::ExcElementNotFound: test: element not found
+SG::ExcInvalidIndex: test: invalid index
+SG::ExcIndexNotFound: test: index not found
+SG::ExcIncomparableEL: Attempt to compare an ElementLink that does not have a SG key or index.

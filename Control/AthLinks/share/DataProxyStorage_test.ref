@@ -1,0 +1,13 @@
+test1
+Caught exception: dereferencing invalid DataLink in state NULLLINK
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+DataProxyStorage    ERROR ../src/DataProxyStorage.cxx:41 (const std::string&DataProxyStorageBase::dataID() const):  Can't translate hash 1234 to a string 
+Caught exception: dereferencing invalid DataLink in state IDENTIFIED (312268004 -> Foo298342/23423556)
+test2
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+DataProxyStorage    ERROR ../src/DataProxyStorage.cxx:138 (DataProxyStorageBase::DataProxyStorageBase(void*, IProxyDictWithPool*)):  initializing a link with a NULL data ptr 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+DataProxyStorage    ERROR ../src/DataProxyStorage.cxx:263 (void DataProxyStorageBase::setDataBase(void*, const unsigned int&)):  initializing a link with a NULL data ptr 
+test3
+test4
+test5

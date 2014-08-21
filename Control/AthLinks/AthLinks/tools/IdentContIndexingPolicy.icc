@@ -1,0 +1,154 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/tools/IdentContIndexingPolicy.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2014
+ * @brief Indexing policy for an IdentifiableContainer.
+ */
+
+
+namespace SG { 
+
+
+/**
+ * @brief Test to see if an index is valid.
+ * @param index The index to test.
+ */
+template <class CONT>
+inline
+bool IdentContIndexingPolicy<CONT>::isValid (stored_index_type index)
+{
+  return IdentContIndex(index).isValid();
+}
+
+
+/**
+ * @brief Convert from stored to external index types.
+ * @param index The stored index.
+ */
+template <class CONT>
+inline
+typename IdentContIndexingPolicy<CONT>::index_type
+IdentContIndexingPolicy<CONT>::storedToExternal (stored_index_type index)
+{
+  return index;
+}
+
+
+/**
+ * @brief Make an index invalid.
+ * @param index[out] The index to reset.
+ */
+template <class CONT>
+inline
+void IdentContIndexingPolicy<CONT>::reset (stored_index_type& index)
+{
+  index = IdentContIndex().hashAndIndex();
+}
+    
+
+/**
+ * @brief Retrieve from a container the element corresponding to an index.
+ * @param index The index to fetch.
+ * @param data The container.
+ *
+ * Will throw SG::ExcInvalidIndex if the index is invalid and
+ * SG::ExcIndexNotFound if the index is not in the container.
+ */
+template <class CONT>
+typename IdentContIndexingPolicy<CONT>::ElementType
+IdentContIndexingPolicy<CONT>::lookup (index_type index, const CONT& data)
+{ 
+  if (!isValid(index))
+    SG::throwExcInvalidIndex ("IdentContIndexingPolicy");
+
+  // Find object with hash and index in collection
+  IdentContIndex compIndex(index);
+  typename CONT::const_iterator it = data.indexFind (compIndex.collHash());
+  if (it != data.end()) {
+    // Found collection
+    // Check if objIndex was correctly set
+    if (compIndex.objIndex() < (*it)->size()) {
+      return ((**it)[compIndex.objIndex()]);
+    }
+  }
+  // No object found!
+  SG::throwExcIndexNotFound ("IdentContIndexingPolicy");
+}
+
+
+/**
+ * @brief Find the index of the (first) instance of ELEMENT in DATA.
+ * @param data The container to search.
+ * @param element The element to find.
+ * @param index[out] The index in the container of @c element.
+ *
+ * Throws SG::ExcElementNotFound if the element is not in the container.
+ */
+template <class CONT>
+void
+IdentContIndexingPolicy<CONT>::reverseLookup(const CONT& data, 
+                                             ElementConstReference element,
+                                             index_type& index)
+{
+  //compiler checks we can compare elements
+  ::boost::function_requires<typename ::boost::EqualityComparableConcept<ElementType> >();
+
+  // The hash and possibly the object index may already have
+  // been set by the user. We verify that the index does
+  // correspond to the object, and otherwise we recalculate the
+  // index
+  IdentContIndex compIndex(index);
+  typename CONT::const_iterator it = data.indexFind (compIndex.collHash());
+  if (it != data.end()) {
+    // Found collection
+    // Check if objIndex was correctly set
+    if (compIndex.objIndex() < (*it)->size()) {
+      if ((**it)[compIndex.objIndex()] == element) {
+        return;
+      }
+    }
+    // objIndex was not correctly set, look for object
+    for (unsigned int i = 0; i < (*it)->size(); ++i) {
+      if ((**it)[i] == element) {
+        // Save index in collection to object
+        compIndex.setObjIndex(i);
+        index = compIndex.hashAndIndex();
+        return;
+      }
+    }
+    // Correct collection, but object not found
+    SG::throwExcElementNotFound ("IdentContIndexingPolicy: reverseLookup");
+    return; // Not reached
+  }
+
+  // Neither hash, nor object index set, must find both - THIS
+  // IS SLOW!!
+  for (typename CONT::const_iterator it = data.begin();
+       it != data.end();
+       ++it) {
+    const coll_type* coll = *it;
+    if (coll) {
+      typename coll_type::const_iterator objIt = 
+        std::find (coll->begin(), coll->end(),
+                   element);
+      if (objIt != coll->end()) {
+        // Save collection hash and index to object in collection
+        compIndex.setCollHash(coll->identifyHash());
+        compIndex.setObjIndex(std::distance (coll->begin(), objIt));
+        index = compIndex.hashAndIndex();
+        return;
+      }    
+    }
+  }
+  SG::throwExcElementNotFound ("IdentContIndexingPolicy: reverseLookup");
+}
+
+
+} // namespace SG
+
+

@@ -1,0 +1,112 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/tools/MapIndexingPolicy.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2014
+ * @brief Indexing policy for a set-like container.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Test to see if an index is valid.
+ * @param index The index to test.
+ */
+template <class MAP>
+inline
+bool MapIndexingPolicy<MAP>::isValid (const stored_index_type& index) 
+{
+  return index.isValid();
+}
+
+
+/**
+ * @brief Convert from stored to external index types.
+ * @param index The stored index.
+ */
+template <class CONT>
+inline
+typename MapIndexingPolicy<CONT>::index_type
+MapIndexingPolicy<CONT>::storedToExternal (stored_index_type index)
+{
+  return index;
+}
+
+
+/**
+ * @brief Make an index invalid.
+ * @param index[out] The index to reset.
+ */
+template <class MAP>
+inline
+void MapIndexingPolicy<MAP>::reset (stored_index_type& index)
+{
+  index.reset();
+}
+  
+
+/**
+ * @brief Retrieve from a container the element corresponding to an index.
+ * @param index The index to fetch.
+ * @param data The container.
+ *
+ * Will throw SG::ExcInvalidIndex if the index is invalid and
+ * SG::ExcIndexNotFound if the index is not in the container.
+ */
+template <class MAP>
+typename MapIndexingPolicy<MAP>::ElementType
+MapIndexingPolicy<MAP>::lookup(const stored_index_type& index,
+                               const MAP& data)
+{
+  if (!isValid(index))
+    SG::throwExcInvalidIndex ("MapIndexingPolicy");
+  const_iterator iter = data.find(index);
+  if (iter == data.end()) 
+    SG::throwExcIndexNotFound ("MapIndexingPolicy");
+  return iter->second;
+}
+
+
+/**
+ * @brief Find the index of the (first) instance of ELEMENT in DATA.
+ * @param data The container to search.
+ * @param element The element to find.
+ * @param index[out] The index in the container of @c element.
+ *
+ * Throws SG::ExcElementNotFound if the element is not in the container.
+ */
+template <class MAP>
+void
+MapIndexingPolicy<MAP>::reverseLookup(const MAP& data,
+                                      ElementConstReference element,
+                                      index_type& index) 
+{
+  //compiler checks we can compare elements
+  ::boost::function_requires<typename ::boost::EqualityComparableConcept<ElementType> >();
+
+  // Note that reverseLookup will recalculate index even if m_valid is true.
+  // Must ensure that index is write before persistency
+  const_iterator it = data.begin();
+  const_iterator iend = data.end();
+  while (it != iend) {
+    if (it->second == element) break;
+    ++it;
+  }
+
+  if (it != iend) 
+  {
+    index = it->first ;
+  }
+  else {
+    SG::throwExcElementNotFound ("reverseLookup");
+  }
+}
+
+
+} // namespace SG

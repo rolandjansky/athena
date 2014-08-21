@@ -1,0 +1,549 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/GenericElementLinkBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2014
+ * @brief Generic base class for ElementLinks.
+ */
+
+
+
+namespace SG {
+
+
+/**
+ * @brief Test the index validity.
+ * @returns True if the index is not valid (in default state).
+ */
+template <class INDEXING_POLICY>
+inline
+bool
+GenericElementLinkBase<INDEXING_POLICY>::isDefaultIndex() const
+{
+  return ! INDEXING_POLICY::isValid (m_index);
+}
+
+
+/**
+ * @brief Test to see if this link has a cached element pointer.
+ */
+template <class INDEXING_POLICY>
+inline
+bool
+GenericElementLinkBase<INDEXING_POLICY>::hasCachedElement() const
+{
+  return m_cacheValid;
+}
+
+
+/**
+ * @brief Test to see if this link is in the default state.
+ */
+template <class INDEXING_POLICY>
+inline
+bool
+GenericElementLinkBase<INDEXING_POLICY>::isDefault() const
+{
+  return m_proxy.isDefault() && !hasCachedElement() && isDefaultIndex();
+}
+
+
+/**
+ * @brief Return the index of the link.
+ */
+template <class INDEXING_POLICY>
+inline
+typename GenericElementLinkBase<INDEXING_POLICY>::index_type
+GenericElementLinkBase<INDEXING_POLICY>::index() const
+{
+  return INDEXING_POLICY::storedToExternal (m_index);
+}
+
+
+/**
+ * @brief Return the SG key that we reference, as a string.
+ *
+ * Returns a null string on failure.
+ */
+template <class INDEXING_POLICY>
+inline
+const typename GenericElementLinkBase<INDEXING_POLICY>::ID_type&
+GenericElementLinkBase<INDEXING_POLICY>::dataID() const
+{
+  return m_proxy.dataID();
+}
+
+
+/**
+ * @brief Return the SG key that we reference, as a hash.
+ *
+ * Returns 0 on failure.
+ */
+template <class INDEXING_POLICY>
+inline
+typename GenericElementLinkBase<INDEXING_POLICY>::sgkey_t
+GenericElementLinkBase<INDEXING_POLICY>::key() const
+{
+  return m_key;
+}
+
+
+/**
+ * @brief Return the data source for this reference.
+ */
+template <class INDEXING_POLICY>
+inline
+IProxyDictWithPool*
+GenericElementLinkBase<INDEXING_POLICY>::source() const
+{
+  return m_proxy.source();
+}
+
+
+/**
+ * @brief Return the SG proxy for the container holding this element.
+ *
+ * If this is a null link, we return 0.
+ * If we're directly referencing an object that's not in StoreGate,
+ * either return 0 or throw @c ExcPointerNotInSG, depending
+ * on @c nothrow.  Otherwise, return the proxy for the object
+ * we're referencing.
+ */
+template <class INDEXING_POLICY>
+inline
+const SG::DataProxy*
+GenericElementLinkBase<INDEXING_POLICY>::proxy() const
+{
+  return m_proxy.proxy(true);
+}
+
+
+/**
+ * @brief Reset the link to a null state.
+ */
+template <class INDEXING_POLICY>
+inline
+void GenericElementLinkBase<INDEXING_POLICY>::reset ()
+{
+  m_proxy.clear();
+  m_key = 0;
+  m_cacheValid = 0;
+  INDEXING_POLICY::reset (m_index);
+}
+
+
+/**
+ * @brief Finish initialization after link has been read.
+ * @param sg Associated store.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.
+ * Returns true.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+template <class INDEXING_POLICY>
+inline
+bool
+GenericElementLinkBase<INDEXING_POLICY>::toTransient (IProxyDictWithPool* sg /*= 0*/)
+{
+  m_proxy.toTransient (m_key, sg);
+  m_cacheValid = 0;
+  return true;
+}
+
+
+/**
+ * @brief Prepare this link for writing.
+ *
+ * This method should be called before trying to write the link with root.
+ * It will make sure the persistent fields of the link are valid.
+ * It will also perform remapping if needed.
+ *
+ * Will return true on success.  Will return false if either the container
+ * or the element index has not been specified.  Will throw
+ * @c ExcPointerNotInSG if the link is referencing a container that
+ * is not in SG.
+ */
+template <class INDEXING_POLICY>
+inline
+bool
+GenericElementLinkBase<INDEXING_POLICY>::toPersistent()
+{
+  if (isDefault()) return true;
+  if (m_proxy.isDefault() || isDefaultIndex()) return false;
+  if (m_proxy.toPersistent (m_key, m_index))
+    m_cacheValid = 0;
+  return true;
+}
+
+
+/**
+ * @brief Fetch the current default data store.
+ */
+template <class INDEXING_POLICY>
+inline
+IProxyDictWithPool*
+GenericElementLinkBase<INDEXING_POLICY>::defaultDataSource()
+{
+  return SG::DataProxyHolder::defaultDataSource();
+}
+
+
+/**
+ * @brief Reset the cached source pointers.
+ *
+ * May need to call this after changing the default
+ * data source fetch function.
+ */
+template <class INDEXING_POLICY>
+inline
+void
+GenericElementLinkBase<INDEXING_POLICY>::resetCachedSource()
+{
+  return SG::DataProxyHolder::resetCachedSource();
+}
+
+
+/**
+ * @brief Default constructor.  Makes a null link.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase()
+  : m_key(0),
+    m_cacheValid(false)
+{
+  INDEXING_POLICY::reset (m_index);
+}
+
+
+/**
+ * @brief Construct a link from a string key and an index.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+ (const ID_type& dataID,
+  CLID link_clid,
+  const index_type& elemID,
+  IProxyDictWithPool* sg)
+   : m_index (elemID),
+     m_cacheValid(false)
+{
+  m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from a hashed key and an index.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+ (sgkey_t key,
+  CLID link_clid,
+  const index_type& elemID,
+  IProxyDictWithPool* sg)
+   : m_key (key),
+    m_index (elemID),
+    m_cacheValid (false)
+{
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from a string key, index, AND pointer to element.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param elt Pointer to the element.
+ * @param sg Associated store.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+ (const ID_type& dataID,
+  CLID link_clid,
+  const index_type& elemID,
+  const ElementType& elt,
+  IProxyDictWithPool* sg)
+   : m_index (elemID),
+     m_cacheValid (true),
+     m_element (elt)
+{
+  m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from a hashed key, index, AND pointer to element.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param elt Pointer to the element.
+ * @param sg Associated store.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ *
+ * If @c sg is 0, we take the global default.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+ (sgkey_t key,
+  CLID link_clid,
+  const index_type& elemID,
+  const ElementType& elt,
+  IProxyDictWithPool* sg)
+   : m_key (key),
+     m_index (elemID),
+     m_cacheValid (true),
+     m_element (elt)
+{
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from an index and pointer to the container.
+ * @param obj Pointer to the container (storable).
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ * 
+ * If @c sg is 0, we take the global default.
+ */
+template <class INDEXING_POLICY>
+inline
+GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
+ (const_pointer_t obj,
+  CLID link_clid,
+  const index_type& elemID,
+  IProxyDictWithPool* sg)
+   : m_index (elemID),
+     m_cacheValid (false)
+{
+  m_key = m_proxy.toStorableObject (obj, link_clid, sg);
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced container object.
+ * @param castfn Function to do the cast from data proxy to object.
+ *               If 0, use a dynamic cast.
+ * @param clid The CLID of the desired object.
+ *             This is used to determine how the returned pointer
+ *             is to be converted.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <class INDEXING_POLICY>
+inline
+void* GenericElementLinkBase<INDEXING_POLICY>::storableBase
+ (castfn_t* castfn, const CLID& clid) const
+{
+  return m_proxy.storableBase (castfn, clid);
+}
+
+
+/**
+ * @brief Set the container referenced by the link to @c data.
+ * @param data Pointer to the new container.
+ * @param link_clid CLID of the link being set.
+ * @param replace True if we can change an existing link.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged unless @c replace is set.  The @c replace argument
+ * should be set if the element is now in a new storable container;
+ * e.g. element ptr has been put in a new view container.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class INDEXING_POLICY>
+inline
+bool GenericElementLinkBase<INDEXING_POLICY>::setStorableObject
+   (const_pointer_t data,
+    CLID link_clid,
+    bool replace,
+    IProxyDictWithPool* sg)
+{
+  if (!m_proxy.isDefault()) {
+    if (!replace) return false;
+    INDEXING_POLICY::reset (m_index);
+  }
+
+  m_key = m_proxy.toStorableObject (data, link_clid, sg);
+  return true;
+}
+
+
+/**
+ * @brief Set the to an element given by index and pointer to container.
+ * @param obj Pointer to the container (storable).
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class INDEXING_POLICY>
+inline
+bool GenericElementLinkBase<INDEXING_POLICY>::toIndexedElement
+   (const_pointer_t obj,
+    CLID link_clid,
+    const index_type& elemID,
+    IProxyDictWithPool* sg)
+{
+  if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
+    m_key = m_proxy.toStorableObject (obj, link_clid, sg);
+    m_index = elemID;
+    m_cacheValid = false;
+    return true;
+  }
+  return false;
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class INDEXING_POLICY>
+inline
+void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
+   (const ID_type& dataID,
+    CLID link_clid,
+    const index_type& elemID, 
+    IProxyDictWithPool* sg)
+{
+  m_key = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+  m_index = elemID;
+  m_cacheValid = false;
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <class INDEXING_POLICY>
+inline
+void GenericElementLinkBase<INDEXING_POLICY>::resetWithKeyAndIndex
+   (sgkey_t key,
+    CLID link_clid,
+    const index_type& elemID, 
+    IProxyDictWithPool* sg)
+{
+  m_key = key;
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+  m_index = elemID;
+  m_cacheValid = false;
+}
+
+
+/**
+ * @brief Set the index part of the link.
+ * @param index New index value.
+ */
+template <class INDEXING_POLICY>
+inline
+void
+GenericElementLinkBase<INDEXING_POLICY>::setIndex (const index_type& index)
+{
+  m_index = index;
+}
+
+
+/**
+ * @brief Return the stored representation of the link index.
+ */
+template <class INDEXING_POLICY>
+inline
+const typename GenericElementLinkBase<INDEXING_POLICY>::stored_index_type&
+GenericElementLinkBase<INDEXING_POLICY>::storedIndex() const
+{
+  return m_index;
+}
+
+
+/**
+ * @brief Set the cached element stored in the link.
+ * @param elt New value for the cached element.
+ */
+template <class INDEXING_POLICY>
+inline
+void
+GenericElementLinkBase<INDEXING_POLICY>::setCachedElement (const ElementType& elt) const
+{
+  m_element = elt;
+  m_cacheValid = true;
+}
+
+
+/**
+ * @brief Retrieve the cached element from the link.
+ * @param elt[out] The cached element.
+ * @returns True if an element was cached; false otherwise.
+ *
+ * @c elt is left unmodified if there is no cached element.
+ */
+template <class INDEXING_POLICY>
+inline
+bool
+GenericElementLinkBase<INDEXING_POLICY>::getCachedElement (ElementConstPointer& elt) const
+{
+  if (m_cacheValid) {
+    elt = &m_element;
+    return true;
+  }
+  return false;
+}
+
+
+} // namespace SG

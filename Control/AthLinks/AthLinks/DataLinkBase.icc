@@ -1,0 +1,356 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/DataLinkBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Mar, 2014
+ * @brief Type-independent part of @c DataLink; holds the persistent state.
+ */
+
+
+/**
+ * @brief Test to see if we're in the default state.
+ */
+inline
+bool DataLinkBase::isDefault() const
+{
+  return m_persKey == 0 && m_proxy.isDefault();
+}
+
+
+/**
+ * @brief Return the SG key that we reference, as a string.
+ *
+ * Returns a null string on failure.
+ */
+inline
+const DataLinkBase::ID_type& DataLinkBase::dataID() const
+{
+  return m_proxy.dataID();
+}
+
+
+/**
+ * @brief Return the SG key that we reference, as a hash.
+ *
+ * Returns 0 on failure.
+ */
+inline
+DataLinkBase::sgkey_t DataLinkBase::key() const
+{
+  return m_persKey;
+}
+
+
+/**
+ * @brief Clear the link (make it null).
+ */
+inline
+void DataLinkBase::clear()
+{
+  m_persKey = 0;
+  m_proxy.clear();
+}
+
+
+/**
+ * @brief Return the @c DataProxy for this link.
+ * @param nothrow If true, return 0 on failure instead of throwing
+ *                an exception.
+ *
+ * If this is a null link, we return 0.
+ * If we're directly referencing an object that's not in StoreGate,
+ * either return 0 or throw @c ExcPointerNotInSG, depending
+ * on @c nothrow.  Otherwise, return the proxy for the object
+ * we're referencing.
+ */
+inline
+SG::DataProxy* DataLinkBase::proxy (bool nothrow /*= false*/) const
+{
+  return m_proxy.proxy (nothrow);
+}
+
+
+/**
+ * @brief Return the data source for this reference.
+ */
+inline
+IProxyDictWithPool* DataLinkBase::source() const
+{
+  return m_proxy.source();
+}
+
+
+/**
+ * @brief Finish initialization after link has been read.
+ * @param sg Associated store.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.
+ * Returns true on success.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+inline
+bool DataLinkBase::toTransient (IProxyDictWithPool* sg /*= 0*/)
+{
+  m_proxy.toTransient (m_persKey, sg);
+  return true;
+}
+
+
+/**
+ * @brief Prepare this link for writing.
+ *
+ * One of the @c toPersistent methods should be called before
+ * trying to write the link with root.
+ *
+ * Ensures the hashed SG key to be saved is correct.
+ * If this link is referencing an object not in SG,
+ * we throw @c ExcPointerNotInSG.
+ *
+ * Returns true.
+ *
+ * This version does not perform link remapping.
+ */
+inline
+bool DataLinkBase::toPersistent()
+{
+  size_t dum = 0;
+  m_proxy.toPersistent (m_persKey, dum);
+  return true;
+}
+
+
+/**
+ * @brief Prepare this link for writing.
+ *
+ * One of the @c toPersistent methods should be called before
+ * trying to write the link with root.
+ *
+ * Ensures the hashed SG key to be saved is correct.
+ * If this link is referencing an object not in SG,
+ * we throw @c ExcPointerNotInSG.
+ *
+ * This version does not perform link remapping.
+ *
+ * Returns true.
+ */
+inline
+bool DataLinkBase::toPersistentNoRemap()
+{
+  m_proxy.toPersistentNoRemap (m_persKey);
+  return true;
+}
+
+
+/**
+ * @brief Compare for equality.
+ */
+inline
+bool DataLinkBase::operator== (const DataLinkBase& other) const
+{
+  if (m_persKey != 0 && other.m_persKey != 0)
+    return m_persKey == other.m_persKey;
+  return (m_proxy == other.m_proxy);
+}
+
+
+/**
+ * @brief Compare for inequality.
+ */
+inline
+bool DataLinkBase::operator!= (const DataLinkBase& other) const
+{
+  return !(*this == other);
+}
+
+
+/**
+ * @brief Fetch the current default data store.
+ */
+inline
+IProxyDictWithPool* DataLinkBase::defaultDataSource()
+{
+  return SG::DataProxyHolder::defaultDataSource();
+}
+
+
+/**
+ * @brief Reset the cached source pointers.
+ *
+ * May need to call this after changing the default
+ * data source fetch function.
+ */
+inline
+void DataLinkBase::resetCachedSource()
+{
+  return SG::DataProxyHolder::resetCachedSource();
+}
+
+
+//****************************************************************************
+
+
+
+/**
+ * @brief Default constructor.
+ */
+inline
+DataLinkBase::DataLinkBase()
+  : m_persKey(0)
+{
+}
+
+
+/**
+ * @brief Constructor from pointer to object.
+ * @param obj Pointer to the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+inline
+DataLinkBase::DataLinkBase (const_pointer_t obj,
+                            CLID link_clid,
+                            IProxyDictWithPool* sg)
+{
+  toStorableObject (obj, link_clid, sg);
+}
+
+
+/**
+ * @brief Constructor from a string key.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+inline
+DataLinkBase::DataLinkBase (const ID_type& dataID,
+                            CLID link_clid,
+                            IProxyDictWithPool* sg)
+{
+  toIdentifiedObject (dataID, link_clid, sg);
+}
+
+
+/**
+ * @brief Constructor from a hashed key.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+inline
+DataLinkBase::DataLinkBase (sgkey_t key, CLID link_clid, IProxyDictWithPool* sg)
+{
+  toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Set the link to an object given by a pointer.
+ * @param obj Pointer to the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ * @returns The SG key for this object.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+inline
+void DataLinkBase::toStorableObject (const_pointer_t obj,
+                                     CLID link_clid,
+                                     IProxyDictWithPool* sg)
+{
+  m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
+}
+
+
+/**
+ * @brief Set the link to an object given by a string key.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ * @returns The SG key for this object.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+inline
+void DataLinkBase::toIdentifiedObject (const ID_type& dataID,
+                                       CLID link_clid,
+                                       IProxyDictWithPool* sg)
+{
+  m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+}
+
+
+/**
+ * @brief Set the link to an object given by a hashed key.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+inline
+void DataLinkBase::toIdentifiedObject (sgkey_t key,
+                                       CLID link_clid,
+                                       IProxyDictWithPool* sg)
+{
+  m_persKey = key;
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced object.
+ * @param castfn Function to do the cast from data proxy to object.
+ *               If 0, use a dynamic cast.
+ * @param clid The CLID of the desired object.
+ *             This is used to determine how the returned pointer
+ *             is to be converted.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+inline
+void* DataLinkBase::storableBase (castfn_t* castfn,
+                                  const CLID& clid) const
+{
+  return m_proxy.storableBase (castfn, clid);
+}
+
+
+/**
+ * @brief Throw a @c ExcInvalidLink exception for this link.
+ * @param sgkey The hashed key for this link.
+ *
+ * This will fill in parameters for the exception message from the proxy.
+ */
+inline
+void DataLinkBase::throwInvalidLink() const
+{
+  m_proxy.throwInvalidLink(m_persKey);
+}

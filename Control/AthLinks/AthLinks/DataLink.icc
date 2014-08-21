@@ -1,0 +1,305 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: DataLink.icc 594002 2014-04-24 03:20:32Z ssnyder $
+/**
+ * @file AthLinks/DataLink.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2013
+ * @brief Object reference supporting deferred reading from StoreGate.
+ */
+
+
+#include "AthLinks/exceptions.h"
+#include "SGTools/StorableConversions.h"
+#include "SGTools/DataProxy.h"
+
+
+/**
+ * @brief Return the CLID for the class that we reference.
+ */
+template <typename STORABLE>
+inline
+const CLID& DataLink<STORABLE>::classID()
+{
+  return ClassID_traits<value_type>::ID(); 
+}
+
+
+/**
+ * @brief Default constructor --- gives the equivalent of a NULL pointer.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink()
+{
+}
+
+
+/**
+ * @brief Constructor --- link to a STORABLE using a transient ref to it.
+ * @param data The object to which to link.
+ * @param sg Associated store; if 0, use the global default.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(const_reference data, IProxyDictWithPool* sg/*=0*/)
+  : DataLinkBase (&data, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Constructor --- link to a STORABLE using a transient pointer to it.
+ * @param data The object to which to link.
+ * @param sg Associated store; if 0, use the global default.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(const_pointer pdata, IProxyDictWithPool* sg/*=0*/)
+  : DataLinkBase (pdata, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Constructor --- link to a STORABLE using a string ID.
+ * @param dataID Key of the object.
+ * @param sg Associated store; if 0, use the global default.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(const ID_type& dataID,
+                             IProxyDictWithPool* sg /*=0*/)
+  : DataLinkBase (dataID, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Constructor --- link to a STORABLE using a hashed ID.
+ * @param key Hashed key of the object.
+ * @param sg Associated store; if 0, use the global default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+template <typename STORABLE>
+inline
+DataLink<STORABLE>::DataLink(sgkey_t key, IProxyDictWithPool* sg /*=0*/)
+  : DataLinkBase (key, classID(), sg)
+{
+}
+
+
+/**
+ * @brief Set the link to an object given by a reference.
+ * @param data The object to which to link.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toStorableObject(const_reference data,
+                                          IProxyDictWithPool* sg /*= 0*/)
+{
+  DataLinkBase::toStorableObject (&data, classID(), sg);
+}
+
+
+/**
+ * @brief Set the link to an object given by a string key.
+ * @param dataID Key of the object.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toIdentifiedObject(const ID_type& dataID,
+                                            IProxyDictWithPool* sg /*= 0*/)
+{
+  DataLinkBase::toIdentifiedObject (dataID, classID(), sg);
+}
+
+
+/**
+ * @brief Set the link to an object given by a hashed key.
+ * @param key Hashed key of the object.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ *
+ * May throw @c ExcCLIDMismatch.
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toIdentifiedObject(sgkey_t key,
+                                            IProxyDictWithPool* sg /*= 0*/)
+{
+  DataLinkBase::toIdentifiedObject (key, classID(), sg);
+}
+
+
+/**
+ * @brief Set the link to the default object of this type.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ *
+ * Note that this is _not_ the same as clearing the link
+ * (use @c clear for that).  This produces a link that will resolve
+ * to any object in SG of the given type, provided that there is only
+ * one of them.  (An attempt to dereference an ambiguous default link
+ * will give an error.)
+ */
+template <typename STORABLE>
+inline
+void DataLink<STORABLE>::toDefaultObject (IProxyDictWithPool* sg /*= 0*/)
+{
+  DataLinkBase::toIdentifiedObject (SG::DEFAULTKEY, classID(), sg);
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <typename STORABLE>
+inline
+typename DataLink<STORABLE>::const_pointer
+DataLink<STORABLE>::getDataPtr() const
+{
+  return reinterpret_cast<const_pointer> (this->storable());
+}   	
+
+
+/**
+ * @brief Return a pointer to the currently-referenced object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <typename STORABLE>
+inline
+typename DataLink<STORABLE>::pointer
+DataLink<STORABLE>::getDataNonConstPtr()
+{
+  return reinterpret_cast<pointer> (this->storableNonConst());
+}   	
+
+
+/**
+ * @brief Dereference the link.
+ */
+template< typename STORABLE>
+inline
+typename DataLink< STORABLE >::const_reference
+DataLink< STORABLE >::operator* () const
+{
+  const_pointer p = this->getDataPtr();
+  if (!p)
+    throwInvalidLink();
+  return *p;
+}
+
+
+/**
+ * @brief Dereference the link.
+ */
+template< typename STORABLE>
+inline
+typename DataLink< STORABLE >::const_pointer
+DataLink< STORABLE >::operator->() const
+{
+   return this->getDataPtr();
+}
+
+
+/**
+ * @brief Dereference the link.
+ */
+template< typename STORABLE>
+inline
+DataLink<STORABLE>::operator const_pointer() const
+{
+  return cptr();
+}
+
+
+/**
+ * @brief Dereference the link.
+ */
+template< typename STORABLE>
+inline
+typename DataLink< STORABLE >::const_pointer
+DataLink< STORABLE >::cptr() const
+{
+   return this->getDataPtr();
+}
+
+
+/**
+ * @brief Test to see if the link is dereferencable.
+ */
+template <typename STORABLE>
+inline
+bool 
+DataLink<STORABLE>::isValid() const
+{
+  return 0 != getDataPtr();
+}
+
+
+/**
+ * @brief True if the link is not dereferencable.
+ */
+template <typename STORABLE>
+inline
+bool DataLink<STORABLE>::operator!() const
+{
+  return !isValid();
+}
+
+
+/**
+ * @brief Return a (void) pointer to the currently-referenced object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <typename STORABLE>
+inline
+const void* DataLink<STORABLE>::storable() const
+{
+  typedef STORABLE* fn_t (SG::DataProxy*);
+  fn_t* fn = &SG::DataProxy_cast<STORABLE>;
+  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID());
+}
+
+
+/**
+ * @brief Return a (void) pointer to the currently-referenced object.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+template <typename STORABLE>
+inline
+void* DataLink<STORABLE>::storableNonConst()
+{
+  typedef STORABLE* fn_t (SG::DataProxy*);
+  fn_t* fn = &SG::DataProxy_cast<STORABLE>;
+  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID());
+}
+
+
+
+

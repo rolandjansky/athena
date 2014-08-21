@@ -1,0 +1,538 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/ElementLinkBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2014
+ * @brief Base class for ElementLinks to vectors of pointers.
+ */
+
+
+/**
+ * @brief Test the index validity.
+ * @returns True if the index is not valid (in default state).
+ */
+inline
+bool ElementLinkBase::isDefaultIndex() const
+{
+  return m_persIndex == INVALID;
+}
+
+
+/**
+ * @brief Test to see if this link has a cached element pointer.
+ */
+inline
+bool ElementLinkBase::hasCachedElement() const
+{
+  return m_element != 0;
+}
+
+
+/**
+ * @brief Test to see if this link is in the default state.
+ */
+inline
+bool ElementLinkBase::isDefault() const
+{
+  return m_proxy.isDefault() && !hasCachedElement() && isDefaultIndex();
+}
+
+
+/**
+ * @brief Return the index of the link.
+ */
+inline
+ElementLinkBase::index_type
+ElementLinkBase::index() const
+{
+  if (m_persIndex == INVALID)
+    return static_cast<ElementLinkBase::index_type>(-1);
+  return m_persIndex;
+}
+
+/**
+ * @brief Return the index of the link.
+ *        (Deprecated; use @c index() instead.)
+ */
+inline
+ElementLinkBase::stored_index_type
+ElementLinkBase::persIndex() const
+{
+  return m_persIndex;
+}
+
+
+/**
+ * @brief Return the SG key that we reference, as a string.
+ *
+ * Returns a null string on failure.
+ */
+inline
+const ElementLinkBase::ID_type&
+ElementLinkBase::dataID() const
+{
+  return m_proxy.dataID();
+}
+
+
+/**
+ * @brief Return the SG key that we reference, as a hash.
+ *
+ * Returns 0 on failure.
+ */
+inline
+ElementLinkBase::sgkey_t
+ElementLinkBase::key() const
+{
+  return m_persKey;
+}
+
+/**
+ * @brief Return the SG key that we reference, as a hash.
+ *        (Deprecated; use @c key instead.)
+ *
+ * Returns 0 on failure.
+ */
+inline
+ElementLinkBase::sgkey_t
+ElementLinkBase::persKey() const
+{
+  return m_persKey;
+}
+
+
+/**
+ * @brief Return the data source for this reference.
+ */
+inline
+IProxyDictWithPool* ElementLinkBase::source() const
+{
+  return m_proxy.source();
+}
+
+
+/**
+ * @brief Return the SG proxy for the container holding this element.
+ *
+ * If this is a null link, we return 0.
+ * If we're directly referencing an object that's not in StoreGate,
+ * either return 0 or throw @c ExcPointerNotInSG, depending
+ * on @c nothrow.  Otherwise, return the proxy for the object
+ * we're referencing.
+ */
+inline
+const SG::DataProxy* ElementLinkBase::proxy() const
+{
+  return m_proxy.proxy(true);
+}
+
+
+/**
+ * @brief Reset the link to a null state.
+ */
+inline
+void ElementLinkBase::reset ()
+{
+  m_proxy.clear();
+  m_persKey = 0;
+  m_element = 0;
+  m_persIndex = INVALID;
+}
+
+
+/**
+ * @brief Finish initialization after link has been read.
+ * @param sg Associated store.
+ *
+ * This should be called after a link has been read by root
+ * in order to set the proxy pointer.
+ * Returns true.
+ *
+ * If @c sg is 0, then we use the global default store.
+ */
+inline
+bool ElementLinkBase::toTransient (IProxyDictWithPool* sg /*= 0*/)
+{
+  m_proxy.toTransient (m_persKey, sg);
+  m_element = 0;
+  return true;
+}
+
+
+/**
+ * @brief Prepare this link for writing.
+ *
+ * This method should be called before trying to write the link with root.
+ * It will make sure the persistent fields of the link are valid.
+ * It will also perform remapping if needed.
+ *
+ * Will return true on success.  Will return false if either the container
+ * or the element index has not been specified.  Will throw
+ * @c ExcPointerNotInSG if the link is referencing a container that
+ * is not in SG.
+ */
+inline
+bool ElementLinkBase::toPersistent()
+{
+  if (isDefault()) return true;
+  if (m_proxy.isDefault() || isDefaultIndex()) return false;
+  if (m_proxy.toPersistent (m_persKey, m_persIndex))
+    m_element = 0;
+  return true;
+}
+
+
+/**
+ * @brief Adjust for thinning.
+ *
+ * If this link points to a container that has been thinned,
+ * it will be adjusted accordingly.
+ *
+ * Returns @c true if the link was changed; @c false otherwise.
+ */
+inline
+bool ElementLinkBase::thin()
+{
+  bool ret1 = toPersistent();
+  size_t index = m_persIndex;
+  bool ret = m_proxy.thin (m_persKey, index);
+  if (ret)
+    m_persIndex = index;
+  return ret1  || ret;
+}
+
+
+/**
+ * @brief Fetch the current default data store.
+ */
+inline
+IProxyDictWithPool* ElementLinkBase::defaultDataSource()
+{
+  return SG::DataProxyHolder::defaultDataSource();
+}
+
+
+/**
+ * @brief Reset the cached source pointers.
+ *
+ * May need to call this after changing the default
+ * data source fetch function.
+ */
+inline
+void ElementLinkBase::resetCachedSource()
+{
+  return SG::DataProxyHolder::resetCachedSource();
+}
+
+
+/**
+ * @brief Default constructor.  Makes a null link.
+ */
+inline
+ElementLinkBase::ElementLinkBase()
+  : m_persKey (0),
+    m_persIndex (INVALID),
+    m_element (0)
+{
+}
+
+
+/**
+ * @brief Construct a link from a string key and an index.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ */
+inline
+ElementLinkBase::ElementLinkBase (const ID_type& dataID,
+                                  CLID link_clid,
+                                  index_type elemID,
+                                  IProxyDictWithPool* sg)
+  : m_persIndex (elemID),
+    m_element (0)
+{
+  m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from a hashed key and an index.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, we take the global default.
+ */
+inline
+ElementLinkBase::ElementLinkBase (sgkey_t key,
+                                  CLID link_clid,
+                                  index_type elemID,
+                                  IProxyDictWithPool* sg)
+  : m_persKey (key),
+    m_persIndex (elemID),
+    m_element (0)
+{
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from a string key, index, AND pointer to element.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param elt Pointer to the element.
+ * @param sg Associated store.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ *
+ * If @c sg is 0, we take the global default.
+ */
+inline
+ElementLinkBase::ElementLinkBase (const ID_type& dataID,
+                                  CLID link_clid,
+                                  index_type elemID,
+                                  const void* elt,
+                                  IProxyDictWithPool* sg)
+  : m_persIndex (elemID),
+    m_element (elt)
+{
+  m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from a hashed key, index, AND pointer to element.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param elt Pointer to the element.
+ * @param sg Associated store.
+ * 
+ * USE CAREFULLY: no coherency checks, we just trust you!
+ *
+ * If @c sg is 0, we take the global default.
+ */
+inline
+ElementLinkBase::ElementLinkBase (sgkey_t key,
+                                  CLID link_clid,
+                                  index_type elemID,
+                                  const void* elt,
+                                  IProxyDictWithPool* sg)
+  : m_persKey (key),
+    m_persIndex (elemID),
+    m_element (elt)
+{
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+}
+
+
+/**
+ * @brief Construct a link from an index and pointer to the container.
+ * @param obj Pointer to the container (storable).
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ * 
+ * If @c sg is 0, we take the global default.
+ */
+inline
+ElementLinkBase::ElementLinkBase (const_pointer_t obj,
+                                  CLID link_clid,
+                                  index_type elemID,
+                                  IProxyDictWithPool* sg)
+  : m_persIndex (elemID),
+    m_element (0)
+{
+  m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
+}
+
+
+/**
+ * @brief Return a pointer to the currently-referenced container object.
+ * @param castfn Function to do the cast from data proxy to object.
+ *               If 0, use a dynamic cast.
+ * @param clid The CLID of the desired object.
+ *             This is used to determine how the returned pointer
+ *             is to be converted.
+ * @return A pointer to an object of the type given by @a clid,
+ *         or null on a failure (or if the reference is null).
+ */
+inline
+void* ElementLinkBase::storableBase (castfn_t* castfn, CLID clid) const
+{
+  return m_proxy.storableBase (castfn, clid);
+}
+
+
+/**
+ * @brief Set the container referenced by the link to @c data.
+ * @param data Pointer to the new container.
+ * @param link_clid CLID of the link being set.
+ * @param replace True if we can change an existing link.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged unless @c replace is set.  The @c replace argument
+ * should be set if the element is now in a new storable container;
+ * e.g. element ptr has been put in a new view container.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+inline
+bool ElementLinkBase::setStorableObject (const_pointer_t data,
+                                         CLID link_clid,
+                                         bool replace,
+                                         IProxyDictWithPool* sg)
+{
+  if (!m_proxy.isDefault()) {
+    if (!replace) return false;
+    m_persIndex = INVALID;
+  }
+
+  m_persKey = m_proxy.toStorableObject (data, link_clid, sg);
+  return true;
+}
+
+
+/**
+ * @brief Set the link to an element given by index and pointer to container.
+ * @param obj Pointer to the container (storable).
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ * @returns True if the link was changed.
+ *
+ * If the link is already set, this will return false and leave the
+ * link unchanged.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+inline
+bool ElementLinkBase::toIndexedElement (const_pointer_t obj,
+                                        CLID link_clid,
+                                        index_type elemID,
+                                        IProxyDictWithPool* sg)
+{
+  if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
+    m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
+    m_persIndex = elemID;
+    //m_element= 0;  // Redundant --- must be 0 due to above test.
+    return true;
+  }
+  return false;
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param dataID Key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+inline
+void ElementLinkBase::resetWithKeyAndIndex (const ID_type& dataID,
+                                            CLID link_clid,
+                                            index_type elemID, 
+                                            IProxyDictWithPool* sg)
+{
+  m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
+  m_persIndex = elemID;
+  m_element = 0;
+}
+
+
+/**
+ * @brief Set the link to an element given by string key and index.
+ * @param key Hashed key of the object.
+ * @param link_clid CLID of the link being set.
+ * @param elemID The index of the element within the container.
+ * @param sg Associated store.
+ *
+ * If @c sg is 0, then we take the store from whatever the link's currently
+ * set to.  If the link has no current store, then we take the global
+ * default.
+ */
+inline
+void ElementLinkBase::resetWithKeyAndIndex (sgkey_t key,
+                                            CLID link_clid,
+                                            index_type elemID, 
+                                            IProxyDictWithPool* sg)
+{
+  m_persKey = key;
+  m_proxy.toIdentifiedObject (key, link_clid, sg);
+  m_persIndex = elemID;
+  m_element = 0;
+}
+
+
+/**
+ * @brief Set the index part of the link.
+ * @param index New index value.
+ */
+inline
+void ElementLinkBase::setIndex (index_type index)
+{
+  m_persIndex = index;
+}
+
+
+/**
+ * @brief Return the stored representation of the link index.
+ */
+inline
+const ElementLinkBase::stored_index_type&
+ElementLinkBase::storedIndex() const
+{
+  return m_persIndex;
+}
+
+
+/**
+ * @brief Set the cached element stored in the link.
+ * @param elt New value for the cached element.
+ */
+inline
+void ElementLinkBase::setCachedElement (ElementType elt) const
+{
+  m_element = elt;
+}
+
+
+/**
+ * @brief Retrieve the cached element from the link.
+ * @param elt[out] The cached element.
+ * @returns True if an element was cached; false otherwise.
+ *
+ * @c elt is left unmodified if there is no cached element.
+ */
+template <class T>
+inline
+bool ElementLinkBase::getCachedElement (const T* & elt) const
+{
+  if (m_element) {
+    elt = reinterpret_cast<const T*> (&m_element);
+    return true;
+  }
+  return false;
+}

@@ -1,0 +1,154 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthLinks/tools/DataProxyHolder.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Mar, 2014
+ * @brief Manage @c DataProxy reference in ElementLink/DataLink.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Default constructor.
+ *
+ * Make a null link.
+ */
+inline
+DataProxyHolder::DataProxyHolder()
+  : m_proxy(0)
+{
+}
+
+
+/**
+ * @brief Reset the link to null.
+ */
+inline
+void DataProxyHolder::clear()
+{
+  m_proxy = 0;
+}
+
+
+/**
+ * @brief Test to see if this is a null link.
+ */
+inline
+bool DataProxyHolder::isDefault() const
+{
+  return m_proxy == 0; 
+}
+
+
+/**
+ * @brief Return the @c DataProxy for this link.
+ * @param nothrow If true, return 0 on failure instead of throwing
+ *                an exception.
+ *
+ * If this is a null link, we return 0.
+ * Otherwise, if we're pointing at a @c DataProxy, return it.
+ * Otherwise, we're pointing at an object directly.  Try to look up
+ * the corresponding @c DataProxy using the default store.  Return it
+ * if we find it; otherwise, either throw @c ExcPointerNotInSG or
+ * return 0, depending on the @c nothrow parameter.
+ */
+inline
+SG::DataProxy* DataProxyHolder::proxy (bool nothrow /*= false*/) const
+{
+  if (!isObjpointer())
+    return m_proxy;
+
+  // Do the rest out-of-line.
+  return proxy1(nothrow);
+}
+
+
+/**
+ * @brief Prepare this link for writing.
+ * @param sgkey Reference to the hashed SG key.
+ * @param index Index of this link.
+ *
+ * One of the @c toPersistent methods should be called before
+ * trying to write the link with root.
+ *
+ * This takes a reference to the hashed SG key.  In the case where we're
+ * referencing an object directly by pointer, the hashed key will be 0.
+ * In that case, we try to look up the object in the default store.
+ * If we find it, the hashed key is updated appropriately; otherwise,
+ * we throw @c ExcPointerNotInSG.
+ *
+ * This version is for the case where indices are not given by @c size_t.
+ * No remapping will be performed for this case; this function will
+ * always return false.
+ */
+template <class T>
+bool DataProxyHolder::toPersistent (sgkey_t& sgkey, const T& /*index*/)
+{
+  toPersistentNoRemap (sgkey);
+  return false;
+}
+
+
+/**
+ * @brief Fetch the current default data store.
+ */
+inline
+IProxyDictWithPool* DataProxyHolder::defaultDataSource()
+{
+  // Note: this gets called a lot.  Be careful to keep it fast.
+  // non-threaded version.
+  if (!s_cached_source) {
+    static std::string storename = "StoreGateSvc";
+    s_cached_source = SG::getDataSourcePointer(storename);
+  }
+  return *s_cached_source;
+}
+
+
+/**
+ * @brief Test to see if we're pointing directly at an object.
+ * @returns True if we're pointing directly at an object, false
+ *          if we're pointing at a @c DataProxy (or the link is null).
+ */
+inline
+bool DataProxyHolder::isObjpointer() const
+{
+  return (reinterpret_cast<unsigned long> (m_proxy) & 1) != 0;
+}
+
+
+/**
+ * @brief Return a pointer to the object we're pointing at directly.
+ *
+ * Should be used only if @c isObjpointer() is true.
+ */
+inline
+DataProxyHolder::pointer_t DataProxyHolder::objpointer() const
+{
+  return reinterpret_cast<pointer_t>
+    (reinterpret_cast<unsigned long> (m_proxy) & ~1UL);
+}
+
+
+/**
+ * @brief Store a direct pointer to an object.
+ * @param p Pointer to the object that we're referencing.
+ *
+ * This will overwrite @c m_proxy with the reference to the object.
+ */
+inline
+void DataProxyHolder::storeObjpointer (const_pointer_t p)
+{
+  assert ((reinterpret_cast<unsigned long>(p) & 1) == 0);
+  m_proxy = reinterpret_cast<SG::DataProxy*>
+    (reinterpret_cast<unsigned long>(p) | 1);
+}
+
+
+} // namespace SG

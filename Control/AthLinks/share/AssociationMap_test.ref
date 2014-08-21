@@ -1,0 +1,34 @@
+ *** AssociationMap test in progress: 
+Build fake data and associations:
+Cluster Container...............: 3 clusters
+Track Container.................: 3 tracks
+Associate Clusters and Tracks...: [0,0] with data [1,-1]
+Associate Clusters and Tracks...: [0,1] with data [1,-2]
+Associate Clusters and Tracks...: [0,2] with data [1,-3]
+Associate Clusters and Tracks...: [1,0] with data [2,-1]
+Associate Clusters and Tracks...: [1,1] with data [2,-2]
+Associate Clusters and Tracks...: [1,2] with data [2,-3]
+Associate Clusters and Tracks...: [2,0] with data [3,-1]
+Associate Clusters and Tracks...: [2,1] with data [3,-2]
+Associate Clusters and Tracks...: [2,2] with data [3,-3]
+List of objects in AssociationMap:
+	Cluster : 
+		Track : -1
+		Track : -2
+		Track : -3
+	Cluster : 
+		Track : -1
+		Track : -2
+		Track : -3
+	Cluster : 
+		Track : -1
+		Track : -2
+		Track : -3
+Check that AssociationMap contains myCluster : true
+Number of associations for myCluster= 3
+Number of association objects:3
+
+ *** Test AssociationMap<TrackContainer,TrackContainer> :
+Associate Tracks and Tracks...: [0,1] with data [-1,-2]
+Associate Tracks and Tracks...: [0,2] with data [-1,-3]
+Associate Tracks and Tracks...: [1,2] with data [-2,-3]

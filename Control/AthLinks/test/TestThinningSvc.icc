@@ -1,0 +1,114 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file TestThinningSvc.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2014
+ * @brief Dummy thining service, for regression tests.
+ */
+
+
+#include "AthenaKernel/IThinningSvc.h"
+#include <map>
+
+
+class TestThinningSvc
+  : public IThinningSvc
+{
+public:
+  unsigned long addRef()
+  { std::cout << "addRef\n"; std::abort(); }
+  unsigned long release()
+  { std::cout << "release\n"; std::abort(); }
+  StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/)
+  { std::cout << "queryInterface\n"; std::abort(); }
+  const std::string& name() const
+  { std::cout << "name\n"; std::abort(); }
+  SG::DataProxy* deep_proxy(const void* const /*pTransient*/) const
+  { std::cout << "deep_proxy\n"; std::abort(); }
+  SG::DataProxy* proxy(const void* const /*pTransient*/) const
+  { std::cout << "proxy\n"; std::abort(); }
+  SG::DataProxy* proxy(const CLID& /*id*/) const
+  { std::cout << "proxy2\n"; std::abort(); }
+  SG::DataProxy* proxy(const CLID& /*id*/, const std::string& /*key*/) const
+  { std::cout << "proxy3\n"; std::abort(); }
+  virtual SG::DataProxy* proxy_exact (SG::sgkey_t /*sgkey*/) const 
+  { std::cout << "proxy_exact\n"; std::abort(); }
+  StatusCode addToStore (CLID /*id*/, SG::DataProxy* /*proxy*/)
+  { std::cout << "addToStore\n"; std::abort(); }
+  std::vector<const SG::DataProxy*> proxies() const
+  { std::cout << "proxies\n"; std::abort(); }
+  StatusCode sysInitialize()
+  { std::cout << "sysInitialize\n"; std::abort(); }
+  StatusCode sysStart()
+  { std::cout << "sysStart\n"; std::abort(); }
+  StatusCode sysStop()
+  { std::cout << "sysStop\n"; std::abort(); }
+  StatusCode sysFinalize()
+  { std::cout << "sysFinalize\n"; std::abort(); }
+  StatusCode sysReinitialize()
+  { std::cout << "sysReinitialize\n"; std::abort(); }
+  StatusCode sysRestart()
+  { std::cout << "sysRestart\n"; std::abort(); }
+  StatusCode configure()
+  { std::cout << "configure\n"; std::abort(); }
+  StatusCode initialize()
+  { std::cout << "initialize\n"; std::abort(); }
+  StatusCode start()
+  { std::cout << "start\n"; std::abort(); }
+  StatusCode stop()
+  { std::cout << "stop\n"; std::abort(); }
+  StatusCode finalize()
+  { std::cout << "finalize\n"; std::abort(); }
+  StatusCode terminate()
+  { std::cout << "terminate\n"; std::abort(); }
+  StatusCode reinitialize()
+  { std::cout << "reinitialize\n"; std::abort(); }
+  StatusCode restart()
+  { std::cout << "restart\n"; std::abort(); }
+  Gaudi::StateMachine::State FSMState() const
+  { std::cout << "FSMState\n"; std::abort(); }
+  Gaudi::StateMachine::State targetFSMState() const
+  { std::cout << "targetFSMState\n"; std::abort(); }
+  void setServiceManager (ISvcManager*)
+  { std::cout << "setServiceManager\n"; std::abort(); }
+  bool thinningOccurred() const
+  { std::cout << "thinningOccurred\n"; std::abort(); }
+  StatusCode register_slimmer (Athena::ISlimmingHdlr */*handler*/)
+  { std::cout << "register_slimmer\n"; std::abort(); }
+  virtual Athena::IThinningHdlr* handler( SG::DataProxy* /*proxy*/ )
+  { std::cout << "handler\n"; std::abort(); }
+  virtual StatusCode
+  filter_impl( Athena::IThinningHdlr* /*handler*/,
+               SG::DataProxy* /*proxy*/,
+               const Filter_t& /*filter*/,
+               const IThinningSvc::Operator::Type /*op*/ = Operator::And )
+  { std::cout << "filter_impl\n"; std::abort(); }
+  StatusCode commit()
+  { std::cout << "commit\n"; std::abort(); }
+  StatusCode rollback()
+  { std::cout << "rollback\n"; std::abort(); }
+  bool is_thinned_impl(const SG::DataProxy* /*p*/) const
+  { std::cout << "is_thinned_impl\n"; std::abort(); }
+
+  std::size_t index_impl( const SG::DataProxy* /*objProxy*/, 
+                          std::size_t idx ) const 
+  {
+    map_t::const_iterator i = m_map.find (idx);
+    if (i != m_map.end())
+      return i->second;
+    return idx;
+  }
+
+  void remap (size_t from, size_t to)
+  {
+    m_map[from] = to;
+  }
+
+
+  typedef std::map<size_t, size_t> map_t;
+  map_t m_map;
+};

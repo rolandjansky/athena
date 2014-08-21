@@ -1,0 +1,326 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef GAUDIKERNEL_SYSTEM_H
+#include "GaudiKernel/System.h"
+#endif
+
+#ifndef ATHENAKERNEL_ERRORCHECK_H
+#include "AthenaKernel/errorcheck.h"
+#endif
+
+#include <cassert>
+#include <stdexcept>
+/* #define __ELVDEBUG */
+
+template <typename DOBJ>
+typename ElementLinkVector<DOBJ>::DataLinkVector::const_iterator 
+ElementLinkVector<DOBJ>::findHostDObj(const ElemLink& link) const
+{
+  //DataLink<DOBJ> dl (link.storagePolicy());
+  DataLink<DOBJ> dl (link.key());
+  typename DataLinkVector::const_iterator iHost(beginHostDObjs()), eHost(endHostDObjs());
+  while ((eHost != iHost) && (*iHost != dl)) ++iHost;
+#ifdef __ELVDEBUG
+  std::cout << "findHostDObj (const version) called for link  "  
+	    << link.dataID() << "/" << link.index() 
+	    << " - which is " << ((iHost != eHost) ? "" : " NOT ") 
+	    << " in ELV host dobjs list " << std::endl;
+#endif
+  return iHost;
+}
+
+template <typename DOBJ>
+typename ElementLinkVector<DOBJ>::DataLinkVector::iterator 
+ElementLinkVector<DOBJ>::findHostDObj(const ElemLink& link) 
+{
+  //DataLink<DOBJ> dl (link.storagePolicy());
+  DataLink<DOBJ> dl (link.key());
+  typename DataLinkVector::iterator iHost(beginHostDObjs()), eHost(endHostDObjs());
+  while ((eHost != iHost) && (*iHost != dl)) ++iHost;
+#ifdef __ELVDEBUG
+  std::cout << "findHostDObj (non-const version) called for link  "  
+	    << link.dataID() << "/" << link.index() 
+	    << " - which is " << ((iHost != eHost) ? "" : " NOT ") 
+	    << " in ELV host dobjs list " << std::endl;
+#endif
+  return iHost;
+}
+
+
+template <typename DOBJ>
+typename ElementLinkVector<DOBJ>::iterator 
+ElementLinkVector<DOBJ>::insert(iterator position, const ElemLink& link) 
+{
+#ifdef __ELVDEBUG
+  std::cout << "insert of link " 
+	    << link.dataID() << "/" << link.index() << " after  " 
+	    << position->dataID() << "/" << position->index() <<endl;
+#endif
+  addHostDObj(link);
+  return iterator(m_shortRefs.insert(shortIterFromLong(position), ElemLinkRef( link)), 
+		  Short2LongRef());
+}
+
+template <typename DOBJ>
+void 
+ElementLinkVector<DOBJ>::insert(iterator position, size_type n, const ElemLink& link) 
+{
+  addHostDObj(link);
+  m_shortRefs.insert(shortIterFromLong(position), n, ElemLinkRef(link));
+}
+
+template <typename DOBJ>
+typename ElementLinkVector<DOBJ>::iterator 
+ElementLinkVector<DOBJ>::erase(iterator position) 
+{
+  const ElemLink& save(*position);
+  iterator ret(m_shortRefs.erase(shortIterFromLong(position)), Short2LongRef());
+  removeHostObj(save);
+  return ret;
+}
+
+template <typename DOBJ>
+typename ElementLinkVector<DOBJ>::iterator 
+ElementLinkVector<DOBJ>::erase(iterator first, iterator last) 
+{
+  iterator i(first);
+  while (i != last) removeHostObj(*i++); //FIXME won't work in ELVDEBUG as such
+  return iterator(m_shortRefs.erase(shortIterFromLong(first), 
+				    shortIterFromLong(last)), 
+		  Short2LongRef());
+}
+
+template <typename DOBJ>
+void 
+ElementLinkVector<DOBJ>::
+resize(size_type sz, const ElemLink& link) 
+{
+  if (sz > size()) { insert(end(), sz-size(), link); }
+  else if (sz < size()) { erase(begin()+sz, end()); }
+}
+
+template <typename DOBJ>
+bool
+ElementLinkVector<DOBJ>::toTransient()
+{
+  // Call the appropriate function for making use of the persistent data
+  // if we're doing direct ROOT I/O:
+  if( m_isDirectIO ) {
+     index_type dummy;
+     toTransient( dummy );
+     m_isDirectIO = false;
+  }
+
+  bool success = true;
+  // set the proper state of all DataLinks
+  typename DataLinkVector::iterator iter = beginHostDObjs();
+  for (; iter!= endHostDObjs(); iter++) {
+    if (! (*iter).toTransient()) success = false;
+  }
+
+  // set the refVector's to transient mode. Note that RefVector would
+  // need the owner (this) as it is constructed from persistency using
+  // the default constructor
+  typename RefVector::iterator refIter = m_shortRefs.begin();
+  for (; refIter!= m_shortRefs.end(); refIter++) {
+    if (! (*refIter).toTransient(*this)) success = false;
+  }
+
+  return success;
+}
+
+
+template <typename DOBJ>
+bool
+ElementLinkVector<DOBJ>::toPersistentDL()
+{
+  doRemap();
+
+  //set all DataLinks to persistent state
+  bool success = true;
+  typename DataLinkVector::iterator iter = beginHostDObjs();
+  for (; iter!= endHostDObjs(); iter++) {
+    if (! (*iter).toPersistentNoRemap()) success = false;
+  }
+
+  return success;
+} 
+
+
+template <typename DOBJ>
+bool
+ElementLinkVector<DOBJ>::toPersistent()
+{
+  bool success = toPersistentDL();
+
+  // set all ElementLink Refs to persistent state
+  typename RefVector::iterator refIter = m_shortRefs.begin();
+  for (; refIter!= m_shortRefs.end(); refIter++) {
+    if (! (*refIter).toPersistent(*this)) success = false;
+  }
+
+  // WARNING: The code doesn't take thinning into account at the
+  // moment!!!
+
+  // Reset the base class's variables:
+  m_persKeys.clear();
+  m_persIndices.clear();
+
+  // Copy the info into the base class:
+  typename RefVector::const_iterator ref_itr = m_shortRefs.begin();
+  typename RefVector::const_iterator ref_end = m_shortRefs.end();
+  for( ; ref_itr != ref_end; ++ref_itr ) {
+     m_persKeys.push_back( ref_itr->elementLink().persKey() );
+     m_persIndices.push_back( ref_itr->elementLink().persIndex() );
+  }
+
+  return success;
+} 
+
+
+template <typename DOBJ>
+bool
+ElementLinkVector<DOBJ>::toPersistent
+  (std::vector<typename DataLinkVector::size_type>& shortrefs)
+{
+  bool success = toPersistentDL();
+
+  // set all ElementLink Refs to persistent state
+  shortrefs.reserve (m_shortRefs.size());
+  typename RefVector::iterator refIter = m_shortRefs.begin();
+  for (; refIter!= m_shortRefs.end(); refIter++) {
+    typename DataLinkVector::size_type shortref;
+    if (! (*refIter).toPersistent(*this, shortref)) success = false;
+    shortrefs.push_back (shortref);
+  }
+
+  return success;
+} 
+
+
+template <typename DOBJ>
+void
+ElementLinkVector<DOBJ>::doRemap()
+{
+  bool remapping = false;
+  typename RefVector::iterator refIter = m_shortRefs.begin();
+  for (; refIter!= m_shortRefs.end(); refIter++) {
+    if (refIter->doRemap()) {
+      if (!remapping) {
+        m_hostDObjs.clear();
+        typename RefVector::iterator ri2 = m_shortRefs.begin();
+        for (; ri2 != refIter; ++ri2) {
+          addHostDObj (ri2->elementLink());
+        }
+        remapping = true;
+      }
+    }
+    if (remapping)
+      addHostDObj (refIter->elementLink());
+  }
+} 
+
+
+// Set the vector of host data objects from @a dobjs.
+// @a dobjs is destroyed.
+// This is an error if the vector is not empty.
+template <typename DOBJ>
+void
+ElementLinkVector<DOBJ>::moveHostDObjs
+  (DataLinkVector& dobjs)
+{
+  if (!this->empty()) {
+    MsgStream log(Athena::getMessageSvc(), "ElementLink");
+    log << MSG::ERROR
+        << "ElementLinkVector::moveHostDObjs called on non-empty vector."
+	  << endreq;
+    throw std::runtime_error("ElementLinkVector::moveHistDObjs : vector not empty");
+  }
+  m_hostDObjs.swap (dobjs);
+}
+
+
+template <typename DOBJ>
+void
+ElementLinkVector<DOBJ>::push_back
+  (typename DataLinkVector::size_type nameIndex,
+   typename ElemLinkRef::index_type elementIndex)
+{
+  m_shortRefs.push_back (ElemLinkRef (nameIndex, elementIndex, *this));
+}
+
+template< typename DOBJ >
+void ElementLinkVector< DOBJ >::
+toTransient( uint64_t& /*dummy*/ ) {
+
+   // A little sanity check:
+   assert( m_persKeys.size() == m_persIndices.size() );
+
+   // Clear the object:
+   clear();
+
+   // Now re-create the links based on the persistent info:
+   for( size_t i = 0; i < m_persKeys.size(); ++i ) {
+      push_back( ElemLink( m_persKeys[ i ], m_persIndices[ i ] ) );
+   }
+
+   return;
+}
+
+template< typename DOBJ >
+void ElementLinkVector< DOBJ >::
+toTransient( uint32_t& /*dummy*/ ) {
+
+   // A little sanity check:
+   assert( m_persKeys.size() == m_persIndices.size() );
+
+   // Clear the object:
+   clear();
+
+   // Now re-create the links based on the persistent info:
+   for( size_t i = 0; i < m_persKeys.size(); ++i ) {
+      push_back( ElemLink( m_persKeys[ i ], m_persIndices[ i ] ) );
+   }
+
+   return;
+}
+
+template< typename DOBJ >
+template< typename INDEX_TYPE >
+void ElementLinkVector< DOBJ >::
+toTransient( INDEX_TYPE& /*dummy*/ ) {
+
+   REPORT_MESSAGE_WITH_CONTEXT( MSG::ERROR, "ElementLinkVector" )
+      << "Using direct ROOT I/O for type "
+      << System::typeinfoName( typeid( this ) )
+      << " not supported";
+
+   return;
+}
+
+template< typename DOBJ >
+void ElementLinkVector< DOBJ >::
+addHostDObj( const ElemLink& link ) {
+
+   // Check if we already have it:
+   if( endHostDObjs() != findHostDObj( link ) ) {
+      return;
+   }
+
+   //DataLink< DOBJ > dl( link.storagePolicy() );
+   DataLink< DOBJ > dl( link.key() );
+   if( ! dl.isDefault() ) {
+      m_hostDObjs.push_back( dl );
+#ifdef __ELVDEBUG
+      std::cout << "addHostDObj added link  " 
+                << link.dataID() << "/" << link.index() << std::endl;
+#endif
+   }
+
+   return;
+}
