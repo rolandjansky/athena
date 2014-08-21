@@ -22,12 +22,16 @@
 Trk::LayerMaterialProvider::LayerMaterialProvider(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_layerMaterialMap(0), 
-  m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2")
+  m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2"),
+  m_ignoreLayer(-1)
 {
     declareInterface<Trk::IGeometryProcessor>(this);
     
     // Name specification from outside
     declareProperty("LayerMaterialMapName", m_layerMaterialMapName);
+    // AS: hack for 19.1.1 to overwrite IBL
+    declareProperty("IgnoreLayerIndex",     m_ignoreLayer);
+    
     
 }
 
@@ -163,15 +167,25 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t lev
     std::stringstream displayBuffer;
     for (size_t il = 0; il < level; ++il) displayBuffer << " ";
 
+    // hack for R2 19.1.X setup - skip IBL
+    Trk::LayerIndex searchIndex = lIndex;
+    if (lIndex.value() == m_ignoreLayer){
+        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] Detected IBL layer to be ignored from map with index: " << lIndex.value());
+        return StatusCode::SUCCESS;
+    } else if (lIndex.value() > m_ignoreLayer && m_ignoreLayer > 0){
+        int nlValue =  lIndex.value()-1;
+        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] Layer is after IBL, index needs to be adjusted from : " << lIndex.value() << " to " << nlValue ) ;
+        searchIndex = Trk::LayerIndex(nlValue);
+    }
+
     // find the layer and assign the material properties 
-    auto lmIter= m_layerMaterialMap->find(lIndex);
+    auto lmIter= m_layerMaterialMap->find(searchIndex);
     if ( lmIter != m_layerMaterialMap->end() ){
         ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] found material for Layer with Index: " << lIndex.value());
         if ( lay.surfaceRepresentation().isFree() ) 
            ATH_MSG_VERBOSE(displayBuffer.str() << "---[!] the Layer is not owned by the TrackingGeometry, could indicate problem.");
 	else 
            ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] the Layer is owned by the TrackingGeometry." ); 
-        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] found material for Layer with Index: " << lIndex.value());
         lay.assignMaterialProperties(*((*lmIter).second));
     } else {
         ATH_MSG_WARNING(displayBuffer.str() << "---[!] could not find material for Layer with Index: " << lIndex.value());
