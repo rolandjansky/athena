@@ -14,7 +14,7 @@ use  TrkParameters              TrkParameters-*                 Tracking/TrkEven
 private
 use  AtlasROOT                  AtlasROOT-*                     External
 use  AtlasHepMC                 AtlasHepMC-*                    External
-use  EventInfo                  EventInfo-*                     Event
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  GeneratorObjects           GeneratorObjects-*              Generators
 use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
 use  TrkAlignEvent              TrkAlignEvent-*                 Tracking/TrkAlignment

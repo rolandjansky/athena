@@ -12,8 +12,7 @@
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 
@@ -195,13 +194,13 @@ void SimpleIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack * alignTrack)
 
 	// get run and event numbers
 	ATH_MSG_DEBUG("Retrieving event info.");
-	const EventInfo * eventInfo;
+	const xAOD::EventInfo * eventInfo;
 	if (evtStore()->retrieve(eventInfo).isFailure())
 		msg(MSG::ERROR) << "Could not retrieve event info." << endreq;
 	else
 	{
-		m_runNumber = eventInfo->event_ID()->run_number();
-		m_evtNumber = eventInfo->event_ID()->event_number();
+		m_runNumber = eventInfo->runNumber();
+		m_evtNumber = eventInfo->eventNumber();
 	}
 
 	// initialize variables
