@@ -9,7 +9,7 @@
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class EventInfo;
+#include "xAODEventInfo/EventInfo.h"
 class IBeamCondSvc;
 
 class InDetAlignWrt:public AthAlgorithm
@@ -27,7 +27,7 @@ private:
   IToolSvc* p_toolsvc;
   IInDetAlignDBTool* p_iddbtool;
   IInDetAlignDBTool* p_migratetool;
-  const EventInfo* p_eventinfo;
+  const xAOD::EventInfo* p_eventinfo;
   bool m_setup;
 
   // algorithm parameters

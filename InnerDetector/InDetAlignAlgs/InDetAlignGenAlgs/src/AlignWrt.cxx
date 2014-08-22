@@ -15,8 +15,6 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h" 
 #include "DetDescrConditions/DetCondKeyTrans.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 
 #include "InDetAlignGenAlgs/InDetAlignWrt.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
@@ -188,8 +186,8 @@ StatusCode InDetAlignWrt::execute() {
     if (par_print) p_iddbtool->printDB(2);
   }
 
-  int run=p_eventinfo->event_ID()->run_number();
-  int event=p_eventinfo->event_ID()->event_number();
+  int run=p_eventinfo->runNumber();
+  int event=p_eventinfo->eventNumber();
 
   ATH_MSG_DEBUG(  "In AlignWrt::execute for run/event " << run << 
       "," << event );
