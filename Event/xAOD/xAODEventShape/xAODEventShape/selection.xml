@@ -1,0 +1,21 @@
+<!-- $Id: selection.xml 568357 2013-11-01 16:21:30Z krasznaa $ -->
+<lcgdict>
+
+
+   <class name="xAOD::EventShape_v1"
+          id="E06E8747-7C16-4BBA-B648-68F64BA70B7D" >
+   </class>
+  <class name="xAOD::EventShapeAuxInfo_v1"
+         id="7C9459AC-B89C-43A1-A57A-FF035EAA5D81" />
+
+
+   <!-- Custom streamer for the event format class: -->
+   <read sourceClass="xAOD::EventShape_v1" version="[1-]"
+         targetClass="xAOD::EventShape_v1"
+         source="" target="" >
+      <![CDATA[
+         newObj->setStore( ( SG::IAuxStore* ) 0 );
+      ]]>
+   </read>
+
+</lcgdict>
