@@ -1,0 +1,14 @@
+entries                  2.0               run_ SCT GENERAL tracks trk_chi2
+entries,meanVal,sigma    2.0,0.01,3.0             run_ SCT GENERAL tracks trk_d0
+entries                  2.0                      run_ SCT GENERAL tracks trk_eta
+entries                  2.0                      run_ SCT GENERAL tracks trk_phi
+entries,mean,sigma       2.0,2.0,2.0              run_ SCT GENERAL tracks trk_z0
+mean                     2.0                      run_ SCT GENERAL tracks trk_sct_hits
+mean                     2.0                      run_ SCT GENERAL tracks trk_pt
+mean                     10.0                     run_ SCT GENERAL tracks sct_hits_onall_tracks # Mean shifts alot
+kolmogorov               0.04                     run_ SCT SCT tracks pulls_,_summary
+kolmogorov               0.04                     run_ SCT SCT tracks residuals_,_summary
+entries,mean             2.0,2.0                  run_ SCT SCT hits clusize
+binwise                  0.0                      run_ SCT SCT hits hitsmap_
+# Checks number of events run over
+entries                  0.0                      run_ GLOBAL DQTDataFlow events_lb

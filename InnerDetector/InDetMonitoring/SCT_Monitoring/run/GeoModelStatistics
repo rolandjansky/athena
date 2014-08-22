@@ -1,0 +1,4 @@
+Detector Configuration flag = ATLAS-00
+GeoModelSvc.SCT_DetectorTool	 SZ= 8060Kb 	 Time = 0.54S
+GeoModelSvc.InDetServMatTool	 SZ= 0Kb 	 Time = 0.13S
+GeoModelSvc.BeamPipeDetectorTool	 SZ= 0Kb 	 Time = 0.03S

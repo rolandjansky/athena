@@ -1,0 +1,78 @@
+# This file specifies the histograms to load from the input data, and the comparisons to perform on them
+# 
+# Bash-style comments are supported, i.e. anything following a # symbol will be ignored
+# Empty lines should also be ignored
+#
+# There must be a minimum of three columns in this file, separated by spaces:
+# 1) The name(s) of the comparison(s) to perform
+# 2) The argument(s) defining the comparison(s)
+# 3) The name(s) of the histogram(s) to perform the comparison(s) on, including full path
+#
+# The comparisons available are:
+# "binwise" - compare the values in corresponding bins. Allows a percentage variation given by the argument. Assumes identical binning.
+# "binwiseHack" - same as above, but specify different allowed fluctuation for each x bin, eg 3.5:2.0:2.0:1.0 etc
+# "kolmogorov" - perform a Kolmogorov-Smirnov comparison of the histograms. Allow a probability of matching greater than given by the argument.
+# "mean" - compare histogram mean values. Argument either "reduce", "increase", or an allowed percentage change.
+# "sigma" - compare histogram sigma values. Argument either "reduce", "increase", or an allowed percentage change.
+# "entries" - compare the total number of histogram entries. Allows a percentage variation given by the argument.
+#
+# A histogram name and path is specified by a series of space-separated text strings.
+# Each string must be contained by the histogram/directory name at the corresponding path depth.
+# As an example,            SCT GENERAL noise * will match any histogram in the directory /          140541/SCT/GENERAL/noise
+# 
+# Search operators are supported:
+# Comma (,) means AND
+# Exclamation mark (!) means NOT
+# There is no OR function, just use a new line
+#
+# For more information on the search methods, see ../doc/SearchMethods.txt
+#
+# To apply multiple comparisons to histograms that match a single search string, separate the somparison names with commas (,)
+# There must be a corresponding argument for each comparison, again separated by commas
+# For example: mean,sigma 2.0,improve <some histogram path> will compare the mean of the histograms, allowing a 2.0% variation, and will compare sigma values looking for improvement (reduction)
+#
+# If a comparison needs no argument, just write any old thing, but you can't skip it
+#
+# Columns should be as follows:
+# Comparisons            Arguments             Path1 Path2 Path3 ...
+binwise                   0.00001                  run_ SCT GENERAL Conf SCTConfDetails
+#binwise                  0.0                      run_ SCT GENERAL Conf MaskedLinks
+
+entries,mean             2.0,reduce               run_ SCT GENERAL tracks trk_chi2
+entries,meanVal,sigma    2.0,0.01,3.0             run_ SCT GENERAL tracks trk_d0
+entries                  2.0                      run_ SCT GENERAL tracks trk_eta
+entries                  2.0                      run_ SCT GENERAL tracks trk_phi
+entries,mean,sigma       2.0,2.0,2.0              run_ SCT GENERAL tracks trk_z0
+mean                     2.0                      run_ SCT GENERAL tracks trk_sct_hits
+mean                     2.0                      run_ SCT GENERAL tracks trk_pt
+mean                     10.0                     run_ SCT GENERAL tracks sct_hits_onall_tracks # Mean shifts alot
+meanVal,sigmaVal,mean    0.002,0.06,reduceAbs     run_ SCT GENERAL tracks total,Pull
+meanVal,sigmaVal,sigma   0.0002,0.002,reduce      run_ SCT GENERAL tracks total,Residual
+binwise                  2.0                      run_ SCT GENERAL tracks trackTriggersRate
+
+binwise                  0.2                      run_ SCT GENERAL eff SctTotalEff
+
+entries,mean             2.0,2.0                  run_ SCT GENERAL hits clu_size
+
+entries,mean             2.0,2.0                  run_ SCT GENERAL noise NOdistribution
+
+# Note that the second SCT in the path will fit   run_ SCTB, SCTEA and SCTEC
+binwiseHack              0.0:0.0:0.0:0.0:10.0:0.0 run_ SCT SCT Conf SCTConf
+
+binwise                  0.0                      run_ SCT SCT errors summaryErrs_
+
+kolmogorov               0.04                     run_ SCT SCT tracks pulls_,_summary
+kolmogorov               0.04                     run_ SCT SCT tracks residuals_,_summary
+
+#binwise                  0.2                     run_ SCT SCT eff * # Currently broken due to stupid binning bug
+binwise                  2.0                      run_ SCT SCT eff summaryeff
+
+meanVal                  0.002                    run_ SCT SCT tbin tracks TrackTimeBin,_
+
+entries,mean             2.0,2.0                  run_ SCT SCT hits clusize
+binwise                  0.0                      run_ SCT SCT hits hitsmap_
+
+binwiseVal               0.75                     run_ SCT SCT Noise noiseoccupancymap,!trigger
+
+# Checks number of events run over
+entries                  0.0                      run_ GLOBAL DQTDataFlow events_lb

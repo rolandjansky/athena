@@ -1,0 +1,45 @@
+The histogram comparison employs two search methods:
+1) When loading histograms from a file, or selecting histograms for a test, there is an inclusive search method which accepts all histograms that match each under-specified search vector.
+2) When pairing histograms for merging, or comparison, there is an exclusive search which only accepts the single best match to each over-specified search vector.
+These are discussed in more detail below.
+
+
+Inclusive search
+
+In the ../conf directory there shoould be a file called HistogramLoad.txt. Each line of this file is a search term that can match one or many object paths from the input ROOT files.
+More specific search terms will match fewer paths. Each space indicates a deeper level of the path in question. Search terms are case sensitive.
+Wildcards (*) may only be used in isolation, however any search term has an implicit wildcard at either end: it will match any string that contains it.
+Hence "temp" would match "temp", "temperature", "temporary", "attempt", and so on. Some more detailed examples:
+
+* * * *					will match any object 4 or fewer levels down the path
+run_ SCT GENERAL *			will match any object in "/run_XXXXXX/SCT/GENERAL", or other directories with compatible names
+run_ SCT GENERAL tracks SCTTrackRate	will match any object with name containing "SCTTrackRate", in directories like "/run_XXXXXX/SCT/GENERAL/tracks"
+
+Operators AND (,) and NOT (!) can also be used. For example:
+
+run_ SCT GENERAL Hello,Name,!Bob
+will not match /run_140541/SCT/General/Hello
+will not match /run_140541/SCT/General/Name
+will match /run_140541/SCT/General/HelloName
+will match /run_140541/SCT/General/HelloMyNameIsBen
+will not match /run_140541/SCT/General/HelloMyNameIsBob
+
+
+Exclusive search
+
+The process of pairing histograms is as follows:
+1) The histograms are split up according to their class name. Different root objects will not be matched up: a TProfile can only be paired with a TProfile, not with a TH1F.
+2) All histograms of a given class name are compared with all of that class from the other input location.
+3) Histograms which have identical paths and names are paired off.
+4) The two histograms that have the best matching paths and names are paired off next, and so on.
+5) If one input location provides more histograms the other, pairing continues until all those on the shorter list are paired off. Error messages will record any left unpaired.
+
+Comparing the names of each object in the histogram paths is performed by comparing character-by-character from the beginning of the strings until either the end of the shorter string is reached, or a mismatch is found.
+If the end of the shorter string is reached, the comparison will return the number of characters by which the two differ in length (i.e. 0 if they are identical).
+If a mismatch is found, the strings are compared character-by-character from the end until a mismatch is found. If there is a block of text in between these two mismatches, it is then examined.
+
+Examples:
+HelloMyNameIsBen vs HelloMyNameIsBen	will return 0, i.e. a perfect match
+HelloMyNameIsB   vs HelloMyNameIsBen	will return 2, because the strings match but one is two characters longer
+HelloBen         vs HelloMyNameIsBen	will return 8, the length of the missing "MyNameIs" part
+HelloNameBen     vs HelloMyNameIsBen	will return 4, the same as above, minus the length of the common string "Name" in between the mismatches caused by the missing "My" and "Is"
