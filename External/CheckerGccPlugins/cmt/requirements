@@ -1,0 +1,39 @@
+package CheckerGccPlugins
+
+author scott snyder
+
+use ExternalPolicy ExternalPolicy-* External
+
+
+private
+# building checker_gccplugin
+
+use gmp v* LCG_Interfaces
+# gmp isn't available in experimental LCG
+macro gmp_home $(LCG_EXTERNAL)/gmp/5.1.1/$(LCG_system)
+#macro gmp_native_version 5.1.1
+build_strategy no_prototypes
+
+#HACK, should be fixed in GaudiPolicy. Get rid of icc command line options
+macro_remove cppflags "" target-icc "-wd383 -wd981 -wd1418 -wd1419 -we1011 -we117 -wd82 -wd522 -wd444 -wd304 -Wno-deprecated"
+
+macro_prepend cppflags " -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version) -I$(gmp_home)/include -Wno-literal-suffix "
+macro_prepend cflags " -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include  -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)   -I$(gmp_home)/include "
+
+# Remove -m32 from compilation lines.  Need to build to match the compiler used.
+macro_remove cflags " -m32 "
+macro_remove cppflags " -m32 "
+macro_remove cpplinkflags " -m32 "
+macro_remove_regexp cppflags " -march=[^ ]+ "
+macro_remove shlibflags "-m32"
+macro_remove shlibbuilder "-m32
+
+
+# Use gcc to compile the plugin, but don't override the names if we're
+# already configured for gcc.
+macro cc_name "gcc" gcc "$(cc_name)"
+macro cpp_name "g++" gcc "$(cpp_name)"
+
+library checker_gccplugins ../src/*.cxx 
+
+apply_pattern declare_scripts files="../scripts/checker_gccplugins_args"
