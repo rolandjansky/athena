@@ -1,0 +1,945 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: CaloCluster_v1.cxx 612245 2014-08-18 11:13:48Z wlampl $
+
+// System include(s):
+#include <cmath>
+#include <iostream>
+#if __cplusplus >= 201100
+#   include <array>
+#endif // C++11
+
+// EDM include(s):
+#include "CaloGeoHelpers/CaloPhiRange.h"
+#include "xAODCore/AuxStoreAccessorMacros.h"
+
+// Local include(s):
+#include "xAODCaloEvent/versions/CaloCluster_v1.h"
+#include "CaloClusterAccessors_v1.h"
+
+//FIXME: Delete cell-link in destructor if we have a non-const ptr to the cell-link
+
+namespace xAOD {
+
+   CaloCluster_v1::CaloCluster_v1()
+     : IParticle(), 
+       m_samplingPattern(0), 
+       m_p4(), m_p4Cached(false),
+       m_cellLinks(0),
+       m_ownCellLinks(false)
+   {
+     setSignalState(CALIBRATED);
+   }
+
+
+  CaloCluster_v1::CaloCluster_v1(const CaloCluster_v1& other)
+    : IParticle(), //IParticel does not have a copy constructor. AuxElement has one with same behavior as default ctor
+      m_samplingPattern(other.samplingPattern()), 
+      m_p4(), m_p4Cached(false),
+      m_cellLinks(0), 
+      m_ownCellLinks(false),
+      m_recoStatus(other.m_recoStatus) {
+    setSignalState(other.signalState());
+    this->makePrivateStore(other);
+#ifndef XAOD_ANALYSIS
+    const CaloClusterCellLink* links=other.getCellLinks();
+    if (links) {
+      m_cellLinks=new CaloClusterCellLink(*links);
+      m_ownCellLinks=true;
+      static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+      if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by makePrivateStore, invalidate it
+	accCellLinks(*this).reset();
+      } //end if have element link to CaloClusterCellLink
+    }//end if have CaloClusterCellLink
+#endif // not XAOD_ANALYSIS
+  }
+
+   CaloCluster_v1::~CaloCluster_v1() {
+
+      if( m_ownCellLinks ) delete m_cellLinks;
+   }
+
+  void CaloCluster_v1::setSamplingPattern( const unsigned sp, const bool clearSamplingVars) {
+
+      // Check sampling variables ....
+      static Accessor< std::vector< float > > etaAcc( "eta_sampl" );
+      static Accessor< std::vector< float > > phiAcc( "phi_sampl" );
+      static Accessor< std::vector< float > > eAcc( "e_sampl" );
+      static Accessor< std::vector< float > > emaxAcc( "emax_sampl" );
+      static Accessor< std::vector< float > > etamaxAcc( "etamax_sampl" );
+      static Accessor< std::vector< float > > phimaxAcc( "phimax_sampl" );
+      static Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
+      static Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
+
+#if __cplusplus < 201100
+      static std::vector<  Accessor< std::vector< float > >* > allAcc;
+      if( ! allAcc.size() ) {
+         allAcc.push_back( &etaAcc );
+         allAcc.push_back( &phiAcc );
+         allAcc.push_back( &eAcc );
+         allAcc.push_back( &emaxAcc );
+         allAcc.push_back( &phimaxAcc );
+         allAcc.push_back( &etamaxAcc );
+         allAcc.push_back( &etasizeAcc );
+         allAcc.push_back( &phisizeAcc );
+      }
+      std::vector< Accessor< std::vector< float > >* >::iterator acc_itr =
+         allAcc.begin();
+      std::vector< Accessor< std::vector< float > >* >::iterator acc_end =
+         allAcc.end();
+      for( ; acc_itr != acc_end; ++acc_itr ) {
+         if( ( *acc_itr )->isAvailable( *this ) ) {
+            if( ( **acc_itr )( *this ).size() > 0 ) {
+	      if (clearSamplingVars) 
+		( **acc_itr )( *this ).clear();
+	      else
+               std::cerr << "CaloCluster_v1 ERROR Attempt update sampling "
+                         << "pattern while sampling variables are already set!"
+                         << std::endl;
+	      //std::abort();
+            }
+         }
+      }
+#else
+      static std::array< Accessor< std::vector< float > >*, 8 > allAcc = {
+         { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc, &etasizeAcc,
+           &phisizeAcc } };
+      for( auto a : allAcc ) {
+         if( a->isAvailable( *this ) ) {
+            if( ( *a )( *this ).size() > 0 ) {
+	      if (clearSamplingVars) 
+		(*a)(*this).clear();
+	      else
+               std::cerr << "CaloCluster_v1 ERROR Attempt update sampling "
+                         << "pattern while sampling variables are already set!"
+                         << std::endl;
+	      //std::abort();
+            }
+         }
+      }
+#endif // C++11
+
+      m_samplingPattern=sp;
+   }
+
+
+  /// Notice that this function is very slow for calorimeter clusters, so it
+  /// should be called as few times as possible.
+  ///
+  /// @returns The transverse momentum of the cluster
+  ///
+  double CaloCluster_v1::pt(const State s) const {
+    if (!m_ptCached.test(s)) {
+      // Calculate the momentum of the object:
+      double theE = 0;
+      double theM = 0;
+      switch (s) {
+      case CALIBRATED:
+	theE=calE();
+	theM=calM();
+	break;
+      case UNCALIBRATED:
+	theE=rawE();
+	theM=rawM();
+	break;
+      case ALTCALIBRATED:
+	theE=altE();
+	theM=altM();
+	break;
+      default:
+	break;
+      }
+
+      double p = 0.0;
+      if( std::abs( theM ) < 0.00001 ) {
+	p = theE;
+      } else {
+	p = std::sqrt( theE * theE - theM * theM );
+	if( theE < 0 ) {
+	  p = -p;
+	}
+      }
+
+      // Calculate sinTh:
+      double aEta = std::abs( eta(s) );
+      if( aEta > 710.0 ) {
+	aEta = 710.0;
+      }
+      const double sinTh = 1.0 / std::cosh( aEta );
+
+      // Calculate pT from these two:
+      m_pt[s]= p * sinTh;
+      m_ptCached.set(s);
+    }//end if not cached
+    return m_pt[s];
+  }
+
+  /**
+   * @brief Return eta for a specific signal state.
+   * @param s The desired signal state.
+   */
+  double CaloCluster_v1::e(const State s) const
+  {
+    switch (s) {
+    case CALIBRATED:
+      return calE();
+      break;
+    case UNCALIBRATED:
+      return rawE();
+      break;
+    case ALTCALIBRATED:
+      return altE();
+      break;
+    default:
+      return 0;
+    }
+  }
+
+
+
+  /**
+   * @brief Return eta for a specific signal state.
+   * @param s The desired signal state.
+   */
+  double CaloCluster_v1::eta(const State s) const
+  {
+    switch (s) {
+    case CALIBRATED:
+      return calEta();
+      break;
+    case UNCALIBRATED:
+      return rawEta();
+      break;
+    case ALTCALIBRATED:
+      return altEta();
+      break;
+    default:
+      return -999;
+    }
+  }
+
+
+  /**
+   * @brief Return phi for a specific signal state.
+   * @param s The desired signal state.
+   */
+  double CaloCluster_v1::phi(const State s) const
+  {
+    switch (s) {
+    case CALIBRATED:
+      return calPhi();
+      break;
+    case UNCALIBRATED:
+      return rawPhi();
+      break;
+    case ALTCALIBRATED:
+      return altPhi();
+      break;
+    default:
+      return -999;
+    }
+  }
+
+
+  double CaloCluster_v1::pt() const {
+    return pt(m_signalState);
+  }
+
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  eta0, setEta0 )			 
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  phi0, setPhi0 )			 
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  time, setTime )			 
+
+  void CaloCluster_v1::setBadChannelList(const CaloClusterBadChannelList& bcl) {
+    static Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
+    accBCL(*this)=bcl;
+    return;
+  }
+    
+   const CaloClusterBadChannelList& CaloCluster_v1::badChannelList() const {
+    static Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
+    return accBCL(*this);
+  }
+
+  void CaloCluster_v1::setRawE(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accRawE("rawE");
+    accRawE(*this)=value;
+    m_ptCached.reset(UNCALIBRATED);
+    m_p4Cached.reset(UNCALIBRATED);
+  }
+
+  void CaloCluster_v1::setRawEta(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accRawEta("rawEta");
+    accRawEta(*this)=value;
+    m_ptCached.reset(UNCALIBRATED);
+    m_p4Cached.reset(UNCALIBRATED);
+  }
+
+  void CaloCluster_v1::setRawPhi(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accRawPhi("rawPhi");
+    accRawPhi(*this)=value;
+    m_ptCached.reset(UNCALIBRATED);
+  }
+
+  void CaloCluster_v1::setRawM(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accRawM("rawM");
+    accRawM(*this)=value;
+    m_ptCached.reset(UNCALIBRATED);
+    m_p4Cached.reset(UNCALIBRATED);
+  }  
+
+  //----------------------------------------------------------------
+
+  void CaloCluster_v1::setCalE(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accCalE("calE");
+    accCalE(*this)=value;
+    m_ptCached.reset(CALIBRATED);
+    m_p4Cached.reset(CALIBRATED);
+  }
+
+  void CaloCluster_v1::setCalEta(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accCalEta("calEta");
+    accCalEta(*this)=value;
+    m_ptCached.reset(CALIBRATED);
+    m_p4Cached.reset(CALIBRATED);
+  }
+
+  void CaloCluster_v1::setCalPhi(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accCalPhi("calPhi");
+    accCalPhi(*this)=value;
+    m_ptCached.reset(CALIBRATED);
+  }
+
+  void CaloCluster_v1::setCalM(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accCalM("calM");
+    accCalM(*this)=value;
+    m_ptCached.reset(CALIBRATED);
+    m_p4Cached.reset(CALIBRATED);
+  }  
+
+  //----------------------------------------------------------------
+
+  void CaloCluster_v1::setAltE(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accAltE("altE");
+    accAltE(*this)=value;
+    m_ptCached.reset(ALTCALIBRATED);
+    m_p4Cached.reset(ALTCALIBRATED);
+  }
+
+  void CaloCluster_v1::setAltEta(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accAltEta("altEta");
+    accAltEta(*this)=value;
+    m_ptCached.reset(ALTCALIBRATED);
+    m_p4Cached.reset(ALTCALIBRATED);
+  }
+
+  void CaloCluster_v1::setAltPhi(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accAltPhi("altPhi");
+    accAltPhi(*this)=value;
+    m_ptCached.reset(ALTCALIBRATED);
+  }
+
+  void CaloCluster_v1::setAltM(const CaloCluster_v1::flt_t value) {
+    static Accessor<CaloCluster_v1::flt_t> accAltM("altM");
+    accAltM(*this)=value;
+    m_ptCached.reset(ALTCALIBRATED);
+    m_p4Cached.reset(ALTCALIBRATED);
+  } 
+
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawE)	           		 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawEta)
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawPhi)	           	 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawM)
+	           		 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altE)
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altEta)
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altPhi)	           	 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altM)
+
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calE)
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calEta)
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calPhi)	           	 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calM)
+
+
+  CaloCluster_v1::ClusterSize  CaloCluster_v1::clusterSize() const {
+    static Accessor<unsigned> acc("clusterSize");
+    return (CaloCluster_v1::ClusterSize)acc(*this);
+  }
+   
+  void  CaloCluster_v1::setClusterSize(CaloCluster_v1::ClusterSize sc) {
+    static Accessor<unsigned> acc("clusterSize");
+    acc(*this)=sc;
+  }
+  
+  double CaloCluster_v1::eta() const
+  {
+    return eta (m_signalState);
+  }
+  
+  double CaloCluster_v1::phi() const
+  {
+    return phi (m_signalState);
+  }
+
+  double CaloCluster_v1::m() const {
+    //return (this->*m_getM)();
+    switch (m_signalState) {
+    case CALIBRATED:
+      return calM();
+      break;
+    case UNCALIBRATED:
+      return rawM();
+      break;
+    case ALTCALIBRATED:
+      return altM();
+      break;
+    default:
+      return -999;
+      }
+   }
+  
+   double CaloCluster_v1::e() const {
+     //return (this->*m_getE)(); //function ptr set according to signal state
+     switch (m_signalState) {
+     case CALIBRATED:
+       return calE();
+       break;
+     case UNCALIBRATED:
+       return rawE();
+       break;
+     case ALTCALIBRATED:
+       return altE();
+       break;
+     default:
+       return -999;
+     }
+   }
+
+
+  void CaloCluster_v1::setE(CaloCluster_v1::flt_t theE) {
+    switch (m_signalState) {
+    case CALIBRATED:
+      return setCalE(theE);
+      break;
+    case UNCALIBRATED:
+      return setRawE(theE);
+       break;
+     case ALTCALIBRATED:
+       return setAltE(theE);
+       break;
+     default:
+       break;
+     }
+    return;
+  }
+
+  void CaloCluster_v1::setEta(CaloCluster_v1::flt_t theEta) {
+    switch (m_signalState) {
+    case CALIBRATED:
+      return setCalEta(theEta);
+      break;
+    case UNCALIBRATED:
+      return setRawEta(theEta);
+       break;
+     case ALTCALIBRATED:
+       return setAltEta(theEta);
+       break;
+     default:
+       break;
+     }
+    return;
+  }
+  
+  void CaloCluster_v1::setPhi(CaloCluster_v1::flt_t thePhi) {
+    switch (m_signalState) {
+    case CALIBRATED:
+      return setCalPhi(thePhi);
+      break;
+    case UNCALIBRATED:
+      return setRawPhi(thePhi);
+       break;
+     case ALTCALIBRATED:
+       return setAltPhi(thePhi);
+       break;
+     default:
+       break;
+     }
+    return;
+  }
+
+
+  void CaloCluster_v1::setM(CaloCluster_v1::flt_t theM) {
+    switch (m_signalState) {
+    case CALIBRATED:
+      return setCalM(theM);
+      break;
+    case UNCALIBRATED:
+      return setRawM(theM);
+       break;
+     case ALTCALIBRATED:
+       return setAltM(theM);
+       break;
+     default:
+       break;
+     }
+    return;
+  }
+
+   
+  bool CaloCluster_v1::setSignalState( CaloCluster_v1::State s) const {
+    m_signalState=s;
+    //std::cout << "Setting signal state of cluster " << this << " to " << s << std::endl;
+    return true;
+    /*
+    switch(s) {
+    case CALIBRATED:
+      m_getE=&xAOD::CaloCluster_v1::calE;
+      m_getEta=&xAOD::CaloCluster_v1::calEta;
+      m_getPhi=&xAOD::CaloCluster_v1::calPhi;
+      m_getM=&xAOD::CaloCluster_v1::calM;
+      return true;
+    case UNCALIBRATED:
+      m_getE=&xAOD::CaloCluster_v1::rawE;
+      m_getEta=&xAOD::CaloCluster_v1::rawEta;
+      m_getPhi=&xAOD::CaloCluster_v1::rawPhi;
+      m_getM=&xAOD::CaloCluster_v1::rawM;
+      return true;
+    case ALTCALIBRATED:
+      m_getE=&xAOD::CaloCluster_v1::altE;
+      m_getEta=&xAOD::CaloCluster_v1::altEta;
+      m_getPhi=&xAOD::CaloCluster_v1::altPhi;
+      m_getM=&xAOD::CaloCluster_v1::altM;
+      return true;
+    default:
+      return false;
+    }//end switch
+    */
+  }
+  
+   double CaloCluster_v1::rapidity() const {
+      return p4().Rapidity();
+   }
+
+   const CaloCluster_v1::FourMom_t& CaloCluster_v1::p4() const {
+     return p4(m_signalState);
+   }
+
+
+  const CaloCluster_v1::FourMom_t&  CaloCluster_v1::p4(const CaloCluster_v1::State s) const  {
+    if (!m_p4Cached.test(s)) {
+      switch(s) {
+      case CALIBRATED:
+	m_p4[s].SetPtEtaPhiM(pt(s),calEta(),calPhi(),calM());	
+	break;
+      case UNCALIBRATED:
+	m_p4[s].SetPtEtaPhiM(pt(s),rawEta(),rawPhi(), rawM());	
+	break;
+      case ALTCALIBRATED:
+	m_p4[s].SetPtEtaPhiM(pt(s),altEta(),altPhi(), altM());	
+	break;
+      default:
+	break;
+      }
+      m_p4Cached.set(s);
+    }
+    return m_p4[s];
+  }
+
+
+   Type::ObjectType CaloCluster_v1::type() const {
+      return Type::CaloCluster;
+   }
+
+  
+  float CaloCluster_v1::getSamplVarFromAcc(Accessor< std::vector <float > >& acc , const CaloSample sampling, const float errorvalue) const {
+    const std::vector<float>& vec=acc(*this);
+    const unsigned idx=sampVarIdx(sampling); 
+    if (idx<vec.size() ) {
+      return vec[idx];
+    }
+    else
+      //std::cout <<Sampling " << sampling << ", Pattern=" << std::hex <<m_samplingPattern << std::dec << ", index=" << idx << " size=" << vec.size() << std::endl;
+      return errorvalue;
+  }
+
+  bool CaloCluster_v1::setSamplVarFromAcc(Accessor< std::vector <float > >& acc, const CaloSample sampling, const float value) {
+    const unsigned idx=sampVarIdx(sampling); 
+    std::vector<float>& vec=acc(*this);
+    //std::cout << "Set sampling var. Sampling " << sampling << ", index=" << idx << " size=" << vec.size() << std::endl;
+    if (idx==CaloSampling::Unknown) {
+      std::cout << "ERROR: Sampling #" << sampling << " is not part of this cluster!" << std::endl;
+      return false;
+    }
+
+    if (vec.size()<nSamples())
+      vec.resize(nSamples());  
+    vec[idx]=value;
+    return true;
+  }
+
+
+  float CaloCluster_v1::eSample( CaloSample sampling ) const {
+    static Accessor< std::vector <float > > eAcc("e_sampl");
+    return getSamplVarFromAcc(eAcc,sampling,0.0); //Return energy 0 in case of failure (eg. sampling not set)
+  }
+
+  bool CaloCluster_v1::setEnergy(const CaloSample sampling, const float theEnergy) {
+    static Accessor< std::vector <float > > eAcc("e_sampl");
+    return setSamplVarFromAcc(eAcc,sampling,theEnergy);
+  }
+  
+
+  float CaloCluster_v1::etaSample(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > etaAcc("eta_sampl");
+    return getSamplVarFromAcc(etaAcc,sampling);
+  }
+
+  bool CaloCluster_v1::setEta(const CaloSample sampling, const float eta) {
+    static Accessor< std::vector <float > > etaAcc("eta_sampl");
+    return setSamplVarFromAcc(etaAcc,sampling,eta);
+   }
+
+
+  float CaloCluster_v1::phiSample(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > phiAcc("phi_sampl");
+    return getSamplVarFromAcc(phiAcc,sampling);
+  }
+
+  bool CaloCluster_v1::setPhi(const CaloSample sampling, const float phi) {
+    static Accessor< std::vector <float > > phiAcc("phi_sampl");
+    return setSamplVarFromAcc(phiAcc,sampling,phi);
+  }
+  
+
+
+  float CaloCluster_v1::energy_max(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > emaxAcc("emax_sampl");
+    return getSamplVarFromAcc(emaxAcc,sampling,0.0); //Return energy 0 in case of failure (eg. sampling not set)
+  }
+
+  bool CaloCluster_v1::setEmax(const CaloSample sampling, const float eMax ) {
+    static Accessor< std::vector <float > > emaxAcc("emax_sampl");
+    return setSamplVarFromAcc(emaxAcc,sampling,eMax);
+  }
+  
+  float CaloCluster_v1::etamax(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
+    return getSamplVarFromAcc(etamaxAcc,sampling);
+  }
+
+  bool CaloCluster_v1::setEtamax(const CaloSample sampling, const float etaMax ) {
+    static Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
+    return setSamplVarFromAcc(etamaxAcc,sampling,etaMax);
+  }
+  
+  float CaloCluster_v1::phimax(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
+    return getSamplVarFromAcc(phimaxAcc,sampling);
+  }
+
+  bool CaloCluster_v1::setPhimax(const CaloSample sampling, const float phiMax ) {
+    static Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
+    return setSamplVarFromAcc(phimaxAcc,sampling,phiMax);
+  }
+
+  
+  float CaloCluster_v1::etasize(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
+    return getSamplVarFromAcc(etasizeAcc,sampling);
+  }
+
+  bool CaloCluster_v1::setEtasize(const CaloSample sampling, const float etaSize ) {
+    static Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
+    return setSamplVarFromAcc(etasizeAcc,sampling,etaSize);
+  }
+  
+  float CaloCluster_v1::phisize(const CaloSample sampling) const {
+    static Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
+    return getSamplVarFromAcc(phisizeAcc,sampling);
+  }
+
+  bool CaloCluster_v1::setPhisize(const CaloSample sampling, const float phiSize ) {
+    static Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
+    return setSamplVarFromAcc(phisizeAcc,sampling,phiSize);
+  }
+
+
+
+  void CaloCluster_v1::insertMoment( MomentType type, double value ) {
+    ( *( momentAccessorV1( type ) ) )( *this ) = value;
+    return;
+  }
+  
+
+  float CaloCluster_v1::energyBE(const unsigned sample) const {
+    if (sample>3) return -999;
+    const CaloSample barrelSample=(CaloSample)(CaloSampling::PreSamplerB+sample);
+    const CaloSample endcapSample=(CaloSample)(CaloSampling::PreSamplerE+sample);
+    double energy=0;
+    if (this->hasSampling(barrelSample)) {
+      energy+=eSample(barrelSample); //Check for errorcode? Should not happen...
+    }
+    if (this->hasSampling(endcapSample)) {
+      energy+=eSample(endcapSample);
+    } 
+    return energy;
+  }
+
+  float CaloCluster_v1::etaBE(const unsigned sample) const {
+    if (sample>3) return -999;
+    const CaloSample barrelSample=(CaloSample)(CaloSampling::PreSamplerB+sample);
+    const CaloSample endcapSample=(CaloSample)(CaloSampling::PreSamplerE+sample);
+    const bool haveBarrel=this->hasSampling(barrelSample);
+    const bool haveEndcap=this->hasSampling(endcapSample);
+    if (haveBarrel && haveEndcap) {
+      //cluster spans barren and endcap
+       float eBarrel=eSample(barrelSample);  //Check for errorcode? Should not happen...
+       float eEndcap=eSample(endcapSample);
+       
+       float etaBarrel=etaSample(barrelSample);
+       float etaEndcap=etaSample(endcapSample);
+       float eSum=eBarrel + eEndcap;
+       if (eSum!=0.0) {
+	 //E-weighted average ...
+	 return  (eBarrel * etaBarrel + eEndcap * etaEndcap ) / (eBarrel + eEndcap);
+       }//else eSum==0 case, should never happen
+       return (0.5*(etaBarrel+etaEndcap));
+    }
+    if  (haveBarrel) {
+      return etaSample(barrelSample);
+    }
+    if (haveEndcap) {
+      return etaSample(endcapSample);
+    }
+      
+    //Should never reach this point ...
+    return -999;
+  }
+
+  
+ float CaloCluster_v1::phiBE(const unsigned sample) const {
+    if (sample>3) return -999;
+    const CaloSample barrelSample=(CaloSample)(CaloSampling::PreSamplerB+sample);
+    const CaloSample endcapSample=(CaloSample)(CaloSampling::PreSamplerE+sample);
+    const bool haveBarrel=this->hasSampling(barrelSample);
+    const bool haveEndcap=this->hasSampling(endcapSample);
+    if (haveBarrel && haveEndcap) {
+      //cluster spans barren and endcap
+       float eBarrel=eSample(barrelSample);  //Check for errorcode? Should not happen...
+       float eEndcap=eSample(endcapSample);
+       float eSum=eBarrel+eEndcap;
+       float phiBarrel=phiSample(barrelSample);
+       float phiEndcap=phiSample(endcapSample);
+       static CaloPhiRange phiRange;
+       if (eSum!=0.0) {
+	 float phiSum = eSum * phiBarrel + eEndcap * phiRange.diff(phiEndcap,phiBarrel);
+	 return phiRange.fix(phiSum/(eBarrel+eEndcap));
+       }
+       else {// energy==0 case, should never happen
+	 return phiRange.fix(0.5*(phiBarrel+phiEndcap));
+       }
+    }
+    if  (haveBarrel) {
+      return phiSample(barrelSample);
+    }
+    if (haveEndcap) {
+      return phiSample(endcapSample);
+    }
+      
+    //Should never reach this point ...
+    return -999;
+  }
+
+
+   void  CaloCluster_v1::clearSamplingData() {
+
+      static Accessor< std::vector< float > > etaAcc( "eta_sampl" );
+      static Accessor< std::vector< float > > phiAcc( "phi_sampl" );
+      static Accessor< std::vector< float > > eAcc( "e_sampl" );
+      static Accessor< std::vector< float > > emaxAcc( "emax_sampl" );
+      static Accessor< std::vector< float > > etamaxAcc( "etamax_sampl" );
+      static Accessor< std::vector< float > > phimaxAcc( "phimax_sampl" );
+      static Accessor< std::vector< float > > etasizeAcc( "etasize_sampl" );
+      static Accessor< std::vector< float > > phisizeAcc( "phisize_sampl" );
+
+#if __cplusplus < 201100
+      static std::vector<  Accessor< std::vector< float > >* > allAcc;
+      if( ! allAcc.size() ) {
+         allAcc.push_back( &etaAcc );
+         allAcc.push_back( &phiAcc );
+         allAcc.push_back( &eAcc );
+         allAcc.push_back( &emaxAcc );
+         allAcc.push_back( &phimaxAcc );
+         allAcc.push_back( &etamaxAcc );
+         allAcc.push_back( &etasizeAcc );
+         allAcc.push_back( &phisizeAcc );
+      }
+      std::vector< Accessor< std::vector< float > >* >::iterator acc_itr =
+         allAcc.begin();
+      std::vector< Accessor< std::vector< float > >* >::iterator acc_end =
+         allAcc.end();
+      for( ; acc_itr != acc_end; ++acc_itr ) {
+         if( ( *acc_itr )->isAvailableWritable( *this ) ) {
+            ( **acc_itr )( *this ).clear();
+         }
+      }
+#else
+      static std::array< Accessor< std::vector< float > >*, 8 > allAcc = {
+         { &etaAcc, &phiAcc, &eAcc, &emaxAcc, &phimaxAcc, &etamaxAcc,
+           &etasizeAcc, &phisizeAcc } };
+      for( auto a : allAcc ) {
+         if( a->isAvailableWritable( *this ) ) {
+            ( *a )( *this ).clear();
+         }
+      }
+#endif // C++11
+
+      return;
+   }
+
+  bool CaloCluster_v1::retrieveMoment( MomentType type, double& value ) const {
+
+      // Get the moment accessor:
+      Accessor< float >* acc = momentAccessorV1( type );
+      if( ! acc ) return false;
+      // Check if the moment is available:
+      if( ! acc->isAvailable( *this ) ) {
+         return false;
+      }
+      // Retrieve the moment:
+      value = ( *acc )( *this );
+      return true;
+   }
+
+  /** for debugging only ...
+  std::vector<std::pair<std::string,float> > CaloCluster_v1::getAllMoments() {
+    std::vector<std::pair<std::string,float> > retval;
+    const SG::auxid_set_t& auxIds=container()->getAuxIDs(); //->getDynamicAuxIDs();
+    const size_t idx= this->index();
+    for (auto ai: auxIds) {
+      const std::string& auxName=SG::AuxTypeRegistry::instance().getName(ai);
+      const float v=container()->getData<float>(ai,idx);
+      //std::cout << "Index=" <<idx << ", Auxid=" << ai << ", Name=" << auxName << " value=" << v << std::endl;
+      retval.push_back(std::make_pair(auxName,v));      
+    }
+    return retval;
+  }
+  **/
+
+  unsigned int CaloCluster_v1::getClusterEtaSize() const{
+    const unsigned clustersize=clusterSize();
+    unsigned int size = 0;
+    if(clustersize==SW_55ele || 
+       clustersize==SW_55gam || 
+       clustersize==SW_55Econv){
+      size = 5;
+    }else if(clustersize==SW_35ele ||
+	     clustersize==SW_37ele ||
+	     clustersize==SW_35gam ||
+	     clustersize==SW_37gam ||
+	     clustersize==SW_35Econv ||
+	     clustersize==SW_37Econv){
+      size = 3;
+    }else if(clustersize==SW_7_11){
+      size = 7;
+    }
+    
+    return size;
+    
+  }
+
+  unsigned int CaloCluster_v1::getClusterPhiSize() const{
+    const ClusterSize clustersize=clusterSize();
+    unsigned int size = 0;
+    if(clustersize==SW_55ele || 
+       clustersize==SW_55gam || 
+       clustersize==SW_55Econv ||
+       clustersize==SW_35ele ||
+       clustersize==SW_35gam ||
+       clustersize==SW_35Econv){
+      size = 5;
+    }else if(
+	     clustersize==SW_37ele ||
+	     clustersize==SW_37gam ||
+	     clustersize==SW_37Econv){
+      size = 7;
+    }else if(clustersize==SW_7_11){
+      size = 11;
+    }
+    return size;
+  }
+  
+
+
+
+  
+
+#ifndef XAOD_ANALYSIS
+  /*
+  bool CaloCluster_v1::createCellElemLink(const std::string& CCCL_key, const size_t idx) {
+    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    ElementLink<CaloClusterCellLinkContainer> el(CCCL_key,idx);
+    accCellLinks(*this)=el;
+    if (m_cellLinks!=0 && m_cellLinks!=(*el)) {
+      std::cerr << "ERROR Pointer mismatch! Internal m_cellLinks ptr doesn't match element link" << std::endl;
+      return false;
+    }	
+    return true;
+  }
+  */
+  bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl) {
+    if (!m_cellLinks || !cccl) return false;
+    cccl->push_back(m_cellLinks);
+    m_ownCellLinks=false; //Cell Links now owned by CaloClusterCellLinkContainer
+    const size_t idx=cccl->size()-1; //Use index for speed
+    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    const CaloClusterCellLinkContainer& ref=*cccl;
+    ElementLink<CaloClusterCellLinkContainer> el(ref,idx);
+    accCellLinks(*this)=el;    
+    return true;
+  }
+
+  const CaloClusterCellLink* CaloCluster_v1::getCellLinks() const {
+    if (m_cellLinks) return m_cellLinks;
+    static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
+    if (!accCellLinks.isAvailable(*this)) return 0;
+
+    ElementLink<CaloClusterCellLinkContainer> el=accCellLinks(*this);
+    if (el.isValid()) 
+      return *el;
+    else
+      return 0;
+  }
+
+  bool CaloCluster_v1::removeCell(const CaloCell* ptrToDelete) {
+    //1. Get a ptr to the CaloClusterCellLink
+    CaloClusterCellLink* cccl=getCellLinks();
+    if (!cccl) return false; //No link found (expected for TopoClusters in xAOD files)
+    //2. Remove cell
+    return cccl->removeCell(ptrToDelete);
+  }
+
+
+#endif
+
+   /// This function takes care of preparing (all) the ElementLink(s) in the
+   /// object to be persistified.
+   ///
+   void CaloCluster_v1::toPersistent() {
+
+#ifndef XAOD_ANALYSIS
+      static Accessor< ElementLink< CaloClusterCellLinkContainer > >
+         accCellLinks( "CellLink" );
+      if( accCellLinks.isAvailableWritable( *this ) ) {
+         accCellLinks( *this ).toPersistent();
+      }
+#endif // not XAOD_ANALYSIS
+
+      // Return gracefully:
+      return;
+   }
+
+} // namespace xAOD
