@@ -1,0 +1,133 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#pragma once
+// -*- C++ -*-
+/**********************************************************************************
+ * @Project: HLT
+ * @Package: TrigSteeringEvent
+ * @Class  : Lvl1Result
+ *
+ * @brief container for compact version of the results of all three trigger levels
+ *
+ * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
+ * @author Till Eifert     <Till.Eifert@cern.ch>     - U. of Geneva, Switzerland
+ * @author Ricardo Goncalo <Jose.Goncalo@cern.ch>    - Royal Holloway, U. of London
+ *
+ * File and Version Information:
+ * $Id: Lvl1Result.h,v 1.8 2008-05-15 19:17:06 eifert Exp $
+ **********************************************************************************/
+
+#ifndef TRIGSTEERINGEVENT_Lvl1Result_H
+#define TRIGSTEERINGEVENT_Lvl1Result_H
+
+#include <stdint.h>
+#include "CLIDSvc/CLASS_DEF.h"
+
+namespace LVL1CTP {
+
+  /**
+   * \brief
+   *
+   */
+
+  class Lvl1Item {
+
+  public:
+
+    Lvl1Item( std::string n, unsigned int hash, bool passBP = false,
+              bool passAP = true, bool passAV = true, int factor = 1) :
+      m_name(n), m_hashId(hash), m_passBP(passBP), m_passAP(passAP), m_passAV(passAV),
+      m_prescaleFactor(factor) {}
+
+    Lvl1Item( const Lvl1Item& other) :
+      m_name(other.name()), m_hashId(other.hashId()),
+      m_passBP(other.isPassedBeforePrescale()),
+      m_passAP(other.isPassedAfterPrescale()),
+      m_passAV(other.isPassedAfterVeto()),
+      m_prescaleFactor(other.prescaleFactor()) {}
+
+    std::string  name()   const { return m_name; }
+    unsigned int hashId() const { return m_hashId; }
+
+    bool isPassedBeforePrescale() const    { return m_passBP; }
+    bool isPassedAfterPrescale()  const    { return m_passAP; }
+    bool isPassedAfterVeto()      const    { return m_passAV; }
+
+    bool isPassed()      const    { return isPassedAfterVeto(); }
+
+    bool isPrescaled() const { return isPassedBeforePrescale() && ! isPassedAfterPrescale(); }
+    bool isVeto() const      { return isPassedAfterPrescale()  && ! isPassedAfterVeto();     }
+
+    int prescaleFactor() const { return m_prescaleFactor; }
+
+    void setName  (std::string name) { m_name = name; }
+    void setHashId(unsigned int hash) { m_hashId = hash; }
+    void setPrescaleFactor(int factor) { m_prescaleFactor = factor; }
+
+  private:
+
+    std::string m_name;
+    unsigned int m_hashId;
+    bool m_passBP, m_passAP, m_passAV;
+    int m_prescaleFactor;
+  };
+
+  class Lvl1Result
+  {
+
+  public:
+
+    // default constructor
+    Lvl1Result(bool config = false) : m_configured(config) { }
+
+    // Copy
+    Lvl1Result(const Lvl1Result& l1Result);
+
+    virtual ~Lvl1Result() { }
+
+    bool isConfigured() const { return m_configured; }  //!< is LVL1 configured ?
+    bool isAccepted() const;                            //!< final LVL1 decision && isConfigured
+
+    bool anyActiveL1ItemAfterVeto() const;              //!< any LVL1 item passed after prescale, veto ?
+
+    bool isPassedBeforePrescale(unsigned int item) const; //!< raw L1 item
+    bool isPassedAfterPrescale(unsigned int item) const;  //!< after prescale
+    bool isPassedAfterVeto(unsigned int item) const;      //!< final L1 decision for this item
+    bool isPassedRaw(unsigned int item) const;            //!< same as isPassedBeforePrescale
+
+    bool isPrescaled(unsigned int item) const;            //!< item isPassedBeforePrescale and _not_ isPassedAfterPrescale
+    bool isVeto(unsigned int item) const;               //!< item isPassedAfterPrescale  and _not_ isPassedAfterVeto
+
+    unsigned int nItems() const { return m_l1_itemsTAV.size()*32; }
+
+    const std::vector<uint32_t>& itemsPassed()          const { return m_l1_itemsTAV; }
+    const std::vector<uint32_t>& itemsBeforePrescale()  const { return m_l1_itemsTBP; }
+    const std::vector<uint32_t>& itemsAfterPrescale()   const { return m_l1_itemsTAP; }
+    const std::vector<uint32_t>& itemsAfterVeto()       const { return m_l1_itemsTAV; }
+    //    const std::vector<uint32_t>& itemsPrescaled() const { return m_l1_itemsPrescaled; }
+
+    std::vector<uint32_t>& itemsPassed()           { return m_l1_itemsTAV; }
+    std::vector<uint32_t>& itemsBeforePrescale()   { return m_l1_itemsTBP; }
+    std::vector<uint32_t>& itemsAfterPrescale()    { return m_l1_itemsTAP; }
+    std::vector<uint32_t>& itemsAfterVeto()        { return m_l1_itemsTAV; }
+
+
+  private:
+
+    bool m_configured;
+
+    /* max 256 LVL1 items => 8 words */
+    //    std::vector<uint32_t> m_l1_items;            //!< Trigger level 1, Lvl1 items (=chains)
+    //    std::vector<uint32_t> m_l1_itemsPrescaled;   //!< Trigger level 1, Lvl1 items (=chains) after prescale
+    std::vector<uint32_t> m_l1_itemsTBP;            //!< Trigger (level 1 items) Before Prescale
+    std::vector<uint32_t> m_l1_itemsTAP;            //!< Trigger (level 1 items) After Prescale
+    std::vector<uint32_t> m_l1_itemsTAV;            //!< Trigger (level 1 items) After Veto (==final L1 decision)
+  };
+
+} // end of namespace
+
+CLASS_DEF( LVL1CTP::Lvl1Result, 21091893, 1)
+
+#endif

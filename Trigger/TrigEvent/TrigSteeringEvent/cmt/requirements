@@ -1,0 +1,57 @@
+package TrigSteeringEvent
+
+use AtlasPolicy         AtlasPolicy-*
+use CLIDSvc             CLIDSvc-*                Control
+use DataModel           DataModel-*              Control
+use GaudiInterface      GaudiInterface-*         External
+use DataCollection      DataCollection-*         External
+use SGTools             SGTools-*                Control
+use TrigSerializeResult TrigSerializeResult-*    Trigger/TrigDataAccess
+use TrigConfHLTData     TrigConfHLTData-*        Trigger/TrigConfiguration
+use IRegionSelector     IRegionSelector-*        DetectorDescription
+
+library TrigSteeringEvent *.cxx
+apply_pattern installed_library
+
+macro_prepend TrigSteeringEvent_linkopts " $(notAsNeeded_linkopt)"
+macro_append  TrigSteeringEvent_linkopts " $(asNeeded_linkopt)"
+
+use AthenaKernel        AthenaKernel-*           Control
+
+private
+
+use AtlasReflex         AtlasReflex-*            External -no_auto_import
+use TrigSerializeUtils  TrigSerializeUtils-*     Trigger/TrigDataAccess
+use TrigT1Interfaces    TrigT1Interfaces-*       Trigger/TrigT1
+use TrigNavigation      TrigNavigation-*        Trigger/TrigEvent
+
+
+apply_pattern lcgdict dict=TrigSteeringEvent selectionfile=selection.xml \
+        headerfiles="../TrigSteeringEvent/TrigSteeringEventDict.h" \
+        dataLinks="TrigRoiDescriptor TrigSuperRoi"
+
+
+apply_pattern sercnv typesWithNamespace="LVL1::RecJetRoI LVL1::RecJetEtRoI LVL1::RecEmTauRoI LVL1::RecEnergyRoI LVL1::RecMuonRoI " \
+                                         files="-s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptor.h TrigSuperRoi.h \
+                                         TrigPassFlags.h  TrigPassFlagsCollection.h \
+                                         TrigRoiDescriptorCollection.h\
+                                         TrigSuperRoiCollection.h\
+                                         TrigOperationalInfo.h TrigOperationalInfoCollection.h \
+                                         TrigPassBits.h TrigPassBitsCollection.h \
+                                         -s=${TrigT1Interfaces_root}/TrigT1Interfaces RecJetRoI.h RecEmTauRoI.h \
+                                         RecEnergyRoI.h RecJetEtRoI.h RecMuonRoI.h" 
+
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=Enums extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=Operators extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=Truncation extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=TrigPassBits extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=HLTExtraData extrapatterns=".*"
+
+
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+
+end_private
