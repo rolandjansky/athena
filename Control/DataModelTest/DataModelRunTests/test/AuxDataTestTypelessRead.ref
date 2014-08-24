@@ -1,0 +1,522 @@
+Mon Jun  2 22:39:49 CEST 2014
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [AtlasOffline-19.1.0] [x86_64-slc6-gcc47-opt] [19.X.0-VAL/rel_3] -- built on [2014-05-27 22:01]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "DataModelRunTests/AuxDataTestTypelessRead_jo.py"
+Py:ConfigurableDb    INFO Read module info for 4540 configurables from 19 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
+Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MboyEDMTool.MboyEDMToolConf - ['MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
+[?1034hApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
+                                          running on lxplus0032.cern.ch on Mon Jun  2 22:39:55 2014
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Successfully loaded modules : DataModelTestDataReadCnvPoolCnv
+ApplicationMgr       INFO Successfully loaded modules : DataModelTestDataRead
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-11
+ClassIDSvc           INFO  getRegistryEntries: read 2695 CLIDRegistry entries for module ALL
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-57-34
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+AthAlgSeq            INFO Member list: DMTest::AuxDataTestTypelessRead/AuxDataTestTypelessRead
+ClassIDSvc           INFO  getRegistryEntries: read 434 CLIDRegistry entries for module ALL
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-40-00
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-57-34
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-40-00
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-40-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-12
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
+AthenaRootStrea...   INFO POOL/ROOT class loader initialized
+AthenaRootStrea...   INFO 9 ROOT streamers declared
+AthenaRootStrea...   INFO   - Streamer name:CLHEPVec3dStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepVector3D added converter for checksum = 358881035
+AthenaRootStrea...   INFO Adopted streamer for class HepVector3D
+AthenaRootStrea...   INFO   - Streamer name:CLHEPPoint3dStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepPoint3D added converter for checksum = 1634550480
+AthenaRootStrea...   INFO Adopted streamer for class HepPoint3D
+AthenaRootStrea...   INFO   - Streamer name:CLHEPRotationStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepRotation added converter for checksum = 4141898558
+AthenaRootStrea...   INFO Adopted streamer for class HepRotation
+AthenaRootStrea...   INFO   - Streamer name:CLHEPGenMatrixStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepGenMatrix added converter for checksum = 21721098
+AthenaRootStrea...   INFO Adopted streamer for class HepGenMatrix
+AthenaRootStrea...   INFO   - Streamer name:CLHEPMatrixStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepMatrix added converter for checksum = 3811046672
+AthenaRootStrea...   INFO Adopted streamer for class HepMatrix
+AthenaRootStrea...   INFO   - Streamer name:CLHEPLorVecStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepLorentzVector added converter for checksum = 3077056266
+AthenaRootStrea...   INFO Adopted streamer for class HepLorentzVector
+AthenaRootStrea...   INFO   - Streamer name:CLHEPTransform3DStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepTransform3D added converter for checksum = 520750269
+AthenaRootStrea...   INFO Adopted streamer for class HepTransform3D
+AthenaRootStrea...   INFO   - Streamer name:CLHEP3VectorStreamer
+AthenaRootStrea...   INFO ROOT Streamer for Hep3Vector added converter for checksum = 760000369
+AthenaRootStrea...   INFO Adopted streamer for class Hep3Vector
+AthenaRootStrea...   INFO   - Streamer name:CLHEPBasicVectorStreamer
+AthenaRootStrea...   INFO ROOT Streamer for BasicVector3D added converter for checksum = 2681080162
+AthenaRootStrea...   INFO Adopted streamer for class BasicVector3D
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-00
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(serverurl=http://atlasfrontier.cern.ch:8000/atlr)(serverurl=http://atlasfrontier1.cern.ch:8000/atlr)(serverurl=http://atlasfrontier2.cern.ch:8000/atlr)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/share/dbreplica.config
+DBReplicaSvc         INFO Total of 6 servers found for host lxplus0032.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLF FZK LYON ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Info Xerces-c initialization Number 0
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-30
+TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-02-40-00
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 8D4632F3-5D23-E343-8426-1CCCE589B8F4
+Domain[ROOT_All] Info                           auxdata.root
+RootDatabase.open Success auxdata.root File version:53413
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:auxdata.root"
+ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-30
+ItemListSvc          INFO ItemListSvc initialize
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-57-34
+ClassIDSvc           INFO  getRegistryEntries: read 2629 CLIDRegistry entries for module ALL
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-02-69
+Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-40-00
+Stream1              INFO Found HelperTools = PrivateToolHandleArray([])
+Stream1              INFO Data output: auxdata3.root
+Stream1              INFO I/O reinitialization...
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-40-00
+ApplicationMgr       INFO Application Manager Initialized successfully
+InputMetaDataStore   INFO Start InputMetaDataStore
+MetaDataStore        INFO Start MetaDataStore
+TagMetaDataStore     INFO Start TagMetaDataStore
+auxdata.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 8D4632F3-5D23-E343-8426-1CCCE589B8F4
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 8D4632F3-5D23-E343-8426-1CCCE589B8F4
+Domain[ROOT_All] Info                           auxdata.root
+RootDatabase.open Success auxdata.root File version:53413
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:auxdata.root"
+ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+StoreGateSvc         INFO Start StoreGateSvc
+DetectorStore        INFO Start DetectorStore
+ApplicationMgr       INFO Application Manager Started successfully
+PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
+AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
+1
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 1300; aFloat1: 1200.5; anInt1: 1100; dFloat1: 1400.5; 
+  aB: 1301; aFloat1: 1201.5; anInt1: 1101; dFloat1: 1401.5; 
+  aB: 1302; aFloat1: 1202.5; anInt1: 1102; dFloat1: 1402.5; 
+  aB: 1303; aFloat1: 1203.5; anInt1: 1103; dFloat1: 1403.5; 
+  aB: 1304; aFloat1: 1204.5; anInt1: 1104; dFloat1: 1404.5; 
+  aB: 1305; aFloat1: 1205.5; anInt1: 1105; dFloat1: 1405.5; 
+  aB: 1306; aFloat1: 1206.5; anInt1: 1106; dFloat1: 1406.5; 
+  aB: 1307; aFloat1: 1207.5; anInt1: 1107; dFloat1: 1407.5; 
+  aB: 1308; aFloat1: 1208.5; anInt1: 1108; dFloat1: 1408.5; 
+  aB: 1309; aFloat1: 1209.5; anInt1: 1109; dFloat1: 1409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 10099; aFloat1: 9999.5; anEL: bauxvec[1]; anInt1: 9999; dFloat1: 10199.5; 
+ClassIDSvc           INFO  getRegistryEntries: read 48 CLIDRegistry entries for module ALL
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] C0F7A7E7-68A1-0F46-95B7-A65A4DF70B1C
+Domain[ROOT_All] Info                           auxdata3.root
+RootDatabase.open Success auxdata3.root File version:53413
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
+2
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 2300; aFloat1: 2200.5; anInt1: 2100; dFloat1: 2400.5; 
+  aB: 2301; aFloat1: 2201.5; anInt1: 2101; dFloat1: 2401.5; 
+  aB: 2302; aFloat1: 2202.5; anInt1: 2102; dFloat1: 2402.5; 
+  aB: 2303; aFloat1: 2203.5; anInt1: 2103; dFloat1: 2403.5; 
+  aB: 2304; aFloat1: 2204.5; anInt1: 2104; dFloat1: 2404.5; 
+  aB: 2305; aFloat1: 2205.5; anInt1: 2105; dFloat1: 2405.5; 
+  aB: 2306; aFloat1: 2206.5; anInt1: 2106; dFloat1: 2406.5; 
+  aB: 2307; aFloat1: 2207.5; anInt1: 2107; dFloat1: 2407.5; 
+  aB: 2308; aFloat1: 2208.5; anInt1: 2108; dFloat1: 2408.5; 
+  aB: 2309; aFloat1: 2209.5; anInt1: 2109; dFloat1: 2409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 20098; aFloat1: 19998.5; anEL: bauxvec[2]; anInt1: 19998; dFloat1: 20198.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
+3
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 3300; aFloat1: 3200.5; anInt1: 3100; dFloat1: 3400.5; 
+  aB: 3301; aFloat1: 3201.5; anInt1: 3101; dFloat1: 3401.5; 
+  aB: 3302; aFloat1: 3202.5; anInt1: 3102; dFloat1: 3402.5; 
+  aB: 3303; aFloat1: 3203.5; anInt1: 3103; dFloat1: 3403.5; 
+  aB: 3304; aFloat1: 3204.5; anInt1: 3104; dFloat1: 3404.5; 
+  aB: 3305; aFloat1: 3205.5; anInt1: 3105; dFloat1: 3405.5; 
+  aB: 3306; aFloat1: 3206.5; anInt1: 3106; dFloat1: 3406.5; 
+  aB: 3307; aFloat1: 3207.5; anInt1: 3107; dFloat1: 3407.5; 
+  aB: 3308; aFloat1: 3208.5; anInt1: 3108; dFloat1: 3408.5; 
+  aB: 3309; aFloat1: 3209.5; anInt1: 3109; dFloat1: 3409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 30097; aFloat1: 29997.5; anEL: bauxvec[3]; anInt1: 29997; dFloat1: 30197.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
+4
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 4300; aFloat1: 4200.5; anInt1: 4100; dFloat1: 4400.5; 
+  aB: 4301; aFloat1: 4201.5; anInt1: 4101; dFloat1: 4401.5; 
+  aB: 4302; aFloat1: 4202.5; anInt1: 4102; dFloat1: 4402.5; 
+  aB: 4303; aFloat1: 4203.5; anInt1: 4103; dFloat1: 4403.5; 
+  aB: 4304; aFloat1: 4204.5; anInt1: 4104; dFloat1: 4404.5; 
+  aB: 4305; aFloat1: 4205.5; anInt1: 4105; dFloat1: 4405.5; 
+  aB: 4306; aFloat1: 4206.5; anInt1: 4106; dFloat1: 4406.5; 
+  aB: 4307; aFloat1: 4207.5; anInt1: 4107; dFloat1: 4407.5; 
+  aB: 4308; aFloat1: 4208.5; anInt1: 4108; dFloat1: 4408.5; 
+  aB: 4309; aFloat1: 4209.5; anInt1: 4109; dFloat1: 4409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 40096; aFloat1: 39996.5; anEL: bauxvec[4]; anInt1: 39996; dFloat1: 40196.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
+5
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 5300; aFloat1: 5200.5; anInt1: 5100; dFloat1: 5400.5; 
+  aB: 5301; aFloat1: 5201.5; anInt1: 5101; dFloat1: 5401.5; 
+  aB: 5302; aFloat1: 5202.5; anInt1: 5102; dFloat1: 5402.5; 
+  aB: 5303; aFloat1: 5203.5; anInt1: 5103; dFloat1: 5403.5; 
+  aB: 5304; aFloat1: 5204.5; anInt1: 5104; dFloat1: 5404.5; 
+  aB: 5305; aFloat1: 5205.5; anInt1: 5105; dFloat1: 5405.5; 
+  aB: 5306; aFloat1: 5206.5; anInt1: 5106; dFloat1: 5406.5; 
+  aB: 5307; aFloat1: 5207.5; anInt1: 5107; dFloat1: 5407.5; 
+  aB: 5308; aFloat1: 5208.5; anInt1: 5108; dFloat1: 5408.5; 
+  aB: 5309; aFloat1: 5209.5; anInt1: 5109; dFloat1: 5409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 50095; aFloat1: 49995.5; anEL: bauxvec[5]; anInt1: 49995; dFloat1: 50195.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
+6
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 6300; aFloat1: 6200.5; anInt1: 6100; dFloat1: 6400.5; 
+  aB: 6301; aFloat1: 6201.5; anInt1: 6101; dFloat1: 6401.5; 
+  aB: 6302; aFloat1: 6202.5; anInt1: 6102; dFloat1: 6402.5; 
+  aB: 6303; aFloat1: 6203.5; anInt1: 6103; dFloat1: 6403.5; 
+  aB: 6304; aFloat1: 6204.5; anInt1: 6104; dFloat1: 6404.5; 
+  aB: 6305; aFloat1: 6205.5; anInt1: 6105; dFloat1: 6405.5; 
+  aB: 6306; aFloat1: 6206.5; anInt1: 6106; dFloat1: 6406.5; 
+  aB: 6307; aFloat1: 6207.5; anInt1: 6107; dFloat1: 6407.5; 
+  aB: 6308; aFloat1: 6208.5; anInt1: 6108; dFloat1: 6408.5; 
+  aB: 6309; aFloat1: 6209.5; anInt1: 6109; dFloat1: 6409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 60094; aFloat1: 59994.5; anEL: bauxvec[6]; anInt1: 59994; dFloat1: 60194.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+7
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 7300; aFloat1: 7200.5; anInt1: 7100; dFloat1: 7400.5; 
+  aB: 7301; aFloat1: 7201.5; anInt1: 7101; dFloat1: 7401.5; 
+  aB: 7302; aFloat1: 7202.5; anInt1: 7102; dFloat1: 7402.5; 
+  aB: 7303; aFloat1: 7203.5; anInt1: 7103; dFloat1: 7403.5; 
+  aB: 7304; aFloat1: 7204.5; anInt1: 7104; dFloat1: 7404.5; 
+  aB: 7305; aFloat1: 7205.5; anInt1: 7105; dFloat1: 7405.5; 
+  aB: 7306; aFloat1: 7206.5; anInt1: 7106; dFloat1: 7406.5; 
+  aB: 7307; aFloat1: 7207.5; anInt1: 7107; dFloat1: 7407.5; 
+  aB: 7308; aFloat1: 7208.5; anInt1: 7108; dFloat1: 7408.5; 
+  aB: 7309; aFloat1: 7209.5; anInt1: 7109; dFloat1: 7409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 70093; aFloat1: 69993.5; anEL: bauxvec[7]; anInt1: 69993; dFloat1: 70193.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
+8
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 8300; aFloat1: 8200.5; anInt1: 8100; dFloat1: 8400.5; 
+  aB: 8301; aFloat1: 8201.5; anInt1: 8101; dFloat1: 8401.5; 
+  aB: 8302; aFloat1: 8202.5; anInt1: 8102; dFloat1: 8402.5; 
+  aB: 8303; aFloat1: 8203.5; anInt1: 8103; dFloat1: 8403.5; 
+  aB: 8304; aFloat1: 8204.5; anInt1: 8104; dFloat1: 8404.5; 
+  aB: 8305; aFloat1: 8205.5; anInt1: 8105; dFloat1: 8405.5; 
+  aB: 8306; aFloat1: 8206.5; anInt1: 8106; dFloat1: 8406.5; 
+  aB: 8307; aFloat1: 8207.5; anInt1: 8107; dFloat1: 8407.5; 
+  aB: 8308; aFloat1: 8208.5; anInt1: 8108; dFloat1: 8408.5; 
+  aB: 8309; aFloat1: 8209.5; anInt1: 8109; dFloat1: 8409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 80092; aFloat1: 79992.5; anEL: bauxvec[8]; anInt1: 79992; dFloat1: 80192.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+9
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 9300; aFloat1: 9200.5; anInt1: 9100; dFloat1: 9400.5; 
+  aB: 9301; aFloat1: 9201.5; anInt1: 9101; dFloat1: 9401.5; 
+  aB: 9302; aFloat1: 9202.5; anInt1: 9102; dFloat1: 9402.5; 
+  aB: 9303; aFloat1: 9203.5; anInt1: 9103; dFloat1: 9403.5; 
+  aB: 9304; aFloat1: 9204.5; anInt1: 9104; dFloat1: 9404.5; 
+  aB: 9305; aFloat1: 9205.5; anInt1: 9105; dFloat1: 9405.5; 
+  aB: 9306; aFloat1: 9206.5; anInt1: 9106; dFloat1: 9406.5; 
+  aB: 9307; aFloat1: 9207.5; anInt1: 9107; dFloat1: 9407.5; 
+  aB: 9308; aFloat1: 9208.5; anInt1: 9108; dFloat1: 9408.5; 
+  aB: 9309; aFloat1: 9209.5; anInt1: 9109; dFloat1: 9409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 90091; aFloat1: 89991.5; anEL: bauxvec[9]; anInt1: 89991; dFloat1: 90191.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+10
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 10300; aFloat1: 10200.5; anInt1: 10100; dFloat1: 10400.5; 
+  aB: 10301; aFloat1: 10201.5; anInt1: 10101; dFloat1: 10401.5; 
+  aB: 10302; aFloat1: 10202.5; anInt1: 10102; dFloat1: 10402.5; 
+  aB: 10303; aFloat1: 10203.5; anInt1: 10103; dFloat1: 10403.5; 
+  aB: 10304; aFloat1: 10204.5; anInt1: 10104; dFloat1: 10404.5; 
+  aB: 10305; aFloat1: 10205.5; anInt1: 10105; dFloat1: 10405.5; 
+  aB: 10306; aFloat1: 10206.5; anInt1: 10106; dFloat1: 10406.5; 
+  aB: 10307; aFloat1: 10207.5; anInt1: 10107; dFloat1: 10407.5; 
+  aB: 10308; aFloat1: 10208.5; anInt1: 10108; dFloat1: 10408.5; 
+  aB: 10309; aFloat1: 10209.5; anInt1: 10109; dFloat1: 10409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 100090; aFloat1: 99990.5; anEL: bauxvec[0]; anInt1: 99990; dFloat1: 100190.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
+11
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 11300; aFloat1: 11200.5; anInt1: 11100; dFloat1: 11400.5; 
+  aB: 11301; aFloat1: 11201.5; anInt1: 11101; dFloat1: 11401.5; 
+  aB: 11302; aFloat1: 11202.5; anInt1: 11102; dFloat1: 11402.5; 
+  aB: 11303; aFloat1: 11203.5; anInt1: 11103; dFloat1: 11403.5; 
+  aB: 11304; aFloat1: 11204.5; anInt1: 11104; dFloat1: 11404.5; 
+  aB: 11305; aFloat1: 11205.5; anInt1: 11105; dFloat1: 11405.5; 
+  aB: 11306; aFloat1: 11206.5; anInt1: 11106; dFloat1: 11406.5; 
+  aB: 11307; aFloat1: 11207.5; anInt1: 11107; dFloat1: 11407.5; 
+  aB: 11308; aFloat1: 11208.5; anInt1: 11108; dFloat1: 11408.5; 
+  aB: 11309; aFloat1: 11209.5; anInt1: 11109; dFloat1: 11409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 110089; aFloat1: 109989.5; anEL: bauxvec[1]; anInt1: 109989; dFloat1: 110189.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
+12
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 12300; aFloat1: 12200.5; anInt1: 12100; dFloat1: 12400.5; 
+  aB: 12301; aFloat1: 12201.5; anInt1: 12101; dFloat1: 12401.5; 
+  aB: 12302; aFloat1: 12202.5; anInt1: 12102; dFloat1: 12402.5; 
+  aB: 12303; aFloat1: 12203.5; anInt1: 12103; dFloat1: 12403.5; 
+  aB: 12304; aFloat1: 12204.5; anInt1: 12104; dFloat1: 12404.5; 
+  aB: 12305; aFloat1: 12205.5; anInt1: 12105; dFloat1: 12405.5; 
+  aB: 12306; aFloat1: 12206.5; anInt1: 12106; dFloat1: 12406.5; 
+  aB: 12307; aFloat1: 12207.5; anInt1: 12107; dFloat1: 12407.5; 
+  aB: 12308; aFloat1: 12208.5; anInt1: 12108; dFloat1: 12408.5; 
+  aB: 12309; aFloat1: 12209.5; anInt1: 12109; dFloat1: 12409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 120088; aFloat1: 119988.5; anEL: bauxvec[2]; anInt1: 119988; dFloat1: 120188.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
+13
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 13300; aFloat1: 13200.5; anInt1: 13100; dFloat1: 13400.5; 
+  aB: 13301; aFloat1: 13201.5; anInt1: 13101; dFloat1: 13401.5; 
+  aB: 13302; aFloat1: 13202.5; anInt1: 13102; dFloat1: 13402.5; 
+  aB: 13303; aFloat1: 13203.5; anInt1: 13103; dFloat1: 13403.5; 
+  aB: 13304; aFloat1: 13204.5; anInt1: 13104; dFloat1: 13404.5; 
+  aB: 13305; aFloat1: 13205.5; anInt1: 13105; dFloat1: 13405.5; 
+  aB: 13306; aFloat1: 13206.5; anInt1: 13106; dFloat1: 13406.5; 
+  aB: 13307; aFloat1: 13207.5; anInt1: 13107; dFloat1: 13407.5; 
+  aB: 13308; aFloat1: 13208.5; anInt1: 13108; dFloat1: 13408.5; 
+  aB: 13309; aFloat1: 13209.5; anInt1: 13109; dFloat1: 13409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 130087; aFloat1: 129987.5; anEL: bauxvec[3]; anInt1: 129987; dFloat1: 130187.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
+14
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 14300; aFloat1: 14200.5; anInt1: 14100; dFloat1: 14400.5; 
+  aB: 14301; aFloat1: 14201.5; anInt1: 14101; dFloat1: 14401.5; 
+  aB: 14302; aFloat1: 14202.5; anInt1: 14102; dFloat1: 14402.5; 
+  aB: 14303; aFloat1: 14203.5; anInt1: 14103; dFloat1: 14403.5; 
+  aB: 14304; aFloat1: 14204.5; anInt1: 14104; dFloat1: 14404.5; 
+  aB: 14305; aFloat1: 14205.5; anInt1: 14105; dFloat1: 14405.5; 
+  aB: 14306; aFloat1: 14206.5; anInt1: 14106; dFloat1: 14406.5; 
+  aB: 14307; aFloat1: 14207.5; anInt1: 14107; dFloat1: 14407.5; 
+  aB: 14308; aFloat1: 14208.5; anInt1: 14108; dFloat1: 14408.5; 
+  aB: 14309; aFloat1: 14209.5; anInt1: 14109; dFloat1: 14409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 140086; aFloat1: 139986.5; anEL: bauxvec[4]; anInt1: 139986; dFloat1: 140186.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
+15
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 15300; aFloat1: 15200.5; anInt1: 15100; dFloat1: 15400.5; 
+  aB: 15301; aFloat1: 15201.5; anInt1: 15101; dFloat1: 15401.5; 
+  aB: 15302; aFloat1: 15202.5; anInt1: 15102; dFloat1: 15402.5; 
+  aB: 15303; aFloat1: 15203.5; anInt1: 15103; dFloat1: 15403.5; 
+  aB: 15304; aFloat1: 15204.5; anInt1: 15104; dFloat1: 15404.5; 
+  aB: 15305; aFloat1: 15205.5; anInt1: 15105; dFloat1: 15405.5; 
+  aB: 15306; aFloat1: 15206.5; anInt1: 15106; dFloat1: 15406.5; 
+  aB: 15307; aFloat1: 15207.5; anInt1: 15107; dFloat1: 15407.5; 
+  aB: 15308; aFloat1: 15208.5; anInt1: 15108; dFloat1: 15408.5; 
+  aB: 15309; aFloat1: 15209.5; anInt1: 15109; dFloat1: 15409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 150085; aFloat1: 149985.5; anEL: bauxvec[5]; anInt1: 149985; dFloat1: 150185.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
+16
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 16300; aFloat1: 16200.5; anInt1: 16100; dFloat1: 16400.5; 
+  aB: 16301; aFloat1: 16201.5; anInt1: 16101; dFloat1: 16401.5; 
+  aB: 16302; aFloat1: 16202.5; anInt1: 16102; dFloat1: 16402.5; 
+  aB: 16303; aFloat1: 16203.5; anInt1: 16103; dFloat1: 16403.5; 
+  aB: 16304; aFloat1: 16204.5; anInt1: 16104; dFloat1: 16404.5; 
+  aB: 16305; aFloat1: 16205.5; anInt1: 16105; dFloat1: 16405.5; 
+  aB: 16306; aFloat1: 16206.5; anInt1: 16106; dFloat1: 16406.5; 
+  aB: 16307; aFloat1: 16207.5; anInt1: 16107; dFloat1: 16407.5; 
+  aB: 16308; aFloat1: 16208.5; anInt1: 16108; dFloat1: 16408.5; 
+  aB: 16309; aFloat1: 16209.5; anInt1: 16109; dFloat1: 16409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 160084; aFloat1: 159984.5; anEL: bauxvec[6]; anInt1: 159984; dFloat1: 160184.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
+17
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 17300; aFloat1: 17200.5; anInt1: 17100; dFloat1: 17400.5; 
+  aB: 17301; aFloat1: 17201.5; anInt1: 17101; dFloat1: 17401.5; 
+  aB: 17302; aFloat1: 17202.5; anInt1: 17102; dFloat1: 17402.5; 
+  aB: 17303; aFloat1: 17203.5; anInt1: 17103; dFloat1: 17403.5; 
+  aB: 17304; aFloat1: 17204.5; anInt1: 17104; dFloat1: 17404.5; 
+  aB: 17305; aFloat1: 17205.5; anInt1: 17105; dFloat1: 17405.5; 
+  aB: 17306; aFloat1: 17206.5; anInt1: 17106; dFloat1: 17406.5; 
+  aB: 17307; aFloat1: 17207.5; anInt1: 17107; dFloat1: 17407.5; 
+  aB: 17308; aFloat1: 17208.5; anInt1: 17108; dFloat1: 17408.5; 
+  aB: 17309; aFloat1: 17209.5; anInt1: 17109; dFloat1: 17409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 170083; aFloat1: 169983.5; anEL: bauxvec[7]; anInt1: 169983; dFloat1: 170183.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
+18
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 18300; aFloat1: 18200.5; anInt1: 18100; dFloat1: 18400.5; 
+  aB: 18301; aFloat1: 18201.5; anInt1: 18101; dFloat1: 18401.5; 
+  aB: 18302; aFloat1: 18202.5; anInt1: 18102; dFloat1: 18402.5; 
+  aB: 18303; aFloat1: 18203.5; anInt1: 18103; dFloat1: 18403.5; 
+  aB: 18304; aFloat1: 18204.5; anInt1: 18104; dFloat1: 18404.5; 
+  aB: 18305; aFloat1: 18205.5; anInt1: 18105; dFloat1: 18405.5; 
+  aB: 18306; aFloat1: 18206.5; anInt1: 18106; dFloat1: 18406.5; 
+  aB: 18307; aFloat1: 18207.5; anInt1: 18107; dFloat1: 18407.5; 
+  aB: 18308; aFloat1: 18208.5; anInt1: 18108; dFloat1: 18408.5; 
+  aB: 18309; aFloat1: 18209.5; anInt1: 18109; dFloat1: 18409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 180082; aFloat1: 179982.5; anEL: bauxvec[8]; anInt1: 179982; dFloat1: 180182.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
+19
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 19300; aFloat1: 19200.5; anInt1: 19100; dFloat1: 19400.5; 
+  aB: 19301; aFloat1: 19201.5; anInt1: 19101; dFloat1: 19401.5; 
+  aB: 19302; aFloat1: 19202.5; anInt1: 19102; dFloat1: 19402.5; 
+  aB: 19303; aFloat1: 19203.5; anInt1: 19103; dFloat1: 19403.5; 
+  aB: 19304; aFloat1: 19204.5; anInt1: 19104; dFloat1: 19404.5; 
+  aB: 19305; aFloat1: 19205.5; anInt1: 19105; dFloat1: 19405.5; 
+  aB: 19306; aFloat1: 19206.5; anInt1: 19106; dFloat1: 19406.5; 
+  aB: 19307; aFloat1: 19207.5; anInt1: 19107; dFloat1: 19407.5; 
+  aB: 19308; aFloat1: 19208.5; anInt1: 19108; dFloat1: 19408.5; 
+  aB: 19309; aFloat1: 19209.5; anInt1: 19109; dFloat1: 19409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 190081; aFloat1: 189981.5; anEL: bauxvec[9]; anInt1: 189981; dFloat1: 190181.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
+20
+bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float 
+  aB: 20300; aFloat1: 20200.5; anInt1: 20100; dFloat1: 20400.5; 
+  aB: 20301; aFloat1: 20201.5; anInt1: 20101; dFloat1: 20401.5; 
+  aB: 20302; aFloat1: 20202.5; anInt1: 20102; dFloat1: 20402.5; 
+  aB: 20303; aFloat1: 20203.5; anInt1: 20103; dFloat1: 20403.5; 
+  aB: 20304; aFloat1: 20204.5; anInt1: 20104; dFloat1: 20404.5; 
+  aB: 20305; aFloat1: 20205.5; anInt1: 20105; dFloat1: 20405.5; 
+  aB: 20306; aFloat1: 20206.5; anInt1: 20106; dFloat1: 20406.5; 
+  aB: 20307; aFloat1: 20207.5; anInt1: 20107; dFloat1: 20407.5; 
+  aB: 20308; aFloat1: 20208.5; anInt1: 20108; dFloat1: 20408.5; 
+  aB: 20309; aFloat1: 20209.5; anInt1: 20109; dFloat1: 20409.5; 
+b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+aB: 200080; aFloat1: 199980.5; anEL: bauxvec[0]; anInt1: 199980; dFloat1: 200180.5; 
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+DetectorStore        INFO Stop DetectorStore
+StoreGateSvc         INFO Stop StoreGateSvc
+StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
+Stream1              INFO Records written: 21
+TagMetaDataStore     INFO Stop TagMetaDataStore
+auxdata.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 8D4632F3-5D23-E343-8426-1CCCE589B8F4
+auxdata3.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] C0F7A7E7-68A1-0F46-95B7-A65A4DF70B1C
+Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+MetaDataStore        INFO Stop MetaDataStore
+InputMetaDataStore   INFO Stop InputMetaDataStore
+ApplicationMgr       INFO Application Manager Stopped successfully
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-40-00
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-02-40-00
+ItemListSvc          INFO -- OUTPUT STREAM ITEM OVERLAP SUMMARY --
+ItemListSvc          INFO STREAM Stream1 has (5) items
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-02-40-00
+PoolSvc              INFO I/O finalization...
+PoolXMLFileCatalog Info XercesC termination number 0
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-40-00
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-40-00
+DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
+DecisionSvc          INFO List of registered 1 Streams: Stream1 
+DecisionSvc          INFO Finalized successfully.
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
+CORAL/Services/ConnectionService Info Deleting the ConnectionPool

@@ -1,0 +1,43 @@
+
+A little explanation is in order on how these tests are organized.
+
+DataVector was changed so that if you have a class D deriving from class B,
+then you can have DataVector<D> deriving from DataVector<B>.
+This, however, changes the persistent representation of DataVector<D>
+from what it was before.  So to test I/O and schema evolution,
+we try to write out containers the `old' way and read them back
+in the `new' way.
+
+For this to work, we need to have separate libraries defining the
+DataVector classes and the pool converters for both the `old' and `new'
+way.  That's what leads to the code for these tests being split into
+several packages.
+
+The data objects used for the tests are like this.
+We have classes DMTest::B and DMTest::D, with DMTest::D deriving
+from DMTest::B.
+
+We have DataVector<DMTest::B> and DataVector<DMTest::D>.
+Deriving from these, we have DMTest::BDer and DMTest::BDer.
+
+Classes DMTest::B and DMTest::D are in DataModelTestDataCommon.
+The other four classes are defined in both DataModelTestDataWrite
+and DataModelDataDataRead.  In the former, the two DataVector classes
+are unrelated by inheritance; in the latter, they are.  These two
+packages also contain algorithms used to create the test data,
+and to print it out.
+
+The packages DataModelTestDataWriteCnv and DataModelTestDataReadCnv
+are for the pool converters.
+
+Finally, this package, DataModelRunTests, is where the tests get run.
+There are three tests.
+DataModelTestWrite uses DataModelTestDataWrite, and writes out instances
+of the four container classes, with the DataVector classes unrelated
+by inheritance.
+DataModelTestRead then reads in this data.  It uses DataModelTestDataRead,
+so for it, the two DataVector classes are related by inheritance.
+This test then writes out the data again in the new format.
+Finally, DataModelTestRead2 reads back in the new-format data,
+just to verify that this works.
+
