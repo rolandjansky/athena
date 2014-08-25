@@ -110,7 +110,9 @@ class sTgcFastDigitizer : public AthAlgorithm {
   float  e;
   float  as;
   float  at;
-
+  float  surfcentx;
+  float  surfcenty;
+  float  surfcentz;
 
   double getResolution(float inAngle_space) const;
   uint16_t bcTagging(float digittime, int channelType) const;

@@ -188,6 +188,9 @@ StatusCode MM_FastDigitizer::initialize() {
   m_ntuple->Branch("bunchTime", &bunchTime);
   m_ntuple->Branch("e", &e);
   m_ntuple->Branch("edep", &edep);
+  m_ntuple->Branch("surfcentx",&surfcentx);
+  m_ntuple->Branch("surfcenty",&surfcenty);
+  m_ntuple->Branch("surfcentz",&surfcentz);
   return StatusCode::SUCCESS;
 
 }
@@ -206,7 +209,7 @@ StatusCode MM_FastDigitizer::execute() {
 
   MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->detectorElement_hash_max());
   std::string key = "MM_Measurements";
-  ATH_MSG_DEBUG(" Done! Total number of of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
+  ATH_MSG_DEBUG(" Done! Total number of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
   if (evtStore()->record(prdContainer,key).isFailure())  {
     ATH_MSG_ERROR ( "Unable to record MMPrepData container in StoreGate" );
     return StatusCode::FAILURE;
@@ -430,7 +433,9 @@ StatusCode MM_FastDigitizer::execute() {
     dgpp  = repos.phi();
     edep  = hit.depositEnergy();
     e     = hit.kineticEnergy();
-
+    surfcentx = surf.center().x();
+    surfcenty = surf.center().y();
+    surfcentz = surf.center().z();
 
     /////
     if(hit.kineticEnergy()<m_energyThreshold && abs(hit.particleEncoding())==11) {
@@ -490,9 +495,10 @@ StatusCode MM_FastDigitizer::execute() {
 
     std::vector<Identifier> rdoList;
     rdoList.push_back(id);
-    Amg::MatrixX cov(1,1); cov.setIdentity();
-    cov *= resolution*resolution;
-    MMPrepData* prd = new MMPrepData( id,hash,posOnSurf,rdoList,&cov,detEl);
+    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+    cov->setIdentity();
+    (*cov)(0,0) = resolution*resolution;
+    MMPrepData* prd = new MMPrepData( id,hash,posOnSurf,rdoList,cov,detEl);
     prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
     col->push_back(prd);
     // ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z() 

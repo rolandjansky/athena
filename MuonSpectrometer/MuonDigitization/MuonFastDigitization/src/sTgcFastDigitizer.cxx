@@ -146,6 +146,9 @@ StatusCode sTgcFastDigitizer::initialize() {
   m_ntuple->Branch("e",&e);
   m_ntuple->Branch("at",&at);
   m_ntuple->Branch("as",&as);
+  m_ntuple->Branch("surfcentx",&surfcentx);
+  m_ntuple->Branch("surfcenty",&surfcenty);
+  m_ntuple->Branch("surfcentz",&surfcentz);
 
   return StatusCode::SUCCESS;
     
@@ -363,6 +366,10 @@ StatusCode sTgcFastDigitizer::execute() {
       e     = hit.kineticEnergy();
       at    = inAngle_time;
       as    = inAngle_space;
+      surfcentx = surf.center().x();
+      surfcenty = surf.center().y();
+      surfcentz = surf.center().z();
+
        // cut on the kineticEnergy = 50MeV  
       if(hit.kineticEnergy()< m_energyThreshold ) {
 	exitcode = 5;
@@ -470,15 +477,15 @@ StatusCode sTgcFastDigitizer::execute() {
 	}
       }
       
-      
-      Amg::MatrixX cov(1,1); cov.setIdentity();
-      cov*=errX*errX;
+      Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+      cov->setIdentity();
+      (*cov)(0,0) = errX*errX;      
 
 //      ATH_MSG_DEBUG(" New hit " << m_idHelperTool->toString(id) << " chtype " << type << " lpos " << posOnSurf << " from truth "
 //                    << hitOnSurface << " error " << locErrMat->error(Trk::locX) << " pull " << (posOnSurf.x()-hitOnSurface.x())/locErrMat->error(Trk::locX) );
 
       //sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,locErrMat,detEl);
-      sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,&cov,detEl, bctag);
+      sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
       prd->setHashAndIndex(col->identifyHash(), col->size());
       col->push_back(prd);
 

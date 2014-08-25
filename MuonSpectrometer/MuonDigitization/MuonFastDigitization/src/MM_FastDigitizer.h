@@ -115,6 +115,9 @@ class MM_FastDigitizer : public AthAlgorithm {
   float  globalHitTime;
   float  e;
   float  edep;
+  float  surfcentx;
+  float  surfcenty;
+  float  surfcentz;
 
  protected:
   ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool;  
