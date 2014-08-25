@@ -1,0 +1,33 @@
+package TrigStorageDefinitions
+
+author lukas.heinrich@cern.ch
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+
+use  DataModel                  DataModel-*                     Control
+use  Navigation                 Navigation-*			Control
+use  AtlasBoost                 AtlasBoost-*                    External
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+
+use  xAODTracking		 xAODTracking-*			 Event/xAOD
+use  xAODMuon			  xAODMuon-*			  Event/xAOD
+use  xAODTau			  xAODTau-*			  Event/xAOD
+use  xAODJet			  xAODJet-*			  Event/xAOD
+use  xAODTrigBphys                xAODTrigBphys-*                 Event/xAOD
+use  xAODTrigMissingET          xAODTrigMissingET-*               Event/xAOD
+use  xAODTrigEgamma		xAODTrigEgamma-*		  Event/xAOD
+use  xAODTrigMuon                 xAODTrigMuon-*                  Event/xAOD
+use  xAODTrigCalo		xAODTrigCalo-*			  Event/xAOD
+use  xAODTrigMinBias		xAODTrigMinBias-*		  Event/xAOD
+use  xAODBTagging               xAODBTagging-*                    Event/xAOD
+private
+
+use TestTools      TestTools-*         AtlasTest
+
+#apply_pattern UnitTest_run unit_test=TypeInformation
+#apply_pattern UnitTest_run unit_test=ListMap
+apply_pattern UnitTest_run unit_test=NewEDMMap
+#apply_pattern UnitTest_run unit_test=Basic
+
