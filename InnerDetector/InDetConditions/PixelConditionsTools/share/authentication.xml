@@ -1,0 +1,8 @@
+<connectionlist>
+ 
+<connection name="oracle://ATLAS_COOLPROD/ATLAS_COOL_PIXEL">
+<parameter name="user" value="ATLAS_COOL_PIXEL_W" />
+<parameter name="password" value="WCOOL4PIXEL11" />
+</connection>
+ 
+</connectionlist>
