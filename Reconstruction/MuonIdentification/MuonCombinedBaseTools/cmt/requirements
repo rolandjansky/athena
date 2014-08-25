@@ -1,0 +1,60 @@
+package MuonCombinedBaseTools
+	
+author Massimiliano Bellomo
+author Niels van Eldik
+author Nicolo de Groot 
+author Lydia Brenner
+author Peter Kluit
+author Sandro Di Mattia
+	
+public
+use AtlasPolicy                 AtlasPolicy-*
+	
+private
+use MuonCombinedEvent           MuonCombinedEvent-*           Reconstruction/MuonIdentification
+use xAODTracking                xAODTracking-*                Event/xAOD
+use xAODMuon                    xAODMuon-*                    Event/xAOD
+use xAODTruth                   xAODTruth-*                   Event/xAOD
+use EventPrimitives             EventPrimitives-*             Event
+use TrkTrack                    TrkTrack-*                    Tracking/TrkEvent
+use TrkTrackSummary             TrkTrackSummary-*             Tracking/TrkEvent
+use TrkSegment                  TrkSegment-*                  Tracking/TrkEvent
+use TrkParameters               TrkParameters-*               Tracking/TrkEvent
+use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
+use TrkExInterfaces             TrkExInterfaces-*             Tracking/TrkExtrapolation
+use TrkGeometry                 TrkGeometry-*                 Tracking/TrkDetDescr
+use GaudiInterface              GaudiInterface-*              External
+use AthenaBaseComps             AthenaBaseComps-*             Control
+use MuonRecHelperTools          MuonRecHelperTools-*          MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonIdHelpers               MuonIdHelpers-*               MuonSpectrometer
+use MuonRIO_OnTrack             MuonRIO_OnTrack-*             MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuidInterfaces              MuidInterfaces-*              Reconstruction/MuonIdentification
+use RecoToolInterfaces          RecoToolInterfaces-*          Reconstruction/RecoTools
+use MuonRecToolInterfaces       MuonRecToolInterfaces-*       MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*  Reconstruction/MuonIdentification
+use muonEvent                   muonEvent-*                   Reconstruction/MuonIdentification
+use MuonSegment                 MuonSegment-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use xAODMuonCnv                 xAODMuonCnv-*                 Event/xAOD
+use ICaloTrkMuIdTools           ICaloTrkMuIdTools-*           Reconstruction/MuonIdentification
+use MuGirl                      MuGirl-*                      Reconstruction/MuonIdentification
+use IsolationTool               IsolationTool-*               Reconstruction/RecoTools
+use AtlasCLHEP                  AtlasCLHEP-*                  External
+use AtlasHepMC                  AtlasHepMC-*                  External
+use ParticleTruth               ParticleTruth-*               Reconstruction
+use Particle                    Particle-*                    Reconstruction
+use AthLinks                    AthLinks-*                    Control
+
+use MuonSegmentTaggerToolInterfaces MuonSegmentTaggerToolInterfaces-* Reconstruction/MuonIdentification/MuonSegmentTaggers
+use MuonIdHelpers         MuonIdHelpers-*         MuonSpectrometer
+use TrkSurfaces		TrkSurfaces-*		Tracking/TrkDetDescr
+use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+use MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
+use MuonSelectorTools MuonSelectorTools-* PhysicsAnalysis/MuonID
+
+public
+	
+apply_pattern component_library
+library MuonCombinedBaseTools *.cxx components/*.cxx                   
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
