@@ -1,0 +1,83 @@
+package RegionSelector
+
+author Denis Damazio <Denis.Oliveira.Damazio@cern.ch>, Alessandro DiMattia <alessandro.dimattia@roma1.infn.it>, Simon George <S.George@rhul.ac.uk>, Aline Gesualdi Mello <aline@lps.ufrj.br>, Mark Sutton <sutt@mail.desy.de>
+
+use AtlasPolicy AtlasPolicy-*
+use CLIDSvc CLIDSvc-* Control
+use GaudiInterface GaudiInterface-* External 
+# use AtlasROOT      AtlasROOT-*   External
+
+
+# Identifier
+use Identifier Identifier-* DetectorDescription 
+
+
+
+private
+
+# for detector description version
+use GeoModelInterfaces GeoModelInterfaces-* DetectorDescription/GeoModel
+
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+
+# To Get LAr Conditions
+use AthenaPoolUtilities  AthenaPoolUtilities-* Database/AthenaPOOL
+
+
+# for locating data files
+use PathResolver PathResolver-*  Tools
+
+use RegSelLUT                     RegSelLUT-*                     DetectorDescription
+
+use StoreGate StoreGate-* Control
+
+end_private
+
+
+
+public
+
+# use TrigSteeringEvent TrigSteeringEvent-* Trigger/TrigEvent
+
+use IRegionSelector               IRegionSelector-*               DetectorDescription
+
+# use InDetIdentifier               InDetIdentifier-*               InnerDetector/InDetDetDescr
+# use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+
+# use PixelConditionsData      PixelConditionsData-*     InnerDetector/InDetConditions
+# use PixelConditionsServices  PixelConditionsServices-* InnerDetector/InDetConditions
+
+# use SCT_ConditionsData      SCT_ConditionsData-*     InnerDetector/InDetConditions
+# use SCT_ConditionsServices  SCT_ConditionsServices-* InnerDetector/InDetConditions
+
+# use TRT_ConditionsData      TRT_ConditionsData-*     InnerDetector/InDetConditions
+# use TRT_ConditionsServices  TRT_ConditionsServices-* InnerDetector/InDetConditions
+
+# muon stuff
+# use MuonReadoutGeometry        MuonReadoutGeometry-*              MuonSpectrometer/MuonDetDescr
+# use MuonIdHelpers              MuonIdHelpers-*                    MuonSpectrometer
+# use MuonSimEvent               MuonSimEvent-*                     MuonSpectrometer
+# use MuonPrepRawData            MuonPrepRawData-*       		  MuonSpectrometer/MuonReconstruction/MuonRecEvent        
+
+# use MuonDigitContainer	       MuonDigitContainer-*		  MuonSpectromete
+
+# use TrigIDSCAN	       TrigIDSCAN-*      Trigger/TrigAlgorithms
+
+
+
+# use AthenaKernel	AthenaKernel-*	Control
+
+private
+macro_append RegionSelectorLib_shlibflags " -lpthread" 
+end_private
+
+apply_pattern dual_use_library files=*.cxx
+# apply_pattern declare_runtime files="*.txt *.cfg" 
+# apply_pattern declare_joboptions files="-s=../share *.txt *.py"
+apply_pattern declare_joboptions files="-s=../share *.py"
+apply_pattern declare_python_modules files="*.py"
+
+# apply_tag ROOTGraphicsLibs
+
+macro_append cppflags "" 
+
