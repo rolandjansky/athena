@@ -1,0 +1,202 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// vim: filetype=cpp
+/////////////////////////////////////////////////////////////////
+// StackElement.icc, (c) ATLAS Detector software
+/////////////////////////////////////////////////////////////////
+// Author: Thomas Gillam (thomas.gillam@cern.ch)
+// ExpressionParsing library
+/////////////////////////////////////////////////////////////////
+
+#define BINARY_COMPARISON_OP_BASIC(OP, ADVOP) template <typename T> bool StackElement::operator OP(const T &other) const \
+  { \
+    StackElement temp(this->ADVOP(other)); \
+    if (temp.isScalar()) { \
+      return (temp.asBool()); \
+    } else { \
+      bool result = true; \
+      for (std::vector<int>::const_iterator it = temp.vecintval.begin(); it != temp.vecintval.end(); ++it) { \
+        if (!*it) { \
+          result = false; \
+          break; \
+        } \
+      } \
+      return result; \
+    } \
+  }
+
+#define ASSIGN_OP(OP) template <typename T> StackElement &StackElement::operator OP(const T &rhs) \
+  { \
+    makeDoubleIfNecessary(rhs); \
+    if (type == SE_INT)         intval    OP rhs; \
+    else if (type == SE_DOUBLE) doubleval OP rhs; \
+    else if (type == SE_VECINT) { \
+      for (size_t i = 0; i < vecintval.size(); ++i) { \
+        vecintval[i] OP rhs; \
+      } \
+    } else if (type == SE_VECDOUBLE) { \
+      for (size_t i = 0; i < vecdoubleval.size(); ++i) { \
+        vecdoubleval[i] OP rhs; \
+      } \
+    } \
+    else                        throw std::runtime_error("StackElement ill-defined in " #OP); \
+    return *this; \
+  } \
+ \
+  template <typename T> StackElement &StackElement::operator OP(const std::vector<T> &rhs) \
+  { \
+    makeVectorIfNecessary(rhs); \
+    makeDoubleIfNecessary(rhs); \
+    ensureCompatibleVectors(rhs); \
+    if (type == SE_VECINT) { \
+      for (size_t i = 0; i < rhs.size(); ++i) { \
+        vecintval[i] OP rhs[i]; \
+      } \
+    } else if (type == SE_VECDOUBLE) { \
+      for (size_t i = 0; i < rhs.size(); ++i) { \
+        vecdoubleval[i] OP rhs[i]; \
+      } \
+    } \
+    else                        throw std::runtime_error("StackElement ill-defined in " #OP); \
+    return *this; \
+  } \
+ \
+  template <> StackElement &StackElement::operator OP(const StackElement &rhs);
+
+#define BINARY_MUTING_OP(OP) template <typename T> StackElement StackElement::operator OP(const T &rhs) const \
+  { \
+    StackElement temp(*this); \
+    temp OP ## = rhs; \
+    return temp; \
+  }
+
+#define BINARY_COMPARISON_OP(OP, BASEOP) template <typename T> StackElement StackElement::OP(const T &other) const \
+  { \
+    return (this->OP(StackElement(other))); \
+  } \
+ \
+  template <typename T> StackElement StackElement::OP(const std::vector<T> &other) const \
+  { \
+    StackElement temp(*this); \
+    temp.makeVectorIfNecessary(other); \
+    temp.ensureCompatibleVectors(other); \
+    StackElement original(temp); \
+    temp.makeInt(); \
+    for (size_t i = 0; i < temp.vectorValue<T>().size(); ++i) { \
+      temp.vecintval[i] = original.vectorValue<T>()[i] BASEOP other[i]; \
+    } \
+    return temp; \
+  } \
+ \
+  template <> StackElement StackElement::OP(const StackElement &other) const;
+
+namespace std {
+  template <typename T>
+  std::ostream &operator <<(std::ostream &os, const std::vector<T> &vec)
+  {
+    os << '[';
+    for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+      os << *it;
+      if ((it+1) != vec.end()) os << ", ";
+    }
+    os << ']';
+    return os;
+  }
+}
+
+namespace ExpressionParsing {
+
+  // Declare specialisations required in subsequent code
+  template <> std::vector<int> StackElement::vectorValue(size_t sizeIfScalar) const;
+  template <> std::vector<double> StackElement::vectorValue(size_t sizeIfScalar) const;
+
+
+  template <typename T> bool StackElement::operator !=(const T &other) const 
+  {
+    return !(*this == other);
+  }
+  
+  BINARY_COMPARISON_OP_BASIC(==, _eq)
+  BINARY_COMPARISON_OP_BASIC(&&, _and)
+  BINARY_COMPARISON_OP_BASIC(||, _or)
+  BINARY_COMPARISON_OP_BASIC(>, _gt)
+  BINARY_COMPARISON_OP_BASIC(>=, _gte)
+  BINARY_COMPARISON_OP_BASIC(<, _lt)
+  BINARY_COMPARISON_OP_BASIC(<=, _lte)
+
+  BINARY_COMPARISON_OP(_eq, ==)
+  BINARY_COMPARISON_OP(_neq, !=)
+  BINARY_COMPARISON_OP(_and, &&)
+  BINARY_COMPARISON_OP(_or, ||)
+  BINARY_COMPARISON_OP(_gt, >)
+  BINARY_COMPARISON_OP(_gte, >=)
+  BINARY_COMPARISON_OP(_lt, <)
+  BINARY_COMPARISON_OP(_lte, <=)
+
+  ASSIGN_OP(-=)
+  ASSIGN_OP(+=)
+  ASSIGN_OP(*=)
+  ASSIGN_OP(/=)
+
+  BINARY_MUTING_OP(-)
+  BINARY_MUTING_OP(+)
+  BINARY_MUTING_OP(*)
+  BINARY_MUTING_OP(/)
+
+
+  template <typename T> StackElement StackElement::_pow(const T &n) const
+  {
+    StackElement temp(*this);
+    temp.makeDouble();
+    if (temp.type == SE_DOUBLE) {
+      temp.doubleval = pow(temp.doubleval, n);
+      return temp;
+    } else if (temp.type == SE_VECDOUBLE) {
+      for (std::vector<double>::iterator it = temp.vecdoubleval.begin(); it != temp.vecdoubleval.end(); ++it) {
+        *it = pow(*it, n);
+      }
+      return temp;
+    } else {
+      return 0;
+    }
+  }
+
+  template <> StackElement StackElement::_pow(const StackElement &n) const;
+
+  template <typename T> T StackElement::scalarValue() const
+  {
+    switch (type) {
+      case SE_INT: return intval; break;
+      case SE_DOUBLE: return doubleval; break;
+      case SE_VECINT:
+      case SE_VECDOUBLE:
+      case SE_UNK:
+      default: 
+        std::cerr << "ERROR: Trying to cast vector to scalar. Please use count(..) or sum(..)!" << std::endl;
+        throw std::runtime_error("Trying to cast vector to scalar!");
+    }
+  }
+
+  template <typename T> std::vector<T> StackElement::vectorValue(size_t) const
+  {
+    std::cerr << "ERROR: Shouldn't be here! Can't handle general vectors" << std::endl;
+    throw std::runtime_error("Can't handle general case!");
+  }
+
+  template <typename T> void StackElement::ensureCompatibleVectors(const T &other) const
+  {
+    throw std::runtime_error("Can't compare vector to arbitrary type!");
+  }
+
+  template <typename T> void StackElement::ensureCompatibleVectors(const std::vector<T> &other) const
+  {
+    if (isScalar()) return;
+    size_t ourlen = vectorValue<int>().size();
+    if (ourlen != other.size()) {
+      throw std::runtime_error("Incompatible vectors - different length");
+    }
+  }
+
+}
