@@ -1,0 +1,55 @@
+package InDetPerformanceRTT
+
+author Beate Heinemann <BHEHeinemann@lbl.gov>
+
+public
+use AtlasPolicy 		AtlasPolicy-*
+use TestPolicy			TestPolicy-*
+use AtlasROOT         		AtlasROOT-* 		External
+use AthenaMonitoring  		AthenaMonitoring-* 	Control
+use EventInfo 			EventInfo-* 		Event
+use GaudiInterface    		GaudiInterface-* 	External
+use InDetIdentifier 		InDetIdentifier-* 	InnerDetector/InDetDetDescr
+use InDetReadoutGeometry 	InDetReadoutGeometry-* 	InnerDetector/InDetDetDescr
+use TrkTrack 			TrkTrack-* 		Tracking/TrkEvent
+use GeneratorObjects 		GeneratorObjects-* 	Generators
+use AtlasDetDescr 		AtlasDetDescr-* 	DetectorDescription
+use TrkToolInterfaces      	TrkToolInterfaces-*	Tracking/TrkTools
+
+private
+apply_tag ROOTMathLibs
+use EventPrimitives	EventPrimitives-*	Event
+use StoreGate         		StoreGate-* 		Control
+use InDetPrepRawData 		InDetPrepRawData-* 	InnerDetector/InDetRecEvent
+
+apply_pattern validate_xml
+
+# Tracking packages for Track histograms
+use InDetRIO_OnTrack 		InDetRIO_OnTrack-* 	InnerDetector/InDetRecEvent
+use TrkEventPrimitives 		TrkEventPrimitives-* 	Tracking/TrkEvent
+use TrkTrackSummary      	TrkTrackSummary-*      	Tracking/TrkEvent
+use TrkTrackSummaryTool  	TrkTrackSummaryTool-*	Tracking/TrkTools
+use TrkTruthData 		TrkTruthData-* 		Tracking/TrkEvent
+use GeoPrimitives		GeoPrimitives-*		DetectorDescription
+
+# For IDStandardPerformance by J.-F. Arguin
+use JetEvent 			JetEvent-* 		Reconstruction/Jet
+
+# To fix checkreq
+use AtlasHepMC 			AtlasHepMC-* 		External 
+use HepPDT 			* 			LCG_Interfaces
+use IdDictDetDescr 		IdDictDetDescr-* 	DetectorDescription
+
+end_private
+
+public
+library InDetPerformanceRTT *.cxx components/*.cxx
+
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern component_library
+
+macro_append cppflags ""
+
+# RTT requirement lines
+macro InDetPerformanceRTT_TestConfiguration "../test/InDetPerformanceRTT_TestConfiguration.xml"
+apply_pattern declare_runtime files="*.dat" extras="../test/InDetPerformanceRTT_TestConfiguration.xml ../scripts/make*.C ../scripts/IDPerf*.py ../scripts/IDRTT_*.sh ../ExtraFiles/ALL*.html"

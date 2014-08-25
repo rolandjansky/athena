@@ -1,0 +1,1158 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+  <rttContactPerson>InDetRTT Monitoring Group</rttContactPerson>
+	<refRelease>15.0.0</refRelease>
+
+   <jobList>       
+
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Det-InDet</displayComponent>
+      </classification>
+
+      <athena userJobId="Mu1IDPRTT">
+         <doc>Single Muons, 1 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Mu1IDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000003.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000006.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000009.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000022.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000023.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000025.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000028.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000031.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000034.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000035.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000038.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000041.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000045.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000052.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000057.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000058.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000059.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000065.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000067.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107199.singlepart_mu1.digit.RDO.e605_s933_s946_d369/RDO.197115._000070.pool.root.2</dataset>
+      </athena>
+
+      <athena userJobId="ZtomumuIDPRTT">
+         <doc>Z to mu mu, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>ZtomumuIDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.106047.PythiaZmumu_no_filter.digit.RDO.e574_s933_s946_d366/RDO.285895._000005.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="Mu100IDPRTT">
+         <doc>Single Muons, 100 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Mu100IDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000005.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000012.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000013.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000016.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000034.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000040.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000047.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000050.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000071.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000076.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000130.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000134.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000148.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000172.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000197.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000198.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000207.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000216.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000224.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000238.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="Pi1IDPRTT">
+         <doc>Single Pions, 1 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Pi1IDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000005.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000007.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000014.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000037.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000043.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000051.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000065.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000067.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000070.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000108.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000121.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000144.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000151.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000181.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000184.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000190.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000200.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000209.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000237.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000242.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="Pi100IDPRTT">
+         <doc>Single Pions, 100 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Pi100IDPRTT</group>
+         <queue>long</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000009.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000029.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000031.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000037.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000091.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000120.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000129.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000130.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000133.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000139.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000144.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000151.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000163.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000189.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000198.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000199.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000225.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000226.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000235.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105132.singlepart_singlepi_pt100.digit.RDO.e605_s933_s946_d369/RDO.197120._000244.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="Ele1IDPRTT">
+         <doc>Single Electrons, 1 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Ele1IDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000010.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000016.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000020.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000039.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000055.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000067.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000070.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000084.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000099.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000102.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000129.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000149.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000164.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000170.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000193.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000197.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000216.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000228.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000230.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105127.singlepart_e_pt1.digit.RDO.e605_s933_s946_d369/RDO.219311._000238.pool.root.1</dataset>
+      </athena>
+      <athena userJobId="Ele100IDPRTT">
+         <doc>Single Electrons, 100 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Ele100IDPRTT</group>
+         <queue>long</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000002.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000009.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000049.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000090.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000092.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000099.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000104.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000110.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000118.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000136.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000144.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000145.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000155.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000173.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000184.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000193.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000206.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000216.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000225.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105129.singlepart_e_pt100.digit.RDO.e605_s933_s946_d369/RDO.219313._000232.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="TtbarIDPRTT">
+         <doc>ttbar, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>TtbarIDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366/RDO.197091._000015.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="TtbarIDPRTTIBL">
+         <doc>ttbar IBL, GlobalChi2Fitter</doc>
+         <commandLineFlags>EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_IBL.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>TtbarIDPRTTIBL</group>
+         <queue>medium</queue>
+         <dataset>/afs/cern.ch/work/s/silviam/public/500events_devvval/OUT.R2-2015-01-01-00.RDO.pool.root</dataset>
+      </athena>
+
+      <athena userJobId="ZtomumuPileupIDPRTT">
+         <doc>Z to mu mu With Pile-up, ATLAS-GEO-02-01-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-02-01-00";EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>ZtomumuPileupIDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/jarguin/valid1.105145.PythiaZmumu.digit.RDO.e380_s494_d150_tid040742/RDO.040742._00130.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/jarguin/valid1.105145.PythiaZmumu.digit.RDO.e380_s494_d150_tid040742/RDO.040742._00141.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/jarguin/valid1.105145.PythiaZmumu.digit.RDO.e380_s494_d150_tid040742/RDO.040742._00237.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="MinBiasIDPRTT">
+         <doc>Minimum bias low-pt tracking, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=1500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_LowPtTracking.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>MinBiasIDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000270.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000757.pool.root.1</dataset>
+     </athena>
+
+      <athena userJobId="Ele5IDPRTTKalmanDNA">
+         <doc>Single Electrons, 5 GeV, ATLAS-GEO-16-00-00, KalmanDNAFitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=5000;FitterType = "KalmanDNAFitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_DNA.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Ele5IDPRTTKalmanDNA</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000024.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000029.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000059.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000078.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000083.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000093.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000109.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000114.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000132.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000134.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000144.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000146.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000150.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000167.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000178.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000196.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000199.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000211.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000212.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000217.pool.root.2</dataset>
+      </athena>
+      <athena userJobId="Ele60IDPRTTKalmanDNA">
+         <doc>Single Electrons, 60 GeV, ATLAS-GEO-16-00-00, KalmanDNAFitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=5000;FitterType = "KalmanDNAFitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_DNA.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Ele60IDPRTTKalmanDNA</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000001.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000002.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000003.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000004.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000005.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000006.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000007.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000008.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000009.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000010.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000011.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000012.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000013.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000014.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000015.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000016.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000017.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000019.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000020.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000021.pool.root.1</dataset>
+      </athena>
+      <athena userJobId="Ele5IDPRTTGaussianSumFilter">
+         <doc>Single Electrons, 5 GeV, ATLAS-GEO-16-00-00, GaussianSumFilter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=5000;FitterType = "GaussianSumFilter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_GSF.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Ele5IDPRTTGaussianSumFilter</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000024.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000029.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000059.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000078.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000083.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000093.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000109.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000114.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000132.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000134.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000144.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000146.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000150.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000167.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000178.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000196.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000199.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000211.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000212.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000217.pool.root.2</dataset>
+      </athena>
+      <athena userJobId="Ele60IDPRTTGaussianSumFilter">
+         <doc>Single Electrons, 60 GeV, ATLAS-GEO-16-00-00, GaussianSumFilter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=5000;FitterType = "GaussianSumFilter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_GSF.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>Ele60IDPRTTGaussianSumFilter</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000001.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000002.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000003.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000004.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000005.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000006.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000007.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000008.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000009.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000010.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000011.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000012.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000013.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000014.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000015.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000016.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000017.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000019.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000020.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107005.singlepart_e_Et60.recon.ESD.e602_s933_s946_r1655/ESD.219020._000021.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="TauIDPRTT">
+         <doc>Single Taus, 10-500 GeV, ATLAS-GEO-16-00-00, GlobalChi2Fitter</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-16-00-00";EventMax=20000;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>TauIDPRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.2</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.3</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.4</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.5</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.6</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.7</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.8</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.9</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.10</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.11</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.12</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.13</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.14</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.15</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.16</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.17</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.18</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.19</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-tau/dq2/mc11_7TeV/RDO/e1063_s1378_s1370_d642/mc11_7TeV.107380.SingleTauHad_Pt10_500_GeV.digit.RDO.e1063_s1378_s1370_d642_tid704612_00/RDO.704612._000001.pool.root.20</dataset>
+      </athena>
+
+
+
+
+     </jobList>
+      <jobGroups>
+        <jobGroup name="AthenaMu1IDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>IDPerformanceRTT_*.py</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Mu1_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleMu1000.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaMu100IDPRTT" parent="Athena">
+
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Mu100_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleMu100000.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaZtomumuIDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>ZMuMu_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-ZMuMu.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaPi1IDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>IDPerformanceRTT_*.py</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Pi1_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SinglePi1000.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaPi100IDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>IDPerformanceRTT_*.py</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Pi100_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SinglePi100000.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaEle1IDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>IDPerformanceRTT_*.py</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ele1_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleEle1000.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaEle100IDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>IDPerformanceRTT_*.py</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ele100_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleEle100000.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaTtbarIDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ttbar_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-Ttbar.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaTtbarIDPRTTIBL" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>TtbarIBL_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-TtbarIBL.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaZtomumuPileupIDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>ZMuMuPileup_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-ZMuMuPileup.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaMinBiasIDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots_lowpt.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>MinBias_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-MinBias.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaEle5IDPRTTKalmanDNA" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ele5KalmanDNA_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleEle5000-KalmanDNA.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaEle60IDPRTTKalmanDNA" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ele60KalmanDNA_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleEle60000-KalmanDNA.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaEle5IDPRTTGaussianSumFilter" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ele5GaussianSumFilter_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleEle5000-GaussianSumFilter.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaEle60IDPRTTGaussianSumFilter" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Ele60GaussianSumFilter_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleEle60000-GaussianSumFilter.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaTauIDPRTT" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>IDPerformanceRTT_*.py</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>Tau_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-SingleTau.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+
+
+
+
+
+     </jobGroups>
+
+</rtt>
+</unifiedTestConfiguration>
