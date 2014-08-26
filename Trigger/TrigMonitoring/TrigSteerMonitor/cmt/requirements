@@ -1,0 +1,37 @@
+package TrigSteerMonitor
+
+author Martin zur Nedden
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AthenaMonitoring           AthenaMonitoring-*              Control
+use  AtlasBoost                 AtlasBoost-*                    External
+use  EventInfo                  EventInfo-*                     Event
+use  GaudiInterface             GaudiInterface-*                External
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use  TrigDataAccessMonitoring   TrigDataAccessMonitoring-*      Trigger/TrigDataAccess
+use  TrigMonitorBase            TrigMonitorBase-*               Trigger/TrigMonitoring
+use  TrigSteering               TrigSteering-*                  Trigger/TrigSteer
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  DataCollection             DataCollection-*                External
+use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
+use  StoreGate                  StoreGate-*                     Control
+use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
+use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
+use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
+use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
+use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
+end_private
+
+
+library TrigSteerMonitor *.cxx -s=components *.cxx
+apply_pattern component_library 
+
+apply_pattern declare_joboptions files="jobOfragment_*.py"
+apply_pattern declare_python_modules files="*.py"
+
+#macro_append cppflags "" \
