@@ -1,0 +1,31 @@
+package EventShapeInterface
+
+author Peter Loch <loch@physics.arizona.edu>
+
+use AtlasPolicy         AtlasPolicy-*
+
+#use CLIDSvc		CLIDSvc-00-*		Control
+
+#use StoreGate           StoreGate-*             Control
+
+use NavFourMom          NavFourMom-*            Event
+
+use EventShapeEvent     EventShapeEvent-*       Reconstruction/EventShapes
+
+use GaudiInterface	GaudiInterface-*	External
+
+use AsgTools            AsgTools-*              Control/AthToolSupport
+
+use xAODBase            xAODBase-*              Event/xAOD
+use xAODEventShape      xAODEventShape-*        Event/xAOD
+
+#library EventShapeUtils *.cxx
+
+#apply_pattern installed_library
+#
+#private 
+use AtlasReflex	AtlasReflex-*	 External -no_auto_imports
+
+apply_pattern lcgdict dict=EventShapeInterface selectionfile=selection.xml \
+              	headerfiles="../EventShapeInterface/EventShapeInterfaceDict.h"
+
