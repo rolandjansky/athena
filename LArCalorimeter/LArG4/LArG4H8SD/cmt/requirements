@@ -1,0 +1,31 @@
+package LArG4H8SD
+
+author Guillaume Unal
+
+use AtlasPolicy    AtlasPolicy-*
+
+use LArG4SD        LArG4SD-*          LArCalorimeter/LArG4
+use LArG4Code      LArG4Code-*        LArCalorimeter/LArG4
+use LArG4Barrel    LArG4Barrel-*      LArCalorimeter/LArG4
+
+use CaloG4Sim       CaloG4Sim-*       Calorimeter
+
+# Build the library (and export the headers)
+library LArG4H8SD *.cc
+apply_pattern linked_library
+
+#=======================================================
+private
+
+# "-DLARG4NOROOT" is needed in Athena because at least one class
+# (e.g., LArG4Identifier) has an alternative ROOT-based form that's
+# only used in the stand-alone version of this application.
+macro_append LArG4H8SD_cppflags  " -DLARG4NOROOT -O -Wno-unused"
+macro_append LArG4H8SD_linkopts " -lLArG4SD"
+
+use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
+use GaudiInterface         GaudiInterface-*         External
+use Geant4                 Geant4-*                 External
+use StoreGate              StoreGate-*              Control
+
+end_private
