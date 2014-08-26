@@ -1,0 +1,631 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/////////////////////////////////////////////////////////////////////////////////
+//  Header file for class SiTrajectoryElement_xk
+/////////////////////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+/////////////////////////////////////////////////////////////////////////////////
+// Class for trajector elements in Pixels and SCT
+/////////////////////////////////////////////////////////////////////////////////
+// Version 1.0 3/10/2004 I.Gavrilenko
+/////////////////////////////////////////////////////////////////////////////////
+
+#ifndef SiTrajectoryElement_xk_H
+#define SiTrajectoryElement_xk_H
+
+#include "InDetPrepRawData/SiClusterCollection.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkPatternParameters/PatternTrackParameters.h"
+#include "TrkPatternParameters/NoiseOnSurface.h"
+
+#include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
+#include "SiCombinatorialTrackFinderTool_xk/SiClusterLink_xk.h"
+#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+
+namespace InDet{
+
+  class SiTrajectoryElement_xk
+    {
+      ///////////////////////////////////////////////////////////////////
+      // Public methods:
+      ///////////////////////////////////////////////////////////////////
+      
+    public:
+      
+      SiTrajectoryElement_xk();
+      SiTrajectoryElement_xk(const SiTrajectoryElement_xk&);
+      ~SiTrajectoryElement_xk();
+      SiTrajectoryElement_xk& operator  = (const SiTrajectoryElement_xk&);
+
+      const int&  detstatus   () const {return m_detstatus;}
+      const int&  inside      () const {return m_inside;    }
+      const int&  nlinksF     () const {return m_nlinksF;   }
+      const int&  nlinksB     () const {return m_nlinksB;   }
+      const int&  nholesF     () const {return m_nholesF;   }
+      const int&  nholesB     () const {return m_nholesB;   }
+      const int&  dholesF     () const {return m_dholesF;   }
+      const int&  dholesB     () const {return m_dholesB;   }
+      const int&  nclustersF  () const {return m_nclustersF;}
+      const int&  nclustersB  () const {return m_nclustersB;}
+      const bool& stereo      () const {return m_stereo;    }
+      const int&  status      () const {return m_status;    }
+      const int&  noiseModel  () const {return m_noisemodel;}
+      const int&  ndf         () const {return m_ndf;       }
+      const int&  ndfF        () const {return m_ndfF;      }
+      const int&  ndfB        () const {return m_ndfB;      }
+      const int&  ntsos       () const {return m_ntsos;     }
+      const double& step      () const {return m_step;      }
+      bool        isBarrel    () const {return m_detelement->isBarrel();}
+
+      const InDetDD::SiDetectorElement* detElement  () const {return m_detelement;  }  
+      const InDet::SiCluster*           cluster     () const {return m_cluster   ;  }  
+      const InDet::SiCluster*           clusterOld  () const {return m_clusterOld;  }  
+      const InDet::SiCluster*           clusterNoAdd() const {return m_clusterNoAdd;} 
+      Trk::TrackStateOnSurface*         tsos (int i);
+
+      bool isNextClusterHoleB();
+      bool isNextClusterHoleF();
+
+      ///////////////////////////////////////////////////////////////////
+      // Methods update with cluster information
+      ///////////////////////////////////////////////////////////////////
+ 
+      bool addCluster
+	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
+      bool addCluster
+	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+
+      bool combineStates
+	(Trk::PatternTrackParameters&,
+	 Trk::PatternTrackParameters&,
+	 Trk::PatternTrackParameters&);
+
+      ///////////////////////////////////////////////////////////////////
+      // Methods propagate
+      ///////////////////////////////////////////////////////////////////
+ 
+      bool propagate(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,    double&);
+      bool propagate(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,int,double&);
+      bool propagateParameters(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
+
+      ///////////////////////////////////////////////////////////////////
+      // Methods noise calculation
+      ///////////////////////////////////////////////////////////////////
+
+      void noiseProduction
+	(int,const Trk::PatternTrackParameters&);
+      void noiseInitiate();
+
+      bool addNextClusterB();
+      bool addNextClusterF();
+      bool addNextClusterB(SiTrajectoryElement_xk&,const InDet::SiCluster*);
+      bool addNextClusterF(SiTrajectoryElement_xk&,const InDet::SiCluster*);
+      void setCluster(const InDet::SiCluster*);
+
+      void setParametersB(Trk::PatternTrackParameters&); 
+      void setParametersF(Trk::PatternTrackParameters&); 
+
+      int   numberClusters() const;
+      const double& xi2F      () const {return m_xi2F      ;}
+      const double& xi2B      () const {return m_xi2B      ;}
+      const double& xi2totalF () const {return m_xi2totalF ;}
+      const double& xi2totalB () const {return m_xi2totalB ;}
+      const double& radlength () const {return m_radlength ;}
+      const double& energylose() const {return m_energylose;}
+
+      const Trk::PatternTrackParameters& parametersPF() const {return m_parametersPF;} 
+      const Trk::PatternTrackParameters& parametersUF() const {return m_parametersUF;} 
+      const Trk::PatternTrackParameters& parametersPB() const {return m_parametersPB;} 
+      const Trk::PatternTrackParameters& parametersUB() const {return m_parametersUB;} 
+      const Trk::PatternTrackParameters& parametersSM() const {return m_parametersSM;} 
+
+      const Trk::Surface*  surface()  const {return m_surface;}
+      const InDet::SiClusterLink_xk& linkF (int i) const {return m_linkF[i];}
+      const InDet::SiClusterLink_xk& linkB (int i) const {return m_linkB[i];}
+ 
+      ///////////////////////////////////////////////////////////////////
+      // Main methods
+      ///////////////////////////////////////////////////////////////////
+
+      bool set(int,
+	       const InDet::SiDetElementBoundaryLink_xk*&       ,
+	       const InDet::SiClusterCollection::const_iterator&, 
+	       const InDet::SiClusterCollection::const_iterator&,
+	       const InDet::SiCluster*);
+
+      void setTools(const InDet::SiTools_xk*); 
+      void bremNoiseModel();
+
+      ///////////////////////////////////////////////////////////////////
+      // Update first trajectory element on the trajectory with track 
+      // parameters
+      ///////////////////////////////////////////////////////////////////
+
+      bool firstTrajectorElement(const Trk::TrackParameters&);
+      bool firstTrajectorElement();
+
+      ///////////////////////////////////////////////////////////////////
+      // Forward propagation  
+      ///////////////////////////////////////////////////////////////////
+
+      bool ForwardPropagationWithoutSearch(SiTrajectoryElement_xk&);
+      bool ForwardPropagationWithSearch(SiTrajectoryElement_xk&);
+      bool ForwardPropagationForClusterSeach
+	(int,const Trk::TrackParameters&,
+	 const InDet::SiDetElementBoundaryLink_xk*&       ,
+	 const InDet::SiClusterCollection::const_iterator&, 
+	 const InDet::SiClusterCollection::const_iterator&);
+
+      void CloseClusterSeach
+	(Trk::PatternTrackParameters&,
+	 const InDet::SiDetElementBoundaryLink_xk*&       ,
+	 const InDet::SiClusterCollection::const_iterator&, 
+	 const InDet::SiClusterCollection::const_iterator&);
+      
+      void eraseClusterForwardPropagation();
+
+      ///////////////////////////////////////////////////////////////////
+      // For last detector element initiate smoother  
+      ///////////////////////////////////////////////////////////////////
+
+      bool lastTrajectorElement();
+
+      ///////////////////////////////////////////////////////////////////
+      // Backward propagation for smoother  
+      ///////////////////////////////////////////////////////////////////
+
+      bool BackwardPropagationSmoother(SiTrajectoryElement_xk&,bool);
+      bool BackwardPropagationFilter  (SiTrajectoryElement_xk&);
+
+      ///////////////////////////////////////////////////////////////////
+      // Search clusters compatible with track  
+      ///////////////////////////////////////////////////////////////////
+
+      int searchClusters                (Trk::PatternTrackParameters&,SiClusterLink_xk*);
+      int searchClustersWithoutStereoPIX(Trk::PatternTrackParameters&,SiClusterLink_xk*);
+      int searchClustersWithoutStereoSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*);
+      int searchClustersWithStereo      (Trk::PatternTrackParameters&,SiClusterLink_xk*);
+
+      ///////////////////////////////////////////////////////////////////
+      // Search only clusters without track assosiation compatible with track  
+      ///////////////////////////////////////////////////////////////////
+
+      int searchClustersWithoutStereoAssPIX(Trk::PatternTrackParameters&,SiClusterLink_xk*);
+      int searchClustersWithoutStereoAssSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*);
+      int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*);
+
+      ///////////////////////////////////////////////////////////////////
+      // Is difference between forward and backward propagation   
+      ///////////////////////////////////////////////////////////////////
+      
+      bool difference() const;
+
+      ///////////////////////////////////////////////////////////////////
+      // TrackStateOnSurface production  
+      ///////////////////////////////////////////////////////////////////
+
+      Trk::TrackStateOnSurface* trackStateOnSurface(bool,bool,bool,int);
+      Trk::TrackStateOnSurface* trackSimpleStateOnSurface(bool,bool,int);
+      Trk::TrackStateOnSurface* trackPerigeeStateOnSurface();
+
+      ///////////////////////////////////////////////////////////////////
+      // TrackParameters production  
+      ///////////////////////////////////////////////////////////////////
+
+      const Trk::TrackParameters* trackParameters(bool,int);
+      const Trk::TrackParameters* trackParametersWithNewDirection(bool,int);
+      const Trk::TrackParameters* trackParameters(Trk::PatternTrackParameters&,bool);
+
+      ///////////////////////////////////////////////////////////////////
+      // Initiate state
+      ///////////////////////////////////////////////////////////////////
+
+      bool initiateState(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+
+      ///////////////////////////////////////////////////////////////////
+      // Last detector elements with clusters
+      ///////////////////////////////////////////////////////////////////
+      
+      void lastActive();
+
+      ///////////////////////////////////////////////////////////////////
+      // Step of trajectory calculation
+      ///////////////////////////////////////////////////////////////////
+      
+      double step(SiTrajectoryElement_xk&);
+      double stepToPerigee();
+
+      ///////////////////////////////////////////////////////////////////
+      // Global position of the track parameters
+      ///////////////////////////////////////////////////////////////////
+
+      Amg::Vector3D globalPosition();
+
+      ///////////////////////////////////////////////////////////////////
+      // Quality of the trajectory element
+      ///////////////////////////////////////////////////////////////////
+
+      double quality(int&) const;
+
+    protected:
+      
+      ///////////////////////////////////////////////////////////////////
+      // Protected Data
+      ///////////////////////////////////////////////////////////////////
+ 
+      bool                                        m_stereo      ;
+      bool                                        m_utsos[3]    ;
+      int                                         m_status      ;  
+      int                                         m_detstatus   ; // 0 (no clusters) 
+      int                                         m_inside      ;
+      int                                         m_nlinksF     ;
+      int                                         m_nlinksB     ;
+      int                                         m_nholesF     ;
+      int                                         m_nholesB     ;
+      int                                         m_dholesF     ;
+      int                                         m_dholesB     ;
+      int                                         m_nclustersF  ;
+      int                                         m_nclustersB  ;
+      int                                         m_noisemodel  ;
+      int                                         m_ndf         ;
+      int                                         m_ndfF        ;
+      int                                         m_ndfB        ;
+      int                                         m_ntsos       ;
+      double                                      m_xi2F        ;
+      double                                      m_xi2B        ;
+      double                                      m_xi2totalF   ;
+      double                                      m_xi2totalB   ;
+      double                                      m_radlength   ;
+      double                                      m_radlengthN  ;
+      double                                      m_energylose  ;
+      double                                      m_halflenght  ;
+      double                                      m_step        ;
+      const InDetDD::SiDetectorElement*           m_detelement  ;
+      const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
+      const Trk::Surface*                         m_surface     ;
+      InDet::SiClusterCollection ::const_iterator m_sibegin     ;
+      InDet::SiClusterCollection ::const_iterator m_siend       ;
+      const InDet::SiCluster*                     m_cluster     ;
+      const InDet::SiCluster*                     m_clusterOld  ;
+      const InDet::SiCluster*                     m_clusterNoAdd;
+      Trk::PatternTrackParameters                 m_parametersPF; 
+      Trk::PatternTrackParameters                 m_parametersUF; 
+      Trk::PatternTrackParameters                 m_parametersPB; 
+      Trk::PatternTrackParameters                 m_parametersUB;
+      Trk::PatternTrackParameters                 m_parametersSM;
+      InDet::SiClusterLink_xk                     m_linkF[10]   ; 
+      InDet::SiClusterLink_xk                     m_linkB[10]   ; 
+      Trk::NoiseOnSurface                         m_noise       ; 
+      const InDet::SiTools_xk*                    m_tools       ; 
+      Trk::TrackStateOnSurface*                   m_tsos[3]     ;
+      Amg::MatrixX                                m_covariance  ;
+
+      ///////////////////////////////////////////////////////////////////
+      // Methods
+      ///////////////////////////////////////////////////////////////////
+      
+      void patternCovariances(const InDet::SiCluster*,double&,double&,double&);
+
+    };
+  
+  /////////////////////////////////////////////////////////////////////////////////
+  // Inline methods
+  /////////////////////////////////////////////////////////////////////////////////
+
+  inline SiTrajectoryElement_xk::SiTrajectoryElement_xk()
+    {
+      m_detstatus  =-1  ;
+      m_status     = 0  ;
+      m_nlinksF    = 0  ;
+      m_nlinksB    = 0  ;
+      m_radlength  = .03;
+      m_radlengthN = .03;
+      m_energylose = .4 ;
+      m_tools      = 0  ;
+      m_noisemodel = 0  ; 
+      m_covariance.resize(2,2);
+      m_covariance<<0.,0.,0.,0.;
+    }
+
+  inline SiTrajectoryElement_xk::SiTrajectoryElement_xk(const SiTrajectoryElement_xk& E)
+    {
+      *this          = E;
+    }
+  
+  inline SiTrajectoryElement_xk& SiTrajectoryElement_xk::operator = 
+    (const SiTrajectoryElement_xk& E) 
+    {
+      m_status       = E.m_status      ;
+      m_detstatus    = E.m_detstatus   ;
+      m_inside       = E.m_inside      ;
+      m_stereo       = E.m_stereo      ;
+      m_detelement   = E.m_detelement  ;
+      m_detlink      = E.m_detlink     ;
+      m_surface      = E.m_surface     ;
+      m_sibegin      = E.m_sibegin     ;
+      m_siend        = E.m_siend       ; 
+      m_cluster      = E.m_cluster     ;
+      m_clusterOld   = E.m_clusterOld  ;
+      m_clusterNoAdd = E.m_clusterNoAdd;
+      m_parametersPF = E.m_parametersPF;
+      m_parametersUF = E.m_parametersUF;
+      m_parametersPB = E.m_parametersPB;
+      m_parametersUB = E.m_parametersUB;
+      m_parametersSM = E.m_parametersSM;
+      m_xi2F         = E.m_xi2F        ;
+      m_xi2B         = E.m_xi2B        ;
+      m_xi2totalF    = E.m_xi2totalF   ;
+      m_xi2totalB    = E.m_xi2totalB   ;
+      m_radlength    = E.m_radlength   ;
+      m_radlengthN   = E.m_radlengthN  ;
+      m_energylose   = E.m_energylose  ;
+      m_halflenght   = E.m_halflenght  ;
+      m_step         = E.m_step        ;
+      m_nlinksF      = E.m_nlinksF     ;
+      m_nlinksB      = E.m_nlinksB     ;
+      m_nholesF      = E.m_nholesF     ;
+      m_nholesB      = E.m_nholesB     ;
+      m_dholesF      = E.m_dholesF     ;
+      m_dholesB      = E.m_dholesB     ;
+      m_noisemodel   = E.m_noisemodel  ;
+      m_ndf          = E.m_ndf         ;
+      m_ndfF         = E.m_ndfF        ;
+      m_ndfB         = E.m_ndfB        ;
+      m_ntsos        = E.m_ntsos       ;
+      m_nclustersF   = E.m_nclustersF  ; 
+      m_nclustersB   = E.m_nclustersB  ;
+      m_noise        = E.m_noise       ;
+      m_tools        = E.m_tools       ;
+      m_covariance   = E.m_covariance  ;
+      for(int i=0; i!=m_nlinksF; ++i) {m_linkF[i]=E.m_linkF[i];}
+      for(int i=0; i!=m_nlinksB; ++i) {m_linkB[i]=E.m_linkB[i];}
+      for(int i=0; i!=m_ntsos  ; ++i) {m_tsos [i]=E.m_tsos [i];}
+      for(int i=0; i!=m_ntsos  ; ++i) {m_utsos[i]=E.m_utsos [i];}
+      return(*this);
+    }
+
+  inline SiTrajectoryElement_xk::~SiTrajectoryElement_xk() {}
+
+  inline int SiTrajectoryElement_xk::numberClusters() const
+    {
+      int n = 0;
+      if(m_detstatus<=0) return n;
+
+      InDet::SiClusterCollection::const_iterator p =  m_sibegin;
+      for(; p!=m_siend; ++p) ++n;
+      return n;
+    }
+  
+  ///////////////////////////////////////////////////////////////////
+  // Search clusters compatible with track  
+  ///////////////////////////////////////////////////////////////////
+
+  inline int SiTrajectoryElement_xk::searchClusters
+    (Trk::PatternTrackParameters& Tp,SiClusterLink_xk* L) 
+    {
+      if(!m_tools->useassoTool()) {
+	if(!m_stereo) {
+	  if(m_ndf == 2) return searchClustersWithoutStereoPIX(Tp,L);
+	                 return searchClustersWithoutStereoSCT(Tp,L);
+	}
+	else             return searchClustersWithStereo      (Tp,L);
+      }
+      if(!m_stereo) {
+	  if(m_ndf == 2) return searchClustersWithoutStereoAssPIX(Tp,L);
+	                 return searchClustersWithoutStereoAssSCT(Tp,L);
+      } 
+      else               return searchClustersWithStereoAss      (Tp,L);
+    } 
+
+  inline bool SiTrajectoryElement_xk::difference() const
+    {
+      if( m_cluster == m_clusterOld && m_status == 3)  return false; return true;
+    }
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Test for next compatible cluster
+  /////////////////////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::isNextClusterHoleB()
+    {
+      if(m_nlinksB >  1 && m_linkB[1].xi2() <= m_tools->xi2max()) return true;
+      if(m_inside < 0) {
+	if(m_nholesB < m_tools->maxholes() && m_dholesB < m_tools->maxdholes()) return true;
+	return false;
+      }
+      return true;
+    }
+
+  inline bool SiTrajectoryElement_xk::isNextClusterHoleF()
+    {
+      if(m_detstatus == 2) return false;
+      if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_tools->xi2max()) return true;
+      if(m_inside < 0) {
+        if(m_nholesF < m_tools->maxholes() && m_dholesF < m_tools->maxdholes()) return true;
+	return false;
+      }
+      return true;
+    }
+
+  inline void SiTrajectoryElement_xk::setCluster(const InDet::SiCluster* Cl)
+    {
+      m_cluster = Cl;
+    }
+  
+
+  inline void SiTrajectoryElement_xk::setParametersB(Trk::PatternTrackParameters& P)
+  {
+    m_parametersUB = P;
+  } 
+
+  inline void SiTrajectoryElement_xk::setParametersF(Trk::PatternTrackParameters& P)
+  {
+    m_parametersUF = P;
+  }
+ 
+  /////////////////////////////////////////////////////////////////////////////////
+  // Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
+  /////////////////////////////////////////////////////////////////////////////////
+  
+  inline bool SiTrajectoryElement_xk::addCluster
+	(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& Xi2)
+    {
+      int N; 
+      if(!m_stereo) {
+
+	patternCovariances
+	  (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
+
+	if(m_detelement->isSCT()) {
+	  return m_tools->updatorTool()->addToStateOneDimension
+	    (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+	} 
+        return m_tools->updatorTool()->addToState
+	  (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+      }
+      return m_tools->updatorTool()->addToStateOneDimension
+	(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
+    }
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Add pixel or SCT cluster to pattern track parameters without Xi2 calculation
+  /////////////////////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::addCluster
+	(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
+    {
+       if(!m_stereo) {
+
+	patternCovariances
+	  (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
+	if(m_detelement->isSCT()) {
+	  return m_tools->updatorTool()->addToStateOneDimension
+	    (Ta,m_cluster->localPosition(),m_covariance,Tb);
+	}
+	return m_tools->updatorTool()->addToState
+	  (Ta,m_cluster->localPosition(),m_covariance,Tb);
+       }
+       return m_tools->updatorTool()->addToStateOneDimension
+	(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+    }
+  
+  /////////////////////////////////////////////////////////////////////////////////
+  // Add two pattern track parameters without Xi2 calculation
+  /////////////////////////////////////////////////////////////////////////////////
+ 
+  inline bool SiTrajectoryElement_xk::combineStates 
+	(Trk::PatternTrackParameters& Ta,
+	 Trk::PatternTrackParameters& Tb,
+	 Trk::PatternTrackParameters& Tc)
+    {
+      return m_tools->updatorTool()->combineStates(Ta,Tb,Tc);
+    }
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Propagate pattern track parameters to surface in any direction
+  /////////////////////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::propagate
+    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& step) 
+    {
+      return m_tools->propTool()->propagate
+	(Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
+    }
+
+  inline bool SiTrajectoryElement_xk::propagate
+    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,int dir,double& step) 
+    {
+      if(dir > 0) {
+	return m_tools->propTool()->propagate
+	  (Ta,*m_surface,Tb,Trk::alongMomentum,m_tools->fieldTool(),step,Trk::pion);
+      }
+      if(dir < 0) { 
+	return m_tools->propTool()->propagate
+	  (Ta,*m_surface,Tb,Trk::oppositeMomentum,m_tools->fieldTool(),step,Trk::pion);
+      }
+      return m_tools->propTool()->propagate
+	  (Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
+    }
+
+  inline bool SiTrajectoryElement_xk::propagateParameters
+    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& step) 
+    {
+      return m_tools->propTool()->propagateParameters
+	(Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
+    }
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Propagate pattern track parameters to surface
+  /////////////////////////////////////////////////////////////////////////////////
+
+  inline void  SiTrajectoryElement_xk::noiseInitiate()
+    {
+      m_noisemodel = 1; m_noise.initiate();
+    }
+
+  ///////////////////////////////////////////////////////////////////
+  // Initiate state
+  ///////////////////////////////////////////////////////////////////
+
+  inline bool SiTrajectoryElement_xk::initiateState
+    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
+    {
+      return Tb.initiate(Ta,m_cluster->localPosition(),m_cluster->localCovariance());
+    }
+
+  ///////////////////////////////////////////////////////////////////
+  // Pattern covariances
+  ///////////////////////////////////////////////////////////////////
+
+  inline void  SiTrajectoryElement_xk::patternCovariances
+    (const InDet::SiCluster* c,double& covX,double& covXY,double& covY)
+    {
+      const Amg::MatrixX& v = c->localCovariance();
+      covX  = c->width().phiR(); covX*=(covX*.08333); if(covX < v(0,0)) covX=v(0,0);
+      covXY = 0.;
+      if(m_ndf==1) {covY=v(1,1);}
+      else         {
+	covY=c->width().z(); covY*=(covY*.08333); if(covY < v(1,1)) covY=v(1,1);
+	if(fabs(v(1,0)) > 1.e-20) {
+	  covXY = v(1,0)*sqrt((covX*covY)/(v(0,0)*v(1,1)));
+	}
+      }
+    }
+
+  ///////////////////////////////////////////////////////////////////
+  // Last detector elements with clusters
+  ///////////////////////////////////////////////////////////////////
+
+  inline void  SiTrajectoryElement_xk::lastActive()
+    {
+      m_detstatus = 2;
+    }
+
+  inline Trk::TrackStateOnSurface* SiTrajectoryElement_xk::tsos (int i) 
+    {
+      if(i<0 || i>2) return 0;
+
+      bool us = m_utsos[i]; 
+      m_utsos[i] = true;
+
+      if(us) return new Trk::TrackStateOnSurface(*m_tsos[i]);
+
+      return m_tsos[i];  
+    }
+
+  ///////////////////////////////////////////////////////////////////
+  // Set electrom noise model
+  ///////////////////////////////////////////////////////////////////
+  
+  inline void SiTrajectoryElement_xk::bremNoiseModel()
+    {
+      m_noisemodel = 2;
+    }
+
+} // end of name space
+
+#endif // SiTrajectoryElement_xk
+
+
