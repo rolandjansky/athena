@@ -1,0 +1,26 @@
+package GeneratorFilters
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*      External
+use GeneratorModules    GeneratorModules-*    Generators
+use AtlasCLHEP          AtlasCLHEP-*          External
+use AtlasHepMC          AtlasHepMC-*          External
+use AtlasROOT           AtlasROOT-*           External
+use JetEvent            JetEvent-*            Reconstruction/Jet
+use StoreGate           StoreGate-*           Control
+
+private
+use HepPDT              *                     LCG_Interfaces
+use EventInfo           EventInfo-*           Event
+use AthenaKernel        AthenaKernel-*        Control
+use CxxUtils            CxxUtils-*            Control
+use TruthUtils          TruthUtils-*          Generators
+use MissingETEvent      MissingETEvent-*      Reconstruction
+use McParticleEvent     McParticleEvent-*     PhysicsAnalysis/TruthParticleID
+use ParticleEvent       ParticleEvent-*       PhysicsAnalysis/AnalysisCommon
+end_private
+
+apply_tag ROOTMathLibs
+
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"

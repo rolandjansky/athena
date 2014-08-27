@@ -1,0 +1,35 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "GeneratorFilters/ZtoLeptonFilter.h"
+
+ZtoLeptonFilter::ZtoLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)
+  : GenFilter(name, pSvcLocator)
+{
+  declareProperty("Ptcut",m_Ptmin = .0);
+  declareProperty("Etacut",m_EtaRange = 10.0);
+}
+
+
+StatusCode ZtoLeptonFilter::filterEvent() {
+  McEventCollection::const_iterator itr;
+  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+    const HepMC::GenEvent* genEvt = (*itr);
+    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
+      if (((*pitr)->pdg_id()) == 23) {
+        // Z children
+        HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
+        HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
+        HepMC::GenVertex::particle_iterator thisChild = firstChild;
+        for (; thisChild != endChild; ++thisChild) {
+          if (abs((*thisChild)->pdg_id()) == 11 || abs((*thisChild)->pdg_id()) == 13 || abs((*thisChild)->pdg_id()) == 15) {
+            return StatusCode::SUCCESS;
+          }
+        }
+      }
+    }
+  }
+  setFilterPassed(false);
+  return StatusCode::SUCCESS;
+}
