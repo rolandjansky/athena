@@ -1,0 +1,72 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+// inline implementations
+
+inline const std::vector<uint32_t> ROIB::Header::header() const {
+  return m_header;
+}
+
+inline int ROIB::Header::size() const {
+  return m_header.size();
+}
+
+inline uint32_t ROIB::Header::headerMarker() const {
+  return m_header.empty() ? 0 : m_header[ 0 ];
+}
+
+inline uint32_t ROIB::Header::headerSize() const {
+  return m_header.empty() ? 0 : m_header[ 1 ];
+}
+
+inline uint32_t ROIB::Header::formatVersion() const {
+  return m_header.empty() ? 0 : m_header[ 2 ];
+}
+
+inline uint32_t ROIB::Header::sourceID() const {
+  return m_header.empty() ? 0 : m_header[ 3 ];
+}
+
+inline uint32_t ROIB::Header::runNumber() const {
+  // xxx needs to be completed
+  return 0;
+}
+
+inline uint32_t ROIB::Header::L1ID() const {
+  return m_header.empty() ? 0 : m_header[ 4 ];
+}
+
+inline uint32_t ROIB::Header::BCID() const {
+  return m_header.empty() ? 0 : m_header[ 5 ];
+}
+
+inline uint32_t ROIB::Header::triggerType() const {
+  return m_header.empty() ? 0 : m_header[ 6 ];
+}
+
+inline uint32_t ROIB::Header::eventType() const {
+  return m_header.empty() ? 0 : m_header[ 7 ];
+}
+
+inline void ROIB::Header::setRunNumber( const uint32_t /*i*/ ) {
+  // xxx needs to be added
+}
+
+
+inline void ROIB::Header::setL1ID( const uint32_t i ) {
+  if ( m_header.size() > 4 ) m_header[ 4 ] = i;
+}
+
+inline void ROIB::Header::setBCID( const uint32_t i ) {
+  if (  m_header.size() > 4 ) m_header[ 5 ] = i;
+}
+
+inline void ROIB::Header::setTriggerType( const uint32_t i ) {
+  if (  m_header.size() > 6 ) m_header[ 6 ] = i;
+}
+
+inline void ROIB::Header::setEventType( const uint32_t i ) {
+  if (  m_header.size() > 7 ) m_header[ 7 ] = i;
+}

@@ -1,0 +1,42 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+// inline implementations
+
+inline const std::vector<uint32_t> ROIB::Trailer::trailer() const {
+  return m_trailer;
+}
+
+inline int ROIB::Trailer::size() const {
+  return m_trailer.size();
+}
+
+inline uint32_t ROIB::Trailer::errorStatus() const {
+  return m_trailer.empty() ? 0 : m_trailer[ 0 ];
+}
+
+inline uint32_t ROIB::Trailer::statusInfo() const {
+  return m_trailer.empty() ? 0 : m_trailer[ 1 ];
+}
+
+inline uint32_t ROIB::Trailer::numStatusWords() const {
+  return m_trailer.empty() ? 0 : m_trailer[ 2 ];
+}
+
+inline uint32_t ROIB::Trailer::numDataWords() const {
+  return m_trailer.empty() ? 0 : m_trailer[ 3 ];
+}
+
+inline uint32_t ROIB::Trailer::statusPosition() const {
+  return m_trailer.empty() ? 0 : m_trailer[ 4 ];
+}
+
+inline void ROIB::Trailer::setSimulationError() {
+  if ( ! m_trailer.empty() ) m_trailer[ 0 ] = 0xFFFF0000;
+}
+
+inline void ROIB::Trailer::setNumDataWords( const unsigned int i ) {
+  if ( ! m_trailer.empty() ) m_trailer[ 3 ] = i;
+}

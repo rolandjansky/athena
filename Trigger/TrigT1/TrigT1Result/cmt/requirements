@@ -1,0 +1,21 @@
+package TrigT1Result
+
+author Tadashi Maeno <Tadashi.Maeno@cern.ch>
+use GaudiInterface   GaudiInterface-*   External
+use AtlasPolicy      AtlasPolicy-*
+use DataCollection   DataCollection-*   External
+use CTPfragment      v*            	
+use CLIDSvc          CLIDSvc-*          Control
+use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
+
+library TrigT1Result *.cxx
+apply_pattern installed_library
+
+private
+use AtlasReflex      AtlasReflex-*      External -no_auto_imports
+use AthenaKernel     AthenaKernel-*     Control  
+
+
+apply_pattern lcgdict dict=TrigT1Result selectionfile=selection.xml \
+	headerfiles="../TrigT1Result/TrigT1ResultDict.h"
+

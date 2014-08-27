@@ -1,0 +1,93 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+// tdaq-common includes for CTP format definition
+#include "CTPfragment/CTPdataformat.h"
+
+// STL includes
+#include <numeric>
+#include <functional>
+
+// inline implementations for CTPResult class
+
+inline const ROIB::Header& ROIB::CTPResult::header() const {
+  return m_CTPResultHeader;
+}
+
+inline const ROIB::Trailer& ROIB::CTPResult::trailer() const {
+  return m_CTPResultTrailer;
+}
+
+inline const std::vector<ROIB::CTPRoI>& ROIB::CTPResult::roIVec() const {
+  return m_CTPResultRoIVec;
+}
+
+inline bool ROIB::CTPResult::isValid() const { 
+  return (m_CTPResultHeader.size() != 0 && m_CTPResultTrailer.size() != 0); 
+}
+
+inline bool ROIB::CTPResult::isComplete() const { 
+  return isValid() && m_CTPResultRoIVec.size() >= (CTPdataformat::NumberTimeWords+CTPdataformat::DAQwordsPerBunch );
+}
+
+inline const std::vector<ROIB::CTPRoI> ROIB::CTPResult::TBP() const {
+  // adding some safety protection by restriction index range
+  return std::vector<ROIB::CTPRoI>(m_CTPResultRoIVec.begin() + 
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TBPpos)),
+				   m_CTPResultRoIVec.begin() + 
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TBPpos+CTPdataformat::TBPwords)));
+}
+
+inline const std::vector<ROIB::CTPRoI> ROIB::CTPResult::TAP() const {
+  // adding some safety protection by restriction index range
+  return std::vector<ROIB::CTPRoI>(m_CTPResultRoIVec.begin() + 
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAPpos)),
+				   m_CTPResultRoIVec.begin() + 
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAPpos+CTPdataformat::TAPwords)));
+}
+
+inline const std::vector<ROIB::CTPRoI> ROIB::CTPResult::TAV() const {
+  // adding some safety protection by restriction index range
+  return std::vector<ROIB::CTPRoI>(m_CTPResultRoIVec.begin() + 
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAVpos)),
+				   m_CTPResultRoIVec.begin() + 
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAVpos+CTPdataformat::TAVwords)));
+}
+
+inline bool ROIB::CTPResult::acceptBP() const {
+  // adding some safety protection by restriction index range
+
+  for (size_t i(std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TBPpos)));
+       i < std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TBPpos+CTPdataformat::TBPwords));
+       ++i) {
+    if (m_CTPResultRoIVec[i].roIWord() != 0) return true;
+  }
+
+  return false;
+}
+  
+inline bool ROIB::CTPResult::acceptAP() const {
+  // adding some safety protection by restriction index range
+
+  for (size_t i(std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAPpos)));
+       i < std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAPpos+CTPdataformat::TAPwords));
+       ++i) {
+    if (m_CTPResultRoIVec[i].roIWord() != 0) return true;
+  }
+
+  return false;
+}
+  
+inline bool ROIB::CTPResult::acceptAV() const {
+  // adding some safety protection by restriction index range
+
+  for (size_t i(std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAVpos)));
+       i < std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(CTPdataformat::TAVpos+CTPdataformat::TAVwords));
+       ++i) {
+    if (m_CTPResultRoIVec[i].roIWord() != 0) return true;
+  }
+
+  return false;
+}
