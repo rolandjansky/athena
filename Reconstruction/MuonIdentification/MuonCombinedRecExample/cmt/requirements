@@ -1,0 +1,24 @@
+package MuonCombinedRecExample
+ 
+author  Martin Woudstra <martin.woudstra@cern.ch>
+author  Niels van Eldik <niels.van.eldik@cern.ch>
+
+# put here the uses of the packages which need to be reached by cmt broadcast
+# Packages to be reached by cmt broadcast should be used either directly
+#
+# (the package should appear when typing cmt show uses) 
+
+
+use AtlasPolicy AtlasPolicy-*
+
+use TestPolicy          TestPolicy-*
+
+#put jobOption in InstallArea
+apply_pattern declare_joboptions files="*.py "
+
+apply_pattern declare_python_modules files="*.py"
+
+
+
+
+ 
