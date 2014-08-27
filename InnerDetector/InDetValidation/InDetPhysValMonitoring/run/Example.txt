@@ -1,0 +1,33 @@
+2012-04-24 Shaun Roe
+
+To Run Example
+'cd' to your Athena working directory
+Using setup: 
+asetup 19.0.X-VAL,rel_1,here 
+
+checkout this package:
+cmt co InnerDetector/InDetValidation/InDetPhysValMonitoring
+
+build as usual:
+cd $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/cmt
+cmt broadcast cmt config
+source setup.sh
+cmt broadcast gmake
+
+
+cd to the run directory:
+cd $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run
+
+you will need to link to a data set. The one I have been working
+with can be linked to with:
+
+ln -s /afs/cern.ch/work/k/krasznaa/public/xAOD/19.0.X_rel_4/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.AOD.19.0.X_rel_4.pool.root AOD.pool.root
+
+running should be simply a case of typing:
+athena PhysVal_jobOptions.py
+
+within the run directory.
+
+
+Check  the following TWiki for additional advice:
+https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PhysValMonitoring
