@@ -1,0 +1,242 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TrigT2MinBias/T2ZdcFex.h"
+#include "TrigCaloEvent/TrigT2ZdcSignals.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "ZdcIdentifier/ZdcID.h"
+#include "ZdcConditions/ZdcCablingService.h"
+
+
+
+T2ZdcFex::T2ZdcFex(const std::string &name, ISvcLocator* pSvcLocator): 
+  HLT::AllTEAlgo(name, pSvcLocator),
+  m_log(msgSvc(), name),
+  m_timerLoadColl(0), m_timerAlg(0), m_timerSave(0),
+  m_data("TrigDataAccess/TrigDataAccess"),
+  m_triggerEnergies(TrigT2ZdcSignals::NUM_ZDC,0.),
+  m_triggerTimes(TrigT2ZdcSignals::NUM_ZDC,0.),
+  m_triggerEntries(TrigT2ZdcSignals::NUM_ZDC,0.),
+  m_useCachedResult(false),
+  m_zdcSignals(0),
+  m_cachedTE(0) {
+  declareProperty("TrigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
+  declareProperty("ZdcEnRecoOption",  m_ZdcEnRecoOpt=0);
+  declareProperty("ZdcTimeRecoOption",  m_ZdcTimeRecoOpt=0);
+  declareProperty("ZcdEnThreshold" , m_en_threshold=0);
+  declareProperty("ZcdTimeThreshold", m_time_threshold=0);
+  declareProperty("ZcdChiThreshold" , m_chi_threshold=0);
+  declareMonitoredStdContainer("TriggerEnergies", m_triggerEnergies); // Energies deposited in each counter.
+  declareMonitoredStdContainer("TriggerTimes", m_triggerTimes); // Relative times of each of the triggers.
+}
+
+//--------------------------------------------------------------------------------------
+
+HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
+                                    unsigned int type_out) {
+  // Caching.
+  // First check whether we executed this instance before:
+  if(m_useCachedResult) {
+    if(msgLvl() <= MSG::DEBUG) {
+      m_log << MSG::DEBUG << "Executing " << name() << " in cached mode" << endreq;
+    }
+    
+    // Get all input TEs (for seeding relation of navigation structure)
+    HLT::TEVec allTEs;
+    std::vector<HLT::TEVec>::const_iterator itEnd = tes_in.end();
+    for( std::vector<HLT::TEVec>::const_iterator it = tes_in.begin(); it != itEnd; ++it) {
+      
+      HLT::TEVec::const_iterator inner_itEnd = (*it).end();
+      for (HLT::TEVec::const_iterator inner_it = (*it).begin();
+           inner_it != inner_itEnd; ++inner_it) {
+        allTEs.push_back(*inner_it);
+      }
+    }
+    
+    // Create an output TE seeded by the inputs
+    HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+    outputTE->setActiveState(true);
+    
+    // Save (cached) feature to output TE:
+    m_config->getNavigation()->copyAllFeatures( m_cachedTE, outputTE );
+    
+    return HLT::OK;
+  }
+  
+  if(msgLvl() <= MSG::DEBUG) {
+    m_log << MSG::DEBUG << "Executing this T2ZdcFex as " << name() << endreq;
+  }
+  
+  // start monitoring
+  beforeExecMonitors().ignore();
+
+  if(timerSvc()) 
+    m_timerLoadColl->start();
+  
+  // Reset Iterators
+  m_zBegin=m_zEnd;
+  
+  if( m_data->LoadZdcCollection(m_zBegin,m_zEnd).isFailure() ){
+    return StatusCode::FAILURE;
+  }
+  
+  if(timerSvc()){
+    m_timerLoadColl->stop();
+    m_timerAlg->start();
+  }
+
+  // Clear the variables which hold the processed signals.
+  m_triggerEnergies.clear();
+  m_triggerEnergies.resize(TrigT2ZdcSignals::NUM_ZDC,0);
+  m_triggerTimes.clear();
+  m_triggerTimes.resize(TrigT2ZdcSignals::NUM_ZDC,0);
+  m_triggerEntries.clear();
+  m_triggerEntries.resize(TrigT2ZdcSignals::NUM_ZDC,0.);
+
+  for( m_zt = m_zBegin; m_zt!=m_zEnd; ++m_zt){ // loop on ZdcRawChannelCollection iterators
+    ZdcRawChannel* zdc = (*m_zt);
+    const Identifier& id = zdc->identify();
+    // type = 0 (1 is pixel)
+    // module = 0,1,2,3
+    // side = -1 (C), 1 (A)
+    // channel = 0
+    int m_type = m_zdcID->type(id);
+    if(m_type!=0) continue; // dont consider pixel
+    int m_side =  m_zdcID->side(id);
+    int m_module =  m_zdcID->module(id);
+    //int m_channel =  m_zdcID->channel(id); //Not currently used
+    
+    int my_module = ((1.-m_side)/2)*4 + m_module;
+    
+    float m_energy = zdc->getEnergy(m_ZdcEnRecoOpt);
+    float m_time = zdc->getTime(m_ZdcTimeRecoOpt);
+    float m_chi = zdc->getChi(m_ZdcEnRecoOpt);
+    if(m_energy > m_en_threshold && (m_chi < m_chi_threshold || m_chi_threshold<0 ) ){
+      ++m_triggerEntries[my_module];
+      m_triggerEnergies[my_module] += m_energy;
+      m_triggerTimes[my_module] = m_time/m_triggerEntries[my_module] + 
+	m_triggerTimes[my_module]*(1.-(1./m_triggerEntries[my_module]));
+      
+    }
+    
+#ifdef MY_DEBUG
+    int counter = 0;
+    std::cout << "Id study; side : " << m_zdcID->side(id)
+	      << "; type : " << m_zdcID->type(id)
+	      << "; module : " << m_zdcID->module(id)
+	      << "; channel : " << m_zdcID->channel(id) 
+	      << "; my_module : " << my_module << std::endl;
+    
+    for(unsigned int j = 0 ; j< zdc->getSize() ; j++){
+      std::cout << "ZdcRawChannel [" << j << "] : E="
+		<< zdc->getEnergy(j) << "; T=" <<
+ 	zdc->getTime(j) << "; Chi=" << zdc->getChi(j) << std::endl;
+      counter++;
+    }
+#endif
+  }
+#ifdef MY_DEBUG
+  std::cout << "Total Number of Zdc Raw Channel : " << counter << std::endl;
+#endif
+  if( timerSvc() ){
+    m_timerAlg->stop();
+    m_timerSave->start();
+  }
+  
+
+  // Create the T2ZdcSignals output object.
+  m_zdcSignals = new TrigT2ZdcSignals(m_triggerEnergies, m_triggerTimes);
+
+
+  // A vector of trigger elements is passed into this function, where
+  // for each trigger element type provided there is a vector of
+  // trigger elements.  For example, L1_MBTS_1 L2_MBTS_2 L3_MBTS_3 are
+  // each a vector of one element.  Therefore start by concatenating
+  // the trigger elements.
+  HLT::TEVec allTEs;
+  std::vector<HLT::TEVec>::const_iterator itEnd = tes_in.end();
+
+  for(std::vector<HLT::TEVec>::const_iterator it = tes_in.begin(); it != itEnd; ++it) { 
+
+    HLT::TEVec::const_iterator inner_itEnd = (*it).end();
+    for(HLT::TEVec::const_iterator inner_it = (*it).begin(); inner_it != inner_itEnd; ++inner_it ){
+      if(msgLvl() <= MSG::DEBUG) {
+        m_log << MSG::DEBUG << "Creating TE seeded from input TE " << (*inner_it)->getId() << endreq;
+      }
+      allTEs.push_back(*inner_it);
+    }
+  }
+  
+  // Create an output TE seeded by the inputs
+  HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+  outputTE->setActiveState(true);
+
+  HLT::ErrorCode hltStatus = attachFeature(outputTE, m_zdcSignals, "T2Zdc");
+  if(hltStatus != HLT::OK) {
+    if(msgLvl() <= MSG::ERROR) {
+      m_log << MSG::ERROR << "Write of TrigEMCluster into outputTE failed" << endreq;
+    }
+    return hltStatus;
+  }
+  
+  if( timerSvc() ) 
+    m_timerSave->stop();
+
+  // Cache the TE in case this Fex is called again in this event.
+  m_useCachedResult = true;
+  m_cachedTE = outputTE;
+  
+  // Stop monitoring
+  afterExecMonitors().ignore();
+  
+  return HLT::OK;
+}
+
+//--------------------------------------------------------------------------------------
+
+HLT::ErrorCode T2ZdcFex::hltInitialize() {
+  m_log.setLevel(outputLevel());
+  
+  if(msgLvl() <= MSG::INFO) {
+    m_log << MSG::INFO << "in T2ZdcFex::initialize()" << endreq;
+  }
+  
+  if(m_data.retrieve().isFailure()) {
+    m_log << MSG::ERROR << "Could not get m_data" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  StoreGateSvc* detStore(0);
+  if ( service("DetectorStore",detStore).isFailure() ) {
+    m_log << MSG::ERROR << "Could not get detStore" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  const ZdcID* zdcID = 0;
+  if ( detStore->retrieve( zdcID ).isFailure() )  {
+    //if ( detSvc()->retrieve( zdcID ).isFailure() )  {
+    m_log << MSG::ERROR << "Could not get ZdcIDs" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  m_zdcID = zdcID;
+  ZdcCablingService::getInstance()->setZdcID(m_zdcID);
+  
+  // Create timers
+  if(timerSvc()) {
+    m_timerLoadColl  = addTimer("LoadColl");
+    m_timerAlg       = addTimer("Algorithm");
+    m_timerSave      = addTimer("Saving");
+  }
+  
+  return HLT::OK;
+}
+
+//--------------------------------------------------------------------------------------
+
+HLT::ErrorCode T2ZdcFex::hltFinalize() {
+  return HLT::OK;
+}
