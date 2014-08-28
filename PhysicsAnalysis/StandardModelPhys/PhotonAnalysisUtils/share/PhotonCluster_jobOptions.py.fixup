@@ -1,0 +1,52 @@
+# cluster corrections
+from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
+from CaloRec.CaloRecMakers import _process_tools
+            
+from egammaTools.egammaToolsConf import egammaSwTool
+theEgammaSwTool=egammaSwTool(
+    "myegammaswtool",
+    ClusterCorrectionToolsEle35  =[""],
+    ClusterCorrectionToolsEle55  =[""],
+    ClusterCorrectionToolsEle37  =[""],
+    ClusterCorrectionToolsGam35  =[""],
+    ClusterCorrectionToolsGam55  =[""],
+    ClusterCorrectionToolsEconv55=[""],
+    ClusterCorrectionToolsEconv35=[""],
+    ClusterCorrectionToolsEconv37=[""]
+    )
+
+if not 'CaloCells'                         in dir():
+    CaloCells                         = "AODCellContainer"
+
+#Version="v6_calh"
+#Version="v5_calh"
+Version="v5_1_calh"
+
+theEgammaSwTool.ClusterCorrectionToolsEle35   = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('ele35', suffix='EG', version=Version, cells_name=CaloCells))
+theEgammaSwTool.ClusterCorrectionToolsEle55   = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('ele55', suffix='EG', version=Version, cells_name=CaloCells))
+theEgammaSwTool.ClusterCorrectionToolsEle37   = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('ele37', suffix='EG', version=Version, cells_name=CaloCells))
+
+theEgammaSwTool.ClusterCorrectionToolsGam35   = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('gam35', suffix='EG', version=Version, cells_name=CaloCells))
+theEgammaSwTool.ClusterCorrectionToolsGam55   = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('gam55', suffix='EG', version=Version, cells_name=CaloCells))
+
+# theEgammaSwTool.ClusterCorrectionToolsEconv55 = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('gam55_conv', suffix='EG', version=Version, cells_name=CaloCells))  
+# theEgammaSwTool.ClusterCorrectionToolsEconv35 = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('gam35_conv', suffix='EG', version=Version, cells_name=CaloCells))  
+# theEgammaSwTool.ClusterCorrectionToolsEconv37 = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('gam37_conv', suffix='EG', version=Version, cells_name=CaloCells))
+            
+theEgammaSwTool.ClusterCorrectionToolsEconv55 = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('ele55', suffix='EG', version=Version, cells_name=CaloCells))  
+theEgammaSwTool.ClusterCorrectionToolsEconv35 = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('ele35', suffix='EG', version=Version, cells_name=CaloCells))  
+theEgammaSwTool.ClusterCorrectionToolsEconv37 = _process_tools (theEgammaSwTool,make_CaloSwCorrections ('ele37', suffix='EG', version=Version, cells_name=CaloCells))
+            
+ToolSvc += theEgammaSwTool
+print      theEgammaSwTool
+
+# The overall cluater correction tool
+#
+## from PhotonAnalysisTools.PhotonAnalysisToolsConf import ClusterTool
+## PhotonClusterTool = ClusterTool(name                      = "PhotonClusterTool",
+##                                 ClusterCorrectionToolName = theEgammaSwTool.getFullName())
+from egammaTools.egammaToolsConf import EMClusterTool
+PhotonClusterTool = EMClusterTool(name                      = "PhotonClusterTool",
+                                  ClusterCorrectionToolName = theEgammaSwTool.getFullName())
+ToolSvc += PhotonClusterTool
+print      PhotonClusterTool

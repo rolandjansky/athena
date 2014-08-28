@@ -1,0 +1,108 @@
+Recipe to run PhotonAnalysisUtils on various flavors of release 16
+===================================================
+
+Tag will not work for release <16
+
+* After configuring your environment, check the version of InDetConversionFinderTools:
+
+cmt show versions InnerDetector/InDetRecTools/InDetConversionFinderTools
+
+If it's less than InDetConversionFinderTools-00-03-14, check out and install InDetConversionFinderTools-00-03-15.
+
+* After configuring your environment, check the version of JetUtils:
+
+cmt show versions Reconstruction/Jet/JetUtils
+
+If it's less than JetUtils-01-01-38, check out and install JetUtils-01-01-39
+
+
+Recipe to run PhotonAnalysisUtils on release 16.0.2.7,AtlasProduction  (same for HiggsAnalysis-16.0.3.3.1 cache)
+===================================================
+
+A) INSTALLATION
+
+- Configure athena for release 16.0.2.7,AtlasProduction (for older releases look inside
+  the share/archive/ subdirectory)
+	
+	cd cmthome_16.0.2.7
+	source setup.sh -tag=16.0.2.7,AtlasProduction
+
+- Check out and compile the following:
+
+	cmt co -r EventKernel-00-08-09 Event/EventKernel
+      	cd Event/EventKernel/cmt
+	gmake
+	cd -
+	cmt co -r ParticleEvent-00-22-08 PhysicsAnalysis/AnalysisCommon/ParticleEvent/
+	cd PhysicsAnalysis/AnalysisCommon/ParticleEvent/cmt
+	gmake
+	cd -
+	cmt co -r JetEvent-01-01-48 Reconstruction/Jet/JetEvent	
+	cd Reconstruction/Jet/JetEvent/cmt
+	gmake	
+	cd -	
+	cmt co -r JetInterface-00-00-07 Reconstruction/Jet/JetInterface
+	cd Reconstruction/Jet/JetInterface/cmt
+	gmake
+	cd -
+	cmt co -r JetUtils-01-01-39 Reconstruction/Jet/JetUtils
+	cd Reconstruction/Jet/JetUtils/cmt	
+	gmake	
+	cd -	
+
+- Check out PhotonAnalysisUtils from HEAD and compile:
+	
+	cmt co PhysicsAnalysis/StandardModelPhys/PhotonAnalysisUtils
+
+
+B) EXECUTION
+
+- Setup a (minimal) run directory: from your local test area (i.e. were you 
+  checked out PAU...) 
+
+	mkdir run
+	cd run
+	cp ../InstallArea/jobOptions/PhotonAnalysisUtils/topOptions_PAU.py .
+
+  You can make as many topOptions_PAU.py files you like, each one customized to
+  contain the steering options that will be passed to the main PAU jobOptions
+  sitting in your InstallArea. Have a look to topOptions_PAU.py for details.
+
+- For Data : you can use selection of good LumiBlock based on GRL xml file.
+  You need a MyLBCollection.xml file in your run directory. The flag is not actived by default.
+  [the switch UseGRLSelection PAU will process only events in good lumi block.]
+  The xml file has to be updated to include new runs
+
+  You may need to checkout the packages here
+  https://twiki.cern.ch/twiki/bin/viewauth/Atlas/GoodRunsLists#2009_10_17_Recommended_release_a
+
+edit topOptions_PAU.py :
+-put your favorite file and the geometry : Geometry is no more to specify : experimental test
+-choose the type of dataset : data or MC
+-in case of data, activate or no the LumiBlock selection. If activated, provide the file .xml
+
+- Run in interactive mode :
+
+	athena.py topOptions_PAU.py
+
+- Run on the grid using PANDA: 
+
+	pathena --extFile PT2dist.root,corr_map_barrel.root,corr_map_endcap_neg.root,corr_map_endcap_pos.root \
+                --inDS <YourInputDataSet> \ 
+                --outDS <YourOutputDataset> \   #use option --official if you wish to have right to have an output without your Name
+                --extFile <YourFile.xml> \  # this line should be considered only if you run the data with the .xml
+	        --extOutFile PAUReco.root \ # Leave as in default or change to the 'OutpuFile' you defined in topOptions_PAU.py
+	        --nFilesPerJob 4 \ #if you work with huge dataset (for example dijets), use 1 here
+                --tmpDir /tmp/<YourUserName> \
+		--site=<YourSite> \ #if you wish the site to be chosen automaticaly, skip this line
+                topOptions_PAU.py
+
+ - Note: When running on the grid using pathena, topOptions_PAU.py must define an input file that is valid for local running.
+   This can be almost any file that you might use to test PAU on your local PC - it does not necessarily need to be from the
+   same dataset as defined in "--inDS".  pathena does a quick test of the jobOptions before submission, which includes
+   checking various configuration parameters against an input POOL file.  Without a local file to test against, the
+   pathena submission will fail.
+
+   For more information on this, see:
+
+	https://twiki.cern.ch/twiki/bin/view/Atlas/PandaAthena#pathena_failed_due_to_input_File

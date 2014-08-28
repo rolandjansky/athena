@@ -1,0 +1,146 @@
+package PhotonAnalysisUtils
+
+author Koletsou Iro <koletsou@lal.in2p3.fr>
+
+use AtlasPolicy			AtlasPolicy-*
+
+branches run
+
+
+use GaudiInterface		GaudiInterface-*		External
+use AtlasROOT			AtlasROOT-*			External
+
+use AthenaBaseComps             AthenaBaseComps-*               Control
+use StoreGate			StoreGate-*			Control
+use Navigation			Navigation-*			Control
+use AthContainers		AthContainers-*			Control
+use SGTools			SGTools-*			Control
+
+use MCTruthClassifier           MCTruthClassifier-*             PhysicsAnalysis
+
+use Particle                    Particle-*                      Reconstruction
+use TrkTrackSummary             TrkTrackSummary-*               Tracking/TrkEvent
+use TrkParameters               TrkParameters-*                 Tracking/TrkEvent
+use VxVertex			VxVertex-*			Tracking/TrkEvent
+
+use CaloEvent			CaloEvent-*			Calorimeter
+
+use JetEvent			JetEvent-*			Reconstruction/Jet
+
+use TrigParticle                TrigParticle-*                  Trigger/TrigEvent
+use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
+
+use MissingETEvent              MissingETEvent-*                Reconstruction
+use muonEvent                   muonEvent-*                  	Reconstruction/MuonIdentification
+
+use ParticleEvent		ParticleEvent-*			PhysicsAnalysis/AnalysisCommon
+use egammaEvent                	egammaEvent-*              	Reconstruction/egamma
+
+use McParticleEvent		McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+
+use TrkNeutralParameters        TrkNeutralParameters-*          Tracking/TrkEvent
+
+#Added for m_helper
+use InDetConversionFinderTools 	InDetConversionFinderTools-*    InnerDetector/InDetRecTools
+
+use CaloIdentifier		CaloIdentifier-*		Calorimeter
+use CaloDetDescr		CaloDetDescr-*			Calorimeter
+use CaloGeoHelpers		CaloGeoHelpers-*		Calorimeter
+
+use FourMom			FourMom-*			Event
+
+use TrigCaloEvent		TrigCaloEvent-*			Trigger/TrigEvent
+use TrkParticleBase		TrkParticleBase-*		Tracking/TrkEvent
+use TrkTrack			TrkTrack-*			Tracking/TrkEvent
+
+#Trigger
+use TrigDecisionTool            TrigDecisionTool-*              Trigger/TrigAnalysis
+use TrigObjectMatching          TrigObjectMatching-*            Trigger/TrigAnalysis
+
+#Added for "A LA EGAMMA"
+#check later if still useful
+#use TrkNeutralParameters       TrkNeutralParameters-*         	Tracking/TrkEvent
+
+#Added Marc : get back beam spot position :
+use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
+
+
+use egammaInterfaces            egammaInterfaces-*              Reconstruction/egamma 
+
+use D3PDMakerUtils              D3PDMakerUtils-*                PhysicsAnalysis/D3PDMaker
+
+
+
+private
+
+use xAODEgamma                  xAODEgamma-*                    Event/xAOD
+
+use AtlasCLHEP			AtlasCLHEP-*			External
+use AtlasHepMC                  AtlasHepMC-*                    External
+use CxxUtils			CxxUtils-*			Control
+use AthenaKernel                AthenaKernel-*                  Control
+use EventInfo			EventInfo-*			Event
+use EventKernel			EventKernel-*			Event
+use TrackToCalo               	TrackToCalo-*             	Reconstruction/RecoTools
+use InDetBeamSpotService	InDetBeamSpotService-*		InnerDetector/InDetConditions
+use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack 	   	InDetRIO_OnTrack-*     	 	InnerDetector/InDetRecEvent
+use InDetRecToolInterfaces    	InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
+use McParticleKernel            McParticleKernel-*              PhysicsAnalysis/TruthParticleID
+use PathResolver		PathResolver-*			Tools
+use RecoToolInterfaces  	RecoToolInterfaces-*        	Reconstruction/RecoTools
+use TrkEventPrimitives		TrkEventPrimitives-*		Tracking/TrkEvent
+use TrkVertexSeedFinderUtils    TrkVertexSeedFinderUtils-*      Tracking/TrkVertexFitter
+
+use egammaAnalysisUtils         egammaAnalysisUtils-*           Reconstruction/egamma/egammaAnalysis
+
+use EventPrimitives             EventPrimitives-*               Event
+
+use FourMomUtils		FourMomUtils-*			Event
+
+macro rootBasicLibs ""  \
+           ROOTBasicLibs "-L$(ROOT_home)/lib -lCore -lCint -lTree -lHist -lTMVA"
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTRooFitLibs
+
+end_private
+
+#begin lines commented as suggested by David Rousseau
+#will remove these commented lines if everything is stable within 10 versions
+#apply_pattern component_library
+#end lines commented
+
+#begin lines as suggested by David Rousseau for the replacement
+apply_pattern dual_use_library files="../src/*.cxx ../Root/*.cxx"
+#end lines as replacement
+
+#apply_pattern declare_scripts files="addAANT" 
+apply_pattern declare_joboptions files="*.py *.C"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_runtime files="-s=../share *.root *.dat NeuralPhoton_TMVA"
+
+private
+use AtlasReflex      AtlasReflex-*      External -no_auto_imports
+apply_pattern lcgdict dict=PhotonAnalysisUtils selectionfile=selection.xml \
+              headerfiles=" ../PhotonAnalysisUtils/PhotonAnalysisUtilsDict.h" 
+end_private
+
+#Fanti#   the following is needed to generate dictionary... (not needed now)
+#Fanti#  
+#Fanti#  private
+#Fanti#  use AtlasReflex      AtlasReflex-00-*      External -no_auto_imports
+#Fanti#  
+#Fanti#   #macro datalinks_PhotonAnalysisUtils ""
+#Fanti#   # macro_append datalinks_PhotonAnalysisUtils "PhotonAnalysisUtils"
+#Fanti#   #
+#Fanti#   #macro PhotonAnalysisUtils_pp_cppflags " -w"
+#Fanti#   #
+#Fanti#   #
+#Fanti#   #apply_pattern lcgdict dict=PhotonAnalysisUtils selectionfile=selection.xml \
+#Fanti#   #	headerfiles=" ../PhotonAnalysisUtils/PhotonAnalysisUtilsDict.h" \
+#Fanti#   #	dataLinks=$(datalinks_PhotonAnalysisUtils)
+#Fanti#  
+#Fanti#  apply_pattern lcgdict dict=PhotonAnalysisUtils selectionfile=selection.xml headerfiles=" ../PhotonAnalysisUtils/PhotonAnalysisUtilsDict.h" 
+#Fanti#  
+#Fanti#  end_private

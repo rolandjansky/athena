@@ -1,0 +1,23 @@
+
+* & & 0.6 & 0.8 & 1.15 & 1.37 & 1.81 & 2.01 & 2.37 \\
+* \multirow{5}{*}{Conv 0} & 25 GeV &	\cellcolor{yellow}  9.7 & \cellcolor{yellow} 10.8 & \cellcolor{yellow} 18.5 & \cellcolor{yellow} 14.4 & \cellcolor{yellow} 13.5 & \cellcolor{yellow} 18.7 & \cellcolor{yellow} 12.4 \\
+* & 40 GeV &	\cellcolor{yellow}  9.2 & \cellcolor{yellow} 10.0 & \cellcolor{yellow} 14.2 & \cellcolor{yellow} 11.8 & \cellcolor{yellow} 11.9 & \cellcolor{yellow} 14.7 & \cellcolor{yellow} 12.3 \\
+* & 50 GeV &	\cellcolor{yellow}  7.6 & \cellcolor{yellow}  8.7 & \cellcolor{yellow}  9.3 & \cellcolor{yellow} 11.6 & \cellcolor{yellow} 11.4 & \cellcolor{yellow} 14.2 & \cellcolor{yellow} 13.2 \\
+* & 60 GeV &	 6.3 &  6.8 & \cellcolor{yellow}  8.2 & \cellcolor{yellow} 11.3 & \cellcolor{yellow} 10.6 & \cellcolor{yellow} 13.6 & \cellcolor{yellow} 11.4 \\
+* & 80 GeV &	 5.8 &  6.0 & \cellcolor{yellow}  7.4 & \cellcolor{yellow}  8.7 & \cellcolor{yellow}  8.9 & \cellcolor{yellow} 12.6 & \cellcolor{yellow} 11.9 \\ \hline 
+* & 1000 GeV &	 6.0 &  4.6 &  6.3 &  6.5 & \cellcolor{yellow}  7.4 & \cellcolor{yellow} 11.5 & \cellcolor{yellow} 10.1 \\
+* & & 0.6 & 0.8 & 1.15 & 1.37 & 1.81 & 2.01 & 2.37 \\
+* \multirow{5}{*}{Conv 1} & 25 GeV &	\cellcolor{yellow} 10.1 & \cellcolor{yellow} 12.9 & \cellcolor{yellow} 12.5 & \cellcolor{yellow} 10.5 & \cellcolor{yellow} 12.9 & \cellcolor{yellow} 21.5 & \cellcolor{yellow} 15.4 \\
+* & 40 GeV &	 6.3 & \cellcolor{yellow}  8.0 & \cellcolor{yellow}  8.1 & \cellcolor{yellow}  7.7 & \cellcolor{yellow}  9.9 & \cellcolor{yellow} 17.8 & \cellcolor{yellow} 14.5 \\
+* & 50 GeV &	 5.4 &  4.4 &  5.4 &  5.5 &  6.7 & \cellcolor{yellow} 17.4 & \cellcolor{yellow} 12.4 \\
+* & 60 GeV &	 4.3 &  2.9 &  4.3 &  4.9 &  6.2 & \cellcolor{yellow} 15.5 & \cellcolor{yellow} 10.9 \\
+* & 80 GeV &	 2.7 &  1.4 &  3.3 &  3.2 &  4.8 & \cellcolor{yellow} 14.9 & \cellcolor{yellow} 10.1 \\ \hline 
+* & 1000 GeV &	 2.6 &  0.8 &  2.3 &  2.1 &  4.5 & \cellcolor{yellow} 11.8 & \cellcolor{yellow} 10.2 \\
+* & & 0.6 & 0.8 & 1.15 & 1.37 & 1.81 & 2.01 & 2.37 \\
+* \multirow{5}{*}{Conv 2} & 25 GeV &	\cellcolor{yellow} 10.6 & \cellcolor{yellow} 14.1 & \cellcolor{yellow} 14.4 & \cellcolor{yellow} 13.0 & \cellcolor{yellow} 11.3 & \cellcolor{yellow} 22.1 & \cellcolor{yellow} 14.8 \\
+* & 40 GeV &	 5.0 & \cellcolor{yellow}  8.2 & \cellcolor{yellow}  7.5 & \cellcolor{yellow}  8.9 & \cellcolor{yellow}  8.3 & \cellcolor{yellow} 20.1 & \cellcolor{yellow} 11.4 \\
+* & 50 GeV &	 4.0 &  4.3 &  4.9 &  6.3 & \cellcolor{yellow}  7.1 & \cellcolor{yellow} 18.0 & \cellcolor{yellow} 10.0 \\
+* & 60 GeV &	 3.3 &  3.1 &  3.9 &  4.7 &  6.8 & \cellcolor{yellow} 17.3 & \cellcolor{yellow}  9.2 \\
+* & 80 GeV &	 2.6 &  1.9 &  2.7 &  3.8 &  6.2 & \cellcolor{yellow} 16.9 & \cellcolor{yellow}  7.9 \\
+* & 1000 GeV &	 2.1 &  1.0 &  2.2 &  2.5 &  5.5 & \cellcolor{yellow} 14.3 & \cellcolor{yellow}  8.0 \\
+
