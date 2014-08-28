@@ -1,0 +1,7 @@
+The file L1TopoDataTypes.vhd is copied from
+https://svnweb.cern.ch/trac/atl1calo/browser/firmware/L1Topo/ProcessorFPGAs/Algorithms/L1TopoDataTypes.vhd
+
+It describes the hardware limits. As these limitations need to be taken into account during menu generation and
+for the simulation, this package L1TopoHardware contains a C++ representation of these parameters
+
+This package should not be touched unless the hardware limitations described in L1TopoDataTypes.vhd are changed.
