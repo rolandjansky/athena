@@ -1,0 +1,28 @@
+//  BaseTOB.cxx
+//  TopoCore
+//  Created by Joerg Stelzer on 11/10/12.
+//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
+
+#include "L1TopoEvent/BaseTOB.h"
+#include "L1TopoCommon/Exception.h"
+
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+int
+TCS::BaseTOB::sizeCheck(int value, unsigned int size) {
+   int max(0x1 << (size-1));
+   int min(~max + 1);
+   --max;
+   if(value>max || value<min) {
+      TCS_EXCEPTION("Value " << value << " outside firmware specifications. Maximum number of bits is " << size << " -> range ["<<min<<" - "<<max<<"]");
+   }
+   return value;
+}
+
+std::ostream & operator<< (std::ostream & o, const TCS::BaseTOB& top) {
+    top.print(o);
+    return o;
+}
