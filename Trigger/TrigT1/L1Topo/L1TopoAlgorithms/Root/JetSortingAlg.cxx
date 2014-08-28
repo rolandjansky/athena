@@ -1,0 +1,72 @@
+//  JetSortingAlg.cxx
+//  TopoCore
+//  Created by Joerg Stelzer on 11/10/12.
+//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
+
+#include "L1TopoAlgorithms/JetSortingAlg.h"
+#include "L1TopoEvent/TOBArray.h"
+#include "L1TopoEvent/JetTOBArray.h"
+#include "L1TopoEvent/GenericTOB.h"
+#include <algorithm>
+
+REGISTER_ALG_TCS(JetSortingAlg)
+
+bool SortByEtLargestFirst2(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
+{
+   return tob1->Et() > tob2->Et();
+}
+
+bool SortByEtSmallestFirst2(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
+{
+   return tob1->Et() < tob2->Et();
+}
+
+// constructor
+TCS::JetSortingAlg::JetSortingAlg(const std::string & name) :
+   SortingAlg(name)
+{
+   defineParameter( "NumberOfJets", 0 );
+   defineParameter( "ReverseOrder", 0 );
+   defineParameter( "JetSize", 0 );
+   defineParameter( "MinEta", -49);
+   defineParameter( "MaxEta", 49);
+   m_jetsize = JetTOB::JS1;
+}
+
+
+TCS::JetSortingAlg::~JetSortingAlg()
+{}
+
+
+
+
+
+
+TCS::StatusCode
+TCS::JetSortingAlg::sort(const InputTOBArray & input, TOBArray & output) {
+   const JetTOBArray & jets = dynamic_cast<const JetTOBArray&>(input);
+
+   // fill output array with GenericTOBs builds from jets
+   for(JetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
+     output.push_back( GenericTOB(**cl, m_jetsize)  );
+   }
+
+   // sort, possibly in reversed order
+   int reverseOrder = parameter("ReverseOrder").value();
+   if(reverseOrder==1) {
+      output.sort(SortByEtSmallestFirst2);
+   } else {
+      output.sort(SortByEtLargestFirst2);
+   }
+
+   // keep only max number of jets
+   int par = parameter("NumberOfJets").value();
+   unsigned int maxNumberOfJets = (unsigned int)(par<0?0:par);
+   if(maxNumberOfJets>0) {
+      while( output.size()> maxNumberOfJets ) {
+         output.pop_back();
+      }
+   }   
+   return TCS::StatusCode::SUCCESS;
+}
+
