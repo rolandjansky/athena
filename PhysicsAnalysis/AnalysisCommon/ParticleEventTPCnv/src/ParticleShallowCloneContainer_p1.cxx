@@ -1,0 +1,19 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ParticleShallowCloneContainer_p1.cxx 
+// Implementation file for class ParticleShallowCloneContainer_p1
+// Author: Karsten Koeneke - February 2013
+/////////////////////////////////////////////////////////////////// 
+
+
+// ParticleEventTPCnv includes
+#include "ParticleEventTPCnv/ParticleShallowCloneContainer_p1.h"
+
+/////////////////////////////////////////////////////////////////// 
+/// Public methods: 
+/////////////////////////////////////////////////////////////////// 
+

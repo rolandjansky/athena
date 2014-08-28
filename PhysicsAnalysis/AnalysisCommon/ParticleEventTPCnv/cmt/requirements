@@ -1,0 +1,33 @@
+package ParticleEventTPCnv
+
+author  Sebastien Binet <binet@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+use AtlasReflex         AtlasReflex-*               External
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*          Database/AthenaPOOL
+
+use DataModel           DataModel-*                 Control
+use DataModelAthenaPool	DataModelAthenaPool-*       Control
+use EventCommonTPCnv    EventCommonTPCnv-*	       Event
+use GaudiInterface      GaudiInterface-*            External
+use ParticleEvent       ParticleEvent-*             PhysicsAnalysis/AnalysisCommon
+use Particle            Particle-*                  Reconstruction
+
+
+private
+use AthenaKernel        AthenaKernel-*              Control
+use VxVertex            VxVertex-*                  Tracking/TrkEvent
+end_private
+
+branches ParticleEventTPCnv src
+
+library ParticleEventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+# 
+# Create a dictionary for the persistent representation 
+# of transient classes
+apply_pattern lcgdict dict=ParticleEventTPCnv  selectionfile=selection.xml  headerfiles="../ParticleEventTPCnv/ParticleEventTPCnvDict.h"
+
