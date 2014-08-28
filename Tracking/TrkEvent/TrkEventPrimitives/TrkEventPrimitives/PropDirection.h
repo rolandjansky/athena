@@ -28,6 +28,22 @@ namespace Trk {
                     
      enum SearchDirection { outside=1, inside=-1,
                             bothway=0, undefinedDirection=0 };
+                            
+
+   
+     /** This is a steering enum to tell which material update stage:
+         - preUpdate  : when reaching a layer before layer is resolved
+         - fullUpdate : just pass through the layer
+         - postUpdate : when leaving the layer 
+     */
+     enum MaterialUpdateStage 
+     {
+     
+         preUpdate   = -1,
+         fullUpdate  =  0,
+         postUpdate  =  1
+     };                            
+                            
     
 } // end of namespace
 
