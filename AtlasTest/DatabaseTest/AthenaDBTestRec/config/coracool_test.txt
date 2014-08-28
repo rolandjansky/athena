@@ -1,0 +1,2 @@
+# Configuration file to test CoraCool
+multi 2 /CORACOOL/TEST 10 RUNC coracool 5 25 1

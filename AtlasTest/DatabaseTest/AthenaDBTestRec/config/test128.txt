@@ -1,0 +1,6 @@
+# test for SQLlite128 bug
+# use  TestCoolRecWriter.exe "sqlite:X:test.db:TESTDB" 1 ../config/test128.txt
+#  100 to demonstrate - throws exceptions at 144000-147600 insertion
+#
+# folder  <path> <nchan> <ptime> <ptype> <ncolumns> <size> <period>
+folder /TEST/DCS/FOLDER1 5 DCSC float 1 1 300

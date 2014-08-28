@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn>
+<TEST name="AthenaDBTestRec_read" type="athena" suite="Examples">
+<options_atn>AthenaDBTestRec/ReadRefDBExample.py</options_atn>
+<timelimit>4</timelimit>
+<author>Richard Hawkings</author>
+<mailto>richard.hawkings@cern.ch</mailto>
+<expectations>
+<errorMessage>BAD</errorMessage>
+<successMessage>All folders OK</successMessage>
+<returnValue>0</returnValue>
+</expectations>
+</TEST>
+</atn>
+</unifiedTestConfiguration>

@@ -1,0 +1,20 @@
+# Configuration file for COOL reference workload
+# ATL_CalibStream_1 - data written by Tier-0 calibraton processes
+# Richard Hawkings, 7/12/06
+#
+# stream 0 - ID
+poolfile 3 calibstream0_
+# multi 2 /ID/POOL/POOLDIR 32 RUNC poolref 1 18000 1
+multi 2 /ID/POOL/POOLDIR 32 RUNC string 1 160 1
+# stream 2 - calorimeter
+poolfile 3 calibstream1_
+# multi 17 /CALO/POOL/POOLDIR 32 RUNC poolref 1 18000 1
+multi 17 /CALO/POOL/POOLDIR 32 RUNC string 1 160 1
+# stream 2 - muons
+poolfile 3 calibstream2_
+folder /MUON/MDT/RT 1174 RUNC string 1 4500 1
+folder /MUON/MDT/T0 1174 RUNC string 1 3000 1
+# folder /MUON/POOL/POOLDIR 32 RUNC poolref 1 18000 1
+folder /MUON/POOL/POOLDIR 32 RUNC string 1 160 1
+# detector status information
+folder /GLOBAL/DETSTATUS/TISUMM 50 DCSP float 3 1 600

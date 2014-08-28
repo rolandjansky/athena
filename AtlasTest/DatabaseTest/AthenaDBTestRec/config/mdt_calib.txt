@@ -1,0 +1,8 @@
+# MDT calibration data, information from Monica Verducci/Domizia Orestano
+# March 2006
+# first organisation - one channel per MDT chamber
+# note also need to add corrections and mapping info
+#
+# multi <nfolders>  <path> <nchan> <ptime> <ptype> <ncolumns> <size> <period>
+folder /TEST/MDT/RT 1174 RUNC string 1 4500 1
+folder /TEST/MDT/T0 1174 RUNC string 1 3000 1

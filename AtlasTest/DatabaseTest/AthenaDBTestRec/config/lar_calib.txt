@@ -1,0 +1,5 @@
+# multiple LAr calibraton folders - 50 of 32 channels each per run
+# based on information from RD Schaffer, Feb 2006
+# in practice reco job would only read say 25% of this data
+# multi <nfolders>  <path> <nchan> <ptime> <ptype> <ncolumns> <size> <period>
+multi 50 /TEST/LAR/FOLDER 32 RUNC string 1 100 1

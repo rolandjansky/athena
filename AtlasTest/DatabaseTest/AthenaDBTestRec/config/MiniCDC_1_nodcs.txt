@@ -1,0 +1,28 @@
+# Configuration file for COOL reference workload
+# MiniCDC_1.txt : 4-schema COOL readback load for Tier-1 testing
+# Richard Hawkings, 3/5/07
+#
+# stream 0 - ID
+schema COOLONL_INDET
+poolfile 3 calibstream0_
+# multi 2 /ID/POOL/POOLDIR 32 RUNC poolref 1 18000 1
+multi 2 /ID/POOL/POOLDIR 32 RUNC string 1 160 1
+# stream 2 - calorimeter
+schema COOLONL_CALO
+poolfile 3 calibstream1_
+# multi 17 /CALO/POOL/POOLDIR 32 RUNC poolref 1 18000 1
+multi 17 /CALO/POOL/POOLDIR 32 RUNC string 1 160 1
+# stream 2 - muons
+schema COOLONL_MDT
+poolfile 3 calibstream2_
+folder /MUON/MDT/RT 1174 RUNC string 1 4500 -10
+folder /MUON/MDT/T0 1174 RUNC string 1 3000 -10
+# folder /MUON/POOL/POOLDIR 32 RUNC poolref 1 18000 1
+folder /MUON/POOL/POOLDIR 32 RUNC string 1 160 1
+# detector status information
+schema COOLONL_GLOBAL
+folder /GLOBAL/DETSTATUS/TISUMM 50 DCSP float 3 1 600
+# DCS information
+schema COOLONL_TDAQ
+# multi 10 /TDAQ/DCS/TESTDCS 200 DCSP float 25 1 300
+# multi 5 /TDAQ/DCS/TESTDCS2 1000 DCSP float 25 1 300

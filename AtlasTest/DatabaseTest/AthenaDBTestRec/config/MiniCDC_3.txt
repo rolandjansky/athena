@@ -1,0 +1,28 @@
+# Configuration file for COOL reference workload
+# MiniCDC_3.txt : like MiniCDC_2 but with all data on single schema
+# used for Frontier testing on INTR8
+# Richard Hawkings, 14/7/09
+#
+# stream 0 - ID
+poolfile 3 calibstream0_
+multi 2 /ID/POOL/POOLDIR 32 RUNC string 1 160 1
+multi 2 /ID/CORACOOL 10 RUNC coracool 5 25 1
+# stream 2 - calorimeter
+poolfile 3 calibstream1_
+multi 17 /CALO/POOL/POOLDIR 32 RUNC string 1 160 1
+# stream 2 - muons
+poolfile 3 calibstream2_
+folder /MUON/MDT/RT 1174 RUNC string 1 4500 -10
+folder /MUON/MDT/T0 1174 RUNC string 1 3000 -10
+payloadtable 1
+folder /MUON/MDT/RT_PT 1174 RUNC string 1 4500 -10
+folder /MUON/MDT/T0_PT 1174 RUNC string 1 3000 -10
+folder /MUON/MDT/RT_PT_BLOB 1174 RUNC blob 1 4500 -10
+payloadtable 0
+folder /MUON/POOL/POOLDIR 32 RUNC string 1 160 1
+
+# detector status information
+folder /GLOBAL/DETSTATUS/TISUMM 50 DCSP float 3 1 600
+# DCS information
+multi 10 /TDAQ/DCS/TESTDCS 200 DCSP float 25 1 300
+multi 5 /TDAQ/DCS/TESTDCS2 1000 DCSP float 25 1 300

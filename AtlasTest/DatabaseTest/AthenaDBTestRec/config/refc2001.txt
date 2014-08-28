@@ -1,0 +1,8 @@
+# reference workload for conditions database COOL 200 version
+# modelled on LAR and MDT calibration structures only
+# LAR - 50 folders x 32 channels, 150 char strings for POOL ref
+tag ref1
+multi 50 /REFCOND1/LAR/FOLDER 32 RUNC string 1 150 1
+# MDT - 2 folders with 1174 channels each and string/CLOB payloads
+folder /REFCOND1/MDT/RT 1174 RUNC string 1 4500 1
+folder /REFCOND1/MDT/T0 1174 RUNC string 1 3000 1

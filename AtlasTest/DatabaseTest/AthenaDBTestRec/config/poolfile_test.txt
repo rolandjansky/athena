@@ -1,0 +1,6 @@
+# Test config for 2 folders each containing 2 channels of referenced POOL data
+# each run/folder is sent to a separate POOL file
+# multi <nfolders>  <path> <nchan> <ptime> <ptype> <ncolumns> <size> <period>
+#
+poolfile 3 test1
+multi 2 /TEST/POOL 2 RUNC poolref 1 100 4

@@ -1,0 +1,7 @@
+# MDT calibration data, information from Monica Verducci/Domizia Orestano
+# March 2006
+# organisation into 4 big calibration regions with huge CLOBs
+# note also need to add corrections and mapping info
+#
+folder /TEST/MDT2/RT 4 RUNC string 1 1320750 1
+folder /TEST/MDT2/T0 4 RUNC string 1 880500 1

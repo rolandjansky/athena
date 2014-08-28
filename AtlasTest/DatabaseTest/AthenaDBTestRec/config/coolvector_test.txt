@@ -1,0 +1,2 @@
+# Configuration file to test CoolVector payload
+multi 2 /COOLVEC/TEST 10 RUNC coolvector 5 25 1

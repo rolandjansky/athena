@@ -1,0 +1,3 @@
+# single folder, 100 channels, one reading/channel, coherent update
+# folder  <path> <nchan> <ptime> <ptype> <ncolumns> <size> <period>
+folder /TEST/DCS/FOLDER1 100 DCSC float 1 1 300

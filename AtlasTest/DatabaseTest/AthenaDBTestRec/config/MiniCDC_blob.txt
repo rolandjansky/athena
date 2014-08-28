@@ -1,0 +1,5 @@
+# Configuraton file for COOL reference workload
+# MiniCDC_blob.txt: 10 x 1M and 10 x 10M Blobs for readback testing
+schema COOLONL_CALO
+folder /CALO/BLOB/BLOB1 10 RUNC blob 1 1000000 -100
+folder /CALO/BLOB/BLOB2 10 RUNC blob 1 10000000 -100

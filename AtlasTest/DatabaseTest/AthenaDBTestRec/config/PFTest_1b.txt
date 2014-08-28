@@ -1,0 +1,7 @@
+# Configuration file for POOL-file based test workload
+# Set B - one POOL file per run
+schema COOLONL_CALO
+poolfile 1 test1b
+multi 2 /CALO/POOLFILE/TEST1B 10 RUNC poolref 1 1250000 1
+multi 10 /CALO/POOLFILE/TEST2B 10 RUNC poolref 1 250000 1
+multi 20 /CALO/POOLFILE/TEST3B 10 RUNC poolref 1 25000 1
