@@ -1,0 +1,14 @@
+package JetInterface
+
+author P.A Delsart <delsart at in2p3 fr>
+author D. Adams <dladams at bnl.gov>
+
+public
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-* 	External
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use xAODJet             xAODJet-*               Event/xAOD
+
+library JetInterface ../Root/*.cxx
+apply_pattern installed_library
+
