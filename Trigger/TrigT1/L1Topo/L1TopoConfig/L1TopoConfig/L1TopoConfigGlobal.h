@@ -1,0 +1,46 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef __TopoCore__L1TopoConfigGlobal__
+#define __TopoCore__L1TopoConfigGlobal__
+
+#include <vector>
+#include <string>
+
+namespace TXC {
+  
+   struct TopoConfigElement {
+      TopoConfigElement() {}
+      TopoConfigElement(const std::string & name, const std::string & value) : name(name), value(value) {}
+      std::string name {""};
+      std::string value {""};
+   };
+
+   class L1TopoConfigGlobal {
+   public:
+    
+      // default constructor
+      L1TopoConfigGlobal();
+
+      // destructor
+      virtual ~L1TopoConfigGlobal();
+    
+      // get all TopoConfig elements
+      const std::vector<TopoConfigElement> & getTopoConfigs() const { return m_topoConfigElements; }
+    
+      // setters
+      void addTopoConfigElement(const std::string & name, const std::string & value);
+      void addTopoConfigElement(const TopoConfigElement & config);
+    
+   private:
+    
+      // TopoConfig elements stored here
+      std::vector<TopoConfigElement> m_topoConfigElements;
+   };
+
+} // end of namespace TXC
+
+std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigGlobal &);
+
+#endif 
