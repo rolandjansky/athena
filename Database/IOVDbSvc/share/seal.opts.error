@@ -1,0 +1,13 @@
+// SEAL MessageService verbosity level
+// Verbose=1, Debug=2, Info=3, Warning=4, Error=5, Fatal=6
+SEAL/Services/MessageService.OutputLevel=5;
+
+// SEAL MessageService output format
+// Note: MessageService.cpp implements reportMessage() using Msg::LevelTxt[]
+// Note: MessageStream.cpp defines Msg::LevelTxt[] using lowercase strings
+SEAL/Services/MessageService.Format="%-36s %-8s %s";
+
+// POOL XMLAuthenticationService authentication file
+// The path to this file may be set in the POOL_AUTH_PATH environment variable
+POOL/Services/XMLAuthenticationService.AuthenticationFile="$POOL_AUTH_PATH/authentication.xml";
+
