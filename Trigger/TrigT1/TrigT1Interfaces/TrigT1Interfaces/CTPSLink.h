@@ -1,0 +1,119 @@
+// Dear emacs, this is -*- c++ -*-
+#ifndef TRIGT1INTERFACES_CTPSLINK_H
+#define TRIGT1INTERFACES_CTPSLINK_H
+
+// std include(s):
+#include <stdint.h>
+
+// STL include(s):
+#include <vector>
+#include <string>
+
+namespace LVL1CTP {
+
+   /**
+    * 
+    *   @short CTP RoI output
+    *
+    *          Class used to send the RoI data from the CTP simulation to
+    *          the RoIB simulation. It models the SLink connection.
+    *
+    *          One vector is used to store the header, data elements and
+    *          trailer.
+    *
+    *          This class represents a cable connection between CTP and 
+    *          RoIBuilder and is only used in the simulation!
+    *
+    *     @see LVL1CTP::CTPSimulation
+    *     @see ROIB::RoIBuilder
+    *
+    *  @author Thomas Schoerner-Sadenius <thomas.schoerner@cern.ch>
+    *  @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+    *
+    * $Revision: 187728 $
+    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    */
+   class CTPSLink {
+
+   public:
+
+      /* constructor, destructor */
+
+      //! constructor initializing data content from given vector
+      CTPSLink( const std::vector<uint32_t>& roiVec );
+      //! empty default destructor
+      ~CTPSLink();
+
+      /* data format */
+
+      //! number of words in header
+      unsigned int getHeaderSize() const;
+      //! number of words in trailer
+      unsigned int getTrailerSize() const;
+      //! number of words in data
+      unsigned int getDataElementSize() const;
+      //! toal number of words in object
+      unsigned int getSize() const;
+
+      /* access data content */
+
+      //! get raw header content
+      const std::vector<uint32_t> getHeader() const;           
+      //! get raw trailer content
+      const std::vector<uint32_t> getTrailer() const;
+      //! get raw data content
+      const std::vector<uint32_t> getDataElements() const;
+      //! get full raw data content
+      const std::vector<uint32_t> getCTPToRoIBWords() const;
+
+      /* access the trigger information */
+
+      //! get trigger result before prescale
+      const std::vector<uint32_t> getTBP() const;
+      //! get trigger result after prescale
+      const std::vector<uint32_t> getTAP() const;
+      //! get trigger result after veto
+      const std::vector<uint32_t> getTAV() const;
+      //! get trigger accept before prescale
+      bool getAcceptBP() const;
+      //! get trigger accept after prescale
+      bool getAcceptAP() const;
+      //! get trigger accept after veto
+      bool getAcceptAV() const;
+      //! get standard trigger accept
+      bool getAccept() const { return getAcceptAV(); }
+
+      /* debug object content */
+
+      //! dump raw object content to string
+      const std::string dump() const;
+      //! print object content in a human readable form to string
+      const std::string print(const bool longFormat = false) const;
+
+      /* data format constants */
+      static const unsigned int wordsPerCTPSLink;
+
+   private:
+
+      /** this vector contains the header, data elements and trailer */
+      const std::vector<uint32_t> m_CTPSLinkVector;  //!< vector of words
+
+      mutable unsigned int m_wordsPerHeader;         //!< number of words per header
+      mutable unsigned int m_wordsPerDataElement;    //!< number of words per data element
+      mutable unsigned int m_wordsPerTrailer;        //!< number of words per trailer
+
+      //! convert data contetn into string (used by dump and print)
+      const std::string convert(std::vector<uint32_t> data,
+                                const bool longFormat = false) const;
+
+
+   }; // class CTPSlink
+
+} // namespace LVL1CTP
+
+#ifndef CLIDSVC_CLASSDEF_H
+#include "CLIDSvc/CLASS_DEF.h"
+#endif
+CLASS_DEF( LVL1CTP::CTPSLink, 6013, 0 )
+
+#endif // TRIGT1INTERFACES_CTPSLINK_H
