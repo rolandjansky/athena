@@ -1,0 +1,30 @@
+package CaloAthenaPool
+
+author Walter Lampl <walter.lampl@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-* 
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+
+
+private
+use SGTools              SGTools-*                  Control 
+use StoreGate            StoreGate-*                Control
+use CaloUtils            CaloUtils-*                Calorimeter 
+use CaloDetDescr         CaloDetDescr-*             Calorimeter
+use CaloInterface        CaloInterface-*            Calorimeter
+use CaloSimEvent         CaloSimEvent-*             Calorimeter 
+use CaloEvent            CaloEvent-*                Calorimeter
+use CaloTPCnv            CaloTPCnv-*                Calorimeter/CaloCnv
+end_private
+
+macro converters        "-s=${CaloSimEvent_root}/CaloSimEvent CaloCalibrationHitContainer.h "
+macro_append converters "-s=${CaloEvent_root}/CaloEvent CaloCellContainer.h CaloClusterContainer.h CaloClusterCellLinkContainer.h "
+macro_append converters "-s=${CaloEvent_root}/CaloEvent CaloTopoTowerContainer.h CaloTowerContainer.h CaloCellLinkContainer.h CaloShowerContainer.h "
+
+apply_pattern poolcnv files=${converters}
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+#end_private
