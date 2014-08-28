@@ -1,0 +1,27 @@
+package TrigByteStreamTools
+
+author Brian Petersen <Brian.Petersen@cern.ch>
+author Anna Sfyrla <Anna.Sfyrla@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_scripts files="../bin/*.py \
+                                     ../python/addL1.py \
+                                     ../python/replaceMUCTPI.py \
+                                     ../python/trigbs_replaceLB.py \
+                                     ../python/trigbs_prescaleL1.py \
+                                     ../python/slimHLTBSFile.py"
+
+#
+# Some additional dictionaries
+#
+private
+
+use  AtlasReflex     AtlasReflex-*       External -no_auto_import
+use  TrigConfL1Data  TrigConfL1Data-*    Trigger/TrigConfiguration
+use  CTPfragment     *
+
+apply_pattern lcgdict dict=TrigByteStreamTools selectionfile=selection.xml \
+	              headerfiles="../TrigByteStreamTools/TrigByteStreamToolsDict.h"
+		      
