@@ -4,7 +4,6 @@ author ADA
 author Andy Buckley
 
 use AtlasPolicy    AtlasPolicy-*
-use AtlasCLHEP          AtlasCLHEP-*            External
 use AtlasHepMC     AtlasHepMC-*       External
 use Geant4         Geant4-*           External
 
