@@ -1,0 +1,29 @@
+package IDScanHitFilter
+
+author Nikos Konstantinidis <n.konstantinidis@ucl.ac.uk>
+
+# =====================================================================
+
+public
+
+# General
+use AtlasPolicy			AtlasPolicy-*
+use GaudiInterface		GaudiInterface-*     		External
+#use AtlasCLHEP			AtlasCLHEP-*			External
+
+use TrigInDetEvent		TrigInDetEvent*			Trigger/TrigEvent
+use TrigSteeringEvent           TrigSteeringEvent-*     	Trigger/TrigEvent
+use TrigInDetToolInterfaces	TrigInDetToolInterfaces-*	Trigger/TrigTools
+
+#use CxxUtils                    CxxUtils-*                      Control
+
+apply_pattern dual_use_library files="*.cxx components/*.cxx"
+#apply_pattern declare_joboptions files="*.py"
+
+private
+
+use IRegionSelector              IRegionSelector-*              DetectorDescription
+
+macro_append cppflags " -Wno-deprecated "
+
+#macro_append cppflags  " -DIDSCAN_DEBUG "
