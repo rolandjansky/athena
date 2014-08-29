@@ -1,0 +1,51 @@
+<lcgdict>
+
+    <class name="TPCnv::MuonMeasurements_tlp1" id="C4979DA5-4193-410B-9476-A51708C01CF7" />  
+    <class name="TPCnv::MuonMeasurements_tlp2" id="87FC613F-390A-4AB0-9BBF-28CE788867D5" />  
+   
+    <class name="Muon::TgcCoinData_p1" />
+    <class name="std::vector<Muon::TgcCoinData_p1>" />
+    <class name="Muon::TgcCoinDataContainer_tlp1" id="C312D3F5-60DB-41D5-895B-9FD4EF443E0B"/>
+
+    <!-- MuonRIO_OnTrack -->
+    <class name="Muon::CscClusterOnTrack_p1" />
+    <class name="std::vector<Muon::CscClusterOnTrack_p1>" />
+    <class name="Muon::RpcClusterOnTrack_p1" />
+    <class name="std::vector<Muon::RpcClusterOnTrack_p1>" />
+    <class name="Muon::RpcClusterOnTrack_p2" />
+    <class name="std::vector<Muon::RpcClusterOnTrack_p2>" />
+    <class name="Muon::TgcClusterOnTrack_p1" />
+    <class name="std::vector<Muon::TgcClusterOnTrack_p1>" />
+    <class name="Muon::MdtDriftCircleOnTrack_p1" />
+    <class name="std::vector<Muon::MdtDriftCircleOnTrack_p1>" />
+    <class name="Muon::MuonClusterOnTrack_p1" />
+    <class name="std::vector<Muon::MuonClusterOnTrack_p1>" />
+
+    <!--MuonPrepRawData-->
+
+    <class name="Muon::MuonPRD_Collection_p1" />
+    <class name="std::vector<Muon::MuonPRD_Collection_p1>" />
+
+    <class name="Muon::MuonPRD_Container_p1" />
+    <class name="std::vector<Muon::MuonPRD_Container_p1>" />
+    
+    <class name="Muon::MdtPrepData_p1" />
+    <class name="std::vector<Muon::MdtPrepData_p1>" />
+
+    <class name="Muon::CscPrepData_p1" />
+    <class name="std::vector<Muon::CscPrepData_p1>" />
+    <class name="Muon::CscPrepDataContainer_tlp1" id="B941657D-1ABF-4A88-B23C-6C4212CD04B3"/>
+
+    <class name="Muon::RpcPrepData_p1" />
+    <class name="std::vector<Muon::RpcPrepData_p1>" />
+    <class name="Muon::RpcPrepDataContainer_tlp1" id="F29233F8-F488-4D6D-97F9-4BCA1976BD9F"/>
+
+    <class name="Muon::TgcPrepData_p1" />
+    <class name="std::vector<Muon::TgcPrepData_p1>" />
+    <class name="Muon::TgcPrepDataContainer_tlp1" id="8C563637-620B-43A0-9A5D-E0BC09496745"/>
+
+    <class name="Muon::MdtPrepDataContainer_tlp1" id="7E3F92F5-FAFF-45C3-A8F5-386B3CD56A7B"/>
+
+
+
+</lcgdict>

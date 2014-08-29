@@ -1,0 +1,11 @@
+<lcgdict>
+
+  <class name="T_TPCnv<Muon::ChamberT0s, Muon::ChamberT0s_p1>" />
+  <class name="ChamberT0sCnv_p1" />
+  <class name="T_AthenaPoolTPCnvBase< Muon::ChamberT0s, Muon::ChamberT0s_p1 >" />
+  <class name="T_AthenaPoolTPPolyCnvBase< Muon::ChamberT0s, Muon::ChamberT0s,  Muon::ChamberT0s_p1 >" />
+  <class name="T_AthenaPoolTPAbstractPolyCnvBase< Muon::ChamberT0s, Muon::ChamberT0s, Muon::ChamberT0s_p1 > " />
+  <class name="ITPConverterFor< Muon::ChamberT0s > " />
+
+
+</lcgdict>
