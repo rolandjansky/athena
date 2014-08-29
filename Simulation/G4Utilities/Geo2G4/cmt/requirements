@@ -1,0 +1,34 @@
+package Geo2G4
+
+author ADA
+
+branches src cmt
+
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-*	External
+use Geant4		Geant4-* 		External
+use GeoModelKernel	GeoModelKernel-* 	DetectorDescription/GeoModel
+use GeoModelUtilities   GeoModelUtilities-*     DetectorDescription/GeoModel
+use AthenaKernel        AthenaKernel-*       Control
+
+private
+use GeoSpecialShapes    GeoSpecialShapes-*   DetectorDescription/GeoModel
+use GeoModelInterfaces  GeoModelInterfaces-* DetectorDescription/GeoModel
+use AtlasBoost          AtlasBoost-*         External
+use AtlasCLHEP          AtlasCLHEP-*         External
+use StoreGate           StoreGate-*          Control
+use SimHelpers          SimHelpers-*         Simulation/G4Sim
+use AtlasROOT		AtlasROOT-*          External
+end_private
+
+include_dirs "$(Geo2G4_root)" "$(Geo2G4_root)/Geo2G4"
+
+
+library Geo2G4 ../src/*.cxx
+
+apply_pattern component_library
+
+apply_pattern install_runtime
+
+
+
