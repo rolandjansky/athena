@@ -1,0 +1,8 @@
+xAOD truth TODOs
+================
+
+* Tidy TruthEvent attrs, add named weight vector
+
+* Handling run-level info like cross-sections?
+
+* Add a vector of separate TruthPileupEvent objects, which store no event-level info

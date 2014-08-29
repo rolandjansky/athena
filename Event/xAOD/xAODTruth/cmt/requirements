@@ -1,0 +1,34 @@
+package xAODTruth
+# $Id: requirements 613511 2014-08-26 15:37:45Z krasznaa $
+
+author Andy Buckley <andy.buckley@cern.ch>
+author James Catmore <james.catmore@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+
+public
+
+# Central packages:
+use AtlasPolicy     AtlasPolicy-*
+use AthContainers   AthContainers-*    Control
+use AthLinks        AthLinks-*         Control
+
+# EDM packages:
+use xAODBase        xAODBase-*         Event/xAOD
+use xAODCore        xAODCore-*         Event/xAOD
+use AtlasROOT       AtlasROOT-*        External
+
+# Other packages
+use TruthUtils      TruthUtils-*       Generators
+
+
+library xAODTruth ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+
+apply_pattern lcgdict dict=xAODTruth selectionfile=selection.xml \
+                      headerfiles="../xAODTruth/xAODTruthDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
