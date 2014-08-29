@@ -1,0 +1,36 @@
+package G4UserActions
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*     External
+use Geant4              Geant4-*                External
+
+use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+use SimHelpers          SimHelpers-*            Simulation/G4Sim
+use TrackRecord         TrackRecord-*           Simulation/G4Sim
+
+private
+use StoreGate           StoreGate-*             Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use EventInfo           EventInfo-*             Event
+use MCTruth             MCTruth-*               Simulation/G4Sim
+use G4DetectorEnvelopes G4DetectorEnvelopes-*   Simulation/G4Utilities
+use AtlasROOT           AtlasROOT-*             External
+use InDetSimEvent       InDetSimEvent-*         InnerDetector
+use MuonSimEvent        MuonSimEvent-*          MuonSpectrometer
+use TrackWriteFastSim   TrackWriteFastSim-*     Simulation/G4Utilities
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use AtlasCLHEP			AtlasCLHEP-*			External
+end_private
+
+include_dirs "$(G4UserActions_root)"
+
+library G4UserActions ../src/*.cxx
+
+#apply_pattern component_library
+apply_pattern linked_library
+####apply_pattern libraryShr library=G4UserActions
+
+apply_pattern declare_joboptions files="*.py"

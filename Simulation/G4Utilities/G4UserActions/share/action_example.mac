@@ -1,0 +1,9 @@
+/Actions/List
+/load G4UserActions
+/Actions/List
+/Actions/RegisterForAction TestAction1 BeginOfRun
+/Actions/RegisterForAction TestAction1 EndOfRun
+/Actions/RegisterForAction TestAction1 BeginOfEvent
+/Actions/RegisterForAction TestAction1 EndOfEvent
+/Actions/RegisterForAction TestAction1 Step
+/Actions/RegisterForAction TestAction2 BeginOfEvent
