@@ -1,0 +1,354 @@
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>Andy Buckley (andy.buckley@ed.ac.uk)</rttContactPerson>
+    <mailto>atlas-simulation-testreports@cern.ch</mailto>
+    <refRelease>16.6.7</refRelease>
+
+    <jobList>
+
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simul</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+
+      <jobTransform trendId="G4AT_Nothing" userJobId="G4AT_Nothing" doMonitoring="True">
+        <doc>Memory benchmarking - nothing defined</doc>
+        <jobTransformJobName>G4AT_Nothing</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Nothing.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_G4" userJobId="G4AT_G4" doMonitoring="True">
+        <doc>Memory benchmarking - no detector on</doc>
+        <jobTransformJobName>G4AT_G4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.G4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_Base" userJobId="G4AT_Base" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector</doc>
+        <jobTransformJobName>G4AT_Base</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Base.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_ReadWrite" userJobId="G4AT_ReadWrite" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector plus writing hits</doc>
+        <jobTransformJobName>G4AT_Base</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Base.py --outputHITSFile=atlasg4.hits.pool.root --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_ParticleGun" userJobId="G4AT_ParticleGun" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector using particle gun generation</doc>
+        <jobTransformJobName>G4AT_ParticleGun</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.ParticleGun.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_ReadMuons" userJobId="G4AT_ReadMuons" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector using muons</doc>
+        <jobTransformJobName>G4AT_ReadMuons</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E50_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Base.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_BeamPipe" userJobId="G4AT_BeamPipe" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding BeamPipe</doc>
+        <jobTransformJobName>G4AT_BeamPipe</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.BeamPipe.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_Pixel" userJobId="G4AT_Pixel" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Pixel</doc>
+        <jobTransformJobName>G4AT_Pixel</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Pixel.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_SCT" userJobId="G4AT_SCT" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding SCT</doc>
+        <jobTransformJobName>G4AT_SCT</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.SCT.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_TRT" userJobId="G4AT_TRT" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding TRT</doc>
+        <jobTransformJobName>G4AT_TRT</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.TRT.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+     <jobTransform trendId="G4AT_ID" userJobId="G4AT_ID" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding ID</doc>
+        <jobTransformJobName>G4AT_ID</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.ID.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_LAr" userJobId="G4AT_LAr" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding LAr</doc>
+        <jobTransformJobName>G4AT_LAr</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.LAr.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_Tile" userJobId="G4AT_Tile" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Tile</doc>
+        <jobTransformJobName>G4AT_Tile</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Tile.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_Muon" userJobId="G4AT_Muon" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Muon</doc>
+        <jobTransformJobName>G4AT_Muon</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Muon.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_Lucid" userJobId="G4AT_Lucid" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector plus Lucid</doc>
+        <jobTransformJobName>G4AT_Lucid</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Lucid.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_BField" userJobId="G4AT_BField" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector with BField on</doc>
+        <jobTransformJobName>G4AT_BField</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.BField.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+       <jobTransform trendId="G4AT_CalibHits" userJobId="G4AT_CalibHits" doMonitoring="True">
+        <doc>Memory benchmarking - full ATLAS detector - Calibration Run</doc>
+        <jobTransformJobName>G4AT_CalibHits</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.CalibHits.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_ShowerLibs" userJobId="G4AT_ShowerLibs" doMonitoring="True">
+        <doc>Memory benchmarking - with shower libraries</doc>
+        <jobTransformJobName>G4AT_ShowerLibs</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.ShowerLibs.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_Truth" userJobId="G4AT_Truth" doMonitoring="True">
+        <doc>Memory benchmarking - with truth hits</doc>
+        <jobTransformJobName>G4AT_Truth</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Truth.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_BasenoSD" userJobId="G4AT_BasenoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_BasenoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.BasenoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_BeamPipenoSD" userJobId="G4AT_BeamPipenoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding BeamPipe, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_BeamPipenoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.BeamPipenoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_PixelnoSD" userJobId="G4AT_PixelnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Pixel, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_PixelnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.PixelnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+     <jobTransform trendId="G4AT_SCTnoSD" userJobId="G4AT_SCTnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding SCT, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_SCTnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.SCTnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_TRTnoSD" userJobId="G4AT_TRTnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding TRT, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_TRTnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.TRTnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+     <jobTransform trendId="G4AT_IDnoSD" userJobId="G4AT_IDnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding ID, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_IDnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.IDnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_LArnoSD" userJobId="G4AT_LArnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding LAr, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_LArnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.LArnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_TilenoSD" userJobId="G4AT_TilenoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Tile, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_TilenoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.TilenoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_MuonnoSD" userJobId="G4AT_MuonnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Muon, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_MuonnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.MuonnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_LucidnoSD" userJobId="G4AT_LucidnoSD" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector plus Lucid, no senstive detector defined</doc>
+        <jobTransformJobName>G4AT_LucidnoSD</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.LucidnoSD.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_BasenoG4" userJobId="G4AT_BasenoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector - no G4 (not currently functioing as intended due to the change to use callbacks for sim init)</doc>
+        <jobTransformJobName>G4AT_BasenoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.BasenoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_BeamPipenoG4" userJobId="G4AT_BeamPipenoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding BeamPipe - no G4</doc>
+        <jobTransformJobName>G4AT_BeamPipenoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.BeamPipenoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_PixelnoG4" userJobId="G4AT_PixelnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Pixel - no G4</doc>
+        <jobTransformJobName>G4AT_PixelnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.PixelnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+     <jobTransform trendId="G4AT_SCTnoG4" userJobId="G4AT_SCTnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding SCT - no G4</doc>
+        <jobTransformJobName>G4AT_SCTnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.SCTnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_TRTnoG4" userJobId="G4AT_TRTnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding TRT - no G4</doc>
+        <jobTransformJobName>G4AT_TRTnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.TRTnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+     <jobTransform trendId="G4AT_IDnoG4" userJobId="G4AT_IDnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding ID - no G4</doc>
+        <jobTransformJobName>G4AT_IDnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.IDnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_LArnoG4" userJobId="G4AT_LArnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding LAr - no G4</doc>
+        <jobTransformJobName>G4AT_LArnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.LArnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_TilenoG4" userJobId="G4AT_TilenoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Tile - no G4</doc>
+        <jobTransformJobName>G4AT_TilenoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.TilenoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_MuonnoG4" userJobId="G4AT_MuonnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector excluding Muon - no G4</doc>
+        <jobTransformJobName>G4AT_MuonnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.MuonnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_LucidnoG4" userJobId="G4AT_LucidnoG4" doMonitoring="True">
+        <doc>Memory benchmarking for full ATLAS detector plus Lucid - no G4</doc>
+        <jobTransformJobName>G4AT_LucidnoG4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-GEO-20-00-01_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.LucidnoG4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>G4ATMemoryTests</group>
+        <queue>short</queue>
+      </jobTransform>
+
+
+    </jobList>
+
+
+    <jobGroups>
+      <jobGroup name="G4ATMemoryTests" parent="Top">
+        <!-- no outputs, only performance monitoring -->
+        <testToRemove>
+          <jobGroupName>Top</jobGroupName>
+          <testidentifier>CheckFileRunner0</testidentifier>
+        </testToRemove>
+      </jobGroup>
+
+      <jobGroup name="AthenaG4ATAthenaTests" parent="Athena">
+        <keepFilePattern>*.ps</keepFilePattern>
+        <keepFilePattern>fileGrepper_results.txt</keepFilePattern>
+        <keepFilePattern>G4InitStats.out</keepFilePattern>
+        <keepFilePattern>memorytest.out</keepFilePattern>
+        <keepFilePattern>GeoModelStatistics</keepFilePattern>
+        <keepFilePattern>truth.root</keepFilePattern>
+        <keepFilePattern>atlasTest.histo.root</keepFilePattern>
+        <keepFilePattern>GeoModelStatistics</keepFilePattern>
+        <keepFilePattern>G4InitStats.out</keepFilePattern>
+        <!-- <auxFilePattern>G4AtlasApps_RTT_macros.C</auxFilePattern> -->
+        <!-- <action> -->
+        <!--   <modulename>RttLibraryTools</modulename> -->
+        <!--   <testname>ROOTMacroRunner</testname> -->
+        <!--   <arg> -->
+        <!--     <argname>macro</argname> -->
+        <!--     <argvalue>G4AtlasApps_RTT_macros.C</argvalue> -->
+        <!--   </arg> -->
+        <!-- </action> -->
+        <test>
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+          <arg>
+            <argname>outputFile</argname>
+            <argvalue>fileGrepper_results.txt</argvalue>
+          </arg>
+          <arg>
+            <argname>searchList</argname>
+            <argvalue>leaving with code 0</argvalue>
+          </arg>
+          <arg>
+            <argname>vetoList</argname>
+            <argvalue>segmentation violation,bus error,G4Exception((?!PART102).)*$,Event was aborted</argvalue>
+          </arg>
+        </test>
+      </jobGroup>
+
+      <jobGroup name="G4ATJobTransformTests" parent="Top">
+        <keepFilePattern>*.root</keepFilePattern>
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.log</keepFilePattern>
+        <keepFilePattern>*.diffPool</keepFilePattern>
+      </jobGroup>
+    </jobGroups>
+
+  </rtt>
+
+</unifiedTestConfiguration>
