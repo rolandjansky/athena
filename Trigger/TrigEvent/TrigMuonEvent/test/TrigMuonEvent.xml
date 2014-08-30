@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="TrigMuonEventTest" type="makecheck" suite="trigger">
+      <package>Trigger/TrigEvent/TrigMuonEvent</package>
+      <timelimit>5</timelimit>
+      <author> Stefano Giagu </author>
+      <mailto> Stefano.Giagu@cern.ch</mailto>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
