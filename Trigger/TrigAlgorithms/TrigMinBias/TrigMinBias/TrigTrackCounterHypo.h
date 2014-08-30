@@ -1,0 +1,51 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGMINBIAS_TRIGTRACKCOUNTERHYPO_H 
+#define TRIGMINBIAS_TRIGTRACKCOUNTERHYPO_H 
+
+#include "TrigInterfaces/HypoAlgo.h"
+#include <xAODTrigMinBias/TrigTrackCounts.h>
+
+/** @class TrigTrackCounter
+
+@author Regina Kwee <Regina.Kwee@cern.ch>
+
+A hypothesis algorithm to test a trigger condition based on online low
+pt reconstructed track distributions: z0 vs pt and eta vs phi.
+
+*/
+class TrigTrackCounterHypo: public HLT::HypoAlgo {
+  
+ public:
+  TrigTrackCounterHypo(const std::string & name, ISvcLocator* pSvcLocator);
+  ~TrigTrackCounterHypo();
+  
+  HLT::ErrorCode hltInitialize();
+  HLT::ErrorCode hltFinalize();
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
+  
+ private:
+  /** A data member to retain a connection to the MsgStream
+      service. */
+  MsgStream m_log;
+  
+  /** Hypo selection criteria */
+  float m_max_z0;
+  float m_min_pt;
+  unsigned int m_required_ntrks;
+
+  /** Flag used to bypass hypo selection criteria. */
+  bool m_acceptAll;
+
+  /** For monitoring */
+  float m_ntrksHypo;
+  float m_ntrksSelected;
+  
+  /** For accessing retrieved data */
+  const xAOD::TrigTrackCounts* m_trigTrackCounts;
+  
+};
+
+#endif
