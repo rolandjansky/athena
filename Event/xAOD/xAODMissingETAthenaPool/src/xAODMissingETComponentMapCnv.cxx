@@ -3,7 +3,7 @@
 */
 
  
-// $Id: xAODMissingETComponentMapCnv.cxx 586838 2014-03-08 15:10:34Z khoo $
+// $Id: xAODMissingETComponentMapCnv.cxx 614274 2014-08-30 18:38:15Z khoo $
 
 // System include(s):
 #include <exception>
@@ -62,14 +62,6 @@ xAODMissingETComponentMapCnv::createPersistent( xAOD::MissingETComponentMap* tra
     toPersistent( *itr );
   }
 
-  ATH_MSG_DEBUG( "Transient map's ownership policy: " << trans->ownPolicy() );
-  ATH_MSG_DEBUG( "Does the transient map track indices? " << (trans->trackIndices() ? "YES" : "NO") );
-  ATH_MSG_DEBUG( "Does the transient map have a store? " << (trans->hasStore() ? "YES" : "NO") );
-
-  ATH_MSG_DEBUG( "Persistent map's ownership policy: " << result->ownPolicy() );
-  ATH_MSG_DEBUG( "Does the persistent map track indices? " << (result->trackIndices() ? "YES" : "NO") );
-  ATH_MSG_DEBUG( "Does the persistent map have a store? " << (result->hasStore() ? "YES" : "NO") );
-
   // Return the new container:
   return result;
 }
@@ -81,16 +73,9 @@ xAOD::MissingETComponentMap* xAODMissingETComponentMapCnv::createTransient() {
 
   // Check if we're reading the most up to date type:
   if( compareClassGuid( v1_guid ) ) {
-    ATH_MSG_DEBUG( "Before poolReadObject" );
     xAOD::MissingETComponentMap* c = poolReadObject< xAOD::MissingETComponentMap >();
-    ATH_MSG_DEBUG( "New transient map's ownership policy: " << c->ownPolicy() );
-    ATH_MSG_DEBUG( "Does the new transient map track indices? " << (c->trackIndices() ? "YES" : "NO") );
-    ATH_MSG_DEBUG( "Does the new transient map have a store? " << (c->hasStore() ? "YES" : "NO") );
-    ATH_MSG_DEBUG( "The new transient map's pointer: " << c );
 
-    ATH_MSG_DEBUG( "SetStoreLink" );
     setStoreLink( c, m_key );
-    ATH_MSG_DEBUG( "OK?" );
     return c;
   }
 

@@ -25,10 +25,14 @@ use xAODMissingET       xAODMissingET-*       Event/xAOD
 apply_pattern poolcnv typesWithNamespace="xAOD::MissingETContainer \
                                           xAOD::MissingETAuxContainer \
                                           xAOD::MissingETComponentMap \
-                                          xAOD::MissingETAuxComponentMap" \
+                                          xAOD::MissingETAuxComponentMap \
+                                          xAOD::MissingETAssociationMap \
+                                          xAOD::MissingETAuxAssociationMap" \
                       files="-s=${xAODMissingET_root}/xAODMissingET \
                              MissingETContainer.h \
                              MissingETAuxContainer.h \
                              MissingETComponentMap.h \
-                             MissingETAuxComponentMap.h" \
+                             MissingETAuxComponentMap.h \
+                             MissingETAssociationMap.h \
+                             MissingETAuxAssociationMap.h" \
                       cnv_pfx="xAOD"
