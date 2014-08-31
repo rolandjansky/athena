@@ -1,0 +1,151 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Generated at Mon Aug 15 11:35:31 2005. Do not modify it
+
+#ifdef _WIN32
+#pragma warning ( disable : 4786 )
+#ifndef LCGDICT_STRING 
+#include <string> // Included here since it is sensitive to private->public trick
+#endif
+#endif
+#define private public
+#define protected public
+#include "../TrackRecord/TrackRecordDict.h"
+#undef private
+#undef protected
+#include "ReflectionBuilder/ReflectionBuilder.h"
+#include "ReflectionBuilder/CollectionProxy.h"
+#include <typeinfo>
+using namespace seal::reflect;
+
+//------Dictionary for class TrackRecord -------------------------------
+class TrackRecord_dict { 
+  public:
+  TrackRecord_dict();
+  static void* constructor_2513( void* );
+  static void  destructor( void* o ) { ((TrackRecord*)o)->~TrackRecord(); }
+  static void* constructor_2515( void*, const std::vector<void*>& );
+  static void* constructor_2516( void*, const std::vector<void*>& );
+  static void  method_2517( void*, const std::vector<void*>& );
+  static void  method_2518( void*, const std::vector<void*>& );
+  static void  method_2519( void*, const std::vector<void*>& );
+  static void  method_2520( void*, const std::vector<void*>& );
+  static void* method_2521( void* );
+  static void* method_2522( void* );
+  static void* method_2523( void* );
+  static void* method_2524( void* );
+};
+TrackRecord_dict::TrackRecord_dict() {
+  ClassBuilder _c_("TrackRecord", "", typeid(TrackRecord), sizeof(TrackRecord),std::vector<const std::type_info*>(), false, NOCONTAINER, 0, PUBLIC | VIRTUAL);
+  _c_.addField("PDG_code", "int", "", (size_t)(&((TrackRecord*)64)->PDG_code)-64, PRIVATE );
+  _c_.addField("Energy", "double", "", (size_t)(&((TrackRecord*)64)->Energy)-64, PRIVATE );
+  _c_.addField("Momentum", "CLHEP::Hep3Vector", "", (size_t)(&((TrackRecord*)64)->Momentum)-64, PRIVATE );
+  _c_.addField("Position", "CLHEP::Hep3Vector", "", (size_t)(&((TrackRecord*)64)->Position)-64, PRIVATE );
+  _c_.addMethod("TrackRecord", "", "TrackRecord", constructor_2513, PUBLIC);
+  _c_.addMethod("~TrackRecord", "", destructor, PUBLIC | VIRTUAL);
+  _c_.addMethod("TrackRecord", "", "TrackRecord", "int; double; CLHEP::Hep3Vector&; CLHEP::Hep3Vector&", constructor_2515, PUBLIC);
+  _c_.addMethod("TrackRecord", "", "TrackRecord", "TrackRecord&", constructor_2516, PUBLIC);
+  _c_.addMethod("SetEnergy", "", "double", method_2517, PUBLIC);
+  _c_.addMethod("SetPosition", "", "CLHEP::Hep3Vector", method_2518, PUBLIC);
+  _c_.addMethod("SetMomentum", "", "CLHEP::Hep3Vector", method_2519, PUBLIC);
+  _c_.addMethod("SetPDGCode", "", "int", method_2520, PUBLIC);
+  _c_.addMethod("GetEnergy", "", "double", method_2521, PUBLIC);
+  _c_.addMethod("GetPosition", "", "CLHEP::Hep3Vector", method_2522, PUBLIC);
+  _c_.addMethod("GetMomentum", "", "CLHEP::Hep3Vector", method_2523, PUBLIC);
+  _c_.addMethod("GetPDGCode", "", "int", method_2524, PUBLIC);
+  _c_.build();
+}
+
+//------Stub functions for class TrackRecord -------------------------------
+void* TrackRecord_dict::constructor_2513( void* mem) {
+  return ::new(mem) TrackRecord();
+}
+
+void* TrackRecord_dict::constructor_2515( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) TrackRecord(*(int*)arg[0],
+                                *(double*)arg[1],
+                                *(CLHEP::Hep3Vector*)arg[2],
+                                *(CLHEP::Hep3Vector*)arg[3]);
+}
+
+void* TrackRecord_dict::constructor_2516( void* mem, const std::vector<void*>& arg) {
+  return ::new(mem) TrackRecord(*(const TrackRecord*)arg[0]);
+}
+
+void TrackRecord_dict::method_2517( void* o, const std::vector<void*>& arg)
+{
+  ((TrackRecord*)o)->SetEnergy(*(double*)arg[0]);
+}
+
+void TrackRecord_dict::method_2518( void* o, const std::vector<void*>& arg)
+{
+  ((TrackRecord*)o)->SetPosition(*(CLHEP::Hep3Vector*)arg[0]);
+}
+
+void TrackRecord_dict::method_2519( void* o, const std::vector<void*>& arg)
+{
+  ((TrackRecord*)o)->SetMomentum(*(CLHEP::Hep3Vector*)arg[0]);
+}
+
+void TrackRecord_dict::method_2520( void* o, const std::vector<void*>& arg)
+{
+  ((TrackRecord*)o)->SetPDGCode(*(int*)arg[0]);
+}
+
+void* TrackRecord_dict::method_2521( void* o)
+{
+  static double ret;
+  ret = ((TrackRecord*)o)->GetEnergy();
+  return &ret;
+}
+
+void* TrackRecord_dict::method_2522( void* o)
+{
+  return new CLHEP::Hep3Vector(((TrackRecord*)o)->GetPosition());
+}
+
+void* TrackRecord_dict::method_2523( void* o)
+{
+  return new CLHEP::Hep3Vector(((TrackRecord*)o)->GetMomentum());
+}
+
+void* TrackRecord_dict::method_2524( void* o)
+{
+  static int ret;
+  ret = ((TrackRecord*)o)->GetPDGCode();
+  return &ret;
+}
+
+
+
+//---------  Bootstrap for building classes ------
+
+namespace {
+    struct Dictionaries {
+	Dictionaries() {
+	    TrackRecord_dict();
+	}
+    };
+  static Dictionaries instance;
+}
+
+
+//---------  Capabilities specification ------
+
+
+// This file has been generated by lcgdict with the --capabilities option
+static  const char* clnames[] = {
+//--Begin AtlasSealCLHEPDictFix
+    "LCGDict/TrackRecord",
+//--End   AtlasSealCLHEPDict
+//--Final End
+};
+
+extern "C" void SEAL_CAPABILITIES (const char**& names, int& n )
+{ 
+  names = clnames;
+  n = sizeof(clnames)/sizeof(char*);
+}
+
