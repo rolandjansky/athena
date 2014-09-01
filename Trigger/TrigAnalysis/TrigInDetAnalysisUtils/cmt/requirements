@@ -1,0 +1,51 @@
+package TrigInDetAnalysisUtils
+
+
+# ============================================================================================
+public
+
+use 	AtlasPolicy		AtlasPolicy-*
+use 	AtlasROOT            	AtlasROOT-*            		External
+use 	GaudiInterface		GaudiInterface-*		External
+
+use     AtlasHepMC   AtlasHepMC-*   External
+use     McParticleEvent         McParticleEvent-*            PhysicsAnalysis/TruthParticleID
+
+use 	StoreGate           	StoreGate-*                     Control
+use 	Particle		Particle-*			Reconstruction
+use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
+use     TrkParticleCreator      TrkParticleCreator-*            Tracking/TrkTools   
+
+use     TrigInDetAnalysis       TrigInDetAnalysis-*             Trigger/TrigAnalysis
+
+use 	TrigInDetEvent		TrigInDetEvent-*                Trigger/TrigEvent
+use     TrigInDetTruthEvent     TrigInDetTruthEvent-*           Trigger/TrigTruthEvent
+use 	muonEvent		muonEvent-*			Reconstruction/MuonIdentification
+
+use  TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
+use  TrkToolInterfaces          TrkToolInterfaces-*		Tracking/TrkTools
+#use GaudiKernel v*
+# ============================================================================================
+private
+
+# use 	AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
+# use     AthenaMonitoring        AthenaMonitoring-*              Control
+
+
+
+
+# ============================================================================================
+public
+
+# library TrigInDetAnalysisUtils *.cxx 
+
+# apply_tag  ROOTBasicLibs
+# apply_tag  ROOTMathLibs
+# apply_tag  ROOTSTLDictLibs
+# apply_tag  ROOTGraphicsLibs
+# apply_tag  ROOTTableLibs
+
+# apply_pattern installed_library
