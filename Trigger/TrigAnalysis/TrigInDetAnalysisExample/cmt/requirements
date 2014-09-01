@@ -1,0 +1,70 @@
+package TrigInDetAnalysisExample
+
+
+# ============================================================================================
+public
+
+use 	AtlasPolicy		AtlasPolicy-*
+# use 	AthenaBaseComps 	AthenaBaseComps-* 		Control
+use 	AtlasROOT            	AtlasROOT-*            		External
+# use 	GaudiInterface		GaudiInterface-*		External
+use 	AtlasROOT		AtlasROOT-*			External
+# use 	CBNT_Utils		CBNT_Utils-*			Reconstruction
+use     InDetBeamSpotService    InDetBeamSpotService-*          InnerDetector/InDetConditions
+# use 	Particle		Particle-*			Reconstruction
+# use   TrigNavigation          TrigNavigation-*                Trigger/TrigEvent
+use     TrigHLTMonitoring       TrigHLTMonitoring-*             Trigger/TrigMonitoring
+use     TrigInDetAnalysis       TrigInDetAnalysis-*             Trigger/TrigAnalysis
+use     TrigInDetAnalysisUtils  TrigInDetAnalysisUtils-*        Trigger/TrigAnalysis
+use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEvent
+use  	egammaEvent         	egammaEvent-*                   Reconstruction/egamma
+use     muonEvent               muonEvent-*                     Reconstruction/MuonIdentification
+use     tauEvent                tauEvent-*                      Reconstruction
+# use   TrigInDetTruthAlgs      TrigInDetTruthAlgs-*            Trigger/TrigAnalysis 
+# use   TrigInDetTruthEvent     TrigInDetTruthEvent-*           Trigger/TrigTruthEvent
+# use	AtlasReflex		AtlasReflex-*			External -no_auto_imports
+
+# ============================================================================================
+private
+
+#use 	AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
+use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
+use     AthenaMonitoring        AthenaMonitoring-*              Control
+#use 	StoreGate           	StoreGate-*                     Control
+use 	GaudiInterface		GaudiInterface-*		External
+use     EventInfo               EventInfo-*             	Event
+use 	GeneratorObjects 	GeneratorObjects-* 		Generators
+use 	TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
+use     McParticleEvent         McParticleEvent-*               PhysicsAnalysis/TruthParticleID
+use     TrkParticleCreator      TrkParticleCreator-*            Tracking/TrkTools   
+
+
+
+use     TrkTrack                   TrkTrack-*                   Tracking/TrkEvent
+use     TrkParameters              TrkParameters-*              Tracking/TrkEvent
+
+use     VxVertex                VxVertex-*                      Tracking/TrkEvent
+use     TrkTrackSummary		TrkTrackSummary-*               Tracking/TrkEvent
+#use    JetEvent                JetEvent-*                      Reconstruction/Jet
+
+use     AtlasHepMC              AtlasHepMC-*                    External
+
+# ============================================================================================
+public
+
+#library TrigInDetAnalysisExample *.cxx components/*.cxx
+
+# apply_tag  ROOTBasicLibs
+# apply_tag  ROOTMathLibs
+# apply_tag  ROOTSTLDictLibs
+# apply_tag  ROOTGraphicsLibs
+# apply_tag  ROOTTableLibs
+
+#apply_pattern component_library
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"
+# apply_pattern declare_python_modules files="*.py"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
