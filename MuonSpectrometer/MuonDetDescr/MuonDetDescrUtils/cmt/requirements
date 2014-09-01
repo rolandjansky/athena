@@ -1,0 +1,19 @@
+package MuonDetDescrUtils
+
+
+author Niels van Eldik <niels.van.eldik@cern.ch>
+
+public
+
+use AtlasPolicy AtlasPolicy-*
+
+library  MuonDetDescrUtils ../src/*.cxx
+apply_pattern installed_library
+
+
+private
+
+macro_append MuonSectorMappingTest_dependencies              " MuonDetDescrUtils "
+application MuonSectorMappingTest ../exe/MuonSectorMappingTest.cxx
+
+use AtlasROOT AtlasROOT-* External
