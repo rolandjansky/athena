@@ -1,0 +1,59 @@
+package ISF_Services
+author <Andreas.Salzburger@cern.ch>
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
+manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                   AtlasPolicy-*
+use FadsSensitiveDetector         FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use GaudiInterface                GaudiInterface-*        External
+use AthenaBaseComps               AthenaBaseComps-*       Control
+
+use SubDetectorEnvelopes          SubDetectorEnvelopes-*  AtlasGeometryCommon
+
+use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Core
+use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
+
+use TrackRecord                   TrackRecord-*           Simulation/G4Sim
+
+use InDetSimEvent                 InDetSimEvent-*         InnerDetector
+use TileSimEvent                  TileSimEvent-*          TileCalorimeter
+use MuonSimEvent                  MuonSimEvent-*          MuonSpectrometer
+use CaloSimEvent                  CaloSimEvent-*          Calorimeter
+
+use AtlasDetDescr                 AtlasDetDescr-*         DetectorDescription
+use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
+
+
+#################################################################
+# private use statements
+private
+
+use StoreGate                     StoreGate-*             Control
+use AtlasROOT                     AtlasROOT-*             External
+
+use CaloSimEvent                  CaloSimEvent-*          Calorimeter
+use CaloIdentifier                CaloIdentifier-*        Calorimeter
+use LArSimEvent                   LArSimEvent-*           LArCalorimeter
+
+use GeneratorObjects              GeneratorObjects-*      Generators
+use AtlasHepMC                    AtlasHepMC-*            External
+
+use SimHelpers                    SimHelpers-*            Simulation/G4Sim
+
+use PmbCxxUtils                   PmbCxxUtils-*           Tools
+
+use BarcodeServices               BarcodeServices-*        Simulation/Barcode
+
+public
+library ISF_Services *.cxx components/*.cxx
+apply_pattern declare_python_modules files="*.py"
+apply_pattern component_library
+
+private
+# use this to activate debug info in this package:
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
