@@ -1,0 +1,24 @@
+package InDetFullChainTests
+author Nick Styles <nicholas.styles@cern.ch> 
+
+private
+
+use AtlasPolicy                AtlasPolicy-*
+use TestPolicy                 TestPolicy-*
+#use AthenaCommon               AthenaCommon-*           Control
+use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+
+# --- needed for LCG relational database stuff
+#use RDBAccessSvc               RDBAccessSvc-*           Database/AthenaPOOL
+
+# ---
+branches run share test
+apply_pattern declare_joboptions files="*.py"
+
+# --- Install run-time files
+#apply_pattern install_xmls
+
+# RTT validation xml file
+private
+apply_pattern validate_xml
+public
