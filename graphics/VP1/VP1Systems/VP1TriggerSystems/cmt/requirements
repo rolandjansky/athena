@@ -1,0 +1,30 @@
+package VP1TriggerSystems
+
+author Manuel Proissl <mproissl@cern.ch>
+manager Manuel Proissl <mproissl@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AnalysisTriggerEvent       AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
+use  GaudiInterface             GaudiInterface-*                External
+use  StoreGate                  StoreGate-*                     Control
+use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+use  TrigObjectMatching         TrigObjectMatching-*            Trigger/TrigAnalysis
+#use  TrigSteering               TrigSteering-*                  Trigger/TrigSteer
+use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+use  VP1Base                    VP1Base-*                       graphics/VP1
+use  VP1Qt                      VP1Qt-*                         graphics/VP1
+end_public
+
+private
+#use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasCoinInventor          AtlasCoinInventor-*             External
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  GaudiInterface             GaudiInterface-*                External
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+end_private
+
+public
+apply_pattern qt4based_library
