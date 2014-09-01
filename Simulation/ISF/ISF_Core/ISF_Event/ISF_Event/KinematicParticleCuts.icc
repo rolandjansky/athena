@@ -1,0 +1,51 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// KinematicParticleCuts.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+// @TODO: probably replace this by an enum some day
+#define ISF_UNDEF_CHARGE -99999.
+
+/** constructor */
+ISF::KinematicParticleCuts::KinematicParticleCuts() :
+  m_cut_minPosEta(-99.f),
+  m_cut_maxPosEta( 99.f),
+  m_cut_minMomEta(-99.f),
+  m_cut_maxMomEta( 99.f),
+  m_cut_minMom2(-1.),
+  m_cut_maxMom2(-1.),
+  m_cut_charge(ISF_UNDEF_CHARGE),
+  m_cut_pdg(0)
+{
+}
+
+/** emtpy destructor */
+ISF::KinematicParticleCuts::~KinematicParticleCuts() {
+}
+
+bool  ISF::KinematicParticleCuts::pass(const ISFParticle& particle) const {
+  const Amg::Vector3D& hepMom = particle.momentum();
+  const Amg::Vector3D& hepPos = particle.position();
+  double posEta  = hepPos.eta();
+  double mom2    = hepMom.mag2();
+  double momEta  = hepMom.eta();
+
+  // tolerance on the charge
+  const float chargeTolerance = 1e-4f;
+
+  bool pass = true;
+  pass &= m_cut_pdg ? (abs(particle.pdgCode()) == m_cut_pdg) : true;
+  pass &= (m_cut_charge < (ISF_UNDEF_CHARGE+1.)) || fabs(particle.charge()-m_cut_charge)<chargeTolerance;
+  pass &= (m_cut_minMom2 < 0.) || (mom2 >= m_cut_minMom2);
+  pass &= (m_cut_maxMom2 < 0.) || (mom2 <= m_cut_maxMom2);
+  pass &= (momEta >= m_cut_minMomEta);
+  pass &= (momEta <= m_cut_maxMomEta);
+  pass &= (posEta >= m_cut_minPosEta);
+  pass &= (posEta <= m_cut_maxPosEta);
+
+  return pass;
+}
+

@@ -1,0 +1,84 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// ConeParticleCuts.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+/** constructor */
+ISF::ConeParticleCuts::ConeParticleCuts() :
+  m_cut_checkPosition(false),
+  m_cut_minPt(1000.),
+  m_cut_absPdgs(),
+  m_cut_coneSize2(-100.),
+  m_coneDirections()
+{
+}
+
+
+/** emtpy destructor */
+ISF::ConeParticleCuts::~ConeParticleCuts() {
+}
+
+
+bool ISF::ConeParticleCuts::checkAndRegisterCone(const ISFParticle& particle) {
+
+    return checkAndRegisterCone(particle,particle.momentum());		
+}
+
+bool ISF::ConeParticleCuts::checkAndRegisterCone(const ISFParticle& particle, const Amg::Vector3D& momentum) {
+
+    // simple |abs| selection
+    if ( m_cut_absPdgs.count(abs(particle.pdgCode())) && momentum.perp() > m_cut_minPt  ){
+        m_coneDirections.push_back( momentum );
+        return true;
+    }
+    else
+        return false;
+}
+
+bool ISF::ConeParticleCuts::checkParticle(const ISFParticle& particle) {
+
+     if ( m_cut_absPdgs.count(abs(particle.pdgCode())) && particle.momentum().perp() > m_cut_minPt ) {
+         return true;
+     }    
+     else 
+         return false;
+}
+bool  ISF::ConeParticleCuts::insideCone(const ISFParticle& isfpart) const
+{
+  bool outsideCone = true;
+
+  // set the eta,phi values to be checked whether they are within a cone:
+  // select either particle position or momentum for the
+  // check if it is within the cone
+  double checkEta;
+  double checkPhi;
+  if ( m_cut_checkPosition) {
+    const Amg::Vector3D &pos = isfpart.position();
+    checkEta = pos.eta();
+    checkPhi = pos.phi();
+  } else {
+    const Amg::Vector3D &mom = isfpart.momentum();
+    checkEta = mom.eta();
+    checkPhi = mom.phi();
+  }
+
+  ConeDirections::const_iterator  cIter  =  m_coneDirections.begin();
+  ConeDirections::const_iterator  cIterE =  m_coneDirections.end();
+
+  for ( ; (cIter!=cIterE) && (outsideCone); ++cIter ) {
+        double dEta = checkEta - (*cIter).eta();
+        double dPhi = checkPhi - (*cIter).phi();
+
+        outsideCone = (dEta*dEta + dPhi*dPhi) > m_cut_coneSize2;
+  }
+
+  // return if inside any of the cones
+  return !outsideCone;
+}
+
+void  ISF::ConeParticleCuts::resetCones(void) {
+  m_coneDirections.clear();
+}

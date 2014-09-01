@@ -1,0 +1,39 @@
+package ISF_Event
+author <Andreas.Salzburger@cern.ch>
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
+manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
+
+public
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasHepMC                 AtlasHepMC-*                    External
+use  GaudiInterface             GaudiInterface-*                External
+use  BarcodeInterfaces          BarcodeInterfaces-*             Simulation/Barcode
+#use  LArSimEvent               LArSimEvent-*                   LArCalorimeter/
+use  TileSimEvent               TileSimEvent-*                  TileCalorimeter
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  DataModel                  DataModel-*                     Control
+use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+end_public
+
+private
+
+public
+
+library ISF_Event *.cxx
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+#for dictionaries
+private
+apply_tag notAsNeeded
+use AtlasReflex           AtlasReflex-*          External -no_auto_imports
+apply_pattern lcgdict dict=ISF_Event selectionfile=selection.xml headerfiles="../ISF_Event/ISF_EventDict.h"
+end_private

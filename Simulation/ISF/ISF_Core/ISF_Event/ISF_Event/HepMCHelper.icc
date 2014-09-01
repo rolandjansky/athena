@@ -1,0 +1,52 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// HepMCHelper.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+// STL includes
+#include <set>
+
+// @TODO: probably replace this by an enum some day
+#define ISF_UNDEF_CHARGE -99999.
+
+/** constructor */
+ISF::HepMCHelper::HepMCHelper() {
+}
+
+/** emtpy destructor */
+ISF::HepMCHelper::~HepMCHelper() {
+}
+
+
+HepMC::IteratorRange ISF::HepMCHelper::convertIteratorRange( int intItRange ) {
+  if      (intItRange==0) return ( HepMC::parents   );
+  else if (intItRange==1) return ( HepMC::family    );
+  else if (intItRange==2) return ( HepMC::ancestors );
+  else if (intItRange==3) return ( HepMC::relatives );
+  else                    return ( HepMC::parents   );
+}
+
+const HepMC::GenParticle * ISF::HepMCHelper::findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
+                                                                  const HepMC::IteratorRange &relation,
+                                                                  const std::set<int> &relativesPDG     ) {
+
+  // get range of relative particles
+  HepMC::ConstGenParticleProductionRange relativesRng = genParticle.particles_in( relation );
+
+  // loop over relatives
+  HepMC::GenVertex::particle_iterator       partIt  = relativesRng.begin();
+  const HepMC::GenVertex::particle_iterator partEnd = relativesRng.end();
+  const HepMC::GenParticle *curRelative = 0;
+  bool  found = false;
+  for ( ; (!found) && (partIt!=partEnd) ; ++partIt) {
+    curRelative = (*partIt) ;
+    // check if current relative particle PDG ID is found in the set
+    found = relativesPDG.count( curRelative->pdg_id() ) != 0;
+  }
+
+  return (found ? curRelative : 0);
+}
+
