@@ -1,0 +1,74 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// EventQualityFilterAlg.h 
+// Header file for class EventQualityFilterAlg
+// Author: Karsten Koeneke <karsten.koeneke@cern.ch>
+// Description: Algorithm to filter out events with a bad Event errors
+/////////////////////////////////////////////////////////////////// 
+#ifndef EVENTUTILS_EVENTQUALITYFILTERALG_H
+#define EVENTUTILS_EVENTQUALITYFILTERALG_H 1
+
+// STL includes
+#include <string>
+
+// FrameWork includes
+#include "AthenaBaseComps/AthFilterAlgorithm.h"
+
+
+
+class EventQualityFilterAlg
+  : public ::AthFilterAlgorithm
+{ 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Public methods: 
+  /////////////////////////////////////////////////////////////////// 
+ public: 
+
+  // Copy constructor: 
+
+  /// Constructor with parameters: 
+  EventQualityFilterAlg( const std::string& name, ISvcLocator* pSvcLocator );
+
+  /// Destructor: 
+  virtual ~EventQualityFilterAlg(); 
+
+  // Athena algorithm's Hooks
+  virtual StatusCode  initialize();
+  virtual StatusCode  execute();
+  virtual StatusCode  finalize();
+
+  /////////////////////////////////////////////////////////////////// 
+  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////// 
+  // Non-const methods: 
+  /////////////////////////////////////////////////////////////////// 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Private data: 
+  /////////////////////////////////////////////////////////////////// 
+ private: 
+
+  bool m_useLArError;
+  bool m_useTileError;
+  bool m_useCoreError;
+  bool m_useTileTripReader;
+
+
+}; 
+
+// I/O operators
+//////////////////////
+
+/////////////////////////////////////////////////////////////////// 
+// Inline methods: 
+/////////////////////////////////////////////////////////////////// 
+
+
+#endif //> !EVENTUTILS_EVENTQUALITYFILTERALG_H

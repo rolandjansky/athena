@@ -1,0 +1,269 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ParticleSortingTool.cxx
+// Implementation file for class ParticleSortingTool
+// Author: Karsten Koeneke <karsten.koeneke@cern.ch>
+///////////////////////////////////////////////////////////////////
+
+
+// EventUtils includes
+#include "ParticleSortingTool.h"
+
+// STL includes
+#include <vector>
+#include <string>
+
+// FrameWork includes
+
+// EDM includes
+#include "xAODBase/IParticle.h"
+#include "xAODBase/IParticleContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODTracking/NeutralParticleContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODParticleEvent/CompositeParticleContainer.h"
+#include "xAODParticleEvent/ParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
+
+
+// Constructors
+////////////////
+ParticleSortingTool::ParticleSortingTool( const std::string& type,
+                                          const std::string& name,
+                                          const IInterface* parent ) :
+  ::AthAlgTool  ( type, name, parent ),
+  m_inCollKey(""),
+  m_outCollKey(""),
+  m_sortVar("pt"),
+  m_sortDecending(true),
+  m_contID(0),
+  m_sortID(0),
+  m_nEventsProcessed(0)
+{
+  declareInterface< DerivationFramework::IAugmentationTool >(this);
+
+  declareProperty("InputContainer",  m_inCollKey="",   "Input container name" );
+
+  declareProperty("OutputContainer", m_outCollKey="",
+                  "The name of the output container with the sorted deep copy of input objects" );
+
+  declareProperty("SortVariable",    m_sortVar="pt",
+                  "Define by what parameter to sort (default: 'pt'; allowed: 'pt', 'eta', 'phi', 'm', 'e', 'rapidity')" );
+
+  declareProperty("SortDecending",   m_sortDecending=true,
+                  "Define if the container should be sorted in a decending order (default=true)" );
+}
+
+
+// Destructor
+///////////////
+ParticleSortingTool::~ParticleSortingTool()
+{}
+
+
+
+// Athena algtool's Hooks
+////////////////////////////
+StatusCode ParticleSortingTool::initialize()
+{
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
+
+  // Print out the used configuration
+  ATH_MSG_DEBUG ( " using = " << m_inCollKey );
+  ATH_MSG_DEBUG ( " using = " << m_outCollKey );
+
+  // initialize the counters
+  m_contID           = 0;
+  m_sortID           = 0;
+  m_nEventsProcessed = 0;
+
+  // Figure out how to sort
+  if ( m_sortVar.value() == "pt" )            { m_sortID = 1; }
+  else if ( m_sortVar.value() == "eta" )      { m_sortID = 2; }
+  else if ( m_sortVar.value() == "phi" )      { m_sortID = 3; }
+  else if ( m_sortVar.value() == "m" )        { m_sortID = 4; }
+  else if ( m_sortVar.value() == "e" )        { m_sortID = 5; }
+  else if ( m_sortVar.value() == "rapidity" ) { m_sortID = 6; }
+  else {
+    ATH_MSG_ERROR("Didn't find a valid value for 'SortVariable'."
+                  << " Allowed values are: 'pt', 'eta', 'phi', 'm', 'e', 'rapidity'");
+    return StatusCode::FAILURE;
+  }
+  if ( m_sortDecending.value() ) { m_sortID *= -1; }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+StatusCode ParticleSortingTool::finalize()
+{
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+// Declare a short pre-processor macro to deal with the different container types
+#define COPY_AND_SORT_CONTAINER( CONTAINERTYPE )                                     \
+ATH_MSG_DEBUG("Trying to copy, sort, and record container of type "#CONTAINERTYPE ); \
+if ( evtStore()->contains<CONTAINERTYPE>( m_inCollKey.value() ) ) {                  \
+  const CONTAINERTYPE* inCont;                                                       \
+  ATH_CHECK( evtStore()->retrieve( inCont, m_inCollKey.value() ) );                  \
+  CONTAINERTYPE* outCont = new CONTAINERTYPE( SG::VIEW_ELEMENTS );                   \
+  *outCont = *inCont;                                                                \
+  ATH_CHECK( evtStore()->record ( outCont, m_outCollKey.value() ) );                 \
+  ATH_CHECK( this->doSort(outCont) );                                                \
+}
+
+
+
+
+StatusCode ParticleSortingTool::addBranches() const
+{
+  // Increase the event counter
+  ++m_nEventsProcessed;
+
+  // Simple status message at the beginning of each event execute,
+  ATH_MSG_DEBUG ( "==> addBranches " << name() << " on " << m_nEventsProcessed << ". event..." );
+
+  if ( m_outCollKey.value().empty() ) {
+    // Try to get the input container as non-const
+    ATH_MSG_DEBUG("Got an empty 'OutputCollection' property. "
+                  << "Trying to retrieve a non-const version of the 'InputContainer'...");
+    xAOD::IParticleContainer* inCont = evtStore()->tryRetrieve<xAOD::IParticleContainer>( m_inCollKey.value() );
+    ATH_CHECK( this->doSort(inCont) );
+  }
+  else {
+    ATH_MSG_DEBUG("Got a non-empty 'OutputCollection' property. "
+                  << "Trying to retrieve a const version of the 'InputContainer'...");
+
+    // Now, do the copy and sorting of all known container types
+    COPY_AND_SORT_CONTAINER(xAOD::MuonContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::ElectronContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::PhotonContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::TauJetContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::JetContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::PFOContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::NeutralParticleContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::TrackParticleContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::TruthParticleContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::CompositeParticleContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::ParticleContainer);
+    COPY_AND_SORT_CONTAINER(xAOD::CaloClusterContainer);
+
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode ParticleSortingTool::doSort( xAOD::IParticleContainer* cont ) const
+{
+  if ( !cont ) {
+    ATH_MSG_ERROR("No container to be sorted");
+    return StatusCode::FAILURE;
+  }
+  // Actually do the sorting, using a C++11 lambda function construct
+  // to be able to use the member function here
+  if ( abs(m_sortID) == 1 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->comparePt(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 2 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareEta(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 3 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->comparePhi(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 4 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareMass(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 5 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareEnergy(a,b);
+                } );
+  }
+  else if ( abs(m_sortID) == 6 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareRapidity(a,b);
+                } );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+bool ParticleSortingTool::comparePt( const xAOD::IParticle* partA,
+                                     const xAOD::IParticle* partB ) const
+{
+  const double a = partA->pt();
+  const double b = partB->pt();
+  return this->compareDouble(a,b);
+}
+
+
+bool ParticleSortingTool::compareEta( const xAOD::IParticle* partA,
+                                      const xAOD::IParticle* partB ) const
+{
+  const double a = partA->eta();
+  const double b = partB->eta();
+  return this->compareDouble(a,b);
+}
+
+
+bool ParticleSortingTool::comparePhi( const xAOD::IParticle* partA,
+                                      const xAOD::IParticle* partB ) const
+{
+  const double a = partA->phi();
+  const double b = partB->phi();
+  return this->compareDouble(a,b);
+}
+
+
+bool ParticleSortingTool::compareMass( const xAOD::IParticle* partA,
+                                       const xAOD::IParticle* partB ) const
+{
+  const double a = partA->m();
+  const double b = partB->m();
+  return this->compareDouble(a,b);
+}
+
+
+bool ParticleSortingTool::compareEnergy( const xAOD::IParticle* partA,
+                                         const xAOD::IParticle* partB ) const
+{
+  const double a = partA->e();
+  const double b = partB->e();
+  return this->compareDouble(a,b);
+}
+
+
+bool ParticleSortingTool::compareRapidity( const xAOD::IParticle* partA,
+                                           const xAOD::IParticle* partB ) const
+{
+  const double a = partA->rapidity();
+  const double b = partB->rapidity();
+  return this->compareDouble(a,b);
+}

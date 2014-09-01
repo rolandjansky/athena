@@ -1,0 +1,968 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//============================================================================
+// Name: ParticleCombinerTool.cxx
+//
+/**
+   @class ParticleCombinerTool
+
+   @author Karsten Koeneke <karsten.koeneke@cernSPAMNOT.ch>
+
+   @date July 2014
+
+   @brief Combine particles to composite particles
+
+   Class to combine two or more particles from a given list of
+   input containers. All combinations will be tried and only the
+   ones passing the used selections will be written to StoreGate.
+*/
+//=============================================================================
+
+// This classes header
+#include "ParticleCombinerTool.h"
+
+// STL includes
+#include <string>
+#include <vector>
+#include <cfloat>
+#include <climits>
+
+// The composite particle
+#include "xAODParticleEvent/CompositeParticle.h"
+#include "xAODParticleEvent/CompositeParticleContainer.h"
+#include "xAODParticleEvent/CompositeParticleAuxContainer.h"
+
+// Other EDM includes
+#include "AthLinks/ElementLink.h"
+#include "xAODBase/IParticle.h"
+#include "xAODBase/IParticleContainer.h"
+#include "xAODParticleEvent/IParticleLink.h"
+#include "xAODParticleEvent/IParticleLinkContainer.h"
+#include "xAODMissingET/MissingET.h"
+#include "xAODMissingET/MissingETContainer.h"
+
+// MC Truth includes
+// #include "GeneratorObjects/McEventCollection.h"
+// #include "McParticleEvent/TruthParticle.h"
+// #include "McParticleEvent/TruthParticleContainer.h"
+// #include "HepMC/GenParticle.h"
+// #include "HepMC/GenVertex.h"
+
+// include the Odometer Algorithm
+#include "AnalysisUtils/CombinatoricsOdometer.h"
+
+
+
+//=============================================================================
+// Constructor
+//=============================================================================
+ParticleCombinerTool::ParticleCombinerTool(const std::string& type,
+                                           const std::string& name,
+                                           const IInterface* parent ) :
+  AthAlgTool( type, name, parent ),
+  m_inCollKeyList(),
+  m_outCollKey(""),
+  m_metName(""),
+  m_pdgId(0),
+  m_nEventsProcessed(0),
+  m_anIPartLinkList(),
+  m_inputLinkContainerList(),
+  m_inputLinkContainerListToDelete(),
+  m_inputLinkContainerNames(),
+  m_alreadyUsedInputContainers(),
+  m_containerLabels(),
+  m_containerMaxN(),
+  m_alreadyUsedContainers()
+{
+  declareInterface<DerivationFramework::IAugmentationTool>(this);
+
+  declareProperty("InputContainerList", m_inCollKeyList,   "List of input collection keys" );
+  declareProperty("MissingETObject",    m_metName="Final", "The name of the xAOD::MissingET object (default: 'Final'" );
+  declareProperty("OutputContainer",    m_outCollKey="DefaultCompositeParticleContainer",
+                  "The name of the output container (default: 'DefaultCompositeParticleContainer')" );
+  declareProperty("SetPdgId",           m_pdgId=0,         "PDG ID of the new output xAOD::CompositeParticle" );
+
+  // declareProperty("mcTruthRequireSameMotherPdgID",
+  //                 m_mcTruthRequireSameMotherPdgID=false,
+  //                 "Require that the truth mother has the same PDG_ID defined with compositeParticlePDG_ID" );
+  // declareProperty("mcTruthRequireSameMotherBarcode",
+  //                 m_mcTruthRequireSameMotherBarcode=false,
+  //                 "Require that the truth mother has the identical MC Truth barcode" );
+}
+
+
+
+
+
+
+
+//=============================================================================
+// Destructor
+//=============================================================================
+ParticleCombinerTool::~ParticleCombinerTool()
+{
+}
+
+
+
+
+
+
+//=============================================================================
+// Athena initialize method
+//=============================================================================
+StatusCode ParticleCombinerTool::initialize()
+{
+  // Print the used configuration
+  ATH_MSG_DEBUG ( "==> initialize " << name() << "..." );
+
+  // Print out the used configuration
+  ATH_MSG_DEBUG ( " using = " << m_inCollKeyList );
+  ATH_MSG_DEBUG ( " using = " << m_metName );
+  ATH_MSG_DEBUG ( " using = " << m_outCollKey );
+  ATH_MSG_DEBUG ( " using = " << m_pdgId );
+
+  // ATH_MSG_DEBUG ( " using mcTruthRequireSameMotherPdgID   = " << m_mcTruthRequireSameMotherPdgID );
+  // ATH_MSG_DEBUG ( " using mcTruthRequireSameMotherBarcode = " << m_mcTruthRequireSameMotherBarcode );
+
+  // Initialize the counters to zero
+  m_nEventsProcessed = 0 ;
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+//=============================================================================
+// Run once per event
+//=============================================================================
+StatusCode ParticleCombinerTool::addBranches() const
+{
+  // Increase the event counter
+  ++m_nEventsProcessed;
+
+  // Simple status message at the beginning of each event execute,
+  ATH_MSG_DEBUG ( "==> addBranches " << name() << " on " << m_nEventsProcessed << ". event..." );
+
+
+  //-----------------------------------------
+  // Retrieve and store the input containers
+  //-----------------------------------------
+
+  // Create some objects that are needed later on
+  bool allInputContainersAreFull = true;
+  const xAOD::MissingET* metObject(0);
+  int nMet(0);
+
+  // Clear the vector of LinkContainers and a map of their names.
+  //  use a map to determine if a given input container
+  //  has already been seen, and simply point to the
+  //  link container corresponding to  that already-used
+  //  input container
+  m_inputLinkContainerListToDelete.clear();
+  m_inputLinkContainerList.clear();
+  m_inputLinkContainerNames.clear();
+  m_alreadyUsedInputContainers.clear();
+
+  // Loop over the list of input containers
+  for ( const std::string& anInputCollName  :  m_inCollKeyList.value() ) {
+    // Check if the current input container name is a LinkContainer
+    if ( evtStore()->contains< xAOD::IParticleLinkContainer >( anInputCollName ) ) {
+      // Actually retrieve the LinkContainer from StoreGate
+      const xAOD::IParticleLinkContainer* aLinkContainer(0);
+      ATH_CHECK( evtStore()->retrieve( aLinkContainer , anInputCollName ) );
+      ATH_MSG_DEBUG ( "Input link collection = '" << anInputCollName
+                      << "' retrieved from StoreGate which has " << aLinkContainer->size() << " entries." );
+
+      // If any input container has zero size, we won't be able to build a
+      // CompositeParticle. Thus, we can stop here.
+      if ( aLinkContainer->size() == 0 ) {
+        allInputContainersAreFull &= false;
+        ATH_MSG_VERBOSE("Found an empty input link container");
+        break;
+      }
+
+      if ( m_inputLinkContainerNames.find(aLinkContainer)  == m_inputLinkContainerNames.end() ) {
+        m_inputLinkContainerNames[ aLinkContainer ] = &anInputCollName;
+      }
+      m_inputLinkContainerList.push_back( aLinkContainer );
+    }
+    else if ( evtStore()->contains< xAOD::IParticleContainer >( anInputCollName ) ) {
+      // This container holds an xAOD::IParticleContainer
+      const xAOD::IParticleContainer* aContainer(0);
+      ATH_CHECK( evtStore()->retrieve( aContainer, anInputCollName ) );
+      ATH_MSG_DEBUG ( "Input collection = '" << anInputCollName
+                      << "' retrieved from StoreGate which has " << aContainer->size() << " entries." );
+
+      // If any input container has zero size, we won't be able to build a
+      // CompositeParticle. Thus, we can stop here.
+      if (aContainer->size() == 0) {
+        allInputContainersAreFull &= false;
+        ATH_MSG_VERBOSE("Found an empty input container");
+        break;
+      }
+
+      // Now, create the vector of ElementLinks pointing to the real container
+      if ( m_alreadyUsedInputContainers.find( aContainer ) == m_alreadyUsedInputContainers.end() ) {
+        xAOD::IParticleLinkContainer* newLinkContainer = new xAOD::IParticleLinkContainer();
+        newLinkContainer->reserve( aContainer->size() );
+        m_inputLinkContainerListToDelete.push_back( newLinkContainer );
+
+        for ( std::size_t i=0; i < aContainer->size(); ++i ) {
+          xAOD::IParticleLink iPartLink( *aContainer, i );
+          newLinkContainer->push_back( iPartLink );
+        }
+
+        m_alreadyUsedInputContainers[ aContainer ] = newLinkContainer;
+
+
+        if ( m_inputLinkContainerNames.find( newLinkContainer ) == m_inputLinkContainerNames.end() ) {
+          m_inputLinkContainerNames[ newLinkContainer ] = &anInputCollName;
+        }
+        // Add this new container of ElementLinks to the vector
+        m_inputLinkContainerList.push_back( newLinkContainer );
+      }
+      else {
+        // Add an already existing container of ElementLinks again to the vector
+        m_inputLinkContainerList.push_back( m_alreadyUsedInputContainers[ aContainer ] );
+      }
+    }
+    else if ( evtStore()->contains< xAOD::MissingETContainer >( anInputCollName ) ) {
+      // This container holds an xAOD::IParticleContainer
+      const xAOD::MissingETContainer* aMetContainer(0);
+      ATH_CHECK( evtStore()->retrieve( aMetContainer, anInputCollName ) );
+      ATH_MSG_DEBUG ( "Input missing et container = '" << anInputCollName
+                      << "' retrieved from StoreGate." );
+
+      nMet += 1;
+      metObject = (*aMetContainer)[m_metName.value()];
+      if ( !metObject ) {
+        ATH_MSG_WARNING( "There was a problem getting the xAOD::MissingET "
+                         << " object with name '" << m_metName
+                         << "' from the xAOD::MissingETContainer with "
+                         << "name '" << anInputCollName << "'." );
+      }
+    }
+    else {
+      if ( m_nEventsProcessed <= 10 ) {
+        ATH_MSG_WARNING ( "Input link collection  = '" << anInputCollName
+                          << "' could not be retrieved from StoreGate! "
+                          << " This message will only be repeated 10 times..." );
+      }
+      else {
+        ATH_MSG_DEBUG ( "Input link collection  = '" << anInputCollName
+                        << "' could not be retrieved from StoreGate! " );
+      }
+      return StatusCode::SUCCESS;
+    } // End: if/elif/else is link container
+  } // End: Loop over the list of input containers
+
+  // Make sure that we have at most one missing ET container
+  if ( nMet > 1 ) {
+    ATH_MSG_ERROR( "We seem to have gotten " << nMet << " xAOD::MissingETContainers "
+                   << "in the InputContainerList. At most one is allowed... exiting!" );
+    return StatusCode::FAILURE;
+  }
+
+  // One more sanity check that we didn't loose a container in between
+  if ( m_inCollKeyList.value().size() != ( m_inputLinkContainerList.size() + nMet ) ) {
+    ATH_MSG_DEBUG( "Inconsistent number of input containers after some processing!"
+                   << " This should only happen when any of the input containers has zero size." );
+    ATH_MSG_DEBUG( "  m_inCollKeyList.size() = " << m_inCollKeyList.value().size() );
+    ATH_MSG_DEBUG( "  m_inputLinkContainerList.size() = " << m_inputLinkContainerList.size() );
+    ATH_MSG_DEBUG( "  nMet = " << nMet );
+    ATH_MSG_DEBUG( "  allInputContainersAreFull = " << allInputContainersAreFull );
+  }
+
+
+  // //-----------------------------------------
+  // // Retrieve the MCEventCollection, if needed
+  // //-----------------------------------------
+  // if ( !m_mcEventCollKey.empty() && (
+  //                                    m_mcTruthRequireSameMotherPdgID  ||
+  //                                    m_mcTruthRequireSameMotherBarcode
+  //                                    )
+  //      )
+  //   {
+  //     ATH_CHECK( evtStore()->retrieve( m_mcEventColl, m_mcEventCollKey ) );
+  //     ATH_MSG_DEBUG ( "MCEventCollection = '" << m_mcEventCollKey << "' retrieved from StoreGate" );
+  //   } // End: need to retrieve MCEventCollection
+
+
+
+
+  //-----------------------------------------
+  // Create the output composite particle container and record it in StoreGate
+  //-----------------------------------------
+  xAOD::CompositeParticleContainer* outContainer = new xAOD::CompositeParticleContainer( SG::OWN_ELEMENTS );
+  ATH_CHECK( evtStore()->record ( outContainer, m_outCollKey.value() ) );
+  xAOD::CompositeParticleAuxContainer* compPartAuxCont = new xAOD::CompositeParticleAuxContainer();
+  ATH_CHECK( evtStore()->record( compPartAuxCont, m_outCollKey.value() + "Aux." ) );
+  outContainer->setStore( compPartAuxCont );
+  ATH_MSG_DEBUG( "Recorded xAOD composite particles with key: " << m_outCollKey.value() );
+
+
+
+  //-----------------------------------------
+  // In case at least one of the input containers has zero size,
+  //  no CompositeParticle can be found. So only try building
+  //  CompositeParticles if every input container has at least
+  //  one entry.
+  //-----------------------------------------
+  if ( allInputContainersAreFull ) {
+
+    //-----------------------------------------
+    // Do the combinations of particles
+    //-----------------------------------------
+
+    // Use the odometer algorithm to perform the combination of particles
+    //  m_inputLinkContainerList is the std::vector of links
+
+    // get the label and number of elements in each link container.
+    // pass those to the OdoMeter, and ask the OdoMeter to return
+    // the unique sets of indices for objects in the containers
+
+    // To create the odometer object, we need to assign each container pointer
+    // a string name that uniquely idenfies that container. The same container
+    // (even used multiple times) will always have the same name. The name/entries
+    // info will be used to initialize the odometer.
+    ATH_MSG_DEBUG ( "Input LinkContainer list contains " << m_inputLinkContainerList.size() << " entries." );
+
+    // Clear needed vectors and maps
+    m_containerLabels.clear();
+    m_containerMaxN.clear();
+    m_alreadyUsedContainers.clear();
+
+    for ( const xAOD::IParticleLinkContainer* aLinkContainer  :  m_inputLinkContainerList ) {
+      const std::string& containerName = *(m_inputLinkContainerNames[ aLinkContainer ]);
+
+      // determine if this container has already been used in the list.
+      // if not, assign it a unique name. If so, get the name of the existing container
+      if ( m_containerLabels.size() == 0 ||
+           m_alreadyUsedContainers.find( aLinkContainer ) == m_alreadyUsedContainers.end() ) {
+        m_containerLabels.push_back( containerName );
+        m_containerMaxN[ containerName ] = aLinkContainer->size();
+        m_alreadyUsedContainers[ aLinkContainer ] = containerName;
+      }
+      else {
+        // already used this container. Use the old container's name
+        m_containerLabels.push_back( containerName );
+      }
+      ATH_MSG_DEBUG ( "A container/size pair for the Odometer: "
+                      << m_containerLabels.at( m_containerLabels.size() - 1) << "/"
+                      << m_containerMaxN[ m_containerLabels.at( m_containerLabels.size() - 1) ] );
+    }
+
+
+    // Create and initialize an instance of the odometer
+    OdoMeter anOdometer(m_containerLabels, m_containerMaxN);
+
+    // find all unique groupings and build composites
+    while ( anOdometer.increment() ) {
+      // Clear the vector
+      m_anIPartLinkList.clear();
+
+      // Get the current combinatoric
+      std::vector<int> aUniqueChoice = anOdometer.getVector();
+      int nContainers = static_cast<int>(aUniqueChoice.size());
+
+      if (msgLvl(MSG::VERBOSE)) {
+        msg(MSG::VERBOSE) << "Odometer - using this unique combination: ";
+        for ( unsigned int ichoice = 0; ichoice < aUniqueChoice.size(); ichoice++ ) {
+          msg(MSG::VERBOSE)  << aUniqueChoice.at(ichoice) << ",";
+        }
+        msg(MSG::VERBOSE) << endreq;
+      }
+
+      // Loop over all containers
+      for( int aContainerIndex = 0; aContainerIndex < nContainers; ++aContainerIndex ) {
+        const xAOD::IParticleLinkContainer* aLinkContainer = m_inputLinkContainerList.at( aContainerIndex );
+        int indexInContainer = aUniqueChoice.at( aContainerIndex );
+
+        const xAOD::IParticleLink& aPartLink = aLinkContainer->at( indexInContainer );
+
+        const xAOD::IParticleContainer* ptrIPartCont =
+        dynamic_cast< const xAOD::IParticleContainer* >( aPartLink.getStorableObjectPointer() );
+
+        if ( ptrIPartCont != NULL ) {
+          const xAOD::IParticleLink aParticleLink(*ptrIPartCont, aPartLink.index());
+          m_anIPartLinkList.push_back( aParticleLink );
+        }
+      } // end the loop over the available containers to build INav4MomLink objects
+
+      // Now, actually build the CompositeParticle from the list of ElementLinks to INavigable4Momentum
+      ATH_CHECK( buildComposite( outContainer, m_anIPartLinkList ) );
+
+    } // End: while ( anOdometer.increment() )
+
+  } // End: Found an empty input collection; thus no CompositeParticle can be possible... do nothing.
+
+
+  //-----------------------------------------
+  // Set the output container of composite particles as const
+  // Actually, for now, don't do this as analyzers might want to decorate the
+  // new xAOD::CompositeParticles further downstream.
+  //-----------------------------------------
+  // ATH_CHECK( evtStore()->setConst( outContainer ) );
+  // ATH_CHECK( evtStore()->setConst( compPartAuxCont ) );
+  // ATH_MSG_DEBUG ( "Output collection = '" << m_outCollKey.value() << "' set to const in StoreGate" );
+
+  // Print a final message about the composite particles
+  ATH_MSG_DEBUG ( "Found " << outContainer->size() << " composite particles in event number " << m_nEventsProcessed );
+
+  // // Delete needed things
+  for ( std::size_t i=0; i<m_inputLinkContainerListToDelete.size(); ++i ) {
+    if ( m_inputLinkContainerListToDelete[i] ) {
+      delete m_inputLinkContainerListToDelete[i];
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+
+//=============================================================================
+// Athena finalize method
+//=============================================================================
+StatusCode ParticleCombinerTool::finalize()
+{
+  ATH_MSG_DEBUG ( "FINALIZING AFTER ALL EVENTS ARE PROCESSED" );
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+
+
+//=============================================================================
+// Building the composite particle
+// Here, we check if any of the potential constituents (anIPartLinkList) is
+// overlapping (is the same or share the same constituent) with any of the other
+// potential constituents
+//=============================================================================
+StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContainer* outContainer,
+                                                 xAOD::IParticleLinkContainer& anIPartLinkList ) const
+{
+  // Check if the vector does not have zero size
+  if ( anIPartLinkList.size() == 0 ) {
+    return StatusCode::SUCCESS;
+  }
+
+  // Create a list of all ParticleLinks that are already checked
+  std::vector< const xAOD::IParticleLink* > theParticleLinks;
+
+  bool ParticlesAreValid = true;
+
+  //Loop over all ElementLinks to INavigable4Momenta and get the INavigable4Momenta
+  for ( const xAOD::IParticleLink& aParticleLink  :  anIPartLinkList ) {
+    // Check if this ElementLink is valid
+    if ( aParticleLink.isValid() ) {
+      // Get the particle from the ElementLink
+      const xAOD::IParticle* aParticle = *aParticleLink;
+
+      if (aParticle) {
+        // determine if the particle has any daughter in common with
+        // a previous particle in the composite:
+        for ( const xAOD::IParticleLink* otherPartLink  :  theParticleLinks ) {
+          // Now, make the check for having any constituent shared.
+          // Note that we don't need to check if the otherPartLink is valid
+          // since this happened already when we filled that vector
+          if ( shareSameConstituents( aParticle, **otherPartLink ) ) {
+            ATH_MSG_DEBUG ( "Found aParticle overlaps with another INavigable4Momentum in the composite!" );
+            ParticlesAreValid &= false;
+            break;
+          }
+        } // End: loop over all already checked particle links
+
+        // push the particle onto the candidate's input list
+        if ( ParticlesAreValid ) {
+          theParticleLinks.push_back( &aParticleLink );
+        }
+      }
+      else {
+        ATH_MSG_DEBUG ( "Found non-valid particle at an ElementLink location!" );
+        ParticlesAreValid &= false;
+      } // check if aParticle exists at all
+    }
+    else {
+      ATH_MSG_DEBUG ( "Found non-valid ElementLink for a particle!" );
+      ParticlesAreValid &= false;
+    } // check the link to a particle
+
+    if ( false == ParticlesAreValid ) {
+      break;
+    }
+  } // End: loop over vector of ElementLinks
+
+
+  //-----------------------------------------
+  // Do the combination
+  //-----------------------------------------
+  if ( ParticlesAreValid ) {
+    // Actually create the composite particle
+    //--------------------------------------------------------------
+    xAOD::CompositeParticle* compPart = new xAOD::CompositeParticle();
+    compPart->makePrivateStore();
+    for ( const xAOD::IParticleLink& aParticleLink  :  anIPartLinkList ) {
+      compPart->addConstituent( aParticleLink );
+    }
+    compPart->setPdgId( m_pdgId.value() );
+
+    // Check if this composite particle has been found before
+    if ( !compositeParticleAlreadyFound( outContainer, compPart ) ) {
+      // Add this composite particle to the output container
+      // if it passes all the selections
+      //--------------------------------------------------------------
+      bool passAll = true;
+
+      // // charge selection
+      // if ( passAll ) {
+      //   passAll = m_filterTool->chargeFilter( compPart,
+      //                                         m_chargeMin,
+      //                                         m_chargeMax,
+      //                                         m_allowChargeConj );
+      // }
+
+      // // MC Truth selection
+      // // ONLY run this if MCTruth information is available AND
+      // // MCTruth selections are configured!
+      // if ( !m_mcEventCollKey.empty() && (
+      //                                    m_mcTruthRequireSameMotherPdgID  ||
+      //                                    m_mcTruthRequireSameMotherBarcode
+      //                                    )
+      //      )
+      //   {
+      //     if ( passAll )
+      //       {
+      //         passAll = mcTruthSelections( compPart );
+      //       }
+      //   }
+
+
+
+      // Write out the composite particles if all cuts are passed
+      if ( passAll ) {
+        outContainer->push_back( compPart );
+      }
+      else {
+        delete compPart;
+      }
+    }
+    else {
+      // Output message
+      ATH_MSG_DEBUG ( "Found this composite particle already before..." );
+      delete compPart;
+    } // End: if compositeParticleAlreadyFound
+
+  } // End: Saveguard check if all particles are valide
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+
+
+//=============================================================================
+// Check if the composite particle at hand was already found before
+//=============================================================================
+bool ParticleCombinerTool::compositeParticleAlreadyFound( xAOD::CompositeParticleContainer* compContainer,
+                                                          xAOD::CompositeParticle* compPart ) const
+{
+  // default return
+  bool foundIdentical = false;
+
+  // Count the number of constituents of the test particle
+  std::size_t nConstituentsTest = compPart->nConstituents();
+
+  // Get the first input container and loop over it
+  for ( const xAOD::CompositeParticle* contCompPart : *compContainer ) {
+    // Check if an identical composite particle is already found
+    if ( !foundIdentical ) {
+      // Count the number of constituents of the reference particle
+      std::size_t nConstituentsReference = contCompPart->nConstituents();
+
+      // Check that both have the same number of constituents
+      if ( nConstituentsTest==nConstituentsReference ) {
+        // Loop over all constituents of the composite particle to be tested
+        bool allConstituentsSame = true;
+        for ( const xAOD::IParticleLink& constitLink : compPart->constituentLinks() ) {
+          if ( allConstituentsSame && contCompPart->contains(constitLink) ) {
+            allConstituentsSame = true;
+          }
+          else {
+            allConstituentsSame = false;
+          }
+        } // End: loop over constituents
+
+        // Now, propagete the decission
+        if ( allConstituentsSame ) {
+          foundIdentical = true;
+        }
+        else {
+          foundIdentical = false;
+        }
+      } // End: if ( nConstituentsTest==nConstituentsReference )
+      else {
+        foundIdentical = false;
+      } // End: if/else ( nConstituentsTest==nConstituentsReference )
+    } // End: if ( !foundIdentical )
+  } // End: loop over container
+
+  // Output message
+  ATH_MSG_VERBOSE ( "Checking if this composite particle was already found before..."
+                    << " foundIdentical=" << foundIdentical );
+
+  return foundIdentical;
+}
+
+
+// The test if two particles are equal.
+// One would need a barcode to do this proper
+bool ParticleCombinerTool::isEqual( const xAOD::IParticle* part1,
+                                    const xAOD::IParticle* part2 ) const
+{
+  // TODO: Add special implementation for TruthParticle, i.e., check barcode
+
+  // Since we don't have a barcode here, we have to rely on pointer equality
+  if ( part1  &&  part1 == part2 ) {
+    return true;
+  }
+  else {
+    return false;
+  }
+  // This would be better:
+  // part1->hasSameAthenaBarCodeExceptVersion(*part2);
+}
+
+
+
+//=============================================================================
+// Check that two particles are not the same or, if they are
+// composite particles, that they don't share the same constitutents
+//=============================================================================
+bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
+                                                  const xAOD::IParticle* part2 ) const
+{
+  const xAOD::CompositeParticle* compPart1 =
+    dynamic_cast<const xAOD::CompositeParticle*> (part1) ;
+  const xAOD::CompositeParticle* compPart2 =
+    dynamic_cast<const xAOD::CompositeParticle*> (part2) ;
+
+  // Neither of the two is a composite particle
+  if ( !compPart1 && !compPart2 ) {
+    return this->isEqual( part1, part2 );
+  }
+  // One of them is a composite
+  else if ( compPart1 && !compPart2 ) {
+    return shareSameConstituents( part2, compPart1 );
+  }
+  else if ( !compPart1 && compPart2 ) {
+    return shareSameConstituents( part1, compPart2 );
+  }
+  // Both are composite candidates
+  else if ( compPart1 && compPart2 ) {
+    return shareSameConstituents( compPart1, compPart2 );
+  }
+
+  return false;
+}
+
+
+
+//=============================================================================
+// Check that two particles are not the same or, if they are
+// composite particles, that they don't share the same constitutents
+// -------------------------- HELPER ---------------------
+//=============================================================================
+bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
+                                                  const xAOD::CompositeParticle* compPart2 ) const
+{
+  // Default return
+  bool isConstituent = false;
+
+  // Loop over all constituents of the composite particle to be tested
+  const std::size_t nConstit = compPart2->nConstituents();
+  for( std::size_t i=0; i<nConstit; ++i ) {
+    const xAOD::IParticle* part2 = compPart2->constituent(i);
+
+    // Check if this constituent itself is a composite particle
+    const xAOD::CompositeParticle* constitCP =
+      dynamic_cast<const xAOD::CompositeParticle*> (part2) ;
+
+    if ( !constitCP ) {
+      isConstituent = this->isEqual( part1, part2 );
+    }
+    else {
+      isConstituent = shareSameConstituents( part1, constitCP );
+    }
+    if ( isConstituent ) {
+      return true;
+    }
+  } // End: loop over constituents
+
+  return isConstituent;
+}
+
+
+
+//=============================================================================
+// Check that two particles are not the same or, if they are
+// composite particles, that they don't share the same constitutents
+// -------------------------- HELPER ---------------------
+//=============================================================================
+bool ParticleCombinerTool::shareSameConstituents( const xAOD::CompositeParticle* compPart1,
+                                                  const xAOD::CompositeParticle* compPart2 ) const
+{
+  // Default return
+  bool isConstituent = false;
+
+  // Loop over all constituents of the composite particle to be tested
+  const std::size_t nConstit1 = compPart1->nConstituents();
+  const std::size_t nConstit2 = compPart2->nConstituents();
+  for( std::size_t i=0; i<nConstit1; ++i ) {
+    const xAOD::IParticle* part1 = compPart1->constituent(i);
+
+    // Check if this constituent itself is a composite particle
+    const xAOD::CompositeParticle* constitCP1 =
+      dynamic_cast<const xAOD::CompositeParticle*> (part1) ;
+
+    for( std::size_t j=0; i<nConstit2; ++j ) {
+      const xAOD::IParticle* part2 = compPart2->constituent(j);
+
+      // Check if this constituent itself is a composite particle
+      const xAOD::CompositeParticle* constitCP2 =
+        dynamic_cast<const xAOD::CompositeParticle*> (part2) ;
+
+      if ( !constitCP1 && !constitCP1 ) {
+        isConstituent = this->isEqual( part1, part2 );
+      }
+      if ( !constitCP1 && constitCP2 ) {
+        isConstituent = shareSameConstituents( part1, constitCP2 );
+      }
+      if ( constitCP1 && !constitCP2 ) {
+        isConstituent = shareSameConstituents( part2, constitCP1 );
+      }
+      if ( constitCP1 && constitCP2 ) {
+        isConstituent = shareSameConstituents( constitCP1, constitCP2 );
+      }
+      if ( isConstituent ) {
+        return true;
+      }
+    } // End: loop over constituents 2
+  } // End: loop over constituents 1
+
+  return isConstituent;
+}
+
+
+
+//
+// //=============================================================================
+// // Do the selection based on the MC Truth record
+// // -------------------------- HELPER ---------------------
+// //=============================================================================
+// bool D2PDParticleCombiner::mcTruthSelections( const CompositeParticle* compPart ) const
+// {
+//   // Default return
+//   bool isPassed = true;
+//
+//   // If the MCEventCollection is not available, I can't do anything
+//   if ( !m_mcEventColl )
+//     {
+//       ATH_MSG_WARNING ( "No MCEventCollection available... skipping!" );
+//       return true;
+//     }
+//
+//
+//   // Get the daughters of the composite particle and check if all of them are TruthParticles
+//   unsigned int counter(0);
+//   std::vector<const TruthParticle*> truthParticles;
+//   CompositeParticle::ConstituentsIter_t cpItr    = compPart->constituents_begin();
+//   CompositeParticle::ConstituentsIter_t cpItrEnd = compPart->constituents_end();
+//   for( ; cpItr != cpItrEnd; ++cpItr )
+//     {
+//       ++counter;
+//       const TruthParticle* part = dynamic_cast<const TruthParticle*>(*cpItr);
+//
+//       // if the cast was successfull, add it to the vector of truth particles
+//       if ( part )
+//         {
+//           truthParticles.push_back( part );
+//         }
+//     }
+//
+//
+//   // If all of the constituents are TruthParticles...
+//   if ( truthParticles.size() != counter )
+//     {
+//       ATH_MSG_WARNING ( "Not all of the constituents of this CompositeParticle are TruthParticles... skipping!" );
+//       return true;
+//     }
+//
+//
+//   //------------------------------------------------
+//   // Now, do the actual selections
+//   //------------------------------------------------
+//
+//   std::vector<int> pdgIDList;
+//   std::vector<int> barcodeList;
+//
+//   // Loop over the TruthParticles
+//   std::vector<const TruthParticle*>::const_iterator partItr    = truthParticles.begin();
+//   std::vector<const TruthParticle*>::const_iterator partItrEnd = truthParticles.end();
+//   for ( ; partItr != partItrEnd; ++partItr )
+//     {
+//       // Get the GenParticle from the TruthParticle
+//       const TruthParticle* part = (*partItr);
+//       const HepMC::GenParticle* genPart = part->genParticle();
+//       const int pdgID = genPart->pdg_id();
+//
+//       // Now, get the origin of this generated particle
+//       McEventCollection::const_iterator mcEventItr = m_mcEventColl->begin();
+//       const int primaryBarcode = genPart->barcode()%1000000;
+//       const HepMC::GenParticle* primaryPart = (*mcEventItr)->barcode_to_particle(primaryBarcode);
+//
+//       // Check that we really have the primaryPart
+//       if ( !primaryPart )
+//         {
+//           ATH_MSG_WARNING ( "Could not get the primaryParticle... skipping!" );
+//           return true;
+//         }
+//
+//       // Now get the production vertex
+//       const HepMC::GenVertex*  prodVert = primaryPart->production_vertex();
+//       if ( !prodVert )
+//         {
+//           ATH_MSG_WARNING ( "Could not get the ProductionVertex... skipping!" );
+//           return true;
+//         }
+//
+//       // Check that we have only one mother
+//       if ( prodVert->particles_in_size() > 1 )
+//         {
+//           ATH_MSG_WARNING ( "The ProductionVertex has more than one incomming particles... skipping!" );
+//           return true;
+//         }
+//
+//
+//       // Loop over the mother particles
+//       // Make sure that we ignore bremsstrahlung and decays into itself
+//       const HepMC::GenVertex* originVert = prodVert ;
+//       //const HepMC::GenVertex* tmpVert(0);
+//       int originPdgID = pdgID;
+//       int originBarcode(0);
+//       int counter(0);
+//       do
+//         {
+//           ++counter;
+//           HepMC::GenVertex::particles_in_const_iterator motherItr    = originVert->particles_in_const_begin();
+//           HepMC::GenVertex::particles_in_const_iterator motherItrEnd = originVert->particles_in_const_end();
+//           for ( ; motherItr != motherItrEnd; ++motherItr )
+//             {
+//               originPdgID   = (*motherItr)->pdg_id();
+//               originVert    = (*motherItr)->production_vertex();
+//               originBarcode = (*motherItr)->barcode();
+//             }
+//
+//           // Protect against infinite loop
+//           if ( counter > 100 )
+//             {
+//               ATH_MSG_WARNING ( "Stuck in an infinite while loop... breaking out!" );
+//               break;
+//             }
+//         } while ( abs(originPdgID) == abs(pdgID) && originVert != 0 );
+//
+//       // Attach the PDG_ID and barcode of the origin particle to the vectors
+//       pdgIDList.push_back( originPdgID );
+//       barcodeList.push_back( originBarcode );
+//
+//     } // End: loop over all the daughter TruthParticles from the CompositeParticle
+//
+//   // Get the decissions
+//   bool isSamePdgID(true);
+//   bool isSameBarcode(true);
+//   std::vector<int>::const_iterator pdgItr    = pdgIDList.begin();
+//   std::vector<int>::const_iterator pdgItrEnd = pdgIDList.end();
+//   for ( ; pdgItr != pdgItrEnd; ++pdgItr )
+//     {
+//       if ( m_pdgId != (*pdgItr) )
+//         {
+//           isSamePdgID = false;
+//         }
+//     } // End: Loop over pdg_ID list
+//
+//   std::vector<int>::const_iterator barcodeItr    = barcodeList.begin();
+//   std::vector<int>::const_iterator barcodeItrEnd = barcodeList.end();
+//   for ( ; barcodeItr != barcodeItrEnd; ++barcodeItr )
+//     {
+//       if ( barcodeList[0] != (*barcodeItr) )
+//         {
+//           isSameBarcode = false;
+//         }
+//     } // End: Loop over barcode list
+//
+//
+//
+//   // Now, do the final decission
+//   if ( m_mcTruthRequireSameMotherPdgID && !isSamePdgID )
+//     {
+//       isPassed = false;
+//     }
+//   if ( m_mcTruthRequireSameMotherBarcode && !isSameBarcode )
+//     {
+//       isPassed = false;
+//     }
+//
+//
+//   return isPassed;
+// }
+
+
+
+//       const HepMC::GenVertex* MothVert(0);
+//       long  NumOfParents(-1);
+//       int MotherBarcode(0);
+//       m_MotherPDG=0;
+//       m_PhotonMotherPDG=0;
+
+//       const HepMC::GenVertex* oriMothVert(0);
+//       HepMC::GenVertex::particles_in_const_iterator itrMother = PriOriVert->particles_in_const_begin();
+//       for ( ; itrMother != PriOriVert->particles_in_const_end();
+//             ++itrMother)
+//         {
+//           m_MotherPDG   = (*itrMother)->pdg_id();
+//           MothVert      = (*itrMother)->production_vertex();
+//           oriMothVert   = (*itrMother)->production_vertex();
+//           MotherBarcode = (*itrMother)->barcode();
+//         }// cycle itrMother
+
+//       // radiation in the final state
+//       if ( abs(m_MotherPDG)==11 && PriBarcode<200000 && oriMothVert!=0 )
+//         {
+//           int itr=0;
+//           do
+//             {
+//               PriOriVert = oriMothVert;
+//               PriBarcode = MotherBarcode;
+//               for (HepMC::GenVertex::particles_in_const_iterator
+//                      itrMother = PriOriVert->particles_in_const_begin();
+//                    itrMother!=PriOriVert->particles_in_const_end(); ++itrMother){
+
+//                 m_MotherPDG = (*itrMother)->pdg_id();
+//                 MothVert    = (*itrMother)->production_vertex();
+//                 oriMothVert = (*itrMother)->production_vertex();
+//                 MotherBarcode=(*itrMother)->barcode();
+//               }// cycle itrMother
+//               itr++;
+//               if(itr>100) {std::cout<<"infinite while"<<std::endl;break;}
+//             }  while ( oriMothVert!=0 && abs(m_MotherPDG)==11 );
+//         }
