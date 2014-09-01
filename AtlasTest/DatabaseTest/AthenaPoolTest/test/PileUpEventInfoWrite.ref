@@ -1,0 +1,204 @@
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@pair<std@@basic_string<char>,unsigned-int>=EventCommonAthenaPoolDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@basic_string<char>=TileCalibObjectsDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.Identifier=DetDescrDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@basic_string<char>=IOVDbTestConditionsDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.tilec@@datasrc@@ObjectKey=TileCalibIOVDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.HepGeom@@Vector3D<double>=AtlasSealCLHEPDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@random_access_iterator_tag=AthenaPoolUtilitiesDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.ElementLinkContNames_p2=DataModelAthenaPoolDictDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@vector<ElementLink_p2<unsigned-int>->=DataModelAthenaPoolDictDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@basic_string<char>=libGaudiPythonDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@vector<std@@vector<double>->=libGaudiPythonDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@vector<std@@basic_string<char>->=libGaudiPythonDict.so> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.std@@map<std@@basic_string<char>,std@@basic_string<char>->=libGaudiPythonDict.so> for level 0; ignored
+Py:Athena            INFO including file "AthenaCommon/Compat.py"
+Py:PropertyProxy     INFO Read module info for 2787 configurables from 9 genConfDb files
+Py:PropertyProxy  WARNING Found 49 duplicates among the 9 genConfDb files :
+Py:PropertyProxy  WARNING --------------------------------------------------
+Py:PropertyProxy  WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:PropertyProxy  WARNING --------------------------------------------------
+Py:PropertyProxy  WARNING   -MuidStandAlone: TrigMoore.TrigMooreConf - ['MuidStandAlone.MuidStandAloneConf']
+Py:PropertyProxy  WARNING   -MooMakeNtupleKINE: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -MdtPatternToCrudeSeg: TrigMoore.TrigMooreConf - ['MooEventCnv.MooEventCnvConf']
+Py:PropertyProxy  WARNING   -ReadAlg: GaudiPoolDb.schemaGaudiPoolDbConf - ['GaudiExamples.GaudiExamplesConf', 'GaudiPoolDb.testGaudiPoolDbConf']
+Py:PropertyProxy  WARNING   -LArDigitSimpleMonTool: LArMonitoring.LArMonitoringConf - ['LArMonTools.LArMonToolsConf']
+Py:PropertyProxy  WARNING   -TrackEnergyInCaloTool: CaloTrkMuIdTools.CaloTrkMuIdToolsConf - ['CaloTrkMuId.CaloTrkMuIdConf']
+Py:PropertyProxy  WARNING   -MooMakeCrudeRZSegments: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooRzSegmentCombinationMaker: TrigMoore.TrigMooreConf - ['MooRzSegmentCombiner.MooRzSegmentCombinerConf']
+Py:PropertyProxy  WARNING   -PhiPatternToPhiSeg: TrigMoore.TrigMooreConf - ['MooEventCnv.MooEventCnvConf']
+Py:PropertyProxy  WARNING   -MooCombinePatterns: TrigMoore.TrigMooreConf - ['MooPatternFinderAlgs.MooPatternFinderAlgsConf']
+Py:PropertyProxy  WARNING   -PoolDbCnvSvc: GaudiPoolDb.GaudiPoolDbConf - ['GaudiPoolDb.schemaGaudiPoolDbConf', 'GaudiPoolDb.testGaudiPoolDbConf']
+Py:PropertyProxy  WARNING   -G4Svc: G4Svc.G4SvcConf - ['G4AtlasAlg.G4AtlasAlgConf', 'G4AtlasControl.G4AtlasControlConf']
+Py:PropertyProxy  WARNING   -CscPatternToCrudeSeg: TrigMoore.TrigMooreConf - ['MooEventCnv.MooEventCnvConf']
+Py:PropertyProxy  WARNING   -MooMakeNtupleRoads: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -ClassIDSvc: CLIDComps.CLIDCompsConf - ['AthenaServices.AthenaServicesConf', 'RegistrationServices.RegistrationServicesConf']
+Py:PropertyProxy  WARNING   -MooRoadMaker: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooCalibratedSegmentMaker: TrigMoore.TrigMooreConf - ['MooSegmentMakerAlgs.MooSegmentMakerAlgsConf']
+Py:PropertyProxy  WARNING   -MooMakeNtuple: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -MooMakeNtupleRZSegments: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -CaloMuonTag: CaloTrkMuIdTools.CaloTrkMuIdToolsConf - ['CaloTrkMuId.CaloTrkMuIdConf']
+Py:PropertyProxy  WARNING   -EvtCollectionWrite: GaudiPoolDb.schemaGaudiPoolDbConf - ['GaudiExamples.GaudiExamplesConf', 'GaudiPoolDb.testGaudiPoolDbConf']
+Py:PropertyProxy  WARNING   -LArDigMonTool_LArDigitContainer_: LArMonitoring.LArMonitoringConf - ['LArMonTools.LArMonToolsConf']
+Py:PropertyProxy  WARNING   -IOVSvc: IOVASCIIDbSvc.IOVASCIIDbSvcConf - ['LArGeoAlgs.LArGeoAlgsConf', 'LArGeoAlgsNV.LArGeoAlgsNVConf', 'IOVSvc.IOVSvcConf']
+Py:PropertyProxy  WARNING   -MuonSegmentToMooRzSegment: TrigMoore.TrigMooreConf - ['MooEventCnv.MooEventCnvConf']
+Py:PropertyProxy  WARNING   -TrackDepositInCaloTool: CaloTrkMuIdTools.CaloTrkMuIdToolsConf - ['CaloTrkMuId.CaloTrkMuIdConf']
+Py:PropertyProxy  WARNING   -PoolDbCacheSvc: GaudiPoolDb.GaudiPoolDbConf - ['GaudiPoolDb.schemaGaudiPoolDbConf', 'GaudiPoolDb.testGaudiPoolDbConf']
+Py:PropertyProxy  WARNING   -MooMakeNtupleMdtSegments: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -MooMakeRoads: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooSummary: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -TBCondRunParTool: TBCondRunPar.TBCondRunParConf - ['TBRec.TBRecConf']
+Py:PropertyProxy  WARNING   -TileCalibTestAlg: TileCondDBUtil.TileCondDBUtilConf - ['TileCalibAlgs.TileCalibAlgsConf']
+Py:PropertyProxy  WARNING   -MooMakeNtuplePhiSegments: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -MooMdtSegmentMaker: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -CSCcablingSvc: CSCcabling.CSCcablingConf - ['MuonByteStream.MuonByteStreamConf']
+Py:PropertyProxy  WARNING   -PoolDbEvtSelector: GaudiPoolDb.GaudiPoolDbConf - ['GaudiPoolDb.schemaGaudiPoolDbConf', 'GaudiPoolDb.testGaudiPoolDbConf']
+Py:PropertyProxy  WARNING   -MooMakePhiPatterns: TrigMoore.TrigMooreConf - ['MooPatternFinderAlgs.MooPatternFinderAlgsConf']
+Py:PropertyProxy  WARNING   -Geo2G4Svc: Geo2G4.Geo2G4Conf - ['GeoDetectorPlugIns.GeoDetectorPlugInsConf']
+Py:PropertyProxy  WARNING   -MooMakeNtuplePulls: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING   -MooMakeRzPatterns: TrigMoore.TrigMooreConf - ['MooPatternFinderAlgs.MooPatternFinderAlgsConf']
+Py:PropertyProxy  WARNING   -LArDigMonTool_LArCalibDigitContainer_: LArMonitoring.LArMonitoringConf - ['LArMonTools.LArMonToolsConf']
+Py:PropertyProxy  WARNING   -MooMakePhiSegments: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooMdtDigitToHitSvc: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooMakeTracks: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -WriteAlg: GaudiPoolDb.schemaGaudiPoolDbConf - ['GaudiExamples.GaudiExamplesConf', 'GaudiPoolDb.testGaudiPoolDbConf']
+Py:PropertyProxy  WARNING   -G4SimEvent: G4Svc.G4SvcConf - ['G4AtlasAlg.G4AtlasAlgConf', 'G4AtlasControl.G4AtlasControlConf']
+Py:PropertyProxy  WARNING   -MuonSegmentComboToMooRzSegmentCombo: TrigMoore.TrigMooreConf - ['MooEventCnv.MooEventCnvConf']
+Py:PropertyProxy  WARNING   -MooTrackMaker: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooiPatTrackConstructor: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
+Py:PropertyProxy  WARNING   -MooMakeAANtuplePulls: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
+Py:PropertyProxy  WARNING Fix your cmt/requirements file !!
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.2 $
+                                          running on lxbuild036.cern.ch on Wed Jun  6 10:50:14 2007
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ToolSvc              INFO History Service not active - AlgTools not registered
+Py:Athena            INFO including file "AthenaCommon/Services.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+ApplicationMgr       INFO Successfully loaded modules : IdDictDetDescrCnv
+Py:Athena            INFO including file "AthenaPoolTest/PileUpEventInfoWrite.py"
+ApplicationMgr       INFO Successfully loaded modules : DBDataModelAthenaPoolPoolCnv
+Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
+['EventInfo#*', 'PileUpEventInfo#*', 'MergedEventInfo#*', 'EventStreamInfo#*']
+['EventInfo#*', 'EventInfo#*', 'PileUpEventInfo#*', 'MergedEventInfo#*', 'EventStreamInfo#*']
+Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
+Warning in <TClass::TClass>: no dictionary for class IProxyDict is available
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Successfully loaded modules : GaudiSvc
+ApplicationMgr       INFO Successfully loaded modules : StoreGate
+ApplicationMgr       INFO Successfully loaded modules : McEventSelector
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolCnvSvc
+ApplicationMgr       INFO Successfully loaded modules : AthenaSealSvc
+ApplicationMgr       INFO Successfully loaded modules : AthenaRootStreamerSvc
+ApplicationMgr       INFO Successfully loaded modules : DetDescrCnvSvc
+ApplicationMgr       INFO Successfully loaded modules : PoolSvc
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolTest
+StatusCodeSvc        INFO initialize
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-12-05
+AthenaEventLoopMgr  DEBUG Service base class initialized successfully
+AthenaEventLoopMgr  DEBUG Creating AthenaOutputStreamAthenaOutputStream/Stream1
+AthenaEventLoopMgr  DEBUG Creating Output Stream AthenaOutputStream/Stream1
+AthenaEventLoopMgr  DEBUG Creating Top Algorithm PileUpEventInfoWriter with name PileUpEventInfoWriter
+ToolSvc.Stream1...   INFO AthenaPoolOutputStreamTool initialize
+ToolSvc.Stream1...   INFO streamProperty ProcessingTag = Stream1
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgrWARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 0  <<<===
+PileUpEventInfo...  DEBUG PileUpEventInfoWriter::execute() - do nothing
+PileUpEventInfo...  DEBUG Event ID: [0,0:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG PileUpEventInfo
+PileUpEventInfo...  DEBUG Event ID: [0,0:0] 
+PileUpEventInfo...  DEBUG Event type: user type Overlaid
+PileUpEventInfo...  DEBUG SubEventInfos
+PileUpEventInfo...  DEBUG Time, index 0 0
+PileUpEventInfo...  DEBUG Event ID: [0,0:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG Wrote PileUpEventInfo 
+  StorageSvc    Error Cannot connect to proper technology domain.
+PoolSvc           WARNING Failed to set POOL property, TREE_MAX_SIZE to 1099511627776L
+AthenaPoolCnvSvc  WARNING setAttribute FAILED for TREE_MAX_SIZE
+SimplePoolFile.root   Always Root file version:51400
+PileUpEventInfo...  DEBUG entering handle(), incidence type EndEvent from AthenaEventLoopMgr
+PileUpEventInfo...  DEBUG Removed PileUpEventInfo/OverlayEvent: 
+PileUpEventInfo...  DEBUG end event handle
+AthenaEventLoopMgr   INFO   ===>>>  end of event 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 1  <<<===
+PileUpEventInfo...  DEBUG PileUpEventInfoWriter::execute() - do nothing
+PileUpEventInfo...  DEBUG Event ID: [0,1:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG PileUpEventInfo
+PileUpEventInfo...  DEBUG Event ID: [0,1:0] 
+PileUpEventInfo...  DEBUG Event type: user type Overlaid
+PileUpEventInfo...  DEBUG SubEventInfos
+PileUpEventInfo...  DEBUG Time, index 0 0
+PileUpEventInfo...  DEBUG Event ID: [0,1:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG Wrote PileUpEventInfo 
+PileUpEventInfo...  DEBUG entering handle(), incidence type EndEvent from AthenaEventLoopMgr
+PileUpEventInfo...  DEBUG Removed PileUpEventInfo/OverlayEvent: 
+PileUpEventInfo...  DEBUG end event handle
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 2  <<<===
+PileUpEventInfo...  DEBUG PileUpEventInfoWriter::execute() - do nothing
+PileUpEventInfo...  DEBUG Event ID: [0,2:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG PileUpEventInfo
+PileUpEventInfo...  DEBUG Event ID: [0,2:0] 
+PileUpEventInfo...  DEBUG Event type: user type Overlaid
+PileUpEventInfo...  DEBUG SubEventInfos
+PileUpEventInfo...  DEBUG Time, index 0 0
+PileUpEventInfo...  DEBUG Event ID: [0,2:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG Wrote PileUpEventInfo 
+PileUpEventInfo...  DEBUG entering handle(), incidence type EndEvent from AthenaEventLoopMgr
+PileUpEventInfo...  DEBUG Removed PileUpEventInfo/OverlayEvent: 
+PileUpEventInfo...  DEBUG end event handle
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 3  <<<===
+PileUpEventInfo...  DEBUG PileUpEventInfoWriter::execute() - do nothing
+PileUpEventInfo...  DEBUG Event ID: [0,3:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG PileUpEventInfo
+PileUpEventInfo...  DEBUG Event ID: [0,3:0] 
+PileUpEventInfo...  DEBUG Event type: user type Overlaid
+PileUpEventInfo...  DEBUG SubEventInfos
+PileUpEventInfo...  DEBUG Time, index 0 0
+PileUpEventInfo...  DEBUG Event ID: [0,3:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG Wrote PileUpEventInfo 
+PileUpEventInfo...  DEBUG entering handle(), incidence type EndEvent from AthenaEventLoopMgr
+PileUpEventInfo...  DEBUG Removed PileUpEventInfo/OverlayEvent: 
+PileUpEventInfo...  DEBUG end event handle
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 4  <<<===
+PileUpEventInfo...  DEBUG PileUpEventInfoWriter::execute() - do nothing
+PileUpEventInfo...  DEBUG Event ID: [0,4:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG PileUpEventInfo
+PileUpEventInfo...  DEBUG Event ID: [0,4:0] 
+PileUpEventInfo...  DEBUG Event type: user type Overlaid
+PileUpEventInfo...  DEBUG SubEventInfos
+PileUpEventInfo...  DEBUG Time, index 0 0
+PileUpEventInfo...  DEBUG Event ID: [0,4:0] 
+PileUpEventInfo...  DEBUG Event type: user type McEvent
+PileUpEventInfo...  DEBUG Wrote PileUpEventInfo 
+PileUpEventInfo...  DEBUG entering handle(), incidence type EndEvent from AthenaEventLoopMgr
+PileUpEventInfo...  DEBUG Removed PileUpEventInfo/OverlayEvent: 
+PileUpEventInfo...  DEBUG end event handle
+AthenaEventLoopMgr   INFO   ===>>>  end of event 4    <<<===
+PileUpEventInfo...  DEBUG PileUpEventInfoWriter::finalize()
+ToolSvc.Stream1...   INFO AthenaPoolOutputStreamTool finalize
+StatusCodeSvc        INFO No unchecked status codes found!
+StatusCodeSvc        INFO initialize
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

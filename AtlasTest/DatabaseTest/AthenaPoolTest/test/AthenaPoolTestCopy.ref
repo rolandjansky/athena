@@ -1,0 +1,245 @@
+Py:Athena            INFO including file "AthenaCommon/Compat.py"
+Py:PropertyProxy     INFO Read module info for 1816 configurables from 6 genConfDb files
+Py:PropertyProxy     INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.5 $
+                                          running on lxbuild036.cern.ch on Fri Sep  7 10:28:41 2007
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+Py:Athena            INFO including file "AthenaCommon/Services.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+ApplicationMgr       INFO Successfully loaded modules : IdDictDetDescrCnv
+Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestCopy.py"
+ApplicationMgr       INFO Successfully loaded modules : DBDataModelAthenaPoolPoolCnv
+Py:Athena            INFO including file "AthenaSealSvc/AthenaSealSvc_joboptions.py"
+Py:AthenaSealSvc     INFO DictNames: ['STLRflx', 'STLAddRflx', 'AtlasSTLAddReflexDict', 'AtlasSealCLHEPDict']
+Py:Athena            INFO including file "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPool_joboptions.py"
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolTestAthenaPoolPoolCnv
+['EventInfo#*']
+Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
+Warning in <TClass::TClass>: no dictionary for class IProxyDict is available
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Successfully loaded modules : StoreGate
+ApplicationMgr       INFO Successfully loaded modules : GaudiSvc
+ApplicationMgr       INFO Successfully loaded modules : EventSelectorAthenaPool
+ApplicationMgr       INFO Successfully loaded modules : AthenaRootStreamerSvc
+ApplicationMgr       INFO Successfully loaded modules : SGComps
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolCnvSvc
+ApplicationMgr       INFO Successfully loaded modules : PoolSvc
+ApplicationMgr       INFO Successfully loaded modules : AthenaSealSvc
+ApplicationMgr       INFO Successfully loaded modules : DetDescrCnvSvc
+StatusCodeSvc        INFO initialize
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 4627 types added 1453 dictionary filler name:STLRflx
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 6080 types added 688 dictionary filler name:STLAddRflx
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 6768 types added 660 dictionary filler name:AtlasSTLAddReflexDict
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 7428 types added 567 dictionary filler name:AtlasSealCLHEPDict
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+SimplePoolFile1.root   Always Root file version:51400
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-18-02
+AthenaEventLoopMgr  DEBUG Service base class initialized successfully
+AthenaEventLoopMgr  DEBUG Creating Top Algorithm AthenaOutputStream with name Stream1
+Stream1             DEBUG In initialize 
+Stream1             DEBUG Found StoreGateSvc store.
+ToolSvc.Stream1...   INFO AthenaPoolOutputStreamTool initialize
+ToolSvc.Stream1...   INFO streamProperty ProcessingTag = Stream1
+Stream1              INFO Found HelperTools = PublicToolHandleArray([])
+Stream1              INFO Data output: SimplePoolFile2.root
+Stream1             DEBUG No AcceptNames found 
+Stream1             DEBUG No AcceptAlgs found 
+Stream1             DEBUG No RequireNames found 
+Stream1             DEBUG No RequireAlgs found 
+Stream1             DEBUG No VetoNames found 
+Stream1             DEBUG No VetoAlgs found 
+Stream1             DEBUG End initialize 
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgrWARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+AthenaSealSvc        INFO checkClass - Number of types on entry 10477
+AthenaSealSvc        INFO checkClass - found type EventInfo_p2
+AthenaSealSvc        INFO checkClass - found ClassID 22006E19-F0DA-4EFB-AF55-6FBDA421BF06
+AthenaSealSvc        INFO Checking members of type EventInfo_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventID_p1 for 6 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventType_p1 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type TriggerInfo_p2 for 7 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type StreamTag_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10477
+AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 0  <<<===
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG Wild card in key: begining part -  ending part - 
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(2101,"McEventInfo") called
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_0") called
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type AthenaPoolTestMatrix
+AthenaSealSvc        INFO checkClass - found ClassID A9A2387C-2E8B-493C-B1C1-454582347C49
+AthenaSealSvc        INFO Checking members of type AthenaPoolTestMatrix for 9 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type HepMatrix for 4 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type HepTransform3D for 12 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type map<unsigned int,CLHEP::HepMatrix> for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_0"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_1") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_1"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_2") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_1") called
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type DataVector<IAthenaPoolTestData>
+AthenaSealSvc        INFO checkClass - found ClassID 04010D3C-DB4A-4B5C-BBEF-5A735FCFDEE7
+AthenaSealSvc        INFO Checking members of type DataVector<IAthenaPoolTestData> for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_1"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_2") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_3") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_3"
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type EventInfo_p2
+AthenaSealSvc        INFO checkClass - found ClassID 22006E19-F0DA-4EFB-AF55-6FBDA421BF06
+AthenaSealSvc        INFO Checking members of type EventInfo_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventID_p1 for 6 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventType_p1 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type TriggerInfo_p2 for 7 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type StreamTag_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+SimplePoolFile2.root   Always Root file version:51400
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type AthenaPoolTestMatrix
+AthenaSealSvc        INFO checkClass - found ClassID A9A2387C-2E8B-493C-B1C1-454582347C49
+AthenaSealSvc        INFO Checking members of type AthenaPoolTestMatrix for 9 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type HepMatrix for 4 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type HepTransform3D for 12 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type map<unsigned int,CLHEP::HepMatrix> for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type DataVector<IAthenaPoolTestData>
+AthenaSealSvc        INFO checkClass - found ClassID 04010D3C-DB4A-4B5C-BBEF-5A735FCFDEE7
+AthenaSealSvc        INFO Checking members of type DataVector<IAthenaPoolTestData> for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type DataHeader_p2
+AthenaSealSvc        INFO checkClass - found ClassID 72FBBC6F-C8BE-4122-8790-DC627696C176
+AthenaSealSvc        INFO Checking members of type DataHeader_p2 for 4 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type DataHeaderElement_p2 for 8 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type PoolToken_p1 for 5 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type basic_string<char> for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+AthenaEventLoopMgr   INFO   ===>>>  end of event 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 1  <<<===
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG Wild card in key: begining part -  ending part - 
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(2101,"McEventInfo") called
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_0") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_0"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_1") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_1"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_2") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_1") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_1"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_2") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_3") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_3"
+AthenaSealSvc        INFO checkClass - Number of types on entry 10490
+AthenaSealSvc        INFO checkClass - found type EventInfo_p2
+AthenaSealSvc        INFO checkClass - found ClassID 22006E19-F0DA-4EFB-AF55-6FBDA421BF06
+AthenaSealSvc        INFO Checking members of type EventInfo_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventID_p1 for 6 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventType_p1 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type TriggerInfo_p2 for 7 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type StreamTag_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10490
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 2  <<<===
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG Wild card in key: begining part -  ending part - 
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(2101,"McEventInfo") called
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_0") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_0"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_1") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_1"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_2") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_1") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_1"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_2") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_3") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_3"
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 3  <<<===
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG Wild card in key: begining part -  ending part - 
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(2101,"McEventInfo") called
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_0") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_0"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_1") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_1"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_2") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_1") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_1"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_2") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_3") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_3"
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 4  <<<===
+Stream1             DEBUG addItemObjects(2101,"*") called
+Stream1             DEBUG Wild card in key: begining part -  ending part - 
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(2101,"McEventInfo") called
+Stream1             DEBUG  Added object 2101,"McEventInfo"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_0") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_0"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_1") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_1"
+Stream1             DEBUG addItemObjects(153882668,"AthenaPoolTestMatrix_2") called
+Stream1             DEBUG  Added object 153882668,"AthenaPoolTestMatrix_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_1") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_1"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_2") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_2"
+Stream1             DEBUG addItemObjects(1269286659,"AthenaPoolTestCollection_3") called
+Stream1             DEBUG  Added object 1269286659,"AthenaPoolTestCollection_3"
+AthenaEventLoopMgr   INFO   ===>>>  end of event 4    <<<===
+Stream1              INFO Records written: 5
+AthenaSealSvc        INFO finalize() in AthenaSealSvc
+ToolSvc.Stream1...   INFO AthenaPoolOutputStreamTool finalize
+StatusCodeSvc        INFO listing all unchecked return codes:
+StatusCodeSvc        INFO 
+Num | Function                       | Source Library
+----+--------------------------------+------------------------------------------
+ 35 | AthenaPoolOutputStreamTool::getInputItemList(SG::IFolder*) | libOutputStreamAthenaPool.so
+
+EventSelector     WARNING Service already offline
+StatusCodeSvc        INFO initialize
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

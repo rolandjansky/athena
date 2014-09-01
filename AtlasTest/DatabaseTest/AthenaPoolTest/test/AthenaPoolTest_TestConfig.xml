@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn>
+   <TEST name="AthenaPoolTest" type="makecheck" suite="Examples">
+      <author> RD Schaffer </author>
+      <mailto> R.D.Schaffer@cern.ch </mailto>
+      <timelimit>45</timelimit>
+      <expectations>
+         <errorMessage>post.sh> ERROR:</errorMessage>
+         <successMessage>post.sh> OK:</successMessage>   
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
+
+</unifiedTestConfiguration>

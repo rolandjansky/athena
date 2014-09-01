@@ -1,0 +1,1918 @@
+ApplicationMgr       INFO Successfully loaded modules: 
+ApplicationMgr       INFO Application Manager Configured successfully
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaCommon/SystemOfUnits.py"
+# File: AthenaCommon/share/SystemOfUnits.py
+# Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
+# Created: 01/21/04
+# Last: 01/21/04
+
+# This script is a direct adaptation of CLHEP/Units/SystemOfUnits.h
+# and the following is the originial CLHEP comment:
+#
+# -----
+# HEP coherent system of Units
+#
+# This file has been provided to CLHEP by Geant4 (simulation toolkit for HEP).
+#
+# The basic units are :
+#  		millimeter              (millimeter)
+# 		nanosecond              (nanosecond)
+# 		Mega electron Volt      (MeV)
+# 		positron charge         (eplus)
+# 		degree Kelvin           (kelvin)
+#              the amount of substance (mole)
+#              luminous intensity      (candela)
+# 		radian                  (radian)
+#              steradian               (steradian)
+#
+# Below is a non exhaustive list of derived and pratical units
+# (i.e. mostly the SI units).
+# You can add your own units.
+#
+# The SI numerical value of the positron charge is defined here,
+# as it is needed for conversion factor : positron charge = e_SI (coulomb)
+#
+# The others physical constants are defined in the header file :
+#			PhysicalConstants.h
+#
+# Authors: M.Maire, S.Giani
+#
+# History:
+#
+# 06.02.96   Created.
+# 28.03.96   Added miscellaneous constants.
+# 05.12.97   E.Tcherniaev: Redefined pascal (to avoid warnings on WinNT)
+# 20.05.98   names: meter, second, gram, radian, degree
+#            (from Brian.Lasiuk@yale.edu (STAR)). Added luminous units.
+# 05.08.98   angstrom, picobarn, microsecond, picosecond, petaelectronvolt
+# 01.03.01   parsec    
+# -----
+
+# 
+# Length [L]
+#
+millimeter  = 1.                        
+millimeter2 = millimeter*millimeter
+millimeter3 = millimeter*millimeter*millimeter
+
+centimeter  = 10.*millimeter   
+centimeter2 = centimeter*centimeter
+centimeter3 = centimeter*centimeter*centimeter
+
+meter  = 1000.*millimeter                  
+meter2 = meter*meter
+meter3 = meter*meter*meter
+
+kilometer = 1000.*meter                   
+kilometer2 = kilometer*kilometer
+kilometer3 = kilometer*kilometer*kilometer
+
+parsec = 3.0856775807e+16*meter
+
+micrometer = 1.e-6 *meter             
+nanometer  = 1.e-9 *meter
+angstrom   = 1.e-10*meter
+fermi      = 1.e-15*meter
+
+barn       = 1.e-28*meter2
+millibarn  = 1.e-3 *barn
+microbarn  = 1.e-6 *barn
+nanobarn   = 1.e-9 *barn
+picobarn   = 1.e-12*barn
+
+# symbols
+mm  = millimeter                        
+mm2 = millimeter2
+mm3 = millimeter3
+
+cm  = centimeter   
+cm2 = centimeter2
+cm3 = centimeter3
+
+m  = meter                  
+m2 = meter2
+m3 = meter3
+
+km  = kilometer                   
+km2 = kilometer2
+km3 = kilometer3
+
+pc = parsec
+
+#
+# Angle
+#
+radian      = 1.                  
+milliradian = 1.e-3*radian
+degree = (3.14159265358979323846/180.0)*radian
+
+steradian   = 1.
+	
+# symbols
+rad  = radian	
+mrad = milliradian
+sr   = steradian
+deg  = degree
+
+#
+# Time [T]
+#
+nanosecond  = 1.
+second      = 1.e+9 *nanosecond
+millisecond = 1.e-3 *second
+microsecond = 1.e-6 *second
+picosecond  = 1.e-12*second
+
+hertz = 1./second
+kilohertz = 1.e+3*hertz
+megahertz = 1.e+6*hertz
+
+# symbols
+ns = nanosecond			
+s  = second
+ms = millisecond
+
+#
+# Electric charge [Q]
+#
+eplus = 1.                                   # positron charge
+e_SI  = 1.60217733e-19                       # positron charge in coulomb
+coulomb = eplus/e_SI                         # coulomb = 6.24150 e+18 * eplus
+
+#
+# Energy [E]
+#
+megaelectronvolt = 1. 
+electronvolt     = 1.e-6*megaelectronvolt
+kiloelectronvolt = 1.e-3*megaelectronvolt
+gigaelectronvolt = 1.e+3*megaelectronvolt
+teraelectronvolt = 1.e+6*megaelectronvolt
+petaelectronvolt = 1.e+9*megaelectronvolt
+
+joule = electronvolt/e_SI                    # joule = 6.24150 e+12 * MeV
+
+# symbols
+MeV = megaelectronvolt
+eV  = electronvolt
+keV = kiloelectronvolt
+GeV = gigaelectronvolt
+TeV = teraelectronvolt
+PeV = petaelectronvolt
+
+#
+# Mass [E][T^2][L^-2]
+#
+kilogram  = joule*second*second/(meter*meter)   
+gram      = 1.e-3*kilogram
+milligram = 1.e-3*gram
+
+# symbols
+kg = kilogram
+g  = gram
+mg = milligram
+
+#
+# Power [E][T^-1]
+#
+watt = joule/second                          # watt = 6.24150 e+3 * MeV/ns
+
+#
+# Force [E][L^-1]
+#
+newton = joule/meter                         # newton = 6.24150 e+9 * MeV/mm
+
+#
+# Pressure [E][L^-3]
+#
+hep_pascal = newton/m2	                     # pascal = 6.24150 e+3 * MeV/mm3
+pascal     = hep_pascal                      # a trick to avoid warnings 
+bar        = 100000*pascal                   # bar    = 6.24150 e+8 * MeV/mm3
+atmosphere = 101325*pascal                   # atm    = 6.32420 e+8 * MeV/mm3
+
+#
+# Electric current [Q][T^-1]
+#
+ampere      = coulomb/second                 # ampere = 6.24150 e+9 * eplus/ns
+milliampere = 1.e-3*ampere
+microampere = 1.e-6*ampere
+nanoampere  = 1.e-9*ampere
+
+#
+# Electric potential [E][Q^-1]
+#
+megavolt = megaelectronvolt/eplus
+kilovolt = 1.e-3*megavolt
+volt = 1.e-6*megavolt
+
+#
+# Electric resistance [E][T][Q^-2]
+#
+ohm = volt/ampere                            # ohm = 1.60217e-16*(MeV/eplus)/(eplus/ns)
+
+#
+# Electric capacitance [Q^2][E^-1]
+#
+farad = coulomb/volt                         # farad = 6.24150e+24 * eplus/Megavolt
+millifarad = 1.e-3*farad
+microfarad = 1.e-6*farad
+nanofarad = 1.e-9*farad
+picofarad = 1.e-12*farad
+
+#
+# Magnetic Flux [T][E][Q^-1]
+#
+weber = volt*second                          # weber = 1000*megavolt*ns
+
+#
+# Magnetic Field [T][E][Q^-1][L^-2]
+#
+tesla     = volt*second/meter2               # tesla =0.001*megavolt*ns/mm2
+
+gauss     = 1.e-4*tesla
+kilogauss = 1.e-1*tesla
+
+#
+# Inductance [T^2][E][Q^-2]
+#
+henry = weber/ampere                         # henry = 1.60217e-7*MeV*(ns/eplus)**2
+
+#
+# Temperature
+#
+kelvin = 1.
+
+#
+# Amount of substance
+#
+mole = 1.
+
+#
+# Activity [T^-1]
+#
+becquerel = 1./second 
+curie = 3.7e+10 * becquerel
+
+#
+# Absorbed dose [L^2][T^-2]
+#
+gray = joule/kilogram 
+
+#
+# Luminous intensity [I]
+#
+candela = 1.
+
+#
+# Luminous flux [I]
+#
+lumen = candela*steradian
+
+#
+# Illuminance [I][L^-2]
+#
+lux = lumen/meter2
+
+#
+# Miscellaneous
+#
+perCent     = 0.01 
+perThousand = 0.001
+perMillion  = 0.000001
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaCommon/SystemOfUnits.py"
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/StoreGate/StoreGate_jobOptions.py"
+theApp.Dlls   += [ "StoreGate", "CLIDSvc" ]
+theApp.ExtSvc += [ "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" ]
+#FIXME uncomment to verify that your  CLIDs are good!
+#ClassIDSvc = Service( "ClassIDSvc" )
+#ClassIDSvc.CLIDDBFiles += [ "clid.db" ]
+include( "IOVSvc/IOVSvc.py" )
+theAuditorSvc = AuditorSvc()
+theAuditorSvc.Auditors  += [ "AlgContextAuditor"]
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/StoreGate/StoreGate_jobOptions.py"
+ApplicationMgr       INFO Successfully loaded modules: StoreGate, CLIDSvc
+ApplicationMgr       INFO Successfully loaded modules: 
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/IOVSvc/IOVSvc.py"
+#------------------------------------------------------------------------
+#
+# Load the Interval of Validity Service
+#
+#------------------------------------------------------------------------
+theApp.Dlls += [ "IOVSvc" ]
+theApp.ExtSvc += [ "IOVSvc" ]
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/IOVSvc/IOVSvc.py"
+ServiceManager    WARNING Service factory for type IOVSvc already declared
+ApplicationMgr       INFO Successfully loaded modules: IOVSvc
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/user/s/schaffer/w1/public1/work-8.2.0/InstallArea/jobOptions/AthenaPoolTest/AtlfastPoolWriteOptions.py"
+###############################################################
+#
+# Job options file for running simpleTest writing Atlfast cells
+#   to pool
+#
+#==============================================================
+#
+include( "AtlfastAlgs/GeneratorOptions_zebra_default.py" )
+
+include( "PartPropSvc/PartPropSvc.py" )
+
+theApp.Dlls += [ "GaudiAlg" ]	
+theApp.Dlls += [ "GaudiAud" ]
+theAuditorSvc = AuditorSvc()
+theAuditorSvc.Auditors  = [ "ChronoAuditor" ]
+theApp.ExtSvc += ["AtRndmGenSvc"]
+theApp.Dlls += [ "AtlfastAlgs","TestAtlfast"]
+theApp.Dlls   += [ "AthenaPoolTest" ]
+#--------------------------------------------------------------
+# Load POOL support
+#--------------------------------------------------------------
+include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
+
+#--------------------------------------------------------------
+# Define the output Db parameters (the default value are shown)
+#--------------------------------------------------------------
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.Output    = "SimplePoolFile.root"
+# PoolSvc.DbServer  =  "db1.usatlas.bnl.gov";
+# PoolSvc.DbAccount =  "athena";
+# PoolSvc.DbPassword = "";
+# PoolSvc.DbType    = "mysql";
+# PoolSvc.ConnectionType = "MySQLCollection";
+# PoolSvc.FullConnection = "mysql://athena:insider@db1.usatlas.bnl.gov/pool_collection";
+PoolSvc.DbType          = "root";  # to define ROOT file resident collection
+PoolSvc.Collection      = "NewPoolTry"
+#PoolSvc.CheckDictionary = false;
+#--------------------------------------------------------------
+# Event related parameters
+#--------------------------------------------------------------
+# Number of events to be processed (default is 10)
+theApp.EvtMax = 1000
+#--------------------------------------------------------------
+# Private Application Configuration options
+#--------------------------------------------------------------
+# Execution of algorithms given in sequencer
+#
+theApp.TopAlg = ["Sequencer/TopSequence"]
+TopSequence = Algorithm( "TopSequence" )
+TopSequence.Members = ["Sequencer/Generator","Sequencer/Atlfast"]
+##include "AtlfastAlgs/AtlfastStandardOptions.txt"
+include( "AtlfastAlgs/AtlfastDoNotTouch.py" )
+
+#set up individual jobOptions
+ElectronMaker = Algorithm( "ElectronMaker" )
+ElectronMaker.DoSmearing		 = FALSE
+MuonMaker = Algorithm( "MuonMaker" )
+MuonMaker.DoSmearing                     = FALSE
+PhotonMaker = Algorithm( "PhotonMaker" )
+PhotonMaker.DoSmearing			 = FALSE
+JetMaker = Algorithm( "JetMaker" )
+JetMaker.DoSmearing       	         = FALSE
+TrackMaker = Algorithm( "TrackMaker" )
+TrackMaker.DoSmearing       	         = FALSE
+GlobalEventDataMaker = Algorithm( "GlobalEventDataMaker" )
+GlobalEventDataMaker.Luminosity		=  2	
+ClusterMaker = Algorithm( "ClusterMaker" )
+ClusterMaker.ProcessCells       = TRUE
+ClusterMaker.ProcessTracks      = FALSE
+ClusterMaker.Strategy           = "cone"
+#--------------------------------------------------------------
+# AtlfastPoolTest (values copied from
+# AtlfastStandardOption.txt for CellMaker)
+#-----------------------------------
+Atlfast = Algorithm( "Atlfast" )
+Atlfast.members += ["Atlfast::AtlfastPoolTest/AtlfastPoolTest" ]
+AtlfastPoolTest = Algorithm( "AtlfastPoolTest" )
+AtlfastPoolTest.EtaCoverage        = 5.0
+AtlfastPoolTest.MinETCell          = 0.0*GeV
+AtlfastPoolTest.GranBarrelEta      = 0.1
+AtlfastPoolTest.GranBarrelPhi      = 0.1
+AtlfastPoolTest.GranForwardEta     = 0.2
+AtlfastPoolTest.GranForwardPhi     = 0.2
+AtlfastPoolTest.FastShower         = FALSE
+AtlfastPoolTest.InputLocation      = "/Event/McEventCollection"
+AtlfastPoolTest.OutputLocation     = "/Event/AtlfastPoolTestCells"; 
+AtlfastPoolTest.OutputLevel = 2
+#Atlfast.members += {"Atlfast::IKinematicDumper/IKinematicDumper" };
+#IKinematicDumper.cellLocation     = "/Event/AtlfastPoolTestCells";
+#--------------------------------------------------------------
+# Output options
+#--------------------------------------------------------------
+# Include AthenaSealSvc and dicts that are 
+# not linked against converters (temporary)
+include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+
+include( "FourMom/FourMomDict_joboptions.py" )
+
+# Converters:
+include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
+
+include( "AtlfastAthenaPool/AtlfastAthenaPool_joboptions.py" )
+
+# List of DO's to write out
+Stream1 = Algorithm( "Stream1" )
+Stream1.ItemList+=["Atlfast::ITwoCptCellCollection#/Event/AtlfastPoolTestCells"]
+#--------------------------------------------------------------
+# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+#--------------------------------------------------------------
+MessageSvc = Service( "MessageSvc" )
+MessageSvc.OutputLevel = 3
+ClassIDSvc = Service( "ClassIDSvc" )
+ClassIDSvc.OutputLevel = 3
+#AthenaOutputStream.OutputLevel = 1;
+StoreGateSvc = Service( "StoreGateSvc" )
+StoreGateSvc.Dump = TRUE 
+#==============================================================
+#
+# End of job options file
+#
+###############################################################
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/user/s/schaffer/w1/public1/work-8.2.0/InstallArea/jobOptions/AthenaPoolTest/AtlfastPoolWriteOptions.py"
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AtlfastAlgs/GeneratorOptions_zebra_default.py"
+theApp.setup( ZEBRA )
+
+#ApplicationMgr.EvtSel = "FILE ZEBRA.P";
+theApp.EvtSel = "EventSelector"
+EventSelector.dataSetNames = ["Y01606.1"] 
+theApp.Dlls += [ "GenzModule"]
+Generator = Algorithm( "Generator" )
+Generator.Members += [ "GenzModule"]
+EventSelector.calos = FALSE;                        
+EventSelector.muons = FALSE;                        
+EventSelector.trt   = FALSE
+EventSelector.sct   = FALSE
+EventSelector.pixel = FALSE ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AtlfastAlgs/GeneratorOptions_zebra_default.py"
+==> New TileCablingService created
+ApplicationMgr       INFO Successfully loaded modules: DetDescrCnvSvc, ZebraTDRCnv, HbookCnv
+ApplicationMgr       INFO Successfully loaded modules: IdDictDetDescrCnv
+EventPersistenc...   INFO "CnvServices": ["DetDescrCnvSvc", "ZebraTDRCnvSvc"]
+ApplicationMgr       INFO Successfully loaded modules: GenzModule
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/offline/external/Gaudi/0.14.6.2/InstallArea/jobOptions/PartPropSvc/PartPropSvc.py"
+#--------------------------------------------------------------
+# PartPropSvc Service options
+#--------------------------------------------------------------
+theApp.Dlls += [ "PartPropSvc" ]
+theApp.ExtSvc += ["PartPropSvc"]
+PartPropSvc = Service( "PartPropSvc" )
+PartPropSvc.InputType = "PDG"
+PartPropSvc.InputFile = ["PDGTABLE.MeV"]
+#--------------------------------------------------------------
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/offline/external/Gaudi/0.14.6.2/InstallArea/jobOptions/PartPropSvc/PartPropSvc.py"
+ApplicationMgr       INFO Successfully loaded modules: PartPropSvc
+ApplicationMgr       INFO Successfully loaded modules: GaudiAlg
+ApplicationMgr       INFO Successfully loaded modules: GaudiAud
+ApplicationMgr       INFO Successfully loaded modules: AtlfastAlgs, TestAtlfast
+ApplicationMgr       INFO Successfully loaded modules: AthenaPoolTest
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py"
+# This is an jobOptions for writing event objects in AthenaPool.
+# It loads the conversion service shared lib, and the EventInfo
+# converter.
+# Each subsystem should provide additional jobOpt fragments to
+# load converter and append to event object ItemList
+# For example, LArAthenaPool should include
+#
+# ApplicationMgr.DLLs += { "LArAthenaPool" };
+# Stream1.ItemList += { "2701#*", "2731#*" };
+theApp.Dlls += [ "PoolSvc", "AthenaPoolCnvSvc", "AthenaPoolCnvSvcPoolCnv" ]
+theApp.ExtSvc += [ "PoolSvc", "AthenaPoolCnvSvc" ]
+EventPersistencySvc = Service( "EventPersistencySvc" )
+EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
+# Make sure AthenaSealSvc is loaded for dict check
+include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+
+theApp.OutStream += [ "Stream1" ]
+theApp.OutStreamType = "AthenaOutputStream"
+Stream1 = Algorithm( "Stream1" )
+Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"
+Stream1.OutputFile = "athena.root"
+# ------------------------------------------------------------------------------------------
+# EventInfo
+# EventInfo MUST be present (Hong Ma private commuication. 10 Dec 2003)
+Stream1.ItemList += [ "2101#*" ];  # provide the list of the type Ids one wants the POOL I/O for
+# ------------------------------------------------------------------------------------------
+# The custom user parameters:
+# PoolSvc.DbServer   =  "db1.usatlas.bnl.gov";
+# PoolSvc.DbAccount  =  "athena";
+# PoolSvc.DbPassword = "";
+# PoolSvc.DbType     = "mysql";       // to define the "mysql" resident collection (default)
+# PoolSvc.DbType     = "root";        // to define ROOT file resident collection
+# PoolSvc.DbOpen     = "overwrite";   // to output Db collection open options: "create", "update", overwrite"
+# PoolSvc.Collection = "NewPoolTry";  // The nmame of the user collection
+# --------------------*** under construction  ***. Please don't use it ---------------------
+# PoolSvc.ConnectionType = "MySQLCollection";  / *** under construction  ***. Please don't use it
+# PoolSvc.FullConnection = "mysql:   //athena:insider@db1.usatlas.bnl.gov/pool_collection";
+# ------------------------------------------------------------------------------------------
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py"
+ApplicationMgr       INFO Successfully loaded modules: PoolSvc, AthenaPoolCnvSvc, AthenaPoolCnvSvcPoolCnv
+EventPersistenc...   INFO "CnvServices": ["DetDescrCnvSvc", "ZebraTDRCnvSvc", "AthenaPoolCnvSvc"]
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvc_joboptions.py"
+#
+# Joboptions for loading the AthenaSealSvc
+#
+
+# general application configuration options
+
+# DLLs 
+theApp.Dlls += [ "AthenaSealSvc" ]
+
+# Add in services
+theApp.ExtSvc += [ "AthenaSealSvc" ]
+
+AthenaSealSvc = Service( "AthenaSealSvc" )
+
+# Add in dictionary names:
+#AthenaSealSvc.DictNames += { "DictName" };
+
+# Check the dictionary in memory for completeness
+#AthenaSealSvc.CheckDictionary = true;
+
+# List of classes to ignore
+include( "AthenaSealSvc/AthenaSealSvcIgnore_joboptions.py" )
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvc_joboptions.py"
+ApplicationMgr       INFO Successfully loaded modules: AthenaSealSvc
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvcIgnore_joboptions.py"
+
+AthenaSealSvc = Service( "AthenaSealSvc" )
+
+# List of class to ignore for dictionary checks
+AthenaSealSvc.IgnoreNames  = [ "GaudiPython::Interface", "GaudiPython::Helper" ]
+AthenaSealSvc.IgnoreNames += [ "Gaudi" ]
+AthenaSealSvc.IgnoreNames += [ "FactoryTable" ]
+AthenaSealSvc.IgnoreNames += [ "IInterface" ]
+AthenaSealSvc.IgnoreNames += [ "IFactory" ]
+AthenaSealSvc.IgnoreNames += [ "IAlgFactory" ]
+AthenaSealSvc.IgnoreNames += [ "ISvcFactory" ]
+AthenaSealSvc.IgnoreNames += [ "IToolFactory" ]
+AthenaSealSvc.IgnoreNames += [ "InterfaceID" ]
+AthenaSealSvc.IgnoreNames += [ "StatusCode" ]
+AthenaSealSvc.IgnoreNames += [ "IAppMgrUI" ]
+AthenaSealSvc.IgnoreNames += [ "IProperty" ]
+AthenaSealSvc.IgnoreNames += [ "Property" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<Property*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<const Property*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::list<IAlgorithm*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::list<IService*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::list<const IFactory*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<IRegistry*>" ]
+AthenaSealSvc.IgnoreNames += [ "SimpleProperty" ]
+AthenaSealSvc.IgnoreNames += [ "SimplePropertyRef" ]
+AthenaSealSvc.IgnoreNames += [ "IService" ]
+AthenaSealSvc.IgnoreNames += [ "IAlgorithm" ]
+AthenaSealSvc.IgnoreNames += [ "ISvcManager" ]
+AthenaSealSvc.IgnoreNames += [ "IAlgManager" ]
+AthenaSealSvc.IgnoreNames += [ "IJobOptionsSvc" ]
+AthenaSealSvc.IgnoreNames += [ "ISvcLocator" ]
+AthenaSealSvc.IgnoreNames += [ "IEventProcessor" ]
+AthenaSealSvc.IgnoreNames += [ "IDataProviderSvc" ]
+AthenaSealSvc.IgnoreNames += [ "IDataManagerSvc" ]
+AthenaSealSvc.IgnoreNames += [ "IRegistry" ]
+AthenaSealSvc.IgnoreNames += [ "ContainedObject" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<const ContainedObject*>" ]
+AthenaSealSvc.IgnoreNames += [ "DataObject" ]
+AthenaSealSvc.IgnoreNames += [ "IHistogramSvc" ]
+AthenaSealSvc.IgnoreNames += [ "AIDA::I" ]
+AthenaSealSvc.IgnoreNames += [ "Algorithm" ]
+AthenaSealSvc.IgnoreNames += [ "Service" ]
+AthenaSealSvc.IgnoreNames += [ "GaudiPython::PyAlgorithm" ]
+AthenaSealSvc.IgnoreNames += [ "GaudiPython::PyAlgorithmWrap" ]
+AthenaSealSvc.IgnoreNames += [ "IParticlePropertySvc" ]
+AthenaSealSvc.IgnoreNames += [ "ParticleProperty" ]
+
+
+
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvcIgnore_joboptions.py"
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AtlfastAlgs/AtlfastDoNotTouch.py"
+###############################################################
+# AtlfastDoNotTouch
+# To be changed by experts only
+###############################################################
+Atlfast = Algorithm( "Atlfast" )
+Atlfast.members = [
+#    Global Event Data:
+        "Atlfast::GlobalEventDataMaker/GlobalEventDataMaker",
+# 
+#    Make calorimeter cell map for the event:
+        "Atlfast::CellMaker/CellMaker", 
+#
+#    Make clusters based on  cells
+        "Atlfast::ClusterMaker/ClusterMaker",
+#
+#    Make electrons 
+        "Atlfast::DefaultReconstructedParticleMaker/ElectronMaker",
+#
+#    Make photons
+        "Atlfast::DefaultReconstructedParticleMaker/PhotonMaker",
+#
+#    Make muons 
+	"Atlfast::DefaultReconstructedParticleMaker/MuonMaker",
+#
+#    Find Associations between eor gamma and clusters 
+#	"Atlfast::Associator/Associator",
+#
+#    Sort the electrons into isolated and non-isolated
+	"Atlfast::Isolator/ElectronIsolator",
+#
+#    Sort the photons into isolated and non-isolated
+        "Atlfast::Isolator/PhotonIsolator",
+#
+#    Sort the muons into isolated and non-isolated
+        "Atlfast::Isolator/MuonIsolator",
+#
+#    Make Jets
+        "Atlfast::JetMaker/JetMaker",
+#
+#    Correct Jets
+        "Atlfast::AtlfastB/AtlfastB",
+#
+#    Make event header
+        "Atlfast::EventHeaderMaker/EventHeaderMaker",
+#
+#    Make Tracks header
+        "Atlfast::TrackMaker/TrackMaker"
+]
+#---------------------------
+# Locations not to be touched
+#---------------------------
+# Cell Maker 
+CellMaker = Algorithm( "CellMaker" )
+CellMaker.InputLocation		= "/Event/McEventCollection"
+CellMaker.OutputLocation        = "/Event/AtlfastCells"; 
+#-------------
+#Cluster Maker
+#-------------
+#Cluster Maker
+ClusterMaker = Algorithm( "ClusterMaker" )
+ClusterMaker.ProcessCells       = TRUE
+ClusterMaker.ProcessTracks      = FALSE
+ClusterMaker.InputCellLocation  = "/Event/AtlfastCells"
+ClusterMaker.InputTrackLocation = "/Event/AtlfastTracks"
+ClusterMaker.OutputLocation     = "/Event/AtlfastClusters"
+ClusterMaker.UnusedCellLocation	= "/Event/AtlfastUnusedCells"
+#------------
+# Track Maker
+#------------
+TrackMaker = Algorithm( "TrackMaker" )
+TrackMaker.MC_eventLocation  = "/Event/McEventCollection"
+TrackMaker.OutputLocation    = "/Event/AtlfastTracks"; 
+#------------
+# Track Dumper
+#------------
+TrackDumper = Algorithm( "TrackDumper" )
+TrackDumper.InputLocation     = "/Event/AtlfastTracks"; 
+#------------------
+# Particles Makers
+#------------------
+# electron 
+ElectronMaker = Algorithm( "ElectronMaker" )
+ElectronMaker.OutputLocation               = "/Event/AtlfastElectrons"
+ElectronMaker.MC_eventLocation		   = "/Event/McEventCollection"
+#muon
+MuonMaker = Algorithm( "MuonMaker" )
+MuonMaker.OutputLocation                   = "/Event/AtlfastMuons"
+MuonMaker.MC_eventLocation		   = "/Event/McEventCollection"
+#photon
+PhotonMaker = Algorithm( "PhotonMaker" )
+PhotonMaker.OutputLocation                 = "/Event/AtlfastPhotons"
+PhotonMaker.MC_eventLocation		   = "/Event/McEventCollection"
+#----------
+# Jet Maker
+#----------
+JetMaker = Algorithm( "JetMaker" )
+JetMaker.InputLocation                     = "/Event/AtlfastClusters"
+JetMaker.OutputLocation                    = "/Event/AtlfastJets"
+JetMaker.MuonLocation                      = "/Event/AtlfastNonIsolatedMuons"
+JetMaker.MissingMomentumLocation	   = "/Event/AtlfastMissingMomentum"
+JetMaker.McTruthLocation		   = "/Event/McEventCollection"
+JetMaker.UnusedCellLocation		   = "/Event/AtlfastUnusedCells"
+#----------
+# AtlfastB
+#----------
+AtlfastB = Algorithm( "AtlfastB" )
+AtlfastB.InputLocation                     = "/Event/AtlfastJets"
+AtlfastB.OutputLocation                    = "/Event/AtlfastBJets"
+#-------------------
+# Event Header Maker 
+#------------------- 
+EventHeaderMaker = Algorithm( "EventHeaderMaker" )
+EventHeaderMaker.MissingMomentumLocation  = "/Event/AtlfastMissingMomentum"
+EventHeaderMaker.ElectronLocation	  = "/Event/AtlfastIsolatedElectrons"
+EventHeaderMaker.PhotonLocation		  = "/Event/AtlfastIsolatedPhotons"
+EventHeaderMaker.IsolatedMuonLocation     = "/Event/AtlfastIsolatedMuons"
+EventHeaderMaker.NonIsolatedMuonLocation  = "/Event/AtlfastNonIsolatedMuons"
+EventHeaderMaker.JetLocation              = "/Event/AtlfastJets"
+EventHeaderMaker.McTruthLocation          = "/Event/McEventCollection"
+EventHeaderMaker.OutputLocation           = "/Event/AtlfastEventHeader"
+#----------
+# Isolators
+#----------
+# electron
+ElectronIsolator = Algorithm( "ElectronIsolator" )
+ElectronIsolator.InputLocation             = "/Event/AtlfastElectrons"
+ElectronIsolator.IsolatedOutputLocation    = "/Event/AtlfastIsolatedElectrons"
+ElectronIsolator.NonIsolatedOutputLocation = "/Event/AtlfastNonIsolatedElectrons"
+ElectronIsolator.CellLocation              = "/Event/AtlfastCells"
+ElectronIsolator.Clusterlocation           = "/Event/AtlfastClusters"
+#photon
+PhotonIsolator = Algorithm( "PhotonIsolator" )
+PhotonIsolator.InputLocation               = "/Event/AtlfastPhotons"
+PhotonIsolator.IsolatedOutputLocation      = "/Event/AtlfastIsolatedPhotons"
+PhotonIsolator.NonIsolatedOutputLocation   = "/Event/AtlfastNonIsolatedPhotons"
+PhotonIsolator.CellLocation                = "/Event/AtlfastCells"
+PhotonIsolator.ClusterLocation             = "/Event/AtlfastClusters"
+#muon
+MuonIsolator = Algorithm( "MuonIsolator" )
+MuonIsolator.InputLocation                 = "/Event/AtlfastMuons"
+MuonIsolator.IsolatedOutputLocation        = "/Event/AtlfastIsolatedMuons"
+MuonIsolator.NonIsolatedOutputLocation     = "/Event/AtlfastNonIsolatedMuons"
+MuonIsolator.CellLocation                  = "/Event/AtlfastCells"
+MuonIsolator.ClusterLocation               = "/Event/AtlfastClusters"
+MuonIsolator.RClusterMatch                 = 0.0
+#---------------------
+# StandardNtuple Maker 
+#--------------------- 
+StandardNtupleMaker = Algorithm( "StandardNtupleMaker" )
+StandardNtupleMaker.JetLocation		    = "/Event/AtlfastJets"
+StandardNtupleMaker.ElectronLocation	    = "/Event/AtlfastIsolatedElectrons"
+StandardNtupleMaker.IsolatedMuonLocation    = "/Event/AtlfastIsolatedMuons"
+StandardNtupleMaker.NonIsolatedMuonLocation = "/Event/AtlfastNonIsolatedMuons"
+StandardNtupleMaker.PhotonLocation	    = "/Event/AtlfastIsolatedPhotons"
+StandardNtupleMaker.McTruthLocation         = "/Event/McEventCollection"
+StandardNtupleMaker.EventHeaderLocation     = "/Event/AtlfastEventHeader"
+#-------------------------
+# FinalStateParticleDumper 
+#-------------------------
+FinalStateParticleDumper = Algorithm( "FinalStateParticleDumper" )
+FinalStateParticleDumper.InputLocation	= "/Event/McEventCollection"
+#-------
+#Dumpers
+#-------
+ElectronDumper = Algorithm( "ElectronDumper" )
+ElectronDumper.InputLocation               = "/Event/AtlfastElectrons"
+#
+MuonDumper = Algorithm( "MuonDumper" )
+MuonDumper.InputLocation                   = "/Event/AtlfastMuons"
+#
+IsolatedElectronDumper = Algorithm( "IsolatedElectronDumper" )
+IsolatedElectronDumper.InputLocation       = "/Event/AtlfastIsolatedElectrons"
+#
+PhotonDumper = Algorithm( "PhotonDumper" )
+PhotonDumper.InputLocation                 = "/Event/AtlfastPhotons"
+#
+IsolatedPhotonDumper = Algorithm( "IsolatedPhotonDumper" )
+IsolatedPhotonDumper.InputLocation         = "/Event/AtlfastIsolatedPhotons"
+#-----------------------
+#StandardHistogram Maker
+#-----------------------
+StandardHistogramMaker = Algorithm( "StandardHistogramMaker" )
+StandardHistogramMaker.ElectronLocation    = "/Event/AtlfastElectrons"
+StandardHistogramMaker.PhotonLocation      = "/Event/AtlfastPhotons"
+StandardHistogramMaker.IsolatedElectronLocation = "/Event/AtlfastIsolatedElectrons"
+StandardHistogramMaker.IsolatedPhotonLocation   = "/Event/AtlfastIsolatedPhotons"
+StandardHistogramMaker.CellLocation        = "/Event/AtlfastCells"
+StandardHistogramMaker.ClusterLocation     = "/Event/AtlfastClusters"
+#
+ElectronHistogramMaker = Algorithm( "ElectronHistogramMaker" )
+ElectronHistogramMaker.InputLocation       = "/Event/AtlfastElectrons"
+ElectronHistogramMaker.McTruthLocation     = "/Event/McEventCollection"
+ElectronHistogramMaker.ParticleType        = 11
+#
+PhotonHistogramMaker = Algorithm( "PhotonHistogramMaker" )
+PhotonHistogramMaker.InputLocation         = "/Event/AtlfastPhotons"
+PhotonHistogramMaker.McTruthLocation       = "/Event/McEventCollection"
+PhotonHistogramMaker.ParticleType          = 22
+#
+MuonHistogramMaker = Algorithm( "MuonHistogramMaker" )
+MuonHistogramMaker.InputLocation           = "/Event/AtlfastMuons"
+MuonHistogramMaker.McTruthLocation         = "/Event/McEventCollection"
+MuonHistogramMaker.ParticleType            = 13
+#----------
+#SimpleTest
+#----------
+SimpleTest1 = Algorithm( "SimpleTest1" )
+SimpleTest1.AtlfastEventLocation           = "/Event/Atlfast" 
+SimpleTest1.JetLocation                    = "/Event/AtlfastJets"
+SimpleTest1.ElectronLocation               = "/Event/AtlfastIsolatedElectrons"
+SimpleTest1.IsolatedMuonLocation           = "/Event/AtlfastIsolatedMuons"
+SimpleTest1.NonIsolatedMuonLocation        = "/Event/AtlfastNonIsolatedMuons"
+SimpleTest1.PhotonLocation                 = "/Event/AtlfastIsolatedPhotons"
+#SimpleTest1.TrackLocation                  = "/Event/AtlfastTracks";
+SimpleTest1.McTruthLocation                = "/Event/McEventCollection"
+SimpleTest1.TriggerLocation                = "/Event/AtlfastTrigger"
+SimpleTest1.EventHeaderLocation            = "/Event/AtlfastEventHeader"
+SimpleTest1.outputLocation                 = "/Event/SimpleTest1"
+#
+SimpleTest2 = Algorithm( "SimpleTest2" )
+SimpleTest2.AtlfastEventLocation           = "/Event/Atlfast" 
+SimpleTest2.JetLocation                    = "/Event/AtlfastJets"
+SimpleTest2.ElectronLocation               = "/Event/AtlfastIsolatedElectrons"
+SimpleTest2.IsolatedMuonLocation           = "/Event/AtlfastIsolatedMuons"
+SimpleTest2.NonIsolatedMuonLocation        = "/Event/AtlfastNonIsolatedMuons"
+SimpleTest2.PhotonLocation                 = "/Event/AtlfastIsolatedPhotons"
+#SimpleTest2.TrackLocation                  = "/Event/AtlfastTracks";
+SimpleTest2.McTruthLocation                = "/Event/McEventCollection"
+SimpleTest2.TriggerLocation                = "/Event/AtlfastTrigger"
+SimpleTest2.EventHeaderLocation            = "/Event/AtlfastEventHeader"
+SimpleTest2.outputLocation                 = "/Event/SimpleTest2"
+#----------
+#CellDumper
+#----------
+CellDumper = Algorithm( "CellDumper" )
+CellDumper.inputLocation                   = "/Event/AtlfastCells"
+#------------------------
+#FinalStateParticleDumper
+#------------------------
+FinalStateParticleDumper.inputLocation     = "/Event/McEventCollection"
+#----------
+#SimpleDiff
+#----------
+SimpleDiff = Algorithm( "SimpleDiff" )
+SimpleDiff.inputLocation1                  = "/Event/SimpleTest1"
+SimpleDiff.inputLocation2                  = "/Event/SimpleTest2"
+#----------
+#Associator
+#----------
+Associator = Algorithm( "Associator" )
+Associator.ElectronLocation                = "/Event/AtlfastElectrons"
+Associator.PhotonLocation                  = "/Event/AtlfastPhotons"; 
+Associator.MuonLocation                    = "/Event/AtlfastMuons";   
+Associator.ClusterLocation                 = "/Event/AtlfastClusters"
+Associator.JetLocation                     = "/Event/AtlfastJets"
+Associator.AssocElectronLocation           = "/Event/AtlfastAssocElectrons"
+Associator.AssocPhotonLocation             = "/Event/AtlfastAssocPhotons"
+Associator.AssocMuonLocation               = "/Event/AtlfastAssocMuons"
+#--------------------------
+# End of DoNotTouch options
+#-------------------------- 
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AtlfastAlgs/AtlfastDoNotTouch.py"
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvc_joboptions.py"
+#
+# Joboptions for loading the AthenaSealSvc
+#
+
+# general application configuration options
+
+# DLLs 
+theApp.Dlls += [ "AthenaSealSvc" ]
+
+# Add in services
+theApp.ExtSvc += [ "AthenaSealSvc" ]
+
+AthenaSealSvc = Service( "AthenaSealSvc" )
+
+# Add in dictionary names:
+#AthenaSealSvc.DictNames += { "DictName" };
+
+# Check the dictionary in memory for completeness
+#AthenaSealSvc.CheckDictionary = true;
+
+# List of classes to ignore
+include( "AthenaSealSvc/AthenaSealSvcIgnore_joboptions.py" )
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvc_joboptions.py"
+ApplicationMgr       INFO Successfully loaded modules: 
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvcIgnore_joboptions.py"
+
+AthenaSealSvc = Service( "AthenaSealSvc" )
+
+# List of class to ignore for dictionary checks
+AthenaSealSvc.IgnoreNames  = [ "GaudiPython::Interface", "GaudiPython::Helper" ]
+AthenaSealSvc.IgnoreNames += [ "Gaudi" ]
+AthenaSealSvc.IgnoreNames += [ "FactoryTable" ]
+AthenaSealSvc.IgnoreNames += [ "IInterface" ]
+AthenaSealSvc.IgnoreNames += [ "IFactory" ]
+AthenaSealSvc.IgnoreNames += [ "IAlgFactory" ]
+AthenaSealSvc.IgnoreNames += [ "ISvcFactory" ]
+AthenaSealSvc.IgnoreNames += [ "IToolFactory" ]
+AthenaSealSvc.IgnoreNames += [ "InterfaceID" ]
+AthenaSealSvc.IgnoreNames += [ "StatusCode" ]
+AthenaSealSvc.IgnoreNames += [ "IAppMgrUI" ]
+AthenaSealSvc.IgnoreNames += [ "IProperty" ]
+AthenaSealSvc.IgnoreNames += [ "Property" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<Property*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<const Property*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::list<IAlgorithm*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::list<IService*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::list<const IFactory*>" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<IRegistry*>" ]
+AthenaSealSvc.IgnoreNames += [ "SimpleProperty" ]
+AthenaSealSvc.IgnoreNames += [ "SimplePropertyRef" ]
+AthenaSealSvc.IgnoreNames += [ "IService" ]
+AthenaSealSvc.IgnoreNames += [ "IAlgorithm" ]
+AthenaSealSvc.IgnoreNames += [ "ISvcManager" ]
+AthenaSealSvc.IgnoreNames += [ "IAlgManager" ]
+AthenaSealSvc.IgnoreNames += [ "IJobOptionsSvc" ]
+AthenaSealSvc.IgnoreNames += [ "ISvcLocator" ]
+AthenaSealSvc.IgnoreNames += [ "IEventProcessor" ]
+AthenaSealSvc.IgnoreNames += [ "IDataProviderSvc" ]
+AthenaSealSvc.IgnoreNames += [ "IDataManagerSvc" ]
+AthenaSealSvc.IgnoreNames += [ "IRegistry" ]
+AthenaSealSvc.IgnoreNames += [ "ContainedObject" ]
+AthenaSealSvc.IgnoreNames += [ "std::vector<const ContainedObject*>" ]
+AthenaSealSvc.IgnoreNames += [ "DataObject" ]
+AthenaSealSvc.IgnoreNames += [ "IHistogramSvc" ]
+AthenaSealSvc.IgnoreNames += [ "AIDA::I" ]
+AthenaSealSvc.IgnoreNames += [ "Algorithm" ]
+AthenaSealSvc.IgnoreNames += [ "Service" ]
+AthenaSealSvc.IgnoreNames += [ "GaudiPython::PyAlgorithm" ]
+AthenaSealSvc.IgnoreNames += [ "GaudiPython::PyAlgorithmWrap" ]
+AthenaSealSvc.IgnoreNames += [ "IParticlePropertySvc" ]
+AthenaSealSvc.IgnoreNames += [ "ParticleProperty" ]
+
+
+
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AthenaSealSvc/AthenaSealSvcIgnore_joboptions.py"
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/FourMom/FourMomDict_joboptions.py"
+
+# Define service object
+AthenaSealSvc = Service( "AthenaSealSvc" )
+
+# Add in dictionary name:
+AthenaSealSvc.DictNames += [ "FourMomDict" ]
+
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/FourMom/FourMomDict_joboptions.py"
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/EventAthenaPool/EventAthenaPool_joboptions.py"
+theApp.Dlls   += [ "EventAthenaPoolPoolCnv" ]
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/EventAthenaPool/EventAthenaPool_joboptions.py"
+ConverterFactory  WARNING Converter for class:T_AthenaPoolCnv<EventInfo> already exists.
+ApplicationMgr       INFO Successfully loaded modules: EventAthenaPoolPoolCnv
+ ==> INFO    : [athena] begin listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AtlfastAthenaPool/AtlfastAthenaPool_joboptions.py"
+theApp.Dlls   += [ "AtlfastAthenaPoolPoolCnv" ]
+ ==> INFO    : [athena] end listing of "/afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/jobOptions/AtlfastAthenaPool/AtlfastAthenaPool_joboptions.py"
+ApplicationMgr       INFO Successfully loaded modules: AtlfastAthenaPoolPoolCnv
+HistogramPersis...   INFO "CnvServices": ["HbookHistSvc", "RootHistSvc"]
+HistogramPersis...WARNING Histograms saving not required.
+RndmGenSvc.Engine    INFO Generator engine type:RanluxEngine
+RndmGenSvc.Engine    INFO Current Seed:1234567 Luxury:3
+RndmGenSvc           INFO Using Random engine:HepRndm::Engine<RanluxEngine>
+ChronoStatSvc        INFO  Number of skipped events for MemStat 20
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-14-00
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreGate-02-14-00
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDSvc-00-00-14
+ClassIDSvc           INFO ClassIDSvc Initialized successfully 
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-14-00
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-02-14-00
+IOVSvc               INFO IOVRanges will be checked at every Event
+DetDescrCnvSvc       INFO  initializing 
+DetDescrCnvSvc       INFO Found DetectorStore service
+DetDescrCnvSvc       INFO  filling proxies for detector managers 
+DetDescrCnvSvc       INFO  filling address for InDetMgr with CLID 2512 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArMgr with CLID 2741 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileMgr with CLID 2941 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MuonMgr with CLID 4060 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+ ZebraTDRCnvSvc: FORTRAN input taken from 
+ /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/slug.car
+EventSelector     WARNING  You have set the dataSetNames job parameter. Currently no action is implemented for this: 
+EventSelector     WARNING  
+EventSelector     WARNING  Hits/Digits will not be read in - no detector has been selected. 
+EventSelector     WARNING  To read Hits/Digits you SHOULD set a flag for at least ONE detector system and ONE subsystem. 
+EventSelector     WARNING  AND set readHits and/or readDigits for the EventSelector. 
+EventSelector        INFO  Value for the detector flags are: 
+EventSelector        INFO  indet       - 1
+EventSelector        INFO    pixel     - 0
+EventSelector        INFO    sct       - 0
+EventSelector        INFO    trt       - 0
+EventSelector        INFO  calos       - 0
+EventSelector        INFO    emBarrel  - 1
+EventSelector        INFO    emEndcap  - 1
+EventSelector        INFO    hec       - 1
+EventSelector        INFO    fcal      - 1
+EventSelector        INFO    tile      - 1
+EventSelector        INFO  muons       - 0
+EventSelector        INFO    csc       - 1
+EventSelector        INFO    mdt       - 1
+EventSelector        INFO    rpc       - 1
+EventSelector        INFO    tgc       - 1
+EventSelector        INFO  Hits   flag - 0
+EventSelector        INFO  Digits flag - 1
+ ATLAS Simulation, Reconstruction and Analysis Exploiting the SLUG Fortran77 implementation.
+ CALLING SLZEBRA WITH PAW SIZE  250000
+1+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ +                                                                                     +
+ +   Atlas Detector Simulation, Reconstruction and Analysis Running on  40615 at 1828  +
+ +                                                                                     +
+ +   Machine:  386LINUX  lxbuild002  System and Processor Info                         +
+ +                                                                                     +
+ +   Job    :  JobName                                                                 +
+ +                                                                                     +
+ +   Program:  Slug-Dice-Arecon in /afs/cern.ch/user/s/schaffer/w1/public1/work-8.2.0/A+lasTest/DatabaseTest/Athena  pid    2761
+ +                                                                                     +
+ +                                                                                     +
+ +   Package Information                                                               +
+ +   GEANT:  3.21/08    3.2180  230697                                                 +
+ +   ZEBRA:   3.7700 Zebra11000000 words, PAW/Hbook 250000 words, FFRead   4000 words. +
+ +      RZ: RZEBRA   3.01/08         This version created on 000000 at 0000            +
+ +    SLUG:     slug     Library of   40613 at 2352 Version  slug-01-                  +
+ +    GENZ:     genz     Library of   40613 at 2350 Version  v2r1                      +
+ + ATGEANA:     G3b      Library of   40613 at 2341 Version  geant3-2                  +
+ +    DICE:     Dummy    Library of   40613 at 2352 Version  atdummy-                  +
+ +   ATRIG:     Dummy    Library of   40613 at 2352 Version  atdummy-                  +
+ + ATRECON:     Dummy    Library of   40613 at 2352 Version  atdummy-                  +
+ +   DUMMY:     atdummy  Library of   40613 at 2352 Version  atdummy-                  +
+ +                                                                                     +
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ REPORT-E- No REPORT header bank.
+ FMSTRT     1-Dummy Fatmen (initialization).
+1*****  GEANT Version  3.21/08 Released on 230697
+0*****  Correction Cradle Version  0.0800
+ *****  Library compiled on  40613 at 2352 *****
+
+ SLZINI: Initialize SLUG ZEBRA banks 
+ SLINIO: Initialize I/O modes and default headers
+ SBIOMO: I/O mode P   , Type=-1, Unit =  21
+ SBIOMO: I/O mode B   , Type=-1, Unit =  22
+ SBIOMO: I/O mode O   , Type= 1, Unit =  23
+ UCARD -   1- I      Dummy version of UCARD called
+1           USER'S DIRECTIVES TO RUN THIS JOB
+            ----------------------------------
+
+
+ ***** DATA CARD CONTENT     LIST                                                                            
+ ***** DATA CARD CONTENT     C  TRAP 0                                                                       
+ ***** DATA CARD CONTENT     C  TRAP  1  3  10 10  1 0 10 1 4 10                                             
+ ***** DATA CARD CONTENT     TRAP  0  3  10 10  1 0 10 1 4 10                                                
+ ***** DATA CARD CONTENT     C GEANT: # of events to process  & TIME                                         
+ ***** DATA CARD CONTENT     C TRIG 5                                                                        
+ ***** DATA CARD CONTENT     TRIG 1000000                                                                    
+ ***** DATA CARD CONTENT     TIME 2=5. 3=1                                                                   
+ ***** DATA CARD CONTENT     C --------------------------------------------------                            
+ ***** DATA CARD CONTENT     C digitization and simulation and analysis status                               
+ ***** DATA CARD CONTENT     SIMULATION 0                                                                    
+ ***** DATA CARD CONTENT     DIGI       0                                                                    
+ ***** DATA CARD CONTENT     RECONSTR   1                                                                    
+ ***** DATA CARD CONTENT     ANALYSIS   0                                                                    
+ ***** DATA CARD CONTENT     OUTP       0                                                                    
+ ***** DATA CARD CONTENT     C loading of the input stream                                                   
+ ***** DATA CARD CONTENT    *BKIO     'P'  'EVNT'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'GEOM'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'KINE'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'HITS'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'DIGI'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'RECB'                                                           
+ ***** DATA CARD CONTENT     C define graphics  4,5,6 offsets  7=zoom factor                                 
+ ***** DATA CARD CONTENT     C *DREV 'SLUG' 1 4=0. 5=0. 6=0. 7=5.                                            
+ ***** DATA CARD CONTENT     C------- SLUG/GEANT debugging parametrs/modes -------------                     
+ ***** DATA CARD CONTENT     DEBU  0 0 0                                                                     
+ ***** DATA CARD CONTENT     C read events from ZEBRA file.                                                  
+ ***** DATA CARD CONTENT     KINE -1                                                                         
+ ***** DATA CARD CONTENT     STOP                                                                            
+ SLUG Initialisation Phase (Ranlux) seeded with default values 
+ Slug: RANLUX LUXURY LEVEL SET BY RLUXGO : 1     P=  48
+ Slug: RANLUX INITIALIZED BY RLUXGO FROM DEFAULT SEED
+ Slug: Monitor level
+ Exception handling not available on Intel/Linux.
+ Slug: No requests for atlas.ps graphics
+1SLGNZINI: Initialize GENZ package 
+ ================================================================================
+ GNZINIT: Initializing GENZ package, Version v2r1    
+          GENZ assumes ZEBRA is initialized already
+          Zebra Version = 3.78  Jobname = lxbuild002 schaf  Machine = UNKN
+ GNZINIT: Modularity,  incl. possible user words is    13
+          Assumed HEPEVT common block modularity is 10000
+ ================================================================================
+         Open I/O mode P on unit   21. File=ZEBRA.P                                                                         
+ SLPKINI: Initialize PICK/SKIP system for RUNS.
+    No PIKR bank found. No Runs to PICK.
+    No SKPR bank found. No Runs to SKIP.
+ SLPKINI: Initialize PICK/SKIP system for EVENTS in Run           0
+    No PIKE bank found for run           0
+    No SKPE bank found for run            0
+ SLIN: Zebra SOR for Run       1, I/Omode P, unit 21
+ SLIN: Zebra SOR Run  1 Ignored, Probable event structure error.
+ RDSOR: ZSOR record found       1 Run. Read again for "INIT" and "DETM" 
+ RUNG.INIT  20020703 21:16        3.218     3.78
+ RUNG.KINE  20020703 21:16        3.218     3.78
+ RUNG.HITS  20020703 21:16        3.218     3.78
+ RUNG.DIGI  20020703 21:16        3.218     3.78
+ 
+ RUNG.RUNH:    command     'exec /usatlas/workarea/nevski/atlsprod/nice_feature $*';
+ RUNG.RUNH: ?  gexec       libRootKernel.so;
+ RUNG.RUNH:    Ag/Version  batch;
+ RUNG.RUNH:    ?  gexec       libatlroot.so;
+ RUNG.RUNH:       gexec       libatlprod.so;
+ RUNG.RUNH:       gtime       0 1000 1;
+ RUNG.RUNH:    Rung        0      1;
+ RUNG.RUNH:    Ranlux      0001;
+ RUNG.RUNH:    title       $quote(dc production simul_001003 at acas040.usatlas.bnl.gov 2.4.9-31smp on Wed Jul  3 21:16:48 EDT 2002 
+ RUNG.RUNH: run=0001);
+ RUNG.RUNH:      ghist       /usatlas/workarea/nevski/atlsprod/simul_001003/atlas.0001.his;
+ RUNG.RUNH:    ;
+ RUNG.RUNH:    *  - set atlas-standard configuration (inner, center, all);
+ RUNG.RUNH:     exec atlas#config     all;
+ RUNG.RUNH:       exec atlas#calo_shift 4;
+ RUNG.RUNH:     exec atlas#inner_cut  4  all;
+ RUNG.RUNH:    mode OUTP   simu 2;
+ RUNG.RUNH:      mode FWDC   geom 2;
+ RUNG.RUNH:      mode HEPE   hist 100;
+ RUNG.RUNH: ?  detp MFLD;
+ RUNG.RUNH:       mode filter hist 300;
+ RUNG.RUNH: ?  detp filter;
+ RUNG.RUNH:     call adice;
+ RUNG.RUNH:   ;
+ RUNG.RUNH:    *  - select filters, I/O;
+ RUNG.RUNH:    ?  call filter;
+ RUNG.RUNH:  ?  Gvertex;
+ RUNG.RUNH:  ?  Gspread     0.0015 0.0015 5.6;
+ RUNG.RUNH:    ?  TFLT ETAP   -2.7 2.7 0.0 6.3;
+ RUNG.RUNH:    call AguDSET($quote(simul_001003.evgen_001003));
+ RUNG.RUNH:     call AguFILE(0001);
+ RUNG.RUNH:   *  call AguEVNT(0);
+ RUNG.RUNH:  *  - next line may produce an uncorrect error message which should be ignored;
+ RUNG.RUNH:      gfile P   /usatlas/workarea/nevski/atlsprod/data/zebra/dc1.001003.evgen.0001.test.h130_2e2mu.zebra  E;
+ RUNG.RUNH:       gfile  O    /usatlas/workarea/nevski/atlsprod/simul_001003/atlas.0001.zebra;
+ RUNG.RUNH:     skip  0;
+ RUNG.RUNH:     trig  200;
+ RUNG.RUNH:       gexec       /afs/cern.ch/atlas/software/dist/6.0.3/InstallArea/i686-rh73-gcc295/lib/libatlprod.so;
+ RUNG.RUNH:       call adicedig;
+ RUNG.RUNH:       gfile O dc1.001003.simul.redig._00001.test.h130_2e2mu.zebra;
+ RUNG.RUNH:     trig 99999;
+ RUNG.RUNH:   gfile o output.zebra;
+ RUNG.RUNH:    gexec myfilter.age;
+ RUNG.RUNH:  trig  10;
+ RUNG.RUNH:    
+ RUNG.RTAG: simul_001003.evgen_001003.h130_2e2mu.3.2.1.JOB_18                               
+ 
+1           USER'S DIRECTIVES TO RUN THIS JOB
+            ----------------------------------
+
+
+ ***** DATA CARD CONTENT     LIST                                                                            
+ ***** DATA CARD CONTENT     C----------------------------------------------------------------------C        
+ ***** DATA CARD CONTENT     C   Corrections to data cards                                          C        
+ ***** DATA CARD CONTENT     C----------------------------------------------------------------------C        
+ ***** DATA CARD CONTENT    *MODE 'ALL' 'PRIN' 0                                                            
+ ***** DATA CARD CONTENT    *MODE 'RECO' 'PRIN' 0                                                           
+ ***** DATA CARD CONTENT     STOP                                                                            
+ UGEOMR-   1- I      Dummy version of UGEOMR called - No DICE
+0SLHBINI: Setup HBOOK directories for atlas.his 
+          on LUN 50 with a quota of 32000  1024 word records
+0Creating subdirectories in PAWC for detectors with LVHIST.ne.0 :
+ Summarize HBOOK directories in memory:
+
+
+ ===> Directory : //PAWC
+
+
+ ===> Directory : //PAWC/ATLS
+
+
+ ===> Directory : //PAWC/MFLD
+
+
+ ===> Directory : //PAWC/PIPE
+
+
+ ===> Directory : //PAWC/PIXB
+
+
+ ===> Directory : //PAWC/PIXE
+
+
+ ===> Directory : //PAWC/SCTT
+
+
+ ===> Directory : //PAWC/ZSCT
+
+
+ ===> Directory : //PAWC/XTRT
+
+
+ ===> Directory : //PAWC/INAF
+
+
+ ===> Directory : //PAWC/CRYO
+
+
+ ===> Directory : //PAWC/COIL
+
+
+ ===> Directory : //PAWC/COPS
+
+
+ ===> Directory : //PAWC/ACCB
+
+
+ ===> Directory : //PAWC/ENDE
+
+
+ ===> Directory : //PAWC/TILE
+
+
+ ===> Directory : //PAWC/HEND
+
+
+ ===> Directory : //PAWC/FWDC
+
+
+ ===> Directory : //PAWC/AMDB
+
+
+ ===> Directory : //PAWC/MINT
+
+
+ ===> Directory : //PAWC/MUCH
+
+
+ ===> Directory : //PAWC/TRAC
+
+
+ ===> Directory : //PAWC/OUTP
+
+
+ ===> Directory : //PAWC/HEPE
+
+
+ ===> Directory : //PAWC/FILT
+
+
+ ===> Directory : //PAWC/CALO
+ RZMAKE. new RZ format selected for SLUGRZ
+0Creating subdirectories in //SLUGRZ for detectors with LVHIST.ne.0 :
+               ... creating //SLUGRZ/ATLS  
+               ... creating //SLUGRZ/MFLD  
+               ... creating //SLUGRZ/PIPE  
+               ... creating //SLUGRZ/PIXB  
+               ... creating //SLUGRZ/PIXE  
+               ... creating //SLUGRZ/SCTT  
+               ... creating //SLUGRZ/ZSCT  
+               ... creating //SLUGRZ/XTRT  
+               ... creating //SLUGRZ/INAF  
+               ... creating //SLUGRZ/CRYO  
+               ... creating //SLUGRZ/COIL  
+               ... creating //SLUGRZ/COPS  
+               ... creating //SLUGRZ/ACCB  
+               ... creating //SLUGRZ/ENDE  
+               ... creating //SLUGRZ/TILE  
+               ... creating //SLUGRZ/HEND  
+               ... creating //SLUGRZ/FWDC  
+               ... creating //SLUGRZ/AMDB  
+               ... creating //SLUGRZ/MINT  
+               ... creating //SLUGRZ/MUCH  
+               ... creating //SLUGRZ/TRAC  
+               ... creating //SLUGRZ/OUTP  
+               ... creating //SLUGRZ/HEPE  
+               ... creating //SLUGRZ/FILT  
+               ... creating //SLUGRZ/CALO  
+ Summarize HBOOK directories in RZ file:
+
+
+ ===> Directory : //SLUGRZ
+
+
+ ===> Directory : //SLUGRZ/ATLS
+
+
+ ===> Directory : //SLUGRZ/MFLD
+
+
+ ===> Directory : //SLUGRZ/PIPE
+
+
+ ===> Directory : //SLUGRZ/PIXB
+
+
+ ===> Directory : //SLUGRZ/PIXE
+
+
+ ===> Directory : //SLUGRZ/SCTT
+
+
+ ===> Directory : //SLUGRZ/ZSCT
+
+
+ ===> Directory : //SLUGRZ/XTRT
+
+
+ ===> Directory : //SLUGRZ/INAF
+
+
+ ===> Directory : //SLUGRZ/CRYO
+
+
+ ===> Directory : //SLUGRZ/COIL
+
+
+ ===> Directory : //SLUGRZ/COPS
+
+
+ ===> Directory : //SLUGRZ/ACCB
+
+
+ ===> Directory : //SLUGRZ/ENDE
+
+
+ ===> Directory : //SLUGRZ/TILE
+
+
+ ===> Directory : //SLUGRZ/HEND
+
+
+ ===> Directory : //SLUGRZ/FWDC
+
+
+ ===> Directory : //SLUGRZ/AMDB
+
+
+ ===> Directory : //SLUGRZ/MINT
+
+
+ ===> Directory : //SLUGRZ/MUCH
+
+
+ ===> Directory : //SLUGRZ/TRAC
+
+
+ ===> Directory : //SLUGRZ/OUTP
+
+
+ ===> Directory : //SLUGRZ/HEPE
+
+
+ ===> Directory : //SLUGRZ/FILT
+
+
+ ===> Directory : //SLUGRZ/CALO
+0SLBKINI: Initializing BACKground Faculty 
+          No Background activity
+ UINIT -   1- I      Dummy version of UINIT called
+
+
+ DESCRIPTION OF SLUG RUN:    
+
+      MAIN EVENT IS READ IN          
+      GENERATED EVENT REPROCESSING   OFF
+      BACKGROUND EVENT ADDITION      OFF
+      DETECTOR SIMULATION            OFF
+      DIGITIZATION                   OFF
+      STANDARD RECONSTRUCTION         ON
+      STANDARD ANALYSIS              OFF
+      EVENT OUTPUT                   OFF
+ SLUG Event Phase: Set seeds of random number generator
+ SLUG-Ranlux RNDM          0          0 have not been combined ... initialise with
+             Seed          0 ignore RNDM 2=              0
+ Slug: RANLUX LUXURY LEVEL SET BY RLUXGO : 1     P=  48
+ Slug: RANLUX INITIALIZED BY RLUXGO FROM DEFAULT SEED
+ SLSOR: Time left at start of Run       1 is   100000000.00 Seconds
+ SBRUNT-  11- I Run/     1/       RUNT bank booked by SLUG, not GENZ data
+ UBEVT -   1- I Run/     1/       Dummy version of UBEVT called
+ SLIN: Ignore LEVP  print flag**** on LUN   0
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event         1               1  Timeleft  100000000.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+PartPropSvc          INFO PDT file(s): 
+PartPropSvc          INFO     PDGTABLE.MeV
+PartPropSvc          INFO Type:     PDG
+ --------------- HepPDT Version 1.00.01 --------------- 
+found 258 particles
+AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version AthenaServices-01-05-00
+ INITIALISING RANDOM NUMBER STREAMS. 
+PoolSvc::create...   INFO No POOL WriteCatalog was specified--using POOL default.
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-01-33
+AthenaSealSvc        INFO begin initialize() - loading dictionary fillers:
+AthenaSealSvc        INFO  Loaded dict filler FourMomDict
+AthenaSealSvc        INFO end initialize()
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-05-00
+TopSequence          INFO Member list: Sequencer/Generator, Sequencer/Atlfast
+Generator            INFO Member list: GenzModule
+GenzModule           INFO Standard Initialization:  Single Interaction Mode 
+GenzModule           INFO  GENZ INITIALISING.  
+
+Atlfast              INFO Member list: Atlfast::GlobalEventDataMaker/GlobalEventDataMaker, Atlfast::CellMaker/CellMaker, Atlfast::ClusterMaker/ClusterMaker, Atlfast::DefaultReconstructedParticleMaker/ElectronMaker, Atlfast::DefaultReconstructedParticleMaker/PhotonMaker, Atlfast::DefaultReconstructedParticleMaker/MuonMaker, Atlfast::Isolator/ElectronIsolator, Atlfast::Isolator/PhotonIsolator, Atlfast::Isolator/MuonIsolator, Atlfast::JetMaker/JetMaker, Atlfast::AtlfastB/AtlfastB, Atlfast::EventHeaderMaker/EventHeaderMaker, Atlfast::TrackMaker/TrackMaker, Atlfast::AtlfastPoolTest/AtlfastPoolTest
+================================================================================
+|                                                                              |
+|                        Atlfast GlobalEventData Maker:                        |
+|                                                                              |
+| Invisibles (Neutrinos hardwired invisible):  12 14 16                        |
+| Luminosity:                                  2                               |
+| Initial Random Number Seed:                  12345                           |
+| B-field On:                                  true                            |
+| Barrel Forward Eta:                          3.2                             |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                              Atlfast Cell Maker:                             |
+|                                                                              |
+| min Cell ET              0                                                   |
+| Magnetic Field is on?    true                                                |
+| Input Location           /Event/McEventCollection                            |
+| Output Location          /Event/AtlfastCells                                 |
+|  DoSmearing              false                                               |
+|  Run FastShower          false                                               |
+| Calorimeter Geometry:                                                        |
+|  Total Eta Range         5                                                   |
+|  Barrel Eta Range        3.2                                                 |
+|  Barrel Eta Granularity  0.1                                                 |
+|  Barrel Phi Granularity  0.1                                                 |
+|  Forward Eta Granularity 0.2                                                 |
+|  Forward Phi Granularity 0.2                                                 |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                            Atlfast Cluster Maker:                            |
+|                                                                              |
+| Cluster Strategy             Cone                                            |
+| Endcap Cone Size              0.401                                          |
+| Barrel Cone Size              0.401                                          |
+| Min ET for Cell initiator     1500                                           |
+| Min ET for cluster           5000                                            |
+| Process Cells                true                                            |
+| Process Tracks               false                                           |
+| Input CellLocation           /Event/AtlfastCells                             |
+| Output Location              /Event/AtlfastClusters                          |
+| Unused Cell Location         /Event/AtlfastUnusedCells                       |
+| Unused Track Location        /Event/AtlfastUnusedTracks                      |
+| Massless Jets                true                                            |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                     Atlfast ReconstructedParticle Maker:                     |
+|                                                                              |
+| Particle Type            11                                                  |
+| Luminosity               2                                                   |
+| Minimum four-vector Pt   0                                                   |
+| Maximum four-vector Eta  100                                                 |
+| Minimum particle    Pt   5000                                                |
+| Maximum particle    Eta  2.5                                                 |
+| Do Smearing              false                                               |
+| Muon  Smearing Flag      1                                                   |
+| Random Number Seed       12345                                               |
+| MC location              /Event/McEventCollection                            |
+| Output Location          /Event/AtlfastElectrons                             |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                     Atlfast ReconstructedParticle Maker:                     |
+|                                                                              |
+| Particle Type            11                                                  |
+| Luminosity               2                                                   |
+| Minimum four-vector Pt   0                                                   |
+| Maximum four-vector Eta  100                                                 |
+| Minimum particle    Pt   5000                                                |
+| Maximum particle    Eta  2.5                                                 |
+| Do Smearing              false                                               |
+| Muon  Smearing Flag      1                                                   |
+| Random Number Seed       12345                                               |
+| MC location              /Event/McEventCollection                            |
+| Output Location          /Event/AtlfastPhotons                               |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                     Atlfast ReconstructedParticle Maker:                     |
+|                                                                              |
+| Particle Type            11                                                  |
+| Luminosity               2                                                   |
+| Minimum four-vector Pt   0                                                   |
+| Maximum four-vector Eta  100                                                 |
+| Minimum particle    Pt   5000                                                |
+| Maximum particle    Eta  2.5                                                 |
+| Do Smearing              false                                               |
+| Muon  Smearing Flag      1                                                   |
+| Random Number Seed       12345                                               |
+| MC location              /Event/McEventCollection                            |
+| Output Location          /Event/AtlfastMuons                                 |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                               Atlfast Isolator:                              |
+|                                                                              |
+| TES Locations:                                                               |
+|  Particles from             /Event/AtlfastElectrons                          |
+|  Cells from                 /Event/AtlfastCells                              |
+|  Clusters from              /Event/AtlfastClusters                           |
+|  Isolated Particles to      /Event/AtlfastIsolatedElectrons                  |
+|  Non-Isolated Particles to  /Event/AtlfastNonIsolatedElectrons               |
+| Cluster match DeltaR        0.15                                             |
+| Cluster isolation DeltaR    0.4                                              |
+| Cluster isolation E thresh  0                                                |
+| Cell isolation DeltaR       0.2                                              |
+| Cell isolation E thresh     10000                                            |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                               Atlfast Isolator:                              |
+|                                                                              |
+| TES Locations:                                                               |
+|  Particles from             /Event/AtlfastPhotons                            |
+|  Cells from                 /Event/AtlfastCells                              |
+|  Clusters from              /Event/AtlfastClusters                           |
+|  Isolated Particles to      /Event/AtlfastIsolatedPhotons                    |
+|  Non-Isolated Particles to  /Event/AtlfastNonIsolatedPhotons                 |
+| Cluster match DeltaR        0.15                                             |
+| Cluster isolation DeltaR    0.4                                              |
+| Cluster isolation E thresh  0                                                |
+| Cell isolation DeltaR       0.2                                              |
+| Cell isolation E thresh     10000                                            |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                               Atlfast Isolator:                              |
+|                                                                              |
+| TES Locations:                                                               |
+|  Particles from             /Event/AtlfastMuons                              |
+|  Cells from                 /Event/AtlfastCells                              |
+|  Clusters from              /Event/AtlfastClusters                           |
+|  Isolated Particles to      /Event/AtlfastIsolatedMuons                      |
+|  Non-Isolated Particles to  /Event/AtlfastNonIsolatedMuons                   |
+| Cluster match DeltaR        0                                                |
+| Cluster isolation DeltaR    0.4                                              |
+| Cluster isolation E thresh  0                                                |
+| Cell isolation DeltaR       0.2                                              |
+| Cell isolation E thresh     10000                                            |
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                               Atlfast JetMaker:                              |
+|                                                                              |
+| TES Locations:                                                               |
+|  Muons from                  /Event/AtlfastNonIsolatedMuons                  |
+|  Clusters from               /Event/AtlfastClusters                          |
+|  GeneratorParticles from     /Event/McEventCollection                        |
+|  Jets to                     /Event/AtlfastJets                              |
+|  unused cell,cluster sum to  /Event/AtlfastMissingMomentum                   |
+| Smearing on                  false                                           |
+| Cluster min Pt               10000                                           |
+| Cluster max Eta              5                                               |
+| Luminosity                   2                                               |
+| Initial random seed          12345                                           |
+| End cap Cone size            0.4                                             |
+| Barrel  Cone size            0.4                                             |
+| Eta of start of end cap      3.2                                             |
+| Parameters for tags          true                                            |
+|  Max eta                     2.5                                             |
+|  b-quark min pt              5000                                            |
+|  b-quark max DeltaR          0.2                                             |
+|  c-quark min pt              5000                                            |
+|  c-quark max DeltaR          0.2                                             |
+|  tau lep min pt              10000                                           |
+|  tau lep max DeltaR          0.3                                             |
+|  tau/Jet Pt Ratio            0.9                                             |
+|                                                                              |
+================================================================================
+
+
+AtlfastB             INFO Pt jet correction factors file /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/AtlfastBjet.dat open.
+AtlfastB             INFO Pt c jet correction factors file /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/AtlfastBcjet.dat open.
+================================================================================
+|                                                                              |
+|                                   AtlfastB:                                  |
+|                                                                              |
+| TES Locations:                                                               |
+|  Jets from                      /Event/AtlfastJets                           |
+|  Calibrated and tagged Jets to  /Event/AtlfastBJets                          |
+| AtlfBje switch:                 true                                         |
+| AtlfBje NSet:                   1                                            |
+| AtlfCal switch:                 true                                         |
+| AtlfTau switch:                 true                                         |
+| AtlfTauVeto switch:             false                                        |
+| AtlfTrigMuo switch:             false                                        |
+correction file 1:              /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/AtlfastBjet.dat|
+correction file 2:              /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/AtlfastBcjet.dat|
+|                                                                              |
+================================================================================
+
+
+================================================================================
+|                                                                              |
+|                          Atlfast EventHeader Maker:                          |
+|                                                                              |
+| TestMode                     false                                           |
+| EndCap Begins at (eta)       3.2                                             |
+| Luminosity                   2                                               |
+| Beam Energy                  7e+06                                           |
+| MC location                  /Event/McEventCollection                        |
+| Electron Location            /Event/AtlfastIsolatedElectrons                 |
+| Photon   Location            /Event/AtlfastIsolatedPhotons                   |
+| Isolated Muon Location       /Event/AtlfastIsolatedMuons                     |
+| Non-Isolated Muon Location   /Event/AtlfastNonIsolatedMuons                  |
+| Jet Location                 /Event/AtlfastJets                              |
+| Cell Location                /Event/AtlfastCells                             |
+| Cluster Location             /Event/AtlfastClusters                          |
+| Unused cell+cluster sum      /Event/AtlfastMissingMomentum                   |
+| Output Location              /Event/AtlfastEventHeader                       |
+|                                                                              |
+================================================================================
+
+
+TrackMaker           INFO LeptonMatrixManager: file /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_id_resol_mu_011.dat open.
+================================================================================
+|                                                                              |
+|                         Atlfast LeptonTrack Smearer:                         |
+|                                                                              |
+Data file                 /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_id_resol_mu_011.dat|
+| configuration             011                                                |
+| Number of Eta Bins        25                                                 |
+| Eta Min                   0                                                  |
+| Eta Max                   2.5                                                |
+| Number of Pt  Bins        13                                                 |
+| pT Min                    0.5                                                |
+| pT Max                    1000                                               |
+|                                                                              |
+================================================================================
+
+
+TrackMaker           INFO Constructed LeptonMatrixManager with configuration 011
+TrackMaker           INFO BremFitter: File /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_XKalInput.dat open.
+TrackMaker           INFO finished reading /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_XKalInput.dat
+TrackMaker           INFO LeptonMatrixManager: file /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_id_resol_mu_000.dat open.
+================================================================================
+|                                                                              |
+|                         Atlfast LeptonTrack Smearer:                         |
+|                                                                              |
+Data file                 /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_id_resol_mu_000.dat|
+| configuration             000                                                |
+| Number of Eta Bins        25                                                 |
+| Eta Min                   0                                                  |
+| Eta Max                   2.5                                                |
+| Number of Pt  Bins        13                                                 |
+| pT Min                    0.5                                                |
+| pT Max                    1000                                               |
+|                                                                              |
+================================================================================
+
+
+TrackMaker           INFO Constructed LeptonMatrixManager with configuration 000
+TrackMaker           INFO Constructing PionMatrixManager
+TrackMaker           INFO PionMatrixManager: File /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_1/InstallArea/share/Atlfast_PionResParam.dat open.
+================================================================================
+|                                                                              |
+|                          Atlfast PionTrack Smearer:                          |
+|                                                                              |
+| Total number of Bins      45                                                 |
+| rT Bin Min                0                                                  |
+| rT Bin Max                44.7                                               |
+| Number of rT Bins         5                                                  |
+| Eta Bin Min               0.125                                              |
+| Eta Bin Max               2.375                                              |
+| Number of Eta Bins        9                                                  |
+|                                                                              |
+================================================================================
+
+
+TrackMaker           INFO Constructed PionMatrixManager
+TrackMaker           INFO TrackSmearer constructed
+================================================================================
+|                                                                              |
+|                             Atlfast Track Maker:                             |
+|                                                                              |
+| Luminosity               2                                                   |
+| Minimum four-vector Pt   500                                                 |
+| Maximum four-vector Eta  2.5                                                 |
+| Maximum Transverse Vertex  3                                                 |
+| Maximum Longitudinal Vertex  40                                              |
+| Do Smearing              false                                               |
+| B Field                  2                                                   |
+| Muon Configuration       000                                                 |
+| Random Number Seed       12345                                               |
+| MC location              /Event/McEventCollection                            |
+| Output Location          /Event/AtlfastTracks                                |
+|                                                                              |
+================================================================================
+
+
+TrackMaker           INFO Initialised successfully 
+================================================================================
+|                                                                              |
+|                              Atlfast Cell Maker:                             |
+|                                                                              |
+| min Cell ET              0                                                   |
+| Magnetic Field is on?    true                                                |
+| Input Location           /Event/McEventCollection                            |
+| Output Location          /Event/AtlfastPoolTestCells                         |
+|  DoSmearing              false                                               |
+|  Run FastShower          false                                               |
+| Calorimeter Geometry:                                                        |
+|  Total Eta Range         5                                                   |
+|  Barrel Eta Range        3.2                                                 |
+|  Barrel Eta Granularity  0.1                                                 |
+|  Barrel Phi Granularity  0.1                                                 |
+|  Forward Eta Granularity 0.2                                                 |
+|  Forward Phi Granularity 0.2                                                 |
+|                                                                              |
+================================================================================
+
+
+Stream1              INFO Data output: athena.root SVC='AthenaPoolCnvSvc'
+AthenaEventLoopMgrWARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO No TimeKeeper selected. No time limit control on event loop.
+HistorySvc           INFO Registered 19 Algorithms
+HistorySvc           INFO Registered 30 Services
+ApplicationMgr       INFO Application Manager Initialized successfully
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-14-00
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
+EventPersistenc...   INFO Added successfully Conversion service:ZebraTDRCnvSvc
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1003    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 1  <<<===
+AthenaSealSvc        INFO Checking fields of class EventInfo for 3 fields: ok 
+AthenaSealSvc        INFO checkClass - check for class EventInfo ok
+AthenaSealSvc        INFO checkClass - check for class EventID* ok
+AthenaSealSvc        INFO checkClass - check for class EventType* ok
+AthenaSealSvc        INFO checkClass - check for class TriggerInfo* ok
+AthenaSealSvc        INFO Checking fields of class EventID for 3 fields: ok 
+AthenaSealSvc        INFO checkClass - check for class EventID ok
+AthenaSealSvc        INFO Checking fields of class EventType for 2 fields: ok 
+AthenaSealSvc        INFO checkClass - check for class EventType ok
+AthenaSealSvc        INFO Checking fields of class TriggerInfo for 4 fields: ok 
+AthenaSealSvc        INFO checkClass - check for class TriggerInfo ok
+AthenaSealSvc        INFO checkClass - check for class unsigned int ok
+AthenaSealSvc        INFO checkClass - check for class vector<bool> ok
+AthenaSealSvc        INFO checkClass - check for class basic_string<char> ok
+AthenaSealSvc        INFO checkClass - check for class bool ok
+AthenaSealSvc        INFO checkClass - check for class char ok
+AthenaSealSvc        INFO checkClass - check for class vector<unsigned int> ok
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO Checking fields of class DataVector<Atlfast::ITwoCptCell> for 2 fields: ok 
+AthenaSealSvc        INFO checkClass - check for class DataVector<Atlfast::ITwoCptCell> ok
+AthenaSealSvc        INFO checkClass - check for class int ok
+AthenaSealSvc        INFO checkClass - check for class vector<Atlfast::ITwoCptCell*> ok
+AthenaSealSvc        INFO checkClass - check for class ITwoCptCell* ok
+AthenaSealSvc        INFO checkClass - check for class ITwoCptCell ok
+AthenaSealSvc        INFO checkClass - check for class ICell ok
+AthenaSealSvc        INFO checkClass - check for class IKinematic ok
+AthenaSealSvc        INFO checkClass - check for class IAOO ok
+AthenaSealSvc        INFO 
+AthenaSealSvc        INFO     ****> Missing base class not defined in dictionary!! 
+AthenaSealSvc        INFO     ****>   Looking for base class I4Momentum of class P4EEtaPhiMBase
+T_AthenaPoolCnv...  ERROR There is no correct dictionary for class "DataVector<Atlfast::ITwoCptCell>"
+AthenaEventLoopMgrWARNING Execution of output stream Stream1 failed
+AthenaEventLoopMgr  ERROR Error processing event loop.
+StoreGateSvc         INFO 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(StoreGateSvc)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x8daaae8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2303 (): 
+ flags: (  valid,   locked,  reset) --- data:  0x8e07120 --- key: /Event/AtlfastEventHeader
+Found 1 proxy for ClassID 2310 (): 
+ flags: (  valid,   locked,  reset) --- data:  0x8e06cf0 --- key: /Event/AtlfastMissingMomentum
+Found 2 proxies for ClassID 2314 (Atlfast::JetCollection): 
+ flags: (  valid,   locked,  reset) --- data:  0x8e06f68 --- key: /Event/AtlfastBJets
+ flags: (  valid,   locked,  reset) --- data:  0x8e06be8 --- key: /Event/AtlfastJets
+Found 9 proxies for ClassID 2315 (Atlfast::ReconstructedParticleCollection): 
+ flags: (  valid,   locked,  reset) --- data:  0x8e059d0 --- key: /Event/AtlfastElectrons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06180 --- key: /Event/AtlfastIsolatedElectrons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06880 --- key: /Event/AtlfastIsolatedMuons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06500 --- key: /Event/AtlfastIsolatedPhotons
+ flags: (  valid,   locked,  reset) --- data:  0x8e00a38 --- key: /Event/AtlfastMuons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06288 --- key: /Event/AtlfastNonIsolatedElectrons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06988 --- key: /Event/AtlfastNonIsolatedMuons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06608 --- key: /Event/AtlfastNonIsolatedPhotons
+ flags: (  valid,   locked,  reset) --- data:  0x8e007d8 --- key: /Event/AtlfastPhotons
+Found 1 proxy for ClassID 2316 (Atlfast::TrackCollection): 
+ flags: (  valid,   locked,  reset) --- data:  0x8e0b7d0 --- key: /Event/AtlfastTracks
+Found 2 proxies for ClassID 2317 (Atlfast::ITwoCptCellCollection): 
+ flags: (  valid,   locked,  reset) --- data:  0x8dffb00 --- key: /Event/AtlfastCells
+ flags: (  valid,   locked,  reset) --- data:  0x8e0bc20 --- key: /Event/AtlfastPoolTestCells
+Found 1 proxy for ClassID 2336 (Atlfast::TrackVector): 
+ flags: (  valid,   locked,  reset) --- data:  0x8dffd10 --- key: /Event/AtlfastUnusedTracks
+Found 1 proxy for ClassID 2337 (Atlfast::TwoCptCellVector): 
+ flags: (  valid,   locked,  reset) --- data:  0x8e05f20 --- key: /Event/AtlfastUnusedCells
+Found 1 proxy for ClassID 2340 (Atlfast::IClusterCollection): 
+ flags: (  valid,   locked,  reset) --- data:  0x8dfff60 --- key: /Event/AtlfastClusters
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid,   locked,  reset) --- data:  0x8daa9d8 --- key: PhysicsTDR
+Found 1 proxy for ClassID 133273 (McEventCollection): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8daaeb0 --- key: GEN_EVENT
+Found 22 proxies for ClassID 83814411 (): 
+ flags: (  valid,   locked,  reset) --- data:  0x8dffc40 --- key: Atlfast::IClusterCollection//Event/AtlfastClusters
+ flags: (  valid,   locked,  reset) --- data:  0x8e058d0 --- key: Atlfast::ITwoCptCellCollection//Event/AtlfastCells
+ flags: (  valid,   locked,  reset) --- data:  0x8e0c740 --- key: Atlfast::ITwoCptCellCollection//Event/AtlfastPoolTestCells
+ flags: (  valid,   locked,  reset) --- data:  0x8e06fe8 --- key: Atlfast::JetCollection//Event/AtlfastBJets
+ flags: (  valid,   locked,  reset) --- data:  0x8e06c68 --- key: Atlfast::JetCollection//Event/AtlfastJets
+ flags: (  valid,   locked,  reset) --- data:  0x8e05a50 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastElectrons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06200 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastIsolatedElectrons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06900 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastIsolatedMuons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06580 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastIsolatedPhotons
+ flags: (  valid,   locked,  reset) --- data:  0x8e05b20 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastMuons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06308 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastNonIsolatedElectrons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06a08 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastNonIsolatedMuons
+ flags: (  valid,   locked,  reset) --- data:  0x8e06688 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastNonIsolatedPhotons
+ flags: (  valid,   locked,  reset) --- data:  0x8e00858 --- key: Atlfast::ReconstructedParticleCollection//Event/AtlfastPhotons
+ flags: (  valid,   locked,  reset) --- data:  0x8e0b850 --- key: Atlfast::TrackCollection//Event/AtlfastTracks
+ flags: (  valid,   locked,  reset) --- data:  0x8dffd90 --- key: Atlfast::TrackVector//Event/AtlfastUnusedTracks
+ flags: (  valid,   locked,  reset) --- data:  0x8e05fa0 --- key: Atlfast::TwoCptCellVector//Event/AtlfastUnusedCells
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8e0c8f0 --- key: DataHeader/Stream1
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8daaf30 --- key: McEventCollection/GEN_EVENT
+ flags: (  valid,   locked,  reset) --- data:  0x8e07228 --- key: UNKNOWN//Event/AtlfastEventHeader
+ flags: (  valid,   locked,  reset) --- data:  0x8e06d88 --- key: UNKNOWN//Event/AtlfastMissingMomentum
+ flags: (  valid,   locked,  reset) --- data:  0x8daab50 --- key: UNKNOWN/PhysicsTDR
+Found 1 proxy for ClassID 222376821 (DataHeader): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8e0c870 --- key: Stream1
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ 
+
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr  ERROR Terminating event processing loop due to errors
+AthenaEventLoopMgr  ERROR Terminating event processing loop due to errors
+HistorySvc           INFO Service finalised successfully
+GenzModule           INFO  GENZ Ending.  
+
+GlobalEventData...   INFO Finalizing
+CellMaker            INFO Finalizing
+ElectronMaker        INFO Finalizing
+PhotonMaker          INFO Finalizing
+MuonMaker            INFO Finalizing
+ElectronIsolator     INFO finalizing
+PhotonIsolator       INFO finalizing
+MuonIsolator         INFO finalizing
+JetMaker             INFO finalizing
+AtlfastB             INFO finalizing
+EventHeaderMaker     INFO finalizing 
+TrackMaker           INFO Finalised successfully 
+AtlfastPoolTest      INFO Finalizing
+GlobalEventData...   INFO destructor, Global Event Data
+ElectronMaker        INFO Destructor Called
+ElectronMaker        INFO Deleting smearer
+ElectronMaker        INFO Deleting smearer
+PhotonMaker          INFO Destructor Called
+PhotonMaker          INFO Deleting smearer
+PhotonMaker          INFO Deleting smearer
+MuonMaker            INFO Destructor Called
+MuonMaker            INFO Deleting smearer
+MuonMaker            INFO Deleting smearer
+ElectronIsolator     INFO destructor
+PhotonIsolator       INFO destructor
+MuonIsolator         INFO destructor
+JetMaker             INFO Destructor Called
+Stream1              INFO Events output: 0
+AthenaSealSvc        INFO finalize() in AthenaSealSvc
+PoolSvc              INFO finalize() in PoolSvc
+AtRndmGenSvc         INFO  FINALISING 
+PartPropSvc          INFO Service finalised successfully
+IOVSvc               INFO Service finalised successfully
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+GlobalEventData...   INFO Time User   : Tot=    0 [us]                                             #=  1
+MuonMaker:execute    INFO Time User   : Tot=    0 [us]                                             #=  1
+PhotonMaker:exe...   INFO Time User   : Tot=    0 [us]                                             #=  1
+MuonIsolator:ex...   INFO Time User   : Tot=    0 [us]                                             #=  1
+PhotonIsolator:...   INFO Time User   : Tot=    0 [us]                                             #=  1
+AtlfastPoolTest...   INFO Time User   : Tot=    0 [us]                                             #=  1
+AtlfastB:execute     INFO Time User   : Tot=    0 [us]                                             #=  1
+ElectronMaker:e...   INFO Time User   : Tot=    0 [us]                                             #=  1
+ElectronIsolato...   INFO Time User   : Tot=    0 [us]                                             #=  1
+EventHeaderMake...   INFO Time User   : Tot=    0 [us]                                             #=  1
+TrackMaker:execute   INFO Time User   : Tot=   10 [ms]                                             #=  1
+JetMaker:execute     INFO Time User   : Tot=   10 [ms]                                             #=  1
+CellMaker:execute    INFO Time User   : Tot=   10 [ms]                                             #=  1
+ClusterMaker:ex...   INFO Time User   : Tot=   10 [ms]                                             #=  1
+GenzModule:execute   INFO Time User   : Tot=   20 [ms]                                             #=  1
+Generator:execute    INFO Time User   : Tot=   20 [ms]                                             #=  1
+Atlfast:execute      INFO Time User   : Tot=   40 [ms]                                             #=  1
+TopSequence:exe...   INFO Time User   : Tot=   60 [ms]                                             #=  1
+Stream1:execute      INFO Time User   : Tot=  440 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 1.39  [s]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized succesfully 
+ToolSvc              INFO Removing all tools created by ToolSvc
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

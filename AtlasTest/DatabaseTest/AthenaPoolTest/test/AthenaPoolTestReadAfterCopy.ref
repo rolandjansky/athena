@@ -1,0 +1,1377 @@
+Py:Athena            INFO including file "AthenaCommon/Compat.py"
+Py:PropertyProxy     INFO Read module info for 1816 configurables from 6 genConfDb files
+Py:PropertyProxy     INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.4 $
+                                          running on lxbuild036.cern.ch on Fri Sep  7 10:29:00 2007
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+Py:Athena            INFO including file "AthenaCommon/Services.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+ApplicationMgr       INFO Successfully loaded modules : IdDictDetDescrCnv
+Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestReadAfterCopy.py"
+Py:Athena            INFO including file "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py"
+Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
+ApplicationMgr       INFO Successfully loaded modules : DBDataModelAthenaPoolPoolCnv
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolTest
+Py:Athena            INFO including file "EventInfo/EventInfoDict_joboptions.py"
+Py:Athena            INFO including file "EventAthenaPool/EventAthenaPool_joboptions.py"
+ApplicationMgr       INFO Successfully loaded modules : EventAthenaPoolPoolCnv
+Py:Athena            INFO including file "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPool_joboptions.py"
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolTestAthenaPoolPoolCnv
+Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
+Warning in <TClass::TClass>: no dictionary for class IProxyDict is available
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-20-04
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Successfully loaded modules : StoreGate
+ApplicationMgr       INFO Successfully loaded modules : GaudiSvc
+ApplicationMgr       INFO Successfully loaded modules : EventSelectorAthenaPool
+ApplicationMgr       INFO Successfully loaded modules : AthenaRootStreamerSvc
+ApplicationMgr       INFO Successfully loaded modules : SGComps
+ApplicationMgr       INFO Successfully loaded modules : AthenaPoolCnvSvc
+ApplicationMgr       INFO Successfully loaded modules : PoolSvc
+ApplicationMgr       INFO Successfully loaded modules : AthenaSealSvc
+ApplicationMgr       INFO Successfully loaded modules : DetDescrCnvSvc
+StatusCodeSvc        INFO initialize
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-20-04
+EventPersistenc...   INFO  'CnvServices':[ 'DetDescrCnvSvc' , 'AthenaPoolCnvSvc' ]
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-04
+MetaDataSvc          INFO Initializing MetaDataSvc - package version EventSelectorAthenaPool-00-05-36
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-11-40
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+AthenaSealSvc        INFO begin initialize() - loading dictionary fillers: size 5
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 4646 types added 1453 dictionary filler name:STLRflx
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 6099 types added 688 dictionary filler name:STLAddRflx
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 6787 types added 660 dictionary filler name:AtlasSTLAddReflexDict
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 7447 types added 567 dictionary filler name:AtlasSealCLHEPDict
+AthenaSealSvc        INFO loadDictFiller - Ntypes before 8014 types added 223 dictionary filler name:EventInfoDict
+PoolSvc              INFO No POOL WriteCatalog was specified--using POOL default.
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':30/ 'ConnectionRetrialTimeOut':300/ 'ConnectionTimeOut':5 seconds
+PoolSvc              INFO Frontier compression level set to 5
+AthenaRootStrea...   INFO POOL/ROOT class loader initialized
+AthenaRootStrea...   INFO 9 ROOT streamers declared
+AthenaRootStrea...   INFO   - Streamer name:CLHEPVec3dStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepVector3D added converter for checksum = 358881035
+AthenaRootStrea...   INFO Adopted streamer for class HepVector3D
+AthenaRootStrea...   INFO   - Streamer name:CLHEPPoint3dStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepPoint3D added converter for checksum = 1634550480
+AthenaRootStrea...   INFO Adopted streamer for class HepPoint3D
+AthenaRootStrea...   INFO   - Streamer name:CLHEPRotationStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepRotation added converter for checksum = 4141898558
+AthenaRootStrea...   INFO Adopted streamer for class HepRotation
+AthenaRootStrea...   INFO   - Streamer name:CLHEPGenMatrixStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepGenMatrix added converter for checksum = 21721098
+AthenaRootStrea...   INFO Adopted streamer for class HepGenMatrix
+AthenaRootStrea...   INFO   - Streamer name:CLHEPMatrixStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepMatrix added converter for checksum = 3811046672
+AthenaRootStrea...   INFO Adopted streamer for class HepMatrix
+AthenaRootStrea...   INFO   - Streamer name:CLHEPLorVecStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepLorentzVector added converter for checksum = 3077056266
+AthenaRootStrea...   INFO Adopted streamer for class HepLorentzVector
+AthenaRootStrea...   INFO   - Streamer name:CLHEPTransform3DStreamer
+AthenaRootStrea...   INFO ROOT Streamer for HepTransform3D added converter for checksum = 520750269
+AthenaRootStrea...   INFO Adopted streamer for class HepTransform3D
+AthenaRootStrea...   INFO   - Streamer name:CLHEP3VectorStreamer
+AthenaRootStrea...   INFO ROOT Streamer for Hep3Vector added converter for checksum = 760000369
+AthenaRootStrea...   INFO Adopted streamer for class Hep3Vector
+AthenaRootStrea...   INFO   - Streamer name:CLHEPBasicVectorStreamer
+AthenaRootStrea...   INFO ROOT Streamer for BasicVector3D added converter for checksum = 2681080162
+AthenaRootStrea...   INFO Adopted streamer for class BasicVector3D
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-02
+ClassIDSvc           INFO  getRegistryEntries: read 1020 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO ClassIDSvc Initialized successfully 
+AthenaPoolCnvSvc     INFO Loading POOL XMLAuthenticationService.
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-20-04
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-05-36
+EventSelector        INFO Create PoolCollectionConverter -  CollectionType: ImplicitROOT Connection:  InputCollection: SimplePoolFile2.root
+SimplePoolFile2.root   Always Root file version:51400
+EventSelector        INFO EventSelection with query  'Query':
+EventSelector        INFO ----- EventSelectorAthenaPool Initialized Properly
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-20-04
+DetDescrCnvSvc       INFO  initializing 
+DetDescrCnvSvc       INFO Found DetectorStore service
+DetDescrCnvSvc       INFO  filling proxies for detector managers 
+DetDescrCnvSvc       INFO  filling address for InDetMgr with CLID 2512 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MuonMgr with CLID 4060 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-18-02
+HistogramPersis...   INFO  'CnvServices':[ 'HbookHistSvc' , 'RootHistSvc' ]
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgrWARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG Attribute list
+SimplePoolFile.root   Always Root file version:51400
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+AthenaSealSvc        INFO checkClass - Number of types on entry 10705
+AthenaSealSvc        INFO checkClass - found type EventInfo_p2
+AthenaSealSvc        INFO checkClass - found ClassID 22006E19-F0DA-4EFB-AF55-6FBDA421BF06
+AthenaSealSvc        INFO Checking members of type EventInfo_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventID_p1 for 6 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventType_p1 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type TriggerInfo_p2 for 7 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type StreamTag_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10705
+AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of event 0  <<<===
+HistorySvc           INFO Registered 1 Algorithms
+HistorySvc           INFO Registered 0 AlgTools
+HistorySvc           INFO Registered 26 Services
+AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
+AthenaSealSvc        INFO checkClass - Number of types on entry 10718
+AthenaSealSvc        INFO checkClass - found type DataVector<IAthenaPoolTestData>
+AthenaSealSvc        INFO checkClass - found ClassID 04010D3C-DB4A-4B5C-BBEF-5A735FCFDEE7
+AthenaSealSvc        INFO Checking members of type DataVector<IAthenaPoolTestData> for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10718
+AthenaPoolTestD...  DEBUG Retrieved collection 1
+AthenaPoolTestD...  DEBUG Collection of A's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 2
+AthenaPoolTestD...  DEBUG Collection of B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 3
+AthenaPoolTestD...  DEBUG Collection of A's and B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xaf4c248
+AthenaPoolTestD...  DEBUG Retrieved collection 4
+AthenaPoolTestD...  DEBUG Collection of C's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xaf52010
+AthenaPoolTestD...  DEBUG Retrieved collection 5
+AthenaPoolTestD...  DEBUG Collection of D's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG 
+AthenaSealSvc        INFO checkClass - Number of types on entry 10718
+AthenaSealSvc        INFO checkClass - found type AthenaPoolTestMatrix
+AthenaSealSvc        INFO checkClass - found ClassID A9A2387C-2E8B-493C-B1C1-454582347C49
+AthenaSealSvc        INFO Checking members of type AthenaPoolTestMatrix for 9 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type HepMatrix for 4 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type HepTransform3D for 12 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type map<unsigned int,CLHEP::HepMatrix> for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10718
+AthenaRootStrea...   INFO Found unknown streamer checksum 761242697 for class HepMatrix - using default ROOT streamer
+AthenaRootStrea...   INFO Found unknown streamer checksum 1734210912 for class HepGenMatrix - using default ROOT streamer
+AthenaRootStrea...   INFO Found unknown streamer checksum 2357390539 for class HepPoint3D - using default ROOT streamer
+AthenaRootStrea...   INFO Found unknown streamer checksum 2965104389 for class BasicVector3D - using default ROOT streamer
+AthenaRootStrea...   INFO Found unknown streamer checksum 4240723739 for class HepTransform3D - using default ROOT streamer
+AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 2 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 2 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx 1
+AthenaPoolTestD...  DEBUG   xy 0
+AthenaPoolTestD...  DEBUG   xz 0
+AthenaPoolTestD...  DEBUG   yx 0
+AthenaPoolTestD...  DEBUG   yy 1
+AthenaPoolTestD...  DEBUG   yz 0
+AthenaPoolTestD...  DEBUG   zx 0
+AthenaPoolTestD...  DEBUG   zy 0
+AthenaPoolTestD...  DEBUG   zz 1
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 2 AthenaPoolTestMatrix_1
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 4 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.333333
+AthenaPoolTestD...  DEBUG   xy 0.666667
+AthenaPoolTestD...  DEBUG   xz 0.666667
+AthenaPoolTestD...  DEBUG   yx -0.666667
+AthenaPoolTestD...  DEBUG   yy 0.333333
+AthenaPoolTestD...  DEBUG   yz -0.666667
+AthenaPoolTestD...  DEBUG   zx -0.666667
+AthenaPoolTestD...  DEBUG   zy -0.666667
+AthenaPoolTestD...  DEBUG   zz 0.333333
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 3 AthenaPoolTestMatrix_2
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 6 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 6 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.777778
+AthenaPoolTestD...  DEBUG   xy 0.444444
+AthenaPoolTestD...  DEBUG   xz 0.444444
+AthenaPoolTestD...  DEBUG   yx -0.444444
+AthenaPoolTestD...  DEBUG   yy 0.111111
+AthenaPoolTestD...  DEBUG   yz -0.888889
+AthenaPoolTestD...  DEBUG   zx -0.444444
+AthenaPoolTestD...  DEBUG   zy -0.888889
+AthenaPoolTestD...  DEBUG   zz 0.111111
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+EventSelector       DEBUG Found Address: 0xada5db8
+AthenaSealSvc        INFO checkClass - Number of types on entry 10718
+AthenaSealSvc        INFO checkClass - found type AthenaPoolTestMap
+AthenaSealSvc        INFO checkClass - found ClassID FC363BAF-A997-4260-86A6-5D029F6DEA65
+AthenaSealSvc        INFO Checking members of type map<unsigned int,AthenaPoolTestMapData> for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type AthenaPoolTestMapData for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type pair<AthenaPoolTestMapDataLink,float> for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type AthenaPoolTestMapDataLink for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type ExtendedBarCode for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10718
+AthenaPoolTestD...  DEBUG Retrieved AthenaPoolMap
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 0  word 0  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 5  word 1  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 10  word 2  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 15  word 3  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 20  word 4  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 25  word 5  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+EventSelector       DEBUG Found Address: 0xb2337f0
+AthenaSealSvc        INFO checkClass - Number of types on entry 10718
+AthenaSealSvc        INFO checkClass - found type dummy_A
+AthenaSealSvc        INFO checkClass - found ClassID 0283910F-B636-4E69-BE22-59DD7B5E8C2B
+AthenaSealSvc        INFO Checking members of type dummy_A for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type dummy_B for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type dummy_C for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10718
+AthenaPoolTestD...  DEBUG Read back dummy_A class 
+AthenaPoolTestD...  DEBUG Dummy A: size B 5
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+EventSelector       DEBUG Found Address: 0xb24bc78
+AthenaSealSvc        INFO checkClass - Number of types on entry 10718
+AthenaSealSvc        INFO checkClass - found type dummy_E
+AthenaSealSvc        INFO checkClass - found ClassID 66ADAB5A-0D48-4A46-A475-464381639917
+AthenaSealSvc        INFO Checking members of type dummy_E for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type dummy_D for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10718
+AthenaPoolTestD...  DEBUG Read back dummy_E class 
+AthenaPoolTestD...  DEBUG Dummy E: size D 2
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Normal EventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,0:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0.9876
+EventSelector       DEBUG Found Address: 0xb25fed8
+AthenaSealSvc        INFO checkClass - Number of types on entry 10718
+AthenaSealSvc        INFO checkClass - found type PileUpEventInfo_p2
+AthenaSealSvc        INFO checkClass - found ClassID C2A54FC3-759C-4F01-AF7E-668D9198E10F
+AthenaSealSvc        INFO Checking members of type PileUpEventInfo_p2 for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventInfo_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type SubEvent for 2 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventID_p1 for 6 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type EventType_p1 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type TriggerInfo_p2 for 7 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc        INFO Checking members of type StreamTag_p2 for 3 members: ok  - isComplete 1
+AthenaSealSvc        INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc        INFO checkClass - Number of types on exit 10718
+AthenaPoolTestD...  DEBUG PileUpEventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,0:0] 
+AthenaPoolTestD...  DEBUG Event type: user type Overlaid
+AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
+AthenaPoolTestD...  DEBUG SubEventInfos
+AthenaPoolTestD...  DEBUG Time, index 0 0
+AthenaPoolTestD...  DEBUG Event ID: [0,0:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent
+AthenaEventLoopMgr   INFO   ===>>>  end of event 0    <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG Attribute list
+AthenaEventLoopMgr   INFO   ===>>>  start of event 1  <<<===
+AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
+AthenaPoolTestD...  DEBUG Retrieved collection 1
+AthenaPoolTestD...  DEBUG Collection of A's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 2
+AthenaPoolTestD...  DEBUG Collection of B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 3
+AthenaPoolTestD...  DEBUG Collection of A's and B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xadce2b8
+AthenaPoolTestD...  DEBUG Retrieved collection 4
+AthenaPoolTestD...  DEBUG Collection of C's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xb05f6c0
+AthenaPoolTestD...  DEBUG Retrieved collection 5
+AthenaPoolTestD...  DEBUG Collection of D's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 2 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 2 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx 1
+AthenaPoolTestD...  DEBUG   xy 0
+AthenaPoolTestD...  DEBUG   xz 0
+AthenaPoolTestD...  DEBUG   yx 0
+AthenaPoolTestD...  DEBUG   yy 1
+AthenaPoolTestD...  DEBUG   yz 0
+AthenaPoolTestD...  DEBUG   zx 0
+AthenaPoolTestD...  DEBUG   zy 0
+AthenaPoolTestD...  DEBUG   zz 1
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 2 AthenaPoolTestMatrix_1
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 4 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.333333
+AthenaPoolTestD...  DEBUG   xy 0.666667
+AthenaPoolTestD...  DEBUG   xz 0.666667
+AthenaPoolTestD...  DEBUG   yx -0.666667
+AthenaPoolTestD...  DEBUG   yy 0.333333
+AthenaPoolTestD...  DEBUG   yz -0.666667
+AthenaPoolTestD...  DEBUG   zx -0.666667
+AthenaPoolTestD...  DEBUG   zy -0.666667
+AthenaPoolTestD...  DEBUG   zz 0.333333
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 3 AthenaPoolTestMatrix_2
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 6 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 6 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.777778
+AthenaPoolTestD...  DEBUG   xy 0.444444
+AthenaPoolTestD...  DEBUG   xz 0.444444
+AthenaPoolTestD...  DEBUG   yx -0.444444
+AthenaPoolTestD...  DEBUG   yy 0.111111
+AthenaPoolTestD...  DEBUG   yz -0.888889
+AthenaPoolTestD...  DEBUG   zx -0.444444
+AthenaPoolTestD...  DEBUG   zy -0.888889
+AthenaPoolTestD...  DEBUG   zz 0.111111
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+EventSelector       DEBUG Found Address: 0xb2102a8
+AthenaPoolTestD...  DEBUG Retrieved AthenaPoolMap
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 0  word 0  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 5  word 1  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 10  word 2  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 15  word 3  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 20  word 4  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 25  word 5  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+EventSelector       DEBUG Found Address: 0xaf4c248
+AthenaPoolTestD...  DEBUG Read back dummy_A class 
+AthenaPoolTestD...  DEBUG Dummy A: size B 5
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+EventSelector       DEBUG Found Address: 0xafe7020
+AthenaPoolTestD...  DEBUG Read back dummy_E class 
+AthenaPoolTestD...  DEBUG Dummy E: size D 2
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Normal EventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,1:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0.9876
+EventSelector       DEBUG Found Address: 0xaab4290
+AthenaPoolTestD...  DEBUG PileUpEventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,1:0] 
+AthenaPoolTestD...  DEBUG Event type: user type Overlaid
+AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
+AthenaPoolTestD...  DEBUG SubEventInfos
+AthenaPoolTestD...  DEBUG Time, index 0 0
+AthenaPoolTestD...  DEBUG Event ID: [0,1:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent
+AthenaEventLoopMgr   INFO   ===>>>  end of event 1    <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG Attribute list
+AthenaEventLoopMgr   INFO   ===>>>  start of event 2  <<<===
+AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
+AthenaPoolTestD...  DEBUG Retrieved collection 1
+AthenaPoolTestD...  DEBUG Collection of A's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 2
+AthenaPoolTestD...  DEBUG Collection of B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 3
+AthenaPoolTestD...  DEBUG Collection of A's and B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xada5db8
+AthenaPoolTestD...  DEBUG Retrieved collection 4
+AthenaPoolTestD...  DEBUG Collection of C's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xaaf8c80
+AthenaPoolTestD...  DEBUG Retrieved collection 5
+AthenaPoolTestD...  DEBUG Collection of D's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 2 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 2 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx 1
+AthenaPoolTestD...  DEBUG   xy 0
+AthenaPoolTestD...  DEBUG   xz 0
+AthenaPoolTestD...  DEBUG   yx 0
+AthenaPoolTestD...  DEBUG   yy 1
+AthenaPoolTestD...  DEBUG   yz 0
+AthenaPoolTestD...  DEBUG   zx 0
+AthenaPoolTestD...  DEBUG   zy 0
+AthenaPoolTestD...  DEBUG   zz 1
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 2 AthenaPoolTestMatrix_1
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 4 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.333333
+AthenaPoolTestD...  DEBUG   xy 0.666667
+AthenaPoolTestD...  DEBUG   xz 0.666667
+AthenaPoolTestD...  DEBUG   yx -0.666667
+AthenaPoolTestD...  DEBUG   yy 0.333333
+AthenaPoolTestD...  DEBUG   yz -0.666667
+AthenaPoolTestD...  DEBUG   zx -0.666667
+AthenaPoolTestD...  DEBUG   zy -0.666667
+AthenaPoolTestD...  DEBUG   zz 0.333333
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 3 AthenaPoolTestMatrix_2
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 6 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 6 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.777778
+AthenaPoolTestD...  DEBUG   xy 0.444444
+AthenaPoolTestD...  DEBUG   xz 0.444444
+AthenaPoolTestD...  DEBUG   yx -0.444444
+AthenaPoolTestD...  DEBUG   yy 0.111111
+AthenaPoolTestD...  DEBUG   yz -0.888889
+AthenaPoolTestD...  DEBUG   zx -0.444444
+AthenaPoolTestD...  DEBUG   zy -0.888889
+AthenaPoolTestD...  DEBUG   zz 0.111111
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+EventSelector       DEBUG Found Address: 0xab83820
+AthenaPoolTestD...  DEBUG Retrieved AthenaPoolMap
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 0  word 0  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 5  word 1  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 10  word 2  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 15  word 3  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 20  word 4  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 25  word 5  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+EventSelector       DEBUG Found Address: 0xb233b28
+AthenaPoolTestD...  DEBUG Read back dummy_A class 
+AthenaPoolTestD...  DEBUG Dummy A: size B 5
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+EventSelector       DEBUG Found Address: 0xaf52010
+AthenaPoolTestD...  DEBUG Read back dummy_E class 
+AthenaPoolTestD...  DEBUG Dummy E: size D 2
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Normal EventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,2:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0.9876
+EventSelector       DEBUG Found Address: 0xb270cc8
+AthenaPoolTestD...  DEBUG PileUpEventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,2:0] 
+AthenaPoolTestD...  DEBUG Event type: user type Overlaid
+AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
+AthenaPoolTestD...  DEBUG SubEventInfos
+AthenaPoolTestD...  DEBUG Time, index 0 0
+AthenaPoolTestD...  DEBUG Event ID: [0,2:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent
+AthenaEventLoopMgr   INFO   ===>>>  end of event 2    <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG Attribute list
+AthenaEventLoopMgr   INFO   ===>>>  start of event 3  <<<===
+AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
+AthenaPoolTestD...  DEBUG Retrieved collection 1
+AthenaPoolTestD...  DEBUG Collection of A's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 2
+AthenaPoolTestD...  DEBUG Collection of B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 3
+AthenaPoolTestD...  DEBUG Collection of A's and B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xaae31d0
+AthenaPoolTestD...  DEBUG Retrieved collection 4
+AthenaPoolTestD...  DEBUG Collection of C's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xb04f238
+AthenaPoolTestD...  DEBUG Retrieved collection 5
+AthenaPoolTestD...  DEBUG Collection of D's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 2 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 2 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx 1
+AthenaPoolTestD...  DEBUG   xy 0
+AthenaPoolTestD...  DEBUG   xz 0
+AthenaPoolTestD...  DEBUG   yx 0
+AthenaPoolTestD...  DEBUG   yy 1
+AthenaPoolTestD...  DEBUG   yz 0
+AthenaPoolTestD...  DEBUG   zx 0
+AthenaPoolTestD...  DEBUG   zy 0
+AthenaPoolTestD...  DEBUG   zz 1
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 2 AthenaPoolTestMatrix_1
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 4 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.333333
+AthenaPoolTestD...  DEBUG   xy 0.666667
+AthenaPoolTestD...  DEBUG   xz 0.666667
+AthenaPoolTestD...  DEBUG   yx -0.666667
+AthenaPoolTestD...  DEBUG   yy 0.333333
+AthenaPoolTestD...  DEBUG   yz -0.666667
+AthenaPoolTestD...  DEBUG   zx -0.666667
+AthenaPoolTestD...  DEBUG   zy -0.666667
+AthenaPoolTestD...  DEBUG   zz 0.333333
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 3 AthenaPoolTestMatrix_2
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 6 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 6 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.777778
+AthenaPoolTestD...  DEBUG   xy 0.444444
+AthenaPoolTestD...  DEBUG   xz 0.444444
+AthenaPoolTestD...  DEBUG   yx -0.444444
+AthenaPoolTestD...  DEBUG   yy 0.111111
+AthenaPoolTestD...  DEBUG   yz -0.888889
+AthenaPoolTestD...  DEBUG   zx -0.444444
+AthenaPoolTestD...  DEBUG   zy -0.888889
+AthenaPoolTestD...  DEBUG   zz 0.111111
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+EventSelector       DEBUG Found Address: 0xac10318
+AthenaPoolTestD...  DEBUG Retrieved AthenaPoolMap
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 0  word 0  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 5  word 1  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 10  word 2  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 15  word 3  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 20  word 4  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 25  word 5  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+EventSelector       DEBUG Found Address: 0xb2712d0
+AthenaPoolTestD...  DEBUG Read back dummy_A class 
+AthenaPoolTestD...  DEBUG Dummy A: size B 5
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+EventSelector       DEBUG Found Address: 0xb271300
+AthenaPoolTestD...  DEBUG Read back dummy_E class 
+AthenaPoolTestD...  DEBUG Dummy E: size D 2
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Normal EventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,3:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0.9876
+EventSelector       DEBUG Found Address: 0xb271a88
+AthenaPoolTestD...  DEBUG PileUpEventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,3:0] 
+AthenaPoolTestD...  DEBUG Event type: user type Overlaid
+AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
+AthenaPoolTestD...  DEBUG SubEventInfos
+AthenaPoolTestD...  DEBUG Time, index 0 0
+AthenaPoolTestD...  DEBUG Event ID: [0,3:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent
+AthenaEventLoopMgr   INFO   ===>>>  end of event 3    <<<===
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 0
+EventSelector       DEBUG Attribute list
+AthenaEventLoopMgr   INFO   ===>>>  start of event 4  <<<===
+AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
+AthenaPoolTestD...  DEBUG Retrieved collection 1
+AthenaPoolTestD...  DEBUG Collection of A's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 2
+AthenaPoolTestD...  DEBUG Collection of B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved collection 3
+AthenaPoolTestD...  DEBUG Collection of A's and B's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xafcb7a8
+AthenaPoolTestD...  DEBUG Retrieved collection 4
+AthenaPoolTestD...  DEBUG Collection of C's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
+AthenaPoolTestD...  DEBUG 
+EventSelector       DEBUG Found Address: 0xb26ff50
+AthenaPoolTestD...  DEBUG Retrieved collection 5
+AthenaPoolTestD...  DEBUG Collection of D's
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
+AthenaPoolTestD...  DEBUG 
+AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 2 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 2 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx 1
+AthenaPoolTestD...  DEBUG   xy 0
+AthenaPoolTestD...  DEBUG   xz 0
+AthenaPoolTestD...  DEBUG   yx 0
+AthenaPoolTestD...  DEBUG   yy 1
+AthenaPoolTestD...  DEBUG   yz 0
+AthenaPoolTestD...  DEBUG   zx 0
+AthenaPoolTestD...  DEBUG   zy 0
+AthenaPoolTestD...  DEBUG   zz 1
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 2 AthenaPoolTestMatrix_1
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 4 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.333333
+AthenaPoolTestD...  DEBUG   xy 0.666667
+AthenaPoolTestD...  DEBUG   xz 0.666667
+AthenaPoolTestD...  DEBUG   yx -0.666667
+AthenaPoolTestD...  DEBUG   yy 0.333333
+AthenaPoolTestD...  DEBUG   yz -0.666667
+AthenaPoolTestD...  DEBUG   zx -0.666667
+AthenaPoolTestD...  DEBUG   zy -0.666667
+AthenaPoolTestD...  DEBUG   zz 0.333333
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+AthenaPoolTestD...  DEBUG Retrieved matrix 3 AthenaPoolTestMatrix_2
+AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
+AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
+AthenaPoolTestD...  DEBUG    Big matrix : ( 6, 6 ) 
+AthenaPoolTestD...  DEBUG    Other matrices : 
+AthenaPoolTestD...  DEBUG                   ( 4, 6 ) 
+AthenaPoolTestD...  DEBUG                   ( 5, 6 ) 
+AthenaPoolTestD...  DEBUG    Matrix maps : 2
+AthenaPoolTestD...  DEBUG    Key, row, column 5 4, 4
+AthenaPoolTestD...  DEBUG    Key, row, column 10 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 16 6, 6
+AthenaPoolTestD...  DEBUG    Key, row, column 35 4, 4
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG    Matrix transform: 
+AthenaPoolTestD...  DEBUG   xx -0.777778
+AthenaPoolTestD...  DEBUG   xy 0.444444
+AthenaPoolTestD...  DEBUG   xz 0.444444
+AthenaPoolTestD...  DEBUG   yx -0.444444
+AthenaPoolTestD...  DEBUG   yy 0.111111
+AthenaPoolTestD...  DEBUG   yz -0.888889
+AthenaPoolTestD...  DEBUG   zx -0.444444
+AthenaPoolTestD...  DEBUG   zy -0.888889
+AthenaPoolTestD...  DEBUG   zz 0.111111
+AthenaPoolTestD...  DEBUG   dx 0
+AthenaPoolTestD...  DEBUG   dy 0
+AthenaPoolTestD...  DEBUG   dz 0
+EventSelector       DEBUG Found Address: 0xb008f80
+AthenaPoolTestD...  DEBUG Retrieved AthenaPoolMap
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 0  word 0  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 5  word 1  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 10  word 2  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 15  word 3  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 20  word 4  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 25  word 5  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 30  word 6  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
+EventSelector       DEBUG Found Address: 0xb271788
+AthenaPoolTestD...  DEBUG Read back dummy_A class 
+AthenaPoolTestD...  DEBUG Dummy A: size B 5
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+AthenaPoolTestD...  DEBUG Dummy B: size C 4
+AthenaPoolTestD...  DEBUG i,c: 0 10
+AthenaPoolTestD...  DEBUG i,c: 1 10
+AthenaPoolTestD...  DEBUG i,c: 2 10
+AthenaPoolTestD...  DEBUG i,c: 3 10
+EventSelector       DEBUG Found Address: 0xab83358
+AthenaPoolTestD...  DEBUG Read back dummy_E class 
+AthenaPoolTestD...  DEBUG Dummy E: size D 2
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Dummy D: value 10
+AthenaPoolTestD...  DEBUG Normal EventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,4:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0.9876
+EventSelector       DEBUG Found Address: 0xab833e0
+AthenaPoolTestD...  DEBUG PileUpEventInfo
+AthenaPoolTestD...  DEBUG Event ID: [0,4:0] 
+AthenaPoolTestD...  DEBUG Event type: user type Overlaid
+AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
+AthenaPoolTestD...  DEBUG SubEventInfos
+AthenaPoolTestD...  DEBUG Time, index 0 0
+AthenaPoolTestD...  DEBUG Event ID: [0,4:0] 
+AthenaPoolTestD...  DEBUG Event type: user type McEvent
+AthenaEventLoopMgr   INFO   ===>>>  end of event 4    <<<===
+HistorySvc           INFO Service finalised successfully
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-20-04
+PoolSvc              INFO finalize() in PoolSvc
+AthenaSealSvc        INFO finalize() in AthenaSealSvc
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-20-04
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-02-20-04
+ToolSvc.finalize()   INFO Removing all tools created by ToolSvc
+ChronoStatSvc.f...   INFO  Service finalized succesfully 
+EventSelector     WARNING Service already offline
+StatusCodeSvc        INFO initialize
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

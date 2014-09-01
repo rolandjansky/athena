@@ -1,0 +1,795 @@
+Wed Nov 21 09:02:49 CET 2012
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [AtlasOffline-17.7.0] [x86_64-slc5-gcc43-opt] [17.X.0-VAL/rel_1] -- built on [2012 11/18 22:05]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaPoolTest/CaloClusterReader_jobOptions.py"
+Py:ConfigurableDb    INFO Read module info for 5399 configurables from 10 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "RecExCond/AllDet_detDescr.py"
+Py:Athena            INFO including file "RecExCond/RecExCommon_DetFlags.py"
+Py:RecExCommon_DetFlags    INFO DetFlags already defined.by user : user should have fully configured it already! 
+Py:Athena            INFO Importing MuonRecExample.MuonRecUtils
+Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
+Py:MuonRec           INFO Changing default straightLineFitMomentum = 2000.0
+Py:Athena            INFO Importing module MuonCnvExample.MuonCalibFlags
+Py:MuonCnvExample.MuonCalibFlags    INFO Changing default mdtPropagationSpeedBeta = 1.0
+Py:MuonRec           INFO Importing MuonRecExample.MuonRecFlags
+Py:MuonRec           INFO Changing default applyResilience = True
+Py:MuonRec           INFO Changing default enableErrorTuning = True
+Py:MuonRec           INFO Changing default useTGCPriorNextBC = False
+Py:MuonRec           INFO Changing default calibMoore = False
+Py:MuonRec           INFO Changing default calibMuonboy = False
+Py:MuonRec           INFO Changing default calibNtupleTracks = False
+Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
+EventInfoMgtInit: Got release version  AtlasOffline-rel_1
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "TileIdCnv/TileIdCnv_jobOptions.py"
+Py:Athena            INFO including file "LArDetDescr/LArDetDescr_joboptions.py"
+now initializing the LAr readout geometry : standard Atlas flavour
+Py:Athena            INFO including file "LArIdCnv/LArIdCnv_joboptions.py"
+Py:Athena            INFO including file "LArTools/LArTools_jobOptions.py"
+Py:Athena            INFO including file "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py"
+ATLAS-GEO-16-00-00
+Py:JobPropertyContainer::    INFO  ATLAS-GEO version 16 
+Py:JobPropertyContainer::    INFO  use global tag for all LArElecCalibMC constants 
+Py:Athena            INFO including file "LArCondAthenaPool/LArCondAthenaPool_joboptions.py"
+Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOptions.py"
+Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
+Py:Athena            INFO including file "LArCondAthenaPool/LArCondAthenaPool_joboptions.py"
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdAtlas with tag OnOffIdAtlas-012
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodAtlas with tag FebRodAtlas-005
+Py:Athena            INFO including file "BFieldAth/BFieldAth_jobOptions.py"
+Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.77 $
+                                          running on lxplus423.cern.ch on Wed Nov 21 09:02:52 2012
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                   INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+StatusCodeSvc                    INFO initialize
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
+RootDBase.open Success SimplePoolFile.root File version:53400
+RalSessionMgr Warning Use COOL_DISABLE_CORALCONNECTIONPOOLCLEANUP
+Data source lookup using /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/XML/AtlasAuthentication/dblookup.xml file
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failed to connect to service geomDB/geomDB_sqlite (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/geomDB is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/geomDB is not writable" )
+AthenaEventLoopMgr               INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-56-41
+CaloClusterFakeReader            INFO CaloClusterFakeReader::initialize()
+CaloClusterFakeReader           DEBUG  Found DetectorStore 
+CaloClusterFakeReader           DEBUG  Found the LArEM_ID helper. 
+CORAL/Services/ConnectionService Warning Failed to connect to service geomDB/geomDB_sqlite (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/geomDB is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/geomDB is not writable" )
+DetectorStore                 WARNING retrieve(default): No valid proxy for default object 
+ of type TileDetDescrManager(CLID 2941)
+CaloMgrDetDescrCnv            WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
+HistogramPersistencySvc       WARNING Histograms saving not required.
+AthenaEventLoopMgr               INFO Setup EventSelector service EventSelector
+ApplicationMgr                   INFO Application Manager Initialized successfully
+RootDBase.open Success SimplePoolFile.root File version:53400
+ApplicationMgr                   INFO Application Manager Started successfully
+AthenaEventLoopMgr               INFO   ===>>>  start of run 0    <<<===
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/schaffer/w1/public1/work-17.x-fixes/AtlasTest/DatabaseTest/AthenaPoolTest/run/sqlite200 is not writable" )
+RootDBase.open Success /afs/cern.ch/atlas/conditions/poolcond/vol0/cond09_mc.000016.gen.COND/cond09_mc.000016.gen.COND._0001.pool.root File version:52200
+RootDBase.open Success /afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::execute()
+CaloClusterFakeReader           DEBUG Container 'LArClusterCont' retrieved from StoreGate
+CaloClusterFakeReader           DEBUG Created CaloCellContainer
+CaloClusterFakeReader            INFO CaloClusterFakeReader::printCells from cluster
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.3.0] energy  0 time    0 quality 0 eta     1.5147 phi     0.33873
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.0.0.60.4.0] energy  0 time    39.993 quality 0 eta     1.5148 phi     0.43712
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  10 0.0051516 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.3.0] energy  5.0301 time    0 quality 0 eta     0.0051512 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.1.4.0] energy  5.0301 time    39.993 quality 2 eta     0.005152 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  20 0.008283 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.3.0] energy  9.9956 time    0 quality 0 eta     0.0082824 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.2.4.0] energy  9.9956 time    39.993 quality 4 eta     0.0082837 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  30 0.011414 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.3.0] energy  15.049 time    0 quality 0 eta     0.011414 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.3.4.0] energy  15.049 time    39.993 quality 6 eta     0.011415 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB1  40 0.014546 0.38802
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB2  0 0 0
+CaloClusterFakeReader           DEBUG CaloCluster: e, eta, phi EMB3  0 0 0
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    0 quality 0 eta     0.014545 phi     0.33884
+CaloClusterFakeReader           DEBUG   CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 eta     0.014547 phi     0.43721
+CaloClusterFakeReader           DEBUG CaloClusterFakeReader::printCells from cluster end
+CaloClusterFakeReader            INFO Successful check of CaloCellContainer I/O. Cells read: 10
+AthenaEventLoopMgr               INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+ApplicationMgr                   INFO Application Manager Stopped successfully
+CaloClusterFakeReader            INFO CaloClusterFakeReader::finalize()
+IOVDbSvc                      WARNING Folder /LAR/BadChannels/BadChannels is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/BadChannels/MissingFEBs is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/AutoCorr is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/DAC2uA is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/Identifier/FebRodAtlas is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/HVScaleCorr is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/MinBias is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/MinBiasAverage is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/MphysOverMcal is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/Noise is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/Identifier/OnOffIdAtlas is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/Pedestal is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/Ramp is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/Shape is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/fSampl is requested but no data retrieved
+IOVDbSvc                      WARNING Folder /LAR/ElecCalibMC/uA2MeV is requested but no data retrieved
+ApplicationMgr                   INFO Application Manager Finalized successfully
+ApplicationMgr                   INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
