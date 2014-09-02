@@ -1,0 +1,26 @@
+// job opts for AtDSFMTSvc unit test
+
+// $Id: AtDSFMT_test.txt,v 1.2 2007-06-24 05:37:15 calaf Exp $
+
+ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.ExtSvc += { "AtDSFMTGenSvc", "AtDSFMTGenSvc/AtDSFMTGenSvc2", "AtDSFMTGenSvc/AtDSFMTGenSvc3"  };
+ApplicationMgr.ExtSvcCreates = false;
+
+MessageSvc.OutputLevel = 2;
+
+AtDSFMTGenSvc.OutputLevel = 1;
+
+AtDSFMTGenSvc.Seeds = { "PITHIA 1 2", "PITHIA_INIT 3 4"};
+
+AtDSFMTGenSvc.FileToWrite   = "test_AtDSFMTGenSvc.out";
+
+AtDSFMTGenSvc2.OutputLevel = 1;
+
+AtDSFMTGenSvc2.ReadFromFile = true;
+AtDSFMTGenSvc2.FileToRead   = "test_AtDSFMTGenSvc.out";
+AtDSFMTGenSvc2.FileToWrite   = "test2_AtDSFMTGenSvc.out";
+
+AtDSFMTGenSvc3.ReadFromFile = true;
+AtDSFMTGenSvc3.FileToRead   = "test_AtDSFMTGenSvc.out";
+AtDSFMTGenSvc3.SaveToFile = false;
+

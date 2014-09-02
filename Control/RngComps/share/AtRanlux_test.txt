@@ -1,0 +1,26 @@
+// job opts for AtRanluxSvc unit test
+
+// $Id: AtRanlux_test.txt,v 1.2 2007-06-24 05:37:15 calaf Exp $
+
+ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.ExtSvc += { "AtRanluxGenSvc", "AtRanluxGenSvc/AtRanluxGenSvc2", "AtRanluxGenSvc/AtRanluxGenSvc3"  };
+ApplicationMgr.ExtSvcCreates = false;
+
+MessageSvc.OutputLevel = 2;
+
+AtRanluxGenSvc.OutputLevel = 1;
+
+AtRanluxGenSvc.Seeds = { "PITHIA 1 2", "PITHIA_INIT LUXURY 0 3 4"};
+
+AtRanluxGenSvc.FileToWrite   = "test_AtRanluxGenSvc.out";
+
+AtRanluxGenSvc2.OutputLevel = 1;
+
+AtRanluxGenSvc2.ReadFromFile = true;
+AtRanluxGenSvc2.FileToRead   = "test_AtRanluxGenSvc.out";
+AtRanluxGenSvc2.FileToWrite   = "test2_AtRanluxGenSvc.out";
+
+AtRanluxGenSvc3.ReadFromFile = true;
+AtRanluxGenSvc3.FileToRead   = "test_AtRanluxGenSvc.out";
+AtRanluxGenSvc3.SaveToFile = false;
+
