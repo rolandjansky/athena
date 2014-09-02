@@ -1,0 +1,52 @@
+--------------------------------------------------------------
+G4AtlasApps: Geant4 ATLAS simulation Applications
+--------------------------------------------------------------
+
+G4AtlasApps is a Python-coded package that can set up and run,
+within Athena, the Geant4 ATLAS full simulation or any other
+ATLAS simulation like the ATLAS barrel Combined Test Beam or
+cosmics setups.
+
+
+Documentation
+-------------
+
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AtlasSimulation
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/RecipesG4AtlasApps
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/CosmicSimulation
+
+
+Bug reporting
+-------------
+
+https://savannah.cern.ch/bugs/?group=atlas-sim
+atlas-simulation-team@cern.ch (specific technical issues)
+
+
+User support (requirements, requests)
+-------------------------------------
+
+https://savannah.cern.ch/support/?group=atlas-sim
+atlas-simulation@cern.ch (general queries)
+
+
+Examples
+--------
+
+Generating simulated hits files for further digi/reco/analysis testing
+use should be done using the various "transform" scripts, such as the
+AtlasG4_trf and Digi_trf scripts supplied by the Simulation/SimuJobTransforms
+package. Any simulation to be used for official analysis/performance purposes
+should be centrally produced and validated by the ATLAS production team.
+The following job option scripts are for testing only:
+
+  jobOptions.G4Atlas.py            ---> ATLAS full simulation
+  jobOptions.G4Atlas_ReadEvgen.py  ---> ATLAS full simulation, with evgen file input
+
+  jobOptions.G4Cosmic.py           ---> Plain cosmic simulation
+
+  jobOptions.G4Ctb.py              ---> Combined testbeam simulation
+  jobOptions.G4TB_Tile2000-2003.py ---> Tile2000-2003 testbeam
+  jobOptions.G4TB_LArH6-2003.py    ---> LArH6 testbeam 2003
+  jobOptions.G4TB_LArH6-2002.py    ---> LArH6 testbeam 2002
+  jobOptions.G4TB_LArH6EC-2002.py  ---> LArH6 EC testbeam 2002
