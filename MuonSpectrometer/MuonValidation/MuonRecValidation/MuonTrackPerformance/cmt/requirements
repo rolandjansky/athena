@@ -1,0 +1,38 @@
+package MuonTrackPerformance
+
+author Niels van Eldik <niels.van.eldik@cern.ch>
+
+use AtlasPolicy         	AtlasPolicy-*
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use GaudiInterface      	GaudiInterface-*  	    	External
+use MuonSegment 		MuonSegment-* 		   	MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRecToolInterfaces 	MuonRecToolInterfaces-* 	MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonRecHelperTools 		MuonRecHelperTools-*  	   	MuonSpectrometer/MuonReconstruction/MuonRecTools
+use TrkTrack                    TrkTrack-*                      Tracking/TrkEvent
+use TrkTrackSummary             TrkTrackSummary-*               Tracking/TrkEvent
+use TrkToolInterfaces           TrkToolInterfaces-*             Tracking/TrkTools
+use TrkTruthData         TrkTruthData-*            Tracking/TrkEvent
+use MuonIdHelpers MuonIdHelpers-* MuonSpectrometer
+apply_pattern component_library 
+apply_pattern declare_joboptions files="*.py"
+library MuonTrackPerformance *.cxx components/*.cxx
+
+private
+
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+
+use AtlasHepMC                  AtlasHepMC-*                    External
+use AtlasROOT                   AtlasROOT-*                     External
+use StoreGate                   StoreGate-*                     Control
+use EventInfo                   EventInfo-*                     Event
+use xAODMuon                    xAODMuon-*                      Event/xAOD
+use xAODTruth			xAODTruth-*			Event/xAOD
+use xAODEventInfo       	xAODEventInfo-*         	Event/xAOD
+use xAODTracking		xAODTracking-*			Event/xAOD
+
+
+
+
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
