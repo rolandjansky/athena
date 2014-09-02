@@ -37,6 +37,10 @@ def getDefaultGeant4Selector(name="ISF_DefaultGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , getService('ISF_Geant4SimSvc'))
     return getDefaultSimSelector(name, **kwargs )
 
+def getDefaultAFIIGeant4Selector(name="ISF_DefaultAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault("Simulator"   , getService('ISF_AFIIGeant4SimSvc'))
+    return getDefaultGeant4Selector(name, **kwargs )
+
 def getFullGeant4Selector(name="ISF_FullGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , getService('ISF_FullGeant4SimSvc'))
     return getDefaultSimSelector(name, **kwargs )
@@ -93,6 +97,10 @@ def getMuonSelector(name="ISF_MuonSelector", **kwargs):
 def getMuonGeant4Selector(name="ISF_MuonGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , getService('ISF_Geant4SimSvc'))
     return getMuonSelector(name, **kwargs)
+
+def getMuonAFIIGeant4Selector(name="ISF_MuonAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault('Simulator'       , getService('ISF_AFIIGeant4SimSvc'))
+    return getMuonGeant4Selector(name, **kwargs)
 
 def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):
     kwargs.setdefault('Simulator'       , getService('ISF_FatrasSimSvc'))
