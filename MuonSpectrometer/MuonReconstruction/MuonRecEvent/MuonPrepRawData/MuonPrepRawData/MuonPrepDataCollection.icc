@@ -1,0 +1,59 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// MuonPrepDataCollection.icc
+//   Implementation file for class MuonPrepDataCollection
+///////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+// Version 1.0 06/07/2004 Ketevi A. Assamagan - adapted from Veronique
+///////////////////////////////////////////////////////////////////
+
+template< class PrepDataT >
+// Constructor with parameters:
+MuonPrepDataCollection< PrepDataT >::MuonPrepDataCollection(const 
+						      IdentifierHash idHash) :
+  Identifiable(),
+  m_idHash(idHash),
+  m_id()
+{}
+
+template< class PrepDataT >
+// Default Constructor :
+MuonPrepDataCollection< PrepDataT >::MuonPrepDataCollection() :
+  Identifiable(),
+  m_idHash(),
+  m_id()
+{}
+
+// Destructor:
+template< class PrepDataT >
+MuonPrepDataCollection< PrepDataT >::~MuonPrepDataCollection()
+{ }
+
+template< class PrepDataT >
+Identifier MuonPrepDataCollection< PrepDataT >::identify() const
+{
+  return m_id;
+}
+
+template< class PrepDataT >
+IdentifierHash MuonPrepDataCollection< PrepDataT >::identifyHash() const
+{
+  return m_idHash;
+}
+template< class PrepDataT >
+void MuonPrepDataCollection< PrepDataT >::setIdentifier(Identifier id)
+{
+  m_id = id;
+}
+
+template< class PrepDataT >
+std::string MuonPrepDataCollection< PrepDataT >::type() const
+{
+  return "MuonPrepDataCollection";
+}
+
+

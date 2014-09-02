@@ -1,0 +1,82 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonPrepRawData/sTgcPrepData.h"
+#include "GaudiKernel/MsgStream.h"
+
+namespace Muon
+{
+
+  sTgcPrepData::sTgcPrepData( const Identifier& RDOId,
+			      const IdentifierHash &idDE,
+			      const Amg::Vector2D& locpos,
+			      const std::vector<Identifier>& rdoList,
+			      const Amg::MatrixX* locErrMat,
+			      const MuonGM::sTgcReadoutElement* detEl,
+			      const uint16_t bcBitMap ) :
+    MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
+    m_detEl(detEl),
+    m_bcBitMap(bcBitMap)
+  { }
+
+  // Destructor:
+  sTgcPrepData::~sTgcPrepData()
+  {
+
+  }
+
+  // Default constructor:
+  sTgcPrepData::sTgcPrepData():
+    MuonCluster(),
+    m_detEl(0),
+    m_bcBitMap(0)
+  { }
+
+  //copy constructor:
+  sTgcPrepData::sTgcPrepData(const sTgcPrepData& RIO):
+    MuonCluster(RIO),
+    m_detEl( RIO.m_detEl ),
+    m_bcBitMap( RIO.m_bcBitMap )
+  { }
+
+  //assignment operator
+  sTgcPrepData&
+  sTgcPrepData::operator=(const sTgcPrepData& RIO)
+  {
+    if (&RIO !=this)
+      {
+	MuonCluster::operator=(RIO);
+	m_detEl =  RIO.m_detEl ;
+	m_bcBitMap = RIO.m_bcBitMap;
+      }
+    return *this;
+
+  }
+
+  MsgStream&
+  sTgcPrepData::dump( MsgStream&    stream) const
+  {
+    stream << MSG::INFO<<"sTgcPrepData {"<<std::endl;
+    
+    MuonCluster::dump(stream);
+ 
+    stream<<"}"<<endreq;
+
+    return stream;
+  }
+
+  std::ostream&
+  sTgcPrepData::dump( std::ostream&    stream) const
+  {
+    stream << "sTgcPrepData {"<<std::endl;
+    
+    MuonCluster::dump(stream);
+
+    stream<<"}"<<std::endl;
+
+    return stream;
+  }
+  //end of classdef
+}//end of ns
+
