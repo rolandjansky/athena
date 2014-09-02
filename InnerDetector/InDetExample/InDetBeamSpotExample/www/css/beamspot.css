@@ -1,0 +1,216 @@
+@charset "utf-8";
+@import "tablesorter.css";
+
+html {
+    height: 100%;
+    padding: 0;
+}
+
+body {
+    width: 95%;
+    height: 95%;
+    padding: 0;
+    margin: 0 auto 0 auto;
+    font: 100% Verdana, Arial, Helvetica, sans-serif;
+}
+
+iFrame {
+    width: 95%;
+    margin: 0 auto 1em 30px;
+    height: 95%;
+    border: 0px;
+}
+
+table {
+    background-color:white;
+    margin: 0 auto 1em 30px;
+    text-align: left;
+    border: 0px;
+    font-size: 6pt;
+}
+
+td {
+    color: black;
+    padding: 4px;
+    background-color: lavender;
+    vertical-align: top;
+    border: 1px solid white;
+}
+
+td.header {
+    background-color: #C0D4E5;
+}
+
+td.ok {
+    background-color: green;
+}
+
+td.warn {
+    background-color: yellow;
+}
+
+td.bad {
+    background-color: red;
+}
+
+a {text-decoration:none}
+a:link    { color: rgb(0, 0, 100) }  /* for unvisited links */
+a:visited { color: rgb(0, 0, 100) } /* for visited links */
+a:active { color: rgb(0, 0, 100) } /* when link is clicked */
+a:hover { text-decoration: underline; font-style: normal; color: rgb(0, 0, 150) }
+
+select {
+    display: inline;
+    vertical-align: top;
+}
+
+label {
+    font-weight: bold;
+}
+
+.acurrentlink {
+    font-weight: bold;
+    background: #D3E0E0;
+}
+
+.ok {
+    /* background-color: green; */
+}
+
+.warn {
+    background-color: yellow;
+}
+
+.bad {
+    background-color: red;
+}
+
+.text {
+    margin: 1em auto 0 auto;
+    width: 95%;
+    text-align: left;
+}
+
+.boldtext {
+    margin: 1em auto 0 auto;
+    width: 95%;
+    text-align: left;
+    font-weight: bold;
+    
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+.errormsg {
+    margin: 3em auto 0 auto;
+    padding: 10px;
+    width: 70%;
+    text-align: center;
+    font-weight:bold;
+    background-color: red;
+}
+
+.example {
+    color: green;
+    font-size: 90%;
+}
+
+.submit {
+    font-weight: bold;
+    margin-left: 20px;
+    padding: 3px 10px 3px 10px;
+}
+
+.floatleft {
+    float: left;
+}
+
+.floatright {
+    float: right;
+}
+
+.clearfloat { /* this class should be placed on a div or break element and should be the final element be
+fore the close of a container that should fully contain a float */
+    clear:both;
+    height:0;
+    font-size:1px;
+    line-height:0px;
+}
+
+#header {
+    background-color:  #C0D4E5;
+    padding: 5px 5px 5px 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#logo {
+    float: left;
+    height: 70px;
+}
+
+#webplot {
+    width: 90%;
+}
+
+#plot {
+    float: none;
+    width: 60%;
+}
+
+#header ul {
+    text-align: center;
+    margin: 0 auto 0 auto;
+}
+
+#header li {
+    display: inline;
+    padding: 20px;
+}
+
+#header h1 {
+    text-align: center;
+    margin-top: 0px;
+}
+
+#content {
+    height: 88%;
+    text-align: center;
+    overflow: auto;
+}
+
+#footer {
+    background-color:  #C0D4E5;
+    padding: 5px 5px 5px 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.params {
+    margin: 1em auto 0 auto;
+    width: 95%;
+    text-align: left;
+}
+
+.params fieldset {
+    /* width: 600px; */
+    background: lavender;
+    border: 0px solid #6694E3;
+    margin:20px 0 20px 0;
+}
+
+.params label {
+    padding: 0 5px 0 10px;
+}
+
+.params .example {
+    padding-left: 10px;
+}
+
+.example {
+    color: green;
+    font-size: 90%;
+}

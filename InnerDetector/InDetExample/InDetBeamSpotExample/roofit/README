@@ -1,0 +1,100 @@
+Standalone Beam Spot Fits with RooFit            Juerg Beringer, 4/9/2012
+=====================================
+$Id: README 495498 2012-04-12 21:29:22Z beringer $
+
+The code in this directory implements standalone beam spot fits based
+on RooFit. It does not need any athena setup and can be used with
+recent versions of ROOT (ROOT v5.32/00 or later recommended). Note
+that ROOTUtils.py is a soft link to ../python/ROOTUtils.py, so even
+though this is a standalone fit you should still check out the
+complete InDetBeamSpotExample package to get ROOTUtils.py in the
+proper place (or copy ROOTUTils.py manually).
+
+fitman.py is the driving routine for performing fits and producing
+plots. Try `fitman.py -h` to see usage information:
+
+    > ./fitman.py -h
+    Usage: fitman.py [options] [cmd ...]
+
+    Commands are:
+
+      extract          Extract selected vertices into vertex ntuple
+		       (if given, must be first command)
+      stdfit           Standard beam spot fit (except for outlier removal)
+      stdfitvzz        Dito, but includes z resolution
+      mypdf            Similar to stdfit, but uses dedicated BeamSpotPdf class
+		       (fast, but doesn't implement all integrals for plotting yet)
+      2gauss           Double Gaussian fit - NOT YET WORKING
+      plot             Plot data and fit of x, y, z
+      data             Histograms of x, y, z
+      cov              Histograms of vertex error covariance
+      vtxerr           Histograms of vertex errors in x, y, z
+      vtxerrxy         Histograms of vertex errors in x, y
+
+
+    Options:
+      --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      -e SRCNTNAME, --srcnt=SRCNTNAME
+			    extract: file name of source beam spot fitter ntuple
+      -l LBMIN, --lbl=LBMIN
+			    extract: minimum LB number (inclusive)
+      -u LBMAX, --lbu=LBMAX
+			    extract: maximum LB number (inclusive)
+      -b BCID, --bcid=BCID  extract: BCID
+      -t VTYPE, --vtype=VTYPE
+			    extract: vertex type (1=PriVtx, 3=PileUp)
+      -n NTRACKS, --ntracks=NTRACKS
+			    extract: min number of tracks per vertex
+      -p PASSED, --passed=PASSED
+			    extract: passed flag (use only vertices passing
+			    InDetBeamSpotFinder selection)
+      --prescale=PRESCALE   extract: prescale selected vertices
+      --chi2ndf=CHI2NDF     extract: max chi2/ndf
+      --chi2prob=CHI2PROB   extract: min chi2 probability
+      --maxvtxerr=MAXVTXERR
+			    extract: max allowed transverse vertex error
+      --minvtxerr=MINVTXERR
+			    extract: min allowed transverse vertex error
+      -f NTNAME, --nt=NTNAME
+			    file name vertex ntuple (default: vtx.root)
+      --hnbins=HNBINS       number of histogram bins
+      --hxmin=HXMIN         histogram x axis minimum
+      --hxmax=HXMAX         histogram x axis maximum
+      --minrange=MINRANGE   min range of x-axis on plots
+      --logy                log scale
+      --name=NAME           name for set of plots (default: fitman)
+      -o OUTPUT, --output=OUTPUT
+			    comma-separated list of output files or formats
+			    (default: .gif)
+      -c NCPU, --cpu=NCPU   number of CPUs to use for RooFit
+      -v, --verbose         verbose output
+      -i, --interactive     interactive
+
+The vertices used by the fit are provided through an input
+ntuple. This ntuple must contain a tree named 'Vertices' with the position
+and covariance matrix elements of the vertices to be included into the
+fit. It can be extracted from the ntuples produced by the standard
+Tier0 beam spot determination jobs using fitman.py. For example:
+
+    > ./fitman.py -e data12_8TeV.00200842.express_express-DB_BEAMSPOT.x191_c788.MergeNt-nt.root -p 1 -l 61 -u 70 extract
+
+will extract the primary vertices selected (before outlier removal)
+for the standard Tier0 beam spot for LBs [61,71) into an input ntuple
+vtx.root. data12_8TeV.00200842.express_express-DB_BEAMSPOT.x191_c788.MergeNt-nt.root
+is the ntuple produced by the T0 beam spot determination and can be
+downloaded from http://atlas-beamspot.cern.ch.
+
+A RooFit fit corresponding (except for the outlier removal) to the
+standard beam spot fit can then be performed using:
+
+    > ./fitman.py stdfit plot
+
+The vertex extraction and fitting/plotting steps can be combined:
+
+    > ./fitman.py -e data12_8TeV.00200842.express_express-DB_BEAMSPOT.x191_c788.MergeNt-nt.root -p 1 -l 61 -u 70 extract stdfit plot
+
+By default, plots will be saved as GIF images (fitman-*.gif), the fit
+result is saved into a text file (fitman.txt), and the input ntuple is
+saved as vtx.root. Use options --name and -f, respectively, to change
+the names of these files.
