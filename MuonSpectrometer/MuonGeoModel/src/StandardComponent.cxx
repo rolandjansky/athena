@@ -1,0 +1,78 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonGeoModel/StandardComponent.h"
+#include "MuonGeoModel/MYSQL.h"
+#include "MuonGeoModel/Technology.h"
+#include "MuonGeoModel/CHV_Technology.h"
+#include "MuonGeoModel/CMI_Technology.h"
+#include "MuonGeoModel/CRO_Technology.h"
+#include "MuonGeoModel/LBI_Technology.h"
+
+namespace MuonGM {
+
+StandardComponent::StandardComponent():Component()
+{
+    posx =0.;
+    posy =0.;
+    posz =0.;
+    deadx = 0.;
+    deady = 0.;
+    excent = 0.;
+    iswap = 0;
+    index = 0;
+}
+
+StandardComponent::StandardComponent(const StandardComponent& c):Component(c)
+{
+	posx=c.posx;
+	posy=c.posy;
+	posz=c.posz;
+	deadx=c.deadx;
+	deady=c.deady;
+	excent=c.excent;
+        iswap=c.iswap;
+	index=c.index;
+}
+
+std::ostream& operator<<(std::ostream& os,const StandardComponent& c)
+{
+    os << "Component " << c.name << std::endl;
+    os << c.posx << " " << c.posy << " " << c.posz << " " << c.index << " " << c.name;
+    os << " " << c.iswap << " " << c.dx1 << " " << c.dx2 << " " << c.dy << " ";
+    os << c.excent << " " << c.deadx << " " << c.deady << std::endl;
+    return os;
+}
+
+double StandardComponent::GetThickness() const
+{
+	MYSQL *mysql=MYSQL::GetPointer();
+        Technology* tec = mysql->GetTechnology(name);
+//         std::cout<<"StandardComponent::GetThickness name "<<name<<" mysql->GetTechnology(name)"<< tec->GetName() <<" "<<tec<<std::endl;
+//         std::cout<<" thickness is "<<mysql->GetTechnology(name)->thickness<<std::endl;
+        if (name.substr(0,3)    == "CHV") 
+        {
+            CHV* chv = (CHV*)tec;
+            //            std::cout<<"StandardComponent::GetThickness name "<<name<<" mysql->GetTechnology(name)"
+            //                     << tec->GetName() <<" "<<tec<<" thick = "<<chv->height<<std::endl;
+            return chv->height;
+        }
+        else if (name.substr(0,3)  == "CRO")
+        {
+            CRO* chv = (CRO*)tec;
+            return chv->height;
+        }
+        else if (name.substr(0,3)  == "CMI")
+        {
+            CMI* chv = (CMI*)tec;
+            return chv->height;
+        }
+        else if (name.substr(0,3)  == "LBI" || name.substr(0,2) == "LB")
+        {
+            LBI* chv = (LBI*)tec;
+            return chv->height;
+        }
+        return mysql->GetTechnology(name)->thickness;
+}
+} // namespace MuonGM

@@ -1,0 +1,576 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonGeoModel/MultiLayer.h"
+#include "MuonGeoModel/DriftTube.h"
+#include "MuonGeoModel/MYSQL.h"
+#include "MuonGeoModel/Mdt.h"
+#include "MuonGeoModel/MDT_Technology.h"
+#include "GeoModelKernel/GeoXF.h"
+#include "GeoModelKernel/GeoTrd.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoSerialDenominator.h"
+#include "GeoModelKernel/GeoSerialTransformer.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoSerialIdentifier.h"
+#include "CLHEP/Geometry/Transform3D.h"
+#include "CLHEP/GenericFunctions/AbsFunction.hh"
+#include "CLHEP/GenericFunctions/Variable.hh"
+// for cutouts
+#include "GeoModelKernel/GeoShape.h"
+#include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoTube.h"
+
+
+#include <vector>
+#include <cassert>
+using namespace GeoXF;
+
+#define verbose_multilayer false
+
+namespace MuonGM {
+
+MultiLayer::MultiLayer(std::string n): DetectorElement(n)
+{
+   m_geo_version = 400;
+   MYSQL* mysql = MYSQL::GetPointer();
+   MDT* md = (MDT*)mysql->GetTechnology(name);
+   if (md != NULL) {
+     nrOfLayers = md->numOfLayers;
+     mdtthickness = md->totalThickness;
+     tubePitch = md->pitch;
+     for (int i = 0; i < 4; i++) {
+       yy[i] = 0.;
+       xx[i] = 0.;
+     }
+
+     for (int i = 0; i < nrOfLayers; i++) {
+       yy[i] = md->y[i];
+       xx[i] = md->x[i];
+     }
+     nrOfSteps=1;
+
+   } else {
+     std::cerr << "Multilayer constructor - a problem here !!! MDT named " << name
+               << " not found \n Cannot init correctly !";
+     assert(0);
+   }
+}
+
+
+GeoFullPhysVol* MultiLayer::build()
+{
+  int igeometry_ref = 405;
+    DriftTube tube(name+" DriftTube");
+    double eps = 0.001;
+    double tuberad = tube.outerRadius;
+    if (verbose_multilayer)
+      std::cout << " MultiLayer::build of " << name 
+                << " logVolName = " << logVolName
+                << " tube radius, pitch = " << tuberad 
+                << " , " << tubePitch << std::endl;
+
+    const GeoShape* slay = NULL;
+    const GeoShape* sfoamup = NULL;   // do them both together when there are cutouts
+    const GeoShape* sfoamlow = NULL;  // do them both together when there are cutouts
+    // so calculate other foam-related info first:
+    double foamthicknesslow = yy[0] - tuberad;
+    double foamthicknessup;
+    if (yy[3]) foamthicknessup = mdtthickness - (yy[3]+tuberad);
+    else foamthicknessup = mdtthickness - (yy[2]+tuberad);
+
+    if (foamthicknessup > foamthicknesslow) {
+      foamthicknesslow = 0.;
+      if (fabs(foamthicknessup - 15*CLHEP::mm) < 0.1) foamthicknessup = 15*CLHEP::mm;
+      else if (fabs(foamthicknessup - 30.75*CLHEP::mm) < 0.1) foamthicknessup = 30.75*CLHEP::mm;
+      else if (fabs(foamthicknessup - 30.00*CLHEP::mm) < 0.1) foamthicknessup = 30.00*CLHEP::mm;
+      else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
+	foamthicknesslow = 0.;
+	foamthicknessup  = 0.;
+      } else {
+        std::cout << " problem with thickness of foam in LogVolName "
+                  << logVolName << std::endl;
+      }
+
+    } else {
+      foamthicknessup = 0.;
+      if (fabs(foamthicknesslow - 15*CLHEP::mm) < 0.1) foamthicknesslow = 15*CLHEP::mm;
+      else if (fabs(foamthicknesslow - 30.75*CLHEP::mm) < 0.1) foamthicknesslow = 30.75*CLHEP::mm;
+      else if (fabs(foamthicknesslow - 30.00*CLHEP::mm) < 0.1) foamthicknesslow = 30.00*CLHEP::mm;
+      else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
+	foamthicknesslow = 0.;
+	foamthicknessup  = 0.;
+      } else {
+        std::cout << " problem with thickness of foam in LogVolName "
+                  << logVolName << std::endl;
+      }
+    }
+
+    // Build the layer envelope into which the MDTs are placed
+    double TrdDwoverL= (longWidth-width)/length;
+    if (cutoutNsteps == 1 || cutoutAtAngle ) { 
+      // No cutouts - layer is a simple box or trapezoid
+      slay = new GeoTrd(mdtthickness/2, mdtthickness/2, width/2, 
+                        longWidth/2, length/2);
+    } else {
+      // Layer to be built as a boolean of boxes and trapezoids to represent cutouts
+      if (verbose_multilayer) std::cout << name << " has " << cutoutNsteps
+                                        << " cutout steps " << std::endl;
+      double submlthick = mdtthickness/2.;
+      double submlwidths = width/2.;
+      double submlwidthl = width/2.;
+      double lengthPos = 0.;
+      double sum_len = 0;
+
+      for (int isub = 0; isub < cutoutNsteps; isub++) {
+        if (verbose_multilayer) std::cout << " cutout region " << isub << " has "
+                                          << cutoutNtubes[isub] << " tubes " << std::endl;
+        if (cutoutNtubes[isub] <= 0) {
+          std::cout << " Skipping cutout region " << isub << " with " << cutoutNtubes[isub]
+                    << " tubes in LogVolName " << logVolName << std::endl;
+          continue;
+        }
+
+        double submllength = (cutoutNtubes[isub]*tubePitch)/2.;
+        if (cutoutFullLength[isub] && isub != cutoutNsteps - 1) submllength += tubePitch/4.;
+        submlwidthl += submllength*TrdDwoverL;
+        lengthPos = -length/2. + sum_len + submllength;
+        sum_len += 2.*submllength;
+        double widthPos = cutoutXtubes[isub];
+        HepGeom::Transform3D submlpos = HepGeom::Translate3D(0.,widthPos,lengthPos);
+
+        const GeoTrd* tempSLay = NULL;
+        const GeoShape* tempSLay1 = NULL;
+        const GeoTrd* tempSFoamup = NULL;
+        const GeoShape* tempSFoamup1 = NULL;
+        const GeoTrd* tempSFoamlow = NULL;
+        const GeoShape* tempSFoamlow1 = NULL;
+
+        if (submlthick*submlwidthl*submllength > 0) {
+          if (verbose_multilayer) std::cout << " LogVolName " << logVolName
+                                            << " cut step " << isub 
+                                            << " thick = "  << submlthick 
+                                            << " short width = " << submlwidths 
+                                            << " long width = " << submlwidthl 
+                                            << " length = " << submllength 
+                                            << " translated to " << widthPos 
+                                            << " , " << lengthPos << std::endl; 
+          if (cutoutFullLength[isub]) {
+            tempSLay = new GeoTrd(submlthick, submlthick, submlwidths, 
+                                  submlwidthl, submllength);
+          } else {
+            tempSLay = new GeoTrd(submlthick, submlthick, cutoutTubeLength[isub]/2.,
+                                  cutoutTubeLength[isub]/2., submllength);
+          }
+          tempSLay1 = &( (*tempSLay)<<submlpos);
+        } else {
+          std::cout << " problem with shape of temporary trapezoid in LogVolName "
+                  << logVolName << " thick,width,length " << submlthick
+                  << " " << submlwidths << " " << submllength << std::endl;
+        }
+
+        if (foamthicknessup > foamthicknesslow) {
+          if (foamthicknessup*submlwidths*submllength > 0) {
+            if (cutoutFullLength[isub]) {
+              tempSFoamup = new GeoTrd(foamthicknessup/2., foamthicknessup/2.,
+                                       submlwidths, submlwidthl, submllength);
+            } else {
+              tempSFoamup = new GeoTrd(foamthicknessup/2., foamthicknessup/2.,
+                                       cutoutTubeLength[isub]/2., cutoutTubeLength[isub]/2., 
+                                       submllength);
+            }
+
+            tempSFoamup1 = &( (*tempSFoamup)<<submlpos);
+          } else {
+            std::cout << " problem with shape of upper foam trapezoid in LogVolName "
+                      << logVolName << " thick,width,length " << foamthicknessup
+                      << " " << submlwidths << " " << submllength << std::endl;
+          }
+        } else {
+          if (foamthicknesslow*submlwidths*submllength > 0) {
+            if (cutoutFullLength[isub]) {
+              tempSFoamlow = new GeoTrd(foamthicknesslow/2., foamthicknesslow/2., 
+                                        submlwidths, submlwidthl, submllength);
+            } else {
+              tempSFoamlow = new GeoTrd(foamthicknesslow/2., foamthicknesslow/2.,
+                                        cutoutTubeLength[isub]/2., cutoutTubeLength[isub]/2.,
+                                        submllength);
+            }
+            tempSFoamlow1 = &( (*tempSFoamlow)<<submlpos);
+          } else {
+            std::cout << " problem with shape of lower foam trapezoid in LogVolName "
+                      << logVolName << " thick,width,length " << foamthicknesslow
+                      << " " << submlwidths << " " << submllength << std::endl;
+          }
+        }
+
+        submlwidths = submlwidthl;
+
+        if (slay) {
+          if (verbose_multilayer) std::cout << " Layer " << slay << " in " << logVolName
+                                            << " exists - add step section to it " << std::endl;
+          slay = &(slay->add(*tempSLay1));
+          if (foamthicknessup > 0.) sfoamup = &(sfoamup->add(*tempSFoamup1));
+          if (foamthicknesslow > 0.) sfoamlow = &(sfoamlow->add(*tempSFoamlow1));
+
+        } else {
+          if (verbose_multilayer) std::cout << " Layer slay in " << logVolName
+                                            << " does not yet exist - create it " << std::endl;
+          slay = tempSLay1;
+          if (foamthicknessup > 0.) sfoamup = tempSFoamup1;
+          if (foamthicknesslow > 0.) sfoamlow = tempSFoamlow1;
+        }
+      } // Loop over cutout steps
+    } // End of cutout block
+
+    // Add/subtract cylinders at ends of layers 2 and 4 to accommodate the last MDT
+
+    const GeoShape* stube = NULL;
+    double tL = longWidth/2.0 - (tubePitch/2.)*TrdDwoverL;
+    stube = new GeoTube(0.0, tubePitch/2., tL);
+    stube = & ( (*stube) << HepGeom::RotateX3D(90.*CLHEP::deg) );
+    const GeoShape* stubewithcut = NULL;
+    if (cutoutNsteps > 1) {
+      double toptubelength = cutoutTubeLength[cutoutNsteps-1];
+      if (cutoutFullLength[cutoutNsteps-1]) toptubelength = longWidth;
+      stubewithcut = new GeoTube(0.0, tubePitch/2., toptubelength/2.0);
+      stubewithcut = & ( (*stubewithcut) << HepGeom::RotateX3D(90.*CLHEP::deg) );
+    }
+
+    GeoShape* sbox = new GeoTrd(mdtthickness, mdtthickness, longWidth, 
+                                longWidth, tubePitch/2.);
+    GeoShape* sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth, 
+                                 longWidth, tubePitch/4.+1*CLHEP::mm);
+    slay = &(slay->subtract( (*sbox)<<HepGeom::Translate3D(0.,0.,length/2.)));
+
+    for (int i = 0; i < nrOfLayers; i++) {
+      if (xx[i] > tubePitch/2. + 10.*CLHEP::mm) {
+        // subtract tube at the start
+        if (verbose_multilayer) std::cout << " Cutting tube at xx = " << yy[i]
+                                          << " z = " << -length/2. << std::endl;
+        slay = &(slay->subtract( (*stube)<<HepGeom::Translate3D(-mdtthickness/2.+yy[i],0.,-length/2.) ));
+        // add tube at the end
+        // distinguish stations with/without cutouts
+        if (cutoutNsteps == 1) {
+          // no cutouts
+          if (verbose_multilayer) std::cout << " Adding tube at xx = " << yy[i]
+                                            << " z = " << length/2. << std::endl;
+          slay = &(slay->add( (*stube)<<HepGeom::Translate3D(-mdtthickness/2.+yy[i],0.,length/2.-tubePitch/2.) ));
+        } else {
+          // there are cutouts
+          if (verbose_multilayer) std::cout << " Adding tube at xx = " << yy[i]
+                                            << " y(cutout!) = " << cutoutXtubes[cutoutNsteps-1]
+                                            << " z = " << length/2. << std::endl;
+          slay = &(slay->add( (*stubewithcut)
+                             <<HepGeom::Translate3D(-mdtthickness/2.+yy[i],
+                                              cutoutXtubes[cutoutNsteps-1],
+                                              length/2.-tubePitch/2.) ));
+        }      
+      }
+    } // Loop over layers
+ 
+    const GeoMaterial* mlay = matManager->getMaterial("std::Air");
+    GeoLogVol* llay = new GeoLogVol(logVolName, slay, mlay);
+    GeoFullPhysVol* play = new GeoFullPhysVol(llay);
+
+    double foamposition = 0.;
+    const GeoShape* sfoam = NULL;
+    const GeoMaterial* mfoam = NULL;
+    GeoLogVol* lfoam = NULL;
+    GeoPhysVol* pfoam = NULL;
+
+    if (foamthicknesslow != 0) {
+      foamposition = -(mdtthickness - foamthicknesslow)/2.;
+      if (sfoamlow) {
+        sfoam = sfoamlow;
+      } else {
+        sfoam = new GeoTrd(foamthicknesslow/2.-eps, foamthicknesslow/2.-eps,
+                           width/2.-eps, longWidth/2.-eps, length/2.);
+      }        
+      sfoam = &(sfoam->subtract( (*sboxf)<<HepGeom::Translate3D(0.,0.,length/2.-tubePitch/4.)));
+      mfoam = matManager->getMaterial("muo::Foam");
+      lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
+
+    } else if (foamthicknessup != 0) {
+      foamposition = (mdtthickness - foamthicknessup)/2.;
+      if (sfoamup) {
+        sfoam = sfoamup; 
+      } else {
+        sfoam = new GeoTrd(foamthicknessup/2.-eps, foamthicknessup/2.-eps, 
+                           width/2.-eps, longWidth/2.-eps, length/2.);
+      }
+      sfoam = &(sfoam->subtract( (*sboxf)<<HepGeom::Translate3D(0.,0.,length/2.-tubePitch/4.)));
+      mfoam = matManager->getMaterial("muo::Foam");
+      lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
+
+    } else if (logVolName == "BME1MDT09" || logVolName == "BME2MDT09") {
+      lfoam = 0;
+    } else {
+      std::cout<<" no foam thickeness, while it was expected "<<std::endl;
+      throw std::runtime_error("ATTENTION:  no foam"); 
+    }   
+    
+    if ( logVolName != "BME1MDT09" && logVolName != "BME2MDT09" ) {  //@@
+      pfoam = new GeoPhysVol(lfoam);
+      GeoTransform* xf = new GeoTransform (HepGeom::TranslateX3D(foamposition));
+      GeoNameTag* nt = new GeoNameTag(name+" MultiLayerFoam");
+      play->add(new GeoIdentifierTag(0));
+      play->add(nt);
+      play->add(xf);
+      play->add(pfoam);
+    }
+    // Calculation of tube lengths and their positions in layers
+
+    double diff = (longWidth - width)*(length - tubePitch/2.)/length;
+    int nrTubesPerStep = nrOfTubes/nrOfSteps; 
+    std::vector<GeoVPhysVol*> tubeVector;
+    std::vector<bool> internalCutout;
+    std::vector<double> tubeDX;
+    std::vector<double> tubeL;
+    std::vector<int> Ntubes;
+
+    // No cutouts
+    if (cutoutNsteps <= 1) {
+      for (int j = 0; j < nrOfSteps; j++) {
+        tube.length=width+j*diff/nrOfSteps;
+
+        if (verbose_multilayer)std::cout<<" logVolName "<<logVolName<<" step = "<<j
+                                        <<" tube length = "<<tube.length<<std::endl;
+        tubeVector.push_back(tube.build());
+      }
+
+    // Cutouts	
+    } else { 
+      if (verbose_multilayer)std::cout<<" logVolName "<<logVolName
+                                      <<" cutoutNsteps ="<< cutoutNsteps
+                                      <<" nsteps "<<nrOfSteps<<std::endl;
+      int ntubes = 0;
+
+      // Loop over non-cutout steps
+
+      for (int j = 0; j < nrOfSteps; j++) {
+        if (verbose_multilayer) std::cout << " Building tube vectors for step " << j << std::endl;
+        double tlength = width + j*diff/nrOfSteps;
+        double tlen = 0.;
+        double previousTlen = -1.;
+	int nTubeToSwitch[5];
+	for (int ii = 0; ii < cutoutNsteps; ii++) {
+          if (verbose_multilayer) std::cout << " Building tube vectors for cutout step " << ii << std::endl;
+          nTubeToSwitch[ii] = cutoutNtubes[ii] - 1;
+          if (ii > 0) {
+            for (int k = ii-1; k >= 0; k--) {
+              nTubeToSwitch[ii] += cutoutNtubes[k];
+            }
+          }
+          if (verbose_multilayer) std::cout<<" nTubeToSwitch["<<ii<<"]="<<nTubeToSwitch[ii]<<std::endl;
+        }
+                                                                                                  
+        // Loop over tubes in non-cutout step
+        for (int it = 0; it < nrTubesPerStep; it++) {
+          tlen = tlength;    // Calculated tube length within non-cutout step
+          double dx = 0.;
+
+          // For each tube within non-cutout step, find which cutout step it is in      
+          int weAreInCutStep=0;
+          for (int ic = 0; ic < cutoutNsteps; ic++) {
+            if (verbose_multilayer) std::cout << " Loop over cuts ic " << ic
+                                              << " FullLength " << cutoutFullLength[ic]
+                                              << " ymax " << cutoutYmax[ic] << std::endl;
+            if (it + nrTubesPerStep*j > nTubeToSwitch[ic]) weAreInCutStep++;
+          }
+                                                                                                                          
+          if (verbose_multilayer) std::cout << " Tube " << it << " is in cut step "
+                                            << weAreInCutStep << std::endl;
+
+          // Override original tube length with cutout tube length and position
+          if (nrOfSteps == 1 || !cutoutFullLength[weAreInCutStep]) {
+            /*
+            // DHW: possible fix?
+            double xmin;
+            double xmax;
+            if (cutoutXtubes[weAreInCutStep]+cutoutTubeLength[weAreInCutStep]/2. < tlength/2. - 20.) {
+              xmax = cutoutXtubes[weAreInCutStep] + cutoutTubeLength[weAreInCutStep]/2.;
+              xmin = -tlength/2.;
+            } else {
+              xmax = tlength/2.;
+              xmin = cutoutXtubes[weAreInCutStep] - cutoutTubeLength[weAreInCutStep]/2.;
+            }
+            tlen = xmax - xmin; 
+            dx = (xmax + xmin)/2.;
+            */
+            tlen = cutoutTubeLength[weAreInCutStep];
+            dx = cutoutXtubes[weAreInCutStep];
+            if (longWidth > width) tlen -= 3;    // temporary fix - see above
+//            if (longWidth > width) { 
+//              double smallshift = 2.;
+//              tlen -= smallshift;        // temporary fix - see above
+//              if (cutoutXtubes[weAreInCutStep]+cutoutTubeLength[weAreInCutStep]/2. < tlength/2. - 20.) {
+//                dx += smallshift/2.;
+//              } else {
+//                dx -= smallshift/2.;
+//              }
+//            }
+          }
+          if (std::abs(tlen-previousTlen) > 0.001) {
+            tube.length=tlen;
+            tubeVector.push_back(tube.build());
+            if (weAreInCutStep < 1) {
+              internalCutout.push_back(false);
+            } else {
+              internalCutout.push_back(!cutoutFullLength[weAreInCutStep] &&
+                                       cutoutYmax[weAreInCutStep] < length - tubePitch/2.);
+            }
+            tubeDX.push_back(dx);
+            tubeL.push_back(tlen);
+            previousTlen = tlen;
+            if (ntubes > 0) Ntubes.push_back(ntubes);     
+            ntubes = 1;
+
+          } else {
+            ntubes++;
+          }
+
+          if ((j*nrOfSteps + it) == nrOfTubes - 1) Ntubes.push_back(ntubes);
+          if (verbose_multilayer) std::cout << " ntubes = " << ntubes << std::endl;
+        } // Loop over tubes in non-cutout steps
+      } // Loop over non-cutout steps
+    } // End cutout section
+
+    // Placement of MDTs in layers
+
+    double lstart;
+    double tstart;
+    GeoSerialDenominator* sd = new GeoSerialDenominator("DriftTube");
+    play->add(sd);
+
+    if (cutoutNsteps > 1) {
+      bool arrowpointoutwards=false;
+      bool cutAtAngle = cutoutAtAngle;
+      if (xx[1]-xx[0]>0.) 
+	{
+	  // arrow pointing outwards: like MDT 2 
+	  arrowpointoutwards = true;
+	}
+      for (int i = 0; i < nrOfLayers; i++) {
+	if (verbose_multilayer) std::cout<<"Tube Layers n. "<<i<<std::endl;
+        tstart = -mdtthickness/2. + yy[i];
+        int extraTube = 0;
+        if (xx[i] < tubePitch - 1.0) extraTube = 1;
+        double loffset = 0.;
+        int nttot = 0;
+        bool nextTimeSubtract = false;
+        for (unsigned int j = 0; j < tubeVector.size(); j++) {
+          GeoVPhysVol* tV = tubeVector[j];
+          double dy = tubeDX[j];
+          int nt = Ntubes[j];
+
+	  if (getGeoVersion() < igeometry_ref)
+	    { // for layout < r.04.04 cannot fix this in order to preserve the frozen tier0 policy
+	      if (nextTimeSubtract) {
+		nt -= extraTube;
+		nextTimeSubtract = false;
+	      }
+	      if (internalCutout[j]) {
+		nt += extraTube;
+		nextTimeSubtract = true;
+	      }
+	      if (verbose_multilayer) std::cout<<"staircasing or cutout region "<<j<<" n. of tubes affected should be "<< Ntubes[j]<<" and are "<<nt<<" internal cutout "<<internalCutout[j]<<" next time subtract "<<nextTimeSubtract<<std::endl;
+	    }
+	  else 
+	    { // layout >= r.04.04 do the right thing 
+	    if (arrowpointoutwards && cutAtAngle)
+	      {
+		if (j<tubeVector.size()-1) 
+		  if (internalCutout[j+1])
+		    {
+		      // next region is the one with the cutout: 
+		      // for tubeLayer 3 (and 4) must increase the number of tubes in this region by one
+		      if (i>1) nt+=1;
+		    }
+		if (j>0) 
+		  if (internalCutout[j-1])
+		    {
+		      // previous region is the one with the cutout: 
+		      // for tubeLayer 3 (and 4) must decrease the number of tubes in this region by one
+		      if (i>1) nt-=1;
+		    }
+	      }
+	    if (verbose_multilayer) std::cout<<"staircasing or cutout region "<<j<<" n. of tubes affected should be "<< Ntubes[j]<<" and are "<<nt<<" internal cutout "<<internalCutout[j]<<" next time subtract "<<nextTimeSubtract<<std::endl;
+	  }
+          if (nt > 0) { 
+            loffset = nttot*tubePitch;
+            lstart = loffset - length/2. + xx[i];
+            Genfun::Variable K;
+            Genfun::GENFUNCTION f = tubePitch*K + lstart;
+            TRANSFUNCTION t = HepGeom::TranslateY3D(dy)*HepGeom::RotateX3D(90*CLHEP::deg)*
+                              HepGeom::TranslateX3D(tstart)*Pow(HepGeom::TranslateY3D(1.0),f);
+            GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nt);
+            play->add(new GeoSerialIdentifier(100*(i+1)+nttot + 1));
+            play->add(s);
+
+            nttot = nttot + nt;
+            if (verbose_multilayer)
+              std::cout << " placing " << nt << " tubes of length " << tubeL[j] 
+                        << " starting at t = " << tstart << " , y = " << lstart 
+                        << " and x = " << dy << " with " << nttot 
+                        << " tubes so far " << std::endl;
+          } 
+        }
+      } // Loop over layers
+
+    } else if (nrOfSteps == 1) {
+      // At this point no cutouts and only one non-cutout step
+      for (int i = 0; i < nrOfLayers; i++) {
+        tstart = -mdtthickness/2. + yy[i];
+        lstart = -length/2. + xx[i];
+//        std::cout << " Tubes starting at t = " << tstart << " , y = " << lstart
+//                  << std::endl;
+        Genfun::Variable K;
+        Genfun::GENFUNCTION f = tubePitch*K + lstart;
+        TRANSFUNCTION t = HepGeom::RotateX3D(90*CLHEP::deg)*HepGeom::TranslateX3D(tstart)*
+                          Pow(HepGeom::TranslateY3D(1.0),f);
+        GeoVPhysVol* tV = tubeVector[0];	
+        GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nrOfTubes);
+	play->add(new GeoSerialIdentifier(100*(i+1)+1));
+        play->add(s);
+      }
+    } else {
+      // Here, no cutouts but multiple non-cutout steps
+      lstart = 0.;
+      for (int i = 0; i < nrOfLayers; i++) {
+        tstart = -mdtthickness/2. + yy[i];
+        double loffset = 0.;
+        for (int j = 0; j < nrOfSteps; j++) {
+          GeoVPhysVol* tV = tubeVector[j];
+          loffset = j*nrTubesPerStep*tubePitch;
+          lstart = loffset - length/2. + xx[i]; 
+          Genfun::Variable K;
+          Genfun::GENFUNCTION f = tubePitch*K + lstart;
+          TRANSFUNCTION t = HepGeom::RotateX3D(90*CLHEP::deg)*HepGeom::TranslateX3D(tstart)*
+                            Pow(HepGeom::TranslateY3D(1.0),f);
+          GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nrTubesPerStep);
+          play->add(new GeoSerialIdentifier(100*(i+1)+j*nrTubesPerStep + 1));
+          play->add(s);      
+        }
+      }
+    }
+ 
+    return play;	
+}
+
+
+void MultiLayer::print()
+{
+  std::cout << "Multi Layer " << name.c_str() << " :" << std::endl;
+
+}
+} // namespace MuonGM
+

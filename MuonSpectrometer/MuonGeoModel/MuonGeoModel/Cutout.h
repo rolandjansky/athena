@@ -1,0 +1,36 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef Cutout_H
+#define Cutout_H
+
+#include "GeoModelKernel/GeoShape.h"
+#include <iostream>
+namespace MuonGM {
+
+class Cutout {
+public:
+
+    Cutout();
+    Cutout(const Cutout& c);
+    void setThickness(double compThickness);
+    const GeoShape* build();
+
+    int ijob;
+    int subtype;
+    int icut;
+    double dx;
+    double dy;
+    double widthXs;
+    double widthXl;
+    double lengthY;
+    double excent;
+    double dead1;
+    double thickness;
+
+    friend std::ostream& operator<<(std::ostream &os, const Cutout& p);
+};
+} // namespace MuonGM
+
+#endif
