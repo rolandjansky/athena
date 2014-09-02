@@ -15,12 +15,18 @@ from AthenaCommon.DetFlags import DetFlags
 from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 
 
+def getAFIIG4PolyconeGeoIDSvc(name="ISF_AFIIG4PolyconeGeoIDSvc", **kwargs):
+    kwargs.setdefault("EnvelopeDefSvc"          , getService("ISF_AFIIEnvelopeDefSvc"))
+    return getG4PolyconeGeoIDSvc(name, **kwargs)
+
+
 def getG4PolyconeGeoIDSvc(name="ISF_G4PolyconeGeoIDSvc", **kwargs):
     # with ISF volume definitions
     kwargs.setdefault("EnvelopeDefSvc"          , getService("ISF_ISFEnvelopeDefSvc"))
 
     from ISF_Geant4CommonServices.ISF_Geant4CommonServicesConf import ISF__G4PolyconeGeoIDSvc 
     return ISF__G4PolyconeGeoIDSvc(name, **kwargs)
+
 
 def getG4PolyconeGeoIDSvc_G4(name="ISF_G4PolyconeGeoIDSvc_G4", **kwargs):
     # with G4 volume definitions
