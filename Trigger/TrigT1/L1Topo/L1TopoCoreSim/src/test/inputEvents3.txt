@@ -1,0 +1,50 @@
+<begin_file>
+
+<begin_event>
+<cluster>
+21 1  21 10
+20 1  20 5
+10 1  0  10
+9  1  0  5
+4  1  1  6
+3  1  1  1
+2  1  5  5
+22 1  21 5
+<cluster>
+<jet>
+15 10  5   5
+12 18  0  -1
+7  7  -15  0
+5  5   3  12
+4  4  -2  -4
+2  2   31 -13
+<jet>
+<end_event>
+
+<begin_event>
+<cluster>
+21 1  21 10
+20 1  20 5
+10 1  0  10
+9  1  0  5
+4  1  1  6
+3  1  1  1
+2  1  5  5
+22 1  21 5
+<cluster>
+<end_event>
+
+<begin_event>
+<cluster>
+21 1  21 10
+20 1  20 5
+10 1  0  10
+9  1  0  5
+4  1  1  6
+3  1  1  1
+2  1  5  5
+22 1  21 5
+<cluster>
+<end_event>
+
+<end_file>
