@@ -1,0 +1,47 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file DataModelTestDataCommon/versions/C_v1.h
+ * @author scott snyder <snyder@bnl.gov>
+ * @date May, 2014
+ * @brief Class used for testing xAOD data reading/writing.
+ */
+
+
+#ifndef DATAMODELTESTDATACOMMON_C_V1_H
+#define DATAMODELTESTDATACOMMON_C_V1_H
+
+
+#include "AthContainers/AuxElement.h"
+#include "SGTools/CLASS_DEF.h"
+#include "SGTools/BaseInfo.h"
+
+
+namespace DMTest {
+
+
+class C_v1
+  : public SG::AuxElement
+{
+public:
+  float aFloat() const;
+  void setAFloat (float f);
+
+  int anInt() const;
+  void setAnInt (int i);
+};
+
+
+} // namespace DMTest
+
+
+CLASS_DEF (DMTest::C_v1, 9724, 1)
+SG_BASE (DMTest::C_v1, SG::AuxElement);
+
+
+#endif // not DATAMODELTESTDATACOMMON_C_V1_H
