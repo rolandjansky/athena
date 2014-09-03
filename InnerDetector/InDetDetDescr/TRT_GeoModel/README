@@ -1,0 +1,5 @@
+Package:      offline/InnerDetector/InDetDetDescr/TRT_GeoModel  
+
+Source for the TRT geometry (for everything except the CTB 2004).
+
+  -- Thomas Kittelmann <kittel@nbi.dk>, January 23, 2006.
