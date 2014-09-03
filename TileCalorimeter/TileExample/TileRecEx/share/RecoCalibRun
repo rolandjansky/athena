@@ -1,0 +1,338 @@
+#!/bin/env sh
+
+disp=false
+castor=false
+team5=false
+calnt=false
+
+command=""
+
+if [ $1 = "-o" ]
+    then
+    command="$2"
+    shift
+    shift
+fi
+
+if [ $1 = "-d" ]
+    then
+    disp=yes
+    echo Running with Display
+    shift
+    command="doAtlantis=TRUE ; $command"
+fi
+
+if [ $1 = "-nc" ]
+    then
+    castor=false
+    echo Will not stage results to castor
+    shift
+fi
+
+if [ $1 = "-c" ]
+    then
+    castor=yes
+    echo Will stage results to castor
+    shift
+fi
+
+if [ $1 = "-cl" ]
+    then
+    castor=yes
+    castorloc=$2
+    echo Will stage results to castor location $castorloc
+    shift
+    shift
+else
+    castorloc="/eos/atlas/atlascerngroupdisk/det-tile/year"
+fi
+
+if [ $1 = "-nt5" ]
+    then
+    team5=false
+    echo Will not copy team5 plots anywhere
+    shift
+fi
+
+if [ $1 = "-t5l" ]
+    then
+    team5=yes
+    team5loc="$2"
+    echo Will copy team5 plots to $team5loc
+    shift
+    shift
+else
+    team5loc="pcata007.cern.ch:/data/commissioning/batch"
+fi
+
+if [ $1 = "-t5" ]
+    then
+    team5=yes
+    echo Will copy team5 plots to $team5loc
+    shift
+fi
+
+if [ $1 = "-ncn" ]
+    then
+    calnt=false
+    echo Will not copy calibration ntuples anywhere
+    shift
+fi
+
+if [ $1 = "-cnl" ]
+    then
+    calnt=yes
+    calntloc="$2"
+    echo Will copy calibration ntuples to $calntloc
+    shift
+    shift
+else
+    calntloc="/afs/cern.ch/user/t/tilecali/w0/ntuples"
+fi
+
+if [ $1 = "-cn" ]
+    then
+    calnt=yes
+    echo Will copy calibration ntuples to $calntloc
+    shift
+fi
+
+extrajo=""
+if [ $1 = "-m" ]
+    then
+    command="TileMap=\"$2\" ; $command"
+    extrajo="$2"
+    shift
+    shift
+fi
+
+run=$1
+type=$2
+events=$3
+version=$4
+dir=$5
+jo=$6
+
+year=2012
+if [ $run -lt 100000 ]
+then year=2008
+elif [ $run -lt 142682 ]
+then year=2009
+elif [ $run -lt 171194 ]
+then year=2010
+elif [ $run -lt 194688 ]
+then year=2011
+fi
+
+rundate=`/usr/bin/mysql -u reader -h pcata007.cern.ch -NB -e "select date from tile.comminfo where run=$run and setup!='ATLAS'"`
+if [ ! -z "$rundate" ] 
+then
+   timestamp=`/bin/date --date="$rundate" "+%s"`
+   command="ForceTimeStamp=$timestamp; $command"
+fi 
+
+castorloc=`echo $castorloc | sed "s|year|$year|g"`
+
+if [ $type = "Phys" ] || [ $type = "PHYS" ]
+    then type="Phys"
+    echo "Physics Run"
+    command="TilePhysRun=True; $command" 
+
+elif [ $type = "Las" ] || [ $type = "LAS" ]
+    then type="Las"
+    echo "Laser Run"
+    command="TileLasRun=True; $command"
+
+elif [ $type = "Cis" ] || [ $type = "CIS" ]
+    then type="CIS"
+    echo "CIS run"
+    command="TileCisRun=True; $command"
+
+elif [ $type = "Ped" ] || [ $type = "PED" ]
+    then type="Ped"
+    echo "Ped run"
+    command="TilePedRun=True; $command"
+
+elif [ $type = "MonoCis" ] || [ $type = "MonoCIS" ] 
+    then type="MonoCis"
+    echo "MonoCis run"
+    command="TileMonoRun=True; $command"
+
+elif [ $type = "RampCis" ] || [ $type = "RampCIS" ] 
+    then type="RampCis"
+    echo "RampCis run"
+    command="TileRampRun=True; $command"
+
+elif [ $type = "L1calo" ] || [ $type = "L1Calo" ] 
+    then type="L1Calo"
+    echo "L1Calo run"
+    command="TileL1CaloRun=True; $command"
+
+else
+    echo "Invalid Run Type.  Please choose from: Phys, Las, Ped, CIS, MonoCis, RampCis, L1Calo"
+    echo "Exiting"
+    exit
+fi
+
+if [ X$version = "X" ] 
+    then
+    version="0"
+fi
+version=$type.$version
+
+command="Version=\"$version\" ; RunNumber=$run ; $command"
+
+if [ X$jo = "X" ] || [ X$jo = "XX" ]  
+    then
+    jo="jobOptions_TileCalibRec.py"
+fi
+
+if [ X$events = "X" ] 
+    then
+    events=100000
+fi
+
+command="EvtMax=$events ; $command"
+
+
+if [ X$dir = "X" ] 
+    then
+    outdir="/tmp/Reco-$run-$version/"
+    else
+    outdir="$dir/Reco-$run-$version/"
+fi
+
+command="OutputDirectory=\"$outdir\" ; $command"
+
+
+rm -rf $outdir
+mkdir -p $outdir
+
+
+echo Using $jo
+echo $command > $outdir/jo.py
+echo Running with arguments: $command
+if [ ! -z "extrajo" ]
+then if [ -r $extrajo ]
+     then cat $extrajo >> $outdir/jo.py
+          cat $extrajo
+     fi
+fi
+tuple_name="tileD3PD_${run}_${version}.root"
+echo "tuple_name=\"$tuple_name\""
+echo "tuple_name=\"$tuple_name\"" >> $outdir/jo.py
+
+athena.py -s $outdir/jo.py $jo
+
+ls -al
+ls -al $outdir
+
+if [ $team5 = "yes" ]
+    then
+    echo Copying Team5 plots to $team5loc
+    RUN=`echo $run | awk '{printf "r%5.5d",$1}'`
+    tmpdir="$RUN.$type"
+    mkdir $tmpdir
+    files=(`/bin/ls -1 . | grep -e "\.ps" -e "\.png" `)
+    for file in ${files[@]}
+      do
+      /bin/mv $file $tmpdir
+    done
+    /usr/bin/rsync -auv -e ssh $tmpdir $team5loc/
+fi
+
+if [ $calnt = "yes" ]
+    then
+    files=`find . -name "*Calib*.root"`
+
+    if [ ! -z "$files" ] 
+        then 
+
+        if [ "$type" = "Phys" ] || [ "$type" = "Ped" ]
+            then
+            calntloc=$calntloc/ped
+            echo "Copying noise calib files to '$calntloc' directory"
+
+        elif [ "$type" = "CIS" ]
+            then
+            calntloc=$calntloc/cis
+            echo "Copying CIS calib files to '$calntloc' directory"
+
+        elif [ "$type" = "Las" ]
+            then
+            calntloc=$calntloc/las
+            echo "Copying Las calib files to '$calntloc' directory"
+
+        elif [ "$type" = "L1Calo" ]
+            then
+            calntloc=$calntloc/l1calo
+            echo "Copying L1Calo calib files to '$calntloc' directory"
+
+        else
+            calntloc=$calntloc/unknown
+            echo "Copying Unknown calib files to '$calntloc' directory"
+        fi
+	mkdir -p $calntloc
+	
+        for i in `echo $files`
+          do echo $i
+	     cp -a $i $calntloc/
+        done
+        echo "Done"
+    else 
+        echo "No Calib root files available"
+    fi
+fi
+
+if [ $castor = "yes" ]
+    then
+    echo Copying Results To Castor
+    export STAGE_HOST=castoratlast3
+    export STAGE_SVCCLASS=atlascerngroupdisk
+    export RFIO_USE_CASTOR_V2=YES
+
+    if [ $disp = "yes" ]
+        then
+        echo Tarring up the XML files.
+
+        cd $outdir
+        xmlfiles=(`ls | grep ".xml"`)
+        rm -f AtlantisFiles-$run-$version.tar
+#        tar -cf AtlantisFiles-$run-$version.tar jo.py
+        for xmlfile in ${xmlfiles[@]}
+          do
+          echo Adding $xmlfile to tar file.
+          tar -rf AtlantisFiles-$run-$version.tar $xmlfile
+#          rm $xmlfile
+        done
+        gzip AtlantisFiles-$run-$version.tar
+
+        cd -
+    fi
+
+    find $outdir -type f -name "tilemon*" ! -size +10k -exec rm -f {} \;
+    find $outdir -type f -name "*.aan.root" ! -size +10k -exec rm -f {} \; 
+    files=(`ls -1 $outdir | grep -iv ".xml" | grep -iv ".py" | grep -iv "data" | grep -iv "\.ps" | grep -iv "\.png" | grep -v "Calib.*root" `)
+    
+    which xrdcp
+    #unset LD_LIBRARY_PATH
+    for file in ${files[@]}
+      do
+      echo Copying $file to ${castorloc}
+      ret=`xrd eosatlas existdir $castorloc | grep not`
+      if [ ! -z "$ret" ] 
+          then xrd eosatlas mkdir ${castorloc}
+      fi 
+      #ret=`xrd eosatlas existfile $castorloc/$file | grep exist`
+      #if [ ! -z "$ret" ]
+      #then xrd eosatlas rm $castorloc/$file 
+      #fi
+      try=0;
+      until (xrdcp -f -s $outdir/$file root://eosatlas/${castorloc}/); do let try=$try+1; if [ $try -gt 100 ]; then echo "All $try tries failed, exiting"; break; else echo "Try $try - copy failed, trying again"; xrd eosatlas rm $castorloc/$file; fi; done
+    done
+
+fi
+  
+# files=(`/bin/ls -1 $outdir | grep -i ".root" | grep -i "data" `)
+
+# /bin/rm -fr $dir$run
