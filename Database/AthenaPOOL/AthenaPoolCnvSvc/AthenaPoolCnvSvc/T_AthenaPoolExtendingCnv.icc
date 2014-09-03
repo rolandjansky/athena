@@ -1,0 +1,104 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+/** @file T_AthenaPoolExtendingCnv.icc
+ *  @brief his file contains method definitions for the templated T_AthenaPoolExtendingCnv class.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+
+
+template <class TRANS, class PERS>
+T_AthenaPoolExtendingCnv< TRANS, PERS >::T_AthenaPoolExtendingCnv(ISvcLocator* svcloc) :
+      T_AthenaPoolCustomCnv<TRANS, PERS>( svcloc ),
+      m_originalExtendingCnv( 0 )
+{}
+
+
+#include <sstream>
+template <class TRANS, class PERS>
+inline const std::string
+T_AthenaPoolExtendingCnv< TRANS, PERS >::name() const
+{
+   std::ostringstream ostr;
+   ostr << this->objType();
+   return ostr.str();
+}
+
+   
+template <class TRANS, class PERS>
+inline void 
+T_AthenaPoolExtendingCnv< TRANS, PERS >::
+wasClonedFrom( AthenaConverterTLPExtension *converter )
+{
+   if( !converter->needsCloning() ) {
+      // converter doesn't have any reference to an original converter - must be the original itself
+      m_originalExtendingCnv = dynamic_cast< BaseType* >(converter);
+   } else {
+      // in case of cloning a clone, get the real original converter
+      m_originalExtendingCnv = dynamic_cast< T_AthenaPoolExtendingCnv< TRANS, PERS >* >(converter)->baseAthenaPoolCnv();
+   }
+//   std::cout << " TPCNVINFO:  Registering clone source " << (void*)m_originalExtendingCnv << std::endl;
+}
+
+
+
+template <class TRANS, class PERS>
+inline void
+T_AthenaPoolExtendingCnv< TRANS, PERS >::setToken(const std::string& token)
+{
+   // set token in base, so local compareClassGuid() will work
+   BaseType::setToken( token );
+   // set token in the original converter so poolReadObject() will work
+   baseAthenaPoolCnv()->T_AthenaPoolExtendingCnv::BaseType::setToken( token );
+}
+
+
+
+template <class TRANS, class PERS>
+template <class P>
+inline  P*
+T_AthenaPoolExtendingCnv< TRANS, PERS >::
+poolReadObject()
+{
+   // std::cout << " TPCNVINFO: redirecting poolReadObject() to original APcnv" << std::endl;
+   return baseAthenaPoolCnv()->template poolReadObject<P>();
+}
+
+
+
+template <class TRANS, class PERS>
+template <class P>
+void
+T_AthenaPoolExtendingCnv< TRANS, PERS >::
+poolReadObject( AthenaPoolTopLevelTPCnvBase& tlp_converter )
+{
+   // set which Top level TP concerter will by used for reading
+   usingTPCnvForReading( tlp_converter );
+   // read the object
+   P* persObj =  poolReadObject< P >();
+   // remember the object we just read
+   tlp_converter.setTLPersObject( persObj );
+}	
+
+
+
+template <class TRANS, class PERS>
+const Token *
+T_AthenaPoolExtendingCnv< TRANS, PERS >::writeObject(const std::string& /* key */)
+{
+   const Token* pTok = 0;
+   PERS *persObj = reinterpret_cast<PERS*>( getTopLevelTPCnv()->getTLPersObjectAsVoid() );
+   if( persObj ) {
+      //MN - do not pass SG key - this will put the object in a separate container
+      if( !baseAthenaPoolCnv()->objectToPool( persObj, pTok /*, key */ ).isSuccess() ) {
+	 throw std::runtime_error("Component persistent object write failed");
+      }
+      getTopLevelTPCnv()->clearTLPersObject();
+      baseAthenaPoolCnv()->keepPoolObj( persObj );
+   }
+   return pTok;
+}
+

@@ -1,0 +1,186 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @file T_AthenaPoolCustomCnv.icc
+ *  @brief This file contains the implementation for the templated T_AthenaPoolCustomCnv class.
+ *  @author Marcin.Nowak@cern.ch
+ **/
+
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/DataObject.h"
+#include "GaudiKernel/IOpaqueAddress.h"
+#include "GaudiKernel/IRegistry.h"
+
+#include "StorageSvc/DbReflex.h"
+
+#include "SGTools/StorableConversions.h"
+
+//#include "TPTools/AthenaConverterTLPExtension.h"
+#include "AthenaPoolCnvTPExtension.h"
+//#include "TPTools/TopLevelTPCnvBase.h"
+
+#include <stdexcept>
+
+template <class TRANS, class PERS>
+T_AthenaPoolCustomCnv<TRANS, PERS>::T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator) : BaseType(pSvcLocator) {
+}
+
+template <class TRANS, class PERS>
+StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* /*pObj*/, const std::string& key) {
+   ATH_MSG_VERBOSE("In DataObjectToPool() for key = " << this->getDataObject()->name());
+   bool skipDHE = false;
+   TRANS* obj = 0;
+   PERS* persObj = 0;
+   SG::fromStorable(this->getDataObject(), obj);
+   if (obj == 0) {
+      if (this->getDataObject()->clID() == 1) {
+         if (this->getDataObject()->registry() != 0 && this->getDataObject()->registry()->address() != 0) {
+            const std::string className = ClassName<PERS>::name();
+            if (this->m_className != className) {
+               this->m_className = className;
+               auto itClass = this->m_classDescs.find(className);
+               if (itClass == this->m_classDescs.end()) {
+                  this->m_classDesc = RootType( typeid(PERS) );
+                  this->m_classDescs[className] = this->m_classDesc;
+               } else {
+                  // Set to correct class description
+                  this->m_classDesc = (*itClass).second;
+               }
+            }
+            this->setToken(this->getDataObject()->registry()->address()->par()[0]);
+            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
+            if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) {
+               ATH_MSG_ERROR("Can not evolve schema in pers to pers copy");
+               return(StatusCode::FAILURE);
+            }
+            AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
+            if (extCnv != 0) {
+               ATH_MSG_ERROR("Can not retrieve " << this->getDataObject()->name() << " in pers to pers copy");
+               return(StatusCode::FAILURE);
+            }
+            try {
+               persObj = this->poolReadObject<PERS>();
+            } catch (...) {
+               ATH_MSG_ERROR("Failed to read persistent DataType");
+               return(StatusCode::FAILURE);
+            }
+         } else {
+            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, using empty default");
+            skipDHE = true;
+            persObj = new PERS();
+         }
+      } else {
+         ATH_MSG_ERROR("Failed to cast DataObject to transient type");
+         return(StatusCode::FAILURE);
+      }
+   } else {
+      try {
+         persObj = createPersistent(obj);
+      } catch (std::exception &e) {
+         ATH_MSG_ERROR("Failed to create persistent object: " << e.what());
+         return(StatusCode::FAILURE);
+      }
+   }
+   AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
+   if (extCnv != 0) {
+      try {
+         extCnv->writeExtendingObjects(persObj, key);
+      } catch (std::exception &e) {
+         ATH_MSG_ERROR("Failed to convert object to persistent type: " << e.what());
+         extCnv->deletePersistentObjects();
+         return(StatusCode::FAILURE);
+      }
+   }
+   m_persObjList.push_back(persObj);
+   const Token* token = 0;
+   StatusCode status = this->objectToPool(persObj, token, key);
+   if (skipDHE) {
+      delete token; token = 0;
+      this->setToken("\n");
+   } else {
+      this->m_poolToken = token; token = 0;
+   }
+   return(status);
+}
+
+template <class TRANS, class PERS>
+StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj, const std::string& /*token_str*/) {
+   if (this->m_poolToken != 0) {
+      this->m_classID = this->m_poolToken->classID();
+   }
+   TRANS* transObj = 0;
+   AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
+   // reset the TP converter used for reading, so old value is not used
+   if (extCnv != 0) {
+      extCnv->resetTPCnvForReading();
+   }
+   try {
+      transObj = createTransient();
+   } catch(std::exception &e) {
+      ATH_MSG_ERROR("Failed to convert persistent object to transient: " << e.what());
+      // cleanup
+      if (extCnv != 0) {
+         extCnv->deletePersistentObjects();
+      }
+      return(StatusCode::FAILURE);
+   }
+   if (extCnv != 0) {
+      extCnv->deletePersistentObjects();
+   }
+   this->setDataObject(SG::asStorable(transObj));
+   pObj = this->getDataObject();
+   return(StatusCode::SUCCESS);
+}
+
+// Read object of type P.  This is an exception-throwing version of poolToObject()
+// plus reading of all extending objects
+template <class TRANS, class PERS>
+template <class P>
+inline P* T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject() {
+   P* persObj = 0;
+   if (this->poolToObject("", persObj).isFailure()) {
+      std::string error("POOL read failed. Token = ");
+      throw std::runtime_error(error + (this->m_poolToken != 0 ? this->m_poolToken->toString() : ""));
+   }
+   AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
+   if (extCnv != 0) {
+      extCnv->readExtendingObjects(persObj);
+   }
+   return(persObj);
+}
+
+// Read object of type P (plus all extending objects)
+// using the indicated top-level TP converter
+template <class TRANS, class PERS>
+template <class P>
+inline void T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject(AthenaPoolTopLevelTPCnvBase& tlp_converter) {
+   AthenaPoolCnvTPExtension *extCnv = dynamic_cast<AthenaPoolCnvTPExtension*>(this);
+   // set which Top level TP concerter will by used for reading
+   // only matters for extended converters
+   if (extCnv != 0) {
+      extCnv->usingTPCnvForReading(tlp_converter);
+   }
+   // read the object
+   P* persObj = poolReadObject<P>();
+   // remember the object we just read
+   tlp_converter.setTLPersObject(persObj);
+   // not returning the object - the TLP converter owns it now
+   // and it will delete it automatically in createTransient()!
+}
+
+// Remember the POOL object until commit (then delete it)
+template <class TRANS, class PERS>
+inline void T_AthenaPoolCustomCnv<TRANS, PERS>::keepPoolObj(PERS* obj) {
+   m_persObjList.push_back(obj);
+}
+
+// callback from the CleanupSvc to delete persistent object in the local list
+template <class TRANS, class PERS>
+StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::cleanUp() {
+   for (typename std::vector<PERS*>::const_iterator i = m_persObjList.begin(); i != m_persObjList.end(); i++) {
+      delete *i;
+   }
+   m_persObjList.clear();
+   return(StatusCode::SUCCESS);
+}

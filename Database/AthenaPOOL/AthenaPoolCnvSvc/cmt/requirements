@@ -1,0 +1,36 @@
+package AthenaPoolCnvSvc
+
+author Peter Van Gemmeren <gemmeren@bnl.gov>
+
+use AtlasPolicy           AtlasPolicy-*
+use AtlasPOOL             AtlasPOOL-*           External
+use GaudiInterface        GaudiInterface-*      External
+use AtlasReflex           AtlasReflex-*         External
+use AthenaBaseComps       AthenaBaseComps-*     Control
+use CLIDSvc               CLIDSvc-*             Control
+use DataModel             DataModel-*           Control
+use DataModelRoot         DataModelRoot-*       Control
+use SGTools               SGTools-*             Control
+use PersistentDataModel   PersistentDataModel-* Database
+use AthenaPoolUtilities   AthenaPoolUtilities-* Database/AthenaPOOL
+use PoolSvc               PoolSvc-*             Database/AthenaPOOL
+use TPTools               TPTools-*             Database
+
+macro AthenaPoolCnvSvc_shlibflags " $(AtlasPOOL_Service) "
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+
+# Set the POOL_AUTH_PATH to the default location of the authentication file (authentication.xml)
+# POOL will look for the credentials from the first match to the last.
+# To override the credentials one must PREPEND the location in the env variable
+set POOL_AUTH_PATH "${AthenaPoolCnvSvc_root}/share"
+
+private
+use AthenaKernel          AthenaKernel-*        Control
+use StoreGate             StoreGate-*           Control
+
+private
+apply_tag ROOTSTLDictLibs
+

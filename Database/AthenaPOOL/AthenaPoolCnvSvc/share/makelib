@@ -1,0 +1,2 @@
+ g++ -shared -o libAthenaPoolCnvSvc.so AthenaPoolCnvSvc_entries.o AthenaPoolCnvSvc_load.o AthenaPoolAddress.o AthenaPoolCnvSvc.o AthenaPoolConverter.o DataObjectAthenaPoolCnv.o -fPIC -ldl -L../i686-rh73-gcc32-debug/ -lAthenaPoolCnvSvcLib -lPoolSvc  -lStoreGateLib  -lAthenaKernel  -lEventInfo -lg2c -lnsl -lcrypt -ldl -L/afs/usatlas.bnl.gov/offline/external/Gaudi/0.12-beta/GaudiKernel/v13r4/i686-rh73-gcc32-debug
+
