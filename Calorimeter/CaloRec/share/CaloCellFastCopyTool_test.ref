@@ -1,0 +1,295 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ./CaloCellFastCopyTool_test_generated.txt
+JobOptionsSvc        INFO Job options successfully read in from ./CaloCellFastCopyTool_test_generated.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
+                                          running on karma on Fri Aug  8 21:14:00 2014
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 4975 CLIDRegistry entries for module ALL
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
+StoreGateSvc        DEBUG Service base class initialized successfully
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-00-00-00
+HistoryStore         INFO Initializing HistoryStore - package version StoreGate-00-00-00
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+em   decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+bec  decode 1 vals -3,-2,-1,1,2,3  mask/zero mask/shift/bits/offset 7   fc7fffffffffffff 55 3  6  indexes 0 1 2 0 3 4 5       mode  enumerated  
+samp decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   ff9fffffffffffff 53 2  9  indexes                     mode  both_bounded  
+reg  decode 0 vals 0:5             mask/zero mask/shift/bits/offset 7   ffe3ffffffffffff 50 3  11 indexes                     mode  both_bounded  
+eta  decode 0 vals 0:447           mask/zero mask/shift/bits/offset 1ff fffc01ffffffffff 41 9  14 indexes                     mode  both_bounded  
+phi  decode 0 vals 0:255           mask/zero mask/shift/bits/offset ff  fffffe01ffffffff 33 8  23 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffffeffffffff 32 1  31 indexes                     mode  both_bounded  
+ LArEM_Base_ID::initialize_from_dict : 
+ region range -> 4/1/-1,1/0/0 | 4/1/-1,1/1/0 | 4/1/-1,1/1/1 | 4/1/-1,1/2/0 | 4/1/-1,1/2/1 | 4/1/-1,1/3/0 | 4/1/-2,2/0/0 | 4/1/-2,2/1/0 | 4/1/-2,2/1/1 | 4/1/-2,2/1/2 | 4/1/-2,2/1/3 | 4/1/-2,2/1/4 | 4/1/-2,2/1/5 | 4/1/-2,2/2/0 | 4/1/-2,2/2/1 | 4/1/-2,2/3/0 | 4/1/-3,3/1/0 | 4/1/-3,3/2/0
+ channel range -> 4/1/-1,1/0/0/0:60/0:63/0 | 4/1/-1,1/1/0/1:447/0:63/0 | 4/1/-1,1/1/1/0:2/0:255/0 | 4/1/-1,1/2/0/0:55/0:255/0 | 4/1/-1,1/2/1/0/0:255/0 | 4/1/-1,1/3/0/0:26/0:255/0 | 4/1/-2,2/0/0/0:11/0:63/0 | 4/1/-2,2/1/0/0/0:63/0 | 4/1/-2,2/1/1/0:2/0:63/0 | 4/1/-2,2/1/2/0:95/0:63/0 | 4/1/-2,2/1/3/0:47/0:63/0 | 4/1/-2,2/1/4/0:63/0:63/0 | 4/1/-2,2/1/5/0:3/0:63/0 | 4/1/-2,2/2/0/0/0:255/0 | 4/1/-2,2/2/1/0:42/0:255/0 | 4/1/-2,2/3/0/0:19/0:255/0 | 4/1/-3,3/1/0/0:6/0:63/0 | 4/1/-3,3/2/0/0:6/0:63/0
+ disconected region range -> 4/-1/-1,1/0/0 | 4/-1/-1,1/1/0 | 4/-1/-1,1/3/0 | 4/-1/-2,2/0/0 | 4/-1/-2,2/1/1 | 4/-1/-2,2/1/3 | 4/-1/-2,2/1/5 | 4/-1/-3,3/1/0 | 4/-1/-3,3/2/0
+ disconnected channel range -> 4/-1/-1,1/0/0/61:63/0:63 | 4/-1/-1,1/1/0/0/0:63 | 4/-1/-1,1/3/0/27/0:255 | 4/-1/-2,2/0/0/12:19/0:63 | 4/-1/-2,2/1/1/3:6/0:63 | 4/-1/-2,2/1/3/48:63/0:63 | 4/-1/-2,2/1/5/4:7/0:63 | 4/-1/-3,3/1/0/7/0:63 | 4/-1/-3,3/2/0/7/0:63
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+hec  decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn   decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+samp decode 0 vals 0:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+reg  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffbfffffffffffff 54 1  9  indexes                     mode  both_bounded  
+eta  decode 0 vals 0:9             mask/zero mask/shift/bits/offset f   ffc3ffffffffffff 50 4  10 indexes                     mode  both_bounded  
+phi  decode 0 vals 0:63            mask/zero mask/shift/bits/offset 3f  fffc0fffffffffff 44 6  14 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffff7ffffffffff 43 1  20 indexes                     mode  both_bounded  
+initialize_from_dict : 
+ channel range -> 4/2/-2,2/0/0/0:9/0:63/0 | 4/2/-2,2/1/0/0:9/0:63/0 | 4/2/-2,2/2/0/1:9/0:63/0 | 4/2/-2,2/3/0/2:9/0:63/0 | 4/2/-2,2/0/1/0:3/0:31/0 | 4/2/-2,2/1/1/0:2/0:31/0 | 4/2/-2,2/2/1/0:2/0:31/0 | 4/2/-2,2/3/1/0:3/0:31/0
+ region range -> 4/2/-2,2/0/0 | 4/2/-2,2/1/0 | 4/2/-2,2/2/0 | 4/2/-2,2/3/0 | 4/2/-2,2/0/1 | 4/2/-2,2/1/1 | 4/2/-2,2/2/1 | 4/2/-2,2/3/1
+ disconnected channel range -> 4/-2/-2,2/2/0/0/0:63 | 4/-2/-2,2/3/0/0:1/0:63 | 4/-2/-2,2/1/1/3/0:31 | 4/-2/-2,2/2/1/3/0:31
+ disconnected region range -> 4/-2/-2,2/2/0 | 4/-2/-2,2/3/0 | 4/-2/-2,2/1/1 | 4/-2/-2,2/2/1
+ LArHEC_Base_ID::init_neighbors 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+lar  decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+fcal decode 1 vals -3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset 7   e3ffffffffffffff 58 3  3  indexes 0 1 2 0 3 4 5 6 7   mode  enumerated  
+pn   decode 1 vals -2,2            mask/zero mask/shift/bits/offset 1   fdffffffffffffff 57 1  6  indexes 0 0 0 0 1           mode  enumerated  
+mod  decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+eta  decode 0 vals 0:63            mask/zero mask/shift/bits/offset 3f  ff81ffffffffffff 49 6  9  indexes                     mode  both_bounded  
+phi  decode 0 vals 0:15            mask/zero mask/shift/bits/offset f   fffe1fffffffffff 45 4  15 indexes                     mode  both_bounded  
+is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffffefffffffffff 44 1  19 indexes                     mode  both_bounded  
+ initialize_from_dict : 
+ channel range -> 4/3/-2,2/1/0:62/0:15/0 | 4/3/-2,2/2/0:29/0,7,8,15/0 | 4/3/-2,2/2/0:30/3,4,11,12/0 | 4/3/-2,2/2/0:31/1,2,5,6,9,10,13,14/0 | 4/3/-2,2/3/0:14/2,10/0 | 4/3/-2,2/3/0:15/0,1,3,4,5,6,7,8,9,11,12,13,14,15/0
+ module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
+ disconnected channel range -> 4/-3/-2,2/1/63/0:15 | 4/-3/-2,2/2/30:31/0,7,8,15 | 4/-3/-2,2/2/31/3,4,11,12 | 4/-3/-2,2/3/15/2,10
+ disconnected module range -> 4/-3/-2,2/1 | 4/-3/-2,2/2 | 4/-3/-2,2/3
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+StoreGateSvc        DEBUG Recorded object @0x2fff6e0 with key AllCalo of type CaloCellContainer(CLID 2802)
+ in DataObject @0x300a4e0
+ object not modifiable when retrieved
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[1]      INFO In initialize 
+CopyToolTest[1]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[1]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[1]     DEBUG CaloCell hash max: 187652
+CopyToolTest[1]     DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[1]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[1]      INFO In initialize 
+CopyToolTest[1]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[1]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[1]     DEBUG CaloCell hash max: 187652
+CopyToolTest[1]     DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[1]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[3]      INFO In initialize 
+CopyToolTest[3]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[3]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[3]     DEBUG CaloCell hash max: 187652
+CopyToolTest[3]     DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[3]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[4]      INFO In initialize 
+CopyToolTest[4]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[4]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[4]     DEBUG CaloCell hash max: 187652
+CopyToolTest[4]     DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[4]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[13]     INFO In initialize 
+CopyToolTest[13]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[13]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[13]    DEBUG CaloCell hash max: 187652
+CopyToolTest[13]    DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[13]    ERROR ../src/CaloCellFastCopyTool.cxx:332 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[13]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[13]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[14]     INFO In initialize 
+CopyToolTest[14]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[14]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[14]    DEBUG CaloCell hash max: 187652
+CopyToolTest[14]    DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[14]    ERROR ../src/CaloCellFastCopyTool.cxx:321 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[14]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[14]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[15]     INFO In initialize 
+CopyToolTest[15]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[15]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[15]    DEBUG CaloCell hash max: 187652
+CopyToolTest[15]    DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[15]    ERROR ../src/CaloCellFastCopyTool.cxx:332 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[15]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[15]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[16]     INFO In initialize 
+CopyToolTest[16]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[16]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[16]    DEBUG CaloCell hash max: 187652
+CopyToolTest[16]    DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[16]    ERROR ../src/CaloCellFastCopyTool.cxx:321 (StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer*, CaloCellContainer*)): code 0: Can't copy to a non-const view container.
+CopyToolTest[16]    FATAL ../src/CaloCellFastCopyTool.cxx:118 (StatusCode CaloCellFastCopyTool::process(CaloCellContainer*)): code 0: (this->*m_copyCells)(srcCont, theCont)
+CopyToolTest[16]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[5]      INFO In initialize 
+CopyToolTest[5]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[5]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[5]     DEBUG CaloCell hash max: 187652
+CopyToolTest[5]     DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[5]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[6]      INFO In initialize 
+CopyToolTest[6]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[6]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[6]     DEBUG CaloCell hash max: 187652
+CopyToolTest[6]     DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[6]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[7]      INFO In initialize 
+CopyToolTest[7]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[7]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[7]     DEBUG CaloCell hash max: 187652
+CopyToolTest[7]     DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[7]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[8]      INFO In initialize 
+CopyToolTest[8]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[8]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[8]     DEBUG CaloCell hash max: 187652
+CopyToolTest[8]     DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[8]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[9]      INFO In initialize 
+CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[9]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[9]     DEBUG CaloCell hash max: 187652
+CopyToolTest[9]     DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[9]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[10]     INFO In initialize 
+CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[10]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[10]    DEBUG CaloCell hash max: 187652
+CopyToolTest[10]    DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[10]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[11]     INFO In initialize 
+CopyToolTest[11]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[11]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[11]    DEBUG CaloCell hash max: 187652
+CopyToolTest[11]    DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[11]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[12]     INFO In initialize 
+CopyToolTest[12]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[12]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[12]    DEBUG CaloCell hash max: 187652
+CopyToolTest[12]    DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalo  of type CaloCellContainer(CLID 2802)
+CopyToolTest[12]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Recorded object @0x3001da0 with key AllCalloFull of type CaloCellContainer(CLID 2802)
+ in DataObject @0x573bef0
+ object not modifiable when retrieved
+CopyToolTest[9]      INFO In initialize 
+CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 
+CopyToolTest[9]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[9]     DEBUG CaloCell hash max: 187652
+CopyToolTest[9]     DEBUG Number of accepted hashes: 0
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+CopyToolTest[9]      INFO In initialize 
+CopyToolTest[9]     DEBUG Accepted calo samplings: 17; 15; 
+CopyToolTest[9]     DEBUG Accepted sub calos: 3; 
+CopyToolTest[9]     DEBUG CaloCell hash max: 187652
+CopyToolTest[9]     DEBUG Number of accepted hashes: 0
+CopyToolTest[9]     DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+CopyToolTest[9]     DEBUG Calling destructor
+StoreGateSvc      WARNING  setupProxy:: error setting up proxy for key AllCalloFull and clid 2802
+ Pre-existing valid DataProxy @0x573c000 found in Store for key AllCalloFull with clid 2802
+ClassIDSvc           INFO  getRegistryEntries: read 194 CLIDRegistry entries for module ALL
+StoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x5744200
+ recorded with key AllCalloFull of type CaloCellContainer (CLID 2802) in DataObject @0x7c75b40
+CopyToolTest[10]     INFO In initialize 
+CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 
+CopyToolTest[10]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[10]    DEBUG CaloCell hash max: 187652
+CopyToolTest[10]    DEBUG Number of accepted hashes: 512
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+CopyToolTest[10]     INFO In initialize 
+CopyToolTest[10]    DEBUG Accepted calo samplings: 17; 15; 
+CopyToolTest[10]    DEBUG Accepted sub calos: 3; 
+CopyToolTest[10]    DEBUG CaloCell hash max: 187652
+CopyToolTest[10]    DEBUG Number of accepted hashes: 640
+CopyToolTest[10]    DEBUG Calling destructor
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+StoreGateSvc        DEBUG Retrieved const handle to object AllCalloFull  of type CaloCellContainer(CLID 2802)
+CopyToolTest[10]    DEBUG Calling destructor

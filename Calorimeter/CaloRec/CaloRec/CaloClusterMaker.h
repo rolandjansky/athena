@@ -1,0 +1,109 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//Dear emacs, this is -*-c++-*-
+
+#ifndef CALOREC_CALOCLUSTERMAKER_H
+#define CALOREC_CALOCLUSTERMAKER_H
+
+/**
+ * @class CaloClusterMaker
+ * @version \$Id: CaloClusterMaker.h,v 1.13 2009-04-18 02:56:15 ssnyder Exp $
+ * @author Sven Menke <menke@mppmu.mpg.de>
+ * @date 26-April-2004
+ * @brief Top algorithm to reconstruct CaloCluster objects from
+ * CaloCell objects
+ *
+ * This class is an Algorithm to reconstruct objects of type
+ * CaloCluster from a collection of CaloCell objects. The actual
+ * clustering is performed by tools which can be specified in the
+ * jobOptions. Only one CaloClusterContainer is created and all tools
+ * will modify that container.  The top algorithm is responsible for
+ * recording and locking the cluster container in StoreGate. Two types
+ * of tools are supported: maker tools and correction tools. The
+ * former modify the entire cluster container, the latter just single
+ * clusters.  */
+
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "CaloRec/CaloClusterCollectionProcessor.h"
+
+class CaloClusterCellLinkContainer;
+
+class CaloClusterMaker : public AthAlgorithm
+{
+
+ public:
+
+  CaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~CaloClusterMaker();
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
+  virtual StatusCode finalize();
+
+ private:
+
+  /**
+   * @brief Method to create a CaloClusterContainer together with it's AuxStore and Link container
+   *
+   */
+  StatusCode makeContainer();
+
+  
+  /** @brief the name of the key in StoreGate for the output
+      CaloClusterContainer */
+  std::string     m_clustersOutputName;              
+
+  /**
+   * @brief a list of names for tools to make clusters
+   * 
+   * the tools in this list are executed one after the other on the
+   * entire CaloClusterContainer.  */
+  //std::vector<std::string> m_clusterMakerNames;     
+  ToolHandleArray<CaloClusterCollectionProcessor>  m_clusterMakerTools;
+
+  /** @brief the actual list of tools corresponding to above names */
+  //std::vector<CaloClusterCollectionProcessor*>  m_clusterMakerPointers;
+
+  /**
+   * @brief a list of names for tools to correct clusters
+   * 
+   * the tools in this list are executed after all maker tools are done
+   * and run one after each other on each cluster in the container.  */
+  //std::vector<std::string> m_clusterCorrectionNames; 
+  ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools; 
+
+  /** @brief the actual list of tools corresponding to above names */
+  //std::vector<CaloClusterCollectionProcessor*>  m_clusterCorrectionPointers; 
+
+  /** @brief Keep the individual results of each correction.
+   *
+   * If true, we keep in StoreGate the complete list of clusters
+   * before each correction has been performed. */
+  bool m_keep_each_correction;
+
+  /**
+   * @brief a list of names of tools (and container names) which
+   * trigger a copy of the cluster before their execution
+   * 
+   * before the tools (even fields) in this list are executed the current 
+   * cluster container is recorded in StoreGate under the given names (odd 
+   * fields) */
+  std::vector<std::string> m_keepCorrectionToolAndContainerNames;
+
+  ///Digested version of the above
+  std::map<std::string,std::string> m_CorrectionToolAndContainerNamesMap;
+
+  /** 
+   * @brief controls saving the uncalibrated signal state just before
+   * the first @c CaloClusterCorrectionTool is invoked. Is a configurable 
+   * property with default value @c true.
+   */
+  bool m_saveSignalState;
+
+};
+#endif // CALOREC_CALOCLUSTERMAKER_H
+
+
+
