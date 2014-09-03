@@ -1,0 +1,306 @@
+Notes on how to get new corrections written to the database
+===========================================================
+Current as of Aug 24, 2010
+
+Step 1: New corrections in job options
+--------------------------------------
+
+The ultimate source of the correction constants is the job options files
+in this package, so the first step is to get the new correction working there.
+
+To be concrete, we'll look at adding a new version of the SW offset correction,
+though most of what is said should be generally applicable.
+
+Each correction has a `steering' file, which lists all the available versions
+of that correction.  For the SW phi offset correction, this is called
+CaloSwPhioff.py.  Here's (part of) the version table from that file:
+
+from CaloClusterCorrection.common import sw_valid_keys as keys
+cls = CaloClusterCorrectionConf.CaloSwPhioff_v2
+CaloSwPhioff_versions = [
+    ['v3', cls, ['CaloSwPhioff_v3.CaloSwPhioff_v3_parms',
+                 'caloswcorr_pool', CALOCORR_COOL], keys],
+    ['v4', cls, ['CaloSwPhioff_v4.CaloSwPhioff_v4_parms',
+                 'caloswcorr_pool', CALOCORR_COOL], keys],
+    ]
+
+Each version gets one entry in the version list.
+The first element in the entry is the name of the version.
+The second element is the Configurable for the correction tool.
+(If you need a different C++ tool for the new version of the correction,
+you'll make that change here.)
+The third element is a list of possible sources for the correction constants.
+There are three possibilities seen here:
+  - The name of a python class: MODULE.CLASS.
+    The specified module is imported; correction constants are taken
+    from the attributes of the class.
+  - A pool file name, like `caloswcorr_pool'.
+    This isn't the name of the pool file directly, but is a key used
+    to look up the name in a table given in poolfiles.py.
+    Note that here, `caloswcorr_pool' is an alias referring to the latest
+    version available.
+  - CALOCORR_COOL, saying to get the correction via cool.
+The last element is a list of the cluster types/sizes for which this 
+correction is valid.
+
+In most cases, the actual correction constants are in a separate module
+from the steering module, usually one module per version.  (In a few cases,
+the correction constants are listed in the steering module itself; but
+those are usually cases in which the correction is not saved to pool/cool
+anyway because the setup is so short.)
+
+So, to add a new version of this correction, say `v5', we'd add a new
+module CaloSwPhioff_v5.py which defines the class CaloSwPhioff_v5_parms;
+this class defines the correction constants.  We'd  then add to the table
+in the steering module the entry:
+
+    ['v5', cls, ['CaloSwPhioff_v5.CaloSwPhioff_v5_parms',
+                ], keys],
+
+At this point, the correction is available only from JO, so we don't fill
+in the other sources yet.
+
+To run the new correction by default, we need to make a new global correction
+version that includes this one.  The file CaloSwCorrections.py contains
+this table, (part of) which looks like this:
+
+    # This is the list of all known correction versions.
+    versions = {
+        'v4_1' : [[layers],
+                  [rfac,      'v4'],
+                  [etaoff_b1, 'v4_1'],
+                  [etaoff_e1, 'v4_1'],
+                  [etaoff_b2, 'v4_1'],
+                  [etaoff_e2, 'v4_1'],
+                  [phioff_b2, 'v4'],
+                  [phioff_e2, 'v4'],
+                  [update],
+                  [gap,       'v4'],
+                  [lwc,       'v4'],
+                  [phimod,    'v4'],
+                  [etamod,    'v4']],
+        }
+
+    # Alias for the newest correction.
+    newest_version = 'v4_1'
+
+
+So, you'd make a new entry here, perhaps `v4_2', copying from `v4_1',
+but changing the version for the phioff_b2 and phioff_e2 from
+'v4' to `v5'.
+
+You'd also want to change `newest_version' to point to this,
+and also to make any appropriate changes to the `geom_versions' map.
+
+At this point, you can run reconstruction and test your new correction.
+To see in detail which version of which correction was used, add this
+to your JO:
+
+import logging
+logging.getLogger ('CaloClusterCorrection').setLevel (logging.DEBUG)
+
+You might find the following script useful; it dumps out cluster
+e/eta/phi values from an AOD.
+
+=============================================================================
+#!/bin/env python
+
+import user  # look for .pythonrc.py for user init
+import ROOT
+import PyCintex
+import AthenaROOTAccess.transientTree
+
+import sys
+
+if len(sys.argv) < 2:
+    aodFile = 'AOD.pool.root'
+else:
+    aodFile = sys.argv[1]
+
+f = ROOT.TFile.Open (aodFile)
+assert f.IsOpen()
+tt = AthenaROOTAccess.transientTree.makeTree(f)
+
+
+def dumpcl_list (tt, name):
+    print 'clus ' + name
+    ll = list (getattr (tt, name))
+    ll.sort (lambda a,b: cmp(b.pt(),a.pt()))
+    for cl in ll:
+        print cl.e(), cl.eta(), cl.phi()
+    return
+
+for i in range(tt.GetEntries()):
+    tt.GetEntry(i)
+    print 'ev', i
+    dumpcl_list (tt, 'HLT_CaloCl')
+    dumpcl_list (tt, 'LArClusterEMFrwd')
+    dumpcl_list (tt, 'egClusterCollection')
+    dumpcl_list (tt, 'LArClusterEMSofte')
+    dumpcl_list (tt, 'LArClusterEMSofte')
+    dumpcl_list (tt, 'EMTopoCluster430')
+    dumpcl_list (tt, 'HLT_TrigCaloClusterMaker')
+=============================================================================
+
+
+
+Step 2: Test writing to local files
+-----------------------------------
+
+The next step is to try writing the new correction to a local pool file
+and a local cool sqlite replica and test using those.
+
+First, you should change the current correction generation string.
+This is the value assigned to correction_generation_default
+in CaloSwCorrections (or CaloTopoEMCorrections).  This should be different
+from any previously used generation string.
+
+To create these files, run the JO file CaloSwCorrectionsToCool.py.
+(There is a separate JO for topo EM cluster corrections.)
+The local pool file is specified at the start of the JO file
+CaloSwCorrectionsToPool.py; the local cool file is at the end
+of CaloSwCorrectionsToCool.py.
+It doesn't really matter what these are named,
+so you shouldn't have to change them.  These files should be created
+as a result of running the JO.
+
+Now to test it.  Add a new entry for this file in poolfiles.py,
+for example:
+
+    'caloswcorr_pool_v5' : 'CaloSwCorrections_13-03.pool.root',
+
+You'll probably also want to change the current version alias
+to point to this version:
+
+poolfiles['caloswcorr_pool'] = poolfiles['caloswcorr_pool_v5']
+
+
+You can then add the pool file as a source in the version list in the
+phioff steering module:
+
+    ['v5', cls, ['CaloSwPhioff_v5.CaloSwPhioff_v5_parms',
+                 'caloswcorr_pool'], keys],
+
+You can then run reconstruction and check that you're actually getting
+the correction from the pool file, and that the results don't change.
+For this test, you'll need to change the default source to exclude cool:
+
+from CaloClusterCorrection.CaloClusterCorrectionFlags \
+     import caloClusterCorrectionFlags
+from CaloClusterCorrection.common \
+     import CALOCORR_JO, CALOCORR_POOL, CALOCORR_COOL
+caloClusterCorrectionFlags.DefaultSource = [CALOCORR_POOL, CALOCORR_JO]
+
+
+You can go on to try to read from cool by adding cool as a source
+for the correction:
+
+    ['v5', cls, ['CaloSwPhioff_v5.CaloSwPhioff_v5_parms',
+                 'caloswcorr_pool', CALOCORR_COOL], keys],
+
+You'll also need to add something like this to the top-level JO,
+to tell the IOVDbSvc to read your local sqlite replica:
+
+from CaloClusterCorrection.CaloClusterCorrectionFlags \
+     import caloClusterCorrectionFlags
+caloClusterCorrectionFlags.DBSubdetName()['CaloSwClusterCorrections'] = 'swcool.db'
+
+(For topo EM corrections, use `EMTopoClusterCorrections' instead above.)
+
+Then run the makeSwHierTags.py (or makeTopoEMHierTags.py) script to
+create the hierarchical tags in the local replica:
+
+python .../makeSwHierTags.py --nomagic swcool.db 
+
+
+Note: Don't release the changes at this point.  No one else will have
+your local pool file, and so won't be able to run.
+
+Note: Magic tags are disabled for now, since merging them to the database
+takes way too long.
+
+To inspect the local database replica:
+
+AtlCoolConsole.py 'sqlite://schema=swcool.db;dbname=OFLP200'
+
+
+
+
+Step 3: Register the pool file
+------------------------------
+
+Reference: <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ConditionsDDM>
+
+Next, you'll need to register the pool file with DDM so that everyone
+can see it.
+
+Make sure you use the same file that was generated when you made the
+cool replica.
+
+Run
+
+$ ~atlcond/utils/registerFiles2 --wait cond09_mc.gen.COND <file>
+
+The first argument is a pattern to match the dataset to update (careful,
+it may change in the future).
+
+The second argument is the file to register.
+
+When that completes, you should get mail that includes the name assigned
+to the file in the dataset.  This should look something like this:
+
+  cond09_mc.000003.gen.COND._0049.pool.root
+
+Now, change the new entry in poolfiles.py to refer to this new LFN:
+
+    'caloswcorr_pool_v5' : 'LFN:cond09_mc.000003.gen.COND._0049.pool.root',
+
+Check that the file has been replicated to AFS, currently under
+
+  /afs/cern.ch/atlas/conditions/poolcond 
+
+Once that happens, you can remove your local copy of the pool file,
+remove the entry for it from PoolFileCatalog.xml, and retest.
+
+
+Step 4: Merge local sqlite file to cool
+---------------------------------------
+
+Reference: <https://twiki.cern.ch/twiki/bin/view/Atlas/CoolPublishing>
+
+Use the following command to merge the information in the leaf folders
+of the local sqlite replica into the production cool database:
+
+/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --ignoredesc --passopt='-hitag' <dbfile> OFLP200 ATONR_COOL  ATLAS_COOLONL_CALO_W <password>
+/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --ignoredesc --passopt='-hitag' --destdb=COMP200 <dbfile> OFLP200 ATONR_COOL  ATLAS_COOLONL_CALO_W <password>
+
+(You'll need to run both of these commands,
+to merge into both OFLP200 and COMP200.)
+It's probably a good idea to run these first with --noexec as a check.
+
+If you need to create new folders, you'll need to contact the database
+managers.
+
+To check things out:
+
+AtlCoolConsole.py 'COOLONL_CALO/OFLP200;readoracle'
+AtlCoolConsole.py 'COOLONL_CALO/COMP200;readoracle'
+
+You can then remove DBSubdetName settings and test again.
+If you have a sqlite200 symlink in your working directory,
+you'll likely have to remove it (until the sqlite replica gets made).
+
+
+Step 5: Test against sqlite replica
+-----------------------------------
+
+Most people will be using the sqlite replica to run the reconstruction.
+Therefore, you should wait overnight for the new corrections to appear
+in the replica before making a release.  Restore the sqlite200 link
+and test again.
+
+
+Step 6: Release the new corrections
+-----------------------------------
+
+Commit, tag, and collect the changes!
