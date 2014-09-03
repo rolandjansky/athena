@@ -1,0 +1,74 @@
+<lcgdict>
+
+  <class name="CaloClusterContainer_p1" id="89DA146E-BB20-4E35-A13E-2F64AAE97407" />
+  <class name="std::vector<CaloClusterContainer_p1::CaloCluster_p>" />
+  <class name="CaloClusterContainer_p1::CaloCluster_p" />
+
+  <class name="CaloShowerContainer_p1" id="E632DE88-A3A5-469B-AD1F-677EA781F6C9"/>
+  <class name="std::vector<CaloShowerContainer_p1::CaloShower>" />
+  <class name="CaloShowerContainer_p1::CaloShower" />
+  
+  <class name="std::vector<CaloClusterMomentStore_p1::ClusterMoment>" />
+  <class name="CaloClusterMomentStore_p1::ClusterMoment" />
+  <class name="CaloClusterMomentStore_p1" />
+
+  <class name="CaloSamplingData_p1" />
+   
+  <class name="CaloCellLinkContainer_p1" id="D91CAA94-014D-469B-9991-2F7A53D657C5"/>
+  <class name="std::vector<Navigable_p1<unsigned int,float> >" />
+  
+  <class name="CaloCellLinkContainer_p2" id="826FC299-E988-4A07-926F-7D016F62FE5D" />
+  <class name="CaloTowerContainer_p1" id="E56D5471-A9E2-4787-B413-D3BD9F2AC55D" />
+
+  <class name="CaloTopoTowerContainer_p1" id="4ED29686-28E9-426F-B076-C4E4600F66A7" />
+
+
+  <!-- optimzed version 2 -->
+  <class name="CaloClusterContainer_p2" id="4132E08D-4110-4242-B188-84F2C46EC0D2" />
+  <class name="std::vector<CaloClusterContainer_p2::CaloCluster_p>" />
+  <class name="CaloClusterContainer_p2::CaloCluster_p" />
+
+  <class name="CaloShowerContainer_p2" id="5A38F895-CE73-456B-8FF5-4E09DC7718D5"/>
+
+
+  <class name="CaloSamplingDataContainer_p1" />
+  <class name="CaloClusterMomentContainer_p1"/>
+  <class name="CaloClusterMomentContainer_p1::ClusterMoment_p" />
+  <class name="std::vector<CaloClusterMomentContainer_p1::ClusterMoment_p>"/>
+
+  <!-- Will eventually go somewhere else 
+  <class name="P4EEtaPhiM_p1" />
+  -->
+
+  
+  <!-- optimized version 3 -->
+  <class name="CaloClusterContainer_p3" id="88F98AE8-0D4A-4BFA-94BE-FDE312E21DC9" />
+  <class name="std::vector<CaloClusterContainer_p3::CaloCluster_p>" />
+  <class name="CaloClusterContainer_p3::CaloCluster_p" />
+  
+  
+  
+  <class name="CaloCalibrationHit_p1" />
+  <class name="std::vector<CaloCalibrationHit_p1>" />
+  <class name="CaloCalibrationHitContainer_p1" id="185FEF89-2350-4D1E-A1A7-9CB5A357232E" />
+  <class name="CaloCalibrationHitContainer_p2" id="4942B9D4-F545-4C68-BD2D-A8E5923C29F3" />
+
+  <!-- optimized version 4 -->
+  <class name="CaloClusterContainer_p4" id="330CE691-7151-46DC-892B-46176619540C" />
+  <class name="std::vector<CaloClusterContainer_p4::CaloCluster_p>" />
+  <class name="CaloClusterContainer_p4::CaloCluster_p" />
+  
+  <class name="CaloCalibrationHit_p2" />
+  <class name="CaloCalibrationHitContainer_p3" id="D4E51325-2A55-41E4-B163-5224F2FA27CB" />
+
+  <!-- optimized version 5 -->
+  <class name="CaloClusterContainer_p5" id="2E505417-8246-4A1E-B35F-704663C530FD" />
+  <class name="std::vector<CaloClusterContainer_p5::CaloCluster_p>" />
+  <class name="CaloClusterContainer_p5::CaloCluster_p" />
+  
+   <!-- optimized version 6 -->
+  <class name="CaloClusterContainer_p6" id="57D9916D-4B2E-4F2A-9FE3-30A8F5DA3457" />
+  <class name="std::vector<CaloClusterContainer_p6::CaloCluster_p>" />
+  <class name="CaloClusterContainer_p6::CaloCluster_p" />
+    
+</lcgdict>

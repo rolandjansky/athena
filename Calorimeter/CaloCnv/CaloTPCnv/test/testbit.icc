@@ -1,0 +1,29 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CaloTPCnv/test/testbit.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2014
+ * @brief Helper for tests.
+ */
+
+
+#ifndef CALOTPCNV_TESTBIT_ICC
+#define CALOTPCNV_TESTBIT_ICC
+
+
+namespace {
+
+inline
+bool testbit (unsigned int x, unsigned int i)
+{
+  return (x & (1U << i)) != 0;
+}
+
+} // anonymous namespace
+
+
+#endif // not CALOTPCNV_TESTBIT_ICC
