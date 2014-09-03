@@ -1,0 +1,143 @@
+from AthenaCommon.Logging import logging
+
+
+mlog = logging.getLogger( 'CombinedRec_config' )
+
+
+from AthenaCommon.GlobalFlags  import globalflags
+from RecExConfig.RecFlags import rec
+from RecExConfig.RecAlgsFlags import recAlgs
+
+from AthenaCommon.Resilience import treatException,protectedInclude
+
+
+# use to flag domain
+import PerfMonComps.DomainsRegistry as pdr
+
+from AODFix.AODFix import *
+AODFix_Init()
+
+
+from CaloRec.CaloRecFlags import jobproperties
+#
+# functionality : electron photon identification
+#
+#
+
+pdr.flag_domain('egamma')
+if rec.doEgamma():
+    protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
+AODFix_postEgammaRec()
+
+
+#
+# functionality : Muon combined reconstruction
+#
+pdr.flag_domain('muoncomb')
+if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
+    try:
+        include ("MuonCombinedRecExample/MuonCombinedRec_config.py")
+    except Exception:
+        treatException("Could not set up combined muon reconstruction. Switched off !")
+        rec.doMuonCombined = False
+
+#AODFix_postMuonCombinedRec()
+#
+# functionality : CaloTower protojets + preclustering + KT algorithm + CombinedJetAlg
+#
+pdr.flag_domain('jet')
+jetOK=False
+try:
+    from JetRec.JetRecFlags import jetFlags
+    if jetFlags.Enabled():
+        include( "JetRec/JetRec_jobOptions.py" )
+        jetOK=jetFlags.Enabled()
+except Exception:
+        treatException("Could not set up jet reconstruction")
+        jetOK=False
+AODFix_postJetRec()
+
+
+if jetOK and recAlgs.doMuonSpShower() and DetFlags.detdescr.Muon_on() and DetFlags.haveRIO.Calo_on() :
+    try:
+        include("MuonSpShowerBuilderAlgs/MuonSpShowerBuilder_jobOptions.py")
+    except Exception:    
+        treatException("Could not set up MuonSpShower. Switched off !")
+        recAlgs.doMuonSpShower=False
+else:
+    recAlgs.doMuonSpShower=False
+
+pdr.flag_domain('btagging')
+btaggingOK = False
+if jetOK and rec.doBTagging() and  DetFlags.ID_on():
+    try:
+        from BTagging.BTaggingFlags import BTaggingFlags
+        protectedInclude( "BTagging/BTagging_jobOptions.py")
+    except Exception:
+        treatException("Could not set up btagging reconstruction")
+        btaggingOK=False
+        pass
+    pass
+
+#
+# functionality : tau identification
+#
+pdr.flag_domain('tau')
+if jetOK and rec.doTau():
+    protectedInclude ("tauRec/tauRec_config.py")
+AODFix_posttauRec()
+
+
+#
+# functionality : energy flow 
+#
+pdr.flag_domain('eflow')
+if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() ) )  :
+    try:
+        include( "eflowRec/eflowRec_jobOptions.py" )
+    except Exception:
+        treatException("Could not set up EFlow. Switched off !")
+        recAlgs.doEFlow=False
+else:
+    recAlgs.doEFlow=False
+
+#
+# functionality : Jet-finding on eflowObjects 
+if recAlgs.doEFlowJet() and ( rec.readESD() or recAlgs.doEFlow() ) :
+    try: 
+        include ("eflowRec/ConeJetEflow_jobOptions.py")
+    except Exception:
+        treatException("Could not set up ConeJetEflow. Switched off !")
+        recAlgs.doEFlowJet=False
+else:
+    recAlgs.doEFlowJet=False
+
+
+#
+# functionality : Missing Et
+#
+pdr.flag_domain('jet')
+if recAlgs.doMissingET() and DetFlags.Calo_on() and DetFlags.ID_on():
+    try:
+        include( "METReconstruction/METReconstruction_jobOptions.py" )
+    except Exception:
+        treatException("Could not set up MissingET. Switched off !")
+        recAlgs.doMissingET=False
+        
+else:
+    recAlgs.doMissingET=False
+AODFix_postMissingETRec()
+
+#
+# functionality : Missing Et significance
+#
+
+if recAlgs.doMissingETSig() and ( rec.readESD() or DetFlags.haveRIO.Calo_on()) :
+  include( "MissingETSig/MissingETSig_jobOptions.py" )
+else:
+  recAlgs.doMissingETSig=False
+
+  
+
+
+        
