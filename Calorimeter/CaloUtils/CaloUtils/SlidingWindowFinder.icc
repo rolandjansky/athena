@@ -1,0 +1,85 @@
+// Yo emacs, this is -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: SlidingWindowFinder.icc,v 1.1 2006-12-15 17:30:25 ssnyder Exp $
+/**
+ * @file SlidingWindowFinder.icc
+ * @author H. Ma, S. Rajagopalan, scott snyder <snyder@bnl.gov>
+ * @date Jan 2000
+ * @brief Sliding window cluster finder, inline implementations.
+ */
+
+
+/**
+ * @brief Return the eta position of the last cluster found.
+ */
+inline int SlidingWindowFinder::eta() const
+{
+  assert(m_found);
+  return m_ieta; 
+}
+
+
+/**
+ * @brief Return the phi position of the last cluster found.
+ */
+inline int SlidingWindowFinder::phi() const
+{
+  assert(m_found);
+  return m_iphi; 
+}
+
+
+/**
+ * @brief Return a starting iterator over the cells in the last found cluster.
+ */
+inline
+SlidingWindowFinder::data_iterator SlidingWindowFinder::cell_begin() const
+{
+  assert(m_found);
+  return m_cells.begin(); 
+}
+ 
+
+/**
+ * @brief Return an ending iterator over the cells in the last found cluster.
+ */
+inline
+SlidingWindowFinder::data_iterator SlidingWindowFinder::cell_end() const
+{
+  assert(m_found);
+  return m_cells.end(); 
+}
+
+
+/**
+ * @brief Return the cell pointer from a cell iterator.
+ */
+inline const CaloCell*
+SlidingWindowFinder::getCell(const data_iterator& iter) const
+{
+  return (*(this->getCellContainer(iter)))[this->getCellIndex(iter)];
+}
+
+
+/**
+ * @brief Return the container pointer from a cell iterator.
+ */
+inline const CaloCellContainer* 
+SlidingWindowFinder::getCellContainer(const data_iterator& iter) const
+{
+  return iter->first;
+}
+
+
+/**
+ * @brief Return the cell index from a cell iterator.
+ */
+inline size_t
+SlidingWindowFinder::getCellIndex(const data_iterator& iter) const
+{
+  return iter->second;
+}
