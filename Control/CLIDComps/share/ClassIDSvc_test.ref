@@ -1,0 +1,53 @@
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Root.ErrorIgnoreLevel=Print> for level 1; ignored
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/ClassIDSvc_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/work/c/calaf/public/sepTut/Control/CLIDComps/run/../share/ClassIDSvc_test.txt
+JobOptionsSvc        INFO # (1,1): ClassIDSvc.OutputLevel = 2
+JobOptionsSvc        INFO # (2,1): ClassIDSvc.OutputFileName = "CLIDTestOut.db"
+JobOptionsSvc        INFO # (3,1): ClassIDSvc.CLIDDBFiles = ["notthere.db", "clid.db"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/ClassIDSvc_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
+                                          running on lxplus0223.cern.ch on Wed Sep  3 19:19:27 2014
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+*** ClassIDSvc basic test starts ***
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-12
+ClassIDSvc          DEBUG Service base class initialized successfully
+ClassIDSvc        WARNING Could not resolve clid DB path notthere.db using DATAPATH [/afs/cern.ch/work/c/calaf/public/sepTut/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasOffline/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasSimulation/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasAnalysis/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasTrigger/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasEvent/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/DetCommon/rel_4/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/GAUDI/rel_4/InstallArea/share:/afs/cern.ch/atlas/offline/external/LCGCMT/LCGCMT_67b/InstallArea/share:/afs/cern.ch/atlas/software/builds/nightlies/devval/GAUDI/rel_4/PartPropSvc/share:/afs/cern.ch/atlas/offline/ReleaseData/v19:/afs/cern.ch/atlas/offline/ReleaseData/v19/testfile:/afs/cern.ch/atlas/project/magfield/CTB] ----- SKIPPING
+ClassIDSvc           INFO  getRegistryEntries: read 49 CLIDRegistry entries for module ALL
+Now we expect to see an error message:
+----Error Message Starts--->>
+ClassIDSvc          FATAL setTypeNameForID: input id 128 is out of allowed range 256 : 2147483647
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+ClassIDSvc          FATAL setTypeNameForID: input id 4294967294 is out of allowed range 256 : 2147483647
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+ClassIDSvc          ERROR uncheckedSetTypePackageForID: CLIDComps-00-06-12 can not set type name <Ble> for CLID 7890: Known name for this ID <Bla> It was set by APack-00-39-98
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+ClassIDSvc          ERROR uncheckedSetTypePackageForID: CLIDComps-00-06-12 can not set CLID <9945> for type name Bli: Known CLID for this name <9942> It was set by CLIDComps-00-06-12
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+ClassIDSvc          ERROR uncheckedSetTypePackageForID: APack-00-39-98 can not set type name <Bl a> for CLID 7890: Known name for this ID <Bla> It was set by APack-00-39-98
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+ClassIDSvc          ERROR uncheckedSetTypePackageForID: APack-00-39-98 can not set type name <B  l a> for CLID 7890: Known name for this ID <Bla> It was set by APack-00-39-98
+<<---Error Message Ends-------
+ClassIDSvc           INFO finalize: wrote 1233 entries to output CLIDDB file: CLIDTestOut.db
+*** ClassIDSvc basic test OK ***
+*** ClassIDSvc incident test starts ***
+*** ClassIDSvc incident test OK ***

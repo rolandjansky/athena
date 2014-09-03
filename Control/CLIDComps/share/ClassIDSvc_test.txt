@@ -1,0 +1,3 @@
+ClassIDSvc.OutputLevel = 2;
+ClassIDSvc.OutputFileName = "CLIDTestOut.db";
+ClassIDSvc.CLIDDBFiles =  { "notthere.db", "clid.db" };

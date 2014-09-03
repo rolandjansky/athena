@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<atn>
+    <TEST name="CLIDSvcTest" type="makecheck" suite="Examples">
+       <package>Control/CLIDComps</package>
+       <timelimit>5</timelimit>
+       <author> Paolo Calafiura </author>
+       <mailto> pcalafiura@lbl.gov </mailto>
+       <expectations>
+          <errorMessage>Athena exited abnormally</errorMessage>
+          <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+          <successMessage>check ok</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
+    <TEST name="clid" type="script">
+       <options>_clid_unittest.py</options>
+       <author> Paolo Calafiura </author>
+       <mailto> pcalafiura@lbl.gov </mailto>
+       <expectations>
+          <errorMessage>AssertionError</errorMessage>
+          <successMessage>OK</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
+</atn>
