@@ -1,0 +1,48 @@
+package AnalysisTools
+
+author Tadashi Maeno       <Tadashi.Maeno@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-* 		External
+
+use AtlasPython		AtlasPython-*		External
+
+
+use NavFourMom		NavFourMom-*	    		Event #KC adding this for the time being
+use McParticleEvent	McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+
+use AthenaBaseComps	AthenaBaseComps-*		Control
+use StoreGate           StoreGate-*      		Control
+use DataModel           DataModel-*      		Control
+
+use AnalysisUtils       AnalysisUtils-*  		PhysicsAnalysis/AnalysisCommon
+
+
+
+private
+use AtlasROOT           AtlasROOT-*      		External
+use AtlasPOOL           AtlasPOOL-*      		External
+use AtlasCORAL		AtlasCORAL-*			External
+use SGTools		SGTools-*      		        Control
+use PersistentDataModel PersistentDataModel-*           Database
+use AthenaPoolUtilities AthenaPoolUtilities-* 	        Database/AthenaPOOL
+use EventInfo           EventInfo-*      		Event
+
+# Checkreq says we don't need this, but we really do
+# (as of AnalysisTools-00-05-06).
+use RootCollection      RootCollection-*                Database/APR
+end_private
+
+
+library AthAnalysisTools *.cxx components/*.cxx
+apply_pattern named_component_library library="AthAnalysisTools"
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+
+apply_pattern lcgdict dict=AnalysisTools selectionfile=selection.xml \
+        headerfiles="../AnalysisTools/AnalysisToolsDict.h"

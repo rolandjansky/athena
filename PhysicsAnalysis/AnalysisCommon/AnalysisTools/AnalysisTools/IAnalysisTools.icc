@@ -1,0 +1,220 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "AnalysisUtils/AnalysisMisc.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "StoreGate/StoreGate.h"
+#include "DataModel/OwnershipPolicy.h"
+
+inline double IAnalysisTools::deltaPhi (const INavigable4Momentum *p1, const INavigable4Momentum *p2) const
+{
+  return AnalysisUtils::Delta::phi(p1,p2);
+}
+
+inline double IAnalysisTools::deltaR (const INavigable4Momentum *p1, const INavigable4Momentum *p2) const
+{
+  return AnalysisUtils::Delta::R(p1,p2);
+}
+
+inline double IAnalysisTools::imass2 (const INavigable4Momentum *p1, const INavigable4Momentum *p2) const
+{
+  return AnalysisUtils::Imass::two(p1,p2);
+}
+
+inline double IAnalysisTools::imass4 (const INavigable4Momentum *p1, const INavigable4Momentum *p2,
+				      const INavigable4Momentum *p3, const INavigable4Momentum *p4) const
+{
+  return AnalysisUtils::Imass::four(p1,p2,p3,p4);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, int &index, double &deltaR) const
+{
+  return AnalysisUtils::Match::R(t,coll,index,deltaR);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, int &index, double &deltaR, double &deltaE) const
+{
+  return AnalysisUtils::Match::R(t,coll,index,deltaR, deltaE);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const double eta, const double phi, COLL *coll, int &index, double &deltaR) const
+{
+  return AnalysisUtils::Match::R(eta,phi,coll,index,deltaR);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const double eta, const double phi, const double e, COLL *coll, int &index, 
+ double &deltaR, double &deltaE) const
+{
+  return AnalysisUtils::Match::R(eta,phi,e,coll,index,deltaR,deltaE);
+}
+
+template <class COLL, class ELEMENT > inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, ELEMENT *&element, double &deltaR) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(t,coll,index,deltaR);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL, class ELEMENT > inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, ELEMENT *&element, double &deltaR, double &deltaE) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(t,coll,index,deltaR, deltaE);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL, class ELEMENT > inline bool IAnalysisTools::matchR
+(const double eta, const double phi, COLL *coll, ELEMENT *&element, double &deltaR) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(eta,phi,coll,index,deltaR);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL, class ELEMENT > inline bool IAnalysisTools::matchR
+(const double eta, const double phi, const double e, COLL *coll, ELEMENT *&element, 
+ double &deltaR, double &deltaE) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(eta,phi,e, coll,index,deltaR, deltaE);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, int &index, double &deltaR, int pdg) const
+{
+  return AnalysisUtils::Match::R(t,coll,index,deltaR,pdg);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const double eta, const double phi, COLL *coll, int &index, double &deltaR, int pdg) const
+{
+  return AnalysisUtils::Match::R(eta,phi,coll,index,deltaR,pdg);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, int &index, double &deltaR, int pdg, double &deltaE) const
+{
+  return AnalysisUtils::Match::R(t,coll,index,deltaR,pdg,deltaE);
+}
+
+template <class COLL> inline bool IAnalysisTools::matchR
+(const double eta, const double phi, const double e, COLL *coll, int &index, double &deltaR, 
+ int pdg, double &deltaE) const
+{
+  return AnalysisUtils::Match::R(eta,phi,e,coll,index,deltaR,pdg,deltaE);
+}
+
+template <class COLL, class ELEMENT> inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, ELEMENT *&element, double &deltaR, int pdg) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(t,coll,index,deltaR,pdg);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL, class ELEMENT> inline bool IAnalysisTools::matchR
+(const INavigable4Momentum *t, COLL *coll, ELEMENT *&element, double &deltaR, int pdg, double &deltaE) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(t,coll,index,deltaR,pdg,deltaE);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL, class ELEMENT> inline bool IAnalysisTools::matchR
+(const double eta, const double phi, COLL *coll, ELEMENT *&element, double &deltaR, int pdg) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(eta,phi,coll,index,deltaR,pdg);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL, class ELEMENT> inline bool IAnalysisTools::matchR
+(const double eta, const double phi, const double e, COLL *coll, ELEMENT *&element, double &deltaR, 
+ int pdg, double &deltaE) const
+{
+  int index = 0;
+  bool ret = AnalysisUtils::Match::R(eta,phi,e,coll,index,deltaR,pdg,deltaE);
+  if (!ret) return false;
+  element = (*coll)[index];
+  return true;
+}
+
+template <class COLL> inline void IAnalysisTools::sortPT (COLL *coll) const
+{
+  AnalysisUtils::Sort::pT<COLL>(coll);
+}
+
+template <class COLL> inline void IAnalysisTools::sortE (COLL *coll) const
+{
+  AnalysisUtils::Sort::e<COLL>(coll);
+}
+
+template <class COLL> inline void IAnalysisTools::sortEta (COLL *coll) const
+{
+  AnalysisUtils::Sort::eta<COLL>(coll);
+}
+
+template <class COLL> inline void IAnalysisTools::sortPhi (COLL *coll) const
+{
+  AnalysisUtils::Sort::phi<COLL>(coll);
+}
+
+template <class COLL> inline void IAnalysisTools::classifyCharge (const COLL *coll,
+								  std::vector<typename COLL::value_type> &pos,
+								  std::vector<typename COLL::value_type> &neg) const
+{
+  AnalysisUtils::Classify::charge<COLL>(coll,pos,neg);
+}
+
+template <class CALLER, class CRITERIA, class COLL> inline StatusCode IAnalysisTools::select
+(CALLER *caller, CRITERIA criteria, COLL *coll, const std::string &key, const bool lock) const
+{
+  MsgStream log(msgSvc(), name());
+
+  // create new container with the view mode
+  COLL * newColl = new COLL(SG::VIEW_ELEMENTS);
+
+  /// record the container in SG
+  StatusCode sc = evtStore()->record(newColl, key);
+  if (sc.isFailure())
+    {
+      log << MSG::ERROR << "Unable to record Container in SG with key=" << key << endreq; 
+      return sc;
+    }
+
+  // loop over all elements
+  typename COLL::const_iterator it  = coll->begin();
+  typename COLL::const_iterator itE = coll->end();
+  for (; it != itE; ++it)
+    // selection
+    if (criteria(*it,caller))
+      newColl->push_back(*it);
+  
+  // lock the container
+  if (lock)
+    evtStore()->setConst(newColl);
+
+  return StatusCode::SUCCESS;
+}
