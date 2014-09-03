@@ -3,8 +3,6 @@
 */
 
 #include <string>
-#include <vector>
-#include <list>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "JpsiUpsilonTools/JpsiFinder.h"
@@ -26,8 +24,7 @@ private:
   int jpsiCntr;
  
   ToolHandle<Analysis::JpsiFinder> m_jpsiFinder;
-
-  std::string   m_JpsiCandidatesOutputName; //!< Name of output container to store results
+  std::string                      m_jpsiContainerName; //!< Name of output container to store results
 
 };
  

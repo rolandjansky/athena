@@ -7,22 +7,23 @@
 // JpsiFinder
 // James Catmore <James.Catmore@cern.ch>
 // Evelina Bouhova-Thacker <e.bouhova@cern.ch>
-// Results returned as a vector of ExtendedVxCandidates
+// Daniel.Scheirich <daniel.scheirich@cern.ch>
+// Migration to xAOD
 // ----------------------------------------------------------------------------
 // ****************************************************************************
 
 #include "JpsiUpsilonTools/JpsiFinder.h"
-#include "Particle/TrackParticle.h"
-#include "muonEvent/MuonContainer.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/ExtendedVxCandidate.h"
-#include "VxVertex/VxTrackAtVertex.h"
+//#include "Particle/TrackParticle.h"
+//#include "muonEvent/MuonContainer.h"
+//#include "VxVertex/VxContainer.h"
+//#include "VxVertex/ExtendedVxCandidate.h"
+//#include "VxVertex/VxTrackAtVertex.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkV0Fitter/TrkV0VertexFitter.h"
-#include "TrkParticleBase/TrackParticleBase.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
+//#include "TrkParticleBase/TrackParticleBase.h"
+//#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
@@ -30,6 +31,13 @@
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "DataModel/ElementLink.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace Analysis {
     
@@ -186,10 +194,12 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
     // Find the candidates
     //-------------------------------------------------------------------------------------
-    VxContainer* JpsiFinder::performSearch()
+    StatusCode JpsiFinder::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer)
     {
         ATH_MSG_DEBUG( "JpsiFinder::performSearch" );
-        VxContainer* JpsiContainer = new VxContainer;
+        vxContainer = new xAOD::VertexContainer;
+        vxAuxContainer = new xAOD::VertexAuxContainer;
+        vxContainer->setStore(vxAuxContainer);
         
         // Counter of good muon pairs BEFORE vertexing
         m_nGoodPairs = 0;
@@ -199,10 +209,10 @@ namespace Analysis {
         StatusCode sc1=service("ToolSvc",toolsvc);
         if (sc1.isFailure() ) {
             ATH_MSG_WARNING("Problem loading tool service. JpsiCandidates will be EMPTY!");
-            return JpsiContainer;
+            return StatusCode::SUCCESS;;
         };
         
-        // Check that the user's settings are sensible
+//        // Check that the user's settings are sensible
         bool illogicalOptions(false);
         if ( (m_mumu && m_mutrk) || (m_mumu && m_trktrk) || (m_mutrk && m_trktrk) ) {
             ATH_MSG_WARNING("You are requesting incompatible combinations of muons and tracks in the pairs. JpsiCandidates will be EMPTY!");
@@ -232,29 +242,29 @@ namespace Analysis {
             ATH_MSG_WARNING("You are requesting same-sign or all-sign combinations in a tag and probe analysis. This doesn't make sense. JpsiCandidates will be EMPTY!");
             illogicalOptions=true;
         }
-        if (illogicalOptions) return JpsiContainer;
+        if (illogicalOptions) return StatusCode::SUCCESS;;
         
         // Get the muons from StoreGate
-        const Analysis::MuonContainer* importedMuonCollection;
+        const xAOD::MuonContainer* importedMuonCollection;
         StatusCode sc = evtStore()->retrieve(importedMuonCollection,m_muonCollectionKey);
         if(sc.isFailure()){
             ATH_MSG_WARNING("No muon collection with key " << m_muonCollectionKey << " found in StoreGate. JpsiCandidates will be EMPTY!");
-            return JpsiContainer;
+            return StatusCode::SUCCESS;;
         }else{
             ATH_MSG_DEBUG("Found muon collections with key "<<m_muonCollectionKey);
         }
         ATH_MSG_DEBUG("Muon container size "<<importedMuonCollection->size());
         
         // Get muon tracks if combined measurement requested
-        std::vector<const Trk::TrackParticleBaseCollection*> importedMuonTrackCollections;
+        std::vector<const xAOD::TrackParticleContainer*> importedMuonTrackCollections;
         if (m_useCombMeasurement) {
             std::vector<std::string>::iterator strItr;
             for (strItr=m_MuonTrackKeys.begin(); strItr!=m_MuonTrackKeys.end(); ++strItr) {
-                const Trk::TrackParticleBaseCollection* importedMuonTrackCollection;
+                const xAOD::TrackParticleContainer* importedMuonTrackCollection;
                 sc = evtStore()->retrieve(importedMuonTrackCollection,*strItr);
                 if(sc.isFailure() || importedMuonTrackCollection==NULL){
                     ATH_MSG_WARNING("No muon TrackParticle collection with name " << *strItr  << " found in StoreGate!");
-                    return JpsiContainer;
+                    return StatusCode::SUCCESS;;
                 } else {
                     ATH_MSG_DEBUG("Found muon TrackParticle collection " << *strItr << " in StoreGate!");
                     ATH_MSG_DEBUG("Muon TrackParticle container size "<< importedMuonTrackCollection->size());
@@ -264,53 +274,54 @@ namespace Analysis {
         }
         
         // Get ID tracks
-        const Trk::TrackParticleBaseCollection* importedTrackCollection(0);
+        const xAOD::TrackParticleContainer* importedTrackCollection(0);
         sc = evtStore()->retrieve(importedTrackCollection,m_TrkParticleCollection);
         if(sc.isFailure()){
             ATH_MSG_WARNING("No TrackParticle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
-            return JpsiContainer;
+            return StatusCode::SUCCESS;;
         } else {
             ATH_MSG_DEBUG("Found TrackParticle collection " << m_TrkParticleCollection << " in StoreGate!");
         }
         ATH_MSG_DEBUG("ID TrackParticle container size "<< importedTrackCollection->size());
         
         // Typedef for vectors of tracks and muons
-        typedef std::vector<const Rec::TrackParticle*> TrackBag;
-        typedef std::vector<const Analysis::Muon*> MuonBag;
+        typedef std::vector<const xAOD::TrackParticle*> TrackBag;
+        typedef std::vector<const xAOD::Muon*> MuonBag;
         
         // Select the inner detector tracks
-        const Trk::Vertex* vx = 0;
+        const xAOD::Vertex* vx = 0;
         TrackBag theIDTracksAfterSelection;
         if (m_trktrk || m_mutrk) {
-            Trk::TrackParticleBaseCollection::const_iterator trkCItr;
+            xAOD::TrackParticleContainer::const_iterator trkCItr;
             for (trkCItr=importedTrackCollection->begin(); trkCItr!=importedTrackCollection->end(); ++trkCItr) {
-                const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(*trkCItr);
-                if ( fabs(getPt(TP))<m_trkThresholdPt ) continue;
+                const xAOD::TrackParticle* TP = (*trkCItr);
+//                if ( fabs(getPt(TP))<m_trkThresholdPt ) continue;
+                if ( fabs(TP->pt())<m_trkThresholdPt ) continue;
                 if ( !m_trkSelector->decision(*TP, vx) ) continue;
                 theIDTracksAfterSelection.push_back(TP);
             }
-            if (theIDTracksAfterSelection.size() == 0) return JpsiContainer;
+            if (theIDTracksAfterSelection.size() == 0) return StatusCode::SUCCESS;;
             ATH_MSG_DEBUG("Number of tracks after ID track selection: " << theIDTracksAfterSelection.size());
         }
         
         // Select the muons
         MuonBag theMuonsAfterSelection;
-        Analysis::MuonContainer::const_iterator muItr;
+        xAOD::MuonContainer::const_iterator muItr;
         if (m_mumu || m_mutrk) {
             for (muItr=importedMuonCollection->begin(); muItr!=importedMuonCollection->end(); ++muItr) {
                 if ( *muItr == NULL ) continue;
-                if (!(*muItr)->hasInDetTrackParticle()) continue; // No muons without ID tracks
-                const Rec::TrackParticle* muonTrk(0);
-                muonTrk = (*muItr)->inDetTrackParticle();
+                if (!(*muItr)->inDetTrackParticleLink().isValid()) continue; // No muons without ID tracks
+                const xAOD::TrackParticle* muonTrk(0);
+                muonTrk = (*muItr)->inDetTrackParticleLink().cachedElement();
                 if ( muonTrk==NULL) continue;
                 if ( !m_trkSelector->decision(*muonTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
-                if ( fabs(getPt(muonTrk))<m_thresholdPt ) continue; // higher pt cut if needed
-                if ( m_mcpCuts && !passesMCPCuts(muonTrk)) continue; // MCP cuts
-                if ( m_combOnly && !(*muItr)->isCombinedMuon() ) continue; // require combined muons
-                if ( (*muItr)->isSiliconAssociatedForwardMuon() && !m_useCombMeasurement) continue;
+                if ( fabs(muonTrk->pt())<m_thresholdPt ) continue; // higher pt cut if needed
+                if ( m_mcpCuts && !passesMCPCuts(*muItr)) continue; // MCP cuts
+                if ( m_combOnly && (*muItr)->muonType() != xAOD::Muon::Combined ) continue; // require combined muons
+                if ( (*muItr)->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon && !m_useCombMeasurement) continue;
                 theMuonsAfterSelection.push_back(*muItr);
             }
-            if (theMuonsAfterSelection.size() == 0) return JpsiContainer;
+            if (theMuonsAfterSelection.size() == 0) return StatusCode::SUCCESS;;
             ATH_MSG_DEBUG("Number of muons after selection: " << theMuonsAfterSelection.size());
         }
         
@@ -348,51 +359,50 @@ namespace Analysis {
             }
         }
         
-        const Rec::TrackParticle* combTrk1(0);
-        const Rec::TrackParticle* combTrk2(0);
-        std::vector<const Trk::TrackParticleBaseCollection*>::iterator muTrkCollItr;
+        std::vector<const xAOD::TrackParticleContainer*>::iterator muTrkCollItr;
         if (m_mumu) {
             for (jpsiItr=jpsiCandidates.begin(); jpsiItr!=jpsiCandidates.end(); ++jpsiItr) {
                 if ( (m_combOnly && !m_useCombMeasurement) || m_atLeastOneComb || m_allMuons) {
-                    (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticle();
-                    (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticle();
-                    (*jpsiItr).collection1 = importedTrackCollection;
-                    (*jpsiItr).collection2 = importedTrackCollection;
+                  (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticleLink().cachedElement();
+                  (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticleLink().cachedElement();
+                  (*jpsiItr).collection1 = importedTrackCollection;
+                  (*jpsiItr).collection2 = importedTrackCollection;
                 }
                 if (m_combOnly && m_useCombMeasurement) {
-                    combTrk1 = (*jpsiItr).muon1->combinedMuonTrackParticle();
-                    combTrk2 = (*jpsiItr).muon2->combinedMuonTrackParticle();
-                    if (combTrk1==NULL) {
-                        (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticle();
-                        (*jpsiItr).collection1 = importedTrackCollection;
+                    if (!(*jpsiItr).muon1->combinedTrackParticleLink().isValid()) {
+                      (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticleLink().cachedElement();
+                      (*jpsiItr).collection1 = importedTrackCollection;
                     }
-                    if (combTrk2==NULL) {
-                        (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticle();
-                        (*jpsiItr).collection2 = importedTrackCollection;
+                    
+                    if (!(*jpsiItr).muon2->combinedTrackParticleLink().isValid()) {
+                      (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticleLink().cachedElement();
+                      (*jpsiItr).collection2 = importedTrackCollection;
                     }
-                    if (combTrk1!=NULL) {
-                        (*jpsiItr).trackParticle1 = combTrk1;
+                    
+                    if ((*jpsiItr).muon1->combinedTrackParticleLink().isValid()) {
+                        (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->combinedTrackParticleLink().cachedElement();
                         bool foundCollection(false);
                         // Look for correct muon track container
                         for (muTrkCollItr=importedMuonTrackCollections.begin(); muTrkCollItr!=importedMuonTrackCollections.end(); ++muTrkCollItr) {
-                            if (isContainedIn(combTrk1,*muTrkCollItr)) { (*jpsiItr).collection1 = *muTrkCollItr; foundCollection=true; break;}
+                            if (isContainedIn((*jpsiItr).trackParticle1,*muTrkCollItr)) { (*jpsiItr).collection1 = *muTrkCollItr; foundCollection=true; break;}
                         }
                         if (!foundCollection) { // didn't find the correct muon track container so go back to ID
-                            (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticle();
+                            (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticleLink().cachedElement();
                             (*jpsiItr).collection1 = importedTrackCollection;
                             ATH_MSG_WARNING("Muon track from muon of author " << (*jpsiItr).muon1->author() << " not found in muon track collections you have provided.");
                             ATH_MSG_WARNING("Defaulting to ID track collection - combined measurement will not be used");
                         }
                     }
-                    if (combTrk2!=NULL) {
-                        (*jpsiItr).trackParticle2 = combTrk2;
+                    
+                    if ((*jpsiItr).muon2->combinedTrackParticleLink().isValid()) {
+                        (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->combinedTrackParticleLink().cachedElement();
                         bool foundCollection(false);
                         // Look for correct muon track container
                         for (muTrkCollItr=importedMuonTrackCollections.begin(); muTrkCollItr!=importedMuonTrackCollections.end(); ++muTrkCollItr) {
-                            if (isContainedIn(combTrk2,*muTrkCollItr)) { (*jpsiItr).collection2 = *muTrkCollItr; foundCollection=true; break;}
+                            if (isContainedIn((*jpsiItr).trackParticle2,*muTrkCollItr)) { (*jpsiItr).collection2 = *muTrkCollItr; foundCollection=true; break;}
                         }
                         if (!foundCollection) { // didn't find the correct muon track container so go back to ID
-                            (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticle();
+                            (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticleLink().cachedElement();
                             (*jpsiItr).collection2 = importedTrackCollection;
                             ATH_MSG_WARNING("Muon track from muon of author " << (*jpsiItr).muon2->author() << " not found in muon track collections you have provided.");
                             ATH_MSG_WARNING("Defaulting to ID track collection - combined measurement will not be used");
@@ -409,7 +419,7 @@ namespace Analysis {
             std::vector<int> listToDelete;
             std::vector<int>::reverse_iterator ii;
             for(jpsiItr=jpsiCandidates.begin(); jpsiItr!=jpsiCandidates.end();++jpsiItr,++index) {
-                if( (fabs(getPt((*jpsiItr).trackParticle1)) < m_higherPt) && (fabs(getPt((*jpsiItr).trackParticle2)) < m_higherPt) ) listToDelete.push_back(index);
+              if( (fabs((*jpsiItr).trackParticle1->pt()) < m_higherPt) && (fabs((*jpsiItr).trackParticle2->pt()) < m_higherPt) ) listToDelete.push_back(index);
             }
             for (ii=listToDelete.rbegin(); ii!=listToDelete.rend(); ++ii) {
                 jpsiCandidates.erase(jpsiCandidates.begin() + (*ii) );
@@ -430,11 +440,9 @@ namespace Analysis {
             std::vector<int> listToDelete;
             std::vector<int>::reverse_iterator ii;
             for(jpsiItr=sortedJpsiCandidates.begin(); jpsiItr!=sortedJpsiCandidates.end();++jpsiItr,++index) {
-                double deltatheta = fabs( (*jpsiItr).trackParticle1->measuredPerigee()->parameters()[Trk::theta] -
-                                         (*jpsiItr).trackParticle2->measuredPerigee()->parameters()[Trk::theta] );
+                double deltatheta = fabs( (*jpsiItr).trackParticle1->theta() - (*jpsiItr).trackParticle2->theta() );
                 // -3.14 < phi < +3.14 ==> correction
-                double deltaphi = (*jpsiItr).trackParticle1->measuredPerigee()->parameters()[Trk::phi0] -
-                (*jpsiItr).trackParticle1->measuredPerigee()->parameters()[Trk::phi0];
+                double deltaphi = (*jpsiItr).trackParticle1->phi0() - (*jpsiItr).trackParticle2->phi0();
                 while ( fabs(deltaphi) > M_PI ) deltaphi += ( deltaphi > 0. ) ? -2.*M_PI : 2.*M_PI;
                 deltaphi = fabs(deltaphi);
                 // perform the angle cuts
@@ -467,7 +475,7 @@ namespace Analysis {
         }
         
         ATH_MSG_DEBUG("Number of pairs passing all selections and going to vertexing: " << sortedJpsiCandidates.size() );
-        if (sortedJpsiCandidates.size() == 0) return JpsiContainer;
+        if (sortedJpsiCandidates.size() == 0) return StatusCode::SUCCESS;;
         
         // Some applications want the number of candidates (or the track pairs themselves) before vertexing;
         // the next lines facilitate this
@@ -481,60 +489,75 @@ namespace Analysis {
         
         // Fit each pair of tracks to a vertex
         for(jpsiItr=sortedJpsiCandidates.begin(); jpsiItr!=sortedJpsiCandidates.end(); ++jpsiItr) {
-            std::vector<const Rec::TrackParticle*> theTracks; theTracks.clear();
+            std::vector<const xAOD::TrackParticle*> theTracks; theTracks.clear();
             theTracks.push_back((*jpsiItr).trackParticle1);
             theTracks.push_back((*jpsiItr).trackParticle2);
-            Trk::VxCandidate* myVxCandidate = fit(theTracks); // This line actually does the fitting and object making
-            bool keepVx(false);
+            xAOD::Vertex* myVxCandidate = fit(theTracks); // This line actually does the fitting and object making
             if (myVxCandidate != 0) {
-                // In the end myVxCandidate must either be stored or deleted
-                const std::vector<Trk::VxTrackAtVertex*>& trackAtVertexVec = *((myVxCandidate)->vxTrackAtVertex());
-                // Linking of original tracks with the ExtendedVxCandidate object. Original container pointer needed
-                for (unsigned int i = 0; i < trackAtVertexVec.size(); i++) {
-                    Trk::LinkToTrackParticleBase* newLinkToTrackPB = new Trk::LinkToTrackParticleBase();
-                    if(i == 0) {
-                        newLinkToTrackPB->setElement(theTracks[0]);
-                        const Trk::TrackParticleBaseCollection* storableCollection = (*jpsiItr).collection1;
-                        newLinkToTrackPB->setStorableObject(*storableCollection);
-                    }
-                    if(i == 1) {
-                        newLinkToTrackPB->setElement(theTracks[1]);
-                        const Trk::TrackParticleBaseCollection* storableCollection = (*jpsiItr).collection2;
-                        newLinkToTrackPB->setStorableObject(*storableCollection);
-                    }
-                    trackAtVertexVec[i]->setOrigTrack(newLinkToTrackPB);
-                }
                 // Chi2 cut if requested
-                double chi2 = myVxCandidate->recVertex().fitQuality().chiSquared();
+                double chi2 = myVxCandidate->chiSquared();
                 ATH_MSG_DEBUG("chi2 is: " << chi2);
                 if (m_Chi2Cut == 0.0 || chi2 <= m_Chi2Cut) {
-                    Trk::ExtendedVxCandidate* jpsiVertexCandidate = dynamic_cast<Trk::ExtendedVxCandidate* >(myVxCandidate);
-                    if (!jpsiVertexCandidate) { // Needed in case Billoir fitter used
-                        keepVx = false;
-                        jpsiVertexCandidate = new Trk::ExtendedVxCandidate(myVxCandidate->recVertex(), *(myVxCandidate->vxTrackAtVertex()), 0);
-                    } else {
-                        keepVx=true;
+                    vxContainer->push_back(myVxCandidate);
+                    
+                    // store refitted tracks in persistifiable format
+                    static SG::AuxElement::Decorator< std::vector<float> > refTrackPxDecor("RefTrackPx");
+                    static SG::AuxElement::Decorator< std::vector<float> > refTrackPyDecor("RefTrackPy");
+                    static SG::AuxElement::Decorator< std::vector<float> > refTrackPzDecor("RefTrackPz");
+                    std::vector<float> refTrackPx;
+                    std::vector<float> refTrackPy;
+                    std::vector<float> refTrackPz;
+                    
+                    // loop over refitted tracks at vertex
+                    for(uint i=0; i<myVxCandidate->vxTrackAtVertex().size(); ++i) {
+                      TVector3 refTrackP = trackMomentum(myVxCandidate, i);
+                      
+                       // three-component vector of refitted parameters
+                      refTrackPx.push_back( refTrackP.Px() ); // NOTE: vector components are rounded to floats!
+                      refTrackPy.push_back( refTrackP.Py() );
+                      refTrackPz.push_back( refTrackP.Pz() );        
+                      
+                    } // end of loop over refitted tracks
+                    
+                    // store in the auxiliary store
+                    refTrackPxDecor(*myVxCandidate) = refTrackPx;
+                    refTrackPyDecor(*myVxCandidate) = refTrackPy;
+                    refTrackPzDecor(*myVxCandidate) = refTrackPz;
+                    
+                    // create links to the original muons
+                    if(m_mumu || m_mutrk) {
+                      ElementLink<xAOD::MuonContainer> muLink1;
+                      ElementLink<xAOD::MuonContainer> muLink2;
+                      if((*jpsiItr).muon1 != NULL) {
+                        muLink1.setElement((*jpsiItr).muon1);
+                        muLink1.setStorableObject(*importedMuonCollection);
+                      }
+                      if((*jpsiItr).muon2 != NULL) {
+                        muLink2.setElement((*jpsiItr).muon2);
+                        muLink2.setStorableObject(*importedMuonCollection);
+                      }
+                      // NOTE: we have to store links event if they are invalid to preserve muon <--> track correspondence 
+                      //       In case muAndTrack method is used, one has to check explicitly if links are valid in the analysis code.
+                      std::vector< ElementLink<xAOD::MuonContainer> >muLinks;
+                      muLinks.push_back(muLink1); 
+                      muLinks.push_back(muLink2);
+                      
+                      // create decoration of the xAOD::Vertex
+                      static SG::AuxElement::Decorator< std::vector< ElementLink<xAOD::MuonContainer> > > muonLinksDecor("MuonLinks");
+                      muonLinksDecor(*myVxCandidate) = muLinks;
                     }
-                    if (jpsiVertexCandidate!=NULL){
-                        JpsiContainer->push_back(jpsiVertexCandidate);
-                    }
+                    
                 } else { // chi2 cut failed
-                    keepVx=true; // just to avoid double delete at end
                     delete myVxCandidate;
                 }
             } else { // fit failed
                 ATH_MSG_DEBUG("Fitter failed!");
                 delete myVxCandidate;
             }
-            if (myVxCandidate && !keepVx) {
-                ATH_MSG_DEBUG("Fitter succeeded but no ExtendedVxCandidate");
-                if (myVxCandidate->vxTrackAtVertex()) myVxCandidate->vxTrackAtVertex()->clear();
-                delete myVxCandidate;
-            }
         }
-        ATH_MSG_DEBUG("JpsiContainer size " << JpsiContainer->size());
+        ATH_MSG_DEBUG("vxContainer size " << vxContainer->size());
         
-        return JpsiContainer;
+        return StatusCode::SUCCESS;;
     }
     
     // *********************************************************************************
@@ -543,7 +566,7 @@ namespace Analysis {
     // fit - does the fit
     // ---------------------------------------------------------------------------------
     
-    Trk::VxCandidate* JpsiFinder::fit(std::vector<const Rec::TrackParticle*> inputTracks) {
+    xAOD::Vertex* JpsiFinder::fit(std::vector<const xAOD::TrackParticle*> inputTracks) {
         
         Trk::TrkV0VertexFitter* concreteVertexFitter=0;
         if (m_useV0Fitter) {
@@ -555,70 +578,38 @@ namespace Analysis {
             }
         }
         
-        const Trk::Perigee * aPerigee1 = inputTracks[0]->measuredPerigee();
-        const Trk::Perigee * aPerigee2 = inputTracks[1]->measuredPerigee();
+        const Trk::Perigee& aPerigee1 = inputTracks[0]->perigeeParameters();
+        const Trk::Perigee& aPerigee2 = inputTracks[1]->perigeeParameters();
         int sflag = 0;
         int errorcode = 0;
-        Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(aPerigee1,aPerigee2,sflag,errorcode);
+        Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
         Trk::Vertex vertex(startingPoint);
-        const Trk::ParametersBase<5,Trk::Charged>* track1 = m_helpertool->getTrkParticleParameters((inputTracks[0]));
-        const Trk::ParametersBase<5,Trk::Charged>* track2 = m_helpertool->getTrkParticleParameters((inputTracks[1]));
-        std::vector<const Trk::ParametersBase<5,Trk::Charged>*> vertexTracks; vertexTracks.clear();
-        vertexTracks.push_back(track1);
-        vertexTracks.push_back(track2);
         if (m_useV0Fitter) {
-            Trk::VxCandidate* myVxCandidate = concreteVertexFitter->fit(vertexTracks, vertex);
+            xAOD::Vertex* myVxCandidate = concreteVertexFitter->fit(inputTracks, vertex);
             return myVxCandidate;
         } else {
-            Trk::VxCandidate* myVxCandidate = m_iVertexFitter->fit(vertexTracks, vertex);
+            xAOD::Vertex* myVxCandidate = m_iVertexFitter->fit(inputTracks, vertex);
             return myVxCandidate;
         }
+      
+        return NULL;
         
     } // End of fit method
     
     
     // *********************************************************************************
-    
-    
-    // ---------------------------------------------------------------------------------
-    // getPt: returns the pT on being passed a const TrackParticle
-    // ---------------------------------------------------------------------------------
-    
-    double JpsiFinder::getPt(const Rec::TrackParticle* trackIn){
-        
-        double pt=0.,theta=0.,qOverP=0.;
-        qOverP=trackIn->measuredPerigee()->parameters()[Trk::qOverP];
-        theta=trackIn->measuredPerigee()->parameters()[Trk::theta];
-        pt=(1.0/qOverP)*sin(theta);
-        
-        return pt;
-    }
-    
-    // ---------------------------------------------------------------------------------
-    // getEta: returns the pseudorapidity on being passed a const TrackParticle*
-    // ---------------------------------------------------------------------------------
-    double JpsiFinder::getEta(const Rec::TrackParticle* trackIn){
-        double theta,eta;
-        theta=trackIn->measuredPerigee()->parameters()[Trk::theta];
-        eta=-1.0*log(tan(0.5*theta));
-        return eta;
-    }
-    
-    // *********************************************************************************
-    
-    // *********************************************************************************
-    
+      
     // ---------------------------------------------------------------------------------
     // getPairs: forms up 2-plets of tracks
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::getPairs(std::vector<const Rec::TrackParticle*> TracksIn){
+    std::vector<JpsiCandidate> JpsiFinder::getPairs(std::vector<const xAOD::TrackParticle*> TracksIn){
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
-        std::vector<const Rec::TrackParticle*>::const_iterator outerItr;
-        std::vector<const Rec::TrackParticle*>::const_iterator innerItr;
+        std::vector<const xAOD::TrackParticle*>::const_iterator outerItr;
+        std::vector<const xAOD::TrackParticle*>::const_iterator innerItr;
         
         if(TracksIn.size()>=2){
             for(outerItr=TracksIn.begin();outerItr<TracksIn.end();outerItr++){
@@ -640,12 +631,12 @@ namespace Analysis {
     // getPairs: forms up 2-plets of muons
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::getPairs(std::vector<const Analysis::Muon*> muonsIn){
+    std::vector<JpsiCandidate> JpsiFinder::getPairs(std::vector<const xAOD::Muon*> muonsIn){
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
-        std::vector<const Analysis::Muon*>::const_iterator outerItr;
-        std::vector<const Analysis::Muon*>::const_iterator innerItr;
+        std::vector<const xAOD::Muon*>::const_iterator outerItr;
+        std::vector<const xAOD::Muon*>::const_iterator innerItr;
         
         if(muonsIn.size()>=2){
             for(outerItr=muonsIn.begin();outerItr<muonsIn.end();outerItr++){
@@ -653,8 +644,8 @@ namespace Analysis {
                     pair.muon1 = *innerItr;
                     pair.muon2 = *outerItr;
                     pair.pairType = MUMU;
-                    bool mu1Comb( (*innerItr)->isCombinedMuon() );
-                    bool mu2Comb( (*outerItr)->isCombinedMuon() );
+                    bool mu1Comb( (*innerItr)->muonType() == xAOD::Muon::Combined );
+                    bool mu2Comb( (*outerItr)->muonType() == xAOD::Muon::Combined );
                     if (mu1Comb && mu2Comb) pair.muonTypes = CC;
                     if ( (mu1Comb && !mu2Comb) || (!mu1Comb && mu2Comb) ) pair.muonTypes = CT;
                     if (!mu1Comb && !mu2Comb) pair.muonTypes = TT;
@@ -672,21 +663,24 @@ namespace Analysis {
     // getPairs2Colls: forms up 2-plets of tracks from two independent collections
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiCandidate> JpsiFinder::getPairs2Colls(std::vector<const Rec::TrackParticle*> tracks, std::vector<const Analysis::Muon*> muons, bool tagAndProbe){
+    std::vector<JpsiCandidate> JpsiFinder::getPairs2Colls(std::vector<const xAOD::TrackParticle*> tracks, std::vector<const xAOD::Muon*> muons, bool tagAndProbe){
         
         std::vector<JpsiCandidate> myPairs;
         JpsiCandidate pair;
-        std::vector<const Rec::TrackParticle*>::const_iterator trkItr;
-        std::vector<const Analysis::Muon*>::const_iterator muItr;
+        std::vector<const xAOD::TrackParticle*>::const_iterator trkItr;
+        std::vector<const xAOD::Muon*>::const_iterator muItr;
         
         // Unless user is running in tag and probe mode, remove tracks which are also identified as muons
-        std::vector<const Rec::TrackParticle*> tracksToKeep;
+        std::vector<const xAOD::TrackParticle*> tracksToKeep;
         if (!tagAndProbe) {
             if(tracks.size()>=1 && muons.size()>=1){
                 for(trkItr=tracks.begin();trkItr<tracks.end();trkItr++){
                     bool trackIsMuon(false);
                     for(muItr=muons.begin();muItr<muons.end();muItr++){
-                        if ( (*muItr)->inDetTrackParticle()==(*trkItr) ) {trackIsMuon=true; break;}
+                      if ( (*muItr)->inDetTrackParticleLink().cachedElement() == (*trkItr) ) {
+                          trackIsMuon=true; 
+                          break;
+                        }
                     }
                     if (!trackIsMuon) tracksToKeep.push_back(*trkItr);
                 }
@@ -698,7 +692,7 @@ namespace Analysis {
                 for(muItr=muons.begin();muItr<muons.end();muItr++){
                     pair.muon1 = *muItr;
                     // Muon track 1st
-                    pair.trackParticle1 = (*muItr)->inDetTrackParticle();
+                    pair.trackParticle1 = (*muItr)->inDetTrackParticleLink().cachedElement();
                     pair.trackParticle2 = *trkItr;
                     pair.pairType = MUTRK;
                     myPairs.push_back(pair);
@@ -718,30 +712,19 @@ namespace Analysis {
     // ---------------------------------------------------------------------------------
     
     double JpsiFinder::getInvariantMass(JpsiCandidate jpsiIn,std::vector<double> massHypotheses){
+      double mass1 = massHypotheses.at(0);
+      double mass2 = massHypotheses.at(1);
+      
+      // construct 4-vectors from track perigee parameters using given mass hypotheses.
+      // NOTE: in new data model (xAOD) the defining parameters are expressed as perigee parameters w.r.t. the beamspot
+      // NOTE2: TrackParticle::p4() method already returns TLorentzVector, however, we want to enforce our own mass hypothesis
+      TLorentzVector mu1;
+      TLorentzVector mu2;
+      mu1.SetVectM(jpsiIn.trackParticle1->p4().Vect(), mass1);
+      mu2.SetVectM(jpsiIn.trackParticle2->p4().Vect(), mass2);
+      
+      return (mu1+mu2).M();
         
-        const Rec::TrackParticle* track1 = jpsiIn.trackParticle1;
-        const Rec::TrackParticle* track2 = jpsiIn.trackParticle2;
-        double mass1 = massHypotheses.at(0);
-        double mass2 = massHypotheses.at(1);
-        
-        std::vector<double> px,py,pz,e;
-        
-        double px1 = track1->px();
-        double py1 = track1->py();
-        double pz1 = track1->pz();
-        double px2 = track2->px();
-        double py2 = track2->py();
-        double pz2 = track2->pz();
-        double e1 = sqrt(px1*px1+py1*py1+pz1*pz1+mass1*mass1);
-        double e2 = sqrt(px2*px2+py2*py2+pz2*pz2+mass2*mass2);
-        
-        double pxSum = px1+px2;
-        double pySum = py1+py2;
-        double pzSum = pz1+pz2;
-        double eSum = e1+e2;
-        double M=sqrt((eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum));
-        
-        return M;
     }
     
     // ---------------------------------------------------------------------------------
@@ -765,8 +748,8 @@ namespace Analysis {
         for(jpsiItr=jpsisIn.begin();jpsiItr!=jpsisIn.end();jpsiItr++){
             bool oppCh(false),sameCh(false);
             tmpJpsi = *jpsiItr;
-            qOverP1=(*jpsiItr).trackParticle1->measuredPerigee()->parameters()[Trk::qOverP];
-            qOverP2=(*jpsiItr).trackParticle2->measuredPerigee()->parameters()[Trk::qOverP];
+            qOverP1=(*jpsiItr).trackParticle1->qOverP();
+            qOverP2=(*jpsiItr).trackParticle2->qOverP();
             if(qOverP1*qOverP2<0.0) oppCh=true; // product charge < 0
             if(qOverP1*qOverP2>0.0) sameCh=true; // product charge > 0
             // +ve should be first so swap
@@ -791,25 +774,9 @@ namespace Analysis {
     // Apply the current cuts of the MCP group recommendation.
     // ---------------------------------------------------------------------------------
     
-    bool JpsiFinder::passesMCPCuts(const Rec::TrackParticle* tp) {
-        
-        const Trk::TrackSummary* ts=tp->trackSummary();
-        if (ts==NULL) return false;
-        //if (ts->get(Trk::expectBLayerHit) && ts->get(Trk::numberOfBLayerHits)==0) return false;
-        if (ts->get(Trk::numberOfPixelHits)+ts->get(Trk::numberOfPixelDeadSensors)==0) return false;
-        if (ts->get(Trk::numberOfSCTHits)+ts->get(Trk::numberOfSCTDeadSensors)<5) return false;
-        if (ts->get(Trk::numberOfPixelHoles)+ts->get(Trk::numberOfSCTHoles)>2) return false;
-        int nTRTHits = ts->get(Trk::numberOfTRTHits);
-        int nTRTOutliers = ts->get(Trk::numberOfTRTOutliers);
-        int n = nTRTHits + nTRTOutliers;
-        double dn = static_cast<double>(n);
-        if (fabs(getEta(tp))>0.1 && fabs(getEta(tp))<1.9) {
-            if (n<6 || nTRTOutliers >= 0.9*dn) return false;
-        }
-        //if ((fabs(getEta(tp)<=0.1) || fabs(getEta(tp))>=1.9) && n>5) {
-        //    if (nTRTOutliers > 0.9*dn) return false;
-        //}
-        return true;
+    bool JpsiFinder::passesMCPCuts(const xAOD::Muon* muon) {
+    
+      return muon->passesIDCuts();
         
     }
     
@@ -817,10 +784,10 @@ namespace Analysis {
     // Checks whether a TPB is in the collection
     // ---------------------------------------------------------------------------------
     
-    bool JpsiFinder::isContainedIn(const Trk::TrackParticleBase* theTrack, const Trk::TrackParticleBaseCollection* theCollection) {
+    bool JpsiFinder::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::TrackParticleContainer* theCollection) {
         
         bool isContained(false);
-        Trk::TrackParticleBaseCollection::const_iterator tpbIt;
+        xAOD::TrackParticleContainer::const_iterator tpbIt;
         for (tpbIt=theCollection->begin(); tpbIt!=theCollection->end(); ++tpbIt) {
             if ( *tpbIt == theTrack ) {
                 isContained=true;
@@ -830,25 +797,21 @@ namespace Analysis {
         return(isContained);
     }
     
-    bool JpsiFinder::isContainedIn(const Rec::TrackParticle* theTrack, std::vector<const Rec::TrackParticle*> theCollection) {
-        
-        bool isContained(false);
-        std::vector<const Rec::TrackParticle*>::iterator tpbIt;
-        for (tpbIt=theCollection.begin(); tpbIt!=theCollection.end(); ++tpbIt) {
-            if ( *tpbIt == theTrack ) {
-                isContained=true;
-                break;
-            }
-        }
-        return(isContained);
+    // ---------------------------------------------------------------------------------
+    // trackMomentum: returns refitted track momentum
+    // ---------------------------------------------------------------------------------
+    
+    TVector3 JpsiFinder::trackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const
+    {
+      double px = 0., py = 0., pz = 0.;
+      if (0 != vxCandidate) {
+        const Trk::TrackParameters* aPerigee = vxCandidate->vxTrackAtVertex()[trkIndex].perigeeAtVertex();
+        px = aPerigee->momentum()[Trk::px];
+        py = aPerigee->momentum()[Trk::py];
+        pz = aPerigee->momentum()[Trk::pz];
+      }
+      TVector3 mom(px,py,pz);
+      return mom;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
 }

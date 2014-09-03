@@ -11,33 +11,21 @@
 
 #include "JpsiUpsilonTools/JpsiAlg.h"
 
-#include <sstream>                                      // C++ utilities
-#include <string>
-#include <algorithm>
-#include <fstream>
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
-
-#include "StoreGate/StoreGateSvc.h"             // Storegate stuff
-#include "StoreGate/DataHandle.h"
-#include "AthenaKernel/DefaultKey.h"
 
 //////////////////////////////////////////////////////////////
 
 JpsiAlg::JpsiAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_jpsiFinder("Analysis::JpsiFinder"),
-  m_JpsiCandidatesOutputName("JpsiCandidates")
+  m_jpsiContainerName("JpsiCandidates")
 {
   
   // Declare user-defined properties - cuts and vertexing method
   declareProperty("JpsiFinderName",m_jpsiFinder);
-  declareProperty("JpsiCandidatesOutputName",m_JpsiCandidatesOutputName="JpsiCandidates");
+  declareProperty("JpsiCandidatesOutputName",m_jpsiContainerName="JpsiCandidates");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -80,22 +68,28 @@ StatusCode JpsiAlg::execute() {
   // Increment counter
   ++eventCntr;
 
-  // Declare the VxContainer which will hold the Jpsis
-  VxContainer* JpsiContainer ( 0 );
-
-  // Get the Jpsi candidates and associated values
-  JpsiContainer = m_jpsiFinder->performSearch();
-
-  // Extracting information from the Jpsi candidates
-  jpsiCntr += JpsiContainer->size(); // Count the Jpsis
-
-  ATH_MSG_DEBUG("Recording to StoreGate: " << m_JpsiCandidatesOutputName << " size:" <<JpsiContainer->size());
-  StatusCode sc = evtStore()->record(JpsiContainer, m_JpsiCandidatesOutputName,false);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to record JpsiContainer in TDS");
-    return sc;
+  // Jpsi container and its auxilliary store
+  xAOD::VertexContainer*    jpsiContainer = NULL;
+  xAOD::VertexAuxContainer* jpsiAuxContainer = NULL;
+  
+  // call Jpsi finder
+  if( !m_jpsiFinder->performSearch(jpsiContainer, jpsiAuxContainer).isSuccess() ) {
+    ATH_MSG_FATAL("Jpsi finder (" << m_jpsiFinder << ") failed.");
+    return StatusCode::FAILURE;
   }
 
+  // Extracting information from the Jpsi candidates
+  jpsiCntr += jpsiContainer->size(); // Count the Jpsis
+
+  // save in the StoreGate
+  ATH_MSG_DEBUG("Recording to StoreGate: " << m_jpsiContainerName << " size:" <<jpsiContainer->size());
+  
+  if (!evtStore()->contains<xAOD::VertexContainer>(m_jpsiContainerName))       
+    CHECK(evtStore()->record(jpsiContainer, m_jpsiContainerName));
+  
+  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_jpsiContainerName+"Aux.")) 
+    CHECK(evtStore()->record(jpsiAuxContainer, m_jpsiContainerName+"Aux."));
+  
   // END OF ANALYSIS
   return StatusCode::SUCCESS;
 }

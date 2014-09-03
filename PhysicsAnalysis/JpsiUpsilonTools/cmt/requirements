@@ -2,33 +2,26 @@ package JpsiUpsilonTools
 
 author James Catmore <James.Catmore@cern.ch> 
 
-use DataModel            DataModel-*            Control
-use AtlasPolicy          AtlasPolicy-*
-use AthenaBaseComps	 AthenaBaseComps-*      Control
-use GaudiInterface       GaudiInterface-*       External
-use TrkVKalVrtFitter     TrkVKalVrtFitter-*     Tracking/TrkVertexFitter
-use TrkVertexAnalysisUtils TrkVertexAnalysisUtils-* Tracking/TrkVertexFitter
-use InDetConversionFinderTools  InDetConversionFinderTools-* InnerDetector/InDetRecTools
-use HepPDT               *                      LCG_Interfaces
-#use AtlasCLHEP           AtlasCLHEP-*           External         
-#use egammaEvent          egammaEvent-*          Reconstruction/egamma
-#use egammaInterfaces     egammaInterfaces-*     Reconstruction/egamma
+use DataModel                   DataModel-*                   Control
+use AtlasPolicy                 AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*             Control
+use GaudiInterface              GaudiInterface-*              External
+use TrkVKalVrtFitter            TrkVKalVrtFitter-*            Tracking/TrkVertexFitter
+use InDetConversionFinderTools  InDetConversionFinderTools-*  InnerDetector/InDetRecTools
+use HepPDT                      *                             LCG_Interfaces
+use xAODMuon                    xAODMuon-*                    Event/xAOD
+use xAODTracking                xAODTracking-*                Event/xAOD
 
 private
-use AthenaKernel	 AthenaKernel-*		Control
-use AtlasROOT            AtlasROOT-*            External
-use StoreGate            StoreGate-*            Control
-use EventInfo		 EventInfo-*		Event
-use TrkParticleBase      TrkParticleBase-*      Tracking/TrkEvent
-use TrkV0Fitter          TrkV0Fitter-*          Tracking/TrkVertexFitter
-use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
-use VxVertex             VxVertex-*             Tracking/TrkEvent
-use muonEvent            muonEvent-*            Reconstruction/MuonIdentification
-#use egammaAnalysisUtils  egammaAnalysisUtils-*  Reconstruction/egamma/egammaAnalysis
-#use CaloEvent            CaloEvent-*            Calorimeter 		 	    
-use EventPrimitives      EventPrimitives-*    Event
-use Particle             Particle-*             Reconstruction
-use TrkToolInterfaces    TrkToolInterfaces-*    Tracking/TrkTools
+use AtlasCLHEP                  AtlasCLHEP-*                  External
+use TrkVertexAnalysisUtils      TrkVertexAnalysisUtils-*      Tracking/TrkVertexFitter
+use AtlasROOT                   AtlasROOT-*                   External
+use TrkV0Fitter                 TrkV0Fitter-*                 Tracking/TrkVertexFitter
+use TrkVertexFitterInterfaces   TrkVertexFitterInterfaces-*   Tracking/TrkVertexFitter
+use EventPrimitives             EventPrimitives-*             Event
+use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
+use TrkParametersBase           TrkParametersBase-*           Tracking/TrkEvent
+use VxVertex                    VxVertex-*                    Tracking/TrkEvent
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

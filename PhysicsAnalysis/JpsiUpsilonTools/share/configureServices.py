@@ -1,10 +1,10 @@
 #
 # Magnetic field tool
 #
-from TrkMagFieldTools.TrkMagFieldToolsConf import Trk__MagneticFieldTool
-InDetMagField = Trk__MagneticFieldTool('InDetMagField')
-ToolSvc += InDetMagField
-print      InDetMagField
+#from TrkMagFieldTools.TrkMagFieldToolsConf import Trk__MagneticFieldTool
+#InDetMagField = Trk__MagneticFieldTool('InDetMagField')
+#ToolSvc += InDetMagField
+#print      InDetMagField
 
 #
 # set up extrapolator
@@ -107,21 +107,12 @@ from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 TrkVKalVrtFitter = Trk__TrkVKalVrtFitter(
                                          name                = "VKalVrtFitterName",
                                          Extrapolator        = InDetExtrapolator,
-                                         MagFieldSvc         = InDetMagField,
+#                                         MagFieldSvc         = InDetMagField,
                                          FirstMeasuredPoint  = True,
                                          #FirstMeasuredPointLimit = True,
                                          MakeExtendedVertex  = True)
 ToolSvc += TrkVKalVrtFitter
 print      TrkVKalVrtFitter
-
-from TrkV0Fitter.TrkV0FitterConf import Trk__TrkV0VertexFitter
-TrkV0Fitter = Trk__TrkV0VertexFitter(name              = 'TrkV0FitterName',
-                                     MaxIterations     = 10,
-                                     Use_deltaR        = False,
-                                     Extrapolator      = InDetExtrapolator,
-                                     MagneticFieldTool = InDetMagField)
-ToolSvc += TrkV0Fitter
-print      TrkV0Fitter
 
 #
 # --- load linearized track factory
@@ -129,9 +120,21 @@ print      TrkV0Fitter
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
 InDetLinFactory = Trk__FullLinearizedTrackFactory(name              = "InDetFullLinearizedTrackFactory",
                                                   Extrapolator      = InDetExtrapolator,
-                                                  MagneticFieldTool = InDetMagField)
+#                                                  MagneticFieldTool = InDetMagField
+                                                  )
 ToolSvc += InDetLinFactory
 print InDetLinFactory
+
+
+from TrkV0Fitter.TrkV0FitterConf import Trk__TrkV0VertexFitter
+TrkV0Fitter = Trk__TrkV0VertexFitter(name              = 'TrkV0FitterName',
+                                     MaxIterations     = 10,
+                                     Use_deltaR        = False,
+                                     Extrapolator      = InDetExtrapolator,
+#                                     MagneticFieldTool = InDetMagField
+                                     )
+ToolSvc += TrkV0Fitter
+print      TrkV0Fitter
 
 from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FastVertexFitter
 InDetFastVxFitterTool = Trk__FastVertexFitter(name                   = "InDetFastVertexFitterTool",

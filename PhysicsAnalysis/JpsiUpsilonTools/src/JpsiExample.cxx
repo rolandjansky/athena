@@ -9,51 +9,29 @@
 
 #include "JpsiUpsilonTools/JpsiExample.h"
 
-#include <sstream>                                      // C++ utilities
-#include <string>
-#include <algorithm>
-#include <fstream>
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IPartPropSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
-
-#include "StoreGate/StoreGateSvc.h"             // Storegate stuff
-#include "StoreGate/DataHandle.h"
-#include "AthenaKernel/DefaultKey.h"
-
-#include "TrkVertexAnalysisUtils/V0Tools.h"	// Handy toolbox for calculating values from ExtendedVxCandidates
-
-#include "VxVertex/VxContainer.h"
+#include "TrkParametersBase/ParametersBase.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "Particle/TrackParticle.h"
-#include "VxVertex/ExtendedVxCandidate.h"
+
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Matrix/Matrix.h"
+#include "CLHEP/Matrix/SymMatrix.h"
 
 #include "TFile.h"
-#include "TNtuple.h"
-#include "TROOT.h"
+#include "TTree.h"
+#include "TVector3.h"
 
 //////////////////////////////////////////////////////////////
 
 JpsiExample::JpsiExample(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_overwriteMass(false),
-  m_muonMass(105.66),
-  m_particleDataTable(0),
-  m_V0Tools("Trk::V0Tools")
-  
+  m_muonMass(105.66)
 {
   
   // Declare user-defined properties - cuts and vertexing method
-  declareProperty("overwriteMass",m_overwriteMass);
-  declareProperty("muonMass", m_muonMass);
+  declareProperty("muonMass"        , m_muonMass);
   declareProperty("outputNTupleName", m_userFName);
-  declareProperty("V0Tools",m_V0Tools);
-  declareProperty("JpsiCandidates",m_JpsiCandidatesKey = "JpsiCandidates");
+  declareProperty("JpsiCandidates"  ,m_JpsiCandidatesKey = "JpsiCandidates");
 
   // Global Counters; for truth statistics
   eventCntr = 0;
@@ -67,34 +45,6 @@ StatusCode JpsiExample::initialize(){
 
   ATH_MSG_DEBUG("in initialize()");
 
-  // get the tool service
-  IToolSvc* toolSvc;
-  StatusCode sc = service("ToolSvc",toolSvc);
-  if (StatusCode::SUCCESS != sc) {
-    ATH_MSG_ERROR("Unable to retrieve ToolSvc");
-    return StatusCode::FAILURE;
-  }
- 
-  // uploading the V0 tools
-  if ( m_V0Tools.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_V0Tools);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_V0Tools);
-  }
-
-  // Get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
-  sc = service("PartPropSvc", partPropSvc, true);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Could not initialize Particle Properties Service");
-    return StatusCode::SUCCESS;
-  } else {
-    m_particleDataTable = partPropSvc->PDT();
-    const HepPDT::ParticleData* pd_mu = m_particleDataTable->particle(PDG::mu_minus);
-    if (!m_overwriteMass) m_muonMass = pd_mu->mass();
-  }
- 
   // Open n-tuple file
   outputFile = new TFile(m_userFName.c_str(),"recreate");
   // Auxiliary n-tuples not covered by the automatic n-tuple makers
@@ -108,11 +58,11 @@ StatusCode JpsiExample::initialize(){
   auxTree->Branch("jpsiMassPullMC", &m_jpsiMassPullMC);
   auxTree->Branch("jpsiChi2", &m_jpsiChi2);
   
-  auxTree->Branch("trkRefitCharge1",  &m_trkRefitCharge1);
+//  auxTree->Branch("trkRefitCharge1",  &m_trkRefitCharge1);
   auxTree->Branch("trkRefitPx1",  &m_trkRefitPx1);
   auxTree->Branch("trkRefitPy1", &m_trkRefitPy1);
   auxTree->Branch("trkRefitPz1", &m_trkRefitPz1);
-  auxTree->Branch("trkRefitCharge2",  &m_trkRefitCharge2);
+//  auxTree->Branch("trkRefitCharge2",  &m_trkRefitCharge2);
   auxTree->Branch("trkRefitPx2",  &m_trkRefitPx2);
   auxTree->Branch("trkRefitPy2", &m_trkRefitPy2);
   auxTree->Branch("trkRefitPz2", &m_trkRefitPz2);
@@ -130,9 +80,9 @@ StatusCode JpsiExample::initialize(){
   auxTree->Branch("trkOrigPy2", &m_trkOrigPy2);
   auxTree->Branch("trkOrigPz2", &m_trkOrigPz2);
 
-  auxTree->Branch("rxyError", &m_rxyError);
+//  auxTree->Branch("rxyError", &m_rxyError);
 
-  return sc;
+  return StatusCode::SUCCESS;
   
 }
 
@@ -144,16 +94,18 @@ StatusCode JpsiExample::execute() {
   ATH_MSG_DEBUG("in execute()");
 
   // Read in the Jpsis from StoreGate 
-  const VxContainer* JpsiContainer(0);
-  StatusCode sc = evtStore()->retrieve(JpsiContainer, m_JpsiCandidatesKey);
-  if (sc.isFailure() || !JpsiContainer) {
-    ATH_MSG_WARNING("No Jpsi Container Found, skipping event");
+  const xAOD::VertexContainer*    jpsiContainer(0);
+  const xAOD::VertexAuxContainer* jpsiAuxContainer(0);
+  StatusCode sc  = evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey);
+  StatusCode sc2 = evtStore()->retrieve(jpsiAuxContainer, m_JpsiCandidatesKey+"Aux.");
+  if (sc.isFailure() || !jpsiContainer || sc2.isFailure() || !jpsiAuxContainer) {
+    ATH_MSG_ERROR("No Jpsi Container Found, skipping event");
     return StatusCode::RECOVERABLE;
   } else {
-    ATH_MSG_DEBUG("Obtained JpsiContainer");
+    ATH_MSG_DEBUG("Obtained jpsiContainer");
   }
-  ATH_MSG_DEBUG("number of jpsi candidates " << JpsiContainer->size());
-  jpsiCntr += JpsiContainer->size(); // Count the Jpsis
+  ATH_MSG_DEBUG("number of jpsi candidates " << jpsiContainer->size());
+  jpsiCntr += jpsiContainer->size(); // Count the Jpsis
 
 
   // Set the auxilliary branches of the ntuple to zero
@@ -162,77 +114,51 @@ StatusCode JpsiExample::execute() {
 
   ++eventCntr;     // Increment event counter
 
-  std::vector<double> trkMasses;
-  trkMasses.push_back(m_muonMass);
-  trkMasses.push_back(m_muonMass);
-
   // Extract information from the Jpsi candidates 
-  for ( VxContainer::const_iterator vxcItr = JpsiContainer->begin() ; vxcItr != JpsiContainer->end() ; vxcItr++ ) {
-    Trk::VxCandidate* myVxCandidate = (*vxcItr);
-    Trk::ExtendedVxCandidate* jpsiCandidate = dynamic_cast<Trk::ExtendedVxCandidate* >(myVxCandidate);
+  for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; vxcItr++ ) {
+    const xAOD::Vertex* jpsiCandidate = (*vxcItr);
+    ATH_MSG_INFO("Cov. matrix " << jpsiCandidate->covariance().size());
 
-    // Calculate and plot the invariant masses and their errors
-    double mass = m_V0Tools->invariantMass(jpsiCandidate,trkMasses);	 
+    // refitted track parameters
+    TLorentzVector refTrk1 = track4Momentum(jpsiCandidate, 0, m_muonMass);
+    m_trkRefitPx1->push_back(refTrk1.Px());
+    m_trkRefitPy1->push_back(refTrk1.Py());
+    m_trkRefitPz1->push_back(refTrk1.Pz());
+
+    TLorentzVector refTrk2 = track4Momentum(jpsiCandidate, 1, m_muonMass);
+    m_trkRefitPx2->push_back(refTrk2.Px());
+    m_trkRefitPy2->push_back(refTrk2.Py());
+    m_trkRefitPz2->push_back(refTrk2.Pz());
+
+    //vertex position
+    m_vx->push_back(jpsiCandidate->x());
+    m_vy->push_back(jpsiCandidate->y());
+    m_vz->push_back(jpsiCandidate->z());
+
+    TLorentzVector origTrk1 = origTrack4Momentum(jpsiCandidate, 0, m_muonMass);
+    m_trkOrigCharge1->push_back(trackCharge(jpsiCandidate, 0));
+    m_trkOrigPx1->push_back(origTrk1.Px());
+    m_trkOrigPy1->push_back(origTrk1.Py());
+    m_trkOrigPz1->push_back(origTrk1.Pz());
+
+    TLorentzVector origTrk2 = origTrack4Momentum(jpsiCandidate, 1, m_muonMass);
+    m_trkOrigCharge2->push_back(trackCharge(jpsiCandidate, 1));
+    m_trkOrigPx2->push_back(origTrk2.Px());
+    m_trkOrigPy2->push_back(origTrk2.Py());
+    m_trkOrigPz2->push_back(origTrk2.Pz());
+    
+    // Calculate the invariant masses and their errors
+    double orig_mass = (origTrk1+origTrk2).M();                      // mass from original tracks
+    double mass      = (refTrk1+refTrk2).M();                        // mass from refitted tracks
+    double error     = invariantMassError(jpsiCandidate, std::vector<double>(2, m_muonMass));  // invariant mass error
+
     m_jpsiMass->push_back(mass);
-    double error = m_V0Tools->invariantMassError(jpsiCandidate,trkMasses);
     m_jpsiMassError->push_back(error);
-    m_jpsiChi2->push_back(m_V0Tools->chisq(jpsiCandidate));
-
-    //Refitted tracks momentum and charge
-    const Trk::ParametersBase<5,Trk::Charged>* bPer1 = (*((jpsiCandidate)->vxTrackAtVertex()))[0]->perigeeAtVertex();
-    //const Trk::MeasuredPerigee* mPer1 = dynamic_cast<const Trk::MeasuredPerigee*>(bPer1);
-    double trkCharge1 = 1.;
-    if (bPer1->parameters()[Trk::qOverP] < 0.) trkCharge1 = -1.;
-    const Trk::ParametersBase<5,Trk::Charged>*  bPer2 = (*((jpsiCandidate)->vxTrackAtVertex()))[1]->perigeeAtVertex();
-    //const Trk::MeasuredPerigee* mPer2 = dynamic_cast<const Trk::MeasuredPerigee*>(bPer2);
-    double trkCharge2 = 1.;
-    if (bPer2->parameters()[Trk::qOverP] < 0.) trkCharge2 = -1.;
-
-    m_trkRefitCharge1->push_back(trkCharge1);
-    m_trkRefitPx1->push_back(m_V0Tools->trackMomentum(jpsiCandidate,0).x());
-    m_trkRefitPy1->push_back(m_V0Tools->trackMomentum(jpsiCandidate,0).y());
-    m_trkRefitPz1->push_back(m_V0Tools->trackMomentum(jpsiCandidate,0).z());
-
-    m_trkRefitCharge2->push_back(trkCharge2);
-    m_trkRefitPx2->push_back(m_V0Tools->trackMomentum(jpsiCandidate,1).x());
-    m_trkRefitPy2->push_back(m_V0Tools->trackMomentum(jpsiCandidate,1).y());
-    m_trkRefitPz2->push_back(m_V0Tools->trackMomentum(jpsiCandidate,1).z());
-
-    //vertex position and error
-    m_vx->push_back(m_V0Tools->vtx(jpsiCandidate).x());
-    m_vy->push_back(m_V0Tools->vtx(jpsiCandidate).y());
-    m_vz->push_back(m_V0Tools->vtx(jpsiCandidate).z());
-
-    double rxyError = m_V0Tools->rxyError(jpsiCandidate);
-    m_rxyError->push_back(rxyError);
-
-    //original tracks
-    const Trk::TrackParticleBase* origTrk1 = m_V0Tools->origTrackPB(jpsiCandidate,0);
-    const Trk::TrackParticleBase* origTrk2 = m_V0Tools->origTrackPB(jpsiCandidate,1);
-
-    const Rec::TrackParticle* origTP1 = dynamic_cast<const Rec::TrackParticle*>(origTrk1);
-    double charge1 = 1.;
-    if (origTP1->measuredPerigee()->parameters()[Trk::qOverP] < 0.) charge1 = -1.;
-    m_trkOrigCharge1->push_back(charge1);
-    m_trkOrigPx1->push_back(origTrk1->definingParameters().momentum()[Trk::px]);
-    m_trkOrigPy1->push_back(origTrk1->definingParameters().momentum()[Trk::py]);
-    m_trkOrigPz1->push_back(origTrk1->definingParameters().momentum()[Trk::pz]);
-
-    const Rec::TrackParticle* origTP2 = dynamic_cast<const Rec::TrackParticle*>(origTrk2);
-    double charge2 = 1.;
-    if (origTP2->measuredPerigee()->parameters()[Trk::qOverP] < 0.) charge2 = -1.;
-    m_trkOrigCharge2->push_back(charge2);
-    m_trkOrigPx2->push_back(origTrk2->definingParameters().momentum()[Trk::px]);
-    m_trkOrigPy2->push_back(origTrk2->definingParameters().momentum()[Trk::py]);
-    m_trkOrigPz2->push_back(origTrk2->definingParameters().momentum()[Trk::pz]);
-
-    std::vector<const Rec::TrackParticle*> origPair;
-    origPair.push_back(origTP1);
-    origPair.push_back(origTP2);
-    double orig_mass = getInvariantMass(origPair,trkMasses);
+    m_jpsiChi2->push_back(jpsiCandidate->chiSquared());
     m_jpsiMassRec->push_back(orig_mass);
     m_jpsiMassPullRec->push_back((mass-orig_mass)/error);
     m_jpsiMassPullMC->push_back((mass-3096.88)/error);
+    
   }
      
   // Write all data to the nTuple
@@ -274,11 +200,11 @@ void JpsiExample::clearBranches() {
   m_jpsiMassPullMC->clear();
   m_jpsiChi2->clear();
 
-  m_trkRefitCharge1->clear();
+//  m_trkRefitCharge1->clear();
   m_trkRefitPx1->clear();
   m_trkRefitPy1->clear();
   m_trkRefitPz1->clear();
-  m_trkRefitCharge2->clear();
+//  m_trkRefitCharge2->clear();
   m_trkRefitPx2->clear();
   m_trkRefitPy2->clear();
   m_trkRefitPz2->clear();
@@ -296,7 +222,7 @@ void JpsiExample::clearBranches() {
   m_trkOrigPy2->clear();
   m_trkOrigPz2->clear();
 
-  m_rxyError->clear();
+//  m_rxyError->clear();
 
   return;
 
@@ -316,11 +242,11 @@ void JpsiExample::initializeBranches(void) {
   m_jpsiMassPullMC = new std::vector<double>;
   m_jpsiChi2 = new std::vector<double>;
   
-  m_trkRefitCharge1 = new std::vector<double>;
+//  m_trkRefitCharge1 = new std::vector<double>;
   m_trkRefitPx1 = new std::vector<double>;
   m_trkRefitPy1 = new std::vector<double>;
   m_trkRefitPz1 = new std::vector<double>;
-  m_trkRefitCharge2 = new std::vector<double>;
+//  m_trkRefitCharge2 = new std::vector<double>;
   m_trkRefitPx2 = new std::vector<double>;
   m_trkRefitPy2 = new std::vector<double>;
   m_trkRefitPz2 = new std::vector<double>;
@@ -338,53 +264,214 @@ void JpsiExample::initializeBranches(void) {
   m_trkOrigPy2 = new std::vector<double>;
   m_trkOrigPz2 = new std::vector<double>;
 
-  m_rxyError = new std::vector<double>;
+//  m_rxyError = new std::vector<double>;
   
   return;
 
 }
 
 // *********************************************************************************
-
 // ---------------------------------------------------------------------------------
-// getInvariantMass: returns invariant mass given a pair of tracks and their mass
-// hypothesis. Each track must have a separate mass hypothesis in
-// the vector, and they must be in the same order as the tracks in the track vector.
-// Otherwise it will go horribly wrong.
+// trackMomentum: returns refitted track momentum
 // ---------------------------------------------------------------------------------
 
-double JpsiExample::getInvariantMass(std::vector<const Rec::TrackParticle*> trksIn,std::vector<double> massHypotheses){
+TVector3 JpsiExample::trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIndex) const
+{
+  float px = 0., py = 0., pz = 0.;
+//  assert(vxCandidate!=0);
+//  assert(i<vxCandidate->vxTrackAtVertex().size());
+  
+//  if (0 != vxCandidate) {
+//    const Trk::TrackParameters* aPerigee = vxCandidate->vxTrackAtVertex()[trkIndex].perigeeAtVertex();
+//    px = aPerigee->momentum()[Trk::px];
+//    py = aPerigee->momentum()[Trk::py];
+//    pz = aPerigee->momentum()[Trk::pz];
+//  }
+  
+  static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
+  static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
+  static SG::AuxElement::Accessor< std::vector<float> > refTrackPzAcc("RefTrackPz");
+  const std::vector<float>& refTrackPx = refTrackPxAcc(*vxCandidate);
+  const std::vector<float>& refTrackPy = refTrackPyAcc(*vxCandidate);
+  const std::vector<float>& refTrackPz = refTrackPzAcc(*vxCandidate);
 
-  std::vector<const Rec::TrackParticle*>::iterator trItrBegin=trksIn.begin();
-  std::vector<const Rec::TrackParticle*>::iterator trItrEnd  =trksIn.end();
-  std::vector<double>::iterator massHypBegin=massHypotheses.begin();
-
-  std::vector<double> px,py,pz,e;
-  double pxTmp=0.,pyTmp=0.,pzTmp=0.,massTmp=0.;
-
-  for(;trItrBegin!=trItrEnd; trItrBegin++,massHypBegin++){
-    pxTmp=(*trItrBegin)->px();
-    pyTmp=(*trItrBegin)->py();
-    pzTmp=(*trItrBegin)->pz();
-    massTmp=*massHypBegin;
-    px.push_back(pxTmp);
-    py.push_back(pyTmp);
-    pz.push_back(pzTmp);
-    e.push_back(sqrt(pxTmp*pxTmp+pyTmp*pyTmp+pzTmp*pzTmp+massTmp*massTmp));
+  if(trkIndex < refTrackPx.size() && refTrackPx.size() == refTrackPy.size() && refTrackPz.size()) {
+    px = refTrackPx[trkIndex];
+    py = refTrackPy[trkIndex];
+    pz = refTrackPz[trkIndex];
   }
+  
+  TVector3 mom(px,py,pz);
+  return mom;
+}
 
-  double pxSum,pySum,pzSum,eSum,M;
-  pxSum=pySum=pzSum=eSum=M=0.;
+// ---------------------------------------------------------------------------------
+// track4Momentum: returns refitted track 4-momentum given mass hypothesis
+// ---------------------------------------------------------------------------------
 
-  for(unsigned int i=0;i<px.size();i++){
-    pxSum+=px[i];
-    pySum+=py[i];
-    pzSum+=pz[i];
-    eSum += e[i];
-  }
-  M=sqrt((eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum));
-
-  return M;
+TLorentzVector JpsiExample::track4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const
+{
+  TVector3 mom = trackMomentum(vxCandidate, trkIndex);
+  TLorentzVector lorentz;
+  lorentz.SetVectM(mom, mass);
+  return lorentz;
 }
 
 
+// ---------------------------------------------------------------------------------
+// origTrackMomentum: returns original track momentum
+// ---------------------------------------------------------------------------------
+
+TVector3 JpsiExample::origTrackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const
+{
+  TVector3 mom;
+  const xAOD::TrackParticle* origTrack = vxCandidate->trackParticle(trkIndex);
+  if(origTrack==NULL) {
+    return mom;
+  }
+  
+  mom.SetPtEtaPhi(origTrack->pt(), origTrack->eta(), origTrack->phi());
+  return mom;
+}
+
+// ---------------------------------------------------------------------------------
+// origTrack4Momentum: returns original track 4-momentum given mass hypothesis
+// ---------------------------------------------------------------------------------
+
+TLorentzVector JpsiExample::origTrack4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const
+{
+  TVector3 mom = origTrackMomentum(vxCandidate, trkIndex);
+  TLorentzVector lorentz;
+  lorentz.SetVectM(mom, mass);
+  return lorentz;
+}
+
+// ---------------------------------------------------------------------------------
+// invariantMassError: returns invariant mass error
+// ---------------------------------------------------------------------------------
+
+double JpsiExample::invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const
+{
+  uint NTrk = vxCandidate->vxTrackAtVertex().size();
+  if (masses.size() != NTrk) {
+    ATH_MSG_WARNING("The provided number of masses does not match the number of tracks in the vertex");
+    return -999999.;
+  }
+  
+  uint ndim    = vxCandidate->covariance().size();
+  uint ndimExp = (3*NTrk+3)*(3*NTrk+3+1)/2;
+  if (ndim == ndimExp) {
+    return massErrorVKalVrt(vxCandidate,masses);
+  } else {
+    ATH_MSG_WARNING("Unknown covariance matrix dimension: " << ndim << ", expected: " << ndimExp);
+    return -999999.;
+  }
+}
+
+// ---------------------------------------------------------------------------------
+// massErrorVKalVrt: returns invariant mass error for vertex created by VKalVrtFitter
+// ---------------------------------------------------------------------------------
+
+double JpsiExample::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+{
+  unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+  
+  // construct the full covariance matrix    
+  Amg::MatrixX* fullCov = convertVKalCovMatrix(NTrk, vxCandidate->covariance());
+  
+  std::vector<CLHEP::HepLorentzVector> particleMom(NTrk);
+  std::vector<CLHEP::HepMatrix> particleDeriv(NTrk);
+  CLHEP::HepLorentzVector totalMom;
+  CLHEP::HepMatrix tmpDeriv(3,3);
+
+  double phi=0.,theta=0.,invP=0.;
+  for( unsigned int it=0; it<NTrk; it++){
+    const Trk::TrackParameters*  bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+    phi   =  bPer->parameters()[Trk::phi];
+    theta =  bPer->parameters()[Trk::theta];
+    invP  =  bPer->parameters()[Trk::qOverP];
+    CLHEP::HepLorentzVector tmp( cos(phi)*sin(theta)/fabs(invP),
+                          sin(phi)*sin(theta)/fabs(invP),
+                                   cos(theta)/fabs(invP) );
+    double esq = tmp.px()*tmp.px() + tmp.py()*tmp.py() + tmp.pz()*tmp.pz() + masses[it]*masses[it];
+    double e = (esq>0.) ? sqrt(esq) : 0.;
+    tmp.setE(e);
+    particleMom[it] = tmp;
+    totalMom += tmp;
+
+//  d(Px,Py,Pz)/d(Phi,Theta,InvP)
+    tmpDeriv(1,1) = - tmp.py();
+    tmpDeriv(2,1) =   tmp.px();
+    tmpDeriv(3,1) =   0.;
+    tmpDeriv(1,2) =   cos(phi) * tmp.pz();
+    tmpDeriv(2,2) =   sin(phi) * tmp.pz();
+    tmpDeriv(3,2) = - sin(theta)/fabs(invP);
+    tmpDeriv(1,3) = - tmp.px()/invP;
+    tmpDeriv(2,3) = - tmp.py()/invP;
+    tmpDeriv(3,3) = - tmp.pz()/invP;
+    particleDeriv[it] = tmpDeriv;
+  }
+
+  double dMdPx=0., dMdPy=0., dMdPz=0., dMdPhi=0., dMdTheta=0., dMdInvP=0.;
+  std::vector<double> Deriv(3*NTrk+3, 0.);
+  for(unsigned int it=0; it<NTrk; it++){
+    dMdPx = ( totalMom.e() * particleMom[it].px()/particleMom[it].e() - totalMom.px() ) / totalMom.m();
+    dMdPy = ( totalMom.e() * particleMom[it].py()/particleMom[it].e() - totalMom.py() ) / totalMom.m();
+    dMdPz = ( totalMom.e() * particleMom[it].pz()/particleMom[it].e() - totalMom.pz() ) / totalMom.m();
+
+    dMdPhi   = dMdPx*particleDeriv[it](1,1) + dMdPy*particleDeriv[it](2,1) + dMdPz*particleDeriv[it](3,1);
+    dMdTheta = dMdPx*particleDeriv[it](1,2) + dMdPy*particleDeriv[it](2,2) + dMdPz*particleDeriv[it](3,2);
+    dMdInvP  = dMdPx*particleDeriv[it](1,3) + dMdPy*particleDeriv[it](2,3) + dMdPz*particleDeriv[it](3,3);
+
+    Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
+  }
+
+  double err = 0;
+  for(unsigned int i=0; i<3*NTrk+3; i++){
+    for(unsigned int j=0; j<3*NTrk+3; j++){
+      err += Deriv[i]*( (*fullCov)(i,j))*Deriv[j];
+    }
+  }
+  
+  // cleanup
+  delete fullCov;
+  
+  return (err>0.) ? sqrt(err) : 0.;
+}
+
+// ---------------------------------------------------------------------------------
+// trackCharge: returns charge of the i-th track
+// ---------------------------------------------------------------------------------
+
+double JpsiExample::trackCharge(const xAOD::Vertex * vxCandidate, int i) const
+{
+  if(vxCandidate!=NULL && vxCandidate->trackParticle(i)!=NULL) {
+    return vxCandidate->trackParticle(i)->charge();
+  }
+  
+  return -999999;
+}
+
+// ---------------------------------------------------------------------------------
+// convertVKalCovMatrix: converts xAOD covariance matrix (i.e. std::vector<float>)
+//                       into an actual matrix
+// ---------------------------------------------------------------------------------
+
+Amg::MatrixX * JpsiExample::convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const
+{
+  // stolen from VKalVrtFitter    
+  Amg::MatrixX * mtx = new Amg::MatrixX(3+3*NTrk,3+3*NTrk);
+  long int ij=0;
+  for(int i=1; i<=(3+3*NTrk); i++){
+    for(int j=1; j<=i; j++){
+      if(i==j) { 
+        (*mtx)(i-1,j-1)=Matrix[ij];
+      }else{ 
+        (*mtx).fillSymmetric(i-1,j-1,Matrix[ij]);
+      }
+      ij++;
+    }
+  }
+  
+  return mtx;
+}

@@ -19,6 +19,8 @@
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 #include "HepPDT/ParticleDataTable.hh"
 
+#include "xAODMuon/Muon.h"
+
 #include <vector>
 #include <cmath>
 #include <string>
@@ -27,18 +29,17 @@
 
 namespace Trk {
     class IVertexFitter;
-    class VxCandidate;
-    class TrackParticleBase;
-    class VxTrackAtVertex;
-    class RecVertex;
+//    class VxCandidate;
+//    class TrackParticleBase;
+//    class VxTrackAtVertex;
+//    class RecVertex;
     class TrkV0VertexFitter;
     class ITrackSelectorTool;
     class V0Tools;
-    class ExtendedVxCandidate;
+//    class ExtendedVxCandidate;
 }
-namespace Rec { class TrackParticle; }
+
 namespace InDet { class VertexPointEstimator; }
-namespace Analysis { class Muon; }
 
 namespace Analysis {
     
@@ -50,12 +51,12 @@ namespace Analysis {
     enum MuonTypes{ CC=0, CT=1, TT=2};
     struct JpsiCandidate
     {
-        const Rec::TrackParticle* trackParticle1;
-        const Rec::TrackParticle* trackParticle2;
-        const Analysis::Muon* muon1;
-        const Analysis::Muon* muon2;
-        const Trk::TrackParticleBaseCollection* collection1;
-        const Trk::TrackParticleBaseCollection* collection2;
+        const xAOD::TrackParticle* trackParticle1;
+        const xAOD::TrackParticle* trackParticle2;
+        const xAOD::Muon* muon1;
+        const xAOD::Muon* muon2;
+        const xAOD::TrackParticleContainer* collection1;
+        const xAOD::TrackParticleContainer* collection2;
         PairType pairType;
         MuonTypes muonTypes;
     };
@@ -68,25 +69,20 @@ namespace Analysis {
         StatusCode initialize();
         StatusCode finalize();
         
-        static const InterfaceID& interfaceID() { return IID_JpsiFinder;};
+        static const InterfaceID& interfaceID() { return IID_JpsiFinder;}
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        int nGoodPairs(void) {return m_nGoodPairs;}
-        std::vector<std::vector<const Rec::TrackParticle*> > getGoodPairs(void) {return m_goodPairs;}
-        VxContainer* performSearch();
-        std::vector<JpsiCandidate> getPairs(std::vector<const Rec::TrackParticle*>);
-        std::vector<JpsiCandidate> getPairs(std::vector<const Analysis::Muon*>);
-        std::vector<JpsiCandidate> getPairs2Colls(std::vector<const Rec::TrackParticle*>,std::vector<const Analysis::Muon*>, bool);
-        double getPt(const Rec::TrackParticle*);
-        double getEta(const Rec::TrackParticle*);
+        StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer);
+        std::vector<JpsiCandidate> getPairs(std::vector<const xAOD::TrackParticle*>);
+        std::vector<JpsiCandidate> getPairs(std::vector<const xAOD::Muon*>);
+        std::vector<JpsiCandidate> getPairs2Colls(std::vector<const xAOD::TrackParticle*>,std::vector<const xAOD::Muon*>, bool);
         double getInvariantMass(JpsiCandidate,std::vector<double> );
         std::vector<JpsiCandidate> selectCharges(std::vector<JpsiCandidate> , std::string);
-        Trk::VxCandidate* fit(std::vector<const Rec::TrackParticle*>);
-        bool passesMCPCuts(const Rec::TrackParticle*);
-        bool isContainedIn(const Trk::TrackParticleBase*, const Trk::TrackParticleBaseCollection*);
-        bool isContainedIn(const Rec::TrackParticle*, std::vector<const Rec::TrackParticle*>);
-        
+        xAOD::Vertex* fit(std::vector<const xAOD::TrackParticle*>);
+        bool passesMCPCuts(const xAOD::Muon*);
+        bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*);
+        TVector3 trackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
         //-------------------------------------------------------------------------------------
         
     private:
@@ -104,7 +100,7 @@ namespace Analysis {
         const HepPDT::ParticleDataTable *m_particleDataTable;
         double m_thresholdPt;
         double m_higherPt;
-	double m_trkThresholdPt;
+        double m_trkThresholdPt;
         double m_invMassUpper;
         double m_invMassLower;
         double m_collAngleTheta;
@@ -114,7 +110,7 @@ namespace Analysis {
         bool m_sameChOnly;
         bool m_allChCombs;
         int m_nGoodPairs;
-        std::vector<std::vector<const Rec::TrackParticle*> > m_goodPairs;
+        std::vector<std::vector<const xAOD::TrackParticle*> > m_goodPairs;
         std::string m_muonCollectionKey;
         std::string m_TrkParticleCollection;
         std::vector<std::string> m_MuonTrackKeys;
