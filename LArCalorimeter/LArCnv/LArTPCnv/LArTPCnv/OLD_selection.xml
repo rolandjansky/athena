@@ -1,0 +1,12 @@
+<lcgdict>
+ 
+  <class name="LArHitContainer_p1" id="ED1ECB80-B38C-46DE-94BF-22F9379796DB" />
+  <class name="LArRawChannel_p1" />
+  <class name="LArRawChannelCollection_p1" />
+  <class name="std::vector<LArRawChannel_p1>" />
+  <class name="LArRawChannelContainer_p1" id="1569AF5C-5F27-4C02-A87B-47FF192F1605" />
+  <class name="LArRawChannelContainer_p2" id="AD521521-4043-472B-BF8B-FDFDC1870FD9" />
+  <class name="LArRawChannelContainer_p3" id="95401B94-3D69-49BD-B901-C7B71940D746" />
+  <class name="std::vector<LArRawChannelCollection_p1>" />
+
+</lcgdict>

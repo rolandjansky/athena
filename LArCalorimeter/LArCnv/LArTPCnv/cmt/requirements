@@ -1,0 +1,23 @@
+package LArTPCnv
+
+author RD Schaffer <R.D.Schaffer@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasReflex          AtlasReflex-*           External
+use LArSimEvent          LArSimEvent-*           LArCalorimeter 
+use LArRawEvent          LArRawEvent-*           LArCalorimeter 
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*      Database/AthenaPOOL
+use LArRecEvent          LArRecEvent-*           LArCalorimeter
+
+private
+use AthenaKernel         AthenaKernel-*          Control
+use Identifier           Identifier-*            DetectorDescription
+use EventCommonTPCnv     EventCommonTPCnv-*      Event
+use CaloIdentifier       CaloIdentifier-*        Calorimeter
+end_private
+
+library LArTPCnv *.cxx
+apply_pattern tpcnv_library
+
+apply_pattern lcgdict dict=LArTPCnv  selectionfile=selection.xml headerfiles="../LArTPCnv/LArTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_LArTPCnv  selectionfile=OLD_selection.xml headerfiles="../LArTPCnv/LArTPCnvDict.h"
