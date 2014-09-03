@@ -1,0 +1,56 @@
+# CaloLocalHadCalib: How to generate classification, weighting,
+# out-of-cluster, dead material corrections 
+
+1.) Produce single pion ESD .pool.root files with the following
+    content:
+
+    CaloCellContainer#AllCalo
+    CaloCalibrationHitContainer#LArCalibrationHitDeadMaterial
+    CaloCalibrationHitContainer#LArCalibrationHitInactive
+    CaloCalibrationHitContainer#LArCalibrationHitActive
+    CaloCalibrationHitContainer#TileCalibHitDeadMaterial
+    CaloCalibrationHitContainer#TileCalibHitInactiveCell
+    CaloCalibrationHitContainer#TileCalibHitActiveCell
+    McEventCollection#TruthEvent
+
+    for pi+, pi- and pi0 over the whole phase space (logartihmic in E,
+    linear in eta and phi)
+
+2.) Extract the weight, classification and out-of-cluster constants by
+    running classify.py, weighting.py, and outofcluster.py on
+    all three pion charges except for weighting.py which runs on pi+,
+    pi- only. Note that you can run one file at a time and combine the
+    output histograms with hadd (in the bin dir of ROOT). The pi+ and
+    pi- histogram files need to be combined to one pi+- file in all
+    cases. You can also run cl_w_ooc.py for all 3 steps together ...
+    
+    For dead material coefficients deadmaterialtree.py must be
+    used first in similar way, to generate for each ESD  corresponding 
+    root file with special dead material tree in it. These files
+    could be merged together using hadd routine, and then used as an 
+    input to deadmaterialcoeff.py routine which will make all necessary 
+    calculation and will produce directly *.pool file with constants.
+    Since one of the calculation methods is using minimisation, this 
+    conversions will take about 2 hours for 6M pions on something like
+    3Mhz CPU.
+
+3.) Convert the weights from inversion method to normal by running
+
+    python -c
+    "inFileName='inv_weights.root';outFileName='weights.root';execfile('calcWeights.py')"
+
+    where calcWeights.py can be found in the share dir of this package
+
+4.) Generate the classification probability weights via compiled root macro
+    root
+    .L calcClassification.C++
+    calcClassification("classify_piplusminus.root","classify_pizero.root","classify.root")
+
+5.) Generate the pool.root files from all .root files via:
+    athena.py -c "inFileName='classify.root';outFileName='classify.pool.root'" CaloLocalHadCalib/CaloReadLCClassificationFile.py
+    athena.py -c "inFileName='ooc_piplusminus.root';outFileName='ooc_piplusminus.pool.root'" CaloLocalHadCalib/CaloReadLCOutOfClusterFile.py
+    athena.py -c "inFileName='ooc_pizero.root';outFileName='ooc_pizero.pool.root'" CaloLocalHadCalib/CaloReadLCOutOfClusterPi0File.py
+    athena.py -c "inFileName='weights.root';outFileName='weights.pool.root'" CaloLocalHadCalib/CaloReadLCWeightsFile.py
+
+6.) JetEnergyScale corrections can be converted to pool.root files as well:
+athena.py -c "inFileNames=['jlc.antikt4.Test3a.root','jlc.antikt6.Test3a.root'];outFileName='jlc.antikt4_antikt6.Test3a.pool.root';inJetCollectionNames=['AntiKt4LCTopo','AntiKt6LCTopo']" CaloLocalHadCalib/CaloReadLCJetEnergyScaleFile.py

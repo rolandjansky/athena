@@ -1,0 +1,77 @@
+# AreaID title type npars
+# nFrac FracMin FracMax
+# nEner EnerMin EnerMax
+# nEta  EtaMin  EtaMax
+
+zone   0   ENG_CALIB_DEAD_EMB0 101 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    30   0.0   1.5     flat
+phi    1   -3.2   3.2     flat
+ener   8    3.0   6.1     flat
+lambda 1    0.0   4.0     flat
+break
+
+zone   1   ENG_CALIB_DEAD_TILE0 101 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    20   0.0   1.0     flat
+phi    1   -3.2   3.2     flat
+ener   8    3.0   6.1     flat
+lambda 1    0.0   4.0     flat
+break
+
+zone   2   ENG_CALIB_DEAD_TILEG3 101 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta   16    0.8   1.6     flat
+phi    1   -3.2   3.2     flat
+ener   5   3.78   6.1     flat
+lambda 1    0.0   4.0     flat
+break
+
+zone   3   ENG_CALIB_DEAD_EME0 101 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    6    1.5   1.8     flat
+phi    1   -3.2   3.2     flat
+ener   8    3.0   6.1     flat
+lambda 1    0.0   4.0     flat
+break
+
+zone   4   ENG_CALIB_DEAD_HEC0 101 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    34   1.5   3.2     flat
+phi    1   -3.2   3.2     flat
+ener   8    3.0   6.1     flat
+lambda 1    0.0   4.0     flat
+break
+
+zone   5   ENG_CALIB_DEAD_FCAL 103 25
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    50   2.5   5.0     flat
+phi    1   -3.2   3.2     flat
+ener   1    3.0   6.1     flat
+lambda 14   0.0   4.0     flat
+break
+
+zone   6   ENG_CALIB_DEAD_LEAKAGE 102 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    50   0.0   5.0     flat
+phi    1   -3.2   3.2     flat
+ener   14   2.5   6.1     flat
+lambda 14   0.0   4.0     flat
+break
+
+zone   7   ENG_CALIB_DEAD_UNCLASS 102 3
+frac   2   -0.1   1.1     flat
+side   2   -1.5   1.5     flat
+eta    50   0.0   5.0     flat
+phi    1   -3.2   3.2     flat
+ener   14   2.5   6.1     flat
+lambda 14   0.0   4.0     flat
+break
+
