@@ -1,0 +1,50 @@
+
+In order to use the PseudoH1Weights till Jet Scale
+one need to use in say :
+
+   ConeJets.AlgTools = [
+        "JetTowerNoiseTool/DoNoise",
+        "JetSignalSelectorTool/InitialEtCut",
+        "JetConeFinderTool/ConeFinder",
+        "JetSplitMergeTool/SplitMerge",
+        "JetCellCalibratorTool/CellCalibrator",
+        "JetClusterCorrTool/ClusterCorrTool",
+        "JetSignalSelectorTool/FinalEtCut" ]
+
+Once JetClusterCorrTool is included for different type of Jets one need to set in jobOptions:
+
+# For Cone Tower Jets
+
+ConeJets.CellCalibrator.CellCalibratorName = "PseudoH1WeightToolCSC11"
+ConeJets.ClusterCorrTool.JetAlgorithm = "ConeTower"
+
+# For Cone Topo Jets
+
+ConeTopoJets.CellCalibrator.CellCalibratorName = "PseudoH1WeightToolCSC11"
+ConeTopoJets.ClusterCorrTool.JetAlgorithm = "ConeTopo"
+
+#  For Kt Tower Jets
+
+KtJets.CellCalibrator.CellCalibratorName = "PseudoH1WeightToolCSC11"
+KtJets.ClusterCorrTool.JetAlgorithm = "KtTower"
+
+# For Kt Topo Jets
+
+KtTopoJets.CellCalibrator.CellCalibratorName = "PseudoH1WeightToolCSC11"
+KtTopoJets.ClusterCorrTool.JetAlgorithm = "KtTower"
+
+# For Cone 0.4 Tower Jets
+
+Cone4Jets.CellCalibrator.CellCalibratorName = "PseudoH1WeightToolCSC11"
+Cone4Jets.ClusterCorrTool.JetAlgorithm = "Cone4Tower"
+
+# For Cone 0.4 Topo Jets
+
+Cone4TopoJets.CellCalibrator.CellCalibratorName = "PseudoH1WeightToolCSC11"
+Cone4TopoJets.ClusterCorrTool.JetAlgorithm = "Cone4Topo"
+
+
+
+ 
+
+
