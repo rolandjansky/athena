@@ -1,0 +1,23 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Wgtacp  
+
+// initialise pointer
+void Wgtacp::init(){
+  if ( !_wgtacp ) {
+    _wgtacp = static_cast< WGTACP* >( wgtacp_address_() );
+  }
+}
+
+double Wgtacp::wgtacp(int i){
+  init();
+  return _wgtacp->wgtacp[i];
+}
+
+int Wgtacp::userwgts(){
+  init();
+  return _wgtacp->userwgts;
+}
+

@@ -1,0 +1,42 @@
+C-----------------------------------------------------------------------
+      SUBROUTINE HWHEPC(IHEP0)
+
+#include "HERWIG65.INC"
+
+      INTEGER I,J,IHEP0,IHEP,JMOTH,ID
+      CHARACTER *8 DUMMY
+      DOUBLE PRECISION DIST(4),VERTX(4)
+      IF (IHEP0.EQ.NHEP) RETURN ! DON'T BOTHER
+
+C ADD DECAY LENGTH TO THE DECAY PRODUCTS - CALL HERWIG ROUTINES
+         IHEP=JMOHEP(1,IHEP0+1)
+         ID=IDHW(IHEP)
+c         PRINT *,'IDTAU',IDHEP(IHEP),IDHW(IHEP)
+         CALL HWUDKL(ID,PHEP(1,IHEP),DIST)
+         CALL HWVSUM(4,VHEP(1,IHEP),DIST,VERTX)
+
+      DO I=IHEP0+1,NHEP
+         CALL HWUIDT(1,IDHEP(I),IDHW(I),DUMMY)
+         JMOTH=JMOHEP(1,I)
+
+         DO J=JDAHEP(1,JMOTH),JDAHEP(2,JMOTH)
+            CALL HWVEQU(4,VERTX,VHEP(1,J)) ! VERTEX
+         ENDDO
+         IF (ABS(ISTHEP(JMOHEP(1,I))).EQ.2) THEN ! CORRECT STATUS CODES
+            IF (ABS(IDHEP(JMOHEP(1,I))).EQ.15) THEN ! TAU
+               ISTHEP(JMOHEP(1,I))=195
+            ELSE
+               ISTHEP(JMOHEP(1,I))=198 ! DECAYED RESONANCE
+            ENDIF
+         ENDIF
+         IF (ABS(IDHEP(I)).EQ.111) THEN ! PI0 - TO BE DECAYED
+            ISTHEP(I)=193 
+         ENDIF
+         IF (ABS(IDHEP(I)).EQ.221) THEN ! ETA - TO BE DECAYED
+            ISTHEP(I)=193 
+         ENDIF
+      ENDDO
+
+      RETURN
+      END
+

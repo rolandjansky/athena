@@ -1,0 +1,186 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{Herwig\_i: An interface between HERWIG/JIMMY and Athena}
+\author{ 
+Ian Hinchliffe (I\_Hinchliffe@lbl.gov), \\
+Georgios Stavropoulos (George.Stavropoulos@cern.ch) \\
+Jon Butterworth (J.Butterworth@ucl.ac.uk)}
+%\today
+
+\maketitle       
+ 
+\noindent
+This package runs HERWIG, with optional underlying event simulation
+from JIMMY, from within Athena, puts the events into the transient
+store in HepMC format. See the GeneratorModules documentation for
+general information. The note refers only to HERWIG specific
+material. The External/Herwig package is used to set up the paths to
+the HERWIG library. The current HERWIG version is 6.510, and the
+current JIMMY version is 4.31.
+
+Note that all parameters passed to HERWIG are in the units specified
+in the HERWIG manual. In particular, energies and masses are in GeV,
+not the standard atlas units of MeV. 
+
+The module is activated from the jobOptions service. See the example in 
+\begin{verbatim}
+Generators/Herwig\_i/share/jobOptions.herwig.py
+\end{verbatim}
+which leaves JIMMY turned off, and 
+\begin{verbatim}
+Generators/Herwig\_i/share/jobOptions.jimmy.py
+\end{verbatim}
+for an example to run with it on. Note that it is recommended to turn
+JIMMY on and leave the internal HERWIG soft underlying event turned
+off, if you want to get a more realistic underlying event.
+
+The HERWIG parameters are set from the job options service. 
+The following is needed if you wish to run HERWIG
+\begin{verbatim}
+theApp.DLLs  += [ "Herwig_i" ]  
+theApp.TopAlg = ["Herwig"]
+\end{verbatim}
+The parameters are passed via the following line in the jobOptions.py
+file.
+\begin{verbatim}
+Herwig.HerwigCommand = ["variable index value"]
+\end{verbatim} 
+Here {\bf variable} is a valid HERWIG variable. Consult the HERWIG
+documentation for the variable names and what they do. If the {\bf
+  variable} is an array, {\bf index} specifies the entry to be
+changed. {\bf value} is the value of the variable.  For example
+\begin{verbatim}
+Herwig.HerwigCommand = ["iproc 1499","modpdf 10042", "autpdf HWLHAPDF"]
+\end{verbatim} 
+produces $W$ bosons using the CTEQ structure functions. {\bf note that
+all variable names are lower case, parameter values are case sensitive
+(CTEQ in this example).}
+\begin{verbatim}
+Herwig.HerwigCommand = ["iproc 2150","modpdf 10042", "autpdf HWLHAPD
+", "ptmin 100.", "ptmax 200.", "emmin 80.", "emmax 100."]   
+AtRndmGenSvc.Seeds = ["HERWIG 390020611 821000366", "HERWIG_INIT
+820021 2347532"]
+\end{verbatim}
+produces $Z+jet$ events and resets the random number seeds. Note that
+the random number seeds are set by the Athena random number service.
+All variables that are marked as settable by users in the HERWIG
+Manual can be changed. Please report any bugs.
+
+\medskip
+
+\subsection*{Note on using JIMMY for the underyling event}
+
+\noindent
+JIMMY is developed as a plug-and-play add-on of HERWIG. It is turned
+on by setting the variable {\tt msflag = 1}. The following, JIMMY
+specific, variables may also be set: jmbug, ptjim, and jmueo which are
+documented on the external JIMMY package documentation page:
+
+{\tt http://projects.hepforge.org/jimmy/ }.
+
+\subsection*{Note regarding SUSY}
+
+\noindent
+For simulation of a SUSY process, ISAWIG must first be run to generate
+an intput file. ISAWIG is a standalone program \cite{isawig}.
+The name of this file is then passed with
+
+\begin{verbatim}
+Herwig.HerwigCommand=["susyfile myfile"] 
+\end{verbatim}
+where myfile is the name of your input file.
+
+\subsection*{Interface to TAUOLA and PHOTOS}
+
+\noindent
+HERWIG is interfaced to TAUOLA and PHOTOS in a different way than the
+other Generator Modules (Pythia, etc).  To activate TAUOLA and PHOTOS
+in HERWIG you simply need to add in you jobOptions file
+\begin{verbatim}
+Herwig.HerwigCommand += ["taudec TAUOLA"]
+\end{verbatim}
+For more information on how HERWIG works with TAUOLA, please refer to
+the HERWIG manual.
+
+\subsection*{Random Numbers}
+
+\noindent
+Herwig\_i/Herwig.cxx is using the AtRndmGenSvc Athena Service to
+provide to HERWIG (via the hwrgen function, found in
+Herwig\_i/src/hwrgen.F) the necessary random numbers. This service is
+using the RanecuEngine of CLHEP, and is based on the ``stream'' logic,
+each stream being able to provide an idependent sequence of random
+numbers. Herwig.cxx is using two streams: HERWIG\_INIT and HERWIG. The
+first stream is used to provide random numbers for the initialization
+phase of HERWIG and the second one for the event generation. The user
+can set the initial seeds of each stream via the following option in
+the jobOption file.
+
+\begin{verbatim} 
+AtRndmGenSvc.Seeds = [``HERWIG_INIT 2345533 9922199'', ``HERWIG 5498921 659091'']
+\end{verbatim}
+
+
+
+The above sets the seeds of the HERWIG\_INIT stream to 2345533 and
+9922199 and of the HERWIG one to 5498921 and 659091. If the user will
+not set the seeds of a stream then the AtRndmGenSvc will use default
+values.
+
+The seeds of the Random number service are saved for each event in
+the HepMC Event record and they are printed on screen by DumpMC. In
+this way an event can be reproduced easily. The user has to rerun the
+job by simply seting the seeds of the HERWIG stream (the seeds of the
+HERWIG\_INIT stream should stay the same) to the seeds of that event.
+
+Additionaly the AtRndmGenSvc is dumping into a file (AtRndmGenSvc.out)
+the seeds of all the streams at the end of the job. This file can be
+read back by the service if the user set the option
+{\tt AtRndmGenSvc.ReadFromFile = true;} 
+(default = false). In this case the file
+AtRndmGenSvc.out is read and the streams saved in this file are
+created with seeds as in this file. The name of the file to be read
+can be set by the user via the option
+{\tt AtRndmGenSvc.FileToRead = MyFileName;}
+The above file should also be written out when a job crashes. 
+The above options are contained in 
+{\tt Herwig\_i/share/jobOptions.herwig.py}.
+
+\subsection*{Note on hadronizing parton level generated events from Les Houches Type generators}
+
+This is supported by Herwig, as explained in Chapter 9.1 of the 6.5 Herwig
+manual). External procesess usually read a file containting events.
+At present several externals are available, AcerMC, Alpgen, McAtNlo,
+MadCUP, MadGraph, GR@PPA, and Charybdis. To find out how to run these
+external processes please refer to the documentation of these generators.
+
+\subsection*{Note on LHAPDF structure functions}
+
+\noindent
+In the case you want to run HERWIG with the LHAPDF structure functions
+you need to set the autpdf variable to HWLHAPDF and the modpdf one to
+the LHAPDF set/member index (see the documentation of the
+Generators/Lhapdf\_i package for the LHAPDF set/member index
+settings).
+
+\begin{thebibliography}{99}
+  \bibitem{isawig}http://www-thphys.physics.ox.ac.uk/users/PeterRichardson/HERWIG/isawig.html
+\end{thebibliography}
+
+\end{document}
+
+
+
+
+

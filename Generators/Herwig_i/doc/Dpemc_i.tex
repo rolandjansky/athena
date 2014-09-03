@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.} 
+          
+\begin{document}
+\title{Dpemc\_i: An interface between Dpemc and Athena}
+\author{ Vojtech Juranek (Vojtech.Juranek@cern.ch)}
+\date{March, 2006}
+
+\maketitle       
+
+This package runs Dpemc from within Athena, puts the events into the
+transient store in HepMC format. 
+As Dpemc is an extension to Heriwg, the user should read documentation of Herwig\_i interface. 
+
+The module is activated from the jobOptions service. See the example in {\bf Generators/Herwig\_i/share/jobOptions.dpemc.py }.
+The following is needed if you wish to run Dpemc
+\begin{verbatim}
+theApp.DLLs  += [ "Dpemc\_i" ]  
+theApp.TopAlg = ["Dpemc"]
+\end{verbatim}
+The parameters are passed via the following line in the jobOptions.py
+file.
+\begin{verbatim}
+Dpemc.DpemcCommand = ["variable index value"]
+\end{verbatim} 
+In addition to Herwig variables there are several variables, which can be changed.
+The list of Dpemc variables that can be changed is as follows:
+{\bf 
+typepr,
+typint,
+gapspr,
+prospr,
+cdffac,
+nstru
+}.
+For more details see http://boonekam.home.cern.ch/boonekam/dpemc.htm .
+
+\end{document}

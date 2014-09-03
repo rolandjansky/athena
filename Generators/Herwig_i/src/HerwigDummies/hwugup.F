@@ -1,0 +1,4 @@
+      SUBROUTINE HWUGUP
+ 
+      RETURN
+      END
