@@ -1,0 +1,128 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Gaudi
+#include "GaudiKernel/CnvFactory.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IIncidentSvc.h"
+
+// Athena
+#include "StoreGate/StoreGateSvc.h"
+
+#include <memory>
+
+template <class T>
+MuonRdoContainerCnv<T>::MuonRdoContainerCnv(ISvcLocator* svcloc)
+  : T_AthenaPoolCustCnv<T, DataVector<typename T::IDENTIFIABLE> >::T_AthenaPoolCustCnv(svcloc),
+    m_colV(SG::VIEW_ELEMENTS), // Must create DataVector that does NOT own elements
+    m_storeGate(0)
+{}
+
+
+template <class T>
+MuonRdoContainerCnv<T>::~MuonRdoContainerCnv()
+{}
+
+
+template <class T>
+StatusCode MuonRdoContainerCnv<T>::initialize()
+{
+  // Call base clase initialize
+    if (!AthenaPoolConverter::initialize().isSuccess()) {
+        return StatusCode::FAILURE;
+    }
+
+  // Get the messaging service, print where you are
+  MsgStream log(this->messageService(), "MuonRdoContainerCnv");
+  log << MSG::INFO << "MuonRdoContainerCnv::initialize()" << endreq;
+    
+  // get StoreGate service
+  StatusCode sc=this->service("StoreGateSvc",m_storeGate);
+  if (sc.isFailure())
+    {
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized" << endreq;
+  
+  return StatusCode::SUCCESS;
+}
+
+
+template <class T>
+StatusCode MuonRdoContainerCnv<T>::transToPers(T* rdoC, DataVector<typename T::IDENTIFIABLE>*& persObj)
+{
+  MsgStream log(this->messageService(), "MuonRdoContainerCnv" );
+
+  // Copy RDOs to vector 
+  m_colV.clear();
+  
+  // loop over collections
+  int iColl = 0;
+  typename T::const_iterator it_Coll  = rdoC->begin() ; 
+  typename T::const_iterator it_CollE = rdoC->end() ; 
+  for (; it_Coll != it_CollE; ++it_Coll)
+    {
+      ++iColl;
+      COLLECTION_t *col = const_cast<COLLECTION_t *> (&(**it_Coll));
+      m_colV.push_back(col);
+    }
+
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Write RDO vector, size " << iColl << endreq;
+
+  persObj = &m_colV;
+
+  return StatusCode::SUCCESS; 
+}
+    
+
+template <class T>
+StatusCode MuonRdoContainerCnv<T>::persToTrans(T*& rdoC, DataVector<typename T::IDENTIFIABLE>* colV)
+{
+  MsgStream log(this->messageService(), "MuonRdoContainerCnv" );
+   
+  // create the IdentifiableContainer to contain the collections
+  rdoC = new T;
+
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read RDO vector, size " << colV->size()
+      << endreq;
+
+  // empty vector - just return
+  if (colV->size() == 0)
+    {
+      //delete colV;
+      return StatusCode::SUCCESS; 
+    }
+  
+  // loop over collections
+  typename COLL_vector::const_iterator it_Coll  = colV->begin();
+  typename COLL_vector::const_iterator it_CollE = colV->end();
+  for (; it_Coll != it_CollE; ++it_Coll)
+    {
+      const COLLECTION_t *col = *it_Coll;
+
+      // register the rdo collection in IDC
+      typename COLLECTION_t::ID id_coll = col->identify();
+      const typename T::KEY key_rdo= rdoC->key(id_coll);
+      StatusCode sc=rdoC->addCollection(col,id_coll);
+      if (sc.isFailure())
+	{
+	  log << MSG::FATAL << "RDOs could not be recorded in IDC"
+	      << endreq;
+	  //delete colV;
+	  return StatusCode::FAILURE;
+	}
+      else
+	{
+	  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RDOs " << key_rdo << " recorded in IDC"
+	      << endreq;
+	}
+    }
+    
+  //delete colV;
+  return StatusCode::SUCCESS; 
+}
+

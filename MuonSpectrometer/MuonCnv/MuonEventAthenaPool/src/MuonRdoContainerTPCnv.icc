@@ -1,0 +1,82 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Gaudi
+#include "GaudiKernel/MsgStream.h"
+#include <stdexcept>
+#include <memory>
+#include "Identifier/IdentifierHash.h"
+
+template <class T, class P, class CONV>
+MuonRdoContainerTPCnv<T,P, CONV >::MuonRdoContainerTPCnv(ISvcLocator* svcloc)
+  : T_AthenaPoolCustomCnv<T,P >(svcloc)
+{ }
+
+
+
+
+template <class T, class P, class CONV>
+P *
+MuonRdoContainerTPCnv<T,P, CONV >::createPersistent(T* rdoC)
+{
+  MsgStream log(this->messageService(), "MuonRdoContainerTPCnv" );
+  
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered  MuonRdoContainerTPCnv::createPersistent()" << endreq;
+
+  P *persObj = m_TPconverter.createPersistent( rdoC, log );
+
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Write RDO vector, size " << persObj->size()
+      << endreq;
+
+  return persObj; 
+}
+    
+
+// has to be inlined to prevent gcc3.2 problem/bug? of multiple definitons for specialized templates
+template <class T, class P, class CONV>
+inline
+T*
+MuonRdoContainerTPCnv<T,P, CONV >
+::createTransient()
+{
+   MsgStream log(this->messageService(), "MuonRdoContainerTPCnv" ); 
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << endreq;
+   //std::cout << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << std::endl;
+
+   return createTransientFrom_p0( this->poolReadObject(), log );
+}
+
+
+// invoked from persToTrans_impl to read old data from before TP separation
+template <class T, class P, class CONV>
+T*
+MuonRdoContainerTPCnv<T,P, CONV >
+::createTransientFrom_p0(COLL_vector* col_vect, MsgStream &log)
+{
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endreq;
+
+   std::auto_ptr<T> rdoC( new T );
+   //COLL_vector	*col_vect = (COLL_vector*) colV;
+   typename COLL_vector::const_iterator it_Coll  = col_vect->begin();
+   typename COLL_vector::const_iterator it_CollE = col_vect->end();
+   for(; it_Coll != it_CollE; ++it_Coll) {
+      const COLLECTION_t *col = *it_Coll;
+
+      // register the rdo collection in IDC
+      //unsigned int id_hash = rdoC->idToHash((unsigned int)col->identify());
+      IdentifierHash id_hash = col->identifyHash();
+      if( rdoC->addCollection(col, id_hash).isFailure() ) {
+	 throw std::runtime_error("Transient RDOs could not be created");
+      }
+   }
+   return rdoC.release();
+}
+
+
+
+
+
+
+
+

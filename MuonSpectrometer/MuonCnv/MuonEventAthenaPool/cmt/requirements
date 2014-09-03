@@ -1,0 +1,96 @@
+package MuonEventAthenaPool
+
+public
+use AtlasPolicy          AtlasPolicy-*
+use AtlasReflex          AtlasReflex-*              External
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+use MuonRIO_OnTrack      MuonRIO_OnTrack-*          MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRDO              MuonRDO-*                  MuonSpectrometer
+use AtlasSealCLHEP       AtlasSealCLHEP-*           Database
+# use below needed to make sure the dictionary is available when 
+#TrkEventAthenaPool writes out SegmentCollections. EJWM
+use MuonSegment         MuonSegment-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent/
+		
+use AthenaPoolServices	AthenaPoolServices-*     Database/AthenaPOOL
+
+
+private
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use CLIDSvc              CLIDSvc-*                  Control
+use DataModel            DataModel-*                Control
+use GaudiInterface       GaudiInterface-*           External
+use HitManagement	 HitManagement-*            Simulation
+use Identifier 		 Identifier-* 		    DetectorDescription 
+use MuonEventTPCnv       MuonEventTPCnv-*           MuonSpectrometer/MuonCnv
+use MuonIdHelpers        MuonIdHelpers-*            MuonSpectrometer
+use MuonPrepRawData      MuonPrepRawData-*          MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonReadoutGeometry  MuonReadoutGeometry-*	    MuonSpectrometer/MuonDetDescr
+use MuonSimEvent         MuonSimEvent-*             MuonSpectrometer
+use MuonSimData          MuonSimData-*              MuonSpectrometer
+use MuonTrigCoinData     MuonTrigCoinData-*         MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use StoreGate            StoreGate-*                Control
+use RPCcablingInterface   RPCcablingInterface-*     MuonSpectrometer/MuonCablings
+use CscCalibEvent        CscCalibEvent-*            MuonSpectrometer/MuonCalib/CscCalib
+use  MuonChamberT0s      MuonChamberT0s-*           MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonDigitContainer   MuonDigitContainer-*       MuonSpectrometer
+use MuonSimData          MuonSimData-*              MuonSpectrometer
+
+public
+
+branches MuonEventAthenaPool src
+
+
+macro_append MuonEventAthenaPoolPoolCnvGen_dependencies " MuonRDOCnvDict "
+#macro_append use_dict_linkopts " -lMuonRDOCnvDict "
+
+apply_pattern lcgdict dict=MuonRDOCnv  selectionfile=selection.xml \
+        headerfiles="../MuonEventAthenaPool/MuonRDOCnvDict.h"
+
+apply_pattern poolcnv typesWithNamespace="Muon::CscPrepDataContainer Muon::CscStripPrepRawDataContainer \
+                    Muon::RpcPrepDataContainer Muon::TgcPrepDataContainer  Muon::MdtPrepDataContainer Muon::MMPrepDataContainer Muon::sTgcPrepDataContainer\ 
+		    Muon::TgcCoinDataContainer Muon::ChamberT0s TPCnv::MuonMeasurements " \
+        files="-s=${MuonSimEvent_root}/MuonSimEvent \
+                    CSCSimHitCollection.h \
+                    MDTSimHitCollection.h \
+                    RPCSimHitCollection.h \
+                    TGCSimHitCollection.h \
+                    GenericMuonSimHitCollection.h \
+               -s=$(MuonSimData_root)/MuonSimData \
+                    MuonSimDataCollection.h \
+		    CscSimDataCollection.h \
+               -s=${MuonRDO_root}/MuonRDO \
+                    MdtCsmContainer.h \
+                    RpcPadContainer.h \
+                    TgcRdoContainer.h \
+                    CscRawDataContainer.h \
+                    RpcSectorLogicContainer.h \
+               -s=${MuonDigitContainer_root}/MuonDigitContainer \
+                    MdtDigitContainer.h \
+                    RpcDigitContainer.h \
+                    TgcDigitContainer.h \
+                    CscDigitContainer.h \
+                    MmDigitContainer.h \
+                    sTgcDigitContainer.h \
+               -s=${CscCalibEvent_root}/CscCalibEvent \
+                    CscCalibDataContainer.h \
+               -s=${MuonPrepRawData_root}/MuonPrepRawData \
+                    CscPrepDataContainer.h \
+                    CscStripPrepDataContainer.h \
+                    RpcPrepDataContainer.h \
+                    TgcPrepDataContainer.h \
+                    MdtPrepDataContainer.h \
+                    MMPrepDataContainer.h \
+                    sTgcPrepDataContainer.h \
+               -s=${MuonTrigCoinData_root}/MuonTrigCoinData \
+                    TgcCoinDataContainer.h \
+                    RpcCoinDataContainer.h \
+                -s=${MuonChamberT0s_root}/MuonChamberT0s \
+                    ChamberT0s.h \
+               -s=${MuonEventAthenaPool_root}/src \
+                    MuonMeasurements.h \
+               -s=${MuonSimData_root}/MuonSimData \
+                    MuonSimDataCollection.h \
+                    CscSimDataCollection.h  "
+
+
+apply_pattern declare_joboptions files="*.py"

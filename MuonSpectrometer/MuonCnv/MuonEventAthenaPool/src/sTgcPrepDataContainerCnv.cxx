@@ -1,0 +1,66 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "sTgcPrepDataContainerCnv.h"
+
+// Gaudi
+#include "GaudiKernel/CnvFactory.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IIncidentSvc.h"
+
+// Athena
+#include "StoreGate/StoreGateSvc.h"
+
+// Id includes
+// #include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonPrepRawData/sTgcPrepDataContainer.h"
+
+// #include "MuonReadoutGeometry/MuonDetectorManager.h"
+// #include "MuonReadoutGeometry/sTgcReadoutElement.h"
+
+sTgcPrepDataContainerCnv::sTgcPrepDataContainerCnv(ISvcLocator* svcloc) :
+sTgcPrepDataContainerCnvBase(svcloc)
+{
+}
+
+sTgcPrepDataContainerCnv::~sTgcPrepDataContainerCnv() {
+}
+
+StatusCode sTgcPrepDataContainerCnv::initialize() {
+   // Call base clase initialize
+    if( !sTgcPrepDataContainerCnvBase::initialize().isSuccess() )
+       return StatusCode::FAILURE;
+    
+    messageService()->setOutputLevel( "sTgcPrepDataContainerCnv", MSG::DEBUG );
+
+   // Get the messaging service, print where you are
+    MsgStream log(messageService(), "sTgcPrepDataContainerCnv");
+    if (log.level() <= MSG::INFO) log << MSG::INFO << "sTgcPrepDataContainerCnv::initialize()" << endreq;
+
+    return StatusCode::SUCCESS;
+}
+
+sTgcPrepDataContainer_PERS*    sTgcPrepDataContainerCnv::createPersistent (Muon::sTgcPrepDataContainer* transCont) {
+    MsgStream log(messageService(), "sTgcPrepDataContainerCnv" );
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
+    sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
+    // COMPRESS sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
+    return pers;
+}
+
+Muon::sTgcPrepDataContainer* sTgcPrepDataContainerCnv::createTransient() {
+    MsgStream log(messageService(), "sTgcPrepDataContainerCnv" );
+    static pool::Guid   p1_guid("7AB87DDE-8D7C-11E2-AA7C-001517648C14"); 
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
+    Muon::sTgcPrepDataContainer* p_collection(0);
+    if( compareClassGuid(p1_guid) ) {
+        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
+        std::auto_ptr< Muon::sTgcPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p1 >() );
+        p_collection = m_converter_p1.createTransient( p_coll.get(), log );
+    } else {
+        throw std::runtime_error("Unsupported persistent version of sTgcPrepDataContainer");
+    }
+    return p_collection;
+}
