@@ -1,0 +1,229 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CaloEvent/CaloConstCellContainer.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2014
+ * @brief @c CaloCellContainer that can accept const cell points.
+ */
+
+
+/**
+ * @brief Constructor.
+ */
+inline
+CaloConstCellContainer::CaloConstCellContainer
+  (SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+  : ConstDataVector< ::CaloCellContainer > (ownPolicy)
+{
+}
+
+
+/** @brief get const begin iterator on cell of just one calo */
+inline
+::CaloCellContainer::const_iterator
+CaloConstCellContainer::beginConstCalo (CaloCell_ID::SUBCALO caloNum) const
+{
+  return asDataVector()->beginConstCalo (caloNum);
+}
+
+
+/** @brief get const begin iterator on cell of just one calo */
+inline
+::CaloCellContainer::const_iterator
+CaloConstCellContainer::endConstCalo(CaloCell_ID::SUBCALO caloNum) const
+{
+  return asDataVector()->endConstCalo (caloNum);
+}
+
+
+/** @brief verify one by one the container is complete (i.e. size is equal to the 
+ *  maximum of hash identifier) and in order */
+inline
+bool CaloConstCellContainer::checkOrderedAndComplete() const
+{
+  return asDataVector()->checkOrderedAndComplete();
+}
+
+
+/** @brief indicate that the container is complete and in order */
+inline
+void CaloConstCellContainer::setIsOrderedAndComplete (bool ordered)
+{
+  baseContainer()->setIsOrderedAndComplete (ordered);
+}
+
+
+/** @brief tell wether container is complete and in order */
+inline
+bool CaloConstCellContainer::isOrderedAndComplete() const
+{
+  return asDataVector()->isOrderedAndComplete();
+}
+
+
+/** @brief verify one by one the container is ordered */
+inline
+bool CaloConstCellContainer::checkOrdered() const
+{
+  return asDataVector()->checkOrdered();
+}
+
+
+/** @brief indicates that the container is ordered */
+inline
+void CaloConstCellContainer::setIsOrdered (bool ordered)
+{
+  baseContainer()->setIsOrdered (ordered);
+}
+
+
+/** @brief tell wether container is ordered */
+inline
+bool CaloConstCellContainer::isOrdered() const
+{
+  return asDataVector()->isOrdered();
+}
+
+/** @brief tell wether container has total hash id size */
+inline
+bool CaloConstCellContainer::hasTotalSize() const
+{
+  return asDataVector()->hasTotalSize();
+}
+
+
+/** @brief tell whether it has been filled with cells (maybe none) of a given calo */
+inline
+bool CaloConstCellContainer::hasCalo(const CaloCell_ID::SUBCALO caloNum) const
+{
+  return asDataVector()->hasCalo(caloNum);
+}
+
+
+/** @brief index of first cell of given calorimeter (-1 if none).
+    Note that it is normally more efficient to use iterators */
+inline
+int CaloConstCellContainer::indexFirstCellCalo(const CaloCell_ID::SUBCALO caloNum) const
+{
+  return asDataVector()->indexFirstCellCalo (caloNum);
+}
+
+
+/** @brief index of last cell of given calorimeter (-2 if none)
+    Note that it is normally more efficient to use iterators. */
+inline
+int CaloConstCellContainer::indexLastCellCalo(const CaloCell_ID::SUBCALO caloNum) const
+{
+  return asDataVector()->indexLastCellCalo (caloNum);
+}
+
+/** @brief get number of cels of given calorimeter */
+inline
+int CaloConstCellContainer::nCellsCalo(const CaloCell_ID::SUBCALO caloNum) const
+{
+  return asDataVector()->nCellsCalo (caloNum);
+}
+
+
+/** @brief set which calo has been filled.  */
+inline
+void CaloConstCellContainer::setHasCalo(CaloCell_ID::SUBCALO caloNum)
+{
+  baseContainer()->setHasCalo (caloNum);
+}
+
+
+/** @brief fill calo iterators and the index of first and last cell 
+    IT IS THE RESPONSABILITY OF THE PRODUCER TO CALL THIS
+    METHOD ONCE THE FILLING IS FINISHED
+    Please use CaloCellContainerFinalizerTool to make sure the
+    container is properly finalised.*/
+inline
+void CaloConstCellContainer::updateCaloIterators()
+{
+  baseContainer()->updateCaloIterators();
+}
+
+
+/** @brief fills calo iterators and the index of first cell
+    for a given subcalo */
+inline
+void CaloConstCellContainer::updateCaloBeginIterators(int ic, int ind)
+{
+  baseContainer()->updateCaloBeginIterators (ic, ind);
+}
+
+
+/** @brief fills calo iterators and the index of last cell
+    for a given subcalo */
+inline
+void CaloConstCellContainer::updateCaloEndIterators(int ic,int ind)
+{
+  baseContainer()->updateCaloEndIterators (ic, ind);
+}
+
+/** @brief fast find method given identifier hash. If the container is 
+    not ordered and complete a look up map is used, which is build the first 
+    time this method of findCellVector is used */
+inline
+const CaloCell*
+CaloConstCellContainer::findCell (IdentifierHash theHash) const
+{
+  return asDataVector()->findCell (theHash);
+}
+
+
+/** @brief Return index of the cell with a given hash.
+    Returns -1 if the cell isn't found. */
+inline
+int CaloConstCellContainer::findIndex (IdentifierHash theHash) const
+{
+  return asDataVector()->findIndex (theHash);
+}
+
+/** @brief fast find method given vector of identifier hash.
+    Be careful that the order of cell return may not match the order 
+    of the inputs, and that some cells may be missing */
+inline
+void
+CaloConstCellContainer::findCellVector (const std::vector<IdentifierHash> & theVectorHash,
+                                        ::CaloCellContainer::CellVector & theCellVector) const
+{
+  return asDataVector()->findCellVector (theVectorHash, theCellVector);
+}
+
+
+/** @brief order container */
+inline
+void CaloConstCellContainer::order()
+{
+  baseContainer()->order();
+}
+
+
+/** @brief reimplementation of push_back to gain speed in readin */
+inline
+void CaloConstCellContainer::push_back_fast (const CaloCell* cell)
+{
+  baseContainer()->push_back_fast (const_cast<CaloCell*> (cell));
+}
+
+
+/// Return a non-const pointer to the base container.
+inline
+::CaloCellContainer* CaloConstCellContainer::baseContainer()
+{
+  return const_cast< ::CaloCellContainer* > (this->asDataVector());
+}
+
+
+/// If @ flag is true, then the container size equals the maximum hash.
+inline
+void CaloConstCellContainer::setHasTotalSize(bool flag)
+{
+  return baseContainer()->setHasTotalSize (flag);
+}

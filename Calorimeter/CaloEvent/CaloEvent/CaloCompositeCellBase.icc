@@ -1,0 +1,205 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+template<class NAV>
+CaloCompositeCellBase<NAV>::CaloCompositeCellBase() : NAV()
+{ }
+
+template<class NAV>
+CaloCompositeCellBase<NAV>::~CaloCompositeCellBase()
+{ }
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::addCell(const CaloCellContainer* pContainer,
+				    const CaloCell*          pCell,
+				    double                   weight,
+                                    size_t                   iCell /*= -1*/)
+{
+  // cell already in collection
+  if ( this->contains(pCell) )
+    {
+      // update weight
+      double newWeight = weight + this->getCellWeight(pCell);
+      // reweight the cell
+      this->reweightCell(pCell,newWeight);
+    }
+  else
+    {
+      // from Navigable base
+      // Insert by index if available; else by pointer.
+      if (iCell != static_cast<size_t> (-1))
+        this->insertElement(pContainer,iCell,weight);
+      else
+        this->insertElement(pContainer,pCell,weight);
+      // update kinematics
+      this->updateKine(pCell,weight);
+    }
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::addCell(const CaloCellContainer* pContainer,
+				    size_t& iCell,
+				    double weight)
+{
+  // forward to cell pointer method
+  if ( iCell < pContainer->size() )
+    this->addCell(pContainer,((pContainer->operator[])(iCell)),weight, iCell);
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::addUniqueCell(const CaloCellContainer* pContainer,
+                                          size_t iCell,
+                                          double weight,
+                                          size_t size_hint /*= 0*/)
+{
+  if ( iCell < pContainer->size() ) {
+    this->insertElement(pContainer,iCell,weight,size_hint);
+    this->updateKine((*pContainer)[iCell],weight);
+  }
+}
+
+template<class NAV>
+void
+CaloCompositeCellBase<NAV>::addUniqueCellNoKine(const CaloCellContainer* pContainer,
+                                          size_t iCell,
+                                          double weight,
+                                          size_t size_hint /*= 0*/)
+{
+  if ( iCell < pContainer->size() ) {
+    this->insertElement(pContainer,iCell,weight,size_hint);
+  }
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::reweightCell(const CaloCell* pCell,double weight)
+{
+  double adjWeight = weight - this->getCellWeight(pCell);
+  this->reweight(pCell,weight);
+  this->updateKine(pCell,adjWeight);
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::reweightCell(const CaloCellContainer* pContainer,
+					 size_t& iCell,
+					 double weight)
+{
+  if ( iCell < pContainer->size() ) 
+    this->reweightCell((pContainer->operator[])(iCell),weight);
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::reweightCell(cell_iterator& cellIter,
+					 double weight)
+{
+  // keep this implementation separated (faster!)
+  double adjWeight = weight - this->getCellWeight(cellIter);
+  this->reweight(cellIter,weight);
+  this->updateKine(*cellIter,adjWeight);
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::removeCell(const CaloCell* pCell)
+{
+  if ( this->contains(pCell) )
+    {
+      // update kinematics
+      this->updateKine(pCell,-(this->getCellWeight(pCell)));
+      // from Navigable base
+      this->remove(pCell);
+    }
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::removeCell(const CaloCellContainer* pContainer,
+				       size_t& iCell)
+{
+  this->removeCell((pContainer->operator[])(iCell));
+}
+
+template<class NAV>
+void 
+CaloCompositeCellBase<NAV>::removeCells()
+{
+  this->removeAll();
+}
+
+template<class NAV>
+double
+CaloCompositeCellBase<NAV>::getCellWeight(const CaloCell* pCell) const
+{
+  // from Navigable
+  return this->getParameter(pCell);
+}
+
+template<class NAV>
+double 
+CaloCompositeCellBase<NAV>::getCellWeight(const CaloCellContainer* pContainer,
+					  size_t& iCell) const
+{
+  // from Navigable
+  return this->getParameter(pContainer,iCell);
+}
+
+template<class NAV>
+double
+CaloCompositeCellBase<NAV>::getCellWeight(cell_iterator& cellIter) const
+{
+  return this->getParameter(cellIter);
+}
+
+template<class NAV>
+const CaloCellContainer*
+CaloCompositeCellBase<NAV>::getCellContainer(const CaloCell* pCell) const
+{
+  return this->getContainer(pCell);
+}
+
+template<class NAV>
+const CaloCellContainer*
+CaloCompositeCellBase<NAV>::getCellContainer(cell_iterator& cellIter) const
+{
+  return this->getContainer(cellIter);
+}
+
+template<class NAV>
+bool CaloCompositeCellBase<NAV>::getCellIndex(const CaloCell* pCell, 
+					      size_t& iCell) const
+{
+  return this->getIndex(pCell,iCell);
+}
+
+template<class NAV>
+bool CaloCompositeCellBase<NAV>::getCellIndex(cell_iterator& cellIter, 
+					      size_t& iCell) const
+{
+  return this->getIndex(cellIter,iCell);
+}
+
+template<class NAV>
+typename CaloCompositeCellBase<NAV>::cell_iterator 
+CaloCompositeCellBase<NAV>::cell_begin() const
+{
+  return this->begin();
+}
+
+template<class NAV>
+typename CaloCompositeCellBase<NAV>::cell_iterator
+CaloCompositeCellBase<NAV>::cell_end()   const
+{
+  return this->end();
+}
+
+template<class NAV>
+unsigned int CaloCompositeCellBase<NAV>::getNumberOfCells() const
+{
+  return this->size();
+}

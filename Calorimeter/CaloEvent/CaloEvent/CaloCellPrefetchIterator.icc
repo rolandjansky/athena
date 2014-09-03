@@ -1,0 +1,193 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: CaloCellPrefetchIterator.icc,v 1.2 2008-08-02 14:57:07 ssnyder Exp $
+
+/**
+ * @file CaloEvent/CaloCellPrefetchIterator.icc
+ * @author scott snyder
+ * @date Aug 2008
+ * @brief To iterate over @c CaloCell's, prefetching the detector description.
+ */
+
+
+//****************************************************************************
+
+
+namespace CaloEvent_detail {
+
+
+/**
+ * @brief Return the current parameter (will always be 1).
+ */
+template <class T, class TAG>
+inline
+typename paramholder<T, TAG>::param_t
+paramholder<T, TAG>::getParameter() const
+{
+  return 1;
+}
+
+
+/**
+ * @brief Move to the next weight (a no-op).
+ */
+template <class T, class TAG>
+inline
+void paramholder<T, TAG>::next()
+{
+}
+
+
+/**
+ * @brief Fetch the next weight from the iterator (a no-op).
+ */
+template <class T, class TAG>
+inline
+void paramholder<T, TAG>::fetch (const T& /*it*/)
+{
+}
+
+
+/**
+ * @brief Return the current parameter.
+ */
+template <class T>
+inline
+typename paramholder<T, NavigationTokenIteratorTag>::param_t
+paramholder<T, NavigationTokenIteratorTag>::getParameter() const
+{
+  return m_param;
+}
+
+
+/**
+ * @brief Move to the next weight.
+ */
+template <class T>
+inline
+void paramholder<T, NavigationTokenIteratorTag>::next()
+{
+  m_param = m_next_param;
+}
+
+
+/**
+ * @brief Fetch the next weight from the iterator.
+ */
+template <class T>
+inline
+void paramholder<T, NavigationTokenIteratorTag>::fetch (const T& it)
+{
+  m_next_param = it.getParameter();
+}
+
+
+} // namespace CaloEvent_detail
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param begin Underlying begin iterator.
+ * @param end Underlying end iterator.
+ */
+template <class T>
+CaloCellPrefetchIterator<T>::CaloCellPrefetchIterator
+   (const base_iterator& begin,
+    const base_iterator& end)
+
+ : m_it (begin),
+   m_end (end)
+{
+  init();
+}
+
+
+/**
+ * @brief Constructor, from a container.
+ * @param cont Container over which to iterate.
+ */
+template <class T>
+template <class CONTAINER>
+CaloCellPrefetchIterator<T>::CaloCellPrefetchIterator
+  (const CONTAINER& cont)
+  : m_it (cont.begin()),
+    m_end (cont.end())
+{
+  init();
+}
+
+
+/**
+ * @brief Move to the next element.
+ *
+ * Returns true if more elements, false otherwise.
+ * This should be called before processing the first element.
+ */
+template <class T>
+inline
+bool CaloCellPrefetchIterator<T>::next()
+{
+  // Are we at the end (use the saved result of the comparison).
+  if (!m_next_cellp)
+    return false;
+
+  // Move to the next cell/weight.
+  m_cellp = m_next_cellp;
+  paramholder::next ();
+
+  // Is the iterator (now pointing at the next element) at the end?
+  if (m_it != m_end) {
+    // No, fetch the contents of the next element.
+    m_next_cellp = *m_it;
+    paramholder::fetch (m_it);
+    // And prefetch the DDE.
+    __builtin_prefetch (m_next_cellp->caloDDE());
+    // Bump the iterator.
+    ++m_it;
+  }
+  else {
+    // This is the last element.  Remember that for next time.
+    m_next_cellp = 0;
+  }
+
+  // Keep going.
+  return true;
+}
+
+
+/**
+ * @brief Dereference the iterator.
+ */
+template <class T>
+inline
+const CaloCell* CaloCellPrefetchIterator<T>::operator*() const
+{
+  return m_cellp;
+}
+
+
+/**
+ * @brief Initialize before first use.
+ */
+template <class T>
+void CaloCellPrefetchIterator<T>::init()
+{
+  m_cellp = 0;
+  if (m_it != m_end) {
+    m_next_cellp = *m_it;
+    paramholder::fetch (m_it);
+    ++m_it;
+  }
+  else
+    m_next_cellp = 0;
+}
+
+
+
