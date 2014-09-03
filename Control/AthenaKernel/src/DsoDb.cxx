@@ -1,0 +1,652 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// DsoDb.cxx 
+// Implementation file for class DsoDb
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+
+// AthenaKernel includes
+#include "AthenaKernel/DsoDb.h"
+
+//#define ATH_DSODB_VERBOSE
+
+// STL includes
+#include <cstdlib>    /* getenv */
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <set>
+
+// boost includes
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem/exception.hpp" /*filesystem_error*/
+#include "boost/tokenizer.hpp"
+
+#include "boost/algorithm/string.hpp"
+//#include "boost/algorithm/string/predicate.hpp"
+//#include "boost/algorithm/string/replace.hpp"
+
+#include <boost/regex.hpp>
+
+// ROOT includes
+#include "TClassEdit.h"
+#include "TVirtualMutex.h"  // for R__LOCKGUARD2
+#include "TInterpreter.h"   // for gCINTMutex
+
+// fwk includes
+#include "GaudiKernel/System.h"
+
+namespace fs = boost::filesystem;
+
+namespace {
+  typedef std::vector<std::string> Strings_t;
+  const std::string RootMap = ".rootmap";
+  const std::string DsoMap  = ".dsomap";
+  const std::string PluginNs= "__pf__";
+
+#ifdef _WIN32
+  const std::string SHLIB_PREFIX = "lib";
+  const std::string SHLIB_SUFFIX = ".dll";
+#else
+  const std::string SHLIB_PREFIX = "lib";
+  const std::string SHLIB_SUFFIX = ".so";
+#endif
+
+
+  bool is_rootcint_dict(const std::string& libname)
+  {
+    static const std::string dll = ".dll";
+    if (libname == dll) {
+      return false;
+    }
+    static const boost::regex e("\\w*?.dll");
+    return !boost::algorithm::starts_with(libname, SHLIB_PREFIX) &&
+            boost::regex_match(libname, e);
+  }
+
+  inline
+  std::string to_string(const fs::path& p) 
+  {
+#if BOOST_FILESYSTEM_VERSION == 3 
+    return p.c_str();
+#else
+    return p.native_file_string();
+#endif
+  }
+
+  std::string getlibname(const std::string& libname)
+  {
+    std::string lib = libname;
+    if (!boost::algorithm::starts_with(lib, "lib")) {
+      lib = std::string("lib") + lib;
+    }
+    if (!boost::algorithm::ends_with(lib, SHLIB_SUFFIX)) {
+      lib = lib + SHLIB_SUFFIX;
+    }
+    return lib;
+  }
+
+  const std::set<std::string>& 
+  s_cxx_builtins()
+  {
+    static std::set<std::string> s;
+    if (s.empty()) {
+#define _ADD(x) s.insert(x)
+
+      _ADD(         "char");
+      _ADD("unsigned char");
+      _ADD(  "signed char");
+      
+      _ADD("signed");
+      
+      _ADD("short int");
+      _ADD("short signed");
+      _ADD("short signed int");
+      
+      _ADD(         "short");
+      _ADD("unsigned short");
+      _ADD(  "signed short");
+
+      _ADD("int");
+      _ADD("unsigned int");
+
+      _ADD("long int");
+      _ADD("long signed int");
+      _ADD("signed long int");
+      
+      _ADD("long");
+      _ADD("long signed");
+      _ADD("signed long");
+      _ADD("unsigned long");
+      _ADD("unsigned long int");
+
+      _ADD("long long");
+      _ADD("long long int");
+      _ADD("unsigned long long");
+      _ADD("longlong");
+      
+      _ADD("ulonglong");
+
+      _ADD("float");
+      _ADD("double");
+      _ADD("long double");
+      _ADD("bool");
+
+#undef _ADD      
+    }
+    return s;
+  }
+
+  const std::map<std::string, std::string>&
+  s_cxx_aliases()
+  {
+    static std::map<std::string, std::string> s;
+    if (s.empty()) {
+      s["ElementLinkInt_p1"] = "ElementLink_p1<unsigned int>";
+      s["basic_string<char>"] = "string";
+      s["std::basic_string<char>"] = "string";
+      s["vector<basic_string<char> >"] = "vector<string>";
+      s["INavigable4MomentumCollection"] = "DataVector<INavigable4Momentum>";
+      s["IParticleContainer"] = "DataVector<IParticle>";
+    }
+    return s;
+  }
+
+  const std::map<std::string, std::string>&
+  s_cxx_typedefs()
+  {
+    static std::map<std::string, std::string> s;
+    if (s.empty()) {
+      s["INavigable4MomentumCollection"] = "DataVector<INavigable4Momentum>";
+      s["IParticleContainer"] = "DataVector<IParticle>";
+    }
+    return s;
+  }
+
+  /** @brief helper method to massage a typename into something
+   *         understandable by rootmap files
+   */
+  std::string 
+  to_rootmap_name(const std::string& type_name_)
+  {
+    std::string type_name = type_name_;
+    boost::algorithm::replace_all(type_name, ", ", ",");
+    // first, the easy case: builtins
+    if (s_cxx_builtins().find(type_name) != s_cxx_builtins().end()) {
+      return type_name;
+    }
+
+    // known missing aliases ?
+    if (s_cxx_aliases().find(type_name) != s_cxx_aliases().end()) {
+      return ::to_rootmap_name(s_cxx_aliases().find(type_name)->second);
+    }
+   
+    type_name = TClassEdit::ShortType(type_name.c_str(), 
+                                      TClassEdit::kDropDefaultAlloc|
+                                      TClassEdit::kDropStd);
+    boost::algorithm::replace_all(type_name, "basic_string<char> >", "string>");
+    boost::algorithm::replace_all(type_name, "basic_string<char>", "string");
+    return type_name;
+  }
+
+  /** @brief helper function to massage a typename into something
+   *         understandable by Reflex.
+   */
+  std::string
+  to_rflx_name(const std::string& type_name_)
+  {
+    std::string type_name = type_name_;
+    boost::algorithm::replace_all(type_name, ", ", ",");
+    // first the easy case: builtins
+    if (s_cxx_builtins().find(type_name) != s_cxx_builtins().end()) {
+      return type_name;
+    }
+
+    // known missing typedefs ?
+    if (s_cxx_typedefs().find(type_name) != s_cxx_typedefs().end()) {
+      return ::to_rflx_name(s_cxx_typedefs().find(type_name)->second);
+    }
+    type_name = TClassEdit::ShortType(type_name.c_str(),
+                                      TClassEdit::kDropDefaultAlloc);
+    // !! order matters !! (at least in C++03. C++11 should be good)
+    boost::algorithm::replace_all(type_name, 
+                                  "std::string>", 
+                                  "std::basic_string<char> >");
+    boost::algorithm::replace_all(type_name, 
+                                  "std::string", 
+                                  "std::basic_string<char>");
+    return type_name;
+  }
+}
+
+namespace Ath {
+
+/////////////////////////////////////////////////////////////////// 
+// Public methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/** factory for the DsoDb
+ */
+DsoDb* DsoDb::instance()
+{
+   RootType::EnableCintex();
+   static DsoDb db;
+   return &db;
+}
+
+// Constructors
+////////////////
+DsoDb::DsoDb() :
+  m_pf(),
+  m_db(),
+  m_dsofiles()
+{
+  build_repository();
+}
+
+// Destructor
+///////////////
+DsoDb::~DsoDb()
+{}
+
+/////////////////////////////////////////////////////////////////// 
+// Const methods: 
+///////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////// 
+// Non-const methods: 
+/////////////////////////////////////////////////////////////////// 
+
+bool
+DsoDb::has_type(const std::string& type_name)
+{
+  if (s_cxx_builtins().find(type_name) != s_cxx_builtins().end()) {
+    return true;
+  }
+  const std::string n = ::to_rootmap_name(type_name);
+  if ( m_db.find(n) != m_db.end() ||
+       m_pf.find(n) != m_pf.end() ) {
+    return true;
+  }
+  return false;
+}
+
+std::string
+DsoDb::load_type(const std::string& type_name)
+{
+  RootType t = this->rflx_type(type_name);
+  if (t.Id()) {
+    return t.Name(Reflex::SCOPED|Reflex::QUALIFIED);
+  }
+  return std::string();
+}
+
+/////////////////////////////////////////////////////////////////// 
+// Protected methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/// initialize the repository of dso file names
+void 
+DsoDb::build_repository()
+{
+  // std::cerr << "::build_repository...\n";
+
+  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer_t;
+  typedef std::vector<fs::path> Paths_t;
+
+  std::set<std::string> dsofiles;
+
+  std::string dsopath = System::getEnv("LD_LIBRARY_PATH");
+  std::string rootsys = System::getEnv("ROOTSYS");
+
+  Tokenizer_t tok(dsopath, boost::char_separator<char>(":"));
+
+  for (Tokenizer_t::iterator itr = tok.begin(), iend = tok.end();
+       itr != iend;
+       ++itr) {
+    //std::cerr << "--[" << *itr << "]...\n";
+    if (boost::algorithm::starts_with(*itr, rootsys)) {
+      continue;
+    }
+    fs::path p(*itr);
+    if (!boost::filesystem::exists(*itr)) {
+      continue;
+    }
+    Paths_t dir_content;
+    std::copy(fs::directory_iterator(p), 
+              fs::directory_iterator(), 
+              std::back_inserter(dir_content));
+    std::sort(dir_content.begin(),
+              dir_content.end());
+    for (Paths_t::iterator ipath = dir_content.begin(),
+           ipath_end = dir_content.end();
+         ipath != ipath_end;
+         ++ipath) {
+      const fs::path& dsomap = *ipath;
+      if (dsomap.extension() != RootMap || !fs::exists(dsomap)) {
+        continue;
+      }
+      //std::cerr << "=== [" << dso << "] ===\n";
+#if BOOST_FILESYSTEM_VERSION == 3 
+      dsofiles.insert(dsomap.c_str());
+      std::ifstream f(dsomap.c_str());
+#else
+      dsofiles.insert(dsomap.native_file_string().c_str());
+      std::ifstream f(dsomap.native_file_string().c_str());
+#endif
+      int line_nbr = -1;
+      while (f) {
+        line_nbr += 1;
+        std::string line;
+        std::getline(f, line);
+        boost::algorithm::trim(line);
+        if (line.empty() || line[0] == '#') {
+          continue;
+        }
+        Strings_t ll;
+        boost::algorithm::split(ll, line, 
+                                boost::is_any_of(" "),
+                                boost::token_compress_on);
+        if (ll.size() < 2) {
+          std::cerr << "DsoDb:: **error** could not parse " 
+                    << dsomap << ":" << line_nbr
+                    << "\n"
+                    << "DsoDb:: (some) reflex-dicts may fail to be autoloaded"
+                    << "\n";
+          continue;
+        }
+        std::string libname = ll[1];
+        if (::is_rootcint_dict(libname)) {
+          continue;
+        }
+        std::string dso_key = ll[0];
+        libname = ::getlibname(libname);
+        const std::string fullpath_libname = to_string(dsomap.parent_path() / fs::path(libname));
+        boost::algorithm::replace_all(dso_key, "Library.", "");
+        boost::algorithm::replace_all(dso_key, ":", "");
+        boost::algorithm::replace_all(dso_key, "@", ":");
+        boost::algorithm::replace_all(dso_key, "-", " ");
+
+        
+        // std::cerr << " [" << line << "] -> [" << dso_key << "] [" << libname
+        //           << "]\n";
+
+        DsoMap_t *db = NULL;
+        if (boost::algorithm::starts_with(dso_key, PluginNs)) {
+          db = &m_pf;
+        } else {
+          db = &m_db;
+        }
+        if (db->find(dso_key) == db->end()) {
+          db->insert(std::make_pair(dso_key, Strings_t()));
+        }
+        (*db)[dso_key].push_back(fullpath_libname);
+      }
+      // std::cerr << "=== [" << dso << "] === [EOF]\n";
+    }
+    //std::cerr << "--[" << *itr << "]... [done]\n";
+  }
+  
+  m_dsofiles.reserve(dsofiles.size());
+  std::copy(dsofiles.begin(), dsofiles.end(), std::back_inserter(m_dsofiles));
+
+  // std::cerr << "::build_repository... [done]\n";
+  return;
+}
+
+std::vector<std::string>
+DsoDb::capabilities(const std::string& libname_)
+{
+  fs::path p(libname_);
+
+  const std::string libname = ::getlibname(to_string(p.filename()));
+  std::set<std::string> caps;
+  DsoMap_t* dbs[] = { &m_pf, &m_db };
+
+  for (std::size_t i = 0, imax = 2; i < imax; ++i) {
+    DsoMap_t* db = dbs[i];
+    for (DsoMap_t::const_iterator idb = db->begin(), iend=db->end();
+         idb != iend;
+         ++idb) {
+      for (Libs_t::const_iterator ilib = idb->second.begin(),
+             ilibend = idb->second.end();
+           ilib != ilibend;
+           ++ilib) {
+        fs::path lib(*ilib);
+        if (to_string(lib.filename()) == libname) {
+          caps.insert(idb->first);
+        }
+      }
+    }
+  }
+
+  return std::vector<std::string>(caps.begin(), caps.end());
+}
+
+/// list of libraries hosting duplicate reflex-types
+DsoDb::DsoMap_t 
+DsoDb::duplicates(const std::string& libname, bool pedantic)
+{
+  DsoMap_t dups;
+  const std::string basename_lib = to_string(fs::path(libname).filename());
+  std::vector<std::string> caps = this->capabilities(libname);
+  DsoMap_t* dbs[] = { &m_pf, &m_db };
+
+  for (std::size_t i = 0, imax = 2; i < imax; ++i) {
+    DsoMap_t dup_db;
+    this->get_dups(dup_db, *dbs[i], pedantic);
+    for (DsoMap_t::const_iterator 
+           idb = dup_db.begin(), 
+           idbend = dup_db.end();
+         idb != idbend;
+         ++idb) {
+      if (std::find(caps.begin(), caps.end(), idb->first) != caps.end()) {
+        for (Libs_t::const_iterator 
+               ilib = idb->second.begin(),
+               ilibend=idb->second.end();
+             ilib != ilibend;
+             ++ilib) {
+          fs::path p(*ilib);
+          const std::string basename = to_string(p.filename());
+          if (basename != libname) {
+            dups[idb->first].push_back(*ilib);
+          }
+        }
+      }
+    }
+  }  
+  return dups;
+}
+
+/// table of dict-duplicates: {type: [lib1, lib2, ...]}
+DsoDb::DsoMap_t 
+DsoDb::dict_duplicates(bool pedantic)
+{
+  DsoMap_t dups;
+  get_dups(dups, m_db, pedantic);
+  return dups;
+}
+
+/// table of plugin-factories-duplicates: {type: [lib1, lib2, ...]}
+DsoDb::DsoMap_t 
+DsoDb::pf_duplicates(bool pedantic)
+{
+  DsoMap_t dups;
+  get_dups(dups, m_pf, pedantic);
+  return dups;
+}
+
+/// list of all libraries we know about
+/// @param `detailed` if true, prints the full path to the library
+DsoDb::Libs_t 
+DsoDb::libs(bool detailed)
+{
+  std::set<std::string> libs;
+  DsoMap_t* dbs[] = { &m_pf, &m_db };
+
+  for (std::size_t i = 0, imax = 2; i < imax; ++i) {
+    const DsoMap_t& db = *dbs[i];
+    for (DsoMap_t::const_iterator idb = db.begin(), iend=db.end();
+         idb != iend;
+         ++idb) {
+      for (Libs_t::const_iterator 
+             ilib = idb->second.begin(),
+             ilibend=idb->second.end();
+           ilib != ilibend;
+           ++ilib) {
+        if (detailed) {
+          libs.insert(*ilib);
+        } else {
+          libs.insert(to_string(fs::path(*ilib).filename()));
+        }
+      }
+    }
+  }
+  return Libs_t(libs.begin(), libs.end());
+}
+
+/// return the table {type: [lib1, ...]} - concatenation of all
+/// dict-entries and plugin-factories entries.
+/// @param `pedantic` if true, retrieves the library's full path
+DsoDb::DsoMap_t 
+DsoDb::content(bool pedantic)
+{
+  DsoMap_t db;
+
+  DsoMap_t* dbs[] = { &m_pf, &m_db };
+  for (std::size_t i = 0, imax = 2; i < imax; ++i) {
+    const DsoMap_t& d = *dbs[i];
+    for (DsoMap_t::const_iterator idb = d.begin(), idbend=d.end();
+         idb != idbend;
+         ++idb) {
+      if (pedantic) {
+        db[idb->first] = idb->second;
+      } else {
+        Libs_t libs;
+        std::set<std::string> baselibs;
+        for (Libs_t::const_iterator 
+               ilib = idb->second.begin(),
+               ilibend= idb->second.end();
+             ilib != ilibend;
+             ++ilib) {
+          const std::string baselib = to_string(fs::path(*ilib).filename());
+          if (baselibs.find(baselib) == baselibs.end()) {
+            libs.push_back(*ilib);
+            baselibs.insert(baselib);
+          }
+        }
+        db[idb->first] = libs;
+      }
+    }
+  }
+
+  return db;
+}
+
+/// get the duplicates for a given repository of components
+void 
+DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic)
+{
+  for (DsoMap_t::const_iterator idb = db.begin(), iend = db.end();
+       idb != iend;
+       ++idb) {
+    if (idb->second.size() == 1) {
+      continue;
+    }
+    Libs_t libs;
+    if (pedantic) {
+      libs = idb->second;
+    } else {
+      std::set<std::string> baselibs;
+      for (Libs_t::const_iterator 
+             ilib = idb->second.begin(), 
+             ilend= idb->second.end();
+           ilib != ilend;
+           ++ilib) {
+        fs::path p(*ilib);
+        const std::string baselib = to_string(p.filename());
+        if (baselibs.find(baselib) == baselibs.end()) {
+          baselibs.insert(baselib);
+          libs.push_back(*ilib);
+        }
+      }
+    }
+    if (libs.size() > 1) {
+      dups[idb->first] = Libs_t(libs.begin(), libs.end());
+    }
+  }
+}
+
+/// load the reflex type after having loaded the hosting library
+RootType 
+DsoDb::rflx_type(const std::string& type_name)
+{
+  const std::string rootmap_name = ::to_rootmap_name(type_name);
+  const std::string rflx_name = ::to_rflx_name(type_name);
+
+  // std::cerr << "---DsoDb::rflx_type---\n"
+  //           << " tname: [" << type_name << "]\n"
+  //           << " root:  [" << rootmap_name << "]\n"
+  //           << " rflx:  [" << rflx_name << "]\n"
+  //           << "----------------------\n";
+
+  if (s_cxx_builtins().find(type_name) != s_cxx_builtins().end()) {
+    return RootType(rflx_name);
+  }
+
+  if (!this->has_type(rootmap_name)) {
+#ifdef ATH_DSODB_VERBOSE
+    std::cerr << "DsoDb **error**: no such type [" << rootmap_name << "]"
+              << " in rootmap files\n";
+#endif
+    return RootType();
+  }
+  DsoMap_t::const_iterator idb = m_db.find(rootmap_name);
+  if (idb == m_db.end()) {
+    // try plugin factories...
+    idb = m_pf.find(rootmap_name);
+    if (idb == m_pf.end()) {
+      return RootType();
+    }
+  }
+  const Libs_t& libs = idb->second;
+  if (libs.empty()) {
+#ifdef ATH_DSODB_VERBOSE
+    std::cerr << "DsoDb **error**: no library hosting [" << type_name << "]\n";
+#endif
+    return RootType();
+  }
+
+  System::ImageHandle handle;
+  std::string libname = ::to_string(fs::path(libs[0]).filename());
+  boost::algorithm::trim(libname);
+  if (boost::algorithm::starts_with(libname, SHLIB_PREFIX)) {
+    libname = libname.substr(SHLIB_PREFIX.size(), std::string::npos);
+  }
+  if (boost::algorithm::ends_with(libname, SHLIB_SUFFIX)) {
+    libname = libname.substr(0, libname.size()-SHLIB_SUFFIX.size());
+  }
+
+  //MN  hmm, FIX that for ROOT6 ?
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
+  // acquire lock: cint-dict loading isn't thread-safe...
+  R__LOCKGUARD2(gCINTMutex);
+#endif
+  
+  unsigned long err = System::loadDynamicLib( libname, &handle );
+  if ( err != 1 ) {
+    std::cerr << "DsoDb **error**: could not load library [" 
+              << libs[0] << "] (" << System::getLastErrorString() 
+              << ")\n";
+    return RootType();
+  }
+
+  return RootType(rflx_name);
+}
+
+} //> end namespace Ath

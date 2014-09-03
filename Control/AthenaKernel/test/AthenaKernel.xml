@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="AthenaKernelTest" type="makecheck" suite="Examples">
+     <package>Control/AthenaKernel</package>
+     <timelimit>10</timelimit>
+     <author> Paolo Calafiura </author>
+     <mailto> pcalafiura@lbl.gov, binet@cern.ch</mailto>
+     <expectations>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <errorMessage>differ</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
+         <returnValue>0</returnValue>
+     </expectations>
+  </TEST>
+</atn>

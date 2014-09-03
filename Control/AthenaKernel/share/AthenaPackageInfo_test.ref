@@ -1,0 +1,29 @@
+*** AthenaPackageInfo_test OK ***
+Now we expect to see an error message:
+----Error Message Starts--->>
+PackageInfo::PackageInfo(BaD): invalid argument
+PackageInfo should be constructed passing a string of the form PACKAGE-VERSION.
+Usually this error occurs because CMT can not determine the version of your package. Please make sure that there is a version.cmt file in the cmt directory of your package and that version.cmt contains a single line of the form
+MyPackage-01-02-03
+Notice that version.cmt is created automatically by CMT when you use 'cmt co' 
+
+<<----Error Message Ends-----
+Now we expect to see an error message:
+----Error Message Starts--->>
+PackageInfo::PackageInfo(BaD-): invalid argument
+PackageInfo should be constructed passing a string of the form PACKAGE-VERSION.
+Usually this error occurs because CMT can not determine the version of your package. Please make sure that there is a version.cmt file in the cmt directory of your package and that version.cmt contains a single line of the form
+MyPackage-01-02-03
+Notice that version.cmt is created automatically by CMT when you use 'cmt co' 
+
+<<----Error Message Ends-----
+Now we expect to see an error message:
+----Error Message Starts--->>
+PackageInfo::PackageInfo(-BaD): invalid argument
+PackageInfo should be constructed passing a string of the form PACKAGE-VERSION.
+Usually this error occurs because CMT can not determine the version of your package. Please make sure that there is a version.cmt file in the cmt directory of your package and that version.cmt contains a single line of the form
+MyPackage-01-02-03
+Notice that version.cmt is created automatically by CMT when you use 'cmt co' 
+
+<<----Error Message Ends-----
+*** AthenaPackageInfo_test OK ***

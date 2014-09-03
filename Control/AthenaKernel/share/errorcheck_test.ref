@@ -1,0 +1,37 @@
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
+                                          running on lxplus0023 on Thu Feb 20 14:48:29 2014
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+alg                 ERROR ../test/errorcheck_test.cxx:153 (StatusCode test1()): code 0: foomsg
+alg                  INFO ../test/errorcheck_test.cxx:155 (StatusCode test1()): some message
+alg                  INFO ../test/errorcheck_test.cxx:158 (StatusCode test1()): a... b
+alg                  INFO ../test/errorcheck_test.cxx:162 (StatusCode test1()): foo
+alg                 FATAL ../test/errorcheck_test.cxx:102 (StatusCode test1a()): code 0: StatusCode (StatusCode::FAILURE)
+alg                 ERROR ../test/errorcheck_test.cxx:110 (StatusCode test1b()): code 2: StatusCode (StatusCode::FAILURE)
+alg                 ERROR ../test/errorcheck_test.cxx:118 (StatusCode test1c()): code 2: StatusCode (StatusCode::RECOVERABLE)
+alg                 FATAL ../test/errorcheck_test.cxx:126 (StatusCode test1d()): code 0: StatusCode (StatusCode::FAILURE)
+alg                 FATAL ../test/errorcheck_test.cxx:134 (StatusCode test1e()): code 0: StatusCode (StatusCode::RECOVERABLE)
+alg                 FATAL ../test/errorcheck_test.cxx:142 (StatusCode test1f()): code 123: StatusCode (StatusCode::RECOVERABLE)
+algname             ERROR ../test/errorcheck_test.cxx:34 (StatusCode Algtest::test1()): code 0: foomsg
+algname              INFO ../test/errorcheck_test.cxx:35 (StatusCode Algtest::test1()): some info
+algname             FATAL ../test/errorcheck_test.cxx:37 (StatusCode Algtest::test1()): code 0: StatusCode (StatusCode::FAILURE)
+toolname            ERROR ../test/errorcheck_test.cxx:54 (StatusCode Algtooltest::test1()): code 0: foomsg
+toolname             INFO ../test/errorcheck_test.cxx:55 (StatusCode Algtooltest::test1()): some info
+toolname            FATAL ../test/errorcheck_test.cxx:57 (StatusCode Algtooltest::test1()): code 123: StatusCode (StatusCode::RECOVERABLE)
+servname            ERROR ../test/errorcheck_test.cxx:74 (StatusCode Servtest::test1()): code 0: foomsg
+servname             INFO ../test/errorcheck_test.cxx:75 (StatusCode Servtest::test1()): some info
+servname            ERROR ../test/errorcheck_test.cxx:77 (StatusCode Servtest::test1()): code 2: StatusCode (StatusCode::FAILURE)
+                    ERROR ../test/errorcheck_test.cxx:91 (StatusCode Test::test1()): code 0: foomsg
+                     INFO ../test/errorcheck_test.cxx:92 (StatusCode Test::test1()): some info
+                    FATAL ../test/errorcheck_test.cxx:94 (StatusCode Test::test1()): code 0: StatusCode (StatusCode::RECOVERABLE)
+alg                 ERROR FILE:LINE (StatusCode test1()): code 0: foox
+alg                 ERROR ../test/errorcheck_test.cxx:178 (StatusCode test1()): code 0: fooy
+test2                INFO ../test/errorcheck_test.cxx:194 (void test2(std::vector<int>, const int*, int (*)(), int*)): test2
+test3                INFO ../test/errorcheck_test.cxx:203 (void test3(const std::string&, int)): test3
