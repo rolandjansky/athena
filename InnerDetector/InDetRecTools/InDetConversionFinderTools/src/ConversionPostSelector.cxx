@@ -1,0 +1,276 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/***************************************************************************
+    ConversionPostSelector.cxx  -  Description
+    -------------------
+    begin   : 01-01-2008
+    authors : Tatjana Lenz, Thomas Koffas
+    email   : tatjana.lenz@cern.ch, Thomas.Koffas@cern.ch
+    changes :
+***************************************************************************/
+#include "InDetConversionFinderTools/ConversionPostSelector.h"
+
+#include "xAODTracking/Vertex.h"
+
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/Vertex.h"
+
+using CLHEP::HepLorentzVector;
+using CLHEP::pi;
+using CLHEP::twopi;
+
+namespace InDet {
+  
+  Trk::ParticleMasses ConversionPostSelector::s_particleMasses;
+  
+  static const InterfaceID IID_IConversionPostSelector("InDet::ConversionPostSelector", 1, 0);
+  
+  ConversionPostSelector::ConversionPostSelector(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent)
+  {
+    m_massK0      = 497.672;
+    m_sigmaK0     = 8.5;
+    m_massLambda  = 1115.683;
+    m_sigmaLambda = 3.5;
+    m_nsig        = 5;
+    m_minPt       = 0.;
+    m_maxdR       = -10000.;
+    m_maxPhiVtxTrk= 0.2;
+    
+    m_maxChi2.push_back(35.);
+    m_maxChi2.push_back(25.);
+    m_maxChi2.push_back(20.);
+    
+    m_invMassCut.push_back(10000.);
+    m_invMassCut.push_back(10000.);
+    m_invMassCut.push_back(10000.);
+    
+    m_fitMomentum.push_back(0.);
+    m_fitMomentum.push_back(0.);
+    m_fitMomentum.push_back(0.);
+    
+    m_minRadius.push_back(-10000.);
+    m_minRadius.push_back(-10000.);
+    m_minRadius.push_back(-10000.);
+    
+    declareInterface<ConversionPostSelector>(this);
+    declareProperty("MaxChi2Vtx",       m_maxChi2     );
+    declareProperty("MaxInvariantMass", m_invMassCut  );
+    declareProperty("MinFitMomentum",   m_fitMomentum );
+    declareProperty("MinRadius",        m_minRadius   );
+    declareProperty("MinPt",            m_minPt       );
+    declareProperty("MaxdR",            m_maxdR       );
+    declareProperty("MaxPhiVtxTrk",     m_maxPhiVtxTrk);
+    declareProperty("NSigma",           m_nsig        );
+  }
+  
+  ConversionPostSelector::~ConversionPostSelector() {}
+  
+  const InterfaceID& ConversionPostSelector::interfaceID() {
+    return IID_IConversionPostSelector;
+  }
+  
+  StatusCode ConversionPostSelector::initialize() {
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode ConversionPostSelector::finalize() {
+    return StatusCode::SUCCESS;
+  }
+  
+  bool ConversionPostSelector::selectConversionCandidate(xAOD::Vertex * vertex, int flag, 
+               std::vector<Amg::Vector3D>& trkL){
+    bool pass = true;
+    
+    //Determine the cuts
+    double maxChi2     = 1000.;
+    double invMassCut  = 1000.;
+    double fitMomentum = 0.;
+    double radius      = 1000.;
+    
+    if(flag==0) {
+      maxChi2     = m_maxChi2[0]    ; //Vertex fit chi2 cut
+      invMassCut  = m_invMassCut[0] ; //Fit invariant mass cut
+      fitMomentum = m_fitMomentum[0]; //Photon fitted momentum
+      radius      = m_minRadius[0]  ; //Minimum acceptable radius of conversion vertex
+    }
+    if(flag==1) {
+      maxChi2     = m_maxChi2[1]    ; //Vertex fit chi2 cut
+      invMassCut  = m_invMassCut[1] ; //Fit invariant mass cut
+      fitMomentum = m_fitMomentum[1]; //Photon fitted momentum
+      radius      = m_minRadius[1]  ; //Minimum acceptable radius of conversion vertex
+    }
+    if(flag==2) {
+      maxChi2     = m_maxChi2[2]    ; //Vertex fit chi2 cut
+      invMassCut  = m_invMassCut[2] ; //Fit invariant mass cut
+      fitMomentum = m_fitMomentum[2]; //Photon fitted momentum
+      radius      = m_minRadius[2]  ; //Minimum acceptable radius of conversion vertex
+    }
+    
+    //chi2 cut
+    if (vertex->nTrackParticles() != 2) {
+      ATH_MSG_DEBUG("Incorrect number of tracks used in conversion fit.");
+      pass = false;
+    } else {
+     
+      float reducedChi2 = vertex->chiSquared()/vertex->numberDoF();
+      if (reducedChi2 > maxChi2) pass =  false;
+      if (reducedChi2 > maxChi2) pass =  false;
+      
+      //Minimum radius cut
+      double vtxR = vertex->position().perp();
+      if(vtxR < radius) pass = false;
+      
+      //invariant mass
+      const Trk::TrackParameters& perigee1 = vertex->trackParticle(0)->perigeeParameters();
+      const Trk::TrackParameters& perigee2 = vertex->trackParticle(1)->perigeeParameters();
+      //if(!perigee1 || ! perigee2) {pass=false; return pass;}
+      
+      HepLorentzVector momentum;
+      Amg::Vector3D sum_mom = perigee1.momentum() + perigee2.momentum();
+      double m2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::electron],2);
+      double ee = sqrt(m2 +  perigee1.momentum().mag2()) + sqrt(m2 +  perigee2.momentum().mag2());
+      momentum.setPx(sum_mom.x()); momentum.setPy(sum_mom.y()); momentum.setPz(sum_mom.z()); momentum.setE(ee);
+      double inv_mass = momentum.m();
+      double photonP = sqrt(momentum.x()*momentum.x() + momentum.y()*momentum.y());
+      double pt1 = perigee1.pT(); double pt2 = perigee2.pT();
+      
+      if (pt1<m_minPt || pt2<m_minPt) pass = false;
+      if (fabs(inv_mass) > invMassCut) pass = false;
+      if (photonP < fitMomentum) pass = false;
+      
+      double fR = 1000.;
+      std::vector<Amg::Vector3D>::const_iterator ipb=trkL.begin();
+      std::vector<Amg::Vector3D>::const_iterator ipbe=trkL.end();
+      for(; ipb!=ipbe;++ipb){
+        double tmpfR = (*ipb).perp();
+        if(tmpfR<fR) fR = tmpfR;
+      }
+      if(flag==1 && fR-vtxR<m_maxdR) pass = false;
+      
+      double PhiVtxTrk = fabs(vertex->position().phi() - perigee1.parameters()[Trk::phi0]);
+      if (PhiVtxTrk < -pi) PhiVtxTrk += twopi;
+      if (PhiVtxTrk >  pi) PhiVtxTrk -= twopi;
+      if (PhiVtxTrk>m_maxPhiVtxTrk) pass = false;
+    }
+    return pass;
+  }
+  
+  bool ConversionPostSelector::selectSecVtxCandidate(xAOD::Vertex * vertex, int flag,
+                                                     std::vector<Amg::Vector3D>& trkL, int& type){
+    bool pass = true;
+    bool isK0 = false;
+    bool isLambda = false;
+    bool isLambdaBar = false;
+    int kind = -1;
+    
+    //Determine the cuts
+    double maxChi2     = 1000.;
+    double fitMomentum = 0.;
+    double radius      = 1000.;
+    
+    if(flag==0) {
+      maxChi2     = m_maxChi2[0]    ; //Vertex fit chi2 cut
+      fitMomentum = m_fitMomentum[0]; //Photon fitted momentum
+      radius      = m_minRadius[0]  ; //Minimum acceptable radius of conversion vertex
+    }
+    if(flag==1) {
+      maxChi2     = m_maxChi2[1]    ; //Vertex fit chi2 cut
+      fitMomentum = m_fitMomentum[1]; //Photon fitted momentum
+      radius      = m_minRadius[1]  ; //Minimum acceptable radius of conversion vertex
+    }
+    if(flag==2) {
+      maxChi2     = m_maxChi2[2]    ; //Vertex fit chi2 cut
+      fitMomentum = m_fitMomentum[2]; //Photon fitted momentum
+      radius      = m_minRadius[2]  ; //Minimum acceptable radius of conversion vertex
+    }
+    
+    //chi2 cut
+   
+    if (vertex->nTrackParticles() != 2) {
+      ATH_MSG_DEBUG("Incorrect number of tracks used in conversion fit.");
+      pass = false;
+    } else {
+      float reducedChi2 = vertex->chiSquared()/vertex->numberDoF();
+      if (reducedChi2 > maxChi2) pass =  false;
+      
+      //Minimum radius cut
+      double vtxR = vertex->position().perp();
+      if(vtxR < radius) pass = false;
+      
+      // Not correct  fix in the future  -- should be track parameters at the vertex
+      const Trk::TrackParameters& perigee1 = vertex->trackParticle(0)->perigeeParameters();
+      const Trk::TrackParameters& perigee2 = vertex->trackParticle(1)->perigeeParameters();
+      //if(!perigee1 || ! perigee2) {pass=false; return pass;}
+      
+      double pt1 = perigee1.pT(); double pt2 = perigee2.pT();
+      if (pt1<m_minPt || pt2<m_minPt) pass = false;
+      
+      double fR = 1000.;
+      std::vector<Amg::Vector3D>::const_iterator ipb=trkL.begin();
+      std::vector<Amg::Vector3D>::const_iterator ipbe=trkL.end();
+      for(; ipb!=ipbe;++ipb){
+        double tmpfR = (*ipb).perp();
+        if(tmpfR<fR) fR = tmpfR;
+      }
+      if(flag==1 && fR-vtxR<m_maxdR) pass = false;
+      
+      //invariant mass. First assume K0, if failed assume Lambda
+      HepLorentzVector momentumK0 = fourP(perigee1,perigee2,m_massK0,false);
+      double inv_massK0 = momentumK0.m();
+      if (fabs(inv_massK0-m_massK0) <= m_nsig*m_sigmaK0) isK0 = true;
+      HepLorentzVector momentumL = fourP(perigee1,perigee2,m_massLambda,false);
+      double inv_massL = momentumL.m();
+      if (fabs(inv_massL-m_massLambda) <= m_nsig*m_sigmaLambda) isLambda = true;
+      HepLorentzVector momentumLb = fourP(perigee1,perigee2,m_massLambda,true);
+      double inv_massLb = momentumLb.m();
+      if (fabs(inv_massLb-m_massLambda) <= m_nsig*m_sigmaLambda) isLambdaBar = true;
+      if (!isLambdaBar && !isLambda && !isK0) pass = false;
+      HepLorentzVector momentum;
+      if(isK0 && isLambda && !isLambdaBar)  {momentum = momentumK0; kind = 110;}
+      if(isK0 && isLambdaBar && !isLambda)  {momentum = momentumK0; kind = 101;}
+      if(isK0 && !isLambda && !isLambdaBar) {momentum = momentumK0; kind = 100;}
+      if(!isK0 && isLambda && !isLambdaBar) {momentum = momentumL;  kind = 10;}
+      if(!isK0 && isLambdaBar && !isLambda) {momentum = momentumLb; kind = 1;}
+      if(!isK0 && isLambda && isLambdaBar)  {momentum = momentumL;  kind = 11;}
+      double particleP = sqrt(momentum.x()*momentum.x() + momentum.y()*momentum.y());
+      if (particleP < fitMomentum) pass = false;
+    }
+    type = kind;
+    return pass;
+  }
+  
+  HepLorentzVector ConversionPostSelector::
+  fourP(const Trk::TrackParameters& per1,const Trk::TrackParameters& per2,double mass, bool isBar){
+    HepLorentzVector momentum;
+    Amg::Vector3D sum_mom = per1.momentum() + per2.momentum();
+    double mp1 = 0.; double mp2 = 0.;
+    if(mass==m_massK0) {
+      mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+      mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+    }else{
+      if(!isBar){
+        if(per1.charge()>0) {
+          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+        } else {
+          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+        }
+      }else{
+        if(per1.charge()>0) {
+          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+        } else {
+          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+        }
+      }
+    }
+    double ee = sqrt(mp1 +  per1.momentum().mag2()) + sqrt(mp2 +  per2.momentum().mag2());
+    momentum.setPx(sum_mom.x()); momentum.setPy(sum_mom.y()); momentum.setPz(sum_mom.z()); momentum.setE(ee);
+    return momentum;
+  }
+}
