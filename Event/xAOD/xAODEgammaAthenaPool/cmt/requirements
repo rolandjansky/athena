@@ -1,5 +1,5 @@
 package xAODEgammaAthenaPool
-# $Id: requirements 614830 2014-09-03 09:41:57Z krasznaa $
+# $Id: requirements 615003 2014-09-04 08:42:14Z krasznaa $
 
 author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
@@ -13,7 +13,7 @@ private
 
 # Base package(s):
 use GaudiInterface      GaudiInterface-*      External
-use AthContainers       AthContainers-*       Control
+use AthenaKernel        AthenaKernel-*        Control
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL

@@ -2,20 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODPhotonAuxContainerCnv.cxx 614855 2014-09-03 11:42:57Z krasznaa $
+// $Id: xAODPhotonAuxContainerCnv.cxx 615003 2014-09-04 08:42:14Z krasznaa $
 
 // System include(s):
 #include <exception>
 #include <memory>
 
-// Core EDM include(s):
-#include "AthContainers/tools/copyAuxStoreThinned.h"
-
 // EDM include(s):
+#define protected public
+#define private public
 #include "xAODEgamma/versions/PhotonAuxContainer_v1.h"
+#undef private
+#undef protected
 
 // Local include(s):
 #include "xAODPhotonAuxContainerCnv.h"
+#include "copyAux.h"
 
 xAODPhotonAuxContainerCnv::xAODPhotonAuxContainerCnv( ISvcLocator* svcLoc )
    : xAODPhotonAuxContainerCnvBase( svcLoc ) {
@@ -51,7 +53,7 @@ xAOD::PhotonAuxContainer* xAODPhotonAuxContainerCnv::createTransient() {
 
       // Copy the payload of the v1 object into the v2 one by misusing
       // the thinning code a bit...
-      SG::copyAuxStoreThinned( *old, *result, 0 );
+      copyAux( old.get(), result, old->vertexLinks.size() );
 
       // Return the new object:
       return result;
