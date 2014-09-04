@@ -1,0 +1,1 @@
+#include "TrigInterfaces/AlgoConfig.h"

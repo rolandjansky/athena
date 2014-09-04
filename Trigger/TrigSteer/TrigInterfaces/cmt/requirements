@@ -1,0 +1,42 @@
+package TrigInterfaces
+author Gianluca Comune <Gianluca.Comune@cern.ch>
+
+public
+
+use AtlasPolicy         AtlasPolicy-*
+use StoreGate           StoreGate-*                  Control
+use GaudiInterface      GaudiInterface-*             External
+use AthenaBaseComps     AthenaBaseComps-*            Control
+use AtlasBoost          AtlasBoost-*                 External
+use AthenaMonitoring    AthenaMonitoring-*           Control
+use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
+
+
+use DataModel           DataModel-*		     Control
+use DataCollection      DataCollection-*             External
+
+
+# this is for linkage only
+# use TrigParticle    TrigParticle-*                Trigger/TrigEvent
+# use TrigCaloEvent   TrigCaloEvent-*               Trigger/TrigEvent
+# use TrigMuonEvent   TrigMuonEvent-*               Trigger/TrigEvent
+# use TrigCosmicEvent TrigCosmicEvent-*             Trigger/TrigEvent
+# use TrigInDetEvent  TrigInDetEvent-*              Trigger/TrigEvent
+
+
+apply_pattern dual_use_library files=*.cxx
+
+use TrigNavigation      TrigNavigation-*             Trigger/TrigEvent
+use TrigStorageDefinitions      TrigStorageDefinitions-*             Trigger/TrigEvent
+
+
+private
+
+use AthenaKernel        AthenaKernel-*               Control
+use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
+
+# UnitTest programs
+
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=Templates extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=MonitoredAlgo extrapatterns=".*"
