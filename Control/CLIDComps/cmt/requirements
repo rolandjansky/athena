@@ -16,7 +16,7 @@ apply_pattern component_library_no_genCLIDDB
 
 apply_pattern declare_scripts files="clid ../test/_clid_unittest.py"
 apply_pattern declare_python_modules files="*.py"
-apply_pattern declare_runtime files="Gaudi_clid.db"
+apply_pattern declare_runtime files="Gaudi_clid.db clid_v1.db"
 
 private
 use TestTools       TestTools-*          AtlasTest
