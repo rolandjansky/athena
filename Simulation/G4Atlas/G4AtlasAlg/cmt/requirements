@@ -1,0 +1,35 @@
+package G4AtlasAlg
+
+author Andrea DellAcqua <dellacqu@mail.cern.ch>
+
+branches src cmt doc
+
+use AtlasPolicy      AtlasPolicy-*
+use AthenaBaseComps  AthenaBaseComps-*   Control
+use AthenaKernel     AthenaKernel-*      Control
+use GaudiInterface   GaudiInterface-*    External
+use Geant4           Geant4-*            External
+use FadsActions      FadsActions-*       Simulation/G4Sim/FADS
+use FadsKinematics   FadsKinematics-*    Simulation/G4Sim/FADS
+
+private
+use AtlasHepMC       AtlasHepMC-*        External
+use MCTruth          MCTruth-*           Simulation/G4Sim
+use FadsGeometry     FadsGeometry-*      Simulation/G4Sim/FADS
+use FadsPhysics      FadsPhysics-*       Simulation/G4Sim/FADS
+use GeneratorObjects GeneratorObjects-*  Generators
+use SimHelpers       SimHelpers-*        Simulation/G4Sim
+use StoreGate        StoreGate-*         Control
+use SGTools          SGTools-*           Control
+use GeoModelInterfaces  GeoModelInterfaces-*       DetectorDescription/GeoModel
+use EventInfo        EventInfo-*         Event 
+end_private
+
+# build a dual_use library
+apply_pattern dual_use_library files=*.cxx
+
+#private
+#apply_pattern lcgdict dict=G4AtlasAlg \
+#  headerfiles="../G4AtlasAlg/G4AtlasAlg.h" \
+#  selectionfile=selection.xml
+#end_private
