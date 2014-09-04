@@ -1,0 +1,131 @@
+#include "AthExStoreGateExample/SGRead.h"
+
+#include "MyDataObj.h"
+#include "LinkObj.h"
+#include "Tutorial_ClassDEF.h"
+
+#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+#include "StoreGate/DataLink.h"
+#include "StoreGate/tools/STLlinks.h" 
+
+#include "StoreGate/StoreGateSvc.h"
+
+using namespace SGTutorial;
+
+static const AlgFactory<SGRead>    Factory;
+const IAlgFactory& SGReadFactory = Factory;
+
+/////////////////////////////////////////////////////////////////////////////
+
+SGRead::SGRead(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator)
+{
+  
+  // Declare the properties
+  // Key of the Data Object in the TDS:
+  declareProperty("DataObjKey", m_DataObjKey);
+
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+StatusCode SGRead::initialize()
+{
+
+  ATH_MSG_INFO ("in initialize()");
+
+  // Print out the key of the data objects
+
+  ATH_MSG_INFO ("Data Object key: " << m_DataObjKey);
+
+  StatusCode sc = evtStore().retrieve();
+  if (sc.isFailure())
+    {
+      ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGate Service");
+      return sc;
+    }
+
+
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+StatusCode SGRead::execute() 
+{
+
+  ATH_MSG_INFO ("in execute()");
+
+  /////////////////////////////////////////////////////////////////////
+  // PART1  Objective: 
+  // Retrieve the Data Object "MyDataObj" from SG (which was
+  // registered in SG by the SGWrite algorithm.
+  // Write out the value set in the MyDataObj
+  /////////////////////////////////////////////////////////////////////
+
+  const DataHandle<MyDataObj> dobj;
+  if (!(evtStore()->retrieve(dobj, m_DataObjKey)).isSuccess()) {
+    ATH_MSG_ERROR ("Could not find DataObject");
+    return( StatusCode::FAILURE);
+  }
+
+  // Print out the value:
+  ATH_MSG_INFO 
+    (" Retrieved MyDataObj "<< m_DataObjKey << " Val: " << dobj->val());
+
+
+  /////////////////////////////////////////////////////////////////////
+  // PART2  Objective: 
+  // Retrieve the Collection of MyElement objects from the SG which was
+  // registered in SG by the SGWrite algorithm.
+  // Iterate over the collection to gain access to MyElement.
+  // Write out the value set in MyElement.
+  /////////////////////////////////////////////////////////////////////
+
+  const DataHandle<std::vector<MyElement> > coll;
+  if (!evtStore()->retrieve(coll).isSuccess()) {
+  // coll is equivalent to a pointer to a vector<MyElement>
+    ATH_MSG_ERROR ("can't retrieve default std::vector<MyElement>");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_INFO ("retrieved default std::vector<MyElement>. It contains " 
+		  << coll->size() << " elements ");
+  }
+
+  // Iterate over the collection and dump contents:
+  for (std::vector<MyElement>::size_type i=0; i<coll->size(); ++i)   {
+    ATH_MSG_INFO ("MyElement[" << i <<"] :" << (*coll)[i]);
+  }
+
+  /////////////////////////////////////////////////////////////////////
+  // PART3  Objective: 
+  // Retrieve LinkObj and dump its content.
+  // LinkObj contains a DataLink to MyDataObj and a DataLink to a MyElement
+  // in a vector. It provides an accessor method myLinkedObj() that returns
+  // a reference to the linked MyDataObj.
+  // Another accessor myLinkedElement() returns a reference to the linked
+  // MyElement.
+  // Verify that the contents (time and id) match with the 
+  // direct-dump of MyDataObj in PART1 and MyElement[0] in PART2.
+  /////////////////////////////////////////////////////////////////////
+
+  const DataHandle<LinkObj> linkObj;
+  if (evtStore()->retrieve(linkObj).isFailure()) {
+  // linkObj is equivalent to a pointer to a LinkObj
+    ATH_MSG_ERROR ("can't retrieve default LinkObj");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_INFO ("retrieved default LinkObj:\n" << *linkObj);
+  }
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+StatusCode SGRead::finalize() 
+{
+  ATH_MSG_INFO ("in finalize()");
+  return StatusCode::SUCCESS;
+}

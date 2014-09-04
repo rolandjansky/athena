@@ -1,0 +1,174 @@
+#include "AthExStoreGateExample/SGWrite.h"
+
+#include "MyDataObj.h"
+#include "LinkObj.h"
+#include "Tutorial_ClassDEF.h"
+
+#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+#include "StoreGate/DataLink.h"
+#include "StoreGate/tools/STLlinks.h" 
+
+#include "StoreGate/StoreGateSvc.h"
+
+using namespace SGTutorial;
+
+static const AlgFactory<SGWrite>    Factory;
+const IAlgFactory& SGWriteFactory = Factory;
+
+/////////////////////////////////////////////////////////////////////////////
+// CONSTRUCTOR:
+
+SGWrite::SGWrite(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator), m_DataObjKey("foo")
+{
+  
+  // Declare the properties
+  // Get key to be given to Data Objects in TDS
+
+  declareProperty("DataObjKey", m_DataObjKey);
+
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+StatusCode SGWrite::initialize()
+{
+
+  ATH_MSG_INFO ("in initialize()");
+
+  // Print out the key of the data objects
+
+  ATH_MSG_INFO ("MyDataObj key: " << m_DataObjKey);
+
+  StatusCode sc = evtStore().retrieve();
+  if (sc.isFailure())
+  {
+    ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGate Service");
+    return sc;
+  }
+
+  return StatusCode::SUCCESS;
+
+
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+StatusCode SGWrite::execute() {
+
+  ATH_MSG_INFO ("in execute()");
+
+  /////////////////////////////////////////////////////////////////////
+  // PART1  Objective: 
+  // Create a Data Object "MyDataObj" and record it in the TDS
+  /////////////////////////////////////////////////////////////////////
+
+  MyDataObj *pdobj = new MyDataObj;     // Create a DataObject
+  pdobj->val(42);                       // Set its internal state
+
+  // Register "MyDataObj" 
+  StatusCode sc = evtStore()->record(pdobj, m_DataObjKey);
+  if ( sc.isFailure() ) 
+  {
+    ATH_MSG_ERROR (" could not register object " << m_DataObjKey);
+    return StatusCode::FAILURE;
+  }
+  // set it as constant so that nobody can modify it anymore
+  // this will also allow the object to be persistified later on
+  sc = evtStore()->setConst(pdobj);
+  if ( sc.isFailure() ) 
+  {
+    ATH_MSG_ERROR (" could not setConst object @" << pdobj);
+    return StatusCode::FAILURE;
+  }
+  
+
+  /////////////////////////////////////////////////////////////////////
+  // PART2  Objective: 
+  // Create a collection of objects : "MyElement".  Note that "MyElement"
+  // does not inherits from ContainedObject.  Push MyElement into a
+  // collection:  std::vector<MyElement>.
+  // Register the std::vector<MyElement> into the StoreGate:
+  /////////////////////////////////////////////////////////////////////
+
+ 
+  std::vector<MyElement>* pcoll = new std::vector<MyElement>;
+
+  pcoll->push_back(MyElement(50.0, 132)); 
+  pcoll->push_back(MyElement(60.45, 291)); 
+
+  // Register vector of "MyElement" 
+  sc = evtStore()->record(pcoll);
+  if ( sc.isFailure() ) 
+  {
+    ATH_MSG_ERROR (" could not register collection as default");
+    return StatusCode::FAILURE;
+  }
+  // set it as constant so that nobody can modify it anymore
+  // this will also allow the object to be persistified later on
+  sc = evtStore()->setConst(pcoll);
+  if ( sc.isFailure() ) 
+  {
+    ATH_MSG_ERROR (" could not setConst collection @" << pcoll);
+    return StatusCode::FAILURE;
+  }
+
+  /////////////////////////////////////////////////////////////////////
+  // PART3  Objective: 
+  // Set up DataLinks .  Each instance of LinkObj contains a link
+  // to a MyDataObj and one to a MyElement; 
+  // Create data links for both and set them in a LinkObj object 
+  // using the setObjLink and setContLink methods.
+  // We will use the DataLinks in LinkObj later in SGRead to ensure that it
+  // does return the correct objects they point to.
+  /////////////////////////////////////////////////////////////////////
+
+  LinkObj* pLinkObj = new LinkObj();
+
+  // set the link to a MyDataObj
+  pLinkObj->setObjLink(*pdobj);
+
+  //set the link to the first element of the collection
+  pLinkObj->setContLink(*pcoll, 0);
+
+  //set the link to the referenced element of the collection
+  //  pLinkObj->setContLink(*pcoll, *pdobj);
+
+  // Register it in TDS:
+
+  sc = evtStore()->record(pLinkObj);
+  if (sc.isFailure() ) 
+  {
+    ATH_MSG_ERROR (" could not register the LinkObj");
+    return( StatusCode::FAILURE );
+  }
+
+  // set it as constant so that nobody can modify it anymore
+  // this will also allow the object to be persistified later on
+  sc = evtStore()->setConst(pLinkObj);
+  if ( sc.isFailure() ) 
+  {
+    ATH_MSG_ERROR (" could not setConst the LinkObj @" << pcoll);
+    return StatusCode::FAILURE;
+  }
+
+
+  /////////////////////////////////////////////////////////////////////
+  // We are DONE!
+  /////////////////////////////////////////////////////////////////////
+
+  ATH_MSG_INFO ("registered all data");
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+StatusCode SGWrite::finalize() 
+{
+  ATH_MSG_INFO ("in finalize()");
+  return StatusCode::SUCCESS;
+}
+
+

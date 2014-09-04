@@ -1,0 +1,47 @@
+//##############################################################
+//
+// AthExStoreGateExample Job options file reading Generated events
+//
+//==============================================================
+
+//no EventSelector
+#include "AthenaCommon/Atlas.UnixStandardJob.txt"
+
+//--------------------------------------------------------------
+// Private Application Configuration options
+//--------------------------------------------------------------
+
+//load relevant libraries
+ApplicationMgr.DLLs += { "AthExStoreGateExample" };
+
+//top algorithms to be run
+ApplicationMgr.TopAlg = { "WriteData", "ReadData" };
+
+//--------------------------------------------------------------
+// Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+//--------------------------------------------------------------
+
+StoreGateSvc.OutputLevel      = 2;
+MessageSvc.useColors        = true;
+
+StoreGateSvc.Dump = false;  //true will dump data store contents
+
+//--------------------------------------------------------------
+// Event related parameters
+//--------------------------------------------------------------
+// dummy event loop
+ApplicationMgr.EvtSel = "NONE";
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtMax = 3;
+
+//--------------------------------------------------------------
+// Algorithms Private Options
+//--------------------------------------------------------------
+ReadData.DataProducer = "WriteData";
+
+//==============================================================
+//
+// End of AthExStoreGateExample Job options file
+//
+//##############################################################
+

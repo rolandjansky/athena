@@ -1,0 +1,16 @@
+#include "../DFlowAlg1.h"
+#include "../DFlowAlg2.h"
+#include "../DFlowAlg3.h"
+
+#include "GaudiKernel/DeclareFactoryEntries.h"
+
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthEx, DFlowAlg1 )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthEx, DFlowAlg2 )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthEx, DFlowAlg3 )
+
+DECLARE_FACTORY_ENTRIES(AthExDFlow) {
+
+    DECLARE_NAMESPACE_ALGORITHM( AthEx, DFlowAlg1 )
+    DECLARE_NAMESPACE_ALGORITHM( AthEx, DFlowAlg2 )
+    DECLARE_NAMESPACE_ALGORITHM( AthEx, DFlowAlg3 )
+}
