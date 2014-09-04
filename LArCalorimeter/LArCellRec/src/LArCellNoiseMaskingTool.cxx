@@ -1,0 +1,161 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/********************************************************************
+
+NAME:     LArCellNoiseMaskingTool
+PACKAGE:  offline/Calorimeter/LArCellRec
+
+AUTHORS: G.Unal
+CREATION:  4 feb 2009
+
+PURPOSE:
+
+********************************************************************/
+
+#include "LArCellRec/LArCellNoiseMaskingTool.h"
+
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ListItem.h"
+
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "Identifier/Identifier.h"
+
+/////////////////////////////////////////////////////////////////////
+// CONSTRUCTOR:
+/////////////////////////////////////////////////////////////////////
+
+LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
+			     const std::string& type, 
+			     const std::string& name, 
+			     const IInterface* parent)
+  :AlgTool(type, name, parent),
+   m_maskingTool(""),
+   m_maskingSporadicTool(""),
+   m_qualityCut(65536),
+   m_maskNoise(true),
+   m_maskSporadic(true)
+{ 
+  declareInterface<ICaloCellMakerTool>(this); 
+  declareProperty("MaskingTool",m_maskingTool,"Tool handle for noisy/dead channel masking");
+  declareProperty("MaskingSporadicTool",m_maskingSporadicTool,"Tool handle for sporadic noisy channel masking");
+  declareProperty("qualityCut",m_qualityCut,"Quality cut for sporadic noise channel");
+  declareProperty("maskNoise",m_maskNoise,"Flag to mask high Noise / dead channels");
+  declareProperty("maskSporadic",m_maskSporadic,"Flag to mask sporadic noise channels");
+  m_caloNums.clear();
+  m_caloNums.push_back( static_cast<int>(CaloCell_ID::LAREM) );
+  m_caloNums.push_back( static_cast<int>(CaloCell_ID::LARHEC) );
+  m_caloNums.push_back( static_cast<int>(CaloCell_ID::LARFCAL) );
+
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////
+// INITIALIZE:
+// The initialize method will create all the required algorithm objects
+/////////////////////////////////////////////////////////////////////
+
+StatusCode LArCellNoiseMaskingTool::initialize()
+{
+  MsgStream  log(msgSvc(),name());
+ 
+
+  if (!m_maskingTool.empty()) {
+    if (m_maskingTool.retrieve().isFailure()) {
+      log << MSG::ERROR
+               << "No tool for bad channel masking"
+               << endreq; 
+       return StatusCode::FAILURE;
+    }
+   log << MSG::INFO << " Cell masking for noise/dead channels activated using bad channel masking tool " << endreq;
+  }
+  else {
+    log << MSG::INFO << " Cell masking for noise/dead channels not activated " << endreq;
+  }
+
+  if (!m_maskingSporadicTool.empty()) {
+    if (m_maskingSporadicTool.retrieve().isFailure()) {
+      log << MSG::ERROR
+               << "No tool for sporadic noise channel masking"
+               << endreq; 
+       return StatusCode::FAILURE;
+    }
+   log << MSG::INFO << " Cell masking for sporadic noise activated using  masking tool " << endreq;
+  }
+  else {
+    log << MSG::INFO << " Cell masking for sporadic noise not activated " << endreq;
+  }
+
+
+
+
+  return StatusCode::SUCCESS;
+
+}
+
+StatusCode LArCellNoiseMaskingTool::process(CaloCellContainer * theCont )
+{
+	
+  MsgStream  log(msgSvc(),name());
+
+  StatusCode returnSc = StatusCode::SUCCESS ;
+
+  if (!m_maskNoise && !m_maskSporadic) return returnSc;
+
+  bool sporadicMask = !m_maskingSporadicTool.empty() && m_maskSporadic;
+  bool noiseMask    = !m_maskingTool.empty() && m_maskNoise;
+
+  bool debugPrint = false;
+  if (log.level() <= MSG::DEBUG ) debugPrint=true;
+
+  for (std::vector<int>::const_iterator itrCalo=m_caloNums.begin();itrCalo!=m_caloNums.end();++itrCalo){
+      CaloCell_ID::SUBCALO caloNum=static_cast<CaloCell_ID::SUBCALO>(*itrCalo);
+      CaloCellContainer::iterator itrCell=theCont->beginCalo(caloNum);
+      CaloCellContainer::iterator itrCellEnd=theCont->endCalo(caloNum);
+
+      for (; itrCell!=itrCellEnd;++itrCell){
+          CaloCell * aCell=*itrCell;
+          Identifier cellId = aCell->ID();
+
+          bool toMask = false;
+
+// sporadic noise masking using quality cut.   Logic could be improved using neighbour information...
+          if (sporadicMask) {
+              if (aCell->quality() > m_qualityCut) {
+                  if (m_maskingSporadicTool->cellShouldBeMasked(cellId)) {
+                      toMask=true;
+                      if(debugPrint) log << MSG::DEBUG << " Mask sporadic noise cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality() << endreq;
+                  }
+              }      
+          }
+
+// high noise / dead channel masking
+          if (noiseMask) {
+             if (m_maskingTool->cellShouldBeMasked(cellId)) {
+                 toMask=true;
+                 if(debugPrint) log << MSG::DEBUG << " Mask highNoise/dead  cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality() << endreq;
+             }
+          }
+
+
+          if (toMask) {
+              aCell->setEnergy(0.);
+              aCell->setTime(0.);
+              uint16_t qua=0;
+              aCell->setQuality(qua);
+              uint16_t provenance = (aCell->provenance() | 0x0800);
+              aCell->setProvenance(provenance);
+          }
+
+      }
+  }
+
+
+  return returnSc ;
+}
