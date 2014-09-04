@@ -529,7 +529,7 @@ void CategoryIdFilter<T>::setFilter( const IFilterCuts * filter )
       log << MSG::ERROR
 	  << "Can't dynamic_cast " << typeid(filter).name() 
 	  << " to a CategoryIdFilter"
-	  << endmsg;
+	  << endreq;
     }
   } //> filter is not a NULL pointer
 }

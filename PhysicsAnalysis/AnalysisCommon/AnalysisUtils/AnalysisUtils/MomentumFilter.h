@@ -477,13 +477,13 @@ void MomentumFilter<T>::setFilter( const IFilterCuts * filter )
 	log << MSG::ERROR
 	    << "Can't dynamic_cast " << typeid(filter).name() 
 	    << " to a MomentumFilter"
-	    << endmsg;
+	    << endreq;
       }
     } catch (...) {
       MsgStream log( Athena::getMessageSvc(), "MomentumFilter" );
       log << MSG::ERROR
 	  << "Can't dynamic_cast " << filter << " to a MomentumFilter"
-	  << endmsg;
+	  << endreq;
     }
   } //> filter is a valid pointer
 }

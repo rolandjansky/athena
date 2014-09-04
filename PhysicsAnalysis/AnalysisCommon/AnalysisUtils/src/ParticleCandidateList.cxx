@@ -37,11 +37,11 @@ bool ParticleCandidateList::hasInList( const PDG::pidType& pdgID,
 {
   msg() << MSG::VERBOSE
 	<< "In ParticleCandidateList::hasInList( pdgID ) : " << this
-	<< endmsg
-	<< "Size of List = " << size() << endmsg;
+	<< endreq
+	<< "Size of List = " << size() << endreq;
   if ( size() <= unsigned(0) ) {
     static const std::string error( "List size <=0 !!" );
-    msg() << MSG::ERROR << error << endmsg;
+    msg() << MSG::ERROR << error << endreq;
     throw GaudiException( error, "ParticleCandidateList", 
 			  StatusCode::FAILURE );
   }
@@ -50,12 +50,12 @@ bool ParticleCandidateList::hasInList( const PDG::pidType& pdgID,
 	itrPart != m_list.end();
 	++itrPart ) {//> Loop over the list of intern particles
     msg() << MSG::VERBOSE
-	  << "in loop over list of intern particle candidates" << endmsg
-	  << "\t>>>Comparing pid-s..." << endmsg;
+	  << "in loop over list of intern particle candidates" << endreq
+	  << "\t>>>Comparing pid-s..." << endreq;
     if ( tightMatch && ( (*itrPart) == pdgID ) ) {
       msg() << MSG::VERBOSE
 	    << ">>> " << pdgID << " is in list (" << (*itrPart) << ")"
-	    << endmsg;
+	    << endreq;
       return true;
     } else if ( !tightMatch && 
 		std::abs( (*itrPart) ) == std::abs( pdgID ) ) {
@@ -69,16 +69,16 @@ bool ParticleCandidateList::hasInList( const PDG::pidType& pdgID,
 void ParticleCandidateList::dropList() const
 {
   msg() << MSG::VERBOSE
-	<< "---------------------------------------------------" << endmsg
-	<< "Added those particles : " << endmsg;
+	<< "---------------------------------------------------" << endreq
+	<< "Added those particles : " << endreq;
   for ( ParticleCandidateList::const_iterator itrPart = m_list.begin();
 	itrPart != m_list.end();
 	++itrPart ) {
-    msg() << MSG::VERBOSE << "\tpdgID= " << (*itrPart) << endmsg;
+    msg() << MSG::VERBOSE << "\tpdgID= " << (*itrPart) << endreq;
   }
 
   msg() << MSG::VERBOSE 
-	<< "---------------------------------------------------" << endmsg;
+	<< "---------------------------------------------------" << endreq;
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -105,7 +105,7 @@ void ParticleCandidateList::addLeptons()
 void ParticleCandidateList::addLightJets()
 {
   //MsgStream log( Athena::getMessageSvc(), "ParticleCandidateList" );
-  //log <<MSG::DEBUG << "pushing_back into list..." << endmsg;
+  //log <<MSG::DEBUG << "pushing_back into list..." << endreq;
 
   /// To cope with Full Reconstruction scheme :
   /// a light-jet, is a jet which could not have been tagged
@@ -125,7 +125,7 @@ void ParticleCandidateList::addLightJets()
 void ParticleCandidateList::addLightQuarks()
 {
   //MsgStream log( Athena::getMessageSvc(), "ParticleCandidateList" );
-  //log <<MSG::DEBUG << "pushing_back into list..." << endmsg;
+  //log <<MSG::DEBUG << "pushing_back into list..." << endreq;
   m_list.push_back( PDG::d      ); //> d
   m_list.push_back( PDG::anti_d ); //> d_bar
   m_list.push_back( PDG::u      ); //> u
@@ -139,7 +139,7 @@ void ParticleCandidateList::addLightQuarks()
 void ParticleCandidateList::add( const std::string& list )
 {
   msg() << MSG::VERBOSE
-	<< "add( " << list << " )" << endmsg;
+	<< "add( " << list << " )" << endreq;
   if ( list == "LightQuarks" )    addLightQuarks();
   else if ( list == "BQuark" )    addBQuark();
   else if ( list == "BbarQuark" ) addBbarQuark();
@@ -152,7 +152,7 @@ void ParticleCandidateList::add( const std::string& list )
   else if ( list == "Z0" )        addZBoson();
   else {
     static const std::string error( "Unknown Candidate List Name !!" );
-    msg() << MSG::ERROR << error << endmsg;
+    msg() << MSG::ERROR << error << endreq;
     throw GaudiException( error, "ParticleCandidateList", 
 			  StatusCode::FAILURE );
   }
