@@ -1,0 +1,62 @@
+//##############################################################
+//
+// Job options file for testing ParticleGenerator.
+//
+//==============================================================
+
+#include "AthenaCommon/Atlas_Gen.UnixStandardJob.txt"
+#include "PartPropSvc/PartPropSvc.txt"
+
+//--------------------------------------------------------------
+// Private Application Configuration options
+//--------------------------------------------------------------
+//load relevant libraries
+
+ApplicationMgr.DLLs  += { "CosmicGenerator","TruthExamples" };      
+ApplicationMgr.TopAlg = { "CosmicGenerator","DumpMC" };
+
+// The following is needed to load the Athena Random
+// Number Generation Service.
+ApplicationMgr.ExtSvc += {"AtRndmGenSvc"};
+AtRndmGenSvc.Seeds = {"SINGLE 2040160768 443921183"};
+// AtRndmGenSvc.ReadFromFile = true;
+
+//--------------------------------------------------------------
+// Set output level threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+//--------------------------------------------------------------
+
+MessageSvc.OutputLevel      = 1;
+
+//--------------------------------------------------------------
+// Event related parameters
+//--------------------------------------------------------------
+
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtMax = 20;
+StoreGateSvc.Dump = false;
+
+//--------------------------------------------------------------
+// CosmicGenerator parameters
+//--------------------------------------------------------------
+//
+// Note that in this coordinate frame the y-axis points upward
+// such that the cosmics arrive from upward to downward in y.
+// The production vertex of cosmics is randomly distributed (flat)
+// in the x-z plane with boundaries given below.
+// The energy range is given as well.
+// Note that the energy is given in MeV and distances in mm
+//
+CosmicGenerator.emin = 300000;
+CosmicGenerator.emax = 310000;
+CosmicGenerator.xvert_low =   -100.;
+CosmicGenerator.xvert_hig =    100.;
+CosmicGenerator.zvert_low =      0.;
+CosmicGenerator.zvert_hig =    500.;
+CosmicGenerator.yvert_val =  50000.;
+CosmicGenerator.OptimizeForSR1 = true;
+//==============================================================
+//
+// End of job options file
+//
+//##############################################################
+
