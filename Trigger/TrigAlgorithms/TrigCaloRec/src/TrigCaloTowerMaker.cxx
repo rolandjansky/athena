@@ -172,17 +172,10 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
   
   const IRoiDescriptor*    roiDescriptor = 0;
   const TrigRoiDescriptor* tmproi   = 0;
-  //  const TrigSuperRoi*      superroi = 0;
 
-  //  HLT::ErrorCode sc = getFeature(inputTE, superroi, ""); 
-  //  if (sc == HLT::OK && superroi ) { 
-  //    roiDescriptor = superroi;
-  //  }
-  //  else { 
   HLT::ErrorCode sc = getFeature(inputTE, tmproi, "");
   if (sc != HLT::OK || tmproi==0 ) return sc;
   roiDescriptor = tmproi;
-  //  }    
 
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << " RoI id " << roiDescriptor->roiId()
@@ -190,7 +183,13 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
 	  << ", eta = " << roiDescriptor->eta() << endreq;
     
   /// ho hum, this needs a flag for using own wdiths rather than those from the roiDescriptor  
+  /// in addition, this will *not* work properly for composite RoIs
     
+  if ( roiDescriptor->composite() ) { 
+    msg() << MSG::WARNING << " Attempting to use composite RoI as a normal RoI - this is probably *not* what you want to do "
+	  << *roiDescriptor << endreq;
+  }
+  
   double   eta0 = roiDescriptor->eta();
   double   phi0 = roiDescriptor->phi();
       

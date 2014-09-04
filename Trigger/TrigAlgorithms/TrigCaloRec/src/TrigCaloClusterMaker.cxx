@@ -25,7 +25,6 @@
 //
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigSuperRoi.h"
 //
 #include "CaloEvent/CaloCellContainer.h"
 //
@@ -213,24 +212,13 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
 
   const IRoiDescriptor*    roiDescriptor = 0;
   const TrigRoiDescriptor* tmproi = 0;
-  const TrigSuperRoi*      superroi = 0;
 
-  HLT::ErrorCode sc = getFeature(inputTE, superroi, ""); 
-  if (sc == HLT::OK && superroi ) { 
-    roiDescriptor = superroi;
-  }
-  else { 
-    sc = getFeature(inputTE, tmproi, ""); 
-    if (sc != HLT::OK || tmproi==0 ) return sc;
-    roiDescriptor = tmproi;
-  }
-
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " RoI id " << roiDescriptor->roiId()
-	  << " located at   phi = " <<  roiDescriptor->phi()
-	  << ", eta = " << roiDescriptor->eta() << endreq;
+  HLT::ErrorCode sc = getFeature(inputTE, tmproi, ""); 
+  if (sc != HLT::OK || tmproi==0 ) return sc;
+  roiDescriptor = tmproi;
   
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "roi " << *roiDescriptor << endreq;
+
 #if 0
   if (msgLvl() <= MSG::DEBUG) {
     double   eta0 = roiDescriptor->eta();
@@ -429,6 +417,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   std::stringstream strm; strm << roiDescriptor->roiId();
   m_pCaloClusterContainer->setROIAuthor(m_clustersOutputName + "_" + strm.str());
 #endif
+
   // record and lock the Clusters Container with the new EDM helper... 
   bool status = CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
                                                         clusterCollKey, msg());

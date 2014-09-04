@@ -24,7 +24,6 @@
 //
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigSuperRoi.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 //
 #include "CaloEvent/CaloCellContainer.h"
@@ -225,28 +224,16 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
 #endif
    
    // Get RoiDescriptor
-
   //  bool createdRoI = false;
-
-  const IRoiDescriptor* roiDescriptor = 0;
-
-  const TrigSuperRoi*      superRoi = 0;
   const TrigRoiDescriptor* tmpRoi   = 0;
-
-  HLT::ErrorCode sc = getFeature(inputTE, superRoi, "");
+  HLT::ErrorCode sc = getFeature(inputTE, tmpRoi, ""); 
+  if (sc != HLT::OK || tmpRoi==0 ) return sc;
   
-  if ( sc == HLT::OK && superRoi ) { 
-    roiDescriptor = superRoi;
-  }
-  else { 
-    sc = getFeature(inputTE, tmpRoi, ""); 
-    
-    if (sc != HLT::OK || tmpRoi==0 ) return sc;
-    
-    roiDescriptor = tmpRoi;
-    
+  const IRoiDescriptor* roiDescriptor = tmpRoi;
+
+  if ( !roiDescriptor->composite() )  { 
     if ( !m_trustRoiLimits ){ 
-     
+      
       double   eta0 = roiDescriptor->eta();
       /// don't really need to wrap phi, as the RoI does it anyway, so phi
       /// from the RoI should always be wrapped anyway
@@ -260,7 +247,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       //   while (phi0 <-M_PI) phi0 += 2. * M_PI;
       
       // set up the sampling windows (only for samp2??):
-    
+      
       //double etamin = std::max(-2.5,eta0-(m_detas2*(float)m_neta)/2.);
       //double etamax = std::min( 2.5,eta0+(m_detas2*(float)m_neta)/2.);
       double etamin = eta0-(m_detas2*(float)m_neta)/2.;
@@ -276,7 +263,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       //  while (phimax > M_PI) phimax -= 2. * M_PI;
       //  while (phimax <-M_PI) phimax += 2. * M_PI;
       
-    
+      
 #ifndef NDEBUG
       if (msgLvl() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << " eta0 = "<< eta0 << endreq;
@@ -301,13 +288,11 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   
 #ifndef NDEBUG
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: RoI id " << roiDescriptor->roiId()
-	  << " located at   phi = " <<  roiDescriptor->phi()
-	  << ", eta = " << roiDescriptor->eta() << endreq;
+    msg() << MSG::DEBUG << " REGTEST: RoI id " << *roiDescriptor << roiDescriptor->eta() << endreq;
 #endif
   
 
-//if (timerSvc()) m_timer[1]->start(); // Measures the time to retrieve the cells in the RoI
+  //if (timerSvc()) m_timer[1]->start(); // Measures the time to retrieve the cells in the RoI
 
   // The CellContainer is not the cell owner (SG::VIEW_ELEMENTS)...
   //CaloCellContainer* pCaloCellContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
@@ -449,15 +434,23 @@ else {
 
   /// create and attache an RoI for the ID Trigger
   if ( m_createRoiForID ) {
+
+    if ( roiDescriptor->composite() ) { 
+      msg() << MSG::WARNING << " Request to build an RoI for the ID From a composite RoiDescriptor" << *roiDescriptor  << endreq;
+    }
+    
+
     TrigRoiDescriptor* _roi = new TrigRoiDescriptor( roiDescriptor->eta(),
 						     roiDescriptor->eta()-m_etaWidthForID, 
 						     roiDescriptor->eta()+m_etaWidthForID, 
 						     roiDescriptor->phi(), 
 						     HLT::wrapPhi(roiDescriptor->phi()-m_phiWidthForID), 
 						     HLT::wrapPhi(roiDescriptor->phi()+m_phiWidthForID) ); 
+
     if ( m_etaWidthForID==0 || m_phiWidthForID==0 )  {
       msg() << MSG::WARNING << "ZERO width RoI requested for the ID: " <<  *_roi << endreq;
     }
+
     if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: attach RoI for ID " << *_roi << endreq;
     attachFeature( outputTE, _roi, "forID" );
   }

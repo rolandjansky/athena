@@ -24,7 +24,6 @@
 //
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigSuperRoi.h"
 //
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -203,38 +202,41 @@ HLT::ErrorCode TrigFullCaloClusterMaker::hltExecute( std::vector<std::vector<HLT
 
     //    for (itrclus; itrclus != endclus; ++itrclus) {    
     for (;  cachedTEList_it!=cachedTEList_end ; ++cachedTEList_it) {    
+     
       const IRoiDescriptor* roiDescriptor   = 0;
 
       const TrigRoiDescriptor* tmproi   = 0;
-      const TrigSuperRoi*      superroi = 0;
-
+ 
       HLT::TriggerElement* AllTE_cached_outputTE = 0;
-
-      HLT::ErrorCode sc = getFeature(cachedTEList_it->second, superroi);
       
-      if (sc != HLT::OK || superroi==0) {
-
-	HLT::ErrorCode sc = getFeature(cachedTEList_it->second, tmproi);
-
-	if (sc != HLT::OK || tmproi==0 ) {
-	  if (msgLvl() <= MSG::ERROR)
-	    msg() << MSG::ERROR << "Could not find Feature to be attached" << endreq;
-	  return sc;
-	}
-
-	roiDescriptor = tmproi;
-	/// copy the RoI since this is being attached to a new TE
+      HLT::ErrorCode sc = getFeature(cachedTEList_it->second, tmproi);
+      
+      if (sc != HLT::OK || tmproi==0 ) {
+	if (msgLvl() <= MSG::ERROR)
+	  msg() << MSG::ERROR << "Could not find Feature to be attached" << endreq;
+	return sc;
+      }
+      
+      roiDescriptor = tmproi;
+      /// copy the RoI since this is being attached to a new TE
+      /// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING 
+      /// NB:  if this is a composite RoI, it probably won't perform a deep copy of 
+      ///      the RoI constituents, and may caus a crash in the event cleanup
+      ///      or sooner. So this is probably NOT what you want to do
+      /// WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+      if ( !tmproi->composite() ) {
 	TrigRoiDescriptor* _tmproi = new TrigRoiDescriptor( *tmproi );
 	AllTE_cached_outputTE = addRoI(type_out,_tmproi);
       }
       else { 
-	roiDescriptor = superroi;
-	/// copy the RoI since this is being attached to a new TE
-	/// perhaps will need a proper deep copy
-	TrigSuperRoi* _superroi = new TrigSuperRoi( *superroi );
-	AllTE_cached_outputTE = addRoI(type_out,_superroi);
+	/// so try a deep copt here ...
+	TrigRoiDescriptor* _tmproi = new TrigRoiDescriptor( true );
+	for ( unsigned i=tmproi->size() ; i-- ; ) _tmproi->push_back( new TrigRoiDescriptor( *dynamic_cast<const TrigRoiDescriptor*>(tmproi->at(i)) ) );
+	_tmproi->setComposite(true);
+	_tmproi->manageConstituents(true);
+	AllTE_cached_outputTE = addRoI(type_out,_tmproi);
       }
-
+      
       ///     what is this roi about if it is for the full calorimeter??
       //      float roiwidth=0.1;
       //      TrigRoiDescriptor *tmproi = new
@@ -274,11 +276,15 @@ HLT::ErrorCode TrigFullCaloClusterMaker::hltExecute( std::vector<std::vector<HLT
       const TrigRoiDescriptor* roiDescriptor = 0;
       HLT::ErrorCode sc = getFeature(*inner_it, roiDescriptor, "");
       if (sc != HLT::OK) return sc;
-      if (msgLvl() <= MSG::DEBUG)
+      if (msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << " REGTEST: RoI id " << roiDescriptor->roiId()
               << " located at   phi = " <<  roiDescriptor->phi()
               << ", eta = " << roiDescriptor->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: RoI " << *roiDescriptor << endreq;
+      }
       //get the cluster and tower container names - there should only be one of each
+
+
       cellcontname  = retrieveCellContName(*inner_it);
       towercontname = retrieveTowerContName(*inner_it);
 
