@@ -31,6 +31,20 @@ namespace {
     boost::trim(s); 
     boost::replace_all(s, string(";"), string());
   }
+  inline 
+  void remove_v1 (string& s) {
+    boost::replace_all(s, string("_v1"), string());
+    boost::replace_all(s, string("_v2"), string());
+    boost::replace_all(s, string("_v3"), string());
+    boost::replace_all(s, string("_v4"), string());
+  }
+  inline
+  bool has_v_ending (const string& s) {
+    return ( ( s.find ("_v1") == ( s.size() - 3 ) ) ||
+             ( s.find ("_v2") == ( s.size() - 3 ) ) ||
+             ( s.find ("_v3") == ( s.size() - 3 ) ) ||
+             ( s.find ("_v4") == ( s.size() - 3 ) ) );
+  }
 
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
 #define ATH_MSG_LVL(lvl, x) \
@@ -357,16 +371,26 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
   //first the id->name map
   string knownName("_____++++");
   if (getTypeNameOfID(id, knownName).isSuccess() && procName != knownName) {
-    msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
-      " can not set type name <" << procName << "> for CLID " <<
-      id << ": Known name for this ID <" << knownName << '>';
-    Athena::PackageInfo existInfo;
-    if (getPackageInfoForID(id, existInfo).isSuccess()) {
-      msg() << MSG::FATAL 
-	    << " It was set by " << existInfo;
+
+    // Temporary hack: If the two names only differ in a _vX ending, accept the
+    // name without the version name.
+    if( has_v_ending( procName ) || has_v_ending( knownName ) ) {
+       // Remove the _vX ending from the name:
+       remove_v1( procName );
+       ATH_MSG_DEBUG( "Removing \"version ending\" from name \""
+                      << procName << "\"" );
+    } else {
+       msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
+          " can not set type name <" << procName << "> for CLID " <<
+          id << ": Known name for this ID <" << knownName << '>';
+       Athena::PackageInfo existInfo;
+       if (getPackageInfoForID(id, existInfo).isSuccess()) {
+          msg() << MSG::FATAL 
+                << " It was set by " << existInfo;
+       }
+       msg() << MSG::ERROR << endreq;
+       sc = StatusCode::FAILURE;
     }
-    msg() << MSG::ERROR << endreq;
-    sc = StatusCode::FAILURE;
   } else if (procName == knownName) {
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: type name <" << procName <<
