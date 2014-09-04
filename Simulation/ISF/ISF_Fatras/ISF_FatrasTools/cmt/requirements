@@ -1,0 +1,72 @@
+package ISF_FatrasTools
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
+manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
+
+public
+########## Control #############################################################
+use AtlasPolicy              AtlasPolicy-*
+use AthenaBaseComps          AthenaBaseComps-*          Control
+use AthenaKernel             AthenaKernel-*             Control
+use GaudiInterface           GaudiInterface-*           External
+
+########## ISF #################################################################
+use ISF_Event                ISF_Event-*                Simulation/ISF/ISF_Core
+use ISF_FatrasInterfaces     ISF_FatrasInterfaces-*     Simulation/ISF/ISF_Fatras
+
+########## Barcode #############################################################
+use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode
+
+########## Tracking ############################################################
+use TrkDetDescrUtils         TrkDetDescrUtils-*         Tracking/TrkDetDescr
+use TrkEventPrimitives       TrkEventPrimitives-*       Tracking/TrkEvent
+use TrkEventUtils            TrkEventUtils-*            Tracking/TrkEvent
+use TrkExInterfaces          TrkExInterfaces-*          Tracking/TrkExtrapolation
+use TrkExUtils               TrkExUtils-*               Tracking/TrkExtrapolation
+use TrkParameters            TrkParameters-*            Tracking/TrkEvent
+
+private
+########## Control #############################################################
+use StoreGate                StoreGate-*                Control
+
+########## External ############################################################
+use AtlasCLHEP               AtlasCLHEP-*               External
+use AtlasROOT                AtlasROOT-*                External
+
+########## RandomNumbers #######################################################
+use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
+
+########## Tracking ############################################################
+use TrkGeometry              TrkGeometry-*              Tracking/TrkDetDescr
+use TrkSurfaces              TrkSurfaces-*              Tracking/TrkDetDescr
+use TrkVolumes               TrkVolumes-*               Tracking/TrkDetDescr
+use TrkDetDescrInterfaces    TrkDetDescrInterfaces-*    Tracking/TrkDetDescr
+use TrkTrack                 TrkTrack-*                 Tracking/TrkEvent
+use TrkMaterialOnTrack       TrkMaterialOnTrack-*       Tracking/TrkEvent
+
+########## ISF #################################################################
+use ISF_Interfaces           ISF_Interfaces-*           Simulation/ISF/ISF_Core   
+
+########## ISF #################################################################
+
+########## Fast Simulation######################################################
+use FastSimulationEvent      FastSimulationEvent-*      Simulation/FastSimulation
+
+########## DetectorDescription #################################################
+use AtlasDetDescr            AtlasDetDescr-*             DetectorDescription
+
+########## SUSY particles ######################################################
+## does not link at the moment (04/02/2008)
+#use Sleptons                 Sleptons-*                 Simulation/G4Extensions
+#use Gauginos                 Gauginos-*                 Simulation/G4Extensions
+
+
+public
+library ISF_FatrasTools *.cxx components/*.cxx
+apply_pattern component_library
+
+# use the following to compile with debug information
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
