@@ -1,0 +1,424 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+template<class INTERFACE>
+std::string 
+EventFeatureToolBase<INTERFACE>::m_defaultTypeKey = EventFeature::featureTag();
+template<class INTERFACE>
+std::string 
+EventFeatureToolBase<INTERFACE>::m_successMsg     = "Success";
+
+template<class INTERFACE>
+EventFeatureToolBase<INTERFACE>::EventFeatureToolBase(const std::string& type,
+						      const std::string& name,
+						      const IInterface* pParent)
+  : AthAlgTool(type,name,pParent)
+    // properties
+  , m_collectionKey(invalidKey())
+  , m_eventFeatureKey(invalidKey())
+  , m_eventFeatureStoreKey(invalidKey())
+  , m_signalStateKey(defaultStateKey())
+  , m_featureTypeKey(m_defaultTypeKey)
+    // flags and tags
+  , m_signalState(P4SignalState::CALIBRATED)
+  , m_featureType(EventFeature::featureType())
+  , m_signalStateIsDefault(true)
+  , m_generateFeature(false)
+  , m_eventFeatureStore()
+{
+  declareInterface<interface_t>(this);
+  //
+  declareProperty("InputCollectionKey",m_collectionKey);
+  declareProperty("EventFeatureKey",m_eventFeatureKey);
+  declareProperty("EventFeatureType",m_featureTypeKey);
+  declareProperty("EventFeatureStoreKey",m_eventFeatureStoreKey);
+  declareProperty("SignalState",m_signalStateKey);
+}
+
+template<class INTERFACE>
+EventFeatureToolBase<INTERFACE>::~EventFeatureToolBase()
+{ }
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::initialize()
+{
+  // processing flags
+  m_signalStateIsDefault = m_signalStateKey == defaultStateKey();
+  m_generateFeature      = m_collectionKey  != invalidKey();
+  // translate signal state request
+  if ( !m_signalStateIsDefault && !this->setSignalStateKey(m_signalStateKey) )
+    {
+      ATH_MSG_ERROR("Fatal configuration error for signal state request "
+		    << "\042" << m_signalStateKey << "\042");
+      return StatusCode::FAILURE;
+    }
+
+  // translate feature type request
+  if ( !this->setFeatureTypeKey(m_featureTypeKey) )
+    {
+      ATH_MSG_ERROR("Fatal configuration error for feature type request \042"
+		    << m_featureTypeKey << "\042");
+      return StatusCode::FAILURE;
+    }  
+
+  // check if running from a EventFeatureAlgorithmBase
+  if ( m_eventFeatureStoreKey == invalidKey() )
+    {
+      ATH_MSG_INFO("Try to get the EventFeatureStore key from the"
+		   << " algorithm...");
+
+      const IEventFeatureAlgorithm* pAlg = 
+	dynamic_cast<const IEventFeatureAlgorithm*>(this->parent());
+      if ( pAlg == 0 )
+	{
+	  ATH_MSG_WARNING("Cannot access the EventFeatureStore key");
+	}
+      else
+	{
+	  m_eventFeatureStoreKey = pAlg->getFeatureStoreKey();
+	}
+    }
+
+  ATH_MSG_INFO("Basic tool configuration");
+  ATH_MSG_INFO("Input collection key .. \042" << m_collectionKey << "\042");
+  ATH_MSG_INFO("Event feature key ..... \042" << m_eventFeatureKey << "\042");
+  ATH_MSG_INFO("Event feature store key \042" << m_eventFeatureStoreKey 
+	       << "\042");
+  ATH_MSG_INFO("Feature type key ...... \042" << m_featureTypeKey << "\042");
+  if ( m_signalStateIsDefault )
+    {
+      ATH_MSG_INFO("Signal state .......... <" << m_signalStateKey << 
+		   ">[DEFAULT]");
+    }
+  else 
+    {
+      ATH_MSG_INFO("Signal state .......... <" << m_signalStateKey << 
+		   ">[CONFIGURED]");
+    }
+  if ( m_generateFeature )
+    {
+      ATH_MSG_INFO("Generate feature ...... YES");
+    }
+  else
+    {
+      ATH_MSG_INFO("Generate feature ...... NO");
+    }
+
+  // bind DataHandle
+  if (evtStore()->bind(m_eventFeatureStore,m_eventFeatureStoreKey).isFailure())
+    {
+      ATH_MSG_ERROR("DataHandle<EventFeatureStore> already bound to key <" 
+		    << m_eventFeatureStoreKey << ">");
+      return StatusCode::FAILURE;
+    }
+  return this->appInitialize();
+}
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::appInitialize()
+{ return StatusCode::SUCCESS; }
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::execute(EventFeatureStore* pStore)
+{
+  // retrieve input container if any
+  if ( m_generateFeature )
+    {
+      const INavigable4MomentumCollection* pColl = 
+	this->collection(m_collectionKey);
+      if ( pColl == 0 )
+	{
+	  std::string report("Problem executing tool (missing input)");
+	  return this->returnHandle(report);
+	}
+      return this->execute(pStore,pColl);
+    }
+  // no input container
+  return this->appExecute(pStore);
+}
+
+template<class INTERFACE>
+StatusCode 
+EventFeatureToolBase<INTERFACE>::execute(EventFeatureStore* pStore,
+					 const INavigable4MomentumCollection*
+					 pColl)
+{
+  m_generateFeature = true;
+  // event shape store pointer is mandatory
+  if ( pStore == 0 )
+    {
+      std::string report("Invalid pointer to EventFeatureStore - algorithm configuration problem?");
+      return this->returnHandle(report);
+    }
+  // no input collection
+  if ( pColl == 0 )
+    {
+      if ( m_generateFeature )
+	{
+	  std::string report("Requested to generate event feature but no valid input collection found");
+	  return this->returnHandle(report);
+	}
+      return this->appExecute(pStore);
+    }
+
+  // no signal state change requested
+  if ( m_signalStateIsDefault || 
+       pColl->empty() ) return this->appExecute(pStore,pColl);
+
+  // check if SignalState feature available for signal objects
+  if ( dynamic_cast<const ISignalState*>(pColl->front()) != 0 )
+    {
+      std::vector<const ISignalState*> objectList;
+      INavigable4MomentumCollection::const_iterator fObj(pColl->begin());
+      INavigable4MomentumCollection::const_iterator lObj(pColl->end());
+      for ( ; fObj != lObj; ++fObj )
+	{
+	  objectList.push_back(dynamic_cast<const ISignalState*>(*fObj));
+	}
+      SignalStateCollHelper<std::vector<const ISignalState*> > 
+	sigChange(&objectList,m_signalState);
+      StatusCode check(this->appExecute(pStore,pColl).isFailure());
+      return check;
+    }
+  // no signal state available
+  return this->appExecute(pStore,pColl);
+}
+
+template<class INTERFACE>
+const INavigable4MomentumCollection* 
+EventFeatureToolBase<INTERFACE>::collection(const std::string& sgKey)
+{
+  const INavigable4MomentumCollection* pColl = 0;
+  if ( EventShapeHelpers::retrieveFromSG((evtStore().operator->)(),
+					 sgKey,
+					 pColl).isFailure() )
+    {
+      ATH_MSG_WARNING("Cannot allocate INavigable4MomentumCollection with key <"
+		      << sgKey << ">");
+    }
+  return pColl;
+}
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::finalize()
+{
+  static size_t colw(32);
+  ATH_MSG_INFO("Found" << m_returnMsg.size() << " message categories:");
+  std::map<std::string,unsigned int>::iterator fMap(m_returnMsg.begin());
+  std::map<std::string,unsigned int>::iterator lMap(m_returnMsg.end());
+  for ( ; fMap != lMap; ++fMap )
+    {
+      std::ostringstream ostr;
+      size_t l(fMap->first.length());
+      if ( l < colw ) 
+	{
+	  size_t n(colw-l);
+	  ostr << "Message: \042" << std::setw(l) << fMap->first << "\042" 
+	       << std::setw(n) << std::setfill(' ')
+	       << " [" << std::setw(8) << std::right << fMap->second
+	       << "]";
+	}
+      else
+	{
+	  ostr << "Message: \042" << std::setw(colw-3) 
+	       << fMap->first.substr(0,colw-3) 
+	       << "...\042 [" << std::setw(8) << std::right << fMap->second
+	       << "]";
+	}
+      ATH_MSG_INFO(ostr.str());
+    }
+  return this->appFinalize(); 
+}
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::appFinalize()
+{ return StatusCode::SUCCESS; }
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::returnHandle()
+{
+  this->returnTracking(m_successMsg);
+  return StatusCode::SUCCESS; 
+}
+
+template<class INTERFACE>
+StatusCode EventFeatureToolBase<INTERFACE>::returnHandle(const std::string& report)
+{
+  ATH_MSG_WARNING(report);
+  this->returnTracking(report);
+  return StatusCode::SUCCESS;
+}
+
+// bool EventFeatureToolBase<INTERFACE>::eventFeature(const std::string& tag,
+//                                         double& feature) 
+// { return this->eventFeature(m_featureType,tag,feature); }
+
+template<class INTERFACE>
+bool EventFeatureToolBase<INTERFACE>::eventFeature(const std::string& tag,
+					std::vector<double>& features)
+{ return this->eventFeature(m_featureType,tag,features); }
+
+template<class INTERFACE>
+bool EventFeatureToolBase<INTERFACE>::eventFeature(const std::string& tag,
+					const EventFeature*& pFeature)
+{ return this->eventFeature(m_featureType,tag,pFeature); }
+
+// bool EventFeatureToolBase<INTERFACE>::eventFeature(EventFeature::FeatureType type,
+// 					const std::string&        tag,
+// 					double&                   feature)
+// {
+//   const EventFeature* pFeature = 0;
+//   if ( this->eventFeature(type,tag,pFeature) )
+//     {
+//       feature = pFeature->data(); 
+//       return true;
+//     }
+//   else
+//     {
+//       feature = this->invalidValue();
+//       return false;
+//     }
+// }
+
+template<class INTERFACE>
+bool 
+EventFeatureToolBase<INTERFACE>::eventFeature(EventFeature::FeatureType type,
+					      const std::string& tag,
+					      std::vector<double>& features)
+{
+  const EventFeature* pFeature = 0;
+  if ( this->eventFeature(type,tag,pFeature) )
+    {
+      features = pFeature->dataList();
+      return true;
+    }
+  else
+    {
+      features.clear();
+      return false;
+    }
+}
+
+template<class INTERFACE>
+bool 
+EventFeatureToolBase<INTERFACE>::eventFeature(EventFeature::FeatureType type,
+					      const std::string& tag,
+					      const EventFeature*& pFeature)
+{
+  // note that DataHandle<...>.isValid() retrieves data object if not
+  // already done! 
+  return
+    m_eventFeatureStore.isValid() && 
+    m_eventFeatureStore->retrieve(type,tag,pFeature);
+}
+
+template<class INTERFACE>
+unsigned int 
+EventFeatureToolBase<INTERFACE>::returnTracking(const std::string& report)
+{
+  std::map<std::string,unsigned int>::iterator fMap(m_returnMsg.find(report));
+  if ( fMap != m_returnMsg.end() )
+    {
+      (*fMap).second++;
+      return fMap->second;
+    }
+  else
+    {
+      m_returnMsg[report] = 1;
+      return (unsigned int)1;
+    }
+}
+
+template<class INTERFACE>
+bool EventFeatureToolBase<INTERFACE>::setFeatureTypeKey(const std::string& key)
+{
+  // translate feature type request
+  m_featureType = EventFeature::featureType(key);
+  if ( m_featureType == EventFeature::UNKNOWN )
+    {
+      ATH_MSG_ERROR("Invalid feature type <UNKNOWN> returned for key \042"
+		    << key << "\042");
+      return false;
+    }  
+  // set
+  m_featureTypeKey = key;
+  return true;
+} 
+
+template<class INTERFACE>
+void 
+EventFeatureToolBase<INTERFACE>::setFeatureType(EventFeature::FeatureType type)
+{
+  m_featureTypeKey = EventFeature::featureTag(type);
+  m_featureType    = type;
+}
+
+template<class INTERFACE>
+bool EventFeatureToolBase<INTERFACE>::setSignalStateKey(const std::string& key)
+{
+  if ( key == "CALIBRATED" )
+    { m_signalState = P4SignalState::CALIBRATED; }
+  else if ( key == "UNCALIBRATED" )
+    { m_signalState = P4SignalState::UNCALIBRATED; }
+  else if ( key == "ALTCALIBRATED" )
+    { m_signalState = P4SignalState::ALTCALIBRATED; }
+  else if ( key == "JETEMSCALE" )
+    { m_signalState = P4SignalState::JETEMSCALE; }
+  else if ( key == "JETFINAL" )
+    { m_signalState = P4SignalState::JETFINAL; }
+  else if ( key == "JETCONSTITUENTSCALE" )
+    { m_signalState = P4SignalState::JETCONSTITUENTSCALE; }
+  else
+    {
+      m_signalState = P4SignalState::UNKNOWN;
+      ATH_MSG_ERROR("Requested signal state <" << key << "> is unknown");
+      return false;
+    }
+  m_signalStateKey = key;
+  return true;
+}
+
+template<class INTERFACE>
+void EventFeatureToolBase<INTERFACE>::setSignalState(P4SignalState::State state)
+{
+  switch (state)
+    {
+    case P4SignalState::CALIBRATED:     // P4SignalState::JETFINAL:
+      m_signalStateKey = "CALIBRATED";
+      break;
+    case P4SignalState::UNCALIBRATED:   // P4SignalState::JETEMSCALE:
+      m_signalStateKey = "UNCALIBRATED";
+      break;
+    case P4SignalState::ALTCALIBRATED:  // P4SignalState::JETCONSTITUENTSCALE:
+      m_signalStateKey = "ALTCALIBRATED";
+      break;
+    case P4SignalState::UNKNOWN:
+      m_signalStateKey = "UNKNOWN";
+      break;
+    default:
+      ATH_MSG_WARNING("Signal state request not recognized (integer = "
+		      << state << ") - set to <NEWSTATE>");
+      m_signalStateKey = "NEWSTATE";
+      break;
+    }
+  m_signalState = state;
+}
+
+template<class INTERFACE>
+bool 
+EventFeatureToolBase<INTERFACE>::checkFeatureType(EventFeature::FeatureType 
+						  type)
+{
+  if ( type != m_featureType ) 
+    {
+      ATH_MSG_WARNING("Feature type mismatch: this tool is configured for "
+		      << "type <" << m_featureTypeKey << ">, request is "
+		      << "<" << EventFeature::featureTag(type) << ">");
+      return false;
+    }
+  return true;
+}
