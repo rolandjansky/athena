@@ -1,0 +1,800 @@
+#!/usr/bin/env python
+
+#------------
+# std imports
+import os
+import sys
+import textwrap
+
+import argparse
+
+# 3rd-party imports
+# delay ROOT import as it is quite slow...
+ROOT = None
+
+def _is_object_metadata(n):
+    sz = ROOT.D3PD.ObjectMetadata.RANDOM_NAME_POSTFIX_LENGTH+1
+    return len(n) > sz and \
+           n[-sz] == "_"
+
+def collect_objects(d, objs):
+    for k in d.GetListOfKeys():
+        if k.GetClassName() != "TObjString":
+            continue
+        if not _is_object_metadata(k.GetName()):
+            continue
+        obj_name = ROOT.D3PD.ObjectMetadata.objectName(k.GetName())
+        print " >",obj_name
+        # access the variable description
+        kk = "%s;%d"%(k.GetName(), k.GetCycle())
+        ostr = d.Get(kk)
+        if not ostr:
+            print "** could not access key [%s]" % kk
+            return 1
+        #print ostr,type(ostr)
+        md = ROOT.D3PD.RootObjectMetadata()
+        md.setName(obj_name)
+        if not md.read(ostr.GetString().Data()).isSuccess():
+            print "** problem reading metadata for [%s]" % kk
+            return 1
+
+        if not md.checkPrefixes().isSuccess():
+            print "** could not fix prefixes for metadata with name [%s]" % md.name()
+            return 1
+        
+        if md.name() in objs:
+            objs[md.name()].merge(md)
+        else:
+            objs[md.name()] = md
+        pass # keys
+    return 0
+
+
+def merge_objects(objs):
+    res = {}
+    for o in objs:
+        n = o.name()
+        if n in res:
+            res[n].setName(n)
+            res[n].setPrefix(o.prefix())
+            res[n].setContainer(o.container())
+            res[n].merge(o)
+        else:
+            res[n] = o
+            pass
+    return res.values()
+
+def normalize_type(n):
+    tcle = ROOT.TClassEdit
+    return tcle.ShortType(n, tcle.kDropDefaultAlloc)
+
+def normalize_fct_ret_type(n):
+    tcle = ROOT.TClassEdit
+    n = normalize_type(n)
+    ret= tcle.ShortType(n, tcle.kDropDefaultAlloc|tcle.kInnerClass)
+    if tcle.IsSTLCont(ret):
+        return 'const %s&' % ret
+    return ret
+
+def normalize_fct_ref_type(n):
+    tcle = ROOT.TClassEdit
+    n = normalize_type(n)
+    ret= tcle.ShortType(n, tcle.kDropDefaultAlloc|tcle.kInnerClass)
+    return ret
+
+def _is_vect_of_vect(n):
+    tcle = ROOT.TClassEdit
+    n = normalize_type(n)
+    ret= tcle.ShortType(n, tcle.kDropDefaultAlloc|tcle.kInnerClass)
+    return tcle.IsSTLCont(ret)
+    
+def gen_varname(n):
+    n = n.replace(" ", "_").replace(":","_")
+    return "m_"+n
+
+def gen_fctname(n):
+    n = n.replace(" ", "_").replace(":","_")
+    if n[0].isdigit():
+        n = "x"+n
+    return n
+
+def pbuf_is_cont(v):
+    tcle = ROOT.TClassEdit
+    if isinstance(v, basestring):
+        n = v
+    else:
+        n = v.type()
+        pass
+    return _is_vect_of_vect(n)
+
+def pbuf_normalize_type(v):
+    tcle = ROOT.TClassEdit
+    if isinstance(v, basestring):
+        n = v
+    else:
+        n = v.type()
+    is_cont = pbuf_is_cont(n)
+    inner = tcle.ShortType(n, tcle.kDropDefaultAlloc|tcle.kInnerClass)
+    if is_cont:
+        return pbuf_normalize_type(inner)
+    n = normalize_type(inner)
+    return cxx_to_pbuf(n)
+
+def cxx_to_pbuf(n):
+    return {
+        'double': 'double',
+        'float': 'float',
+        'int': 'int32',
+        'long': 'int64',
+        'long int': 'int64',
+        'unsigned int': 'uint32',
+        'unsigned long': 'uint64',
+        'unsigned long int': 'uint64',
+        'long long': 'int64',
+        'unsigned long long': 'uint64',
+        'bool': 'bool',
+        'std::string': 'string',
+        'const char*': 'string',
+        'char*': 'string',
+        'short': 'int32',           # FIXME ?!
+        'unsigned short': 'uint32', # FIXME ?!
+        }.get(n, n)
+
+def pbuf_pluralize(n, is_cont):
+    if is_cont:
+        # pluralize
+        if n.endswith('y'):
+            n = n[:-1] + "ies"
+        elif n.endswith("s"):
+            n = n + "es"
+        else:
+            n = n + "s"
+    return n
+    
+def pbuf_gen_varname(v):
+    n = gen_varname(v.name())
+    if n.startswith("m_"):
+        n = n[len("m_"):]
+    is_cont = _is_vect_of_vect(v.type())
+    n = pbuf_pluralize(n,is_cont)
+    return n
+
+def gen_header(clsname, outdir, obj):
+    fname = os.path.join(outdir, clsname+".h")
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+        pass
+
+    # file already exists...
+    if os.path.exists(fname):
+        return
+    
+    f = open(fname, "w")
+    vardict = {
+        'classname' : clsname,
+        'CLASSNAME': clsname.upper(),
+        'decl_element_class': '',
+        }
+
+    cls_vars = []
+    cls_fcts = []
+    ovars = ROOT.D3PDMakerReaderDict.to_vector(obj.variables())
+    vardict['add-obj-arg'] = ', std::size_t idx' if obj.container() else ''
+    
+    for v in ovars:
+        if v.doc():
+            fmt = "%(indent)s /// %(cls_var_doc)s"
+            cls_vars.append(fmt % {
+                'indent': " "*2,
+                'cls_var_doc': v.doc(),
+                })
+            cls_fcts.append(fmt % {
+                'indent': " "*2,
+                'cls_var_doc': v.doc(),
+                })
+            pass
+        
+        fmt = "%(indent)s %(cls_var_type)s* %(cls_var_name)s;"
+        cls_vars.append(fmt % {
+            'indent': " "*2,
+            'cls_var_type': normalize_type(v.type()),
+            'cls_var_name': gen_varname(v.name()),
+            })
+
+        tcle = ROOT.TClassEdit
+        is_cont = tcle.IsSTLCont(v.type())
+        snippet = textwrap.dedent(
+            '''\
+            %(indent)s %(cls_fct_type)s  %(cls_fct_name)s(%(cls_fct_args)s) const;
+            %(indent)s %(cls_fct_ref_type)s& %(cls_fct_name)s(%(cls_fct_args)s);
+            ''')
+        cls_fcts.append(snippet % {
+            'indent': " "*2,
+            'cls_fct_type': normalize_fct_ret_type(v.type()),
+            'cls_fct_ref_type': normalize_fct_ref_type(v.type()),
+            'cls_fct_name': gen_fctname(v.name()),
+            'cls_fct_args': '' if not is_cont else 'std::size_t idx',
+            })
+        pass
+    vardict['class_vars'] = '\n'.join(cls_vars)
+    vardict['class_fcts'] = '\n'.join(cls_fcts)
+    vardict['class-prefix'] = obj.prefix()
+    print >> f, textwrap.dedent(
+'''\
+// dear emacs, this is -*- c++ -*-
+#ifndef ATH_D3PDREADER_%(CLASSNAME)s_H
+#define ATH_D3PDREADER_%(CLASSNAME)s_H 1
+
+// stl includes
+#include <map>
+#include <vector>
+#include <string>
+
+// fwk includes
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGateSvc.h"
+
+// fwd declarations
+class %(classname)s;
+
+class %(classname)s
+{
+   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+public:
+   %(classname)s(const std::string& prefix = "%(class-prefix)s",
+                 const StoreGateSvc_t& svc = StoreGateSvc_t("StoreGateSvc", "%(classname)s"));
+
+   /// retrieve data from the store
+   StatusCode retrieve() const;
+
+   /// retrieve data from the store
+   StatusCode retrieve();
+
+   /// record data into the store
+   StatusCode record();
+
+   /// add an entry from another object
+   void add_object(const %(classname)s& o, std::size_t idx);
+
+   /// change prefix
+   void setPrefix(const std::string& prefix)
+   { m_prefix = prefix; }
+
+   /// return prefix
+   const std::string& prefix() const
+   { return m_prefix; }
+
+   /// allocate a brain new instance
+   static
+   %(classname)s create(const std::string& prefix,
+                        const StoreGateSvc_t& svc = StoreGateSvc_t("StoreGateSvc", "%(classname)s"));
+                        
+public:
+%(class_fcts)s
+
+private:
+   std::string m_prefix;
+   mutable StoreGateSvc_t m_store;
+   
+%(class_vars)s
+}; // %(classname)s
+
+#endif /* not ATH_D3PDREADER_%(CLASSNAME)s_H */
+'''
+        % vardict)
+
+    f.flush()
+    return
+
+def gen_source(clsname, outdir, obj):
+    fname = os.path.join(outdir, clsname+".cxx")
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+        pass
+
+    # file already exists...
+    if os.path.exists(fname):
+        return
+    
+    f = open(fname, "w")
+    vardict = {
+        'classname' : clsname,
+        'CLASSNAME': clsname.upper(),        
+        'ctor-impl': '',
+        'factory-impl': '',
+        'record-impl': '',
+        'retrieve-const': '',
+        'retrieve-non-const': '',
+        'add-obj-impl': '',
+        'cls-fcts-impl': '',
+        }
+
+    ctor_impl = ['%(classname)s::%(classname)s(const std::string& prefix, const ServiceHandle<StoreGateSvc>& store)' % vardict,
+                 '   : m_prefix(prefix)',
+                 '   , m_store(store)']
+    factory_impl = [
+        '/// allocate a brain new instance',
+        '%(classname)s' % vardict,
+        '%(classname)s::create(const std::string& prefix, const StoreGateSvc_t& svc)' % vardict,
+        '{',
+        '   %(classname)s o(prefix, svc);' % vardict,
+        ]
+    
+    retr_const = [
+        'StatusCode',
+        '%(classname)s::retrieve() const' % vardict,
+        '{',
+        ]
+    
+    retr_non_const = [
+        'StatusCode',
+        '%(classname)s::retrieve()' % vardict,
+        '{',
+        ]
+
+    record_impl = [
+        'StatusCode',
+        '%(classname)s::record()' % vardict,
+        '{',
+        ]
+
+    add_obj_impl = []
+    cls_fcts_impl = []
+    
+    cls_vars = []
+    cls_fcts = []
+    ovars = ROOT.D3PDMakerReaderDict.to_vector(obj.variables())
+
+    if len([v for v in ovars if v.type().startswith('std::vector')]):
+        add_obj_impl = [
+            'void',
+            '%(classname)s::add_object(const %(classname)s& o, std::size_t idx)' % vardict,
+            '{',
+            ]
+    else:
+        add_obj_impl = [
+            'void',
+            '%(classname)s::add_object(const %(classname)s& o, std::size_t /*idx*/)' % vardict,
+            '{',
+            ]
+
+    add_obj_impl_nidx = []
+    add_obj_impl_vidx = None
+    for ii,v in enumerate(ovars):
+        ctor_impl.append('   , %s(NULL)' % gen_varname(v.name()))
+
+        snippet = textwrap.dedent(
+            '''\
+            %(indent)s o.%(cls_var_name)s = new %(cls_var_type)s(0);
+            '''
+            )
+        factory_impl.append(snippet % {
+            'indent': " "*2,
+            'cls_var_type': normalize_type(v.type()),
+            'cls_var_name': gen_varname(v.name()),
+            })
+
+        snippet = textwrap.dedent(
+            '''\
+            %(indent)s {
+            %(indent)s   std::string key = m_prefix + "%(cls_var_name_str)s";
+            %(indent)s   if (m_store->contains< %(cls_var_type)s >(key)) {
+            %(indent)s      if (!m_store->retrieve((const %(cls_var_type)s*&)%(cls_var_name)s, key).isSuccess()) {
+            %(indent)s         return StatusCode::FAILURE;
+            %(indent)s      }
+            %(indent)s   } else {
+            %(indent)s      ((%(cls_var_type)s*&)%(cls_var_name)s) = NULL;
+            %(indent)s   }
+            %(indent)s }
+            ''' )
+                
+        retr_const.append(snippet % {
+            'indent': " "*2,
+            'cls_var_type': normalize_type(v.type()),
+            'cls_var_name': gen_varname(v.name()),
+            'cls_var_name_str': v.name(),
+            })
+
+        snippet = textwrap.dedent(
+            '''\
+            %(indent)s {
+            %(indent)s   std::string key = m_prefix + "%(cls_var_name_str)s";
+            %(indent)s   if (m_store->contains< %(cls_var_type)s >(key)) {
+            %(indent)s      if (!m_store->retrieve((%(cls_var_type)s*&)%(cls_var_name)s, key).isSuccess()) {
+            %(indent)s         return StatusCode::FAILURE;
+            %(indent)s      }
+            %(indent)s   } else {
+            %(indent)s      %(cls_var_name)s = NULL;
+            %(indent)s   }
+            %(indent)s }
+            ''' )
+        retr_non_const.append(snippet % {
+            'indent': " "*2,
+            'cls_var_type': normalize_type(v.type()),
+            'cls_var_name': gen_varname(v.name()),
+            'cls_var_name_str': v.name(),
+            })
+
+        snippet = textwrap.dedent(
+            '''\
+            %(indent)s {
+            %(indent)s   std::string key = m_prefix + "%(cls_var_name_str)s";
+            %(indent)s   if (!m_store->record((%(cls_var_type)s*&)%(cls_var_name)s, key).isSuccess()) {
+            %(indent)s      return StatusCode::FAILURE;
+            %(indent)s   }
+            %(indent)s }
+            ''' )
+        record_impl.append(snippet % {
+            'indent': " "*2,
+            'cls_var_type': normalize_type(v.type()),
+            'cls_var_name': gen_varname(v.name()),
+            'cls_var_name_str': v.name(),
+            })
+
+        tcle = ROOT.TClassEdit
+        is_cont = tcle.IsSTLCont(v.type())
+        
+        snippet = textwrap.dedent(
+            '''\
+            %(cls_fct_type)s
+            %(classname)s::%(cls_fct_name)s(%(cls_fct_args)s) const
+            {
+              static %(cls_fct_ref_type)s s_default %(cls_var_default)s;
+              return this->%(cls_var_name)s
+                ? %(do_deref)sthis->%(cls_var_name)s%(cls_fct_args_body)s
+                : s_default;
+            }
+
+            %(cls_fct_ref_type)s&
+            %(classname)s::%(cls_fct_name)s(%(cls_fct_args)s)
+            {
+              static %(cls_fct_ref_type)s s_default %(cls_var_default)s;
+              return this->%(cls_var_name)s
+                ? %(do_deref)sthis->%(cls_var_name)s%(cls_fct_args_body)s
+                : s_default;
+            }
+            ''' % {
+            'indent': " "*2,
+            'classname': clsname,
+            'do_deref': '' if is_cont else '*',
+            'cls_fct_type': normalize_fct_ret_type(v.type()),
+            'cls_fct_ref_type': normalize_fct_ref_type(v.type()),
+            'cls_fct_name': gen_fctname(v.name()),
+            'cls_fct_args': '' if not is_cont else 'std::size_t idx',
+            'cls_fct_args_body': '' if not is_cont else '->at(idx)',
+            'cls_var_name': gen_varname(v.name()),
+            'cls_var_default': '' if is_cont else '= 0',    
+            })
+        cls_fcts_impl.append(snippet)
+
+        # ignore the container size variable
+        if not (v.name() in ('N', 'n')):
+            if is_cont:
+                add_obj_impl_vidx = ii
+                snippet = textwrap.dedent(
+                    '''\
+                    %(indent)sthis->%(cls_var_name)s->push_back(o.%(cls_var_name)s->at(idx));
+                    ''' % {
+                        'indent': " "*2,
+                        'classname': clsname,
+                        'cls_var_name': gen_varname(v.name()),
+                        })
+            else:
+                snippet = textwrap.dedent(
+                    '''\
+                    %(indent)s*this->%(cls_var_name)s = *o.%(cls_var_name)s;
+                    ''' % {
+                        'indent': " "*2,
+                        'cls_var_name': gen_varname(v.name()),
+                        })
+            add_obj_impl.append(snippet)
+        else:
+            add_obj_impl_nidx.append(ii)
+            pass
+        pass # loop over ovars
+
+    for ii in add_obj_impl_nidx:
+        v = ovars[ii]
+        if add_obj_impl_vidx is None:
+            # case for which a block has only a <prefix>_n or <prefix>_N
+            # but no other <prefix>_xyz branch
+            continue
+        vv= ovars[add_obj_impl_vidx]
+        snippet = textwrap.dedent(
+            '''\
+            %(indent)s*this->%(cls_var_name)s = this->%(cls_var_name_v)s->size();
+            ''' % {
+                'indent': " "*2,
+                'cls_var_name': gen_varname(v.name()),
+                'cls_var_name_v': gen_varname(vv.name()),
+                })
+        add_obj_impl.append(snippet)
+        pass
+        
+    ctor_impl.append("{}\n")
+    factory_impl.append("  return o;\n}\n")
+    retr_const.append("  return StatusCode::SUCCESS;\n}\n");
+    retr_non_const.append("  return StatusCode::SUCCESS;\n}\n");
+    record_impl.append("  return StatusCode::SUCCESS;\n}\n");
+    add_obj_impl.append("  return;\n}\n");
+
+    vardict['class_vars'] = '\n'.join(cls_vars)
+    vardict['class_fcts'] = '\n'.join(cls_fcts)
+
+    vardict['ctor-impl'] = '\n'.join(ctor_impl)
+    vardict['factory-impl'] = '\n'.join(factory_impl)
+    vardict['retrieve-const'] = '\n'.join(retr_const)
+    vardict['retrieve-non-const'] = '\n'.join(retr_non_const)
+    vardict['record-impl'] = '\n'.join(record_impl)
+    vardict['add-obj-impl'] = '\n'.join(add_obj_impl)
+    vardict['cls-fcts-impl'] = '\n'.join(cls_fcts_impl)
+    
+    print >> f, textwrap.dedent(
+'''\
+// dear emacs, this is -*- c++ -*-
+// stl includes
+#include <map>
+#include <vector>
+#include <string>
+
+// fwk includes
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "SGTools/BuiltinsClids.h"  // to put/get builtins into/from storegate
+#include "SGTools/StlVectorClids.h" // similarly for vectors
+
+// pkg includes
+#include "%(classname)s.h"
+
+/// constructor for %(classname)s
+%(ctor-impl)s
+
+/// factory
+%(factory-impl)s
+
+/// retrieve data from store
+%(retrieve-const)s
+
+/// retrieve data from store
+%(retrieve-non-const)s
+
+/// record data into the store
+%(record-impl)s
+
+/// populate object from a slice of another
+%(add-obj-impl)s
+
+//@{ accessors implementation
+%(cls-fcts-impl)s
+//@}
+'''
+        % vardict)
+
+    f.flush()
+    return
+
+def gen_protobuf(clsname, outdir, obj):
+    if clsname.endswith("D3PDObject"):
+        clsname = clsname[:-len("D3PDObject")]
+    fname = os.path.join(outdir, clsname+".proto")
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+        pass
+
+    # file already exists...
+    if os.path.exists(fname):
+        return
+    
+    f = open(fname, "w")
+    vardict = {
+        'classname' : clsname,
+        }
+
+    print >> f, "package atlas.d3pd;\n"
+    print >> f, "message %(classname)s\n{" % vardict
+    ovars = ROOT.D3PDMakerReaderDict.to_vector(obj.variables())
+    id_nbr = 0
+    for v in ovars:
+        id_nbr += 1
+        is_cont = pbuf_is_cont(v.type())
+        print >> f, \
+        "%(indent)s%(repeated)s %(cls_var_type)s %(cls_var_name)s = %(id)s;" \
+        % {
+            'indent': " "*4,
+            'repeated': 'optional' if not is_cont else 'repeated',
+            'cls_var_type': pbuf_normalize_type(v),
+            'cls_var_name': pbuf_gen_varname(v),
+            'id': id_nbr,
+            }
+    
+    print >> f, "} // message %(classname)s\n\n//EOF" % vardict
+    f.flush()
+    f.close()
+    return
+
+def gen_protobuf_evt(evt_block_descr, outdir):
+    clsname = "Event"
+    fname = os.path.join(outdir, clsname+".proto")
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+        pass
+
+    # file already exists...
+    if os.path.exists(fname):
+        print "** error: file [%s] exists !" % fname
+        return 1
+
+    f = open(fname, "w")
+    vardict = {
+        'classname' : clsname,
+        }
+
+    print >> f, "package atlas.d3pd;\n"
+    for v in evt_block_descr.values():
+        print >> f, 'import "%s.proto";' % v['type']
+    else:
+        print >> f, ""
+    print >> f, "message %(classname)s\n{" % vardict
+    id_cnt = 0
+    for k,v in evt_block_descr.items():
+        id_cnt += 1
+        is_cont = v['is_cont']
+        var_name = k[1]
+        if k[0] != '':
+            var_name = k[0]
+            if var_name.endswith('_'):
+                var_name = var_name[:-len("_")]
+            var_name = pbuf_pluralize(var_name, is_cont)
+        print >> f, \
+    "%(indent)s%(repeated)s %(var_type)s %(var_name)s = %(id)s;" \
+    % {
+        'indent': " "*4,
+        'repeated': 'optional' if not is_cont else 'repeated',
+        'var_type': v['type'],
+        'var_name': var_name,
+        'id': id_cnt,
+        }
+        pass
+    print >> f, "} // message %(classname)s\n\n//EOF" % vardict
+    f.flush()
+    f.close()
+    return 0
+
+def run_protobuf(output):
+    orig_dir = os.getcwd()
+    try:
+        os.chdir(output)
+        import commands, glob
+        rc, pbuf_bin = commands.getstatusoutput("which protoc")
+        if rc:
+            print "** pb while fetching protobuf compiler:\n%s" % pbuf_bin
+            return rc
+        print ":: protobuf compiler: [%s]" % pbuf_bin
+        pbuf_files = glob.glob("*.proto")
+        for pbuf_file in pbuf_files:
+            cmd = " ".join([
+                pbuf_bin, "-I.",
+                "--cpp_out=.", #"-o", pbuf_file[:-len(".proto")]+".pb.cxx",
+                pbuf_file,
+                ])
+            #print "-->",cmd
+            rc, out = commands.getstatusoutput(cmd)
+            if rc:
+                print "** pb while running protoc on [%s]" % pbuf_file
+                print out
+                return rc
+    finally:
+        os.chdir(orig_dir)
+    return 0
+
+def process(fnames, output, do_gen_protobuf=False):
+    import PyCintex; PyCintex.Cintex.Enable()
+    global ROOT
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root(batch=True)
+
+    objects = {}
+    for fname in fnames:
+        print ":: processing [%s]..." % fname
+        f = ROOT.TFile.Open(fname)
+        if not f or f.IsZombie():
+            print ":: could not open [%s]" % fname
+            return 1
+
+        # collect metadata directories
+        metadirs = []
+        for k in f.GetListOfKeys():
+            if "Meta" in k.GetName() and k.GetClassName() == "TDirectoryFile":
+                metadirs.append(k.GetName())
+
+        print "-- metadirs:",metadirs
+
+        # collect object metadata for each of these directories
+        for dname in metadirs:
+            d = f.GetDirectory(dname)
+            if not d:
+                print "** could not get directory [%s]" % dname
+                return 1
+            sc = collect_objects(d, objects)
+            if sc:
+                print "** could not collect objects for [%s]" % dname
+                return sc
+
+    merged_objs = merge_objects(objects.values())
+
+    evt_block_descr = {}
+    # generate the sources for each object
+    for obj in merged_objs:
+        ovars = ROOT.D3PDMakerReaderDict.to_vector(obj.variables())
+        #print "--",obj.name(), len(obj.variables()), [v.name() for v in ovars]
+
+        # generate the header...
+        if gen_header(obj.name(), output, obj):
+            print "** pb while generating header for [%s]" % obj.name()
+            return 1
+
+        # generate sources
+        if gen_source(obj.name(), output, obj):
+            print "** pb while generating source for [%s]" % obj.name()
+            return 1
+        # generate protobuf files
+        if do_gen_protobuf:
+            if gen_protobuf(obj.name(), output, obj):
+                print "** pb while generating protobuf for [%s]" % obj.name()
+                return 1
+            pbuf_evt_type = obj.name()
+            if pbuf_evt_type.endswith("D3PDObject"):
+                pbuf_evt_type = pbuf_evt_type[:-len("D3PDObject")]
+            pbuf_evt_name = pbuf_pluralize(pbuf_evt_type, obj.container())
+            evt_block_descr[(obj.prefix(), pbuf_evt_name)] = {
+                'type': pbuf_evt_type,
+                'is_cont': obj.container(),
+                }
+            if 0:
+                print obj.name(), "prefix='%s'"%obj.prefix(),
+                print 'container:',obj.container()
+
+    if do_gen_protobuf:
+        if gen_protobuf_evt(evt_block_descr, output):
+            print "** pb while generating protobuf for [Event]"
+            return 1
+        if run_protobuf(output):
+            print "** pb while generating c++ files from .proto"
+            return 1
+    return 0
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='generate d3pd objects for use in Athena, '+ \
+                    'from metadata contained in d3pd n-tuples'
+        )
+    parser.add_argument('fnames',
+                        type=str,
+                        nargs='+',
+                        help='input d3pd files')
+    parser.add_argument('--protobuf',
+                        default=False,
+                        action='store_true',
+                        help='switch to enable protobuf files generation.'
+                        )
+    parser.add_argument('--output-dir', '-o',
+                        type=str,
+                        default='code',
+                        help='output directory containing the generated code'
+                        )
+    args = parser.parse_args()
+    print ":"*80
+    print ":: generating d3pd-reader from:"
+    for f in args.fnames:
+        print ":: - %s" % f
+        pass
+    sc = process(args.fnames, args.output_dir, args.protobuf)
+    print ":: done [sc=%s]" % sc
+    print ":"*80
+    return sc
+
+
+if __name__ == "__main__":
+    sc = main()
+    sys.exit(sc)
+    

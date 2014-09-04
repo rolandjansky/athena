@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+
+# @file:    diff-athfile.py
+# @purpose: simple command-line utility to diff metadata in two files.
+#           Uses PyUtils.AthFile.fopen. Based on dump-athfile.py.
+# @author:  Graeme Stewart <graeme.andrew.stewart@cern.ch>
+# @date:    Jan 2012
+# @version: $Id: diff-athfile 493697 2012-04-02 17:30:56Z binet $
+#
+# @example:
+# @code
+# diff-athfile.py aod.1.pool.root aod.2.pool.root 
+# @endcode
+#
+
+import sys
+import os
+
+try:                import cPickle as pickle
+except ImportError: import pickle
+    
+from optparse import OptionParser
+
+if __name__ == "__main__":
+
+    parser = OptionParser(usage="usage: %prog [options] my.1.file my.2.file")
+    parser.add_option( "-o",
+                       "--output",
+                       dest = "oname",
+                       default = 'athfile-infos.ascii',
+                       help = "Name of the output file which will contain the informations gathered during AthFile processing. These informations will be stored into a python-shelve file." )
+    parser.add_option( '--evtmax',
+                       dest = 'evtmax',
+                       default = 1,
+                       type = int,
+                       help = 'Maximum number of events to process in the file(s)')
+    parser.add_option( "-q",
+                       "--quiet",
+                       dest = "quiet",
+                       default = False,
+                       action = "store_true",
+                       help = 'Quiet output - only print differences')
+    
+    (options, args) = parser.parse_args()
+
+    fnames = []
+    
+    if len(args) > 0:
+        fnames = [ arg for arg in args if arg[0] != "-" ]
+        pass
+
+    if len(fnames) != 2:
+        str(parser.print_help() or "")
+        sys.exit(1)
+
+    sc = 0
+    import PyUtils.AthFile as af
+    msg = af.msg
+    if options.quiet:
+        from logging import WARNING
+        msg.setLevel(WARNING)
+    
+    fhandles = {}
+    try:
+        for fname in fnames:
+            fhandles[fname] = af.fopen(fname, evtmax=options.evtmax)
+            msg.info(':'*80)
+            msg.info('Opened file %s.' % fname)
+            
+
+        # Ignore the following keys, which are bound to be different:
+        # 'file_md5sum', 'file_name', 'file_type', 'file_guid',
+        simpleCompKeys = ('nentries','run_number', 'run_type', 'evt_number', 'evt_type', 'lumi_block',
+                        'beam_energy', 'beam_type',
+                        'stream_tags', 'stream_names', 'geometry', 'conditions_tag',)
+        bitByBitKeys = ('metadata',)
+    
+        for k in simpleCompKeys:
+            if fhandles[fnames[0]].infos[k] == fhandles[fnames[1]].infos[k]:
+                msg.info('%s equal in %s and %s: %s' % (k, fnames[0], fnames[1], fhandles[fnames[0]].infos[k]))
+            else:
+                msg.warning('%s not equal in %s and %s: %s != %s' % 
+                            (k, fnames[0], fnames[1], fhandles[fnames[0]].infos[k], fhandles[fnames[1]].infos[k]))
+                sc = 1
+
+        for k in bitByBitKeys:
+            # First check dictionary keys are the same
+            skeys = fhandles[fnames[0]].infos[k].keys()
+            skeys1 = fhandles[fnames[1]].infos[k].keys()
+            skeys.sort()
+            skeys1.sort()
+            if skeys != skeys1:
+                msg.warning('%s keys not equal for %s and %s: %s != %s' % 
+                            (k, fnames[0], fnames[1], skeys, skeys1))
+                sc = 1
+            else:
+                msg.info('%s keys are equal for %s and %s: %s' % 
+                         (k, fnames[0], fnames[1], skeys))
+                for subk in skeys:
+                    if fhandles[fnames[0]].infos[k][subk] == fhandles[fnames[1]].infos[k][subk]:
+                        # Here suppress the very long value output
+                        msg.info('%s element %s values are equal for %s and %s: (value suppressed)' % 
+                                 (k, subk, fnames[0], fnames[1]))
+                    else:
+                        msg.warning('%s element %s values are not equal for %s and %s: %s != %s' % 
+                                 (k, subk, fnames[0], fnames[1], fhandles[fnames[0]].infos[k][subk], 
+                                  fhandles[fnames[1]].infos[k][subk]))
+                        sc = 1
+                        
+                
+        msg.info(':'*80)
+    except Exception, e:
+        msg.error("Caught exception [%s] !!", str(e.__class__))
+        msg.error("What:\n%s\n%s\n%s",e,
+                  sys.exc_info()[0],
+                  sys.exc_info()[1])
+        sc = 2
+        pass
+
+    except :
+        msg.error("Caught something !! (don't know what)")
+        msg.error("\n%s\n%s",sys.exc_info()[0], sys.exc_info()[1])
+        sc = 2
+        pass
+
+    
+    if options.oname:
+        oname = options.oname
+        msg.info("saving report into [%s]..." % oname)
+        if os.path.exists(oname):
+            os.rename(oname, oname+'.bak')
+        af.server.save_cache(oname)
+
+    msg.info("Bye.")
+    sys.exit(sc)

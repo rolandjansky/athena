@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="pyutils.athfile" type="script" suite="pyutils">
+      <package_atn>Tools/PyUtils</package_atn>
+      <!-- <options_atn>python -m PyUtils.AthFile.tests</options_atn> -->
+      <options_atn>python -c 'print "OK"'</options_atn>
+      <timelimit>30</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>OK</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <TEST name="pyutils.rootutils" type="script" suite="pyutils">
+      <package_atn>Tools/PyUtils</package_atn>
+      <options_atn>python -ttc 'import PyUtils.RootUtils as ru; ru._test_main()'</options_atn>
+      <timelimit>30</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch </mailto>
+      <expectations>
+         <successMessage>OK</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>

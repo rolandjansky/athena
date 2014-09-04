@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+#
+# @file:    lstags
+# @purpose: List the version (tag) of the currently checked out packages.
+#           Optionally compare to the release version and most recent version.
+#           Inspired by BaBar's 'statusrel' command.
+# @author:  Frank Winklmeier
+#
+# $Id: $ 
+
+__version__ = "$Revision$"
+__author__  = "Frank Winklmeier"
+
+import sys
+import os
+from PyCmt import Cmt
+
+def main():
+
+   import logging
+   logging.basicConfig(level = logging.WARNING)
+   log = logging.getLogger("lstags")
+   
+   import optparse
+   parser = optparse.OptionParser(description="List the version of the locally checked out packages.")
+   
+   parser.add_option("-d", "--differ", action="store_true", dest="differ",
+                     help="only show tags that differ")
+   parser.add_option("-r", "--recent", action="store_true", dest="recent",
+                     help="show most recent tag in SVN")
+   parser.add_option("-q", "--quiet", action="store_true", dest="quiet",
+                     help="only print package name (e.g. as input to pkgco)")
+   parser.add_option("-f", "--fullName", action="store_true", dest="fullName",
+                     help="print full package name including all containers")
+   parser.add_option("-c", "--cmtCmd", action="store_true", dest="cmtCmd",
+                     help="display as 'cmt co' command")
+   parser.add_option("-n", "--nosupression", action="store_true", dest="nosup",
+                     help="do not use default package supression list")
+   
+   (opt, args) = parser.parse_args()
+
+   # Some consistency checks
+   if (opt.cmtCmd):
+      opt.fullName = True
+      opt.quiet = True
+      opt.recent = False
+      
+   if (opt.nosup): pkgSupList = []
+   else: pkgSupList = ["WorkArea"]
+
+   testArea = os.environ.get("TestArea")
+   if testArea==None:
+      log.fatal("TestArea environment variable not set. Setup your test release first.")
+      return 1
+   
+   from PyUtils.WorkAreaLib import scan
+   cmtPackages = []
+   cmtPackages.extend( scan( testArea, pkgSupList ) )
+   
+   cmt = Cmt.CmtWrapper()
+   
+   for pkg in cmtPackages:
+      pkgContainer = pkg.path.replace(testArea,"").lstrip("/")
+      fullPkgName = pkgContainer + "/" + pkg.name
+
+      if (opt.differ or not opt.quiet):    # Need to know the release version of pkg
+         testversion = cmt.get_pkg_version(fullPkgName)
+         if testversion==None: testversion = "NOT_FOUND"
+      
+      if (not opt.differ or testversion!=pkg.version):
+         prefix = ""
+         if (opt.fullName): prefix = pkgContainer+"/"
+
+         release = os.environ.get("AtlasVersion","Release")
+         msg = prefix+pkg.version;
+         
+         if (not opt.quiet):
+            msg += "  (%s uses %s)" % (release,testversion)
+            
+         if (opt.recent):
+            headversion = cmt.get_latest_pkg_tag(fullPkgName)
+            if headversion==None: headversion="NONE"
+            msg += "  (most recent %s)" % (headversion)
+
+         if (opt.cmtCmd):
+            msg = "cmt co -r %s %s" % (pkg.version,fullPkgName)
+            
+         print msg
+
+   return 0
+
+
+if __name__ == "__main__":
+   try:
+      sys.exit(main())
+   except KeyboardInterrupt:
+      sys.exit(1)
+      
