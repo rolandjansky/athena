@@ -1,0 +1,51 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "GaudiKernel/PropertyMgr.h"
+
+/////////////////////////////////////////////////////////////////////////////
+
+template< class T >
+AraAlgToolWrapper< T >::AraAlgToolWrapper( const std::string& type, const std::string& name,
+		      const IInterface* parent ) 
+  : AthAlgTool( type, name, parent ), m_log( msgSvc(), name )
+{
+  m_ptool=new T(getPropertyMgr());
+}
+
+//___________________________________________________________________________
+template< class T >
+StatusCode AraAlgToolWrapper< T >::queryInterface( const InterfaceID& riid, void** ppvIf )
+{
+   if ( riid == IAraAlgTool::interfaceID() )  {
+      *ppvIf = (IAraAlgTool*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+   }
+
+   return AthAlgTool::queryInterface( riid, ppvIf );
+}
+
+//___________________________________________________________________________
+template< class T>
+StatusCode AraAlgToolWrapper< T >::initialize()
+{
+
+   m_log.setLevel( outputLevel() );
+   StatusCode sc=m_ptool->initialize();
+
+   return sc;
+}
+
+//___________________________________________________________________________
+template< class T >
+StatusCode AraAlgToolWrapper< T >::finalize()
+{
+
+// perform work done at shutdown
+  StatusCode sc=m_ptool->finalize();
+  return sc;
+}
+
+
