@@ -1,0 +1,74 @@
+# $Id: atlas_error_mask.db 576626 2013-12-21 23:29:31Z graemes $
+
+# Error mask file for new transforms
+# Each line contains 3 fields, separated by commas:
+# who_regexp, level, error_message_regexp
+# 
+# When parsed, all whitespace around these expressions is stripped
+# 
+# who_regexp is matched against the athena service that produced the message; if the service is empty then any service matches
+# level is compared for equality against the message level; if empty any level matches
+# error_message_regexp is matched against the message string (so add a ".*" prefix if you want a search instead)
+#
+# Note the the goal is to reduce this file to ZERO entries!
+
+## Errors to ignore for ALL releases
+## =================================
+ToolSvc.CscSplitClusterFitter, ERROR,   Peak-to-Val dist is [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?  Val-to-Peak dist is [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?  Shouldnot be negative value :[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?  [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)? [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
+AlgErrorAuditor     , ERROR, Illegal Return Code: Algorithm CscThresholdClusterBuilder reported an ERROR, but returned a StatusCode "SUCCESS"
+AlgErrorAuditor     , ERROR, Illegal Return Code: Algorithm InDetSCTRawDataProvider reported an ERROR, but returned a StatusCode "SUCCESS"
+(?:Py:)?Athena      , ERROR, inconsistent case used in property name ".*?" of ApplicationMgr
+(?:Py:)?Athena      , ERROR, Algorithm ".*?": not in TopAlg or other known list, no properties set
+(?:Py:)?Athena      , ERROR, Algorithm ".*?": type missing, no properties set
+(?:Py:)?Athena      , ERROR, attempt to add .* to non-existent property .*?
+(?:Py:)?Configurable, ERROR, .* undeclared or uses a backdoor
+(?:Py:)?Configurable, ERROR, children\(\) is deprecated
+(?:Py:)?Configurable, ERROR, getChildren\(\) returns a copy
+(?:Py:)?Configurable, ERROR, jobOptName\(\) is deprecated
+
+# Reco
+(?:Py:)?Configurable,  ERROR, attempt to add a duplicate \(CellCalibrator.CellCalibrator.H1WeightCone7H1Tower\)
+(?:Py:)?ResourceLimits,ERROR, failed to set max resource limits
+AlgErrorAuditor,       ERROR, Illegal Return Code: Algorithm StreamESD reported an ERROR, but returned a StatusCode "SUCCESS"
+
+# Trigger BStoRDO 
+AthenaRefIOHandler,    ERROR, Failed to set ElementLink
+ElementLink,           ERROR, toPersistent: the internal state of link
+StoreGateSvc,          ERROR, record: object not added to store
+StoreGateSvc,          ERROR, setupProxy:: error setting up proxy 
+AlgErrorAuditor,       ERROR, Illegal Return Code: Algorithm MooHLTAlgo 
+AlgErrorAuditor,       ERROR, Illegal Return Code: Algorithm TrigSteer_EF
+AlgErrorAuditor,       ERROR, Illegal Return Code: Algorithm muFast_(?:Muon|900GeV)
+ 
+# Trigger reco_ESD 
+THistSvc,              ERROR, already registered an object with identifier "/EXPERT/
+RpcRawDataNtuple  ,  ERROR, .*
+CBNT_L1CaloROD\S+ ,  ERROR, .*
+CBNTAA_Tile\S+    ,  ERROR, .*
+TileDigitsMaker   ,  ERROR, .*
+MdtDigitToMdtRDO  ,  ERROR, .* 
+HelloWorld        ,  ERROR, .*
+HelloWorld        ,  FATAL, .*
+PythiaB           ,  ERROR,  ERROR in PYTHIA PARAMETERS
+ToolSvc           ,  ERROR, Tool .* not found and creation not requested
+ToolSvc           ,  ERROR, Unable to finalize the following tools
+ToolSvc           ,  ERROR, Factory for Tool .* not found
+CBNT_Audit        ,  ERROR,  Memory leak!.*
+ToolSvc.InDetSCTRodDecoder   ,  ERROR, Unknown offlineId for OnlineId*
+THistSvc.sysFinali,  FATAL,  Standard std::exception is caught
+,,.*Message limit reached for .*
+,,\s+ERROR IN C-S .*=.*
+,,.*ERROR\s+\|.*
+,,^\s*FATAL ERROR\s*$
+,ERROR, \(poolDb\):
+,ERROR, \(pool\):
+,ERROR, - G4Navigator::ComputeStep\(\)
+,,.*ERROR OCCURED DURING A SECONDARY SCATTER AND WAS
+THistSvc        , ERROR, already registered an object with identifier .*
+,ERROR, MuonDetectorManager::getCscReadoutElement stNameindex out of range .*
+muFast_\S+      , ERROR, CSM for Subsystem \d+, MrodId \d+, LinkId \d+ not found
+TRTDetectorManager , FATAL, Unable to apply Inner Detector alignments
+TRTDetectorManager , ERROR, AlignableTransformContainer for key \/TRT\/Align is empty
+,ERROR, in Single_Process::CalculateTotalXSec
+,,.*ERROR WITH DELM.*
+AlgErrorAuditor,ERROR, Illegal Return Code: Algorithm 
