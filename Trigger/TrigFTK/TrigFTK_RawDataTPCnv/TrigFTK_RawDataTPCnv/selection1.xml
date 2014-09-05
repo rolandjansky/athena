@@ -1,0 +1,10 @@
+<lcgdict>
+
+<!-- FTKRawTrack-->
+  <class name="FTK_RawTrack_p1" />
+  <class name="std::vector<FTK_RawTrack_p1>" />
+  <class name="FTK_RawTrackContainer_tlp1" id="C1A5436E-8520-4399-82FC-E6828B19688D" />
+  <class name="FTK_RawTrackContainer_p1"   id="FF688A0E-527F-4F88-9738-830F97EC0CFD" />
+  <class name="std::vector<FTK_RawTrackContainer_p1>"/>
+  
+</lcgdict>
