@@ -1,0 +1,15 @@
+Create 3 collections and register them in 3 separate catalogs
+createAndRegister collection 0
+createAndRegister collection 1
+createAndRegister collection 2
+Open collection 0 with physical name .... OK
+Open collection 1 with guid .... OK
+Open collection 2 with logical name .... OK
+Try to create the existing collection 0 ... OK, exception has been thrown
+Try to replace the replicated collection 1 ... OK, exception has been thrown
+Try to replace unique collection 0 ... OK, this works
+Try to update the NON replicated collection 0 ... OK, this works
+Try to update the replicated collection 1 ... OK, exception has been thrown
+Try to update unique collection 0 ... OK it works
+releasing token
+exiting
