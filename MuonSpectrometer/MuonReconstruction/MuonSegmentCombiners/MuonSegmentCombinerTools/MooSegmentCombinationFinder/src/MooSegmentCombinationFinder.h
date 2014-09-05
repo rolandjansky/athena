@@ -133,9 +133,6 @@ namespace Muon
       std::string m_mdtSegmentCombinationLocation;
       std::string m_curvedCombinationLocation;
       bool m_cloneSegments;
-      bool m_writeChamberT0s;
-      std::string m_chamberT0Location;
-      mutable std::map<Identifier,const MuonSegment*> m_chBestT0SegmentMap;
 
       /** counters */
       mutable unsigned int m_nevents;
