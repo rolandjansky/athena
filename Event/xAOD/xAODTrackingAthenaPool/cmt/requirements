@@ -1,0 +1,37 @@
+package xAODTrackingAthenaPool
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Edward Moyse <Edward.Moyse@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use AtlasROOT           AtlasROOT-*           External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTracking       xAODTracking-*       Event/xAOD
+use xAODTruth          xAODTruth-*          Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::TrackParticleContainer xAOD::TrackParticleAuxContainer \
+                                          xAOD::NeutralParticleContainer xAOD::NeutralParticleAuxContainer \
+                                          xAOD::VertexContainer xAOD::VertexAuxContainer \
+                                          xAOD::PrepRawDataContainer xAOD::PrepRawDataAuxContainer \
+																					xAOD::MeasurementStateOnSurfaceContainer  xAOD::MeasurementStateOnSurfaceAuxContainer "\
+                      files="-s=${xAODTracking_root}/xAODTracking \
+                        TrackParticleContainer.h TrackParticleAuxContainer.h \
+                        NeutralParticleContainer.h NeutralParticleAuxContainer.h \
+                        VertexContainer.h VertexAuxContainer.h \
+                        PrepRawDataContainer.h PrepRawDataAuxContainer.h \
+												MeasurementStateOnSurfaceContainer.h  MeasurementStateOnSurfaceAuxContainer.h" \
+                      cnv_pfx="xAOD"
