@@ -7,6 +7,9 @@ public
 
 use AtlasPolicy AtlasPolicy-*
 
+# Specify for cmake the required ROOT components (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO Tree)"
+
 library  MuonDetDescrUtils ../src/*.cxx
 apply_pattern installed_library
 
