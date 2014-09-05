@@ -18,7 +18,7 @@
 
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
-  m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder",this),
+  m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder"),
   m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool")
 {
   declareProperty("UseRPC",m_useRpc = true);

@@ -51,12 +51,12 @@ Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string
     m_edmPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker",this),
-    m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker",this),
-    m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool",this),
-    m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker",this),
-    m_curvedSegmentCombiner("Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner",this),
-    m_segmentCombinationCleaner("Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool",this),
+    m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
+    m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
+    m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool"),
+    m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"),
+    m_curvedSegmentCombiner("Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner"),
+    m_segmentCombinationCleaner("Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool"),
     m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool"),
     m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
     m_nevents(0),
@@ -96,8 +96,6 @@ Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string
     declareProperty("MdtSegmentCombinationLocation",    m_mdtSegmentCombinationLocation = "MdtSegmentCombinations" );
     declareProperty("CurvedSegmentCombinationLocation", m_curvedCombinationLocation     = "CurvedSegmentCombinations" );
     declareProperty("CloneSegments",                    m_cloneSegments = false );
-    declareProperty("WriteChamerT0s",                   m_writeChamberT0s = false );
-    declareProperty("ChamerT0Location",                 m_chamberT0Location = "MooreMuonChamberT0s" );
   }
 
   //================ Destructor =================================================
@@ -306,26 +304,6 @@ Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const MdtPrep
     }
 
     if( msgLvl(MSG::DEBUG) ) printSummary( "MDT segment finding", finalSegmentCollection );
-
-    if( m_writeChamberT0s ){
-      std::vector< std::pair < Identifier, float > > t0s;
-      t0s.reserve(m_chBestT0SegmentMap.size());
-      std::map<Identifier,const MuonSegment*>::iterator chit = m_chBestT0SegmentMap.begin();
-      std::map<Identifier,const MuonSegment*>::iterator chit_end = m_chBestT0SegmentMap.end();
-      for( ;chit!=chit_end;++chit ){
-	t0s.push_back( std::make_pair(chit->first,chit->second->time()) );
-      }
-      ChamberT0s* chamberT0s = new ChamberT0s(t0s);
-      if( evtStore()->record(chamberT0s,m_chamberT0Location).isSuccess() ){
-	ATH_MSG_VERBOSE("stored Chambert0s " << t0s.size() 
-			<< " at " << m_chamberT0Location);
-      }else{
-	ATH_MSG_ERROR("Failed to store Chambert0s at " << m_chamberT0Location);
-	delete chamberT0s;
-      }    
-      m_chBestT0SegmentMap.clear();
-    }
-
 
     MuonSegmentCombinationCollection* curvedSegmentCombinations = 0;
     MuonSegmentCombinationCollection* cleanedSegmentCombinations = 0;
@@ -570,7 +548,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
     }
   }
 
-  // optionally output chamberT0s
+  // optionally output 
   RSMapIt rsit = segMap.begin();
   RSMapIt rsit_end = segMap.end();
   for( ;rsit!=rsit_end;++rsit){
@@ -592,26 +570,6 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
     IMuonSegmentOverlapRemovalTool::SegCit sit = goodSegments.begin();
     IMuonSegmentOverlapRemovalTool::SegCit sit_end = goodSegments.end();
     for( ;sit!=sit_end;++sit ) {
-      if( m_writeChamberT0s ){
-	const MuonSegment* t0Seg = dynamic_cast<const MuonSegment*>(*sit);
-	if( t0Seg && t0Seg->hasFittedT0() ){
-	  Identifier chId = m_helperTool->chamberId(*t0Seg);
-	  if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "New T0 fitted segment " << m_edmPrinter->print(*t0Seg) << std::endl;
-
-	  std::map<Identifier,const MuonSegment*>::iterator pos = m_chBestT0SegmentMap.find(chId);
-	  if( pos == m_chBestT0SegmentMap.end() ) m_chBestT0SegmentMap[chId] = t0Seg;
-	  else{
-	    bool takeNew = firstIsBest(*t0Seg,*pos->second);
-	    if( msgLvl(MSG::VERBOSE) ) {
-	      msg(MSG::VERBOSE) << "Second segment, old: " << m_edmPrinter->print(*pos->second);
-	      if(takeNew ) msg(MSG::VERBOSE) << " replacing T0";
-	      else                 msg(MSG::VERBOSE) << " keeping old T0";
-	      msg(MSG::VERBOSE) << std::endl;
-	    }
-	    if( takeNew ) pos->second = t0Seg;
-	  }
-	}
-      }
       segmentCol.push_back( m_cloneSegments ? (*sit)->clone() : new Muon::MuonSegment(**sit) );
     }
 

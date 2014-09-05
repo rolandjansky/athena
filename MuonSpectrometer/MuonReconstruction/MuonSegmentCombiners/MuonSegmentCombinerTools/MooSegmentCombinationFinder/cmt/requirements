@@ -14,6 +14,16 @@ use MuonPrepRawData     MuonPrepRawData-*     MuonSpectrometer/MuonReconstructio
 use MuonSegmentCombinerToolInterfaces     MuonSegmentCombinerToolInterfaces-*  MuonSpectrometer/MuonReconstruction/MuonSegmentCombiners/MuonSegmentCombinerTools
 use MuonSegmentMakerToolInterfaces    MuonSegmentMakerToolInterfaces-*       MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 
+use AtlasHepMC                 AtlasHepMC-*            External
+use AtlasROOT          AtlasROOT-*              External
+use TrkExInterfaces TrkExInterfaces-* Tracking/TrkExtrapolation
+use TrkFitterInterfaces TrkFitterInterfaces-* Tracking/TrkFitter
+use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
+use TrkSurfaces TrkSurfaces-* Tracking/TrkDetDescr
+use TrkTrack      TrkTrack-*      Tracking/TrkEvent
+use TrkTruthData        TrkTruthData-*       Tracking/TrkEvent
+use MuonLinearSegmentMakerUtilities MuonLinearSegmentMakerUtilities-* MuonSpectrometer/MuonReconstruction/MuonRecUtils
+
 use  MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 use  MuonPatternFinderToolInterfaces MuonPatternFinderToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonPatternFinders/MuonPatternFinderTools
 use  MuonPatternSegmentMaker    MuonPatternSegmentMaker-*       MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
