@@ -1,0 +1,381 @@
+#*****************************************************************
+#
+# """topOptions file for Tile Reconstruciton and Monitoring in Athena""" 
+# """This topOptions is intended to test the monitoring code"""
+#=================================================================
+
+# MonitorOutput="EXPERT"
+
+from os import system, popen
+
+def FindFile(path, runinput):
+
+    run = str(runinput)
+
+    while len(run) < 7:
+        run = '0' + run
+        
+    files = []
+    fullname = []
+
+    if path.startswith("/castor") :
+        for f in popen('ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+            files.append(f)
+
+    elif path.startswith("/eos") :
+        for f in popen('eos ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+            files.append(f)
+
+    else:
+        for f in popen('nsls  %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+            files.append(f)
+            
+
+    for nn in range(len(files)):
+        temp = files[nn].split('\n')
+        fullname.append(path + '/' + temp[0])
+
+    return [fullname, run]
+
+# include Flags jobOption
+include("TileMonitoring/TileRec_FlagOptions.py")
+
+# # get a handle to the default top-level algorithm sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
+# Get a handle to the ServiceManager
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr import ToolSvc
+
+# set global flags
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetGeo.set_Value_and_Lock('commis')
+globalflags.DataSource.set_Value_and_Lock('data')
+globalflags.InputFormat.set_Value_and_Lock('bytestream')
+
+from AthenaCommon.BeamFlags import jobproperties     
+jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
+
+# reset everything which is not needed
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.Calo_setOff()  # Switched off to avoid geometry
+DetFlags.ID_setOff()
+DetFlags.Muon_setOff()
+DetFlags.Truth_setOff()
+DetFlags.LVL1_setOff()
+DetFlags.digitize.all_setOff()
+
+DetFlags.detdescr.ID_setOff()
+DetFlags.detdescr.Muon_setOff()
+DetFlags.detdescr.LAr_setOn()
+DetFlags.detdescr.Tile_setOn()
+DetFlags.readRDOBS.Tile_setOn()
+
+if CheckDCS:
+    DetFlags.dcs.Tile_setOn()
+else:
+    DetFlags.dcs.Tile_setOff()
+
+DetFlags.Print()
+
+from RecExConfig.RecFlags import rec
+rec.doLArg = False
+
+# set online flag if neeed
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+if athenaCommonFlags.isOnline() or doOnline or doStateless:
+    athenaCommonFlags.isOnline = True
+    print 'athenaCommonFlags.isOnline = True : Online Mode'
+    if doStateless:
+        athenaCommonFlags.isOnlineStateless = True
+        print 'athenaCommonFlags.isOnlineStateless = True : Stateless Online Mode'
+
+# init DetDescr
+from AthenaCommon.GlobalFlags import jobproperties
+if not 'DetDescrVersion' in dir():
+    DetDescrVersion = 'ATLAS-GEO-20-00-02'
+jobproperties.Global.DetDescrVersion = DetDescrVersion 
+log.info("DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()))
+
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.IgnoreTagDifference = True
+log.info("GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion))
+
+# Setup Db stuff
+from IOVDbSvc.CondDB import conddb
+conddb.setGlobalTag(tileCOOLtag)
+
+# connStr = "<dbConnection>sqlite://DUMMY;schema=caloSqlite.db;dbname=COMP200</dbConnection>"
+# tag     = "<tag>CaloNoiseCellnoise-UPD1-00</tag>"
+# tag     = "<tag>CaloNoiseCellnoise-UPD3-00</tag>"
+# folder  = "/CALO/Noise/CellNoise"
+# svcMgr.IOVDbSvc.Folders += [ folder + tag + connStr ]
+
+
+#-----------------
+# ByteSream Input 
+#-----------------
+
+if not athenaCommonFlags.isOnline():
+
+    include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
+    include("ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py")
+
+    if not 'InputDirectory' in dir():
+        InputDirectory = "/castor/cern.ch/grid/atlas/t0/perm/DAQ"
+    if not 'RunNumber' in dir():
+        RunNumber = 0
+    if not 'RunFromLocal' in dir():
+       if InputDirectory == "." or RunNumber < 10:
+           RunFromLocal = True
+       else:
+           RunFromLocal = False
+   
+    if not 'FileNameVec' in dir():
+        if not 'FileName' in dir():
+
+            tmp = FindFile(InputDirectory, RunNumber)
+            FileNameVec = tmp[0]
+            FormattedRunNumber = tmp[1]
+            
+        else:
+            FileNameVec = [ InputDirectory + '/' + FileName ]
+            FormattedRunNumber = RunNumber
+    else:
+        FormattedRunNumber = RunNumber
+
+    svcMgr.EventSelector.SkipEvents = EvtMin
+    theApp.EvtMax = EvtMax
+
+    print "InputDirectory is " + str(InputDirectory)
+    print "RunNumber is " + str(FormattedRunNumber)
+    print "FullFileName is " + str(FileNameVec)
+    print "Skip Events is " + str(EvtMin)
+    print "Max events is " + str(EvtMax)
+
+    svcMgr.ByteStreamInputSvc.FullFileName = FileNameVec
+    # svcMgr.ByteStreamInputSvc.NumFile = [ FileNameVec.__len__() ]
+    # svcMgr.ByteStreamInputSvc.NumFile = [ 10 ]
+    svcMgr.ByteStreamInputSvc.MaxBadEvents = MaxBadEvents
+   
+    athenaCommonFlags.FilesInput = FileNameVec
+
+# setting option to build frag->ROB mapping at the begin of run
+ByteStreamCnvSvc = Service("ByteStreamCnvSvc")
+ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ] 
+
+
+if doTrigger:
+    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool  
+    tdt = Trig__TrigDecisionTool("TrigDecisionTool")
+    ToolSvc += tdt
+    # To read files with trigger config stored as in-file meta-data,
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.configurationSourceList = ['ds']
+
+    # set up trigger config service
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg = TriggerConfigGetter()
+    
+
+if not athenaCommonFlags.isOnline():
+    from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
+    lumiTool = LuminosityToolDefault()
+    lumiTool.OutputLevel = DEBUG
+    ToolSvc += lumiTool
+
+if not athenaCommonFlags.isOnline():
+    from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
+    liveTool = TrigLivefractionToolDefault()
+    liveTool.OutputLevel = DEBUG
+    ToolSvc += liveTool
+
+
+doTileOpt2 = True
+doTileOptATLAS = True
+TileCorrectTime = True    
+TileCorrectAmplitude = True
+
+# load conditions data
+include("TileRec/TileDefaults_jobOptions.py")
+include("TileConditions/TileConditions_jobOptions.py")
+
+# set reconstruction flags and reconstruct data
+from TileRecUtils.TileRecFlags import jobproperties
+jobproperties.TileRecFlags.calibrateEnergy.set_Value_and_Lock(False)  # don't need pC in raw channels, keep ADC counts
+jobproperties.TileRecFlags.noiseFilter.set_Value_and_Lock(1)  # Enable noise filter tool
+jobproperties.TileRecFlags.BestPhaseFromCOOL.set_Value_and_Lock(True)  # Use best phase from COOL
+include("TileRec/TileRec_jobOptions.py")
+
+#----------------
+# create TileCell from TileRawChannel and store it in CaloCellContainer
+#----------------
+if doTileCells:
+   
+   # make sure that we use OF-NI method
+    if doTileOptATLAS:
+        jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFixed"
+   # enable interpolation for dead cells
+    doCaloNeighborsCorr = True
+    include("TileRec/TileCellMaker_jobOptions.py")
+
+   #----------------
+   # create towers from TileCells
+   #----------------
+    if doTowers:
+       include("TileMonitoring/TileMonTower_jobOptions.py")
+       # CmbTowerBldr +=  TileCmbTwrBldr
+       # CmbTowerBldr.TowerBuilderTools = [ TileCmbTwrBldr ]
+
+   #----------------
+   # create clusters from TileCells
+   #----------------
+    if doClusters:
+        # include( "CaloRec/CaloTopoCluster_jobOptions.py" )
+        include("TileMonitoring/TileMonTopoCluster_jobOptions.py")      
+
+    if doTileMuId:
+        include ("TileMuId/TileMuId_cosmics_jobOptions.py")
+
+    if doTileMuonFit:
+        include("TileCosmicAlgs/TileMuonFitter_jobOptions.py")
+
+#----------------
+# TileMonitoring
+#----------------
+if doMonitoring:
+    include("TileMonitoring/TileMon_standalone_jobOptions.py")
+   
+    # To read CTP RESULTS and DSP Raw Channels
+    if not hasattr(svcMgr, "ByteStreamAddressProviderSvc"):
+        from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+        svcMgr += ByteStreamAddressProviderSvc()
+    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
+                                                      "TileRawChannelContainer/TileRawChannelCnt",
+                                                      "CTP_RDO/CTP_RDO",
+                                                      "CTP_RIO/CTP_RIO",
+                                                     ]
+
+
+
+#--------------------------------------------------------------
+# ATLANTIS
+#--------------------------------------------------------------
+if doAtlantis:
+    include("JiveXML/JiveXML_jobOptionBase.py")
+    include ("CaloJiveXML/CaloJiveXML_DataTypes.py")
+
+    # #To read CTP RESULTS and more
+    if not hasattr(svcMgr, "ByteStreamAddressProviderSvc"):
+        from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+        svcMgr += ByteStreamAddressProviderSvc()
+    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
+        "ROIB::RoIBResult/RoIBResult",
+        "MuCTPI_RDO/MUCTPI_RDO",
+        "CTP_RDO/CTP_RDO",
+        "MuCTPI_RIO/MUCTPI_RIO",
+        "CTP_RIO/CTP_RIO",
+        "LVL_ROI/LVL_ROI"
+        ]
+
+    from RecExConfig.RecFlags import rec
+    include ("TrigJiveXML/TrigJiveXML_DataTypes.py")
+    # theCTPDecisionRetriever.readCTP = True
+    # #End of reading CTP and trigger
+    
+    theCaloClusterRetriever.FavouriteClusterCollection = "TileTopoCluster"
+    theCaloClusterRetriever.OtherClusterCollections = [""]
+    theCaloTileRetriever.DoTileDigit = True
+    theCaloTileRetriever.DoTileCellDetails = True
+    theCaloMBTSRetriever.DoMBTSDigits = True
+    print theCaloClusterRetriever
+
+    theEventData2XML.DataTypes = ['JiveXML::CaloTileRetriever/CaloTileRetriever',
+                                  'JiveXML::CaloMBTSRetriever/CaloMBTSRetriever',
+                                  'JiveXML::CaloClusterRetriever/CaloClusterRetriever',
+                                  'JiveXML::TriggerInfoRetriever/TriggerInfoRetriever',
+                                  'JiveXML::CTPDecisionRetriever/CTPDecisionRetriever']
+
+    if OnlineAtlantis:
+        theEventData2XML.OnlineMode = True
+        theEventData2XML.WriteToFile = False
+    else:
+        from JiveXML.JiveXMLConf import JiveXML__StreamToFileTool
+        theStreamToFileTool = JiveXML__StreamToFileTool(FileNamePrefix=OutputDirectory + "/JiveXML")
+        ToolSvc += theStreamToFileTool
+        theEventData2XML.StreamTools += [ theStreamToFileTool ]
+
+    print theEventData2XML
+
+#-----------------------
+# Perfomance monitor
+#-----------------------
+if doPerfMon and not athenaCommonFlags.isOnline():
+
+    from GaudiSvc.GaudiSvcConf import AuditorSvc
+    theAuditorSvc = svcMgr.AuditorSvc
+    theApp.AuditAlgorithms = True  
+    theApp.AuditServices = True
+    theApp.AuditTools = True  
+
+    from AthenaCommon import CfgMgr
+    theAuditorSvc += CfgMgr.AlgErrorAuditor()
+    theAuditorSvc += CfgMgr.ChronoAuditor()
+    theAuditorSvc += CfgMgr.NameAuditor()
+    theAuditorSvc += CfgMgr.MemStatAuditor()
+    from PerfMonComps.PerfMonFlags import jobproperties
+    jobproperties.PerfMonFlags.OutputFile = "perfmon_ntuple.root"
+    jobproperties.PerfMonFlags.doMonitoring = True
+    jobproperties.PerfMonFlags.doDetailedMonitoring = True
+    jobproperties.PerfMonFlags.doFastMon = False
+    include("PerfMonComps/PerfMonSvc_jobOptions.py")
+
+
+#-----------------------
+# And some final options
+#-----------------------
+
+if OutputLevel < 2:
+    from TileByteStream.TileByteStreamConf import TileROD_Decoder
+    ToolSvc += TileROD_Decoder()
+    ToolSvc.TileROD_Decoder.VerboseOutput = True
+    # svcMgr.ByteStreamInputSvc.DumpFlag = True
+
+svcMgr.MessageSvc.defaultLimit = MsgLinesLimit
+svcMgr.MessageSvc.OutputLevel = OutputLevel
+svcMgr.MessageSvc.Format = "% F%35W%S%7W%R%T %0W%M"
+svcMgr.MessageSvc.useColors = useColors
+# svcMgr.HistorySvc.OutputLevel = 3
+
+theApp.EvtMax = EvtMax
+
+from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+svcMgr += AthenaEventLoopMgr()
+svcMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
+
+if TileUseCOOL:
+    from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
+    svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
+   # svcMgr.PoolSvc.SortReplicas=False
+   
+   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/sw/DbSuppForMx/poolcond/PoolCat_comcond.xml"]
+   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/det/lar/lar/project/databases/cond08_data.000001.lar.COND/PoolFileCatalog.xml"]
+   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/det/lar/lar/project/databases/comcond.000006.lar_conditions.recon.pool.v0000/PoolFileCatalog.xml"]
+   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/det/lar/lar/project/databases/cond09_data.000001.lar.COND/PoolFileCatalog.xml"]
+   # from LArConditionsCommon.LArCondFlags import larCondFlags 
+   # larCondFlags.SingleVersion=True
+   # larCondFlags.OFCShapeFolder = ""
+   # larCondFlags.LArDBConnection.statusOn = False
+
+# ToolSvc.TileCellMon.OutputLevel = 2
+# ToolSvc.TileCellBuilder.OutputLevel = 2
+# ToolSvc.TileRawChannelBuilderOptATLAS.OutputLevel = 1
+# TileTopoCluster.OutputLevel=1
+# TileTopoCluster.TileTopoMaker.OutputLevel=1
+# TileTopoCluster.TileTopoSplitter.OutputLevel=1
+# ToolSvc.CaloCellNeighborsAverageCorr.OutputLevel=1
+

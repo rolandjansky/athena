@@ -1,0 +1,204 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ********************************************************************
+//
+// NAME:     TileRawChannelMonTool.h
+// PACKAGE:  
+//
+// AUTHOR:   Alexander Solodkov
+//
+//
+// ********************************************************************
+#ifndef TILERAWCHANNELMONTOOL_H
+#define TILETAWCHANNELMONTOOL_H
+
+#include "TileMonitoring/TilePaterMonTool.h"
+#include "TileConditions/TileCondIdTransforms.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include <stdint.h>
+#include <vector>
+class TileBeamInfoProvider;
+class TileRawChannel;
+class TileRawChannelUnit;
+class TF1;
+
+/** @class TileRawChannelMonTool
+ *  @brief Class for commissioning: raw channels monitoring
+ */ 
+
+class TileRawChannelMonTool: public TilePaterMonTool
+{
+
+ public:
+  
+  TileRawChannelMonTool(const std::string & type, const std::string & name,
+		  const IInterface* parent);
+    
+
+  ~TileRawChannelMonTool();
+
+  StatusCode initialize();
+    
+  //pure virtual methods
+  StatusCode bookHists();
+  StatusCode fillHists();
+  StatusCode finalHists();
+  StatusCode checkHists(bool fromFinalize);
+
+  void bookHists(int ros, int drawer);
+  void drawHists(int ros, int drawer, std::string moduleName);
+  void ratioErrorBar(TH1S* hist, double& xmin, double& xmax, double mean);
+  void rangeErrorBar(double& xmin, double& max, double mean);
+  void bookDsp(int ros, int drawer);
+  StatusCode fillDsp(std::map< int, std::vector<double> > &efitMap, std::map< int, std::vector<double> > &tfitMap);
+  StatusCode finalDsp(int ros, int drawer);
+
+  void drawDsp(int ros, int drawer, std::string moduleName);
+  void drawOptFilt(int ros, int drawer, std::string moduleName);
+  TF1* GetTimeFitFunc(TH2S* hist2d);
+  void LaserFancyPlotting(int ros,int drawer,int maxgain,std::string moduleName);
+
+private:
+
+  bool m_bookAll;
+  bool m_book2D;
+  int  m_runType;
+  std::string m_contName;
+  std::string m_contNameDSP, m_contNameOF;
+  double m_DownLimit; // Down Threshold for Amp/Q ratio plots 
+  double m_UpLimit;   // Up  Threshold for Amp/Q ratio plots
+  double m_lo_IntegralLimit; // Warning error bar Low limit for  Amp/Q ratio plots 
+  double m_med_IntegralLimit; // Warning error bar Med limit for  Amp/Q ratio plots 
+  double m_hi_IntegralLimit; // Warning error bar High limit for  Amp/Q ratio plots 
+  bool m_useratioerror; //use ratioerror bar or rangeerror bar ?
+  //bool m_plotOptFilt; //book Optimal Filter histograms?
+  bool m_plotDsp; //book Optimal Filter histograms?
+  bool m_storeGraph; //Store TGraph to file: necessary due to THistSvc bug 
+  std::map< int, std::vector<double> > m_efitMap, m_tfitMap;
+  ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
+  double m_efitThresh;
+
+  /// The following three functions are implemented to filter data corruption, copied from TileDigitsMonTool.h
+
+  ///Function to check for data corruption. Modified from TileDigitsMonTool implementation 
+
+  bool DMUheaderCheck(std::vector<uint32_t>* headerVec, int dmu);
+  //vector to hold data corruption information
+  // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)  
+  bool corrup[5][64][2][16]; //ros, drawer, gain, DMU
+
+  /// Fuction to check that the DMU header format is correct
+  /// bit_31 of the DMU header must be 1 and
+  /// bit_17 of the DMU header must be 0
+  /// Return true in the case of error  
+  inline bool DMUheaderFormatCheck(uint32_t header) {
+    if ( ( ( header >> 31 & 0x1) ==1 ) &&
+         ( ( header >> 17 & 0x1) ==0 ) )
+       return false; //no error
+    else return true; //error
+  };
+  
+  /// Function to check that the DMU header parity is correct
+  /// Parity of the DMU header should be odd
+  /// Return true in case of error
+  inline bool DMUheaderParityCheck(uint32_t header) {
+        uint32_t parity(0);
+        for (int i=0; i<32; ++i)
+          parity+= ( (header >> i) & 0x1);
+
+        if( (parity % 2) ==1 )
+          return false; //no error
+        else
+          return true; //error
+  }; 
+
+  enum RunType {
+    Unknown   =0,
+    PhysRun   =1, // expect monogain
+    LasRun    =2, // expect monogain
+    LedRun    =3, // expect monogain
+    PedRun    =4, // expect bigain
+    CisRun    =8, // expect bigain
+    MonoRun   =9, // expect monogain
+    CisRamp   =10 // expect monogain
+  };
+
+  enum DspPlot {
+    Edsp   	=0,
+    Tdsp   	=1,
+    chi2dsp   	=2,
+    Edsp_fit    =3,
+    Tdsp_fit    =4
+  };
+
+  enum sumDspPlot {
+    sumEdsp_fit    =0,
+    sumTdsp_fit    =1,
+    sumEdsp        =2,
+    NsumDsp        =3
+  };
+
+
+  TileBeamInfoProvider* m_beamInfo;
+  const uint32_t * m_cispar;
+
+  bool m_bigain;
+  int  m_nEvents;
+  float RangeQ[2][2][3][48];
+  double TimeCov[5][64][48][2][2][6];
+  double TimeCovCorr[5][64][48][2][2][3];	//Lukas
+
+
+  //Pointers to Histograms
+  std::vector<TH1S *> hist1[5][64][48][2]; // ros,drawer,channel,gain
+  std::vector<TH2S *> hist2[5][64][48][2];
+  std::vector<TH1F *> final_hist1[5][64][2][2]; //ros, drawer,capacitor, gain
+  std::vector<TH2F *> final_hist2[256][2];
+
+  std::vector<TH1F *> histdsp1[5][64][48][2]; // ros,drawer,channel,gain
+  std::vector<TH2F *> histdsp2[5][64][48][2];
+  std::vector<TH1F *> final_histdsp1[5][64][2]; //ros,drawer,gain
+  std::vector<TH2F *> final_histdsp2[5][64][2];
+  std::vector<TH1F *> hbardsp1[5][64][2]; // ros, drawer,gain
+
+  TileRawChannelUnit::UNIT  m_CalibUnit;
+
+  // Tells if a channel is disconnected or not
+  // Special modules are considered too.
+  // NB Input is channel number (0-47)
+  // BEWARE: ugly code below this line!
+  int m_chMap_LB[48];
+  int m_chMap_EB[48];
+  int m_chMap_EBsp[48];
+
+  inline bool isDisconnected(int ros, int drawer, int ch) {
+
+    if (ros<3) { //LB, all standard. Chans 30,31,43 are disconnected
+      if ( m_chMap_LB[ch] ) return false; //connected
+      else return true; //disconnected
+    }
+
+    else {
+ 
+      if ( ( (ros==3) && (drawer==14) ) || ( (ros==4) && (drawer==17) ) ) //EB, EBA15 and EBC18 are special
+	{ 
+	  if ( m_chMap_EBsp[ch] ) 
+	    return false;
+	  else return true; //(disconnected)
+	}
+      else //EB standard module
+	{
+	  if(  m_chMap_EB[ch] )
+	    return false;
+	  else return true; //(disconnected)
+	}
+    
+    } //end if LB else EB
+
+  } 
+
+};
+
+#endif

@@ -1,0 +1,72 @@
+package TileMonitoring
+
+author Luca Fiorini <Luca.Fiorini@cern.ch>
+
+
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*      External
+use AtlasROOT            AtlasROOT-*           External
+
+use AthenaMonitoring     AthenaMonitoring-*    Control
+use TileConditions       TileConditions-*      TileCalorimeter
+use AtlasAnalysisRunTime AtlasAnalysisRunTime-*
+
+
+private
+
+use AthenaKernel         AthenaKernel-*        Control
+use AtlasCLHEP           AtlasCLHEP-*          External
+use StoreGate            StoreGate-*           Control
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
+
+
+use xAODTrigger            xAODTrigger-*            Event/xAOD
+use TrigConfInterfaces	 TrigConfInterfaces-*  Trigger/TrigConfiguration
+use TrigConfL1Data	 TrigConfL1Data-*      Trigger/TrigConfiguration
+use TrigT1Result         TrigT1Result-*        Trigger/TrigT1
+use TrigDecisionTool     TrigDecisionTool-*    Trigger/TrigAnalysis
+
+use CaloIdentifier       CaloIdentifier-*      Calorimeter
+use CaloEvent            CaloEvent-*           Calorimeter
+use CaloGeoHelpers       CaloGeoHelpers-*      Calorimeter
+use xAODCaloEvent        xAODCaloEvent-*       Event/xAOD
+
+use TileIdentifier       TileIdentifier-*      TileCalorimeter
+use TileRecUtils         TileRecUtils-*        TileCalorimeter
+use TileEvent            TileEvent-*           TileCalorimeter
+use TileCalibBlobObjs    TileCalibBlobObjs-*   TileCalorimeter/TileCalib
+#
+# added by Tomas Davidek to accommodate TileJetMonTool
+use Navigation           Navigation-*           Control
+use JetEvent             JetEvent-*             Reconstruction/Jet
+use JetUtils             JetUtils-*             Reconstruction/Jet
+
+end_private
+
+
+
+
+apply_pattern declare_joboptions files="*.py"
+
+library TileMonitoring *.cxx components/*.cxx
+apply_pattern component_library
+macro_append TileMonitoring_shlibflags " -L$(ROOT_home)/lib -lSpectrum"
+
+private
+
+#macro_append cppflags " -pedantic"
+#
+# added by Tomas Davidek to accommodate TileJetMonTool
+#macro_append cppflags   " -I ${JetD3PDMaker_root} "
+
+apply_tag ROOTGraphicsLibs
+
+# to compile debug version in opt release
+# should be commented out normally
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+end_private
+
+

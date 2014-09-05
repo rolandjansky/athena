@@ -1,0 +1,19 @@
+*************IMPORTANT*****************
+1)TileCosmicView needs ROOT>=5.14
+  The version shipped with Athena 12.0.X
+  is not recent enough.
+
+2)To run, just type
+  root TileCosmicView.C
+
+3)The input ntuple must contain TileMuonFitter tree
+  which is not on by default in the reconstruction
+
+4)To select a cell shift+click
+
+***************************************
+If one wishes to make changes in the geometry.  Then after editing TileGeoBuild.C.
+> root -l
+> .L TileGeoBuild.C++
+> build();
+This builds the TileGeom.root file.  Now you can run TileCosmicView as above but with a new geometry. 
