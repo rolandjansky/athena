@@ -61,7 +61,7 @@ StraightLineIntersector::finalize()
 /**IIntersector interface method for general Surface type */
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectSurface(const Surface&	surface,
-					  const Intersection*	trackIntersection,
+					  const TrackSurfaceIntersection*	trackIntersection,
 					  const double      	qOverP)
 {
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
@@ -86,7 +86,7 @@ StraightLineIntersector::intersectSurface(const Surface&	surface,
 /**IIntersector interface method for specific Surface type : PerigeeSurface */
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
-						const Intersection*	trackIntersection,
+						const TrackSurfaceIntersection*	trackIntersection,
 						const double      	/*qOverP*/)
 {
     // set member data
@@ -103,7 +103,7 @@ StraightLineIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
     distanceToLine (surface.center(),lineDirection);
     step();
     
-    const Intersection* intersection	= new TrackSurfaceIntersection(m_position,
+    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
 								       m_direction,
 								       m_transverseLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -113,7 +113,7 @@ StraightLineIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::approachStraightLineSurface(const StraightLineSurface& surface,
-						     const Intersection*	trackIntersection,
+						     const TrackSurfaceIntersection*	trackIntersection,
 						     const double      		/*qOverP*/)
 {
     // set member data
@@ -130,7 +130,7 @@ StraightLineIntersector::approachStraightLineSurface(const StraightLineSurface& 
     distanceToLine (surface.center(),lineDirection);
     step();
 
-    const Intersection* intersection	= new TrackSurfaceIntersection(m_position,
+    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
 								       m_direction,
 								       m_transverseLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -140,7 +140,7 @@ StraightLineIntersector::approachStraightLineSurface(const StraightLineSurface& 
 /**IIntersector interface method for specific Surface type : CylinderSurface */
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
-						   const Intersection*		trackIntersection,
+						   const TrackSurfaceIntersection*		trackIntersection,
 						   const double      		/*qOverP*/)
 {
     // set member data
@@ -157,7 +157,7 @@ StraightLineIntersector::intersectCylinderSurface (const CylinderSurface&	surfac
     distanceToCylinder(cylinderRadius);
     step();
 
-    const Intersection* intersection	= new TrackSurfaceIntersection(m_position,
+    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
 								       m_direction,
 								       m_transverseLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -167,7 +167,7 @@ StraightLineIntersector::intersectCylinderSurface (const CylinderSurface&	surfac
 /**IIntersector interface method for specific Surface type : DiscSurface */
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectDiscSurface (const DiscSurface&	surface,
-					       const Intersection*	trackIntersection,
+					       const TrackSurfaceIntersection*	trackIntersection,
 					       const double      	/*qOverP*/)
 {
     if (trackIntersection->serialNumber() != m_intersectionNumber)
@@ -182,7 +182,7 @@ StraightLineIntersector::intersectDiscSurface (const DiscSurface&	surface,
     distanceToDisc(surface.center().z());
     step();
   
-    const Intersection* intersection	= new TrackSurfaceIntersection(m_position,
+    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
 								       m_direction,
 								       m_transverseLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -192,7 +192,7 @@ StraightLineIntersector::intersectDiscSurface (const DiscSurface&	surface,
 /**IIntersector interface method for specific Surface type : PlaneSurface */
 const Trk::TrackSurfaceIntersection*
 StraightLineIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
-					       const Intersection*	trackIntersection,
+					       const TrackSurfaceIntersection*	trackIntersection,
 					       const double      	/*qOverP*/)
 {
     // set member data
@@ -209,7 +209,7 @@ StraightLineIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
     step();
     distanceToPlane(surface.center(),surface.normal());
 
-    const Intersection* intersection	= new TrackSurfaceIntersection(m_position,
+    const Trk::TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(m_position,
 								       m_direction,
 								       m_transverseLength);
     m_intersectionNumber		= intersection->serialNumber();

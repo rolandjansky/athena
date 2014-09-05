@@ -12,9 +12,8 @@
 #define TRKEXSTRAIGHTLINEINTERSECTOR_STRAIGHTLINEINTERSECTOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "TrkEventPrimitives/GlobalDirection.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkExInterfaces/IIntersector.h"
+#include "TrkExUtils/TrackSurfaceIntersection.h"
 
 namespace Trk
 {
@@ -33,33 +32,33 @@ public:
     StatusCode			finalize();
 
     /**IIntersector interface method for general Surface type */
-    const Intersection*		intersectSurface(const Surface&		surface,
-						 const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectSurface(const Surface&		surface,
+						 const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						 const double      	qOverP);
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
-    const Intersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
-						       const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
+						       const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						       const double      	/*qOverP*/);
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
-    const Intersection*		approachStraightLineSurface(const StraightLineSurface& surface,
-							    const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		approachStraightLineSurface(const StraightLineSurface& surface,
+							    const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 							    const double      	/*qOverP*/);
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
-    const Intersection*		intersectCylinderSurface (const CylinderSurface& surface,
-							  const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface& surface,
+							  const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 							  const double      	/*qOverP*/);
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
-    const Intersection*		intersectDiscSurface (const DiscSurface&	surface,
-						      const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&	surface,
+						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						      const double      	/*qOverP*/);
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
-    const Intersection*		intersectPlaneSurface(const PlaneSurface&	surface,
-						      const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectPlaneSurface(const PlaneSurface&	surface,
+						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						      const double      	/*qOverP*/);
  
     /**IIntersector interface method for validity check over a particular extrapolation range */
