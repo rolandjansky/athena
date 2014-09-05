@@ -1,0 +1,15 @@
+package PATInterfaces
+author NLAA
+
+use AtlasPolicy AtlasPolicy-*
+
+use AsgTools AsgTools-* Control/AthToolSupport
+
+private
+use AtlasBoost AtlasBoost-* External
+use RootCoreUtils RootCoreUtils-* PhysicsAnalysis/D3PDTools
+end_private
+
+
+library PATInterfaces "../Root/*.cxx"
+apply_pattern installed_library

@@ -1,0 +1,82 @@
+In the first iteration the base class just deals with section 5 of the
+recommendation, i.e. how to configure tools for different systematics
+configurations.  It also doesn't yet implement the dual-use tool
+recommendations and only compiles in RootCore (so far).
+
+ * I decided to give a little bit of structure to the names of
+   systematics, they now have the format of "basename__subvariation".
+   In this format "basename" identifies the actual nuisance parameter
+   involved, and subvariation contains the description of what level
+   of variation it is (i.e. the number of sigmas).  Such a scheme
+   allows some generic processing of the systematics without diving
+   much into the interpretation of the systematics.
+
+ * I decided on a fixed scheme to indicate the number of sigmas of the
+   systematic variation.  "1up" equals +1, "2down" equals -2,
+   "2down35" equals -2.35, etc.  Among other things this allows to
+   have a seamless migration from discrete to continuous systematics.
+   It also allows to extract the numeric parameter value from the
+   systematics value automatically.
+
+ * The systematics are represented by the class SystematicVariation.
+   This allows to construct systematics in various ways, as well as
+   inspecting it in multiple ways as well.  In particular it makes it
+   easy to pick a particular systematic from the list of systematics
+   and then ask for the nuisance parameter value.
+
+ * I moved a lot of the systematics handling into the actual tool base
+   class.  Tools now register their affecting systematics with the
+   base class and the base class then takes the list of systematics
+   the user requests and filters it so that the tool has only to deal
+   with the list of systematics affecting it.  This has a couple of
+   advantages:
+
+   * It is a lot easier for the tool to check for unsupported
+     combinations of affecting systematics.  In the simplest case it
+     can just report UNSUPPORTED when there is more than one element
+     is in the list.
+
+   * It allows to move a lot of systematics handling code into the
+     base class, which allows to add more functionality as well.  Most
+     significantly it maintains a list of all applied and affecting
+     systematics, which can be used for debugging purposes, e.g. in
+     the bookkeeping suggested in section 3.
+
+   * It allows the base class to perform a number of sanity checks on
+     the systematics before passing them on to the tool.  See below
+     for the actual checks.
+
+ * As part of moving the generic systematics handling into the base
+   class by having the applySystematics method the user calls, and a
+   virtual sysApplySystematics method the tool defines.  This allows
+   the applySystematics method to perform the systematics filtering
+   and checking mentioned above and then pass the filtered list to the
+   actual tool implementation.
+
+ * Besides the list of default systematics (which is defined but not
+   filled yet), I also defined a list of all known systematics that gets
+   automatically filled as tools register their affecting systematics.
+   This is mostly for sanity checks (see below).
+
+ * The base class now performs a number of sanity checks on the
+   systematics in applySystematics():
+
+   * It reports an error if the user requests multiple systematics
+     with the same basename.  This is the canonical example of
+     requesting both the up and down variation simultaneously.
+
+   * It reports an error if the user requests a systematic that is not
+     registered as affecting, but the tool is affected by a tool with
+     the same basename as the systematic in question.  This is to
+     catch the otherwise fairly hard to debug case that a tool only
+     implements +/-1 sigma variations, but the user requests +/-2
+     sigma variations.
+
+   * If a requested systematic is not in the global list of systematic
+     it is considered an error.  This is to detect typos.  Should the
+     user want to request systematics that no tool supports he will
+     have to add them to the global list manually.
+
+ * For the time being SystematicCode is simply a renamed copy of
+   StatusCode from EventLoop which is in turn derived from StatusCode
+   in Athena.

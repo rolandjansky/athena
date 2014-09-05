@@ -1,0 +1,65 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: CorrectionTool.icc 600738 2014-06-07 14:34:05Z krasznaa $
+#ifndef PATINTERFACES_CORRECTIONTOOL_ICC
+#define PATINTERFACES_CORRECTIONTOOL_ICC
+
+//        Copyright Iowa State University 2014.
+//                  Author: Nils Krumnack
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
+// reports, feature suggestions, praise and complaints.
+
+// System include(s):
+#include <memory>
+
+namespace CP {
+
+   template< class T >
+   CorrectionCode CorrectionTool< T >::
+   correctedCopy( const xAODObjectType& inputObject,
+                  xAODObjectType*& outputObject ) {
+
+      // Choose a smart pointer type according to the standard used:
+#if __cplusplus < 201100
+      std::auto_ptr< xAODObjectType > myobject( new xAODObjectType );
+#else
+      std::unique_ptr< xAODObjectType > myobject( new xAODObjectType );
+#endif // C++11
+
+      // Make a deep copy of the input object:
+      myobject->makePrivateStore( inputObject );
+
+      // Call the function implemented in the concrete tool:
+      CorrectionCode result = applyCorrection( *myobject );
+      if( result != CorrectionCode::Error ) {
+         outputObject = myobject.release();
+      }
+
+      return result;
+   }
+
+   template< class T >
+   CorrectionCode CorrectionTool< T >::
+   applyContainerCorrection( xAODContainerType& inputContainer ) {
+
+      // Loop over the container:
+      typename xAODContainerType::iterator itr = inputContainer.begin();
+      typename xAODContainerType::iterator end = inputContainer.end();
+      for( ; itr != end; ++itr ) {
+         // Apply the correction for this object:
+         CorrectionCode subresult = applyCorrection( **itr );
+         if( subresult == CorrectionCode::Error ) {
+            return subresult;
+         }
+      }
+
+      // We were successful:
+      return CorrectionCode::Ok;
+   }
+
+} // namespace CP
+
+#endif // PATINTERFACES_CORRECTIONTOOL_ICC
