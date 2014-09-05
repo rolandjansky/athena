@@ -3,8 +3,10 @@ package MuonLinearSegmentMakerUtilities
 author Shlomit Tarem <Shlomit.Tarem@cern.ch>
 author Zvi Tarem <Zvi.Tarem@cern.ch>
 author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+author Nathan Bernard <nathan.rogers.bernard@cern.ch>
 
 use AtlasPolicy           	*
+use AtlasROOT AtlasROOT-* External
 use DataModel                   * Control
 use GaudiInterface        	* External
 
