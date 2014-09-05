@@ -151,7 +151,7 @@ SolenoidalIntersector::handle(const Incident& inc)
 /**IIntersector interface method for general Surface type */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectSurface(const Surface&		surface,
-					const Intersection*	trackIntersection,
+					const TrackSurfaceIntersection*	trackIntersection,
 					const double      	qOverP)
 {
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
@@ -178,21 +178,21 @@ SolenoidalIntersector::intersectSurface(const Surface&		surface,
 /**IIntersector interface method for specific Surface type : PerigeeSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
-					      const Intersection*	trackIntersection,
+					      const TrackSurfaceIntersection*	trackIntersection,
 					      const double      	qOverP)
 { return m_rungeKuttaIntersector->approachPerigeeSurface(surface, trackIntersection, qOverP); }
 	
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::approachStraightLineSurface(const StraightLineSurface& surface,
-						   const Intersection*	trackIntersection,
+						   const TrackSurfaceIntersection*	trackIntersection,
 						   const double      	qOverP)
 { return m_rungeKuttaIntersector->approachStraightLineSurface(surface, trackIntersection, qOverP); }
               
 /**IIntersector interface method for specific Surface type : CylinderSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectCylinderSurface(const CylinderSurface&	surface,
-						const Intersection*	trackIntersection,
+						const TrackSurfaceIntersection*	trackIntersection,
 						const double      	qOverP)
 {
     double endRadius		= surface.globalReferencePoint().perp();
@@ -210,7 +210,7 @@ SolenoidalIntersector::intersectCylinderSurface(const CylinderSurface&	surface,
 /**IIntersector interface method for specific Surface type : DiscSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectDiscSurface (const DiscSurface&		surface,
-					     const Intersection*	trackIntersection,
+					     const TrackSurfaceIntersection*	trackIntersection,
 					     const double      		qOverP)
 {
     double endZ	= surface.center().z();
@@ -231,7 +231,7 @@ SolenoidalIntersector::intersectDiscSurface (const DiscSurface&		surface,
 /**IIntersector interface method for specific Surface type : PlaneSurface */
 const Trk::TrackSurfaceIntersection*
 SolenoidalIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
-					     const Intersection*	trackIntersection,
+					     const TrackSurfaceIntersection*	trackIntersection,
 					     const double      		qOverP)
 {
     if (std::abs(surface.center().z())	> m_validZ

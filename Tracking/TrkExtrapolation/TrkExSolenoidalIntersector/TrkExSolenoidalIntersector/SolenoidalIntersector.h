@@ -41,33 +41,33 @@ public:
     void 			handle(const Incident& inc) ;
 
     /**IIntersector interface method for general Surface type */
-    const Intersection*		intersectSurface(const Surface&		surface,
-						 const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectSurface(const Surface&		surface,
+						 const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						 const double      	qOverP);
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
-    const Intersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
-						       const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
+						       const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						       const double      	qOverP);
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
-    const Intersection*		approachStraightLineSurface(const StraightLineSurface& surface,
-							    const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		approachStraightLineSurface(const StraightLineSurface& surface,
+							    const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 							    const double      	qOverP);
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
-    const Intersection*		intersectCylinderSurface (const CylinderSurface& surface,
-							  const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface& surface,
+							  const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 							  const double      	qOverP);
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
-    const Intersection*		intersectDiscSurface (const DiscSurface&	surface,
-						      const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&	surface,
+						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						      const double      	qOverP);
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
-    const Intersection*		intersectPlaneSurface(const PlaneSurface&	surface,
-						      const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectPlaneSurface(const PlaneSurface&	surface,
+						      const TrackSurfaceIntersection*	trackTrackSurfaceIntersection,
 						      const double      	qOverP);
 
     /**IIntersector interface method to check validity of parametrization within extrapolation range */
@@ -84,7 +84,7 @@ private:
     bool					extrapolateToR(double endRadius);
     bool					extrapolateToZ(double endZ);
     const TrackSurfaceIntersection*		intersection(const Surface&	surface);
-    void					setParameters(const Intersection*	intersection,
+    void					setParameters(const TrackSurfaceIntersection*	intersection,
 							      double			qOverP);
     
     // services and tools:
@@ -220,10 +220,10 @@ SolenoidalIntersector::linearArcLength(double	endRadius)
 inline const TrackSurfaceIntersection*
 SolenoidalIntersector::intersection(const Surface&	surface)
 {
-    SurfaceIntersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
+    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
     if (! SLIntersect.valid)		return 0;
     
-    const Intersection* intersection	= new Intersection(SLIntersect.intersection,
+    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
 							   m_direction,
 							   m_pathLength);
     // // validate
@@ -251,24 +251,24 @@ SolenoidalIntersector::intersection(const Surface&	surface)
 }
 
 inline void
-SolenoidalIntersector::setParameters(const Intersection* trackIntersection, double qOverP)
+SolenoidalIntersector::setParameters(const TrackSurfaceIntersection* trackTrackSurfaceIntersection, double qOverP)
 {
-    if (trackIntersection->serialNumber() != m_intersectionNumber || qOverP != m_qOverP)
+    if (trackTrackSurfaceIntersection->serialNumber() != m_intersectionNumber || qOverP != m_qOverP)
     {
-	// ATH_MSG_INFO(" initialize parameters.  Diff: " << trackIntersection->serialNumber()-m_intersectionNumber
-	// 	     << "  at R,Z: " << trackIntersection->position().perp() << ", " << trackIntersection->position().z());
+	// ATH_MSG_INFO(" initialize parameters.  Diff: " << trackTrackSurfaceIntersection->serialNumber()-m_intersectionNumber
+	// 	     << "  at R,Z: " << trackTrackSurfaceIntersection->position().perp() << ", " << trackTrackSurfaceIntersection->position().z());
 	++m_countExtrapolations;
-	m_position.x()		= trackIntersection->position().x();
-	m_position.y()		= trackIntersection->position().y();
-	m_position.z()		= trackIntersection->position().z();
+	m_position.x()		= trackTrackSurfaceIntersection->position().x();
+	m_position.y()		= trackTrackSurfaceIntersection->position().y();
+	m_position.z()		= trackTrackSurfaceIntersection->position().z();
 	m_radius		= m_position.perp();
-	m_direction.x()		= trackIntersection->direction().x();
-	m_direction.y()		= trackIntersection->direction().y();
-	m_direction.z()		= trackIntersection->direction().z();
+	m_direction.x()		= trackTrackSurfaceIntersection->direction().x();
+	m_direction.y()		= trackTrackSurfaceIntersection->direction().y();
+	m_direction.z()		= trackTrackSurfaceIntersection->direction().z();
 	m_sinTheta		= m_direction.perp();
 	m_oneOverSinTheta	= 1./m_sinTheta;
 	m_cotTheta		= m_direction.z() * m_oneOverSinTheta;
-	m_pathLength		= trackIntersection->pathlength();
+	m_pathLength		= trackTrackSurfaceIntersection->pathlength();
 	m_qOverP		= qOverP;
 	m_qOverPt		= qOverP * m_oneOverSinTheta;
 	m_solenoidParametrization->setParameters(m_radius,m_position.z(),m_cotTheta);
