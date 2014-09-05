@@ -1,0 +1,10 @@
+This directory contains the files used when you do 'make check' in cmt/
+
+It runs jobOptions.py and saves the output as InDetRecExampleTesting.log.
+This is then grepped for ERROR WARNING FATAL and 'Application finalised' messages and a 
+stripped output is produced: InDetRecExampleTesting.log_stripped. This is compared to a
+stripped 'reference' file - if they differ then a failure is announced.
+
+So to update the test, run make check, then rename run/InDetRecExampleTesting.log to
+test/Reference_InDetRecExampleTesting.log
+
