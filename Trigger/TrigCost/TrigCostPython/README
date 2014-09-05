@@ -1,0 +1,55 @@
+Author: Tae Min Hong
+Date: Oct 6, 2011
+
+https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigCost/TrigCostPython/trunk
+svn+ssh://svn.cern.ch/reps/atlasoff/Trigger/TrigCost/TrigCostPython/trunk
+
+The TrigCostPython package is a python package (as the name indicates)
+that serves as an interface for the various trigger databases
+(COOL/TRIGGER DB, TRP ntuples, XML files, IS server).
+
+Although this package is mainly geared towards trigger experts (people
+who worry about trigger rates being too high as well as other
+problems), it may be useful for those who need to get their hands on
+trigger rates NOW.  Check out exampleCost.py & makeRoot.py.
+
+Here are the macros & their descriptions:
+
+macros/AddPieChart.py           -- Someone please describe
+macros/DeadTime.py              -- Someone please describe
+macros/EBStats.py               -- Someone please describe
+macros/MultiRatesJobList.py     -- Someone please describe
+macros/NonlinearityCheck.py     -- Someone please describe
+macros/PlotTime_vs_Mu.py        -- Someone please describe
+macros/RTT_steering.py          -- Someone please describe
+macros/RunMultiRates.py         -- Someone please describe
+macros/addDataXml.py            -- Someone please describe
+macros/addPrescales.py          -- Someone please describe
+macros/calcRateMan.py           -- Someone please describe
+macros/checkOptPS.py            -- Someone please describe
+macros/compRates.py             -- Someone please describe
+macros/compResults.py           -- Someone please describe
+macros/costxml2html.py          -- Someone please describe
+macros/draw_rates.py            -- Someone please describe
+macros/exampleCost.py           -- Prints rates to stdout <---- many use this!
+macros/fitRoot.py               -- In dev. for https://cern.ch/x
+macros/histRates.py             -- Someone please describe
+macros/makeCumuTables.py        -- Someone please describe
+macros/makeGroupTables.py       -- Someone please describe
+macros/makeGroupXML.py          -- Someone please describe
+macros/makePieCharts.py         -- Someone please describe
+macros/makePrescaleXML.py       -- Someone please describe
+macros/makeRoot.py              -- Makes ROOT files for https://cern.ch/x/#session
+macros/makeSuperGroupXML.py     -- Someone please describe
+macros/makeTable.py             -- Someone please describe
+macros/plotRoot.py              -- In dev. for https://cern.ch/x
+macros/prepareForTwiki.py       -- Someone please describe
+macros/processCoolRates.py      -- Someone please describe
+macros/rangeCheck.py            -- Someone please describe
+macros/rateVThrsh.py            -- Someone please describe
+macros/thresholdlist.sh         -- Someone please describe
+macros/updateRoot.sh            -- Executed ~20 min by acrontab for https://cern.ch/x
+
+That's all!
+
+        

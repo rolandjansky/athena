@@ -1,0 +1,13 @@
+MenuFast is a set of scripts for fast prediction of trigger rates in a
+menu based on filtered ntuples. These were developed in 2012-2013 for
+Run2 Trigger Menu development.
+== L1menuFast.py for L1 menu by Brian Petersen
+== L1TopomenuFast(Dev).py including L1Topo menu by Moritz Backes and 
+== HLTmenuFast.py for HLT menu by Yu Nakahama (CERN)
+
+Scripts for producing fitered ntuples from D3PDs are also available.
+== L1filter5RoIsIsolation.py and
+== HLTfilter.py
+
+See the following twiki on the usage and the details:
+https://twiki.cern.ch/twiki/bin/viewauth/Atlas/RateEstimator

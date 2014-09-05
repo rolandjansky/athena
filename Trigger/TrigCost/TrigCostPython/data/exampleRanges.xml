@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<ranges>
+  <!-- a "DEFAULT" chain will be compared to all chains that are not otherwise specified -->
+  <range chain="DEFAULT"      min="0" max="10" /> 
+  <range chain="L1_EM2"      min="100" max="200" /> 
+  <range chain="L2_e5_loose" min="100" max="200" /> 
+  <range chain="EF_e5_loose" min="100" max="200" /> 
+  <range chain="EF_RATE:SinglePhoton" min="100" max="200" /> 
+  <range chain="LVL_L1"      min="0" max="1" /> 
+</ranges>
