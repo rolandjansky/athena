@@ -1,0 +1,21 @@
+#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "SCT_Cabling/SCT_CablingSvc.h"
+#include "../SCT_FillCablingFromText.h"
+#include "../SCT_FillCablingFromCoraCool.h"
+#include "../SCT_FillCablingFromCoolVector.h"
+#include "../SCT_TestCablingAlg.h"
+
+DECLARE_SERVICE_FACTORY(SCT_CablingSvc)
+DECLARE_SERVICE_FACTORY(SCT_FillCablingFromText)
+DECLARE_SERVICE_FACTORY(SCT_FillCablingFromCoraCool)
+DECLARE_SERVICE_FACTORY(SCT_FillCablingFromCoolVector)
+DECLARE_ALGORITHM_FACTORY(SCT_TestCablingAlg)
+
+DECLARE_FACTORY_ENTRIES(SCT_Cabling) {
+  DECLARE_SERVICE( SCT_CablingSvc)
+  DECLARE_SERVICE( SCT_FillCablingFromText)
+  DECLARE_SERVICE( SCT_FillCablingFromCoraCool)
+  DECLARE_SERVICE( SCT_FillCablingFromCoolVector)
+  DECLARE_ALGORITHM( SCT_TestCablingAlg )
+}
+
