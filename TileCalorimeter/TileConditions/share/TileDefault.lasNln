@@ -1,0 +1,7 @@
+------------------------------------------------------------------
+- This file contains a unit lookup table as default
+- For now the same format as for the CIS LUT is assumed, 
+- see TileDefault.cisFitLin for more instructions.
+------------------------------------------------------------------
+OBJVERSION 100
+0x000	0	0	0. 1.	0. 1.

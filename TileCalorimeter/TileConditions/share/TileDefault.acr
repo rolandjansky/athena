@@ -1,0 +1,7 @@
+------------------------------------------------------------------
+- This file contains the sample auto correlation default, i.e unit matrix.
+- For 7 samples only the 6 independent autocorrelations corresponding
+- to the 6 possible different time lags are stored.
+------------------------------------------------------------------
+OBJVERSION 0
+0x000    0      0       0. 0. 0. 0. 0. 0.

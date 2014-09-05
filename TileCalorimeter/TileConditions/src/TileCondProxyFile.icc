@@ -1,0 +1,288 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Tile includes
+#include "TileConditions/TileCondProxyFile.h"
+#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
+#include "TileCalibBlobObjs/TileCalibDrawerBch.h"
+#include "TileCalibBlobObjs/TileBchDecoder.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+
+#include "PathResolver/PathResolver.h"
+#include <fstream>
+
+//
+//____________________________________________________________________
+template<typename T>
+TileCondProxyFile<T>::TileCondProxyFile(const std::string& type, const std::string& name,
+    const IInterface* parent)
+    : AthAlgTool(type, name, parent)
+    , m_source("")
+    , m_drawerVec(std::vector<const T*>(TileCalibUtils::MAX_DRAWERIDX, static_cast<const T*>(0)))
+{
+  declareInterface<ITileCondProxy<T> >(this);
+  declareProperty("Source", m_source = "", "The ASCII file to read");
+}
+
+//
+//_____________________________________________________________________________
+template<typename T>
+StatusCode TileCondProxyFile<T>::initialize() {
+
+  //=== file name needs to be set to read correct defaults
+  if (!m_source.size()) {
+    ATH_MSG_ERROR( name() << ": Empty file name detected, initialization not possible." );
+    return StatusCode::FAILURE;
+  }
+
+  //=== Try to resolve file location
+  std::string fileName = PathResolver::find_file(m_source, "DATAPATH");
+  if (!fileName.size()) {
+    ATH_MSG_ERROR( name() << ": Could not find file \"" << m_source << "\"" );
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_INFO( "Creating TileCondProxyFile(" << name()
+               << ") for ASCII file name: \"" << fileName << "\"" );
+
+
+  //=== Open input file
+  std::ifstream file(fileName.c_str());
+  if (!file.is_open()) {
+    ATH_MSG_ERROR( ": Could not open file \"" << fileName << "\"" );
+    return StatusCode::FAILURE;
+  }
+
+  //========================================================
+  //=== loop through the file and fill data maps
+  //========================================================
+  std::map<unsigned int, unsigned int> drawerStat;
+  DataMap dataMap;
+  int dataVecSize(-1);
+  int objVersion(-1);
+  std::string line;
+  while (std::getline(file, line)) {
+
+    //=== read the objVersion specifier
+    if (line.find("OBJVERSION", 0) == 0 && objVersion < 0) {
+      std::istringstream iss(line);
+      std::string dummy;
+      iss >> dummy >> objVersion;
+      ATH_MSG_DEBUG( "Found objVersion: " << objVersion );
+      continue;
+    }
+
+    //=== Ensure that we have a data line starting
+    //=== with '0x' for the fragmentID in hex
+    std::string::size_type lineId = line.find("0x", 0);
+    if (lineId == std::string::npos || lineId > 0) {
+      continue;
+    }
+
+    //=== read data line
+    std::istringstream iss(line);
+    unsigned int frag, channel, gain;
+    iss >> std::hex >> frag >> std::dec >> channel >> std::dec >> gain;
+    unsigned int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(frag);
+
+    //=== some sanity checks
+    if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
+      ATH_MSG_ERROR( "Detected invalid drawer index in file \""
+                    << fileName << "\": " << std::hex << frag );
+      return StatusCode::FAILURE;
+    }
+
+    if (channel >= TileCalibUtils::MAX_CHAN) {
+      ATH_MSG_ERROR( "Detected invalid channel index in file \""
+                    << fileName << "\": " << channel );
+
+      return StatusCode::FAILURE;
+    }
+
+    if (gain >= TileCalibUtils::MAX_GAIN) {
+      ATH_MSG_ERROR( "Detected invalid gain index in file \"" << fileName << "\": " << gain );
+      return StatusCode::FAILURE;
+    }
+
+    //=== Mark module as affected
+    if (drawerStat.find(drawerIdx) == drawerStat.end()) {
+      drawerStat[drawerIdx] = 0;
+    }
+
+    drawerStat[drawerIdx] = std::max(drawerStat[drawerIdx], channel);
+
+    //=== Loop through all data rows
+    std::vector<float> dataVec;
+    float value;
+    while (iss >> std::skipws >> value) {
+      dataVec.push_back(value);
+    }
+
+    //=== ensure that all dataVec have the same length
+    if (dataVecSize < 0) {
+      dataVecSize = dataVec.size();
+    }
+
+    if (dataVecSize != static_cast<int>(dataVec.size())) {
+      ATH_MSG_ERROR( "Inconsistent number of data elements in \"" << fileName << "\". " );
+      ATH_MSG_ERROR( "The offending line is: " << line );
+      return StatusCode::FAILURE;
+    }
+
+    //=== Save dataVector in map
+    unsigned int adcIdx = TileCalibUtils::getAdcIdxFromFragId(frag, channel, gain);
+    dataMap[adcIdx] = dataVec;
+
+  } // End loop over file
+
+  file.close();
+
+  //==== Check that objVersion is specified
+  if (objVersion < 0) {
+    ATH_MSG_ERROR( "No OBJVERSION specified in file \"" << fileName << "\"" );
+    return StatusCode::FAILURE;
+  }
+
+  //==== Check that global detector default (drawerIdx=0) is specified
+  if (drawerStat.find(0) == drawerStat.end()) {
+    ATH_MSG_ERROR( "No global default (fragId=0x000) specified in file \"" << fileName << "\"" );
+    return StatusCode::FAILURE;
+  }
+
+  //====================================================
+  //=== Initialize drawers, following the default policy
+  //=== implemented in TileCalibUtils::getDefaultDrawerIdx()
+  //====================================================
+  for (unsigned int ros = 0; ros < 5; ++ros) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::getMaxDrawer(ros); ++drawer) {
+      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
+      //=== if no data for drawer, link to default drawer...
+      if (drawerStat.find(drawerIdx) == drawerStat.end()) {
+        unsigned int defIdx = TileCalibUtils::getDefaultDrawerIdx(drawerIdx);
+        m_drawerVec[drawerIdx] = m_drawerVec[defIdx];
+        if (msgLvl(MSG::VERBOSE)) {
+          msg(MSG::VERBOSE) << "Using default drawer " << defIdx << " for drawerIdx=" << drawerIdx << endmsg;
+          msg(MSG::VERBOSE) << "... i.e. TileCalibDrawer @ " << m_drawerVec[drawerIdx] << endmsg;
+        }
+        continue;
+      }
+
+      unsigned int nChan = drawerStat[drawerIdx] == 0 ? 1 : TileCalibUtils::MAX_CHAN;
+      m_drawerVec[drawerIdx] = createCalibDrawer(drawerIdx, nChan, objVersion, dataMap);
+
+    }  // End drawer
+  }  // End ros
+
+  return StatusCode::SUCCESS;
+}
+
+//
+//_____________________________________________________________________________
+template<>
+const TileCalibDrawerFlt* TileCondProxyFile<TileCalibDrawerFlt>::createCalibDrawer(unsigned int drawerIdx, unsigned int nChan,
+    unsigned int objVers, const DataMap& dataMap) {
+  //=== Prepare vector with defaults
+  //--- Low gain is always there
+  TileCalibDrawerFlt::DefType defaultVec;
+  unsigned int nGain = 1;
+  TileCondProxyFile::DataMap::const_iterator iDataMap = dataMap.find(TileCalibUtils::getAdcIdx(0, 0, 0, 0));
+  defaultVec.push_back(iDataMap->second);
+  //--- High gain present?
+  iDataMap = dataMap.find(TileCalibUtils::getAdcIdx(0, 0, 0, 1));
+  if (iDataMap != dataMap.end()) {
+    nGain = 2;
+    defaultVec.push_back(iDataMap->second);
+  }
+
+  //=== create the calibDrawer
+  coral::Blob* blob = new coral::Blob(0);
+  m_blobStore.push_back(blob);
+  TileCalibDrawerFlt* calibDrawer = TileCalibDrawerFlt::getInstance(*blob, defaultVec, nChan, objVers);
+
+  //=== fill calibDrawer with settings in dataMap
+  for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
+    for (unsigned int adc = 0; adc < nGain; ++adc) {
+      iDataMap = dataMap.find(TileCalibUtils::getAdcIdx(drawerIdx, chn, adc));
+      if (iDataMap != dataMap.end()) {
+        calibDrawer->setData(chn, adc, iDataMap->second);
+      }
+    }
+  }
+
+  return calibDrawer;
+}
+
+//
+//_____________________________________________________________________________
+template<>
+const TileCalibDrawerBch* TileCondProxyFile<TileCalibDrawerBch>::createCalibDrawer(unsigned int drawerIdx, unsigned int nChan,
+    unsigned int objVers, const DataMap& dataMap) {
+  //-------------------------------------------------------------------------------
+  //--- Observed special case for TileCalibDrawerBch, which always expects 3 gains:
+  //--- 0=low gain, 1=high gain, 2=common channel problems!
+  //--- However, in the file format only up to 2 gains can be encoded. 
+  //--- Therefore the convention is assumed that the words for the three gains are
+  //--- all listed under gain 0 in the file.
+  //-------------------------------------------------------------------------------
+
+  //=== prepare vector with defaults (no bad channels)
+  TileCalibDrawerBch::DefType defaultVec(3);
+  defaultVec[0].push_back(0);
+  defaultVec[1].push_back(0);
+  defaultVec[2].push_back(0);
+
+  //=== create the calibDrawer
+  coral::Blob* blob = new coral::Blob(0);
+  m_blobStore.push_back(blob);
+  TileBchDecoder::BitPatVer bitPatVer = static_cast<TileBchDecoder::BitPatVer>(objVers);
+  TileCalibDrawerBch* calibDrawer = TileCalibDrawerBch::getInstance(*blob, defaultVec, nChan, bitPatVer);
+
+  //=== fill calibDrawer with settings in dataMap
+  for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
+    TileCondProxyFile::DataMap::const_iterator iDataMap = dataMap.find( TileCalibUtils::getAdcIdx(drawerIdx, chn, 0));
+    if (iDataMap != dataMap.end()) {
+      const std::vector<float>& dataVec = iDataMap->second;
+      for (unsigned int idx = 0; idx < dataVec.size(); ++idx) {
+        float data = dataVec[idx];
+        calibDrawer->setData(chn, idx, 0, static_cast<uint32_t>(data > 0. ? data + 0.5 : data - 0.5));
+      }
+    }
+  }
+
+  return calibDrawer;
+}
+
+//
+//_____________________________________________________________________________
+template<typename T>
+StatusCode TileCondProxyFile<T>::finalize() {
+  ATH_MSG_DEBUG( "finalize called for " << name() );
+
+  //=== Delete TileCalibDrawers (which do not own the blob)
+  std::set<const T*> unique(m_drawerVec.begin(), m_drawerVec.end());
+  for (typename std::set<const T*>::iterator i = unique.begin(); i != unique.end(); ++i) {
+    delete *i;
+  }
+
+  //=== Delete all blobs
+  for (std::vector<coral::Blob*>::iterator i = m_blobStore.begin(); i != m_blobStore.end(); ++i) {
+    delete *i;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//
+//_____________________________________________________________________________
+template<typename T>
+const T* TileCondProxyFile<T>::getCalibDrawer(unsigned int drawerIdx) const {
+  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
+    ATH_MSG_ERROR( "Requested TileCalibDrawer with out of range index: " << drawerIdx );
+
+    throw TileCalib::IndexOutOfRange("TileCondProxyFile::getCalibDrawer()", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
+  }
+  return m_drawerVec[drawerIdx];
+}
+

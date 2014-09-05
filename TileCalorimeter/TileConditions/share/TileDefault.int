@@ -1,0 +1,15 @@
+------------------------------------------------------------------
+- This file contains integrator defaults. COOL default values for 
+- gain three are here used for all six gains. The indices refer to:
+-    0: gain				   
+-    1: error of the gain		  
+-    2: chi2 of the fit		  
+-    3:	pedestal			  
+-    4:	DAC for pedestal		  
+-    5:	sigma of pedestal distribution  
+-    6:	RMS of pedestal distribution	  
+-    7:	sigma of the RMS                
+- These eight values are stored periodically for all six gains
+------------------------------------------------------------------
+OBJVERSION 0
+0x000    0      0   29.00  0.0006   84  169.0  80  0.08  0.77  0.05 

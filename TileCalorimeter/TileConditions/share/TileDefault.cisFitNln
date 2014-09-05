@@ -1,0 +1,10 @@
+------------------------------------------------------------------
+- This file contains a unit lookup table as default
+- The BlobObjsVersion for a CIS LUT is 100, 
+- see TileCalibDrawerFlt::getCalib()
+- The format is the following: x0, x1, ..., xN, y0, y1, ..., yN
+- For lookup values smaller than x0 or larger than xN, the input value
+- is returned, i.e. there is no extrapolation outside the range.
+------------------------------------------------------------------
+OBJVERSION 100
+0x000	0	0	0. 1.	0. 1.

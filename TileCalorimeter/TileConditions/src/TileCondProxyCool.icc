@@ -1,0 +1,119 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+
+// Tile includes
+#include "TileConditions/TileCondProxyCool.h"
+#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
+#include "TileCalibBlobObjs/TileCalibDrawerBch.h"
+#include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+
+//
+//____________________________________________________________________
+template<typename T>
+TileCondProxyCool<T>::TileCondProxyCool(const std::string& type, const std::string& name,
+    const IInterface* parent)
+    : AthAlgTool(type, name, parent)
+    , m_source("")
+    , m_drawerVec( std::vector<const T*>(TileCalibUtils::MAX_DRAWERIDX, static_cast<const T*>(0)))
+{
+  declareInterface<ITileCondProxy<T> >(this);
+  declareProperty("Source", m_source = "", "The COOL folder to read");
+}
+
+//
+//____________________________________________________________________
+template<typename T>
+StatusCode TileCondProxyCool<T>::initialize() {
+
+  ATH_MSG_DEBUG( "In initialize() for " << name()  );
+  ATH_MSG_INFO( "Creating TileCondProxyCool(" << name()
+               << ") for folder: \"" << m_source << "\"" );
+
+  //=== Register callback for this data handle
+  CHECK( detStore()->regFcn(&TileCondProxyCool<T>::callback, this, m_dataHandle, m_source, true) );
+
+  return StatusCode::SUCCESS;
+}
+
+//
+//____________________________________________________________________
+template<typename T>
+StatusCode TileCondProxyCool<T>::finalize() {
+
+  ATH_MSG_DEBUG( "finalize called for " << name() );
+
+  //=== Delete TileCalibDrawers (which do not own the blob)
+  std::set<const T*> unique(m_drawerVec.begin(), m_drawerVec.end());
+  for (typename std::set<const T*>::iterator i = unique.begin(); i != unique.end(); ++i) {
+    delete *i;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//
+//_____________________________________________________________________________
+template<typename T>
+StatusCode TileCondProxyCool<T>::callback( IOVSVC_CALLBACK_ARGS_K(keys)) {
+  //=== Status message
+  msg(MSG::INFO) << name() << ": callback has been triggered by: ";
+  std::list<std::string>::const_iterator itr;
+  for (itr = keys.begin(); itr != keys.end(); ++itr) {
+    msg(MSG::INFO) << *itr << " ";
+  }
+  msg(MSG::INFO) << endmsg;
+
+  //=== Delete outdated TileCalibDrawers (which do not own the blob)
+  std::set<const T*> unique(m_drawerVec.begin(), m_drawerVec.end());
+  for (typename std::set<const T*>::iterator i = unique.begin(); i != unique.end(); ++i) {
+    delete *i;
+  }
+
+  //=== Loop over collection by increasing channel number (defaults first!)
+  for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
+    //=== get the BLOB
+    CondAttrListCollection::const_iterator iColl = m_dataHandle->chanAttrListPair(drawerIdx);
+    const coral::Blob& blob = (iColl->second)[0].data<coral::Blob>();
+
+    if (blob.size()) {
+      //=== Get new TileCalibDrawer instance, interpreting current blob
+      const T* drawer = T::getInstance(blob);
+      m_drawerVec[drawerIdx] = drawer;
+    } else {
+      //=== Default policy
+      if (drawerIdx == 0) {
+        ATH_MSG_ERROR( "No default available!?" );
+        return StatusCode::FAILURE;
+      }
+      //=== Determine default index
+      unsigned int defIdx = TileCalibUtils::getDefaultDrawerIdx(drawerIdx);
+      m_drawerVec[drawerIdx] = m_drawerVec[defIdx];
+
+      if (msgLvl(MSG::VERBOSE)) {
+        msg(MSG::VERBOSE) << "Using default drawer " << defIdx << " for drawerIdx=" << drawerIdx << endmsg;
+        msg(MSG::VERBOSE) << "... i.e. TileCalibDrawer @ " << m_drawerVec[drawerIdx] << endmsg;
+      }
+    }
+
+  } // End drawerIdx
+
+  return StatusCode::SUCCESS;
+}
+
+//
+//_____________________________________________________________________________
+template<typename T> const T*
+TileCondProxyCool<T>::getCalibDrawer(unsigned int drawerIdx) const {
+  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
+    ATH_MSG_ERROR( "Requested TileCalibDrawer with out of range index: " << drawerIdx );
+
+    throw TileCalib::IndexOutOfRange("TileCondProxyCool::getCalibDrawer()", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
+  }
+  return m_drawerVec[drawerIdx];
+}
+

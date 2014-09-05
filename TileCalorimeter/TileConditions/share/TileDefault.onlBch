@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------------
+- This file encodes online CHANNEL(!) problems in gain 0(!) (special convention)
+- All entries for higher gains are silently ignored.
+- By default no bad channels
+-------------------------------------------------------------------------------------
+OBJVERSION 1
+0x000	0	0	0 0 0
