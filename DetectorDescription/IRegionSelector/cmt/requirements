@@ -13,6 +13,10 @@ use GaudiInterface GaudiInterface-* External
 # Identifier
 use Identifier Identifier-* DetectorDescription 
 
+# Declare a cmake metalibrary in order to ensure that clients of this package have 
+# access to the libraries and header files of packages that this one depends upon
+apply_pattern cmake_add_command command=metalibrary
+
 # for locating data files
 # use PathResolver PathResolver-00-*  Tools
 
