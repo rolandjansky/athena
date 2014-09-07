@@ -1,0 +1,43 @@
+package xAODEgamma
+
+author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Christos Anastopoulos <Christos.Anastopoulos@cern.ch>
+author Anthony Morley <Anthony.Morley@cern.ch>
+author Bruno Lenzi <Bruno.Lenzi@cern.ch>
+
+public
+
+# Central package(s):
+use AtlasPolicy   AtlasPolicy-*
+use SGTools       SGTools-*       Control
+use AthContainers AthContainers-* Control
+use AtlasROOT     AtlasROOT-*     External
+use AthLinks      AthLinks-*      Control
+
+# The code needs libGenVector.so...
+macro xAODEgamma_extra_libs "-lGenVector"
+macro_append xAODEgammalinkopts   " $(xAODEgamma_extra_libs) "
+macro_append xAODEgamma_shlibflags " $(xAODEgamma_extra_libs) "
+
+# EDM package(s):
+use xAODBase		xAODBase-*		Event/xAOD
+use xAODCore      	xAODCore-*		Event/xAOD
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODTruth           xAODTruth-*             Event/xAOD
+
+#Eigen/Amg includes
+use EventPrimitives      EventPrimitives-*      Event
+use GeoPrimitives        GeoPrimitives-*        DetectorDescription
+
+library xAODEgamma ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+
+apply_pattern lcgdict dict=xAODEgamma selectionfile=selection.xml \
+                      headerfiles="../xAODEgamma/xAODEgammaDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
