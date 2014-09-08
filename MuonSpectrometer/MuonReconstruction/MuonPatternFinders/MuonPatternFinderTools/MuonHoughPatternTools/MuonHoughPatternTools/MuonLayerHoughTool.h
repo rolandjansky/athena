@@ -7,6 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
+
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
@@ -26,6 +29,7 @@
 #include <set>
 #include "GaudiKernel/IIncidentListener.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "MuonDetDescrUtils/MuonSectorMapping.h"
 
 class IIncidentSvc;
 
@@ -51,7 +55,7 @@ namespace Muon {
   class MuonIdHelperTool;
 
 
-  class MuonLayerHoughTool: public AthAlgTool, virtual public IIncidentListener  {
+  class MuonLayerHoughTool:  virtual public IMuonHoughPatternFinderTool, virtual public IIncidentListener, public AthAlgTool  {
   public:
     
     typedef std::vector<IdentifierHash>   HashVec;
@@ -154,24 +158,22 @@ namespace Muon {
 					       const RpcPrepDataContainer*  rpcCont,
 					       const sTgcPrepDataContainer* stgcCont,  
 					       const MMPrepDataContainer*  mmCont );
+
+    /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
+    const MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+						  const std::vector<const CscPrepDataCollection*>& cscCols,  
+						  const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+						  const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+						  const MuonSegmentCombinationCollection* );
     void reset();
 
-    bool tgcInRange( int sector, double phi ) const;
-    std::vector<int> getTgcSectors( const Amg::Vector3D& pos ) const;
-    std::vector<int> getTgcSectors( const TgcClusterObj3D& tgc ) const;
-    std::vector<int> getTgcSectors( double phi ) const;
-    double phiRef( int sector ) const;
-    double phiCor( double phi, int sector, bool toSector = true ) const;
-    double phiOverlap( int sector1, int sector2 ) const;
-    bool   closeToSectorBoundary( double phi ) const;
-    double rCor( const RpcPrepData& rpc ) const;
-    double rCor( const sTgcPrepData& rpc ) const;
-    double rCor( const MMPrepData& rpc ) const;
-    double rCor( const MdtPrepData& mdt, int sector ) const;
+    void getSectors( const Amg::Vector3D& pos, std::vector<int>& sectors ) const;
+    void getSectors( const TgcClusterObj3D& tgc, std::vector<int>& sectors ) const;
+
+    double rCor( const Amg::Vector3D& pos, const Identifier& id ) const; 
+    double rCor( const MuonCluster& rpc ) const; 
     double rCor( const MdtPrepData& mdt ) const;
     double rCor( const TgcClusterObj3D& tgc, int val, int sector ) const;
-    double rCor( const Amg::Vector3D& pos, int sectorHit, int sector ) const;
-    double rCor( double r, int sectorHit, int sector ) const;
 
     int sublay( const Identifier& id, float z = 0 ) const; // the z value is only used for the tgcs
 
@@ -182,6 +184,8 @@ namespace Muon {
     void handle(const Incident& inc);// maybe in the future clear per event
 
   private:
+
+    MuonPatternCombinationCollection* analyse();
 
     void fillHitsPerSector(  const CollectionsPerSector& hashes,
 			     const MdtPrepDataContainer*  mdtCont,  
@@ -213,7 +217,7 @@ namespace Muon {
 
     void associateMaximaInNeighbouringSectors( HoughDataPerSector& houghData, std::vector<HoughDataPerSector>& houghDataPerSectorVec ) const;
 
-    void extendSeed( Road& road, HoughDataPerSector& sectorData ) const;
+    void extendSeed( Road& road, HoughDataPerSector& sectorData ); // const;
     void associatePhiMaxima( Road& road, PhiMaximumVec& phiMaxima ) const;
 
     double combinedPeakheight( double ph,  double ph1,  double ph2, double phn, double rot, int layer, int /*region*/ ) const;
@@ -249,12 +253,10 @@ namespace Muon {
     ToolHandle<Muon::IMuonTruthSummaryTool>         m_truthSummaryTool;
     const MuonGM::MuonDetectorManager* m_detMgr;
 
-    double pifactor; 
-    double rangephi[2];
-    std::vector<double> m_cutValues;
-    std::vector<double> m_cutValuesLoose;
+    std::vector<float> m_cutValues;
+    std::vector<float> m_cutValuesLoose;
 
-    bool m_doNtuple;
+    bool       m_doNtuple;
     TFile*     m_file;
     TTree*     m_tree;
     MuonHough::HitNtuple* m_ntuple;
@@ -266,19 +268,18 @@ namespace Muon {
     std::set<Identifier>            m_foundTruthHits;
     std::set<Identifier>            m_outputTruthHits;
     
-
-    double m_cutConfirm;
     bool m_useRpcTimeVeto;
     bool m_requireTriggerConfirmationNSW;
     bool m_onlyUseCurrentBunch;
     bool m_doTruth;
     bool m_debugHough;
-
+    
     unsigned int m_ntechnologies;
     CollectionsPerSectorVec m_collectionsPerSector;
     std::vector<TgcHitClusteringObj*> m_tgcClusteringObjs;
 
-    ServiceHandle< IIncidentSvc >                     m_incidentSvc;
+    ServiceHandle< IIncidentSvc >  m_incidentSvc;
+    MuonSectorMapping              m_sectorMapping;
   };
 
   struct SortHoughDataPerSector {
@@ -287,211 +288,30 @@ namespace Muon {
     }
   };
 
-
-
-
-  inline bool MuonLayerHoughTool::tgcInRange( int sector, double phi ) const {
-    int sectorCor = sector - 1;
-    if( sector > 8 ) sectorCor -= 16;
-    double sectorPhiMin = pifactor*(sectorCor-rangephi[sector%2]);
-    double sectorPhiMax = pifactor*(sectorCor+rangephi[sector%2]);
-    if( sectorPhiMin < -TMath::Pi() ){
-      // swap min and max
-      sectorPhiMin += 2*TMath::Pi();
-      if( phi < sectorPhiMax || phi > sectorPhiMin ) return true;
-      return false;
-    }
-    if( phi < sectorPhiMin || phi > sectorPhiMax ) return false;
-    return true;
+  inline void MuonLayerHoughTool::getSectors( const TgcClusterObj3D& tgc, std::vector<int>& sectors ) const {
+    return getSectors(tgc.p11,sectors);
   }
 
-
-  inline std::vector<int> MuonLayerHoughTool::getTgcSectors( const TgcClusterObj3D& tgc ) const {
-    return getTgcSectors(tgc.p11);
+  inline void MuonLayerHoughTool::getSectors( const Amg::Vector3D& pos, std::vector<int>& sectors ) const {
+    return m_sectorMapping.getSectors(pos.phi(),sectors);
   }
 
-  inline std::vector<int> MuonLayerHoughTool::getTgcSectors( const Amg::Vector3D& pos ) const {
-    return getTgcSectors(atan2(pos.y(),pos.x()));
-  }
-
-  inline std::vector<int> MuonLayerHoughTool::getTgcSectors( double phi ) const {
-    std::vector<int> sectors;
-    double val = phi/pifactor;
-    if( val < -0.5 ) val+=0.5;
-    else             val+=1.5;
-    int sectorTgc = val;
-    if( sectorTgc <= 0 ) sectorTgc += 16.;
-    //     else                 sectorTgc += 1;
-    //   std::cout << " phi " << phi << " sector " << sectorTgc << "   val " << phi/pifactor << " "  << phi/pifactor+0.5 << std::endl;
-    
-    int sectorTgcNext = sectorTgc != 16 ? sectorTgc + 1 : 1;
-    int sectorTgcBefore = sectorTgc != 1 ? sectorTgc -1 : 16;
-    if( tgcInRange(sectorTgcBefore,phi) ) {
-      sectors.push_back(sectorTgcBefore);
-      //     std::cout << " adding before";
-    }
-    if( tgcInRange(sectorTgc,phi) ){
-      sectors.push_back(sectorTgc);
-      //     std::cout << " adding current";
-    }
-    if( tgcInRange(sectorTgcNext,phi) ){
-      sectors.push_back(sectorTgcNext);
-      //     std::cout << " adding next";
-    }
-    //   std::cout << std::endl;
-    return sectors;
+  inline double MuonLayerHoughTool::rCor( const Amg::Vector3D& pos, const Identifier& id ) const {
+    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_idHelper->sector(id));
   }
   
-  inline bool MuonLayerHoughTool::closeToSectorBoundary( double phi ) const {
-    return getTgcSectors(phi).size() > 1;
+  inline double MuonLayerHoughTool::rCor( const MuonCluster& mm ) const {
+    return rCor(mm.globalPosition(),mm.identify());
   }
 
-  inline double MuonLayerHoughTool::phiCor( double phi, int sector, bool toSector ) const {
-    double sign = toSector ? -1 : 1;
-    double dphi = phi+sign*phiRef(sector);
-    if( dphi > TMath::Pi() ) dphi -= 2*TMath::Pi();
-    if( dphi < -TMath::Pi() ) dphi += 2*TMath::Pi();
-    return dphi;
-  }
-
-  inline double MuonLayerHoughTool::phiRef( int sector ) const {
-    if( sector < 10 ) return TMath::Pi()*(sector-1)/8.;
-    return -TMath::Pi()*(2-(sector-1)/8.);
-  }
-
-  inline double MuonLayerHoughTool::phiOverlap( int sector1, int sector2 ) const {
-    if( sector1 == sector2 ) return phiRef(sector1);
-
-    int s1 = sector1 < sector2 ? sector1 : sector2;
-    int s2 = sector1 > sector2 ? sector1 : sector2;
-    if( s2 == 16 && s1 == 1 ){
-      s1 = 16;
-      s2 = 1;
-    }else if( abs(s1-s2) > 1 ){
-      std::cout << " bad sector combination: not neighbouring " << s1 << "   " << s2 << std::endl;
-      return 0;
-    }
-
-    double phi1 = phiRef(s1);
-    double sectorWidth1 = TMath::Pi()/8*(rangephi[s1%2]-0.1);
-    double phio1 = phi1 + sectorWidth1;
-    if( phio1 > TMath::Pi() ) phio1 -= 2*TMath::Pi();
-
-/*     double phi2 = phiRef(s2); */
-/*     double sectorWidth2 = TMath::Pi()/8*(rangephi[s2%2]-0.1); */
-/*     double phio2 = phi2 - sectorWidth2; */
-/*     if( phio1 < -TMath::Pi() ) phio1 += 2*TMath::Pi(); */
-
-/*     std::cout << " phi1 " << phi1 << " phi2 " << phi2 << " phio1 " << phio1 << " phio2 " << phio2 << " diff " << phio1-phio2 << std::endl; */
-    
-    return phio1;
-  }
-
-  inline double MuonLayerHoughTool::rCor( const MMPrepData& mm ) const {
-    double r    = mm.globalPosition().perp();
-    double phi  = atan2(mm.globalPosition().y(),mm.globalPosition().x());
-    int sector  = m_idHelper->sector(mm.identify());
-    double dphi = phiCor(phi,sector);
-
-     if( fabs(dphi) > 0.3 ){
-      ATH_MSG_WARNING(" large dphi detected!!: sector " << sector << " phi "  << phiRef(sector)
-                      << " mm " << phi << " dphi " << dphi);
-    }
-    return r*cos(dphi);
-  }
-  inline double MuonLayerHoughTool::rCor( const sTgcPrepData& stgc ) const {
-    double r    = stgc.globalPosition().perp();
-    double phi  = atan2(stgc.globalPosition().y(),stgc.globalPosition().x());
-    int sector  = m_idHelper->sector(stgc.identify());
-    double dphi = phiCor(phi,sector);
-
-     if( fabs(dphi) > 0.3 ){
-      ATH_MSG_WARNING(" large dphi detected!!: sector " << sector << " phi "  << phiRef(sector)
-                      << " sTgc " << phi << " dphi " << dphi);
-    }
-    return r*cos(dphi);
-  }
-  inline double MuonLayerHoughTool::rCor( const RpcPrepData& rpc ) const {
-    double r = rpc.globalPosition().perp();
-    double phi = atan2(rpc.globalPosition().y(),rpc.globalPosition().x());
-    int sector = m_idHelper->sector(rpc.identify());
-    double dphi = phiCor(phi,sector);
-    /*
-    double phi_mdt = phiRef(sector);
-    double dphi = phi-phi_mdt;
-    if( dphi < -TMath::Pi() ) dphi += 2* TMath::Pi();
-    */
-    if( fabs(dphi) > 0.3 ){
-      ATH_MSG_WARNING(" large dphi detected!!: sector " << sector << " phi "  << phiRef(sector)
-		      << " rpc " << phi << " dphi " << dphi);
-    }
-    return r*cos(dphi);
-  }
-
-  inline double MuonLayerHoughTool::rCor( const MdtPrepData& mdt, int sector ) const {
-    return rCor(mdt.globalPosition(),m_idHelper->sector(mdt.identify()),sector);
-  }
-
-  inline double MuonLayerHoughTool::rCor( const MdtPrepData& mdt ) const { 
-    double r=mdt.globalPosition().perp(); 
-    double phi=atan2(mdt.globalPosition().y(),mdt.globalPosition().x()); 
-    int msector = m_idHelper->sector(mdt.identify()); 
-    double dphi = phiCor(phi,msector); 
-    if( fabs(dphi) > 0.3 ){ 
-      ATH_MSG_WARNING(" large dphi detected!!: sector " << msector << " phi "  << phiRef(msector) 
-		      << " mdt " << phi << " dphi " << dphi); 
-    } 
-    return r*cos(dphi); 
+  inline double MuonLayerHoughTool::rCor( const MdtPrepData& mm ) const { 
+    return rCor(mm.globalPosition(),mm.identify());
   } 
   
-  inline double MuonLayerHoughTool::rCor( const Amg::Vector3D& pos, int sectorHit, int sector ) const {
-    double r = pos.perp();
-    double phi = atan2(pos.y(),pos.x());
-    double phio = phiOverlap(sectorHit,sector);
-    double dphio = phi-phio;
-    if( dphio < -TMath::Pi() ) dphio += 2* TMath::Pi();
-    double redge = r/cos(dphio);
-    double phi_sec = phiRef(sector);
-    double dphi = phio-phi_sec;
-    if( dphi < -TMath::Pi() ) dphi += 2* TMath::Pi();
-    if( fabs(dphi) > 0.3 ){
-      ATH_MSG_WARNING(" large dphi detected!!: sector " << sector << " of hit " << sectorHit << " phi ref sector "  << phi_sec
-		      << " hit " << phi << " dphi " << dphi);
-    }
-    return redge*cos(dphi);
-  }
-
-  inline double MuonLayerHoughTool::rCor( double r, int sectorHit, int sector ) const {
-    double phi = phiRef(sectorHit);
-    double phio = phiOverlap(sectorHit,sector);
-    double dphio = phi-phio;
-    if( dphio < -TMath::Pi() ) dphio += 2* TMath::Pi();
-    double redge = r/cos(dphio);
-    double phi_sec = phiRef(sector);
-    double dphi = phio-phi_sec;
-    if( dphi < -TMath::Pi() ) dphi += 2* TMath::Pi();
-    if( fabs(dphi) > 0.3 ){
-      ATH_MSG_WARNING(" large dphi detected!!: sector " << sector << " of hit " << sectorHit << " phi ref sector "  << phi_sec
-		      << " hit " << phi << " dphi " << dphi);
-    }
-    return redge*cos(dphi);
-  }
-
   inline double MuonLayerHoughTool::rCor( const TgcClusterObj3D& tgc, int val, int sector ) const {
-    double x = val == 1 ? tgc.p11.x() : val == 2 ? tgc.p12.x() : val == 3 ? tgc.p21.x() : tgc.p22.x();
-    double y = val == 1 ? tgc.p11.y() : val == 2 ? tgc.p12.y() : val == 3 ? tgc.p21.y() : tgc.p22.y();
-    double r = sqrt(x*x+y*y);
-    double phi = atan2(y,x);
-    double phi_sec = phiRef(sector);
-    double dphi = phi-phi_sec;
-    if( dphi < -TMath::Pi() ) dphi += 2* TMath::Pi();
-    // if( fabs(dphi) > 0.3 ){
-    //   ATH_MSG_WARNING(" large dphi detected!!: sector " << sector << " phi "  << phi_sec
-    //     	      << " tgc " << phi << " dphi " << dphi);
-    // }
-    return r*cos(dphi);
+    const Amg::Vector3D& pos = val == 1 ? tgc.p11 : (val == 2 ? tgc.p12 : (val == 3 ? tgc.p21 : tgc.p22 ) );
+    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),sector);
   }
-
 
   inline int MuonLayerHoughTool::sublay( const Identifier& id, float /*z*/ ) const {
     
