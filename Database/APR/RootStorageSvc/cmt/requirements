@@ -1,0 +1,29 @@
+package RootStorageSvc
+
+# imported to ATLAS by:
+author Marcin Nowak
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasROOT           AtlasROOT-*             External
+
+#======= PLUGIN LIBRARY
+private
+use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthContainers         AthContainers-*       Control
+use CxxUtils              CxxUtils-*            Control
+use RootUtils             RootUtils-*           Control
+use PersistentDataModel   PersistentDataModel-* Database
+use POOLCore              POOLCore-*            Database/APR
+use StorageSvc            StorageSvc-*          Database/APR
+
+use GaudiInterface	  GaudiInterface-*	External
+
+apply_pattern  pool_plugin_library
+
+private
+apply_tag ROOTCintexLibs
+macro_append ROOT_linkopts " -lRIO -lTreePlayer "
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=RootAuxVectorFactory
+macro_append RootAuxVectorFactory_testlinkopts " -lRootStorageSvc"
