@@ -20,6 +20,7 @@ use MuonRecHelperTools	*	MuonSpectrometer/MuonReconstruction/MuonRecTools
 use AthenaBaseComps          AthenaBaseComps-*          Control
 use GeoPrimitives GeoPrimitives-* DetectorDescription
 use MuonIdHelpers	*	MuonSpectrometer
+use MuonDetDescrUtils MuonDetDescrUtils-* MuonSpectrometer/MuonDetDescr
 
 private
 use CxxUtils		*	Control
