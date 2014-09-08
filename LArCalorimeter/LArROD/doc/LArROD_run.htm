@@ -1,0 +1,54 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>How to try a test run of LArROD</title>
+</head>
+
+<body>
+
+<h2><b>How to try a test run of LArROD :</b></h2>
+<ol>
+  <li>Do the following shell setup (probably the least that is possible) :&nbsp; <br>
+  <br>
+    &nbsp;&nbsp;&nbsp; setenv ATLAS_ROOT /afs/cern.ch/atlas/software<br>
+    &nbsp;&nbsp;&nbsp; setenv CVSROOT $ATLAS_ROOT/cvs<br>
+    &nbsp;&nbsp;&nbsp; setenv PATH "$PATH":"$ATLAS_ROOT"/bin<br>
+    &nbsp;&nbsp;&nbsp; source `srt setup -s csh`&nbsp;<br>
+ </li>
+  <li>setenv SRT_RELEASE 1.3.2&nbsp;&nbsp;&nbsp; ( to setup for the release
+    1.3.2; otherwise replace 1.3.2 with the release version that you want to
+    use)
+  <li>Pick a build directory and then do<br>
+  srt new src $SRT_RELEASE<br>
+  <li>cd src</li>
+  <li>cvs checkout -d LArROD offline/LArCalorimeter/LArROD</li>
+  <li>cd ..</li>
+  <li>mkdir build</li>
+  <li>cd build</li>
+  <li>../src/configure</li>
+  <li>make clean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( NOT necessary after the
+    first time )</li>
+  <li>make install</li>
+  <li>cd ..</li>
+  <li>mkdir run</li>
+  <li>cd run</li>
+  <li>source ../src/LArROD/misc/runme.csh</li>
+  <li>athena</li>
+</ol>
+<p>And you see it running !</p>
+<p>&nbsp;</p>
+<p style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 0">PS:
+<i>At the moment, the only testbeam data I can find in the AFS public is the one
+sitting in the</i></p>
+<p style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 0"><i>&quot;/afs/cern.ch/user/g/ghez/public/testemtb.data&quot;.&nbsp;
+Unfortunately, the data has 8 samples, instead</i></p>
+<p style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 0"><i>of
+5 samples that I want.&nbsp; So, all the energy, time and quality are -999.</i></p>
+
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+NewLArRawChannelBuilder
+=======================
+
+Purpose: Takes a LArRawDigitContainer and produces a LArRawChannelContainer 
+using the Optimal Filtering Method.
+
+Algorithm Properties:
+
+Name                        Type        Purpose
+--------------------------------------------------------------
+LArRawChannelContainerName  string      output container Key
+DataLocation                string      input container key
+UseTDC                      bool        Use TDC-information y/n (set true for TB)
+UseOFCTool                  bool        Use LArOFCTool y/n (set true for MC)
+Ecut                        float       Energy threshold for time and quality calculation.
+UseHighGainRampIntercept    bool        Use ramp[0] in high gain y/n
+UseMedGainRampIntercept     bool        Use ramp[0] in medium gain y/n
+UseLowGainRampIntercept     bool	Use ramp[0] in low gain y/n
+
+
+
+LArDigitPreprocessor
+====================
+
+Purpose: Takes one or more LArDigtContainer and produces one LArDigitContainer 
+to be used by the NewLArRawChannelBuilder by
+*) concatinating (e.g. HEC and FCAL)
+*) pick the right gain
+*) reduce the number of samples (e.g. 7 -> 5)
+This algorithm is useful to analyze (old) Testbeam data. It's not necessary for MC.
+
+
+Algorithm Properties:
+
+Name                        Type        Purpose
+--------------------------------------------------------------
+InputContainers       vector<string>    keys of input containers
+OutputContainer       string            key of output container (only one)
+NumberOfSamples       int               requested # of samples. Default=0 => no selection
+FirstSample           int               index of first sample. Default=-1 => center around maximum
+PickGain              bool              select gain y/n
+

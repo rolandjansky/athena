@@ -1,0 +1,147 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "LArRawEvent/LArCalibDigitContainer.h"
+#include "TBEvent/TBLArCalibDigitContainer.h"
+#include <algorithm>
+
+/*---------------------------------------------------------*/
+template<class CALIBDIGITCONTAINER>
+LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::LArCalibDigitPreProcessor (const std::string& name,
+                                  ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_lowGainUpperLimit(0),
+    m_medGainLowerLimit(0),
+    m_medGainUpperLimit(0),
+    m_highGainLowerLimit(0),
+    m_pickGain(0)
+/*---------------------------------------------------------*/
+{
+  m_NumberOfSamples=32;
+  m_firstSample=0;
+  declareProperty("InputContainers",m_inputContainers);
+  declareProperty("OutputContainer", m_outputContainer);
+  declareProperty("NumberOfSamples",m_NumberOfSamples);
+  declareProperty("FirstSample",m_firstSample);
+}
+
+/*---------------------------------------------------------*/
+template<class CALIBDIGITCONTAINER>
+LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::~LArCalibDigitPreProcessor()
+{
+}
+
+/*---------------------------------------------------------*/
+template<class CALIBDIGITCONTAINER>
+StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::initialize()
+/*---------------------------------------------------------*/
+{
+  MsgStream logstr(msgSvc(), name());
+  logstr << MSG::DEBUG << "In LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::initialize()" << endreq;
+
+  return StatusCode::SUCCESS;
+}
+
+/*---------------------------------------------------------*/
+template<class CALIBDIGITCONTAINER>
+StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
+/*---------------------------------------------------------*/
+{
+  MsgStream logstr(msgSvc(), name());
+  StatusCode sc;
+
+  logstr << MSG::DEBUG << "About to make LArCalibDigitContainer with key " << m_outputContainer << endreq;
+  
+  LArCalibDigitContainer* outputContainer=new LArCalibDigitContainer();
+  
+  logstr << MSG::DEBUG << "Making LArCalibDigitContainer with key " << m_outputContainer << endreq;
+  sc=evtStore()->record(outputContainer,m_outputContainer);
+  if (sc.isFailure()) {
+    logstr << MSG::WARNING << "Cannot record LArCalibDigitContainer with key " << m_outputContainer
+        << " to StoreGate." << endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  // Loop over list of input containers
+  std::vector<std::string>::const_iterator cont_it=m_inputContainers.begin();
+  std::vector<std::string>::const_iterator cont_it_e=m_inputContainers.end();
+  for(;cont_it!=cont_it_e;cont_it++) {
+    const CALIBDIGITCONTAINER* inputContainer;
+    logstr << MSG::DEBUG << "About to retrieve CALIBDIGITCONTAINER with key " << *cont_it << endreq;
+    sc=evtStore()->retrieve(inputContainer,*cont_it);
+    if (sc.isFailure()) {
+      logstr << MSG::WARNING << "Cannot retrieve CALIBDIGITCONTAINER with key " << *cont_it
+          << " from StoreGate." << endreq;
+      continue;
+    }
+    
+    typedef typename CALIBDIGITCONTAINER::const_iterator CONT_IT;
+    CONT_IT it=inputContainer->begin();
+    CONT_IT it_e=inputContainer->end();
+    
+    for(;it!=it_e;it++) {
+
+      logstr << MSG::VERBOSE << "In loop over CALIBDIGITCONTAINER with key " << *cont_it << endreq;
+      
+      const std::vector<short>& samples=(*it)->samples();
+      HWIdentifier chid((*it)->channelID());
+      CaloGain::CaloGain gain=(*it)->gain();
+
+      uint16_t DAC         = (*it)->DAC();
+      uint16_t delay       = (*it)->delay();
+      bool     isPulsed    = (*it)->isPulsed();
+      
+      if (m_NumberOfSamples and samples.size()>m_NumberOfSamples) {
+        
+        logstr << MSG::VERBOSE << "  Selecting subset of samples: Number/First/samples.size = "
+               << m_NumberOfSamples << "/" << m_firstSample << "/"  << samples.size() << endreq;
+        
+        std::vector<short> newSamples;
+        if (m_firstSample>0) { //fixed subset of samples
+          if (m_firstSample+m_NumberOfSamples>samples.size()) {
+            logstr << MSG::ERROR << "Not enough samples! Have " << samples.size() << ", can't select samples " 
+                << m_firstSample << " to " << m_firstSample+m_NumberOfSamples << "." << endreq;
+            continue;
+          }
+          std::vector<short>::const_iterator first=samples.begin()+m_firstSample;
+          newSamples.assign(first,first+m_NumberOfSamples);
+        } else { //choose accoring to maximum sample
+          std::vector<short>::const_iterator max=max_element((*it)->samples().begin(),(*it)->samples().end());
+          std::vector<short> newSamples;
+          const int  halfNSample=m_NumberOfSamples/2;
+          if (max-samples.begin()>halfNSample) //At lower bound
+            newSamples.assign(samples.begin(),samples.begin()+m_NumberOfSamples);
+          else if (samples.end()-1-max>halfNSample) //At upper bound
+            newSamples.assign(samples.end()-m_NumberOfSamples,samples.end());
+          else //in the middle
+            newSamples.assign(max-halfNSample,max-halfNSample+m_NumberOfSamples);
+        }
+        LArCalibDigit* larcalibdigit=new LArCalibDigit(chid,gain,newSamples,DAC,delay,isPulsed);
+        outputContainer->push_back(larcalibdigit);
+      } else {
+        logstr << MSG::VERBOSE << "   Straight copy of calib digit" << endreq;
+        LArCalibDigit* larcalibdigit=new LArCalibDigit(chid,gain,samples,DAC,delay,isPulsed);
+        outputContainer->push_back(larcalibdigit);
+      }
+    }
+  }
+  
+  if (outputContainer->size()) {
+    logstr << MSG::DEBUG << "Made LArCalibDigitContainer with key " << m_outputContainer << " and size " << outputContainer->size() << endreq;
+    return StatusCode::SUCCESS;
+  }
+  else {
+    logstr << MSG::ERROR << "Resulting Container is empty!" << endreq;
+    return StatusCode::FAILURE;
+  }
+}
+
+/*---------------------------------------------------------*/
+template<class CALIBDIGITCONTAINER>
+StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::finalize()
+/*---------------------------------------------------------*/
+{
+  return StatusCode::SUCCESS;
+}
+/*---------------------------------------------------------*/

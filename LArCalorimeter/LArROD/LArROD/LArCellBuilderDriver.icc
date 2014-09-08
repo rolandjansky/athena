@@ -1,0 +1,35 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+template<typename T>
+StatusCode
+LArCellBuilderDriver::retrieveStoreGate(const T*& object,
+					      const std::string& key)
+{
+  if( evtStore()->retrieve(object, key).isSuccess() )
+    return StatusCode::SUCCESS;
+  return StatusCode::FAILURE;
+}
+
+template<typename T>
+StatusCode
+LArCellBuilderDriver::retrieveDetectorStore(const T*& object,
+						  const std::string& key)
+{
+  if( detStore()->retrieve(object, key).isSuccess() )
+    return StatusCode::SUCCESS;
+  return StatusCode::FAILURE;
+}
+
+template<typename T>
+StatusCode
+LArCellBuilderDriver::regHandleDetectorStore(const T& object,
+						  const std::string& key)
+{ // retrieving DataHandle<T> 
+  if( detStore()->regHandle(object, key).isSuccess() )
+    return StatusCode::SUCCESS;
+
+  return StatusCode::FAILURE;
+}
