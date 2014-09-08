@@ -1,0 +1,181 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+
+class TauHypoProvider:
+    # Provide a centralized way to store hypotheses for tau trigger chains
+    # Avoid duplication of hypotheses
+    # Avoid declaration of hypotheses which are not needed
+
+    # The dictionary containing the hypos
+    hypoStore = {}
+    
+    # Define it locally for simplicity
+    GeV = 1000.0
+    
+    def GetHypo(self, level, threshold, criteria, part, strategy):
+
+        hypoParameters = [level,str(threshold),criteria,part,strategy];
+        hypoName = '_'.join(hypoParameters)
+        
+        # Check if the access key is in the dictionary
+        if hypoName in self.hypoStore:
+            return self.hypoStore[hypoName]
+
+        # Otherwise, allocate it and return it
+        if strategy == 'r1':
+            
+            if level == 'L2':
+
+                currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_r1'
+                
+                if part == 'calo':
+                    if criteria == 'perf':
+                        from TrigTauHypo.TrigTauHypoBase import T2CaloTauHypo_tauNoCut
+                        currentHypo = T2CaloTauHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
+                    else:
+                        from TrigTauHypo.TrigTauHypoBase import T2CaloTauHypo
+                        theVars = ['EtRawMin', 'CoreFractionMin']
+                        theThresh = self.thresholdsL2Calo[(criteria, int(threshold))]
+                        currentHypo = T2CaloTauHypo(currentHypoKey, theVars, theThresh)
+                    
+
+                if part == 'id':
+                    if criteria== 'perf':
+                        from TrigTauHypo.TrigTauHypoBase import T2IDTauHypo_tauNoCut
+                        currentHypo = T2IDTauHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
+                    else:
+                        from TrigTauHypo.TrigTauHypoBase import T2IDTauHypo
+                        theVars = ['NTrkMax', 'SumPtRatioMax1P', 'SumPtRatioMaxMP']
+                        theThresh = self.thresholdsL2ID[(criteria, int(threshold))]
+                        currentHypo = T2IDTauHypo(currentHypoKey, theVars, theThresh)
+    
+                if part == '':
+                    if criteria== 'perf':
+                        from TrigTauHypo.TrigTauHypoBase import T2TauHypo_tauNoCut
+                        currentHypo = T2TauHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
+                    else:
+                        from TrigTauHypo.TrigTauHypoBase import T2TauHypo
+                        theVars = ['EtOverPtLeadTrkMax1P', 'EtOverPtLeadTrkMaxMP', 'TrkAvgDistMax1P', 'TrkAvgDistMaxMP']
+                        theThresh = self.thresholdsL2[(criteria, int(threshold))]
+                        currentHypo = T2TauHypo(currentHypoKey, theVars, theThresh)
+
+            if level == 'EF':
+
+                currentHypoKey = 'ef'+part+'_tau'+threshold+'_'+criteria+'_r1'
+
+                if part == '':
+                    if criteria== 'perf': 
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
+                        currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
+                    else:
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
+                        theVars = ['NTrackMax', 'EtCalibMin', 'Level']
+                        theThresh = self.thresholdsEF[(criteria, int(threshold))]
+                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
+
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly':
+
+            # Simple implementation of 2015 pre-selection
+            currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
+
+            if part == 'calo':
+                from TrigTauHypo.TrigTauHypoBase import HLTCaloTauHypo
+                theVars = ['LowerPtCut', 'UseCellCut', 'CoreFractionCut', 'HadRadiusCut']
+                if strategy == 'calo' or strategy == 'caloonly':
+                    theThresh = [int(threshold)*self.GeV, 1, 0.63, 0.8]
+                if strategy == 'ptonly' or strategy == 'trackonly' or strategy == 'track':
+                    theThresh = [int(threshold)*self.GeV, 0, 0.0, 0.8]
+                if strategy == 'mvonly':
+                    theThresh = [0, 0, 0.0, 0.8]
+                currentHypo = HLTCaloTauHypo(currentHypoKey, theVars, theThresh)
+
+            if part == 'id':
+                from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
+                theVars = ['LowerPtCut'] 
+                theThresh = [int(threshold)*self.GeV]
+                currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
+
+
+        assert currentHypo, 'unable to find hypothesis algorithm: '+currentHypoKey
+            
+        self.hypoStore[hypoName] = currentHypo
+        return currentHypo
+
+
+
+    # Here we need a large repository of configuration values, defined as class members
+    thresholdsL2Calo = {
+        ('loose1', 20) : [15199.0, 0.8000],   
+        ('loose1', 29) : [20696.0, 0.8000],   
+        ('loose1', 70) : [50000.0, 0.8000],   
+        ('loose1', 100): [80000.0, 0.8000],
+        ('medium', 20): [ 15199.0, 0.7485],
+        ('medium', 29): [ 20696.0, 0.7755],
+        ('medium', 38): [ 29430.0, 0.8175],
+        ('medium', 50): [ 40341.0, 0.8310],
+        ('medium', 115): [100000.0, 0.8790],
+        ('medium', 125): [109233.0, 0.8790],
+        ('medium1', 20): [ 15199.0, 0.7485],
+        ('medium1', 29): [ 20696.0, 0.7755],
+        ('medium1', 38): [ 29430.0, 0.8175],
+        ('medium1', 50): [ 40341.0, 0.8310],
+        ('medium1', 115): [100000.0, 0.8790],
+        ('medium1', 125): [109233.0, 0.8790] }
+    
+    thresholdsL2ID = {
+        ('loose1', 20): [4, 0.001, 0.001],
+        ('loose1', 29): [4, 0.001, 0.001],
+        ('loose1', 70): [4, 0.002, 0.002],
+        ('loose1', 100):[4, 0.002, 0.002],    
+        ('medium', 20): [7, 0.001, 0.099],
+        ('medium', 29): [7, 0.001, 0.001],
+        ('medium', 38): [7, 0.001, 0.001],
+        ('medium', 50): [7, 0.001, 0.001],
+        ('medium', 115):[7, 0.001, 0.001],
+        ('medium', 125):[7, 0.001, 0.001],
+        ('medium1', 20): [4, 0.001, 0.099],
+        ('medium1', 29): [4, 0.001, 0.001],
+        ('medium1', 38): [4, 0.001, 0.001],
+        ('medium1', 50): [4, 0.001, 0.001],
+        ('medium1', 115):[4, 0.001, 0.001],
+        ('medium1', 125):[4, 0.001, 0.001] }
+
+    thresholdsL2 = {
+        ('loose1', 20): [999.99, 999.99, 999.99, 999.99],
+        ('loose1', 29): [999.99, 999.99, 999.99, 999.99],
+        ('loose1', 70): [999.99, 999.99, 999.99, 999.99],
+        ('loose1', 100): [999.99, 999.99, 999.99, 999.99],
+        ('medium', 20): [  8.84, 2.84, 0.105, 0.073],
+        ('medium', 29): [  9.72, 2.92, 0.086, 0.062],
+        ('medium', 38): [  9.68, 3.04, 0.076, 0.059],
+        ('medium', 50): [  8.22, 3.02, 0.062, 0.054],
+        ('medium', 115): [999.99, 4.38, 0.057, 0.053],
+        ('medium', 125): [999.99, 4.38, 0.057, 0.053],
+        ('medium1', 20): [  8.84, 2.84, 0.105, 0.073],
+        ('medium1', 29): [  9.72, 2.92, 0.086, 0.062],
+        ('medium1', 38): [  9.68, 3.04, 0.076, 0.059],
+        ('medium1', 50): [  8.22, 3.02, 0.062, 0.054],
+        ('medium1', 115): [999.99, 4.38, 0.057, 0.053],
+        ('medium1', 125): [999.99, 4.38, 0.057, 0.053] }
+
+    thresholdsEF = {
+        ('loose1', 20):  [3,   20.0*GeV, -1111],
+        ('loose1', 29):  [3,   29.0*GeV, -1111],
+        ('loose1', 70):  [3,   70.0*GeV, -1111],
+        ('loose1', 100): [3,  100.0*GeV, -1111] ,
+        ('medium', 20): [6,  20.0*GeV, 1],
+        ('medium', 25): [6,  25.0*GeV, 1],
+        ('medium', 29): [6,  29.0*GeV, 1],
+        ('medium', 38): [6,  38.0*GeV, 1],
+        ('medium', 50): [6,  50.0*GeV, 1],
+        ('medium', 115): [6, 115.0*GeV, 1],
+        ('medium', 125): [6, 125.0*GeV, 1],
+        ('medium1', 20): [3,  20.0*GeV, 2],
+        ('medium1', 25): [3,  25.0*GeV, 2],
+        ('medium1', 29): [3,  29.0*GeV, 2],
+        ('medium1', 35): [3,  35.0*GeV, 2],
+        ('medium1', 38): [3,  38.0*GeV, 2],
+        ('medium1', 50): [3,  50.0*GeV, 2],
+        ('medium1', 80): [3,  80.0*GeV, 2],
+        ('medium1', 115): [3, 115.0*GeV, 2],
+        ('medium1', 125): [3, 125.0*GeV, 2] }

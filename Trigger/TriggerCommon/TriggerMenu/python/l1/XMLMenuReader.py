@@ -1,0 +1,139 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from Lvl1Thresholds import LVL1Threshold, ThresholdValue
+from Lvl1MenuItems import LVL1MenuItem
+
+from PrescaleHelper import getCutFromPrescale
+
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger("TriggerConfigLVL1")
+
+def readMenuFromXML(l1menu, filename):
+
+    log.info("Reading L1 menu from %s" % filename)
+    l1menu.l1menuFromXML = True
+
+    from XMLReader import L1MenuXMLReader
+    reader = L1MenuXMLReader(filename)
+
+
+    if 'ctpVersion' in reader.LVL1Config:
+        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+        Lvl1Flags.CTPVersion = int ( reader.LVL1Config['ctpVersion'] )
+
+
+    l1menu.menuName = reader.LVL1Config['name']
+    l1menu.items.menuName = reader.LVL1Config.TriggerMenu['name']
+    l1menu.items.pssName = reader.LVL1Config.PrescaleSet['name']
+
+    prioMap = {}
+    if hasattr(reader.LVL1Config,"PrioritySet"): # new files have no more PrioritySet
+        for prio in reader.LVL1Config.PrioritySet.Prioritys:
+            prioMap[int(prio['ctpid'])] = 0 if prio.strippedText()=="HIGH" else 1
+            
+
+
+    # Prescales
+    psMap = {}
+    for ps in reader.LVL1Config.PrescaleSet.Prescales:
+        if 'cut' in ps:
+            psMap[int(ps['ctpid'])] = int(ps['cut'], 16)  # new style
+        else:
+            psMap[int(ps['ctpid'])] = getCutFromPrescale(int(ps.strippedText())) # old style
+
+    # Items
+    for x in reader.getL1Items():
+        ctpid            = int(x['ctpid'])
+        complex_deadtime = int(x['complex_deadtime'] if 'complex_deadtime' in x else prioMap[ctpid])
+        psCut            = psMap[ctpid]
+        triggerType      = int( x['trigger_type'], 2 )
+        item = LVL1MenuItem(x['name'], ctpid = ctpid, complex_deadtime = complex_deadtime, psCut = psCut).setTriggerType( triggerType )
+        l1menu.addItem( item )
+
+    # Thresholds
+    for x in reader.getL1Thresholds():
+        seed = seed_type = ''
+        seed_multi = bcdelay = 0
+
+        if x['type']=='ZB':
+            seed       = x['seed']
+            seed_multi = x['seed_multi']
+            bcdelay    = x['bcdelay']
+            seed_type  = [t for t in reader.getL1Thresholds() if t['name']==seed][0]['type']
+
+        thr = LVL1Threshold( name=x['name'], ttype=x['type'], mapping = x['mapping'], active = x['active'],
+                             seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
+
+
+        ca = x.Cable
+        thr.setCableInput()
+        
+        # overwrite cable info with data from xml file
+        si = ca.Signal
+        thr.cableinfo.bitnum      = int(x['bitnum'])
+        thr.cableinfo.name        = ca['name']
+        thr.cableinfo.slot        = ca['ctpin']
+        thr.cableinfo.connector   = ca['connector']
+        thr.cableinfo.range_begin = int( si['range_begin'] )
+        thr.cableinfo.range_end   = int( si['range_end'] )
+
+        if hasattr(x,'TriggerThresholdValues'):
+            for xV in x.TriggerThresholdValues:
+                try:
+                    value = int(xV['thresholdval'])
+                except:
+                    value = float(xV['thresholdval'])
+
+                thrVal = ThresholdValue(thrtype = xV['type'], value = value,
+                                        etamin = int(xV['etamin']), etamax = int(xV['etamax']), phimin = int(xV['phimin']), phimax = int(xV['phimax']),
+                                        em_isolation = int(xV['em_isolation']), had_isolation = int(xV['had_isolation']), had_veto = int(xV['had_veto']),
+                                        window = int(xV['window']), priority = int(xV['priority']), name = xV['name'])
+                thr.thresholdValues.append(thrVal)
+
+
+        l1menu.thresholds.thresholds += [ thr ]
+
+
+
+    # Bunch group set
+    bgs = reader.LVL1Config.BunchGroupSet
+    l1menu.CTPInfo.setBunchGroupSetName(bgs['name'])
+    lastBGNumber = max([int(bg['internalNumber']) for bg in reader.LVL1Config.BunchGroupSet.BunchGroups])
+    l1menu.CTPInfo.bunchGroupSet.resize(1+lastBGNumber)
+    for bg in reader.LVL1Config.BunchGroupSet.BunchGroups:
+        bunches = []
+        if hasattr(bg,'Bunch'):
+            for b in bg.Bunchs:
+                bunches.append( int(b['bunchNumber']) )
+        l1menu.CTPInfo.addBunchGroup( bg['name'], int(bg['internalNumber']), bunches )
+
+
+    # Random
+    rndm = reader.LVL1Config.Random
+    if 'name' in rndm:
+        # old style
+        l1menu.CTPInfo.random.name  = rndm['name']
+        l1menu.CTPInfo.random.rate1 = int( rndm['rate1'] )
+        l1menu.CTPInfo.random.rate2 = int( rndm['rate2'] )
+        l1menu.CTPInfo.random.seed1 = int( rndm['seed1'] )
+        l1menu.CTPInfo.random.seed2 = int( rndm['seed2'] )
+    else:
+        # new style
+        for i in range(4):
+            l1menu.CTPInfo.random.names[i] = rndm['name%i' % i]
+            l1menu.CTPInfo.random.cuts[i]  = int( rndm['cut%i' % i] )
+
+
+    # Deadtime
+    # has been removed
+
+    # CaloInfo
+    ci = reader.LVL1Config.CaloInfo
+    l1menu.CaloInfo.name = ci['name']
+    l1menu.CaloInfo.setGlobalScale(float(ci['global_scale']))
+
+    if hasattr(reader.LVL1Config.CaloInfo,"JetWeights"): # new CaloInfo have no more JetWeights
+        # jet weights
+        jw = [x[1] for x in sorted([ ( int(jw['num']),int(jw.strippedText())) for jw in reader.LVL1Config.CaloInfo.JetWeights])]
+        l1menu.CaloInfo.setJetWeights(jw)
