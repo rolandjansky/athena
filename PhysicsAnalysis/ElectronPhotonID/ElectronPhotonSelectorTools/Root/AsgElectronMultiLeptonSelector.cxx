@@ -1,0 +1,243 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+   @class AsgElectronMultiLeptonSelector
+   @brief Electron selector tool to select objects in Asgena using an underlying pure ROOT tool.
+
+   @author Karsten Koeneke
+   @date   October 2012
+
+   12-MAR-2014 convert to ASG tool (Jovan Mitrevski)
+
+*/
+
+// Include this class's header
+#include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
+
+#include "xAODTracking/TrackParticle.h"
+#include "xAODCaloEvent/CaloCluster.h"
+
+#include <cmath>
+#include <cstdint>
+
+//=============================================================================
+// Standard constructor
+//=============================================================================
+AsgElectronMultiLeptonSelector::AsgElectronMultiLeptonSelector(std::string myname) :
+  AsgTool(myname),
+  m_rootTool(0)
+{
+ 
+  // Create an instance of the underlying ROOT tool
+  m_rootTool = new Root::TElectronMultiLeptonSelector();
+
+}
+
+
+//=============================================================================
+// Standard destructor
+//=============================================================================
+AsgElectronMultiLeptonSelector::~AsgElectronMultiLeptonSelector()
+{
+  if(finalize().isFailure()){
+    ATH_MSG_ERROR ( "Failure in AsgElectronMultiLeptonSelector finalize()");
+  }
+  if ( m_rootTool ) delete m_rootTool;
+}
+
+
+//=============================================================================
+// Asgena initialize method
+//=============================================================================
+StatusCode AsgElectronMultiLeptonSelector::initialize()
+{
+  // We need to initialize the underlying ROOT TSelectorTool
+  if ( 0 == m_rootTool->initialize() )
+    {
+      ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronMultiLeptonSelector!" );
+      return StatusCode::FAILURE;
+    }
+
+  // Copy the now filled TAccept to the dummy
+  m_acceptDummy = m_rootTool->getTAccept();
+
+  return StatusCode::SUCCESS ;
+}
+
+
+
+//=============================================================================
+// Asgena finalize method (now called by destructor)
+//=============================================================================
+StatusCode AsgElectronMultiLeptonSelector::finalize()
+{
+  if ( !(m_rootTool->finalize()) )
+    {
+      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
+      return StatusCode::FAILURE;
+    }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+//=============================================================================
+// The main accept method: the actual cuts are applied here 
+//=============================================================================
+const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electron* eg ) const
+{
+  if ( !eg )
+    {
+      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      return m_acceptDummy;
+    }
+  
+  const xAOD::CaloCluster* cluster = eg->caloCluster();
+  if ( !cluster )
+    {
+      ATH_MSG_DEBUG ("Failed, no cluster.");
+      return m_acceptDummy;
+    }  
+  
+  float eta = fabsf(cluster->etaBE(2)); 
+  if ( eta > 100.0 )
+    {
+      ATH_MSG_DEBUG ("Failed, eta range.");
+      return m_acceptDummy;
+    }
+  
+  double et = cluster->e()/cosh(eta); 
+  
+  bool allFound = true;
+
+  float e237, e277, ethad1, ethad, w2, f1, f3, wstot, emax2, emax, deltaEta, deltaPhiRescaled;
+
+  // E(3*7) in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(e237, xAOD::EgammaParameters::e237);
+  // E(7*7) in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
+  // transverse energy in 1st scintillator of hadronic calorimeter
+  allFound = allFound && eg->showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1);
+  // transverse energy in hadronic calorimeter
+  allFound = allFound && eg->showerShapeValue(ethad, xAOD::EgammaParameters::ethad);
+  // shower width in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2);
+  // fraction of energy reconstructed in the 1st sampling
+  allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
+  // E of 2nd max between max and min in strips
+  allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
+  // E of 1st max in strips
+  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
+  // fraction of energy reconstructed in the 3rd sampling
+  allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
+
+  // total shower width in 1st sampling
+  allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
+      
+
+
+  double rHad1  = et != 0. ? ethad1/et : 0.;
+  
+  double rHad   = et != 0. ? ethad/et : 0.;
+  
+  double Reta   = e277 != 0 ? e237/e277 : 0.;
+  
+  // (Emax1-Emax2)/(Emax1+Emax2)
+  //double DEmaxs1 = (emax+emax2)==0. ? 0.0 : (emax-emax2)/(emax+emax2);
+  double DEmaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.0;
+  
+
+  // delta eta
+  allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
+  
+  // difference between the cluster phi (sampling 2) and the eta of the track extrapolated from the last measurement point.
+  allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled, xAOD::EgammaParameters::deltaPhiRescaled2);
+  
+  // number of track hits
+  uint8_t nSCT(0);
+  uint8_t nSCTDeadSensors(0);
+  uint8_t nSi(0);
+  uint8_t nSiDeadSensors(0);
+  uint8_t nPix(0);
+  uint8_t nPixDeadSensors(0); 
+  uint8_t nTRThigh(0); 
+  uint8_t nTRThighOutliers(0); 
+  uint8_t nTRT(0); 
+  uint8_t nTRTOutliers(0);
+  uint8_t expectBlayer(1);
+  uint8_t nBlayerHits(0); 
+  double trackqoverp(0.0);
+  double dpOverp(0.0);
+  // retrieve associated track
+  const xAOD::TrackParticle* t  = eg->trackParticle();    
+
+  if (t) {
+    trackqoverp = t->qOverP();
+    
+    allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
+    allFound = allFound && t->summaryValue(nPix, xAOD::numberOfPixelHits);
+    allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
+    allFound = allFound && t->summaryValue(nPixDeadSensors, xAOD::numberOfPixelDeadSensors);
+    allFound = allFound && t->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
+    
+    allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
+    allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
+    allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
+    allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
+    
+    allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
+    
+    
+    nSi = nPix+nSCT;
+    nSiDeadSensors = nPixDeadSensors+nSCTDeadSensors;
+
+    unsigned int index;
+    if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
+      
+      double refittedTrack_LMqoverp  = 
+	t->charge() / sqrt(std::pow(t->parameterPX(index), 2) +
+			   std::pow(t->parameterPY(index), 2) +
+			   std::pow(t->parameterPZ(index), 2));
+
+      dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
+    }
+  } else {
+    ATH_MSG_DEBUG ( "Failed, no track particle: et= " << et << "eta= " << eta );
+    allFound = false;
+  }
+  
+  // TRT high-to-low threshold hits ratio
+  double rTRT(0.0);
+  rTRT = (nTRT+nTRTOutliers) > 0 ?  ((double) ((double)(nTRThigh+nTRThighOutliers))/((double)(nTRT+nTRTOutliers)) ) : 0.;
+  int nTRTTotal = nTRT+nTRTOutliers;
+
+  if (!allFound) {
+     // if object is bad then use the bit for "bad eta"
+    ATH_MSG_WARNING("Have some variables missing.");
+    return m_acceptDummy;
+  }
+
+  // Get the message level
+  bool debug(false);
+  if ( this->msgLvl(MSG::VERBOSE) ) debug = true;
+
+
+  // Get the answer from the underlying ROOT tool
+  return m_rootTool->accept(eta, et,
+                            rHad, rHad1,
+                            Reta, w2,
+                            f1, f3,
+                            wstot, DEmaxs1, 
+                            deltaEta,
+                            nSi, nSiDeadSensors, nPix, nPixDeadSensors,
+                            deltaPhiRescaled,
+                            dpOverp,
+                            rTRT, nTRTTotal,
+                            nBlayerHits, expectBlayer,
+                            debug );
+}
+

@@ -1,0 +1,8 @@
+PACKAGE          = ElectronPhotonSelectorTools
+PACKAGE_PRELOAD  = 
+PACKAGE_CXXFLAGS = 
+PACKAGE_LDFLAGS  = 
+PACKAGE_BINFLAGS = 
+PACKAGE_DEP      = AsgTools  xAODEgamma PATCore PathResolver PATInterfaces
+
+include $(ROOTCOREDIR)/Makefile-common
