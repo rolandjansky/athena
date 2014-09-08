@@ -1,0 +1,26 @@
+===========================================================
+===  Instructions for MuonMomentumCorrections-01-00-00  ===
+===========================================================
+
+=== News
+
+  - Tool modified to be used with xAODs
+   
+=== Tool usage examples
+
+  - If you are running in Athena:
+    - please look at src/TestMCASTTool.cxx how to use the tool
+    - the recommended configurations can be found in share/MCAST_jobOptions.py and are:
+      alg.MuonCalibrationAndSmearingTool.Year = 'Data12'
+      alg.MuonCalibrationAndSmearingTool.Release = 'Rel17.2Sum13'
+      alg.MuonCalibrationAndSmearingTool.FilesPath = '<your path to share dir>'
+
+  - If you are running in RootCore:
+    - please look at util/MCAST_Tester.cxx how to use the tool
+    - the recommended configurations are the same as the previous case:
+      CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrector" );
+      corrTool.msg().setLevel( MSG::INFO );
+      corrTool.setProperty( "Year", "Data12" );
+      corrTool.setProperty( "Release", "Rel17.2Sum13" );
+      corrTool.setProperty( "FilesPath", "<your path to share dir>" );
+      corrTool.initialize();
