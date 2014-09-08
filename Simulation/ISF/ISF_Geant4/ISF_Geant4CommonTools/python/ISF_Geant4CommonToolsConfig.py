@@ -16,8 +16,12 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 
 
 def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
-    kwargs.setdefault('GeoIDSvc'        , getService('ISF_G4PolyconeGeoIDSvc')   )
+    kwargs.setdefault('GeoIDSvc'        , getService('ISF_GeoIDSvc')   )
     kwargs.setdefault('ParticleFilters' , [ getPublicTool('ISF_BarcodeFilter') ] )
 
     from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConf import ISF__EntryLayerTool
     return ISF__EntryLayerTool(name, **kwargs)
+
+def getAFIIEntryLayerTool(name="ISF_AFIIEntryLayerTool", **kwargs):
+    kwargs.setdefault('GeoIDSvc'        , getService('ISF_AFIIGeoIDSvc'))
+    return getEntryLayerTool(name, **kwargs)
