@@ -1,0 +1,74 @@
+<lcgdict>
+
+<!-- all the ARA converters and Athena persistent classes that are not WRITTEN by default should be moved here. -->
+ <!-- The following should not be here! -->
+ <class name="HepPoint3D_p1" />
+
+<!-- Track top level collection -->
+ <class name="Trk::TrackCollection_tlp1" id="ECB12567-B999-4908-B0C6-C43CF9F9A987" />
+ <class name="Trk::TrackCollection_tlp2" id="2D8B19DC-DB2E-4F56-BB94-D7C4544D501A" />
+ <class name="Trk::TrackCollection_tlp3" id="A1E9FDCB-2F4A-4AC8-BF4E-2D70B9C70F8A" />
+ <class name="Trk::TrackCollection_tlp4" id="3BEB819F-6ED2-48F6-9F95-E65E1759E781" />
+ <class name="Trk::SegmentCollection_tlp1" id="03A83988-8E38-45E9-95A5-9CB17B98074C" />
+ <class name="Trk::SegmentCollection_tlp2" id="61A4056D-4FDF-4798-93D7-1BAC351FE32E" />
+ <class name="Trk::Track_p1" />
+ <class name="std::vector<Trk::Track_p1>" />
+ <class name="Trk::Track_p2" />
+ <class name="std::vector<Trk::Track_p2>" />
+ <class name="Trk::Track_p12" />
+ <class name="std::vector<Trk::Track_p12>" />
+ <class name="Trk::TrackInfo_p1" />
+ <class name="std::vector<Trk::TrackInfo_p1>" />
+ <class name="Trk::TrackStateOnSurface_p1" />
+ <class name="std::vector<Trk::TrackStateOnSurface_p1>" />
+ <class name="Trk::MuonTrackSummary_p1" />
+ <class name="std::vector<Trk::MuonTrackSummary_p1>" />
+ <class name="Trk::TrackSummary_p1" />
+ <class name="std::vector<Trk::TrackSummary_p1>" />
+ <class name="Trk::TrackParameters_p1" />
+ <class name="std::vector<Trk::TrackParameters_p1>" />
+ <class name="Trk::AtaSurface_p1" />
+ <class name="std::vector<Trk::AtaSurface_p1>" />
+ <class name="Trk::MeasuredAtaSurface_p1" />
+ <class name="std::vector<Trk::MeasuredAtaSurface_p1>" />
+ <class name="Trk::MeasuredPerigee_p1" />
+ <class name="std::vector<Trk::MeasuredPerigee_p1>" />
+ <class name="Trk::Perigee_p1" />
+ <class name="std::vector<Trk::Perigee_p1>" />
+ <class name="Trk::Perigee_p2" />
+ <class name="std::vector<Trk::Perigee_p2>" />
+ 
+ <class name="Trk::RecVertex_p1" />
+ <class name="std::vector<Trk::RecVertex_p1>" />
+ <class name="Trk::VxTrackAtVertex_p1" />
+ <class name="std::vector<Trk::VxTrackAtVertex_p1>" /> 
+ 
+ <class name="Trk::Surface_p1" />
+ <class name="std::vector<Trk::Surface_p1>" />
+ <class name="Trk::BoundSurface_p1" />
+ <class name="std::vector<Trk::BoundSurface_p1>" />
+ 
+ <class name="Trk::CylinderBounds_p1" />
+ <class name="std::vector<Trk::CylinderBounds_p1>" />
+ <class name="Trk::DiamondBounds_p1" />
+ <class name="std::vector<Trk::DiamondBounds_p1>" />
+ <class name="Trk::DiscBounds_p1" />
+ <class name="std::vector<Trk::DiscBounds_p1>" />
+ <class name="Trk::RectangleBounds_p1" />
+ <class name="std::vector<Trk::RectangleBounds_p1>" />
+ <class name="Trk::TrapezoidBounds_p1" />
+ <class name="std::vector<Trk::TrapezoidBounds_p1>" />
+ <class name="Trk::RotatedTrapezoidBounds_p1" />
+ <class name="std::vector<Trk::RotatedTrapezoidBounds_p1>" />
+ <class name="Trk::TriangleBounds_p1" />
+ <class name="std::vector<Trk::TriangleBounds_p1>" />
+ <class name="Trk::EllipseBounds_p1" />
+ <class name="std::vector<Trk::EllipseBounds_p1>" />
+ <class name="Trk::RIO_OnTrack_p1" />
+ <class name="std::vector<Trk::RIO_OnTrack_p1>" />
+ <class name="Trk::PseudoMeasurementOnTrack_p1" />
+ <class name="std::vector<Trk::PseudoMeasurementOnTrack_p1>" />
+ <class name="Trk::TrackStateOnSurface_p2" />
+ <class name="std::vector<Trk::TrackStateOnSurface_p2>" />
+ 
+</lcgdict>

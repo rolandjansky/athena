@@ -1,0 +1,101 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//-----------------------------------------------------------------------------
+//
+// file:   SurfaceCnv_p2.cxx
+//
+// ----------------------------------------------------------------------------
+
+#define private public
+#define protected public
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/StraightLineSurface.h"
+#include "TrkSurfaces/DiscSurface.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkSurfaces/CylinderSurface.h"
+#include "TrkSurfaces/PerigeeSurface.h"
+#include "TrkDistortedSurfaces/SaggedLineSurface.h"
+#undef private
+#undef protected
+
+#include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"
+#include "TrkEventTPCnv/helpers/EigenHelpers.h"
+
+template <class SURFACE>
+SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
+  //Trk::Surface::SurfaceType type = static_cast<Trk::Surface::SurfaceType>(persObj->m_surfaceType);
+  // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient for type="<<type<<", persId= "<<persObj->m_associatedDetElementId<<std::endl;
+  SURFACE* surface=0;
+  if (!persObj->m_transform.size()) {
+    // det element surface
+    Identifier id =  Identifier32(persObj->m_associatedDetElementId);
+    const SURFACE* detSurf =  static_cast<const SURFACE*>(m_eventCnvTool->getSurface(id));
+    surface= const_cast<SURFACE*>(detSurf); // Needed to fulfill interface...
+  } else {
+    // Not Det element surface, so need to create surface & fill transform
+    surface=new SURFACE();
+    // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";
+    // for (auto v : persObj->m_transform)
+    //     std::cout << v << ' ';
+    surface->m_transform = new Amg::Transform3D();
+    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *surface->m_transform );
+  }  
+  return surface;
+}
+
+template <class SURFACE>
+void SurfaceCnv_p2<SURFACE>::persToTrans( const Trk::Surface_p2 * , SURFACE * , MsgStream &) {
+  throw std::runtime_error("SurfaceCnv_p2::persToTrans shouldn't be called any more!");
+}
+
+template <class	SURFACE>
+void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
+                                       Trk::Surface_p2 * persObj,
+                                       MsgStream & log)
+{
+  // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers - surf="<<transObj<<std::endl;
+  persObj->m_associatedDetElementId = transObj->associatedDetectorElementIdentifier().get_identifier32().get_compact();
+  if (transObj->isFree() ) { 
+    // if this is a free surface, write it out 'as is' 
+    // - otherwise we're relying on the fact that the Identifier is there (and valid!) to reconstruct it on reading
+    EigenHelpers::eigenTransform3DToVector( *transObj->m_transform,persObj->m_transform );
+    
+    // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers free surface with pers vector=[";
+    // for (auto v : persObj->m_transform)
+    //     std::cout << v << ' ';
+    // std::cout<<"]"<<std::endl;
+  } else {
+    // std::cout<<"Non-free surface, with id="<<transObj->m_associatedDetElementId<<std::endl;
+    // std::cout<<*transObj<<std::endl;
+    //assert(transObj->m_associatedDetElementId.is_valid());
+    if (!transObj->associatedDetectorElementIdentifier().is_valid()) {
+       log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - invalid detector element for non-free surface: "<<*transObj<<endreq;
+    }
+  }
+  persObj->m_surfaceType = static_cast<uint8_t>(transObj->type());
+}
+
+// Specialisation for SaggedLineSurface - hopefully this will only ever be a DetEl surface, otherwise we need a new persistent type.
+template <>
+void SurfaceCnv_p2<Trk::SaggedLineSurface>::transToPers( const Trk::SaggedLineSurface         * transObj,
+                                       Trk::Surface_p2 * persObj,
+                                       MsgStream &log)
+{
+  persObj->m_associatedDetElementId = transObj->associatedDetectorElementIdentifier().get_identifier32().get_compact();
+  persObj->m_surfaceType = static_cast<uint8_t>(transObj->type());
+  if (transObj->isFree() ) {
+    log << MSG::WARNING<<"Not expecting these to be Free!"<<endreq;
+  }   
+}
+
+namespace {
+  ConeSurfaceCnv_p2           inst1;
+  CylinderSurfaceCnv_p2       inst2;
+  DiscSurfaceCnv_p2           inst3;
+  PerigeeSurfaceCnv_p2        inst4;
+  PlaneSurfaceCnv_p2          inst5;
+  StraightLineSurfaceCnv_p2   inst6;
+  SaggedLineSurfaceCnv_p2     inst7;
+}

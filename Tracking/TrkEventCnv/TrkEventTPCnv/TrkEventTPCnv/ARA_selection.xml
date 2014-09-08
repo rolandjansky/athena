@@ -1,0 +1,47 @@
+<lcgdict>
+
+    <class name="ITPConverterFor<VxContainer>"/>
+    <class name="T_TPCnv<VxContainer,Trk::VxContainer_tlp1>"/>
+    <class name="VxContainerCnv_tlp1"/>
+    <class name="AthenaPoolTopLevelTPConverter<VxContainerCnv_p1,Trk::VxContainer_tlp1>"/>
+    <class name="AthenaPoolTopLevelExtTPConverter<Trk::VxContainer_tlp1>"/>
+    <class name="T_AthenaPoolTPCnvBase<VxContainer,Trk::VxContainer_tlp1>"/>
+    <class name="T_AthenaPoolTPPolyCnvBase<VxContainer,VxContainer,Trk::VxContainer_tlp1>"/>
+    <class name="T_AthenaPoolTPAbstractPolyCnvBase<VxContainer,VxContainer,Trk::VxContainer_tlp1>"/>
+ 
+    <class name="T_TPCnv<VxContainer,Trk::VxContainer_tlp2>"/>
+    <class name="VxContainerCnv_tlp2"/>
+    <class name="AthenaPoolTopLevelTPConverter<VxContainerCnv_p1,Trk::VxContainer_tlp2>"/>
+    <class name="AthenaPoolTopLevelExtTPConverter<Trk::VxContainer_tlp2>"/>
+    <class name="T_AthenaPoolTPCnvBase<VxContainer,Trk::VxContainer_tlp2>"/>
+    <class name="T_AthenaPoolTPPolyCnvBase<VxContainer,VxContainer,Trk::VxContainer_tlp2>"/>
+    <class name="T_AthenaPoolTPAbstractPolyCnvBase<VxContainer,VxContainer,Trk::VxContainer_tlp2>"/>
+
+    <class name="T_TPCnv<MVFVxContainer,Trk::MVFVxContainer_tlp1>"/>
+    <class name="MVFVxContainerCnv_tlp1"/>
+    <class name="AthenaPoolTopLevelTPConverter<MVFVxContainerCnv_p1,Trk::MVFVxContainer_tlp1>"/>
+    <class name="AthenaPoolTopLevelExtTPConverter<Trk::MVFVxContainer_tlp1>"/>
+    <class name="T_AthenaPoolTPCnvBase<MVFVxContainer,Trk::MVFVxContainer_tlp1>"/>
+    <class name="T_AthenaPoolTPPolyCnvBase<MVFVxContainer,MVFVxContainer,Trk::MVFVxContainer_tlp1>"/>
+    <class name="T_AthenaPoolTPAbstractPolyCnvBase<MVFVxContainer,MVFVxContainer,Trk::MVFVxContainer_tlp1>"/>
+    <class name="ITPConverterFor<MVFVxContainer>"/>
+    
+    <class name="T_TPCnv<V0Container,Trk::V0Container_tlp1>"/>
+    <class name="V0ContainerCnv_tlp1"/>
+    <class name="AthenaPoolTopLevelTPConverter<V0ContainerCnv_p1,Trk::V0Container_tlp1>"/>
+    <class name="AthenaPoolTopLevelExtTPConverter<Trk::V0Container_tlp1>"/>
+    <class name="T_AthenaPoolTPCnvBase<V0Container,Trk::V0Container_tlp1>"/>
+    <class name="T_AthenaPoolTPPolyCnvBase<V0Container,V0Container,Trk::V0Container_tlp1>"/>
+    <class name="T_AthenaPoolTPAbstractPolyCnvBase<V0Container,V0Container,Trk::V0Container_tlp1>"/>
+    <class name="ITPConverterFor<V0Container>"/>
+    
+    <class name="T_TPCnv<V0Container,Trk::V0Container_tlp2>"/>
+    <class name="V0ContainerCnv_tlp2"/>
+    <class name="AthenaPoolTopLevelTPConverter<V0ContainerCnv_p1,Trk::V0Container_tlp2>"/>
+    <class name="AthenaPoolTopLevelExtTPConverter<Trk::V0Container_tlp2>"/>
+    <class name="T_AthenaPoolTPCnvBase<V0Container,Trk::V0Container_tlp2>"/>
+    <class name="T_AthenaPoolTPPolyCnvBase<V0Container,V0Container,Trk::V0Container_tlp2>"/>
+    <class name="T_AthenaPoolTPAbstractPolyCnvBase<V0Container,V0Container,Trk::V0Container_tlp2>"/>
+    
+
+</lcgdict>
