@@ -61,9 +61,13 @@ void MaterialPropertiesCnv_p1::transToPers( const Trk::MaterialProperties    *tr
     persObj->materialData[4] = transObj->m_material.rho;
     persObj->materialData[5] = transObj->m_dInX0*transObj->m_material.X0;
     
-    // write the composition vector if present
+    // write the composition vector if present, decompose ElementFraction object
     if ( transObj->m_material.composition ){
-        persObj->elements  = transObj->m_material.composition->elements;
-        persObj->fractions = transObj->m_material.composition->fractions;        
+        persObj->elements.reserve(transObj->m_material.composition->size());
+        persObj->fractions.reserve(transObj->m_material.composition->size());
+        for (auto& iel: (*transObj->m_material.composition)){
+            persObj->elements.push_back(iel.first);
+            persObj->fractions.push_back(iel.second);
+        }
     }
 }

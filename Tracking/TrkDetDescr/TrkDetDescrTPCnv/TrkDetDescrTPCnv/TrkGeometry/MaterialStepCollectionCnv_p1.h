@@ -14,6 +14,7 @@
 #include "TrkGeometry/MaterialStepCollection.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialStepCollection_p1.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialStepCnv_p1.h"
+#include "TrkDetDescrTPCnv/TrkGeometry/ElementTableCnv_p1.h"
 
 
 class MsgStream;
@@ -35,7 +36,7 @@ class MaterialStepCollectionCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::Material
        Trk::MaterialStepCollection_p1::const_iterator iEnd = persVect->end();
        for ( ; it != iEnd;  ++it ) {
            const Trk::MaterialStep_p1* ms = &(*it);
-           transVect->push_back( m_msConverter.createTransient(ms, log ) );
+           transVect->push_back( m_materialStepCnv.createTransient(ms, log ) );
            }
      }
          
@@ -48,13 +49,12 @@ class MaterialStepCollectionCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::Material
        Trk::MaterialStepCollection::const_iterator it = transVect->begin();
        Trk::MaterialStepCollection::const_iterator iEnd = transVect->end();
        for( ; it != iEnd;  ++it ) {
-           m_msConverter.transToPers(*it, &(*persVect)[i++], log ) ;
+           m_materialStepCnv.transToPers(*it, &(*persVect)[i++], log ) ;
        }
      }
 
     private :
-        MaterialStepCnv_p1  m_msConverter;  
-
+        MaterialStepCnv_p1  m_materialStepCnv;
 };
 
 #endif // MATERIAKSTEPCOLLECTION_CNV_P1_TRK_H

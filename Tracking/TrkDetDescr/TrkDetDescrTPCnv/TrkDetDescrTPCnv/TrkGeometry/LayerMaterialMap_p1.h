@@ -11,6 +11,8 @@
 
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include <vector>
+#include "TrkDetDescrTPCnv/TrkGeometry/ElementTable_p1.h"
+
 
 namespace Trk
 {
@@ -19,8 +21,11 @@ namespace Trk
      public:
        std::vector<TPObjRef> lmVector;
        std::vector<int>      idxVector;
+       
+       ElementTable_p1       elementTable;
          
-       LayerMaterialMap_p1() 
+       LayerMaterialMap_p1() :
+         elementTable()
        {}
 
    };

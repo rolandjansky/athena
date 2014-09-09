@@ -14,8 +14,9 @@
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/LayerMaterialMap.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
+#include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/LayerMaterialMap_p1.h"
-
+#include "TrkDetDescrTPCnv/TrkGeometry/ElementTableCnv_p1.h"
 
 class MsgStream;
 
@@ -24,44 +25,50 @@ class LayerMaterialMapCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::LayerMaterialM
   public:
     
     /** Standard constructor */
-    LayerMaterialMapCnv_p1() 
-    {}
+    LayerMaterialMapCnv_p1(){}
+
+    /** Destructor constructor */
+    ~LayerMaterialMapCnv_p1(){}
     
     /** persistent to transient */
     virtual void persToTrans(const Trk::LayerMaterialMap_p1* persMap, Trk::LayerMaterialMap* transMap, MsgStream &mlog) {
        transMap->clear();
-       std::cout << "[TrkDetDescrTPCnv READ ] Persistent LayerMaterialMap of size : " <<  persMap->lmVector.size() << std::endl;
+       
+       // update the element table
+       Trk::ElementTable* eTable = new Trk::ElementTable();
+       m_eTableCnv.persToTrans((&persMap->elementTable), eTable, mlog);
+       Trk::SharedObject<const Trk::ElementTable> soeTable(eTable);
+       transMap->updateElementTable(soeTable);
        
        // convert vector entries one by one
        std::vector<TPObjRef>::const_iterator it   = persMap->lmVector.begin();
        std::vector<TPObjRef>::const_iterator iEnd = persMap->lmVector.end();
        for (size_t iidx=0 ; it != iEnd;  ++it, ++iidx ) {
            int layIdex = persMap->idxVector[iidx];
-           Trk::LayerMaterialProperties* tProperties = dynamic_cast<Trk::LayerMaterialProperties*>( createTransFromPStore( (ITPConverterFor<Trk::LayerMaterialProperties>**)0, *it, mlog ) );
+           Trk::LayerMaterialProperties* tProperties = createTransFromPStore( (ITPConverterFor<Trk::LayerMaterialProperties>**)0, *it, mlog );
+           tProperties->updateElementTable(soeTable);
            (*transMap)[Trk::LayerIndex(layIdex)] = tProperties;
        }
-       
-       std::cout << "[TrkDetDescrTPCnv READ ] Transient LayerMaterialMap of size : " <<  transMap->size() << std::endl;
-       
      }
          
      /** transient to persistent */
      virtual void transToPers(const Trk::LayerMaterialMap* transMap, Trk::LayerMaterialMap_p1* persMap, MsgStream &mlog) {
-       std::cout << "[TrkDetDescrTPCnv WRITE ] Transient LayerMaterialMap of size : " <<  transMap->size() << std::endl;
        persMap->lmVector.clear();
        persMap->lmVector.reserve( transMap->size() );
        persMap->idxVector.clear();
        persMap->idxVector.reserve( transMap->size() );
+       // write out the ElementTable
+       if (transMap->elementTable())   
+           m_eTableCnv.transToPers((transMap->elementTable()), &persMap->elementTable,mlog);
        // convert vector entries one by one
-       Trk::LayerMaterialMap::const_iterator it   = transMap->begin();
-       Trk::LayerMaterialMap::const_iterator iEnd = transMap->end();
-       for( ; it != iEnd;  ++it ) {
-           persMap->idxVector.push_back( (*it).first.value() );
-           persMap->lmVector.push_back( toPersistent( (ITPConverterFor<Trk::LayerMaterialProperties>**)0, (*it).second, mlog )  );
+       for(auto& it : (*transMap) ) {
+           persMap->idxVector.push_back( it.first.value() );
+           persMap->lmVector.push_back( toPersistent( (ITPConverterFor<Trk::LayerMaterialProperties>**)0, it.second, mlog )  );
        }
-       std::cout << "[TrkDetDescrTPCnv WRITE ] Persistent LayerMaterialMap of size : " <<  persMap->idxVector.size() << std::endl;
      }
-
+     
+ protected:
+   ElementTableCnv_p1     m_eTableCnv;
 
 };
 

@@ -52,8 +52,13 @@ void MaterialCnv_p1::transToPers( const Trk::Material    *transObj,
     persObj->materialData[4] = transObj->rho;
     
     // write the composition vector if present
+    // disentangle the ElementFraction for columnwise write support (compression optimised)
     if ( transObj->composition ){
-        persObj->elements  = transObj->composition->elements;
-        persObj->fractions = transObj->composition->fractions;        
+        persObj->elements.reserve(transObj->composition->size());
+        persObj->fractions.reserve(transObj->composition->size());
+        for (auto& iel: (*transObj->composition)){
+            persObj->elements.push_back(iel.first);
+            persObj->fractions.push_back(iel.second);
+        }  
     }
 }

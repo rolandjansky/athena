@@ -32,4 +32,4 @@ namespace Trk
     };
 }
 
-#endif // MATERIALSTEP_P1_TRK_H
+#endif // COMPRESSEDLAYERMATERIAL_P1_TRK_H

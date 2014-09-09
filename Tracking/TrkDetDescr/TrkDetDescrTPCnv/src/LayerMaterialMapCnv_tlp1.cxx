@@ -8,17 +8,18 @@
 
 #include "TrkDetDescrTPCnv/LayerMaterialMapCnv_tlp1.h"
 
-LayerMaterialMapCnv_tlp1::LayerMaterialMapCnv_tlp1( )
+LayerMaterialMapCnv_tlp1::LayerMaterialMapCnv_tlp1()
 {
 
    addMainTPConverter();
 
    addTPConverter( &m_materialPropertiesCnv );
+   addTPConverter( &m_elementTableCnv );
    
    addTPConverter( &m_blMaterialCnv );    
+   addTPConverter( &m_klMaterialCnv );    
    addTPConverter( &m_clMaterialCnv ); 
-   addTPConverter( &m_hlMaterialCnv );      
-
+   addTPConverter( &m_hlMaterialCnv ); 
 }
 
 LayerMaterialMapCnv_tlp1::~LayerMaterialMapCnv_tlp1()
@@ -30,10 +31,11 @@ void LayerMaterialMapCnv_tlp1::setPStorage( Trk::LayerMaterialMap_tlp1 *storage 
      setMainCnvPStorage( &storage->layerMaterialMaps );
 
      // for all converters defined in this top level converter
-     m_materialPropertiesCnv.setPStorage( &storage->materialStore );    
+     m_materialPropertiesCnv.setPStorage( &storage->materialPropertiesStore );    
+     m_elementTableCnv.setPStorage( &storage->elementTableStore );    
     
-     m_blMaterialCnv.setPStorage( &storage->binnedLayerMaterial );              
-     m_clMaterialCnv.setPStorage( &storage->compressedLayerMaterial );          
-     m_hlMaterialCnv.setPStorage( &storage->homogeneousLayerMaterial );         
-
+     m_blMaterialCnv.setPStorage( &storage->binnedLayerMaterialStore );              
+     m_klMaterialCnv.setPStorage( &storage->compressedLayerMaterialStore );          
+     m_clMaterialCnv.setPStorage( &storage->compoundLayerMaterialStore );          
+     m_hlMaterialCnv.setPStorage( &storage->homogeneousLayerMaterialStore );   
 }

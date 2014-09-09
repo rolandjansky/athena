@@ -6,7 +6,6 @@
 // MaterialPropertiesCnv_p1.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-
 #ifndef MATERIAL_CNV_P1_H
 #define MATERIAL_CNV_P1_H
 
@@ -30,4 +29,4 @@ class MaterialCnv_p1 : public T_AthenaPoolTPCnvBase<Trk::Material, Trk::Material
                                         MsgStream                 &log );
 };
 
-#endif // MATERIALPROPERTIES_CNV_P1_H
+#endif // MATERIAL_CNV_P1_H

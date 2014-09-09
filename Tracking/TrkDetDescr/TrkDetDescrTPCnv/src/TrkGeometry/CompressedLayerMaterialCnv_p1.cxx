@@ -40,8 +40,6 @@ void CompressedLayerMaterialCnv_p1::persToTrans( const Trk::CompressedLayerMater
         transObj->m_fullMaterial[im] = createTransFromPStore( &materialCnv, persObj->materialVector[im], mlog );
     }
     
-    
-    
 }
 
 void CompressedLayerMaterialCnv_p1::transToPers( const Trk::CompressedLayerMaterial    *transObj,

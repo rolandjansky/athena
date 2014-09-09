@@ -5,23 +5,30 @@
     <class name="Trk::MaterialStepCollection_p1" id="DF8A7FA8-693F-44E0-A5E5-F9907B8B429E" />
     <class name="std::vector<Trk::MaterialStepCollection_p1>" />
     
-
     <class name="std::vector<float>"/>
     <class name="std::vector<unsigned char>"/>
-    <class name="Trk::LayerMaterialCollection_p1"/>
+    <class name="std::vector< std::vector<unsigned char> >"/>
+    <class name="std::vector< std::vector< std::vector<unsigned char> > >"/>
+    <class name="std::pair< unsigned char, unsigned char >"/>
+    <class name="std::vector< std::pair<unsigned char, unsigned char> > "/>
+    <class name="std::vector< std::vector<std::pair<unsigned char, unsigned char> > > "/>
+    <class name="std::vector< std::vector < std::vector< std::pair<unsigned char, unsigned char> > > > "/>
     <class name="Trk::LayerMaterialMap_p1"/>
     <class name="Trk::BinnedLayerMaterial_p1"/>     
     <class name="Trk::CompressedLayerMaterial_p1"/> 
+    <class name="Trk::CompoundLayerMaterial_p1"/>     
     <class name="Trk::HomogeneousLayerMaterial_p1"/>
     <class name="Trk::MaterialProperties_p1"/>
     <class name="Trk::Material_p1"/>
-    <class name="std::vector<Trk::LayerMaterialCollection_p1>"/>
+    <class name="std::vector<Trk::Material_p1>"/>
+    <class name="Trk::ElementTable_p1" id="B157B642-94C0-11E3-B1C2-02163E00A511"/>
+    <class name="std::vector<Trk::ElementTable_p1>"/>
     <class name="std::vector<Trk::LayerMaterialMap_p1>"/>
     <class name="std::vector<Trk::MaterialProperties_p1>"/>
     <class name="std::vector<Trk::BinnedLayerMaterial_p1>"/>     
     <class name="std::vector<Trk::CompressedLayerMaterial_p1>"/> 
+    <class name="std::vector<Trk::CompoundLayerMaterial_p1>"/> 
     <class name="std::vector<Trk::HomogeneousLayerMaterial_p1>"/>
-    <class name="Trk::LayerMaterialCollection_tlp1" id="DFB29CDE-4618-4712-AB60-FEFEDB071415"/>
     <class name="Trk::LayerMaterialMap_tlp1" id="3DA92DBD-DA78-43A2-BFDF-9E19E2BF1E8A"/>
 
     <!-- TrkDetDescr  -->
