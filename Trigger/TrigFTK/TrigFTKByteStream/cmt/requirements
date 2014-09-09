@@ -12,6 +12,8 @@ use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*        Event
 use ByteStreamData       ByteStreamData-*              Event
 use TrigFTK_RawData      TrigFTK_RawData-*             Trigger/TrigFTK
 
+# Specify the required tdaq-common components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
 
 library TrigFTKByteStream *.cxx components/*.cxx
 apply_pattern component_library
