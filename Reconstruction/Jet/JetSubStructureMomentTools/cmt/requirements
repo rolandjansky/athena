@@ -1,0 +1,30 @@
+package JetSubStructureMomentTools
+
+author Miles Wu
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODJet                    xAODJet-*                       Event/xAOD
+use  JetInterface               JetInterface-*                  Reconstruction/Jet
+use  JetRec                     JetRec-*                        Reconstruction/Jet
+use  AtlasROOT                  AtlasROOT-*                     External
+
+private
+use  GaudiInterface             GaudiInterface-*                External
+use  AtlasFastJet               AtlasFastJet-*                  External
+use  JetEDM                     JetEDM-*                        Reconstruction/Jet
+use  JetSubStructureUtils       JetSubStructureUtils-*          Reconstruction/Jet
+end_private
+
+apply_pattern dual_use_library files="../Root/NSubjettinessTool.cxx ../src/Validator.cxx \ 
+../Root/JetSubStructureMomentToolsBase.cxx ../Root/KTSplittingScaleTool.cxx ../Root/DipolarityTool.cxx \
+../Root/AngularityTool.cxx ../Root/KtDeltaRTool.cxx \
+../Root/KtMassDropTool.cxx \
+../Root/PlanarFlowTool.cxx \
+../Root/CenterOfMassShapesTool.cxx \
+../Root/EnergyCorrelatorTool.cxx \
+../Root/JetPullTool.cxx \
+../Root/JetChargeTool.cxx \
+../Root/VolatilityTool.cxx"
