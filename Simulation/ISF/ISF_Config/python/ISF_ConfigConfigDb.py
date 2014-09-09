@@ -16,8 +16,10 @@ import AthenaCommon.SystemOfUnits as Units
 
 # Common tools, services and algorithms used by jobs
 addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getG4PolyconeGeoIDSvc",    "ISF_G4PolyconeGeoIDSvc"   )
+addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getAFIIG4PolyconeGeoIDSvc","ISF_AFIIG4PolyconeGeoIDSvc")
 addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getG4PolyconeGeoIDSvc_G4", "ISF_G4PolyconeGeoIDSvc_G4")
 addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getEntryLayerTool",      "ISF_EntryLayerTool")
+addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getAFIIEntryLayerTool",  "ISF_AFIIEntryLayerTool")
 
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenEventValidityChecker",    "ISF_GenEventValidityChecker")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getVertexPositionFromFile",     "ISF_VertexPositionFromFile")
@@ -44,15 +46,19 @@ addTool("ISF_Tools.ISF_ToolsConfig.getCosmicEventFilterTool"                , "I
 addTool("ISF_Tools.ISF_ToolsConfig.getInToOutSubDetOrderingTool"            , "ISF_InToOutSubDetOrderingTool"       )
 addTool("ISF_Tools.ISF_ToolsConfig.getParticleOrderingTool"                 , "ISF_ParticleOrderingTool"            )
 addService("ISF_Services.ISF_ServicesConfig.getISFEnvelopeDefSvc"           , "ISF_ISFEnvelopeDefSvc"               )
+addService("ISF_Services.ISF_ServicesConfig.getAFIIEnvelopeDefSvc"          , "ISF_AFIIEnvelopeDefSvc"              )
 addService("ISF_Services.ISF_ServicesConfig.getGeoIDSvc"                    , "ISF_GeoIDSvc"                        )
+addService("ISF_Services.ISF_ServicesConfig.getAFIIGeoIDSvc"                , "ISF_AFIIGeoIDSvc"                    )
 addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvc"           , "ISF_ParticleBrokerSvc"               )
 addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvcNoOrdering" , "ISF_ParticleBrokerSvcNoOrdering"     )
+addService("ISF_Services.ISF_ServicesConfig.getAFIIParticleBrokerSvc"       , "ISF_AFIIParticleBrokerSvc"           )
 addService("ISF_Services.ISF_ServicesConfig.getSimHitService"               , "ISF_SimHitService"                   )
 
 # Simulation Selectors
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getElectronGeant4Selector"               , "ISF_ElectronGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getNeutralGeant4Selector"                , "ISF_NeutralGeant4Selector"               )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getMuonGeant4Selector"                   , "ISF_MuonGeant4Selector"                  )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getMuonAFIIGeant4Selector"               , "ISF_MuonAFIIGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getMuonFatrasSelector"                   , "ISF_MuonFatrasSelector"                  )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPhotonConeFatrasSelector"             , "ISF_PhotonConeFatrasSelector"            )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPhotonConeGeant4Selector"             , "ISF_PhotonConeGeant4Selector"            )
@@ -79,6 +85,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlg
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasSelector"                , "ISF_DefaultFatrasSelector"               )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultParticleKillerSelector"        , "ISF_DefaultParticleKillerSelector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultGeant4Selector"                , "ISF_DefaultGeant4Selector"               )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultAFIIGeant4Selector"            , "ISF_DefaultAFIIGeant4Selector"           )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFullGeant4Selector"                   , "ISF_FullGeant4Selector"                  )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector"                 , "ISF_FatrasPileupSelector"                )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasRandomSelector"                 , "ISF_FatrasRandomSelector"                )
@@ -135,6 +142,7 @@ addService("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupSimServic
 
 addService("ISF_Geant4Config.ISF_iGeant4Config.getGeant4SimSvc",                        "ISF_Geant4SimSvc")
 addService("ISF_Geant4Config.ISF_iGeant4Config.getFullGeant4SimSvc",                    "ISF_FullGeant4SimSvc")
+addService("ISF_Config.ISF_Geant4CommonConfig.getAFIIGeant4SimSvc",                     "ISF_AFIIGeant4SimSvc")
 
 addService("ISF_Config.ISF_ToolsConfig.getGlobalBarcodeService"  ,       "ISF_GlobalBarcodeService")
 addService("ISF_Config.ISF_ToolsConfig.getLegacyBarcodeService"  ,       "ISF_LegacyBarcodeService")

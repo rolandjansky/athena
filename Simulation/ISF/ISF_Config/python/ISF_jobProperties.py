@@ -138,6 +138,24 @@ class RoutingChainCavern(JobProperty):
     allowedTypes = ['list']
     StoredValue  = []
 
+class ParticleBroker(JobProperty):
+    """The ParticleBroker to be used by ISF"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'NONE'
+
+class TruthService(JobProperty):
+    """The TruthService to be used by ISF"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'NONE'
+
+class GeoIDService(JobProperty):
+    """The GeoIDService to bue used by ISF"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'NONE'
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
