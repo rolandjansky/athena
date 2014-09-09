@@ -51,7 +51,6 @@ namespace {
     payload.push_back( track->getTH3() );
     payload.push_back( track->getTH4() );
     payload.push_back( track->getTH5() );
-    payload.push_back( track->getTH6() );
     
     for ( std::vector<FTK_RawPixelCluster>::const_iterator it = track->getPixelClusters().begin();
 	  it != track->getPixelClusters().end(); ++it ) {
@@ -67,7 +66,7 @@ namespace {
 
 
   FTK_RawTrack* unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::PointerType data) {  
-    FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data[2], data[3], data[4], data[5]); // first six words are track params
+    FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data[2], data[3], data[4]); // first five words are track params
     data += TrackParamsBlobSize;
     
     // get pixel hits  
@@ -94,12 +93,10 @@ namespace FTKByteStreamDecoderEncoder {
   StatusCode encode(const FTK_RawTrackContainer* container, std::vector<uint32_t>& payload,  
 		    MsgStream& /*msg*/) {
 
-    // We used to have a word defining the number of low/high pt tracks, that is no longer necessary
-    // // do not know yet what tracks are high pT, so all will be low pT
-    // payload.reserve( 1 + TrackParamsBlobSize * container->size() );
-    // packNumberOfTracks( container->size(), 0, payload );  
-
-    payload.reserve(TrackParamsBlobSize * container->size() );
+    // do not know yet what tracks are high pT, so all will be low pT
+    payload.reserve( 1 + TrackParamsBlobSize * container->size() );
+    packNumberOfTracks( container->size(), 0, payload );  
+    
     
     for ( FTK_RawTrackContainer::const_iterator track = container->begin(); 
 	  track != container->end(); ++track ) {
