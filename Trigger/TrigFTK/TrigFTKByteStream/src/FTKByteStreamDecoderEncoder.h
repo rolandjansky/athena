@@ -12,14 +12,14 @@
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
 
 namespace FTKByteStreamDecoderEncoder {
-  const size_t TrackBlobSize = 22; // magic number from BS specification
-  const size_t TrackParamsBlobSize = 6; // --||--
+  const size_t TrackBlobSize = 21; // magic number from BS specification
+  const size_t TrackParamsBlobSize = 5; // --||--
   const size_t PixHitParamsBlobSize = 2; // --||--
   const size_t SCTHitParamsBlobSize = 1; // --||--
   const size_t NPixLayers=4;
   const size_t NSCTLayers=8;
 
-  StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result,
+  StatusCode decode(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result,
   		    MsgStream& msg);
 
   size_t decodeNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData);
