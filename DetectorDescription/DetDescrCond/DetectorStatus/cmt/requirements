@@ -1,0 +1,21 @@
+package DetectorStatus
+
+author Richard Hawkings <richard.hawkings@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-01-*   External
+use DetDescrConditions	DetDescrConditions-*  DetectorDescription/DetDescrCond
+
+private
+
+use StoreGate           StoreGate-*           Control
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+public
+
+library DetectorStatus DetStatusSvc.cxx DetStatusAlg.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="DetStatusSvc_CondDB.py DetStatusSvc_ToFileMetaData.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_scripts  files="detStatus_set.py detStatus_query.py detStatus_upload.py detStatus_merge.py"

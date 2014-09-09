@@ -1,0 +1,36 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef DETSTATUS_DETSTATALG_H
+#define DETSTATUS_DETSTATALG_H
+// DetStatusAlg.h - a simple algorithm illustrating access to detector status
+// information via the DetStatusSvc
+// Richard Hawkings, started 18/12/06
+
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/MsgStream.h"
+
+class IDetStatusSvc;
+
+class DetStatusAlg: public Algorithm {
+ public:
+  DetStatusAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  ~DetStatusAlg();
+
+  StatusCode  initialize(void);    
+  StatusCode  execute(void);
+  StatusCode  finalize(void);  
+
+ private:
+  void doVeto();
+
+  MsgStream m_log;
+  const IDetStatusSvc* p_detstatussvc;
+  bool par_print;
+  bool par_veto;
+  unsigned int m_count;
+  unsigned int m_nveto;
+};
+
+#endif // DETSTATUS_DETSTATALG_H
