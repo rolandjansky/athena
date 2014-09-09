@@ -1,0 +1,474 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: DVCollectionProxy.cxx,v 1.11 2009-02-02 02:42:16 ssnyder Exp $
+/**
+ * @file  AthenaROOTAccess/src/DVCollectionProxy.cxx
+ * @author scott snyder
+ * @date April 2007
+ * @brief A Root collection proxy for @c DataVector containers.
+ */
+
+
+#include "AthenaROOTAccess/DVCollectionProxy.h"
+#include "AthContainers/DataVector.h"
+#include "TError.h"
+#include "TClassEdit.h"
+#include "TClass.h"
+#include "TBaseClass.h"
+#include "TROOT.h"
+# include "TCollectionProxyInfo.h"
+#include <cassert>
+
+#include "Reflex/Type.h"
+#include "Reflex/Object.h"
+
+
+using ROOT::Reflex::Type;
+using ROOT::Reflex::Object;
+
+
+namespace AthenaROOTAccess {
+
+
+/**
+ * @brief Find base class offset using Reflex.
+ * @param cls Class in which to find the base.
+ * @param base The base for which to search.
+ * @returns The offset of @a base in @a cls, or -1 if it's not a base.
+ *
+ * Unlike @c TClass::GetBaseClassOffset, this should properly
+ * handle virtual derivation.  @a cls must have a default constructor.
+ */
+int safe_get_base_offset (const Type& cls, const Type& base)
+{
+  // Make an instance of the class and try to convert it to the base.
+  Object inst = cls.Construct();
+  Object binst = inst.CastObject (base);
+  int offs = -1;
+
+  // Did the conversion work?
+  if (binst) {
+    // Yes --- find the offset.
+    offs = (char*)binst.Address() - (char*)inst.Address();
+  }
+
+  // Destroy the temporary instance.
+  inst.Destruct();
+
+  return offs;
+}
+
+
+/**
+ * @brief Find base class offset using Reflex.
+ * @param cls Class in which to find the base.
+ * @param base The base for which to search.
+ * @returns The offset of @a base in @a cls, or -1 if it's not a base.
+ *
+ * Unlike @c TClass::GetBaseClassOffset, this should properly
+ * handle virtual derivation.  @a cls must have a default constructor.
+ */
+int safe_get_base_offset (TClass* cls, TClass* base)
+{
+  Type t1 (Type::ByName (cls->GetName()));
+  Type t2 (Type::ByName (base->GetName()));
+  return safe_get_base_offset (t1, t2);
+}
+
+
+/**
+ * @brief Find the contained class in a @c DataVector.
+ * @param dvclass The @c TClass for a @c DataVector class.
+ * @return The @c TClass for the @c DataVector's element type.
+ */
+TClass* class_from_dvclass (TClass* dvclass)
+{
+  // Split up the class name into template arguments.
+  std::vector<std::string> args;
+  int tailloc;
+  TClassEdit::GetSplit (dvclass->GetName(), args, tailloc);
+  assert (args.size() > 1);
+
+  // This should be the element type name.
+  std::string elname = args[1];
+  assert (elname.size() > 0);
+
+  // Look up the element class.
+  TClass* elclass = gROOT->GetClass (elname.c_str());
+  if (!elclass)
+    ::Error ("DVCollectionProxy", "Cannot find class %s", elname.c_str());
+  return elclass;
+}
+
+
+/**
+ * @brief Find the unique base @c DataVector class.
+ * @param dvclass The @c TClass for a @c DataVector class.
+ * @return The @c TClass for the unique base @c DataVector class.
+ *         Returns 0 if there is no such base, or if it
+ *         is the same as @a dvclass.
+ *
+ * Note: @c DataVector\<T> can derive from @c DataVector\<U>.
+ * But there can also be helper classes in between
+ * that start with `DataVector' (note: no `<').
+ */
+TClass* find_dv_base (TClass* dvclass)
+{
+  TIter next (dvclass->GetListOfBases());
+  while (TBaseClass* bcl = dynamic_cast<TBaseClass*>(next())) {
+    TClass* cc = bcl->GetClassPointer();
+    if (strncmp (cc->GetName(), "DataVector", 10) == 0) {
+      TClass* bdv = find_dv_base (cc);
+      if (bdv) return bdv;
+      if (strncmp (cc->GetName(), "DataVector<", 11) == 0)
+        return cc;
+    }
+  }
+  return 0;
+}
+
+
+/**
+ * @brief Helper functions for accessing the container data via the proxy.
+ */
+class DVCollectionFuncs
+{
+public:
+  /// @brief The container type.
+  /// We alias this with the real vector that lives inside the 
+  /// @c DataVector.
+  typedef std::vector<char*>     Cont_t;
+
+  /**
+   * @brief Proxy environment buffer.
+   *
+   * The first 64 bytes of the environment structure are a scratch area.
+   * The Root proxies put a collection iterator there, but we instead
+   * lay it out like this.
+   *
+   * This is slightly different in newer versions of root.
+   * Rather than having the 64-byte buffer, Environ takes a template
+   * argument giving the payload.
+   */
+  struct env_buff
+  {
+    /// The index of the last element retrieved.
+    size_t m_index;
+
+    /// @brief Pointer to the container.
+    /// (Note that the object pointer from the environment will point at
+    /// the top-level @c DataVector class; this points directly at the vector.)
+    Cont_t* m_cont;
+
+    /// The last element pointer to have been returned.
+    void* m_eltptr;
+
+    /// The element type to which the DV representation points.
+    Type m_elt_base;
+
+    /// The declared element type of the DV.
+    Type m_elt_type;
+  };
+
+
+  /// The Root proxy environment structure.
+  typedef ROOT::TCollectionProxyInfo::Environ<env_buff>  Env_t;
+# define ENVBUFF(e) ((e).fIterator)
+# define FSIZE fSize
+# define FIDX fIdx
+
+  /**
+   * @brief Fetch the container from a proxy environment.
+   * @param env The proxy environment.
+   */
+  static Cont_t* cont (void* env)
+  {
+    Env_t& e = *reinterpret_cast<Env_t*> (env);
+    env_buff& buff = ENVBUFF(e);
+    return buff.m_cont;
+  }
+
+
+  /**
+   * @brief Return the first element of the container.
+   * @param env The proxy environment.
+   * @return A pointer to the first element, or 0 if the container is empty.
+   *
+   * This resets the internal pointer to 0.
+   */
+  static void* first(void* env)  {
+    Env_t&  e = *reinterpret_cast<Env_t*> (env);
+    Cont_t& c = *cont(env);
+    env_buff& buff = ENVBUFF(e);
+    buff.m_index = 0;
+    e.FSIZE  = c.size();
+    if ( 0 == e.FSIZE )
+      return 0;
+    Object obj (buff.m_elt_base, c[0]);
+    buff.m_eltptr = obj.CastObject (buff.m_elt_type).Address();
+    return &buff.m_eltptr;
+  }
+
+
+  /**
+   * @brief Return a following element of the container.
+   * @param env The proxy environment.
+   * @return A pointer to the following element, or 0 if we're past the end.
+   *
+   * The internal pointer will be advanced by the value of @c e.idx
+   * (after which @c e.idx will be reset to 0).  A pointer to the element
+   * referenced by this new index will be returned.
+   */
+  static void* next(void* env)  {
+    Env_t&  e = *reinterpret_cast<Env_t*> (env);
+    Cont_t& c = *cont(env);
+    env_buff& buff = ENVBUFF(e);
+    buff.m_index += e.FIDX;
+    e.FIDX = 0;
+    if (buff.m_index >= e.FSIZE) return 0;
+    Object obj (buff.m_elt_base, c[buff.m_index]);
+    buff.m_eltptr = obj.CastObject (buff.m_elt_type).Address();
+    return &buff.m_eltptr;
+  }
+
+
+  /**
+   * @brief Return the size of the container.
+   * @param env The proxy environment.
+   */
+  static void* size(void* env)  {
+    Env_t&  e = *reinterpret_cast<Env_t*> (env);
+    e.FSIZE    = cont(env)->size();
+    return &e.FSIZE;
+  }
+
+
+  /**
+   * @brief Erase the container.
+   * @param env The proxy environment.
+   */
+  static void* clear(void* env)  {
+    cont(env)->clear();
+    return 0;
+  }
+
+
+  /**
+   * @brief Return a new environment structure.
+   */
+  static void* create_env() {
+    return new Env_t;
+  }
+
+
+  //*************************************************************************
+  // These methods are not needed for AthenaROOTAccess,
+  // and are not implemented.
+
+  /// Not implemented for AthenaROOTAccess.
+  static void resize(void* /*obj*/, size_t /*size*/)  {
+    ::Fatal("DVCollectionProxy", "resize not implemented");
+  }
+  /// Not implemented for AthenaROOTAccess.
+  static void* construct(void* /*from*/, size_t /*size*/)  {
+    ::Fatal("DVCollectionProxy", "construct not implemented");
+    return 0;
+  }
+  /// Not implemented for AthenaROOTAccess.
+  static void destruct(void* /*obj*/, size_t /*size*/)  {
+    ::Fatal("DVCollectionProxy", "destruct not implemented");
+  }
+  /// Not implemented for AthenaROOTAccess.
+  static void* feed(void* /*from*/, void* /*to*/, size_t /*size*/)  {
+    ::Fatal("DVCollectionProxy", "feed not implemented");
+    return 0;
+  }
+  /// Not implemented for AthenaROOTAccess.
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,6)
+  static void* collect(void* /*from*/, void* /*to*/)  {
+    ::Fatal("DVCollectionProxy", "collect not implemented");
+    return 0;
+  }
+#else
+  static void* collect(void* /*env*/)  {
+    ::Fatal("DVCollectionProxy", "collect not implemented");
+    return 0;
+  }
+#endif
+};
+
+
+//**************************************************************************
+
+
+
+/**
+ * @brief Constructor.
+ * @param elttype The name of the contained type (including a trailing '*').
+ * @param conttype The name of the container type we're proxying.
+ *                 Note that this may be different from
+ *                 a @c DataVector of @a elttype for classes which
+ *                 derive from @c DataVector.
+ */
+DVCollectionProxy::DVCollectionProxy (const char* elttype,
+                                      const char* conttype)
+  : TGenCollectionProxy (typeid (DataVector<DVCollectionProxyDummy>),
+                         sizeof (char*))
+{
+  // Find the container and element offsets.
+  FindOffsets (elttype, conttype);
+
+  // Set up the element size.  No offset, since this isn't a map.
+  fValDiff        = sizeof (void*);
+  fValOffset      = 0;
+
+  // Set up the worker functions.
+  fSize.call      = DVCollectionFuncs::size;
+  fNext.call      = DVCollectionFuncs::next;
+  fFirst.call     = DVCollectionFuncs::first;
+  fClear.call     = DVCollectionFuncs::clear;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,6)
+  fCollect        = DVCollectionFuncs::collect;
+#else
+  fCollect.call   = DVCollectionFuncs::collect;
+#endif
+  fCreateEnv.call = DVCollectionFuncs::create_env;
+  fResize         = DVCollectionFuncs::resize;
+  fConstruct      = DVCollectionFuncs::construct;
+  fDestruct       = DVCollectionFuncs::destruct;
+  fFeed           = DVCollectionFuncs::feed;
+
+  // Do the base class initialization.
+  CheckFunctions();
+  Initialize(false);
+
+  // Need to override what that set up for fValue and fVal.
+  delete fValue;
+  delete fVal;
+  fValue = new TGenCollectionProxy::Value (elttype, false);
+  fVal = new TGenCollectionProxy::Value (*fValue);
+
+  fClass = gROOT->GetClass (conttype);
+
+  // This container holds pointers.
+  fPointers = 1;
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @param rhs The proxy to copy.
+ */
+DVCollectionProxy::DVCollectionProxy (const DVCollectionProxy& rhs)
+  : TGenCollectionProxy (rhs),
+    m_contoff (rhs.m_contoff),
+    m_elt_base (rhs.m_elt_base),
+    m_elt_type (rhs.m_elt_type)
+{
+}
+
+
+/**
+ * @brief Start working with a new collection.
+ * @param objstart The address of the collection.
+ */
+void DVCollectionProxy::PushProxy(void *objstart)
+{
+  // Do the base class stuff.
+  // This will create an environment buffer if needed.
+  ::TGenCollectionProxy::PushProxy (objstart);
+
+  // Save the calculated element offset in the environment buffer.
+  DVCollectionFuncs::env_buff& buff =
+    ENVBUFF(*reinterpret_cast<DVCollectionFuncs::Env_t*>(fEnv));
+
+  buff.m_elt_type = m_elt_type;
+  buff.m_elt_base = m_elt_base;
+
+  // Save the address of the underlying vector of the DataVector.
+  // First, adjust the address to the base DataVector.
+  char* dvstart = reinterpret_cast<char*>(objstart) + m_contoff;
+  // Cast to DV.
+  DataVector<char>* dv = reinterpret_cast<DataVector<char>*> (dvstart);
+  // Find the underlying vector.
+  const std::vector<char*>& vec = dv->stdcont();
+  // And store its address.
+  buff.m_cont = const_cast<std::vector<char*>*> (&vec);
+}
+
+
+/**
+ * @brief Clone this object.
+ */
+TVirtualCollectionProxy* DVCollectionProxy::Generate() const
+{
+  return new DVCollectionProxy(*this);
+}
+
+
+/**
+ * @brief Initialize the cached pointer offsets.
+ * @param elttype The name of the contained type (including a trailing '*').
+ * @param conttype The name of the container type we're proxying.
+ *                 Note that this may be different from
+ *                 a @c DataVector of @a elttype for classes which
+ *                 derive from @c DataVector.
+ *
+ * Suppose we have @c D deriving from @c B, and thus
+ * @c DataVector\<D> deriving from @c DataVector\<B>.
+ * In general, inheritance may be multiple or virtual,
+ * so we need to adjust the pointer offsets.
+ *
+ * Suppose we're setting up the proxy for @c DataVector\<D>.
+ * Then @c m_contoff will be set to the offset of the @c DataVector\<B> base
+ * within @c DataVector\<D> --- this is the amount we need to shift the
+ * container pointer by before applying the proxy.
+ * Originally, we cached an offset for the element conversions
+ * as well.  But that doesn't work for the case of virtual derivation.
+ * Instead, we save the Reflex types for the base and derived types,
+ * and use Reflex to convert.  (We can get away with caching the
+ * offset for the container because we know what the fully-derived
+ * type will be.  We don't know that for the elements.)
+ */
+void DVCollectionProxy::FindOffsets (const char* elttype,
+                                     const char* conttype)
+{
+  // Start by assuming no offsets.
+  m_contoff = 0;
+
+  // Find its TClass.
+  TClass* dvclass = gROOT->GetClass (conttype);
+  if (!dvclass) {
+    ::Error ("DVCollectionProxy", "Cannot find class %s", conttype);
+    return;
+  }
+
+  // Find the TClass for the base DataVector class.
+  TClass* dvbase = find_dv_base (dvclass);
+  if (!dvbase) {
+    // No inheritance --- offsets are zero.
+    return;
+  }
+
+  // Find the container offset.
+  m_contoff = safe_get_base_offset (dvclass, dvbase);
+
+  // Now, find the base and derived element classes.
+  std::string elttype2 = elttype;
+  if (elttype2[elttype2.size()-1] == '*')
+    elttype2.erase (elttype2.size()-1);
+  TClass* elclass = gROOT->GetClass (elttype2.c_str());
+  TClass* baseclass = class_from_dvclass (dvbase);
+
+  if (!elclass || !baseclass)
+    return;
+
+  // And set up the types for the element conversions.
+  m_elt_base = Type::ByName (baseclass->GetName());
+  m_elt_type = Type::ByName (elclass->GetName());
+}
+
+
+} // namespace AthenaROOTAccess

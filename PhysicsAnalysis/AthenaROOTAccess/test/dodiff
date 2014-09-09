@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "*** diff 1"
+bzdiff -u dump.out.bz2 dump1.out.bz2
+bzdiff -u dump-rand.out.bz2 dump1-rand.out.bz2
+
+echo "*** diff 2"
+bzdiff -u dump2.out.bz2 dump3.out.bz2
+bzdiff -u dump2-rand.out.bz2 dump3-rand.out.bz2
+
+echo "*** diff 3"
+bzdiff -u dump1.out.bz2 dump2.out.bz2

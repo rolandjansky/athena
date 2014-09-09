@@ -1,0 +1,59 @@
+
+Here is what I've been doing to test things.
+
+Run reco three times and save AOD's as:
+
+  - First ten events: AOD-full.pool.root
+  - First five events: AOD-1.pool.root
+  - Second five events: AOD-2.pool.root
+
+Then:
+
+  athena.py athena_dumper.py
+
+   will dump AOD-full.pool.root using Athena into dump.out and dump-rand.out.
+   [dump-rand.out the objects for which the reconstruction depends
+    on random numbers.]
+
+  python ara_dumper1.py
+
+    will dump AOD-full.pool.root using ARA into dump1.out and dump1-rand.out.
+
+    dump.out/dump1.out and dump-rand.out/dump1-rand.out should compare
+    identical.
+
+
+  python ara_dumper2.py
+
+    will dump AOD-1.pool.root and AOD-2.pool.root as a chain into
+    dump2.out and dump2-rand.out.
+
+    dump1.out/dump2.out should compare identical.
+
+    Note: Currently, there are minor in differences in SecVtxTagBU;
+    this is a reco issue that should be tracked down.
+
+
+  python ara_dumper3.py
+
+    will dump AOD-1.pool.root and AOD-2.pool.root as two separate files into
+    dump3.out and dump3-rand.out.
+
+    dump2.out/dump3.out and dump2-rand.out/dump3-rand.out should compare
+    identical.
+
+
+  python ara_scantest.py
+
+    will do a TTree::Scan and compare with a direct dump.
+
+
+  python ara_ptest.py
+
+    tests for non-tp separated data.
+    Uses the results of DataModelRunTests.
+
+
+  python ara_brtest.py
+
+    test adding a branch to a tree

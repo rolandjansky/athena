@@ -1,0 +1,7 @@
+#!/bin/sh
+
+athena.py -c 'vers="'$1'"' athena_dumper.py
+python ara_dumper1.py $1
+python ara_dumper2.py $1
+python ara_dumper3.py $1
+
