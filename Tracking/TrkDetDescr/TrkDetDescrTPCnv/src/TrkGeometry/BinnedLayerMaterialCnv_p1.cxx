@@ -6,12 +6,15 @@
 // BinnedLayerMaterialCnv_p1.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+#define private public
+#define protected public
 #include "TrkGeometry/BinnedLayerMaterial.h"
+#undef private
+#undef protected
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/BinnedLayerMaterialCnv_p1.h"
 #include "TrkDetDescrTPCnv/TrkDetDescrUtils/BinUtility_p1.h"
-#include "CxxUtils/make_unique.h"
 
 void BinnedLayerMaterialCnv_p1::persToTrans( const Trk::BinnedLayerMaterial_p1 *persObj,
                                              Trk::BinnedLayerMaterial    *transObj,
@@ -19,9 +22,8 @@ void BinnedLayerMaterialCnv_p1::persToTrans( const Trk::BinnedLayerMaterial_p1 *
 {
 
     // create the transient BinUtility
-    auto binUtility = CxxUtils::make_unique<Trk::BinUtility>();
-    m_gBinUtilityCnv.persToTrans(&persObj->binUtility, binUtility.get(), mlog);
-    transObj->updateBinning (binUtility.release());
+    transObj->m_binUtility  = new Trk::BinUtility;
+    m_gBinUtilityCnv.persToTrans(&persObj->binUtility, transObj->m_binUtility, mlog);
     
     // assign the split factor
     transObj->m_splitFactor =  persObj->splitFactor;
@@ -53,7 +55,7 @@ void BinnedLayerMaterialCnv_p1::transToPers( const Trk::BinnedLayerMaterial    *
 {
     
     // create the persistent BinUtility
-    m_gBinUtilityCnv.transToPers(transObj->binUtility(), &persObj->binUtility, mlog);
+    m_gBinUtilityCnv.transToPers(transObj->m_binUtility, &persObj->binUtility, mlog);
 
     // assign the split factor
     persObj->splitFactor = transObj->m_splitFactor;
