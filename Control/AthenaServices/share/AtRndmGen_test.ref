@@ -1,0 +1,121 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/AtRndmGen_test.txt
+JobOptionsSvc        INFO 
+//GP:================================================================================
+//GP: include "../share/AtRndmGen_test.txt"                                   (0,0)
+ApplicationMgr.DLLs +=  [ "AthenaServices" ] ;                          //GP: (1,1)
+ApplicationMgr.ExtSvc +=  [ "AtRndmGenSvc" , "AtRndmGenSvc/AtRndmGenSvc2" , "AtRndmGenSvc/AtRndmGenSvc3" ] ;//GP: (1,1)
+ApplicationMgr.ExtSvcCreates = 0;                                       //GP: (1,1)
+MessageSvc.OutputLevel = 2;                                             //GP: (1,1)
+AtRndmGenSvc.OutputLevel = 1;                                           //GP: (1,1)
+AtRndmGenSvc.Seeds =  [ "PITHIA 1 2" , "PITHIA_INIT 3 4" ] ;            //GP: (1,1)
+AtRndmGenSvc.FileToWrite = "test_AtRndmGenSvc.out";                     //GP: (1,1)
+AtRndmGenSvc2.OutputLevel = 1;                                          //GP: (1,1)
+AtRndmGenSvc2.ReadFromFile = 1;                                         //GP: (1,1)
+AtRndmGenSvc2.FileToRead = "test_AtRndmGenSvc.out";                     //GP: (1,1)
+AtRndmGenSvc2.FileToWrite = "test2_AtRndmGenSvc.out";                   //GP: (1,1)
+AtRndmGenSvc3.OutputLevel = 1;                                          //GP: (1,1)
+AtRndmGenSvc3.ReadFromFile = 1;                                         //GP: (1,1)
+AtRndmGenSvc3.FileToRead = "test_AtRndmGenSvc.out";                     //GP: (1,1)
+AtRndmGenSvc3.SaveToFile = 0;                                           //GP: (1,1)
+//GP: end  "../share/AtRndmGen_test.txt"                                      (29,1)
+//GP:================================================================================
+
+JobOptionsSvc        INFO Job options successfully read in from ../share/AtRndmGen_test.txt
+ApplicationMgr      DEBUG Getting my own properties
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.77 $
+                                          running on lxplus258.cern.ch on Tue Nov 15 20:30:37 2011
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ServiceManager      DEBUG Initializing service IncidentSvc
+IncidentSvc         DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service AppMgrRunable
+AppMgrRunable       DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service EventLoopMgr
+EventLoopMgr        DEBUG Service base class initialized successfully
+IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
+EventDataSvc        DEBUG Service base class initialized successfully
+EventPersistenc...  DEBUG Service base class initialized successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramDataSvc    DEBUG Service base class initialized successfully
+HistogramPersis...  DEBUG  'CnvServices':[ 'HbookHistSvc' , 'RootHistSvc' ]
+HistogramPersis...  DEBUG Service base class initialized successfully
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version AthenaServices-01-54-01
+ INITIALISING RANDOM NUMBER STREAMS. 
+IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRndmGenSvc' with priority 100
+AtRndmGenSvc         INFO will be reseeded for every event
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'AtRndmGenSvc' with priority 0
+AtRndmGenSvc      VERBOSE Seeds property: stream PITHIA seeds 1 2, reseeding offset 0
+AtRndmGenSvc        DEBUG  INITIALISING PITHIA stream with seeds 1  2
+AtRndmGenSvc        DEBUG Applying reseeding  offset 0 to stream PITHIA
+AtRndmGenSvc      VERBOSE Reseeding stream PITHIA with eventNumber 1 runNumber 2
+AtRndmGenSvc        DEBUG Reseeding stream PITHIA with 718032393
+AtRndmGenSvc      VERBOSE Seeds property: stream PITHIA_INIT seeds 3 4, reseeding offset 0
+AtRndmGenSvc        DEBUG  INITIALISING PITHIA_INIT stream with seeds 3  4
+AtRndmGenSvc        DEBUG Applying reseeding  offset 0 to stream PITHIA_INIT
+AtRndmGenSvc      VERBOSE Reseeding stream PITHIA_INIT with eventNumber 3 runNumber 4
+AtRndmGenSvc        DEBUG Reseeding stream PITHIA_INIT with 1552633682
+Initial status of PITHIA engine
+
+--------- Ranecu engine status ---------
+ Initial seed (index) = 2
+ Current couple of seeds = 190816659, 2079157264
+----------------------------------------
+AtRndmGenSvc        DEBUG Reseeding stream PITHIA with 1436487886
+Status of PITHIA engine after 1st setOnDefinedSeeds
+
+--------- Ranecu engine status ---------
+ Initial seed (index) = 1
+ Current couple of seeds = 937215102, 253987020
+----------------------------------------
+AtRndmGenSvc      VERBOSE Reseeding stream PITHIA with eventNumber 13 runNumber 10000
+AtRndmGenSvc        DEBUG Reseeding stream PITHIA with 2145682031
+Status of PITHIA engine after 2nd setOnDefinedSeeds
+
+--------- Ranecu engine status ---------
+ Initial seed (index) = 91
+ Current couple of seeds = 368317511, 271184151
+----------------------------------------
+AtRndmGenSvc        DEBUG  Handle EndEvent 
+AtRndmGenSvc         INFO  Stream =  PITHIA, Seed1 =  368317511, Seed2 = 271184151
+AtRndmGenSvc         INFO  Stream =  PITHIA_INIT, Seed1 =  190816659, Seed2 = 2079157264
+Final status of PITHIA engine
+
+--------- Ranecu engine status ---------
+ Initial seed (index) = 91
+ Current couple of seeds = 1824675848, 1255768430
+----------------------------------------
+AtRndmGenSvc         INFO  FINALISING 
+AtRndmGenSvc        DEBUG  wrote seeds to test_AtRndmGenSvc.out
+AtRndmGenSvc2        INFO Initializing AtRndmGenSvc2 - package version AthenaServices-01-54-01
+ INITIALISING RANDOM NUMBER STREAMS. 
+IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRndmGenSvc2' with priority 100
+AtRndmGenSvc2        INFO will be reseeded for every event
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'AtRndmGenSvc2' with priority 0
+AtRndmGenSvc2       DEBUG  INITIALISING PITHIA stream with seeds 368317511  271184151 read from file test_AtRndmGenSvc.out
+AtRndmGenSvc2       DEBUG  INITIALISING PITHIA_INIT stream with seeds 190816659  2079157264 read from file test_AtRndmGenSvc.out
+Final status of PITHIA engine for AtRndmGenSvc2
+
+--------- Ranecu engine status ---------
+ Initial seed (index) = 2
+ Current couple of seeds = 1824675848, 1255768430
+----------------------------------------
+AtRndmGenSvc2        INFO  FINALISING 
+AtRndmGenSvc2       DEBUG  wrote seeds to test2_AtRndmGenSvc.out
+AtRndmGenSvc3        INFO Initializing AtRndmGenSvc3 - package version AthenaServices-01-54-01
+ INITIALISING RANDOM NUMBER STREAMS. 
+IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRndmGenSvc3' with priority 100
+AtRndmGenSvc3        INFO will be reseeded for every event
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'AtRndmGenSvc3' with priority 0
+AtRndmGenSvc3       DEBUG  INITIALISING PITHIA stream with seeds 368317511  271184151 read from file test_AtRndmGenSvc.out
+AtRndmGenSvc3       DEBUG  INITIALISING PITHIA_INIT stream with seeds 190816659  2079157264 read from file test_AtRndmGenSvc.out
+AtRndmGenSvc3        INFO  FINALISING 
+*** AtRndmGen_test OK ***

@@ -1,0 +1,28 @@
+// job opts for AtRndmGenSvc unit test
+
+// $Id: AtRndmGen_test.txt,v 1.2 2002-11-27 23:29:41 calaf Exp $
+
+ApplicationMgr.DLLs += { "AthenaServices" };
+
+ApplicationMgr.ExtSvc += { "AtRndmGenSvc", "AtRndmGenSvc/AtRndmGenSvc2", "AtRndmGenSvc/AtRndmGenSvc3"  };
+ApplicationMgr.ExtSvcCreates = false;
+
+MessageSvc.OutputLevel = 2;
+
+AtRndmGenSvc.OutputLevel = 1;
+
+AtRndmGenSvc.Seeds = { "PITHIA 1 2", "PITHIA_INIT 3 4"};
+AtRndmGenSvc.FileToWrite   = "test_AtRndmGenSvc.out";
+
+AtRndmGenSvc2.OutputLevel = 1;
+
+AtRndmGenSvc2.ReadFromFile = true;
+AtRndmGenSvc2.FileToRead   = "test_AtRndmGenSvc.out";
+AtRndmGenSvc2.FileToWrite   = "test2_AtRndmGenSvc.out";
+
+AtRndmGenSvc3.OutputLevel = 1;
+
+AtRndmGenSvc3.ReadFromFile = true;
+AtRndmGenSvc3.FileToRead   = "test_AtRndmGenSvc.out";
+AtRndmGenSvc3.SaveToFile = false;
+

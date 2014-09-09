@@ -1,0 +1,12 @@
+/// job opts for AthenaOutputStream unit test
+
+// $Id: AthenaOutputStream_test.txt,v 1.5 2007-06-24 05:37:15 calaf Exp $
+
+MessageSvc.OutputLevel = 2;
+StoreGateSvc.OutputLevel = 2;
+
+AthenaOutputStream.OutputLevel = 1;
+
+AthenaOutputStream.ItemList={"Bar#uno", "Bar#due", "Bar#tre" ,
+			     "8101#*", "13#*"};       
+AthenaOutputStream.AcceptAlgs={"AthenaOutputStream", "aSFQS"};

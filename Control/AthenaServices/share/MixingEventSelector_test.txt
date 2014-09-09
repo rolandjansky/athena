@@ -1,0 +1,102 @@
+//##############################################################
+//
+// Job options file to test the Event Mixing selector
+//
+//==============================================================
+
+#include "AthenaCommon/Atlas.UnixStandardJob.txt"
+
+ApplicationMgr.DLLs   += {  "PoolSvc", 
+                            "AthenaPoolCnvSvc", "EventSelectorAthenaPool"
+                         };
+
+EventPersistencySvc.CnvServices     += { "AthenaPoolCnvSvc" };
+
+ApplicationMgr.DLLs += { "McEventSelector" };
+
+
+#include "AthenaSealSvc/AthenaSealSvc_joboptions.txt"
+// Pool Converters
+//
+#include "EventAthenaPool/EventAthenaPool_joboptions.txt"
+#include "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.txt"
+#include "InDetEventAthenaPool/InDetEventAthenaPool_joboptions.txt"
+ApplicationMgr.DLLs += { "AthenaPoolCnvSvcPoolCnv" };
+//--------------------------------------------------------------
+// Event related parameters
+//--------------------------------------------------------------
+
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtMax = 10;
+
+//ProxyProviderSvc.ProviderNames = { "EventSelectorAthenaPool" };
+ProxyProviderSvc.ProviderNames += { "MixingEventSelector/EventMixer" };
+//why not !!! AthenaEventLoopMgr.EvtSel = "EventMixer";
+ApplicationMgr.EvtSel = "EventMixer";  //FIXME should decode ListItem
+//
+// Event mixing trigger list
+// format is [frequency in %]
+EventMixer.TriggerList += { "EventSelectorAthenaPool/G4MuPlusSelector:11:14" };
+EventMixer.TriggerList += { "EventSelectorAthenaPool/G4MinBiasSelector:0:3" };
+// a bad selector like this one is discarded
+//EventMixer.TriggerList += { "1.3 %McEventSelector/BadEventSelector" };
+// setting the frequency to 0 turns off the selector (still creates it)
+//EventMixer.TriggerList += { "30% EventSelectorAthenaPool/G4MuMinusSelector" };
+// a selector those frequency bring the sum to > 100% is discarded
+//EventMixer.TriggerList += { "70% EventSelectorAthenaPool/G4MuPlusSelector" };
+
+
+// file with the amount of events used for each stream
+EventMixer.StreamStatusFileName = "streamStatus.txt";
+
+// Pool input G4Sim  use 
+//xmlcatalog_file:/afs/cern.ch/atlas/offline/data/testfile/PoolFileCatalog.xml
+G4MuPlusSelector.InputCollection = "/afs/cern.ch/atlas/offline/data/testfile/dc2.002834.mu_pt100_eta320.g4sim780._0001.pool.root";
+G4MinBiasSelector.InputCollection ="/afs/cern.ch/atlas/offline/data/testfile/dc2.002843.pyt_min_bias.g4sim780._0001.pool.root";
+
+
+//--------------------------------------------------------------
+//---   Secondary Write portion  ----- Don't change it !!!
+//--------------------------------------------------------------
+ApplicationMgr.OutStream     ={"Stream1"};
+ApplicationMgr.OutStreamType ="AthenaOutputStream";
+Stream1.EvtConversionSvc     ="AthenaPoolCnvSvc";
+
+////PoolSvc.DbType        = "dummy";
+////PoolSvc.DbType     = "root";  // to define ROOT file resident  collection
+PoolSvc.Output    = "MixedFile.root"; // ** mandatory parameter ** // The output file name
+
+Stream1.ForceRead=true;  //force read of output data objs
+
+Stream1.ItemList={"MergedEventInfo#*",
+                  "EventInfo#*",
+                  "McEventCollection#*",
+		  "SiHitCollection#SCT_Hits",
+		  "SiHitCollection/PixelHits"}; //SYNTAX ERROR: / not #
+
+EventMixer.OutputRunNumber=54321;
+EventMixer.EventNumbers={1, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 47};
+
+//--------------------------------------------------------------
+//
+// Monitor and Debug printouts
+//
+
+MessageSvc.OutputLevel      = 3;
+EventMixer.OutputLevel      = 1;
+MessageSvc.setVerbose += { "MixingEventSelector::TriggerList" };
+
+Stream1.OutputLevel = 2;
+
+//StoreGateSvc.Dump=true;
+//StoreGateSvc.OutputLevel=2;
+
+
+//
+// write out a summary of the time spent
+//
+ApplicationMgr.DLLs += { "GaudiAud" };
+AuditorSvc.Auditors  += { "ChronoAuditor"};
+
+ApplicationMgr.DLLs   += { "TruthExamples" };
+//ApplicationMgr.TopAlg += { "DumpMC" };

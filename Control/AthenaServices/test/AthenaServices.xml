@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<atn>
+    <TEST name="AthenaServicesTest" type="makecheck" suite="Examples">
+       <package>Control/AthenaServices</package>
+       <author> Paolo Calafiura </author>
+       <mailto> pcalafiura@lbl.gov </mailto>
+       <expectations>
+          <errorMessage>Athena exited abnormally</errorMessage>
+          <errorMessage>differ</errorMessage>
+          <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+          <successMessage>check ok</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
+    <TEST name="SimplePOSIXTimeKeeper" type="athena">
+       <options>AthenaServices/SimplePOSIXTimeKeeperSvc_test.py </options>
+       <author> Paolo Calafiura </author>
+       <mailto> pcalafiura@lbl.gov </mailto>
+       <expectations>
+          <errorMessage>differ</errorMessage>
+          <successMessage>Not enough time for another iteration</successMessage>          <returnValue>65</returnValue>
+       </expectations>
+    </TEST>
+    <TEST name="AthDictLoaderSvc" type="athena" suite="core">
+       <options>AthenaServices/AthDictLoaderSvc_test.py </options>
+       <author> Sebastien Binet </author>
+       <mailto> binet@cern.ch </mailto>
+       <expectations>
+          <errorMessage>differ</errorMessage>
+          <successMessage>test of dictionary loading SUCCEEDED</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
+</atn>

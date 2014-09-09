@@ -1,0 +1,10 @@
+// job opts for SimplePOSIXTimeKeeperSvc unit test
+
+// $Id: SimplePOSIXTimeKeeperSvc_test.txt,v 1.5 2004-01-09 23:27:21 calaf Exp $
+#include "AthenaServices/SimplePOSIXTimeKeeperOptions.txt"
+
+MessageSvc.OutputLevel = 2;
+
+SimplePosixTimeKeeperSvc.OutputLevel = 1;
+SimplePosixTimeKeeperSvc.AllocTime = 15;
+
