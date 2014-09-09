@@ -1,7 +1,5 @@
-
 # Use McEventSelector so we can run with AthenaMP
 import AthenaCommon.AtlasUnixGeneratorJob
-include("BFieldAth/BFieldAth_jobOptions.py")
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
@@ -9,17 +7,22 @@ include("BFieldAth/BFieldAth_jobOptions.py")
 # the global detflags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
-DetFlags.Muon_setOn()
+DetFlags.Calo_setOff()
+DetFlags.Muon_setOff()
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 # build GeoModel
-DetDescrVersion = 'ATLAS-GEO-20-00-00'
+DetDescrVersion = 'ATLAS-R1-2012-02-01-00'
 from AtlasGeoModel import SetGeometryVersion 
 from AtlasGeoModel import GeoModelInit 
+
+# the magnetic field
+from MagFieldServices import SetupField
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride('/GLOBAL/BField/Map','BFieldMap-FullAsym-09-solTil3')
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
@@ -32,19 +35,16 @@ conddb.setGlobalTag("OFLCOND-MC12-SDR-06")
 # switch the material loading off
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.MaterialSource           = 'COOL'
-TrkDetFlags.MaterialVersion          = 16
+TrkDetFlags.MaterialVersion          = 17
 TrkDetFlags.ConfigurationOutputLevel = VERBOSE
 
-# load the tracking geometry service
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-
-TrkDetFlags.MaterialDatabaseLocal()
-TrkDetFlags.MaterialDatabaseLocal        = False
+TrkDetFlags.MaterialDatabaseLocal        = True
 if TrkDetFlags.MaterialDatabaseLocal() is True :
     # prepare the magic tag
     splitGeo = DetDescrVersion.split('-')
     MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
     # now say where the file is
+    TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/BinnedLayerMaterial'
     TrkDetFlags.MaterialDatabaseLocalPath    = '' # '/tmp/wlukas/'
     TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+DetDescrVersion+'.db'
     TrkDetFlags.MaterialMagicTag             = MaterialMagicTag
@@ -59,7 +59,6 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__MaterialMapper
 MaterialMapper = Trk__MaterialMapper(name='MaterialMapper')
-MaterialMapper.ValidationMode = True
 MaterialMapper.OutputLevel = INFO
 ToolSvc += MaterialMapper
 
