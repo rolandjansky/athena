@@ -43,7 +43,6 @@ namespace iFatras {
     PlanarCluster( const PlanarCluster &);
 
     PlanarCluster  &operator=(const PlanarCluster &);
-    PlanarCluster  &operator=(      PlanarCluster &&);
     
     PlanarCluster( const Identifier& RDOId,
 		   const Amg::Vector2D& locpos, 
@@ -52,21 +51,11 @@ namespace iFatras {
 		   const iFatras::PlanarDetElement* detEl,
 		   const Amg::MatrixX* locErrMat );
     
-    PlanarCluster( const Identifier& RDOId,
-		   const Amg::Vector2D& locpos, 
-		   std::vector<Identifier>&& rdoList,
-		   const InDet::SiWidth& width,
-		   const iFatras::PlanarDetElement* detEl,
-		   std::unique_ptr<const Amg::MatrixX> locErrMat );
-    
     // Deconstructor:
     virtual ~PlanarCluster();
     
     /** return width class reference */
     const InDet::SiWidth&  width()  const;
-    
-    /** return global position as a pointer. */
-    const Amg::Vector3D* globalPositionPtr() const;
     
     /** return global position reference */
     const Amg::Vector3D& globalPosition() const;
@@ -98,14 +87,9 @@ namespace iFatras {
   }
   
   // return globalPosition:
-  inline const Amg::Vector3D* PlanarCluster::globalPositionPtr() const {
-    if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).localToGlobal(localPosition());
-    return m_globalPosition;
-  }
-  
-  // return globalPosition:
   inline const Amg::Vector3D& PlanarCluster::globalPosition() const {
-    return *globalPositionPtr();
+    if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).localToGlobal(localPosition());
+    return *m_globalPosition;
   }
   
   inline const iFatras::PlanarDetElement* PlanarCluster::detectorElement() const {

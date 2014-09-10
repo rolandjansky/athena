@@ -91,7 +91,7 @@ namespace iFatras {
     Trk::RIO_OnTrack::dump(sl); 
     
     sl << "Global position (x,y,z) = (";
-    if ( this->globalPositionPtr() )
+    if ( &(this->globalPosition() )!=0 )
       {
         sl  <<this->globalPosition().x()<<", "
 	    <<this->globalPosition().y()<<", "
@@ -110,7 +110,7 @@ namespace iFatras {
     Trk::RIO_OnTrack::dump(sl); 
     
     sl << "Global position (x,y,z) = (";
-    if ( this->globalPositionPtr() )
+    if ( &(this->globalPosition() )!=0 )
       {
 	sl  <<this->globalPosition().x()<<", "
 	    <<this->globalPosition().y()<<", "
