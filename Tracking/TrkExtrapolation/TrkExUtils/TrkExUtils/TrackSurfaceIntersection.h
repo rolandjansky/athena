@@ -1,0 +1,75 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// TrackSurfaceIntersection.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef TRKEXUTILS_TRACKSURFACEINTERSECTION_H
+#define TRKEXUTILS_TRACKSURFACEINTERSECTION_H
+
+//Trk
+#include "GeoPrimitives/GeoPrimitives.h"
+
+class MsgStream;
+
+namespace Trk {
+
+      /** @class TrackSurfaceIntersection
+         
+         An intersection with a Surface is given by
+         - a global position
+         - a momentum direction (unit vector)
+         - the pathlength to go there from the starting point
+          
+          @author Andreas.Salzburger@cern.ch 
+        */
+      class TrackSurfaceIntersection {
+       
+       public:
+        /**Constructor*/
+        TrackSurfaceIntersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir, double path);
+        /**Destructor*/
+        virtual ~TrackSurfaceIntersection();
+
+        /** Method to retrieve the position of the Intersection */
+        const Amg::Vector3D& position() const;
+        
+        /** Method to retrieve the direction at the Intersection */
+        const Amg::Vector3D& direction() const;
+        
+        /** Method to retrieve the pathlength propagated till the Intersection */
+        double pathlength() const;
+        
+        /** Method to retrieve the object serial number (needed for speed optimization) */
+        unsigned serialNumber() const;
+
+      private:
+	    static unsigned	s_serialNumber;
+	    unsigned		m_serialNumber;
+        Amg::Vector3D	m_position;
+        Amg::Vector3D	m_direction;
+        double		    m_pathlength;
+                  
+      };
+
+  inline const Amg::Vector3D& TrackSurfaceIntersection::position() const
+  { return m_position; }
+
+  inline const Amg::Vector3D& TrackSurfaceIntersection::direction() const
+  { return m_direction; }
+
+  inline double TrackSurfaceIntersection::pathlength() const
+  { return m_pathlength; }
+  
+  inline unsigned TrackSurfaceIntersection::serialNumber() const
+  { return m_serialNumber; }
+
+/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
+MsgStream& operator << ( MsgStream& sl, const TrackSurfaceIntersection& tsfi);
+std::ostream& operator << ( std::ostream& sl, const TrackSurfaceIntersection& tsfi); 
+        
+} // end of namespace
+
+#endif // TRKEXUTILS_TRACKSURFACEINTERSECTION_H
