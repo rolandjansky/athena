@@ -1,0 +1,79 @@
+// -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef STOREGATEBINDINGS_ATHENAPYROOT_H
+#define STOREGATEBINDINGS_ATHENAPYROOT_H 1
+
+// Hide this #include from checkreq so that it doesn't keep giving us warnings.
+#define PYTHON_INC "Python.h"
+#include PYTHON_INC
+
+// PyROOT includes
+#include <TPython.h>
+#include <TPyException.h>
+#ifndef ROOT_TPyException
+# define ROOT_TPyException 1 /* there was a typo in TPyException-v20882 */
+#endif
+
+// fixes 'dereferencing type-punned pointer will break strict-aliasing rules'
+#ifdef Py_True
+#undef Py_True
+#define Py_True ( (PyObject*)(void*)&_Py_TrueStruct )
+#endif
+#ifdef Py_False
+#undef Py_False
+#define Py_False ( (PyObject*)(void*)&_Py_ZeroStruct )
+#endif
+
+#define ObjectProxy_ASVOIDPTR(o) (TPython::ObjectProxy_AsVoidPtr(o))
+
+namespace PyROOT {
+
+class PyRootClass {
+public:
+  PyHeapTypeObject fType;      // placeholder, in a single block with the TClassRef
+  TClassRef fClass;
+
+private:
+  PyRootClass() {}
+};
+
+inline
+void throw_py_exception (bool display = true)
+{
+  if (display) {
+    // fetch error
+    PyObject* pytype = 0, *pyvalue = 0, *pytrace = 0;
+    PyErr_Fetch (&pytype, &pyvalue, &pytrace);
+    Py_XINCREF  (pytype);
+    Py_XINCREF  (pyvalue);
+    Py_XINCREF  (pytrace);
+    // restore...
+    PyErr_Restore (pytype, pyvalue, pytrace);
+    // and print
+    PyErr_Print();
+  }
+  throw PyROOT::TPyException();
+}
+
+class ObjectProxy {
+public:
+  TClass* ObjectIsA() const
+  {
+    return ((PyRootClass*)ob_type)->fClass.GetClass(); // may return null
+  }
+
+public:
+  PyObject_HEAD
+  void*     fObject;
+  int       fFlags;
+};
+
+PyObject* BindRootObject( void* object, TClass* klass, Bool_t isRef = kFALSE );
+
+} //> namespace PyROOT
+
+#endif //> STOREGATEBINDINGS_ATHENAPYROOT_H
