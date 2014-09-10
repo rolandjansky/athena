@@ -29,8 +29,12 @@ ISF::GeoIDSvc::GeoIDSvc(const std::string& name,ISvcLocator* svc) :
   m_radiusBins(0),
   m_maxRBins(AtlasDetDescr::fNumAtlasRegions+1)
 {
-  declareProperty("EnvelopeDefSvc"            , m_envDefSvc      );
-  declareProperty("Tolerance"                 , m_tolerance=1e-5 );
+  declareProperty("EnvelopeDefSvc",
+                  m_envDefSvc,
+                  "The EnvelopeDefinitionService describing the AtlasRegion boundaries.");
+  declareProperty("Tolerance",
+                  m_tolerance=1e-5,
+                  "Estimated tolerance within which coordinates are considered being equal.");
 }
 
 
@@ -271,16 +275,34 @@ StatusCode  ISF::GeoIDSvc::finalize() {
 
 ISF::InsideType ISF::GeoIDSvc::inside(const Amg::Vector3D &pos, AtlasDetDescr::AtlasRegion geoID) const {
 
-  AtlasDetDescr::AtlasRegion identifiedGeoID = identifyGeoID(pos);
+  // an arbitrary unitary direction with +1 in x,y,z
+  // (following this direction will cross any AtlasRegion boundary if position is close to it in the first place)
+  const Amg::Vector3D dir(1., 1., 1.);
+  const Amg::Vector3D dirUnit( dir.unit() );
 
-  // geoIDs differ -> not inside, need to check if on surface
-  if ( identifiedGeoID != geoID ) {
-    // TOOD: check if 'surface'
-    ATH_MSG_WARNING("ISF::GeoIDSvc::inside() does not support ISF::fSurface yet (will return ISF::fOutside)");
-    return ISF::fOutside;
+  // create particle positions which are a bit forward and a bit aft of the current position
+  const Amg::Vector3D posFwd( pos + dirUnit*m_tolerance );
+  const Amg::Vector3D posAft( pos - dirUnit*m_tolerance );
+
+  AtlasDetDescr::AtlasRegion geoIDFwd = identifyGeoID(posFwd);
+  AtlasDetDescr::AtlasRegion geoIDAft = identifyGeoID(posAft);
+
+  // default case: particle is outside given geoID
+  ISF::InsideType where = ISF::fOutside;
+
+  // only if either the fwd or the aft step is inside the given geoID,
+  // inside/surface cases need to be resolved
+  if ( (geoID == geoIDFwd) || (geoID == geoIDAft) ) {
+    // 1. inside
+    if ( (geoIDFwd == geoIDAft)  ) {
+      where = ISF::fInside;
+    // 2. surface
+    } else if ( geoIDFwd != geoIDAft ) {
+      where = ISF::fSurface;
+    }
   }
 
-  return ISF::fInside;
+  return where;
 }
 
 

@@ -40,7 +40,7 @@ namespace ISF {
 
   /** @class GeoIDSvc
   
-      @TODO
+      A fast Athena service identifying the AtlasRegion a given position/particle is in.
   
       @author Elmar.Ritsch -at- cern.ch
      */
@@ -80,6 +80,7 @@ namespace ISF {
 
      template <typename T> inline int sign(T val);
 
+     /** (estimated) tolerance within which coordinates are considered equal */
      double                 m_tolerance;
 
      /** */
@@ -99,6 +100,6 @@ template <typename T> inline int ISF::GeoIDSvc::sign(T val) {
       return (T(0) < val) - (val < T(0));
 }
 
-}
+} // ISF namespace
 
 #endif //> !ISF_SERVICES_GEOIDSVC_H

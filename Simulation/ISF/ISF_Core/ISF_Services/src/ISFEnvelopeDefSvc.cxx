@@ -39,7 +39,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
 
   // retrieve ATLAS common envelope definition service
   if ( m_atlasEnvDefSvc.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not retrieve EnvelopeDefinition service. Abort.");
+    ATH_MSG_FATAL( "Could not retrieve EnvelopeDefinition service ('" << m_atlasEnvDefSvc.typeAndName() << "'). Abort.");
     return StatusCode::FAILURE;
   }
 
@@ -67,7 +67,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
     }
 
     // set the lowest radius of the ID volume to ZERO
-    ATH_MSG_DEBUG("Will shift ID boundary (r,|z|)=("<<rMin<<","<<zAtRMin<<") to (r,z)=("<<0.<<","<<zAtRMin<<")");
+    ATH_MSG_DEBUG("Will shift ID boundary (r,|z|)=("<<rMin<<","<<zAtRMin<<") to (r,|z|)=("<<0.<<","<<zAtRMin<<")");
     m_rposzInDet[rMinPos].first = 0.;
   }
 
@@ -83,7 +83,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
       // if the current radius and z-coordinate are the same as the identified lowest ID radius
       // set this radius to ZERO too
       if ( (fabs(curR-rMin) < 1e-4) && (fabs(curZ-zAtRMin)<1e-4)  ) {
-        ATH_MSG_VERBOSE("Found boundary point in BeamPipe volume. Shifting (r,|z|)=("<<curR<<","<<curZ<<") to (r,z)=("<<0.<<","<<curZ<<")");
+        ATH_MSG_VERBOSE("Found boundary point in BeamPipe volume. Shifting (r,|z|)=("<<curR<<","<<curZ<<") to (r,|z|)=("<<0.<<","<<curZ<<")");
         foundShiftPoint = true;
         m_rposzBeamPipe[curPos].first = 0.;
       }
