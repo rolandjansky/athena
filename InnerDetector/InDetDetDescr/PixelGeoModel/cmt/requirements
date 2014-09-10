@@ -1,0 +1,38 @@
+package PixelGeoModel
+author Grant Gorfine
+
+private
+
+
+use StoreGate            StoreGate-*            Control
+use CLIDSvc              CLIDSvc-*              Control
+use SGTools              SGTools-*              Control
+use DetDescrConditions   DetDescrConditions-*   DetectorDescription/DetDescrCond
+use InDetCondServices    InDetCondServices-*    InnerDetector/InDetConditions
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use GeometryDBSvc        GeometryDBSvc-*        DetectorDescription
+
+public
+
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*       External
+use AthenaKernel         AthenaKernel-*         Control
+use AtlasCLHEP           AtlasCLHEP-*           External
+use GeoModelUtilities    GeoModelUtilities-*    DetectorDescription/GeoModel
+use GeoModelInterfaces   GeoModelInterfaces-*   DetectorDescription/GeoModel
+use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
+use Identifier           Identifier-*           DetectorDescription
+use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
+use AthenaBaseComps	 AthenaBaseComps-*      Control
+
+
+
+
+
+library PixelGeoModel *.cxx components/*.cxx
+
+apply_pattern component_library
+
