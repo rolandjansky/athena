@@ -1,0 +1,16 @@
+theApp.Dlls  += ['TrkDistributedKalmanFilter']
+theApp.Dlls += [ "TrigInDetTrackFitter" ]
+ToolSvc      = Service( "ToolSvc" )
+TrigInDetFitter = Algorithm( 'ToolSvc.TrigInDetTrackFitter' )
+TrigInDetFitter.UseAthenaFieldService=TRUE
+TrigInDetFitter.doMultScattering=TRUE
+TrigInDetFitter.Chi2Cut=100.0
+TrigInDetFitter.OfflineClusters=TriggerFlags.useOfflineSpacePoints
+TrigInDetPerigeeFitter = Algorithm( 'ToolSvc.TrigInDetPerigeeFitter' )
+TrigInDetPerigeeFitter.UseAthenaFieldService=TRUE
+TrigInDetPerigeeFitter.doMultScattering=TRUE
+TrigInDetPerigeeFitter.doBremmCorrection=FALSE
+TrigInDetPerigeeFitter.StraightLineMode=FALSE
+SctKFitter = Algorithm( 'ToolSvc.TrigInDetSctKFitter' )
+SctKFitter.doMultScattering=TRUE
+SctKFitter.doBremmCorrection=FALSE
