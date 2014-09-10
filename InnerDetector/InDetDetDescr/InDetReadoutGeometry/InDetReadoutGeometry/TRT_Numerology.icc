@@ -1,0 +1,30 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace InDetDD {
+inline unsigned int TRT_Numerology::getNBarrelLayers (unsigned int iMod) const {
+  return _nlayerBarrel[iMod];
+}
+
+
+inline unsigned int TRT_Numerology::getNEndcapLayers (unsigned int iWheel) const {
+  return _nlayerEndcap[iWheel];
+}
+
+inline unsigned int TRT_Numerology::getNBarrelRings() const {
+  return _nringBarrel;
+}
+
+inline unsigned int TRT_Numerology::getNBarrelPhi() const {
+  return _nphiBarrel;
+}
+
+inline unsigned int TRT_Numerology::getNEndcapWheels() const {
+  return _nwheelEndcap;
+}
+
+inline unsigned int TRT_Numerology::getNEndcapPhi() const {
+  return _nphiEndcap;
+}
+}
