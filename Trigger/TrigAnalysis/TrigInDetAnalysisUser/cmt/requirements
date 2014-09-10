@@ -1,0 +1,66 @@
+package TrigInDetAnalysisUser
+
+
+# ============================================================================================
+public
+
+use 	AtlasPolicy		  AtlasPolicy-*
+
+# ============================================================================================
+private
+
+use 	AtlasROOT            	  AtlasROOT-*                   External
+use     TrigInDetAnalysis         TrigInDetAnalysis-*           Trigger/TrigAnalysis
+use     TrigInDetAnalysisUtils    TrigInDetAnalysisUtils-*      Trigger/TrigAnalysis
+use     TrigInDetAnalysisExample  TrigInDetAnalysisExample-*    Trigger/TrigAnalysis
+
+# ============================================================================================
+public
+
+
+library Resplot   " ../Resplot/src/Resplot.cxx       ../Resplot/src/generate.cxx    ../Resplot/src/rmsFrac.cxx" "
+apply_pattern have_root_headers root_headers="../Resplot/src/Resplot.h" headers_lib="Resplot"
+
+library Readcards " ../Readcards/src/IReadCards.cxx  ../Readcards/src/ReadCards.cxx ../Readcards/src/Value.cxx ../Readcards/src/utils.cxx"
+macro_append Readcards_cppflags    "-D_DIR_=$(shell pwd)/../Analysis/run "
+
+library TIDA      " ../Analysis/src/ConfAnalysis.cxx ../Analysis/src/PurityAnalysis.cxx"
+macro_append TIDA_cppflags      " -I../Readcards/src -I../Resplot/src "
+
+
+application  TIDAreader "../Analysis/src/reader.cxx
+macro_append TIDAreader_cppflags " -I../Readcards/src"
+
+application  TIDAskim   "../Analysis/src/skim.cxx"
+macro_append TIDAskim_cppflags " -I../Readcards/src"
+
+application  TIDAfastadd   "../Analysis/src/fastadd.cxx"
+
+application  TIDAchains   "../Analysis/src/chains.cxx"
+
+application  TIDArefit  "../Analysis/src/refit.cxx"
+macro_append TIDArefit_cppflags      " -I../Resplot/src "
+macro_append TIDArefitlinkopts       " -lResplot  -lTIDA "
+macro_append TIDArefit_dependencies  " Resplot TIDA "
+
+application  TIDArdict  "../Analysis/src/rmain.cxx"
+macro_append TIDArdict_cppflags      " -I../Resplot/src -I../Readcards/src"
+macro_append TIDArdictlinkopts       " -lResplot -lReadcards -lTIDA "
+macro_append TIDArdict_dependencies  " Resplot Readcards TIDA "
+
+application  TIDAcomparitor "../Analysis/src/comparitor.cxx ../Analysis/src/computils.cxx"
+macro_append TIDAcomparitor_cppflags      " -I../Resplot/src -I../Readcards/src"
+macro_append TIDAcomparitorlinkopts       " -lResplot -lReadcards -lTIDA "
+macro_append TIDAcomparitor_dependencies  " Resplot Readcards TIDA "
+
+application  TIDAcpucost "../Analysis/src/cpucost.cxx ../Analysis/src/computils.cxx"
+macro_append TIDAcpucost_cppflags      " -I../Readcards/src"
+macro_append TIDAcpucostlinkopts       " -lReadcards -lTIDA "
+macro_append TIDAcpucost_dependencies  " Readcards TIDA "
+
+
+apply_pattern declare_runtime extras="../share/TIDAdata11-rtt.dat ../share/TIDAcosmic-rtt.dat ../share/TIDAindex.html ../share/TIDAindex-lowpt.html  ../share/TIDAindex-EFID.html ../share/Test_bin.dat"
+
+
+
+

@@ -1,0 +1,61 @@
+// emacs: this is -*- c++ -*-
+
+pT     = 3000;
+eta    = 2.5;
+// npix   = 1;
+// nsct   = 2;
+npix   = -2;
+nsct   = -2;
+
+pT_rec  = 0;
+eta_rec = 5;
+Rmatch = 0.05;
+
+dumpflag = 0;
+
+a0v = 10.5;
+z0v = 10.5;
+refChain = "Truth";
+//refChain = "Electrons";
+//refChain = "Muons";
+//refChain = "Taus";
+TauSize = {0.2,0.2};
+BjetSize = {0.2,0.2};
+eGammaSize = {0.1,0.1};
+
+MinVertices = 0;
+
+pdgId = 11;
+
+testChains = {
+  //"Offline",
+  //"Muons",
+  //"Electrons",
+  
+  //   "L2_e22vh_medium_L2Star_IDTrkNoCut:TrigL2SiTrackFinder:0",
+  //   "L2_e22vh_medium_L2Star_IDTrkNoCut:TrigL2SiTrackFinder:1",
+  //   "L2_e22vh_medium_L2Star_IDTrkNoCut:TrigL2SiTrackFinder:2"
+  
+  //  test ntple chain names	
+  //  "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:0",
+  //  "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:1",
+  //  "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:2"
+  //  "L2_e5_L2Star_NoCut_FwdBackTrk::1",
+  //  "L2_e5_L2Star_NoCut_FwdBackTrk::2"
+
+  "L2_e5_NoCut_FwdBackTrk:TrigIDSCAN_eGamma",
+
+  "L2_e5_L2Star_NoCut_FwdBackTrk::0",
+  "L2_e5_L2Star_NoCut_FwdBackTrk::1",
+  "L2_e5_L2Star_NoCut_FwdBackTrk::2",
+
+
+  "EF_e5_NoCut_FwdBackTrk",
+
+  "EF_e5_L2Star_NoCut_FwdBackTrk"
+  
+}; 
+
+outputFile = "mc-output.root";
+DataFiles = { "TrkNtuple-mc.root"};
+//DataSets = {"./"}

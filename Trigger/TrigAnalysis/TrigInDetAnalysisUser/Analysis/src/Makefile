@@ -1,0 +1,307 @@
+
+# $Id: $
+##########################################################################
+#
+#   File:         Makefile
+#
+#   Description:  builds the new egamma project including
+#                 libraries...
+#
+#                  libeventstore.a   
+#                  libtrig.a
+#                  
+#                 and the executable
+#
+#   Created:      Mon Apr 18 23:33:55 BST 2005
+#   Modified:     
+#                   
+#                   
+######################################################################### 
+
+
+ATLAS_ARCH = $(CMTCONFIG)
+
+ifeq ($(CMTCONFIG),)
+
+     ATLAS_ARCH = $(shell uname)
+#    ATLAS_ARCH = $(shell ./setarch.sh)
+#    ATLAS_ARCH = x86
+
+
+    # "PUT YOUR BASE DIRECTORY HERE"
+    # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
+    # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
+    ATLASBASE = $(HOME)/atlas/Trigger/TrigAnalysis
+    # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
+    # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
+
+    USEATHENALIBS = 0	
+
+    ifeq ($(USER),sutt)
+       # sutt uses with_version_directory so need the versions
+       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-22
+       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-40
+       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-02-79
+#      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser/TrigInDetAnalysisUser-00-01-11
+       TIDUB = ../..
+    else
+       TID   = $(ATLASBASE)/TrigInDetAnalysis
+       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
+       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
+       TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
+    endif
+
+    CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
+
+else 
+
+    USEATHENALIBS = 1 	
+
+    ATLASBASE = $(TestArea)/InstallArea
+
+    TID   = $(ATLASBASE)/include/TrigInDetAnalysis
+    TIDU  = $(ATLASBASE)/include/TrigInDetAnalysisUtils
+    TIDE  = $(ATLASBASE)/include/TrigInDetAnalysisExample
+    TIDUB = ../..
+
+    CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
+
+endif
+
+
+ARCH_TYPE = $(ATLAS_ARCH)
+
+
+
+
+SRCDIR = .
+LIBDIR = ../lib/$(ARCH_TYPE)
+OBJDIR = ../obj/$(ARCH_TYPE)
+EXEDIR = ../exe/$(ARCH_TYPE)
+VPATH += $(TID)/src 
+VPATH += $(TIDU)/src 
+VPATH += $(TIDE)/src 
+VPATH += $(SRCDIR)
+
+
+ifeq ($(CMTCONFIG),)
+    TIDLIB = -L$(LIBDIR) -lTIDA
+else
+#     TIDLIB = -L$(ATLASBASE)/$(ATLAS_ARCH)/lib -lTrigInDetAnalysis -lTrigInDetAnalysisUtils -lTrigInDetAnalysisExample 
+    TIDLIB = -L$(ATLASBASE)/$(ATLAS_ARCH)/lib -lTrigInDetAnalysis -lTrigInDetAnalysisExample 
+endif
+
+
+# BOOSTDIR = /afs/cern.ch/sw/lcg/external/Boost/1.44.0_python2.6/$(ATLAS_ARCH)
+# BOOSTINC = -I$(BOOSTDIR)/include/boost-1_44
+# BOOSTLIB = -L$(BOOSTDIR)/lib -lboost_regex-gcc43-mt-1_44
+
+# Root variables
+ROOTCFLAGS   = $(shell root-config --cflags)
+ROOTLIBS     = $(shell root-config --libs)
+ROOTGLIBS    = $(shell root-config --glibs)
+
+CLHEPLIB    = $(shell clhep-config --libs)
+CLHEPCFLAGS = $(shell clhep-config --include)
+
+# BASEDIR   = $(shell ./cwd.sh -h)
+BASEDIR   = $(CURDIR)
+
+
+CXX = g++
+CC  = gcc
+
+# CSOURCES := $(wildcard *.cpp)
+# DEPENDENCIES = $(patsubst %.cpp, %.d, $(CSOURCES))
+
+
+CXXFLAGS += -g -D_STANDALONE 
+CFLAGS   += -g -D_STANDALONE 
+# -D_UPGRADE  -D__OLD
+
+
+CXXFLAGS += -I. -I$(HOME)/include $(ROOTCFLAGS) -Wno-deprecated -I$(TID) -I$(TIDU) -I$(TIDE) -Wall
+CXXFLAGS += -I$(TIDUB)/Resplot/src -I$(TIDUB)/Readcards/src
+# CXXFLAGS += $(BOOSTINC)
+
+# to get more output for debug compile code with: 
+# make DEBUG=COREDBG : for the event building classes
+# make DEBUG=TRIGDBG : for the signature classes
+ifdef DEBUG
+CXXFLAGS += -D$(DEBUG) -g
+endif
+
+GLIBS += $(ROOTGLIBS) $(ROOTLIBS)
+
+LDFLAGS = $(shell root-config --ldflags)
+
+AR      = ar
+ARFLAGS = -r
+
+RANLIB   = ranlib
+RANFLAGS = 
+
+
+RM  = rm
+TAR = tar
+
+
+COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o 
+CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o 
+CHOBJECTS = $(OBJDIR)/chains.o 
+WOBJECTS  = $(OBJDIR)/wmain.o 
+SOBJECTS  = $(OBJDIR)/skim.o 
+ROBJECTS  = $(OBJDIR)/rmain.o  $(OBJDIR)/ConfAnalysis.o  $(OBJDIR)/PurityAnalysis.o 
+LOBJECTS  = $(OBJDIR)/TrackEvent.o \
+	$(OBJDIR)/Track.o \
+	$(OBJDIR)/TrackVertex.o   \
+	$(OBJDIR)/TrackChain.o   \
+	$(OBJDIR)/TrackRoi.o   \
+	$(OBJDIR)/TIDARoiDescriptor.o  \
+        $(OBJDIR)/TrackTrigObject.o \
+        $(OBJDIR)/TrigInDetAnalysisDict.o
+
+
+
+DICTHEADERS = $(TID)/TrigInDetAnalysis/TrackEvent.h \
+	$(TID)/TrigInDetAnalysis/TrackChain.h \
+        $(TID)/TrigInDetAnalysis/TrackRoi.h \
+        $(TID)/TrigInDetAnalysis/TFileString.h \
+        $(TID)/TrigInDetAnalysis/TIDARoiDescriptor.h \
+        $(TID)/TrigInDetAnalysis/Track.h \
+        $(TID)/TrigInDetAnalysis/TrackTrigObject.h \
+        $(TID)/TrigInDetAnalysis/TrigInDetAnalysisLinkDef.h
+
+
+
+.SUFFIXES : .cc .cxx .c
+
+
+LIBS += $(TIDLIB)
+
+RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/$(ARCH_TYPE) -lReadcards 
+RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/$(ARCH_TYPE) -lReadcards 
+
+
+# LIBS += $(BOOSTLIB)
+
+# build executable: link
+
+all : dirs resplot readcards rdict wdict reader comparitor cpucost
+
+$(OBJDIR)/computils.o : $(SRCDIR)/computils.h 
+$(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h 
+
+rdict : $(EXEDIR)/rdict  
+$(EXEDIR)/rdict : dirs resplot readcards $(ROBJECTS) lib 
+	$(CXX) $(LDFLAGS) -o $@ $(ROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+
+wdict : $(EXEDIR)/wdict 
+$(EXEDIR)/wdict : dirs $(WOBJECTS) lib	
+	$(CXX) $(LDFLAGS) -o $@ $(WOBJECTS) $(LIBS) $(GLIBS)
+
+reader : $(EXEDIR)/reader 
+$(EXEDIR)/reader : dirs $(OBJDIR)/reader.o  lib	
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/reader.o $(LIBS) $(GLIBS)
+
+skim : dirs $(EXEDIR)/skim 
+$(EXEDIR)/skim : dirs $(OBJDIR)/skim.o  lib	
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/skim.o $(LIBS) $(GLIBS)
+
+fastadd : dirs $(EXEDIR)/fastadd 
+$(EXEDIR)/fastadd : dirs $(OBJDIR)/fastadd.o  lib	
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/fastadd.o $(LIBS) $(GLIBS)
+
+refit : dirs $(EXEDIR)/refit 
+$(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  lib	
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/refit.o $(LIBS) $(RLIBS) $(GLIBS)
+
+comparitor : $(EXEDIR)/comparitor  
+$(EXEDIR)/comparitor : $(COBJECTS)  lib
+	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+	cp $(EXEDIR)/{comparitor,TIDAcomparitor.exe}
+
+cpucost : $(EXEDIR)/cpucost  
+$(EXEDIR)/cpucost : $(CCOBJECTS)  lib
+	$(CXX) $(LDFLAGS) -o $@ $(CCOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+
+chains : $(EXEDIR)/chains  
+$(EXEDIR)/chains : $(CHOBJECTS)  lib
+	$(CXX) $(LDFLAGS) -o $@ $(CHOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+
+
+
+
+# compile
+# $(OBJDIR)/%.o : $(SRCDIR)/%.cxx 
+$(OBJDIR)/%.o : %.cxx 
+	$(CXX) $(CXXFLAGS) -c $<  -o $@
+
+# $(OBJDIR)/%.o : $(SRCDIR)/%.c 
+$(OBJDIR)/%.o : %.c 
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+
+%/.d:
+	mkdir -p $(@D)
+	touch $@
+
+rootdep : $(DICTHEADERS)
+	cp $(DICTHEADERS) . 
+
+$(SRCDIR)/TrigInDetAnalysisDict.cxx: $(DICTHEADERS)
+	@echo rootcint  -f $@ -c -I$(TID) $?
+	@rootcint       -f $@ -c -I$(TID) $?
+
+
+$(OBJECTS) : $(HEADERS)
+
+.PHONY : 
+
+
+
+# libraries - only build these if not already built in athena
+
+ifeq ($(CMTCONFIG),)
+
+lib: $(LIBDIR)/libTIDA.a 
+$(LIBDIR)/libTIDA.a : $(LOBJECTS)
+	$(AR) $(ARFLAGS)  $@ $(LOBJECTS)
+	$(RANLIB) $@
+
+solib: $(LIBDIR)/libTIDA.so 
+$(LIBDIR)/libTIDA.so : $(LOBJECTS) 
+	$(CXX) $(LDFLAGS) -O3 -dynamiclib -shared -o  $@ $(LOBJECTS) $(RSSOLIB)$(GLIBS)
+
+else
+# if libraries are already build inside athena, do nothing 
+lib:
+solib:
+
+endif
+
+
+clean :
+	$(RM) -rf $(OBJDIR)/*.o  $(LIBDIR)/lib*.{a,so}
+	$(RM) -f $(OBJDIR)/*.o  $(LIBDIR)/lib*.{a,so} $(SRCDIR)/*Dict.{h,cxx}
+	make -C $(TIDUB)/Resplot/src clean
+	make -C $(TIDUB)/Readcards/src clean
+
+
+libclean :
+	$(RM) -f $(LIBDIR)/lib*.{a,so} 
+
+
+resplot: 
+	make -C $(TIDUB)/Resplot/src install
+
+readcards: 
+	make -C $(TIDUB)/Readcards/src install
+
+archive : 
+	cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
+
+install : all 
+
+dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
+

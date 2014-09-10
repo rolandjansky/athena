@@ -1,0 +1,61 @@
+// emacs: this is -*- c++ -*-
+
+pT     = 3000;
+eta    = 2.5;
+// npix   = 1;
+// nsct   = 2;
+npix   = -1;
+nsct   = -1;
+
+pT_rec  = 0;
+eta_rec = 5;
+Rmatch = 0.05;
+
+dumpflag = 1;
+
+a0v = 10.5;
+z0v = 10.5;
+//refChain = "Offline";
+//refChain = "Electrons";
+//refChain = "Muons";
+//refChain = "Taus";
+
+/// NB: For the "Truth" chains, need to specify what 
+///     sort of particle (ie which pdgID) is needed
+/// Fixme: should add a flag to enable/disable this
+///        what if we want all final state particles
+///        independent of pdgID?
+refChain = "Truth";
+pdgId=11; // electron
+
+TauSize = {0.2,0.2};
+BjetSize = {0.2,0.2};
+eGammaSize = {0.1,0.1};
+
+MinVertices = 0;
+
+testChains = {
+    //"Offline",
+    //"Muons",
+    //"Electrons",
+    //    "Truth",
+
+    "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:0", 
+    //   "L2_e22vh_medium_L2Star:TrigL2SiTrackFinder:0",
+    "L2_e22vh_medium_L2Star_IDTrkNoCut:TrigL2SiTrackFinder:0",
+    "L2_e22vh_medium_L2Star_IDTrkNoCut:TrigL2SiTrackFinder:1",
+    "L2_e22vh_medium_L2Star_IDTrkNoCut:TrigL2SiTrackFinder:2",
+    "L2_e22vh_medium_IDTrkNoCut:TrigIDSCAN_eGamma",
+    "L2_e22vh_medium_IDTrkNoCut:TrigSiTrack_eGamma",
+    "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
+
+    //  test ntple chain names	
+    //  "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:0",
+    //  "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:1",
+    //  "L2_e5_L2Star_NoCut_FwdBackTrk:TrigL2SiTrackFinder:2"
+    
+}; 
+
+outputFile = "data-output.root";
+DataFiles = { "TrkNtuple-0000.root"};
+//DataSets = {"./"}
