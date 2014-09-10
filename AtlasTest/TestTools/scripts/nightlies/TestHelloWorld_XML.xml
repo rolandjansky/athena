@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<atn>
+   <TEST name="HelloWorld" type="athena" suite="Examples">
+      <options_atn>AthExHelloWorld/HelloWorldOptions.py</options_atn>
+      <timelimit>2</timelimit>
+      <author> Atlas Developer </author> 
+      <mailto> somebody@somewhere.ch </mailto>   
+      <expectations>
+         <errorMessage>FAILURE (ERROR)</errorMessage>
+         <successMessage>FATAL A FATAL</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
