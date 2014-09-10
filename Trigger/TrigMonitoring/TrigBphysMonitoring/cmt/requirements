@@ -1,0 +1,32 @@
+package TrigBphysMonitoring
+
+author Martin zur Nedden <nedden@mail.cern.ch>
+author Denis Oliveira Damazio <damazio@mail.cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  TrigHLTMonitoring          TrigHLTMonitoring-*             Trigger/TrigMonitoring
+private
+use  AthenaMonitoring           AthenaMonitoring-*              Control
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  GaudiInterface             GaudiInterface-*                External
+use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+use  TrigParticle               TrigParticle-*                  Trigger/TrigEvent
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkParametersBase          TrkParametersBase-*             Tracking/TrkEvent
+use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODTrigBphys              xAODTrigBphys-*                 Event/xAOD
+end_private
+
+private
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTMathLibs
+end_private
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern dual_use_library files=*.cxx

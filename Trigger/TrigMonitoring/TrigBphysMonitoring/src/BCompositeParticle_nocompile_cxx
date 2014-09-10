@@ -1,0 +1,141 @@
+#include "TrigBphysMonitoring/BCompositeParticle.h"
+#include "HepMC/GenParticle.h"
+#include "Particle/TrackParticle.h"
+#include "muonEvent/Muon.h"
+#include "egammaEvent/egamma.h"
+#include<cmath>
+#include<vector>
+
+namespace BPhys {
+
+BCompositeParticle::BCompositeParticle(){
+
+  m_vertex = NULL;
+  m_isSignal = false;
+  m_charge = 0; m_index =0;
+  m_label = "";
+  m_refittedMass = 0.0; m_refittedMassError = 0.0;
+  m_refittedP.setPx(0.0);
+  m_refittedP.setPy(0.0);
+  m_refittedP.setPz(0.0);
+  m_refittedP.setE(0.0);
+  m_refittedPMH.setPx(0.0);
+  m_refittedPMH.setPy(0.0);
+  m_refittedPMH.setPz(0.0);
+  m_refittedPMH.setE(0.0);
+  m_trksAtVtx.clear();
+  m_refittedPt = 0.0;
+  m_refittedPtError = 0.0;
+  m_x = 0.0; m_y = 0.0; m_z = 0.0;
+  m_chi2 = 0.0; m_nDoF = 0;
+  m_lxy.clear(); m_lxyError.clear();
+  m_tau.clear(); m_tauError.clear();
+  m_tauMH.clear(); m_tauErrorMH.clear();
+  m_tauCorr.clear(); m_tauErrorCorr.clear();
+  m_cosTheta.clear(); m_cosThetaXY.clear();
+  m_a0.clear(); m_a0Error.clear();
+  m_a0xy.clear(); m_a0xyError.clear();
+  m_thetaStar = 0.0; m_cosThetaStar = 0.0; m_phiStar = 0.0;
+  m_massTauCov.clear();
+  m_PV.clear();
+  m_tracks.clear();
+  m_muons.clear();
+  m_egammas.clear();
+  m_cons.clear();
+  m_casc.clear();
+  m_truth = NULL;
+}
+
+const Rec::TrackParticle* BCompositeParticle::trackParticle(unsigned int i) {
+
+  if (i<m_tracks.size()) return m_tracks[i];
+  else {
+    std::cout << "BCOMPOSITEPARTICLE ERROR: index out of range" << std::endl;
+    return NULL;
+  }
+}
+
+const Analysis::Muon* BCompositeParticle::muon(unsigned int i) {
+
+  if (i<m_muons.size()) return m_muons[i];
+  else {
+    std::cout << "BCOMPOSITEPARTICLE ERROR: index out of range" << std::endl;
+    return NULL;
+  }
+}
+
+const egamma* BCompositeParticle::getEgamma(unsigned int i) {
+
+  if (i<m_egammas.size()) return m_egammas[i];
+  else {
+    std::cout << "BCOMPOSITEPARTICLE ERROR: index out of range" << std::endl;
+    return NULL;
+  }
+}
+
+BCompositeParticle* BCompositeParticle::constituent(unsigned int i) {
+
+  if (i<m_cons.size()) return m_cons[i];
+  else {
+    std::cout << "BCOMPOSITEPARTICLE ERROR: index out of range" << std::endl;
+    return NULL;
+  }
+}
+
+BCompositeParticle* BCompositeParticle::cascadeConstituent(unsigned int i) {
+
+  if (i<m_casc.size()) return m_casc[i];
+  else {
+    std::cout << "BCOMPOSITEPARTICLE ERROR: index out of range" << std::endl;
+    return NULL;
+  }
+}
+
+double BCompositeParticle::refittedPx(void) {return m_refittedP.px();}
+double BCompositeParticle::refittedPy(void) {return m_refittedP.py();}
+double BCompositeParticle::refittedPz(void) {return m_refittedP.pz();}
+double BCompositeParticle::refittedE(void) {return m_refittedP.e();}
+
+double BCompositeParticle::refittedPseudorapidity(void) {
+  double p = sqrt( refittedPx()*refittedPx() + refittedPy()*refittedPy() + refittedPz()*refittedPz() );
+  double theta = acos(refittedPz()/p);
+  double ps = -1.0*log(tan(0.5*theta));
+  return ps;
+}
+
+// returns a vector of all final state TrackParticles of the current BCompositeParticle (not sorted)
+std::vector<const Rec::TrackParticle*> BCompositeParticle::AllTrackParticles() {
+
+  std::vector<BCompositeParticle*> vec;
+  std::vector<const Rec::TrackParticle*> tracks;
+  vec.clear();
+  tracks.clear();
+  vec.push_back(this);
+  vec = LoopCompositeParticles(vec); // create a vector with BCompositeParticles and all its children
+  for (std::vector<BCompositeParticle*>::iterator itr = vec.begin(); itr != vec.end(); itr++) {
+    std::vector<const Rec::TrackParticle*> trackParticles = (*itr)->trackParticles(); // loop trackparticles
+    for (std::vector<const Rec::TrackParticle*>::iterator jtr = trackParticles.begin(); jtr != trackParticles.end(); jtr++ ) {
+      const Rec::TrackParticle* currentTrack = (*jtr);
+      tracks.push_back(currentTrack); // save them in vector
+    }
+  }
+  vec.clear();
+  return tracks;
+}
+
+// recursive creation of a vector with all BCompositeParticles, input must be vector with pointer to first element
+std::vector<BCompositeParticle*> BCompositeParticle::LoopCompositeParticles(std::vector<BCompositeParticle*> CompositeParticles) {
+
+  std::vector<BCompositeParticle*> comppart = CompositeParticles;
+  BCompositeParticle* lastComp = comppart.at(comppart.size()-1);
+  if ((*lastComp).constituents().size() > 0) {
+    for (unsigned int constits = 0; constits < (*lastComp).constituents().size(); constits++ ) {
+      comppart.push_back((*lastComp).constituents().at(constits));
+      comppart = LoopCompositeParticles(comppart);
+    }
+  }
+  return comppart;
+}
+
+
+} // end of namespace

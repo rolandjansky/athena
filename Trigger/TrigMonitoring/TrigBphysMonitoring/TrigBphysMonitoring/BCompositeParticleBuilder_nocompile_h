@@ -1,0 +1,59 @@
+// ****************************************************************************
+// ----------------------------------------------------------------------------
+// BCompositeParticleBuilder header file
+//
+// James Catmore <James.Catmore@cern.ch>
+
+// ----------------------------------------------------------------------------
+// ****************************************************************************
+#ifndef BCOMPOSITEPARTICLEMAKER_H
+#define BCOMPOSITEPARTICLEMAKER_H
+#include "GaudiKernel/AlgTool.h"
+#include "TrigBphysMonitoring/BCompositeParticle.h"
+#include "TrkVertexAnalysisUtils/V0Tools.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <vector>
+#include <cmath>
+#include <string>
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Trk { class VxCandidate; }
+namespace Analysis {class MuonContainer;}
+class egammaContainer;
+
+namespace BPhys {
+
+  static const InterfaceID IID_BCompositeParticleBuilder("BCompositeParticleBuilder", 1, 0);
+
+  class BCompositeParticleBuilder:  virtual public AlgTool
+  {
+  public:
+    BCompositeParticleBuilder(const std::string& t, const std::string& n, const IInterface*  p);
+    ~BCompositeParticleBuilder();
+    StatusCode initialize();
+    StatusCode finalize();
+    void setMuons(const Analysis::MuonContainer* muIn){m_muons = muIn;}
+    void setEgammas(const egammaContainer* eIn) {m_egammas = eIn;}
+    void setTrackMasses(std::vector<double> massesIn) {m_trkMasses = massesIn;}
+    void setMassHypothesis(double massIn) {m_massHypothesis = massIn;}
+    void setVxCandidate(Trk::VxCandidate* vxcIn) {m_vxCandidate = vxcIn;}
+    void setPrimaryVertices(std::vector<Trk::VxCandidate*> primaryVertices) {m_primaryVxs=primaryVertices;}
+    BCompositeParticle makeBCompositeParticle(void);
+    BCompositeParticle makeBCompositeParticle(std::vector<const Rec::TrackParticle*>);
+    void reset(void);
+    static const InterfaceID& interfaceID() { return IID_BCompositeParticleBuilder;};
+    ToolHandle<Trk::V0Tools> m_V0Tools;
+  private:
+    const Analysis::MuonContainer* m_muons;
+    const egammaContainer* m_egammas;
+    std::vector<double> m_trkMasses;
+    double m_massHypothesis;
+    Trk::VxCandidate* m_vxCandidate;
+    std::vector<Trk::VxCandidate*> m_primaryVxs;
+  };
+
+}
+
+#endif
+
