@@ -1,0 +1,383 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "JetTagTools/TrackSelector.h"
+
+#include "Particle/TrackParticle.h"
+#include "Particle/TrackParticleContainer.h"
+#include "TrkTrackSummary/TrackSummary.h"
+#include "TrkTrack/Track.h"
+#include "TrkEventPrimitives/FitQuality.h"
+#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh" 
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "ITrackToVertex/ITrackToVertex.h"
+#include <TMath.h>
+#include <string>
+#include <bitset>
+#include <algorithm>
+
+namespace Analysis {
+
+  static const InterfaceID IID_ITrackSelector("Analysis::TrackSelector", 1, 0);
+
+  TrackSelector::TrackSelector(const std::string& type, 
+			       const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+    m_primaryVertex(Amg::Vector3D()),
+    m_ntri(0),
+    m_ntrf(0),
+    m_trackToVertexTool("Reco::TrackToVertex") {
+
+    declareInterface<TrackSelector>(this);
+    declareProperty("trackToVertexTool", m_trackToVertexTool);
+    declareProperty("useBLayerHitPrediction", m_useBLayerHitPrediction = false);
+    declareProperty("usePerigeeParameters", m_usePerigeeParameters = false);
+    declareProperty("pTMin", m_pTMin = 1.*Gaudi::Units::GeV);
+    declareProperty("d0Max", m_d0Max = 1.*Gaudi::Units::mm);
+    declareProperty("z0Max", m_z0Max = 1.5*Gaudi::Units::mm);
+    declareProperty("sigd0Max",m_sigd0Max = 999.*Gaudi::Units::mm);
+    declareProperty("sigz0Max",m_sigz0Max = 999.*Gaudi::Units::mm);
+    declareProperty("etaMax", m_etaMax = 9999.);
+    declareProperty("useTrackSummaryInfo", m_useTrackSummaryInfo = true);
+    declareProperty("nHitBLayer", m_nHitBLayer = 1);
+    declareProperty("nHitPix", m_nHitPix = 2);
+    declareProperty("nHitSct", m_nHitSct = 0);
+    declareProperty("nHitSi", m_nHitSi = 7);
+    declareProperty("nHitTrt", m_nHitTrt = 0);
+    declareProperty("nHitTrtHighE", m_nHitTrtHighE = 0);
+    declareProperty("useDeadPixInfo", m_useDeadPixInfo = true);
+    declareProperty("useDeadSctInfo", m_useDeadSctInfo = true);
+    declareProperty("useTrackQualityInfo", m_useTrackQualityInfo = true);
+    declareProperty("fitChi2", m_fitChi2 = 99999.);
+    declareProperty("fitProb", m_fitProb = -1.);
+    declareProperty("fitChi2OnNdfMax",m_fitChi2OnNdfMax=999.);
+    declareProperty("inputTrackCollection", m_inputTrackCollection);
+    declareProperty("outputTrackCollection", m_outputTrackCollection);
+    declareProperty("useAntiPileUpCuts", m_useAntiPileUpCuts = false);
+    declareProperty("antiPileUpSigD0Cut", m_antiPileUpSigD0Cut = 3.0);
+    declareProperty("antiPileUpSigZ0Cut", m_antiPileUpSigZ0Cut = 3.8);
+    declareProperty("antiPileUpNHitSiCut", m_antiPileUpNHitSiCut = 9);
+    declareProperty("antiPileUpNHolePixCut", m_antiPileUpNHolePixCut = 9);
+  }
+
+  TrackSelector::~TrackSelector() {
+  }
+
+  const InterfaceID& TrackSelector::interfaceID() {
+    return IID_ITrackSelector;
+  }
+
+  StatusCode TrackSelector::initialize() {
+    for(int i=0;i<16;i++) m_ntrc[i]=0;
+    /** retrieving ToolSvc: */
+    IToolSvc* toolSvc;
+    StatusCode sc = service("ToolSvc", toolSvc);
+    if (StatusCode::SUCCESS != sc) {
+      ATH_MSG_ERROR("#BTAG# Can't get ToolSvc");
+      return StatusCode::FAILURE;
+    }
+    /** retrieving TrackToVertex: */
+    if ( m_trackToVertexTool.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_trackToVertexTool);
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_trackToVertexTool);
+    }
+
+ 
+    /** dump cuts: */
+    if (msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "#BTAG# TrackSelector " << name() << " cuts: " << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |sigd0| <= " << m_sigd0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |sigz0| <= " << m_sigz0Max << endreq;
+      if(m_useAntiPileUpCuts) {
+        msg(MSG::DEBUG) << "#BTAG#     - antiPUcut: reject tracks with |sigz0| > " << m_antiPileUpSigZ0Cut 
+                        << " when |sigd0| < " << m_antiPileUpSigD0Cut << endreq;
+      }
+      if(m_useTrackSummaryInfo) {
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endreq;
+	if(m_useDeadPixInfo) {
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endreq;
+	} else {
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endreq;
+	}
+	if(m_useBLayerHitPrediction)
+	  msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endreq;
+	  
+	if(m_useDeadSctInfo) {
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endreq;
+	} else {
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endreq;
+	}
+	int nhsi = m_nHitSi;
+	if(m_useAntiPileUpCuts) nhsi = m_antiPileUpNHitSiCut;
+	if(m_useDeadPixInfo) {
+	  if(m_useDeadSctInfo) {
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endreq;
+	  } else {
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endreq;
+	  }
+	} else {
+	  if(m_useDeadSctInfo) {
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endreq;
+	  } else {
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endreq;
+	  }
+	}
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrt >= " << m_nHitTrt << endreq;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrtHighE >= " << m_nHitTrtHighE << endreq;
+      }
+      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 <= " << m_fitChi2 << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - fit proba >= " << m_fitProb << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 / ndf <= " << m_fitChi2OnNdfMax << endreq;
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode TrackSelector::finalize() {
+    ATH_MSG_VERBOSE("#BTAG#  tracks selected: In= " << m_ntri);
+    for(int i=0;i<16;i++) ATH_MSG_VERBOSE("#BTAG#  cut" << i << "= " << m_ntrc[i]);
+    ATH_MSG_VERBOSE("#BTAG#  Out= " << m_ntrf);
+    return StatusCode::SUCCESS;
+  }
+
+
+  bool TrackSelector::selectTrack(const xAOD::TrackParticle* track) {
+
+    /** for debugging purposes: */
+    enum Cuts { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax, 
+		nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
+		fitChi2, fitProb,fitChi2OnNdfMax,
+		numCuts };
+    std::bitset<numCuts> failedCuts;
+    
+    double trackD0;
+    double trackZ0;
+    double tracksigD0;
+    double tracksigZ0;
+    if(m_usePerigeeParameters) {
+      trackD0 = track->d0();
+      trackZ0 = track->z0() - m_primaryVertex.z();
+      tracksigD0 = TMath::Sqrt(track->definingParametersCovMatrix()(0,0));
+      tracksigZ0 = TMath::Sqrt(track->definingParametersCovMatrix()(1,1));
+    } else {
+      // extrapolate with the TrackToVertex tool:
+      const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(*track, m_primaryVertex);
+      if (perigee==0) {
+        ATH_MSG_WARNING("#BTAG#  Extrapolation failed. Rejecting track... ");
+        return false;
+      }
+      trackD0 = perigee->parameters()[Trk::d0];
+      trackZ0 = perigee->parameters()[Trk::z0];
+      tracksigD0 = TMath::Sqrt((*perigee->covariance())(Trk::d0,Trk::d0));
+      tracksigZ0 = TMath::Sqrt((*perigee->covariance())(Trk::z0,Trk::z0));
+      delete perigee;
+    }
+
+    ATH_MSG_VERBOSE( "#BTAG#  Track "
+		     << " Eta= " << track->eta() << " Phi= " << track->phi() << " pT= " <<track->pt()
+		     << " d0= " << trackD0
+		     << " z0= " << trackZ0 << " sigd0= " << tracksigD0 << " sigz0: " << tracksigZ0 );
+
+    /** apply cuts: */
+    bool pass = true;
+    if(track->pt()<m_pTMin) {
+      pass = false;
+      failedCuts.set(pTMin);
+    }
+    if(fabs(trackD0)>m_d0Max) {
+      pass = false;
+      failedCuts.set(d0Max);
+    }
+    if(fabs(trackZ0*sin(track->theta()))>m_z0Max) {
+      pass = false;
+      failedCuts.set(z0Max);
+    }
+    if (tracksigD0>m_sigd0Max) {
+      pass = false;
+      failedCuts.set(sigd0Max);
+    }
+    if (tracksigZ0>m_sigz0Max) {
+      pass = false;
+      failedCuts.set(sigz0Max);
+    }
+    if(m_useAntiPileUpCuts) {
+      if(fabs(trackZ0/tracksigZ0)>m_antiPileUpSigZ0Cut && fabs(trackD0/tracksigD0)<m_antiPileUpSigD0Cut) {
+        pass = false;
+        failedCuts.set(sigz0Max);
+        failedCuts.set(sigd0Max);
+      }
+    }
+    if(fabs(track->eta())>m_etaMax) {
+      pass = false;
+      failedCuts.set(etaMax);
+    }
+    if(m_useTrackSummaryInfo) {
+      uint8_t nb;
+      track->summaryValue(nb, xAOD::numberOfBLayerHits); 
+      if(nb<0) nb=0; 
+      if(nb < m_nHitBLayer) {
+	failedCuts.set(nHitBLayer);
+	if(!m_useBLayerHitPrediction) { 
+	  pass = false;
+	  failedCuts.set(deadBLayer);
+	} else {
+	  uint8_t ehib;
+	  track->summaryValue(ehib,xAOD::expectBLayerHit);
+	  if(ehib < 0){
+	    ATH_MSG_WARNING("#BTAG# expectBLayerHit not computed in  TrackSummary: assuming true");
+	    ehib=1;
+	  }
+	  if(ehib) {  // check if module was alive
+	    pass = false;
+	    failedCuts.set(deadBLayer);
+	  }
+	}
+      }
+      uint8_t nhp;
+      track->summaryValue(nhp, xAOD::numberOfPixelHoles);
+      if(nhp<0) nhp=0;
+      if(m_useAntiPileUpCuts) {
+	if(nhp>=m_antiPileUpNHolePixCut) {
+	  pass = false;
+	}
+      }
+      uint8_t np;
+      track->summaryValue(np, xAOD::numberOfPixelHits);
+      if(np<0) np=0;
+      if(m_useDeadPixInfo) 
+      {
+	uint8_t ndead;
+	track->summaryValue(ndead, xAOD::numberOfPixelDeadSensors);
+	np += std::max((int)ndead, 0);
+      }
+      if(np < m_nHitPix) {
+	pass = false;
+	failedCuts.set(nHitPix);
+      }
+      uint8_t ns;
+      track->summaryValue(ns, xAOD::numberOfSCTHits);
+      if(ns<0) ns=0;
+      if(m_useDeadSctInfo)
+      {
+	uint8_t ndead;
+        track->summaryValue(ndead, xAOD::numberOfSCTDeadSensors);
+	ns += std::max((int)ndead,0);
+      }
+      if(ns < m_nHitSct) {
+	pass = false;
+	failedCuts.set(nHitSct);
+      }
+      if((np+ns) < m_nHitSi) {
+	pass = false;
+	failedCuts.set(nHitSi);
+      }
+      if(m_useAntiPileUpCuts) {
+	if((np+ns) < m_antiPileUpNHitSiCut) {
+	  pass = false;
+	  failedCuts.set(nHitSi);
+	}
+      }
+      uint8_t nh;
+      track->summaryValue(nh, xAOD::numberOfTRTHits);//ms
+      if(nh<0) nh=0;
+      if(nh < m_nHitTrt) {
+	pass = false;
+	failedCuts.set(nHitTrt);
+      }
+      uint8_t nhe;
+      track->summaryValue(nhe, xAOD::numberOfTRTHighThresholdHits);//ms
+      if(nhe<0) nhe=0;
+      if(nhe < m_nHitTrtHighE) {
+	pass = false;
+	failedCuts.set(nHitTrtHighE);
+      }
+    }
+    
+    // Now the fit quality
+    double chi2 =  track->chiSquared();
+    int ndf = track->numberDoF();
+    double proba = 1.;
+    if(ndf>0 && chi2>=0.) {
+      Genfun::CumulativeChiSquare myCumulativeChiSquare(ndf);
+      proba = 1.-myCumulativeChiSquare(chi2);
+    }
+    if(chi2>m_fitChi2) {
+      pass = false;
+      failedCuts.set(fitChi2);
+    }
+    if(proba<m_fitProb) {
+      pass = false;
+      failedCuts.set(fitProb);
+    }
+    if(ndf>0) {
+      if(chi2/double(ndf)>m_fitChi2OnNdfMax) {
+        pass = false;
+        failedCuts.set(fitChi2OnNdfMax);
+      }
+    } else {
+      pass = false;
+      failedCuts.set(fitChi2OnNdfMax);
+    }
+
+    ///std::string showPassedCuts = ~failedCuts.to_string(); // not available !
+    if( msgLvl(MSG::VERBOSE) ){
+      ATH_MSG_VERBOSE("#BTAG#  passedCuts for track ");
+      for(int i=0;i<numCuts;i++) {
+	int passl = ~failedCuts[(Cuts)i];
+	if(passl) m_ntrc[i]++;
+	msg(MSG::VERBOSE) << passl;
+      } 
+      msg(MSG::VERBOSE) << endreq;
+    }
+
+    m_passedCuts = ~failedCuts;
+    return pass;
+  }
+
+
+  StatusCode TrackSelector::selectAllTracks() {
+
+    /** retrieve input tracks: */
+    const xAOD::TrackParticleContainer* inputTracks(0);
+    StatusCode sc = evtStore()->retrieve(inputTracks, m_inputTrackCollection);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("#BTAG# TrackParticleContainer " << m_inputTrackCollection << " not found.");
+      return sc;
+    }
+    ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_inputTrackCollection << " found.");
+
+    /** create output container: */
+    xAOD::TrackParticleContainer* outputTracks = new xAOD::TrackParticleContainer(); 
+
+    /** loop on tracks, select and fill output container: */
+    xAOD::TrackParticleContainer::const_iterator nextTrk(inputTracks->begin());
+    xAOD::TrackParticleContainer::const_iterator lastTrk(inputTracks->end());
+    for (; nextTrk!=lastTrk; nextTrk++) {
+      if( this->selectTrack( (*nextTrk) ) ) {
+	ATH_MSG_VERBOSE("#BTAG# track selected");
+	outputTracks->push_back( new xAOD::TrackParticle(**nextTrk) );
+      }
+    }
+
+    /** storing output collection in StoreGate: */
+    ATH_MSG_VERBOSE("#BTAG# recording to StoreGate: " << m_outputTrackCollection);
+    sc = evtStore()->record(outputTracks, m_outputTrackCollection, false);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("#BTAG# unable to store TrackParticleContainer " << m_outputTrackCollection);
+      return sc;
+    }
+    ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_outputTrackCollection << " stored."); 
+  
+    return StatusCode::SUCCESS;
+  }
+
+}

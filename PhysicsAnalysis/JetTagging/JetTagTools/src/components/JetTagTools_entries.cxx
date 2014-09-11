@@ -1,0 +1,126 @@
+#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "JetTagTools/LifetimeTag.h"
+//#include "JetTagTools/SecVtxTag.h"
+#include "JetTagTools/IPTag.h"
+#include "JetTagTools/SVTag.h"
+//#include "JetTagTools/MultiSVTag.h"
+//#include "JetTagTools/JetProbTag.h"
+//#include "JetTagTools/SoftElectronTag.h"
+//#include "JetTagTools/SoftMuonTag.h"
+//#include "JetTagTools/CombinerTool.h"
+//#include "JetTagTools/CombinerToolTag.h"
+//#include "JetTagTools/LikelihoodTool.h"
+//#include "JetTagTools/LikelihoodMultiDTool.h"
+#include "JetTagTools/NewLikelihoodTool.h"
+#include "JetTagTools/TrackSelector.h"
+#include "JetTagTools/JetFitterTag.h"
+// #include "JetTagTools/JetFitterLikelihood.h"
+#include "JetTagTools/JetFitterNtupleWriter.h"
+#include "JetTagTools/JetFitterVariablesFactory.h"
+//#include "JetTagTools/JetFitterCharmVariablesFactory.h"
+//#include "JetTagTools/GaiaVariablesFactory.h"
+#include "JetTagTools/JetFitterNNTool.h"
+//#include "JetTagTools/JetFitterCharmNNTool.h"
+//#include "JetTagTools/GaiaNNTool.h"
+#include "JetTagTools/SVForIPTool.h"
+#include "JetTagTools/BasicTrackGradeFactory.h"
+#include "JetTagTools/DetailedTrackGradeFactory.h"
+//#include "JetTagTools/TrackCounting.h"
+//#include "JetTagTools/GbbNNTag.h"
+//#include "JetTagTools/HadFlavorTag.h"
+#include "JetTagTools/MV1Tag.h"
+#include "JetTagTools/MV1cTag.h"
+#include "JetTagTools/MV2Tag.h"
+//#include "JetTagTools/MV3Tag.h"
+#include "JetTagTools/MVbTag.h"
+
+//
+//#include "JetTagTools/SharedHitMapper.h"
+//
+//#include "JetTagTools/EmulTag.h"
+#include "JetTagTools/DummyTag.h"
+
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, LifetimeTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SecVtxTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, IPTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultiSVTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetProbTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftElectronTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftMuonTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CombinerTool )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CombinerToolTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, LikelihoodTool )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, LikelihoodMultiDTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, NewLikelihoodTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, TrackSelector )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterNtupleWriter )
+// DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterLikelihood )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterVariablesFactory )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmVariablesFactory )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaVariablesFactory )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterNNTool )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmNNTool )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaNNTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVForIPTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, BasicTrackGradeFactory )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DetailedTrackGradeFactory )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, TrackCounting )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GbbNNTag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, HadFlavorTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV1Tag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV1cTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV2Tag )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV3Tag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MVbTag )
+
+// Until we put it elsewhere
+//DECLARE_ALGORITHM_FACTORY( SharedHitMapper )
+
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, EmulTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DummyTag )
+
+/** factory entries need to have the name of the package */
+DECLARE_FACTORY_ENTRIES( JetTagTools )
+{
+  // DECLARE_NAMESPACE_TOOL( Analysis, LifetimeTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, SecVtxTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, IPTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, SVTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, MultiSVTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, JetProbTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, SoftElectronTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, CombinerTool );
+  // DECLARE_NAMESPACE_TOOL( Analysis, LikelihoodTool );
+  // DECLARE_NAMESPACE_TOOL( Analysis, CombinerToolTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, LikelihoodMultiDTool );
+  DECLARE_NAMESPACE_TOOL( Analysis, NewLikelihoodTool );
+  DECLARE_NAMESPACE_TOOL( Analysis, TrackSelector );
+  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNtupleWriter );
+  // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterLikelihood );
+  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterVariablesFactory );
+  // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmVariablesFactory );
+  // DECLARE_NAMESPACE_TOOL( Analysis, GaiaVariablesFactory );
+  DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNNTool );
+  // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmNNTool );
+  // DECLARE_NAMESPACE_TOOL( Analysis, GaiaNNTool );
+  DECLARE_NAMESPACE_TOOL( Analysis, SVForIPTool );
+  DECLARE_NAMESPACE_TOOL( Analysis, BasicTrackGradeFactory );
+  DECLARE_NAMESPACE_TOOL( Analysis, DetailedTrackGradeFactory );
+  // DECLARE_NAMESPACE_TOOL( Analysis, TrackCounting );
+  // DECLARE_NAMESPACE_TOOL( Analysis, GbbNNTag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, HadFlavorTag )
+  DECLARE_NAMESPACE_TOOL( Analysis, MV1Tag );
+  DECLARE_NAMESPACE_TOOL( Analysis, MV1cTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, MV2Tag );
+  // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
+  DECLARE_NAMESPACE_TOOL( Analysis, MVbTag );
+  // //
+  // DECLARE_ALGORITHM( SharedHitMapper );
+  // //
+  // DECLARE_NAMESPACE_TOOL( Analysis, EmulTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, DummyTag );
+}
