@@ -1,0 +1,35 @@
+#!/bin/sh
+
+NAME=$1
+OPTARG=$2
+if [ -z "$NAME" ]; then NAME=test_RunJetRec; fi
+if [ $NAME = time ]; then
+  NAME=test_RunJetRec
+  OPTARG=time
+fi
+JOPT=$NAME.py
+LOG=$NAME.log
+
+# Enable performance monitoring.
+OPT=
+if [ "$OPTARG" = time ]; then
+  OPT="--pmon=sdmon"
+  #OPT="--pmon=sdmonfp"
+fi
+
+time athena.py $OPT $JOPT 2>&1 | tee $LOG
+echo
+echo Log is $LOG
+
+echo
+echo Cleaning log
+./cleanlog $LOG
+
+echo
+echo
+echo Checking for ERROR
+grep ERROR $LOG
+echo
+echo
+echo Checking for WARNING
+grep WARNING $LOG

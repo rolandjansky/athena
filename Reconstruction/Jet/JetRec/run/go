@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# run/go
+# David Adams
+#
+# Test jet finding with local invocation of RecExCommon.
+
+FILE=AOD.pool.root
+
+echo
+echo Running athena...
+rm -f $FILE
+time athena.py fullreco.py 2>&1 | tee athena.log
+
+echo
+echo Dumping $FILE
+../share/dumpxaod $FILE

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+FILE=AOD.pool.root
+
+echo
+echo Running athena...
+rm -f $FILE
+athena.py fullreco.py 2>&1 | tee athena.log
+
+echo
+echo Dumping $FILE
+../share/dumpxaod $FILE
