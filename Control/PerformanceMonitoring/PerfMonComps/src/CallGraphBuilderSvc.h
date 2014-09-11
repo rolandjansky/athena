@@ -19,7 +19,7 @@
 #include <boost/graph/adjacency_list.hpp>
 
 // FrameWork includes
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/HashMap.h"
 
@@ -33,7 +33,7 @@ template <class TYPE> class SvcFactory;
 namespace PerfMon {
 
 class CallGraphBuilderSvc : virtual public ICallGraphBuilderSvc,
- 	                            public Service
+ 	                            public AthService
 { 
 
 protected:
@@ -90,9 +90,6 @@ protected:
 
   /// Default constructor: 
   CallGraphBuilderSvc();
-
-  /// MsgStream for talking with the outside world
-  MsgStream m_msg;
 
   /// a "unique identifier" for node names
   static NodeId_t m_uuid;

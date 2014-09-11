@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include "boost/io/ios_state.hpp"
 
 PMonSD::SemiDetHelper::SemiDetHelper(const std::string& jobStartJiffies)
   : m_cfg_walltime(0),
@@ -369,8 +370,10 @@ void PMonSD::SemiDetHelper::format(std::ostream&os,
   os<<m_prefix<<"["<<stepName<<"]";
   os<<" ";field_i(os,4,n);
   os<<" ";field_f(os,w,cpu,false);
-  if (special)
-    os<<" ";field_f(os,w,wall,false);
+  if (special) {
+    os<<" ";
+    field_f(os,w,wall,false);
+  }
   os<<" ";field_f(os,w,vmem,false);
   os<<" ";field_f(os,w,malloc,false);
   os<<" "<<infoName;
@@ -642,16 +645,12 @@ void PMonSD::SemiDetHelper::processStep(std::ostream&os,StepWrapper*sw,bool show
 
 void PMonSD::SemiDetHelper::actualReport(std::ostream&os,bool showall,const std::string& info_full_output_inside)
 {
+  boost::io::ios_base_all_saver ssave (os);
   finalise();
 #if DEBUG_SemiDetHelper
 //   m_debug_meas.capture(false/*cpufirst*/);
 //   m_debug_data.addPointStart(m_debug_meas);
 #endif
-
-  //Be nice and make sure our manipulators doesn't change state:
-  std::ios_base::fmtflags saveflags = os.flags();
-  std::streamsize saveprec = os.precision();
-  std::streamsize savewidth = os.width();
 
   os << std::fixed;//because we don't care about differences <1ms or <1kb.
 
@@ -757,8 +756,5 @@ void PMonSD::SemiDetHelper::actualReport(std::ostream&os,bool showall,const std:
     <<"\n";
 #endif
   format(os,"semi-detailed perfmon info / end");
-  os.flags( saveflags );
-  os.precision( saveprec );
-  os.width( savewidth );
   os<<std::flush;
 }

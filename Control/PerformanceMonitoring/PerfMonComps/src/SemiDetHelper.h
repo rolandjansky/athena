@@ -42,6 +42,7 @@
 #include <iomanip>
 #include <ostream>
 #include "LinFitSglPass.h"
+#include "boost/io/ios_state.hpp"
 
 namespace PMonSD {
   class SemiDetHelper {
@@ -166,6 +167,8 @@ namespace PMonSD {
       //NB: Coverity complains about us modifying the left/right state
       //of "os". But in ::actualReport we are actually restoring the
       //state, so it is a false positive.
+      //Just save the state anyway.
+      boost::io::ios_base_all_saver ssave (os);
       os << (leftjustify?std::left:std::right) << std::setw(width) << val;
     }
     void field_f(std::ostream&os,unsigned width,double val,bool leftjustify=false) const

@@ -39,8 +39,7 @@ NodeId_t CallGraphBuilderSvc::m_uuid = 0;
 ////////////////
 CallGraphBuilderSvc::CallGraphBuilderSvc( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
-  Service( name, pSvcLocator ),
-  m_msg  ( msgSvc(),    name )
+  AthService( name, pSvcLocator )
 {
   //
   // Property declaration
@@ -57,7 +56,7 @@ CallGraphBuilderSvc::CallGraphBuilderSvc( const std::string& name,
 ///////////////
 CallGraphBuilderSvc::~CallGraphBuilderSvc()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  msg() << MSG::DEBUG << "Calling destructor" << endreq;
 }
 
 // Athena Algorithm's Hooks
@@ -65,20 +64,20 @@ CallGraphBuilderSvc::~CallGraphBuilderSvc()
 StatusCode CallGraphBuilderSvc::initialize()
 {
   // initialize MsgStream
-  m_msg.setLevel( m_outputLevel.value() );
+  msg().setLevel( m_outputLevel.value() );
 
-  m_msg << MSG::INFO 
+  msg() << MSG::INFO 
       << "Initializing " << name() << "..." 
       << endreq;
 
-  m_msg << MSG::DEBUG << "Initializing base class..." << endreq;
-  if ( Service::initialize().isFailure() ) {
-    m_msg << MSG::ERROR
+  msg() << MSG::DEBUG << "Initializing base class..." << endreq;
+  if ( AthService::initialize().isFailure() ) {
+    msg() << MSG::ERROR
         << "Could not initialize base class !!"
         << endreq;
     return StatusCode::FAILURE;
   } else {
-    m_msg << MSG::VERBOSE << "Base class initialized" << endreq;
+    msg() << MSG::VERBOSE << "Base class initialized" << endreq;
   }
   
   return StatusCode::SUCCESS;
@@ -86,7 +85,7 @@ StatusCode CallGraphBuilderSvc::initialize()
 
 StatusCode CallGraphBuilderSvc::finalize()
 {
-  m_msg << MSG::INFO 
+  msg() << MSG::INFO 
 	<< "Finalizing " << name() << "..." 
 	<< endreq;
 
@@ -106,7 +105,7 @@ CallGraphBuilderSvc::queryInterface( const InterfaceID& riid,
     *ppvInterface = dynamic_cast<ICallGraphBuilderSvc*>(this);
   } else {
     // Interface is not directly available : try out a base class
-    return Service::queryInterface(riid, ppvInterface);
+    return AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;
@@ -133,7 +132,7 @@ void CallGraphBuilderSvc::openNode( const std::string& nodeName )
 
   boost::add_edge( parentId, nodeId, m_graph );
 
-  m_msg << MSG::VERBOSE 
+  msg() << MSG::VERBOSE 
 	<< "--> [" << nodeName << "] = " << nodeId << "\t"
 	<< "(parent = " << m_idToName[parentId] << ")"
 	<< endreq;
@@ -144,7 +143,7 @@ void CallGraphBuilderSvc::closeNode( const std::string& nodeName )
 {
   const NodeId_t nodeId = m_nameToId[nodeName];
   //boost::add_edge( nodeId, 1, m_graph);
-  m_msg << MSG::VERBOSE
+  msg() << MSG::VERBOSE
 	<< "<-- [" << nodeName << "] = " << nodeId 
 	<< endreq;
 
