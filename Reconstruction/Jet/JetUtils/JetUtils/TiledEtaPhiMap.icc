@@ -1,0 +1,151 @@
+// emacs, this is -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace JetTiledMap {
+
+
+
+  template<class POINT, class DIST2>
+  void Tile<POINT,DIST2>::fillPointsInDr2(POINT &p, double r2, pointvec_t& points ) const {
+    //double r2= r*r;
+    if(this->empty()) return;
+    const_iterator it  = this->begin();
+    const_iterator itE = this->end();
+    //std::cout <<"fillPointsInDr2 around "<< center << std::endl;
+    for(;it !=itE; ++it){ 
+      //std::cout << "   ->> "<< dr2( p, *it) << "  for "<< *it<<std::endl;
+      if( dr2( p, *it)  < r2) points.push_back(*it);
+    }
+  }
+
+  template<class POINT, class DIST2>
+  DIST2 Tile<POINT, DIST2>::dr2;
+  template<class POINT, class DIST2>
+  Tile<POINT, DIST2> Tile<POINT, DIST2>::voidTile;
+
+
+
+
+
+
+
+
+  template<class POINT, class DIST2 >  
+  void TiledEtaPhiMap<POINT,DIST2>::init(double rmax){
+
+        m_rmax = rmax;
+
+        m_ndivX = int(m_etarange/rmax);
+        m_sizeX = m_etarange/m_ndivX;
+        
+        const double twopi = 2.0*acos(-1.0);
+        m_ndivY = int(twopi/rmax);
+        m_sizeY = twopi/m_ndivY;
+        
+        m_tiles.resize(m_ndivY*m_ndivX);
+
+        for(size_t i=0;i<m_ndivX; i++){
+          for(size_t j=0;j<m_ndivY; j++){
+            tile_t & thisTile = m_tiles[ tileIndex_i(i,j) ];
+            thisTile.center = POINT( (i+0.5)*m_sizeX -m_halfetarange , M_PI - (j+0.5)*m_sizeY );
+            size_t jnorth = j-1;
+            if(j==0) jnorth=m_ndivY-1;
+            size_t jsouth = j+1;
+            if(jsouth==m_ndivY) jsouth=0;
+
+
+
+            if(i>0){
+              thisTile.m_neighbour[NW] = &m_tiles[tileIndex_i(i-1, jnorth)] ;
+              thisTile.m_neighbour[W] =  &m_tiles[tileIndex_i(i-1, j)] ;
+              thisTile.m_neighbour[SW] = &m_tiles[tileIndex_i(i-1, jsouth)] ;
+            } else { // west side 
+              thisTile.m_neighbour[NW] = &tile_t::voidTile;
+              thisTile.m_neighbour[W]  = &tile_t::voidTile;
+              thisTile.m_neighbour[SW] = &tile_t::voidTile;
+            }
+
+            thisTile.m_neighbour[N] = &m_tiles[tileIndex_i(i, jnorth)] ;
+            thisTile.m_neighbour[S] = &m_tiles[tileIndex_i(i, jsouth)] ;
+
+            //std::cout<<" south = "<< thisTile.m_neighbour[S]<< " ind="<< tileIndex_i(i, jsouth) << std::endl;
+
+            if(i< (m_ndivX-1) ){
+              thisTile.m_neighbour[NE] = &m_tiles[tileIndex_i(i+1, jnorth)] ;
+              thisTile.m_neighbour[E] =  &m_tiles[tileIndex_i(i+1, j)] ;
+              thisTile.m_neighbour[SE] = &m_tiles[tileIndex_i(i+1, jsouth)] ;
+            }else{ //east side
+              thisTile.m_neighbour[NE] = &tile_t::voidTile;
+              thisTile.m_neighbour[E]  = &tile_t::voidTile;
+              thisTile.m_neighbour[SE] = &tile_t::voidTile;
+            }
+            
+          }
+        }
+        tile_t::voidTile.center.setX( m_etarange*10 );
+        tile_t::voidTile.center.setY( twopi*10 );
+
+    }
+
+  template<class POINT, class DIST2 >  
+  void TiledEtaPhiMap<POINT,DIST2>::insert(POINT & p) {
+      m_size++;
+      size_t ind = tileIndex(p);
+      m_tiles[ind].push_back(p);
+    }
+   
+
+  template<class POINT, class DIST2 >  
+  std::vector<POINT>  TiledEtaPhiMap<POINT,DIST2>::pointsInDr(POINT &p, double r) const {
+    
+    std::vector<POINT> vec;
+    
+    double r2=r*r;
+
+    //std::cout << "pointsinDR "<< p.x()<< ", "<< p.y() << "  " << tileIndex(p)<< "  "<< m_tiles.size() << std::endl;
+    // p is part of thisTile
+    const tile_t & thisTile = m_tiles[tileIndex(p)];
+    const POINT& center = thisTile.center;
+
+      
+    // compute distance to edges of thisTile
+    double d_to_N2 = P4Helpers::deltaPhi(p.y(), (center.y() + m_sizeY/2) ); d_to_N2*=d_to_N2;
+    double d_to_E2 =  ( p.x() - (center.x() + m_sizeX/2) ) ; d_to_E2*=d_to_E2;
+    double d_to_S2 = P4Helpers::deltaPhi(p.y(), (center.y() - m_sizeY/2) ); d_to_S2*=d_to_S2;
+    double d_to_W2 =  ( p.x() - (center.x() - m_sizeX/2) ) ; d_to_W2*=d_to_W2;
+
+    // get points in this tile : 
+    thisTile.fillPointsInDr2(p,r2,vec);
+      
+    //std::cout << "pointsinDR "<< p << "  " << tileIndex(p)<< "  "<< &thisTile <<" center="<<thisTile.center << std::endl;
+
+    // check if close to neighbouring tiles. if so consider points in these tiles :
+    if(d_to_N2 < r2) thisTile.m_neighbour[N]->fillPointsInDr2(p,r2,vec);
+    if(d_to_E2 < r2) thisTile.m_neighbour[E]->fillPointsInDr2(p,r2,vec);
+    if(d_to_S2 < r2) thisTile.m_neighbour[S]->fillPointsInDr2(p,r2,vec);
+    if(d_to_W2 < r2) thisTile.m_neighbour[W]->fillPointsInDr2(p,r2,vec);
+      
+    if( (d_to_N2+ d_to_E2) < r2  ) thisTile.m_neighbour[NE]->fillPointsInDr2(p,r2,vec);
+    if( (d_to_S2+ d_to_E2) < r2  ) thisTile.m_neighbour[SE]->fillPointsInDr2(p,r2,vec);
+      
+    if((d_to_N2+ d_to_W2) < r2 ) thisTile.m_neighbour[NW]->fillPointsInDr2(p,r2,vec);
+    if((d_to_S2+ d_to_W2) < r2 ) thisTile.m_neighbour[SW]->fillPointsInDr2(p,r2,vec);
+
+    return vec;
+
+  }
+
+
+  template<class POINT, class DIST2 >  
+  void TiledEtaPhiMap<POINT,DIST2>::clear(){  
+    for(size_t i=0; i<m_tiles.size();i++){
+        m_tiles[i].clear();
+    }
+    m_size=0;
+  }
+
+}

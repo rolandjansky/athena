@@ -1,0 +1,45 @@
+package JetUtils
+
+author Peter Loch <loch@physics.arizona.edu>
+author P-A Delsart <delsart at in2p3 fr>
+
+private
+
+
+use AtlasROOT           AtlasROOT-*             External
+
+# use CaloDetDescr	CaloDetDescr-* 		Calorimeter
+# use CaloInterface	CaloInterface-*		Calorimeter
+# use CaloUtils           CaloUtils-*             Calorimeter
+
+#use PathResolver        PathResolver-*          Tools
+
+use TileEvent		TileEvent-*		TileCalorimeter
+use CaloGeoHelpers  CaloGeoHelpers-*  Calorimeter
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+
+public
+
+use FourMomUtils        FourMomUtils-*          Event
+
+use AtlasPolicy		AtlasPolicy-*
+
+use xAODJet             xAODJet-*               Event/xAOD
+use CaloEvent           CaloEvent-*             Calorimeter
+
+#use GaudiInterface      GaudiInterface-*        External
+
+# use CaloIdentifier      CaloIdentifier-*        Calorimeter
+
+#use JetInterface        JetInterface-*          Reconstruction/Jet
+
+
+use AtlasReflex  	AtlasReflex-*  		External -no_auto_imports
+
+
+library JetUtils *.cxx ../Root/*.cxx -s=components *.cxx
+#apply_pattern component_library
+apply_pattern installed_library
+	
+#apply_pattern lcgdict dict=JetUtils \
+# selectionfile="selection.xml"  headerfiles="../JetUtils/JetUtilsDict.h"
