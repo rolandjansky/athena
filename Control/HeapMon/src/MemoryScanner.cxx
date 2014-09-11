@@ -172,7 +172,7 @@ int main( int argc, char *argv[] ){
 	   cout << "opened /proc/" << pid << "/status file \n";
 
 	   ms_uint32 tag_value;
-	   ms_uint32 VmSize, VmLck, VmRSS, VmData, VmStk, VmExe, VmLib;
+	   ms_uint32 VmSize=0, VmLck=0, VmRSS=0, VmData=0, VmStk=0, VmExe=0, VmLib=0;
 
 	   if ( statusf != NULL ){
 		   while ( fgets ( line, sizeof line, statusf ) != NULL) /* read a line */{

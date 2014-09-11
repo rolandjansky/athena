@@ -11,6 +11,9 @@ private
 use AtlasROOT   		AtlasROOT-*   		External
 end_private
 
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO Tree)"
+
 application MemoryScanner MemoryScanner.cxx
 
 #apply_pattern component_library
