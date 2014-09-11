@@ -1,0 +1,40 @@
+// This is -*- C++ -*-.
+// $Id$
+/**
+ * @file RootUtils/src/Types.def
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jun, 2014
+ * @brief Wrapper for ROOT types.
+ */
+
+
+// No include guards --- this file is meant to be included multiple times.
+// This file provides the mapping between ROOT type codes and C++ types.
+
+// TYPE(CODE, TYP, IOTYP)
+
+#define TYPE1(CODE, TYP) TYPE(CODE, TYP, TYP)
+
+TYPE (kChar_t,     char, int);          // 1 
+TYPE1(kShort_t,    short);              // 2 
+TYPE1(kInt_t,      int);                // 3 
+TYPE1(kLong_t,     long);               // 4 
+TYPE1(kFloat_t,    float);              // 5 
+TYPE1(kCounter,    int);                // 6 
+TYPE1(kCharStar,   char*);              // 7 
+TYPE1(kDouble_t,   double);             // 8 
+TYPE1(kDouble32_t, Double32_t);         // 9 
+TYPE (kchar,       char, int);          // 10
+TYPE (kUChar_t,    unsigned char, unsigned int);      // 11
+TYPE1(kUShort_t,   unsigned short);     // 12
+TYPE1(kUInt_t,     unsigned int);       // 13
+TYPE1(kULong_t,    unsigned long);      // 14
+TYPE1(kBits,       unsigned int);       // 15
+TYPE1(kLong64_t,   long long);          // 16
+TYPE1(kULong64_t,  unsigned long long); // 17
+TYPE1(kBool_t,     bool);               // 18
+TYPE1(kFloat16_t,  Float16_t);          // 19
+//TYPE(kVoid_t,     void);              // 20
+TYPE1(kDataTypeAliasUnsigned_t, unsigned int); // 21
+
+#undef TYPE1

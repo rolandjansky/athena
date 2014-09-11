@@ -1,0 +1,49 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file RootUtils/Type.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jun, 2014
+ * @brief Wrapper for ROOT types.
+ */
+
+
+namespace RootUtils {
+
+
+/**
+ * @brief Default constructor.
+ */
+inline
+Type::Deleter::Deleter()
+  : m_t (0)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param t The type describing this generic pointer.
+ */
+inline
+Type::Deleter::Deleter (const Type& t)
+  : m_t (&t)
+{
+}
+
+
+/**
+ * @brief Delete an object.
+ * @param p Pointer to the object to delete.
+ */
+inline
+void Type::Deleter::operator() (void* p)
+{
+  m_t->destroy (p);
+}
+
+
+} // namespace RootUtils

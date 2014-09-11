@@ -1,0 +1,19 @@
+<!--
+   - File: RootUtils/selection_PyROOT.xml
+   - Author: scott snyder
+   - Date: Dec, 2007
+   -
+   - Reflex selection file, for modules with PyROOT dependencies.
+  -->
+
+
+<lcgdict>
+    <class name="RootUtils::PyROOTTTreePatch" />
+    <class name="RootUtils::PyROOTTypePatch" />
+    <class name="RootUtils::PyROOTPickle" />
+    <class name="RootUtils::PyLogger" />
+    <class name="RootUtils::PyBytes" />
+    <class name="RootUtils::PyROOTInspector" />
+    <function name="RootUtils::_pythonize_tell_root_file" />
+    <function name="RootUtils::_pythonize_read_root_file" />
+</lcgdict>
