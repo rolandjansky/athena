@@ -23,12 +23,12 @@ use AthenaKernel         AthenaKernel-*             Control
 # of transient classes.  If we make a single dictionary,
 # the compiler runs out of memory on the generated source.
 
-apply_pattern lcgdict dict=TrigCosmicEventTPCnv1  \
+apply_pattern lcgdict dict=TrigCosmicEventTPCnv  \
   selectionfile=selection1.xml \
-  headerfiles="../TrigCosmicEventTPCnv/TrigCosmicEventTPCnvDict1.h"
+  headerfiles="../TrigCosmicEventTPCnv/TrigCosmicEventTPCnvDict.h"
 
-apply_pattern lcgdict dict=OLD_TrigCosmicEventTPCnv1  \
+apply_pattern lcgdict dict=OLD_TrigCosmicEventTPCnv  \
   selectionfile=OLD_selection1.xml \
-  headerfiles="../TrigCosmicEventTPCnv/TrigCosmicEventTPCnvDict1.h"
+  headerfiles="../TrigCosmicEventTPCnv/TrigCosmicEventTPCnvDict.h"
 
 end_private
