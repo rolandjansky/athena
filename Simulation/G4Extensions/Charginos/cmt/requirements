@@ -1,0 +1,24 @@
+package Charginos
+
+version Charginos-00-00-01
+
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+use FadsPhysics         FadsPhysics-*                   Simulation/G4Sim/FADS
+use Geant4		Geant4-*			External
+
+private
+use AtlasCLHEP          AtlasCLHEP-*                    External
+end_private
+
+include_dirs "$(Charginos_root)"
+
+library Charginos ../src/*.cxx
+
+apply_pattern linked_library
+
+apply_pattern generic_declare_for_link kind=share files='-s=../share *.MeV *.txt' prefix=share name=<name>
+
