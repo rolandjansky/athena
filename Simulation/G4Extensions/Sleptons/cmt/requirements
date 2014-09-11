@@ -1,0 +1,15 @@
+package Sleptons
+
+author ADA <dellacqu@mail.cern.ch>
+
+public
+use AtlasPolicy     AtlasPolicy-*
+use FadsPhysics     FadsPhysics-*        Simulation/G4Sim/FADS
+use Geant4          Geant4-*             External
+
+include_dirs "$(Sleptons_root)"
+
+library Sleptons ../src/*.cxx
+
+apply_pattern linked_library
+
