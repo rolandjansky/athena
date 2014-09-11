@@ -1,0 +1,31 @@
+package JetMomentTools
+
+author P-A Delsart <delsart at in2p3 fr>
+
+private
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use CaloDetDescr        CaloDetDescr-*          Calorimeter
+use CaloEvent           CaloEvent-*             Calorimeter
+use PathResolver        PathResolver-*          Tools
+use AthenaKernel        AthenaKernel-*          Control
+
+public
+use AtlasPolicy		AtlasPolicy-*
+use AtlasROOT           AtlasROOT-*             External
+use GaudiInterface	GaudiInterface-* 	External
+use CaloIdentifier      CaloIdentifier-*        Calorimeter
+use xAODJet             xAODJet-*               Event/xAOD
+use JetEDM              JetEDM-*                Reconstruction/Jet
+use JetRec              JetRec-*                Reconstruction/Jet
+use JetUtils            JetUtils-*              Reconstruction/Jet
+use JetRecTools         JetRecTools-*           Reconstruction/Jet
+use xAODTracking        xAODTracking-*          Event/xAOD
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use LArElecCalib        LArElecCalib-*          LArCalorimeter
+
+library JetMomentTools *.cxx ../Root/*.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_runtime files="*.root *.txt"
+
+#macro_prepend asNeeded_linkopt "-lJetEDM "
