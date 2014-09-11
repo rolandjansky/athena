@@ -2,32 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// class header
-#include "AMSBNeutralino.hh"
+#include "Charginos/AMSBNeutralino.hh"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 // ######################################################################
 // ###                         Neutralino                             ###
 // ######################################################################
 
+AMSBNeutralino* AMSBNeutralino::theInstance = Definition();
 
-AMSBNeutralino* AMSBNeutralino::theInstance = NULL;
-
-AMSBNeutralino* AMSBNeutralino::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
+AMSBNeutralino* AMSBNeutralino::Definition()
 {
+  if (theInstance != 0) return theInstance;
 
-  if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
-    {
-      G4ExceptionDescription description;
-      description << "Trying to redefine the AMSB Neutralino properties after it has been constructed is not allowed";
-      G4Exception("AMSBNeutralino", "FailedRedefinition", FatalException, description);
-      abort();
-    }
-
-  if (theInstance != 0)
-    {
-      return theInstance;
-    }
-
+  double NeutralinoMass = 100.0*CLHEP::GeV;
 
   //    Arguments for constructor are as follows
   //               name             mass          width         charge
@@ -37,25 +25,14 @@ AMSBNeutralino* AMSBNeutralino::Definition(G4double mass, G4double width, G4doub
   //             stable         lifetime    decay table
   //             shortlived      subType    anti_encoding
 
-  if (mass >= 0)
-    {
+  G4ParticleDefinition* anInstance =
+    new G4ParticleDefinition("s_chi_0_1",        NeutralinoMass,    0.0*CLHEP::MeV,   0,
+                             1,                  0,                 0,
+                             0,                  0,                 0,
+                             "supersymmetric",   0,                 0,         1000022,
+                             true,               -1.0,          NULL,
+                             false,              "Neutralino");
 
-      G4ParticleDefinition* anInstance =
-        new G4ParticleDefinition("s_chi_0_1",     mass,    width,    charge,
-                                 1,                  0,               0,
-                                 0,                  0,               0,
-                                 "supersymmetric",   0,               0,          PDG,
-                                 stable,               lifetime,            NULL,
-                                 shortlived,              "Neutralino");
-
-      theInstance = reinterpret_cast<AMSBNeutralino*>(anInstance);
-      return theInstance;
-    }
-  else
-    {
-      G4ExceptionDescription description;
-      description << "Trying to create a particle with default constructor is not allowed";
-      G4Exception("AMSBNeutralino", "DefaultConstructorCalled", FatalException, description);
-      abort();
-    }
+    theInstance = reinterpret_cast<AMSBNeutralino*>(anInstance);
+    return theInstance;
 }
