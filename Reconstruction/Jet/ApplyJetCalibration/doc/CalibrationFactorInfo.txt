@@ -1,0 +1,46 @@
+Description of the various calbirations derived by Toshi
+
+Summary of the calibration functions can be seen here:
+http://toshi.web.cern.ch/toshi/jetcalib/r2299/
+
+
+JES descriptions from Toshi, Jan 17, 2012:
+
+- a133 :  MC11b with AFII
+               I didn't check the average <mu> and <NPV> in mc11b.  
+               When Carlos prepares new offset constants from mc11b/c, I'll do that.
+
+- r2529: MC11_valid with <mu>=5.1, <NPV>=4.9
+              JES derived w/o offset correction, 
+              This calibration is the default in all rel 17.0 produced data!
+
+- r2731: MC11a with <mu>=7.1, <NPV>=6.1
+              JES derived w/o any offset correction (fitting failed for the LC jets),
+
+- r2731_offset
+                Sample:  MC11a with <mu>=7.1, <NPV>=6.1
+                JES derived w full offset subtraction to (<mu>=0.0, <NPV>=1.0),
+                but with old constants
+                (Carlos updated the offset constants after this,
+                with the standard binning in eta )
+
+- r2731_offset_1.0_0.0 : mc11a w/ full offset subtraction to
+                        (<mu>=0.0, <NPV>=1.0), with the new constants,
+                        sample: <mu>=7.1, <NPV>=6.1
+
+- r2731_offset_6.1_7.1 : mc11a w/ offset subtraction on the average point,
+                        with the new constants,
+                        (fitting failed for the LC jets),
+                        sample: <mu>=7.1, <NPV>=6.1
+
+- r2773 : mc11a non-pileup sample, <mu>=0.0, <NPV>=1.0
+
+
+
+Performance stuides are availalbe here:
+http://toshi.web.cern.ch/toshi/jetperf/111125/
+
+NoOffsetCorrPlots_nopileupJES.pdf   : JES r2773 w/o applying offset corr.
+NoOffsetCorrPlots_offsetcorrJES.pdf : JES r2731_offset w/o applying offset corr.
+OffsetCorrPlots_nopileupJES.pdf     : JES r2773 w/ applying offset corr.
+OffsetCorrPlots_offsetcorrJES.pdf   : JES r2731_offset w/ applying offset corr.
