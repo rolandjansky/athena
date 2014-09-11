@@ -17,8 +17,6 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "LArG4Barrel/LArBarrelCalculator.h"
@@ -61,18 +59,9 @@ LArG4SD::LArG4SD(G4String a_name)
   : FadsSensitiveDetector(a_name),
     m_calculator(0),
     m_detectorName(a_name),
-    m_numberInvalidHits(0),
-    m_log(0)
+    m_numberInvalidHits(0)
 {
-  // Get pointer to the message service
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* msgSvc(0);
-  StatusCode status = svcLocator->service("MessageSvc", msgSvc);
-  if(status.isFailure())
-    throw std::runtime_error("LArG4SD: Unable to retrieve Message Service!");
-
-  m_log = new MsgStream(msgSvc, "LArG4SD");
-  (*m_log) << MSG::DEBUG << "Constructor: Call LArG4SD for detector " << a_name << endreq;
+  ATH_MSG_DEBUG ( "Constructor: Call LArG4SD for detector " << a_name );
 
   // Get appropriate calculator
   if(a_name.find("EMB::STAC")!=std::string::npos)
@@ -80,14 +69,14 @@ LArG4SD::LArG4SD(G4String a_name)
       m_calculator = LArBarrelCalculator::GetCalculator();
       LArBarrelCalculator* calculator = LArBarrelCalculator::GetCalculator();
       calculator->detectorName("LArMgr");
-      (*m_log) << MSG::DEBUG << "Constructor: after getting LArbarrelcalculator" <<  endreq;
+      ATH_MSG_DEBUG ( "Constructor: after getting LArbarrelcalculator" );
     }
   else if(a_name.find("Barrel::Presampler::Module")!=std::string::npos)
     {
       m_calculator = LArBarrelPresamplerCalculator::GetCalculator();
       LArBarrelPresamplerCalculator* calculator = LArBarrelPresamplerCalculator::GetCalculator();
       calculator->detectorName("LArMgr");
-      (*m_log) << MSG::DEBUG << "Constructor: after getting presamplerCalculator " <<  endreq;
+      ATH_MSG_DEBUG ( "Constructor: after getting presamplerCalculator " );
     }
   else if(a_name.find("EMEC::Pos::InnerWheel")!=std::string::npos)
     {
@@ -150,7 +139,7 @@ LArG4SD::LArG4SD(G4String a_name)
       m_calculator = MiniFCALCalculator::GetCalculator();
     }
 
-  (*m_log) << MSG::DEBUG << "Constructor: end of constructor" << endreq;
+  ATH_MSG_DEBUG ( "Constructor: end of constructor" );
 }
 
 
@@ -160,11 +149,10 @@ LArG4SD::~LArG4SD()
   // Note: this code is only executed if the sensitive-detector object
   // is deleted; I'm not sure if G4 does this.
 
-  if(m_numberInvalidHits > 0)
-    (*m_log) << MSG::DEBUG
-             << "Destructor: Sensitive Detector <" << m_detectorName << "> had " << m_numberInvalidHits
-             << " G4Step energy deposits outside the region determined by its Calculator." << endreq;
-  delete m_log;
+  if(m_numberInvalidHits > 0) {
+    ATH_MSG_DEBUG ( "Destructor: Sensitive Detector <" << m_detectorName << "> had " << m_numberInvalidHits
+                    << " G4Step energy deposits outside the region determined by its Calculator." );
+  }
 }
 
 void LArG4SD::Initialize(G4HCofThisEvent* /*HCE*/)
@@ -175,10 +163,8 @@ void LArG4SD::Initialize(G4HCofThisEvent* /*HCE*/)
       // initialize m_hitMegrers
       ISvcLocator* svcLocator = Gaudi::svcLocator();
       IService* pSvc;
-      StatusCode status = svcLocator->service("DetectorStore",pSvc);
-
-      if(status.isSuccess())
-        (*m_log) << MSG::DEBUG << "Initialize: Detector Store retrieved" << endreq;
+      if(svcLocator->service("DetectorStore",pSvc).isSuccess())
+        ATH_MSG_DEBUG ( "Initialize: Detector Store retrieved" );
       else
         throw std::runtime_error("LArG4SD: Unable to retrieve Detector Store!");
 
@@ -190,18 +176,16 @@ void LArG4SD::Initialize(G4HCofThisEvent* /*HCE*/)
       const DataHandle<LArVHitMergerFactory> _factory_begin;
       const DataHandle<LArVHitMergerFactory> _factory_end;
 
-      status = detStore->retrieve(_factory_begin,_factory_end);
-
-      if(status.isFailure())
+      if(detStore->retrieve(_factory_begin,_factory_end).isFailure())
         throw std::runtime_error("LArG4SD: Unable to retrieve Hit Merger Factories!");
       else
-        (*m_log) << MSG::DEBUG << "Initialize: Hit Merger Factories retrieved" << endreq;
+        ATH_MSG_DEBUG ( "Initialize: Hit Merger Factories retrieved" );
 
       for(;_factory_begin!=_factory_end;_factory_begin++)
         m_hitMergers.push_back( _factory_begin->getHitMerger());
 
       if(m_hitMergers.size()==0)
-        (*m_log) << MSG::DEBUG << "Initialize: No Hit Merger assigned to SD!" << endreq;
+        ATH_MSG_DEBUG ( "Initialize: No Hit Merger assigned to SD!" );
     }
 
   for(unsigned int i=0; i<m_hitMergers.size(); i++)
@@ -235,13 +219,13 @@ G4bool LArG4SD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
   for(int ihit=0; ihit<m_calculator->getNumHits(); ihit++) {
     for(i=0; i<m_hitMergers.size(); i++) {
       if(m_hitMergers[i]
-         && (!m_hitMergers[i]->process(a_step,
+         && !(m_hitMergers[i]->process(a_step,
                                        m_calculator->identifier(ihit),
                                        m_calculator->time(ihit),
-                                       m_calculator->energy(ihit)))
-         && (m_log->level()==MSG::DEBUG))
-        (*m_log) << MSG::DEBUG << "ProcessHits: Wrong Identifier after conversion from LArG4Identifier"
-                 << std::string(m_calculator->identifier(ihit)) << endreq;
+                                       m_calculator->energy(ihit))) ) {
+        ATH_MSG_DEBUG ( "ProcessHits: Wrong Identifier after conversion from LArG4Identifier"
+                        << std::string(m_calculator->identifier(ihit)) );
+      }
     }
   }// for each hit return by the calculator.
   return true;
@@ -251,5 +235,5 @@ G4bool LArG4SD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
 void LArG4SD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
 {
   for(unsigned int i=0; i<m_hitMergers.size(); i++)
-    m_hitMergers[i]->EndOfEvent(); 
+    m_hitMergers[i]->EndOfEvent();
 }

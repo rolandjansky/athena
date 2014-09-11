@@ -12,12 +12,6 @@
 #include "G4Step.hh"
 #include "G4TouchableHistory.hh"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
 static FADS::SensitiveDetectorEntryT<LArG4MultSD> stacMultSD("STACMult");
 static FADS::SensitiveDetectorEntryT<LArG4MultSD> presampModuleMultSD("BarrelPresamplerMult");
 static FADS::SensitiveDetectorEntryT<LArG4MultSD> posInnerWheelMultSD("EMECPosInnerWheelMult");
@@ -38,18 +32,7 @@ LArG4MultSD::LArG4MultSD(G4String a_name)
   : FadsSensitiveDetector(a_name),
     m_detectorName(a_name)
 {
-
-  // Get pointer to the message service
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
-  if(status.isFailure())
-    m_msgSvc = 0;
-
-  if(m_msgSvc)
-    {
-      MsgStream log(m_msgSvc, "LArG4MultSD");
-      log << MSG::DEBUG << "Constructing multiple SD " << a_name << endreq;
-    }
+  ATH_MSG_DEBUG ( "Constructing multiple SD " << a_name );
 
   LArG4SD* larSD = 0;
   LArG4CalibSD* larCalibSD = 0;
@@ -163,16 +146,13 @@ G4bool LArG4MultSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
 
 
 void LArG4MultSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
-{    
+{
 }
 
 void LArG4MultSD::addSD(FadsSensitiveDetector* sd)
 {
   m_sdList.push_back(sd);
 
-  if(m_msgSvc)
-    {
-      MsgStream log(m_msgSvc, "LArG4MultSD");
-      log << MSG::DEBUG << "Added SD " << sd->GetName() << endreq;
-    }
+  ATH_MSG_DEBUG ( "Added SD " << sd->GetName() );
+
 }

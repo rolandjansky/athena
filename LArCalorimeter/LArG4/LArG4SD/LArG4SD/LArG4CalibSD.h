@@ -64,9 +64,6 @@ private:
   // Count the number of invalid steps.
   G4int m_numberInvalidSteps;
 
-  // Message stream
-  MsgStream* m_log;
-
   // Static flag + method which creates instances of
   // ** EscapedEnergyProcessing
   // ** CalibrationDefaultProcessing

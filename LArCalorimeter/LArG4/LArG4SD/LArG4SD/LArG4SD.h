@@ -14,7 +14,6 @@ class LArVHitMerger;
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
-class MsgStream;
 
 class LArG4SD : public FADS::FadsSensitiveDetector
 {
@@ -45,9 +44,6 @@ private:
 
   // Count the number of invalid hits.
   G4int m_numberInvalidHits;
-
-  // Message stream
-  MsgStream* m_log;
 };
 
 #endif // __LArG4SD_H__
