@@ -1,0 +1,125 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// WVar.icc
+// Implementation file for class SG::WVar<T>
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+#ifndef STOREGATE_SG_WVAR_ICC
+#define STOREGATE_SG_WVAR_ICC 1
+
+// stl includes
+#include <stdexcept>
+
+// fwk includes
+#include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/IResetable.h"
+
+// SGTools includes
+#include "SGTools/ClassID_traits.h"
+#include "SGTools/DataBucketBase.h"
+
+// StoreGate includes
+#include "StoreGate/VarHandleBase.h"
+
+namespace SG {
+
+/////////////////////////////////////////////////////////////////// 
+// Public methods: 
+/////////////////////////////////////////////////////////////////// 
+
+// Constructors
+////////////////
+
+/// Default constructor: 
+template <class T> 
+WVar<T>::WVar() : 
+  VarHandleBase()
+{ }
+
+/// Copy constructor: 
+template <class T> 
+WVar<T>::WVar(const WVar& h):
+  VarHandleBase(h)
+{}
+
+/// Assignment operator: 
+template <class T>
+WVar<T>& 
+WVar<T>::WVar::operator= (const WVar& h)
+{
+  if (this != &h) {
+    this->VarHandleBase::operator=(h);
+  }
+  return *this;
+}
+
+template <class T>
+WVar<T>& 
+WVar<T>::WVar::operator= (const T& data)
+{
+  if (!isInitialized()) {
+    throw std::logic_error
+      ("WVar<T>::operator=(const T& data) called while un-initialized");
+  }
+  T* val = this->ptr();
+  if (!val) {
+    throw std::logic_error
+      ("WVar<T>::operator=(const T& data) called while invalid");
+  }
+  
+  *val = data;
+  return *this;
+}
+
+template <class T>
+WVar<T>& 
+WVar<T>::WVar::operator= (std::unique_ptr<T> data)
+{
+  if (!isInitialized()) {
+    // record into storegate
+    ServiceHandle<StoreGateSvc> svc(this->store(), "SG::WVar<T>");
+    StatusCode sc(svc.retrieve());
+    if (sc.isSuccess()) {
+      T* dataPtr(data.release());
+      m_ptr=(void*)dataPtr;
+      sc = svc->record<T>(dataPtr, this->name());
+      if (sc.isSuccess()) sc = setState();
+    }
+    if (!(sc.isSuccess())) throw
+      std::runtime_error("WVar<T>::operator=(unique_ptr) error initializing");
+  } else {
+    reset();
+    T* dataPtr(data.release());
+    m_ptr=(void*)dataPtr;
+    this->m_proxy->setObject(SG::asStorable<T>(dataPtr));
+    this->m_proxy->registerTransient(m_ptr);
+  }
+  return *this;
+}
+
+/// retrieve a proxy of name `name` from evtStore
+template <class T>
+WVar<T>::WVar(const std::string& name) :
+  VarHandleBase( name )
+{}
+
+/// retrieve a proxy of name `name` from store `store`
+template <class T>
+WVar<T>::WVar(const std::string& name,
+	      const std::string& store) :
+  VarHandleBase( name, store )
+{}
+
+/// Destructor: 
+template <class T> 
+WVar<T>::~WVar()
+{ 
+} 
+
+} /* namespace SG */
+
+#endif //> !STOREGATE_SG_WVAR_ICC

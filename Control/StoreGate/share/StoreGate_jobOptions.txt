@@ -1,0 +1,4 @@
+ApplicationMgr.ExtSvc += { "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
+//FIXME uncomment to verify that your  CLIDs are good!
+//ClassIDSvc.CLIDDBFiles += { "clid.db" };
+AuditorSvc.Auditors  += { "AlgContextAuditor"};

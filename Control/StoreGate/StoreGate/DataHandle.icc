@@ -1,0 +1,206 @@
+/* -*- C++ -*- */
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef STOREGATE_DATAHANDLE_ICC
+#define STOREGATE_DATAHANDLE_ICC
+
+#ifndef STOREGATE_DATAHANDLE_H
+# include "StoreGate/DataHandle.h"
+#endif
+
+#ifndef SGTOOLS_DATABUCKETBASE_H
+# include "SGTools/DataBucketBase.h"
+#endif
+
+#ifndef STOREGATE_ACTIVESTORESVC_H
+# include "StoreGate/ActiveStoreSvc.h"
+#endif
+
+#include <algorithm>          // for std::swap
+
+///////////////////////////////////////////////////////////////////////////////
+// CONSTRUCTORS
+///////////////////////////////////////////////////////////////////////////////
+  
+template <class DATA> 
+DataHandle<DATA>::DataHandle() : 
+  DataHandleBase(),
+  m_ptr(0)
+{ }
+
+//....................................................................
+  
+template <class DATA> 
+DataHandle<DATA>::DataHandle(const DataHandle& h):
+  DataHandleBase(h),
+  m_ptr(h.m_ptr)
+{}
+
+//....................................................................
+
+template <class DATA>
+DataHandle<DATA>& 
+DataHandle<DATA>::DataHandle::operator= (const DataHandle& h)
+{
+  if (this != &h) {
+    this->DataHandleBase::operator=(h);
+    m_ptr = h.m_ptr;
+  }
+  return *this;
+}
+
+//....................................................................
+  
+template <class DATA> 
+DataHandle<DATA>::DataHandle(SG::DataProxy* proxy) : 
+  DataHandleBase(proxy),
+  m_ptr(0)
+{}
+
+//....................................................................
+
+template <class DATA> 
+DataHandle<DATA>::DataHandle(const SG::ConstProxyIterator &itr, 
+                             const SG::ConstProxyIterator &itrEnd) : 
+  DataHandleBase(itr, itrEnd),
+  m_ptr(0)
+{}
+
+
+// DESTRUCTOR
+
+template <class DATA> 
+DataHandle<DATA>::~DataHandle()
+{ 
+} 
+
+
+///////////////////////////////////////////////////////////////////////////////
+// ITERATION OPERATORS:
+///////////////////////////////////////////////////////////////////////////////
+
+template <class DATA> 
+const DataHandle<DATA>& 
+DataHandle<DATA>::operator++() const //prefix
+{	
+  if (m_proxy) m_proxy->release();
+  m_proxy = 0;
+  m_ptr = 0;       // reset pointer to perform retrieveObject
+
+// set the iterator to the next valid proxy (or end)
+  if (m_useItr && m_itr != m_itrEnd)
+  {
+    while (m_itr != m_itrEnd) {
+      ++m_itr;
+      if (m_itr != m_itrEnd && m_itr->second->isValid() )
+      {
+         m_proxy = (*m_itr).second;
+	 break;
+      }
+    }
+  }
+
+  if (m_proxy) m_proxy->addRef();
+  return *this;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+template <class DATA> 
+DataHandle<DATA> 
+DataHandle<DATA>::operator++ (int) const //postfix
+{	
+  DataHandle<DATA> ret(*this);
+  if (m_proxy) m_proxy->release();
+  m_proxy = 0;
+  m_ptr = 0;       // reset pointer to perform retrieveObject
+
+// set the iterator to the next valid proxy (or end)
+  if (m_useItr && m_itr != m_itrEnd)
+  {
+    while (m_itr != m_itrEnd) {
+      ++m_itr;
+      if (m_itr != m_itrEnd && m_itr->second->isValid() )
+      {
+         m_proxy = m_itr->second;
+	 break;
+      }
+    }
+  }
+
+  if (m_proxy) m_proxy->addRef();
+  return ret;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// ACCESSOR METHODS:
+///////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <class DATA> 
+typename DataHandle<DATA>::const_pointer_type 
+DataHandle<DATA>::cptr() const 
+{
+  return dataPointer();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <class DATA> 
+typename DataHandle<DATA>::pointer_type 
+DataHandle<DATA>::ptr()
+{
+  typename DataHandle<DATA>::pointer p = dataPointer();
+  return 0 != p && !isConst() ? p : 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// The const version checks if the pointer is a valid pointer. 
+// Retrieves the GaudiObject to check validity if not already done
+
+template <class DATA>
+bool
+DataHandle<DATA>::isValid() const
+{
+  // dataPointer() prints a warning if the proxy is null,
+  // so also test isInitialized().
+  return (isInitialized() && 0 != dataPointer());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// The non-const version checks if the pointer is a valid pointer and
+// if the DataObject is not const.
+// Retrieves the GaudiObject to check validity if not already done
+
+template <class DATA>
+bool
+DataHandle<DATA>::isValid()
+{
+  // ptr() prints a warning if the proxy is null, so also test isInitialized().
+  return (isInitialized() && 0 != ptr());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+template <class DATA>
+typename DataHandle<DATA>::pointer_type
+DataHandle<DATA>::dataPointer() const {
+  if (0 == m_ptr) {
+    m_ptr = SG::DataProxy_cast<DATA>(m_proxy);
+  }
+  return m_ptr;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  
+
+#endif // STOREGATE_DATAHANDLE_ICC

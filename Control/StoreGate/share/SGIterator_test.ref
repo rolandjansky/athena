@@ -1,0 +1,24 @@
+*** SGIterator_test starts ***
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.1 $
+                                          running on lxplus212.cern.ch on Mon Sep 29 04:55:27 2008
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...   INFO  'CnvServices':[ 'HbookHistSvc' , 'RootHistSvc' ]
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+Now we expect to see an error message:
+----Error Message Starts--->>
+SG::DataProxy_castWARNING this proxy 0x82e0bd8 is in an invalid state
+<<---Error Message Ends-------
+*** SGIterator test OK ***
+Now we expect to see an error message:
+----Error Message Starts--->>
+SG::DataProxy_castWARNING this proxy 0x82e0bd8 is in an invalid state
+<<---Error Message Ends-------
+*** SGConstIterator test OK ***
+*** SGIterator_test OK ***

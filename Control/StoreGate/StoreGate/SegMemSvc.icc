@@ -1,0 +1,61 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "AthAllocators/ArenaCachingHandle.h"
+#include "AthAllocators/ArenaHandle.h"
+#include "AthAllocators/ArenaPoolAllocator.h"
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+template <typename T>
+T*
+SegMemSvc::allocate(SegMemSvc::LIFETIME life, bool cache) {
+  
+  T* ptr = 0;
+
+  if (cache) {
+    typedef SG::ArenaCachingHandle<T, SG::ArenaPoolAllocator> Handle_t;
+    if (life == SegMemSvc::EVENT) {
+      ptr = (T*)Handle_t(&m_ahead_evt).allocate();
+    } else if (life == SegMemSvc::JOB) {
+      ptr = (T*)Handle_t(&m_ahead_job).allocate();
+    } else if (life == SegMemSvc::INCIDENT) {
+      ptr = (T*)Handle_t(&m_ahead_inc).allocate();
+    }
+  } else {
+    typedef SG::ArenaHandle<T, SG::ArenaPoolAllocator> Handle_t;
+    if (life == SegMemSvc::EVENT) {
+      ptr = (T*)Handle_t(&m_ahead_evt).allocate();
+    } else if (life == SegMemSvc::JOB) {
+      ptr = (T*)Handle_t(&m_ahead_job).allocate();
+    } else if (life == SegMemSvc::INCIDENT) {
+      ptr = (T*)Handle_t(&m_ahead_inc).allocate();
+    }
+  }
+
+  if (m_log.level() <= MSG::DEBUG) {
+    m_log << MSG::DEBUG << "allocating object size " << sizeof(T) 
+	  << " with lifetime/cache " << cvt(life) << "/" << cache << " at " 
+	  << ptr  << endreq;
+  }
+
+
+  return ptr;
+
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+template <typename T>
+bool
+SegMemSvc::del(T* ptr) {
+
+  if (m_log.level() <= MSG::DEBUG) {
+    m_log << MSG::DEBUG << "deleting object at " << ptr << endreq;
+  }
+  
+
+  return true;
+
+}
