@@ -12,7 +12,6 @@
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
-class IMessageSvc;
 
 class LArG4MultSD : public FADS::FadsSensitiveDetector
 {
@@ -35,9 +34,6 @@ public:
 private:
   // The name of the sensitive detector.
   G4String m_detectorName;
-
-  // Pointer to the message service
-  IMessageSvc* m_msgSvc;
 
   // List of SD pointers
   std::vector< FadsSensitiveDetector* > m_sdList;

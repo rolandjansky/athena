@@ -11,8 +11,6 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "LArG4SD/EscapedEnergyProcessing.h"
@@ -142,29 +140,17 @@ LArG4CalibSD::LArG4CalibSD(G4String a_name, bool doInit):
   m_calculator(0),
   m_detectorName(a_name),
   m_numberInvalidSteps(0),
-  m_log(0),
   m_event_info(0),
   m_doCalibHitParticleID(false)
 {
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* msgSvc(0);
-  StatusCode status = svcLocator->service("MessageSvc", msgSvc);
-  if(status.isFailure())
-    throw std::runtime_error("LArG4CalibSD: Unable to retrieve Message Service!");
-
-  m_log = new MsgStream(msgSvc, "LArG4CalibSD");
-
   // read flag to produce calibration hits signed with primary particle ID
-  StoreGateSvc*  detStore ;
-  status = svcLocator->service("DetectorStore", detStore);
-  if ( status.isFailure() ) {
-    delete m_log;
+  StoreGateSvc *detStore(NULL);
+  ISvcLocator *svcLocator = Gaudi::svcLocator();
+  if ( svcLocator->service("DetectorStore", detStore).isFailure() ) {
     throw std::runtime_error("LArG4CalibSD: Unable to retrieve Detector Store!");
   } else {
-    LArG4GlobalOptions *globalOptions;
-    status = detStore->retrieve(globalOptions, "LArG4GlobalOptions");
-    if (status.isFailure()) {
-      delete m_log;
+    LArG4GlobalOptions *globalOptions(NULL);
+    if (detStore->retrieve(globalOptions, "LArG4GlobalOptions").isFailure()) {
       throw std::runtime_error("LArG4CalibSD: LArG4GlobalOption was not found in DetectorStore");
     } else {
       m_doCalibHitParticleID = globalOptions->GetDoCalibHitParticleID();
@@ -303,10 +289,9 @@ LArG4CalibSD::~LArG4CalibSD()
   // Note: this code is only executed if the sensitive-detector object
   // is deleted; I'm not sure if G4 does this.
   if(m_numberInvalidSteps>0)
-    (*m_log) << MSG::DEBUG << "Destructor:  " << m_detectorName << "> had " << m_numberInvalidSteps
-             << " G4Step energy deposits outside the region determined by its Calculator."
-             << endreq;
-  delete m_log;
+    ATH_MSG_DEBUG ( "Destructor:  " << m_detectorName << "> had " << m_numberInvalidSteps
+                    << " G4Step energy deposits outside the region determined by its Calculator."
+                    );
 }
 
 
@@ -319,7 +304,7 @@ void LArG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/)
       StatusCode status = svcLocator->service("DetectorStore",pSvc);
 
       if(status.isSuccess())
-        (*m_log) << MSG::DEBUG << "Initialize: Detector Store retrieved" << endreq;
+        ATH_MSG_DEBUG ( "Initialize: Detector Store retrieved" );
       else
         throw std::runtime_error("LArG4CalibSD: Unable to retrieve Detector Store!");
 
@@ -336,13 +321,13 @@ void LArG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/)
       if(status.isFailure())
         throw std::runtime_error("LArG4CalibSD: Unable to retrieve Hit Merger Factories!");
       else
-        (*m_log) << MSG::DEBUG << "Initialize: Hit Merger Factories retrieved" << endreq;
+        ATH_MSG_DEBUG ( "Initialize: Hit Merger Factories retrieved" );
 
       for(;_factory_begin!=_factory_end;_factory_begin++)
         m_hitMergers.push_back( _factory_begin->getHitMerger());
 
       if(m_hitMergers.size()==0)
-        (*m_log) << MSG::DEBUG << "Initialize: No Hit Merger assigned to SD!" << endreq;
+        ATH_MSG_DEBUG ( "Initialize: No Hit Merger assigned to SD!" );
     }
 
   for(unsigned int i=0; i<m_hitMergers.size(); i++)
@@ -362,7 +347,7 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
   // happens, it means that the geometry definitions in the
   // detector-construction routine and the calculator do not agree.)
 
-  if (!m_event_info && m_doCalibHitParticleID) 
+  if (!m_event_info && m_doCalibHitParticleID)
     m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
 
   if(!(m_calculator->Process(a_step, LArG4::VCalibrationCalculator::kEnergyAndID)))
@@ -373,20 +358,19 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
 
   // access for primary particle identifier of G4Track
   unsigned int particle_id = 0;
-  if( m_doCalibHitParticleID ) 
+  if( m_doCalibHitParticleID )
     particle_id = m_event_info->GetCurrentPrimary()->barcode();
-  
+
   for(unsigned int i=0; i<m_hitMergers.size(); i++)
     {
       if(m_hitMergers[i]
          && (!m_hitMergers[i]->process(m_calculator->identifier(),
                                        m_calculator->energies(),
-                                       particle_id))
-         && (m_log->level()==MSG::DEBUG))
-        (*m_log) << MSG::DEBUG << "ProcessHits: Wrong Identifier after conversion from LArG4Identifier"
-                 << std::string(m_calculator->identifier()) << endreq;
+                                       particle_id))) {
+        ATH_MSG_DEBUG ( "ProcessHits: Wrong Identifier after conversion from LArG4Identifier"
+                        << std::string(m_calculator->identifier()) );
+      }
     }
-
   return true;
 }
 
@@ -469,18 +453,19 @@ G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
 
   // retreive particle ID
   unsigned int particle_id = 0;
-  if( m_doCalibHitParticleID ) 
+  if( m_doCalibHitParticleID ) {
     particle_id = m_event_info->GetCurrentPrimary()->barcode();
+  }
 
   for(unsigned int i=0; i<m_hitMergers.size(); i++)
     {
       if(m_hitMergers[i]
          && (!m_hitMergers[i]->process(m_calculator->identifier(),
                                        a_energies,
-                                       particle_id))
-         && (m_log->level()==MSG::DEBUG))
-        (*m_log) << MSG::DEBUG << "SpecialHit: Wrong Identifier after conversion from LArG4Identifier"
-                 << std::string(m_calculator->identifier()) << endreq;
+                                       particle_id))) {
+        ATH_MSG_DEBUG ( "SpecialHit: Wrong Identifier after conversion from LArG4Identifier"
+                        << std::string(m_calculator->identifier()) );
+      }
     }
 
   return true;
