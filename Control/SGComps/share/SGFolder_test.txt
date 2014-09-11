@@ -1,0 +1,7 @@
+// common job opts for SG unit tests
+
+// $Id: SGFolder_test.txt,v 1.2 2007-08-23 22:48:15 calaf Exp $
+
+MessageSvc.OutputLevel = 2;
+ToolSvc.MyFolder.ItemList = { "Foo#Bla", "Bar#*", "8101", "8107#", "Baricco#*"};
+ToolSvc.MyFolder.CheckItems = true;

@@ -1,0 +1,33 @@
+package SGComps
+
+author Paolo Calafiura   <Paolo.Calafiura@cern.ch>
+
+use AtlasPolicy    AtlasPolicy-*
+
+private
+use GaudiInterface GaudiInterface-* External
+use AtlasBoost     AtlasBoost-*     External
+
+use AthenaKernel    AthenaKernel-*      Control
+use AthenaBaseComps AthenaBaseComps-*   Control
+use SGTools         SGTools-*           Control
+use StoreGate       StoreGate-*         Control
+
+end_private
+
+branches src src/components
+
+private
+
+library SGComps *.cxx -s=components *.cxx
+apply_pattern component_library
+
+use TestTools      TestTools-*      AtlasTest
+
+apply_pattern UnitTest_run unit_test=SGFolder \
+  extrapatterns='^JobOptionsSvc +INFO'
+macro_append SGFolder_testlinkopts  "-L../$(CMTCONFIG) -lSGComps"
+
+macro_append DOXYGEN_INPUT " ../test " 
+
+end_private
