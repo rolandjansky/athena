@@ -1,0 +1,19 @@
+package AthenaAuditors
+
+author Rolf Seuster
+
+use AtlasPolicy      AtlasPolicy-*
+
+private
+use GaudiInterface                 GaudiInterface-*  	            External
+use AtlasGdb                       AtlasGdb-*                       External
+# use AtlasBoost			   AtlasBoost-*			    External
+use AtlasLibUnwind		   AtlasLibUnwind-*		    External
+
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_libraries target=AthenaAuditors libraries=z
+
+library AthenaAuditors *.cxx -s=components *.cxx
+apply_pattern component_library
+
+use AthenaBaseComps  AthenaBaseComps-*	  Control

@@ -1,0 +1,61 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ATHENASERVICES_FPEAUDIT_DARWIN_ICC
+#define ATHENASERVICES_FPEAUDIT_DARWIN_ICC 1
+
+// C includes
+#include <signal.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h> // for abort
+
+// C++ includes
+
+// fwk includes
+#include "GaudiKernel/MsgStream.h"
+
+extern "C" {
+namespace FPEAudit {
+
+int n_fp_exceptions=0;
+const int MAXARRAY=100;
+struct sigaction oldactHandler;
+    
+void *s_array_O[MAXARRAY];
+void *s_array_I[MAXARRAY];
+void *s_array_D[MAXARRAY];
+
+void 
+fpe_sig_action(int, siginfo_t *, void *)
+{
+  ::fprintf(stderr, "FPEAudit::fpe_sig_action not available on darwin\n");
+  ::abort();
+}
+
+void 
+mask_fpe(void)
+{
+  ::fprintf(stderr, "FPEAudit::mask_fpe not available on darwin\n");
+  ::abort();
+}
+
+void 
+unmask_fpe(void)
+{
+  ::fprintf(stderr, "FPEAudit::unmask_fpe not available on darwin\n");
+  ::abort();   
+}
+
+void 
+resolve(void *, MsgStream& , bool)
+{
+  ::fprintf(stderr, "FPEAudit::resolve not available on darwin\n");
+  ::abort();     
+}
+
+} // FPEAudit
+} // extern "C"
+
+#endif /* !ATHENASERVICES_FPEAUDIT_DARWIN_ICC */

@@ -1,0 +1,17 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ATHENASERVICES_FPEAUDIT_ICC
+#define ATHENASERVICES_FPEAUDIT_ICC 1
+
+#ifdef __linux__
+#include "FPEAudit_linux.icc"
+#endif
+
+#ifdef __APPLE__
+#include "FPEAudit_darwin.icc"
+#endif
+
+
+#endif /* !ATHENASERVICES_FPEAUDIT_ICC */

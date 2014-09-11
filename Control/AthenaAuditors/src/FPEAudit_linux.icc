@@ -1,0 +1,433 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ATHENASERVICES_FPEAUDIT_LINUX_ICC
+#define ATHENASERVICES_FPEAUDIT_LINUX_ICC 1
+
+// C includes
+#include <fenv.h>
+#include <signal.h>
+#include <execinfo.h>
+#include <iostream>
+#include <string.h>
+#include "GaudiKernel/MsgStream.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dlfcn.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <bfd.h>
+#include <unistd.h>
+#include <cxxabi.h> // for demangling
+#include <link.h>   // for following code in shared libraries
+
+// signal handler needs C linkage 
+extern "C"
+{
+  namespace FPEAudit
+  {
+    int n_fp_exceptions=0;
+    const int MAXARRAY=100;
+    struct sigaction oldactHandler;
+    
+    void *s_array_O[MAXARRAY];
+    void *s_array_I[MAXARRAY];
+    void *s_array_D[MAXARRAY];
+    
+    void fpe_sig_action( int sig, siginfo_t *si, void *puc )
+    {
+      // call old handlers if too many exceptions occured in this job
+      // n_fp_exceptions is initially set to m_NstacktracesOnFPE (property "NStacktracesOnFPE")
+      if ( n_fp_exceptions < 0 )
+        {
+          if (oldactHandler.sa_flags & SA_SIGINFO) {
+            if (oldactHandler.sa_handler) oldactHandler.sa_sigaction(sig,si,puc);
+          } else {
+            if (oldactHandler.sa_handler) oldactHandler.sa_handler(sig);
+          }
+        }
+      
+      // modify mcontext_t struct to reset FPE exception mask
+      ucontext_t *uc = (ucontext_t *)puc;
+      
+      // not all FPEs classified correctly
+      std::cerr << "\n   Caught FPE " << si->si_code << " (";
+      switch (si->si_code)
+        {
+        case FPE_INTDIV: std::cerr << "integer divide by zero"; break;
+        case FPE_INTOVF: std::cerr << "integer overflow"; break;
+        case FPE_FLTDIV: std::cerr << "floating point divide by zero"; break;
+        case FPE_FLTOVF: std::cerr << "floating point overflow"; break;
+        case FPE_FLTUND: std::cerr << "floating point underflow"; break;
+        case FPE_FLTRES: std::cerr << "floating point inexact result"; break;
+        case FPE_FLTINV: std::cerr << "floating point invalid operation"; break;
+        case FPE_FLTSUB: std::cerr << "subscript out of range"; break;
+        }
+      
+      std::cerr << ") at address " << si->si_addr << ")\n";
+      int nptrs;
+      
+      // stack trace is later printed in FPEAuditor::report_fpe()
+      if ( si->si_code == FPE_FLTDIV )
+        {
+          nptrs = backtrace(s_array_D, 100);
+          std::cerr << "   backtrace() returned " << nptrs << " addresses\n\n";
+          if ( nptrs<100 )
+            s_array_D[nptrs]=NULL;
+        }
+      else if ( si->si_code == FPE_FLTOVF )
+        {
+          nptrs = backtrace(s_array_O, 100);
+          std::cerr << "   backtrace() returned " << nptrs << " addresses\n\n";
+          if ( nptrs<100 )
+            s_array_O[nptrs]=NULL;
+        }
+      else
+        {
+          nptrs = backtrace(s_array_I, 100);
+          std::cerr << "   backtrace() returned " << nptrs << " addresses\n\n";
+          if ( nptrs<100 )
+            s_array_I[nptrs]=NULL;
+        }
+      
+      // reset FPE mask of the context where FPE occured
+#if defined(__linux__) && defined(__i386__)
+#if !defined(X86_FXSR_MAGIC)
+#define X86_FXSR_MAGIC 0x0000
+#endif
+#endif
+      
+#if defined(__linux__)
+#if defined(__x86_64__)
+      mcontext_t *mc = &uc->uc_mcontext;
+      fpregset_t fpstate = mc->fpregs;
+      fpstate->mxcsr = 0x1F80;
+      fpstate->swd &= ~0xFF;
+#elif defined(__i386__)
+      mcontext_t *mc = &uc->uc_mcontext;
+      fpregset_t fpstate = mc->fpregs;
+      if ((fpstate->status >> 16) == X86_FXSR_MAGIC)
+        ((struct _fpstate*)fpstate)->mxcsr = 0x1F80;
+      fpstate->sw &= ~0xFF;
+#endif
+#endif
+    
+#if defined(__amd64__) && defined(__x86_64__) || defined(__i386__)
+#define FPU_EXCEPTION_MASK 0x3f
+      
+      /*
+       * x86 FPU Status Word:
+       *
+       * 0..5  ->      Exception flags  (see x86 FPU Control Word)
+       * 6     -> SF   Stack Fault
+       * 7     -> ES   Error Summary Status
+       */
+#define FPU_STATUS_FLAGS 0xff
+      
+      /*
+       * MXCSR Control and Status Register:
+       *
+       * 0..5  ->      Exception flags (see x86 FPU Control Word)
+       * 6     -> DAZ  Denormals Are Zero
+       * 7..12 ->      Exception mask (see x86 FPU Control Word)
+       */
+#define SSE_STATUS_FLAGS   FPU_EXCEPTION_MASK
+#define SSE_EXCEPTION_MASK (FPU_EXCEPTION_MASK << 7)
+      
+#if defined(__i386__)
+      /*
+       * It seems that we have no access to mxcsr on Linux. libc
+       * seems to be translating cw/sw to mxcsr.
+       */
+      unsigned long int *cw = &uc->uc_mcontext.fpregs->cw;
+      *cw |= FPU_EXCEPTION_MASK;
+      
+      unsigned long int *sw = &uc->uc_mcontext.fpregs->sw;
+      *sw &= ~FPU_STATUS_FLAGS;
+#endif
+#if defined(__amd64__) && defined(__x86_64__)  && !defined(__APPLE__)
+      __uint16_t *cw = &uc->uc_mcontext.fpregs->cwd;
+      *cw |= FPU_EXCEPTION_MASK;
+      
+      __uint16_t *sw = &uc->uc_mcontext.fpregs->swd;
+      *sw &= ~FPU_STATUS_FLAGS;
+      
+      __uint32_t *mxcsr = &uc->uc_mcontext.fpregs->mxcsr;
+      *mxcsr |= SSE_EXCEPTION_MASK; /* disable all SSE exceptions */
+      *mxcsr &= ~SSE_STATUS_FLAGS; /* clear all pending SSE exceptions */
+      //      fprintf(stderr, "in 64 bit code\n");
+#endif
+#endif
+      if (n_fp_exceptions)
+        --n_fp_exceptions;
+      if (n_fp_exceptions == 0)
+        {
+          fprintf(stderr, "too many SIGFPE detected, will be uninstalling signal handler\n");
+        }
+    }
+    
+    /*
+     * Implement unmask_fpe() and check_fpe() based on CPU/OS combination
+     */
+    
+#if (defined(__i386__) || defined(__x86_64__)) && defined(__GNUC__) && !defined(__CYGWIN__)
+    
+    void mask_x87(void)
+    {
+      unsigned short cw;
+      __asm__ __volatile__("fclex");
+      __asm__ __volatile__("fstcw %0" : "=m"(cw));
+      // std::cout << "mask fpe: " << std::hex << cw << std::dec << "\n";
+      cw |= (0x01|0x04|0x08);   /* mask IM, ZM, OM */
+      __asm__ __volatile__("fldcw %0" : : "m"(cw));
+      // std::cout << "mask fpe: " << std::hex << cw << std::dec << "\n";
+    }
+    
+    void mask_sse2(void)
+    {
+      unsigned int mxcsr;
+      __asm__ __volatile__("stmxcsr %0" : "=m"(mxcsr));
+      mxcsr |= 0x0680; /* clear exn flags, unmask OM, ZM, IM (not PM, UM, DM) */
+      __asm__ __volatile__("ldmxcsr %0" : : "m"(mxcsr));
+    }
+    
+    void unmask_x87(void)
+    {
+      unsigned short cw;
+      __asm__ __volatile__("fstcw %0" : "=m"(cw));
+      // std::cout << "unmask fpe: " << std::hex << cw << std::dec << "\n";
+      cw &= ~(0x01|0x04|0x08);   /* unmask IM, ZM, OM */
+      __asm__ __volatile__("fldcw %0" : : "m"(cw));
+      // std::cout << "unmask fpe: " << std::hex << cw << std::dec << "\n";
+    }
+    
+    void unmask_sse2(void)
+    {
+      unsigned int mxcsr;
+      __asm__ __volatile__("stmxcsr %0" : "=m"(mxcsr));
+      mxcsr &= ~(0x003F|0x0680); /* clear exn flags, unmask OM, ZM, IM (not PM, UM, DM) */
+      __asm__ __volatile__("ldmxcsr %0" : : "m"(mxcsr));
+    }
+    
+#if defined(__x86_64__)
+    
+    inline int cpu_has_sse2(void) { return 1; }
+    
+#else /* !__x86_64__ */
+    
+    /*
+     * Check if an x86-32 processor has SSE2.
+     */
+    static unsigned int xor_eflags(unsigned int mask)
+    {
+      unsigned int eax, edx;
+      
+      eax = mask;                 /* eax = mask */
+      __asm__("pushfl\n\t"
+              "popl %0\n\t"       /* edx = original EFLAGS */
+              "xorl %0, %1\n\t"   /* eax = mask ^ EFLAGS */
+              "pushl %1\n\t"
+              "popfl\n\t"         /* new EFLAGS = mask ^ original EFLAGS */
+              "pushfl\n\t"
+              "popl %1\n\t"       /* eax = new EFLAGS */
+              "xorl %0, %1\n\t"   /* eax = new EFLAGS ^ old EFLAGS */
+              "pushl %0\n\t"
+              "popfl"             /* restore original EFLAGS */
+              : "=d"(edx), "=a"(eax)
+              : "1"(eax));
+      return eax;
+    }
+    
+    static __inline__ unsigned int cpuid_eax(unsigned int op)
+    {
+      unsigned int eax, save_ebx;
+      
+      /* In PIC mode i386 reserves EBX. So we must save
+         and restore it ourselves to not upset gcc. */
+      __asm__(
+              "movl %%ebx, %1\n\t"
+              "cpuid\n\t"
+              "movl %1, %%ebx"
+              : "=a"(eax), "=m"(save_ebx)
+              : "0"(op)
+              : "cx", "dx");
+      return eax;
+    }
+    
+    static __inline__ unsigned int cpuid_edx(unsigned int op)
+    {
+      unsigned int eax, edx, save_ebx;
+      
+      /* In PIC mode i386 reserves EBX. So we must save
+         and restore it ourselves to not upset gcc. */
+      __asm__(
+              "movl %%ebx, %2\n\t"
+              "cpuid\n\t"
+              "movl %2, %%ebx"
+              : "=a"(eax), "=d"(edx), "=m"(save_ebx)
+              : "0"(op)
+              : "cx");
+      return edx;
+    }
+    
+    /* The AC bit, bit #18, is a new bit introduced in the EFLAGS
+     * register on the Intel486 processor to generate alignment
+     * faults. This bit cannot be set on the Intel386 processor.
+     */
+    static __inline__ int is_386(void)
+    {
+      return ((xor_eflags(1<<18) >> 18) & 1) == 0;
+    }
+    
+    /* Newer x86 processors have a CPUID instruction, as indicated by
+     * the ID bit (#21) in EFLAGS being modifiable.
+     */
+    static __inline__ int has_CPUID(void)
+    {
+      return (xor_eflags(1<<21) >> 21) & 1;
+    }
+    
+    int cpu_has_sse2(void)
+    {
+      unsigned int maxlev, features;
+      static int has_sse2 = -1;
+      
+      if (has_sse2 >= 0)
+        return has_sse2;
+      has_sse2 = 0;
+      
+      if (is_386())
+        return 0;
+      if (!has_CPUID())
+        return 0;
+      maxlev = cpuid_eax(0);
+      /* Intel A-step Pentium had a preliminary version of CPUID.
+         It also didn't have SSE2. */
+      if ((maxlev & 0xFFFFFF00) == 0x0500)
+        return 0;
+      /* If max level is zero then CPUID cannot report any features. */
+      if (maxlev == 0)
+        return 0;
+      features = cpuid_edx(1);
+      has_sse2 = (features & (1 << 26)) != 0;
+      
+      return has_sse2;
+    }
+#endif /* !__x86_64__ */
+    
+#endif
+
+    void mask_fpe(void)
+    {
+      mask_x87();
+      if (cpu_has_sse2())
+        mask_sse2();
+    }
+    
+    void unmask_fpe(void)
+    {
+      unmask_x87();
+      if (cpu_has_sse2())
+        unmask_sse2();
+    }
+    
+    // printing of stacktrace including inlined functions. needs debug symbols
+    // uses libbdf and libiberty from gdb, which currently seemed to have a
+    // small memory leak (gdb 7.4.1)
+    void resolve(void *address, MsgStream& msg, bool print=false)
+    {
+      bfd *ibfd;
+      asymbol **symtab;
+      long nsize;
+      char **matching;
+      asection *text;
+      
+      Dl_info       info;
+      if (dladdr (address, &info) && info.dli_fname && info.dli_fname[0])
+        {
+          bfd_init();
+          ibfd = bfd_openr(info.dli_fname, NULL);
+	  
+          if (ibfd == NULL)
+            {
+              fprintf(stderr,"bfd_openr error\n");
+              return;
+            }
+	  
+          if (!bfd_check_format_matches(ibfd, bfd_object, &matching))
+            {
+              fprintf(stderr,"format_matches\n");
+              return;
+            }
+	  
+          nsize = bfd_get_symtab_upper_bound (ibfd);
+          symtab = (asymbol **)malloc(nsize);
+          /*nsyms =*/ bfd_canonicalize_symtab(ibfd, symtab);
+	  
+          text = bfd_get_section_by_name(ibfd, ".text");
+	  
+          long offset(0);
+          if(text)
+            offset = ((long)address) - text->vma;
+	  
+          if (strstr (info.dli_fname, ".so") != 0)
+            {
+              unsigned long libaddr = (unsigned long) info.dli_fbase;
+              unsigned long addr = (unsigned long)address;
+              if (text)
+                offset = addr - libaddr - text->vma;
+            }
+	  
+          if (offset > 0)
+            {
+              const char *file;
+              const char *func;
+              unsigned line;
+	      
+              bool first=true;
+              char   *realname(0);
+              int     status;
+	      
+              bool found = bfd_find_nearest_line(ibfd, text, symtab, offset, &file, &func, &line);
+	      
+              if ( found && file)
+                {
+                  do
+                    {
+                      // from http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html
+                      realname = abi::__cxa_demangle(func ? func : info.dli_sname, 0, 0, &status);
+                      if ( realname )
+                        {
+                          if (print)
+                            fprintf(stderr,"%s : %s (%s,%u)\n",first ? "  in function" : "  included from", realname, file, line);
+                          else
+                            msg << ( first ? "  in function" : "  included from" ) << " : " << realname << " (" << file << ":" << line << ")\n";
+                        }
+                      else
+                        {
+                          if (print)
+                            fprintf(stderr,"%s : %s (%s,%u)\n", first ? "  in function" : "  included from", func ? func : info.dli_sname, file, line);
+                          else
+                            msg << ( first ? "  in function" : "  included from" ) << " : " << ( func ? func : info.dli_sname ) << " (" << file << ":" << line << ")\n";
+                        }
+                      free(realname);
+		      
+                      found = bfd_find_inliner_info (ibfd, &file, &func, &line);
+                      first=false;
+                    }
+                  while(found);
+                }
+            }
+          if (print)
+            fprintf(stderr,"  in library : %s",info.dli_fname);
+          else
+            msg << "  in library : " << info.dli_fname;
+          bfd_close(ibfd);
+        }
+    }
+  }
+}
+
+#endif /* !ATHENASERVICES_FPEAUDIT_LINUX_ICC*/
