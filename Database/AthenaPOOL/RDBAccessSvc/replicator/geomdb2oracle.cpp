@@ -559,7 +559,7 @@ void transferTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg
     } else if(detNodeSrc["NODE_NAME"].data<std::string>() != detNodeTarg["NODE_NAME"].data<std::string>() ||
 	      detNodeSrc["PARENT_ID"].data<long long>() != detNodeTarg["PARENT_ID"].data<long long>()) {
       std::ostringstream oString;
-      oString << "Consistency check failed for the node ID = " << detTagSrc["NODE_ID"].data<long long>() << "\n"
+      oString << "Consistency check failed for the node ID = " << detNodeSrc["NODE_ID"].data<long long>() << "\n"
 	      << " Node name:   Src: " << detNodeSrc["NODE_NAME"].data<std::string>() << "\tTarg: " << detNodeTarg["NODE_NAME"].data<std::string>() << "\n"
 	      << " Node parent: Src: " << detNodeSrc["PARENT_ID"].data<long long>() << "\tTarg: " << detNodeTarg["PARENT_ID"].data<long long>();
       throw std::runtime_error(oString.str());    
