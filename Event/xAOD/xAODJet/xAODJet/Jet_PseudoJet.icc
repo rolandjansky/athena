@@ -1,0 +1,33 @@
+// this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Jet_PseudoJet.icc
+
+// David Adams
+// January 2014
+//
+// Sources using Jet::setPseudoJet should include this header AND 
+// the JetEDM/FastJetLink.h header
+//
+#ifndef jet_Jet_PseudoJet_ICC
+#define jet_Jet_PseudoJet_ICC
+
+
+
+
+template<class PSEUDOJET>
+void xAOD::Jet::setPseudoJet(const PSEUDOJET* ppj) {
+  m_fastJetLink = new FastJetLink( *ppj );
+  // m_pseudoJet = 0;
+  // if ( ppj == 0 ) return;
+  // const fastjet::ClusterSequence* pcs = ppj->associated_cluster_sequence();
+  // if ( pcs == 0 ) return;
+  // int ich = ppj->cluster_hist_index();
+  // int ipj = pcs->history()[ich].jetp_index;
+  // m_pseudoJet = &pcs->jets()[ipj];
+}
+
+#endif
