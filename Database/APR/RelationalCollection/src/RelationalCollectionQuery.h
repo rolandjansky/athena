@@ -63,6 +63,9 @@ namespace pool {
       /// Default destructor.
       virtual ~RelationalCollectionQuery();
 
+      RelationalCollectionQuery (const RelationalCollectionQuery&) = delete;
+      RelationalCollectionQuery& operator= (const RelationalCollectionQuery&) = delete;
+
       /**
        * Adds a column to the query select list.
        *

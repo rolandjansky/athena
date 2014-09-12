@@ -32,7 +32,7 @@ namespace pool {
    namespace RelationalCollection { 
 
       RelationalCollectionMetadata::RelationalCollectionMetadata()
-	    : m_isOracle(true), m_metadataTable(0)
+        : m_mode(ICollection::READ), m_isOracle(true), m_metadataTable(0)
       {
       }
 
