@@ -204,7 +204,8 @@ void MatrixReadOut::initialize(){
   //
   FEL1ID   = 0;
 //  ROOffset = 1; // use this for comparison with hardware (VHDL) output
-  ROOffset = 0;  // use this for MC
+//  ROOffset = 0;  // use this for MC
+  ROOffset = 2;
   NBunch = NOBXS;
   NDLLCYC  = 8;
   nchan[0] = 32;

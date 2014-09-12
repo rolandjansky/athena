@@ -3,5 +3,5 @@
 */
 
 #ifndef NOBXS
-#define NOBXS 5
+#define NOBXS 8
 #endif

@@ -56,7 +56,8 @@ if(matrixDebug&1<<df) {
 }
 thisBC=0;                       // temporary initialization
 
-BCzero=(nclock/NDLLCYC)/2;      // default initialization of BCzero
+ BCzero=3;
+//BCzero=(nclock/NDLLCYC)/2;      // default initialization of BCzero
                                 // user setting by setBCzero
 
 // 
