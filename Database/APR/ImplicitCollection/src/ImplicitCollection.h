@@ -53,6 +53,9 @@ typedef Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescriptio
     /// Destructor
     ~ImplicitCollection();
 
+    ImplicitCollection (const ImplicitCollection&) = delete;
+    ImplicitCollection& operator= (const ImplicitCollection&) = delete;
+
     /// Return openMode
     virtual ICollection::OpenMode openMode() const; 
     
