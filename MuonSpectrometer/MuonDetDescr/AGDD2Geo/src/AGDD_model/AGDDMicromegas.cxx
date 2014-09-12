@@ -72,20 +72,19 @@ void AGDDMicromegas::CreateVolume()
 		AGDDParameterStore::GetParameterStore()->RegisterParameterBag((*this).GetName(), paraBag);
 	}
 }
-
-GeoMaterial* AGDDMicromegas::GetMMMaterial(std::string name)
+void AGDDMicromegas::SetDetectorAddress(AGDDDetectorPositioner* p)
 {
-	StoreGateSvc* pDetStore=0;
-	ISvcLocator* svcLocator = Gaudi::svcLocator();
-	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
-	if(sc.isSuccess())
-	{
-		DataHandle<StoredMaterialManager> theMaterialManager;
-		sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
-		if(sc.isSuccess())
-        {
-			return theMaterialManager->getMaterial(name);
-        }
-	}
-	return 0;
+		//std::cout<<"This is AGDDMicromegas::SetDetectorAddress "<<GetName()<<" "<<
+		//sType;
+		std::stringstream stringone;
+		std::string side="A";
+		if (p->ID.sideIndex<0) side="C";
+		int ctype=0;
+		int ml=atoi(sType.substr(3,1).c_str());
+		if (sType.substr(2,1)=="L") ctype=1;
+		else if (sType.substr(2,1)=="S") ctype=3;
+		int etaIndex=atoi(sType.substr(1,1).c_str());
+		stringone<<"sMD"<<ctype<<"-"<<etaIndex<<"-"<<ml<<"-phi"<<p->ID.phiIndex+1<<side<<std::endl;
+		//std::cout<<" stringone "<<stringone.str()<<std::endl;
+		p->ID.detectorAddress=stringone.str();
 }

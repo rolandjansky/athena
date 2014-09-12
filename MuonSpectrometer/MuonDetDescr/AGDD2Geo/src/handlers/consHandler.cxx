@@ -15,9 +15,9 @@ consHandler::consHandler(std::string s):XMLHandler(s)
 void consHandler::ElementHandle()
 {
 	bool res;
-	std::string name=getAttributeAsString("name",res);
-	std::string material=getAttributeAsString("material",res);
-	std::vector<double> vvv=getAttributeAsVector("Rio1_Rio2_Z",res);
+	std::string name=getAttributeAsString("name");
+	std::string material=getAttributeAsString("material");
+	std::vector<double> vvv=getAttributeAsVector("Rio1_Rio2_Z");
 	
 	AGDDCons *b=new AGDDCons(name);
 	b->SetMaterial(material);

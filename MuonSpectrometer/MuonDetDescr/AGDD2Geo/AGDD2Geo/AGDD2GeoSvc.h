@@ -12,6 +12,8 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
 
+#include "AGDD2Geo/AGDDDetectorStore.h"
+
 #include <vector>
 
 class ISvcLocator;
@@ -74,6 +76,12 @@ public:
 	std::map<std::string, GeoFullPhysVol*>* GetMSdetectors() const;
 	bool BuildMScomponents() const;
 	bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*, std::map<std::string, GeoFullPhysVol*>* */) const;
+
+	detectorList& GetDetectorList() const ;
+	std::vector<AGDDDetector*> GetDetectorsByType(std::string) const ;
+	AGDDDetector* GetDetectorByID(std::string) const ;
+	template<class T> std::vector<T*> GetDetectorsByType() const ;
+	template<class T> T* GetDetectorByID(std::string) const ;
 
 protected:
 

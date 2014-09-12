@@ -6,17 +6,16 @@ manager ADA <Andrea.DellAcqua@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
-use AtlasCLHEP          AtlasCLHEP-*            External
-use AtlasXercesC        AtlasXercesC-*          External
-
-use GeoModelKernel      GeoModelKernel-*      	DetectorDescription/GeoModel 
-
 
 library AGDD2Geo *.cxx components/*.cxx handlers/*.cxx AGDD_model/*.cxx
 apply_pattern component_library
 
 apply_pattern install_runtime
 
+public
+use AtlasCLHEP          AtlasCLHEP-*            External
+use AtlasXercesC        AtlasXercesC-*          External
+use GeoModelKernel      GeoModelKernel-*        DetectorDescription/GeoModel 
 
 private
 use MuonGeoModel            MuonGeoModel-*           MuonSpectrometer

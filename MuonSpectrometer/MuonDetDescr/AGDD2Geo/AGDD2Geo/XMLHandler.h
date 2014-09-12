@@ -36,15 +36,23 @@ protected:
 	static DOMNode *GetCurrentElement() {return currentElement;}
 	
 	bool isAttribute(const std::string) const;
+
 	std::string getAttribute(const std::string, bool&) const;
+        std::string getAttributeAsString(const std::string) const;
+        double getAttributeAsDouble(const std::string) const;
+        int getAttributeAsInt(const std::string) const;
+        std::vector<double> getAttributeAsVector(const std::string) const;
+	std::vector<int> getAttributeAsIntVector(const std::string) const;
 	std::string getAttributeAsString(const std::string, bool&) const;
 	double getAttributeAsDouble(const std::string, bool&) const;
 	int getAttributeAsInt(const std::string, bool&) const;
 	std::vector<double> getAttributeAsVector(const std::string, bool&) const;
+        std::vector<int> getAttributeAsIntVector(const std::string, bool&) const;
 	std::string getAttributeAsString(const std::string, const std::string) const;
 	double getAttributeAsDouble(const std::string, const double) const;
 	int getAttributeAsInt(const std::string, const int) const;
 	std::vector<double> getAttributeAsVector(const std::string, const std::vector<double>) const;
+        std::vector<int> getAttributeAsIntVector(const std::string, const std::vector<int>) const;
 	static bool printFlag;
 private:
 	void RegisterToStore();

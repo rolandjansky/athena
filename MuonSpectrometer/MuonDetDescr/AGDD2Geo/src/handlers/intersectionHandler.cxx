@@ -17,7 +17,7 @@ intersectionHandler::intersectionHandler(std::string s):XMLHandler(s)
 void intersectionHandler::ElementHandle()
 {
 	bool res;
-	std::string name=getAttributeAsString("name",res);
+	std::string name=getAttributeAsString("name");
 	if (msgLog().level()<=MSG::DEBUG)
 	msgLog()<<MSG::DEBUG<<"intersection name "<<name<<endreq;
 	AGDDIntersection *c=new AGDDIntersection(name);

@@ -27,6 +27,9 @@ void sTGCHandler::ElementHandle()
 	vvv.push_back(getAttributeAsDouble("Tck",ret));
 	vvv.push_back(getAttributeAsDouble("yCutout",0.));
 	
+	double ttt=getAttributeAsDouble("yCutout",0.);
+	std::cout<<"+++++++++++++++++++++++> yCutout "<<ttt<<std::endl;
+	
 	std::string technology=getAttributeAsString("tech",ret);
 	
 	AGDDsTGC *b=new AGDDsTGC(name);

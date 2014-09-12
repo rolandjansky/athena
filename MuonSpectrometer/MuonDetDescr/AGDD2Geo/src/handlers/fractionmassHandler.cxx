@@ -14,8 +14,7 @@ fractionmassHandler::fractionmassHandler(std::string s):XMLHandler(s)
 
 void fractionmassHandler::ElementHandle()
 {
-	bool res;
-	double fractionmass=getAttributeAsDouble("fraction",res);
+	double fractionmass=getAttributeAsDouble("fraction");
 	globals::addMaterial.fractions.push_back(fractionmass);
 	if (msgLog().level()<=MSG::DEBUG)
 	msgLog()<<MSG::DEBUG<<"fractionmass "<<fractionmass<<endreq;

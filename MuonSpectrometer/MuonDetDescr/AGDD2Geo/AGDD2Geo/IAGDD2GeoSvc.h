@@ -10,11 +10,17 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include <string>
+#include <vector>
+
+#include "AGDD2Geo/AGDDDetectorStore.h"
+#include "AGDD2Geo/AGDDDetector.h"
 
 // Forward declarations
 class IIncidentListener;
 class Incident;
 class GeoFullPhysVol;
+
+
 
 // Declaration of the interface ID ( interface id, major version, minor version)
 static const InterfaceID IID_IAGDD2GeoSvc("IAGDD2GeoSvc", 1 , 0);
@@ -54,6 +60,9 @@ public:
 	virtual bool BuildMScomponents() const =0;
 
 	virtual int PrintLevel() const = 0;
+
+	virtual detectorList& GetDetectorList() const =0;
+	virtual std::vector<AGDDDetector*> GetDetectorsByType(std::string) const =0;
 
 };
 

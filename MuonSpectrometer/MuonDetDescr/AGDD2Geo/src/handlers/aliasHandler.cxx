@@ -16,8 +16,7 @@ aliasHandler::aliasHandler(std::string s):XMLHandler(s)
 
 void aliasHandler::ElementHandle()
 {
-	bool res;
-	std::string name=getAttributeAsString("name",res);
-	std::string value=getAttributeAsString("standsFor",res);
+	std::string name=getAttributeAsString("name");
+	std::string value=getAttributeAsString("standsFor");
 	AliasStore::GetAliasList()->AddAlias(name,value);
 }

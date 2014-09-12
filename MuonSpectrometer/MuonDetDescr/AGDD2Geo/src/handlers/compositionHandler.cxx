@@ -17,8 +17,7 @@ compositionHandler::compositionHandler(std::string s):XMLHandler(s)
 
 void compositionHandler::ElementHandle()
 {
-	bool res;
-	std::string name=getAttributeAsString("name",res);
+	std::string name=getAttributeAsString("name");
 //	if (msgLog().level()<=MSG::DEBUG)
 //	msgLog()<<MSG::DEBUG<<" Composition "<<name<<endreq;
 	

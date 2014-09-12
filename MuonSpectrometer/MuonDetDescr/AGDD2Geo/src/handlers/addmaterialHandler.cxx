@@ -17,8 +17,7 @@ void addmaterialHandler::ElementHandle()
 {
 //	std::cout<<"handling for addmaterial";
 
-	bool res;
-	std::string material=getAttributeAsString("material",res);
+	std::string material=getAttributeAsString("material");
 //	std::cout<<" material= "<<material<<std::endl;
 	
 	globals::addMaterial.names.push_back(material);

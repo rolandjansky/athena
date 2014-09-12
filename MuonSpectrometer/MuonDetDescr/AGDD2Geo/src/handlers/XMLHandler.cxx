@@ -75,11 +75,64 @@ std::string XMLHandler::getAttribute(const std::string name, bool& isPresent) co
 	}
 	return retValue;
 }
-std::string XMLHandler::getAttributeAsString(const std::string name, bool& isPresent) const
+std::string XMLHandler::getAttributeAsString(const std::string name) const
 {
+	bool isPresent;
 	std::string temp=getAttribute(name,isPresent);
+	assert (isPresent);
 	return temp;
 }
+double XMLHandler::getAttributeAsDouble(const std::string name) const
+{
+        double res=0.;
+        bool isPresent;
+        std::string temp=getAttribute(name,isPresent);
+	assert (isPresent);
+        res=XercesParser::Evaluator().Eval(temp.c_str());
+        return res;
+}
+int XMLHandler::getAttributeAsInt(const std::string name) const
+{
+        int res=0;
+        bool isPresent;
+        std::string temp=getAttribute(name,isPresent);
+	assert (isPresent);
+        res=XercesParser::Evaluator().Eval(temp.c_str());
+        return res;
+}
+std::vector<double> XMLHandler::getAttributeAsVector(const std::string name) const
+{
+	bool isPresent;
+        std::vector<double> vect;
+        std::string temp=getAttribute(name,isPresent);
+        assert (isPresent);
+        std::vector<std::string> v=XercesParser::Evaluator().tokenize(";",temp);
+        for (unsigned int i=0;i<v.size();i++)
+        {
+             vect.push_back(XercesParser::Evaluator().Eval(v[i].c_str()));
+        }
+        return vect;
+}
+
+std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name) const
+{
+        bool isPresent;
+        std::vector<int> vect;
+        std::string temp=getAttribute(name,isPresent);
+        assert (isPresent);
+        std::vector<std::string> v=XercesParser::Evaluator().tokenize(";",temp);
+        for (unsigned int i=0;i<v.size();i++)
+        {
+             vect.push_back(XercesParser::Evaluator().Eval(v[i].c_str()));
+        }
+        return vect;
+}
+
+std::string XMLHandler::getAttributeAsString(const std::string name, bool& isPresent) const
+{
+        std::string temp=getAttribute(name,isPresent);
+        return temp;
+} 
 double XMLHandler::getAttributeAsDouble(const std::string name, bool& isPresent) const
 {
 	double res=0.;
@@ -113,6 +166,21 @@ std::vector<double> XMLHandler::getAttributeAsVector(const std::string name, boo
 		}
 	}
 	return vect;
+}
+
+std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name, bool& isPresent) const
+{
+        std::vector<int> vect;
+        std::string temp=getAttribute(name,isPresent);
+        if (isPresent)
+        {
+                std::vector<std::string> v=XercesParser::Evaluator().tokenize(";",temp);
+                for (unsigned int i=0;i<v.size();i++)
+                {
+                        vect.push_back(XercesParser::Evaluator().Eval(v[i].c_str()));
+                }
+        }
+        return vect;
 }
 
 std::string XMLHandler::getAttributeAsString(const std::string name, const std::string def) const
@@ -161,4 +229,21 @@ std::vector<double> XMLHandler::getAttributeAsVector(const std::string name, con
 		return vect;
 	}
 	return def;
+}
+
+std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name, const std::vector<int> def) const
+{
+        bool isPresent;
+        std::vector<int> vect;
+        std::string temp=getAttribute(name,isPresent);
+        if (isPresent)
+        {
+                std::vector<std::string> v=XercesParser::Evaluator().tokenize(";",temp);
+                for (unsigned int i=0;i<v.size();i++)
+                {
+                        vect.push_back(XercesParser::Evaluator().Eval(v[i].c_str()));
+                }
+                return vect;
+        }
+        return def;
 }

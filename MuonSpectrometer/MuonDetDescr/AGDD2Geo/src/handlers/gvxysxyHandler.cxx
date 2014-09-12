@@ -16,9 +16,9 @@ gvxysxyHandler::gvxysxyHandler(std::string s):XMLHandler(s)
 void gvxysxyHandler::ElementHandle()
 {
 	bool res;
-	std::string name=getAttributeAsString("name",res);
-	std::string material=getAttributeAsString("material",res);
-	double dZ=getAttributeAsDouble("dZ",res);
+	std::string name=getAttributeAsString("name");
+	std::string material=getAttributeAsString("material");
+	double dZ=getAttributeAsDouble("dZ");
 	if (msgLog().level()<=MSG::DEBUG)
 	msgLog()<<MSG::DEBUG<<"gvxysxy name "<<name<<" material="<<material<<endreq;
 	

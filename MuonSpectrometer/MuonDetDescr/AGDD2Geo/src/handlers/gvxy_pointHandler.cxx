@@ -17,8 +17,7 @@ gvxy_pointHandler::gvxy_pointHandler(std::string s):XMLHandler(s)
 
 void gvxy_pointHandler::ElementHandle()
 {
-	bool res;
-	std::vector<double> vvv=getAttributeAsVector("X_Y",res);
+	std::vector<double> vvv=getAttributeAsVector("X_Y");
 	point.x(vvv[0]);
 	point.y(vvv[1]);
 }

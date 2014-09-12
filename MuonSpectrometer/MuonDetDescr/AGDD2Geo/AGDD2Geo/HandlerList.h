@@ -57,6 +57,7 @@
 #include "AGDD2Geo/micromegasHandler.h"
 #include "AGDD2Geo/mm_TechHandler.h"
 #include "AGDD2Geo/sTGCHandler.h"
+#include "AGDD2Geo/sTGC_readoutHandler.h"
 #include "AGDD2Geo/sTGC_TechHandler.h"
 #include "AGDD2Geo/mmSpacerHandler.h"
 #include "AGDD2Geo/mmSpacer_TechHandler.h"
