@@ -54,7 +54,9 @@ namespace pool {
 }
 
 
-pool::XMLQueryHandle::XMLQueryHandle(){
+pool::XMLQueryHandle::XMLQueryHandle()
+  : m_nq(0)
+{
 }
   
   
