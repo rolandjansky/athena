@@ -29,6 +29,7 @@ PLUGINSVC_FACTORY_WITH_ID(XMLMetaDataCatalog, std::string("xmlcatalog_meta"), FC
    
 pool::XMLMetaDataCatalog::XMLMetaDataCatalog(FCImpl* fc) : FCMetaImpl(fc) {
     x_fc=static_cast<XMLFileCatalog*>(m_fc);  
+    XMLcon = 0;
 }
 
 pool::XMLMetaDataCatalog::~XMLMetaDataCatalog()
@@ -258,9 +259,7 @@ pool::XMLMetaDataCatalog::retrievePFN(const std::string& query,
   files = _xmlcatalog->getAllpfnsbyq(myquery,start,buf.maxsize());   
   //end fix
   for (unsigned int i = 0 ; i < files.size(); i++){ 
-    PFNEntry* pentry = new 
-      PFNEntry(files[i].fname, files[i].guid, files[i].filetype);
-    buf.push_back(*pentry);
+    buf.push_back(PFNEntry(files[i].fname, files[i].guid, files[i].filetype));
   }
   return (files.size() > 0);
 }
@@ -284,9 +283,7 @@ pool::XMLMetaDataCatalog::retrieveLFN(const std::string& query,
   
   
   for (unsigned int i = 0 ; i < files.size(); i++){ 
-    LFNEntry* lentry = new 
-      LFNEntry(files[i].fname, files[i].guid);
-    buf.push_back(*lentry);
+    buf.push_back(LFNEntry(files[i].fname, files[i].guid));
   }
   return (files.size() > 0);
 }

@@ -126,9 +126,13 @@ pool::PoolXMLFileCatalog::PoolXMLFileCatalog(const std::string& contactstring)
   :
   read_only(false),
   update(false),
+  doc(0),
   parser(0),
   errMessanger(0),
+  index_l(0),
   m_file(contactstring),
+  nmeta(0),
+  imeta(0),
   fmeta(true)
 {
   coral::MessageStream xmllog( "PoolXMLFileCatalog" );
@@ -983,7 +987,9 @@ pool::PoolXMLFileCatalog::insertFile(const std::string& FileID,
   this->setAttr(fnelem, FileAtt_name, addpref(std::string("pfn_"),fname));
   mem_pfn[fname]=fnelem;  
   this->setAttr(fnelem, FileAtt_fitype, ftype);
-    
+
+  if (!FNNode)
+    throw( std::runtime_error( "Can't find daughter node: " + DaughtPNodeName));
   FNNode->appendChild(fnelem);
 }
   
@@ -1039,6 +1045,8 @@ std::string
 pool::PoolXMLFileCatalog::registerFile(const std::string& fname)
 {  
   DOMNode* PFNNode = this->getNode(GranDaPNodeName, FileAtt_name,fname);
+  if (!PFNNode)
+    throw( std::runtime_error( "Can't find node: " + GranDaPNodeName + " " + fname));
   DOMNode* FIDNode = PFNNode->getParentNode()->getParentNode();    
   std::string fid = this->getAttr(FIDNode,FileAtt_ID);
   return fid;
@@ -1183,9 +1191,9 @@ pool::PoolXMLFileCatalog::getNode(const std::string& nodename,
         MyNode = mem_lfn[attrname];
         // back compatibility with POOL_1_3_3
         if (!MyNode) {
-          XMLCh* attr = pool::_toDOMS(attrname);
-          MyNode = doc->getElementById(attr);
-          XMLString::release(&attr);
+          XMLCh* attr2 = pool::_toDOMS(attrname);
+          MyNode = doc->getElementById(attr2);
+          XMLString::release(&attr2);
         }
       }
     }
@@ -1193,9 +1201,9 @@ pool::PoolXMLFileCatalog::getNode(const std::string& nodename,
   }
   
   if (nodename ==  ParentNodeName && attr == FileAtt_ID ){
-    XMLCh* attr = pool::_toDOMS(attrname);
-    MyNode = doc->getElementById(attr);
-    XMLString::release(&attr);
+    XMLCh* attr2 = pool::_toDOMS(attrname);
+    MyNode = doc->getElementById(attr2);
+    XMLString::release(&attr2);
     if (!MyNode) {
       if (mem_fid.find(attrname) != mem_fid.end()){
         MyNode = mem_fid[attrname];
@@ -1644,6 +1652,8 @@ pool::PoolXMLFileCatalog::dropMetas(const std::string& fid)
 {
   
   DOMNode* FNode = this->getNode(ParentNodeName,FileAtt_ID,fid);
+  if (!FNode)
+    throw( std::runtime_error( "Can't find node: " + ParentNodeName + " " + fid));
   DOMNode* MNode = this->getChild(FNode,MetaNode);
   std::vector<DOMNode*> garbNode;
   while (MNode){
