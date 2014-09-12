@@ -492,10 +492,12 @@ updateRows( coral::AttributeList* attributeSetList,
       m_mapOfTokenKeyForLinkIdMaps );
 
    // Add Tokens to update to query output list.
-   for( pool::TokenList::const_iterator iToken = tokenSetList->begin(); iToken != tokenSetList->end(); ++iToken )
-   {
-      query->addToOutputList( iToken.tokenName() );
-   } 
+   if (tokenSetList) {
+     for( pool::TokenList::const_iterator iToken = tokenSetList->begin(); iToken != tokenSetList->end(); ++iToken )
+     {
+       query->addToOutputList( iToken.tokenName() );
+     } 
+   }
 
    // Set query condition.
    query->setCondition( whereClause, attributeBindData, tokenBindData );
@@ -509,55 +511,58 @@ updateRows( coral::AttributeList* attributeSetList,
       m_whereDataForPrimaryKeyInDataTable->begin()->data<unsigned>() = cursor.primaryKey();
 
       // Make requested updates to Attribute columns for this row.
-      for ( coral::AttributeList::const_iterator iAttribute = attributeSetList->begin(); iAttribute !=
-               attributeSetList->end(); ++iAttribute )
-      {
-         // Get names of Attribute column and associated data table.
-         std::string collectionColumnName = iAttribute->specification().name();
-         std::string tableColumnName = 
+      if (attributeSetList) {
+        for ( coral::AttributeList::const_iterator iAttribute = attributeSetList->begin(); iAttribute !=
+                attributeSetList->end(); ++iAttribute )
+        {
+          // Get names of Attribute column and associated data table.
+          std::string collectionColumnName = iAttribute->specification().name();
+          std::string tableColumnName = 
             ( m_tableAttributeColumnNameForCollectionAttributeColumnName.find( collectionColumnName ) )->second;
-         std::string fragmentName = m_description.collectionFragmentName( collectionColumnName );
-         std::string dataTableName = ( m_dataTableNameForCollectionFragmentName.find( fragmentName ) )->second;
+          std::string fragmentName = m_description.collectionFragmentName( collectionColumnName );
+          std::string dataTableName = ( m_dataTableNameForCollectionFragmentName.find( fragmentName ) )->second;
+          
+          // Define set clause.
+          std::ostringstream setClauseStream;
+          //setClauseStream << tableColumnName << " = " << **iAttribute;
+          // This is my interpretation of what should happen, check??   FIXME
+          setClauseStream << tableColumnName << " = ";
+          bool valueOnly(true);
+          iAttribute->toOutputStream( setClauseStream, valueOnly );
 
-         // Define set clause.
-         std::ostringstream setClauseStream;
-         //setClauseStream << tableColumnName << " = " << **iAttribute;
-         // This is my interpretation of what should happen, check??   FIXME
-         setClauseStream << tableColumnName << " = ";
-         bool valueOnly(true);
-         iAttribute->toOutputStream( setClauseStream, valueOnly );
-
-         // Update row.
-         m_schema->tableHandle( dataTableName ).dataEditor().updateRows(
+          // Update row.
+          m_schema->tableHandle( dataTableName ).dataEditor().updateRows(
             setClauseStream.str(),
             m_whereClauseForPrimaryKeyInDataTable,
             *m_whereDataForPrimaryKeyInDataTable );
+        }
       }
 
       // Make requested updates to Token columns for this row.
-      for( pool::TokenList::const_iterator iToken = tokenSetList->begin(); iToken != tokenSetList->end(); ++iToken )
-      {
-         // Get names of Token OID columns and associated data and links tables.
-         std::string collectionColumnName = iToken.tokenName();
-         std::string tableColumnPrefix = m_tableTokenColumnPrefixForCollectionTokenColumnName.find( collectionColumnName )->second;
-         std::string oid1ColumnName = tableColumnPrefix + RelationalCollectionNames::oid_1_variableInCollectionDataTable();
-         std::string oid2ColumnName = tableColumnPrefix + RelationalCollectionNames::oid_2_variableInCollectionDataTable();
-         std::string fragmentName = m_description.collectionFragmentName( collectionColumnName );
-         std::string dataTableName = m_dataTableNameForCollectionFragmentName.find( fragmentName )->second;
-         std::string linksTableName = m_linksTableNameForCollectionFragmentName.find( fragmentName )->second;
-
-         // Get mappings of link ID's to Token keys for this collection fragment.
-         std::map< std::string, unsigned >* linkIdForTokenKey =
+      if (tokenSetList) {
+        for( pool::TokenList::const_iterator iToken = tokenSetList->begin(); iToken != tokenSetList->end(); ++iToken )
+        {
+          // Get names of Token OID columns and associated data and links tables.
+          std::string collectionColumnName = iToken.tokenName();
+          std::string tableColumnPrefix = m_tableTokenColumnPrefixForCollectionTokenColumnName.find( collectionColumnName )->second;
+          std::string oid1ColumnName = tableColumnPrefix + RelationalCollectionNames::oid_1_variableInCollectionDataTable();
+          std::string oid2ColumnName = tableColumnPrefix + RelationalCollectionNames::oid_2_variableInCollectionDataTable();
+          std::string fragmentName = m_description.collectionFragmentName( collectionColumnName );
+          std::string dataTableName = m_dataTableNameForCollectionFragmentName.find( fragmentName )->second;
+          std::string linksTableName = m_linksTableNameForCollectionFragmentName.find( fragmentName )->second;
+          
+          // Get mappings of link ID's to Token keys for this collection fragment.
+          std::map< std::string, unsigned >* linkIdForTokenKey =
             ( m_mapOfLinkIdForTokenKeyMaps.find( fragmentName ) )->second;
-         std::map< unsigned, std::string >* tokenKeyForLinkId =
+          std::map< unsigned, std::string >* tokenKeyForLinkId =
             ( m_mapOfTokenKeyForLinkIdMaps.find( fragmentName ) )->second;
 
-         // Look for Token key in map and add new entry to links table if it does not exist.
-         unsigned newOID1ColumnValue = 0;
-         unsigned newOID2ColumnValue = 0;
-         std::string tokenKey = iToken->key();
-         if ( linkIdForTokenKey->find( tokenKey ) == linkIdForTokenKey->end() )
-         {
+          // Look for Token key in map and add new entry to links table if it does not exist.
+          unsigned newOID1ColumnValue = 0;
+          unsigned newOID2ColumnValue = 0;
+          std::string tokenKey = iToken->key();
+          if ( linkIdForTokenKey->find( tokenKey ) == linkIdForTokenKey->end() )
+          {
             // Create new link ID.
             unsigned linkId = 0;
             while( tokenKeyForLinkId->find(linkId) != tokenKeyForLinkId->end() ) {
@@ -594,33 +599,33 @@ updateRows( coral::AttributeList* attributeSetList,
 
             // Set OID_1 of Token to new link ID.
             newOID1ColumnValue = linkId;
-         }
-         else {
+          }
+          else {
             // Set OID_1 of Token to existing link ID.
             newOID1ColumnValue = ( linkIdForTokenKey->find( tokenKey ) )->second;
          }
 
-         // Get OID_2 of Token.
-         newOID2ColumnValue = iToken->oid().second;
+          // Get OID_2 of Token.
+          newOID2ColumnValue = iToken->oid().second;
 
-         // Define set clause.
-         std::ostringstream setClauseStream;
-         setClauseStream << oid1ColumnName << " = " << newOID1ColumnValue << " , "
-                         << oid2ColumnName << " = " << newOID2ColumnValue;
+          // Define set clause.
+          std::ostringstream setClauseStream;
+          setClauseStream << oid1ColumnName << " = " << newOID1ColumnValue << " , "
+                          << oid2ColumnName << " = " << newOID2ColumnValue;
 
-         // Update row.
-         m_schema->tableHandle( dataTableName ).dataEditor().updateRows( setClauseStream.str(),
-                                                                        m_whereClauseForPrimaryKeyInDataTable,
-                                                                        *m_whereDataForPrimaryKeyInDataTable );
+          // Update row.
+          m_schema->tableHandle( dataTableName ).dataEditor().updateRows( setClauseStream.str(),
+                                                                          m_whereClauseForPrimaryKeyInDataTable,
+                                                                          *m_whereDataForPrimaryKeyInDataTable );
 
-         // Get old OID_1 column value.
-         // int oldOID1ColumnValue = cursor.currentRow().getToken( collectionColumnName ).oid()->first;
-         // another guess,  FIXME??
-         unsigned oldOID1ColumnValue = cursor.currentRow().tokenList()[collectionColumnName].oid().first;
+          // Get old OID_1 column value.
+          // int oldOID1ColumnValue = cursor.currentRow().getToken( collectionColumnName ).oid()->first;
+          // another guess,  FIXME??
+          unsigned oldOID1ColumnValue = cursor.currentRow().tokenList()[collectionColumnName].oid().first;
 
-         // Look for other Tokens with old OID_1 value in data table.
-         if ( newOID1ColumnValue != oldOID1ColumnValue )
-         {
+          // Look for other Tokens with old OID_1 value in data table.
+          if ( newOID1ColumnValue != oldOID1ColumnValue )
+          {
             bool oldOID1ColumnValueFound = false;
             //for ( int i = 0; i < m_description.numberOfTokens( i, fragmentName ); i++ )
             // another guess,  FIXME??
@@ -654,7 +659,8 @@ updateRows( coral::AttributeList* attributeSetList,
                linkIdForTokenKey->erase( tokenKey );
                tokenKeyForLinkId->erase( oldOID1ColumnValue );
             }
-         } 
+          } 
+        }
       }
 
       // Increment counter of number of rows updated.

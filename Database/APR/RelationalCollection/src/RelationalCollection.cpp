@@ -1341,6 +1341,11 @@ retrieveCollectionFragmentDescriptions()
          foreignKeyName = row[1].data<std::string>();
 
       if( childFragmentName.size() > 0 ) {
+         if (!m_schemaEditor) {
+           throw pool::Exception( "No schema editor",
+                                  "RelationalCollection::retrieveCollectionFragmentDescriptions",
+                                  "RelationalCollection" );
+         }
          if( foreignKeyName.size() > 0 ) {
            //m_description.addCollectionFragment( childFragmentName, fragmentName, true );
            // MN: FIX guess - check functionality!

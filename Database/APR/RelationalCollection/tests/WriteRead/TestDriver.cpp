@@ -48,7 +48,7 @@ void
 TestDriver::write()
 {
    cout << "Creationg CollectionService" << endl;
-   pool::ICollectionService *serviceHandle( new pool::CollectionService() );
+   auto serviceHandle = std::unique_ptr<pool::CollectionService>(new pool::CollectionService);
    
    cout << "Creating a collection description object" << endl;
    pool::CollectionDescription description( m_name, "RelationalCollection", m_connection, "MainEventRef" );

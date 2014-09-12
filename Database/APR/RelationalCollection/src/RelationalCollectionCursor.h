@@ -46,6 +46,9 @@ namespace pool {
       /// Destructor.
       ~RelationalCollectionCursor();
 
+      RelationalCollectionCursor (const RelationalCollectionCursor&) = delete;
+      RelationalCollectionCursor& operator= (const RelationalCollectionCursor&) = delete;
+
       /// Advances the cursor to the next row of the query result set.
       virtual bool next();
 
