@@ -1,0 +1,480 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: DVLInfo.icc,v 1.3 2008-12-15 15:14:29 ssnyder Exp $
+/**
+ * @file  AthContainers/tools/DVLInfo.icc
+ * @author scott snyder
+ * @date Mar, 2008
+ * @brief Holder to implement conversion copies for @c DataVector/@c DataList.
+ *
+ * Template and inline implementations.
+ */
+
+
+#include "AthContainers/OwnershipPolicy.h"
+#include <vector>
+#include <list>
+#include <cassert>
+#include <cstdlib>
+
+
+#ifndef XAOD_STANDALONE
+#include "SGTools/BaseInfo.h"
+#endif
+
+
+namespace DataModel_detail {
+
+
+/**
+ * @brief Helper function to do @c push_back on a container.
+ * @param cont The container.
+ * @param elt The element to push
+ *
+ * This specialization is for the case when the container holds pointers.
+ */
+template <class CONTAINER, class ELT>
+inline
+void dvlPush (CONTAINER& cont, ELT* elt, const SG_STD_OR_BOOST::true_type&)
+{
+  cont.push_back (elt);
+}
+
+
+/**
+ * @brief Helper function to do @c push_back on a container.
+ * @param cont The container.
+ * @param elt The element to push
+ *
+ * This specialization is for the case when the container does not
+ * hold pointers.
+ */
+template <class CONTAINER, class ELT>
+inline
+void dvlPush (CONTAINER& cont, ELT* elt, const SG_STD_OR_BOOST::false_type&)
+{
+  cont.push_back (*elt);
+}
+
+
+/**
+ * @brief Helper function to return a pointer from an iterator.
+ * @param it The iterator.
+ *
+ * This specialization is for the case when the container holds pointers.
+ */
+template <class ITERATOR>
+inline
+const void* dvlGetPointer (ITERATOR& it, const SG_STD_OR_BOOST::true_type&)
+{
+  return *it;
+}
+
+
+/**
+ * @brief Helper function to return a pointer from an iterator.
+ * @param it The iterator.
+ *
+ * This specialization is for the case when the container does not
+ * hold pointers.
+ */
+template <class ITERATOR>
+inline
+const void* dvlGetPointer (ITERATOR& it, const SG_STD_OR_BOOST::false_type&)
+{
+  return &*it;
+}
+
+
+/**
+ * @brief Return the @c type_info for the container.
+ */
+inline
+const std::type_info& DVLInfoBase::tinfo() const
+{
+  return m_tinfo;
+}
+
+
+/**
+ * @brief Return the CLID for the container.
+ */
+inline
+CLID DVLInfoBase::clid() const
+{
+  return m_clid;
+}
+
+
+/**
+ * @brief Return the @c type_info for the container's element.
+ *        (Pointer and const stripped.)
+ */
+inline
+const std::type_info& DVLInfoBase::elt_tinfo() const
+{
+  return m_elt_tinfo;
+}
+
+
+/**
+ * @brief Constructor.
+ *
+ * Note: these objects should only be allocated statically.
+ */
+template <class T>
+DVLInfo<T>::DVLInfo()
+  : DVLInfoBase (typeid (Container), SG::safe_clid<Container>(), typeid (Elt))
+{
+}
+
+
+/**
+ * @brief Construct a new container.
+ * @param nreserve Number of elements for which to reserve space.
+ *                 (Ignored if not appropriate.)
+ */
+template <class T>
+void* DVLInfo<T>::make (size_t nreserve) const
+{
+  T* cont = 0;
+  dvl_makecontainer (nreserve, cont);
+  return cont;
+}
+
+
+/**
+ * @brief Push a new pointer into the container.
+ * @param cont_p Pointer to the container.
+ * @param elt_p Pointer to the element to push.
+ *              (Must match the container's declared element type.)
+ */
+template <class T>
+void DVLInfo<T>::push (void* cont_p, void* elt_p) const
+{
+  Container* cont = reinterpret_cast<Container*> (cont_p);
+  Elt* elt = reinterpret_cast<Elt*> (elt_p);
+  dvlPush (*cont, elt,
+           typename SG_STD_OR_BOOST::is_pointer<typename Container::value_type>::type());
+}
+
+
+/**
+ * @brief Return the size of the container.
+ * @param cont_p Pointer to the container.
+ */
+template <class T>
+size_t DVLInfo<T>::size (void* cont_p) const
+{
+  Container* cont = reinterpret_cast<Container*> (cont_p);
+  return cont->size();
+}
+
+
+/**
+ * @brief Erase the elements in the container.
+ * @param cont_p Pointer to the container.
+ */
+template <class T>
+void DVLInfo<T>::clear (void* cont_p) const
+{
+  Container* cont = reinterpret_cast<Container*> (cont_p);
+  cont->clear();
+}
+
+
+/**
+ * @brief Delete a container.
+ * @param cont_p Pointer to the container.
+ */
+template <class T>
+void DVLInfo<T>::del (void* cont_p) const
+{
+  Container* cont = reinterpret_cast<Container*> (cont_p);
+  delete cont;
+}
+
+
+/**
+ * @brief Copy a container.
+ * @param cont_p Pointer to the container.
+ */
+template <class T>
+void* DVLInfo<T>::clone (void* cont_p) const
+{
+  Container* cont = reinterpret_cast<Container*> (cont_p);
+  return new T (*cont);
+}
+
+
+/**
+ * @brief Helper to create the @c DVLInfo static instance.
+ *
+ * Calling this will create the @c DVLInfo static instance.
+ * This can be called from, for example, an initializer for
+ * a class static variable.
+ */
+template <class T>
+const std::type_info* DVLInfo<T>::initHelper()
+{
+  static DVLInfo<T> inst;
+  return &inst.tinfo();
+}
+
+
+/**
+ * @brief Return a new iterator object.
+ * @param cont_p Pointer to the container.
+ */
+template <class T>
+DVLIteratorBase* DVLInfo<T>::iterator (const void* cont_p) const
+{
+  const Container* cont = reinterpret_cast<const Container*> (cont_p);
+  return new DVLIterator<T> (cont->begin(), cont->end());
+}
+
+
+/**
+ * @brief Constructor.
+ * @param beg Start of the container.
+ * @param end End of the container.
+ */
+template <class T>
+DVLIterator<T>::DVLIterator (const base_iterator& beg,
+                             const base_iterator& end)
+  : m_it (beg),
+    m_end (end)
+{
+}
+
+
+/**
+ * @brief Return the next element from the container.
+ *
+ * This is the next pointer from the container (it's a pointer to the
+ * element itself, not a pointer to the pointer).  It will be properly
+ * cast to the type described by elt_tinfo().  Null pointers are skipped;
+ * this function signals the end of iteration by returning 0.
+ */
+template <class T>
+const void* DVLIterator<T>::next()
+{
+  const void* ret = 0;
+  while (ret == 0) {
+    if (m_it == m_end)
+      return 0;
+    ret = dvlGetPointer (m_it, 
+                         typename SG_STD_OR_BOOST::is_pointer<typename T::value_type>::type());
+    ++m_it;
+  }
+  return ret;
+}
+
+
+/**
+ * @brief Return container size in constant time, or 0.
+ * @param c The container.
+ *
+ * This will return the size of container @a c, if it is possible
+ * to do so in constant time.  Otherwise, it returns 0.
+ */
+template <class T>
+inline
+size_t dvl_size_const (const T& c)
+{
+  return c.size();
+}
+
+
+/**
+ * @brief Return container size in constant time, or 0.
+ * @param c The container.
+ *
+ * This is a specialization for @c list; here we just return 0.
+ */
+template <class T>
+inline
+size_t dvl_size_const (const std::list<T>& /*c*/)
+{
+  return 0;
+}
+
+
+#if defined(XAOD_STANDALONE) || defined(__GCCXML__)
+template <class T>
+void* dvl_convert (const T& ,
+                   const DVLInfoBase& )
+{
+  // not implemented for standalone.
+  std::abort();
+}
+#else
+/**
+ * @brief Perform @c DataVector/@c DataList conversion copying.
+ * @param src The source container.
+ * @param targ_info The @c DVLInfo for the target container type.
+ * @return The new container, or 0.
+ *
+ * If the elements of @a src can be converted to elements
+ * of a @a targ_tinfo container, then we make a new (view)
+ * container of that type and populate it with elements copied from @a src.
+ */
+template <class T>
+void* dvl_convert (const T& src,
+                   const DVLInfoBase& targ_info)
+{
+  // @a src's element type, with pointer and const removed.
+  typedef
+    typename SG_STD_OR_BOOST::remove_const<typename T::base_value_type>::type
+    Elt;
+
+  // Fetch the cast function.
+  SG::BaseInfoBase::castfn_t* castfn =
+    SG::BaseInfo<Elt>::castfn (targ_info.elt_tinfo());
+  if (!castfn)
+    return 0;
+
+  // Make the target container.
+  void* newcont = targ_info.make (dvl_size_const (src));
+
+  // Copy the contents of the source to the target container,
+  // converting as we go.
+  typename T::const_iterator it = src.begin();
+  typename T::const_iterator end = src.end();
+  for (; it != end; ++it) {
+    Elt* elt = const_cast<Elt*> (*it);
+    targ_info.push (newcont, castfn (elt));
+  }
+
+  return newcont;
+}
+#endif
+
+
+
+/**
+ * @brief Perform @c DataVector/@c DataList conversion copying.
+ * @param src The source container.
+ * @param targ_tinfo @c type_info for the desired container type.
+ * @param targ_info[out] The @c DVLInfo for the target container type.
+ * @return The new container, or 0.
+ *
+ * If the elements of @a src can be converted to elements
+ * of a @a targ_tinfo container, then we make a new (view)
+ * container of that type and populate it with elements copied from @a src.
+ */
+template <class T>
+void* dvl_convert (const T& src,
+                   const std::type_info& targ_tinfo,
+                   DVLInfoBase*& targ_info)
+{
+  // Look up the info for the target container.
+  targ_info = DVLInfoBase::find (targ_tinfo);
+  if (!targ_info)
+    return 0;
+
+  return dvl_convert (src, *targ_info);
+}
+
+
+/**
+ * @brief Perform @c DataVector/@c DataList conversion copying.
+ * @param src The source container.
+ * @param clid CLID for the desired container type.
+ * @param targ_info[out] The @c DVLInfo for the target container type.
+ * @return The new container, or 0.
+ *
+ * If the elements of @a src can be converted to elements
+ * of a @a targ_tinfo container, then we make a new (view)
+ * container of that type and populate it with elements copied from @a src.
+ */
+template <class T>
+void* dvl_convert (const T& src,
+                   CLID clid,
+                   DVLInfoBase*& targ_info)
+{
+  // Look up the info for the target container.
+  targ_info = DVLInfoBase::find (clid);
+  if (!targ_info)
+    return 0;
+
+  return dvl_convert (src, *targ_info);
+}
+
+
+#if defined(XAOD_STANDALONE) || defined(__GCCXML__)
+template <class T>
+void dvl_update (const T&,
+                 void* ,
+                 const DVLInfoBase* )
+{
+  // Not implemented for standalone.
+  std::abort();
+}
+#else
+/**
+ * @brief Update the elements in the target container from the source.
+ * @param src The source container.
+ * @param target The target container.
+ * @param targ_info The @c DVLInfo for the target container type.
+ *
+ * The target container is cleared and then repopulated from the elements
+ * of the source container.
+ */
+template <class T>
+void dvl_update (const T& src,
+                 void* target,
+                 const DVLInfoBase* targ_info)
+{
+  // @a src's element type, with pointer and const removed.
+  typedef
+    typename SG_STD_OR_BOOST::remove_const<typename T::base_value_type>::type
+    Elt;
+
+  // Clear the target container.
+  targ_info->clear (target);
+
+  // Fetch the cast function.
+  SG::BaseInfoBase::castfn_t* castfn =
+    SG::BaseInfo<Elt>::castfn (targ_info->elt_tinfo());
+  assert (castfn != 0);
+
+  // Copy the contents of the source to the target container,
+  // converting as we go.
+  typename T::const_iterator it = src.begin();
+  typename T::const_iterator end = src.end();
+  for (; it != end; ++it) {
+    Elt* elt = const_cast<Elt*> (*it);
+    targ_info->push (target, castfn (elt));
+  }
+}
+#endif
+
+
+} // namespace DataModel_detail
+
+
+/**
+ * @brief Construct a new container.
+ * @param nreserve Number of elements for which to reserve space.
+ *                 (Ignored if not appropriate.)
+ * @param cont[out] Pointer to the constructed container.
+ *                  (Returned via an argument to allow for template
+ *                  argument deduction.)
+ *
+ * This is broken out from the @c make method to allow specializing
+ * just this method.  (Needs to be in the global namespace for proper
+ * resolution.)
+ */
+template <class CONTAINER>
+void dvl_makecontainer (size_t /*nreserve*/, CONTAINER*& cont)
+{
+  cont = new CONTAINER;
+  std::abort();
+}
+
+

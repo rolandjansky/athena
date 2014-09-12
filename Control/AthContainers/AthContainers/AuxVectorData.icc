@@ -1,0 +1,367 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: AuxVectorData.icc 602256 2014-06-17 21:24:55Z ssnyder $
+/**
+ * @file AthContainers/AuxVectorData.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2013
+ * @brief Manage lookup of vectors of auxiliary data.
+ */
+
+
+#include "AthContainers/tools/likely.h"
+#include "AthContainers/tools/assume.h"
+
+
+namespace SG {
+
+
+/**
+ * @brief Return the current store, as a const interface.
+ *
+ * This will be non-zero if either a const or non-const store
+ * is associated with this object.
+ */
+inline
+const SG::IConstAuxStore* AuxVectorData::getConstStore() const
+{
+   if( m_constStore ) {
+      return m_constStore;
+   }
+   if( !m_constStoreLink.isDefault() ) {
+      return m_constStoreLink.cptr();
+   }
+   return 0;
+}
+
+
+/**
+ * @brief Return the current store, as a non-const interface.
+ *
+ * This will be non-zero if a non-const store is associated with this object.
+ */
+inline
+SG::IAuxStore* AuxVectorData::getStore() const
+{
+  return m_store;
+}
+
+
+/**
+ * @brief Return true if this object has an associated store.
+ */
+inline
+bool AuxVectorData::hasStore() const
+{
+  return ( getConstStore() != 0 );
+}
+
+
+/**
+ * @brief Return true if this object has an associated non-const store.
+ */
+inline
+bool AuxVectorData::hasNonConstStore() const
+{
+  return m_store != 0;
+}
+
+
+/**
+ * @brief Return reference to an aux data item.
+ * @param auxid The desired aux data item.
+ * @param ndx Index of the element to return.
+ *
+ * This will return a reference to element @c ndx of aux data item @c auxid.
+ * If the aux data item does not exist, it will be created.
+ * Errors are signaled by raising an exception.
+ *
+ * Warning: no type checking is done.  You should usually access
+ * the data via @c AuxElement::Accessor.
+ */
+template <class T>
+inline
+T& AuxVectorData::getData (SG::auxid_t auxid, size_t ndx)
+{
+  return reinterpret_cast<T*>(this->getDataArray (auxid))[ndx];
+}
+
+
+/**
+ * @brief Return const reference to an aux data item.
+ * @param auxid The desired aux data item.
+ * @param ndx Index of the element to return.
+ *
+ * This will return a reference to element @c ndx of aux data item @c auxid.
+ * If the aux data item does not exist, it will be created.
+ * Errors are signaled by raising an exception.
+ *
+ * Warning: no type checking is done.  You should usually access
+ * the data via @c AuxElement::Accessor.
+ */
+template <class T>
+inline
+const T& AuxVectorData::getData (SG::auxid_t auxid, size_t ndx) const
+{
+  return reinterpret_cast<const T*>(this->getDataArray (auxid))[ndx];
+}
+
+
+/**
+ * @brief Return reference to an aux decoration item.
+ * @param auxid The desired aux decoration item.
+ * @param ndx Index of the element to return.
+ *
+ * This will return a reference to element @c ndx of aux decoration
+ * item @c auxid.
+ * If the aux data item does not exist, it will be created.
+ * Errors are signaled by raising an exception.
+ *
+ * Warning: no type checking is done.  You should usually access
+ * the data via @c AuxElement::Decorator.
+ *
+ * The difference between @c getDecoration and @c getData is that
+ * @c getDecoration takes a const container as input, but returns
+ * a non-const reference.  This will only succeed if either the
+ * container is not locked or the item was first accessed
+ * as a decoration.
+ */
+template <class T>
+inline
+T& AuxVectorData::getDecoration (SG::auxid_t auxid, size_t ndx) const
+{
+  return reinterpret_cast<T*>(this->getDecorationArray (auxid))[ndx];
+}
+
+
+
+#ifndef __GCCXML__
+
+
+/**
+ * @brief Return a pointer to the start of an aux data vector.
+ * @param auxid The desired aux data item.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.  If the item doesn't exist, it will be created.
+ * Errors are signaled by raising an exception.
+ */
+inline
+void*
+AuxVectorData::getDataArray (SG::auxid_t auxid)
+{
+  return m_cache.getDataArray (auxid, *this);
+}
+
+
+/**
+ * @brief Return a const pointer to the start of an aux data vector.
+ * @param auxid The desired aux data item.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.
+ * Errors are signaled by raising an exception.
+ */
+inline
+const void*
+AuxVectorData::getDataArray (SG::auxid_t auxid) const
+{
+  return m_constCache.getDataArray (auxid, *this);
+}
+
+
+/**
+ * @brief Return a pointer to the start of an aux data vector for a decoration.
+ * @param auxid The desired aux data item.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.  If the item doesn't exist, it will be created.
+ * Errors are signaled by raising an exception.
+ *
+ * The difference between @c getDecorationArray and @c getDataArray is that
+ * @c getDecorationArray takes a const container as input, but returns
+ * a non-const pointer.  This will only succeed if either the
+ * container is not locked or the item was first accessed
+ * as a decoration.
+ */
+inline
+void* AuxVectorData::getDecorationArray (SG::auxid_t auxid) const
+{
+  return m_cache.getDecorationArray (auxid, *this);
+}
+
+
+#endif // not __GCCXML__
+
+
+/**
+ * @brief Swap this instance with another.
+ * @param other The other instance with which to swap.
+ */
+inline
+void AuxVectorData::swap (AuxVectorData& other)
+{
+  m_cache.swap (other.m_cache);
+  m_constCache.swap (other.m_constCache);
+  std::swap (m_store, other.m_store);
+  std::swap (m_constStore, other.m_constStore);
+  std::swap (m_constStoreLink, other.m_constStoreLink);
+}
+
+
+/**
+ * @brief Clear the cached aux data pointers.
+ *
+ * You should call this anytime something changes in the aux store
+ * that could invalidate the vector pointers.
+ */
+inline
+void AuxVectorData::clearCache()
+{
+  m_cache.clear();
+  m_constCache.clear();
+}
+
+
+/**
+ * @brief Test to see if @c auxid is valid in the cache.
+ * @returns If @c auxid is valid, return the pointer to the vector, else 0.
+ */
+inline
+void* AuxVectorData::Cache::cachePtr (SG::auxid_t auxid)
+{
+  // This function is important for performance.
+  // Be careful when changing it.
+
+  // auxid must not be larger than the length of the cache vector.
+  if (auxid >= m_cache_len) return 0;
+#if !(defined(__x86_64__) || defined(__i386))
+  // Memory fence not strictly required on x86, and spoils optimizations.
+  // See header comments.
+  AthContainers_detail::fence_acq_rel();
+#endif
+  // Return the cache entry.
+  return m_cache[m_cache_len&1][auxid];
+}
+
+
+#ifndef __GCCXML__
+
+
+/**
+ * @brief Return a pointer to the start of an aux data vector.
+ * @param auxid The desired aux data item.
+ * @param parent The containing @c AuxVectorData object.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.  If the item doesn't exist, it will be created.
+ * Errors are signaled by raising an exception.
+ */
+inline
+void*
+AuxVectorData::Cache::getDataArray (SG::auxid_t auxid,
+                                    AuxVectorData& parent)
+{
+  // This function is important for performance.
+  // Be careful when changing it.
+
+  void* ptr = cachePtr (auxid);
+  if (ATHCONTAINERS_UNLIKELY (ptr == 0)) {
+    // We don't have the variable cached.
+    // Call the out-of-line routine to get it cached.
+    ptr = parent.getDataOol (auxid);
+
+    // These inform the compiler of what the previous call did.
+    // They tell the optimizer that it can now assume that this cache
+    // entry is valid.
+    ATHCONTAINERS_ASSUME (ptr != 0);
+    ATHCONTAINERS_ASSUME (cachePtr (auxid) != 0);
+    ATHCONTAINERS_ASSUME (cachePtr (auxid) == ptr);
+  }
+  return ptr;
+}
+
+
+/**
+ * @brief Return a const pointer to the start of an aux data vector.
+ * @param auxid The desired aux data item.
+ * @param parent The containing @c AuxVectorData object.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.
+ * Errors are signaled by raising an exception.
+ */
+inline
+const void*
+AuxVectorData::Cache::getDataArray (SG::auxid_t auxid,
+                                    const AuxVectorData& parent)
+{
+  // This function is important for performance.
+  // Be careful when changing it.
+
+  const void* ptr = cachePtr (auxid);
+  if (ATHCONTAINERS_UNLIKELY (ptr == 0)) {
+    // We don't have the variable cached.
+    // Call the out-of-line routine to get it cached.
+    ptr = parent.getDataOol (auxid);
+
+    // These inform the compiler of what the previous call did.
+    // They tell the optimizer that it can now assume that this cache
+    // entry is valid.
+    ATHCONTAINERS_ASSUME (ptr != 0);
+    ATHCONTAINERS_ASSUME (cachePtr (auxid) != 0);
+    ATHCONTAINERS_ASSUME (cachePtr (auxid) == ptr);
+  }
+  return ptr;
+}
+
+
+/**
+ * @brief Return a pointer to the start of an aux decoration vector.
+ * @param auxid The desired aux decoration item.
+ * @param parent The containing @c AuxVectorData object.
+ *
+ * This will return a pointer to the start of the data for aux
+ * decoration item @c auxid.  If the item doesn't exist, it will be created.
+ * Errors are signaled by raising an exception.
+ *
+ * The difference between @c getDecorationArray and @c getDataArray is that
+ * @c getDecorationArray takes a const container as input, but returns
+ * a non-const pointer.  This will only succeed if either the
+ * container is not locked or the item was first accessed
+ * as a decoration.
+ */
+inline
+void* AuxVectorData::Cache::getDecorationArray (SG::auxid_t auxid,
+                                                const AuxVectorData& parent)
+{
+  // This function is important for performance.
+  // Be careful when changing it.
+
+  void* ptr = cachePtr (auxid);
+  if (ATHCONTAINERS_UNLIKELY (ptr == 0)) {
+    // We don't have the variable cached.
+    // Call the out-of-line routine to get it cached.
+    ptr = parent.getDecorationOol (auxid);
+
+    // These inform the compiler of what the previous call did.
+    // They tell the optimizer that it can now assume that this cache
+    // entry is valid.
+    ATHCONTAINERS_ASSUME (ptr != 0);
+    ATHCONTAINERS_ASSUME (cachePtr (auxid) != 0);
+    ATHCONTAINERS_ASSUME (cachePtr (auxid) == ptr);
+  }
+  return ptr;
+}
+
+
+#endif // not __GCCXML__
+
+
+} // namespace SG
+
+

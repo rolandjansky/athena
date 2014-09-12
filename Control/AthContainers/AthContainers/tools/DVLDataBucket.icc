@@ -1,0 +1,181 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: DVLDataBucket.icc,v 1.2 2008-06-17 00:44:17 ssnyder Exp $
+/**
+ * @file  AthContainers/tools/DVLDataBucket.icc
+ * @author scott snyder
+ * @date Mar 2008
+ * @brief A @c DataBucket specialized for @c DataVector/@c DataList.
+ *
+ * Template and inline implementations.
+ */
+
+
+#include "SGTools/IRegisterTransient.h"
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor from a payload object.
+ * @param data Object to hold in the bucket.
+ */
+template <class T>
+DVLDataBucket<T>::DVLDataBucket (T* data)
+  : DataBucket<T> (data)
+{
+}
+
+
+#if __cplusplus > 201100
+/**
+ * @brief Constructor from a payload object.
+ * @param data Object to hold in the bucket.
+ */
+template <class T>
+DVLDataBucket<T>::DVLDataBucket (std::unique_ptr<T> data)
+  : DataBucket<T> (std::move (data))
+{
+}
+#endif
+
+
+/**
+ * @brief Copy constructor.
+ * @param other Bucket to copy.
+ */
+template <typename T>
+DVLDataBucket<T>::DVLDataBucket (const DVLDataBucket& other)
+  : SG::DataBucket<T> (new T (*(T*)(other.cptr()))),
+    m_copies (other.m_copies)
+{
+  // Make a copy of each of the copies.
+  vec_t::iterator end = m_copies.end();
+  for (vec_t::iterator it = m_copies.begin(); it != end; ++it) {
+    it->second = it->first->clone (it->second);
+  }
+}
+
+
+/**
+ * @brief Destructor.
+ */
+template <typename T>
+DVLDataBucket<T>::~DVLDataBucket()
+{
+  // Delete any copies.
+  vec_t::iterator end = m_copies.end();
+  for (vec_t::iterator it = m_copies.begin(); it != end; ++it) {
+    it->first->del (it->second);
+  }
+}
+
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a clid.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The class ID to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ */
+template <typename T> 
+void*
+DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
+                        bool /*isConst = true*/) const
+{
+  // First try looking for a true base conversion.
+  const T* ptr = *((DataBucket<T>*)this);
+  void* ret = SG::BaseInfo<T>::cast (const_cast<T*>(ptr), clid);
+  if (ret)
+    return ret;
+
+  // See if we've already made an instance for this type.
+  // We don't expect to have more than a few, so no point in doing
+  // anything more complicated than a linear search.
+  vec_t::iterator end = m_copies.end();
+  for (vec_t::iterator it = m_copies.begin(); it != end; ++it) {
+    if (clid == it->first->clid()) {
+      // Recopy the elements if the container size has changed.
+      if (it->first->size (it->second) != ptr->size()) {
+        dvl_update (*const_cast<T*> (ptr), it->second, it->first);
+      }
+      return it->second;
+    }
+  }
+
+  // Try to do a copying conversion.
+  DataModel_detail::DVLInfoBase* info;
+  void* newcont = dvl_convert (*const_cast<T*> (ptr), clid, info);
+  if (newcont) {
+    m_copies.push_back (std::make_pair (info, newcont));
+    irt->registerTransient (newcont);
+  }
+
+  return newcont;
+}
+
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a std::type_info.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The @a std::type_info of the type to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ */
+template <typename T> 
+void*
+DVLDataBucket<T>::cast (const std::type_info& tinfo,
+                        IRegisterTransient* irt /*= 0*/,
+                        bool /*isConst = true*/) const
+{
+  // First try looking for a true base conversion.
+  const T* ptr = *((DataBucket<T>*)this);
+  void* ret = SG::BaseInfo<T>::cast (const_cast<T*>(ptr), tinfo);
+  if (ret)
+    return ret;
+
+  // See if we've already made an instance for this type.
+  // We don't expect to have more than a few, so no point in doing
+  // anything more complicated than a linear search.
+  vec_t::iterator end = m_copies.end();
+  for (vec_t::iterator it = m_copies.begin(); it != end; ++it) {
+    if (tinfo == it->first->tinfo()) {
+      // Recopy the elements if the container size has changed.
+      if (it->first->size (it->second) != ptr->size()) {
+        dvl_update (*const_cast<T*> (ptr), it->second, it->first);
+      }
+      return it->second;
+    }
+  }
+
+  // Try to do a copying conversion.
+  DataModel_detail::DVLInfoBase* info;
+  void* newcont = dvl_convert (*const_cast<T*> (ptr), tinfo, info);
+  if (newcont) {
+    m_copies.push_back (std::make_pair (info, newcont));
+    irt->registerTransient (newcont);
+  }
+
+  return newcont;
+}
+
+
+/**
+ * @brief Return a new @c DataBucket whose payload has been cloned from the
+ *        original one.
+ */
+template <typename T>
+DVLDataBucket<T>* DVLDataBucket<T>::clone() const
+{ 
+  return new DVLDataBucket<T> (*this);
+}
+
+
+} // namespace SG

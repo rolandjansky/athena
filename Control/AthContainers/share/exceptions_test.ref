@@ -1,0 +1,19 @@
+test1
+SG::ExcNoAuxStore: Requested aux data item `::foo' (0) but there is no associated aux data store.
+SG::ExcNoAuxStore: Requested aux data item `cl::bar' (1) but there is no associated aux data store.
+SG::ExcNoAuxStore: Requested aux data item  but there is no associated aux data store.
+SG::ExcNoAuxStore: Operation attempted on container with no associated aux data store: op
+SG::ExcBadAuxVar: Attempt to retrieve nonexistent aux data item `::foo' (0).
+SG::ExcConstAuxData: Non-const operation `someop' performed on const aux data `::foo' (0).
+SG::ExcConstAuxData: Non-const operation `otherop' performed on const aux data .
+SG::ExcUntrackedSetStore: Attempt to set aux data store on container that doesn't track indices, or disable index tracking for a container with aux data.
+SG::ExcBadPrivateStore: Bad use of private store: op
+SG::ExcAuxTypeMismatch: Type mismatch for aux variable `::foo' (0); old type is float new type is int
+SG::ExcAuxTypeMismatch: Type mismatch for aux variable `cl::bar' (1); old type is float new type is int
+SG::ExcInsertionInBaseClass: Attempted to do op on a int base class of float; can only be done on the most-derived class.
+SG::ExcStoreLocked: Attempted to modify auxiliary data in a locked store: `::foo' (0)
+SG::ExcStoreLocked: Attempted to modify auxiliary data in a locked store: op
+SG::ExcNonowningContainer: Attempted to insert a unique_ptr to a non-owning container.
+SG::ExcUnknownAuxItem: Unknown aux data item foo
+SG::ExcUnknownAuxItem: Unknown aux data item bar::foo
+SG::ExcUnknownAuxItem: Unknown aux data item bar::foo (of type int)

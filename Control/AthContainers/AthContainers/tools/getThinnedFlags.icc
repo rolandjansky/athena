@@ -1,0 +1,45 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/tools/getThinnedFlags.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2014
+ * @brief Return vector of flags giving which container elements were thinned.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Return vector of flags giving which container elements were thinned.
+ * @param svc The thinning service (or 0).
+ * @param container The container for which to find thinning information.
+ * @param nremaining[out] The number of elements in the container not thinned.
+ * @param flags[out] Array telling which elements were thinned.
+ *
+ * If no thinning is done on @c CONTAINER, then return false with
+ * @c nremaining equal to `container.size()`.  @c flags may be empty
+ * in this case.
+ *
+ * Otherwise, the container was thinned, and the function returns true.
+ * The size of @c flags will equal the container size; each element of
+ * @c flags is non-zero if the corresponding container element has been
+ * thinned.  @c nremaining will be set to the count of elements
+ * that have _not_ been thinned.
+ */
+template <class CONTAINER>
+bool getThinnedFlags (IThinningSvc* svc,
+                      const CONTAINER& container,
+                      size_t& nremaining,
+                      std::vector<unsigned char>& flags)
+{
+  return getThinnedFlags1 (svc, &container, container.size(),
+                           nremaining, flags);
+}
+
+
+} // namespace SG

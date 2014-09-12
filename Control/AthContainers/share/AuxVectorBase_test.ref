@@ -1,0 +1,12 @@
+test_set_store
+test_set_store2
+test_get_data
+test_reserve_resize
+test_shift
+test_get_types
+test_copy_aux
+test_copy_base_aux
+test_clear_aux
+test_swap_elements_aux
+test_resort_aux
+test_move

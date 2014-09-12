@@ -1,0 +1,17 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Helper to test auxid_set_t for equality.
+// Needed since the CxxUtils version doesn't implement operator==.
+
+
+#include <set>
+
+
+bool operator== (const SG::auxid_set_t& a, const SG::auxid_set_t& b)
+{
+  std::set<SG::auxid_t> aa (a.begin(), a.end());
+  std::set<SG::auxid_t> bb (b.begin(), b.end());
+  return aa == bb;
+}

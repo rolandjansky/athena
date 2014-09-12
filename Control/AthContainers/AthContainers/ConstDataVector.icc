@@ -1,0 +1,1070 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ConstDataVector.icc 610620 2014-08-06 21:15:52Z ssnyder $
+/**
+ * @file AthContainers/ConstDataVector.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2011
+ * @brief @c DataVector adapter that acts like it holds const pointers.
+ */
+
+
+#include <boost/iterator/transform_iterator.hpp>
+#include <functional>
+
+
+namespace ConstDataVector_detail {
+
+
+/// Functional to cast const away.
+template <class T>
+class remove_const
+  : public std::unary_function<const T*, T*>
+{
+public:
+  T* operator() (const T* p) const { return const_cast<T*> (p); }
+};
+
+
+} // namespace ConstDataVector_detail
+
+
+//=== Constructors, destructors, assignment.
+
+
+/**
+ * @brief Default constructor.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataVector will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>::ConstDataVector
+  (SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+    : DV (ownPolicy)
+{
+  base_data_vector::clear (ownPolicy, SG::NEVER_TRACK_INDICES);
+}
+
+
+/**
+ * @brief Sized constructor.
+ * @param n The size of the container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * Note that unlike the standard vector constructor, you can't specify
+ * an initial value here.  The container will be initialized with 0's.
+ *
+ * By default, a @c DataVector will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>::ConstDataVector
+  (size_type n,
+   SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+    : DV (n, ownPolicy)
+{
+  base_data_vector::clear (ownPolicy, SG::NEVER_TRACK_INDICES);
+  DV::resize (n);
+}
+
+
+/**
+ * @brief Constructor from iterators.
+ * @param first The start of the range to put in the new container.
+ * @param last The end of the range to put in the new container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataVector will own its elements (and take ownership
+ * of the pointers passed to this constructor).
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DV>
+template <class InputIterator>
+inline
+ConstDataVector<DV>::ConstDataVector
+  (InputIterator first,
+   InputIterator last,
+   SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/)
+    : DV (ownPolicy)
+{
+  base_data_vector::clear (ownPolicy, SG::NEVER_TRACK_INDICES);
+  reserve (std::distance (first, last));
+  while (first != last)
+    push_back (*first++);
+}
+
+
+#if __cplusplus > 201100
+/**
+ * @brief Move constructor.
+ * @param rhs The container from which to move.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>::ConstDataVector (ConstDataVector&& rhs)
+  : DV (std::move (rhs))
+{
+}
+
+
+/**
+ * @brief Constructor from an initializer list.
+ * @param l An initializer list.
+ * @param last The end of the range to put in the new container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataVector will own its elements (and take ownership
+ * of the pointers passed to this constructor).
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>::ConstDataVector
+  (std::initializer_list<value_type> l,
+   SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/)
+    : ConstDataVector (l.begin(), l.end(), ownPolicy)
+{
+}
+#endif
+
+
+/**
+ * @brief Assignment operator.
+ * @param rhs The DataVector from which to assign.
+ * @return This object.
+ *
+ * This is a `shallow' copy; after the completion of this, the DataVector
+ * will not own its elements.  Any elements it owned prior to this call
+ * will be released.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>&
+ConstDataVector<DV>::operator= (const ConstDataVector& rhs) 
+{
+  *static_cast<DV*>(this) = rhs;
+  return *this;
+}
+
+
+#if __cplusplus > 201100
+/**
+ * @brief Move assignment.
+ * @param rhs The container from which to move.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>&
+ConstDataVector<DV>::operator= (ConstDataVector&& rhs)
+{
+  if (this != &rhs) {
+    DV::operator= (std::move (rhs));
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Assignment operator, from an initializer list.
+ * @param l An initializer list.
+ * @return This object.
+ *
+ * This is equivalent to @c assign.
+ * Any existing owned elements will be released.
+ * The @c DataVector's ownership policy determines whether it will take
+ * ownership of the new elements.
+ */
+template <class DV>
+inline
+ConstDataVector<DV>&
+ConstDataVector<DV>::operator= (std::initializer_list<value_type> l)
+{
+  this->assign (l.begin(), l.end());
+  return *this;
+}
+#endif
+
+
+/**
+ * @brief Assign from iterators.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * Any existing owned elements will be released.
+ * The @c DataVector's ownership policy determines whether it will take
+ * ownership of the new elements.
+ */
+template <class DV>
+template <class InputIterator>
+inline
+void ConstDataVector<DV>::assign(InputIterator first, InputIterator last)
+{
+  clear();
+  reserve (std::distance (first, last));
+  while (first != last)
+    push_back (*first++);
+}
+
+
+#if __cplusplus > 201100
+/**
+ * @brief Assign from an initializer list.
+ * @param l An initializer list.
+ *
+ * Any existing owned elements will be released.
+ * The @c DataVector's ownership policy determines whether it will take
+ * ownership of the new elements.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::assign(std::initializer_list<value_type> l)
+{
+  this->assign (l.begin(), l.end());
+}
+#endif
+
+
+//=== Element access.
+
+
+/**
+ * @brief Access an element, as an lvalue.
+ * @param n Array index to access.
+ * @return Proxy to the element at @a n.
+ *
+ * No bounds checking is done.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::ElementProxy
+ConstDataVector<DV>::operator[] (size_type n)
+{
+  return to_element_proxy (this->m_pCont.begin() + n);
+}
+
+
+/**
+ * @brief Access an element, as an lvalue.
+ * @param n Array index to access.
+ * @return Proxy to the element at @a n.
+ *
+ * Will raise @c std::out_of_range if the index is out-of-bounds.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::ElementProxy
+ConstDataVector<DV>::at (size_type n)
+{
+  if (n >= this->size())
+    throw std::out_of_range ("DataVector::at range check");
+  return to_element_proxy (this->m_pCont.begin() + n);
+}
+
+
+/**
+ * @brief Access the first element in the collection as an lvalue.
+ * @return Proxy to the first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::ElementProxy
+ConstDataVector<DV>::front ()
+{
+  return to_element_proxy (this->m_pCont.begin());
+}
+
+
+/**
+ * @brief Access the last element in the collection as an lvalue.
+ * @return Proxy to the last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::ElementProxy
+ConstDataVector<DV>::back ()
+{
+  return to_element_proxy (this->m_pCont.end()-1);
+}
+
+
+//=== Iterator creation.
+
+
+/**
+ * @brief Return an @c iterator pointing at the beginning
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::begin()
+{
+  return to_my_iterator (DV::begin());
+}
+
+
+/**
+ * @brief Return an @c iterator pointing past the end
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::end()
+{
+  return to_my_iterator (DV::end());
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::reverse_iterator
+ConstDataVector<DV>::rbegin()
+{
+  return reverse_iterator (to_my_iterator (DV::end()));
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::reverse_iterator
+ConstDataVector<DV>::rend()
+{
+  return reverse_iterator (to_my_iterator (DV::begin()));
+}
+
+
+//=== Insertion operations.
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::push_back(value_type pElem)
+{
+  DV::push_back (const_cast<typename DV::value_type> (pElem));
+}
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ *
+ * For @c DataVector, this is just the same as @c push_back.
+ * It's included just for interface compatibility with `std::vector`.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::emplace_back(value_type pElem)
+{
+  this->push_back (pElem);
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::insert(iterator position, value_type pElem)
+{
+  return to_my_iterator
+    (DV::insert (to_base_iterator (position), 
+                 const_cast<typename DV::value_type> (pElem)));
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ *
+ * For @c DataVector, this is just the same as @c insert.
+ * It's included just for interface compatibility with `std::vector`.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::emplace(iterator position, value_type pElem)
+{
+  return this->insert (position, pElem);
+}
+
+
+/**
+ * @brief Add a group of new elements to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+template <class InputIterator>
+inline
+void ConstDataVector<DV>::insert (iterator position,
+                                  InputIterator first,
+                                  InputIterator last)
+{
+  typedef boost::transform_iterator
+    <ConstDataVector_detail::remove_const<typename DV::base_value_type>,
+     InputIterator>
+  iterator_t;
+  DV::insert (to_base_iterator(position),
+              iterator_t (first),
+              iterator_t (last));
+}
+
+
+#if __cplusplus > 201100
+#ifndef __REFLEX__
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container must be an owning container.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::push_back(std::unique_ptr<const base_value_type> pElem)
+{
+  std::unique_ptr<typename DV::base_value_type> ptr
+    (const_cast<typename DV::value_type> (pElem.release()));
+  DV::push_back (std::move (ptr));
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container must be an owning container.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::insert(iterator position,
+                            std::unique_ptr<const base_value_type> pElem)
+{
+  std::unique_ptr<typename DV::base_value_type> ptr
+    (const_cast<typename DV::value_type> (pElem.release()));
+  return to_my_iterator
+    (DV::insert (to_base_iterator (position), std::move (ptr)));
+}
+#endif
+
+
+/**
+ * @brief Add a group of new elements to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param l An initializer list.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::insert (iterator position,
+                                  std::initializer_list<value_type> l)
+{
+  this->insert (position, l.begin(), l.end());
+}
+#endif
+
+
+//=== Erasure operations.
+
+
+/**
+ * @brief Remove element at a given position.
+ * @param position Iterator pointing to the element to be removed.
+ * @return An iterator pointing to the next element (or @c end()).
+ *
+ * If the container owns its elements, then the pointed-to element
+ * will be deleted.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::erase(iterator position)
+{
+  return to_my_iterator (DV::erase (to_base_iterator (position)));
+}
+
+
+/**
+ * @brief Remove a range of elements.
+ * @param first Iterator pointing to the first element to be removed.
+ * @param last Iterator pointing one past the last element to be removed.
+ * @return An iterator pointing to the element pointed to by @a last
+ *         prior to erasing (or @c end()).
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::erase(iterator first, iterator last)
+{
+  return to_my_iterator
+    (DV::erase (to_base_iterator (first),
+                to_base_iterator (last)));
+}
+
+
+/**
+ * @brief clear()
+ * @brief Erase all the elements in the collection.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::clear()
+{
+  DV::clear();
+}
+
+
+/**
+ * @brief Swap this collection with another.
+ * @param rhs The collection with which to swap.
+ *
+ * Ownership is swapped along with the collection content.
+ *
+ * Note: this method may only be called using the most-derived
+ * @c DataVector in the hierarchy.  The @a rhs must also be
+ * referenced using the most-derived @c DataVector.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::swap (ConstDataVector& rhs)
+{
+  DV::swap (rhs);
+}
+
+
+/**
+ * @brief Swap the referents of two @c DataVector iterators.
+ * @param a The first iterator for the swap.
+ * @param b The second iterator for the swap/
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::iter_swap (iterator a, iterator b)
+{
+  DV::iter_swap (to_base_iterator (a),
+                 to_base_iterator (b));
+}
+
+
+//=== Non-standard operations.
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param index Index of the element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a index of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.  If the collection owns its elements, then it will
+ * take ownership of @a newElem and release (without deleting)
+ * the element returned through @a oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::swapElement (size_type index,
+                                  value_type newElem,
+                                  reference oldElem)
+{
+  DV::swapElement (index,
+                   const_cast<typename DV::value_type>(newElem), 
+                   const_cast<typename DV::reference>(oldElem));
+}
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param pos The element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a pos of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.  If the collection owns its elements, then it will
+ * take ownership of @a newElem and release (without deleting)
+ * the element returned through @a oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::swapElement (iterator pos,
+                                  value_type newElem,
+                                  reference oldElem)
+{
+  DV::swapElement (to_base_iterator(pos),
+                   const_cast<typename DV::value_type>(newElem), 
+                   const_cast<typename DV::reference>(oldElem));
+}
+
+
+#if __cplusplus > 201100
+#ifndef __REFLEX__
+/**
+ * @brief Swap one element out of the container.
+ * @param index Index of the element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a index of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.
+ *
+ * The collection must own its elements to use its interface.
+ * The collection will take ownership of @c newElem and will return
+ * ownership of @c oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::swapElement (size_type index,
+                                  std::unique_ptr<const base_value_type> newElem,
+                                  std::unique_ptr<const base_value_type>& oldElem)
+{
+  std::unique_ptr<typename DV::base_value_type> new_u
+    (const_cast<typename DV::value_type> (newElem.release()));
+  std::unique_ptr<typename DV::base_value_type> old_u;
+  DV::swapElement (index, std::move(new_u), old_u);
+  oldElem = std::move (old_u);
+}
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param pos The element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a pos of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.
+ *
+ * The collection must own its elements to use its interface.
+ * The collection will take ownership of @c newElem and will return
+ * ownership of @c oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::swapElement (iterator pos,
+                                  std::unique_ptr<const base_value_type> newElem,
+                                  std::unique_ptr<const base_value_type>& oldElem)
+{
+  std::unique_ptr<typename DV::base_value_type> new_u
+    (const_cast<typename DV::value_type> (newElem.release()));
+  std::unique_ptr<typename DV::base_value_type> old_u;
+  DV::swapElement (to_base_iterator(pos), std::move(new_u), old_u);
+  oldElem = std::move (old_u);
+}
+#endif
+#endif
+
+
+/**
+ * @brief Return a pointer to this object, as a const @c DataVector.
+ */
+template <class DV>
+inline
+const DV*
+ConstDataVector<DV>::asDataVector() const
+{
+  return static_cast<const DV*>(this);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * This is a no-op for @c ConstDataVector.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::resortAux (iterator /*beg*/, iterator /*end*/)
+{
+}
+
+
+/**
+ * @brief Erase all the elements in the collection, and reset
+ *        the ownership mode.
+ * @param ownPolicy The new ownership policy of the container.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::clear (SG::OwnershipPolicy ownPolicy)
+{
+  DV::clear (ownPolicy, SG::NEVER_TRACK_INDICES);
+}
+
+
+/**
+ * @brief Convert to @c AuxVectorBase.
+ *
+ * Needed to get @x AuxVectorBase from a @c ConstDataVector.
+ * Present in @c DataVector as well for consistency.
+ */
+template <class DV>
+inline
+const SG::AuxVectorBase& ConstDataVector<DV>::auxbase() const
+{
+  return *this;
+}
+
+
+//=== Relational operators.
+
+
+/**
+ * @brief  Vector ordering relation.
+ * @param  a  A @c ConstDataVector.
+ * @param  b  A @c ConstDataVector of the same type as @a x.
+ * @return  True iff @a x is lexicographically less than @a y.
+ *
+ * This is a total ordering relation.  It is linear in the size of the
+ * vectors.  Comparisons are done on the pointer values of the elements.
+ *
+ * See @c std::lexicographical_compare() for how the determination is made.
+ */
+template <class DV>
+inline
+bool ConstDataVector<DV>::operator< (const ConstDataVector& b) const
+{
+  return static_cast<const DV&>(*this) < static_cast<const DV&>(b);
+}
+
+
+/// Based on operator<
+template <class DV>
+inline
+bool ConstDataVector<DV>::operator> (const ConstDataVector& b) const
+{
+  return static_cast<const DV&>(*this) > static_cast<const DV&>(b);
+}
+
+
+/// Based on operator<
+template <class DV>
+inline
+bool ConstDataVector<DV>::operator<= (const ConstDataVector& b) const
+{
+  return static_cast<const DV&>(*this) <= static_cast<const DV&>(b);
+}
+
+
+/// Based on operator<
+template <class DV>
+inline
+bool ConstDataVector<DV>::operator>= (const ConstDataVector& b) const
+{
+  return static_cast<const DV&>(*this) >= static_cast<const DV&>(b);
+}
+
+
+/**
+ * @brief  Vector equality comparison.
+ * @param  a  A @c ConstDataVector.
+ * @param  b  A @c ConstDataVector of the same type as @a x.
+ * @return  True iff the size and elements of the vectors are equal.
+ *
+ * This is an equivalence relation.  It is linear in the size of the
+ * vectors.  Vectors are considered equivalent if their sizes are equal,
+ * and if corresponding elements compare equal.
+ */
+template <class DV>
+inline
+bool ConstDataVector<DV>::operator== (const ConstDataVector& b) const
+{
+  return static_cast<const DV&>(*this) == static_cast<const DV&>(b);
+}
+
+
+/// Based on operator==
+template <class DV>
+inline
+bool ConstDataVector<DV>::operator!= (const ConstDataVector& b) const
+{
+  return static_cast<const DV&>(*this) != static_cast<const DV&>(b);
+}
+
+
+//=== Private helpers.
+
+
+/**
+ * @brief Handle element assignment.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ * Auxiliary data are copied if appropriate.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::assignElement (typename BaseContainer::iterator pos,
+                                    value_type newElem)
+{
+  DV::assignElement (pos, const_cast<typename DV::value_type> (newElem));
+}
+
+
+#if __cplusplus > 201100
+#ifndef __REFLEX__
+/**
+ * @brief Handle element assignment.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The container must own its elements.
+ * Auxiliary data are copied if appropriate.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::assignElement (typename BaseContainer::iterator pos,
+                                    std::unique_ptr<const base_value_type> newElem)
+{
+  std::unique_ptr<typename DV::base_value_type> new_u 
+    (const_cast<typename DV::value_type> (newElem.release()));
+  DV::assignElement (pos, std::move(new_u));
+}
+#endif
+#endif
+
+
+/**
+ * @brief Handle element assignment from a base pointer.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ * Auxiliary data are copied if appropriate.
+ */
+template <class DV>
+inline
+void
+ConstDataVector<DV>::assignBaseElement (typename BaseContainer::iterator pos,
+                                        typename BaseContainer::value_type newElem)
+{
+  DV::assignBaseElement (pos, newElem);
+}
+
+
+/**
+ * @brief Convert a @c ConstDataVector::iterator to an iterator
+ *        of the base @c DataVector.
+ * @param it The @c ConstDataVector::iterator to convert.
+ */
+template <class DV>
+inline
+typename DV::iterator
+ConstDataVector<DV>::to_base_iterator (iterator it)
+{
+  return typename DV::iterator (it.base(), it.container());
+}
+
+
+/**
+ * @brief Convert an iterator of the base @c DataVector to
+ *        a @c ConstDataVector::iterator.
+ * @param it The base @c DataVector iterator to convert.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::iterator
+ConstDataVector<DV>::to_my_iterator (typename DV::iterator it)
+{
+  return iterator (it.base(), this);
+}
+
+
+/**
+ * @brief Convert an iterator of the base @c vector
+ *        an @c ElementProxy for the @c ConstDataVector.
+ * @param it The base @c vector iterator to convert.
+ */
+template <class DV>
+inline
+typename ConstDataVector<DV>::ElementProxy
+ConstDataVector<DV>::to_element_proxy (typename BaseContainer::iterator i)
+{
+  return ElementProxy (i, this);
+}
+
+
+//=== Other helper classes.
+
+
+/**
+ * @brief Constructor from a payload object.
+ * @param data Object to hold in the bucket.
+ */
+namespace SG {
+
+
+template <class DV>
+DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
+  (ConstDataVector<DV>* data)
+  : DVLDataBucket<DV> (const_cast<DV*> (data->asDataVector()))
+{
+}
+
+
+#if __cplusplus > 201100
+/**
+ * @brief Constructor from a payload object.
+ * @param data Object to hold in the bucket.
+ */
+template <class DV>
+DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
+  (std::unique_ptr<ConstDataVector<DV> > data)
+  : DVLDataBucket<DV> (std::unique_ptr<DV> (const_cast<DV*> (data.release()->asDataVector())))
+{
+}
+#endif
+
+
+} // namespace SG

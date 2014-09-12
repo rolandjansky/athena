@@ -1,0 +1,651 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: AuxVectorBase.icc 598730 2014-05-23 18:29:21Z ssnyder $
+/**
+ * @file AthContainers/AuxVectorBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2013
+ * @brief Manage index tracking and synchronization of auxiliary data.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Return true if index tracking is enabled for this container.
+ */
+inline
+bool AuxVectorBase::trackIndices() const
+{
+  return m_trackIndices;
+}
+
+
+/**
+ * @brief Synonym for @c setStore with @c IConstAuxStore.
+ * @param store The new store.
+ */
+inline
+void AuxVectorBase::setConstStore (const SG::IConstAuxStore* store)
+{
+  setStore (store);
+}
+
+
+/**
+ * @brief Synonym for @c setStore with @c IAuxStore.
+ * @param store The new store.
+ */
+inline
+void AuxVectorBase::setNonConstStore (SG::IAuxStore* store)
+{
+  setStore (store);
+}
+
+
+/**
+ * @brief Initialize index tracking mode.
+ * @param ownPolicy The container ownership policy.
+ * @param indexTrackingPolicy The requested index tracking policy.
+ *
+ * DVL should be the most-derived class for this container.
+ *
+ * This handles the logic for setting the state of index tracking.
+ * If this container does not handle aux data, then index tracking
+ * is always off.  Otherwise, it depends on the requested policies.
+ * In any case, it is an error to turn off index tracking
+ * for a container that has an associated aux store.
+ */
+template <class DVL>
+inline
+void
+AuxVectorBase::initAuxVectorBase (SG::OwnershipPolicy ownPolicy,
+                                  SG::IndexTrackingPolicy indexTrackingPolicy)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  this->initAuxVectorBase1 (typename AuxStore_traits<DVL>::flag(),
+                            ownPolicy,
+                            indexTrackingPolicy);
+}
+
+
+/**
+ * @brief Swap with another container.
+ * @param other The container with which to swap.
+ */
+inline
+void AuxVectorBase::swap (AuxVectorBase& other)
+{
+  std::swap (m_trackIndices, other.m_trackIndices);
+  SG::AuxVectorData::swap (other);
+}
+
+
+/**
+ * @brief Set container/index for all elements within a range.
+ * @param beg Beginning of the range.
+ * @param end End of the range.
+ * @param first Index to set for the first element in the range.
+ *
+ * For all elements in the range, the container will be set to this container,
+ * and indices will be set sequentially, starting with @c first.
+ *
+ * @c ForwardIterator should be an iterator over the @c DataVector
+ * (not a base iterator).
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::setIndices (ForwardIterator beg,
+                                ForwardIterator end,
+                                size_t first /*= 0*/)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;
+  setIndices1 (typename AuxStore_traits<valtype>::flag(),
+               beg, end, first);
+}
+
+
+/**
+ * @brief Set container/index for all elements within a range.
+ * @param beg Beginning of the range.
+ * @param end End of the range.
+ * @param first Index to set for the first element in the range.
+ *
+ * This is the no-auxdata case; doesn't do anything other than checking
+ * @c m_trackIndices.
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::setIndices1 (const SG_STD_OR_BOOST::false_type&,
+                                 ForwardIterator,
+                                 ForwardIterator,
+                                 size_t)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Set container/index for all elements within a range.
+ * @param beg Beginning of the range.
+ * @param end End of the range.
+ * @param first Index to set for the first element in the range.
+ *
+ * This is the auxdata case.
+ * For all elements in the range, the container will be set to this container,
+ * and indices will be set sequentially, starting with @c first.
+ */
+template <class ForwardIterator>
+void AuxVectorBase::setIndices1 (const SG_STD_OR_BOOST::true_type&,
+                                 ForwardIterator beg,
+                                 ForwardIterator end,
+                                 size_t first)
+{
+  if (!m_trackIndices)
+    return;
+  
+  for (; beg != end; ++beg) {
+    if (*beg)
+      (*beg)->setIndex (first, this);
+    ++first;
+  }
+}
+
+
+/**
+ * @brief Clear the container / index for element @c elt.
+ * @param elt Iterator to the element to clear.
+ *
+ * @c ForwardIterator should be an iterator over the @c DataVector
+ * (not a base iterator).
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::clearIndex (ForwardIterator elt)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;
+  clearIndex1 (typename AuxStore_traits<valtype>::flag(), elt);
+}
+
+
+/**
+ * @brief Clear the container / index for element @c elt.
+ * @param elt Iterator to the element to clear.
+ *
+ * This is the no-auxdata case; doesn't do anything other than checking
+ * @c m_trackIndices.
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::clearIndex1 (const SG_STD_OR_BOOST::false_type&,
+                                 ForwardIterator /*elt*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Clear the container / index for element @c elt.
+ * @param elt Iterator to the element to clear.
+ *
+ * This is the auxdata case.
+ */
+template <class ForwardIterator>
+void AuxVectorBase::clearIndex1 (const SG_STD_OR_BOOST::true_type&,
+                                 ForwardIterator elt)
+{
+  if (!m_trackIndices)
+    return;
+  
+  if (*elt)
+    (*elt)->setIndex (0, 0);
+}
+
+
+/**
+ * @brief Clear the container / index for a range of elements.
+ * @param beg Beginning of the range.
+ * @param end End of the range.
+ *
+ * @c ForwardIterator should be an iterator over the @c DataVector
+ * (not a base iterator).
+ */
+template <class ForwardIterator>
+void AuxVectorBase::clearIndices (ForwardIterator beg,
+                                  ForwardIterator end)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;
+  clearIndices1 (typename AuxStore_traits<valtype>::flag(),
+                 beg, end);
+}
+
+
+/**
+ * @brief Clear the container / index for a range of elements.
+ * @param beg Beginning of the range.
+ * @param end End of the range.
+ *
+ * No-auxdata case; a no-op except for checking @c m_trackIndices.
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::clearIndices1 (const SG_STD_OR_BOOST::false_type&,
+                                   ForwardIterator,
+                                   ForwardIterator)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Clear the container / index for a range of elements.
+ * @param beg Beginning of the range.
+ * @param end End of the range.
+ *
+ * Auxdata case.
+ */
+template <class ForwardIterator>
+void AuxVectorBase::clearIndices1 (const SG_STD_OR_BOOST::true_type&,
+                                   ForwardIterator beg,
+                                   ForwardIterator end)
+{
+  if (!m_trackIndices)
+    return;
+
+  for (; beg != end; ++beg)
+    if (*beg)
+      (*beg)->setIndex (0, 0);
+}
+
+
+/**
+ * @brief Resize the aux data associated with this container.
+ * @param size The new container size.
+ *
+ * DVL should be the most-derived class for this container.
+ */
+template <class DVL>
+inline
+void AuxVectorBase::resize (size_t size)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  resize1 (typename AuxStore_traits<DVL>::flag(), size);
+}
+
+
+/**
+ * @brief Resize the aux data associated with this container.
+ * @param size The new container size.
+ *
+ * The no-auxdata case; a no-op except for checking @c m_trackIndices.
+ */
+inline
+void
+AuxVectorBase::resize1 (const SG_STD_OR_BOOST::false_type&, size_t /*size*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Change the capacity of the aux data associated with this container.
+ * @param size The new container size.
+ *
+ * DVL should be the most-derived class for this container.
+ */
+template <class DVL>
+inline
+void AuxVectorBase::reserve (size_t size)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  reserve1 (typename AuxStore_traits<DVL>::flag(), size);
+}
+
+
+/**
+ * @brief Change the capacity of the aux data associated with this container.
+ * @param size The new container size.
+ *
+ * The no-auxdata case; a no-op except for checking @c m_trackIndices.
+ */
+inline
+void AuxVectorBase::reserve1 (const SG_STD_OR_BOOST::false_type&, size_t)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Shift the elements of the container.
+ * @param cont The container that's being shifted.
+ * @param pos The starting index for the shift.
+ * @param offs The (signed) amount of the shift.
+ *
+ * The container should be the derived container.
+ * The elements in the container should have already been shifted;
+ * this operation will then adjust the element indices and also shift
+ * the elements in the vectors for all aux data items.
+ * @c offs may be either positive or negative.
+ *
+ * If @c offs is positive, then the container is growing.
+ * The container size should be increased by @c offs,
+ * the element at @c pos moved to @c pos + @c offs,
+ * and similarly for following elements.
+ * The elements between @c pos and @c pos + @c offs should
+ * be default-initialized.
+ *
+ * If @c offs is negative, then the container is shrinking.
+ * The element at @c pos should be moved to @c pos + @c offs,
+ * and similarly for following elements.
+ * The container should then be shrunk by @c -offs elements
+ * (running destructors as appropriate).
+ */
+template <class DVL>
+inline
+void AuxVectorBase::shift (DVL& cont,
+                           size_t pos,
+                           ptrdiff_t offs)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  shift1 (typename AuxStore_traits<DVL>::flag(),
+          cont, pos, offs);
+}
+
+
+/**
+ * @brief Shift the elements of the container.
+ * @param cont The container that's being shifted.
+ * @param pos The starting index for the shift.
+ * @param offs The (signed) amount of the shift.
+ *
+ * No-auxdata version; a no-op except for checking @c m_trackIndices.
+ */
+template <class DVL>
+inline
+void AuxVectorBase::shift1 (const SG_STD_OR_BOOST::false_type&,
+                            DVL& /*cont*/,
+                            size_t /*pos*/, ptrdiff_t /*offs*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Shift the elements of the container.
+ * @param cont The container that's being shifted.
+ * @param pos The starting index for the shift.
+ * @param offs The (signed) amount of the shift.
+ *
+ * Auxdata version.
+ *
+ * The container should be the derived container.
+ * The elements in the container should have already been shifted;
+ * this operation will then adjust the element indices and also shift
+ * the elements in the vectors for all aux data items.
+ * @c offs may be either positive or negative.
+ *
+ * If @c offs is positive, then the container is growing.
+ * The container size should be increased by @c offs,
+ * the element at @c pos moved to @c pos + @c offs,
+ * and similarly for following elements.
+ * The elements between @c pos and @c pos + @c offs should
+ * be default-initialized.
+ *
+ * If @c offs is negative, then the container is shrinking.
+ * The element at @c pos should be moved to @c pos + @c offs,
+ * and similarly for following elements.
+ * The container should then be shrunk by @c -offs elements
+ * (running destructors as appropriate).
+ */
+template <class DVL>
+void AuxVectorBase::shift1 (const SG_STD_OR_BOOST::true_type&,
+                            DVL& cont,
+                            size_t pos, ptrdiff_t offs)
+{
+  if (!m_trackIndices) return;
+
+  typename DVL::iterator end = cont.end();
+  typename DVL::iterator pos_it = cont.begin() + pos + offs;
+  for (; pos_it != end; ++pos_it)
+  {
+    SG::AuxElement* elt = *pos_it;
+    elt->setIndex (elt->index() + offs, this);
+  }
+
+  if (this->hasNonConstStore()) {
+    this->getStore()->shift (pos, offs);
+    clearCache();
+  }
+  else if (this->hasStore())
+    throw SG::ExcConstAuxData ("shift");
+}
+
+
+/**
+ * @brief Set index on an element and copy auxiliary data.
+ * @param index Container index at which the new element is being added.
+ * @param p The new element being added.
+ * @param clear If true, then any auxiliary data initially associated
+ *              with @c p are cleared after being copied.
+ *
+ * Overload for the no-auxdata case.
+ */
+inline
+void
+AuxVectorBase::moveAux (size_t /*index*/,
+                        const void /*p*/*,
+                        bool /*clear = false*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Set index on a range of elements and copy auxiliary data.
+ * @param index Container index at which the first new element is being added.
+ * @param beg The start of the range of new elements.
+ * @param end The end of the range of new elements.
+ *
+ * The elements in the range are being a added to the container at @c index.
+ * If the new elements have associated auxiliary data,
+ * copy it to the container starting at @c index.
+ * Then set the container / index on the elements in the range.
+ *
+ * @c ForwardIterator should be an iterator over the @c DataVector
+ * (not a base iterator).
+ */
+template <class ForwardIterator>
+void
+AuxVectorBase::moveAux (size_t index, ForwardIterator beg, ForwardIterator end)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;
+  moveAux1 (typename AuxStore_traits<valtype>::flag(),
+            index, beg, end);
+}
+
+
+/**
+ * @brief Set index on a range of elements and copy auxiliary data.
+ * @param index Container index at which the first new element is being added.
+ * @param beg The start of the range of new elements.
+ * @param end The end of the range of new elements.
+ *
+ * No-auxdata version; a no-op except for checking @c m_trackIndices.
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::moveAux1 (const SG_STD_OR_BOOST::false_type&,
+                              size_t /*index*/,
+                              ForwardIterator /*beg*/,
+                              ForwardIterator /*end*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Set index on a range of elements and copy auxiliary data.
+ * @param index Container index at which the first new element is being added.
+ * @param beg The start of the range of new elements.
+ * @param end The end of the range of new elements.
+ *
+ * The elements in the range are being a added to the container at @c index.
+ * If the new elements have associated auxiliary data,
+ * copy it to the container starting at @c index.
+ * Then set the container / index on the elements in the range.
+ *
+ * The auxdata case.
+ */
+template <class ForwardIterator>
+void AuxVectorBase::moveAux1 (const SG_STD_OR_BOOST::true_type&,
+                              size_t index,
+                              ForwardIterator beg,
+                              ForwardIterator end)
+{
+  if (!m_trackIndices)
+    return;
+
+  while (beg != end) {
+    this->moveAux (index, *beg);
+    ++beg;
+    ++index;
+  }
+}
+
+
+/**
+ * @brief Swap indices and auxiliary data between two elements.
+ * @param aindex Index of the first element, in this container.
+ * @param bindex Index of the second element, in @c bcont.
+ * @param a Pointer to the first element.
+ * @param b Pointer to the second element.
+ * @param bcont Container holding the second element.
+ *              (May be the same as this, but doesn't have to be.)
+ *
+ * This is the no-auxdata case; it is a no-op except for checking
+ * @c m_trackIndices.
+ */
+inline
+void AuxVectorBase::swapElementsAux (size_t /*aindex*/,
+                                     size_t /*bindex*/,
+                                     const void* /*a*/,
+                                     const void* /*b*/,
+                                     AuxVectorBase* /*bcont*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param index Index in the container of the start of the range.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * Call this after some operation that has permuted the elements in the
+ * container (such as sort).  The index information in the elements
+ * will be used to permute all auxiliary data in the same way.
+ * Finally, all the indices will be reset in the correct order.
+ *
+ * @c ForwardIterator should be an iterator over the @c DataVector
+ * (not a base iterator).
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::resortAux (size_t index,
+                               ForwardIterator beg,
+                               ForwardIterator end)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;
+  resortAux1 (typename AuxStore_traits<valtype>::flag(),
+              index, beg, end);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param index Index in the container of the start of the range.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * No-auxdata version; a no-op except for checking @c m_trackIndices.
+ */
+template <class ForwardIterator>
+inline
+void AuxVectorBase::resortAux1 (const SG_STD_OR_BOOST::false_type&,
+                                size_t /*index*/,
+                                ForwardIterator /*beg*/,
+                                ForwardIterator /*end*/)
+{
+  ATHCONTAINERS_ASSERT (!m_trackIndices);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param index Index in the container of the start of the range.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * Call this after some operation that has permuted the elements in the
+ * container (such as sort).  The index information in the elements
+ * will be used to permute all auxiliary data in the same way.
+ * Finally, all the indices will be reset in the correct order.
+ *
+ * The auxdata case.
+ */
+template <class ForwardIterator>
+void AuxVectorBase::resortAux1 (const SG_STD_OR_BOOST::true_type&,
+                                size_t index,
+                                ForwardIterator beg,
+                                ForwardIterator end)
+{
+  if (!m_trackIndices) return;
+  if (!this->hasStore()) {
+    this->setIndices (beg, end, index);
+    return;
+  }
+  if (!this->hasNonConstStore()) {
+    throw SG::ExcConstAuxData ("resortAux");
+  }
+
+  ResortAuxHelper h (end-beg, index, *this);
+  for (size_t i = 0; beg < end; ++beg, ++i)
+    h.resortElement (i, *beg);
+}
+
+
+/// Helper to call @c getDataArray from @c ResortAuxHelper.
+inline
+void* AuxVectorBase::getDataArrayForResort (SG::auxid_t auxid)
+{
+  return this->getDataArray (auxid);
+}
+
+
+/// Helper to call @c setIndex from @c ResortAuxHelper.
+inline
+void AuxVectorBase::setIndexForResort (SG::AuxElement* elt, size_t i)
+{
+  elt->setIndex (i, this);
+}
+
+
+} // namespace SG

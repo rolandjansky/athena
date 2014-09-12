@@ -1,0 +1,61 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: AuxElementComplete.icc 581165 2014-02-03 10:42:54Z krasznaa $
+/**
+ * @file AthContainers/AuxElementComplete.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2013
+ * @brief Wrapper to automatically create a private store for an element.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Default constructor.
+ *
+ * A private store is created for this object.
+ */
+template <class T>
+inline
+AuxElementComplete<T>::AuxElementComplete()
+{
+  this->makePrivateStore();
+}
+
+
+/**
+ * @brief Generic constructor.
+ * @param u1 Constructor argument.
+ *
+ * A private store is created for this object.
+ */
+template <class T>
+template <class U1>
+inline
+AuxElementComplete<T>::AuxElementComplete (const U1& u1)
+  : T(u1)
+{
+  this->makePrivateStore(u1);
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @param other The object being copied.
+ *
+ * A private store is created for this object.
+ */
+template <class T>
+inline
+AuxElementComplete<T>::AuxElementComplete (const AuxElementComplete& other)
+  : T(other)
+{
+  this->makePrivateStore(other);
+}
+
+
+} // namespace SG

@@ -1,0 +1,123 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/tools.threading.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2013
+ * @brief Threading definitions.
+ */
+
+
+namespace AthContainers_detail {
+
+
+#ifndef ATHCONTAINERS_NO_THREADS
+
+
+/**
+ * @brief An acquire/release fence.
+ */
+inline
+void fence_acq_rel()
+{
+  SG_STD_OR_BOOST::atomic_thread_fence (SG_STD_OR_BOOST::memory_order_acq_rel);
+}
+
+
+/**
+ * @brief A sequentially-consistent fence.
+ */
+inline
+void fence_seq_cst()
+{
+  SG_STD_OR_BOOST::atomic_thread_fence (SG_STD_OR_BOOST::memory_order_seq_cst);
+}
+
+
+#endif
+
+
+/**
+ * @brief Take out a shared lock on @c obj and remember it.
+ * @param obj The lockable object.
+ */
+template <typename LOCKABLE>
+inline
+strict_shared_lock<LOCKABLE>::strict_shared_lock (lockable_type& obj)
+  : m_obj(obj)
+{
+  obj.lock_shared(); // locks on construction
+}
+
+
+/**
+ * @brief Take out a shared lock on @c obj and remember it.
+ * @param obj The lockable object.
+ */
+template <typename LOCKABLE>
+inline
+strict_shared_lock<LOCKABLE>::strict_shared_lock (const lockable_type& obj)
+  : m_obj(const_cast<lockable_type&>(obj))
+{
+  obj.lock_shared(); // locks on construction
+}
+
+
+/**
+ * @brief Release the held lock.
+ */
+template <typename LOCKABLE>
+inline
+strict_shared_lock<LOCKABLE>::~strict_shared_lock()
+{
+  m_obj.unlock_shared();  //  unlocks on destruction 
+}
+  
+
+/**
+ * @brief Take out an upgrade lock on @c obj and remember it.
+ * @param obj The lockable object.
+ */
+template <typename LOCKABLE>
+inline
+upgrading_lock<LOCKABLE>::upgrading_lock (lockable_type& obj)
+  : m_obj (obj)
+{
+  m_obj.lock_upgrade();
+  m_exclusive = false;
+}
+
+
+/**
+ * @brief Release the held lock.
+ */
+template <typename LOCKABLE>
+inline
+upgrading_lock<LOCKABLE>::~upgrading_lock()
+{
+  if (m_exclusive)
+    m_obj.unlock();
+  else
+    m_obj.unlock_upgrade();
+}
+
+
+/**
+ * @brief Convert the lock from upgrade to exclusive.
+ */
+template <typename LOCKABLE>
+inline
+void upgrading_lock<LOCKABLE>::upgrade()
+{
+  if (!m_exclusive) {
+    m_obj.unlock_upgrade_and_lock();
+    m_exclusive = true;
+  }
+}
+
+
+
+} // namespace AthContainers_detail

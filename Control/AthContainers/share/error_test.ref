@@ -1,0 +1,4 @@
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+context             ERROR ../test/error_test.cxx:16 (void test1()): message
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+context2            ERROR ../test/error_test.cxx:18 (void test1()): int

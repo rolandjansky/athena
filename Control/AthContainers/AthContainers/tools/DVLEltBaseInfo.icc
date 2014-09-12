@@ -1,0 +1,135 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file  AthContainers/tools/DVLEltBaseInfo.icc
+ * @author scott snyder
+ * @date Jul 2009
+ * @brief Set up BaseInfo information for DataVector/DataList elements.
+ *
+ * When we have a @c DATAVECTOR_BASE(D,B) macro, we want to record
+ * the @c D, @c B inheritance relation in @c SG::BaseInfo.
+ * We can't just invoke @c SG_BASE for this from @c DATAVECTOR_BASE because
+ * there may be duplicates, and @c SG_BASE won't compile in that case.
+ * But @c BaseInfo has a deferred initialization mechanism, so we use that:
+ * we arrange for an appropriate initializer be added to the list.
+ * We also need to walk the DV/DL type information structures
+ * rather then the @c BaseInfo ones.
+ *
+ * This is common code to be used for both @c DataVector and @c DataList.
+ * It should be included inside of the appropriate detail namespace.
+ * In addition, the macro @c DVLTYPE should be defined as either
+ * @c DataVector or @c DataList.
+ * Then, the *_BASE macros should explicitly instantiate the template
+ * @c *_detail::DVLEltBaseInit<T>.
+ */
+
+
+// Set up for token pasting.
+#define DVLPASTE1(y,x) y##x
+#define DVLPASTE2(y,x) DVLPASTE1(y,x)
+#define DVLPASTE(x) DVLPASTE2(DVLTYPE,x)
+
+
+//
+// The various specializations of DVLEltBase_init here walk the tree
+// of the DataVector inheritance info classes and add information
+// to the BaseInfo.
+//
+// In all of these, T is the type of the BaseInfo we're working on,
+// and B is the base we're trying to add to that BaseInfo.
+//
+template <class B>
+struct DVLEltBase_init
+{
+  template <class T>
+  static void init (SG::BaseInfoImpl<T>& c, bool is_virtual)
+  {
+    // Use this instead of calling add_base directly so that we pick
+    // up any base declarations that were added separately with SG_BASE.
+    SG::BaseInfo_init<B>::init (c, is_virtual);
+
+    DVLEltBase_init<typename DVLPASTE(Base)<B>::Base>::init (c, is_virtual);
+  }
+};
+template <>
+struct DVLEltBase_init<DataModel_detail::NoBase>
+{
+  template <class T>
+  static void init (SG::BaseInfoImpl<T>& /*c*/, bool /*is_virtual*/)
+  {
+  }
+};
+template <class B1, class B2, class B3>
+struct DVLEltBase_init<VirtBases<B1,B2,B3> >
+{
+  template <class T>
+  static void init (SG::BaseInfoImpl<T>& c, bool /*is_virtual*/)
+  {
+    DVLEltBase_init<B1>::init (c, true);
+    DVLEltBase_init<B2>::init (c, true);
+    DVLEltBase_init<B3>::init (c, true);
+  }
+};
+template <class B>
+struct DVLEltBase_init<DVLTYPE<B> >
+{
+  template <class T>
+  static void init (SG::BaseInfoImpl<T>& c, bool is_virtual)
+  {
+    DVLEltBase_init<B>::init (c, is_virtual);
+  }
+};
+
+
+// This class sets up the BaseInfo initialization.
+// An instance of this class will be constructed during global initialization.
+// At that time, it adds an initializer to the BaseInfo which runs doinit().
+template <class T>
+struct RegisterDVLEltBaseInit
+{
+  RegisterDVLEltBaseInit();
+  static const SG::BaseInfoBase& doinit();
+};
+#ifndef __REFLEX__
+template <class T>
+RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
+{
+  // Make sure the BaseInfo derived class has been instantiated.
+  SG::BaseInfo<T>::baseinfo();
+  // Set up the init function.
+  SG::BaseInfoBase::addInit(SG::safe_clid<T>(), &typeid(T), doinit);
+}
+#endif
+template <class T>
+const SG::BaseInfoBase& RegisterDVLEltBaseInit<T>::doinit()
+{
+  // Find the BaseInfo instance.
+  SG::BaseInfoBase* bib =
+    const_cast<SG::BaseInfoBase*> (SG::BaseInfoBase::find (typeid(T)));
+  if (bib) {
+    // Walk the base classes and add to it.
+    SG::BaseInfoImpl<T>& impl = *static_cast<SG::BaseInfoImpl<T>*> (bib);
+    DVLEltBase_init<T>::init (impl, false);
+  }
+  return *bib;
+}
+
+
+//
+// This is what the _BASE macros instantiate.
+// It arranges for an instance of RegisterDVLEltBaseInit to be created
+// during global initialization.
+//
+template <class T> struct DVLEltBaseInit {
+  static RegisterDVLEltBaseInit<T> s_regbase;
+};
+#ifndef __APPLE__
+template <class T> RegisterDVLEltBaseInit<T> DVLEltBaseInit<T>::s_regbase;
+#endif
+
+#undef DVLPASTE
+#undef DVLPASTE1
+#undef DVLPASTE2

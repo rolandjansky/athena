@@ -1,0 +1,118 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: AuxTypeRegistry.icc 602003 2014-06-16 17:07:01Z ssnyder $
+/**
+ * @file AthContainers/AuxTypeRegistry.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2013
+ * @brief Handle mappings between names and auxid_t.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Look up a name -> @c auxid_t mapping.
+ * @param name The name of the aux data item.
+ * @param clsname The name of its associated class.  May be blank.
+ *
+ * The type of the item is given by the template parameter @c T.
+ * If an item with the same name was previously requested
+ * with a different type, then raise an @c AuxTypeMismatch exception.
+ */
+template <class T>
+SG::auxid_t
+AuxTypeRegistry::getAuxID (const std::string& name,
+                           const std::string& clsname /*= ""*/)
+{
+  return findAuxID (name, clsname, typeid(T), &AuxTypeRegistry::makeFactory<T>);
+}
+
+
+/**
+ * @brief Lock the registry for shared access.
+ */
+inline
+void AuxTypeRegistry::lock_shared() const
+{
+  m_mutex.lock_shared();
+}
+
+
+/**
+ * @brief Unlock the registry for shared access.
+ */
+inline
+void AuxTypeRegistry::unlock_shared() const
+{
+  m_mutex.unlock_shared();
+}
+
+
+/**
+ * @brief Return the vector factory for a given auxid.
+ * @param auxid The desired aux data item.
+ *
+ * Returns 0 if the type is not known.
+ * (Use @c addFactory to add new mappings.)
+ */
+inline
+const IAuxTypeVectorFactory*
+AuxTypeRegistry::getFactory (SG::auxid_t auxid) const
+{
+  lock_t lock (*this);
+  if (auxid >= m_types.size())
+    return 0;
+  return m_types[auxid].m_factory;
+}
+
+
+/**
+ * @brief Return the vector factory for a given auxid.  (external locking)
+ * @param lock The registry lock.
+ * @param auxid The desired aux data item.
+ *
+ * Returns 0 if the type is not known.
+ * (Use @c addFactory to add new mappings.)
+ */
+inline
+const IAuxTypeVectorFactory*
+AuxTypeRegistry::getFactory (lock_t& /*lock*/,
+                             SG::auxid_t auxid) const
+{
+  if (auxid >= m_types.size()) return 0;
+  return m_types[auxid].m_factory;
+}
+
+
+/**
+ * @brief Create an @c AuxTypeVectorFactory instance.
+ *
+ * This is passed to @c findAuxID when we're looking up an item
+ * for which we know the type at compile-time.
+ */
+template <class T>
+inline
+IAuxTypeVectorFactory* AuxTypeRegistry::makeFactory() const
+{
+  return new SG::AuxTypeVectorFactory<T>;
+}
+
+
+/**
+ * @brief @c makeFactory implementation that always returns 0.
+ *
+ * This is passed to @c findAuxID when we're looking up an item
+ * for which we do not know the type at compile-time.
+ */
+inline
+IAuxTypeVectorFactory* AuxTypeRegistry::makeFactoryNull() const
+{
+  return 0;
+}
+
+
+} // namespace SG

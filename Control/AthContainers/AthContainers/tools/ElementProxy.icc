@@ -1,0 +1,145 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/tools/ElementProxy.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2010
+ * @brief Proxy for lvalue access to @c DataVector/@c DataList elements.
+ */
+
+
+#include "AthContainers/tools/DVLCast.h"
+#include "AthContainers/tools/ATHCONTAINERS_ASSERT.h"
+
+
+namespace DataModel_detail {
+
+
+#ifndef __GCCXML__
+
+
+/**
+ * @brief Constructor.
+ * @param i The underlying container iterator pointing at
+ *          the element which we're proxying.
+ * @param container The container that the iterator references.
+ */
+template <class DVL>
+inline
+ElementProxy<DVL>::ElementProxy (typename DVL::BaseContainer::iterator i,
+                                 DVL* container)
+  : m_proxied (i),
+    m_container (container)
+{
+}
+
+
+/**
+ * @brief Assignment operator, from an @c Element proxy.
+ * @param rhs The proxy from which we're assigning.
+ *
+ * If @a rhs is the same as the element we're proxying, then
+ * we don't need to do anything.  Otherwise, @c can_insert must
+ * be true.  If the parent @c DataVector/List owns its elements,
+ * we then need to delete the proxied object before making
+ * the assignment.  We also disallow copying between two
+ * @c DataVector/List's, both of which own their elements.
+ */
+template <class DVL>
+ElementProxy<DVL>& ElementProxy<DVL>::operator= (const ElementProxy& rhs)
+{
+  if (*rhs.m_proxied != *m_proxied) {
+    ATHCONTAINERS_ASSERT (! (container()->ownPolicy() == SG::OWN_ELEMENTS &&
+                             rhs.container()->ownPolicy() == SG::OWN_ELEMENTS));
+    container()->assignBaseElement (m_proxied, *rhs.m_proxied);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Assignment operator, from a pointer.
+ * @param rhs The pointer from which we're assigning.
+ *
+ * If @a rhs is the same as the element we're proxying, then
+ * we don't need to do anything.  Otherwise, @c can_insert must
+ * be true.  If the parent @c DataVector/List owns its elements,
+ * we then need to delete the proxied object before making
+ * the assignment.
+ */
+template <class DVL>
+ElementProxy<DVL>& ElementProxy<DVL>::operator= (typename DVL::value_type rhs)
+{
+  if (rhs != *m_proxied)
+    m_container->assignElement(m_proxied, rhs);
+  return *this;
+}
+
+
+#if __cplusplus > 201100
+#ifndef __REFLEX__
+/**
+ * @brief Assignment operator, from a pointer.
+ * @param rhs The pointer from which we're assigning.
+ *
+ * If @a rhs is the same as the element we're proxying, then
+ * we don't need to do anything.  Otherwise, @c can_insert must
+ * be true.  The container must own its elements in order
+ * to use this interface.
+ */
+template <class DVL>
+ElementProxy<DVL>&
+ElementProxy<DVL>::operator= (std::unique_ptr<typename DVL::base_value_type> rhs)
+{
+  if (rhs.get() != *m_proxied)
+    m_container->assignElement(m_proxied, std::move(rhs));
+  return *this;
+}
+#endif
+#endif
+
+
+/**
+ * @brief Conversion to a (const) pointer.
+ *
+ * We just need to do a cast here.
+ */
+template <class DVL>
+inline
+ElementProxy<DVL>::operator typename DVL::value_type const() const
+{
+  return DataModel_detail::DVLCast<DVL>::cast (*m_proxied);
+}
+
+
+/**
+ * @brief Conversion to a (const) pointer.
+ *
+ * We just need to do a cast here.
+ */
+template <class DVL>
+inline
+typename DVL::value_type const ElementProxy<DVL>::operator-> () const
+{
+  return DataModel_detail::DVLCast<DVL>::cast (*m_proxied);
+}
+
+
+/**
+ * @brief Return the container holding the element that this object proxies.
+ */
+template <class DVL>
+inline
+DVL* ElementProxy<DVL>::container() const
+{
+  return m_container;
+}
+
+
+#endif // not __GCCXML__
+
+
+} // namespace DataModel_detail

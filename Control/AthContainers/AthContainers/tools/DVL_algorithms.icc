@@ -1,0 +1,322 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/tools/DVL_algorithms.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2010
+ * @brief Helpers for STL algorithms for @c DataVector/List.
+ */
+
+
+#include "AthContainers/tools/DVLNoBase.h"
+#include "AthContainers/tools/DVLCast.h"
+#include "AthContainers/AuxElement.h"
+#include "AthContainersInterfaces/AuxStore_traits.h"
+#include <algorithm>
+
+
+template <class DV> class ConstDataVector;
+
+
+namespace DataModel_detail {
+
+
+/**
+ * @brief Comparison helper for @c DataVector/List classes.
+ *
+ * When doing operations such as @c sort on a @c DataVector/List,
+ * we'd like to be able to give to sort the iterators of the underlying
+ * @c BaseContainer container, for the sake of efficiency.  But we also
+ * have to make sure that the comparisons see the proper pointer types
+ * for derived @c DataVector/List classes.  This can be done with the following
+ * functional wrapper.  This wraps a comparison object, putting the
+ * arguments through @c DVLCast before calling the comparison.
+ *
+ * There is also a specialization for the case where no casting
+ * is required.
+ */
+template <class DVL, class Compare, class DVL_Base=typename DVL::DVL_BASE>
+struct Compwrapper
+{
+  typedef typename DVL::BaseContainer::value_type inptr;
+  Compare m_comp;
+  Compwrapper (Compare comp) : m_comp (comp) {}
+  bool operator() (inptr x, inptr y)
+  {
+    return m_comp (DataModel_detail::DVLCast<DVL>::cast (x),
+                   DataModel_detail::DVLCast<DVL>::cast (y));
+  }
+};
+
+
+/**
+ * @brief Comparison helper for @c DataVector/List classes (specialization).
+ *
+ * This is specialized for the case where we're dealing with
+ * a base @c DataVector/List, and thus no casting is required.
+ */
+template <class DVL, class Compare>
+struct Compwrapper<DVL, Compare, DataModel_detail::NoBase>
+  : public Compare
+{
+  Compwrapper (Compare comp) : Compare (comp) {}
+};
+
+
+/**
+ * @brief Predicate helper for @c DataVector/List classes.
+ *
+ * When doing operations such as @c partition on a @c DataVector/List,
+ * we'd like to be able to give the operation the iterators of the underlying
+ * @c BaseContainer container, for the sake of efficiency.  But we also
+ * have to make sure that the predicate sees the proper pointer types
+ * for derived @c DataVector/List classes.  This can be done with the following
+ * functional wrapper.  This wraps a predicate object, putting the
+ * arguments through @c DVLCast before calling the predicate.
+ *
+ * There is also a specialization for the case where no casting
+ * is required.
+ */
+template <class DVL, class Predicate, class DVL_Base=typename DVL::DVL_BASE>
+struct Predwrapper
+{
+  typedef typename DVL::BaseContainer::value_type inptr;
+  Predicate m_pred;
+  Predwrapper (Predicate pred) : m_pred (pred) {}
+  bool operator() (inptr x)
+  {
+    return m_pred (DataModel_detail::DVLCast<DVL>::cast (x));
+  }
+};
+
+
+/**
+ * @brief Predicate helper for @c DataVector/List classes (specialization).
+ *
+ * This is specialized for the case where we're dealing with
+ * a base @c DataVector/List, and thus no casting is required.
+ */
+template <class DV, class Predicate>
+struct Predwrapper<DV, Predicate, DataModel_detail::NoBase>
+  : public Predicate
+{
+  Predwrapper (Predicate pred) : Predicate (pred) {}
+};
+
+
+/**
+ * @brief Specialization of @c remove for @c DataVector/List.
+ * @param beg The start iterator for the remove.
+ * @param end The end iterator for the remove.
+ * @param value The value to remove.
+ *
+ * @c beg and @c end should both be iterators from the same @c DataVector/List.
+ * This performs the remove in a way that doesn't run afoul of
+ * @c DataVector/List's object ownership rules.
+ */
+template <class Iterator, class T>
+Iterator
+dvl_remove (Iterator beg,
+            Iterator end,
+            const T& value)
+{
+  beg = std::find (beg, end, value);
+  if (beg == end)
+    return end;
+  Iterator res = beg;
+  *beg = 0;
+  ++beg;
+  for (; beg != end; ++beg) {
+    if (!(*beg == value)) {
+      std::iter_swap (res, beg);
+      ++res;
+    }
+    else
+      *beg = 0;
+  }
+  return res;
+}
+
+
+/**
+ * @brief Specialization of @c remove_if for @c DataVector/List.
+ * @param beg The start iterator for the remove.
+ * @param end The end iterator for the remove.
+ * @param pred The predicate for the removal.
+ *
+ * @c beg and @c end should both be iterators from the same @c DataVector/List.
+ * This performs the remove in a way that doesn't run afoul
+ * of @c DataVector/List's object ownership rules.
+ */
+template <class Iterator, class Predicate>
+Iterator
+dvl_remove_if (Iterator beg,
+               Iterator end,
+               Predicate pred)
+{
+  beg = std::find_if (beg, end, pred);
+  if (beg == end)
+    return end;
+  Iterator res = beg;
+  *beg = 0;
+  ++beg;
+  for (; beg != end; ++beg) {
+    if (!bool(pred(*beg))) {
+      std::iter_swap (res, beg);
+      ++res;
+    }
+    else
+      *beg = 0;
+  }
+  return res;
+}
+
+
+/**
+ * @brief Specialization of @c unique for @c DataVector/List.
+ * @param beg The start iterator for the unique operation.
+ * @param end The end iterator for the unique operation.
+ *
+ * @c beg and @c end should both be iterators from the same @c DataVector/List.
+ * This performs the operation in a way
+ * that doesn't run afoul of @c DataVector/List's object ownership rules.
+ */
+template <class Iterator>
+Iterator
+dvl_unique (Iterator beg,
+            Iterator end)
+{
+  beg = std::adjacent_find (beg, end);
+  if (beg == end)
+    return end;
+  Iterator res = beg;
+  ++beg;
+  *beg = 0;
+  while (++beg != end) {
+    if (!(*res == *beg))
+      std::iter_swap (++res, beg);
+    else
+      *beg = 0;
+  }
+  return ++res;
+}
+
+
+/**
+ * @brief Specialization of @c unique for @c DataVector/List.
+ * @param beg The start iterator for the unique operation.
+ * @param end The end iterator for the unique operation.
+ * @param pred The predicate for the operation.
+ *
+ * @c beg and @c end should both be iterators from the same @c DataVector/List.
+ * This performs the operation in a way
+ * that doesn't run afoul of @c DataVector/List's
+ * object ownership rules.
+ */
+template <class Iterator, class BinaryPredicate>
+Iterator
+dvl_unique (Iterator beg,
+            Iterator end,
+            BinaryPredicate pred)
+{
+  beg = std::adjacent_find (beg, end, pred);
+  if (beg == end)
+    return end;
+  Iterator res = beg;
+  ++beg;
+  *beg = 0;
+  while (++beg != end) {
+    if (!pred(*res,  *beg))
+      std::iter_swap (++res, beg);
+    else
+      *beg = 0;
+  }
+  return ++res;
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * Call this after some operation that has permuted the elements in the
+ * container (such as sort).  The index information in the elements
+ * will be used to permute all auxiliary data in the same way.
+ * Finally, all the indices will be reset in the correct order.
+ *
+ * @c ForwardIterator should be an iterator over the @c DataVector
+ * (not a base iterator).
+ */
+template <class ForwardIterator>
+inline
+void resortAux (ForwardIterator beg,
+                ForwardIterator end)
+{
+  // Forward to the appropriate specialization, depending on whether
+  // or not aux data is supported.
+  typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;
+  resortAux1 (typename SG::AuxStore_traits<valtype>::flag(), beg, end);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * Aux data case.
+ */
+template <class DVL>
+void resortAux1 (const SG_STD_OR_BOOST::true_type&,
+                 typename DataModel_detail::iterator<DVL> beg,
+                 typename DataModel_detail::iterator<DVL> end)
+{
+  if (beg != end) {
+    DVL* cont = dynamic_cast<DVL*> (beg.container());
+    if (cont)
+      cont->resortAux (beg, end);
+  }
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * Aux data case with reverse iterators.
+ */
+template <class DVL>
+void resortAux1 (const SG_STD_OR_BOOST::true_type&,
+                 typename std::reverse_iterator<typename DataModel_detail::iterator<DVL> > beg,
+                 typename std::reverse_iterator<typename DataModel_detail::iterator<DVL> > end)
+{
+  if (beg != end) {
+    DVL* cont = dynamic_cast<DVL*> (beg.base().container());
+    if (cont)
+      cont->resortAux (end.base(), beg.base());
+  }
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * No-auxdata case; just a no-op.
+ */
+template <class ForwardIterator>
+inline
+void resortAux1 (const SG_STD_OR_BOOST::false_type&,
+                 ForwardIterator,
+                 ForwardIterator)
+{
+}
+
+
+} // namespace DataModel_detail
