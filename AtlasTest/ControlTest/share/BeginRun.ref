@@ -1,0 +1,416 @@
+Py:ConfigurableDb    INFO Read module info for 3307 configurables from 10 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO including file "$HOME/.athenarc"
+Py:Athena            INFO including file "AthExBeginRun/AthExBeginRunOptions.py"
+/***** AlgSequence /TopAlg *************************************************************************
+|-<no properties>
+|=/***** Algorithm BeginRunAlg/BeginRunAlg ***********************************************************
+| |-ErrorMax          = 1
+| |-MonitorService    = 'MonitorSvc'
+| |-Enable            = True
+| |-AuditInitialize   = False
+| |-AuditExecute      = False
+| |-OutputLevel       = 0
+| |-AuditAlgorithms   = False
+| |-AuditFinalize     = False
+| |-AuditReinitialize = False
+| |-Key               = '/AthExBeginRun/AthExSimpleCond'  (default: '/AthExBeginRun/AthExSimpleCond')
+| |-MyAlgTool         = PublicToolHandle('BeginRunTool/BeginRunTool')  (default: 'MyAlgTool')
+| |-AuditEndRun       = False
+| |-AuditBeginRun     = False
+| |-ErrorCount        = 0
+| \----- (End of Algorithm BeginRunAlg/BeginRunAlg) --------------------------------------------------
+\----- (End of AlgSequence /TopAlg) ----------------------------------------------------------------
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.1 $
+                                          running on lxplus096.cern.ch on Fri Mar 14 23:30:29 2008
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+StatusCodeSvc                    INFO initialize
+DetectorStore                    INFO Initializing DetectorStore - package version StoreGate-02-25-04
+EventPersistencySvc              INFO  'CnvServices':[ 'DetDescrCnvSvc' , 'McCnvSvc' , 'AthenaPoolCnvSvc' ]
+ClassIDSvc                       INFO Initializing ClassIDSvc - package version CLIDComps-00-04-04
+ClassIDSvc                       INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
+ClassIDSvc                       INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
+ProxyProviderSvc                 INFO Initializing ProxyProviderSvc - package version SGComps-00-00-10
+MetaDataSvc                      INFO Initializing MetaDataSvc - package version EventSelectorAthenaPool-00-06-11
+AthenaPoolCnvSvc                 INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-13-09
+ChronoStatSvc                    INFO  Number of skipped events for MemStat-1
+AthenaSealSvc                    INFO begin initialize() - loading dictionary fillers: size 4
+AthenaSealSvc                    INFO loadDictFiller - Ntypes before 7522 types added 1443 dictionary filler name:STLRflx
+AthenaSealSvc                    INFO loadDictFiller - Ntypes before 8965 types added 686 dictionary filler name:STLAddRflx
+AthenaSealSvc                    INFO loadDictFiller - Ntypes before 9651 types added 778 dictionary filler name:AtlasSTLAddReflexDict
+AthenaSealSvc                    INFO loadDictFiller - Ntypes before 10429 types added 567 dictionary filler name:AtlasSealCLHEPDict
+PoolSvc                          INFO No POOL WriteCatalog was specified--using POOL default.
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+XMLFileCatalog: level[Info] Connecting to the catalog
+PoolXMLFileCatalog: level[Info] Xerces-c initialization Number 0
+PoolSvc                          INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc                          INFO Frontier compression level set to 5
+DBReplicaSvc                     INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasCore/rel_2/InstallArea/share/dbreplica.config
+DBReplicaSvc                     INFO Total of 4 servers found for host lxplus096.cern.ch
+PoolSvc                          INFO Successfully setup replica sorting algorithm
+   DbSession     Info     Open     DbSession    
+AthenaRootStreamerSvc            INFO POOL/ROOT class loader initialized
+   DbSession     Info     Closed   DbSession    
+AthenaRootStreamerSvc            INFO 9 ROOT streamers declared
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPVec3dStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepVector3D added converter for checksum = 358881035
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepVector3D
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPPoint3dStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepPoint3D added converter for checksum = 1634550480
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepPoint3D
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPRotationStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepRotation added converter for checksum = 4141898558
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepRotation
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPGenMatrixStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepGenMatrix added converter for checksum = 21721098
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepGenMatrix
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPMatrixStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepMatrix added converter for checksum = 3811046672
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepMatrix
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPLorVecStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepLorentzVector added converter for checksum = 3077056266
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepLorentzVector
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPTransform3DStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for HepTransform3D added converter for checksum = 520750269
+AthenaRootStreamerSvc            INFO Adopted streamer for class HepTransform3D
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEP3VectorStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for Hep3Vector added converter for checksum = 760000369
+AthenaRootStreamerSvc            INFO Adopted streamer for class Hep3Vector
+AthenaRootStreamerSvc            INFO   - Streamer name:CLHEPBasicVectorStreamer
+AthenaRootStreamerSvc            INFO ROOT Streamer for BasicVector3D added converter for checksum = 2681080162
+AthenaRootStreamerSvc            INFO Adopted streamer for class BasicVector3D
+AthenaPoolCnvSvc                 INFO Loading POOL XMLAuthenticationService.
+InputMetaDataStore               INFO Initializing InputMetaDataStore - package version StoreGate-02-25-04
+TagMetaDataStore                 INFO Initializing TagMetaDataStore - package version StoreGate-02-25-04
+IOVDbSvc                         INFO Found ProxyProviderSvc 
+IOVSvc                           INFO IOVRanges will be checked at every Event
+ClassIDSvc                       INFO  getRegistryEntries: read 45 CLIDRegistry entries for module ALL
+IOVDbSvc                         INFO Opened read transaction for POOL PersistencySvc.
+IOVDbSvc                         INFO DbConnections are managed (opened when needed)
+IOVDbSvc                         INFO POOL file connections are managed (closed at end of event)
+EventSelector                    INFO  Enter McEventSelector Initialization 
+EventSelector                    INFO  McEventSelector Initialized Properly ... 
+IOVDbSvc                         INFO Service IOVDbSvc initialised successfully
+IOVDbSvc                         INFO  
+MetaDataStore                    INFO Initializing MetaDataStore - package version StoreGate-02-25-04
+IOVDbSvc                         INFO  
+ActiveStoreSvc                   INFO Initializing ActiveStoreSvc - package version StoreGate-02-25-04
+RalDatabaseSvc     Info Instantiate the RalDatabaseSvc
+RalSessionMgr     Info Instantiate a R/O RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Connect to the database server
+CORAL/Services/ConnectionService     Info Loading default plugin for coral::IRelationalService: CORAL/Services/RelationalService
+CORAL/Services/RelationalService     Info Found plugin for RDBMS technology "frontier" with native implementation
+CORAL/Services/RelationalService     Info Found plugin for RDBMS technology "mysql" with native implementation
+CORAL/Services/RelationalService     Info Found plugin for RDBMS technology "oracle" with native implementation
+CORAL/Services/RelationalService     Info Found plugin for RDBMS technology "sqlite" with native implementation
+CORAL/Services/RelationalService     Info Default implementation for RDBMS technology "frontier" is native
+CORAL/Services/RelationalService     Info Default implementation for RDBMS technology "mysql" is native
+CORAL/Services/RelationalService     Info Default implementation for RDBMS technology "oracle" is native
+CORAL/Services/RelationalService     Info Default implementation for RDBMS technology "sqlite" is native
+CORAL/Services/ConnectionService     Info  Connection to service "mytest.db" established. Id=43c7081a-f216-11dc-9dd0-0030488367a0
+CORAL/Services/ConnectionService     Info New session on connection to service "mytest.db" started for user "". Connection Id=43c7081a-f216-11dc-9dd0-0030488367a0
+RalSessionMgr     Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase     Info Instantiate a R/O RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+StoreGateSvc                     INFO Initializing StoreGateSvc - package version StoreGate-02-25-04
+IOVDbSvc                         INFO  
+DetDescrCnvSvc                   INFO  initializing 
+DetDescrCnvSvc                   INFO Found DetectorStore service
+DetDescrCnvSvc                   INFO  filling proxies for detector managers 
+DetDescrCnvSvc                   INFO  filling address for InDetMgr with CLID 2512 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for MuonMgr with CLID 4060 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc                   INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+AthenaEventLoopMgr               INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-24-02
+BeginRunAlg                      INFO initialize()
+ToolSvc.BeginRunTool             INFO initialize()
+ClassIDSvc                       INFO  getRegistryEntries: read 52 CLIDRegistry entries for module ALL
+EventPersistencySvc              INFO Added successfully Conversion service:DetDescrCnvSvc
+EventPersistencySvc              INFO Added successfully Conversion service:McCnvSvc
+EventPersistencySvc              INFO Added successfully Conversion service:AthenaPoolCnvSvc
+IOVSvc                           INFO Proxy CLID: 132798543 key: /AthExBeginRun/AthExSimpleCond has not been registered. Doing it now.
+HistogramPersistencySvc          INFO  'CnvServices':[ 'HbookHistSvc' , 'RootHistSvc' ]
+HistogramPersistencySvc       WARNING Histograms saving not required.
+AthenaEventLoopMgr            WARNING Histograms saving not required.
+AthenaEventLoopMgr               INFO Setup EventSelector service EventSelector
+ApplicationMgr                   INFO Application Manager Initialized successfully
+BeginRunAlg                      INFO beginRun()
+AthenaSealSvc                    INFO checkClass - Number of types on entry 12264
+AthenaSealSvc                    INFO checkClass - found type IOVDbTestAmdbCorrection
+AthenaSealSvc                    INFO checkClass - found ClassID C3B137B3-F09E-4B75-B14C-AAA2B64408BB
+AthenaSealSvc                    INFO Checking members of type IOVDbTestAmdbCorrection for 3 members: ok  - isComplete 1
+AthenaSealSvc                    INFO Checking members of type string for 1 members: ok  - isComplete 1
+AthenaSealSvc                    INFO checkClass - NO MISSING FIELDS!!!
+AthenaSealSvc                    INFO checkClass - Number of types on exit 12273
+   DbSession     Info     Open     DbSession    
+Domain[ROOT_All]     Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     Info ->  Access   DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info                           AthExCondStream.root
+AthExCondStream.root   Always Root file version:51800
+AthenaRootStreamerSvc            INFO Found unknown streamer checksum 2357390539 for class HepPoint3D - using default ROOT streamer
+AthenaRootStreamerSvc            INFO Found unknown streamer checksum 2965104389 for class BasicVector3D - using default ROOT streamer
+BeginRunAlg                      INFO beginRun: Conditions from detector store: trans = (1,2,3) rot = (0,0,0)
+AthenaEventLoopMgr               INFO   ===>>>  start of run 1    <<<===
+IOVSvc                           INFO Proxy CLID: 61780915 key: ProcessingTags has not been registered. Doing it now.
+ClassIDSvc                       INFO  getRegistryEntries: read 67 CLIDRegistry entries for module ALL
+BeginRunAlg                      INFO IOV callback triggered by /AthExBeginRun/AthExSimpleCond 
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+HistorySvc                       INFO Registered 1 Algorithms
+HistorySvc                       INFO Registered 1 AlgTools
+HistorySvc                       INFO Registered 33 Services
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0,0,0)
+RelationalDatabase     Info Delete the RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Delete the RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr     Info Disconnect from the database server
+XMLFileCatalog     Info There were no updates in the catalog
+AthExCondStream.root     Info Database being retired...
+Domain[ROOT_All]     Info ->  Deaccess DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info >   Deaccess DbDomain     READ      [ROOT_All] 
+IOVDbSvc                         INFO EndEvent: successfully closed input pool connections 
+IOVDbSvc                         INFO EndEvent: Reopened read transaction for POOL PersistencySvc.
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0,0,0)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 2    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0,0,0)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0,0,0)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 3    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0,0,0)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0,0,0)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 4    <<<===
+BeginRunAlg                      INFO IOV callback triggered by /AthExBeginRun/AthExSimpleCond 
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+RalSessionMgr     Info Instantiate a R/O RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Connect to the database server
+CORAL/Services/ConnectionService     Info  Connection to service "mytest.db" established. Id=45165c20-f216-11dc-9dd0-0030488367a0
+CORAL/Services/ConnectionService     Info New session on connection to service "mytest.db" started for user "". Connection Id=45165c20-f216-11dc-9dd0-0030488367a0
+RalSessionMgr     Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase     Info Instantiate a R/O RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+   DbSession     Info     Open     DbSession    
+Domain[ROOT_All]     Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     Info ->  Access   DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info                           AthExCondStream.root
+AthExCondStream.root   Always Root file version:51800
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+RelationalDatabase     Info Delete the RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Delete the RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr     Info Disconnect from the database server
+AthExCondStream.root     Info Database being retired...
+Domain[ROOT_All]     Info ->  Deaccess DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info >   Deaccess DbDomain     READ      [ROOT_All] 
+IOVDbSvc                         INFO EndEvent: successfully closed input pool connections 
+IOVDbSvc                         INFO EndEvent: Reopened read transaction for POOL PersistencySvc.
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 5    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 6    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 7    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.1,0.1,0.1)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 8    <<<===
+BeginRunAlg                      INFO IOV callback triggered by /AthExBeginRun/AthExSimpleCond 
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+RalSessionMgr     Info Instantiate a R/O RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Connect to the database server
+CORAL/Services/ConnectionService     Info  Connection to service "mytest.db" established. Id=451c830c-f216-11dc-9dd0-0030488367a0
+CORAL/Services/ConnectionService     Info New session on connection to service "mytest.db" started for user "". Connection Id=451c830c-f216-11dc-9dd0-0030488367a0
+RalSessionMgr     Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase     Info Instantiate a R/O RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+   DbSession     Info     Open     DbSession    
+Domain[ROOT_All]     Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     Info ->  Access   DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info                           AthExCondStream.root
+AthExCondStream.root   Always Root file version:51800
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+RelationalDatabase     Info Delete the RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Delete the RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr     Info Disconnect from the database server
+AthExCondStream.root     Info Database being retired...
+Domain[ROOT_All]     Info ->  Deaccess DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info >   Deaccess DbDomain     READ      [ROOT_All] 
+IOVDbSvc                         INFO EndEvent: successfully closed input pool connections 
+IOVDbSvc                         INFO EndEvent: Reopened read transaction for POOL PersistencySvc.
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 9    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 10    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 11    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 12    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.2,0.2,0.2)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 13    <<<===
+BeginRunAlg                      INFO IOV callback triggered by /AthExBeginRun/AthExSimpleCond 
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+RalSessionMgr     Info Instantiate a R/O RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Connect to the database server
+CORAL/Services/ConnectionService     Info  Connection to service "mytest.db" established. Id=45229bca-f216-11dc-9dd0-0030488367a0
+CORAL/Services/ConnectionService     Info New session on connection to service "mytest.db" started for user "". Connection Id=45229bca-f216-11dc-9dd0-0030488367a0
+RalSessionMgr     Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase     Info Instantiate a R/O RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+   DbSession     Info     Open     DbSession    
+Domain[ROOT_All]     Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     Info ->  Access   DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info                           AthExCondStream.root
+AthExCondStream.root   Always Root file version:51800
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.3,0.3,0.3)
+RelationalDatabase     Info Delete the RalDatabase for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Delete the RalSessionMgr for 'sqlite://;schema=mytest.db;dbname=TESTCOOL'
+RalSessionMgr     Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr     Info Disconnect from the database server
+AthExCondStream.root     Info Database being retired...
+Domain[ROOT_All]     Info ->  Deaccess DbDatabase   READ      [ROOT_All] 6EB0E32F-16F2-DC11-9A15-0030488367A0
+Domain[ROOT_All]     Info >   Deaccess DbDomain     READ      [ROOT_All] 
+IOVDbSvc                         INFO EndEvent: successfully closed input pool connections 
+IOVDbSvc                         INFO EndEvent: Reopened read transaction for POOL PersistencySvc.
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.3,0.3,0.3)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 14    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.3,0.3,0.3)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.3,0.3,0.3)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of run 15    <<<===
+ToolSvc.BeginRunTool             INFO BeginRun Incident received
+AthenaEventLoopMgr               INFO   ===>>>  start of event 1  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.3,0.3,0.3)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 1    <<<===
+AthenaEventLoopMgr               INFO   ===>>>  start of event 2  <<<===
+BeginRunAlg                      INFO execute: Conditions via DataHandle: trans = (1,2,3) rot = (0.3,0.3,0.3)
+AthenaEventLoopMgr               INFO   ===>>>  end of event 2    <<<===
+BeginRunAlg                      INFO endRun()
+BeginRunAlg                      INFO finalize()
+MetaDataStore                    INFO Finalizing MetaDataStore - package version StoreGate-02-25-04
+IOVDbConnection                  INFO printStats: number of connections 1
+IOVDbConnection                  INFO Connection: sqlite://;schema=mytest.db;dbname=TESTCOOL nCreate: 1 nDelete: 1 nActivate: 4
+IOVDbSvc                         INFO Service finalised successfully
+EventSelector                    INFO finalize
+TagMetaDataStore                 INFO Finalizing TagMetaDataStore - package version StoreGate-02-25-04
+InputMetaDataStore               INFO Finalizing InputMetaDataStore - package version StoreGate-02-25-04
+HistorySvc                       INFO Service finalised successfully
+PoolSvc                          INFO finalize() in PoolSvc
+XMLFileCatalog     Info There were no updates in the catalog
+PoolXMLFileCatalog     Info XercesC termination number 0
+AthenaSealSvc                    INFO finalize() in AthenaSealSvc
+StoreGateSvc                     INFO Finalizing StoreGateSvc - package version StoreGate-02-25-04
+DetectorStore                    INFO Finalizing DetectorStore - package version StoreGate-02-25-04
+ToolSvc.finalize()               INFO Removing all tools created by ToolSvc
+*****Chrono*****                 INFO ****************************************************************************************************
+*****Chrono*****                 INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****                 INFO ****************************************************************************************************
+AthenaSealSvc::autoLoading       INFO Time User   : Tot=   11 [ms]                                             #=  1
+AthenaSealSvc::dictLoading       INFO Time User   : Tot=0.916  [s]                                             #=  1
+AthenaSealSvc::checkClass        INFO Time User   : Tot=  1.2  [s]                                             #=  1
+ChronoStatSvc                    INFO Time User   : Tot= 7.04  [s]                                             #=  1
+*****Chrono*****                 INFO ****************************************************************************************************
+ChronoStatSvc.finalize()         INFO  Service finalized succesfully 
+cleaning up
+StatusCodeSvc                    INFO initialize
+ApplicationMgr                   INFO Application Manager Finalized successfully
+ApplicationMgr                   INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

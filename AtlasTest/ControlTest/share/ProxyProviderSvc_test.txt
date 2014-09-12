@@ -1,0 +1,12 @@
+// job opts for ProxyProviderSvc unit test
+
+// $Id: ProxyProviderSvc_test.txt,v 1.3 2007/11/09 23:56:59 calaf Exp $
+
+#include "ControlTest/StoreGateTestCommon.txt"
+#include "ToyConversion/ToyConversionOpts.txt"
+ProxyProviderSvc.OutputLevel = 1;
+//MessageSvc.OutputLevel = 1;
+ClassIDSvc.OutputLevel = 2;
+MessageSvc.setVerbose = ["DataProxy", "EventPersistencySvc", "ToyConversionSvc", "StoreGateSvc", "EventDataSvc", "HistogramDataSvc", "ServiceManager", "HistogramPersistencySvc", "HistoryStore", "DetectorStore", "ApplicationMgr", "ProxyProviderSvc"];
+MessageSvc.setDebug = ["ClassIDSvc"];
+

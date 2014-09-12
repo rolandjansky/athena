@@ -1,0 +1,1664 @@
+JobOptionsSvc     WARNING 
+
+//##############################################################
+//
+// AthExStoreGateExample Pile-Up Job options file
+//
+//==============================================================
+//use ZebraTDR selector
+// --> Including file $ATHENACOMMONROOT/share/Atlas_ZebraTDR.UnixStandardJob.txt
+
+
+//**************************************************************
+//
+// ZebraTDR job options file
+//
+//==============================================================
+// --> Including file $ATHENACOMMONROOT/share/Atlas.UnixStandardJob.txt
+
+
+//**************************************************************
+//
+// Unix standard job options file
+//
+//==============================================================
+//--------------------------------------------------------------
+//ApplicationMgr configuration
+//--------------------------------------------------------------
+//default services to be instantiated
+ApplicationMgr.ExtSvc += { "IncidentSvc/IncidentSvc", 
+		           "EvtPersistencySvc/EventPersistencySvc",
+			   "HistogramSvc/HistogramDataSvc",
+			   "NTupleSvc/NTupleSvc",
+			   "ToolSvc/ToolSvc",
+			   "AuditorSvc/AuditorSvc",
+			   "RndmGenSvc/RndmGenSvc",
+			   "ChronoStatSvc/ChronoStatSvc"
+			 };	
+
+ApplicationMgr.DLLs   += { "AthenaServices" };
+ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
+ApplicationMgr.OutStreamType = "AthenaOutputStream";
+AthenaEventLoopMgr.OutStreamType = "AthenaOutputStream";
+
+//--------------------------------------------------------------
+// StoreGate services configuration
+//--------------------------------------------------------------
+// --> Including file $STOREGATEROOT/share/StoreGate_jobOptions.txt
+
+
+ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
+ApplicationMgr.ExtSvc += { "ClassIDSvc" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionsStore" };
+ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
+//FIXME uncomment to verify that your  CLIDs are good!
+//ClassIDSvc.CLIDDBFiles += { "$CLIDSVCROOT/share/clid.db" };
+
+
+// <-- End of including file $STOREGATEROOT/share/StoreGate_jobOptions.txt
+
+
+//--------------------------------------------------------------
+// Initialization of DetDescrCnvSvc
+//--------------------------------------------------------------
+// --> Including file $DETDESCRCNVSVCROOT/share/DetStore_joboptions.txt
+
+
+//
+// Joboptions for bootstrapping the loading of the DetectorStore with
+// the DetDescrCnvSvc
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "DetDescrCnvSvc" };
+
+// Add in services
+//  (NOTE: the following does not yet work for the detector store)
+//ApplicationMgr.ExtSvc += { "DetPersistencySvc/DetectorPersistencySvc", 
+//			   "DetDescrCnvSvc" };
+//DetectorPersistencySvc.CnvServices += { "DetDescrCnvSvc" };
+// Instead use the event pers svc:
+ApplicationMgr.ExtSvc += { "DetDescrCnvSvc" };
+EventPersistencySvc.CnvServices += { "DetDescrCnvSvc" };
+
+// Add list of DetectorManagers to be loaded at startup
+// (Currently done in the individual mgr joboptions)
+// DetDescrCnvSvc.DetectorManagers = { "InDetMgr", "LArMgr", "TileMgr", "MuonMgr" };
+
+// Specify primary Identifier dictionary to be used
+DetDescrCnvSvc.IdDictName = "ATLAS_IDS.xml";
+
+// Always include the IdDict jobOptions
+// --> Including file $IDDICTDETDESCRCNVROOT/share/IdDictDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of InDetDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "IdDictDetDescrCnv" };
+
+
+// <-- End of including file $IDDICTDETDESCRCNVROOT/share/IdDictDetDescrCnv_joboptions.txt
+
+
+// Set flag to use compact ids 
+DetDescrCnvSvc.CompactIDsOnly = true;
+
+
+// <-- End of including file $DETDESCRCNVSVCROOT/share/DetStore_joboptions.txt
+
+
+//==============================================================
+//
+// End of Unix standard job options file
+//
+//**************************************************************
+
+
+// <-- End of including file $ATHENACOMMONROOT/share/Atlas.UnixStandardJob.txt
+
+
+//--------------------------------------------------------------
+// General Application Configuration options
+//--------------------------------------------------------------
+
+ApplicationMgr.DLLs   += { "ZebraTDRCnv" , "HbookCnv"};
+ApplicationMgr.ExtSvc += { "ZebraTDRCnvSvc", 
+                          "ZebraTDREventSelector/EventSelector" };
+//--------------------------------------------------------------
+// Persistency services
+//--------------------------------------------------------------
+
+EventPersistencySvc.CnvServices += { "ZebraTDRCnvSvc" };  
+
+//==============================================================
+//
+// End of ZebraTDR job options file
+//
+//**************************************************************
+
+
+
+// <-- End of including file $ATHENACOMMONROOT/share/Atlas_ZebraTDR.UnixStandardJob.txt
+
+// For  ddcnvsvc
+// --> Including file $IDDICTDETDESCRCNVROOT/share/IdDictDetDescrCnv_joboptions.txt
+#001 [ from ../src/JobOptionsSvc/PropertyCompiler.cpp:181] in function: void PropertyCompiler::openPropertyFile(const std::string&): Specified property-file /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_4/DetectorDescription/IdDictDetDescrCnv/IdDictDetDescrCnv-00-00-05/share/IdDictDetDescrCnv_joboptions.txt was already included by another property-file! 
+JobOptionsSvc     WARNING [ from ../src/JobOptionsSvc/PropertyCompiler.cpp:1338] in function: StatusCode PropertyCompiler::startCompiler()1 Warnings 
+JobOptionsSvc        INFO 
+
+//
+//  Joboptions for the loading of the of InDetDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "IdDictDetDescrCnv" };
+
+
+// <-- End of including file $IDDICTDETDESCRCNVROOT/share/IdDictDetDescrCnv_joboptions.txt
+
+// --> Including file $INDETMGRDETDESCRCNVROOT/share/InDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of InDetDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "InDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "InDetMgr" };
+
+// <-- End of including file $INDETMGRDETDESCRCNVROOT/share/InDetMgrDetDescrCnv_joboptions.txt
+
+// --> Including file $LARDETMGRDETDESCRCNVROOT/share/LArDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+// Example joboptions for the loading of the DetectorStore
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "LArDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "LArMgr" };
+
+
+// <-- End of including file $LARDETMGRDETDESCRCNVROOT/share/LArDetMgrDetDescrCnv_joboptions.txt
+
+// --> Including file $TILEDETMGRDETDESCRCNVROOT/share/TileDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+// Example joboptions for the loading of the DetectorStore
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "TileDetMgrDetDescrCnv" };
+
+// Add Tile to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "TileMgr" };
+
+// <-- End of including file $TILEDETMGRDETDESCRCNVROOT/share/TileDetMgrDetDescrCnv_joboptions.txt
+
+// --> Including file $MUONDETMGRDETDESCRCNVROOT/share/MuonDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of MuonDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "MuonDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "MuonMgr" };
+
+// <-- End of including file $MUONDETMGRDETDESCRCNVROOT/share/MuonDetMgrDetDescrCnv_joboptions.txt
+
+// Turn on the reading of the dictionary
+DetDescrCnvSvc.DecodeIdDict = true;
+
+//--------------------------------------------------------------
+// Private Application Configuration options
+//--------------------------------------------------------------
+
+//load relevant libraries
+ApplicationMgr.DLLs += { "AthenaServices", "AthExStoreGateExample", "PileUpTools"};
+
+//load pileup merge svc
+ApplicationMgr.ExtSvc += { "PileUpMergeSvc" };
+
+//top algorithms to be run
+ApplicationMgr.TopAlg = { "ReadPileUpData" };
+
+//--------------------------------------------------------------
+// use the new Pile-uP Event Loop Mgr
+//--------------------------------------------------------------
+//add pile up loop to the list of external services
+//declare it to the appmgr
+ApplicationMgr.EventLoop = "PileUpEventLoopMgr";
+
+//define inputs
+PileUpEventLoopMgr.OrigSelector="EventSelector";
+PileUpEventLoopMgr.BkgSelectors={"EventSelector"};
+PileUpEventLoopMgr.CollPerXing=3;
+//realistic value PileUpEventLoopMgr.CollPerXing=23;
+
+//--------------------------------------------------------------
+// Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+//--------------------------------------------------------------
+
+PileUpEventLoopMgr.OutputLevel      = 2;
+PileUpMergeSvc.OutputLevel      = 2;
+MessageSvc.useColors        = true;
+
+//--------------------------------------------------------------
+// Event related parameters
+//--------------------------------------------------------------
+
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtMax = 3;
+EventSelector.firstRun=1;
+EventSelector.lastRun=100000;
+
+//==============================================================
+//
+// End of AthExStoreGateExample job options file
+//
+//##############################################################
+
+
+Job options successfully read in from StoreGateExample_pileup_jobOptions.txt
+[93;1mConverterFactory  WARNING Converter for class:IdDictDetDescrCnv already exists.[m
+WARNING Algorithm factory for type AthenaOutputStream already declared. Overwriting it.
+[93;1mObjectManager     WARNING Factory for class:AlgContextAuditor already exists.[m
+[93;1mServiceManager    WARNING Service factory for type AlgContextSvc already declared[m
+[93;1mServiceManager    WARNING Service factory for type AtRndmGenSvc already declared[m
+[93;1mServiceManager    WARNING Service factory for type AthenaEventLoopMgr already declared[m
+ApplicationMgr       INFO Successfully loaded modules: AthenaServices, StoreGate, CLIDSvc, DetDescrCnvSvc, IdDictDetDescrCnv, ZebraTDRCnv, HbookCnv, IdDictDetDescrCnv, InDetMgrDetDescrCnv, LArDetMgrDetDescrCnv, TileDetMgrDetDescrCnv, MuonDetMgrDetDescrCnv, AthenaServices, AthExStoreGateExample, PileUpTools[m
+ApplicationMgr       INFO Application Manager Configured successfully[m
+EventPersistenc...   INFO "CnvServices": ["DetDescrCnvSvc", "ZebraTDRCnvSvc"][m
+HistogramPersis...   INFO "CnvServices": ["HbookHistSvc", "RootHistSvc"][m
+[93;1mHistogramPersis...WARNING Histograms saving not required.[m
+RndmGenSvc.Engine    INFO Generator engine type:RanluxEngine[m
+RndmGenSvc.Engine    INFO Current Seed:1234567 Luxury:3[m
+RndmGenSvc           INFO Using Random engine:HepRndm::Engine<RanluxEngine>[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDSvc-00-00-06
+ClassIDSvc           INFO ClassIDSvc Initialized successfully 
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-09-06
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreGate-02-09-06
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-09-06
+ConditionsStore      INFO Initializing ConditionsStore - package version StoreGate-02-09-06
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-09-06
+DetDescrCnvSvc       INFO  initializing [m
+DetDescrCnvSvc       INFO Found DetectorStore service[m
+DetDescrCnvSvc       INFO  filling proxies for detector managers [m
+DetDescrCnvSvc       INFO  Found manager name InDetMgr[m
+DetDescrCnvSvc       INFO  filling address for InDetMgr with CLID 2512 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  Found manager name LArMgr[m
+DetDescrCnvSvc       INFO  filling address for LArMgr with CLID 2741 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  Found manager name TileMgr[m
+DetDescrCnvSvc       INFO  filling address for TileMgr with CLID 2941 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  Found manager name MuonMgr[m
+DetDescrCnvSvc       INFO  filling address for MuonMgr with CLID 4060 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling proxies for GeoModel root nodes [m
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store [m
+ ZebraTDRCnvSvc: FORTRAN input taken from slug.car
+[93;1mEventSelector     WARNING  You have set firstRun and lastRun job parameters. Currently no action is implemented for this: [m
+EventSelector        INFO  Value for the detector flags are: [m
+EventSelector        INFO  indet       - 1[m
+EventSelector        INFO    pixel     - 1[m
+EventSelector        INFO    sct       - 1[m
+EventSelector        INFO    trt       - 1[m
+EventSelector        INFO  calos       - 1[m
+EventSelector        INFO    emBarrel  - 1[m
+EventSelector        INFO    emEndcap  - 1[m
+EventSelector        INFO    hec       - 1[m
+EventSelector        INFO    fcal      - 1[m
+EventSelector        INFO    tile      - 1[m
+EventSelector        INFO  muons       - 1[m
+EventSelector        INFO    csc       - 1[m
+EventSelector        INFO    mdt       - 1[m
+EventSelector        INFO    rpc       - 1[m
+EventSelector        INFO    tgc       - 1[m
+EventSelector        INFO  Hits   flag - 0[m
+EventSelector        INFO  Digits flag - 1[m
+ ATLAS Simulation, Reconstruction and Analysis Exploiting the SLUG Fortran77 implementation.
+ CALLING SLZEBRA WITH PAW SIZE  250000
+1+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ +                                                                                     +
+ +   Atlas Detector Simulation, Reconstruction and Analysis Running on  30524 at  743  +
+ +                                                                                     +
+ +   Machine:  386LINUX  lxplus077  System and Processor Info                          +
+ +                                                                                     +
+ +   Job    :  JobName                                                                 +
+ +                                                                                     +
+ +   Program:  Slug-Dice-Arecon in /afs/cern.ch/user/c/calaf/scratch0/to620/AtlasTest/C+ntrolTest/ControlTest-00-01  pid    1743
+ +                                                                                     +
+ +                                                                                     +
+ +   Package Information                                                               +
+ +   GEANT:  3.21/08    3.2180  230697                                                 +
+ +   ZEBRA:   3.7700 Zebra11000000 words, PAW/Hbook 250000 words, FFRead   4000 words. +
+ +      RZ: RZEBRA   3.01/08         This version created on 000000 at 0000            +
+ +    SLUG:     slug     Library of   30522 at   10 Version  slug-01-                  +
+ +    GENZ:     genz     Library of   30522 at    8 Version  v2r1                      +
+ + ATGEANA:     G3b      Library of   30522 at    0 Version  v1                        +
+ +    DICE:     Dummy    Library of   30522 at    9 Version  atdummy-                  +
+ +   ATRIG:     Dummy    Library of   30522 at    9 Version  atdummy-                  +
+ + ATRECON:     Dummy    Library of   30522 at    9 Version  atdummy-                  +
+ +   DUMMY:     atdummy  Library of   30522 at    9 Version  atdummy-                  +
+ +                                                                                     +
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ REPORT-E- No REPORT header bank.
+ FMSTRT     1-Dummy Fatmen (initialization).
+1*****  GEANT Version  3.21/08 Released on 230697
+0*****  Correction Cradle Version  0.0800
+ *****  Library compiled on  30522 at   10 *****
+
+ SLZINI: Initialize SLUG ZEBRA banks 
+ SLINIO: Initialize I/O modes and default headers
+ SBIOMO: I/O mode P   , Type=-1, Unit =  21
+ SBIOMO: I/O mode B   , Type=-1, Unit =  22
+ SBIOMO: I/O mode O   , Type= 1, Unit =  23
+ UCARD -   1- I      Dummy version of UCARD called
+1           USER'S DIRECTIVES TO RUN THIS JOB
+            ----------------------------------
+
+
+ ***** DATA CARD CONTENT     LIST                                                                            
+ ***** DATA CARD CONTENT     C  TRAP 0                                                                       
+ ***** DATA CARD CONTENT     C  TRAP  1  3  10 10  1 0 10 1 4 10                                             
+ ***** DATA CARD CONTENT     TRAP  0  3  10 10  1 0 10 1 4 10                                                
+ ***** DATA CARD CONTENT     C GEANT: # of events to process  & TIME                                         
+ ***** DATA CARD CONTENT     C TRIG 5                                                                        
+ ***** DATA CARD CONTENT     TRIG 1000000                                                                    
+ ***** DATA CARD CONTENT     TIME 2=5. 3=1                                                                   
+ ***** DATA CARD CONTENT     C --------------------------------------------------                            
+ ***** DATA CARD CONTENT     C digitization and simulation and analysis status                               
+ ***** DATA CARD CONTENT     SIMULATION 0                                                                    
+ ***** DATA CARD CONTENT     DIGI       0                                                                    
+ ***** DATA CARD CONTENT     RECONSTR   1                                                                    
+ ***** DATA CARD CONTENT     ANALYSIS   0                                                                    
+ ***** DATA CARD CONTENT     OUTP       0                                                                    
+ ***** DATA CARD CONTENT     C loading of the input stream                                                   
+ ***** DATA CARD CONTENT    *BKIO     'P'  'EVNT'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'GEOM'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'KINE'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'HITS'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'DIGI'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'RECB'                                                           
+ ***** DATA CARD CONTENT     C define graphics  4,5,6 offsets  7=zoom factor                                 
+ ***** DATA CARD CONTENT     C *DREV 'SLUG' 1 4=0. 5=0. 6=0. 7=5.                                            
+ ***** DATA CARD CONTENT     C------- SLUG/GEANT debugging parametrs/modes -------------                     
+ ***** DATA CARD CONTENT     DEBU  0 0 0                                                                     
+ ***** DATA CARD CONTENT     C read events from ZEBRA file.                                                  
+ ***** DATA CARD CONTENT     KINE -1                                                                         
+ ***** DATA CARD CONTENT     STOP                                                                            
+ SLUG Initialisation Phase (Ranlux) seeded with default values 
+ Slug: RANLUX LUXURY LEVEL SET BY RLUXGO : 1     P=  48
+ Slug: RANLUX INITIALIZED BY RLUXGO FROM DEFAULT SEED
+ Slug: Monitor level
+ Exception handling not available on Intel/Linux.
+ Slug: No requests for atlas.ps graphics
+1SLGNZINI: Initialize GENZ package 
+ ================================================================================
+ GNZINIT: Initializing GENZ package, Version v2r1    
+          GENZ assumes ZEBRA is initialized already
+          Zebra Version = 3.78  Jobname = lxplus077 calaf   Machine = UNKN
+ GNZINIT: Modularity,  incl. possible user words is    13
+          Assumed HEPEVT common block modularity is 10000
+ ================================================================================
+         Open I/O mode P on unit   21. File=ZEBRA.P                                                                         
+ SLPKINI: Initialize PICK/SKIP system for RUNS.
+    No PIKR bank found. No Runs to PICK.
+    No SKPR bank found. No Runs to SKIP.
+ SLPKINI: Initialize PICK/SKIP system for EVENTS in Run           0
+    No PIKE bank found for run           0
+    No SKPE bank found for run            0
+ SLIN: Zebra SOR for Run       1, I/Omode P, unit 21
+ SLIN: Zebra SOR Run  1 Ignored, Probable event structure error.
+ RDSOR: ZSOR record found       1 Run. Read again for "INIT" and "DETM" 
+ RUNG.INIT  20020703 21:16        3.218     3.78
+ RUNG.KINE  20020703 21:16        3.218     3.78
+ RUNG.HITS  20020703 21:16        3.218     3.78
+ RUNG.DIGI  20020703 21:16        3.218     3.78
+ 
+ RUNG.RUNH:    command     'exec /usatlas/workarea/nevski/atlsprod/nice_feature $*';
+ RUNG.RUNH: ?  gexec       libRootKernel.so;
+ RUNG.RUNH:    Ag/Version  batch;
+ RUNG.RUNH:    ?  gexec       libatlroot.so;
+ RUNG.RUNH:       gexec       libatlprod.so;
+ RUNG.RUNH:       gtime       0 1000 1;
+ RUNG.RUNH:    Rung        0      1;
+ RUNG.RUNH:    Ranlux      0001;
+ RUNG.RUNH:    title       $quote(dc production simul_001003 at acas040.usatlas.bnl.gov 2.4.9-31smp on Wed Jul  3 21:16:48 EDT 2002 
+ RUNG.RUNH: run=0001);
+ RUNG.RUNH:      ghist       /usatlas/workarea/nevski/atlsprod/simul_001003/atlas.0001.his;
+ RUNG.RUNH:    ;
+ RUNG.RUNH:    *  - set atlas-standard configuration (inner, center, all);
+ RUNG.RUNH:     exec atlas#config     all;
+ RUNG.RUNH:       exec atlas#calo_shift 4;
+ RUNG.RUNH:     exec atlas#inner_cut  4  all;
+ RUNG.RUNH:    mode OUTP   simu 2;
+ RUNG.RUNH:      mode FWDC   geom 2;
+ RUNG.RUNH:      mode HEPE   hist 100;
+ RUNG.RUNH: ?  detp MFLD;
+ RUNG.RUNH:       mode filter hist 300;
+ RUNG.RUNH: ?  detp filter;
+ RUNG.RUNH:     call adice;
+ RUNG.RUNH:   ;
+ RUNG.RUNH:    *  - select filters, I/O;
+ RUNG.RUNH:    ?  call filter;
+ RUNG.RUNH:  ?  Gvertex;
+ RUNG.RUNH:  ?  Gspread     0.0015 0.0015 5.6;
+ RUNG.RUNH:    ?  TFLT ETAP   -2.7 2.7 0.0 6.3;
+ RUNG.RUNH:    call AguDSET($quote(simul_001003.evgen_001003));
+ RUNG.RUNH:     call AguFILE(0001);
+ RUNG.RUNH:   *  call AguEVNT(0);
+ RUNG.RUNH:  *  - next line may produce an uncorrect error message which should be ignored;
+ RUNG.RUNH:      gfile P   /usatlas/workarea/nevski/atlsprod/data/zebra/dc1.001003.evgen.0001.test.h130_2e2mu.zebra  E;
+ RUNG.RUNH:       gfile  O    /usatlas/workarea/nevski/atlsprod/simul_001003/atlas.0001.zebra;
+ RUNG.RUNH:     skip  0;
+ RUNG.RUNH:     trig  200;
+ RUNG.RUNH:    
+ RUNG.RTAG: simul_001003.evgen_001003.h130_2e2mu.3.2.1.JOB_18                               
+ 
+1           USER'S DIRECTIVES TO RUN THIS JOB
+            ----------------------------------
+
+
+ ***** DATA CARD CONTENT     LIST                                                                            
+ ***** DATA CARD CONTENT     C----------------------------------------------------------------------C        
+ ***** DATA CARD CONTENT     C   Corrections to data cards                                          C        
+ ***** DATA CARD CONTENT     C----------------------------------------------------------------------C        
+ ***** DATA CARD CONTENT    *MODE 'ALL' 'PRIN' 0                                                            
+ ***** DATA CARD CONTENT    *MODE 'RECO' 'PRIN' 0                                                           
+ ***** DATA CARD CONTENT     STOP                                                                            
+ UGEOMR-   1- I      Dummy version of UGEOMR called - No DICE
+0SLHBINI: Setup HBOOK directories for atlas.his 
+          on LUN 50 with a quota of 32000  1024 word records
+0Creating subdirectories in PAWC for detectors with LVHIST.ne.0 :
+ Summarize HBOOK directories in memory:
+
+
+ ===> Directory : //PAWC
+
+
+ ===> Directory : //PAWC/ATLS
+
+
+ ===> Directory : //PAWC/MFLD
+
+
+ ===> Directory : //PAWC/PIPE
+
+
+ ===> Directory : //PAWC/PIXB
+
+
+ ===> Directory : //PAWC/PIXE
+
+
+ ===> Directory : //PAWC/SCTT
+
+
+ ===> Directory : //PAWC/ZSCT
+
+
+ ===> Directory : //PAWC/XTRT
+
+
+ ===> Directory : //PAWC/INAF
+
+
+ ===> Directory : //PAWC/CRYO
+
+
+ ===> Directory : //PAWC/COIL
+
+
+ ===> Directory : //PAWC/COPS
+
+
+ ===> Directory : //PAWC/ACCB
+
+
+ ===> Directory : //PAWC/ENDE
+
+
+ ===> Directory : //PAWC/TILE
+
+
+ ===> Directory : //PAWC/HEND
+
+
+ ===> Directory : //PAWC/FWDC
+
+
+ ===> Directory : //PAWC/AMDB
+
+
+ ===> Directory : //PAWC/MINT
+
+
+ ===> Directory : //PAWC/MUCH
+
+
+ ===> Directory : //PAWC/TRAC
+
+
+ ===> Directory : //PAWC/OUTP
+
+
+ ===> Directory : //PAWC/HEPE
+
+
+ ===> Directory : //PAWC/FILT
+ RZMAKE. new RZ format selected for SLUGRZ
+0Creating subdirectories in //SLUGRZ for detectors with LVHIST.ne.0 :
+               ... creating //SLUGRZ/ATLS  
+               ... creating //SLUGRZ/MFLD  
+               ... creating //SLUGRZ/PIPE  
+               ... creating //SLUGRZ/PIXB  
+               ... creating //SLUGRZ/PIXE  
+               ... creating //SLUGRZ/SCTT  
+               ... creating //SLUGRZ/ZSCT  
+               ... creating //SLUGRZ/XTRT  
+               ... creating //SLUGRZ/INAF  
+               ... creating //SLUGRZ/CRYO  
+               ... creating //SLUGRZ/COIL  
+               ... creating //SLUGRZ/COPS  
+               ... creating //SLUGRZ/ACCB  
+               ... creating //SLUGRZ/ENDE  
+               ... creating //SLUGRZ/TILE  
+               ... creating //SLUGRZ/HEND  
+               ... creating //SLUGRZ/FWDC  
+               ... creating //SLUGRZ/AMDB  
+               ... creating //SLUGRZ/MINT  
+               ... creating //SLUGRZ/MUCH  
+               ... creating //SLUGRZ/TRAC  
+               ... creating //SLUGRZ/OUTP  
+               ... creating //SLUGRZ/HEPE  
+               ... creating //SLUGRZ/FILT  
+ Summarize HBOOK directories in RZ file:
+
+
+ ===> Directory : //SLUGRZ
+
+
+ ===> Directory : //SLUGRZ/ATLS
+
+
+ ===> Directory : //SLUGRZ/MFLD
+
+
+ ===> Directory : //SLUGRZ/PIPE
+
+
+ ===> Directory : //SLUGRZ/PIXB
+
+
+ ===> Directory : //SLUGRZ/PIXE
+
+
+ ===> Directory : //SLUGRZ/SCTT
+
+
+ ===> Directory : //SLUGRZ/ZSCT
+
+
+ ===> Directory : //SLUGRZ/XTRT
+
+
+ ===> Directory : //SLUGRZ/INAF
+
+
+ ===> Directory : //SLUGRZ/CRYO
+
+
+ ===> Directory : //SLUGRZ/COIL
+
+
+ ===> Directory : //SLUGRZ/COPS
+
+
+ ===> Directory : //SLUGRZ/ACCB
+
+
+ ===> Directory : //SLUGRZ/ENDE
+
+
+ ===> Directory : //SLUGRZ/TILE
+
+
+ ===> Directory : //SLUGRZ/HEND
+
+
+ ===> Directory : //SLUGRZ/FWDC
+
+
+ ===> Directory : //SLUGRZ/AMDB
+
+
+ ===> Directory : //SLUGRZ/MINT
+
+
+ ===> Directory : //SLUGRZ/MUCH
+
+
+ ===> Directory : //SLUGRZ/TRAC
+
+
+ ===> Directory : //SLUGRZ/OUTP
+
+
+ ===> Directory : //SLUGRZ/HEPE
+
+
+ ===> Directory : //SLUGRZ/FILT
+0SLBKINI: Initializing BACKground Faculty 
+          No Background activity
+ UINIT -   1- I      Dummy version of UINIT called
+
+
+ DESCRIPTION OF SLUG RUN:    
+
+      MAIN EVENT IS READ IN          
+      GENERATED EVENT REPROCESSING   OFF
+      BACKGROUND EVENT ADDITION      OFF
+      DETECTOR SIMULATION            OFF
+      DIGITIZATION                   OFF
+      STANDARD RECONSTRUCTION         ON
+      STANDARD ANALYSIS              OFF
+      EVENT OUTPUT                   OFF
+ SLUG Event Phase: Set seeds of random number generator
+ SLUG-Ranlux RNDM          0          0 have not been combined ... initialise with
+             Seed          0 ignore RNDM 2=              0
+ Slug: RANLUX LUXURY LEVEL SET BY RLUXGO : 1     P=  48
+ Slug: RANLUX INITIALIZED BY RLUXGO FROM DEFAULT SEED
+ SLSOR: Time left at start of Run       1 is   100000000.00 Seconds
+ SBRUNT-  11- I Run/     1/       RUNT bank booked by SLUG, not GENZ data
+ UBEVT -   1- I Run/     1/       Dummy version of UBEVT called
+ Arecon  Run      1003     Event         1               1  Timeleft  100000000.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+PileUpMergeSvc       INFO Initializing PileUpMergeSvc - package version PileUpTools-00-01-09[m
+PileUpEventLoopMgr   INFO Initializing PileUpEventLoopMgr - package version PileUpTools-00-01-09[m
+OriginalEvent_SG     INFO Initializing OriginalEvent_SG - package version StoreGate-02-09-06
+BkgEvent_0_SG        INFO Initializing BkgEvent_0_SG - package version StoreGate-02-09-06
+BkgEvent_1_SG        INFO Initializing BkgEvent_1_SG - package version StoreGate-02-09-06
+BkgEvent_2_SG        INFO Initializing BkgEvent_2_SG - package version StoreGate-02-09-06
+BkgEvent_3_SG        INFO Initializing BkgEvent_3_SG - package version StoreGate-02-09-06
+BkgEvent_4_SG        INFO Initializing BkgEvent_4_SG - package version StoreGate-02-09-06
+BkgEvent_5_SG        INFO Initializing BkgEvent_5_SG - package version StoreGate-02-09-06
+BkgEvent_6_SG        INFO Initializing BkgEvent_6_SG - package version StoreGate-02-09-06
+BkgEvent_7_SG        INFO Initializing BkgEvent_7_SG - package version StoreGate-02-09-06
+BkgEvent_8_SG        INFO Initializing BkgEvent_8_SG - package version StoreGate-02-09-06
+BkgEvent_9_SG        INFO Initializing BkgEvent_9_SG - package version StoreGate-02-09-06
+BkgEvent_10_SG       INFO Initializing BkgEvent_10_SG - package version StoreGate-02-09-06
+BkgEvent_11_SG       INFO Initializing BkgEvent_11_SG - package version StoreGate-02-09-06
+BkgEvent_12_SG       INFO Initializing BkgEvent_12_SG - package version StoreGate-02-09-06
+BkgEvent_13_SG       INFO Initializing BkgEvent_13_SG - package version StoreGate-02-09-06
+BkgEvent_14_SG       INFO Initializing BkgEvent_14_SG - package version StoreGate-02-09-06
+BkgEvent_15_SG       INFO Initializing BkgEvent_15_SG - package version StoreGate-02-09-06
+BkgEvent_16_SG       INFO Initializing BkgEvent_16_SG - package version StoreGate-02-09-06
+BkgEvent_17_SG       INFO Initializing BkgEvent_17_SG - package version StoreGate-02-09-06
+BkgEvent_18_SG       INFO Initializing BkgEvent_18_SG - package version StoreGate-02-09-06
+BkgEvent_19_SG       INFO Initializing BkgEvent_19_SG - package version StoreGate-02-09-06
+BkgEvent_20_SG       INFO Initializing BkgEvent_20_SG - package version StoreGate-02-09-06
+BkgEvent_21_SG       INFO Initializing BkgEvent_21_SG - package version StoreGate-02-09-06
+BkgEvent_22_SG       INFO Initializing BkgEvent_22_SG - package version StoreGate-02-09-06
+BkgEvent_23_SG       INFO Initializing BkgEvent_23_SG - package version StoreGate-02-09-06
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc[m
+InDetMgrDetDesc...   INFO in createObj: creating a InDet_DetDescrManager object in the detector store[m
+InDetMgrDetDesc...   INFO Flag ReadFromROOT is:  0[m
+InDetMgrDetDesc...   INFO Initializing InDetMgr from ZEBRA [m
+InDetMgrDetDesc...   INFO Found ZebraTDRCnvSvc [m
+InDetMgrDetDesc...   INFO in initIds[m
+ *****  RZMAKE. OLD RZ format selected for RZDOC               
+InDetMgrDetDesc...   INFO  Found the PixelID helper. [m
+PixelIDDetDescrCnv   INFO Flag CompactIDsOnly is:  1[m
+PixelIDDetDescrCnv   INFO in createObj: creating a PixelID helper object in the detector store[m
+IdDictDetDescrCnv    INFO in initialize[m
+IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store[m
+IdDictDetDescrCnv    INFO IdDictName:  ATLAS_IDS.xml[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ PixelID::initialize_from_dict Set barrel field values: 0
+ PixelID::initialize_from_dict Found field values: InDet/Pixel 2/1
+PixelID::init_neighbors 
+ PixelID::initialize_from_dict 
+Wafer range -> 2/1/0/0/0:21/-6:6 | 2/1/0/1/0:37/-6:6 | 2/1/0/2/0:51/-6:6 | 2/1/-2,2/0:2/0:47/0
+Pixel range -> 2/1/0/0/0:21/-6:6/0:327/0:191 | 2/1/0/1/0:37/-6:6/0:327/0:143 | 2/1/0/2/0:51/-6:6/0:327/0:143 | 2/1/-2,2/0:2/0:47/0/0:327/0:143
+InDetMgrDetDesc...   INFO Set PixelID helper in InDetMgr [m
+SCT_IDDetDescrCnv    INFO Flag CompactIDsOnly is:  1[m
+SCT_IDDetDescrCnv    INFO in createObj: creating a SCT_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ SCT_ID::initialize_from_dict Set barrel field values: 0
+ SCT_ID::initialize_from_dict Found field values: SCT 2
+SCT_ID::init_neighbors 
+ SCT_ID::initialize_from_dict 
+Wafer range -> 2/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1
+Strip range -> 2/2/0/0/0:31/-6:-1/0:1/0:767 | 2/2/0/1/0:39/-6:-1/0:1/0:767 | 2/2/0/2/0:47/-6:-1/0:1/0:767 | 2/2/0/3/0:55/-6:-1/0:1/0:767 | 2/2/0/0/0:31/1:6/0:1/0:767 | 2/2/0/1/0:39/1:6/0:1/0:767 | 2/2/0/2/0:47/1:6/0:1/0:767 | 2/2/0/3/0:55/1:6/0:1/0:767 | 2/2/-2,2/0:8/0:51/0/0:1/0:767 | 2/2/-2,2/0/0:39/1/0:1/0:767 | 2/2/-2,2/1:5/0:39/1:2/0:1/0:767 | 2/2/-2,2/6:7/0:39/1/0:1/0:767
+InDetMgrDetDesc...   INFO Set SCT_ID helper in InDetMgr [m
+TRT_IDDetDescrCnv    INFO Flag CompactIDsOnly is:  1[m
+TRT_IDDetDescrCnv    INFO in createObj: creating a TRT_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ TRT_ID::initialize_from_dict Set barrel field values: -1,1
+ TRT_ID::initialize_from_dict Found field values: InDet/TRT 2/3
+ TRT_ID::initialize_from_dict 
+Module range -> 2/3/-1,1/0/0:31 | 2/3/-1,1/1/0:31 | 2/3/-1,1/2/0:31 | 2/3/-2,2/0:5/0:31 | 2/3/-2,2/6:13/0:31 | 2/3/-2,2/14:17/0:31
+Straw layer range -> 2/3/-1,1/0/0:31/0 | 2/3/-1,1/0/0:31/1:4 | 2/3/-1,1/0/0:31/5:9 | 2/3/-1,1/0/0:31/10:14 | 2/3/-1,1/0/0:31/15:17 | 2/3/-1,1/0/0:31/18 | 2/3/-1,1/1/0:31/0 | 2/3/-1,1/1/0:31/1:5 | 2/3/-1,1/1/0:31/6:10 | 2/3/-1,1/1/0:31/11:15 | 2/3/-1,1/1/0:31/16:20 | 2/3/-1,1/1/0:31/21:22 | 2/3/-1,1/1/0:31/23 | 2/3/-1,1/2/0:31/0 | 2/3/-1,1/2/0:31/1:4 | 2/3/-1,1/2/0:31/5:9 | 2/3/-1,1/2/0:31/10:14 | 2/3/-1,1/2/0:31/15:19 | 2/3/-1,1/2/0:31/20:24 | 2/3/-1,1/2/0:31/25:28 | 2/3/-1,1/2/0:31/29 | 2/3/-2,2/0:5/0:31/0:15 | 2/3/-2,2/6:13/0:31/0:7 | 2/3/-2,2/14:17/0:31/0:15
+Straw range -> 2/3/-1,1/0/0:31/0/0:14 | 2/3/-1,1/0/0:31/1:4/0:15 | 2/3/-1,1/0/0:31/5:9/0:16 | 2/3/-1,1/0/0:31/10:14/0:17 | 2/3/-1,1/0/0:31/15:17/0:18 | 2/3/-1,1/0/0:31/18/0:17 | 2/3/-1,1/1/0:31/0/0:18 | 2/3/-1,1/1/0:31/1:5/0:19 | 2/3/-1,1/1/0:31/6:10/0:20 | 2/3/-1,1/1/0:31/11:15/0:21 | 2/3/-1,1/1/0:31/16:20/0:22 | 2/3/-1,1/1/0:31/21:22/0:23 | 2/3/-1,1/1/0:31/23/0:22 | 2/3/-1,1/2/0:31/0/0:22 | 2/3/-1,1/2/0:31/1:4/0:23 | 2/3/-1,1/2/0:31/5:9/0:24 | 2/3/-1,1/2/0:31/10:14/0:25 | 2/3/-1,1/2/0:31/15:19/0:26 | 2/3/-1,1/2/0:31/20:24/0:27 | 2/3/-1,1/2/0:31/25:28/0:28 | 2/3/-1,1/2/0:31/29/0:27 | 2/3/-2,2/0:5/0:31/0:15/0:23 | 2/3/-2,2/6:13/0:31/0:7/0:23 | 2/3/-2,2/14:17/0:31/0:15/0:17
+InDetMgrDetDesc...   INFO Set TRT_ID helper in InDetMgr [m
+ZebraDetDescrSource::get_pixel_barrel - geometry version 14.3 major version is 14
+ UseLayer: 1 1 1
+ZebraDetDescrSource::get_pixel_barrel - minor version is 111
+ G3SiDetDecoderImpl::set_version - det pixb version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ Unable to get bank PXBI for path PXBI*
+ Idnum[0] is 4 
+ZebraDetDescrSource::get_pixel_endcap - geometry version 14.2
+ZebraDetDescrSource::get_pixel_endcap - minor version is 111
+ G3SiDetDecoderImpl::set_version - det pixe version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ZebraDetDescrSource::get_sct_barrel - geometry version 5
+ G3SiDetDecoderImpl::set_version - det sctb version 5
+ Unable to get bank SCTI for path /DETM/SCTT/SCTG/SCTI*
+ Idnum[0 to 3] is 1 1 1 5 
+ZebraDetDescrSource::get_sct_endcap - geometry version 4
+ G3SiDetDecoderImpl::set_version - det scte version 4
+ Unable to get bank ZSCW for path /DETM/ZSCT/ZSCG/ZSCW*
+ Idnum[0 to 3] is 1 1 1 10 
+ZebraDetDescrSource::get_trt_barrel - before trtg 
+ZebraDetDescrSource::get_trt_barrel - geometry version 2 trtg.TRTGeo 2
+ZebraDetDescrSource::get_trt_barrel - found from trt_v3 trt_time_res 3.125 trt_digit 2
+ZebraDetDescrSource::get_trt_barrel - status 0
+ZebraDetDescrSource::get_trt_endcap - geometry version 2
+ZebraDetDescrSource::get_trt_endcap - found from trt_v3 trt_time_res 3.125 trt_digit 2
+ZebraDetDescrSource::get_trt_endcap - status 0
+InDetMgrDetDesc...   INFO in initHashIds[m
+InDetMgrDetDesc...   INFO  Initialized InDetMgr from ZEBRA. [m
+LArDetMgrDetDes...   INFO in initialize[m
+LArDetMgrDetDes...   INFO in createObj: creating a LArDetDescrManager object in the detector store[m
+LArMgrDetDescrCnv    INFO in initIds[m
+LArEM_IDDetDesc...   INFO in createObj: creating a LArEM_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+LArMgrDetDescrCnv    INFO Set LArEM_ID helper in LArMgr [m
+LArHEC_IDDetDes...   INFO in createObj: creating a LArHEC_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+LArMgrDetDescrCnv    INFO Set LArHEC_ID helper in LArMgr [m
+LArFCAL_IDDetDe...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+LArMgrDetDescrCnv    INFO Set LArFCAL_ID helper in LArMgr [m
+LArMgrDetDescrCnv    INFO Set LArEm_ID, LArHEC_ID, LArFCAL_ID helpers in LArCablingService [m
+LArDetMgrDetDes...   INFO Flag ReadFromROOT is:  0[m
+LArDetMgrDetDes...   INFO Initializing lar_DetMgr from ZEBRA [m
+LArDetMgrDetDes...   INFO Found ZebraTDRCnvSvc [m
+ Unable to get bank CRYM for path /DETM/CRYO/CHIT/CRYM*
+ Idnum[0 to 3] is 1 1 1 1 
+ZebraDetDescrSource::get_lar_descriptor_regions fwdg version 2
+LArDetMgrDetDes...   INFO  Initialized lar_DetMgr from ZEBRA. [m
+TileDetMgrDetDe...   INFO in initialize[m
+TileDetMgrDetDe...   INFO in createObj: creating a TileDetDescrManager object in the detector store[m
+TileDetMgrDetDe...   INFO Flag ReadFromROOT is:  0[m
+TileDetMgrDetDe...   INFO Initializing tile_DetMgr from ZEBRA [m
+TileDetMgrDetDe...   INFO Found ZebraTDRCnvSvc [m
+TileDetMgrDetDe...   INFO  Initialized tile_DetMgr from ZEBRA. [m
+MuonDetMgrDetDe...   INFO in initialize[m
+MuonDetMgrDetDe...   INFO in createObj: creating a MuonDetDescrManager object in the detector store[m
+MuonDetMgrDetDe...   INFO Flag ReadFromROOT is:  0[m
+MuonDetMgrDetDe...   INFO Initializing muon_DetMgr from ZEBRA [m
+MuonDetMgrDetDe...   INFO Found ZebraTDRCnvSvc [m
+MuonDetDescrMan...   INFO MuonDetDescrManager: Setting digiVersion = old[m
+ Unable to get bank AMDB for path /DETM/AMDB/AMDB*
+ Looking for field VERSION     
+ Idnum[0 to 2] is 1 1 0 
+ Unable to get bank AMDB for path /DETM/AMDB/AMDB*
+ Looking for field VERSION     
+ Idnum[0 to 2] is 1 1 0 
+MuonZebraDetDes...   INFO Building descriptors for DBSC version = 4 AMDB version = 4...[m
+MuonDetDescrMan...   INFO MuonDetDescrManager: Setting geometryVersion = P[m
+MuonZebraDetDes...   INFO MuonZebraDetDescrMgr: Building DBSC version 4...[m
+MDT_ZebraDetDes...   INFO Building geometry version P[m
+CSC_ZebraDetDes...   INFO Building geometry version P[m
+RPC_ZebraDetDes...   INFO Building geometry version P[m
+TGC_ZebraDetDes...   INFO Building geometry version P with old TGC digitisation ...[m
+MuonZebraDetDes...   INFO All descriptors and elements built for Muons.[m
+MuonDetMgrDetDe...   INFO  Initialized muon_DetMgr from ZEBRA. [m
+ G3SiDetDecoderImpl::set_version - det pixb version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ G3SiDetDecoderImpl::set_version - det pixe version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ G3SiDetDecoderImpl::set_version - det sctb version 5
+ G3SiDetDecoderImpl::set_version - det scte version 4
+ AmdbsimrecAccess::GetAmdbsimrec  can not access Amdbsimrec 
+ AMDBGEO : There IS an AMDB of known format on tape  
+ ========> AMDB from tape has the latest format     
+ ========> It will be used directly                 
+G3MDT_Strategy       INFO Successfully read AMDB_simrec.[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+ SLIN: Ignore LEVP  print flag 113 on LUN   0
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         2               2  Timeleft   99999976.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        2 took   24.0000 Seconds. Time left =     99999976.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         3               3  Timeleft   99999976.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        3 took    0.0000 Seconds. Time left =     99999976.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         4               4  Timeleft   99999968.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        4 took    8.0000 Seconds. Time left =     99999968.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         5               5  Timeleft   99999968.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        5 took    0.0000 Seconds. Time left =     99999968.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         6               6  Timeleft   99999960.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        6 took    8.0000 Seconds. Time left =     99999960.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         7               7  Timeleft   99999960.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        7 took    0.0000 Seconds. Time left =     99999960.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         8               8  Timeleft   99999952.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        8 took    8.0000 Seconds. Time left =     99999952.00 Seconds.
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         9               9  Timeleft   99999952.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        9 took    0.0000 Seconds. Time left =     99999952.00 Seconds.
+ REPORT-I- The following message was issued    10 times and will be suppressed :
+ UBEVT -   1- I Run/  1003/    1  Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        10              10  Timeleft   99999944.00 sec.
+ REPORT-I- The following message was issued    10 times and will be suppressed :
+ UOUT  -   1- I Run/  1003/    1  Dummy version of UOUT called
+  GUOUT: Event       10 took    8.0000 Seconds. Time left =     99999944.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        11              11  Timeleft   99999944.00 sec.
+  GUOUT: Event       11 took    0.0000 Seconds. Time left =     99999944.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        12              12  Timeleft   99999936.00 sec.
+  GUOUT: Event       12 took    8.0000 Seconds. Time left =     99999936.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        13              13  Timeleft   99999936.00 sec.
+  GUOUT: Event       13 took    0.0000 Seconds. Time left =     99999936.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        14              14  Timeleft   99999936.00 sec.
+  GUOUT: Event       14 took    0.0000 Seconds. Time left =     99999936.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        15              15  Timeleft   99999928.00 sec.
+  GUOUT: Event       15 took    8.0000 Seconds. Time left =     99999928.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        16              16  Timeleft   99999928.00 sec.
+  GUOUT: Event       16 took    0.0000 Seconds. Time left =     99999928.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        17              17  Timeleft   99999928.00 sec.
+  GUOUT: Event       17 took    0.0000 Seconds. Time left =     99999928.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        18              18  Timeleft   99999928.00 sec.
+  GUOUT: Event       18 took    0.0000 Seconds. Time left =     99999928.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        19              19  Timeleft   99999920.00 sec.
+  GUOUT: Event       19 took    8.0000 Seconds. Time left =     99999920.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        20              20  Timeleft   99999912.00 sec.
+  GUOUT: Event       20 took    8.0000 Seconds. Time left =     99999912.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        21              21  Timeleft   99999904.00 sec.
+  GUOUT: Event       21 took    8.0000 Seconds. Time left =     99999904.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        22              22  Timeleft   99999904.00 sec.
+  GUOUT: Event       22 took    0.0000 Seconds. Time left =     99999904.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        23              23  Timeleft   99999896.00 sec.
+  GUOUT: Event       23 took    8.0000 Seconds. Time left =     99999896.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        24              24  Timeleft   99999888.00 sec.
+  GUOUT: Event       24 took    8.0000 Seconds. Time left =     99999888.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        25              25  Timeleft   99999888.00 sec.
+  GUOUT: Event       25 took    0.0000 Seconds. Time left =     99999888.00 Seconds.
+PileUpEventLoopMgr  DEBUG Creating Top Algorithm ReadPileUpData with name ReadPileUpData[m
+ReadPileUpData       INFO in initialize()[m
+ApplicationMgr       INFO Application Manager Initialized successfully[m
+EventPersistenc...   INFO Added successfully Conversion service:ZebraTDRCnvSvc[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        26              26  Timeleft   99999872.00 sec.
+  GUOUT: Event       26 took   16.0000 Seconds. Time left =     99999872.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        27              27  Timeleft   99999872.00 sec.
+  GUOUT: Event       27 took    0.0000 Seconds. Time left =     99999872.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 26 run 1003 from store BkgEvent_9_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 8 run 1003 from store BkgEvent_7_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 16 run 1003 from store BkgEvent_15_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 3 run 1003 from store BkgEvent_2_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 13 run 1003 from store BkgEvent_12_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 20 run 1003 from store BkgEvent_19_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 22 run 1003 from store BkgEvent_21_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 2 run 1003 from store BkgEvent_1_SG @ Xing 1[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        28              28  Timeleft   99999864.00 sec.
+  GUOUT: Event       28 took    8.0000 Seconds. Time left =     99999864.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 27 run 1003 from store BkgEvent_10_SG @ Xing 1[m
+ReadPileUpData       INFO in execute()[m
+ReadPileUpData       INFO Overlaid EventInfo :  event: 25 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 25 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(OriginalEvent_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9c44738 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9c44670 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 26 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_9_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9d40298 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8fceba0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 8 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_7_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b378 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8f2b258 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 16 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_15_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b3d8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x942d970 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 3 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_2_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b460 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8b29190 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 13 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_12_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b4e8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x927be18 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 20 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_19_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b570 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x97a16e0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 22 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_21_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b5f8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x994b690 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 2 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_1_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5c298 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8a2f790 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 27 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_10_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9e5c340 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9e5c300 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+PileUpMergeSvc      DEBUG added entry from store OriginalEvent_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_9_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_7_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_15_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_2_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_12_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_19_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_21_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_1_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_10_SG for object of typeEventInfo
+ with key Default[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 25 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 26 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 8 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 16 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 3 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 13 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 20 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 22 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 2 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 27 run: 1003[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        29              29  Timeleft   99999864.00 sec.
+  GUOUT: Event       29 took    0.0000 Seconds. Time left =     99999864.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 1 run 1003 from store BkgEvent_0_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 5 run 1003 from store BkgEvent_4_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 22 run 1003 from store BkgEvent_21_SG @ Xing -2[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        30              30  Timeleft   99999864.00 sec.
+  GUOUT: Event       30 took    0.0000 Seconds. Time left =     99999864.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 29 run 1003 from store BkgEvent_15_SG @ Xing -2[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        31              31  Timeleft   99999856.00 sec.
+  GUOUT: Event       31 took    8.0000 Seconds. Time left =     99999856.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 30 run 1003 from store BkgEvent_12_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 21 run 1003 from store BkgEvent_20_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 17 run 1003 from store BkgEvent_16_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 2 run 1003 from store BkgEvent_1_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 23 run 1003 from store BkgEvent_22_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 9 run 1003 from store BkgEvent_8_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 18 run 1003 from store BkgEvent_17_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 20 run 1003 from store BkgEvent_19_SG @ Xing 1[m
+PileUpEventLoopMgr  DEBUG added event 19 run 1003 from store BkgEvent_18_SG @ Xing 1[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        32              32  Timeleft   99999856.00 sec.
+  GUOUT: Event       32 took    0.0000 Seconds. Time left =     99999856.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 31 run 1003 from store BkgEvent_14_SG @ Xing 1[m
+PileUpEventLoopMgr  DEBUG added event 27 run 1003 from store BkgEvent_10_SG @ Xing 1[m
+PileUpEventLoopMgr  DEBUG added event 3 run 1003 from store BkgEvent_2_SG @ Xing 1[m
+ReadPileUpData       INFO in execute()[m
+ReadPileUpData       INFO Overlaid EventInfo :  event: 28 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 28 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(OriginalEvent_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9f3b210 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9f3b1d0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 1 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_0_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9b92e20 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8928498 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 5 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_4_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9b92ea8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8d3adf0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 22 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_21_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b5f8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x994b690 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 29 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_15_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9b92f80 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9b92f40 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 30 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_12_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x943b2d0 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x943b290 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 21 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_20_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d260 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x988bc58 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 17 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_16_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d2e8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x94f6ab0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 2 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_1_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5c298 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8a2f790 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 23 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_22_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d370 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x99e95e0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 9 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_8_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d3f8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8fbe668 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 18 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_17_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d480 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9596628 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 20 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_19_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b570 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x97a16e0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 19 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_18_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d508 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9694548 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 31 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_14_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x923d5b0 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x923d570 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 27 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_10_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9e5c340 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9e5c300 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 3 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_2_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b460 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8b29190 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+PileUpMergeSvc      DEBUG added entry from store OriginalEvent_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_0_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_4_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_21_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_15_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_12_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_20_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_16_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_1_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_22_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_8_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_17_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_19_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_18_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_14_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_10_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_2_SG for object of typeEventInfo
+ with key Default[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 28 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 1 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 5 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 22 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 29 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 30 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 21 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 17 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 2 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 23 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 9 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 18 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 20 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 19 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 31 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 27 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 3 run: 1003[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        33              33  Timeleft   99999856.00 sec.
+  GUOUT: Event       33 took    0.0000 Seconds. Time left =     99999856.00 Seconds.
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        34              34  Timeleft   99999848.00 sec.
+  GUOUT: Event       34 took    8.0000 Seconds. Time left =     99999848.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 33 run 1003 from store BkgEvent_8_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 2 run 1003 from store BkgEvent_1_SG @ Xing -2[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        35              35  Timeleft   99999848.00 sec.
+  GUOUT: Event       35 took    0.0000 Seconds. Time left =     99999848.00 Seconds.
+PileUpEventLoopMgr  DEBUG added event 34 run 1003 from store BkgEvent_0_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 29 run 1003 from store BkgEvent_15_SG @ Xing -2[m
+PileUpEventLoopMgr  DEBUG added event 6 run 1003 from store BkgEvent_5_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 19 run 1003 from store BkgEvent_18_SG @ Xing -1[m
+PileUpEventLoopMgr  DEBUG added event 26 run 1003 from store BkgEvent_9_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 14 run 1003 from store BkgEvent_13_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 22 run 1003 from store BkgEvent_21_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 27 run 1003 from store BkgEvent_10_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 30 run 1003 from store BkgEvent_12_SG @ Xing 0[m
+PileUpEventLoopMgr  DEBUG added event 3 run 1003 from store BkgEvent_2_SG @ Xing 1[m
+PileUpEventLoopMgr  DEBUG added event 18 run 1003 from store BkgEvent_17_SG @ Xing 1[m
+PileUpEventLoopMgr  DEBUG added event 31 run 1003 from store BkgEvent_14_SG @ Xing 1[m
+PileUpEventLoopMgr  DEBUG added event 20 run 1003 from store BkgEvent_19_SG @ Xing 1[m
+ReadPileUpData       INFO in execute()[m
+ReadPileUpData       INFO Overlaid EventInfo :  event: 32 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 32 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(OriginalEvent_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9fad6a0 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9fad660 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 33 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_8_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8f92698 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x923d3d8 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 2 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_1_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5c298 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8a2f790 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 34 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_0_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8824b38 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x80675a8 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -50 event: 29 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_15_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9b92f80 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9b92f40 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 6 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_5_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0xa043e08 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8decaa8 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: -25 event: 19 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_18_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d508 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9694548 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 26 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_9_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9d40298 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8fceba0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 14 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_13_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0xa043e68 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x930f678 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 22 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_21_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b5f8 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x994b690 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 27 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_10_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9e5c340 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9e5c300 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 0 event: 30 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_12_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x943b2d0 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x943b290 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 3 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_2_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b460 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x8b29190 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 18 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_17_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x923d480 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x9596628 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 31 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_14_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x923d5b0 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x923d570 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+ReadPileUpData       INFO SubEvt EventInfo :  time offset: 25 event: 20 run: 1003 contents: 
+<<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+StoreGateSvc(BkgEvent_19_SG)::dump():
+Found 1 proxy for ClassID 2101 (EventInfo): 
+ flags: (  valid,   locked,  reset) --- data:  0x9e5b570 --- key: ZebraEventInfo
+Found 1 proxy for ClassID 2493 (): 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x97a16e0 --- key: PhysicsTDR
+<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
+ [m
+PileUpMergeSvc      DEBUG added entry from store OriginalEvent_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_8_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_1_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_0_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_15_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_5_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_18_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_9_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_13_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_21_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_10_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_12_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_2_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_17_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_14_SG for object of typeEventInfo
+ with key Default[m
+PileUpMergeSvc      DEBUG added entry from store BkgEvent_19_SG for object of typeEventInfo
+ with key Default[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 32 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 33 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 2 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 34 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -50 event: 29 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 6 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: -25 event: 19 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 26 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 14 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 22 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 27 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 0 event: 30 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 3 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 18 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 31 run: 1003[m
+ReadPileUpData       INFO SubEvt EventInfo (using PileUpMergeSvc):  time offset: 25 event: 20 run: 1003[m
+ReadPileUpData       INFO in finalize()[m
+IdDictDetDescrCnv    INFO in finalize[m
+LArDetMgrDetDes...   INFO in finalize[m
+TileDetMgrDetDe...   INFO in finalize[m
+MuonDetMgrDetDe...   INFO in finalize[m
+*****Chrono*****     INFO ****************************************************************************************************[m
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)[m
+*****Chrono*****     INFO ****************************************************************************************************[m
+ChronoStatSvc        INFO Time User   : Tot=  158  [s]                                             #=  1[m
+*****Chrono*****     INFO ****************************************************************************************************[m
+ChronoStatSvc.f...   INFO  Service finalized succesfully [m
+ToolSvc              INFO Removing all tools created by ToolSvc[m
+ApplicationMgr       INFO Application Manager Finalized successfully[m

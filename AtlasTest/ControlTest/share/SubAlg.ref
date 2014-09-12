@@ -1,0 +1,468 @@
+JobOptionsSvc        INFO 
+
+//##############################################################
+//
+// Job options file
+//
+//==============================================================
+//no EventSelector
+ApplicationMgr.DLLs   += { "AthenaServices" };
+ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
+//--------------------------------------------------------------
+// StoreGate services configuration
+//--------------------------------------------------------------
+// --> Including file StoreGate/StoreGate_jobOptions.txt
+
+
+ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
+ApplicationMgr.ExtSvc += { "ClassIDSvc" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionsStore" };
+ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
+//FIXME uncomment to verify that your  CLIDs are good!
+//ClassIDSvc.CLIDDBFiles += { "$CLIDSVCROOT/share/clid.db" };
+
+// --> Including file IOVSvc/IOVSvc.txt
+
+
+//------------------------------------------------------------------------
+//
+// Load the Interval of Validity Service
+//
+//------------------------------------------------------------------------
+ApplicationMgr.DLLs += { "IOVSvc" };
+ApplicationMgr.ExtSvc += { "IOVSvc" };
+
+
+// <-- End of including file IOVSvc/IOVSvc.txt
+
+
+// <-- End of including file StoreGate/StoreGate_jobOptions.txt
+
+
+ApplicationMgr.ExtSvc += { "EvtPersistencySvc/EventPersistencySvc",
+			   "HistogramSvc/HistogramDataSvc"
+			 };	
+//--------------------------------------------------------------
+// Private Application Configuration options
+//--------------------------------------------------------------
+//load relevant libraries
+ApplicationMgr.DLLs += { "AthExSubAlg" };
+
+//top algorithms to be run
+ApplicationMgr.TopAlg = { "MainAlg" };
+
+//--------------------------------------------------------------
+// For Objy input: identify your input event collection(s). There is
+// one collection per run number or data set name, e.g. Y23406.1
+//--------------------------------------------------------------
+
+
+//--------------------------------------------------------------
+// Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+//--------------------------------------------------------------
+
+MessageSvc.OutputLevel      = 2;
+MessageSvc.useColors        = true;
+
+//--------------------------------------------------------------
+// Event related parameters
+//--------------------------------------------------------------
+
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtSel = "NONE";
+ApplicationMgr.EvtMax = 10;
+
+//--------------------------------------------------------------
+// Algorithms Private Options
+//--------------------------------------------------------------
+
+// For the MainAlg / SubAlg algorithms
+MainAlg.SubAlgType = "SubAlg";
+MainAlg.SubAlgPropName = "SubString";
+MainAlg.SubAlgName = { "SubAlgInst_1", "SubAlgInst_2", "SubAlgInst_3" };
+MainAlg.SubAlgPropVal = { "new string 1", "new string 2", "new string 3" };
+
+SubAlgInst_1.SubString = "original string 1";
+SubAlgInst_2.SubString = "original string 2";
+SubAlgInst_3.SubString = "original string 3";
+
+//==============================================================
+//
+// End of job options file
+//
+//##############################################################
+
+
+Job options successfully read in from AthExSubAlg/SubAlgOptions.txt
+ApplicationMgr      DEBUG Getting my own properties[m
+DllClassManager     DEBUG Found factory Algorithm AthenaOutputStream[m
+DllClassManager     DEBUG Found factory Algorithm AthenaConditionStream[m
+DllClassManager     DEBUG Found factory AlgContextAuditor[m
+ObjectManager       DEBUG Added object factory for class:AlgContextAuditor[m
+DllClassManager     DEBUG Found factory Service AlgContextSvc[m
+DllClassManager     DEBUG Found factory Service AtRndmGenSvc[m
+DllClassManager     DEBUG Found factory Service AthenaEventLoopMgr[m
+DllClassManager     DEBUG Found factory Service SimplePOSIXTimeKeeperSvc[m
+DllClassManager     DEBUG Loaded 7 factories from module AthenaServices[m
+DllClassManager     DEBUG Found factory Service ActiveStoreSvc[m
+DllClassManager     DEBUG Found factory Service ProxyProviderSvc[m
+DllClassManager     DEBUG Found factory Service StoreGateSvc[m
+DllClassManager     DEBUG Loaded 3 factories from module StoreGate[m
+DllClassManager     DEBUG Found factory Service ClassIDSvc[m
+DllClassManager     DEBUG Loaded 1 factories from module CLIDSvc[m
+DllClassManager     DEBUG Found factory Service IOVSvc[m
+DllClassManager     DEBUG Found factory Service IOVSvc[m
+[93;1mServiceManager    WARNING Service factory for type IOVSvc already declared[m
+DllClassManager     DEBUG Loaded 2 factories from module IOVSvc[m
+DllClassManager     DEBUG Found factory Algorithm MainAlg[m
+DllClassManager     DEBUG Found factory Algorithm SubAlg[m
+DllClassManager     DEBUG Loaded 2 factories from module AthExSubAlg[m
+ApplicationMgr       INFO Successfully loaded modules: AthenaServices, StoreGate, CLIDSvc, IOVSvc, AthExSubAlg[m
+ApplicationMgr       INFO Application Manager Configured successfully[m
+ServiceManager      DEBUG Initializing service ClassIDSvc[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDSvc-00-00-08
+ClassIDSvc          DEBUG Service base class initialized successfully[m
+ClassIDSvc          DEBUG setTypeNameForID: type name <SG::Folder> already set for CLID 77641104[m
+ClassIDSvc          DEBUG setTypeNameForID: CLID <77641104> already set for type name SG::Folder[m
+ClassIDSvc          DEBUG setTypeNameForID: type name <EventInfo> already set for CLID 2101[m
+ClassIDSvc          DEBUG setTypeNameForID: CLID <2101> already set for type name EventInfo[m
+ClassIDSvc          DEBUG setTypeNameForID: type name <SG::Folder> already set for CLID 77641104[m
+ClassIDSvc          DEBUG setTypeNameForID: CLID <77641104> already set for type name SG::Folder[m
+ClassIDSvc          DEBUG setTypeNameForID: type name <EventInfo> already set for CLID 2101[m
+ClassIDSvc          DEBUG setTypeNameForID: CLID <2101> already set for type name EventInfo[m
+ClassIDSvc          DEBUG setTypeNameForID: type name <EventInfo> already set for CLID 2101[m
+ClassIDSvc          DEBUG setTypeNameForID: CLID <2101> already set for type name EventInfo[m
+ClassIDSvc          DEBUG setTypeNameForID: type name <EventInfo> already set for CLID 2101[m
+ClassIDSvc          DEBUG setTypeNameForID: CLID <2101> already set for type name EventInfo[m
+ClassIDSvc           INFO ClassIDSvc Initialized successfully 
+ServiceManager      DEBUG Initializing service StoreGateSvc[m
+StoreGateSvc        DEBUG Service base class initialized successfully[m
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-12-08[m
+IncidentSvc         DEBUG Service base class initialized successfully[m
+ProxyProviderSvc    DEBUG Service base class initialized successfully[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreGate-02-12-08[m
+ServiceManager      DEBUG Initializing service DetectorStore[m
+DetectorStore       DEBUG Service base class initialized successfully[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-12-08[m
+ServiceManager      DEBUG Initializing service ConditionsStore[m
+ConditionsStore     DEBUG Service base class initialized successfully[m
+ConditionsStore      INFO Initializing ConditionsStore - package version StoreGate-02-12-08[m
+ServiceManager      DEBUG Initializing service ActiveStoreSvc[m
+ActiveStoreSvc      DEBUG Service base class initialized successfully[m
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-12-08[m
+ServiceManager      DEBUG Initializing service IOVSvc[m
+IOVSvc              DEBUG Initializing IOVSvc version IOVSvc-00-03-05[m
+IOVSvc              DEBUG Service base class initialized successfully[m
+IOVSvc              DEBUG Service initialized[m
+ServiceManager      DEBUG Initializing service EventPersistencySvc[m
+EventPersistenc...  DEBUG Service base class initialized successfully[m
+ServiceManager      DEBUG Initializing service HistogramDataSvc[m
+HistogramDataSvc    DEBUG Service base class initialized successfully[m
+HistogramPersis...   INFO "CnvServices": ["HbookHistSvc", "RootHistSvc"][m
+HistogramPersis...  DEBUG Service base class initialized successfully[m
+[93;1mHistogramPersis...WARNING Histograms saving not required.[m
+ServiceManager      DEBUG Service IncidentSvc already initialized[m
+ServiceManager      DEBUG Service ProxyProviderSvc already initialized[m
+ServiceManager      DEBUG Service HistogramPersistencySvc already initialized[m
+ServiceManager      DEBUG Initializing service AppMgrRunable[m
+AppMgrRunable       DEBUG Service base class initialized successfully[m
+ServiceManager      DEBUG Initializing service AthenaEventLoopMgr[m
+AthenaEventLoopMgr  DEBUG Service base class initialized successfully[m
+AthenaEventLoopMgr  DEBUG Creating Top Algorithm MainAlg with name MainAlg[m
+MainAlg              INFO in initialize()[m
+MainAlg              INFO  will create 3 sub algs[m
+MainAlg              INFO  Creating sub-alg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  Creating sub-alg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  Creating sub-alg SubAlg instance SubAlgInst_3[m
+SubAlgInst_1         INFO in initialize()[m
+SubAlgInst_1         INFO  SubString: original string 1[m
+SubAlgInst_2         INFO in initialize()[m
+SubAlgInst_2         INFO  SubString: original string 2[m
+SubAlgInst_3         INFO in initialize()[m
+SubAlgInst_3         INFO  SubString: original string 3[m
+[93;1mAthenaEventLoopMgrWARNING Histograms saving not required.[m
+[93;1mAthenaEventLoopMgrWARNING No EventSelector selected 
+No events will be processed from external input.[m
+AthenaEventLoopMgr   INFO No TimeKeeper selected. No time limit control on event loop.[m
+ApplicationMgr       INFO Application Manager Initialized successfully[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+------------------------------  IOVSvc Proxy Map  ------------------------------
+-------------------------------------------------------------------------------
+IOVSvc              DEBUG preLoadProxies()[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,1][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+AuditorSvc          DEBUG Service base class initialized successfully[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,2][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,3][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,4][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,5][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,6][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,7][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,8][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,9][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+StoreGateSvc        DEBUG Recorded object 
+ of type EventInfo(CLID 2101)
+object not modifiable when retrieved[m
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
+IOVSvc              DEBUG [96;1mBegin Event: [R/E] = [0,10][m[m
+IOVSvc              DEBUG start set: 
+[m
+IOVSvc              DEBUG stop set: 
+[m
+IOVSvc              DEBUG --> start set: 
+[m
+IOVSvc              DEBUG --> stop set: 
+[m
+MainAlg              INFO in execute()[m
+MainAlg              INFO  setting property SubString to "new string 1" for subalg SubAlg instance SubAlgInst_1[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_1[m
+SubAlgInst_1         INFO in execute()[m
+SubAlgInst_1         INFO  SubString: new string 1[m
+MainAlg              INFO  setting property SubString to "new string 2" for subalg SubAlg instance SubAlgInst_2[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_2[m
+SubAlgInst_2         INFO in execute()[m
+SubAlgInst_2         INFO  SubString: new string 2[m
+MainAlg              INFO  setting property SubString to "new string 3" for subalg SubAlg instance SubAlgInst_3[m
+MainAlg              INFO  calling sub algorithm SubAlgInst_3[m
+SubAlgInst_3         INFO in execute()[m
+SubAlgInst_3         INFO  SubString: new string 3[m
+MainAlg              INFO in finalize()[m
+SubAlgInst_1         INFO in finalize()[m
+SubAlgInst_2         INFO in finalize()[m
+SubAlgInst_3         INFO in finalize()[m
+IOVSvc               INFO Service finalised successfully[m
+ClassIDSvc          DEBUG finalize: wrote 3 entries to output CLIDDB file: ./CLIDDBout.txt[m
+ApplicationMgr       INFO Application Manager Finalized successfully[m

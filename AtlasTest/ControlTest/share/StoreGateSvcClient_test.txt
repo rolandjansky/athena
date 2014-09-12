@@ -1,0 +1,1 @@
+#include "ControlTest/StoreGateTestCommon.txt"

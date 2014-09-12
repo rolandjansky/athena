@@ -1,0 +1,1068 @@
+JobOptionsSvc     WARNING 
+
+//##############################################################
+//
+// Job options file
+//
+//==============================================================
+
+// --> Including file AthenaCommon/Atlas_ZebraTDR.UnixStandardJob.txt
+
+
+//**************************************************************
+//
+// ZebraTDR job options file
+//
+//==============================================================
+// --> Including file AthenaCommon/Atlas.UnixStandardJob.txt
+
+
+//**************************************************************
+//
+// Unix standard job options file
+//
+//==============================================================
+//--------------------------------------------------------------
+//ApplicationMgr configuration
+//--------------------------------------------------------------
+//default services to be instantiated
+ApplicationMgr.ExtSvc += { "IncidentSvc/IncidentSvc", 
+		           "EvtPersistencySvc/EventPersistencySvc",
+			   "HistogramSvc/HistogramDataSvc",
+			   "NTupleSvc/NTupleSvc",
+			   "ToolSvc/ToolSvc",
+			   "AuditorSvc/AuditorSvc",
+			   "RndmGenSvc/RndmGenSvc",
+			   "ChronoStatSvc/ChronoStatSvc"
+			 };	
+
+ApplicationMgr.DLLs   += { "AthenaServices" };
+ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
+ApplicationMgr.OutStreamType = "AthenaOutputStream";
+AthenaEventLoopMgr.OutStreamType = "AthenaOutputStream";
+
+//--------------------------------------------------------------
+// StoreGate services configuration
+//--------------------------------------------------------------
+// --> Including file StoreGate/StoreGate_jobOptions.txt
+
+
+ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
+ApplicationMgr.ExtSvc += { "ClassIDSvc" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionsStore" };
+ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
+//FIXME uncomment to verify that your  CLIDs are good!
+//ClassIDSvc.CLIDDBFiles += { "$CLIDSVCROOT/share/clid.db" };
+
+// --> Including file IOVSvc/IOVSvc.txt
+
+
+//------------------------------------------------------------------------
+//
+// Load the Interval of Validity Service
+//
+//------------------------------------------------------------------------
+ApplicationMgr.DLLs += { "IOVSvc" };
+ApplicationMgr.ExtSvc += { "IOVSvc" };
+
+
+// <-- End of including file IOVSvc/IOVSvc.txt
+
+
+// <-- End of including file StoreGate/StoreGate_jobOptions.txt
+
+
+//--------------------------------------------------------------
+// Initialization of DetDescrCnvSvc
+//--------------------------------------------------------------
+// --> Including file DetDescrCnvSvc/DetStore_joboptions.txt
+
+
+//
+// Joboptions for bootstrapping the loading of the DetectorStore with
+// the DetDescrCnvSvc
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "DetDescrCnvSvc" };
+
+// Add in services
+//  (NOTE: the following does not yet work for the detector store)
+//ApplicationMgr.ExtSvc += { "DetPersistencySvc/DetectorPersistencySvc", 
+//			   "DetDescrCnvSvc" };
+//DetectorPersistencySvc.CnvServices += { "DetDescrCnvSvc" };
+// Instead use the event pers svc:
+ApplicationMgr.ExtSvc += { "DetDescrCnvSvc" };
+
+// Set DetDescrCnvSvc to be a proxy/address provider
+//ProxyProviderSvc.ProviderNames += { "DetDescrCnvSvc" };
+
+EventPersistencySvc.CnvServices += { "DetDescrCnvSvc" };
+
+// Specify primary Identifier dictionary to be used
+DetDescrCnvSvc.IdDictName = "IdDictParser/ATLAS_IDS.xml";
+
+// Always include the IdDict jobOptions
+// --> Including file IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of InDetDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "IdDictDetDescrCnv" };
+
+
+// <-- End of including file IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.txt
+
+
+
+
+// <-- End of including file DetDescrCnvSvc/DetStore_joboptions.txt
+
+
+//==============================================================
+//
+// End of Unix standard job options file
+//
+//**************************************************************
+
+
+// <-- End of including file AthenaCommon/Atlas.UnixStandardJob.txt
+
+
+//--------------------------------------------------------------
+// General Application Configuration options
+//--------------------------------------------------------------
+
+ApplicationMgr.DLLs   += { "ZebraTDRCnv" , "HbookCnv"};
+ApplicationMgr.ExtSvc += { "ZebraTDRCnvSvc", 
+                          "ZebraTDREventSelector/EventSelector" };
+ApplicationMgr.EvtSel = "EventSelector";
+
+//--------------------------------------------------------------
+// Persistency services
+//--------------------------------------------------------------
+
+EventPersistencySvc.CnvServices += { "ZebraTDRCnvSvc" };  
+
+//==============================================================
+//
+// End of ZebraTDR job options file
+//
+//**************************************************************
+
+
+
+// <-- End of including file AthenaCommon/Atlas_ZebraTDR.UnixStandardJob.txt
+
+
+// For  ddcnvsvc
+// --> Including file IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.txt
+#001 [ from ../src/JobOptionsSvc/PropertyCompiler.cpp:160] in function: bool PropertyCompiler::alreadyIncluded(): Specified property-file /afs/cern.ch/atlas/software/dist/nightlies/rel/atlrel_5/InstallArea/jobOptions/IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.txt was already included by another property-file! 
+JobOptionsSvc        INFO // <-- End of including file IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.txt
+
+// --> Including file InDetMgrDetDescrCnv/InDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of InDetDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "InDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "InDetMgr" };
+
+// <-- End of including file InDetMgrDetDescrCnv/InDetMgrDetDescrCnv_joboptions.txt
+
+// --> Including file LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+// Example joboptions for the loading of the DetectorStore
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "LArDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "LArMgr" };
+
+// --> Including file CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of CaloTTMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "CaloDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "CaloMgr" };
+
+// <-- End of including file CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.txt
+
+
+// <-- End of including file LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_joboptions.txt
+
+//FIXME #include "TileDetMgrDetDescrCnv/TileDetMgrDetDescrCnv_joboptions.txt"
+// --> Including file MuonDetMgrDetDescrCnv/MuonDetMgrDetDescrCnv_joboptions.txt
+
+
+//
+//  Joboptions for the loading of the of MuonDDMgr
+//
+
+// DLLs 
+ApplicationMgr.DLLs += { "MuonDetMgrDetDescrCnv" };
+
+// Add InDet to list of DetectorManagers to be loaded at startup
+DetDescrCnvSvc.DetectorManagers += { "MuonMgr" };
+
+// <-- End of including file MuonDetMgrDetDescrCnv/MuonDetMgrDetDescrCnv_joboptions.txt
+
+
+// Turn on the reading of the dictionary
+DetDescrCnvSvc.DecodeIdDict = true;
+
+//--------------------------------------------------------------
+// Private Application Configuration options
+//--------------------------------------------------------------
+//load relevant libraries
+ApplicationMgr.DLLs += { "AthExHistNtup" };      
+
+// Select the appropriate shared library
+ApplicationMgr.DLLs += { "HbookCnv" };
+////ApplicationMgr.DLLs += { "RootHistCnv" };
+
+// Select HBOOK or ROOT persistency (HBOOK is default)
+ApplicationMgr.HistogramPersistency = "HBOOK";
+
+ApplicationMgr.TopAlg = { "Hist" };
+ApplicationMgr.TopAlg += { "Ntup" };
+
+//--------------------------------------------------------------
+// For Zebra input: identify your input runs.
+//--------------------------------------------------------------
+
+// Provide a first/last range or a list
+//EventSelector.runs = {1, 100000};
+EventSelector.firstRun = 1;
+EventSelector.lastRun  = 100000;
+//--------------------------------------------------------------
+// Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+//--------------------------------------------------------------
+
+Hist.OutputLevel = 2;
+Ntup.OutputLevel = 2;
+MessageSvc.useColors   = true;
+
+//--------------------------------------------------------------
+// Histogram output file 
+//--------------------------------------------------------------
+
+// Specify the appropriate output file type
+HistogramPersistencySvc.OutputFile  = "histo.hbook";
+//HistogramPersistencySvc.OutputFile  = "histo.rt";
+
+//--------------------------------------------------------------
+// Ntuples
+//--------------------------------------------------------------
+
+NTupleSvc.Output     = { "FILE1 DATAFILE='tuple1.hbook' OPT='NEW'" };
+
+//--------------------------------------------------------------
+// Event related parameters
+//--------------------------------------------------------------
+
+// Number of events to be processed (default is 10)
+ApplicationMgr.EvtMax = 10;
+
+//--------------------------------------------------------------
+// Algorithms Private Options
+//--------------------------------------------------------------
+
+//==============================================================
+//
+// End of job options file
+//
+//##############################################################
+
+
+Job options successfully read in from AthExHistNtup/HistNtupOptions.txt
+[93;1mServiceManager    WARNING Service factory for type IOVSvc already declared[m
+==> New TileCablingService created
+[93;1mServiceManager    WARNING Service factory for type HbookCnv::PersSvc already declared[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::HRWNTupleCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::HFileCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::HDirectoryCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::HCWNTupleCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::H2DCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::H1DVarCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::H1DCnv already exists.[m
+[93;1mConverterFactory  WARNING Converter for class:HbookCnv::DirectoryCnv already exists.[m
+[93;1mServiceManager    WARNING Service factory for type HbookCnv::ConvSvc already declared[m
+ApplicationMgr       INFO Successfully loaded modules: AthenaServices, StoreGate, CLIDSvc, IOVSvc, DetDescrCnvSvc, IdDictDetDescrCnv, ZebraTDRCnv, HbookCnv, InDetMgrDetDescrCnv, LArDetMgrDetDescrCnv, CaloDetMgrDetDescrCnv, MuonDetMgrDetDescrCnv, AthExHistNtup, HbookCnv[m
+ApplicationMgr       INFO Application Manager Configured successfully[m
+EventPersistenc...   INFO "CnvServices": ["DetDescrCnvSvc", "ZebraTDRCnvSvc"][m
+HistogramPersis...   INFO "CnvServices": ["HbookHistSvc", "RootHistSvc"][m
+HbookHistSvc         INFO Setting /PAWC/ common block size to 250000[m
+HistogramPersis...   INFO Added successfully Conversion service:HbookHistSvc[m
+NTupleSvc            INFO Added stream file:tuple1.hbook as FILE1[m
+RndmGenSvc.Engine    INFO Generator engine type:RanluxEngine[m
+RndmGenSvc.Engine    INFO Current Seed:1234567 Luxury:3[m
+RndmGenSvc           INFO Using Random engine:HepRndm::Engine<RanluxEngine>[m
+ChronoStatSvc        INFO  Number of skipped events for MemStat 20[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDSvc-00-00-08
+ClassIDSvc           INFO ClassIDSvc Initialized successfully 
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-12-08[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreGate-02-12-08[m
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-12-08[m
+ConditionsStore      INFO Initializing ConditionsStore - package version StoreGate-02-12-08[m
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-12-08[m
+DetDescrCnvSvc       INFO  initializing [m
+DetDescrCnvSvc       INFO Found DetectorStore service[m
+DetDescrCnvSvc       INFO  filling proxies for detector managers [m
+DetDescrCnvSvc       INFO  filling address for InDetMgr with CLID 2512 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArMgr with CLID 2741 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TileMgr with CLID 2941 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for MuonMgr with CLID 4060 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store [m
+DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store [m
+ ZebraTDRCnvSvc: FORTRAN input taken from slug.car
+[93;1mEventSelector     WARNING  You have set firstRun and lastRun job parameters. Currently no action is implemented for this: [m
+EventSelector        INFO  Value for the detector flags are: [m
+EventSelector        INFO  indet       - 1[m
+EventSelector        INFO    pixel     - 1[m
+EventSelector        INFO    sct       - 1[m
+EventSelector        INFO    trt       - 1[m
+EventSelector        INFO  calos       - 1[m
+EventSelector        INFO    emBarrel  - 1[m
+EventSelector        INFO    emEndcap  - 1[m
+EventSelector        INFO    hec       - 1[m
+EventSelector        INFO    fcal      - 1[m
+EventSelector        INFO    tile      - 1[m
+EventSelector        INFO  muons       - 1[m
+EventSelector        INFO    csc       - 1[m
+EventSelector        INFO    mdt       - 1[m
+EventSelector        INFO    rpc       - 1[m
+EventSelector        INFO    tgc       - 1[m
+EventSelector        INFO  Hits   flag - 0[m
+EventSelector        INFO  Digits flag - 1[m
+ ATLAS Simulation, Reconstruction and Analysis Exploiting the SLUG Fortran77 implementation.
+ CALLING SLZEBRA WITH PAW SIZE  250000
+1+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ +                                                                                     +
+ +   Atlas Detector Simulation, Reconstruction and Analysis Running on  40124 at    5  +
+ +                                                                                     +
+ +   Machine:  386LINUX  lxplus026  System and Processor Info                          +
+ +                                                                                     +
+ +   Job    :  JobName                                                                 +
+ +                                                                                     +
+ +   Program:  Slug-Dice-Arecon in /afs/cern.ch/user/c/calaf/scratch0/streams/AtlasTest+ControlTest/ControlTest-00-  pid   12330
+ +                                                                                     +
+ +                                                                                     +
+ +   Package Information                                                               +
+ +   GEANT:  3.21/08    3.2180  230697                                                 +
+ +   ZEBRA:   3.7700 Zebra11000000 words, PAW/Hbook 250000 words, FFRead   4000 words. +
+ +      RZ: RZEBRA   3.01/08         This version created on 000000 at 0000            +
+ +    SLUG:     slug     Library of   40123 at  308 Version  slug-01-                  +
+ +    GENZ:     genz     Library of   40123 at  306 Version  v2r1                      +
+ + ATGEANA:     G3b      Library of   40123 at  256 Version  geant3-2                  +
+ +    DICE:     Dummy    Library of   40123 at  309 Version  atdummy-                  +
+ +   ATRIG:     Dummy    Library of   40123 at  309 Version  atdummy-                  +
+ + ATRECON:     Dummy    Library of   40123 at  309 Version  atdummy-                  +
+ +   DUMMY:     atdummy  Library of   40123 at  309 Version  atdummy-                  +
+ +                                                                                     +
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ REPORT-E- No REPORT header bank.
+ FMSTRT     1-Dummy Fatmen (initialization).
+1*****  GEANT Version  3.21/08 Released on 230697
+0*****  Correction Cradle Version  0.0800
+ *****  Library compiled on  40123 at  309 *****
+
+ SLZINI: Initialize SLUG ZEBRA banks 
+ SLINIO: Initialize I/O modes and default headers
+ SBIOMO: I/O mode P   , Type=-1, Unit =  21
+ SBIOMO: I/O mode B   , Type=-1, Unit =  22
+ SBIOMO: I/O mode O   , Type= 1, Unit =  23
+ UCARD -   1- I      Dummy version of UCARD called
+1           USER'S DIRECTIVES TO RUN THIS JOB
+            ----------------------------------
+
+
+ ***** DATA CARD CONTENT     LIST                                                                            
+ ***** DATA CARD CONTENT     C  TRAP 0                                                                       
+ ***** DATA CARD CONTENT     C  TRAP  1  3  10 10  1 0 10 1 4 10                                             
+ ***** DATA CARD CONTENT     TRAP  0  3  10 10  1 0 10 1 4 10                                                
+ ***** DATA CARD CONTENT     C GEANT: # of events to process  & TIME                                         
+ ***** DATA CARD CONTENT     C TRIG 5                                                                        
+ ***** DATA CARD CONTENT     TRIG 1000000                                                                    
+ ***** DATA CARD CONTENT     TIME 2=5. 3=1                                                                   
+ ***** DATA CARD CONTENT     C --------------------------------------------------                            
+ ***** DATA CARD CONTENT     C digitization and simulation and analysis status                               
+ ***** DATA CARD CONTENT     SIMULATION 0                                                                    
+ ***** DATA CARD CONTENT     DIGI       0                                                                    
+ ***** DATA CARD CONTENT     RECONSTR   1                                                                    
+ ***** DATA CARD CONTENT     ANALYSIS   0                                                                    
+ ***** DATA CARD CONTENT     OUTP       0                                                                    
+ ***** DATA CARD CONTENT     C loading of the input stream                                                   
+ ***** DATA CARD CONTENT    *BKIO     'P'  'EVNT'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'GEOM'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'KINE'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'HITS'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'DIGI'                                                           
+ ***** DATA CARD CONTENT    *BKIO     'P'  'RECB'                                                           
+ ***** DATA CARD CONTENT     C define graphics  4,5,6 offsets  7=zoom factor                                 
+ ***** DATA CARD CONTENT     C *DREV 'SLUG' 1 4=0. 5=0. 6=0. 7=5.                                            
+ ***** DATA CARD CONTENT     C------- SLUG/GEANT debugging parametrs/modes -------------                     
+ ***** DATA CARD CONTENT     DEBU  0 0 0                                                                     
+ ***** DATA CARD CONTENT     C read events from ZEBRA file.                                                  
+ ***** DATA CARD CONTENT     KINE -1                                                                         
+ ***** DATA CARD CONTENT     STOP                                                                            
+ SLUG Initialisation Phase (Ranlux) seeded with default values 
+ Slug: RANLUX LUXURY LEVEL SET BY RLUXGO : 1     P=  48
+ Slug: RANLUX INITIALIZED BY RLUXGO FROM DEFAULT SEED
+ Slug: Monitor level
+ Exception handling not available on Intel/Linux.
+ Slug: No requests for atlas.ps graphics
+1SLGNZINI: Initialize GENZ package 
+ ================================================================================
+ GNZINIT: Initializing GENZ package, Version v2r1    
+          GENZ assumes ZEBRA is initialized already
+          Zebra Version = 3.78  Jobname = lxplus026 calaf   Machine = UNKN
+ GNZINIT: Modularity,  incl. possible user words is    13
+          Assumed HEPEVT common block modularity is 10000
+ ================================================================================
+         Open I/O mode P on unit   21. File=ZEBRA.P                                                                         
+ SLPKINI: Initialize PICK/SKIP system for RUNS.
+    No PIKR bank found. No Runs to PICK.
+    No SKPR bank found. No Runs to SKIP.
+ SLPKINI: Initialize PICK/SKIP system for EVENTS in Run           0
+    No PIKE bank found for run           0
+    No SKPE bank found for run            0
+ SLIN: Zebra SOR for Run       1, I/Omode P, unit 21
+ SLIN: Zebra SOR Run  1 Ignored, Probable event structure error.
+ RDSOR: ZSOR record found       1 Run. Read again for "INIT" and "DETM" 
+ RUNG.INIT  20020703 21:16        3.218     3.78
+ RUNG.KINE  20020703 21:16        3.218     3.78
+ RUNG.HITS  20020703 21:16        3.218     3.78
+ RUNG.DIGI  20020703 21:16        3.218     3.78
+ 
+ RUNG.RUNH:    command     'exec /usatlas/workarea/nevski/atlsprod/nice_feature $*';
+ RUNG.RUNH: ?  gexec       libRootKernel.so;
+ RUNG.RUNH:    Ag/Version  batch;
+ RUNG.RUNH:    ?  gexec       libatlroot.so;
+ RUNG.RUNH:       gexec       libatlprod.so;
+ RUNG.RUNH:       gtime       0 1000 1;
+ RUNG.RUNH:    Rung        0      1;
+ RUNG.RUNH:    Ranlux      0001;
+ RUNG.RUNH:    title       $quote(dc production simul_001003 at acas040.usatlas.bnl.gov 2.4.9-31smp on Wed Jul  3 21:16:48 EDT 2002 
+ RUNG.RUNH: run=0001);
+ RUNG.RUNH:      ghist       /usatlas/workarea/nevski/atlsprod/simul_001003/atlas.0001.his;
+ RUNG.RUNH:    ;
+ RUNG.RUNH:    *  - set atlas-standard configuration (inner, center, all);
+ RUNG.RUNH:     exec atlas#config     all;
+ RUNG.RUNH:       exec atlas#calo_shift 4;
+ RUNG.RUNH:     exec atlas#inner_cut  4  all;
+ RUNG.RUNH:    mode OUTP   simu 2;
+ RUNG.RUNH:      mode FWDC   geom 2;
+ RUNG.RUNH:      mode HEPE   hist 100;
+ RUNG.RUNH: ?  detp MFLD;
+ RUNG.RUNH:       mode filter hist 300;
+ RUNG.RUNH: ?  detp filter;
+ RUNG.RUNH:     call adice;
+ RUNG.RUNH:   ;
+ RUNG.RUNH:    *  - select filters, I/O;
+ RUNG.RUNH:    ?  call filter;
+ RUNG.RUNH:  ?  Gvertex;
+ RUNG.RUNH:  ?  Gspread     0.0015 0.0015 5.6;
+ RUNG.RUNH:    ?  TFLT ETAP   -2.7 2.7 0.0 6.3;
+ RUNG.RUNH:    call AguDSET($quote(simul_001003.evgen_001003));
+ RUNG.RUNH:     call AguFILE(0001);
+ RUNG.RUNH:   *  call AguEVNT(0);
+ RUNG.RUNH:  *  - next line may produce an uncorrect error message which should be ignored;
+ RUNG.RUNH:      gfile P   /usatlas/workarea/nevski/atlsprod/data/zebra/dc1.001003.evgen.0001.test.h130_2e2mu.zebra  E;
+ RUNG.RUNH:       gfile  O    /usatlas/workarea/nevski/atlsprod/simul_001003/atlas.0001.zebra;
+ RUNG.RUNH:     skip  0;
+ RUNG.RUNH:     trig  200;
+ RUNG.RUNH:    
+ RUNG.RTAG: simul_001003.evgen_001003.h130_2e2mu.3.2.1.JOB_18                               
+ 
+1           USER'S DIRECTIVES TO RUN THIS JOB
+            ----------------------------------
+
+
+ ***** DATA CARD CONTENT     LIST                                                                            
+ ***** DATA CARD CONTENT     C----------------------------------------------------------------------C        
+ ***** DATA CARD CONTENT     C   Corrections to data cards                                          C        
+ ***** DATA CARD CONTENT     C----------------------------------------------------------------------C        
+ ***** DATA CARD CONTENT    *MODE 'ALL' 'PRIN' 0                                                            
+ ***** DATA CARD CONTENT    *MODE 'RECO' 'PRIN' 0                                                           
+ ***** DATA CARD CONTENT     STOP                                                                            
+ UGEOMR-   1- I      Dummy version of UGEOMR called - No DICE
+0SLHBINI: Setup HBOOK directories for atlas.his 
+          on LUN 50 with a quota of 32000  1024 word records
+0Creating subdirectories in PAWC for detectors with LVHIST.ne.0 :
+ Summarize HBOOK directories in memory:
+
+
+ ===> Directory : //PAWC
+
+
+ ===> Directory : //PAWC/ATLS
+
+
+ ===> Directory : //PAWC/MFLD
+
+
+ ===> Directory : //PAWC/PIPE
+
+
+ ===> Directory : //PAWC/PIXB
+
+
+ ===> Directory : //PAWC/PIXE
+
+
+ ===> Directory : //PAWC/SCTT
+
+
+ ===> Directory : //PAWC/ZSCT
+
+
+ ===> Directory : //PAWC/XTRT
+
+
+ ===> Directory : //PAWC/INAF
+
+
+ ===> Directory : //PAWC/CRYO
+
+
+ ===> Directory : //PAWC/COIL
+
+
+ ===> Directory : //PAWC/COPS
+
+
+ ===> Directory : //PAWC/ACCB
+
+
+ ===> Directory : //PAWC/ENDE
+
+
+ ===> Directory : //PAWC/TILE
+
+
+ ===> Directory : //PAWC/HEND
+
+
+ ===> Directory : //PAWC/FWDC
+
+
+ ===> Directory : //PAWC/AMDB
+
+
+ ===> Directory : //PAWC/MINT
+
+
+ ===> Directory : //PAWC/MUCH
+
+
+ ===> Directory : //PAWC/TRAC
+
+
+ ===> Directory : //PAWC/OUTP
+
+
+ ===> Directory : //PAWC/HEPE
+
+
+ ===> Directory : //PAWC/FILT
+ RZMAKE. new RZ format selected for SLUGRZ
+0Creating subdirectories in //SLUGRZ for detectors with LVHIST.ne.0 :
+               ... creating //SLUGRZ/ATLS  
+               ... creating //SLUGRZ/MFLD  
+               ... creating //SLUGRZ/PIPE  
+               ... creating //SLUGRZ/PIXB  
+               ... creating //SLUGRZ/PIXE  
+               ... creating //SLUGRZ/SCTT  
+               ... creating //SLUGRZ/ZSCT  
+               ... creating //SLUGRZ/XTRT  
+               ... creating //SLUGRZ/INAF  
+               ... creating //SLUGRZ/CRYO  
+               ... creating //SLUGRZ/COIL  
+               ... creating //SLUGRZ/COPS  
+               ... creating //SLUGRZ/ACCB  
+               ... creating //SLUGRZ/ENDE  
+               ... creating //SLUGRZ/TILE  
+               ... creating //SLUGRZ/HEND  
+               ... creating //SLUGRZ/FWDC  
+               ... creating //SLUGRZ/AMDB  
+               ... creating //SLUGRZ/MINT  
+               ... creating //SLUGRZ/MUCH  
+               ... creating //SLUGRZ/TRAC  
+               ... creating //SLUGRZ/OUTP  
+               ... creating //SLUGRZ/HEPE  
+               ... creating //SLUGRZ/FILT  
+ Summarize HBOOK directories in RZ file:
+
+
+ ===> Directory : //SLUGRZ
+
+
+ ===> Directory : //SLUGRZ/ATLS
+
+
+ ===> Directory : //SLUGRZ/MFLD
+
+
+ ===> Directory : //SLUGRZ/PIPE
+
+
+ ===> Directory : //SLUGRZ/PIXB
+
+
+ ===> Directory : //SLUGRZ/PIXE
+
+
+ ===> Directory : //SLUGRZ/SCTT
+
+
+ ===> Directory : //SLUGRZ/ZSCT
+
+
+ ===> Directory : //SLUGRZ/XTRT
+
+
+ ===> Directory : //SLUGRZ/INAF
+
+
+ ===> Directory : //SLUGRZ/CRYO
+
+
+ ===> Directory : //SLUGRZ/COIL
+
+
+ ===> Directory : //SLUGRZ/COPS
+
+
+ ===> Directory : //SLUGRZ/ACCB
+
+
+ ===> Directory : //SLUGRZ/ENDE
+
+
+ ===> Directory : //SLUGRZ/TILE
+
+
+ ===> Directory : //SLUGRZ/HEND
+
+
+ ===> Directory : //SLUGRZ/FWDC
+
+
+ ===> Directory : //SLUGRZ/AMDB
+
+
+ ===> Directory : //SLUGRZ/MINT
+
+
+ ===> Directory : //SLUGRZ/MUCH
+
+
+ ===> Directory : //SLUGRZ/TRAC
+
+
+ ===> Directory : //SLUGRZ/OUTP
+
+
+ ===> Directory : //SLUGRZ/HEPE
+
+
+ ===> Directory : //SLUGRZ/FILT
+0SLBKINI: Initializing BACKground Faculty 
+          No Background activity
+ UINIT -   1- I      Dummy version of UINIT called
+
+
+ DESCRIPTION OF SLUG RUN:    
+
+      MAIN EVENT IS READ IN          
+      GENERATED EVENT REPROCESSING   OFF
+      BACKGROUND EVENT ADDITION      OFF
+      DETECTOR SIMULATION            OFF
+      DIGITIZATION                   OFF
+      STANDARD RECONSTRUCTION         ON
+      STANDARD ANALYSIS              OFF
+      EVENT OUTPUT                   OFF
+ SLUG Event Phase: Set seeds of random number generator
+ SLUG-Ranlux RNDM          0          0 have not been combined ... initialise with
+             Seed          0 ignore RNDM 2=              0
+ Slug: RANLUX LUXURY LEVEL SET BY RLUXGO : 1     P=  48
+ Slug: RANLUX INITIALIZED BY RLUXGO FROM DEFAULT SEED
+ SLSOR: Time left at start of Run       1 is   100000000.00 Seconds
+ SBRUNT-  11- I Run/     1/       RUNT bank booked by SLUG, not GENZ data
+ UBEVT -   1- I Run/     1/       Dummy version of UBEVT called
+ Arecon  Run      1003     Event         1               1  Timeleft  100000000.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+Hist                 INFO in initialize()[m
+Ntup                 INFO in initialize()[m
+HbookNFileCnv        INFO Opened NEW HBook RZ file:tuple1.hbook as FILE1[m
+AthenaEventLoopMgr   INFO No TimeKeeper selected. No time limit control on event loop.[m
+ApplicationMgr       INFO Application Manager Initialized successfully[m
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc[m
+InDetMgrDetDesc...   INFO in createObj: creating a InDet_DetDescrManager object in the detector store[m
+InDetMgrDetDesc...   INFO Flag ReadFromROOT is:  0[m
+InDetMgrDetDesc...   INFO Initializing InDetMgr from ZEBRA [m
+InDetMgrDetDesc...   INFO Found ZebraTDRCnvSvc [m
+InDetMgrDetDesc...   INFO in initIds[m
+ *****  RZMAKE. OLD RZ format selected for RZDOC               
+InDetMgrDetDesc...   INFO  Found the PixelID helper. [m
+PixelIDDetDescrCnv   INFO in createObj: creating a PixelID helper object in the detector store[m
+IdDictDetDescrCnv    INFO in initialize[m
+IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store[m
+IdDictDetDescrCnv    INFO IdDictName:  IdDictParser/ATLAS_IDS.xml[m
+IdDictDetDescrCnv    INFO Found id dicts:[m
+IdDictDetDescrCnv    INFO Dictionary ATLAS version default[m
+IdDictDetDescrCnv    INFO Dictionary Calorimeter version default[m
+IdDictDetDescrCnv    INFO Dictionary InnerDetector version default[m
+IdDictDetDescrCnv    INFO Dictionary LArCalorimeter version default[m
+IdDictDetDescrCnv    INFO Dictionary MuonSpectrometer version default[m
+IdDictDetDescrCnv    INFO Dictionary TileCalorimeter version default[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+indet          decode 1 vals 2,4,5,7,10      mask/zero mask/shift/bits/offset 7   1fffffff 29 3  0  indexes 0 0 1 2 0 3 0 0 4   mode  enumerated  
+pixel          decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffff 27 2  3  indexes                     mode  both_bounded  
+bec            decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   f9ffffff 25 2  5  indexes 0 0 1 0 2           mode  enumerated  
+bec_shift      decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   9fffffff 29 2  1  indexes 0 0 1 0 2           mode  enumerated  
+lay_disk       decode 0 vals 0:2             mask/zero mask/shift/bits/offset 3   fe7fffff 23 2  7  indexes                     mode  both_bounded  
+lay_disk_shift decode 0 vals 0:2             mask/zero mask/shift/bits/offset 3   e7ffffff 27 2  3  indexes                     mode  both_bounded  
+phi_mod        decode 0 vals 0:51            mask/zero mask/shift/bits/offset 3f  ff81ffff 17 6  9  indexes                     mode  both_bounded  
+phi_mod_shift  decode 0 vals 0:51            mask/zero mask/shift/bits/offset 3f  f81fffff 21 6  5  indexes                     mode  both_bounded  
+eta_mod        decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   fffe1fff 13 4  15 indexes                     mode  both_bounded  
+eta_mod_shift  decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   ffe1ffff 17 4  11 indexes                     mode  both_bounded  
+phi_index      decode 0 vals 0:327           mask/zero mask/shift/bits/offset 1ff fffe00ff 8  9  15 indexes                     mode  both_bounded  
+eta_index      decode 0 vals 0:191           mask/zero mask/shift/bits/offset ff  ffffff00 0  8  24 indexes                     mode  both_bounded  
+bec_eta_mod    decode 0 vals 0               mask/zero mask/shift/bits/offset 3fff 8001ffff 17 14 1  indexes                     mode  both_bounded  
+ PixelID::initialize_from_dict Set barrel field values: 0
+ PixelID::initialize_from_dict Found field values: InDet/Pixel 2/1
+PixelID::init_neighbors 
+ PixelID::initialize_from_dict 
+Wafer range -> 2/1/0/0/0:21/-6:6 | 2/1/0/1/0:37/-6:6 | 2/1/0/2/0:51/-6:6 | 2/1/-2,2/0:2/0:47/0
+Pixel range -> 2/1/0/0/0:21/-6:6/0:327/0:191 | 2/1/0/1/0:37/-6:6/0:327/0:143 | 2/1/0/2/0:51/-6:6/0:327/0:143 | 2/1/-2,2/0:2/0:47/0/0:327/0:143
+InDetMgrDetDesc...   INFO Set PixelID helper in InDetMgr [m
+SCT_IDDetDescrCnv    INFO in createObj: creating a SCT_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+indet    decode 1 vals 2,4,5,7,10      mask/zero mask/shift/bits/offset 7   1fffffff 29 3  0  indexes 0 0 1 2 0 3 0 0 4   mode  enumerated  
+sct      decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffff 27 2  3  indexes                     mode  both_bounded  
+bec      decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   f9ffffff 25 2  5  indexes 0 0 1 0 2           mode  enumerated  
+lay_disk decode 0 vals 0:8             mask/zero mask/shift/bits/offset f   fe1fffff 21 4  7  indexes                     mode  both_bounded  
+phi_mod  decode 0 vals 0:55            mask/zero mask/shift/bits/offset 3f  ffe07fff 15 6  11 indexes                     mode  both_bounded  
+eta_mod  decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   ffff87ff 11 4  17 indexes                     mode  both_bounded  
+side     decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffbff 10 1  21 indexes                     mode  both_bounded  
+strip    decode 0 vals 0:767           mask/zero mask/shift/bits/offset 3ff fffffc00 0  10 22 indexes                     mode  both_bounded  
+ SCT_ID::initialize_from_dict Set barrel field values: 0
+ SCT_ID::initialize_from_dict Found field values: SCT 2
+SCT_ID::init_neighbors 
+ SCT_ID::initialize_from_dict 
+Wafer range -> 2/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1
+Strip range -> 2/2/0/0/0:31/-6:-1/0:1/0:767 | 2/2/0/1/0:39/-6:-1/0:1/0:767 | 2/2/0/2/0:47/-6:-1/0:1/0:767 | 2/2/0/3/0:55/-6:-1/0:1/0:767 | 2/2/0/0/0:31/1:6/0:1/0:767 | 2/2/0/1/0:39/1:6/0:1/0:767 | 2/2/0/2/0:47/1:6/0:1/0:767 | 2/2/0/3/0:55/1:6/0:1/0:767 | 2/2/-2,2/0:8/0:51/0/0:1/0:767 | 2/2/-2,2/0/0:39/1/0:1/0:767 | 2/2/-2,2/1:5/0:39/1:2/0:1/0:767 | 2/2/-2,2/6:7/0:39/1/0:1/0:767
+InDetMgrDetDesc...   INFO Set SCT_ID helper in InDetMgr [m
+TRT_IDDetDescrCnv    INFO in createObj: creating a TRT_ID helper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+decode index and bit fields for each level: 
+indet     decode 1 vals 2,4,5,7,10      mask/zero mask/shift/bits/offset 7   1fffffff 29 3  0  indexes 0 0 1 2 0 3 0 0 4   mode  enumerated  
+trt       decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffff 27 2  3  indexes                     mode  both_bounded  
+bec       decode 1 vals -2,-1,1,2       mask/zero mask/shift/bits/offset 3   f9ffffff 25 2  5  indexes 0 1 0 2 3           mode  enumerated  
+phi_mod   decode 0 vals 0:31            mask/zero mask/shift/bits/offset 1f  fe0fffff 20 5  7  indexes                     mode  both_bounded  
+lay_wheel decode 0 vals 0:17            mask/zero mask/shift/bits/offset 1f  fff07fff 15 5  12 indexes                     mode  both_bounded  
+str_lay   decode 0 vals 0:29            mask/zero mask/shift/bits/offset 1f  ffff83ff 10 5  17 indexes                     mode  both_bounded  
+straw     decode 0 vals 0:28            mask/zero mask/shift/bits/offset 1f  fffffc1f 5  5  22 indexes                     mode  both_bounded  
+ TRT_ID::initialize_from_dict Set barrel field values: -1,1
+ TRT_ID::initialize_from_dict Found field values: InDet/TRT 2/3
+Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
+ TRT_ID::initialize_from_dict 
+Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
+Straw layer range -> 2/3/-1,1/0:31/0/0 | 2/3/-1,1/0:31/0/1:4 | 2/3/-1,1/0:31/0/5:9 | 2/3/-1,1/0:31/0/10:14 | 2/3/-1,1/0:31/0/15:17 | 2/3/-1,1/0:31/0/18 | 2/3/-1,1/0:31/1/0 | 2/3/-1,1/0:31/1/1:5 | 2/3/-1,1/0:31/1/6:10 | 2/3/-1,1/0:31/1/11:15 | 2/3/-1,1/0:31/1/16:20 | 2/3/-1,1/0:31/1/21:22 | 2/3/-1,1/0:31/1/23 | 2/3/-1,1/0:31/2/0 | 2/3/-1,1/0:31/2/1:4 | 2/3/-1,1/0:31/2/5:9 | 2/3/-1,1/0:31/2/10:14 | 2/3/-1,1/0:31/2/15:19 | 2/3/-1,1/0:31/2/20:24 | 2/3/-1,1/0:31/2/25:28 | 2/3/-1,1/0:31/2/29 | 2/3/-2,2/0:31/0:5/0:15 | 2/3/-2,2/0:31/6:13/0:7 | 2/3/-2,2/0:31/14:17/0:15
+Straw range -> 2/3/-1,1/0:31/0/0/0:14 | 2/3/-1,1/0:31/0/1:4/0:15 | 2/3/-1,1/0:31/0/5:9/0:16 | 2/3/-1,1/0:31/0/10:14/0:17 | 2/3/-1,1/0:31/0/15:17/0:18 | 2/3/-1,1/0:31/0/18/0:17 | 2/3/-1,1/0:31/1/0/0:18 | 2/3/-1,1/0:31/1/1:5/0:19 | 2/3/-1,1/0:31/1/6:10/0:20 | 2/3/-1,1/0:31/1/11:15/0:21 | 2/3/-1,1/0:31/1/16:20/0:22 | 2/3/-1,1/0:31/1/21:22/0:23 | 2/3/-1,1/0:31/1/23/0:22 | 2/3/-1,1/0:31/2/0/0:22 | 2/3/-1,1/0:31/2/1:4/0:23 | 2/3/-1,1/0:31/2/5:9/0:24 | 2/3/-1,1/0:31/2/10:14/0:25 | 2/3/-1,1/0:31/2/15:19/0:26 | 2/3/-1,1/0:31/2/20:24/0:27 | 2/3/-1,1/0:31/2/25:28/0:28 | 2/3/-1,1/0:31/2/29/0:27 | 2/3/-2,2/0:31/0:5/0:15/0:23 | 2/3/-2,2/0:31/6:13/0:7/0:23 | 2/3/-2,2/0:31/14:17/0:15/0:17
+InDetMgrDetDesc...   INFO Set TRT_ID helper in InDetMgr [m
+ZebraDetDescrSource::get_pixel_barrel - geometry version 14.3 major version is 14
+ UseLayer: 1 1 1
+ZebraDetDescrSource::get_pixel_barrel - minor version is 111
+ G3SiDetDecoderImpl::set_version - det pixb version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ Unable to get bank PXBI for path PXBI*
+ Idnum[0] is 4 
+ZebraDetDescrSource::get_pixel_endcap - geometry version 14.2
+ZebraDetDescrSource::get_pixel_endcap - minor version is 111
+ G3SiDetDecoderImpl::set_version - det pixe version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ZebraDetDescrSource::get_sct_barrel - geometry version 5
+ G3SiDetDecoderImpl::set_version - det sctb version 5
+ Unable to get bank SCTI for path /DETM/SCTT/SCTG/SCTI*
+ Idnum[0 to 3] is 1 1 1 5 
+ZebraDetDescrSource::get_sct_endcap - geometry version 4
+ G3SiDetDecoderImpl::set_version - det scte version 4
+ Unable to get bank ZSCW for path /DETM/ZSCT/ZSCG/ZSCW*
+ Idnum[0 to 3] is 1 1 1 10 
+ZebraDetDescrSource::get_trt_barrel - before trtg 
+ZebraDetDescrSource::get_trt_barrel - geometry version 2 trtg.TRTGeo 2
+ZebraDetDescrSource::get_trt_barrel - found from trt_v3 trt_time_res 3.125 trt_digit 2
+ZebraDetDescrSource::get_trt_barrel - status 0
+ZebraDetDescrSource::get_trt_endcap - geometry version 2
+ZebraDetDescrSource::get_trt_endcap - found from trt_v3 trt_time_res 3.125 trt_digit 2
+ZebraDetDescrSource::get_trt_endcap - status 0
+InDetMgrDetDesc...   INFO in initHashIds[m
+InDetMgrDetDesc...   INFO  Initialized InDetMgr from ZEBRA. [m
+ G3SiDetDecoderImpl::set_version - det pixb version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ G3SiDetDecoderImpl::set_version - det pixe version 14
+ G3SiDetDecoderImpl::set_minor_version  version 111
+ G3SiDetDecoderImpl::set_version - det sctb version 5
+ G3SiDetDecoderImpl::set_version - det scte version 4
+MuonDetMgrDetDe...   INFO in initialize[m
+MuonDetMgrDetDe...   INFO in createObj: creating a MuonDetDescrManager object in the detector store[m
+MuonDetMgrDetDe...   INFO Flag ReadFromROOT is:  0[m
+MuonDetMgrDetDe...   INFO Initializing muon_DetMgr from ZEBRA [m
+MuonDetMgrDetDe...   INFO Found ZebraTDRCnvSvc [m
+MuonDetMgrDetDe...   INFO in initIds[m
+MDT_IDDetDescrCnv    INFO Flag CompactIDsOnly is:  0[m
+MDT_IDDetDescrCnv    INFO in createObj: creating a MdtIdHelper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 41[m
+MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 43[m
+MdtIdHelper          INFO Initializing MDT hash indices ... [m
+MuonIdHelper         INFO The element hash max is 1168[m
+MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... [m
+MuonIdHelper::init_neighbors 
+MuonDetMgrDetDe...   INFO  Found the MdtIdHelper. [m
+MuonDetMgrDetDe...   INFO Set  MdtIdHelper in muon_detMgr [m
+CSC_IDDetDescrCnv    INFO Flag CompactIDsOnly is:  0[m
+CSC_IDDetDescrCnv    INFO in createObj: creating a CcscIdHelper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 41[m
+CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 43[m
+CscIdHelper          INFO Initializing CSC hash indices ... [m
+MuonIdHelper         INFO The element hash max is 32[m
+MuonIdHelper         INFO The channel hash max is 64000[m
+CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... [m
+MuonIdHelper::init_neighbors 
+MuonDetMgrDetDe...   INFO  Found the CscIdHelper. [m
+MuonDetMgrDetDe...   INFO Set  CscIdHelper in muon_detMgr [m
+RPC_IDDetDescrCnv    INFO Flag CompactIDsOnly is:  0[m
+RPC_IDDetDescrCnv    INFO in createObj: creating a RpcIdHelper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 43[m
+RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 43[m
+RpcIdHelper          INFO Initializing RPC hash indices ... [m
+MuonIdHelper         INFO The element hash max is 574[m
+RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... [m
+MuonIdHelper::init_neighbors 
+MuonDetMgrDetDe...   INFO  Found the RpcIdHelper. [m
+MuonDetMgrDetDe...   INFO Set  RpcIdHelper in muon_detMgr [m
+TGC_IDDetDescrCnv    INFO Flag CompactIDsOnly is:  0[m
+TGC_IDDetDescrCnv    INFO in createObj: creating a TgcIdHelper object in the detector store[m
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 41[m
+TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 43[m
+TgcIdHelper          INFO Initializing TGC hash indices ... [m
+MuonIdHelper         INFO The element hash max is 1584[m
+TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... [m
+MuonIdHelper::init_neighbors 
+MuonDetMgrDetDe...   INFO  Found the TgcIdHelper. [m
+MuonDetMgrDetDe...   INFO Set  TgcIdHelper in muon_detMgr [m
+ Unable to get bank AMDB for path /DETM/AMDB/AMDB*
+ Looking for field VERSION     
+ Idnum[0 to 2] is 1 1 0 
+ Unable to get bank AMDB for path /DETM/AMDB/AMDB*
+ Looking for field VERSION     
+ Idnum[0 to 2] is 1 1 0 
+MuonZebraDetDes...   INFO Building descriptors for DBSC version = 4 AMDB version = 4...[m
+MuonDetDescrMan...   INFO MuonDetDescrManager: Setting geometryVersion = P[m
+MdtZebraDetDesc...   INFO Building geometry version P[m
+CscZebraDetDesc...   INFO Building geometry version P[m
+RpcZebraDetDesc...   INFO Building geometry version P[m
+TgcZebraDetDesc...   INFO Building geometry version P ...[m
+ TGCFDIGI : Version of TGC Structure   1 WireSp  0.18
+MuonZebraDetDes...   INFO All descriptors and elements built for Muons.[m
+MuonDetMgrDetDe...   INFO in initHashIds[m
+MuonDetMgrDetDe...   INFO  Initialized muon_DetMgr from ZEBRA. [m
+ AmdbsimrecAccess::GetAmdbsimrec  can not access Amdbsimrec 
+ AMDBGEO : There IS an AMDB of known format on tape  
+ ========> AMDB from tape has the latest format     
+ ========> It will be used directly                 
+G3MDT_Strategy       INFO Successfully read AMDB_simrec.[m
+ TgcFver : Version of TGC Digitisation   1 WireSp  0.18
+ vtgc: TGC version= 50600 digiVersion  1
+EventPersistenc...   INFO Added successfully Conversion service:ZebraTDRCnvSvc[m
+------------------------------  IOVSvc Proxy Map  ------------------------------
+-------------------------------------------------------------------------------
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+HCWNTupleCnv         INFO Booked Column wise HBOOK N tuple with ID:10 "Col Wise" in directory <//FILE1/COL>[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+ SLIN: Ignore LEVP  print flag 113 on LUN   0
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         2               2  Timeleft   99999952.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        2 took   48.0000 Seconds. Time left =     99999952.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         3               3  Timeleft   99999952.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        3 took    0.0000 Seconds. Time left =     99999952.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         4               4  Timeleft   99999944.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        4 took    8.0000 Seconds. Time left =     99999944.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         5               5  Timeleft   99999944.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        5 took    0.0000 Seconds. Time left =     99999944.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         6               6  Timeleft   99999936.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        6 took    8.0000 Seconds. Time left =     99999936.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         7               7  Timeleft   99999928.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        7 took    8.0000 Seconds. Time left =     99999928.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         8               8  Timeleft   99999920.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        8 took    8.0000 Seconds. Time left =     99999920.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ UBEVT -   1- I Run/  1003/       Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+  GUOUT   entered
+ Arecon  Run      1003     Event         9               9  Timeleft   99999920.00 sec.
+ UOUT  -   1- I Run/  1003/       Dummy version of UOUT called
+  GUOUT: Event        9 took    0.0000 Seconds. Time left =     99999920.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+ REPORT-I- The following message was issued    10 times and will be suppressed :
+ UBEVT -   1- I Run/  1003/    1  Dummy version of UBEVT called
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        10              10  Timeleft   99999920.00 sec.
+ REPORT-I- The following message was issued    10 times and will be suppressed :
+ UOUT  -   1- I Run/  1003/    1  Dummy version of UOUT called
+  GUOUT: Event       10 took    0.0000 Seconds. Time left =     99999920.00 Seconds.
+Hist                 INFO in execute()[m
+Ntup                 INFO in execute()[m
+0SLVEDIT: Checking vertices and times for all events in gate.
+ Event   1 of gate: VERTEX NOT EDITED
+    Retaining old vertex position:  0.000000  0.000000  0.000000m 
+    Retaining old vertex time    :0.000E+00s, Bunch 0
+ Arecon  Run      1003     Event        11              11  Timeleft   99999912.00 sec.
+  GUOUT: Event       11 took    8.0000 Seconds. Time left =     99999912.00 Seconds.
+Hist                 INFO in finalize()[m
+Ntup                 INFO in finalize()[m
+IdDictDetDescrCnv    INFO in finalize[m
+MuonDetMgrDetDe...   INFO in finalize[m
+IOVSvc               INFO Service finalised successfully[m
+*****Chrono*****     INFO ****************************************************************************************************[m
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)[m
+*****Chrono*****     INFO ****************************************************************************************************[m
+ChronoStatSvc        INFO Time User   : Tot= 85.4  [s]                                             #=  1[m
+*****Chrono*****     INFO ****************************************************************************************************[m
+ChronoStatSvc.f...   INFO  Service finalized succesfully [m
+ToolSvc              INFO Removing all tools created by ToolSvc[m
+HNTupleCnv           INFO Saving:/NTUPLES/FILE1/COL/10 with ID:10[m
+
+
+ ******************************************************************
+ * Ntuple ID = 10     Entries = 10        Col Wise
+ ******************************************************************
+ * Var numb * Type * Packing *    Range     *  Block   *  Name    *
+ ******************************************************************
+ *      1   * I*4  *         * [-2147483648 * AUTO_BLK * Event
+ *      2   * I*4  *         * [-2147483648 * AUTO_BLK * Run
+ *      3   * I*4  *         * [0,100]      * AUTO_BLK * Size
+ *      4   * I*4  *         * [-2147483648 * AUTO_BLK * rundata(Size)
+ ******************************************************************
+ *  Block   *  Entries  * Unpacked * Packed *   Packing Factor    *
+ ******************************************************************
+ * AUTO_BLK *  10       * 412      * Var.   *    Variable         *
+ * Total    *    ---    * 412      * Var.   *    Variable         *
+ ******************************************************************
+ * Blocks = 1            Variables = 4       Max. Columns = 103   *
+ ******************************************************************
+
+HbookNFileCnv        INFO Closing HBook RZ file:tuple1.hbook as /NTUPLES/FILE1[m
+NTupleSvc            INFO NTuples saved successfully[m
+ApplicationMgr       INFO Application Manager Finalized successfully[m
