@@ -231,7 +231,7 @@ namespace pool {
       throw Exception( errorMsg,
                        "ImplicitCollection::schemaEditor",
                        "ImplicitCollection" );
-      return *(ICollectionSchemaEditor*)0; 
+      // NOT REACHED
    }
 
    ICollectionDataEditor& ImplicitCollection::dataEditor()
@@ -240,7 +240,7 @@ namespace pool {
       throw Exception( errorMsg,
                        "ImplicitCollection::dataEditor",
                        "ImplicitCollection" );
-      return *(ICollectionDataEditor*)0;
+      // NOT REACHED
    }
 
    ICollectionMetadata& ImplicitCollection::metadata()
