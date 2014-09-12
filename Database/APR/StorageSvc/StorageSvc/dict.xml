@@ -1,0 +1,45 @@
+<lcgdict>
+ <selection>
+  <!-- package: POOLCore                     -->
+  <!--
+  <class name="pool::POOLContext"/>
+  <class name="pool::PoolMessageStream"/>
+  <class pattern="pool::Db*"             rootmap="false"/>
+  -->
+  <class pattern="pool::DbHandleBase*"   rootmap="false"/>
+  <class pattern="pool::IDb*"            rootmap="false"/>
+  <class pattern="pool::IStorage*"       rootmap="false"/>
+  <class pattern="pool::IClass*"         rootmap="false"/>
+
+  <!-- package: StorageSvc                   -->
+  <!--  <class name="Ath::RootType"           rootmap="false"/>  -->
+  <class name="std::pair<long long,long long>"       rootmap="false"/>
+  <class name="pool::IOODatabase"        rootmap="false"/>
+
+  <class name="pool::Shape"              rootmap="false"/>
+  <class name="pool::Transaction"        rootmap="false"/>
+  <class name="pool::DataCallBack"       rootmap="false"/>
+  <class name="pool::FileDescriptor"     rootmap="false"/>
+  <class name="pool::DatabaseConnection" rootmap="false"/>
+  <class name="pool::StorageSvc"/>
+
+  <class name="pool::DbToken"  id="B30D24AA-1F1D-4EE0-A9B6-C10405D65854"/>
+  <class name="pool::DbString" id="DA8F479C-09BC-49D4-94BC-99D025A23A3B"/> 
+  
+  <class name="CharDbArray"    id="42A3E929-5016-4D97-932A-15D21E2D17A9" />
+  <class name="UCharDbArray"   id="B798D007-C1B2-41AD-8BEC-ABC6F0E342E8" />
+  <class name="ShortDbArray"   id="35A281C2-8A14-430A-BEDC-FC8CA5C88B4B" />
+  <class name="UShortDbArray"  id="A26688E9-C6A2-4F31-B954-F7B992A3C638" />
+  <class name="IntDbArray"     id="2C02D4FD-3AC8-4241-A6A2-63CD2C86478C" />
+  <class name="UIntDbArray"    id="F297366F-A876-4FCE-9AC3-D4BEDAEAFAE8" />
+  <class name="LongDbArray"    id="1601B72A-87FE-45CF-B128-FE577C0A438C" />
+  <class name="ULongDbArray"   id="B228247A-AFEE-449E-BD6D-3A1C43555662" />
+  <class name="FloatDbArray"   id="EC636D76-EE64-431A-A046-BEE7A3B73456" />
+  <class name="DoubleDbArray"  id="DF9DDD4F-CBFC-4b75-8A46-FF0A64DD0B2F" />
+ </selection>
+
+ <exclusion>
+  <class pattern="pool::DbPrint*"/>
+  <class pattern="pool::DbObjectSwitch*"/>
+ </exclusion>
+</lcgdict>
