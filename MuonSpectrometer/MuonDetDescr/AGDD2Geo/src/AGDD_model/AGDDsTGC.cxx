@@ -3,10 +3,12 @@
 */
 
 
+
 #include "AGDD2Geo/AGDDsTGC.h"
 #include "AGDD2Geo/AGDDController.h"
 #include "AGDD2Geo/AGDDBuilder.h"
 #include "AGDD2Geo/AGDDParameterStore.h"
+#include "AGDD2Geo/AGDDDetectorStore.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -22,6 +24,23 @@
 
 #include "MuonGeoModel/sTGCComponent.h"
 #include "MuonGeoModel/sTGC.h"
+
+#include <sstream>
+
+AGDDsTGC* AGDDsTGC::current=0;
+
+AGDDsTGC::AGDDsTGC(std::string s):
+    AGDDDetector(s,"sTGC"),_yCutout(0)
+{
+    current=this;
+    Register();
+}
+
+void AGDDsTGC::Register()
+{
+	AGDDDetectorStore *s = AGDDDetectorStore::GetDetectorStore();
+	s->RegisterDetector(this);
+}
 
 void AGDDsTGC::CreateSolid() 
 {
@@ -63,20 +82,20 @@ void AGDDsTGC::CreateVolume()
 		AGDDParameterStore::GetParameterStore()->RegisterParameterBag((*this).GetName(), paraBag);
 	}
 }
-
-GeoMaterial* AGDDsTGC::GetMMMaterial(std::string name)
+void AGDDsTGC::SetDetectorAddress(AGDDDetectorPositioner* p)
 {
-	StoreGateSvc* pDetStore=0;
-	ISvcLocator* svcLocator = Gaudi::svcLocator();
-	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
-	if(sc.isSuccess())
-	{
-		DataHandle<StoredMaterialManager> theMaterialManager;
-		sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
-		if(sc.isSuccess())
-        {
-			return theMaterialManager->getMaterial(name);
-        }
-	}
-	return 0;
+		//std::cout<<"This is AGDDsTGC::SetDetectorAddress "<<GetName()<<" "<<
+		// sType;
+		std::stringstream stringone;
+		std::string side="A";
+		if (p->ID.sideIndex<0) side="C";
+		int ctype=0;
+		int ml=1;
+		if (sType.substr(1,1)=="S" && sType.substr(3,1)=="P") ml=2;
+		else if (sType.substr(1,1)=="L" && sType.substr(3,1)=="C") ml=2;
+		if (sType.substr(1,1)=="S") ctype=3;
+		else if (sType.substr(1,1)=="L") ctype=1;
+		stringone<<"sTG"<<ctype<<"-"<<sType.substr(2,1)<<"-"<<ml<<"-phi"<<p->ID.phiIndex+1<<side<<std::endl;
+		//std::cout<<" stringone "<<stringone.str()<<std::endl;
+		p->ID.detectorAddress=stringone.str();
 }

@@ -26,11 +26,13 @@ void sTGC_TechHandler::ElementHandle()
 	tech->nlayers=getAttributeAsInt("nLayers",ret);
 	tech->thickness=getAttributeAsDouble("Tck",ret);
 	tech->gasThickness=getAttributeAsDouble("gasTck",ret);
-        tech->pcbThickness=getAttributeAsDouble("pcbTck",ret);
+    tech->pcbThickness=getAttributeAsDouble("pcbTck",ret);
 
-        tech->f4Thickness=getAttributeAsDouble("f4",ret);
-        tech->f5Thickness=getAttributeAsDouble("f5",ret);
-        tech->f6Thickness=getAttributeAsDouble("f6",ret);
+    tech->f4Thickness=getAttributeAsDouble("f4",ret);
+    tech->f5Thickness=getAttributeAsDouble("f5",ret);
+    tech->f6Thickness=getAttributeAsDouble("f6",ret);
+		
+	// std::cout<<" sTGC_Tech "<<name<<tech->nlayers<<" "<<tech->thickness<<" "<<tech->gasThickness<<" "<<tech->pcbThickness<<std::endl;
 
 	
 	tech->geoLevel=getAttributeAsInt("geometryLevel",ret);

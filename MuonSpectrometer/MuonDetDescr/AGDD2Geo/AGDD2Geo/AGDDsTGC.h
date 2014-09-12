@@ -5,16 +5,46 @@
 #ifndef AGDDsTGC_H
 #define AGDDsTGC_H
 
-#include "AGDD2Geo/AGDDVolume.h"
+#include "AGDD2Geo/AGDDDetector.h"
 #include <string>
 #include <vector>
 #include <iostream>
 
 class GeoMaterial;
 
-class AGDDsTGC: public AGDDVolume {
+struct sTGCReadoutParameters {
+    double sPadWidth;
+    double lPadWidth;
+    std::vector<double> padH;
+    std::vector<int> nPadX;
+    double anglePadX;
+    std::vector<double> firstPadPhi;
+    std::vector<double> PadPhiShift;
+    std::vector<double> nPadH;
+    std::vector<double> firstPadH;
+    std::vector<int> firstPadRow;
+    std::vector<int> nWires;
+    std::vector<double> firstWire;
+    int wireGroupWidth;
+    int nStrips;
+    std::vector<int> firstTriggerBand;
+    std::vector<int> nTriggerBands;
+    std::vector<int> firstStripInTrigger;
+    std::vector<double> firstStripWidth;
+    std::vector<int> StripsInBandsLayer1;
+    std::vector<int> StripsInBandsLayer2;
+    std::vector<int> StripsInBandsLayer3;
+    std::vector<int> StripsInBandsLayer4;
+    std::vector<int> nWireGroups;
+    std::vector<int> firstWireGroup;
+	
+};
+
+class AGDDsTGC: public AGDDDetector {
 public:
-	AGDDsTGC(std::string s):AGDDVolume(s) {}
+    AGDDsTGC(std::string s);
+    void Register();
+	
 	void SetXYZ(std::vector<double> v) 
 	{
 		_small_x=v[0];
@@ -23,32 +53,22 @@ public:
 		_z=v[3];
 		_yCutout=v[4];
 	}
-	void small_x(double x) {_small_x=x;}
-	void large_x(double x) {_large_x=x;}
-	void y(double yval) {_y=yval;}
-	void z(double zval) {_z=zval;}
+
 	void yCutout(double y) {_yCutout=y;}
-	void subType(std::string s) {sType=s;}
-	double small_x() {return _small_x;}
-	double large_x() {return _large_x;}
-	double y() {return _y;}
-	double z() {return _z;}
 	double yCutout() {return _yCutout;}
 
-	std::string subType() {return sType;}
-	std::string tech;
 	void CreateVolume();
 	void CreateSolid();
-private:
-	double _small_x;
-	double _large_x;
-	double _y;
-	double _z;
-	double _yCutout;
 
-	std::string sType;
+	sTGCReadoutParameters roParameters;
+
+	static AGDDsTGC* GetCurrent() {return current;}
+private:
+
+	double _yCutout;
 	
-	GeoMaterial* GetMMMaterial(std::string);
+	static AGDDsTGC* current;
+	void SetDetectorAddress(AGDDDetectorPositioner*);
 };
 
 #endif

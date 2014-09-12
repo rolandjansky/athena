@@ -14,6 +14,8 @@
 #include "AGDD2Geo/AGDDParameterStore.h"
 #include "AGDD2Geo/AGDD2GeoModelBuilder.h"
 #include "AGDD2Geo/AliasStore.h"
+#include "AGDD2Geo/AGDDDetector.h"
+#include "AGDD2Geo/AGDDDetectorStore.h"
 
 #include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
@@ -157,7 +159,7 @@ AGDD2GeoSvc::initialize()
   	 controller->NavigateGeoModelDetector(m_navigateDetector);
   }
   
-  // controller->BuildAll();
+  //  controller->BuildAll();
   if( !BuildMScomponents() ) return StatusCode::FAILURE;
 
   return result;
@@ -259,6 +261,7 @@ void AGDD2GeoSvc::localInitialization()
 	addHandler(new micromegasHandler("micromegas"));
 	addHandler(new mm_TechHandler("mm_Tech"));
 	addHandler(new sTGCHandler("sTGC"));
+	addHandler(new sTGC_readoutHandler("sTGC_readout"));
 	addHandler(new sTGC_TechHandler("sTGC_Tech"));
 	addHandler(new mmSpacerHandler("mmSpacer"));
 	addHandler(new mmSpacer_TechHandler("mmSpacer_Tech"));
@@ -311,6 +314,7 @@ void AGDD2GeoSvc::localInitialization()
 	AliasStore::GetAliasList()->AddAlias("PolyBoronB4C","shield::PolyboronB4C");
 	AliasStore::GetAliasList()->AddAlias("PolyBoronB2O3","shield::PolyboronB2O3");
 	AliasStore::GetAliasList()->AddAlias("PolyBoronH3B03","shield::PolyboronH3B03");
+	AliasStore::GetAliasList()->AddAlias("PolyBoron207HD5","shield::Polyboron207HD5");
 }
 
 void AGDD2GeoSvc::ReadAGDDFlags()
@@ -434,7 +438,6 @@ bool AGDD2GeoSvc::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*, std::
       etaIndex = iSide*atoi((chTag.substr(5,1)).c_str());
       phiIndex = atoi((chTag.substr(12,1)).c_str());
       mLayer = atoi((chTag.substr(7,1)).c_str());
-
       
       //MuonReadoutElement* re = NULL;
       if (chTag.substr(0,3)=="sMD")
@@ -456,6 +459,7 @@ bool AGDD2GeoSvc::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*, std::
 	{
 	  sTgcReadoutElement* re = new sTgcReadoutElement((GeoVFullPhysVol*)vol, stName, etaIndex, phiIndex, mLayer, false, mgr);	  
 	  std::string myVolName = (chTag.substr(0,8)).c_str();
+	  /*
 	  AGDDParameterBagsTGC* sTGCparaBag = dynamic_cast<AGDDParameterBagsTGC*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(myVolName));
 	  if(!sTGCparaBag) {
 	    std::cout << " not possible to retrieve parameters for <" << myVolName << ">" << std::endl;
@@ -463,6 +467,11 @@ bool AGDD2GeoSvc::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*, std::
 	  re->initDesign(sTGCparaBag->largeX, sTGCparaBag->smallX, sTGCparaBag->lengthY, sTGCparaBag->TechParameters->stripPitch,
 			 sTGCparaBag->TechParameters->wirePitch, sTGCparaBag->TechParameters->stripWidth, sTGCparaBag->TechParameters->wireWidth,
 			 sTGCparaBag->TechParameters->thickness);
+	  
+	  since the concept of Parameter Bag is dismissed things get hardcoded
+	  initDesign for sTGCReadoutElement only uses stripPitch, strip Width and thickness - all other dimensions (here -999.) are (hard)coded there again
+	  */
+	  re->initDesign(-999., -999., -999., 3.2, -999., 2.7, -999., 2.6);
 	  re->fillCache();
 	  mgr->addsTgcReadoutElement_withIdFields(re, iLS, etaIndex, phiIndex, mLayer);
 	}
@@ -479,4 +488,61 @@ std::map<std::string, GeoFullPhysVol*>* AGDD2GeoSvc::GetMSdetectors() const
 {
   AGDDController* controller =AGDDController::GetController();
   return controller->GetMSdetectors();
+}
+
+detectorList& AGDD2GeoSvc::GetDetectorList() const
+{
+	return AGDDDetectorStore::GetDetectorStore()->GetDetectorList();
+}
+
+std::vector<AGDDDetector*> AGDD2GeoSvc::GetDetectorsByType(std::string dt) const
+{
+	std::vector<AGDDDetector*> detectors;
+	detectorList& theDetectors=GetDetectorList();
+	detectorList::const_iterator it=theDetectors.begin();
+	for (;it!=theDetectors.end();it++)
+	{
+		AGDDDetector* det=(*it).second;
+		if (dt==det->DetectorType()) detectors.push_back(det);
+	}
+	return detectors;
+}
+
+AGDDDetector* AGDD2GeoSvc::GetDetectorByID(std::string dt) const
+{
+	detectorList& theDetectors=GetDetectorList();
+	detectorList::const_iterator it=theDetectors.begin();
+	for (;it!=theDetectors.end();it++)
+	{
+		AGDDDetector* det=(*it).second;
+		if (dt==det->DetectorID()) return det;
+	}
+	return 0;
+}
+
+template<class T> std::vector<T*> AGDD2GeoSvc::GetDetectorsByType() const 
+{
+	std::vector<T*> detectors;
+	detectorList& theDetectors=GetDetectorList();
+	detectorList::const_iterator it=theDetectors.begin();
+	for (;it!=theDetectors.end();it++)
+	{
+		T* det=dynamic_cast<T*>((*it).second);
+		if (det) detectors.push_back(det);
+	}
+	return detectors;
+}
+template<class T> T* AGDD2GeoSvc::GetDetectorByID(std::string id) const 
+{
+	detectorList& theDetectors=GetDetectorList();
+	detectorList::const_iterator it=theDetectors.begin();
+	for (;it!=theDetectors.end();it++)
+	{
+		if (id==(*it).second->DetectorID())
+	    {
+			T* det=dynamic_cast<T*>((*it).second);
+			if (det) return det;
+		}
+	}
+	return 0;
 }

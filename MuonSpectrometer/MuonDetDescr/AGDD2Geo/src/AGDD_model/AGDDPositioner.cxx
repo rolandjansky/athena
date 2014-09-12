@@ -11,12 +11,12 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 
-AGDDPositioner::AGDDPositioner(std::string n,HepGeom::Transform3D t,int i):volume(n),transform(t),copyNo(i)
+AGDDPositioner::AGDDPositioner(std::string n,HepGeom::Transform3D t):isSensitiveDetector(false),volume(n),transform(t)
 {
 	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
 	theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
 }
-AGDDPositioner::AGDDPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v,int i):volume(n),copyNo(i)
+AGDDPositioner::AGDDPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):isSensitiveDetector(false),volume(n)
 {
 	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
 	transform=HepGeom::Transform3D(r,v);
@@ -36,12 +36,3 @@ AGDDVolume* AGDDPositioner::GetVolume()
 	return theVolume;
 } 
 
-int AGDDPositioner::GetCopyNumber() const
-{
-	return copyNo;
-}
-
-void AGDDPositioner::SetCopyNumber(int i) 
-{
-	copyNo=i;
-}

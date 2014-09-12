@@ -8,6 +8,8 @@
 #include "AGDD2Geo/AGDDMolecule.h"
 #include "AGDD2Geo/AGDDMixture.h"
 #include "AGDD2Geo/AGDDElement.h"
+#include "AGDD2Geo/AGDDDetector.h"
+#include "AGDD2Geo/AGDDDetectorPositioner.h"
 #include "AGDD2Geo/AGDDBox.h"
 #include "AGDD2Geo/AGDDTubs.h"
 #include "AGDD2Geo/AGDDElcyl.h"
@@ -497,46 +499,30 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
         ether = GetMMMaterial("special::Ether");
 	 	fakeVol=new GeoTubs(0.,500.,1000.,0.,4*asin(1.));
 	}
-	bool localPrintLevel=false;
-	std::string sideFlag = "XXX";
-	if (v->GetName()=="NSWS" || v->GetName()=="NSW") 
-	  {
-	    localPrintLevel = true;
-	    if (v->GetName()=="NSWS") sideFlag="C";
-	    else 
-	      if (v->GetName()=="NSW") sideFlag="A";
-	  }
+
 	if (!v->GetVolume())
 	{
-//		std::cout<<" Logical Volume "<<v->GetName()<<std::endl;
+		// std::cout<<"CreateComposition: Logical Volume "<<v->GetName()<<std::endl;
 		GeoLogVol *a=new GeoLogVol(v->GetName(),fakeVol,ether);
 		GeoPhysVol *a_phys=new GeoPhysVol(a);
 		v->SetVolume(a_phys);
-		
-		std::string detFullTagPrevious="XXX";
-		int iphi=1;
+
 		for (int i=0;i<v->NrOfDaughter();i++)
 		{
 			AGDDPositioner* pos=v->GetDaughter(i);
 			AGDDVolume *vol=pos->GetVolume();
-			const std::string detFullTag = vol->GetName();
-			if (detFullTag!=detFullTagPrevious) 
-			  {
-			    iphi=1; 
-			    detFullTagPrevious=detFullTag;
-			  }
-			else ++iphi;
-			std::stringstream ss;
-			ss << iphi;
-			std::string detFullTagAndPhi = detFullTag+"-phi"+ss.str()+sideFlag;		     
-			std::string detName=vol->GetName().substr(0,3);
-			bool isDetElement = (detName=="sTG" || detName=="sMD");
-			  if (localPrintLevel) 
-			    {
-			      std::cout<<" daughter volume name is <"<<vol->GetName()
-				       <<">  detFlag=<"<<detName
-				       <<"> isDetElement ="<<isDetElement<<std::endl;
-			    }
+			const std::string volName = vol->GetName();
+			
+			AGDDDetector *d=dynamic_cast<AGDDDetector *>(vol);
+			AGDDDetectorPositioner *p=0;
+			std::string detFullTag="";
+			bool isDetElement = d!=0;
+			if (isDetElement) 
+			{ 
+				p=dynamic_cast<AGDDDetectorPositioner *>(pos);
+				if (p) detFullTag=p->ID.detectorAddress;
+				// if (isDetElement) std::cout<<"\t\t Detector: "<<volName<<" "<<detFullTag<<std::endl;
+			}
 			HepGeom::Transform3D trf=pos->Transform();
 			GeoTransform *geotrf=new GeoTransform(trf);
 			void *temp=vol->GetVolume();
@@ -549,8 +535,7 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 			  vol->CreateVolume();
 			  if (isDetElement) {
 			    detVol=(GeoFullPhysVol*)(vol->GetVolume());
-			    (*m_detectors)[detFullTagAndPhi]=detVol;
-			    if (localPrintLevel) std::cout<<" Created with tag=<"<<detFullTagAndPhi<<">"<<std::endl;;
+			    (*m_detectors)[detFullTag]=detVol;
 			  }
 			}
 			else {
@@ -561,8 +546,7 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 			    {
 			      detVol=(GeoFullPhysVol*)temp;
 			      detVol=detVol->clone();
-			      (*m_detectors)[detFullTagAndPhi]=detVol;
-			      if (localPrintLevel) std::cout<<" Cloned with tag=<"<<detFullTagAndPhi<<">"<<std::endl;
+			      (*m_detectors)[detFullTag]=detVol;
 			    }
 			}
 			

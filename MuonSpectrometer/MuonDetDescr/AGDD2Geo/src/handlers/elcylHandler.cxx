@@ -17,9 +17,9 @@ elcylHandler::elcylHandler(std::string s):XMLHandler(s)
 void elcylHandler::ElementHandle()
 {
 	bool res;
-	std::string name=getAttributeAsString("name",res);
-	std::string material=getAttributeAsString("material",res);
-	std::vector<double> vvv=getAttributeAsVector("RXio_RYio_Z",res);
+	std::string name=getAttributeAsString("name");
+	std::string material=getAttributeAsString("material");
+	std::vector<double> vvv=getAttributeAsVector("RXio_RYio_Z");
 
 	AGDDElcyl *v=new AGDDElcyl(name);
 	v->SetMaterial(material);

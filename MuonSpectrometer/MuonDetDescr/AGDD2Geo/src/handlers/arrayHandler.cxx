@@ -14,9 +14,8 @@ arrayHandler::arrayHandler(std::string s):XMLHandler(s)
 
 void arrayHandler::ElementHandle()
 {
-	bool res;
-	std::string name=getAttributeAsString("name",res);
-	std::vector<double> value=getAttributeAsVector("values",res);
+	std::string name=getAttributeAsString("name");
+	std::vector<double> value=getAttributeAsVector("values");
 	if (msgLog().level()<=MSG::DEBUG)
 	msgLog()<<MSG::DEBUG<<" array name "<<name<<" value="<<value[0]<<endreq;
 	XercesParser::Evaluator().RegisterArray(name,value);

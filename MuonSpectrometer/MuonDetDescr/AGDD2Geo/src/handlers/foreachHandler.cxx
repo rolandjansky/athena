@@ -14,10 +14,9 @@ foreachHandler::foreachHandler(std::string s):XMLHandler(s)
 
 void foreachHandler::ElementHandle()
 {
-	bool res;
-	std::string index=getAttributeAsString("index",res);
-	int ibegin=getAttributeAsInt("begin",res);
-	int iloops=getAttributeAsInt("loops",res);
+	std::string index=getAttributeAsString("index");
+	int ibegin=getAttributeAsInt("begin");
+	int iloops=getAttributeAsInt("loops");
 	if (msgLog().level()<=MSG::DEBUG)
 	msgLog()<<MSG::DEBUG<<"foreach index "<<index<<" values = "<<ibegin<<" "<<iloops<<endreq;
 	StopLoop(true);

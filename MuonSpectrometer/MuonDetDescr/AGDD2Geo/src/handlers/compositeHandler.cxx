@@ -16,11 +16,10 @@ compositeHandler::compositeHandler(std::string s):XMLHandler(s)
 
 void compositeHandler::ElementHandle()
 {
-	bool res;
 	globals::addMaterial.Clear();
 
-	std::string name=getAttributeAsString("name",res);
-	double density=getAttributeAsDouble("density",res);
+	std::string name=getAttributeAsString("name");
+	double density=getAttributeAsDouble("density");
 	if (msgLog().level()<=MSG::DEBUG)
 	msgLog()<<MSG::DEBUG<<"composite name "<<name<<" density="<<density<<endreq;
 	StopLoop(true);

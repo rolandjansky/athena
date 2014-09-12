@@ -16,11 +16,11 @@ void boxHandler::ElementHandle()
 {
 //	std::cout<<"this is boxHandler"<<std::endl;
 	bool res;
-	std::string name=getAttributeAsString("name",res);
+	std::string name=getAttributeAsString("name");
 //	std::cout<<"   name "<<name<<std::endl;
-	std::string material=getAttributeAsString("material",res);
+	std::string material=getAttributeAsString("material");
 //	std::cout<<"   material "<<material<<std::endl;
-	std::vector<double> vvv=getAttributeAsVector("X_Y_Z",res);
+	std::vector<double> vvv=getAttributeAsVector("X_Y_Z");
 
 	AGDDBox *b=new AGDDBox(name);
 	b->SetMaterial(material);

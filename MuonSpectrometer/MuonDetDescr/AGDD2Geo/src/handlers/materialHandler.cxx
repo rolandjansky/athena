@@ -14,11 +14,10 @@ materialHandler::materialHandler(std::string s):XMLHandler(s)
 
 void materialHandler::ElementHandle()
 {
-	bool res;
-	std::string name=getAttributeAsString("name",res);
-	double a=getAttributeAsDouble("a",res);
-	int z=getAttributeAsInt("z",res);
-	double density=getAttributeAsDouble("density",res);
+	std::string name=getAttributeAsString("name");
+	double a=getAttributeAsDouble("a");
+	int z=getAttributeAsInt("z");
+	double density=getAttributeAsDouble("density");
 	AGDDMaterial *mat __attribute__((__unused__));
 	mat=new AGDDMaterial(name,z,a,density);	
 	if (msgLog().level()<=MSG::DEBUG)
