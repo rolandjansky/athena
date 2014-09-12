@@ -1171,7 +1171,13 @@ Int_t TConvertingBranchElement::ReadSubBranches(Long64_t entry,
         // Find the address of the element we want to initialize.
         // How we do this depends on whether we have a @c TClonesArray
         // or a proxy.
-        char* addr = proxy ? (char*)(proxy->At(j)) : (char*)((*clones)[j]);
+        char* addr = 0;
+        if (proxy)
+          addr = (char*)(proxy->At(j));
+        else {
+          if (!clones) std::abort();
+          addr = (char*)((*clones)[j]);
+        }
 
         // The address of the object we want to read.
         // If we have a conversion on the class contained directly
