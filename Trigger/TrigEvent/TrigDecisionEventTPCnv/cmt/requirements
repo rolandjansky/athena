@@ -26,10 +26,10 @@ use TrigDecisionEvent    TrigDecisionEvent-*        Trigger/TrigEvent
 
 apply_pattern lcgdict dict=TrigDecisionEventTPCnv1  \
   selectionfile=selection1.xml \
-  headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict1.h"
+  headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict.h"
 
 apply_pattern lcgdict dict=OLD_TrigDecisionEventTPCnv1  \
   selectionfile=OLD_selection1.xml \
-  headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict1.h"
+  headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict.h"
 
 end_private
