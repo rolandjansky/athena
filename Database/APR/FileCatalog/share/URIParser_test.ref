@@ -1,0 +1,23 @@
+contact string mysqlcatalog_mysql://user@localhost:3306/mydb
+prefix: mysqlcatalog
+url: mysql://user@localhost:3306/mydb
+[OVAL]----------
+contact string xmlcatalog_ftp://pc01.cern.ch/mycatalog.xml
+prefix: xmlcatalog
+url: ftp://pc01.cern.ch/mycatalog.xml
+[OVAL]----------
+contact string xmlcatalog_http://pc02.cern.ch/mycatalog.xml
+prefix: xmlcatalog
+url: http://pc02.cern.ch/mycatalog.xml
+[OVAL]----------
+contact string file:/tmp/mycatalog.xml
+prefix: 
+url: file:/tmp/mycatalog.xml
+[OVAL]----------
+contact string xmlcatalog_file:/tmp/mycatalog.xml
+prefix: xmlcatalog
+url: file:/tmp/mycatalog.xml
+[OVAL]----------
+contact string edgcatalog_http://ciccio.cern.ch/mycatalog
+prefix: edgcatalog
+url: http://ciccio.cern.ch/mycatalog

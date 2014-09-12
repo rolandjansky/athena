@@ -1,0 +1,23 @@
+[guid (string) : guid1], [pfname (string) : pfn1], [filetype (string) : root]
+guid1
+pfn1
+root
+[guid (string) : guid2], [pfname (string) : pfn2], [filetype (string) : root]
+guid2
+pfn2
+root
+[guid (string) : guid1], [lfname (string) : lfn1]
+guid1
+lfn1
+[guid (string) : guid2], [lfname (string) : lfn2]
+guid2
+lfn2
+[guid (string) : guid0], [lfname (string) : lfn0]
+[guid (string) : guid0], [lfname (string) : lfn0]
+[guid (string) : ]
+again : [guid (string) : guid1], [owner (string) : me], [category (int) : 1]
+guid1
+me
+1
+printing copy
+[guid (string) : guid1], [owner (string) : me], [category (int) : 1]

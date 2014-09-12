@@ -1,0 +1,5 @@
+%pfname123 dfdf guid pfname 
+guid pfname 
+is NOT meta query: correct
+guid id pfname 
+is meta query: correct
