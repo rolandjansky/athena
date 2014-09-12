@@ -117,8 +117,26 @@ class DataKey(object):
 
 
 class Selector(object):
-    db = "COMP200"
+    __conddb = None
     condtag = ""
+
+    @staticmethod
+    def setCondDBMC():
+        Selector.__conddb = 'OFLP200'
+
+    @staticmethod
+    def condDB(run_number = None ):
+        if not run_number:
+            if Selector.__conddb:
+                return Selector.__conddb
+            raise RuntimeError("CondDB not yet set")
+
+        Selector.__conddb = "CONDBR2" if run_number > 236100 else "COMP200"
+        print "Determinded %s, based on run number %i" % (Selector.__conddb, run_number)
+        return Selector.__conddb
+
+
+
     def __init__(self, name):
         self.name = name
         self.priority = 50
@@ -129,6 +147,7 @@ class Selector(object):
     def prettyValue(self, value, key): return value
     def ApplySelection(self,key): return self.applySelection
     def runAfterQuery(self,runlist): pass
+
 
 
 class Condition(Selector):
@@ -164,7 +183,7 @@ class Condition(Selector):
         self._channeldesc = self.data_keys
 
     def _getFolder(self):
-        f = coolDbConn.GetDBConn(schema = self.schema,db=self.db).getFolder(self.folder)
+        f = coolDbConn.GetDBConn(schema = self.schema,db=Selector.condDB()).getFolder(self.folder)
         if f.versioningMode()==0: self.tagname=""
         if self.tagname not in ["HEAD", ""]:
             self.tagname = f.resolveTag(self.tagname)
@@ -476,8 +495,8 @@ class TimeBasedCondition(Condition):
 
             # now we have the first and last iov that overlap with that run: startiovindex, endiovindex
             lbindex = 0
-            for iovindex in range(startiovindex, endiovindex+1):
-                iov,pl   = iovpllist[iovindex]
+            for iov,pl in iovpllist[startiovindex:endiovindex+1]:
+                print "A 1",iov,pl
                 iovstart = iov.startTime.time
                 iovend   = iov.endTime.time
                 endrun   = run.runNr
@@ -497,6 +516,9 @@ class TimeBasedCondition(Condition):
                 else:
                     endlb = lbindex+2 # +1 for lb-index->lb-number, +1 for closed interval
 
+                print "A 2",startlb,endlb
+
+
                 # append info of this IOV
                 lastIOV,lastpl=None,None
                 if len(pld[run.runNr])>0:
@@ -505,7 +527,8 @@ class TimeBasedCondition(Condition):
                     lastIOV.endTime.run = endrun
                     lastIOV.endTime.lb = endlb
                 else:
-                    pld[run.runNr] += [(IOVRange(runStart=run.runNr, lbStart=startlb, runEnd=endrun, lbEnd=endlb), pl)]
+                    print "A 3a",(IOVRange(runStart=run.runNr, lbStart=startlb, runEnd=endrun, lbEnd=endlb), pl) 
+                    pld[run.runNr] += [(IOVRange(runStart=run.runNr, lbStart=startlb, runEnd=endrun, lbEnd=endlb), pl)] # in this case the end LB is inclusive
 
 
             # for the next run we start looking at:
@@ -519,7 +542,7 @@ class TimeBasedCondition(Condition):
         sys.stdout.flush()
         start = time()
         newrunlist = []
-        f = coolDbConn.GetDBConn(schema=self.schema, db=self.db).getFolder(self.folder)
+        f = coolDbConn.GetDBConn(schema=self.schema, db=Selector.condDB()).getFolder(self.folder)
         
         sortedChannel = sorted( list( set( self.CoolChannels() ) ) )
         chansel = None

@@ -101,14 +101,14 @@ class DBConnectionController:
         self.pw = {}
 
     def GetDBConn(self, schema, db):
-        """for example schema=COOLONL_TRIGGER', db='COMP200"""
+        """for example schema=COOLONL_TRIGGER', db='CONDBR2"""
         if (schema,db) in self.openConn:
             return self.openConn[(schema,db)]
         try:
             if schema=="DEFECTS":
                 #from AthenaCommon.Logging import logging # this is needed because of some problem in DQUtils logger
                 # the logger there, if called first makes the athena logger crash
-                defdb = DQDefects.DefectsDB("COOLOFL_GLOBAL/COMP200",tag=db)
+                defdb = DQDefects.DefectsDB("COOLOFL_GLOBAL/CONDBR2",tag=db)
                 defdb.closeDatabase = lambda: None
                 self.openConn[(schema,db)] = defdb
             else:
@@ -154,7 +154,8 @@ class DBConnectionController:
         if not 'sfo' in self.openConn:
             #auth = self.get_auth('oracle://ATLAS_CONFIG/ATLAS_SFO_T0')
             #self.openConn['sfo'] = cx_Oracle.connect("%s/%s@ATLAS_CONFIG" % (auth['user'],auth['password']))
-            self.openConn['sfo'] = cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@ATLAS_CONFIG")
+            with timer("Opening Connection to ATLAS_SFO_T0_R @ ATLAS_CONFIG"):
+                self.openConn['sfo'] = cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@ATLAS_CONFIG")
         return self.openConn['sfo']
 
     def GetTier0DBConnection(self):

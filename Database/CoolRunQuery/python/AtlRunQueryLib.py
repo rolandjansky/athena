@@ -129,10 +129,8 @@ class AtlRunQuery:
             self.dictroot = not runsOnServer()
             
 
-        if self.cmdlineOptions.database:
-            if self.cmdlineOptions.database.upper()=='MC':     Selector.db = 'OFLP200'
-            elif self.cmdlineOptions.database.upper()=='DATA': Selector.db = 'COMP200'
-            else:                                  Selector.db = self.cmdlineOptions.database
+        if self.cmdlineOptions.database and self.cmdlineOptions.database.upper()=='MC':
+            Selector.setCondDBMC()
 
         if self.cmdlineOptions.condtag:
             Selector.condtag = self.cmdlineOptions.condtag
@@ -207,12 +205,20 @@ class AtlRunQuery:
 
         # find the begin and end of each interesting run
         runlist = rtSel.select()
+
+        if Selector.condDB()=="CONDBR2":
+            self.cmdlineOptions.show = [x for x in self.cmdlineOptions.show if x not in ["lhc","olclumi","olcfillparams","olclbdata"]]
+            self.cmdlineOptions.partition=None
+            self.cmdlineOptions.projecttag=None
+            print "Pre-run2 selection removed partition and projecttag from querying"
+            print "Pre-run2 selection removed lhc, olc from showing. Modified show list: %r" % self.cmdlineOptions.show
+            
         self.selectionOutput += ["%s" % rtSel]
 
 
         from .AtlRunQuerySelectorWorker import SelectorWorker
 
-        # create all selectors that actively select
+        # create all selectors that are actively select
         SelectorWorker.parseSelectorOptions(self.cmdlineOptions)
 
         # parse show option:

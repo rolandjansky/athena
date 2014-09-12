@@ -32,10 +32,14 @@ class RunTimeSelector(Selector):
 
 
     def select(self):
-        runlist = []
         
+        if len(self.runranges)==0: # no run specified
+            return []
+
+        runlist = []
+        firstRun = self.runranges[0][0]
         start = time()
-        folder = coolDbConn.GetDBConn(schema="COOLONL_TRIGGER",db=self.db).getFolder('/TRIGGER/LUMI/LBLB')
+        folder = coolDbConn.GetDBConn(schema="COOLONL_TRIGGER", db = Selector.condDB(firstRun) ).getFolder('/TRIGGER/LUMI/LBLB')
         print self,
         sys.stdout.flush()
         currentRun = None
@@ -92,7 +96,7 @@ class TimeRunSelector(Selector):
     def select(self):
         start = time()
         runlist = []
-        folder = coolDbConn.GetDBConn(schema="COOLONL_TRIGGER", db=self.db).getFolder('/TRIGGER/LUMI/LBTIME')
+        folder = coolDbConn.GetDBConn(schema="COOLONL_TRIGGER", db=Selector.condDB()).getFolder('/TRIGGER/LUMI/LBTIME')
         print 'SELOUT Checking for runs in time range "%s"' % self.timelist,
         sys.stdout.flush()
         ranges = GetRanges(self.timelist, maxval=long(time()*1E09))

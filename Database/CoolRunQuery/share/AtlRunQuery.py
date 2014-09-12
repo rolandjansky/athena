@@ -54,14 +54,16 @@ def main():
                 from CoolRunQuery.AtlRunQueryUtils import Pileup
                 body = tabletemplate % (Pileup(arguments[2:]))
             elif firstarg == 'detmask':
-                from CoolRunQuery.AtlRunQueryLookup import DecodeDetectorMask
-                body = tabletemplate % (DecodeDetectorMask( int(arguments[2] )))
+                from CoolRunQuery.utils.AtlRunQueryLookup import DecodeDetectorMask
+                body = tabletemplate % ( DecodeDetectorMask( arguments[2], isRun2=True ))
             else:
                 body = ''
 
             # return a default page
-            from CoolRunQuery.AtlRunQueryPageMaker import PageMaker
-            PageMaker.makeDefaultPage(datapath, body, origQuery)
+            from CoolRunQuery.html.AtlRunQueryPageMaker import PageMaker
+            from CoolRunQuery.AtlRunQueryQueryConfig import QC
+            QC.datapath = datapath
+            PageMaker.makePage(body, origQuery, removeExamples=True)
             return 0
 
         atlqueryarg = arguments[0].rsplit('/',1)[-1] + " " + ap.ParseArgument( ' '.join(arguments[1:]) )

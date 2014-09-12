@@ -202,7 +202,7 @@ class L1TrigKeySelector(RunLBBasedCondition):
 class HLTTrigKeySelector(RunLBBasedCondition):
     def __init__(self, name):
         self.showTrigKeys = False
-        if Selector.db == 'OFLP200':
+        if Selector.condDB() == 'OFLP200':
             super(HLTTrigKeySelector,self).__init__(name=name,
                                                     dbfolderkey='COOLONL_TRIGGER::/TRIGGER/HLT/HltConfigKeys',
                                                     channelKeys = [(0,'HLT PSK','HltPrescaleConfigurationKey')])
@@ -301,7 +301,7 @@ class RatesSelector(RunLBBasedCondition):
         print self,
         sys.stdout.flush()
 
-        fL1R = coolDbConn.GetDBConn(self.schema,db=self.db).getFolder(self.folder)
+        fL1R = coolDbConn.GetDBConn(self.schema,db=Selector.condDB()).getFolder(self.folder)
 
         for r in runlist:
             menu = r.result['TriggerMenu']

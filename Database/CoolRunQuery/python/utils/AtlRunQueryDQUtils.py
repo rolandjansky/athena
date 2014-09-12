@@ -83,7 +83,7 @@ def lumi(run, lbr):
     if tuple(lbr) in lumicache:
         return lumicache[tuple(lbr)]
 
-    lblbdb = dbSvc.openDatabase('COOLONL_TRIGGER/COMP200', True)
+    lblbdb = dbSvc.openDatabase('COOLONL_TRIGGER/CONDBR2', True)
     lblb = lblbdb.getFolder('/TRIGGER/LUMI/LBLB')
     lblestonl = lblbdb.getFolder('/TRIGGER/LUMI/LBLESTONL')
 

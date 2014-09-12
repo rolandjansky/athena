@@ -595,7 +595,7 @@ class DQSummary:
             target='target="blank"'
             somelinks = '<font style="font-size:10px;color:#0000FF">'
             somelinks += '<a href="https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/runBrowserReport.php?runs=%s&pn=%s&fnt=%s" %s>COMA</a>'%(run,dp,ptag,target)
-            somelinks += ', <a href="https://atlasdqm.web.cern.ch/atlasdqm/DQBrowser/makeMatrix.php?selection=All&run=%s&runup=&dbinstance=COMP200_DCS&tag=DEFAULT" %s>DCS</a>'%(run,target)
+            somelinks += ', <a href="https://atlasdqm.web.cern.ch/atlasdqm/DQBrowser/makeMatrix.php?selection=All&run=%s&runup=&dbinstance=CONDBR2_DCS&tag=DEFAULT" %s>DCS</a>'%(run,target)
             somelinks += ', <a href="https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/%s/run.py?run=%s" %s>DS</a>'%(year,run,target)
             somelinks += ', <a href="https://atlasdqm.cern.ch/defectentry/?run=%s" %s>defects</a>'%(run,target)
             somelinks += '<br><a href="https://atlasdqm.cern.ch/dqsignoff/%s/" %s>DQlogbook</a>'%(run,target)

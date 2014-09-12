@@ -113,7 +113,7 @@ class DQCondition(RunLBBasedCondition):
         if 'ONL' in self.foldername: dbname = 'COOLONL_GLOBAL'
 
         # set up virtual flag logic folder and expand wild cards for VF in dq
-        self.GetVirtualFlagsExpanded(dq, Selector.db, dbname)
+        self.GetVirtualFlagsExpanded(dq, Selector.compDB(), dbname)
 
         for x in dq:
             ch = x[0].split(',')
@@ -195,7 +195,7 @@ class DQCondition(RunLBBasedCondition):
         RunData.DQLogic = self.channelNames
         RunData.DQKeys = self.channelNamesFlat
 
-        f = coolDbConn.GetDBConn(schema = self.schema,db=self.db).getFolder(self.folder)
+        f = coolDbConn.GetDBConn(schema = self.schema,db=Selector.condDB()).getFolder(self.folder)
         if self.useVirtualFlags:
             f = self.VirtualFlagFolder(f)
         else:
@@ -291,7 +291,7 @@ class DQCondition(RunLBBasedCondition):
 
     def addShowChannel(self, folder, channelname, tag):
         tmplist = [[channelname,'']]
-        self.GetVirtualFlagsExpanded(tmplist, Selector.db, self.schema)
+        self.GetVirtualFlagsExpanded(tmplist, Selector.compDB(), self.schema)
 
         for shch in tmplist[0][0].split(','):
             self.addSingleShowChannel(folder+':'+shch)

@@ -97,8 +97,14 @@ class DetectorSelector(RunLBBasedCondition):
             if not 'A' in m: continue
             self.bmany |= int(m.rstrip('A'))
 
+        dbfolder = ""
+        if Selector.condDB() == "COMP200":
+            dbfolder = "/TDAQ/RunCtrl/SOR_Params"
+        if Selector.condDB() == "CONDBR2":
+            dbfolder = "/TDAQ/RunCtrl/SOR"
+
         super(DetectorSelector,self).__init__(name=name,
-                                              dbfolderkey='COOLONL_TDAQ::/TDAQ/RunCtrl/SOR_Params',
+                                              dbfolderkey='COOLONL_TDAQ::%s' % dbfolder,
                                               channelKeys = [(0, 'Detector systems', 'DetectorMask')])
 
         self.data_keys[0]._type = DataKey.DETECTOR

@@ -160,32 +160,34 @@ OLCAlgorithms = { 0:     'ATLAS_PREFERRED',
                   998:	 'OflLumi_Fake0',
                   999:	 'OflLumi_Fake1' }
 
-def InitDetectorMaskDecoder():
+def InitDetectorMaskDecoder( run2 ):
+    if run2:
+        return InitDetectorMaskDecoderRun2()
+    else:
+        return InitDetectorMaskDecoderRun1()
+    
+def InitDetectorMaskDecoderRun1():
 
     # taken from:
-    #   http://alxr.usatlas.bnl.gov/lxr/source/tdaq-common/eformat/src/DetectorMask.cxx
+    #   https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/DataFlow/eformat/tags/eformat-04-04-03/src/DetectorMask.cxx
     #
     # note that these here are obsolete:
     #   https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/online/RCUtils/trunk/src/get_detectormask.cc
     #   http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/DAQ/online/RunControl/src/get_detectormask.cc?root=atlastdaq&view=markup
 
     dName = ['unknown']*64
-
     dName[0]  = "Pix Barrel"
     dName[1]  = "Pix Disks"
     dName[2]  = "Pix B-Layer"
     dName[3]  = "REMOVED"
-
     dName[4]  = "SCT BA"
     dName[5]  = "SCT BC"
     dName[6]  = "SCT EA"
     dName[7]  = "SCT EC"
-
     dName[8]  = "TRT BA"
     dName[9]  = "TRT BC"
     dName[10] = "TRT EA"
     dName[11] = "TRT EC"
-
     dName[12] = "LAr EMBA"
     dName[13] = "LAr EMBC"
     dName[14] = "LAr EMECA"
@@ -194,12 +196,10 @@ def InitDetectorMaskDecoder():
     dName[17] = "LAr HECC"
     dName[18] = "LAr FCALA"
     dName[19] = "LAr FCALC"
-
     dName[20] = "Tile BA"
     dName[21] = "Tile BC"
     dName[22] = "Tile EA"
     dName[23] = "Tile EC"
-
     dName[24] = "MDT BA"
     dName[25] = "MDT BC"
     dName[26] = "MDT EA"
@@ -208,10 +208,8 @@ def InitDetectorMaskDecoder():
     dName[29] = "RPC BC"
     dName[30] = "TGC EA"
     dName[31] = "TGC EC"
-
     dName[32] = "CSC EA"
     dName[33] = "CSC EC"
-
     dName[34] = "L1Calo preprocessor"
     dName[35] = "L1Calo cluster DAQ"
     dName[36] = "L1Calo cluster RoI"
@@ -224,12 +222,10 @@ def InitDetectorMaskDecoder():
     dName[43] = "SFO"
     dName[44] = "LVL2"
     dName[45] = "EF"
-
     dName[46] = "BCM"
     dName[47] = "Lucid"
     dName[48] = "ZDC"
     dName[49] = "Alfa"
-
     dName[50] = "TRT_ANCILLARY_CRATE"
     dName[51] = "TILECAL_LASER_CRATE"
     dName[52] = "MUON_ANCILLARY_CRATE"
@@ -248,11 +244,109 @@ def InitDetectorMaskDecoder():
 
     return (dName, NotInAll, vetoedbits)
 
-def DecodeDetectorMask( mask, smart=False ):
-    dName, NotInAll, vetoedbits = InitDetectorMaskDecoder()
+
+def InitDetectorMaskDecoderRun2():
+
+    # taken from:
+    #   http://alxr.usatlas.bnl.gov/lxr/source/tdaq-common/eformat/src/DetectorMask.cxx
+    #
+    # note that these here are obsolete:
+    #   https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/online/RCUtils/trunk/src/get_detectormask.cc
+    #   http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/DAQ/online/RunControl/src/get_detectormask.cc?root=atlastdaq&view=markup
+
+    dName = ['unknown']*128
+    dName[0]  = "Pix Barrel"
+    dName[1]  = "Pix Disks"
+    dName[2]  = "Pix B-Layer"
+    dName[3]  = "REMOVED"
+    dName[4]  = "SCT BA"
+    dName[5]  = "SCT BC"
+    dName[6]  = "SCT EA"
+    dName[7]  = "SCT EC"
+    dName[8]  = "TRT BA"
+    dName[9]  = "TRT BC"
+    dName[10] = "TRT EA"
+    dName[11] = "TRT EC"
+    dName[12] = "LAr EMBA"
+    dName[13] = "LAr EMBC"
+    dName[14] = "LAr EMECA"
+    dName[15] = "LAr EMECC"
+    dName[16] = "LAr HECA"
+    dName[17] = "LAr HECC"
+    dName[18] = "LAr FCALA"
+    dName[19] = "LAr FCALC"
+    dName[20] = "Tile BA"
+    dName[21] = "Tile BC"
+    dName[22] = "Tile EA"
+    dName[23] = "Tile EC"
+    dName[24] = "MDT BA"
+    dName[25] = "MDT BC"
+    dName[26] = "MDT EA"
+    dName[27] = "MDT EC"
+    dName[28] = "RPC BA"
+    dName[29] = "RPC BC"
+    dName[30] = "TGC EA"
+    dName[31] = "TGC EC"
+    dName[32] = "CSC EA"
+    dName[33] = "CSC EC"
+    dName[34] = "L1Calo preprocessor"
+    dName[35] = "L1Calo cluster DAQ"
+    dName[36] = "L1Calo cluster RoI"
+    dName[37] = "L1Calo Jet/E DAQ"
+    dName[38] = "L1Calo Jet/E RoI"
+    dName[39] = "MUCTPI"
+    dName[40] = "CTP"
+    dName[41] = "L2SV"
+    dName[42] = "SFI"
+    dName[43] = "SFO"
+    dName[44] = "LVL2"
+    dName[45] = "HLT"
+    dName[46] = "BCM"
+    dName[47] = "Lucid"
+    dName[48] = "ZDC"
+    dName[49] = "Alfa"
+    dName[50] = "TRT_ANCILLARY_CRATE"
+    dName[51] = "TILECAL_LASER_CRATE"
+    dName[52] = "MUON_ANCILLARY_CRATE"
+    dName[53] = "TDAQ_BEAM_CRATE"
+    dName[54] = "FTK"
+    dName[55] = "Offline"
+    dName[56] = "L1Topo"
+    dName[57] = "L1Calo DIG"
+    dName[58] = "L1Calo DAQ"
+    dName[59] = "L1Calo ROI"
+    dName[60] = "MMEGA EA"
+    dName[61] = "MMEGA EC"
+    dName[62] = "Pix IBL"
+    dName[63] = "Pix DBM"
+
+    # list of detector NOT part of 'all' tag (means, they can be in, but are not required)
+    notInAll = ['L2SV', 'SFI', 'SFO', 'LVL2', 'Lucid', 'ZDC', 'Alfa',
+                'TRT_ANCILLARY_CRATE','TILECAL_LASER_CRATE','MUON_ANCILLARY_CRATE','TDAQ_BEAM_CRATE'  ]
+
+    NotInAll = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
+
+    vetoedbits = [3, 50, 51, 52, 53] + range(64,128)
+
+    return (dName, NotInAll, vetoedbits)
+
+
+
+
+def DecodeDetectorMask( mask, isRun2, smart=False ):
+    if type(mask)!=str:
+        raise RuntimeError("DetectorMask must be a string")
+
+    if mask.startswith('0x'):
+        mask = mask[2:]
+        mask = int(mask,16)
+    else:
+        mask = int(mask)
+        
+    dName, NotInAll, vetoedbits = InitDetectorMaskDecoder(isRun2)
     col = '#000000'
     if smart: col = '#106734'
-    res = '<b>Detector mask = %i, corresponding to the systems:</b><br><font color="%s">' % (mask,col)
+    res = '<b>Detector mask = %s (%s), corresponding to the systems:</b><br><font color="%s">' % (mask,hex(mask).rstrip('L'),col)
     ic = 0
     found = False
     for i in range(64):
@@ -288,3 +382,9 @@ def LArConfig(type):
         print 'ERROR in LArconfig: unknown type %s' % type
         sys.exit()
              
+
+
+if __name__=="__main__":
+
+    InitDetectorMaskDecoder(run2=True)
+

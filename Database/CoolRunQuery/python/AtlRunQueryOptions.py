@@ -29,8 +29,8 @@ class AtlRunQueryOptions:
 
         self.parser.add_option( "--db",
                                 dest = "database",
-                                default = 'COMP200',
-                                choices = ['COMP200', 'OFLP200', 'DATA', 'MC'],
+                                default = 'CONDBR2', # default doesn't make sense, the DB should be picked based on run number
+                                choices = ['COMP200', 'CONDBR2', 'OFLP200', 'DATA', 'MC'],
                                 help = "The detabase [default: %DEFAULT]" )
         
         self.parser.add_option( "-c",

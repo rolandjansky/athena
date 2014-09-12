@@ -20,7 +20,7 @@ from utils.AtlRunQueryLookup       import DQChannelDict, LArConfig, isDQ, OLCAlg
 from output.AtlRunQueryRoot        import makeLBPlot, makeLBPlotList, makeTimePlotList, makeLBPlotSummaryForLHC, makeBSPlots, SaveGraphsToFile
 from AtlRunQueryQueryConfig        import QC
 from utils.AtlRunQueryMemUtil      import memory
-from selector.AtlRunQuerySelectorBase import DataKey
+from selector.AtlRunQuerySelectorBase import DataKey, Selector
 
 import math
 import time, calendar
@@ -1032,7 +1032,7 @@ def ashtml(run):
 
                 if "detector systems" in k.lower():
                     if v!='n.a.':
-                        v = DecodeDetectorMask(int(v),True)
+                        v = DecodeDetectorMask('0x'+v,Selector.condDB()=='CONDBR2',True)
                     s += '  <td style="min-width:%ipx"><font size="-2">%s<hr color="#aaaaaa" size=1>[<a href="http://sroe.home.cern.ch/sroe/cgi-bin/avgmodule.py?run=%i" target=_blank>SCT HV setting</a>]</font></td>' % (1.1*len(v),v,run.runNr)
                     continue
 

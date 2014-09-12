@@ -70,7 +70,7 @@ class ArgumentParser:
                            "readyforphysics":  ("ready(forphysics)", "readyforphysics", self.InterpretString, self.ShowVariable, 
                                           'ready(forphysics)   [format: "readyforphysics T(rue)"]', ""),
                            "db":         ("db",          "db", self.InterpretString, self.ShowVariable, 
-                                          'db            [format: "db <DB>, where <DB> is either DATA, MC, COMP200, or OFLP200',""),
+                                          'db            [format: "db <DB>, where <DB> is either DATA, MC, COMP200, CONDBR2, or OFLP200',""),
                            "ctag":       ("ctag",        "ctag", self.InterpretString, self.ShowVariable, 
                                           'ctag          [format: "ctag COMCOND-HLTC-001-00" ',""),
                            "streams":    ("st(reams)",   "streams", self.InterpretStreams, self.ShowWithArg, 
@@ -101,7 +101,7 @@ class ArgumentParser:
         # allowed 'show' arguments
 
         # init detector mask
-        (self.dName, self.NotInAll, self.vetoedbits) = InitDetectorMaskDecoder()
+        (self.dName, self.NotInAll, self.vetoedbits) = InitDetectorMaskDecoder(run2=True) # needs to be fixed (made run-dependent) - move into Det Selector
 
     def ParserUsage( self ):
         print ' '
@@ -134,13 +134,26 @@ class ArgumentParser:
         return ptag.strip(), period.strip(), letter
 
     def InterpretPeriods( self, atlqarg, arg, neg ):
-        # format: arg = 'run data10_7TeV.periodA' or 'run periodA' (where 'data11_7TeV' is assumed)
+        """
+        atlqarg: 'run'
+        arg:     'run data10_7TeV.periodA' or 'run periodA' (where 'data11_7TeV' is assumed)
         #               or 'data10_7TeV.periodA-periodC' or 'data10_7TeV.periodA,data10_7TeV.periodB,...'
         # This is case sensitive !!
+        """
+        pat_last   = re.compile("(?:l|la|las|last) (\d*)$")  # l(ast) NN runs
+        pat_number = re.compile("\d{5,8}[+-]?$")  # run number (5-8 digits), possibly followed by a + or -
+        pat_range  = re.compile("\d{5,8}-\d{5,8}$")  # range of run numbers (each 5-8 digits)
+        pat_short  = re.compile("(?:(?:\d{2})(\d{2})\.)?([a-zA-Z]+\d*)$")
+        pat_data   = re.compile("data(?P<year>\d{2})_.*\.period(?P<period>[a-zA-Z]+\d*)$") # form: data10_7TeV.periodA
+
+        pshort     = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I)
+
 
         available_periods = []
-        pfile_extension  = ".runs.list"
 
+        def getCurrentYear():
+            from time import gmtime
+            return gmtime().tm_year - 2000
 
         def printPeriods(periods):
             print '\nAvailable periods:\n'
@@ -149,39 +162,45 @@ class ArgumentParser:
                 if (i+1)%4==0: print ""
             sys.exit(0)
 
-
-        def readRunListFromURL( periodname ):
-            wwwpath    = "https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataPeriods/"
-            webaddress = wwwpath + periodname + pfile_extension
-
-            from utils.AtlRunQueryUtils import checkURL
-            if not checkURL( webaddress ):
-                print 'ERROR: Period "%s" not existing - please check name.' % periodname
-                print '       Note: case sensitivity must be respected for period names!'
-                printPeriods(available_periods)
-            return [line.strip() for line in urllib.urlopen( webaddress )]
-
-        def getDataPeriodsWithinRange(period_range):
-            pshort  = re.compile("(?:(?:\d{2})(?P<year>\d{2})\.)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?")
-            m1 = pshort.match(period_range[0].upper().replace('PERIOD',''))
-            m2 = pshort.match(period_range[1].upper().replace('PERIOD',''))
-            if m1==None or m2==None:
-                sys.exit(0)
-            p1 = (int(m1.group('year')) if m1.group('year') else 11,m1.group('period'),m1.group('subperiod'))
-            p2 = (int(m2.group('year')) if m2.group('year') else p1[0],m2.group('period'),m2.group('subperiod'))
-            p1c = 10000*p1[0] + 100*(ord(p1[1].upper())-65) + (int(p1[2]) if p1[2] else 0)
-            p2c = 10000*p2[0] + 100*(ord(p2[1].upper())-65) + (int(p2[2]) if p2[2] else 99)
-            #print "P1",p1,p1c
-            #print "P2",p2,p2c
-            if p1c>p2c: sys.exit(0)
+        def getListOfPeriodsFromOrdinateRange(begin,end):
+            if begin>end: sys.exit(0)
             list_of_periods = []
             for p,p_name in sorted(available_periods):
                 if p[2]==0: continue # no special VdM or AllYear stuff
                 if p[2]%100==0: continue # no full periods
-                include = (p[2]>=p1c and p[2]<=p2c)
+                include = (p[2]>=begin and p[2]<=end)
                 if include: list_of_periods += [(p[0],p[1],p_name)]  # 
                 #print p,("--> include" if include else "")
             return list_of_periods
+
+
+        def getDataPeriodsWithinRange( period_range ):
+                
+            m1 = pshort.match(period_range[0])
+            m2 = pshort.match(period_range[1])
+
+            if m1==None or m2==None:
+                if m1==None: print "Invalid specification of begin of range",period_range[0]
+                if m2==None: print "Invalid specification of end of range",  period_range[1]
+                sys.exit(0)
+
+            m1 = m1.groupdict()
+            m2 = m2.groupdict()
+
+            # year
+            m1['year'] = int(m1['year']) if m1['year'] else getCurrentYear()
+            m2['year'] = int(m2['year']) if m2['year'] else m1['year']
+            # sub-period
+            m1['subperiod'] = int(m1['subperiod']) if m1['subperiod'] else 0
+            m2['subperiod'] = int(m2['subperiod']) if m2['subperiod'] else 99
+
+            print "Interpret run range: %r - %r" % (m1,m2)
+
+            # ordinate
+            p1c = 10000*m1['year'] + 100*(ord(m1['period'].upper())-65) + m1['subperiod']
+            p2c = 10000*m2['year'] + 100*(ord(m2['period'].upper())-65) + m2['subperiod']
+
+            return getListOfPeriodsFromOrdinateRange(p1c,p2c)
 
 
         def getRunsFromPeriods(list_of_periods):
@@ -194,12 +213,6 @@ class ArgumentParser:
             return runlist
 
         arg = arg.split(None,1)[1]
-
-        pat_last   = re.compile("(?:l|la|las|last) (\d*)$")
-        pat_number = re.compile("\d{5,8}[+-]?$")  # simple number with 5-8 digits, possibly followed by a + or -
-        pat_range  = re.compile("\d{5,8}-\d{5,8}$")  # simple number with 5-8 digits, possibly followed by a + or -
-        pat_short  = re.compile("(?:(?:\d{2})(\d{2})\.)?([a-zA-Z]+\d*)$")
-        pat_full   = re.compile("data(\d{2})_.*\.period([a-zA-Z]+\d*)$")
 
         # final result in here
         list_of_runs = []
@@ -226,27 +239,47 @@ class ArgumentParser:
             from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
             available_periods = ARQ_COMA.get_all_periods()
 
-            period_range = tag.split('-')
-            if len(period_range)==2:
-                list_of_periods = getDataPeriodsWithinRange(period_range)
+            if '-' in tag:
+                list_of_periods = getDataPeriodsWithinRange( tag.split('-') )
                 list_of_runs += getRunsFromPeriods(list_of_periods)
                 continue
-            
-            m=pat_short.match(tag)
+
+
+            m = pshort.match(tag)
+
+            #m = pat_short.match(tag)
             if m:
-                year, period = m.groups()
-                if year==None: year="11"
-                period = period.upper().replace('PERIOD','')
-                if 'ALL' in period: period = 'AllYear'
-                list_of_runs += getRunsFromPeriods([(year,period,None)])
+                m = m.groupdict()
+                # year
+                m['year'] = int(m['year']) if m['year'] else getCurrentYear()
+
+                #for x in available_periods:
+                #    print x
+
+                m['subperiod'] = int(m['subperiod']) if m['subperiod'] else 0
+
+                print "Interpret period: %r" % m
+
+                # ordinate
+                p1c = 10000*m['year'] + 100*(ord(m['period'].upper())-65) + m['subperiod']
+                if m['subperiod'] != 0:
+                    p2c = p1c
+                else:    
+                    p2c = p1c+99
+
+                list_of_periods = getListOfPeriodsFromOrdinateRange(p1c,p2c)
+
+
+                #if 'ALL' in period: period = 'AllYear'
+                list_of_runs += getRunsFromPeriods(list_of_periods)
                 continue
 
             # backward compatible form: data10_7TeV.periodA
-            m=pat_full.match(tag)
-            if m:
-                year, period = m.groups()
-                list_of_runs += getRunsFromPeriods([(year,period,tag)])
-                continue
+            #m=pat_data.match(tag)
+            #if m:
+            #    year, period = m.groups()
+            #    list_of_runs += getRunsFromPeriods([(year,period,tag)])
+            #    continue
 
 
         if len(list_of_runs)==0:
@@ -653,11 +686,10 @@ class ArgumentParser:
 
     def RetrieveQuery( self, findarg ):
         # check that find part starts with f and remove the f(ind)
-        if findarg[0] != 'f': 
+        firstword, findarg = findarg.split(None,1)
+        if not 'find'.startswith(firstword): 
             self.ParseError( "Argument must begin with 'f(ind)'", 0 )
-        findarg = findarg[findarg.index(' ')+1:]  # remove first word 'f(ind)'
 
-        
         argList = [x.strip() for x in findarg.split(" and ")]
 
         newarg = ""
@@ -753,14 +785,13 @@ class ArgumentParser:
             if showarg[0:2] != 'sh': 
                 self.ParseError( "Show block must begin with 'sh(ow)'", 0 )
             showarg = showarg[showarg.index(' ')+1:]  # remove first word 'sh(ow)'
-            #showarg = ' and ' + showarg # and put ' and ' in front
         else:
             if ' sh ' in findarg or ' sho ' in findarg or ' show ' in findarg:
                 self.ParseError( "Show block must be separated by '/' from find condition'", 0 )
 
         # retrieve the query and show arguments (and check for input errors)
         queryarg = self.RetrieveQuery( findarg.strip() )
-        shwarg   = self.RetrieveShow ( (showarg).strip() )
+        shwarg   = self.RetrieveShow ( showarg.strip() )
 
         # add 'lhc' to show if 'olclumi' query
         # necessary because of stable beams information
@@ -773,7 +804,6 @@ class ArgumentParser:
         nodef_flag = False
         oargs = otherarg.split()
         # always verbose for the time being...
-        #if not 'verbose' in queryarg: queryarg += ' --verbose'
         extraargs = {'verbose' : '--verbose'}
         idx = 0
         while idx < len(oargs):
