@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<h2>Rule-Based Processing of Connectivity Data</h2>
+
+<h3>Introduction</h3>
+
+The pixel connectivity is modelled in the CoralDB connectivity database
+as a series of connections between different nodes. These connections
+represent a graph. In order to extract information
+from this graph, one starts at a given node and follows a certain
+prescription (or rule) to extract the desired information.
+<p>
+For example, in
+order to extract the name of the optoboard to which a given module is connected,
+one can start at the node corresponding to that module and use the following
+prescription:
+<ol>
+<li>Go up to the parent node using the slot named UP</li>
+<li>Go up again to its parent node using the slot named OB</li>
+<li>Get the ID of the resulting node</li>
+</ol>
+In the "table view", the CoralDB browser allows to extract information for a
+given set of objects ("primary objects") into a table where each row contains the information
+for one of the primary objects. Each column of the table contains the information extracted using
+a particular rule, starting at the primary object used in the corresponding row. The syntax for writing such rules is explained in the next section,
+but to give an example, the above prescription would be written as
+<pre>
+U=UP U=OB ID
+</pre>
+The fields labelled "Define column ..." (in the table view of the CoralDB browser) allow to assign a title and specify the rule
+to be used for each column. Rules can be specified either by choosing from a set of
+predefined rules, or by entering the rule directly in the corresponding field.
+<p>
+If all the objects for which the table should be assembled have the same type, a predefined
+set of rules defined specifically for that type of object is available. To use this feature
+you need to use the selector "Search only objects of type" when searching for the primary objects to
+be included into the table.
+<p>
+The information to be displayed for a given type of object will often be similar. As a starting
+point, you can choose one of the predefined tables from a pulldown menu (again, to see predefined
+tables you need to use the selector "Search only objects of type"). After you click
+"Update table", the corresponding table definition will be filled in and the default table
+will have been created. You can then modify this definition as desired.
+
+<h3>Rule Syntax</h3>
+
+Each rule consists of a series of commands separated by white space. Each command is used to either
+navigate from the current node to another node, or to output some information about the current node.
+The processing of all nodes starts at the object for which the current row of the table is built, ie. at the primary object.
+The processing of a rule continues until either one arrives at the end of the rule, or until one
+of the commands cannot be executed, for example because a specified connection doesn't exist.
+In the latter case, depending on the form of the command used, the rule terminates silently (rules using
+'='), or outputs an error message (rules using '!').
+<p>
+Some commands may lead to several nodes. In this case, rule processing continues for each
+of the nodes, and each of the selected paths can result in some output. Thus the corresponding
+cell in the table will contain more than one entry which will be displayed on several lines.
+<p>
+The following commands are available.
+
+<h4>Commands for retrieving information</h4>
+<table border=1 cellpadding=4>
+	<tr><td>ID</td><td>Output ID of current node</td></tr>
+	<tr><td>TYPE</td><td>Output type of current node</td></tr>
+	<tr><td>SLOT</td><td>Name of SLOT on current node that was used to arrive at current node</td></tr>
+	<tr><td>FROMID</td><td>ID of node from which one arrived at the current node</td></tr>
+	<tr><td>FROMSLOT</td><td>Name of SLOT used on node from which one arrived at the current node</td></tr>
+	<tr><td>NU</td><td>Number of upward connections</td></tr>
+	<tr><td>NU!n</td><td>Error message if number of upward connections is not equal to n</td></tr>
+	<tr><td>NU&gt;n</td><td>Error message if number of upward connections is not greater than n</td></tr>
+	<tr><td>NU&lt;n</td><td>Error message if number of upward connections is not less than n</td></tr>
+	<tr><td>ND</td><td>Number of downward connections</td></tr>
+	<tr><td>ND!n</td><td>Error message if number of downward connections is not equal to n</td></tr>
+	<tr><td>ND&gt;n</td><td>Error message if number of downward connections is not greater than n</td></tr>
+	<tr><td>ND&lt;n</td><td>Error message if number of downward connections is not less than n</td></tr>
+	<tr><td>"<em>word</em>"</td><td>Write out a <em>word</em> (can not contain any white space)</td></tr>
+	<tr><td>A=<em>convention</em></td><td>Output alias for <em>convention</em> of current node (no output if no such alias exists)</td></tr>
+	<tr><td>A!<em>convention</em></td><td>Output alias for <em>convention</em> of current node (output error if no such alias exists)</td></tr>
+</table>
+
+<h4>Commands for navigation</h4>
+
+The directions "up" and "down" in the following are meant to refer to
+travelling along incoming and outgoing connections, respectively.
+Rules containing a '=' ('!') terminate silently (output an error message) if they can't be satisfied.
+Wildcards are allowed in the specification of both slots and object type.
+<p>
+<table border=1 cellpadding=4>
+	<tr><td>U=<em>slot</em>,<br> U!<em>slot</em></td><td>Go up using <em>slot</em></td></tr>
+	<tr><td>UF=<em>slot</em>,<br> UF!<em>slot</em></td><td>Go up using connection from <em>slot</em></td></tr>
+	<tr><td>D=<em>slot</em>,<br> D!<em>slot</em></td><td>Go down using <em>slot</em></td></tr>
+	<tr><td>DE=<em>slot</em>,<br> DE!<em>slot</em></td><td>Go down using connection to <em>slot</em></td></tr>
+	<tr><td>T=<em>type</em>,<br> T!<em>type</em></td><td>Go to node(s) of type <em>type</em> (both up and down nodes are searched)</td></tr>
+	<tr><td>TU=<em>type</em>,<br> TU!<em>type</em></td><td>Go to node(s) of type <em>type</em> (only up nodes are searched)</td></tr>
+	<tr><td>TD=<em>type</em>,<br> TD!<em>type</em></td><td>Go to node(s) of type <em>type</em> (only down nodes are searched)</td></tr>
+</table>
+
+<h4>Commands for formatting</h4>
+<table border=1 cellpadding=4>
+	<tr><td>HTMLBOLD</td><td>Write subsequent text in <b>bold</b> font</td></tr>
+	<tr><td>HTMLITALIC</td><td>Write subsequent text in <i>italic</i> font</td></tr>
+	<tr><td>HTMLRED</td><td>Write subsequent text in <font color=red>red</font></td></tr>
+</table>
+
+<h3>Examples</h3>
+
+The sample output below is give for applying rules to module <i>D1A_B01_S1_M1</i>.
+<p>
+<table border=1 cellpadding=4>
+	<tr><td><b>Rule</b></td><td><b>Sample output</b></td><td><b>Description</b></td></tr>
+	<tr><td>ID</td><td>D1A_B01_S1_M1</td><td>ID of current object</td></tr>
+	<tr><td>U=UP A=GEOID</td><td>SQP-A12-OP-C2-P4L-T</td><td>Name of parent node using GEOID alias</td></tr>
+	<tr><td>U=UP A=GEOI</td><td></td><td>No output, because A= is used and there is no alias GEOI</td></tr>
+	<tr><td>U=UP A!GEOI</td><td>ERROR: No alias for convention GEOI for D1A_B01_S1</td><td>Error, because A! is used and there is no alias GEOI</td></tr>
+	<tr><td>U=UP D=% FROMSLOT</td><td>M1<br>M2<br>M3<br>M4<br>M5<br>M6</td><td>List of outgoing slots on parent node</td></tr>
+	<tr><td>T=PP0 T=%
+	TYPE</td><td>CONTAINER<br>OPTOBOARD<br>HV-PP1<br>LV-PP1<br>OPTO-PP1<br>MODULE<br>MODULE<br>MODULE<br>MODULE<br>MODULE<br>MODULE</td><td>List of the type of all objects connected to a PP0 (which is the parent of a module; you could equally use U=UP instead of T=PP0)</td></tr>
+	<tr><td>U=UP U=OB T=RODBOC ID T=RODCRATE ID</td><td>ROD_C1_S11 ROD_CRATE_1</td><td>Get ROD slot and crate (note that you can output several pieces of information in the same rule)</td></tr>
+	<tr><td></td><td></td><td></td></tr>
+	<tr><td></td><td></td><td></td></tr>
+				
+</table>
+<h3>Predefining Rules and Tables</h3>
+
+It is convenient to predefine frequently used rules and tables. 
+Because the rule needed for extracting a particular piece of information obviously
+depends on the type of the starting node, different sets of rules and table are defined
+for each type of object. In order to use the predefined type-specific rules and tables,
+you need to indicate the desired type of object by limiting your search for primary objects
+with the selector labelled "Search only objects of type". In this case you will see a list
+of predefined tables in the selector "Start with a predefined table", and a list of predefined
+rules in the selectors for defining the column contents.
+<p>
+It is possible to build a table for primary objects with different types. In this case only a
+number of generic rules is available. This is also true for object types where no predefined rules (or tables)
+are available.
+<p>
+Predefined tables are used as a starting point to preset the column contents. Afterwards, the
+table can be further customized as desired.
+<p>
+Predefined rules and tables are stored in configuration files in package CoralDB in subdirectory
+rules with file names of the form <i>TYPE</i>.rules (definition of rules for
+objects of type <i>TYPE</i>)
+and <i>TYPE</i>-<i>TABLENAME</i>.table (definition of a table <i>TABLENAME</i> for objects of type <i>TYPE</i>).
+The first column in the file is the name of the rule or the column title. The second column is separated
+by a single tab character ('\t') and contains the rule or column definition. To define the column contents,
+both the names of rules defined for that type of object and individual commands as described above may be used.
+<p>

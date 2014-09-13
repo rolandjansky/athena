@@ -1,0 +1,492 @@
+% $Id: CoralDB-PixelConn.tex,v 1.5 2008-10-14 20:20:24 jarguin Exp $
+
+\section{Modelling of the Pixel Detector Connectivity}
+
+\subsection{Conventions}
+
+The modelling of the pixel detector connectivity follows roughly the structure of
+the Unix file system. The primary structure consists of a folder structure similar
+to a set of directories and subdirectories that can be represented by a directed,
+acyclic graph. Connections corresponding to this structure are called ``hard links'',
+in analogy to the Unix file system.
+
+Since this hierarchical structure is not sufficient, additional arbitrary connections
+(``soft links'') are allowed.
+
+In order to distinguish hard and soft links, by convention the terminating slot of a
+connection is labelled ``UP'' for hard links, and something other than ``UP'' for soft links.
+
+Table \ref{connextable} shows a simple example of such a structure, and Figure \ref{connexgraph}
+shows the corresponding connectivity graph. By convention, solid lines in
+connectivity graphs represent hard links, while soft links are shown by dashed lines
+(the type names shown in the figure in parentheses beneath the object IDs are not given
+in table \ref{connextable}).
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Source ID & Source Slot & Destination ID & Destination Slot & Comment \\ \hline
+\hline
+PP0S          & D1A\_B02\_S2  & D1A\_B02\_S2     & UP & Hard link\\ \hline
+D1A\_B02\_S2\_OB & PP0         & D1A\_B02\_S2     & OB & Soft link \\ \hline
+D1A\_B02\_S2    & M1          & D1A\_B02\_S2\_M1  & UP & Hard link\\ \hline
+R-OHV3\_1      & SLOT-3      & D1A\_B02\_S2     & HV-B3 & Soft link\\ \hline
+\end{tabular}
+\caption[Simple connectivity example]
+{A few connections for a very simple connectivity example.}
+\label{connextable}
+\end{center}
+\end{table}
+
+\NFIG{h}
+{connexgraph.eps}{height=6cm}
+{connexgraph}{Connectivity graph for a simple connectivity example}
+{Connectivity graph for the simple connectivity example from table \ref{connextable}.}
+
+
+
+\subsection{Pixel Detector Connectivity}
+
+%{\it A detailed description of the modelling of the pixel detector connectivity will be added
+%to a later version of this note.
+
+%In the mean time, please contact Jean-Francois Arguin (JFArguin@lbl.gov)
+%with any questions about the modelling of the pixel detector connectivity.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  PLAN
+%
+%
+%- Mention the concrete usage of the conn DB: DCS, DAQ, book-keeping.
+%- Describe pixel detector services in a few sentences
+%- Use this paragraph to introduce the different branches (HV, LV...)
+%- Give references of connectivity (note they are not necessarily as-built, only the DB is guaranteed to be)
+%
+%- Mention IDTAG pixel, and examples below are from PIT-ALL-V31
+%
+%- Describe branches
+% * Describe convention for (almost) every object. Describe object in order starting by modules.
+% * If trees separate upstream, make new subsection for each separation. 
+%
+%- Conn DB describe here is essentially frozen
+%- Mention the content has been validated and sometimes updated during the service test, SR1 and pit CT
+%- Future: add cable number is SLOT to improve the book-keeping purpose of the DB 
+%(this way, connection between object closer to actual cables)
+
+
+The primary clients of CoralDB are the DCS and DAQ software that need connectivity information to operate
+and readout the detector. On the DCS side, the content of CoralDB is inspected to create
+an xml file \cite{dirk} that is fed into the PVSS-based system used to operate the pixel detector 
+services.
+%,i.e. the low- and high-voltages of modules and optoboards, interlock signals, cooling loops and environmental sensors. 
+On the DAQ side, PixDbInterface (see Sec. \ref{PixDbInterface}) is used to access
+connectivity-related information inside the DAQ software, e.g. the correspondance between modules and Readout-Drivers (ROD)
+in the VME crates. Furthermore, the pixel connectivity DB is the only complete source of information on how the detector
+is connected at a given time. It is thus not only important to make the DCS and DAQ software work, but also as 
+an archive of the hardware configuration of the detector services as a function of time.
+
+In this section we describe the content of the pixel connectivity database. We do not aim at 
+describing the services of the pixel detector themselves, but rather
+their representation in the connectivity DB. General descriptions of the pixel detector services can be found
+in \cite{pixelpaper,requirements_services}. More dedicated documents describing specific aspects of the services, 
+and which have been used to populate parts of the pixel connectivity DB, can be found in
+\cite{atl0092,atl0093,atl0094,atl0102,atl0104,atl0132}\footnote{The detailed connectivity described in these documents 
+should not be trusted as up-to date. For instance the pixel connectivity might have been modified after some recent tests have been
+performed (e.g. the Service Test and Connectivity Test as mentioned later), and only the connectivity DB is kept 
+up-to date at this point. The connectivity DB is thus the only current reliable 
+source for the pixel connectivity.}. The rest of the content of the connectivity DB has been 
+provided by the specialists of the various areas of the pixel services. 
+
+For clarity of presentation,
+we divide the description of the pixel detector connectivity into ``branches''. We will thus present separately 
+the pixel services related to the HV, LV, SCO-Link 
+(the optoboard power supplies), modules and optoboards NTC signals, DAQ, opto-heaters, cooling loops 
+and environmental sensors. For each branch we will describe the list of objects, their naming conventions
+and the logic on how they have been connected together. The object type are written in bold character
+for easy identification.
+
+The official IDTAG used for the pixel detector connectivity is called ``PIXEL''. At the moment of writing this document,
+the most recent connectivity tag was ``PIT-ALL-V32''. It has been used to create the snapshots of the DB shown in 
+this section. All the snapshots shows the various services connected to the same example PP0 L0\_B01\_S1\_A6.  
+We describe the various objects consisting the connectivity tree starting at the bottom of those DB snapshots.
+
+\subsubsection{HV Branch}
+\label{sec:hv_branch}
+
+The HV connectivity branch for L0\_B01\_S1\_A6 is shown in Fig.~\ref{fig:branch_hv}.%
+%
+\begin{itemize}
+\item {\bf Module} (Ex.: ID=L0\_B01\_S1\_A6\_M1A): The ``DCS'' module convention is used as the default module ID. Different
+aliases are available under different naming conventions, for instance GEOID (e.g. L0-B01-S01-A/6-M1A), HASHID (e.g. 33742848), 
+OFFLINEID (e.g. [2.1.0.0.1.1.0]) and PRODID (e.g. M511634). The modules have no outgoing connections in the connectivity
+DB.
+\item {\bf PP0} (Ex.: L0\_B01\_S1\_A6): PP0 refers to a ``Patch Panel 0'' row on the Service Quarter Panel (SQP) where 
+a half-stave or a disk sector connects to. Again, the DCS naming convention is used by default but two aliases exist.
+The GEOID naming convention has the form e.g. SQP-A12-OP-A1-P4L-B and describes the position of the PP0 on the SQP: the letter ``A'' 
+in ``A12'' refers to the side and ``12'' to the quadrant, ``OP'' means Outer Panel, ``A1'' describes the octant, ``P4L'' gives
+the row number (4) and parity of the panel (L=left), and ``B'' refers to the bottom panel (with respect to ``T'' for top). The other 
+naming convention is PRODID that has the form e.g. 14152A.
+\item {\bf HV-PP1} (Ex.: PP1B-OSP-A1-R2-P3.4): This object describes the position where the Type 1 and Type 2 cables
+connect at PP1. ``OSP'' refers
+to the outer service panel, ``A1'' to the octant, ``R2'' to ``Row 2'', ``P3'' to ``Position 3'' and ``.4'' to the label
+of the cable connecting at HV-PP4.
+\item {\bf HV-PP4} (Ex.: Y2813S2\_HV-PP4-05\_A.O1.4.4): Describes the position of the HV-PP4 channel: ``Y2813S2'' refers
+to the rack number, ``05'' to the crate number, ``A'' to the side, ``1'' to the octant, the first 4 in ``4.4''
+to the position inside the crate and the second 4 to the cable number.
+\end{itemize}
+
+The HV branch separates into two ``sub-branches'' at the node of the object type {\bf HV-PS-CHN}
+(see Fig.~\ref{fig:branch_hv}). We describe both sub-branches separately.
+
+\vspace{0.5cm}
+
+\noindent \hspace{0.2cm} {\bf \normalsize PP4 and power supply sub-branch}
+%
+\begin{itemize}
+\item {\bf HV-PS-CHN} (Ex.: Y2813S2\_HV03\_2A.Ch07): The HV power supply channel is a combination of other objects up the tree,
+i.e. {\bf HV-PS-RACK} (Y2813S2), {\bf HV-PS-CRATE} (Y2813S2\_HV03), {\bf HV-PS-MOD} (Y2813S2\_HV03\_2A) and finally the 
+channel is contained in ``.Ch07''.
+\item {\bf HV-CRATE-CONTROLLER} (Ex.: Y2813S2\_C3): It represents the node of the CAN-bus that connects to the {\bf HV-PS-CRATE}.  
+\item {\bf CANiseg} (Ex.: HVcrates\_US, Y2813S2\_HV): This is the CAN-bus that controls the HV power supply.  
+\item {\bf PVSS-SYSTEM-HV} (Ex.: ATLPIXHV): This object does not represent an actual physical connection but
+rather gives the name of the project inside the PVSS-system for the HV system. 
+\item {\bf PC-HV} (Ex.: PCATLPIXHV): Describes the computer where the HV PVSS project is installed.
+\end{itemize}
+
+\noindent \hspace{0.2cm} {\bf \normalsize Interlock sub-branch}
+
+\vspace{0.3cm}
+
+For more information on the pixel interlock system, see \cite{ilock_matrix}.
+%
+\begin{itemize}
+\item {\bf IDBHV} (Ex.: Y0314S2\_IDB\_HV03): The Interlock Distribution Box (IDB) that routes the interlock signal
+created in the Logic Unit (not shown here, see Sec.~\ref{sec:mod_ntc}).
+to the corresponding HV power supply channel ({\bf HV-PS-CHN}). 
+\item {\bf CAN-FW-ELMB} (Ex.: Y0314S2\_LU): The CAN-bus at the output of the Logic Unit that routes the interlock
+signal to the IDB. An interlock signal can come for example from a module temperature exceeding 40$^\circ$C. 
+This CAN-bus Y0314S2\_LU appears also in Fig.~\ref{fig:branch_mod_ntc} that describes the services of 
+the module NTC signal. We see in Fig~\ref{fig:branch_mod_ntc}, which will be
+described in more details later, that the interlock signal is fed into this Logic Unit from the
+corresponding BBIM channels of L0\_B01\_S1\_A6. This example illustrates that the interlock
+signal links together various branches of the pixel connectivity, more specifically the power branches (HV, LV and SCO-Link)
+with the interlock signal branches (e.g. module and optoboard NTC). This CAN-bus is connected to a
+PC of type {\bf PC-IDBLU} (ID=PCATLPIXILOCK) that runs the interlock PVSS project {\bf PVSS-SYSTEM-IDBLU}
+(ID=ATLPIXILOCK).
+\item {\bf CANPSU-IDBLU} (Ex.: EPSU/Y1214A2\_CAN\_PS02/Branch8): This is the branch for the CAN power supply
+of type {\bf CAN-PS} (ID=Y1214A2\_CAN\_PS02) that serves the {\bf CAN-FW-ELMB} with ID=Y0314S2\_LU. There are only two CAN-PS for
+the whole detector (PS01 and PS02).
+\item {\bf CAN-FW-ELMB} (Ex.: BUS\_PSU): The {\bf CAN-PS} itself requires a CAN-bus to be controlled from the outside
+world. This is the CAN-bus with ID=BUS\_PSU,
+which is itself controlled by the PVSS project ATLPIXPSU of type {\bf PVSS-System-Wiener} installed
+on the PC PCATLPIXSP1 of type {\bf PC-VME}. The latter two objects constitutes the top of all the connectivity
+branches described in this Section.
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+  %\includegraphics[width=\textwidth]{Branch-HVPP1.epsi}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-HVPP1.epsi}}
+\end{center}
+\caption{An illustration of the HV branch}
+\label{fig:branch_hv}
+\end{figure}
+
+\subsubsection{LV Branch}
+
+The LV branch, which is illustrated in Fig.~\ref{fig:branch_lv}, is largely symmetric to the HV branch. We will only 
+describe here the notable differences. 
+We note that Fig.~\ref{fig:branch_lv} illustrates only the connectivity for the analog voltage (VDDA), but it is
+fully symmetric with the one of the digital voltage (VDD).
+
+The object type {\bf LV-PP2} (ID=PP2\_AP2\_123\_BoardA) constitutes an additional node between PP1 and PP4 with 
+respect to the HV branch.
+It represents the regulator board located at PP2 that is required for the module low voltage regulation. ``PP2\_AP2\_123'' refers to 
+the PP2 crate and ``BoardA'' to the slot in the crate. Two soft-links connect the PP2 board to each module
+of L0\_B01\_S1\_A6. The TOSLOT
+of these connections contain the type of voltage (VDD or VDDA) and the SLOT the corresponding PP2 channel number.
+
+The object type {\bf LV-PP4} (ID=Y2513S2\_LV\_PP4\_14C.WienerCh2),
+which provides a module-level current measurement, is connected on one side to a {\bf LV-PP4-BLOCK}\\ 
+(ID=Y2513S2\_LV\_PP4\_14C) that is itself connected to a CAN-bus of type {\bf CAN-PIX-ELMB} (ID=Y2513S2\_LV\_PP4).
+The rest of the CAN-bus connectivity is similar to the one described for the HV branch. 
+
+The object {\bf LV-PP4} is connected
+on the other side to the power supply {\bf LV-PS}\\ (ID=Y2513S2\_LV14/Output/Channel/9). The latter is
+connected to a {\bf LV-PS-CRATE} that is operated via a TCP/IP protocol (object type 
+{\bf TCPIP-LV}) since the CAN-bus protocol is not supported by the Wiener power supplies. 
+
+\begin{figure}
+\begin{center}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-LVPP4.epsi}}
+\end{center}
+\caption{An illustration of the VDDA LV branch. The VDD LV branch is completely symmetric.}
+\label{fig:branch_lv}
+\end{figure}
+
+\subsubsection{SCO-Link Branch}
+
+Again, the SCO-Link branch is very similar to the LV and HV branches
+and we only mention here significant differences. The SCO-Link branch is represented in Fig.~\ref{fig:branch_scolink}.
+
+One notable difference is that the voltages provided by the SCO-Link reach the PP0 via 
+the two different PP1 positions {\bf OPTO-PP1} and {\bf LV-PP1}, the latter being the same as for the
+LV branch. On one hand, the voltage of the VDC
+chip (VVDC) requires regulation and is thus passed from the object type 
+{\bf SCO-LINK} through {\bf LV-PP2} before reaching PP1. On the other hand, the voltages
+Viset (which controls the optoboard light output power) and V$_{PiN}$ (which drives the DORIC 
+chip that transform the light signal from the VME crates into an electrical LVDS signal) do not
+need regulation. They pass through two nodes before reaching PP1, {\bf OPTO-PP3-SCO} and
+{\bf OPTO-PP2}, where the signal is unaltered but the cable type changes.
+
+\begin{figure}
+\begin{center}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-SCOLink.epsi}}
+\end{center}
+\caption{An illustration of the SCO-Link branch}
+\label{fig:branch_scolink}
+\end{figure}
+
+\subsubsection{Module NTC Branch}
+\label{sec:mod_ntc}
+
+This branch, shown in Fig.~\ref{fig:branch_mod_ntc}, represents the services needed to readout 
+the module NTC and create two types of interlock signals: the standard one (internal to the 
+pixel system) and the one for the Bake-Out Box (BOB) that will be sent to the LHC machinerie
+during the bake-out of the ATLAS beampipe (for more information on the BOB, see 
+\cite{ilock_matrix}). The BOB interlock signal can only be triggered by the B-layer modules.
+%
+%
+\begin{itemize}
+\item {\bf OPTO-PP1} (Ex.: PP1B-OSP-A1-R1-P2.24): Describes the PP1 position where the OPTO-NTC Type 2 
+cables connect to. The naming convention is described in Sec.~\ref{sec:hv_branch}.
+\item {\bf OPTO-PP2-NTC} (Ex.: A.P2-2.31-4-2): This is the passive interface of the NTC signal at PP2. 
+The naming convention is the following: ``A.P2-2.31'' gives the PP2 box name, and ``4'' and ``2''
+are the input connector group and number, respectively.
+\item {\bf BBIM-CHN} (Ex.: Y5904X7\_BBIM05C.Ibox3.Temp7-c): This object represents six channels of the 
+Building Block Interlock and Monitoring (BBIM), which provides temperature readout of modules,
+optoboards and PP2 regulator stations and participates to building interlock signals. There are 
+6 or 7 channels per PP0 depending on the number of modules (``Temp7-c'' refers
+to channel 7 to c in hexadecimal numbering).  In the ID name, ``Y5904X7'' gives
+the Opto-PP3 rack number, ``05C'' is the crate designator and ``Ibox3'' refers to the PP3 input
+connector number.
+
+As can be seen in Fig.~\ref{fig:branch_mod_ntc}, the signal from the BBIM is transfered to three 
+different sub-branches that are defined below.
+
+\item {\bf BBIM} (Ex.: Y5904X7\_BBIM05C): The object type {\bf BBIM} simply refers to the BBIM crate. This object
+is itself connected to the CAN-bus of type {\bf CAN-PIX-ELMB} with an ID=PP3\_US7. 
+The rest of the CAN-bus connectivity is analogous to the one described in Sec.~\ref{sec:hv_branch}.
+
+\item {\bf LUMEor} (Ex.: Y0314S2\_LU07\_Tmod2): This object represents the matrix element of the Logic Unit that
+takes the incoming temperature signals from the BBIM and combine them to create the ``standard'' interlock 
+signals. The ID is defined as follows: ``Y0314S2'' is the rack number, ``LU07'' is the Logic Unit
+number and ``Tmod2'' defines the matrix element of the Logic Unit that corresponds to the PP0 in 
+question.
+
+The signals created in the Logic Unit are sent up the tree to the CAN-bus with ID=Y0314S2\_LU and of type
+{\bf CAN-FW-ELMB}. We note that this CAN-bus appears also in the HV, LV and SCO-Link branches as can be seen 
+in Figs.~\ref{fig:branch_hv}-\ref{fig:branch_scolink}, where the signals from the Logic Unit are sent
+to the IDBs and then to the respective power supplies as mentioned previously.
+
+\item {\bf BOB-BLOCK} (Ex.: Y0414S2\_BOB01D): This object represents the block corresponding to this
+PP0 in the Bake-Out box. It is connected to the CAN-bus   Y0414S2\_BOB of type {\bf CAN-FW-ELMB}.
+Again, the rest of the CAN-bus connectivity is analogous to what has been described previously.
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-Opto-PP2-NTC.epsi}}
+\end{center}
+\caption{An illustration of the module NTC branch}
+\label{fig:branch_mod_ntc}
+\end{figure}
+
+\subsubsection{Optoboard NTC Branch}
+
+The optoboard NTC branch, shown in Fig.\ref{fig:branch_opto_ntc}, is very similar to the module 
+NTC branch and we only mention here the main differences.
+
+The naming convention of the Logic Unit object is different for optoboards than for modules, 
+although there is no fundamental reason for that. The object {\bf BBIM-CHN} connects to 
+{\bf LUTOpto} with an ID for example like Y0314S2\_LU07\_FPGA/AI/ai\_25.value. The rack and crate 
+are the same
+as for the module but the matrix element is defined by the part ``ai\_25.value'' in this case.
+The next object upstream is of type {\bf LU-FPGA} of which the ID just contains the same rack and 
+crate number than for the {\bf LUTOpto} described above (Y0314S2\_LU07\_FPGA). 
+The next object upstream is the same CAN-bus than for the module NTC signal.
+
+The main difference for the optoboard NTC branch is that it also feeds an interlock
+signal to the Optoboard Heater Interlock (OHI) as can be seen in Fig.~\ref{fig:branch_opto_ntc}
+starting from the {\bf LU-FPGA} node.
+The signal created in these boxes is used the switch off the optoboard heaters in case of 
+optoboards temperature reaching 40$^\circ$.
+The corresponding {\bf OHI-BOX-CHN} in our example as the ID Y0314S2\_LU/Y0314S2\_OHIBox02/AI/ai\_6.value
+where ``Y0314S2'' is the rack number, OHIBox02 is the box number and ``ai\_6.value'' refers 
+to the channel number. The OHI channel is connected through an object of type {\bf OHI-BOX} to 
+the same CAN-bus as for the module and optoboard NTC signals.
+
+\begin{figure}
+\begin{center}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-Opto-PP3.epsi}}
+\end{center}
+\caption{An illustration of the optoboard NTC branch}
+\label{fig:branch_opto_ntc}
+\end{figure}
+
+\subsubsection{DAQ Branch}
+
+The DAQ connectivity branch is illustrated in Fig.~\ref{fig:branch_daq_optoheater}.
+
+\begin{itemize}
+\item {\bf OPTOBOARD} (Ex.: L0\_B01\_S1\_A6\_OB): The optoboards provide the light to electrical 
+signal conversion (and vice-versa) for the data-in and out of the modules. There are thus connected to the
+ROD and BOC (Back-of-Crate card) located in the VME crates that are described next. The optoboards are also
+connected upstream to objects of type {\bf OBLINKMAP}, {\bf CONTAINER} and {\bf ROOT} that do not 
+represent physical connections but that are used inside the DAQ software to define the internal 
+connectivity based e.g. on the optoboard type (D\_TYPE or B\_TYPE in the SLOT of the {\bf CONTAINER}
+to {\bf OBLINKMAP} connection).
+
+The object {\bf OPTOBOARD} is also connected to the Opto-heaters as described in Sec.~\ref{sec:optoheater}.
+
+\item {\bf RODBOC} (Ex.: ROD\_B3\_S8): Represents both the ROD and BOC (that are located in the same
+VME slot). In the exmaple ID ROD\_B3\_S8, ``B'' represents the type of module connecting to that {\bf RODBOC} (``B'' for 
+B-layer, ``D'' for disk and ``L'' for Layer-1 or -2), ``3'' represents the crate number and ``S8'' 
+the slot number in the crate. The connectivity tree separates in two main sub-branches at this node
+that we describe separately. There exists aliases of this object under the convention OFFLINEID
+and has the form e.g. ``0x130308''.
+\end{itemize}
+
+\noindent \hspace{0.2cm} {\bf \normalsize DAQ-related connectivity}
+
+\begin{itemize}
+\item {\bf RODCRATE} (Ex.: ROD\_CRATE\_B3): Represents the DAQ crate. The connectivity tree separates
+again at this node and connects to the two objects {\bf PARTITION} and {\bf VME-PS}. There
+exists two type of aliases for the object {\bf RODCRATE}, one under the convention
+HWID that gives the physical location of the crate (e.g. Y.26-05.A2.U07) and the other under
+the convention NUMID that gives the DAQ crate number (e.g. ROD\_CRATE\_3).
+\item {\bf PARTITION} (Ex.: PIXEL\_B): This object does not represent a physical connection but it is 
+used internally in the DAQ software. This object defines the partition in the ATLAS Trigger
+and DAQ software to which this PP0 belongs to. The possibilities are PIXEL\_B, PIXEL\_D,
+PIXEL\_L and PIXEL\_DET for the B-layer, Disk, Layer-1 and -2, and pixel Local Trigger
+Processor (LTP) crates, respectively.
+\item {\bf VME-PS} (Ex.: Y2605A2\_VME03): This represents the power supply for the corresponding 
+VME crate. It is itself connected by a CAN-bus of type {\bf CAN-FW-Wiener}.
+\end{itemize}
+
+\noindent \hspace{0.2cm} {\bf \normalsize BOC monitoring}
+
+\begin{itemize}
+\item {\bf BOCMON-DP-ELT} (Ex.: Y2605A2\_BocCr03.Plug13): The temperature of the BOC is monitored
+via ELMBs connected to the DCS system. There is a one-to-one correspondance
+between the objects of type {\bf BOCMON-DP-ELT} and {\bf RODBOC}
+\item {\bf BOC-MONITORING} (Ex.: Y2605A2\_BocCr03): There is one such object in the BOC monitoring
+system per crate. The crate number corresponds to the alias NUMID of the object type {\bf RODCRATE} 
+described above. It is connected upstream to a CAN-bus of type {\bf CAN-PIX-ELMB} of ID=BocMon. 
+The rest of the CAN-bus connectivity has been described previously.
+\end{itemize}
+
+
+\subsubsection{Opto-Heater Branch}
+\label{sec:optoheater}
+
+The opto-heater connectivity is shown in the same figure as the DAQ branch
+(Fig.~\ref{fig:branch_daq_optoheater}). The first object in the branch, 
+{\bf OPTOHEATER}, is connected to {\bf OPTOBOARD} (on the right side of the Fig.~\ref{fig:branch_daq_optoheater}).
+
+\begin{itemize}
+\item {\bf OPTOHEATER} (Ex.: A1\_OSP\_BOT): There is one opto-heater for 6 optoboards
+at the most (i.e. one per row of an SQP). The ID gives the octant (e.g. A1), the panel on 
+the SQP (OSP for outer or ISP for inner) and the location on the outer panel
+(TOP or BOT for bottom). There exist one alias for this object under the convention
+ATLOFFICIAL that gives the full name of the corresponding data-point element in 
+the opto-heater PVSS project (e.g. PIX/OPTOHEATER/SideA/Oct1/OSP\_BOT).
+\item {\bf HEATER-PS} (Ex.: ATLPIXLCS7:TEH\_Crate\_06.SW\_Card\_01): This object
+represents one of the four opto-heater switching card (Card\_01 to Card\_04). 
+\item {\bf HEATER-CC} (Ex.: Y2807S2\_CCard): The four switching cards are then connected
+to a controller card, which is itself connected to a CAN-bus of type {\bf CAN-HEATER-ELMB}.
+The rest of the CAN-bus connectivity has been described previously.
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-Optoboard.epsi}}
+\end{center}
+\caption{An illustration of the DAQ and Optoheater branch}
+\label{fig:branch_daq_optoheater}
+\end{figure}
+
+\subsubsection{Environmental Sensors and Cooling Loops Branch}
+
+Humidity and temperature sensors have been installed throughout the pixel package
+volume to monitor the environmental conditions of the detector. Some of these sensors are installed
+specifically on cooling loops. In this section we described only those sensors connected
+to cooling loops but other environmental sensors are readout in exactly the same
+fashion. Figure~\ref{fig:branch_env} shows an example, again for L0\_B01\_S1\_A6,
+of the connectivity of these objects.
+
+\begin{itemize}
+\item {\bf COOLING-LOOP} (Ex.: cooling\_loop14): Each PP0 is connected to one of the
+88 pixel cooling loops in CoralDB, which also includes the  optoboard cooling loops. The pixel cooling
+connectivity is currently not modelled in more details in CoralDB.
+\item {\bf NTC-SENSOR} (Ex.: C1-P5Rs, C1-P5Rex): Each cooling loop is connected to two 
+NTC-sensors, one on the supply side (e.g. C1-P5Rs) and one on the exhaust side (e.g. C1-P5Rex).
+In the example IDs, ``C1'' refers to the octant where the sensor is located\footnote{In this 
+example the sensor is located on the C-side but the PP0 (L0\_B01\_S1\_A6) on the A-side. This can
+happen since
+each cooling loop serves a bistave and has the supply and exhaust lines located on the same side.}
+ and ``P5R'' to the row on the SQP.  Each sensor has an alias under the convention
+ATLOFFICIAL (e.g. PIX/ENV/SideC/Oct1/loop014/PP0/P5Rs/Temp) that can yield more information
+on the function of the sensor as will be observed below.
+
+As mentioned before, there exists NTC-sensors that are not necessarily connected to cooling loops. 
+One example is A4-ISP-BUNDLE-R that has an alias \\ PIX/ENV/SideA/Oct4/INT/ISP\_BUNDLE\_R/Temp.
+The alias tells us that the sensor is located between PP0 and PP1 (``INT'' stands for ``intermediate''
+region) in the right ISP bundle (ISP\_BUNDLE\_R) on octant C4 (SideA/Oct4).
+
+There exists also humidity sensors of type {\bf H-SENSOR}, for example C2-HYGRO-PP1-TOP with 
+an alias PIX/ENV/SideC/Oct2/PP1/HYGRO/Top. The alias name tells us for instance that it is
+of type Hygrotron (HYGRO, other possibilities are Honeywell (HWELL) and Xeritron (XER)) 
+and is located in the top region at PP1.
+
+\item {\bf ENV-PP1-PIN} (Ex.: PP1B-ISP-C1-R2-P1.1/LEMO-F\_PIN-31): Each sensor is connected to
+three objects of type {\bf ENV-PP1-PIN}, each representing a pin in the environmental cable
+connecting at PP1. The SLOT of these connection tells the type of pin (SUPPLY, RETURN or DRAIN). The first
+part of the ID (PP1B-ISP-C1-R2-P1.1) yields the PP1 position (as defined above) and the last
+part gives the pin number on the LEMO-F connector.
+
+Each sensor is connected directly to the channel of the Building Block Monitoring (BBM) used
+to read it out, which will be described later.
+
+\item {\bf ENV-PP1} (Ex.: PP1B-ISP-C1-R2-P1.1): The PP1 position of the environmental Type 2 cable.
+\item {\bf ENV-PP2} (Ex.: PP2\_CP2\_241-1.1): The PP2 crate number and position where the 
+environmental cable connects to.
+\item {\bf BBM-NTC-CHN} (Ex.: Y5904X7\_BBM02B.ADCPlug0X.Tx4): The BBM channel used to readout
+this NTC sensor. The naming convention is the same as for the BBIM described in 
+Sec.\ref{sec:mod_ntc}. The analogous object type for humidity sensors is {\bf BBM-HS-CHN}.
+\item {\bf BBM-NTC-BOX} (Ex.: Y5904X7\_BBM02B.ADCPlug0X.Tx0-6): Describes the BBM box that serves channel 0-6.
+\item {\bf BBM} (Ex.: Y5904X7\_BBM02B): The BBM crate number located at PP3.
+\item {\bf CAN-PIX-ELMB} (Ex.: PP3\_US7): The CAN-bus used to readout and control the BBM. The rest of the 
+CAN-bus connectivity is completely analogous to the one described in Sec.~\ref{sec:hv_branch}.
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+  \resizebox{17.0cm}{21.0cm}{\includegraphics[width=\textwidth]{Branch-ENV.epsi}}
+\end{center}
+\caption{An illustration of the cooling loop and environmental sensor branch}
+\label{fig:branch_env}
+\end{figure}
+
+The content of pixel connectivity DB is mostly complete at the time
+of writing this document. The assignment between the service channels and readout units
+(i.e. modules, optoboards, environmental sensors) has been established in several tests like the 
+Service Test \cite{service_test} and the SR1 \cite{sr1_ct} and Pit Connectivity Tests.
+Some additions are still planned, for instance to add the Read-Out System (ROS) in the DAQ 
+branch. We also plan to introduce the cable numbers in the connectivity DB
+in the SLOT or TOSLOT (which currently is often a dummy assignment). The cable number is not
+required to make the DAQ or DCS software work but will be useful to archive completely 
+the pixel connectivity inside CoralDB.
+

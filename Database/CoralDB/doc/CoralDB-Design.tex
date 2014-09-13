@@ -1,0 +1,211 @@
+% $Id: CoralDB-Design.tex,v 1.9 2008-03-03 21:39:27 beringer Exp $
+
+\begingroup
+%\newcommand{\sql}[1]{\textbf{#1}}
+\newcommand{\sql}[1]{\texttt{#1}}
+
+\subsection{Design}
+
+% Main author: Juerg
+
+When thinking about modelling connectivity, two fundamentally
+different approaches come to mind:
+
+On one hand, one could model the configuration data for each type of
+object such as e.g.\ modules in a specific database table and use
+foreign keys (i.e.\ references to entries in other database tables) in
+order to provide information about connections to other objects. For
+example, the fact that a module is connected to a high-voltage power
+supply could be modelled by a column such as HV\_POWER\_SUPPLY in the module
+table, whose entries would then be references to entries in a
+high-voltage power supply table. In this scheme the physical
+connections are reflected explicitly in the database schema, and by
+using constraints the database can be used to ensure the integrity of
+the connectivity data.  Thus mistakes such as connecting a module to
+two high-voltage power supplies instead of a high-voltage and a
+low-voltage power supply can be prevented at the database level.
+
+On the other hand, one might choose a generic approach where
+connectivity data is stored as a list of connections between objects
+using a single database table. In such a table all connections are
+treated identically, and no protection can be provided at the level of
+the database schema against entering connections that do not make any sense. The
+physical connections are not reflected in the database schema.
+Therefore no schema change is necessary if the connectivity model
+changes.
+
+Both approaches have their advantages. The explicit modelling of the
+connectivity in the first case is very efficient with a relational
+database, queries involving different connections can easily be
+optimized, and database constraints can be fully exploited to ensure
+the consistency and completeness of the connectivity information. The
+generic approach is much more flexible, changes in the physical or
+logical connectivity do no require database schema changes, but unless one
+wants to exploit recursive queries which are not supported in a
+standard way by relational databases, traversing each connection
+between two objects requires a distinct database query.
+
+One of the specific requirements for the pixel connectivity database
+was support of a generic object-oriented interface called
+PixDbInterface (see section \ref{PixDbInterface}) for looking up connectivity information. The generality
+of this interface does not allow an explicit modelling of the
+connectivity information in the database schema, and therefore the
+generic approach described above was chosen for the pixel connectivity
+database. This led to the development of CoralDB, and to the implementation
+of PixDbInterface with CoralDB (called PixDbCoralDB).
+
+In CoralDB objects are represented by their ID, which is simply a string.
+Different objects have different IDs. Each object is assigned a type name
+(another string) and is associated with
+\begin{itemize}
+\item an optional set of connections from this object to other objects,
+\item an optional set of connections from other objects to this object,
+\item an optional set of alias names,
+\item and optional payload data consisting of an arbitrary number
+of named payload fields.
+\end{itemize}
+
+A connection between two objects is represented by the
+the ID of the object where the connection originates, by the ID of the object
+where the connection terminates (thus all connections have a direction), and by
+a ``slot'' name at both ends of the connection. The slot name is a string that
+is used as a generic index in order to distinguish different connections originating
+or terminating at a given object, and to store information such as channels, slot
+number in a crate, etc.\ The combination of ID and slot name is unique for outgoing
+connections, and the same is true for incoming connections. Thus an incoming or outgoing
+connection is identified by the pair (ID,slot), and a connection is uniquely identified
+by the tuple (fromID,fromSlot,toID,toSlot).
+
+Alias names are assigned to different categories called ``conventions''. Within each convention,
+each object can have at most one alias. The number of conventions is not limited.
+
+In order to avoid trivial mistakes such as mistyping an object name, a catalog
+of all objects and their types is kept (``object dictionary'').
+The database ensures that connections, aliases and payload fields
+can only reference objects in this catalog. The
+object dictionary may contain objects that are not referenced by the connectivity,
+alias or payload tables, allowing to add spare objects (which may be physically present but not
+currently connected and used) to a connectivity database.
+
+CoralDB supports different versions of connectivity within the same database schema (Oracle)
+or database file (SQLite). Several versions of the object dictionary can coexist without any naming
+conflicts between different versions. For each version of the object dictionary, several versions
+of connectivity, aliases and payload data may exist that all share the same set of objects. These
+versions are independend from each other apart from using the same object definition. Thus when making
+a change to a payload data field, no change in the connectivity or alias version is required.
+
+In this note the object dictionary tag is sometimes called IDTAG, to
+distinguish it from the other tags.  The contents of different IDTAGs
+is completely independent.  For example, IDTAG1 and IDTAG2 can have
+connectivity tags with the same name, e.g. CTAG.  CTAG in IDTAG1 is
+not related in any way to CTAG in IDTAG2.
+
+
+\subsection{Database Schema}
+
+% Main author: Andrei
+
+\NFIG{tb}
+%{schemav2.eps}{width=\textwidth}
+{schemav2-oracle-replica.eps}{width=\textwidth}
+{schema}{CoralDB database schema}
+{Database schema used by CoralDB. The solid lines between tables represent foreign key contraints.}
+
+
+A graphical representation of the database schema is shown on
+Fig.~\ref{schema}.  Database tables are represented as rectangles,
+with the table name in the top part, and column names and types in the
+bottom part of each rectangle.  The arrows on the picture represent
+database foreign key constraints.  The names of all tables for the
+current database version start with the \sql{CORALDB2\_} prefix.
+
+The object dictionary table, \sql{CORALDB2\_OBJECTDICT}, contains a list
+of all objects (the \sql{ID} column) and their types (\sql{TYPE}).
+The support for different versions (``tags'') of object dictionary is
+implemented via the additional column \sql{IDTAG} to record an object
+dictionary tag.  An object is uniquely identified by the pair of
+strings (\sql{IDTAG}, \sql{ID}), and this pair is the table's primary
+key.  Foreign key constraints in several other CoralDB tables ensure
+completeness of the object dictionary, by requiring that any occurence
+of \sql{ID} and its \sql{IDTAG} reference the corresponding columns in
+\sql{CORALDB2\_OBJECTDICT}.
+
+Connections are stored in the \sql{CORALDB2\_CONNECTIONS} table.  It
+contains the \sql{ID},\sql{SLOT} and \sql{TOID},\sql{TOSLOT} columns
+to represent a connection, the \sql{IDTAG} column to specify an object
+dictionary tag (for both \sql{ID} and \sql{TOID} --- there are two
+foreign keys to \sql{CORALDB2\_OBJECTDICT}), and a \sql{TAG} column to
+specify a connectivity tag.  A connection can be uniquely identified
+by either (\sql{ID},\sql{IDTAG},\sql{TAG},\sql{SLOT}), or by
+(\sql{TOID},\sql{IDTAG},\sql{TAG},\sql{TOSLOT}) combinations.
+
+The \sql{CORALDB2\_MASTERLIST} keeps a subset of objects per
+connectivity tag.  These objects are intended to be used as a starting
+point to navigate the connectivity structure.  PixDbInterface uses
+this table to store a ``root record''.  For \sql{CORALDB2\_MASTERLIST}
+to be usable with PixDbInterface, it must contain a single entry for
+the connectivity tag in question.  (Otherwise to access the
+connectivity tag, one would need to explicitly specify a ``root
+record'' when initializing PixDbInterface.)
+
+The \sql{CORALDB2\_ALIASES} table keeps the aliases.  Different
+versions of aliases for a given ID are distinguished by the \sql{TAG}
+column, that records the alias tag.
+
+For the storage of payload data, a slightly more elaborate versioning
+schema is implemented.  The motivation is to make possible sharing of
+payload data among different data tags.  This possibility is not used
+by the existing code, but it can be implemented with only C++ code
+modifications, without any database schema changes.  The table
+\sql{CORALDB2\_CLOBS\_REVS} establishes a correspondence between a
+data tag (\sql{TAG}), and a numeric revision (\sql{REV}) of data for
+an \sql{ID}.  The actual payload data for a field \sql{FIELD} of
+object \sql{ID} are stored in the \sql{DATA} column of the
+\sql{CORALDB2\_CLOBS} table.  To identify a specific version of
+payload data, the revision number \sql{REV} is used that corresponds
+to \sql{REV} in the \sql{CORALDB2\_CLOBS\_REVS} table.  Note that the
+correspondence between rows of \sql{CORALDB2\_CLOBS} and
+\sql{CORALDB2\_CLOBS\_REVS} tables are many-to-many; therefore it is
+not possible to have a foreing key in any directions.  The actual
+values of revision numbers are not accessible through the CoralDB
+interface, and their use is completely transparent to client code.
+
+The tables \sql{CORALDB2\_CONNECTIONS\_TAGS},
+\sql{CORALDB2\_ALIASES\_TAGS}, \sql{CORALDB2\_DATA\_TAGS}, contain
+complete (by foreign keys) lists of corresponding tags.  The primary
+key in each table is the (\sql{IDTAG},\sql{TAG}) combination, so there
+are no constraints on tag names in different object dictionary tags.
+The \sql{LOCKED} boolean is set to \texttt{false} when a new tag is
+created.  If it is set to \texttt{true}, the C++ code will refuse to
+make any modifications to the database records marked with this tag.
+
+The \sql{CORALDB2\_OBJECTDICT\_TAGS} table contains a complete list of
+object dictionary tags (\sql{IDTAG}), along with their write
+protection status (\sql{LOCKED}).  CoralDB code does not check whether
+an IDTAG is unlocked for each access, it only checks whether the
+appropriate connectivity/data/alias tag is unlocked.  However a
+connectivity/data/alias tag can be locked only if the corresponding
+object dictionary tag is locked.
+
+\textbf{Note that there are no safeguards to prevent modifications of
+  ``locked'' data at the database level.  Locking therefore is merely
+  advisory, and is only enforced by the C++ access layer.}
+
+At the time of this writing, all strings in CoralDB such as object names, alias names, tag
+names etc.\ are limited to 100 characters. The length of each type of string is
+defined by a constant in the CoralDB header file (e.g.\  {\tt MAX\_ID\_LENGTH}), so
+the lenghts of different types of strings could be optimized individually in the
+future if needed.
+
+%Length constraints on different strings in CoralDB are:
+%\begin{verbatim}
+%   static const int MAX_ID_LENGTH = 50;
+%   static const int MAX_ALIAS_LENGTH = 50;
+%   static const int MAX_CONVENTION_LENGTH = 50;
+%   static const int MAX_SLOT_LENGTH = 40;
+%   static const int MAX_FIELDNAME_LENGTH = 40;
+%   static const int MAX_TAG_LENGTH = 60;
+%   static const int MAX_OBJECTTYPE_LENGTH = 40;
+%\end{verbatim}
+
+\endgroup

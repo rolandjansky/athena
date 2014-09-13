@@ -1,0 +1,855 @@
+% $Id: CoralDB-API.tex,v 1.20 2008-03-03 21:39:27 beringer Exp $
+
+\begingroup
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\args}[1]{\textsl{#1}}
+
+%\subsection{Interfaces and Tools}
+
+\subsection{C++ API}
+
+% Main author: Andrei
+
+The main application programming interface (API) for CoralDB is the one written in C++ that is described in this section.
+{\bf For the pixel detector, it has been agreed that all write access (i.e.\ all
+database access for writing, updating or deleting)
+should be exclusively performed through this C++ API. }
+
+For reading the contents of the
+connectivity database in certain applications, other programming languages may be more convenient.
+In the interest of maintainability and in view of possible future database schema changes, access from
+other languages should always be made through a well-defined interface that is made part of the CoralDB
+code base.
+
+By default CoralDB caches the advisory ``locked'' status of database
+tags.  It checks whether a tag is locked when the tag is set as
+``current'', and then uses that information until either a different
+tag is chosen, or the \code{updateCache()} method is called, or the
+tag is locked in the database via \emph{this} CoralDB instance.
+\textbf{Stale cache data can allow to modify a tag that was locked by
+  another client.}  The use of this cache can be completely disabled by
+calling the \code{setCacheUse()} method.  The performance penalty is
+an additional database query for each method that modifies the
+database (in many cases this means two queries instead of one).
+
+%% ================================================================
+\subsubsection{Database authentication}
+
+\code{CoralDB} delegates handling of database authentication to the
+LCG \code{CORAL} library.   A possible way of authenticating to 
+Oracle is to have in the working directory (or in a directory
+specified by environment variable \code{CORAL\_AUTH\_PATH})
+a file \code{authentication.xml} that looks like the following:
+
+\begin{verbatim}
+<connectionlist>
+
+<connection name="oracle://ATLAS_COOLPROD/ATLAS_COOL_PIXEL">
+  <parameter name="user" value="ATLAS_COOL_PIXEL_W"/>
+  <parameter name="password" value="SomePassword"/>
+</connection>
+
+<connection name="oracle://ATONR_COOL/ATLAS_COOLONL_PIXEL">
+  <parameter name="user" value="ATLAS_COOLONL_PIXEL_W"/>
+  <parameter name="password" value="AnotherPassword"/>
+</connection>
+
+</connectionlist>
+\end{verbatim}
+
+Then one can, for example, use the string
+``\code{oracle://ATLAS\_COOLPROD/ATLAS\_COOL\_PIXEL}'' as the
+``connection'' parameter in the \code{CoralDB} constructor.
+For working with SQLite, no setup is needed and one can use a connection
+string like ``\code{sqlite\_file:myfilename.db}''.
+
+
+%% ================================================================
+\subsubsection{CoralDB public types}
+
+This section briefly explains the meaning of some CoralDB classes.
+For more detail and for other classes see the CoralDB header files.
+
+\begin{description}
+  
+\item[Alias] A triplet of strings that fully defines an alias:
+  \code{alias()}, \code{convention()}, \code{id()}.
+  
+\item[CompoundTag] Represents a set of tags that fully determine the
+  database version: strings {\rm \code{}objectDictionaryTag()},
+  \code{connectivityTag()}, \code{dataTag()}, \code{aliasTag()}.  Note
+  that a \code{CompoundTag} does not have to be fully initialized.
+  The \code{isValid()} method tells if a given compound tag object can
+  possibly specify a valid combination of tags for use by CoralDB.  A
+  completely empty object is valid (some CoralDB operations do not use
+  tags), as well as an object where only \code{objectDictionaryTag}
+  (IDTAG), or IDTAG and some or all of other tags, defined.  The case
+  when any tag is defined but the IDTAG is not does not make sense, so
+  for such combinations isValid() returns false.  The isValid() method
+  does not check the database to see if the specified tags actually
+  exist.
+
+\item[TagStatus] Tag name and whether it is locked. Also used for IDTAGs.
+
+\item[IdTagList] A container of \code{TagStatus}. (Currently vector.)
+
+\item[TagList] A container of \code{TagStatus}. (Currently vector.)
+
+\item[Connection] A complete representation of a CoralDB connection:
+  strings \code{fromId()}, \code{fromSlot()}, \code{toId()},
+  \code{toSlot()}.
+%  \marginpar{Remove isNull(). BTW, the
+%  logic in Connection.cpp seems to be inverted.}
+
+\item[TagLocked] Derived from \code{std::runtime\_error}. This is
+  thrown on an attempt to modify a locked tag.
+  
+\item[IdTagUnlocked] Derived from \code{std::runtime\_error}. This is
+  thrown on an attempt to lock a tag, for which the corresponding
+  IDTAG is not locked.
+  
+\item[RowNotFound] Derived from \code{std::runtime\_error}.
+%
+%  \marginpar{Change behaviour of findConnection() to throw an
+%  exception?}
+%
+  This is a generic error that can be thrown by several
+  methods when a query fails to return requested data; for example
+  because of a mistake in a tag specification.
+
+\end{description}
+
+%% ================================================================
+\subsubsection{CoralDB public methods}
+%\subsubsection*{CoralDB public methods}
+
+%\vspace{3ex}
+%\centerline{\textbf{CoralDB public methods}}
+%\vspace{1ex}
+
+
+\begin{description}
+\item[CoralDB]\args{(const string\& connection,\\
+  coral::AccessMode accessMode,\\
+  seal::Msg::Level outputLevel,\\
+  bool autoCommit)} The constructor. 
+
+  The \args{connection} string specifies the database to connect to,
+  e.g.\\ \code{oracle://ATLAS\_COOLPROD/ATLAS\_COOL\_PIXEL}\\ 
+  or \code{sqlite\_file:test.db}.
+  
+  The \args{accessMode} is \code{coral::ReadOnly} or
+  \code{coral::Update}.
+
+  The \args{outputLevel} is passed to the SEAL message service to set
+  its verbosity level.  The verbosity level can be changed later, see
+  \code{setOutputLevel()}.
+
+  The \args{autoCommit} can be set to \code{AUTOCOMMIT} or
+  \code{MANUAL\_COMMIT} and determines CoralDB's mode of operation.
+  In the \code{AUTOCOMMIT} mode, each CoralDB method commits its
+  modifications to the database.  In the \code{MANUAL\_COMMIT} mode,
+  one must explicitly initiate a write transaction with the
+  \code{transactionStart()} call.  (Read transaction in CoralDB are
+  transparent to the user in any mode.) Then an arbitrary number of
+  changes to the database can be made, which will become permanent
+%
+%  \marginpar{Is our Oracle DB set up to (an equivalent of) READ
+%  COMMITTED?}
+%
+  and visible to other DB clients only after they are all
+  committed at once using \code{transactionCommit()}.  One can get a
+  significantly higher performance in the \code{MANUAL\_COMMIT} mode
+  (\ref{performance}).  Also, in the \code{MANUAL\_COMMIT} mode one
+  can use \code{transactionRollBack()} instead of
+  \code{transactionCommit()} to discard all changes since the last
+  commit.
+
+
+\item[void setMsgLevel]\args{(seal::Msg::Level outputLevel)} Changes
+  the SEAL verbosity level.
+
+\item[void transactionStart()] Starts a new write transaction in the
+  manual commit mode.  Transaction should not be nested, but each
+  should be closed with either \code{transactionCommit()} or
+  \code{transactionRollBack()}.
+
+  No-op in the autocommit mode.
+  
+\item[void transactionCommit()] Attempts to commit a
+  transaction. No-op in the autocommit mode.
+
+\item[void transactionRollBack()] Discards all DB modifications made
+  since the last call to \code{transactionStart()}. No-op in the
+  autocommit mode.
+
+\item[bool transactionIsActive() const] True iff a write transaction
+  open with \code{transactionStart()} has not yet been committed or
+  rolled back.
+
+\item[bool isAutoCommitMode()] Returns the value of autoCommit given
+  to the constructor.
+
+
+%   // Explicit control of caching.
+
+\item[bool getCacheUse() const] True iff the use of cache is enabled.
+  Only the lock status of the current tags is being cached.
+  \textbf{Note that stale cache data may allow modification of a tag
+    that was locked by another client.}
+
+\item[void setCacheUse]\args{(bool state)} Enables (state=true) or
+  disables (state=false) cache use. Only the lock status of the
+  current tags is being cached.  \textbf{Note that stale cache data
+    may allow modification of a tag that was locked by another
+    client.}
+
+\item[void updateCache() const] Forces to update the cached values
+   by re-reading the database.  
+
+%   // Methods related to schema creation
+
+\item[void createSchema()] Creates a CoralDB schema in the current
+  database. Throws an error if the schema already exists.
+
+\item[void dropSchema()] Deletes the schema.  \emph{This implies
+  deletion of all CoralDB data in the current database; of all tags,
+  including the locked ones.}
+
+
+%   // Methods dealing with tags
+
+\item[CompoundTag compoundTag() const] returns the current set of tags
+  for this CoralDB object.
+
+\item[void setCompoundTag]\args{(const CompoundTag\& existingTag)}  Makes the
+  given set of tags current.
+
+\item[void setObjectDictionaryTag]\args{(const string\& existingTag)}
+  Sets the current object dictionary tag (IDTAG).
+
+\item[void setConnectivityTag]\args{(const string\& existingTag)}
+  Sets the current connectivity tag.
+
+\item[void setDataTag]\args{(const string\& existingTag)}
+  Sets the current data tag.
+
+\item[void setAliasTag]\args{(const string\& existingTag)}
+  Sets the current alias tag.
+
+
+%   // Return sorted lists.  The default idTag=="" means use the current idTag.
+
+\item[void getExistingObjectDictionaryTags]\args{(IdTagList\&
+  output)}~\textbf{const} Writes the name and the lock status of all
+  existing object dictionary tags to its argument.
+
+\item[void getExistingConnectivityTags]\args{(TagList\& output, const
+  string\& idTag="")}~\textbf{const} 
+  Writes the name and the lock status of connectivity tags defined for
+  the current (default) or the given IDTAG.
+
+\item[void getExistingDataTags]\args{(TagList\& output, const string\&
+  idTag="")}~\textbf{const}
+  Writes the name and the lock status of data tags defined for
+  the current (default) or the given IDTAG.
+  
+
+\item[void getExistingAliasTags]\args{(TagList\& output, const
+  string\& idTag="")}~\textbf{const}
+  Writes the name and the lock status of alias tags defined for
+  the current (default) or the given IDTAG.
+   
+%   // Define a new empty tag.
+
+\item[void makeNewObjectDictionaryTag]\args{(const string\& newtag)}
+  Creates a new, empty, object dictionary tag.
+
+\item[void makeNewConnectivityTag]\args{(const string\& newtag, const string\& idTag="")}
+  Creates a new, empty, connectivity tag for the current (default), or
+  a specified object dictionary tag.
+
+\item[void makeNewDataTag]\args{(const string\& newtag, const string\& idTag="")}
+  Creates a new, empty, data tag for the current (default), or
+  a specified object dictionary tag.
+
+
+\item[void makeNewAliasTag]\args{(const string\& newtag, const string\& idTag="")}
+  Creates a new, empty, alias tag for the current (default), or
+  a specified object dictionary tag.
+
+\item[void makeNewCompoundTag]\args{(const CompoundTag\& newtags)}
+  A shorthand for the above 4 calls.
+
+
+%   // These methods define a new tag and copy the content of the current tag into it.
+%   // The new tag is associated to the objectDictionaryTag newIdTag, which must already be defined.
+%   // If newIdTag is empty (the default), current objectDictionaryTag is used.
+
+\item[void copyConnectivityTag]\args{(const string\& newtag, const string\& newIdTag="")}
+Creates a new connectivity tag for the current (default) or a
+specified objectDictionaryTag, and copies the content of the current
+connectivity tag into it.  
+
+\item[void copyDataTag]\args{(const string\& newtag, const string\& newIdTag="")}
+Creates a new data tag for the current (default) or a
+specified objectDictionaryTag, and copies the content of the current
+data tag into it.  
+
+\item[void copyAliasTag]\args{(const string\& newtag, const string\& newIdTag='''')}
+Creates a new alias tag for the current (default) or a
+specified objectDictionaryTag, and copies the content of the current
+tag alias into it.  
+
+%   // Copies just the object distionary.  The newly created newIdTag will not have any associated 
+%   // connectivity/clobs/aliases
+\item[void copyObjectDictionaryTag]\args{(const string\& newIdTag)}
+This method copies just the object dictionary. The newly created
+object dictionary tag will not have any associated tags.
+
+
+\item[void copyMissingObjects]\args{(const string\& newIdTag, const
+  CompoundTag\& from)}
+
+Copies object dictionary entries for objects mentioned in any of the
+``from'' tags to newIdTag, skipping those (ID,TYPE) pairs that already
+exist in newIdTag.  If only idTag is defined in the ``from'' tags,
+adds to newIdTag all pairs that are defined in ``from's'' idTag.
+
+This method can be called before copyConnectivityTag(),
+copyAliasTag(), copyDataTag() if the intention is to copy information
+to a different IDTAG that may not contain all the necessary objects.
+
+%   // Copy all connectivity, data, and alias tags related to the current objectDictionaryTag,
+%   // keeping their names, to the new objectDictionaryTag.
+\item[void copyAllForObjectDictionaryTag]\args{(const string\& newIdTag)}
+Creates a new object dictionary tag, and copies the full content of
+the current object dictionary tag (all associated connectivity, data,
+alias tags) into the new one.
+
+%   // Delete all data for the given tag.
+%   // If newIdTag is empty (the default), current objectDictionaryTag is used.
+\item[bool deleteConnectivityTag]\args{(const string\& tag, const string\& idTag="")}
+Deletes the specified connectivity tag for the current (default) or a
+specified object dictionary tag.
+
+\item[bool deleteDataTag]\args{(const string\& tag, const string\& idTag="")}
+Deletes the specified data tag for the current (default) or a
+specified object dictionary tag.
+
+\item[bool deleteAliasTag]\args{(const string\& tag, const string\& idTag="")}
+Deletes the specified alias tag for the current (default) or a
+specified object dictionary tag.
+
+%// this deletes all related connetivity,data,and alias tags.
+\item[bool deleteAllForObjectDictionaryTag]\args{(const string\& idTag)}
+Deletes everything associated with the specified object dictionary
+tag, and the tag itself.
+
+
+%// Tag locking
+\item[void lockObjectDictionaryTag]\args{(const string\& idTag)} This
+  locks just the object dictionary tag, but not the related tags.
+  Locking a tag that is already locked has no effect.
+
+\item[void lockConnectivityTag]\args{(const string\& tag, const string\& idTag="")}
+  Locks the specified connectivity tag for the current (default) or
+  a specified object dictionary tag.
+  Locking a tag that is already locked has no effect.
+
+\item[void lockDataTag]\args{(const string\& tag, const string\& idTag="")}
+  Locks the specified data tag for the current (default) or
+  a specified object dictionary tag.
+  Locking a tag that is already locked has no effect.
+
+\item[void lockAliasTag]\args{(const string\& tag, const string\& idTag="")}
+  Locks the specified alias tag for the current (default) or
+  a specified object dictionary tag.
+  Locking a tag that is already locked has no effect.
+
+\item[void lockCompoundTag]\args{(const CompoundTag\& tags)} A
+  shorthand for the above 4 lock methods.
+
+\item[void lockAllForObjectDictionaryTag]\args{(const string\& idTag)} 
+  Locks the specified object dictionary tag and all related
+  connectivity, data, and alias tags.
+
+%// These methods ignore the cached values and read the database on each call.
+\item[bool objectDictionaryTagLocked]\args{(const string\& idTag)}~\textbf{const}
+  Returns true iff the object dictionary tag is locked.  This method
+  does not use cache and reads the database on each call.
+
+\item[bool connectivityTagLocked]\args{(const string\& tag, const string\& idTag="")}~\textbf{const}
+  Returns true iff the connectivity tag for the current (default) or a
+  specified object dictionary tag is locked.  This method
+  does not use cache and reads the database on each call.
+
+\item[bool dataTagLocked]\args{(const string\& tag, const string\& idTag="")}~\textbf{const}
+  Returns true iff the data tag for the current (default) or a
+  specified object dictionary tag is locked.  This method
+  does not use cache and reads the database on each call.
+
+\item[bool aliasTagLocked]\args{(const string\& tag, const string\& idTag="")}~\textbf{const}
+  Returns true iff the alias tag for the current (default) or a
+  specified object dictionary tag is locked.  This method
+  does not use cache and reads the database on each call.
+
+%// Methods for the history table. Default time is current time on the client system (not on the server).
+
+\item[void setHistoricTag]\args{(const CompoundTag\& tag, time\_t  startIOV = 0)}
+Makes an entry into the history table.  The default \args{startIOV}
+means take the current (on the client system) time.
+
+\item[CompoundTag getHistoricTag]\args{(time\_t when = 0 )}~\textbf{const}
+Return the set of tag that was current for the specified time.  The
+default is current time on the client system.
+
+\item[void getHistoryTable]\args{(HistoryTable\& result)}
+Writes the complete content of the history table into the argument.
+
+\item[bool deleteHistoryEntry]\args{(time\_t exactTimeStamp)} deletes
+  the specified history entry.
+
+
+%// Methods dealing with the master table
+
+\item[void insertMaster]\args{(const string\& id)} Adds the given id
+  to the master list table.
+
+\item[bool deleteMaster]\args{(const string\& id)} Deletes the given
+  id from the master list table.
+
+\item[vector$<$string$>$ masterList]\args{()}~\textbf{const} Returns the master list.
+
+%// Methods dealing with the object dictionary
+\item[bool checkAndInsertObject]\args{(const string\& id, const
+  string\& type)} 
+  Adds a new object to the object dictionary table, if there is no
+  entry there for the \args{id}.
+  If there is already an entry for the object, checks that \args{type}
+  is the same as already recorded. Throws an exception if the \args{type}
+  is different.
+
+\item[unsigned  insertBulkObjects]\args{(istream\& data, bool debug=false)} // returns the number of objects inserted
+
+\item[bool deleteObject]\args{(const string\& id)}
+\item[bool updateObject]\args{(const string\& id, const string\& type)}
+\item[string objectType]\args{(const string\& id)}~\textbf{const}
+
+
+\item[bool renameID]\args{(const string\& newId, const string\& oldId)}
+Changes oldId to newId (for the current IDTAG) in all tables.  Returns
+true on successful update, false if oldId does not exists.
+
+\item[long renameType]\args{(const string\& newType, const string\& oldType)}
+Changes oldType to newType in the object dictionary for the current
+IDTAG.  Returns the number of updated objects in the dictionary.
+
+
+\item[void getObjectDictionary]\args{(ObjectDictionaryMap\& objDict,\\
+  const CompoundTag\& tags)}~\textbf{const}
+
+  If only object dictionary tag is defined in tags, get the complete
+  dictionary for this tag.  If any other tag is also set, get the
+  union of sets of IDs mentioned in connectivity, data and alias tags.
+  (Not all three types of tags have to be set.)
+  
+%enum BulkConnectionsFileFormat { SIX\_COL, SIX\_COL\_REVERSED, FOUR\_COL}}
+\item[unsigned insertBulkConnections]\args{(istream\& data, BulkConnectionsFileFormat f, bool debug = false)}
+
+
+\item[void insertConnection]\args{(const string\& id, const string\& slot, const string\& toId, const string\& toSlot)}
+\item[bool deleteConnection]\args{(const string\& id, const string\& slot, bool outConnection = true)}
+\item[bool updateConnection]\args{(const string\& id, const string\& slot, const string\& toId, const string\& toSlot, bool outConnection = true)}
+\item[vector$<$Connection$>$ findAllConnections]\args{(const string\& id, bool getOutConnections = true)}~\textbf{const}
+
+
+\item[vector$<$Connection$>$ findConnections]\args{(const string\& id,
+  const string\& slotPattern, bool getOutConnections = true)}~\textbf{const}  \\
+In CoralDB patterns the only special character is '\%'. It matches any
+string of zero or more characters (just like SQL '\%'). The escape
+character is '$|$'.
+
+
+\item[vector$<$Connection$>$ findConnectionsByType]\args{(const string\&
+id, const string\& typePattern, bool getOutConnections=true)}~\textbf{const}
+
+\item[vector$<$Connection$>$ findConnectionsFromSlot]\args{(const string\&
+slotPattern, const string\& toId)}~\textbf{const}
+
+\item[vector$<$Connection$>$ findConnectionsToSlot]\args{(const string\&
+id, const string\& toSlotPattern)}~\textbf{const}
+
+
+\item[void getConnectionTable]\args{(ConnectionTableMap\& connTable)}~\textbf{const}
+
+// Methods dealing with aliases
+// Sloppy means skip unknown IDs read from the stream instead of aborting.
+\item[unsigned insertBulkAliases]\args{(istream\& data, bool genericFile = true, bool debug = false, bool sloppy = false)}
+\item[void insertAlias]\args{(const Alias\& a)}
+\item[void insertAlias]\args{(const string\& alias, const string\& convention, const string\& id)}
+\item[bool deleteAlias]\args{(const Alias\& a)} // over-constarined
+\item[bool deleteAlias]\args{(const string\& id, const string\& convention)}
+\item[vector$<$Alias$>$ findAliases]\args{(const string\& id)}~\textbf{const}
+\item[string findAlias]\args{(const string\& id, const string\& convention)}~\textbf{const}
+\item[string findId]\args{(const string\& alias, const string\& convention)}~\textbf{const}
+\item[void getAliasesTable]\args{(AliasesTable\& aliases)}~\textbf{const} // returns a sorted table
+
+
+// Methods dealing with configuration data
+\item[void insertCLOB]\args{(const string\& id, const string\& field, const string\& clob)}
+\item[bool deleteCLOB]\args{(const string\& id, const string\& field)}
+\item[bool updateCLOB]\args{(const string\& id, const string\& field, const string\& clob)}
+\item[string findCLOB]\args{(const string\& id, const string\& field)}~\textbf{const}
+\item[void getClobNames]\args{(ClobNameContainer\& names)}~\textbf{const}
+   
+\end{description}
+
+\clearpage
+\subsection{Perl API}
+
+% Main author: Juerg
+
+
+For programming web interfaces a scripting language such as Perl is much more convenient
+to use than C++. Primarily for this purpose a Perl API to CoralDB has been developed. The current
+implementation of the Perl API uses the Perl DBI module to directly access the Oracle (or a SQLite)
+database. If necessary, the Perl API could easily be reimplemented on top of the C++ API at a later time.
+
+The Perl API is implemented in package CoralDB.pm. Inline documentation is available (use `perldoc CoralDB.pm`).
+Table \ref{PERLAPI} gives a summary of the available functionality.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|p{11cm}|}
+\hline
+Method & Description \\ \hline
+\hline
+setTag & Define the different tags to be used \\ \hline
+getAllTags & Get all tags of a given type (e.g. 'connTag')\\ \hline
+isLockedTag & Determine if a given tag is locked or not\\ \hline
+getTagHistory & Get history of ``current'' tags\\ \hline
+masterList & Get list of ``master'' objects \\ \hline
+getAllObjectTypes & Get list of all object types \\ \hline
+objectType & Get type of a given object\\ \hline
+findObjects & Find objects by name (ID), type, or alias\\ \hline
+findAllConnections & Get list of all incoming or outgoing connections\\ \hline
+findConnections & Get connection originiating from or terminating at a given slot of a given object\\ \hline
+findConnectionsByType & Find connections from or to objects of a given type\\ \hline
+findConnectionsFromSlot & Find connections from a given outgoing slot\\ \hline
+findConnectionsToSlot & Find connections arriving at a given slot\\ \hline
+findSoftLinks & Find all incoming or outgoing soft-link connections\\ \hline
+getAllAliasConventions & Get list of different conventions for which aliases exist\\ \hline
+findAliases & Find all aliases for a given object\\ \hline
+findAlias & Find alias in a given convention\\ \hline
+findClobs & Get all CLOBS stored for a given object\\ \hline
+\hline
+dump & Utility function: print internal data memebers of CoralDB (Perl) object\\ \hline
+\end{tabular}
+\caption[Perl API summary]
+{Summary of methods currently available in the Perl API.}
+\label{PERLAPI}
+\end{center}
+\end{table}
+
+
+\clearpage
+\subsection{PixDbInterface}
+\label{PixDbInterface}
+
+% Main author: Andrei
+
+In PixDbInterface, a CoralDB object corresponds to a \code{DbRecord} and
+the object type is class name.  Connections are DbRecordIterators and fields are
+CLOBs.  Connectivity is cached on initialization, CLOBs on
+access.  A transaction roll back invalidates the caches, and the
+\code{PixDbCoralDB} object must be recreated to have its cache in
+sync with the database.  
+An exception thrown by CoralDB or the underlying libraries may mean
+that a transaction has to be rolled back.
+The \code{PixDbInterfaceFactory} package
+helps to recreate \code{PixDbInteface} objects with consistent
+settings.
+
+\clearpage
+\subsection{Command Line Tools}
+
+% Main author: Andrei
+
+The CoralDB package includes two C++ programs, \code{ccdb}, and
+\code{ccdb-migrate}, and several shell scripts.  The \code{ccdb} program provides a command
+line interface to all CoralDB methods.  \code{ccdb-migrate} allows to
+dump/restore the content of a CoralDB database to/from a set of
+files, and can be used to migrate to a different database schema.
+
+
+\subsubsection{ccdb}
+
+The ccdb program id documented throught its online help message,
+which is printed when the \code{--help} argument is given on the
+command line.  The online help message is shown below.
+
+%%----------------------------------------------------------------
+
+\VerbatimInput[fontsize=\small,obeytabs=true]{help.ccdb}
+
+%%----------------------------------------------------------------
+
+
+\clearpage
+\subsubsection{ccdb-migrate}
+
+The \code{ccdb-migrate} program can dump the content of a CoralDB
+database into a set of files, and load the content of such a dump
+into a database.  The \code{--noSchema} options (see below) allow
+to add data to an existing database, so that information from
+different databases can be merged.  The \code{--only*Tag} options
+allow to dump only selected tags.
+
+The \code{ccdb-migrate} program is linked against the CoralDB
+library, and can work only with the schema that is implemented by
+that library.  For schema evolution, the following approach can
+be used.  First, make a dump of the database to be migrated using
+\code{ccdb-migrate} from a CoralDB package version compatible
+with the schema of that database.  Then restore the dump using a
+version of \code{ccdb-migrate} corresponding to the desired new
+schema.   For this to work, \code{ccdb-migrate} has to understand 
+the format of dumps made for at least one previous DB schema.
+
+The dump structure consists of a top level directory (whose name
+is used on \code{ccdb-migrate} command line), which contains a
+\code{CORALDB\_DUMP\_VERSION} file that identifies the version of
+the dump format (a single integer that file must begin with), and
+other files and subdirectories, which contain DB data.  The files
+are tab-separated text files that can be edited by
+experts. (Files typically start with a comment line explaining
+the content of the file.)
+
+Tabs and newlines in CLOBS are encoded as \verb|\t| and
+\verb|\n|, and backslashes as \verb|\\| for storage in the
+tab-separated files.  Other than that escaping, CLOBs are dumped
+literally.
+
+Entries in the files are sorted in a reproducable order to
+facilitate comparison of different DB versions using
+\code{diff~-r}.
+
+The \code{ccdb-migrate} online help message is shown below:
+
+%----------------------------------------------------------------
+
+\VerbatimInput[fontsize=\small,obeytabs=true]{help.ccdb-migrate}
+
+%----------------------------------------------------------------
+
+
+\clearpage
+\subsubsection{ccdb-makedb}
+
+\code{ccdb-makedb} is a simple shell script to help creating a connectivity database from scratch using
+\code{ccdb}. It takes as input a tab-separated-value files of connections and of aliases, optionally creates the CoralDB database schema, and imports the input files into the database. It's usage information is shown below.
+
+%----------------------------------------------------------------
+\begingroup
+\small
+
+\begin{verbatim}
+Usage: ccdb-makedb [-c] [-d] dbconn idtag tag [connectivityfile aliasesfile]
+\end{verbatim}
+
+\endgroup
+%----------------------------------------------------------------
+
+
+
+\clearpage
+\subsection{CoralDB Browser}
+
+% Main author: Juerg
+
+The CoralDB browser is a web application that allows interactive browsing of a
+CoralDB connectivity database. It has the following features:
+\begin{itemize}
+\item Provide an overview of the database contents including available tags and history of what tag was current at a given time
+\item Search for objects by their ID, type or aliases
+\item Display names using IDs or any other alias convention
+\item Display connections to and from an object using hyperlinks to allow easy navigation within the connectivity graph
+\item Display or download connectivity graph for a particular object
+\item Display payload data
+\item Display master list
+\item Generate tables of properties from selected events (see section \ref{CORALDBTABLES})
+\end{itemize}
+
+Figures \ref{CORALDBBROWSER-overview} and \ref{CORALDBBROWSER-example} show screen dumps from the CoralDB browser. CoralDB browsers
+for the pixel connectivity database can be accessed at \cite{CORALDBBROWSER-url} (using the master database on the
+ATONR\_COOL database server) or at \cite{CORALDBBROWSER-replica-url} (using the offline replica on the ATLAS\_COOLPROD database server). Note that the first few lines of the overview page show the database connection and table prefix (normally
+{\tt ATLAS\_COOLONL\_PIXEL.CORALDB2} being used).
+
+\NFIG{t}
+{coraldboverview.eps}{width=\textwidth}
+{CORALDBBROWSER-overview}{CoralDB browser: overview page}
+{The CoralDB browser overview page gives an overview of the contents of the CoralDB database. It shows which tags of
+connectivity, aliases and payload are available for each object dictionary version (ID tag), and which of those are locked.
+In addition, it provides convenient links to tools for generating tables and to documentation.}
+
+\NFIG{t}
+{coraldbbrowser.eps}{width=\textwidth}
+{CORALDBBROWSER-example}{CoralDB browser: example page for a PP0 object}
+{The CoralDB browser allows searching of objects by name, alias, or type (wildcards are allowed). Once an object is selected,
+it is easy to navigate to a connected object by clicking on the corresponding link.Connectivity graphs can
+optionally be displayed within the browser page, or can be downloaded as a PostScript file. Aliases and payload data are also displayed.}
+
+
+
+\clearpage
+\subsection{CoralDB Tables}
+\label{CORALDBTABLES}
+
+% Main author: Juerg
+
+It is useful to be able to generate spreadsheet-like tables of how
+objects are connected with each other directly from the connectivity
+database. A set of ``standard'' tables can be selected from the Connectivity Tables web page that is
+linked to the overview page of the CoralDB browser. Customizable tables can be generated
+either for objects selected in the CoralDB browser, or, more generally, for a user-specified list of
+objects through the Table Maker web page (also linked from the overview page). An example of a table
+is shown in figure \ref{CORALDBTABLES-fig}.
+
+\NFIG{t}
+{coraldbtable.eps}{width=\textwidth}
+{CORALDBTABLES-fig}{CoralDB Table}
+{The CoralDB browser allows the generation of tables for a selected set of objects. In this example, all
+PP0 objects were selected. Users can use a predefined table as a starting point (here the PP0-LV table was chosen) and
+then adapt the table to their needs, or can start from scratch with a fresh table. Error messages are shown if a rule
+cannot be executed for a particular cell (see bottom-right of the figure for an example), making it easy to spot possible mistakes in the connectivity database.}
+
+
+In order to extract from the connectivity database the information
+needed in the table for each object, one starts at the node in the
+connectivity graph corresponding to a particular object and follows a certain
+prescription (or rule) for traversing the connectivity graph until one
+arrives at the desired information.
+
+For example, in order to extract the name of the optoboard to which a
+given pixel module is connected, one can start at the node
+corresponding to that module and use the following prescription:
+
+\begin{enumerate}
+\item Go up to the parent node using the slot named UP
+\item Go up again to its parent node using the slot named OB
+\item Get the ID of the resulting node
+\end{enumerate}
+
+The syntax for writing such rules is summarized in table \ref{CORALDBRULES} and
+a few examples are given in table \ref{CORALDBRULES-examples}.
+Thus the above prescription would be written as
+\begin{verbatim}
+U=UP U=OB ID
+\end{verbatim}
+
+As can be seen in figure \ref{CORALDBTABLES-fig}, the web form allows to either specify
+the rule to be used for each column of the table explicitly, or one
+can choose from a set of predefined rules or complete tables (provided
+that the table is generated for objects of a single type).
+
+Predefined rules and tables are stored in configuration files in
+package {\tt CoralDB} in subdirectory rules with file names of the form
+{\tt TYPE.rules} (definition of rules for objects of type TYPE) and
+{\tt TYPE-TABLENAME.table} (definition of a table TABLENAME for objects of
+type TYPE). The first column in the file is the name of the rule or
+the column title. The second column is separated by a single tab
+character and contains the rule or column definition. To define
+the column contents, both the names of rules defined for that type of
+object and individual commands as described above may be used.
+
+
+\begin{table}[tbp]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Command & Description \\ \hline
+\hline
+\multicolumn{2}{|l|}{\bf Commands for writing out information:} \\ \hline
+ID & 	Write ID of current node \\ \hline
+TYPE & 	Write type of current node \\ \hline
+SLOT & 	Write arrival SLOT on current node\\ \hline
+FROMID & 	Write ID of previous node \\ \hline
+FROMSLOT & 	Write departure SLOT on previous node\\ \hline
+NU & Number of upward connections \\ \hline
+NU!n, & Error message if number of upward connections is not equal to, \\
+NU$>$n, NU$<$n & greater than, less than n \\ \hline
+ND & Number of downward connections \\ \hline
+ND!n, & Error message if number of downward connections is not equal to, \\
+ND$>$n, ND$<$n &  greater than, less than n \\ \hline
+"word" & 	Write ``word'' (cannot contain any white space) \\ \hline
+A=convention  &  Write alias for current node using ``convention'' \\
+A!convention  &  \\ \hline
+\multicolumn{2}{|l|}{\bf Commands for navigation:} \\ \hline
+U=slot, U!slot  & Go up using slot \\ \hline
+UF=slot, UF!slot & Go up using connection from slot \\ \hline
+D=slot, D!slot  & Go down using slot \\ \hline
+DE=slot, DE!slot & Go down using connection ending at slot \\ \hline
+T=type, T!type & Go to node(s) of given type (both up and down nodes are searched) \\ \hline
+TU=type, TU!type & Go to node(s) of given type (only up nodes are searched) \\ \hline
+TD=type, TD!type & Go to node(s) of given type (only down nodes are searched) \\ \hline
+\multicolumn{2}{|l|}{\bf Commands for formatting:} \\ \hline
+HTMLBOLD & Write subsequent text in bold font \\ \hline
+HTMLITALIC & Write subsequent text in italic font \\ \hline
+HTMLRED & Write subsequent text in red \\ \hline
+\end{tabular}
+\caption[Rules for generating tables]
+{Summary of rules for generating tables from a CoralDB connectivity
+database. Each rule consists of a series of commands separated by
+white space and is used to either navigate from the current
+node to another node, or to write out some information.
+The processing of a rule continues until either one arrives at
+the end of the rule, or until one of the commands cannot be executed,
+for example because a specified connection doesn't exist. In the
+latter case, depending on the form of the command used, the rule
+terminates silently (rules using '='), or outputs an error message
+(rules using '!'). Some commands may lead to several nodes. In this case, rule processing
+continues for each of the nodes, and each of the selected paths can
+result in some output.
+The directions "up" and "down" refer to travelling along incoming and outgoing connections, respectively.
+Wildcards ('\%')are allowed in the specification of both slots and object type.}
+\label{CORALDBRULES}
+\end{center}
+\end{table}
+
+
+\begin{table}[p]
+\begin{center}
+\begin{tabular}{|p{5.5cm}|p{5.5cm}|p{4.5cm}|}
+\hline
+Rule & 	Sample output & 	Description \\ \hline \hline
+ID & 	D1A\_B01\_S1\_M1 & 	ID of current object \\ \hline
+U=UP A=GEOID & 	SQP-A12-OP-C2-P4L-T & 	Name of parent node using GEOID alias \\ \hline
+U=UP A=GEOI & 	 & No output, because A= is used and there is no alias GEOI \\ \hline
+U=UP A!GEOI & ERROR: No alias for convention GEOI for D1A\_B01\_S1 & Error, because A! is used and there is no alias GEOI \\ \hline
+U=UP D=\% FROMSLOT & M1 \newline
+M2 \newline
+M3 \newline
+M4 \newline
+M5 \newline
+M6 & 	List of outgoing slots on previous node \\ \hline
+T=PP0 T=\% TYPE & 	CONTAINER \newline
+OPTOBOARD \newline
+HV-PP1 \newline
+LV-PP1 \newline
+OPTO-PP1 \newline
+MODULE \newline
+MODULE \newline
+MODULE \newline
+MODULE \newline
+MODULE \newline
+MODULE & 	List of the type of all objects connected to a PP0 (which is the parent of a module; you could equally use U=UP instead of T=PP0) \\ \hline
+U=UP U=OB T=RODBOC ID T=RODCRATE ID & 	ROD\_C1\_S11 ROD\_CRATE\_1 & 	Get ROD slot and crate (note that you can output several pieces of information in the same rule) \\ \hline
+\end{tabular}
+\caption[Examples of rules]
+{Examples of rules for generating tables from a CoralDB connectivity
+database. The sample output is given for applying the rules to module D1A\_B01\_S1\_M1.}
+\label{CORALDBRULES-examples}
+\end{center}
+\end{table}
+
+\endgroup

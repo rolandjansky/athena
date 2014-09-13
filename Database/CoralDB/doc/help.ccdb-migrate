@@ -1,0 +1,55 @@
+
+Usage:
+
+       ccdb-migrate [options] --dumpTo dirname --db dbconnection
+       ccdb-migrate [options] --restoreFrom dirname --db dbconnection
+
+Required configuration:
+  --db arg              db connection string.
+                        
+  --dumpTo arg          Specifies the dump mode, mutually exclusive with the 
+                        --restoreFrom option.  The argument is the name of a 
+                        directory to hold a directory tree structure with the 
+                        dump data. The directory must not exist, it will be 
+                        created by the call.
+                        
+  --restoreFrom arg     Mutually exclusive with the --dumpTo option. Restore 
+                        dump data from the given directory tree produced by an 
+                        earlier --dumpTo call.
+                        
+
+General options:
+  -h [ --help ]         Print this message and exit.
+  --debug               Be more verbose.
+
+Dump options:
+  --onlyIdTag arg       Limit dumping to the given idTag.  If no other --only* 
+                        options are given, all connectivity, alias, and data 
+                        tags for the requested idTag will be dumped.
+                        
+  --onlyCTag arg
+  --onlyATag arg
+  --onlyDTag arg        Limit dumping to the given connectivity, alias, or data
+                        tag. An idTag must be provided via the --onlyIdTag 
+                        option. Only the explicitly requested tag of each kind 
+                        will be dumped. One does not have to specify all three 
+                        kinds of tags.
+
+Restore options:
+  --noSchema            For adding data to an existing DB.
+                        
+  --lockAllTags         Each restored tag will be locked.
+                        
+  --sloppyAliases       Make unknown object IDs warnings instead of errors when
+                        loading aliases.
+                        
+  --noHistory           Don't add history table entries.  Useful for restoring 
+                        from V1 dumps that were edited to split data into 
+                        several IDTAGs.
+                        
+
+Examples:
+
+       ./ccdb-migrate  --dumpTo testdump --db sqlite_file:test.db
+       ./ccdb-migrate --restoreFrom testdump  --db sqlite_file:new.db
+

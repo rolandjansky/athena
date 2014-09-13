@@ -1,0 +1,125 @@
+#! /bin/csh -ef
+#
+#	File:		$Id: ccdb-makedb,v 1.17 2008-05-06 23:15:18 beringer Exp $
+#
+#	Author:		J. Beringer
+#
+#	Purpose:	Create a fresh CoralDB database and run a few tests
+#
+#	Usage:		ccdb-makedb [-d] dbconn idtag tag [connectivitydatafile aliasesdatafile]
+#
+#	NOTE:		If the database exists already, you need to first do
+#
+#                           ccdb dbconn dropSchemaAndDeleteAllData
+#
+#                       THIS WILL DELETE ALL DATA IN THE EXISTING DATABASE!!!
+#
+if ("$1" == '-c') then
+  shift
+  set create=1
+endif
+if ("$1" == '-d') then
+  shift
+  set debug=1
+endif
+if ( $#argv < 3 ) then
+  echo "Usage: ccdb-makedb [-c] [-d] dbconn idtag tag [connectivitydatafile aliasesdatafile]"
+  exit 1
+endif
+set db=$1
+set idtag=$2
+set tag=$3
+if ($#argv < 4) then
+    set conn=data/connectivity.dat
+else
+    set conn=$4
+endif
+if ($#argv < 5) then
+    set aliases=data/aliases.dat
+else
+    set aliases=$5
+endif
+echo ""
+echo "Making NEW database:             $db"
+echo "Object dictionary tag (idtag):   $idtag"
+echo "Connectivity and aliases tag:    $tag"
+echo ""
+echo "Input files:"
+echo "- $conn   for the connectivity definition"
+echo "- $aliases   for the definition of aliases"
+echo ""
+/bin/echo -n "Do you really want to continue (yes/no) ? "
+if ($< != 'yes') then
+  echo ""
+  echo "ccdb-makedb aborted by user."
+  echo ""
+  echo "(If this is not what you wanted, repeat and enter 'yes'.)"
+  echo ""
+  exit 1
+endif
+
+if ($?create) then
+  echo ""
+  echo "Creating database $db ..."
+  echo ""
+  echo "NOTE: If you get a FATAL CORAL exception below saying that a table exists already, you must"
+  echo "      first delete an existing database using the following command (BE CAREFUL WITH THIS\!\!\!):"
+  echo "      ccdb $db dropSchemaAndDeleteAllData"
+  echo ""
+  echo ccdb --db $db create
+  ccdb --db $db create
+endif
+
+echo ""
+echo "Defining new object dictionary tag $idtag"
+echo ccdb --db $db  makeNewObjectDictionaryTag $idtag
+ccdb --db $db  makeNewObjectDictionaryTag $idtag
+
+setenv CCDB_IDTAG $idtag
+
+echo "Defining new tag $tag"
+ccdb --db $db --idTag $idtag makeNewConnectivityTag $tag
+ccdb --db $db --idTag $idtag makeNewDataTag $tag
+ccdb --db $db --idTag $idtag makeNewAliasTag $tag
+
+setenv CCDB_TAGS $tag
+
+set ccdbDebugOption=""
+if ($?debug) then
+    set ccdbDebugOption="--debug"
+endif
+
+echo ""
+echo "Loading connectivity data from $conn ..."
+ccdb --db $db $ccdbDebugOption --idTag $idtag --ctag $tag loadConnections <$conn
+
+ccdb --db $db --idTag $idtag --ctag $tag insertMaster ROOT
+
+echo ""
+echo "Loading aliases from $aliases ..."
+ccdb --db $db $ccdbDebugOption --idTag $idtag --atag $tag --sloppyAliases loadAliases <$aliases
+
+echo ""
+echo "Adding this tag to the tag history ..."
+ccdb --db $db --idTag $idtag --tags $tag setHistoricTag
+
+echo ""
+echo "Master list tests ..."
+ccdb --db $db --idTag $idtag --ctag $tag masterList
+
+echo ""
+echo "Connection queries ..."
+#ccdb $db findInConn SQP-A12-OP-C1-P2R-T
+#ccdb $db findOutConn SQP-A12-OP-C1-P2R-T
+ccdb --db $db --idTag $idtag --tags $tag findInConn D1A_B01_S2
+ccdb --db $db --idTag $idtag --tags $tag findOutConn D1A_B01_S2
+
+echo ""
+echo "Aliases tests ..."
+ccdb --db $db --idTag $idtag --tags $tag findAliases D1A_B01_S2_M1
+
+#echo ""
+#echo "Filling sample test data ..."
+#ccdb $db insertDataType MODULE MODULE MODULE CLOBTABLE
+
+echo ""

@@ -1,0 +1,142 @@
+#! /bin/csh
+#
+#	File:		$Id: ccdb-copytag,v 1.3 2008-05-06 23:15:18 beringer Exp $
+#
+#	Author:		L. Masetti
+#
+#	Purpose:	Copy a connectivity tag to a different id tag after adding the missing objects
+#
+#	Usage:		ccdb-copytag [options] source-idtag/tag destination-idtag/tag
+#
+#	NOTE:		
+#
+
+set version='ccdb-copytag\n---------'
+set usage="Usage: ccdb-copytag [options] destination-tag source-idtag/source-tag destination-idtag/comparison-tag"
+set db1="$PIX_CONN_DB"
+set debug = 0
+
+set argv=(`getopt -u -q -a -s tcsh -o h -l help,debug,db: -- $*:q`)
+if ($status) then
+  echo "$usage"
+  exit 1
+endif
+
+if ( $#argv == 1 ) then
+  echo "$usage"
+  exit 1
+endif
+
+while (1)
+  switch ($1:q)
+    case -h:
+    case --help:
+      echo ''
+      /bin/echo -e $version
+      echo ''
+      echo "$usage"
+      echo ''
+      echo "--help              This help message"
+      echo "--debug             Print out executed commands"
+      echo ''
+      echo "The destination-idtag must exist already. The destination-tag must not exist in the destination-idTag"
+      exit 1
+    case --debug:
+      set debug = 1
+      shift
+      breaksw
+    case --db:
+      set db1 = $2
+      shift
+      shift   
+    case --:
+      shift
+      breaksw
+    default:
+      break
+  endsw
+end
+
+if ( $#argv < 3 ) then
+  echo "$usage"
+  exit 1
+endif
+
+echo ''
+
+# Read and remove from argv destination-tag
+set tag3=`echo $1`
+shift
+
+# Get connection differences between the tags
+set diffout = diff.out
+echo "Diffing tags"
+echo ''
+if ($debug) echo "ccdb-diff $argv >! $diffout"
+ccdb-diff --db $db1 $argv >! $diffout
+
+set idtag1=`echo $1 | awk -F/ '{print $1}'`
+set tag1=`echo $1 | awk -F/ '{print $2}'`
+set idtag2=`echo $2 | awk -F/ '{print $1}'`
+set tag2=`echo $2 | awk -F/ '{print $2}'`
+
+if (idtag1 == idtag2) then
+  echo "To copy within the same idtag please use ccdb directly. See ccdb --help"
+  exit 1
+endif
+
+# Get list of objects in the source tag with changed connections
+set objout = objlist.out
+echo "Creating list of objects in source tag"
+echo ''
+cat $diffout | grep "<" | awk '{print $2"\n"$6}' | sort | uniq >! $objout
+
+# Search for objects already existing in the destination idTag
+set foundout = foundobjs.out
+rm $foundout
+touch $foundout
+echo "Searching for objects in the destination idtag"
+echo "Don't worry about error messages, just missing objects!"
+echo ''
+foreach objid (`cat $objout`) 
+  if ($debug) echo "ccdb --db $db1 --idTag $idtag2 objectType $objid"
+  echo "$objid `ccdb --db $db1 --idTag $idtag2 objectType $objid` " >> $foundout
+end
+
+# Get list of missing objects in the destination idTag
+set newout = newobjs.out
+rm $newout
+touch $newout
+echo "Creating list of missing objects"
+echo ''
+cat $foundout | awk '{if (NF == 1) {print $1}}' >> $newout
+
+# Get objectType of missing objects
+set typeout = newtypes.out
+rm $typeout
+touch $typeout
+echo "Creating list of types"
+echo ''
+foreach objid (`cat $newout`)
+  if ($debug) echo "ccdb --db $db1 --idTag $idtag1 objectType $objid"
+  echo "$objid#`ccdb --db $db1 --idTag $idtag1 objectType $objid`"  >> $typeout
+end
+
+# Insert objects to destination idtag
+echo "Adding objects to the destination idtag"
+echo ''
+foreach pair (`cat $typeout`)
+  set pairsplit = `echo $pair | awk -F"#" '{print $1,$2}'`
+  if ($debug) echo "ccdb --db $db1 --idTag $idtag2 insertObject $pairsplit"
+  if ($debug) then
+    ccdb --db $db1 --idTag $idtag2 insertObject $pairsplit
+  else
+    ccdb --db $db1 --idTag $idtag2 insertObject $pairsplit >& /dev/null
+  endif
+end
+
+# Finally do the copy of the connectivity tag!
+echo "Copying connectivity tag"
+echo ''
+if ($debug) echo "ccdb --db $db1 --idTag $idtag1 --ctag $tag1 copyConnectivityTag $tag3 $idtag2"
+ccdb --db $db1 --idTag $idtag1 --ctag $tag1 copyConnectivityTag $tag3 $idtag2

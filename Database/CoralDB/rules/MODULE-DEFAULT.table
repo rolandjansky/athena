@@ -1,0 +1,8 @@
+# $Id: MODULE-DEFAULT.table,v 1.3 2007-11-07 14:59:29 beringer Exp $
+ID
+PP0 Position
+PP0 ID
+BBIM TEMP CHANNEL
+PP2 reg board
+VddD reg board Channel
+VddA reg board Channel

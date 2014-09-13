@@ -1,0 +1,164 @@
+
+ccdb - A test utility for CoralDB
+=================================
+Usage: ccdb [OPTS] CMD [ARGS]
+
+Options can come in any order.  Supported options are:
+
+        --db    CONNECTION  # a DB connection string. This is required.
+
+        --idTag IDTAG # sets a current object dictionary tag
+              Most commands require that an existing idTag is defined
+              through this option. ("Current" idTag)
+              Exceptions are schema creation/dropping, making new idTag,
+              locking idTag, and working with historic tags.
+              Specifying idTag when not needed is OK, provided it exists.
+
+        --ctag  TAG   # sets a current connectivity tag
+        --dtag  TAG   # sets a current data tag
+        --atag  TAG   # sets a current alias tag
+        --tags  TAG   # a shorthand for ctag=dtag=atag
+
+              A proper tag must be defined for most commands to work.
+              Exceptions are schema creation/dropping, making or locking tags,
+              and working with historic tags.
+              Specifying a tag when not needed is OK, provided it exists.
+
+        --sloppyAliases  # Allows the loadAliases command to ignore aliases
+              for objects that are not known to the object dictionary.
+
+        --help        # print out this message and exit
+        --debug       # print out debug info when executing a command
+
+The commands:
+
+	create
+	dropSchemaAndDeleteAllData
+	loadConnections < connectivitydata.dat	# reads from stdin
+	loadAliases < aliasesdata.dat		# reads from stdin
+
+	insertMaster id
+	deleteMaster id
+	masterList
+
+	insertObject id type
+	deleteObject id
+	updateObject id type
+	objectType   id
+	renameID     oldID newID
+	renameType   oldType newType
+
+	ids	# If only idTag is set, shows all its objects.
+		If in addition to --idTag any of --ctag, --atag, --dtag
+		are set, show the union of sets of IDs mentioned in the
+		given connectivity, alias and data tags.
+
+
+	insertConnection	id slot toId toSlot
+	deleteOutConnection	id slot
+	deleteInConnection	id slot
+	updateOutConnection	id slot toId toSlot
+	updateInConnection	id slot toId toSlot
+	findOutSlot		id slot
+	findInSlot		id slot
+	findOutConn		id
+	findInConn		id
+	findOutConnByType	id type
+	findInConnByType	id type
+	findConnFromSlot	slot toid
+	findConnToSlot		id toslot
+	connections		# prints out all connections for the tag
+
+	insertAlias	alias convention id
+	deleteAlias	id    convention
+	findAliases	id
+	findAlias	id    convention
+	findId		alias convention
+	aliases			# prints all aliases
+
+	insertCLOB	id field clob
+	deleteCLOB	id field
+	updateCLOB	id field clob
+	findCLOB	id field
+	getClobNames	# prints all clob names in the tag
+	clobs		# prints names and contents for all clobs in the tag
+
+	makeNewObjectDictionaryTag	newIdTag
+	makeNewConnectivityTag	newTag
+	makeNewDataTag		newTag
+	makeNewAliasTag		newTag
+	makeNewTags		newTag  # is a shorthand for the above 3 calls
+
+			The above commands create new tags
+			for the current objectDictionaryTag
+
+	copyConnectivityTag	newConnectivityTag	[dstIdTag]
+	copyDataTag		newDataTag	[dstIdTag]
+	copyAliasTag		newAliasTag	[dstIdTag]
+	copyTags		newTags	[dstIdTag]  # a shorthand
+		for the other 3 calls.
+
+		The above commands create new tags for the specified dstIdTag,
+		which must already exist, and copy the content of the current
+		tag(s) into the new one(s).  If dstIdTag is not given,
+		the current IDTAG is used.
+
+	copyObjectDictionaryTag	newIdTag  # copies
+		just the object dictionary
+
+	copyMissingObjects	newIdTag  # copies
+		from --idTag objects mentioned in any combination
+		of --ctag, --atag, --dtag skipping those (ID,TYPE) pairs that
+		already exist in newIdTag.  If only --idTag is set but no other
+		tags, adds all missing objects from --idTag to newIdTag.
+
+	copyAllForObjectDictionaryTag	newIdTag  # copies
+			all tags from current idTag to newIdTag
+
+	deleteConnectivityTag	tag
+	deleteDataTag		tag
+	deleteAliasTag		tag
+	deleteAllForObjectDictionaryTag	idTag	#  deletes
+			all subordinate connectivity, data and alias tags.
+
+	lockConnectivityTag	tag
+	lockDataTag		tag
+	lockAliasTag		tag
+
+	lockCurrentTags  # locks tags specified via cmdline options
+
+	lockObjectDictionaryTag		idTag # locks just object dictionary
+	lockAllForObjectDictionaryTag	idTag # locks the idTag
+			and all subordinate tags
+
+	getExistingTags
+
+	setHistoricTag	[timeInSecondsSinceEpoch=now]
+		# All tags must be given via cmdline options.
+
+	getHistoricTag	[timeInSecondsSinceEpoch=now] 
+	deleteHistoryEntry	timeStampToBeDeleted
+	getHistoryTable	# prints out all entries
+
+			To get time in seconds one can use
+			the Linux "date" command, like
+			date +%s --date 'June 27, 2007  17:22 CET'
+
+
+Examples:
+
+       ccdb --db sqlite_file:test.db create
+       ccdb --db sqlite_file:test.db makeNewObjectDictionaryTag IDTAG1
+       ccdb --db sqlite_file:test.db --idTag IT makeNewConnectivityTag C1
+
+       ccdb --db sqlite_file:test.db --idTag IT --ctag C1 \
+                  loadConnections < data/connectivity.dat
+
+       ccdb --db sqlite_file:test.db --idTag IT --ctag C1 \
+                  findOutConn ROD_CRATE_0
+
+       ccdb --db oracle://ATLAS_COOLPROD/ATLAS_COOL_PIXEL getExistingTags
+
+Note: to connect to Oracle, the working dir should contain
+an authentication.xml file with valid username and password.
+

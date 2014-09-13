@@ -1,0 +1,13 @@
+# $Id: PP0-DEFAULT.table,v 1.2 2007-08-27 23:19:57 andr Exp $
+Modules
+ID
+SCO Link
+VDD PS Channel
+VDDA PS Channel
+HV PS Channel
+Module NTC
+Optoboard NTC
+Optoboard
+ROD
+PP2 Crate Temp
+

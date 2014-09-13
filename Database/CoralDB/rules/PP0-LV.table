@@ -1,0 +1,11 @@
+# $Id: PP0-LV.table,v 1.2 2007-08-27 23:19:57 andr Exp $
+ID	ID
+LV PP1 Connector Lemo-F
+PP2 Regulator Board
+SCO Link
+IDB SCO Link
+LV PP4 VDD
+VDD PS Channel
+LV PP4 VDDA
+VDDA PS Channel
+LV IDB

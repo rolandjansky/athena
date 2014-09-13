@@ -1,0 +1,79 @@
+#!/usr/bin/perl -w
+#
+#	File:		$Id: ccdb-graph,v 1.5 2007-08-27 23:19:42 andr Exp $
+#
+#	Author:		J. Beringer
+#
+#	Purpose:	Create a graph of (parts of) the CoralDB pixel connectivity database
+#
+use strict;
+use Getopt::Std;
+use CoralDB;
+use CoralDBGraph;
+
+
+my $usage = "Usage: ccdb-graph [options] id";
+my @allArgs = @ARGV;
+my %options;
+getopts('hadl:o:i:c:',\%options);
+if ($options{'h'}) {
+    print STDERR <<ENDHELP;
+ccdb-graph
+----------
+
+$usage
+
+The database connection is specified using the environment variables CORALDB,
+CORALDBUSER and CORALDBPWD. Values are as allowd by DBI. If CORALDB is not
+set, 'dbi:SQLite:pixelconfig.db' is used.
+
+Options:
+-h         This help message
+
+-i IDTAG   Specify IDTAG
+-c TAG     Specify connectivity tag
+
+-a         Show all ancestors (including soft links)
+-d         Show all daughters (inncluding soft links)
+-l layout  GraphViz layout type
+-o file    Output file
+ENDHELP
+    exit;
+}
+if ( @ARGV != 1 ) {
+  die "$usage\n"; 
+}
+#my $id = uc($ARGV[0]);
+my $id = $ARGV[0];
+
+
+my $db = new CoralDB($ENV{CORALDB} || 'dbi:SQLite:pixelconfig.db',
+                     $ENV{CORALDBUSER},
+                     $ENV{CORALDBPWD},
+		     $ENV{CORALDBPREFIX});
+$db->setTag('idTag',$options{i} || 'DEFAULT');
+$db->setTag('connTag',$options{c} || 'DEFAULT');
+#$db->dump();
+
+my $layout = $options{'l'} || 'dot';
+my $outfile = $options{'o'} || "$id.ps";
+my $graph;
+if ($outfile =~ /\.ps$/) {
+    $graph = new CoralDBGraph($db, width => 7.5, height => 10, layout => $layout, node => {fontsize => '10'});
+} else {
+    $graph = new CoralDBGraph($db, layout => $layout, node => {fontsize => '10'});
+}
+
+#$graph->{loopEdgeColor} = 'red';
+$graph->showNode($id, color => 'red');
+$graph->showAncestors($id,$options{'a'});
+$graph->showDaughters($id,$options{'d'});
+
+print "Encountered $graph->{'loopCounter'} loops while traversing connectivity graph for $id.\n";
+
+$graph->writeFile($outfile);
+if ($outfile =~ /\.ps$/) {
+    exec("gv $outfile");
+} else {
+    exec("xv $outfile");
+}

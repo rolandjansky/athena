@@ -1,0 +1,7 @@
+# $Id: LV-PP4-BLOCK-CHECKS.table,v 1.2 2007-08-27 23:19:57 andr Exp $
+ID	ID
+ # down links	ND!4 "OK"
+LV-PP4	TD!LV-PP4 ID
+ # up links	NU!2 "OK"
+CAN-PIX-ELMB	TU!CAN-PIX-ELMB ID
+LV-PP4-PANEL	TU!LV-PP4-PANEL ID

@@ -1,0 +1,13 @@
+# $Id: MODULE.rules,v 1.5 2007-11-07 14:59:29 beringer Exp $
+# Default rules for objects of type MODULE
+ID	ID
+PP0 ID	U=UP ID
+PP0 Position	U=UP A=GEOID
+OFFLINE ID	A!OFFLINEID
+ROD/ROB ID	U=UP U=OB U=UP A!OFFLINEID
+PP0 slot	U=UP SLOT
+BOC plug-in	U=UP U=OB U=UP SLOT
+BBIM TEMP CHANNEL	T=BBIM-CHN SLOT
+PP2 reg board	T=PP0 T=LV-PP1 T=LV-PP2 ID
+VddD reg board Channel	U=VddD SLOT
+VddA reg board Channel	U=VddA SLOT

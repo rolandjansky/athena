@@ -1,0 +1,22 @@
+# $Id: PP0-CAN.table,v 1.3 2007-10-18 18:09:32 beringer Exp $
+ID	ID
+LV PP1 Connector Lemo-F
+PP2 Regulator Board
+LV PP4 VDD
+LV PP4 VDDA
+LV PP4 Block
+LV PP4 Panel
+LV CAN Bus
+DCS PC
+CAN PSU
+PVSS System PP4
+VDD PS Channel
+VDDA PS Channel
+LV PS CRATE
+LV PS Channel
+TCPIP
+PVSS System LV
+LV IDB
+HV IDB
+IDB SCO Link
+ELMB IDB

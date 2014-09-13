@@ -1,0 +1,80 @@
+% $Id: CoralDB-Intro.tex,v 1.7 2008-03-03 21:39:27 beringer Exp $
+
+\section{Introduction}
+
+% Main author: Juerg
+
+The ATLAS pixel detector consists of 1744 pixel modules with a total
+of 80 million readout channels that are arranged in 3 barrel layers
+plus 3 disk layers on each side. In order to operate and readout the
+pixel detector, its modules must be connected to low- and high-voltage
+power supplies, to cooling, to the DAQ system, the DCS system and the
+interlock system using several thousand electrical and optical
+cables, resulting in O($10^4$) connections one needs to keep track of.
+The necessary information about these connections is stored in the
+connectivity database.
+
+The connectivity information is logically part of the pixel
+configuration data. While the connectivity data allows only to
+determine for example to which high-voltage channel a given pixel
+detector module is connected, the configuration data also specifies
+the actual voltage that should be applied to this module. The complete
+configuration data (including connectivity) should provide all the
+information necessary to power up, configure and operate the pixel
+detector in a given configuration. However, the configuration data
+does not specify at what times (or for which runs) a given detector
+configuration was used. This is the role of the conditions database
+that in general will contain a reference to a given version (or tag)
+of the configuration data, possibly together with a copy of some
+relevant data items such as applied voltages.
+
+Over the course of the experiment, many different detector
+configurations will be used. Once used for taking data to be analyzed
+later, the configuration information must be preserved. Unless one
+wants to copy all of the configuration data into the conditions
+database, the configuration database (and thus the connectivity
+database) must support some versioning with the possibility to lock a
+given version to prevent it from later modification.
+
+The pixel connectivity database is implemented based on CoralDB, a
+generic connectivity database application that was developed
+specifically for the pixel detector but could equally be used for managing
+connectivity information anywhere else in Atlas.  As the name
+indicates, CoralDB is based on CORAL \cite{CORAL} and can thus
+use different relational databases to store the connectivity
+information, including in particular Oracle databases and SQLite
+files.
+
+The main features of CoralDB are:
+\begin{itemize}
+\item Generic connectivity database (ie independent of pixel detector)
+\item Modelling of connectivity based on a list of connections between objects
+\item Each object can have an arbitrary number of payload data fields attached
+\item Objects may be given a type to distinguish different classes of objects
+\item In addition to a primary object name, each object may have one or more
+  aliases for different naming conventions
+\item Each connectivity database may store multiple versions (tags) of connectivity.
+\item Different versions of connectivity, aliases or payload data may or may not share the same set of
+  objects. This means one can store the connectivity of completely
+  unrelated systems in the same Oracle database without any naming conflicts or other interference.
+\item Versioning of the actual connectivity, the payload data, and aliases is
+  independent (i.e.\ one doesn't need to generate a new version of the connectivity
+  information if some of the payload data or an alias is changed)
+\item Versions can be locked to prevent accidental modification
+\item Simple mechanism to keep track of what version was considered "current" at
+  any given time (i.e.\ IOV for tags)
+\item Web interface to search and browse a connectivity database using any of
+  the available naming schemes, and to create connectivity graphs
+\item Web interface to generate spreadsheet-like tables from the database
+\item Command-line utilities to create databases, manage tags, search the
+  database, enter data, etc.
+\item C++ API
+\item Read-only Perl API
+\end{itemize}
+
+In this note the design and implementation of CoralDB, as well as the
+modelling of the specific pixel detector connectivity are
+described. Specific recipes on how to perform certain operations with
+CoralDB on the pixel connectivity database are given in section
+\ref{HOWTO}.
+

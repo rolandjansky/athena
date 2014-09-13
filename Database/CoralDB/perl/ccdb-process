@@ -1,0 +1,64 @@
+#!/usr/bin/perl -w
+#
+#	File:		$Id: ccdb-process,v 1.2 2007-08-27 23:19:42 andr Exp $
+#
+#	Author:		J. Beringer
+#
+#	Purpose:	Execute a single parsing rule on the connectivity database
+#
+#	Usage:		ccdb-rule id rule 
+#
+#	NOTE:		
+#
+use strict;
+use Getopt::Std;
+use CoralDBRuleProcessor;
+
+
+my $usage = "Usage: ccdb-process [options] id rule";
+my @allArgs = @ARGV;
+my %options;
+getopts('hi:c:d:a:',\%options);
+
+if ($options{'h'}) {
+    print STDERR <<ENDHELP;
+ccdb-process
+------------
+
+$usage
+
+The database connection is specified using the environment variables CORALDB,
+CORALDBUSER and CORALDBPWD. Values are as allowd by DBI. If CORALDB is not
+set, 'dbi:SQLite:pixelconfig.db' is used.
+
+Options:
+-h         This help message
+
+-i IDTAG   Specify IDTAG
+-c TAG     Specify connectivity tag
+-d TAG     Specify data tag
+-a TAG     Specify alias tag
+ENDHELP
+    exit;
+}
+if ( @ARGV != 2 ) {
+  die "Usage: ccdb-process [options] id rule\n"; 
+}
+my $id = $ARGV[0];
+my @rule = split(/\s+/, $ARGV[1]);
+
+my $db = new CoralDB($ENV{CORALDB} || 'dbi:SQLite:pixelconfig.db',
+                     $ENV{CORALDBUSER},
+                     $ENV{CORALDBPWD},
+		     $ENV{CORALDBPREFIX});
+$db->setTag('idTag',$options{i} || 'DEFAULT');
+$db->setTag('connTag',$options{c} || 'DEFAULT');
+$db->setTag('dataTag',$options{d} || 'DEFAULT');
+$db->setTag('aliasTag',$options{a} || 'DEFAULT');
+
+my $p = new CoralDBRuleProcessor($db);
+
+my @result = $p->process($id,@rule);
+foreach my $r (@result) {
+    print "$r\n";
+}

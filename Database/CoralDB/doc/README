@@ -1,0 +1,25 @@
+CoralDB
+=======
+$Id: README,v 1.2 2007-01-25 22:24:58 jb Exp $
+
+This is CoralDB, a relational database prototype for the pixel connectivity
+database.
+
+Until we're using a proper configuration management tool such as cmt, please
+use setup.csh as provided in this directory to properly set all environment
+variables required for building and running CoralDB.
+
+The top level directory (where this README file is located) contains the
+C++ code as well as utility scripts to import the initial connectivity
+database contents from a spreadsheet through CSV files.
+
+The perl subdirectory contains a read-only Perl API to CoralDB in module
+CoralDB.pm, plus a number of Perl-based tools (including the code for
+the CoralDB web browser and utilities to create connectivity graphs).
+
+The cgi-bin subdirectory contains scripts that apart from setting up
+the proper environment call the main Perl CGI scripts located in the
+perl subdirectory.
+
+Please contact Juerg Beringer (juerg.beringer AT cern.ch) with any questions
+or comments.

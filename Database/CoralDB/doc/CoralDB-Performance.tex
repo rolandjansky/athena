@@ -1,0 +1,44 @@
+% $Id: CoralDB-Performance.tex,v 1.3 2007-07-31 15:53:56 jb Exp $
+
+\subsection{Performance}
+\label{performance}
+
+% Main author: Juerg
+
+Preliminary performance studies of the CoralDB connectivity database have been performed in a standalone
+environment using both local SQLite files and the Oracle test server {\tt devdb10}. While such studies
+can give an impression of the best-case performance, the performance figures that are really relevant for
+ATLAS can only be determined in a test environment that includes at least the whole inner detector, if not
+all of ATLAS. In particular, in order to get more realistic performance estimates when using Oracle, the number of clients
+accessing the Oracle server should be similar to what is expected in the real experiment for example at the
+start of a new run.
+
+The performance numbers given in table~\ref{PERFORMANCE-table} below have been obtained by running a single instance
+of the CoralDB code on the {\tt atlpix01} PC at CERN. {\tt atlpix01} is a more or less standard Intel Pentium 4, 3GHz machine with 0.5 GB of RAM. Timing measurements were performed using either the shell command {\tt time} (for long operations) or
+{\tt gettimeofday()} from {\tt sys/time.h} (whose nominal resolution is 1$\mu$s). Measurements for SQLite files were
+made using a file on a local disk. Measurements for Oracle were made using the {\tt devdb10} development server (the online server is expected to be significantly faster, but the actual performance will of course depend on the server's load).
+
+Since during these studies the PC, network connections and Oracle server were shared with other users, the test results showed a large variation depending on other activities going on in parallel. Therefore the results quoted in
+table~\ref{PERFORMANCE-table} are indicative at best and all numbers have large errors (perhaps at the level of 50\%). 
+
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|p{11cm}|c|c|}
+\hline
+What & \multicolumn{2}{|c|}{Typical execution time} \\
+& SQLite & Oracle \\ \hline
+\hline
+Start database connection/transaction & 60ms & $<1$s \\ \hline
+Find a connection                     & 0.3ms  & 10ms  \\ \hline
+Traverse connectivity using PixDbCoralDB, after caching & 12$\mu$s & 12$\mu$s \\ \hline
+Add or update a link using PixDbCoralDB & 0.2ms & 9ms \\ \hline
+Operations on CLOBs (up to 4kB) & \multicolumn{2}{|c|}{O(tens of ms)} \\ \hline
+\hline
+Create new database tables and upload pit connectivity (10k connections, 7k aliases) & 10s & 4min \\ \hline
+\end{tabular}
+\caption[CoralDB performance summary]
+{Summary of CoralDB performance for local SQLite files and for the devdb10 Oracle server.}
+\label{PERFORMANCE-table}
+\end{center}
+\end{table}

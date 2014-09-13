@@ -1,0 +1,10 @@
+# $Id: PP0-CHECKS.table,v 1.2 2007-08-27 23:19:57 andr Exp $
+ID	ID
+# Can have 6 or 7 down links
+ # down links	ND>5 ND<8 ND "OK"
+Modules	TD!MODULE ID
+ # up links	NU!5 NU "OK"
+UP Link	U!UP ID HTMLITALIC TYPE
+HV-PP1	TU!HV-PP1 ID
+LV-PP1	TU!LV-PP1 ID
+OPTO-PP1	TU!OPTO-PP1 ID

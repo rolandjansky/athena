@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ -z "$1" ]; then
+	echo 'Usage: csh2sh setup.csh > setup.sh'
+	echo 'This converter is meant to handle simple cases only.'
+	echo 'See also: http://www.faqs.org/faqs/unix-faq/shell/csh-whynot/'
+else
+	sed -e 's/^ *setenv \+\([^ ]\+\) \+/export \1=/' -e 's/^ *set \+//' "$1"
+fi
+
+

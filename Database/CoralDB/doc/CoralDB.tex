@@ -1,0 +1,146 @@
+% $Id: CoralDB.tex,v 1.12 2008-10-14 20:20:24 jarguin Exp $
+
+\documentclass[12pt,twoside]{article}
+%\documentclass[twoside]{article}
+
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+
+%% This breaks LaTeX page layout. For example \marginpar{} gives ugly
+%% results. Comment out the settings for now to enable use of
+%% \marginpar{} in the drafts.
+%%
+%
+\topmargin -1.5cm
+\textheight 22cm
+\textwidth 16.6cm
+\oddsidemargin 0cm
+\evensidemargin 0cm
+
+
+\raggedbottom
+%\raggedright
+
+\newcommand{\NFIG}[6]{
+  \begin{figure}[#1]
+  \begin{center}
+  \includegraphics[#3]{#2}
+  \caption[#5]{\label{#4} #6}
+  \end{center}
+  \end{figure} }
+
+\newcommand{\fixme}[1]{{\textbf{FIXME:} \textit{#1}}}
+
+\begin{document}
+
+%
+% Title page
+%
+\begin{flushright} \large \bf
+ATLAS Internal Note\\
+ATL-COM-INDET-2008-001\\
+\today
+\end{flushright}
+
+\vspace*{2cm}
+\begin{center} \LARGE \bf
+CoralDB:\\The Connectivity Database for the\\ATLAS Pixel Detector
+\end{center}
+
+\vspace*{0.2cm}
+\begin{center} \it
+Jean-Francois Arguin, Juerg Beringer\footnote{E-mail: juerg.beringer@cern.ch}, Andrei Gaponenko, Marian Zdrazil\\
+Lawrence Berkeley National Laboratory\\
+\vspace*{0.5cm}
+\end{center}
+
+\vspace*{0.5cm}
+\begin{abstract} \noindent
+This note describes the connectivity database (CoralDB) developed for the ATLAS pixel
+detector. The design and implementation of CoralDB as well as available tools and the modelling
+of the pixel detector connectivity are discussed.
+\end{abstract}
+\vspace*{0.5cm}
+
+
+%
+% Table of contents
+%
+\newpage
+\pagenumbering{roman}
+\thispagestyle{empty}
+\setcounter{tocdepth}{3}
+\tableofcontents
+\markboth{Contents}{Contents}
+%\newpage
+\listoffigures
+%\newpage
+\listoftables
+%\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+%
+% Document text
+%
+\newpage
+\input{CoralDB-Intro}
+\clearpage
+\section{CoralDB}
+\input{CoralDB-Design}
+\clearpage
+\input{CoralDB-API}
+\clearpage
+\input{CoralDB-Performance}
+\clearpage
+\input{CoralDB-PixelConn}
+\clearpage
+\input{CoralDB-HowTo}
+
+
+%
+% Bibliography
+%
+%\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{CORAL}
+  {\it COmmon Relational Abstraction Layer(CORAL)}, {\tt http://pool.cern.ch/coral/}
+
+\bibitem{CORALDBBROWSER-url}
+  {\tt http://atlsr1.cern.ch/web-db/coraldb.cgi} (this URL may change in the future)
+
+\bibitem{CORALDBBROWSER-replica-url}
+  {\tt http://atlsr1.cern.ch/web-db/replica/coraldb.cgi} (this URL may change in the future)
+
+\bibitem{WIKI}
+  CoralDB Wiki page, {\tt https://twiki.cern.ch/twiki/bin/view/Atlas/CoralDB}
+
+\bibitem{dirk}
+  D. Hoffmann, {\it Inspect CoralDB for PixelDcsConnectivity V3},\\ {\tt https://atlas-france.in2p3.fr/Activites/Informatique/Pixel/DcsConnInspect.php}
+
+\bibitem{pixelpaper} ATLAS Pixel Collaboration, {\it Mechanics and Services of the ATLAS Pixel Detector}, To be submitted to {\it JINST}.
+
+\bibitem{requirements_services} M. Olcese {\it et al.}, {\it Requirement for Pixel Detector Services}, EDMS Document ATL-IP-ES-0007 (2003).
+
+\bibitem{atl0092} E. Anderssen, {\it Module to PP0 Connectivity}, EDMS Document ATL-IP-ES-0092 (2007).
+
+\bibitem{atl0093} E. Anderssen {\it et al.}, {\it Service Quarter Panel Connectivity}, EDMS Document ATL-IP-ES-0093 (2005).
+
+\bibitem{atl0094} D. Giugni, {\it Type II Cable Connectivity, Labeling and Designation Rules}, EDMS Document ATL-IP-ES-0094 (2004).
+
+\bibitem{atl0102} E. Anderssen, {\it Pixel Optical Connectivity}, EDMS Document ATL-IP-ES-0102 (2005).
+
+\bibitem{atl0104} E. Anderssen {\it et al.}, {\it Type 4 Connectivity}, EDMS Document ATL-IP-ES-0104 (2006).
+
+\bibitem{atl0132} E. Anderssen {\it et al.}, {\it Type 3 Cable Connectivity}, EDMS Document ATL-IP-ES-0132 (2006).
+
+\bibitem{ilock_matrix} S. Kersten {\it et al.}, {\it The Interlock Matrix of the Pixel Detector Control System}, EDMS Document ATL-IP-ES-110 (2007).
+\bibitem{service_test} M.A. Leyton, EDMS Document ATL-IP-QA-0026 (2007).
+
+\bibitem{sr1_ct} ATLAS Pixel Collaboration, {\it  Results from the Connectivity Test during the Pixel Package integration}, ATLAS note in preparation (2008).
+
+\end{thebibliography}
+
+\end{document}

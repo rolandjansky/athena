@@ -1,0 +1,18 @@
+SIT-Detector_Configuration
+	{ background-color: #FFFFAA; width: 50%; }
+DBTAG { 
+	color: #1111FF; display: block; 
+	margin-bottom: 10pt; margin-top: 10pt; margin-left: 14pt;
+	font-size: 10pt; }
+PrimaryCoolingCircuit
+	{ display: block; margin-bottom: 10pt; margin-top: 10pt; }
+ReadoutUnit
+	{ color: #EE0000; font-size: 20pt; }
+DEBUG
+	{ background-color: #EEEEEE; color: #EE2020; Display: block; 
+	margin-top: 4pt; margin-bottom: 1pt; 
+	font-size: 12pt; }
+Connection
+	{ color: #000000; Display: block; font-size: 10pt; }
+Module
+	{ margin-left: 15pt; }

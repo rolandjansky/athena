@@ -1,0 +1,109 @@
+#! /bin/csh
+#
+#	File:		$Id: ccdb-diff,v 1.4 2008-05-06 23:15:18 beringer Exp $
+#
+#	Author:		J. Beringer
+#
+#	Purpose:	Diff contents of CoralDB connectivity databases
+#
+#	Usage:		ccdb-diff [options] idtag1/tag1 idtag2/tag2
+#
+#	NOTE:		
+#
+set version='ccdb-diff\n---------'
+set usage="Usage: ccdb-diff [options] idtag1/tag1 idtag2/tag2"
+set db1="$PIX_CONN_DB"
+set db2="$db1"
+set ccdbcmd='connections'
+set ccdbtag='--ctag'
+set diff='diff'
+
+set argv=(`getopt -u -q -a -s tcsh -o hacdm -l help,db:,db2:,graphical -- $*:q`)
+if ($status) then
+  echo "$usage"
+  exit 1
+endif
+
+while (1)
+  switch ($1:q)
+    case --db:
+      set db1="$2"
+      set db2="$db1"
+      shift; shift
+      breaksw
+    case --db2:
+      set db2="$2"
+      shift; shift
+      breaksw
+    case -a:
+      set ccdbcmd='aliases'
+      set ccdbtag='--atag'
+      shift
+      breaksw
+    case -c:
+      set ccdbcmd='connections'
+      set ccdbtag='--ctag'
+      shift
+      breaksw
+    case -d:
+      set ccdbcmd='clobs'
+      set ccdbtag='--dtag'
+      shift
+      breaksw
+    case -m:
+      set ccdbcmd='masterList'
+      set ccdbtag='--ctag'
+      shift
+      breaksw
+    case --graphical:
+      set diff='tkdiff'
+      shift
+      breaksw
+    case -h:
+    case --help:
+      echo ''
+      /bin/echo -e $version
+      echo ''
+      echo "$usage"
+      echo ''
+      echo '--help              This help message'
+      echo ''
+      echo "--db                Database connection (default: $db1)"
+      echo "--db2               Database connection 2 (if different from --db1)"
+      echo ''
+      echo '-a                  Diff aliases'
+      echo '-c                  Diff connections (default)'
+      echo '-d                  Diff payload data'
+      echo '-m                  Diff master list'
+      echo ''
+      echo '--graphical         Use tkdiff instead of diff'
+      echo ''
+      exit 1
+    case --:
+      shift
+      break
+  endsw
+end
+
+if ( $#argv != 2 ) then
+  echo "$usage"
+  exit 1
+endif
+
+set idtag1=`echo $1 | awk -F/ '{print $1}'`
+set tag1=`echo $1 | awk -F/ '{print $2}'`
+set idtag2=`echo $2 | awk -F/ '{print $1}'`
+set tag2=`echo $2 | awk -F/ '{print $2}'`
+
+set tmp1="$idtag1-$tag1.tmp"
+set tmp2="$idtag2-$tag2.tmp"
+
+echo "ccdb --db $db1 --idTag $idtag1 $ccdbtag $tag1 $ccdbcmd >! $tmp1"
+ccdb --db $db1 --idTag $idtag1 $ccdbtag $tag1 $ccdbcmd >! $tmp1
+echo "ccdb --db $db2 --idTag $idtag2 $ccdbtag $tag2 $ccdbcmd >! $tmp2"
+ccdb --db $db2 --idTag $idtag2 $ccdbtag $tag2 $ccdbcmd >! $tmp2
+
+$diff $tmp1 $tmp2
+
+# Comment out the following line if you want the temporary files left in the current directory
+rm $tmp1 $tmp2
