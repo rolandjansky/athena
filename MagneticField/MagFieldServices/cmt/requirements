@@ -1,0 +1,46 @@
+package MagFieldServices
+author <elmar.ritsch@cern.ch>
+
+manager Niels van Eldik <niels.van.eldik@cern.ch>
+manager Robert Langenberg <robert.johannes.langenberg@cern.ch>
+manager Masahiro Morii <masahiro_morii@harvard.edu>
+manager Elmar Ritsch <elmar.ritsch@cern.ch>
+manager Valerio Ippolito <valerio.ippolito@cern.ch>
+
+#################################################################
+# public use statements
+#################################################################
+public
+use AtlasPolicy                 AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*             Control
+use AtlasROOT                   AtlasROOT-*                   External
+
+use MagFieldInterfaces          MagFieldInterfaces-*          MagneticField
+
+#################################################################
+# private use statements
+#################################################################
+private
+use GaudiInterface              GaudiInterface-*              External
+use PathResolver                PathResolver-*                Tools
+use AtlasCLHEP                  AtlasCLHEP-*                  External
+use AthenaPoolUtilities         AthenaPoolUtilities-*         Database/AthenaPOOL
+use StoreGate                   StoreGate-*                   Control
+
+# Add cmake-specific dependencies on Eigen and ROOT IO (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(Eigen)"
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
+declare_runtime_extras extras = ../Data/*.root
+
+#apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+public
+library MagFieldServices *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+# use this to activate debug info in this package:
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"

@@ -1,0 +1,23 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# MagFieldServices
+#--------------------------------------------------------------
+
+from AthenaCommon.Logging import logging
+logging.getLogger().info("Importing %s", __name__)
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
+
+# initialise required conditions DB folders
+from IOVDbSvc.CondDB import conddb
+conddb.addFolderSplitMC('GLOBAL','/GLOBAL/BField/Map <noover/>','/GLOBAL/BField/Map <noover/>')
+conddb.toMetaData('/GLOBAL/BField/Map')
+if not athenaCommonFlags.isOnline():
+    conddb.addFolder('DCS_OFL','/EXT/DCS/MAGNETS/SENSORDATA')
+    conddb.toMetaData('/EXT/DCS/MAGNETS/SENSORDATA')
+    
+# import the field service
+# (it is MagFieldServices.MagFieldServicesConfig which takes care of configuration)
+from AthenaCommon.CfgGetter import getService
+getService('AtlasFieldSvc')
