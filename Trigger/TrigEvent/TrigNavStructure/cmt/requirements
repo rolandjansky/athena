@@ -1,0 +1,22 @@
+package TrigNavStructure
+author  Tomasz Bold
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## put here your package dependencies...
+use  AtlasBoost                 AtlasBoost-*                    External
+##
+
+## default is to make component library
+library TrigNavStructure ../Root/*.cxx
+apply_pattern installed_library
+
+private
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=build_trignav extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=features extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=serializer extrapatterns=".*"
+end_private
+
+
