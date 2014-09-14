@@ -1,0 +1,67 @@
+package TrigSteering
+
+
+# author Till Eifert <Till.Eifert@cern.ch>
+# author Nicolas Berger <Nicolas.Berger@cern.ch>
+author Tomasz Bold <Tomasz.Bold@cern.ch>
+author Rustem Ospanov <Rustem.Ospanov@cern.ch>
+author Frank Winklmeier  <fwinkl@cern>
+author Joerg Stelzer  <stelzer@cern>
+
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AthenaMonitoring           AthenaMonitoring-*              Control
+use  EventInfo                  EventInfo-*                     Event
+use  GaudiInterface             GaudiInterface-*                External
+use  StoreGate                  StoreGate-*                     Control
+use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
+use  TrigTimeAlgs               TrigTimeAlgs-*                  Trigger/TrigTools
+use  TrigROBDataProviderSvc     TrigROBDataProviderSvc-*        Trigger/TrigDataAccess
+private
+use  AtlasBoost                 AtlasBoost-*                    External
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasReflex                AtlasReflex-*                   External
+use  ByteStreamCnvSvcBase       ByteStreamCnvSvcBase-*          Event
+use  CxxUtils                   CxxUtils-*                      Control
+use  DataCollection             DataCollection-*                External
+use  TestTools                  TestTools-*                     AtlasTest
+use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
+use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
+use  TrigMonitorBase            TrigMonitorBase-*               Trigger/TrigMonitoring
+use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
+use  TrigSerializeResult        TrigSerializeResult-*           Trigger/TrigDataAccess
+use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+end_private
+
+
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.py Lvl1Results.txt"
+apply_pattern declare_xmls extras="-s=../share *.dtd *.xml"
+
+
+apply_pattern declare_python_modules files="*.py"
+
+private
+
+# the following lines are needed for the unitTests:
+apply_tag  NEEDS_CORAL_BASE
+apply_tag NEEDS_COOL_FACTORY
+
+use TestTools      TestTools-*         AtlasTest
+apply_pattern install_runtime
+
+apply_pattern UnitTest_run unit_test=Signature extrapatterns=".*"
+
+# documentation
+macro_append DOXYGEN_INPUT " ../doc"
+
+apply_pattern lcgdict dict=TrigSteering selectionfile=selection.xml headerfiles="../TrigSteering/TrigSteeringDict.h"
+
+end_private
