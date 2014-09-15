@@ -1,0 +1,24 @@
+package MuonHoughPatternEvent
+
+author Jochem Snuverink <jsnuverink@nikhef.nl>
+
+use AtlasPolicy          AtlasPolicy-*
+
+use DataModel		*			Control
+use GeoPrimitives GeoPrimitives-* DetectorDescription
+
+private
+use AtlasROOT           * 			External
+use CxxUtils		*			Control
+use TrkDetElementBase	*			Tracking/TrkDetDescr
+use TrkSurfaces		*			Tracking/TrkDetDescr
+use TrkPrepRawData	*                   	Tracking/TrkEvent
+public
+
+branches MuonHoughPatternEvent src
+
+library MuonHoughPatternEvent *.cxx
+apply_pattern installed_library
+
+private
+apply_tag ROOTBasicLibs
