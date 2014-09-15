@@ -1,0 +1,116 @@
+         <athena trendId='muonPileupTrend' userJobId='TrigInDetValidation_mu_Zmumu_pu40'>
+            <doc>Z->mumu pu40</doc>
+            <displayName>MuonSlice, Zmumu pu40</displayName>
+	    <commandLineFlags>EventMax=4000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+<!--	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000076.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000423.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000476.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000642.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000683.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000713.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000718.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000767.pool.root.1</dataset>
+	    -->
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000001.pool.root.1</dataset>
+<!--            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000002.pool.root.1</dataset> -->
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000003.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000004.pool.root.2</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000005.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000006.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000007.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000008.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000009.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000010.pool.root.1</dataset>
+
+            <action position="a">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-muon-pileup.root -p 13  -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+	    <action position="2">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-pileup.root data-muon-pileup-reference.root EF_mu22_IDTrkNoCut_tight_InDetTrigParticleCreation_Muon_EFID -d EF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="3">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-pileup.root data-muon-pileup-reference.root L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_0 L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_1 L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_2 L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_3 -d L2-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="4">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-pileup.root data-muon-pileup-reference-newchains.root HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID   -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="5">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-pileup.root data-muon-pileup-reference-newchains.root HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+	    <auxFilePattern>data-muon-pileup-reference.root</auxFilePattern>
+	    <auxFilePattern>data-muon-pileup-reference-newchains.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+	  <athenaCommonFlags />
+	  </athena>
+
+

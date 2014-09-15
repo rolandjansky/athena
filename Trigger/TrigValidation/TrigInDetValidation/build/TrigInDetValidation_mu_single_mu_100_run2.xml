@@ -1,0 +1,115 @@
+  <athena trendId='muonTrend' userJobId='TrigInDetValidation_mu_single_mu_100_run2'>
+            <doc>Single muon 100 GeV, run2 chains </doc>
+            <displayName>MuonSlice-single muon 100GeV, pu0, run2 chains</displayName>
+            <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000005.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000012.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000016.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000034.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000040.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000047.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000050.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000071.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000076.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000130.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000134.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000148.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000172.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000197.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000198.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000207.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000216.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000224.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000238.pool.root.1</dataset>
+           <action position="1">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArdict.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>TIDAdata11-rtt.dat -f data-muon.root -p 13  -b Test_bin.dat </argvalue>
+              </arg>
+            </action>
+
+	    <action position="2">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon.root data-muon-reference.root EF_mu22_IDTrkNoCut_tight_InDetTrigParticleCreation_Muon_EFID -d EF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="3">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon.root data-muon-reference.root L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_0 L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_1 L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_2 L2_mu22_IDTrkNoCut_tight_TrigL2SiTrackFinder_Muon_3 -d L2-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="4">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="5">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+	    <auxFilePattern>data-muon-reference.root</auxFilePattern>
+	    <auxFilePattern>data-muon-reference-newchains.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+         <athenaCommonFlags />
+         </athena>
+
+
+

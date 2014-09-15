@@ -1,0 +1,131 @@
+         <athena trendId='muonBphysMergingTrend' userJobId='TrigInDetValidation_mu_bphys_IBL_run2'>
+            <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
+            <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
+	    <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000001.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000004.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000005.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000006.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000007.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000012.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000014.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000015.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000016.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000017.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000019.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000021.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000024.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000025.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000033.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000035.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000037.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000038.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000040.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000042.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000043.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000044.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000045.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000046.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000047.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000051.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000053.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000055.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000060.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000061.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000065.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000067.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000072.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000074.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000077.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000078.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000079.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000080.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000081.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000083.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000085.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000086.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000087.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000088.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000089.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000093.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000094.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000096.pool.root.2</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.208401.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu4mu4_phi.recon.RDO.e2103_s1682_s1691_r4710_tid01304931_00/RDO.01304931._000097.pool.root.1</dataset>
+
+
+            <action position="a">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-muon-bphys-merge.root -p 13  -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+	    <action position="2">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-bphys-merge.root data-muon-bphys-merge.root EF_mu22_IDTrkNoCut_tight_IDT_TrigFastTrackFinder_Muon EF_mu22_IDTrkNoCut_tight_IDT_InDetTrigParticleCreation_Muon_EFID  -d EF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="3">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-bphys-merge.root data-muon-Bphys-IBL-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon  HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2   -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="4">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-bphys-merge.root data-muon-Bphys-IBL-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_EFID HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+	    <auxFilePattern>data-muon-Bphys-IBL-reference-newchains.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+	  <athenaCommonFlags />
+	  </athena>
+

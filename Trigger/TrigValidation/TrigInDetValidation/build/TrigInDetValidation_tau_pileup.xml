@@ -1,0 +1,106 @@
+<!--    <athena trendId='tau_pileup' userJobId='TrigInDetValidation_tau_pileup' >
+            <doc>Tests LVL2 ID tracking algorithms in Tau slice using misaligned W->tauhad sample</doc>
+            <displayName>TauSlice_pileup</displayName>
+	    <commandLineFlags>EventMax=2000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000004.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000005.pool.root.2</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000008.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000013.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000019.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000026.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000040.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000044.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000047.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000048.pool.root.1</dataset>
+
+
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000053.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000054.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000060.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000062.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000065.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000073.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000078.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000083.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000099.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000102.pool.root.1</dataset>
+
+
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000116.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000125.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000137.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000149.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000166.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000167.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000176.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000196.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000198.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000199.pool.root.1</dataset>
+
+
+
+	    <action position="a">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-tau-pileup.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+            <action position="2">   
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                  <argname>exeName</argname>
+                  <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                  <argname>exeParamString</argname>
+                  <argvalue>data-tau-pileup.root data-tau-pileup-reference.root EF_tau29_IDTrkNoCut_InDetTrigParticleCreation_Tau_EFID -d EF-plots </argvalue>
+              </arg>
+            </action> 
+
+            <action position="3">   
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-tau-pileup.root data-tau-pileup-reference.root L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_0 L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_1 L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_2 L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_3 -d L2-plots </argvalue> 
+              </arg>
+            </action>          
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+            <auxFilePattern>data-tau-pileup-reference.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+         <athenaCommonFlags /> 
+         </athena>
+-->
+
+
+

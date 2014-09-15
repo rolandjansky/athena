@@ -1,0 +1,38 @@
+<!--     <athena userJobId='TrigInDetValidation_cosmic_v0'>
+
+            <doc>Tests LVL2 and EF ID tracking algorithms using runHLT_standalone with Cosmic data from 2011 (Physics_pp_v2 menu)</doc>
+	    <displayName>CosmicSlice</displayName>
+            <commandLineString>-c 'testCosmicPPV2=True;EventMax=2000;OutputLevel=INFO;HLTOutputLevel=INFO;BSRDOInput=["data11_cos.00175877.physics_IDCosmic.merge.RAW._lb0050._SFO-ALL._0001.1","data11_cos.00175877.physics_IDCosmic.merge.RAW._lb0051._SFO-ALL._0001.1","data11_cos.00175877.physics_IDCosmic.merge.RAW._lb0052._SFO-ALL._0001.1","data11_cos.00175877.physics_IDCosmic.merge.RAW._lb0053._SFO-ALL._0001.1","data11_cos.00175877.physics_IDCosmic.merge.RAW._lb0054._SFO-ALL._0001.1",]'</commandLineString>
+            <options>TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>medium</queue>
+
+            <action position="a">
+               <modulename>RttLibraryTools</modulename>
+               <testname>ROOTMacroRunner</testname>
+               <arg>
+                 <argname>macro</argname>
+                 <argvalue>TrigInDetValidation_TestCosmics.C</argvalue>
+               </arg>
+                <arg>
+                    <argname>compileTheMacro</argname>
+                    <argvalue>True</argvalue>
+                </arg>
+            </action>
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+          <castorSvcClass>atlcal</castorSvcClass>
+	 
+         <athenaCommonFlags /> 
+         </athena>
+
+-->
+
+
+
+

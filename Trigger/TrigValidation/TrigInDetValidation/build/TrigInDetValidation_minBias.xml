@@ -1,0 +1,73 @@
+         <athena userJobId='TrigInDetValidation_minBias'>
+            <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the di-jet sample</doc>
+            <displayName>FullScan on di-jet events</displayName>
+	    <commandLineFlags>EventMax=1000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105012.J3_pythia_jetjet.digit.RDO.e574_s1023_d421_tid212390_00/RDO.212390._000284.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105012.J3_pythia_jetjet.digit.RDO.e574_s1023_d421_tid212390_00/RDO.212390._000280.pool.root.1</dataset>	    
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105012.J3_pythia_jetjet.digit.RDO.e574_s1023_d421_tid212390_00/RDO.212390._000182.pool.root.1</dataset>
+	    
+            <action position="a">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-monitor.root  </argvalue>
+                </arg>
+            </action>
+
+	    <action position="2">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-monitor.root data-monitor-reference.root EF_InDetMon_FS_InDetTrigParticleCreation_FullScan_EFID -d EF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="3">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-monitor.root data-monitor-reference.root L2_InDetMon_FS_TrigL2SiTrackFinder_FullScan_0 L2_InDetMon_FS_TrigL2SiTrackFinder_FullScan_1 L2_InDetMon_FS_TrigL2SiTrackFinder_FullScan_2  L2_InDetMon_FS_TrigL2SiTrackFinder_FullScan_3 -d L2-plots </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+	    <auxFilePattern>data-monitor-reference.root</auxFilePattern>
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+          <athenaCommonFlags /> 
+	  </athena>
+

@@ -1,0 +1,108 @@
+TrigInDetValidation
+-------------------
+This contains everything you need to run and test the IDTrigger in the RTT
+
+The directory structure is 
+
+  share   -   py job options files for running the RTT processing
+  test    -   global TestConfiguration xml file for running the jobs in the RTT
+  build   -   xml fragments and makefile to build the global xml file
+  utils   -   useful utilities to allow testing the xml jobs 
+  doc     -   this documantation
+
+
+Making the xml file
+-------------------
+In the 
+
+   build
+
+directory, there are separate small xml fragments for individual jobs to be 
+run in the RTT, for example ...
+
+  TrigInDetValidation_bjet_IBL_pu40_run2.xml
+  TrigInDetValidation_bjet_IBL_pu40_run2_newSeeding.xml
+  TrigInDetValidation_bjet_IBL_pu40_run2_oldSeeding.xml
+  ...
+
+also in the build directory, is a makefile and a master file 
+
+  TrigInDetValidation_TestConfiguration_main.xml
+
+which simply includes all the separate xml fragments to make the large
+
+  test/TrigInDetValidation_TestConfiguration.xml
+
+xml file for the RTT.
+
+Do NOT edit this large xml file directly - instead modify the xml fragments
+and then run make in the build directory.
+
+This also tests the xml integrity of the file.
+
+NB: Because we use the c preprocessor to compine the xml fragments, then 
+    the pattern /* as used in say the "<keepPattern>" entries for 
+    directories, eg
+
+       <keepFilePattern>TIDAWeb/build/*</keepFilePattern> 
+  
+    is recognised as the "open comment" tag, requiring a later "*/" close 
+    comment. For this reason, if needing this construct, use "/STAR" rather 
+    then "/*" since we 
+
+      #define STAR *
+
+    so the preprocessor creates these patterns for us, and they are not then 
+    interpretted as the open comments     
+      
+
+Utilsities for testing
+----------------------
+
+in the 
+
+  utils
+
+directory there are two utilities ...
+
+  mkargs
+  mkdatasets
+
+These take the xml fragments and write out ...
+
+  mkdatasets -  a pythion fragment to be included in job options to run exactly 
+                the data set that is used in the xml file  
+  mkargs     -  a shell script containing the commands that need to be executed 
+                to run the complete RTT tasks, with tasks for the different 
+                "positions" in the RTT job sequence, with the correct arguments
+                the script also includes the relevant "get_files" calls to ensure
+                that all the relevant files that would be fetched by the RTT are
+                retrieved
+
+The script mkargs calls the mkdatasets script, so you do not need to use mkdatasets
+itself, unless you are only interested in the py jo fragment.
+
+Both scripts can be executed from the utils directory as follows ...
+
+   mkargs ../build
+
+which will create py fragments and shell scripts for all xml job files  in the 
+
+  ../build directory  
+
+Running as 
+  
+  mkargs ../build/*.xml
+
+will run for all the xml files matching the pattern etc. This is also try for the 
+
+  mkdatasets 
+
+script. 
+
+Rather than try to run the script directly, which may not work,  you should edit 
+it, or simply cut and paste the commands to ru nthe stages that you require.
+
+  
+
+ 

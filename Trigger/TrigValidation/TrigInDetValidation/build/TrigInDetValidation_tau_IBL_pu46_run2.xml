@@ -1,0 +1,116 @@
+	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46_run2' >
+           <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
+           <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
+           <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
+           <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <package>Trigger/TrigValidation/TrigInDetValidation</package>
+           <group>TrigInDetValidation</group>
+           <queue>long</queue>
+
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000022.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000024.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000034.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000072.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000083.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000096.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000102.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000111.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000116.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000119.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000124.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000141.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000144.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000177.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000214.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000216.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000217.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000218.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000232.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000254.pool.root.1</dataset>
+           
+           <action position="a">
+             <modulename>RttLibraryTools</modulename>
+             <testname>ExeRunner</testname>
+             <arg>
+               <argname>exeName</argname>
+               <argvalue>TIDArdict.exe</argvalue>
+             </arg>
+             <arg>
+               <argname>exeParamString</argname>
+               <argvalue>TIDAdata11-rtt.dat -f data-tau-IBL.root -b Test_bin.dat </argvalue>
+             </arg>
+           </action>
+	   
+           <action position="2">   
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDAcomparitor.exe</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-tau-IBL.root data-tau-IBL.root EF_tau29_IDTrkNoCut_IDT_InDetTrigParticleCreation_Tau_EFID EF_tau29_IDTrkNoCut_IDT_TrigFastTrackFinder_Tau -d EF-plots </argvalue>
+             </arg>
+           </action> 
+	   
+         	   
+           <action position="3">   
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDAcomparitor.exe</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-tau-IBL.root data-tau-IBL-pu46-run2-reference-newchains.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID  -d HLTEF-plots </argvalue>
+             </arg>
+           </action> 
+	   
+         	   
+           <action position="4">   
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDAcomparitor.exe</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-tau-IBL.root data-tau-IBL-pu46-run2-reference-newchains.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
+             </arg>
+           </action> 
+	   
+           <action position="5">   
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDAcomparitor.exe</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-tau-IBL.root data-tau-IBL-pu46-run2-reference-newchains.root  HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots </argvalue>
+             </arg>
+           </action> 
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+           <testToRemove>
+             <jobGroupName>RTT:Top</jobGroupName>
+             <testidentifier>CheckFileRunner0</testidentifier>
+           </testToRemove>
+	   
+           <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+           <auxFilePattern>data-tau-IBL-pu46-run2-reference-newchains.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	   <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+           <athenaCommonFlags /> 
+         </athena>
+	 

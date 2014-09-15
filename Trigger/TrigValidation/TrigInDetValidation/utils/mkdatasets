@@ -1,0 +1,70 @@
+#!/bin/csh 
+
+set dir = .
+
+if ( $#argv > 0 ) then
+   set dir = $1
+endif
+
+set files = ""
+
+foreach arg ( $argv )
+  set dir = $1
+  set base = `basename $dir .xml`
+  set basetail = ${dir:t}
+
+  if ( "$base" != "$basetail" ) then
+     set files = "$files $1"
+  else
+     set files = "$files $dir/*.xml"
+  endif
+
+#  echo "files: $files"
+
+  shift
+end
+
+
+
+ 
+foreach git ( $files ) 
+
+   set _file = ${git:t}
+
+   set duff = `grep dataset $git`
+
+
+#   if ( "$_file" != "TrigInDetValidation_TestConfiguration_main.xml" ) then 
+    if ( "$duff" != ""  ) then 
+
+      set file = `echo $_file | sed 's/\.xml//g'`
+
+      echo "process $_file -> $file.py"
+
+      echo "from AthenaCommon.AthenaCommonFlags import athenaCommonFlags" > $file.py 
+      echo "athenaCommonFlags.FilesInput=[" >> $file.py
+
+
+      grep dataset $git | grep -v -e "--" | sed 's|.*<dataset>|     "root://eosatlas/|g' | sed 's|</dataset>|",|g' > /tmp/_files
+
+      set N = `cat /tmp/_files | wc -l`
+
+      if ( $N > 0 ) then 
+
+         @ N--
+
+         head -$N /tmp/_files >> $file.py
+
+         tail -1 /tmp/_files | sed 's|,||g' >> $file.py   
+ 
+      endif
+
+      echo "   ]" >> $file.py 
+
+   endif
+
+end
+
+
+
+# <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000174.pool.root.1</dataset>

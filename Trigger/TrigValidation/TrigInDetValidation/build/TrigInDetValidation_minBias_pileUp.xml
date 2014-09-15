@@ -1,0 +1,44 @@
+  <athena userJobId='TrigInDetValidation_minBias_pileUp'>
+            <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the tTbar Pileup  sample</doc>
+            <displayName>FullScan on tTBar events</displayName>
+	    <commandLineFlags>EventMax=1000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+           
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000001.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000004.pool.root.2</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000005.pool.root.2</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000012.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000014.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000017.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000018.pool.root.1</dataset>
+           
+	    <action position="a">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-monitor-pileup.root  </argvalue>
+                </arg>
+            </action>
+	    	    
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+#           include "TrigInDetValidation_aux.xml"	    
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+
+          <athenaCommonFlags /> 
+	  </athena>
+
+

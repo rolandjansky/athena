@@ -1,0 +1,174 @@
+  <athena trendId='electron_pileup' userJobId='TrigInDetValidation_el_Zee_pu46'>
+            <doc>Zee, pu46 </doc>
+            <displayName>ElectronSlice, Zee pileup mu=46</displayName>
+	    <commandLineFlags>EventMax=4000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000001.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000007.pool.root.2</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000008.pool.root.2</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000017.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000018.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000019.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000021.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000022.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000031.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000032.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000036.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000041.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000042.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000049.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000059.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000060.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000068.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000071.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000079.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000082.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000083.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000084.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000085.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000087.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000089.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000094.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000095.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000099.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000102.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000103.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000107.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000108.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000111.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000113.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000116.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000122.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000126.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000133.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000135.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000138.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000139.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000141.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000142.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000143.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000144.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000145.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000147.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000149.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000151.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000155.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000161.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000174.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000176.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000177.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000179.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000182.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000185.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000194.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000197.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00/RDO.285219._000198.pool.root.1</dataset>
+
+
+            <action position="a">
+               <modulename>RttLibraryTools</modulename>
+               <testname>ExeRunner</testname>
+               <arg>
+                  <argname>exeName</argname>
+                  <argvalue>TIDArdict.exe</argvalue>
+               </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-electron-pileup.root -p 11  -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+	    <action position="2">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-pileup.root data-electron-pileup-reference.root EF_e22vh_medium_IDTrkNoCut_InDetTrigParticleCreation_Electron_EFID -d EF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="3">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-pileup.root data-electron-pileup-reference.root L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_0 L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_1 L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_2 L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_3 -d L2-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="4">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-pileup.root data-electron-pileup-reference-newchains.root HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0 HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_1 HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="5">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-pileup.root data-electron-pileup-reference-newchains.root HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots-lowpt </argvalue>
+              </arg>
+            </action>
+
+
+	    <action position="6">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-pileup.root data-electron-pileup-reference-newchains.root HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0 HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_1 HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+            <auxFilePattern>data-electron-pileup-reference.root</auxFilePattern>
+            <auxFilePattern>data-electron-pileup-reference-newchains.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+         <athenaCommonFlags /> 
+         </athena>
+
+

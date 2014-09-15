@@ -1,0 +1,123 @@
+         <athena trendId='electronTrend' userJobId='TrigInDetValidation_el_single_e_7-80_pu40_run2'>
+            <doc>Single part electron test 7-80 GeV, pu40, run2 chains</doc>
+            <displayName>ElectronSlice single partile e 7-80 GeV, pu40</displayName>
+	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000008.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000081.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000325.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000422.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000463.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000473.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000485.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000635.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000664.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000805.pool.root.1</dataset> 
+
+            <action position="1">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArdict.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>TIDAdata11-rtt.dat -f data-electron.root -p 11 -b Test_bin.dat </argvalue>
+              </arg>
+            </action>
+
+
+	    <action position="2">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron.root data-electron-reference.root EF_e24vh_medium1_IDTrkNoCut_IDT_TrigFastTrackFinder_eGamma EF_e22vh_medium_IDTrkNoCut_InDetTrigParticleCreation_Electron_EFID -d EF-plots  </argvalue>
+              </arg>
+            </action>
+
+
+	    <action position="4">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron.root data-electron-singlee-pu40-reference-newchains.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+              </arg>
+            </action>
+
+	    <action position="5">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron.root data-electron-singlee-pu40-reference-newchains.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+	    <action position="6">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron.root data-electron-singlee-pu40-reference-newchains.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+              </arg>
+            </action>
+
+	    <action position="7">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron.root data-electron-singlee-pu40-reference-newchains.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+              </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+	    <auxFilePattern>data-electron-reference.root</auxFilePattern>
+	    <auxFilePattern>data-electron-singlee-pu40-reference-newchains.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
+	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
+         <athenaCommonFlags /> 
+         </athena>
+
+
