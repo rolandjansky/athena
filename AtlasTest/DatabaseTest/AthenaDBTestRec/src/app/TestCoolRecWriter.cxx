@@ -13,10 +13,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "Reflex/SharedLibrary.h"
-
 //POOL includes for POOL object write
-#include "Reflex/Type.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IPersistencySvcFactory.h"
@@ -25,6 +22,7 @@
 #include "PersistencySvc/Placement.h"
 #include "PersistencySvc/ITransaction.h"
 #include "StorageSvc/DbType.h"
+#include "StorageSvc/DbReflex.h"
 
 #include "FileCatalog/IFileCatalog.h"
 #include "CoralBase/Blob.h"
@@ -574,6 +572,8 @@ bool TestCoolRecWriter::setupPool() {
 	      << std::endl;
   }
   m_poolcat->start();
+
+  /*  MN: commenting it out, need to test if the dict get loaded automaticalle
   // now load dictionary library
   std::string library="libAthenaDBTestRecDataDict.so";
   std::cout << "Load library " << library << std::endl;
@@ -581,7 +581,8 @@ bool TestCoolRecWriter::setupPool() {
   if (!libloader.Load()) {
     std::cout << "Cannot load dictionary libaray " << library << std::endl;
   }
-
+  */
+  
   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
   m_persistencySvc = psfactory? (psfactory->create("PersistencySvc", *m_poolcat)) : 0; 
   if( m_persistencySvc ) {
@@ -617,7 +618,7 @@ void TestCoolRecWriter::setPoolPayload(const FolderInfo* folderi,
    for( std::vector<float>::iterator it = data->dbegin(); it != data->dend(); ++it) {
       *it=rand()/(float(RAND_MAX)+1);
    }
-   Token *tok = m_persistencySvc->registerForWrite(*(folderi->poolplace()), data, ROOT::Reflex::Type::ByTypeInfo(typeid(TestCoolRecPoolData)) );
+   Token *tok = m_persistencySvc->registerForWrite(*(folderi->poolplace()), data, pool::DbReflex::forTypeInfo(typeid(TestCoolRecPoolData)) );
    // set payload data for COOL to Pool object reference
    payload["PoolRef"].setValue<std::string>( tok->toString() );
 }

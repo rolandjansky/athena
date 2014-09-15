@@ -25,8 +25,8 @@ use PersistentDataModel PersistentDataModel-*      Database
 
 apply_tag NEEDS_COOL_FACTORY
 
-# Apply the cmake-specific command to install the none-standard headers
-apply_pattern cmake_add_command command="athena_install_nonstandard_headers(src/*.h)"
+# Apply the cmake-specific command to access the private headers
+apply_pattern cmake_add_command command="include_directories(src)"
 
 # this builds a dualuse library for Athena from the files in the src/lib dir
 # and a standalone application TestCoolRecWriter from the files in src/app
