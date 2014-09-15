@@ -108,18 +108,18 @@ class CscCalibReportSlope : public CscCalibReportBase
   private:
 
     //Pedestal amplitude histograms
-    DataVector<TGraphErrors> * m_calGraphs;
+    DataVector<TGraphErrors> * calGraphs;
 
-    DataVector<TH1I> * m_bitHists;
+    DataVector<TH1I> * bitHists;
     //status changes
-    //std::set<bitChange> * m_deadChanges;
+    //std::set<bitChange> * deadChanges;
 
     //Interesting TProfiles grouped by attenuation level
-    std::map<int,TProfile*> * m_ampProfs;
+    std::map<int,TProfile*> * ampProfs;
 
-    std::set<int> * m_pulsedChambers;
+    std::set<int> * pulsedChambers;
 
-    std::vector<float> * m_fitResults;
+    std::vector<float> * fitResults;
 
 
 };

@@ -38,7 +38,7 @@ class CscCalibReportBase
        
     private:
         /* Simple label for defining the type of report*/
-        std::string m_label;
+        std::string label;
 };
 
 #endif
