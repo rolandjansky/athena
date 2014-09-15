@@ -665,7 +665,7 @@ std::string ToString( const TYPE & t ) const {
  **/
 
  struct CondDBColumn{
-
+   virtual ~CondDBColumn() {}
    bool initialized;
    string name;
    dataTypes type;
