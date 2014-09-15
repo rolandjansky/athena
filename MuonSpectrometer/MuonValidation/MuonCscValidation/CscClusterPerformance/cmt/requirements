@@ -1,0 +1,23 @@
+package CscClusterPerformance
+
+author David Adams
+
+use AtlasPolicy AtlasPolicy-*
+private
+apply_tag ROOTGraphicsLibs
+end_private
+use AtlasROOT           AtlasROOT-*       External
+
+application csc_cluster_performance csc_cluster_performance.cxx
+macro_append csc_cluster_performance_dependencies " install_includes"
+application csc_cosmic_cluster csc_cosmic_cluster.cxx
+macro_append csc_cosmic_cluster_dependencies " install_includes"
+
+#################################################
+
+# For debugging
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+#macro_append ROOT_linkopts " -lTreePlayer"

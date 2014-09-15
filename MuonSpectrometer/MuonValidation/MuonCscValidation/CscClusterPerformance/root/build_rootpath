@@ -1,0 +1,32 @@
+#! /bin/sh
+
+# Script to build root macro path.
+
+if [ -x "$CMTPATH" ]; then
+  echo CMTPATH must be defined
+  exit 1
+fi
+
+IFILE=.rootrc
+if [ -r $IFILE ]; then
+  mv $IFILE $IFILE.old
+fi
+
+echo -n 'Unix.*.Root.MacroPath: .' > $IFILE
+
+PKGDIR=MuonSpectrometer/MuonValidation/MuonCscValidation
+for PKG in CscValidationUtil CscHitValidation CscClusterValidation CscClusterPerformance; do
+  for DIR in `echo $CMTPATH | sed 's/:/ /g'`; do
+    FULLDIR=$DIR/$PKGDIR/$PKG/root
+    if [ -d $FULLDIR ]; then
+      echo -n :$FULLDIR >>$IFILE
+      break;
+    fi
+    FULLDIR=
+  done
+  if [ -z "$FULLDIR" ]; then
+    echo Unable to find $PKGDIR/$PKG
+  fi
+done
+
+echo >>$IFILE

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set_maxent() {
+  FILE=$1
+  OLDVAL=$2
+  NEWVAL=$3
+  mv $FILE $FILE.old
+  cat $FILE.old | sed 's/\['$OLDVAL'\]/['$NEWVAL']/g' > $FILE
+}
+
+csc_cluster_performance.exe -g \
+  /afs/usatlas.bnl.gov/users/dladams/data/csc_simpos.root \
+  /afs/usatlas.bnl.gov/users/dladams/data/csc_clusters.root
+
+mv SimposAccessor.h ../CscClusterPerformance
+mv ClusterAccessor.h ../CscClusterPerformance
+rm SimposAccessor.C
+rm ClusterAccessor.C
+
+# Patch the headers to handle larger events.
+set_maxent ../CscClusterPerformance/SimposAccessor.h 8 200
+set_maxent ../CscClusterPerformance/ClusterAccessor.h 31 200

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm -f csc_perf.root
+csc_cluster_performance.exe -d 10 \
+  /afs/usatlas.bnl.gov/users/dladams/data/csc_simpos.root \
+  /afs/usatlas.bnl.gov/users/dladams/data/csc_clusters.root
