@@ -76,7 +76,7 @@ namespace MuonCalib{
       double calShape(double *x, double * par);
       StatusCode calOutput0();
       StatusCode calOutput3();
-      void outputParameter3(const CscCalibResultCollection & results, ofstream & out);
+      void outputParameter3(const CscCalibResultCollection & results, std::ofstream & out);
 
       /*********Private member variables*/
       /**Services and tools*/

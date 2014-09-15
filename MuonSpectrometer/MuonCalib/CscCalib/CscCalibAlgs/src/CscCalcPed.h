@@ -73,7 +73,7 @@ namespace MuonCalib{
       StatusCode calOutput0();
       StatusCode calOutput1();
       StatusCode calOutput3();
-      void outputParameter3(const CscCalibResultCollection & results, ofstream & out);
+      void outputParameter3(const CscCalibResultCollection & results, std::ofstream & out);
 
     /**Utility functions*/
       StatusCode hashToChamberName(IdentifierHash,std::string);		
