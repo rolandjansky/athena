@@ -1,0 +1,16 @@
+package RecJobTransformTests
+
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+use TestPolicy          TestPolicy-*
+
+apply_pattern validate_xml
+
+end_private
+
+apply_pattern declare_runtime_extras extras="../test/RecJobTransformTests_TestConfiguration.xml compressRTTLogFiles_rjtt.sh run_memleak_rjtt.sh"
+
+macro RecJobTransformTests_TestConfiguration "../test/RecJobTransformTests_TestConfiguration.xml"
+
