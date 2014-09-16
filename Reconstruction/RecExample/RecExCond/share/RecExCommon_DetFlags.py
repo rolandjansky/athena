@@ -54,6 +54,17 @@ else:
          DetFlags.readRDOPool.all_setOn()
          DetFlags.readRDOBS.all_setOff()
          DetFlags.readRIOBS.all_setOff()
+         from RecExConfig.AutoConfiguration import IsInInputFile
+         from InDetRecExample.InDetKeys import InDetKeys
+         if IsInInputFile('InDet::PixelClusterContainer',InDetKeys.PixelClusters()):
+            DetFlags.readRIOPool.pixel_setOn()
+            DetFlags.makeRIO.pixel_setOff()
+         if IsInInputFile('InDet::SCT_ClusterContainer',InDetKeys.SCT_Clusters()):
+            DetFlags.readRIOPool.SCT_setOn()
+            DetFlags.makeRIO.SCT_setOff()
+         if IsInInputFile('InDet::TRT_DriftCircleContainer',InDetKeys.TRT_DriftCircles()):
+            DetFlags.readRIOPool.TRT_setOn()
+            DetFlags.makeRIO.TRT_setOff()
       elif globalflags.InputFormat=='bytestream':
          DetFlags.readRDOPool.all_setOff()
          DetFlags.readRDOBS.all_setOn()
