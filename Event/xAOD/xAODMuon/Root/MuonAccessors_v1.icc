@@ -1,0 +1,69 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: MuonAccessors_v1.icc 609859 2014-08-01 21:09:02Z bulekov $
+
+// System include(s):
+#include <iostream>
+// #include "MuonAccessors_v1.h"
+/// Helper macro for managing cluster moment Accessor objects
+#define DEFINE_ACCESSOR(TYPE, NAME )                               \
+   case xAOD::Muon_v1::NAME:                                                \
+   {                                                               \
+      static SG::AuxElement::Accessor< TYPE > a( #NAME );          \
+      return &a;                                                   \
+   }                                                               \
+   break;
+
+namespace xAOD {
+
+  // Generic case. Maybe return warning?
+  template<class T>
+   SG::AuxElement::Accessor< T >*
+   parameterAccessorV1( Muon_v1::ParamDef /*type*/ )
+   {}
+   
+  template<>
+   SG::AuxElement::Accessor< float >*
+   parameterAccessorV1<float>( Muon_v1::ParamDef type ) {
+      switch( type ) {
+        DEFINE_ACCESSOR( float, spectrometerFieldIntegral        );
+        DEFINE_ACCESSOR( float, scatteringCurvatureSignificance  );
+        DEFINE_ACCESSOR( float, scatteringNeighbourSignificance  );
+        DEFINE_ACCESSOR( float, momentumBalanceSignificance      );
+        DEFINE_ACCESSOR( float, segmentDeltaEta                  );
+        DEFINE_ACCESSOR( float, segmentDeltaPhi                  );
+        DEFINE_ACCESSOR( float, segmentChi2OverDoF               );
+        DEFINE_ACCESSOR( float, t0                               );
+        DEFINE_ACCESSOR( float, beta                             );
+        DEFINE_ACCESSOR( float, annBarrel                        );
+        DEFINE_ACCESSOR( float, annEndCap                        );
+        DEFINE_ACCESSOR( float, innAngle                         );
+        DEFINE_ACCESSOR( float, midAngle                         );
+        DEFINE_ACCESSOR( float, Muon_v1::msInnerMatchChi2                 );
+        DEFINE_ACCESSOR( float, Muon_v1::msOuterMatchChi2                 );
+        DEFINE_ACCESSOR( float, meanDeltaADCCountsMDT            );		
+      default:                  
+         std::cerr << "xAOD::Muon_v1::parameterAccessorV1 ERROR Unknown ParamDef ("
+                   << type << ") requested" << std::endl;
+         return 0;
+      }
+   }
+   
+   template<>
+    SG::AuxElement::Accessor< int >*
+    parameterAccessorV1<int>( Muon_v1::ParamDef type ) {
+       switch( type ) {
+         DEFINE_ACCESSOR( int,   Muon_v1::msInnerMatchDOF                  );
+         DEFINE_ACCESSOR( int,   Muon_v1::msOuterMatchDOF                  );
+       default:                  
+          std::cerr << "xAOD::Muon_v1::parameterAccessorV1 ERROR Unknown ParamDef ("
+                    << type << ") requested" << std::endl;
+          return 0;
+       }
+    }
+
+} // namespace xAOD
