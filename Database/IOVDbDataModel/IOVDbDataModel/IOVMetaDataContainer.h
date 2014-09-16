@@ -49,6 +49,7 @@ public:
     IOVMetaDataContainer(const std::string& folderName,
 			 const std::string& folderDescription);
     IOVMetaDataContainer(const IOVMetaDataContainer& cont);
+    IOVMetaDataContainer& operator=(const IOVMetaDataContainer& cont);
     ~IOVMetaDataContainer();
     //@}
 
@@ -106,6 +107,17 @@ inline
 IOVMetaDataContainer::IOVMetaDataContainer(const IOVMetaDataContainer& cont)
 {
     if (this != &cont) m_payload = new IOVPayloadContainer(*(cont.m_payload));
+}
+
+inline
+IOVMetaDataContainer&
+IOVMetaDataContainer::operator=(const IOVMetaDataContainer& cont)
+{
+  if (this != &cont) {
+    delete m_payload;
+    m_payload = new IOVPayloadContainer(*(cont.m_payload));
+  }
+  return *this;
 }
 
 inline 

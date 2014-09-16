@@ -23,7 +23,7 @@ IOVMetaDataContainer::merge(CondAttrListCollection* payload)
     }
     else {
         // Must make a new payload container
-        IOVPayloadContainer*  m_payload = new IOVPayloadContainer;
+        m_payload = new IOVPayloadContainer;
         result = m_payload->merge(payload);
     }
     return (result);
