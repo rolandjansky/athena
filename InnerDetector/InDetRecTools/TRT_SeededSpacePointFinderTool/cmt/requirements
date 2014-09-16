@@ -10,6 +10,7 @@ use InDetIdentifier        InDetIdentifier-*        InnerDetector/InDetDetDescr
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr 
 use InDetPrepRawData       InDetPrepRawData-*       InnerDetector/InDetRecEvent
 use TrkToolInterfaces      TrkToolInterfaces-*      Tracking/TrkTools
+use RoiDescriptor          RoiDescriptor-*          DetectorDescription
 
 public
 
@@ -20,7 +21,7 @@ use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use TrkSpacePoint          TrkSpacePoint-*          Tracking/TrkEvent
 use SiSpacePointsSeed      SiSpacePointsSeed-*      InnerDetector/InDetRecEvent
 use IRegionSelector        IRegionSelector-*        DetectorDescription
-use RoiDescriptor          RoiDescriptor-*          DetectorDescription
+
 use TrkGeometry            TrkGeometry-*            Tracking/TrkDetDescr
 use MagFieldInterfaces   MagFieldInterfaces-* MagneticField
 
