@@ -17,8 +17,6 @@
  */
 
 class DataObject;
-class string;
-class map;
 
 class IL1CaloPersistenceCapable {
 public:
