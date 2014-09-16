@@ -1,0 +1,9 @@
+# MC12 setup
+# ATLAS-GEO-20-00-01 and OFLCOND-MC12-SIM-00
+export TESTDATA=/afs/cern.ch/atlas/offline/ProdData/17.X.0/17.6.0.Y
+export GEOMETRY=ATLAS-GEO-20-00-01
+export SIMVALIDATION=_VALIDATION
+export IOVDBGLOBALTAG=OFLCOND-MC12-SIM-00
+export FSRELEASE=1.0.0
+export DATAPATH=$DATAPATH:/afs/cern.ch/atlas/software/FSreleases/DD0/FSRelease/1.0.0
+export TRF_ECHO=1

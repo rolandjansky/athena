@@ -1,0 +1,35 @@
+#! /usr/bin/env bash
+
+## Any arguments are overrides and can either be options or named arguments
+if [[ x$TESTDATA == x ]]; then
+  echo "ERROR: TESTDATA not defined"
+  exit 1
+fi
+
+INPUTFILE=${TESTDATA}/cavernbg-pythia8-7000.evgen.pool.root
+FILENAME=`basename ${INPUTFILE}`
+FILEBASE=${FILENAME%.*.pool.root}_${GEOMETRY}
+HITSFILE=${FILEBASE}.hits.pool.root
+RDOFILE=${FILEBASE}.rdo.pool.root
+DIGIOFFSET1=10
+DIGIOFFSET2=20
+PHYSICSLIST=QGSP_BERT
+DBRELEASETARBALL=NONE
+
+if [[ -n "$DBRELEASE_REQUESTED" ]]; then
+  DBRELEASETARBALL=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-${DBRELEASE_REQUESTED}.tar.gz
+  if [[ ! -r $DBRELEASETARBALL ]]; then
+      echo "DBRelease tarball not found, not using it: $DBRELEASETARBALL"
+      DBRELEASETARBALL=NONE
+  fi
+fi
+
+TRF=AtlasG4_tf.py
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF --inputEVNTFile=$INPUTFILE --outputHitsFile=$HITSFILE --maxEvents=10 --skipEvents=0 --randomSeed=5332532 --geometryVersion=$GEOMETRY$SIMVALIDATION --digiSeedOffset1=$DIGIOFFSET1 --digiSeedOffset2=$DIGIOFFSET2 --physicsList=$PHYSICSLIST --DBRelease=current --conditionsTag=$IOVDBGLOBALTAG $@"
+echo $cmd
+$cmd

@@ -1,0 +1,46 @@
+#! /usr/bin/env python
+
+## This script is executed automatically by the build of this package from the cmt directory.
+## It defines the valid arguments of each job transform for the Production System
+## The pickled object is a dict of "trf_name" : [list_of_all_possible_args]
+
+ProdSysDic = {}
+
+## Change dir to $pkgroot/share
+import os
+os.chdir("../share")
+
+## Sim_trf
+try:
+    from SimuJobTransforms.Sim_trf import FlexibleSimTransform
+    trf = FlexibleSimTransform({})
+    ProdSysDic['Sim_trf.py'] = trf.getPotentialArgs()
+    del trf
+except:
+    print "WARNING: unable to generate ProdSysDic entry for Sim_trf"
+
+# TODO: Also run for AtlasG4_trf and Digi_trf.
+# These will require that getPotentialArgs be implemented for basic transforms,
+# which in turn requires that basic trfs know what sort of sub-step they perform.
+# Perhaps we can push back the substep awareness to the common base JobTransform,
+# and assert that basic trfs only have one step entry.
+
+## Write pickle file
+PKLNAME = "SimuJobTransformsSignatures.pickle"
+try:
+    import pickle
+    f = open(PKLNAME, 'w')
+    pickle.dump(ProdSysDic, f)
+    f.close()
+    print PKLNAME + " successfully created"
+except:
+    print "WARNING: unable to write %s" % PKLNAME
+
+## Garbage removal (from job transforms instantiations above)
+filesToDelete = ['jobReport_Reco_trf.pickle', 'jobReport_Merging_trf.pickle', 'jobReport.pickle']
+for f in filesToDelete:
+    try:
+        if os.path.exists(f):
+            os.remove(f)
+    except:
+        pass
