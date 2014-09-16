@@ -16,7 +16,6 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetAlignTrkInfo/AlignSiHit.h"
 #include "InDetAlignGenTools/InDetAlignOverlapTool.h"
-//#include "InDetAlignGenAlgs/InDetAlignNt.h"
 #include "InDetAlignGenTools/AlignSiModuleList.h"
 
 
@@ -343,21 +342,11 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
 //** Now we take into account all hits in 2 loops
 
 std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit( const AlignTrk& trk ) { //const { 
-  // const std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit( const AlignTrk& trk ){//const { 
-
-
-  //m_Overlaphits.clear();
-
-  //const DataVector<AlignSiHit>* InDetAlignOverlapTool::getOverlapHit( const AlignTrk& trk ) const{
-  //DataVector<AlignSiHit>* m_Overlaphits= new DataVector<AlignSiHit>;
-
-  //std::vector<AlignSiHit> m_Overlaphits= new std::vector<AlignSiHit>;
-  
   ATH_MSG_DEBUG(" InDetAlignOverlapTool::get getOverlapHit inizialized");
   
   bool isPIXOverlap =false;
   bool isSCTOverlap =false;
-  bool isOverlap=false;
+  //bool isOverlap=false;
  
   int PixelSector[3] = {21,37,51}; 
   int ECPixelSector = 48; 
@@ -374,7 +363,7 @@ std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit( const AlignTrk& tr
     
     isPIXOverlap =false;
     isSCTOverlap =false;
-    isOverlap=false;
+    //isOverlap=false;
     
     //---------------------------------------------------- 
     // Second loop: preparing info for next processing 
@@ -383,10 +372,6 @@ std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit( const AlignTrk& tr
 	 hit2!=trk.hitlist_cend();++hit2) {
 
       int newindex = hit2->index()-1; // note index starts at 1 in ntuple!
-      
-      //msg().setColor(MSG::GREEN);
-      // ATH_MSG_DEBUG("Hit : "<< newindex);
-      
       //------------------------//
       //      PIXEL SYSTEM      //
       //------------------------// 
