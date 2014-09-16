@@ -11,6 +11,7 @@ using namespace std;
 #include <unistd.h>
 #include <stdio.h>
 #include <cstdlib>
+#include <memory>
 
 string          app;
 TrigCollQuery   queryRemapper;
@@ -67,7 +68,7 @@ void printError(const string& err="", int exitcode=0) {
 int main(int argc, const char *argv[])
 {
    app =  basename( const_cast<char*>(argv[0]) );
-   string remappedQ;
+   std::vector<std::unique_ptr<std::string> > remappedV;
    // number of items to skip from the beginning of the command line
    // when invoking a collection tool
    // default = 1 - just the name of the QueryTool itlself
@@ -192,8 +193,9 @@ int main(int argc, const char *argv[])
             } else {
                queryRemapper.setCertPath( certpath, keypath );
             }
-            remappedQ = queryRemapper.triggerQueryRemap( argv[i], srcTech );
-            argv[i] = remappedQ.c_str();
+            std::string remappedQ = queryRemapper.triggerQueryRemap( argv[i], srcTech );
+            remappedV.emplace_back (new std::string (remappedQ));
+            argv[i] = remappedV.back().get()->c_str();
          }catch( exception &e ) {
             printError(e.what(), 3);
          }
