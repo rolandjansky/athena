@@ -1,7 +1,7 @@
 package EventContainers
 
-use AtlasPolicy    AtlasPolicy-01-*
-use GaudiInterface GaudiInterface-01-* External
+use AtlasPolicy    AtlasPolicy-*
+use GaudiInterface GaudiInterface-* External
 use Identifier     Identifier-*        DetectorDescription
 
 private

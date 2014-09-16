@@ -151,12 +151,14 @@ template < class T>
 typename IdentifiableContainer<T>::const_iterator& 
 IdentifiableContainer<T>::const_iterator::operator = ( const const_iterator & it ) 
 {
+  if (this != &it) {
     m_idContainer = it.m_idContainer;
     m_hashIDsIt   = it.m_hashIDsIt;
     m_dl          = it.m_dl;
     if (m_dl == 0)
         lookForData();
-    return *this;
+  }
+  return *this;
 }
 
 template < class T>
@@ -248,6 +250,7 @@ template < class T>
 void
 IdentifiableContainer<T>::const_iterator::lookForData() 
 {
+    if (!m_idContainer) return;
     HashIDsIt_t itE = (m_idContainer->m_hashids).end();
     typename DLV::iterator dlv_itE = m_idContainer->DLV::end();
     while (m_hashIDsIt != itE) {

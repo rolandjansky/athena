@@ -97,7 +97,7 @@ public:
 		friend class SelectAllObject<DCC,OBJECT> ;
 
 		const_iterator( const DCC* dcc,  DC_const_iterator& dc_it )
-			: m_dcc(dcc), m_dc_it(dc_it) 
+                  : m_dcc(dcc), m_dc_it(dc_it), m_dc(0)
 	         {
 		  while(m_dcc && m_dc_it!=m_dcc->end()) 
 		   {

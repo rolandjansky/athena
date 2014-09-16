@@ -97,7 +97,7 @@ using namespace IDC_TEST;
 // Constructor 
 ID_ContainerTest::ID_ContainerTest()
         :
-        m_ncollections(1000),m_nskip(0),m_test(10)
+  m_ncollections(1000),m_nskip(0),m_test(10), m_container(0)
 {
 //     // properties
 //     // number of collections in the containers 
