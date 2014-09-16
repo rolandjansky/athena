@@ -1,0 +1,24 @@
+package MuonSelectorTools
+
+author Karsten Koeneke <karsten.koeneke@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  GaudiInterface             GaudiInterface-*                External
+use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AtlasROOT                  AtlasROOT-*                     External
+
+use xAODTracking              xAODTracking-*                  Event/xAOD
+use xAODEventInfo             xAODEventInfo-*                  Event/xAOD
+end_private
+
+library MuonSelectorTools *.cxx ../Root/*.cxx components/*.cxx
+apply_pattern component_library
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
