@@ -1,0 +1,1453 @@
+<?xml version="1.0"?> 
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
+<!-- NB validate this file here before commiting to svn:
+ 
+ python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TriggerTest_TestConfiguration.xml
+ 
+ 
+ see: http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/onlineValidation/validator.html
+ 
+ ~rtt/public/xmlvalidate.py
+ 
+ This xml file is divided into the suites 
+ "tapm_val"   : includes tests dependent on each other 
+ "tapm_menu"  : independent menu test
+ "tapm_long"  : blackholes
+ "tapm_slice" : slice tests
+ -->
+
+<unifiedTestConfiguration>
+    <atn>
+        <TEST name="pureNewSteering" type="script" suite="tapm_val">
+            <options_atn>trigtest.pl --test pureNewSteering --run pureNewSteering --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
+            <timelimit>5</timelimit>
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="pureNewSteering_ecodes" type="script" suite="tapm_val">
+            <options_atn>trigtest.pl --test pureNewSteering_ecodes --run pureNewSteering_ecodes --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
+            <timelimit>5</timelimit>
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="pureNewSteering_prescaling" type="script" suite="tapm_val">
+            <options_atn>trigtest.pl --test pureNewSteering_prescaling --run pureNewSteering_prescaling --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
+            <timelimit>10</timelimit>
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="AthenaTrigRDO" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO --run AthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>25</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_leakcheck" type="script" suite="tapm_val"> 
+            <options_atn>export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so;trigtest.pl --test AthenaTrigRDO_leakcheck --run AthenaTrigRDO_leakcheck --conf TriggerTest.conf</options_atn> 
+            <timelimit>45</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="AthenaTrigRDO_leakcheck_igprof" type="script" suite="tapm_val"> 
+         <options_atn>trigtest.pl - -test AthenaTrigRDO_leakcheck_igprof - -run AthenaTrigRDO_leakcheck_igprof - -conf TriggerTest.conf</options_atn> 
+         <timelimit>60</timelimit> 
+         <author>TAPM validation</author>
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
+        
+        <TEST name="AthenaTrigRDO_noFPE" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_noFPE --run AthenaTrigRDO_noFPE --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit>
+            <author>TAPM validation</author>
+            <platform>opt</platform>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDOnoFPE" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOnoFPE --run AthenaTrigRDOnoFPE --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit>
+            <author>TAPM validation</author>
+            <platform>opt</platform>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDOFPE" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOFPE --run AthenaTrigRDOFPE --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit>
+            <author>TAPM validation</author>
+            <platform>opt</platform>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_StatusCodes" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_StatusCodes --run AthenaTrigRDO_StatusCodes --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <platform>opt</platform>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_MC_pp_v5" type="script" suite="tapm_menu">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v5 --run AthenaTrigRDO_MC_pp_v5 --conf TriggerTest.conf</options_atn>
+            <timelimit>30</timelimit>
+            <author>TAPM validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="AthenaTrigRDO_Physics_pp_v5" type="script" suite="tapm_menu">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_Physics_pp_v5 --run AthenaTrigRDO_Physics_pp_v5 --conf TriggerTest.conf</options_atn>
+            <timelimit>30</timelimit>
+            <author>TAPM validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        <!-- 
+         <TEST name="AthenaTrigRDO_cosmic_default" type="script" suite="tapm_menu"> 
+         <options_atn>trigtest.pl - -test AthenaTrigRDO_cosmic_default - -run AthenaTrigRDO_cosmic_default - -conf TriggerTest.conf</options_atn> 
+         <timelimit>15</timelimit> 
+         <author>TAPM validation</author>
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         --> 
+        <TEST name="AthenaTrigBS_standalone" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigBS_standalone --run AthenaTrigBS_standalone --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_standalone" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_standalone --run AthenaTrigRDO_standalone --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="standalone_LS1_v1" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test standalone_LS1_v1 --run standalone_LS1_v1 --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <nightly_exclude>16.6.X</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        <!-- 
+         <TEST name="standalone_cosmic" type="script" suite="tapm_val"> 
+         <options_atn>trigtest.pl - -test standalone_cosmic - -run standalone_cosmic - -conf TriggerTest.conf</options_atn> 
+         <timelimit>8</timelimit> 
+         <author>TAPM validation</author>
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude> 
+         <nightly_exclude>16.6.X</nightly_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         -->
+        <TEST name="LVL1CTPAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test LVL1CTPAthenaTrigRDO --run LVL1CTPAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="LVL1CTPCaloAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test LVL1CTPCaloAthenaTrigRDO --run LVL1CTPCaloAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="LVL1CTPMuonAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test LVL1CTPMuonAthenaTrigRDO --run LVL1CTPMuonAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!--TEST name="CaloAthenaTrigRDO" type="script" suite="tapm_slice"> 
+         <options_atn>trigtest.pl - -test CaloAthenaTrigRDO - -run CaloAthenaTrigRDO - -conf TriggerTest.conf</options_atn> 
+         <timelimit>5</timelimit> 
+         <author>TAPM validation</author>
+         <mailto> denis.oliveira.damazio@cern.ch </mailto> 
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
+        
+        <TEST name="IDAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test IDAthenaTrigRDO --run IDAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Dmitry.Emeliyanov@cern.ch </mailto> 
+            <mailto> Jiri.Masik@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="IDAthenaTrigRDO_preRTTtest" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test IDAthenaTrigRDO_preRTTtest --run IDAthenaTrigRDO_preRTTtest --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="ElectronSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test ElectronSliceAthenaTrigRDO --run ElectronSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> denis.oliveira.damazio@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        <!--
+         <TEST name="PhotonSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+         <options_atn>trigtest.pl - -test PhotonSliceAthenaTrigRDO - -run PhotonSliceAthenaTrigRDO - -conf TriggerTest.conf</options_atn> 
+         <timelimit>5</timelimit> 
+         <author>TAPM validation</author>
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         -->
+        <TEST name="MuonSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test MuonSliceAthenaTrigRDO --run MuonSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="JetSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test JetSliceAthenaTrigRDO --run JetSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="TauSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test TauSliceAthenaTrigRDO --run TauSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="METSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test METSliceAthenaTrigRDO --run METSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Allen.Mincer@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="BphysicsSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test BphysicsSliceAthenaTrigRDO --run BphysicsSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> j.kirk@rl.ac.uk </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        <!--
+         <TEST name="BphysicsSliceAthenaTrigRDO_Kstar" type="script" suite="tapm_slice"> 
+         <options_atn>trigtest.pl - -test BphysicsSliceAthenaTrigRDO_Kstar - -run BphysicsSliceAthenaTrigRDO_Kstar - -conf TriggerTest.conf</options_atn> 
+         <timelimit>20</timelimit> 
+         <author>TAPM validation</author>
+         <mailto> j.kirk@rl.ac.uk </mailto> 
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST>
+         --> 
+        <TEST name="BjetSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test BjetSliceAthenaTrigRDO --run BjetSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Andrea.Coccaro@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="MinBiasSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test MinBiasSliceAthenaTrigRDO --run MinBiasSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!-- 
+         keep and update OR RM the following 3??? 
+         <TEST name="AthenaXMLConfigRDO" type="script" suite="tapm_val"> 
+         <options_atn>trigtest.pl - -test AthenaXMLConfigRDO - -run AthenaXMLConfigRDO - -conf TriggerTest.conf</options_atn> 
+         <timelimit>15</timelimit> 
+         <author>TAPM validation</author>
+         <mailto> Iwona.Grabowska@cern.ch </mailto> 
+         <platform>opt</platform>
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         
+         <TEST name="AthenaDBConfigRDO" type="script" suite="tapm_val"> 
+         <options_atn>trigtest.pl - -test AthenaDBConfigRDO - -run AthenaDBConfigRDO - -conf TriggerTest.conf</options_atn> 
+         <timelimit>15</timelimit> 
+         <author>TAPM validation</author>
+         <mailto> Iwona.Grabowska@cern.ch </mailto> 
+         <platform>opt</platform>
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         
+         <TEST name="AthenaXMLvsDBcompare" type="script" suite="tapm_val"> 
+         <options_atn>trigtest.pl - -cleardir - -test AthenaXMLvsDBcompare - -run AthenaXMLvsDBcompare - -conf TriggerTest.conf</options_atn> 
+         <timelimit>2</timelimit> 
+         <author>TAPM validation</author>
+         <mailto> Iwona.Grabowska@cern.ch </mailto> 
+         <nightly_exclude>16.1.X.Y</nightly_exclude>
+         <nightly_exclude>17.1.X.Y</nightly_exclude>
+         <expectations> 
+         <errorMessage>ERROR </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         keep and update OR RM the previous 3??? -->
+        
+        <!-- MC tests coming -->
+        
+        <TEST name="ElectronSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test ElectronSliceAthenaTrigRDO_MC --run ElectronSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> denis.oliveira.damazio@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="MuonSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test MuonSliceAthenaTrigRDO_MC --run MuonSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="JetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test JetSliceAthenaTrigRDO_MC --run JetSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="TauSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test TauSliceAthenaTrigRDO_MC --run TauSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="METSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test METSliceAthenaTrigRDO_MC --run METSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Allen.Mincer@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="BphysicsSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test BphysicsSliceAthenaTrigRDO_MC --run BphysicsSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> j.kirk@rl.ac.uk </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="BjetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test BjetSliceAthenaTrigRDO_MC --run BjetSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>15</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Andrea.Coccaro@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="MinBiasSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test MinBiasSliceAthenaTrigRDO_MC --run MinBiasSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="MinBiasSliceAthenaTrigRDO_Manual" type="script" suite="tapm_slice"> 
+            <options_atn>trigtest.pl --test MinBiasSliceAthenaTrigRDO_Manual --run MinBiasSliceAthenaTrigRDO_Manual --conf TriggerTest.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_DC14" type="script" suite="tapm_menu">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_DC14 --run AthenaTrigRDO_DC14 --conf TriggerTest.conf</options_atn>
+            <timelimit>30</timelimit>
+            <author>TAPM validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="AthenaTrigRDO_LS1_v1" type="script" suite="tapm_menu">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_LS1_v1 --run AthenaTrigRDO_LS1_v1 --conf TriggerTest.conf</options_atn>
+            <timelimit>20</timelimit>
+            <author>TAPM validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <!-- test chain execution order -->
+        <TEST name="AthenaTrigRDO_chainOrderAscend" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_chainOrderAscend --run AthenaTrigRDO_chainOrderAscend --conf TriggerTest.conf</options_atn> 
+            <timelimit>25</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Tomasz.Bold@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_chainOrderDescend" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_chainOrderDescend --run AthenaTrigRDO_chainOrderDescend --conf TriggerTest.conf</options_atn> 
+            <timelimit>25</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Tomasz.Bold@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="AthenaTrigRDO_chainOrder_compare" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_chainOrder_compare --run AthenaTrigRDO_chainOrder_compare --conf TriggerTest.conf</options_atn> 
+            <timelimit>2</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> Tomasz.Bold@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>ERROR </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <!-- Merged L2EF -->
+        <TEST name="AthenaTrigRDO_L2EFMerging" type="script" suite="tapm_val"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDO_L2EFMerging --run AthenaTrigRDO_L2EFMerging --conf TriggerTest.conf</options_atn> 
+            <timelimit>25</timelimit> 
+            <author>TAPM validation</author>
+            <mailto> francesca.pastore@cern.ch </mailto> 
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations> 
+                <errorMessage>ERROR </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="pureNewSteering_merged" type="script" suite="tapm_val">
+            <options_atn>trigtest.pl --test pureNewSteering_merged --run pureNewSteering_merged --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
+            <timelimit>5</timelimit>
+            <author>TAPM validation</author>
+            <nightly_exclude>16.1.X.Y</nightly_exclude>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <!-- Summary table -->
+        <TEST name="atn_timeline" type="script" suite="tapm_index">
+            <doc>ATN timeline</doc>
+            <options_atn>atn_timeline.py --atn -p TriggerTest </options_atn>
+            <timelimit>2</timelimit>
+            <author>Frank Winklmeier</author>
+            <prerequisite>tapm_val</prerequisite>
+            <prerequisite>tapm_menu</prerequisite>
+            <prerequisite>tapm_slice</prerequisite>
+            <prerequisite>tapm_long</prerequisite>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="atn_xml_summary_table" type="script" suite="tapm_index">
+            <options_atn>atn_summary.pl</options_atn>
+            <timelimit>5</timelimit>
+            <author>TAPM validation</author>
+            <prerequisite>tapm_val</prerequisite>
+            <prerequisite>tapm_menu</prerequisite>
+            <prerequisite>tapm_slice</prerequisite>
+            <prerequisite>tapm_long</prerequisite>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="sendmail2shifter" type="script" suite="tapm_index">
+            <options_atn>echo $ATN_PACKAGE | mail -s "TriggerTest ATN done" "czodrows@cern.ch" </options_atn>
+            <timelimit>2</timelimit>
+            <author>TAPM validation</author>
+            <prerequisite>tapm_val</prerequisite>
+            <prerequisite>tapm_menu</prerequisite>
+            <prerequisite>tapm_slice</prerequisite>
+            <prerequisite>tapm_long</prerequisite>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+    </atn>
+    
+    <kv/>
+    
+    
+    <!-- RTT tests -->
+    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+        
+        <rttContactPerson>David Strom (dstrom@uoregon.edu)</rttContactPerson>
+        <rttContactPerson>Simon George (S.George@rhul.ac.uk)</rttContactPerson>
+        <rttContactPerson>Patrick Czodrowski (czodrows@cern)</rttContactPerson>
+        <refRelease>13.0.10</refRelease>
+        
+        <jobList>
+            <classification>
+                <displayClass>OfflineValidation</displayClass>
+                <displayProcess>Reco</displayProcess>
+                <displayComponent>Trig-Common</displayComponent>
+            </classification> 
+            
+            <!--jobTransformCmd>
+             export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so
+             </jobTransformCmd-->
+            
+            
+            
+            <jobTransform userJobId="LeakCheck_DC14" >
+                <doc>
+                    LeakCheck DC14 menu top events
+                </doc>
+                <jobTransformJobName>LeakCheck_DC14</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="DC14";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_Physics_pp_v5" >
+                <doc>
+                    LeakCheck Physics_pp_v5 menu top events
+                </doc>
+                <jobTransformJobName>LeakCheck_Physics_pp_v5</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="Physics_pp_v5";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_MC_pp_v5" >
+                <doc>
+                    LeakCheck MC_pp_v5 menu top events
+                </doc>
+                <jobTransformJobName>LeakCheck_MC_pp_v5</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v5";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_LS1_v1" >
+                <doc>
+                    LeakCheck LS1_v1 menu top events
+                </doc>
+                <jobTransformJobName>LeakCheck_LS1_v1</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="LS1_v1";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            <jobTransform userJobId="Valgrind_DC14" >
+                <doc>
+                    Valgrind DC14 menu top events
+                </doc>
+                <jobTransformJobName>Valgrind_DC14</jobTransformJobName>
+                <jobTransformCmd>
+                    export VAL_SUPP=`readlink -f TriggerTest_TestConfiguration.xml | sed 's/test\/TriggerTest_TestConfiguration.xml/val_supp/'` ; valgrind --suppressions=$ROOTSYS/etc/valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=$VAL_SUPP/newSuppressions.supp --suppressions=$VAL_SUPP/oracleDB.supp --suppressions=$VAL_SUPP/valgrindRTT.supp --error-limit=no --leak-check=yes --num-callers=8 --show-reachable=yes `which athena.py` --stdcmalloc -c 'menu="DC14";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py &gt; valgrind.log 2&gt;&amp;1
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <!--testToRemove>
+                    <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
+                    <testidentifier>TruncateLog_TriggerTest</testidentifier>
+                </testToRemove-->
+                <testToRemove>
+                    <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                </testToRemove>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_default" >
+                <doc>
+                    LeakCheck default menu top events
+                </doc>
+                <jobTransformJobName>LeakCheck_default</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_default_repeated" >
+                <doc>
+                    Memory leak check default menu on same file 4 times
+                </doc>
+                <jobTransformJobName>LeakCheck_default_repeated</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[0,1];repeatN=4' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_default_igprof" >
+                <doc>
+                    LeakCheck default menu top events
+                </doc>
+                <jobTransformJobName>LeakCheck_default_igprof</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py --stdcmalloc -c 'testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(200);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py 
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <action position="6" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>mkdir</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>-p cgi-bin/data</argvalue>
+                    </arg>
+                </action>
+                <action position="7" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>cp</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-navigator cgi-bin</argvalue>
+                    </arg>
+                </action>
+                <action position="8" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-analyse</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>--sqlite -d -v -g -r MEM_LIVE igprof.mp.gz | sqlite3 cgi-bin/data/igreport_live.sql3</argvalue>
+                    </arg>
+                </action>
+                <action position="9" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-analyse</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>--sqlite -d -v -g -r MEM_TOTAL igprof.mp.gz | sqlite3 cgi-bin/data/igreport_total.sql3</argvalue>
+                    </arg>
+                </action>
+            </jobTransform>
+            
+            <jobTransform userJobId="LeakCheck_default_repeated_igprof" >
+                <doc>
+                    Memory leak check default menu on same file 4 times
+                </doc>
+                <jobTransformJobName>LeakCheck_default_repeated_igprof</jobTransformJobName>
+                <jobTransformCmd>
+                    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py --stdcmalloc -c 'testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(200);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;memFreeze=True;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[0,1];repeatN=4' TriggerTest/testAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <action position="6" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>mkdir</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>-p cgi-bin/data</argvalue>
+                    </arg>
+                </action>
+                <action position="7" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>cp</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-navigator cgi-bin</argvalue>
+                    </arg>
+                </action>
+                <action position="8" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-analyse</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>--sqlite -d -v -g -r MEM_LIVE igprof.mp.gz | sqlite3 cgi-bin/data/igreport_mem_live.sql3</argvalue>
+                    </arg>
+                </action>
+                <action position="9" runInAtlasEnv="yes">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>ExeRunner</testname>
+                    <arg>
+                        <argname>exeName</argname>
+                        <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-analyse</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>exeParamString</argname>
+                        <argvalue>--sqlite -d -v -g -r MEM_TOTAL igprof.mp.gz | sqlite3 cgi-bin/data/igreport_mem_total.sql3</argvalue>
+                    </arg>
+                </action>
+            </jobTransform>
+            
+            
+            <!---why does the pp pk option die? ask Rolf?
+             <jobTransform userJobId="PerfProfiler_igprof_DC14" >
+             <doc>
+             Performace Profiling with igprof on top events with menu DC14
+             </doc>
+             <jobTransformJobName>LeakCheck_default_igprof</jobTransformJobName>
+             <jobTransformCmd>
+             export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -pp -z -o igprof.pp.gz -t python athena.py - -stdcmalloc -c 'RunningRTT=TRUE;menu="DC14";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(200);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py 
+             </jobTransformCmd>
+             <group>TriggerTestMonitorHistos</group>
+             <queue>long</queue>
+             <action position="6" runInAtlasEnv="yes">
+             <modulename>RttLibraryTools</modulename>
+             <testname>ExeRunner</testname>
+             <arg>
+             <argname>exeName</argname>
+             <argvalue>mkdir</argvalue>
+             </arg>
+             <arg>
+             <argname>exeParamString</argname>
+             <argvalue>-p cgi-bin/data</argvalue>
+             </arg>
+             </action>
+             <action position="7" runInAtlasEnv="yes">
+             <modulename>RttLibraryTools</modulename>
+             <testname>ExeRunner</testname>
+             <arg>
+             <argname>exeName</argname>
+             <argvalue>cp</argvalue>
+             </arg>
+             <arg>
+             <argname>exeParamString</argname>
+             <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-navigator cgi-bin</argvalue>
+             </arg>
+             </action>
+             <action position="8" runInAtlasEnv="yes">
+             <modulename>RttLibraryTools</modulename>
+             <testname>ExeRunner</testname>
+             <arg>
+             <argname>exeName</argname>
+             <argvalue>/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof-analyse</argvalue>
+             </arg>
+             <arg>
+             <argname>exeParamString</argname>
+             <argvalue>- -sqlite -d -v -g igprof.pp.gz | sqlite3 cgi-bin/data/igreport_perf.sql3</argvalue>
+             </arg>
+             </action>
+             </jobTransform-->
+            
+            
+            <athena userJobId="testAthenaTrigRDO_FPE">
+                <doc>
+                    default menu - no prescales - doFloatingPointException False
+                </doc>
+                <displayName>testAthenaTrigRDO_FPE</displayName>
+                <commandLineFlags>
+                    from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(False);jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue><alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="testAthenaTrigRDO_noFPE">
+                <doc>
+                    default menu - no prescales - doFloatingPointException True
+                </doc>
+                <displayName>testAthenaTrigRDOnoFPE</displayName>
+                <commandLineFlags>
+                    from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue><alwaysRunPostProc />
+            </athena>
+            
+            
+            <!-- Jobs to run each current menu and keep monitoring histograms -->
+            
+            <athena userJobId="MC_pp_v5" doMonitoring="True">
+                <doc>
+                    MC_pp_v5 menu on ttbar RDO 
+                </doc>
+                <displayName>MC_pp_v5</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="Physics_pp_v5" doMonitoring="True">
+                <doc>
+                    Physics_pp_v5 menu on ttbar RDO 
+                </doc>
+                <displayName>Physics_pp_v5</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='Physics_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="LS1_v1" doMonitoring="True">
+                <doc>
+                    LS1_v1 menu on ttbar RDO 
+                </doc>
+                <displayName>LS1_v1</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='LS1_v1';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="DC14" doMonitoring="True">
+                <doc>
+                    DC14 menu on ttbar RDO 
+                </doc>
+                <displayName>DC14</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='DC14';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="DC14_tight_mc_prescale" doMonitoring="True">
+                <doc>
+                    DC14_tight_mc_prescale menu on ttbar RDO 
+                </doc>
+                <displayName>DC14_tight_mc_prescale</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='DC14_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="DC14_loose_mc_prescale" doMonitoring="True">
+                <doc>
+                    DC14_loose_mc_prescale menu on ttbar RDO 
+                </doc>
+                <displayName>DC14_loose_mc_prescale</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='DC14_loose_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="DC14_noTrigCostMon" doMonitoring="True">
+                <doc>
+                    DC14 menu on ttbar RDO - no TrigCostMon
+                </doc>
+                <displayName>DC14_noTrigCostMon</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='DC14';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="DC14_tight_mc_prescale_noTrigCostMon" doMonitoring="True">
+                <doc>
+                    DC14_tight_mc_prescale menu on ttbar RDO - no TrigCostMon
+                </doc>
+                <displayName>DC14_tight_mc_prescale_noTrigCostMon</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='DC14_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="DC14_loose_mc_prescale_noTrigCostMon" doMonitoring="True">
+                <doc>
+                    DC14_loose_mc_prescale menu on ttbar RDO - no TrigCostMon
+                </doc>
+                <displayName>DC14_loose_mc_prescale_noTrigCostMon</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='DC14_loose_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <!-- Jobs to run each slice and keep monitoring histograms - RG 14/5/07 -->
+            <!-- MC based slice tests --> 
+            
+            <athena userJobId="Bjet" doMonitoring="True">
+                <doc>
+                    Runs B-jet signature on ttbar RDO 
+                </doc>
+                <displayName>Bjet</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5';sliceName='bjet';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="Bphysics" doMonitoring="True" >
+                <doc>
+                    Runs B-physics slice on Bs->J/Psi mu mu RDO mc12_8TeV.208002.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu6mu6.recon.RDO.e1331_a159_a190
+                </doc>
+                <displayName>BPhysics</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.208002.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu6mu6.recon.RDO.e1331_a159_a190_tid01180650_00';fileRange=[1,5]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="Electron" doMonitoring="True" >
+                <doc>
+                    Runs Electron signature on RDO mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710
+                </doc>
+                <displayName>Electron</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5';sliceName='egamma';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00';fileRange=[1,10]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package> 
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="Electron_ID_Val" doMonitoring="True" >
+                <doc>
+                    Runs Electron slice on mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459 mu=46, no IBL 
+                </doc>
+                <displayName>Electron_ID_Val</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5';sliceName='egamma';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_electron/mc10_14TeV.106046.PythiaZee_no_filter.digit.RDO.e662_s1107_d459_tid285219_00';fileRange=[1,29]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package> 
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="Jet" doMonitoring="True">
+                <doc>
+                    Runs Jet signature on ttbar RDO 
+                </doc>
+                <displayName>Jet</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5'; sliceName='jet';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc /> 
+            </athena>
+            
+            <athena userJobId="MET" doMonitoring="True" >
+                <doc>
+                    Runs MET signature on ttbar RDO 
+                </doc>
+                <displayName>MET</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5'; sliceName='met';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="MinBias" doMonitoring="True">
+                <doc>
+                    Runs MinBias signature on ttbar RDO 
+                </doc>
+                <displayName>MinBias</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;sliceName='minbias';RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <!--options>testMinBiasSliceAthenaTrigRDO.py</options-->
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                
+                <athenaCommonFlags /><alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="MinBias_Manual" doMonitoring="True">
+                <doc>
+                    Runs MinBias_Manual signature on ttbar RDO 
+                </doc>
+                <displayName>MinBias_Manual</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;sliceName='minbiasManual';RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <!--options>testMinBiasSliceAthenaTrigRDO.py</options-->
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                
+                <athenaCommonFlags /><alwaysRunPostProc />
+            </athena>
+            
+            
+            <athena userJobId="Muon" doMonitoring="True">
+                <doc>
+                    Runs Muon signature on ttbar RDO 
+                </doc>
+                <displayName>Muon</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5'; sliceName='muon';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group> 
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="Tau" doMonitoring="True" >
+                <doc>
+                    Runs Tau signature on ttbar RDO 
+                </doc>
+                <displayName>Tau</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5'; sliceName='tau';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.digit.RDO.e1176_s1479_s1470_d822_tid01379810_00';fileRange=[1,4]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="LVL1" doMonitoring="True">
+                <doc>
+                    LVL1 only test- with default menu
+                </doc>
+                <displayName>LVL1</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]
+                </commandLineFlags>
+                <options>testLVL1CTPAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group> 
+                <queue>medium</queue><alwaysRunPostProc />
+            </athena>
+            
+        </jobList>
+        
+        <jobGroups>
+            <jobGroup name="AthenaTriggerTestMonitorHistos" parent="Athena">
+                <keepFilePattern info="Log files" displayColor="red">*.txt</keepFilePattern>
+                <keepFilePattern info="Test log file" displayColor="blue">*test*.log</keepFilePattern>
+                <keepFilePattern info="Action log file" displayColor="blue">*action*.log</keepFilePattern>
+                <keepFilePattern info="Monitoring histograms">*-monitoring.root</keepFilePattern>
+                <keepFilePattern info="Timing histograms">timing-histograms.root</keepFilePattern>
+                <keepFilePattern info="checkfilelog">*checkFile*</keepFilePattern>
+                <keepFilePattern info="PerfMon ntuple">*.pmon.gz</keepFilePattern>
+                <keepFilePattern info="PerfMon Hephaestus file">*.heph.log</keepFilePattern>
+                <keepFilePattern info="PerfMon xml">*.xml</keepFilePattern>
+                <keepFilePattern info="POOL files">*.pool.root</keepFilePattern>
+                <keepFilePattern info="GIF files">*.gif</keepFilePattern>
+                <keepFilePattern info="PDF files">*.pdf</keepFilePattern>
+                <keepFilePattern info="ROOT files">*.root</keepFilePattern> 
+                <keepFilePattern info="ROOT macros">*.C</keepFilePattern>
+                <keepFilePattern info="ROOT macros">*.cxx</keepFilePattern>
+                <keepFilePattern info="Bytestream files">*.data</keepFilePattern>
+                <keepFilePattern info="Bytestream files">*.php</keepFilePattern>
+                <keepFilePattern info="igprof files"> igprof.*.gz</keepFilePattern>
+                <keepFilePattern info="igprof files"> cgi-bin/data/*.sql3</keepFilePattern>
+                <keepFilePattern info="igprof files"> cgi-bin/igprof-navigator</keepFilePattern>
+                <keepFilePattern info="TrigCostMon files"> costMonitoring*/* </keepFilePattern>
+                
+                
+                <!--binRefFile>*-monitoring.root</binRefFile-->
+                
+                <auxFilePattern>plotDecision.cxx</auxFilePattern>
+                <auxFilePattern>checklogTriggerTest.conf</auxFilePattern>
+                
+                <test position="1">
+                    <modulename>chainDump</modulename>
+                    <testname>chainDump</testname>
+                    <arg>
+                        <argname>rootFile</argname>
+                        <argvalue>expert-monitoring.root</argvalue>
+                    </arg>
+                </test>
+                
+                <test position="2">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>PerfMonRunner</testname>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>ntuple.pmon.gz</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>options</argname>
+                        <argvalue>-f 0.90</argvalue>
+                    </arg>	
+                </test>
+                
+                <test position="3">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
+                
+                <test position="4">
+                    <modulename>LogTail_TriggerTest</modulename>
+                    <testname>LogTail_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>tail -10000 %JOBLOG >%JOBLOG.tail.txt</argvalue>
+                    </arg>
+                </test>
+                
+                <!--test position="5">
+                    <modulename>TruncateLog_TriggerTest</modulename>
+                    <testname>TruncateLog_TriggerTest</testname>
+                    <testidentifier>TruncateLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>mv %JOBLOG tmp.delete; head -n150000 tmp.delete >%JOBLOG; rm tmp.delete</argvalue>
+                    </arg>
+                </test-->
+                
+                <test position="5">
+                    <modulename>CheckForTrigCostD3PD_TriggerTest</modulename>
+                    <testname>CheckForTrigCostD3PD_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>if [ -f trig_cost.root ] ; then RunTrigCostD3PD.exe -f trig_cost.root --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --monitorGlobals --monitorFullEvent --monitorROS ; else echo file trig_cost.root does not exist thus RunTrigCostD3PD.exe will not be run ; fi</argvalue>
+                    </arg>
+                </test>
+                
+                <!--test position="6">
+                 <modulename>RttLibraryTools</modulename>
+                 <testname>RTTPerfMonPlotter</testname>
+                 <arg>
+                 <argname>outputFile</argname>
+                 <argvalue>rttPerfmonPlotter.xml</argvalue>
+                 </arg>
+                 <keepFilePattern info="">RttLibraryTools_RTTPerfmonPlotter.postprocessing.log</keepFilePattern>
+                 </test-->
+                
+                <testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+                
+                <testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>PerfMonDozer0</testidentifier>
+                </testToRemove>
+                
+            </jobGroup>
+        </jobGroups>
+    </rtt>
+</unifiedTestConfiguration>
