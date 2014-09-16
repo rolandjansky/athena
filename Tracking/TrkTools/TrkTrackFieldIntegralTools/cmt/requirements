@@ -13,7 +13,7 @@ use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
 use GaudiInterface       GaudiInterface-*          External
 use TrkMaterialOnTrack	 TrkMaterialOnTrack-*	   Tracking/TrkEvent
 use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent
-use TrkParameters        TrkParameters-*           Tracking/TrkEvent
+#use TrkParameters        TrkParameters-*           Tracking/TrkEvent
 #use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
 use TrkTrack             TrkTrack-*                Tracking/TrkEvent
 #use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
