@@ -7,14 +7,14 @@
 
 
 #include "AthenaKernel/IAthenaSelectorTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrigCollQuery.h"
 
 
 class TrigCollQueryTool
    : virtual public IAthenaSelectorTool,
-     public AlgTool,
+     public AthAlgTool,
      public TrigCollQuery 
 {
 public:

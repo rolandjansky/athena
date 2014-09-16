@@ -25,7 +25,7 @@ typedef boost::tokenizer<boost::char_separator<char> > Tizer;
 TrigCollQueryTool::TrigCollQueryTool(const std::string& name,
                                      const std::string& type,
                                      const IInterface* parent)
-      : AlgTool(name, type, parent)
+      : AthAlgTool(name, type, parent)
 {
    // properties - default values set in TrigCollQuery::TrigCollQuery()
    declareProperty( "TriggerMapDir", m_XMLDir );
