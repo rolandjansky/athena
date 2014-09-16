@@ -1,0 +1,973 @@
+// Emacs -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//#include "iostream"
+#include <iterator>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/mpl/if.hpp>
+
+#include "GaudiKernel/MsgStream.h"
+//
+#include "TrigNavigation/TypeMaps.h"
+
+#ifndef TrigNavigation_Holder_icc
+#define TrigNavigation_Holder_icc
+
+#define HMLOG(x)   if (Holder<STORED>::m_log->level()<=MSG::x) *Holder<STORED>::m_log << MSG::x 
+#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x 
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// T is for objects, C for container for this objects
+template<class STORED>
+HLTNavDetails::Holder<STORED>::Holder() {
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED>
+HLTNavDetails::Holder<STORED>::Holder(const std::string& label, uint16_t idx) {
+  m_label = label;
+  m_subTypeIndex = idx;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED>
+HLTNavDetails::Holder<STORED>::~Holder() {
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, bool> struct createTemporary;
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED> 
+struct createTemporary<STORED, true>
+{
+  static STORED* do_it() { 
+    //    std::cerr << " created temporary return cache" << std::endl; 
+    STORED *s = new STORED;
+    s->clear(SG::VIEW_ELEMENTS);
+    return s; 
+  }
+}; 
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED> 
+struct createTemporary<STORED, false>
+{
+  static STORED* do_it() { 
+    //    std::cerr << " Not created temporary return cache" << std::endl;   
+    return 0;
+  }
+}; 
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED> 
+template<class CONTAINER2> 
+bool HLTNavDetails::Holder<STORED>::get( ElementLinkVector<CONTAINER2>& el, HLT::TriggerElement::ObjectIndex idx) {
+  return static_cast<HolderImp<STORED, CONTAINER2>* >(this)->getElementLinks(el, idx);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED> 
+template<class CONTAINER2> 
+bool HLTNavDetails::Holder<STORED>::get( ElementLinkVector<CONTAINER2>& el ) {
+  return static_cast<HolderImp<STORED, CONTAINER2>* >(this)->getElementLinks(el);
+}
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Implementation
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp() 
+  : Holder<STORED>()/*, m_return(0)*/ {
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp(const std::string& label, uint16_t idx) 
+  : Holder<STORED>(label, idx)/*, m_return(0)*/ {
+
+  //  m_return = create<STORED, boost::is_same<STORED, CONTAINER>::value>::do_it();
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLTNavDetails::HolderImp<STORED, CONTAINER>::~HolderImp() {  
+  typedef Holder<STORED> H;
+  if (H::m_log) HMLOG(VERBOSE) << "~HolderImp clearing memory manager" << endreq;
+  //  typename MemoryMgrMap::iterator it;
+  //  for ( it = m_memMgr.begin(); it != m_memMgr.end(); ++it ) {
+  //      if (H::m_log) HMLOG(VERBOSE) << "~HolderImp clearing MemoryMgrMap entry: " << it->first << " inSG: " << it->second.inSG  << endreq;
+      //it->second.proxy.clear(H::m_storeGate);
+  //  }
+  m_memMgr.clear();
+  //  if ( m_return ) delete m_return;
+  if (H::m_log) HMLOG(VERBOSE) << "~HolderImp Holder deleted" << endreq;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& label, uint16_t idx ) {
+  typedef Holder<STORED> H;
+  if ( not m_containerProxy.empty() ) {
+    return 0;
+  }
+  HolderImp<STORED, CONTAINER> *imp = new HolderImp<STORED, CONTAINER>(label, idx);
+  //  imp->m_return = create<STORED, boost::is_same<STORED, CONTAINER>::value>::do_it();
+  IHolder *h        = imp;
+  return h;
+}
+
+
+/*
+  //temporary debugging
+  if (Holder<STORED>::m_log->level()<=MSG::VERBOSE){
+    HMLOG(VERBOSE) << "looking up SG key: " << l << " of clid: " << cc << endreq;
+    HMLOG(VERBOSE) << "inbetween keys: " ;
+    std::vector<std::string> kk = H::m_storeGate->keys(cc); 
+    for (unsigned int ik=0; ik<kk.size(); ik++){
+      HMLOG(VERBOSE) << kk[ik] << " ";
+      if (kk[ik]==l)
+	HMLOG(VERBOSE) << kk[ik] << "<-matched ";
+    }
+    HMLOG(VERBOSE) << endreq;
+  }
+*/
+template<class AUX>
+struct auxCLIDOrZero {
+  static CLID get() {
+    return ClassID_traits<AUX>::ID();
+  }
+  static std::string getName() {
+    return ClassID_traits<AUX>::typeName();    
+  }
+};
+template<>
+struct auxCLIDOrZero<HLT::TypeInformation::no_aux> {
+  static CLID get() { 
+    return 0;
+  }
+  static std::string getName() {
+    return std::string("no_aux");    
+  }
+};
+ 
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER> 
+CLID  HLTNavDetails::HolderImp<STORED, CONTAINER>::auxClidOrZero() const {
+  return auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER> 
+void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(MsgStream* log, HLT::AccessProxy* sg){
+  typedef Holder<STORED> H;
+  IHolder::prepare(log,sg);
+  CLID auxCLID = auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
+  if ( auxCLID ) {
+    H::m_aux = HLT::TypeMaps::proxies()[auxCLID];
+    if ( H::m_aux == 0 ) {
+      HMLOG(ERROR) << "HolderImp::prepare can not find Aux store proxy " << *this << endreq;
+    }
+    
+    H::m_aux = H::m_aux->clone();
+    if ( H::m_aux == 0 ) {
+      HMLOG(ERROR) << "HolderImp::prepare can not clone Aux store proxy " << *this << endreq;
+    }
+    HMLOG(VERBOSE) << "HolderImp::prepare proxy toAux store ready decorating" << endreq;
+  }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER> 
+bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolicy policy) {
+  typedef Holder<STORED> H;
+  if ( !H::m_storeGate ) {    
+    HMLOG(WARNING) << "HolderImp::syncWithSG no SG available " << *this << endreq;
+    return false;
+  }
+  HMLOG(VERBOSE) << "HolderImp::syncWithSG syncing holder with SG " << *this << endreq;
+  std::string l = key();
+
+  std::string auxkey = key()+"Aux.";
+  HMLOG(VERBOSE) << "HolderImp::syncWithSG looking in SG for key " << key() << " possible aux should have " << auxkey << endreq;
+
+  const bool transientInSG ( m_containerProxy.transientContains(H::m_storeGate, key() ) );
+  const bool persistentThroughSG ( m_containerProxy.contains(H::m_storeGate, key() ) );
+  if (  transientInSG or persistentThroughSG ) {
+    HMLOG(VERBOSE) << "HolderImp::syncWithSG objects " 
+		   << ( transientInSG ?  "already in" : "available through" ) 
+		   << " SG, syncing to them " << *this << endreq;
+    
+
+    if ( m_containerProxy.sync( H::m_storeGate, key()).isFailure() )  {
+      HMLOG(WARNING) << "HolderImp::syncWithSG objects already in SG, however failed syncing (SG::retrieve) to them " << *this << endreq;
+      return false;
+    }          
+    HMLOG(VERBOSE) << "HolderImp::syncWithSG got container from SG: " << m_containerProxy.data() << endreq; 
+    if ( this->m_aux )  {
+      const bool transientInSGAux ( this->m_aux->transientContains(H::m_storeGate, auxkey ) );
+      const bool persistentThroughSGAux ( this->m_aux->contains(H::m_storeGate, auxkey ) );
+      if(!transientInSGAux and !persistentThroughSGAux){
+	HMLOG(WARNING) << "HolderImp::syncWithSG syncing Aux holder and CONTAINER is SG but Aux Store not" << endreq;
+	return false;
+      }
+      if(this->m_aux->sync(H::m_storeGate,auxkey).isFailure()){
+	HMLOG(WARNING) << "HolderImp::syncWithSG objects already in SG, however failed syncing aux (SG::retrieve) to them " << *this << endreq;
+	return false;
+      }
+      typedef typename Container2Aux<CONTAINER>::type auxtype;
+      HLTNavDetails::TypeProxy<auxtype>* auxcasted = static_cast<HLTNavDetails::TypeProxy<auxtype>*>(this->m_aux);
+      HMLOG(VERBOSE) << "HolderImp::syncWithSG got aux container from SG: " << auxcasted->data() << endreq; 
+      HMLOG(VERBOSE) << "HolderImp::syncWithSG store is: " << m_containerProxy.data()->getStore() << endreq; 
+    }         
+  } else { // SG is empty, we need to put the obj ito it
+    HMLOG(VERBOSE) << "HolderImp::syncWithSG objects not in SG, adding them to SG " << *this << endreq;
+    if (  m_containerProxy.create().isFailure() )  {
+      HMLOG(WARNING) << "HolderImp::syncWithSG can not create container " << *this << endreq;
+      return false;
+    }
+
+    m_containerProxy.data()->clear(policy);
+    
+    CLID auxCLID = auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
+    if ( auxCLID ) {
+      if ( H::m_aux == 0 ) {
+	HMLOG(ERROR) << "HolderImp::syncWithSG can not clone Aux store proxy " << *this << endreq;
+	return false;
+      }
+      
+      HMLOG(VERBOSE) << "HolderImp::syncWithSG proxy toAux store ready decorating" << endreq;
+
+      if( H::m_aux->create().isFailure() ) {
+	HMLOG(WARNING) << "HolderImp::syncWithSG can not create Aux store for container " << *this << endreq;
+	return false;
+      }
+      std::string auxkey = formatSGkey(this->m_prefix,
+				       ClassID_traits<CONTAINER>::typeName(),
+				       this->m_label+"Aux.");
+
+      if( H::m_aux->reg(H::m_storeGate,auxkey).isFailure() ) {
+	HMLOG(WARNING) << "HolderImp::syncWithSG can not register Aux store for container in SG " << *this << endreq;
+	return false;
+      }
+
+      SG::AuxVectorBase* container = m_containerProxy.castAuxVectorBase();
+      SG::IAuxStore* aux = H::m_aux->castIAuxStore();
+      if ( container and aux ) {
+	HMLOG(DEBUG) << "HolderImp::syncWithSG Aux sotore configured for " << *this << endreq;
+	container->setStore(aux);
+      } else {
+	HMLOG(WARNING) << "HolderImp::syncWithSG type configured to have Aux store but no appropriate Aux interaces are implemented AuxVectorBase for container: " 
+		       << container << " IAuxStore for Aux sotore: " << aux <<  " "<<  *this << endreq;
+	return false;	
+      }
+    } 
+    
+    if ( m_containerProxy.reg( H::m_storeGate, key()).isFailure() ) {
+       HMLOG(ERROR) << "HolderImp::syncWithSG recording collection failed " << *this << endreq;
+      return false;   
+    }
+  }  
+
+  return true;   
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER> 
+bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::clearSG() {
+  if ( m_containerProxy.empty() ) return false;
+
+  //  typedef Holder<STORED> H;
+  //  if ( m_containerProxy.clear(H::m_storeGate).isFailure() )     
+  //    return false;  
+  return true;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER> 
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::checkAndSetOwnership(SG::OwnershipPolicy policy) {
+  if ( m_containerProxy.empty() ) 
+    return false;
+
+  if ( m_containerProxy.data()->empty() ) {
+    m_containerProxy.data()->clear(policy);
+    return true;
+  } 
+  
+  if ( m_containerProxy.data()->ownPolicy() == policy )
+    return true;
+
+  return false;
+}
+/////////////////////////////////////////////////////////////////////////////
+template<class CONTAINER, bool b> 
+struct transferBetweenContainers;
+
+
+// case when the containers can be transfered
+template <class CONTAINER> 
+struct transferBetweenContainers<CONTAINER, true> {
+  static void do_it(CONTAINER *source, CONTAINER* dest, MsgStream* m_log) {
+    const size_t orig_size = dest->size();
+    dest->resize( orig_size + source->size() );
+    std::swap_ranges( source->begin(), source->end(), dest->begin() + orig_size );
+    MLOG( VERBOSE ) << "insert::do_it objects moved, converting to a view container now"    << endreq;
+    source->setStore((SG::IAuxStore*)0);
+    source->clear(SG::VIEW_ELEMENTS);
+    MLOG( VERBOSE ) << "insert::do_it refilling the feature container"    << endreq;
+    source->insert(source->begin(), std::next(dest->begin(), orig_size), dest->end());
+
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// case when the containers CAN NOT be transfered
+template <class CONTAINER> 
+struct transferBetweenContainers<CONTAINER, false> {
+  static void do_it(CONTAINER *, CONTAINER* , MsgStream* ) {
+    throw std::runtime_error
+      ("TrigNavigation: Tried to attach an owning container of type " +
+       ClassName<CONTAINER>::name() +
+       "; only view containers of this type are supported.");    
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// code below checks if the transfer of elements between the two OWNING containers can happen
+// It is based on the check of the type returned by the iterator i.e. if the reference is const or not const (i.e. assignable)
+//
+template<class CONTAINER> 
+struct canTransfer {  
+  const static bool value = std::is_assignable<typename CONTAINER::iterator::reference,
+					       typename CONTAINER::iterator::value_type>::value;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER, bool b> struct insert;
+
+/////////////////////////////////////////////////////////////////////////////
+// implementation if stored and container are the same
+// this version is suggested by Attila, it has several advantages
+// 1) the source container is useable after the insertion (important for the monitoring)
+// 2) ownership of objects is greately simplified (i.e. the event-wise container always own objects,
+//    the roi-wise containers always view objects
+//
+template <class STORED, class CONTAINER> 
+struct insert<STORED, CONTAINER, true>{
+  static bool do_it(STORED *source, CONTAINER* dest, bool /*hasAux*/, MsgStream* m_log) {
+
+    MLOG( VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() << endreq;
+    MLOG( VERBOSE ) << "Destination is " << (dest->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "OWN") 
+		    << " source is " << (source->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "OWN")  << endreq;
+
+    
+    // From Scott
+    // - Input container is owning.  Output container should also be owning;
+    //   ownership should be transferred from input to output container.
+    
+    // - Input is a view container and doesn't track indices
+    //   (trackIndices() is false).  Output should be a view container.
+    //   Aux data are not transferred in this case.
+    
+    // - Input is a view container that does track indices
+    //   (trackIndices() is true).  Output should be a view container
+    //   with ALWAYS_TRACK_INDICES.  Aux data are transferred in this case.    
+    //   (I don't think trigger will see this case.)
+
+    
+    if ( dest->empty() ) { // epmty destination, we can do adaptations
+      if ( source->ownPolicy() == SG::OWN_ELEMENTS ) {
+	dest->clear( SG::OWN_ELEMENTS );
+      }
+
+      if ( source->ownPolicy() == SG::VIEW_ELEMENTS and source->trackIndices() == false ) {
+	MLOG( VERBOSE ) << "insert::do_it destination container made a VIEW"    << endreq;
+	dest->clear( SG::VIEW_ELEMENTS);
+      }
+      
+      if ( source->ownPolicy() == SG::VIEW_ELEMENTS and source->trackIndices() == true ) {
+	MLOG( VERBOSE ) << "insert::do_it destination container made a VIEW wiht indices tracking "    << endreq;
+	// it should be like this but I can not implemnt it like this because many container do not implement second arg dest->clear( SG::VIEW_ELEMENTS, SG::ALWAYS_TRACK_INDICES );
+	dest->clear( SG::VIEW_ELEMENTS );
+      }
+    }
+    if ( source->ownPolicy() != dest->ownPolicy() ) {  // a simple check if in case of nonempty container we are dooing consistent insertion
+      MLOG( WARNING ) << "insert::do_it objects can not be inserted because of ownership issues. "
+		      << "Destination container has already " << dest->size() << " objects " 
+		      <<  " and ownership policy "
+		      << (dest->ownPolicy() == SG::OWN_ELEMENTS ? "OWN" : "")  // this is dumb code but who knows what other policies will be implemented in the future
+		      << (dest->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "") 
+		      << " no action is performed, potential memory leak"    << endreq;
+      return false;
+    }
+
+    
+    if ( source->ownPolicy() == SG::VIEW_ELEMENTS ) {
+      //      const size_t orig_size = dest->size();
+      //      dest->resize( orig_size + source->size() );
+      dest->insert(dest->end(), source->begin(), source->end());
+      MLOG( VERBOSE ) << "insert::do_it objects copied, conversion to view container not needed"    << endreq;
+    } else {
+      // We have an owning container.  Transfer the element ownership
+      // from SOURCE to DEST.  We can only do this if the container
+      // has modifiable iterators.  For containers with non-modifiable
+      // iterators (like CaloTowerContainer), we throw an exception.
+      // Such containers should be added only as view containers.
+      transferBetweenContainers<CONTAINER, canTransfer<CONTAINER>::value>
+	::do_it(source, dest, m_log);
+
+
+      // const size_t orig_size = dest->size();
+      // dest->resize( orig_size + source->size() );
+      // std::swap_ranges( source->begin(), source->end(), dest->begin() + orig_size );
+      // MLOG( VERBOSE ) << "insert::do_it objects moved, converting to a view container now"    << endreq;
+      // source->setStore((SG::IAuxStore*)0);
+      // source->clear(SG::VIEW_ELEMENTS);
+      // MLOG( VERBOSE ) << "insert::do_it refilling the feature container"    << endreq;
+      // source->insert(source->begin(), std::next(dest->begin(), orig_size), dest->end());
+    }
+    return true;    
+  }
+};
+
+
+/*
+template <class STORED, class CONTAINER> 
+struct insert<STORED, CONTAINER, true>{
+  static bool do_it(STORED *source, CONTAINER* dest, bool hasAux, MsgStream* m_log) {
+
+    if (hasAux) {      
+
+      MLOG( VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName()
+			   << "  has defined Aux decorations, swap_ranges used"    << endreq;
+      
+      const size_t orig_size = dest->size();
+      dest->resize( orig_size + source->size() );
+      std::swap_ranges( source->begin(), source->end(), dest->begin() + orig_size );
+      return true;
+    } else {
+      
+      // we may to have little problem here because the either both source and destination own the memory or 
+      // or noone owns it
+      if ( source->ownPolicy() == dest->ownPolicy() ) { 
+	if (dest->empty() ) { // if the destination is still empty we can adapt it
+	  MLOG( VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() 
+			  << "  adapting the destination container SG::OwnPolicy for the first insert"    << endreq;
+	  
+	  if (  source->ownPolicy()  == SG::OWN_ELEMENTS) dest->clear( SG::VIEW_ELEMENTS );  
+	  if (  source->ownPolicy()  == SG::VIEW_ELEMENTS) dest->clear( SG::OWN_ELEMENTS );  
+	} else { // real issue
+	  MLOG( WARNING ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() 
+			  << " already has has objects and own policiec clash"  <<  source->ownPolicy() << " " << dest->ownPolicy()  << endreq;
+	  return false;
+	}
+      }       
+      MLOG ( VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() 
+		       << "  has no decorations, insert used"    << endreq;
+      dest->insert(dest->end(), source->begin(), source->end());
+    }
+  return true;
+  }
+};
+*/
+/////////////////////////////////////////////////////////////////////////////
+// implementation if stored and container are distinct
+template <class STORED, class CONTAINER> 
+struct insert <STORED, CONTAINER, false>{
+  static bool do_it(STORED *s, CONTAINER* dest, bool /*hasAux*/, MsgStream* /*msglog*/ ) {
+
+    //    if (dest->empty()) 
+    //      dest->clear(SG::VIEW_ELEMENTS); // this is the way to change ownership
+    dest->push_back(s);
+    return true;
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER, bool b> struct remap;
+template<class STORED, class CONTAINER> 
+struct remap<STORED, CONTAINER, false> {
+  static void do_it(const std::string&, const std::string&, STORED *, CONTAINER*, HLT::AccessProxy*,  MsgStream* ) {
+    
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER> 
+struct remap<STORED, CONTAINER, true> {
+  static void do_it(const std::string& storedkey , const std::string& contkey, STORED *s, CONTAINER* cont, HLT::AccessProxy *sg,  MsgStream* m_log ) {
+    std::string skey = storedkey;
+    if ( storedkey == "" ) {
+      // we can't do it 
+      if ( m_log->level() <= MSG::VERBOSE ) {
+	*m_log << MSG::VERBOSE << "HolderImp::remap trying to discover object key, this is potentially slow and should be avoided, type: "  << ClassID_traits<STORED>::typeName() << " from: " << s << " to: " << cont  << endreq;
+      }
+      SG::DataProxy* px = sg->proxy((void const* )s);
+      if ( !px ) {
+	*m_log << MSG::WARNING << "HolderImp::remap When remaping containers found no proxy for the object" << s << " of type " << ClassID_traits<STORED>::typeName()  << endreq;
+	return;
+      }
+      if ( !px->isValid() ) {
+	*m_log << MSG::WARNING << "HolderImp::remap When remaping containers found no valid proxy for the object" << s << " of type " << ClassID_traits<STORED>::typeName()  << endreq;
+	return;
+      }
+      skey = px->name();
+    }      
+    if ( m_log->level() <= MSG::VERBOSE ) 
+      *m_log << MSG::VERBOSE << "HolderImp::remap remapping collections of type: " << ClassID_traits<STORED>::typeName() 
+	     << " from: " << skey << " to: " << contkey << " while destination container size is: " <<  cont->size() << endreq;
+    sg->remap(ClassID_traits<CONTAINER>::ID(), skey, contkey, cont->size());
+
+  }
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::add( const STORED* f, bool inSG, const std::string& sgKey ) {
+  typedef Holder<STORED> H;
+  if ( ! syncWithSG() )
+    return HLT::TriggerElement::ObjectIndex();
+
+  uint32_t bidx = m_containerProxy.data()->size();
+
+  std::string thiskey(sgKey);
+  if ( !inSG && boost::is_same<STORED, CONTAINER>::value ) { // conditions to place partial containers in SG 
+    thiskey  = this->getUniqueKey();
+    if ( H::m_storeGate->record(f, thiskey).isFailure()  ) {
+      HMLOG(WARNING) << "HolderImp::add object " <<  f << "and sgKey:" << thiskey << " intended for holder" << *this << " can't be placed directly in SG" << endreq;
+    } else {
+      inSG = true;
+      HMLOG(VERBOSE) << "HolderImp::add feature SG direct registration succesful with the key:" << thiskey << endreq;
+    }
+  }
+
+  if ( inSG ) { //conditions to add remapping
+    remap<STORED, CONTAINER,  
+      boost::is_same<STORED, CONTAINER>::value>::do_it (thiskey, key(), const_cast<STORED*>(f), m_containerProxy.data(), H::m_storeGate, H::m_log);
+  }
+
+  bool insertStatus = insert<STORED, CONTAINER, boost::is_same<STORED, CONTAINER>::value>
+    ::do_it (const_cast<STORED*>(f), m_containerProxy.data(), H::m_aux != 0, H::m_log);
+  if ( insertStatus == false ) {
+    HMLOG(WARNING) << "HolderImp::add  insert failed "  << endreq;
+    return  HLT::TriggerElement::ObjectIndex();
+  }
+
+  uint32_t eidx = m_containerProxy.data()->size();
+  HMLOG(VERBOSE) << "HolderImp::add added object(s) to the container, size increase from : " << bidx << " to: " << eidx << endreq;
+  HLT::TriggerElement::ObjectIndex objIdx (H::subTypeIndex(), bidx, eidx );
+
+  m_memMgr.insert(std::make_pair(objIdx, MemoryMgr(const_cast<STORED*>(f), inSG||m_containerProxy.data()->ownPolicy() == SG::OWN_ELEMENTS)));
+  
+  return objIdx;
+}
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER, bool b> struct retrieve;
+
+/////////////////////////////////////////////////////////////////////////////
+// implementation if stored and container are the same
+template <class STORED, class CONTAINER> 
+struct retrieve<STORED, CONTAINER, true>{
+  static bool do_it(STORED*& dest, CONTAINER* src, HLT::TriggerElement::ObjectIndex idx) {
+    // find 2 iterators
+    // assert(idx.objectsBegin());
+    if ( src->size() < idx.objectsBegin() || src->size() < idx.objectsEnd()) {
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::VERBOSE,"Holder") << "either begin index or end index is larger than size";
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::VERBOSE,"Holder") << "size: " << src->size() << " begin: " << idx.objectsBegin() << " end: " << idx.objectsEnd();
+      dest = 0;
+      return false;
+    }
+    dest = createTemporary<STORED, boost::is_same<STORED, CONTAINER>::value>::do_it(); 
+    typename CONTAINER::iterator beg = src->begin(); 
+    typename CONTAINER::iterator end = src->begin(); 
+    std::advance(beg, idx.objectsBegin());
+    std::advance(end, idx.objectsEnd());
+    dest->insert(dest->end(), beg, end);
+    return true;
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// implementation if stored and container are distinct
+template <class STORED, class CONTAINER> 
+struct retrieve <STORED, CONTAINER, false>{
+  static bool do_it(STORED*& dest, CONTAINER* src, HLT::TriggerElement::ObjectIndex idx) {
+
+    if (idx.objectsBegin() <  (*src).size()) {
+      dest = src->at(idx.objectsBegin());
+      return true;
+    } else {
+      /*
+      HMLOG(ERROR) << "idx.objectsBegin()=" << idx.objectsBegin()
+		  << " out of range in source container of size " <<  (*src).size() << endreq;
+      */
+      dest = 0;
+      return false;
+    }
+  }
+};
+
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::getWithLink(typename set_link<STORED,CONTAINER,boost::is_same<STORED,CONTAINER>::value>::type& link,
+                 HLT::TriggerElement::ObjectIndex& idx) {
+
+   const STORED* dest = 0;
+   bool result = this->get(dest,idx);
+   if(!result) return false;
+
+   link = set_link<STORED,CONTAINER,boost::is_same<STORED,CONTAINER>::value>::do_it(dest,m_containerProxy.data(),idx);
+   return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::get(const STORED*& dest, HLT::TriggerElement::ObjectIndex idx) {
+  typedef Holder<STORED> H;
+  if ( !syncWithSG() )
+    return false;
+
+
+  HMLOG(VERBOSE) << "HolderImp::get getting object(s) from Holder" << *this << endreq;
+  typename MemoryMgrMap::const_iterator cache;
+  if ( (cache = m_memMgr.find(idx)) != m_memMgr.end() ) {
+    HMLOG(DEBUG) << "HolderImp::get object found in the cache with address " << idx << endreq;
+    dest = cache->second.proxy.data();
+    return true;
+  }
+  else{
+    HMLOG(VERBOSE) << "HolderImp::get getting object from primary collection " << idx << endreq;
+  }
+  
+  if ( ! retrieve<STORED, CONTAINER,  // short circuited .. retrieve will not run if in cache
+		  boost::is_same<STORED, CONTAINER>::value>::
+       do_it (const_cast<STORED*&>(dest), m_containerProxy.data(), idx) ) {
+    HMLOG(WARNING) << "HolderImp::get getting chunk of the container failed for Holder: " << *this  
+		   << " index: " << idx << endreq;
+    return false;
+  }
+      
+  if ( boost::is_same<STORED, CONTAINER>::value ) { // temporary view containers in SG and cache filling
+    FeatureProxy tempProxy( const_cast<STORED*>(dest) );
+    
+    m_memMgr.insert(std::make_pair(idx, MemoryMgr(tempProxy, true)));    // store it in the cache for futher uses
+    
+    std::string sgKey = this->generateAliasKey( H::typeClid(), H::subTypeIndex(), H::label(), 0xffffffff );
+
+    if ( tempProxy.reg(H::m_storeGate, sgKey).isFailure() ) {
+      HMLOG(WARNING) << "HolderImp::get for some reason object can't be placed in SG, key:" << sgKey << endreq;
+      return false;
+    }
+    remap<STORED, CONTAINER, 
+	  boost::is_same<STORED, CONTAINER>::value>::do_it (sgKey, key(), tempProxy.data(), m_containerProxy.data(), H::m_storeGate, H::m_log);
+    HMLOG(VERBOSE) << "Added view collection to SG with defined EL remapping to event-wide colection, key: " << sgKey << endreq;
+  }
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// check if objects in obj are in the container 
+template<class STORED, class CONTAINER, bool b> struct isin;
+
+/////////////////////////////////////////////////////////////////////////////
+// check if the container obj is a subcontainer of cont 
+template <class STORED, class CONTAINER> 
+struct isin<STORED, CONTAINER, true> {
+  static bool do_it(const STORED* obj, const CONTAINER* cont, MsgStream* /*msg*/, uint32_t& begin, uint32_t& end) {
+    typename CONTAINER::const_iterator it =  std::search(cont->begin(), cont->end(), obj->begin(), obj->end());
+    if ( it == cont->end() ) {
+      return false;
+    }
+    begin = it - cont->begin();
+    end = begin + obj->size();
+    return true;
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// check if the obj is in a container cont
+template <class STORED, class CONTAINER> 
+struct isin<STORED, CONTAINER, false> {
+  static bool do_it(const STORED* obj, const CONTAINER* cont, MsgStream* /*msg*/, uint32_t& begin, uint32_t& end) {
+    typename CONTAINER::const_iterator it = std::find(cont->begin(), cont->end(), obj);
+    if ( it == cont->end() ) {
+      return false;
+    } 
+    //    std::cerr << "fubu " << obj << " " << *it << std::endl;
+    begin = it - cont->begin();
+    end = begin+1;
+    
+    return true;
+  }
+};
+
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const {
+  typedef Holder<STORED> H;
+  if ( !const_cast<HolderImp<STORED, CONTAINER>* >(this)->syncWithSG() )
+    return false;
+
+  HMLOG(VERBOSE) << "HolderImp::contains" << endreq;
+  uint32_t begin=0;
+  uint32_t end=0;
+  bool ok = isin<STORED, CONTAINER, 
+		 boost::is_same<STORED, CONTAINER>::value>::do_it (obj, m_containerProxy.data(), H::m_log, begin, end);
+  if ( !ok ) {
+    HMLOG(VERBOSE) << "HolderImp::contains object " << obj << " not in the holder" << *this  << endreq;
+    return false;
+  }
+  idx = HLT::TriggerElement::ObjectIndex(H::subTypeIndex(),begin,end);
+  HMLOG(VERBOSE) << "HolderImp::contains object " << obj << " found by in holder" << *this << " " << idx << endreq;
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::getElementLinks(ElementLinkVector<CONTAINER>& cont,  
+								  HLT::TriggerElement::ObjectIndex idx) {
+  typedef Holder<STORED> H;
+  if ( !syncWithSG() )
+    return false;
+
+  HMLOG(VERBOSE) << "HolderImp::getElementLinks(ELV, Index) getting objects" << endreq;
+  for (unsigned i = idx.objectsBegin(); i != idx.objectsEnd(); ++i ){
+    cont.push_back(ElementLink<CONTAINER>(*(m_containerProxy.data()), i));
+  }
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::getElementLinks(ElementLinkVector<CONTAINER>& cont) {
+ 
+  typedef Holder<STORED> H;
+  if ( !syncWithSG() )
+    return false;
+  HMLOG(VERBOSE) << "HolderImp::getElementLinks (ELV) getting all objects" << endreq;
+  for (unsigned i = 0; i < m_containerProxy.data()->size(); ++i ){
+    cont.push_back(ElementLink<CONTAINER>(*(m_containerProxy.data()), i));
+  }
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+std::string HLTNavDetails::HolderImp<STORED, CONTAINER>::getUniqueKey() {
+  HMLOG(VERBOSE) << "HolderImp::getUniqueKey" << endreq;
+  if ( !syncWithSG() )
+    return "Bad_Key";
+  return IHolder::generateAliasKey( Holder<STORED>::typeClid(), 
+				    Holder<STORED>::subTypeIndex(),
+				    Holder<STORED>::label(),
+				    m_containerProxy.data()->size() );
+}
+
+template<class STORED, class CONTAINER>
+std::string HLTNavDetails::HolderImp<STORED, CONTAINER>::getNextKey() {
+  HMLOG(VERBOSE) << "HolderImp::getNextKey" << endreq;
+  return getUniqueKey();
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::serialize(std::vector<uint32_t>& output) const {
+  typedef Holder<STORED> H; // this is to make things below shorter
+  
+  HMLOG(VERBOSE) << "HolderImp::serialize " << *this << endreq;
+  // if feature to be forgotten then indication of it is simply 0 size of serialized vector
+  H::serialize(output);
+  
+   
+  //  copy(output.begin(), output.end(), std::ostream_iterator<int>(std::cerr, " S "));
+  //  std::cerr << "\n";
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::deserialize(const std::vector<uint32_t>& input) {
+  // first is recorded method of serialization used for this feature
+  typedef Holder<STORED> H; // this is to make things below shorter
+  //  copy(input.begin(), input.end(), std::ostream_iterator<int>(std::cerr, " D "));
+  //  std::cerr << "\n";
+  HMLOG(VERBOSE) << "HolderImp::deserialize " << *this << endreq;   
+  CLID c;
+  std::vector<uint32_t>::const_iterator it = input.begin();
+  if ( ! IHolder::enquireSerialized(input, it, 
+				    c, H::m_label, H::m_subTypeIndex ) ) {
+    HMLOG(WARNING) << "HolderImp::deserialize failed to enquire serialized blob of data" << endreq;
+    return false;
+  } 
+  HMLOG(DEBUG) << "HolderImp::deserialize success " << *this << endreq;
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED>
+void HLTNavDetails::Holder<STORED>::print(MsgStream& m) const {
+  IHolder::print(m);
+  m << " Stored type name: " << ClassID_traits<STORED>::typeName();  
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+void HLTNavDetails::HolderImp<STORED, CONTAINER>::print(MsgStream& m) const {
+  Holder<STORED>::print(m);
+  m << " Collection type name: " << ClassID_traits<CONTAINER>::typeName() << " CLID: " << ClassID_traits<CONTAINER>::ID();
+  if ( not m_containerProxy.empty() )
+    m << " size: " << m_containerProxy.data()->size() << " @"<<m_containerProxy.data();
+  else
+    m << " container not allocated yet";
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+DataObject* HLTNavDetails::HolderImp<STORED, CONTAINER>::getDataObject() {
+  if(!m_containerProxy.data()) return 0;
+  return SG::asStorable(m_containerProxy.data());
+}
+
+#define _IS_AUXTYPE_ !boost::is_same<typename Container2Aux<T>::type,HLT::TypeInformation::no_aux>::value
+
+struct AuxDataObjectHelper{
+  template<typename T>
+  static typename std::enable_if<!_IS_AUXTYPE_,DataObject*>::type get(HLTNavDetails::ITypeProxy*/* aux*/){
+    return 0;
+  }
+  template<typename T>
+  static typename std::enable_if<_IS_AUXTYPE_,DataObject*>::type get(HLTNavDetails::ITypeProxy* aux){
+    typedef typename Container2Aux<T>::type auxtype;
+    HLTNavDetails::TypeProxy<auxtype>* auxcasted = static_cast<HLTNavDetails::TypeProxy<auxtype>*>(aux);
+    if(auxcasted){
+      if(!auxcasted->data()) return 0;
+      return SG::asStorable(auxcasted->data());
+    }
+    return 0;
+  }
+  template<typename T>
+  static typename std::enable_if<!_IS_AUXTYPE_,bool>::type set(HLTNavDetails::ITypeProxy*,DataObject*){
+    return true;//always success
+  }
+  template<typename T>
+  static typename std::enable_if<_IS_AUXTYPE_,bool>::type set(HLTNavDetails::ITypeProxy* aux, DataObject* dobjaux){
+    typedef typename Container2Aux<T>::type auxtype;
+    HLTNavDetails::TypeProxy<auxtype>* auxcasted = static_cast<HLTNavDetails::TypeProxy<auxtype>*>(aux);
+    if(auxcasted){      
+      bool success = SG::fromStorable(dobjaux,auxcasted->data_ref());
+      auxcasted->syncTypeless();
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::VERBOSE,"Holder") << "set from storable " << success << " to address " << auxcasted->data() << std::endl;
+      return success;
+    }
+    return 0;
+  }
+};
+
+
+template<class STORED, class CONTAINER>
+DataObject* HLTNavDetails::HolderImp<STORED, CONTAINER>::getAuxDataObject() {
+  return AuxDataObjectHelper::get<CONTAINER>(this->m_aux);
+}
+
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::setAuxDataObject(DataObject* dobjaux) {
+  bool status =  AuxDataObjectHelper::set<CONTAINER>(this->m_aux,dobjaux);
+  HMLOG(VERBOSE) << "container data is: " << m_containerProxy.data() << endreq;
+  SG::AuxVectorBase* container = m_containerProxy.castAuxVectorBase();
+  if(!this->m_aux or !container){
+    HMLOG(ERROR) << "in aux branch but aux type proxy or container proxy is null" << endreq;
+    HMLOG(ERROR) << "container is: " << container << endreq;
+    HMLOG(ERROR) << "aux is: " << this->m_aux << endreq;
+    return false;
+  }
+  SG::IAuxStore* aux = this->m_aux->castIAuxStore();
+  if(!aux){
+    HMLOG(ERROR) << "cast of auxstore failed " << endreq;    
+  }
+  if(container and aux and status){
+    HMLOG(VERBOSE) << "container is: " << container << endreq;
+    HMLOG(VERBOSE) << "aux is: " << this->m_aux << endreq;    
+    container->setStore(aux);
+    return true;
+  }
+  HMLOG(WARNING) << "something went wrong setting aux data object " <<  endreq;
+  return false;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::setDataObject(DataObject* dobj) {
+  bool success = SG::fromStorable(dobj, m_containerProxy.data_ref());
+  m_containerProxy.syncTypeless();
+  REPORT_MESSAGE_WITH_CONTEXT(MSG::VERBOSE,"Holder") << "set from storable " << success << " to address " << m_containerProxy.data();
+  return success;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLTNavDetails::HolderImp<STORED, CONTAINER>::MemoryMgr::MemoryMgr(const FeatureProxy& st, bool sg)
+  : proxy(st), inSG(sg)
+{}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+HLTNavDetails::HolderImp<STORED, CONTAINER>::MemoryMgr::MemoryMgr()
+  :  inSG(false)
+{}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+void HLTNavDetails::HolderImp<STORED, CONTAINER>::MemoryMgr::clear() {
+  // if the thing is not in SG it shoudl not be cleared, if is the SG will take care of it if ( !inSG )   proxy.clear();
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED>
+MsgStream& HLTNavDetails::operator<< ( MsgStream& m, const HLTNavDetails::Holder<STORED>& h ) {
+  h.print(m);
+  return m;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class STORED, class CONTAINER>
+MsgStream& HLTNavDetails::operator<< ( MsgStream& m, const HLTNavDetails::HolderImp<STORED, CONTAINER>& h ) {
+  h.print(m);
+  return m;
+}
+
+
+#undef HMLOG
+#undef MLOG
+#endif

@@ -1,0 +1,191 @@
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+RoICache_test        INFO LINE:77 Start of the test: RoIcaching test
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/t/tbold/workarea/devval/Trigger/TrigEvent/TrigNavigation/run/../share/test.txt
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "TrigNavigation", "TrigSerializeCnvSvc"]
+JobOptionsSvc        INFO # (3,1): ApplicationMgr.ExtSvc += ["ClassIDSvc"]
+JobOptionsSvc        INFO # (4,1): ApplicationMgr.ExtSvc += ["TrigSerializeCnvSvc"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
+JobOptionsSvc        INFO # (6,1): ApplicationMgr.ExtSvc += ["ActiveStoreSvc"]
+JobOptionsSvc        INFO # (7,1): ApplicationMgr.ExtSvc += ["ToolSvc"]
+JobOptionsSvc        INFO # (8,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
+JobOptionsSvc        INFO # (9,1): StoreGateSvc.OutputLevel = 1
+JobOptionsSvc        INFO # (10,1): StoreGateSvc.ActivateHistory = 0
+JobOptionsSvc        INFO # (11,1): CLIDSvc.OutputLevel = 1
+JobOptionsSvc        INFO # (12,1): ClassIDSvc.OutputLevel = 1
+JobOptionsSvc        INFO # (13,1): MessageSvc.OutputLevel = 1
+JobOptionsSvc        INFO # (14,1): MessageSvc.useColors = 0
+JobOptionsSvc        INFO # (35,1): Holder_test.OutputLevel = 1
+JobOptionsSvc        INFO # (36,1): RoICache_test.OutputLevel = 3
+JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
+ApplicationMgr      DEBUG Getting my own properties
+ApplicationMgr       INFO Application Manager Configured successfully
+ServiceManager      DEBUG Initializing service IncidentSvc
+ServiceManager      DEBUG Initializing service ClassIDSvc
+ClassIDSvc          DEBUG Service base class initialized successfully
+ClassIDSvc        VERBOSE ServiceLocatorHelper::service: found service IncidentSvc
+ServiceManager      DEBUG Initializing service TrigSerializeCnvSvc
+TrigSerializeCn...   INFO initialize()
+ServiceManager      DEBUG Initializing service StoreGateSvc
+StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc
+EventPersistenc...  DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+ProxyProviderSvc  VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+ProxyProviderSvc    DEBUG Service base class initialized successfully
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc
+ServiceManager      DEBUG Initializing service DetectorStore
+DetectorStore       DEBUG Service base class initialized successfully
+DetectorStore     VERBOSE ServiceLocatorHelper::service: found service IncidentSvc
+DetectorStore     VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+DetectorStore     VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+DetectorStore     VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc
+ServiceManager      DEBUG Initializing service HistoryStore
+HistoryStore        DEBUG Service base class initialized successfully
+HistoryStore      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc
+HistoryStore      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+HistoryStore      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+HistoryStore      VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc
+ServiceManager      DEBUG Initializing service ActiveStoreSvc
+ActiveStoreSvc      DEBUG Service base class initialized successfully
+ActiveStoreSvc    VERBOSE ServiceLocatorHelper::service: found service StoreGateSvc
+ServiceManager      DEBUG Initializing service ToolSvc
+ToolSvc             DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service AppMgrRunable
+AppMgrRunable       DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service EventLoopMgr
+EventLoopMgr        DEBUG Service base class initialized successfully
+EventDataSvc        DEBUG Service base class initialized successfully
+EventDataSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentSvc
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramDataSvc    DEBUG Service base class initialized successfully
+HistogramDataSvc  VERBOSE ServiceLocatorHelper::service: found service IncidentSvc
+HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
+HistogramPersis...  DEBUG Service base class initialized successfully
+HistogramPersis...WARNING Histograms saving not required.
+HistogramDataSvc  VERBOSE ServiceLocatorHelper::service: found service HistogramPersistencySvc
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+ToolSvc.Navigat...VERBOSE ServiceLocatorHelper::service: found service StoreGateSvc
+NavigationCore....VERBOSE ServiceLocatorHelper::service: found service TrigSerializeCnvSvc
+RoICache_test        INFO LINE:106 Test progress fine:  OK navigation tool retrieved
+RoICache_test        INFO LINE:109 Test progress fine:  OK navigation casted
+RoICache_test        INFO LINE:153 Test progress fine:  Navigation structure built
+RoICache_test:calo   INFO LINE:34 Start of the test: One algorithm test calo
+RoICache_test:calo   INFO REGTEST executing on 11
+RoICache_test:calo   INFO REGTEST REAL execution needed on 11
+RoICache_test:calo   INFO LINE:56 End of the test: One algorithm test calo
+RoICache_test:calo   INFO LINE:34 Start of the test: One algorithm test calo
+RoICache_test:calo   INFO REGTEST executing on 12
+RoICache_test:calo   INFO REGTEST CACHED execution needed on 12
+RoICache_test:calo   INFO LINE:56 End of the test: One algorithm test calo
+RoICache_test:calo   INFO LINE:34 Start of the test: One algorithm test calo
+RoICache_test:calo   INFO REGTEST executing on 13
+RoICache_test:calo   INFO REGTEST CACHED execution needed on 13
+RoICache_test:calo   INFO LINE:56 End of the test: One algorithm test calo
+RoICache_test:calo   INFO LINE:34 Start of the test: One algorithm test calo
+RoICache_test:calo   INFO REGTEST executing on 14
+RoICache_test:calo   INFO REGTEST CACHED execution needed on 14
+RoICache_test:calo   INFO LINE:56 End of the test: One algorithm test calo
+RoICache_test:calo   INFO LINE:34 Start of the test: One algorithm test calo
+RoICache_test:calo   INFO REGTEST executing on 1200
+RoICache_test:calo   INFO REGTEST REAL execution needed on 1200
+RoICache_test:calo   INFO LINE:56 End of the test: One algorithm test calo
+RoICache_test        INFO LINE:178 Test progress fine:  Executed calo on clusters
+RoICache_test:caux   INFO LINE:34 Start of the test: One algorithm test caux
+RoICache_test:caux   INFO REGTEST executing on 13
+RoICache_test:caux   INFO REGTEST REAL execution needed on 13
+RoICache_test:caux   INFO LINE:56 End of the test: One algorithm test caux
+RoICache_test:caux   INFO LINE:34 Start of the test: One algorithm test caux
+RoICache_test:caux   INFO REGTEST executing on 14
+RoICache_test:caux   INFO REGTEST CACHED execution needed on 14
+RoICache_test:caux   INFO LINE:56 End of the test: One algorithm test caux
+RoICache_test:c...   INFO LINE:34 Start of the test: One algorithm test calo2
+RoICache_test:c...   INFO REGTEST executing on 14
+RoICache_test:c...   INFO REGTEST REAL execution needed on 14
+RoICache_test        INFO LINE:210 Test progress fine:  got back object -38
+RoICache_test:c...   INFO LINE:56 End of the test: One algorithm test calo2
+RoICache_test:c...   INFO LINE:34 Start of the test: One algorithm test calo2
+RoICache_test:c...   INFO REGTEST executing on 13
+RoICache_test:c...   INFO REGTEST CACHED execution needed on 13
+RoICache_test:c...   INFO LINE:56 End of the test: One algorithm test calo2
+RoICache_test:c...   INFO LINE:34 Start of the test: One algorithm test calo2
+RoICache_test:c...   INFO REGTEST executing on 12
+RoICache_test:c...   INFO REGTEST REAL execution needed on 12
+RoICache_test        INFO LINE:210 Test progress fine:  got back object -34
+RoICache_test:c...   INFO LINE:56 End of the test: One algorithm test calo2
+RoICache_test:c...   INFO LINE:34 Start of the test: One algorithm test calo2
+RoICache_test:c...   INFO REGTEST executing on 11
+RoICache_test:c...   INFO REGTEST CACHED execution needed on 11
+RoICache_test:c...   INFO LINE:56 End of the test: One algorithm test calo2
+RoICache_test:c...   INFO LINE:34 Start of the test: One algorithm test calo2
+RoICache_test:c...   INFO REGTEST executing on 1200
+RoICache_test:c...   INFO REGTEST REAL execution needed on 1200
+RoICache_test        INFO LINE:210 Test progress fine:  got back object -34
+RoICache_test:c...   INFO LINE:56 End of the test: One algorithm test calo2
+RoICache_test        INFO LINE:228 Test progress fine:  Executed c2 on clusters
+RoICache_test:trk    INFO LINE:34 Start of the test: One algorithm test trk
+RoICache_test:trk    INFO REGTEST executing on 102
+RoICache_test:trk    INFO REGTEST REAL execution needed on 102
+RoICache_test        INFO LINE:251 Test progress fine:  got back object -34
+RoICache_test:trk    INFO LINE:56 End of the test: One algorithm test trk
+RoICache_test:trk    INFO LINE:34 Start of the test: One algorithm test trk
+RoICache_test:trk    INFO REGTEST executing on 104
+RoICache_test:trk    INFO REGTEST CACHED execution needed on 104
+RoICache_test:trk    INFO LINE:56 End of the test: One algorithm test trk
+RoICache_test:trk    INFO LINE:34 Start of the test: One algorithm test trk
+RoICache_test:trk    INFO REGTEST executing on 103
+RoICache_test:trk    INFO REGTEST CACHED execution needed on 103
+RoICache_test:trk    INFO LINE:56 End of the test: One algorithm test trk
+RoICache_test:trk    INFO LINE:34 Start of the test: One algorithm test trk
+RoICache_test:trk    INFO REGTEST executing on 101
+RoICache_test:trk    INFO REGTEST CACHED execution needed on 101
+RoICache_test:trk    INFO LINE:56 End of the test: One algorithm test trk
+RoICache_test:trk    INFO LINE:34 Start of the test: One algorithm test trk
+RoICache_test:trk    INFO REGTEST executing on 10100
+RoICache_test:trk    INFO REGTEST REAL execution needed on 10100
+RoICache_test        INFO LINE:251 Test progress fine:  got back object -34
+RoICache_test:trk    INFO LINE:56 End of the test: One algorithm test trk
+RoICache_test        INFO LINE:268 Test progress fine:  Executed trk
+RoICache_test:m...   INFO LINE:34 Start of the test: One algorithm test matcher
+RoICache_test:m...   INFO REGTEST executing on 1001
+RoICache_test:m...   INFO REGTEST REAL execution needed on 1001
+RoICache_test        INFO LINE:295 Test progress fine:  got back object 55
+RoICache_test:m...   INFO LINE:56 End of the test: One algorithm test matcher
+RoICache_test:m...   INFO LINE:34 Start of the test: One algorithm test matcher
+RoICache_test:m...   INFO REGTEST executing on 1002
+RoICache_test:m...   INFO REGTEST REAL execution needed on 1002
+RoICache_test        INFO LINE:295 Test progress fine:  got back object 77
+RoICache_test:m...   INFO LINE:56 End of the test: One algorithm test matcher
+RoICache_test:m...   INFO LINE:34 Start of the test: One algorithm test matcher
+RoICache_test:m...   INFO REGTEST executing on 1003
+RoICache_test:m...   INFO REGTEST CACHED execution needed on 1003
+RoICache_test:m...   INFO LINE:56 End of the test: One algorithm test matcher
+RoICache_test:m...   INFO LINE:34 Start of the test: One algorithm test matcher
+RoICache_test:m...   INFO REGTEST executing on 1004
+RoICache_test:m...   INFO REGTEST CACHED execution needed on 1004
+RoICache_test:m...   INFO LINE:56 End of the test: One algorithm test matcher
+RoICache_test:m...   INFO LINE:34 Start of the test: One algorithm test matcher
+RoICache_test:m...   INFO REGTEST executing on 100100
+RoICache_test:m...   INFO REGTEST REAL execution needed on 100100
+RoICache_test        INFO LINE:295 Test progress fine:  got back object 77
+RoICache_test:m...   INFO LINE:56 End of the test: One algorithm test matcher
+RoICache_test        INFO LINE:313 Test progress fine:  Executed ma on electron TEs
+RoICache_test:o...   INFO LINE:34 Start of the test: One algorithm test overlap
+RoICache_test:o...   INFO REGTEST executing on 222
+RoICache_test:o...   INFO REGTEST REAL execution needed on 222
+RoICache_test:o...   INFO LINE:56 End of the test: One algorithm test overlap
+RoICache_test:o...   INFO LINE:34 Start of the test: One algorithm test overlap
+RoICache_test:o...   INFO REGTEST executing on 223
+RoICache_test:o...   INFO REGTEST CACHED execution needed on 223
+RoICache_test:o...   INFO LINE:56 End of the test: One algorithm test overlap
+RoICache_test:o...   INFO LINE:34 Start of the test: One algorithm test overlap
+RoICache_test:o...   INFO REGTEST executing on 224
+RoICache_test:o...   INFO REGTEST REAL execution needed on 224
+RoICache_test:o...   INFO LINE:56 End of the test: One algorithm test overlap
+RoICache_test        INFO LINE:353 Test progress fine:  Executed on topo TEs
+RoICache_test        INFO LINE:354 Test progress fine:  ALLOK

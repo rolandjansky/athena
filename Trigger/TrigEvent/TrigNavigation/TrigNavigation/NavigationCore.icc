@@ -1,0 +1,623 @@
+// Emacs -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef TRIGNAVIGATION_HLTNAVIGATIONCORE_ICC
+#define TRIGNAVIGATION_HLTNAVIGATIONCORE_ICC
+
+#include "TrigNavigation/Holder.h"
+#include "TrigNavigation/Holder.icc"
+#include "TrigNavigation/RoICacheHistory.h"
+
+
+
+#include <algorithm>
+//#include <assert.h>
+#include <boost/foreach.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/utility/enable_if.hpp>
+
+#include <iostream>
+
+/*****************************************************************************
+ *
+ * COMPILE TYPE OBJECTS REGISTRATION
+ *
+ *****************************************************************************/
+#include <boost/type_traits.hpp>
+#undef  MLOG
+#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T>
+__attribute__((__used__))
+bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
+				   std::vector<const T*>&  features, const std::string& label,
+				   std::map<const T*, std::string>* /*labels*/)  {
+
+
+  MLOG(DEBUG) << "getFeatures: of clid: " << ClassID_traits<T>::ID() << "(" << ClassID_traits<T>::typeName() << ")"
+	      <<" to TE: " << te->getId()
+	      << " label: \"" << label << "\"" << endreq;
+
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, false, features_access_helpers, true, false ) == false ) {
+    return false;
+  }
+  
+  // type specific code
+  BOOST_FOREACH( const TriggerElement::FeatureAccessHelper& fea, features_access_helpers) {
+    TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+    HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+    const T* obj(0);
+    if ( holder->get(obj, objectIndex) == false ) {
+      MLOG(WARNING) << "getFeatures: problems while getting objects #" << objectIndex  
+			<< " from the holder: " << *holder <<  endreq;
+    } else {
+      features.push_back(obj);
+    }
+  }
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getFeature( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) {
+
+  feature = 0;
+  MLOG(DEBUG) << "getFeature: of clid: " << ClassID_traits<T>::ID() << "(" << ClassID_traits<T>::typeName() << ")"
+	      <<" to TE: " << te->getId()
+	      << " label: \"" << label << "\"" << endreq;
+  
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, false, m_unspecifiedTE, sourcelabel ) == false ) {
+    return false;
+  }
+  // remove following after testing
+  if ( features_access_helpers.size() > 1 ) {
+    MLOG(WARNING) << "getFeature: logic error, got: " << features_access_helpers.size() <<  " features from: getFeatureAccessors"  << endreq;
+  }
+
+  
+  if ( features_access_helpers.empty() )
+    return true;
+
+  const TriggerElement::FeatureAccessHelper& fea = features_access_helpers.front();
+  TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+  
+  if ( holder->get(feature, objectIndex) == false ) {
+    MLOG(WARNING) << "getFeature: problems while getting objects #" << objectIndex
+		  << " from the holder: " << *holder <<  endreq;
+    feature = 0;    
+  }
+  
+  return true;  
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class C, class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getFeaturesLinks( const TriggerElement* te, ElementLinkVector<C>& links, const std::string& label) {
+  
+  MLOG(DEBUG) << "getFeaturesLinks: of clid: " << ClassID_traits<T>::ID() << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " to TE: " << te->getId()
+	      << " label: \"" << label << "\"" << endreq;
+
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, false, features_access_helpers, true, false ) == false ) {
+    return false;
+  }
+
+  BOOST_FOREACH( const TriggerElement::FeatureAccessHelper& fea, features_access_helpers) {
+    TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+    HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+
+    if ( holder->get(links, objectIndex) == false ) {
+	  MLOG(WARNING) << "getFeaturesLinks: problems while getting objects #" << objectIndex  
+			<< " from the holder: " << *holder <<  endreq;
+    }
+  }
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T>
+__attribute__((__used__))
+bool HLT::NavigationCore::getRecentFeatures( const TriggerElement* te,
+					     std::vector<const T*>&  features, const std::string& label,
+					     std::map<const T*, std::string>* /*labels*/) {
+
+  // start from itself
+  MLOG(DEBUG) << "getRecentFeatures: looking for CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " in TE: " << te->getId()  
+	      << " label: \"" << label << "\"" << endreq;
+
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, false, features_access_helpers, true, true ) == false ) {
+    return false;
+  }
+
+  // type specific code
+  BOOST_FOREACH( const TriggerElement::FeatureAccessHelper& fea, features_access_helpers) {
+    TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+    HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+    const T* obj(0);
+    if ( holder->get(obj, objectIndex) == false ) {
+	  MLOG(WARNING) << "getRecentFeatures: problems while getting objects #" << objectIndex  
+			<< " from the holder: " << *holder <<  endreq;
+    } else {
+      features.push_back(obj);
+    }
+  }
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te, 
+					    const T*&  feature, const std::string& label, 
+					    const TriggerElement*& source, std::string& sourcelabel ) {
+
+  // important! set pointer to NULL to signify nothing was found, it will later be reset to sth else eventually
+  feature = 0;
+
+  MLOG(DEBUG) << "getRecentFeature: looking for CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " in TE: " << te->getId()  
+	      << " label: \"" << label << "\"" << endreq;
+
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, true, source, sourcelabel ) == false ) {
+    return false;
+  }
+  // remove following after testing
+  if ( features_access_helpers.size() > 1 ) {
+    MLOG(WARNING) << "getRecentFeature: logic error, got: " << features_access_helpers.size() <<  " features from: getRecentFeaturesImpl"  << endreq;
+  }
+
+  if ( features_access_helpers.empty() )
+    return true;
+
+  const TriggerElement::FeatureAccessHelper& fea = features_access_helpers.front();
+  TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+  
+  if ( holder->get(feature, objectIndex) == false ) {
+    MLOG(WARNING) << "getRecentFeature: problems while getting objects #" << objectIndex
+		  << " from the holder: " << *holder <<  endreq;
+    feature = 0;    
+  }
+  
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class C, class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getRecentFeaturesLinks( const TriggerElement* te,
+						  ElementLinkVector<C>& links, const std::string& label ) {
+
+  MLOG(DEBUG) << "getRecentFeaturesLinks: looking for CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " in TE: " << te->getId()  
+	      << " label: \"" << label << "\"" << endreq;
+  
+  
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, false, features_access_helpers, true, true ) == false ) {
+    return false;
+  }
+  
+  BOOST_FOREACH( const TriggerElement::FeatureAccessHelper& fea, features_access_helpers) {
+    TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+    HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+
+    if ( holder->get(links, objectIndex) == false ) {
+	  MLOG(WARNING) << "getRecentFeaturesLinks: problems while getting objects #" << objectIndex  
+			<< " from the holder: " << *holder <<  endreq;
+    }
+  }
+  return true;
+}
+
+//helper struct to get the container type if template argument is datalink or the element type if template arg is ElementLink
+
+template<class LinkType>
+struct link_to_type;
+
+template<class CONTAINERTYPE>
+struct link_to_type<DataLink<CONTAINERTYPE> >{
+  typedef CONTAINERTYPE container_type;
+  typedef typename DataLink<CONTAINERTYPE>::value_type type;
+};
+
+template<class CONTAINERTYPE>
+struct link_to_type<ElementLink<CONTAINERTYPE> >{
+  typedef CONTAINERTYPE container_type;
+  typedef typename ElementLink<CONTAINERTYPE>::ElementType ptr2constT_type;   // is a const T* if T is the feature type
+  typedef typename boost::remove_pointer<ptr2constT_type>::type constT_type;  // is a const T
+  typedef typename boost::remove_const<constT_type>::type type;               // is a       T
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class LinkType> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getRecentFeatureDataOrElementLink( const TriggerElement* te, LinkType& link, const std::string& label,
+                                                             const TriggerElement*& source, std::string& sourcelabel) {
+
+  typedef typename link_to_type<LinkType>::type T;
+  MLOG(DEBUG) << "getRecentFeatureDataOrElementLink: looking for CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+              << " in TE: " << te->getId()  
+              << " label: \"" << label << "\"" << endreq;
+  
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, true, source, sourcelabel ) == false ) {
+    MLOG(WARNING) << "looking for FAs failed. Returning false! Details CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " in TE: " << te->getId()  
+	      << " label: \"" << label << "\"" << endreq;
+    return false;
+  }
+  // remove following after testing
+  if ( features_access_helpers.size() > 1 ) {
+    MLOG(WARNING) << "getRecentFeature: logic error, got: " << features_access_helpers.size() <<  " features from: getRecentFeaturesImpl"  << endreq;
+  }
+  
+  if ( features_access_helpers.empty() )
+    return true;
+    
+  const TriggerElement::FeatureAccessHelper& fea = features_access_helpers.front();
+  TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+  
+  //apparently must use function pointer to get all the types resolved properly
+  typedef typename link_to_type<LinkType>::container_type containertype;  
+  bool (HLTNavDetails::Holder<T>::*funcptr) (LinkType&, HLT::TriggerElement::ObjectIndex&) = 
+  &HLTNavDetails::Holder<T>::template getWithLink<containertype>;
+  
+  if ( (holder->*funcptr)(link, objectIndex) == false ) {
+      MLOG(WARNING) << "getRecentFeatureLink: problems while getting objects #" << objectIndex
+       << " from the holder: " << *holder <<  endreq;
+  }
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class C, class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getRecentFeatureLink( const TriggerElement* te,
+                                                ElementLink<C>& link, const std::string& label, 
+                                                const TriggerElement*& source, 
+                                                std::string& sourcelabel) {
+
+  MLOG(DEBUG) << "getRecentFeatureLink: looking for CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+              << " in TE: " << te->getId()  
+              << " label: \"" << label << "\"" << endreq;
+  
+  if( boost::is_same<C, T>::value ) 
+    return false;
+    
+
+  TriggerElement::FeatureVec features_access_helpers;  
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, true, source, sourcelabel ) == false ) {
+    return false;
+  }
+  // remove following after testing
+  if ( features_access_helpers.size() > 1 ) {
+    MLOG(WARNING) << "getRecentFeature: logic error, got: " << features_access_helpers.size() <<  " features from: getRecentFeaturesImpl"  << endreq;
+  }
+
+  if ( features_access_helpers.empty() )
+    return true;
+
+  const TriggerElement::FeatureAccessHelper& fea = features_access_helpers.front();
+  TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+
+  ElementLinkVector<C> links;
+  if ( holder->get(links, objectIndex) == false ) {
+    MLOG(WARNING) << "getRecentFeatureLink: problems while getting objects #" << objectIndex
+                  << " from the holder: " << *holder <<  endreq;    
+  } else {
+    if ( links.size() != 1 ) {
+      MLOG(WARNING) << "getRecentFeatureLink: problems while getting objects #" << objectIndex
+		    << " from the holder: " << *holder << " links vector has size " << links.size() << " while shoudl have size == 1" << endreq;    
+      return false;
+    } else {
+      link = links.back();
+    }
+  }
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T>
+__attribute__((__used__))
+bool HLT::NavigationCore::getFeaturesInRoI( const TriggerElement* te,
+                                            std::vector<const T*>&  features, const std::string& label,
+                                            std::map<const T*, std::string>* labels) {
+  // easy, jump to the RoI (if not RoI node) and loop over all TEs attached to it
+  const TriggerElement* roi(0);
+  if ( TrigNavStructure::isRoINode(te) )
+    roi = te;
+  else if ( te->getRelated(TriggerElement::sameRoIRelation).size() == 1 ) // means we do not support topological TEs here
+    roi = *(te->getRelated(TriggerElement::sameRoIRelation).begin());
+  else
+    return false;
+
+  bool oneRetStatus = false;
+  bool allRetStatus = false;
+  std::vector<TriggerElement*>::const_iterator it;
+  for ( it = roi->getRelated(TriggerElement::sameRoIRelation).begin();
+        it != roi->getRelated(TriggerElement::sameRoIRelation).end(); ++it ) {
+    oneRetStatus = getFeatures(*it, features, label, labels );  // the features will be paked to the end of the vector (see push_back in getFeatures)
+    allRetStatus = allRetStatus || oneRetStatus; // that's OK if at least one call returns some feature
+  }
+  return allRetStatus;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class C, class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const std::string& label ) {
+  CLID clid = ClassID_traits<T>::ID();
+  MLOG(DEBUG) << "getAllFeatures: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
+              << " label: \"" << label << "\"" <<  endreq;
+  
+  FeaturesStructureLabelIndexed::const_iterator fit = m_featuresByLabel.find(clid);
+  if (fit == m_featuresByLabel.end() )
+    return true;
+  
+  const std::map<std::string, HLTNavDetails::IHolder*>& allOfThisType = fit->second;
+  std::map<std::string, HLTNavDetails::IHolder*>::const_iterator hit;
+  for ( hit = allOfThisType.begin(); hit != allOfThisType.end(); ++hit ) {
+    if ( label == hit->first || label == "" ) {
+      HLTNavDetails::Holder<T>* holder = getHolder<T>(hit->second->label(), nextSubTypeIndex(clid, label));
+      MLOG(VERBOSE)  << "getAllFeatures: getting from: " << *holder << endreq;
+      if ( holder->get(features) == false ) {
+        MLOG(WARNING) << "getAllFeatures: failed with the holder: " << *(hit->second) << endreq;
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T>
+__attribute__((__used__))
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder(const std::string& label, uint16_t suggestedIndex) {
+
+  // find object
+  CLID clid = ClassID_traits<T>::ID();
+  MLOG(DEBUG) << "Getting holder for type: " << clid << " label: " << label << endreq; 
+
+  HLTNavDetails::Holder<T>* holder = static_cast<HLTNavDetails::Holder<T>* >(getHolder(clid, label));
+  
+  if ( holder ) {
+    return holder; 
+  }
+  
+  // take an appropriate action if this is the first feature of that type#label to be attached/retrieved
+  HLTNavDetails::IHolder* baseholder;
+  if ( createHolder(baseholder, clid, label, suggestedIndex) ) {        // create fresh holder
+    MLOG(DEBUG) << "getHolder: predefined holder got" <<  endreq;
+    
+  } else {
+    MLOG(ERROR) << "getHolder: predefined holder does not exist, load EDM classes for: " 
+		  << ClassID_traits<T>::typeName() << " CLID " << ClassID_traits<T>::ID()  <<  endreq;
+    return 0;
+  }
+  holder = static_cast<HLTNavDetails::Holder<T>*>(baseholder);
+  registerHolder(holder);
+
+  return holder;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T>
+__attribute__((__used__))
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder(uint16_t subTypeIndex ) {
+  // find object
+  CLID clid = ClassID_traits<T>::ID();
+  MLOG(DEBUG) << "Getting holder for type: " << clid << endreq;
+  HLTNavDetails::Holder<T>* holder = static_cast<HLTNavDetails::Holder<T>* >(getHolder(clid, subTypeIndex));
+
+  return holder;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// 2012-09-14 new stuff for composite obejcts
+
+//#include "TrigNavigation/TypeInformation.h"
+
+
+#include "TrigNavigation/NavigationInit.h"
+
+/*
+template<class T> 
+const T* HLT::NavigationCore::featureLink2ObjectByObject( const TrigFeatureLink& fl) {
+
+  HLTNavDetails::Holder<Feature>* holder = getHolder<Feature>(fl.subTypeIndex());
+  const T* ptr(0);
+  holder->get(ptr, TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
+  return ptr;
+}
+
+template<class T> 
+const T* HLT::NavigationCore::featureLink2ObjectByContainer( const TrigFeatureLink& fl) {
+
+  HLTNavDetails::Holder<Feature>* holder = getHolder<Feature>(fl.subTypeIndex());
+  const T* ptr(0);
+  holder->get(ptr, TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
+  return ptr;
+}
+*/
+
+#include <stdlib.h>
+#include <cxxabi.h>
+
+namespace HLT{
+  /*
+  struct tool{
+    static std::string rtti_real_name(const char* name)
+    {
+      int status;
+      char *realname = abi::__cxa_demangle(name, 0, 0, &status);
+      std::string n(realname);
+      free(realname);
+    
+      return n;
+    }
+  };
+  */
+
+  template<class T, class C, bool get_by_contianer, bool get_by_object>
+  struct get{};
+
+  template<class T, class C>
+  struct get< T, C, false, false>{
+    static const T* do_it(const TrigFeatureLink&, HLT::NavigationCore* ){
+      return 0; // here compile time error shoudl be generated
+    }
+  };
+
+  template<class T, class C>
+  struct get< T,  C, false, true>{
+    static const T* do_it(const TrigFeatureLink&fl, HLT::NavigationCore* nav){
+      HLTNavDetails::Holder<T>* holder = nav->getHolder<T>(fl.subTypeIndex());
+      //std::cerr << " Holder acquired " << __LINE__ << std::endl;
+      const T* ptr(0);
+      holder->get(ptr, HLT::TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
+      //      std::cerr << " object retrieved " << __LINE__ << std::endl;
+      return ptr;
+    }
+
+  };
+
+  template<class T, class C>
+  struct get< T, C, true, false>{
+    static const T* do_it(const TrigFeatureLink&fl, HLT::NavigationCore* nav){
+      HLTNavDetails::Holder<C>* holder = nav->getHolder<C>(fl.subTypeIndex());
+      //std::cerr << " Holder acquired " << __LINE__ <<  " " << fl.clid() << " " << fl.subTypeIndex() << " " << holder << "  " <<  ClassID_traits<C>::ID() << std::endl;
+      const C* ptr(0);
+      holder->get(ptr, HLT::TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
+      //std::cerr << " object retrieved " << __LINE__ << std::endl;
+      if ( ptr and ptr->size() == 1) {
+	return ptr->at(0);
+      }
+      return 0;
+    }
+  };
+
+
+  template<class T, class C>
+  struct get< T, C, true, true> {
+    static const T* do_it(const TrigFeatureLink&fl, HLT::NavigationCore* nav){
+      if ( fl.clid() == ClassID_traits<C>::ID() ) {
+	return get<T,C, true, false>::do_it(fl, nav);
+      } else if ( fl.clid() == ClassID_traits<T>::ID() ) {
+	return get<T,C, false, true>::do_it(fl, nav);
+      }
+      return 0;
+    }
+  };
+}
+
+template<class T> 
+__attribute__((__used__))
+const T* HLT::NavigationCore::featureLink2Object( const TrigFeatureLink& fl) {
+  if (! fl.isValid())
+    return (const T*)0;
+
+  typedef typename Object2Features<T>::type list_of_possible_features;  
+  typedef typename Object2Container<T>::type container;  
+  
+  // std::cerr << " in the list "  << HLT::tool::rtti_real_name(typeid(list_of_possible_features).name()) << std::endl;
+  // std::cerr << " container "  << HLT::tool::rtti_real_name(typeid(container).name()) << std::endl;
+  // std::cerr << " has T "  << list_of_possible_features::template has<T>::result << std::endl;
+  // std::cerr << " has container "  << list_of_possible_features::template has<container>::result << std::endl;
+
+  const T* ptr = HLT::get<T, container, 
+    list_of_possible_features::template has<container>::result,
+    list_of_possible_features::template has<T>::result>::do_it(fl, this);
+
+  return ptr;
+
+}
+
+//not sure why i need to redef the macro here
+#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
+
+template<class T> 
+__attribute__((__used__))
+TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te, const std::string& label,
+							const T* obj) {
+
+  typedef typename Features2Container<T>::type Container;
+  if ( obj == 0 ) 
+    return TrigFeatureLink();
+  TriggerElement::FeatureVec features_access_helpers;  
+  std::string sourcelabel;
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, false, true, m_unspecifiedTE, sourcelabel ) == false ) {
+    return TrigFeatureLink();
+  }
+
+  // remove following after testing
+  if ( features_access_helpers.size() > 1 ) {
+    MLOG(WARNING) << "getFeature: logic error, got: " << features_access_helpers.size() <<  " features from: getFeatureAccessors"  << endreq;
+  }
+
+  if ( features_access_helpers.empty() )
+    return TrigFeatureLink();
+
+  const TriggerElement::ObjectIndex& oindex = features_access_helpers.at(0).getIndex();
+  return TrigFeatureLink(ClassID_traits<T>::ID(), oindex.subTypeIndex(), oindex.objectsBegin());
+
+}
+
+template<class C> 
+__attribute__((__used__))
+TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te, const std::string& label,
+							const typename Container2Object<C>::type* obj, 
+							const C* container) {
+
+  TriggerElement::FeatureVec features_access_helpers;  
+  std::string sourcelabel;
+  if ( getFeatureAccessors(te, ClassID_traits<C>::ID(), label, true, features_access_helpers, false, true, m_unspecifiedTE, sourcelabel ) == false ) {
+    return TrigFeatureLink();
+  }
+  // remove following after testing
+  if ( features_access_helpers.size() > 1 ) {
+    MLOG(WARNING) << "getFeature: logic error, got: " << features_access_helpers.size() <<  " features from: getFeatureAccessors"  << endreq;
+  }
+
+  if ( features_access_helpers.empty() )
+    return TrigFeatureLink();
+
+  const TriggerElement::ObjectIndex& oindex = features_access_helpers.at(0).getIndex();
+  typename C::const_iterator lookup = std::find(container->begin(), container->end(),obj);
+  if ( lookup == container->end() )
+    return TrigFeatureLink();
+
+  const unsigned offset =  lookup - container->begin();
+  return TrigFeatureLink(ClassID_traits<C>::ID(), oindex.subTypeIndex(), oindex.objectsBegin()+offset);
+
+}
+
+
+
+
+#undef MLOG
+
+//EOF
+#endif // #ifndef TRIGNAVIGATION_HLTNAVIGATIONCORE_ICC

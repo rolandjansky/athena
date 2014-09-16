@@ -1,0 +1,267 @@
+// Emacs -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef TRIGNAVIGATION_HLTNAVIGATION_ICC
+#define TRIGNAVIGATION_HLTNAVIGATION_ICC
+
+
+/*****************************************************************************
+ *
+ * COMPILE TYPE OBJECTS REGISTRATION
+ *
+ *****************************************************************************/
+
+#include <boost/type_traits.hpp>
+#include "TrigNavigation/Holder.h"
+#include "TrigNavigation/RoICacheHistory.h"
+
+#undef  MLOG
+#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
+
+
+
+/*****************************************************************************
+ *
+ * FEATURES OPERATIONS
+ *
+ *****************************************************************************/
+
+template<class T>
+__attribute__((__used__))
+bool HLT::Navigation::attachFeature( TriggerElement* te, const T* feature,
+				     MemoryManagement mmanagement, std::string& key,
+				     const std::string& label ) {
+  //typedef DataVector<T> C;
+  //  //  NavHook<T>::instan();
+
+  // Get clid
+  CLID clid = ClassID_traits<T>::ID();
+
+  MLOG(DEBUG) << "attachFeature: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " to TE: " << te->getId()
+	      << " label: \"" << label << "\""
+	      << " memory management: " << mmanagement <<  endreq;
+
+  // get a holder for this type --- if that's new it will be created
+
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));
+
+  if ( ! holder ) {
+    MLOG(WARNING) << "attachFeature: Holder missing for CLID: " << clid << endreq;
+    return false;
+  }
+  // holder is keeping all objects of given class (indexes in this holder are used to get back to it)
+  //  unsigned int index = holder->getFeatures().size();
+
+
+  // do forced SG registration
+  /*  std::string key;
+      if ( ObjectToStoreGate == mmanagement ) {
+      key  = holder->getUniqueKey();
+      if ( m_storeGate->record(feature, key).isFailure()  ) {
+      MLOG(WARNING) << "attachFeature: feature of type: " << ClassID_traits<T>::typeName() 
+      << " and clid: " << clid << "  can't be placed directly in SG" << endreq;
+      } else {
+      MLOG(DEBUG) << "attachFeature: feature SG direct registration succesful with the key:" << key << endreq;
+      }
+      }
+  */
+
+  TriggerElement::ObjectIndex objectIndex = holder->add(feature, mmanagement == ObjectInStoreGate,  key);
+  if ( not objectIndex.valid() )
+      return false;
+  te->addFeature(clid, objectIndex, false);
+  RoICacheHistory::RememberAttachFeature(te, clid,  label,  this, objectIndex);
+  return true;
+}
+
+
+
+
+
+/*
+  //std::cerr << "Holder<" << m_typeName <<">::deserialize: unpacking labels, size of serialized:" << m_serialized << std::endl;
+  // first is recorded method of serialization used for this feature
+  SerializationMethod serializationMethod = (SerializationMethod)(input[0]);
+
+  // then comes size of serialized labels
+  uint32_t sizeOfLabels = input[1];
+
+
+
+  std::vector<uint32_t>::const_iterator begin  = input.begin();
+  std::advance(begin, 2); //
+
+  std::vector<uint32_t>::const_iterator end  = begin;
+  std::advance(end, sizeOfLabels);
+
+  // unpack labels
+  std::vector<std::string> labels;
+  std::vector<uint32_t> serializedLabels;
+  // copy out serialized lables
+
+  //std::cerr << "Holder<" << m_typeName <<">::deserialize: unpacking labels, size of serialized:" << sizeOfLabels << std::endl;
+  serializedLabels.insert(serializedLabels.end(), begin, end );
+  m_stringSerializer->deserialize(serializedLabels, labels);
+
+  //std::cerr << "Holder<" << m_typeName <<">::deserialize: unpacked labels" << std::endl;
+  //for ( unsigned int lab = 0 ; lab < labels.size() ; ++lab ) {
+  //    std::cerr << "Holder<" << m_typeName <<">::deserialize: label " << lab << " " << labels[lab] << std::endl;
+  //  }
+
+  // unpack object itself
+  begin = end;
+  end =  input.end();
+
+  std::vector<uint32_t> serializedObjects;
+  serializedObjects.insert(serializedObjects.end(), begin, end );
+
+  begin = serializedObjects.begin();
+  if ( SerializeByPayload == serializationMethod) {
+
+    std::vector<uint32_t> oneSerializedObject;
+    for ( unsigned int obj = 0; obj < labels.size() ; ++obj ) {
+      //      std::cerr << "Holder<" << m_typeName <<">::deserialize: starting with: " << labels[obj]  << std::endl;
+      uint32_t sizeOfObject = *begin;
+      //      std::cerr << "Holder<" << m_typeName <<">::deserialize: oneObjectSize: " << sizeOfObject  << std::endl;
+      advance(begin, 1);
+      end = begin;
+      advance(end, sizeOfObject);
+      oneSerializedObject.clear();
+      oneSerializedObject.insert(oneSerializedObject.end(), begin, end);
+      begin = end;
+
+      //      std::cerr << "Holder<" << m_typeName <<">::deserialize: oneObjectDeserialization size: " << oneSerializedObject.size() << std::endl;
+      m_serializer->reset();
+      T* ptr  = (T*)m_serializer->deserialize( m_typeName, oneSerializedObject);
+
+      std::string key;
+      addFeature(ptr, key, labels[obj], RecordInSG); // features not in SG and should be deleted
+    }
+  } else if ( SerializeByReference == serializationMethod) {
+
+    //std::cerr << "Holder<" << m_typeName <<">::deserialize: from StoreGate" << std::endl;
+    // retrieve this objects from SG
+    unsigned int size = labels.size();
+    if (size == 0)
+      return true;
+    //    std::cerr << "deserializing: " << m_typeName << " and the size is: " <<  size << std::endl;
+
+
+    // loop and regenerate the keys
+    for ( unsigned int i = 0 ; i < size; ++i ) {
+      const std::string& key = generateAliasKey(i, labels[i]);
+      const T* object;
+      //std::cerr << "deserializing: " << m_typeName << " and the key is: " <<  key << " sg ptr: " << m_storeGate << std::endl;
+      if ( m_storeGate->retrieve(object, key).isFailure() )
+	return false;
+
+      //      if ( m_storeGate->remove(object).isFailure() )
+      //	return false;
+      std::string newkey;
+      //std::cerr << "deserializing: " << m_typeName << "adding feature with key: "  << key << " " <<  labels[i] << std::endl;
+      addFeature(object, newkey, labels[i],  InSG); // features in SG and shouldn't be deleted
+    }
+  }
+  return true;
+}
+
+template<class T>
+const std::string HLT::Navigation::Holder<T>::getNextKey( const std::string& label ) const {
+  return generateAliasKey( m_pointers.size(), label);
+}
+
+template<class T>
+const std::string HLT::Navigation::Holder<T>::getUniqueKey( const std::string& label ) const {
+  static unsigned int counter = 0;
+  counter--;
+  return generateAliasKey(counter , label);
+}
+*/
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+template<class T>
+__attribute__((__used__))
+bool HLT::Navigation::findOwners(const T* obj, std::vector<const TriggerElement*>& owners, unsigned int id) {
+  std::vector<TriggerElement*>::const_iterator it      = m_factory.listOfProduced().begin();
+  std::vector<TriggerElement*>::const_iterator itEnd   = m_factory.listOfProduced().end();
+  if ( id != 0 ) {
+    it      = m_factory.listOfProduced(id).begin();
+    itEnd   = m_factory.listOfProduced(id).end();
+    MLOG(VERBOSE) << "findOwners will scann TEs of ID : " << id << " #: " << itEnd-it << endreq;
+  } else {
+    MLOG(VERBOSE) << "findOwners will scann ALL TEs (slow):" << itEnd-it << endreq;
+  }
+
+  CLID clid = ClassID_traits<T>::ID();
+  std::map<CLID, std::map<uint16_t, HLTNavDetails::IHolder*> >::const_iterator hit = m_featuresByIndex.find(clid);
+  if (hit == m_featuresByIndex.end() ) {
+    return true;
+  }
+  MLOG(VERBOSE) << "findOwners features of this CLID present " << endreq;
+  bool holderFound = false;
+  HLT::TriggerElement::ObjectIndex idx;
+  std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holderIt = hit->second.begin();
+  std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holderEnd = hit->second.end();;
+  for ( ; holderIt != holderEnd; ++holderIt ) {
+    HLTNavDetails::Holder<T>* holder = (HLTNavDetails::Holder<T>*)holderIt->second; 
+    if ( holder->contains(obj, idx) ) {
+      holderFound = true;
+      MLOG(VERBOSE) << "findOwners found holder owning the object " << *holder << " and index: " << idx << endreq;
+      break;
+    }
+  }
+  if ( !holderFound ) 
+    return true;
+
+  // tmp vec
+  //  std::vector<const T*> tmp;
+  for (; it != itEnd; ++it ) {
+    //    tmp.clear();
+    std::vector< TriggerElement::FeatureAccessHelper >::const_iterator featureAccessIt = (*it)-> getFeatureAccessHelpers().begin();
+    std::vector< TriggerElement::FeatureAccessHelper >::const_iterator featureAccessEnd = (*it)-> getFeatureAccessHelpers().end();
+
+    for ( ; featureAccessIt != featureAccessEnd ; ++featureAccessIt ) {
+      if ( featureAccessIt->getCLID() == clid &&
+	   featureAccessIt->getIndex().isSameOrWithin(&idx) ) {
+	owners.push_back(*it);
+	MLOG(VERBOSE) << "findOwners while looking in TE(id): " << *it <<"(" << (*it)->getId() << ")" << " and access helper " << featureAccessIt->getIndex() << " found owner " << endreq;	
+	break;
+      }
+    }
+  }
+  return true;
+}
+
+template<class T>
+__attribute__((__used__))
+const std::string HLT::Navigation::getNextKey( const std::string& label ) {
+  CLID clid = ClassID_traits<T>::ID();
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));
+  if (!holder) return ""; // should never happen, but who knows
+
+  return holder->getNextKey( );
+}
+
+template<class T>
+__attribute__((__used__))
+const std::string HLT::Navigation::getUniqueKey( const std::string& label ) {
+  CLID clid = ClassID_traits<T>::ID();
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid, label));
+  
+  if (!holder) return ""; // should never happen, but who knows
+
+  return holder->getUniqueKey( );
+}
+
+
+#undef MLOG
+//EOF
+#endif // TRIGNAVIGATION_HLTNAVIGATION_ICC

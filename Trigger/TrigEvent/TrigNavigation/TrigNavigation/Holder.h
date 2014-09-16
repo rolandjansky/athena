@@ -1,0 +1,349 @@
+// Emacs -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGNAVIGATION_HOLDER_H
+#define TRIGNAVIGATION_HOLDER_H
+#include <string>
+#include <vector>
+
+#include "GaudiKernel/ClassID.h"
+
+
+#include "DataModel/OwnershipPolicy.h"
+#include "DataModel/DataVector.h"
+#include "DataModel/ElementLinkVector.h"
+#include "SGTools/StorableConversions.h"
+
+#include "TrigNavigation/AccessProxy.h"
+#include "TrigNavigation/TypeProxy.h"
+#include "TrigNavigation/TriggerElement.h"
+
+#include "TrigStorageDefinitions/TypeInformation.h"
+#include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
+
+
+class MsgStream;
+class ITrigSerializerToolBase;
+
+namespace HLTNavDetails {
+
+  /**
+   * @brief declaration of formatting function.
+   */
+  //note: needs to be up here to get template compiled.
+  std::string formatSGkey(const std::string& prefix, const std::string& containername, const std::string& label);
+  
+
+
+  /**
+   * @class used for features holding
+   * In fact this class is here in order to allow STL container for all features
+   * This class is showing a common denominator of all Holders for given type
+   * The necessary for class to be storable is to have CLID.
+   * In order to be serialized by Serializer at least the dictionary must be generated.
+   */
+
+  class IHolder {
+  public:
+    IHolder();
+    //    IHolder(const std::string& label, uint16_t idx );
+    virtual ~IHolder();
+
+
+    virtual IHolder* clone(const std::string& label,  uint16_t idx) = 0; // actual constructor
+
+    /**
+     * @brief prepares this holder
+     */
+    
+    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg);
+    
+    
+    virtual bool syncWithSG(SG::OwnershipPolicy policy = SG::OWN_ELEMENTS) = 0;
+    virtual bool clearSG() = 0;
+
+    /**
+     * @brief returns the CLID of objects stores by this holder
+     */
+    virtual CLID typeClid() const  =0;
+    virtual CLID containerClid() const =0;
+    virtual CLID auxClidOrZero() const =0;
+
+    /**
+     * @brief returns the label of objects stores by this holder
+     */
+    inline const std::string& label() const { return  m_label; }
+
+
+    void setObjectsKeyPrefix(std::string& p) { m_prefix = p; }
+
+    /**
+     * @brief returns the containers StoreGate key
+     */
+
+    virtual const std::string key() const = 0;
+
+    /**
+     * @brief returns the object's name stored by this holder
+     */
+    virtual const std::string typeName() const = 0;
+
+    /**
+     * @brief returns the collection's name stored by this holder
+     */
+    virtual const std::string collectionName() const = 0;
+
+    /**
+     * @brief returns the index (short number used when linking object to the TE)
+     * of objects stores by this holder
+     */
+    inline uint16_t subTypeIndex() const { return  m_subTypeIndex; }
+
+    std::string generateAliasKey(CLID c, uint16_t sti, const std::string& label, unsigned size);
+
+    /**
+     * @brief serializes this Holder
+     */
+    virtual bool serialize(std::vector<uint32_t>& output)  const;
+
+    virtual void print(MsgStream& m) const;
+
+    /**
+     * @brief deserializes this Holder
+     */
+    virtual bool deserialize(const std::vector<uint32_t>& input)  = 0;
+
+    /**
+     * @brief this staic method is used to figure out what is actuall contained in the blob of ints
+     */
+    static bool enquireSerialized(const std::vector<uint32_t>& blob,
+				  std::vector<uint32_t>::const_iterator& fromHere,
+				  CLID& c, std::string& label,
+				  uint16_t& subtypeIndex );
+
+    // serialization helpers
+    virtual DataObject* getDataObject() = 0;
+    virtual DataObject* getAuxDataObject() = 0;
+
+    virtual bool setDataObject(DataObject* dobj) = 0;
+    virtual bool setAuxDataObject(DataObject* dobjaux) = 0;
+
+    /**
+     * Get the proxy for the container
+     */
+    virtual const ITypeProxy& containerTypeProxy() const = 0;
+
+  protected:
+    mutable std::vector<uint32_t>*  m_serialized;              //!< serialized vector of this type
+    // serialization helpers
+    MsgStream*                      m_log;
+    HLT::AccessProxy*               m_storeGate;               //!< pointer to SG
+    ITrigSerializerToolBase*        m_serializer;              //!< pointer to Serializer
+
+
+    //    CLID         m_CLID;           //!< class ID of objects holded
+    //    CLID         m_collectionCLID; //!< class ID of objects holded
+    std::string  m_label;          //!< label given to the objects in this holder (labels given at attachFeature)
+    std::string  m_prefix;         //!< prefix for key given to the objects
+    uint16_t     m_subTypeIndex;   //!< index to notify how many objects of given type we have (we need to record it in case of slimming will be done latter)
+    ITypeProxy * m_aux;
+  private:
+    mutable std::ostringstream m_ostream; //!< used internally for keys generation
+    int m_uniqueCounter; 
+
+  };
+
+
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @brief Helper struct to determine if persistable type is a DataLink<CONTAINER> (in case STORED and CONTAINER are the same)
+   * of rather an ElementLink<CONTAINER> in case STORED is the element type of CONTAINER
+   * 
+   *
+   *
+   */
+
+  template<class STORED, class CONTAINER, bool is_same> struct set_link;
+
+  template<class STORED, class CONTAINER>
+  struct set_link<STORED,CONTAINER,true>{
+    typedef DataLink<CONTAINER> type;
+    static type do_it(const STORED* el, const CONTAINER* src, HLT::TriggerElement::ObjectIndex idx){
+      (void)src;(void)idx; //not used here
+      type t(el);
+      return t;
+    }
+  };
+
+  template<class STORED, class CONTAINER>
+  struct set_link<STORED,CONTAINER,false>{
+    typedef ElementLink<CONTAINER> type;
+    static type do_it(const STORED* el,const CONTAINER* src, HLT::TriggerElement::ObjectIndex idx){
+      (void)el;//not used here
+      type t(*src,idx.objectsBegin());
+      return t;
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  template<class T, class C> class HolderImp;
+  /**
+   * @class Specialized holder class for each object type
+   *******************************************************************
+   * This class in addition to the above IHolder implements 2 methods get & add.
+   */
+  template<class STORED>
+  class Holder : public IHolder {
+  public:
+    Holder();
+    Holder(const std::string& label, uint16_t idx);
+    virtual ~Holder();
+
+
+    virtual HLT::TriggerElement::ObjectIndex add( const STORED* f, bool inSG, const std::string& = "" ) = 0;          //!< saved object in this holder
+    virtual bool get(const STORED*& dest, HLT::TriggerElement::ObjectIndex idx) = 0;
+
+    template<class CONTAINER2> 
+    bool get(ElementLinkVector<CONTAINER2>& cont);
+
+    template<class CONTAINER2> 
+    bool get(ElementLinkVector<CONTAINER2>& cont, HLT::TriggerElement::ObjectIndex idx);
+
+    template<class CONTAINER2> 
+    bool getWithLink(typename set_link<STORED,CONTAINER2,boost::is_same<STORED,CONTAINER2>::value>::type& link,
+                     HLT::TriggerElement::ObjectIndex& idx) {
+      
+      bool result = static_cast<HolderImp<STORED,CONTAINER2>*>(this)->getWithLink(link,idx);
+      return result;
+    }       
+
+    virtual bool contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const = 0;
+
+    virtual bool checkAndSetOwnership(SG::OwnershipPolicy policy) = 0;
+    virtual CLID typeClid() const { return ClassID_traits<STORED>::ID(); }
+
+    
+
+    virtual std::string getUniqueKey() = 0; // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
+    virtual std::string getNextKey() = 0; // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
+    virtual void print(MsgStream& m) const;
+
+  private:
+
+
+
+
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @brief This is an implementation class for all Holders
+   * It is templated with 2 arguments STORED which is type of stored objects
+   * Another type is CONTAINER for that type.
+   * Examples when it works are:
+   * HolderImp<A, DataVector<A> > --- typical
+   * HolderImp< A, Acontainer> >  --- as above, Acontainer is either typedef for DataVector<A> or inherits from it
+   * HolderImp< DataVector<A>, DataVector<A> > --- when both are of the same type
+   * HolderImp< Acontainer, Acontainer> >      --- as above
+   *
+   *
+   */
+  template<class STORED, class CONTAINER>
+  class HolderImp: public  Holder<STORED> {
+  public:
+    
+    typedef Holder<STORED> base_type;
+    typedef STORED stored_type;
+    typedef CONTAINER container_type;
+
+    HolderImp();
+    HolderImp(const std::string& label, uint16_t idx);
+    virtual ~HolderImp();
+
+    virtual IHolder* clone(const std::string& label, uint16_t idx );
+
+    /**
+     * @brief adds object(s) to be holded
+     */
+    virtual HLT::TriggerElement::ObjectIndex add( const STORED* f, bool inSG = false, const std::string& = "" );
+
+    /**
+     * @brief gets object(s) holded
+     */
+    virtual bool get(const STORED*& dest, HLT::TriggerElement::ObjectIndex idx);
+
+    /**
+     * @brief cehcks if object(s) in dest are holded by this holder
+     */
+    virtual bool contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const;
+
+    bool getElementLinks(ElementLinkVector<CONTAINER>& cont,  HLT::TriggerElement::ObjectIndex idx);
+    bool getElementLinks(ElementLinkVector<CONTAINER>& cont);
+        
+    bool getWithLink(typename set_link<STORED,CONTAINER,boost::is_same<STORED,CONTAINER>::value>::type& link,
+                     HLT::TriggerElement::ObjectIndex& idx);
+        
+    virtual std::string getUniqueKey(); // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
+    virtual std::string getNextKey(); // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
+
+    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg);
+    virtual bool syncWithSG(SG::OwnershipPolicy policy=SG::OWN_ELEMENTS);
+    virtual bool clearSG();
+    virtual bool checkAndSetOwnership(SG::OwnershipPolicy policy);
+
+    virtual bool serialize(std::vector<uint32_t>& output) const;
+    virtual bool deserialize(const std::vector<uint32_t>& input);
+    virtual const std::string key() const {
+      return formatSGkey(this->m_prefix,ClassID_traits<CONTAINER>::typeName(),this->m_label);
+    };
+    virtual const std::string typeName() const { return ClassID_traits<STORED>::typeName(); }
+    virtual const std::string collectionName() const { return ClassID_traits<CONTAINER>::typeName(); }
+    virtual void print(MsgStream& m) const;
+
+    virtual DataObject* getDataObject();
+    virtual DataObject* getAuxDataObject();
+    virtual bool setDataObject(DataObject* dobj);
+    virtual bool setAuxDataObject(DataObject* dobjaux);
+
+    virtual CLID containerClid() const { return ClassID_traits<CONTAINER>::ID(); }
+    virtual CLID auxClidOrZero() const;
+
+    //    virtual bool bindAux(IHolder* h);
+
+    typedef HLTNavDetails::TypeProxy<CONTAINER> ContainerProxy;
+    mutable ContainerProxy m_containerProxy;
+
+    virtual const ITypeProxy& containerTypeProxy() const { return m_containerProxy; }
+
+    typedef HLTNavDetails::TypeProxy<STORED> FeatureProxy;
+
+    //    mutable CONTAINER* m_objects;
+    //    STORED *m_return;
+    // for memory management
+    struct MemoryMgr {
+      MemoryMgr();
+      MemoryMgr(const FeatureProxy& st, bool inSG);
+      void clear();
+      FeatureProxy proxy;
+      bool inSG;
+    };
+    typedef std::multimap<HLT::TriggerElement::ObjectIndex, MemoryMgr> MemoryMgrMap;
+    MemoryMgrMap m_memMgr;
+  };
+
+  MsgStream& operator<< ( MsgStream& m, const HLTNavDetails::IHolder& nav ); //<! printing helper
+  template<class T>
+  MsgStream& operator<< ( MsgStream& m, const HLTNavDetails::Holder<T>& nav ); //<! printing helper
+  template<class T, class C>
+  MsgStream& operator<< ( MsgStream& m, const HLTNavDetails::HolderImp<T, C>& nav ); //<! printing helper
+} // end of namespace
+
+//#include "TrigNavigation/Holder.icc"
+
+//
+#endif
