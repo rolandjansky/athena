@@ -28,8 +28,7 @@ namespace Muon {
       
       ChamberT0s( ) ;
       
-      ChamberT0s( const std::vector< std::pair < Identifier, float > >& t0s ) ;
-      ChamberT0s(       std::vector< std::pair < Identifier, float > >&& t0s ) ;
+      ChamberT0s( std::vector< std::pair < Identifier, float > > t0s ) ;
       
       ~ChamberT0s();
       
