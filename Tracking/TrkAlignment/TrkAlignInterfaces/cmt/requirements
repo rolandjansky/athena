@@ -2,8 +2,8 @@ package TrkAlignInterfaces
 author Robert Harrington
 
 public
-use AtlasPolicy         AtlasPolicy-01-*
-use GaudiInterface      GaudiInterface-01-*   External
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*   External
 use DataModel           DataModel-*           Control
 
 use TrkAlignEvent       TrkAlignEvent-*       Tracking/TrkAlignment
