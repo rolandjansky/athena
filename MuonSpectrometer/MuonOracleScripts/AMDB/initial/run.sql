@@ -1,0 +1,31 @@
+SET echo OFF;
+set linesize 132;
+
+@MSYS.sql;
+@ACUT.sql; 
+@ALMN.sql;
+@ASMP.sql;
+@DBAM.sql;
+@WCRO.sql; 
+@WMDT.sql; 
+@WTGC.sql; 
+@AGDD.sql;
+@AMDC.sql;
+@ATLN.sql; 
+@GGLN.sql; 
+@WCSC.sql; 
+@WRPC.sql; 
+@ATYP.sql; 
+@WCHV.sql; 
+@WDED.sql; 
+@WSPA.sql; 
+@ALIN.sql;
+@APTP.sql;
+@AWLN.sql; 
+@WCMI.sql; 
+@WLBI.sql; 
+@WSUP.sql; 
+
+commit;
+select * from tab;
+select * from user_ts_quotas;

@@ -1,0 +1,8 @@
+package MuonOracleScripts
+
+author Serguei Baranov <Serguei.Baranov@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+
+
