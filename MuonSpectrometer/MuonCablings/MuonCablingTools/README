@@ -1,0 +1,18 @@
+This package contains the base classes of common utility for the MuonCabling
+packages. Moreover the BaseObject class is also inerithed by the classes 
+performing the Level-1 muon trigger simulation. Two sets of library are built:
+MuonCablingTools to be used into the ATHENA framework, and CablingTools to be 
+used into a standalone application.
+
+
+Basic components:
+
+BaseObject : is the base class from which most of the other classes are built.
+             It handles data member of geral use (name,object type) plus the
+             interface with the messaging services.
+
+dbline     : utility class for building a modular reading routine. The
+             type of serch pattern is: <Token> <set of data>.
+
+MessageStream : class that handles the characters set used for composing a 
+                message
