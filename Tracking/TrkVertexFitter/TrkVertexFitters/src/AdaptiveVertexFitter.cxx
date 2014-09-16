@@ -673,11 +673,11 @@ namespace Trk
      if( m_xaodConverter->createXAODVertex(*fittedVxCandidate,return_vertex).isFailure() ) 
      {
        msg(MSG::FATAL)<<"Failed to create xAODVertex for VxCandidate"<<endreq;
+       delete fittedVxCandidate;
        return 0;
       }//end of protection check
+     delete fittedVxCandidate;
    }//end of protection check
-  
-  
    return return_vertex;  
    
  }//end of the xAOD starting point fit method
@@ -748,8 +748,10 @@ namespace Trk
      if( m_xaodConverter->createXAODVertex(*fittedVxCandidate,return_vertex).isFailure() ) 
      {
        msg(MSG::FATAL)<<"Failed to create xAODVertex for VxCandidate"<<endreq;
+       delete fittedVxCandidate;
        return 0;
       }//end of protection check
+     delete fittedVxCandidate;
    }//end of protection check
   
   

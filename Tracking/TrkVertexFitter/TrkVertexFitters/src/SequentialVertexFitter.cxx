@@ -250,7 +250,7 @@ namespace Trk{
     {
      if(fittedVxCandidate->vxTrackAtVertex()->size() !=0)
      {
-      unsigned int iTrkAtVtx(0);
+      //unsigned int iTrkAtVtx(0);
       for(unsigned int i = 0; i <trkToFit.size(); ++i)
       {
 //      (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(trkToFit[i]);
