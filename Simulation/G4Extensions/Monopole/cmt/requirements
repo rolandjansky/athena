@@ -1,0 +1,25 @@
+package Monopole
+
+version Monopole-00-00-01
+
+author ADA <dellacqu@mail.cern.ch>
+
+branches src cmt
+
+use AtlasPolicy         AtlasPolicy-*
+
+use Geant4			Geant4-*			External
+use FadsPhysics		FadsPhysics-*		Simulation/G4Sim/FADS
+use AtlasCLHEP          AtlasCLHEP-*            External
+
+private
+use FadsField           FadsField-*             Simulation/G4Sim/FADS
+end_private
+
+include_dirs "$(Monopole_root)"
+
+library Monopole ../src/*.cxx
+
+#apply_pattern linked_library
+apply_pattern installed_library
+
