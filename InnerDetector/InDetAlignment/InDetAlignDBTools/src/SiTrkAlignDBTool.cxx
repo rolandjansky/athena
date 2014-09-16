@@ -9,7 +9,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-// #include "InDetIdentifier/SiliconID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -52,9 +51,9 @@ SiTrkAlignDBTool::SiTrkAlignDBTool(const std::string & type, const std::string &
    , m_sctGeoManager("")
    , m_siGeoManager("")
    , m_pixelAlignLevel(-1)
+   , m_pixelaAlignDBM(false)
    , m_sctAlignLevel(-1)
    , m_siAlignLevel(-1)
-   , m_pixelaAlignDBM(false)
    , m_doSi(false)
    , m_doPixel(false)
    , m_doSCT(false)
