@@ -11,8 +11,9 @@ import re
 
 class TrackEfficiency(RTTXMLForTimePlotsMaker):
     def __init__(self, argDict):
-        self.outputFile="TrigMuonValidation/output.xml"
+        argDict['outputFile']='TrigMuonValidation/output1.xml'
         RTTXMLForTimePlotsMaker.__init__(self, argDict)
+
    
     def makeDataDict(self):
         # grep a log file, interrogate a database, whatever...

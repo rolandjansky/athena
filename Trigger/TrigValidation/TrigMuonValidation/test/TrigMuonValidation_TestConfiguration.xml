@@ -56,10 +56,6 @@
 	  <test position="3">
 	    <modulename>TrigMuonValidation_MonitorEff</modulename>
 	    <testname>TrackEfficiency</testname>
-	    <arg>
-	      <argname>outputFile</argname>
-	      <argvalue>TrigMuonValidation/output1.xml</argvalue>
-	    </arg>
 	  </test>
 
 	  <auxFilePattern>TrigMuonValidation_drawEfficiencies.C</auxFilePattern>
@@ -115,10 +111,6 @@
 	  <test position="3">
 	    <modulename>TrigMuonValidation_MonitorEff</modulename>
 	    <testname>TrackEfficiency</testname>
-	    <arg>
-	      <argname>outputFile</argname>
-	      <argvalue>TrigMuonValdation/output1.xml</argvalue>
-	    </arg>
 	  </test>
 
 	  <auxFilePattern>TrigMuonValidation_drawEfficiencies.C</auxFilePattern>
@@ -134,6 +126,7 @@
 	  <keepFilePattern>Eff*.eps</keepFilePattern>
 	  <keepFilePattern>*.png</keepFilePattern>
 	  <keepFilePattern>EFMuonMonExample.root</keepFilePattern>
+	  <keepFilePattern>output*.xml</keepFilePattern>
 	</jobGroup> 
       </jobGroups>
 
