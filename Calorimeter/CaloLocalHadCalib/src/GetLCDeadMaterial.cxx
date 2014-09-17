@@ -203,7 +203,7 @@ StatusCode GetLCDeadMaterial::initialize()
   }
   // prints coefficients to ASCII file
   if (result) {
-    ofstream fout;
+    std::ofstream fout;
     fout.open(m_HadDMCoeffOutputFile.c_str());
     dmHelper.PrintData(result, fout);
     fout.close();
