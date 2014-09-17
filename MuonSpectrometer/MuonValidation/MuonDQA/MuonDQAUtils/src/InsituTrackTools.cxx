@@ -115,21 +115,21 @@ namespace Muon {
     
   }
 
-  bool	InsituTrackTools::isTriggeredMuon(INavigable4Momentum *track1)
+  bool	InsituTrackTools::isTriggeredMuon(INavigable4Momentum */*track1*/)
   {
-    track1 = 0;
+    // track1 = 0;
     return true;
   }
 
-  bool	InsituTrackTools::isTriggeredElectron(INavigable4Momentum *track1)
+  bool	InsituTrackTools::isTriggeredElectron(INavigable4Momentum */*track1*/)
   {
-    track1 = 0;
+    // track1 = 0;
     return true;
   }
 
-  bool	InsituTrackTools::isElectronCandidate(INavigable4Momentum *track1)
+  bool	InsituTrackTools::isElectronCandidate(INavigable4Momentum */*track1*/)
   {
-    track1 = 0;
+    // track1 = 0;
     return false;
   }
 
