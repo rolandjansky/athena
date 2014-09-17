@@ -2,9 +2,9 @@ package CSCcabling
 
 author Ketevi A. Asssamagan <ketevi@bnl.gov>
 
-use AtlasPolicy            AtlasPolicy-01-*
+use AtlasPolicy            AtlasPolicy-*
 
-use GaudiInterface         GaudiInterface-01-*     External
+use GaudiInterface         GaudiInterface-*     External
 
 apply_pattern dual_use_library files=*.cxx
 
