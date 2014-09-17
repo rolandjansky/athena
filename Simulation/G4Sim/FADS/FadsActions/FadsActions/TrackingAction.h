@@ -15,10 +15,6 @@ class TrackingAction {
 public:
 	TrackingAction() 
 	{
-		// Sadly, none of these have names that can be printed
-		//std::cout<<" run action "<<G4RunManager::GetRunManager()->GetUserRunAction()->GetName()<<std::endl;
-		//std::cout<<" event action "<<G4RunManager::GetRunManager()->GetUserEventAction()->GetName()<<std::endl;
-		//std::cout<<" tracking action "<<G4RunManager::GetRunManager()->GetUserTrackingAction()->GetName()<<std::endl;
 		Register();
 	}
 	virtual ~TrackingAction() {}

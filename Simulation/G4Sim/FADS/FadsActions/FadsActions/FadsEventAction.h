@@ -7,7 +7,6 @@
 
 #include "FadsActions/UserAction.h"
 #include "FadsActions/ApplicationAction.h"
-#include "G4UImanager.hh"
 #include "G4UserEventAction.hh"
 
 class G4Event;
@@ -15,23 +14,20 @@ class G4Event;
 namespace FADS {
 
 class FadsEventAction: public G4UserEventAction {
-private:
-	static FadsEventAction* thePointer;
-	FadsEventAction():G4UserEventAction(),mctAction(0),applAction(0),
-			  UI(G4UImanager::GetUIpointer()) {}
-  	actionMap theBegin;
-	actionMap theEnd;
-        G4UserEventAction* mctAction;
-	ApplicationAction *applAction;
-        G4UImanager *UI;
-public:
-	static FadsEventAction* GetEventAction();
-	void RegisterAction(UserAction *a,actionType t,int i=5);
-	void EndOfEventAction(const G4Event* anEvent); 
-	void BeginOfEventAction(const G4Event* anEvent);
-        void SetMCTEventAction(G4UserEventAction* action)
-        { mctAction= action; }
-	void SetApplicationAction(ApplicationAction *a) {applAction=a;}
+  private:
+   static FadsEventAction* thePointer;
+   FadsEventAction():G4UserEventAction(),mctAction(0),applAction(0) {}
+   actionMap theBegin;
+   actionMap theEnd;
+   G4UserEventAction* mctAction;
+   ApplicationAction *applAction;
+  public:
+   static FadsEventAction* GetEventAction();
+   void RegisterAction(UserAction *a,actionType t,int i=5);
+   void EndOfEventAction(const G4Event* anEvent); 
+   void BeginOfEventAction(const G4Event* anEvent);
+   void SetMCTEventAction(G4UserEventAction* action) { mctAction= action; }
+   void SetApplicationAction(ApplicationAction *a) {applAction=a;}
 };
 
 }	// end namespace

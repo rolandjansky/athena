@@ -18,15 +18,6 @@ FadsRunAction* FadsRunAction::GetRunAction()
 
 void FadsRunAction::EndOfRunAction(const G4Run* aRun)
 {
-	static bool first=true;
-	static std::string act;
-	if (first)
-	{
-		first=false;
-		char *chtemp=getenv("GOOFY_EOR_MACRO");
-		if (chtemp) act=chtemp;
-	}
- 	if (!act.empty()) UI->ApplyCommand("/macro/execute "+act);
 	if (applAction) applAction->EndOfRunAction(aRun);
 	actionMap::const_iterator it;
 	for (it=theEnd.begin();it!=theEnd.end();it++)
@@ -35,15 +26,6 @@ void FadsRunAction::EndOfRunAction(const G4Run* aRun)
 
 void FadsRunAction::BeginOfRunAction(const G4Run* aRun)
 {
-	static bool first=true;
-	static std::string act;
-	if (first)
-	{
-		first=false;
-		char *chtemp=getenv("GOOFY_BOR_MACRO");
-		if (chtemp) act=chtemp;
-	}
-	if (!act.empty()) UI->ApplyCommand("/macro/execute "+act);
 	if (applAction) applAction->BeginOfRunAction(aRun);
 	actionMap::const_iterator it;
 	for (it=theBegin.begin();it!=theBegin.end();it++)

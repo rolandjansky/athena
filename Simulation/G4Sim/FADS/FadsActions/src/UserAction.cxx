@@ -7,10 +7,7 @@
 #include "FadsActions/FadsSteppingAction.h"
 #include "FadsActions/FadsEventAction.h"
 #include "FadsActions/FadsRunAction.h"
-
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
+#include <stdexcept>
 
 namespace FADS {
 
@@ -24,10 +21,8 @@ void UserAction::UnregisterFromStore()
 	ActionsStore::GetActionsStore()->Unregister(this);
 }
 
-
 void UserAction::ResetPriority(int /*i*/)
-{
-}
+{;}
 
 void UserAction::RegisterFor(actionType t)
 {
@@ -52,27 +47,11 @@ void UserAction::RegisterFor(std::string s)
 	else if (s=="EndOfEvent") RegisterFor(EndOfEvent);
 	else if (s=="EndOfRun") RegisterFor(EndOfRun);
 	else if (s=="BeginOfRun") RegisterFor(BeginOfRun);
-	else
-		std::cout<<"Don't know wat to do for "<<s<<std::endl;
+	else throw std::invalid_argument( "Don't know what to do for "+s );
 }
-
-
 
 void UserAction::SetProperty(std::string propName,std::string propValue){
-
   theProperties[propName]=propValue;
-
-}
-
-MsgStream UserAction::log()
-{
-    if (m_log) return *m_log;
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    IMessageSvc* p_msgSvc = 0;
-    if (svcLocator->service("MessageSvc", p_msgSvc).isFailure() || !p_msgSvc)
-        std::cout << "FadsSensitiveDetector: Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
-    m_log = new MsgStream(p_msgSvc,name);
-    return *m_log;
 }
 
 }	// end namespace

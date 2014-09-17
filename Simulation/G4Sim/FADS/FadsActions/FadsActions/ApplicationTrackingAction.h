@@ -8,15 +8,11 @@
 #include "G4Track.hh"
 #include "G4RunManager.hh"
 
-
-
-//class FadsTrackingAction;
-
 namespace FADS {
 
 class ApplicationTrackingAction {
 public:
-	ApplicationTrackingAction() 
+	ApplicationTrackingAction()
 	{
 		Register();
 	}

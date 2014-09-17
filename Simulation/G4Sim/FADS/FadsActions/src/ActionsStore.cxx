@@ -3,7 +3,6 @@
 */
 
 #include "FadsActions/ActionsStore.h"
-#include "FadsActions/ActionCenterMessenger.h"
 #include "FadsActions/UserAction.h"
 
 namespace FADS {
@@ -11,14 +10,10 @@ namespace FADS {
 ActionsStore* ActionsStore::thePointer=ActionsStore::GetActionsStore();
 
 ActionsStore::ActionsStore()
-{
-	theMessenger=new ActionStoreMessenger(this);
-}
+{;}
 
 ActionsStore::ActionsStore(const ActionsStore&) 
-{
-        theMessenger=new ActionStoreMessenger(this);
-}
+{;}
 
 ActionsStore* ActionsStore::GetActionsStore()
 {
@@ -69,12 +64,8 @@ void ActionsStore::ListActions()
 	}
 }
 
-
 void ActionsStore::SetActionProperty(std::string actionName, std::string propName, std::string propValue){
-
   Retrieve(actionName)->SetProperty(propName,propValue); 
-
 }
-
 
 }	// end namespace
