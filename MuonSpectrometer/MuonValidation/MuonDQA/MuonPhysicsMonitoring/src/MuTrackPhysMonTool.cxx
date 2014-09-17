@@ -335,7 +335,7 @@ StatusCode MuTrackPhysMonTool::fillHistograms()
   
   //apply event selection-----------------------------------
   int    nZ=0;
-  double pt1=0.;
+  //double pt1=0.;
   double pt2=0.;
   double phi1=0.;
   double phi2=0.;
@@ -343,13 +343,13 @@ StatusCode MuTrackPhysMonTool::fillHistograms()
   double charge2=0.;
   
   double probePtMax=0;
-  int    probePtMaxId=0;
+  //int    probePtMaxId=0;
   
   std::vector< std::pair<const Rec::TrackParticle *,const Rec::TrackParticle *> > myZmuons;
   for (unsigned int i=0; i<myTagMuons.size(); i++) {
     const Rec::TrackParticle *track1 = myTagMuons[i];
     charge1 = track1->charge();
-    pt1 = track1->pt();
+    //pt1 = track1->pt();
     phi1 = track1->phi();
 
     for (unsigned int j=0; j<myProbeTracks.size(); j++) {
@@ -390,7 +390,7 @@ StatusCode MuTrackPhysMonTool::fillHistograms()
 	    myZmuons.push_back(std::make_pair(track1,track2));
 	    if (pt2>probePtMax) { 
 	      probePtMax=pt2;
-	      probePtMaxId=myZmuons.size()-1;
+	      //probePtMaxId=myZmuons.size()-1;
 	    }
 	  }
 	}
