@@ -643,7 +643,7 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
 
 
     // To speed up algorithm
-    bool haveTrackSegMatch = false;      
+    // bool haveTrackSegMatch = false;      
 
 
     // 2nd loop on segment collection to form a pair:
@@ -771,7 +771,7 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
 
         if ( absDx > 100. || absDy > 100. || absDz > 100. ) continue;
 
-	haveTrackSegMatch = true;
+	// haveTrackSegMatch = true;
 	
 	// Compare pt of Moore/Muonboy track with pt of 2-segment track
 

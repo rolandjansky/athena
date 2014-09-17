@@ -596,7 +596,7 @@ StatusCode MuonAlignSegment::getSegments( int& hIndex ) {
 
 
     // To speed up algorithm
-    bool haveTrackSegMatch = false;      
+    // bool haveTrackSegMatch = false;      
 
 
     // 2nd loop on segment collection to form a pair:
@@ -729,7 +729,7 @@ StatusCode MuonAlignSegment::getSegments( int& hIndex ) {
         if ( absResid < 0. ) absResid = -resid;
         if ( absResid > 100. ) continue;
 
-	haveTrackSegMatch = true;
+	// haveTrackSegMatch = true;
 
 	
         // Here, modify phiSector so it matches the 1-16 map instead of 1-8:
