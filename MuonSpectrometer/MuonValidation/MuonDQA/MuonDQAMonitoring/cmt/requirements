@@ -26,9 +26,9 @@ use     TrigT1Result                TrigT1Result-*                  Trigger/Trig
 use     DataQualityInterfaces       DataQualityInterfaces-*         DataQuality
 
 ### MuonMonitoring dependencies 
-use MuonDQAMonitoring      MuonDQAMonitoring-*     MuonSpectrometer/MuonValidation/MuonDQA
-use MuonTrkPhysMonitoring  MuonTrkPhysMonitoring-* MuonSpectrometer/MuonValidation/MuonDQA
-use MuonDQAMonFlags        MuonDQAMonFlags-*       MuonSpectrometer/MuonValidation/MuonDQA
+#use MuonDQAMonitoring      MuonDQAMonitoring-*     MuonSpectrometer/MuonValidation/MuonDQA
+#use MuonTrkPhysMonitoring  MuonTrkPhysMonitoring-* MuonSpectrometer/MuonValidation/MuonDQA
+#use MuonDQAMonFlags        MuonDQAMonFlags-*       MuonSpectrometer/MuonValidation/MuonDQA
   
 # build a component library
 library MuonDQAMonitoring *.cxx components/*.cxx
