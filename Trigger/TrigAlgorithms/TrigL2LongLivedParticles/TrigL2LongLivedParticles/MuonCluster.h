@@ -68,7 +68,7 @@ public:
    *
    * This is used to reset the internal caching mechanism of this MuonCluster algorithm.
    */
-  virtual bool reset() {  m_useCachedResult = false; m_clu_feature = 0; m_cachedTE=0; return true; }
+  virtual bool reset() {  m_useCachedResult = false; m_clu_feature = 0; m_cachedTE=0; AllTEAlgo::reset(); return true; }
 
   // monitored quantities
   std::vector<double> m_RoiEta;
