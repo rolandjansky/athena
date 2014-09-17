@@ -370,6 +370,13 @@ class disableFilledBunchFilter(JobProperty):
     StoredValue=False
 list+=[disableFilledBunchFilter]
 
+class enableLumiAccess(JobProperty):
+    """ If set to false, will force lumi tool access off """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[enableLumiAccess]
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the DQMon flag container

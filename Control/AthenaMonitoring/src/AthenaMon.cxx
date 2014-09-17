@@ -24,7 +24,7 @@ class ISvcLocator;
 
 /*---------------------------------------------------------------*/
 AthenaMon::AthenaMon(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {   
   MsgStream log(msgSvc(), "AthenaMon");
   
