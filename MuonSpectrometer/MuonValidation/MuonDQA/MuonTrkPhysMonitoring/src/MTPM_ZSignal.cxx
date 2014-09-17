@@ -123,7 +123,7 @@ bool MuonTrkPhysMonitoring::IsTagMuon(const xAOD::Muon* muon){
 }
 
 //---------------------------------------------------------------------------------------
-bool MuonTrkPhysMonitoring::IsZTriggerMatched(const xAOD::Muon* muon){
+bool MuonTrkPhysMonitoring::IsZTriggerMatched(const xAOD::Muon* /*muon*/){
   // if (!m_doZTrigMatch) return true;
   // 
   // ATH_MSG_DEBUG("Do Trigger Match...");
