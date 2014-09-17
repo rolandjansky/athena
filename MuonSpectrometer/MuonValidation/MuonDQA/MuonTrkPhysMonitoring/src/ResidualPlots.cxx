@@ -3,14 +3,21 @@
 */
 
 #include "MuonTrkPhysMonitoring/ResidualPlots.h"
+#include <iostream>
+#include "TString.h"
 
 void ResidualPlots::initializePlots(){	
-	Book1D(m_A_EE_Residuals, "m_A_EE_Residuals", m_sTrackCollectionName+": Hit Residuals EE - Side A : "+m_sSector+";[#mum]" , 100,-2000.0,2000.0);
-	Book1D(m_C_EE_Residuals, "m_C_EE_Residuals", m_sTrackCollectionName+": Hit Residuals EE - Side C : "+m_sSector+";[#mum]" , 100,-2000.0,2000.0);
-	Book1D(m_A_BEE_Residuals, "m_A_BEE_Residuals", m_sTrackCollectionName+": Hit Residuals BEE - Side A : "+m_sSector+";[#mum]", 100,-2000.0,2000.0);  
-	Book1D(m_C_BEE_Residuals, "m_C_BEE_Residuals", m_sTrackCollectionName+": Hit Residuals BEE - Side C : "+m_sSector+";[#mum]", 100,-2000.0,2000.0);
-	Book1D(m_A_CSC_Residuals, "m_A_CSC_Residuals", m_sTrackCollectionName+": Hit Residuals CSC - Side A : "+m_sSector+";[#mum]", 200,-1500.0,1500.0);
-	Book1D(m_C_CSC_Residuals, "m_C_CSC_Residuals", m_sTrackCollectionName+": Hit Residuals CSC - Side C : "+m_sSector+";[#mum]", 200,-1500.,1500.);
+        // We need to give each histogram a unique name. Let's keep a count of which histo this is and include it in the histo's name.
+        static int initialize_count = 0;
+        initialize_count += 1;
+        std::string iteration_s = std::to_string(initialize_count);
+
+	Book1D(m_A_EE_Residuals, (std::string("m_A_EE_Residuals") + iteration_s).c_str(), m_sTrackCollectionName+": Hit Residuals EE - Side A : "+m_sSector+";[#mum]" , 100,-2000.0,2000.0);
+	Book1D(m_C_EE_Residuals, (std::string("m_C_EE_Residuals") + iteration_s).c_str(), m_sTrackCollectionName+": Hit Residuals EE - Side C : "+m_sSector+";[#mum]" , 100,-2000.0,2000.0);
+	Book1D(m_A_BEE_Residuals, (std::string("m_A_BEE_Residuals") + iteration_s).c_str(), m_sTrackCollectionName+": Hit Residuals BEE - Side A : "+m_sSector+";[#mum]", 100,-2000.0,2000.0);  
+	Book1D(m_C_BEE_Residuals, (std::string("m_C_BEE_Residuals") + iteration_s).c_str(), m_sTrackCollectionName+": Hit Residuals BEE - Side C : "+m_sSector+";[#mum]", 100,-2000.0,2000.0);
+	Book1D(m_A_CSC_Residuals, (std::string("m_A_CSC_Residuals") + iteration_s).c_str(), m_sTrackCollectionName+": Hit Residuals CSC - Side A : "+m_sSector+";[#mum]", 200,-1500.0,1500.0);
+	Book1D(m_C_CSC_Residuals, (std::string("m_C_CSC_Residuals") + iteration_s).c_str(), m_sTrackCollectionName+": Hit Residuals CSC - Side C : "+m_sSector+";[#mum]", 200,-1500.,1500.);
 	Book2D(m_HR_Eta_I, "m_HR_Eta_S01_I", m_sTrackCollectionName+": MDT Hit Residuals : "+m_sSector+" : I;[#mum];#eta", 200,-2000.0,2000.0,30,-3.0,3.0);
 	Book2D(m_HR_Eta_M, "m_HR_Eta_S01_M", m_sTrackCollectionName+": MDT Hit Residuals : "+m_sSector+" : M;[#mum];#eta", 200,-2000.0,2000.0,30,-3.0,3.0);
 	Book2D(m_HR_Eta_O, "m_HR_Eta_S01_O", m_sTrackCollectionName+": MDT Hit Residuals : "+m_sSector+" : O;[#mum];#eta", 200,-2000.0,2000.0,30,-3.0,3.0);
