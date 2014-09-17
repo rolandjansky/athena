@@ -168,11 +168,17 @@ int main(int argc, char* argv[]) {
       Info("TrigCostD3PD","We are processing run %i, cost montioring has the timestamp %s", _config.getInt(kRunNumber), _onlineTimeStr.c_str() );
       if (_config.getInt(kCleanAll)) { // send rm command to get rid of current output directory
         std::string _toCall = std::string("rm -r ") + _config.getStr(kOutputDirectory) + std::string("/");
-        Info("TrigCostD3PD","Executing the command: '%s'", _toCall.c_str());
+        Info("TrigCostD3PD","Cleaning up from before, executing the command: '%s'", _toCall.c_str());
         gSystem->Exec( _toCall.c_str() );
       }
       gSystem->mkdir( _config.getStr(kOutputDirectory).c_str(), kTRUE );
       _outputProgressFile = _config.getStr(kOutputDirectory) + "/progress.json";
+      // Do symlink
+      if (_config.getInt(kLinkOutputDir) == kTRUE) {
+        std::string _toCall = std::string("ln -sfn ") + _config.getStr(kOutputDirectory) + std::string(" ") + _config.getStr(kLinkOutputDirName);
+        Info("TrigCostD3PD","Soft linking the output dir, executing the command: '%s'", _toCall.c_str());
+        gSystem->Exec( _toCall.c_str() );
+      }
       // Setup the trigger configuration
       TrigConfInterface::configure( &_chain );
       if ( _config.debug() ) TrigConfInterface::debug();

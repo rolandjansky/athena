@@ -141,7 +141,7 @@ namespace TrigCostRootAnalysis {
       }
       // We have looped over all but one of the list of L1 items, have we found one we can remove?
       if (_L2Set.size() == 0) { // If true we could still reach all the counters *without* this L1
-        if (Config::config().debug() || 1) {
+        if (Config::config().debug()) {
           Info("CounterRatesIntersection::removeRedundancies","Removing redundant L1 chain %s from %s", 
             (*_L1ToTryRemovingIt)->getName().c_str(), getName().c_str());
         }

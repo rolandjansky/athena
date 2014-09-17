@@ -86,6 +86,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _doOutputRatesGraph = kFALSE;
     static Int_t _doOutputMenus = kFALSE;
     static Int_t _doOutputCanvas = kFALSE;
+    static Int_t _linkOutputDirectory = kFALSE;
     // Misc
     static Int_t _outputTagFromAthena = kFALSE;
     static Int_t _cleanAll = kFALSE;
@@ -94,7 +95,6 @@ namespace TrigCostRootAnalysis {
     static Int_t _ratesForcePass = kFALSE;
     static Int_t _doUniqueRates = kFALSE;
     static Int_t _showVersion = kFALSE;
-
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -117,7 +117,7 @@ namespace TrigCostRootAnalysis {
     std::string _menuXML = "";//"HLTconfig_Physics_pp_v5_19.2.0.xml";
     std::string _prescaleXML = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _ROSXML = "rob-ros-robin-2012.xml";
-    std::string _version = "TrigCostRootAnalysis-00-05-05";
+    std::string _version = "TrigCostRootAnalysis-00-05-09";
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
     UInt_t _nEvents = INT_MAX;
@@ -127,6 +127,8 @@ namespace TrigCostRootAnalysis {
     UInt_t _slowThreshold = 500;
     UInt_t _histogramBins = 100;
     UInt_t _maxNumberFullEvents = 10;
+    UInt_t _ratesOverlapWarning = 80;
+    UInt_t _maxMultiSeed = 1;
     
     // Parse CLI
     Int_t _status = 0;
@@ -168,6 +170,7 @@ namespace TrigCostRootAnalysis {
         {"forceAllPass",           no_argument,       &_ratesForcePass,         1},
         {"doUniqueRates",          no_argument,       &_doUniqueRates,          1},
         {"version",                no_argument,       &_showVersion,            1},
+        {"linkOutputDirectory",    no_argument,       &_linkOutputDirectory,    1},
         {"treeName",               required_argument, 0,                      't'},
         {"menuXML",                required_argument, 0,                      'm'},
         {"prescaleXML",            required_argument, 0,                      'M'},
@@ -192,10 +195,12 @@ namespace TrigCostRootAnalysis {
         {"slowThreshold",          required_argument, 0,                      'S'},
         {"defaultLBLength",        required_argument, 0,                      'd'},
         {"nLbFullSummary",         required_argument, 0,                      'L'},
+        {"ratesOverlapWarning",    required_argument, 0,                      'w'},
         {"files",                  required_argument, 0,                      'f'},
         {"patternsMonitor",        required_argument, 0,                      'p'},
         {"patternsOutput",         required_argument, 0,                      'P'},
         {"userDetails",            required_argument, 0,                      'u'},
+        {"maxMultiSeed",           required_argument, 0,                      'X'},
         {0, 0, 0, 0}
       };
       
@@ -246,8 +251,9 @@ namespace TrigCostRootAnalysis {
           std::cout << "--doOutputPDF\t\t\t\t\tSave results as PDF images in folder structure (warning, best used with --patternsOutput)." << std::endl;
           std::cout << "--doOutputCSV\t\t\t\t\t[Default] Save results as CSV table summaries." << std::endl;
           std::cout << "--doOutputRatesGraph\t\t\t\t[Default] Save rates chain-graphs in JSON format." << std::endl;
-          std::cout << "--doOutputRatesXML\t\t\t\t\t[Default] Save rates XML files for the Rulebook etc." << std::endl;
+          std::cout << "--doOutputRatesXML\t\t\t\t[Default] Save rates XML files for the Rulebook etc." << std::endl;
           std::cout << "--doOutputMenus\t\t\t\t\t[Default] Save menu configurations in JSON format." << std::endl;
+          std::cout << "--linkOutputDirectory\t\t\t\tSoft link the output directory to 'costMon' in the run directory for automated scripts to use the data."<< std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ RUN CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--useEBWeight\t\t\t\t\tCalculate and use per-event Enhanced Bias weighting factor." << std::endl;
           std::cout << "--lbBegin INT_MIN\t\t\t\tLowest value luminosity block from input to use." << std::endl;
@@ -263,9 +269,11 @@ namespace TrigCostRootAnalysis {
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--menuXML \"" << _menuXML << "\"\t\t\t\t\tMenu XML file from which to read custom prescales for rates calculations (place in /data or current dir for Athena use)." << std::endl;
-          std::cout << "--prescaleXML \"" << _prescaleXML << "\"\t\t\t\tPrescale XML file from which to read custom prescales for tates calculation (place in /data or current dir for Athena use)." << std::endl;      
+          std::cout << "--prescaleXML \"" << _prescaleXML << "\"\t\t\t\tPrescale XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;      
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
+          std::cout << "--ratesOverlapWarning "<<_ratesOverlapWarning<<"%\t\t\tValue in percent (0-100) above which to warn about chain overlaps within rates groups." << std::endl;
+          std::cout << "--maxMultiSeed "<< _maxMultiSeed <<"\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ I/O CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--files file1 file2 ...\t\t\t\tInput ntuple files." << std::endl;
           std::cout << "--ROSXML \"" << _ROSXML << "\"\t\tROS ID mapping file from which to map ROBIN IDs to subdetectors (place in /data)." << std::endl;
@@ -285,7 +293,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--cleanAll\t\t\t\t\tRemove any old output directory before saving output." << std::endl;
           std::cout << "--userDetails \t\t\t\t\tUser supplied metadata string giving any extra details about this run." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ OTHER ~~~~~~~~~~~~~~~" << std::endl;
-          std::cout << "--help\t\t\t\t\tDisplays this very message and exits." << std::endl;
+          std::cout << "--help\t\t\t\t\t\tDisplays this very message and exits." << std::endl;
           std::cout << "--version\t\t\t\t\tDisplays the application version and exits." << std::endl;
           abort();
         }
@@ -380,6 +388,11 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _defaultLBLength;
         break;
+      case 'X':
+        // Default lumiblock length
+        _ss << optarg;
+        _ss >> _maxMultiSeed;
+        break;
       case 't':
         // Different tree name
         _treeName = std::string( optarg );
@@ -431,6 +444,11 @@ namespace TrigCostRootAnalysis {
       case 'E':
         // Different EF prefix
         _EFPrefix = std::string( optarg );
+        break;
+      case 'w':
+        // different overlap percent
+        _ss << optarg;
+        _ss >> _ratesOverlapWarning;
         break;
       case 'H':
         // Different HLT prefix
@@ -596,6 +614,7 @@ namespace TrigCostRootAnalysis {
     set(kOutputHist, _doOutputHist, "DoOutputHist");
     set(kOutputCanvas, _doOutputCanvas, "DoOutputCanvas");
     set(kOutputCsv, _doOutputCsv, "DoOutputCSV");
+    set(kOutputXML, _doOutputXML, "DoOutputXML");
     set(kOutputRatesGraph, _doOutputRatesGraph, "DoOutputRatesGraph");
     set(kOutputMenus, _doOutputMenus, "DoOutputMenus");    
     set(kOutputDirectory, _outDirectory, "OutputDirectory", kUnlocked); // Do NOT lock this as we need to modify it to add the run number in
@@ -605,6 +624,8 @@ namespace TrigCostRootAnalysis {
     set(kOutputXMLDirectory, _outXMLDirectory, "OutputXMLDirectory");
     set(kOutputRatesGraphFilename, _outRatesGraphFilename, "OutputRatesGraphFilename");
     set(kOutputRootFilename, _outRootFilename, "OutputROOTFileName");
+    set(kLinkOutputDir, _linkOutputDirectory, "LinkOutputDirectory");
+    set(kLinkOutputDirName, "costMon");
     if (_userDetails != "") {
       set(kUserDetails, _userDetails, "UserMetadata");
     }
@@ -621,6 +642,8 @@ namespace TrigCostRootAnalysis {
     set(kRatesForcePass, _ratesForcePass, "RatesForceAllChainsToPassRaw");
     set(kDoUniqueRates, _doUniqueRates, "DoUniqueRates");
     set(kHistBins, _histogramBins, "HistogramBins");
+    set(kRatesOverlapWarning, _ratesOverlapWarning, "RatesOverlapWarning");
+    set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
 
     // Check we only have one of these two
     if (_menuXML != m_blankString && _prescaleXML != m_blankString) {

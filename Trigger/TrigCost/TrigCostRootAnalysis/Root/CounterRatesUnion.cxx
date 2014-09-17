@@ -114,6 +114,7 @@ namespace TrigCostRootAnalysis {
    */
   Float_t CounterRatesUnion::runWeight() {
     if (m_combinationClassification == kUnset) classify();
+    if (m_cannotCompute == kTRUE) return 0.;
 
     if      (m_combinationClassification == kOnlyL1) return runWeight_OnlyL1();
     else if (m_combinationClassification == kAllToAll) return runWeight_AllToAll();
@@ -206,8 +207,13 @@ namespace TrigCostRootAnalysis {
 
     // Otherwise we have to use the general form
     Info("CounterRatesUnion::classify","Chain %s topology classified as Many-To-Many. NL1:%i. Computational complexity (2^NL1-1)=%i.",
-      getName().c_str(), (Int_t)m_L1s.size(), (Int_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
-    if (m_L1s.size() > 10) Warning("CounterRatesUnion::classify","Many L1s in this combination. Calculatuon will be SLOW.");
+      getName().c_str(), (Int_t)m_L1s.size(), (UInt_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
+    if (m_L1s.size() > 32) {
+      Error("CounterRatesUnion::classify","Cannot calculate rates union for this complexity. Use fewer L1 seeds!!! Disabling this combination.");
+      m_cannotCompute = kTRUE;
+    } else if (m_L1s.size() > 10) {
+      Warning("CounterRatesUnion::classify","Many L1s in this combination. Calculatuon will be *SLOW.*");
+    }
     m_combinationClassification = kManyToMany;
   }
 
@@ -337,6 +343,8 @@ namespace TrigCostRootAnalysis {
           _pOfBitPattern *= ( 1. - _L1->getPassRawOverPS() );
         }
       }
+
+      //TODO add and check if (isZero(_pOfBitPattern)) continue;
 
       // Step 2
       // Get the probability that this L1 bit-pattern is kept by L2
