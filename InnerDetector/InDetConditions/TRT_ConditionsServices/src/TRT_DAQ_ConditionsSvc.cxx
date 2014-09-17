@@ -16,6 +16,12 @@
 #include "TRT_DAQ_ConditionsSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
+//anonymous namespace for file scope functions, variables
+namespace{
+	const std::string run1FolderName("/TDAQ/EnabledResources/ATLAS/TRT/Robins"); //a multi-channel, single version folder in the DB
+	const std::string run2FolderName("/TDAQ/Resources/ATLAS/TRT/Robins");
+}
+
 //////////
 /// Constructor
 /////
@@ -24,7 +30,7 @@ TRT_DAQ_ConditionsSvc::TRT_DAQ_ConditionsSvc( const std::string& name, ISvcLocat
   m_evtStore("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
   m_EventInfoKey("ByteStreamEventInfo"),
-  m_FolderName("/TDAQ/EnabledResources/ATLAS/TRT/Robins"),
+  m_FolderName(run1FolderName),
   m_EnabledRods(0)
 {
   // Get properties from job options
@@ -43,36 +49,36 @@ TRT_DAQ_ConditionsSvc::~TRT_DAQ_ConditionsSvc() {}
 /// Initialize
 /////
 StatusCode TRT_DAQ_ConditionsSvc::initialize() {
-  //ATH_MSG_INFO( "TRT_DAQ_ConditionsSvc::initialize." );
   StatusCode sc(StatusCode::SUCCESS);
-
   // Retrieve the EventStore and DetectorStore
-  sc = m_evtStore.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "Couldn't retrieve " << m_evtStore );
-    return sc;
+  ATH_CHECK(m_evtStore.retrieve());
+  ATH_CHECK(m_detStore.retrieve());
+	
+	//Determine the folder name by seeing which folder is in the detStore
+	const bool option1Exists = m_detStore->contains<CondAttrListCollection>(run1FolderName);
+	const bool option2Exists = m_detStore->contains<CondAttrListCollection>(run2FolderName);
+  const bool nonsense = (option1Exists == option2Exists); //both exist, or neither exist
+  if (nonsense) {
+    if (option1Exists) { //both exist
+      ATH_MSG_ERROR("The folders "<<run1FolderName<<" and "<<run2FolderName<<" are both present!");
+    } else { //neither exist
+      ATH_MSG_ERROR("Neither "<<run1FolderName<<" nor "<<run2FolderName<<" exist");
+    }
+    return StatusCode::FAILURE;
   }
-  sc = m_detStore.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "Couldn't retrieve " << m_detStore );
-    return sc;
-  }
-
+  m_FolderName = option1Exists ? run1FolderName : run2FolderName;
+	ATH_MSG_INFO("TRT_DAQ_ConditionsSvc will use the folder "<<m_FolderName);
+	
   // Get the TRT Identifier Helper.
-  sc = m_detStore->retrieve( m_TRT_ID_Helper, "TRT_ID" );
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve pointer to TRT ID Helper." );
-    return sc;
-  }
-
+  ATH_CHECK( m_detStore->retrieve( m_TRT_ID_Helper, "TRT_ID" ));
+ 
   // Register a callback for "BeginRun"
-  IIncidentSvc* incSvc;
+  IIncidentSvc* incSvc(0);
   sc = service( "IncidentSvc", incSvc );
-  if ( sc.isFailure() ) {
+  if ( sc.isFailure() or (incSvc==0)) {
     ATH_MSG_ERROR( "Couldn't get the IncidentSvc." );
     return sc;
   }
-  //incSvc->addListener( this, std::string("BeginRun") );
   incSvc->addListener( this, std::string("BeginEvent") );
 
   return sc;
@@ -93,7 +99,7 @@ unsigned int TRT_DAQ_ConditionsSvc::RODid( const Identifier& ident ) {
   else if ( barrel_ec ==  2 ) partition = 0x33; // Endcap A
   else if ( barrel_ec == -2 ) partition = 0x34; // Endcap C
   else {
-    ATH_MSG_WARNING( "Invalide Barrel/EC identifier requested in RODid." );
+    ATH_MSG_WARNING( "Invalid Barrel/EC identifier requested in RODid." );
     return 0;
   }
 
@@ -152,7 +158,7 @@ InDet::TRT_CondFlag TRT_DAQ_ConditionsSvc::condSummaryStatus( unsigned int thisR
 
     unsigned int rod = 0;
 
-    // Convert string representation of hex representation of parition (detector) to integer
+    // Convert string representation of hex representation of partition (detector) to integer
     /* Partition number in string from database comes as hex number.
      * Need to convert it to an integer. */
     int ROD_Part_int;
@@ -223,11 +229,9 @@ void TRT_DAQ_ConditionsSvc::handle( const Incident& inc ) {
 
     // Retrieve COOL Folder at beginning of event to cut down on StoreGate accesses.
     // Contents won't change during event.
-    sc = m_detStore->retrieve( m_EnabledRods, m_FolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Couldn't retrieve folder " << m_FolderName );
-      return;
-    }
+    sc= m_detStore->retrieve( m_EnabledRods, m_FolderName );
+    if (sc.isFailure()) ATH_MSG_ERROR("The folder "<<m_FolderName<<" could not be retrieved");
+   
 
     /* FOR TESTING THE CALLBACK
     // Get the run number
