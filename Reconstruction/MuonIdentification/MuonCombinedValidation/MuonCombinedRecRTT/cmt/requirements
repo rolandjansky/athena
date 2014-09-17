@@ -2,8 +2,8 @@ package MuonCombinedRecRTT
 
 author Biagio Di Micco <Biagio.Di.Micco@cern.ch>
 
-use AtlasPolicy		AtlasPolicy-01-*
-use AtlasROOT          	AtlasROOT-02-*            External
+use AtlasPolicy		AtlasPolicy-*
+use AtlasROOT          	AtlasROOT-*            External
 
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime extras="../test/MuonCombinedRecRTT_TestConfiguration.xml \
