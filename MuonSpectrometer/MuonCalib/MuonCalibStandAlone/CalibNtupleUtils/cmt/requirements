@@ -1,7 +1,7 @@
 package CalibNtupleUtils
 author Zdenko van Kesteren
  
-use AtlasPolicy          AtlasPolicy-01-*
+use AtlasPolicy          AtlasPolicy-*
 use AtlasROOT            AtlasROOT-*            External
 
 #use MdtCalibFitters      MdtCalibFitters-*      MuonSpectrometer/MuonCalib/MdtCalib
@@ -9,6 +9,9 @@ use MuonCalibEventBase   MuonCalibEventBase-*   MuonSpectrometer/MuonCalib
 
 apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore MathMore Graf Hist)"
 
 library  CalibNtupleUtils ../src/*.cxx
 

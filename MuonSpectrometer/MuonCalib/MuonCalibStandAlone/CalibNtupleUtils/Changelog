@@ -1,3 +1,17 @@
+2014-09-17 Jochen Meyer <jomeyer@mail.cern.ch>
+        * fixing compiler warning
+        * Tagged as CalibNtupleUtils-00-00-21
+
+2014-07-16 David Quarrie <David.Quarrie@cern.ch>
+	* cmt/requirements
+		Another iteration at declaring the required ROOT components for cmake
+	* Tagged as CalibNtupleUtils-00-00-20
+
+2014-07-16 David Quarrie <David.Quarrie@cern.ch>
+	* cmt/requirements
+		Declare the ROOT components that are required (only relevant for cmake - invisible to CMT)
+	* Tagged as CalibNtupleUtils-00-00-19
+
 10-03-2011  Felix Rauscher <rauscher@cern.ch>
 	* Coverity
 	* remove unused code
