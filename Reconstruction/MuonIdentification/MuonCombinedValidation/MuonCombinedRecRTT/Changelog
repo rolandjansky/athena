@@ -1,3 +1,7 @@
+2014-09-17 Jochen Meyer <jomeyer@mail.cern.ch>
+  * fixing compiler warning
+  * Tagged as MuonCombinedRecRTT-00-01-06
+
 2012-04-16 Edward.Moyse@gmail.com	
   * Added 3rd chain
   * Tagged as MuonCombinedRecRTT-00-01-00
