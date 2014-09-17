@@ -5,11 +5,14 @@
 #ifndef TruthStrategy_H
 #define TruthStrategy_H
 
-#include <string>
-#include <map>
 #include "MCTruth/TruthStrategyManager.h"
 #include "GaudiKernel/MsgStream.h" // So that all who inherit have full access
+#include <string>
+#include <map>
+
 class G4Step;
+class G4LogicalVolume;
+
 class TruthStrategy {
 public:
 	TruthStrategy(const std::string);
@@ -31,6 +34,8 @@ private:
 	std::map<std::string,int> MCActiveArea;//key=volumeName, val=volumeLevel
 	typedef std::map<std::string,int>::value_type valType;
 	bool activated;
+    bool m_init;
+    void checkVolumeDepth( G4LogicalVolume * lv , int d=0 );
 };
 
 #endif

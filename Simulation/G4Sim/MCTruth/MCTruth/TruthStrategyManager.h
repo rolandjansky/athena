@@ -28,7 +28,7 @@ public:
 	bool AnalyzeVertex(const G4Step*);
 	void RegisterStrategy(TruthStrategy *);
 	TruthStrategy * GetStrategy(std::string);
-	void ListStrategies() const;
+	void ListStrategies(); // Non-const as logger may need to be grabbed
 	void SetNrOfSecondaries(int i) {nSecondaries=i;}
 	int GetNrOfSecondaries() {return nSecondaries;}
 	void SetSecondarySavingLevel(int i) {secondarySavingLevel=i;}
@@ -40,7 +40,7 @@ public:
 	
 	void SetTruthParameter(const std::string, double);
 	double GetTruthParameter(const std::string);
-	void PrintParameterList() const;
+	void PrintParameterList(); // Non-const as logger may need to be grabbed
 	
 	EventInformation* GetEventInformation() const;
 	std::vector<G4Track*> GetSecondaries();

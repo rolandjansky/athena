@@ -32,128 +32,123 @@ TruthStrategyManager::TruthStrategyManager() :
 
 TruthStrategyManager* TruthStrategyManager::GetStrategyManager()
 {
-	if (!thePointer) thePointer=new TruthStrategyManager;
-	return thePointer;
+  if (!thePointer) thePointer=new TruthStrategyManager;
+  return thePointer;
 }
 
 void TruthStrategyManager::EnableRecordingEnvelopes()
 {
-	theSteppingAction=new MCTruthSteppingAction;
+  theSteppingAction=new MCTruthSteppingAction;
 }
 
 void TruthStrategyManager::AddRecordingEnvelope(std::string name, int lev, std::string sdName)
 {
-	if (theSteppingAction) 
-		theSteppingAction->AddRecordingEnvelope(name,lev,sdName);
-	else
-		log()<<MSG::WARNING<<" AddRecordingEnvelope: you must enable recording"
-			 <<" envelopes before adding one!"<<std::endl;
+  if (theSteppingAction) 
+    theSteppingAction->AddRecordingEnvelope(name,lev,sdName);
+  else
+    log()<<MSG::WARNING<<" AddRecordingEnvelope: you must enable recording"
+         <<" envelopes before adding one!"<<endreq;
 }
 
 void TruthStrategyManager::ListRecordingEnvelopes()
 {
-	if (theSteppingAction)
-                theSteppingAction->ListRecordingEnvelopes();
-	else
-	   	log()<<MSG::WARNING<<" Envelope recording not enabled!"<<std::endl;
+  if (theSteppingAction)
+    theSteppingAction->ListRecordingEnvelopes();
+  else
+    log()<<MSG::WARNING<<" Envelope recording not enabled!"<<endreq;
 }
 
 void TruthStrategyManager::RegisterStrategy(TruthStrategy *strategy)
 {
-	theStrategies[strategy->StrategyName()]=strategy;
-	isEmpty=false;
-	log()<<MSG::INFO<<"MCTruth::TruthStrategyManager: registered strategy "<<
-		   strategy->StrategyName()<<std::endl;
+  theStrategies[strategy->StrategyName()]=strategy;
+  isEmpty=false;
+  log()<<MSG::INFO<<"MCTruth::TruthStrategyManager: registered strategy "<<
+         strategy->StrategyName()<<std::endl;
 }
 
 TruthStrategy* TruthStrategyManager::GetStrategy(std::string name)
 {
-	if (theStrategies.find(name) != theStrategies.end())
-		return theStrategies[name];
-	else
-	{
-		log()<<MSG::WARNING<<" strategy "<<name<<" not found: returning 0"<<std::endl;
-		return 0;
-	}
+  if (theStrategies.find(name) != theStrategies.end()){
+    return theStrategies[name];
+  }
+  log()<<MSG::WARNING<<" strategy "<<name<<" not found: returning 0"<<endreq;
+  return 0;
 }
 
-void TruthStrategyManager::ListStrategies() const
+void TruthStrategyManager::ListStrategies()
 {
-	strategyMap::const_iterator it;
-	std::cout<<" List of all defined strategies (an X means active) "<<std::endl;
-	for (it=theStrategies.begin();it!=theStrategies.end();it++)
-	{
-		std::cout<<"---> "<<(*it).first;
-		if ((*it).second->IsActivated()) std::cout<<"\t\t X"<<std::endl;
-		else std::cout<<std::endl;
-	}
+  strategyMap::const_iterator it;
+  log()<<MSG::INFO<<" List of all defined strategies (an X means active) "<<endreq;
+  for (it=theStrategies.begin();it!=theStrategies.end();it++)
+  {
+    if ((*it).second->IsActivated()) log()<<MSG::INFO<<"---> "<<(*it).first<<"\t\t X"<<endreq;
+    else log()<<MSG::INFO<<"---> "<<(*it).first<<endreq;
+  }
 }
 
 bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
 {
-	strategyMap::const_iterator it;
-	for (it=theStrategies.begin();it!=theStrategies.end();it++)
-	{
-		TruthStrategy* currentStrategy=(*it).second;
-		if (currentStrategy->IsActivated() &&
-		    currentStrategy->IsApplicable(aStep) && 
-		    currentStrategy->AnalyzeVertex(aStep)) return true;
-	}
-	return false;
+  strategyMap::const_iterator it;
+  for (it=theStrategies.begin();it!=theStrategies.end();it++)
+  {
+    TruthStrategy* currentStrategy=(*it).second;
+    if (currentStrategy->IsActivated() &&
+        currentStrategy->IsApplicable(aStep) && 
+        currentStrategy->AnalyzeVertex(aStep)) return true;
+  }
+  return false;
 }
 
 EventInformation* TruthStrategyManager::GetEventInformation() const
 {
-	return static_cast<EventInformation*>
-	(G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+  return static_cast<EventInformation*>
+  (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 }
 
 std::vector<G4Track*> TruthStrategyManager::GetSecondaries()
 {
-	static SecondaryTracksHelper helper;
-	return helper.GetSecondaries(nSecondaries);
+  static SecondaryTracksHelper helper;
+  return helper.GetSecondaries(nSecondaries);
 }
 
 void TruthStrategyManager::SetTruthParameter(const std::string n, double val)
 {
-	truthParams[n]=val;
+  truthParams[n]=val;
 }
 
 double TruthStrategyManager::GetTruthParameter(const std::string n) 
 {
-	if (truthParams.find(n) != truthParams.end())
-		return truthParams[n];
-	else
-	{
-		log()<<MSG::WARNING<<" TruthStrategyManager: parameter "<<n<<
-			" not found in the available set "<<std::endl;
-		return 0;
-	}
+  if (truthParams.find(n) != truthParams.end()) {
+    return truthParams[n];
+  }
+  log()<<MSG::WARNING<<" TruthStrategyManager: parameter "<<n<<
+         " not found in the available set "<<std::endl;
+  return 0;
 }
-void TruthStrategyManager::PrintParameterList() const
+void TruthStrategyManager::PrintParameterList()
 {
-	std::cout<<" List of all MCTruth configuration parameters "<<std::endl;
-        std::map< std::string, double, std::less<std::string> >::const_iterator it;
-	for (it=truthParams.begin();it!=truthParams.end();it++)
-		std::cout<<"---> "<<std::setw(30)<<(*it).first<<"\t\t value= "<<(*it).second<<std::endl;
+  log()<<MSG::INFO<<" List of all MCTruth configuration parameters "<<endreq;
+  std::map< std::string, double, std::less<std::string> >::const_iterator it;
+  for (it=truthParams.begin();it!=truthParams.end();it++)
+    log()<<MSG::INFO<<"---> "<<std::setw(30)<<(*it).first<<"\t\t value= "<<(*it).second<<endreq;
 }
 
 HepMC::GenVertex* TruthStrategyManager::StepPoint2Vertex(G4StepPoint* aPoint) const 
 {
-	G4ThreeVector pos=aPoint->GetPosition();
-	double time =aPoint->GetGlobalTime();
-	CLHEP::HepLorentzVector mom(pos.x(),pos.y(),pos.z(),time*CLHEP::c_light);
-	HepMC::GenVertex *vert=new HepMC::GenVertex(mom);
-	return vert;
+  G4ThreeVector pos=aPoint->GetPosition();
+  double time =aPoint->GetGlobalTime();
+  CLHEP::HepLorentzVector mom(pos.x(),pos.y(),pos.z(),time*CLHEP::c_light);
+  HepMC::GenVertex *vert=new HepMC::GenVertex(mom);
+  return vert;
 }
 HepMC::GenParticle* TruthStrategyManager::Track2Particle(G4Track* aTrack) const
 {
-	G4ThreeVector mom=aTrack->GetMomentum();
-	double ener=aTrack->GetTotalEnergy();
-	CLHEP::HepLorentzVector emom(mom.x(),mom.y(),mom.z(),ener);
-	int pdgcode=aTrack->GetDefinition()->GetPDGEncoding();
-	HepMC::GenParticle* part=new HepMC::GenParticle(emom,pdgcode,1);
-	return part;
+  G4ThreeVector mom=aTrack->GetMomentum();
+  double ener=aTrack->GetTotalEnergy();
+  CLHEP::HepLorentzVector emom(mom.x(),mom.y(),mom.z(),ener);
+  int pdgcode=aTrack->GetDefinition()->GetPDGEncoding();
+  HepMC::GenParticle* part=new HepMC::GenParticle(emom,pdgcode,1);
+  return part;
 }
 void TruthStrategyManager::SaveSecondaryVertex(G4Track* primaryTrack, 
 			G4StepPoint*stepPoint, 
@@ -253,12 +248,12 @@ void TruthStrategyManager::SaveSecondaryVertex(G4Track* primaryTrack,
 
 MsgStream TruthStrategyManager::log()
 {
-    if (m_log) return *m_log;
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    IMessageSvc* p_msgSvc = 0;
-    if (svcLocator->service("MessageSvc", p_msgSvc).isFailure() || !p_msgSvc)
-        std::cout << "FadsSensitiveDetector: Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
-    m_log = new MsgStream(p_msgSvc,"TruthStrategyManager");
-    return *m_log;
+  if (m_log) return *m_log;
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  IMessageSvc* p_msgSvc = 0;
+  if (svcLocator->service("MessageSvc", p_msgSvc).isFailure() || !p_msgSvc)
+    std::cout << "FadsSensitiveDetector: Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
+  m_log = new MsgStream(p_msgSvc,"TruthStrategyManager");
+  return *m_log;
 }
 
