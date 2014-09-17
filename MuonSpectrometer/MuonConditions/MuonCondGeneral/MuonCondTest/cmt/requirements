@@ -6,7 +6,7 @@ package MuonCondTest
 #apply_pattern do_genconf
 use AtlasPolicy         AtlasPolicy-*
 use TestPolicy          TestPolicy-*
-use GaudiInterface       GaudiInterface-01-*       External
+use GaudiInterface       GaudiInterface-*       External
 
 use AthenaBaseComps         AthenaBaseComps-*         Control
 use AtlasROOT               AtlasROOT-*               External
