@@ -957,7 +957,7 @@ bool MuTrackInsituPerformance::isAssociatedWithMSTrack(const Rec::TrackParticle 
 // applyEnergyIsolation
 ///////////////////////////////////////////////////////////////////////////////
 
-bool MuTrackInsituPerformance::getCaloEnergyIsolation(const Analysis::Muon* muonCandidate) {
+bool MuTrackInsituPerformance::getCaloEnergyIsolation(const Analysis::Muon* /*muonCandidate*/) {
 /*
   double eIso = m_muonIsolationTool->isolationEnergy(muonCandidate, m_energyIsoCone);
   double eIsoRatio = -9999.;
@@ -1014,7 +1014,7 @@ const Trk::TrackParameters* MuTrackInsituPerformance::getTrkParams(const Trk::Tr
 ///////////////////////////////////////////////////////////////////////////////
 // applyTrackIsolation 
 ///////////////////////////////////////////////////////////////////////////////
-bool MuTrackInsituPerformance::applyTrkIsol(const Rec::TrackParticle* ptcl) {
+bool MuTrackInsituPerformance::applyTrkIsol(const Rec::TrackParticle* /*ptcl*/) {
 /*
   double ptIso = m_muonIsolationTool->trackIsolationEnergy(ptcl, m_trk_coneIso);
   double ptIsoRatio = -9999;
@@ -1084,7 +1084,7 @@ bool MuTrackInsituPerformance::isPassedTrackQualityCuts(const Rec::TrackParticle
   m_mutrk_pT->Fill(pt/1000.);
   
   ////////////////////////////////////////////////////////////////////////////////////
-  bool selfIsRemoved = false;
+  //bool selfIsRemoved = false;
   ATH_MSG_DEBUG(" > Calculating Track isolation.. " ); 
   
  // double trkIso = m_isolationTool->trackIsolationEnergy(trk, m_trk_coneIso, true , &selfIsRemoved );
@@ -1105,7 +1105,7 @@ bool MuTrackInsituPerformance::isPassedTrackQualityCuts(const Rec::TrackParticle
     }
    double trkIso = 0;
   if (trkIso <= 0) return false;  
-  double trkIso_rel = -9999;
+  //double trkIso_rel = -9999;
   
   ////////////////////////////////////////////////////////////////////////////////////  
  
