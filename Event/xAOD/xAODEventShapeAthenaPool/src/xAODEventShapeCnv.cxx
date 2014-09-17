@@ -61,7 +61,7 @@ xAOD::EventShape* xAODEventShapeCnv::createPersistent( xAOD::EventShape* trans )
 xAOD::EventShape* xAODEventShapeCnv::createTransient() {
 
    // The known ID(s) for the object:
-   static const pool::Guid v1_guid( "AE8BED6D-1D41-4CAF-994B-42613FC91A0A" );
+   static const pool::Guid v1_guid( "E06E8747-7C16-4BBA-B648-68F64BA70B7D" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
