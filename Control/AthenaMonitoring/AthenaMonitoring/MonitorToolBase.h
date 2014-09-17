@@ -5,7 +5,7 @@
 #ifndef MONITORTOOLBASE_H
 #define MONITORTOOLBASE_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 
-class MonitorToolBase : public AlgTool,
+class MonitorToolBase : public AthAlgTool,
 			virtual public IMonitorToolBase
                          
 {

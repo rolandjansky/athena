@@ -5,11 +5,11 @@
 #ifndef ATHENAMON_H
 #define ATHENAMON_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
-class AthenaMon:public Algorithm {
+class AthenaMon:public AthAlgorithm {
  public:
 
   AthenaMon (const std::string& name, ISvcLocator* pSvcLocator);

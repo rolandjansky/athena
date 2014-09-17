@@ -18,8 +18,8 @@ if DQMonFlags.doMonitoring():
          include("AthenaMonitoring/TrigDecTool_jobOptions.py")
 
 
-   # don't set up lumi access if in MC
-   if globalflags.DataSource.get_Value() != 'geant4':
+   # don't set up lumi access if in MC or enableLumiAccess == False
+   if globalflags.DataSource.get_Value() != 'geant4' and DQMonFlags.enableLumiAccess():
       if not hasattr(ToolSvc,"LuminosityTool"):
          if athenaCommonFlags.isOnline:
             local_logger.debug("luminosity tool not found, importing online version")
@@ -253,8 +253,8 @@ if DQMonFlags.doMonitoring():
    for tool in monToolSet_after-monToolSet_before:
       # if we have the FilterTools attribute, assume this is in fact a
       # monitoring tool
-      # stop lumi access if we're in MC
-      if globalflags.DataSource.get_Value() == 'geant4':
+      # stop lumi access if we're in MC or enableLumiAccess == False
+      if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
          if 'EnableLumi' in dir(tool):
             tool.EnableLumi = False
       if DQMonFlags.monToolPostExec():
