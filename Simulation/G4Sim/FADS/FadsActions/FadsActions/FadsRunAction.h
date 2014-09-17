@@ -7,7 +7,6 @@
 
 #include "FadsActions/UserAction.h"
 #include "FadsActions/ApplicationAction.h"
-#include "G4UImanager.hh"
 #include "G4UserRunAction.hh"
 
 class G4Run;
@@ -17,11 +16,10 @@ namespace FADS {
 class FadsRunAction: public G4UserRunAction {
 private:
 	static FadsRunAction* thePointer;
-	FadsRunAction():G4UserRunAction(),UI(G4UImanager::GetUIpointer()),
+	FadsRunAction():G4UserRunAction(),
 			applAction(0) {}
 	actionMap theBegin;
 	actionMap theEnd;
-	G4UImanager *UI;
 	ApplicationAction *applAction;
 public:	
 	static FadsRunAction* GetRunAction();

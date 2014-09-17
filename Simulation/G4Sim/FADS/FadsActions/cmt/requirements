@@ -5,6 +5,7 @@ branches src cmt
 use AtlasPolicy AtlasPolicy-*
 use Geant4 Geant4-* External
 use GaudiInterface GaudiInterface-* External
+use AthenaBaseComps AthenaBaseComps-* Control
 
 include_dirs "$(FadsActions_root)"
 

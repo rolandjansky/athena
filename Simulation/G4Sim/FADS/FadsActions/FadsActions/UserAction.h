@@ -8,7 +8,6 @@
 class G4Step;
 class G4Event;
 class G4Run;
-#include "GaudiKernel/MsgStream.h" // So that all who inherit have full access
 
 #include <string>
 #include <map>
@@ -32,15 +31,12 @@ protected:
 	void RegisterToStore(); 
 	void UnregisterFromStore();
 	propMap theProperties;
-    MsgStream * m_log;
-    MsgStream log();
 public:
-	UserAction(std::string s): name(s),m_log(0) {RegisterToStore();}
+
+	UserAction(std::string s): name(s) {RegisterToStore();}
 	virtual ~UserAction() 
 	{
-		log()<<MSG::INFO<<"Action "<<name<<" being killed"<<std::endl;
 		UnregisterFromStore();
-		if (m_log) delete m_log;
 	}
 	virtual void BeginOfEventAction(const G4Event*) {}
 	virtual void EndOfEventAction(const G4Event*) {}
@@ -51,13 +47,8 @@ public:
 	void ResetPriority(int);
 	void RegisterFor(actionType t);
 	void RegisterFor(std::string s);
-	std::string GetName() const;
+	std::string GetName() const { return name; }
 };
-
-inline std::string UserAction::GetName() const 
-{
-	return name;
-}
 
 }	// end namespace
 

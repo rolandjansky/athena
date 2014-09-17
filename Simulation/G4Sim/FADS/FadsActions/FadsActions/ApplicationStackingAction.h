@@ -10,8 +10,6 @@
 
 class G4StackManager;
 
-//class FadsStackingAction;
-
 namespace FADS {
 
 class ApplicationStackingAction {

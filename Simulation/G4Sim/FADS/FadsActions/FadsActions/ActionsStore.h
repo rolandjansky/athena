@@ -11,13 +11,11 @@
 namespace FADS {
 
 class UserAction;
-class ActionStoreMessenger;
 
 typedef std::map<std::string,UserAction*,std::less<std::string> > userActionMap;
 
 class ActionsStore {
 private:
-	ActionStoreMessenger *theMessenger;
 	userActionMap theMap;
 	static ActionsStore* thePointer;
 	ActionsStore();

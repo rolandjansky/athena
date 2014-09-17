@@ -10,12 +10,13 @@
 namespace FADS {
 
 FadsTrackingAction* FadsTrackingAction::thePointer=0;
+
 FadsTrackingAction::FadsTrackingAction():G4UserTrackingAction(),applAction(0)
-{
-}
+{;}
+
 FadsTrackingAction::~FadsTrackingAction()
-{
-}
+{;}
+
 FadsTrackingAction* FadsTrackingAction::GetTrackingAction()
 {
 	if (!thePointer) thePointer=new FadsTrackingAction;
