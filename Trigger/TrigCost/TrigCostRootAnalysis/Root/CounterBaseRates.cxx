@@ -19,6 +19,7 @@
 
 // Local include(s):
 #include "../TrigCostRootAnalysis/CounterBaseRates.h"
+#include "../TrigCostRootAnalysis/CounterRatesUnion.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/Utility.h"
@@ -34,7 +35,8 @@ namespace TrigCostRootAnalysis {
   CounterBaseRates::CounterBaseRates( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : 
     CounterBase(_costData, _name, _ID, _detailLevel),
     m_L2s(),
-    m_L1s() {
+    m_L1s(),
+    m_cannotCompute(kFALSE) {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
 
@@ -102,7 +104,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * This function will return the prescale ofa basic item. It is suppoed to be called on L1 or L2 chains
+   * This function will return the prescale of a basic item. It is suppoed to be called on L1 or L2 chains
    * (not combinations of chains) and will return the prescale for just the top level.
    * @return Prescale of top level of basic chain
    */
@@ -134,6 +136,14 @@ namespace TrigCostRootAnalysis {
    * @param _toAdd Add a HLT TriggerItem which is to be used by this rates counter.
    */
   void CounterBaseRates::addHLTItem( RatesChainItem* _toAdd ) {
+    // Perform Union check on number of L1 seeds
+    if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
+      if (_toAdd->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
+        Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
+          _toAdd->getName().c_str(), getName().c_str(), (UInt_t) _toAdd->getLower().size());
+        return;
+      }
+    }
     m_L2s.insert( _toAdd );
     for (ChainItemSetIt_t _lower = _toAdd->getLowerStart(); _lower != _toAdd->getLowerEnd(); ++_lower) {
       m_L1s.insert( (*_lower) );
@@ -146,6 +156,14 @@ namespace TrigCostRootAnalysis {
   void CounterBaseRates::addHLTItems( ChainItemSet_t _toAdd ) {
     for (ChainItemSetIt_t _it = _toAdd.begin(); _it != _toAdd.end(); ++_it) {
       RatesChainItem* _L2 = (*_it);
+      // Perform Union check on number of L1 seeds
+      if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
+        if (_L2->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
+          Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
+            _L2->getName().c_str(), getName().c_str(), (UInt_t) _L2->getLower().size());
+          continue;
+        }
+      }
       m_L2s.insert( _L2 );
       for (ChainItemSetIt_t _lower = _L2->getLowerStart(); _lower != _L2->getLowerEnd(); ++_lower) {
         m_L1s.insert( (*_lower) );
@@ -232,6 +250,9 @@ namespace TrigCostRootAnalysis {
     m_dataStore.setBinLabels(kVarOverlap, kSavePerCall, _chainNames); // Set the bins to have this name
     for (size_t _i = 1; _i <= _binValues.size(); ++_i) {
       m_dataStore.store(kVarOverlap, _i, _binValues.at( _i - 1));  // Use the weight to set the effective value
+      if (_binValues.at( _i - 1) >= Config::config().getInt(kRatesOverlapWarning)) {
+        Warning("CounterBaseRates::finalise", "Chain %s overlaps %.1f%% with %s", getName().c_str(), _binValues.at( _i - 1), _chainNames.at(_i - 1).c_str());
+      }
     }
 
   }

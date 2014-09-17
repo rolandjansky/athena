@@ -112,6 +112,8 @@ namespace TrigCostRootAnalysis {
     kFullEventMaxNumToSave,
     kFullEventSaveOnePer,
     kRatesForcePass,
+    kRatesOverlapWarning,
+    kMaxMultiSeed,
     kWroteProgressFile,
     // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere)
@@ -148,6 +150,8 @@ namespace TrigCostRootAnalysis {
     kOutputXMLDirectory,
     kOutputRatesGraphFilename,
     kOutputRootFilename,
+    kLinkOutputDir,
+    kLinkOutputDirName,
     kUserDetails,
     kErrorIgnore,
     kSlowEventThreshold,

@@ -61,6 +61,7 @@ namespace TrigCostRootAnalysis {
     CounterSet_t      m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them 
     ChainItemSet_t    m_L2s;            //!< List of all L2 chains in this combination
     ChainItemSet_t    m_L1s;            //!< List of all L1 items which seed L2 chains in this combination (not always used)
+    Bool_t            m_cannotCompute;  //!< Chain rate cannot be computed for whatever reason. Will always return weight 0;
    
   }; //class CounterBaseRates
   
