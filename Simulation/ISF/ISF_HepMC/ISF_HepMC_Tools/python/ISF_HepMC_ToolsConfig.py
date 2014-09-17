@@ -61,7 +61,7 @@ def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
 
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , getService('ISF_G4PolyconeGeoIDSvc'))
+    kwargs.setdefault('GeoIDService' , getService('ISF_GeoIDSvc'))
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticlePositionFilter
     return ISF__GenParticlePositionFilter(name, **kwargs)
