@@ -44,7 +44,7 @@ void getMuonPTResolution(	TH1F *hist,
 				double &ErrSigma,
 				double &TailContent)
 {
-  double empty;
+  double empty = 0.;
   getMuonPTResolution(hist, 3, PTResMean, ErrMean, PTSigma, ErrSigma, TailContent,empty,empty);
 }
 
