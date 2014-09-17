@@ -9,7 +9,7 @@ use GaudiInterface    GaudiInterface-*    External
 use AthenaBaseComps   AthenaBaseComps-*   Control
 use AthenaKernel      AthenaKernel-*      Control
 
-use MuonIdHelpers     MuonIdHelpers-*     MuonSpectrometer
+# use MuonIdHelpers     MuonIdHelpers-*     MuonSpectrometer
 use MuonAlignmentData MuonAlignmentData-* MuonSpectrometer/MuonAlignment
 use AmdcCore          AmdcCore-*          MuonSpectrometer/Amdcsimrec
 
