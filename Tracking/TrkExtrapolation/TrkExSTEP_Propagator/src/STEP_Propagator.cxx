@@ -805,7 +805,7 @@ const Trk::TrackParameters*
   else if (ty == Trk::Surface::Cylinder ) { 
        
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(&targetSurface); 
-    double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),(double)propagationDirection,0.}; 
+    double s[9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),(double)propagationDirection,0.}; 
     if (!propagateWithJacobian( errorPropagation, ty, s, P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
       return 0;
@@ -1029,7 +1029,6 @@ const Trk::TrackParameters*
     if (m_propagateWithPathLimit>0) m_pathLimit -= path;
     // boundary check
     // take into account that there may be many identical surfaces with different boundaries
-    rungeKuttaUtils.transformGlobalToLocal( P, localp);
     Amg::Vector3D gp(P[0],P[1],P[2]);  
     bool solution = false;
     std::vector<unsigned int>::iterator iSol= solutions.begin();
@@ -1037,9 +1036,8 @@ const Trk::TrackParameters*
       bool validSolution = true;
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
 	if (!solution) {
-	  rungeKuttaUtils.transformGlobalToPlane (targetSurfaces[*iSol].first,false,P,localp,Jacobian);
+	  rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
 	  solution = true;
-	  if (solution) Amg::Vector2D localPosition( localp[0], localp[1]);
         }
       } else {    // remove this solution
 	validSolution = false;
@@ -1141,8 +1139,7 @@ bool
     path += distanceStepped;
     absolutePath += fabs( distanceStepped);
 
-    // TODO fix the use of non-linear term
-    // m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));         // the non-linear term
+    if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));         // the non-linear term
     // update straggling covariance 
     if (errorPropagation && m_straggling) {
       double sigTot2 = m_sigmaIoni*m_sigmaIoni + m_sigmaRad*m_sigmaRad;
@@ -1355,8 +1352,7 @@ bool
       mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
       m_timeStep += distanceStepped/beta/CLHEP::c_light;
 
-      // TODO fix the use of non-linear term
-      //m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
+      if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
       // update straggling covariance 
       if (errorPropagation && m_straggling) {
 	// 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
@@ -1380,8 +1376,7 @@ bool
     mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
     m_timeStep += distanceStepped/beta/Gaudi::Units::c_light;
 
-    // TODO fix the use of non-linear term
-    //m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
+    if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
     // update straggling covariance 
     if (errorPropagation && m_straggling) {
       // 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
