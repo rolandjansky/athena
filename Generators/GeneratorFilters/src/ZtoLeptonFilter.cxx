@@ -18,6 +18,11 @@ StatusCode ZtoLeptonFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
       if (((*pitr)->pdg_id()) == 23) {
+        if ( !(*pitr)->end_vertex() && (*pitr)->status()==3) continue; // Allow status 3 Zs with no end vertex
+        else if ( !(*pitr)->end_vertex() ){
+          // Found a Z boson with no end vertex and status!=3 .  Something is sick about this event
+          break;
+        }
         // Z children
         HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
         HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);

@@ -60,7 +60,7 @@ StatusCode SusySubprocessFinder::filterFinalize() {
                       || (iSub >= 157 && iSub <= 158)
                       || (iSub >= 167 && iSub <= 168)
                       || (iSub >= 201 && iSub <= 213)
-                      || (iSub >= 214 && iSub <= 218)
+                      || (iSub >= 216 && iSub <= 220)
                       || (iSub == nSubprocMax-1) );
 
     if ( !(isaCateg) && nSubproc[iSub] > 0) {
@@ -397,11 +397,11 @@ int SusySubprocessFinder::subProcessFromPdgids(int pdg1, int pdg2) {
   else if (nstau2minus == 1 && nsnut == 1) fs = 213;
 
   //sleptons (smu): non-standard since Prospino treats sel and smu alike
-  else if (nsmuLplus == 1 && nsmuLminus == 1) fs = 214;
-  else if (nsmuRplus == 1 && nsmuRminus == 1) fs = 215;
-  else if (nsnum == 2) fs = 216;
-  else if (nsmuLplus == 1 && nsnum == 1) fs = 217;
-  else if (nsmuLminus == 1 && nsnum == 1) fs = 218;
+  else if (nsmuLplus == 1 && nsmuLminus == 1) fs = 216;
+  else if (nsmuRplus == 1 && nsmuRminus == 1) fs = 217;
+  else if (nsnum == 2) fs = 218;
+  else if (nsmuLplus == 1 && nsnum == 1) fs = 219;
+  else if (nsmuLminus == 1 && nsnum == 1) fs = 220;
 
   else fs = -1;
 
@@ -504,11 +504,11 @@ std::string SusySubprocessFinder::subProcessText(int sub) {
   else if (sub == 212) {text = "sta2+__snuta";}
   else if (sub == 213) {text = "sta2-__snuta";}
 
-  else if (sub == 214) {text = "smuL+__smuL-";}
-  else if (sub == 215) {text = "smuR+__smuR-";}
-  else if (sub == 216) {text = "snumu__snumu";}
-  else if (sub == 217) {text = "smuL+__snumu";}
-  else if (sub == 218) {text = "smuL-__snumu";}
+  else if (sub == 216) {text = "smuL+__smuL-";}
+  else if (sub == 217) {text = "smuR+__smuR-";}
+  else if (sub == 218) {text = "snumu__snumu";}
+  else if (sub == 219) {text = "smuL+__snumu";}
+  else if (sub == 220) {text = "smuL-__snumu";}
 
   return text; // of sub not found, return default "unknown_subproc"
 
