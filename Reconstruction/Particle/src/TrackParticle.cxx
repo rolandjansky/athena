@@ -59,29 +59,6 @@ namespace Rec
     {
     }
 
-    TrackParticle::TrackParticle (const ElementLink<TrackCollection>& trackLink,
-                                  const Trk::TrackParticleOrigin trkPrtOrigin, 
-                                  const ElementLink<VxContainer>& vxCandidate,
-                                  std::unique_ptr<Trk::TrackSummary> trkSummary,
-                                  // passes ownership of elements.
-                                  std::vector<const Trk::TrackParameters*>&&  parameters,
-                                  std::unique_ptr<Trk::FitQuality> fitQuality,
-                                  const Trk::TrackInfo& info,
-                                  const P4PxPyPzE& mom)
-         :  
-        Trk::TrackParticleBase( trackLink, 
-                                trkPrtOrigin, 
-                                vxCandidate, 
-                                std::move(trkSummary), 
-                                std::move(parameters), 
-                                std::move(fitQuality),
-                                std::move(info) ),
-        P4PxPyPzE(  mom ),
-        NavigableTerminalNode(),
-        m_cachedPerigee(0)
-    {
-    }
-
   /**
     Copy Constructor
   */
@@ -107,22 +84,9 @@ namespace Rec
     {
         if (this!=&rhs)
         {
-            P4PxPyPzE::operator= (rhs);
             Trk::TrackParticleBase::operator=(rhs);
             m_cachedPerigee=0;
 	    m_abc = rhs.m_abc;
-        }
-        return *this;
-    }
-
-    TrackParticle& TrackParticle::operator= (TrackParticle&& rhs)
-    {
-        if (this!=&rhs)
-        {
-          P4PxPyPzE::operator= (rhs);
-          m_abc = rhs.m_abc;
-          Trk::TrackParticleBase::operator=(std::move(rhs));
-          m_cachedPerigee=0;
         }
         return *this;
     }
@@ -168,7 +132,7 @@ namespace Rec
       Trk::TrackParticleBase::dump( sl );
       std::ostringstream os;
       m_abc.dump(os);
-      sl<<std::endl<<os.str();
+      sl<<endreq<<os.str();
       return sl;
   }
   
