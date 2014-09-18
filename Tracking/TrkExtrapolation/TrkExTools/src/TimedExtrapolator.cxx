@@ -81,7 +81,7 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string& t, const std::strin
   m_initialLayerAttempts(3),
   m_successiveLayerAttempts(1),
   m_tolerance(0.002),  
-  m_caloMsSecondary(false),  
+  m_caloMsSecondary(true),  
   m_activeOverlap(false),
   m_useDenseVolumeDescription(true),
   m_useMuonMatApprox(false),
@@ -1734,7 +1734,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 
        int process = frT < frM ? timeLim.process : m_path.process;
        m_time += fr*step/beta; 
-       m_path.updateMat( fr*mDelta, m_currentDense->averageZ(), 0.);
+       if (mDelta>0 && m_currentDense->averageZ()>0) m_path.updateMat( fr*mDelta, m_currentDense->averageZ(), 0.); 
 
        nextPos = currPar->position()+dir*currPar->momentum().normalized()*(dist+fr*step);
 
@@ -1762,7 +1762,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
  
      // update
      dist = m_trSurfs[sols[is]].second; 
-     m_path.updateMat( mDelta, m_currentDense->averageZ(), 0.);
+     if (mDelta>0 && m_currentDense->averageZ()>0) m_path.updateMat( mDelta, m_currentDense->averageZ(), 0.); 
      m_time += tDelta;
 
      nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),1.);  // fake charge
