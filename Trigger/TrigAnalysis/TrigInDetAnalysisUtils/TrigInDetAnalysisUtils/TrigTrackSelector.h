@@ -910,7 +910,11 @@ public:
 	if ( patternrec[ipr] ) {
 	  icount++;
 	  trackAuthor |= (ipr >> 16);
-	  if ( icount>1 ) std::cerr << "more than one pattern rec strategy " << ipr << std::endl;
+	  static bool first = true;
+	  if ( first && icount>1 ) { 
+	    std::cerr << "more than one pattern rec strategy " << ipr << "\t(suppressing further output)" << std::endl;
+	    first = false;
+	  }
 	}
       }
       
