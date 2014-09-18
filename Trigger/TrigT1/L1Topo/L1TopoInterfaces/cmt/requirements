@@ -5,6 +5,7 @@ use  DetCommonPolicy    *
 use  Boost              *      LCG_Interfaces
 
 # Trigger dependencies
+use TrigConfBase        *      Trigger/TrigConfiguration
 use L1TopoCommon        *      Trigger/TrigT1/L1Topo
 use L1TopoEvent         *      Trigger/TrigT1/L1Topo
 

@@ -48,7 +48,7 @@ ParameterSpace::setParameter(const Parameter & p) {
 
    bool foundParameter = false;
 
-   cout << "Setting parameter " << p.name() << "[" << p.selection() << "]  for algorithm " << algName() << endl;
+   //cout << "Setting parameter " << p.name() << "[" << p.selection() << "]  for algorithm " << algName() << endl;
   
    for(TCS::Parameter& pa : m_parameters) {
       foundParameter =    

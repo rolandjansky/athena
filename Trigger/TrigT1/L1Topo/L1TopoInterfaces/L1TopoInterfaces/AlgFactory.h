@@ -59,6 +59,7 @@ namespace TCS {
       TCS::ConfigurableAlg* Create##CLASS(const std::string & name) {   \
          TCS::ConfigurableAlg* alg = (TCS::ConfigurableAlg*) new #CLASS(name); \
          alg->setClassName(#CLASS);                                     \
+         alg->msg().setName( alg->fullname() );                         \
          return alg;                                                    \
       }                                                                 \
                                                                         \
@@ -71,6 +72,7 @@ namespace TCS {
       TCS::ConfigurableAlg* Create##CLASS(const std::string & methodName) { \
          TCS::ConfigurableAlg* alg = (TCS::ConfigurableAlg*) new NS::CLASS(methodName); \
          alg->setClassName( std::string(#NS) + "__" + #CLASS );         \
+         alg->msg().setName( alg->fullname() );                         \
          return alg;                                                    \
       }                                                                 \
                                                                         \
@@ -83,6 +85,7 @@ namespace TCS {
       TCS::ConfigurableAlg* Create##CLASS(const std::string & methodName) { \
          TCS::ConfigurableAlg* alg = (TCS::ConfigurableAlg*) new TCS::CLASS(methodName); \
          alg->setClassName( #CLASS );                                   \
+         alg->msg().setName(  alg->fullname() );                        \
          return alg;                                                    \
       }                                                                 \
                                                                         \

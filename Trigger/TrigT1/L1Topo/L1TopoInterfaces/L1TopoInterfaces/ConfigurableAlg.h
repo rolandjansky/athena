@@ -6,6 +6,8 @@
 #ifndef TCS_ConfigurableAlg
 #define TCS_ConfigurableAlg
 
+#include "TrigConfBase/TrigConfMessaging.h"
+
 #include <vector>
 #include <string>
 #include "L1TopoInterfaces/Parameter.h"
@@ -15,7 +17,7 @@
 
 namespace TCS {
 
-   class ConfigurableAlg {
+   class ConfigurableAlg : public TrigConf::TrigConfMessaging {
    protected:
       enum AlgType { NONE, SORT, DECISION };
 

@@ -12,6 +12,7 @@ using namespace TCS;
 
 
 ConfigurableAlg::ConfigurableAlg(const  std::string & name, AlgType algType) :
+   TrigConfMessaging(name),
    m_name(name),
    m_parameters(name),
    m_algType(algType)
