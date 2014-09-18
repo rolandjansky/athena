@@ -11,8 +11,6 @@
 // to permit access to StoreGate
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -42,18 +40,11 @@ RPCSensitiveDetector::RPCSensitiveDetector(std::string s)
   //muonHelper->PrintFields();
   
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
-  MsgStream log(m_msgSvc, "RpcSD");
+  StatusCode status = svcLocator->service("StoreGateSvc", m_sgSvc);
   if (status.isFailure()) {
-    log << MSG::FATAL << "MessageSvc not found !" << endreq;
+    ATH_MSG_FATAL("StoreGateSvc  not found !" );
   } else {
-    log << MSG::DEBUG << "MessageSvc initialized." << endreq;
-  }
-  status = svcLocator->service("StoreGateSvc", m_sgSvc);
-  if (status.isFailure()) {
-    log << MSG::FATAL << "StoreGateSvc  not found !" << endreq;
-  } else {
-    log << MSG::DEBUG << "StoreGateSvc initialized." << endreq;
+    ATH_MSG_DEBUG("StoreGateSvc initialized." );
   }
   
   
@@ -65,16 +56,15 @@ void RPCSensitiveDetector::Initialize(G4HCofThisEvent*)
   //myRPCHitColl = new RPCSimHitCollection("RPC_Hits");
   myRPCHitColl = m_hitCollHelp.RetrieveNonconstCollection<RPCSimHitCollection>("RPC_Hits");
 
-  MsgStream log(m_msgSvc, "RpcSD");
-  if (log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "Initializing SD" << endreq;
+  ATH_MSG_VERBOSE("Initializing SD" );
   DetectorGeometryHelper DGHelp;
   if(  DGHelp.GeometryType("Muon") == GeoModel )
     {
       m_isGeoModel = true;
-      if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "Muon Geometry is from GeoModel" << endreq;
+      ATH_MSG_VERBOSE("Muon Geometry is from GeoModel" );
     } else {
       m_isGeoModel = false;
-      if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "Muon Geometry is from pure G4" << endreq;
+      ATH_MSG_VERBOSE("Muon Geometry is from pure G4" );
     }
   
 }
@@ -83,24 +73,23 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 
 
     
-    MsgStream log(m_msgSvc, "RpcSD");
     G4Track* track = aStep->GetTrack();
     
 
     /** RPCs sensitive to charged particle only */
     if (track->GetDefinition()->GetPDGCharge() == 0.0) 
       {
-	//	std::cout<<"are we in the case charge 0 - pdGid =  "<<track->GetDefinition()->GetPDGEncoding()<<std::endl;
+	//	ATH_MSG_INFO("are we in the case charge 0 - pdGid =  "<<track->GetDefinition()->GetPDGEncoding());
 	if (track->GetDefinition()!=G4Geantino::GeantinoDefinition()) 
 	  {
-	    //std::cout<<"are we in the case charge 0 but no Geantino definition"<<std::endl;
+	    //ATH_MSG_INFO("are we in the case charge 0 but no Geantino definition");
 	    return true;
 	  }
 
       }
     // else 
     //   {
-    // 	std::cout<<"we are not in the case charge 0 - pdGid =  "<<track->GetDefinition()->GetPDGEncoding()<<std::endl;
+    // 	ATH_MSG_INFO("we are not in the case charge 0 - pdGid =  "<<track->GetDefinition()->GetPDGEncoding());
     //   }
     
 
@@ -146,8 +135,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 	std::string num=volName.substr(3,2);
         if(num[0]==' ') num[0]=0;
 
-//         std::cout<<"Rpc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth()<<std::endl;
-//         std::cout<<"Rpc SD: name "<<volName<<std::endl;
+//         ATH_MSG_INFO("Rpc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth());
+//         ATH_MSG_INFO("Rpc SD: name "<<volName);
 
         // check if this station is an assembly 
         if ((npos = volName.find("av_")) != std::string::npos &&
@@ -156,8 +145,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 	// stationName, stationEta, stationPhi
 	if ((npos = volName.find("station")) != std::string::npos  && (!isAssembly)) {
 
-//             std::cout<<"RPC - station VolName    "<<volName<<std::endl;
-//             std::cout<<"RPC - station copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<std::endl;
+//             ATH_MSG_INFO("RPC - station VolName    "<<volName);
+//             ATH_MSG_INFO("RPC - station copyNumber "<<touchHist->GetVolume(i)->GetCopyNo());
 	
 	    stationName = volName.substr(0,npos-1);
 	    
@@ -202,8 +191,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 	    
 	    int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
             int copyNrBase = int(volCopyNo/100000);
-//             std::cout<<"  CopyNumber = "<<volCopyNo<<" base= "<<copyNrBase
-//                      <<" comp.Id= "<<int(volCopyNo%100000)<<std::endl;
+//             ATH_MSG_INFO("  CopyNumber = "<<volCopyNo<<" base= "<<copyNrBase
+//                      <<" comp.Id= "<<int(volCopyNo%100000));
             int sideC  = int(copyNrBase/10000);
             int zi     = int((copyNrBase%1000)/100);
             int mirfl  = int((copyNrBase%10000)/1000);
@@ -212,8 +201,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
             stationEta    = zi;
             stationPhi    = fi;
             zNeg_original = mirfl;
-//             std::cout<<"stName = "<<stationName<<" -- stEta,Phi,sideC, zNeg_original "<<stationEta<<" "
-//                      <<stationPhi<<" "<<sideC<<" "<<zNeg_original<<std::endl;
+//             ATH_MSG_INFO("stName = "<<stationName<<" -- stEta,Phi,sideC, zNeg_original "<<stationEta<<" "
+//                      <<stationPhi<<" "<<sideC<<" "<<zNeg_original);
 	    
 	    if(stationEta<0&&!zNeg_original) station_rotated=1;
 
@@ -226,10 +215,10 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
             {
                 if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) 
                 {
-                    //std::cout<<"first [ is at "<<loc1<<" first ] at "<<loc2<<std::endl;
+                    //ATH_MSG_INFO("first [ is at "<<loc1<<" first ] at "<<loc2);
                     my_isstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
                     istrvar>>gmID;
-                    //std::cout<<"FOUND ---- gmID = "<<gmID<<std::endl;
+                    //ATH_MSG_INFO("FOUND ---- gmID = "<<gmID);
                 }
             }
             int kk=gmID;
@@ -269,8 +258,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 	else if ((npos = volName.find("layer")) != std::string::npos) {
 	  
 	  int copyNo = touchHist->GetVolume(i)->GetCopyNo();
-//           std::cout<<"RPC - gasgapLayer VolName    "<<volName<<std::endl;
-//           std::cout<<"RPC - gasgapLayer copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<std::endl;
+//           ATH_MSG_INFO("RPC - gasgapLayer VolName    "<<volName);
+//           ATH_MSG_INFO("RPC - gasgapLayer copyNumber "<<touchHist->GetVolume(i)->GetCopyNo());
           
 	  if (copyNo == 1) { 
 	    rpcIsRotated ? gasGap = 2 : gasGap = 1;
@@ -289,8 +278,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 	    doubletPhi = 2;
 	  }
           mydbP = doubletPhi;
-//           std::cout<<"RPC - gasgapWithinLayer VolName    "<<volName<<std::endl;
-//           std::cout<<"RPC - gasgapWithinLayer copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<" dbPhi = "<<doubletPhi<<std::endl;
+//           ATH_MSG_INFO("RPC - gasgapWithinLayer VolName    "<<volName);
+//           ATH_MSG_INFO("RPC - gasgapWithinLayer copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<" dbPhi = "<<doubletPhi);
           int ngap_in_s=0;
           int nstrippanel_in_s=0;
           std::string::size_type loc1;
@@ -326,7 +315,7 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       // note that this is correct also for ribs chambers
       mydbP++;
       if (mydbP>2) mydbP=1;
-      //      std::cout<<"Rcd PC - swap dbPhi because ch is MIRRORED "<<doubletPhi<<std::endl;
+      //      ATH_MSG_INFO("Rcd PC - swap dbPhi because ch is MIRRORED "<<doubletPhi);
 
       // strip numbering: if the station is rotated both eta and phi directions get inversed.
       // commented out for geomodel! 
@@ -355,11 +344,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
     
     //construct the hit identifiers
 
-    if (log.level()<=MSG::VERBOSE)
-      {
-	log<<MSG::VERBOSE<<"hit in station "<<stationName<< " on technology "<<tech<<endreq;	
-	log<<MSG::VERBOSE<<"constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< mydbZ<< " "<<mydbP<<endreq;
-      }
+    ATH_MSG_VERBOSE("hit in station "<<stationName<< " on technology "<<tech);	
+    ATH_MSG_VERBOSE("constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< mydbZ<< " "<<mydbP);
     
 //     HitID RPCid_eta = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta, 
 // 						doubletZ, doubletR, gasGap, doubletPhi,0);
@@ -392,16 +378,13 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 					 track->GetDefinition()->GetPDGEncoding(), 
 					 aStep->GetPreStepPoint()->GetKineticEnergy());
    
-   if (log.level()<=MSG::DEBUG)
-     { 
-       log<<MSG::DEBUG<<"---A new RPC hit------dumping the eta version ---------"<<endreq;
-       log<<MSG::DEBUG<<" StationName/eta/phi/dbR/dbZ/dbPhi/gg "<<stationName<<"/"<<stationEta<<"/"
-	  <<stationPhi<<"/"<<doubletR<<"/"<<mydbZ<<"/"<<mydbP<<"/"<<gasGap<<endreq;
-       log<<MSG::DEBUG<<NewHit_eta->print()<<endreq;
-       log<<MSG::DEBUG<<"----------------------dumping the phi version ---------"<<endreq;
-       log<<MSG::DEBUG<<NewHit_phi->print()<<endreq;
-       log<<MSG::DEBUG<<"---------done------------------------------------------"<<endreq;
-     }
+					 ATH_MSG_DEBUG("---A new RPC hit------dumping the eta version ---------");
+					 ATH_MSG_DEBUG("StationName/eta/phi/dbR/dbZ/dbPhi/gg "<<stationName<<"/"<<stationEta<<"/"
+	  <<stationPhi<<"/"<<doubletR<<"/"<<mydbZ<<"/"<<mydbP<<"/"<<gasGap);
+					 ATH_MSG_DEBUG(NewHit_eta->print());
+					 ATH_MSG_DEBUG("----------------------dumping the phi version ---------");
+					 ATH_MSG_DEBUG(NewHit_phi->print());
+					 ATH_MSG_DEBUG("---------done------------------------------------------");
 	
   myRPCHitColl->Insert(*NewHit_eta);
   myRPCHitColl->Insert(*NewHit_phi);
@@ -410,16 +393,16 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 	
 // #ifndef RPCG4_DEBUG
 //  
-// 	std::cout<<"TRI ";//muonHelper->GetStationName();
-//	std::cout<<" "<<muonHelper->GetFieldValue("PhiSector");
-//	std::cout<<" "<<muonHelper->GetFieldValue("ZSector");
-//	std::cout<<" "<<muonHelper->GetFieldValue("DoubletZ");
-//	std::cout<<" "<<muonHelper->GetFieldValue("DoubletR");
-//	std::cout<<" "<<muonHelper->GetFieldValue("GasGapLayer");
-//	std::cout<<" "<<muonHelper->GetFieldValue("DoubletPhi");
-//	std::cout<<" "<<muonHelper->GetFieldValue("MeasuredPhi")<<std::endl;
+// 	ATH_MSG_INFO("TRI " << muonHelper->GetStationName());
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("PhiSector"));
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("ZSector"));
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("DoubletZ"));
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("DoubletR"));
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("GasGapLayer"));
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("DoubletPhi"));
+//	ATH_MSG_INFO(" "<<muonHelper->GetFieldValue("MeasuredPhi"));
 // 
-	//std::cout<<stationName<<" "<<NewHit_eta->print()<<std::endl;
+	//ATH_MSG_INFO(stationName<<" "<<NewHit_eta->print());
 // #endif
     return true;
 }

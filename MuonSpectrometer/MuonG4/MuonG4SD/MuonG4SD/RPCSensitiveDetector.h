@@ -94,7 +94,6 @@ We describe here how each field of the identifier is determined.
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include "SimHelpers/AthenaHitsCollectionHelper.h"
 
-class IMessageSvc;
 class StoreGateSvc;
 
 class RPCSensitiveDetector : public FADS::FadsSensitiveDetector {
@@ -114,7 +113,6 @@ private:
     RPCSimHitCollection*  myRPCHitColl;
     RpcHitIdHelper* muonHelper;
     AthenaHitsCollectionHelper m_hitCollHelp;
-    IMessageSvc*         m_msgSvc;
     StoreGateSvc*        m_sgSvc;
     bool m_isGeoModel;
 };

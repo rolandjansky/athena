@@ -140,14 +140,14 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
 	delete nHit;
 
 // #ifndef MDTG4_DEBUG
-//   	std::cout<<"TUB "<<m_muonHelper->GetStationName(MDTid);	
-// 	std::cout<<" "<<m_muonHelper->GetFieldValue("PhiSector");
-// 	std::cout<<" "<<m_muonHelper->GetFieldValue("ZSector");
-// 	std::cout<<" "<<m_muonHelper->GetFieldValue("MultiLayer");
-// 	std::cout<<" "<<m_muonHelper->GetFieldValue("Layer");
-// 	std::cout<<" "<<m_muonHelper->GetFieldValue("Tube")<<std::endl;
+//   	ATH_MSG_INFO("TUB "<<m_muonHelper->GetStationName(MDTid));	
+// 	ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("PhiSector"));
+// 	ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("ZSector"));
+// 	ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("MultiLayer"));
+// 	ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("Layer"));
+// 	ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("Tube"));
 //  	    
-   	//std::cout<<m_muonHelper->GetStationName(MDTid)<<" "<<nHit->print()<<std::endl;
+   	//ATH_MSG_INFO(m_muonHelper->GetStationName(MDTid)<<" "<<nHit->print());
 // #endif
 
     m_driftRadius = DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
@@ -195,8 +195,8 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
       stationName   = volName;
       stationEta    = volCopyNo/100;
       stationPhi    = abs(volCopyNo%100);
-      //std::cout<<"Mdt SD: swimming: found <station>"<<volName<<" copy n="<<volCopyNo<<std::endl;
-      //std::cout<<"Mdt SD: swimming: stationName="<<stationName<<" stationEta/Phi="<<stationEta<<"/"<<stationPhi<<std::endl;
+      //ATH_MSG_INFO("Mdt SD: swimming: found <station>"<<volName<<" copy n="<<volCopyNo);
+      //ATH_MSG_INFO("Mdt SD: swimming: stationName="<<stationName<<" stationEta/Phi="<<stationEta<<"/"<<stationPhi);
 
     }
     else if ((npos = volName.find("component")) != std::string::npos  && (!isAssembly)) {     // multilayer
@@ -211,9 +211,9 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
             }
         }
         multilayer = gmID;
-//         std::cout<<"Mdt SD: swimming: found <component>"<<volName
-//                  <<" copy n="<<touchHist->GetVolume(i)->GetCopyNo()<<std::endl;
-//         std::cout<<"Mdt SD: swimming: multilayer="<<multilayer<<std::endl;
+//         ATH_MSG_INFO("Mdt SD: swimming: found <component>"<<volName
+//                  <<" copy n="<<touchHist->GetVolume(i)->GetCopyNo());
+//         ATH_MSG_INFO("Mdt SD: swimming: multilayer="<<multilayer);
 
 // ss - this can be done more easily - see above 
 //       int copyNo = touchHist->GetVolume(i)->GetCopyNo();
@@ -274,19 +274,19 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
             }
         }
         multilayer = gmID;
-//         std::cout<<"Mdt SD: swimming: found <MDT>"<<volName
-//                  <<" copy n="<<copyNr<<" base n="<<copyNrBase<<std::endl;
-//         std::cout<<"Mdt SD: swimming: stName/Eta/Phi/multilayer="
-//                  <<stationName<<"/"<<stationEta<<"/"<<stationPhi<<"/"<<multilayer<<std::endl;
+//         ATH_MSG_INFO("Mdt SD: swimming: found <MDT>"<<volName
+//                  <<" copy n="<<copyNr<<" base n="<<copyNrBase);
+//         ATH_MSG_INFO("Mdt SD: swimming: stName/Eta/Phi/multilayer="
+//                  <<stationName<<"/"<<stationEta<<"/"<<stationPhi<<"/"<<multilayer);
     }
     else if ((npos = volName.find("Drift")) != std::string::npos) {         // layer and tube
 
       tubeLayer = touchHist->GetVolume(i)->GetCopyNo()/100;
       tube      = touchHist->GetVolume(i)->GetCopyNo()%100;
-//       std::cout<<"Mdt SD: swimming: found <Drift>"<<volName
-//                <<" copy n="<<touchHist->GetVolume(i)->GetCopyNo()<<std::endl;
-//       std::cout<<"Mdt SD: swimming: tubeLayer/tube="
-//                <<tubeLayer<<"/"<<tube<<std::endl;
+//       ATH_MSG_INFO("Mdt SD: swimming: found <Drift>"<<volName
+//                <<" copy n="<<touchHist->GetVolume(i)->GetCopyNo());
+//       ATH_MSG_INFO("Mdt SD: swimming: tubeLayer/tube="
+//                <<tubeLayer<<"/"<<tube);
 
     }
   }

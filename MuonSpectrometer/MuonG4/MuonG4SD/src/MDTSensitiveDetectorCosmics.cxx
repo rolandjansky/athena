@@ -92,7 +92,7 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
      Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
      double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);   
      globH = globVrtxFix + AlphaGlobal*mom;     
-//     std::cout << "COSMICS MAIN TRACK IN THE MDT!"<<std::endl; 
+//     ATH_MSG_INFO("COSMICS MAIN TRACK IN THE MDT!"); 
      }  
   double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
   			   (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
@@ -173,29 +173,29 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 // #ifndef MDTG4_DEBUG
 // 
 // // printouts for cosmics
-//         std::cout<<"------------------MDT------------------"<<std::endl;
-// 		  std::cout << "Track "<<trackid<<std::endl;
-// 	     std::cout << "Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2]<<std::endl;
-// 	     std::cout << "Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2] <<std::endl;
-//         std::cout << "Distance from (0,0,0) and time " << dist << " " <<tOrigin <<std::endl;
-//         std::cout << "Momentum "<<momMag<<std::endl;
-// 	     std::cout << "Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2]<<std::endl; 
-// 	     std::cout << "Eta and phi "<<mom.eta()<<" " <<mom.phi()<<std::endl;
-//         std::cout << "Closest approach position and distance from (0,0,0) " 
+//         ATH_MSG_INFO("------------------MDT------------------");
+// 		  ATH_MSG_INFO("Track "<<trackid);
+// 	     ATH_MSG_INFO("Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2]);
+// 	     ATH_MSG_INFO("Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2] );
+//         ATH_MSG_INFO("Distance from (0,0,0) and time " << dist << " " <<tOrigin );
+//         ATH_MSG_INFO("Momentum "<<momMag);
+// 	     ATH_MSG_INFO("Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2]); 
+// 	     ATH_MSG_INFO("Eta and phi "<<mom.eta()<<" " <<mom.phi());
+//         ATH_MSG_INFO("Closest approach position and distance from (0,0,0) " 
 // 	          << globH[0] <<" "<<globH[1]<<" "<<globH[2]<<" "
-// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2]) << std::endl; 
-//         std::cout << "Distance from t0 and tof " << globalDist <<" " <<tof <<std::endl; 
-//         std::cout << "g4 globalTime " << globalTime <<std::endl;
-//         std::cout << "Time " << m_globalTime <<std::endl;
+// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2]) ); 
+//         ATH_MSG_INFO("Distance from t0 and tof " << globalDist <<" " <<tof ); 
+//         ATH_MSG_INFO("g4 globalTime " << globalTime );
+//         ATH_MSG_INFO("Time " << m_globalTime );
 // 
-//    	  std::cout<<"TUB "<<m_muonHelper->GetStationName(MDTid);	
-//  	     std::cout<<" "<<m_muonHelper->GetFieldValue("PhiSector");
-//  	     std::cout<<" "<<m_muonHelper->GetFieldValue("ZSector");
-//  	     std::cout<<" "<<m_muonHelper->GetFieldValue("MultiLayer");
-//  	     std::cout<<" "<<m_muonHelper->GetFieldValue("Layer");
-//  	     std::cout<<" "<<m_muonHelper->GetFieldValue("Tube")<<std::endl;
+//    	  ATH_MSG_INFO("TUB "<<m_muonHelper->GetStationName(MDTid);	
+//  	     ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("PhiSector");
+//  	     ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("ZSector");
+//  	     ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("MultiLayer");
+//  	     ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("Layer");
+//  	     ATH_MSG_INFO(" "<<m_muonHelper->GetFieldValue("Tube"));
 //   	    
-//    	  std::cout<<m_muonHelper->GetStationName(MDTid)<<" "<<nHit->print()<<std::endl;
+//    	  ATH_MSG_INFO(m_muonHelper->GetStationName(MDTid)<<" "<<nHit->print());
 //  	
 //  #endif
 
@@ -287,10 +287,10 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
             }
         }
         multilayer = gmID;
-//         std::cout<<"Mdt SD: swimming: found <MDT>"<<volName
-//                  <<" copy n="<<copyNr<<" base n="<<copyNrBase<<std::endl;
-//         std::cout<<"Mdt SD: swimming: stName/Eta/Phi/multilayer="
-//                  <<stationName<<"/"<<stationEta<<"/"<<stationPhi<<"/"<<multilayer<<std::endl;
+//         ATH_MSG_INFO("Mdt SD: swimming: found <MDT>"<<volName
+//                  <<" copy n="<<copyNr<<" base n="<<copyNrBase);
+//         ATH_MSG_INFO("Mdt SD: swimming: stName/Eta/Phi/multilayer="
+//                  <<stationName<<"/"<<stationEta<<"/"<<stationPhi<<"/"<<multilayer);
     }
     else if ((npos = volName.find("component")) != std::string::npos && (!isAssembly)) {     // multilayer
 
@@ -325,7 +325,7 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       tubeLayer = touchHist->GetVolume(i)->GetCopyNo()/100;
       tube      = touchHist->GetVolume(i)->GetCopyNo()%100;
 //       G4ThreeVector postube=touchHist->GetTranslation();
-// 	std::cout<<"StationName "<< stationName<<" Tube "<<tube<<" layer "<<tubeLayer<<" position "<<postube[0]<<" "<<postube[1]<<" "<<postube[2]<<" "<<std::endl;   
+// 	ATH_MSG_INFO("StationName "<< stationName<<" Tube "<<tube<<" layer "<<tubeLayer<<" position "<<postube[0]<<" "<<postube[1]<<" "<<postube[2]<<" ");   
 
     }
   }

@@ -80,8 +80,8 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
       	std::string::size_type npos;
 	std::string volName = touchHist->GetVolume(i)->GetName();
 
-//         std::cout<<"Csc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth()<<std::endl;
-//         std::cout<<"Csc SD: name "<<volName<<std::endl;
+//         ATH_MSG_INFO("Csc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth());
+//         ATH_MSG_INFO("Csc SD: name "<<volName);
         
 	/** station: name, eta and phi (-> chamber!) */
         if ((npos = volName.find("av_")) != std::string::npos &&
@@ -164,7 +164,7 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
 	  else if(wireLayer==3) wireLayer=2;
 	  else if(wireLayer==2) wireLayer=3;
 	  else if(wireLayer==1) wireLayer=4;
-          //	  std::cout<<"CSC:::::: wireLayer  "<<wireLayer<<std::endl;
+          //	  ATH_MSG_INFO("CSC:::::: wireLayer  "<<wireLayer);
 
 	  /** get the particle ID */	 
 	  G4String particle=aStep->GetTrack()->GetDefinition()->GetParticleName();
@@ -189,7 +189,7 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
           //	  else lundcode=999;
 
           if (lundcode < 0) 
-            std::cout<<"WP CSCSensitiveDetector.cxx have exceptional particlue out of selection::  "<<particle<<std::endl;
+            ATH_MSG_INFO("WP CSCSensitiveDetector.cxx have exceptional particlue out of selection::  "<<particle);
 
           
           /** the track id */

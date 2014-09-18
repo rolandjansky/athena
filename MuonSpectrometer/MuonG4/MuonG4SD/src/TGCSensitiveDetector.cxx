@@ -59,7 +59,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
            std::string volName = touchHist->GetVolume(i)->GetName();
              if ((volName.find("Q02")) != std::string::npos) m_layout="Q02";
          }
-       std::cout << "TGCSensitiveDetector: Layout set to: " << m_layout << std::endl;
+       ATH_MSG_INFO("TGCSensitiveDetector: Layout set to: " << m_layout );
     }
     
     // fields for the TGC identifier construction
@@ -83,8 +83,8 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
         std::string::size_type nposStat;
 	std::string volName = touchHist->GetVolume(i)->GetName();
 
-        //        std::cout<<"Tgc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth()<<std::endl;
-        //        std::cout<<"Tgc SD: name "<<volName<<std::endl;
+        //        ATH_MSG_INFO("Tgc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth());
+        //        ATH_MSG_INFO("Tgc SD: name "<<volName);
 
         // check if this station is an assembly 
         if ((npos = volName.find("av_")) != std::string::npos &&
@@ -180,8 +180,8 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
             
 	    int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
             int copyNrBase = int(volCopyNo/100000);
-            //std::cout<<"  CopyNumber = "<<volCopyNo<<" base= "<<copyNrBase
-            //        <<" comp.Id= "<<int(volCopyNo%100000)<<std::endl;
+            //ATH_MSG_INFO("  CopyNumber = "<<volCopyNo<<" base= "<<copyNrBase
+            //        <<" comp.Id= "<<int(volCopyNo%100000));
             int sideC  = int(copyNrBase/10000);
             int zi     = int((copyNrBase%1000)/100);
             if (sideC == 1) zi = -zi;
@@ -249,16 +249,16 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
             {
                 if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) 
                 {
-                    //std::cout<<"first [ is at "<<loc1<<" first ] at "<<loc2<<std::endl;
+                    //ATH_MSG_INFO("first [ is at "<<loc1<<" first ] at "<<loc2);
                     my_isstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
                     istrvar>>gmID;
-                    //std::cout<<"FOUND ---- gmID = "<<gmID<<std::endl;
+                    //ATH_MSG_INFO("FOUND ---- gmID = "<<gmID);
                 }
             }
             // stationEta, stationPhi
             stationEta = zside*int(gmID%100);
             if (gmID > 999) stationPhi = gmID/1000;
-            //std::cout<<"FOUND ---- stationeta, phi = "<<stationEta<<" "<<stationPhi<<std::endl;
+            //ATH_MSG_INFO("FOUND ---- stationeta, phi = "<<stationEta<<" "<<stationPhi);
         }
         
 	// stationEta
@@ -299,7 +299,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 
     }
 
-    //                std::cout << "TGCSensitiveDetector : stationName/stationEta/stationPhi/gasGap : "
+    //                ATH_MSG_INFO("TGCSensitiveDetector : stationName/stationEta/stationPhi/gasGap : "
     //            	      << stationName << "/"
     //            	      << stationEta << "/"
     //            	      << stationPhi << "/"
@@ -310,7 +310,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
     //            	      << localPosition[0] << "/"
     //            	      << localPosition[1] << "/"
     //            	      << localPosition[2] << " "
-    //            	      << std::endl;
+    //            	      );
 //construct the hit identifier	    
     HitID TGCid = muonHelper->BuildTgcHitId(stationName,
 						stationPhi, 

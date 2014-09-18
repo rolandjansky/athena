@@ -26,7 +26,7 @@ static FADS::SensitiveDetectorEntryT<sTGCSensitiveDetector> stgcsd("sTGCSensitiv
 sTGCSensitiveDetector::sTGCSensitiveDetector(std::string name)
   : FadsSensitiveDetector(name), m_GenericMuonHitCollection(0)
 {
-  //	std::cout<< " creating a sTGCSensitiveDetector: "<<name<<std::endl;
+  //	ATH_MSG_INFO(" creating a sTGCSensitiveDetector: "<<name);
   m_muonHelper = sTgcHitIdHelper::GetHelper();
   m_muonHelper->PrintFields();
 }
@@ -48,7 +48,7 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 		     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
 
   if (!charge && (!geantinoHit)) return false;
-  //  std::cout << "\t\t sTGCSD: Hit in a sensitive layer!!!!! "<<std::endl;
+  //  ATH_MSG_INFO("\t\t sTGCSD: Hit in a sensitive layer!!!!! ");
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
   G4StepPoint* preStep=aStep->GetPreStepPoint();
@@ -75,47 +75,62 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
    
   // int iDepth=touchHist->GetHistoryDepth();
-  //  std::cout<<"\t\t\t\t Touchable history dump "<<std::endl;
+  //  ATH_MSG_INFO("\t\t\t\t Touchable history dump ");
   int nLayer=touchHist->GetVolume(0)->GetCopyNo();
   std::string chName=touchHist->GetVolume(1)->GetLogicalVolume()->GetName();
+  //ATH_MSG_INFO("sTGCSensitiveDetector name: "<<chName);
   std::string subType=chName.substr(chName.find('-')+1);
-  if (subType[0]!='T') std::cout<<" something is wrong, this is no sTGC!"<<std::endl;
-  std::string temp(&subType[1]);
+  //ATH_MSG_INFO("\t\t sType: "<<subType);
+  if (subType[0]!='T'&&subType[0]!='Q' ) ATH_MSG_INFO(" something is wrong, this is no sTGC!");
+  std::string temp(&subType[2]);
   std::istringstream is(temp);
   int iRing;
   is>>iRing;
+  // identifiers have eta naming 0-2, eta encoded in subtype is 1-3
+  iRing--;
   // double phiDiff=2*M_PI;
   
   G4ThreeVector posH=postStep->GetPosition(); //posH is equivalent to position - eigen not used to avoid additional dependence on EventPrimitives
-  if (subType[2]=='L') posH.rotateZ(M_PI/8.);
+  if (subType[1]=='L') posH.rotateZ(M_PI/8.);
   double phiHit=posH.phi();
   if(phiHit<=0) phiHit+=2.*M_PI;
   int iPhi=1+int(phiHit/(M_PI/4.));
   iPhi*=2;
-  if (subType[2]=='L') iPhi-=1;                                                                      
+  if (subType[1]=='L') iPhi-=1;                                                                      
 
   int iSide=1;
   if (position.z()<0) iSide=-1;
   
-  int mLayer= atoi((subType.substr(3,1)).c_str());
-  if (mLayer != 1 && mLayer !=2) std::cout << " something is wrong - multilayer index is " << mLayer << std::endl;
+  int mLayer=0;
+  if (subType[1]=='S')
+  {
+  	if (subType[3]=='C') mLayer=1;
+	else if (subType[3]=='P') mLayer=2;
+  }
+  else if (subType[1]=='L')
+  {
+  	if (subType[3]=='P') mLayer=1;
+	else if (subType[3]=='C') mLayer=2;
+  }
   
-  //  std::cout<<"\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide<<std::endl;
+  if (mLayer != 1 && mLayer !=2) ATH_MSG_INFO(" something is wrong - multilayer index is " << mLayer );
+  
+  //  ATH_MSG_INFO("\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide);
   int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide); 
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
 
   GenericMuonSimHit* aHit=new GenericMuonSimHit(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
 
-  //    std::cout<<"sTGC "<<m_muonHelper->GetStationName(sTgcId);	
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("PhiSector");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("ZSector");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("MultiLayer");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("Layer");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("Side")<<std::endl;  	    
+  //    ATH_MSG_INFO("sTGC "<<m_muonHelper->GetStationName(sTgcId)
+  // 	            << " "<<m_muonHelper->GetFieldValue("PhiSector")
+  // 	            << " "<<m_muonHelper->GetFieldValue("ZSector")
+  // 	            << " "<<m_muonHelper->GetFieldValue("MultiLayer")
+  // 	            << " "<<m_muonHelper->GetFieldValue("Layer")
+  // 	            << " "<<m_muonHelper->GetFieldValue("Side"))  	    
 
-  //std::cout<<m_muonHelper->GetStationName(sTgcId)<<" "<<aHit->print()<<std::endl;
-  //  std::cout<<aHit->print()<<std::endl;
+  //ATH_MSG_INFO(<m_muonHelper->GetStationName(sTgcId)<<" "<<aHit->print());
+  //  ATH_MSG_INFO(aHit->print());
   m_GenericMuonHitCollection->Insert(*aHit);
   delete aHit;
 
