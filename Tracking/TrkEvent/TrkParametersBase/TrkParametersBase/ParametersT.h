@@ -34,20 +34,26 @@ namespace Trk {
 	- momentum
 	- local position (ponter to)
 
-	Which can be returned by the parameters() method as a CLHEP::HepVector:
-	\f$
+	Which can be returned by the parameters() method as a Amg::Vector(DIM):
 	\left(\begin{array}{c}
 	x\\y\\z\\p_{x}\\p_{y}\\p_{z}\end{array}\right)
 	\f$
 
 	The standard dimension for both charged and neutral parameters
 	is of dimension 5, extended parameters will have dimension 6.
+    
+    The friend list is motivated by the most common manipulation needs
 
 	@author edward.moyse@cern.ch, andreas.salzburger@cern.ch
-*/
+  */
+    
   template <int DIM, class T, class S> class ParametersT : public ParametersBase<DIM, T> {
   
     public:
+         
+      friend class MaterialEffectsEngine;
+          
+        
   	  /** default constructor */
       ParametersT ();
   
@@ -91,11 +97,17 @@ namespace Trk {
       virtual ~ParametersT ();
       
       /** Virtual constructor. Allows copying of vector of ParametersT*/
-      virtual ParametersT* clone() const { return new ParametersT<DIM,T,S>(*this); }
+      virtual ParametersT* clone() const override { return new ParametersT<DIM,T,S>(*this); }
   
       /** Access to the Surface method */
-      virtual const S& associatedSurface() const { return (*m_surface); }
+      virtual const S& associatedSurface() const override { return (*m_surface); }    
   
+      /** Return the measurementFrame of the parameters */
+      const Amg::RotationMatrix3D measurementFrame() const override;
+  
+      /** Return the ParametersType enum */
+      virtual ParametersType type() const override { return AtaSurface; }
+
     private:
 	  /** --- PRIVATE CONSTRUCTOR : for persistency purpose only */
       ParametersT (const AmgVector(DIM)& parameters,

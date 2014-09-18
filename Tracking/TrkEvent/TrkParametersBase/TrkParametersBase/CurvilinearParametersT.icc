@@ -21,17 +21,19 @@
 template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
         AmgSymMatrix(DIM)* covariance) :
     ParametersBase<DIM, T>(covariance),
-    m_associatedSurface(0)
+    m_associatedSurface(0),
+    m_cIdentifier(0)
 {}
 
 
 // Constructor with TP arguments
 template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT (
-		const AmgVector(DIM+2)& parameters, AmgSymMatrix(DIM)* covariance) :
+		const AmgVector(DIM+2)& parameters, AmgSymMatrix(DIM)* covariance, unsigned int cIdentifier) :
     ParametersBase<DIM, T>(Amg::Vector3D(parameters[x],parameters[y],parameters[z]),
 	                       Amg::Vector3D(parameters[3],parameters[4],parameters[5]),
 						   covariance),
-    m_associatedSurface(0)
+    m_associatedSurface(0),
+    m_cIdentifier(cIdentifier)
 {
     // flip the charge according to qOverP
     if (parameters[6] < 0.) Trk::ParametersBase<DIM, T>::m_chargeDefinition.flipSign();
@@ -52,9 +54,11 @@ template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::Cur
         double tphi,
         double ttheta,
         double tqOverP,
-        AmgSymMatrix(DIM)* covariance) :
+        AmgSymMatrix(DIM)* covariance,
+        unsigned int cIdentifier) :
     ParametersBase<DIM, T>(pos,covariance),
-    m_associatedSurface(0)
+    m_associatedSurface(0),
+    m_cIdentifier(cIdentifier)
 {
     // flip the charge according to qOverP
     if (tqOverP < 0.) Trk::ParametersBase<DIM, T>::m_chargeDefinition.flipSign();
@@ -76,10 +80,12 @@ template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::Cur
         const Amg::Vector3D& pos,
         const Amg::Vector3D& mom,
         double charge,
-        AmgSymMatrix(DIM)* covariance) :
+        AmgSymMatrix(DIM)* covariance,
+        unsigned int cIdentifier) :
     ParametersBase<DIM, T>(pos, mom, covariance),
     m_curvilinearFrame(mom.unit()),
-    m_associatedSurface(0)
+    m_associatedSurface(0),
+    m_cIdentifier(cIdentifier)
        
 {
     // assign the parameters
@@ -95,7 +101,8 @@ template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::Cur
 template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT (const Trk::CurvilinearParametersT<DIM, T, S>& rhs) :
         ParametersBase<DIM, T>(rhs),
         m_curvilinearFrame(rhs.momentum().unit()),
-        m_associatedSurface(0)
+        m_associatedSurface(0),
+        m_cIdentifier(rhs.m_cIdentifier)
 {}
 
 // Destructor
@@ -115,6 +122,8 @@ template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>& Trk
             delete m_associatedSurface; m_associatedSurface = 0;
             // assign the UVT framce
             m_curvilinearFrame = rhs.m_curvilinearFrame;
+            // and the curvilinear identifier 
+            m_cIdentifier = rhs.m_cIdentifier;
         }
         return(*this);
 }
@@ -139,6 +148,18 @@ template <int DIM, class T, class S> std::ostream& Trk::CurvilinearParametersT<D
 template <int DIM, class T, class S>  const Trk::CurvilinearUVT& Trk::CurvilinearParametersT<DIM, T, S>::curvilinearFrame() const
 {
         return m_curvilinearFrame;
+}
+
+// Surface return (with on demand construction)
+template <int DIM, class T, class S> const Amg::RotationMatrix3D Trk::CurvilinearParametersT<DIM, T, S>::measurementFrame() const
+{
+    Amg::RotationMatrix3D mFrame;
+    // the columnes
+    mFrame.col(0) = m_curvilinearFrame.curvU();
+    mFrame.col(1) = m_curvilinearFrame.curvV();
+    mFrame.col(2) = m_curvilinearFrame.curvT();
+    // return the rotation matrix that defines the curvilinear parameters
+    return mFrame;
 }
 
 // Surface return (with on demand construction)

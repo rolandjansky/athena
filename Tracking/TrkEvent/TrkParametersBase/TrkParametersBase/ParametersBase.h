@@ -32,6 +32,21 @@ namespace Trk {
 
   class Surface;
 
+  /** 
+  @enum ParametersType
+    
+    Only two fundamental parameters types exist:
+    AtaSurface & Curvilinear.
+  
+    From AtaSurface one can go directly to the Surface::type()
+    enumeration.
+  
+  */
+  enum ParametersType {
+      AtaSurface =  0,
+      Curvilinear = 1
+  };
+
   /**
   @class ParametersBase
 
@@ -46,6 +61,9 @@ namespace Trk {
 
   template <int DIM, class T> class ParametersBase {
     public:
+        
+      friend class MaterialEffectsEngine;
+        
       /** Default constructor */
       ParametersBase(AmgSymMatrix(DIM)* covariance = 0);
       
@@ -76,6 +94,10 @@ namespace Trk {
       /** Access to the Surface method */
       virtual const Surface& associatedSurface() const = 0;
       
+      /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
+           - the default implementation is the the RotationMatrix3D of the transform */
+      virtual const Amg::RotationMatrix3D measurementFrame() const = 0;
+      
       /** Access method for the position */
       const Amg::Vector3D& position() const  { return m_position; }
       
@@ -104,6 +126,9 @@ namespace Trk {
       @return new object copied from the concrete type of this object. 
       Ownership is passed (i.e. you must take care of deletion of resulting object)*/
       virtual ParametersBase* clone() const = 0;
+      
+      /** Return the ParametersType enum */
+      virtual ParametersType type() const = 0;
       
       /** Returns charge of concrete type (i.e. must be implemented in inheriting classes)
          defined 0. if 1/pt=0*/
