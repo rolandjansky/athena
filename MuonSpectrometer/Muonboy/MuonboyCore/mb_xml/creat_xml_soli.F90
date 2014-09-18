@@ -15,6 +15,7 @@
  INTEGER :: Icolor, ISHAPE, NXDIM,NYDIM,NZDIM, NADIM, NRDIM1,NRDIM2, IELE, NCAR
  INTEGER :: IATT, IA,II,IR, Io2_Beg,Io2_End,Io2, NXYTOT, Io3_Beg,Io3_End,Io3 
  INTEGER :: IELE2,IELE3, I12, NR, I4, NXDIM3, I, NbPhi, IZ
+ INTEGER :: IRTMPDIM, IRTMPANG
 !
     Icolor = Icol_info(Info_xob(Iobj))
     IF( Icolor <= 0 ) Icolor = 1
@@ -25,6 +26,8 @@
     NADIM  = 0
     NRDIM1 = 0
     NRDIM2 = 0
+    IRTMPDIM = 0
+    IRTMPANG = 0
     NameVolu = 'Undefined'
     CM     = 0.1D0
     DEG    = 1.0D0
@@ -62,6 +65,9 @@
       ISHAPE = 23
     ELSEIF( NameElem == 'elcyl'     ) THEN
       ISHAPE = 24
+    ELSEIF( NameElem == 'micromegas' .OR. NameElem == 'mmSpacer' &
+            .OR. NameElem == 'sTGC' ) THEN
+      ISHAPE = 25
     ENDIF
 !
 !
@@ -152,6 +158,27 @@
           CALL GIV_VAL_XML_ATT(Iobj,IATT, IA,II,IR,ATAB,ITAB,RTAB)
           NRDIM1  = ITAB(1)
         ENDIF
+!>> nsw panel
+      ELSEIF( ISHAPE == 25 .AND. (CAR80 == 'sWidth' .OR. CAR80 == 'Tck' &
+              .OR. CAR80 == 'lWidth' .OR. CAR80 == 'Length' ) ) THEN
+        IF( CAR80 == 'lWidth' ) THEN
+          CALL GIV_VAL_XML_ATT(Iobj,IATT, IA,II,IR,ATAB,ITAB,RTAB)
+          IRTMPDIM = IRTMPDIM + IR
+          XDIM(1:1) = RTAB(IR:IR)
+        ELSEIF( CAR80 == 'sWidth' ) THEN
+          CALL GIV_VAL_XML_ATT(Iobj,IATT, IA,II,IR,ATAB,ITAB,RTAB)
+          IRTMPDIM = IRTMPDIM + IR
+          XDIM(2:2) = RTAB(IR:IR)
+        ELSEIF( CAR80 == 'Length' ) THEN
+          CALL GIV_VAL_XML_ATT(Iobj,IATT, IA,II,IR,ATAB,ITAB,RTAB)
+          IRTMPDIM = IRTMPDIM + IR
+          XDIM(3:3) = RTAB(IR:IR)
+        ELSEIF( CAR80 == 'Tck' ) THEN
+          CALL GIV_VAL_XML_ATT(Iobj,IATT, IA,II,IR,ATAB,ITAB,RTAB)
+          IRTMPDIM = IRTMPDIM + IR
+          XDIM(4:4) = RTAB(IR:IR)
+        ENDIF
+        NXDIM      = IRTMPDIM
       ENDIF
     ENDDO
 !
@@ -517,10 +544,20 @@
         NR = NRDIM1 
       ENDIF
       CALL DEF_ELCYL_R1R2DZA1A2( NameVolu, Icolor, XDIM, NR )
+    ELSEIF( ISHAPE == 15 ) THEN
+!>> Box !!! ------------------------------------------------------------
+      IF( NXDIM /= 4 ) THEN
+        PRINT 7786,NXDIM
+7786    FORMAT(/' There exists one volume of shape NSW PANEL without',   &
+                ' properly defined 4 dimentions (',I4,')  =====>  STOP !')
+        STOP
+      ENDIF
+      XDIM(1:4) = XDIM(1:4) * CM
+      CALL DEF_NSW_PANEL( NameVolu, Icolor, XDIM )
     ELSE
 !>> Else ??? -----------------------------------------------------------
-      PRINT 7786,TRIM(NameVolu)
-7786  FORMAT(' Cannot create generic volume : ',A,' =====>  STOP !')
+      PRINT 7787,TRIM(NameVolu)
+7787  FORMAT(' Cannot create generic volume : ',A,' =====>  STOP !')
       STOP
     ENDIF
 !
