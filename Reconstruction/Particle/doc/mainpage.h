@@ -50,7 +50,6 @@ enum has the value Rec::NoVtx. The StoreGate key for the ID TrackParticleContain
 Particle contains the following files/classes:
  - TrackParticle.cxx ... the TrackParticle itself.
  - TrackParticleContainer.cxx ... container to store TrackParticle(s) in StoreGate.
- - ParticleExtrapolationMap.cxx ... association between TrackParticles and a pre-fab vector of parameters extrapolated across ATLAS
 
 @section ExtraPages Extra Pages
  - @ref UsedParticle
