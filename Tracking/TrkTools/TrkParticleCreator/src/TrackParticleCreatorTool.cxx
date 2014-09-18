@@ -591,7 +591,7 @@ namespace Trk
         Amg::Vector3D magnFieldVect; magnFieldVect.setZero();
         m_magFieldSvc->getField( &pos, &magnFieldVect );
 
-        CurvilinearUVT curvilinearUVT(param->momentum());     
+        CurvilinearUVT curvilinearUVT(param->momentum().unit());     
         const Amg::Transform3D& localToGlobalTransform = param->associatedSurface().transform();
      
         JacobianLocalToCurvilinear jacobian(magnFieldVect,
