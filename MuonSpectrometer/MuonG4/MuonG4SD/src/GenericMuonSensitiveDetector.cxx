@@ -23,7 +23,7 @@ static FADS::SensitiveDetectorEntryT<GenericMuonSensitiveDetector> gensd("Generi
 GenericMuonSensitiveDetector::GenericMuonSensitiveDetector(std::string name)
   : FadsSensitiveDetector(name), m_GenericMuonHitCollection(0)
 {
-  std::cout<< " creating a GenericMuonSensitiveDetector: "<<name<<std::endl;
+  ATH_MSG_INFO(" creating a GenericMuonSensitiveDetector: "<<name);
 }
 
 
@@ -36,7 +36,7 @@ void GenericMuonSensitiveDetector::Initialize(G4HCofThisEvent*)
 
 G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
 {
-  std::cout << "\t\t GenericMuonSensitiveDetector: Hit in a sensitive layer!!!!! "<<std::endl;
+  ATH_MSG_INFO("\t\t GenericMuonSensitiveDetector: Hit in a sensitive layer!!!!! ");
   G4Track* currentTrack = aStep->GetTrack();
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
@@ -64,7 +64,7 @@ G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistor
 
   GenericMuonSimHit* aHit=new GenericMuonSimHit(0 /* HitID id generic*/,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
 
-  std::cout<<aHit->print()<<std::endl;
+  ATH_MSG_INFO(aHit->print());
   m_GenericMuonHitCollection->Insert(*aHit);
   delete aHit;
 

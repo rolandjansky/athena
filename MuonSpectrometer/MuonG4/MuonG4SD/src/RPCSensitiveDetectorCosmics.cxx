@@ -11,8 +11,6 @@
 // to permit access to StoreGate
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -45,18 +43,11 @@ RPCSensitiveDetectorCosmics::RPCSensitiveDetectorCosmics(std::string s)
   //muonHelper->PrintFields();
   
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
-  MsgStream log(m_msgSvc, "RpcSD");
+  StatusCode status = svcLocator->service("StoreGateSvc", m_sgSvc);
   if (status.isFailure()) {
-    log << MSG::FATAL << "MessageSvc not found !" << endreq;
+    ATH_MSG_FATAL("StoreGateSvc  not found !" );
   } else {
-    log << MSG::DEBUG << "MessageSvc initialized." << endreq;
-  }
-  status = svcLocator->service("StoreGateSvc", m_sgSvc);
-  if (status.isFailure()) {
-    log << MSG::FATAL << "StoreGateSvc  not found !" << endreq;
-  } else {
-    log << MSG::DEBUG << "StoreGateSvc initialized." << endreq;
+    ATH_MSG_DEBUG("StoreGateSvc initialized." );
   }
   
   
@@ -68,16 +59,15 @@ void RPCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
   //myRPCHitColl = new RPCSimHitCollection("RPC_Hits");
   myRPCHitColl = m_hitCollHelp.RetrieveNonconstCollection<RPCSimHitCollection>("RPC_Hits");
 
-  MsgStream log(m_msgSvc, "RpcSD");
-  log << MSG::DEBUG << "Initializing SD" << endreq;
+  ATH_MSG_DEBUG("Initializing SD" );
   DetectorGeometryHelper DGHelp;
   if(  DGHelp.GeometryType("Muon") == GeoModel )
     {
       m_isGeoModel = true;
-      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Muon Geometry is from GeoModel" << endreq;
+      ATH_MSG_DEBUG("Muon Geometry is from GeoModel" );
     } else {
       m_isGeoModel = false;
-      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Muon Geometry is from pure G4" << endreq;
+      ATH_MSG_DEBUG("Muon Geometry is from pure G4" );
     }
   mom = Amg::Vector3D(0.,0.,0.);
   globH = Amg::Vector3D(0.,0.,0.);
@@ -87,7 +77,6 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
 
     
-    MsgStream log(m_msgSvc, "RpcSD");
     G4Track* currentTrack = aStep->GetTrack();
     
 
@@ -148,7 +137,7 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
        Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
        double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);   
        globH = globVrtxFix + AlphaGlobal*mom;     
-//       std::cout << "COSMICS MAIN TRACK IN THE RPC!"<<std::endl; 
+//       ATH_MSG_INFO("COSMICS MAIN TRACK IN THE RPC!"); 
     }  
     double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
   			   (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
@@ -221,8 +210,8 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 	    
 	    int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
             int copyNrBase = int(volCopyNo/100000);
-//             std::cout<<"  CopyNumber = "<<volCopyNo<<" base= "<<copyNrBase
-//                      <<" comp.Id= "<<int(volCopyNo%100000)<<std::endl;
+//             ATH_MSG_INFO("  CopyNumber = "<<volCopyNo<<" base= "<<copyNrBase
+//                      <<" comp.Id= "<<int(volCopyNo%100000));
             int sideC  = int(copyNrBase/10000);
             int zi     = int((copyNrBase%1000)/100);
             int mirfl  = int((copyNrBase%10000)/1000);
@@ -231,8 +220,8 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
             stationEta    = zi;
             stationPhi    = fi;
             zNeg_original = mirfl;
-//             std::cout<<"stName = "<<stationName<<" -- stEta,Phi,sideC, zNeg_original "<<stationEta<<" "
-//                      <<stationPhi<<" "<<sideC<<" "<<zNeg_original<<std::endl;
+//             ATH_MSG_INFO("stName = "<<stationName<<" -- stEta,Phi,sideC, zNeg_original "<<stationEta<<" "
+//                      <<stationPhi<<" "<<sideC<<" "<<zNeg_original);
 	    
 	    if(stationEta<0&&!zNeg_original) station_rotated=1;
             tech=volName.substr(npos,5);
@@ -243,10 +232,10 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
             {
                 if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) 
                 {
-                    //std::cout<<"first [ is at "<<loc1<<" first ] at "<<loc2<<std::endl;
+                    //ATH_MSG_INFO("first [ is at "<<loc1<<" first ] at "<<loc2);
                     my_isstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
                     istrvar>>gmID;
-                    //std::cout<<"FOUND ---- gmID = "<<gmID<<std::endl;
+                    //ATH_MSG_INFO("FOUND ---- gmID = "<<gmID);
                 }
             }
             int kk=gmID;
@@ -262,8 +251,8 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 	  
             //sstech=volName.substr(0,3)+num;
             tech=volName.substr(npos-5,5);
-//           std::cout<<"RPC - rpcModule VolName    "<<volName<<std::endl;
-//           std::cout<<"RPC - rpcModule copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<" tech = "<<tech<<std::endl;
+//           ATH_MSG_INFO("RPC - rpcModule VolName    "<<volName);
+//           ATH_MSG_INFO("RPC - rpcModule copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<" tech = "<<tech);
 
           std::string::size_type loc1,loc2;
           int gmID = 0;
@@ -271,15 +260,15 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
           {
               if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) 
               {
-                  //std::cout<<"first [ is at "<<loc1<<" first ] at "<<loc2<<std::endl;
+                  //ATH_MSG_INFO("first [ is at "<<loc1<<" first ] at "<<loc2);
                   my_isstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
                   istrvar>>gmID;
-//                   std::cout<<"FOUND ---- gmID = "<<gmID<<std::endl;
+//                   ATH_MSG_INFO("FOUND ---- gmID = "<<gmID);
               }
           }
           mydbZ    = abs(int(gmID%10));
           mydbPMod = abs(int(gmID/1000));
-//          std::cout<<"gmID = ["<<gmID<<"] mydbZ, mydbPMod = "<<mydbZ<<" "<<mydbPMod<<std::endl;
+//          ATH_MSG_INFO("gmID = ["<<gmID<<"] mydbZ, mydbPMod = "<<mydbZ<<" "<<mydbPMod);
           
 	  int kk=touchHist->GetVolume(i)->GetCopyNo();
 	  
@@ -319,7 +308,7 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 // 	  if(tech=="RPC21"||tech=="RPC22"){ noDoubletZ=1; onlyOneGap=0; } // needed for BMF1 in layout Q. this overrides any previous assignment to noDoubletZ and onlyOneGap. It doesn't affect layout P
 
 
-// 	  //log<<MSG::DEBUG<<"hit in volume "<<volName<<" station "<<stationName<< " on technology "<<tech<<endreq;	
+// 	  //ATH_MSG_DEBUG("hit in volume "<<volName<<" station "<<stationName<< " on technology "<<tech);	
 // 	  int kk=touchHist->GetVolume(i)->GetCopyNo();
 	  
 // 	  if (kk < 0) rpcIsRotated=1;
@@ -352,8 +341,8 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 	    doubletPhi = 2;
 	  }
           mydbP = doubletPhi;
-//           std::cout<<"RPC - gasgapWithinLayer VolName    "<<volName<<std::endl;
-//           std::cout<<"RPC - gasgapWithinLayer copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<" dbPhi = "<<doubletPhi<<std::endl;
+//           ATH_MSG_INFO("RPC - gasgapWithinLayer VolName    "<<volName);
+//           ATH_MSG_INFO("RPC - gasgapWithinLayer copyNumber "<<touchHist->GetVolume(i)->GetCopyNo()<<" dbPhi = "<<doubletPhi);
           int ngap_in_s=0;
           int nstrippanel_in_s=0;
           std::string::size_type loc1;
@@ -423,9 +412,9 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     
     //construct the hit identifiers
 
-    log<<MSG::DEBUG<<"hit in station "<<stationName<< " on technology "<<tech<<endreq;	
-    log<<MSG::DEBUG<<"constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< doubletZ<< " "<<doubletPhi<<endreq;
-    
+    ATH_MSG_DEBUG("hit in station "<<stationName<< " on technology "<<tech);	
+    ATH_MSG_DEBUG("constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< doubletZ<< " "<<doubletPhi);
+
     HitID RPCid_eta = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta, 
                                                 mydbZ, doubletR, gasGap, mydbP,0);
     
@@ -465,31 +454,31 @@ G4bool RPCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 // #ifndef RPCG4_DEBUG
 //   
 // // printouts for cosmics
-//         std::cout<<"------------------RPC------------------"<<std::endl;
-// 	std::cout << "Track "<<trackid<<std::endl;
-// 	std::cout << "Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2]<<std::endl;
-// 	std::cout << "Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2] <<std::endl;
-//         std::cout << "Distance from (0,0,0) and time " << dist << " " <<tOrigin <<std::endl;
-//         std::cout << "Momentum "<<momMag<<std::endl;
-// 	std::cout << "Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2]<<std::endl; 
-// 	std::cout << "Eta and phi "<<mom.eta()<<" " <<mom.phi()<<std::endl;
-//         std::cout << "Closest approach position and distance from (0,0,0) " 
+//         ATH_MSG_INFO("------------------RPC------------------");
+// 	ATH_MSG_INFO("Track "<<trackid);
+// 	ATH_MSG_INFO("Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2]);
+// 	ATH_MSG_INFO("Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2] );
+//         ATH_MSG_INFO("Distance from (0,0,0) and time " << dist << " " <<tOrigin );
+//         ATH_MSG_INFO("Momentum "<<momMag);
+// 	ATH_MSG_INFO("Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2]); 
+// 	ATH_MSG_INFO("Eta and phi "<<mom.eta()<<" " <<mom.phi());
+//         ATH_MSG_INFO("Closest approach position and distance from (0,0,0) " 
 // 	          << globH[0] <<" "<<globH[1]<<" "<<globH[2]<<" "
-// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2]) << std::endl; 
-//         std::cout << "Distance from t0 and tof " << globalDist <<" " <<tof <<std::endl; 
-//         std::cout << "g4 globalTime " << globalTime <<std::endl;
-//         std::cout << "Time " << m_globalTime <<std::endl;
+// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2]) ); 
+//         ATH_MSG_INFO("Distance from t0 and tof " << globalDist <<" " <<tof ); 
+//         ATH_MSG_INFO("g4 globalTime " << globalTime );
+//         ATH_MSG_INFO("Time " << m_globalTime );
 // 
-// 	std::cout<<"TRI ";//muonHelper->GetStationName();
-// 	std::cout<<" "<<muonHelper->GetFieldValue("PhiSector");
-// 	std::cout<<" "<<muonHelper->GetFieldValue("ZSector");
-// 	std::cout<<" "<<muonHelper->GetFieldValue("DoubletZ");
-// 	std::cout<<" "<<muonHelper->GetFieldValue("DoubletR");
-// 	std::cout<<" "<<muonHelper->GetFieldValue("GasGapLayer");
-// 	std::cout<<" "<<muonHelper->GetFieldValue("DoubletPhi");
-// 	std::cout<<" "<<muonHelper->GetFieldValue("MeasuresPhi")<<std::endl;
+// 	ATH_MSG_INFO("TRI ";//muonHelper->GetStationName();
+// 	          << " "<<muonHelper->GetFieldValue("PhiSector")
+// 	          << " "<<muonHelper->GetFieldValue("ZSector")
+// 	          << " "<<muonHelper->GetFieldValue("DoubletZ")
+// 	          << " "<<muonHelper->GetFieldValue("DoubletR")
+// 	          << " "<<muonHelper->GetFieldValue("GasGapLayer")
+// 	          << " "<<muonHelper->GetFieldValue("DoubletPhi")
+// 	          << " "<<muonHelper->GetFieldValue("MeasuresPhi"));
 // 
-//         std::cout<<stationName<<" "<<NewHit_eta->print()<<std::endl;
+//         ATH_MSG_INFO(stationName<<" "<<NewHit_eta->print());
 // #endif
     return true;
 }

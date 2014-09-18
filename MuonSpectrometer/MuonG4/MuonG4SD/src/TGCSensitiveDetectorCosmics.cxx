@@ -66,7 +66,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
            std::string volName = touchHist->GetVolume(i)->GetName();
              if ((volName.find("Q02")) != std::string::npos) m_layout="Q02";
          }
-//       std::cout << "TGCSensitiveDetectorCosmics: Layout set to: " << m_layout << std::endl;
+//       ATH_MSG_INFO("TGCSensitiveDetectorCosmics: Layout set to: " << m_layout );
     }
     
     // fields for the TGC identifier construction
@@ -102,7 +102,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
        Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
        double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);   
        globH = globVrtxFix + AlphaGlobal*mom;     
-       std::cout << "COSMICS MAIN TRACK IN THE MDT!"<<std::endl; 
+       ATH_MSG_INFO("COSMICS MAIN TRACK IN THE MDT!"); 
        }  
     double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
   			   (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
@@ -217,7 +217,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
     }
 
-    //                std::cout << "TGCSensitiveDetectorCosmics : stationName/stationEta/stationPhi/gasGap : "
+    //                ATH_MSG_INFO("TGCSensitiveDetectorCosmics : stationName/stationEta/stationPhi/gasGap : "
     //            	      << stationName << "/"
     //            	      << stationEta << "/"
     //            	      << stationPhi << "/"
@@ -228,7 +228,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     //            	      << localPosition[0] << "/"
     //            	      << localPosition[1] << "/"
     //            	      << localPosition[2] << " "
-    //            	      << std::endl;
+    //            	      );
 //construct the hit identifier	    
     HitID TGCid = muonHelper->BuildTgcHitId(stationName,
 						stationPhi, 
@@ -258,28 +258,28 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 //  #ifndef TGCG4_DEBUG
 // 
 // // printouts for cosmics
-//         std::cout<<"------------------TGC------------------"<<std::endl;
-// 	std::cout << "Track "<<trackid<<std::endl;
-// 	std::cout << "Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2]<<std::endl;
-// 	std::cout << "Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2] <<std::endl;
-//         std::cout << "Distance from (0,0,0) and time " << dist << " " <<tOrigin <<std::endl;
-//         std::cout << "Momentum "<<momMag<<std::endl;
-// 	std::cout << "Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2]<<std::endl; 
-// 	std::cout << "Eta and phi "<<mom.eta()<<" " <<mom.phi()<<std::endl;
-//         std::cout << "Closest approach position and distance from (0,0,0) " 
+//         ATH_MSG_INFO("------------------TGC------------------");
+// 	ATH_MSG_INFO("Track "<<trackid);
+// 	ATH_MSG_INFO("Track vertex "<<vertex[0]<<" " <<vertex[1]<<" " <<vertex[2]);
+// 	ATH_MSG_INFO("Global position of the hit " << globVrtx[0] <<" " << globVrtx[1] <<" " << globVrtx[2] );
+//         ATH_MSG_INFO("Distance from (0,0,0) and time " << dist << " " <<tOrigin );
+//         ATH_MSG_INFO("Momentum "<<momMag);
+// 	ATH_MSG_INFO("Momentum director cosines " <<mom[0]<<" " <<mom[1]<<" " <<mom[2]); 
+// 	ATH_MSG_INFO("Eta and phi "<<mom.eta()<<" " <<mom.phi());
+//         ATH_MSG_INFO("Closest approach position and distance from (0,0,0) " 
 // 	          << globH[0] <<" "<<globH[1]<<" "<<globH[2]<<" "
-// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2]) << std::endl; 
-//         std::cout << "Distance from t0 and tof " << globalDist <<" " <<tof <<std::endl; 
-//         std::cout << "g4 globalTime " << globalTime <<std::endl;
-//         std::cout << "Time " << m_globalTime <<std::endl;
+// 	          << sqrt(globH[0]*globH[0] + globH[1]*globH[1] + globH[2]*globH[2]) ); 
+//         ATH_MSG_INFO("Distance from t0 and tof " << globalDist <<" " <<tof ); 
+//         ATH_MSG_INFO("g4 globalTime " << globalTime );
+//         ATH_MSG_INFO("Time " << m_globalTime );
 // 
 // 
-//          std::cout<<"TRI "<<muonHelper->GetStationName(TGCid);
-//          std::cout<<" "<<muonHelper->GetFieldValue("StationEta");
-//          std::cout<<" "<<muonHelper->GetFieldValue("StationPhi");
-//          std::cout<<" "<<muonHelper->GetFieldValue("GasGap") << std::endl;
+//          ATH_MSG_INFO("TRI "<<muonHelper->GetStationName(TGCid)
+//                    << " "<<muonHelper->GetFieldValue("StationEta")
+//                    << " "<<muonHelper->GetFieldValue("StationPhi")
+//                    << " "<<muonHelper->GetFieldValue("GasGap") );
 //  	
-//  	//std::cout<<stationName<<" "<<newHit->print()<<std::endl;
+//  	//ATH_MSG_INFO(stationName<<" "<<newHit->print());
 //  #endif
 
     return true;

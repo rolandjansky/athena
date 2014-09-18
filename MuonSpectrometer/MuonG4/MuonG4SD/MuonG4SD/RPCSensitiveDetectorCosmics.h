@@ -96,7 +96,6 @@ We describe here how each field of the identifier is determined.
 
 using namespace FADS;
 
-class IMessageSvc;
 class StoreGateSvc;
 
 class RPCSensitiveDetectorCosmics : public FadsSensitiveDetector {
@@ -116,7 +115,6 @@ private:
     RPCSimHitCollection*  myRPCHitColl;
     RpcHitIdHelper* muonHelper;
     AthenaHitsCollectionHelper m_hitCollHelp;
-    IMessageSvc*         m_msgSvc;
     StoreGateSvc*        m_sgSvc;
     double                     m_globalTime;
     bool m_isGeoModel;

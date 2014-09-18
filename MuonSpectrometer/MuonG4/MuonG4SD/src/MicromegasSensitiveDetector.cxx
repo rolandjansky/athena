@@ -26,7 +26,7 @@ static FADS::SensitiveDetectorEntryT<MicromegasSensitiveDetector> mmsd("Micromeg
 MicromegasSensitiveDetector::MicromegasSensitiveDetector(std::string name)
   : FadsSensitiveDetector(name), m_GenericMuonHitCollection(0)
 {
-  //	std::cout<< " creating a MicromegasSensitiveDetector: "<<name<<std::endl;
+  //	ATH_MSG_INFO(" creating a MicromegasSensitiveDetector: "<<name);
   m_muonHelper = MicromegasHitIdHelper::GetHelper();
   m_muonHelper->PrintFields();
 }
@@ -47,7 +47,7 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
 		     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
 
   if (!charge && (!geantinoHit)) return false;
-  //  std::cout << "\t\t MicromegasSD: Hit in a sensitive layer!!!!! "<<std::endl;
+  //  ATH_MSG_INFO("\t\t MicromegasSD: Hit in a sensitive layer!!!!! ");
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
   G4StepPoint* preStep=aStep->GetPreStepPoint();
@@ -74,15 +74,17 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   
   // int iDepth=touchHist->GetHistoryDepth();
-  //  std::cout<<"\t\t\t\t Touchable history dump "<<std::endl;
+  //  ATH_MSG_INFO("\t\t\t\t Touchable history dump ");
   int nLayer=touchHist->GetVolume(0)->GetCopyNo();
   std::string chName=touchHist->GetVolume(1)->GetLogicalVolume()->GetName();
   std::string subType=chName.substr(chName.find('-')+1);
-  if (subType[0]!='M') std::cout<<" something is wrong, this is no Micromegas!"<<std::endl;
+  if (subType[0]!='M') ATH_MSG_INFO(" something is wrong, this is no Micromegas!");
   std::string temp(&subType[1]);
   std::istringstream is(temp);
   int iRing;
   is>>iRing;
+  // identifiers have eta naming 0-1, eta encoded in subtype is 1-2
+  iRing--;
   // double phiDiff=2*M_PI;
 
   G4ThreeVector posH=postStep->GetPosition(); //posH is equivalent to position - eigen not used to avoid additional dependence on EventPrimitives
@@ -97,9 +99,9 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
   if (position.z()<0) iSide=-1;
   
   int mLayer= atoi((subType.substr(3,1)).c_str());
-  if (mLayer != 1 && mLayer !=2) std::cout << " something is wrong - multilayer index is " << mLayer << std::endl;
+  if (mLayer != 1 && mLayer !=2) ATH_MSG_INFO(" something is wrong - multilayer index is " << mLayer );
   
-  //  std::cout<<"\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide<<std::endl;
+  //  ATH_MSG_INFO("\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide);
   int MmId = m_muonHelper->BuildMicromegasHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
  
   TrackHelper trHelp(aStep->GetTrack());
@@ -107,15 +109,15 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   GenericMuonSimHit* aHit=new GenericMuonSimHit(MmId, globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
 
-  //    std::cout<<"MMs "<<m_muonHelper->GetStationName(MmId);	
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("PhiSector");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("ZSector");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("MultiLayer");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("Layer");
-  // 	std::cout<<" "<<m_muonHelper->GetFieldValue("Side")<<std::endl;  	    
+  //    ATH_MSG_INFO("MMs "<<m_muonHelper->GetStationName(MmId)
+  // 	            << " "<<m_muonHelper->GetFieldValue("PhiSector")
+  // 	            << " "<<m_muonHelper->GetFieldValue("ZSector")
+  // 	            << " "<<m_muonHelper->GetFieldValue("MultiLayer")
+  // 	            << " "<<m_muonHelper->GetFieldValue("Layer")
+  // 	            << " "<<m_muonHelper->GetFieldValue("Side"));  	    
 
-  //std::cout<<m_muonHelper->GetStationName(MmId)<<" "<<aHit->print()<<std::endl;
-  //  std::cout<<aHit->print()<<std::endl;
+  //ATH_MSG_INFO(m_muonHelper->GetStationName(MmId)<<" "<<aHit->print());
+  //  ATH_MSG_INFO(aHit->print());
   m_GenericMuonHitCollection->Insert(*aHit);
   delete aHit;
 
