@@ -12,7 +12,7 @@
  INTEGER :: I, Item, LenAGDD
  INTEGER :: IFLAM1, IFLAM2, IFLAM3, IFLAM4, IFLAM5, IFLAM6, IFLAM7, IFLAM8, IFLAM9
  INTEGER :: J, L, NbVol, NDeadM
- INTEGER, PARAMETER :: NDeadMatter=9
+ INTEGER, PARAMETER :: NDeadMatter=10
  CHARACTER(len=22) :: DeadMatter(NDeadMatter) = (/ 'MBWH_BigWheels        '    &
                                                   ,'SADL_CalorimeterSaddle'    &
                                                   ,'TBWH_BigWheels        '    &
@@ -21,7 +21,8 @@
                                                   ,'HFTruckRail           '    &
                                                   ,'RailAssembly          '    &
                                                   ,'MBAP_AccessPlatform   '    &
-                                                  ,'servicesAtZ0          ' /)
+                                                  ,'servicesAtZ0          '    &
+                                                  ,'NewSmallWheel         ' /)
  CHARACTER(len=16) :: AmdcName
 !
 #include "AmdcStand/comama.inc"

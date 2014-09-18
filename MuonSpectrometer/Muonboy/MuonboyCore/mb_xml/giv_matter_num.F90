@@ -44,6 +44,10 @@
        J = 3
      CASE( 'PolyBoronH3B0' ) ! temporary consider it as Carbon
        J = 3
+     CASE( 'PolyBoron207HD' ) ! temporary consider it as Carbon
+       J = 3
+     CASE( 'std::Polyethylene' ) ! temporary consider it as Carbon
+       J = 3
      CASE DEFAULT
        IF( MBPri >= 1 ) WRITE(*,*) ' Muonboy/giv_matter_num unknow material ',TRIM(Name)
        J = 777
