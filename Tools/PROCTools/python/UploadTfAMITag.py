@@ -153,7 +153,7 @@ def GetProcessConfigs(release,patcharea):
         'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'},
                     'outputTAGFile': {'dstype': 'TAG'}
                     },
-        'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything', 'preExec': 'globalflags.DatabaseInstance="COMP200"'},
+        'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
