@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterAuxContainer_v1.h 612295 2014-08-18 13:46:27Z krasznaa $
+// $Id: CaloClusterAuxContainer_v1.h 617648 2014-09-19 12:05:41Z wlampl $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V1_H
 
@@ -25,7 +25,7 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
    /// $Revsision$
-   /// $Date: 2014-08-18 15:46:27 +0200 (Mon, 18 Aug 2014) $
+   /// $Date: 2014-09-19 14:05:41 +0200 (Fri, 19 Sep 2014) $
    ///
    class CaloClusterAuxContainer_v1 : public AuxContainerBase {
 
@@ -60,8 +60,8 @@ namespace xAOD {
       /// @name Energies, Eta and Phi in various samplings
       /// @{
      std::vector <std::vector< float > > e_sampl;
-     std::vector <std::vector< float > > eta_sampl;
-     std::vector <std::vector< float > > phi_sampl;
+     //std::vector <std::vector< float > > eta_sampl;
+     //std::vector <std::vector< float > > phi_sampl;
       /// @}
 
    }; // class CaloClusterAuxContainer_v1

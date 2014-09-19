@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 613212 2014-08-24 21:43:58Z ssnyder $
+// $Id: CaloCluster_v1.h 613211 2014-08-24 21:43:42Z ssnyder $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -44,8 +44,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 613212 $
-   /// $Date: 2014-08-24 23:43:58 +0200 (Sun, 24 Aug 2014) $
+   /// $Revision: 613211 $
+   /// $Date: 2014-08-24 23:43:42 +0200 (Sun, 24 Aug 2014) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
