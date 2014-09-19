@@ -213,7 +213,7 @@ StatusCode TruthTestTool::processEvent()
       if (evtnum<m_mcEventDump) {
         char fname[80];
         sprintf(fname,"%s.event%d.txt",m_key.c_str(),evtnum);
-        ofstream of(fname);
+        std::ofstream of(fname);
         (*currentGenEventIter)->print(of); // verbose output
         of.close();
       }
