@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.cxx 612245 2014-08-18 11:13:48Z wlampl $
+// $Id: CaloCluster_v1.cxx 617648 2014-09-19 12:05:41Z wlampl $
 
 // System include(s):
 #include <cmath>
@@ -594,7 +594,10 @@ namespace xAOD {
 
   float CaloCluster_v1::etaSample(const CaloSample sampling) const {
     static Accessor< std::vector <float > > etaAcc("eta_sampl");
-    return getSamplVarFromAcc(etaAcc,sampling);
+    if (!etaAcc.isAvailable( *this ))
+      return -999;
+    else
+      return getSamplVarFromAcc(etaAcc,sampling);
   }
 
   bool CaloCluster_v1::setEta(const CaloSample sampling, const float eta) {
@@ -605,7 +608,10 @@ namespace xAOD {
 
   float CaloCluster_v1::phiSample(const CaloSample sampling) const {
     static Accessor< std::vector <float > > phiAcc("phi_sampl");
-    return getSamplVarFromAcc(phiAcc,sampling);
+    if (!phiAcc.isAvailable( *this ))
+      return -999;
+    else
+      return getSamplVarFromAcc(phiAcc,sampling);
   }
 
   bool CaloCluster_v1::setPhi(const CaloSample sampling, const float phi) {
@@ -617,7 +623,10 @@ namespace xAOD {
 
   float CaloCluster_v1::energy_max(const CaloSample sampling) const {
     static Accessor< std::vector <float > > emaxAcc("emax_sampl");
-    return getSamplVarFromAcc(emaxAcc,sampling,0.0); //Return energy 0 in case of failure (eg. sampling not set)
+    if (!emaxAcc.isAvailable( *this ))
+      return 0.0;
+    else
+      return getSamplVarFromAcc(emaxAcc,sampling,0.0); //Return energy 0 in case of failure (eg. sampling not set)
   }
 
   bool CaloCluster_v1::setEmax(const CaloSample sampling, const float eMax ) {
@@ -627,7 +636,10 @@ namespace xAOD {
   
   float CaloCluster_v1::etamax(const CaloSample sampling) const {
     static Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
-    return getSamplVarFromAcc(etamaxAcc,sampling);
+    if (!etamaxAcc.isAvailable( *this ))
+      return -999;
+    else
+      return getSamplVarFromAcc(etamaxAcc,sampling);
   }
 
   bool CaloCluster_v1::setEtamax(const CaloSample sampling, const float etaMax ) {
@@ -637,7 +649,10 @@ namespace xAOD {
   
   float CaloCluster_v1::phimax(const CaloSample sampling) const {
     static Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
-    return getSamplVarFromAcc(phimaxAcc,sampling);
+    if (!phimaxAcc.isAvailable( *this ))
+      return -999;
+    else
+      return getSamplVarFromAcc(phimaxAcc,sampling);
   }
 
   bool CaloCluster_v1::setPhimax(const CaloSample sampling, const float phiMax ) {
@@ -648,7 +663,10 @@ namespace xAOD {
   
   float CaloCluster_v1::etasize(const CaloSample sampling) const {
     static Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
-    return getSamplVarFromAcc(etasizeAcc,sampling);
+    if (!etasizeAcc.isAvailable( *this ))
+      return -999;
+    else
+      return getSamplVarFromAcc(etasizeAcc,sampling);
   }
 
   bool CaloCluster_v1::setEtasize(const CaloSample sampling, const float etaSize ) {
@@ -658,7 +676,10 @@ namespace xAOD {
   
   float CaloCluster_v1::phisize(const CaloSample sampling) const {
     static Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
-    return getSamplVarFromAcc(phisizeAcc,sampling);
+    if (!phisizeAcc.isAvailable( *this ))
+      return -999;
+    else
+      return getSamplVarFromAcc(phisizeAcc,sampling);
   }
 
   bool CaloCluster_v1::setPhisize(const CaloSample sampling, const float phiSize ) {
@@ -666,13 +687,6 @@ namespace xAOD {
     return setSamplVarFromAcc(phisizeAcc,sampling,phiSize);
   }
 
-
-
-  void CaloCluster_v1::insertMoment( MomentType type, double value ) {
-    ( *( momentAccessorV1( type ) ) )( *this ) = value;
-    return;
-  }
-  
 
   float CaloCluster_v1::energyBE(const unsigned sample) const {
     if (sample>3) return -999;
@@ -813,6 +827,13 @@ namespace xAOD {
       value = ( *acc )( *this );
       return true;
    }
+
+
+ void CaloCluster_v1::insertMoment( MomentType type, double value ) {
+   ( *( momentAccessorV1( type ) ) )( *this ) = value;
+   return;
+  }
+  
 
   /** for debugging only ...
   std::vector<std::pair<std::string,float> > CaloCluster_v1::getAllMoments() {
