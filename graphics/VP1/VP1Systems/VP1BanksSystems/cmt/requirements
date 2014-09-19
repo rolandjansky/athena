@@ -1,7 +1,7 @@
 package VP1BanksSystems
 
 author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
-manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-*
 use VP1Base VP1Base-*    graphics/VP1
@@ -9,7 +9,7 @@ private
 use VP1Utils             VP1Utils-*             graphics/VP1
 use AthenaKernel          AthenaKernel-*        Control
 #use GaudiKernel          GaudiKernel-*
-use CLIDSvc              CLIDSvc-*              Control
+use CLIDSvc              CLIDSvc-*              Control     -no_auto_imports  # The flag '-no_auto_imports' prevents CHECKREQ errors.
 use GaudiInterface        GaudiInterface-*        External
 public
 
