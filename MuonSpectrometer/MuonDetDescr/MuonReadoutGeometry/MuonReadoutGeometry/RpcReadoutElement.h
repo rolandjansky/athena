@@ -142,6 +142,8 @@ namespace MuonGM {
     */
     void spacePointPosition( const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos ) const;
 
+    /** @brief center of an RPC RE is not trivially the center of the first surface, overloading MuonClusterReadoutElement */
+    const Amg::Vector3D  REcenter() const;
 
     /** @brief function to fill tracking cache */
     void         fillCache() const;
@@ -234,8 +236,6 @@ namespace MuonGM {
     // for backward compatibility of the interfaces keep the following 2 methods
     double distanceToPhiReadout(const Amg::Vector3D& x, const Identifier& id) const;
     double distanceToEtaReadout(const Amg::Vector3D& x, const Identifier& id) const;
-    // just for record
-    double distanceToEtaReadoutOld(const Amg::Vector3D& x, const Identifier& id) const;    
 
 
   private:
@@ -326,6 +326,11 @@ namespace MuonGM {
       return -1;
     }
     return  (dbPhi-1)*(2*NphiStripPanels()) + 2*(gasGap-1) + (measPhi ? 0 : 1);
+  }
+
+  inline const Amg::Vector3D  RpcReadoutElement::REcenter()    const { 
+    if (NphiStripPanels() == 1) return MuonClusterReadoutElement::center(0);
+    return 0.5*(MuonClusterReadoutElement::center(0)+MuonClusterReadoutElement::center(2));
   }
 
   inline int RpcReadoutElement::layerHash( const Identifier& id ) const {

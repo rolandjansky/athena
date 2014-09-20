@@ -92,10 +92,10 @@ namespace MuonGM {
 		//	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
                 m_halfX =  trd->getZHalfLength();
                 // adjust phi dimensions according to the active area  
-                // m_minHalfY = trd->getYHalfLength1();
-                // m_maxHalfY = trd->getYHalfLength2();
-                m_minHalfY = (sName[2]=='L') ? 0.5*MM_A_ACTIVE[1][abs(zi)-1] : 0.5*MM_A_ACTIVE[0][abs(zi)-1];
-                m_maxHalfY = (sName[2]=='L') ? 0.5*MM_B_ACTIVE[1][abs(zi)-1] : 0.5*MM_B_ACTIVE[0][abs(zi)-1];       
+                m_minHalfY = trd->getYHalfLength1();
+                m_maxHalfY = trd->getYHalfLength2();
+                //m_minHalfY = (sName[2]=='L') ? 0.5*MM_A_ACTIVE[1][abs(zi)-1] : 0.5*MM_A_ACTIVE[0][abs(zi)-1];
+                //m_maxHalfY = (sName[2]=='L') ? 0.5*MM_B_ACTIVE[1][abs(zi)-1] : 0.5*MM_B_ACTIVE[0][abs(zi)-1];       
 		foundShape = true;
  	      }	else if (pc->getLogVol()->getShape()->type()=="Subtraction") {
 		const GeoShapeSubtraction* sh = dynamic_cast<const GeoShapeSubtraction*> (pc->getLogVol()->getShape());
@@ -113,10 +113,10 @@ namespace MuonGM {
 		  //std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
 		  //	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
 		  m_halfX =  trd->getZHalfLength();
-		  //m_minHalfY = trd->getYHalfLength1();
-		  //m_maxHalfY = trd->getYHalfLength2();
-		  m_minHalfY = (sName[2]=='L') ? 0.5*MM_A_ACTIVE[1][abs(zi)-1] : 0.5*MM_A_ACTIVE[0][abs(zi)-1];
-		  m_maxHalfY = (sName[2]=='L') ? 0.5*MM_B_ACTIVE[1][abs(zi)-1] : 0.5*MM_B_ACTIVE[0][abs(zi)-1];       
+		  m_minHalfY = trd->getYHalfLength1();
+		  m_maxHalfY = trd->getYHalfLength2();
+		  //m_minHalfY = (sName[2]=='L') ? 0.5*MM_A_ACTIVE[1][abs(zi)-1] : 0.5*MM_A_ACTIVE[0][abs(zi)-1];
+		  //m_maxHalfY = (sName[2]=='L') ? 0.5*MM_B_ACTIVE[1][abs(zi)-1] : 0.5*MM_B_ACTIVE[0][abs(zi)-1];       
 		  foundShape = true;
                 }
               } else {

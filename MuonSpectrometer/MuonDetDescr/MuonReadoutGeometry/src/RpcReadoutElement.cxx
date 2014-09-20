@@ -747,8 +747,8 @@ namespace MuonGM {
     
     if (ndbz == 1) {
       double zPoint = P.z();
-      double zLow = center().z() - getZsize()/2.;
-      double zUp = center().z() + getZsize()/2.;
+      double zLow = REcenter().z() - getZsize()/2.;
+      double zUp = REcenter().z() + getZsize()/2.;
       if (zPoint < zLow || zPoint > zUp) {
 	//MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
 	const RpcIdHelper* idh = manager()->rpcIdHelper();
@@ -761,8 +761,8 @@ namespace MuonGM {
       else dist = zPoint - zLow;
 
     } else {
-      double zUp    = center().z() + getZsize()/2.;
-      double zLow   = center().z() - getZsize()/2.;
+      double zUp    = REcenter().z() + getZsize()/2.;
+      double zLow   = REcenter().z() - getZsize()/2.;
       double zPoint = P.z();
       if (zPoint < zLow || zPoint > zUp) {
 	//  MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
@@ -798,10 +798,14 @@ namespace MuonGM {
   double RpcReadoutElement::distanceToEtaReadout(const Amg::Vector3D& P, const Identifier& /*id*/) const
   {
     //id is actually never used !!!!!!!!!!!!!!!!!
-    double dist = -999.;
+    double dist = -999999.;
     double pAmdbL = GlobalToAmdbLRSCoords(P).x();
-    double myCenterAmdbL = GlobalToAmdbLRSCoords(center()).x();
+    double myCenterAmdbL = GlobalToAmdbLRSCoords(REcenter()).x();
     double sdistToCenter = pAmdbL - myCenterAmdbL;
+    // std::cout<<"distanceToEtaReadout: point (ATLAS frame) is "<<P.x()<<" "<<P.y()<<" "<<P.z()<<" sSize of the chamber is "<<getSsize()<<std::endl;
+    // std::cout<<"distanceToEtaReadout: x of the point the AMDB LRS "<<pAmdbL<<std::endl;
+    // std::cout<<"distanceToEtaReadout: x RE-center of the AMDB LRS "<<myCenterAmdbL<<std::endl;
+    // std::cout<<"distanceToEtaReadout: RE center()= "<<REcenter().x()<<" "<<REcenter().y()<<" "<<REcenter().z()<<std::endl;
     if (fabs(sdistToCenter)>getSsize()/2.) 
       {
         //MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
@@ -825,105 +829,6 @@ namespace MuonGM {
       }
     return dist;
   }
-
-  double RpcReadoutElement::distanceToEtaReadoutOld(const Amg::Vector3D& P, const Identifier& id) const
-  {
-    // P is a point in the global reference frame
-    // we want to have the distance from the side of the eta readout (length travelled along a eta strip) from a signal produced at P)
-    double dist = -999.;
-
-    if ( (getStationPhi() == 1 || getStationPhi() == 5 ) && largeSector() ) 
-      {
-        double Ynew = P.y()-center().y();
-        double sP =  Ynew;
-        if (getStationPhi() == 5) sP = -Ynew;
-        if (fabs(sP)>getSsize()/2.) {
-	  //MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-	  const RpcIdHelper* idh = manager()->rpcIdHelper();
-	  reLog()<<MSG::WARNING<<" id "<<idh->show_to_string(identify())
-		 <<" ::distanceToEtaReadout Y of the Point  "<<P.y()<<" is out of the rpc-module range ("
-		 <<center().y()-getSsize()/2.<<","<<center().y()+getSsize()/2.<<")"
-		 <<" for module "<<idh->show_to_string(id)<<endreq;
-	  return dist;
-        }
-        if (m_nphistrippanels == 1)
-	  {
-            // assume that readout side is at smallest phi
-            if (sP <= 0.) dist = getSsize()/2.-sP;
-            else  dist = getSsize()/2.+fabs(sP);
-	  }
-        else 
-	  {
-            const RpcIdHelper* idh = manager()->rpcIdHelper();
-            int doubletPhi = idh->doubletPhi(id);
-            if (doubletPhi == 1 && sP > 0.) {
-	      if (fabs(sP)>50.) {
-		//MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-		reLog()<<MSG::WARNING<<" id "<<idh->show_to_string(identify())
-                       <<" ::distanceToEtaReadout - 2dbPhi/doubletPhi=1 but sP>0 = "
-                       <<sP<<" for strip "<<idh->show_to_string(id)<<endreq;
-	      }
-	      else if (doubletPhi == 2 && sP < 0.) {
-		if (fabs(sP)>50.) {
-		  //MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-		  reLog()<<MSG::WARNING<<" id "<<idh->show_to_string(identify())
-			 <<" ::distanceToEtaReadout - 2dbPhi/doubletPhi=2 but sP<0 = "
-			 <<sP<<" for strip "<<idh->show_to_string(id)<<endreq;
-		}
-	      }
-            }
-            dist = getSsize()/2.-fabs(sP);
-	  }                    
-      }
-    else
-      {
-        double Xnew = P.x()-center().x();
-        double sP =  Xnew/sin(center().phi());
-        if (fabs(sP)>getSsize()/2.+50*CLHEP::mm)
-	  {
-            //MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-            const RpcIdHelper* idh = manager()->rpcIdHelper();
-            reLog()<<MSG::WARNING<<" id "<<idh->show_to_string(identify())
-		   <<" ::distanceToEtaReadout X of the Point  "<<P.x()<<" is out of the rpc-module range ("
-		   <<center().x()-sin(center().phi())*getSsize()/2.<<","<<center().x()+sin(center().phi())*getSsize()/2.<<")"
-		   <<" for module "<<idh->show_to_string(id)<<endreq;
-            std::cout<<" P.x = "<<P.x()<<" center X "<<center().x()<<" Xnew = "<<Xnew<<" sP = "<<sP<<" center().phi()="<<center().phi()<<" size/2="<<getSsize()/2.<<std::endl;
-            return dist;
-	  }
-        
-        if (m_nphistrippanels == 1)
-	  {
-            // assume that readout side is at smallest phi
-            if (sP >= 0.) dist = getSsize()/2.-sP;
-            else  dist = getSsize()/2.+fabs(sP);
-	  }
-        else 
-	  {
-            const RpcIdHelper* idh = manager()->rpcIdHelper();
-            int doubletPhi = idh->doubletPhi(id);
-            if (doubletPhi == 1 && sP < 0.) {
-	      if (fabs(sP)>50.) {
-		//MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-		reLog()<<MSG::WARNING<<" id "<<idh->show_to_string(identify())
-                       <<" ::distanceToEtaReadout - 2dbPhi/doubletPhi=1 but sP<0 = "
-                       <<sP<<" for strip "<<idh->show_to_string(id)<<endreq;
-	      }
-	      else if (doubletPhi == 2 && sP > 0.) {
-		if (fabs(sP)>50.) {
-		  //                        MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
-		  reLog()<<MSG::WARNING<<" id "<<idh->show_to_string(identify())
-			 <<" ::distanceToEtaReadout - 2dbPhi/doubletPhi=2 but sP>0 = "
-			 <<sP<<" for strip "<<idh->show_to_string(id)<<endreq;
-		}
-	      }
-            }
-            dist = getSsize()/2.-fabs(sP);
-	  }                    
-      }
-    return dist;
-  }
-
-
 
 
   void RpcReadoutElement::initDesign() {
