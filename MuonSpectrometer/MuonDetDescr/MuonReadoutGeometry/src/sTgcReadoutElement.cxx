@@ -18,6 +18,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GaudiKernel/MsgStream.h"
@@ -46,6 +47,8 @@ namespace MuonGM {
     std::string vName = pv->getLogVol()->getName();
     std::string sName = vName.substr(vName.find("-")+1);
     std::string fixName = (sName[2]=='L') ? "STL" : "STS";
+	
+	// std::cout<<"sTgcReadoutElement: name,zi,fi,mL "<<stName<<" "<<zi<<" "<<fi<<" "<<mL<<std::endl;
 
     //setStationName(stName);
     setStationName(fixName);
@@ -85,7 +88,35 @@ namespace MuonGM {
 	    _Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
             // save layer dimensions
 	    if (llay==1 || abs(zi)<3 ) {
-              if (pc->getLogVol()->getShape()->type()=="Trd") {
+			  // std::cout<<" \tType "<<pc->getLogVol()->getShape()->type()<<std::endl;
+			  if (pc->getLogVol()->getShape()->type()=="Shift") {
+			  	const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());
+				//std::cout<<" \t\ttype "<<myshift->getOp()->type()<<std::endl;
+				//std::cout<<" \t\t translation "<<myshift->getX().getTranslation()<<" "<<std::endl;
+				const GeoSimplePolygonBrep* poly=dynamic_cast<const GeoSimplePolygonBrep*>(myshift->getOp());
+				//std::cout<<" \t\t\t\t GeoPolygonBrep: dz: "<<poly->getDZ()<<std::endl;
+				//for (int i=0;i<poly->getNVertices();i++)
+				//{
+				//	std::cout<<" \t\t\t\t Point "<<poly->getXVertex(i)<<" "<<poly->getYVertex(i)<<std::endl;
+				//}
+				if (poly->getNVertices()==4)
+				{
+					m_halfX[llay-1] = poly->getYVertex(0);
+                    m_minHalfY[llay-1] = poly->getXVertex(3);
+                    m_maxHalfY[llay-1] = poly->getXVertex(0);
+				}
+				else if (poly->getNVertices()==6)
+				{
+					m_halfX[llay-1] = poly->getYVertex(0);
+                    m_minHalfY[llay-1] = poly->getXVertex(4);
+					double d1=poly->getXVertex(5)-poly->getXVertex(4);
+					double d2=poly->getYVertex(5)-poly->getYVertex(4);
+					double x=2*poly->getYVertex(0)*d1/d2;
+                    m_maxHalfY[llay-1] = m_minHalfY[llay-1]+x;
+				}
+				
+			  }
+              else if (pc->getLogVol()->getShape()->type()=="Trd") {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (pc->getLogVol()->getShape());
 		//std::cerr<<"sTGC layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
 		//	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
