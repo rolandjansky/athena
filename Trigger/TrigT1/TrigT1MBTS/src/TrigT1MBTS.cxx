@@ -19,35 +19,46 @@ namespace LVL1 {
 						    m_tileTTL1ContainerName("TileTTL1MBTS"),
 						    m_tileTTL1MBTS(0),
 						    m_thresholds_a(),
+						    m_thresholds_short_a(),
 						    m_thresholds_c(),
+						    m_thresholds_short_c(),
 						    m_cablestart_a(0),
 						    m_cablestart_c(0),
 						    m_cablestarts_a(),
 						    m_cablestarts_c(),
 						    m_thresholdNumber(),
+						    m_thresholdNumber12(),
 						    m_tZeroBin(3),
 						    m_CFD_fraction(0.9),
 						    m_badDataFound(false),
+						    m_ThrVecSize12(false),
 						    m_singleCounterInputs(false){
 
     // Defining the mapping of scintillator counters to threshold.
-    // 0,1,2,3, 4, 5, 6, 7
-    // 8,8,9,9,10,10,11,11
-    unsigned int counter = 0;
-    std::vector<unsigned int> phi(0);
+    int counter = 0;
+    std::vector<int> phi(0);
     for (int i=0;i<2;i++) {
       phi.clear();
       for (int j=0;j<8;j++) {
-	if(i==1 && j%2 == 0){ 
+	if(i==1 && j%2!=0) phi.push_back(-1);
+	else{
 	  phi.push_back(counter);
-	  counter--;
+	  counter++;
 	}
-	else phi.push_back(counter);
-	counter++;
       }
-      m_thresholdNumber.push_back(phi);
+      m_thresholdNumber12.push_back(phi);
     }
     
+    counter = 0;
+    for(int i=0;i<2;i++){
+      phi.clear();
+      for(int j=0;j<8;j++){
+        phi.push_back(counter);
+        counter++;
+      }   
+      m_thresholdNumber.push_back(phi);
+    } 
+
     declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
     declareProperty("TileTTL1ContainerName", m_tileTTL1ContainerName = "TileTTL1MBTS");
     declareProperty("TzeroBin", m_tZeroBin = 3);
@@ -70,14 +81,20 @@ namespace LVL1 {
 
     m_thresholds_a.clear();
     m_thresholds_c.clear();
-    m_thresholds_a.resize(12,0);// set the threshold to zero here -
+    m_thresholds_short_a.clear();
+    m_thresholds_short_c.clear();
+    m_thresholds_a.resize(16,0);// set the threshold to zero here -
 				// override again further down
-    m_thresholds_c.resize(12,0);// set the threshold to zero here -
+    m_thresholds_c.resize(16,0);// set the threshold to zero here -
+				// override again further down
+    m_thresholds_short_a.resize(12,0);// set the threshold to zero here -
+				// override again further down
+    m_thresholds_short_c.resize(12,0);// set the threshold to zero here -
 				// override again further down
     m_cablestarts_a.clear();
     m_cablestarts_c.clear();
-    m_cablestarts_a.resize(12,0);// default is bit 0
-    m_cablestarts_c.resize(12,0);// default is bit 0
+    m_cablestarts_a.resize(16,0);// default is bit 0
+    m_cablestarts_c.resize(16,0);// default is bit 0
 
     // Connect to the LVL1ConfigSvc to retrieve threshold settings.
     StatusCode sc = m_configSvc.retrieve();
@@ -87,8 +104,8 @@ namespace LVL1 {
 					      << endreq;
       return StatusCode::FAILURE;
     } 
-    else if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() 
+    else if(msgLvl(MSG::INFO)) {
+      msg(MSG::INFO) << "Connected to " << m_configSvc.typeAndName() 
 		      << endreq;
     }
  
@@ -114,36 +131,38 @@ namespace LVL1 {
     th_itr = thresholds.begin();
     th_itr_end = thresholds.end();
 
+    if((*th_itr)->thresholdValueVector().size() == 12) m_ThrVecSize12 = true;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Size of thresholdValueVector: " << (*th_itr)->thresholdValueVector().size() << endreq;
+
     for(;th_itr!=th_itr_end;th_itr++) {
 
       // Get the discriminator threshold settings (multiplicity input) for the C side.
       if((*th_itr)->name() == "MBTS_C") {
 	 const std::vector<TrigConf::TriggerThresholdValue*>& thrValues = (*th_itr)->thresholdValueVector();
 
-	 if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Size of thresholdValueVector for side C " << thrValues.size() << endreq;
-
 	 for(size_t ii = 0; ii<thrValues.size();++ii) {
-	    // Only the even counters are used for RunII
 	    float hwThresholdValue = thrValues[ii]->ptcut();
-	    m_thresholds_c[ii] = hwThresholdValue;
 
-	    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Multiplicity input side C, counter " << (ii<8)*ii + (ii>8)*(8+(ii-8)*2) 
+	    if(m_ThrVecSize12) m_thresholds_short_c[ii] = hwThresholdValue;
+	    else m_thresholds_c[ii] = hwThresholdValue;
+
+	    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Multiplicity input side C, counter " << ii 
 						  << ", read threshold in mV of " << hwThresholdValue << endreq;
 	 }
-	m_cablestart_c = (*th_itr)->cableStart();
+	 m_cablestart_c = (*th_itr)->cableStart();
       }
 
       // Get the discriminator threshold settings (multiplicity input) for the A side.
       else if((*th_itr)->name() == "MBTS_A") {
 	 const std::vector<TrigConf::TriggerThresholdValue*>& thrValues = (*th_itr)->thresholdValueVector();
 
-	 if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Size of thresholdValueVector for side A " << thrValues.size() << endreq;
-
 	 for(size_t ii = 0; ii<thrValues.size();++ii) {
-	    // Only the even counters are used for RunII
 	    float hwThresholdValue = thrValues[ii]->ptcut();
-	    m_thresholds_a[ii] = hwThresholdValue;
-	    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Multiplicity input side A, counter " << (ii<8)*ii + (ii>8)*(8+(ii-8)*2) 
+
+	    if(m_ThrVecSize12) m_thresholds_short_a[ii] = hwThresholdValue;
+	    else m_thresholds_a[ii] = hwThresholdValue;
+
+	    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Multiplicity input side A, counter " << ii 
 	 					 << ", read threshold in mV of " << hwThresholdValue << endreq;
 	 }
 	 m_cablestart_a = (*th_itr)->cableStart();
@@ -151,7 +170,7 @@ namespace LVL1 {
       
     }
 
-/*
+
     // Get level 1 MBTS threshold settings from the level 1
     // configuration service for the discriminators on the single
     // inputs.  There are 32 physical discriminator inputs these can
@@ -167,14 +186,15 @@ namespace LVL1 {
       m_singleCounterInputs = true;
       thrname = (*th_itr)->name();
 
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name " << thrname << endreq;
       // Get the discriminator threshold settings (single inputs) for the C side.
       if(thrname.find("MBTS_C")==0 && thrname.size()>6) {
 	// figure out module number from threshold name
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Single input threshold name " << thrname << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name " << thrname << endreq;
 	thrname.replace(thrname.find("MBTS_C"),6,"");
 	thrname.replace(thrname.find("full"),4,"");
 	size_t module = boost::lexical_cast<size_t,std::string>(thrname);
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Single input threshold name converts to Moduel number" << module << endreq;
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name converts to Moduel number" << module << endreq;
 	if(module >= m_thresholds_c.size()) {
 	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Module number " << module << " on side C out of range" << endreq;
 	} else {
@@ -186,7 +206,6 @@ namespace LVL1 {
 						<< ", read threshold in mV of " << m_thresholds_c[module] << endreq;
 	}
       }
-
       // Get the discriminator threshold settings (single inputs) for the A side.
       else if(thrname.find("MBTS_A")==0 && thrname.size()>6) {
 	// figure out module number from threshold name
@@ -208,19 +227,20 @@ namespace LVL1 {
 	}
       }
     }
-*/
+
+
 
     // MBTS_A, MBTS_C or MBTS_A, MBTS_C, MBTS_0, MBTS_1,...,MBTS_15 are used.
     // Therefore thess messages are just INFO rather than warning. 
-    if(m_thresholds_a.size() != 12) {
+    if(m_thresholds_a.size() != 16) {
       if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "MBTS_A Lvl 1 single input thresholds not set.  Triggers will be disabled." << endreq;
       m_thresholds_a.clear();
-      for(i=0;i<12;i++) m_thresholds_a.push_back(10000000);
+      for(i=0;i<16;i++) m_thresholds_a.push_back(10000000);
     }
-    if(m_thresholds_c.size() != 12) {
+    if(m_thresholds_c.size() != 16) {
       if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "MBTS_C Lvl 1 single input thresholds not set.  Triggers will be disabled." << endreq;
       m_thresholds_c.clear();
-      for(i=0;i<12;i++) m_thresholds_c.push_back(10000000);
+      for(i=0;i<16;i++) m_thresholds_c.push_back(10000000);
     }
 
     // Print out the state of this algorithm
@@ -229,27 +249,52 @@ namespace LVL1 {
       msg(MSG::INFO) << "TileTTL1ContainerName = " << m_tileTTL1ContainerName << endreq;
       msg(MSG::INFO) << "Sample t0 bin index = " << m_tZeroBin << endreq;
       msg(MSG::INFO) << "CFD fraction constant = " << m_CFD_fraction << endreq;
-      msg(MSG::INFO) << "C side thresholds for single inputs = {";
-      for(i=0;i<12;i++) {
-	msg(MSG::INFO) << m_thresholds_c[i];
-	if(i<11) msg(MSG::INFO) << ",";
-      }
-      msg(MSG::INFO) << "}" << endreq;
-      msg(MSG::INFO) << "A side thresholds for single inputs = {";
-      for(i=0;i<12;i++) {
-	msg(MSG::INFO) << m_thresholds_a[i];
-	if(i<11) msg(MSG::INFO) << ",";
-      }
-      msg(MSG::INFO) << "}" << endreq;
-      
-      msg(MSG::INFO) << "thresholdNumber: " << endreq;
-      for(j=0;j<2;j++) {
-        msg(MSG::INFO) << "{";
-      	for(i=0;i<8;i++) {
-	  msg(MSG::INFO) << m_thresholdNumber[j][i];
-	  if(i<7) msg(MSG::INFO) << ",";
+      if(m_ThrVecSize12){
+        msg(MSG::INFO) << "C side thresholds for single inputs = {";
+        for(i=0;i<12;i++) {
+          msg(MSG::INFO) << m_thresholds_short_c[i];
+          if(i<11) msg(MSG::INFO) << ",";
         }
         msg(MSG::INFO) << "}" << endreq;
+        msg(MSG::INFO) << "A side thresholds for single inputs = {";
+        for(i=0;i<12;i++) {
+          msg(MSG::INFO) << m_thresholds_short_a[i];
+          if(i<11) msg(MSG::INFO) << ",";
+        }
+        msg(MSG::INFO) << "}" << endreq;
+
+        msg(MSG::DEBUG) << "thresholdNumber12: " << endreq;
+        for(j=0;j<2;j++) {
+          for(i=0;i<8;i++) {
+            msg(MSG::DEBUG) << m_thresholdNumber12[j][i];
+            if(i<7) msg(MSG::DEBUG) << ",";
+          }
+          msg(MSG::DEBUG) << endreq;
+        }
+      }
+
+      else{
+        msg(MSG::INFO) << "C side thresholds for single inputs = {";
+        for(i=0;i<16;i++) {
+          msg(MSG::INFO) << m_thresholds_c[i];
+          if(i<15) msg(MSG::INFO) << ",";
+        }
+        msg(MSG::INFO) << "}" << endreq;
+        msg(MSG::INFO) << "A side thresholds for single inputs = {";
+        for(i=0;i<16;i++) {
+          msg(MSG::INFO) << m_thresholds_a[i];
+          if(i<15) msg(MSG::INFO) << ",";
+        }
+        msg(MSG::INFO) << "}" << endreq;
+      }	
+         
+      msg(MSG::DEBUG) << "thresholdNumber: " << endreq;
+      for(j=0;j<2;j++) {
+        for(i=0;i<8;i++) {
+          msg(MSG::DEBUG) << m_thresholdNumber[j][i];
+          if(i<7) msg(MSG::DEBUG) << ",";
+        }
+        msg(MSG::DEBUG) << endreq;
       }
       msg(MSG::INFO) << "===============================================" << endreq;
     }
@@ -261,7 +306,7 @@ namespace LVL1 {
   //---------------------------------------------------------------------
 
   StatusCode TrigT1MBTS::execute() {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endreq;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "execute()" << endreq;
     
     StatusCode sc;
     std::string containerName;
@@ -277,8 +322,8 @@ namespace LVL1 {
       }
       return StatusCode::SUCCESS;
     }
-    else if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved" 
+    else if(msgLvl(MSG::INFO)) {
+      msg(MSG::INFO) << containerName << " Container Successfully Retrieved" 
 		      << endreq;
     }
 
@@ -300,16 +345,15 @@ namespace LVL1 {
       return StatusCode::SUCCESS;
     }
 
-    if(msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "m_tileTTL1MBTS->size() = "<< m_tileTTL1MBTS->size() <<", elements: " << endreq;
-      msg(MSG::VERBOSE) << (std::string)(*m_tileTTL1MBTS) << endreq;
+    if(msgLvl(MSG::INFO)) {
+      msg(MSG::INFO) << "m_tileTTL1MBTS->size() = "<< m_tileTTL1MBTS->size() <<", elements: " << endreq;
+      //msg(MSG::INFO) << (std::string)(*m_tileTTL1MBTS) << endreq;
     }
 
     unsigned int triggersEBA = 0; // Number of triggers in EBA
     unsigned int triggersEBC = 0; // Number of triggers in EBC
     unsigned int single_triggers_A = 0;
     unsigned int single_triggers_C = 0;
-
     
     // Loop over all Lvl 1 MBTS trigger paddles
     TileTTL1Container::const_iterator ttl1_mbts_itr = m_tileTTL1MBTS->begin();
@@ -352,31 +396,49 @@ namespace LVL1 {
       }
 
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Sample [" << m_tZeroBin << "]=" << samples[m_tZeroBin] << endreq;
-      
+      /* 
       // Only the even counters are used for RunII
       if(channel == 1 && phi > 7 && phi%2 != 0) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out counter " << phi << " is not used for RunII! This counter will be skipped!" << endreq;
 	continue;
       }
-
+      */
       // Single input triggers.
-      unsigned int thresholdIndex = m_thresholdNumber[channel][phi];
+      int thresholdIndex = m_thresholdNumber[channel][phi];
+      int thresholdIndex12 = m_thresholdNumber12[channel][phi];
       if(thresholdIndex > m_thresholds_c.size() || thresholdIndex > m_thresholds_a.size()) {
 	if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Threshold index \"" << thresholdIndex << "\" for single triggers is out of range." << endreq;
 	return StatusCode::FAILURE;
       }
+
+      if(thresholdIndex12 == -1){
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "this is a needless counter for run2, the sample will be skipped!" << endreq;
+	continue;
+      }
       
       // Emulate CFD samples[m_tZeroBin]*m_CFD_fraction
-      if((samples[m_tZeroBin]*m_CFD_fraction > m_thresholds_c[thresholdIndex] && detSide == -1) ||
-	 (samples[m_tZeroBin]*m_CFD_fraction > m_thresholds_a[thresholdIndex] && detSide == 1)) {
+      float ThrValue_a = 0;
+      float ThrValue_c = 0;
+
+      if(m_ThrVecSize12){
+	ThrValue_a = m_thresholds_short_a[thresholdIndex12]; 
+	ThrValue_c = m_thresholds_short_c[thresholdIndex12]; 
+      }
+      else{
+	ThrValue_a = m_thresholds_a[thresholdIndex]; 
+	ThrValue_c = m_thresholds_c[thresholdIndex]; 
+      }
+
+      if((samples[m_tZeroBin]*m_CFD_fraction > ThrValue_c && detSide == -1) ||
+	 (samples[m_tZeroBin]*m_CFD_fraction > ThrValue_a && detSide == 1)) {
 	
 	// Add the trigger bit to the correct trigger word
 	if(detSide == -1) { // EBC
-	  if(m_singleCounterInputs) single_triggers_C += (1<<m_cablestarts_c[thresholdIndex]);
+	  single_triggers_C += (1<<(thresholdIndex));
 	  triggersEBC++; // Increment the number of EBC triggers
 	}
 	else if (detSide == 1) { // EBA
-	  if(m_singleCounterInputs) single_triggers_A += (1<<m_cablestarts_a[thresholdIndex]);
+	  single_triggers_A += (1<<(thresholdIndex));
 	  triggersEBA++; // Increment the number of EBA triggers.
 	}
 
@@ -388,11 +450,10 @@ namespace LVL1 {
     if (triggersEBA>7) triggersEBA=7;
     if (triggersEBC>7) triggersEBC=7;
 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Multis: "<< triggersEBA <<" and "<< triggersEBC <<endreq;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Multis: "<< triggersEBA <<" and "<< triggersEBC <<endreq;
 
     unsigned int cableWordA = single_triggers_A+(triggersEBA<<m_cablestart_a);
     unsigned int cableWordC = single_triggers_C+(triggersEBC<<m_cablestart_c);
-
 
     // Record the CTP trigger word in StoreGate.
     MbtsCTP *mbtsACTP = new MbtsCTP(cableWordA);
@@ -400,6 +461,8 @@ namespace LVL1 {
 
     mbtsACTP->dump();
     mbtsCCTP->dump();
+    if(MSG::INFO)  msg(MSG::INFO) << " mbtsACTP:  " << mbtsACTP->print() << endreq;
+    if(MSG::INFO)  msg(MSG::INFO) << " mbtsCCTP:  " << mbtsCCTP->print() << endreq;
 
     std::string containerNameA = DEFAULT_MbtsACTPLocation;
     std::string containerNameC = DEFAULT_MbtsCCTPLocation;
