@@ -11,6 +11,7 @@
 #include "TrigNtupleBase/NtupleComponent.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 class ESNtComponent : public NtComponent::NtupleComponent {
 public:

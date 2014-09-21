@@ -12,7 +12,7 @@
 #include "TrigNtupleBase/NtupleComponent.h"
 #include "TrigNtupleBase/NtupleAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfigSvc/IHLTConfigSvc.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 class HltConfigNtComponent : public NtComponent::NtupleComponent {
 public:

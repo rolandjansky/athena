@@ -28,7 +28,7 @@
 #include "muonEvent/MuonContainer.h"
 #include "TileEvent/TileContainer.h"
 
-#include "Cintex/Cintex.h"
+//#include "Cintex/Cintex.h"
 
 using namespace std;
 using namespace NtComponent;

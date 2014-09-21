@@ -11,7 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ActiveStoreSvc.h"
-#include "TrigConfigSvc/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TriggerMenuAnalysis/TrigAccessTool.h"
 #include "TriggerMenuAnalysis/RoILinksCnvTool.h"
 

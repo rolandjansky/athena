@@ -12,7 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "TrigConfigSvc/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTChain.h"
 #include "TriggerMenuAnalysis/TrigAccessTool.h"
