@@ -20,25 +20,40 @@ apply_pattern poolcnv typesWithNamespace="ROIB::RoIBResult LVL1::MuCTPICTP LVL1:
 	LVL1::JetCTP LVL1::EnergyCTP \
 	LVL1::RecMuonRoI LVL1::RecEmTauRoI LVL1::RecJetRoI \
         LVL1::TriggerTowerCollection LVL1::JetElementCollection \
-        LVL1::CPMTowerCollection LVL1::CPMHitsCollection \
-        LVL1::CPMRoICollection LVL1::CMMCPHitsCollection LVL1::CMMJetHitsCollection \
-        LVL1::CMMRoI LVL1::CMMEtSumsCollection LVL1::JEMHitsCollection \
-        LVL1::JEMEtSumsCollection LVL1::JEMRoICollection LVL1::RODHeaderCollection" \
+        LVL1::CPMTowerCollection     LVL1::CPMTobRoICollection \
+	LVL1::CMXCPTobCollection     LVL1::CMXCPHitsCollection \
+	LVL1::CMXJetTobCollection    LVL1::CMXJetHitsCollection \
+	LVL1::CMXEtSumsCollection    LVL1::CMXRoI \
+	LVL1::JEMEtSumsCollection    LVL1::JEMTobRoICollection \
+	LVL1::CPMHitsCollection      LVL1::CPMRoICollection \
+        LVL1::CMMCPHitsCollection    LVL1::CMMJetHitsCollection \
+        LVL1::CMMEtSumsCollection    LVL1::CMMRoI \
+	LVL1::JEMHitsCollection      LVL1::JEMRoICollection \
+	LVL1::RODHeaderCollection" \
 	files="-s=${TrigT1Result_root}/TrigT1Result \
                                  RoIBResult.h \
                                  MuCTPI_RDO.h \
                                  CTP_RDO.h \
-	       -s=${TrigT1CaloEvent_root}/TrigT1CaloEvent TriggerTowerCollection.h \
+	       -s=${TrigT1CaloEvent_root}/TrigT1CaloEvent \
+	                         TriggerTowerCollection.h \
                                  JetElementCollection.h \
                                  CPMTowerCollection.h \
+                                 CPMTobRoICollection.h \
+                                 CMXCPTobCollection.h \
+                                 CMXCPHitsCollection.h \
+                                 CMXJetTobCollection.h \
+                                 CMXJetHitsCollection.h \
+                                 CMXEtSumsCollection.h \
+                                 CMXRoI.h \
+                                 JEMEtSumsCollection.h \
+                                 JEMTobRoICollection.h \
                                  CPMHitsCollection.h \
                                  CPMRoICollection.h \
                                  CMMCPHitsCollection.h \
                                  CMMJetHitsCollection.h \
-                                 CMMRoI.h \
                                  CMMEtSumsCollection.h \
+                                 CMMRoI.h \
                                  JEMHitsCollection.h \
-                                 JEMEtSumsCollection.h \
                                  JEMRoICollection.h \
 				 RODHeaderCollection.h \
 	       -s=${TrigT1Interfaces_root}/TrigT1Interfaces \
