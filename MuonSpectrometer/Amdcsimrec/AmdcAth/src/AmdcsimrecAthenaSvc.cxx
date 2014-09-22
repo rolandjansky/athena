@@ -180,13 +180,13 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
   ATH_MSG_DEBUG( "Found DetectorStore ") ;
 
 //Set pointer on AtlasDetectorID
-  sc = p_detStore->retrieve(p_AtlasDetectorID, "AtlasID" );
+/*  sc = p_detStore->retrieve(p_AtlasDetectorID, "AtlasID" );
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not get AtlasDetectorID ") ;
     return( StatusCode::FAILURE );
   }
   ATH_MSG_DEBUG( "Found AtlasDetectorID ") ;
-
+*/
 //Set pointer on GeoModelSvc
   if ( m_AlignmentSource == 2 
   || m_NameOfTheSource=="POOL" 
@@ -1895,14 +1895,14 @@ void AmdcsimrecAthenaSvc::CheckALineMapContainer(const ALineMapContainer*& pALin
                            << "  jzz         " << jzz1         
                            << "  job         " << job1         
                            ) ; 
-          ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY id1     " 
+/*          ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY id1     " 
                            << " " << line1->first
                            << " " << p_AtlasDetectorID->print_to_string(line1->first)
                            ) ; 
           ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY id2     " 
                            << " " << line2->first
                            << " " << p_AtlasDetectorID->print_to_string(line2->first)
-                           ) ; 
+                           ) ; */
           a1->getParameters(s1, z1, t1, rotS1, rotZ1, rotT1);
           a2->getParameters(s2, z2, t2, rotS2, rotZ2, rotT2);
           ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY values1 " 
@@ -1983,14 +1983,14 @@ void AmdcsimrecAthenaSvc::CheckBLineMapContainer(const BLineMapContainer*& pBLin
                            << "  jzz         " << jzz1         
                            << "  job         " << job1         
                            ) ; 
-          ATH_MSG_DEBUG( " B LINE DOUBLE ENTRY id1     " 
+/*          ATH_MSG_DEBUG( " B LINE DOUBLE ENTRY id1     " 
                            << " " << line1->first
                            << " " << p_AtlasDetectorID->print_to_string(line1->first)
                            ) ; 
           ATH_MSG_DEBUG( " B LINE DOUBLE ENTRY id2     " 
                            << " " << line2->first
                            << " " << p_AtlasDetectorID->print_to_string(line2->first)
-                           ) ; 
+                           ) ; */
           b1->getParameters(bz1, bp1, bn1, sp1, sn1, tw1,
                             pg1, tr1, eg1, ep1, en1);
           b2->getParameters(bz2, bp2, bn2, sp2, sn2, tw2,
