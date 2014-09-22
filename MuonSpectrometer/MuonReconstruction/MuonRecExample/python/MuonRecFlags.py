@@ -53,7 +53,7 @@ class doNewThirdChain(JobProperty):
 class doNSWNewThirdChain(JobProperty):
      StatusOn=True
      allowedType=['bool']
-     StoredValue=True
+     StoredValue=False
     
 ## Run clusterization 
 class doCreateClusters(JobProperty):

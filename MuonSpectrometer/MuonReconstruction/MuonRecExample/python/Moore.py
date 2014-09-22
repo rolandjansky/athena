@@ -55,7 +55,7 @@ class Moore(ConfiguredMuonRec):
         # Segment builder
         #
         self.addAlg( CfgMgr.MooSegmentFinderAlg( "MooSegmentMaker",
-                                                 SegmentFinder = getPrivateTool("MooSegmentFinder", WriteChamerT0s = True),
+                                                 SegmentFinder = getPublicTool("MooSegmentFinder"),
                                                  UseCSC = muonRecFlags.doCSCs(),
                                                  UseMDT = muonRecFlags.doMDTs(),
                                                  UseRPC = muonRecFlags.doRPCs(),

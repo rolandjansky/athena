@@ -32,7 +32,6 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
     kwargs["overlap_timeTolerance"] = 1000
     kwargs["solvePhiAmbiguities"] = True
     kwargs["etaphi_coincidenceTime"] = 1000
-    kwargs["timeShift"] = 50
   elif source == 'geant4':
     pass
   #kwargs["etaphi_coincidenceTime"] = 100
