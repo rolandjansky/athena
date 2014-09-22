@@ -39,7 +39,7 @@ private:
 ///////////////////////////////////
 // Data
 
-   static Amdcsimrec* s_Amdcsimrec ; //!< Static Pointer on a Amdcsimrec interface
+   static Amdcsimrec* p_Amdcsimrec ; //!< Static Pointer on a Amdcsimrec interface
    
 };
 #endif

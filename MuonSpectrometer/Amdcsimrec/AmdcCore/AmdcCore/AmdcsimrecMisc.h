@@ -10,11 +10,22 @@
 #ifndef AmdcsimrecMisc_H
 #define AmdcsimrecMisc_H
 
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <cstdio>
-#include <cmath>
+#if HAVE_NEW_IOSTREAMS
+# include <iostream>
+# include <iomanip>
+# include <fstream>
+#else
+# include <iostream.h>
+# include <iomanip.h>
+# include <fstream.h>
+#endif
+#if HAVE_CXX_STDC_HEADERS
+# include <cstdio>
+# include <cmath>
+#else
+# include <stdio.h>
+# include <math.h>
+#endif
 #include <algorithm>
 #include <iterator>
 #include <list>
