@@ -31,6 +31,7 @@ class TrfConfig:
         self.outFiles={}
         self.inDS=None
         self.outfmts=[]
+        self.newTransform=False
 
     def __iter__(self):
         theDict=self.inFiles.copy()
@@ -59,7 +60,14 @@ class TrfConfig:
     def _str_to_dict(self,adict):
         string=''
         for (k,v) in adict.iteritems():
-            string +=" "+k+"='"+v.replace("'", "\\'")+"'"
+            if self.newTransform:
+                # Some keys already have '--' prefixied
+                if k.startswith('--'):
+                    string +=" "+k+" '"+v.replace("'", "\\'")+"'"
+                else:
+                    string +=" --"+k+" '"+v.replace("'", "\\'")+"'"
+            else:
+                string +=" "+k+"='"+v.replace("'", "\\'")+"'"
         return string
 
 ## @brief Stores the information about a given tag.
@@ -249,6 +257,10 @@ def getTrfConfigFromPANDA(tag):
 
         trf = TrfConfig()
         trf.name =trfn[iTrf]
+        if '_tf.py' in trf.name:
+            trf.newTransform=True
+        else:
+            trf.newTransform=False
         trf.release=trfv[iTrf] + "," + cache[iTrf]
 
         keys=lparams[iTrf].split(',')
@@ -292,6 +304,8 @@ def getTrfConfigFromPANDA(tag):
         trf.physics=physics
 
         listOfTrfs.append(trf)
+        
+        
 
     listOfTrfs[0].inDS=None # not yet implemented
     listOfTrfs[-1].outfmts=formats
@@ -345,6 +359,12 @@ def getTrfConfigFromAMI(tag):
     trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
     trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
 
+    # Now fix up for command line in the case of a new transform:
+    if '_tf.py' in trf.name:
+        trf.newTransform=True
+    else:
+        trf.newTransform=False
+        
     return [ trf ]
 
     

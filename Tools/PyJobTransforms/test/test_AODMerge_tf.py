@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: test_AODMerge_tf.py 604373 2014-07-01 09:32:30Z graemes $
+# $Id: test_AODMerge_tf.py 617963 2014-09-22 13:13:07Z graemes $
 # Run a EVNTMerge job and test key metadata in the output
 #
 
@@ -42,7 +42,7 @@ class AODMergetest(unittest.TestCase):
         with open('jobReportFast.json') as jr:
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
-            self.assertEqual(md['files']['output'][0]['subFiles'][0]['nentries'], 2500)
+            self.assertEqual(md['files']['output']['common']['nentries'], 2500)
 
     def test_runAODMergeSlow(self):
         inputs = glob.glob(sourceFiles)
@@ -67,7 +67,7 @@ class AODMergetest(unittest.TestCase):
         with open('jobReportSlow.json') as jr:
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
-            self.assertEqual(md['files']['output'][0]['subFiles'][0]['nentries'], 2500)
+            self.assertEqual(md['files']['output']['common']['nentries'], 2500)
 
 
 if __name__ == '__main__':
