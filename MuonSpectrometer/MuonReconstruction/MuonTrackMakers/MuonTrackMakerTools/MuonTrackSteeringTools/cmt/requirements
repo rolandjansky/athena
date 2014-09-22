@@ -42,7 +42,6 @@ use AthenaKernel                  AthenaKernel-*                 Control
 use TrkDriftCircleMath            TrkDriftCircleMath-*           Tracking/TrkUtilityPackages
 use TrkExUtils                    TrkExUtils-*                   Tracking/TrkExtrapolation
 use TrkTrackSummary               TrkTrackSummary-*              Tracking/TrkEvent
-use MboyAthToolInterfaces         MboyAthToolInterfaces-*        MuonSpectrometer/Muonboy
 
 end_private
 
