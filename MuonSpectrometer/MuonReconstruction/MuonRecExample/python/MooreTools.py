@@ -113,6 +113,7 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
 MooSegmentCombinationFinder.setDefaultProperties(
     SegmentCombiner           = "MuonCurvedSegmentCombiner",
     SegmentCombinationCleaner = "MuonSegmentCombinationCleanerTool",
+    HoughPatternFinder        = "MuonLayerHoughTool",
     MdtSegmentMaker           = "MuonPatternSegmentMaker",
     DoSegmentCombinationCleaning = True ,
     DoCscSegments             = muonRecFlags.doCSCs() ,

@@ -66,7 +66,7 @@ def getCalibConfigs():
 
 ## Setup MuonSegmenToCalibSegment algorithm.
 # @input @c segmentKeys list of segment keys to use or single segments key (string)
-def getMuonSegmentToCalibSegment(segmentKeys, segmentAutors=[]):
+def getMuonSegmentToCalibSegment(segmentKeys, segmentAuthors=[]):
     global topSequence,muonRecFlags
     try:
         return topSequence.MuonSegmentToCalibSegment
@@ -74,8 +74,8 @@ def getMuonSegmentToCalibSegment(segmentKeys, segmentAutors=[]):
         # support just one key (string)
         if type(segmentKeys) == str:
             segmentKeys = [ segmentKeys ]
-        if type(segmentAutors) == str:
-            segmentAutors = [ segmentAutors ]
+        if type(segmentAuthors) == str:
+            segmentAuthors = [ segmentAuthors ]
             
         from MuonCalibPatRec.MuonCalibPatRecConf import MuonCalib__MuonSegmentToCalibSegment
         MuonSegmentToCalibSegment = MuonCalib__MuonSegmentToCalibSegment("MuonSegmentToCalibSegment")
@@ -87,7 +87,7 @@ def getMuonSegmentToCalibSegment(segmentKeys, segmentAutors=[]):
         # only do CSC segments if Moore is running and CSCs are on
         MuonSegmentToCalibSegment.UseCscSegments = False
         MuonSegmentToCalibSegment.SegmentLocations = segmentKeys
-        MuonSegmentToCalibSegment.SegmentAuthors = segmentAutors
+        MuonSegmentToCalibSegment.SegmentAuthors = segmentAuthors
         MuonSegmentToCalibSegment.ReadSegments = True # rather than SegmentCombinations
 
         getService("MdtCalibrationSvc")
@@ -139,7 +139,7 @@ def setupMuonCalibNtuple():
         # MuonSegmentToCalibSegment is only needed if we want segments
         if muonRecFlags.calibNtupleSegments and (muonRecFlags.calibMoore or muonRecFlags.calibMuonboy or muonRecFlags.calibMuonStandalone):
             segmentKeys = [ c['segmentsKey'] for c in configs ]
-            segmentAuthors = [ c['segmentAutor'] for c in configs ]
+            segmentAuthors = [ c['segmentAuthor'] for c in configs ]
             MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment( segmentKeys,  segmentAuthors)
 
         # MuonCalibAlg is always needed
@@ -183,7 +183,7 @@ def setupMuonCalibNtuple():
                for config in configs:
                  trackDumpTool = MuonCalib__ExtraTreeTrackFillerTool("ExtraTreeTrackFillerTool" + str(tool_nr))
                  trackDumpTool.TrackCollectionKey = config['tracksKey']
-                 trackDumpTool.SegmentAuthors = [config['segmentAutor']]
+                 trackDumpTool.SegmentAuthors = [config['segmentAuthor']]
                  trackDumpTool.TrackAuthor = config['trackAuthor']
                  trackDumpTool.PullCalculator = resPullCalc
                  ToolSvc+=trackDumpTool

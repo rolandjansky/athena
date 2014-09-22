@@ -116,34 +116,47 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC() )) 
 
         elif muonStandaloneFlags.segmentOrigin == 'Muon':
-            
-            getPublicTool("MuonLayerHoughTool")
-            self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
-            if not muonStandaloneFlags.patternsOnly():
-                SegmentFinder = getPublicTool("MuonClusterSegmentFinderTool")
-                Cleaner = getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
-                Cleaner.PullCut = 3
-                Cleaner.PullCutPhi = 3
-                SegmentFinder.TrackCleaner = Cleaner
+            SegmentLocation = "MuonSegments"
+            if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
+                SegmentLocation = "ThirdChainSegments"
+
+            if muonRecFlags.doNSWNewThirdChain():
+                getPublicTool("MuonLayerHoughTool")
+                self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
+                if not muonStandaloneFlags.patternsOnly():
+                    SegmentFinder = getPublicTool("MuonClusterSegmentFinderTool")
+                    Cleaner = getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
+                    Cleaner.PullCut = 3
+                    Cleaner.PullCutPhi = 3
+                    SegmentFinder.TrackCleaner = Cleaner
                 # for test purposes allow parallel running of truth segment finding and new segment finder
-                SegmentLocation = "MuonSegments"
-                if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
-                    SegmentLocation = "ThirdChainSegments"
-                
-                MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "MuonSegmentMaker",SegmentCollectionName=SegmentLocation, 
-                                                                    MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
-                                                                    MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
-                                                                    MuonTruthSummaryTool = None,
-                                                                    PrintSummary = muonStandaloneFlags.printSummary() )
-                if( muonRecFlags.doCSCs() ):
-                    getPublicTool("CscSegmentUtilTool")
-                    getPublicTool("Csc2dSegmentMaker")
-                    getPublicTool("Csc4dSegmentMaker")
-                else:
-                    MuonSegmentFinderAlg.Csc2dSegmentMaker = None
-                    MuonSegmentFinderAlg.Csc4dSegmentMaker = None
-                self.addAlg( MuonSegmentFinderAlg )
-                
+                    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "MuonSegmentMaker",SegmentCollectionName=SegmentLocation, 
+                                                                            MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
+                                                                            MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
+                                                                            MuonTruthSummaryTool = None,
+                                                                            PrintSummary = muonStandaloneFlags.printSummary() )
+                    if( muonRecFlags.doCSCs() ):
+                        getPublicTool("CscSegmentUtilTool")
+                        getPublicTool("Csc2dSegmentMaker")
+                        getPublicTool("Csc4dSegmentMaker")
+                    else:
+                        MuonSegmentFinderAlg.Csc2dSegmentMaker = None
+                        MuonSegmentFinderAlg.Csc4dSegmentMaker = None
+                    self.addAlg( MuonSegmentFinderAlg )
+            else:
+                getPublicTool("MuonLayerHoughTool")
+                self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
+                                                         SegmentFinder = getPublicToolClone("MuonSegmentFinder","MooSegmentFinder",
+                                                                                            DoSummary=muonStandaloneFlags.printSummary()),
+                                                         MuonSegmentOutputLocation = SegmentLocation,
+                                                         UseCSC = muonRecFlags.doCSCs(),
+                                                         UseMDT = muonRecFlags.doMDTs(),
+                                                         UseRPC = muonRecFlags.doRPCs(),
+                                                         UseTGC = muonRecFlags.doTGCs(),
+                                                         UseTGCPriorBC = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC(),
+                                                         UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC() ))
+
+
         elif muonStandaloneFlags.segmentOrigin == 'Muonboy':
             TheThirdChainMboyMuonSegmentMakerTester = CfgMgr.MboyMuonSegmentMakerTester("MuonSegmentMaker", 
                                                                                         MboyMuonSegmentMaker = getPublicTool("ThirdChainMboyMuonSegmentMaker"),
