@@ -18,13 +18,14 @@ use LCG_Configuration
 #macro hepmcanalysis_native_version "3.4.11.root53200"
 macro hepmcanalysis_native_version "3.4.14"
 
-macro HepMCAnalysis_native_version "$(hepmcanalysis_native_version)_lcgcmt$(LCG_config_version)"
+macro AtlasHepMCAnalysis_native_version "$(hepmcanalysis_native_version)_lcgcmt$(LCG_config_version)"
 
 #macro AtlasHepMCAnalysis_BASE "/afs/cern.ch/sw/lcg/external/MCGenerators_hepmc$(HepMC_config_version)/hepmcanalysis"
 #macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_hepmc$(HepMC_config_version)/hepmcanalysis"
 
 #macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt_preview/hepmcanalysis"
 macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/hepmcanalysis"
+#macro AtlasHepMCAnalysis_BASE "$(LCG_external)/MCGenerators/hepmcanalysis"
 #macro AtlasHepMCAnalysis_BASE "$(LCG_ROOT)/external/MCGenerators_lcgcmt64d/hepmcanalysis"
 macro AtlasHepMCAnalysis_SYSTEM "$(LCG_ext_system)" \
               slc4&gcc43&32 "slc4_ia32_gcc34" \
