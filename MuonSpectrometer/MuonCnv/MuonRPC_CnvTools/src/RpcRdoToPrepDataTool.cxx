@@ -71,7 +71,7 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty("solvePhiAmbiguities",       m_solvePhiAmbiguities        = true);
   declareProperty("produceRpcCoinDatafromTriggerWords",m_producePRDfromTriggerWords = true);
   declareProperty("reduceCablingOverlap",      m_reduceCablingOverlap       = true);
-  declareProperty("timeShift",                 m_timeShift                  = 0.);
+  declareProperty("timeShift",                 m_timeShift                  = -12.5); // Zmumu muons are at t=0 in PRD time-domain
   declareProperty("OutputCollection",          m_outputCollectionLocation   = "RPC_Measurements" );
   declareProperty("TriggerOutputCollection",   m_trgOutputCollectionLocation   = "RPC_triggerHits" );
   declareProperty("useBStoRdoTool",            m_useBStoRdoTool       = false);
