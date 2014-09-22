@@ -36,9 +36,6 @@
 #include "MooTrackBuilder.h"
 #include "MooCandidateMatchingTool.h"
 
-#include "MboyAthToolInterfaces/IFindMonitor.h"
-#include "MboyAthToolInterfaces/IRefineMonitor.h"
-
 #include <sstream>
 #include <iomanip>
 #include <cmath>
@@ -65,8 +62,6 @@ namespace Muon {
     , m_segmentMerger("")
     , m_trackSelector("Muon::MuonTrackSelectorTool/MuonTrackSelectorTool")
     , m_muonHoleRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool")
-    , p_IFindMonitor ( "Muon::FindMonitor/FindMonitor" )
-    , p_IRefineMonitor ( "Muon::RefineMonitor/RefineMonitor" )
     , m_combinedSLOverlaps(false)
     , m_findingDepth(0)
     , m_seedCombinatorics(0)
@@ -92,9 +87,6 @@ namespace Muon {
     declareProperty( "DoSummary", m_doSummary = false );
     declareProperty( "MuonTrackSelector",   m_trackSelector );
     declareProperty( "HoleRecoveryTool",   m_muonHoleRecoverTool);
-    declareProperty( "FindMonitor"  , p_IFindMonitor ) ;
-    declareProperty( "RefineMonitor"  , p_IRefineMonitor ) ;
-    declareProperty( "DoTrackMon", m_doTrackMon = false );
     declareProperty( "WriteMergedSegments", m_writeMergedSegments = false );
     declareProperty( "UseTightSegmentMatching", m_useTightMatching = true );
     declareProperty( "SegmentThreshold", m_segThreshold = 8);
@@ -195,20 +187,7 @@ namespace Muon {
       }
    }
 
-    if( m_doTrackMon ){  
-      if ( p_IFindMonitor.retrieve().isFailure() ) {
-	ATH_MSG_ERROR( "Failed to retrieve tool " << p_IFindMonitor );
-	return StatusCode::FAILURE;
-      }
-
-      if ( p_IRefineMonitor.retrieve().isFailure() ) {
-	ATH_MSG_ERROR( "Failed to retrieve tool " << p_IRefineMonitor );
-	return StatusCode::FAILURE;
-      }
-      ATH_MSG_INFO("Track monitoring enabled: " << m_segmentMerger); 
-    }
-
-    return result;
+   return result;
   }
   
 //-----------------------------------------------------------------------------------------------------------
@@ -958,31 +937,13 @@ namespace Muon {
 
        if (matchedSegs.size()!=0 && m_useTightMatching)
 	 {  
-	   if(m_doTrackMon){
-	     bool AlreadySuccessfullyTried =  p_IFindMonitor->AlreadySuccessfullyTried(seedSeg, matchedSegs) ;
-	     if(AlreadySuccessfullyTried){
-	       return 0;
-	     }
-	     tracks = m_trackBTool->find(seedSeg, matchedSegs);
-	     p_IFindMonitor->RegisterIfSuccessful(seedSeg,matchedSegs,tracks) ;
-	   }
-	   else 
-	     tracks = m_trackBTool->find(seedSeg, matchedSegs);
+	   tracks = m_trackBTool->find(seedSeg, matchedSegs);
 	   
 	   //ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " Adding layer: " << ilayer << " with " 
 	   //		 <<  matchedSegs.size() << " matched segments " << m_candidateTool->print(matchedSegs) );  
 	 }
        else{
-       if(m_doTrackMon){
-	 bool AlreadySuccessfullyTried =  p_IFindMonitor->AlreadySuccessfullyTried(seedSeg, segs[ilayer]) ;
-	 if(AlreadySuccessfullyTried){
-	   return 0;
-	 }
-	 tracks = m_trackBTool->find(seedSeg, segs[ilayer]);
-	 p_IFindMonitor->RegisterIfSuccessful(seedSeg,segs[ilayer],tracks) ;
-       }
-       else 
-	 tracks = m_trackBTool->find(seedSeg, segs[ilayer]);
+	  tracks = m_trackBTool->find(seedSeg, segs[ilayer]);
 //        ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " Adding layer: " << ilayer << " with " 
 // 		      <<  segs[ilayer].size() << " segments " << m_candidateTool->print(segs[ilayer]) );  
        
@@ -1060,16 +1021,7 @@ namespace Muon {
 // 			<< " segments " << m_candidateTool->print(segs[nextlayer]) );
 	  //std::cout << std::setw(m_findingDepth) << " " << " Extending track with layer " << nextlayer << " segments " << print(segs[nextlayer]) << std::endl;
 	  std::vector<MuPatTrack*> *nextTracks=0;
-	  if(m_doTrackMon){
-	     bool AlreadySuccessfullyTried =  p_IFindMonitor->AlreadySuccessfullyTried(candidate, segs[nextlayer]) ;
-	    if(AlreadySuccessfullyTried){
-	      return 0;
-	    }
-	    nextTracks = m_trackBTool->find(candidate, segs[nextlayer] );
-	    p_IFindMonitor->RegisterIfSuccessful(candidate,segs[nextlayer],nextTracks) ;
-	  }
-	  else 
-	    nextTracks = m_trackBTool->find(candidate, segs[nextlayer] );
+	  nextTracks = m_trackBTool->find(candidate, segs[nextlayer] );
 	  ++m_seedCombinatorics;
 
 	  if (nextTracks && !nextTracks->empty())
@@ -1139,16 +1091,7 @@ namespace Muon {
      for( ; cit!=cit_end; ++cit )
      {
        MuPatTrack *refinedMuPatTrack=0;
-       if(m_doTrackMon){
-	 bool AlreadySuccessfullyTried =  p_IRefineMonitor->AlreadySuccessfullyTried(**cit) ;
-	 if (AlreadySuccessfullyTried){
-	   continue;
-	 }
-	 refinedMuPatTrack =  m_trackRefineTool->refine(**cit);
-	 p_IRefineMonitor->RegisterIfSuccessful(**cit,refinedMuPatTrack) ;
-       }
-       else
-	 refinedMuPatTrack =  m_trackRefineTool->refine(**cit);
+       refinedMuPatTrack =  m_trackRefineTool->refine(**cit);
        
        if (refinedMuPatTrack) {
 	 //std::cout << std::endl << " after " << m_candidateTool->print(*refinedMuPatTrack) << std::endl; 
