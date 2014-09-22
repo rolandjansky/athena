@@ -87,10 +87,13 @@ std::vector<RpcDigit*>* Muon::RpcRDO_Decoder::getDigit(const RpcFiredChannel * f
   uint16_t ijk     = fChan->ijk();
   uint16_t channel = fChan->channel();
 
-  //int time = static_cast<int>( (fChan->bcid()-2)*25+fChan->time()*3.125); 
-  // ^^^ added static_cast to get rid of warning in client code. EJWM
-  float time = (fChan->bcid()-2)*25+fChan->time()*3.125; 
-
+  // Sept 10 2014, M. Corradi changed shift to be consistent with 
+  // BCzero=3 and ROOffset=2 in
+  // Trigger/TrigT1/TrigT1RPChardware/src/Matrix.cxx
+  // need to find a better way than hard-coding
+  //std::cout << "here" <<std::endl;
+  float time = (fChan->bcid()-3)*25 +(fChan->time()+0.5-2)*3.125; 
+  
   // skip the trigger hits
   if (ijk==7) {
     return rpcDigitVec;
@@ -143,16 +146,13 @@ std::vector<Identifier>* Muon::RpcRDO_Decoder::getOfflineData(const RpcFiredChan
   uint16_t ijk     = fChan->ijk();
   uint16_t channel = fChan->channel();
 
-  // notice that this subtruction of 2 BCID is done in the MC
-  // to shift back the 50ns coming from the assignment of BCID=2 to the central(physics) event ... is it really necessary to do that ?
-  // I think that this is probably necessary in the getDigit method above (for the overlay and/or lvl1 simulation)
-  // in the data the subtruction must not be done; it is in practice compensated by a timeoffset set to 50ns 
-  time = (fChan->bcid()-2)*25+fChan->time()*3.125;
-  // will become
-  // time = (fChan->bcid())*25+fChan->time()*3.125;
-  // as soon as a tag of MuonRecExample will have MuonPrdProviderToolsConfig.py fixed in order to have -- RpcRdoToPrepDataTool.timeShift = 0
+  // Sept 10 2014, M. Corradi changed shift to be consistent with 
+  // BCzero=3 and ROOffset=2 in
+  // Trigger/TrigT1/TrigT1RPChardware/src/Matrix.cxx
+  // need to find a better way than hard-coding
+  //std::cout << "here" <<std::endl;
+  time = (fChan->bcid()-3)*25 +(fChan->time()+0.5-2)*3.125;  
   
-
   // skip the trigger hits
   if (ijk==7) {
     return rpcIdVec;
