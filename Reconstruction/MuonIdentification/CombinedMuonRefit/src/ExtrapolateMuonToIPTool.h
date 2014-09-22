@@ -12,7 +12,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 
-namespace Rec {class IMuonTrackThroughCalo;}
 
 namespace Muon{
   class MuonEDMHelperTool;
@@ -58,7 +57,6 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
   const Trk::TrackParameters* findMeasuredParametersClosestToIP( const Trk::Track& track ) const;
 
 
-  ToolHandle<Rec::IMuonTrackThroughCalo> m_trackThroughCaloTool; //!< helper tool for back extrapolation through calo
   ToolHandle<Muon::MuonEDMHelperTool>    m_helper;               //!< muon EDM helper tool
   ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
 
