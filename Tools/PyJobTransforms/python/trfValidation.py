@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 614626 2014-09-02 14:22:48Z volkmer $
+# @version $Id: trfValidation.py 617963 2014-09-22 13:13:07Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -679,6 +679,7 @@ class eventMatch(object):
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}
+        self._eventCountConf['DAOD_*'] = {'DAOD_*_MRG' : "match"}
         self._eventCountConf['TAG'] = {'TAG_MRG': "match"}
         self._eventCountConf['HIST'] = {'HIST_MRG': "match"}
         self._eventCountConf['NTUP_COMMON'] = {'DNTUP*': "filter"}

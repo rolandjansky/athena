@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 614626 2014-09-02 14:22:48Z volkmer $
+#  @version $Id: trfReports.py 617963 2014-09-22 13:13:07Z graemes $
 #
 
-__version__ = '$Revision: 614626 $'
+__version__ = '$Revision: 617963 $'
 __doc__ = 'Transform report module'
 
 import cPickle as pickle
@@ -109,6 +109,8 @@ class trfJobReport(trfReport):
     #  any changes to the format @b must be reflected by incrementing this
     _reportVersion = '0.9.6'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
+    _maxMsgLen = 256
+    _truncationMsg = " (truncated)"
 
     ## @brief Constructor
     #  @param parentTrf Mandatory link to the transform this job report represents
@@ -282,10 +284,15 @@ class trfJobReport(trfReport):
                   'cmdLine': ' '.join(shQuoteStrings(sys.argv)),
                   'exitAcronym': trfExit.codeToName(self._trf.exitCode),
                   'exitCode': self._trf.exitCode,
-                  'exitMsg': self._trf.exitMsg,
                   'created': isodate(),
                   }
-
+        if len(self._trf.exitMsg) > self._maxMsgLen:
+            myDict['exitMsg'] = self._trf.exitMsg[:self._maxMsgLen-len(self._truncationMsg)] + self._truncationMsg
+            myDict['exitMsgExtra'] = self._trf.exitMsg[self._maxMsgLen-len(self._truncationMsg):]
+        else:
+            myDict['exitMsg'] = self._trf.exitMsg
+            myDict['exitMsgExtra'] = ""
+            
         # Iterate over argValues...
         myDict['argValues'] = {}
         for k, v in self._trf.argdict.iteritems():

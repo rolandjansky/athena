@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 609252 2014-07-29 16:20:33Z wbreaden $
+# @version $Id: trfArgClasses.py 617615 2014-09-19 09:36:02Z graemes $
 
 
 import argparse
@@ -748,7 +748,7 @@ class argFile(argList):
                             cmd = ['/afs/cern.ch/project/eos/installation/atlas/bin/eos.select' ]
                             if not os.access ('/afs/cern.ch/project/eos/installation/atlas/bin/eos.select', os.X_OK ):
                                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                                'Input file argument(s) {0!s} globbed to NO input files - The eos ls command could not be executed.', cmd)
+                                'No execute access to "eos.select" - could not glob EOS input files.')
 
                             cmd.extend(['ls'])
                             cmd.extend([path])
@@ -756,19 +756,16 @@ class argFile(argList):
                             myFiles = []
                             try:
                                 proc = subprocess.Popen(args = cmd,bufsize = 1, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-                                while proc.poll() is None:
-                                    line = proc.stdout.readline()
-                                    if line:
-                                        if "root" in line:
-                                            myFiles += [str(path)+str(line.rstrip('\n'))]
-
-                                rc=proc.returncode
-
-
-                                if not rc==0:
+                                rc = proc.wait()
+                                output = proc.stdout.readlines()
+                                if rc!=0:
                                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                                                                'Input file argument(s) {0!s} globbed to NO input files - ls command failed')
-                                msg.debug('Executed eos ls, found:')
+                                                                'EOS list command ("{0!s}") failed: rc {1}, output {2}'.format(cmd, rc, output))
+                                msg.debug("eos returned: {0}".format(output))
+                                for line in output:
+                                    if "root" in line:
+                                        myFiles += [str(path)+str(line.rstrip('\n'))]
+
                                 patt = re.compile(fileMask.replace('*','.*').replace('?','.'))
                                 for srmFile in myFiles:
                                     if fileMask is not '':
@@ -776,9 +773,6 @@ class argFile(argList):
                                         #if fnmatch.fnmatch(srmFile, fileMask):
                                             msg.debug('match: ',srmFile)
                                             newValue.extend(([srmFile]))
-
-
-
                                     else:
                                         newValue.extend(([srmFile]))
                                 

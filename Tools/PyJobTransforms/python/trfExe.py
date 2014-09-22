@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 615296 2014-09-05 15:18:54Z graemes $
+# @version $Id: trfExe.py 617963 2014-09-22 13:13:07Z graemes $
 
 import copy
 import math
@@ -588,7 +588,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 615296 2014-09-05 15:18:54Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 617963 2014-09-22 13:13:07Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -1090,20 +1090,15 @@ class hybridPOOLMergeExecutor(athenaExecutor):
             msg.info('Setting hybrid merge to {0}'.format(self.conf.argdict['fastPoolMerge'].value))
             self._hybridMerge =  self.conf.argdict['fastPoolMerge'].value
         else:
-            # If not, use the "automatic" setting - only do a hybrid merge if we have <= 16 input files
-            inFiles = len(self.conf.dataDictionary[list(input)[0]].value)
-            if inFiles > 16:
-                msg.info("Hybrid merging is disabled as there are {0} input files (>16)".format(inFiles))
-                self._hybridMerge = False
-            else:
-                msg.info("Hybrid merging is activated for {0} input files".format(inFiles))
-                self._hybridMerge = True
-                # Need to add this as a runarg for skeleton to execute properly
-                self.conf.addToArgdict('fastPoolMerge', trfArgClasses.argBool(True))
+            # Hybrid merging really needs some proper validation, so only use
+            # it if specifically requested
+            msg.info("Automatic hybrid merging is disabled use the '--fastPoolMerge' flag if you want to switch it on")
+            self._hybridMerge = False
             
         if self._hybridMerge:
-                # If hybridMerge is activated then we process no events at the athena step,
-                # so set a ridiculous skipEvents value
+            # If hybridMerge is activated then we process no events at the athena step,
+            # so set a ridiculous skipEvents value
+            msg.info("Setting skipEvents=1000000 to skip event processing during athena metadata merge")
             self._extraRunargs.update({'skipEvents': 1000000})
         
         super(hybridPOOLMergeExecutor, self).preExecute(input=input, output=output)
@@ -1179,7 +1174,7 @@ class reductionFrameworkExecutor(athenaExecutor):
         
         for reduction in self.conf.argdict['reductionConf'].value:
             dataType = 'DAOD_' + reduction
-            outputName = 'DAOD_' + reduction + '_' + self.conf.argdict['outputDAODFile'].value[0]
+            outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
             msg.info('Adding reduction output type {0}'.format(dataType))
             output.add(dataType)
             newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='aod',
