@@ -6,7 +6,8 @@ use AtlasHepMC         AtlasHepMC-*        External
 use AtlasFortranPolicy AtlasFortranPolicy-*
 use LCG_Configuration
 
-macro Tauolapp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/tauola++"
+macro Tauolapp_home "$(LCG_external)/MCGenerators/tauola++"
+#macro Tauolapp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/tauola++"
 #macro Tauolapp_home "/afs/cern.ch/sw/lcg/external/MCGenerators_hepmc$(HepMC_config_version)/tauola++"
 macro Tauolapp_version "1.1.1a"
 macro Tauolapp_native_version "$(Tauolapp_version)_lcgcmt$(LCG_config_version)"
