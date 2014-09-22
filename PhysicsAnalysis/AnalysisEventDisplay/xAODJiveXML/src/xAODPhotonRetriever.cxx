@@ -81,6 +81,10 @@ namespace JiveXML {
     DataVect mass; mass.reserve(phCont->size());
     DataVect energy; energy.reserve(phCont->size());
 
+    DataVect isEMString; isEMString.reserve(phCont->size());
+    DataVect author; author.reserve(phCont->size());
+    DataVect label; label.reserve(phCont->size());
+
     xAOD::PhotonContainer::const_iterator phItr  = phCont->begin();
     xAOD::PhotonContainer::const_iterator phItrE = phCont->end();
 
@@ -93,9 +97,49 @@ namespace JiveXML {
           << (*phItr)->phi() << endreq;
     }
 
+    std::string photonAuthor = "";
+    std::string photonIsEMString = "none";
+    std::string photonLabel = "";
+
       phi.push_back(DataType((*phItr)->phi()));
       eta.push_back(DataType((*phItr)->eta()));
       pt.push_back(DataType((*phItr)->pt()/CLHEP::GeV));
+
+      bool passesTight(false);
+      bool passesMedium(false);
+      bool passesLoose(false);
+      const bool tightSelectionExists = (*phItr)->passSelection(passesTight, "Tight");
+       msg(MSG::DEBUG) << "tight exists " << tightSelectionExists 
+	 << " and passes? " << passesTight << endreq;
+      const bool mediumSelectionExists = (*phItr)->passSelection(passesMedium, "Medium");
+       msg(MSG::DEBUG) << "medium exists " << mediumSelectionExists 
+	 << " and passes? " << passesMedium << endreq;
+      const bool looseSelectionExists = (*phItr)->passSelection(passesLoose, "Loose");
+       msg(MSG::DEBUG) << "loose exists " << looseSelectionExists 
+	<< " and passes? " << passesLoose << endreq;
+
+      photonAuthor = "author"+DataType( (*phItr)->author() ).toString(); // for odd ones eg FWD
+      photonLabel = photonAuthor;
+      if (( (*phItr)->author()) == 0){ photonAuthor = "unknown"; photonLabel += "_unknown"; }
+      if (( (*phItr)->author()) == 8){ photonAuthor = "forward"; photonLabel += "_forward"; }
+      if (( (*phItr)->author()) == 2){ photonAuthor = "softe"; photonLabel += "_softe"; }
+      if (( (*phItr)->author()) == 1){ photonAuthor = "egamma"; photonLabel += "_egamma"; }
+
+      if ( passesLoose ){  
+            photonLabel += "_Loose"; 
+            photonIsEMString = "Loose"; // assume that hierarchy is obeyed !
+      } 
+      if ( passesMedium ){ 
+            photonLabel += "_Medium"; 
+            photonIsEMString = "Medium"; // assume that hierarchy is obeyed !
+      }   
+      if ( passesTight ){ 
+            photonLabel += "_Tight"; 
+            photonIsEMString = "Tight"; // assume that hierarchy is obeyed !
+      }     
+      author.push_back( DataType( photonAuthor ) );
+      label.push_back( DataType( photonLabel ) );
+      isEMString.push_back( DataType( photonIsEMString ) );
 
       mass.push_back(DataType((*phItr)->m()/CLHEP::GeV));
       energy.push_back( DataType((*phItr)->e()/CLHEP::GeV ) );
@@ -107,6 +151,9 @@ namespace JiveXML {
     m_DataMap["pt"] = pt;
     m_DataMap["energy"] = energy;
     m_DataMap["mass"] = mass;
+    m_DataMap["isEMString"] = isEMString;
+    m_DataMap["label"] = label;
+    m_DataMap["author"] = author;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;

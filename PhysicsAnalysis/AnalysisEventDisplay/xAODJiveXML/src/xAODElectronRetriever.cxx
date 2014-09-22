@@ -82,6 +82,10 @@ namespace JiveXML {
     DataVect energy; energy.reserve(elCont->size());
     DataVect pdgId; energy.reserve(elCont->size());
 
+    DataVect isEMString; isEMString.reserve(elCont->size());
+    DataVect author; author.reserve(elCont->size());
+    DataVect label; label.reserve(elCont->size());
+
     xAOD::ElectronContainer::const_iterator elItr  = elCont->begin();
     xAOD::ElectronContainer::const_iterator elItrE = elCont->end();
 
@@ -89,12 +93,16 @@ namespace JiveXML {
 
     for (; elItr != elItrE; ++elItr) {
 
+    std::string electronAuthor = "";
+    std::string electronIsEMString = "none";
+    std::string electronLabel = "";
+
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "  Electron #" << counter++ << " : eta = "  << (*elItr)->eta() << ", phi = " 
           << (*elItr)->phi() 
 	// << ", ntrk = " << (*elItr)->getNumberOfTrackParticles() 
           << ", author = " << (*elItr)->author() 
-//	  << ", isEM/Loose: " << (*elItr)->isem(egammaPID::ElectronLoose)==0)
+//	  << ", isEM/Tight: " << (*elItr)->passSelection(passesTight, "Tight")
 		      << ", charge = " << (*elItr)->trackParticle()->charge() 
 		      << ", pdgId = " << -11.*(*elItr)->trackParticle()->charge()
           << endreq;
@@ -107,6 +115,43 @@ namespace JiveXML {
       mass.push_back(DataType((*elItr)->m()/CLHEP::GeV));
       energy.push_back( DataType((*elItr)->e()/CLHEP::GeV ) );
       pdgId.push_back(DataType( -11.*(*elItr)->trackParticle()->charge() )); // pdgId not available anymore in xAOD
+
+      bool passesTight(false);
+      bool passesMedium(false);
+      bool passesLoose(false);
+      const bool tightSelectionExists = (*elItr)->passSelection(passesTight, "Tight");
+       msg(MSG::DEBUG) << "tight exists " << tightSelectionExists 
+	 << " and passes? " << passesTight << endreq;
+      const bool mediumSelectionExists = (*elItr)->passSelection(passesMedium, "Medium");
+       msg(MSG::DEBUG) << "medium exists " << mediumSelectionExists 
+	 << " and passes? " << passesMedium << endreq;
+      const bool looseSelectionExists = (*elItr)->passSelection(passesLoose, "Loose");
+       msg(MSG::DEBUG) << "loose exists " << looseSelectionExists 
+	<< " and passes? " << passesLoose << endreq;
+
+      electronAuthor = "author"+DataType( (*elItr)->author() ).toString(); // for odd ones eg FWD
+      electronLabel = electronAuthor;
+      if (( (*elItr)->author()) == 0){ electronAuthor = "unknown"; electronLabel += "_unknown"; }
+      if (( (*elItr)->author()) == 8){ electronAuthor = "forward"; electronLabel += "_forward"; }
+      if (( (*elItr)->author()) == 2){ electronAuthor = "softe"; electronLabel += "_softe"; }
+      if (( (*elItr)->author()) == 1){ electronAuthor = "egamma"; electronLabel += "_egamma"; }
+
+      if ( passesLoose ){  
+            electronLabel += "_Loose"; 
+            electronIsEMString = "Loose"; // assume that hierarchy is obeyed !
+      } 
+      if ( passesMedium ){ 
+            electronLabel += "_Medium"; 
+            electronIsEMString = "Medium"; // assume that hierarchy is obeyed !
+      }   
+      if ( passesTight ){ 
+            electronLabel += "_Tight"; 
+            electronIsEMString = "Tight"; // assume that hierarchy is obeyed !
+      }     
+      author.push_back( DataType( electronAuthor ) );
+      label.push_back( DataType( electronLabel ) );
+      isEMString.push_back( DataType( electronIsEMString ) );
+
     } // end ElectronIterator 
 
     // four-vectors
@@ -116,6 +161,9 @@ namespace JiveXML {
     m_DataMap["energy"] = energy;
     m_DataMap["mass"] = mass;
     m_DataMap["pdgId"] = pdgId;
+    m_DataMap["isEMString"] = isEMString;
+    m_DataMap["label"] = label;
+    m_DataMap["author"] = author;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
