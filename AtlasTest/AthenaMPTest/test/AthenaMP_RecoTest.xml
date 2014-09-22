@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<unifiedTestConfiguration>
+    <atn>
+        <TEST name="RTT_id" type="athena" suite="athenamp">
+            <package_atn>AtlasTest/AthenaMPTest</package_atn>
+            <options_atn>--nprocs=2 -c "jp.AthenaCommonFlags.EvtMax=8; from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.CollectSubprocessLogs=True" RecExRecoTest/RecExRecoTest_RTT_id.py</options_atn>
+            <timelimit>30</timelimit>
+            <author> Mous Tatarkhanov </author>
+            <mailto> Vakhtang.Tsulaia@cern.ch </mailto>
+            <prescript>RecExCommon_links.sh</prescript>
+            <expectations>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <successMessage>"successful run"</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="idmuoncalomuoncomb" type="athena" suite="athenamp">
+            <options_atn>--nprocs=2 -c "jp.AthenaCommonFlags.EvtMax=5; from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.CollectSubprocessLogs=True" AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_idmuoncalomuoncomb.py</options_atn>
+            <timelimit>30</timelimit>
+            <author> Mous Tatarkhanov </author>
+            <mailto> Vakhtang.Tsulaia@cern.ch </mailto>
+            <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+            <expectations>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <successMessage>"successful run"</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+     
+        <TEST name="rdotoesdnotrigger" type="athena" suite="athenamp">
+            <package_atn>AtlasTest/AthenaMPTest</package_atn>
+            <options_atn>--nprocs=2 -c "jp.AthenaCommonFlags.EvtMax=8; from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.CollectSubprocessLogs=True" RecExCommon/rdotoesdnotrigger.py</options_atn>
+            <timelimit>40</timelimit>
+            <author> Mous Tatarkhanov </author>
+            <mailto> Vakhtang.Tsulaia@cern.ch </mailto>
+            <prescript>RecExCommon_links.sh</prescript>
+            <prescript>rm -f $ATN_WORK_AREA/*.pool.root; env > env.txt</prescript>
+            <expectations>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <successMessage>"successful run"</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+	    <nightly_exclude>17.7.NEW.Y-VAL</nightly_exclude>
+        </TEST>
+
+    </atn>
+
+
+</unifiedTestConfiguration>
