@@ -3,16 +3,18 @@ package TopEDM_Test
 use AtlasPolicy          AtlasPolicy-*
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use GaudiInterface       GaudiInterface-*       External
-use StoreGate            StoreGate-*            Control
 
+use TopEvent		TopEvent-*		Reconstruction/Top
+
+private
+use StoreGate           StoreGate-*             Control
 use JetEvent		JetEvent-* 		Reconstruction/Jet
 use egammaEvent		egammaEvent-*		Reconstruction/egamma
 use muonEvent		muonEvent-*		Reconstruction/MuonIdentification
 use tauEvent		tauEvent-*		Reconstruction
 use MissingETEvent      MissingETEvent-*        Reconstruction
 use PhysicsElementLinks PhysicsElementLinks-*	PhysicsAnalysis
-
-use TopEvent		TopEvent-*		Reconstruction/Top
+end_private
 
 apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
