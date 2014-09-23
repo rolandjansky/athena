@@ -4,7 +4,8 @@
 #
 #==============================================================
 
-from os import system,popen
+from os import system
+from subprocess import check_output
 
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
@@ -206,30 +207,24 @@ def FindFile(path, runinput, filter):
     fullname = []
 
     if RunFromLocal:
-        for f in popen('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
-            files.append(f)
+        files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
     elif (path.startswith('/eos/')):
-        for f in popen('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}):
-            files.append(f)
+        files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
     else:
         if (TilePhysRun and RunNumber > 28000 and RunNumber < 40000):
-            for f in popen('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "b0000[01][01][01][01]" -e "physics.cosmics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }):
-                files.append(f)
+            files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "b0000[01][01][01][01]" -e "physics.cosmics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
         elif (TilePhysRun and RunNumber > 40000 and RunNumber < 75354):
-            for f in popen('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "NIM0" -e "[pP]hysics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }):
-                files.append(f)
+            files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "NIM0" -e "[pP]hysics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
         else:
-            for f in popen('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }):
-                files.append(f)
+            files = check_output('nsls %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
 
-    for nn in range(len(files)):
-        temp = files[nn].split('\n')
+    for file_name in (files):
         if (path.startswith('/eos/')):
-            fullname.append('root://eosatlas/' + path + '/' + temp[0])
+            fullname.append('root://eosatlas/' + path + '/' + file_name)
         elif ReadPool and not RunFromLocal:
-            fullname.append('castor:' + path + '/' + temp[0])
+            fullname.append('castor:' + path + '/' + file_name)
         else:
-            fullname.append(path + '/' + temp[0])
+            fullname.append(path + '/' + file_name)
 
     return [fullname, run]
 
@@ -593,16 +588,17 @@ rec.doLArg = False
 # Get project name from file name and use it in RecFlags
 # in order to set up right database instance  in condb
 projectName = FileNameVec[0].split('/').pop().split('.')[0]
-rec.projectName=projectName
+rec.projectName = projectName
 
-RUN2=False
+if not 'RUN2' in dir(): 
+    RUN2 = False
 if globalflags.DataSource() == 'data':
-    if Year>2014 or RunNumber>238000 or projectName.startswith("data15_"):
-        RUN2=True
+    if Year > 2014 or RunNumber > 238000 or projectName.startswith("data15_") or RUN2:
+        RUN2 = True
     else: 
         # use RUN1 DB for runs taken before Sep-2014
-        if projectName.startswith("data14_"): rec.projectName="data13_tilecomm"
-        globalflags.DatabaseInstance="COMP200"
+        if projectName.startswith("data14_"): rec.projectName = "data13_tilecomm"
+        globalflags.DatabaseInstance = "COMP200"
 
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import jobproperties
@@ -618,7 +614,7 @@ if ReadPool:
     svcMgr.EventSelector.InputCollections = FileNameVec
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
-        DetDescrVersion = 'ATLAS-GEO-20-00-01'
+        DetDescrVersion = 'ATLAS-GEO-20-00-02'
 else:
     # - ByteStream input 
     svcMgr.EventSelector.Input = FileNameVec
@@ -633,7 +629,7 @@ else:
     conddb.setGlobalTag(CondDbTag)
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
-        DetDescrVersion = 'ATLAS-GEO-20-00-01'
+        DetDescrVersion = 'ATLAS-GEO-20-00-02'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
@@ -643,7 +639,7 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.IgnoreTagDifference = True
 log.info( "GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion) )
-#GeoModelSvc.TileVersionOverride = "TileCal-GEO-05"
+#GeoModelSvc.TileVersionOverride = "TileCal-GEO-08"
 #log.info( "GeoModelSvc.TileVersionOverride = %s" % (GeoModelSvc.TileVersionOverride) )
 
 
@@ -655,7 +651,7 @@ if not 'TileCorrectAmplitude' in dir():
     TileCorrectAmplitude = False;  # don't do parabolic correction in OptATLAS
 
 if not 'TileCorrectTime' in dir():
-    if TilePhysRun:
+    if TilePhysRun or TilePhysTiming:
         TileCorrectTime = True;  # APPLY time correction in physics runs
     else:
         TileCorrectTime = False;  # do not apply time correction - to be compatible with DSP reco
@@ -700,9 +696,6 @@ elif TileCisPulse:
 else:
     tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
 print tileInfoConfigurator
-
-if TileLasRun:
-    ToolSvc.TileBadChanTool.ProxyOnlBch = getTileCondProxy('FILE','Bch','TileDefault.onlBch','TileCondProxyFile_OnlBch')
 
 #============================================================
 #=== configure TileCondToolOfcCool
@@ -904,7 +897,7 @@ if (doTileNtuple or doD3PD):
     exec 'svcMgr.THistSvc.Output += [ "AANT DATAFILE=\'%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
     svcMgr.THistSvc.MaxFileSize = 32768
 
-    from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+    from AnalysisTools.AnalysisToolsConf import AANTupleStream
     topSequence += AANTupleStream( "AANTupleStream1" )
     AANTupleStream1 = topSequence.AANTupleStream1
     AANTupleStream1.ExtraRefNames = [ "StreamESD","StreamRDO" ]
@@ -1399,7 +1392,7 @@ theAuditorSvc.Auditors =  [ "ChronoAuditor" ]
 if not ReadPool:
     svcMgr.EventSelector.MaxBadEvents = 10000
     if OutputLevel < 2:
-        svcMgr.ByteStreamInputSvc.DumpFlag = True
+        #svcMgr.ByteStreamInputSvc.DumpFlag = True
         ToolSvc.TileROD_Decoder.VerboseOutput = True
 
 print topSequence
