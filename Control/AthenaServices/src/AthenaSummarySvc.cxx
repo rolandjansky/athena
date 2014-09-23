@@ -132,7 +132,8 @@ inline void tolower(std::string &s)
 //
 
 AthenaSummarySvc::AthenaSummarySvc( const std::string& name, ISvcLocator* svc )
-  : Service( name, svc ), m_log(msgSvc(), name), p_incSvc("IncidentSvc",name),
+  : AthService( name, svc ), m_log(msgSvc(), name), p_incSvc("IncidentSvc",name),
+    p_logMsg(0),
     m_new(0),m_status(0),m_eventsRead(0),m_eventsWritten(0),
     m_eventsSkipped(0),m_runs(0)
 
@@ -166,7 +167,7 @@ AthenaSummarySvc::~AthenaSummarySvc() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode AthenaSummarySvc::initialize() {
-  StatusCode status = Service::initialize();
+  StatusCode status = AthService::initialize();
   m_log.setLevel( m_outputLevel.value() );
 
   m_log << MSG::DEBUG << "Initializing AthenaSummarySvc version " 
@@ -270,7 +271,7 @@ StatusCode AthenaSummarySvc::finalize() {
   std::set_new_handler( m_new );
 
 
-  status = Service::finalize();
+  status = AthService::finalize();
 
   if ( status.isSuccess() )
     m_log << MSG::DEBUG << "Service finalised successfully" << endreq;
@@ -289,7 +290,7 @@ AthenaSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
     }
     else  {
         // Interface is not directly available: try out a base class
-        return Service::queryInterface(riid, ppvInterface);
+        return AthService::queryInterface(riid, ppvInterface);
     }
     addRef();
     return StatusCode::SUCCESS;

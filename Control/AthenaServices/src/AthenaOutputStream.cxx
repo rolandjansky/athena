@@ -49,6 +49,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
   		m_outSeqSvc("OutputStreamSequencerSvc", name),
 		m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
 		m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
+                m_events(0),
 		m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
    m_helperTools(this) {
    assert(pSvcLocator);
@@ -259,6 +260,12 @@ void AthenaOutputStream::handle(const Incident& inc) {
             throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
          }
          ATH_MSG_INFO("Records written: " << m_events);
+         for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
+	         iter != m_helperTools.end(); iter++) {
+            if (!(*iter)->postInitialize().isSuccess()) {
+                ATH_MSG_ERROR("Cannot initialize helper tool");
+            }
+         }
       }
    }
    ATH_MSG_DEBUG("Leaving handle");

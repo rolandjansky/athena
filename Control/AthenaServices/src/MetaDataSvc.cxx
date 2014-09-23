@@ -289,9 +289,11 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
    }
+/*
    if (!m_outputDataStore->clearStore().isSuccess()) {
       ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
    }
+*/
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
       if (!cnvSvc->disconnectOutput().isSuccess()) {
