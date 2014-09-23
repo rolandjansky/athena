@@ -107,6 +107,7 @@ namespace CoreDumpSvcHandler
 CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService( name, pSvcLocator ),
   m_siginfo(0),
+  m_eventCounter(0),
   m_abortTimer(0, NULL, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
 {
   // Set us as the current instance

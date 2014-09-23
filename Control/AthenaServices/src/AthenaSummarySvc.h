@@ -17,9 +17,7 @@
  *
  *****************************************************************************/
 
-#ifndef GAUDIKERNEL_SERVICE_H
- #include "GaudiKernel/Service.h"
-#endif
+#include "AthenaBaseComps/AthService.h"
 #ifndef KERNEL_STATUSCODES_H
  #include "GaudiKernel/StatusCode.h"
 #endif
@@ -52,7 +50,7 @@ template <class TYPE> class SvcFactory;
 
 
 
-class AthenaSummarySvc: virtual public Service, 
+class AthenaSummarySvc: virtual public AthService, 
 		 virtual public IIncidentListener,
 		 virtual public IAthenaSummarySvc {
 

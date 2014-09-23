@@ -61,7 +61,7 @@ apply_pattern install_runtime
 use TestTools       TestTools-*          AtlasTest
 
 apply_pattern UnitTest_run unit_test=AthenaOutputStream \
-extrapatterns="^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^IncidentSvc *DEBUG Adding .* listener|^Py:Athena *INFO using release|DecisionSvc +DEBUG|DEBUG loadDictFiller - Ntypes|: duplicate entry|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^JobOptionsSvc +INFO|^//GP:=|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize"
+extrapatterns="^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^IncidentSvc *DEBUG Adding .* listener|^Py:Athena *INFO using release|DecisionSvc +DEBUG|DEBUG loadDictFiller - Ntypes|: duplicate entry|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^JobOptionsSvc +INFO|^//GP:=|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG"
 use ToyConversion   ToyConversion-*   Control/AthenaExamples
 macro_append AthenaOutputStream_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices -L$(CMTINSTALLAREA)/lib/$(tag) $(ToyConversion_linkopts)"
 

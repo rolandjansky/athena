@@ -24,6 +24,7 @@
 FPEControlSvc::FPEControlSvc( const std::string& name, ISvcLocator* svc )
   : AthService( name, svc ),
     m_toolSvc ("ToolSvc", name),
+    m_env(),
     m_enabled (0),
     m_disabled (0),
     m_removeInFinalize(false),
