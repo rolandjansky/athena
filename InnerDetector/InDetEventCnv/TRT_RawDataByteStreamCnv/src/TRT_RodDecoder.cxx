@@ -341,7 +341,7 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 {
   StatusCode sc;
 
-  uint32_t    RodBlockVersion          = (robFrag->rod_version() & 0xff);
+  int    RodBlockVersion          = (robFrag->rod_version() & 0xff);
 
   if ( m_forceRodVersion > 0 )
     RodBlockVersion = m_forceRodVersion;
