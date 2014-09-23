@@ -3,32 +3,98 @@
 */
 
 #include "CxxUtils/sincos.h"
-#include <cmath>
+//#include <cmath>
 #include <climits>
 #include <cassert>
+#include <iostream>
 
 #include "GaudiKernel/PhysicalConstants.h"
 using namespace Gaudi::Units;
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
+#include "./LArWheelCalculator_Impl/IDistanceCalculator.h"
+#include "./LArWheelCalculator_Impl/IFanCalculator.h"
+
+#ifdef HARDDEBUG
+#include<stdio.h>
+#endif
+
+void LArWheelCalculator::parameterized_sin(const double r, double &sin_a, double &cos_a) const
+{
+	const double r2 = r*r;
+	const double r3 = r2*r;
+	const double r4 = r2*r2;
+#if LARWC_SINCOS_POLY > 4
+	const double r5 = r4*r;
+#endif
+	sin_a = m_sin_parametrization[0]
+	      + m_sin_parametrization[1]*r
+	      + m_sin_parametrization[2]*r2
+	      + m_sin_parametrization[3]*r3
+	      + m_sin_parametrization[4]*r4
+#if LARWC_SINCOS_POLY > 4
+	      + m_sin_parametrization[5]*r5
+#endif
+	;
+	cos_a = sqrt(1. - sin_a*sin_a);
+}
+
+void LArWheelCalculator::parameterized_sincos(const double r, double &sin_a, double &cos_a) const
+{
+	const double r2 = r*r;
+	const double r3 = r2*r;
+	const double r4 = r2*r2;
+#if LARWC_SINCOS_POLY > 4
+	const double r5 = r4*r;
+#endif
+	sin_a = m_sin_parametrization[0]
+	      + m_sin_parametrization[1]*r
+	      + m_sin_parametrization[2]*r2
+	      + m_sin_parametrization[3]*r3
+	      + m_sin_parametrization[4]*r4
+#if LARWC_SINCOS_POLY > 4
+	      + m_sin_parametrization[5]*r5
+#endif
+	;
+	cos_a = m_cos_parametrization[0]
+	      + m_cos_parametrization[1]*r
+	      + m_cos_parametrization[2]*r2
+	      + m_cos_parametrization[3]*r3
+	      + m_cos_parametrization[4]*r4
+#if LARWC_SINCOS_POLY > 4
+	      + m_cos_parametrization[5]*r5
+#endif
+	;
+}
 
 // calculates wave slant angle using parametrization for current wheel
 // for given distance from calorimeter axis
+#ifndef LARWHEELCALCULATOR_PSA_DEVELOPMENT
 double LArWheelCalculator::parameterized_slant_angle(double r) const
 {
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-  if(OptFoldA == "param"){ // EMECoption requires parametrized form
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
-    double R = r, result = m_slant_parametrization[0];
-    result += R * m_slant_parametrization[1];
-    R *= r;
-    result += R * m_slant_parametrization[2];
-    R *= r;
-    result += R * m_slant_parametrization[3];
-    R *= r;
-    result += R * m_slant_parametrization[4];
+	const double r2=r*r;
+	const double r3=r2*r;
+	const double r4=r2*r2;
+	const double result =    m_slant_parametrization[0] +
+				     r*m_slant_parametrization[1] +
+				    r2*m_slant_parametrization[2] +
+				    r3*m_slant_parametrization[3] +
+				    r4*m_slant_parametrization[4];
     return result*deg;
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
+}
+#else // LARWHEELCALCULATOR_PSA_DEVELOPMENT
+double LArWheelCalculator::parameterized_slant_angle(double r) const
+{
+  if(OptFoldA == "param"){ // EMECoption requires parametrized form
+	const double r2=r*r;
+	const double r3=r2*r;
+	const double r4=r2*r2;
+	const double result =    m_slant_parametrization[0] +
+				     r*m_slant_parametrization[1] +
+				    r2*m_slant_parametrization[2] +
+				    r3*m_slant_parametrization[3] +
+				    r4*m_slant_parametrization[4];
+    return result*deg;
   }
   else if (OptFoldA == "table") {       // interpolation in engeneering table
     assert(r>=RminA && r<=RmaxA);
@@ -43,8 +109,8 @@ double LArWheelCalculator::parameterized_slant_angle(double r) const
     std::cout<<" unknown option to compute slant angle"<<std::endl;
     exit(99);
   }
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 }
+#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 
 #ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
 double LArWheelCalculator::AlphIter(double hwl, double r) const{
@@ -73,11 +139,14 @@ double LArWheelCalculator::AlphIter(double hwl, double r) const{
 // m_fan_number is set to nearest fan number
 double LArWheelCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p) //const
 {
-	int fan_number =
-		int((p.phi() - halfpi - m_ZeroFanPhi_ForDetNeaFan) / m_FanStepOnPhi);
+//std::cout << "DistanceToTheNearestFan " << p << std::endl;
+#ifdef USE_FANCALCULATOR_IMPL
+	return m_fanCalcImpl->DistanceToTheNearestFan(p);
+#else
+	int fan_number = int((p.phi() - halfpi - m_ZeroFanPhi_ForDetNeaFan) / m_FanStepOnPhi);
 	double angle = m_FanStepOnPhi * fan_number + m_ZeroFanPhi_ForDetNeaFan;
 #ifdef HARDDEBUG
-	printf("DistanceToTheNearestFan: initial FN %4d\n", fan_number); 
+	printf("DistanceToTheNearestFan: initial FN %4d\n", fan_number);
 #endif
 	p.rotateZ(-angle);
 // determine search direction
@@ -94,7 +163,7 @@ double LArWheelCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p) //const
 		fan_number += delta;
 		set_m_fan_number(fan_number);
 #ifdef HARDDEBUG
-	printf("DistanceToTheNearestFan: step FN %4d %4d\n", fan_number, m_fan_number); 
+	printf("DistanceToTheNearestFan: step FN %4d %4d\n", fan_number, m_fan_number);
 #endif
 		d1 = DistanceToTheNeutralFibre(p);
 	} while(d0 * d1 > 0.);
@@ -114,9 +183,12 @@ double LArWheelCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p) //const
 	}
 	p.rotateZ(-0.5 * angle);
 #ifdef HARDDEBUG
-	printf("DistanceToTheNearestFan: final MFN %4d\n", m_fan_number); 
+	printf("DistanceToTheNearestFan: final MFN %4d\n", m_fan_number);
 #endif
-	return DistanceToTheNeutralFibre(p);
+	const double result = DistanceToTheNeutralFibre(p);
+std::cout << "NF end: " << p << std::endl;
+	return result;
+#endif
 }
 
 // Relays on the fact that each two fans have a fan of a different type between
@@ -124,6 +196,10 @@ double LArWheelCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p) //const
 // Affects m_fan_number.
 std::pair<int, int> LArWheelCalculator::GetPhiGapAndSide(const CLHEP::Hep3Vector &p)
 {
+//std::cout << "GetPhiGapAndSide " << p << std::endl;
+#ifdef USE_FANCALCULATOR_IMPL
+	return m_fanCalcImpl->GetPhiGapAndSide(p);
+#else
 	static CLHEP::Hep3Vector p1;
 	p1 = p;
 
@@ -157,9 +233,10 @@ std::pair<int, int> LArWheelCalculator::GetPhiGapAndSide(const CLHEP::Hep3Vector
 	double dd = DistanceToTheNeutralFibre(p1);
 	int side = dd < 0.? -1: 1;
 #ifdef HARDDEBUG
-	printf("GetPhiGapAndSide: MFN %4d\n", m_fan_number); 
+	printf("GetPhiGapAndSide: MFN %4d\n", m_fan_number);
 #endif
 	return std::pair<int, int>(m_fan_number, side);
+#endif
 }
 
 // Represents aproximate, probably underestimate, distance to the
@@ -169,15 +246,22 @@ std::pair<int, int> LArWheelCalculator::GetPhiGapAndSide(const CLHEP::Hep3Vector
 // Uses m_fan_number to compute sagging.
 double LArWheelCalculator::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P) const
 {
+//	std::cout << "LArWheelCalculator::DistanceToTheNeutralFibre this=" << this << "\n";
+//	std::cout << "LArWheelCalculator::DistanceToTheNeutralFibre m_distanceCalcImpl=" << m_distanceCalcImpl << std::endl;
+#ifdef USE_DISTANCECALCULATOR_IMPL
+	return m_distanceCalcImpl->DistanceToTheNeutralFibre(P);
+#else
 	double distance = 0.;
 	double z = P.z() - m_StraightStartSection;
 	double x = P.x();
 
-	if(m_SaggingOn) x += get_sagging(P);
+	if(m_SaggingOn) x += get_sagging(P); //
 
 	double alpha = parameterized_slant_angle(P.y());
-	double cos_a, sin_a;
-	::sincos(alpha, &sin_a, &cos_a);
+//	double cos_a, sin_a;
+//	::sincos(alpha, &sin_a, &cos_a);
+	CxxUtils::sincos scalpha(alpha);
+	const double &cos_a = scalpha.cs, &sin_a = scalpha.sn;
 
 // determination of the nearest quarter-wave number
 	int nqwave;
@@ -224,11 +308,9 @@ double LArWheelCalculator::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P)
 			z = m_ActiveLength - z;
 		}
 
-		double tan_beta = tan(alpha * 0.5);
+		double tan_beta = tan(alpha * 0.5); // sin_a/(1+cos_a)
 		double local_straight_section = m_FanFoldRadius * tan_beta;
-		if(z < - local_straight_section
-		&& (x < m_FanFoldRadius || x < - m_StraightStartSection * z /
-		                               local_straight_section / tan_beta))
+		if(z < - local_straight_section && (x < m_FanFoldRadius || x < - m_StraightStartSection * z / local_straight_section / tan_beta )  )
 		{
 			distance = - x;
 		} else {
@@ -253,8 +335,10 @@ double LArWheelCalculator::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P)
 		if (nqwave == 0) distance = -distance;
 	}
  	return distance;
+#endif
 }
 
+#ifndef USE_DISTANCECALCULATOR_IMPL
 // the function uses m_fan_number for phi-dependent sagging computation
 double LArWheelCalculator::get_sagging(const CLHEP::Hep3Vector &P) const
 {
@@ -269,7 +353,7 @@ double LArWheelCalculator::get_sagging(const CLHEP::Hep3Vector &P) const
 	if(n < 0) n += m_NumberOfFans;
 	n += m_ZeroGapNumber;
 	if(n >= m_NumberOfFans) n -= m_NumberOfFans;
-	const std::vector<double>& sp = m_sagging_parameter[n];*/
+	const std::vector<double>& sp = m_sagging_parameter[n]; */
 	const std::vector<double>& sp = m_sagging_parameter[m_fan_number];
 	double R = P.r() / mm;
 	double r = R;
@@ -283,9 +367,9 @@ double LArWheelCalculator::get_sagging(const CLHEP::Hep3Vector &P) const
 	result += R * sp[4];
 
 #ifdef HARDDEBUG
-/*printf("get_sagging: (%6.3f, %6.3f, %6.3f) %6.3f; MFN %4d;"
+/* printf("get_sagging: (%6.3f, %6.3f, %6.3f) %6.3f; MFN %4d;"
        "n %3d; sp %6.4f %6.4f; dx %6.3f; %.6f\n", P.x()/mm, P.y()/mm, P.z()/mm,
-       r, m_fan_number, n, sp[0], sp[1], dx, result*dx);*/
+       r, m_fan_number, n, sp[0], sp[1], dx, result*dx); */
 printf("get_sagging: (%6.3f, %6.3f, %6.3f) %6.3f;"
        " sp %6.4f %6.4f; dx %6.3f; %.6f\n", P.x()/mm, P.y()/mm, P.z()/mm,
        r, sp[0], sp[1], dx, result*dx);
@@ -293,15 +377,20 @@ printf("get_sagging: (%6.3f, %6.3f, %6.3f) %6.3f;"
 
 	return result * dx;
 }
+#endif
+
 
 CLHEP::Hep3Vector LArWheelCalculator::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &P) const
 {
+#ifdef USE_DISTANCECALCULATOR_IMPL
+	return m_distanceCalcImpl->NearestPointOnNeutralFibre(P);
+#else
 	static CLHEP::Hep3Vector result;
 	double z = P.z() - m_StraightStartSection;
 	double x = P.x();
 	double y = P.y();
 
-	if(m_SaggingOn) x += get_sagging(P);
+	//if(m_SaggingOn) x += get_sagging(P);  // !
 
 	double alpha = parameterized_slant_angle(y);
 	CxxUtils::sincos scalpha(alpha);
@@ -342,30 +431,24 @@ CLHEP::Hep3Vector LArWheelCalculator::NearestPointOnNeutralFibre(const CLHEP::He
 	} else {
 		if(nqwave == 0) x = -x;
 		else z = m_ActiveLength - z;
-		double tan_beta = tan(alpha * 0.5);
+		double tan_beta = tan(alpha * 0.5); // sin_a/(1+cos_a)
 		double local_straight_section = m_FanFoldRadius * tan_beta;
-		if(z < - local_straight_section
-		&& (x < m_FanFoldRadius || x < - m_StraightStartSection * z /
-		                               local_straight_section / tan_beta)){
+		if(z < - local_straight_section && (x < m_FanFoldRadius || x < - m_StraightStartSection * z / local_straight_section / tan_beta)){
 			result.set(0., y, z);
 		} else {
 			double z_prime = z * cos_a + x * sin_a;
 			double x_prime = x * cos_a - z * sin_a;
 			if(z_prime < local_straight_section) {
-				double a = fabs(atan((local_straight_section - z_prime) /
-					              (x_prime - m_FanFoldRadius)));
-				result.set(m_FanFoldRadius * (1 - cos(a)), y,
-					           local_straight_section - m_FanFoldRadius * sin(a));
+				double a = fabs(atan((local_straight_section - z_prime) / (x_prime - m_FanFoldRadius)));
+
+				result.set(m_FanFoldRadius * (1 - cos(a)), y, local_straight_section - m_FanFoldRadius * sin(a));
 			} else {
-				double straight_part = (m_QuarterWaveLength -
-									m_FanFoldRadius * sin_a) / cos_a;
-				if(z_prime <= straight_part){
+				double straight_part = (m_QuarterWaveLength - m_FanFoldRadius * sin_a) / cos_a;
+				if(z_prime <= straight_part) {
 					result.set(0., y, z_prime);
 				} else {
-					double a = fabs(atan((straight_part - z_prime)
-					                   / (x_prime + m_FanFoldRadius)));
-					result.set(m_FanFoldRadius * (cos(a) - 1), y,
-					           straight_part + m_FanFoldRadius * sin(a));
+					double a = fabs(atan((straight_part - z_prime) /  (x_prime + m_FanFoldRadius)) );
+					result.set(m_FanFoldRadius * (cos(a) - 1), y, straight_part + m_FanFoldRadius * sin(a));
 		  		}
 			}
 			result.rotateY(alpha);
@@ -378,6 +461,7 @@ CLHEP::Hep3Vector LArWheelCalculator::NearestPointOnNeutralFibre(const CLHEP::He
 	}
 	result.setZ(result.z() + m_StraightStartSection);
 	return result;
+#endif
 }
 
 /*
@@ -388,6 +472,9 @@ side: < 0 - lower phi
 */
 double LArWheelCalculator::AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side) const
 {
+#ifdef USE_DISTANCECALCULATOR_IMPL
+	return m_distanceCalcImpl->AmplitudeOfSurface(P, side);
+#else
 	double result = 0.;
 	double rho = m_FanFoldRadius;
 	double z = P.z() - m_StraightStartSection;
@@ -442,7 +529,7 @@ double LArWheelCalculator::AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int si
 		}
 
 		double rho1 = m_FanFoldRadius;
-		double tan_beta = tan(alpha * 0.5);
+		double tan_beta = tan(alpha * 0.5); // sin_a/(1+cos_a)
 		double min_local_fold_region = rho1 * tan_beta;
 
 		if(z <= - min_local_fold_region){
@@ -473,7 +560,9 @@ double LArWheelCalculator::AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int si
 		}
 	}
 
-	if(m_SaggingOn) result -= get_sagging(P);
+	// if(m_SaggingOn) result -= get_sagging(P); // !
 
  	return result;
+ #endif
 }
+

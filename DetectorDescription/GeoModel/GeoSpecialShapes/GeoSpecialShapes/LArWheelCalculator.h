@@ -13,7 +13,14 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
+#define USE_DISTANCECALCULATOR_IMPL 1
+#define USE_FANCALCULATOR_IMPL 1
+
+#define LARWC_SINCOS_POLY 5
+#define LARWC_DTNF_NEW
+
 class IRDBRecordset;
+class RDBParamRecords;
 
 // uncomment this to be able to select parameterized_slant_angle
 // calculation method in runtime
@@ -21,8 +28,25 @@ class IRDBRecordset;
 
 //#define HARDDEBUG
 
+namespace LArWheelCalculator_Impl {
+	class IDistanceCalculator;
+	class DistanceCalculatorSaggingOff;
+	class DistanceCalculatorSaggingOn;
+
+	class IFanCalculator;
+	class ModuleFanCalculator;
+	template <typename SaggingType> class WheelFanCalculator;
+	template <typename SaggingType> class DistanceToTheNeutralFibre_OfFan;
+}
+
 class LArWheelCalculator
 {
+	friend class LArWheelCalculator_Impl::DistanceCalculatorSaggingOff;
+	friend class LArWheelCalculator_Impl::DistanceCalculatorSaggingOn;
+	friend class LArWheelCalculator_Impl::ModuleFanCalculator;
+	template <typename SaggingType> friend class LArWheelCalculator_Impl::WheelFanCalculator;
+	template <typename SaggingType> friend class LArWheelCalculator_Impl::DistanceToTheNeutralFibre_OfFan;
+
   public:
 	typedef enum {
 		InnerAbsorberWheel,  OuterAbsorberWheel,
@@ -70,7 +94,7 @@ class LArWheelCalculator
 
 	double DistanceToTheNearestFan(CLHEP::Hep3Vector &p);
 	double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p) const;
-        CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p) const;
+	CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p) const;
 	int GetPhiGap(const CLHEP::Hep3Vector &p){ return GetPhiGapAndSide(p).first; }
 	int PhiGapNumberForWheel(int) const;
 	std::pair<int, int>GetPhiGapAndSide(const CLHEP::Hep3Vector &p);
@@ -80,17 +104,19 @@ class LArWheelCalculator
 	LArWheelCalculator_t m_type;
 
 	int m_AtlasZside;
-	bool m_SaggingOn;
+	bool m_SaggingOn; // !
 	bool m_phiRotation;
 	bool m_slant_use_default;
-	double m_slant_parametrization[5];
-	std::vector<std::vector<double> > m_sagging_parameter;
-
- 	double m_WheelThickness;
+	double m_slant_parametrization[5]; // pol4
+	double m_sin_parametrization[7]; // up to pol6
+	double m_cos_parametrization[7];
+	std::vector<std::vector<double> > m_sagging_parameter; // !
+	double m_WheelThickness;
 	double m_HalfWheelThickness;
 	double m_ActiveLength;
 	double m_StraightStartSection;
 	double m_dWRPtoFrontFace;
+
 
 	double m_zWheelFrontFace, m_zWheelBackFace;
 	double m_HalfGapBetweenWheels;
@@ -122,13 +148,14 @@ class LArWheelCalculator
 	bool m_isBarrette;
 	bool m_isBarretteCalib;
 
-	int m_fan_number;
+	int m_fan_number; // !
 
-	double parameterized_slant_angle(double) const;
-	void outer_wheel_init(const IRDBRecordset *);
-	void inner_wheel_init(const IRDBRecordset *);
+	void outer_wheel_init(const RDBParamRecords &);
+	void inner_wheel_init(const RDBParamRecords &);
 	void module_init(void);
-	double get_sagging(const CLHEP::Hep3Vector &P) const;
+#ifndef USE_DISTANCECALCULATOR_IMPL
+  double get_sagging(const CLHEP::Hep3Vector &P) const;
+#endif
 
 #ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
 //optimized geom. param. for folding design
@@ -158,6 +185,17 @@ class LArWheelCalculator
 		m_fan_number += m_ZeroGapNumber;
 		if(m_fan_number >= m_NumberOfFans) m_fan_number -= m_NumberOfFans;
 	}
+
+  protected:
+	double parameterized_slant_angle(double) const;
+	void parameterized_sincos(const double, double &, double &) const;
+	void parameterized_sin(const double, double &, double &) const;
+
+  private:
+  	LArWheelCalculator_Impl::IDistanceCalculator *m_distanceCalcImpl;
+  	LArWheelCalculator_Impl::IFanCalculator *m_fanCalcImpl;
+
+	void fill_sincos_parameterization(void);
 };
 
 #endif // __LArWheelCalculator_H__
