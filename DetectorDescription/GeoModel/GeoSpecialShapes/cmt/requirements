@@ -7,13 +7,15 @@ use AtlasPolicy     AtlasPolicy-*
 use AtlasCLHEP      AtlasCLHEP-*           External
 use GeoModelKernel  GeoModelKernel-*       DetectorDescription/GeoModel
 
-library GeoSpecialShapes *.cxx
+library GeoSpecialShapes *.cxx LArWheelCalculator_Impl/*.cxx
 apply_pattern installed_library
 
 private
 use CxxUtils       CxxUtils-*          Control
-use GaudiInterface GaudiInterface-*    External 
+use GaudiInterface GaudiInterface-*    External
 use RDBAccessSvc   RDBAccessSvc-*      Database/AthenaPOOL
 use GeoModelUtilities    GeoModelUtilities-*       DetectorDescription/GeoModel
 use GeoModelInterfaces   GeoModelInterfaces-*      DetectorDescription/GeoModel
 
+use AtlasROOT AtlasROOT-* External
+apply_tag ROOTMathLibs
