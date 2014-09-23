@@ -16,9 +16,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // This is release 12 guid for TrackParticleTruthVector.
-pool::Guid TrackParticleTruthCollectionCnv::s_p0_guid("B35041E8-D980-458E-AC06-79028CF79D5D");
+pool::Guid TrackParticleTruthCollectionCnv::p0_guid("B35041E8-D980-458E-AC06-79028CF79D5D");
 
-pool::Guid TrackParticleTruthCollectionCnv::s_p1_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFA");
+pool::Guid TrackParticleTruthCollectionCnv::p1_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFA");
 
 
 //================================================================
@@ -28,8 +28,8 @@ TrackParticleTruthCollectionCnv::TrackParticleTruthCollectionCnv(ISvcLocator* sv
 
 //================================================================
 TrackParticleTruthCollectionPERS* TrackParticleTruthCollectionCnv::createPersistent(TrackParticleTruthCollection* trans) {
-  MsgStream log(msgSvc(), "TrackParticleTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p1"<<endmsg;
+  MsgStream log(messageService(), "TrackParticleTruthCollectionCnv");
+  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p1"<<endreq;
   TrackParticleTruthCollectionPERS* pers=new TrackParticleTruthCollectionPERS();
   m_converter_p1.transToPers(trans,pers,log); 
   return pers;
@@ -37,24 +37,24 @@ TrackParticleTruthCollectionPERS* TrackParticleTruthCollectionCnv::createPersist
 
 //================================================================
 TrackParticleTruthCollection* TrackParticleTruthCollectionCnv::createTransient() {
-  MsgStream log(msgSvc(), "TrackParticleTruthCollectionCnv" );
+  MsgStream log(messageService(), "TrackParticleTruthCollectionCnv" );
   std::auto_ptr<TrackParticleTruthCollection> trans(new TrackParticleTruthCollection());
   
-  if (compareClassGuid(s_p1_guid)) {
-    log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
+  if (compareClassGuid(p1_guid)) {
+    log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
     Rec::TrackParticleTruthCollection_p1* pers=poolReadObject<Rec::TrackParticleTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);
     delete pers;
   }
-  else if (compareClassGuid(s_p0_guid)) {
-    log<<MSG::DEBUG<<"Read version p0 of TrackParticleTruthCollection. GUID="<<m_classID.toString()<<endmsg;
+  else if (compareClassGuid(p0_guid)) {
+    log<<MSG::DEBUG<<"Read version p0 of TrackParticleTruthCollection. GUID="<<m_classID.toString()<<endreq;
     TrackParticleTruthVector *pers = poolReadObject<TrackParticleTruthVector>();
     m_converter_p0.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else {
     log<<MSG::ERROR<<"Unsupported persistent version of TrackParticleTruthCollection. GUID="
-       <<m_classID.toString()<<endmsg;
+       <<m_classID.toString()<<endreq;
     throw std::runtime_error("Unsupported persistent version of Data Collection");
   }
   
