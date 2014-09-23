@@ -20,7 +20,7 @@
  *****************************************************************************/
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -70,7 +70,7 @@ public:
 
 class IOVSvcTool: virtual public IIOVSvcTool,
 		  virtual public IIncidentListener,
-		  virtual public AlgTool {
+		  virtual public AthAlgTool {
 
 public:
 

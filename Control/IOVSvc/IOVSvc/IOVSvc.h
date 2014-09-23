@@ -17,9 +17,7 @@
  *
  *****************************************************************************/
 
-#ifndef GAUDIKERNEL_SERVICE_H
- #include "GaudiKernel/Service.h"
-#endif
+#include "AthenaBaseComps/AthService.h"
 #ifndef KERNEL_STATUSCODES_H
  #include "GaudiKernel/StatusCode.h"
 #endif
@@ -85,7 +83,7 @@ namespace SG {
   class DataProxy;
 }
 
-class IOVSvc: virtual public Service, 
+class IOVSvc: virtual public AthService, 
 	      virtual public IIOVSvc {
 
 public:
@@ -189,8 +187,6 @@ private:
   
   // Allow SvcFactory to instantiate the service.
   friend class SvcFactory<IOVSvc>;
-
-  mutable MsgStream m_log;
 
   typedef std::map< std::string, IIOVSvcTool* > toolMap;
 

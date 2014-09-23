@@ -36,7 +36,7 @@ const std::string defaultStore = "StoreGateSvc";
 //
 
 IOVSvc::IOVSvc( const std::string& name, ISvcLocator* svc )
-  : Service( name, svc ), m_log(msgSvc(), name), 
+  : AthService( name, svc ), 
     p_toolSvc("ToolSvc",name),
     p_CLIDSvc("ClassIDSvc",name)
 
@@ -60,19 +60,19 @@ IOVSvc::~IOVSvc() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode IOVSvc::initialize() {
-  StatusCode status = Service::initialize();
-  m_log.setLevel( m_outputLevel.value() );
+  StatusCode status = AthService::initialize();
+  msg().setLevel( m_outputLevel.value() );
 
 #ifndef NDEBUG
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Initializing IOVSvc version " 
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG << "Initializing IOVSvc version " 
 	  << PACKAGE_VERSION << endreq;
   }
 #endif
 
 #ifndef NDEBUG
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Service initialized" << endreq;
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG << "AthService initialized" << endreq;
   }
 #endif
   return status;
@@ -90,11 +90,12 @@ StatusCode IOVSvc::finalize() {
     p_toolSvc->releaseTool( ist ).ignore();
   }
 
-  StatusCode status = Service::finalize();
+  StatusCode status = AthService::finalize();
 
 #ifndef NDEBUG
-  if ( m_log.level() <= MSG::DEBUG && status.isSuccess() )
-    m_log << MSG::DEBUG << "Service finalised successfully" << endreq;
+  if (msgLvl(MSG::DEBUG) && status.isSuccess() ) {
+    msg() << MSG::DEBUG << "Service finalised successfully" << endreq;
+  }
 #endif
 
   return status;
@@ -111,7 +112,7 @@ IOVSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
     }
     else  {
         // Interface is not directly available: try out a base class
-        return Service::queryInterface(riid, ppvInterface);
+        return AthService::queryInterface(riid, ppvInterface);
     }
     addRef();
     return StatusCode::SUCCESS;
@@ -128,7 +129,7 @@ IOVSvc::regProxy( const DataProxy *proxy, const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    m_log << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
+    msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
 	  << storeName << "\" and failed to create one" << endreq;
     return (StatusCode::FAILURE);
   }
@@ -136,15 +137,15 @@ IOVSvc::regProxy( const DataProxy *proxy, const std::string& key,
   IIOVSvcTool *ist2 = getTool( proxy );
   if (ist2 != 0) {
     if (ist2 != ist) {
-      m_log << MSG::ERROR << "regProxy: when registering proxy for " 
+      msg() << MSG::ERROR << "regProxy: when registering proxy for " 
 	    << fullProxyName(proxy) << " with store \"" << storeName
 	    << "\", it is already registered with store \"" 
 	    << ist2->getStoreName() << "\"" << endreq;
       return StatusCode::FAILURE;
     } else {
 #ifndef NDEBUG
-      if (m_log.level() <= MSG::DEBUG) {
-	m_log << MSG::DEBUG << "regProxy: proxy for " << fullProxyName(proxy)
+      if (msgLvl(MSG::DEBUG)) {
+	msg() << MSG::DEBUG << "regProxy: proxy for " << fullProxyName(proxy)
 	      << " already registered with store \"" << storeName << "\""
 	      << endreq;
       }
@@ -168,7 +169,7 @@ IOVSvc::regProxy( const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    m_log << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
+    msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
 	  << storeName << "\" and failed to create one." << endreq;
     return (StatusCode::FAILURE);
   }
@@ -176,7 +177,7 @@ IOVSvc::regProxy( const CLID& clid, const std::string& key,
   IIOVSvcTool *ist2 = getTool( clid, key );
   if (ist2 != 0) {
     if (ist2 != ist) {
-      m_log << MSG::ERROR << "regProxy: when registering proxy for "
+      msg() << MSG::ERROR << "regProxy: when registering proxy for "
 	    << fullProxyName(clid,key)
 	    << " with store " << storeName
 	    << ", it is already registered with store \"" 
@@ -184,8 +185,8 @@ IOVSvc::regProxy( const CLID& clid, const std::string& key,
       return StatusCode::FAILURE;
     } else {
 #ifndef NDEBUG
-      if (m_log.level() <= MSG::DEBUG) {
-	m_log << MSG::DEBUG << "regProxy: proxy for " << fullProxyName(clid,key)
+      if (msgLvl(MSG::DEBUG)) {
+	msg() << MSG::DEBUG << "regProxy: proxy for " << fullProxyName(clid,key)
 	      << " already registered with store \"" << storeName << "\""
 	      << endreq;
       }
@@ -212,7 +213,7 @@ IOVSvc::replaceProxy( const DataProxy* pOld, const DataProxy* pNew,
   if (0 != ist) {
     sc = ist->replaceProxy(pOld, pNew);
   } else {
-    m_log << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
+    msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
 	  << storeName << "\" and failed to create one." << endreq;
   } 
   return sc;
@@ -232,7 +233,7 @@ IOVSvc::preLoadTAD( const TransientAddress *tad,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    m_log << MSG::ERROR << "preLoadTAD: no IOVSvcTool associated with store \""
+    msg() << MSG::ERROR << "preLoadTAD: no IOVSvcTool associated with store \""
 	  << storeName << "\" and failed to create one." << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -252,7 +253,7 @@ IOVSvc::preLoadDataTAD( const TransientAddress *tad,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    m_log << MSG::ERROR 
+    msg() << MSG::ERROR 
 	  << "preLoadDataTAD: no IOVSvcTool associated with store \""
 	  << storeName << "\" and failed to create one." << endreq;
     return StatusCode::FAILURE;
@@ -274,14 +275,14 @@ IOVSvc::setRange(const CLID& clid, const std::string& key,
     // FIXME - this should be eliminated once the IOVDbSvc is set up to 
     // use store names. There should be no default store for setRange
 
-    m_log << MSG::WARNING << "setRange(CLID,key,range) for unregistered proxies "
+    msg() << MSG::WARNING << "setRange(CLID,key,range) for unregistered proxies "
 	  << "is deprecated - you need to specify a store! "
 	  << "This will be an ERROR soon!" 
 	  << endreq;
 
     return setRange(clid,key,iovr, defaultStore );
 
-//     m_log << MSG::ERROR << "setRange: proxy " << fullProxyName(clid, key) 
+//     msg() << MSG::ERROR << "setRange: proxy " << fullProxyName(clid, key) 
 // 	  << " not registered in any store."
 // 	  << endreq;
 //     return StatusCode::FAILURE;
@@ -300,21 +301,21 @@ IOVSvc::setRange(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    m_log << MSG::ERROR << "setRange: no IOVSvcTool assocaited with store \"" 
+    msg() << MSG::ERROR << "setRange: no IOVSvcTool assocaited with store \"" 
 	  << storeName << "\" and failed to create one." << endreq;
     return StatusCode::FAILURE;
   }
 
   IIOVSvcTool *ist2 = getTool( clid, key );
   if (ist2 == 0) {
-    m_log << MSG::INFO << "setRange: proxy for " << fullProxyName(clid,key)
+    msg() << MSG::INFO << "setRange: proxy for " << fullProxyName(clid,key)
 	  << " not registered with store \"" << storeName << "\". Doing it now"
 	  << endreq;
     if (ist->regProxy(clid, key).isFailure()) {
       return StatusCode::FAILURE;
     }
   } else if (ist2 != ist) {
-    m_log << MSG::INFO << "setRange: when registering proxy (clid: " 
+    msg() << MSG::INFO << "setRange: when registering proxy (clid: " 
 	  << clid << " key: " << key << ") with store \"" << storeName
 	  << "\" --> already registered with store \"" << ist2->getStoreName()
 	  << "\"" << endreq;
@@ -335,7 +336,7 @@ IOVSvc::getRange(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    m_log << MSG::ERROR << "getRange: proxy for " << fullProxyName(clid,key)
+    msg() << MSG::ERROR << "getRange: proxy for " << fullProxyName(clid,key)
 	  << " not registered" << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -352,7 +353,7 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    m_log << MSG::ERROR << "getRangeFromDB: proxy for " 
+    msg() << MSG::ERROR << "getRangeFromDB: proxy for " 
 	  << fullProxyName(clid,key) << " not registered" << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -370,7 +371,7 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    m_log << MSG::ERROR << "getRangeFromDB: proxy for "
+    msg() << MSG::ERROR << "getRangeFromDB: proxy for "
 	  << fullProxyName(clid, key) << " not registered" << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -387,7 +388,7 @@ IOVSvc::setRangeInDB(const CLID& clid, const std::string& key,
   
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    m_log << MSG::ERROR << "setRangeInDB: proxy for "
+    msg() << MSG::ERROR << "setRangeInDB: proxy for "
 	  << fullProxyName(clid,key) << " not registered" << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -406,7 +407,7 @@ IOVSvc::regFcn(SG::DataProxy* dp,
 
   IIOVSvcTool *ist = getTool( dp );
   if (ist == 0) {
-    m_log << MSG::ERROR << "regFcn: no IOVSvcTool found containing DataProxy "
+    msg() << MSG::ERROR << "regFcn: no IOVSvcTool found containing DataProxy "
 	  << fullProxyName( dp )
 	  << "-> Need to bind DataHandle first" << endreq;
     return StatusCode::FAILURE;
@@ -424,7 +425,7 @@ IOVSvc::regFcn(const CallBackID c1,
 
 
   if (c1 == c2) {
-    m_log << MSG::ERROR 
+    msg() << MSG::ERROR 
 	  << "Cannot register 2nd callback function and assocaited"
 	  << " object with itself" << endreq;
     return StatusCode::FAILURE;
@@ -433,7 +434,7 @@ IOVSvc::regFcn(const CallBackID c1,
 
   IIOVSvcTool *ist = getTool( c1 );
   if (ist == 0) {
-    m_log << MSG::ERROR << "CallBack function \"" << c2.name()
+    msg() << MSG::ERROR << "CallBack function \"" << c2.name()
 	<< "\" cannot be registered since function \"" << c1.name()
 	<< "\" has not been registered first" << endreq;
     return StatusCode::FAILURE;
@@ -452,7 +453,7 @@ IOVSvc::regFcn(const std::string& toolName,
 
   IAlgTool *ia;
   if ( p_toolSvc->retrieveTool(toolName, ia, 0, false).isFailure() ) {
-    m_log << MSG::ERROR << "AlgTool " << toolName << " has not yet been created"
+    msg() << MSG::ERROR << "AlgTool " << toolName << " has not yet been created"
 	  << " and thus cannot be registered"
 	  << endreq;
 
@@ -461,7 +462,7 @@ IOVSvc::regFcn(const std::string& toolName,
 
   IIOVSvcTool *ist = getTool( ia );
   if (ist == 0) {
-    m_log << MSG::ERROR << "No callback registered with AlgTool " << toolName
+    msg() << MSG::ERROR << "No callback registered with AlgTool " << toolName
 	  << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -479,7 +480,7 @@ IOVSvc::getTriggeredTools(const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName, false );
   if (ist == 0) {
-    m_log << MSG::ERROR << "getTriggeredTools: no store \"" << storeName
+    msg() << MSG::ERROR << "getTriggeredTools: no store \"" << storeName
 	  << "\" associated with any IOVSvcTool"
 	  << endreq;
     return StatusCode::FAILURE;
@@ -516,8 +517,8 @@ IOVSvc::createIOVTool( const std::string& storeName ) {
   if (storeName == "default") store = defaultStore;
 
 #ifndef NDEBUG
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG
 	  << "Creating IOVSvcTool associated with store \"" << store
 	  << "\"" << endreq;
   }
@@ -527,7 +528,7 @@ IOVSvc::createIOVTool( const std::string& storeName ) {
   if ( itr == m_toolMap.end() ) {
     IIOVSvcTool *ist(0);
     if (p_toolSvc->retrieveTool( "IOVSvcTool/" + store, ist, this ).isFailure()) {
-      m_log << MSG::ERROR 
+      msg() << MSG::ERROR 
 	    << "Unable to create IOVSvcTool assocaited with store \"" 
 	    << store << "\"" << endreq;
       return StatusCode::FAILURE;
@@ -537,7 +538,7 @@ IOVSvc::createIOVTool( const std::string& storeName ) {
       return StatusCode::SUCCESS;
     }
   } else {
-    m_log << MSG::INFO
+    msg() << MSG::INFO
 	  << "an IOVSvcTool already exists assocaited with store \"" 
 	  << store << "\"" << endreq;
     return StatusCode::SUCCESS;
@@ -553,8 +554,8 @@ IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) const {
   if (storeName == "default") store = defaultStore;
 
 #ifndef NDEBUG
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << MSG::DEBUG
 	  << "Creating IOVSvcTool associated with store \"" << store
 	  << "\"" << endreq;
   }
@@ -564,7 +565,7 @@ IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) const {
   toolMap::const_iterator itr = m_toolMap.find( store );
   if ( itr == m_toolMap.end() ) {
     if (p_toolSvc->retrieveTool( "IOVSvcTool/"+store, ist, this ).isFailure()) {
-      m_log << MSG::ERROR 
+      msg() << MSG::ERROR 
 	    << "Unable to create IOVSvcTool assocaited with store \"" 
 	    << store << "\"" << endreq;
       return false;
@@ -573,7 +574,7 @@ IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) const {
       ist->setStoreName( store );
     }
   } else {
-    m_log << MSG::INFO
+    msg() << MSG::INFO
 	  << "an IOVSvcTool already exists assocaited with store \"" 
 	  << store << "\"" << endreq;
     ist = itr->second;    
@@ -596,7 +597,7 @@ IOVSvc::getTool( const std::string& storeName, bool createIF ) const {
   toolMap::const_iterator itr = m_toolMap.find( store );
   IIOVSvcTool *ist(0);
   if ( itr == m_toolMap.end() ) {
-    m_log << MSG::INFO << "No IOVSvcTool associated with store \"" << store
+    msg() << MSG::INFO << "No IOVSvcTool associated with store \"" << store
 	  << "\"" << endreq;
 
     if (createIF) createIOVTool(store, ist);
@@ -731,8 +732,8 @@ IOVSvc::resetAllProxies() {
   for (; itr!= m_toolMap.end(); ++itr) {
     IIOVSvcTool* ist = itr->second;
 #ifndef NDEBUG
-    if (m_log.level() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "resetting all proxies for store \""
+  if (msgLvl(MSG::DEBUG)) {
+      msg() << MSG::DEBUG << "resetting all proxies for store \""
 	    << ist->getStoreName() << "\"" << endreq;
     }
 #endif

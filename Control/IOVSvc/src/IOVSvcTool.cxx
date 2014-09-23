@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IOVSVC_IOVSVCTOOL_H
- #include "IOVSvc/IOVSvcTool.h"
-#endif
+#include "IOVSvc/IOVSvcTool.h"
 /*****************************************************************************
  *
  *  IOVSvcTool.cxx
@@ -106,7 +104,7 @@ SortDPptr::operator() (const SG::DataProxy* a, const SG::DataProxy *b) const {
 
 IOVSvcTool::IOVSvcTool(const std::string& type, const std::string& name,
 		       const IInterface* parent): 
-  AlgTool( type, name, parent ),
+  AthAlgTool( type, name, parent ),
   m_storeName("StoreGateSvc"), 
   m_log(msgSvc(), "IOVSvcTool"), 
   p_sgSvc(0), 
@@ -1319,7 +1317,12 @@ IOVSvcTool::regFcn(SG::DataProxy* dp,
     m_trigTree->addNode(obs,c,dp);
   } else {
     CBNode *cp = m_trigTree->findNode(dp);
-    m_trigTree->connectNode(cn,cp);
+    if (cp)
+      m_trigTree->connectNode(cn,cp);
+    else
+      m_log << MSG::ERROR << "Cannot find callback node for parent DataProxy "
+            << dp->transientAddress()->name()
+            << endreq;
   }
 
 #ifndef NDEBUG

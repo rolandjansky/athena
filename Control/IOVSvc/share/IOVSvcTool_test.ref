@@ -1,0 +1,56 @@
+*** IOVSvcTool_test starts ***
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/IOVSvcTool_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/run/../share/IOVSvcTool_test.txt
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "IOVSvc"]
+JobOptionsSvc        INFO # (3,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
+JobOptionsSvc        INFO Job options successfully read in from ../share/IOVSvcTool_test.txt
+ApplicationMgr      DEBUG Getting my own properties
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
+                                          running on lxplus0077.cern.ch on Thu Sep 18 19:13:28 2014
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate, IOVSvc
+ApplicationMgr       INFO Application Manager Configured successfully
+ServiceManager      DEBUG Initializing service IncidentSvc
+IncidentSvc         DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service DetectorStore
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-43-01
+DetectorStore       DEBUG Service base class initialized successfully
+IncidentSvc         DEBUG Adding [EndEvent] listener 'DetectorStore' with priority 100
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'DetectorStore' with priority 100
+EventPersistenc...  DEBUG Service base class initialized successfully
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-13
+ClassIDSvc          DEBUG Service base class initialized successfully
+IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
+ClassIDSvc           INFO  getRegistryEntries: read 739 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-09
+ServiceManager      DEBUG Initializing service AppMgrRunable
+AppMgrRunable       DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service EventLoopMgr
+EventLoopMgr        DEBUG Service base class initialized successfully
+IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
+EventDataSvc        DEBUG Service base class initialized successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramDataSvc    DEBUG Service base class initialized successfully
+HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
+HistogramPersis...  DEBUG Service base class initialized successfully
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+ToolSvc             DEBUG Service base class initialized successfully
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-43-01
+StoreGateSvc        DEBUG Service base class initialized successfully
+IncidentSvc         DEBUG Adding [EndEvent] listener 'StoreGateSvc' with priority 100
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'StoreGateSvc' with priority 100
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'ToolSvc.IOVSvcTool' with priority 100
+IncidentSvc         DEBUG Adding [BeginRun] listener 'ToolSvc.IOVSvcTool' with priority 100
+IOVSvcTool           INFO IOVRanges will be checked at every Event
+IncidentSvc         DEBUG Adding [CheckIOV] listener 'ToolSvc.IOVSvcTool' with priority 100
+ClassIDSvc           INFO  getRegistryEntries: read 288 CLIDRegistry entries for module ALL
+IOVSvcTool          DEBUG replace proxy [Dooo:6666/old] @0x2c44a20 with [Dooo:6666/new] @0x2c0b570
+*** IOVSvcTool_test OK ***
