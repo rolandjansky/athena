@@ -33,24 +33,24 @@ void IsolationPlots::initializePlots(){
 
 
 void IsolationPlots::fill(const xAOD::Egamma& egamma){
-  FillIsolationPlot(etcone20    ,xAOD::EgammaParameters::etcone20, egamma);
-  FillIsolationPlot(etcone30    ,xAOD::EgammaParameters::etcone30, egamma);
-  FillIsolationPlot(etcone40    ,xAOD::EgammaParameters::etcone40, egamma);
-  FillIsolationPlot(etcone20corr,xAOD::EgammaParameters::etcone20_ptcorrected , egamma);
-  FillIsolationPlot(etcone30corr,xAOD::EgammaParameters::etcone30_ptcorrected , egamma);
-  FillIsolationPlot(etcone40corr,xAOD::EgammaParameters::etcone40_ptcorrected , egamma);
-  FillIsolationPlot(ptcone20    ,xAOD::EgammaParameters::ptcone20, egamma);
-  FillIsolationPlot(ptcone30    ,xAOD::EgammaParameters::ptcone30, egamma);
-  FillIsolationPlot(ptcone40    ,xAOD::EgammaParameters::ptcone40, egamma);
-  FillIsolationPlot(nucone20    ,xAOD::EgammaParameters::nucone20, egamma);
-  FillIsolationPlot(nucone30    ,xAOD::EgammaParameters::nucone30, egamma);
-  FillIsolationPlot(nucone40    ,xAOD::EgammaParameters::nucone40, egamma);
-  FillIsolationPlot(topoetcone20,xAOD::EgammaParameters::topoetcone20, egamma);
-  FillIsolationPlot(topoetcone30,xAOD::EgammaParameters::topoetcone30, egamma);
-  FillIsolationPlot(topoetcone40,xAOD::EgammaParameters::topoetcone40, egamma);
+  FillIsolationPlot(etcone20    ,xAOD::Iso::etcone20, egamma);
+  FillIsolationPlot(etcone30    ,xAOD::Iso::etcone30, egamma);
+  FillIsolationPlot(etcone40    ,xAOD::Iso::etcone40, egamma);
+  FillIsolationPlot(etcone20corr,xAOD::Iso::etcone20_ptcorrected , egamma);
+  FillIsolationPlot(etcone30corr,xAOD::Iso::etcone30_ptcorrected , egamma);
+  FillIsolationPlot(etcone40corr,xAOD::Iso::etcone40_ptcorrected , egamma);
+  FillIsolationPlot(ptcone20    ,xAOD::Iso::ptcone20, egamma);
+  FillIsolationPlot(ptcone30    ,xAOD::Iso::ptcone30, egamma);
+  FillIsolationPlot(ptcone40    ,xAOD::Iso::ptcone40, egamma);
+  FillIsolationPlot(nucone20    ,xAOD::Iso::nucone20, egamma);
+  FillIsolationPlot(nucone30    ,xAOD::Iso::nucone30, egamma);
+  FillIsolationPlot(nucone40    ,xAOD::Iso::nucone40, egamma);
+  FillIsolationPlot(topoetcone20,xAOD::Iso::topoetcone20, egamma);
+  FillIsolationPlot(topoetcone30,xAOD::Iso::topoetcone30, egamma);
+  FillIsolationPlot(topoetcone40,xAOD::Iso::topoetcone40, egamma);
 }
 
-void IsolationPlots::FillIsolationPlot(TH1* hist, xAOD::EgammaParameters::IsolationType isoType, const xAOD::Egamma& egamma){
+void IsolationPlots::FillIsolationPlot(TH1* hist, xAOD::Iso::IsolationType isoType, const xAOD::Egamma& egamma){
   float val = -10000000;
   egamma.isolationValue(val, isoType);
   hist->Fill(val*0.001); //MeV to GeV conversion, make prettier
