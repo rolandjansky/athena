@@ -8,12 +8,9 @@ use StoreGate            StoreGate-*              Control
 use Identifier           Identifier-*             DetectorDescription
 
 use TrigT1RPClogic       TrigT1RPClogic-*         Trigger/TrigT1
-use TrigT1RPCmonitoring  TrigT1RPCmonitoring-*    Trigger/TrigT1
-
+#use TrigT1RPCmonitoring  TrigT1RPCmonitoring-*    Trigger/TrigT1
 
 use RPCcablingInterface  RPCcablingInterface-*    MuonSpectrometer/MuonCablings
-use RPCgeometry          RPCgeometry-*            MuonSpectrometer/MuonCablings
-
 use MuonReadoutGeometry  MuonReadoutGeometry-*    MuonSpectrometer/MuonDetDescr
 
 

@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LVL1_STANDALONE
-
 #include "TrigT1RPCsteering/TrigT1RPC.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
@@ -31,7 +29,8 @@
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
-#include "TrigT1RPCmonitoring/DetailedTW.h"
+// next candidate for removal
+//#include "TrigT1RPCmonitoring/DetailedTW.h" 
 
 #include "TrigT1RPClogic/decodeSL.h"
 
@@ -44,7 +43,7 @@
 
 using namespace std;
 
-static double time_correction(double, double, double);
+//static double time_correction(double, double, double);
 
 static int digit_num = 0;
 static int digit_out = 0;
@@ -56,14 +55,11 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   Algorithm(name, pSvcLocator),
   m_EvtStore("StoreGateSvc",name),
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
-  m_cabling(0),
-  m_geometry("RPCgeometrySvc/RPCgeometrySvc","TrigT1RPC")
+  m_cabling(0)
+
 {
   declareProperty ( "EventStore",m_EvtStore,"StoreGate Service");
   declareProperty ( "FastDebug", m_fast_debug=0 );
-
-  declareProperty ( "Monitoring", m_monitoring=0 );
-  //m_monitoring.setBounds( 0, 31 );
 
   declareProperty ( "Geometric", m_geometric_algo=false );
   declareProperty ( "Hardware", m_hardware_emulation=true );
@@ -87,16 +83,6 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ( "RXrostructdebug", m_rx_rostruct_debug=0 );
   declareProperty ( "SLrostructdebug", m_sl_rostruct_debug=0 );
 
-  declareProperty ( "DetailedTW" , m_detailedTW=false);
-  declareProperty ( "EffMonitor" , m_EffMonitor=false);
-  declareProperty ( "TimeGeoMon" , m_time_geo_monitor=false);
-
-  declareProperty ( "PatchForRpcTime", m_patch_for_rpc_time=true);
-
-  declareProperty ( "MaxMuon" , m_max_muon=10);
-  declareProperty ( "MaxRoI"  , m_max_roi=10);
-  
-  declareProperty ( "KeyForTruth" , m_key_for_truth="TruthEvent");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -104,7 +90,7 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode TrigT1RPC::initialize(){
 
   MsgStream mylog(msgSvc(), name());
-  mylog << MSG::DEBUG << " in initialize()";
+  mylog << MSG::INFO << "Initializing";
   mylog << endreq;
         
   StatusCode sc;
@@ -115,9 +101,6 @@ StatusCode TrigT1RPC::initialize(){
       mylog << MSG::FATAL << " Cannot get ActiveStoreSvc " << endreq;
       return sc ;
     }
-
-    //m_digit_position = 0;
-    //const MuonDetDescrManager* muon_mgr;
 
     StoreGateSvc* detStore = 0;
     
@@ -136,45 +119,7 @@ StatusCode TrigT1RPC::initialize(){
 	      << " MuonDetDescrMgr not found in DetectorStore " << endreq;
     }
 
-/*    
-    sc = serviceLocator()->service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-        mylog << MSG::FATAL << "DetectorStore service not found !" << endreq;  
-    } else {
-        // Get the RPC id helper from the detector store
-        const DataHandle<RpcIdHelper> rpcHelper;
-        sc = detStore->retrieve(rpcHelper, "RPCIDHELPER");
-        if (sc.isFailure()) {
-            mylog << MSG::FATAL << "Could not get RpcIdHelper !" << endreq;
-	    return StatusCode::FAILURE;
-        } else {
-            mylog << MSG::DEBUG << " Found the RpcIdHelper. " << endreq;
-	    m_rpcId = rpcHelper;
-        }
-    }
-*/    
-/*    if (sc.isSuccess()) 
-    {
-        sc = detStore->retrieve( muon_mgr );
-        if (sc.isFailure())
-	{
-            mylog << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endreq;
-            return sc;
-        }
-        else
-	{
-             m_digit_position = new MuonDigitPosition (muon_mgr);
-	     //m_muonId = muon_mgr->muonIdHelper();
-	     m_rpcId  = muon_mgr->rpcIdHelper();
-	}
-    } else
-    {
-        mylog << MSG::ERROR 
-              << " MuonDetDescrMgr not found in DetectorStore " << endreq;
-	return sc;
-    }
-*/
-    // initialize StoreGate service
+
     sc = m_EvtStore.retrieve();
     if (sc.isFailure()) 
     {
@@ -199,84 +144,8 @@ StatusCode TrigT1RPC::initialize(){
 	      << endreq;
         return sc ;
     } 
-    
-    // initialize RPC geometry service
-    sc = m_geometry.retrieve();
-    if (sc != StatusCode::SUCCESS ) 
-    {
-        mylog << MSG::FATAL << " Cannot get RPC geometry Service " << endreq;
-        return sc ;
-    }
-    
-    // book the ntuple and initialize the ntuple maker for trigger efficiency
-    if(m_EffMonitor)
-    {     
-        // Book the ntuple
-        SmartDataPtr<NTuple::Directory>
-            ntdir(ntupleSvc(),"/NTUPLES/FILE1/RPCTRIG");
-        if ( !ntdir )
-        { 
-            //    otherwise create the directory
-            ntdir = ntupleSvc()->createDirectory("/NTUPLES/FILE1/RPCTRIG");
-        }
-  
-        // Check if the directory is valid
-        if ( ! ntdir )  
-        {
-            mylog << MSG::ERROR << " failed to get ntuple directory" << endreq;
-            return StatusCode::FAILURE;
-        }
-	
-	NTuple::Tuple* EffNtup = ntupleSvc()->book (ntdir.ptr(), 9, 
-                                           CLID_ColumnWiseTuple,"RPCTRIG");
-
-	m_TrigEfficiency = new TrigEfficiency (EffNtup,m_max_muon,m_max_roi);
-	
-    } else m_TrigEfficiency = 0;
 
     
-    
-    if(m_time_geo_monitor) {
-            
-      SmartDataPtr<NTuple::Directory>
-          ntdir(ntupleSvc(),"/NTUPLES/FILE1/TRIGT1RPC");
-      if ( !ntdir )
-      { 
-          //    otherwise create the directory
-          ntdir = ntupleSvc()->createDirectory("/NTUPLES/FILE1/TRIGT1RPC");
-      }
-  
-      // Check if the directory is valid
-      if ( ! ntdir )  
-      {
-          mylog << MSG::ERROR << " failed to get ntuple directory" << endreq;
-	  return StatusCode::FAILURE;
-      }
-    
-      m_ntuple = ntupleSvc()->book (ntdir.ptr(), 40, CLID_ColumnWiseTuple,"TIMEGEO");
-      
-      m_ntuple->addItem("StationType" , m_rpc_stationType).ignore();
-      m_ntuple->addItem("StationEta"  , m_rpc_stationEta).ignore();
-      m_ntuple->addItem("StationPhi"  , m_rpc_stationPhi).ignore();
-      m_ntuple->addItem("DoubletR"    , m_rpc_doubletR).ignore();
-      m_ntuple->addItem("DoubletZ"    , m_rpc_doubletZ).ignore();
-      m_ntuple->addItem("DoubletP"    , m_rpc_doubletP).ignore();
-      m_ntuple->addItem("GasGap"      , m_rpc_gasGap).ignore();
-      m_ntuple->addItem("MeasurePhi"  , m_rpc_measurePhi).ignore();
-      m_ntuple->addItem("Strip"       , m_rpc_strip).ignore();
-
-      m_ntuple->addItem("StripCode"    , m_rpc_code).ignore();    
-      m_ntuple->addItem("Time"         , m_rpc_time).ignore();
-      m_ntuple->addItem("Geomodel_X"   , m_rpc_geomodel_x).ignore();
-      m_ntuple->addItem("Geomodel_Y"   , m_rpc_geomodel_y).ignore();
-      m_ntuple->addItem("Geomodel_Z"   , m_rpc_geomodel_z).ignore();
-      m_ntuple->addItem("Standalone_X" , m_rpc_standalone_x).ignore();
-      m_ntuple->addItem("Standalone_Y" , m_rpc_standalone_y).ignore();
-      m_ntuple->addItem("Standalone_Z" , m_rpc_standalone_z).ignore();
-      
-  } else m_ntuple= 0;
-
-
   return StatusCode::SUCCESS;
 }
  
@@ -380,9 +249,6 @@ StatusCode TrigT1RPC::execute() {
                                                                         //
       ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector);//
                                                                         //
-      TrigEfficiency::TrigData trigdata(sector,data_word);              //
-      if(m_TrigEfficiency) *m_TrigEfficiency << trigdata;               //
-                                                                        //
       ++SLit;                                                           //
   }                                                                     //
                                                                         //
@@ -403,80 +269,7 @@ StatusCode TrigT1RPC::execute() {
 
   // ******************* Start of Level-1 computation section *****************
 
-  if(m_detailedTW)
-  {                                  //m_cabling.operator->()
-      DetailedTW trigger_windows(&data,m_cabling);
-  }
-
-  if(m_detailedTW || m_TrigEfficiency)
-  {
-      // retrieving the Montecarlo thru from the Storegate
-      const DataHandle<McEventCollection> mcCollptr;
-      //std::string	key = "GEN_EVENT";
-      std::string	key = m_key_for_truth;
-
-      if (m_EvtStore->contains<McEventCollection>(key) &&
-          m_EvtStore->retrieve(mcCollptr,key).isSuccess() )
-      {    
-        // int n=0;
-          McEventCollection::const_iterator itr;
-          for(itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) 
-          {  
-              HepMC::GenEvent::particle_const_iterator Part;
-	  
-	      for (Part = (*itr)->particles_begin(); 
-                   Part!=(*itr)->particles_end(); 
-                   ++Part ) 
-              {
-                  // store MCthru only for muon particles
-	          if ( ((*Part)->pdg_id() == -13 || (*Part)->pdg_id() == 13) ) 
-                  {
-	              MontecarloThru mcthru;
-                      HepMC::GenVertex* Vert = (*Part)->production_vertex();
-
-                      double            Tphi = (*Part)->momentum().phi();
-                      if (Tphi < 0.)    Tphi =  Tphi + (2*M_PI);
-
-                      if (Vert) 
-                      {
-                          mcthru.vertex_x = (float) Vert->position().x()/10.;
-                          mcthru.vertex_y = (float) Vert->position().y()/10.;
-                          mcthru.vertex_z = (float) Vert->position().z()/10.;
-                      }
-
-		      mcthru.phi  = Tphi;
-
-		      float Pt = (*Part)->momentum().perp();
-		      float theta = atan(Pt/fabs((*Part)->momentum().z())); 
-		      float eta = -log (tan(theta/2.) );
-
-                      //int charge = 1;
-                      //if ((*Part)->pdg_id()>0) charge = -1;
-
-                      mcthru.p_x = (float) (*Part)->momentum().x();
-                      mcthru.p_y = (float) (*Part)->momentum().y();
-                      mcthru.p_z = (float) (*Part)->momentum().z();
-                      
-                      mcthru.eta = (mcthru.p_z >= 0.)? eta : -eta;
-		      		      
-                      if(m_TrigEfficiency) *m_TrigEfficiency << mcthru;
-
-                      //n++;
-	          }
-              }
-          }
-      }
-      else {
-          mylog << MSG::WARNING << "Could not retrieve McEventCollection" 
-	        << endreq;
-      }
-  }
-    
-
-  if(m_TrigEfficiency) m_TrigEfficiency->write_ntp(ntupleSvc());
-
-  // ******************* Start of Level-1 monitoring section ******************
-
+  
   // ******************* Start Byte Stream production *************************
 
   if(m_bytestream_production)
@@ -571,8 +364,6 @@ StatusCode TrigT1RPC::finalize() {
    mylog << MSG::DEBUG << "digits out of the time window = " 
                        << digit_out << endreq;
 
-   if(m_TrigEfficiency) delete m_TrigEfficiency;
-
    return StatusCode::SUCCESS;
 }
 
@@ -605,9 +396,9 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
         const  RpcDigitCollection* rpcCollection = *it1_coll; 
  
         Identifier moduleId = rpcCollection->identify();
-
-//        if (m_rpcId->validElement(moduleId) && 
-//	    m_digit_position->initialize(moduleId))
+        
+        //        if (m_rpcId->validElement(moduleId) && 
+        //	    m_digit_position->initialize(moduleId))
 
 	if (m_rpcId->is_rpc(moduleId))
         {
@@ -638,115 +429,34 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                     int MeasuresPhi         = m_rpcId->measuresPhi(channelId);
                     int Strip               = m_rpcId->strip(channelId);
                     
-		    if(m_ntuple) {
-		        //fill ntuple variables
-		        m_rpc_stationType = stationType;
-                        m_rpc_stationEta  = StationEta;
-                        m_rpc_stationPhi  = StationPhi;
-                        m_rpc_doubletR    = DoubletR;
-                        m_rpc_doubletZ    = DoubletZ;
-                        m_rpc_doubletP    = DoubletP;
-                        m_rpc_gasGap      = GasGap;
-                        m_rpc_measurePhi  = MeasuresPhi;
-                        m_rpc_strip       = Strip;
-		    }
-		    
-                    // Get the Level-1 numbering schema for the RPC strips
-                    unsigned long int strip_code =
-		        m_geometry->give_strip_code(StationName,StationEta,
-                                                    StationPhi,DoubletR,
-                                                    DoubletZ,DoubletP,GasGap,
-                                                    MeasuresPhi,Strip);
-
                     const MuonGM::RpcReadoutElement* descriptor =
                                     m_MuonMgr->getRpcReadoutElement(channelId);
 
-                    if(strip_code)
-		    {
-                        //Get the global position of RPC strip from RPCGeometry
-                        float coo[3] = {0.,0.,0.};
-                        m_geometry->give_strip_coordinates(strip_code,coo);
+		    //Get the global position of RPC strip from MuonDetDesc
+		    Amg::Vector3D pos = descriptor->stripPos(channelId);		    
 
-                        //Get the global position of RPC strip from MuonDetDesc
-                        Amg::Vector3D pos = descriptor->stripPos(channelId);
+                    // Get the Level-1 numbering schema for the RPC strips
+		    unsigned long int strip_code_cab = 
+                        m_cabling->strip_code_fromOffId (StationName,StationEta,StationPhi,
+						       DoubletR,DoubletZ,DoubletP,
+						       GasGap,MeasuresPhi,Strip);
+		    
 
-                        // Fill data for the Level-1 RPC digit
+                    if(strip_code_cab) {
+		      // Fill data for the Level-1 RPC digit
                         float xyz[4];
+			xyz[1] = pos.x()/10.;//coo[0];            //RPC strip x coordinate 
+			xyz[2] = pos.y()/10.;//coo[1];            //RPC strip y coordinate 
+			xyz[3] = pos.z()/10.;//coo[2];            //RPC strip z coordinate 
+                        xyz[0] = rpcDigit->time();  //time of digits
                         
-			// xyz[0] = rpcDigit->time();  //time of flight
-                        //xyz[0] = 0.;  // no time of flight for the time being
-                        
-			if(m_ntuple) {
-                            //fill ntuple variables
-			    m_rpc_code = strip_code;
-			    
-			    m_rpc_geomodel_x = pos.x();
-                            m_rpc_geomodel_y = pos.y();
-                            m_rpc_geomodel_z = pos.z();
-  
-			    m_rpc_standalone_x = coo[0];
-		            m_rpc_standalone_y = coo[1];
-			    m_rpc_standalone_z = coo[2];
-			
-			    m_rpc_time = rpcDigit->time();
-			}
-			
-                        //patch for the cavern background
-			double tp = time_correction(pos.x(),pos.y(),pos.z());
-                        tp = 0.; // remove the subtraction of the TOF
-			xyz[0] = (m_patch_for_rpc_time)? rpcDigit->time() - tp:
-			                                 0.;
 			
 			++digit_num;
 			if(xyz[0]<0. || xyz[0]>25.) ++digit_out;
 
-/*			
-			if( fabs(coo[0] - pos.x()) >0.011 ||
-                           fabs(coo[1] - pos.y()) >0.011 ||
-                           fabs(coo[2] - pos.z()) >0.011    )
-		        {
-			    mylog << MSG::WARNING << "Global Position from "
-			        << "RPCGeometry doesn't match the one from GM!"
-			        << endreq;
-				
-		            mylog << MSG::WARNING << "RPC Digit from GM:" << endl
-                                << space << "GlobalPosition (mm) = " 
-                                << setiosflags(ios::fixed) << setprecision(3)
-                                << setw(11)<< pos.x() 
-                                << setiosflags(ios::fixed) << setprecision(3)
-                                << setw(11) << pos.y() 
-                                << setiosflags(ios::fixed) << setprecision(3)
-                                << setw(11) << pos.z() << endl 
-				<< endreq;
-			    
-		            mylog << MSG::WARNING << "RPC Digit from RPCgeometry:"
-                                << endl
-                                << space << "GlobalPosition (cm) = " 
-                                << setiosflags(ios::fixed) << setprecision(3)
-                                << setw(11) << coo[0] 
-                                << setiosflags(ios::fixed) << setprecision(3)
-                                << setw(11) << coo[1] 
-                                << setiosflags(ios::fixed) << setprecision(3)
-                                << setw(11) << coo[2] << endl << endreq;
-			    
-			    mylog << MSG::WARNING << "Using the GM position!" 
-                                << endreq;
-				
-                            xyz[1] = globalPosition.x();
-                            xyz[2] = globalPosition.y();
-                            xyz[3] = globalPosition.z();
-		        } else {
-                        */
-			xyz[1] = coo[0];
-                        xyz[2] = coo[1];
-                        xyz[3] = coo[2];
-			
-			//}
-
                         int param[3] = {0,0,0};
 
-                        RPCsimuDigit
-			digit(0,strip_code,param,xyz,m_geometry->rpcGeometry());
+                        RPCsimuDigit digit(0,strip_code_cab,param,xyz);
 			    
                         data << digit;
 
@@ -780,27 +490,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                               << setw(11) << pos.y() 
                               << setiosflags(ios::fixed) << setprecision(3)
                               << setw(11) << pos.z() << endl <<endreq;
-		        mylog << MSG::DEBUG << "RPC Digit from RPCgeometry:" 
-                            << endl
-                            << space << "strip_code = " << strip_code << endl 
-                            << space << "GlobalPosition (cm) = " 
-                            << setiosflags(ios::fixed) << setprecision(3)
-                            << setw(11) << coo[0] 
-                            << setiosflags(ios::fixed) << setprecision(3)
-                            << setw(11) << coo[1] 
-                            << setiosflags(ios::fixed) << setprecision(3)
-                            << setw(11) << coo[2] << endl << endreq;
-			    
-			    
-                        if(m_ntuple) { 
-                          StatusCode sc =
-			  ntupleSvc()->writeRecord("/NTUPLES/FILE1/TRIGT1RPC/40");
-                          if(sc.isFailure()) {
-                            mylog << MSG::WARNING 
-			          << "Could not write tree for TrigT1RPC ntuple" 
-	                          << endreq;
-                          }
-			}
+		       			    
                     }
                 }
             }
@@ -811,63 +501,3 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
     return StatusCode::SUCCESS;
 }
 
-double time_correction(double x, double y, double z)
-{
-    double speed_of_light = 299.792458;     // mm/ns
-    
-    /*
-    // detector dimensions
-    //double EcalMaxR = 2250.;
-    //double EcalMaxZ = 3500.;
-    double HcalMaxR = 4230.;
-    double HcalMaxZ = 6650.;
-    double IdMaxR   = 1150.;
-    double IdMaxZ   = 3450.;
-
-    // move to the r-z plane
-    double rad = std::sqrt(x*x+y*y);
-
-    if (z == 0.)
-    {
-        return (rad-(HcalMaxR-IdMaxR))/speed_of_light + 
-	                1.66*(HcalMaxR-IdMaxR)/speed_of_light; 
-    }
-    
-    double m = rad/fabsf(z);
-    
-    //calo entrance point
-    double Zin = 0.;
-    double Rin = 0.;
-    
-    Zin = IdMaxR / m;
-    if(Zin > IdMaxZ) {
-        Zin = IdMaxZ;
-	Rin = IdMaxZ * m;
-    } 
-    else {
-        Rin = IdMaxR;
-    }
-    
-    //calo exit point
-    double Zout = 0.;
-    double Rout = 0.;
-    
-    Zout = HcalMaxR / m;
-    if(Zout > HcalMaxZ) {
-        Zout = HcalMaxZ;
-	Rout = HcalMaxZ * m;
-    } 
-    else {
-        Rout = HcalMaxR;
-    }
-    
-    double d      = std::sqrt( x*x + y*y + z*z);
-    double calo_d = std::sqrt( (Zout-Zin)*(Zout-Zin) + (Rout-Rin)*(Rout-Rin) );
-
-    
-    return (d-calo_d)/speed_of_light + 1.33*calo_d/speed_of_light;
-    */
-    return sqrt(x*x+y*y+z*z)/speed_of_light;
-}
-
-#endif
