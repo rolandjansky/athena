@@ -57,8 +57,11 @@ namespace LVL1 {
     const TileTTL1Container* m_tileTTL1MBTS;
 
     /** The thresholds for the level 1 MBTS trigger. */
-    std::vector<float> m_thresholds_a; // backward thresholds
-    std::vector<float> m_thresholds_c; // forward thresholds 
+    std::vector<float> m_thresholds_a; 	     // backward thresholds
+    std::vector<float> m_thresholds_short_a; // backward thresholds with size 12
+    std::vector<float> m_thresholds_c; 	     // forward thresholds 
+    std::vector<float> m_thresholds_short_c; // forward thresholds with size 12 
+
     int m_cablestart_a; // backward threshold cable start
     int m_cablestart_c; // forward threshold cable start
     std::vector<int> m_cablestarts_a; // backward threshold cable starts
@@ -66,7 +69,8 @@ namespace LVL1 {
 
     /** A data member containing the mapping from channel,phi to
 	threshold number **/
-    std::vector<std::vector<unsigned int> > m_thresholdNumber;
+    std::vector<std::vector<int> > m_thresholdNumber;
+    std::vector<std::vector<int> > m_thresholdNumber12;
 
     /** The index of the sample bin corresponding to a particle
 	arriving from the IP. */
@@ -77,6 +81,7 @@ namespace LVL1 {
 	input data.  */
     bool m_badDataFound;
     
+    bool m_ThrVecSize12;
     /** Flag to indicate whether or not the individual counter thresholds
 	are defined separately in the menu */
     bool m_singleCounterInputs;
