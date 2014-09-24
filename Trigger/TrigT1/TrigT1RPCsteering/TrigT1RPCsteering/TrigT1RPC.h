@@ -5,8 +5,6 @@
 #ifndef RPCMuonTrigger_H
 #define RPCMuonTrigger_H
 
-#ifndef LVL1_STANDALONE
-
 #include <vector>
 
 #include "GaudiKernel/Algorithm.h"
@@ -22,15 +20,13 @@
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
-#include "RPCgeometry/IRPCgeometrySvc.h"
-
 #include "TrigT1RPClogic/RPCsimuData.h"
 #include "TrigT1RPClogic/CMAdata.h"
 #include "TrigT1RPClogic/PADdata.h"
 #include "TrigT1RPClogic/SLdata.h"
 #include "TrigT1RPClogic/RPCbytestream.h"
 
-#include "TrigT1RPCmonitoring/TrigEfficiency.h"
+//#include "TrigT1RPCmonitoring/TrigEfficiency.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -53,7 +49,6 @@ public:
 
 private:
   IntegerProperty m_fast_debug;            // bits for debugging "fast" algos
-  IntegerProperty m_monitoring;            // bits for monitoring sequence
 
   IntegerProperty m_cma_debug;             // bits for debugging CMA simulation
   IntegerProperty m_pad_debug;             // bits for debugging PAD simulation
@@ -78,24 +73,6 @@ private:
   BooleanProperty m_data_detail;           // flag to printout detailed INFO on
                                            // processed data
 
-  BooleanProperty m_detailedTW;            // flag for computing the triggwr 
-                                           // windows in a detailed mode
-  BooleanProperty m_EffMonitor;            // flag to  write the ntuple for
-                                           // the trigger efficiency
-
-  BooleanProperty m_time_geo_monitor;      // flag to analyze the time
-                                           // correction
-  
-  BooleanProperty m_patch_for_rpc_time;    // flag for patching the RPC time
-  
-  IntegerProperty m_max_muon;              // max number of muon track in the monitor ntuple
-  IntegerProperty m_max_roi;               // max number of trigger roi in the monitor ntuple
-
-  StringProperty m_key_for_truth;          // key for retrieving the Montecarlo
-                                           // truth
-
-  unsigned int m_simu_code;  
-
   StatusCode fill_RPCdata(RPCsimuData&);
 
 private:
@@ -108,30 +85,8 @@ private:
 
   ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
   const IRPCcablingSvc*                m_cabling;
-  ServiceHandle <IRPCgeometrySvc>      m_geometry;
-    
-  TrigEfficiency*       m_TrigEfficiency;
-  
-  NTuple::Tuple* m_ntuple;
-  NTuple::Item<int> m_rpc_stationType;
-  NTuple::Item<int> m_rpc_stationEta;
-  NTuple::Item<int> m_rpc_stationPhi;
-  NTuple::Item<int> m_rpc_doubletR;
-  NTuple::Item<int> m_rpc_doubletZ;
-  NTuple::Item<int> m_rpc_doubletP;
-  NTuple::Item<int> m_rpc_gasGap;
-  NTuple::Item<int> m_rpc_measurePhi;
-  NTuple::Item<int> m_rpc_strip;
-  NTuple::Item<long>  m_rpc_code;
-  NTuple::Item<float> m_rpc_time;
-  NTuple::Item<float> m_rpc_geomodel_x;
-  NTuple::Item<float> m_rpc_geomodel_y;
-  NTuple::Item<float> m_rpc_geomodel_z; 
-  NTuple::Item<float> m_rpc_standalone_x;
-  NTuple::Item<float> m_rpc_standalone_y;
-  NTuple::Item<float> m_rpc_standalone_z;
+
 };
 
-#endif  // end of LVL1_STANDALONE
 
 #endif

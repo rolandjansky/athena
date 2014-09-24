@@ -19,10 +19,6 @@ class TrigT1RPCsteeringConfig (TrigT1RPC):
             print "loading TrigT1RPClogic library"
             theApp.Dlls += [ "TrigT1RPClogic" ]
 
-        if 'TrigT1RPCmonitoring' not in theApp.Dlls:
-            print "loading TrigT1RPCmonitoring library"    
-            theApp.Dlls += [ "TrigT1RPCmonitoring" ]
-
 job = AlgSequence()
 TrigT1RPC = TrigT1RPCsteeringConfig()
 job += TrigT1RPC
