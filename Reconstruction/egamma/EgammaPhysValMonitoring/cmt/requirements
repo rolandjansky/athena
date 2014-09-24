@@ -20,6 +20,7 @@ use AtlasROOT           AtlasROOT-*             External
 #use StoreGate		StoreGate-*		Control
 use xAODTruth           xAODTruth-*             Event/xAOD
 use xAODEgamma          xAODEgamma-*            Event/xAOD 
+use xAODPrimitives      xAODPrimitives-*        Event/xAOD
 use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
 use  MCTruthClassifier  MCTruthClassifier-*     PhysicsAnalysis 
 end_private

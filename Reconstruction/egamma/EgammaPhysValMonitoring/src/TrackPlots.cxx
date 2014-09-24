@@ -25,7 +25,7 @@ void TrackPlots::initializePlots(){
 
 void TrackPlots::fill(const xAOD::Electron& electron){
 
-  float deta1,dphi2,charge;
+  float deta1,dphi2/*,charge*/;
   electron.trackCaloMatchValue(deta1, xAOD::EgammaParameters::deltaEta1 );
   electron.trackCaloMatchValue(dphi2, xAOD::EgammaParameters::deltaPhi2 );
   //electron.trackParticle(charge, xAOD::EgammaParameters::charge );

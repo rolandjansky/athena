@@ -7,6 +7,7 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODPrimitives/IsolationType.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 namespace Egamma{
@@ -36,7 +37,7 @@ class IsolationPlots:public PlotBase {
 
     private:
       virtual void initializePlots();
-      void FillIsolationPlot(TH1* hist, xAOD::EgammaParameters::IsolationType isoType, const xAOD::Egamma& egamma);
+      void FillIsolationPlot(TH1* hist, xAOD::Iso::IsolationType isoType, const xAOD::Egamma& egamma);
       
 };
 

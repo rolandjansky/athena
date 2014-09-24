@@ -117,7 +117,7 @@ void ShowerShapesPlots::fill(const xAOD::Egamma& egamma){
   pos7vset->Fill(difpos7, egamma.pt()*0.001);
   
   float EtconeIso, shetcone20;
-  egamma.isolationValue(shetcone20,   xAOD::EgammaParameters::etcone20);
+  egamma.isolationValue(shetcone20,   xAOD::Iso::etcone20);
   EtconeIso = et37!=0. ? shetcone20/et37 : 0.; 
   clusiso->Fill(EtconeIso);
   clusisovset->Fill(EtconeIso, egamma.pt()*0.001);
