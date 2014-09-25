@@ -7,12 +7,7 @@
 
 #include "AthenaMPToolBase.h"
 #include "GaudiKernel/IIncidentListener.h"
-
 #include "AthenaInterprocess/SharedQueue.h"
-#include "yampl/Exceptions.h"
-#include "yampl/utils/SharedMemory.h"
-
-#include "boost/shared_ptr.hpp"
 
 class SharedEvtQueueProvider : public AthenaMPToolBase
   , public IIncidentListener
@@ -57,8 +52,6 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
   bool m_needCountEvents;  // Flag indicating whether or not it is necessary to keep counting events
   int  m_nEventsBeforeFork;
   int  m_nEventsInInpFiles;// Total number of events in the input files opened so far
-
-  boost::shared_ptr<yampl::SharedMemory> m_shmemSegment;    // shared memory for distributing counted event number between workers
 
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
 

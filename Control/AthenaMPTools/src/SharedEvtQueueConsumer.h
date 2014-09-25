@@ -8,10 +8,6 @@
 #include "AthenaMPToolBase.h"
 
 #include "AthenaInterprocess/SharedQueue.h"
-#include "yampl/Exceptions.h"
-#include "yampl/utils/SharedMemory.h"
-
-#include "boost/shared_ptr.hpp"
 #include <queue>
 
 class IEventSeek;
@@ -61,8 +57,6 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   ServiceHandle<IChronoStatSvc>  m_chronoStatSvc;
   IEventSeek*                    m_evtSeek;
   IEventShare*                   m_evtShare;
-
-  boost::shared_ptr<yampl::SharedMemory> m_shmemSegment;    // Shared memory for distributing counted event number between workers
 
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
   AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          

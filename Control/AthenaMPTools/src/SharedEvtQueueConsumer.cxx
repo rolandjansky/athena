@@ -14,6 +14,9 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+
 #include <sys/stat.h>
 #include <sstream>
 #include <fstream>
@@ -33,7 +36,6 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
   , m_evtShare(0)
-  , m_shmemSegment()
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
 {
@@ -333,16 +335,6 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::bootstrap_func()
     return outwork;
   }
 
-  // ________________________ Instantiate shared memory segment ________________________
-  try {
-    m_shmemSegment = boost::shared_ptr<yampl::SharedMemory>(new yampl::SharedMemory("/athmp-shmem-"+m_randStr,2*sizeof(int)));
-  }
-  catch(yampl::ErrnoException& ex) {
-    msg(MSG::ERROR) << "yampl::ErrnoException caught: " << ex.what() << endreq;
-    msg(MSG::ERROR) << "Unable to get shared memory" << endreq;
-    return outwork;
-  }
-
   // Declare success and return
   *errcode = 0;
   return outwork;
@@ -398,7 +390,12 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
   int nEvt(1+m_nEventsBeforeFork);
   int nEventsProcessed(0);
   int evtnum(0);
-  int* shmemCountedEvts = (int*)m_shmemSegment->getMemory();
+  std::string shmemName("/athmp-shmem-"+m_randStr);
+  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only
+                                                         , shmemName.c_str()
+                                                         , boost::interprocess::read_only);
+  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_only);
+  int* shmemCountedEvts = (int*)shmemRegion.get_address();
   int* shmemCountFinal = shmemCountedEvts+1;
   msg(MSG::DEBUG) << "Counted events " << *shmemCountedEvts << " and the count is final " << *shmemCountFinal << endreq;
 
