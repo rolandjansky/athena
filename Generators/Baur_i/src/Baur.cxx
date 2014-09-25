@@ -70,6 +70,6 @@ StatusCode Baur::genFinalize() {
 }
 
 
-StatusCode Baur::fillEvt(HepMC::GenEvent*) {
+StatusCode Baur::fillEvt(GenEvent*) {
   return StatusCode::SUCCESS;
 }
