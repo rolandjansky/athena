@@ -8,7 +8,7 @@
    <TEST name="InDetMonitoringATN" type="makecheck" suite="Examples">
      <timelimit>12</timelimit>
      <author> Atlas Developer </author>
-     <mailto> Markus.Elsing@cern.ch, Alex.Kastanas@cern.ch, lea.michaela.caminada@cern.ch </mailto>
+     <mailto> Markus.Elsing@cern.ch, Alex.Kastanas@cern.ch, nicholas.styles@desy.de </mailto>
      <expectations>
        <returnValue>0</returnValue>
      </expectations>
@@ -17,7 +17,7 @@
    <TEST name="InDetMonitoringATN_Cosmics" type="athena" suite="Examples">
      <options_atn>InDetMonitoringATN/jobOptions_cosmics.py</options_atn>
      <author> Atlas Developer </author>
-     <mailto> Markus.Elsing@cern.ch, Andreas.Wildauer@cern.ch, Heidi.Sandaker@cern.ch, BHEHeinemann@lbl.gov, Johanna.Fleckner@cern.ch , Tobias.Golling@yale.edu, Kirill.Prokofiev@cern.ch, carl.bryan.gwilliam@cern.ch, katharine.leney@cern.ch  </mailto>
+     <mailto> Markus.Elsing@cern.ch, nicholas.styles@desy.de </mailto>
      <expectations>
        <returnValue>0</returnValue>
      </expectations>
@@ -27,7 +27,7 @@
      <options_atn>InnerDetector/InDetMonitoring/InDetMonitoringATN/test/InDetMonitoringATN_Subdetector.sh</options_atn>
      <timelimit>8</timelimit>
      <author> Atlas Developer </author>
-     <mailto> Markus.Elsing@cern.ch, Andreas.Wildauer@cern.ch, Johanna.Fleckner@cern.ch, Heidi.Sandaker@cern.ch, BHEHeinemann@lbl.gov, Tobias.Golling@yale.edu, Kirill.Prokofiev@cern.ch, carl.bryan.gwilliam@cern.ch, Antonio.Limosani@cern.ch, Attilio.Andreazza@cern.ch, cpw1@hep.phy.cam.ac.uk, Sasa.Fratina@cern.ch, katharine.leney@cern.ch </mailto>
+     <mailto> Markus.Elsing@cern.ch, nicholas.styles@desy.de </mailto>
      <expectations>
        <returnValue>0</returnValue>
      </expectations>
