@@ -47,7 +47,7 @@ class TauDetails {
   Fftaudet& fftaudet();
 
  private:
-  bool m_verbose;
+  bool _verbose;
 
   // Tauola extra details common block
   Fftaudet m_fftaudet;

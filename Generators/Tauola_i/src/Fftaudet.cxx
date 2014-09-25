@@ -15,13 +15,13 @@
 #include "Tauola_i/Fftaudet.h"
 
 // set pointer to zero at start
-Fftaudet::TAUDET* Fftaudet::s_fftaudet =0;
+Fftaudet::TAUDET* Fftaudet::_fftaudet =0;
 
 // Constructor
 Fftaudet::Fftaudet() 
 {
-  m_dummy = 0;
-  m_realdummy = 0.;
+  _dummy = 0;
+  _realdummy = 0.;
 }
 
 // Destructor
@@ -33,13 +33,13 @@ Fftaudet::~Fftaudet()
 int& Fftaudet::ntausav() {
   init(); // check COMMON is initialized
   
-  return s_fftaudet->ntausav;
+  return _fftaudet->ntausav;
 }
 
 int& Fftaudet::evtnum() {
   init(); // check COMMON is initialized
   
-  return s_fftaudet->evtnum;
+  return _fftaudet->evtnum;
 }
 
 int& Fftaudet::itnp(int nt) {
@@ -47,11 +47,11 @@ int& Fftaudet::itnp(int nt) {
   
   if( nt < 1 || nt > lenTaudet()) 
     {
-      m_dummy = -999;
-      return m_dummy;
+      _dummy = -999;
+      return _dummy;
     }
 
-  return s_fftaudet->itnp[nt-1];
+  return _fftaudet->itnp[nt-1];
 }
 
 int& Fftaudet::itjak(int nt) {
@@ -59,11 +59,11 @@ int& Fftaudet::itjak(int nt) {
   
   if( nt < 1 || nt > lenTaudet()) 
     {
-      m_dummy = -999;
-      return m_dummy;
+      _dummy = -999;
+      return _dummy;
     }
 
-  return s_fftaudet->itjak[nt-1];
+  return _fftaudet->itjak[nt-1];
 }
 
 float& Fftaudet::ftpolx(int nt) {
@@ -71,11 +71,11 @@ float& Fftaudet::ftpolx(int nt) {
   
   if( nt < 1 || nt > lenTaudet()) 
     {
-      m_realdummy = -999;
-      return m_realdummy;
+      _realdummy = -999;
+      return _realdummy;
     }
 
-  return s_fftaudet->ftpolx[nt-1];
+  return _fftaudet->ftpolx[nt-1];
 }
 
 float& Fftaudet::ftpoly(int nt) {
@@ -83,11 +83,11 @@ float& Fftaudet::ftpoly(int nt) {
   
   if( nt < 1 || nt > lenTaudet()) 
     {
-      m_realdummy = -999;
-      return m_realdummy;
+      _realdummy = -999;
+      return _realdummy;
     }
 
-  return s_fftaudet->ftpoly[nt-1];
+  return _fftaudet->ftpoly[nt-1];
 }
 
 float& Fftaudet::ftpolz(int nt) {
@@ -95,10 +95,10 @@ float& Fftaudet::ftpolz(int nt) {
   
   if( nt < 1 || nt > lenTaudet()) 
     {
-      m_realdummy = -999;
-      return m_realdummy;
+      _realdummy = -999;
+      return _realdummy;
     }
 
-  return s_fftaudet->ftpolz[nt-1];
+  return _fftaudet->ftpolz[nt-1];
 }
 

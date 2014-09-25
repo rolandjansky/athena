@@ -41,7 +41,7 @@ public:
     int iout;
   };
 
-  static INOUT* s_ffinout;
+  static INOUT* _ffinout;
 };
 
 #include "Tauola_i/Ffinout.icc"

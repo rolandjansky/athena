@@ -49,7 +49,7 @@ private:
     float ffphx;
   };
 
-  static FFTAU* s_fftau;
+  static FFTAU* _fftau;
 };
 
 #include "Tauola_i/Fftau.icc"

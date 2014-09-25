@@ -41,29 +41,29 @@ public:
 
   inline void init(); // inlined for speed of access (small function)
 
-  int lenTaudet() const {return s_lenTaudet;}
+  int lenTaudet() const {return _lenTaudet;}
 
 private: 
   // Lengths of array in TAUDET common
-  static const int s_lenTaudet = 20 ; // Maximum number of tau decays to record
+  static const int _lenTaudet = 20 ; // Maximum number of tau decays to record
 
   struct TAUDET;
   friend struct TAUDET;
 
   struct TAUDET {
-    int itnp[s_lenTaudet];
-    int itjak[s_lenTaudet];
-    float ftpolx[s_lenTaudet];
-    float ftpoly[s_lenTaudet];
-    float ftpolz[s_lenTaudet];
+    int itnp[_lenTaudet];
+    int itjak[_lenTaudet];
+    float ftpolx[_lenTaudet];
+    float ftpoly[_lenTaudet];
+    float ftpolz[_lenTaudet];
     int ntausav;
     int evtnum;
   };
 
-  int m_dummy;
-  float m_realdummy;
+  int _dummy;
+  float _realdummy;
 
-  static TAUDET* s_fftaudet;
+  static TAUDET* _fftaudet;
 };
 
 #include "Tauola_i/Fftaudet.icc"

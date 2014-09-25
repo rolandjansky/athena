@@ -6,5 +6,5 @@
 
 // initialise pointer
 void Fftau::init(void) {
-  if (!s_fftau) s_fftau = static_cast<FFTAU*>(fftau_address_());
+  if (!_fftau) _fftau = static_cast<FFTAU*>(fftau_address_());
 }
