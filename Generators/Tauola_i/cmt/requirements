@@ -19,7 +19,7 @@ use TruthUtils             TruthUtils-*             Generators
 use GeneratorFortranCommon GeneratorFortranCommon-* Generators
 
 macro_append fflags "" Linux " -fno-automatic "
-macro_append HepMC_linkopts " -lHepMCfio"
+#macro_append HepMC_linkopts " -lHepMCfio"
 end_private
 
 # The dependencies of the various generator packages need to be sorted out
