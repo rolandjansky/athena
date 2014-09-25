@@ -7,10 +7,10 @@ use AtlasExternalArea AtlasExternalArea-* External
 use AtlasPolicy AtlasPolicy-*
 use LCG_Configuration
 
-macro sherpa_native_version "1.4.5"  # the ".2" for HepEvt size 10000 will be added explicitely below
-macro Sherpa_native_version "$(sherpa_native_version).2_lcgcmt$(LCG_config_version)"
-macro Sherpa_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/sherpa/$(sherpa_native_version).2/$(LCG_ext_system)"
-#macro Sherpa_home "/afs/cern.ch/sw/lcg/external/MCGenerators_hepmc$(HepMC_config_version)/sherpa/$(sherpa_native_version).2/$(LCG_ext_system)"
+macro sherpa_native_version "2.1.1"
+macro Sherpa_native_version "$(sherpa_native_version)_lcgcmt$(LCG_config_version)"
+macro Sherpa_home "$(LCG_external)/MCGenerators/sherpa/$(sherpa_native_version)/$(LCG_ext_system)"
+#macro Sherpa_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/sherpa/$(sherpa_native_version)/$(LCG_ext_system)"
 macro Sherpa_lib "$(Sherpa_home)/lib/SHERPA-MC"
 macro Sherpa_inc "$(Sherpa_home)/include/SHERPA-MC"
 macro Sherpa_moduledir "$(Sherpa_lib)"
