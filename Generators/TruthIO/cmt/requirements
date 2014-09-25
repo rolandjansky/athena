@@ -14,7 +14,7 @@ use HepPDT           v*                    LCG_Interfaces
 end_private
 
 private
-macro_append HepMC_linkopts " $(HepMC_IO_linkopts) "
+#macro_append HepMC_linkopts " $(HepMC_IO_linkopts) "
 end_private
 
 public
