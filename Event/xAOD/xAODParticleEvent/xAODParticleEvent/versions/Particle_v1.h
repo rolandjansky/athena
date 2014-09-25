@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Particle_v1.h 599909 2014-06-02 14:25:44Z kkoeneke $
+// $Id: Particle_v1.h 615672 2014-09-08 20:16:15Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_PARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_PARTICLE_V1_H
 
@@ -23,8 +23,8 @@ namespace xAOD {
   /// Description of a generic particle.
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
-  /// $Revision: 599909 $
-  /// $Date: 2014-06-02 16:25:44 +0200 (Mon, 02 Jun 2014) $
+  /// $Revision: 615672 $
+  /// $Date: 2014-09-08 22:16:15 +0200 (Mon, 08 Sep 2014) $
   ///
   class Particle_v1 : public IParticle {
 
@@ -131,9 +131,7 @@ namespace xAOD {
 } // namespace xAOD
 
 // Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::Particle_v1, 173348631, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODPARTICLEEVENT_VERSIONS_PARTICLE_V1_H

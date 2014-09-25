@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IParticleLinkContainer_v1.h 599909 2014-06-02 14:25:44Z kkoeneke $
+// $Id: IParticleLinkContainer_v1.h 615672 2014-09-08 20:16:15Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_IPARTICLELINKCONTAINER_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_IPARTICLELINKCONTAINER_V1_H
 
@@ -22,9 +22,7 @@ namespace xAOD {
 }
 
 // Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::IParticleLinkContainer_v1, 1339976047, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODPARTICLEEVENT_VERSIONS_IPARTICLELINKCONTAINER_V1_H

@@ -97,7 +97,9 @@
     <class name="SG::IConstAuxStore" />
     <class name="DataLink<SG::IConstAuxStore>" />
     <class name="DataVector<xAOD::IParticle>" />
-    <!-- <class name="ElementLink<xAOD::IParticleContainer>" /> -->
+    <class name="ElementLink<xAOD::IParticleContainer>" />
+    <class name="DataVector<xAOD::MissingET_v1>" />
+    <class name="ElementLink<xAOD::MissingETContainer_v1>" />
     <!-- <class name="std::vector<ElementLink<xAOD::IParticleContainer> >" /> -->
     <!-- <class name="std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >" /> -->
   </exclusion>

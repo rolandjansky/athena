@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.cxx 608484 2014-07-24 17:10:54Z kkoeneke $
+// $Id: CompositeParticle_v1.cxx 618587 2014-09-25 17:27:28Z kkoeneke $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -329,8 +329,9 @@ namespace xAOD {
     // Update the four-momentum of this composite particle, if requested
     if ( updateFourMom ) {
       xAOD::IParticle::FourMom_t metP4;
-      metP4.SetPx( met->mpx() );
-      metP4.SetPy( met->mpy() );
+      double metpx = met->mpx();
+      double metpy = met->mpy();
+      metP4.SetPxPyPzE( metpx, metpy, 0.0, std::sqrt(metpx*metpx + metpy*metpy) );
       this->setP4( this->p4() + metP4 );
     }
 
@@ -358,8 +359,9 @@ namespace xAOD {
     // Update the four-momentum of this composite particle, if requested
     if ( updateFourMom ) {
       xAOD::IParticle::FourMom_t metP4;
-      metP4.SetPx( met->mpx() );
-      metP4.SetPy( met->mpy() );
+      double metpx = met->mpx();
+      double metpy = met->mpy();
+      metP4.SetPxPyPzE( metpx, metpy, 0.0, std::sqrt(metpx*metpx + metpy*metpy) );
       this->setP4( this->p4() - metP4 );
     }
     // Assign an invalid ElementLink here
@@ -468,7 +470,7 @@ namespace xAOD {
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CompositeParticle_v1,
                                      xAOD::IParticleLinkContainer,
                                      constituentLinks,
-                                     setConstitutentLinks )
+                                     setConstituentLinks )
 
   // End: Functions implementing handling of constituents
   /////////////////////////////////////////////////////////////////////////////

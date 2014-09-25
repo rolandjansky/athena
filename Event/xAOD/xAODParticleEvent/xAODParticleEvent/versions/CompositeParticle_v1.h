@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.h 606326 2014-07-14 14:12:20Z kkoeneke $
+// $Id: CompositeParticle_v1.h 618587 2014-09-25 17:27:28Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
   /// e.g., a Z boson that consists out of two muons.
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
-  /// $Revision: 606326 $
-  /// $Date: 2014-07-14 16:12:20 +0200 (Mon, 14 Jul 2014) $
+  /// $Revision: 618587 $
+  /// $Date: 2014-09-25 19:27:28 +0200 (Thu, 25 Sep 2014) $
   ///
   class CompositeParticle_v1 : public IParticle {
 
@@ -202,7 +202,7 @@ namespace xAOD {
     /// @brief Set all constituents in one go.
     ///        Warning: This is meant for usage internal to this class only
     ///        because no addition of the constituent properties will be done!
-    void setConstitutentLinks( const xAOD::IParticleLinkContainer& constitLinks);
+    void setConstituentLinks( const xAOD::IParticleLinkContainer& constitLinks);
 
 
   public:
@@ -224,9 +224,7 @@ namespace xAOD {
 
 
 // Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CompositeParticle_v1, 172352727, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
