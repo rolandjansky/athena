@@ -24,7 +24,7 @@ end_private
 # package explicitly sets the allowUndefined tag
 private
 apply_tag allowUndefined
-macro AtlasBaurMC_linkopts "-L$(AtlasBaurMC_lib) -lwgamma"
+#macro AtlasBaurMC_linkopts "-L$(AtlasBaurMC_lib) -lwgamma"
 end_private
 
 apply_pattern dual_use_library files=" *.cxx *.F"
