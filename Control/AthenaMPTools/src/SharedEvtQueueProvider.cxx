@@ -13,6 +13,9 @@
 #include "EventInfo/EventStreamInfo.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+
 #include <sys/stat.h>
 #include <sstream>
 #include <fstream>
@@ -34,7 +37,6 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
   , m_needCountEvents(false)
   , m_nEventsBeforeFork(0)
   , m_nEventsInInpFiles(0)
-  , m_shmemSegment()
   , m_sharedEventQueue(0)
 {
   declareInterface<IAthenaMPTool>(this);
@@ -237,16 +239,6 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueProvider::bootstrap_func()
   // ________________________ chdir ________________________
   if(chdir(counter_rundir.string().c_str())==-1) {
     msg(MSG::ERROR) << "Failed to chdir to " << counter_rundir.string() << endreq;
-    return outwork;
-  }
-
-  // ________________________ Instantiate shared memory segment ________________________
-  try {
-    m_shmemSegment = boost::shared_ptr<yampl::SharedMemory>(new yampl::SharedMemory("/athmp-shmem-"+m_randStr,2*sizeof(int)));
-  }
-  catch(yampl::ErrnoException& ex) {
-    msg(MSG::ERROR) << "yampl::ErrnoException caught: " << ex.what() << endreq;
-    msg(MSG::ERROR) << "Unable to get shared memory" << endreq;
     return outwork;
   }
 
@@ -465,7 +457,12 @@ int SharedEvtQueueProvider::addEventsToQueue()
 
 void SharedEvtQueueProvider::updateShmem(int eventCount, bool countFinal)
 {
-  int* shmemCountedEvts = (int*)m_shmemSegment->getMemory();
+  std::string shmemName("/athmp-shmem-"+m_randStr);
+  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only
+							 , shmemName.c_str()
+							 , boost::interprocess::read_write);
+  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_write);
+  int* shmemCountedEvts = (int*)shmemRegion.get_address();
   int* shmemCountFinal = shmemCountedEvts+1;
   *shmemCountedEvts = eventCount;
   *shmemCountFinal = countFinal;
