@@ -9,13 +9,16 @@ use  AthenaKernel               AthenaKernel-*                  Control
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
 use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
 
+
+
 private
 use  AtlasBoost                 AtlasBoost-*                    External
 use  GaudiInterface             GaudiInterface-*                External
 use  StoreGate                  StoreGate-*                     Control
+use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
 
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
-
+use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAnalysis/DerivationFramework
 end_private
 
 #library

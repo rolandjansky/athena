@@ -11,16 +11,17 @@
 
 #include <iostream>
 
-HLT::TrigNavigationSlimmingHdlr::TrigNavigationSlimmingHdlr(HLT::HLTResult *result, INamedInterface* requester):
-  Athena::ISlimmingHdlr(),
-  m_result(result), 
-  m_requester(requester), 
-  m_slimmer(0) {
+HLT::TrigNavigationSlimmingHdlr::TrigNavigationSlimmingHdlr(HLT::HLTResult *result,
+							    const INamedInterface* requester, 
+							    HLT::TrigNavigationSlimmingTool *slimmer)
+  : Athena::ISlimmingHdlr(),
+    m_result(result), 
+    m_requester(requester), 
+    m_slimmer(slimmer) {
     
     // copy the nav data and cuts data so you can undo a slim 
     m_unslimmedNavData = m_result->getNavigationResult();
     m_unslimmedCuts = m_result->getNavigationResultCuts();
-    m_slimmer = 0;
     m_name = requester->name() + "Hdlr";
 
 }
@@ -30,23 +31,15 @@ HLT::TrigNavigationSlimmingHdlr::~TrigNavigationSlimmingHdlr() {
 
 void HLT::TrigNavigationSlimmingHdlr::commit() {
   
-  if(!m_slimmer) {
-    Athena::MsgStreamMember mlog(Athena::Options::Eager, m_name);
-    MsgStream log = mlog.get();    
-    log << MSG::WARNING << "You must specify a StreamTrigNavSlimming algorithm via setTrigNavigation()" << endreq;
-    log << MSG::WARNING << "Unable to proceed...  bailing out" << endreq;
-    return;
-  }
-
   //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::commit() wiht slimming tool " << m_slimmer << endreq;
-
-  if( m_slimmer->doSlimming().isFailure() ) {
+  // do slimming and serialized to the m_result
+  if( m_slimmer->doSlimming( m_result->getNavigationResult() ).isFailure() ) {
     Athena::MsgStreamMember mlog(Athena::Options::Eager, m_name);
     MsgStream log = mlog.get();    
     log << MSG::WARNING << "StreamTrigNavSlimming failed execute().  Unable to proceed... bailing out" << endreq;
     return;
   } 
-
+  
   //log << MSG::DEBUG << "Performed actual slimming" << endreq;
 }
 

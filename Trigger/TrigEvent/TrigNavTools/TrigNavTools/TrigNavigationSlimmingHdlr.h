@@ -26,7 +26,9 @@ namespace HLT {
 
       TrigNavigationSlimmingHdlr( const TrigNavigationSlimmingHdlr& rhs );
 
-      TrigNavigationSlimmingHdlr( HLT::HLTResult *result, INamedInterface *requestor );
+      TrigNavigationSlimmingHdlr( HLT::HLTResult *result, 
+				  const INamedInterface *requestor,  
+				  HLT::TrigNavigationSlimmingTool *slimmer);
 
       ~TrigNavigationSlimmingHdlr();
 
@@ -40,8 +42,6 @@ namespace HLT {
 
       const ::INamedInterface* requester();
 
-      void setSlimmer(HLT::TrigNavigationSlimmingTool *slimmer) { m_slimmer = slimmer; };
-      HLT::TrigNavigationSlimmingTool *slimmer() { return m_slimmer; };
 
       void setName(const std::string &name) { m_name = name; };
       std::string name() { return m_name; };

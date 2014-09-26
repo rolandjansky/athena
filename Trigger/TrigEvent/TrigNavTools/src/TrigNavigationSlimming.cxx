@@ -3,45 +3,25 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-
-#include "TrigNavigation/Navigation.h"
-#include "TrigNavigation/TriggerElement.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
 #include "TrigNavigationSlimming.h"
 
 using namespace HLT;
 
 HLT::TrigNavigationSlimming::TrigNavigationSlimming(const std::string& name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_slimmingTool("HLT::TrigNavigationSlimmingTool/TrigNavigationSlimmingTool", this) {
-
-  declareProperty("SlimmingTool", m_slimmingTool, "Tool instance which does the actual slimming");
+  m_tool("HLT::TrigNavigationThinningTool/TrigNavigationThinningTool") {
+  declareProperty("ThinningTool", m_tool, "Tool instance which forwards the slimming request");
 }
 
 StatusCode HLT::TrigNavigationSlimming::initialize() {
-
-  
-  ATH_MSG_DEBUG ( "TrigNavigationSlimming::Intialize()" );
-
-
-  if (  m_slimmingTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Unable to retrieve the TrigNavigationSlimmingTool!" );
-    ATH_MSG_FATAL ( "Please check your job options files." );
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO ( "Successfully retrived the TrigNavigationSlimmingTool!" );
+  CHECK( m_tool.retrieve() ); 
+  // here we shoudl check if the tool is well configured
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode HLT::TrigNavigationSlimming::execute() {
-  ATH_MSG_DEBUG("Executing slimming tool " << m_slimmingTool->name());
-
-  
-
-  ATH_CHECK( m_slimmingTool->doSlimming() );
+  CHECK( m_tool->doThinning() );
   return StatusCode::SUCCESS;
 }
 

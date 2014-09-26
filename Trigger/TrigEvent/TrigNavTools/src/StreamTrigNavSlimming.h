@@ -2,38 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HLT_SLIM_NAVIGATION_H
-#define HLT_SLIM_NAVIGATION_H
+#ifndef TRIGNAVTOOLS_STREAMTRIGNAVIGATIONSLIMMING_H
+#define TRIGNAVTOOLS_STREAMTRIGNAVIGATIONSLIMMING_H
 
-#include "AthenaKernel/IThinningSvc.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-
-#include "TrigNavigationSlimming.h"
-
-class StoreGateSvc;
+#include "DerivationFrameworkInterfaces/IThinningTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace HLT {
 
   class HLTResult;
 
-  class StreamTrigNavSlimming : public AthAlgorithm {
-
+  class StreamTrigNavSlimming : public AthAlgorithm {    
     public:
-
-    StreamTrigNavSlimming(const std::string& name, ISvcLocator* pSvcLocator);
-    
+    StreamTrigNavSlimming(const std::string& name, ISvcLocator* pSvcLocator);    
     virtual ~StreamTrigNavSlimming();
     
     virtual StatusCode initialize();
     virtual StatusCode execute();
     virtual StatusCode finalize();
-    //    virtual StatusCode slimNavigation();
 
     private:
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-    ToolHandle<HLT::TrigNavigationSlimmingTool> m_slimmingTool;
-    std::string m_resultKey;
+    ToolHandle<DerivationFramework::IThinningTool> m_tool;
+
 
   }; // end StreamTrigNavSlimming class
 

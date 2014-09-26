@@ -1,20 +1,43 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimming
-from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool
-from TrigNavTools.TrigNavToolsConf import HLT__StreamTrigNavSlimming
+from AthenaCommon.AppMgr import ToolSvc
+from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool
 
-class HLTTrigNavigationSlimmingTool ( HLT__TrigNavigationSlimmingTool ):
-  def __init__(self, name="TrigNavigationSlimmingTool"):
-    super( HLTTrigNavigationSlimmingTool, self).__init__( name )
-
-
-class HLTTrigNavigationSlimming ( HLT__TrigNavigationSlimming ):
-  def __init__(self, name="TrigNavigationSlimming"):
-    super( HLTTrigNavigationSlimming, self).__init__( name )
-    self.WriteTree = 1
+def navigationSlimming( config ):  
+  global ToolSvc
+  assert config.has_key('name'), 'name of the configuration is missing'
+  assert config.has_key('mode'), 'mode of slimming has to be configured'
+  assert config.has_key('ThinningSvc'), 'Instance of thinning svc to talk to is indispensable'
+  assert config['ThinningSvc'], 'No ThinningSvc given'
 
 
-class HLTStreamTrigNavSlimming ( HLT__StreamTrigNavSlimming ):
-  def __init__(self, name="StreamTrigNavSlimming"):
-    super( HLTStreamTrigNavSlimming, self ).__init__(name)
+  SlimTool=HLT__TrigNavigationSlimmingTool( config['name']+'Slim' )  
+  SlimTool.ThinningSvc = config['ThinningSvc']
+  if config.has_key('chains'):
+    SlimTool.ChainsRegex = config['chains']
+  if config.has_key('features'):
+    SlimTool.FeatureInclusionList=config['features']  
+
+  if config['mode'] == 'drop':    
+    SlimTool.Actions = [ 'Drop' ]
+  if config['mode'] == 'slimming':    
+    SlimTool.Actions = [  'DropFeatures', 'Squeeze', 'Reload', 'DropFeaturelessTerminals', 'SyncThinning', 'DropChains', 'Save', 'Restore']
+  if config['mode'] == 'trigger':    
+    SlimTool.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
+  if 'Print' in SlimTool.Actions:
+    from AthenaCommon.Constants import DEBUG
+    SlimTool.OutputLevel=DEBUG
+  ToolSvc += SlimTool
+
+  ThinTool = TrigNavigationThinningTool(config['name']+'Thin')
+  ThinTool.ThinningSvc = config['ThinningSvc']
+  ThinTool.ActInPlace=False
+  if config.has_key('result'):
+    ThinTool.ResultKey=config['result']
+  else:
+    ThinTool.ResultKey='HLTResult_HLT'
+  ThinTool.SlimmingTool = SlimTool
+  ToolSvc += ThinTool
+
+  return ThinTool
+

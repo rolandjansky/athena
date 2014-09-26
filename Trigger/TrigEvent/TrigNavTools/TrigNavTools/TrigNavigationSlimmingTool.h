@@ -17,7 +17,7 @@ class IThinningSvc;
 
 namespace HLT {
 
-   class Navigation;
+   class NavigationCore;
 
    static const InterfaceID IID_TrigNavigationSlimmingTool("HLT::TrigNavigationSlimmingTool", 1, 0);
 
@@ -26,6 +26,7 @@ namespace HLT {
    *        trigger Navigation structure in various ways
    * 
    * @author Ben Smith <bcsmith@fas.harvard.edu> - Harvard University
+   * major rework Tomasz Bold 
    *
    * This tool allows users to slim the trigger Navigation structure, which is
    * important when creating derived datasets, as the structure can grow very
@@ -35,27 +36,22 @@ namespace HLT {
    *
    * (a) TriggerElement squeezing: this removes all intermediate trigger elements
    *     (those which are not the initial node, an RoI node, or a terminal node)
-   *     This can be performed via the removeIntermediateTriggerElements function
-   *     defined below.
    *
    * (b) Feature Removal: this removes all links to the specified features from
    *     the trigger elements in the structure.  Note that it does not remove the
    *     holder from the navigation structure.
-   *     This can be performed via the removeFeatures function defined below.
-   *     Features are indicated for removal either through an inclusion list
-   *     (only those in the list are included) or an exclusion list (all but those
-   *     in the list are included).
    *
-   * (c) Branch Removal: this removes all specified RoI nodes from the structure.
-   *     This can be performed via the removeBranches function defined below.  As
-   *     with feature removal, branches are indicated for removal either through an
-   *     inclusion list or an exclusion list.
+   * (c) Remove the TEs related to certain chains
+   *   
+   * (d) Complete removal
    *
-   * Additionally, if there is a specific trigger element which needs to be removed,
-   * this can be done via the removeTriggerElementFromNavigation function.  Note that
-   * this will remove all relations with this element, block it from being serialized,
-   * and propagate the relations down the tree (so that, for example, the nodes it
-   * seeds now are seeded by the node which seeded it).
+   * and few other actions
+   *
+   * All operations on the navigation are configured via the Actions property which specifies set
+   * of operations (and the order) whit which they are executed in the slimming process.
+   * The main method to execute is doSlimming - the vector given as an argument is 
+   * filled whit serialized and slimmed content of the navigation.
+   * !!! go back !!! we need to remove holders from slimmed navigation as they are becoming now the biggest
    */
    
    class TrigNavigationSlimmingTool : public AthAlgTool {
@@ -71,18 +67,13 @@ namespace HLT {
             return IID_TrigNavigationSlimmingTool;
          }
 
-         virtual StatusCode intialize();
+         virtual StatusCode initialize();
          virtual StatusCode finalize();
-	 StatusCode doSlimming();
+	 StatusCode doSlimming( std::vector<uint32_t>& slimmed_and_serialzied );
 
 
-	 /**
-          * @brief Returns a map from feature names to the number of times they appear in
-          *        the structure.  Note that this map must be deleted by whatever calls the
-          *        function.
-          */
-         virtual std::map<std::string, int> *getFeatureOccurrences(HLT::NavigationCore* navigation,
-                                                                  TriggerElement *te = 0);
+         std::map<std::string, int>* getFeatureOccurrences(HLT::NavigationCore* navigation);
+
 	 	 
    private:
 	 ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
@@ -90,47 +81,52 @@ namespace HLT {
 	 
 	 // job option configurable
 	 int m_seenEvent; // keep track if we've seen an event yet
-	 std::string m_resultKey; // key for the HLT result
-	 bool m_writeTree; // write the tree back to the HLT result?
-	 bool m_reloadNavigation; // refresh the navigation in place 
-	 bool m_printTree; // print the tree to output?
-	 bool m_doSqueeze; // perform trigger element squeezing?
-	 bool m_protectChains; // if true, the final element of each chain will be kept when squeezing
-	 bool m_removeGhosts; // remove ghost trigger elements?
-	 bool m_removeFeatureless; // remove trigger elements that have no features?
-	 bool m_protectOtherStreams; // add all streams not in exclusion to inclusion
-	 bool m_removeFailedChains; // remove te's from failed chains
-	 bool m_removeEmptyRoIs; // remove RoI's with no te's
-	 std::vector<std::string> m_groupInclusionList; // guaranteed to be included
-	 std::vector<std::string> m_groupExclusionList; // will try to remove
-	 std::vector<std::string> m_streamInclusionList; // guaranteed to be included
-	 std::vector<std::string> m_streamExclusionList; // will try to remove
-	 std::vector<std::string> m_chainInclusionList; // guaranteed to be included
-	 std::vector<std::string> m_chainExclusionList; // will try to remove
-	 
+
 	 std::vector<std::string> m_featureInclusionList;
 	 std::vector<std::string> m_featureExclusionList;
 	 std::set<std::string>    m_featureKeepSet; //!< computed from above
 	 std::set<std::string>    m_featureDropSet; //!< computed from above
-	 
-	 std::vector<std::string> m_branchInclusionList;
-	 std::vector<std::string> m_branchExclusionList;
 
-	 bool m_dropNavigation;
+	 std::vector<std::string> m_actions;
+	 typedef StatusCode (TrigNavigationSlimmingTool::*Action)();
+	 std::map<std::string, Action> m_actionsMap;	 
+	 std::string m_chainsRegex;
 	 
-	 // inclusion and exclusion chain groups
-	 const Trig::ChainGroup *m_inclusionChainGroup;
-	 const Trig::ChainGroup *m_exclusionChainGroup;
-	 std::vector<std::string> m_configuredChainNames;
+	 
+	 bool m_report; //!< TE operations verbosity flag
 
-         /** 
-          * @brief Removes all trigger elements between te and the terminal trigger element from
-          *        the navigation structure.  The terminal node is never removed, but te is removed 
-          *        if it is not an ROI element.
+	 /**
+	  * configures at the first event
+	  */
+	 StatusCode lateFillConfiguration();
+
+
+         /**
+          * @brief clear the result of the sliming in the doSliming argument (vector<uint32_t>)
+	  * Makes no sense to combine wiht other options
           */
-         virtual StatusCode removeIntermediateTriggerElements(HLT::NavigationCore* navigation, 
-                                                              TriggerElement *te = 0,
-                                                              std::vector<TriggerElement*> *tesToProtect = 0);
+	 StatusCode drop();
+         /**
+          * @brief Reload the slimmied navigation in TDT so that all clients of current job see the chage
+          */
+	 StatusCode reload();
+
+         /**
+          * @brief Restore the original navigation structure
+          */
+	 StatusCode restore();
+
+         /**
+          * @brief Save the result of the sliming in the doSliming argument (vector<uint32_t>)
+          */
+
+	 StatusCode save();
+
+	 StatusCode print();
+         /**
+          * @brief Remove intermediate TEs leaving very flat structure wiht event node, rois and terminals
+          */
+	 StatusCode squeeze();
 
          /**
           * @brief Removes references to features from the navigation structure.  Features are
@@ -139,79 +135,61 @@ namespace HLT {
           *        ignored).  If the inclusion list is NULL or empty, then all elements except
           *        those on the exclusion list are included.
           */
-         virtual StatusCode removeFeatures(HLT::NavigationCore* navigation,
-                                           const std::set<std::string>& keepSet,
-                                           const std::set<std::string>& dropSet);
+	 StatusCode dropFeatures();
+         /**
+          * @brief Removes RoI nodes, rather agresive option, should be use as one of last actions as it 
+	  * makes impossible to traverse the tree. Nonetheless the tree can be to soem extent usable in the analysis
+	  * i.e. when no TEs traversing is realy needed
+          */
+	 StatusCode dropRoIs();
+         /**
+          * @brief Removes RoI nodes, which do not seed anything
+          */
+	 StatusCode dropEmptyRoIs();
+         /**
+          * @brief Removes TEs which have no features (combine wiht squeeze)
+          */
+	 StatusCode dropFeatureless();
+         /**
+          * @brief Removes TEs which are inactive (rejected by hypothesis)
+          */
+	 StatusCode dropInactive();
+
+	 /**
+	  * @brief reset indexes in the after the thinning
+	  **/	 
+	 StatusCode syncThinning();
 
          /**
-          * @brief Removes branches from the navigation structure.  Branches are specified via the
-          *        inclusion and exclusion lists.  If the inclusion list is specified, only elements
-          *        on that list are included (the exclusion list is ignored).  If the inclusion list
-          *        is NULL or empty, then all elements except those on the exclusion list are
-          *        included.
+          * @brief Removes TEs are terminals and have no features (very aggresive)
           */
-         virtual StatusCode removeBranches(HLT::NavigationCore* navigation,
-                                           std::vector<std::string> *inclusionList,
-                                           std::vector<std::string> *exclusionList = 0);
+	 StatusCode dropFeaturelessTerminals();
+
+	 /**
+	  * @brief remove info not related to the specified chains
+	  */
+	 StatusCode dropChains();
 
          /**
           * @brief Removes the passed trigger element from the navigation structure by removing
-          *        all references to it
+          *        all references to it in seeded and seeding TEs, 
+	  * @param propagateFeatures decides if features need to be moved to children TEs
           */
-         virtual StatusCode removeTriggerElementFromNavigation(HLT::NavigationCore* navigation,
-                                                               TriggerElement *te,
-                                                               bool propagateFeatures = true);
+         StatusCode removeTriggerElement(TriggerElement *te,
+					 bool propagateFeatures = true);
 
-         /** 
-          * @brief Removes trigger elements from the navigation.  If the inclusion list is specified
-          *        only elements on that list are included (the exclusion list is ignored).  If the
-          *        inclusion list is NULL or empty, then all elements except those on the exclusion
-          *        list are included
-          */
-         virtual StatusCode removeTriggerElementsFromNavigation(HLT::NavigationCore* navigation,
-                                                                std::vector<HLT::TriggerElement*> *inclusionList,
-                                                                std::vector<HLT::TriggerElement*> *exclusionList,
-                                                                HLT::TriggerElement *te = 0,
-                                                                bool propagateFeatures = true);
 
          /** 
           * @brief Removes all trigger elements with the flag ghost set to true from the
           *        navigation structure
           */
-         virtual StatusCode removeGhostTriggerElements(HLT::NavigationCore* navigation,
-                                                                TriggerElement *te = 0);
+         StatusCode removeGhostTriggerElements(TriggerElement *te = 0);
 
          /**
           * @brief Removes all trigger elements with no features from the navigation
           *        structure
           */
-         virtual StatusCode removeFeaturelessTriggerElements(HLT::NavigationCore* navigation,
-                                                                 TriggerElement *te = 0);
-
-         /**
-          * @brief Returns a list of all feature labels in the structure.  Note that this list
-          *        must be deleted by whatever calls the function.
-          */
-         virtual std::vector<std::string> *getAllFeatureNames(HLT::NavigationCore* navigation,
-                                                              TriggerElement *te = 0);
-
-         
-         /**
-          * @brief Returns a list of all branch labels in the structure.  Note that this list
-          *        must be deleted by whatever calls the function.
-          */
-         virtual std::vector<std::string> *getAllBranchNames(HLT::NavigationCore* navigation);
-
-         /**
-          * @brief Returns the number of times the passed feature appears in the structure.
-          */
-         virtual int countFeature(HLT::NavigationCore* navigation, std::string *name, TriggerElement *te = 0);
-
-         /**
-          * @brief Returns a vector of strings corresponding to the labels of the features
-          *        associated with the passed trigger element
-          */
-         virtual std::vector<std::string> *featureLabels(const HLT::TriggerElement *te);
+         StatusCode removeFeaturelessTriggerElements(TriggerElement *te = 0);
 
          /**
           * @brief Used to compare pointers of TriggerElements.  To establish equality of
@@ -230,25 +208,11 @@ namespace HLT {
             const TriggerElement *m_RoI;
          };
 
-	 /**
-	  * @brief reset indexes in the after the thinning
-	  **/
-	 
-	 StatusCode adjustIndicesAfterThinning(HLT::NavigationCore* navigation, 
-					       ServiceHandle<IThinningSvc>& service );
-
-
-
-
-
-
-
          /**
           * @brief Removes the passed te and all children from the navigation structure
           *
           */
-         virtual StatusCode recursivelyRemoveNodesFromNavigation(HLT::NavigationCore* navigation,
-                                                                 TriggerElement *te);
+         StatusCode recursivelyRemoveNodesFromNavigation(TriggerElement *te);
 
          /**
           * @brief This is a helper function for removeFeatures(HLT::NavigationCore*, ...).
@@ -256,14 +220,21 @@ namespace HLT {
           *        the features from the tree, but also cleans them up within the navigation
           *        structure.
           */
-         virtual StatusCode removeFeatures( HLT::NavigationCore* navigation,
-					    const std::set<std::pair<CLID, uint16_t> >& doDelete);
+	 StatusCode removeFeatures( const std::set<std::pair<CLID, uint16_t> >& doDelete);
+
+         /**
+          * @brief This is a helper function for removeFeatures(HLT::NavigationCore*, ...).
+	  * Either this or the above is caled depending which of the sets is smaller 
+	  * @warning this is a bit more agresive as it cleans up the navigation from transient objects
+          */
+	 StatusCode retainFeatures(const std::set<std::pair<CLID, uint16_t> >& toRetain);
+
          /**
           * @brief Removes all instances of the supplied TriggerElement from the supplied vector.
           * Returns the number of elements removed.
           *
           */
-         virtual int removeTriggerElementFromVector(TriggerElement *te, std::vector<TriggerElement*> *v);
+	 StatusCode removeTriggerElementFromVector(TriggerElement *te, std::vector<TriggerElement*>& v);
 
          /**
           * @brief Returns true if the TriggerElement should be included in the navigation tree
@@ -282,20 +253,25 @@ namespace HLT {
          /**
           * @brief Propagates the features on given TE to its children
           */
-         void propagateFeaturesToChildren(const TriggerElement *te);
+         StatusCode propagateFeaturesToChildren(const TriggerElement *te);
 
          // store the navigation structure being worked on locally so it doesn't have
          // to be passed around everywhere
          HLT::NavigationCore* m_navigation; 
+	 std::vector<uint32_t> m_originalNavigation; 
 
+	 std::vector<uint32_t>* m_destinationNavigation; 
+	 std::set<HLT::te_id_type> m_tesToProtect;
+	 
          // store the CLID and subtype ids of all the of the deleted features so we can
          // remove their holders from the navigation structure.
-         std::vector<std::pair<CLID, uint16_t> > *m_deletedFeatures;
+         //std::vector<std::pair<CLID, uint16_t> > *m_deletedFeatures;
 
 	 // internal functions
-	 virtual std::vector<HLT::TriggerElement*> *getTEsFromFailedChains();
-	 virtual std::vector<HLT::TriggerElement*> *getTEsFromChainGroup(const Trig::ChainGroup *cg);
+	 //	 virtual std::vector<HLT::TriggerElement*> *getTEsFromFailedChains();
+	 //	 virtual std::vector<HLT::TriggerElement*> *getTEsFromChainGroup(const Trig::ChainGroup *cg);
 	 // internal data
+
 
 
    }; // end TrigNavigationSlimmingTool declaration
