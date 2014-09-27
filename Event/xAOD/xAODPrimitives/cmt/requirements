@@ -1,5 +1,5 @@
 package xAODPrimitives
-# $Id: requirements 582418 2014-02-10 15:03:46Z krasznaa $
+# $Id: requirements 617099 2014-09-17 07:41:26Z schaffer $
 
 author Edward Moyse <Edward.Moyse@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
@@ -15,3 +15,12 @@ use AthContainers AthContainers-* Control
 # Build the library
 library xAODPrimitives ../Root/*.cxx
 apply_pattern installed_library
+
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+
+apply_pattern lcgdict dict=xAODPrimitives selectionfile=selection.xml \
+                      headerfiles="../xAODPrimitives/xAODPrimitivesDict.h" \
+                      extralibfiles=../Root/dict/*.cxx

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IsolationType.h 589573 2014-03-26 15:45:53Z neldik $
+// $Id: IsolationType.h 618834 2014-09-27 16:40:39Z christos $
 #ifndef XAODPRIMITIVES_ISOLATIONTYPE_H
 #define XAODPRIMITIVES_ISOLATIONTYPE_H
 
@@ -520,7 +520,49 @@ namespace xAOD {
          /// Fully corrected E<sub>T</sub>-sum of the topo-clusters in
          /// a cone with a half-opening angle of 0.45
          ///
-         topoetcone45_corrected = 87
+         topoetcone45_corrected = 87,
+	 
+	 /// @name Topo-cluster E<sub>T</sub>-sum with 5x7 core subracted.     
+	 /// @{
+
+	 topoetcone10_core57cells = 90,
+	 topoetcone15_core57cells = 91,
+	 topoetcone20_core57cells = 92,
+	 topoetcone25_core57cells = 93,
+	 topoetcone30_core57cells = 94,
+	 topoetcone35_core57cells = 95,
+	 topoetcone40_core57cells = 96,
+	 topoetcone45_core57cells = 97,
+
+	 /// @}
+	 
+	 /// @name Ptcorrected Topo-cluster E<sub>T</sub>-sum with 5x7 core subracted.     
+	 /// @{
+
+	 topoetcone10_core57cells_ptcorrected = 100,
+	 topoetcone15_core57cells_ptcorrected = 101,
+	 topoetcone20_core57cells_ptcorrected = 102,
+	 topoetcone25_core57cells_ptcorrected = 103,
+	 topoetcone30_core57cells_ptcorrected = 104,
+	 topoetcone35_core57cells_ptcorrected = 105,
+	 topoetcone40_core57cells_ptcorrected = 106,
+	 topoetcone45_core57cells_ptcorrected = 107,
+	 
+	 /// @}
+
+	 /// @name Fully Corrected Topo-cluster E<sub>T</sub>-sum with 5x7 core subracted.     
+	 /// @{
+
+	 topoetcone10_core57cells_corrected = 110,
+	 topoetcone15_core57cells_corrected = 110,
+	 topoetcone20_core57cells_corrected = 112,
+	 topoetcone25_core57cells_corrected = 112,
+	 topoetcone30_core57cells_corrected = 114,
+	 topoetcone35_core57cells_corrected = 114,
+	 topoetcone40_core57cells_corrected = 116,
+	 topoetcone45_core57cells_corrected = 117
+	 
+	 /// @}
 
       }; // enum IsolationType
 
@@ -553,7 +595,16 @@ namespace xAOD {
        topoetcone_ptcorrected = 7,
 
        /// Fully corrected topo-cluster E<sub>T</sub>-sum
-       topoetcone_corrected = 8
+       topoetcone_corrected = 8,
+
+       /// Topo-cluster E<sub>T</sub>-sum with 5x7 core subtracted
+       topoetcone_core57cells = 9,
+
+       /// ptcorrected Topo-cluster E<sub>T</sub>-sum with 5x7 core subtracted
+       topoetcone_core57cells_ptcorrected = 10,
+       
+       ///corrected Topo-cluster E<sub>T</sub>-sum with 5x7 core subtracted
+       topoetcone_core57cells_corrected = 11
 
      }; // enum IsolationFlavour
 
