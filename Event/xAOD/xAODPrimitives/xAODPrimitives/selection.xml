@@ -1,0 +1,7 @@
+<!-- $Id: selection.xml 615648 2014-09-08 16:35:14Z schaffer $ -->
+<lcgdict>
+
+  <!-- Enums -->
+  <enum pattern="xAOD::Iso::*" />
+
+</lcgdict>

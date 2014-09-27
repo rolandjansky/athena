@@ -2,13 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: getIsolationAccessor.cxx 582418 2014-02-10 15:03:46Z krasznaa $
+// $Id: getIsolationAccessor.cxx 618838 2014-09-27 19:31:26Z christos $
 
 // System include(s):
 #include <vector>
+#include <memory>
 
 // Local include(s):
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
+
+/// The type to be used as the smart pointer
+#if __cplusplus >= 201100
+typedef std::unique_ptr< SG::AuxElement::Accessor< float > > SmartPointer_t;
+#else
+typedef std::auto_ptr< SG::AuxElement::Accessor< float > > SmartPointer_t;
+#endif // C++11
 
 /// Helper macro for populating the static vector of this file
 #define DEFINE_ISO_ACCESSOR( TYPE )                                     \
@@ -18,20 +26,20 @@
                          1 );                                           \
    }                                                                    \
    sAccessors[ static_cast< size_t >( xAOD::Iso::TYPE ) ] =             \
-      new SG::AuxElement::Accessor< float >( #TYPE )
+      SmartPointer_t( new SG::AuxElement::Accessor< float >( #TYPE ) )
 
 namespace xAOD {
-
-   /// Accessor objects
-   static std::vector< SG::AuxElement::Accessor< float >* > sAccessors;
 
    SG::AuxElement::Accessor< float >*
    getIsolationAccessor( Iso::IsolationType type ) {
 
+      /// Accessor objects
+      static std::vector< SmartPointer_t > sAccessors;
+
       // Create the accessor objects if they don't exist yet:
       if( ! sAccessors.size() ) {
          // Make the vector large enough for all the accessors:
-         sAccessors.resize( 90 );
+         sAccessors.resize( 100 );
          // Etcone variables:
          DEFINE_ISO_ACCESSOR( etcone10 );
          DEFINE_ISO_ACCESSOR( etcone15 );
@@ -113,11 +121,38 @@ namespace xAOD {
          DEFINE_ISO_ACCESSOR( topoetcone35_corrected );
          DEFINE_ISO_ACCESSOR( topoetcone40_corrected );
          DEFINE_ISO_ACCESSOR( topoetcone45_corrected );
+
+	 DEFINE_ISO_ACCESSOR( topoetcone10_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone15_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone20_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone25_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone30_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone35_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone40_core57cells );
+	 DEFINE_ISO_ACCESSOR( topoetcone45_core57cells );
+	 
+	 DEFINE_ISO_ACCESSOR( topoetcone10_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone15_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone20_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone25_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone30_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone35_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone40_core57cells_ptcorrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone45_core57cells_ptcorrected );
+	 
+	 DEFINE_ISO_ACCESSOR( topoetcone10_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone15_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone20_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone25_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone30_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone35_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone40_core57cells_corrected );
+	 DEFINE_ISO_ACCESSOR( topoetcone45_core57cells_corrected );
       }
 
       // Look up the element, throwing an exception for too large
       // enum values:
-      return sAccessors.at( static_cast< size_t >( type ) );
+      return sAccessors.at( static_cast< size_t >( type ) ).get();
    }
 
 } // namespace xAOD
