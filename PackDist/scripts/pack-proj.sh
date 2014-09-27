@@ -842,8 +842,8 @@ local cntnrcmt=${cntnr[1]}${cntnr[0]}/${verdir}cmt
 cd $1/$cntnrcmt || return 1
 [ -f ${tmppatch}/$2/$3/$cntnrcmt/requirements ] &&
 export CMTUSERCONTEXT=$(echo ${tmppatch}/$2/$3/$cntnrcmt)
-local project_post=$(cmt -q -tag_add=PACK show macro_value $(sed 's/[-.]/_/g' <<<${2})_post)
-#local project_post=$(cmt -tag_add=PACK show macro_value ${2}_post)
+local project_post=$(cmt -q -tag=PACK show macro_value $(sed 's/[-.]/_/g' <<<${2})_post)
+#local project_post=$(cmt -tag=PACK show macro_value ${2}_post)
 unset CMTUSERCONTEXT
 cd $OLDPWD
 
@@ -875,36 +875,36 @@ case ${CMTCONFIG} in
     *) local mode=opt ;;
 esac
 cat <<EOF
-unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${3},${mode},noTest; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; cmt br - cmt -no_cleanup config; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/Control/AthenaRunTime/*/cmt; . ./setup.sh; cmt build library_links; ${project_post:+cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; ${project_post}; }true
+unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${3},${mode},noTest; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; cmt br - cmt -no_cleanup config; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/Control/AthenaRunTime/*/cmt; . ./setup.sh; cmt build library_links; ${project_post:+cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; ${project_post}; }true
 EOF
 
-#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${3},${mode},noTest; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; cmt -quiet br - cmt -quiet -no_cleanup config; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/Control/AthenaRunTime/*/cmt; . setup.sh; cmt build library_links; ${project_post:+cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; ${project_post}; }true
+#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${3},${mode},noTest; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; cmt -quiet br - cmt -quiet -no_cleanup config; cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/Control/AthenaRunTime/*/cmt; . setup.sh; cmt build library_links; ${project_post:+cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt; ${project_post}; }true
 elif [ $2 == LCGCMT ]; then
 cat <<EOF
-unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH CMTHOME CMTUSERCONTEXT; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
+unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH CMTHOME CMTUSERCONTEXT; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
 EOF
 
-#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
+#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
 elif [ $2 == Gaudi ]; then
 cat <<EOF
-unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH CMTHOME CMTUSERCONTEXT; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
+unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH CMTHOME CMTUSERCONTEXT; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
 EOF
 
-#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
+#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
 elif [[ $2 == Atlas?* ]]; then # Atlas projects
 cat <<EOF
-unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${2},${3},${mode},noTest; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
+unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${2},${3},${mode},noTest; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
 EOF
 
-#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${2},${3},${mode},noTest; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
+#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${2},${3},${mode},noTest; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
 else
 cat <<EOF
-unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH CMTHOME CMTUSERCONTEXT; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
+unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH CMTHOME CMTUSERCONTEXT; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt br - 'cmt -no_cleanup config;cmt build library_links'; ${project_post:+${project_post}; }true
 EOF
 
-#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
+#PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - 'cmt -quiet -no_cleanup config;cmt -quiet build library_links'; ${project_post:+${project_post}; }true
 # cat <<EOF
-# PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - cmt -quiet -no_cleanup config; ${project_post:+${project_post}; }true
+# PATH=/bin:/usr/bin; unset CMTROOT CMTSITE; . @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest; unset CMTPATH; cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt; cmt -quiet br - cmt -quiet -no_cleanup config; ${project_post:+${project_post}; }true
 # EOF
 
 fi
@@ -932,8 +932,8 @@ local cntnrcmt=${cntnr[1]}${cntnr[0]}/${verdir}cmt
 cd $1/$cntnrcmt || return 1
 [ -f ${tmppatch}/$2/$3/$cntnrcmt/requirements ] &&
 export CMTUSERCONTEXT=$(echo ${tmppatch}/$2/$3/$cntnrcmt)
-local project_preun=$(cmt -q -tag_add=PACK show macro_value $(sed 's/[-.]/_/g' <<<${2})_preun)
-#local project_preun=$(cmt -tag_add=PACK show macro_value ${2}_preun)
+local project_preun=$(cmt -q -tag=PACK show macro_value $(sed 's/[-.]/_/g' <<<${2})_preun)
+#local project_preun=$(cmt -tag=PACK show macro_value ${2}_preun)
 local installarea=$(cmt -q show macro_value ${2}_installarea_prefix)
 unset CMTUSERCONTEXT
 cd $OLDPWD
@@ -1000,7 +1000,7 @@ cat <<EOF
 if [ \$1 -eq 0 ]; then
 shift \$#;
 unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite;
-. @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${3},${mode},noTest;
+. @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${3},${mode},noTest;
 ${project_preun:+cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt;
 ${project_preun}
 }cd @INSTALL_PREFIX@/$(basename $(dirname $1))/$3/AtlasRelease/*/cmt;
@@ -1015,7 +1015,7 @@ cat <<EOF
 if [ \$1 -eq 0 ]; then
 shift \$#;
 unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite;
-. @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest;
+. @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest;
 unset CMTPATH CMTHOME CMTUSERCONTEXT;
 ${project_preun:+cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt
 ${project_preun}
@@ -1034,7 +1034,7 @@ cat <<EOF
 if [ \$1 -eq 0 ]; then
 shift \$#;
 unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite;
-. @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest;
+. @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest;
 unset CMTPATH CMTHOME CMTUSERCONTEXT
 ${project_preun:+cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt;
 ${project_preun}
@@ -1052,7 +1052,7 @@ cat <<EOF
 if [ \$1 -eq 0 ]; then
 shift \$#;
 unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite;
-. @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${2},${3},${mode},noTest;
+. @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${2},${3},${mode},noTest;
 ${project_preun:+cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt;
 ${project_preun}
 }cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt;
@@ -1069,7 +1069,7 @@ cat <<EOF
 if [ \$1 -eq 0 ]; then
 shift \$#;
 unset CMTROOT CMTSITE; cd @INSTALL_PREFIX@/cmtsite;
-. @INSTALL_PREFIX@/cmtsite/setup.sh -tag_add=${mode},noTest;
+. @INSTALL_PREFIX@/cmtsite/setup.sh -tag=${mode},noTest;
 unset CMTPATH CMTHOME CMTUSERCONTEXT;
 ${project_preun:+cd @INSTALL_PREFIX@/$2/$3/$cntnrcmt;
 ${project_preun}
