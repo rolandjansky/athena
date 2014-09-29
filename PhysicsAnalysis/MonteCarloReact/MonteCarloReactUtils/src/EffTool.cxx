@@ -99,13 +99,12 @@ bool EffTool::m_makeEfficiencyObj(const EffInfo& request, const std::string& pat
     // this is kind of an evil use of exceptions since we are relying on an exception happening in cases of there being no error!
     // a better way might be to add some state to the efficiency whereby the Efficiency object can tell you if it contains anything
     // if its empty then nothing was found.
-    Efficiency * tmpEff;
 
     try{ 
       if( type == "Binned" )
-	tmpEff = new BinnedEfficiency( fstr, &request );
+	BinnedEfficiency tmpEff ( fstr, &request );
       else if( type == "Parameterized") 
-	tmpEff = new ParameterizedEfficiency( fstr, &request );
+	ParameterizedEfficiency tmpEff ( fstr, &request );
 
       //cout << it->c_str() << endl; <---- Check this
       // if there is no further matching efficiency in the file then an exception should have been thrown and we should never reach the next line
@@ -190,13 +189,12 @@ bool EffTool::m_makeEfficiencyObj(const EffInfo& request, const std::vector<std:
     // this is kind of an evil use of exceptions since we are relying on an exception happening in cases of there being no error!
     // a better way might be to add some state to the efficiency whereby the Efficiency object can tell you if it contains anything
     // if its empty then nothing was found.
-    Efficiency * tmpEff;
 
     try{ 
       if( type == "Binned" )
-	tmpEff = new BinnedEfficiency( fstr, &request );
+	BinnedEfficiency tmpEff( fstr, &request );
       else if( type == "Parameterized") 
-	tmpEff = new ParameterizedEfficiency( fstr, &request );
+	ParameterizedEfficiency tmpEff( fstr, &request );
 
       //cout << it->c_str() << endl; <---- Check this
       // if there is no further matching efficiency in the file then an exception should have been thrown and we should never reach the next line

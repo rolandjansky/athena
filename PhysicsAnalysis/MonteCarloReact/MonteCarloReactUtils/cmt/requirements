@@ -4,7 +4,7 @@ package MonteCarloReactUtils
 author Marc Hohlfeld <marc.hohlfeld@cern.ch>
 
 
-use AtlasPolicy                 AtlasPolicy-01-*
+use AtlasPolicy                 AtlasPolicy-*
 
 use AtlasROOT                   AtlasROOT-*                     External
 

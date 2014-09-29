@@ -99,12 +99,11 @@ bool ResTool::m_makeResolutionObj(const ResInfo& request, const std::string& pat
     // if its empty then nothing was found.
     
     
-    Resolution * tmpRes;
     try{ 
       if( type == "Shift" || type == "Fixed")
-	tmpRes = new ShiftFunction( fstr, &request );
+	ShiftFunction tmpRes ( fstr, &request );
       else if( type == "Random" )
-	tmpRes = new RandomFunction( fstr, &request );
+	RandomFunction tmpRes( fstr, &request );
       //cout << it->c_str() << endl;
       // if there is no further matching efficiency in the file then an exception should have been thrown and we should never reach the next line
       throw EffDuplicateMatchesToRequest();
@@ -194,12 +193,11 @@ bool ResTool::m_makeResolutionObj(const ResInfo& request, const std::vector<std:
     // if its empty then nothing was found.
     
     
-    Resolution * tmpRes;
     try{ 
       if( type == "Shift" || type == "Fixed")
-	tmpRes = new ShiftFunction( fstr, &request );
+	ShiftFunction tmpRes( fstr, &request );
       else if( type == "Random" )
-	tmpRes = new RandomFunction( fstr, &request );
+	RandomFunction tmpRes( fstr, &request );
       //cout << it->c_str() << endl;
       // if there is no further matching efficiency in the file then an exception should have been thrown and we should never reach the next line
       throw EffDuplicateMatchesToRequest();
