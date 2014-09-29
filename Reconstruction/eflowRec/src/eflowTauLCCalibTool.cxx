@@ -181,7 +181,7 @@ StatusCode eflowTauLCCalibTool::execute(const eflowTauObject& eflowTauObject){
 	xAOD::PFO* neutralPFO = *firstPFO;
 	
 	//now update EFO kinematics with calibrated cluster kinematics
-	neutralPFO->setP4(theCluster->e(),theCluster->eta(),theCluster->phi(),theCluster->m());
+	neutralPFO->setP4(theCluster->pt(),theCluster->eta(),theCluster->phi(),theCluster->m());
 
 	if (1 == debug) std::cout << "now neutral EFO has E, eta and phi of " << neutralPFO->e() << ", " << neutralPFO->eta() << " and " << neutralPFO->phi() << std::endl;
 

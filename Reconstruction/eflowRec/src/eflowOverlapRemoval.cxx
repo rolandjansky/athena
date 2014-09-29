@@ -75,13 +75,12 @@ StatusCode eflowOverlapRemoval::execute(){
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
       << " No eflowRec selectedElectrons container found in TDS"
 				<< endreq;
-   return StatusCode::SUCCESS;
   }
 
   const xAOD::EgammaContainer* egammaColl = 0;
   if ( (m_storeGate->retrieve(egammaColl,m_egammaContainerName)).isFailure() )
     {
-      msg(MSG::WARNING )<< "cannot allocate egamma Container with key <"
+      msg(MSG::WARNING )<< "cannot allocate egamma Container with key "
 			<< m_egammaContainerName
 			<< endreq;
       
@@ -99,19 +98,25 @@ StatusCode eflowOverlapRemoval::execute(){
     const xAOD::CaloCluster* thisClus = thisPFO->cluster(0);
 
     if (thisClus){
-      bool IsEleClu = this->IsEleOverlap(thisClus,selectedElectrons);
-      if (true == IsEleClu) {
+      bool IsEleClu = false;
+      bool IsGammaClu = false;
+      if (selectedElectrons){
+	IsEleClu = this->IsEleOverlap(thisClus,selectedElectrons);
+	if (true == IsEleClu) {
+	  //const_cast because we want to set the particle type (and I'd rather not make the function non-const)
+	  xAOD::PFODetails::PFOLeptonType leptonType = xAOD::PFODetails::PFO_electron;
+	  const_cast<xAOD::PFO*>(thisPFO)->setAttribute<xAOD::PFODetails::PFOLeptonType>(leptonString, leptonType) ;
+	}
+      }
+      if (egammaColl){
+	IsGammaClu = this->IsGammaOverlap(thisClus,egammaColl);
 	//const_cast because we want to set the particle type (and I'd rather not make the function non-const)
-	xAOD::PFODetails::PFOLeptonType leptonType = xAOD::PFODetails::PFO_electron;
-	const_cast<xAOD::PFO*>(thisPFO)->setAttribute<xAOD::PFODetails::PFOLeptonType>(leptonString, leptonType) ;
+	if (true == IsGammaClu){
+	  xAOD::PFODetails::PFOLeptonType leptonType = xAOD::PFODetails::PFO_photon;
+	  const_cast<xAOD::PFO*>(thisPFO)->setAttribute<xAOD::PFODetails::PFOLeptonType>(leptonString, leptonType) ;
+	}
       }
-      bool IsGammaClu = this->IsGammaOverlap(thisClus,egammaColl);
-      //const_cast because we want to set the particle type (and I'd rather not make the function non-const)
-      if (true == IsGammaClu){
-	xAOD::PFODetails::PFOLeptonType leptonType = xAOD::PFODetails::PFO_photon;
-	const_cast<xAOD::PFO*>(thisPFO)->setAttribute<xAOD::PFODetails::PFOLeptonType>(leptonString, leptonType) ;
-      }
-      else if (false == IsGammaClu && false == IsEleClu) const_cast<xAOD::PFO*>(thisPFO)->setAttribute<xAOD::PFODetails::PFOLeptonType>(leptonString, xAOD::PFODetails::PFO_nonLeptonic) ;
+      if (false == IsGammaClu && false == IsEleClu) const_cast<xAOD::PFO*>(thisPFO)->setAttribute<xAOD::PFODetails::PFOLeptonType>(leptonString, xAOD::PFODetails::PFO_nonLeptonic) ;
 
     }//if valid cluster pointer
     else {
