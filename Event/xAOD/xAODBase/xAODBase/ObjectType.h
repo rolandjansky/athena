@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectType.h 605609 2014-07-09 12:35:26Z krasznaa $
+// $Id: ObjectType.h 618658 2014-09-26 09:31:10Z krasznaa $
 #ifndef XAODBASE_OBJECTTYPE_H
 #define XAODBASE_OBJECTTYPE_H
 
@@ -96,7 +96,10 @@ namespace xAOD {
          // {
 
          EventInfo   = 1001, ///< The object is an event information one
-         EventFormat = 1002  ///< The object is an event format one
+         EventFormat = 1002, ///< The object is an event format one
+
+         Particle          = 1101, ///< Generic particle object, for analysis
+         CompositeParticle = 1102  ///< Particle composed of other particles
 
          // }
 

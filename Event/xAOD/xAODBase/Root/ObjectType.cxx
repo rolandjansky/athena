@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectType.cxx 605609 2014-07-09 12:35:26Z krasznaa $
+// $Id: ObjectType.cxx 618658 2014-09-26 09:31:10Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -58,6 +58,9 @@ std::ostream& operator<< ( std::ostream& out, xAOD::Type::ObjectType type ) {
 
       PRINT_TYPE( xAOD::Type::EventInfo );
       PRINT_TYPE( xAOD::Type::EventFormat );
+
+      PRINT_TYPE( xAOD::Type::Particle );
+      PRINT_TYPE( xAOD::Type::CompositeParticle );
 
    default:
       out << "UNKNOWN";

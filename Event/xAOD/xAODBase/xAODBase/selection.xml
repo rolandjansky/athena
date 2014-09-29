@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 591855 2014-04-08 08:42:59Z krasznaa $ -->
+<!-- $Id: selection.xml 618909 2014-09-29 10:16:52Z krasznaa $ -->
 <lcgdict>
 
   <!-- All the dictionaries for xAOD::IParticle: -->
@@ -19,6 +19,9 @@
 
   <!-- An attempt to make the ObjectType enumeration visible in Python...  -->
   <enum name="xAOD::Type::ObjectType" />
+
+  <!-- The helper functions: -->
+  <function pattern="xAOD::*" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

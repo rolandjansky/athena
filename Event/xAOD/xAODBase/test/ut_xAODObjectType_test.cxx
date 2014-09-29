@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODObjectType_test.cxx 592971 2014-04-15 14:13:50Z krasznaa $
+// $Id: ut_xAODObjectType_test.cxx 618658 2014-09-26 09:31:10Z krasznaa $
 //
 // This is an extremely simple test to check the health of the output operator
 // defined in xAODBase/ObjectType.h.

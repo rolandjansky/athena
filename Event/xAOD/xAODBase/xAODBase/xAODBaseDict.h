@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODBaseDict.h 598585 2014-05-23 09:23:14Z krasznaa $
+// $Id: xAODBaseDict.h 618909 2014-09-29 10:16:52Z krasznaa $
 #ifndef XAODBASE_XAODBASEDICT_H
 #define XAODBASE_XAODBASEDICT_H
 
@@ -19,6 +19,7 @@
 // Local include(s):
 #include "xAODBase/ObjectType.h"
 #include "xAODBase/IParticleContainer.h"
+#include "xAODBase/IParticleHelpers.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODBASE {
