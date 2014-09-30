@@ -69,6 +69,8 @@
 #include "CoolKernel/StorageType.h"
 #include "CoolKernel/types.h"
 #include "CoolKernel/Record.h"
+#include "CoolKernel/RecordSpecification.h"
+#include "CoolKernel/FolderSpecification.h"
 
 //#include "CoolKernel/ExtendedAttributeListSpecification.h"
 //#include "CoolKernel/AttributeListSpecification.h"
@@ -217,7 +219,7 @@ COOLCORALClient::COOLCORALClient(const std::string& id1, const std::string& id2,
     m_db = dbSvc.openDatabase( m_dbId,false );
   }
   catch ( DatabaseDoesNotExist  & e ) {
-    m_db = dbSvc.createDatabase( m_dbId );
+    m_db = dbSvc.createDatabase( m_dbId ); 
   }
     
 }
@@ -2417,7 +2419,8 @@ void COOLCORALClient::createFolders(const std::string& part_trt){
   spec_ttc.extend("ttc_iovfk",cool::StorageType::UInt63);
   spec_ttc.extend("tag",cool::StorageType::String4k);
   //   coral::AttributeSpecification::typeNameForId( typeid(std::string) ) 
-  m_db->createFolder(TTC_FOLDER, spec_ttc , "TTC", FolderVersioning::SINGLE_VERSION );
+  cool::FolderSpecification ttcFolderSpec(cool::FolderVersioning::SINGLE_VERSION,spec_ttc);
+  m_db->createFolder(TTC_FOLDER, ttcFolderSpec , "TTC" );//why is description not athena standard?
 
   //    cool::ExtendedAttributeListSpecification spec_ttcgr;
   //    spec_ttcgr.push_back("ttcgr_UID","unsigned int");
@@ -2428,8 +2431,8 @@ void COOLCORALClient::createFolders(const std::string& part_trt){
   spec_ttcgr.extend("ttcgr_iovfk",cool::StorageType::UInt63);
   spec_ttcgr.extend("tag",cool::StorageType::String4k);
     
-    
-  m_db->createFolder(TTCGR_FOLDER, spec_ttcgr, "TTCGR", FolderVersioning::SINGLE_VERSION );
+  cool::FolderSpecification ttcgrFolderSpec(cool::FolderVersioning::SINGLE_VERSION,spec_ttcgr);  
+  m_db->createFolder(TTCGR_FOLDER, ttcgrFolderSpec, "TTCGR");
     
   //    cool::ExtendedAttributeListSpecification spec_rod;
   //    spec_rod.push_back("rod_UID","unsigned int");
@@ -2439,8 +2442,8 @@ void COOLCORALClient::createFolders(const std::string& part_trt){
   spec_rod.extend("rod_UID",cool::StorageType::UInt32);
   spec_rod.extend("rod_iovfk",cool::StorageType::UInt63);
   spec_rod.extend("tag",cool::StorageType::String4k);
-    
-  m_db->createFolder(ROD_FOLDER, spec_rod, "ROD", FolderVersioning::SINGLE_VERSION);
+  cool::FolderSpecification rodFolderSpec(cool::FolderVersioning::SINGLE_VERSION,spec_rod);  
+  m_db->createFolder(ROD_FOLDER, rodFolderSpec, "ROD");
 
   //    cool::ExtendedAttributeListSpecification spec_dtmroc;
   //    spec_dtmroc.push_back("dtmroc_UID","unsigned int");
@@ -2450,8 +2453,8 @@ void COOLCORALClient::createFolders(const std::string& part_trt){
   spec_dtmroc.extend("dtmroc_UID",cool::StorageType::UInt32);
   spec_dtmroc.extend("dtmroc_iovfk",cool::StorageType::UInt63);
   spec_dtmroc.extend("tag",cool::StorageType::String4k);
-    
-  m_db->createFolder(DTMROC_FOLDER, spec_dtmroc, "DTMROC", FolderVersioning::SINGLE_VERSION);
+  cool::FolderSpecification dtmrocFolderSpec(cool::FolderVersioning::SINGLE_VERSION,spec_dtmroc);  
+  m_db->createFolder(DTMROC_FOLDER, dtmrocFolderSpec, "DTMROC");
 
 
   gettimeofday(&end_time, NULL);
@@ -2827,7 +2830,8 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
       //	    ttc_cool_row["ttc_iovfk"].setValue <unsigned long long> (nunc_usecs/10);
       ttc_cool_row["ttc_iovfk"].setValue <unsigned long long> (key);
       ttc_cool_row["tag"].setValue <std::string> (tag);
-      ttc_fld->storeObject( since, until, ttc_cool_row, tuid);
+      cool::Record ttcRecord(ttc_rec,ttc_cool_row); 
+      ttc_fld->storeObject( since, until, ttcRecord, tuid);
 
       run++;
 	    
@@ -2948,7 +2952,8 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
       //   ttcgr_cool_row["ttcgr_iovfk"].setValue <unsigned long long> (nunc_usecs/10);
       ttcgr_cool_row["ttcgr_iovfk"].setValue <unsigned long long> (key);
       ttcgr_cool_row["tag"].setValue <std::string> (tag);
-      ttcgr_fld->storeObject( since, until, ttcgr_cool_row, tgruid);
+      cool::Record ttcgrRecord(ttcgr_rec, ttcgr_cool_row);
+      ttcgr_fld->storeObject( since, until, ttcgrRecord, tgruid);
 
 
       run++;
@@ -3058,7 +3063,8 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
       //	    rod_cool_row["rod_iovfk"].setValue <unsigned long long> (nunc_usecs/10);
       rod_cool_row["rod_iovfk"].setValue <unsigned long long> (key);
       rod_cool_row["tag"].setValue <std::string> (tag);
-      rod_fld->storeObject( since, until, rod_cool_row, rodid);
+      cool::Record rodRecord(rod_rec, rod_cool_row);
+      rod_fld->storeObject( since, until, rodRecord, rodid);
 
   
 
@@ -3180,8 +3186,8 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
       //	    dtmroc_cool_row["dtmroc_iovfk"].setValue <unsigned long long> (nunc_usecs/10);
       //	    dtmroc_cool_row["dtmroc_iovfk"].setValue <unsigned long long> (iovfkttc);
       dtmroc_cool_row["tag"].setValue <std::string> (tag);
-      dtmroc_fld->storeObject( since, until, dtmroc_cool_row, chipID);
-  
+      cool::Record dtmrocRecord(dtmroc_rec, dtmroc_cool_row);
+      dtmroc_fld->storeObject( since, until, dtmrocRecord, chipID);
 
       dtmroc_bulk->processNextIteration();
       run++;
@@ -3754,12 +3760,12 @@ void COOLCORALClient::fillTTC(const TTC_t& ttc){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkttc = (unsigned long long) nunc_usecs/10;
   unsigned long long nunc_sec = nunc_time.tv_sec;
@@ -3834,12 +3840,12 @@ void COOLCORALClient::fillROD(const ROD_t& rod){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkrod = (unsigned long long) nunc_usecs/10;
 
@@ -3918,12 +3924,12 @@ void COOLCORALClient::fillTTCGR(const TTCGroup_t& ttcgr){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkttcgr = (unsigned long long) nunc_usecs/10;
 
@@ -3991,12 +3997,12 @@ void COOLCORALClient::fillROC(const DTMROC_t& roc){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkroc = (unsigned long long) nunc_usecs/10;
 
@@ -4113,12 +4119,12 @@ void COOLCORALClient::fillRODV(const std::vector<ROD_t>& rodv){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkrod = (unsigned long long) nunc_usecs/10;
 
@@ -4202,12 +4208,12 @@ void COOLCORALClient::fillROCV(const std::vector<DTMROC_t>& rocv){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkroc = (unsigned long long) nunc_usecs/10;
 
@@ -4294,12 +4300,12 @@ void COOLCORALClient::fillTTCGRV(const std::vector<TTCGroup_t>& ttcgrv){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkttcgr = (unsigned long long) nunc_usecs/10;
 
@@ -4382,12 +4388,12 @@ void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkttc = (unsigned long long) nunc_usecs/10;
 
@@ -4475,12 +4481,12 @@ void COOLCORALClient::fillBarrel(const Barrel_t& Barrel){
 
 
   struct timeval nunc_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
   // iovfk is time in nanoseconds
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
   //nunc_usecs = (nunc_time.tv_usec);
   //    iovfkttcgr = (unsigned long long) nunc_usecs/10;
 
@@ -6574,27 +6580,27 @@ if(m_verbose) std::cout << "Creating the folders: " << std::endl;
   cool::RecordSpecification spec_ttc;
   spec_ttc.extend("ttc_iovfk",cool::StorageType::UInt63);
   spec_ttc.extend("tag",cool::StorageType::String4k);
-
-  m_db->createFolder(TTC_FOLDER, spec_ttc , "TTC", FolderVersioning::SINGLE_VERSION );
+	cool::FolderSpecification ttcFolderSpec(FolderVersioning::SINGLE_VERSION,spec_ttc);
+  m_db->createFolder(TTC_FOLDER, ttcFolderSpec , "TTC");
 
   cool::RecordSpecification spec_ttcgr;
   spec_ttcgr.extend("ttcgr_iovfk",cool::StorageType::UInt63);
   spec_ttcgr.extend("tag",cool::StorageType::String4k);
     
-    
-  m_db->createFolder(TTCGR_FOLDER, spec_ttcgr, "TTCGR", FolderVersioning::SINGLE_VERSION );
+  cool::FolderSpecification ttcgrFolderSpec(FolderVersioning::SINGLE_VERSION,spec_ttcgr);
+  m_db->createFolder(TTCGR_FOLDER, ttcgrFolderSpec, "TTCGR");
     
   cool::RecordSpecification spec_rod;
   spec_rod.extend("rod_iovfk",cool::StorageType::UInt63);
   spec_rod.extend("tag",cool::StorageType::String4k);
-    
-  m_db->createFolder(ROD_FOLDER, spec_rod, "ROD", FolderVersioning::SINGLE_VERSION);
+  cool::FolderSpecification rodFolderSpec(FolderVersioning::SINGLE_VERSION,spec_rod);  
+  m_db->createFolder(ROD_FOLDER, rodFolderSpec, "ROD");
 
   cool::RecordSpecification spec_dtmroc;
   spec_dtmroc.extend("dtmroc_iovfk",cool::StorageType::UInt63);
   spec_dtmroc.extend("tag",cool::StorageType::String4k);
-    
-  m_db->createFolder(DTMROC_FOLDER, spec_dtmroc, "DTMROC", FolderVersioning::SINGLE_VERSION);
+  cool::FolderSpecification dtmrocFolderSpec(FolderVersioning::SINGLE_VERSION,spec_dtmroc);  
+  m_db->createFolder(DTMROC_FOLDER, dtmrocFolderSpec, "DTMROC");
 
   }
   else 
@@ -6924,13 +6930,13 @@ void COOLCORALClient::fillDetector(const Detector_t& Detector){
   struct timeval nunc_time;
   struct timeval start_time;
   struct timeval end_time;
-  unsigned long long nunc_usecs;
+  //unsigned long long nunc_usecs;
   unsigned long long total_usecs;
     
   gettimeofday(&nunc_time, NULL);
   gettimeofday(&start_time, NULL);
 
-  nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
+  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
 
   std::string TTC_TABLE="HIST_TTC";
   std::string TTCGR_TABLE="HIST_TTCGR";
@@ -7274,7 +7280,8 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
 
     ttc_cool_row["ttc_iovfk"].setValue <unsigned long long> (key);
     ttc_cool_row["tag"].setValue <std::string> (tag);
-    ttc_fld->storeObject( since, until, ttc_cool_row, (*v_iter0).ttc_UID);
+    cool::Record ttcRecord(ttc_rec, ttc_cool_row);
+    ttc_fld->storeObject( since, until, ttcRecord, (*v_iter0).ttc_UID);
 
     
     ttc_bulk->processNextIteration();   
@@ -7302,7 +7309,8 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
       
     ttcgr_cool_row["ttcgr_iovfk"].setValue <unsigned long long> (key);
     ttcgr_cool_row["tag"].setValue <std::string> (tag);
-    ttcgr_fld->storeObject( since, until, ttcgr_cool_row, (*v_iter1).ttcgr_UID);
+    cool::Record ttcgrRecord(ttcgr_rec, ttcgr_cool_row);
+    ttcgr_fld->storeObject( since, until, ttcgrRecord, (*v_iter1).ttcgr_UID);
     ttcgr_bulk->processNextIteration();    
   }
 
@@ -7339,7 +7347,8 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
 
     rod_cool_row["rod_iovfk"].setValue <unsigned long long> (key);
     rod_cool_row["tag"].setValue <std::string> (tag);
-    rod_fld->storeObject( since, until, rod_cool_row, (*v_iter2).rod_UID);
+    cool::Record rodRecord(rod_rec, rod_cool_row);
+    rod_fld->storeObject( since, until, rodRecord, (*v_iter2).rod_UID);
 
       
     rod_bulk->processNextIteration();
@@ -7379,7 +7388,8 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
 
     dtmroc_cool_row["dtmroc_iovfk"].setValue <unsigned long long> (key);
     dtmroc_cool_row["tag"].setValue <std::string> (tag);
-    dtmroc_fld->storeObject( since, until, dtmroc_cool_row, (*v_iter3).dtmroc_UID);
+    cool::Record dtmrocRecord(dtmroc_rec, dtmroc_cool_row);
+    dtmroc_fld->storeObject( since, until, dtmrocRecord, (*v_iter3).dtmroc_UID);
       
     roc_bulk->processNextIteration();    
   }
@@ -7790,7 +7800,7 @@ void COOLCORALClient::GenIoVROCTable(){
   long long key;
   std::string tag;
 
-  int result = -1;
+  //int result = -1;
   while ( cursor0.next() ) {
     const coral::AttributeList &row0 = cursor0.currentRow();
 
@@ -7813,7 +7823,7 @@ void COOLCORALClient::GenIoVROCTable(){
     roc_editor.insertRow(roc_row);
 
 
-    result = 1;
+    //result = 1;
   }
 
   delete query0;
