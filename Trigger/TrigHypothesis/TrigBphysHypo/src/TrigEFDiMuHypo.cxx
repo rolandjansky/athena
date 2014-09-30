@@ -6,7 +6,7 @@
     Authors: E. Reinherz-Aronis, A. Kreisel
              This hypo is set to work after TrigEFDiMuFex FexAlgo
 ***************************************************************************/
-#include "TrigBphysHypo/TrigEFDiMuHypo.h"
+#include "TrigEFDiMuHypo.h"
 
 //for the event info
 #include "EventInfo/EventInfo.h"
@@ -16,6 +16,11 @@
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+//#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 TrigEFDiMuHypo::TrigEFDiMuHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
@@ -114,23 +119,24 @@ HLT::ErrorCode TrigEFDiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 
     // Get vector of pointers to all TrigMuonEF objects linked to the outputTE
     //   by label "EFMuPair":
-  const TrigEFBphysContainer* vectorOfMuPairs=NULL;
-  status = getFeature(outputTE, vectorOfMuPairs, "EFMuPairs");
+    //const TrigEFBphysContainer* vectorOfMuPairs=NULL;
+    const xAOD::TrigBphysContainer* xAODVectorOfMuPairs(0);
+  status = getFeature(outputTE, xAODVectorOfMuPairs, "EFMuPairs");
 
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Returned from getFeature" << endreq;
-  if(status!=HLT::OK || vectorOfMuPairs==NULL)
+  if(status!=HLT::OK || xAODVectorOfMuPairs==NULL)
   {
     if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "no TrigMuPair Feature found" << endreq;
     return status;
   }
   else {
-    if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG <<"TrigMuPair Feature found with "<<vectorOfMuPairs->size()<<" TrigEFBphys particles"<<endreq;
+    if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG <<"TrigMuPair Feature found with "<<xAODVectorOfMuPairs->size()<<" TrigBphys particles"<<endreq;
   }
 
   // initialize the variables that are going to be used
-  TrigPassBits *bits = HLT::makeTrigPassBits(vectorOfMuPairs);
+  TrigPassBits *bits = HLT::makeTrigPassBits(xAODVectorOfMuPairs);
 
-  for(TrigEFBphysContainer::const_iterator pairIt = vectorOfMuPairs->begin(); pairIt != vectorOfMuPairs->end(); ++pairIt)
+  for(xAOD::TrigBphysContainer::const_iterator pairIt = xAODVectorOfMuPairs->begin(); pairIt != xAODVectorOfMuPairs->end(); ++pairIt)
   {
     bool passMass=false;
     bool passOppCharge=false;
@@ -157,7 +163,9 @@ HLT::ErrorCode TrigEFDiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     else jpsiMassCutAlg=-99;
 
   // JK check tracks, for debugging only
-    const ElementLinkVector<Rec::TrackParticleContainer> trackVector = (*pairIt)->trackVector();
+      // const ElementLinkVector<xAOD::TrackParticleContainer> trackVector = (*pairIt)->trackParticleLinks();
+      const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*pairIt)->trackParticleLinks();
+      
     if (trackVector.size() != 0) {
       if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endreq;
 
@@ -173,12 +181,14 @@ HLT::ErrorCode TrigEFDiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
         return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::USERDEF_1);
       }
 
-      ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trkIt=trackVector.begin();
+      std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
       std::vector<float> qOverP;
       for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt)
       {
           //JW EDM        const Trk::MeasuredPerigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-          const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+          //const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+          const Trk::Perigee* trackPerigee= &(*(*trkIt))->perigeeParameters();
+          
         if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
         double phi = trackPerigee->parameters()[Trk::phi];
         double theta = trackPerigee->parameters()[Trk::theta];
@@ -204,11 +214,11 @@ HLT::ErrorCode TrigEFDiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
       if (m_ApplyOppCharge) {
         if (passOppCharge) {
           result=true;
-          HLT::markPassing(bits, *pairIt, vectorOfMuPairs); // store decision per object
+          HLT::markPassing(bits, *pairIt, xAODVectorOfMuPairs); // store decision per object
         }
       } else {
         result=true;
-        HLT::markPassing(bits, *pairIt, vectorOfMuPairs); // store decision per object
+        HLT::markPassing(bits, *pairIt, xAODVectorOfMuPairs); // store decision per object
       }
     }
 

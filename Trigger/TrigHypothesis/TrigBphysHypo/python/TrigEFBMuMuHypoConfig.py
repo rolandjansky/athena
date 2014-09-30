@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuHypo,TrigEFBMuMuHypo_xAOD
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuHypo
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
@@ -21,10 +21,10 @@ class TrigEFBMuMuHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('MuMumass', type='TH1F', title="EFBMuMu Inv.mass(mumu) [GeV]",
                                            xbins=130, xmin=0., xmax=13.0) ]
 
-class EFBMuMuHypo_1 (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_1 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_1"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -42,10 +42,10 @@ class EFBMuMuHypo_1 (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -63,10 +63,10 @@ class EFBMuMuHypo_DiMu (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_DY (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_DY (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -84,10 +84,10 @@ class EFBMuMuHypo_DiMu_DY (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_DY25 (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_DY25 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY25"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -105,10 +105,10 @@ class EFBMuMuHypo_DiMu_DY25 (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_DY20 (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_DY20 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY20"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -126,10 +126,10 @@ class EFBMuMuHypo_DiMu_DY20 (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_DY14 (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_DY14 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY14"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -147,10 +147,10 @@ class EFBMuMuHypo_DiMu_DY14 (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_Jpsi (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_Jpsi (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Jpsi"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -168,10 +168,10 @@ class EFBMuMuHypo_Jpsi (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_Upsi (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_Upsi (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Upsi"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -189,10 +189,10 @@ class EFBMuMuHypo_Upsi (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_B (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_B (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_B"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -210,10 +210,10 @@ class EFBMuMuHypo_B (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_B_Lxy (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_B_Lxy (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_B_Lxy"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -233,10 +233,10 @@ class EFBMuMuHypo_B_Lxy (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_Z (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_Z (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Z"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -254,10 +254,10 @@ class EFBMuMuHypo_Z (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_noVtx (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_noVtx"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -276,10 +276,10 @@ class EFBMuMuHypo_DiMu_noVtx (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_DY_noVtx (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_DY_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY_noVtx"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -298,10 +298,10 @@ class EFBMuMuHypo_DiMu_DY_noVtx (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_DY14_noVtx (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_DY14_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY14_noVtx"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -320,10 +320,10 @@ class EFBMuMuHypo_DiMu_DY14_noVtx (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_7invm9_noVtx (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_7invm9_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_7invm9_noVtx"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -342,10 +342,10 @@ class EFBMuMuHypo_DiMu_7invm9_noVtx (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_11invm60_noVtx (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_11invm60_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_11invm60_noVtx"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -364,10 +364,10 @@ class EFBMuMuHypo_DiMu_11invm60_noVtx (TrigEFBMuMuHypo_xAOD):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuHypo_DiMu_18invm60_noVtx (TrigEFBMuMuHypo_xAOD):
+class EFBMuMuHypo_DiMu_18invm60_noVtx (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_11invm60_noVtx"):
-        super( TrigEFBMuMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

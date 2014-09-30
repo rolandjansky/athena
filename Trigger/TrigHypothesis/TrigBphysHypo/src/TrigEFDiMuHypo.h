@@ -6,8 +6,8 @@
     Authors: E. Reinherz-Aronis, A. Kreisel 
              This hypo is set to work after TrigEFDiMuFex algo
 ***************************************************************************/
-#ifndef TRIGEFDIMUHYPO_H
-#define TRIGEFDIMUHYPO_H
+#ifndef TRIGEFDIMUHYPO_XAOD_H
+#define TRIGEFDIMUHYPO_XAOD_H
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "StoreGate/StoreGateSvc.h"

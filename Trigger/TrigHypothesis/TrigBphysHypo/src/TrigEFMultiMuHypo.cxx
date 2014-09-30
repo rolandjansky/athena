@@ -17,7 +17,7 @@
 
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 
-#include "TrigBphysHypo/TrigEFMultiMuHypo.h"
+#include "TrigEFMultiMuHypo.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -31,6 +31,12 @@
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTracking/TrackParticle.h"
+
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+//#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 class ISvcLocator;
 
@@ -151,7 +157,9 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   }
 
   //  create vector for TrigEFBphys particles
-  const TrigEFBphysContainer* trigBphysColl = 0;
+    //const TrigEFBphysContainer* trigBphysColl = 0;
+    const xAOD::TrigBphysContainer* trigBphysColl = 0;
+
 //  const TrigEFBContainer* trigBphysColl = 0;
 //  const VxContainer* VertexColl;
 
@@ -190,30 +198,31 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-  for (TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
-
-    if ((*bphysIter)->particleType() == TrigEFBphys::MULTIMU ) {
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got Bphys particle with mass " << (*bphysIter)->mass() << " chi2 :  " << (*bphysIter)->fitchi2() << endreq;
-
-      float BsMass = (*bphysIter)->mass();
-      bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
-      PassedBsMass |= thisPassedBsMass;
-      bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut && (*bphysIter)->fitchi2() != -99) );
-      PassedChi2Cut |= thisPassedChi2Cut;
-      if(thisPassedBsMass)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
-      mon_MuMumass = ((BsMass*0.001));
-      if(thisPassedChi2Cut)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " chi2 :  " << (*bphysIter)->fitchi2() << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
-      if(!thisPassedBsMass && !thisPassedChi2Cut)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
-
-      if( thisPassedBsMass && thisPassedChi2Cut ) 
-      {
-        HLT::markPassing(bits, *bphysIter, trigBphysColl);
-      }
-
-    }
+    //    for (TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
+    for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
+        
+        if ((*bphysIter)->particleType() == xAOD::TrigBphys::MULTIMU ) {
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got Bphys particle with mass " << (*bphysIter)->mass() << " chi2 :  " << (*bphysIter)->fitchi2() << endreq;
+            
+            float BsMass = (*bphysIter)->mass();
+            bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
+            PassedBsMass |= thisPassedBsMass;
+            bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut && (*bphysIter)->fitchi2() != -99) );
+            PassedChi2Cut |= thisPassedChi2Cut;
+            if(thisPassedBsMass)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
+            mon_MuMumass = ((BsMass*0.001));
+            if(thisPassedChi2Cut)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " chi2 :  " << (*bphysIter)->fitchi2() << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
+            if(!thisPassedBsMass && !thisPassedChi2Cut)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
+            
+            if( thisPassedBsMass && thisPassedChi2Cut )
+            {
+                HLT::markPassing(bits, *bphysIter, trigBphysColl);
+            }
+            
+        }
 
 
     // JK check tracks, for debugging only

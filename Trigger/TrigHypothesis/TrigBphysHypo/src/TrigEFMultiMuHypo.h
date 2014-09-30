@@ -32,6 +32,7 @@
 
 #include "TrigBphysHypo/Constants.h"
 
+
 class TrigEFMultiMuHypo: public HLT::HypoAlgo  {
   
   public:

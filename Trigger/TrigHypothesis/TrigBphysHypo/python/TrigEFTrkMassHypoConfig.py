@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFTrkMassHypo,TrigEFTrkMassHypo_xAOD
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFTrkMassHypo
 
 # Jpsi
-class EFTrkMassHypo_Jpsimumu (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Jpsimumu (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Jpsimumu"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -23,10 +23,10 @@ class EFTrkMassHypo_Jpsimumu (TrigEFTrkMassHypo_xAOD):
 	
         self.AthenaMonTools = [ validation, online, time ]
 # Jpsi FS
-class EFTrkMassHypo_Jpsimumu_FS (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Jpsimumu_FS (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Jpsimumu_FS"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -43,10 +43,10 @@ class EFTrkMassHypo_Jpsimumu_FS (TrigEFTrkMassHypo_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
 
 # Jpsi loose
-class EFTrkMassHypo_Jpsimumu_loose (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Jpsimumu_loose (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Jpsimumu_loose"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -63,10 +63,10 @@ class EFTrkMassHypo_Jpsimumu_loose (TrigEFTrkMassHypo_xAOD):
 	
         self.AthenaMonTools = [ validation, online, time ]
 # Jpsi looser
-class EFTrkMassHypo_Jpsimumu_looser (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Jpsimumu_looser (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Jpsimumu_looser"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -84,10 +84,10 @@ class EFTrkMassHypo_Jpsimumu_looser (TrigEFTrkMassHypo_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
         
 # Jpsi loose FS
-class EFTrkMassHypo_Jpsimumu_loose_FS (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Jpsimumu_loose_FS (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Jpsimumu_loose_FS"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -104,10 +104,10 @@ class EFTrkMassHypo_Jpsimumu_loose_FS (TrigEFTrkMassHypo_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
 
 # Upsi FS
-class EFTrkMassHypo_Upsimumu_FS (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Upsimumu_FS (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Upsimumu_FS"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -125,10 +125,10 @@ class EFTrkMassHypo_Upsimumu_FS (TrigEFTrkMassHypo_xAOD):
 
 
 # Upsi loose FS
-class EFTrkMassHypo_Upsimumu_loose_FS (TrigEFTrkMassHypo_xAOD):
+class EFTrkMassHypo_Upsimumu_loose_FS (TrigEFTrkMassHypo):
     __slots__ = []
     def __init__(self, name = "EFTrkMassHypo_Upsimumu_loose_FS"):
-        super( TrigEFTrkMassHypo_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

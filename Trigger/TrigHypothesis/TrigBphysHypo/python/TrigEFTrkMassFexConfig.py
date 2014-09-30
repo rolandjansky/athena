@@ -1,15 +1,14 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFTrkMassFex,TrigEFTrkMassFex_xAOD
-
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFTrkMassFex 
 from __main__ import ToolSvc
 
 
 # basic cut
-class EFTrkMassFex_Jpsimumu (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Jpsimumu (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Jpsimumu"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -39,10 +38,10 @@ class EFTrkMassFex_Jpsimumu (TrigEFTrkMassFex_xAOD):
 
 
 # loose cut
-class EFTrkMassFex_Jpsimumu_loose (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Jpsimumu_loose (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Jpsimumu_loose"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -71,10 +70,10 @@ class EFTrkMassFex_Jpsimumu_loose (TrigEFTrkMassFex_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
 
 # loose cut
-class EFTrkMassFex_Jpsimumu_looser (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Jpsimumu_looser (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Jpsimumu_looser"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -104,10 +103,10 @@ class EFTrkMassFex_Jpsimumu_looser (TrigEFTrkMassFex_xAOD):
 
 
 # FS basic cut
-class EFTrkMassFex_Jpsimumu_FS (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Jpsimumu_FS (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Jpsimumu_FS"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -137,10 +136,10 @@ class EFTrkMassFex_Jpsimumu_FS (TrigEFTrkMassFex_xAOD):
 
 
 # FS loose cut
-class EFTrkMassFex_Jpsimumu_loose_FS (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Jpsimumu_loose_FS (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Jpsimumu_loose_FS"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -169,10 +168,10 @@ class EFTrkMassFex_Jpsimumu_loose_FS (TrigEFTrkMassFex_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
 
 # FS Upsi basic cut
-class EFTrkMassFex_Upsimumu_FS (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Upsimumu_FS (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Upsimumu_FS"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -201,10 +200,10 @@ class EFTrkMassFex_Upsimumu_FS (TrigEFTrkMassFex_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
 
 # FS Upsi loose cut
-class EFTrkMassFex_Upsimumu_loose_FS (TrigEFTrkMassFex_xAOD):
+class EFTrkMassFex_Upsimumu_loose_FS (TrigEFTrkMassFex):
     __slots__ = []
     def __init__(self, name = "EFTrkMassFex_Upsimumu_loose_FS"):
-        super( TrigEFTrkMassFex_xAOD, self ).__init__( name )
+        super( TrigEFTrkMassFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

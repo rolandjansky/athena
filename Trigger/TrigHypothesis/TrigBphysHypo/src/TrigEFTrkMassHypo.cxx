@@ -20,8 +20,7 @@
 
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 
-#include "TrigBphysHypo/TrigEFTrkMassHypo.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
+#include "TrigEFTrkMassHypo.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -34,6 +33,7 @@
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
 
 class ISvcLocator;
 
@@ -138,21 +138,22 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   // for now pass all events - JK changed to false 9/2/10
   pass=false;
 //  create vector for TrigEFBphys particles
-  const TrigEFBphysContainer* trigBphysColl = 0;
-
-  HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "EFTrackMass");
+    //const TrigEFBphysContainer* trigBphysColl = 0;
+    const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
+    
+  HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, "EFTrackMass");
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endreq;
     }
 
     return HLT::OK;
   }
 
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endreq;
+  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl << endreq;
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
-  if ( trigBphysColl == 0 ) {
+  if ( xAODTrigBphysColl == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
 
@@ -160,20 +161,20 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
     return HLT::OK;
   }
 
-  mon_NBphys=trigBphysColl->size();
+  mon_NBphys=xAODTrigBphysColl->size();
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size()
+    msg() << MSG::DEBUG << "Got TrigBphys collection with " << xAODTrigBphysColl->size()
         << " TrigBphys particles " << endreq;
   }
 
   mon_cutCounter = 0;
 
-  TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
+  TrigPassBits *bits = HLT::makeTrigPassBits(xAODTrigBphysColl);
 
   // now loop over Bphys particles to set passBits
-  TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin();
-  for ( ; bphysIter != trigBphysColl->end(); ++bphysIter) {
-    HLT::markPassing(bits, *bphysIter, trigBphysColl);
+  xAOD::TrigBphysContainer::const_iterator bphysIter = xAODTrigBphysColl->begin();
+  for ( ; bphysIter != xAODTrigBphysColl->end(); ++bphysIter) {
+    HLT::markPassing(bits, *bphysIter, xAODTrigBphysColl);
   }
 
   result=true;

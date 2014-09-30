@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuHypo,TrigEFMultiMuHypo_xAOD
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuHypo
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
@@ -21,10 +21,10 @@ class TrigEFMultiMuHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('MuMumass', type='TH1F', title="EFMultiMu Inv.mass(mumu) [GeV]",
                                            xbins=130, xmin=0., xmax=13.0) ]
 
-class EFMultiMuHypo_DiMu (TrigEFMultiMuHypo_xAOD):
+class EFMultiMuHypo_DiMu (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_DiMu"):
-        super( TrigEFMultiMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -42,10 +42,10 @@ class EFMultiMuHypo_DiMu (TrigEFMultiMuHypo_xAOD):
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuHypo_Jpsi (TrigEFMultiMuHypo_xAOD):
+class EFMultiMuHypo_Jpsi (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_Jpsi"):
-        super( TrigEFMultiMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -63,10 +63,10 @@ class EFMultiMuHypo_Jpsi (TrigEFMultiMuHypo_xAOD):
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuHypo_Upsi (TrigEFMultiMuHypo_xAOD):
+class EFMultiMuHypo_Upsi (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_Upsi"):
-        super( TrigEFMultiMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -84,10 +84,10 @@ class EFMultiMuHypo_Upsi (TrigEFMultiMuHypo_xAOD):
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuHypo_Tau (TrigEFMultiMuHypo_xAOD):
+class EFMultiMuHypo_Tau (TrigEFMultiMuHypo):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_Tau"):
-        super( TrigEFMultiMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
