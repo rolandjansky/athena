@@ -23,22 +23,21 @@ void ScoringVolumeTrackKiller::BeginOfEventAction(const G4Event*)
 
 void ScoringVolumeTrackKiller::EndOfEventAction(const G4Event*)
 {
-  log() << MSG::INFO << killCount << " tracks killed in this event " << endreq;
+  ATH_MSG_INFO( killCount << " tracks killed in this event " );
 }
 
 
 void ScoringVolumeTrackKiller::BeginOfRunAction(const G4Run*)
 {
-  log() << MSG::INFO << " ScoringVolumeTrackKiller kills all particles leaving the"
-            << " envelope of a muon station " << endreq;
+  ATH_MSG_INFO( " ScoringVolumeTrackKiller kills all particles leaving the"
+            << " envelope of a muon station " );
 }
 
 
 void ScoringVolumeTrackKiller::EndOfRunAction(const G4Run*)
 {
-  log() << MSG::INFO << " End of run for ScoringVolumeTrackKiller: " 
-            << killCount << " tracks killed during this run" 
-            << endreq;
+  ATH_MSG_INFO( " End of run for ScoringVolumeTrackKiller: " 
+            << killCount << " tracks killed during this run" );
 }
 
 

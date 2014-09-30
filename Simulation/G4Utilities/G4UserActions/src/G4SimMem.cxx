@@ -3,6 +3,7 @@
 */
 
 #include "G4UserActions/G4SimMem.h"
+#include "SimHelpers/MemorySnooper.h"
 #include <iostream>
 
 static G4SimMem ts1("G4SimMem");
@@ -31,13 +32,13 @@ void G4SimMem::EndOfEventAction(const G4Event*)
 	    accumulatedIncrMemory+=Memo.GetMemorySize()-eventpreviousMemory_eoe;
         if(nrOfEntries==10)
 	    event10Memory_eoe=Memo.GetMemorySize();
-	log()<<MSG::INFO<<" MemorySnooper(event,VmMem,diff-previous) kBytes: "<<
+	ATH_MSG_INFO(" MemorySnooper(event,VmMem,diff-previous) kBytes: "<<
 		    nrOfEntries <<" "<<
 		    Memo.GetMemorySize()<<" "<<
 	       	    //runMemory_bor<<" "<<
 		    //Memo.GetMemorySize()-runMemory_bor<<" "<<
 		    //eventpreviousMemory_eoe<<" "<<
-	            int(Memo.GetMemorySize()-eventpreviousMemory_eoe)<<std::endl;
+	            int(Memo.GetMemorySize()-eventpreviousMemory_eoe));
 	 //std::cout<<"*****************************************************"<<std::endl;
 	 eventpreviousMemory_eoe=Memo.GetMemorySize();
 }
@@ -45,27 +46,27 @@ void G4SimMem::EndOfRunAction(const G4Run*)
 {
 	MemorySnooper Memo_eor("end of run");
 	runMemory_eor=Memo_eor.GetMemorySize();
-	log() << MSG::INFO <<"*****************************************************"<<std::endl;
-	log() << MSG::INFO <<"(VmMem) MEMORY SUMMARY: (kBytes)                     "<<std::endl;
-	log() << MSG::INFO <<"Memory begin of run             : "<<runMemory_bor<<std::endl;
+	ATH_MSG_INFO("*****************************************************");
+	ATH_MSG_INFO("(VmMem) MEMORY SUMMARY: (kBytes)                     ");
+	ATH_MSG_INFO("Memory begin of run             : "<<runMemory_bor);
     if(nrOfEntries>=1)  
-	   log() << MSG::INFO <<"Memory 1st event                 : "<<
-		       event1Memory_eoe<<std::endl;
+	   ATH_MSG_INFO("Memory 1st event                 : "<<
+		       event1Memory_eoe);
     if(nrOfEntries>=2)
-	   log() << MSG::INFO <<"Memory 2st event                 : "<<
-		       event2Memory_eoe<<std::endl;
+	   ATH_MSG_INFO("Memory 2st event                 : "<<
+		       event2Memory_eoe);
     if(nrOfEntries>=10)
-	   log() << MSG::INFO <<"Memory 10th event                : "<<
-		       event10Memory_eoe<<std::endl;
-	log() << MSG::INFO <<"Memory end of run                : "<<
-	 	     runMemory_eor<<std::endl;
+	   ATH_MSG_INFO("Memory 10th event                : "<<
+		       event10Memory_eoe);
+	ATH_MSG_INFO("Memory end of run                : "<<
+	 	     runMemory_eor);
     if(nrOfEntries>=1)
-	   log() << MSG::INFO <<"Memory per event (average)       : "<<
-		       int(averageMemoryPerEvent())<<std::endl;
+	   ATH_MSG_INFO("Memory per event (average)       : "<<
+		       int(averageMemoryPerEvent()));
     if(nrOfEntries>=3)
-	   log() << MSG::INFO <<"Memory increase/event (nevent>3) : "<<
-		       int(averageMemoryIncreasePerEvent())<<std::endl;
-	log() << MSG::INFO <<"*****************************************************"<<std::endl;
+	   ATH_MSG_INFO("Memory increase/event (nevent>3) : "<<
+		       int(averageMemoryIncreasePerEvent()));
+	ATH_MSG_INFO("*****************************************************");
 
 }
 void G4SimMem::SteppingAction(const G4Step*)

@@ -38,12 +38,12 @@ void LooperKiller::BeginOfRunAction(const G4Run*) {
 
 void LooperKiller::EndOfRunAction(const G4Run*)
 {
-  log() << MSG::INFO << "******* Report from LooperKiller *******" << std::endl
+  ATH_MSG_INFO( "******* Report from LooperKiller *******" << std::endl
          << " Set to kill tracks over " << m_max_steps << " steps" << std::endl
          << " and give " << m_print_steps << " steps of verbose output" << std::endl
          << " We killed " << m_killed_tracks << " tracks this run." << std::endl
          << " Was set to " << (m_abortEvent?"":"not ") << "abort events and " 
-         << (m_setError?"":"not ") << "set an error state." << endreq;
+         << (m_setError?"":"not ") << "set an error state." );
 }
 
 
@@ -52,7 +52,7 @@ void LooperKiller::SteppingAction(const G4Step* aStep)
   if (aStep->GetTrack()->GetCurrentStepNumber() < m_max_steps) {
     if (m_count_steps==0) return;
     // Track recovered...
-    log()<<MSG::WARNING<<"Track finished on its own.  Congrats.  Moving on with the event."<<endreq;
+    ATH_MSG_WARNING("Track finished on its own.  Congrats.  Moving on with the event.");
     m_count_steps = 0;
     G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
     tm->GetNavigatorForTracking()->SetVerboseLevel(0);
@@ -63,7 +63,7 @@ void LooperKiller::SteppingAction(const G4Step* aStep)
     rmk->GetStackManager()->SetVerboseLevel(0);
     return;
   } else if (aStep->GetTrack()->GetCurrentStepNumber() == m_max_steps) {
-    log()<<MSG::WARNING << "LooperKiller triggered!! Hold on to your hats!!!!!!!!" << endreq;
+    ATH_MSG_WARNING("LooperKiller triggered!! Hold on to your hats!!!!!!!!" );
   }
 
   G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
@@ -99,19 +99,19 @@ void LooperKiller::SteppingAction(const G4Step* aStep)
         ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
         StatusCode status = svcLocator->service("StoreGateSvc", m_storeGate);
         if (status.isFailure()){
-          log()<<MSG::WARNING<< "HitWrapper::EndOfEventAction could not access StoreGateSvc"<<endreq;
+          ATH_MSG_WARNING( "HitWrapper::EndOfEventAction could not access StoreGateSvc" );
         }
       }
 
       // Set error state in eventInfo
       const DataHandle<EventInfo> eic = 0;
       if (!m_storeGate || m_storeGate->retrieve( eic ).isFailure() || !eic ){
-        log() << MSG::WARNING << "Failed to retrieve EventInfo" << endreq;
+        ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
       } else {
         // Gotta cast away the const... sadface
         EventInfo *ei = const_cast< EventInfo * > (&(*eic));
         ei->setErrorState(EventInfo::Core,EventInfo::Error);
-        log() << MSG::WARNING << "Set error state in event info!" << endreq;
+        ATH_MSG_WARNING( "Set error state in event info!" );
       }
 
     } // End of set error
@@ -142,7 +142,6 @@ void LooperKiller::ParseProperties() {
   m_abortEvent    = strtol(theProperties["AbortEvent"].c_str(),0,0)>0;
   m_setError      = strtol(theProperties["SetError"].c_str(),0,0)>0;
   m_initted = true;
-
 
 }
 

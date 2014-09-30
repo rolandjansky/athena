@@ -3,14 +3,14 @@
 */
 
 #include "G4UserActions/CosmicPerigeeAction.h"
-#include <iostream>
 #include "MCTruth/TrackRecorderSD.h"
 #include "MCTruth/TrackHelper.h"
+#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 #include "G4MuonPlus.hh"
 #include "G4MuonMinus.hh"
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
+#include <iostream>
 
 static CosmicPerigeeAction cpa("CosmicPerigeeAction");
 
@@ -30,7 +30,7 @@ void CosmicPerigeeAction::EndOfEventAction(const G4Event*)
       theHelper.SetConstCollection(trackRecordCollection);
   }
   else {
-    std::cout<<"allowMods not set as a property in CosmicPerigeeAction!"<<std::endl;
+    ATH_MSG_WARNING("AllowMods not set as a property in CosmicPerigeeAction!");
   }
 }
 void CosmicPerigeeAction::BeginOfRunAction(const G4Run*)

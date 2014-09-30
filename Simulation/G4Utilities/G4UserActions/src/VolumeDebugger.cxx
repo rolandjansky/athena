@@ -65,7 +65,7 @@ void VolumeDebugger::EndOfEventAction(const G4Event* /*anEvent*/)
       } // Loop over volumes
     } // Requested a volume
 
-    log() << MSG::INFO << "Writing to GDML volume " << W << " to path " << path << endreq;
+    ATH_MSG_INFO( "Writing to GDML volume " << W << " to path " << path );
     G4GDMLParser parser;
     parser.Write(path, W, true);
 
@@ -84,7 +84,7 @@ void VolumeDebugger::EndOfEventAction(const G4Event* /*anEvent*/)
       verbose = strtol(theProperties["verbose"].c_str(),0,0);
     }
 
-    log() << MSG::INFO << "Running overlap test with parameters " << res << " " << tol << " " << verbose << endreq;
+    ATH_MSG_INFO( "Running overlap test with parameters " << res << " " << tol << " " << verbose );
     W->CheckOverlaps(res,tol,verbose);
 
     m_init=true;

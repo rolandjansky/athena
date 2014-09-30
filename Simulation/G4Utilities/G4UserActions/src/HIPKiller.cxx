@@ -34,7 +34,7 @@ void HIPKiller::SteppingAction(const G4Step* aStep)
     //	     <<std::endl;
     if (aStep->GetTrack()->GetKineticEnergy() < 1.0) {    // Energy is less than 1MeV
       aStep->GetTrack()->SetTrackStatus( fStopAndKill );
-      log()<<MSG::WARNING<<"HIP " << PDGcode << " is being killed: kinetic energy="<< aStep->GetTrack()->GetKineticEnergy()/CLHEP::MeV << "MeV" <<endreq;
+      ATH_MSG_WARNING("HIP " << PDGcode << " is being killed: kinetic energy="<< aStep->GetTrack()->GetKineticEnergy()/CLHEP::MeV << "MeV");
     }
   }
 }

@@ -60,9 +60,9 @@ void ScoringPlane::BeginOfRunAction(const G4Run* /*aRun*/) {
   m_pkill = (theProperties.find("pkill")==theProperties.end()) ?          0 : strtol(theProperties["pkill"].c_str(), 0, 0);
   m_fname = (theProperties.find("fname")==theProperties.end()) ? "ufo.root" :        theProperties["fname"].c_str();
 
-  log() << MSG::INFO << "ScoringPlane: placing scoring plane at [mm]: " << m_plane << endreq;
-  log() << MSG::INFO << "ScoringPlane: stop and kill particles: "       << m_pkill << endreq;
-  log() << MSG::INFO << "ScoringPlane: output root filename: "          << m_fname << endreq;
+  ATH_MSG_INFO( "ScoringPlane: placing scoring plane at [mm]: " << m_plane );
+  ATH_MSG_INFO( "ScoringPlane: stop and kill particles: "       << m_pkill );
+  ATH_MSG_INFO( "ScoringPlane: output root filename: "          << m_fname );
 }
 
 void ScoringPlane::EndOfRunAction(const G4Run* /*aRun*/) {
@@ -117,14 +117,13 @@ void ScoringPlane::SteppingAction(const G4Step* aStep) {
   if      (m_pkill == 1) aStep->GetTrack()->SetTrackStatus(fStopAndKill);
   else if (m_pkill == 2) aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
 
-  log() << MSG::DEBUG
-   	<< " z0: " << std::setw(10) << m_z0
+  ATH_MSG_DEBUG(
+   	   " z0: " << std::setw(10) << m_z0
    	<< " z1: " << std::setw(10) << m_z1
    	<< " x0: " << std::setw(10) << m_x0
    	<< " x1: " << std::setw(10) << m_x1
    	<< " x:  " << std::setw(10) << m_x
    	<< " y0: " << std::setw(10) << m_y0
    	<< " y1: " << std::setw(10) << m_y1
-   	<< " y:  " << std::setw(10) << m_y
-   	<< endreq;
+   	<< " y:  " << std::setw(10) << m_y );
 }

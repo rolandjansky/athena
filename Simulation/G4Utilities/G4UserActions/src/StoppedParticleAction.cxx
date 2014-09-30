@@ -51,15 +51,15 @@ void StoppedParticleAction::SteppingAction(const G4Step* aStep)
   
       FADS::SensitiveDetectorCatalog * fsdc = FADS::SensitiveDetectorCatalog::GetSensitiveDetectorCatalog();
       if (!fsdc) { 
-        std::cout << "ERROR: StoppedParticleFastSim could not get sensitive detector catalog." << std::endl;
+        ATH_MSG_ERROR( "StoppedParticleFastSim could not get sensitive detector catalog." );
       } else {
         FADS::FadsSensitiveDetector * fsd = fsdc->GetSensitiveDetector("TrackFastSimSD");
         if (!fsd) { 
-          std::cout << "StoppedParticleFastSim could not get TrackFastSimSD sensitive detector." << std::endl; 
+          ATH_MSG_ERROR( "StoppedParticleFastSim could not get TrackFastSimSD sensitive detector." ); 
         } else {
           m_fsSD = dynamic_cast<TrackFastSimSD*>(fsd);
           if (!m_fsSD) {
-            std::cout << "StoppedParticleFastSim could not cast the SD." << std::endl; 
+            ATH_MSG_ERROR( "StoppedParticleFastSim could not cast the SD." ); 
           } else { // succeeded in cast
             m_fsSD->SetCollectionName("StoppingPositions");
           }

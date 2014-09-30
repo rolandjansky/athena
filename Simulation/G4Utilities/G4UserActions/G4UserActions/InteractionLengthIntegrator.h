@@ -5,11 +5,10 @@
 #ifndef InteractionLengthIntegrator_H
 #define InteractionLengthIntegrator_H
 
-#include <map>
-#include <string>
-
+#include "FadsActions/ActionsBase.h"
 #include "FadsActions/UserAction.h"
 #include <string>
+#include <map>
 
 class TProfile;
 
@@ -18,22 +17,22 @@ class TProfile;
 // this action should be activated at the beginning and the end of an event,
 // and at step level
 
+class InteractionLengthIntegrator: public FADS::ActionsBase , public FADS::UserAction {
 
-class InteractionLengthIntegrator: public FADS::UserAction {
+  public:
+    InteractionLengthIntegrator(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),etaPrimary(0),phiPrimary(0) {}
+    void BeginOfEventAction(const G4Event*);
+    void EndOfEventAction(const G4Event*);
+    void BeginOfRunAction(const G4Run*);
+    void EndOfRunAction(const G4Run*);
+    void SteppingAction(const G4Step*);
 
-public:
-	InteractionLengthIntegrator(std::string s): UserAction(s),etaPrimary(0),phiPrimary(0) {}
-	void BeginOfEventAction(const G4Event*);
-        void EndOfEventAction(const G4Event*);
-        void BeginOfRunAction(const G4Run*);
-        void EndOfRunAction(const G4Run*);
-        void SteppingAction(const G4Step*);
-private:
-	double etaPrimary ;
-	double phiPrimary ;
-	std::map<std::string,double,std::less<std::string> > detThick;
-	std::map<std::string,TProfile*,std::less<std::string> > histoMap;
+  private:
+    double etaPrimary ;
+    double phiPrimary ;
+    std::map<std::string,double,std::less<std::string> > detThick;
+    std::map<std::string,TProfile*,std::less<std::string> > histoMap;
+
 };
-
 
 #endif

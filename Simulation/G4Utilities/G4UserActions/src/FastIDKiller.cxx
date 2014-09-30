@@ -30,18 +30,18 @@ void FastIDKiller::EndOfEventAction(const G4Event*)
 
 void FastIDKiller::BeginOfRunAction(const G4Run*)
 {
-  log() << MSG::INFO << "Including the Fast Inner Detector Killer." << std::endl
+  ATH_MSG_INFO( "Including the Fast Inner Detector Killer." << std::endl
             << "\t This piece of code will kill all particles leaving the" << std::endl
             << "\t inner detector region (which should be defined in your" << std::endl
             << "\t job options) except those satisfying certain criteria." << std::endl
-            << "\t (e/gamma will not be killed above " << m_energyCut/1000. << " GeV." << endreq;
+            << "\t (e/gamma will not be killed above " << m_energyCut/1000. << " GeV." );
   if (!m_init) doInit();
 }
 
 
 void FastIDKiller::EndOfRunAction(const G4Run*)
 {
-  log() << MSG::INFO << "Fast Inner Detector Killer killed " << m_killCount << " particles during this run." << endreq;
+  ATH_MSG_INFO( "Fast Inner Detector Killer killed " << m_killCount << " particles during this run." );
 }
 
 
@@ -53,15 +53,14 @@ void FastIDKiller::doInit()
 
   if(theProperties.find("R")!=theProperties.end()){
     m_idR = atof(theProperties["R"].c_str());
-    log() << MSG::DEBUG <<"FastIDKiller: R specified as "<<m_idR<<endreq;
+    ATH_MSG_DEBUG("FastIDKiller: R specified as "<<m_idR);
   };
   if(theProperties.find("Z")!=theProperties.end()){
     m_idZ = atof(theProperties["Z"].c_str());
-    log() << MSG::DEBUG <<"FastIDKiller: Z specified as "<<m_idZ<<endreq;
+    ATH_MSG_DEBUG("FastIDKiller: Z specified as "<<m_idZ);
   };
 
-  log() << MSG::INFO << "Fast ID Killer initialized with radius " << m_idR <<
-               " and Z " << m_idZ << endreq;
+  ATH_MSG_INFO( "Fast ID Killer initialized with radius " << m_idR << " and Z " << m_idZ);
 
   m_init=true;
 }
@@ -69,14 +68,14 @@ void FastIDKiller::doInit()
 
 void FastIDKiller::SteppingAction(const G4Step* aStep)
 {
-  if (log().level()<=MSG::VERBOSE){
-    log() << MSG::VERBOSE << " ===================================================== " << endreq;
-    log() << MSG::VERBOSE << " Writing out Information for debugging: " << endreq;
-    log() << MSG::VERBOSE << " Track-Pointer: " << aStep->GetTrack() << endreq;
-    log() << MSG::VERBOSE << " GetDefinition is in the next line " << endreq;
-    log() << MSG::VERBOSE << aStep->GetTrack()->GetDefinition() << endreq;
-    log() << MSG::VERBOSE << " still going on ? " << endreq;
-    log() << MSG::VERBOSE << " ===================================================== " << endreq;
+  if (msgLvl(MSG::VERBOSE)){
+    ATH_MSG_DEBUG( " ===================================================== " );
+    ATH_MSG_DEBUG( " Writing out Information for debugging: " );
+    ATH_MSG_DEBUG( " Track-Pointer: " << aStep->GetTrack() );
+    ATH_MSG_DEBUG( " GetDefinition is in the next line " );
+    ATH_MSG_DEBUG( aStep->GetTrack()->GetDefinition() );
+    ATH_MSG_DEBUG( " still going on ? " );
+    ATH_MSG_DEBUG( " ===================================================== " );
   }
 
   // First ignore muons
@@ -84,13 +83,13 @@ void FastIDKiller::SteppingAction(const G4Step* aStep)
       G4MuonMinus::MuonMinusDefinition() == aStep->GetTrack()->GetDefinition() ) return;
 
   // Now we check if the particle is outside the Z or R edges of the inner detector envelope
-  if (log().level()<=MSG::VERBOSE){
-    log() << MSG::VERBOSE << " Checking pointers ... " << endreq;
+  if (msgLvl(MSG::VERBOSE)){
+    ATH_MSG_VERBOSE( " Checking pointers ... " );
 
     if ( !aStep->GetPostStepPoint() ||
          !aStep->GetPreStepPoint() )
     {
-        log() << MSG::ERROR << " One of the pointers was null!  This should never happen!!!" << endreq;
+        ATH_MSG_ERROR( " One of the pointers was null!  This should never happen!!!" );
         throw "Null position pointer";
     }
   }
@@ -113,8 +112,8 @@ void FastIDKiller::SteppingAction(const G4Step* aStep)
 
   // Otherwise we have a non-muon that started inside and ended outside the ID envelope!  KILL IT!
 
-  if (log().level()<=MSG::VERBOSE){
-    log() << MSG::VERBOSE << " We have a " << aStep->GetTrack()->GetDefinition()->GetParticleName()
+  if (msgLvl(MSG::VERBOSE)){
+    ATH_MSG_VERBOSE( " We have a " << aStep->GetTrack()->GetDefinition()->GetParticleName()
               << " going from " << std::endl
               << " ----> " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName()
               << " to "
@@ -127,8 +126,7 @@ void FastIDKiller::SteppingAction(const G4Step* aStep)
               << " and at coordinates: " << std::endl
               << " R: " << aStep->GetPostStepPoint()->GetPosition().rho()
               << " Z: " << aStep->GetPostStepPoint()->GetPosition().z()
-              << " Phi: " << aStep->GetPostStepPoint()->GetPosition().phi()
-              << endreq;
+              << " Phi: " << aStep->GetPostStepPoint()->GetPosition().phi() );
   }
 
   // Ignore electrons above a certain energy
@@ -138,9 +136,9 @@ void FastIDKiller::SteppingAction(const G4Step* aStep)
          G4Gamma::GammaDefinition() == aStep->GetTrack()->GetDefinition() ) &&
        m_energyCut < aStep->GetTrack()->GetTotalEnergy() ) return;
 
-  if (log().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     std::string name = aStep->GetTrack()->GetDefinition()->GetParticleName();
-    log() << MSG::DEBUG << " -------> The particle passed. It is a " << name << " and will be killed ! " << endreq;
+    ATH_MSG_DEBUG( " -------> The particle passed. It is a " << name << " and will be killed ! " );
   }
 
   // Otherwise kill the particle now

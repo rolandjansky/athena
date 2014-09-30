@@ -21,13 +21,12 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-using std::cout;
-using std::endl;
 static G4AtlantisDumper g4atlantisdumper("G4AtlantisDumper");
 
 
 G4AtlantisDumper::G4AtlantisDumper(std::string s)
-  : FADS::UserAction(s),
+  : FADS::ActionsBase(s),
+    FADS::UserAction(s),
     m_nsteps(0),
     m_file(NULL),
     m_tedep_cut(0),m_length_cut(0),m_p_cut(0), m_ke_cut(0){}
@@ -35,8 +34,7 @@ G4AtlantisDumper::G4AtlantisDumper(std::string s)
 void G4AtlantisDumper::BeginOfEventAction(const G4Event* event)
 {
   m_nsteps=0;
-  MsgStream mLog(msgSvc(), "G4AtlantisDumper");
-  mLog << MSG::INFO << "Hello from G4AtlantisDumper, event "<<event->GetEventID()<<endreq;
+  ATH_MSG_INFO( "Hello from G4AtlantisDumper, event "<<event->GetEventID() );
   
   //parameters
   m_tedep_cut = 0.1;
@@ -46,27 +44,26 @@ void G4AtlantisDumper::BeginOfEventAction(const G4Event* event)
   
   if(theProperties.find("Edep")!=theProperties.end()){
     m_tedep_cut = atof(theProperties["Edep"].c_str());
-    std::cout<<"G4AtlantisDumper: Edep specified as "<<m_tedep_cut<<std::endl;
+    ATH_MSG_INFO("G4AtlantisDumper: Edep specified as "<<m_tedep_cut);
   }
   if(theProperties.find("Length")!=theProperties.end()){
     m_length_cut = atof(theProperties["Length"].c_str());
-    std::cout<<"G4AtlantisDumper: Length specified as "<<m_length_cut<<std::endl;
+    ATH_MSG_INFO("G4AtlantisDumper: Length specified as "<<m_length_cut);
   }
   if(theProperties.find("P")!=theProperties.end()){
     m_p_cut = atof(theProperties["P"].c_str());
-    std::cout<<"G4AtlantisDumper: P specified as "<<m_p_cut<<std::endl;
+    ATH_MSG_INFO("G4AtlantisDumper: P specified as "<<m_p_cut);
   }
   if(theProperties.find("KE")!=theProperties.end()){
     m_ke_cut = atof(theProperties["KE"].c_str());
-    std::cout<<"G4AtlantisDumper: KE specified as "<<m_ke_cut<<std::endl;
+    ATH_MSG_INFO("G4AtlantisDumper: KE specified as "<<m_ke_cut);
   }
   
-  cout <<"G4AtlantisDumper:"
+  ATH_MSG_INFO("G4AtlantisDumper:"
        <<"\nDeposited E cut = "<<m_tedep_cut
        <<"\nLength cut = "<<m_length_cut
        <<"\nMomentum cut = "<<m_p_cut
-       <<"\nKinetic E cut = "<<m_ke_cut
-       <<endl;
+       <<"\nKinetic E cut = "<<m_ke_cut );
   //
   
   StoreGateSvc* evtStore=0;
@@ -77,63 +74,60 @@ void G4AtlantisDumper::BeginOfEventAction(const G4Event* event)
     //mLog << MSG::INFO << "-ACH Found service " <<(*itrs)->name() << endreq;
     Service* svc = dynamic_cast<Service*>(*itrs);
     if (svc == 0) {
-      mLog << MSG::WARNING << "Service " << (*itrs)->name()<< " does not inherit from Service?"<<endreq;
+      ATH_MSG_WARNING( "Service " << (*itrs)->name()<< " does not inherit from Service?" );
     } else {
       //mLog << MSG::INFO << "-ACH Found Service* " << svc->name()<< endreq;
       if (svc->name()=="StoreGateSvc") {
-	mLog << MSG::INFO << "-ACH Found storage service"<< endreq;
-	evtStore = dynamic_cast<StoreGateSvc*>(svc);
+        ATH_MSG_INFO( "-ACH Found storage service" );
+        evtStore = dynamic_cast<StoreGateSvc*>(svc);
       }
     }
   }
   
   if(!evtStore) {
-    cout<<"G4AtlantisDumper could find the StoreGateSvc"<<endl;
+    ATH_MSG_INFO("G4AtlantisDumper could find the StoreGateSvc");
     return;
   }
-  //cout<<evtStore->dump()<<endl;
 
   const EventInfo* evt = 0;
   if (!evtStore->retrieve(evt, "McEventInfo").isSuccess() || 0==evt) {
-    cout<<"G4AtlantisDumper could not get event info!"<<endl;
+    ATH_MSG_INFO("G4AtlantisDumper could not get event info!");
     return;
   }
   
   const EventID* eid = evt->event_ID();
   int athevent= eid->event_number();
   int athrun = eid->run_number();
-  cout<<"G4AtlantisDumper: Athena run event is "<<athrun<<" "<<athevent<<endl;
+  ATH_MSG_INFO("G4AtlantisDumper: Athena run event is "<<athrun<<" "<<athevent);
   char buf[1000]; 
   int length=snprintf(buf, 1000, "G4Atlantis_%d_%d.txt", athrun, athevent);
   if(999<length)
     {
-      mLog << MSG::WARNING << "BeginOfEventAction:: m_filename string (" << buf << ") was truncated" << endreq;
+      ATH_MSG_WARNING( "BeginOfEventAction:: m_filename string (" << buf << ") was truncated" );
     }
-  cout<<"G4AtlantisDumper: Opening m_file "<<buf<<endl;
+  ATH_MSG_INFO( "G4AtlantisDumper: Opening m_file "<<buf);
   m_file=new std::ofstream(); m_file->open(buf);
   m_filename = buf;
 }
 
 void G4AtlantisDumper::EndOfEventAction(const G4Event* event)
 {
-  cout << "Goodbye from G4AtlantisDumper, event "<<event->GetEventID()<<endl;
+  ATH_MSG_INFO( "Goodbye from G4AtlantisDumper, event "<<event->GetEventID());
   m_file->close();
   delete m_file;
 
-  cout<<"G4AtlantisDumper: zipping "<<m_filename<<endl;
+  ATH_MSG_INFO("G4AtlantisDumper: zipping "<<m_filename);
   system(("zip -m "+m_filename+".zip "+m_filename).c_str());
   
 }
 
 void G4AtlantisDumper::BeginOfRunAction(const G4Run* run)
 {
-  //MsgStream log(msgSvc(), "G4AtlantisDumper");
-cout << "Hello from G4AtlantisDumper, run "<<run->GetRunID()<<endl;
-
+  ATH_MSG_INFO( "Hello from G4AtlantisDumper, run "<<run->GetRunID());
 }
 void G4AtlantisDumper::EndOfRunAction(const G4Run* run)
 {
-  cout << "Goodbye from G4AtlantisDumper, run "<<run->GetRunID()<<endl;
+  ATH_MSG_INFO( "Goodbye from G4AtlantisDumper, run "<<run->GetRunID());
 }
 
 void G4AtlantisDumper::SteppingAction(const G4Step* aStep)

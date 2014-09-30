@@ -17,14 +17,14 @@ void HitWrapper::SteppingAction(const G4Step* /*aStep*/){;}
 void HitWrapper::parseProperties()
 {
   if(theProperties.find("WrapTime")==theProperties.end()){
-    if (log().level()<=MSG::DEBUG) log()<<MSG::DEBUG<<"HitWrapper: no WrapTime specified, setting to default (=" << m_time << "ns)"<<endreq;
+    ATH_MSG_DEBUG("HitWrapper: no WrapTime specified, setting to default (=" << m_time << "ns)");
     theProperties["WrapTime"]="25.0";
   } else {
     m_time = std::strtod(theProperties["WrapTime"].c_str(),0);
     if (m_time<0 || std::isinf(m_time) || std::isnan(m_time)){  // GIGO
-      log()<<MSG::INFO << "HitWrapper: Setting the time to " << m_time << " is not allowed.  Resetting to 25 ns." << endreq; 
+      ATH_MSG_INFO( "HitWrapper: Setting the time to " << m_time << " is not allowed.  Resetting to 25 ns." ); 
       m_time = 25.;
-    } else log()<<MSG::INFO << "HitWrapper: Setting the time to " << m_time << " ns as requested." << endreq;
+    } else ATH_MSG_INFO( "HitWrapper: Setting the time to " << m_time << " ns as requested." );
   }
   m_init=true;
 }
@@ -51,7 +51,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
     StatusCode status = svcLocator->service("StoreGateSvc", m_storeGate);
     if (status.isFailure()){
-      log()<<MSG::WARNING<< "HitWrapper::EndOfEventAction could not access StoreGateSvc"<<endreq;
+      ATH_MSG_WARNING( "HitWrapper::EndOfEventAction could not access StoreGateSvc");
     }
   }
 
@@ -65,7 +65,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
    const DataHandle<GenericMuonSimHitCollection> stgcC;
 
     StatusCode sc = m_storeGate->retrieve(cscC);
-    if (sc.isFailure() || !cscC) log() << MSG::WARNING << " HitWrapper could not access csc hit collection" << endreq;
+    if (sc.isFailure() || !cscC) ATH_MSG_WARNING( " HitWrapper could not access csc hit collection" );
     else {
 //      std::cout << "Working on a collection of size " << cscC->size() << std::endl;
       CSCSimHitCollection * csc = const_cast< CSCSimHitCollection * > (&(*cscC));
@@ -76,7 +76,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     }
 
     sc = m_storeGate->retrieve(mdtC);
-    if (sc.isFailure() || !mdtC) log() << MSG::WARNING << " HitWrapper could not access mdt hit collection" << endreq;
+    if (sc.isFailure() || !mdtC) ATH_MSG_WARNING( " HitWrapper could not access mdt hit collection" );
     else {
 //      std::cout << "Working on a collection of size " << mdtC->size() << std::endl;
       MDTSimHitCollection * mdt = const_cast< MDTSimHitCollection * > (&(*mdtC));
@@ -87,7 +87,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     }
 
     sc = m_storeGate->retrieve(rpcC);
-    if (sc.isFailure() || !rpcC) log() << MSG::WARNING << " HitWrapper could not access rpc hit collection" << endreq;
+    if (sc.isFailure() || !rpcC) ATH_MSG_WARNING( " HitWrapper could not access rpc hit collection" );
     else {
 //      std::cout << "Working on a collection of size " << rpcC->size() << std::endl;      
       RPCSimHitCollection * rpc = const_cast< RPCSimHitCollection * > (&(*rpcC));
@@ -98,7 +98,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     }
 
     sc = m_storeGate->retrieve(tgcC);
-    if (sc.isFailure() || !tgcC) log() << MSG::WARNING << " HitWrapper could not access tgc hit collection" << endreq;
+    if (sc.isFailure() || !tgcC) ATH_MSG_WARNING( " HitWrapper could not access tgc hit collection" );
     else {
 //      std::cout << "Working on a collection of size " << tgcC->size() << std::endl;      
       TGCSimHitCollection * tgc = const_cast< TGCSimHitCollection * > (&(*tgcC));
@@ -111,7 +111,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
 
 /** for nSW */
     sc = m_storeGate->retrieve(mmC,"MicromegasSensitiveDetector");
-    if (sc.isFailure() || !mmC) log() << MSG::WARNING << " HitWrapper could not access Micromegas hit collection" << endreq;
+    if (sc.isFailure() || !mmC) ATH_MSG_WARNING( " HitWrapper could not access Micromegas hit collection" );
     else {
 //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;      
       GenericMuonSimHitCollection *mm = const_cast< GenericMuonSimHitCollection * > (&(*mmC));
@@ -123,7 +123,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
 
  
    sc = m_storeGate->retrieve(stgcC,"sTGCSensitiveDetector");
-    if (sc.isFailure() || !stgcC) log() << MSG::WARNING << " HitWrapper could not access sTGC hit collection" << endreq;
+    if (sc.isFailure() || !stgcC) ATH_MSG_WARNING( " HitWrapper could not access sTGC hit collection" );
     else {
 //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;      
       GenericMuonSimHitCollection *stgc = const_cast< GenericMuonSimHitCollection * > (&(*stgcC));
@@ -139,7 +139,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     const DataHandle <SiHitCollection> sctC;
 
     sc = m_storeGate->retrieve(trtC);
-    if (sc.isFailure() || !trtC) log() << MSG::WARNING << " HitWrapper could not access trt hit collection" << endreq;
+    if (sc.isFailure() || !trtC) ATH_MSG_WARNING( " HitWrapper could not access trt hit collection" );
     else {
       TRTUncompressedHitCollection * trt = const_cast< TRTUncompressedHitCollection * > (&*trtC);
       for (TRTUncompressedHitCollection::iterator hit=trt->begin();hit!=trt->end();++hit){
@@ -149,7 +149,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     }
 
     sc = m_storeGate->retrieve(pixC,"PixelHits");
-    if (sc.isFailure() || !pixC) log() << MSG::WARNING << " HitWrapper could not access pix hit collection" << endreq;
+    if (sc.isFailure() || !pixC) ATH_MSG_WARNING( " HitWrapper could not access pix hit collection" );
     else {
       SiHitCollection * pix = const_cast<SiHitCollection *> (&*pixC);
       for (SiHitCollection::iterator hit=pix->begin();hit!=pix->end();++hit){
@@ -159,7 +159,7 @@ void HitWrapper::EndOfEventAction(const G4Event* /*anEvent*/)
     }
 
     sc = m_storeGate->retrieve(sctC,"SCT_Hits");
-    if (sc.isFailure() || !sctC) log() << MSG::WARNING << " HitWrapper could not access sct hit collection" << endreq;
+    if (sc.isFailure() || !sctC) ATH_MSG_WARNING( " HitWrapper could not access sct hit collection" );
     else {
       SiHitCollection * sct = const_cast<SiHitCollection *> (&*sctC);
       for (SiHitCollection::iterator hit=sct->begin();hit!=sct->end();++hit){

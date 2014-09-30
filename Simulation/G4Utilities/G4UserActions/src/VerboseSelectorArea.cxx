@@ -28,41 +28,41 @@ void VerboseSelectorArea::ParseProperties(){
   // first fill missing properties and issue warnings
 
   if(theProperties.find("Xmin")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no Xmin specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no Xmin specified, setting to default (=0)" );
     theProperties["Xmin"]="0.0";
   };
   if(theProperties.find("Xmax")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no Xmax specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no Xmax specified, setting to default (=0)" );
     theProperties["Xmax"]="0.0";
   };
   if(theProperties.find("Ymin")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no Ymin specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no Ymin specified, setting to default (=0)" );
     theProperties["Ymin"]="0.0";
   };
   if(theProperties.find("Ymax")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no Ymax specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no Ymax specified, setting to default (=0)" );
     theProperties["Ymax"]="0.0";
   };
   if(theProperties.find("Zmin")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no Zmin specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no Zmin specified, setting to default (=0)" );
     theProperties["Zmin"]="0.0";
   };
   if(theProperties.find("Zmax")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no Zmax specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no Zmax specified, setting to default (=0)" );
     theProperties["Zmax"]="0.0";
   };
 
   if(theProperties.find("targetEvent")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no targetTrack specified, setting to default (=1)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no targetTrack specified, setting to default (=1)" );
     theProperties["targetEvent"]="1";
   };
 
   if(theProperties.find("verboseLevel")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no verboseLevel specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no verboseLevel specified, setting to default (=0)" );
     theProperties["verboseLevel"]="0";
   };
   if(theProperties.find("Continue")==theProperties.end()){
-    log() << MSG::DEBUG <<"VerboseSelector: no continue specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG( "VerboseSelector: no continue specified, setting to default (=0)" );
     theProperties["Continue"]="0";
   };
 
@@ -79,12 +79,11 @@ void VerboseSelectorArea::ParseProperties(){
   m_verb = strtol(theProperties["targetEvent"].c_str(),0,0);
   if (m_verb>1) m_verb=1;
 
-  log() << MSG::INFO <<"VerboseSelector: properties are targetEvent="<<m_Event
+  ATH_MSG_INFO( "VerboseSelector: properties are targetEvent="<<m_Event
 	   <<" verboseLevel="<<verboseLevel<<" continue="<<m_verb
            <<" "<<m_Xmin<<"<x<"<<m_Xmax
            <<" "<<m_Ymin<<"<y<"<<m_Ymax
-           <<" "<<m_Zmin<<"<z<"<<m_Zmax
-	   <<endreq;
+           <<" "<<m_Zmin<<"<z<"<<m_Zmax );
 }
 
 void VerboseSelectorArea::EndOfRunAction(const G4Run*)
