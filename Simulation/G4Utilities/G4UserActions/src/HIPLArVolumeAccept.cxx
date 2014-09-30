@@ -26,33 +26,33 @@ void HIPLArVolumeAccept::EndOfEventAction(const G4Event*)
     rmk->GetEventManager()->AbortCurrentEvent();
     rmk->GetEventManager()->GetNonconstCurrentEvent()->SetEventAborted();
     HIPevts_failed++;
-    std::cout<<"HIPLArVolumeAccept: no HIP reach the LAr detector volumes. Event aborted."<<std::endl;
+    ATH_MSG_INFO("HIPLArVolumeAccept: no HIP reach the LAr detector volumes. Event aborted.");
   }
 }
 void HIPLArVolumeAccept::BeginOfRunAction(const G4Run*)
 {
-	std::cout<<"#########################################"<<std::endl<<
+  ATH_MSG_INFO("#########################################"<<std::endl<<
 		   "##                                     ##"<<std::endl<<
 		   "## HIPLArVolumeAccept - BeginOfRun     ##"<<std::endl<<
 		   "##                                     ##"<<std::endl<<
 		   "## This method will kill events where  ##"<<std::endl<<
 		   "## no highly-ionizing particle reach   ##"<<std::endl<<
 		   "## the LAr main volume                 ##"<<std::endl<<
-		   "#########################################"<<std::endl;
+		   "#########################################");
   HIPevts=0;
   HIPevts_failed=0;
 }
 void HIPLArVolumeAccept::EndOfRunAction(const G4Run*)
 {
-	std::cout<<"#########################################"<<std::endl<<
+   ATH_MSG_INFO("#########################################"<<std::endl<<
 		   "##                                     ##"<<std::endl<<
 		   "##    HIPLArVolumeAccept - EndOfRun    ##"<<std::endl<<
 		   "##                                     ##"<<std::endl<<
-		   "#########################################"<<std::endl;
-   std::cout<<HIPevts       <<" events were processed by HIPLArVolumeAccept"<<std::endl;
-   std::cout<<HIPevts_failed<<" events were killed because they had no HIP in EMB or EMEC"<<std::endl;
+		   "#########################################");
+   ATH_MSG_INFO(HIPevts       <<" events were processed by HIPLArVolumeAccept");
+   ATH_MSG_INFO(HIPevts_failed<<" events were killed because they had no HIP in EMB or EMEC");
    double HIPfraction=1.*(HIPevts-HIPevts_failed)/HIPevts;
-   std::cout<<"HIP Acceptance: "<<HIPfraction<<std::endl;
+   ATH_MSG_INFO("HIP Acceptance: "<<HIPfraction);
           
 }
 void HIPLArVolumeAccept::SteppingAction(const G4Step* aStep)
@@ -66,19 +66,19 @@ void HIPLArVolumeAccept::SteppingAction(const G4Step* aStep)
     if(!HIPacc && aStep->GetTrack()->GetVolume()->GetName()=="Total LAR Volume") // EMB
     {
       HIPacc=1;
-      std::cout<<"HIPLArVolumeAccept: a particle with PDG code "
+      ATH_MSG_INFO("HIPLArVolumeAccept: a particle with PDG code "
                <<PDGcode
 	       <<" entered the volume "
-	       <<aStep->GetTrack()->GetVolume()->GetName()<<std::endl;
+	       <<aStep->GetTrack()->GetVolume()->GetName());
     }
     // in EM calorimeter endcap mother volume  
     if(!HIPacc && aStep->GetTrack()->GetVolume()->GetName()=="LArEndcapPos")     // EMEC
     {
       HIPacc=1;
-      std::cout<<"HIPLArVolumeAccept: a particle with PDG code " 
+      ATH_MSG_INFO("HIPLArVolumeAccept: a particle with PDG code " 
                <<PDGcode
 	       <<" entered the volume "
-	       <<aStep->GetTrack()->GetVolume()->GetName()<<std::endl;
+	       <<aStep->GetTrack()->GetVolume()->GetName());
     }
   }
 }

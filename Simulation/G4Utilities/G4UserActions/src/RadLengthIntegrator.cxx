@@ -45,7 +45,7 @@ void RadLengthIntegrator::EndOfEventAction(const G4Event*)
     {
         ISvcLocator* svcLocator = Gaudi::svcLocator();
         if (svcLocator->service("THistSvc", hSvc).isFailure()){
-            log() << MSG::ERROR << "Error in retreiving hist svc" << endreq;
+            ATH_MSG_ERROR( "Error in retreiving hist svc" );
         }
     }
 
@@ -61,7 +61,7 @@ void RadLengthIntegrator::EndOfEventAction(const G4Event*)
 			TProfile *prof=new TProfile(((*it).first).c_str(),((*it).first).c_str(),500,-3.,3.);
 			if (hSvc){
                 if (hSvc->regHist("/radLen/"+(*it).first,prof).isFailure()){
-                    log() << MSG::ERROR << "Registration of histogram " << ((*it).first) << " failed" << endreq;
+                    ATH_MSG_ERROR( "Registration of histogram " << ((*it).first) << " failed" );
                 }
             }
 			histoMap[(*it).first]=prof;

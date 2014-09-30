@@ -31,22 +31,22 @@ void VerboseSelector::ParseProperties(){
   // first fill missing properties and issue warnings
 
   if(theProperties.find("targetEvent")==theProperties.end()){
-    log()<<MSG::DEBUG<<"VerboseSelector: no targetEvent specified, setting to default (=all)"<<endreq;
+    ATH_MSG_DEBUG("VerboseSelector: no targetEvent specified, setting to default (=all)");
     theProperties["targetEvent"]="*";
   };
 
   if(theProperties.find("targetTrack")==theProperties.end()){
-    log()<<MSG::DEBUG<<"VerboseSelector: no targetTrack specified, setting to default (=all)"<<endreq;
+    ATH_MSG_DEBUG("VerboseSelector: no targetTrack specified, setting to default (=all)");
     theProperties["targetTrack"]="*";
   };
   
   if(theProperties.find("targetBarcode")==theProperties.end()){
-    log()<<MSG::DEBUG<<"VerboseSelector: no targetBarcode specified, setting to default (=all)"<<endreq;
+    ATH_MSG_DEBUG("VerboseSelector: no targetBarcode specified, setting to default (=all)");
     theProperties["targetBarcode"]="*";
   };
 
   if(theProperties.find("verboseLevel")==theProperties.end()){
-    log()<<MSG::DEBUG<<"VerboseSelector: no verboseLevel specified, setting to default (=0)"<<endreq;
+    ATH_MSG_DEBUG("VerboseSelector: no verboseLevel specified, setting to default (=0)");
     theProperties["verboseLevel"]="0";
   };
 
@@ -56,11 +56,10 @@ void VerboseSelector::ParseProperties(){
   targetTrack   = theProperties["targetTrack"]=="*"?-1:strtol(theProperties["targetTrack"].c_str(),0,0);
   targetBarcode = theProperties["targetBarcode"]=="*"?-1:strtol(theProperties["targetBarcode"].c_str(),0,0);
 
-  log()<<MSG::INFO<<"VerboseSelector: properties are targetEvent="<<targetEvent
+  ATH_MSG_INFO("VerboseSelector: properties are targetEvent="<<targetEvent
 	   <<" targetTrack="<<targetTrack
 	   <<" targetBarcode="<<targetBarcode
-	   <<" verboseLevel="<<verboseLevel
-	   <<endreq;
+	   <<" verboseLevel="<<verboseLevel );
 
 }
 
@@ -97,8 +96,8 @@ void VerboseSelector::PreUserTrackingAction(const G4Track* aTrack){
 
     if(p1 || p2 || p3)
 	{
-	  log()<<MSG::WARNING<<std::endl<<"---------> Dumping now track #"<<trackID<<" barcode "
-	           <<currentBarcode<<" in event "<<evtCount<<std::endl<<endreq;
+	  ATH_MSG_WARNING(std::endl<<"---------> Dumping now track #"<<trackID<<" barcode "
+	           <<currentBarcode<<" in event "<<evtCount<<std::endl);
       G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(verboseLevel);
 	}
   }

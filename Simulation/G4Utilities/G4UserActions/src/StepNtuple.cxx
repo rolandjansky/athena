@@ -60,7 +60,7 @@ void StepNtuple::BeginOfRunAction(const G4Run*)
     }
   if ( ! ntdir )  
     {
-      log() << MSG::ERROR << " failed to get ntuple directory" << endreq;
+      ATH_MSG_ERROR( " failed to get ntuple directory" );
     }
   
   NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/StepNtuple/10");
@@ -71,7 +71,7 @@ void StepNtuple::BeginOfRunAction(const G4Run*)
     if ( nt )    {
       
       
-      log() << MSG::DEBUG << "booked ntuple " << endreq;
+      ATH_MSG_DEBUG( "booked ntuple " );
 
       // WARNING!! Force limit to 50k tracks
       
@@ -85,7 +85,7 @@ void StepNtuple::BeginOfRunAction(const G4Run*)
       
     } else {   // did not manage to book the N tuple....
       
-      log() << MSG::ERROR << "Could not book ntuple!! " << endreq;
+      ATH_MSG_ERROR( "Could not book ntuple!! " );
       
     }
   }   

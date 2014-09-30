@@ -51,7 +51,7 @@ void GDMLDumper::EndOfEventAction(const G4Event* /*anEvent*/)
     else                  path  = ".";
     path += "/atlas.gdml";
 
-    log() << MSG::INFO << "Writing results to " << path << endreq;
+    ATH_MSG_INFO( "Writing results to " << path );
 
     parser.Write(path, W, true);
 

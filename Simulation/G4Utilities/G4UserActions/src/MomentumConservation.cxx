@@ -36,9 +36,9 @@ void MomentumConservation::EndOfEventAction(const G4Event* anEvent) {
 
   // Energy conservation check
   const double efinal = _sum_edep + _sum_eesc + eneut;
-  log() << MSG::INFO << "Energy conservation check: "
+  ATH_MSG_INFO( "Energy conservation check: "
         << "initial = " << eprim/CLHEP::GeV << " GeV, "
-        << "final = " << efinal/CLHEP::GeV << " GeV" << endreq;
+        << "final = " << efinal/CLHEP::GeV << " GeV" );
 
 
   // Momentum conservation:
