@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuFex,TrigEFMultiMuFex_xAOD
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuFex
 
 from AthenaCommon.AppMgr import ToolSvc
 
-class EFMultiMuFex_DiMu (TrigEFMultiMuFex_xAOD):
+class EFMultiMuFex_DiMu (TrigEFMultiMuFex):
     __slots__ = []
     def __init__(self, name = "EFMultiMuFex_DiMu"):
-        super( TrigEFMultiMuFex_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -26,10 +26,10 @@ class EFMultiMuFex_DiMu (TrigEFMultiMuFex_xAOD):
                                 
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuFex_Jpsi (TrigEFMultiMuFex_xAOD):
+class EFMultiMuFex_Jpsi (TrigEFMultiMuFex):
     __slots__ = []
     def __init__(self, name = "EFMultiMuFex_Jpsi"):
-        super( TrigEFMultiMuFex_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -48,10 +48,10 @@ class EFMultiMuFex_Jpsi (TrigEFMultiMuFex_xAOD):
                                 
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuFex_Upsi (TrigEFMultiMuFex_xAOD):
+class EFMultiMuFex_Upsi (TrigEFMultiMuFex):
     __slots__ = []
     def __init__(self, name = "EFMultiMuFex_Upsi"):
-        super( TrigEFMultiMuFex_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -70,10 +70,10 @@ class EFMultiMuFex_Upsi (TrigEFMultiMuFex_xAOD):
                                 
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFMultiMuFex_Tau (TrigEFMultiMuFex_xAOD):
+class EFMultiMuFex_Tau (TrigEFMultiMuFex):
     __slots__ = []
     def __init__(self, name = "EFMultiMuFex_Tau"):
-        super( TrigEFMultiMuFex_xAOD, self ).__init__( name )
+        super( TrigEFMultiMuFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

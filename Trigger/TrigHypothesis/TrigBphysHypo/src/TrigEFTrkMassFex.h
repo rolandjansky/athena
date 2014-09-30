@@ -4,50 +4,58 @@
 
 // ********************************************************************
 // 
-// NAME:     TrigEFTrkMassFex_xAOD.h
+// NAME:     TrigEFTrkMassFex.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigBphysHypo
 // 
 // AUTHOR:   Julie Kirk
 // 
 // ********************************************************************
 
-#ifndef TRIG_TrigEFTrkMassFex_xAOD_H 
-#define TRIG_TrigEFTrkMassFex_xAOD_H
+#ifndef TRIG_TrigEFTrkMassFex_H 
+#define TRIG_TrigEFTrkMassFex_H
 
-#include <string>
-#include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
 
-#include "Particle/TrackParticleContainer.h"
-#include "TrigParticle/TrigEFBphys.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "TrigBphysHypo/Constants.h"
-#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-
-#include "TrkParameters/TrackParameters.h"
-
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
-#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 
-class StoreGateSvc;
-class TriggerElement;
+
+//class StoreGateSvc;
+//class TriggerElement;
+
+// forward includes
+class TrigBphysHelperUtilsTool;
+class TrigTimer;
 
 
-class TrigEFTrkMassFex_xAOD: public HLT::FexAlgo {
+
+class TrigEFTrkMassFex: public HLT::FexAlgo {
   
   public:
-    TrigEFTrkMassFex_xAOD(const std::string & name, ISvcLocator* pSvcLocator);
-    ~TrigEFTrkMassFex_xAOD();
+    TrigEFTrkMassFex(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigEFTrkMassFex();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltFinalize();     
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE );
     //    HLT::ErrorCode acceptInput(const HLT::TriggerElement* inputTE, bool& pass );
 
   private:
+    
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
+    TrigTimer* m_TotTimer;
+    TrigTimer* m_VtxFitTimer;
 
+    void buildMuTrkPairs(const TrigRoiDescriptor * roi,
+                         const std::vector<ElementLink<xAOD::MuonContainer> > & muons,
+                       const std::vector<ElementLink< xAOD::TrackParticleContainer> > & tracks,
+                       xAOD::TrigBphysContainer & physcontainer
+                       );
+    
     // Properties:
     
     StoreGateSvc* m_storeGate;
@@ -66,12 +74,10 @@ class TrigEFTrkMassFex_xAOD: public HLT::FexAlgo {
     bool         m_oppositeCharge;
     bool         m_acceptAll;
 
-  TrigTimer* m_TotTimer;
-  TrigTimer* m_VtxFitTimer;
 
 
-  unsigned int m_lastEvent;
-  unsigned int m_lastEventPassed;
+  uint32_t m_lastEvent;
+  uint32_t m_lastEventPassed;
   unsigned int m_countTotalEvents;
   unsigned int m_countTotalRoI;
   unsigned int m_countPassedEvents;
@@ -79,24 +85,8 @@ class TrigEFTrkMassFex_xAOD: public HLT::FexAlgo {
   unsigned int m_countPassedRoIMatch;
   unsigned int m_countPassedMass;
 
-    //TrigEFBphysContainer* m_trigBphysColl;
-  //  TrigVertexCollection* m_VertexColl;
-    xAOD::TrigBphysContainer * m_xAODTrigBphysColl;
-    //xAOD::TrigBphysAuxContainer * m_xAODTrigBphysAuxColl;
+    std::vector<bool> m_flag_stages;
 
-  /* monitored variables
-  int m_Ntrack;
-  int m_NBphys;
-  std::vector<float> m_trackPt;
-  std::vector<float> m_dEta;
-  std::vector<float> m_dPhi;
-  std::vector<float> m_Mass;
-  std::vector<float> m_FitMass;
-  std::vector<float> m_Chi2;
-  std::vector<float> m_Chi2Prob;
-  */
-  ToolHandle<Trk::IVertexFitter>      m_iVKVVertexFitter;
-  Trk::TrkVKalVrtFitter*              m_VKVFitter;
 // Monitored variables
     std::vector<int>   mon_Errors;
     std::vector<int>   mon_Acceptance;

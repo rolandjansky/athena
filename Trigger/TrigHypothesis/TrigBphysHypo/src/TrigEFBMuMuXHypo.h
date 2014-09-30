@@ -19,8 +19,8 @@
 **
 ***************************************************************************/
             
-#ifndef TRIG_TrigEFBMuMuXHypo_xAOD_H 
-#define TRIG_TrigEFBMuMuXHypo_xAOD_H
+#ifndef TRIG_TrigEFBMuMuXHypo_H 
+#define TRIG_TrigEFBMuMuXHypo_H
 
 // standard stuff
 #include <string>
@@ -40,11 +40,11 @@
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 
-class TrigEFBMuMuXHypo_xAOD: public HLT::HypoAlgo  {
+class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
   
   public:
-    TrigEFBMuMuXHypo_xAOD(const std::string & name, ISvcLocator* pSvcLocator);
-    ~TrigEFBMuMuXHypo_xAOD();
+    TrigEFBMuMuXHypo(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigEFBMuMuXHypo();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltFinalize();     
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);

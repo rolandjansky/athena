@@ -22,13 +22,13 @@
 
 
 class TriggerElement;
-class TrigEFDiMuNtuple;
+//class TrigEFDiMuNtuple;
 
-class TrigEFDiMuFex_xAOD: public HLT::FexAlgo{
+class TrigEFDiMuFex: public HLT::FexAlgo{
 
 public:
-    TrigEFDiMuFex_xAOD(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TrigEFDiMuFex_xAOD();
+    TrigEFDiMuFex(const std::string& name, ISvcLocator* pSvcLocator);
+    ~TrigEFDiMuFex();
 
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltFinalize();
@@ -67,8 +67,8 @@ private:
 
     //TrigEFBphys* pMuPair;
     //TrigEFBphysContainer* pOut;
-    xAOD::TrigBphysContainer * m_xAODTrigBphysColl;
-    //xAOD::TrigBphysAuxContainer * m_xAODTrigBphysAuxColl;
+    xAOD::TrigBphysContainer * mTrigBphysColl;
+    //xAOD::TrigBphysAuxContainer * mTrigBphysAuxColl;
 
     int                                 m_max_pair;
     StringProperty                      m_ntupleName;       /**< The name of the output NTuple */
@@ -76,7 +76,8 @@ private:
     StringProperty			m_fileName;
     BooleanProperty                     m_doTruth;
     BooleanProperty                     m_doNTuple;
-    TrigEFDiMuNtuple*                   m_pTrigEFDiMuNtuple;
+    // TrigEFDiMuNtuple*                   m_pTrigEFDiMuNtuple;
+    int *m_pTrigEFDiMuNtuple;
     NTuple::Tuple*                      m_ntuple;
 
     BooleanProperty                     m_GotFitTool;

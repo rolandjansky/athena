@@ -24,7 +24,7 @@
 
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 
-#include "TrigBphysHypo/TrigEFBMuMuXHypo.h"
+#include "TrigEFBMuMuXHypo.h"
 #include "TrigParticle/TrigEFBphysContainer.h"
 
 #include "EventInfo/EventInfo.h"
@@ -107,7 +107,8 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltInitialize()
   m_countPassedBd=0;
   m_countPassedBs=0;
   m_countPassedLb=0;
-  
+  m_countPassedBc=0;
+   
   return HLT::OK;
 }
 
@@ -191,55 +192,60 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
   
   // create vector for TrigEFBphys particles
-  const TrigEFBphysContainer* trigBphysColl = 0;
-  
+    //  const TrigEFBphysContainer* trigBphysColl = 0;
+    const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
+    
   // get vector of TrigEFBphys particles from outputTE
-  HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "EFBMuMuXFex");
+  HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, "EFBMuMuXFex");
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING )
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endreq;
     return HLT::OK;
   }
   
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endreq;
-  if ( trigBphysColl == 0 ) {
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl << endreq;
+  if ( xAODTrigBphysColl == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
     return HLT::OK;
   }
   
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size()
+    msg() << MSG::DEBUG << "Got xAODTrigBphysColl collection with " << xAODTrigBphysColl->size()
         << " TrigBphys particles " << endreq;
   }
   
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
-  if ( trigBphysColl->size() == 0 ) {
+  if ( xAODTrigBphysColl->size() == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
 //     delete trigBphysColl;
     return HLT::OK;
   }
   
-  TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
+  TrigPassBits *bits = HLT::makeTrigPassBits(xAODTrigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-  for ( TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
+  for (xAOD::TrigBphysContainer::const_iterator bphysIter = xAODTrigBphysColl->begin();
+       bphysIter !=  xAODTrigBphysColl->end(); ++bphysIter) {
     
     //determine decay mode
     std::string decayName;
-    TrigEFBphys::pType decayType = (*bphysIter)->particleType();
-    if(decayType == TrigEFBphys::BKMUMU)      decayName = "B+ -> mu mu K+";
-    if(decayType == TrigEFBphys::BDKSTMUMU)   decayName = "Bd -> mu mu K*";
-    if(decayType == TrigEFBphys::BSPHIMUMU)   decayName = "Bs -> mu mu Phi";
-    if(decayType == TrigEFBphys::LBLMUMU)     decayName = "Lambda_b -> mu mu Lambda";
-    if(decayType == TrigEFBphys::BCDSMUMU)    decayName = "Bc -> mu mu Ds";
+    xAOD::TrigBphys::pType decayType = (*bphysIter)->particleType();
+    if(decayType == xAOD::TrigBphys::BKMUMU)      decayName = "B+ -> mu mu K+";
+    if(decayType == xAOD::TrigBphys::BDKSTMUMU)   decayName = "Bd -> mu mu K*";
+    if(decayType == xAOD::TrigBphys::BSPHIMUMU)   decayName = "Bs -> mu mu Phi";
+    if(decayType == xAOD::TrigBphys::LBLMUMU)     decayName = "Lambda_b -> mu mu Lambda";
+    if(decayType == xAOD::TrigBphys::BCDSMUMU)    decayName = "Bc -> mu mu Ds";
 
-    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Bphys particle type: " << decayName << ", " << decayType << " with mass " << (*bphysIter)->mass() << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Bphys particle type: " << decayName << ", "
+        << decayType << " with mass " << (*bphysIter)->mass() << endreq;
 
 
 //     if ((*bphysIter)->particleType() == TrigEFBphys::BMUMUX ) {
-    if ( decayType == TrigEFBphys::BKMUMU || decayType == TrigEFBphys::BDKSTMUMU || decayType == TrigEFBphys::BSPHIMUMU || decayType == TrigEFBphys::LBLMUMU || decayType == TrigEFBphys::BCDSMUMU ) {
+    if (decayType == xAOD::TrigBphys::BKMUMU || decayType == xAOD::TrigBphys::BDKSTMUMU ||
+        decayType == xAOD::TrigBphys::BSPHIMUMU || decayType == xAOD::TrigBphys::LBLMUMU ||
+        decayType == xAOD::TrigBphys::BCDSMUMU ) {
 
       bool thisPassedBplus=false;
       bool thisPassedBd=false;
@@ -252,7 +258,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
       if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "BMass = " << BMass << endreq;
       if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "BChi2 = " << BChi2 << endreq;
       
-      if( (decayType == TrigEFBphys::BKMUMU) ) {
+      if( (decayType == xAOD::TrigBphys::BKMUMU) ) {
         if( m_acceptBplus ) {
           if ( BMass > m_lowerBplusMassCut && BMass < m_upperBplusMassCut ) {
             if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Mass =  " << BMass  << " -> B+ Mass passed " << endreq;
@@ -265,7 +271,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
         }
       }
       else { // bD_to_Kstar, bS_to_Phi, lB_to_L, bC_to_Ds
-        const TrigEFBphys* trigPartX = (*bphysIter)->pSecondDecay();
+        const xAOD::TrigBphys* trigPartX = (*bphysIter)->secondaryDecay();
         if(!trigPartX) {
           if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No secondary decay pointer in Bphys particle of type " << (*bphysIter)->particleType() << endreq;
         } else {
@@ -275,7 +281,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "XChi2 = " << XChi2 << endreq;
           
           // Bd -> Mu Mu Kstar
-          if( (decayType == TrigEFBphys::BDKSTMUMU) && m_acceptBd ) {
+          if( (decayType == xAOD::TrigBphys::BDKSTMUMU) && m_acceptBd ) {
             if ( BMass > m_lowerBdMassCut && BMass < m_upperBdMassCut ) {
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bd Mass passed " << endreq;
               if ( XMass > m_lowerKstarMassCut && XMass < m_upperKstarMassCut ) {
@@ -293,7 +299,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           }
           
           // Bs -> Mu Mu Phi
-          if( (decayType == TrigEFBphys::BSPHIMUMU) && m_acceptBs ) {
+          if( (decayType == xAOD::TrigBphys::BSPHIMUMU) && m_acceptBs ) {
             if ( BMass > m_lowerBsMassCut && BMass < m_upperBsMassCut ) {
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bs Mass passed " << endreq;
               if ( XMass > m_lowerPhi1020MassCut && XMass < m_upperPhi1020MassCut ) {
@@ -311,7 +317,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           }
           
           // Lambda_b -> Mu Mu Lambda
-          if( (decayType == TrigEFBphys::LBLMUMU) && m_acceptLb ) {
+          if( (decayType == xAOD::TrigBphys::LBLMUMU) && m_acceptLb ) {
             if ( BMass > m_lowerLbMassCut && BMass < m_upperLbMassCut ) {
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Lambda_b Mass passed " << endreq;
               if ( XMass > m_lowerLambdaMassCut && XMass < m_upperLambdaMassCut ) {
@@ -329,7 +335,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
           }
           
           // Bc -> Mu Mu Ds
-          if( (decayType == TrigEFBphys::BCDSMUMU) && m_acceptBc ) {
+          if( (decayType == xAOD::TrigBphys::BCDSMUMU) && m_acceptBc ) {
             if ( BMass > m_lowerBcMassCut && BMass < m_upperBcMassCut ) {
               if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " BMass =  " << BMass  << " -> Bc Mass passed " << endreq;
               if ( XMass > m_lowerDsMassCut && XMass < m_upperDsMassCut ) {
@@ -355,7 +361,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
            (thisPassedBc)    || 
            (thisPassedLb)      ) {
         result=true;
-        HLT::markPassing(bits, *bphysIter, trigBphysColl);
+        HLT::markPassing(bits, *bphysIter, xAODTrigBphysColl);
       }
       
     } // end if decayType is ok

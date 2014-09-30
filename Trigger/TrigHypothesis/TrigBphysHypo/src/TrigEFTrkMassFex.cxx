@@ -9,33 +9,39 @@
 // author :  Julie Kirk
 // ********************************************************************
 
+#include "TrigEFTrkMassFex.h"
+#include "TrigBphysHypo/BtrigUtils.h"
+#include "TrigBphysHelperUtilsTool.h"
+
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"
+// additions of xAOD objects
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonContainer.h"
+
+
+
 #include <math.h>
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+//#include "GaudiKernel/MsgStream.h"
+//#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/StatusCode.h"
+//
+//#include "StoreGate/StoreGateSvc.h"
+//
+//#include "EventInfo/EventInfo.h"
+//#include "EventInfo/EventID.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "TrigBphysHypo/TrigEFTrkMassFex.h"
-#include "TrigBphysHypo/BtrigUtils.h"
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-
-#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-
+//#include "TrigBphysHypo/BtrigUtils.h"
+//#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
+//
+//#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
+//
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
-// additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
-
-//#include <map.h>
 
 class ISvcLocator;
 
@@ -43,8 +49,8 @@ using namespace std;
 
 /*------------------------------------------------------------------------------------*/
 TrigEFTrkMassFex::TrigEFTrkMassFex(const std::string & name, ISvcLocator* pSvcLocator):
-HLT::FexAlgo(name, pSvcLocator),
-m_iVKVVertexFitter("Trk::TrkVKalVrtFitter")
+HLT::FexAlgo(name, pSvcLocator)
+,m_bphysHelperTool("TrigBphysHelperUtilsTool")
 /*------------------------------------------------------------------------------------*/
 {
     
@@ -56,21 +62,11 @@ m_iVKVVertexFitter("Trk::TrkVKalVrtFitter")
     declareProperty("TrackPTthr", m_trackPtthr=1.4);
     declareProperty("dEtaTrackRoI", m_dEta_cut=0.1);
     declareProperty("dPhiTrackRoI", m_dPhi_cut=0.1);
-    declareProperty("DaughterMass", m_daughterMass=0.0);
+    declareProperty("DaughterMass", m_daughterMass=105.6583715);
     declareProperty("Mass_low_cut", m_mass_low_cut=0.);
     declareProperty("Mass_high_cut", m_mass_high_cut=0.);
     declareProperty("doVertexFit", m_doVertexFit=true);
     
-    // variables for monitoring histograms
-    //declareMonitoredVariable("Ntrack" , m_Ntrack);
-    //declareMonitoredVariable("NBphys" , m_NBphys);
-    //declareMonitoredStdContainer("trackPt" , m_trackPt);
-    //declareMonitoredStdContainer("dEta", m_dEta);
-    //declareMonitoredStdContainer("dPhi", m_dPhi);
-    //declareMonitoredStdContainer("Mass", m_Mass);
-    //declareMonitoredStdContainer("FitMass", m_FitMass);
-    //declareMonitoredStdContainer("Chi2", m_Chi2);
-    //declareMonitoredStdContainer("Chi2Prob", m_Chi2Prob);
     
     // Variables for monitoring histograms
     declareMonitoredStdContainer("Errors"           , mon_Errors                                    , AutoClear);
@@ -122,31 +118,29 @@ m_iVKVVertexFitter("Trk::TrkVKalVrtFitter")
     m_countPassedRoIMatch=0;
     m_countPassedMass=0;
     
-    m_trigBphysColl=0;
 }
 
 /*-------------------------------------------*/
 TrigEFTrkMassFex::~TrigEFTrkMassFex()
 /*-------------------------------------------*/
-{
-    delete m_trigBphysColl;
-}
+{}
 
 /*-------------------------------------------*/
 HLT::ErrorCode TrigEFTrkMassFex::hltInitialize()
 /*-------------------------------------------*/
 {
     
-    // Get the VKalVrt vertex fitting tool from ToolSvc
-    if ( m_iVKVVertexFitter.retrieve().isFailure() )
-    {
-        if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Fail to retrieve tool "<< m_iVKVVertexFitter<<endreq;
+    if (m_bphysHelperTool.retrieve().isFailure()) {
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        return HLT::BAD_JOB_SETUP;
+    } else {
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
     }
-    else {
-        if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Retrieved tool " << m_iVKVVertexFitter<<endreq;
-        m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVKVVertexFitter));
+    
+    if (m_matchL1) {
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "matchL1 not yet re-implemented." << endreq;
+        return HLT::BAD_JOB_SETUP;
     }
-    // print out properties, cuts
     
     
     msg() << MSG::INFO << "AcceptAll            = "
@@ -258,6 +252,12 @@ HLT::ErrorCode TrigEFTrkMassFex::hltFinalize()
 HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE , HLT::TriggerElement* outputTE)
 /*--------------------------------------------------------------*/
 {
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In EF B tag and probe FEX hltExecute" << endreq;
+    
+    xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
+    xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
+    xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
+
     bool result = false;
     bool PassedRoIMatch=false;
     bool PassedMass=false;
@@ -268,62 +268,28 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     mon_nBphys        = 0;
     mon_TotalRunTime     = 0;
     mon_VertexingTime = 0;
-    
-    /*
-     m_Ntrack=-99;
-     m_NBphys=-99;
-     m_trackPt.clear();
-     m_dEta.clear();
-     m_dPhi.clear();
-     m_Mass.clear();
-     m_FitMass.clear();
-     m_Chi2.clear();
-     m_Chi2Prob.clear();
-     */
-    
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In EF B tag and probe FEX hltExecute" << endreq;
+
     mon_Acceptance.push_back( ACCEPT_Input );
-    // Retrieve event info
-    // Retrieve event info
-    int IdRun   = 0;
-    int IdEvent = 0;
     
-    // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
-    const xAOD::EventInfo *evtInfo(0);
-    if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endreq;
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
-            //mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endreq;
-        }// found old event info
-    }else { // found the xAOD event info
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endreq;
-        IdRun   = evtInfo->runNumber();
-        IdEvent = evtInfo->eventNumber();
-    } // get event ifo
-    
+    // event info
+    uint32_t runNumber(0), evtNumber(0), lbBlock(0);
+    if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
+        msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+    }
+
     // Accept-All mode: temporary patch; should be done with force-accept
     if (m_acceptAll) {
         if ( msgLvl() <= MSG::DEBUG )
-            msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-            << endreq;
+            msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endreq;
         mon_Acceptance.push_back( ACCEPT_AcceptAll );
         result = true;
     }
     else {
         if ( msgLvl() <= MSG::DEBUG )
-            msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-            << endreq;
+            msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" << endreq;
         result=false;
-    }
-    
+    } // accept all
+
     // get RoI descriptor
     const TrigRoiDescriptor* roiDescriptor = 0;
     if (getFeature(outputTE, roiDescriptor, "initialRoI") != HLT::OK) roiDescriptor = 0;
@@ -337,7 +303,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
         return HLT::NAV_ERROR;
     }
     mon_Acceptance.push_back( ACCEPT_Got_RoI );
-    
+
     if ( msgLvl() <= MSG::DEBUG ){
         msg() << MSG::DEBUG
         << "Using TE("<< outputTE <<")->getId(): " << outputTE->getId()
@@ -349,477 +315,253 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     // RoI monitoring
     mon_ROIEta.push_back( roiDescriptor->eta() );
     mon_ROIPhi.push_back( roiDescriptor->phi() );
-    
-    
-    if (IdEvent != (int) m_lastEvent) {
+    if (evtNumber != m_lastEvent) {
         m_countTotalEvents++;
-        m_lastEvent=IdEvent;
+        m_lastEvent=evtNumber;
     }
     m_countTotalRoI++;
+
+    typedef  ElementLinkVector<xAOD::MuonContainer>  ELVMuons;
+    typedef  ElementLinkVector<xAOD::TrackParticleContainer> ELVTrackParticles;
+
     
-    //  create vector for TrigEFBphys particles
-    delete m_trigBphysColl;
-    m_trigBphysColl = new TrigEFBphysContainer();
-    //  m_VertexColl = new TrigVertexCollection;
-    // TrigEFBphys* trigPart (NULL);
+    // get the muons
+    ELVMuons elvmuon;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muons " << endreq;
+    if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(outputTE, elvmuon)!=HLT::OK ) {
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon, exiting" << endreq;
+        mon_Errors.push_back( ERROR_No_Muon );
+        if ( timerSvc() ) m_TotTimer->stop();
+        return HLT::MISSING_FEATURE; // was HLT::OK
+    }
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found MuonContainer, Got MuonEF size = " << elvmuon.size() << endreq;
+    if(msgLvl() <= MSG::DEBUG) { // print debug
+        for ( const auto muel: elvmuon) {
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "ELLink: "
+                << " index: "  << muel.index()
+                << " sgkey: "  << muel.dataID()
+                << " hashkey: "<< muel.key()
+                << " valid: "  << muel.isValid()
+                << " ptr: "    << (muel.isValid() ? *muel : nullptr)
+                << endreq;
+        }
+        for ( const auto muel: elvmuon) {
+            if (!muel.isValid()) continue;
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon:   "
+                << " pt: " <<  (*muel)->pt()
+                << " eta: " << (*muel)->eta()
+                << " phi: " << (*muel)->phi()
+                << " q: "   << (*muel)->charge()
+                << " mutype: "   << (*muel)->muonType()
+                << " author: "   << (*muel)->author()
+                << " id/ms/cb: " << (*muel)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)
+                << " "           << (*muel)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)
+                << " "           << (*muel)->trackParticle(xAOD::Muon::CombinedTrackParticle)
+                << endreq;
+            
+        } // for
+
+    } // if debug
     
-    ///////////////// Get vector of tracks /////////////////
-    const Rec::TrackParticleContainer* TrkParticleCont=NULL;
+    // do some muon collections check to see that the ELVs do the same as the vec collections
+    std::vector<const xAOD::MuonContainer*> MuEFTracks;
+    if ( getFeatures(inputTE, MuEFTracks) != HLT::OK ) {
+        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to get EFInfo feature, exiting" << endreq;
+        return HLT::OK;
+    }
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Get muon vec collections of size: " << MuEFTracks.size() << endreq;
+    for (const auto mucol : MuEFTracks) {
+        if (!mucol) continue;
+        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "This muon collection has: " << mucol->size() << " muons " << endreq << endreq;
+    }
     
-    std::vector<const Rec::TrackParticleContainer*> vectorOfTrackCollections;
-    
-    //  HLT::ErrorCode status = getFeature(outputTE, TrkParticleCont);
-    HLT::ErrorCode status = getFeatures(outputTE, vectorOfTrackCollections);
-    if(status != HLT::OK ) {
-        msg() << MSG::WARNING << "Error when getting TrackParticleContainer's from the trigger element" << endreq;
+    // now get the tracks
+    // #FIXME - how does this get the vector of track collections, rather than just one vector?
+    ELVTrackParticles elvtps;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve TrackParticleContainers " << endreq;
+    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(outputTE, elvtps)!=HLT::OK ) {
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get TrackParticleContainers feature, exiting" << endreq;
         if ( timerSvc() ) m_TotTimer->stop();
         mon_Errors.push_back( ERROR_No_TrackColl );
-        return HLT::MISSING_FEATURE;
-        // }
-        //else if (TrkParticleCont==NULL) {
-        //   msg() << MSG::DEBUG << "No TrackParticle container" << endreq;
-        //   if ( timerSvc() ) m_TotTimer->stop();
-        //   mon_Errors.push_back( ERROR_No_TrackColl );
-        //   return HLT::MISSING_FEATURE;
-    } else {
-        //    if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " Got Track Collections, size " << TrkParticleCont->size() << endreq;
-        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " Got Track Collections, size " << vectorOfTrackCollections.size() << endreq;
+        return HLT::MISSING_FEATURE; // was HLT::OK
     }
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endreq;
+    if(msgLvl() <= MSG::DEBUG) { // print debug
+        for ( const auto eltp: elvtps) {
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "ELLink: "
+                << " index: "  << eltp.index()
+                << " sgkey: "  << eltp.dataID()
+                << " hashkey: "<< eltp.key()
+                << " valid: "  << eltp.isValid()
+                << " ptr: "    << (eltp.isValid() ? *eltp : nullptr)
+                << endreq;
+        }
+
+    } // if debug
     mon_Acceptance.push_back( ACCEPT_Got_TrackColl );
-    //    if (TrkParticleCont->size() == 0) {
-    if (vectorOfTrackCollections.size() == 0) {
+    if (elvtps.size() == 0) {
         if ( timerSvc() ) m_TotTimer->stop();
         mon_Errors.push_back( ERROR_Empty_TrackColl );
-        
-        //    if (TrkParticleCont->size() !=1) {
-        //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Got " << TrkParticleCont->size()
-        //	  << " InDetTrackCollections, expected one - is there a problem?" << endreq;
         return HLT::OK;
     }
     mon_Acceptance.push_back( ACCEPT_Full_TrackColl );
-    
-    std::vector<const Rec::TrackParticleContainer*>::iterator pTrackColl    = vectorOfTrackCollections.begin();
-    std::vector<const Rec::TrackParticleContainer*>::iterator lastTrackColl = vectorOfTrackCollections.end();
-    
-    // JK If more than 1 track collection then this is FullScan instance. Find collection with most tarcks
-    
-    unsigned int Ntracks=0;
-    for (;pTrackColl != lastTrackColl; ++ pTrackColl) {
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  InDetTrackCollections size, " << (*pTrackColl)->size() << endreq;
-        if ((*pTrackColl)->size() > Ntracks) {
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Largest collection so far, assume it is FullScan " << endreq;
-            Ntracks= (*pTrackColl)->size();
-            TrkParticleCont = *pTrackColl;
-        }
+
+    // some debug stuff re tracks - previously used vector of track collections
+    // now want to use ElementLinkVector. Add some extra checks here to compare the two approaches
+    std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
+    HLT::ErrorCode status = getFeatures(outputTE, vectorOfTrackCollections);
+    if(status != HLT::OK ) {
+        msg() << MSG::WARNING << "Error when getting vec TrackParticleContainer's from the trigger element" << endreq;
+        return HLT::MISSING_FEATURE;
+    } else {
+        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " Got vec Track Collections, size " << vectorOfTrackCollections.size() << endreq;
     }
-    
-    
-    // Retrieve the MuonFInfo container
-    std::vector<const TrigMuonEFInfoContainer*> MuEFTracks;
-    if (!m_matchL1) {
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container" << endreq;
-        status = getFeatures(inputTE, MuEFTracks);
-        if ( status != HLT::OK ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to get EFInfo feature, exiting" << endreq;
-            mon_Errors.push_back( ERROR_No_Muon );
-            return HLT::OK;
-        }
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Got MuonEF Feature, size = " << MuEFTracks.size() << endreq;
-        for ( unsigned int i_mu=0; i_mu<MuEFTracks.size(); i_mu++ ) {
-            std::vector<const Trk::Track*> idTrks;
-            HLT::ErrorCode status = GetTrigMuonEFInfoTracks(MuEFTracks[i_mu], idTrks, msg());
-            if ( status != HLT::OK ) return status;
-            for ( unsigned int i_trk=0; i_trk<idTrks.size(); i_trk++ ) {
-                const Trk::Perigee* perigee = idTrks[i_trk]->perigeeParameters();
-                if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
-                    << " Comb muon pt/eta/phi " << perigee->pT()
-                    << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi]
-                    << endreq;
-            }
-        }
-    }
-    
-    
-    ////////////////////////////////////////////////////////////
-    if(IdEvent != (int) m_lastEvent) {
-        m_countTotalEvents++;
-        m_lastEvent = IdEvent;
-    }
-    m_countTotalRoI++;
+    for (const auto trkcol : vectorOfTrackCollections) {
+        if (!trkcol) continue;
+        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " This track collection has: " << trkcol->size() << " tracks " << endreq;
+    } // vec loop
     
     
     // Loop over tracks (Particles)
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Now loop over tracks " << endreq;
-    
-    Rec::TrackParticleContainer::const_iterator trkIt =  TrkParticleCont->begin();
-    Rec::TrackParticleContainer::const_iterator lastTrkIt = TrkParticleCont->end();
-    if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << "Found tracks, ntrack= " << TrkParticleCont->size() << endreq;
-    // Number of tracks monitoring
-    if (TrkParticleCont->size() > 0 ) mon_Acceptance.push_back( ACCEPT_Full_IDTracks );
-    mon_nTracks = TrkParticleCont->size();
+    if (elvtps.size() > 0 ) mon_Acceptance.push_back( ACCEPT_Full_IDTracks );
+    mon_nTracks = elvtps.size();
     
     // Boolean flags indicating what stages were already reached (for monitoring purposes)
-    std::vector<bool> flag_stages( 43, false );
-    
+    m_flag_stages.resize(43,false); // should set the size the first time, and reinitiallise on all others
+
     // Prepare the vertexing timer
     if ( timerSvc() ) {
         m_VtxFitTimer->start();
         m_VtxFitTimer->pause(); // resume it only for the vertexing periods
     }
-    for (int itrk=0 ; trkIt != lastTrkIt; itrk++, trkIt++) {
-        
-        // JW EDM const Trk::MeasuredPerigee* trckPerigee =  (*trkIt)->measuredPerigee();
-        const Trk::Perigee* trckPerigee =  (*trkIt)->measuredPerigee();
-        
-        //      double d0 = trckPerigee->parameters()[Trk::d0];
-        double px = trckPerigee->momentum()[Trk::px];
-        double py = trckPerigee->momentum()[Trk::py];
-        double ptSquare=std::pow(px,2) + std::pow(py,2);
-        double pT = sqrt(ptSquare) * trckPerigee->parameters()[Trk::qOverP]/fabs(trckPerigee->parameters()[Trk::qOverP]);
-        //m_trackPt.push_back(fabs(pT)/CLHEP::GeV);
-        
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Track: " << itrk << " pT = "  <<  pT << " phi = " << trckPerigee->parameters()[Trk::phi] << endreq;
-        double phi = trckPerigee->parameters()[Trk::phi];
-        //      double theta = trckPerigee->parameters()[Trk::theta];
-        double eta = trckPerigee->eta();
-        // Tracks monitoring
-        mon_TrkPt_wideRange.push_back( pT / CLHEP::GeV );
-        mon_TrkPt .push_back( pT / CLHEP::GeV );
-        mon_TrkEta.push_back( eta );
-        mon_TrkPhi.push_back( phi );
-        float trackChi2 = (*trkIt)->fitQuality()->chiSquared();
-        //filter tracks pT, quality?
-        // JK 4/5/11 change to muonPtthr i.e. different pT cuts for muon and track
+
+    
+    // combine track from muon with track from id
+    //#FIXME - remember to implement the scenario of (tracks matched to roi + tracks)
+    std::vector<ElementLink<xAOD::MuonContainer> > muons;
+    std::vector<ElementLink<xAOD::TrackParticleContainer> > tracks;
+    for (auto muel: elvmuon) {
+        if (!muel.isValid()) continue;
+        const xAOD::TrackParticle * mutrk = (*muel)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+        if (!mutrk) continue;
+        if (mutrk->definingParametersCovMatrixVec().size() == 0) {
+            if ( msgLvl() <= MSG::INFO ) msg() << MSG::INFO << "mu track has no ParametersCovMatrix - will reject" << endreq;
+            //#FIXME add monitoring flags here
+            continue;
+        }
+
+        double pT = mutrk->pt();
+        float trackChi2 = mutrk->chiSquared();
+        double eta =  mutrk->eta() ;
+        double phi =  mutrk->phi() ;
+
         if ( fabs(pT) >= m_muonPtthr ) {
-            if ( !flag_stages[ ACCEPT_Mu1_pT_Cut ] ) {
+            if ( !m_flag_stages[ ACCEPT_Mu1_pT_Cut ] ) {
                 mon_Acceptance.push_back( ACCEPT_Mu1_pT_Cut );
-                flag_stages[ ACCEPT_Mu1_pT_Cut ] = true;
+                m_flag_stages[ ACCEPT_Mu1_pT_Cut ] = true;
             }
             mon_Acceptance.push_back( ACCEPT_Each_Mu1_pT_Cut );
         } else {
-            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Track fails pT cut " << itrk << " pT = "  << pT << endreq;
-        }
+            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Muon fails pT cut " <<mutrk  << " pT = "  << pT << endreq;
+        } // threshold
         if ( trackChi2 <= 1e7 ) {
-            if ( !flag_stages[ ACCEPT_Mu1_Chi2_Cut ] ) {
+            if ( !m_flag_stages[ ACCEPT_Mu1_Chi2_Cut ] ) {
                 mon_Acceptance.push_back( ACCEPT_Mu1_Chi2_Cut );
-                flag_stages[ACCEPT_Mu1_Chi2_Cut] = true;
+                m_flag_stages[ACCEPT_Mu1_Chi2_Cut] = true;
             }
             mon_Acceptance.push_back( ACCEPT_Each_Mu1_Chi2_Cut );
         } else {
-            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Track fails chi2 cut " << itrk << " chi2 = "  << trackChi2 << endreq;
+            if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Track fails chi2 cut "<<mutrk  << " chi2 = "  << trackChi2 << endreq;
         }
         if ( fabs(pT) <m_muonPtthr || trackChi2 > 1e7 ) continue;
         // Check pT+chi2 (monitoring only)
-        if ( !flag_stages[ ACCEPT_Mu1_Chi2Pt_Cut ] ) {
+        if ( !m_flag_stages[ ACCEPT_Mu1_Chi2Pt_Cut ] ) {
             mon_Acceptance.push_back( ACCEPT_Mu1_Chi2Pt_Cut );
-            flag_stages[ACCEPT_Mu1_Chi2Pt_Cut] = true;
+            m_flag_stages[ACCEPT_Mu1_Chi2Pt_Cut] = true;
         }
         mon_Acceptance.push_back( ACCEPT_Each_Mu1_Chi2Pt_Cut );
+
+        // these are muon tracks, so the d-cuts are a but redundant atm.
+        //        dphi = fabs(dphi);
+        //        deta = fabs(deta);
+        //
+        //        // Monitoring of the RoI matching
+        //        mon_TrkROIdEta.push_back( fabs(deta) );
+        //        mon_TrkROIdPhi.push_back( fabs(dphi) );
+        //        mon_TrkROIdR  .push_back( sqrt(dphi*dphi+deta*deta) );
+        //
+        //        // Check the deta and dphi cuts (monitoring only)
+        //        if ( fabs(deta) < m_dEta_cut ) {
+        //            if ( !m_flag_stages[ ACCEPT_Mu1_dEta_Cut ] ) {
+        //                mon_Acceptance.push_back( ACCEPT_Mu1_dEta_Cut );
+        //                m_flag_stages[ ACCEPT_Mu1_dEta_Cut ] = true;
+        //            }
+        //            mon_Acceptance.push_back( ACCEPT_Each_Mu1_dEta_Cut );
+        //        }
+        //        if ( fabs(dphi) < m_dPhi_cut ) {
+        //            if ( !m_flag_stages[ ACCEPT_Mu1_dPhi_Cut ] ) {
+        //                mon_Acceptance.push_back( ACCEPT_Mu1_dPhi_Cut );
+        //                m_flag_stages[ ACCEPT_Mu1_dPhi_Cut ] = true;
+        //            }
+        //            mon_Acceptance.push_back( ACCEPT_Each_Mu1_dPhi_Cut );
+        //        }
+        //
+        //        if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "check RoI match deta, dphi: " << deta << " " << dphi << endreq;
+        //
+        //        if( deta < m_dEta_cut && dphi < m_dPhi_cut)
+        //        { PassedRoIMatch = true;
+        //
+        //            // Check deta+dphi cuts (monitoring only)
+        //            if ( !m_flag_stages[ ACCEPT_Mu1_dR_Cut ] ) {
+        //                mon_Acceptance.push_back( ACCEPT_Mu1_dR_Cut );
+        //                m_flag_stages[ ACCEPT_Mu1_dR_Cut ] = true;
+        //            }
+        //            mon_Acceptance.push_back( ACCEPT_Each_Mu1_dR_Cut );
+
         
-        //match to RoI?
-        double deta=-99.;
-        double dphi=-99.;
-        if (m_matchL1) {
-            deta = eta - roiDescriptor->eta(); //at which surface? perigee?
-            dphi = phi - roiDescriptor->phi();
-            while (dphi > M_PI ) dphi -= 2*M_PI;
-            while (dphi < -M_PI) dphi += 2*M_PI;
-        } else {
-            // check match to muon track
-            for ( unsigned int i_mu=0; i_mu<MuEFTracks.size(); i_mu++ ) {
-                std::vector<const Trk::Track*> idTrks;
-                HLT::ErrorCode status = GetTrigMuonEFInfoTracks(MuEFTracks[i_mu], idTrks, msg());
-                if ( status != HLT::OK ) return status;
-                for ( unsigned int i_trk=0; i_trk<idTrks.size(); i_trk++ ) {
-                    const Trk::Perigee* perigee = idTrks[i_trk]->perigeeParameters();
-                    double dphi_temp = phi - perigee->parameters()[Trk::phi];
-                    while (dphi_temp > M_PI ) dphi_temp -= 2*M_PI;
-                    while (dphi_temp < -M_PI) dphi_temp += 2*M_PI;
-                    double deta_temp = eta - perigee->eta();
-                    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Muon: deta, dphi = "  <<  deta_temp << "  " << dphi_temp << endreq;
-                    if ( fabs(deta_temp) < fabs(deta) || fabs(dphi_temp) < fabs(dphi)) {
-                        // work out which is smallest dR
-                        double dR = sqrt(deta*deta + dphi*dphi);
-                        double dR_temp = sqrt(deta_temp * deta_temp + dphi_temp*dphi_temp);
-                        if (dR_temp < dR) {
-                            dphi = dphi_temp;
-                            deta = deta_temp;
-                        }
-                    }
-                }
-            }
+        muons.push_back(muel);
+    } // optimize? addUnique?
+    for (auto trkel: elvtps)  {
+        const xAOD::TrackParticle * trk = *trkel;
+        if (!trk) continue;
+        if (trk->definingParametersCovMatrixVec().size() == 0) {
+            if ( msgLvl() <= MSG::INFO ) msg() << MSG::INFO << "track has no ParametersCovMatrix - will reject" << endreq;
+            //#FIXME add monitoring flags here
+            continue;
         }
-        dphi = fabs(dphi);
-        deta = fabs(deta);
-        
-        // Monitoring of the RoI matching
-        mon_TrkROIdEta.push_back( fabs(deta) );
-        mon_TrkROIdPhi.push_back( fabs(dphi) );
-        mon_TrkROIdR  .push_back( sqrt(dphi*dphi+deta*deta) );
-        
-        // Check the deta and dphi cuts (monitoring only)
-        if ( fabs(deta) < m_dEta_cut ) {
-            if ( !flag_stages[ ACCEPT_Mu1_dEta_Cut ] ) {
-                mon_Acceptance.push_back( ACCEPT_Mu1_dEta_Cut );
-                flag_stages[ ACCEPT_Mu1_dEta_Cut ] = true;
+
+
+        double pT2 = trk->pt();
+        float track2Chi2 = trk->chiSquared();
+        double eta2 =  trk->eta() ;
+        double phi2 =  trk->phi() ;
+
+        if ( track2Chi2 <= 1e7 ) {
+            if ( !m_flag_stages[ ACCEPT_Mu2_Chi2_Cut ] ) {
+                mon_Acceptance.push_back( ACCEPT_Mu2_Chi2_Cut );
+                m_flag_stages[ ACCEPT_Mu2_Chi2_Cut ] = true;
             }
-            mon_Acceptance.push_back( ACCEPT_Each_Mu1_dEta_Cut );
+            mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2_Cut );
         }
-        if ( fabs(dphi) < m_dPhi_cut ) {
-            if ( !flag_stages[ ACCEPT_Mu1_dPhi_Cut ] ) {
-                mon_Acceptance.push_back( ACCEPT_Mu1_dPhi_Cut );
-                flag_stages[ ACCEPT_Mu1_dPhi_Cut ] = true;
+        if ( pT2 >= m_trackPtthr ) {
+            if ( !m_flag_stages[ ACCEPT_Mu2_pT_Cut ] ) {
+                mon_Acceptance.push_back( ACCEPT_Mu2_pT_Cut );
+                m_flag_stages[ ACCEPT_Mu2_pT_Cut ] = true;
             }
-            mon_Acceptance.push_back( ACCEPT_Each_Mu1_dPhi_Cut );
+            mon_Acceptance.push_back( ACCEPT_Each_Mu2_pT_Cut );
         }
+
         
-        if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "check RoI match deta, dphi: " << deta << " " << dphi << endreq;
-        
-        if( deta < m_dEta_cut && dphi < m_dPhi_cut)
-        { PassedRoIMatch = true;
-            
-            // Check deta+dphi cuts (monitoring only)
-            if ( !flag_stages[ ACCEPT_Mu1_dR_Cut ] ) {
-                mon_Acceptance.push_back( ACCEPT_Mu1_dR_Cut );
-                flag_stages[ ACCEPT_Mu1_dR_Cut ] = true;
-            }
-            mon_Acceptance.push_back( ACCEPT_Each_Mu1_dR_Cut );
-            
-            
-            if ( msgLvl() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Track matched RoI found, looking another track"<<endreq;
-            Rec::TrackParticleContainer::const_iterator trkIt2 =  TrkParticleCont->begin();
-            for (int jtrk=0; trkIt2 != lastTrkIt; ++jtrk, trkIt2++)
-            {
-                if(itrk==jtrk) continue;
-                //JW EDM const Trk::MeasuredPerigee* trckPerigee2 =  (*trkIt2)->measuredPerigee();
-                const Trk::Perigee* trckPerigee2 =  (*trkIt2)->measuredPerigee();
-                
-                double track2phi = trckPerigee2->parameters()[Trk::phi];
-                double track2eta = trckPerigee2->eta();
-                
-                if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Track: " << jtrk
-                    <<" pT = "<<sin(trckPerigee2->parameters()[Trk::theta])/trckPerigee2->parameters()[Trk::qOverP]
-                    << " phi = " << trckPerigee2->parameters()[Trk::phi]
-                    <<" eta= " << trckPerigee2->eta() << endreq;
-                
-                float track2Pt = fabs( sin(trckPerigee2->parameters()[Trk::theta])/trckPerigee2->parameters()[Trk::qOverP]);
-                float track2Chi2 = (*trkIt2)->fitQuality()->chiSquared();
-                // Check pT and chi2 (monitoring only)
-                if ( track2Chi2 <= 1e7 ) {
-                    if ( !flag_stages[ ACCEPT_Mu2_Chi2_Cut ] ) {
-                        mon_Acceptance.push_back( ACCEPT_Mu2_Chi2_Cut );
-                        flag_stages[ ACCEPT_Mu2_Chi2_Cut ] = true;
-                    }
-                    mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2_Cut );
-                }
-                if ( track2Pt >= m_trackPtthr ) {
-                    if ( !flag_stages[ ACCEPT_Mu2_pT_Cut ] ) {
-                        mon_Acceptance.push_back( ACCEPT_Mu2_pT_Cut );
-                        flag_stages[ ACCEPT_Mu2_pT_Cut ] = true;
-                    }
-                    mon_Acceptance.push_back( ACCEPT_Each_Mu2_pT_Cut );
-                }
-                
-                // m_trackPt.push_back(track2Pt/CLHEP::GeV);      // ????????
-                // JW EDM std::vector<const Trk::MeasuredPerigee*> inputtrks;
-                std::vector<const Trk::Perigee*> inputtrks;
-                std::vector<double> massHypo ;
-                inputtrks.push_back(trckPerigee);
-                inputtrks.push_back(trckPerigee2);
-                massHypo.push_back( m_daughterMass );
-                massHypo.push_back( m_daughterMass );
-                
-                //double Mass=InvMass(inputtrks, massHypo);
-                //m_Mass.push_back(Mass);
-                // Calculate the invariant mass (hardcoded pT cut 2 GeV for monitoring purposes)
-                double Mass = 0;
-                if ( track2Chi2 <= 1e7 ) {
-                    if ( track2Pt > 2. ) {
-                        Mass = InvMass(inputtrks, massHypo);
-                        mon_InvMassNoTrkPtCut.push_back( Mass / CLHEP::GeV );
-                        mon_InvMassNoTrkPtCut_wideRange.push_back( Mass / CLHEP::GeV );
-                    } else if ( track2Pt >= m_trackPtthr ) {
-                        Mass = InvMass(inputtrks, massHypo);
-                    }
-                }
-                // check Pt and chi2
-                if( track2Pt < m_trackPtthr || track2Chi2 > 1e7) continue;
-                // Check pT+chi2 (monitoring only)
-                if ( !flag_stages[ ACCEPT_Mu2_Chi2Pt_Cut ] ) {
-                    mon_Acceptance.push_back( ACCEPT_Mu2_Chi2Pt_Cut );
-                    flag_stages[ ACCEPT_Mu2_Chi2Pt_Cut ] = true;
-                }
-                mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2Pt_Cut );
-                
-                if (m_oppositeCharge) {
-                    if ((trckPerigee->parameters()[Trk::qOverP]>0. && trckPerigee2->parameters()[Trk::qOverP]>0. ) ||
-                        (trckPerigee->parameters()[Trk::qOverP]<0. && trckPerigee2->parameters()[Trk::qOverP]<0.))  continue;
-                    
-                    if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE
-                        << "Tracks " << itrk << " and " << jtrk << " are opposite sign, make mass cuts " << endreq;
-                } else {
-                    if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE
-                        << "opposite sign cuts not applied, make mass cuts " << endreq;
-                }
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " mass =  " << Mass << endreq;
-                
-                // Check opposite charge (monitoring only)
-                if ( !flag_stages[ ACCEPT_Opp_Charge ] ) {
-                    mon_Acceptance.push_back( ACCEPT_Opp_Charge );
-                    flag_stages[ ACCEPT_Opp_Charge ] = true;
-                }
-                mon_Acceptance.push_back( ACCEPT_Each_Opp_Charge );
-                
-                // Check the invariant mass cut
-                if (Mass < m_mass_low_cut || Mass > m_mass_high_cut) continue;
-                // Check the invariant mass cut (monitoring only)
-                if ( !flag_stages[ ACCEPT_InvMass_Cut ] ) {
-                    mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
-                    flag_stages[ ACCEPT_InvMass_Cut ] = true;
-                }
-                mon_Acceptance.push_back( ACCEPT_Each_InvMass_Cut );
-                mon_InvMass.push_back( Mass / CLHEP::GeV );
-                mon_InvMass_wideRange.push_back( Mass / CLHEP::GeV );
-                
-                PassedMass=true;
-                
-                // Monitoring of the di-muon track pairs
-                mon_Trk1Pt .push_back( pT / CLHEP::GeV );
-                mon_Trk2Pt .push_back( track2Pt / CLHEP::GeV );
-                mon_Trk1Eta.push_back( eta );
-                mon_Trk2Eta.push_back( track2eta );
-                mon_Trk1Phi.push_back( phi );
-                mon_Trk2Phi.push_back( track2phi );
-                mon_SumPtTrk12.push_back ( (pT + track2Pt) / CLHEP::GeV );
-                // Monitoring of the opening between the two tracks
-                double dTrkEta = eta  - track2eta;
-                double dTrkPhi = phi - track2phi;
-                double absdTrkPhi = fabs( dTrkPhi );
-                if ( 2.* M_PI - absdTrkPhi < absdTrkPhi ) {
-                    if ( dTrkPhi > 0 ) {
-                        dTrkPhi = dTrkPhi - 2.* M_PI;
-                    } else {
-                        dTrkPhi = 2* M_PI - absdTrkPhi;
-                    }
-                }
-                mon_Trk1Trk2dEta.push_back( fabs(dTrkEta) );
-                mon_Trk1Trk2dPhi.push_back( fabs(dTrkPhi) );
-                mon_Trk1Trk2dR  .push_back( sqrt(dTrkPhi*dTrkPhi+dTrkEta*dTrkEta) );
-                
-                // found pair with good mass , now make EFBphys object
-                // ROI_Id - ???
-                TrigEFBphys* trigEFBphys = new TrigEFBphys(roiDescriptor->roiId(), roiDescriptor->eta(), roiDescriptor->phi(), TrigEFBphys::JPSIMUMU, Mass);
-                if ( msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "Create Bphys particle with roIId " << trigEFBphys->roiId()
-                    <<" mass " << Mass << " phi, eta " << trigEFBphys->phi() << " "
-                    << trigEFBphys->eta() << " vertex type " << trigEFBphys->particleType() << endreq;
-                ElementLink<Rec::TrackParticleContainer> track1EL(*TrkParticleCont,itrk);
-                ElementLink<Rec::TrackParticleContainer> track2EL(*TrkParticleCont,jtrk);
-                trigEFBphys->addTrack(track1EL);
-                trigEFBphys->addTrack(track2EL);
-                //m_Mass.push_back(Mass);
-                // set result here if mass cut is passed.
-                result=true;
-                
-                // now do vertexing
-                if (m_doVertexFit) {
-                    
-                    Trk::VxCandidate * myVxCandidate ( 0 );
-                    std::vector<const Trk::TrackParticleBase*> pair;
-                    // CLHEP::Hep3Vector vtx_CLHEP ( 0.,0.,0. );
-                    Amg::Vector3D vtx(0.,0.,0.);
-                    Trk::Vertex vertex ( vtx );
-                    
-                    // Vertexing time processing
-                    if ( timerSvc() ) m_VtxFitTimer->resume();
-                    
-                    pair.push_back(*trkIt);
-                    pair.push_back(*trkIt2);
-                    myVxCandidate = m_iVKVVertexFitter->fit(pair,vertex);
-                    if(myVxCandidate) {
-                        if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Vertex fit ok"<<endreq;
-                        
-                        // Passed vertexing (monitoring only)
-                        if ( !flag_stages[ ACCEPT_Vertexing ] ) {
-                            mon_Acceptance.push_back( ACCEPT_Vertexing );
-                            flag_stages[ ACCEPT_Vertexing ] = true;
-                        }
-                        mon_Acceptance.push_back( ACCEPT_Each_Vertexing );
-                        std::vector<int> trkIndices;
-                        double invariantMass=0, invariantMassError=0;
-                        for (int i=0;i<(int)pair.size();++i) {trkIndices.push_back(1);}
-                        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-                            mon_Errors.push_back( ERROR_CalcInvMass_Fails );
-                            if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endreq;
-                        } else {
-                            // Calc. Inv. Mass succeeded (monitoring only)
-                            if ( !flag_stages[ ACCEPT_CalcInvMass ] ) {
-                                mon_Acceptance.push_back( ACCEPT_CalcInvMass );
-                                flag_stages[ ACCEPT_CalcInvMass ] = true;
-                            }
-                            mon_Acceptance.push_back( ACCEPT_Each_CalcInvMass );
-                        }
-                        trigEFBphys->fitmass((float)invariantMass);
-                        trigEFBphys->fitchi2(((myVxCandidate->recVertex().fitQuality().chiSquared())));
-                        trigEFBphys->fitndof(2*(pair.size())-3);
-                        trigEFBphys->fitx(myVxCandidate->recVertex().position() [0]);
-                        trigEFBphys->fity(myVxCandidate->recVertex().position() [1]);
-                        trigEFBphys->fitz(myVxCandidate->recVertex().position() [2]);
-                        // Monitoring of the fit results
-                        mon_FitMass       .push_back( invariantMass / CLHEP::GeV );
-                        mon_InvMass_okFit .push_back( Mass / CLHEP::GeV );
-                        double chisq = myVxCandidate->recVertex().fitQuality().chiSquared();
-                        unsigned int ndf = (unsigned int) myVxCandidate->recVertex().fitQuality().numberDoF();
-                        if ( ndf==0 )  ndf = 1; 
-                        
-                        mon_Chi2toNDoF.push_back( chisq / ndf );
-                        
-                        double chi2prob = 1.0 - Genfun::CumulativeChiSquare( ndf )(chisq);
-                        mon_Chi2toNDoFProb.push_back( chi2prob );
-                        //if ( p_vertex->getMotherTrack() != NULL ) {
-                        //  mon_FitTotalPt.push_back( p_vertex->getMotherTrack()->pT() / CLHEP::GeV );
-                        //  mon_SumPtTrk12_okFit.push_back( (fabs((*track)->param()->pT()) + fabs((*track2)->param()->pT())) / CLHEP::GeV );
-                        // }
-                        mon_FitVtxR.push_back( myVxCandidate->recVertex().position().x()*myVxCandidate->recVertex().position().x() + myVxCandidate->recVertex().position().y()*myVxCandidate->recVertex().position().y()) ;
-                        mon_FitVtxZ.push_back( myVxCandidate->recVertex().position().z() );
-                        
-                        delete myVxCandidate;
-                        myVxCandidate = 0;
-                        
-                    } else {             // fit successful?
-                        if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigL2VertexFitter failed" << endreq;
-                    }
-                    // Pause the vertexing time monitoring
-                    if ( timerSvc() ) m_VtxFitTimer->pause();
-                } // if doVertexFit
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Store EFBphys and move onto next track" << endreq;
-                m_trigBphysColl->push_back(trigEFBphys);
-            } //2d track
-        } else {               //passed RoI match
-            if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "RoI match failed deta, dphi: " << deta << " " << dphi << endreq;
-            
-        }
-    } // end loop over tracks
+        tracks.push_back(trkel);
+    }// optimize? addUnique?
     
-    //m_NBphys = m_trigBphysColl->size();
-    // Check the size of the bphys-objects collection
-    if ( m_trigBphysColl->size() > 0 ) mon_Acceptance.push_back( ACCEPT_BphysColl_not_Empty );
-    mon_nBphys = m_trigBphysColl->size();
+    buildMuTrkPairs(roiDescriptor,muons,tracks,*xAODTrigBphysColl); // make pairs of objects and add to output
+
+    if (xAODTrigBphysColl->size()) result = true;
     
-    if (PassedRoIMatch) m_countPassedRoIMatch++;
-    if (PassedMass) m_countPassedMass++;
-    
-    if (result) {
-        m_countPassedRoIs++;
-        if (IdEvent!= (int) m_lastEventPassed) {
-            m_countPassedEvents++;
-            m_lastEventPassed=IdEvent;
-        }
-    }              
-    if ( msgLvl() <= MSG::DEBUG) {
-        if (m_trigBphysColl != 0) msg() << MSG::DEBUG << "Bphys collection size : " << m_trigBphysColl->size() << " m_trigBphysColl " << m_trigBphysColl << endreq;
-    }
     // Reach this point successfully
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Run: " << IdRun << " Event: " << IdEvent << "  result is " << result << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Run: " << runNumber << " Event: " << evtNumber << "  result is " << result << endreq;
     // Stop the processing timers
     if ( timerSvc() ) {
         m_TotTimer   ->stop();
@@ -829,28 +571,211 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
         mon_TotalRunTime     = m_TotTimer   ->elapsed();
         mon_VertexingTime = m_VtxFitTimer->elapsed();
     }
-    
-    //  if (!m_acceptAll) pass = result; 
-    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    m_trigBphysColl " << m_trigBphysColl << endreq;
-    
-    if ((m_trigBphysColl!=0) && (m_trigBphysColl->size() > 0)) {
-        if ( msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endreq;
+
+    if (xAODTrigBphysColl && xAODTrigBphysColl->size()) {
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << xAODTrigBphysColl->size() << endreq;
         
-        HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl, "EFTrackMass" );
+        HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, "EFTrackMass" );
         if(sc != HLT::OK) {
             msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endreq;
-            mon_Errors.push_back( ERROR_BphysColl_Fails );
-            return sc;
+            delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
+            return HLT::ERROR;
         }
     } else {
-        if ( msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endreq;
-        delete m_trigBphysColl;
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endreq;
+        delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr;
     }
-    m_trigBphysColl=0;
-    
-    
-    
-    
+
     return HLT::OK;
 }
+
+
+void TrigEFTrkMassFex::buildMuTrkPairs(const TrigRoiDescriptor * roi,
+                                           const std::vector<ElementLink<xAOD::MuonContainer> > & muons,
+                                           const std::vector<ElementLink< xAOD::TrackParticleContainer> > & tracks,
+                                           xAOD::TrigBphysContainer & physcontainer) {
+    if (!roi) {
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "null roi ptr"<< endreq;
+        return;
+    }
+    if (!muons.size()) {
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Muons in buildTrkPairs"<< endreq;
+        return;
+    }
+    if (!tracks.size()) {
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No tracks in buildTrkPairs"<< endreq;
+        return;
+    }
+
+    for (auto muel: muons) {
+        if (!muel.isValid()) continue;
+        const xAOD::Muon * muon = *muel;
+        if (!muon) continue;
+        const xAOD::TrackParticle * mutrk = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+        const ElementLink<xAOD::TrackParticleContainer> & mutrkel = muon->trackParticleLink(xAOD::Muon::InnerDetectorTrackParticle);
+        if (!mutrk) continue;
+        
+        for (auto trkel: tracks) {
+            if (!trkel.isValid()) continue;
+            const xAOD::TrackParticle * trk = *trkel;
+            if (!trk) continue;
+            
+            if (trk->definingParametersCovMatrixVec().size() == 0) {
+                if ( msgLvl() <= MSG::INFO ) msg() << MSG::INFO << "track has no ParametersCovMatrix - will reject" << endreq;
+                //#FIXME add monitoring flags here
+                continue;
+            }
+
+            // compare the two tps, make sure unique
+            if (!m_bphysHelperTool->areUnique(mutrk,trk,0.005,0.005,10)) {
+                if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Trk and MuTrk match, continue"<< endreq;
+            }
+            
+            double charge1 = mutrk->charge();
+            double charge2 = trk  ->charge();
+
+            double pT1 = mutrk->pt();
+            double pT2 = trk->pt();
+            //float track1Chi2 = mutrk->chiSquared();
+            float track2Chi2 = trk->chiSquared();
+            double eta1 =  mutrk->eta() ;
+            double eta2 =  trk->eta() ;
+            double phi1 =  mutrk->phi() ;
+            double phi2 =  trk->phi() ;
+
+            
+
+            
+            
+            std::vector<const xAOD::TrackParticle*> inputtrks;
+            std::vector<double> massHypo ;
+            inputtrks.push_back(mutrk);
+            inputtrks.push_back(trk);
+            massHypo.push_back( m_daughterMass );
+            massHypo.push_back( m_daughterMass );
+
+            double Mass = m_bphysHelperTool->invariantMass(mutrk,trk,m_daughterMass,m_daughterMass);
+
+            if ( track2Chi2 <= 1e7 ) {
+                if ( pT2 > 2e3 ) { // updated the hard coded value to GeV, rather than MeV
+                    mon_InvMassNoTrkPtCut.push_back( Mass / CLHEP::GeV );
+                    mon_InvMassNoTrkPtCut_wideRange.push_back( Mass / CLHEP::GeV );
+                }
+            } // If good track
+            
+            // check Pt and chi2
+            if( pT2 < m_trackPtthr || track2Chi2 > 1e7) continue;
+            if ( !m_flag_stages[ ACCEPT_Mu2_Chi2Pt_Cut ] ) {
+                mon_Acceptance.push_back( ACCEPT_Mu2_Chi2Pt_Cut );
+                m_flag_stages[ ACCEPT_Mu2_Chi2Pt_Cut ] = true;
+            }
+            mon_Acceptance.push_back( ACCEPT_Each_Mu2_Chi2Pt_Cut );
+
+            if (m_oppositeCharge) {
+                if ( charge1 * charge2 > 0) {
+                    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail opp charge reqirement." << charge1 << " " << charge2<< endreq;
+                    continue;
+                } else {// same q
+                    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Passes opp charge reqirement." << charge1 << " " << charge2<< endreq;
+                }
+            } else {// apply opp charge cut
+                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE
+                    << "opposite sign cuts not applied, make mass cuts " << endreq;
+            }
+            if ( !m_flag_stages[ ACCEPT_Opp_Charge ] ) {
+                mon_Acceptance.push_back( ACCEPT_Opp_Charge );
+                m_flag_stages[ ACCEPT_Opp_Charge ] = true;
+            }
+            mon_Acceptance.push_back( ACCEPT_Each_Opp_Charge );
+
+            
+            // Check the invariant mass cut
+            if (Mass < m_mass_low_cut || Mass > m_mass_high_cut){
+                if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail mass cuts: " << Mass << endreq;
+                continue;
+            } else {
+                if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Passes Mass cut " << Mass << endreq;
+            }
+            if ( !m_flag_stages[ ACCEPT_InvMass_Cut ] ) {
+                mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
+                m_flag_stages[ ACCEPT_InvMass_Cut ] = true;
+            }
+            mon_Acceptance.push_back( ACCEPT_Each_InvMass_Cut );
+            mon_InvMass.push_back( Mass / CLHEP::GeV );
+            mon_InvMass_wideRange.push_back( Mass / CLHEP::GeV );
+
+            // Monitoring of the di-muon track pairs
+            mon_Trk1Pt .push_back( pT1 / CLHEP::GeV );
+            mon_Trk2Pt .push_back( pT2 / CLHEP::GeV );
+            mon_Trk1Eta.push_back( eta1 );
+            mon_Trk2Eta.push_back( eta2 );
+            mon_Trk1Phi.push_back( phi1 );
+            mon_Trk2Phi.push_back( phi2 );
+            mon_SumPtTrk12.push_back ( (pT1 + pT2) / CLHEP::GeV );
+
+            mon_Trk1Trk2dEta.push_back( m_bphysHelperTool->absDeltaEta(eta1,eta2) );
+            mon_Trk1Trk2dPhi.push_back( m_bphysHelperTool->absDeltaPhi(phi1,phi2) );
+            mon_Trk1Trk2dR  .push_back( m_bphysHelperTool->deltaR(eta1,phi1,eta2,phi2) );
+
+            // got to here - add object to container
+            xAOD::TrigBphys* xaodObj = new xAOD::TrigBphys();
+            physcontainer.push_back( xaodObj );
+            xaodObj->initialise(roi->roiId(), roi->eta(), roi->phi(),
+                                xAOD::TrigBphys::JPSIMUMU, Mass, xAOD::TrigBphys::EF );
+            
+            // #FIXME- is it really JPSIMUMU flag?
+            
+            xaodObj->addTrackParticleLink(mutrkel);
+            xaodObj->addTrackParticleLink(trkel);
+            
+
+            if (m_doVertexFit) {
+                std::vector<ElementLink<xAOD::TrackParticleContainer> > input = {mutrkel, trkel};
+                if (m_bphysHelperTool->vertexFit(xaodObj,input,massHypo).isFailure()) {
+                    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit"  << endreq;
+                }
+                // Passed vertexing (monitoring only) - well actually, only it's called
+                if ( !m_flag_stages[ ACCEPT_Vertexing ] ) {
+                    mon_Acceptance.push_back( ACCEPT_Vertexing );
+                    m_flag_stages[ ACCEPT_Vertexing ] = true;
+                }
+                mon_Acceptance.push_back( ACCEPT_Each_Vertexing );
+                if ( timerSvc() ) m_VtxFitTimer->pause();
+            } // vertex fitting
+            
+            if (xaodObj->fitmass() < 0) mon_Errors.push_back( ERROR_CalcInvMass_Fails );
+            else {
+                if ( !m_flag_stages[ ACCEPT_CalcInvMass ] ) {
+                    mon_Acceptance.push_back( ACCEPT_CalcInvMass );
+                    m_flag_stages[ ACCEPT_CalcInvMass ] = true;
+                }
+                mon_Acceptance.push_back( ACCEPT_Each_CalcInvMass );
+            }
+            mon_FitMass       .push_back( xaodObj->fitmass() / CLHEP::GeV );
+            mon_InvMass_okFit .push_back( xaodObj->mass() / CLHEP::GeV );
+
+            double chisq     = xaodObj->fitchi2();
+            unsigned int ndf = xaodObj->fitndof();
+            
+            if (chisq <=0 || ndf == 0) {
+                
+                mon_Chi2toNDoF.push_back( -1. );
+                mon_Chi2toNDoFProb.push_back(-1.);
+            } else {
+                mon_Chi2toNDoF.push_back( chisq / ndf );
+                double chi2prob = 1.0 - Genfun::CumulativeChiSquare( ndf )(chisq);
+                mon_Chi2toNDoFProb.push_back( chi2prob );
+            }
+            double r2 = xaodObj->fitx()*xaodObj->fitx() + xaodObj->fitz()*xaodObj->fitz();
+            mon_FitVtxR.push_back(sqrt(r2));
+            mon_FitVtxZ.push_back(xaodObj->fitz());
+            
+        } // for tracks
+    } // for mu
+    
+    
+    
+} //buildMuTrkPairs
+
+
 

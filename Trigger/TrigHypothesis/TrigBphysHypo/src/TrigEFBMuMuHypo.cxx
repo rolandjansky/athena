@@ -20,8 +20,8 @@
 
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 
-#include "TrigBphysHypo/TrigEFBMuMuHypo.h"
-#include "TrigBphysHypo/TrigEFBMuMuFex.h"
+#include "TrigEFBMuMuHypo.h"
+//#include "TrigBphysHypo/TrigEFBMuMuFex.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -39,6 +39,12 @@
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+//#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 class ISvcLocator;
 
@@ -165,7 +171,9 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   }
 
   //  create vector for TrigEFBphys particles
-  const TrigEFBphysContainer* trigBphysColl = 0;
+    // const TrigEFBphysContainer* trigBphysColl = 0;
+    const xAOD::TrigBphysContainer* trigBphysColl(0);
+    
 //  const TrigEFBContainer* trigBphysColl = 0;
 //  const VxContainer* VertexColl;
 
@@ -173,7 +181,7 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get xAOD::TrigBphysics collection" << endreq;
     }
 
     return HLT::OK;
@@ -220,68 +228,79 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-  for (TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
-
-    if ((*bphysIter)->particleType() == TrigEFBphys::BMUMU ) {
-      //    if ((*bphysIter)->particleType() == TrigEFB::BMUMU ) {
-
-      double BsMass = (*bphysIter)->mass();
-      
-      double Dx = (*bphysIter)->fitx() - m_beamSpot.x();
-      double Dy = (*bphysIter)->fity() - m_beamSpot.y();
-      double BsLxy = -99999.;
-
+    for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
         
-        const ElementLinkVector<Rec::TrackParticleContainer> trackVector = (*bphysIter)->trackVector();
-        if (trackVector.size() != 0) {
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endreq;
-            ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trkIt=trackVector.begin();
-            double pBx = 0, pBy=0;
-            for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
-                // JW EDM const Trk::MeasuredPerigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-                const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-                if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
-                //double phi = trackPerigee->parameters()[Trk::phi];
-                //double theta = trackPerigee->parameters()[Trk::theta];
-                pBx += trackPerigee->momentum()[Trk::px];
-                pBy += trackPerigee->momentum()[Trk::py];
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track " << itrk << " px=" <<trackPerigee->momentum()[Trk::px]<<
-                    " py= "<< trackPerigee->momentum()[Trk::py] << endreq;
-            }
-            double pBt = sqrt(pBx*pBx + pBy*pBy);
+        if ((*bphysIter)->particleType() == xAOD::TrigBphys::BMUMU ) {
+            //    if ((*bphysIter)->particleType() == TrigEFB::BMUMU ) {
             
-            BsLxy = (pBx*Dx+pBy*Dy)/pBt;
-        } else {
-            if(msgLvl() <= MSG::DEBUG)  msg() << MSG::DEBUG << " no track vector!!! "  << endreq;
+            double BsMass = (*bphysIter)->mass();
+            
+            double Dx = (*bphysIter)->fitx() - m_beamSpot.x();
+            double Dy = (*bphysIter)->fity() - m_beamSpot.y();
+            double BsLxy = -99999.;
+            
+            
+            //const ElementLinkVector<Rec::TrackParticleContainer> trackVector = (*bphysIter)->trackVector();
+            //const ElementLinkVector<xAOD::TrackParticleContainer> trackVector = (*bphysIter)->trackParticleLinks();
+            const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphysIter)->trackParticleLinks();
+            
+            if (trackVector.size() != 0) {
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endreq;
+                std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
+                double pBx = 0, pBy=0;
+                for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
+                    //                    // JW EDM const Trk::MeasuredPerigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+                    //                    const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+                    //                    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+                    //                    //double phi = trackPerigee->parameters()[Trk::phi];
+                    //                    //double theta = trackPerigee->parameters()[Trk::theta];
+                    //                    pBx += trackPerigee->momentum()[Trk::px];
+                    //                    pBy += trackPerigee->momentum()[Trk::py];
+                    //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track " << itrk << " px=" <<trackPerigee->momentum()[Trk::px]<<
+                    //                        " py= "<< trackPerigee->momentum()[Trk::py] << endreq;
+                    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+                    pBx += (*(*trkIt))->p4().Px(); // FIXME - is there a more optimal way
+                    pBy += (*(*trkIt))->p4().Py();
+                    
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track " << itrk
+                        << " px=" << (*(*trkIt))->p4().Px()
+                        << " py= "<< (*(*trkIt))->p4().Py() << endreq;
+
+                } // for loop
+                double pBt = sqrt(pBx*pBx + pBy*pBy);
+                
+                BsLxy = (pBx*Dx+pBy*Dy)/pBt;
+            } else {
+                if(msgLvl() <= MSG::DEBUG)  msg() << MSG::DEBUG << " no track vector!!! "  << endreq;
+            }
+            
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "EFBphys with mass: " << BsMass <<" GeV" << "   chi2 " << (*bphysIter)->fitchi2() <<
+                " Lxy  "<<BsLxy<<"  lxy= "<<sqrt(Dx*Dx+Dy*Dy)<<endreq;
+            bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
+            PassedBsMass |= thisPassedBsMass;
+            bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut) );
+            PassedChi2Cut |= thisPassedChi2Cut;
+            bool thisPassedLxyCut = ((!m_ApplyLxyCut) || ( BsLxy > m_LxyCut) );
+            PassedLxyCut |= thisPassedLxyCut;
+            
+            if(thisPassedBsMass)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
+            mon_MuMumass = ((BsMass*0.001));
+            if(thisPassedChi2Cut)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
+            if(thisPassedLxyCut)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Lxy cut : " << m_ApplyLxyCut << " Passed Lxy cut  "<< m_LxyCut << endreq;
+            if(!thisPassedBsMass && !thisPassedChi2Cut)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
+            if(!thisPassedLxyCut)
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass Lxy cuts  "<<  BsLxy << " <  Lxy cut "<< m_LxyCut<< endreq;
+            
+            if( thisPassedBsMass && thisPassedChi2Cut && thisPassedLxyCut )
+            {
+                HLT::markPassing(bits, *bphysIter, trigBphysColl);
+            }
+            
         }
-        
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "EFBphys with mass: " << BsMass <<" GeV" << "   chi2 " << (*bphysIter)->fitchi2() <<
-                                                        " Lxy  "<<BsLxy<<"  lxy= "<<sqrt(Dx*Dx+Dy*Dy)<<endreq;
-      bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
-      PassedBsMass |= thisPassedBsMass;
-      bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut) );
-      PassedChi2Cut |= thisPassedChi2Cut;
-      bool thisPassedLxyCut = ((!m_ApplyLxyCut) || ( BsLxy > m_LxyCut) );
-      PassedLxyCut |= thisPassedLxyCut;
-
-      if(thisPassedBsMass)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
-      mon_MuMumass = ((BsMass*0.001));
-      if(thisPassedChi2Cut)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
-      if(thisPassedLxyCut)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Lxy cut : " << m_ApplyLxyCut << " Passed Lxy cut  "<< m_LxyCut << endreq;
-      if(!thisPassedBsMass && !thisPassedChi2Cut)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
-      if(!thisPassedLxyCut)
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass Lxy cuts  "<<  BsLxy << " <  Lxy cut "<< m_LxyCut<< endreq;
-
-      if( thisPassedBsMass && thisPassedChi2Cut && thisPassedLxyCut )
-      {
-        HLT::markPassing(bits, *bphysIter, trigBphysColl);
-      }
-
-    }
 
 
     // JK check tracks, for debugging only
@@ -313,29 +332,29 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
 
 
-  if (PassedBsMass)  { m_countPassedBsMass++; mon_cutCounter++;
-		       if (PassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++; 
-	    				     if (PassedLxyCut)  { m_countPassedLxyCut++; mon_cutCounter++; }
-                                          }
-                     }
-                     
-  if ( PassedBsMass && PassedChi2Cut && PassedLxyCut ) {
-    result = true;
-  }
-
-  if (result) {
-    m_countPassedRoIs++;
-    if (IdEvent!= m_lastEventPassed) {
-      m_countPassedEvents++;
-      m_lastEventPassed=IdEvent;
+    if (PassedBsMass)  { m_countPassedBsMass++; mon_cutCounter++;
+        if (PassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++;
+            if (PassedLxyCut)  { m_countPassedLxyCut++; mon_cutCounter++; }
+        }
     }
-    pass=true;
-  }
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " TrigEFBMuMuHypo result : " << pass << endreq;
-  // store result
-  if ( attachBits(outputTE, bits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endreq;
-  }
+    
+    if ( PassedBsMass && PassedChi2Cut && PassedLxyCut ) {
+        result = true;
+    }
+    
+    if (result) {
+        m_countPassedRoIs++;
+        if (IdEvent!= m_lastEventPassed) {
+            m_countPassedEvents++;
+            m_lastEventPassed=IdEvent;
+        }
+        pass=true;
+    }
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " TrigEFBMuMuHypo result : " << pass << endreq;
+    // store result
+    if ( attachBits(outputTE, bits) != HLT::OK ) {
+        msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endreq;
+    }
 
   return HLT::OK;
 }

@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # vim: tabstop=4:shiftwidth=4:expandtab
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuXHypo,TrigEFBMuMuXHypo_xAOD
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuXHypo
 
 
-class EFBMuMuXHypo_1 (TrigEFBMuMuXHypo_xAOD):
+class EFBMuMuXHypo_1 (TrigEFBMuMuXHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXHypo_1"):
-        super( TrigEFBMuMuXHypo_xAOD, self ).__init__( name )
+        super( TrigEFBMuMuXHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

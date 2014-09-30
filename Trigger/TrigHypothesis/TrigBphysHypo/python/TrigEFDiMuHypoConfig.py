@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigEFDiMuHypo,TrigEFDiMuHypo_xAOD
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFDiMuHypo
 
 # Jpsi
-class TrigEFDiMuHypo_Jpsi (TrigEFDiMuHypo_xAOD):
+class TrigEFDiMuHypo_Jpsi (TrigEFDiMuHypo):
     __slots__ = []
     def __init__(self, name = "TrigEFDiMuHypo_Jpsi"):
-        super( TrigEFDiMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFDiMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -25,10 +25,10 @@ class TrigEFDiMuHypo_Jpsi (TrigEFDiMuHypo_xAOD):
         self.AthenaMonTools = [ validation, online, time ]
         ## end of adding
 # Upsilon
-class TrigEFDiMuHypo_Upsi (TrigEFDiMuHypo_xAOD):
+class TrigEFDiMuHypo_Upsi (TrigEFDiMuHypo):
     __slots__ = []
     def __init__(self, name = "TrigEFDiMuHypo_Upsi"):
-        super( TrigEFDiMuHypo_xAOD, self ).__init__( name )
+        super( TrigEFDiMuHypo, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
@@ -48,10 +48,10 @@ class TrigEFDiMuHypo_Upsi (TrigEFDiMuHypo_xAOD):
         ## end of adding
 
 # Bmumu
-class TrigEFDiMuHypo_B (TrigEFDiMuHypo_xAOD):   
+class TrigEFDiMuHypo_B (TrigEFDiMuHypo):   
     __slots__ = []   
     def __init__(self, name = "TrigEFDiMuHypo_B"):   
-        super( TrigEFDiMuHypo_xAOD, self ).__init__( name )   
+        super( TrigEFDiMuHypo, self ).__init__( name )   
      
         # AcceptAll flag: if true take events regardless of cuts   
         self.AcceptAll = False   
@@ -70,10 +70,10 @@ class TrigEFDiMuHypo_B (TrigEFDiMuHypo_xAOD):
         ## end of adding
 
 # generic di-muon
-class TrigEFDiMuHypo_DiMu (TrigEFDiMuHypo_xAOD):   
+class TrigEFDiMuHypo_DiMu (TrigEFDiMuHypo):   
     __slots__ = []   
     def __init__(self, name = "TrigEFDiMuHypo_DiMu"):   
-        super( TrigEFDiMuHypo_xAOD, self ).__init__( name )   
+        super( TrigEFDiMuHypo, self ).__init__( name )   
      
         # AcceptAll flag: if true take events regardless of cuts   
         self.AcceptAll = False   
@@ -93,10 +93,10 @@ class TrigEFDiMuHypo_DiMu (TrigEFDiMuHypo_xAOD):
 
 
 # generic di-muon no Opp charge
-class TrigEFDiMuHypo_DiMu_noOS (TrigEFDiMuHypo_xAOD):   
+class TrigEFDiMuHypo_DiMu_noOS (TrigEFDiMuHypo):   
     __slots__ = []   
     def __init__(self, name = "TrigEFDiMuHypo_DiMu_noOS"):   
-        super( TrigEFDiMuHypo_xAOD, self ).__init__( name )   
+        super( TrigEFDiMuHypo, self ).__init__( name )   
      
         # AcceptAll flag: if true take events regardless of cuts   
         self.AcceptAll = False   

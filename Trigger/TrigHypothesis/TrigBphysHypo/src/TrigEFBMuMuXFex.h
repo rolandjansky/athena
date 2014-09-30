@@ -5,7 +5,7 @@
 // vim: tabstop=2:shiftwidth=2:expandtab
 /**************************************************************************
 **
-**   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigEFBMuMuXFex_xAOD.h
+**   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigEFBMuMuXFex.h
 **
 **   Description: EF hypothesis algorithms for 
 **                B^0_{d,s},\Lambda_b \to X \mu^+ \mu^-
@@ -20,8 +20,8 @@
 **
 ***************************************************************************/
             
-#ifndef TRIG_TrigEFBMuMuXFex_xAOD_H 
-#define TRIG_TrigEFBMuMuXFex_xAOD_H
+#ifndef TRIG_TrigEFBMuMuXFex_H 
+#define TRIG_TrigEFBMuMuXFex_H
 
 // standard stuff
 #include <string>
@@ -61,11 +61,11 @@ class StoreGateSvc;
 class TriggerElement;
 class CombinedMuonFeature;
 
-class TrigEFBMuMuXFex_xAOD: public HLT::ComboAlgo  {
+class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
   
   public:
-    TrigEFBMuMuXFex_xAOD(const std::string & name, ISvcLocator* pSvcLocator);
-    ~TrigEFBMuMuXFex_xAOD();
+    TrigEFBMuMuXFex(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigEFBMuMuXFex();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltFinalize();     
     HLT::ErrorCode acceptInputs(HLT::TEConstVec& inputTE, bool& pass );
@@ -323,8 +323,8 @@ class TrigEFBMuMuXFex_xAOD: public HLT::ComboAlgo  {
     // TrigEFBphysContainer* m_trigBphysColl_b;
     // TrigEFBphysContainer* m_trigBphysColl_X;
 
-    xAOD::TrigBphysContainer * m_xAODTrigBphysColl_b;
-    xAOD::TrigBphysContainer * m_xAODTrigBphysColl_X;
+    xAOD::TrigBphysContainer * mTrigBphysColl_b;
+    xAOD::TrigBphysContainer * mTrigBphysColl_X;
 
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);

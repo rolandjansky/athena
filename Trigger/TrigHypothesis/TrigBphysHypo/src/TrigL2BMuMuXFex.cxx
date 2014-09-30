@@ -834,9 +834,39 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
   
   std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections1;
   std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections2;
+  //std::vector<const TrackCollection*> vectorOfTrackCollections1;
+  //std::vector<const TrackCollection*> vectorOfTrackCollections2;
+
   std::vector<const HLT::TriggerElement*>::const_iterator iTE = inputTEs.begin();
   ////////////////////////////// other particle candidates //////////////////////////////  
   status = getFeatures(*iTE, vectorOfTrackCollections1);
+  //status = getFeatures(*iTE, vectorOfTrackCollections1,"TrigFastTrackFinder_TrigInDetTrack_Muon");
+  //status = getFeatures(*iTE, vectorOfTrackCollections1);
+    if (status!=HLT::OK) { msg() << MSG::ERROR << "XX1: " << endreq;return HLT::NAV_ERROR;}
+    std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections1a;
+    std::vector<const TrackCollection*> vectorOfTrackCollections1b;
+    std::vector<const TrackCollection*> vectorOfTrackCollections1c;
+    status = getFeatures(*iTE, vectorOfTrackCollections1a,"TrigFastTrackFinder_TrigInDetTrack_Muon");
+    if (status!=HLT::OK) { msg() << MSG::ERROR << "XX1a: " << endreq;return HLT::NAV_ERROR;}
+    status = getFeatures(*iTE, vectorOfTrackCollections1b);
+    if (status!=HLT::OK) { msg() << MSG::ERROR << "XX1b: " << endreq;return HLT::NAV_ERROR;}
+    status = getFeatures(*iTE, vectorOfTrackCollections1c,"TrigFastTrackFinder_Muon");
+    if (status!=HLT::OK) { msg() << MSG::ERROR << "XX1c: " << endreq;return HLT::NAV_ERROR;}
+    msg() << MSG::INFO << " found: "
+    << vectorOfTrackCollections1.size() << " "
+    << vectorOfTrackCollections1a.size() << " "
+    << vectorOfTrackCollections1b.size() << " "
+    << vectorOfTrackCollections1c.size() << " " << endreq;
+    
+    for (auto x: vectorOfTrackCollections1 ) { if (!x) continue; msg() << MSG::INFO << " 1 : " << x->size() << endreq;}
+    for (auto x: vectorOfTrackCollections1a) { if (!x) continue; msg() << MSG::INFO << " 1a: " << x->size() << endreq;}
+    for (auto x: vectorOfTrackCollections1b) { if (!x) continue; msg() << MSG::INFO << " 1b: " << x->size() << endreq;}
+    for (auto x: vectorOfTrackCollections1c) { if (!x) continue; msg() << MSG::INFO << " 1c: " << x->size() << endreq;}
+    
+    
+    // jw tests
+    
+    
   if(status!=HLT::OK) {
       msg() << MSG::ERROR
            << "Unable to retrieve vector of InDetTrackCollections from TE" << endreq;
@@ -855,7 +885,9 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
     }
     mon_Acceptance.push_back( ACCEPT_First_TrackColl );
     iTE++; // next trigger element, no more or less than two, checked by acceptInputs!!
+    //status = getFeatures(*iTE, vectorOfTrackCollections2,"TrigFastTrackFinder_TrigInDetTrack_Muon");
     status = getFeatures(*iTE, vectorOfTrackCollections2);
+    //status = getFeatures(*iTE, vectorOfTrackCollections2);
     //status = getFeatures( *iTE, vectorOfTrackCollections);
     if(status!=HLT::OK) {
       msg() << MSG::ERROR
@@ -873,7 +905,22 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
             << vectorOfTrackCollections2.size() << " TrackCollections in TE" << endreq;
     }
     mon_Acceptance.push_back( ACCEPT_Both_TrackColls );
-        
+    
+    if(msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG << "Collection: " << IdRun << " " << IdEvent << " " << vectorOfTrackCollections1.size() << " " <<
+        vectorOfTrackCollections2.size() << " "
+        << ( vectorOfTrackCollections1[0] ? vectorOfTrackCollections1[0]->size() : 999) << " "
+        << ( vectorOfTrackCollections2[0] ? vectorOfTrackCollections2[0]->size() : 999) << " " << endreq;
+        if ( vectorOfTrackCollections1[0]) {
+            for (auto ptl: *vectorOfTrackCollections1[0] )
+                msg() << MSG::DEBUG << " 1: " << ptl->param()->pT() << " " << ptl->param()->eta() << " " << ptl->param()->phi0() << endreq;
+        } // 1
+        if ( vectorOfTrackCollections2[0]) {
+            for (auto ptl: *vectorOfTrackCollections2[0] )
+                msg() << MSG::DEBUG << " 2: " << ptl->param()->pT() << " " << ptl->param()->eta() << " " << ptl->param()->phi0() << endreq;
+        } // 2
+    }
+    
   //////////////////////////////////// Muon part ///////////////////////////////
   // opposite charge check
     msg() << MSG::DEBUG << "JWW: muon1 \n" << *muonCandidates[0] << endreq;
