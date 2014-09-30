@@ -9,6 +9,7 @@ private
 #use EventInfo           EventInfo-*             Event
 use AthContainers   AthContainers-*     Control
 use AthenaMonitoring    AthenaMonitoring-*      Control
+use JetUtils            JetUtils-*              Reconstruction/Jet
 
 public
 use xAODJet             xAODJet-*               Event/xAOD
@@ -19,7 +20,6 @@ use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
 use AtlasROOT           AtlasROOT-*             External
 
-use JetUtils            JetUtils-*              Reconstruction/Jet
 
 #apply_pattern dual_use_library files=*.cxx
 
