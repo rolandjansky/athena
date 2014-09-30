@@ -270,7 +270,7 @@ void CalibNtupleLoader :: prepareSegments(const MuonCalibEvent *& event, std::ma
 
 	} // end of prepareSegments
 
-inline StatusCode  CalibNtupleLoader :: read_dictionary(istream &fl, int &tot_count)
+inline StatusCode  CalibNtupleLoader :: read_dictionary(std::istream &fl, int &tot_count)
 	{
 	MsgStream log(msgSvc(), name());
 	std::string filename;

@@ -14,8 +14,7 @@
 namespace coral {
   class IRelationalDomain;
   class AttributeList;
-  class IConnection;
-  class ISession;
+  class ISessionProxy;
   class Context;
   class ITableDataEditor;
 }
@@ -58,8 +57,7 @@ class WriteMdtGeometry : public Algorithm
 		coral::Context* m_context;
 		coral::IRelationalDomain& domain( const std::string& connectionString );
 		void loadServices();
-		coral::IConnection *m_connection;
-		coral::ISession *m_session;
+		coral::ISessionProxy *m_session;
 		std::string connectionString;
 		std::string WorkingSchema;
 		std::string m_username, m_password;

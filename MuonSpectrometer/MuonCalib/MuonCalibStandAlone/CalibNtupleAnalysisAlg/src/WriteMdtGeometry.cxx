@@ -7,9 +7,11 @@
 
 //coral
 #include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IConnection.h"
+//#include "RelationalAccess/IConnection.h"
 #include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/ConnectionService.h"
+//#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
@@ -60,7 +62,6 @@ WriteMdtGeometry :: WriteMdtGeometry(const std::string& name, ISvcLocator* pSvcL
 	//for the sake of coverity
 	m_session=NULL;
 	m_MdtIdHelper=NULL;
-	m_connection =NULL;
 	m_detMgr =NULL;
 	m_detStore=NULL;
 	m_id_tool=NULL;
@@ -215,13 +216,8 @@ inline void WriteMdtGeometry::fillLayer(const MuonGM::MdtReadoutElement* detEl, 
 
 void WriteMdtGeometry::OpenConnection()
 	{
-	coral::IRelationalDomain &domain = this->domain( connectionString); 
-	std::pair<std::string,std::string> cstr(domain.decodeUserConnectionString(connectionString));
-	m_connection=domain.newConnection(cstr.first);
-	m_connection->connect(); 
-	m_session=m_connection->newSession(cstr.second);
-	m_session->startUserSession(m_username,m_password);
-	m_session->transaction().start();
+        coral::ConnectionService connSvc;
+        m_session = connSvc.connect( connectionString );
 	}
 
 
@@ -234,10 +230,7 @@ void WriteMdtGeometry::CloseConnection(bool commit)
 		else
 			m_session->transaction().rollback();
 		}
-	if (m_connection !=NULL)
-		m_connection->disconnect();
 	m_session=NULL;
-	m_connection=NULL;
 	}
 
 
