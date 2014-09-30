@@ -91,6 +91,11 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type,
   declareProperty( "LQpatch", m_LQpatch=false);
 
   declareProperty("jetPartDRMatch" , m_jetPartDRMatch = 0.4);
+  declareProperty("FwdElectronTruthExtrEtaCut" , m_FwdElectronTruthExtrEtaCut = 2.4, 
+		  "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");
+  declareProperty("FwdElectronTruthExtrEtaWindowCut" , m_FwdElectronTruthExtrEtaWindowCut = 0.15, 
+		  "Cut on the delta eta of the truth Particles to be extrapolated for Fwd electrons and the current FwdElectron");
+
 
   const HepPDT::ParticleDataTable  m_particleTable("PDG Table");
 
@@ -810,7 +815,7 @@ const xAOD::TruthParticle* MCTruthClassifier::getGenPart(const xAOD::TrackPartic
   typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
 
   static SG::AuxElement::Accessor<TruthLink_t>  tPL ("truthParticleLink");
-  if(tPL.isAvailable(*trk)){
+  if(!tPL.isAvailable(*trk)){
     ATH_MSG_DEBUG("Track particle is not associated to truth particle");
     return 0;
   }  
@@ -2065,13 +2070,24 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
     if(q!=0&&pt<m_pTChargePartCut)  continue;
     if(q==0&&pt<m_pTNeutralPartCut) continue;
 
-    // eleptical cone  for extrapolations m_partExtrConePhi X m_partExtrConeEta 
-    if(!isFwrdEle&&m_ROICone&& pow((detPhi(clus->phiBE(2),thePart->phi())/m_partExtrConePhi),2)+
-       pow((detEta(clus->etaBE(2),thePart->eta())/m_partExtrConeEta),2)>1.0 ) continue;
+    float etaclus = clus->etaBE(2);
+    float phiclus = clus->phiBE(2);
+    if (etaclus < -900 || phiclus < -900) {
+      etaclus = clus->eta();
+      phiclus = clus->phi();
+    }
 
-    //If we are looking a frwd electron and the eta of the truth particle is less than 2.3 continue
-    //Forward electrons should start after 2.47 . 
-    if(isFwrdEle && (fabs(thePart->eta())<2.3) ) continue;
+    // eleptical cone  for extrapolations m_partExtrConePhi X m_partExtrConeEta 
+    if(!isFwrdEle&&m_ROICone&& pow((detPhi(phiclus,thePart->phi())/m_partExtrConePhi),2)+
+       pow((detEta(etaclus,thePart->eta())/m_partExtrConeEta),2)>1.0 ) continue;
+
+    //Also check if the clus and true have different sign , i they need both to be <0 or >0 
+    if(isFwrdEle && //It is forward and  
+       (((etaclus<0) - (thePart->eta()<0) !=0) //The truth eta has different sign wrt to the fwd electron
+	|| (fabs(thePart->eta())<m_FwdElectronTruthExtrEtaCut)  //or the truth is less than 2.4 (default cut)
+	|| (fabs(thePart->eta()-etaclus)> m_FwdElectronTruthExtrEtaWindowCut) //or if the delta Eta between el and truth is  > 0.15
+	) //then do no extrapolate this truth Particle for this fwd electron
+       ) continue;
 
     double dR(-999.);
     bool isNCone=false;
@@ -2214,7 +2230,7 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
   
   // define particle perigee:
   Amg::Vector3D  pos( pvtx->x() , pvtx->y() , pvtx->z() ) ;
-  Amg::Vector3D  mom(  thePart->px() , thePart->py() , thePart->pz() ) ;
+  Amg::Vector3D  mom( thePart->px() , thePart->py() , thePart->pz() ) ;
 
   if(!isFwrdEle){
     //if Photon use intersection
@@ -2224,8 +2240,17 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
     etaCalo = result.intersection.eta();
     phiCalo = result.intersection.phi() ;
 
-  }  else{
-    //For Frwd use the extrapolation
+  }  
+  else if(isFwrdEle && partCharge(thePart)==0){
+    //if forward and truthParticle is neutral , just do straight line as we are extrapolating the truth Particle
+    Trk::SurfaceIntersection result  =  m_extrapolateToCalo->getIntersectionInCalo(pos,mom, sample);
+    if ( !result.valid ) return false ;
+    etaCalo = result.intersection.eta();
+    phiCalo = result.intersection.phi() ;
+
+  }
+  else{
+    //When Forward and charged truth Particle use the full extrapolation
     Trk::Perigee perigee(pos,mom, partCharge(thePart),pos);
     const Trk::TrackParameters* result  =  m_extrapolateToCalo->extrapolate(perigee, sample, offset, Trk::nonInteracting, Trk::alongMomentum); 
     if ( result == 0 ) return false ;

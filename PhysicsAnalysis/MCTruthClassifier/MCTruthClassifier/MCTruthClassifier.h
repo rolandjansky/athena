@@ -246,12 +246,16 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float m_partExtrConePhi;
    float m_phtClasConePhi;
    float m_phtClasConeEta;
+
+   float m_FwdElectronTruthExtrEtaCut;
+   float m_FwdElectronTruthExtrEtaWindowCut;
+   float m_jetPartDRMatch;
    bool  m_inclG4part;
    bool  m_ROICone;
    bool  m_inclEgammaPhoton;
    bool  m_inclEgammaFwrdEle;
    bool  m_LQpatch;
    bool  m_forceNotUseBremRefitTrk;
-   float m_jetPartDRMatch;
+
 };
 #endif  // MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H 
