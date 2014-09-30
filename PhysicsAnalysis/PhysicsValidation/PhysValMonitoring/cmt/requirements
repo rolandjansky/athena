@@ -28,6 +28,8 @@ use xAODMissingET       xAODMissingET-*         Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD 
 use xAODEventInfo       xAODEventInfo-*         Event/xAOD 
 use xAODBTagging        xAODBTagging-*          Event/xAOD 
+use RecEvent		RecEvent-*		Reconstruction
+
 end_private
 
 ##

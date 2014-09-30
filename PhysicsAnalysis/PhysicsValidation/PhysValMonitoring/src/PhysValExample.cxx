@@ -29,6 +29,8 @@
 #include "xAODEventInfo/EventInfo.h" 
 #include "xAODBTagging/BTagging.h" 
 
+#include "RecEvent/RecoTimingObj.h"
+
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 namespace PhysVal {
@@ -106,15 +108,24 @@ namespace PhysVal {
  	ATH_CHECK(book(m_metPlots));
       }
 
+      for (auto name : m_timingNames) {
+	if (name == "EVNTtoHITS") {
+	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 10000));
+	} else {
+	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 100));
+	}
+	ATH_CHECK(regHist(m_timingPlots.back(), "Summary/Timing/" + name,all));
+      }
+      
       return StatusCode::SUCCESS;      
-  }
-
+ }
+  
   StatusCode PhysValExample::fillHistograms()
   {
     ATH_MSG_INFO ("Filling hists " << name() << "...");
     
     if (m_detailLevel < 10) return StatusCode::SUCCESS;
-
+    
     // Jets
     int nbtag(0);
     m_jetPlots.initializeEvent();
@@ -177,7 +188,16 @@ namespace PhysVal {
       return StatusCode::SUCCESS;
     }
     m_metPlots.fill(met);
-
+    
+    int i(0);
+    for (auto name : m_timingNames) {
+      float time;
+      if (getTiming(name, time).isSuccess()) {
+	m_timingPlots[i]->Fill(time);
+      }
+      ++i;
+    }
+    
     return StatusCode::SUCCESS;
   }
   
@@ -187,7 +207,7 @@ namespace PhysVal {
     return StatusCode::SUCCESS;
   }
   
-/////////////////////////////////////////////////////////////////// 
+  /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
@@ -199,7 +219,34 @@ namespace PhysVal {
 // Protected methods: 
 /////////////////////////////////////////////////////////////////// 
 
-/////////////////////////////////////////////////////////////////// 
+  StatusCode PhysValExample::getTiming(std::string name, float& recoTime) {
+    // Code form
+    // m_recoInclPers
+    
+    const RecoTimingObj* recTiming(0);
+    recoTime = 0;
+    if (evtStore()->contains<RecoTimingObj>(name + "_timings")) {
+      if (evtStore()->retrieve( recTiming, name + "_timings" ).isFailure()) {
+	ATH_MSG_VERBOSE("Cannot get RecoTimingObj with name " << name + "_timings");
+	return StatusCode::SUCCESS;
+      }
+      
+      bool m_recoInclPers(true);
+      if (m_recoInclPers) {
+	if ((*recTiming).size() > 0) 
+	  recoTime=*((*recTiming).rbegin());
+      } else {
+	if ((*recTiming).size() > 1)
+	  recoTime=(*recTiming)[(*recTiming).size()-2];
+      }
+    }
+    
+    ATH_MSG_VERBOSE("Filling RecoTiming <" << recoTime << ">.");
+    
+    return StatusCode::SUCCESS;
+  }
+  
+  /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
