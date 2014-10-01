@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## MergeNTUP_tf.py - NTUPLE merger
-# @version $Id: NTUPMerge_tf.py 582931 2014-02-13 08:37:55Z mneumann $
+# @version $Id: NTUPMerge_tf.py 619356 2014-10-01 12:05:37Z graemes $
 
 import sys
 import time
@@ -18,7 +18,7 @@ from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor, NTUPMergeExecutor
 from PyJobTransforms.trfArgs import addD3PDArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
-from PATJobTransforms.PATTransformUtils import addNTUPMergeSubsteps
+from PATJobTransforms.PATTransformUtils import addNTUPMergeSubsteps, addPhysValidationMergeFiles
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
 
@@ -43,6 +43,7 @@ def getTransform():
     executorSet = set()
     addNTUPMergeSubsteps(executorSet)
     trf = transform(executor = executorSet)
+    addPhysValidationMergeFiles(trf.parser)
     addD3PDArguments(trf.parser, transform=trf, addD3PDMRGtypes=True)
     return trf
 

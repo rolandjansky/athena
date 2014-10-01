@@ -178,7 +178,11 @@ elif rec.DPDMakerScripts()!=[]: include("PrimaryDPDMaker/esdtodpd.py")
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 ## Make "old style" D3PDs.
-for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
+try:
+    for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
+except NameError:
+    print "WARNING: oldProdFlags not available"
+    pass
 
 ## Offline prescales (has to be *after* the topOptions)
 if hasattr(runArgs,"prescales"):
