@@ -68,7 +68,7 @@
 #include "egammaEventTPCnv/CaloRingsContainer_p1.h"
 #include "egammaEventTPCnv/CaloRingsContainerCnv_p1.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_EGAMMAEVENTTPCNV {
   T_TPCnv<ElectronContainer, ElectronContainer_p1> m_elecnv;
   T_TPCnv<PhotonContainer, PhotonContainer_p1> m_phocnv;
   T_TPCnv<ElectronContainer, ElectronContainer_p2> m_elecnv_2;
