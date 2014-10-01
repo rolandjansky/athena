@@ -13,7 +13,9 @@
 #define ZDCTPCNV_ZDCRAWCHANNELCOLLECTIONCNV_P1_H
 
 // ZdcEventTPCnv includes
+#define private public
 #include "ZdcEventTPCnv/ZdcRawChannelCollection_p1.h"
+#undef private 
 #include "ZdcEventTPCnv/ZdcRawChannelCnv_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 

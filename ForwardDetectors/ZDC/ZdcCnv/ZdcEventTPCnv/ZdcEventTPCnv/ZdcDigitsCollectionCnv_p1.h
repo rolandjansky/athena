@@ -13,7 +13,9 @@
 #define ZDCTPCNV_ZDCDIGITSCOLLECTIONCNV_P1_H
 
 // ZdcEventTPCnv includes
+#define private public
 #include "ZdcEventTPCnv/ZdcDigitsCollection_p1.h"
+#undef private 
 #include "ZdcEventTPCnv/ZdcDigitsCnv_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 

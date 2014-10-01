@@ -10,7 +10,10 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit_Collection.h"
 #include "ZdcEventTPCnv/ZDC_SimPixelHit_p1.h"
+
+#define private public
 #include "ZdcEventTPCnv/ZDC_SimPixelHit_Collection_p1.h"
+#undef private 
 
 class MsgStream;
 

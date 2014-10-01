@@ -21,13 +21,13 @@ void ZdcDigitsCollectionCnv_p1::transToPers(const ZdcDigitsCollection* transObj,
 
 void ZdcDigitsCollectionCnv_p1::persToTrans(const ZdcDigitsCollection_p1* persObj, ZdcDigitsCollection* transObj, MsgStream& log) {
 
-  //log << MSG::INFO << " size = " << persObj->size() << endmsg;
+  //log << MSG::INFO << " size = " << persObj->size() << endreq;
 
   transObj->reserve(persObj->size());
   
   for (unsigned int i=0; i<persObj->size(); ++i) {
     
-    //log << MSG::INFO << " i = " << i << endmsg;
+    //log << MSG::INFO << " i = " << i << endreq;
     const ZdcDigits_p1* digit = &((*persObj)[i]);
     
     transObj->push_back(digitConv.createTransient(digit, log));
