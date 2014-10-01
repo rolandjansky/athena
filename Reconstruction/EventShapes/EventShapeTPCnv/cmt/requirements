@@ -3,15 +3,10 @@ package EventShapeTPCnv
 author Rolf Seuster  <seuster@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-*
-use AtlasReflex          AtlasReflex-*              External
-use AtlasBoost           AtlasBoost-*               External
 
-use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
-use DataModel            DataModel-*                Control
 use DataModelAthenaPool  DataModelAthenaPool-*      Control
 use CLIDSvc              CLIDSvc-*                  Control
-use EventCommonTPCnv     EventCommonTPCnv-*         Event
 
 use EventShapeEvent      EventShapeEvent-*          Reconstruction/EventShapes
 
@@ -24,6 +19,7 @@ apply_pattern installed_library
 # Create a dictionary for the persistent representation 
 # of transient classes
 private
+use AtlasReflex          AtlasReflex-*              External
 apply_pattern lcgdict dict=EventShapeTPCnv  \
   selectionfile=selection.xml \
   headerfiles="../EventShapeTPCnv/EventShapeTPCnvDict.h"
