@@ -15,7 +15,7 @@
 #include "EventTagTPCnv/RawInfoSummaryForTag_p1.h"
 #include "EventTagTPCnv/RawInfoSummaryForTagCnv_p1.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_EVENTTAGTPCNV {
   // template instances go here
   T_TPCnv<RawInfoSummaryForTag, RawInfoSummaryForTag_p1> m_conv1;
 };
