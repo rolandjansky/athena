@@ -23,6 +23,8 @@
 #include <time.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
 
 AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 				 , ISvcLocator* svcLocator)
@@ -38,6 +40,8 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   , m_nChildProcesses(0)
   , m_nPollingInterval(100) // 0.1 second
   , m_nEventsBeforeFork(0)
+  , m_shmemName("")
+  , m_masterPid(getpid())
 {
   declareProperty("NWorkers",m_nWorkers);
   declareProperty("WorkerTopDir",m_workerTopDir);
@@ -52,6 +56,9 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 
 AthMpEvtLoopMgr::~AthMpEvtLoopMgr()
 {
+  if(!m_shmemName.empty()
+     && m_masterPid==getpid())
+    boost::interprocess::shared_memory_object::remove(m_shmemName.c_str());
 }
 
 StatusCode AthMpEvtLoopMgr::initialize()
@@ -139,6 +146,16 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
       return StatusCode::FAILURE;
     }
   }
+
+  // Initialize shared memory segment and by this way make sure it never gets re-initialized during the job
+  m_shmemName = std::string("/athmp-shmem-"+randStream.str());
+  boost::interprocess::shared_memory_object::remove(m_shmemName.c_str());
+  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::create_only
+							 , m_shmemName.c_str()
+							 , boost::interprocess::read_write);
+  shmemSegment.truncate(2*sizeof(int));
+  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_write);
+  std::memset(shmemRegion.get_address(),0,shmemRegion.get_size());
 
   // Prepare work directory for sub-processes
   if(mkdir(m_workerTopDir.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)!=0) {
