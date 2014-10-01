@@ -190,6 +190,11 @@ if 1:
   volatility.TruncationFactor = 0.0
   #jetrec2.JetModifiers += [volatility]
 
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
+  ToolSvc += ShowerDeconstructionTool("sd")
+  sd = ToolSvc.sd
+  jetrec2.JetModifiers += [sd]
+
 # Dump copied jets.
 if 1:
   from JetRec.JetRecConf import JetDumper
@@ -215,6 +220,7 @@ if 1:
   jdmp2.FloatMoments += ["PullMag", "PullPhi", "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
   jdmp2.FloatMoments += ["Charge"]
   #jdmp2.FloatMoments += ["Volatility"]
+  jdmp2.FloatMoments += ["ShowerDeconstructionW", "ShowerDeconstructionTop"]
  # jdmp2.FourVectorMoments = ["ActiveArea4vec"]
   jdmp2.OutputLevel = INFO
   jetalg.Tools += [jdmp2]
