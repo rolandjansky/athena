@@ -50,7 +50,7 @@
 #include "TileTPCnv/TileMuonReceiverContainer_p1.h"
 #include "TileTPCnv/TileMuonReceiverContainerCnv_p1.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_TILETPCNV {
   T_TPCnv<TileHitContainer, TileHitContainer_p1> m_tilehitcnv;
   T_TPCnv<TileTTL1Container, TileTTL1Container_p1> m_tilettl1cnv;
   T_TPCnv<TileL2Container, TileL2Container_p1> m_tilel2cnv1;
