@@ -48,6 +48,8 @@ class AthMpEvtLoopMgr
   int                            m_nChildProcesses;
   int                            m_nPollingInterval; // in milliseconds
   int                            m_nEventsBeforeFork;
+  std::string                    m_shmemName;
+  pid_t                          m_masterPid;
   
   AthMpEvtLoopMgr();
   AthMpEvtLoopMgr(const AthMpEvtLoopMgr&);
