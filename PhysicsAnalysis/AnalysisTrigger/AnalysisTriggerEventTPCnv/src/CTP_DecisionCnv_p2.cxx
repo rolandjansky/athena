@@ -16,7 +16,7 @@ CTP_DecisionCnv_p2::CTP_DecisionCnv_p2()
 
 void CTP_DecisionCnv_p2::persToTrans( const CTP_Decision_p2* persObj, CTP_Decision* transObj, MsgStream &log ) {
 
-  log << MSG::DEBUG << "Converting CTP_Decision from persistent state..." << endmsg;
+  log << MSG::DEBUG << "Converting CTP_Decision from persistent state..." << endreq;
 
   //
   // Simply copy the contents to the transient object:
@@ -25,7 +25,7 @@ void CTP_DecisionCnv_p2::persToTrans( const CTP_Decision_p2* persObj, CTP_Decisi
   transObj->setTriggerTypeWord( persObj->m_triggerTypeWord );
   transObj->setItems( persObj->m_items );
 
-  log << MSG::DEBUG << "Converting CTP_Decision from persistent state [OK]" << endmsg;
+  log << MSG::DEBUG << "Converting CTP_Decision from persistent state [OK]" << endreq;
 
   return;
 
@@ -33,7 +33,7 @@ void CTP_DecisionCnv_p2::persToTrans( const CTP_Decision_p2* persObj, CTP_Decisi
 
 void CTP_DecisionCnv_p2::transToPers( const CTP_Decision* transObj, CTP_Decision_p2* persObj, MsgStream &log ) {
 
-  log << MSG::DEBUG << "Creating persistent state of CTP_Decision..." << endmsg;
+  log << MSG::DEBUG << "Creating persistent state of CTP_Decision..." << endreq;
 
   //
   // Simply copy the contents of the persistent object:
@@ -42,7 +42,7 @@ void CTP_DecisionCnv_p2::transToPers( const CTP_Decision* transObj, CTP_Decision
   persObj->m_triggerTypeWord = transObj->getTriggerTypeWord();
   persObj->m_items = transObj->getItems();
 
-  log << MSG::DEBUG << "Creating persistent state of CTP_Decision [OK]" << endmsg;
+  log << MSG::DEBUG << "Creating persistent state of CTP_Decision [OK]" << endreq;
 
   return;
 
