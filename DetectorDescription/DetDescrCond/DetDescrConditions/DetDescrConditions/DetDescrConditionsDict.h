@@ -12,7 +12,7 @@
 #include "DetDescrConditions/DetCondKeyTrans.h"
 #include "DetDescrConditions/DetStatusMap.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_DETDESCRCONDITIONS {
   DetStatusMap::const_iterator m_it;
 };
 
