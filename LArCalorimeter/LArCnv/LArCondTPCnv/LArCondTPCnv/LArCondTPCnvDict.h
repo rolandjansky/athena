@@ -42,7 +42,7 @@
 #include "LArCondTPCnv/LArPedestalSubset_p2.h"
 
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_LARCONDTPCNV {
     T_TPCnv<LArConditionsSubset<LArAutoCorrP1>, 
             LArAutoCorrSubset_p1 >                m_autocorr_p1;
     T_TPCnv<LArConditionsSubset<LArOFCP1>, 
