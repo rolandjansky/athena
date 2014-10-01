@@ -2,7 +2,7 @@
 
   <!-- TrackParticleTruth p0 , Rec::TrackParticleTruthCollection_p0 is a typedef of TrackParticleTruthVector (do not ask me why, just copying from TrackTruth) -->
   <class name="TrackParticleTruthVector"  id="B35041E8-D980-458E-AC06-79028CF79D5D" />
-  <class name="std::vector<std::pair<ElementLink<Rec::TrackParticleContainer>,TrackParticleTruth> >" />  -->
+  <class name="std::vector<std::pair<ElementLink<Rec::TrackParticleContainer>,TrackParticleTruth> >" />
   <class name="std::pair<ElementLink<Rec::TrackParticleContainer>,TrackParticleTruth>" /> 
 
   <!-- TrackParticleTruth p1 --> 

@@ -18,7 +18,7 @@
 
 // namespace {
   // --->> genreflex: WARNING: Class std::pair<ElementLink<DataVector<Rec::TrackParticle>, DataProxyStorage<DataVector<Rec::TrackParticle> >,ForwardIndexingPolicy<DataVector<Rec::TrackParticle> > >,TrackTruth> in selection file ../i686-slc4-gcc34-opt/dict/TrkTruthTPCnv_selection.xml not generated.  Fixing that:
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_TRACKPARTICLETRUTHTPCNV {
   std::pair<ElementLink<Rec::TrackParticleContainer>,TrackParticleTruth>  dummy1;
   T_TPCnv<TrackParticleTruthCollection, Rec::TrackParticleTruthCollection_p1> dummy2;
   std::vector<Rec::TrackParticleTruthCollection_p1> aaa;
