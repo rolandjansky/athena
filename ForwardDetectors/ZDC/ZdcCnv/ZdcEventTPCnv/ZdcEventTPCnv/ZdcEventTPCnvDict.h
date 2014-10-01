@@ -33,7 +33,7 @@ namespace ZDC_EventTPCnv_Dict {
 */
 
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_ZDCEVENTTPCNV {
   T_TPCnv<ZdcDigitsCollection, ZdcDigitsCollection_p1> m_zdcDigitsCnv;
   T_TPCnv<ZdcRawChannelCollection, ZdcRawChannelCollection_p1> m_zdcRawChannelCnv;
   T_TPCnv<ZDC_SimStripHit_Collection, ZDC_SimStripHit_Collection_p1> m_zdc_SimStripHitCnv;
