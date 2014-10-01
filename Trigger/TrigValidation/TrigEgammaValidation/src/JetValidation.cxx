@@ -327,7 +327,7 @@ StatusCode JetValidation::childExecute()
 			    }
 			  }
                           cd(name()+"/Dump");
-			  FillEFTrack(matchedEFTrk, "Scan");
+			  //FillEFTrack(matchedEFTrk, "Scan");
 			  
 			  aMeasPer = matchedEFTrk->trackParticle()->perigee();
 			  pt2 = pow(aMeasPer->parameters()[Trk::px], 2.) + pow(aMeasPer->parameters()[Trk::py], 2.);
@@ -442,7 +442,7 @@ StatusCode JetValidation::childExecute()
 			    }
 			  }
                           cd(name()+"/Dump");
-			  FillEFTrack(matchedEFTrk, "Si");
+			  //FillEFTrack(matchedEFTrk, "Si");
 			  
 			  aMeasPer = matchedEFTrk->trackParticle()->perigee();
 			  pt2 = pow(aMeasPer->parameters()[Trk::px], 2.) + pow(aMeasPer->parameters()[Trk::py], 2.);

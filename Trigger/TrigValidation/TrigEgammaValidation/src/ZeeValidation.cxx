@@ -457,7 +457,7 @@ StatusCode ZeeValidation::childExecute() {
                                                 }
                                               }
                                               cd(name()+"/Dump");
-                                              FillEFTrack(matchedEFTrk, "Scan");
+                                              //FillEFTrack(matchedEFTrk, "Scan");
                                               
                                               EFScanTruthTrackEt.push_back(truthEt/1.e3);
                                               EFScanTruthTrackEta.push_back((*itrTruthDaughter)->momentum().eta());
@@ -573,7 +573,7 @@ StatusCode ZeeValidation::childExecute() {
                                                 }
                                               }
                                               cd(name()+"/Dump");
-                                              FillEFTrack(matchedEFTrk, "Si");
+                                              //FillEFTrack(matchedEFTrk, "Si");
                                               
                                               EFSiTruthTrackEt.push_back(truthEt/1.e3);
                                               EFSiTruthTrackEta.push_back((*itrTruthDaughter)->momentum().eta());
