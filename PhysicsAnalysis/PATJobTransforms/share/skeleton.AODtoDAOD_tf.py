@@ -1,9 +1,10 @@
 # Skeleton file for AOD to DAOD (Reduction framework) job
 #
-# $Id: skeleton.AODtoDAOD_tf.py 597900 2014-05-20 08:16:34Z graemes $
+# $Id: skeleton.AODtoDAOD_tf.py 613107 2014-08-22 16:47:45Z kkoeneke $
 #
 from AthenaCommon.Logging import logging
-msg = logging.getLogger('ADOtoDAOD')
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+msg = logging.getLogger('AODtoDAOD')
 msg.info( '****************** STARTING AOD->DAOD MAKING *****************' )
 
 if hasattr(runArgs, "reductionConf"):
@@ -36,6 +37,13 @@ except ImportError:
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
+passThroughMode = False
+if hasattr(runArgs,"passThrough"):
+    passThroughMode = runArgs.passThrough
+
+if (passThroughMode==True):
+    msg.warning("Pass through mode is ON: decision of derivation kernels will be IGNORED!")
+    rec.doDPD.passThroughMode = True
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -55,6 +63,17 @@ if hasattr(runArgs,"preInclude"):
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
+# Intervene and strip algs from streams if pass through mode requested
+if rec.doDPD.passThroughMode:
+    for stream in MSMgr.StreamList:
+        evtStream = stream.GetEventStream()
+        evtStream.AcceptAlgs = []
+        evtStream.RequireAlgs = []
+        evtStream.VetoAlgs = []
+    msgFresh = logging.getLogger('AODtoDAOD')
+    msgFresh.info( 'Pass through mode was requested. Stream definitions have been revised. New stream definitions follow')
+    MSMgr.Print()
+
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
@@ -68,5 +87,4 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         msg.info(cmd)
         exec(cmd)
-
 
