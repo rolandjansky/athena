@@ -69,6 +69,11 @@ int Validator::execute() const
           nbins = 200;
         }
       }
+			else if(m_FloatMoments[i].find("ShowerDeconstruction") != string::npos) {
+				xlow = -10;
+				xhigh = 10;
+				nbins = 100;
+			}
 
 			outputHist = new TH1F(m_FloatMoments[i].c_str(), "", nbins, xlow, xhigh);
 			sc = histSvc->regHist("/JetSubstructureMoments/" + m_FloatMoments[i], outputHist);
