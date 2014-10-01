@@ -65,7 +65,7 @@
 
 
 namespace {
-  struct dummy {
+  struct GCCXML_DUMMY_INSTANTIATION_JETEVENTTPCNV {
 
     std::vector<JetKeyDescriptor_p1> m_jetKeyDescriptorp1;
     std::vector<JetKeyDescriptorCollection_p1> m_jetKeyDescriptorCp1;
