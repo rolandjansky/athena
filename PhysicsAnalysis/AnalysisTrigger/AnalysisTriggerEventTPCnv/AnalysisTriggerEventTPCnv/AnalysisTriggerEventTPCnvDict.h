@@ -21,7 +21,7 @@
 #include "AnalysisTriggerEventTPCnv/CTP_Decision_p2.h"
 #include "AnalysisTriggerEventTPCnv/CTP_DecisionCnv_p2.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_ANALYSISTRIGGEREVENTTPCNV {
   T_TPCnv<CTP_Decision, CTP_Decision_p1> m_ctpcnv1;
   T_TPCnv<CTP_Decision, CTP_Decision_p2> m_ctpcnv2;
   T_TPCnv<LVL1_ROI, LVL1_ROI_p1> m_lvl1roicnv1;
