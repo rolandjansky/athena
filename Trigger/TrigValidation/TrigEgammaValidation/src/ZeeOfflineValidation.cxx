@@ -443,7 +443,7 @@ StatusCode ZeeOfflineValidation::childExecute()
 					}
 				      }
                                       cd(name()+"/Dump");
-				      FillEFTrack(matchedEFTrk, "Scan");
+				      //FillEFTrack(matchedEFTrk, "Scan");
 
 				      EFScanOffTrackEt.push_back((*Itr)->et()/1.e3);
 				      EFScanOffTrackEta.push_back((*Itr)->eta());
@@ -559,7 +559,7 @@ StatusCode ZeeOfflineValidation::childExecute()
 					}
 				      }
                                       cd(name()+"/Dump");
-				      FillEFTrack(matchedEFTrk, "Si");
+				      //FillEFTrack(matchedEFTrk, "Si");
 
 				      EFSiOffTrackEt.push_back((*Itr)->et()/1.e3);
 				      EFSiOffTrackEta.push_back((*Itr)->eta());

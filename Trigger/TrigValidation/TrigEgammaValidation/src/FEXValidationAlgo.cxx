@@ -29,9 +29,10 @@
 //#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
 #include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 
-#include "egammaEvent/egammaContainer.h"
-#include "egammaEvent/egamma.h"
-#include "egammaEvent/EMTrackMatch.h"
+//Conflict in public requirements, egammaPID resides in AsgTools now!
+//#include "egammaEvent/egammaContainer.h"
+//#include "egammaEvent/egamma.h"
+//#include "egammaEvent/EMTrackMatch.h"
 
 #include "TH1F.h"
 #include "TProfile2D.h"
@@ -309,7 +310,7 @@ void FEXValidationAlgo::FillEFCalo(const CaloCluster *matchedEFCalo, float DetaE
   }
 }
 
-void FEXValidationAlgo::FillEFTrack(const egamma *matchedEFTrk, const std::string & ScanSi) {
+/*void FEXValidationAlgo::FillEFTrack(const egamma *matchedEFTrk, const std::string & ScanSi) {
   const Trk::Perigee* aMeasPer;
   if (matchedEFTrk) {
     aMeasPer = matchedEFTrk->trackParticle()->perigee();
@@ -320,7 +321,7 @@ void FEXValidationAlgo::FillEFTrack(const egamma *matchedEFTrk, const std::strin
     vect["EF"+ScanSi+"TrackD0"]->push_back(aMeasPer->parameters()[Trk::d0]);
     vect["EF"+ScanSi+"TrackZ0"]->push_back(aMeasPer->parameters()[Trk::z0]);
   }
-}
+}*/
 
 void FEXValidationAlgo::FillHisto(const std::string & name) {
   if (vect.find(name) == vect.end()) {

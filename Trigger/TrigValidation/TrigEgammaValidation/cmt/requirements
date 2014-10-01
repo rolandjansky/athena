@@ -14,8 +14,9 @@ branches run
 use AtlasROOT			AtlasROOT-*			External
 use GaudiInterface		GaudiInterface-*		External
 use StoreGate           	StoreGate-*			Control
+
 use AnalysisTriggerEvent	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger
-use egammaEvent			egammaEvent-*			Reconstruction/egamma
+#use egammaEvent			egammaEvent-*			Reconstruction/egamma
 use CaloEvent			CaloEvent-*			Calorimeter
 use TrigCaloEvent		TrigCaloEvent-*			Trigger/TrigEvent
 use TrigInDetEvent		TrigInDetEvent-*		Trigger/TrigEvent
@@ -25,7 +26,15 @@ use TrigConfHLTData             TrigConfHLTData-*               Trigger/TrigConf
 use TrigNavigation              TrigNavigation-*                Trigger/TrigEvent
 use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
 
+
+use xAODEgamma                  xAODEgamma-*                    Event/xAOD
+use xAODTrigEgamma              xAODTrigEgamma-*                Event/xAOD
+use xAODTracking                xAODTracking-*                  Event/xAOD
+use xAODTrigCalo                xAODTrigCalo-*                  Event/xAOD
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
+
 private
+apply_tag ROOTMathLibs
 use AtlasTriggerRunTime            AtlasTriggerRunTime-*
 use CaloDetDescr                CaloDetDescr-*                  Calorimeter
 use GeneratorObjects            GeneratorObjects-*		Generators
@@ -36,8 +45,16 @@ use EventInfo                   EventInfo-*                     Event
 use FourMom                     FourMom-*                       Event
 use TrigSteering                TrigSteering-*                  Trigger/TrigSteer
 
-public
+use     egammaEvent             egammaEvent-*           Reconstruction/egamma
+use AtlasROOT                   AtlasROOT-*                   External
+#use PATCore                     PATCore-*                     PhysicsAnalysis/AnalysisCommon
+#use AthenaBaseComps AthenaBaseComps-* Control
 
+
+use xAODCaloEvent xAODCaloEvent-* Event/xAOD
+
+
+public
 library TrigEgammaValidation *.cxx components/*.cxx
 
 apply_tag  ROOTBasicLibs

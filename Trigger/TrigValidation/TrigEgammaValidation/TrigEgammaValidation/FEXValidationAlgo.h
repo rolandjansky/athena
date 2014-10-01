@@ -24,9 +24,9 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
 
-#include "egammaEvent/egammaContainer.h"
-#include "egammaEvent/egamma.h"
-#include "egammaEvent/EMTrackMatch.h"
+//#include "egammaEvent/egammaContainer.h"
+//#include "egammaEvent/egamma.h"
+//#include "egammaEvent/EMTrackMatch.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigInDetTrackHelper.h"
@@ -71,7 +71,7 @@ class FEXValidationAlgo : public IValidationAlgo
   void FillLVL2Calo(TrigEMCluster *matchedL2);
   void FillLVL2ID(float Et, float Eta, float Phi, float A0, float Z0, TrigEMCluster *matchedL2, const std::string &ScanSi);
   void FillEFCalo(const CaloCluster *matchedEFCalo, float DetaEFCalo, float DphiEFCalo, const std::string &ScanSi);
-  void FillEFTrack(const egamma *matchedEFTrk, const std::string & ScanSi);
+  //void FillEFTrack(const egamma *matchedEFTrk, const std::string & ScanSi);
   void FillHisto(const std::string & name);
   void FillEFScanTrackHistos();
   void FillEFSiTrackHistos();

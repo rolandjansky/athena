@@ -9,6 +9,7 @@
 #include "TrigEgammaValidation/NavSEValidation.h"
 #include "TrigEgammaValidation/NavRingerValidation.h"
 #include "TrigEgammaValidation/NavZeeValidation.h"
+#include "TrigEgammaValidation/NavZeeTPxAODValidation.h"
 #include "TrigEgammaValidation/NavRateValidation.h"
 #include "TrigEgammaValidation/NavRateExpert.h"
 
@@ -25,6 +26,7 @@ DECLARE_ALGORITHM_FACTORY( NavOfflineValidation)
 DECLARE_ALGORITHM_FACTORY( NavSEValidation)
 DECLARE_ALGORITHM_FACTORY( NavRingerValidation)
 DECLARE_ALGORITHM_FACTORY( NavZeeValidation)
+DECLARE_ALGORITHM_FACTORY( NavZeeTPxAODValidation )
 DECLARE_ALGORITHM_FACTORY( NavRateValidation)
 DECLARE_ALGORITHM_FACTORY( NavRateExpert)
 
@@ -40,6 +42,7 @@ DECLARE_FACTORY_ENTRIES( TrigEgammaValidation ) {
   DECLARE_ALGORITHM( NavSEValidation)
   DECLARE_ALGORITHM( NavRingerValidation)
   DECLARE_ALGORITHM( NavZeeValidation)
+  DECLARE_ALGORITHM( NavZeeTPxAODValidation )
   DECLARE_ALGORITHM( NavRateValidation)
   DECLARE_ALGORITHM( NavRateExpert)
 }
