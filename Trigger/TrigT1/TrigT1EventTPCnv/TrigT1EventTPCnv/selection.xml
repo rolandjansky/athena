@@ -72,6 +72,52 @@
    <class name="CPMRoI_p1" />
    <class name="std::vector<CPMRoI_p1>" />
 
+   <!-- Dictionaries for LVL1::CPMTobRoI -->
+   <class name="CPMTobRoICollection_tlp1" id="E575088B-8CD0-471C-A278-EA6E508A171E" />
+   <class name="CPMTobRoICollection_p1" id="740ECB6D-3249-4ACA-A3A9-7C5B43DD7E13" />
+   <class name="std::vector<CPMTobRoICollection_p1>" />
+   <class name="CPMTobRoI_p1" />
+   <class name="std::vector<CPMTobRoI_p1>" />
+
+   <!-- Dictionaries for LVL1::CMXCPTob -->
+   <class name="CMXCPTobCollection_tlp1" id="0E42AA28-7C10-4934-9E54-97C38C249544" />
+   <class name="CMXCPTobCollection_p1" id="22B24AF2-3657-4212-B8C0-A7E47BB8F734" />
+   <class name="std::vector<CMXCPTobCollection_p1>" />
+   <class name="CMXCPTob_p1" />
+   <class name="std::vector<CMXCPTob_p1>" />
+
+   <!-- Dictionaries for LVL1::CMXCPHits -->
+   <class name="CMXCPHitsCollection_tlp1" id="1A1F6DEF-0233-453C-8614-E7B82EFCEDC6" />
+   <class name="CMXCPHitsCollection_p1" id="81A66FB2-75DB-41E1-BBE2-AD407C25F60B" />
+   <class name="std::vector<CMXCPHitsCollection_p1>" />
+   <class name="CMXCPHits_p1" />
+   <class name="std::vector<CMXCPHits_p1>" />
+
+   <!-- Dictionaries for LVL1::CMXJetTob -->
+   <class name="CMXJetTobCollection_tlp1" id="3FD32EB7-6573-4BCD-A510-6A5549E495A4" />
+   <class name="CMXJetTobCollection_p1" id="BB2C6FFC-565F-41C4-BFCD-E1DFC3021EA2" />
+   <class name="std::vector<CMXJetTobCollection_p1>" />
+   <class name="CMXJetTob_p1" />
+   <class name="std::vector<CMXJetTob_p1>" />
+
+   <!-- Dictionaries for LVL1::CMXJetHits -->
+   <class name="CMXJetHitsCollection_tlp1" id="29388465-59FE-452C-9462-45C3022F5F2B" />
+   <class name="CMXJetHitsCollection_p1" id="A976E833-B72F-49EC-AADA-166C3593332B" />
+   <class name="std::vector<CMXJetHitsCollection_p1>" />
+   <class name="CMXJetHits_p1" />
+   <class name="std::vector<CMXJetHits_p1>" />
+
+   <!-- Dictionaries for LVL1::CMXRoI -->
+   <class name="CMXRoI_p1" id="0B758649-D40E-49B1-8E62-F900D5A4E4F7" />
+   <class name="std::vector<CMXRoI_p1>" />
+
+   <!-- Dictionaries for LVL1::CMXEtsums -->
+   <class name="CMXEtSumsCollection_tlp1" id="8CC9CAAB-5A8B-4581-BA66-C762BA7CB565" />
+   <class name="CMXEtSumsCollection_p1" id="8E32DE38-A5F9-4B32-AA02-5D4B5B51C5FB" />
+   <class name="std::vector<CMXEtSumsCollection_p1>" />
+   <class name="CMXEtSums_p1" />
+   <class name="std::vector<CMXEtSums_p1>" />
+
    <!-- Dictionaries for LVL1::CMMCPHits -->
    <class name="CMMCPHitsCollection_tlp1" id="8C6E0191-FAE9-4C2E-BD0A-E6A5518145E2" />
    <class name="CMMCPHitsCollection_p1" id="EC9017AF-AD43-4E89-8174-42DB3FE8D7D8" />
@@ -110,6 +156,13 @@
    <class name="std::vector<JEMEtSumsCollection_p1>" />
    <class name="JEMEtSums_p1" />
    <class name="std::vector<JEMEtSums_p1>" />
+
+   <!-- Dictionaries for LVL1::JEMTobRoI -->
+   <class name="JEMTobRoICollection_tlp1" id="49790040-16E0-4CAB-96A2-31DC010FFB06" />
+   <class name="JEMTobRoICollection_p1" id="974BD22F-D176-462E-944E-92BB751EC1AA" />
+   <class name="std::vector<JEMTobRoICollection_p1>" />
+   <class name="JEMTobRoI_p1" />
+   <class name="std::vector<JEMTobRoI_p1>" />
 
    <!-- Dictionaries for LVL1::JEMRoI -->
    <class name="JEMRoICollection_tlp1" id="B82ECDA7-30FE-4F02-9BF3-EC507BA8CB04" />
