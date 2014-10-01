@@ -82,7 +82,7 @@
 #include "RecTPCnv/RecoTimingObj_p1.h"
 #include "RecTPCnv/RecoTimingObjCnv_p1.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_RECTPCNV {
   T_TPCnv<Analysis::MuonContainer, MuonContainer_p6> m_muocnv6;
   T_TPCnv<Analysis::MuonContainer, MuonContainer_p5> m_muocnv5;
   T_TPCnv<Analysis::MuonContainer, MuonContainer_p4> m_muocnv4;
