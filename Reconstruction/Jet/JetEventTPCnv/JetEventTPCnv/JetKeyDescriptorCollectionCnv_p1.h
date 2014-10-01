@@ -12,4 +12,9 @@
 
 typedef T_AthenaPoolTPCnvVector< JetKeyDescriptorCollection, JetKeyDescriptorCollection_p1, JetKeyDescriptorCnv_p1 > JetKeyDescriptorCollectionCnv_p1;
 
+template<> class T_TPCnv<JetKeyDescriptorCollection, JetKeyDescriptorCollection_p1>: public JetKeyDescriptorCollectionCnv_p1
+{
+ public:
+};
+
 #endif
