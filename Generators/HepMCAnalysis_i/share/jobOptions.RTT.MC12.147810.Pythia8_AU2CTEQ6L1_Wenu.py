@@ -5,7 +5,8 @@
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.OutputLevel = INFO
 
-from TruthExamples.TruthExamplesConf import *
+#from TruthExamples.TruthExamplesConf import *
+from EvgenProdTools/EvgenProdToolsConfig import *
 from PyJobTransformsCore.runargs import *
 runArgs = RunArguments()
 

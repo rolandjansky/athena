@@ -22,7 +22,7 @@
         <doc>Generator: Herwig++, Process: W->e,nu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Wenu</jobTransformJobName>
         <jobTransformCmd>
-           Generate_tf.py --ecmEnergy=8000. --runNumber=133333 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.133333.Herwigpp_UEEE4_CTEQ6L1_Wenu.py --outputEVNTFile=EVNT.Herwigpp_Wenu.root --postInclude=HepMCAnalysisJO_Herwigpp_Wenu.py
+           Generate_tf.py --ecmEnergy=8000. --runNumber=133333 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.133333.Herwigpp_UEEE4_CTEQ6L1_Wenu.py --outputEVNTFile=EVNT.Herwigpp_Wenu.root --postInclude=HepMCAnalysisJO_Herwigpp_Wenu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -56,7 +56,7 @@
         <doc>Generator: Herwig++, Process: W->mu,nu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Wmunu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=144444 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.144444.Herwigpp_UEEE4_CTEQ6L1_Wmunu.py --outputEVNTFile=EVNT.Herwigpp_Wmunu.root --postInclude=HepMCAnalysisJO_Herwigpp_Wmunu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=144444 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.144444.Herwigpp_UEEE4_CTEQ6L1_Wmunu.py --outputEVNTFile=EVNT.Herwigpp_Wmunu.root --postInclude=HepMCAnalysisJO_Herwigpp_Wmunu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -90,7 +90,7 @@
         <doc>Generator: Herwig++, Process: Z->e,e, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Zee</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=108294 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.108294.Herwigpp_UEEE4_CTEQ6L1_Zee.py --outputEVNTFile=EVNT.Herwigpp_Zee.root --postInclude=HepMCAnalysisJO_Herwigpp_Zee.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=108294 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.108294.Herwigpp_UEEE4_CTEQ6L1_Zee.py --outputEVNTFile=EVNT.Herwigpp_Zee.root --postInclude=HepMCAnalysisJO_Herwigpp_Zee.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -124,7 +124,7 @@
         <doc>Generator: Herwig++, Process: Z->mu,mu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Zmumu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=108295 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.108295.Herwigpp_UEEE4_CTEQ6L1_Zmumu.py --outputEVNTFile=EVNT.Herwigpp_Zmumu.root --postInclude=HepMCAnalysisJO_Herwigpp_Zmumu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=108295 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.108295.Herwigpp_UEEE4_CTEQ6L1_Zmumu.py --outputEVNTFile=EVNT.Herwigpp_Zmumu.root --postInclude=HepMCAnalysisJO_Herwigpp_Zmumu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -158,7 +158,7 @@
         <doc>Generator: Herwig++, Process: dijet, Tune: EE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_jetjet_JZ0</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=166666 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.166666.Herwigpp_EE4CTEQ6L1_jetjet_JZ0.py --outputEVNTFile=EVNT.Herwigpp_jetjet_JZ0.root --postInclude=HepMCAnalysisJO_Herwigpp_jetjet_JZ0.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=166666 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.166666.Herwigpp_EE4CTEQ6L1_jetjet_JZ0.py --outputEVNTFile=EVNT.Herwigpp_jetjet_JZ0.root --postInclude=HepMCAnalysisJO_Herwigpp_jetjet_JZ0.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -192,7 +192,7 @@
         <doc>Generator: Pythia 6, Process: W->e,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Wenu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147830 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147830.Pythia_AUET2BCTEQ6L1_Wenu.py --outputEVNTFile=EVNT.Pythia6_Wenu.root --postInclude=HepMCAnalysisJO_Pythia6_Wenu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147830 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147830.Pythia_AUET2BCTEQ6L1_Wenu.py --outputEVNTFile=EVNT.Pythia6_Wenu.root --postInclude=HepMCAnalysisJO_Pythia6_Wenu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -226,7 +226,7 @@
         <doc>Generator: Pythia 6, Process: W->mu,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Wmunu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147831 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147831.Pythia_AUET2BCTEQ6L1_Wmunu.py --outputEVNTFile=EVNT.Pythia6_Wmunu.root --postInclude=HepMCAnalysisJO_Pythia6_Wmunu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147831 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147831.Pythia_AUET2BCTEQ6L1_Wmunu.py --outputEVNTFile=EVNT.Pythia6_Wmunu.root --postInclude=HepMCAnalysisJO_Pythia6_Wmunu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -260,7 +260,7 @@
         <doc>Generator: Pythia 6, Process: W->tau,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Wtaunu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147832 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147832.Pythia_AUET2BCTEQ6L1_Wtaunu.py --outputEVNTFile=EVNT.Pythia6_Wtaunu.root --postInclude=HepMCAnalysisJO_Pythia6_Wtaunu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147832 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147832.Pythia_AUET2BCTEQ6L1_Wtaunu.py --outputEVNTFile=EVNT.Pythia6_Wtaunu.root --postInclude=HepMCAnalysisJO_Pythia6_Wtaunu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -294,7 +294,7 @@
         <doc>Generator: Pythia 6, Process: Z->e,e, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Zee</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147836 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147836.Pythia_AUET2BCTEQ6L1_Zee.py --outputEVNTFile=EVNT.Pythia6_Zee.root --postInclude=HepMCAnalysisJO_Pythia6_Zee.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147836 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147836.Pythia_AUET2BCTEQ6L1_Zee.py --outputEVNTFile=EVNT.Pythia6_Zee.root --postInclude=HepMCAnalysisJO_Pythia6_Zee.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -328,7 +328,7 @@
         <doc>Generator: Pythia 6, Process: Z->mu,mu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Zmumu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147837 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147837.Pythia_AUET2BCTEQ6L1_Zmumu.py --outputEVNTFile=EVNT.Pythia6_Zmumu.root --postInclude=HepMCAnalysisJO_Pythia6_Zmumu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147837 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147837.Pythia_AUET2BCTEQ6L1_Zmumu.py --outputEVNTFile=EVNT.Pythia6_Zmumu.root --postInclude=HepMCAnalysisJO_Pythia6_Zmumu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -362,7 +362,7 @@
         <doc>Generator: Pythia 6, Process: Z->tau,tau, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Ztautau</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147838 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147838.Pythia_AUET2BCTEQ6L1_Ztautau.py --outputEVNTFile=EVNT.Pythia6_Ztautau.root --postInclude=HepMCAnalysisJO_Pythia6_Ztautau.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147838 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147838.Pythia_AUET2BCTEQ6L1_Ztautau.py --outputEVNTFile=EVNT.Pythia6_Ztautau.root --postInclude=HepMCAnalysisJO_Pythia6_Ztautau.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -396,7 +396,7 @@
         <doc>Generator: Pythia 6, Process: dijet, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_jetjet_JZ0</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=129320 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.129320.Pythia_AUET2BCTEQ6L1_jetjet_JZ0.py --outputEVNTFile=EVNT.Pythia6_jetjet_JZ0.root --postInclude=HepMCAnalysisJO_Pythia6_jetjet_JZ0.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=129320 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.129320.Pythia_AUET2BCTEQ6L1_jetjet_JZ0.py --outputEVNTFile=EVNT.Pythia6_jetjet_JZ0.root --postInclude=HepMCAnalysisJO_Pythia6_jetjet_JZ0.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -430,7 +430,7 @@
         <doc>Generator: Pythia 8, Process: W->e,nu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Wenu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147810 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147810.Pythia8_AU2CTEQ6L1_Wenu.py --outputEVNTFile=EVNT.Pythia8_Wenu.root --postInclude=HepMCAnalysisJO_Pythia8_Wenu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147810 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147810.Pythia8_AU2CTEQ6L1_Wenu.py --outputEVNTFile=EVNT.Pythia8_Wenu.root --postInclude=HepMCAnalysisJO_Pythia8_Wenu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -464,7 +464,7 @@
         <doc>Generator: Pythia 8, Process: W->mu,nu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Wmunu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147811 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147811.Pythia8_AU2CTEQ6L1_Wmunu.py --outputEVNTFile=EVNT.Pythia8_Wmunu.root --postInclude=HepMCAnalysisJO_Pythia8_Wmunu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147811 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147811.Pythia8_AU2CTEQ6L1_Wmunu.py --outputEVNTFile=EVNT.Pythia8_Wmunu.root --postInclude=HepMCAnalysisJO_Pythia8_Wmunu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -498,7 +498,7 @@
         <doc>Generator: Pythia 8, Process: W->tau,nu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Wtaunu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147812 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147812.Pythia8_AU2CTEQ6L1_Wtaunu.py --outputEVNTFile=EVNT.Pythia8_Wtaunu.root --postInclude=HepMCAnalysisJO_Pythia8_Wtaunu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147812 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147812.Pythia8_AU2CTEQ6L1_Wtaunu.py --outputEVNTFile=EVNT.Pythia8_Wtaunu.root --postInclude=HepMCAnalysisJO_Pythia8_Wtaunu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -532,7 +532,7 @@
         <doc>Generator: Pythia 8, Process: Z->e,e, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Zee</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147816 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147816.Pythia8_AU2CTEQ6L1_Zee.py --outputEVNTFile=EVNT.Pythia8_Zee.root --postInclude=HepMCAnalysisJO_Pythia8_Zee.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147816 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147816.Pythia8_AU2CTEQ6L1_Zee.py --outputEVNTFile=EVNT.Pythia8_Zee.root --postInclude=HepMCAnalysisJO_Pythia8_Zee.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -566,7 +566,7 @@
         <doc>Generator: Pythia 8, Process: Z->e,e, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Zee_lepton_jet</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147816 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147816.Pythia8_AU2CTEQ6L1_Zee.py --outputEVNTFile=EVNT.Pythia8_Zee_lepton_jet.root --postInclude=HepMCAnalysisJO_Pythia8_Zee_lepton_jet.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147816 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147816.Pythia8_AU2CTEQ6L1_Zee.py --outputEVNTFile=EVNT.Pythia8_Zee_lepton_jet.root --postInclude=HepMCAnalysisJO_Pythia8_Zee_lepton_jet.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -600,7 +600,7 @@
         <doc>Generator: Pythia 8, Process: W->mu,mu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Zmumu</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147817 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147817.Pythia8_AU2CTEQ6L1_Zmumu.py --outputEVNTFile=EVNT.Pythia8_Zmumu.root --postInclude=HepMCAnalysisJO_Pythia8_Zmumu.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147817 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147817.Pythia8_AU2CTEQ6L1_Zmumu.py --outputEVNTFile=EVNT.Pythia8_Zmumu.root --postInclude=HepMCAnalysisJO_Pythia8_Zmumu.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -634,7 +634,7 @@
         <doc>Generator: Pythia 8, Process: Z->tau,tau, Tune: AU2, PDF CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Ztautau</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147818 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.py --outputEVNTFile=EVNT.Pythia8_Ztautau.root --postInclude=HepMCAnalysisJO_Pythia8_Ztautau.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147818 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.py --outputEVNTFile=EVNT.Pythia8_Ztautau.root --postInclude=HepMCAnalysisJO_Pythia8_Ztautau.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -668,7 +668,7 @@
         <doc>Generator: Pythia 8, Process: Z->tau,tau, Tune: AU2, PDF CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Ztautau_particle_content</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147818 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.py --outputEVNTFile=EVNT.Pythia8_Ztautau_particle_content.root --postInclude=HepMCAnalysisJO_Pythia8_Ztautau_particle_content.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147818 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.py --outputEVNTFile=EVNT.Pythia8_Ztautau_particle_content.root --postInclude=HepMCAnalysisJO_Pythia8_Ztautau_particle_content.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
@@ -702,7 +702,7 @@
         <doc>Generator: Pythia 8, Process: dijet, Tune: AU2, PDF CT10, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_dijet_Jz0</jobTransformJobName>
         <jobTransformCmd>
-          Generate_tf.py --ecmEnergy=8000. --runNumber=147900 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/share/tests/MC14.147900.Pythia8_AU2CT10_jetjet_JZ0.py --outputEVNTFile=EVNT.Pythia8_dijet_Jz0.root --postInclude=HepMCAnalysisJO_Pythia8_dijet_Jz0.py
+          Generate_tf.py --ecmEnergy=8000. --runNumber=147900 --firstEvent=1 --maxEvents=50000 --randomSeed=123456 --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.147900.Pythia8_AU2CT10_jetjet_JZ0.py --outputEVNTFile=EVNT.Pythia8_dijet_Jz0.root --postInclude=HepMCAnalysisJO_Pythia8_dijet_Jz0.py
         </jobTransformCmd>
         <group>HepMCAnalysis_i</group>
         <queue>medium</queue>
