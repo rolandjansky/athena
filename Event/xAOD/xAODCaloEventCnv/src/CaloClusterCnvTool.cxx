@@ -2,15 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterCnvTool.cxx 785752 2016-11-22 15:06:34Z ssnyder $
+// $Id: CaloClusterCnvTool.cxx 619732 2014-10-02 20:46:59Z ssnyder $
 
 // EDM include(s):
+#define private public
+#define protected public
 #include "CaloEvent/CaloCluster.h"
-#include "CaloEvent/CaloClusterContainer.h"
+#undef private
+#undef protected
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "EventKernel/SignalStateHelper.h"
 
 // Local include(s):
 #include "CaloClusterCnvTool.h"
@@ -67,8 +68,7 @@ namespace xAODMaker {
    StatusCode CaloClusterCnvTool::
    convert( const CaloCluster* aod,
             xAOD::CaloCluster* xaod,
-            CaloClusterCellLinkContainer* ccclc ) const
-   {
+            CaloClusterCellLinkContainer* ccclc ) {
 
       //
       // Deal with the cell association:
@@ -109,8 +109,11 @@ namespace xAODMaker {
          ATH_MSG_DEBUG( "Found cluster without valid cell link" );
       }
 
+      // Cache signal state:
+      const P4SignalState::State oldState = aod->signalState();
+
       // Set basic quantities:
-      xaod->setSamplingPattern( aod->samplingPattern() );
+      xaod->setSamplingPattern( aod->m_samplingPattern );
       const xAOD::CaloCluster::ClusterSize clSize =
          static_cast< xAOD::CaloCluster::ClusterSize >( aod->getClusterSize() );
       xaod->setClusterSize( clSize );
@@ -118,26 +121,26 @@ namespace xAODMaker {
       xaod->setPhi0( ( double ) aod->phi0() );
       xaod->setTime( aod->getTime() );
 
-      {
-        SignalStateHelper sstate (aod);
-        sstate.setSignalState( P4SignalState::CALIBRATED );
-        xaod->setCalE( aod->e() );
-        xaod->setCalEta( aod->eta() );
-        xaod->setCalPhi( aod->phi() );
-        xaod->setCalM( aod->m() );
+      aod->setSignalState( P4SignalState::CALIBRATED );
+      xaod->setCalE( aod->e() );
+      xaod->setCalEta( aod->eta() );
+      xaod->setCalPhi( aod->phi() );
+      xaod->setCalM( aod->m() );
 
-        sstate.setSignalState( P4SignalState::UNCALIBRATED );
-        xaod->setRawE( aod->e() );
-        xaod->setRawEta( aod->eta() );
-        xaod->setRawPhi( aod->phi() );
-        xaod->setRawM( aod->m() );
+      aod->setSignalState( P4SignalState::UNCALIBRATED );
+      xaod->setRawE( aod->e() );
+      xaod->setRawEta( aod->eta() );
+      xaod->setRawPhi( aod->phi() );
+      xaod->setRawM( aod->m() );
 
-        sstate.setSignalState( P4SignalState::ALTCALIBRATED );
-        xaod->setAltE( aod->e() );
-        xaod->setAltEta( aod->eta() );
-        xaod->setAltPhi( aod->phi() );
-        xaod->setAltM( aod->m() );
-      }
+      aod->setSignalState( P4SignalState::ALTCALIBRATED );
+      xaod->setAltE( aod->e() );
+      xaod->setAltEta( aod->eta() );
+      xaod->setAltPhi( aod->phi() );
+      xaod->setAltM( aod->m() );
+
+      // Reset signal state:
+      aod->setSignalState( oldState );
 
       //
       // Copy the energy depositions per sampling:
@@ -184,23 +187,6 @@ namespace xAODMaker {
 
       // Return gracefully:
       return StatusCode::SUCCESS;
-   }
-
-   StatusCode CaloClusterCnvTool::
-   convert( const CaloClusterContainer* aod,
-            xAOD::CaloClusterContainer* xaod ) const {
-     
-     CaloClusterContainer::const_iterator it = aod->begin();
-     CaloClusterContainer::const_iterator itE = aod->end();
-     CaloClusterCellLinkContainer* ccclc = 0;
-
-     for( ; it!= itE; ++it){
-       xAOD::CaloCluster* xcluster = new xAOD::CaloCluster();
-       xaod->push_back( xcluster );
-       CHECK( convert( *it, xcluster, ccclc) );       
-     }
-     
-     return StatusCode::SUCCESS;
    }
 
 } // namespace xAODMaker
