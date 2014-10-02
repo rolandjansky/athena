@@ -1,4 +1,4 @@
-# $Id: ClusterCreator_jobOptions.py 578532 2014-01-15 14:17:14Z wlampl $
+# $Id: ClusterCreator_jobOptions.py 596346 2014-05-10 13:47:20Z krasznaa $
 
 # Set up the reading of the input AOD:
 FNAME = "AOD.pool.root"
@@ -11,11 +11,13 @@ theJob = AlgSequence()
 import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = [FNAME,]
 # Add the xAOD container creator algorithm:
-from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
-alg = ClusterCreator(AODContainerNames=["egClusterCollection"],OutputLevel=DEBUG)
+from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator, ClusterDumper
+alg = ClusterCreator(AODContainerNames=["CaloCalTopoCluster"],OutputLevel=DEBUG)
 #alg = ClusterCreator(OutputLevel=DEBUG)
 
 theJob += alg
+
+theJob+=ClusterDumper("TopoDumper",ContainerName="CaloCalTopoCluster",FileName="TopoCluster.txt")
 
 # Create a POOL output file with the StoreGate contents:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
@@ -48,11 +50,11 @@ theApp.EvtMax = 5
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
 
-ServiceMgr.AthenaSealSvc.OutputLevel = VERBOSE
+#ServiceMgr.AthenaSealSvc.OutputLevel = VERBOSE
 
 #ServiceMgr.StoreGateSvc.Dump=True
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 100)
 
-ServiceMgr.AthenaPoolCnvSvc.OutputLevel=VERBOSE
+#ServiceMgr.AthenaPoolCnvSvc.OutputLevel=VERBOSE
 

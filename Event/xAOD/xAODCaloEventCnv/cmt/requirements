@@ -4,6 +4,8 @@ author Walter Lampl walter.lampl@cern.ch
 
 use AtlasPolicy     AtlasPolicy-*
 
+use xAODCaloEvent      xAODCaloEvent-*      Event/xAOD
+
 private
 
 use GaudiInterface     GaudiInterface-*     External
@@ -12,8 +14,6 @@ use AthenaBaseComps    AthenaBaseComps-*    Control
 use AthenaKernel       AthenaKernel-*       Control
 
 use CaloEvent          CaloEvent-*          Calorimeter
-#use xAODBase           xAODBase-*           Event/xAOD
-use xAODCaloEvent      xAODCaloEvent-*      Event/xAOD
 
 # Make a component library:
 library  xAODCaloEventCnv *.cxx components/*.cxx

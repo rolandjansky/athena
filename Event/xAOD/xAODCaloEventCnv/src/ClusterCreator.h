@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ClusterCreator.h 581807 2014-02-06 08:40:10Z krasznaa $
+// $Id: ClusterCreator.h 596346 2014-05-10 13:47:20Z krasznaa $
 #ifndef XAODCREATORALGS_CLUSTERCREATOR_H
 #define XAODCREATORALGS_CLUSTERCREATOR_H
 
@@ -12,7 +12,11 @@
 #include <string>
 
 // Athena/Gaudi include(s):
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+// Local include(s):
+#include "xAODCaloEventCnv/ICaloClusterCnvTool.h"
 
 /**
  *  @short Algorithm creating xAOD::CaloClusters from CaloClusters
@@ -22,29 +26,33 @@
  *         for an output xAOD.
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+ * @author Walter Lampl <Walter.Lampl@cern.ch>
  *
- * $Revision: 581807 $
- * $Date: 2014-02-06 09:40:10 +0100 (Thu, 06 Feb 2014) $
+ * $Revision: 596346 $
+ * $Date: 2014-05-10 15:47:20 +0200 (Sat, 10 May 2014) $
  */
 class ClusterCreator : public AthAlgorithm {
 
 public:
-  /// Regular algorithm constructor
-  ClusterCreator( const std::string& name, ISvcLocator* svcLoc );
-  
-  /// Function initialising the algorithm
-  virtual StatusCode initialize();
-  /// Function executing the algorithm
-  virtual StatusCode execute();
+   /// Regular algorithm constructor
+   ClusterCreator( const std::string& name, ISvcLocator* svcLoc );
+
+   /// Function initialising the algorithm
+   virtual StatusCode initialize();
+   /// Function executing the algorithm
+   virtual StatusCode execute();
 
 private:
-  /// The keys of the input CaloClusterContainer
-  std::vector<std::string> m_aodContainerNames;
-  /// The keys for the output xAOD::CaloClusterContainer
-  std::vector<std::string> m_xaodContainerNames;
-  
-  ///True if keys set by jobO
-  bool m_keySet;
+   /// The keys of the input CaloClusterContainer
+   std::vector< std::string > m_aodContainerNames;
+   /// The keys for the output xAOD::CaloClusterContainer
+   std::vector< std::string > m_xaodContainerNames;
+
+   /// True if keys set by jobO
+   bool m_keySet;
+
+   /// Connection to the converter tool
+   ToolHandle< xAODMaker::ICaloClusterCnvTool > m_cnvTool;
 
 }; // class ClusterCreator
 
