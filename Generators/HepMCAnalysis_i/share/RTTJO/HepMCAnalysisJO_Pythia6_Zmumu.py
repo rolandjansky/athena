@@ -1,3 +1,4 @@
+
 # ---------------------------------------------------------------------- 
 # JO file for RTT
 # ---------------------------------------------------------------------- 
@@ -5,7 +6,7 @@
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.OutputLevel = INFO
 
-from TruthExamples.TruthExamplesConf import *
+from EvgenProdTools.EvgenProdToolsConf import *
 from PyJobTransformsCore.runargs import *
 runArgs = RunArguments()
 
