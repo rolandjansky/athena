@@ -4,12 +4,14 @@ author  Alexander Richards <richards@hep.ucl.ac.uk>
 
 use AtlasExternalArea AtlasExternalArea-00-* External
 use AtlasFortranPolicy AtlasFortranPolicy-*
+use fastjet * LCG_Interfaces
+macro AtlasFastJet_home $(fastjet_home)
+macro AtlasFastJet_native_version $(fastjet_native_version) 
 
-macro AtlasFastJet_home "$(LCG_EXTERNAL)/fastjet"
-macro AtlasFastJet_native_version "3.0.3" 
-
-macro AtlasFastJet_system "$(LCG_ext_system)"
-macro AtlasFastJet_dir "$(AtlasFastJet_home)/$(AtlasFastJet_native_version)/$(AtlasFastJet_system)"
+macro AtlasFastJet_system "$(LCG_ext_system)" \
+        gcc48&dbg       "$(LCG_basesystem)-opt"
+		
+macro AtlasFastJet_dir "$(AtlasFastJet_home)"
 macro AtlasFastJet_lib "$(AtlasFastJet_dir)/lib"
 
 macro AtlasFastJet_prepend  "" \
@@ -23,6 +25,9 @@ macro AtlasFastJet_linkopts "-L$(AtlasFastJet_lib) $(AtlasFastJet_prepend) -lfas
 
 macro AtlasFastJet_export_paths "$(AtlasFastJet_dir)"
 macro AtlasFastJet_include "$(AtlasFastJet_dir)/include"
+
+# set environment variable :
+set FASTJETPATH "$(AtlasFastJet_dir)"
 
 include_path none
 include_dirs "$(AtlasFastJet_include)"
