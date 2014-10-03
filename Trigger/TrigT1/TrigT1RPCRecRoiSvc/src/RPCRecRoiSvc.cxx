@@ -8,8 +8,10 @@
 
 #include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
 
+#include "StoreGate/StoreGateSvc.h"
+#include "Identifier/Identifier.h"
+
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCgeometry/IRPCgeometrySvc.h"
 #include "MDTcabling/IMDTcablingSvc.h"
 
 using namespace LVL1RPC;
@@ -18,21 +20,26 @@ StatusCode RPCRecRoiSvc::initialize (void)
 { 
   MsgStream log( messageService(), name() );
 
-  m_rPCgeometrySvc = 0;
-  StatusCode sc = service("RPCgeometrySvc", m_rPCgeometrySvc,1);
-  if(sc.isFailure())
-    {
-      log << MSG::WARNING
-	  << "Unable to retrieve the RPC geometry Service"
-	  << endreq;
-      return StatusCode::FAILURE;
+  m_MuonMgr  = 0;
+  StoreGateSvc* detStore;
+  StatusCode sc = service("DetectorStore",detStore);
+  if (sc.isFailure()) {
+    log << MSG::FATAL << "DetectorStore service not found !" << endreq; 
+  } else {
+    sc = detStore->retrieve(m_MuonMgr);
+    if ( sc.isFailure() ) {
+      log << MSG::ERROR << " Cannot retrieve MuonReadoutGeometry " << endreq;
+      return sc;
+    } else {
+      log << MSG::DEBUG << "Found the MuonDetDescrMgr " << endreq;
     }
+  }
 
   m_rPCcablingSvc = 0;
   const IRPCcablingServerSvc* RpcCabGet = 0;
   sc = service("RPCcablingServerSvc",RpcCabGet,1);
   if(sc.isFailure())
-    {
+   {
       log << MSG::WARNING
 	  << "Unable to retrieve the RPC cabling Server Service"
 	  << endreq;
@@ -79,89 +86,69 @@ void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   // RoI
   unsigned int roiNumber = sectorRoIOvl & 0x0000001F;
 
-  /** set the eta and phi values derived from the RPC cabling service */
-  unsigned int EtaLowBorder;
-  unsigned int EtaHighBorder;
-  unsigned int PhiLowBorder;
-  unsigned int PhiHighBorder;
+
+  // Get the strips delimiting the RoIs from rPCcablingSvc
+  Identifier EtaLowBorder_id;
+  Identifier EtaHighBorder_id;
+  Identifier PhiLowBorder_id;
+  Identifier PhiHighBorder_id;
+  
+  Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
+  Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
+  Amg::Vector3D PhiLowBorder_pos(0.,0.,0.);
+  Amg::Vector3D PhiHighBorder_pos(0.,0.,0.);
+
   
   if(m_rPCcablingSvc->
-     give_RoI_borders(subSysID,
-		      sectorID,
-		      roiNumber,
-		      EtaLowBorder,
-		      EtaHighBorder,
-		      PhiLowBorder,
-		      PhiHighBorder))
-    {
-      if(m_rPCgeometrySvc)
-	{
-	  float firstEta[3] = {0.,0.,0.};
-	  float lastEta[3]  = {0.,0.,0.};
-	  float firstPhi[3] = {0.,0.,0.};
-	  float lastPhi[3]  = {0.,0.,0.};
-	  
-	  float EtaRad = 0.;
-	  float PhiRad = 0.;
-	  
-	  if(!m_rPCgeometrySvc->
-	     give_strip_coordinates(EtaLowBorder,firstEta))
-	    {
-	      return;
-	    }
-	  
-	  if(!m_rPCgeometrySvc->
-	     give_strip_coordinates(EtaHighBorder,lastEta))
-	    {
-	      return;
-	    }
-	  
-	  if(!m_rPCgeometrySvc->
-	     give_strip_coordinates(PhiLowBorder,firstPhi))
-	    {
-	      return;
-	    }
-	  
-	  if(!m_rPCgeometrySvc->
-	     give_strip_coordinates(PhiHighBorder,lastPhi))
-	    {
-	      return;
-	    }
-	  
-	  if(!m_rPCgeometrySvc->
-	     give_strip_radius(EtaLowBorder,EtaRad))
-	    {
-	      return;
-	    }
-	  
-	  if(!m_rPCgeometrySvc->
-	     give_strip_radius(PhiHighBorder,PhiRad))
-	    {
-	      return;
-	    }
-	  
-	  float DeltaZ = (lastEta[2] - firstEta[2])/2.;
-	  float Zmid = firstEta[2] + DeltaZ;
-	  
-	  float Theta = (Zmid)? atan(EtaRad/fabsf(Zmid)): asin(1);
-	  m_eta = (Zmid>0.)?  -log(tan(Theta/2.)) : log(tan(Theta/2.));
-	  
-	  
-	  m_phi = ( atan2(firstPhi[1],firstPhi[0]) +
-		    atan2(lastPhi[1],lastPhi[0]) )/2.;
-	  if(m_phi < 0.) m_phi += 2*3.141593;
-	  
-	  // use the new coordinate system of Atlas
-	  if(m_phi > 3.141593) m_phi -= 2*3.141593;
-	}
+     give_RoI_borders_id(subSysID,
+			 sectorID,
+			 roiNumber,
+			 EtaLowBorder_id,
+			 EtaHighBorder_id,
+			 PhiLowBorder_id,
+			 PhiHighBorder_id)) {
+    
+    const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
+      m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
+    EtaLowBorder_pos = EtaLowBorder_descriptor->stripPos(EtaLowBorder_id);
+
+    const MuonGM::RpcReadoutElement* EtaHighBorder_descriptor =
+      m_MuonMgr->getRpcReadoutElement(EtaHighBorder_id);
+    EtaHighBorder_pos = EtaHighBorder_descriptor->stripPos(EtaHighBorder_id);
+
+    const MuonGM::RpcReadoutElement* PhiLowBorder_descriptor =
+      m_MuonMgr->getRpcReadoutElement(PhiLowBorder_id);
+    PhiLowBorder_pos = PhiLowBorder_descriptor->stripPos(PhiLowBorder_id);
+
+    const MuonGM::RpcReadoutElement* PhiHighBorder_descriptor =
+      m_MuonMgr->getRpcReadoutElement(PhiHighBorder_id);
+    PhiHighBorder_pos =   PhiHighBorder_descriptor->stripPos(PhiHighBorder_id);
+
+    m_etaMin=EtaLowBorder_pos.eta();
+    m_etaMax=EtaHighBorder_pos.eta();
+    m_eta=(m_etaMin+m_etaMax)/2.;
+
+    m_phiMin = PhiLowBorder_pos.phi();
+    m_phiMax = PhiHighBorder_pos.phi();
+    m_phi = (m_phiMin+m_phiMax)/2.;
+    
+    if(m_phi < -M_PI) {
+      m_phi += 2*M_PI;
+    }else if (m_phi > M_PI) {
+      m_phi -= 2*M_PI;
     }
+  }
 }
 
 bool
 RPCRecRoiSvc::writeRoiRobMap(const std::string& filename)
 {  
     MsgStream msg( messageService(), name() );    //get MSG service
-    
+
+    const int maxSubsystem = 2;
+    const int maxLogicSector = 32;
+    int       maxRoI = 0;
+        
     std::ofstream table;                          //file storing the RoI/ROB map
     table.open(filename.c_str(), std::ios::out ); //try to open the file
     if(!table)                                    //check if file is open
@@ -173,11 +160,6 @@ RPCRecRoiSvc::writeRoiRobMap(const std::string& filename)
     }
 
     table << "# Roi/ROB map file for the RPC system" << std::endl << std::endl;
-    
-    
-    const int maxSubsystem = 2;
-    const int maxLogicSector = 32;
-    int       maxRoI = 0;
     
     
     CablingRPCBase::RDOmap rdo = m_rPCcablingSvc->give_RDOs();
@@ -278,98 +260,143 @@ RPCRecRoiSvc::writeRoiRobMap(const std::string& filename)
     
     table.close();
     
+    /*
+    // MC July 2014: add dump the ROI Eta-Phi Map 
+    
+    std::ofstream roi_map;                          //file storing the RoI/ROB map
+    roi_map.open("ROI_Mapping.txt", std::ios::out ); //try to open the file
+    if(!roi_map){
+      msg << MSG::WARNING << "Unable to open ROI_Mapping file!"<< endreq;
+    } else {                   
+      maxRoI=10; // try very large value
+      for(int side=0;side < maxSubsystem; side++){
+	for(int sector=0;sector < maxLogicSector; sector++){
+	  for (int roi=0; roi<maxRoI; roi++){
+	    // Get the strips delimiting the RoIs from rPCcablingSvc
+	    Identifier EtaLowBorder_id;
+	    Identifier EtaHighBorder_id;
+	    Identifier PhiLowBorder_id;
+	    Identifier PhiHighBorder_id;
+	    if(m_rPCcablingSvc->
+	       give_RoI_borders_id(side,
+				   sector,
+				   roi,
+				   EtaLowBorder_id,
+				   EtaHighBorder_id,
+				   PhiLowBorder_id,
+				   PhiHighBorder_id)) {
+	      Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
+	      Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
+	      Amg::Vector3D PhiLowBorder_pos(0.,0.,0.);
+	      Amg::Vector3D PhiHighBorder_pos(0.,0.,0.);
+    
+	      const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
+		m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
+	      EtaLowBorder_pos = EtaLowBorder_descriptor->stripPos(EtaLowBorder_id);
+	      
+	      const MuonGM::RpcReadoutElement* EtaHighBorder_descriptor =
+		m_MuonMgr->getRpcReadoutElement(EtaHighBorder_id);
+	      EtaHighBorder_pos = EtaHighBorder_descriptor->stripPos(EtaHighBorder_id);
+	      
+	      const MuonGM::RpcReadoutElement* PhiLowBorder_descriptor =
+      m_MuonMgr->getRpcReadoutElement(PhiLowBorder_id);
+	      PhiLowBorder_pos = PhiLowBorder_descriptor->stripPos(PhiLowBorder_id);
+	      
+	      const MuonGM::RpcReadoutElement* PhiHighBorder_descriptor =
+		m_MuonMgr->getRpcReadoutElement(PhiHighBorder_id);
+	      PhiHighBorder_pos =   PhiHighBorder_descriptor->stripPos(PhiHighBorder_id);
+	      
+	      roi_map << side << " "
+		      << sector << " "
+		      << roi << " "
+		      << EtaLowBorder_pos.eta()  << " "
+		      << EtaHighBorder_pos.eta() << " "
+		      << PhiLowBorder_pos.phi()  << " "
+		      << PhiHighBorder_pos.phi() << endreq;
+	    }//if
+	  } 
+	}
+      }
+      roi_map.close();
+    }
+    */
     return true;
 }
 
-bool
-RPCRecRoiSvc::etaDimLow(unsigned short int side,unsigned short int sector,
-                        unsigned short int roi,
-			float& etaMin, float& etaMax) const
+bool  RPCRecRoiSvc::etaDimLow (unsigned short int side,
+			       unsigned short int sector,
+			       unsigned short int roi,
+			       float& etaMin, float& etaMax)  const 
 {
-    unsigned int EtaLowBorder;
-    unsigned int EtaHighBorder;
-    unsigned int PhiLowBorder;
-    unsigned int PhiHighBorder;
+  // Get the strips delimiting the RoIs from rPCcablingSvc
+  Identifier EtaLowBorder_id;
+  Identifier EtaHighBorder_id;
+  Identifier PhiLowBorder_id;
+  Identifier PhiHighBorder_id;
+  Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
+  Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-    if(!m_rPCcablingSvc->give_LowPt_borders(side,sector,roi,EtaLowBorder,
-                        EtaHighBorder,PhiLowBorder,PhiHighBorder)) return false;
-
-    float firstEta[3] = {0.,0.,0.};
-    float lastEta[3]  = {0.,0.,0.};
-	  
-    float EtaRad = 0.;
-	
-    if(!m_rPCgeometrySvc->give_strip_coordinates(EtaLowBorder,firstEta))
-	                                                       return false;
-	  
-    if(!m_rPCgeometrySvc->give_strip_coordinates(EtaHighBorder,lastEta))
-	                                                       return false;
-							       
-    if(!m_rPCgeometrySvc->give_strip_radius(EtaLowBorder,EtaRad))
-	                                                       return false;
-    float Zt = firstEta[2];
-	  
-    float Theta = (Zt)? atan(EtaRad/fabsf(Zt)): asin(1);
-    etaMin = (Zt>0.)?  -log(tan(Theta/2.)) : log(tan(Theta/2.));
-
-    Zt = lastEta[2];
-	  
-    Theta = (Zt)? atan(EtaRad/fabsf(Zt)): asin(1);
-    etaMax = (Zt>0.)?  -log(tan(Theta/2.)) : log(tan(Theta/2.));
+  if( !m_rPCcablingSvc-> give_LowPt_borders_id(side,
+					       sector,
+					       roi,
+					       EtaLowBorder_id,
+					       EtaHighBorder_id,
+					       PhiLowBorder_id,
+					       PhiHighBorder_id)) return false;
+  
+  const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
+    m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
+  EtaLowBorder_pos = EtaLowBorder_descriptor->stripPos(EtaLowBorder_id);
+  
+  const MuonGM::RpcReadoutElement* EtaHighBorder_descriptor =
+    m_MuonMgr->getRpcReadoutElement(EtaHighBorder_id);
+  EtaHighBorder_pos = EtaHighBorder_descriptor->stripPos(EtaHighBorder_id);
     
-    if (etaMin > etaMax)
-    {
-        float tmp = etaMax;
-	etaMax = etaMin;
-	etaMin = tmp;
-    }
-    
-    return true;
+  etaMin=EtaLowBorder_pos.eta();
+  etaMax=EtaHighBorder_pos.eta();
+  if (etaMin>etaMax){
+    float tmp=etaMin;
+    etaMin=etaMax;
+    etaMax=tmp;
+  }
+  return true;
 }
 
-
-bool
-RPCRecRoiSvc::etaDimHigh(unsigned short int side, unsigned short int sector,
-                         unsigned short int roi,
-			 float& etaMin, float& etaMax) const
+bool RPCRecRoiSvc::etaDimHigh (unsigned short int side,
+			       unsigned short int sector,
+			       unsigned short int roi,
+			       float& etaMin, float& etaMax)  const 
 {
-    unsigned int EtaLowBorder;
-    unsigned int EtaHighBorder;
-    unsigned int PhiLowBorder;
-    unsigned int PhiHighBorder;
+  // Get the strips delimiting the RoIs from rPCcablingSvc
+  Identifier EtaLowBorder_id;
+  Identifier EtaHighBorder_id;
+  Identifier PhiLowBorder_id;
+  Identifier PhiHighBorder_id;
+  Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
+  Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-    if(!m_rPCcablingSvc->give_HighPt_borders(side,sector,roi,EtaLowBorder,
-                        EtaHighBorder,PhiLowBorder,PhiHighBorder)) return false;
-
-    float firstEta[3] = {0.,0.,0.};
-    float lastEta[3]  = {0.,0.,0.};
-	  
-    float EtaRad = 0.;
-	
-    if(!m_rPCgeometrySvc->give_strip_coordinates(EtaLowBorder,firstEta))
-	                                                       return false;
-	  
-    if(!m_rPCgeometrySvc->give_strip_coordinates(EtaHighBorder,lastEta))
-	                                                       return false;
-							       
-    if(!m_rPCgeometrySvc->give_strip_radius(EtaLowBorder,EtaRad))
-	                                                       return false;
-    float Zt = firstEta[2];
-	  
-    float Theta = (Zt)? atan(EtaRad/fabsf(Zt)): asin(1);
-    etaMin = (Zt>0.)?  -log(tan(Theta/2.)) : log(tan(Theta/2.));
-
-    Zt = lastEta[2];
-	  
-    Theta = (Zt)? atan(EtaRad/fabsf(Zt)): asin(1);
-    etaMax = (Zt>0.)?  -log(tan(Theta/2.)) : log(tan(Theta/2.));
+  if(!m_rPCcablingSvc->give_HighPt_borders_id(side,
+					      sector,
+					      roi,
+					      EtaLowBorder_id,
+					      EtaHighBorder_id,
+					      PhiLowBorder_id,
+					      PhiHighBorder_id)) return false;
     
-    if (etaMin > etaMax)
-    {
-        float tmp = etaMax;
-	etaMax = etaMin;
-	etaMin = tmp;
-    }
-     
-    return true;
+  const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
+    m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
+  EtaLowBorder_pos = EtaLowBorder_descriptor->stripPos(EtaLowBorder_id);
+  
+  const MuonGM::RpcReadoutElement* EtaHighBorder_descriptor =
+    m_MuonMgr->getRpcReadoutElement(EtaHighBorder_id);
+  EtaHighBorder_pos = EtaHighBorder_descriptor->stripPos(EtaHighBorder_id);
+  
+  etaMin=EtaLowBorder_pos.eta();
+  etaMax=EtaHighBorder_pos.eta();
+  if (etaMin>etaMax){
+    float tmp=etaMin;
+    etaMin=etaMax;
+    etaMax=tmp;
+  }
+  return true;
 }
