@@ -7,8 +7,10 @@
 
 
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "MuonReadoutGeometry/RpcReadoutElement.h"
 
-class IRPCgeometrySvc;
+//class IRPCgeometrySvc;
+class Identifier;
 class IRPCcablingSvc;
 class IMDTcablingSvc;
 
@@ -31,8 +33,13 @@ public:
   void reconstruct (const unsigned int & roIWord) const;
   double phi (void) const {return m_phi;};
   double eta (void) const {return m_eta;};
+  double phiMin (void) const {return m_phiMin;};
+  double phiMax (void) const {return m_phiMax;};
+  double etaMin (void) const {return m_etaMin;};
+  double etaMax (void) const {return m_etaMax;};
   
   bool writeRoiRobMap(const std::string& filename);
+
 
 private:
   bool etaDimLow (unsigned short int side,unsigned short int sector,
@@ -41,8 +48,8 @@ private:
                   unsigned short int roi,float& etaMin, float& etaMax) const;
 private:
   mutable double m_phi, m_eta;
-
-  const IRPCgeometrySvc*  m_rPCgeometrySvc;
+  mutable double m_phiMin, m_phiMax, m_etaMin, m_etaMax;
+  const MuonGM::MuonDetectorManager * m_MuonMgr;
   const IRPCcablingSvc*   m_rPCcablingSvc;
   const IMDTcablingSvc*   m_mDTcablingSvc;
 };
