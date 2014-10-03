@@ -7,6 +7,7 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "PFOHistUtils/ClusterPlots.h"
+#include "PFOHistUtils/ClusterMomentPlots.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 class ClusterValidationPlots : public PlotBase {
@@ -22,6 +23,8 @@ class ClusterValidationPlots : public PlotBase {
  private:
   /** 4-vector histograms */
   PFO::ClusterPlots m_ClusterPlots;
+  /** Cluster moment histograms */
+  PFO::ClusterMomentPlots m_ClusterMomentPlots;
 
 };
 #endif
