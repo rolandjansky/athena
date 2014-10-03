@@ -17,10 +17,10 @@
 
 template_dir = ${ATLASPOOLROOT}/cmt/templates
 
-${CONSTITUENT} :: ../pool/${CONSTITUENT}CnvEnd.stamp
+${CONSTITUENT} : ../pool/${CONSTITUENT}CnvEnd.stamp ;
 
 #Begin: create dir and first part of required files
-../pool/${CONSTITUENT}CnvBegin.stamp ::  ../pool/${CONSTITUENT}CnvReset.stamp
+../pool/${CONSTITUENT}CnvBegin.stamp :  ../pool/${CONSTITUENT}CnvReset.stamp
 	$(echo) "----- BEGIN pool converter generation -----"
 	if test ! -d ../pool ; then mkdir -p ../pool; fi
 	$(cmtexe) expand model '<ExamplePackageCnv_entries.h/>' >| ../pool/${package}Cnv_entries.h
@@ -32,9 +32,19 @@ ${CONSTITUENT} :: ../pool/${CONSTITUENT}CnvEnd.stamp
 	fi ; 
 	touch ../pool/${CONSTITUENT}CnvBegin.stamp
 
+# Setup a reset stamp to trigger a cleanup each time a new header file
+# is added
+../pool/${CONSTITUENT}CnvReset.stamp : $(cmt_final_setup_${CONSTITUENT})
+	$(echo) "----- RESET pool converter generation -----"
+	/bin/rm -rf ../pool && \
+	  mkdir -p ../pool && \
+	  touch ../pool/${CONSTITUENT}CnvReset.stamp
+
+../pool/${CONSTITUENT}Cnv.stamp :
+	$(silent)touch ../pool/${CONSTITUENT}Cnv.stamp
 
 #End: create final part of required files
-../pool/${CONSTITUENT}CnvEnd.stamp :: ../pool/${CONSTITUENT}Cnv.stamp 
+../pool/${CONSTITUENT}CnvEnd.stamp : ../pool/${CONSTITUENT}Cnv.stamp 
 	$(echo) "----- END pool converter generation -----"
 	if [ "$(OBJS)" ]; then \
 	  cat ../pool/$(package)_*Cnv_entries_h >>../pool/${package}Cnv_entries.h && \
