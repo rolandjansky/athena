@@ -11,24 +11,18 @@
 ## $Id: poolcnv.mk,v 1.8 2009-03-03 17:00:25 alibrari Exp $
 ##
 
-../pool/${CONSTITUENT}Cnv.stamp :: ../pool/${cnv_pfx}${NAME}Cnv.h.stamp
-	@touch ../pool/${CONSTITUENT}Cnv.stamp
+../pool/${CONSTITUENT}Cnv.stamp : ../pool/${cnv_pfx}${NAME}Cnv.h.stamp
 
 # Setup a reset stamp to trigger a cleanup each time a new header file
 # is added
-../pool/${CONSTITUENT}CnvReset.stamp :: $(bin)${NAME}Cnv.stamp $(cmt_final_setup_${CONSTITUENT})
-	$(echo) "----- RESET pool converter generation -----"
-	/bin/rm -rf ../pool && \
-	  mkdir -p ../pool && \
-	  touch ../pool/${CONSTITUENT}CnvReset.stamp
+../pool/${CONSTITUENT}CnvReset.stamp : $(bin)${NAME}Cnv.stamp
 
 # Stamp per input .h file - used for reset
-$(bin)${NAME}Cnv.stamp :: dirs
-	if test ! -f $(bin)${NAME}Cnv.stamp ; then touch $(bin)${NAME}Cnv.stamp; fi
-
+$(bin)${NAME}Cnv.stamp :
+	$(silent)touch $(bin)${NAME}Cnv.stamp
 
 # For each file, add converter and a line in _entries.cxx
-../pool/${cnv_pfx}${NAME}Cnv.h.stamp :: ../pool/${CONSTITUENT}CnvBegin.stamp  
+../pool/${cnv_pfx}${NAME}Cnv.h.stamp : ../pool/${CONSTITUENT}CnvBegin.stamp  
 	$(echo) "----- Create Pool converter for ${NAME} --------"
 	if test ! -f ${FULLNAME}; then echo "===> ERROR: file ${FULLNAME} does not exist"; \
 	exit 1; fi
