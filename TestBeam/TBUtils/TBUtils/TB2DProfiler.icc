@@ -1,0 +1,135 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+template<typename T>
+TB2DProfiler<T>::TB2DProfiler()
+  : m_skipFlag(true)
+{ }
+
+template<typename T>
+TB2DProfiler<T>::TB2DProfiler(size_t xBins, const T& xLow, const T& xHigh,
+			      size_t yBins, const T& yLow, const T& yHigh)
+  : m_skipFlag(false)
+{
+  // prepare internal stores
+  m_xBinning = new TBProfiler<T>(xBins,xLow,xHigh);
+  m_yBinning = new TBProfiler<T>(yBins,yLow,yHigh);
+
+  // common store
+  m_store    = new TBProfiler<T>(xBins*yBins);
+}
+
+template<typename T>
+TB2DProfiler<T>::~TB2DProfiler()
+{
+  delete m_xBinning;
+  delete m_yBinning;
+  delete m_store;
+}
+
+template<typename T>
+void TB2DProfiler<T>::addData(const T& xPos, const T& yPos, const T& theData )
+{
+  // get the combined index
+  size_t theIndex = this->getIndex(xPos,yPos);
+  if ( theIndex == size_t(-1) ) return;
+
+  // store
+  m_store->addData(theIndex,theData);
+}
+
+template<typename T>
+bool TB2DProfiler<T>::getAverages(size_t i, size_t j, T& theData) const
+{
+  size_t theIndex = this->getIndex(i,j);
+  return theIndex != size_t(-1)
+    ? m_store->getAverages(theIndex,theData)
+    : false;
+}
+
+template<typename T>
+bool TB2DProfiler<T>::getStandardDevs(size_t i, size_t j, T& theData) const
+{
+  size_t theIndex = this->getIndex(i,j);
+  return theIndex != size_t(-1)
+    ? m_store->getStandardDevs(theIndex,theData)
+    : false;
+}
+
+template<typename T>
+bool TB2DProfiler<T>::getErrors(size_t i, size_t j, T& theData) const
+{
+  size_t theIndex = this->getIndex(i,j);
+  return theIndex != size_t(-1)
+    ? m_store->getErrors(theIndex,theData)
+    : false;
+}
+
+template<typename T>
+bool TB2DProfiler<T>::getBinEntries(size_t i, size_t j, 
+				    size_t& theEntries ) const
+{
+  size_t theIndex = this->getIndex(i,j);
+  return ( theIndex != size_t(-1) )
+    ? m_store->getBinEntries(theIndex,theEntries)
+    : false;
+}
+
+template<typename T>
+bool TB2DProfiler<T>::getBinEntries(const T& x, const T& y, 
+				    size_t& theEntries) const
+{
+  size_t theIndex = this->getIndex(x,y);
+  return ( theIndex != size_t(-1) )
+    ? m_store->getBinEntries(theIndex,theEntries)
+    : false;
+}
+
+template<typename T>
+const TBProfiler<T>& TB2DProfiler<T>::getXBinning() const
+{
+  return *m_xBinning;
+}
+
+template<typename T>
+const TBProfiler<T>& TB2DProfiler<T>::getYBinning() const
+{
+  return *m_yBinning;
+}
+
+template<typename T>
+size_t TB2DProfiler<T>::getXIndex(const T& x) const
+{
+  return m_xBinning->getIndex(x);
+}
+
+template<typename T>
+size_t TB2DProfiler<T>::getYIndex(const T& y) const
+{
+  return m_yBinning->getIndex(y);
+}
+
+template<typename T>
+size_t TB2DProfiler<T>::getIndex(const T& xPos, const T& yPos) const
+{
+  return this->getIndex(m_xBinning->getIndex(xPos),m_yBinning->getIndex(yPos));
+}  
+
+template<typename T>
+size_t TB2DProfiler<T>::getIndex(size_t i,size_t j) const
+{
+  return ( i < m_xBinning->getNumberOfChannels() &&
+	   j < m_yBinning->getNumberOfChannels() )
+    ? i + j * m_xBinning->getNumberOfChannels()
+    : size_t(-1);
+}
+
+template<typename T>
+size_t TB2DProfiler<T>::getNumberOfChannels() const
+{
+  return 
+    m_xBinning->getNumberOfChannels() *
+    m_yBinning->getNumberOfChannels();
+}

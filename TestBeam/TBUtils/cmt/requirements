@@ -1,0 +1,6 @@
+package TBUtils
+
+author Peter Loch <loch@physics.arizona.edu>
+
+use AtlasPolicy     	AtlasPolicy-*     
+use TBEvent             TBEvent-*         TestBeam
