@@ -97,16 +97,26 @@ def convert_vertices (seq, xaod_key, key, TPContainerName):
     return
 
 
-def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName):
+def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName,
+                       forTrigger = False):
     from AthenaCommon.AppMgr          import ToolSvc
     from egammaTools.EMPIDBuilderBase import EMPIDBuilderElectronBase
     pid = EMPIDBuilderElectronBase("electronPIDBuilder")
     ToolSvc += pid
 
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__ElectronCnvTool
+    kw = {}
+    kw['xAODElectronOrigTrackContainerName'] = 'TrackParticles'
+    if forTrigger:
+        kw['xAODElectronTrackContainerName' ] = ''
+        kw['xAODElectronOrigTrackContainerName' ] = ''
+        kw['xAODCaloClusterContainerName' ] = ''
+        kw['xAODCaloClusterSofteContainerName' ] = ''
+        kw['xAODCaloClusterFrwdContainerName' ] = ''
+        kw['xAODCaloClusterOtherContainerName' ] = ''
     tool = xAODMaker__ElectronCnvTool (xaod_key + 'CnvTool',
-                                       xAODElectronOrigTrackContainerName = 'TrackParticles',
-                                       PIDBuilder = pid)
+                                       PIDBuilder = pid,
+                                       **kw)
     ToolSvc += tool
     
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__ElectronCnvAlg
@@ -120,18 +130,24 @@ def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName):
 
 
 def convert_photons (seq, xaod_key, key,
-                     topo_cluster_xaod_key,
-                     vertex_xaod_key):
+                     topo_cluster_xaod_key = '',
+                     vertex_xaod_key = '',
+                     forTrigger = False):
     from AthenaCommon.AppMgr          import ToolSvc
     from egammaTools.EMPIDBuilderBase import EMPIDBuilderPhotonBase
     pid = EMPIDBuilderPhotonBase("photonPIDBuilder")
     ToolSvc += pid
 
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__PhotonCnvTool
+    kw = {}
+    kw['xAODCaloClusterTopoContainerName'] = topo_cluster_xaod_key
+    kw['xAODConversionContainerName'] = vertex_xaod_key
+    if forTrigger:
+        kw['xAODCaloClusterContainerName'] = ''
+        kw['xAODCaloClusterOtherContainerName'] = ''
     tool = xAODMaker__PhotonCnvTool (xaod_key + 'CnvTool',
                                      PIDBuilder = pid,
-                                     xAODCaloClusterTopoContainerName = topo_cluster_xaod_key,
-                                     xAODConversionContainerName = vertex_xaod_key)
+                                     **kw)
     ToolSvc += tool
     
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__PhotonCnvAlg
@@ -166,38 +182,6 @@ def convert_muons (seq, xaod_key, key,
                                  xAODCombinedTrackParticleContainerName = xaod_cb_key)
     seq += alg
     return
-#Muons
-# Muons    TrackParticleCandidate, ExtrapolatedMuonSpectrometerParticles, CombinedfitMuonparticles
-# CaloMuonCollection          ", ?, ?
-# MuGirlLowBetaCollection     ?, ?, ?
-# MuidMuonCollection          ", MuidExtTrackParticles, MuidCombTrackParticles
-# StacoMuonCollection         ", MuonboyTrackParticles, StacoTrackParticles
-
-#xaod
-# CombinedFitMuonParticles
-# ExtrapolatedMuonSpectrometerParticles
-# InDetTrackParticles
-# SegmentTagTrackParticles
-# StatCombinedMuonParticles
-#aod
-#: CombinedFitMuonParticles
-#: ExtrapolatedMuonSpectrometerParticles
-#: MooreTrackParticles
-#: MuGirlRefittedTrackParticles
-#: MuTagIMOTrackParticles
-#: MuTagTrackParticles
-#: MuidCombTrackParticles
-#: MuidExtrTrackParticles
-#: MuonSpectrometerParticles
-#: MuonboyMuonSpectroOnlyTrackParticles
-#: MuonboyTrackParticles
-#: RefittedExtrapolatedMuonSpectrometerParticles
-#: ResolvedForwardTrackParticles
-#: SegmentTagTrackParticles
-#: StacoTrackParticles
-#: StatCombinedMuonParticles
-#: TrackParticleCandidate
-
 
 
 
@@ -217,16 +201,42 @@ def convert_truth (seq, xaod_key, key,
     seq += alg
     return
 
+
+def convert_met (seq, xaod_key, key):
+    from xAODMissingETCnv.xAODMissingETCnvConf import xAODMaker__MissingETCnvAlg
+    alg = xAODMaker__MissingETCnvAlg \
+          (xaod_key + 'Cnv',
+           AODKeys = [key],
+           xAODKey = xaod_key)
+    seq += alg
+    return
+
+
+def convert_trigemcluster (seq, xaod_key, key):
+    from xAODTrigCaloCnv.xAODTrigCaloCnvConf import xAODMaker__TrigEMClusterCnvAlg
+    alg = xAODMaker__TrigEMClusterCnvAlg \
+          (xaod_key + 'Cnv',
+           AODKey = key,
+           xAODKey = xaod_key)
+    seq += alg
+    return
+    
+
+
 types = {
     'xAOD::CaloClusterContainer' : ('CaloClusterContainer', convert_clusters),
     'xAOD::JetContainer'   :  ('JetCollection', convert_jets),
     'xAOD::TrackParticleContainer' : [('Rec::TrackParticleContainer', convert_trackparticles),
                                       ('TrackCollection', convert_tracks)],
     'xAOD::VertexContainer' : ('VxContainer', convert_vertices),
-    'xAOD::ElectronContainer' : ('ElectronContainer', convert_electrons),
-    'xAOD::PhotonContainer'   : ('PhotonContainer',   convert_photons),
+    'xAOD::ElectronContainer' : [('ElectronContainer', convert_electrons),
+                                 ('egammaContainer', convert_electrons)],
+    'xAOD::PhotonContainer'   : [('PhotonContainer',   convert_photons),
+                                 ('egammaContainer',   convert_photons)],
     'xAOD::MuonContainer'     : ('Analysis::MuonContainer', convert_muons),
     'xAOD::TruthParticleContainer' : ('McEventCollection', convert_truth),
+    'xAOD::MissingETContainer' : ('MissingET', convert_met),
+    'xAOD::TrigEMClusterContainer' : ('TrigEMClusterContainer', convert_trigemcluster),
     }
 
 
