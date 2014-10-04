@@ -15,22 +15,20 @@ from egammaD3PDMaker.ElectronD3PDObject       import ElectronD3PDObject
 from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject
 from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 # from MuonD3PDMaker.MuonTriggerBitsD3PDObject  import MuonTriggerBitsD3PDObject
-# from MissingETD3PDMaker.MissingETD3PDObject   import MissingETD3PDObject
-# from MissingETD3PDMaker.MissingETGoodnessD3PDObject import MissingETGoodnessD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
-# from D3PDMakerConfig.METD3PDObject            import METD3PDObject
 from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from CaloD3PDMaker.MBTSTimeD3PDObject         import MBTSTimeD3PDObject
 # from CaloD3PDMaker.MBTSTriggerBitsD3PDObject  import MBTSTriggerBitsD3PDObject
 # from CaloD3PDMaker.ZDCTriggerBitsD3PDObject   import ZDCTriggerBitsD3PDObject
 from CaloD3PDMaker.LArCollisionTimeD3PDObject import LArCollisionTimeD3PDObject
 from CaloD3PDMaker.CollisionDecisionD3PDObject import CollisionDecisionD3PDObject
+from MissingETD3PDMaker.MissingETD3PDObject   import MissingETD3PDObject
 # from EventCommonD3PDMaker.LBMetadataConfig    import LBMetadataConfig
 from TruthD3PDMaker.TruthEventD3PDObject      import TruthEventD3PDObject
 # from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
-# from TrackD3PDMaker.VertexD3PDObject          import PrimaryVertexD3PDObject
-# from TrigEgammaD3PDMaker.TrigEgammaD3PD       import TrigEgammaD3PDObjects
+from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
+from TrigEgammaD3PDMaker.TrigEgammaD3PD       import TrigEgammaD3PDObjects
 # from TrigMuonD3PDMaker.TrigMuonD3PD           import TrigMuonD3PDObjects
 from RecExConfig.RecFlags                     import rec
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
@@ -106,6 +104,12 @@ def createxAOD (seq):
     makexAOD (seq, 'xAOD::TrackParticleContainer',
               'CombinedfitMuonparticles',
               truth_key = 'TrackParticleTruthCollection')
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreation_Electron_EFID',
+              truth_key = 'TrackParticleTruthCollection')
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreationTRTOnly_Electron_EFID',
+              truth_key = 'TrackParticleTruthCollection')
 
     makexAOD (seq, 'xAOD::VertexContainer', 'AllPhotonsVxCandidates',
               TPContainerName = 'GSFTrackParticles')
@@ -115,13 +119,19 @@ def createxAOD (seq):
     makexAOD (seq, 'xAOD::ElectronContainer',
               'ElectronCollection', 'ElectronAODCollection',
               xAODContainerFrwdName = 'FwdElectrons')
-    #makexAOD (seq, 'xAOD::ElectronContainer',
-    #          'HLT_egamma', 'HLT_egamma',
-    #          xAODContainerFrwdName = 'HLT_egamma_fwd')
+    makexAOD (seq, 'xAOD::ElectronContainer',
+              'HLT_egamma_Electrons', 'HLT_egamma_Electrons',
+              xAODContainerFrwdName = 'HLT_egamma_Electrons_fwd',
+              forTrigger = True)
     makexAOD (seq, 'xAOD::PhotonContainer',
               'PhotonCollection', 'PhotonAODCollection',
               topo_cluster_xaod_key = 'EMTopoSW35',
               vertex_xaod_key = 'AllPhotonsVxCandidates')
+    makexAOD (seq, 'xAOD::PhotonContainer',
+              'HLT_egamma_Photons', 'HLT_egamma_Photons',
+              topo_cluster_xaod_key = '',
+              vertex_xaod_key = '',
+              forTrigger = True)
 
     makexAOD (seq, 'xAOD::MuonContainer',
               'StacoMuonCollection',
@@ -143,9 +153,16 @@ def createxAOD (seq):
     #          xaod_tp_key = 'TrackParticles',
     #          xaod_sa_key = 'ExtrapolatedMuonSpectrometerParticles',
     #          xaod_cb_key = 'CombinedfitMuonparticles')
+    makexAOD (seq, 'xAOD::TrigEMClusterContainer',
+              'HLT_TrigT2CaloEgamma')
 
     #setVxLinks (seq, 'TrackParticles', 'VxPrimaryCandidate')
     #setVxLinks (seq, 'GSFTrackParticles', 'VxPrimaryCandidate')
+
+    makexAOD (seq, 'xAOD::MissingETContainer', 'MET_RefFinal')
+
+    from xAODTriggerCnv.xAODRoICreator import xAODRoICreator
+    xAODRoICreator (seq)
     return
 
 
@@ -169,15 +186,13 @@ class MergeElectrons (PyAthena.Alg):
         cfgKeyStore.addTransient ('xAOD::ElectronContainer', 'AllElectrons')
 
         #e1 = sg['StacoMuonCollection']
-        e1 = sg.retrieve (ROOT.DataVector(ROOT.xAOD.Muon_v1), 'StacoMuonCollection')
-        if e1.size() > 0:
-            reg = ROOT.SG.AuxTypeRegistry.instance()
-            auxids = list(e1[0].getAuxIDs())
-            auxids = [(reg.getName(id), id) for id in auxids]
-            auxids.sort()
-            print 'aaa', auxids
-            acc = ROOT.SG.AuxElement.TypelessConstAccessor ('Loose')
-            print 'bbb1', acc.isAvailable(e1[0])
+        #e1 = sg.retrieve (ROOT.DataVector(ROOT.xAOD.Electron_v1), 'HLT_egamma')
+        #if e1.size() > 0:
+        #    reg = ROOT.SG.AuxTypeRegistry.instance()
+        #    auxids = list(e1[0].getAuxIDs())
+        #    auxids = [(reg.getName(id), id) for id in auxids]
+        #    auxids.sort()
+        #    print 'aaa', auxids
         # if e2.size() > 0:
         #     acc = ROOT.SG.AuxElement.TypelessConstAccessor ('Loose')
         #     print 'bbb2', acc.isAvailable(e2[0])
@@ -209,20 +224,20 @@ def egammaD3PD (alg = None,
 
     alg += EventInfoD3PDObject        (**_args (level, 'EventInfo', kw))
 
-    # # Segregate trigger decision flags in a separate tree.
-    # if not trigalg:
-    #     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    #     trigalg = MSMgr.NewRootStream( tuplename + ':' + tuplename + 'TrigDec',
-    #                                    FileName = file,
-    #                                    TreeName = tuplename + 'TrigDec')
+    # Segregate trigger decision flags in a separate tree.
+    if not trigalg:
+        from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+        trigalg = MSMgr.NewRootStream( tuplename + ':' + tuplename + 'TrigDec',
+                                       FileName = file,
+                                       TreeName = tuplename + 'TrigDec')
 
-    # trigalg += EventInfoD3PDObject        (0)
-    # alg.Stream.trigDecisionTree = trigalg
+    trigalg += EventInfoD3PDObject        (0)
+    alg.Stream.trigDecisionTree = trigalg
 
-    # # Add bunch structure metadata.
-    # from TriggerD3PDMaker.BunchStructureMetadata \
-    #      import addBunchStructureMetadata
-    # addBunchStructureMetadata (alg)
+    # Add bunch structure metadata.
+    from TriggerD3PDMaker.BunchStructureMetadata \
+         import addBunchStructureMetadata
+    addBunchStructureMetadata (alg)
 
     alg += LArCollisionTimeD3PDObject (**_args (level, 'LArCollisionTime', kw))
     alg += ElectronD3PDObject         (**_args (level, 'Electron', kw,
@@ -253,21 +268,20 @@ def egammaD3PD (alg = None,
     alg += JetD3PDObject              (**_args (0, 'Jet', kw,
                                                 include=['JetQual',
                                                          'DQMoments']))
-    # alg += METD3PDObject              (**_args (level, 'MET', kw))
-    # alg += MissingETD3PDObject        (**_args (level, 'MissingET', kw,
-    #                                             allowMissing = True))
-    # alg += MissingETGoodnessD3PDObject(**_args ( 2, 'METGoodness', kw))
     alg += MBTSD3PDObject             (**_args (level, 'MBTS', kw))
     alg += MBTSTimeD3PDObject         (**_args (level, 'MBTSTime', kw))
     # alg += MBTSTriggerBitsD3PDObject  (**_args (level, 'MBTSTriggerBits', kw))
     # alg += ZDCTriggerBitsD3PDObject   (**_args (level, 'ZDCTriggerBits', kw))
     alg += CollisionDecisionD3PDObject(**_args (level, 'CollisionDecision', kw))
-    # if D3PDMakerFlags.DoTrigger():
-    #     from TriggerD3PDMaker.TrigDecisionD3PDObject \
-    #          import TrigDecisionD3PDObject
-    #     alg += TrigDecisionD3PDObject (**_args (2, 'TrigDecision', kw))
-    #     TrigEgammaD3PDObjects (alg, **_args (1, 'TrigEgamma', kw,
-    #                                          TrigEMCluster_level = 2))
+    alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
+                                         sgkey = 'MET_RefFinal',
+                                         prefix = 'MET_RefFinal_'))
+    if D3PDMakerFlags.DoTrigger():
+        from TriggerD3PDMaker.TrigDecisionD3PDObject \
+             import TrigDecisionD3PDObject
+        alg += TrigDecisionD3PDObject (**_args (2, 'TrigDecision', kw))
+        TrigEgammaD3PDObjects (alg, **_args (1, 'TrigEgamma', kw,
+                                             TrigEMCluster_level = 2))
     #     TrigMuonD3PDObjects   (alg, 1,
     #                            TrigMuonEFIsolation_allowMissing = True)
 
@@ -297,19 +311,19 @@ def egammaD3PD (alg = None,
     #     alg += BGCodeD3PDObject (**_args (2, 'BGCode', kw))
 
 
-    # # May be missing in single-beam data.
-    # alg += PrimaryVertexD3PDObject (**_args (
-    #     1, 'PrimaryVertex', kw,
-    #     allowMissing = True,
-    #     sgkey = D3PDMakerFlags.VertexSGKey(),
-    #     prefix = 'vxp_',
-    #     storeVertexTrackIndexAssociation = False,
-    #     storeVertexTrackAssociation = True,
-    #     storeDiagonalCovarianceAsErrors = True))
+    # May be missing in single-beam data.
+    alg += PrimaryxAODVertexD3PDObject (**_args (
+        1, 'PrimaryVertex', kw,
+        #allowMissing = True,
+        sgkey = D3PDMakerFlags.VertexSGKey(),
+        prefix = 'vxp_',
+        storeVertexTrackIndexAssociation = False,
+        storeVertexTrackAssociation = True,
+        storeDiagonalCovarianceAsErrors = True))
 
     if rec.doTruth():
-    #     from MuonD3PDMaker.TruthMuonD3PDObject        import TruthMuonD3PDObject
-    #     alg += TruthMuonD3PDObject    (**_args (level, 'TruthMuon', kw))
+        from MuonD3PDMaker.TruthMuonD3PDObject        import TruthMuonD3PDObject
+        alg += TruthMuonD3PDObject    (**_args (level, 'TruthMuon', kw))
         alg += TruthEventD3PDObject     (**_args (1, 'TruthEvent', kw))
         alg += TruthParticleD3PDObject(**_args (level, 'TruthParticle', kw))
 

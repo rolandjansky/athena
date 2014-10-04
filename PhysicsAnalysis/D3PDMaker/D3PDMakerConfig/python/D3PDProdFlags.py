@@ -160,21 +160,6 @@ listAllKnownD3PD.append (prodFlags.WriteTopBoostJSD3PD)
 
 
 
-class WritePhotonD3PD (JobProperty):
-    """Produce the photon D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_PHOTON'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "PhotonD3PDMaker/PhotonD3PD_prodJobOFragment.py"
-    TreeNames = ['photon']
-    SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WritePhotonD3PD)
-listAllKnownD3PD.append (prodFlags.WritePhotonD3PD)
-
-
 class WriteBackgroundD3PD (JobProperty):
     """Produce the Background D3PD."""
     statusOn = True
