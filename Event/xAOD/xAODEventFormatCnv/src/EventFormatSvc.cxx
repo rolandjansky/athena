@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.cxx 603941 2014-06-27 11:51:35Z krasznaa $
+// $Id: EventFormatSvc.cxx 620292 2014-10-06 22:00:16Z will $
 
 // System include(s):
 #include <fstream>
@@ -183,9 +183,11 @@ namespace xAODMaker {
          std::string typeName;
          if( m_clidSvc->getTypeInfoNameOfID( ( *itr )->clID(),
                                              typeName ).isFailure() ) {
+#ifndef XAOD_ANALYSIS //will quietly bypass these errors in AthAnalysisBase, because some of the EDM classes are missing
             REPORT_MESSAGE( MSG::ERROR )
                << "Couldn't get type name for CLID = "
                << ( *itr )->clID();
+#endif
             continue;
          }
 
