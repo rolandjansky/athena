@@ -75,7 +75,7 @@ def HLTCaloMonitoringTool():
     HLTCaloL2 = HLTCaloToolL2(name             = 'HLTCaloL2',
                                         histoPathBase    = "/Trigger/HLT",
                                         ListOfCellsKeys  =
-                     ['HLT_TrigT2CaloTauCells','HLT_TrigT2CaloEgammaCells'])
+                     ['HLT_CaloCellContainer_TrigT2CaloTauCells','HLT_CaloCellContainer_TrigT2CaloEgammaCells'])
     HLTCaloCluster =  HLTCaloClusterTool( name = 'HLTCaloCluster',
                                         histoPathBase    = "/Trigger/HLT")
     from AthenaCommon.AppMgr import ToolSvc
