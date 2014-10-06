@@ -2,7 +2,7 @@
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: recoTransforms.py 609797 2014-08-01 14:51:02Z graemes $
+#  @version $Id: recoTransforms.py 611371 2014-08-12 09:21:15Z seuster $
 
 import os
 import re
@@ -68,11 +68,11 @@ class skimRawExecutor(scriptExecutor):
                         count += 1
                 except ValueError, e:
                     msg.warning("Failed to understand this line from master filter file: {0} {1}".format(line, e))
-                if count == 0:
-                    # If there are no matched events, create a bogus request for run and event 0 to keep
-                    # AtlCopyBSEvent.exe CLI
-                    msg.info("No events matched in this input file - empty RAW file output will be made")
-                    os.write(slimFF.fileno(), "0 0\n")
+            if count == 0:
+                # If there are no matched events, create a bogus request for run and event 0 to keep
+                # AtlCopyBSEvent.exe CLI
+                msg.info("No events matched in this input file - empty RAW file output will be made")
+                os.write(slimFF.fileno(), "0 0\n")
         msg.info("Matched {0} lines from the master filter file against input events; wrote these to {1}".format(count, slimmedFilterFile))
         
         # Build up the right command line for acmd.py
