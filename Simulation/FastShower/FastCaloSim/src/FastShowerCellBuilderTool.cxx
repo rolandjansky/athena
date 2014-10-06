@@ -45,8 +45,6 @@
 
 //extrapolation
 #include "CaloDetDescr/CaloDepthTool.h"
-//#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 //#include "TrkParameters/Perigee.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -101,10 +99,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
                            m_rndmSvc("AtDSFMTGenSvc", name),
                            m_randomEngine(0),
                            m_randomEngineName("FastCaloSimRnd"),
-                           m_electronExtrapolTool_name("ExtrapolToCaloTool/FSElectronExtrapolToCaloTool"),
-                           m_gammaExtrapolTool_name("ExtrapolToCaloTool/FSPhotonExtrapolToCaloTool"),
-                           m_electronExtrapolToolEntrance_name("ExtrapolToCaloTool/FSElectronExtrapolToCaloToolEntrance"),
-                           m_gammaExtrapolToolEntrance_name("ExtrapolToCaloTool/FSPhotonExtrapolToCaloToolEntrance"),
                            m_extrapolatorName("Trk::Extrapolator"),   
                            m_extrapolatorInstanceName("Extrapolator"),
                            m_calosurf_middle_InstanceName("CaloSurfaceBuilderMiddle"),
@@ -141,11 +135,6 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   declareProperty("DoSimulWithInnerDetectorV14TruthCuts",m_simul_ID_v14_truth_cuts);
   declareProperty("DoSimulWithEMGeantInteractionsOnly",m_simul_EM_geant_only);
   declareProperty("DoSimulHeavyIonsInCalo",         m_simul_heavy_ions);
-
-  declareProperty("electronExtrapolTool",           m_electronExtrapolTool_name );
-  declareProperty("gammaExtrapolTool",              m_gammaExtrapolTool_name );
-  declareProperty("electronExtrapolToolEntrance",   m_electronExtrapolToolEntrance_name );
-  declareProperty("gammaExtrapolToolEntrance",      m_gammaExtrapolToolEntrance_name );
 
   declareProperty("ExtrapolatorName",               m_extrapolatorName );
   declareProperty("ExtrapolatorInstanceName",       m_extrapolatorInstanceName );
@@ -341,50 +330,6 @@ StatusCode FastShowerCellBuilderTool::initialize()
   else {
     IAlgTool* algTool;
 
-    ListItem electronExtrapolTool(m_electronExtrapolTool_name);
-    if ( p_toolSvc->retrieveTool(electronExtrapolTool.type(),electronExtrapolTool.name(), algTool, this).isFailure() ) {
-      ATH_MSG_ERROR("Cannot retrieve "<<m_electronExtrapolTool_name);
-      return StatusCode::FAILURE;
-    }
-    m_etoCalo = dynamic_cast<IExtrapolateToCaloTool*>(algTool);    
-
-    ListItem gammaExtrapolTool(m_gammaExtrapolTool_name);
-    if ( p_toolSvc->retrieveTool(gammaExtrapolTool.type(),gammaExtrapolTool.name(), algTool, this).isFailure() ) {
-      ATH_MSG_ERROR("Cannot retrieve "<<m_gammaExtrapolTool_name);
-      return StatusCode::FAILURE;
-    }
-    m_gtoCalo = dynamic_cast<IExtrapolateToCaloTool*>(algTool);    
-
-   // retrived via the Extrapolator to make sure that jobOpt setting is consistent.
-    m_calodepth = &*m_etoCalo->getCaloDepth();
-    if (!m_calodepth) {
-      ATH_MSG_ERROR("Cannot get CaloDepthTool");
-      return StatusCode::FAILURE; 
-    }
-
-
-    ListItem electronExtrapolToolEntrance(m_electronExtrapolToolEntrance_name);
-    if ( p_toolSvc->retrieveTool(electronExtrapolToolEntrance.type(),electronExtrapolToolEntrance.name(), algTool, this).isFailure() ) {
-      ATH_MSG_ERROR("Cannot retrieve "<<m_electronExtrapolToolEntrance_name);
-      return StatusCode::FAILURE;
-    }
-    m_etoCaloEntrance = dynamic_cast<IExtrapolateToCaloTool*>(algTool);    
-
-    ListItem gammaExtrapolToolEntrance(m_gammaExtrapolToolEntrance_name);
-    if ( p_toolSvc->retrieveTool(gammaExtrapolToolEntrance.type(),gammaExtrapolToolEntrance.name(), algTool, this).isFailure() ) {
-      ATH_MSG_ERROR("Cannot retrieve "<<m_gammaExtrapolToolEntrance_name);
-      return StatusCode::FAILURE;
-    }
-    m_gtoCaloEntrance = dynamic_cast<IExtrapolateToCaloTool*>(algTool);    
-
-   // retrived via the Extrapolator to make sure that jobOpt setting is consistent.
-    m_calodepthEntrance = &*m_etoCaloEntrance->getCaloDepth();
-    if (!m_calodepthEntrance) {
-      ATH_MSG_ERROR("Cannot get CaloDepthTool");
-      return StatusCode::FAILURE; 
-    }
-
-
 
     // Get TrkExtrapolator from ToolService
     if (p_toolSvc->retrieveTool(m_extrapolatorName, m_extrapolatorInstanceName , m_extrapolator).isFailure())
@@ -402,9 +347,6 @@ StatusCode FastShowerCellBuilderTool::initialize()
       ATH_MSG_ERROR("Could not find Tool "<< m_calosurf_middle_InstanceName);
       return StatusCode::FAILURE;
     }     
-    #if FastCaloSim_project_release_v1 == 12
-    m_calosurf_middle->setCaloDepth(m_calodepth);
-    #endif  
 
     // Get the CaloSurface tool and sets the depthtool it should use:
     if (p_toolSvc->retrieveTool("CaloSurfaceBuilder",m_calosurf_entrance_InstanceName,m_calosurf_entrance,this).isFailure())
@@ -412,9 +354,6 @@ StatusCode FastShowerCellBuilderTool::initialize()
       ATH_MSG_ERROR("Could not find Tool "<< m_calosurf_entrance_InstanceName);
       return StatusCode::FAILURE;
     }     
-    #if FastCaloSim_project_release_v1 == 12
-    m_calosurf_entrance->setCaloDepth(m_calodepthEntrance);
-    #endif  
 
 
     std::string CaloCoordinateTool_name="TBCaloCoordinate";

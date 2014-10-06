@@ -90,7 +90,7 @@ use CaloTrackingGeometry CaloTrackingGeometry-* Calorimeter
 use DataModel            DataModel-*            Control
 use EventKernel          EventKernel-*          Event
 #use ITrackToCalo         ITrackToCalo-*         Reconstruction/RecoTools
-use RecoToolInterfaces  RecoToolInterfaces-*    Reconstruction/RecoTools
+#use RecoToolInterfaces  RecoToolInterfaces-*    Reconstruction/RecoTools
 use NavFourMom           NavFourMom-*           Event
 use PartPropSvc          v*
 use PathResolver         PathResolver-*         Tools
