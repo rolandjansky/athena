@@ -10,7 +10,6 @@
 #include "../egammaDeltaEmax2Alg.h"
 #include "../egammaShowerDepthAlg.h"
 #include "../PhotonTruthAlg.h"
-#include "../egammaTopoIsoAlg.h"
 #include "../ElectronRedoOQAlg.h"
 #include "../PhotonRedoOQAlg.h"
 #include "../egammaCalcOQAlg.h"
@@ -31,7 +30,6 @@
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaDeltaEmax2Alg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaShowerDepthAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, PhotonTruthAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaTopoIsoAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, ElectronRedoOQAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, PhotonRedoOQAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaCalcOQAlg)
@@ -48,23 +46,3 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY      (D3PD, egammaTimeCorrAlg)
 
 
 
-DECLARE_FACTORY_ENTRIES(egammaD3PDAnalysis) {
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaDeltaEmax2Alg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaShowerDepthAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, PhotonTruthAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaTopoIsoAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, ElectronRedoOQAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, PhotonRedoOQAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaCalcOQAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaTruthAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, TileGapSelectionAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, TileGapSumAlg)
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, ClusterCalculatorAlg)
-  DECLARE_NAMESPACE_TOOL      (D3PD, PhotonTruthTool)
-  
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaMaxECellAlg )
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaSumCellsGainAlg )
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaNbCellsGainAlg )
-  DECLARE_NAMESPACE_ALGORITHM (D3PD, egammaTimeCorrAlg)
-  
-}
