@@ -18,9 +18,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 

@@ -11,7 +11,6 @@ use InDetRawData        InDetRawData-*          InnerDetector/InDetRawEvent
 
 
 private
-use EventInfo           EventInfo-*             Event
 use GeneratorObjects    GeneratorObjects-*      Generators
 use InDetIdentifier     InDetIdentifier-*       InnerDetector/InDetDetDescr
 use InDetSimData        InDetSimData-*          InnerDetector/InDetRawEvent
