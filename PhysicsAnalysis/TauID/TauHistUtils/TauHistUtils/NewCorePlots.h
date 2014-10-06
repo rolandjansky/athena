@@ -16,11 +16,6 @@ class NewCorePlots: public PlotBase {
 
     void fill(const xAOD::TauJet& tau);
 
-
-    TH1*  m_tauPt;
-    TH1*  m_tauEta;
-    TH1*  m_tauPhi;
-    TH1*  m_tauCharge;
     TH1*  m_ipZ0SinThetaSigLeadTrk;
     TH1*  m_etOverPtLeadTrk;
     //    TH1*  m_leadTrkPt;
