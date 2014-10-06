@@ -2,11 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronIsolationSelectionTool.cxx 605168 2014-07-07 14:12:31Z morrisj $
+// $Id: ElectronIsolationSelectionTool.cxx 620241 2014-10-06 18:50:02Z christos $
 
 // Local include(s):
 #include "ElectronIsolationSelection/ElectronIsolationSelectionTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "PathResolver/PathResolver.h"
 #include <cmath>
 
 namespace CP {
@@ -186,7 +187,8 @@ namespace CP {
     {
       const xAOD::EventInfo* eventInfo = 0;
       ATH_CHECK( evtStore()->retrieve( eventInfo, m_sgKeyEventInfo ) );
-      return eventInfo->eventTypeBitmask() > 1 ? true : false;
+      bool isMC = eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION );
+      return isMC;
     }
     
     float ElectronIsolationSelectionTool::getElectronClusterEnergy( const xAOD::Electron& ele ) const
@@ -223,13 +225,13 @@ namespace CP {
     {
       float value(0.0);
       if( coneSize == 0.2 || coneSize == 20 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::etcone20  );
+        ele.isolationValue(value,xAOD::Iso::etcone20  );
       }
       if( coneSize == 0.3 || coneSize == 30 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::etcone30  );
+        ele.isolationValue(value,xAOD::Iso::etcone30  );
       }      
       if( coneSize == 0.4 || coneSize == 40 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::etcone40  );
+        ele.isolationValue(value,xAOD::Iso::etcone40  );
       }         
       return value;
     }
@@ -238,13 +240,13 @@ namespace CP {
     {
       float value(0.0);
       if( coneSize == 0.2 || coneSize == 20 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::ptcone20  );
+        ele.isolationValue(value,xAOD::Iso::ptcone20  );
       }
       if( coneSize == 0.3 || coneSize == 30 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::ptcone30  );
+        ele.isolationValue(value,xAOD::Iso::ptcone30  );
       }      
       if( coneSize == 0.4 || coneSize == 40 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::ptcone40  );
+        ele.isolationValue(value,xAOD::Iso::ptcone40  );
       }             
       return value;      
     }
@@ -254,13 +256,13 @@ namespace CP {
     {
       float value(0.0);
       if( coneSize == 0.2 || coneSize == 20 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::topoetcone20  );
+        ele.isolationValue(value,xAOD::Iso::topoetcone20  );
       }
       if( coneSize == 0.3 || coneSize == 30 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::topoetcone30  );
+        ele.isolationValue(value,xAOD::Iso::topoetcone30  );
       }      
       if( coneSize == 0.4 || coneSize == 40 ){
-        ele.isolationValue(value,xAOD::EgammaParameters::topoetcone40  );
+        ele.isolationValue(value,xAOD::Iso::topoetcone40  );
       }       
       return value;      
     }
@@ -287,21 +289,22 @@ namespace CP {
     TString ElectronIsolationSelectionTool::findInputFile_ExpectBetterSolutionFromASG()
     {
         
-      std::string s_path;
       //now setting the correct path for the file. Borrowed from Fede (MuonMomentumCorrections)
       char *rootCoreArea = getenv("ROOTCOREBIN");
       char *testArea = getenv("TestArea");
-
+      TString fileName("");
+      
       // ROOTCore: Data folder
       if(rootCoreArea != NULL){
-        s_path = std::string(rootCoreArea) + "/data/egammaAnalysisUtils/";
+        fileName = std::string(rootCoreArea) + "/data/ElectronIsolationSelection/" + m_inputFile;
       }
       // Athena: InstallArea
       else if ( testArea != NULL ){
-        s_path = std::string(testArea) + "/InstallArea/share/";
+        fileName = PathResolverFindCalibFile( "ElectronIsolationSelection/" + m_inputFile );
+        ATH_MSG_INFO(" Path found = "<<fileName);
+        
       }
       
-      TString fileName = s_path + m_inputFile;
       return fileName; 
     }
 

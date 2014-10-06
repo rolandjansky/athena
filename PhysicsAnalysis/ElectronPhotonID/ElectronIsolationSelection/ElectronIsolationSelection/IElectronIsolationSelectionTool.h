@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IElectronIsolationSelectionTool.h 605168 2014-07-07 14:12:31Z morrisj $
+// $Id: IElectronIsolationSelectionTool.h 605167 2014-07-07 14:11:27Z morrisj $
 #ifndef ELECTRONISOLATIONSELECTION_IELECTRONISOLATIONSELECTIONTOOL_H
 #define ELECTRONISOLATIONSELECTION_IELECTRONISOLATIONSELECTIONTOOL_H
 
@@ -22,8 +22,8 @@ namespace CP {
    ///
    /// @author John Morris <john.morris@cern.ch>
    ///
-   /// $Revision: 605168 $
-   /// $Date: 2014-07-07 16:12:31 +0200 (Mon, 07 Jul 2014) $
+   /// $Revision: 605167 $
+   /// $Date: 2014-07-07 16:11:27 +0200 (Mon, 07 Jul 2014) $
    ///
    class IElectronIsolationSelectionTool : public virtual asg::IAsgTool {
 

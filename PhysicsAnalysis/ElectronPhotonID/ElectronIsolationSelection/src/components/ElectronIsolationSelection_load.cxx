@@ -1,4 +1,4 @@
-// $Id: ElectronIsolationSelection_load.cxx 605168 2014-07-07 14:12:31Z morrisj $
+// $Id: ElectronIsolationSelection_load.cxx 605132 2014-07-07 12:58:34Z morrisj $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/LoadFactoryEntries.h"

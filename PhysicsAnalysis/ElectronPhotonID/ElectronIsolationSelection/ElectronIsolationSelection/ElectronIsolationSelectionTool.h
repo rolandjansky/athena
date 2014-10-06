@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronIsolationSelectionTool.h 605168 2014-07-07 14:12:31Z morrisj $
+// $Id: ElectronIsolationSelectionTool.h 620241 2014-10-06 18:50:02Z christos $
 #ifndef ELECTRONISOLATIONSELECTION_ELECTRONISOLATIONSELECTIONTOOL_H
 #define ELECTRONISOLATIONSELECTION_ELECTRONISOLATIONSELECTIONTOOL_H
 
@@ -16,7 +16,7 @@
 // Local include(s):
 #include "ElectronIsolationSelection/IElectronIsolationSelectionTool.h"
 #include "ElectronIsolationSelection/IShowerDepthTool.h"
-#include "egammaAnalysisUtils/EisoTool2012.h"
+#include "ElectronIsolationSelection/EisoTool2012.h"
 
 
 namespace CP {
@@ -26,8 +26,8 @@ namespace CP {
    ///
    /// @author John Morris <john.morris@cern.ch>
    ///
-   /// $Revision: 605168 $
-   /// $Date: 2014-07-07 16:12:31 +0200 (Mon, 07 Jul 2014) $
+   /// $Revision: 620241 $
+   /// $Date: 2014-10-06 20:50:02 +0200 (Mon, 06 Oct 2014) $
    ///
    class ElectronIsolationSelectionTool :  public virtual IAsgSelectionTool,
                                            public virtual IElectronIsolationSelectionTool,
@@ -96,6 +96,7 @@ namespace CP {
      
       /// The EisoTool2012
       EisoTool2012* m_eiso;
+      
       
       // Shower Depth Tool
       ToolHandle< CP::IShowerDepthTool > m_showerDepthTool;
