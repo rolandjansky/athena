@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // PhysVal includes
-#include "PhysValTau.h"
+#include "../share/PhysValTau.h"
 
 // STL includes
 #include <vector>
@@ -84,7 +84,7 @@ StatusCode PhysValTau::bookHistograms()
     ATH_MSG_INFO ("Booking hists " << name() << "...");
     
     // Physics validation plots are level 10
-    m_oTauValidationPlots.reset(new TauValidationPlots(0,"Tau/" + m_TauJetContainerName, m_TauJetContainerName));
+    m_oTauValidationPlots.reset(new TauValidationPlots(0,"Tau/" /* + m_TauJetContainerName*/, m_TauJetContainerName));
     m_oTauValidationPlots->setDetailLevel(100);
     m_oTauValidationPlots->initialize();
     std::vector<HistData> hists = m_oTauValidationPlots->retrieveBookedHistograms();
@@ -100,7 +100,7 @@ StatusCode PhysValTau::fillHistograms()
 {
 
     ATH_MSG_INFO ("Filling hists " << name() << "...");
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve tau container: 
     const xAOD::TauJetContainer* taus = evtStore()->retrieve< const xAOD::TauJetContainer >( m_TauJetContainerName ); 
     if (!taus) { 
@@ -108,89 +108,109 @@ StatusCode PhysValTau::fillHistograms()
 	return StatusCode::FAILURE; 
     }         
     ATH_MSG_DEBUG( "Number of taus: " << taus->size() ); 
-    
-    int i(0); 
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve truth container:     
     const xAOD::TruthParticleContainer* truth = evtStore()->retrieve< const xAOD::TruthParticleContainer >( m_TruthParticleContainerName );
     if (!truth) { 
 	ATH_MSG_ERROR ("Couldn't retrieve tau container with key: " << m_TruthParticleContainerName); 
 	return StatusCode::FAILURE; 
     }   
-    
     ATH_MSG_DEBUG( "Number of truth: " << truth->size() );      
-       
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve true hadronic tau container from truth container
-    const xAOD::TruthParticleContainer* hadTauContainer = 0;
-    hadTauContainer = truthHandler.getHadronicTruth(truth);
-    ATH_MSG_DEBUG( "Number of true had taus: " << hadTauContainer->size() );      
+    // getHaderonicTruth finds true taus (ID == 15) with correct status and no leptonic decay.
+    const xAOD::TruthParticleContainer* trueTauContainer = 0;
+    trueTauContainer = truthHandler.getHadronicTruth(truth);
+    ATH_MSG_DEBUG( "Number of true had taus: " << trueTauContainer->size() );      
 
 
+
+    //////////////////////////////////////////
+    // Plotting TauRec Variables
 
     // Loop through reco tau jet container
     for (auto tau : *taus) { 
 	if (m_detailLevel < 10) continue;
 	if (tau->pt()/GeV < 20) continue;
-	m_oTauValidationPlots->m_oRecoTauAllProngsPlots.fill(*tau); // Reconstruction histograms filled      
-	m_oTauValidationPlots->m_oBDTinputPlots.fill(*tau); // BDT Histograms      
+	m_oTauValidationPlots->m_oRecoTauAllProngsPlots.fill(*tau); // Substructure/PFO histograms filled      
+	m_oTauValidationPlots->m_oBDTinputPlots.fill(*tau);         // BDT Histograms      
 	m_oTauValidationPlots->m_oNewCorePlots.fill(*tau);          // NewCore histograms filled      
 
-	m_oTauValidationPlots->m_oRecoGeneralTauAllProngsPlots.fill(*tau);//Reco Tau General Plots
+	m_oTauValidationPlots->m_oRecoGeneralTauAllProngsPlots.fill(*tau);             //Reco Tau General Plots
 	if(tau->nTracks()==1) m_oTauValidationPlots->m_oRecoHad1ProngPlots.fill(*tau); //Reco Tau 1P plots
-	if(tau->nTracks()==3) m_oTauValidationPlots->m_oRecoHad3ProngPlots.fill(*tau);	   //Reco Tau 3P plots
+	if(tau->nTracks()==3) m_oTauValidationPlots->m_oRecoHad3ProngPlots.fill(*tau); //Reco Tau 3P plots
+    }
+    m_matched_itr.clear();
+    //////////////////////////////////////////
+    // Plotting TruthMatched Variables
+    // Loop through reco tau jet container
+    if(trueTauContainer != 0){
+    xAOD::TruthParticleContainer::const_iterator truth_itr = trueTauContainer->begin();
+    xAOD::TruthParticleContainer::const_iterator truth_end = trueTauContainer->end();
+    //    std::cout<<"new true tau container"<<std::endl;
+    
+    for (; truth_itr != truth_end; truth_itr++) {
 
+    	ATH_MSG_DEBUG( "Trying to match tau :");
+	xAOD::TruthParticle* trueTau = const_cast<xAOD::TruthParticle*>(*truth_itr);
+        const xAOD::TauJet *matchedRecTau = 0;
+    	ATH_MSG_DEBUG("Matching Tau");
+	bool matched = matchTrueAndRecoTau(taus,trueTau,matchedRecTau);
 
-	
-	// Matching bools
-	bool matchedHadTau1P=false;
-	bool matchedHadTau3P=false;
-	bool matchedElectron=false;
-	bool matchedMuon=false;
-	bool matchedHadTau=false;
-	
-	Double_t smallestR_tau = 2.0;
-	Double_t smallestR_el  = 2.0;
-	Double_t smallestR_mu  = 2.0;
-	
-	TLorentzVector closestHadTau;                              // Saves TLV of closest true had tau (Used for checks, not for anything else)
-	// Loop of hadronic tau container
-	if (hadTauContainer != 0) 
-	    for (auto hadTau : *hadTauContainer) 
-		{
-		    TLorentzVector visSum = truthHandler.getTauVisibleSumTruth(hadTau);                    // Get visible TLV for true had tau		
-		    if ((visSum.Et()/GeV < m_visETcut) || (fabs(visSum.Eta()) > m_visEtacut)) continue;    // Detector limitations
-		    
-		    //Number of Prongs currently gives errors (Will be used to match reco prongs to true prongs)
-		    //int nPiCh = truthHandler.nProngTruthTau((hadTau));
-		    //if ( int(tau->nTracks()) != nPiCh) continue;
-		    
-		    // find any taus which match to good truth taus using deltaR cut
-		    // match reco tau with visible tau vector
-		    float matchDR = visSum.DeltaR( tau->p4() );
-		    if(matchDR <= smallestR_tau) 
-			{//dRcut
-			    smallestR_tau = matchDR;
-			    matchedHadTau = true;         // used for now until better ele and mu matching
-			    closestHadTau = visSum;
-			}//dRcut
-		}
-	
-
-	    
-
-
+	if(matched) {
+	    m_oTauValidationPlots->m_oGeneralTauAllProngsPlots.fill(*matchedRecTau);
+	    if(matchedRecTau->nTracks() == 1){
+		m_oTauValidationPlots->m_oHad1ProngPlots.fill(*matchedRecTau);
+		m_oTauValidationPlots->m_oHad1ProngEVetoPlots.fill(*matchedRecTau);
+	    }
+	    if(matchedRecTau->nTracks() == 3){
+		m_oTauValidationPlots->m_oHad3ProngPlots.fill(*matchedRecTau);
+	    }
+	}
+    }
+    }
+    //    std::cout<<"Number of matched: "<<m_matched_itr.size()<<std::endl;
+    if(taus != 0){
+    xAOD::TauJetContainer::const_iterator tau_itr = taus->begin();
+    xAOD::TauJetContainer::const_iterator tau_end = taus->end();
+    for (size_t iRecTau = 0 ; iRecTau < taus->size(); iRecTau++) {
+	bool alreadymatched = false;
+	if(m_matched_itr.size()>0)
+	    for (int i = 0; i<m_matched_itr.size(); i++)
+		if(m_matched_itr.at(i) == iRecTau) alreadymatched = true;
+	if(alreadymatched)continue;
+	const xAOD::TauJet *recTau = taus->at(iRecTau);
+	if (m_detailLevel < 10) continue;
+	if (recTau->pt()/GeV < 20) continue;
+	bool eleMatch = false;
 	// Matching to electrons (Improvements needed)
 	for (auto mc_candidate : *truth) {
 	    
 	    if(abs(mc_candidate->pdgId())==11 && mc_candidate->pt()>10000.)
 		{
-		    float dr = sqrt( (mc_candidate->eta()-tau->eta())*(mc_candidate->eta()-tau->eta()) + (mc_candidate->phi()-tau->phi())*(mc_candidate->phi()-tau->phi()));
-		    if( dr < smallestR_el ) {
-			smallestR_el = dr; 
+		    float dr = sqrt( (mc_candidate->eta()-recTau->eta())*(mc_candidate->eta()-recTau->eta()) + (mc_candidate->phi()-recTau->phi())*(mc_candidate->phi()-recTau->phi()));
+		    if( dr < 0.2 ) {
+			eleMatch = true;
+			continue;
 		    }
 		}
 	}
-	
+	if(eleMatch){
+	    m_oTauValidationPlots->m_oElMatchedParamPlots.fill(*recTau);
+	    m_oTauValidationPlots->m_oElMatchedEVetoPlots.fill(*recTau);		
+	}else{
+	    m_oTauValidationPlots->m_oFakeGeneralTauAllProngsPlots.fill(*recTau);
+	    if(recTau->nTracks()==1) m_oTauValidationPlots->m_oFakeHad1ProngPlots.fill(*recTau);
+	    if(recTau->nTracks()==3) m_oTauValidationPlots->m_oFakeHad3ProngPlots.fill(*recTau);	   
+	}
+
+    }
+    }
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+    /*	
+
 
 	// Matching to muons     (Improvements needed)
 	for (auto mc_candidate : *truth) {
@@ -203,41 +223,6 @@ StatusCode PhysValTau::fillHistograms()
 		    }
 		}
 	}
-	
-	// Hirachy of matched particles 
-	if(smallestR_mu <0.4) matchedMuon=true;
-	if(smallestR_el <0.4 && !matchedMuon) matchedElectron=true;
-	if((smallestR_tau <0.4) && !matchedElectron && !matchedMuon) matchedHadTau = true;   //currently not doing anything
-	
-	//      ATH_MSG_DEBUG( "matched tau el mu "<< matchedHadTau<< " "<<matchedElectron<<" "<<matchedMuon);
-	
-	if(matchedHadTau && tau->nTracks() == 1) matchedHadTau1P = true;
-	if(matchedHadTau && tau->nTracks() == 3) matchedHadTau3P = true;
-	
-	
-	if(matchedHadTau) {
-	    m_oTauValidationPlots->m_oGeneralTauAllProngsPlots.fill(*tau);
-	    if(matchedHadTau1P) {
-		m_oTauValidationPlots->m_oHad1ProngPlots.fill(*tau);
-		m_oTauValidationPlots->m_oHad1ProngEVetoPlots.fill(*tau);
-	    }
-	    if(matchedHadTau3P) {
-		m_oTauValidationPlots->m_oHad3ProngPlots.fill(*tau);
-	    }
-	}
-	
-	if(matchedElectron) {
-	    m_oTauValidationPlots->m_oElMatchedParamPlots.fill(*tau);
-	    m_oTauValidationPlots->m_oElMatchedEVetoPlots.fill(*tau);
-	}
-	
-	
-	if(!matchedHadTau && !matchedElectron && !matchedMuon) {
-	    m_oTauValidationPlots->m_oFakeGeneralTauAllProngsPlots.fill(*tau);
-	    if(tau->nTracks()==1) m_oTauValidationPlots->m_oFakeHad1ProngPlots.fill(*tau);
-	    if(tau->nTracks()==3) m_oTauValidationPlots->m_oFakeHad3ProngPlots.fill(*tau);	   
-	}
-	
 	ATH_MSG_VERBOSE( "Investigating tau #" << i );
 	ATH_MSG_VERBOSE( "  taus: pt = " << tau->pt()
 			 << ", eta = " << tau->eta()
@@ -245,23 +230,23 @@ StatusCode PhysValTau::fillHistograms()
 			 << ", e = " << tau->e()
 			 << "minR = " << smallestR_tau
 			 ); 
-	/*	ATH_MSG_VERBOSE( 
+		ATH_MSG_VERBOSE( 
 			"  best had tau: pt = " << closestHadTau.Pt()
 			<< ", eta = " << closestHadTau.Eta()
 			<< ", phi = " << closestHadTau.Phi()
 			<< ", e = " << closestHadTau.E()
 			<< ", minR =" << smallestR_tau
 			 ); 
-	*/
+	
 
 	//	       << ", mass trk sys "<<tau->massTrkSys() );
 	
 	
-	
+	 
 	
 	++i;
     }
-    
+    */
     
     return StatusCode::SUCCESS;
 }
@@ -272,36 +257,66 @@ StatusCode PhysValTau::procHistograms()
     return StatusCode::SUCCESS;
 }
 
+bool PhysValTau::matchTrueAndRecoTau(const xAOD::TauJetContainer *&taus, const xAOD::TruthParticle *trueTau, const xAOD::TauJet *&matchedRecTau)
+{
+    std::vector< const xAOD::TruthParticle * > decayParticles;
+    int nCharged = 0;
+    int nNeutral = 0;
+    //    RecoTypes::DecayMode trueDecayMode = getDecayMode(trueTau, decayParticles, nCharged, nNeutral);
+
+    nCharged = truthHandler.nProngTruthTau(trueTau,false);
+    nNeutral = truthHandler.numNeutPion(trueTau);
+    RecoTypes::DecayMode trueDecayMode = RecoTypes::GetDecayMode(nCharged, nNeutral);
+    ATH_MSG_DEBUG( "True decay mode is " << nCharged << "p" << nNeutral << "n" ); 
+
+    if (!RecoTypes::IsValidMode(trueDecayMode)) {
+	ATH_MSG_DEBUG(" Decay mode is not valid, skipping..." ); 
+        return false;
+    }
+
+    TLorentzVector visSum = truthHandler.getTauVisibleSumTruth(trueTau);                    // Get visible TLV for true had tau		
+    if ((visSum.Et()/GeV < m_visETcut) || (fabs(visSum.Eta()) > m_visEtacut)) return false;    // Detector limitations
+
+    xAOD::TauJetContainer::const_iterator tau_itr = taus->begin();
+    xAOD::TauJetContainer::const_iterator tau_end = taus->end();
+    double minDeltaR = m_DeltaRMatchCut;
+    bool matched = false;
+    size_t iMatchedRecTau = 0;
+    TLorentzVector hlv_matchedRecTau;
+
+    for (size_t iRecTau = 0 ; iRecTau < taus->size(); iRecTau++) {
+        const xAOD::TauJet *recTau = taus->at(iRecTau);
+        double recPt  = recTau->ptIntermediateAxis();
+        double recEta = recTau->etaIntermediateAxis();
+        double recPhi = recTau->phiIntermediateAxis();
+        double recM   = recTau->mIntermediateAxis();
+        TLorentzVector hlv_recTau;
+        hlv_recTau.SetPtEtaPhiM(recPt, recEta, recPhi, recM);
+
+        double curDeltaR = visSum.DeltaR(hlv_recTau);
+        if (curDeltaR < minDeltaR) {
+            minDeltaR = curDeltaR;
+            matchedRecTau = recTau;
+            hlv_matchedRecTau = hlv_recTau;
+            matched = true;
+            iMatchedRecTau = iRecTau;
+        }
+    }
+
+    if(matched){
+    const xAOD::TauJet *recTau = taus->at(iMatchedRecTau);
+    m_oTauValidationPlots->m_oMigrationPlots.fill(*recTau,nCharged,nNeutral); //Migration      
+    m_matched_itr.push_back(iMatchedRecTau);
+    //    std::cout<<"Number of matched between: "<<m_matched_itr.size()<<std::endl;
+    }
+
+    return matched;
+}
+
+
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
-//_____________________________________________________________________________
-Double_t DiffPhi(float dPhi) {                                    //If seperated by reflex angle, take <Pi angle.
-    if (fabs(dPhi) > M_PI) return fabs(2.*M_PI-fabs(dPhi));
-    return fabs(dPhi);
-}
-//_____________________________________________________________________________
-Bool_t Cone(  Double_t eta_t,                                     //Method for Cone Check
-	      Double_t phi_t,
-	      Double_t eta_mc,
-	      Double_t phi_mc,
-	      Double_t Distance) {
-    Double_t DR = sqrt( ((eta_t - eta_mc)*(eta_t - eta_mc)) 
-			+(DiffPhi(phi_t - phi_mc))*(DiffPhi(phi_t - phi_mc)));
-    if(DR<=Distance)
-	return true;  
-    else
-	return false;
-}
-
-Double_t Cone(  Double_t eta_t,                                     //Method for Cone Check
-		Double_t phi_t,
-		Double_t eta_mc,
-		Double_t phi_mc) {
-    Double_t DR = sqrt( ((eta_t - eta_mc)*(eta_t - eta_mc)) 
-			+(DiffPhi(phi_t - phi_mc))*(DiffPhi(phi_t - phi_mc)));
-    return DR;
-}
 //____________________________________________________________________________
 
 /////////////////////////////////////////////////////////////////// 

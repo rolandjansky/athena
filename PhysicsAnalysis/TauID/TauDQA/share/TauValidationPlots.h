@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
 #define MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
 
@@ -14,6 +10,7 @@
 #include "TauHistUtils/RecoTauPlots.h"
 #include "TauHistUtils/NewCorePlots.h"
 #include "TauHistUtils/BDTinputPlots.h"
+#include "TauHistUtils/Migration.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h" 
@@ -63,6 +60,9 @@ class TauValidationPlots:public PlotBase {
 
       // All tau BDT scrore and input variables
       Tau::BDTinputPlots m_oBDTinputPlots;		
+      //Migration Matrix plots
+      Tau::Migration m_oMigrationPlots;		
+
 
 };
 
