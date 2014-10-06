@@ -1022,15 +1022,12 @@ namespace InDet
     if (requirementForKs||requirementForLambda||requirementForConversion)
       {
 	
-        const Trk::NeutralPerigee* neutralParticle=  m_convUtils->createNeutralTrackFromVertex(**v0candIter);
-
-	//const Trk::ParametersBase* myParametersBase = neutralParticle; NeutralPerigee is already just a typedef to Trk::ParametersBase<5,Trk::Neutral>, doesn't make sense to convert it again...
-        
-        const Trk::FitQuality* myFitQuality=new Trk::FitQuality( (*v0candIter)->recVertex().fitQuality() );
-        const Trk::TrackSummary* myTrackSummary=0;//new Trk::TrackSummary();
-        
-        const Trk::VxCandidate* myVxCand=*v0candIter;
-        const Trk::Track* myTrack=0;
+        //const Trk::NeutralPerigee* neutralParticle=  m_convUtils->createNeutralTrackFromVertex(**v0candIter);
+				//const Trk::ParametersBase* myParametersBase = neutralParticle; NeutralPerigee is already just a typedef to Trk::ParametersBase<5,Trk::Neutral>, doesn't make sense to convert it again...
+        //const Trk::FitQuality* myFitQuality=new Trk::FitQuality( (*v0candIter)->recVertex().fitQuality() );
+        //const Trk::TrackSummary* myTrackSummary=0;//new Trk::TrackSummary();
+        //const Trk::VxCandidate* myVxCand=*v0candIter;
+        //const Trk::Track* myTrack=0;
 
         std::vector<const Trk::TrackParameters*> myDummyVector;
         if (msgLvl(MSG::DEBUG)) msg() << "creating new neutral track particle base" << endreq;
@@ -2116,7 +2113,7 @@ namespace InDet
       bool noMoreTracksToDelete(false);
       do {//reguards eliminating incompatible tracks...
 	
-	m_routines->performTheFit(myJetCandidate,10,false,30,0.001);
+	m_routines->performTheFit(myJetCandidate,15,false,30,0.001);
 	
 	const std::vector<Trk::VxVertexOnJetAxis*> & vertices=myJetCandidate->getVerticesOnJetAxis();
 	
@@ -2159,7 +2156,7 @@ namespace InDet
       if (!performClustering) break;
 
       if (!m_useFastClustering && (int)myJetCandidate->getVerticesOnJetAxis().size()<m_maxTracksForDetailedClustering) {
-	m_routines->fillTableWithFullProbOfMerging(myJetCandidate,5,false,10,0.01);
+	m_routines->fillTableWithFullProbOfMerging(myJetCandidate,8,false,10,0.01);
       } else {
 	m_routines->fillTableWithFastProbOfMerging(myJetCandidate);
       }

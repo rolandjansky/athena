@@ -50,16 +50,11 @@ namespace xAOD
 
 namespace InDet {
 
-  //  static const InterfaceID IID_InDetJetFitterVxFinder("InDetJetFitterVxFinder", 1, 0);
 
   class InDetJetFitterVxFinder : public AthAlgTool, public ISecVertexInJetFinder
   {
 
   public:
-
-    //static const InterfaceID& interfaceID() {
-    //return IID_InDetJetFitterVxFinder;
-    //}
  
 
     StatusCode initialize();
@@ -69,9 +64,9 @@ namespace InDet {
 
     ~InDetJetFitterVxFinder();
 
-    const Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex,
-                                              const TLorentzVector & jetMomentum,
-                                              const std::vector<const xAOD::IParticle*> & inputTracks) const
+    const Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & /*primaryVertex*/,
+                                              const TLorentzVector & /*jetMomentum*/,
+                                              const std::vector<const xAOD::IParticle*> & /*inputTracks*/) const
           {
             /* not implemented */
             return 0;

@@ -18,16 +18,7 @@
  ***************************************************************************/
 
 #include "InDetSecVxFinderTool/InDetJetFitterUtils.h"
-//#include "VxJetVertex/VxJetCandidate.h"
-//#include "VxJetVertex/PairOfVxVertexOnJetAxis.h"
-//#include "VxJetVertex/VxVertexOnJetAxis.h"
-//#include "VxJetVertex/VxClusteringTable.h"
-//#include "TrkJetVxFitter/JetFitterHelper.h"
-//#include "TrkJetVxFitter/JetFitterInitializationHelper.h"
-//#include "TrkJetVxFitter/JetFitterRoutines.h"
-//#include "VxSecVertex/VxSecVertexInfo.h"
-//#include <TMath.h>
-//#include "TrkEventPrimitives/FitQuality.h"
+
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/ExtendedVxCandidate.h"
@@ -35,10 +26,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkEventPrimitives/JacobianPxyzToPhiThetaQoverPspherical.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-//#include "TrkTrack/Track.h"
-//#include "TrkTrack/LinkToTrack.h"
-//#include "TrkParticleBase/LinkToTrackParticleBase.h"
-//#include "TrkToolInterfaces/ITrackSelectorTool.h"
+
 #include <TMath.h>
 #include "TrkExInterfaces/IExtrapolator.h"
 
@@ -51,15 +39,21 @@ namespace
 {
     CLHEP::HepMatrix getPhiThetaQOverPToPxPyPzJacobian(double qOverP,double theta,double phi) {
       CLHEP::HepMatrix transform(3,3,0);
-      transform[0][0]=-1./fabs(qOverP)*sin(theta)*sin(phi);
-      transform[0][1]=1./fabs(qOverP)*sin(theta)*cos(phi);
+      const double sinTheta(sin(theta));
+      const double sinPhi(sin(phi));
+      const double cosTheta(cos(theta));
+      const double cosPhi(cos(phi));
+      const double absQoP(fabs(qOverP));
+      //
+      transform[0][0]=-1./absQoP*sinTheta*sinPhi;
+      transform[0][1]=1./absQoP*sinTheta*cosPhi;
       transform[0][2]=0.;
-      transform[1][0]=1./fabs(qOverP)*cos(theta)*cos(phi);
-      transform[1][1]=1./fabs(qOverP)*cos(theta)*sin(phi);
-      transform[1][2]=-1./fabs(qOverP)*sin(theta);
-      transform[2][0]=-1./qOverP/fabs(qOverP)*sin(theta)*cos(phi);
-      transform[2][1]=-1./qOverP/fabs(qOverP)*sin(theta)*sin(phi);
-      transform[2][2]=-1./qOverP/fabs(qOverP)*cos(theta);
+      transform[1][0]=1./absQoP*cosTheta*cosPhi;
+      transform[1][1]=1./absQoP*cosTheta*sinPhi;
+      transform[1][2]=-1./absQoP*sinTheta;
+      transform[2][0]=-1./qOverP/absQoP*sinTheta*cosPhi; //?? why not just take sign of qOverP
+      transform[2][1]=-1./qOverP/absQoP*sinTheta*sinPhi; //??
+      transform[2][2]=-1./qOverP/absQoP*cosTheta; //??
       return transform.T();
     }
 
@@ -370,15 +364,35 @@ namespace InDet
     
     sumErrorsThenInverted.inverse().eval();
     //using determinant as protection - better solution to come...
-     if(sumErrorsThenInverted.determinant()==0)
-    {
-      msg(MSG::WARNING) <<  " Problem inverting matrix" << endreq; 
-    }
     Amg::Vector3D differenceUnit(difference);
     differenceUnit.normalize();
     
-    double error=1./std::sqrt( differenceUnit.transpose() * sumErrorsThenInverted * differenceUnit );
+    double error=1000;
 
+    if (sumErrorsThenInverted.determinant()>0 && distance>0)
+    {
+      double temp=differenceUnit.transpose() * sumErrorsThenInverted * differenceUnit;
+      if (temp>0)
+      {
+        error=1./std::sqrt(temp  );
+      }
+      else
+      {
+        msg(MSG::WARNING) << " The significance of the distance to the PV is negative or zero definite: " << endreq;
+        msg(MSG::WARNING) << std::scientific << temp << " two-trk vertex : " << first << " PV " << second << std::fixed << endreq;
+      }
+    }
+    else
+    {
+      if (sumErrorsThenInverted.determinant()<=0)
+      {
+        msg(MSG::WARNING) <<  " Sum of cov matrices of PV + single vertex fit is zero or negative. Error on distance is returned as 1000mm." << endreq; 
+      }
+      else
+      {
+        msg(MSG::DEBUG) << "The distance between the vertices is: " << endreq;
+      }
+    }
     return std::pair<double,double>(distance,error);
   }
   
@@ -414,8 +428,8 @@ namespace InDet
   }
     
     
-  const Trk::LinkToTrackParticleBase* InDetJetFitterUtils::findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> & neutralTracks,
-                                                                                        const Trk::VxCandidate & myVxCandidate) const 
+  const Trk::LinkToTrackParticleBase* InDetJetFitterUtils::findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> & /*neutralTracks*/,
+                                                                                        const Trk::VxCandidate & /*myVxCandidate*/) const 
   {
     //THIS WILL ANYWAY NOT WORK WITH NEW EDM! NEEDS TO BE FIXED!
     /*    
@@ -471,8 +485,8 @@ namespace InDet
     return false;
   }
 
-  bool InDetJetFitterUtils::checkIfTrackIsInNeutralTrackVector(const Trk::ITrackLink * trackToCheck,
-                                                               const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfNeutrals) const
+  bool InDetJetFitterUtils::checkIfTrackIsInNeutralTrackVector(const Trk::ITrackLink * /*trackToCheck*/,
+                                                               const std::vector<const Trk::LinkToTrackParticleBase*> & /*vectorOfNeutrals*/) const
   {
     //W
     /*
