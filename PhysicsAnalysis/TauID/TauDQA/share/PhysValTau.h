@@ -1,9 +1,4 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // PhysValTau.h 
 // Header file for class PhysValTau
 // Author: S.Binet<binet@cern.ch>
@@ -13,6 +8,7 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -26,6 +22,7 @@
 //Additional includes
 
 #include "TruthHandler.h"
+#include "RecoTypes.h"
 //#include "TauTools/MatchingTools.h"
 
 
@@ -111,19 +108,18 @@ class PhysValTau
     
     /** counts the number of truth taus geometrically matched and 3 track. */
     int m_truth_3p_matched;
-    
-    
+
+    /*keeps track of matched tau jets*/    
+    std::vector<size_t> m_matched_itr;
+
     /** Object to define Truth Handler Tool*/
     TruthHandler truthHandler;
-
-  /** is a pointer to the truth particle container accessed. */              
-  //const xAOD::TruthParticleContainer* mcpart;
 
   //Histograms
   // general tau all prongs plots
   std::unique_ptr<TauValidationPlots> m_oTauValidationPlots;
   // TauValidationPlots m_oTauValidationPlots;
-
+    bool matchTrueAndRecoTau     (const xAOD::TauJetContainer *&taus, const xAOD::TruthParticle* trueTau, const xAOD::TauJet* &matchedRecoTau );
   
 }; 
 
@@ -134,7 +130,4 @@ class PhysValTau
 // Inline methods: 
 /////////////////////////////////////////////////////////////////// 
 //}
-Double_t DiffPhi(float dPhi);
-Bool_t Cone(  Double_t eta_t,Double_t phi_t,Double_t eta_mc,Double_t phi_mc,Double_t Distance) ;
-Double_t Cone(  Double_t eta_t,Double_t phi_t,Double_t eta_mc,Double_t phi_mc) ;
 #endif //> !TAUDQA_PHYSVALTAU_H

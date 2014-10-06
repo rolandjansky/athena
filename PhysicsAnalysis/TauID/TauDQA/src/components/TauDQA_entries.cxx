@@ -2,7 +2,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Local include(s):
-#include "../PhysValTau.h"
+#include "../../share/PhysValTau.h"
 
 DECLARE_TOOL_FACTORY( PhysValTau )
 

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef TAUTRUTH_H
 #define TAUTRUTH_H
 
@@ -121,6 +117,7 @@ public:
 
 		/** method to count no. of neutral pions */
 		int numNeutPion(const HepMC::GenParticle* hadTau );
+		int numNeutPion(const xAOD::TruthParticle* hadTau);
 		int numNeutPion( const TruthParticle* hadTau) { return numNeutPion( (const HepMC::GenParticle*)hadTau->genParticle() ); }
 
 		/** method to count no. of neutral pions and get the pointer to pi+, rho+, a1+ */

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TruthHandler.h"
+#include "../share/TruthHandler.h"
 //#include "EventKernel/PdtPdg.h"
 
 /////////////////////////
@@ -142,7 +142,7 @@ bool TruthHandler::isHadTau(const HepMC::GenParticle* part, int Mother ){
 
   if(!vtx) return false;
   for ( HepMC::GenVertex::particle_iterator desc = (vtx)->particles_begin(HepMC::children); desc != (vtx)->particles_end(HepMC::children); ++desc) {
-    if((abs((*desc)->pdg_id())== 11) || (abs((*desc)->pdg_id())== 13) || (abs((*desc)->pdg_id())== 15) ) return false;
+      if((abs((*desc)->pdg_id())== 11) || (abs((*desc)->pdg_id())== 13) || (abs((*desc)->pdg_id())== 15) ) return false;//has lpton as child
   }
 
   if(Mother < 0) return true;
@@ -192,13 +192,13 @@ bool TruthHandler::isGoodChrgPiDaughter(const xAOD::TruthParticle* Pion){
   if(!isGoodStatus(Pion,1)) return false;
 
   if( (abs(Pion->pdgId())!= 211) || !isGenStable( Pion) ) return false;
-  const xAOD::TruthVertex* prodvtx = Pion->prodVtx();
+  /*  const xAOD::TruthVertex* prodvtx = Pion->prodVtx();
   if(!prodvtx) return false;
   const std::size_t nProd = prodvtx->nIncomingParticles();
   for ( std::size_t iMom = 0; iMom != nProd; ++iMom ) {
     const xAOD::TruthParticle * mom = prodvtx->incomingParticle(iMom);
     if(fabs(mom->pdgId())==PDG::K_S0) return false;
-  }
+    }*/
   return true;
 }
 //////////////////////////////////////////////////////
@@ -319,6 +319,7 @@ int TruthHandler::nProngTruth(const xAOD::TruthParticle* hadTau, bool UseKaon ){
   int nProng=0;
 
   const xAOD::TruthVertex* vertex = hadTau->decayVtx();
+  if (vertex == 0) return nProng;
   // loop over all outgoing particles of decay vertx
   const std::size_t nChildren = vertex->nOutgoingParticles();
   for ( std::size_t iChild = 0; iChild != nChildren; ++iChild ) {
@@ -331,13 +332,32 @@ int TruthHandler::nProngTruth(const xAOD::TruthParticle* hadTau, bool UseKaon ){
 }
 
 int TruthHandler::nProngTruthTau(const xAOD::TruthParticle* hadTau, bool UseKaon ){
-  if(!isHadTau(hadTau)) return 0;
+    if(abs(hadTau->pdgId()) != 15) return 0;
   return nProngTruth(hadTau,UseKaon);
 }
 /////////////////////////
 /** method to count no. of neutral pions*/
+int TruthHandler::numNeutPion(const xAOD::TruthParticle* hadTau){
+    //  if(!isGoodStatus(hadTau,2)) return 0;
+
+  int nNeu=0;
+
+  const xAOD::TruthVertex* vertex = hadTau->decayVtx();
+  if (vertex == 0) return nNeu;
+  // loop over all outgoing particles of decay vertx
+  const std::size_t nChildren = vertex->nOutgoingParticles();
+  for ( std::size_t iChild = 0; iChild != nChildren; ++iChild ) {
+    const xAOD::TruthParticle * child = vertex->outgoingParticle(iChild);
+    if((abs((child)->pdgId())== 111) /*&& ( ((child)->status()==2) || ((child)->status()==10902) ) */){  nNeu++;
+    } else{ nNeu += numNeutPion(child);}
+  }
+  return nNeu;
+  }
+
+/** method to count no. of neutral pions*/
 int TruthHandler::numNeutPion(const HepMC::GenParticle* hadTau ){
   if(!isGoodStatus(hadTau,2)) return 0;
+
   int nNeu=0;
   HepMC::GenVertex *vtx = hadTau->end_vertex();
 
