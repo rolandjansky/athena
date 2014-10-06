@@ -97,7 +97,7 @@ class TileDddbManager
 
   int SetCurrentSectionByIndex(unsigned int IdSection);
   int SetCurrentSectionByNumber(unsigned int section);
-  int SetCurrentSection(unsigned int section);
+  int SetCurrentSection(unsigned int section, bool print=true);
 
   //fields of TILB structure
   int TILBsection() const;

@@ -602,7 +602,7 @@ int TileDddbManager::SetCurrentSectionByNumber(unsigned int section)
   return SetCurrentSection(section);
 }
 
-int TileDddbManager::SetCurrentSection(unsigned int section)
+int TileDddbManager::SetCurrentSection(unsigned int section, bool print)
 {
   unsigned int ind = 0;
 
@@ -611,7 +611,7 @@ int TileDddbManager::SetCurrentSection(unsigned int section)
   }
 
   if(ind >= n_tilb) {
-    std::cerr << "\nTileDddbManager::SetCurrentSection ERROR! Unable to find the section\n";
+    if (print) std::cerr << "\nTileDddbManager::SetCurrentSection ERROR! Unable to find the section\n";
     currentSection = 0;
     return 0;
   }
