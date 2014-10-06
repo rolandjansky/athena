@@ -56,8 +56,6 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 
 // Other
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -628,7 +626,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
 void InDet :: InDetRecStatisticsAlg ::
 selectGenSignal  (const McEventCollection* SimTracks, 
 		  std::vector <std::pair<HepMC::GenParticle *,int> > & GenSignal,
-		  unsigned int inTimeStart, unsigned int inTimeEnd)
+		  unsigned int /*inTimeStart*/, unsigned int /*inTimeEnd*/) //'unused' compiler warning
 {
   if (! SimTracks) return;
 
@@ -650,8 +648,8 @@ selectGenSignal  (const McEventCollection* SimTracks,
       m_gen_tracks_processed += ((SimTracks->at(ievt)))->particles_size();
       if (put && inTimeMBbegin != inTimeMBend) // if not, inTimeStart and End are untouched
 	{
-	  if (genEvent == *inTimeMBbegin) inTimeStart = ievt;
-	  if (genEvent == *inTimeMBend)   inTimeEnd   = ievt;
+	  //if (genEvent == *inTimeMBbegin) inTimeStart = ievt;
+	  //if (genEvent == *inTimeMBend)   inTimeEnd   = ievt;
 	}
       HepMC::GenParticle * particle = NULL;
       for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();

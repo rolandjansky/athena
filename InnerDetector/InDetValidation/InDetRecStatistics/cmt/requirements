@@ -27,7 +27,6 @@ use TrkEventPrimitives		TrkEventPrimitives-*				Tracking/TrkEvent
 use TrkRIO_OnTrack		TrkRIO_OnTrack-*				Tracking/TrkEvent
 use InDetRIO_OnTrack		InDetRIO_OnTrack-*				InnerDetector/InDetRecEvent
 use TrkCompetingRIOsOnTrack     TrkCompetingRIOsOnTrack-*			Tracking/TrkEvent
-use EventInfo                   EventInfo-*                                     Event
 # Detector Description dependencies
 use TrkSurfaces			TrkSurfaces-*					Tracking/TrkDetDescr
 # InnerDetector
