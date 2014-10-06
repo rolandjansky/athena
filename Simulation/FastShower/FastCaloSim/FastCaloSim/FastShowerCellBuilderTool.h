@@ -45,8 +45,6 @@ namespace HepMC {
 
 class ICaloSurfaceBuilder;
 class ICaloCoordinateTool;
-class IExtrapolateToCaloTool;
-class CaloDepthTool;
 class ParticleEnergyParametrization;
 class TShape_Result;
 class TDirectory;
@@ -121,23 +119,11 @@ private:
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
   CLHEP::HepRandomEngine*               m_randomEngine;
   std::string                    m_randomEngineName;         //!< Name of the random number stream
-
-  IExtrapolateToCaloTool*        m_etoCalo;
-  IExtrapolateToCaloTool*        m_gtoCalo;
-  CaloDepthTool*                 m_calodepth;
-  IExtrapolateToCaloTool*        m_etoCaloEntrance;
-  IExtrapolateToCaloTool*        m_gtoCaloEntrance;
-  CaloDepthTool*                 m_calodepthEntrance;
   
   Trk::IExtrapolator*            m_extrapolator;
   ICaloCoordinateTool*           m_calo_tb_coord;
   ICaloSurfaceBuilder*           m_calosurf_middle;
   ICaloSurfaceBuilder*           m_calosurf_entrance;
-
-  std::string                    m_electronExtrapolTool_name;
-  std::string                    m_gammaExtrapolTool_name;
-  std::string                    m_electronExtrapolToolEntrance_name;
-  std::string                    m_gammaExtrapolToolEntrance_name;
 
   std::string                    m_extrapolatorName;
   std::string                    m_extrapolatorInstanceName;
