@@ -59,6 +59,10 @@ if hasattr(runArgs,"outputDRAW_WMUNUFile"):
     #simpleName = outputBSNameStripper(runArgs.outputDRAW_WMUNUFile)
     primDPD.WriteRAWPerfDPD_WMUNU.FileName = runArgs.outputDRAW_WMUNUFile
 
+if hasattr(runArgs,"trigFilterList"):
+    rec.doTriggerFilter.set_Value_and_Lock(True)
+    triggerListString = "|".join(runArgs.trigFilterList)
+    rec.triggerFilterList=triggerListString
 
 if hasattr(runArgs,"outputESDFile"):
     rec.doESD.set_Value_and_Lock( True )

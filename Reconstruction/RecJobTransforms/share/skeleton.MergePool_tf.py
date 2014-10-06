@@ -26,6 +26,15 @@ if hasattr(runArgs, "inputPOOL_MRG_INPUTFile"):
     else:
         recoLog.warning("No recognised data type for merge input and output ({0}). Merge setup may not be correct!".format(runArgs.inputPOOL_MRG_INPUTFileType))
 
+# DAOD comes in many flavours, so automate transforming this into a "standard" AOD argument
+DAOD_Input_Key = [ k for k in dir(runArgs) if k.startswith("inputDAOD") and k.endswith("File") ]
+if len(DAOD_Input_Key) is 1:
+    runArgs.inputAODFile = getattr(runArgs, DAOD_Input_Key[0])
+
+DAOD_Output_Key = [ k for k in dir(runArgs) if k.startswith("outputDAOD") and k.endswith("_MRGFile") ]
+if len(DAOD_Output_Key) is 1:
+    runArgs.outputAOD_MRGFile = getattr(runArgs, DAOD_Output_Key[0])
+        
 if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
 if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
