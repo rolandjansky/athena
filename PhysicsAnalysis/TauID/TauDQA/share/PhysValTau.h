@@ -4,7 +4,7 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 #ifndef TAUDQA_PHYSVALTAU_H
-#define TAUDQA_PHYSVALTAU_H
+#define TAUDQA_PHYSVALTAU_H 1
 
 // STL includes
 #include <string>
@@ -77,8 +77,6 @@ class PhysValTau
   std::string m_TauJetContainerName; 
   std::string m_TauDetailsContainerName; 
   std::string m_TruthParticleContainerName; 
-
-  bool            m_isMC;           //!< Are we running over MC data?
     
     //Variable Definitiona
     /** provides tools to match tau candidates to truth taus (from TauTools). */
