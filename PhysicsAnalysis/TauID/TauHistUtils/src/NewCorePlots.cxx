@@ -15,10 +15,6 @@ void NewCorePlots::initializePlots(){
 
   //  m_oParamPlots.initialize();
 
-    m_tauPt                            = Book1D("Pt",m_sTauJetContainerName + " Tau pt; pt; # Taus",20,0.,300.);
-    m_tauPhi                           = Book1D("Phi",m_sTauJetContainerName + " Tau phi; phi; # Taus",15,-6.3,6.3);
-    m_tauEta                           = Book1D("Eta",m_sTauJetContainerName + " Tau eta; eta; # Taus",15,-6.3,6.3);
-    m_tauCharge                        = Book1D("Charge",m_sTauJetContainerName + " Tau charge; charge; # Taus",7,-3.,4.);
     m_ipZ0SinThetaSigLeadTrk           = Book1D("ipZ0SinThetaSigLeadTrk",m_sTauJetContainerName + "Tau ipZ0SinThetaSigLeadTrk ;ipZ0SinThetaSigLeadTrk ;# of Taus",10,  0,   40      );
     m_etOverPtLeadTrk                  = Book1D("etOverPtLeadTrk",m_sTauJetContainerName + "Tau etOverPtLeadTrk ;etOverPtLeadTrk ;# of Taus",   50,  0,   4.      );
     m_ipSigLeadTrk 		       = Book1D("ipSigLeadTrk",m_sTauJetContainerName + "Tau ipSigLeadTrk ;ipSigLeadTrk ;# of Taus", 30,  -15, 15   );
@@ -49,11 +45,6 @@ void NewCorePlots::initializePlots(){
 }
 
 void NewCorePlots::fill(const xAOD::TauJet& tau) {
-
-    m_tauEta->Fill(tau.eta(), 1.); 
-    m_tauPt->Fill(tau.pt()/1000, 1.); 
-    m_tauPhi->Fill(tau.phi(), 1.); 
-    m_tauCharge->Fill(tau.charge(), 1.); 
 
   //  m_tauNCoreTracks->Fill(tau.nTracks(), 1.);
   //  m_tauNWideTracks->Fill(tau.nWideTracks(), 1.);
