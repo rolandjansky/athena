@@ -97,7 +97,13 @@ G4bool SimpleScintillatorSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   std::string volName= preVol->GetName();
   std::string volNumber=volName.substr(volName.size()-1,1);
   int copyNo =  myTouch->GetVolume()->GetCopyNo();
-  int eta=atoi(volNumber.c_str());
+  char *endptr;
+  int eta=strtol(volNumber.c_str(), &endptr, 0);
+  if (endptr[0] != '\0') {
+    msg( MSG::ERROR ) << "Could not convert string to int: " << volNumber << endreq;
+    return false;
+  }
+
 
   TrackHelper trHelp(track);
   int barcode = trHelp.GetBarcode();
