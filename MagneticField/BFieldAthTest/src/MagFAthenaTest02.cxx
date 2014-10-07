@@ -14,9 +14,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/PropertyMgr.h"
  
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
- 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
  

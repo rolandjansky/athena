@@ -5,7 +5,6 @@ public
 use AtlasPolicy         AtlasPolicy-*
 use TestPolicy          TestPolicy-*
 use GaudiInterface      GaudiInterface-01-*       External
-use EventInfo           EventInfo-00-*            Event 
 use AthenaKernel        AthenaKernel-*            Control 
 #
 macro_append includes " -I$(BFIELDATHROOT)/src"
