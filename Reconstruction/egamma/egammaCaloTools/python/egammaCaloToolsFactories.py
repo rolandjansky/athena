@@ -28,10 +28,6 @@ CaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
                                           phi_size = 7,
                                           cells_name = egammaKeys.caloCellKey() )
 
-egammaTopoIso = ToolFactory(egammaCaloToolsConf.egammaTopoIso,
-    CaloFillRectangularClusterTool = CaloFillRectangularCluster,
-    UseEMScale = True)
-
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 CaloNoiseTool = ToolFactory(CaloNoiseToolDefault)

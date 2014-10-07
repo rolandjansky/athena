@@ -414,19 +414,6 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   //        It can happen that in some areas were granularity is different
   //        that only one value of this is selected,
   //        and thus no merging is possible in phi
-  // 2- from the entire list of cells in the cell container
-  //    NB: this method would require careful study to be used
-  bool UseCellsFromCluster = true;
-
-  // as we have to merge two cells in phi
-  // - select cells of interest and put each cell
-  //   into an array which has twice the size max of the final array 
-  // - merge two cells in phi from this intermediate array
-  //   and fills the right array
-  // NB/FD: other - more intelligent - methods could be done, 
-  // but will have to handle all possible use cases/problems found 
-  // during development
-  // I prefer to modify the intermediate array than the CaloCellList
 
   // temporary array of cell 
   StripArrayHelper stripArray[DOUBLE_STRIP_ARRAY_SIZE];
@@ -463,19 +450,19 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   double phi_cell0 = 0.;
   double phi_cell  = 0.;
   
-  if (UseCellsFromCluster) {
-    // Now loop over all cells in the cluster  
-    xAOD::CaloCluster::const_cell_iterator first = m_cluster->cell_begin();
-    xAOD::CaloCluster::const_cell_iterator last  = m_cluster->cell_end();
-    for (; first != last; ++first) {        
-     // ensure we are in 1st sampling
-      if( (*first)->caloDDE()->getSampling() == sam ) {
-	// retrieve the eta,phi of the cell
-	eta_cell = (*first)->caloDDE()->eta_raw();
-	// adjust for possible 2*pi offset. 
-	phi_cell0 = (*first)->caloDDE()->phi_raw();
-	phi_cell  = proxim(phi_cell0,phiraw) ;
-	// check if we are within boundaries
+
+  // Now loop over all cells in the cluster  
+  xAOD::CaloCluster::const_cell_iterator first = m_cluster->cell_begin();
+  xAOD::CaloCluster::const_cell_iterator last  = m_cluster->cell_end();
+  for (; first != last; ++first) {        
+    // ensure we are in 1st sampling
+    if( (*first)->caloDDE()->getSampling() == sam ) {
+      // retrieve the eta,phi of the cell
+      eta_cell = (*first)->caloDDE()->eta_raw();
+      // adjust for possible 2*pi offset. 
+      phi_cell0 = (*first)->caloDDE()->phi_raw();
+      phi_cell  = proxim(phi_cell0,phiraw) ;
+      // check if we are within boundaries
 	if (eta_cell >= etamin && eta_cell <= etamax) {
 	  if (phi_cell >= phimin && phi_cell <= phimax) {	    
 	    // a protection is put to avoid to have an array larger 
@@ -496,56 +483,7 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
 	    }
 	  }	  
 	}
-      }
     }
-  } else {
-    // create the CaloCellList from the entire cell list
-    CaloCellList *ccl = new CaloCellList(m_cellContainer);
-    // select cells from the raw values of the cell around (deta,dphi) 
-    // for the sampling "sam"
-    // FD: for a reason i don't understand if i use deta,dphi in some 
-    // cases i obtain only one cell in phi
-    // I have to enlarge the window and then to select by hand
-    // I think select() method uses proxim(cell->phi(), phi)
-    // and cell->eta() whereas here we use raw values 
-    ccl->select(dde->eta_raw(),dde->phi_raw(),deta*1.4,dphi*1.4,sam);
-    // defines the cells interators
-    CaloCellList::list_iterator first_cell=ccl->begin();
-    CaloCellList::list_iterator last_cell=ccl->end();
-    // loop on all cells
-    for (; first_cell != last_cell; ++first_cell) {
-      // ensure we are in 1st sampling
-      if((*first_cell)->caloDDE()->getSampling() == sam ) {
-	// retrieve the eta,phi of the cell
-	eta_cell = (*first_cell)->caloDDE()->eta_raw();
-	// adjust for possible 2*pi offset. 
-	phi_cell0 = (*first_cell)->caloDDE()->phi_raw();
-	phi_cell  = proxim(phi_cell0,phiraw) ;
-	// check if we are within boundaires
-	if (eta_cell >= etamin && eta_cell <= etamax) {
-	  if (phi_cell >= phimin && phi_cell <= phimax) {	    
-	    // retrieve the eta,phi of the cell
-	    // a protection is put to avoid to have an array larger 
-	    // than 2*STRIP_ARRAY_SIZE
-	    if (index_array<DOUBLE_STRIP_ARRAY_SIZE) {
-	      // energy
-	      stripArray[index_array].energy += (*first_cell)->energy(); 
-	      // eta
-	      stripArray[index_array].eta = (*first_cell)->eta();
-	      // eta raw
-	      stripArray[index_array].etaraw  = (*first_cell)->caloDDE()->eta_raw();
-	      // granularity
-	      stripArray[index_array].deta  = (*first_cell)->caloDDE()->deta();
-	      // index/number of cells in the array
-	      stripArray[index_array].ncell++;
-	      // increase index 
-	      index_array++;
-	    }
-	  }
-	}
-      }
-    }
-    delete ccl;
   }
 
   // Exit early if no cells.
