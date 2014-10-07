@@ -1,103 +1,89 @@
-// TProperty.h
+// Dear emacs, this is -*- c++ -*-
+// $Id: TProperty.h 612908 2014-08-21 16:19:03Z krasznaa $
+#ifndef ASGTOOLS_TPROPERTY_H
+#define ASGTOOLS_TPROPERTY_H
 
-#ifndef asg_TProperty_H
-#define asg_TProperty_H
-
-// David Adams
-// January 2014
-//
-// Support classe for PropertyMgr.
-
+// System include(s):
 #include <string>
 #include <vector>
+
+// Local include(s):
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/Property.h"
 
-template<typename T>
+/// Templated wrapper around user properties
+///
+/// This class is used to wrap user-defined tool properties, to be
+/// able to set them through the PropertyMgr.
+///
+/// @author David Adams <dladams@bnl.gov>
+///
+/// $Revision: 612908 $
+/// $Date: 2014-08-21 18:19:03 +0200 (Thu, 21 Aug 2014) $
+///
+template< typename T >
 class TProperty : public Property {
 
 public:
+   /// Constructor from a reference and a type
+   TProperty( T& val, Type type );
 
-  // Ctor from a reference.
-  TProperty(const T& val, Type type);
+   /// Return the address of the property variable
+   const T* pointer() const;
 
-  // Return address.
-  const T* pointer() const;
-
-  // Set value using that from another property.
-  int setFrom(const Property& rhs);
+   /// Set value using that from another property
+   virtual int setFrom( const Property& rhs );
 
 private:
+   /// The address of the wrapped variable
+   T* m_ptr;
 
-  const T* m_ptr;
+}; // class TProperty
 
-};
+/// @name Declare specialization(s) for TProperty::setFrom
+/// @{
 
-//**********************************************************************
-
-// Specializations for TProperty::setFrom.
-
-// Special handling so float can be assigned from double.
+/// Special handling so float can be assigned from double
 template<>
-int TProperty<float>::setFrom(const Property& rhs);
+int TProperty< float >::setFrom( const Property& rhs );
 
-// Special handling so string can be assigned from string.
-template<>
-int TProperty<std::string>::setFrom(const Property& rhs);
+/// @}
 
-// Speccial handling for arrays.
-template<>
-int TProperty<char*>::setFrom(const Property& rhs);
+/// @name Property creator helper function(s)
+/// @{
 
-// Special handling for arrays.
-template<>
-int TProperty<char* const>::setFrom(const Property& rhs);
+/// Create a boolean propert
+Property* createProperty( const bool& rval );
 
-//**********************************************************************
+/// Create an integer property
+Property* createProperty( const int& rval );
 
-// Property creator.
-template<typename T>
-Property* createProperty(const T& rval);
+/// Create a float property
+Property* createProperty( const float& rval );
 
-template<> Property* createProperty<bool>(const bool& rval);
-template<> Property* createProperty<int>(const int& rval);
-template<> Property* createProperty<float>(const float& rval);
-template<> Property* createProperty<double>(const double& rval);
-template<> Property* createProperty<std::string>(const std::string& rval);
+/// Create a double property
+Property* createProperty( const double& rval );
 
-// Handle string constants.
-Property* createProperty(const char* const & val);
+/// Create a string property
+Property* createProperty( const std::string& rval );
 
-//**********************************************************************
+/// Create an integer vector property
+Property* createProperty( const std::vector< int >& rval );
 
-template<typename T>
-TProperty<T>::TProperty(const T& val, Type type) : Property(type), m_ptr(&val) { }
+/// Create a floating point vector property
+Property* createProperty( const std::vector< float >& rval );
 
-//**********************************************************************
+/// Create a string vector property
+Property* createProperty( const std::vector< std::string >& rval );
 
-template<typename T>
-const T* TProperty<T>::pointer() const { return m_ptr; }
+/// Create a property for a default, unknown type
+template< typename T >
+Property* createProperty( const T& rval );
 
-//**********************************************************************
+/// @}
 
-template<typename T>
-int TProperty<T>::setFrom(const Property& rhs) {
-  if ( this->pointer() == 0 ) return 1;
-  const TProperty<T>* pprop = dynamic_cast<const TProperty<T>*>(&rhs);
-  if ( pprop == 0 ) return 1;
-  T* ptr = const_cast<T*>(pointer());
-  *ptr = *pprop->pointer();
-  return 0;
-}
+// Include the template implementation:
+#include "AsgTools/TProperty.icc"
 
-//**********************************************************************
-
-template<typename T>
-Property* createProperty(const T& rval) {
-  return new TProperty<T>(rval, Property::UNKNOWNTYPE);
-}
-
-//**********************************************************************
-
-#endif
+#endif // ASGTOOLS_TPROPERTY_H

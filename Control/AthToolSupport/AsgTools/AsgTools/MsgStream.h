@@ -1,82 +1,111 @@
-// MsgStream_H
+// Dear emacs, this is -*- c++ -*-
+// $Id: MsgStream.h 615760 2014-09-09 12:50:01Z krasznaa $
+#ifndef ASGTOOLS_MSGSTREAM_H
+#define ASGTOOLS_MSGSTREAM_H
 
-#ifndef MsgStream_H
-#define MsgStream_H
-
-// David Adams
-// January 2014
-//
-// Root replacement for Gaudi MsgStream.
-// The stream is constructed from a named object and uses
-// that name to prefix messages.
-
-#include "AsgTools/AsgToolsConf.h"
-#ifdef ASGTOOL_ATHENA
-#include "GaudiKernel/MsgStream.h"
-#else
-
-#include "AsgTools/MsgLevel.h"
+// System include(s):
 #include <string>
-#include <iostream>
-#include "AsgTools/INamed.h"
+#include <sstream>
 
-class MsgStream {
+// Local include(s):
+#include "AsgTools/AsgToolsConf.h"
+#include "AsgTools/MsgLevel.h"
+#include "AsgTools/IAsgTool.h"
+
+#ifdef ASGTOOL_ATHENA
+#   include "GaudiKernel/MsgStream.h"
+#elif defined(ASGTOOL_STANDALONE)
+
+/// A replacement of Gaudi's MsgStream class for ROOT analysis
+///
+/// The stream is constructed from a named object and uses
+/// that name to prefix messages.
+///
+/// @author David Adams <dladams@bnl.gov>
+/// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+///
+/// $Revision: 615760 $
+/// $Date: 2014-09-09 14:50:01 +0200 (Tue, 09 Sep 2014) $
+///
+class MsgStream : public std::ostringstream {
 
 public:
+   /// Constructor with parent tool pointer
+   MsgStream( const asg::IAsgTool* tool = 0 );
+   /// Constructor with a name
+   MsgStream( const std::string& name );
+   /// Constructor resembling that of Gaudi's MsgStream
+   MsgStream( void* msgSvc, const std::string& name, int buffer_length = 128 );
 
-  class EOL { };
+   /// @name Stream filling operators
+   /// @{
 
-  // Ctor.
-  MsgStream(const asg::INamed* =0);
+   /// Operator accepting MsgStream stream modifiers
+   MsgStream& operator<< ( MsgStream& ( *_f )( MsgStream& ) );
+   /// Operator accepting std::ostream stream modifiers
+   MsgStream& operator<< ( std::ostream& ( *_f )( std::ostream& ) );
+   /// Operator accepting std::ios stream modifiers
+   MsgStream& operator<< ( std::ios& ( *_f )( std::ios& ) );
 
-  // Insert an object into the stream.
-  template <class T>
-  MsgStream& insert(const T& rhs);
+   /// Operator accepting message level setting
+   MsgStream& operator<< ( MSG::Level lvl );
 
-  // Insertion of message level set the request level accordingly.
-  MsgStream& insert(MSG::Level rhs);
+   /// Operator accepting basically any kind of argument
+   template< class T >
+   MsgStream& operator<< ( const T& arg ) {
+      ( * ( std::ostringstream* ) this ) << arg;
+      return *this;
+   }
 
-  // Insertion of end of line.
-  MsgStream& insert(EOL);
+   /// @}
 
-  // Set the message level.
-  void setLevel(MSG::Level lvl);
+   /// Function printing the current payload of the stream
+   MsgStream& doOutput();
 
-  std::string name() const;
+   /// @name Message level manipulating functions
+   /// @{
 
-  MSG::Level level() const;
-  MSG::Level& mutable_level();
+   /// Set the message level
+   void setLevel( MSG::Level lvl );
+
+   /// Check the message level
+   bool msgLevel( MSG::Level lvl ) const;
+
+   /// Get the current minimum output level of the stream
+   MSG::Level level() const;
+   /// Get the current minimum output level of the stream
+   MSG::Level& mutable_level();
+
+   /// Retrieve current stream output level
+   MSG::Level currentLevel() const;
+
+   /// @}
+
+   /// The the name of the source of the messages
+   const std::string& name() const;
+   /// Set the name of the source of the messages
+   void setName( const std::string& name );
 
 private:
+   /// Pointer to the tool printing messages
+   const asg::IAsgTool* m_tool;
+   /// Message source name
+   std::string m_name;
+   /// Minimum level for the printed messages
+   MSG::Level m_lvl;
+   /// The level of the message currently being assembled
+   MSG::Level m_reqlvl;
 
-  const asg::INamed* m_pnamed;
-  MSG::Level m_lvl;
-  MSG::Level m_reqlvl;
+}; // class MsgStream
 
-};
-
-static const MsgStream::EOL endmsg = MsgStream::EOL();
-static const MsgStream::EOL endreq = MsgStream::EOL();
-
-#endif
-
-#ifndef MsgStream_ICC
-#define MsgStream_ICC
-
-template <class T>
-MsgStream& MsgStream::insert(const T& rhs) {
-  if ( m_reqlvl >= m_lvl ) {
-    std::cout << rhs;
-  }
-  return *this;
+/// MsgStream Modifier: endmsg. Calls the output method of the MsgStream
+inline MsgStream& endmsg( MsgStream& s ) {
+   return s.doOutput();
 }
+/// Backwards compatibility definition
+#define endreq endmsg
 
-// Usual stream insertion syntax.
-template <class T>
-MsgStream& operator<<(MsgStream& lhs, const T& rhs) {
-  lhs.insert(rhs);
-  return lhs;
-}
-
-#endif
-#endif
+#else
+#   error "What environment are we in?!?"
+#endif // Environment selection
+#endif // ASGTOOLS_MSGSTREAM_H

@@ -1,112 +1,89 @@
-// TProperty.cxx
+// $Id: TProperty.cxx 612908 2014-08-21 16:19:03Z krasznaa $
 
+// Local include(s):
 #include "AsgTools/TProperty.h"
 
-using std::string;
-typedef Property::Type Type;
-using asg::ToolHandle;
-using asg::ToolHandleArray;
+////////////////////////////////////////////////////////////////////////////////
+//
+//               Implementation of the setFrom specialisations
+//
 
-//**********************************************************************
-
-template<>
-Property* createProperty(const bool& rval) {
-  return new TProperty<bool>(rval, Property::BOOL);
-}
-
-//**********************************************************************
-
-template<>
-Property* createProperty(const int& rval) {
-  return new TProperty<int>(rval, Property::INT);
-}
-
-//**********************************************************************
+/// Helper macro for implementing the setFrom functions
+#define TRY_TYPE( TYPE )                                    \
+   do {                                                     \
+      const TProperty< TYPE >* prop =                       \
+         dynamic_cast< const TProperty< TYPE >* >( &rhs );  \
+      if( prop && prop->pointer() ) {                       \
+         *m_ptr = *( prop->pointer() );                     \
+         return 0;                                          \
+      }                                                     \
+   } while( 0 )
 
 template<>
-Property* createProperty(const float& rval) {
-  return new TProperty<float>(rval, Property::FLOAT);
+int TProperty< float >::setFrom( const Property& rhs ) {
+
+   // Check that we have a valid pointer:
+   if( ! this->pointer() ) {
+      return 1;
+   }
+
+   // Try some compatible types:
+   TRY_TYPE( float );
+   TRY_TYPE( double );
+   TRY_TYPE( int );
+
+   // Apparently none of them succeeded:
+   return 1;
 }
 
-//**********************************************************************
+//
+////////////////////////////////////////////////////////////////////////////////
 
-template<>
-Property* createProperty(const double& rval) {
-  return new TProperty<double>(rval, Property::DOUBLE);
+////////////////////////////////////////////////////////////////////////////////
+//
+//       Implementation of the createProperty specialisations/overloads
+//
+
+Property* createProperty( const bool& rval ) {
+   return new TProperty< bool >( const_cast< bool& >( rval ), Property::BOOL );
 }
 
-//**********************************************************************
-
-template<>
-Property* createProperty(const string& rval) {
-  return new TProperty<string>(rval, Property::STRING);
+Property* createProperty( const int& rval ) {
+   return new TProperty< int >( const_cast< int& >( rval ), Property::INT );
 }
 
-//**********************************************************************
-
-Property* createProperty(const char* const & val) {
-  return new TProperty<const char*>(val, Property::UNKNOWNTYPE);
+Property* createProperty( const float& rval ) {
+   return new TProperty< float >( const_cast< float& >( rval ),
+                                  Property::FLOAT );
 }
 
-//**********************************************************************
-
-template<>
-int TProperty<char*>::setFrom(const Property&) {
-  return 2;
+Property* createProperty( const double& rval ) {
+   return new TProperty< double >( const_cast< double& >( rval ),
+                                   Property::DOUBLE );
 }
 
-//**********************************************************************
-
-template<>
-int TProperty<char* const>::setFrom(const Property&) {
-  return 2;
+Property* createProperty( const std::string& rval ) {
+   return new TProperty< std::string >( const_cast< std::string& >( rval ),
+                                        Property::STRING );
 }
 
-//**********************************************************************
-
-template<>
-int TProperty<float>::setFrom(const Property& rhs) {
-  if ( this->pointer() == 0 ) return 1;
-  const TProperty<float>* pprop = dynamic_cast<const TProperty<float>*>(&rhs);
-  float* ptr = const_cast<float*>(pointer());
-  if ( pprop == 0 ) {
-    const TProperty<double>* pprop = dynamic_cast<const TProperty<double>*>(&rhs);
-    if ( pprop == 0 ) {
-      const TProperty<int>* pprop = dynamic_cast<const TProperty<int>*>(&rhs);
-      if ( pprop == 0 ) return 1;
-      *ptr = *pprop->pointer();
-      return 0;
-    }
-    *ptr = *pprop->pointer();
-    return 0;
-  }
-  *ptr = *pprop->pointer();
-  return 0;
+Property* createProperty( const std::vector< int >& rval ) {
+   typedef Property::IntVector vecInt_t;
+   return new TProperty< vecInt_t >( const_cast< vecInt_t& >( rval ),
+                                     Property::INTVECTOR );
 }
 
-
-//**********************************************************************
-
-template<>
-int TProperty<string>::setFrom(const Property& rhs) {
-  if ( this->pointer() == 0 ) return 1;
-  const TProperty<string>* pprop = dynamic_cast<const TProperty<string>*>(&rhs);
-  string* ptr = const_cast<string*>(pointer());
-  if ( pprop == 0 ) {
-    const TProperty<char*>* pprop = dynamic_cast<const TProperty<char*>*>(&rhs);
-    if ( pprop == 0 ) {
-      const TProperty<const char*>* pprop = dynamic_cast<const TProperty<const char*>*>(&rhs);
-      if ( pprop == 0 ) return 1;
-      *ptr = *pprop->pointer();
-      return 0;
-    }
-    *ptr = *pprop->pointer();
-    return 0;
-  }
-  *ptr = *pprop->pointer();
-  return 0;
+Property* createProperty( const std::vector< float >& rval ) {
+   typedef Property::FloatVector vecFloat_t;
+   return new TProperty< vecFloat_t >( const_cast< vecFloat_t& >( rval ),
+                                       Property::FLOATVECTOR );
 }
 
+Property* createProperty( const std::vector< std::string >& rval ) {
+   typedef Property::StringVector vecString_t;
+   return new TProperty< vecString_t >( const_cast< vecString_t& >( rval ),
+                                        Property::STRINGVECTOR );
+}
 
-//**********************************************************************
-
+//
+////////////////////////////////////////////////////////////////////////////////

@@ -1,118 +1,96 @@
-// SgTEvent.h
+// Dear emacs, this is -*- c++ -*-
+// $Id: SgTEvent.h 613034 2014-08-22 10:56:10Z krasznaa $
+#ifndef ASGTOOLS_SGTEVENT_H
+#define ASGTOOLS_SGTEVENT_H
 
-#ifndef asg_SgTEvent_H
-#define asg_SgTEvent_H
-
-// David Adams
-// January 2014
-//
-// Wrapper for TEvent to make it look like StoreGate.
-// This is not used in Athena.
-
-#include "AsgTools/AsgToolsConf.h"
-
-#ifndef ASGTOOL_STANDALONE
-#error("This header should only be used for standalone ASG")
-#endif
-
+// System include(s):
 #include <string>
+
+// Local include(s):
+#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/StatusCode.h"
-#ifdef ASGTOOL_TEVENT
-#include "xAODRootAccess/TEvent.h"
-#else
-namespace xAOD {
- class TEvent;
-}
+
+// Complain if we try using this header in Athena:
+#ifndef ASGTOOL_STANDALONE
+#   error( "This header should only be used for standalone ASG" )
 #endif
 
-#include <iostream>
-
-using xAOD::TEvent;
+// Forward declaration(s):
+namespace xAOD {
+   class TEvent;
+   class TStore;
+} // namespace xAOD
 
 namespace asg {
 
-class SgTEvent {
+   /// Wrapper for TEvent to make it look like StoreGate.
+   ///
+   /// In order to be able to interact with xAOD::TEvent using the same sort
+   /// of code that we use to interact with StoreGateSvc in Athena, we wrap
+   /// it into such an object.
+   ///
+   /// This class also takes care of placing transient objects into
+   /// xAOD::TStore.
+   ///
+   /// @author David Adams <dladams@bnl.gov>
+   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+   ///
+   /// $Revision: 613034 $
+   /// $Date: 2014-08-22 12:56:10 +0200 (Fri, 22 Aug 2014) $
+   ///
+   class SgTEvent {
 
-public:  // methods
+   public:
+      /// Constructor specifying concrete TEvent and TStore objects
+      SgTEvent( xAOD::TEvent* pevm = 0, xAOD::TStore* ptds = 0 );
 
-  // Return an object pointing to the current event.
-  static SgTEvent* currentEvent();
+      /// Return the underlying event manager.
+      xAOD::TEvent* event() const;
 
-  // Ctor from a TEvent object.
-  SgTEvent(TEvent* pevm);
+      /// Return the underlying transient data store.
+      xAOD::TStore* tds() const;
 
-  // Return the underlying event manager.
-  TEvent* event();
+      /// @name Functions providing access to the persistent and transient data
+      /// @{
 
-  // Check presence of a container.
-  template<typename T>
-  bool contains(std::string cname);
+      /// Check if an object is available for constant access
+      template< typename T >
+      bool contains( const std::string& name ) const;
+      /// Check if an object is available for non-constant access
+      template< typename T >
+      bool transientContains( const std::string& name ) const;
 
-  // Retrieve a container.
-  template<typename T>
-  T* retrieve(std::string cname);
-  template<typename T>
-  StatusCode retrieve(T*& pobj, std::string cname);
-  
-  // Record container.
-  template<typename T>
-  StatusCode record(T* pobj, std::string cname);
-  
-private:  //data
+      /// Function retrieving a constant or non-constant object
+      template< typename T >
+      T* retrieve( const std::string& name ) const;
 
-  TEvent* m_pevm;
+      /// Retrieve a container from memory
+      template< typename T >
+      StatusCode retrieve( T*& pobj, const std::string& name );
+      /// Retrieve a container from the input file or the memory
+      template< typename T >
+      StatusCode retrieve( const T*& pobj, const std::string& name ) const;
 
-};
+      /// Record an object/container
+      template< typename T >
+      StatusCode record( T* pobj, const std::string& cname );
 
-//**********************************************************************
+      /// @}
 
-template<typename T>
-bool asg::SgTEvent::contains(std::string cname) {
-  if ( retrieve<const T>(cname) ) return true;
-  return false;
-}
+   private:
+      /// Function initialising the object
+      StatusCode initialize() const;
 
-//**********************************************************************
+      /// Pointer to the TEvent that this object interacts with
+      mutable xAOD::TEvent* m_pevm;
+      /// Pointer to the TStore that this object interacts with
+      mutable xAOD::TStore* m_ptds;
 
-template<typename T>
-T* asg::SgTEvent::retrieve(std::string cname) {
-  //std::cout << "SgTEvent::retrieve1: Event manager: " << m_pevm << std::endl;
-  //std::cout << "SgTEvent::retrieve1: " << cname << std::endl;
-  if ( m_pevm == 0 ) return 0;
-  T* pobj = 0;
-#ifdef ASGTOOL_TEVENT
-  m_pevm->Retrieve(pobj, cname);
-#endif
-  return pobj;
-}
+   }; // class SgTEvent
 
-//**********************************************************************
+} // namespace asg
 
-template<typename T>
-StatusCode asg::SgTEvent::retrieve(T*& pobj, std::string cname) {
-  //std::cout << "SgTEvent::retrieve2: Event manager: " << m_pevm << std::endl;
-  //std::cout << "SgTEvent::retrieve2: " << cname << " @ " << pobj << std::endl;
-  if ( m_pevm == 0 ) return 0;
-#ifdef ASGTOOL_TEVENT
-  bool rstat = m_pevm->Retrieve(pobj, cname);
-  if ( rstat ) return StatusCode::SUCCESS;
-#endif
-  return StatusCode::FAILURE;
-}
+// Include the template implementation:
+#include "AsgTools/SgTEvent.icc"
 
-//**********************************************************************
-
-template<typename T>
-StatusCode asg::SgTEvent::record(T* pobj, std::string cname) {
-#ifdef ASGTOOL_TEVENT
-  bool rstat = m_pevm->Record(pobj, cname);
-  if ( rstat ) return StatusCode::SUCCESS;
-#endif
-  return StatusCode::FAILURE;
-}
-
-//**********************************************************************
-
-}  // end asg namespace
-
-#endif
+#endif // ASGTOOLS_SGTEVENT_H

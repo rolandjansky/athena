@@ -1,0 +1,137 @@
+// $Id: AsgMetadataTool.cxx 618296 2014-09-24 08:31:16Z krasznaa $
+
+// System include(s):
+#include <stdexcept>
+
+// Local include(s):
+#include "AsgTools/AsgMetadataTool.h"
+
+#ifdef ASGTOOL_ATHENA
+// Gaudi/Athena include(s):
+#   include "GaudiKernel/Incident.h"
+#   include "GaudiKernel/IIncidentSvc.h"
+#endif // ASGTOOL_ATHENA
+
+#ifdef ASGTOOL_STANDALONE
+// xAOD include(s):
+#   include "xAODRootAccessInterfaces/TActiveEvent.h"
+#   include "xAODRootAccess/TEvent.h"
+#endif // ASGTOOL_STANDALONE
+
+namespace asg {
+
+#ifdef ASGTOOL_STANDALONE
+   // To be able to refer to xAOD::IncidentType as IncidentType...
+   using namespace xAOD;
+#endif // ASGTOOL_STANDALONE
+
+   AsgMetadataTool::AsgMetadataTool( const std::string& name )
+      : AsgTool( name ),
+#ifdef ASGTOOL_STANDALONE
+        m_inputMetaStore( SgTEventMeta::InputStore ),
+        m_outputMetaStore( SgTEventMeta::OutputStore )
+#elif defined(ASGTOOL_ATHENA)
+        m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
+        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )
+#endif // Environment selection
+   {
+
+#ifdef ASGTOOL_STANDALONE
+      // Try to access the current active TEvent:
+      xAOD::TVirtualEvent* vevent = xAOD::TActiveEvent::event();
+      xAOD::TEvent* event = dynamic_cast< xAOD::TEvent* >( vevent );
+      if( ! event ) {
+         ATH_MSG_WARNING( "Couldn't find active xAOD::TEvent object" );
+         ATH_MSG_WARNING( "Callbacks to the tool will not be available" );
+         return;
+      }
+      // Register the tool for callbacks:
+      if( event->addListener( this ).isFailure() ) {
+         ATH_MSG_ERROR( "Couldn't register the tool for xAOD callbacks" );
+      }
+#endif // ASGTOOL_STANDALONE
+   }
+
+   AsgMetadataTool::MetaStorePtr_t AsgMetadataTool::inputMetaStore() const {
+
+#ifdef ASGTOOL_STANDALONE
+      return &m_inputMetaStore;
+#elif defined(ASGTOOL_ATHENA)
+      return m_inputMetaStore;
+#endif // Environment selection
+   }
+
+   AsgMetadataTool::MetaStorePtr_t AsgMetadataTool::outputMetaStore() const {
+
+#ifdef ASGTOOL_STANDALONE
+      return &m_outputMetaStore;
+#elif defined(ASGTOOL_ATHENA)
+      return m_outputMetaStore;
+#endif // Environment selection
+   }
+
+   /// This function is used to set up the callbacks from IncidentSvc in
+   /// Athena at the right time during initialisation, without the user having
+   /// to do anything special in his/her code.
+   ///
+   StatusCode AsgMetadataTool::sysInitialize() {
+
+#ifdef ASGTOOL_ATHENA
+
+      // Connect to the IncidentSvc:
+      ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+      ATH_CHECK( incSvc.retrieve() );
+
+      // Set up the right callbacks:
+      incSvc->addListener( this, IncidentType::BeginEvent, 0, true );
+      incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+
+      // Let the base class do its thing:
+      ATH_CHECK( AlgTool::sysInitialize() );
+
+#endif // ASGTOOL_ATHENA
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   void AsgMetadataTool::handle( const Incident& inc ) {
+
+      // Tell the user what's happening:
+      ATH_MSG_VERBOSE( "Callback received with incident: " << inc.type() );
+
+      // Call the appropriate member function:
+      if( inc.type() == IncidentType::BeginInputFile ) {
+         if( beginInputFile().isFailure() ) {
+            ATH_MSG_FATAL( "Failed to call beginInputFile()" );
+            throw std::runtime_error( "Couldn't call beginInputFile()" );
+         }
+      } else if( inc.type() == IncidentType::BeginEvent ) {
+         if( beginEvent().isFailure() ) {
+            ATH_MSG_FATAL( "Failed to call beginEvent()" );
+            throw std::runtime_error( "Couldn't call beginEvent()" );
+         }
+      } else {
+         ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
+      }
+
+      return;
+   }
+
+   /// Dummy implementation that can be overridden by the derived tool.
+   ///
+   StatusCode AsgMetadataTool::beginInputFile() {
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   /// Dummy implementation that can be overridden by the derived tool.
+   ///
+   StatusCode AsgMetadataTool::beginEvent() {
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+} // namespace asg

@@ -1,0 +1,97 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: ToolHandle.icc 612816 2014-08-21 12:03:06Z krasznaa $
+#ifndef ASGTOOLS_TOOLHANDLE_ICC
+#define ASGTOOLS_TOOLHANDLE_ICC
+
+// System include(s):
+#include <stdexcept>
+#include <iostream>
+
+// Local include(s):
+#include "AsgTools/ToolStore.h"
+
+template< class T >
+ToolHandle< T >::ToolHandle( T* ptool )
+   : m_ptool( ptool ), m_toolname() {
+
+}
+
+template< class T >
+ToolHandle< T >::ToolHandle( const std::string& toolname )
+   : m_ptool( 0 ), m_toolname( toolname ) {
+
+}
+
+template< class T >
+const std::string& ToolHandle< T >::name() const {
+
+   return m_toolname;
+}
+
+template< class T >
+T& ToolHandle< T >::operator*() const {
+
+   // Retrieve the tool pointer if necessary:
+   if( ! m_ptool ) {
+      m_ptool = asg::ToolStore::get< T >( m_toolname );
+   }
+   // Check if we succeeded:
+   if( ! m_ptool ) {
+      throw std::runtime_error( "Couldn't find tool with name \"" +
+                                m_toolname + "\"" );
+   }
+
+   // Return a reference to the tool:
+   return *m_ptool;
+}
+
+template< class T >
+T* ToolHandle<T>::operator->() const {
+
+   // Retrieve the tool pointer if necessary:
+   if( ! m_ptool ) {
+      m_ptool = asg::ToolStore::get< T >( m_toolname );
+   }
+
+   // Return the (possibly null-)pointer to the tool:
+   return m_ptool;
+}
+
+template< class T >
+StatusCode ToolHandle< T >::retrieve() const {
+
+   // If we have the tool already, there's nothing to do:
+   if( m_ptool ) {
+      return StatusCode::SUCCESS;
+   }
+
+   // Try to retrieve the tool:
+   m_ptool = asg::ToolStore::get< T >( m_toolname );
+
+   // Check if it succeeded:
+   if( m_ptool ) {
+      return StatusCode::SUCCESS;
+   } else {
+      return StatusCode::FAILURE;
+   }
+}
+
+template< class T >
+bool ToolHandle< T >::empty() const {
+
+   return ( ( m_ptool == 0 ) && ( m_toolname.size() == 0 ) );
+}
+
+template< class T >
+std::ostream& operator<<( std::ostream& out,
+                          const ToolHandle< T >& handle ) {
+
+   T* ptool = handle.operator->();
+   out << "ASG ToolHandle with name = \"" << handle.name() << "\", pointer = "
+       << ptool;
+
+   // Return the same stream object:
+   return out;
+}
+
+#endif // ASGTOOLS_TOOLHANDLE_ICC

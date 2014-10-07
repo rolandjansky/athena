@@ -1,63 +1,69 @@
-// Property.cxx
+// $Id: Property.cxx 612908 2014-08-21 16:19:03Z krasznaa $
 
-#include "AsgTools/Property.h"
+// System include(s):
 #include <iostream>
 
-using std::string;
-using std::cout;
-using std::endl;
-typedef Property::Type Type;
-using asg::ToolHandle;
-using asg::ToolHandleArray;
+// Local include(s):
+#include "AsgTools/Property.h"
 
-//**********************************************************************
+/// Macro used in implementing the type->name translation function
+#define DECLARE_TYPE( TYPE, NAME )              \
+   case TYPE:                                   \
+   {                                            \
+      static const std::string n( NAME );       \
+      return n;                                 \
+   }                                            \
+   break
 
-string Property::name(Type a_type) {
-  switch(a_type) {
-  case UNKNOWNTYPE:     return "unknown";
-  case BOOL:            return "bool";
-  case INT:             return "int";
-  case FLOAT:           return "float";
-  case DOUBLE:          return "double";
-  case STRING:          return "string";
-  case INTVECTOR:       return "vector<int>";
-  case FLOATVECTOR:     return "vector<float>";
-  case STRINGVECTOR:    return "vector<string>";
-  case TOOLHANDLE:      return "ToolHandle";
-  case TOOLHANDLEARRAY: return "ToolHandleArray";
-  }
-  return "error";
+const std::string& Property::name( Type type ) {
+
+   switch( type ) {
+      DECLARE_TYPE( UNKNOWNTYPE, "unknown" );
+      DECLARE_TYPE( BOOL, "bool" );
+      DECLARE_TYPE( INT, "int" );
+      DECLARE_TYPE( FLOAT, "float" );
+      DECLARE_TYPE( DOUBLE, "double" );
+      DECLARE_TYPE( STRING, "string" );
+      DECLARE_TYPE( INTVECTOR, "vector<int>" );
+      DECLARE_TYPE( FLOATVECTOR, "vector<float>" );
+      DECLARE_TYPE( STRINGVECTOR, "vector<string>" );
+      DECLARE_TYPE( TOOLHANDLE, "ToolHandle" );
+      DECLARE_TYPE( TOOLHANDLEARRAY, "ToolHandleArray" );
+   default:
+      break;
+   }
+
+   static const std::string dummy( "<error>" );
+   return dummy;
 }
 
-//**********************************************************************
+Property::Property()
+   : m_type( UNKNOWNTYPE ) {
 
-Property::Property() : m_type(UNKNOWNTYPE) { }
-
-//**********************************************************************
-
-Property::Property(Type a_type) : m_type(a_type) { }
-
-//**********************************************************************
-
-Property::~Property() { }
-
-//**********************************************************************
-
-Type Property::type() const { return m_type; }
-
-//**********************************************************************
-
-bool Property::isValid() const { return m_type!=UNKNOWNTYPE; }
-
-//**********************************************************************
-
-string Property::typeName() const { return name(m_type); }
-
-//**********************************************************************
-
-int Property::setFrom(const Property&) {
-  cout << "Property::setFrom: Property not set!" << endl;
-  return -1;
 }
 
-//**********************************************************************
+Property::Property( Type type )
+   : m_type( type ) {
+
+}
+
+bool Property::isValid() const {
+
+   return ( m_type != UNKNOWNTYPE );
+}
+
+Property::Type Property::type() const {
+
+   return m_type;
+}
+
+const std::string& Property::typeName() const {
+
+   return name( m_type );
+}
+
+int Property::setFrom( const Property& ) {
+
+   std::cerr << "Property::setFrom: Property not set!" << std::endl;
+   return -1;
+}

@@ -1,48 +1,81 @@
-// SgTEvent.cxx
+// $Id: SgTEvent.cxx 612654 2014-08-20 13:12:53Z krasznaa $
 
-
-#include "AsgTools/SgTEvent.h"
+// System include(s):
 #include <iostream>
-#ifdef ASGTOOL_TEVENT 
-#include "xAODRootAccess/TActiveEvent.h"
+
+// Local include(s):
+#include "AsgTools/SgTEvent.h"
+
+// RootCore include(s):
+#ifdef ROOTCORE
+#   include "xAODRootAccessInterfaces/TActiveEvent.h"
+#   include "xAODRootAccess/TActiveStore.h"
 #endif
 
-using std::string;
-using std::cout;
-using std::endl;
-using asg::SgTEvent;
-#ifdef ASGTOOL_TEVENT 
-using xAOD::TActiveEvent;
-using xAOD::TVirtualEvent;
-#endif
+namespace asg {
 
-//**********************************************************************
+   SgTEvent::SgTEvent( xAOD::TEvent* pevm, xAOD::TStore* ptds )
+      : m_pevm( pevm ), m_ptds( ptds ) {
 
-SgTEvent* SgTEvent::currentEvent() {
-#ifdef ASGTOOL_TEVENT
-  const string myname = "SgTEvent::currentEvent: ";
-  TVirtualEvent* pvevt = TActiveEvent::GetEvent();
-  if ( pvevt == 0 ) {
-    cout << myname << "TVirtualEvent not found." << endl;
-    return 0;
-  }
-  TEvent* pevt = dynamic_cast<TEvent*>(pvevt);
-  if ( pevt == 0 ) {
-    cout << myname << "TEvent not found." << endl;
-    return 0;
-  }
-  return new SgTEvent(pevt);
-#else
-  return new SgTEvent(0);
-#endif
-}
+   }
 
-//**********************************************************************
+   xAOD::TEvent* SgTEvent::event() const {
 
-SgTEvent::SgTEvent(TEvent* pevm) : m_pevm(pevm) { }
+      if( ! m_pevm ) {
+         initialize().ignore();
+      }
 
-//**********************************************************************
+      return m_pevm;
+   }
 
-TEvent* SgTEvent::event() { return m_pevm; }
+   xAOD::TStore* SgTEvent::tds() const {
 
-//**********************************************************************
+      // I'm checking the value of m_pevm on purpose. Since m_ptds may be
+      // missing under normal circumstances as well.
+      if( ! m_pevm ) {
+         initialize().ignore();
+      }
+
+      return m_ptds;
+   }
+
+   StatusCode SgTEvent::initialize() const {
+
+      // Return right away if we already have a pointer to both stores:
+      if( m_pevm && m_ptds ) {
+         return StatusCode::SUCCESS;
+      }
+
+      // Look for a pointer to the active event if necessary:
+      if( ! m_pevm ) {
+         // Check if there's an active event:
+         xAOD::TVirtualEvent* event = xAOD::TActiveEvent::event();
+         if( ! event ) {
+            std::cerr << ERROR_SOURCE << "Couldn't find an active event in "
+                      << "the job" << std::endl;
+            return StatusCode::FAILURE;
+         }
+
+         // This should actually be a TEvent:
+         m_pevm = dynamic_cast< xAOD::TEvent* >( event );
+         if( ! m_pevm ) {
+            std::cerr << ERROR_SOURCE << "The active event is not of type "
+                      << "xAOD::TEvent?!?" << std::endl;
+            return StatusCode::FAILURE;
+         }
+      }
+
+      // Look for a pointer to the active store if necessary:
+      if( ! m_ptds ) {
+         m_ptds = xAOD::TActiveStore::store();
+         if( ! m_ptds ) {
+            std::cout << "asg::SgTEvent           WARNING  "
+                      << "No xAOD::TStore object is available" << std::endl;
+         }
+      }
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+} // namespace asg

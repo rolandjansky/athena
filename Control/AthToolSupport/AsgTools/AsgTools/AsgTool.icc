@@ -1,0 +1,91 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: AsgTool.icc 613791 2014-08-28 09:56:34Z krasznaa $
+#ifndef ASGTOOLS_ASGTOOL_ICC
+#define ASGTOOLS_ASGTOOL_ICC
+
+#ifdef ASGTOOL_STANDALONE
+
+// Local include(s):
+#include "AsgTools/PropertyMgr.h"
+#include "AsgTools/TProperty.h"
+
+namespace asg {
+
+   template< class T >
+   Property* AsgTool::declareProperty( const std::string& name, T& loc,
+                                       const std::string& ) {
+
+      // Declare the property using the property manager:
+      return m_ppropmgr->declareProperty( name, loc );
+   }
+
+   template< class T >
+   StatusCode AsgTool::setProperty( const std::string& name, const T& val ) {
+
+      // Set the property using the property manager:
+      return m_ppropmgr->setProperty( name, val );
+   }
+
+   template< class T >
+   const T* AsgTool::getProperty( const std::string& name ) const {
+
+      // Get the property object (if it exists):
+      const Property* prop = m_ppropmgr->getProperty( name );
+      if( ! prop ) {
+         ATH_MSG_WARNING( "Property with name \"" << name << "\" not found" );
+         return 0;
+      }
+
+      // Try to cast it to the required type:
+      const TProperty< T >* tprop =
+         dynamic_cast< const TProperty< T >* >( prop );
+      if( ! tprop ) {
+         ATH_MSG_WARNING( "Property \"" << name << "\" is of type: "
+                          << prop->typeName() );
+         return 0;
+      }
+
+      // Okay, we succeeded:
+      return tprop->pointer();
+   }
+
+} // namespace asg
+
+#endif // ASGTOOL_STANDALONE
+
+#ifdef ASGTOOL_ATHENA
+
+// Gaudi/Athena include(s):
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/System.h"
+
+namespace asg {
+
+   template< class T >
+   const T* AsgTool::getProperty( const std::string& name ) const {
+
+      // Get the property object (if it exists):
+      const Property* prop = Gaudi::Utils::getProperty( this, name );
+      if( ! prop ) {
+         ATH_MSG_WARNING( "Property with name \"" << name << "\" not found" );
+         return 0;
+      }
+
+      // Try to cast it to the required type:
+      const PropertyWithValue< T >* tprop =
+         dynamic_cast< const PropertyWithValue< T >* >( prop );
+      if( ! tprop ) {
+         ATH_MSG_WARNING( "Property \"" << name << "\" is of type: "
+                          << System::typeinfoName( *( prop->type_info() ) ) );
+         return 0;
+      }
+
+      // Okay, we succeeded:
+      return &( tprop->value() );
+   }
+
+} // namespace asg
+
+#endif // ASGTOOL_ATHENA
+
+#endif // not ASGTOOLS_ASGTOOL_ICC

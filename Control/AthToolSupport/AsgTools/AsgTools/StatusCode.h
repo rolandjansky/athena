@@ -1,46 +1,75 @@
-// StatusCode.h
+// Dear emacs, this is -*- c++ -*-
+// $Id: StatusCode.h 612639 2014-08-20 12:26:10Z krasznaa $
+#ifndef ASGTOOLS_STATUSCODE_H
+#define ASGTOOLS_STATUSCODE_H
 
-#ifndef asg_StatusCode_H
-#define asg_StatusCode_H
-
-// David Adams
-// January 2014
-//
-// Partial reimplementation of Gaudi StatusCode to allow
-// ToolHandle::retrieve to have the same syntax in Root as Athena.
-
+// Local include(s):
 #include "AsgTools/AsgToolsConf.h"
-#ifdef ASGTOOL_ATHENA
-#include "GaudiKernel/StatusCode.h"
-#else
 #include "AsgTools/Check.h"
 
+#ifdef ASGTOOL_ATHENA
+// Pull in the definition from Gaudi:
+#   include "GaudiKernel/StatusCode.h"
+#elif defined(ASGTOOL_STANDALONE)
+
+/// Partial reimplementation of Gaudi's StatusCode for standalone usage
+///
+/// In order to be able to write dual-use code that makes use of StatusCodes
+/// in Athena and ROOT in the same way, we provide a simplified version of
+/// Gaudi's class.
+///
+/// @author David Adams <dladams@bnl.gov>
+/// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+///
+/// $Revision: 612639 $
+/// $Date: 2014-08-20 14:26:10 +0200 (Wed, 20 Aug 2014) $
+///
 class StatusCode {
 
-public:  // enums
+public:
+   /// Convenience StatusCode types
+   enum {
+      FAILURE = 0,
+      SUCCESS = 1
+   };
 
-  enum {
-    FAILURE = 0,
-    SUCCESS = 1
-  };
+   /// Constructor from an integer status code
+   StatusCode( unsigned long rstat = SUCCESS );
+   /// Copy constructor
+   StatusCode( const StatusCode& parent );
+   /// Destructor
+   ~StatusCode();
 
-public:  // methods
+   /// Assignment operator
+   StatusCode& operator= ( const StatusCode& rhs );
+   /// Assignment from an integer code
+   StatusCode& operator= ( unsigned long code );
 
-  // Ctor from status code. (0 = failure)
-  StatusCode(int rstat =1);
+   /// Check if the operation was successful
+   bool isSuccess() const;
+   /// Check if the operation was a failure
+   bool isFailure() const;
 
-  bool isSuccess() const;
+   /// Automatic conversion operator
+   operator unsigned long() const;
 
-  bool isFailure() const;
+   /// Mark the status code as checked, ignoring it thereby
+   void setChecked() const { m_checked = true; }
+   /// Ignore the status code, marking it as checked
+   void ignore() const { setChecked(); }
 
-  // Success iff code=1, SUCCESS or true
-  StatusCode& operator=(int code);
+   /// Enable failure (with a backtrace) on an unchecked status code
+   static void enableFailure();
+   /// Disable failure (no backtrace) on an unchecked status code
+   static void disableFailure();
 
-private:  // data
+private:
+   /// Code returned by some function
+   unsigned long m_code;
+   /// Internal status flag of whether the code was checked by the user
+   mutable bool m_checked;
 
-  int m_code;
+}; // class StatusCode
 
-};
-
-#endif
-#endif
+#endif // Environment selection
+#endif // ASGTOOLS_STATUSCODE_H

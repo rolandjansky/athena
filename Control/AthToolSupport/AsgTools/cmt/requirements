@@ -1,8 +1,19 @@
 package AsgTools
+# $Id$
+
 author David Adams
 
-use AtlasPolicy      AtlasPolicy-*
-use AthenaBaseComps  AthenaBaseComps-*  Control
+public
 
-library AsgTools ../Root/MsgLevel.cxx ../Root/IAsgTool.cxx ../Root/AsgTool.cxx
+use AtlasPolicy      AtlasPolicy-*
+
+use GaudiInterface   GaudiInterface-*   External
+
+use AthenaBaseComps  AthenaBaseComps-*  Control
+use SGTools          SGTools-*          Control
+
+# Build a library:
+library AsgTools "../Root/MsgLevel.cxx ../Root/AsgTool.cxx \
+                  ../Root/AsgMetadataTool.cxx ../Root/AsgMessaging.cxx \
+                  *.cxx"
 apply_pattern installed_library
