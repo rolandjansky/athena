@@ -4,6 +4,7 @@
 
 #include "G4CosmicFilter/G4CosmicFilter.h"
 #include <iostream>
+#include <stdexcept>
 #include "G4UImanager.hh"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackRecorderSD.h"
@@ -72,21 +73,32 @@ void G4CosmicFilter::ParseProperties(){
     std::cout<<"G4CosmicFilter: no PDG ID specified, setting to default (=none)"<<std::endl;
     theProperties["PDG_ID"]="0";
   }
-  m_magicID = atoi(theProperties["PDG_ID"].c_str());
+  char *endptr; 
+  m_magicID = strtol(theProperties["PDG_ID"].c_str(), &endptr, 0);
+  if (endptr[0] != '\0') {  
+    throw std::invalid_argument("Could not convert string to int: " + theProperties["PDG_ID"]);
+  }
   std::cout<<"G4CosmicFilter: using PDG ID "<<m_magicID<<std::endl;
 
   if(theProperties.find("pTmin")==theProperties.end()){
     std::cout<<"G4CosmicFilter: no pTmin specified, setting to default (=-1)"<<std::endl;
     theProperties["pTmin"]="-1";
   }
-  m_ptMin = atoi(theProperties["pTmin"].c_str());
+  m_ptMin = strtol(theProperties["pTmin"].c_str(), &endptr, 0);
+  if (endptr[0] != '\0') {  
+    throw std::invalid_argument("Could not convert string to int: " + theProperties["pTmin"]);
+  }
+
   std::cout<<"G4CosmicFilter: using pTmin "<<m_ptMin<<std::endl;
 
   if(theProperties.find("pTmax")==theProperties.end()){
     std::cout<<"G4CosmicFilter: no pTmax specified, setting to default (=-1)"<<std::endl;
     theProperties["pTmax"]="-1";
   }
-  m_ptMax = atoi(theProperties["pTmax"].c_str());
+  m_ptMax = strtol(theProperties["pTmax"].c_str(), &endptr, 0);
+  if (endptr[0] != '\0') {  
+    throw std::invalid_argument("Could not convert string to int: " + theProperties["pTmax"]);
+  }
   std::cout<<"G4CosmicFilter: using pTmax "<<m_ptMax<<std::endl;
 
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
