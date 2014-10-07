@@ -7,6 +7,26 @@ if not ('EventMax' in dir()):
   EventMax=-1
 athenaCommonFlags.EvtMax=EventMax
 
+#Import datasets from RTT--------------------------------------------------------------------------
+def importRTTdatasets(jobID):
+    from AthenaCommon.Utils.unixtools import find_datafile
+    xmlFile = find_datafile("TrigInDetValidation_TestConfiguration.xml")
+    import xml.etree.ElementTree as elemTree
+    tree = elemTree.parse(xmlFile)
+    namespace = "{http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt}"
+    datasetList = []
+    root = tree.getroot()
+    for job in root.iter(namespace + 'athena'):
+        if job.get('userJobId') == jobID:
+            for dataset in job.findall(namespace + 'dataset'):
+                eosDataset = "root://eosatlas/" + dataset.text
+                datasetList.append(eosDataset)
+    return datasetList
+#--------------------------------------------------------------------------------------------------
+
+if 'XMLDataSet' in dir() and XMLDataSet!="":
+   print XMLDataSet
+   athenaCommonFlags.FilesInput = importRTTdatasets(XMLDataSet)
 
 if (not 'enableCostMonitoring' in dir()):
   enableCostMonitoring = True
@@ -146,6 +166,8 @@ TriggerFlags.doTruth=True
 
 GenerateMenu.overwriteSignaturesWith(resetSigs)
 
+
+
 #-------------------------------------------------------------
 # End of setting flags
 #-------------------------------------------------------------
@@ -156,6 +178,12 @@ TriggerFlags.abortOnConfigurationError=True
 
 Service ("StoreGateSvc" ).ActivateHistory=False 
 Service( "RegSelSvc" ).enableCalo = False
+# disabling pixel barrel layer 1 for robustness test
+if 'disablePixelLayer' in dir() and disablePixelLayer == True:
+  import TrigInDetValidation.InDetModules as IDM
+  pixel_barrel_layer1_hashes = IDM.getHashes(IDM.getLayer(IDM.getBarrel(IDM.Pixel),1))
+  RegSelSvcDefault.DeletePixelHashList= pixel_barrel_layer1_hashes
+  
 
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 Service ("StoreGateSvc" ).ActivateHistory=False

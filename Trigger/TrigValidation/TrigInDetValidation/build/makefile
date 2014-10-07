@@ -17,9 +17,11 @@
 JOBS =  \
         TrigInDetValidation_el_single_e_7-80_pu40.xml                   \
         TrigInDetValidation_el_single_e_7-80_pu40_run2.xml              \
+        TrigInDetValidation_el_single_e_7-80_pu40_run2_robustness.xml   \
         TrigInDetValidation_el_single_e_7-80_IBL_run2.xml               \
         TrigInDetValidation_el_single_e_7-80_IBL_run2_oldSeeding.xml    \
         TrigInDetValidation_el_single_e_7-80_IBL_pu40_run2.xml          \
+        TrigInDetValidation_el_single_e_7-80_IBL_pu40_run2_robustness.xml  \
         TrigInDetValidation_el_Zee_pu46_run2.xml                        \
         TrigInDetValidation_el_Zee_IBL_pu40_run2.xml                    \
         TrigInDetValidation_el_Zee_IBL_pu40_run2_oldSeeding.xml         \

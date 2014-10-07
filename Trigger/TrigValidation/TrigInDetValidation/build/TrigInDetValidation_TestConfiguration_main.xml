@@ -29,9 +29,11 @@
 
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40_run2.xml"
+#     include   "TrigInDetValidation_el_single_e_7-80_pu40_run2_robustness.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_IBL_run2.xml"
 
 #     include   "TrigInDetValidation_el_single_e_7-80_IBL_pu40_run2.xml"
+#     include   "TrigInDetValidation_el_single_e_7-80_IBL_pu40_run2_robustness.xml"
 #     include   "TrigInDetValidation_el_Zee_pu46_run2.xml"
 #     include   "TrigInDetValidation_el_Zee_pu46_run2_oldSeeding.xml"
 

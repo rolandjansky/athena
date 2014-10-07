@@ -20,7 +20,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-monitor.root  </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat -f data-monitor.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 

@@ -26,7 +26,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-monitor-pileup.root  </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat -f data-monitor-pileup.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 	    	    
