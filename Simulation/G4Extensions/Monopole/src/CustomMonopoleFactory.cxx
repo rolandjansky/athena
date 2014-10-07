@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
 #include <sstream>
 #include <iterator>
 #include <map>
@@ -53,7 +54,12 @@ void CustomMonopoleFactory::loadCustomMonopoles()
       if(beg_idx > 0 && line[beg_idx-1] == '#') continue; 
       end_idx = line.find_first_of( "\t ", beg_idx);
       if (end_idx == std::string::npos) continue;
-      pdgCode  = atoi(line.substr( beg_idx, end_idx - beg_idx ).c_str());
+      char *endptr;
+      pdgCode  = strtol(line.substr( beg_idx, end_idx - beg_idx ).c_str(), &endptr, 0);
+      if (endptr[0] != '\0') {
+	throw std::invalid_argument("Could not convert string to int: " + line.substr( beg_idx, end_idx - beg_idx ));	
+      }
+      
       
       beg_idx = line.find_first_not_of("\t ",end_idx);
       end_idx = line.find_first_of( "\t #", beg_idx);
