@@ -89,7 +89,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
    m_numParticlesFactor(),
    m_energyFactor(),
    m_particlePropSvc("PartPropSvc",name),
-   m_geoIDSvc("iGeant4::G4PolyconeGeoIDSvc/ISF_G4PolyconeGeoIDSvc",name),
+   m_geoIDSvc("ISF::GeoIDSvc",name),
    m_barcodeSvc("BarcodeSvc",name),
    m_envDefSvc("AtlasGeometry_EnvelopeDefSvc",name),
    m_beamPipe(500.)
@@ -359,10 +359,10 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
   // store the initial particle state locally
   m_initPs = &isfp;
 
-  ATH_MSG_VERBOSE("[ GeoIDSvc ] position of the input particle: r"<<m_initPs->position().perp()<<" z= "<<m_initPs->position().z() );
+  ATH_MSG_VERBOSE("[ punchthrough ] position of the input particle: r"<<m_initPs->position().perp()<<" z= "<<m_initPs->position().z() );
   //if not on ID surface - don't simulate
 
-  if ( m_geoIDSvc->inside(m_initPs->position(),AtlasDetDescr::fAtlasID) != 1)  
+  if ( m_geoIDSvc->inside(m_initPs->position(),AtlasDetDescr::fAtlasID) != 1 || m_geoIDSvc->inside(m_initPs->position(),AtlasDetDescr::fAtlasCalo) != 1)  
   { 
     ATH_MSG_DEBUG("[ GeoIDSvc ] input particle position is not on reference surface -> no punch-through simulation");
     return 0;
