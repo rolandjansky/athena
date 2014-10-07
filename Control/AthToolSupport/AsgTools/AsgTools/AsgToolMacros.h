@@ -46,25 +46,41 @@ public: \
 
 #define ASG_TOOL_CLASS(CLASSNAME, INT1) \
 public: \
-  CLASSNAME(const std::string&, const std::string& myname, const IInterface*) \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface*) \
   : CLASSNAME(myname) { \
     declareInterface<INT1>(this); \
+    setAlgToolType(type); \
   }
 
 #define ASG_TOOL_CLASS1 ASG_TOOL_CLASS
 
 #define ASG_TOOL_CLASS2(CLASSNAME, INT1, INT2) \
 public: \
-  CLASSNAME(const std::string&, const std::string& myname, const IInterface*) \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface*) \
   : CLASSNAME(myname) { \
     declareInterface<INT1>(this); \
     declareInterface<INT2>(this); \
+    setAlgToolType(type); \
+  }
+
+#define ASG_TOOL_CLASS3(CLASSNAME, INT1, INT2, INT3) \
+public: \
+  CLASSNAME(const std::string& type, const std::string& myname, const IInterface*) \
+  : CLASSNAME(myname) { \
+    declareInterface<INT1>(this); \
+    declareInterface<INT2>(this); \
+    declareInterface<INT3>(this); \
+    setAlgToolType(type); \
   }
 
 #else
 
 #define ASG_TOOL_INTERFACE(CLASSNAME)
 #define ASG_TOOL_CLASS(CLASSNAME, INT1)
+#define ASG_TOOL_CLASS0(CLASSNAME)
+#define ASG_TOOL_CLASS1(CLASSNAME, INT1)
+#define ASG_TOOL_CLASS2(CLASSNAME, INT1, INT2)
+#define ASG_TOOL_CLASS3(CLASSNAME, INT1, INT2, INT3)
 
 #endif
 

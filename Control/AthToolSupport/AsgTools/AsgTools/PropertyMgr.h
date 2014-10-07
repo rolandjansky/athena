@@ -1,110 +1,97 @@
-// PropertyMgr.h
+// Dear emacs, this is -*- c++ -*-
+// $Id: PropertyMgr.h 615760 2014-09-09 12:50:01Z krasznaa $
+#ifndef ASGTOOLS_PROPERTYMGR_H
+#define ASGTOOLS_PROPERTYMGR_H
 
-#ifndef asg_PropertyMgr_H
-#define asg_PropertyMgr_H
-
-// David Adams
-// January 2014
-//
-// Replacement for Gaudi property manager.
-
+// Local include(s):
 #include "AsgTools/AsgToolsConf.h"
-#ifdef ASGTOOL_ATHENA
-#include "GaudiKernel/PropertyMgr.h"
-#else
 
+#ifdef ASGTOOL_ATHENA
+#   include "GaudiKernel/PropertyMgr.h"
+#elif defined(ASGTOOL_STANDALONE)
+
+// System include(s):
 #include <string>
 #include <map>
-#include <iostream>
-#include "AsgTools/TProperty.h"
 
+// Local include(s):
+#include "AsgTools/MsgStream.h"
+#include "AsgTools/Property.h"
+#include "AsgTools/StatusCode.h"
+
+/// Replacement of Gaudi's property manager in standalone usage
+///
+/// In order to set the properties of dual-use tools outside of Athena,
+/// we provide this ligh-weight replacement for Gaudi's propert manager
+/// code.
+///
+/// @author David Adams <dladams@bnl.gov>
+///
+/// $Revision: 615760 $
+/// $Date: 2014-09-09 14:50:01 +0200 (Tue, 09 Sep 2014) $
+///
 class PropertyMgr {
 
 public:
+   /// Convenience type declaration
+   typedef Property::Type Type;
 
-  typedef Property::Type Type;
+   /// Map of properties, indexed by property name
+   typedef std::map< std::string, Property* > PropMap_t;
 
-public:
+   /// Default constructor
+   PropertyMgr();
+   /// Destructor
+   ~PropertyMgr();
 
-  // Map of properties indexed by name.
-  typedef std::map<std::string, Property*> PropMap;
+   /// @name Property management functions
+   /// @{
 
-  // Debug flag: set nonzero to get extra log messsges.
-  static int dbg() { return 0; }
+   /// Declare a property, i.e. assign address and type to name.
+   template< typename T >
+   Property* declareProperty( const std::string& name, T& loc );
 
-  // Dtor;
-  ~PropertyMgr();
+   /// Set the value for a string property
+   StatusCode setProperty( const std::string& name, const char* value );
+   /// Set the value for a property
+   template< typename T >
+   StatusCode setProperty( const std::string& name, const T& val );
 
-  // Declare a property, i.e. assign address and type to name.
-  template<typename T>
-  Property* declareProperty(const std::string& name, T& loc);
+   /// Retrieve a property
+   template< typename T >
+   StatusCode getProperty( const std::string& name, T& val ) const;
 
-  // Set the value for a property.
-  template<class T>
-  void setProperty(const std::string& name, const T& val);
+   /// Retrieve a typeless property
+   const Property* getProperty( const std::string& name ) const;
 
-  // Retrieve a property.
-  template<class T>
-  void getProperty(const std::string& name, T& val) const;
+   /// Return the map of properties
+   const PropMap_t& getProperties() const;
 
-  // Return the map of properties.
-  const PropMap& getProperties() const;
+   /// @}
+
+   /// @name Message stream handling functions
+   /// @{
+
+   /// Return the message stream
+   MsgStream& msg() const;
+
+   /// Return the message stream, set to a certain level
+   MsgStream& msg( MSG::Level level ) const;
+
+   /// @}
 
 private:
+   /// Internap map of properties
+   PropMap_t m_props;
+   /// Message logger object
+   mutable MsgStream m_msg;
 
-  PropMap m_props;
+}; // class PropertyMgr
 
-};
+// Include the template implementations:
+#include "AsgTools/PropertyMgr.icc"
 
-//**********************************************************************
-
-template<typename T>
-Property* PropertyMgr::declareProperty(const std::string& name, T& loc) {
-  const std::string myname = "PropertyMgr::declareProperty: ";
-  Property* pprop = createProperty(loc);
-  if ( dbg() ) {
-    std::cout << myname << "Declaring " << pprop->typeName()
-              << " property: " << name << std::endl;
-  }
-  m_props[name] = pprop;
-  return 0;
-}
-
-//**********************************************************************
-
-template<class T>
-void PropertyMgr::setProperty(const std::string& name, const T& rval) {
-  const std::string myname = "PropertyMgr::setProperty: ";
-  PropMap::const_iterator iprop = m_props.find(name);
-  if ( iprop == m_props.end() ) {
-    std::cout << myname << "Property not found: " << name << std::endl;
-    return;
-  }
-  Property* pprop = iprop->second;
-  Property* pinprop = createProperty(rval);
-  if ( pprop->setFrom(*pinprop) ) {
-    std::cout << myname << "Value assignment failed." << std::endl;
-  }
-}
-
-//**********************************************************************
-
-template<class T>
-void PropertyMgr::getProperty(const std::string& name, T& valout) const {
-  const std::string myname = "PropertyMgr::getProperty: ";
-  PropMap::const_iterator iprop = m_props.find(name);
-  if ( iprop == m_props.end() ) {
-    std::cout << myname << "Property not found: " << name << std::endl;
-    return;
-  }
-  Property* pprop = iprop->second;
-  Property* pretprop = createProperty(valout);
-  if ( pretprop->setFrom(*pprop) ) {
-    std::cout << myname << "Value retrieval failed." << std::endl;
-  }
-}
-
-//**********************************************************************
-
-#endif
-#endif
+#else
+#   error "What environment are we in?!?"
+#endif // Environment selection
+#endif // ASGTOOLS_PROPERTYMGR_H

@@ -1,0 +1,48 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: TProperty.icc 612908 2014-08-21 16:19:03Z krasznaa $
+#ifndef ASGTOOLS_TPROPERTY_ICC
+#define ASGTOOLS_TPROPERTY_ICC
+
+template< typename T >
+TProperty< T >::TProperty( T& val, Type type )
+   : Property( type ), m_ptr( &val ) {
+
+}
+
+template< typename T >
+const T* TProperty< T >::pointer() const {
+
+   return m_ptr;
+}
+
+template< typename T >
+int TProperty< T >::setFrom( const Property& rhs ) {
+
+   // Check that we have a valid pointer:
+   if( ! this->pointer() ) {
+      return 1;
+   }
+
+   // Check if the other object is of the same type:
+   const TProperty< T >* pprop = dynamic_cast< const TProperty< T >* >( &rhs );
+   if( ! pprop ) {
+      return 1;
+   }
+
+   // Check that the other object has a valid pointer:
+   if( ! pprop->pointer() ) {
+      return 1;
+   }
+
+   // Do the assignment:
+   *m_ptr = *( pprop->pointer() );
+   return 0;
+}
+
+template< typename T >
+Property* createProperty( const T& rval ) {
+
+   return new TProperty< T >( const_cast< T& >( rval ), Property::UNKNOWNTYPE );
+}
+
+#endif // ASGTOOLS_TPROPERTY_ICC

@@ -31,6 +31,9 @@ int announce(const char* name, int clid) {
   #ifdef CLASSDEF_SHOWDEFS
     #define CLASS_DEF(NAME, CLID, VER) int clid_CLASS = announce(#NAME, CLID);
   #else
-    #define CLASS_DEF(NAME, CLID, VER)
+    // Do not define macro if someone else has already done so.
+    #ifndef CLASS_DEF
+      #define CLASS_DEF(NAME, CLID, VER)
+    #endif
   #endif
 #endif

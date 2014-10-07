@@ -1,109 +1,79 @@
-// ToolHandle.h
+// Dear emacs, this is -*- c++ -*-
+// $Id: ToolHandle.h 612816 2014-08-21 12:03:06Z krasznaa $
+#ifndef ASGTOOLS_TOOLHANDLE_H
+#define ASGTOOLS_TOOLHANDLE_H
 
+// Local include(s):
 #include "AsgTools/AsgToolsConf.h"
+
 #ifdef ASGTOOL_ATHENA
-#include "GaudiKernel/ToolHandle.h"
-#else
+#   include "GaudiKernel/ToolHandle.h"
+#elif defined(ASGTOOL_STANDALONE)
 
-#ifndef asg_ToolHandle_H
-#define asg_ToolHandle_H
+// System include(s):
+#include <string>
+#include <iosfwd>
 
-// David Adams
-// January 2014
-//
-// Partial reimplementation of Gaudi ToolHandle so that tools
-// outside Athena can hold other tools with the same syntax as Athena.
-
-#include <iostream>
-#include <typeinfo>
+// Local include(s):
 #include "AsgTools/StatusCode.h"
-#include "AsgTools/IAsgTool.h"
-#include "AsgTools/ToolStore.h"
 
-namespace asg {
-
-template <class T>
+/// Partial re-implementation of Gaudi's ToolHandle class
+///
+/// This class can be used in a dual-use tool to find other dual-use tools
+/// that have been instantiated by the user.
+///
+/// @author David Adams <dladams@bnl.gov>
+/// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+///
+/// $Revision: 612816 $
+/// $Date: 2014-08-21 14:03:06 +0200 (Thu, 21 Aug 2014) $
+///
+template< class T >
 class ToolHandle {
 
 public:
+   /// A convenience type declaration
+   typedef T value_type;
 
-  typedef T value_type;
+   /// Constructor from a tool pointer
+   ToolHandle( T* ptool = 0 );
 
-  // Ctor from a tool pointer.
-  ToolHandle(IAsgTool* ptool =0);
+   /// Constructor from a tool name.
+   ToolHandle( const std::string& toolname );
 
-  // Ctor from a tool name.
-  ToolHandle(const char* toolname);
-  ToolHandle(std::string toolname);
+   /// Return the tool's name
+   const std::string& name() const;
 
-  // Dereferencing.
-  T* operator*() const;
-  T* operator->() const;
+   /// Dereferencing operator
+   T& operator*() const;
+   /// Dereferencing operator
+   T* operator->() const;
 
-  // Retrieve tool.
-  // For compatibility with Gaudi.
-  // Returns success if pointer is non-null and of the correct type.
-  StatusCode retrieve() const;
+   /// Retrieve tool.
+   /// For compatibility with Gaudi.
+   /// Returns success if pointer is non-null and of the correct type.
+   StatusCode retrieve() const;
 
-private:  // data
+   /// Return true if tool has no pointer or name
+   bool empty() const;
 
-  mutable IAsgTool* m_ptool;
-  std::string m_toolname;
+private:
+   /// Pointer to the tool
+   mutable T* m_ptool;
+   /// The name of the tool
+   std::string m_toolname;
 
-};
+}; // class ToolHandle
 
-}  // end namespace asg
+/// A convenience operator for printing the values of such objects
+template< class T >
+std::ostream& operator<< ( std::ostream& out,
+                           const ToolHandle< T >& handle );
 
-#endif  // asg_ToolHandle_H
+// Include the implementation of the code:
+#include "AsgTools/ToolHandle.icc"
 
-#ifndef asg_ToolHandle_ICC
-#define asg_ToolHandle_ICC
-
-template <class T>
-asg::ToolHandle<T>::ToolHandle(IAsgTool* ptool) : m_ptool(ptool) {
-  //std::cout << "Tool handle ctor: " << ptool << " --> " << m_ptool << " (" << dynamic_cast<T*>(m_ptool) << ")" << std::endl;
-}
-
-template <class T>
-asg::ToolHandle<T>::ToolHandle(const char* toolname) : m_ptool(0), m_toolname(toolname) { }
-
-template <class T>
-asg::ToolHandle<T>::ToolHandle(std::string toolname) : m_ptool(0), m_toolname(toolname) { }
-
-template <class T>
-T* asg::ToolHandle<T>::operator*() const {
-  if ( m_ptool == 0 ) {
-    m_ptool = ToolStore::get<T>(m_toolname);
-  }
-  return dynamic_cast<T*>(m_ptool);
-}
-
-template <class T>
-T* asg::ToolHandle<T>::operator->() const {
-  //std::cout << "Tool handle dereference: " << m_ptool << " --> " << dynamic_cast<T*>(m_ptool) << std::endl;
-  if ( m_ptool == 0 ) {
-    m_ptool = ToolStore::get<T>(m_toolname);
-  }
-  return dynamic_cast<T*>(m_ptool);
-}
-
-template <class T>
-StatusCode asg::ToolHandle<T>::retrieve() const {
-  return StatusCode(operator->() != 0);
-}
-
-// Ostream operator for Gaudi compatibility.
-template <class T>
-std::ostream& operator<<(std::ostream& lhs, asg::ToolHandle<T> rhs) {
-  T* ptool = rhs.operator->();
-  if ( ptool == 0 ) {
-    lhs << "Invalid ASG ToolHandle";
-  } else {
-    lhs << "ASG ToolHandle (" << typeid(*rhs.operator->()).name() << ")";
-  }
-  return lhs;
-}
-
-#endif  // asg_ToolHandle_ICC
-
-#endif  // ! ASGTOOL_ATHENA
+#else
+#   error "What environment are we in?!?"
+#endif // Environment selection
+#endif // ASGTOOLS_TOOLHANDLE_H

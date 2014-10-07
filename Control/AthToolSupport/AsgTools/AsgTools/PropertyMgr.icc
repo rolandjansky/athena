@@ -1,0 +1,76 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: PropertyMgr.icc 612908 2014-08-21 16:19:03Z krasznaa $
+#ifndef ASGTOOLS_PROPERTYMGR_ICC
+#define ASGTOOLS_PROPERTYMGR_ICC
+
+// System include(s):
+#include <memory>
+
+// Local include(s):
+#include "AsgTools/TProperty.h"
+#include "AsgTools/MsgStreamMacros.h"
+
+template< typename T >
+Property* PropertyMgr::declareProperty( const std::string& name, T& loc ) {
+
+   // Create the property object:
+   Property* pprop = createProperty( loc );
+
+   // Remember it:
+   ATH_MSG_DEBUG( "Declaring " << pprop->typeName() << " property: " << name );
+   m_props[ name ] = pprop;
+
+   // Return a pointer to it:
+   return pprop;
+}
+
+template< typename T >
+StatusCode PropertyMgr::setProperty( const std::string& name, const T& rval ) {
+
+   // Look for the property:
+   PropMap_t::const_iterator iprop = m_props.find( name );
+   if( iprop == m_props.end() ) {
+      ATH_MSG_ERROR( "Property not found: " << name );
+      return StatusCode::FAILURE;
+   }
+
+   // Access the property object:
+   Property* pprop = iprop->second;
+   // Create a helper property object:
+   std::auto_ptr< Property > pinprop( createProperty( rval ) );
+   // Try setting the managed property using the helper property object:
+   if( pprop->setFrom( *pinprop ) ) {
+      ATH_MSG_ERROR(  "Value assignment failed for " << name );
+      return StatusCode::FAILURE;
+   }
+
+   // We were successful:
+   return StatusCode::SUCCESS;
+}
+
+template< typename T >
+StatusCode PropertyMgr::getProperty( const std::string& name,
+                                     T& valout ) const {
+
+   // Look for the property:
+   PropMap_t::const_iterator iprop = m_props.find( name );
+   if( iprop == m_props.end() ) {
+      ATH_MSG_ERROR( "Property not found: " << name );
+      return StatusCode::FAILURE;
+   }
+
+   // Access the property object:
+   Property* pprop = iprop->second;
+   // Create a helper property object:
+   std::auto_ptr< Property > pretprop( createProperty( valout ) );
+   // Try retrieving the property using the helper property object:
+   if( pretprop->setFrom( *pprop ) ) {
+      ATH_MSG_ERROR(  "Value retrieval failed for " << name );
+      return StatusCode::FAILURE;
+   }
+
+   // We were successful:
+   return StatusCode::SUCCESS;
+}
+
+#endif // ASGTOOLS_PROPERTYMGR_ICC

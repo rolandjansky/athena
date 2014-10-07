@@ -1,133 +1,110 @@
-// AsgTool.cxx
+// $Id: AsgTool.cxx 620407 2014-10-07 13:40:28Z krasznaa $
 
-#include "AsgTools/AsgTool.h"
-
-using asg::AsgTool;
-
+// System include(s):
 #include <iostream>
 
-//**********************************************************************
+// Local include(s):
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolStore.h"
 
-#ifdef ASGTOOL_STANDALONE
-AsgTool::EventPtr AsgTool::event(xAOD::TEvent* a_pevt, bool set) {
-  static AsgTool::EventPtr pevt = 0;
-  if ( set ) pevt = new asg::SgTEvent(a_pevt);
-  return pevt;
-}
-#endif
+namespace asg {
 
-//**********************************************************************
-
-#ifdef ASGTOOL_STANDALONE
-AsgTool::AsgTool(std::string aname)
-: asg::Named(aname), m_ppropmgr(0), m_manage_propmgr(false), m_msg(this) {
-  //std::cout << "AsgTool::ctor: Prop mgr: " << m_ppropmgr << std::endl;
-  if ( m_ppropmgr == 0 ) {
-    m_ppropmgr = new PropertyMgr;
-    m_manage_propmgr = true;
-  }
-  msg().setLevel(MSG::INFO);
-  declareProperty("OutputLevel", m_msg.mutable_level());
-}
-#endif
-
+   AsgTool::AsgTool( const std::string& name )
+      : AsgToolBase(
 #ifdef ASGTOOL_ATHENA
-AsgTool::AsgTool(std::string name)
-: AthAlgTool("", name, Gaudi::svcLocator()->service("ToolSvc")) { }
-#endif
+                    "", name, Gaudi::svcLocator()->service( "ToolSvc" )
+#elif defined(ASGTOOL_STANDALONE)
+                    this
+#else
+#   error "What environment are we in?!?"
+#endif // Environment selection
+                    )
+#ifdef ASGTOOL_STANDALONE
+      , m_name( name ), m_ppropmgr( new PropertyMgr() ), m_event()
+#endif // ASGTOOL_STANDALONE
+   {
+#ifdef ASGTOOL_STANDALONE
+      declareProperty( "OutputLevel", msg().mutable_level() );
+      ToolStore::put( this ).ignore(); // Register the tool in the ToolStore
+#endif // ASGTOOL_STANDALONE
+   }
 
-//**********************************************************************
+   AsgTool::~AsgTool() {
 
 #ifdef ASGTOOL_STANDALONE
-AsgTool::~AsgTool() {
-  if ( m_manage_propmgr ) delete m_ppropmgr;
-}
-#endif
-
-//**********************************************************************
+      ToolStore::remove( this ).ignore(); // Remove the tool from the ToolStore
+      delete m_ppropmgr;
+#endif // ASGTOOL_STANDALONE
+   }
 
 #ifdef ASGTOOL_STANDALONE
-AsgTool::EventPtr AsgTool::evtStore() const {
-  asg::SgTEvent* pevt = event();
-  if ( pevt != 0 ) return pevt;
-  static SgTEvent* pevtx = 0;
-  if ( pevtx == 0 ) {
-    std::cout << "AsgTool::evtStore: Retrieving xAOD current event." << std::endl;
-    pevtx = SgTEvent::currentEvent();
-    if ( pevtx == 0 ) {
-      std::cout << "AsgTool::evtStore: Current event not found." << std::endl;
-    } else {
-      std::cout << "AsgTool::evtStore: Current event found." << std::endl;
-    }
-    std::cout << "AsgTool::evtStore: Current event: " << pevtx->event() << std::endl;
-  }
-  return pevtx;
-}
-#endif
 
-//**********************************************************************
+   SgTEvent* AsgTool::evtStore() const {
 
-#ifdef ASGTOOL_STANDALONE
-const PropertyMgr* AsgTool::getPropertyMgr() const {
-  return m_ppropmgr;
-}
-#endif
+      return &m_event;
+   }
 
-//**********************************************************************
+   /// See the comments for PropertyMgr::setProperty to see why this
+   /// function specialisation is needed, and why it has this exact form.
+   ///
+   /// @param name The name of the string property to set
+   /// @param value The value of the string property to set
+   /// @returns <code>StatusCode::SUCCESS</code> if the call was successful,
+   ///          <code>StatusCode::FAILURE</code> otherwise
+   ///
+   StatusCode AsgTool::setProperty( const std::string& name,
+                                    const char* value ) {
 
-#ifdef ASGTOOL_STANDALONE
-PropertyMgr* AsgTool::getPropertyMgr() {
-  return m_ppropmgr;
-}
-#endif
+      // Set the property using the property manager:
+      return m_ppropmgr->setProperty( name, value );
+   }
 
-//**********************************************************************
+   PropertyMgr* AsgTool::getPropertyMgr() {
 
-#ifdef ASGTOOL_STANDALONE
-bool AsgTool::msgLvl(MSG::Level) const {
-  return false;
-}
-#endif
+      return m_ppropmgr;
+   }
 
-//**********************************************************************
+   const PropertyMgr* AsgTool::getPropertyMgr() const {
 
-#ifdef ASGTOOL_STANDALONE
-MsgStream& AsgTool::msg() const {
-  return m_msg;
-}
-#endif
+      return m_ppropmgr;
+   }
 
-//**********************************************************************
+   const std::string& AsgTool::name() const {
 
-#ifdef ASGTOOL_STANDALONE
-MsgStream& AsgTool::msg(MSG::Level lvl) const {
-  m_msg.setLevel(lvl);
-  return m_msg;
-}
-#endif
+      return m_name;
+   }
 
-//**********************************************************************
+   void AsgTool::setName( const std::string& name ) {
 
-std::string AsgTool::msg_level_name() const {
-  return MSG::name(msg().level());
-}
+      m_name = name;
+      return;
+   }
 
-//**********************************************************************
+#endif // ASGTOOL_STANDALONE
 
-#ifndef ASGTOOL_ATHENA
-StatusCode AsgTool::initialize() {
-  if ( getPropertyMgr() == 0 ) {
-    ATH_MSG_ERROR("Property manager not found.");
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-#endif
+   /// Instead of using this, weirdly named function, user code should get
+   /// the string name of the current minimum message level (in case they
+   /// really need it...), with:
+   ///
+   /// <code>
+   ///   MSG::name( msg().level() )
+   /// </code>
+   ///
+   /// This function's name doesn't follow the ATLAS coding rules, and as such
+   /// will be removed in the not too distant future.
+   ///
+   /// @returns The string name of the current minimum message level that's
+   ///          printed
+   ///
+   const std::string& AsgTool::msg_level_name() const {
 
-//**********************************************************************
+      return MSG::name( msg().level() );
+   }
 
-void AsgTool::print() const {
-  ATH_MSG_INFO("AsgTool " << name() << " @ " << this);
-}
+   void AsgTool::print() const {
 
-//**********************************************************************
+      ATH_MSG_INFO( "AsgTool " << name() << " @ " << this );
+      return;
+   }
+
+} // namespace asg
