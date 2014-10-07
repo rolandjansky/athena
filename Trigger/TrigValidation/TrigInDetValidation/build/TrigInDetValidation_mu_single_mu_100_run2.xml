@@ -74,7 +74,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
