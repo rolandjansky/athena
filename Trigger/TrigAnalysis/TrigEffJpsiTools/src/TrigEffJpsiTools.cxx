@@ -3,8 +3,8 @@
 */
 
 /**
- * @date      $Date: 2014-08-06 09:04:37 +0200 (Wed, 06 Aug 2014) $
- * @version   $Revision: 610494 $
+ * @date      $Date: 2014-10-07 17:38:23 +0200 (Tue, 07 Oct 2014) $
+ * @version   $Revision: 620455 $
  */
 
 /** @todo */
@@ -22,7 +22,6 @@
 #include "TrigT1TGCRecRoiSvc/TGCRecRoiSvc.h"
 #include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "RPCgeometry/IRPCgeometrySvc.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "TrkSurfaces/DiscSurface.h"
@@ -80,7 +79,6 @@ TrigEffJpsiTools::TrigEffJpsiTools(const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_rpcGeometrySvc("RPCgeometrySvc", name),
     m_rpcRoiService("LVL1RPC::RPCRecRoiSvc", name),
     m_tgcRoiService("LVL1TGC::TGCRecRoiSvc", name),
     m_muonIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
@@ -113,7 +111,6 @@ TrigEffJpsiTools::TrigEffJpsiTools(const std::string& type,
 {
   declareInterface<ITrigEffJpsiTools>(this);
 
-  declareProperty("RPCgeometrySvc", m_rpcGeometrySvc);
   declareProperty("RPCRecRoiSvc", m_rpcRoiService);
   declareProperty("TGCRecRoiSvc", m_tgcRoiService);
   declareProperty("MuonIdHelperTool", m_muonIdHelper);
@@ -193,14 +190,6 @@ TrigEffJpsiTools::initialize()
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Muon id helper ready");
-
-
-  // rpc geometry service
-  if (m_rpcGeometrySvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve " << m_rpcGeometrySvc);
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Retrieved service: " << m_rpcGeometrySvc);
 
 
   // rpc cabling server service
@@ -2498,70 +2487,15 @@ TrigEffJpsiTools::getRoiSizeRpc(const unsigned int roiWord,
 
   // ref: RPCRecRoiSvc::reconstruct()
   *etaSize = *phiSize = -1.e30;
+  
+  m_rpcRoiService->reconstruct(roiWord);
+  
+  *etaSize=fabs(m_rpcRoiService->etaMax()-m_rpcRoiService->etaMin());
 
-  unsigned int sectorAddress = ((roiWord >> 14) & 0xff);
-  unsigned int subSysId = (sectorAddress & 0x1);
-  unsigned int sectorId = ((sectorAddress >> 1) & 0x1f);
-  unsigned int roiNumber = ((roiWord >> 2) & 0x1f);
-
-  unsigned int etaLow = 0;
-  unsigned int etaHigh = 0;
-  unsigned int phiLow = 0;
-  unsigned int phiHigh = 0;
-
-  if (not p_rpcCablingSvc->give_RoI_borders(subSysId, sectorId, roiNumber,
-                                            etaLow, etaHigh, phiLow, phiHigh)) {
-    ATH_MSG_WARNING("give_RoI_borders() failed: roiWord = " << roiWord);
-    return StatusCode::SUCCESS;
-  }
-
-  float etaMinPoint[3] = {0.};
-  if (not m_rpcGeometrySvc->give_strip_coordinates(etaLow, etaMinPoint)) {
-    ATH_MSG_WARNING("give_strip_coordinates(): etaMinPoint failed: roiWord = " << roiWord << " etaLow = " << etaLow);
-    return StatusCode::SUCCESS;
-  }
-
-  float etaMaxPoint[3] = {0.};
-  if (not m_rpcGeometrySvc->give_strip_coordinates(etaHigh, etaMaxPoint)) {
-    ATH_MSG_WARNING("give_strip_coordinates(): etaMaxPoint failed: roiWord = " << roiWord << " etaHigh = " << etaHigh);
-    return StatusCode::SUCCESS;
-  }
-
-  float phiMinPoint[3] = {0.};
-  if (not m_rpcGeometrySvc->give_strip_coordinates(phiLow, phiMinPoint)) {
-    ATH_MSG_WARNING("give_strip_coordinates(): phiMinPoint failed: roiWord = " << roiWord << " phiLow = " << phiLow);
-    return StatusCode::SUCCESS;
-  }
-
-  float phiMaxPoint[3] = {0.};
-  if (not m_rpcGeometrySvc->give_strip_coordinates(phiHigh, phiMaxPoint)) {
-    ATH_MSG_WARNING("give_strip_coordinates(): phiMaxPoint failed: roiWord = " << roiWord << "phiHigh = " << phiHigh);
-    return StatusCode::SUCCESS;
-  }
-
-  float etaRadius = 0.;
-  if (not m_rpcGeometrySvc->give_strip_radius(etaLow, etaRadius)) {
-    ATH_MSG_WARNING("give_strip_coordinates(): etaRadius failed: roiWord = " << roiWord << " etaLow = " << etaLow);
-    return StatusCode::SUCCESS;
-  }
-
-  float phiRadius = 0.;
-  if (not m_rpcGeometrySvc->give_strip_radius(phiHigh, phiRadius)) {
-    ATH_MSG_WARNING("give_strip_coordinates(): phiRadius failed: roiWord = " << roiWord << " phiHigh = " << phiHigh);
-    return StatusCode::SUCCESS;
-  }
-
-  double etaMax = -log(tan(0.5*atan2(etaRadius, etaMaxPoint[2])));
-  double etaMin = -log(tan(0.5*atan2(etaRadius, etaMinPoint[2])));
-  double phiMax = atan2(phiMaxPoint[1], phiMaxPoint[0]);
-  double phiMin = atan2(phiMinPoint[1], phiMinPoint[0]);
-
-  *etaSize = fabs(etaMax - etaMin);
-  *phiSize = fabs(phiMax - phiMin);
+  *phiSize=getPhiDistance(m_rpcRoiService->phiMax(),m_rpcRoiService->phiMin());
 
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode
 TrigEffJpsiTools::getRioOnTriggerChamber(const Trk::Track* track,

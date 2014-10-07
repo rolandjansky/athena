@@ -7,8 +7,8 @@
 /**
  * @author    Hironori Kiyamura
  * @author    Takashi Matsushita
- * @date      $Date: 2013-11-11 01:34:19 +0100 (Mon, 11 Nov 2013) $
- * @version   $Revision: 569614 $
+ * @date      $Date: 2014-10-07 17:38:23 +0200 (Tue, 07 Oct 2014) $
+ * @version   $Revision: 620455 $
  */
 
 /** @todo */
@@ -40,7 +40,7 @@ namespace Muon { class MuonIdHelperTool; }
 namespace Trig { class TrigDecisionTool; }
 namespace Trig { class ChainGroup; }
 
-class IRPCgeometrySvc;
+
 class IRPCcablingSvc;
 class MuonFeature;
 class TrigL2Bphys;
@@ -332,7 +332,6 @@ class TrigEffJpsiTools : virtual public ITrigEffJpsiTools,
     // attributes
 
     // service handles
-    ServiceHandle<IRPCgeometrySvc> m_rpcGeometrySvc;
     ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_rpcRoiService;
     ServiceHandle<LVL1TGC::TGCRecRoiSvc> m_tgcRoiService;
 

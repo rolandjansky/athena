@@ -16,7 +16,6 @@ use MuonIdHelpers             MuonIdHelpers-*             MuonSpectrometer
 use MuonReadoutGeometry       MuonReadoutGeometry-*       MuonSpectrometer/MuonDetDescr
 use Particle                  Particle-*                  Reconstruction
 use RPCcablingInterface       RPCcablingInterface-*       MuonSpectrometer/MuonCablings
-use RPCgeometry               RPCgeometry-*               MuonSpectrometer/MuonCablings
 use StoreGate                 StoreGate-*                 Control
 use TrigDecisionTool          TrigDecisionTool-*          Trigger/TrigAnalysis
 use TrigMuonEvent             TrigMuonEvent-*             Trigger/TrigEvent
