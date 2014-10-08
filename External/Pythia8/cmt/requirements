@@ -8,8 +8,10 @@ use AtlasHepMC            AtlasHepMC-*            External
 use Lhapdf                Lhapdf-*                External
 use LCG_Configuration
 
+#macro Pythia8_home "$(LCG_external)/MCGenerators/pythia8"
 macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/pythia8"
-macro Pythia8_version "183"
+#macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt61g/pythia8"
+macro Pythia8_version "186"
 macro Pythia8_patch_version ""
 macro Pythia8_native_version "$(Pythia8_version)$(Pythia8_patch_version)_lcgcmt$(LCG_config_version)"
 macro Pythia8_system "$(LCG_ext_system)"
