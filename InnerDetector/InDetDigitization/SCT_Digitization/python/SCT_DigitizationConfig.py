@@ -9,6 +9,47 @@ def SCT_FirstXing():
 def SCT_LastXing():
     return 25
 
+
+
+######################################################################################
+def getSCT_RandomDisabledCellGenerator(name="SCT_RandomDisabledCellGenerator", **kwargs):
+    kwargs.setdefault("TotalBadChannels", 0.01)
+    from SCT_Digitization.SCT_DigitizationConf import SCT_RandomDisabledCellGenerator
+    return SCT_RandomDisabledCellGenerator(name, **kwargs)
+
+
+######################################################################################
+def getSCT_TimeWalkGenerator(name="SCT_TimeWalkGenerator", **kwargs):
+    kwargs.setdefault("UseComTimeFlag", true)
+    kwargs.setdefault("TimeJitter", 0)
+    kwargs.setdefault("TimePerBCO", 25.0)
+    kwargs.setdefault("TimeZero", 5.0)
+    from SCT_Digitization.SCT_DigitizationConf import SCT_TimeWalkGenerator
+    return SCT_TimeWalkGenerator(name, **kwargs)
+
+######################################################################################
+def getSCT_StripDiscriminator(name="SCT_StripDiscriminator", **kwargs):
+    kwargs.setdefault("DiscrThresh", 4100)
+    kwargs.setdefault("DiscrThreshVar", 300)
+    kwargs.setdefault("IntimeThresh", 5000)
+    kwargs.setdefault("TimeBCN", 2)
+    from SCT_Digitization.SCT_DigitizationConf import SCT_StripDiscriminator
+    return SCT_StripDiscriminator(name, **kwargs)
+
+######################################################################################
+def getSCT_Amp(name="SCT_Amp", **kwargs):
+    kwargs.setdefault("CrossFactor2sides", 0.1)
+    kwargs.setdefault("CrossFactorBack", 0.07)
+    kwargs.setdefault("PeakTime", 21)
+    kwargs.setdefault("deltaT", 1.0)
+    kwargs.setdefault("Tmin", -25.0)
+    kwargs.setdefault("Tmax", 150.0)
+    kwargs.setdefault("NbAverage", 0)
+    from SCT_Digitization.SCT_DigitizationConf import SCT_Amp
+    return SCT_Amp(name, **kwargs)
+
+
+######################################################################################
 def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs):
     ## Set up services used by SCT_SurfaceChargesGenerator
     ## TODO remove all this stuff and see if PixelDigitization works without it.
@@ -44,9 +85,31 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         InDetSCT_RadDamageSummarySvc = SCT_RadDamageSummarySvc(name = "InDetSCT_RadDamageSummarySvc")
         ServiceMgr += InDetSCT_RadDamageSummarySvc
     ## END OF JUNK
-    from SCT_Digitization.SCT_DigitizationConf import SCT_SurfaceChargesGenerator
-    return SCT_SurfaceChargesGenerator(name, **kwargs)
 
+    kwargs.setdefault("FixedTime", -999)
+    kwargs.setdefault("SubtractTime", -999)
+    kwargs.setdefault("SurfaceDriftTime", 10)
+    kwargs.setdefault("NumberOfCharges", 1)
+    kwargs.setdefault("SmallStepLength", 5)
+    kwargs.setdefault("DepletionVoltage", 70)
+    kwargs.setdefault("BiasVoltage", 150)
+      
+    from Digitization.DigitizationFlags import digitizationFlags
+    if 'doDetailedSurfChargesGen' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("ChargeDriftModel", 1)
+        kwargs.setdefault("EFieldModel", 2)
+        kwargs.setdefault("MagneticField", -2.0)
+        kwargs.setdefault("SensorTemperature", 273.15)
+        kwargs.setdefault("TransportTimeStep", 0.25)
+        kwargs.setdefault("TransportTimeMax", 25.0)
+        from SCT_Digitization.SCT_DigitizationConf import SCT_DetailedSurfaceChargesGenerator
+        return SCT_DetailedSurfaceChargesGenerator(name, **kwargs)
+    else:
+        from SCT_Digitization.SCT_DigitizationConf import SCT_SurfaceChargesGenerator
+        return SCT_SurfaceChargesGenerator(name, **kwargs)
+
+
+######################################################################################
 def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     #Setup noise treament in SCT_FrontEnd
@@ -67,8 +130,8 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("NOShortMiddles", 0.0)
         kwargs.setdefault("NOOuters", 0.0)
         kwargs.setdefault("NoiseOn", False)
-    # To set the mean noise values for the different module types
-    # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
+        # To set the mean noise values for the different module types
+        # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
     else:
         kwargs.setdefault("NoiseBarrel", 1500.0)
         kwargs.setdefault("NoiseBarrel3", 1541.0)
@@ -99,14 +162,25 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
     if (jobproperties.Beam.bunchSpacing() <= 25):
-       kwargs.setdefault("DataCompressionMode", 2)
+        kwargs.setdefault("DataCompressionMode", 2)
     elif (jobproperties.Beam.bunchSpacing() <= 50):
-       kwargs.setdefault("DataCompressionMode", 1)
+        kwargs.setdefault("DataCompressionMode", 1)
     else:
-       kwargs.setdefault("DataCompressionMode", 3)
-       kwargs.setdefault("NoiseExpandedMode", True)
-    from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
-    return SCT_FrontEnd(name, **kwargs)
+        kwargs.setdefault("DataCompressionMode", 3)
+        kwargs.setdefault("NoiseExpandedMode", True)
+
+    if 'doDevFrontEnd' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("DataReadOutMode", 0)
+        kwargs.setdefault("DataCompressionMode", 1)
+        from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEndDev
+        return SCT_FrontEndDev(name, **kwargs)
+    else:
+        from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
+        return SCT_FrontEnd(name, **kwargs)
+
+
+######################################################################################
+
 
 def commonSCT_DigitizationConfig(name,**kwargs):
 
@@ -117,6 +191,7 @@ def commonSCT_DigitizationConfig(name,**kwargs):
 
     kwargs.setdefault("InputObjectName", "SCT_Hits")
     kwargs.setdefault("EnableHits", True)
+    kwargs.setdefault("BarrelOnly", False)
 
     # Use of random disabled cells
     #kwargs.setdefault("RandomDisabledCells", True)
@@ -141,6 +216,8 @@ def commonSCT_DigitizationConfig(name,**kwargs):
 #    else:
 #        from AthenaCommon import CfgMgr
 #        return CfgMgr.SCT_Digitization(name, **kwargs)
+
+######################################################################################
 
 def GenericSCT_DigitizationTool(name,**kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
