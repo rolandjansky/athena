@@ -237,6 +237,7 @@ TH1D* smooth( TH1D* hin, bool sym ) {
   
   /// generate a pdf from the smoothed distribution
   ms = PDF( msmooth );
+  delete msmooth;
   
   ms->SetMinimum(0);
   ms->SetMaximum(1);
@@ -418,6 +419,7 @@ experiment::experiment( TH1D* h, int Nexperiments, int fevents )
     
     m_global_rms       = get_mean(rms);
     m_global_rms_error = get_rms(rms);
+    delete mg;
     
 
     //    std::cout << "\t\t mean " << m_global_mean << " +- " <<  m_global_mean_error 

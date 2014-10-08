@@ -845,12 +845,14 @@ int main(int argc, char** argv)
       TTree*   dataTree    = (TTree*)finput.Get("dataTree");
       TString* releaseData = new TString("");
       
-      dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
-      
-      for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
-	dataTree->GetEntry(i);      
-	release_data.push_back( releaseData->Data() );
-	std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+      if ( dataTree ) { 
+	dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
+	
+	for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
+	  dataTree->GetEntry(i);      
+	  release_data.push_back( releaseData->Data() );
+	  std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+	}
       }
     }      
 
@@ -866,15 +868,18 @@ int main(int argc, char** argv)
       
       TTree*   dataTree    = new TTree("dataTree", "dataTree");
       TString* releaseData = new TString("");
-      dataTree->Branch( "ReleaseMetaData", "TString", &releaseData);
-  
-      for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) {  
-	*releaseData = release_data[ird];
-	dataTree->Fill();
+
+      if ( dataTree ) { 
+	dataTree->Branch( "ReleaseMetaData", "TString", &releaseData);
+	
+	for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) {  
+	  *releaseData = release_data[ird];
+	  dataTree->Fill();
+	}
+	
+	dataTree->Write("", TObject::kOverwrite);
+	delete dataTree;
       }
-      
-      dataTree->Write("", TObject::kOverwrite);
-      delete dataTree;
     }   
   
   }
@@ -1335,7 +1340,9 @@ int main(int argc, char** argv)
   for ( int i=analyses.size() ; i-- ; ) { 
     std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
     analyses[i]->finalise();
+    delete analyses[i];
   }
+  
 
 
   //rroi_eta.Finalise(Resplot::FitNull95);

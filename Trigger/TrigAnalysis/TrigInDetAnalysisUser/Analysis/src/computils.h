@@ -33,12 +33,27 @@ void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Dou
 
 /// return the current data and time
 std::string stime();
+static std::string release;
+
+
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
 
 /// does a file exist
 bool exists( const std::string& filename );
+
+/// tail of a string 
+std::string tail( std::string s, const std::string& pattern );
+
+/// match a file name
+std::string globbed( const std::string& s );
+
+void contents( std::vector<std::string>& keys, 
+	       TDirectory* td, 
+	       const std::string& directory="", 
+	       const std::string& pattern="", 
+	       const std::string& path="" );
 
 double realmax( TH1* h, bool include_error=true );
 double realmin( TH1* h, bool include_error=true );
@@ -72,7 +87,9 @@ public:
   } 
 
 
-  Legend(const Legend& legend) : mleg(legend.mleg) { } 
+  // Legend( const Legend& leg ) : mleg((TLegend*)leg.mleg->Clone()) { } 
+
+ Legend(const Legend& legend) : mleg(legend.mleg) { } 
 
   ~Legend() { } 
 
@@ -87,7 +104,7 @@ private:
 }; 
 
 
-static const int colours[6] = { 1, 2, kBlue-4, 6, 7, 8 };
+static const int colours[6] = { 1, 2, kBlue-4, 6, kCyan-2, kGreen+2 };
 static const int markers[6] = { 20, 24, 25, 26, 21, 22 };
 
 /// generic plotter class - better to have one of these - make 
@@ -118,28 +135,39 @@ public:
   std::string plotfilename() const { return m_plotfilename; }
 
   //  void Draw(const std::string& chain, unsigned int i, Legend& leg ) { 
-  void Draw( unsigned int i, Legend& leg, bool mean=false ) { 
-    if ( href() && htest() ) {
+  void Draw( unsigned int i, Legend& _leg, bool mean=false ) { 
+
+    Legend leg = _leg;
+
+    if ( htest() ) {
       gStyle->SetOptStat(0);
-      href()->SetLineColor(colours[i%6]);
-      href()->SetLineStyle(2);
-      href()->SetMarkerStyle(0);
+      if ( href() ) { 
+	href()->SetLineColor(colours[i%6]);
+	href()->SetLineStyle(2);
+	href()->SetMarkerStyle(0);
+      }
       //      href()->SetMarkerColor(href()->GetLineColor());
       htest()->SetLineColor(colours[i%6]);
       htest()->SetLineStyle(1);
       htest()->SetMarkerColor(htest()->GetLineColor());
       htest()->SetMarkerStyle(markers[i%6]);
 
-      if(i==0)  href()->Draw("hist][");
+      if(i==0)  { 
+	if ( href() ) href()->Draw("hist][");
+	else          htest()->Draw("ep");
+      }
+
       // if(i==0)  htest()->Draw("ep");
      
       //      if ( contains(href()->GetName(),"sigma") ) href()->SetMinimum(0);
 
-      if ( contains(href()->GetName(),"_vs_")  || 
-	   contains(href()->GetName(),"sigma") || 
-      	   contains(href()->GetName(),"_eff") ) href()->Draw("hist same][");
-      else                                      href()->Draw("hist same");
-      
+      if ( href() ) { 
+	if ( contains(href()->GetName(),"_vs_")  || 
+	     contains(href()->GetName(),"sigma") || 
+	     contains(href()->GetName(),"_eff") ) href()->Draw("hist same][");
+	else                                      href()->Draw("hist same");
+      }
+
       htest()->Draw("ep same");
 
       // href()->Draw("lhistsame");
@@ -148,22 +176,44 @@ public:
       std::string key = m_plotfilename;
 
       char _mean[64];
-      std::sprintf( _mean, " : <t> = %3.2f ms", htest()->GetMean() );
+      std::sprintf( _mean, " <t> = %3.2f ms", htest()->GetMean() );
 
-      if ( mean ) key += _mean;
 
       //      std::cout << "adding key " << key << std::endl; 
 
       // if      ( contains( key, "FastTrack" ) )  leg->AddEntry( htest(), "  Run 2: Fast Tracking", "p" );
       // else if ( contains( key, "EFID_" ) )      leg->AddEntry( htest(), "  Run 1: EFID Tracking", "p" );
       // else if ( contains( key, "_EFID" ) )      leg->AddEntry( htest(), "  Run 2: Precision Tracking", "p" );
+      
+      //      std::cout << "cost size " << key.size() << std::endl;
 
-      //      leg->AddEntry( htest(), key.c_str(), "p" );
-      leg->AddEntry( htest(), key.c_str(), "p" );
+      static TH1D* hnull = new TH1D("hnull", "", 1, 0, 1);
+      hnull->SetMarkerColor(kWhite);
+      hnull->SetLineColor(kWhite);
+      hnull->SetMarkerStyle(0);
+      hnull->SetLineStyle(0);
+      hnull->SetLineWidth(1e-5);
+      hnull->SetMarkerSize(1e-5);
+
+      
+      if ( mean ) { 
+	key += std::string(" : ");
+       	if ( key.size()<47 ) { 
+	  key += _mean;
+	  leg->AddEntry( htest(), key.c_str(), "p" );
+	}
+	else { 
+	  leg->AddEntry( htest(), key.c_str(), "p" );
+	  leg->AddEntry( hnull, _mean, "p" );
+	}
+      }
+      else leg->AddEntry( htest(), key.c_str(), "p" );
+
       leg->Draw();
+
     }
   }
-
+  
 
   /// print the output 
   void Print(const std::string& s="") {
@@ -203,7 +253,7 @@ public:
 
     double tmax = 0;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      //    double rmref  = realmax( at(i).href(), false );
+      //   double rmref  = realmax( at(i).href(), false );
       double rmtest = realmax( at(i).htest() );
 
       if ( i==0 || tmax<rmtest ) tmax = rmtest; 
@@ -237,7 +287,7 @@ public:
     double tmin = 0;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      //   double rmref  = realmin( at(i).href(), false );
+      // double rmref  = realmin( at(i).href(), false );
       double rmtest = realmin( at(i).htest() );
 
       if ( i==0 || tmin>rmtest ) tmin = rmtest;
@@ -270,13 +320,32 @@ public:
   void Draw( Legend& leg, bool means=false ) {  
     //   Max();
     for ( unsigned i=0 ; i<size() ; i++ ) at(i).Draw( i, leg, means );
-    DrawLabel(0.1, 0.02, "built on "+stime(), kBlack, 0.03 );
+    DrawLabel(0.1, 0.02, "built on "+stime()+release, kBlack, 0.03 );
     gPad->SetLogy(m_logy);
-    gPad->SetLogy(m_logx);
+    gPad->SetLogx(m_logx);
   }
 
-  void LogX( bool b=true ) { m_logx=b; } 
-  void LogY( bool b=true ) { m_logy=b; } 
+  void SetLogx( bool b=true ) { m_logx=b; } 
+  void SetLogy( bool b=true ) { m_logy=b; } 
+
+  std::string GetXaxisTitle() { 
+    if ( size()>0 ) return at(0).htest()->GetXaxis()->GetTitle();
+    return "";
+  }
+
+  std::string GetYaxisTitle() { 
+    if ( size()>0 ) return at(0).htest()->GetYaxis()->GetTitle();
+    return "";
+  }
+
+  void SetXaxisTitle(std::string s) { 
+    if ( size()>0 ) at(0).htest()->GetXaxis()->SetTitle(s.c_str());
+  }
+
+  void SetYaxisTitle(std::string s) { 
+    if ( size()>0 ) at(0).htest()->GetYaxis()->SetTitle(s.c_str());
+  }
+
 
 private:
   

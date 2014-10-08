@@ -13,6 +13,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h> 
+#include <glob.h>
 
 #include <iostream>
 #include <string>
@@ -22,6 +23,9 @@
 #include "DrawLabel.h" 
 
 #include "TFile.h"
+#include "TKey.h"
+#include "TObject.h"
+#include "TDirectory.h"
 #include "TH1D.h"
 
 #include "TLegend.h"
@@ -31,23 +35,23 @@
 
 void ATLASFORAPP_LABEL( double x, double  y, int color, double size ) 
 {
-  TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
-  l.SetNDC();
-  l.SetTextFont(72);
-  l.SetTextColor(color);
-  l.SetTextSize(size);
-  l.DrawLatex(x,y,"ATLAS");
-  l.SetTextFont(52);
-  l.DrawLatex(x+0.13,y,"For Approval");
+  TLatex lat; //lat.SetTextAlign(12); lat.SetTextSize(tsize); 
+  lat.SetNDC();
+  lat.SetTextFont(72);
+  lat.SetTextColor(color);
+  lat.SetTextSize(size);
+  lat.DrawLatex(x,y,"ATLAS");
+  lat.SetTextFont(52);
+  lat.DrawLatex(x+0.13,y,"For Approval");
 }
 
 void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Double_t tsize) {
 
   //Double_t tsize=0.05;
-  TLatex l; l.SetTextAlign(12); l.SetTextSize(tsize); 
-  l.SetNDC();
-  l.SetTextColor(color);
-  l.DrawLatex(x,y,text.c_str());
+  TLatex lat; lat.SetTextAlign(12); lat.SetTextSize(tsize); 
+  lat.SetNDC();
+  lat.SetTextColor(color);
+  lat.DrawLatex(x,y,text.c_str());
 }
 
 
@@ -70,11 +74,97 @@ bool exists( const std::string& filename ) {
 }
 
 
+
+std::string globbed( const std::string& s ) { 
+  /// glob for a file based on the pattern, then return the name 
+  /// of the first matching file
+  
+  glob_t glob_result;
+  glob( s.c_str(), GLOB_TILDE, 0, &glob_result );
+
+  std::vector<std::string> ret;
+  for( unsigned i=0 ; i<glob_result.gl_pathc ; i++ ){
+    ret.push_back( std::string(glob_result.gl_pathv[i]) );
+  }
+  globfree(&glob_result);
+  
+  if ( ret.empty() ) { 
+    std::cerr << "no matching file: " << s << std::endl;
+    return "";
+  }  
+
+  if ( ret.size()>1 ) { 
+    for ( unsigned i=0 ; i<ret.size() ; i++ ) { 
+      std::cout << "matched " << ret[i] << std::endl;
+    }
+  }    
+
+  return ret[0];
+}
+
+
+
+
 double integral( TH1* h ) { 
   double n=0;
   for ( int i=h->GetNbinsX() ; i>0 ; i-- ) n += h->GetBinContent(i);
   return n;
 }
+
+
+std::string tail( std::string s, const std::string& pattern ) { 
+  size_t pos = s.find(pattern);
+  while ( pos != std::string::npos ) { 
+    s.erase( 0, pos+1 ); 
+    pos = s.find(pattern);
+  }
+  return s;
+}
+
+void contents( std::vector<std::string>&  keys, TDirectory* td, 
+	       const std::string& directory, const std::string& pattern, const std::string& path ) { 
+  
+  TList* tl  = td->GetListOfKeys();
+  
+  bool print = true;
+
+  for ( int i=tl->GetSize() ; i-- ; ) {
+
+    TKey* tobj = (TKey*)tl->At(i);
+
+    if ( tobj==0 ) continue;
+    
+    if ( std::string(tobj->GetClassName()).find("TDirectory")!=std::string::npos ) { 
+      
+      TDirectory* tnd = (TDirectory*)tobj->ReadObj();
+      
+      /// directory, cd to it ...
+      std::string dname = tnd->GetName();
+      
+      std::string newpath = path+dname+"/";
+      contents( keys, tnd, directory, pattern, newpath );
+    
+    }
+    else { 
+      /// test to see whether we are searhing for a specific directory name
+      /// not a directory so include this ...
+      if ( directory == "" || contains( path, directory ) ) {
+	
+	if ( print ) std::cout << "will process " << tobj->GetName() << std::endl;
+	print = false;
+	
+	if ( pattern == "" || contains(std::string(tobj->GetName()), pattern ) ) { 
+	  keys.push_back( path+tobj->GetName() );
+	  // keys.push_back( tobj->GetName() );
+	  //	std::cout << "object:    " << tobj->GetName() << " : \t" << path+tobj->GetName() << std::endl;
+	}
+      }
+    }
+  }
+}
+
+
+
 
 
 double realmax( TH1* h, bool include_error ) { 

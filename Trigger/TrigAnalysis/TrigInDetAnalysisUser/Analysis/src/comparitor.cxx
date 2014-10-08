@@ -18,12 +18,16 @@
 #include <string>
 #include <vector>
 
+#include "TrigInDetAnalysis/Efficiency.h"
 #include "Resplot.h"
 #include "utils.h"
 #include "label.h"
 #include "DrawLabel.h" 
 
 #include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TH2F.h"
 #include "TH1D.h"
 #include "TPad.h"
 #include "TCanvas.h"
@@ -45,10 +49,11 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -t, --tag value\t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k, --key value\t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d, --dir value\t creates output files into directory, \"value\" \n";
-  s << "    -h, --help     \t this help\n";
+  s << "    -t, --tag value   \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k, --key value   \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d, --dir value   \t creates output files into directory, \"value\" \n";
+  s << "    -e, --efficiencies\t make test efficiencies with respect to reference \n";
+  s << "    -h, --help        \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -74,7 +79,7 @@ int main(int argc, char** argv) {
   TFile* _ftest = 0;
   TFile* _fref  = 0;
 
-  
+  bool make_ref_efficiencies = false;
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
@@ -94,6 +99,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-d" || arg=="--dir" ) { 
       if ( ++i<argc ) dir=argv[i];
       else return usage(argv[0], -1);
+    }
+    else if ( arg=="-e" || arg=="--efficiencies" ) { 
+      make_ref_efficiencies = true;
     }
     else { 
       if ( _ftest==0 ) { 
@@ -120,6 +128,35 @@ int main(int argc, char** argv) {
     }
   }
 
+
+  /// get release data
+
+  std::vector<std::string> release_data;
+
+  TTree*   dataTree    = (TTree*)_ftest->Get("dataTree");
+  TString* releaseData = new TString("");
+  
+  if ( dataTree ) { 
+    dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
+    
+    for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
+      dataTree->GetEntry(i);      
+      release_data.push_back( releaseData->Data() );
+      std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+    }
+  }
+
+  if ( release_data.size()>0 ) { 
+    if ( release_data.size()>1 ) std::cerr << "main() more than one release - using only the first" << std::endl;  
+
+    //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
+    //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
+    
+    release += "  (" + chop(release_data[0], " " );
+    release += " " + chop(release_data[0], " " ) + ")";
+  }
+
+
   // Make output directory                                                                                                                           
   if (dir != "") {
     dir += "/";
@@ -144,7 +181,7 @@ int main(int argc, char** argv) {
   NeventTest = htestev->GetEntries();
   NeventRef  = hrefev->GetEntries();
 
-  const int Nhistos = 32;
+  const int Nhistos = 33;
   std::string histos[Nhistos] = { 
     "pT",
    /// efficiencies
@@ -153,6 +190,7 @@ int main(int argc, char** argv) {
     "phi_eff", 
     "d0_eff", 
     "a0_eff", 
+    "z0_eff", 
     "eff_vs_mu", 
     /// standard residuals
     "ipT_res", 
@@ -190,6 +228,7 @@ int main(int argc, char** argv) {
     "Efficiency #phi", 
     "Efficiency d0", 
     "Efficiency a0", 
+    "Efficiency z0", 
     "Efficiency <#mu>", 
     
     "Residual 1/P_{T}", 
@@ -318,6 +357,10 @@ int main(int argc, char** argv) {
 #endif
 
     //    std::vector<Plotter> plots;
+
+    Plots plots_eff;
+    plots_eff.clear();
+
     Plots plots;
     plots.clear();
   
@@ -328,6 +371,13 @@ int main(int argc, char** argv) {
     // efficiencies or residuals?
     if ( contains(histos[i],"eff") ) legend = Legend( 0.15, 0.25, 0.4-chains.size()*0.07, 0.40 );
     else                             legend = Legend( 0.15, 0.25, 0.9-chains.size()*0.07, 0.90 );
+
+    Legend legend_eff;
+    // efficiencies or residuals?
+    if ( contains(histos[i],"eff") ) legend_eff = Legend( 0.15, 0.25, 0.4-chains.size()*0.07, 0.40 );
+    else                             legend_eff = Legend( 0.15, 0.25, 0.9-chains.size()*0.07, 0.90 );
+
+
    
     std::vector<std::string> Mean;
     std::vector<std::string> RMS;
@@ -363,7 +413,13 @@ int main(int argc, char** argv) {
     if ( contains(histos[i],"vs_ipt") )                   xaxis = "true 1/P_{T} [GeV^{-1}]";
 	 
 
-    if ( contains(histos[i],"eff") )  yaxis = "Efficiency [%]"; 
+    if ( contains(histos[i],"eff") )  { 
+      yaxis = "Efficiency [%]"; 
+      if ( contains(histos[i],"z0") ) xaxis = "z_{0} [mm]";
+      if ( contains(histos[i],"pT") ) xaxis = "P_{T} [GeV]";
+      if ( contains(histos[i],"d0") ) xaxis = "d_{0} [mm]";
+      if ( contains(histos[i],"a0") ) xaxis = "a_{0} [mm]";
+    }
     if ( contains(histos[i],"ript") ) yaxis = "rms_{95} 1/P_{T} residual [GeV^{-1}]"; 
     if ( contains(histos[i],"reta") ) yaxis = "rms_{95} #eta residual"; 
     if ( contains(histos[i],"rzed") ) yaxis = "rms_{95} z_{0} residual [mm]"; 
@@ -373,6 +429,7 @@ int main(int argc, char** argv) {
     int rms_power  = 0;
     bool power_set = false;;
     
+
  
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
@@ -380,7 +437,25 @@ int main(int argc, char** argv) {
             
       TH1D* htest = (TH1D*)ftest.Get((chains[j]+"/"+histos[i]).c_str()) ;
       TH1D* href  = (TH1D*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+
+      TH1F* htestnum = 0;
+      TH1F* hrefnum  = 0;
       
+      if ( make_ref_efficiencies ) { 
+	if ( htest && href ) { 
+	  if ( contains( std::string(htest->GetName()), "_eff" ) ) {
+
+	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
+	    hrefnum  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
+	    
+	    //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
+
+	  }
+	}
+      }
+
+
+
       if ( htest==0 ) { 
 	std::cout << "       no test histogram :   " << (chains[j]+"/"+histos[i]) << std::endl;
 	continue;
@@ -539,13 +614,26 @@ int main(int argc, char** argv) {
 
       //      if ( c.find("_EFID")!=std::string::npos )     c.erase( c.find("_EFID"), 5 );
 
-      replace( c, "_T", " :  " );
-      replace( c, "_I", " :  " );
+      replace( c, "_Tr", " :  " );
+      replace( c, "_In", " :  " );
 
       c = "  " + c;
 
       //      plots.push_back( Plotter( htest, href, plotname ) );
       plots.push_back( Plotter( htest, href, c ) );
+
+
+      if ( make_ref_efficiencies ) { 
+	
+	if ( htestnum && hrefnum ) { 
+	  Efficiency e( htestnum, hrefnum, "" );
+	  
+	  plots_eff.push_back( Plotter( e.Hist(), 0, c ) );
+	  
+	}     
+      }
+
+
       
       if(contains(histos[i],"_res"))  {
 	
@@ -754,6 +842,21 @@ int main(int argc, char** argv) {
       plots.back().Print( dir+plotname+tag+".pdf" );
       plots.back().Print( dir+plotname+tag+".png" );
     }    
+
+
+    if ( make_ref_efficiencies ) { 
+
+      plots_eff.SetXaxisTitle( plots.GetXaxisTitle() ); 
+      plots_eff.SetYaxisTitle( plots.GetYaxisTitle() ); 
+
+      plots_eff.Draw( legend_eff );
+
+      if ( plotname!="" ) { 
+	plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
+	plots_eff.back().Print( dir+plotname+tag+"_refeff.png" );
+      }    
+
+    }
 
     //    std::cout << "delete c1 " << c1 << std::endl;
     delete c1;
