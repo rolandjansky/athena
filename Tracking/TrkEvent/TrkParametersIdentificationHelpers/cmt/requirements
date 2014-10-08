@@ -1,0 +1,23 @@
+package TrkParametersIdentificationHelpers
+
+author Niels van Eldik
+
+public
+
+use AtlasPolicy    AtlasPolicy-*
+use CaloGeoHelpers CaloGeoHelpers-* Calorimeter
+use AtlasDetDescr  AtlasDetDescr-*  DetectorDescription
+use TrkParameters  TrkParameters-*  Tracking/TrkEvent
+
+library  TrkParametersIdentificationHelpers ../src/*.cxx
+
+apply_pattern installed_library
+
+macro_append TestTrkParametersIdentificationHelpers_dependencies  " TrkParametersIdentificationHelpers "
+application  TestTrkParametersIdentificationHelpers ../exe/TestTrkParametersIdentificationHelpers.cxx
+
+private
+
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
