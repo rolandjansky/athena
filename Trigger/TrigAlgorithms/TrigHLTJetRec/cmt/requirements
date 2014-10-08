@@ -18,7 +18,7 @@ use TrigParticle   	TrigParticle-*	    	Trigger/TrigEvent
 use xAODJet        	xAODJet-*               Event/xAOD
 use TrigSteeringEvent	TrigSteeringEvent-*     Trigger/TrigEvent
 
-use xAODCaloEvent  xAODCaloEvent-*          Event/xAOD
+use xAODCaloEvent  	xAODCaloEvent-*         Event/xAOD
 
 # apply_pattern dual_use_library files=*.cxx
 
@@ -27,7 +27,13 @@ apply_pattern declare_python_modules files="*.py"
 library TrigHLTJetRec *.cxx -s=components *.cxx                              
 apply_pattern component_library                                              
 
+macro TrigHLTJetRec_TestConfiguration "../test/TrigHLTJetRec_TestConfiguration.xml"       
+apply_pattern declare_runtime extras= "../test/TrigHLTJetRec_TestConfiguration.xml \
+ 				       ../test/HLTChain_ref.txt \
+  				       ../test/HLTTE_ref.txt"  
 
 private
-#use xAODCaloEvent  xAODCaloEvent-*          Event/xAOD
-use CaloEvent      CaloEvent-*              Calorimeter
+#use xAODCaloEvent  	xAODCaloEvent-*         Event/xAOD
+use CaloEvent      	CaloEvent-*             Calorimeter
+use TestPolicy          TestPolicy-*
+apply_pattern validate_xml

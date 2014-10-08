@@ -35,8 +35,8 @@ public:
 
   void addHist(std::map<TString,TH1D*> &hMap, TString tag, const int &bins, double min, double max);
   void addHist(std::map<TString,TH2D*> &hMap, TString tag, const int &binsX, double minX, double maxX,
-                                                           const int &binsY, double minY, double maxY);
-
+  	                                                       const int &binsY, double minY, double maxY);
+  
 private:
   TFile* fOut;
   std::string m_chainName;

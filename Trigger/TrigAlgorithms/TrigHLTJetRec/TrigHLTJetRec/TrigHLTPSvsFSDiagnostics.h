@@ -9,7 +9,6 @@
 #include <map>
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigSuperRoi.h"
 #include "xAODJet/JetContainer.h"
 
 
@@ -29,8 +28,7 @@ public:
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, bool& pass);
   
   void addHist(std::map<TString,TH1D*> &hMap, TString tag, TString title, const int &bins, double min, double max);
-  void addHist(std::map<TString,TH2D*> &hMap, TString tag, TString title, const int &binsX, double minX, double maxX,
-                                                           const int &binsY, double minY, double maxY);
+  void addHist(std::map<TString,TH2D*> &hMap, TString tag, TString title, const int &binsX, double minX, double maxX, const int &binsY, double minY, double maxY);
   void addHist(std::map<TString,TProfile*> &hMap, TString tag, TString title, const int &binsX, double minX, double maxX);
   double fixPhi(double phi);
   
@@ -66,9 +64,18 @@ private:
   const xAOD::CaloClusterContainer* m_FSclusterCont;
   const xAOD::JetContainer* m_PS_j_container;
   const xAOD::JetContainer* m_FS_j_container;
-  const TrigSuperRoi* m_superRoi;
+  const TrigRoiDescriptor* m_superRoi;
   xAOD::JetContainer* m_PS_jetsPassingCont;
   xAOD::JetContainer* m_FS_jetsPassingCont;
+  
+  void findLeadingJet(const xAOD::JetContainer* jetContainer, xAOD::JetContainer* leadJets);
+  void findFocalJets(const xAOD::JetContainer* jetContainer, xAOD::JetContainer* focalJets);
+  void findPassJets(const xAOD::JetContainer* jetContainer, xAOD::JetContainer* passJets);
+  void fillHists(std::string scanType, std::string objType, xAOD::Jet_v1* jet);
+  bool strContains(std::vector<std::string> strList, std::string strToFind);
+  double deltaR(double delta_eta, double delta_phi);
+  double minDeltaRoI(double eta, double phi);
+  std::string compareJets(xAOD::Jet_v1* jet1, xAOD::Jet_v1* jet2);
 }; 
 
 #endif
