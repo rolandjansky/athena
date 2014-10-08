@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 610317 2014-08-05 12:49:01Z sutt $
+//   $Id: ConfAnalysis.h 617098 2014-09-17 07:41:21Z smh $
 
 
 #ifndef __CONFANALYSIS_H
@@ -66,13 +66,13 @@ public:
     std::map<std::string, TH2F*>::iterator hend2D=m_histos2D.end();                                                                                             
     for ( ; hitr2D!=hend2D ; hitr2D++ ) delete hitr2D->second;     
 
-    Efficiency* heff[4]    = {    eff_pt,    eff_eta,    eff_phi,    eff_z0 };
-    Efficiency* hpurity[4] = { purity_pt, purity_eta, purity_phi, purity_z0 };
+    //Efficiency* heff[4]    = {    eff_pt,    eff_eta,    eff_phi,    eff_z0 };
+    //Efficiency* hpurity[4] = { purity_pt, purity_eta, purity_phi, purity_z0 };
 
-    for ( int i=4 ; i-- ; ) { delete heff[i]; delete hpurity[i]; } 
+    //for ( int i=4 ; i-- ; ) { delete heff[i]; delete hpurity[i]; } 
 
-    delete eff_ptp;
-    delete eff_ptm;
+    //delete eff_ptp;
+    //delete eff_ptm;
 
   }  
   

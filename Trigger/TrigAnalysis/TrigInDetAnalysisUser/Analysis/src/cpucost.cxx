@@ -42,13 +42,23 @@ int usage(const std::string& name, int status) {
   s << "  TIDA \'" << name << "\' extracts timing histograms\n\n";
   s << "Options: \n";
   s << "    -o, --outputfolder value\t puts output in folder 'value' making it if it doesn't exist, \n";
-  s << "    -t, --tag value\t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k, --key value\t prepends key 'value' to the front of output plot names, \n";
-  s << "    -a, --auto     \t plot all algorithms that are i the file, \n";
-  s << "    -h, --help     \t this help\n";
+  s << "    -t, --tag value         \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k, --key value         \t prepends key 'value' to the front of output plot names, \n";
+  s << "    -a, --auto              \t process all histograms that are in the file, \n";
+  s << "    -d, --directory value   \t if auto is set, search only in specifed directory, \n";
+  s << "    -p, --pattern value     \t if auto is set, search for histograms containing this string, \n";
+  s << "    -h, --help              \t this help\n";
   s << std::endl;
   return status;
 }
+
+
+
+struct histoinfo {
+  histoinfo( const std::string& f, const std::string& d ) : fname(f), dname(d) { } 
+    std::string fname; // File name
+    std::string dname; // Display name
+};
 
 
 
@@ -63,10 +73,18 @@ int main(int argc, char** argv) {
   gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadTopMargin(0.05);
 
+  gStyle->SetPadLeftMargin(0.14);
+  gStyle->SetPadBottomMargin(0.14);
+  //  gStyle->SetTitleXOffset(0.1);
+  //  gStyle->SetTitleYOffset(0.1);
+
   TFile* ftest = 0;
   TFile* fref  = 0;
 
   bool autochains = false;
+
+  std::string directory = "TIMERS";
+  std::string pattern = "_TotalTime";
 
   // Parse the arguments
   std::vector<std::string> algorithms;
@@ -91,10 +109,19 @@ int main(int argc, char** argv) {
     else if (arg == "-a" || arg == "--auto") {
       autochains = true;
     }
+    else if (arg == "-d" || arg == "--directory") {
+      if (++argnum < argc) directory = argv[argnum];
+      else                 return usage(argv[0], -1); 
+    }
+    else if (arg == "-p" || arg == "--pattern") {
+      if (++argnum < argc) pattern = argv[argnum];
+      else                 return usage(argv[0], -1); 
+    }
     else {
       if (ftest == 0) {
-        if (exists(arg)) {
-          ftest = new TFile(arg.c_str());
+	std::string file = globbed(arg);
+        if (exists(file)) {
+          ftest = new TFile( file.c_str() );
         }
         else {
           std::cerr << "main(): test file " << arg << " does not exist" << std::endl;
@@ -102,8 +129,9 @@ int main(int argc, char** argv) {
         }
       }
       else if (fref == 0) {
-        if (exists(arg)) {
-          fref = new TFile(arg.c_str());
+	std::string file = globbed(arg);
+        if (exists(file)) {
+          fref = new TFile( file.c_str() );
         }
         else {
           std::cerr << "main(): ref file " << arg << " does not exist" << std::endl;
@@ -121,31 +149,17 @@ int main(int argc, char** argv) {
   }
 
 
+
+
   if ( ftest && autochains ) { 
 
     ftest->cd();
 
-    TList* tl  = gDirectory->GetListOfKeys();
+    std::vector<std::string> dirs;
+    contents( dirs, gDirectory, directory, pattern );
 
-    for ( int i=tl->GetSize() ; i-- ; ) {
+    for ( unsigned j=0 ; j<dirs.size() ; j++ ) algorithms.push_back( dirs[j] );
 
-      TKey* tobj = (TKey*)tl->At(i);
-
-      if ( tobj==0 ) continue;
-      
-      if ( std::string(tobj->GetClassName()).find("TDirectory")!=std::string::npos ) { 
-	
-	TDirectory* tnd = (TDirectory*)tobj->ReadObj();
-	
-	if ( tnd==0 ) continue;
-
-	std::string dname = tnd->GetName();
-
-	std::cout << "main(): will process \t" << dname << std::endl; 
-	algorithms.push_back( dname );
-		
-      }
-    }
   }
   
 
@@ -159,31 +173,34 @@ int main(int argc, char** argv) {
     dir += "/";
   }
 
+#if 0
   // Get the timers directories from input files
-  TDirectoryFile* testtimers = 0;
-  ftest->GetObject("TIMERS",testtimers);
+  //  TDirectoryFile* testtimers = 0;
+  TDirectory* testtimers = 0;
+
+  if ( directory!="" ) ftest->GetObject( directory.c_str(), testtimers );
+  else                 testtimers = ftest;
+
   if (testtimers == 0 ) {
     std::cerr << "main(): can not find timers in test file" << std::endl;
-    return -1;
+    //    return -1;
   }
 
-  TDirectoryFile* reftimers = 0 ;
-  fref->GetObject("TIMERS",reftimers);
+  //  TDirectoryFile* reftimers = 0;
+  TDirectory* reftimers = 0;
+
+  if ( directory!="" ) fref->GetObject( directory.c_str(), reftimers );
+  else                 reftimers = fref;
+
   if (reftimers == 0 ) {
     std::cerr << "main(): can not find timers in ref file" << std::endl;
-    return -1;
+    // return -1;
   }
+#endif
 
 
-
-  // Define the histograms we are interested in
-  struct histogramsandnames {
-    std::string fname; // File name
-    std::string dname; // Display name
-  };
-
-  std::vector<histogramsandnames> histograms;
-  histograms.push_back({"_TotalTime", "Total time"});
+  std::vector<histoinfo> histograms;
+  histograms.push_back( histoinfo("_TotalTime", "Total time") );
 
   // Provide output to user for progress status
   //  std::cout << "main() processing algorithms : " << algorithms << std::endl;
@@ -199,10 +216,10 @@ int main(int argc, char** argv) {
 
       std::cout << "main() processing algorithm : " << algorithms[algorithm] << std::endl;
 
-      TCanvas* c1 = new TCanvas(label("canvas-%d",static_cast<int>(histogram)).c_str(),"histogram",800,600);
+      TCanvas* c1 = new TCanvas( label("canvas-%d",int(histogram)).c_str(), "histogram", 800, 600 );
       c1->cd();
             
-      double const x1 = 0.15;
+      double const x1 = 0.17;
       double const x2 = 0.25;
       double const y1 = 0.83;
       double const y2 = 0.90;
@@ -210,17 +227,23 @@ int main(int argc, char** argv) {
       Legend legend(x1, x2, y1, y2);
      
 
-      std::string histname = algorithms.at(algorithm) + histograms.at(histogram).fname;
+      std::string histname = algorithms[algorithm]; // + histograms.at(histogram).fname;
 
-      TH1* testhist = 0 ;
-      testtimers->GetObject(histname.c_str(), testhist);
+      //      std::cout << "\t" << histname << "\t" << algorithms.at(algorithm) << " " <<  histograms.at(histogram).fname << std::endl;
+
+
+      //      std::cout << "Directory: " << gDirectory->GetName() << std::endl;
+
+      TH1* testhist = (TH1*)ftest->Get(histname.c_str());
       if (testhist == 0 ) {
         std::cerr << "main(): can not find hist " << histname << " in test file" << std::endl;
         continue;
       }
+      
+      //      std::cout << "\n\nfound histname " << histname << std::endl;
 
-      TH1* refhist = 0 ;
-      reftimers->GetObject(histname.c_str(),refhist);
+      TH1* refhist = (TH1*)fref->Get(histname.c_str());
+  
       if (refhist == 0 ) {
         std::cerr << "main(): can not find hist " << histname << " in ref file" << std::endl;
         continue;
@@ -235,34 +258,42 @@ int main(int argc, char** argv) {
 
       Plots plots;
 
-      plots.push_back(Plotter(testhist, refhist, algorithms.at(algorithm)));
+      std::string algname = tail(algorithms[algorithm], "/" );
+      if ( algname.find("h_")==0 ) algname.erase(0, 2);
+    
+      //      size_t indetpos = algname.find("InDet");
+      //      if ( indetpos!=std::string::npos ) algname.erase( indetpos, 5);
+
+      plots.push_back( Plotter( testhist, refhist, " "+algname ) );
 
       if (histograms.at(histogram).fname == "_TotalTime") {
         testhist->SetTitle("");
         refhist->SetTitle("");
-        c1->SetLogy(true);
-        plots.xrange();
+	//    c1->SetLogy(true);
+	plots.xrange();
         plots.Max(5);
+        plots.SetLogy(true);
       }
       else {
-        c1->SetLogy(false);
+	plots.SetLogy(false);
+	//        c1->SetLogy(false);
       }
 
       plots.Draw( legend, true );
 
-      std::string plotname = dir + key + algorithms.at(algorithm) +
-                              histograms.at(histogram).fname + tag;
+      std::string plotname = dir + key + algname + tag;
+      //                              histograms.at(histogram).fname + tag;
 
-      plots.back().Print(plotname+tag+".pdf");
-      plots.back().Print(plotname+tag+".png");
+      plots.back().Print( (plotname+".pdf").c_str() );
+      plots.back().Print( (plotname+".png").c_str() );
 
       delete c1;
     }
   }
 
-  delete testtimers;
+  //  delete testtimers;
   delete ftest;
-  delete reftimers;
+  //  delete reftimers;
   delete fref;
 
   return 0;

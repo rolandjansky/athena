@@ -23,15 +23,17 @@
 #include "utils.h"
 
 
-int usage(std::ostream& s, int argc, char** argv) { 
-  s << "Usage: " << argv[0] << " [OPTIONS] [-r] <input1.root input2.root ...>\n\n";
-  s << "Configuration: \n";
-  s << "Options: \n";
-  s << "    -r,  --release  \t show the release data\n";
-  s << "    -ro, --releaseonly \t show the release data and then quit\n";
-  s << "    -h, --help     \t this help\n";
-  //   s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
-  s << std::endl;
+int usage(std::ostream& s, int argc, char** argv) {
+  if ( argc>0 ) { 
+    s << "Usage: " << argv[0] << " [OPTIONS] [-r] <input1.root input2.root ...>\n\n";
+    s << "Configuration: \n";
+    s << "Options: \n";
+    s << "    -r,  --release  \t show the release data\n";
+    s << "    -ro, --releaseonly \t show the release data and then quit\n";
+    s << "    -h, --help     \t this help\n";
+    //   s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
+    s << std::endl;
+  }
   return 0;
 }
 
@@ -74,11 +76,16 @@ int main(int argc, char** argv) {
       TTree*  dataTree = (TTree*)finput.Get("dataTree");
       TString* releaseData = new TString("");
       
-      dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
-      
-      for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
-	dataTree->GetEntry(i);      
-	std::cout << "releaseData: " << *releaseData << std::endl;
+      if ( dataTree ) { 
+	dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
+	
+	for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
+	  dataTree->GetEntry(i);      
+	  std::cout << "releaseData: " << *releaseData << std::endl;
+	}
+      }
+      else { 
+	std::cerr << "no release data" << std::endl;
       }
       if ( quit_after_release ) return 0;
     }      

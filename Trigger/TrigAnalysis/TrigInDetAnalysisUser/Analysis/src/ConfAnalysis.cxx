@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 614711 2014-09-02 18:30:06Z sutt $
+//   $Id: ConfAnalysis.cxx 617092 2014-09-17 07:26:46Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -783,9 +783,9 @@ void ConfAnalysis::finalise() {
   eff_vs_mu->finalise();
 
   Efficiency* hpurity[6] = { purity_pt, purity_eta, purity_phi, purity_z0, purity_d0, purity_a0 };
-  for ( int i=6 ; i-- ; ) { hpurity[i]->finalise();  } //  hpurity[i]->Hist()->Write(); } 
+  for ( int i=6 ; i-- ; ) { hpurity[i]->finalise(); } //  hpurity[i]->Hist()->Write(); } 
 
-  for ( int i=mres.size() ; i-- ; ) { mres[i]->Finalise(Resplot::FitNull) ; mres[i]->Write(); }
+  for ( int i=mres.size() ; i-- ; ) { mres[i]->Finalise(Resplot::FitNull) ; mres[i]->Write();}
 
   mdeltaR_v_eta->Finalise();   mdeltaR_v_eta->Write(); 
   mdeltaR_v_pt->Finalise();    mdeltaR_v_pt->Write(); 
@@ -795,16 +795,19 @@ void ConfAnalysis::finalise() {
   for ( unsigned i=rDd0res.size() ; i-- ; ) { 
     rDd0res[i]->Finalise(Resplot::FitNull95);
     rDd0res[i]->Write();
+    delete rDd0res[i];
   }
 
   for ( unsigned i=rDa0res.size() ; i-- ; ) { 
     rDa0res[i]->Finalise(Resplot::FitNull95);
     rDa0res[i]->Write();
+    delete rDa0res[i];
   }
 
   for ( unsigned i=rDz0res.size() ; i-- ; ) { 
     rDz0res[i]->Finalise(Resplot::FitNull95);
     rDz0res[i]->Write();
+    delete rDz0res[i];
   }
 
 
@@ -816,6 +819,9 @@ void ConfAnalysis::finalise() {
   for ( unsigned ih=0 ; ih<3 ; ih++ ) { 
     hphivsDd0res[ih]->Write();
     hphivsDa0res[ih]->Write();
+
+    delete hphivsDd0res[ih];
+    delete hphivsDa0res[ih];
   }  
 
   for ( unsigned i=retares.size() ; i-- ; ) { 
@@ -830,13 +836,13 @@ void ConfAnalysis::finalise() {
     rd0res[i]->Finalise(Resplot::FitNull95);
     //  rd0res[i]->Finalise(Resplot::FitCentralGaussian);
     //  rd0res_rms[i]->Finalise(Resplot::FitNull);
- 
-
+    
     retaresPull[i]->Finalise(Resplot::FitNull);
     rphiresPull[i]->Finalise(Resplot::FitNull);
     rptresPull[i]->Finalise(Resplot::FitNull);
     rzedresPull[i]->Finalise(Resplot::FitNull);
     rd0resPull[i]->Finalise(Resplot::FitNull);
+
 #else
     retares[i]->Finalise();
     rphires[i]->Finalise();
@@ -854,11 +860,24 @@ void ConfAnalysis::finalise() {
     rptres[i]->Write();
     rd0res[i]->Write();
 
+    delete retares[i];
+    delete rphires[i];
+    delete rzedres[i];
+    delete riptres[i];
+    delete rptres[i];
+    delete rd0res[i];
+
     retaresPull[i]->Write();
     rphiresPull[i]->Write();
     rptresPull[i]->Write();
     rzedresPull[i]->Write();
     rd0resPull[i]->Write();
+
+    delete retaresPull[i];
+    delete rphiresPull[i];
+    delete rptresPull[i];
+    delete rzedresPull[i];
+    delete rd0resPull[i];
 
     //   rd0res_95[i]->Write();
     //   rd0res_rms[i]->Write();
@@ -879,6 +898,7 @@ void ConfAnalysis::finalise() {
   eff_vs_lb->finalise();
 
   z_vs_lb->Finalise(); z_vs_lb->Write();
+  delete z_vs_lb;
 
   //  TH1F* hefflb = eff_vs_lb->Hist();
   //  hefflb->Fit("pol0");
@@ -946,7 +966,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     double etat = reftracks[i]->eta(); 
     double phit = reftracks[i]->phi(); 
 
-    double thetat = 2*std::atan( exp( (-1)*etat ) );
+    //    double thetat = 2*std::atan( exp( (-1)*etat ) );
 
     /// correct the tracks during creation rather than during the analysis
     ///    double z0t = reftracks[i]->z0()+((std::cos(phit)*m_xBeamReference + std::sin(phit)*m_yBeamReference)/std::tan(thetat));    
@@ -1063,7 +1083,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
       double etar = matchedreco->eta();
       double phir = matchedreco->phi();
       //double z0r  = matchedreco->z0() + std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest; ; 
-      double thetar = 2*std::atan( exp( (-1)*etar) );
+      //double thetar = 2*std::atan( exp( (-1)*etar) );
 
       //      double z0r    = matchedreco->z0()+((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));    
       //      double d0r  = matchedreco->a0(); 
@@ -1477,10 +1497,11 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     double phir    = testtracks[i]->phi(); 
     
     //double z0r  = testtracks[i]->z0(); 
-    double thetar = 2*std::atan( exp( (-1)*etar) );
-    double z0r    = testtracks[i]->z0()  + ((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));
-    double d0r    = testtracks[i]->a0(); 
-    double a0r    = testtracks[i]->a0() + sin(phir)*m_xBeamTest - cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position
+    //double thetar = 2*std::atan( exp( (-1)*etar) );
+    //double z0r    = testtracks[i]->z0()  + ((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));
+    double z0r    = testtracks[i]->z0(); //  + ((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));
+    double d0r    = testtracks[i]->a0() - sin(phir)*m_xBeamTest + cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position
+    double a0r    = testtracks[i]->a0(); 
     //    double a0rp = testtracks[i]->a0() - sin(phir)*m_xBeam - cos(phir)*m_yBeam; // this will be changed when we know the beam spot position
 
     //    std::cout << "d0 " << d0r << "\tphi " << phir << "\tx " << m_xBeamTest << "\ty " << m_yBeamTest << std::endl;
@@ -1495,9 +1516,9 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     double dpTr_b  = testtracks[i]->dpT()/1000;
     double detar_b = testtracks[i]->deta();
     double dphir_b = testtracks[i]->dphi();
-    double dz0r_b  = testtracks[i]->dz0() + ((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));
-    double dd0r_b  = testtracks[i]->da0();
-    double da0r_b  = testtracks[i]->da0() + sin(phir)*m_xBeamTest - cos(phir)*m_yBeamTest;
+    double dz0r_b  = testtracks[i]->dz0(); // + ((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));
+    double dd0r_b  = testtracks[i]->da0() - sin(phir)*m_xBeamTest + cos(phir)*m_yBeamTest;
+    double da0r_b  = testtracks[i]->da0(); 
 
 
     std::cout << "pTr_b  = " << pTr  << " +/- " << dpTr_b  << std::endl;
