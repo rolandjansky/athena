@@ -50,7 +50,7 @@ HLT::ErrorCode TrigHLTJetDiagnostics::hltInitialize() {
   addHist(hMap1D,"LeadingEt",  100,   0.0,  500000.0);	
   addHist(hMap1D,"LeadingPt",  100,   0.0,  500000.0);	
   addHist(hMap2D,"Eta_vs_Phi",    64,  -3.2,  3.2,  100,  -5.0,  5.0);
-  addHist(hMap2D,"Energy_vs_Pt",  100,  0.0,  100000.0,  100,  0.0,  100000.0);		  
+  addHist(hMap2D,"Energy_vs_Pt",  100,  0.0,  100000.0,  100,  0.0,  100000.0);	
   return HLT::OK; 
 }
 

@@ -21,6 +21,7 @@
 #include "xAODJet/JetContainer.h"
 
 class IJetBuildTool;
+// class JetRecTool;
 class ITriggerPseudoJetGetter;
 
 class TrigHLTJetRec: public HLT::FexAlgo {
@@ -38,10 +39,15 @@ private:
 
   // IJetBuildTool - offline code to transform pseudojets to xAOD jets
   ToolHandle<IJetBuildTool> m_jetbuildTool;
+  // ToolHandle<JetRecTool> m_jetbuildTool;
 
   /* A PseudojetGetter shared by this algorithm and the IJetBuildTool
      The algorithm loads the psg, the ijbt processes them. */
   ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
+
+  /* label saying which cluster calibration was configured.
+     Used to label tools.*/
+  std::string m_clusterCalib;
 
   HLT::ErrorCode attachJetCollection(HLT::TriggerElement*,
                                      const xAOD::JetContainer*);

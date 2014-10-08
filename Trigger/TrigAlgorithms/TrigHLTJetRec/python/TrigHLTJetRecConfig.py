@@ -29,8 +29,16 @@ jetFlags.debug = 0
 
 
 
-def _getJetBuildTool(merge_param, ptmin, ptminFilter):
-    """Set up offline tools"""
+def _getJetBuildTool(merge_param,
+                     ptmin,
+                     ptminFilter,
+                     do_jes,
+                     cluster_calib,
+                     do_minimalist_setup):
+    """Set up offline tools. do_minimalist_setup controls whether
+    jetRecTool is set up with the minimum required jet modifiers.
+    The code can be exercised with do_minimalist_setup=False to ensure
+    that it possible to run with with a more complex set of modifiers."""
 
     msg = 'Naming convention breaks with merge param %d' % merge_param
     int_merge_param = int(10 * merge_param)
@@ -54,7 +62,8 @@ def _getJetBuildTool(merge_param, ptmin, ptminFilter):
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContanerInfo.h
-        jtm += TriggerPseudoJetGetter('triggerPseudoJetGetter', Label='LCTopo')
+        Label = cluster_calib + 'Topo'
+        jtm += TriggerPseudoJetGetter('triggerPseudoJetGetter', Label=Label)
         triggerPseudoJetGetter = jtm.triggerPseudoJetGetter
         
     mygetters = [triggerPseudoJetGetter]
@@ -62,87 +71,129 @@ def _getJetBuildTool(merge_param, ptmin, ptminFilter):
     # print jtm.gettersMap.keys()
     
     # Build a new list of jet modifiers.
-    mymods = [
-        #  "applyCalibrationTool", 
-        jtm.nsubjettiness,
-        jtm.jetens,
-        jtm.caloqual_cluster,
-        jtm.bchcorrclus,
-        jtm.width
-        ]
+    mymods = []
+
+    # 19/9/2014 no jes yet
+    if do_jes:
+        # Tool to apply post jet clustering calibration
+        mymods.append("applyCalibrationTool:jes")
+
+    if not do_minimalist_setup:
+        # add in extra modofiers. This allows monitoring the ability
+        # to run with the extra modifiers, which may be required in the
+        # future.
+        mymods.extend([
+                jtm.nsubjettiness,
+                jtm.jetens,
+                jtm.caloqual_cluster,
+                jtm.bchcorrclus,
+                jtm.width
+                ])
 
     jtm.modifiersMap["mymods"] = mymods
-    # print "DEBUG TrigHLTJetRecConfig line MUST be removed"
-    # jtm.modifiersMap["mymods"] = []
-
     
-    name = 'MyAntiKt%dEMTopoJets' % int_merge_param
-    # jetBuildTool = _get_jetfinder(name, jtm)
+    # name = 'MyAntiKt%d%sTopoJets' % (int_merge_param, cluster_calib)
+    name = 'TrigAntiKt%d%sTopoJets' % (int_merge_param, cluster_calib)
 
-    # if not jetBuildTool:
-    # print 'making a jetrec', name
-    jtm.addJetFinder(name,
-                     "AntiKt",
-                     merge_param,
-                     "mygetters",
-                     "mymods",
-                     ghostArea=0.01,
-                     rndseed=0,
-                     isTrigger=True,
-                     ptmin=ptmin,
-                     ptminFilter=ptminFilter
-                     )
-        
-    jetBuildTool = jtm.trigjetrecs[-1]
-    # jetBuildTool = jtm.jetrecs[0]         #//added temporarily
+    def findjetBuildTool():
+        for jr in jtm.trigjetrecs:
+            if jr.OutputContainer == name:
+                # jr.OutputContainer is a string, here used to identify the
+                # object
+                return jr
+        return None
+
+    jetBuildTool = findjetBuildTool()
+
+    if jetBuildTool is None:
+        print 'adding new jet finder ', name
+        try:
+            jetBuildTool = jtm.addJetFinder(name,
+                                            "AntiKt",
+                                            merge_param,
+                                            "mygetters",
+                                            "mymods",
+                                            # non-zero ghostArea: calcjet area
+                                            # for pileup subtraction.
+                                            ghostArea=0.01,
+                                            rndseed=0,
+                                            isTrigger=True,
+                                            ptmin=ptmin,
+                                            ptminFilter=ptminFilter
+                                            )
+        except Exception, e:
+            print 'error adding jet finder %s' % name
+            for jr in jtm.trigjetrecs:
+                print jr
+            raise e
+
+    else:
+        print 'found jet finder ', name
+
+    # jetBuildTool = jtm.trigjetrecs[-1]
     
     # ------------myjets.py import JetAlgorithm here. Copy the code
     # from JetAlgorithm
     # Add the tool runner. It runs the jetrec tools.
-    rtools = []
-    if jetFlags.useCells():
-        rtools += [jtm.missingcells]
-    if jetFlags.useTracks:
-        rtools += [jtm.tracksel]
-        rtools += [jtm.tvassoc]
-        rtools += jtm.jetrecs
 
-    # from JetRec.JetRecConf import JetToolRunner
-    # jtm += JetToolRunner("jetrun", Tools=rtools)
-    # jetrun = jtm.jetrun
 
-    # print 'TrigHLTJetRec: jetFlags.debug', jetFlafs.debug
-    # if jetFlags.debug > 0:
-    #    jtm.setOutputLevel(jetBuildTool, DEBUG)
+    # rtools deal with tracks
+    # rtools = []
+    # if jetFlags.useCells():
+    #     rtools += [jtm.missingcells]
+    # if jetFlags.useTracks:
+    #   rtools += [jtm.tracksel]
+    #    rtools += [jtm.tvassoc]
+    #    rtools += jtm.jetrecs
 
     return jetBuildTool, triggerPseudoJetGetter
 
-def _get_jetfinder(name, jtm):
-    """Return the object in the jetrecs list if it has the required name, None
-    otherwise."""
 
-    jetrecs = getattr(jtm, 'jetrecs')
-    if not jetrecs:
-        return None
+class TrigHLTJetRec_param(TrigHLTJetRec):
+    """Supply a specific merge parameter for the anti-kt algorithm"""
+    def __init__(self,
+                 name,
+                 alg="AntiKt",
+                 merge_param="04",
+                 ptmin=7.0 * GeV,
+                 ptminFilter=7.0 * GeV,
+                 do_jes=False,
+                 cluster_calib='EM',
+                 do_minimalist_setup=True,
+                 ):
+        TrigHLTJetRec.__init__(self,
+                               # name='TrigHLTJetRec_%s%s' % (alg, merge_param),
+                               name=name,
+                               cluster_calib=cluster_calib)
 
-    jetrec = [j for j in jetrecs if j.name() == name]
-    if not jetrec:
-        return None
+        self.jetBuildTool, self.pseudoJetGetter = _getJetBuildTool(
+            float(int(merge_param))/10.,
+            ptmin=ptmin,
+            ptminFilter=ptminFilter,
+            do_jes=do_jes,
+            cluster_calib=cluster_calib,
+            do_minimalist_setup=do_minimalist_setup,
+            )
 
-    assert len(jetrecs) == 1
-    return jtm.jetrecs[0]
-    
+
+#  class TrigHLTJetRec_AntiKt04 is maintained only for the HT configuration
 class TrigHLTJetRec_AntiKt04(TrigHLTJetRec):
     """Supply a specific merge parameter for the anti-kt algorithm"""
     def __init__(self,
-                 name="TrigHLTJetRec_AntiKt04",
+                 name="TrigHLTJetRec_oldconfig_AntiKt04",
                  ptmin=7.0 * GeV,
-                 ptminFilter=7.0 * GeV):
+                 ptminFilter=7.0 * GeV,
+                 do_jes=False,
+                 cluster_calib='EM',
+                 do_minimalist_setup=True):
         TrigHLTJetRec.__init__(self, name)
         self.jetBuildTool, self.pseudoJetGetter = _getJetBuildTool(
             0.4,
             ptmin=ptmin,
-            ptminFilter=ptminFilter
+            ptminFilter=ptminFilter,
+            do_jes=do_jes,
+            cluster_calib=cluster_calib,
+            do_minimalist_setup=do_minimalist_setup,
             )
 
         # if jetFlags.debug > 0:
@@ -152,23 +203,31 @@ class TrigHLTJetRec_AntiKt04(TrigHLTJetRec):
 
         
 
+#  class TrigHLTJetRec_AntiKt10 is maintained only for the HT configuration
 class TrigHLTJetRec_AntiKt10(TrigHLTJetRec):
     """Supply a specific merge parameter for the anti-kt algorithm"""
-    def __init__(self,  name="TrigHLTJetRec_AntiKt10",
+    def __init__(self,  name="TrigHLTJetRec_oldconfig_AntiKt10",
                  ptmin=7.0 * GeV,
-                 ptminFilter=7.0 * GeV):
+                 ptminFilter=7.0 * GeV,
+                 do_jes=False,
+                 cluster_calib='EM',
+                 do_minimalist_setup=True):
+        
         TrigHLTJetRec.__init__(self, name)
 
         self.jetBuildTool, self.pseudoJetGetter = _getJetBuildTool(
             1.0,
             ptmin=ptmin,
-            ptminFilter=ptminFilter)
+            ptminFilter=ptminFilter,
+            do_jes=do_jes,
+            cluster_calib=cluster_calib,
+            do_minimalist_setup=True)
         
         # if jetFlags.debug > 0:
         #    self.OutputLevel = DEBUG
         # else:
         # self.OutputLevel = INFO
-        
+
 
 class TrigHLTCellDiagnostics_named(TrigHLTCellDiagnostics):
     """Supply a chain name used to label output files"""

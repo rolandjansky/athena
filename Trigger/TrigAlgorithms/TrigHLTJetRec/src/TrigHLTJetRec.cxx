@@ -10,15 +10,19 @@
 // JetRecTool itself is a collection of "lower tools", and is configured
 // as part of the TrigHLTJetRec configuration
 
+#include <vector>
+#include <string>
 #include "TrigHLTJetRec/TrigHLTJetRec.h"
-#include "JetInterface/IJetBuildTool.h"
+// #include "JetInterface/IJetBuildTool.h"
+#include "JetRec/JetRecTool.h"
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
-// #include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
-#include "JetEDM/IndexedConstituentUserInfo.h"
+#include "JetEDM/LabelIndex.h"
+# include "./ClusterToPseudoJet.h"
 
+using jet::LabelIndex;
 
 const xAOD::JetContainer*  make_empty_jetcontainer(){
   xAOD::JetContainer* j_container = new xAOD::JetContainer;
@@ -26,11 +30,13 @@ const xAOD::JetContainer*  make_empty_jetcontainer(){
   return j_container;
 }
 
+
 TrigHLTJetRec::TrigHLTJetRec(const std::string& name, 
                            ISvcLocator* pSvcLocator ):
   HLT::FexAlgo( name, pSvcLocator ) {
   declareProperty( "jetBuildTool", m_jetbuildTool);
   declareProperty( "pseudoJetGetter", m_pseudoJetGetter);
+  declareProperty( "cluster_calib", m_clusterCalib);
 }
 
 
@@ -46,13 +52,17 @@ HLT::ErrorCode TrigHLTJetRec::hltInitialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");
   ATH_MSG_INFO("Retrieving tools...");
   sc = m_jetbuildTool.retrieve();
-  if ( ! sc.isSuccess() ) {
-    ATH_MSG_ERROR("Tool retrieval failed.");
+
+  if (sc.isSuccess()) {
+    ATH_MSG_INFO("Retrieved  jetBuildTool "
+                 <<  m_jetbuildTool -> name());
+  }else{
+    ATH_MSG_ERROR("Unable to retrieve the jetBuildTool.");
     return HLT::ERROR;
   }
 
   if  (m_pseudoJetGetter.retrieve().isSuccess()){
-      ATH_MSG_INFO("Retrieved  shared PseudoJetGetter"
+      ATH_MSG_INFO("Retrieved  shared PseudoJetGetter "
                    <<  m_pseudoJetGetter->name());
   } else {
     ATH_MSG_ERROR("Unable to retrieve shared IPseudoJetGetter");
@@ -75,19 +85,6 @@ HLT::ErrorCode TrigHLTJetRec::hltFinalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
   return HLT::OK;
 }
-
-
-class ClusterToPseudoJet {
-public:
-  fastjet::PseudoJet operator() (const xAOD::CaloCluster* cluster) {
-    fastjet::PseudoJet psj(cluster->p4());
-    jet::IConstituentUserInfo* pcui =
-      new jet::IndexedConstituentUserInfo(*cluster, 0, 0);
-    psj.set_user_info(pcui);
-
-    return psj;
-  }
-};
 
 HLT::ErrorCode TrigHLTJetRec::hltExecute(const HLT::TriggerElement* inputTE,
                                          HLT::TriggerElement* outputTE) {  
@@ -119,11 +116,19 @@ HLT::ErrorCode TrigHLTJetRec::hltExecute(const HLT::TriggerElement* inputTE,
 
   PseudoJetVector pjv;
 
+  // setup LabelIndex: m_clusterCalib = "LC" or"EM"
+  
+  LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
+  indexMap->addLabel(m_clusterCalib + "Topo");
+
+  // setup CaloCluster to PseudoJet convertor
+  ClusterToPseudoJet ctpj(indexMap);
+
   // convert incoming calo clusters to the pseudo jets needed by jetrec
   std::transform(clusterContainer->begin(),
                  clusterContainer->end(), 
                  std::back_inserter(pjv),
-                 ClusterToPseudoJet());
+                 ctpj);
 
   ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
   // Load the pseudo jets into the TriggerSPseudoJetGetter tool
@@ -143,6 +148,7 @@ HLT::ErrorCode TrigHLTJetRec::hltExecute(const HLT::TriggerElement* inputTE,
 
   ATH_MSG_DEBUG(j_container->size() << " jets reconstructed");
 
+  delete indexMap;
   hltStatus = attachJetCollection(outputTE, j_container);
   return hltStatus;
 }
