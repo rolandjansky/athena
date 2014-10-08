@@ -336,6 +336,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.SegmentsFinderTool = CfgGetter.getPrivateToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
                                                                      WriteIntermediateResults = False)
+        self.SegmentsFinderTool.HoughPatternFinder = "Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool"
         self.SegmentsFinderTool.HoughPatternFinder.RecordAll = False
         self.SegmentsFinderTool.HoughPatternFinder.muonCombinePatternTool ="MuonCombinePatternTool" 
 
