@@ -10,7 +10,7 @@
  * @brief a call-back interface for tools that merge pileup events information
  * An IPileUpTool is called back for each bunch crossing that it is interested
  * in processing, and again at the end of the loop over input events.
- * IPileUpTools should be implemented as private tools of PileUpMergeSvc 
+ * IPileUpTools should be implemented as private tools of PileUpMergeSvc
  * $Id: PileUpStream.h,v 1.18 2008-10-31 18:34:42 calaf Exp $
  * @author Paolo Calafiura - ATLAS Collaboration
  */
@@ -23,8 +23,8 @@ public:
   ///called for each active bunch-crossing (time in ns)
   virtual StatusCode
     processBunchXing(int bunchXing,
-		     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-		     PileUpEventInfo::SubEvent::const_iterator eSubEvents) = 0;
+                     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                     PileUpEventInfo::SubEvent::const_iterator eSubEvents) = 0;
   ///flags whether this tool is "live" for bunchXing (time in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   virtual bool toProcess(int bunchXing) const =0;
@@ -33,6 +33,10 @@ public:
   ///alternative interface which uses the PileUpMergeSvc to obtain all
   ///the required SubEvents.
   virtual StatusCode processAllSubEvents() = 0;
+  ///flags whether the event should be removed or not
+  virtual bool filterPassed() const =0;
+  ///reset the filter
+  virtual void resetFilter() =0;
 
   static const InterfaceID& interfaceID() {
     static const InterfaceID _IID( "IPileUpTool", 1, 0 );
