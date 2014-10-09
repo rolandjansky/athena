@@ -15,16 +15,9 @@ ExtrapolateToCaloTool = ToolFactory( TrackToCaloConf.ExtrapolateToCaloTool,
                                      name = 'exToCalo',
                                      Extrapolator = egammaExtrapolator)
 
-# Utility for conversion tool
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__NeutralParticleParameterCalculator
-convUtils = ToolFactory( Trk__NeutralParticleParameterCalculator,
-                         name                   = "convUtils",
-                         LinearizedTrackFactory = None)
-
 
 EMExtrapolationTools = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                     ExtrapolateToCaloTool = ExtrapolateToCaloTool,
-                                    ConversionUtils = convUtils,
                                     doPrint = True)
 
 #---------------------------------------
