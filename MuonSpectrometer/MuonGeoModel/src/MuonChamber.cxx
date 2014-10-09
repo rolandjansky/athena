@@ -1812,6 +1812,8 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
                                     const Position& ip, std::string gVersion,
                                     MuonDetectorManager* m_manager)
 {
+
+  //  std::cout<<"In MuonChamber::setRpcReadoutGeom for Station "<<re->getStationName()<<" at eta / phi "<<re->getStationEta()<<"/"<<re->getStationPhi()<<" componnet name is "<<cc->name<< std::endl;
   re->m_Ssize = cc->dx1;
   re->m_LongSsize = cc->dx2;
   re->m_Rsize = cc->GetThickness();
@@ -1847,10 +1849,22 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
   re->m_phistripwidth = re->m_phistrippitch - rc->stripSeparation;
   re->m_etastripwidth = re->m_etastrippitch - rc->stripSeparation;
   re->m_nphistripsperpanel = int((re->m_Ssize/re->m_nphistrippanels)/re->m_phistrippitch);
-
-  while ((re->m_nphistripsperpanel%8) != 0) {re->m_nphistripsperpanel--;}
+  if (re->getStationName().substr(0,3)!="BME") while ((re->m_nphistripsperpanel%8) != 0) {re->m_nphistripsperpanel--;}
   re->m_netastripsperpanel = int((re->m_Zsize/re->m_netastrippanels)/re->m_etastrippitch);
   while ((re->m_netastripsperpanel%8) != 0) {re->m_netastripsperpanel--;}
+
+  // if (re->getStationName().substr(0,3)=="BME") 
+  //   {
+  //     std::cout<<" inner struct: re->m_nphigasgaps "<< re->m_nphigasgaps<< " re->m_netagasgaps "<< re->m_netagasgaps 
+  // 	       <<" re->m_nphistrippanels "<<  re->m_nphistrippanels 
+  // 	       <<" re->m_netastrippanels "<<  re->m_netastrippanels 
+  // 	       <<" re->m_phistrippitch   "<<  re->m_phistrippitch 
+  // 	       <<" re->m_etastrippitch   "<<  re->m_etastrippitch 
+  // 	       <<" re->m_nphistripsperpanel "<< re->m_nphistripsperpanel
+  // 	       <<" re->m_netastripsperpanel "<< re->m_netastripsperpanel<<std::endl;
+  //  }
+
+
 
   re->m_phipaneldead = re->m_Ssize/re->m_nphistrippanels
                      - re->m_nphistripsperpanel*re->m_phistrippitch

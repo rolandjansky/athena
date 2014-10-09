@@ -34,15 +34,15 @@ sTGC::sTGC(Component* ss): DetectorElement(ss->name)
   component = s;
   width = s->dx1;
   longWidth = s->dx2;
-  length = s->dy;
   yCutout= s->yCutout;
+  length = s->dy;
   name=s->name;
 }
 
 
 GeoFullPhysVol* sTGC::build(int minimalgeo)
 {
-  // std::cout<<"this is sTGC::build(int minimalgeo) "<<std::endl;
+//  std::cout<<"this is sTGC::build(int minimalgeo) "<<std::endl;
   std::vector<Cutout*> vcutdef;
   int cutoutson = 0;
   return build(minimalgeo, cutoutson, vcutdef);
@@ -51,9 +51,9 @@ GeoFullPhysVol* sTGC::build(int minimalgeo)
 
 GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 {
-  // std::cout<<"this is sTGC::build "<<std::endl;
+//  std::cout<<"this is sTGC::build "<<std::endl;
   MYSQL* mysql = MYSQL::GetPointer();	
-  // std::cout<<"fetching technology "<<std::endl;
+//  std::cout<<"fetching technology "<<std::endl;
   sTGC_Technology* t = (sTGC_Technology*) mysql->GetTechnology(name);
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
@@ -65,13 +65,14 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 
   minimalgeo=t->geoLevel;
 
- std::cout<<"===================> FRAME in sTGC.cxx ====> f4= "<<f4<<" f5= "<<f5<<" f6= "<<f6<<std::endl;
+// std::cout<<"===================> FRAME in sTGC.cxx ====> f4= "<<f4<<" f5= "<<f5<<" f6= "<<f6<<std::endl;
 
 
   // std::cout<<" dims "<<thickness<<" "<<gasTck<<" "<<pcbTck<<std::endl;
 
   // Build sTGC mother volume out of G10
-  // std::cout<<"creating chamber "<<thickness<<" "<<width<<" "<<longWidth<<" "<<length<<std::endl;
+  //std::cout<<"creating sTGC chamber "<<thickness<<" "<<width<<" "<<longWidth<<" "<<length<<std::endl;
+  //std::cout<<"yCutout "<<yCutout<<std::endl;
   // const GeoShape* strd = new GeoTrd(thickness/2, thickness/2, width/2, 
   //                                   longWidth/2, length/2);
   GeoSimplePolygonBrep *solid;
@@ -107,7 +108,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 
   // Loop over sTGC layers
   for (int i = 0; i < t->nlayers; i++) {
-    // std::cout<<"loop over layers"<<std::endl;
+  //  std::cout<<"loop over layers"<<std::endl;
     double widthActive;
     double longWidthActive;
     double lengthActive;
@@ -129,11 +130,12 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
     GeoSimplePolygonBrep *sGasVolume
         =new GeoSimplePolygonBrep(gasTck/2.);
         sGasVolume->addVertex(longWidthActive/2.,lengthActive/2.);
-        sGasVolume->addVertex(-longWidthActive/2.,lengthActive/2.);
-        if (yCutout) sGasVolume->addVertex(-longWidthActive/2.,lengthActive/2.-yCutout);
-        sGasVolume->addVertex(-widthActive/2.,-lengthActive/2.);
-        sGasVolume->addVertex(widthActive/2.,-lengthActive/2.);
-        if (yCutout) sGasVolume->addVertex(longWidthActive/2.,lengthActive/2.-yCutout);
+		sGasVolume->addVertex(-longWidthActive/2.,lengthActive/2.); 
+		if (yCutout) sGasVolume->addVertex(-longWidthActive/2.,lengthActive/2.-yCutout);
+		sGasVolume->addVertex(-widthActive/2.,-lengthActive/2.);
+		sGasVolume->addVertex(widthActive/2.,-lengthActive/2.);
+		if (yCutout) sGasVolume->addVertex(longWidthActive/2.,lengthActive/2.-yCutout);
+             
 
     CLHEP::Hep3Vector v(0,0,0);
     CLHEP::HepRotation rot;
@@ -175,15 +177,15 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
       }
       else
       {
-        double W=width/2.+((longWidth-width)/2.)*f5/(length-yCutout);
+        double W=width/2.+((longWidth-width)/2.)*f5/(length);
       	  GeoSimplePolygonBrep *sGasV
         	=new GeoSimplePolygonBrep(gasTck);
         sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-f4);
-        sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4);
-        sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-yCutout);
-        sGasV->addVertex(-W+f6,-lengthActive/2.+f5);
-        sGasV->addVertex(W-f6,-lengthActive/2.+f5);
-        sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-yCutout);
+		sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-f4);
+		sGasV->addVertex(-longWidthActive/2.+f6,lengthActive/2.-yCutout);
+		sGasV->addVertex(-W+f6,-lengthActive/2.+f5);
+		sGasV->addVertex(W-f6,-lengthActive/2.+f5);
+		sGasV->addVertex(longWidthActive/2.-f6,lengthActive/2.-yCutout);
 	
 	const GeoShape *sGasV1=new GeoShapeShift(sGasV,transf);
 	
@@ -209,7 +211,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 
 void sTGC::print()
 {
-  std::cout << " sTGC " << name << " :" << std::endl;
+  //std::cout << " sTGC " << name << " :" << std::endl;
 }
 
 } // namespace MuonGM
