@@ -2,15 +2,16 @@ package EventShapeAthenaPool
 
 author Rolf Seuster <seuster@cern.ch>
 
-use AtlasPolicy          AtlasPolicy-01-* 
+use AtlasPolicy          AtlasPolicy-* 
 
-use GaudiInterface       GaudiInterface-*           External
-
-use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 
+
+private
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use EventShapeEvent	 EventShapeEvent-*	    Reconstruction/EventShapes
 use EventShapeTPCnv	 EventShapeTPCnv-*	    Reconstruction/EventShapes
+end_private
 
 branches EventShapeAthenaPool src
 
