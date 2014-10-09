@@ -62,14 +62,7 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   virtual bool  matchesAtCalo(const xAOD::CaloCluster*      cluster,       
                               const xAOD::TrackParticle*    trkPB, 
                               bool                          isTRT,
-                              unsigned int                  extrapFrom = fromLastMeasurement);
-
-  /**  test for cluster/extrapolated track match, from NeutralPerigee */
-  virtual bool  matchesAtCalo(const xAOD::CaloCluster*                 cluster,       
-                              const Trk::NeutralParameters*      perigee, 
-                              bool                               isTRT,
-                              double&                            deltaEta,
-                              double&                            deltaPhi);
+                              unsigned int                  extrapFrom = fromPerigee);
 
   /**  test for cluster/extrapolated track match, from xAOD::TrackParticle,
    *   returns true for good match, and
@@ -84,14 +77,8 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                               std::vector<double>&          phi,
                               std::vector<double>&          deltaEta,
                               std::vector<double>&          deltaPhi,
-                              unsigned int                  extrapFrom = fromLastMeasurement) const;
+                              unsigned int                  extrapFrom = fromPerigee) const;
 
-  /** test for vertex-to-cluster match given also the positions 
-    * at the calorimeter from the vertex extrapolation  **/
-  bool matchesAtCalo(const xAOD::CaloCluster* cluster,
-                     const xAOD::Vertex *vertex,
-                     float etaAtCalo,
-                     float phiAtCalo)  const;
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  doSample indicates
@@ -105,22 +92,22 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                                      std::vector<double>&          phi,
                                      std::vector<double>&          deltaEta,
                                      std::vector<double>&          deltaPhi,
-                                     unsigned int                  extrapFrom = fromLastMeasurement) const;
+                                     unsigned int                  extrapFrom = fromPerigee) const;
+
+  /** test for vertex-to-cluster match given also the positions 
+    * at the calorimeter from the vertex extrapolation  **/
+  bool matchesAtCalo(const xAOD::CaloCluster* cluster,
+                     const xAOD::Vertex *vertex,
+                     float etaAtCalo,
+                     float phiAtCalo)  const;
 
 
-
-  /**   get eta, phi at the four calorimeter layers given the
-   *    Trk::TrackParameters.  doSample indicates whether or not to
-   *    extrapolate to each calo sample. Also return whether the
-   *    extrapolation is in barrel or not.
-   */
-  virtual StatusCode getEtaPhiAtCalo (const xAOD::TrackParticle*    trkPB,
-                                      Trk::PropDirection            direction,
-                                      const std::vector<bool>&      doSample,
-                                      std::vector<double>&          eta,
-                                      std::vector<double>&          phi,
-                                      std::vector<bool>&            isBarrel,
-                                      unsigned int                  extrapFrom = fromLastMeasurement) const;
+  /**  test for cluster/extrapolated track match, from NeutralPerigee */
+  virtual bool  matchesAtCalo(const xAOD::CaloCluster*                 cluster,       
+                              const Trk::NeutralParameters*      perigee, 
+                              bool                               isTRT,
+                              double&                            deltaEta,
+                              double&                            deltaPhi);
 
   /** get eta, phi at EM2 given a vertex which is converted to NeutralParameters.
       Return false if the extrapolation fails **/
@@ -130,12 +117,14 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   
   /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and <reuse> is true **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, bool reuse = true) const;
+    
+ private:
 
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
-    
- private:
- 
+
+  Trk::CurvilinearParameters getLastMeasurement(const xAOD::TrackParticle* trkPB) const;
+
   const Trk::TrackParameters*  getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const;
    
   /** @brief TrackToCalo extrapolation tool. 
@@ -150,9 +139,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   /** @brief */
   CaloPhiRange                           m_phiHelper;
 
-  /** @brief Utility to calculate the converted photon track parameters and covariance matrix*/
-  ToolHandle<Trk::INeutralParticleParameterCalculator> m_convUtils;
-  
 
   // Track-to-cluster match cuts
   double                                m_broadDeltaEta;
