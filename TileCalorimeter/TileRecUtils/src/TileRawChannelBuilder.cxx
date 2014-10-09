@@ -524,7 +524,7 @@ StatusCode TileRawChannelBuilder::commitContainer() {
       for(; rchItr!=lastRch; ++rchItr) {
         TileRawChannel* rch = (*rchItr);
         HWIdentifier adc_id = rch->adc_HWID();
-        while (adc_id != (*dspItr)->adc_HWID() && dspItr != dspLast) {
+        while (dspItr != dspLast && adc_id != (*dspItr)->adc_HWID()) {
           ++dspItr;
         }
         if (dspItr != dspLast) {
@@ -535,10 +535,10 @@ StatusCode TileRawChannelBuilder::commitContainer() {
           rch->m_amplitude[0] -= corr;
           rch->m_pedestal += corr;
         } else {
-          ATH_MSG_ERROR(" Error in applying noise corrections " 
+          ATH_MSG_WARNING(" Problem in applying noise corrections " 
                         << " can not find channel in DSP container with HWID "
                         << m_tileHWID->to_string(adc_id) );
-          break;
+          dspItr = dcoll->begin();
         }
       }
     }
