@@ -10,7 +10,7 @@
   * $Id: 
   **/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "PileUpTools/IPileUpXingFolder.h"
 
@@ -20,7 +20,7 @@
     system. Implemented as SG::Folder with an attached bunch crossing interval 
   **/
 class PileUpXingFolder : virtual public IPileUpXingFolder,
-                         virtual public AlgTool {
+                         virtual public AthAlgTool {
 public:
   /// \name structors and AlgTool implementation
   //@{

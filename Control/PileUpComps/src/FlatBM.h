@@ -13,10 +13,10 @@
  * @author Paolo Calafiura - ATLAS Collaboration
  */
 #include "PileUpTools/IBeamIntensity.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 template <class TYPE> class SvcFactory;
 
-class FlatBM : virtual public IBeamIntensity, public Service {
+class FlatBM : virtual public IBeamIntensity, public AthService {
 public:
   inline virtual void selectT0() {}
   inline virtual float largestElementInPattern() const {
@@ -33,7 +33,7 @@ public:
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
  protected:
   friend class SvcFactory<FlatBM>;
-  FlatBM(const std::string& name,ISvcLocator* svc): Service(name,svc) { }
+  FlatBM(const std::string& name,ISvcLocator* svc): AthService(name,svc) { }
 };
 #endif
 

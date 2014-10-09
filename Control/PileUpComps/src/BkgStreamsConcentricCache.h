@@ -21,7 +21,7 @@
 #include <vector>
 #include <boost/function.hpp>
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/VectorMap.h"
@@ -47,7 +47,7 @@ namespace CLHEP {
  */
 class BkgStreamsConcentricCache : 
   virtual public IBkgStreamsCache, 
-  virtual public AlgTool 
+  virtual public AthAlgTool 
 {
 public:
   BkgStreamsConcentricCache( const std::string&, const std::string&, const IInterface*);
@@ -96,10 +96,6 @@ public:
   /// meant to be used (mainly) via f_collDistr
   long collXing() { return m_collXing * m_collXingSF; }
   long collXingPoisson();
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
 
 /** @class BkgStreamsConcentricCache::Ring
  * @brief A closed range in beam xings. Events initially used for a Ring
@@ -204,8 +200,6 @@ private:
   float m_collXingSF;
   /// bool apply scaling number of collisions/xing ?
   BooleanProperty m_ignoreSF;
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 };
 
 #endif // PILEUPTOOLS_BKGSTREAMSCACHE_H

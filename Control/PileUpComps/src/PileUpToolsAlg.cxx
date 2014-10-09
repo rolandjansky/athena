@@ -63,6 +63,13 @@ StatusCode PileUpToolsAlg::execute() {
   ToolHandleArray<IPileUpTool>::iterator bPUT(m_puTools.begin());
   ToolHandleArray<IPileUpTool>::iterator ePUT(m_puTools.end());
 
+  // Reset the filters
+  ToolHandleArray<IPileUpTool>::iterator iPUT(bPUT);
+  while (iPUT != ePUT){
+    (**iPUT).resetFilter();
+    ++iPUT;
+  }
+
   // access the sub events...
   PileUpEventInfo::SubEvent::const_iterator iEvt = evt->beginSubEvt();
   PileUpEventInfo::SubEvent::const_iterator endEvt = evt->endSubEvt();
@@ -74,7 +81,7 @@ StatusCode PileUpToolsAlg::execute() {
   int lastXing(currXing);
 
   // give IPileUpTools a chance to setup for this event
-  ToolHandleArray<IPileUpTool>::iterator iPUT(bPUT);
+  iPUT=bPUT;
   const unsigned int nInputEvents = std::distance(iEvt,endEvt);
   ATH_MSG_DEBUG( "execute: There are " << nInputEvents << " subevents in this Event." );
 
@@ -176,7 +183,16 @@ StatusCode PileUpToolsAlg::execute() {
 
   //final loop over the PileUpTools
 
-
+  // Bit wasteful, but see if we aborted here
+  iPUT=bPUT;
+  while (iPUT != ePUT){
+    if (!(**(iPUT)).filterPassed()){
+      ATH_MSG_VERBOSE( "Filter " << (**(iPUT)).name() << " failed - will stop the event" );
+      this->setFilterPassed(false);
+      break;
+    }
+    ++iPUT;
+  }
 
   return StatusCode::SUCCESS;
 }

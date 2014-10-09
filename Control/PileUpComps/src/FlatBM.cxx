@@ -10,7 +10,7 @@ FlatBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
     *ppvInterface = (IBeamIntensity*)this;
   }  else  {
     // Interface is not directly available: try out the base class
-    return Service::queryInterface(riid, ppvInterface);
+    return AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;

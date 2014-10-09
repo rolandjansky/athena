@@ -35,7 +35,7 @@ using namespace std;
 BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type, 
 						      const std::string& name,
 						      const IInterface* parent) : 
-  AlgTool( type, name, parent ),
+  AthAlgTool( type, name, parent ),
   p_activeStore(0),
   m_cursor(),
   m_streams(),
@@ -58,8 +58,7 @@ BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type,
   m_collXingPoisson(0),
   f_collDistr(0),
   m_collXingSF(1.0),
-  m_ignoreSF(false),
-  m_msg(name)
+  m_ignoreSF(false)
 {   
   declareProperty("CollPerXing", m_collXing, "(average) number of collisions per beam crossing");  
   declareProperty("OccupationFraction", m_occupationFraction, "The maximum fraction of bunch-crossings which will be occupied."); 
@@ -93,7 +92,7 @@ BkgStreamsConcentricCache::queryInterface(const InterfaceID& riid, void** ppvif)
     addRef();
     return StatusCode::SUCCESS;
   }
-  return AlgTool::queryInterface( riid, ppvif );
+  return AthAlgTool::queryInterface( riid, ppvif );
 }
 
 void

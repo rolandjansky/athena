@@ -16,7 +16,7 @@
 #include <deque>
 #include <boost/function.hpp>
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
@@ -42,7 +42,7 @@ namespace CLHEP {
  */
 class BkgStreamsStepCache : 
   virtual public IBkgStreamsCache, 
-  virtual public AlgTool 
+  virtual public AthAlgTool 
 {
 public:
   BkgStreamsStepCache( const std::string&, const std::string&, const IInterface*);
@@ -94,10 +94,6 @@ public:
   unsigned int numberOfBkgForBunchCrossingIgnoringBeamIntensity(unsigned int iXing) const;
   unsigned int numberOfBkgForBunchCrossingDefaultImpl(unsigned int iXing) const;
   unsigned int numberOfCavernBkgForBunchCrossing(unsigned int iXing) const;
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
 private:
   /// get next bkg event from cache
   const EventInfo* nextEvent();
@@ -168,8 +164,6 @@ private:
   float m_collXingSF;
   /// bool apply scaling number of collisions/xing ?
   BooleanProperty m_ignoreSF;
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
   /// offset of BC=0 xing
   int m_zeroXing;
   /// pointer to the IBeamIntensity distribution tool
