@@ -9,7 +9,7 @@
         python /afs/cern.ch/user/r/rtt/public/validateXML.py SimCoreTests_TestConfiguration.xml
 
 and to update the twiki page:
-https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
+https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
     -->
 
@@ -29,7 +29,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="AtlasGeom19Sim">
               <doc>Reading gen events, single particle</doc>
               <jobTransformJobName>AtlasGeom19</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-19-01-00_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-19-01-00_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -71,7 +71,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="TTbarSim">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>T1_McAtNlo_Jimmy</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -110,6 +110,48 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
       </chain>
 
       <chain>
+        <chainName>TimingTest_TTbarSim</chainName>
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="TTbarSimTiming">
+              <doc>Reading gen events, full physics, with timing information in output</doc>
+              <jobTransformJobName>T1_McAtNlo_Jimmy</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --postInclude 'LArG4FastSimulation/LArG4FastSimulation_setupTimer_jobOptions.py'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
+              <queue>medium</queue>
+
+              <test>
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <testidentifier>TTbarSimTiming_DCubeTest</testidentifier>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>19.X.0/dcube_TTbarSimTiming.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>TTbarSimTiming.timing_histos.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>localRefFile</argname>
+                  <argvalue>True</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>timing_histos.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-timing_histos.root/timing_histos.root.dcube.xml.php</keepFilePattern>
+              </test>
+
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <chain>
         <chainName>RegressionTest_QgspBertChipsTest</chainName>
         <sequential>
 
@@ -117,7 +159,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="QgspBertChipsTest">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>J2_jetjet-pythia6</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/J2_jetjet-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'QGSP_BERT_CHIPS'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/J2_jetjet-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'QGSP_BERT_CHIPS_VALIDATION'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -161,7 +203,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="NeutronCutTest">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>A3_Ztautau-NeutronCut</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/A3_Ztautau_filter-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --preInclude 'SimulationJobOptions/preInclude.G4SignalCavern.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/A3_Ztautau_filter-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.G4SignalCavern.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -292,7 +334,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="HeavyIonSim">
               <doc>Reading gen events, lead ions peripheral simulation (low multiplicity)</doc>
               <jobTransformJobName>HeavyIons_Simulation</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pbpb_Peripheral-hijing-5500.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1' --skipEvents '4' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --postInclude 'SimulationJobOptions/postInclude.HijingPars.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pbpb_Peripheral-hijing-5500.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1' --skipEvents '4' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --postInclude 'SimulationJobOptions/postInclude.HijingPars.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -438,7 +480,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
               <doc>Testing basic frozen showers (FCal only)</doc>
               <jobTransformJobName>FrozenShowerFCalOnly</jobTransformJobName>
               <!-- setting environment variables needs syntax update -->
-              <jobTransformCmd>FSRELEASE=1.0.0 DATAPATH=$DATAPATH:/afs/cern.ch/atlas/software/FSreleases/DD0/FSRelease/1.0.0 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/17.2.X/17.2.6.2/e_E50_eta34_49.EVNT.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents 10 --skipEvents 0 --randomSeed 10 --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --preInclude 'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py'
+              <jobTransformCmd>FSRELEASE=1.0.0 DATAPATH=$DATAPATH:/afs/cern.ch/atlas/software/FSreleases/DD0/FSRelease/1.0.0 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/17.2.X/17.2.6.2/e_E50_eta34_49.EVNT.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents 10 --skipEvents 0 --randomSeed 10 --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -480,7 +522,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="CosmicSimTR">
               <doc>Running cosmic simulation transform from track records</doc>
               <jobTransformJobName>CosmicSimTR</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_COSMICSFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '-1' --randomSeed '1234' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --DataRunNumber '10' --firstEvent '0' --physicsList 'QGSP_BERT' --beamType 'cosmics'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_COSMICSFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '-1' --randomSeed '1234' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --physicsList 'FTFP_BERT' --DataRunNumber '222222' --firstEvent '0' --beamType 'cosmics'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -522,7 +564,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="SimCheckDBRel">
               <doc>Test simulation job transform with the most recent frozen DB Release</doc>
               <jobTransformJobName>SimCheckDBRel</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --DBRelease 'current'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -564,7 +606,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="LucidSimTest">
               <doc>Test Main ATLAS+Lucid simulation job transform with the most recent frozen DB Release</doc>
               <jobTransformJobName>LucidSimTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'testLucid.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --LucidOn 'True' --DBRelease 'current'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'testLucid.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --LucidOn 'True' --DBRelease 'current'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -606,7 +648,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="ALFASimTest">
               <doc>Test Main ATLAS+ALFA simulation job transform with the most recent frozen DB Release</doc>
               <jobTransformJobName>ALFASimTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' --outputHITSFile 'testALFA.HITS.pool.root' --maxEvents '3' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --ALFAOn 'True' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.ALFA_dcube.py'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' --outputHITSFile 'testALFA.HITS.pool.root' --maxEvents '3' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --ALFAOn 'True' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.ALFA_dcube.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -666,7 +708,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="ZDCSimTest">
               <doc>Test Main ATLAS+ZDC simulation job transform with the most recent frozen DB Release</doc>
               <jobTransformJobName>ZDCSimTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ZDC_SingleParticle.py' --outputHITSFile 'testZDC.HITS.pool.root' --maxEvents 3 --randomSeed 10 --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --ZDCOn 'True' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.ZDC_dcube.py'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ZDC_SingleParticle.py' --outputHITSFile 'testZDC.HITS.pool.root' --maxEvents 3 --randomSeed 10 --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --ZDCOn 'True' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.ZDC_dcube.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -747,10 +789,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
           <chainElement>
             <jobTransform userJobId="AtlasG4_muons">
               <doc>Tests detector functionality using single muons</doc>
- 	      <jobTransformJobName>AtlasG4_muons</jobTransformJobName>
-	      <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleMuonGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '2000' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
-	      </jobTransformCmd>
-	      <group>SimCoreJobTransformTests</group>
+              <jobTransformJobName>AtlasG4_muons</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleMuonGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '2000' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
 
               <test position="1">
@@ -874,10 +916,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
           <chainElement>
             <jobTransform userJobId="AtlasG4_pions">
               <doc>Tests detector functionality using single pions</doc>
- 	      <jobTransformJobName>AtlasG4_pions</jobTransformJobName>
-	      <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SinglePionGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '150' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
-	      </jobTransformCmd>
-	      <group>SimCoreJobTransformTests</group>
+              <jobTransformJobName>AtlasG4_pions</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SinglePionGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '150' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
               <queue>long</queue>
 
               <test position="1">
@@ -1018,10 +1060,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
           <chainElement>
             <jobTransform userJobId="AtlasG4_electrons">
               <doc>Tests detector functionality using single electrons</doc>
-	      <jobTransformJobName>AtlasG4_electrons</jobTransformJobName>
-	      <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleElectronGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1000' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
-	      </jobTransformCmd>
-	      <group>SimCoreJobTransformTests</group>
+              <jobTransformJobName>AtlasG4_electrons</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleElectronGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1000' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
               <queue>long</queue>
 
               <test position="1">
@@ -1149,7 +1191,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="WriteCalHitsTest">
               <doc>Reading gen events, single particle</doc>
               <jobTransformJobName>WriteCalHitsTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -1320,7 +1362,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="SkipEventsTest">
               <doc>Reading single particle gen events, checking that the SkipEvents argument works</doc>
               <jobTransformJobName>SkipEvents</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '5' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '5' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -1366,7 +1408,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimCoreTests
             <jobTransform userJobId="CosmicSim">
               <doc>Running cosmic simulation transform</doc>
               <jobTransformJobName>CosmicSim</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --CosmicPtSlice 'NONE' --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --beamType 'cosmics'
+              <jobTransformCmd>AtlasG4_tf.py --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '222222' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --physicsList 'FTFP_BERT' --CosmicPtSlice 'NONE' --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --beamType 'cosmics'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
