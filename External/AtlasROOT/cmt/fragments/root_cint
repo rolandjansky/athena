@@ -10,4 +10,3 @@ $(dict)${NAME}.h :: ${FULLNAME}
 	@echo "root_cint: File ${NAME} will be added to dictionary ${CONSTITUENT}";
 	echo ${FULLNAME} > $@;
 
-
