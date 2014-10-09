@@ -15,11 +15,11 @@
 #include "PileUpTools/IPileUpTool.h"
 class PileUpToolBase :  virtual public IPileUpTool, public AthAlgTool {
 public:
- /// \name structors and AlgTool implementation
- //@{
-  PileUpToolBase(const std::string& name, 
-		 const std::string& type,
-		 const IInterface* parent);
+  /// \name structors and AlgTool implementation
+  //@{
+  PileUpToolBase(const std::string& name,
+                 const std::string& type,
+                 const IInterface* parent);
   virtual StatusCode queryInterface(const InterfaceID&, void**);
   virtual StatusCode initialize() {
     return StatusCode::SUCCESS;
@@ -36,8 +36,15 @@ public:
   virtual StatusCode processAllSubEvents() {
     return StatusCode::SUCCESS;
   }
- protected:
+  ///dummy implementation of passing filter
+  virtual bool filterPassed() const { return m_filterPassed; }
+  ///dummy implementation of filter reset
+  virtual void resetFilter() { m_filterPassed=true; }
+
+protected:
   int m_firstXing; ///>Property: first xing in which det is live
   int m_lastXing; ///>Property: last xing in which det is live
+  bool m_filterPassed; ///stores whether the filter for this
+                       ///PileUpTool was passed.
 };
 #endif
