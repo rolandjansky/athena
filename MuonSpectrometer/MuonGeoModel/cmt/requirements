@@ -32,8 +32,7 @@ use SGTools               SGTools-*              Control
 use AthenaPoolUtilities   AthenaPoolUtilities-*  Database/AthenaPOOL
 use IdDictDetDescr        IdDictDetDescr-*       DetectorDescription
 use MuonIdHelpers         MuonIdHelpers-*        MuonSpectrometer
-use MuonDetDescrUtils     MuonDetDescrUtils-*    MuonSpectrometer/MuonDetDescr
-
+use MuonDetDescrUtils     MuonDetDescrUtils-*    MuonSpectrometer/MuonDetDescr 
 # To build this package in dbg mode while using an opt build
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
