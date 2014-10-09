@@ -749,14 +749,17 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
   for (int ch = 0; ch < 48; ++ch) {
     unsigned int w = (*p);
 
+    int gain = m_rc2bytes2.gain(w);
+    HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
+
     if (w != 0) { // skip invalid channels
-
-      int gain = m_rc2bytes2.gain(w);
-      HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
-
       rc = new TileRawChannel(adcID, m_rc2bytes2.amplitude(w), m_rc2bytes2.time(w),
           m_rc2bytes2.quality(w));
-      pChannel.push_back(rc);
+    } else {
+      rc = new TileRawChannel(adcID, 0.0, -100.0, 31);
+    }
+
+    pChannel.push_back(rc);
 
 //      ATH_MSG_VERBOSE(" frag 0x" << MSG::hex << frag
 //                      << MSG::dec << " ch " << ch
@@ -765,7 +768,6 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
 //                      << " " << m_rc2bytes2.amplitude(w)
 //                      << " " << m_rc2bytes2.time(w)
 //                      << " " << m_rc2bytes2.quality(w) );
-    }
 
     ++wc;
     ++p;
@@ -868,16 +870,19 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
   for (int ch = 0; ch < 48; ++ch) {
     unsigned int w = (*p);
 
+    int gain = m_rc2bytes4.gain(w);
+    HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
+
     if (w != 0) { // skip invalid channels
-
-      int gain = m_rc2bytes4.gain(w);
-      HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
-
       rc = new TileRawChannel(adcID
                               , m_rc2bytes4.amplitude(w)
                               , m_rc2bytes4.time(w)
                               , m_rc2bytes4.quality(w));
-      pChannel.push_back(rc);
+    } else {
+      rc = new TileRawChannel(adcID, 0.0, -100., 31);
+    }
+
+    pChannel.push_back(rc);
 
 //      ATH_MSG_VERBOSE(  MSG::hex << " frag 0x" << frag << MSG::dec
 //                      << " ch " << ch
@@ -886,7 +891,6 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
 //                      << " " << m_rc2bytes4.amplitude(w)
 //                      << " " << m_rc2bytes4.time(w)
 //                      << " " << m_rc2bytes4.quality(w) );
-    }
 
     ++wc;
     ++p;
