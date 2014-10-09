@@ -42,10 +42,12 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
   int nCell = 0;
   int nFake = 0;
   int nMBTS = 0;
+  int nE4pr = 0;
   int nChan = 0;
   float eCh = 0.0;
   float eCellTot = 0.0;
   float eMBTSTot = 0.0;
+  float eE4prTot = 0.0;
   bool EBdrawerPresent[128];
   memset(EBdrawerPresent, 0, sizeof(EBdrawerPresent));
 
@@ -145,7 +147,60 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
     int index, pmt;
     Identifier cell_id = (TileCablingService::getInstance())->h2s_cell_id_index (ros, drawer, channel, index, pmt);
 
-    if (index == -2) { // MBTS cells
+    if (index == -3) { // E4' cells
+
+      if (m_E4prCells) { // do something with them only if contaier existst
+        ++nE4pr;
+
+        // convert ADC counts to MeV. like for normal cells
+        float ener = m_tileToolEmscale->channelCalib(drawerIdx, channel, gain, amp , oldUnit
+                                                     , TileRawChannelUnit::MegaElectronVolts);
+
+        eE4prTot += ener;
+        unsigned char iqual = iquality(qual);
+        // for E4' cell qbit use only non_zero_time flag and check that energy is above standatd energy threshold in MeV
+        unsigned char qbit = qbits(ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
+                                   , overflow, underflow, overfit);
+        CaloGain::CaloGain cgain = (gain == TileID::HIGHGAIN)
+                                   ? CaloGain::TILEONEHIGH
+                                   : CaloGain::TILEONELOW;
+
+        TileCell* pCell = tileCellsP.nextElementPtr();
+        // no CaloDDE
+        // Cell ID is set explicitly
+        pCell->set(NULL, cell_id);
+        pCell->setEnergy_nonvirt(ener, 0, cgain, 3);
+        pCell->setTime_nonvirt(time);
+        pCell->setQual1(iqual);
+        pCell->setQual2(0);
+        pCell->setQbit1(qbit);
+        pCell->setQbit2(0);
+
+        if (msgLvl(MSG::VERBOSE)) {
+          msg(MSG::VERBOSE) << " E4'  cell_id=" << m_tileTBID->to_string(cell_id)
+                            << " adc_id=" << m_tileHWID->to_string(adc_id)
+                            << " ene= " << ener
+                            << " amp= " << amp
+                            << " time= " << time
+                            << " qual= " << pChannel->quality()
+                            << " iqual= " << (int) iqual
+                            << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec;
+
+          if (ped > 5000)
+            msg(MSG::VERBOSE) << " err = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
+          else
+            msg(MSG::VERBOSE) << endmsg;
+        }
+
+        if (m_maskBadChannels && maskBadChannel(pCell, adc_id))
+          ATH_MSG_VERBOSE ( "cell with id=" << m_tileTBID->to_string(cell_id)
+                             << " bad channel masked, new energy=" << pCell->energy() );
+
+        m_E4prCells->push_back(pCell); // store cell in container
+
+      }
+
+    } else if (index == -2) { // MBTS cells
 
       if (m_MBTSCells) { // do something with them only if contaier existst
         ++nMBTS;
@@ -214,7 +269,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
       	   && channel == E1_CHANNEL
 	   && ros > 2) { // Raw channel -> E1 cell.
 
-       int drawer2 = (TileCablingService::getInstance())->E1_merged_with_run2(drawer);
+       int drawer2 = (TileCablingService::getInstance())->E1_merged_with_run2(ros,drawer);
        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
          int side = (ros == 3) ? 1 : -1;
          Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, E1_TOWER, TileID::SAMP_E);
@@ -377,9 +432,12 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     if (m_MBTSCells)
       msg(MSG::DEBUG) << " nMBTS=" << nMBTS
-                      << " eMBTS=" << eMBTSTot << endmsg;
-    else
-      msg(MSG::DEBUG) << endmsg;
+                      << " eMBTS=" << eMBTSTot;
+    if (m_E4prCells)
+      msg(MSG::DEBUG) << " nE4pr=" << nE4pr
+                      << " eE4pr=" << eE4prTot;
+
+    msg(MSG::DEBUG) << endmsg;
   }
   
   m_tileID->set_do_checks(do_checks);

@@ -59,6 +59,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   : AthAlgTool(type, name, parent)
   , m_rawChannelContainer("TileRawChannelCnt")
   , m_MBTSContainer("MBTSContainer")
+  , m_E4prContainer("E4prContainer")
   , m_eneForTimeCut(35. * MeV) // keep time only for cells above 70 MeV (more than 35 MeV in at least one PMT to be precise)
   , m_eneForTimeCutMBTS(0.03675) // the same cut for MBTS, but in pC, corresponds to 3 ADC counts or 35 MeV
   , m_qualityCut(254) // cut on overflow in quality (if quality is 255 - assume that channel is bad)
@@ -84,6 +85,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_MBTSCells(0)
+  , m_E4prCells(0)
   , m_RChType(TileFragHash::Default)
   , m_RChUnit(TileRawChannelUnit::ADCcounts)
   , m_maxTimeCorr(75.0)
@@ -108,6 +110,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
 
   declareProperty("TileRawChannelContainer", m_rawChannelContainer);  // Raw channel to convert
   declareProperty("MBTSContainer",           m_MBTSContainer);        // Where to put MBTS cells
+  declareProperty("E4prContainer",           m_E4prContainer);        // Where to put E4'  cells
   declareProperty("TileDSPRawChannelContainer", m_dspRawChannelContainer = "TileRawChannelCnt");
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
@@ -225,11 +228,15 @@ StatusCode TileCellBuilder::geoInit(IOVSVC_CALLBACK_ARGS) {
   //=== get TileCondToolTiming
   CHECK( m_tileToolTiming.retrieve() );
 
-
   reset(true, false);
 
   if (m_MBTSContainer.size() > 0)
     ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
+
+  if ( (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2Cabling)
+    m_E4prContainer = ""; // no E4' container for RUN1
+  else if (m_E4prContainer.size() > 0)
+    ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
 
   ATH_MSG_INFO( "TileCellBuilder initialization completed" );
 
@@ -264,6 +271,7 @@ void TileCellBuilder::reset(bool /* fullSizeCont */, bool printReset) {
   m_allCells.resize(m_tileID->cell_hash_max(), 0);
   
   m_MBTSCells = NULL;
+  m_E4prCells = NULL;
 
   ATH_MSG_INFO( "size of temp vector set to " << m_allCells.size() );
   ATH_MSG_INFO( "taking RawChannels from '" << m_rawChannelContainer << "'" );
@@ -340,6 +348,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       m_MBTSCells = new TileCellContainer(SG::VIEW_ELEMENTS);
     else
       m_MBTSCells = NULL;
+
+    if (m_E4prContainer.size() > 0)
+      m_E4prCells = new TileCellContainer(SG::VIEW_ELEMENTS);
+    else
+      m_E4prCells = NULL;
 
     SelectAllObject<TileRawChannelContainer> selAll(rawChannels);
     SelectAllObject<TileRawChannelContainer>::const_iterator begin = selAll.begin();
@@ -494,6 +507,12 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     if (m_MBTSContainer.size() > 0) {
       if (evtStore()->record(m_MBTSCells, m_MBTSContainer, false).isFailure()) {
         ATH_MSG_ERROR( " Could not register TileCellContainer for MBTS with name " << m_MBTSContainer );
+      }
+    }
+
+    if (m_E4prContainer.size() > 0) {
+      if (evtStore()->record(m_E4prCells, m_E4prContainer, false).isFailure()) {
+        ATH_MSG_ERROR( " Could not register TileCellContainer for E4'  with name " << m_E4prContainer );
       }
     }
     

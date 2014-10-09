@@ -138,6 +138,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     std::string m_rawChannelContainer;
     std::string m_infoName;
     std::string m_MBTSContainer;
+    std::string m_E4prContainer;
     std::string m_dspRawChannelContainer;
 
     float m_eneForTimeCut;        //!< keep time for channels with energy above cut
@@ -182,6 +183,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
     std::vector<TileCell*> m_allCells;  //!< vector to of pointers to TielCells
     TileCellContainer* m_MBTSCells;     //!< Pointer to MBTS cell container
+    TileCellContainer* m_E4prCells;     //!< Pointer to E4'  cell container
 
     TileFragHash::TYPE m_RChType;        //!< Type of TileRawChannels (Fit, OF2, etc.)
     TileRawChannelUnit::UNIT m_RChUnit;  //!< Unit for TileRawChannels (ADC, pCb, etc.)

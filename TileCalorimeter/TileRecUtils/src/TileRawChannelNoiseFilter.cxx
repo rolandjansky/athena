@@ -33,10 +33,10 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_tileBadChanTool("TileBadChanTool")
     , m_beamInfo( "TileBeamInfoProvider/TileBeamInfoProvider")
-    , m_truncationThresholdOnAbsEinSigma(4.0) // 4 sigma of ADC HF noise by default
+    , m_truncationThresholdOnAbsEinSigma(3.0) // 3 sigma of ADC HF noise by default
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
-    , m_useGapCells(true) // use gap cells for noise filter as all normal cells
+    , m_useGapCells(false) // use gap cells for noise filter as all normal cells
 {
   declareInterface<ITileRawChannelTool>(this);
   declareInterface<TileRawChannelNoiseFilter>(this);
