@@ -33,7 +33,9 @@
 SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type, 
 					    const std::string& name,
 					    const IInterface* parent) : 
-  AlgTool( type, name, parent ),
+  AthAlgTool( type, name, parent ),
+  p_activeStore(0),
+  m_nXings(0),
   m_nStores1(0),
   m_nStores2(0),
   m_meanCollisionsPerBunchCrossing(23.0),
@@ -61,7 +63,6 @@ SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type,
   f_collDistr(0),
   f_numberOfBackgroundForBunchCrossing(0),
   m_collXingSF(1.0),
-  m_msg(name),
   m_zeroXing(-1),
   m_beamInt(0)
 {   
@@ -103,7 +104,7 @@ SplitBkgStreamsCache::queryInterface(const InterfaceID& riid, void** ppvif)
       addRef();
       return StatusCode::SUCCESS;
     }
-  return AlgTool::queryInterface( riid, ppvif );
+  return AthAlgTool::queryInterface( riid, ppvif );
 }
 
 void

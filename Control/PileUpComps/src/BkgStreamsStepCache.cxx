@@ -33,8 +33,11 @@
 BkgStreamsStepCache::BkgStreamsStepCache( const std::string& type, 
 					  const std::string& name,
 					  const IInterface* parent) : 
-  AlgTool( type, name, parent ),
+  AthAlgTool( type, name, parent ),
+  p_activeStore(0),
   m_firstEvent(true),
+  m_currentXing(0),
+  m_nXings(0),
   m_nStores(0),
   m_collXing(23.0),
   m_occupationFraction(1.0),
@@ -54,7 +57,6 @@ BkgStreamsStepCache::BkgStreamsStepCache( const std::string& type,
   f_numberOfBackgroundForBunchCrossing(0),
   m_collXingSF(1.0),
   m_ignoreSF(false),
-  m_msg(name),
   m_zeroXing(-1),
   m_beamInt(0)
   
@@ -88,7 +90,7 @@ BkgStreamsStepCache::queryInterface(const InterfaceID& riid, void** ppvif) {
     addRef();
     return StatusCode::SUCCESS;
   }
-  return AlgTool::queryInterface( riid, ppvif );
+  return AthAlgTool::queryInterface( riid, ppvif );
 }
 
 void

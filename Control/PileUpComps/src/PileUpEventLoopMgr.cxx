@@ -40,6 +40,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& nam,
 				       ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(nam, svcLoc), 
     p_incidentSvc(0), p_mergeSvc(0),
+    p_SGOver(0),
     m_nInputs(0), m_nStores(0), 
     m_origSel("EventSelector", nam),
     m_caches(this),

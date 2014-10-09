@@ -39,8 +39,14 @@ StatusCode DigitizationAlg::execute() {
   while (sc.isSuccess() && (iPUT != ePUT)) {
     IPileUpTool& put(**iPUT);
     ATH_MSG_VERBOSE( "Running IPileUpTool " << put.name() );
+    put.resetFilter(); // Reset the filter first
     sc=put.processAllSubEvents();
     ++iPUT;
+    if (!put.filterPassed()){
+      ATH_MSG_VERBOSE( "Filter " << put.name() << " failed - will stop the event" );
+      this->setFilterPassed(false);
+      break;
+    }
   }
   return sc;
 }

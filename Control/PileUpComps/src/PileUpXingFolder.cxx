@@ -8,7 +8,7 @@
  PileUpXingFolder::PileUpXingFolder( const std::string& type, 
 				     const std::string& name,
 				     const IInterface* parent) : 
-   AlgTool(type, name, parent),
+   AthAlgTool(type, name, parent),
    m_folder( "SG::Folder/SGF", this ),
    m_firstXing(-999),
    m_lastXing(999),
@@ -29,7 +29,7 @@ StatusCode PileUpXingFolder::queryInterface(const InterfaceID& riid, void** ppvI
     addRef();
     return StatusCode::SUCCESS;
   }
-  return AlgTool::queryInterface( riid, ppvIf );
+  return AthAlgTool::queryInterface( riid, ppvIf );
 }
 
 StatusCode PileUpXingFolder::initialize() {
