@@ -50,6 +50,12 @@ macro rootTableLibs "" \
 macro rootRooFitLibs "" \
           ROOTRooFitLibs "-L$(ROOT_home)/lib -lRooFitCore -lRooFit"
 
+macro rootTMVALibs "" \
+          ROOTTMVALibs "-L$(ROOT_home)/lib -lTMVA"
+
+macro rootNetLibs "" \
+          ROOTNetLibs "-L$(ROOT_home)/lib -lNet"
+
 ## prevent people from messing around with CINT dictionaries:
 ##  ATLAS is using Reflex dictionaries, they don't mix well...
 macro rootSTLDictLibs "" \
@@ -58,7 +64,7 @@ macro rootSTLDictLibs "" \
 # default tag:
 apply_tag ROOTBasicLibs
 
-macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) "
+macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) $(rootTMVALibs) $(rootNetLibs) "
 
 # Define pattern for packages with root files which need root cint to
 # be run.
@@ -100,6 +106,7 @@ pattern have_root_headers \
   macro extra_root_cint_includes <extra_includes> ; \
   macro_append extra_root_cint_includes "" Darwin " -I${ROOTSYS}/cint/cint/include -I${ROOTSYS}/cint/cint/lib -I${ROOTSYS}/cint/cint/stl " ; \
   macro root_cint_includes "-I.. -I${ROOTSYS}/include ${extra_root_cint_includes} " ; \
+  macro PCM_make_target ""  ROOT_GE_6_00 <headers_lib>Dict.pcm ; \
   document root_cint <headers_lib>Dict ${root_headers} ; \
   include_dirs "." ; \
   library <headers_lib> $(dict)<headers_lib>Dict.cxx ; \
