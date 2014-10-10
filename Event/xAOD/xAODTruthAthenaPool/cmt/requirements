@@ -1,5 +1,5 @@
 package xAODTruthAthenaPool
-# $Id: requirements 578543 2014-01-15 14:42:29Z jmitrevs $
+# $Id: requirements 621073 2014-10-10 10:42:51Z krasznaa $
 
 author Andy Buckley <Andy.Buckley@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
@@ -11,6 +11,10 @@ use AtlasPolicy         AtlasPolicy-*
 
 private
 
+# Basic package(s):
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
@@ -20,13 +24,13 @@ use xAODTruth           xAODTruth-*           Event/xAOD
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::TruthParticleContainer \
                                           xAOD::TruthParticleAuxContainer \
-					  xAOD::TruthVertexContainer \
+                                          xAOD::TruthVertexContainer \
                                           xAOD::TruthVertexAuxContainer \
                                           xAOD::TruthEventContainer \
                                           xAOD::TruthEventAuxContainer" \
                       files="-s=${xAODTruth_root}/xAODTruth \
                              TruthParticleContainer.h \
-			     TruthParticleAuxContainer.h \
+			                    TruthParticleAuxContainer.h \
                              TruthVertexContainer.h \
                              TruthVertexAuxContainer.h \
                              TruthEventContainer.h \

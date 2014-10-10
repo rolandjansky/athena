@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTruthParticleContainerCnv.h 582242 2014-02-07 17:29:13Z jcatmore $
+// $Id: xAODTruthParticleContainerCnv.h 582241 2014-02-07 17:28:39Z jcatmore $
 #ifndef XAODTRUTHATHENAPOOL_XAODTRUTHPARTICLECONTAINERCNV_H
 #define XAODTRUTHATHENAPOOL_XAODTRUTHPARTICLECONTAINERCNV_H
 
@@ -28,8 +28,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TruthParticleContainer,
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  * @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
  *
- * $Revision: 582242 $
- * $Date: 2014-02-07 18:29:13 +0100 (Fri, 07 Feb 2014) $
+ * $Revision: 582241 $
+ * $Date: 2014-02-07 18:28:39 +0100 (Fri, 07 Feb 2014) $
  */
 class xAODTruthParticleContainerCnv : public xAODTruthParticleContainerCnvBase {
 
