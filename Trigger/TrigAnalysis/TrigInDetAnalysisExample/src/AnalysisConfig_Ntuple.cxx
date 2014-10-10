@@ -172,6 +172,53 @@ void AnalysisConfig_Ntuple::loop() {
 		}
 
 		tida_first = false;
+
+		//		std::cout << "input chains" << std::endl;
+		//		for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) std::cout << "chains " << ic << "\t" << m_chainNames[ic] << std::endl;
+
+
+		std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
+
+		/// handle wildcard chain selection - but only the first time
+		while ( chainitr!=m_chainNames.end() ) {
+  
+		  /// get chain
+		  ChainString chainName = (*chainitr);
+
+		  /// check for wildcard ...
+		  if ( chainName.head().find("*")!=std::string::npos ) { 
+
+		    //		    std::cout << "wildcard chains: " << chainName << std::endl;
+
+		    /// delete from vector 
+		    m_chainNames.erase(chainitr);
+
+		    /// get matching chains
+		    std::vector<std::string> selectChains  = (*m_tdt)->getListOfTriggers( chainName.head() );
+
+		    //		    std::cout << "selected chains " << selectChains.size() << std::endl;
+
+		    for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+ 
+		      if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
+		      if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
+		      if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+		      if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+		     
+		      /// replace wildcard with actual matching chains ...
+		      m_chainNames.push_back( selectChains[iselected] );
+
+		      m_provider->msg(MSG::INFO) << "[91;1m" << "Matching chain " << selectChains[iselected] << "[m" << endreq;
+		     
+		    }
+		  }
+		  else chainitr++;
+		}
+
+		//	  std::cout << "output chains" << std::endl;
+		//	  for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) std::cout << "chains " << ic << "\t" << m_chainNames[ic] << std::endl;
+
+
 	}
 
 	Filter_AcceptAll filter;

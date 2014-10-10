@@ -12,7 +12,7 @@ public:
     std::string _s(s);
     std::string pass = chomp(_s,";");
 
-    std::cout << "chomp " << pass << " : " << _s << std::endl;
+    //    std::cout << "chomp " << pass << " : " << _s << std::endl;
 
     if ( pass!="" ) mpassed = ( pass=="DTE" ? false : true );
 

@@ -16,6 +16,7 @@
 #include "TrigInDetAnalysisExample/TrigTestMonToolAC.h"
 #include "TrigInDetAnalysisExample/AnalysisConfig_Tier0.h"
 #include "TrigInDetAnalysisExample/AnalysisConfig_Ntuple.h"
+#include "TrigInDetAnalysisExample/ChainString.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
@@ -35,7 +36,7 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_keepAllEvents(false),
      m_fileopen(false)
 {
-  msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endreq;
+  msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endreq;
 
   declareProperty( "pTCut",   m_pTCut   = 0 );
   declareProperty( "etaCut",  m_etaCut  = 5 );
@@ -68,7 +69,7 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
   declareProperty( "matchR",   m_matchR   = 0.1 );
   declareProperty( "matchPhi", m_matchPhi = 0.1 );
 
-  declareProperty( "chainNames",        m_chainNames );
+  //  declareProperty( "chainNames",        m_chainNames );
   declareProperty( "ntupleChainNames",  m_ntupleChainNames );
   declareProperty( "releaseMetaData",   m_releaseMetaData );
 
@@ -119,34 +120,6 @@ StatusCode TrigTestMonToolAC::init() {
   m_roiInfo.phiHalfWidth(m_phiWidth);
   m_roiInfo.zedHalfWidth(m_zedWidth);
   
-  // track filters 
-  // reference (offline) tracks...
-  //  TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, m_z0CutOffline, m_pTCutOffline,
-  TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, m_z0CutOffline, m_pTCutOffline,
-					     1, 6, -1, -1,  -2, -2 );
-  
-  // test (trigger) tracks...
-  //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
-  TrackFilter* filterTest = new Filter_AcceptAll();
-  
-  // test (trt trigger) track selector 
-  TrackFilter* filterTest_TRT = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut,
-						  -1, -1, -1, -1, m_strawHits, -2 );
-  
-  // keep track of the filters so they can be cleaned up at the end
-  m_filters.push_back(filterRef);
-  m_filters.push_back(filterTest);
-  m_filters.push_back(filterTest_TRT);
-  
-  // track associators 
-  TrackAssociator*  dR_matcher = new   Associator_BestDeltaRMatcher(  "EBdeltaR",    m_matchR ); // this needs to be set correctly
-  TrackAssociator* phi_matcher = new Associator_BestDeltaPhiMatcher( "EBdeltaPhi", m_matchPhi ); // this needs to be set correctly
-  
-  
-  // keep track of the filters so they can be cleaned up at the end
-  m_associators.push_back(dR_matcher);
-  m_associators.push_back(phi_matcher);
-
   if ( m_buildNtuple && m_analysis_config != "Tier0") { 
     m_sequences.push_back( new AnalysisConfig_Ntuple( &m_roiInfo, m_ntupleChainNames, 
 						      m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
@@ -155,31 +128,10 @@ StatusCode TrigTestMonToolAC::init() {
     if ( m_mcTruth ) m_sequences.back()->setMCTruth(m_mcTruth);
   }  
   
-  if(m_analysis_config == "Tier0"){
-    
-    for( unsigned i=0 ; i<m_ntupleChainNames.size() ; i++ ){
-      
-      m_sequences.push_back( new AnalysisConfig_Tier0(m_ntupleChainNames[i], 
-						      m_ntupleChainNames[i], "", "",
-						      m_ntupleChainNames[i], "", "",
-						      &m_roiInfo,
-						      filterTest, filterRef, 
-						      dR_matcher,
-						      new Analysis_Tier0(m_ntupleChainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+  /// NB: Do NOT create the sequences here - leave it until the book() method, since
+  ///     we need to be automatically determine which chains to process, and so need
+  ///     the TrigDecisionTool which is niot configured until we have an iov
 
-      if(m_ntupleChainNames.at(i).find("L2_e")!=std::string::npos ||
-	 m_ntupleChainNames.at(i).find("EF_e")!=std::string::npos)
-
-	m_sequences.push_back( new AnalysisConfig_Tier0(m_ntupleChainNames[i],
-							m_ntupleChainNames[i], "mediumPP", "",
-							m_ntupleChainNames[i], "", "",
-							&m_roiInfo,
-							filterTest, filterRef,
-							dR_matcher,
-							new Analysis_Tier0(m_ntupleChainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
-    }
-  }
-    
   msg(MSG::DEBUG) << " -----  exit init() ----- " << endreq;
 
   return StatusCode::SUCCESS; 
@@ -202,6 +154,129 @@ StatusCode TrigTestMonToolAC::init() {
 		  << "\tNewEventBlock " << newEventsBlock 
 		  << "\tNewLumiBlock "  << newLumiBlock 
 		  << "\tNewRun "        << newRun  <<  std::endl;
+
+
+  /// create sequences if need be ...
+
+  static bool _first = true;
+
+  if ( _first ) { 
+
+    _first = false;
+
+    // track filters 
+    // reference (offline) tracks...
+    //  TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, m_z0CutOffline, m_pTCutOffline,
+    TrackFilter* filterRef = new Filter_Track( m_etaCutOffline, m_d0CutOffline, m_z0CutOffline, m_pTCutOffline,
+					       1, 6, -1, -1,  -2, -2 );
+  
+    // test (trigger) tracks...
+    //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
+    TrackFilter* filterTest = new Filter_AcceptAll();
+    
+    // test (trt trigger) track selector 
+    TrackFilter* filterTest_TRT = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut,
+						    -1, -1, -1, -1, m_strawHits, -2 );
+    
+    // keep track of the filters so they can be cleaned up at the end
+    m_filters.push_back(filterRef);
+    m_filters.push_back(filterTest);
+    m_filters.push_back(filterTest_TRT);
+    
+    // track associators 
+    TrackAssociator*  dR_matcher = new   Associator_BestDeltaRMatcher(  "EBdeltaR",    m_matchR ); // this needs to be set correctly
+    TrackAssociator* phi_matcher = new Associator_BestDeltaPhiMatcher( "EBdeltaPhi", m_matchPhi ); // this needs to be set correctly
+    
+    
+    // keep track of the filters so they can be cleaned up at the end
+    m_associators.push_back(dR_matcher);
+    m_associators.push_back(phi_matcher);
+
+    msg(MSG::WARNING) << "[91;1m" << "m_analysis_config " << m_analysis_config << "[m" << endreq;
+   
+    if(m_analysis_config == "Tier0"){
+
+
+      std::vector<std::string> chains;
+      chains.reserve( m_ntupleChainNames.size() );
+
+      /// handle wildcard chain selection - but only the first time                                                                                                                                                                
+      std::vector<std::string>::iterator chainitr = m_ntupleChainNames.begin();
+
+   
+      
+      while ( chainitr!=m_ntupleChainNames.end() ) {
+	
+	/// get chain                                                                                                                                                                                                              
+	ChainString chainName = (*chainitr);
+	
+	/// check for wildcard ...                                                                                                                                                                                                 
+	if ( chainName.head().find("*")!=std::string::npos ) {
+	  
+	  //                  std::cout << "wildcard chains: " << chainName << std::endl;                                                                                                                                          
+	  
+	  /// delete from vector                                                                                                                                                                                                   
+	  //  m_ntupleChainNames.erase(chainitr);
+	  
+	  /// get matching chains                                                                                                                                                                                                  
+	  std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
+	  
+	  //                  std::cout << "selected chains " << selectChains.size() << std::endl;                                                                                                                                 
+	  
+	  if ( selectChains.size()==0 ) msg(MSG::WARNING) << "[91;1m" << "No chains matched for requested input " << chainName << "[m" << endreq;
+	 
+	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+	    
+	    if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
+	    if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
+	    if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+	    if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	      
+	    /// replace wildcard with actual matching chains ...                                                                                                                                                                   
+	    chains.push_back( selectChains[iselected] );
+	    
+	    msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
+	    
+	  }
+	}
+	else { 
+	  chains.push_back( *chainitr );
+	}
+	 
+	chainitr++;
+      }
+
+      m_chainNames = chains;
+      
+
+      for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ){
+	
+	m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
+							m_chainNames[i], "", "",
+							m_chainNames[i], "", "",
+							&m_roiInfo,
+							filterTest, filterRef, 
+							dR_matcher,
+							new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+
+	m_sequences.back()->releaseData(m_releaseMetaData);	
+
+	if(m_chainNames.at(i).find("L2_e")!=std::string::npos ||
+	   m_chainNames.at(i).find("EF_e")!=std::string::npos)
+
+	  /// ??? shouldn't this have some different name? seems we might have some duplication here 
+
+	  m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i],
+							  m_chainNames[i], "mediumPP", "",
+							  m_chainNames[i], "", "",
+							  &m_roiInfo,
+							  filterTest, filterRef,
+							  dR_matcher,
+							  new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+      }
+    }
+    
+  }
 
   if ( !m_fileopen && newRun && ( m_initialisePerRun || m_firstRun ) ) { 
     m_fileopen = true;
