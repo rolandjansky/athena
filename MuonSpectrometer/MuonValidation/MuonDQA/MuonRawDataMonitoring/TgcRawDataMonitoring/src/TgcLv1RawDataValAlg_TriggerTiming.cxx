@@ -16,11 +16,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-
 // GeoModel
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
@@ -953,8 +948,6 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
                                                            vector<float>* mu_phi,vector<float>* mu_q ){
   // Get/Set vector size and cut variables
   int   osize        = mu_pt->size();
-  const float deltarcutpt1 = 0.5;
-  const float deltarcut    = 0.25;
 
   // Skip Event if any Offline Muons were found close to each other
   for(int o1 = 0 ; o1 < osize ; o1++){
@@ -991,12 +984,8 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
 
     for(int pcn=0;pcn<3;pcn++){
       
-      bool flag[6];
-      for(int pt=0;pt<6;pt++)flag[pt]=false;
-
       float deltarmin=1.;
       int   tptmin=-1;
-      float charge=0;
 
       int tsize = m_sl_pt[pcn].size();
       for(int t=0;t<tsize;t++){
@@ -1018,7 +1007,6 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
         if(deltar<deltarmin){
           deltarmin=deltar;
           tptmin=tpt;
-          charge=oq;
           
           if(slpt<tpt){
             slpt=tpt;
@@ -1030,15 +1018,6 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
           }
         }
 
-        //PT1
-        if(deltar<deltarcutpt1) flag[0] = true;
-
-        //PT2-PT6
-        if(deltar<deltarcut){
-          for(int pt=1;pt<tpt;pt++){
-            flag[pt]=true;
-          }
-        }
 
       }//trigger
       //fill SL timing

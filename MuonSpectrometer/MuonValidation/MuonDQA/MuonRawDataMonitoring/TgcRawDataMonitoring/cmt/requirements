@@ -22,7 +22,7 @@ use     MuonPrepRawData		MuonPrepRawData-* 	        MuonSpectrometer/MuonReconst
 use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
 private
-use     EventInfo               EventInfo-*                     Event
+use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
 use	AnalysisTriggerEvent	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger 
 use     Identifier              Identifier-*                    DetectorDescription
 use     MuonDigitContainer      MuonDigitContainer-*            MuonSpectrometer

@@ -16,10 +16,7 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
@@ -466,53 +463,30 @@ TgcLv1RawDataValAlg::readEventInfo(){
   m_BCID      = -1;
 
   // Get Event Info DataHandle
-  const DataHandle<EventInfo> event_handle;
+  const DataHandle<xAOD::EventInfo> event_handle;
   if((*m_activeStore)->retrieve(event_handle).isFailure()){
     m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endreq;
     return StatusCode::FAILURE;
   }
   
-  // Get EventInfo
-  const EventInfo* evt(0);
-  StatusCode sc = (*m_activeStore)->retrieve(evt);
-  if(sc.isFailure() || evt==0){
-    m_log << MSG::ERROR << " Cannot retrieve EventInfo " <<endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  // Get EventID
-  const EventID* evtid = evt->event_ID();
-  if(!evtid){
-    m_log<< MSG::FATAL << " no evtid object" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
   // Get event index variables
-  m_lumiblock = evtid->lumi_block() ;
-  m_event     = evtid->event_number() ;
-  m_BCID      = evtid->bunch_crossing_id() ;
+  m_lumiblock = event_handle->lumiBlock() ;
+  m_event     = event_handle->eventNumber() ;
+  m_BCID      = event_handle->bcid() ;
   
   // **********************************************
-
-  // Get TriggerInfo
-  TriggerInfo* trig = event_handle->trigger_info();
-  if( !trig ){
-    m_log << MSG::ERROR <<" Cannot get TriggerInfo " <<endreq;
-    return StatusCode::FAILURE;
-  }
   // Get Stream Tags
-  const std::vector<TriggerInfo::StreamTag> &stream = trig->streamTags();
-  
+  const std::vector<xAOD::EventInfo::StreamTag> &stream = event_handle->streamTags();
+
   // Search Stream Tags for express stream
   m_found_express_stream = false;
-  for( unsigned i = 0 ; i < stream.size() ; ++i ){
-    const TriggerInfo::StreamTag & stag = stream.at(i);
-    if( stag.type() == "express" && stag.name() == "express" ){
+  for(auto stag : stream) {
+    if(stag.type()=="express" && stag.name()=="express") {
       m_found_express_stream = true;
       break;
     }
   }
-  
+
   if(m_found_express_stream){
     // Search Store for non-muon express chain
     m_found_nonmuon_express_chain = false;

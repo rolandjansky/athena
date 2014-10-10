@@ -23,8 +23,7 @@
 
 #include "Identifier/Identifier.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // MuonRDO
 #include "MuonRDO/TgcRdo.h"
@@ -401,7 +400,7 @@ TgcRawDataValAlg::fillEventInfo(){
 
   //get Event Info
   //const DataHandle<EventInfo> evt;
-  const EventInfo* evt(0);
+  const xAOD::EventInfo* evt(0);
   StatusCode sc = (*m_activeStore)->retrieve(evt);
   if ( sc.isFailure() || evt==0) {
     m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endreq;
@@ -409,19 +408,10 @@ TgcRawDataValAlg::fillEventInfo(){
     //tgceventsinbcid->Fill( m_BCID );
     return StatusCode::FAILURE;
   }
-  
-  const EventID* evtid = evt->event_ID();
 
-  if(! evtid ){
-    m_log<< MSG::FATAL << " no evtid object" << endreq;
-    //tgceventsinlb->Fill( m_lumiblock );
-    //tgceventsinbcid->Fill( m_BCID );
-    return StatusCode::FAILURE;
-  }
-
-  m_lumiblock = evtid->lumi_block() ;
-  m_event     = evtid->event_number() ;
-  m_BCID      = evtid->bunch_crossing_id() ;
+  m_lumiblock = evt->lumiBlock() ;
+  m_event     = evt->eventNumber() ;
+  m_BCID      = evt->bcid() ;
 
   //tgceventsinlb->Fill( m_lumiblock );
   //tgceventsinbcid->Fill( m_BCID );
