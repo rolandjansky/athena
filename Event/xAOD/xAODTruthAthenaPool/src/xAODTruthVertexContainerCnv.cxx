@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTruthVertexContainerCnv.cxx 582242 2014-02-07 17:29:13Z jcatmore $
+// $Id: xAODTruthVertexContainerCnv.cxx 582241 2014-02-07 17:28:39Z jcatmore $
 
 // System include(s):
 #include <exception>
