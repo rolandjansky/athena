@@ -1181,6 +1181,7 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<i
 
   float mu = m_lumiBlockMuTool->actualInteractionsPerCrossing();
   int bcid = iBCID;
+  if(m_debug) { m_log << MSG::VERBOSE << "::eventBCID = " << iBCID << endreq; }
   for (int i = 0; i < (int)digits.size(); i++) {
     int sum = 0;
     /// Only calculate where enough informations
@@ -1194,16 +1195,16 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<i
 
     // Pedestal Correction
     if (m_correctFir) {
-      if (bcid+i-3 >= 0 && bcid+i-3 < m_nBcid) {
-        int dynamicPed = m_dynamicPedestalProvider->dynamicPedestal(iEta, layer, firPed, bcid+i-3, mu);
-        if(m_debug) {
-          m_log << MSG::VERBOSE
-                << "::dynamicPedestal("
-                << iEta << ", " << bcid+i-3 << ", " << layer << ", " << mu
-                << "): " << dynamicPed << endreq;
-        }
-        sum -= (dynamicPed - firPed);
+      int dynamicPed = m_dynamicPedestalProvider->dynamicPedestal(iEta, layer, firPed, bcid+i-3, mu);
+      if(m_debug) {
+        m_log << MSG::VERBOSE
+              << "::dynamicPedestal("
+              << iEta << ", " << bcid+i-3 << ", " << layer << ", " << mu
+              << "): " << dynamicPed << endreq;
+        m_log << MSG::VERBOSE
+              << "::pedestalCorrection: " << (dynamicPed - firPed) << endreq;
       }
+      sum -= (dynamicPed - firPed);
     }
     if (sum < 0) sum = 0;
     output.push_back(sum);
