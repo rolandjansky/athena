@@ -15,9 +15,8 @@ HepMCReadFromFile::HepMCReadFromFile(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode HepMCReadFromFile::initialize() {
   CHECK(GenBase::initialize());
-  // Initialize input file
+  // Initialize input file and event number
   m_hepmcio.reset( new HepMC::IO_GenEvent(m_input_file.c_str(), std::ios::in) );
-  // Initialize event number
   m_event_number = 0;
   return StatusCode::SUCCESS;
 }

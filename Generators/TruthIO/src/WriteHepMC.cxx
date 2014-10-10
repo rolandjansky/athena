@@ -23,6 +23,6 @@ StatusCode WriteHepMC::initialize() {
 
 StatusCode WriteHepMC::execute() {
   // Just write out the first (i.e. signal) event in the collection
-  m_hepmcio->write_event(event());
+  m_hepmcio->write_event(event_const());
   return StatusCode::SUCCESS;
 }
