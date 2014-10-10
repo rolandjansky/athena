@@ -131,16 +131,20 @@ void L1DynamicPedestalProviderTxt::fillDistanceFromHeadOfTrain()
 // Return the dynamic pedestal.
 // In case no correction is available or applicable this function
 // returns the uncorrected pedestal.
-int L1DynamicPedestalProviderTxt::dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu)
+int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int pedestal, int iBCID, float mu)
 {
   if(iBCID < 0 || (unsigned)iBCID >= m_distanceFromHeadOfTrain.size()) return pedestal;
 
   // Only one bunch train is parameterized. Thus the BCID needs to be mapped
   // to the first train. The train starts at bcid = 1, thus the '+ 1'.
-  // Unfilled bunches will have a value of -9 and a value of 0 is returned.
+  // Bunches without available parameterization will have a value of -9 and a value of 0 is returned.
   int bcid = m_distanceFromHeadOfTrain[iBCID] + 1;
   
   if(bcid < 0) return pedestal;
+
+  // iEta is given (despite its name) as element index
+  int iEta = 33 - iElement - 1;
+  ATH_MSG_VERBOSE("iEta transformed to " << iEta << " from " << iElement);
 
   // The parameterization is done for the dynamic pedestal correction,
   // i.e. correction = (dynamic_pedestal - pedestal).
