@@ -32,7 +32,7 @@ StatusCode DumpMC::execute() {
   if (m_DeepCopy) {
     McEventCollection* mcCollptra = new McEventCollection();
     // Fill the new McEventCollection with a copy of the initial HepMC::GenEvent
-    for (McEventCollection::const_iterator evt = events()->begin(); evt != events()->end(); ++evt) {
+    for (McEventCollection::const_iterator evt = events_const()->begin(); evt != events_const()->end(); ++evt) {
       mcCollptra->push_back(new HepMC::GenEvent(*(*evt)));
     }
     // Loop over all events in McEventCollection
@@ -85,7 +85,7 @@ StatusCode DumpMC::execute() {
   }
 
   // Loop over all events in McEventCollection
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     //int g_id = (*itr)->signal_process_id();
     //GeneratorName_print(g_id);
     HepMC::PdfInfo *pdfinfo = (*itr)->pdf_info();
