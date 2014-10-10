@@ -8,5 +8,5 @@ use AtlasBoost          AtlasBoost-*          External
 use AtlasFastJet        AtlasFastJet-*        External
 use AtlasROOT           AtlasROOT-*           External
 
-library TruthUtils *.cxx
+library TruthUtils ../Root/*.cxx
 apply_pattern installed_library
