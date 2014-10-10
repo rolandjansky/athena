@@ -17,7 +17,6 @@ private
 use AthenaKernel         AthenaKernel-*          Control
 use AthContainers        AthContainers-*         Control
 use JetEvent             JetEvent-*              Reconstruction/Jet
-#use GeneratorUtils       GeneratorUtils-*        Generators
 use TruthUtils           TruthUtils-*            Generators
 #use xAODBase             xAODBase-*              Event/xAOD
 #use AtlasHepMC           AtlasHepMC-*            External
