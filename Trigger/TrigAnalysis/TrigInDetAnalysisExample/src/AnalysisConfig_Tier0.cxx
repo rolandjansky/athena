@@ -49,6 +49,11 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+// xAOD
+// not actual XAOD, but this file safely includes 
+// the xAOD::TrackParticle header if it exists
+#include "TrkParticleCreator/TrackParticleCreatorTool.h"
+
 
 void AnalysisConfig_Tier0::loop() {
 
@@ -77,14 +82,70 @@ void AnalysisConfig_Tier0::loop() {
   static bool first = true;
 
   if ( first ) { 
-    std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*");
+    std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
     
     for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-      if(m_provider->msg().level() <= MSG::VERBOSE)
-	m_provider->msg(MSG::VERBOSE)  << "Chain " << configuredChains[i]  << endreq;
+      if(m_provider->msg().level() <= MSG::INFO)
+	m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endreq;
     }
     
     first = false;
+
+ 
+    //    std::vector<std::string> chains;
+    //    chains.reserve( m_chainNames.size() );
+
+    m_chainNames.reserve( 2*m_chainNames.size() );
+    std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
+
+    std::vector<ChainString> chains;
+
+    /// handle wildcard chain selection - but only the first time
+    while ( chainitr!=m_chainNames.end() ) {
+  
+      /// get chain
+      ChainString chainName = (*chainitr);
+      
+      /// check for wildcard ...
+      if ( chainName.head().find("*")!=std::string::npos ) { 
+	
+	//		    std::cout << "wildcard chains: " << chainName << std::endl;
+	
+	/// delete from vector 
+	m_chainNames.erase(chainitr);
+	chainitr--;
+
+	/// get matching chains
+	std::vector<std::string> selectChains  = (*m_tdt)->getListOfTriggers( chainName.head() );
+	
+	//		    std::cout << "selected chains " << selectChains.size() << std::endl;
+	
+	if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endreq;
+
+	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+	  
+	  if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
+	  if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
+	  if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+	  if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	  
+	  /// replace wildcard with actual matching chains ...
+	  chains.push_back( selectChains[iselected] );
+  
+	  if(m_provider->msg().level() <= MSG::VERBOSE)
+	    m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << endreq;
+	  
+	}
+      }
+      //      else { 
+      //	chains.push_back( *chainitr ); 
+      //  }
+
+      chainitr++;
+    }
+
+    m_chainNames.insert( m_chainNames.end(), chains.begin(), chains.end() );
+
   }
 
   Filter_True filter;
@@ -149,7 +210,10 @@ void AnalysisConfig_Tier0::loop() {
     const std::string& chainname = m_chainNames[ichain].head();
     
     //Only for trigger chains
-    if (chainname.find("L2") == std::string::npos && chainname.find("EF") == std::string::npos  ) continue;
+    if (chainname.find("L2") == std::string::npos
+	&& chainname.find("EF") == std::string::npos
+	&& chainname.find("HLT") == std::string::npos
+	) continue;
     
     if(m_provider->msg().level() <= MSG::VERBOSE){
       m_provider->msg(MSG::VERBOSE) << "Chain " << chainname 
@@ -190,6 +254,7 @@ void AnalysisConfig_Tier0::loop() {
 
   if(m_provider->msg().level() <= MSG::VERBOSE)
     m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endreq;
+
   const TrigInDetTrackTruthMap* truthMap = 0;
 
   if ( m_mcTruth ) {
@@ -293,7 +358,11 @@ void AnalysisConfig_Tier0::loop() {
       m_provider->msg(MSG::VERBOSE) << "fetching features for chain " << chainname << endreq;
     }
 
+    //    std::cout << "sutt chain " << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << std::endl;
+
     if ( !(*m_tdt)->isPassed( chainname ) ) continue;
+
+    //    std::cout << "sutt chain " << chainname << " processing" << std::endl;
 
     // Get chain combinations and loop on them
     // - loop made on chain selected as the one steering RoI creation
@@ -311,7 +380,7 @@ void AnalysisConfig_Tier0::loop() {
     TrackChain& chain = m_event->back();
        
 
-    for( ; c!=cEnd ; ++c) {
+    for( ; c!=cEnd ; ++c ) {
       
       //   now add rois to this ntuple chain
       
@@ -361,6 +430,7 @@ void AnalysisConfig_Tier0::loop() {
 
 	
       }
+
       if(m_provider->msg().level() <= MSG::VERBOSE)
 	m_provider->msg(MSG::VERBOSE) << *roiInfo << endreq;
       
@@ -373,8 +443,14 @@ void AnalysisConfig_Tier0::loop() {
       if(chainname.find("EF_")!=std::string::npos) {
 	selectTracks<Rec::TrackParticleContainer>( &selectorTest, c, key );
       }
+
+      if(chainname.find("HLT_")!=std::string::npos) {
+	selectTracks<xAOD::TrackParticleContainer>( &selectorTest, c, key );
+      }
       
       const std::vector<TrigInDetAnalysis::Track*>& testtracks = selectorTest.tracks();
+
+      m_provider->msg(MSG::INFO) << "test tracks.size() " << testtracks.size() << endreq; 
 
       if(m_provider->msg().level() <= MSG::VERBOSE){
 	m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endreq; 
@@ -392,10 +468,11 @@ void AnalysisConfig_Tier0::loop() {
 
     }
     
-    for(unsigned int ich = 0; ich < chain.size(); ich++){ 
+    for ( unsigned  ich=0 ; ich<chain.size() ; ich++ ){ 
 
       selectorRef.clear();      
       selectorElectrons.clear();      
+
       filterRef.setRoi( &chain.rois().at(ich).roi() );
       filter_truth.setRoi( &chain.rois().at(ich).roi() );
       test_tracks.clear();
@@ -403,7 +480,9 @@ void AnalysisConfig_Tier0::loop() {
       
       if(m_provider->msg().level() <= MSG::VERBOSE)
 	m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endreq;
+
       bool foundTruth = false;
+
       if ( m_mcTruth ) {
 	if(m_provider->msg().level() <= MSG::VERBOSE)
 	  m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
@@ -427,12 +506,12 @@ void AnalysisConfig_Tier0::loop() {
 	    m_provider->msg(MSG::VERBOSE) << "Truth not found - none whatsoever!" << endreq;
       }
     
-    if ( m_mcTruth && !foundTruth ) {
-      if(m_provider->msg().level() <= MSG::VERBOSE)
-	m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
-
+      if ( m_mcTruth && !foundTruth ) {
+	if(m_provider->msg().level() <= MSG::VERBOSE)
+	  m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
+	
 	/// selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );                             
-
+	
 	const DataHandle<McEventCollection> mcevent;
 
 	/// now as a check go through the GenEvent collection                                                         
@@ -468,6 +547,7 @@ void AnalysisConfig_Tier0::loop() {
 	    break;
 	  }
 	}
+
 	// not found any collection                                                                                   
 	if ( !foundcollection ) {
 	  if(m_provider->msg().level() <= MSG::VERBOSE)
@@ -478,6 +558,7 @@ void AnalysisConfig_Tier0::loop() {
 
 	  return;
 	}
+
 	if(m_provider->msg().level() <= MSG::VERBOSE)
 	  m_provider->msg(MSG::VERBOSE) << "Found McEventCollection: " << key << "\tNevents " << mcevent->size() << endreq \
 	  ;
@@ -539,7 +620,9 @@ void AnalysisConfig_Tier0::loop() {
 	  }
       
       }    
-    
+
+      //      std::cout << "seeking offline tracks..." << std::endl;
+      
       /// get offline tracks                                                                                         
 
       //      m_provider->msg(MSG::INFO) << " Offline tracks " << endreq;
@@ -547,12 +630,20 @@ void AnalysisConfig_Tier0::loop() {
       if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>("TrackParticleCandidate")) {
 	selectTracks<Rec::TrackParticleContainer>( &selectorRef, "TrackParticleCandidate" );
       }
+
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+      else if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>("InDetTrackParticles")) {
+	selectTracks<xAOD::TrackParticleContainer>( &selectorRef, "InDetTrackParticles" );
+      }
+#endif
       else {
 	if(m_provider->msg().level() <= MSG::WARNING)
 	  m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endreq;
       }
 
-      if(chainname.find("EF_e")!=std::string::npos || chainname.find("L2_e")!=std::string::npos) {
+      if ( chainname.find("EF_e")!=std::string::npos || 
+	   chainname.find("L2_e")!=std::string::npos || 
+	   chainname.find("HLT_e")!=std::string::npos ) {
 
 	const ElectronContainer *MyElectronContainer = 0;
 	std::string m_ElectronContainerName = "ElectronAODCollection";
@@ -577,7 +668,7 @@ void AnalysisConfig_Tier0::loop() {
 	if (eCont) {
 	  ElectronContainer::const_iterator itr = MyElectronContainer->begin();
 	  ElectronContainer::const_iterator itr_end = MyElectronContainer->end();
-
+	  
 	  if(m_provider->msg().level() <= MSG::VERBOSE){
 	    m_provider->msg(MSG::VERBOSE) << "Event with " <<  MyElectronContainer->size()
 					  << " Electron object(s) " << endreq;
@@ -605,6 +696,9 @@ void AnalysisConfig_Tier0::loop() {
 
       } // do electron selection
       
+      //      std::cout << "seeking (more?) offline tracks..." << std::endl;
+
+
       if ( m_doOffline ) { 
 	
     //Noff = selectorRef.tracks().size();
@@ -621,14 +715,18 @@ void AnalysisConfig_Tier0::loop() {
 	offline_tracks=selectorTruth.tracks();
       }
 
-      if((chainname.find("EF_e")!=std::string::npos || chainname.find("L2_e")!=std::string::npos) && m_testType != "")
+      if ( (chainname.find("EF_e")!=std::string::npos || 
+	    chainname.find("L2_e")!=std::string::npos ||
+	    chainname.find("HLT_e")!=std::string::npos ) && m_testType!="" )
 	offline_tracks = selectorElectrons.tracks();
       
       test_tracks.clear();
-      for(unsigned int itrk=0; itrk< chain.rois().at(ich).tracks().size(); itrk++)
-	{
+
+      for ( unsigned itrk=0 ; itrk<chain.rois().at(ich).tracks().size() ; itrk++ ) {
 	  test_tracks.push_back(&(chain.rois().at(ich).tracks().at(itrk)));
-        }
+      }
+
+      //      std::cout << "track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
 
       //      m_analyses.at(ichain)->setvertices(vertices.size());
       m_analysisT0->setvertices(vertices.size());
@@ -676,9 +774,9 @@ void AnalysisConfig_Tier0::book() {
 
 
   std::string folder_name = m_chainNames.at(0).head();
-  folder_name.erase(0,3); // erase "L2_" or "EF_" so histograms all go in same chain folder
+  //  folder_name.erase(0,3); // erase "L2_" or "EF_" so histograms all go in same chain folder
   if(m_testType != "") folder_name = folder_name + "/" + m_testType;
-  else folder_name = folder_name + "/offline_tracks"; 
+  else                 folder_name = folder_name + "/offline_tracks"; 
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 
