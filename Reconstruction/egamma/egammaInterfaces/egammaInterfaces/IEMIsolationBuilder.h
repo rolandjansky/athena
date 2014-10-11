@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAINTERFACES_IEMSHOWERBUILDER_H
-#define EGAMMAINTERFACES_IEMSHOWERBUILDER_H
+#ifndef EGAMMAINTERFACES_IEMISOLATIONBUILDER_H
+#define EGAMMAINTERFACES_IEMISOLATIONBUILDER_H
 
-/** @class IEMShowerBuilder
-  Interface for the Reconstruction/egamma/egammaRec/EMShowerBuilder
+/** @class IEMIsolationBuilder
+  Interface for the Reconstruction/egamma/egammaTools/EMIsolationBuilder
 
   @author Frederic Derue derue@lpnhe.in2p3.fr
 
-CREATED : 01/09/2008
+CREATED : 06/10/2014
 MODIFIED :
 */
 
@@ -24,14 +24,14 @@ MODIFIED :
 // Forward declarations
 class CaloCellContainer;
 
-static const InterfaceID IID_IEMShowerBuilder("IEMShowerBuilder", 1, 0);
+static const InterfaceID IID_IEMIsolationBuilder("IEMIsolationBuilder", 1, 0);
 
-class IEMShowerBuilder : virtual public IegammaBaseTool
+class IEMIsolationBuilder : virtual public IegammaBaseTool
 {
  public:
 
   /** @brief Virtual destructor*/
-  virtual ~IEMShowerBuilder() {};
+  virtual ~IEMIsolationBuilder() {};
 	
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID();
@@ -41,14 +41,15 @@ class IEMShowerBuilder : virtual public IegammaBaseTool
   /** @brief execute method*/
   virtual StatusCode execute(xAOD::Egamma*) = 0;
   /** @brief execute method*/
-  virtual  StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) = 0;
+  virtual  StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll,
+				  const xAOD::TrackParticleContainer* aTrackParticleContainer = 0) = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
 
 };
 
-inline const InterfaceID& IEMShowerBuilder::interfaceID(){
-  return IID_IEMShowerBuilder;
+inline const InterfaceID& IEMIsolationBuilder::interfaceID(){
+  return IID_IEMIsolationBuilder;
 }
 
 #endif

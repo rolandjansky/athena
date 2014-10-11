@@ -18,6 +18,8 @@
    @author Bruno Lenzi
 */
 
+class egammaRec;
+
 static const InterfaceID IID_IEMAmbiguityTool("IEMAmbiguityTool", 1, 0);
 
 class IEMAmbiguityTool : virtual public IAlgTool {
@@ -36,8 +38,7 @@ public:
   virtual StatusCode        finalize() = 0;
 
   /** @brief Return (future) author: electron, photon, ambiguous, undefined */
-  virtual unsigned int ambiguityResolve(const xAOD::Vertex* vx, 
-                              					const xAOD::TrackParticle* trParticle) const = 0;
+  virtual unsigned int ambiguityResolve(const egammaRec* egRec) const = 0;
 
 };
 

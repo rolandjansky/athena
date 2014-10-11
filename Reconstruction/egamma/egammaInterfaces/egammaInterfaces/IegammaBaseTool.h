@@ -22,9 +22,7 @@
 
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
-#include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainer.h" 
-class CaloCellContainer;
 class egammaRec;
 
 static const InterfaceID IID_IegammaBaseTool("IegammaBaseTool", 1, 0);
@@ -48,8 +46,6 @@ class IegammaBaseTool : virtual public IAlgTool
   virtual StatusCode execute(xAOD::Egamma* eg) = 0; 
   /** @brief execute method*/
   virtual StatusCode executeRec(egammaRec* eg) = 0; 
-  /** @brief execute method for calorimeter*/
-  virtual StatusCode caloExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) = 0;
   /** @brief execute method for TrackParticles*/
   virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) = 0;
   /** @brief execute method for tools that operate on containers*/
