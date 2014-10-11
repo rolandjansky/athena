@@ -69,9 +69,7 @@ void MsgStreamTC::doOutput()
   }
   else {
     // later use ERS here (ERS needs to be a third case, we also need simple cout)
-    std::ios::fmtflags f( std::cout.flags() );
-    std::cout << std::setw(m_width) << std::left << m_name << " " << levelNames[m_msgLevel] << " " << str() << std::endl;
-    std::cout.flags(f);
+     std::cout << std::setw(m_width) << std::left << m_name << " " << levelNames[m_msgLevel] << " " << str() << std::endl;
   }
   str(""); // Clear our buffer after message has been printed
 }
