@@ -8,6 +8,7 @@
   <class name="IEMExtrapolationTools" />
   <class name="IEMFourMomBuilder" />
   <class name="IEMShowerBuilder" />
+  <class name="IEMIsolationBuilder" />
   <class name="IEMTrackIsolationTool" />
   <class name="IEMTrackMatchBuilder" />
   <class name="IEMVertexBuilder" />
@@ -24,7 +25,6 @@
   <class name="IegammaShowerShape" />
   <class name="IegammaStripsShape" />
   <class name="IegammaSwTool" />
-  <class name="IegammaTopoIso" />
   <class name="IegammaTrkRefitterTool" />
   <class name="Iegammaqweta1c" />
   <class name="Iegammaqweta2c" />

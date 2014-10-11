@@ -7,6 +7,7 @@
 
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
 
 /**
@@ -33,11 +34,9 @@ class IEMClusterTool : virtual public IegammaBaseTool {
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   /** @brief creation of new cluster based on existing one */
-  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::EgammaParameters::EgammaType) = 0;
-  /** @brief Decorate cluster with positions in the calorimeter frame **/
-  virtual void fillPositionsInCalo(xAOD::CaloCluster& cluster) = 0;
+  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, xAOD::EgammaParameters::EgammaType) = 0;
 
- 
+  virtual void fillPositionsInCalo(xAOD::CaloCluster* cluster) =0;
 };
 
 inline const InterfaceID& IEMClusterTool::interfaceID()
