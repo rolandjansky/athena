@@ -1,5 +1,6 @@
 package TrigConfMuctpi
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Joerg Stelzer
 
 # Policy package(s):
 use DetCommonPolicy    *
@@ -16,5 +17,10 @@ apply_pattern detcommon_shared_library
 apply_pattern detcommon_header_installer
 
 # Install the LUTs:
-apply_pattern detcommon_link_files files="-s=../data *.xml *.dtd" \
+apply_pattern detcommon_link_files kind=XML files="-s=../data *.xml *.dtd" \
                                    prefix=XML/TrigConfMuctpi
+
+apply_pattern detcommon_link_files kind=scripts files="-s=../scripts *.py" \
+                                   prefix=share/bin
+
+
