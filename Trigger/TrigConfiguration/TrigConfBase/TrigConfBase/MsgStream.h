@@ -58,10 +58,12 @@ namespace TrigConf {
     MSGTC::Level level() {return m_level;}
 
     /// Set message level of stream
-    void setLevel(MSGTC::Level lvl) {
-      lvl = (lvl >= MSGTC::NUM_LEVELS) ? MSGTC::ALWAYS : (lvl<MSGTC::NIL) ? MSGTC::NIL : lvl;
-      m_level = lvl;
-    }
+    void setLevel(MSGTC::Level lvl);
+
+     // set width for printing the name
+     void setWidth(unsigned int width) {
+        m_width = width;
+     }
 
     /// Output operator for message levels
     MsgStreamTC& operator<< (MSGTC::Level lvl) {
@@ -108,7 +110,8 @@ namespace TrigConf {
     bool m_active;          ///< stream active?
     MSGTC::Level m_level;     ///< stream level
     MSGTC::Level m_msgLevel;  ///< current message level
-    std::string m_name;     ///< stream name
+    std::string  m_name;     ///< stream name
+    unsigned int m_width { 30 };     ///< width for printing owner name
   };
 
   /// End of message

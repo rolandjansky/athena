@@ -18,6 +18,8 @@ use AtlasDoxygen * Tools
 #============================================================================\
 use Boost v* LCG_Interfaces
 
+apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options regex)"
+
 #============================================================================
 # Build rules
 #============================================================================
@@ -25,7 +27,7 @@ use Boost v* LCG_Interfaces
 #
 # build shared library from .cxx files in src
 #
-apply_pattern detcommon_shared_library
+apply_pattern detcommon_shared_generic_library files="*.cxx ../Root/*.cxx"
 
 #
 # ignore patterns from LCG_Policy
@@ -44,6 +46,8 @@ private
 #
 # Test applications (not built by default)
 #
+apply_pattern cmake_conditional_target target=trigconf_msgsvc_test type=application
+
 application trigconf_msgsvc_test ../test/trigconf_msgsvc_test.cxx
 macro_append trigconf_msgsvc_test_dependencies TrigConfBase
 macro_remove constituents trigconf_msgsvc_test

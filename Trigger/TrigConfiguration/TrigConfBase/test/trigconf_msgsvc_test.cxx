@@ -27,16 +27,16 @@ MyClass::MyClass() :
 
 void MyClass::print()
 {
-  if (msg(MSG::INFO))
-    msg() << MSG::INFO << "This is a INFO message" << endmsg;
+  if (msg(MSGTC::INFO))
+    msg() << MSGTC::INFO << "This is a INFO message" << endmsgtc;
   TRG_MSG_ERROR("ERROR message via message stream macros");
-  TRG_MSG(WARNING) << "WARNING message" << endmsg;
+  TRG_MSG(WARNING) << "WARNING message" << endmsgtc;
 }
 
 void MyData::print()
 {
-  MsgStream msg("MyData");
-  msg << MSG::INFO << "INFO message via MsgStream" << endmsg;
+  MsgStreamTC msg("MyData");
+  msg << MSGTC::INFO << "INFO message via MsgStream" << endmsgtc;
 }
 
 int main() {

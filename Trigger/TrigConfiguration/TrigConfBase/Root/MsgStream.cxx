@@ -3,6 +3,7 @@
 */
 
 #include <iostream>
+#include <iomanip>
 #include "TrigConfBase/MsgStream.h"
 
 using namespace TrigConf;
@@ -21,6 +22,7 @@ namespace Athena {
   IMessageSvc* getMessageSvc(bool) __attribute__((weak));
   void reportMessage(IMessageSvc*, const std::string&, int, const std::string&) __attribute__((weak));
   int outputLevel(IMessageSvc*, const std::string&) __attribute__((weak));
+  void setOutputLevel(IMessageSvc*, const std::string&, int) __attribute__((weak));
 };
 
 /** Global pointer to MessageSvc and helper to fill it
@@ -34,7 +36,7 @@ namespace {
     }
   }
   const char* levelNames[MSGTC::NUM_LEVELS] = {"NIL","VERBOSE","DEBUG","INFO",
-					     "WARNING","ERROR","FATAL","ALWAYS"};
+                                               "WARNING","ERROR","FATAL","ALWAYS"};
 }
 
 MsgStreamTC::MsgStreamTC(const std::string& name) :
@@ -47,6 +49,18 @@ MsgStreamTC::MsgStreamTC(const std::string& name) :
   m_level = (Athena::outputLevel!=NULL) ? MSGTC::Level(Athena::outputLevel(p_msgsvc, m_name)) : MSGTC::INFO;
 }
 
+// Set message level of stream
+void MsgStreamTC::setLevel(MSGTC::Level lvl) {
+   lvl = (lvl >= MSGTC::NUM_LEVELS) ? MSGTC::ALWAYS : (lvl<MSGTC::NIL) ? MSGTC::NIL : lvl;
+   m_level = lvl;
+   getMessageSvc();
+   if (p_msgsvc) {
+      Athena::setOutputLevel(p_msgsvc, m_name, m_level);
+   }
+}
+
+
+
 void MsgStreamTC::doOutput()
 {
   getMessageSvc();
@@ -54,8 +68,8 @@ void MsgStreamTC::doOutput()
     Athena::reportMessage(p_msgsvc, m_name, m_msgLevel, str());
   }
   else {
-    // later use ERS here
-    std::cout << m_name << " " << levelNames[m_msgLevel] << " " << str() << std::endl;
+    // later use ERS here (ERS needs to be a third case, we also need simple cout)
+     std::cout << std::setw(m_width) << std::left << m_name << " " << levelNames[m_msgLevel] << " " << str() << std::endl;
   }
   str(""); // Clear our buffer after message has been printed
 }
