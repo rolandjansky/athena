@@ -9,6 +9,7 @@
 // CTP data format include(s):
 #include "CTPfragment/CTPfragment.h"
 #include "CTPfragment/CTPdataformat.h"
+#include "L1CommonCore/CTPdataformatVersion.h"
 
 // Trigger include(s):
 #include "TrigT1Result/CTP_RDO.h"
@@ -76,6 +77,10 @@ StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re 
   MsgStream log( msgSvc(), name() );
   log << MSG::DEBUG << "executing convert() from RDO to ROBFragment" << endreq;
 
+  //get CTP version
+  unsigned int ctpVersionNumber = result->getCTPVersionNumber();
+  CTPdataformatVersion ctpVersion(ctpVersionNumber);
+  
   // Clear Event Assembler
   m_fea.clear();
 
@@ -83,8 +88,8 @@ StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re 
   m_fea.setDetEvtType( 1 );
   // Set L1Apos to center of readout window
   uint16_t minorVersion = ( result->getNumberOfBunches() - 1u ) / 2u;
-  minorVersion &= CTPdataformat::L1APositionMask;
-  minorVersion <<= CTPdataformat::L1APositionShift_v1;
+  minorVersion &= ctpVersion.getL1APositionMask();
+  minorVersion <<= ctpVersion.getL1APositionShift();
   m_fea.setRodMinorVersion( minorVersion );  
 
   FullEventAssembler< CTPSrcIdMap >::RODDATA* theROD;
@@ -124,7 +129,7 @@ StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
 
   MsgStream log( msgSvc(), name() );
   log << MSG::DEBUG << "executing convert() from ROBFragment to RDO" << endreq;
-
+  
   const uint32_t ctpRodId = m_srcIdMap->getRodID();
   const uint32_t rodId = rob->rod_source_id();
 
@@ -151,7 +156,8 @@ StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
     // create CTP RDO
     uint32_t nExtraWords=0;
     nExtraWords=CTPfragment::numberExtraPayloadWords(rob);
-    result = new CTP_RDO( vDataWords , nExtraWords);
+    unsigned int ctpVersionNumber = CTPfragment::ctpFormatVersion(rob);
+    result = new CTP_RDO(ctpVersionNumber, vDataWords , nExtraWords);
 
     uint8_t l1apos =  CTPfragment::lvl1AcceptBunch(rob);
     result->setL1AcceptBunchPosition(l1apos);

@@ -15,7 +15,8 @@
 
 // Trigger include(s):
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "TrigConfigSvc/ILVL1ConfigSvc.h"
+//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Forward declaration(s):
 class MuCTPI_RIO;

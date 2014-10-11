@@ -156,7 +156,7 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
     log << MSG::WARNING << "Number of ROB fragments is " << robFrags.size() << endreq;
     log << MSG::WARNING << "Creating empty CTP_RDO object" << endreq;
 
-    CTP_RDO* result = new CTP_RDO();
+    CTP_RDO* result = new CTP_RDO(3,0,0);
     pObj = SG::asStorable( result );
     return StatusCode::SUCCESS;
   }

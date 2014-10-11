@@ -16,6 +16,9 @@
 // Trigger include(s):
 #include "TrigT1Result/RoIBResult.h"
 
+#include "CTPfragment/CTPfragment.h"
+#include "CTPfragment/CTPdataformat.h"
+
 /**
  * Conversion from eformat::ROBFragments to RDO.
  * This is called from the RoIBResultByteStreamCnv::createObj method.
@@ -121,7 +124,12 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       ROIB::Trailer cTPTrail( words );
 
       /* Create CTPResult object */
-      cTPResult = ROIB::CTPResult( cTPHead, cTPTrail, cTPContent );
+			const uint32_t* rod;
+			rob.rod_start(rod);
+			unsigned int ctpVersionNumber = ((rod[CTPdataformat::Helper::FormatVersionPos] >> CTPdataformat::CTPFormatVersionShift )& CTPdataformat::CTPFormatVersionMask);
+			//eformat::ROBFragment<const uint32_t*> * p_rob = &rob;
+			//unsigned int ctpVersionNumber =	CTPfragment::ctpFormatVersion(p_rob);
+      cTPResult = ROIB::CTPResult(ctpVersionNumber, cTPHead, cTPTrail, cTPContent );
 
     } /* end of CTP ROB */
 
@@ -248,37 +256,28 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
   /* create the top object and fill it. */
   if( cTPFound && muCTPIFound && jetEnergyFound[ 0 ] && jetEnergyFound[ 1 ] &&
       eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
-    // all RoIBs found
+
     result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult, eMTauResult );
     log << MSG::DEBUG << "All RoI Builder ROB fragments found" << endreq;
 
-  }else if( cTPFound && muCTPIFound  &&  eMTauFound[ 0 ] && eMTauFound[ 1 ] && 
-	    eMTauFound[ 2 ] && eMTauFound[ 3 ] && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ]) {
-    // Jet/Energy not found
-    std::vector< ROIB::JetEnergyResult > jetEnergyResult0;
-    result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult0, eMTauResult );
-    log << MSG::DEBUG << "Jet/Energy fragments not found, built RoIBResult object without it." << endreq;
-
   } else if( cTPFound && jetEnergyFound[ 0 ] && jetEnergyFound[ 1 ] &&
-             eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] && !muCTPIFound) {
-    // MuCTPI not found
+             eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
+
     result = new ROIB::RoIBResult( cTPResult, eMTauResult, jetEnergyResult );
     log << MSG::DEBUG << "MuCTPI ROB fragment not found, built RoIBResult object without it." << endreq;
 
   } else if( cTPFound && eMTauFound[ 0 ] && eMTauFound[ 1 ] &&
-             eMTauFound[ 2 ] && eMTauFound[ 3 ] && !muCTPIFound && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ] ) {
-    // MuCTPI and jet/energy not found
+             eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
+
     result = new ROIB::RoIBResult( cTPResult, eMTauResult );
     log << MSG::DEBUG << "MuCTPI and Jet/Energy fragments not found, built RoIBResult object without them." << endreq;
 
-  } else if( cTPFound && muCTPIFound && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ] && 
-	     !eMTauFound[ 0 ] && !eMTauFound[ 1 ] && ! eMTauFound[ 2 ] && !eMTauFound[ 3 ]  ) {
+  } else if( cTPFound && muCTPIFound ) {
 	  // jetEnergyResult and eMTauResult are empty
     result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult, eMTauResult );
     log << MSG::DEBUG << "Calo fragments not found, built RoIBResult from CTPResult and MuCTPIResult only." << endreq;
 
-  } else if( cTPFound &&  !muCTPIFound && !jetEnergyFound[ 0 ] && !jetEnergyFound[ 1 ] &&
-      !eMTauFound[ 0 ] && !eMTauFound[ 1 ] && !eMTauFound[ 2 ] && !eMTauFound[ 3 ] ) {
+  } else if( cTPFound ) {
 
     result = new ROIB::RoIBResult( cTPResult );
     log << MSG::DEBUG << "MuCTPI and calo fragments not found, built RoIBResult from CTPResult only." << endreq;

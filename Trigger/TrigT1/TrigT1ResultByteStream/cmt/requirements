@@ -8,14 +8,18 @@ use ByteStreamData   ByteStreamData-*   Event
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event 
 use ByteStreamCnvSvc ByteStreamCnvSvc-* Event 
 use DataCollection   DataCollection-*   External
-use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
 use TrigT1Result     TrigT1Result-*     Trigger/TrigT1
-use TrigConfigSvc    TrigConfigSvc-*    Trigger/TrigConfiguration
+#use TrigConfigSvc    TrigConfigSvc-*    Trigger/TrigConfiguration
+use TrigConfInterfaces    TrigConfInterfaces-*    Trigger/TrigConfiguration
 use TrigConfL1Data   TrigConfL1Data-*   Trigger/TrigConfiguration
+use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
 
-private
 # eformat CTP data specification
 use CTPfragment      v*
+
+private
+
+use L1CommonCore     L1CommonCore-*     Trigger/TrigT1
 
 author Hong Ma <hma@bnl.gov> 
 author Tadashi Maeno <Tadashi.Maeno@cern.ch>
