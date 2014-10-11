@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBuilder.cxx 500598 2012-05-14 15:39:58Z krasznaa $
+// $Id: RoIBuilder.cxx 588978 2014-03-22 15:36:26Z pottgen $
 
 // STL includes:
 #include <iomanip>
@@ -152,12 +152,14 @@ namespace ROIB {
             ctp_simulation_error = true;
             REPORT_MESSAGE( MSG::WARNING )
                << "CTP size is zero. No header, trailer, data element";
-         } else if( ctp_slink->getDataElements().size() != LVL1CTP::CTPSLink::wordsPerCTPSLink ) {
+         //} else if( ctp_slink->getDataElements().size() != LVL1CTP::CTPSLink::wordsPerCTPSLink ) {
+         } else if( ctp_slink->getDataElements().size() != ctp_slink->getNumWordsPerCTPSLink() ) {
             ctp_simulation_error = true;
             REPORT_MESSAGE( MSG::WARNING )
                << "Found CTP size inconsistency: " 
                << ctp_slink->getDataElements().size() << "/"
-               << LVL1CTP::CTPSLink::wordsPerCTPSLink
+               //<< LVL1CTP::CTPSLink::wordsPerCTPSLink
+               << ctp_slink->getNumWordsPerCTPSLink()
                << " (found/expected)";
 
             // get the data elements
@@ -203,7 +205,7 @@ namespace ROIB {
       }
 
       // build result
-      CTPResult ctp_rdo_result( ctp_rdo_header, ctp_rdo_trailer, ctp_rdo_data );
+      CTPResult ctp_rdo_result( ctp_slink->getCTPVersionNumber(), ctp_rdo_header, ctp_rdo_trailer, ctp_rdo_data );
       ATH_MSG_VERBOSE( "Dump CTPResult object:\n" + ctp_rdo_result.dump() );
 
       //
