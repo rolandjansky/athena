@@ -118,9 +118,14 @@ StatusCode MDTcablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 
 StatusCode MDTcablingSvc::initialize() 
 {
-    StatusCode sc;
 
     MsgStream log(messageService(), name());
+    log << MSG::INFO << "Skipping initialization of old MDTcablingSvc" << endreq;
+    
+    return StatusCode::SUCCESS;
+
+    StatusCode sc;
+
 
     sc = Service::initialize();
     if ( sc.isFailure() ) return sc;
