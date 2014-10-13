@@ -360,7 +360,7 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 			 "x [mm]", "y [mm]" ).ignore();
 	
 	registerManHist( m_ID_hitmap_x_y_ecc, "InDetGlobal/Hits", run,
-			 "ID_hitmap_x_y_eca","Map of ID hits (ECC) in x vs y (mm)",
+			 "ID_hitmap_x_y_ecc","Map of ID hits (ECC) in x vs y (mm)",
 			 400,-1100,1100,
 			 400,-1100,1100,
 			 "x [mm]", "y [mm]" ).ignore();
@@ -734,7 +734,8 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	
 	// Skip tracks that are not inside out
-	if ( ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) ) )
+	
+	if ( m_dataType == AthenaMonManager::collisions && ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) ) )
 	    continue;
 
 	// Create a new summary or get copy of the cached one
