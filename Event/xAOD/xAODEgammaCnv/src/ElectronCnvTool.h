@@ -61,7 +61,7 @@ namespace xAODMaker {
     
     ///@brief  Fills in the isolation variables 
     void setIsolations(const egamma& aodmuon, xAOD::Electron& xaodmuon) const;
-    void checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::EgammaParameters::IsolationType xaodParameter, const egamma&, xAOD::Electron& ) const;
+    void checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::Iso::IsolationType xaodParameter, const egamma&, xAOD::Electron& ) const;
     
     ///@brief  Fills in the track match variables       
     void setTrackMatch(const egamma& aodmuon, xAOD::Electron& xaodmuon) const;

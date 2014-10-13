@@ -166,35 +166,30 @@ namespace xAODMaker {
   }
   
   void PhotonCnvTool::setIsolations(const egamma& aodph, xAOD::Photon& xaodph) const {
-    checkAndSetIsolation(egammaParameters::etcone15     ,   xAOD::EgammaParameters::etcone15     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone20     ,   xAOD::EgammaParameters::etcone20     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone25     ,   xAOD::EgammaParameters::etcone25     ,  aodph,   xaodph);    
-    checkAndSetIsolation(egammaParameters::etcone30     ,   xAOD::EgammaParameters::etcone30     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone35     ,   xAOD::EgammaParameters::etcone35     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone40     ,   xAOD::EgammaParameters::etcone40     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::nucone20  ,   xAOD::EgammaParameters::nucone20     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::nucone30  ,   xAOD::EgammaParameters::nucone30     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::nucone40  ,   xAOD::EgammaParameters::nucone40     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::ptcone20     ,   xAOD::EgammaParameters::ptcone20     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::ptcone30     ,   xAOD::EgammaParameters::ptcone30     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::ptcone40     ,   xAOD::EgammaParameters::ptcone40     ,  aodph,   xaodph);   
-    checkAndSetIsolation(egammaParameters::etcone15_ptcorrected     ,   xAOD::EgammaParameters::etcone15_ptcorrected     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone20_ptcorrected     ,   xAOD::EgammaParameters::etcone20_ptcorrected     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone25_ptcorrected     ,   xAOD::EgammaParameters::etcone25_ptcorrected     ,  aodph,   xaodph);    
-    checkAndSetIsolation(egammaParameters::etcone30_ptcorrected     ,   xAOD::EgammaParameters::etcone30_ptcorrected     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone35_ptcorrected     ,   xAOD::EgammaParameters::etcone35_ptcorrected     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone40_ptcorrected     ,   xAOD::EgammaParameters::etcone40_ptcorrected     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone20_corrected       ,   xAOD::EgammaParameters::etcone20_corrected       ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone30_corrected       ,   xAOD::EgammaParameters::etcone30_corrected       ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone40_corrected       ,   xAOD::EgammaParameters::etcone40_corrected       ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::topoetcone20     ,   xAOD::EgammaParameters::topoetcone20     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::topoetcone30     ,   xAOD::EgammaParameters::topoetcone30     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::topoetcone40     ,   xAOD::EgammaParameters::topoetcone40     ,  aodph,   xaodph); 
-    checkAndSetIsolation(egammaParameters::topoetcone40_ptcorrected   ,   xAOD::EgammaParameters::topoetcone40_ptcorrected   ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::topoetcone40_corrected     ,   xAOD::EgammaParameters::topoetcone40_corrected     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::etcone20     ,   xAOD::Iso::etcone20     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::etcone30     ,   xAOD::Iso::etcone30     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::etcone40     ,   xAOD::Iso::etcone40     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::nucone20  ,   xAOD::Iso::nucone20     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::nucone30  ,   xAOD::Iso::nucone30     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::nucone40  ,   xAOD::Iso::nucone40     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::ptcone20     ,   xAOD::Iso::ptcone20     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::ptcone30     ,   xAOD::Iso::ptcone30     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::ptcone40     ,   xAOD::Iso::ptcone40     ,  aodph,   xaodph);   
+    checkAndSetIsolation(egammaParameters::etcone20_ptcorrected     ,   xAOD::Iso::etcone20_ptcorrected     ,  aodph,   xaodph);  
+    checkAndSetIsolation(egammaParameters::etcone30_ptcorrected     ,   xAOD::Iso::etcone30_ptcorrected     ,  aodph,   xaodph);  
+    checkAndSetIsolation(egammaParameters::etcone40_ptcorrected     ,   xAOD::Iso::etcone40_ptcorrected     ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::etcone20_corrected       ,   xAOD::Iso::etcone20_corrected       ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::etcone30_corrected       ,   xAOD::Iso::etcone30_corrected       ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::etcone40_corrected       ,   xAOD::Iso::etcone40_corrected       ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::topoetcone20     ,   xAOD::Iso::topoetcone20     ,  aodph,   xaodph);  
+    checkAndSetIsolation(egammaParameters::topoetcone30     ,   xAOD::Iso::topoetcone30     ,  aodph,   xaodph);  
+    checkAndSetIsolation(egammaParameters::topoetcone40     ,   xAOD::Iso::topoetcone40     ,  aodph,   xaodph); 
+    checkAndSetIsolation(egammaParameters::topoetcone40_ptcorrected   ,   xAOD::Iso::topoetcone40_ptcorrected   ,  aodph,   xaodph);
+    checkAndSetIsolation(egammaParameters::topoetcone40_corrected     ,   xAOD::Iso::topoetcone40_corrected     ,  aodph,   xaodph);
   }
   
-  void PhotonCnvTool::checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::EgammaParameters::IsolationType xaodParameter, const egamma& aodph, xAOD::Photon& xaodph) const {
+  void PhotonCnvTool::checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::Iso::IsolationType xaodParameter, 
+					   const egamma& aodph, xAOD::Photon& xaodph) const {
     double result = aodph.detailValue(aodParameter);
     float isolation = static_cast<float>(result);
     xaodph.setIsolationValue(isolation, xaodParameter);
@@ -230,7 +225,7 @@ namespace xAODMaker {
       xAOD::CaloCluster *cluster = const_cast<xAOD::CaloCluster*>(*newclusterElementLink);
       if (cluster)
       {
-        m_EMClusterTool->fillPositionsInCalo(*cluster);
+        m_EMClusterTool->fillPositionsInCalo(cluster);
       }
       else ATH_MSG_DEBUG("Could not dereference / cast link to cluster");
     }

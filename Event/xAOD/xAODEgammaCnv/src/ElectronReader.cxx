@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronReader.cxx 608964 2014-07-28 13:33:14Z christos $
+// $Id: ElectronReader.cxx 621018 2014-10-09 21:40:50Z christos $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -136,6 +136,8 @@ namespace xAODReader {
 	     ATH_MSG_DEBUG( "Cluster 4-Momentum"  );
 	     ATH_MSG_DEBUG(    " Energy "
 			      << cluster->e() 
+			      << ", raw energy = "
+			      << cluster->rawE() 
 			      << ", eta = "
 			      << cluster->eta() 
 			      << ", phi = "
@@ -191,6 +193,9 @@ namespace xAODReader {
 	   if(( *el_itr )->showerShapeValue(val_float,xAOD::EgammaParameters::e277) ){
 	     ATH_MSG_DEBUG(    "e277 = " <<val_float);
 	   }
+	   if(( *el_itr )->showerShapeValue(val_float,xAOD::EgammaParameters::Reta) ){
+	     ATH_MSG_DEBUG(    "Reta= " <<val_float);
+	   }
 	   if(( *el_itr )->showerShapeValue(val_float,xAOD::EgammaParameters::wtots1) ){
 	     ATH_MSG_DEBUG(    "wtots1 = " <<val_float);
 	   }
@@ -202,28 +207,28 @@ namespace xAODReader {
 	   }
 
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::EgammaParameters::ptcone20) ){
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::ptcone20) ){
 	     ATH_MSG_DEBUG(    "ptcone20 = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::EgammaParameters::ptcone30) ){
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::ptcone30) ){
 	     ATH_MSG_DEBUG(    "ptcone30 = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::EgammaParameters::ptcone40) ){
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::ptcone40) ){
 	     ATH_MSG_DEBUG(    "ptcone40 = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::EgammaParameters::topoetcone20) ){
-	     ATH_MSG_DEBUG(    "topoetcone20 = " <<val_float);
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone20_core57cells) ){
+	     ATH_MSG_DEBUG(    "topoetcone20_core57cells = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::EgammaParameters::topoetcone30) ){
-	     ATH_MSG_DEBUG(    "topoetcone30 = " <<val_float);
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone30_core57cells) ){
+	     ATH_MSG_DEBUG(    "topoetcone30_core57cells = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::EgammaParameters::topoetcone40) ){
-	     ATH_MSG_DEBUG(    "topoetcone40 = " <<val_float);
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone40_core57cells) ){
+	     ATH_MSG_DEBUG(    "topoetcone40_core57cells = " <<val_float);
 	   }
 
 	   //Cluster-Track Match
