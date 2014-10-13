@@ -18,9 +18,9 @@
  * that everything will be set by the "setter" methods.
  */
 MuCTPI_RIO::MuCTPI_RIO()
-  : m_headerSourceId( 0 ),m_headerRunNumber( 0 ),m_headerLVL1ID( 0 ),m_headerBCID( 0 ),
-    m_headerLVL1TriggerType( 0 ),m_headerDetEventType( 0 ),m_headerNDataWords( 0 ),
-    m_headerNStatusWords( 0 ) {
+  : m_headerSourceId( 0 ), m_headerRunNumber( 0 ), m_headerLVL1ID( 0 ), m_headerBCID( 0 ),
+    m_headerLVL1TriggerType( 0 ), m_headerDetEventType( 0 ), m_headerNDataWords( 0 ),
+    m_headerNStatusWords( 0 ), m_bcId( 0 ), m_sum() {
 
   m_roI.clear();
   m_headerStatusWords.clear();

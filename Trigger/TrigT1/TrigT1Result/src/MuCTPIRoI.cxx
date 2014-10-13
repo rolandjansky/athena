@@ -76,7 +76,7 @@ namespace ROIB {
   /**
    * Returns the hemisphere in which the candidate was detected.
    * 
-   * @return 1 if the candidate has eta > 1, 0 if eta < 0.
+   * @return 1 if the candidate has eta > 0, 0 if eta < 0.
    */
   uint16_t MuCTPIRoI::getHemisphere() const {
     return (getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK);

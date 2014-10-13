@@ -15,7 +15,7 @@
 class MsgStream;
 
 class CTP_BC {
-
+  
   /**
    *   $Date: 2007-07-10 14:58:38 $
    * 
@@ -31,18 +31,24 @@ class CTP_BC {
    *   @version \$ $
    *
    */
-
+  
 public:
   //! Default constructor
   CTP_BC();
   //! Destructor
   ~CTP_BC();
-
+  
   //! Helper to dump data for debugging
   void dumpData() const;
   //! Helper to dump data for debugging
   void dumpData(MsgStream&) const;
-
+  
+  //!Set the CTP data format version (needed before extracting any information)
+  void setCTPVersion(unsigned int ctpVersionNumber) {
+    m_ctpVersion = new CTPdataformatVersion(ctpVersionNumber);
+  }
+  
+  
   //! Accessor to obtain std::bitset containing the bunch-crossing
   //  identifier (BCID)
   std::bitset<32> getBCIDBitSet() const;
@@ -50,7 +56,7 @@ public:
   uint32_t getBCID() const;
   //! Return string with BCID in binary format
   std::string printBCID() const;
-
+  
   //! Accessor to obtain random-trigger input bits
   std::bitset<32> getRandomTrigBitSet() const;
   //! Random-trigger inputs as uint32_t
@@ -64,71 +70,103 @@ public:
   uint32_t getPrescaledClock() const;
   //! Return string with prescaled clock in binary format
   std::string printPrescaledClock() const;
-
-  //! Set PIT word 5, which is the one containing the 12-bit BCID (bit
+  
+  //! Set auxiliary PIT word, which is the one containing the 12-bit BCID (bit
   //0..11), the random trigger (bit 12,13) and prescaled clock (bit
   //14,15) 
-  void setPITWord5( uint32_t word ) { m_pit5 = word; }
+  void setPITWordAux( uint32_t word ) { m_pitAux = word; }
   //! Get PIT word 5 bitset
-  const std::bitset<32> & getPITWord5() const {
-    return m_pit5;
+  const std::bitset<32> & getPITWordAux() const {
+    return m_pitAux;
   }
-  //! Get PIT word 5 as string in binary format
-  std::string printPITWord5() const;
+  //! Get auxiliary PIT word as string in binary format
+  std::string printPITWordAux() const;
   
+	
   //! Set PIT words
-  void setPIT(std::vector<uint32_t> words);
+ // void setPIT(std::vector<uint32_t> words);
   //! get bitset of PIT words
-  const std::bitset<160> & getPIT() const {
-    return m_pit;
-  }
+  //const std::bitset<320> & getPIT() const {
+//    return m_pit;
+//  }
   //! Set PIT word number 'pos'
-  void setPITWord( uint32_t word, uint32_t pos = 0);
+  //void setPITWord( uint32_t word, uint32_t pos = 0);
   //! Obtain PIT bitpattern string (binary format)
-  std::string printPIT() const;
-
+  //std::string printPIT() const;
+	
+	
+	
+  //! Set FPI words
+  //void setFPI(std::vector<uint32_t> words);
+  //! get bitset of FPI words
+  //const std::bitset<192> & getFPI() const {
+//    return m_fpi;
+//  }
+  //! Set FPI word number 'pos'
+  //void setFPIWord( uint32_t word, uint32_t pos = 0);
+  //! Obtain FPI bitpattern string (binary format)
+  //std::string printFPI() const;
+	
+	
+	
+  //! Set TIP words
+  void setTIP(std::vector<uint32_t> words);
+  //! get bitset of TIP words
+  const std::bitset<512> & getTIP() const {
+    return m_tip;
+  }
+  //! Set TIP word number 'pos'
+  void setTIPWord( uint32_t word, uint32_t pos = 0);
+  //! Obtain TIP bitpattern string (binary format)
+  std::string printTIP() const;
+	
+  
   //! Set TBP (Trigger Before Prescales) words
   void setTBP(std::vector<uint32_t> words);
   //! get bitset of TBP words
-  const std::bitset<256> & getTBP() const {
+  const std::bitset<512> & getTBP() const {
     return m_tbp;
   }
   //! Set TBP word number 'pos'
   void setTBPWord( uint32_t word, uint32_t pos = 0);
   //! Obtain TBP bitpattern string (binary format)
   std::string printTBP() const;
-
+  
   //! Set TAP (Trigger After Prescales) words
   void setTAP(std::vector<uint32_t> words);
   //! Set TAP word number 'pos'
   void setTAPWord( uint32_t word, uint32_t pos = 0);
   //! get bitset of TAP words
-  const std::bitset<256> & getTAP() const {
+  const std::bitset<512> & getTAP() const {
     return m_tap;
   }
   //! Obtain TAP bitpattern string (binary format)
   std::string printTAP() const;
-
+  
   //! Set TAV (Trigger After Veto) words
   void setTAV(std::vector<uint32_t> words);
   //! get bitset of TAV words
-  const std::bitset<256> & getTAV() const {
+  const std::bitset<512> & getTAV() const {
     return m_tav;
   }
   //! Set TAV word number 'pos'
   void setTAVWord( uint32_t word, uint32_t pos = 0);
   //! Obtain TAV bitpattern string (binary format)
   std::string printTAV() const;
-
+  
 private:
   //! Bitsets containing bit-patterns of trigger inputs and trigger
   //items
-  std::bitset<160> m_pit;
-  std::bitset<256> m_tbp;
-  std::bitset<256> m_tap;
-  std::bitset<256> m_tav;
+  //std::bitset<320> m_pit;
+  //std::bitset<192> m_fpi;
+  std::bitset<512> m_tip;
+  std::bitset<512> m_tbp;
+  std::bitset<512> m_tap;
+  std::bitset<512> m_tav;
   //! Contains BCID, random trigger and prescaled clock
-  std::bitset<32>  m_pit5;
+  std::bitset<32>  m_pitAux;
+  
+  CTPdataformatVersion * m_ctpVersion;
 };
 
 class CTP_Decoder {
@@ -158,13 +196,13 @@ class CTP_Decoder {
    *  @version \$ $
    *
    */
-
+  
 public:
   //! Default constructor
   CTP_Decoder();
   //! Destructor
   ~CTP_Decoder();
-
+  
   //! Set RDO and fill internal variables from the data object
   void setRDO(const CTP_RDO* rdo);
   //! Accessor function to retrieve pointer to RDO object
@@ -179,42 +217,42 @@ public:
   const CTP_BC& getBunchCrossing(unsigned int pos) {
     return m_BCs[pos];
   }
-
+  
   /*! Test the LVL1 trigger result for a certain trigger item
-    @param itemNo The trigger item that shall be tested
-    @param bcPos The bunch-crossing in the readout window that is to
-    be checked
-    @return A boolean value is returned indicating whether or not the
-    trigger item has fired for a given event
-  */
+   @param itemNo The trigger item that shall be tested
+   @param bcPos The bunch-crossing in the readout window that is to
+   be checked
+   @return A boolean value is returned indicating whether or not the
+   trigger item has fired for a given event
+   */
   bool checkTrigger(unsigned int itemNo,unsigned int bcPos);
-
+  
   /*! Test the LVL1 trigger result after pre-scale factors are
-    applied, before the final trigger decision, which includes the
-    trigger masks, is taken. Here one sees all triggers of an event,
-    irrespective of the trigger mask.
-    @param itemNo The trigger item that shall be tested
-    @param bcPos The bunch-crossing in the readout window that is to
-    be checked
-    @return A boolean value is returned indicating whether or not the
-    trigger item is on before the veto step for a given event
-  */
+   applied, before the final trigger decision, which includes the
+   trigger masks, is taken. Here one sees all triggers of an event,
+   irrespective of the trigger mask.
+   @param itemNo The trigger item that shall be tested
+   @param bcPos The bunch-crossing in the readout window that is to
+   be checked
+   @return A boolean value is returned indicating whether or not the
+   trigger item is on before the veto step for a given event
+   */
   bool checkTriggerAfterPrescale(unsigned int itemNo,unsigned int bcPos);
-
+  
   /*! Function to obtain a vector with the numbers of the trigger
-    items that fired for the current event.
-    @param bcPos The bunch-crossing in the readout window that is to
-    be used
-    @return A vector<unsigned int> with the list of trigger items that
-    fired in the event (trigger-item numbers run from 1 to 256).
-  */
+   items that fired for the current event.
+   @param bcPos The bunch-crossing in the readout window that is to
+   be used
+   @return A vector<unsigned int> with the list of trigger items that
+   fired in the event (trigger-item numbers run from 1 to 256 for run-I and from 1 to 512 for run-II).
+   */
   std::vector<unsigned int> getAllTriggers(unsigned int bcPos);
-
+  
   //! Helper to dump data for debugging
   void dumpData() const;
   //! Helper to dump data for debugging
   void dumpData(MsgStream&) const;
-
+  
 private:
   //! The RDO member
   const CTP_RDO* m_rdo;

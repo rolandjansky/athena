@@ -22,10 +22,11 @@
 
 namespace ROIB {
 
-  CTPResult::CTPResult( const Header& head, const Trailer& trail, const std::vector<uint32_t>& v )
-    : m_CTPResultHeader( head ), m_CTPResultTrailer( trail )
+  CTPResult::CTPResult(unsigned int ctpVersion, const Header& head, const Trailer& trail, const std::vector<uint32_t>& v )
+    : m_CTPResultHeader( head ), m_CTPResultTrailer( trail ), m_ctpVersionNumber(ctpVersion)
   {
     std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
+    m_ctpDataformat = new CTPdataformatVersion(m_ctpVersionNumber);
   }
 
   const std::string CTPResult::dump() const
@@ -61,7 +62,7 @@ namespace ROIB {
     std::ostringstream s;
 
     // time
-    for (size_t i(0); (i < CTPdataformat::NumberTimeWords) && (i < data.size()); ++i) {
+    for (size_t i(0); (i < m_ctpDataformat->getNumberTimeWords()) && (i < data.size()); ++i) {
       if (longFormat) s << "\n";
       if (i == 0 || longFormat) s << " Time";
       if (longFormat) s << std::setw(1) << i;
@@ -69,20 +70,31 @@ namespace ROIB {
       if (longFormat) s << std::endl;
     }
 
-    // PIT
-    for (size_t i(0), p(CTPdataformat::PITpos);
-	 (i < CTPdataformat::PITwords) && (p < data.size()); 
+    // TIP
+    for (size_t i(0), p(m_ctpDataformat->getTIPpos());
+	 (i < m_ctpDataformat->getTIPwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (longFormat) s << "\n";
-      if (i == 0 || longFormat) s << " PIT";
+      if (i == 0 || longFormat) s << " TIP";
       if (longFormat) s << std::setw(1) << i;
       s << LVL1CTP::convertToHex(data[p].roIWord());
       if (longFormat) s << std::endl;
     }
+    
+    // FPI
+   // for (size_t i(0), p(m_ctpDataformat->getFPIpos());
+//         (i < m_ctpDataformat->getFPIwords()) && (p < data.size()); 
+//         ++i, ++p) {
+//      if (longFormat) s << "\n";
+//      if (i == 0 || longFormat) s << " FPI";
+//      if (longFormat) s << std::setw(1) << i;
+//      s << LVL1CTP::convertToHex(data[p].roIWord());
+//      if (longFormat) s << std::endl;
+//    }
 
     // TBP
-    for (size_t i(0), p(CTPdataformat::TBPpos);
-	 (i < CTPdataformat::TBPwords) && (p < data.size()); 
+    for (size_t i(0), p(m_ctpDataformat->getTBPpos());
+	 (i < m_ctpDataformat->getTBPwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (longFormat) s << "\n";
       if (i == 0 || longFormat) s << " TBP";
@@ -92,8 +104,8 @@ namespace ROIB {
     }
 
     // TAP
-    for (size_t i(0), p(CTPdataformat::TAPpos);
-	 (i < CTPdataformat::TAPwords) && (p < data.size()); 
+    for (size_t i(0), p(m_ctpDataformat->getTAPpos());
+	 (i < m_ctpDataformat->getTAPwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (longFormat) s << "\n";
       if (i == 0 || longFormat) s << " TAP";
@@ -103,8 +115,8 @@ namespace ROIB {
     }
 
     // TAV
-    for (size_t i(0), p(CTPdataformat::TAVpos);
-	 (i < CTPdataformat::TAVwords) && (p < data.size()); 
+    for (size_t i(0), p(m_ctpDataformat->getTAVpos());
+	 (i < m_ctpDataformat->getTAVwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (longFormat) s << "\n";
       if (i == 0 || longFormat) s << " TAV";
@@ -144,12 +156,12 @@ namespace ROIB {
   }
 
   // convert vector of ints into bitset
-  std::bitset<256> convertToBitset(const std::vector<uint32_t>& words) 
+  std::bitset<512> convertToBitset(const std::vector<uint32_t>& words) 
   {
-    std::bitset<256> bitset;
+    std::bitset<512> bitset;
 
     for (size_t i(0); i < words.size(); ++i) {
-      std::bitset<256> bs = words[i];
+      std::bitset<512> bs = words[i];
       bs <<= (i * 32);
       bitset |= bs;
     }
@@ -158,12 +170,12 @@ namespace ROIB {
   }
 
   // convert vector of CTPRoIs into bitset
-  std::bitset<256> convertToBitset(const std::vector<CTPRoI>& words) 
+  std::bitset<512> convertToBitset(const std::vector<CTPRoI>& words) 
   {  
-    std::bitset<256> bitset;
+    std::bitset<512> bitset;
 
     for (size_t i(0); i < words.size(); ++i) {
-      std::bitset<256> bs = words[i].roIWord();
+      std::bitset<512> bs = words[i].roIWord();
       bs <<= (i * 32);
       bitset |= bs;
     }

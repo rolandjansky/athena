@@ -12,65 +12,81 @@
 #include <sstream>
 
 // tdaq-common includes for format definition
-#include "CTPfragment/CTPdataformat.h"
+//#include "CTPfragment/CTPdataformat.h"
 
 // local includes
 #include "TrigT1Interfaces/TrigT1CTPDefs.h"
 
-CTP_RDO::CTP_RDO(const uint32_t nBCs, uint32_t nExtraWords)
-   : m_l1AcceptPosition(0), 
-     m_turnCounter(0),
+CTP_RDO::CTP_RDO()
+{}
+
+CTP_RDO::CTP_RDO(unsigned int ctpVersionNumber, const uint32_t nBCs, uint32_t nExtraWords)
+   : m_ctpVersionNumber(ctpVersionNumber),
      m_numberOfBunches(nBCs), 
-     m_activeBunch(0), 
      m_numberOfAdditionalWords(nExtraWords)
 {
+    
+   m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
    // create correct length, zero filled data member
-   m_dataWords.resize(CTPdataformat::NumberTimeWords+(nBCs*CTPdataformat::DAQwordsPerBunch)+nExtraWords);
+   m_dataWords.resize(m_ctpDataFormat->getNumberTimeWords()+(nBCs*m_ctpDataFormat->getDAQwordsPerBunch() )+nExtraWords);
 }
 
-CTP_RDO::CTP_RDO(const std::vector<uint32_t> data, uint32_t nExtraWords)
-  : m_dataWords(data), 
-    m_l1AcceptPosition(0), 
-    m_turnCounter(0),
-    m_activeBunch(0)
-    
+CTP_RDO::CTP_RDO(unsigned int ctpVersionNumber, const std::vector<uint32_t> data, uint32_t nExtraWords)
+  : m_ctpVersionNumber(ctpVersionNumber),
+    m_dataWords(data)    
 {
+    
+   m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
    m_numberOfAdditionalWords=nExtraWords;
    if(!m_dataWords.size()) {
       m_numberOfBunches = 0u;
    } else {
-      uint32_t dataWords = static_cast<uint32_t>(m_dataWords.size()) - CTPdataformat::NumberTimeWords - nExtraWords;
-      m_numberOfBunches = dataWords / CTPdataformat::DAQwordsPerBunch;
+      uint32_t dataWords = static_cast<uint32_t>(m_dataWords.size()) - m_ctpDataFormat->getNumberTimeWords() - nExtraWords;
+      m_numberOfBunches = dataWords / m_ctpDataFormat->getDAQwordsPerBunch();
    }
 }
 
 CTP_RDO::~CTP_RDO(){}
 
+CTPdataformatVersion*
+CTP_RDO::getCTPVersion() const { 
+   if(m_ctpVersionNumber==0) {                                          \
+      std::cout << "CTP_RDO              WARNING CTPVersion has not been set, no information about data format available, please fix your code" << std::endl;
+   }
+   return m_ctpDataFormat;
+}
+
+
+void
+CTP_RDO::setCTPVersionNumber( unsigned int ctpVersion ) {
+   m_ctpVersionNumber = ctpVersion;
+}
+
 void CTP_RDO::setTimeSec(const uint32_t sec) 
 {
-   if(CTPdataformat::TimeSecondsPos < m_dataWords.size()) {
-      m_dataWords[CTPdataformat::TimeSecondsPos] = sec;
+   if(getCTPVersion()->getTimeSecondsPos() < m_dataWords.size()) {
+      m_dataWords[getCTPVersion()->getTimeSecondsPos()] = sec;
    }
 }
 
 void CTP_RDO::setTimeNanoSec(const uint32_t nano)
 {
-   if(CTPdataformat::TimeNanosecondsPos < m_dataWords.size()) {
-      m_dataWords[CTPdataformat::TimeNanosecondsPos] = 
-	 (nano/CTPdataformat::TimeNanosecondsTicks) << CTPdataformat::TimeNanosecondsOffset;
+   if(getCTPVersion()->getTimeNanosecondsPos() < m_dataWords.size()) {
+      m_dataWords[getCTPVersion()->getTimeNanosecondsPos()] = 
+	 (nano/getCTPVersion()->getTimeNanosecondsTicks()) << getCTPVersion()->getTimeNanosecondsOffset();
    }
 }
 
 uint32_t CTP_RDO::getTimeSec() const 
 {
-   if(m_dataWords.size() <= CTPdataformat::TimeSecondsPos) return 0;  
-   return m_dataWords.at(CTPdataformat::TimeSecondsPos);
+   if(m_dataWords.size() <= getCTPVersion()->getTimeSecondsPos()) return 0;  
+   return m_dataWords.at(getCTPVersion()->getTimeSecondsPos() );
 }
 
 uint32_t CTP_RDO::getTimeNanoSec() const 
 {
-   if(m_dataWords.size() <= CTPdataformat::TimeNanosecondsPos) return 0;  
-   return (m_dataWords.at(CTPdataformat::TimeNanosecondsPos) >> CTPdataformat::TimeNanosecondsOffset) * CTPdataformat::TimeNanosecondsTicks;
+   if(m_dataWords.size() <= getCTPVersion()->getTimeNanosecondsPos()) return 0;  
+   return (m_dataWords.at(getCTPVersion()->getTimeNanosecondsPos() ) >> getCTPVersion()->getTimeNanosecondsOffset() ) * getCTPVersion()->getTimeNanosecondsTicks();
 }
 
 uint32_t CTP_RDO::getNumberOfBunches() const 
@@ -121,7 +137,7 @@ void CTP_RDO::setNumberOfBunches(const uint32_t nBCs)
 {
    if (nBCs > m_numberOfBunches) {
       m_numberOfBunches = nBCs;
-      m_dataWords.resize(CTPdataformat::NumberTimeWords+(nBCs*CTPdataformat::DAQwordsPerBunch)+m_numberOfAdditionalWords);
+      m_dataWords.resize(getCTPVersion()->getNumberTimeWords()+(nBCs*getCTPVersion()->getDAQwordsPerBunch() )+m_numberOfAdditionalWords);
    }
 }
 
@@ -145,29 +161,49 @@ void CTP_RDO::setNumberOfAdditionalWords(const uint32_t nExtraWords)
   m_numberOfAdditionalWords = nExtraWords;
 }
 
-void CTP_RDO::setPITWord(const unsigned int i, const uint32_t word)
+//void CTP_RDO::setPITWord(const unsigned int i, const uint32_t word)
+//{
+//   setWord(i + (m_activeBunch*getCTPVersion()->getDAQwordsPerBunch())  + getCTPVersion()->getPITpos(), word);
+//}
+
+//void CTP_RDO::setFPIWord(const unsigned int i, const uint32_t word)
+//{
+//    setWord(i + (m_activeBunch*getCTPVersion()->getDAQwordsPerBunch())  + getCTPVersion()->getFPIpos(), word);
+//}
+
+void CTP_RDO::setTIPWord(const unsigned int i, const uint32_t word)
 {
-   setWord(i + (m_activeBunch*CTPdataformat::DAQwordsPerBunch) + CTPdataformat::PITpos, word);
+    setWord(i + (m_activeBunch*getCTPVersion()->getDAQwordsPerBunch())  + getCTPVersion()->getTIPpos(), word);
 }
 
 void CTP_RDO::setTBPWord(const unsigned int i, const uint32_t word)
 {
-   setWord(i + (m_activeBunch*CTPdataformat::DAQwordsPerBunch) + CTPdataformat::TBPpos, word);
+   setWord(i + (m_activeBunch*getCTPVersion()->getDAQwordsPerBunch() )  + getCTPVersion()->getTBPpos(), word);
 }
 
 void CTP_RDO::setTAPWord(const unsigned int i, const uint32_t word)
 {
-   setWord(i + (m_activeBunch*CTPdataformat::DAQwordsPerBunch) + CTPdataformat::TAPpos, word);
+   setWord(i + (m_activeBunch*getCTPVersion()->getDAQwordsPerBunch() )  + getCTPVersion()->getTAPpos(), word);
 }
 
 void CTP_RDO::setTAVWord(const unsigned int i, const uint32_t word)
 {
-   setWord(i + (m_activeBunch*CTPdataformat::DAQwordsPerBunch) + CTPdataformat::TAVpos, word);
+   setWord(i + (m_activeBunch*getCTPVersion()->getDAQwordsPerBunch())  + getCTPVersion()->getTAVpos(), word);
 }
 
-std::vector<uint32_t> CTP_RDO::getPITWords() const 
+//std::vector<uint32_t> CTP_RDO::getPITWords() const 
+//{
+//   return getWords(PIT);
+//}
+//
+//std::vector<uint32_t> CTP_RDO::getFPIWords() const 
+//{
+//    return getWords(FPI);
+//}
+
+std::vector<uint32_t> CTP_RDO::getTIPWords() const 
 {
-   return getWords(PIT);
+    return getWords(TIP);
 }
 
 std::vector<uint32_t> CTP_RDO::getTBPWords() const 
@@ -209,21 +245,29 @@ std::vector<uint32_t> CTP_RDO::getWords(WordType type) const
    vec.clear();
 
    switch (type) {
-   case PIT:
-      nWords = CTPdataformat::PITwords;
-      offset = CTPdataformat::PITpos;
+   //case PIT:
+//      nWords = getCTPVersion()->getPITwords();
+//      offset = getCTPVersion()->getPITpos();
+//      break;
+//   case FPI:
+//      nWords = getCTPVersion()->getFPIwords();
+//      offset = getCTPVersion()->getFPIpos();
+//      break;
+   case TIP:
+      nWords = getCTPVersion()->getTIPwords();
+      offset = getCTPVersion()->getTIPpos();
       break;
    case TBP:
-      nWords = CTPdataformat::TBPwords;
-      offset = CTPdataformat::TBPpos;
+      nWords = getCTPVersion()->getTBPwords();
+      offset = getCTPVersion()->getTBPpos();
       break;
    case TAP:
-      nWords = CTPdataformat::TAPwords;
-      offset = CTPdataformat::TAPpos;
+      nWords = getCTPVersion()->getTAPwords();
+      offset = getCTPVersion()->getTAPpos();
       break;
    case TAV:
-      nWords = CTPdataformat::TAVwords;
-      offset = CTPdataformat::TAVpos;
+      nWords = getCTPVersion()->getTAVwords();
+      offset = getCTPVersion()->getTAVpos();
       break;
    case EXTRA:
      for (size_t i(m_dataWords.size()-m_numberOfAdditionalWords); i < m_dataWords.size(); ++i) 
@@ -238,11 +282,11 @@ std::vector<uint32_t> CTP_RDO::getWords(WordType type) const
 
    for(unsigned int bunch = 0 ; bunch < m_numberOfBunches ; ++bunch) {
       for(unsigned int tbp = 0; tbp < nWords; ++tbp) {
-	 // take offset of TBPwords into account
-	 unsigned int index = offset + tbp;
-	 // go to the correct bunch
-	 index += (bunch * CTPdataformat::DAQwordsPerBunch);
-	 if( index < m_dataWords.size() ) vec.push_back(m_dataWords[index]);
+          // take offset of TBPwords into account
+          unsigned int index = offset + tbp;
+          // go to the correct bunch
+          index += (bunch * getCTPVersion()->getDAQwordsPerBunch());
+          if( index < m_dataWords.size() ) vec.push_back(m_dataWords[index]);
       }
    }
    // this is now a list of consecutive data words for all bunches
@@ -269,7 +313,7 @@ const std::string CTP_RDO::print(const bool longFormat) const
    if (longFormat) s << std::endl;
 
    // time is only stored once for the whole fragment
-   for (size_t i(0); (i < CTPdataformat::NumberTimeWords) && (i < m_dataWords.size()); ++i) {
+   for (size_t i(0); (i < getCTPVersion()->getNumberTimeWords() ) && (i < m_dataWords.size()); ++i) {
       if (i == 0 || longFormat) s << "\n Time";
       if (longFormat) s << std::setw(1) << i;
       s << " " << std::setw(8) << m_dataWords[i];
@@ -281,23 +325,24 @@ const std::string CTP_RDO::print(const bool longFormat) const
 
 
    // loop over the rest of the data fragment
-   for (unsigned int k(0); k < (m_dataWords.size()-2)/CTPdataformat::DAQwordsPerBunch; ++k) {
+   for (unsigned int k(0); k < (m_dataWords.size()-2)/getCTPVersion()->getDAQwordsPerBunch(); ++k) {
 
       // print single fragment
 
-      // PIT
-      for (size_t i(0), p(k*CTPdataformat::DAQwordsPerBunch + CTPdataformat::PITpos);
-	   (i < CTPdataformat::PITwords) && (p < m_dataWords.size()); 
+      // TIP
+      for (size_t i(0), p(k*getCTPVersion()->getDAQwordsPerBunch() + getCTPVersion()->getTIPpos());
+	   (i < getCTPVersion()->getTIPwords()) && (p < m_dataWords.size()); 
 	   ++i, ++p) {
-	 if (i == 0 || longFormat) s << "\n PIT";
+	 if (i == 0 || longFormat) s << "\n TIP";
 	 if (longFormat) s << std::setw(1) << i;
 	 s << LVL1CTP::convertToHex(m_dataWords[p]);
 	 if (longFormat) s << std::endl;
       }
+       
 
       // TBP
-      for (size_t i(0), p(k*CTPdataformat::DAQwordsPerBunch + CTPdataformat::TBPpos);
-	   (i < CTPdataformat::TBPwords) && (p < m_dataWords.size()); 
+      for (size_t i(0), p(k*getCTPVersion()->getDAQwordsPerBunch() + getCTPVersion()->getTBPpos());
+	   (i < getCTPVersion()->getTBPwords()) && (p < m_dataWords.size()); 
 	   ++i, ++p) {
 	 if (i == 0 || longFormat) s << "\n TBP";
 	 if (longFormat) s << std::setw(1) << i;
@@ -306,8 +351,8 @@ const std::string CTP_RDO::print(const bool longFormat) const
       }
 
       // TAP
-      for (size_t i(0), p(k*CTPdataformat::DAQwordsPerBunch + CTPdataformat::TAPpos);
-	   (i < CTPdataformat::TAPwords) && (p < m_dataWords.size()); 
+      for (size_t i(0), p(k*getCTPVersion()->getDAQwordsPerBunch() + getCTPVersion()->getTAPpos());
+	   (i < getCTPVersion()->getTAPwords()) && (p < m_dataWords.size()); 
 	   ++i, ++p) {
 	 if (i == 0 || longFormat) s << "\n TAP";
 	 if (longFormat) s << std::setw(1) << i;
@@ -316,8 +361,8 @@ const std::string CTP_RDO::print(const bool longFormat) const
       }
 
       // TAV
-      for (size_t i(0), p(k*CTPdataformat::DAQwordsPerBunch + CTPdataformat::TAVpos);
-	   (i < CTPdataformat::TAVwords) && (p < m_dataWords.size()); 
+      for (size_t i(0), p(k*getCTPVersion()->getDAQwordsPerBunch() + getCTPVersion()->getTAVpos() );
+	   (i < getCTPVersion()->getTAVwords()) && (p < m_dataWords.size()); 
 	   ++i, ++p) {
 	 if (i == 0 || longFormat) s << "\n TAV";
 	 if (longFormat) s << std::setw(1) << i;

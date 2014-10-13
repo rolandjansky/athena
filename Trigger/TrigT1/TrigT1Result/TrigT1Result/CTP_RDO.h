@@ -14,17 +14,28 @@
 #include <vector>
 #include <string>
 
+
+#include "L1CommonCore/CTPdataformatVersion.h"
+
 class CTP_RDO {
   
-  enum WordType {PIT, TBP, TAP, TAV, EXTRA};
+  enum WordType {/*PIT, FPI,*/ TIP, TBP, TAP, TAV, EXTRA};
   typedef enum WordType WordType;
   
  public:
 
+   /**
+    * Default constructor needed for pool converters
+    * requires that @setCTPVersionNumber is called before anything else
+    */
+  CTP_RDO();
+
+
   /// Constructor takes the number of BCs of the readout window as argument
-  CTP_RDO(const uint32_t nBCs = 1, uint32_t nExtraWords=0);
+  CTP_RDO(unsigned int ctpVersionNumber, const uint32_t nBCs = 1, uint32_t nExtraWords=0);
+
   /// Normal constructor taking the data words of one or several BCs as argument
-  CTP_RDO(const std::vector<uint32_t> data, uint32_t nExtraWords=0);
+  CTP_RDO(unsigned int ctpVersionNumber, const std::vector<uint32_t> data, uint32_t nExtraWords=0);
 
   /// empty default destructor
   ~CTP_RDO();
@@ -44,13 +55,21 @@ class CTP_RDO {
   uint32_t getTimeSinceLastL1A() const;
   uint32_t getTurnCounter() const;
 
-  std::vector<uint32_t> getPITWords() const;
+  //std::vector<uint32_t> getPITWords() const; 
+  //std::vector<uint32_t> getFPIWords() const;
+  std::vector<uint32_t> getTIPWords() const;
   std::vector<uint32_t> getTBPWords() const;
   std::vector<uint32_t> getTAPWords() const;
   std::vector<uint32_t> getTAVWords() const;
   std::vector<uint32_t> getEXTRAWords() const;
 
-  void setPITWord(const unsigned int i, const uint32_t word);
+   CTPdataformatVersion* getCTPVersion() const;
+  void setCTPVersionNumber( unsigned int ctpVersion );
+  unsigned int getCTPVersionNumber() const { return m_ctpVersionNumber; }
+    
+  //void setPITWord(const unsigned int i, const uint32_t word);
+  //void setFPIWord(const unsigned int i, const uint32_t word);
+  void setTIPWord(const unsigned int i, const uint32_t word);
   void setTBPWord(const unsigned int i, const uint32_t word);
   void setTAPWord(const unsigned int i, const uint32_t word);
   void setTAVWord(const unsigned int i, const uint32_t word);
@@ -77,13 +96,15 @@ class CTP_RDO {
  private:
 
   // data members 
-
+    
+  unsigned int m_ctpVersionNumber {0};        //!< number of the CTP version to be used
+  CTPdataformatVersion* m_ctpDataFormat { nullptr };  //!< CTP data format for a specified version
   std::vector<uint32_t> m_dataWords;      //!< raw data words
-  uint8_t  m_l1AcceptPosition;            //!< bunch position, from which the level1 accept was calculated
-  uint32_t m_turnCounter;                //!< turn counter
-  uint32_t m_numberOfBunches;             //!< number of bunches in raw data (transient)
-  uint32_t m_activeBunch;                 //!< active bunch, for book keepting (transient)
-  uint32_t m_numberOfAdditionalWords;     //!< number of configurable extra words in the fragment
+  uint8_t  m_l1AcceptPosition {0};            //!< bunch position, from which the level1 accept was calculated
+  uint32_t m_turnCounter {0};                //!< turn counter
+  uint32_t m_numberOfBunches {0};             //!< number of bunches in raw data (transient)
+  uint32_t m_activeBunch {0};                 //!< active bunch, for book keepting (transient)
+  uint32_t m_numberOfAdditionalWords {0};     //!< number of configurable extra words in the fragment
 
   // helper functions
   

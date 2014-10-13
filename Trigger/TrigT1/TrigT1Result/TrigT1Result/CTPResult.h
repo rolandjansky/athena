@@ -19,6 +19,8 @@
 #include "TrigT1Result/Trailer.h"
 #include "TrigT1Result/CTPRoI.h"
 
+#include "L1CommonCore/CTPdataformatVersion.h"
+
 // Forward declaration(s):
 class MsgStream;
 
@@ -54,12 +56,16 @@ namespace ROIB {
     CTPResult()     
       : m_CTPResultHeader(), m_CTPResultTrailer(), m_CTPResultRoIVec() {}
 
-    //! full constructor with header, trailer and vector of data
-    CTPResult( const Header& h, const Trailer& t, const std::vector<CTPRoI>& d)
-      : m_CTPResultHeader( h ), m_CTPResultTrailer( t ), m_CTPResultRoIVec( d ) {}
+    //! full constructor with CTP version, header, trailer and vector of data
+    CTPResult(unsigned int ctpVersion,  const Header& h, const Trailer& t, const std::vector<CTPRoI>& d)
+      : m_CTPResultHeader( h ), m_CTPResultTrailer( t ), m_CTPResultRoIVec( d ), m_ctpVersionNumber(ctpVersion) {
+      
+        m_ctpDataformat = new CTPdataformatVersion(m_ctpVersionNumber);
+      
+      }
 
-    //! full constructor with header, trailer and vector of data
-    CTPResult( const Header&, const Trailer&, const std::vector<uint32_t>& );
+    //! full constructor with CTP version header, trailer and vector of data
+    CTPResult(unsigned int ctpVersion, const Header&, const Trailer&, const std::vector<uint32_t>& );
 
     //! empty default destructor
     ~CTPResult() {};
@@ -122,6 +128,10 @@ namespace ROIB {
     Trailer m_CTPResultTrailer;                           //!< trailer fragment in LVL1 eformat
     std::vector<CTPRoI> m_CTPResultRoIVec;                //!< raw data content (RoIs)
 
+    //CTP version
+    unsigned int m_ctpVersionNumber;
+    CTPdataformatVersion * m_ctpDataformat;
+    
     //! convert data content into string (used by dump and print)
     const std::string convert(std::vector<CTPRoI> data, const bool longFormat = false) const;
 
@@ -130,9 +140,9 @@ namespace ROIB {
   // converter functions
 
   //! convert vector of unsigned int into bitset
-  std::bitset<256> convertToBitset(const std::vector<uint32_t>&);
+  std::bitset<512> convertToBitset(const std::vector<uint32_t>&);
   //! convert vector of ROIB::CTPRoI into bitset
-  std::bitset<256> convertToBitset(const std::vector<CTPRoI>&);
+  std::bitset<512> convertToBitset(const std::vector<CTPRoI>&);
 
 } // namespace ROIB
 
