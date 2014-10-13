@@ -57,7 +57,7 @@ namespace xAODMaker {
       
     /// Fills in the isolation variables 
     void setIsolations(const egamma& aodmuon, xAOD::Photon& xaodmuon) const;
-    void checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::EgammaParameters::IsolationType xaodParameter, const egamma&, xAOD::Photon& ) const;
+    void checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::Iso::IsolationType xaodParameter, const egamma&, xAOD::Photon& ) const;
     
     void setLinks(const egamma& aodph, xAOD::Photon& xaodph) const;
     ElementLink<xAOD::VertexContainer> getNewLink(const ElementLink<VxContainer>& oldLink, const std::string& name) const;
