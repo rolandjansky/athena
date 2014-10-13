@@ -451,7 +451,7 @@
                   <jobTransformJobName>minbias_ISF_G4_digi</jobTransformJobName>
 
                   <jobTransformCmd>
-                    Digi_trf.py inputHitsFile=Merge.pool.root outputRDOFile=RDO.pool.root maxEvents=50 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False
+                    Digi_tf.py --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --maxEvents '50' --skipEvents '0' --geometryVersion 'ATLAS-GEO-20-00-01' --digiSeedOffset1 '123456' --digiSeedOffset2 '2345678' --postInclude 'PyJobTransforms/UseFrontier.py' --samplingFractionDbTag 'QGSP_BERT' --AddCaloDigi 'False' --conditionsTag 'OFLCOND-MC12-SDR-06'
                   </jobTransformCmd>
 
                   <group>ISF_Validation</group>
@@ -477,7 +477,7 @@
                   <doc>reco</doc>
                   <jobTransformJobName>minbias_ISF_G4_reco</jobTransformJobName>
                   <jobTransformCmd>
-                   Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root maxEvents=50 skipEvents=0 topOptions='ISF_Example/jobOptions_IDOnly_trf.py' preExec='from GaudiSvc.GaudiSvcConf import THistSvc;InDetFlags.doStandardPlots.set_Value_and_Lock(True)'
+                   Reco_tf.py --inputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --maxEvents '50' --skipEvents '0' --preInclude 'ISF_Example/preInclude.IDonly_reconstruction.py'
                   </jobTransformCmd>
                   <group>ISF_Validation</group>
                   <chaindataset_info>
@@ -524,7 +524,7 @@
       <jobTransform userJobId="cosmics_ISF_G4_sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>cosmics_ISF_G4_sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-01-01-00 --conditionsTag OFLCOND-RUN12-SDR-01 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics
         </jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>short</queue>
@@ -534,7 +534,7 @@
       <jobTransform userJobId="cosmicsTR_ISF_G4_sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>cosmicsTR_ISF_G4_sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --CosmicPtSlice 'NONE' --beamType 'cosmics'
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --CosmicPtSlice 'NONE' --beamType 'cosmics'
         </jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>medium</queue>
@@ -761,7 +761,7 @@
                   <doc>reco</doc>
                   <jobTransformJobName>ttbar_ISF_ATLFASTII_digireco</jobTransformJobName>
                   <jobTransformCmd>
-                    DigiMReco_trf.py preExec_e2a='rec.Commissioning.set_Value_and_Lock(True)' conditionsTag='OFLCOND-MC12-AFII-07' preInclude_h2r='SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' geometryVersion='ATLAS-GEO-20-00-01' autoConfiguration='everything' DataRunNumber='195847' preExec_r2e='rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' inputHitsFile=Merge.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=500 outputRDOFile=RDO.pool.root outputHIST_PHYSVALMONFile=PhysValMon.root postInclude_h2r=DigitizationTests/postInclude.RDO_Plots.py postInclude=PyJobTransforms/UseFrontier.py
+                    Reco_tf.py --conditionsTag 'OFLCOND-MC12-AFII-07' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' --geometryVersion 'ATLAS-GEO-20-00-01' --autoConfiguration 'everything' --DataRunNumber '195847' --preExec 'e2a:rec.Commissioning.set_Value_and_Lock(True)' 'r2e:rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --inputHITSFile 'Merge.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --maxEvents '500' --outputRDOFile 'RDO.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --postInclude 'PyJobTransforms/UseFrontier.py' 'HITtoRDO:DigitizationTests/postInclude.RDO_Plots.py'
                   </jobTransformCmd>
                   <!-- example creating RecoValHists.root
                   <jobTransformCmd>
@@ -1238,7 +1238,7 @@
                   <doc>reco</doc>
                   <jobTransformJobName>ttbar_ISF_ATLFASTIIF_digireco</jobTransformJobName>
                   <jobTransformCmd>
-                    DigiMReco_trf.py preExec_e2a='rec.Commissioning.set_Value_and_Lock(True)' conditionsTag='OFLCOND-MC12-AFII-07' preInclude_h2r='SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' geometryVersion='ATLAS-GEO-20-00-01' autoConfiguration='everything' DataRunNumber='195847' preExec_r2e='rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' inputHitsFile=Merge.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=500 outputRDOFile=RDO.pool.root outputHIST_PHYSVALMONFile=PhysValMon.root postInclude_h2r=DigitizationTests/postInclude.RDO_Plots.py postInclude=PyJobTransforms/UseFrontier.py
+                    Reco_tf.py --conditionsTag 'OFLCOND-MC12-AFII-07' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' --geometryVersion 'ATLAS-GEO-20-00-01' --autoConfiguration 'everything' --DataRunNumber '195847' --preExec 'e2a:rec.Commissioning.set_Value_and_Lock(True)' 'r2e:rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --inputHITSFile 'Merge.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --maxEvents '500' --outputRDOFile 'RDO.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --postInclude 'PyJobTransforms/UseFrontier.py' 'HITtoRDO:DigitizationTests/postInclude.RDO_Plots.py'
                   </jobTransformCmd>
                   <!-- example creating RecoValHists.root
                   <jobTransformCmd>
@@ -1748,7 +1748,7 @@
                   <doc>reco</doc>
                   <jobTransformJobName>minbias_ISF_ATLFASTIIF_digireco</jobTransformJobName>
                   <jobTransformCmd>
-                    DigiMReco_trf.py preExec_e2a='rec.Commissioning.set_Value_and_Lock(True)' conditionsTag='OFLCOND-MC12-AFII-07' preInclude_h2r='SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' geometryVersion='ATLAS-GEO-20-00-01' autoConfiguration='everything' DataRunNumber='195847' preExec_r2e='rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' inputHitsFile=Merge.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=2000 outputRDOFile=RDO.pool.root outputHIST_PHYSVALMONFile=PhysValMon.root postInclude_h2r=DigitizationTests/postInclude.RDO_Plots.py postInclude=PyJobTransforms/UseFrontier.py
+                    Reco_tf.py --conditionsTag 'OFLCOND-MC12-AFII-07' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' --geometryVersion 'ATLAS-GEO-20-00-01' --autoConfiguration 'everything' --DataRunNumber '195847' --preExec 'e2a:rec.Commissioning.set_Value_and_Lock(True)' 'r2e:rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --inputHITSFile 'Merge.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --maxEvents '2000' --outputRDOFile 'RDO.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --postInclude 'PyJobTransforms/UseFrontier.py' 'HITtoRDO:DigitizationTests/postInclude.RDO_Plots.py'
                   </jobTransformCmd>
                   <!-- example creating RecoValHists.root
                   <jobTransformCmd>
