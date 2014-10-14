@@ -80,6 +80,8 @@ class PhysValMET
   TH1D *m_MET_RefFinal_phi, *m_MET_RefEle_phi, *m_MET_RefGamma_phi, *m_MET_RefTau_phi, *m_MET_RefJet_phi, *m_MET_Muons_phi, *m_MET_SoftClus_phi, *m_MET_PVSoftTrk_phi;
   TH1D *m_SET_RefFinal, *m_SET_RefEle, *m_SET_RefGamma, *m_SET_RefTau, *m_SET_RefJet, *m_SET_Muons, *m_SET_SoftClus, *m_SET_PVSoftTrk;
   TH1D *m_Resolution_TruthNonInt_RefFinal_METx, *m_Resolution_TruthNonInt_RefFinal_METy;
+  TH1D *m_MET_Track, *m_MET_TrackPV, *m_MET_Track_x, *m_MET_TrackPV_x, *m_MET_Track_y, *m_MET_TrackPV_y, *m_MET_Track_phi, *m_MET_TrackPV_phi, *m_SET_Track, *m_SET_TrackPV;
+  TH1D *m_MET_RefFinal_TST, *m_MET_RefFinal_TST_x, *m_MET_RefFinal_TST_y;
   
 }; 
 
