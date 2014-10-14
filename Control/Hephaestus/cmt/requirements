@@ -6,6 +6,10 @@ use AtlasPolicy         AtlasPolicy-*
 use AtlasPython         AtlasPython-*       External
 use AtlasLibUnwind      AtlasLibUnwind-*    External
 
+private
+use AtlasBoost          AtlasBoost-*        External
+end_private
+
 # the memory tracker relies on gcc (tag gcc is set in ExternalPolicy, which
 # comes in from AtlasPolicy) internals: only build on that platform (there
 # will be a warning on other platforms, but we don't have any others right

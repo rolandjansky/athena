@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 
 #include <tr1/unordered_map>
+#include "boost/io/ios_state.hpp"
 
 
 //- the following function will be called on each error on input
@@ -197,11 +198,15 @@ void ReadSymbols( const std::string& input ) {
    Address_t l;
    while ( fread( (void*)&l, sizeof(l), 1, fsyms ) ) {
       char s[4096];
-      int off = 0;
-      do {
-         fread( s+off, sizeof(char), 1, fsyms );
-      } while ( s[off++] != '\n' );
-      s[off-1] = '\0';
+      size_t off = 0;
+      while (true) {
+         char c = 0;
+         int stat = fread( &c, sizeof(char), 1, fsyms );
+         if (stat <= 0 || c == '\n') break;
+         if (off < sizeof(s)-1)
+           s[off++] = c;
+      }
+      s[off] = '\0';
 
       gSymbols[ l ] = s;
 
@@ -231,6 +236,7 @@ void ReadSymbols( const std::string& input ) {
 
 void ProcessProfile( const std::string& input, const std::string& output ) {
 
+   boost::io::ios_base_all_saver coutsave (std::cout);
    struct stat statbuf;
    if ( stat( input.c_str(), &statbuf ) != 0 ) {
       std::cout << "failed to stat " << input << " ... exiting ... " << std::endl;
@@ -246,15 +252,28 @@ void ProcessProfile( const std::string& input, const std::string& output ) {
       FILE* fprof = popen( ("gzip -dc " + input).c_str(), "r" );
 
       long size = 0, nstack = 0, step_progress = 0, progress = 0;
-      Address_t stacktrace[ 128 ];
+      const int maxstack = 128;
+      Address_t stacktrace[ maxstack ];
 
       std::cout.setf( std::ios::fixed, std::ios::floatfield );
       std::cout << std::setprecision( 2 );
 
       std::cout << " progress: ["; std::cout.flush();
       while ( fread( (void*)&size, sizeof(long), 1, fprof ) ) {
-         fread( (void*)&nstack, sizeof(long), 1, fprof );
-         fread( (void*)stacktrace, sizeof(Address_t), nstack, fprof );
+         if (fread( (void*)&nstack, sizeof(long), 1, fprof ) < 1) break;
+         int nskip = 0;
+         if (nstack < 0)
+           nstack = 0;
+         else if (nstack > maxstack) {
+           nskip = nstack - maxstack;
+           nstack = maxstack;
+         }
+         if ((long)fread( (void*)stacktrace, sizeof(Address_t), nstack, fprof ) < nstack) break;
+         while (nskip > 0) {
+           Address_t dum;
+           if ((long)fread( &dum, sizeof(Address_t), 1, fprof ) < 1) break;
+           --nskip;
+         }
 
          byte_counter += (2+nstack)*4;
          progress = long(2.5*byte_counter / total_bytes); // estimate inflator at 40x
