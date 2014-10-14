@@ -30,7 +30,11 @@ apply_pattern installed_library
 private
 
 use AtlasReflex   AtlasReflex-*   External
+use xAODCaloEvent   xAODCaloEvent-*      Event/xAOD
 
 apply_pattern lcgdict dict=xAODJet selectionfile=selection.xml \
                       headerfiles="../xAODJet/xAODJetDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=xAODJet_Jet

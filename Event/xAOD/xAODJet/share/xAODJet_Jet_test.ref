@@ -1,0 +1,73 @@
+start
+
+ ---------------- testJetCreation  
+TEST SUCCEEDED :  created jet pt==1
+TEST SUCCEEDED :  Moment retrieval by enum
+TEST SUCCEEDED :  Moment retrieval by string
+TEST SUCCEEDED :  constituents size ==1  ->  1
+
+ ---------------- testKinematicChange  
+TEST SUCCEEDED : px changed as expected
+TEST SUCCEEDED : e changed as expected
+TEST SUCCEEDED : pt changed as expected
+TEST SUCCEEDED : Pt from JetAssignedScaleMomentum as expected
+TEST SUCCEEDED : JetConstitScaleMomentum retrieve by string identical
+
+ ---------------- testJetCopy  
+ --> testing assignment operator 0.123
+TEST SUCCEEDED : copy0 jet pt identical
+TEST SUCCEEDED : copy0 jet eta identical
+TEST SUCCEEDED : copy0 jet e identical
+TEST SUCCEEDED : copy0 jet Width identical
+ --> testing copy operator
+TEST SUCCEEDED : copy1 jet pt identical
+TEST SUCCEEDED : copy1 jet e identical
+TEST SUCCEEDED : copy0 jet Width identical
+ --> test copy into a container
+TEST SUCCEEDED : copy in container : jet pt identical
+TEST SUCCEEDED : copy in container : jet e identical
+TEST SUCCEEDED : copy in container : jet Width identical
+
+ ---------------- testConstituents  
+TEST SUCCEEDED : size of JetConstituentVector : 2==2
+   Pt    finding scale     uncalconstit scale
+40000     36000    28000
+TEST SUCCEEDED : identical constituents from JetConstituentVector at 0
+TEST SUCCEEDED :  stlVec and constituent Pt identical at  0
+TEST SUCCEEDED : identical constituents from JetConstituentVector at 1
+TEST SUCCEEDED :  stlVec and constituent Pt identical at  1
+TEST SUCCEEDED : identical constituent sum
+TEST SUCCEEDED : identical 1st  constituent
+TEST SUCCEEDED : identical 2nd  constituent
+
+ ---------------- testJetCopy 
+TEST SUCCEEDED : attribute retieval str vs enum
+TEST SUCCEEDED : attribute as double
+TEST SUCCEEDED : getAttribute(string) returns true
+TEST SUCCEEDED : getAttribute(enu,) returns true
+TEST SUCCEEDED : attribute retrieval by reference
+TEST SUCCEEDED : attribute retrieval by reference identical
+TEST SUCCEEDED : attribute retrieval by ref & direct retrieval identical 
+TEST SUCCEEDED : set then retrieve attribute
+TEST SUCCEEDED : retrieved vector identical
+  --> retrieve 4-momentum
+TEST SUCCEEDED : Scale momentum retrieved as attribute identical to scale
+TEST SUCCEEDED : Scale momentum set as attribute identical when retrived as scale
+
+ ---------------- testLink  
+TEST SUCCEEDED : jet retrieved from asso identical
+TEST SUCCEEDED : jet retrieved  from as IParticle asso identical
+TEST SUCCEEDED : jet retrieved as EL identical
+
+ ---------------- testClusterConstituents  
+ contit energy  500  cluster energy 500
+TEST SUCCEEDED : EM cluster constituent at expected scale
+TEST SUCCEEDED : EM cluster constituent at expected scale (from iterator)
+ contit energy  1000  cluster energy 1000
+TEST SUCCEEDED : LC cluster constituent at expected scale
+TEST SUCCEEDED : LC cluster constituent at expected scale (from iterator)
+TEST SUCCEEDED : LC cluster constituent at expected scale (from iterator at EM scale)
+
+ ---------------- testClusterConstituents  
+TEST SUCCEEDED :  shallow copy pt identical
+TEST SUCCEEDED :  first constit identical

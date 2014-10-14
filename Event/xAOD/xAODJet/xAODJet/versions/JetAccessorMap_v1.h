@@ -101,7 +101,7 @@ namespace xAOD {
           JET_DEFINE_ATT_ACCESSOR( VoronoiAreaPx );
           JET_DEFINE_ATT_ACCESSOR( VoronoiAreaPy );
           JET_DEFINE_ATT_ACCESSOR( VoronoiAreaPz );
-          JET_DEFINE_ATT_ACCESSOR( WIDTH );
+          JET_DEFINE_ATT_ACCESSOR( Width );
           // JET_DEFINE_ATT_ACCESSOR( YFlip12 );
           // JET_DEFINE_ATT_ACCESSOR( YFlip13 );
           JET_DEFINE_ATT_ACCESSOR( EnergyPerSampling );
