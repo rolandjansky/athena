@@ -23,6 +23,7 @@
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "TrigMuonEvent/MuonFeature.h"
+#include "RegionSelector/IRegSelSvc.h"
 
 class StoreGateSvc;
 
@@ -46,7 +47,9 @@ class RpcRoadDefiner
 
   void setMsgStream(MsgStream* msg) { m_msg = msg; };
   void setMdtGeometry(const MDTGeometry* mdtGeometry);
+  void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);
+  void setRpcGeometry(bool use_rpc);
 
  private:
   inline MsgStream& msg() const { return *m_msg; }
@@ -61,6 +64,11 @@ class RpcRoadDefiner
   const BarrelRoadData*  m_roadData;
 
   double m_rWidth_RPC_Failed;
+  bool m_use_new_geometry;
+  bool m_use_rpc;
+
+  IRegSelSvc* m_regionSelector;
+  const MdtIdHelper* m_mdtIdHelper;
 };
 
 // --------------------------------------------------------------------------------

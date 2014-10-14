@@ -11,6 +11,9 @@
 #include "MuonCalibEvent/MdtCalibHit.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "Identifier/Identifier.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
@@ -29,7 +32,6 @@ TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 						     const IInterface*  parent): 
    AlgTool(type,name,parent),
    m_msg(0),
-   m_mdtCablingSvc("MDTcablingSvc",""),
    m_mdtCalibrationSvc(0)
 {
    declareInterface<TrigL2MuonSA::MuFastPatternFinder>(this);
@@ -58,13 +60,18 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
       return sc;
    }
    
-   // Locate MDT CablingSvc
-   sc = m_mdtCablingSvc.retrieve();
-   if ( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Could not retrieve " << m_mdtCablingSvc << endreq;
-      return sc;
-   }
-   msg() << MSG::DEBUG << "Retrieved service " << m_mdtCablingSvc << endreq;
+   // retrieve the mdtidhelper  
+   StoreGateSvc* detStore(0);                                                                                                                     sc = serviceLocator()->service("DetectorStore", detStore); 
+   if (sc.isFailure()) { 
+     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq; 
+     return sc;
+   } 
+   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
+   const MuonGM::MuonDetectorManager* muonMgr;                                                                 
+   sc = detStore->retrieve( muonMgr,"Muon" ); 
+   if (sc.isFailure()) return sc; 
+   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq; 
+   m_mdtIdHelper = muonMgr->mdtIdHelper();                                                                                                    
 
    // Locate MDT calibration service
    sc = serviceLocator()->service("MdtCalibrationSvc", m_mdtCalibrationSvc );
@@ -75,6 +82,12 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
    
    // 
    return StatusCode::SUCCESS; 
+}
+
+void TrigL2MuonSA::MuFastPatternFinder::setGeometry(bool use_new_geometry)
+{
+  m_use_new_geometry = use_new_geometry;
+  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -99,8 +112,8 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 	 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 	 << Layer << "/" << Tube << endreq;
 
-   Identifier id = m_mdtCablingSvc->idHelper()->channelID(StationName,StationEta,
-							  StationPhi,Multilayer,Layer,Tube);
+   Identifier id = m_mdtIdHelper->channelID(StationName,StationEta,
+					    StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;
    int adcCounts    = mdtHit.Adc;
@@ -169,9 +182,9 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 
    // Saddress = pos1/3 = 0:Large, 1:Large-SP, 2:Small, 3:Small-SP
    trackPattern.s_address = (muonRoad.isEndcap)? -1: muonRoad.Special + 2*muonRoad.LargeSmall;
-   
+
    const unsigned int MAX_STATION =  8;
-   const unsigned int MAX_LAYER   = 12;
+   const unsigned int MAX_LAYER   =  12;
 
    TrigL2MuonSA::MdtLayerHits v_mdtLayerHits[MAX_STATION][MAX_LAYER];
 
@@ -194,8 +207,10 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
    for(unsigned int i_hit=0; i_hit<mdtHits.size(); i_hit++) {
 
      unsigned int chamber = mdtHits[i_hit].Chamber;
-     
+
      if( chamber > chamber_max ) chamber_max = chamber;
+     if (chamber >= xAOD::L2MuonParameters::Chamber::MaxChamber) continue;
+
      double aw = muonRoad.aw[chamber][0];
      double bw = muonRoad.bw[chamber][0];
      double Z = mdtHits[i_hit].Z;
@@ -231,6 +246,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
      v_mdtLayerHits[chamber][0].ResSum += residual;
    }
    
+
    const double DeltaMin = 0.025;
 
    for(unsigned int chamber=0; chamber<=chamber_max; chamber++) {

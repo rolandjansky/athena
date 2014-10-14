@@ -151,10 +151,10 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     double PhiInOctant = fabs(tgcFitResult.tgcMid1[1] - Octant * (CLHEP::pi/4.));
     if (PhiInOctant > (CLHEP::pi/8.)) PhiInOctant = (CLHEP::pi/4.) - PhiInOctant;
     
-    trackPattern.beta    = 0.0;
-    trackPattern.phi     = phi;
-    trackPattern.pt      = fabs(tgcFitResult.tgcPT);
-    trackPattern.charge  = (tgcFitResult.tgcPT!=0.0)? tgcFitResult.tgcPT/fabs(tgcFitResult.tgcPT) : +1;
+    trackPattern.endcapBeta = 0.0;
+    trackPattern.phiMS      = phi;
+    trackPattern.pt         = fabs(tgcFitResult.tgcPT);
+    trackPattern.charge     = (tgcFitResult.tgcPT!=0.0)? tgcFitResult.tgcPT/fabs(tgcFitResult.tgcPT) : +1;
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0])-1.)/0.05);
@@ -191,10 +191,10 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     double PhiInOctant = fabs(p_roi->phi() - Octant * (CLHEP::pi/4.));
     if (PhiInOctant > (CLHEP::pi/8.)) PhiInOctant = (CLHEP::pi/4.) - PhiInOctant;
 
-    trackPattern.beta    = 0.0;
-    trackPattern.phi     = phi;
-    trackPattern.pt      = 0;
-    trackPattern.charge  = 0;
+    trackPattern.endcapBeta = 0.0;
+    trackPattern.phiMS      = phi;
+    trackPattern.pt         = 0;
+    trackPattern.charge     = 0;
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(p_roi->eta())-1.)/0.05);
@@ -222,16 +222,16 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     double slope = (OuterR-MiddleR)/(OuterZ-MiddleZ);
     double inter = MiddleR - slope*MiddleZ;    
     
-    trackPattern.alpha     = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
-    trackPattern.slope     = slope; 
-    trackPattern.intercept = inter;    
+    trackPattern.endcapAlpha = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
+    trackPattern.slope       = slope; 
+    trackPattern.intercept   = inter;    
     if (InnerR) {
-      trackPattern.beta   = fabsf( atan(InnerSlope) - atan(slope) ); 
-      trackPattern.deltaR = slope * InnerZ + MiddleIntercept - InnerR;
-      double sign         = trackPattern.deltaR / fabs(trackPattern.deltaR);
-      trackPattern.radius = computeRadius(InnerSlope, InnerR,  InnerZ,
-					   slope,      MiddleR, MiddleZ,
-					   sign);
+      trackPattern.endcapBeta   = fabsf( atan(InnerSlope) - atan(slope) ); 
+      trackPattern.deltaR       = slope * InnerZ + MiddleIntercept - InnerR;
+      double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
+      trackPattern.endcapRadius = computeRadius(InnerSlope, InnerR,  InnerZ,
+		                              slope,      MiddleR, MiddleZ,
+					      sign);
     }
   } else {    
     if( trackPattern.pt >= 8. || !tgcFitResult.isSuccess) {
@@ -239,32 +239,32 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 	double Ze = MiddleZ+(fabsf(MiddleZ)/MiddleZ)*1000.;
 	double Re = MiddleSlope*(Ze) + MiddleIntercept;
 
-	trackPattern.alpha     = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,Ze,Re);
-	trackPattern.slope     = MiddleSlope;
-	trackPattern.intercept = MiddleIntercept;
+	trackPattern.endcapAlpha = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,Ze,Re);
+	trackPattern.slope       = MiddleSlope;
+	trackPattern.intercept   = MiddleIntercept;
       }      
     } 
     
     if (MiddleZ && InnerZ) {
-      trackPattern.beta   = fabsf( atan(InnerSlope) - atan(MiddleSlope) );
-      trackPattern.deltaR = MiddleSlope*InnerZ + MiddleIntercept - InnerR;
-      double sign         = trackPattern.deltaR / fabs(trackPattern.deltaR);
-      trackPattern.radius = computeRadius(InnerSlope,  InnerR,  InnerZ,
+      trackPattern.endcapBeta   = fabsf( atan(InnerSlope) - atan(MiddleSlope) );
+      trackPattern.deltaR       = MiddleSlope*InnerZ + MiddleIntercept - InnerR;
+      double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
+      trackPattern.endcapRadius = computeRadius(InnerSlope,  InnerR,  InnerZ,
 					   MiddleSlope, MiddleR, MiddleZ,
 					   sign);
     }
   }
 
   if ( (InnerZ && EEZ) && MiddleZ ){
-    trackPattern.endcapRadius = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
+    trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
   }
   
   if ( (EBIZ && EEZ) && MiddleZ ){
-    trackPattern.endcapRadius = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
+    trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
   }
 
   msg() << MSG::DEBUG << "... trackPattern.alpha/beta/endcapRadius/charge/s_address="
-	<< trackPattern.alpha << "/" << trackPattern.beta << "/" << trackPattern.endcapRadius << "/" 
+	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
 	<< trackPattern.charge << "/" << trackPattern.s_address << endreq;
   // 
   return StatusCode::SUCCESS; 

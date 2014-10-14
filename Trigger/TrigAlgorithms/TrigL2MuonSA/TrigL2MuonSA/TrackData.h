@@ -16,30 +16,34 @@ class TrackPattern
 {
  public:
  TrackPattern() :
+   pt(0),
+   charge(0),
+   etaVtx(0),
+   phiVtx(0),
+   deltaPt(0),
+   deltaEtaVtx(0),
+   deltaPhiVtx(0),
    s_address(-1),
-   phiDir(0),
-   phi(0),
+   phiMS(0),
+   phiMSDir(0),
    etaMap(0),
    phiMap(0),
    etaBin(0),
    phiBin(0),
    phiBin24(0),
    smallLarge(-1),
-   radius(0),
-   sagitta(0),
-   alpha(0),
-   beta(0),
+   barrelRadius(0),
+   barrelSagitta(0),
+   endcapAlpha(0),
+   endcapBeta(0),
    endcapRadius(0),
+   endcapRadius3P(0),
    slope(0),
    intercept(0),
    deltaR(0),
-   pt(0),
-   ptAlpha(0),
-   ptBeta(0),
-   ptRadius(0),
-   charge(0),
-   etaVtx(0),
-   phiVtx(0),
+   ptEndcapAlpha(0),
+   ptEndcapBeta(0),
+   ptEndcapRadius(0),
    isRpcFailure(false),
    isTgcFailure(false)
      {};
@@ -50,10 +54,20 @@ class TrackPattern
     TrigL2MuonSA::MdtHits    mdtSegments[NCHAMBER]; // MDT hits associated with the track
     TrigL2MuonSA::SuperPoint superPoints[NCHAMBER]; // Super points at each station
     
+    double pt;
+    double charge;
+
+    double etaVtx;
+    double phiVtx;
+
+    double deltaPt;
+    double deltaEtaVtx;
+    double deltaPhiVtx;
+
     int    s_address;
 
-    double phiDir;
-    double phi;
+    double phiMS;
+    double phiMSDir;
 
     double etaMap;
     double phiMap;  
@@ -63,26 +77,22 @@ class TrackPattern
     int    phiBin24; 
     int    smallLarge;
 
-    double radius;
-    double sagitta;
+    double barrelRadius;
+    double barrelSagitta;
 
-    double alpha;
-    double beta;
+    double endcapAlpha;
+    double endcapBeta;
     double endcapRadius;
+    double endcapRadius3P;
 
     double slope;
     double intercept;
     double deltaR;
 
-    double pt;
-    double ptAlpha;
-    double ptBeta;
-    double ptRadius;
-    double charge;
+    double ptEndcapAlpha;
+    double ptEndcapBeta;
+    double ptEndcapRadius;
     
-    double etaVtx;
-    double phiVtx;
-
     bool   isRpcFailure;
     bool   isTgcFailure;
 };

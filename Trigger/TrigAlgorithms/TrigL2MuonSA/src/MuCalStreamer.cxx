@@ -101,8 +101,8 @@ HLT::ErrorCode MuCalStreamer::hltFinalize() {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode MuCalStreamer::hltExecute(const HLT::TriggerElement* inputTE, 
-					  HLT::TriggerElement* outputTE)
+HLT::ErrorCode MuCalStreamer::hltExecute(const HLT::TriggerElement* /* inputTE */, 
+					 HLT::TriggerElement* /* outputTE */)
 {
   StatusCode sc = StatusCode::SUCCESS;
 

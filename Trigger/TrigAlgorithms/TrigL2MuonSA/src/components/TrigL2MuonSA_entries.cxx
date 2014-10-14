@@ -5,7 +5,7 @@
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 #include "TrigL2MuonSA/MdtDataPreparator.h"
-//#include "TrigL2MuonSA/CscDataPreparator.h"
+#include "TrigL2MuonSA/CscDataPreparator.h"
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
 #include "TrigL2MuonSA/MuFastTrackFitter.h"
 #include "TrigL2MuonSA/MuFastStationFitter.h"
@@ -25,7 +25,7 @@ DECLARE_TOOL_FACTORY(MuFastDataPreparator)
 DECLARE_TOOL_FACTORY(TgcDataPreparator)
 DECLARE_TOOL_FACTORY(RpcDataPreparator)
 DECLARE_TOOL_FACTORY(MdtDataPreparator)
-//DECLARE_TOOL_FACTORY(CscDataPreparator)
+DECLARE_TOOL_FACTORY(CscDataPreparator)
 DECLARE_TOOL_FACTORY(MuFastPatternFinder)
 DECLARE_TOOL_FACTORY(MuFastStationFitter)
 DECLARE_TOOL_FACTORY(MuFastTrackFitter)
@@ -44,7 +44,7 @@ DECLARE_FACTORY_ENTRIES(TrigL2MuonSA)
   DECLARE_TOOL(TgcDataPreparator);
   DECLARE_TOOL(RpcDataPreparator);
   DECLARE_TOOL(MdtDataPreparator);
-  //  DECLARE_TOOL(CscDataPreparator);
+  DECLARE_TOOL(CscDataPreparator);
   DECLARE_TOOL(MuFastPatternFinder);
   DECLARE_TOOL(MuFastStationFitter);
   DECLARE_TOOL(MuFastTrackFitter);

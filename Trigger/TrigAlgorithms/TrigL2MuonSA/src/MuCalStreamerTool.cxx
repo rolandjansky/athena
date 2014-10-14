@@ -40,18 +40,16 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
    m_storeGate( "StoreGateSvc", name ),
    m_robDataProvider(0),
    m_cid(-1),
-   m_iRpcCablingSvc(0),
+   m_calibEvent(0),
    m_rpcRawDataProvider("Muon__RPC_RawDataProviderTool"),
    m_rpcGeometrySvc("RPCgeometrySvc",""),
+   m_iRpcCablingSvc(0),
    m_rpcCabling(0),
-   m_calibEvent(0),
    m_roi(NULL)
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
 
-   declareProperty("WriteToFile", m_writeToFile=true);
-   declareProperty("CalBufferName", m_calBufferName="/tmp/rosati/testOutput");
-   declareProperty("CalBufferSize", m_calBufferSize=1024*1024);
+   declareProperty("WriteToFile", m_writeToFile=false);
 }
 
 // --------------------------------------------------------------------------------
@@ -166,15 +164,19 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream()
 StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 {
 
-  std::cout << "AAAAA >> In the closeStream function of the tool m_cid = " << m_cid << std::endl;
-  std::string name = m_calBufferName; 
+  //  std::cout << "AAAAA >> In the closeStream function of the tool m_cid = " << m_cid << std::endl;
+  std::string name = m_calBufferName+"_"+m_algInstanceName; 
+
   if (m_writeToFile && m_outputFile) {
+    //    std::cout << "AAAAA >> in the case of write file= " << m_cid << std::endl;
     m_outputFile->close();
     delete m_outputFile;
+    m_outputFile = NULL;
   }
   else if (!m_writeToFile && m_cid>-1) {
 
-    std::cout << "AAAAA >> Now closing the circular buffer, m_cid== " << m_cid << std::endl;
+    //    std::cout << "AAAAA >> not in the case of writefile= " << m_cid << std::endl;
+    //    std::cout << "AAAAA >> Now closing the circular buffer, m_cid== " << m_cid << std::endl;
 
     if (CircCloseCircConnection (0,(char*)name.c_str(),m_cid) != 0 ) {
       msg() << MSG::WARNING << "Could not close the muon calibration stream. Stream name: " 
@@ -413,12 +415,12 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRAT
 //
 // prepare the Mdt fragment of the stream
 //
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(TrigL2MuonSA::TgcHits& tgcHits,   
-							      LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment)
-{
-
-  return StatusCode::SUCCESS;
-}
+//StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(TrigL2MuonSA::TgcHits& tgcHits,   
+//							      LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment)
+//{
+//
+//  return StatusCode::SUCCESS;
+//}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -434,13 +436,13 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::getRpcPad(unsigned int robId, unsign
    
    m_robDataProvider->addROBData(v_robIds);
 
-   rpcPad = 0;
+   //   rpcPad = 0;
 
-   std::cout << ">>>>> RPC debug " << std::endl;
-   std::cout << "robId: 0x" << std::hex << robId << std::dec << std::endl;
-   std::cout << "subsystemId: " << subsystemID << std::endl;
-   std::cout << "sectodID: " << sectorID << std::endl;
-   std::cout << "roiNumber: " << roiNumber << std::endl;
+   //   std::cout << ">>>>> RPC debug " << std::endl;
+   //   std::cout << "robId: 0x" << std::hex << robId << std::dec << std::endl;
+   //   std::cout << "subsystemId: " << subsystemID << std::endl;
+   //   std::cout << "sectodID: " << sectorID << std::endl;
+   //   std::cout << "roiNumber: " << roiNumber << std::endl;
 
    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
    
@@ -461,8 +463,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::getRpcPad(unsigned int robId, unsign
    unsigned int logic_sector = 0;
    unsigned short int PADId  = 0;
    bool success = m_rpcCabling->give_PAD_address(subsystemID,sectorID,roiNumber,logic_sector,PADId,rpc_pad_id);
-   std::cout << "The logic sector is: " << logic_sector << std::endl;
-   std::cout << "The PADid is: " << PADId << std::endl;
+   //   std::cout << "The logic sector is: " << logic_sector << std::endl;
+   //   std::cout << "The PADid is: " << PADId << std::endl;
  
    if(!success) {
       msg() << MSG::ERROR << "error in give_PAD_address" << endreq;
@@ -484,6 +486,11 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::getRpcPad(unsigned int robId, unsign
    }
 
    rpcPad = *itPad;
+
+   if (!rpcPad) {
+      msg() << MSG::ERROR << "Could not find the rpcPad" << pad_id << endreq;
+      return StatusCode::FAILURE;     
+   }
    
    return StatusCode::SUCCESS;
 }

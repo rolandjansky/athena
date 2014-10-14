@@ -19,6 +19,7 @@ namespace TrigL2MuonSA {
     int WireLayer;
     int MeasuresPhi;
     int Strip;
+    int Chamber;
     //
     double eta;
     double phi;

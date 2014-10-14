@@ -5,6 +5,11 @@
 #include "TrigL2MuonSA/MdtRegionDefiner.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TrigL2MuonSA/MdtRegion.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/MuonStation.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -39,6 +44,26 @@ void TrigL2MuonSA::MdtRegionDefiner::setMdtGeometry(const MDTGeometry* mdtGeomet
   m_mdtGeometry = mdtGeometry;
 }
 
+void TrigL2MuonSA::MdtRegionDefiner::setRpcGeometry(bool use_rpc)
+{
+  m_use_rpc = use_rpc;
+  return;
+}
+void TrigL2MuonSA::MdtRegionDefiner::setGeometry(bool use_new_geometry)
+{
+   m_use_new_geometry = use_new_geometry;
+   return;
+ }
+
+// set the pointers for the new cabling and geometry
+void TrigL2MuonSA::MdtRegionDefiner::setMdtGeometry(const MdtIdHelper* mdtIdHelper, 
+						    const MuonGM::MuonDetectorManager* muonMgr)
+{
+  m_mdtIdHelper = mdtIdHelper;
+  m_muonMgr = muonMgr;
+}
+
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -53,12 +78,13 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
     
   sectors[0] = muonRoad.MDT_sector_trigger;
   sectors[1] = muonRoad.MDT_sector_overlap;
-  
+
   for(int i_station=0; i_station<3; i_station++) {
     int station = i_station;
     for(int i_sector=0; i_sector<2; i_sector++) { // 0: normal, 1: overlap
       int sector = sectors[i_sector];
       msg() << MSG::DEBUG << "--- station/sector=" << i_station << "/" << i_sector << endreq;
+
       if( sector==99 ) continue;
       float zMin   = 0;
       float zMax   = 0;
@@ -71,10 +97,54 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
       int types[2];
       int& ty1 = types[0];
       int& ty2 = types[1];
-      
-      m_mdtGeometry->getBstatR(sector, station, rMin, rMax);
-      m_mdtGeometry->getBstatT(sector, station, ty1, ty2);
-      
+
+      if(m_use_new_geometry) {
+        float tmp_rMin = 0;
+        float tmp_rMax = 0;
+        ty1 = -1;
+        ty2 = -1;
+
+        for(int sta_iter=0; sta_iter< (int)muonRoad.stationList.size(); sta_iter++){
+
+          Identifier id = muonRoad.stationList[sta_iter];
+	  int stationPhi = m_mdtIdHelper->stationPhi(id);
+          std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+	  int station_this = 99;
+	  int sector_this = 99;
+	  bool isEndcap;
+
+	  find_station_sector(name, stationPhi, isEndcap, station_this, sector_this);
+	  
+	  if(station_this == station && sector_this == sector && !isEndcap){
+	    if(ty1 == -1)
+	      ty1 = m_mdtIdHelper->stationNameIndex(name)+1;
+	    else if(ty2 == -1)
+	      ty2 = m_mdtIdHelper->stationNameIndex(name)+1;
+	    m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
+	    m_muonStation = m_mdtReadout->parentMuonStation();
+	    float scale = 10.;
+	    
+	    Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
+	    //HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
+
+	    Amg::Vector3D OrigOfMdtInAmdbFrame = 
+	      Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
+	    //	    HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
+
+	    tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp()/scale;
+	    tmp_rMax = tmp_rMin+m_muonStation->Rsize()/scale;
+
+	    if(rMin==0 || tmp_rMin < rMin)rMin = tmp_rMin;
+	    if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;	
+
+	  }
+        }
+      }
+      else {
+	m_mdtGeometry->getBstatR(sector, station, rMin, rMax);
+	m_mdtGeometry->getBstatT(sector, station, ty1, ty2);
+      }
+
       float max_road = muonRoad.MaxWidth(i_station);
       find_barrel_road_dim(max_road,
 			   muonRoad.aw[station][i_sector],
@@ -106,11 +176,20 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
       }
     }
   }
-  
-  StatusCode sc = computePhi(p_roi, rpcFitResult, mdtRegion, muonRoad);
-  if (sc.isFailure()) {
-    msg() << MSG::ERROR << "Erro in comupting phi" << endreq;
-    return sc;
+ 
+  if (!m_use_rpc) {
+    for (int i=0; i<3; i++){
+      for (int j=0; j<2; j++){
+        muonRoad.phi[i][j] = p_roi->phi();
+      }
+    }
+  }
+  else {
+    StatusCode sc = computePhi(p_roi, rpcFitResult, mdtRegion, muonRoad);
+    if (sc.isFailure()) {
+      msg() << MSG::ERROR << "Error in comupting phi" << endreq;
+      return sc;
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -132,8 +211,9 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
   sectors[1] = muonRoad.MDT_sector_overlap;
 
   const float MiddleMargin = 1000;
-  
+
   for(int i_station=0; i_station<5; i_station++) {
+    int station = i_station;
     int chamber = 0;
     if (i_station==0) chamber = 3;//endcap inner
     if (i_station==1) chamber = 4;//endcap middle
@@ -155,17 +235,118 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
       int types[2];
       int& ty1 = types[0];
       int& ty2 = types[1];
+      float sta_zMin = 0;                                                                              
+      float sta_zMax = 0;                                                                                                                 
+      
+      if (chamber==0) { // barrel inner
 
-      if (chamber==0) {//for barrel inner
-        m_mdtGeometry->getBstatR(sector, 0, rMin, rMax);//calculate rMin and rMax
-        m_mdtGeometry->getBstatT(sector, 0, ty1, ty2);//calculate ty1 and ty2
-        rMin = 10*rMin;
-        rMax = 10*rMax;
-        zMin = ( p_roi->eta()<0 )? -6000:4000;
-        zMax = ( p_roi->eta()<0 )? -4000:6000;
-      }//end barrel inner
+	if(m_use_new_geometry) {
+ 
+	  float tmp_rMin = 0;
+	  float tmp_rMax = 0;
+	  ty1 = -1;
+	  ty2 = -1;
+	  
+	  for(int sta_iter=0; sta_iter<(int)muonRoad.stationList.size(); sta_iter++) {
+	    Identifier id = muonRoad.stationList[sta_iter];
+	    int stationPhi = m_mdtIdHelper->stationPhi(id);
+	    std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+	    int station_this = 99;
+	    int sector_this = 99;
+ 
+	    bool isEndcap;
+	    find_station_sector(name, stationPhi, isEndcap, station_this, sector_this);
+
+	    if(station_this == station && sector_this == sector && !isEndcap){
+	      if(ty1 == -1)
+		ty1 = m_mdtIdHelper->stationNameIndex(name)+1;
+	      else if(ty2 == -1)
+		ty2 = m_mdtIdHelper->stationNameIndex(name)+1;
+	      m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
+	      m_muonStation = m_mdtReadout->parentMuonStation();
+	      float scale = 10.;
+	      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
+	      //HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
+	      
+	      Amg::Vector3D OrigOfMdtInAmdbFrame = 
+		Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
+	      //	    HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
+	      
+	      tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp()/scale;
+	      tmp_rMax = tmp_rMin+m_muonStation->Rsize()/scale;
+	      if(rMin==0 || tmp_rMin < rMin)rMin = tmp_rMin;
+	      if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;	
+	    }
+	  }
+	}
+	else { // use the old cabling
+	  m_mdtGeometry->getBstatR(sector, 0, rMin, rMax);//calculate rMin and rMax
+	  m_mdtGeometry->getBstatT(sector, 0, ty1, ty2);//calculate ty1 and ty2
+	  rMin = 10*rMin;
+	  rMax = 10*rMax;
+	  //  zMin = ( p_roi->eta()<0 )? -6000:4000;
+	  //  zMax = ( p_roi->eta()<0 )? -4000:6000;
+	}
+	zMin = ( p_roi->eta()<0 )? -6000:4000;
+	zMax = ( p_roi->eta()<0 )? -4000:6000;
+
+	float max_road = muonRoad.MaxWidth(i_station);
+	find_barrel_road_dim(max_road,
+			     muonRoad.aw[station][i_sector],
+			     muonRoad.bw[station][i_sector],
+			     rMin,rMax,
+			     &zMin,&zMax);
+      }
+      
       else {//for endcap
-        if (chamber==4) {
+	
+	if (m_use_new_geometry) {
+	  float tmp_zMin = 0;
+	  float tmp_zMax = 0;
+	  int sign = 1;
+	  ty1 = -1;
+	  ty2 = -1;
+	  
+	  for(int sta_iter=0; sta_iter<(int)muonRoad.stationList.size(); sta_iter++){
+	    Identifier id = muonRoad.stationList[sta_iter];
+	    int stationPhi = m_mdtIdHelper->stationPhi(id);
+	    std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+	    int station_this = 99;
+	    int sector_this = 99;
+	    bool isEndcap;
+	    find_station_sector(name, stationPhi, isEndcap, station_this, sector_this);
+	    
+	    if(station_this == station && sector_this == sector && isEndcap){
+	      if(ty1 == -1)
+		ty1 = m_mdtIdHelper->stationNameIndex(name)+1;
+	      else if(ty2 == -1)
+		ty2 = m_mdtIdHelper->stationNameIndex(name)+1;
+	      m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
+	      m_muonStation = m_mdtReadout->parentMuonStation();
+	      
+	      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
+	      //HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
+	      
+	      Amg::Vector3D OrigOfMdtInAmdbFrame = 
+		Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
+	      //	    HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
+
+	      tmp_zMin = (trans*OrigOfMdtInAmdbFrame).z();
+	      if(tmp_zMin < 0) sign = -1;
+	      else if(tmp_zMin > 0) sign = 1;
+	      tmp_zMax = tmp_zMin + sign*m_muonStation->Zsize();
+
+	      if(sta_zMin==0 || tmp_zMin<sta_zMin) sta_zMin = tmp_zMin;
+	      if(sta_zMin==0 || tmp_zMax<sta_zMin) sta_zMin = tmp_zMax;
+	      if(sta_zMax==0 || tmp_zMax>sta_zMax) sta_zMax = tmp_zMax;
+	      if(sta_zMax==0 || tmp_zMin>sta_zMax) sta_zMax = tmp_zMin;
+	    }
+	  }
+	  
+	}
+
+	if (chamber==4) { // Endcap
+
 	  if (tgcFitResult.isSuccess) { // TGC data is properly read
 	    if (tgcFitResult.tgcMid1[3] < tgcFitResult.tgcMid2[3]) {
 	      zMin = tgcFitResult.tgcMid1[3];
@@ -174,37 +355,49 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	      zMin = tgcFitResult.tgcMid2[3];
 	      zMax = tgcFitResult.tgcMid1[3];
 	    }
-          } else { // Failed to read TGC data 
-            m_mdtGeometry->getEstatZ(sector, i_station, muonRoad.side, zMin, zMax);
-            zMin *= 10;
-            zMax *= 10;
-            zMin -= MiddleMargin;
-            zMax += MiddleMargin;
-          }
-        }  
-        else {
-	  m_mdtGeometry->getEstatZ(sector, i_station, muonRoad.side, zMin, zMax);
-	  zMin *= 10;
-	  zMax *= 10;
-        }
-        m_mdtGeometry->getEstatT(sector, i_station, muonRoad.side, ty1, ty2);
 	    
-        find_endcap_road_dim(muonRoad.rWidth[chamber][0],
-			   muonRoad.aw[chamber][i_sector],
-			   muonRoad.bw[chamber][i_sector],
-			   zMin,zMax,
-			   &rMin,&rMax);
-      }//end endcap
-      
+	  } else { // Failed to read TGC data 
+
+	    if (m_use_new_geometry) {
+	      zMin = sta_zMin;
+	      zMax = sta_zMax;
+	    } else {
+	      m_mdtGeometry->getEstatZ(sector, i_station, muonRoad.side, zMin, zMax);
+	      zMin *= 10;
+	      zMax *= 10;
+	      zMin -= MiddleMargin;
+	      zMax += MiddleMargin;
+	    }
+	  }
+	} else {
+	  if (m_use_new_geometry) {
+	    zMin = sta_zMin;
+	    zMax = sta_zMax;
+	  } else {
+	    m_mdtGeometry->getEstatZ(sector, i_station, muonRoad.side, zMin, zMax);
+	    zMin *= 10;
+	    zMax *= 10;
+	  }
+	}
+	if (!m_use_new_geometry)
+	  m_mdtGeometry->getEstatT(sector, i_station, muonRoad.side, ty1, ty2); 
+
+	find_endcap_road_dim(muonRoad.rWidth[chamber][0],
+			     muonRoad.aw[chamber][i_sector],
+			     muonRoad.bw[chamber][i_sector],
+			     zMin,zMax,
+			     &rMin,&rMax);
+      }  //end endcap
+
       msg() << MSG::DEBUG << "...zMin/zMax/ty1/ty2=" << zMin << "/" << zMax << "/" << types[0] << "/" << types[1] << endreq;
       msg() << MSG::DEBUG << "...rMin/rMax=" << rMin << "/" << rMax << endreq;
       
       find_eta_min_max(zMin, rMin, zMax, rMax, etaMin, etaMax);
-
+      
       find_phi_min_max(muonRoad.phiRoI, phiMin, phiMax);
-
+      
       msg() << MSG::DEBUG << "...etaMin/etaMax/phiMin/phiMax=" << etaMin << "/" << etaMax << "/" << phiMin << "/" << phiMax << endreq;
-
+      
       mdtRegion.zMin[chamber][i_sector] = zMin;
       mdtRegion.zMax[chamber][i_sector] = zMax;
       mdtRegion.rMin[chamber][i_sector] = rMin;
@@ -218,8 +411,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	if( type == -1 ) continue;
 	mdtRegion.chamberType[chamber][i_sector][i_type] = type;
       }
-
-    }
+    } 
   }
   
   StatusCode sc = computePhi(p_roi, tgcFitResult, mdtRegion, muonRoad);
@@ -229,6 +421,28 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
   }
   
   return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::MdtRegionDefiner::find_station_sector(std::string name, int phi, bool& endcap, 
+							 int& station, int& sector)
+{   
+   if(name[0]=='E' || name[0]=='F')
+     endcap = true;
+   else 
+     endcap = false;
+   int largeSmall = 0; 
+   if(name[2]=='S') largeSmall = 1;
+   sector = (phi-1)*2 + largeSmall;
+   if(name[1]=='I' || name[1]=='E')
+     station = 0;
+   if(name[1]=='M')
+     station = 1;
+   if(name[1]=='O')
+     station = 2;
+     
 }
 
 // --------------------------------------------------------------------------------

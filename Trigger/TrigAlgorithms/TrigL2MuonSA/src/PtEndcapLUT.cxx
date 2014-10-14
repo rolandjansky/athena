@@ -206,7 +206,6 @@ double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, in
   
   double b = table->m_xcepts[iEta][iPhi];
   double c = table->m_slopes[iEta][iPhi];
-  msg() << MSG::DEBUG << "Pol2: iEta/iPhi/b/c=" << iEta << "/" << iPhi << "/" << b << "/" << c << endreq;
   const double PT_MAX = 500; // 500 GeV upper limit
   const double ZERO_LIMIT = 1e-5;
 

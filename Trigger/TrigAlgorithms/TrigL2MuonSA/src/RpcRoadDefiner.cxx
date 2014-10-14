@@ -5,13 +5,17 @@
 #include "TrigL2MuonSA/RpcRoadDefiner.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/PhiHelper.h"
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(MsgStream* msg)
   : m_msg(msg), m_mdtGeometry(0), m_roadData(0),
-    m_rWidth_RPC_Failed(0)
+    m_rWidth_RPC_Failed(0), m_use_new_geometry(1), m_use_rpc(0)
 {
+
 }
 
 // --------------------------------------------------------------------------------
@@ -36,7 +40,27 @@ void TrigL2MuonSA::RpcRoadDefiner::setRoadWidthForFailure(double rWidth_RPC_Fail
 
 void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry(const MDTGeometry* mdtGeometry)
 {
+  m_use_new_geometry = false;
   m_mdtGeometry = mdtGeometry;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::RpcRoadDefiner::setRpcGeometry(bool use_rpc)
+{
+   m_use_rpc = use_rpc;
+   return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper)
+{
+  m_use_new_geometry = true;
+  m_regionSelector = regionSelector;
+  m_mdtIdHelper = mdtIdHelper;
 }
 
 // --------------------------------------------------------------------------------
@@ -61,9 +85,9 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   const int N_LAYER = 3; // 0: inner, 1: middle, 2: outer
   const int N_SECTOR = 2; // 0: normal, 1:overlap
 
-  if (rpcFitResult.isSuccess) {
+  if (m_use_rpc && rpcFitResult.isSuccess) {
     // RPC data is properly read
-
+    
     if(rpcFitResult.type==2) {               // fill superpoint value for High Pt trig.
       
       x1 = 0.;                    // A. Di Mattia version.
@@ -259,20 +283,75 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     for (int i_station=0; i_station<3; i_station++) {
       for (int i_layer=0; i_layer<8; i_layer++) {
         muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
+
       }
     }
 
-    int sector_trigger = 0;
-    int sector_overlap = 0;
-    m_mdtGeometry->getBsects(1,muonRoad.phiMiddle,sector_trigger, sector_overlap);
-    int MDT_tr = (PhysicsSector - 1)*2 + muonRoad.LargeSmall;
-    if (MDT_tr == sector_overlap) {
-      sector_overlap = sector_trigger;
-      sector_trigger = MDT_tr;
+    if(m_use_new_geometry){
+      int sector_trigger = 99;
+      int sector_overlap = 99;
+      std::vector<Identifier> stationList;
+      std::vector<IdentifierHash> mdtHashList;
+      
+      // get sector_trigger and sector_overlap by using the region selector
+      IdContext context = m_mdtIdHelper->module_context();
+
+      double etaMin =  p_roi->eta()-.02;
+      double etaMax =  p_roi->eta()+.02;
+      double phiMin = muonRoad.phiMiddle-.01;
+      double phiMax = muonRoad.phiMiddle+.01;
+      if(phiMax > CLHEP::pi) phiMax -= CLHEP::pi*2.;
+      if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
+      TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
+      const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
+      m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+
+      for(int i_hash=0; i_hash < (int)mdtHashList.size(); i_hash++){
+
+	Identifier id;
+	int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
+	//	int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id);
+	if(convert!=0)
+	  msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
+
+	muonRoad.stationList.push_back(id);
+	int stationPhi = m_mdtIdHelper->stationPhi(id);
+	std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+
+	int LargeSmall = 0;
+	if(name[2]=='S') LargeSmall = 1;
+	int sector = (stationPhi-1)*2 + LargeSmall;
+	if(sector_trigger == 99)
+	  sector_trigger = sector;
+	else if(sector_trigger != sector)
+	  sector_overlap = sector;
+      }
+      
+      int MDT_tr = (PhysicsSector - 1)*2 + muonRoad.LargeSmall;
+      if (MDT_tr == sector_overlap) {
+	sector_overlap = sector_trigger;
+	sector_trigger = MDT_tr;
+      }
+      
+      muonRoad.MDT_sector_trigger = sector_trigger;
+      muonRoad.MDT_sector_overlap = sector_overlap;
     }
-    muonRoad.MDT_sector_trigger = sector_trigger;
-    muonRoad.MDT_sector_overlap = sector_overlap;
+
+    else {
+      
+      int sector_trigger = 0;
+      int sector_overlap = 0;
+      m_mdtGeometry->getBsects(1,muonRoad.phiMiddle,sector_trigger, sector_overlap);
+      int MDT_tr = (PhysicsSector - 1)*2 + muonRoad.LargeSmall;
+      if (MDT_tr == sector_overlap) {
+	sector_overlap = sector_trigger;
+	sector_trigger = MDT_tr;
+      }
+      muonRoad.MDT_sector_trigger = sector_trigger;
+      muonRoad.MDT_sector_overlap = sector_overlap;
     
+    } 
+
     double roiEta = p_roi->eta();
     double theta  = atan(exp(-fabs(roiEta)))*2.;
     double aw     = (fabs(roiEta) > ZERO_LIMIT)? tan(theta)*(fabs(roiEta)/roiEta): 0.;
@@ -283,7 +362,13 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
         muonRoad.bw[i_station][i_sector] = 0;
       }
     }
+
+
+
   }
+
+  
+
         
   return StatusCode::SUCCESS;
 }

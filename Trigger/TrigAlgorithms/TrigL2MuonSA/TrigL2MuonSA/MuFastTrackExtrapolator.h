@@ -39,6 +39,12 @@ namespace TrigL2MuonSA {
     StatusCode extrapolateTrack(std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
 				double winPt);
     
+    void setMuFastRes(std::vector<double>& vec, double p1,double p2, double p3,double p4,double p5,double p6);
+
+    double getMuFastRes(std::vector<double> vec, const double pt, const int add, const double eta, const double phi);
+
+    int whichECRegion(const double eta, const double phi);
+
   private:
     /** @brief Pointer to MsgStream.*/
     MsgStream* m_msg;
@@ -60,6 +66,12 @@ namespace TrigL2MuonSA {
 
     ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
 
+    std::vector<double> m_muFastRes_barrel;
+    std::vector<double> m_muFastRes_endcap1;
+    std::vector<double> m_muFastRes_endcap2;
+    std::vector<double> m_muFastRes_endcap3;
+    std::vector<double> m_muFastRes_endcap4;
+    
   };
   
 } // namespace TrigL2MuonSA

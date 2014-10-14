@@ -29,11 +29,12 @@
 #include "TrigL2MuonSA/TgcRoadDefiner.h"
 #include "TrigL2MuonSA/MdtDataPreparator.h"
 #include "TrigL2MuonSA/MdtRegion.h"
-//#include "TrigL2MuonSA/CscDataPreparator.h"
+#include "TrigL2MuonSA/CscDataPreparator.h"
 #include "TrigL2MuonSA/CscData.h"
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
+#include "RegionSelector/IRegSelSvc.h"
 
 class StoreGateSvc;
 
@@ -97,6 +98,9 @@ class MuFastDataPreparator: public AlgTool
 
   void setRoadWidthForFailure(double rWidth_RPC_Failed, double rWidth_TGC_Failed);
 
+  StatusCode setGeometry(bool use_new_geometry);
+  void setRpcGeometry(bool use_rpc);
+
   StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
@@ -104,6 +108,9 @@ class MuFastDataPreparator: public AlgTool
  private:
   
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
+
+  IRegSelSvc*          m_regionSelector;
+  const MdtIdHelper* m_mdtIdHelper;
   
  private:
   
@@ -113,7 +120,7 @@ class MuFastDataPreparator: public AlgTool
   ToolHandle<RpcDataPreparator>  m_rpcDataPreparator;
   ToolHandle<TgcDataPreparator>  m_tgcDataPreparator;
   ToolHandle<MdtDataPreparator>  m_mdtDataPreparator;
-  //  ToolHandle<CscDataPreparator>  m_cscDataPreparator;
+  ToolHandle<CscDataPreparator>  m_cscDataPreparator;
   
   TrigL2MuonSA::RpcRoadDefiner*  m_rpcRoadDefiner;
   TrigL2MuonSA::TgcRoadDefiner*  m_tgcRoadDefiner;
@@ -122,6 +129,9 @@ class MuFastDataPreparator: public AlgTool
 
   // Cabling
   ServiceHandle<IMDTcablingSvc>  m_mdtCablingSvc;
+  BooleanProperty m_use_new_geometry;
+  BooleanProperty m_use_rpc;
+
 };
   
 } // namespace TrigL2MuonSA
