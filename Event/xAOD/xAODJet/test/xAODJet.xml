@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">   
+<unifiedTestConfiguration> 
+  <atn>
+    <TEST name="xAODJetTest" type="makecheck">
+      <timelimit>5</timelimit>
+      <author> P-A Delsart </author>
+      <mailto> delsart at in2p3 fr </mailto>
+      <expectations>
+        <errorMessage> # WARNING_MESSAGE : post.sh> ERROR</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+</unifiedTestConfiguration>

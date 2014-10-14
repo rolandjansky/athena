@@ -7,14 +7,13 @@
 #ifndef XAODJET_JETACCESSORS_H
 #define XAODJET_JETACCESSORS_H
 /////////////////////////////////////////////
-/// JetAccessors.h
-/// This header defines wrapper classes around SG::AuxElement::Accessor used internally in the Jet EDM.
+/// \file JetAccessors.h
+/// \brief This header defines wrapper classes around SG::AuxElement::Accessor used internally in the Jet EDM.
 /// 
 /// By default the wrappers add no functionality to this class. 
 /// Their intent is to act as converter between types exposed in the Jet interface and the 
 /// types stored in the Aux. Store.
 /// For example :
-///   - Jet interface  -> Aux Store
 ///   - double         -> float
 ///   - vector<double> -> vector<float>
 ///   - JetFourMom_t   -> 4 separated floats
@@ -73,7 +72,7 @@ namespace xAOD {
       AccessorType a;
     };
 
-    /// Double specialization : internally stored as float
+    /// Double accessor specialization : internally stored as float
     template<>
     class AccessorWrapper<double> : public Named {
     public:

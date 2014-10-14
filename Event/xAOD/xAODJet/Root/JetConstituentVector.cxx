@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include "xAODJet/JetConstituentVector.h"
-
+#include "xAODCaloEvent/CaloCluster.h"
 
 namespace xAOD {
 
@@ -32,26 +32,28 @@ namespace xAOD {
 
   
   void fillJetConstituent(const IParticle* part, JetConstituent & constit  , JetConstitScale sigState ){    
-    switch( part->type() ){
-    case Type::CaloCluster:
-      if( sigState == UncalibratedJetConstituent) {
-        static SG::AuxElement::Accessor<float>  cl_rawE("rawE")   ;
-        static SG::AuxElement::Accessor<float>  cl_rawEta("rawEta") ;
-        static SG::AuxElement::Accessor<float>  cl_rawPhi("rawPhi") ;
-        static SG::AuxElement::Accessor<float>  cl_rawM  ("rawM")   ;
-
-        constit.SetCoordinates( ptFromEEtaM( cl_rawE(*part) , cl_rawEta(*part), cl_rawM(*part) ),
-                                cl_rawEta(*part),
-                                cl_rawPhi(*part),
-                                cl_rawM(*part) );
+    if( sigState == UncalibratedJetConstituent) {
+      switch( part->type() ){
+      case Type::CaloCluster: {
+        const xAOD::CaloCluster *cl = dynamic_cast<const xAOD::CaloCluster*>(part);
+        if( cl ) { 
+          constit.SetCoordinates( ptFromEEtaM( cl->rawE(), cl->rawEta(), cl->rawM() ),
+                                  cl->rawEta(),
+                                  cl->rawPhi(),
+                                  cl->rawM() );
+          return;
+        } // else fall back on default kinematics
+      }
+      default: 
         break;
-      } 
-
-    default:
-      constit.SetCoordinates( part->pt(), part->eta(), 
-                              part->phi(), part->m() );
+      }
     }
+    // if we have not returned above, the fall back  is using the default scale :
+    constit.SetCoordinates( part->pt(), part->eta(), 
+                            part->phi(), part->m() );    
   }
+
+
   typedef JetConstituentVector::iterator iterator;
   
   iterator & iterator::operator++(){ m_index++; return *this ; }
@@ -109,6 +111,13 @@ namespace xAOD {
     std::vector<const IParticle*> v( m_elVector->size() );
     for(size_t i=0;i<v.size(); i++) v[i] = *(m_elVector->at(i));
     return v;
+  }
+
+  std::vector<JetConstituent> JetConstituentVector::asSTLVector(){
+    size_t N = size();
+    std::vector<JetConstituent> vec(N);
+    for ( size_t i=0;i<N;i++ ) fillJetConstituent( *(m_elVector->at(i)) , vec[i], m_sigState );
+    return vec;
   }
 
 

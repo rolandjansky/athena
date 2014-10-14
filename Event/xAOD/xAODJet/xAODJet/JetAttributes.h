@@ -52,7 +52,7 @@ namespace xAOD {
       VoronoiAreaPx,
       VoronoiAreaPy,
       VoronoiAreaPz,
-      WIDTH,
+      Width,
       // YFlip12, replaced by split12
       // YFlip13,
       EnergyPerSampling,

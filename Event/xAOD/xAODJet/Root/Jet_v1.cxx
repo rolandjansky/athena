@@ -38,7 +38,7 @@ namespace xAOD {
   Jet_v1& Jet_v1::operator=(const Jet_v1& o ){
     if(this == &o) return *this;
 
-    if(!hasStore() ) makePrivateStore();
+    if( ( ! hasStore() ) && ( ! container() ) ) makePrivateStore();
     this->IParticle::operator=( o );
     m_pxpypze = o.m_pxpypze;
     m_pxpypzeCached = o.m_pxpypzeCached;
