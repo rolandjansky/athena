@@ -19270,7 +19270,7 @@ class CaloSwEtaoff_v3_b1_parms:
     region = CALOCORR_EMB1
     regions = layer1_etaoffv3_regions_b
     energy_degree = 3
-    forms = []
+    forms = [[]]
 
     correction = {'ele55' : ele_layer1_etaoffv3_55_b,
                   'ele35' : ele_layer1_etaoffv3_35_b,
@@ -19295,7 +19295,7 @@ class CaloSwEtaoff_v3_b2_parms:
     region = CALOCORR_EMB2
     regions = layer2_etaoffv3_regions_b
     energy_degree = 3
-    forms = []
+    forms = [[]]
 
     correction = {'ele55' : ele_layer2_etaoffv3_55_b,
                   'ele35' : ele_layer2_etaoffv3_35_b,
@@ -19320,7 +19320,7 @@ class CaloSwEtaoff_v3_e1_parms:
     region = CALOCORR_EME1
     regions = layer1_etaoffv3_regions_e
     energy_degree = 3
-    forms = []
+    forms = [[]]
 
     correction = {'ele55' : ele_layer1_etaoffv3_55_e,
                   'ele35' : ele_layer1_etaoffv3_35_e,
@@ -19345,7 +19345,7 @@ class CaloSwEtaoff_v3_e2_parms:
     region = CALOCORR_EME2
     regions = layer2_etaoffv3_regions_e
     energy_degree = 3
-    forms = []
+    forms = [[]]
 
     correction = {'ele55' : ele_layer2_etaoffv3_55_e,
                   'ele35' : ele_layer2_etaoffv3_35_e,

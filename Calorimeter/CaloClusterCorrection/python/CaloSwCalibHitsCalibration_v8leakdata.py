@@ -2750,6 +2750,7 @@ class CaloSwCalibHitsCalibration_v8leakdata_parms:
     etamax = 2.5
     use_raw_eta = True
     fix_v6_pathologies = False
+    update_sampling_energies = False
 
     sampling_depth = samplings_depths
 

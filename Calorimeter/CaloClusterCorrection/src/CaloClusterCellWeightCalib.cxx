@@ -41,6 +41,8 @@ CaloClusterCellWeightCalib(const std::string& type,
   , m_eThreshold(0.)
   , m_ignoreGeoWghts(false)
   , m_cellWeight(this)
+  , m_calc(nullptr)
+  , m_calc_noise(nullptr)
 {
   declareProperty("Direction",                m_directionCalculation);
   declareProperty("BelowThresholdLikeAll",    m_calibNoiseLikeAll);
@@ -119,12 +121,12 @@ StatusCode CaloClusterCellWeightCalib::execute(xAOD::CaloCluster* pClus)
   StatusCode checkOut(StatusCode::SUCCESS);
   if ( m_calibNoiseLikeAll ) 
     {
-      checkOut = (this->*f_calc)(pClus);
+      checkOut = (this->*m_calc)(pClus);
     }
   else
     {
       checkOut = pClus->e() > 0. 
-	? (this->*f_calc)(pClus) : (this->*f_calc_noise)(pClus);
+	? (this->*m_calc)(pClus) : (this->*m_calc_noise)(pClus);
     }
 
   //   report << MSG::INFO << "<ALTCALIBRATED> cluster kinematics, final ("
@@ -156,7 +158,7 @@ StatusCode CaloClusterCellWeightCalib::setupAll(MsgStream& report)
 {
   std::string conf;
   std::string tag("all");
-  return this->setup(m_directionCalculation,tag,f_calc,conf,report)
+  return this->setup(m_directionCalculation,tag,m_calc,conf,report)
     ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 
@@ -166,8 +168,8 @@ StatusCode CaloClusterCellWeightCalib::setupSpc(MsgStream& report)
   std::string aboveTag("above threshold");
   std::string belowTag("below threshold");
   return 
-    this->setup(m_directionCalculation,aboveTag,f_calc,conf,report) &&
-    this->setup(m_noiseDirectionCalculation,belowTag,f_calc_noise,conf,report)
+    this->setup(m_directionCalculation,aboveTag,m_calc,conf,report) &&
+    this->setup(m_noiseDirectionCalculation,belowTag,m_calc_noise,conf,report)
     ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 

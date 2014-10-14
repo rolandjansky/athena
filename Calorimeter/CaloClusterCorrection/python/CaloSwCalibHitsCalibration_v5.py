@@ -1949,6 +1949,7 @@ class CaloSwCalibHitsCalibration_v5_parms:
     etamax = 2.5
     use_raw_eta = False
     fix_v6_pathologies = True
+    update_sampling_energies = False
 
     sampling_depth = samplings_depths
 

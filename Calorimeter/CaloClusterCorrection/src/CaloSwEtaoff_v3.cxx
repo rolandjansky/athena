@@ -170,7 +170,7 @@ float CaloSwEtaoff_v3::Builder::calculate (int energy_ndx, bool& good) const
 
   // Which functional form to use?
   int form;
-  if (m_corr.m_forms.size() != 0)
+  if (m_corr.m_forms.size() != 0 && m_corr.m_forms.size(1) != 0)
     form = m_corr.m_forms[m_region_ndx][energy_ndx];
   else
     form = m_form;
