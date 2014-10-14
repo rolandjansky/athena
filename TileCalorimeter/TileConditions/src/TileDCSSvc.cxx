@@ -39,8 +39,10 @@ TileDCSSvc::TileDCSSvc(const std::string& name, ISvcLocator* pSvcLocator)
   , m_tileCablingSvc("TileCablingSvc", name)
   , m_cabling(0)
   , m_tileToolEmscale("TileCondToolEmscale")
+  , m_version(2)
 {
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
+  declareProperty("Version", m_version); // 1 - RUN1 conditions DB, 2 - RUN2 conditions
 
   m_goodDrawer = 212222;               // good status for the drawer
 
@@ -193,10 +195,18 @@ StatusCode TileDCSSvc::initialize() {
   // read special deltas for few unstable PMTs
   if (m_readHVSET) read_badhv("BadHVChannels.dat");
 
-  if (read_config("DCSChStatesInCOOL.dat", "_LVPS_", m_pModulesSTATES)) return StatusCode::FAILURE;
-  if (read_config("DCSChHVInCOOL.dat", "Drawer", m_pModulesHV)) return StatusCode::FAILURE;
-  if (read_config("DCSChHVSETInCOOL.dat", "Drawer", m_pModulesHVSET)) return StatusCode::FAILURE;
-
+  if (m_version == 2) {
+    ATH_MSG_INFO( "Reading config for RUN2");
+    if (read_config("DCSChStatesInCOOLR2.dat", "_LVPS_", m_pModulesSTATES)) return StatusCode::FAILURE;
+    if (read_config("DCSChHVInCOOLR2.dat", "Drawer", m_pModulesHV)) return StatusCode::FAILURE;
+    if (read_config("DCSChHVSETInCOOLR2.dat", "Drawer", m_pModulesHVSET)) return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_INFO( "Reading config for RUN1");
+    if (read_config("DCSChStatesInCOOL.dat", "_LVPS_", m_pModulesSTATES)) return StatusCode::FAILURE;
+    if (read_config("DCSChHVInCOOL.dat", "Drawer", m_pModulesHV)) return StatusCode::FAILURE;
+    if (read_config("DCSChHVSETInCOOL.dat", "Drawer", m_pModulesHVSET)) return StatusCode::FAILURE;
+  }
+  
   return StatusCode::SUCCESS;
 }
 

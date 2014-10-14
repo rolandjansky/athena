@@ -298,9 +298,9 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
                   if (id2 != id1)
                     std::cout << " id1!=id2=" << tileID->to_string(id2, -1);
                   else if (tileTBID->is_tiletb(id1))
-                    std::cout << " MBTS";
+                      std::cout << ((tileTBID->eta(id1)>1) ? " E4'" : " MBTS");
                   else
-                    std::cout << " cell_hash " << tileID->cell_hash(id1);
+                    std::cout << " cell_hash " << tileID->cell_hash(tileID->cell_id(id1));
                   int drIdx2 = tileHWID->drawerIdx(hwid1);
                   if (drIdx1 != drIdx2) {
                     std::cout << "  ERROR in drawer index " << drIdx1 << " != " << drIdx2
@@ -403,12 +403,48 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
       }
     }
 
-    // checking E1,E2
-    std::cout << "========= E1,E2 cells =========" << std::endl;
+    // checking E1
+    std::cout << "========= E1 cells =========" << std::endl;
 
     for (int side = -1; side < 2; side += 2) {
       for (int module = 0; module < 64; ++module) {
-        for (int tower = 10; tower < 12; tower += 1) {
+        for (int tower = 10; tower < 11; tower += 1) {
+
+          Identifier id1 = tileID->pmt_id(3, side, module, tower, 3, 0);
+          if (id1.is_valid()) {
+            std::cout << " id1=" << tileID->to_string(id1, -1);
+            HWIdentifier hw1 = m_cablingService->s2h_channel_id(id1);
+            if (hw1.is_valid()) {
+              std::cout << " hw1=" << tileHWID->to_string(hw1, -1);
+              Identifier id2 = m_cablingService->h2s_pmt_id(hw1);
+              if (id2.is_valid()) {
+                if (id2 != id1) std::cout << " id1!=id2=" << tileID->to_string(id2, -1);
+                HWIdentifier hw2 = m_cablingService->s2h_channel_id(id2);
+                if (hw2.is_valid()) {
+                  if (hw2 != hw1) std::cout << " hwid1!=hwid2=" << tileHWID->to_string(hw2, -1);
+                } else {
+                  std::cout << " hw2=invalid";
+                }
+              } else {
+                std::cout << " id2=invalid";
+              }
+            } else {
+              std::cout << " hw1=invalid";
+            }
+          } else {
+            std::cout << " id1=invalid";
+          }
+          std::cout << std::endl;
+        }
+      }
+    }
+
+    // checking E2
+    std::cout << "========= E2 cells =========" << std::endl;
+
+    for (int side = -1; side < 2; side += 2) {
+      for (int module = 0; module < 64; ++module) {
+        for (int tower = 11; tower < 12; tower += 1) {
 
           Identifier id1 = tileID->pmt_id(3, side, module, tower, 3, 0);
           if (id1.is_valid()) {
@@ -484,13 +520,13 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
 
           Identifier id1 = tileTBID->channel_id(side, module, tower);
           if (id1.is_valid()) {
-            std::cout << " id1=" << tileTBID->to_string(id1, -1);
+            std::cout << " id1=" << tileTBID->to_string(id1);
             HWIdentifier hw1 = m_cablingService->s2h_channel_id(id1);
             if (hw1.is_valid()) {
               std::cout << " hw1=" << tileHWID->to_string(hw1, -1);
               Identifier id2 = m_cablingService->h2s_pmt_id(hw1);
               if (id2.is_valid()) {
-                if (id2 != id1) std::cout << " id1!=id2=" << tileTBID->to_string(id2, -1);
+                if (id2 != id1) std::cout << " id1!=id2=" << tileTBID->to_string(id2);
                 HWIdentifier hw2 = m_cablingService->s2h_channel_id(id2);
                 if (hw2.is_valid()) {
                   if (hw2 != hw1) std::cout << " hwid1!=hwid2=" << tileHWID->to_string(hw2, -1);
@@ -507,6 +543,45 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
             std::cout << " id1=invalid";
           }
           std::cout << std::endl;
+        }
+      }
+    }
+
+    // checking E4'
+    if (m_cablingType == TileCablingService::RUN2Cabling) {
+
+      std::cout << "========= E4' cells ==========" << std::endl;
+    
+      for (int side = -1; side < 0; side += 2) {
+        for (int module = 0; module < 4; ++module) {
+          for (int tower = 2; tower < 3; ++tower) {
+    
+            Identifier id1 = tileTBID->channel_id(side, module, tower);
+            if (id1.is_valid()) {
+              std::cout << " id1=" << tileTBID->to_string(id1);
+              HWIdentifier hw1 = m_cablingService->s2h_channel_id(id1);
+              if (hw1.is_valid()) {
+                std::cout << " hw1=" << tileHWID->to_string(hw1, -1);
+                Identifier id2 = m_cablingService->h2s_pmt_id(hw1);
+                if (id2.is_valid()) {
+                  if (id2 != id1) std::cout << " id1!=id2=" << tileTBID->to_string(id2);
+                  HWIdentifier hw2 = m_cablingService->s2h_channel_id(id2);
+                  if (hw2.is_valid()) {
+                    if (hw2 != hw1) std::cout << " hwid1!=hwid2=" << tileHWID->to_string(hw2, -1);
+                  } else {
+                    std::cout << " hw2=invalid";
+                  }
+                } else {
+                  std::cout << " id2=invalid";
+                }
+              } else {
+                std::cout << " hw1=invalid";
+              }
+            } else {
+              std::cout << " id1=invalid";
+            }
+            std::cout << std::endl;
+          }
         }
       }
     }

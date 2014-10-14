@@ -267,8 +267,8 @@ TileInfo::HitCalib(const Identifier& pmt_id) const {
 
   double calib;
 
-  if (m_tileTBID->is_tiletb(pmt_id)) { // MBTS only
-    calib = m_emscaleMBTS[m_tileTBID->eta(pmt_id)]; // 0=inner cell, 1=outer cell
+  if (m_tileTBID->is_tiletb(pmt_id)) { // MBTS or E4'
+    calib = m_emscaleMBTS[m_tileTBID->eta(pmt_id)]; // 0=inner cell, 1=outer cell, 2=E4'
   } else if (m_tileID->is_tile_gap(pmt_id)) { // ITC of gap/crack scin
     int sample = m_tileID->sample(pmt_id);
     if (TileID::SAMP_E == sample) { // gap/crack scin

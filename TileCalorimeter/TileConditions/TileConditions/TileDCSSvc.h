@@ -143,6 +143,8 @@ class TileDCSSvc: virtual public AthService {
   void fillHVref();
 
   std::vector<std::string> m_partName;
+
+  int m_version;
 };
 
 #endif

@@ -33,7 +33,7 @@ TileCablingService::TileCablingService()
   , m_cablingType(TileCablingService::OldSim)
   , m_isCacheFilled(false)
   , m_MBTSmergedRun2(64, 0)
-  , m_E1mergedRun2(64, 0)
+  , m_E1mergedRun2(128, 0)
 {
   m_testBeam = false;
   // old cabling for simulation - no special EB modules, wrong numbers for E1-E4
@@ -62,10 +62,22 @@ TileCablingService::TileCablingService()
   fillConnectionTables();
 
   // Merged E1 and MBTS for run2
-  m_E1mergedRun2[6] = 7;
+  // EBA
+  m_E1mergedRun2[6]  =  7;
   m_E1mergedRun2[24] = 23;
   m_E1mergedRun2[43] = 42;
   m_E1mergedRun2[52] = 53;
+  // EBC
+  m_E1mergedRun2[64+6]  =  7;
+  m_E1mergedRun2[64+24] = 23;
+  m_E1mergedRun2[64+43] = 42;
+  m_E1mergedRun2[64+52] = 53;
+  // additional E4' in EBC
+  m_E1mergedRun2[64+27] = 28;
+  m_E1mergedRun2[64+30] = 31;
+  m_E1mergedRun2[64+34] = 33;
+  m_E1mergedRun2[64+37] = 36;
+
 
   m_MBTSmergedRun2[7] = true;
   m_MBTSmergedRun2[23] = true;
@@ -399,6 +411,12 @@ TileCablingService::h2s_cell_id ( const HWIdentifier & hwid ) const
       int eta  = hwid2MBTSeta_run2(drawer);
       return m_tileTBID->channel_id(side, phi, eta);
 
+    } else if ((ros > 3) && hwid2E4prconnected_run2(ros,drawer,channel)) {
+      int side = hwid2side(ros,channel);
+      int phi  = hwid2E4prphi_run2(drawer);
+      int eta  = hwid2E4preta_run2(drawer);
+      return m_tileTBID->channel_id(side, phi, eta);
+
     } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
       return m_invalid_id;
     }
@@ -488,6 +506,15 @@ TileCablingService::h2s_cell_id_index_find ( int ros, int drawer, int channel, i
 
       pmt = 0;
       index = -2;
+      return m_tileTBID->channel_id(side, phi, eta);
+
+    } else if ((ros > 3) && hwid2E4prconnected_run2(ros,drawer,channel)) {
+      int side = hwid2side(ros,channel);
+      int phi  = hwid2E4prphi_run2(drawer);
+      int eta  = hwid2E4preta_run2(drawer);
+
+      pmt = 0;
+      index = -3;
       return m_tileTBID->channel_id(side, phi, eta);
 
     } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
@@ -601,6 +628,12 @@ TileCablingService::h2s_pmt_id ( const HWIdentifier & hwid ) const
       int eta  = hwid2MBTSeta_run2(drawer);
       return m_tileTBID->channel_id(side, phi, eta);
 
+    } else if ((ros > 3) && hwid2E4prconnected_run2(ros,drawer,channel)) {
+      int side = hwid2side(ros,channel);
+      int phi  = hwid2E4prphi_run2(drawer);
+      int eta  = hwid2E4preta_run2(drawer);
+      return m_tileTBID->channel_id(side, phi, eta);
+
     } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
       return m_invalid_id;
     }
@@ -690,6 +723,12 @@ TileCablingService::h2s_adc_id ( const HWIdentifier & hwid ) const
       int side = hwid2side(ros,channel);
       int phi  = hwid2MBTSphi_run2(drawer);
       int eta  = hwid2MBTSeta_run2(drawer);
+      return m_tileTBID->channel_id(side, phi, eta);
+
+    } else if ((ros > 3) && hwid2E4prconnected_run2(ros,drawer,channel)) {
+      int side = hwid2side(ros,channel);
+      int phi  = hwid2E4prphi_run2(drawer);
+      int eta  = hwid2E4preta_run2(drawer);
       return m_tileTBID->channel_id(side, phi, eta);
 
     } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
@@ -807,7 +846,7 @@ TileCablingService::s2h_drawer_id ( const Identifier & swid ) const
   ros = swid2ros (section,side);
 
   if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
-    drawer   = swid2drawer_gapscin_run2  (module,tower); // E1 might go to another module
+    drawer   = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
     drawer   = swid2drawer_gapscin  (side,module,tower);
     if (drawer < 0) drawer = module; // special trick for disconnected E3 and E4
@@ -860,7 +899,7 @@ TileCablingService::s2h_channel_id ( const Identifier & swid ) const
   int pmt      = m_tileID->pmt      (swid);
 
   if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
-    drawer   = swid2drawer_gapscin_run2  (module,tower);  // E1 might go to another module
+    drawer   = swid2drawer_gapscin_run2  (side, module,tower);  // E1 might go to another module
     channel  = swid2channel (section,side,tower,sample,pmt);
     
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
@@ -936,7 +975,7 @@ TileCablingService::s2h_adc_id ( const Identifier & swid ) const
   int adc      = m_tileID->adc      (swid);
 
   if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
-    drawer   = swid2drawer_gapscin_run2  (module,tower); // E1 might go to another module
+    drawer   = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
     channel  = swid2channel (section,side,tower,sample,pmt);
     
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
@@ -1025,7 +1064,7 @@ TileCablingService::frag ( const Identifier & swid ) const
   ros = swid2ros (section,side);
 
   if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
-    drawer   = swid2drawer_gapscin_run2  (module,tower); // E1 might go to another module
+    drawer   = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
     drawer   = swid2drawer_gapscin  (side,module,tower);
     if (drawer < 0) drawer = module; // special trick for disconnected E3 and E4
@@ -1332,13 +1371,29 @@ TileCablingService::fillConnectionTables()
 // E4:  cell = 3,  tower = 15,  channel =  1
 
 int
-TileCablingService::swid2drawer_gapscin_run2 (int module, int tower) const
+TileCablingService::swid2drawer_gapscin_run2 (int side, int module, int tower) const
 {
+  // merged E1 cells in EBA and EBC
+  // module 07,08 -> 07 (i.e. drawer 07 to drawer 06) --
+  // module 24,25 -> 25 (i.e. drawer 23 to drawer 24) ++
+  // module 43,44 -> 44 (i.e. drawer 42 to drawer 43) ++
+  // module 53,54 -> 53 (i.e. drawer 53 to drawer 52) --
+  //
+  // merged cells in EBC only
+  // module 28,29 -> 28 (i.e. drawer 28 to drawer 27) --
+  // module 31,32 -> 31 (i.e. drawer 31 to drawer 30) --
+  // module 34,35 -> 35 (i.e. drawer 33 to drawer 34) ++
+  // module 37,38 -> 38 (i.e. drawer 36 to drawer 37) ++
+
   int drawer = module;
 
   if (tower == 10) {
     if (drawer == 7 || drawer == 53) --drawer;
-    else if (drawer == 42 || drawer == 23 ) ++drawer;
+    else if (drawer == 42 || drawer == 23) ++drawer;
+    else if (side < 0) {
+      if (drawer == 28 || drawer == 31) --drawer;
+      else if (drawer == 33 || drawer == 36) ++drawer;
+    }
   }
 
   return drawer;
@@ -1424,7 +1479,7 @@ TileCablingService::TileGap_connected(const Identifier & id) const
         return !(EB_special(((m_tileID->side(id)>0)?EBA:EBC),m_tileID->module(id)));
 
       case TileID::SAMP_E: // E1-E4 - gap/crack scin
-        return (swid2channel_gapscin(m_tileID->side(id),
+        return (m_cablingType == RUN2Cabling || swid2channel_gapscin(m_tileID->side(id),
                                      m_tileID->module(id),
                                      m_tileID->tower(id)) != -1);
       default:
@@ -1777,8 +1832,26 @@ TileCablingService::hwid2MBTSconnected_run2(int ros, int drawer) const
   return ((ros > 2) && hwid2MBTSeta_run2(drawer) != -1);
 }
 
+bool
+TileCablingService::hwid2E4prconnected_run2(int ros, int drawer, int channel) const
+{
+  return ( (ros > 3) && 
+           (channel == 12 && hwid2E4preta_run2(drawer) != -1) ); 
+}
+
+bool
+TileCablingService::hwid2E4prconnected_run2(int ros, int drawer) const
+{
+  return ((ros > 3) && hwid2E4preta_run2(drawer) != -1);
+}
+
 
 /*
+
+E4' cabling for run2
+
+modules 29,32,34,37
+drawers 28,31,33,36
 
 MBTS cabling for RUN2
 (in the table drawer = module-1)
@@ -1845,14 +1918,46 @@ TileCablingService::hwid2MBTSeta_run2(int drawer) const
 }
 
 int
+TileCablingService::hwid2E4prphi_run2(int drawer) const
+{
+  int phi[64] = {
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1,  0, -1, -1,  1,
+    -1,  2, -1, -1,  3, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1
+  };
+
+  return phi[drawer];
+}
+
+int
+TileCablingService::hwid2E4preta_run2(int drawer) const
+{ 
+  int eta[64] = {
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1,  2, -1, -1,  2,
+    -1,  2, -1, -1,  2, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1
+  };
+
+  return eta[drawer];
+}
+
+int
 TileCablingService::MBTS2drawer_run2(int phi, int eta) const
 {
-  int drawer[16] = {
+  int drawer[24] = {
        56, 57, 38, 39, 40, 41, 54, 55,  //E6 (inner)
-        7,  7, 23, 23, 42, 42, 53, 53 };//E5 (outer)
-
-
-  
+        7,  7, 23, 23, 42, 42, 53, 53,  //E5 (outer)
+       28, 31, 33, 36, 28, 31, 33, 36 };//E4' 
 
   return (drawer[(eta<<3)|phi]);
 }
@@ -1860,7 +1965,7 @@ TileCablingService::MBTS2drawer_run2(int phi, int eta) const
 int
 TileCablingService::MBTS2channel_run2(int eta) const
 {
-  return ((eta)?12:4);
+  return ((eta==0)?4:12); // both MBTS and E4'
 }
 
 unsigned int 
@@ -1937,6 +2042,6 @@ bool TileCablingService::is_MBTS_merged_run2(int module) const {
   return m_MBTSmergedRun2[module];
 }
 
-int TileCablingService::E1_merged_with_run2(int module) const {
-  return m_E1mergedRun2[module];
+int TileCablingService::E1_merged_with_run2(int ros, int module) const {
+  return m_E1mergedRun2[(ros-3)*64+module];
 }
