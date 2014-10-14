@@ -1,0 +1,95 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef FSRUTILS_FsrPhotonTool_H
+#define FSRUTILS_FsrPhotonTool_H
+
+// Framework include(s):
+#include "AsgTools/AsgTool.h"
+
+// Local include(s):
+#include "FsrUtils/IFsrPhotonTool.h"
+
+namespace FSR {
+
+   /// Implementation for the "FSR" provider tool
+   ///
+   /// @author Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
+   ///
+   /// $Date: 2014-07-18 $
+
+   class FsrPhotonTool : public virtual IFsrPhotonTool,
+                              public asg::AsgTool {
+
+      /// Create a proper constructor for Athena
+      ASG_TOOL_CLASS( FsrPhotonTool, FSR::IFsrPhotonTool )
+
+   public:
+      /// Create a constructor for standalone usage
+      FsrPhotonTool( const std::string& name );
+
+      /// @name Function(s) implementing the asg::IAsgTool interface
+      /// @{
+
+      /// Function initialising the tool
+      virtual StatusCode initialize();
+
+      /// @}
+
+      /// @name Function(s) implementing the IFsrPhotonTool interface
+      /// @{
+
+      /// Get the "FSR candidate" as a return value for a muon (collinar and far FSR)
+      virtual CP::CorrectionCode getFsrPhoton(const xAOD::IParticle* part, FsrCandidate& candidate,
+                                              const xAOD::PhotonContainer* photons = 0,
+                                              const xAOD::ElectronContainer* electrons = 0);
+
+      /// Find ALL FSR candidates for a given particle (electron or muon)
+      ///   providing newly calibrated photon and electron containers
+      virtual std::vector<FsrCandidate>* getFsrCandidateList(const xAOD::IParticle* part,
+                                                             const xAOD::PhotonContainer* photons = 0,
+                                                             const xAOD::ElectronContainer* electrons = 0);
+
+      /// Find and Return ALL FAR FSR candidates
+      virtual std::vector<FsrCandidate>* getFarFsrCandidateList(const xAOD::IParticle* part);
+
+      /// Find and Return ALL NEAR FSR candidates
+      virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::IParticle* part);
+
+      /// @}
+   private:
+      /// Need for the FSR search
+      std::vector<FsrCandidate>* sortFsrCandidates( std::vector< std::pair <const xAOD::IParticle*, double> > FsrCandList,
+                                                     std::string option="ET");
+      bool isOverlap(const xAOD::Electron_v1* electron, std::vector< std::pair <const xAOD::IParticle*, double> > phfsr,
+    		  unsigned int nofPhFsr);
+      double deltaR(float muonEta, float muonPhi, float phEta, float phPhi);
+      static bool compareEt(FsrCandidate c1, FsrCandidate c2) { return (c1.Et > c2.Et); }
+
+      const xAOD::PhotonContainer* m_photons;
+      const xAOD::ElectronContainer* m_electrons;
+
+      double m_high_et_min;
+      double m_overlap_el_ph;
+      double m_overlap_el_mu;
+
+      double m_far_fsr_drcut;
+      double m_far_fsr_etcut;
+      double m_far_fsr_etconecut;
+
+      double m_drcut;
+      double m_etcut;
+      double m_f1cut;
+      double m_topo_drcut;
+      double m_topo_f1cut;
+
+
+      std::vector<FsrCandidate> m_fsrPhotons;
+      FsrCandidate::FsrType fsr_type;
+
+   }; // class FsrPhotonTool
+
+} // namespace FSR
+
+#endif // FSRUTILS_FsrPhotonTool_H
