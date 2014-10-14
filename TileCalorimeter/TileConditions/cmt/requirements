@@ -26,7 +26,6 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
 private 
 
 use AtlasBoost          AtlasBoost-*            External
-use EventInfo		EventInfo-*		Event
 use GeoModelInterfaces  GeoModelInterfaces-*	DetectorDescription/GeoModel
 use CaloDetDescr	CaloDetDescr-*		Calorimeter
 use TileDetDescr	TileDetDescr-*		TileCalorimeter

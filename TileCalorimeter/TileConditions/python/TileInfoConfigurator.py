@@ -299,6 +299,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
             conddb.addFolder(dbConnStr, "/TILE/DCS/STATES")
             self._msg.info("Adding TileDCSSvc to ServiceMgr")
             svcMgr += CfgMgr.TileDCSSvc()
+
+            from IOVDbSvc.CondDB import conddb
+            if (conddb.GetInstance() == 'CONDBR2'):
+                self._msg.info("setting up TileDCSSvc for RUN2")
+                svcMgr.TileDCSSvc.Version=2
+            else:
+                self._msg.info("setting up TileDCSSvc for RUN1")
+                svcMgr.TileDCSSvc.Version=1
   
     #_______________________________________________________________
  

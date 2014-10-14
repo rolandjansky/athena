@@ -1,7 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TileConditions/TileInfoLoader.h"
-#include "TileConditions/TileInfoDump.h"
-#include "TileConditions/TileExpertDump.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCondIdTransforms.h"
 #include "TileConditions/TileBadChanTool.h"
@@ -24,8 +22,6 @@
 DECLARE_SERVICE_FACTORY( TileInfoLoader )
 DECLARE_SERVICE_FACTORY( TileCablingSvc )
 DECLARE_SERVICE_FACTORY( TileDCSSvc )
-DECLARE_ALGORITHM_FACTORY( TileInfoDump )
-DECLARE_ALGORITHM_FACTORY( TileExpertDump )
 DECLARE_TOOL_FACTORY( TileCondIdTransforms )
 DECLARE_TOOL_FACTORY( TileBadChanTool )
 DECLARE_TOOL_FACTORY( TileCondToolOfc )
@@ -50,8 +46,6 @@ DECLARE_FACTORY_ENTRIES(TileConditions) {
   DECLARE_SERVICE( TileInfoLoader )
   DECLARE_SERVICE( TileCablingSvc )
   DECLARE_SERVICE( TileDCSSvc )
-  DECLARE_ALGORITHM( TileInfoDump )
-  DECLARE_ALGORITHM( TileExpertDump )
   DECLARE_ALGTOOL( TileCondIdTransforms )
   DECLARE_ALGTOOL( TileBadChanTool )
   DECLARE_ALGTOOL( TileCondToolOfc )

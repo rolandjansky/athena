@@ -135,10 +135,11 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
 
   declareProperty("EmScaleE1",           m_info->m_emscaleE[10]=125.0,           "conversion from Hit to Cell energy for cells E1 (gap scin)");
   declareProperty("EmScaleE2",           m_info->m_emscaleE[11]=107.0,           "conversion from Hit to Cell energy for cells E2 (gap scin)");
-  declareProperty("EmScaleE3",           m_info->m_emscaleE[13]=97.0,           "conversion from Hit to Cell energy for cells E3 (crack scin)");
+  declareProperty("EmScaleE3",           m_info->m_emscaleE[13]=97.0,            "conversion from Hit to Cell energy for cells E3 (crack scin)");
   declareProperty("EmScaleE4",           m_info->m_emscaleE[15]=75.0,            "conversion from Hit to Cell energy for cells E4 (crack scin)");
   declareProperty("EmScaleMBTSinner",    m_info->m_emscaleMBTS[0]=1.0,           "conversion from Hit to Cell energy for MBTS inner cell");
   declareProperty("EmScaleMBTSouter",    m_info->m_emscaleMBTS[1]=1.0,           "conversion from Hit to Cell energy for MBTS outer cell");
+  declareProperty("EmScaleE4prime",      m_info->m_emscaleMBTS[2]=-1.0,          "conversion from Hit to Cell energy for E4' if negative - use the same as for E4");
 
   // Number of photoelectrons per GeV - used in simulation of photostatistics
   declareProperty("NPhElec",             m_info->m_nPhElec      =  70,           "default number of photo electrons per GeV");
@@ -148,6 +149,7 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   declareProperty("NPhElecE",            m_info->m_nPhElecVec[3]=  70,           "default number of photo electrons per GeV in E layer");
   declareProperty("NPhElecMBTSinner",    m_info->m_nPhElecVec[4]=1500,           "default number of photo electrons per GeV in MBTS, inner cell");
   declareProperty("NPhElecMBTSouter",    m_info->m_nPhElecVec[5]=1070,           "default number of photo electrons per GeV in MBTS, outer cell");
+  declareProperty("NPhElecE4prime",      m_info->m_nPhElecVec[6]=  -1,           "default number of photo electrons per GeV in E4' cell, if negative - use the same as for E4");
 
   //==========================================================
   //=== Digits pulse shapes
@@ -341,12 +343,19 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
       }
     }
 
+    // sampling fraction for E4' stored in the same array as MBTS (eta index = 2)
+    if (m_info->m_emscaleMBTS[2] < 0.0)  m_info->m_emscaleMBTS[2] = m_info->m_emscaleE[15];
+
+    // number of photoelectrons for E4' - if it is not set, assume the same number as for all E-cells
+    if (m_info->m_nPhElecVec[6]  < 0.0)  m_info->m_nPhElecVec[6]  = m_info->m_nPhElecVec[3];
+
     ATH_MSG_INFO( "Sampling fraction for normal cells 1/" << m_info->m_emscaleA );
     ATH_MSG_INFO( "Sampling fraction for special C10 cells 1/" << m_info->m_emscaleE[9] );
     ATH_MSG_INFO( "Sampling fraction for E1 cells 1/" << m_info->m_emscaleE[10] );
     ATH_MSG_INFO( "Sampling fraction for E2 cells 1/" << m_info->m_emscaleE[11] );
     ATH_MSG_INFO( "Sampling fraction for E3 cells 1/" << m_info->m_emscaleE[13] );
     ATH_MSG_INFO( "Sampling fraction for E4 cells 1/" << m_info->m_emscaleE[15] );
+    ATH_MSG_INFO( "Sampling fraction for E4' cells 1/" << m_info->m_emscaleMBTS[2] );
 
   }
 

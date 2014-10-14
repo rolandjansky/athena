@@ -91,7 +91,7 @@ public:
                            UnknownCabling };
 
     bool is_MBTS_merged_run2(int module) const;
-    int E1_merged_with_run2(int module) const;
+    int E1_merged_with_run2(int ros, int module) const;
 
 protected:
     
@@ -142,12 +142,17 @@ private:
            int          MBTS2drawer_run2        (int phi, int eta) const;
            int          MBTS2channel_run2       (int eta) const;
 
+           bool         hwid2E4prconnected_run2 (int ros, int drawer, int channel) const;
+           bool         hwid2E4prconnected_run2 (int ros, int drawer) const;
+           int          hwid2E4prphi_run2       (int drawer) const;
+           int          hwid2E4preta_run2       (int drawer) const;
+
            int          swid2drawer_gapscin     ( int side, int module, int tower) const;
            int          swid2channel_gapscin    ( int side, int module, int tower) const;
            int          hwid2module_gapscin     ( int ros,  int drawer, int channel) const;
            int          hwid2tower_gapscin      ( int ros,  int drawer, int channel) const;
 
-           int          swid2drawer_gapscin_run2( int module, int tower) const;
+           int          swid2drawer_gapscin_run2( int side, int module, int tower) const;
 
     inline bool         isTileITCGapCrack       (int channel) const {return (channel < 6 || channel == 12 || channel == 13);}
     inline bool         isTileGapCrack          (int channel) const {return (channel < 2 || channel == 12 || channel == 13);}

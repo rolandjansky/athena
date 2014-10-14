@@ -420,7 +420,7 @@ class TileInfo : public DataObject {
   double m_emscaleA;     //!< 1/sampling fraction for all normal cells
   double m_emscaleC[64]; //!< 1/sampling fraction for all C10 cells 
   double m_emscaleE[16]; //!< 1/sampling fraction for special C10 and E1-E4 cells [9]=C10, [10]=E1, [11]=E2, [13]=E3, [15]=E4
-  double m_emscaleMBTS[2]; //!< 1/sampling fraction for MBTS
+  double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
 
   int    m_adcmax;
   int    m_nSamples;
@@ -515,7 +515,7 @@ class TileInfo : public DataObject {
   ToolHandle<TileCondToolTiming>      m_tileToolTiming;
 
   int    m_nPhElec;
-  int    m_nPhElecVec[6];
+  int    m_nPhElecVec[7];
 
   // Three dimensional vector of the
   // decomposed covariance matrices (partition x module x gain)
