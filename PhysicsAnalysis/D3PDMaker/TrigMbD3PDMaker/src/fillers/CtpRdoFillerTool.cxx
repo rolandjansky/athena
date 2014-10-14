@@ -50,7 +50,7 @@ StatusCode CtpRdoFillerTool::fill (const CtpRdoFillerObjectType& ctp)
   *m_timeSec = ctp.getTimeSec();
   *m_timeNanoSec = ctp.getTimeNanoSec();   
   
-  *m_pit = ctp.getPITWords();
+  *m_pit = ctp.getTIPWords(); // this was changed from PIT (Run1 = 160 internal trigger lines) to TIP (Run2 = 320 internal trigger lines + 192 direct inputs from L1Topo + ALFA) // joerg
   *m_tbp = ctp.getTBPWords();
   *m_tap = ctp.getTAPWords();
   *m_tav = ctp.getTAVWords();
