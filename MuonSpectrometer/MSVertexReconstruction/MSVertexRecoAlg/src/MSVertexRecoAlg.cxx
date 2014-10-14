@@ -6,6 +6,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "MSVertexUtils/Tracklet.h"
+#include "MSVertexUtils/MSVertex.h"
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
@@ -58,6 +59,7 @@ StatusCode MSVertexRecoAlg::initialize(){
 StatusCode MSVertexRecoAlg::execute() {
 
   std::vector<Tracklet> m_tracklets;
+  std::vector<MSVertex*> m_vertices;
 
   StatusCode sc = m_vertexTrackletTool->findTracklets(m_tracklets);
   if(sc.isFailure()) {
@@ -66,12 +68,14 @@ StatusCode MSVertexRecoAlg::execute() {
   } else 
     ATH_MSG_DEBUG ("Tracklet reconstruction tool called");
 
-  sc = m_vertexRecoTool->findMSvertices(m_tracklets);
+  sc = m_vertexRecoTool->findMSvertices(m_tracklets, m_vertices);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Failed vertex reco " );
     return StatusCode::FAILURE;
   } else
     ATH_MSG_DEBUG ("Vertex reconstruction tool called");
+
+  ATH_MSG_DEBUG ("Found " << m_tracklets.size() << " tracklets and " << m_vertices.size() << " vertices in the MS");
 
   return StatusCode::SUCCESS;
 }
