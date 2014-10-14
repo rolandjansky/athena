@@ -40,7 +40,7 @@ use SiClusterizationTool     SiClusterizationTool-*       InnerDetector/InDetRec
 ########## ISF dependencies ########################################################
 use ISF_Event                ISF_Event-*                  Simulation/ISF/ISF_Core
 use ISF_Interfaces           ISF_Interfaces-*             Simulation/ISF/ISF_Core
-
+use ISF_FatrasDetDescrModel  ISF_FatrasDetDescrModel-*    Simulation/ISF/ISF_Fatras
 ########## Fatras dependencies #####################################################
 # use FatrasDetDescrUtils      FatrasDetDescrUtils-*        Simulation/Fatras
 

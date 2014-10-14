@@ -11,6 +11,8 @@
 
 // ISF
 #include "ISF_Event/ISFParticle.h"
+#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
+
 // Tracking
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkSurfaces/Surface.h"
@@ -43,6 +45,7 @@
 #include <TMath.h>
 #include <TF1.h>
 #include <vector>
+
 
 double langaufun_fast(double* x, double* par);
 //================ Constructor =================================================
@@ -368,33 +371,55 @@ return energyLoss;
 
 
 void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& pars, double time ) const {
-  	
-   // get surface and DetElement base
+ 
+  // get surface and DetElement base
    const Trk::Surface &hitSurface = pars.associatedSurface();
    const Trk::TrkDetElementBase* detElementBase = hitSurface.associatedDetectorElement();  
+   
    // the detector element cast -> needed 
-   const InDetDD::SiDetectorElement* hitSiDetElement = dynamic_cast<const InDetDD::SiDetectorElement*>((detElementBase));
+   const InDetDD::SiDetectorElement* SiDetElement = dynamic_cast<const InDetDD::SiDetectorElement*>((detElementBase));
+
+   //Adding new lines for custom detector simulation
+   const iFatras::PlanarDetElement* PlanardetElement = dynamic_cast<const iFatras::PlanarDetElement*>((detElementBase));
+
    // return triggered if no siDetElement or no current particle link to the stack
-   if ( !hitSiDetElement){
-       ATH_MSG_WARNING("[ sihit ] No Silicon Detector element available. Ignore this one.");
-       return;
+   if ( !SiDetElement && !PlanardetElement){
+     ATH_MSG_WARNING("[ sihit ] No Silicon & Planar Detector element available. Ignore this one.");
+     return;
    }
-   // get the identifier and hash identifier
-   Identifier hitId         = hitSurface.associatedDetectorElementIdentifier();   
-   IdentifierHash hitIdHash = hitSiDetElement->identifyHash();
-   // check conditions of the intersection
-   if ( m_useConditionsSvc ) {
-       bool isActive = m_condSummarySvc->isActive(hitIdHash, hitId);                   // active = "element returns data"
-       bool isGood   = isActive ? m_condSummarySvc->isGood(hitIdHash, hitId) : false;  // good   = "data are reliable"
-       if (!isActive) 
-           ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is not active. ");
-       else if (!isGood)               
-           ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is active but not good. ");
-       else                            
-           ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is active and good.");
-       if (!isActive || !isGood) return;
-   }
-   // intersection
+   
+   if( SiDetElement )
+     return createSimHit( isp, pars, time, SiDetElement, 1);
+   else return createSimHit( isp, pars, time, PlanardetElement, 0);
+   
+}
+
+template<typename ELEMENT>
+void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& pars, double time, ELEMENT hitSiDetElement, bool isSiDetElement) const {
+  	
+  if (!isSiDetElement)
+    ATH_MSG_VERBOSE("[ sihit ] --> Running with PlanarDetElement");
+   
+  // get surface and DetElement base
+  const Trk::Surface &hitSurface = pars.associatedSurface();
+     
+  // get the identifier and hash identifier
+  Identifier hitId         = hitSurface.associatedDetectorElementIdentifier();   
+  IdentifierHash hitIdHash = hitSiDetElement->identifyHash();
+  // check conditions of the intersection
+  if ( m_useConditionsSvc ) {
+    bool isActive = m_condSummarySvc->isActive(hitIdHash, hitId);                   // active = "element returns data"
+    bool isGood   = isActive ? m_condSummarySvc->isGood(hitIdHash, hitId) : false;  // good   = "data are reliable"
+    if (!isActive) 
+      ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is not active. ");
+    else if (!isGood)               
+      ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is active but not good. ");
+    else                            
+      ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is active and good.");
+    if (!isActive || !isGood) return;
+  }
+
+ // intersection
    const Amg::Vector2D& intersection = pars.localPosition();
    double interX = intersection.x();
    double interY = intersection.y();
@@ -435,26 +460,37 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    //!< barcode & time from current stack particle
    //  double   energyDeposit = m_siPathToCharge*localDirection.mag()*CLHEP::RandLandau::shoot(m_randomEngine);
    int    barcode       = isp.barcode();
-   int    side          = m_pixIdHelper ? 0 : m_sctIdHelper->side(hitId);
+   int    side          = 0;
+
+   if (isSiDetElement)  {
+	  side = m_pixIdHelper ? 0 : m_sctIdHelper->side(hitId); 
+   } else {
+      if (hitSiDetElement->otherSide()) side = 1;
+   }
    
    //if (m_sctIdHelper && !m_sctIdHelper->barrel_ec(hitId)) return;
 
-   // create the silicon hit
-   const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
-   const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
-   SiHit siHit(localEntryHep,
-               localExitHep,
-               energyDeposit,
-               time,
-               barcode,
-               m_pixIdHelper ? 0 : 1,
-               m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
-               m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),
-               m_pixIdHelper ? m_pixIdHelper->eta_module(hitId) : m_sctIdHelper->eta_module(hitId),
-               m_pixIdHelper ? m_pixIdHelper->phi_module(hitId) : m_sctIdHelper->phi_module(hitId),
-               side); 
+  // create the silicon hit
+  const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
+  const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
   
-  ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit to the SiHitCollection.");
+  SiHit siHit(localEntryHep,
+			  localExitHep,
+			  energyDeposit,
+			  time,
+			  barcode,
+			  m_pixIdHelper ? 0 : 1,
+			  m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
+			  m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),
+			  m_pixIdHelper ? m_pixIdHelper->eta_module(hitId) : m_sctIdHelper->eta_module(hitId),
+			  m_pixIdHelper ? m_pixIdHelper->phi_module(hitId) : m_sctIdHelper->phi_module(hitId),
+			  side); 
+  
+  if ( isSiDetElement )
+    ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit SiDetElement to the SiHitCollection.");
+  else
+    ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
+  
   m_hitColl->Insert(siHit);
+  
 }
-
