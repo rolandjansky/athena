@@ -26,7 +26,7 @@
 #include "TrigT1CaloEvent/CMMCPHits.h"
 #include "TrigT1CaloEvent/CMMJetHits.h"
 #include "TrigT1CaloEvent/CMMEtSums.h"
-#include "TrigConfigSvc/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1Monitoring/L1CaloCTPMon.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
@@ -484,7 +484,7 @@ void L1CaloCTPMon::compare(const CTP_BC& bunch, int hits, int totalBits,
       continue;
     }
     const int HITbit= ((hits >> bit) & 0x1);
-    const int PITbit = bunch.getPIT().test( PITid );
+    const int PITbit = bunch.getTIP().test( PITid );
     if (m_debug) msg(MSG::DEBUG) << PITbit << " ";  
     pitHits |= (PITbit << bit);
     mask    |= (1 << bit);
