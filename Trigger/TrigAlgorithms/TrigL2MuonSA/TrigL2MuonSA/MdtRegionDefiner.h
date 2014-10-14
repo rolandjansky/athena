@@ -23,6 +23,14 @@
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 
+class MdtIdHelper;
+
+namespace MuonGM {
+     class MuonDetectorManager;
+     class MdtReadoutElement;
+     class MuonStation;
+}
+
 namespace TrigL2MuonSA {
 
 
@@ -36,7 +44,13 @@ namespace TrigL2MuonSA {
     MdtRegionDefiner(MsgStream* msg, const MDTGeometry* mdtGeometry);
     ~MdtRegionDefiner(void);
     
+    // function using the old cabling/geometry
     void setMdtGeometry(const MDTGeometry* mdtGeometry);
+
+    // function using the new cabling/geometry
+    void setMdtGeometry(const MdtIdHelper* mdtIdHelper, const MuonGM::MuonDetectorManager* muonMgr);
+    void setGeometry(bool use_new_geometry);
+    void setRpcGeometry(bool use_rpc);
     
   public:
     inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
@@ -63,6 +77,9 @@ namespace TrigL2MuonSA {
 			  float& etaMin, float& etaMax);
     void find_phi_min_max(float phiMiddle, float& phiMin, float& phiMax);
         
+    void find_station_sector(std::string name, int phi, bool& endcap, int& station, int& sector);   
+
+
     StatusCode computePhi(const LVL1::RecMuonRoI*    p_roi,
 			  const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			  const TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -75,13 +92,28 @@ namespace TrigL2MuonSA {
 
   private:
     MsgStream* m_msg;
+
+    // old geometry and cabling: to be removed
     const MDTGeometry*     m_mdtGeometry;
     const IMDTcablingSvc*  m_mdtCablingSvc;
+
+    // new geometry
+    const MdtIdHelper* m_mdtIdHelper;
+    const MuonGM::MuonDetectorManager* m_muonMgr;
+    const MuonGM::MdtReadoutElement* m_mdtReadout;
+    const MuonGM::MuonStation* m_muonStation;
     
+    bool m_use_new_geometry;
+    bool m_use_rpc;
+
     TrigL2MuonSA::TgcFit::PointArray m_tgcStripMidPoints;  // List of TGC strip middle station points.
     TrigL2MuonSA::TgcFit::PointArray m_tgcWireMidPoints;   // List of TGC wire middle station points.
     TrigL2MuonSA::TgcFit::PointArray m_tgcStripInnPoints;  // List of TGC strip inner station points.
     TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
+
+    
+
+
   };
   
   // --------------------------------------------------------------------------------

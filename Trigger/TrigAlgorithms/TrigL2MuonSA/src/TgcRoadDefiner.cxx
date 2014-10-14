@@ -6,13 +6,17 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/PhiHelper.h"
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
    : m_msg(msg), 
      m_tgcFit(msg,10), // chi2 value 10 given by hand for now
-     m_rWidth_TGC_Failed(0)
+     m_rWidth_TGC_Failed(0),
+     m_use_new_geometry(1)
 {
 }
 
@@ -28,7 +32,18 @@ TrigL2MuonSA::TgcRoadDefiner::~TgcRoadDefiner(void)
 
 void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(const MDTGeometry* mdtGeometry)
 {
+  m_use_new_geometry = false;
   m_mdtGeometry = mdtGeometry;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper)
+{
+  m_use_new_geometry = true;
+  m_regionSelector = regionSelector;
+  m_mdtIdHelper = mdtIdHelper;
 }
 
 // --------------------------------------------------------------------------------
@@ -247,8 +262,8 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
 	muonRoad.aw[0][0] = 0;
       }
       
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[3][i_layer] = R_WIDTH_INNER_NO_HIT;
       for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[0][i_layer] = R_WIDTH_INNER_NO_HIT;
-      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[4][i_layer] = R_WIDTH_INNER_NO_HIT;
       
     }
     
@@ -299,14 +314,72 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
   muonRoad.side      = side;
   muonRoad.phiMiddle = phiMiddle;
   muonRoad.phiRoI    = p_roi->phi();
+  if(m_use_new_geometry){
   
-  int sector_trigger = 0;
-  int sector_overlap = 0;
-  m_mdtGeometry->getEsects(1, muonRoad.side, muonRoad.phiMiddle, sector_trigger, sector_overlap);
-  
-  muonRoad.MDT_sector_trigger = sector_trigger;
-  muonRoad.MDT_sector_overlap = sector_overlap;
-  
+    int sector_trigger = 99;
+    int sector_overlap = 99;
+    int temp_sector=99;
+    float deltaPhi=99;
+    float tempDeltaPhi=99;
+    std::vector<Identifier> stationList;
+    std::vector<IdentifierHash> mdtHashList;
+    
+    // get sector_trigger and sector_overlap by using the region selector
+    IdContext context = m_mdtIdHelper->module_context();
+
+    double etaMin =  p_roi->eta()-.02;
+    double etaMax =  p_roi->eta()+.02;
+    double phiMin = muonRoad.phiMiddle-.01;
+    double phiMax = muonRoad.phiMiddle+.01;
+    if(phiMax > CLHEP::pi) phiMax -= CLHEP::pi*2.;
+    if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
+    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
+    const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
+      m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+
+
+    for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
+      Identifier id;
+      int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
+      if(convert!=0)
+	msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
+      muonRoad.stationList.push_back(id);
+      int stationPhi = m_mdtIdHelper->stationPhi(id);
+      tempDeltaPhi = fabs(stationPhi-muonRoad.phiMiddle);
+      if(tempDeltaPhi > CLHEP::pi) tempDeltaPhi = tempDeltaPhi - 2*CLHEP::pi;
+      
+      std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+      
+      int LargeSmall = 0;
+      if(name[2]=='S') LargeSmall = 1;
+      int sector = (stationPhi-1)*2 + LargeSmall;
+      if(sector_trigger == 99)
+	sector_trigger = sector;
+      else if(sector_trigger != sector)
+	sector_overlap = sector;
+      
+      if(tempDeltaPhi < deltaPhi){
+	deltaPhi = tempDeltaPhi;
+	temp_sector = sector;
+      }
+      
+    }
+    if(temp_sector != sector_trigger){
+      sector_overlap = sector_trigger;
+      sector_trigger = temp_sector;  
+    }
+    
+    muonRoad.MDT_sector_trigger = sector_trigger;
+    muonRoad.MDT_sector_overlap = sector_overlap;
+
+  } else { // old geometry
+    int sector_trigger = 0;
+    int sector_overlap = 0;
+    m_mdtGeometry->getEsects(1, muonRoad.side, muonRoad.phiMiddle, sector_trigger, sector_overlap);
+    
+    muonRoad.MDT_sector_trigger = sector_trigger;
+    muonRoad.MDT_sector_overlap = sector_overlap;
+  }
   //
   return true;
 }

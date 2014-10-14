@@ -26,7 +26,15 @@
 #include "TrigL2MuonSA/RpcFitResult.h"
 #include "TrigL2MuonSA/TgcFitResult.h"
 
+#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+
 class StoreGateSvc;
+class MdtIdHelper;
+namespace MuonGM{
+     class MuonDetectorManager;
+     class MdtReadoutElement;
+     class MuonStation;
+}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -65,6 +73,9 @@ namespace TrigL2MuonSA {
 			   TrigL2MuonSA::MdtRegion&          mdtRegion,
 			   TrigL2MuonSA::MdtHits&            mdtHits_normal,
 			   TrigL2MuonSA::MdtHits&            mdtHits_overlap);
+
+    void setGeometry(bool use_new_geometry);
+    void setRpcGeometry(bool use_rpc);
 
   private:
     
@@ -106,7 +117,16 @@ namespace TrigL2MuonSA {
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
     
     // Cabling
-    ServiceHandle<IMDTcablingSvc>  m_mdtCablingSvc;
+    ServiceHandle<IMDTcablingSvc>  m_mdtCablingSvcOld;
+    // Cabling (new)
+    MuonMDT_CablingSvc* m_mdtCabling;
+    
+    // Geometry Services
+    const MuonGM::MuonDetectorManager* m_muonMgr;
+    const MuonGM::MdtReadoutElement* m_mdtReadout;
+    const MuonGM::MuonStation* m_muonStation;
+    const MdtIdHelper* m_mdtIdHelper;
+    IdentifierHash hash_id;
     
     // Region Selector
     IRegSelSvc*          m_regionSelector;
@@ -116,7 +136,9 @@ namespace TrigL2MuonSA {
     
     // Utils
     TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
-    
+   
+    BooleanProperty m_use_new_geometry;
+
     //
     TrigL2MuonSA::MdtRegionDefiner*  m_mdtRegionDefiner;
   };

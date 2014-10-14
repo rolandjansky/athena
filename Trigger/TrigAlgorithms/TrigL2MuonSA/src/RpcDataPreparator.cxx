@@ -41,7 +41,6 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
    m_rpcGeometrySvc("RPCgeometrySvc",""),
    m_iRpcCablingSvc(0),
    m_rpcCabling(0),
-   m_iMdtCablingSvc("MDTcablingSvc",""),
    m_robDataProvider(0),
    m_recMuonRoIUtils(),
    m_maskUncCMAch(false)
@@ -50,7 +49,6 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
 
    declareProperty("RPC_RawDataProvider", m_rpcRawDataProvider);
    declareProperty("RPC_GeometrySvc",     m_rpcGeometrySvc);
-   declareProperty("MDT_Cabbling",        m_iMdtCablingSvc);
 }
 
 // --------------------------------------------------------------------------------
@@ -112,14 +110,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
       return sc;
     }
    m_rpcCabling = m_iRpcCablingSvc->getRPCCabling();
-
-   // MDT cabling
-   sc = m_iMdtCablingSvc.retrieve();
-   if ( sc.isFailure() ) {
-     msg() << MSG::ERROR << "Could not retrieve "
-	   << m_iMdtCablingSvc << endreq;
-     return sc;
-   } 
 
    // Locate ROBDataProvider
    std::string serviceName = "ROBDataProvider";
@@ -294,8 +284,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::decodeRpcPad(const RpcPad* p_rdo,
   int phiTrigType = phi.trigger().type();
        
   if( etaTrigType && phiTrigType) {
-    //    eta.Print(std::cout,true);
-    //    phi.Print(std::cout,true);
     
     int etaThreshold = eta.trigger().threshold();
     int phiThreshold = phi.trigger().threshold();

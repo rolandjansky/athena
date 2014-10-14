@@ -125,14 +125,14 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     } else {
       one = (cos(p_roi->phi())>0)? 1: -1;
     }
-    phi = atan2(trackPattern.phiDir*one,one);
+    phi = atan2(trackPattern.phiMSDir*one,one);
 
     if(phim>=CLHEP::pi+0.1) phim = phim - 2*CLHEP::pi;
     
     if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
     else trackPattern.phiMap = phi - phim;
     
-    trackPattern.phi = phi;
+    trackPattern.phiMS = phi;
     
     c2 = x2 - x1;                      
     c3 = x3 - x1;
@@ -148,7 +148,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     
     x0 = -a/2. + x1;
     y0 = -b/2. + y1;
-    trackPattern.radius  = sqrt(x0*x0 + y0*y0);
+    trackPattern.barrelRadius  = sqrt(x0*x0 + y0*y0);
     trackPattern.charge = -1;
     if(a<=0.) trackPattern.charge = 1;
     
@@ -165,13 +165,13 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     } else {
       one = (cos(p_roi->phi())>0)? 1: -1;
     }
-    phi = atan2(trackPattern.phiDir*one,one);
+    phi = atan2(trackPattern.phiMSDir*one,one);
     if(phim>=CLHEP::pi+0.1) phim = phim - 2*CLHEP::pi;
 
     if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
     else trackPattern.phiMap = phi - phim;
 
-    trackPattern.phi = phi;
+    trackPattern.phiMS = phi;
 
     // Alignment correation to data
     if ( !m_use_mcLUT && trackPattern.s_address==1) {
@@ -184,14 +184,14 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
       double dZ = m_alignmentBarrelLUT->GetDeltaZ(trackPattern.s_address,
 						  trackPattern.etaMap,
 						  trackPattern.phiMap,
-						  trackPattern.phi,
+						  trackPattern.phiMS,
 						  superPoints[0]->R);
       superPoints[1]->Z += dZ;
     }
 
     a3 = ( superPoints[2]->Z - superPoints[0]->Z ) / ( superPoints[2]->R - superPoints[0]->R );
     
-    trackPattern.sagitta = superPoints[1]->Z - superPoints[1]->R*a3 - superPoints[0]->Z + superPoints[0]->R*a3;
+    trackPattern.barrelSagitta = superPoints[1]->Z - superPoints[1]->R*a3 - superPoints[0]->Z + superPoints[0]->R*a3;
     
     m = a3;
     cost = cos(atan(m));
@@ -211,15 +211,15 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     x0 = x3/2.;
     y0 = (y2*y2 + x2*x2 -x2*x3)/(2*y2);
     
-    trackPattern.radius = sqrt(x0*x0 + y0*y0);
-    trackPattern.charge = (trackPattern.sagitta!=0)? -1.*trackPattern.sagitta/fabs(trackPattern.sagitta): 0;
+    trackPattern.barrelRadius = sqrt(x0*x0 + y0*y0);
+    trackPattern.charge = (trackPattern.barrelSagitta!=0)? -1.*trackPattern.barrelSagitta/fabs(trackPattern.barrelSagitta): 0;
 
   }
 
-  msg() << MSG::DEBUG << "... count/trackPattern.sagitta/radius/charge/s_address/phi="
-	<< count << " / " << trackPattern.sagitta << "/" << trackPattern.radius << "/"
+  msg() << MSG::DEBUG << "... count/trackPattern.barrelSagitta/barrelRadius/charge/s_address/phi="
+	<< count << " / " << trackPattern.barrelSagitta << "/" << trackPattern.barrelRadius << "/"
 	<< trackPattern.charge << "/" << trackPattern.s_address << "/"
-	<< trackPattern.phi << endreq;
+	<< trackPattern.phiMS << endreq;
   
   return StatusCode::SUCCESS; 
 }

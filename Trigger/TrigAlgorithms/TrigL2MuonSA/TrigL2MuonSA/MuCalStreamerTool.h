@@ -72,6 +72,10 @@ namespace TrigL2MuonSA {
     std::string instanceName() const {return m_algInstanceName;}
     void setInstanceName(std::string name) { m_algInstanceName = name; }
 
+    // set the properties
+    void setBufferName(std::string buffName) {m_calBufferName=buffName;}
+    void setBufferSize(int buffSize) {m_calBufferSize=buffSize;}
+
     //
     // initialize the stream
     StatusCode openStream();
@@ -93,9 +97,8 @@ namespace TrigL2MuonSA {
 
     // name of the calibration buffer or of the 
     // output file
-    StringProperty  m_calBufferName;
+    std::string  m_calBufferName;
     std::string m_algInstanceName;
-
     int m_calBufferSize;
 
     // output file 
@@ -104,15 +107,13 @@ namespace TrigL2MuonSA {
     // Reference to StoreGateSvc;
     ServiceHandle<StoreGateSvc>    m_storeGate;
       
-    // id of the circular buffer
-    int m_cid;
-    int m_calibEvent;
-
-    // pointer to the muon roi
-    const LVL1::RecMuonRoI* m_roi;
 
     // ROB DataProvider
     ROBDataProviderSvc* m_robDataProvider;
+
+    // id of the circular buffer
+    int m_cid;
+    int m_calibEvent;
 
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -129,6 +130,10 @@ namespace TrigL2MuonSA {
     // RPC cablings
     const IRPCcablingSvc*   m_iRpcCablingSvc;
     const CablingRPCBase*   m_rpcCabling;
+
+    // pointer to the muon roi
+    const LVL1::RecMuonRoI* m_roi;
+
     
     //
     // create the MDT fragment
@@ -141,8 +146,8 @@ namespace TrigL2MuonSA {
 
     //
     // create the TGC fragment
-    StatusCode createTgcFragment(TrigL2MuonSA::TgcHits& tgcHits,  
-				 LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment);
+//    StatusCode createTgcFragment(TrigL2MuonSA::TgcHits& tgcHits,  
+//				 LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment);
 
     StatusCode getRpcPad(unsigned int robId, unsigned short int subsystemID, 
 			 unsigned short int sectorID, unsigned short int roiNumber, 

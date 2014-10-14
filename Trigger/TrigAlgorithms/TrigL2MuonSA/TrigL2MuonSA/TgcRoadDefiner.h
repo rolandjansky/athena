@@ -25,6 +25,9 @@
 
 #include "TrigMuonEvent/MuonFeature.h"
 
+#include "TrigMuonEvent/MuonFeature.h"
+#include "RegionSelector/IRegSelSvc.h"
+
 class StoreGateSvc;
 
 namespace TrigL2MuonSA {
@@ -47,6 +50,7 @@ class TgcRoadDefiner
 
   void setMsgStream(MsgStream* msg) { m_msg = msg; };
   void setMdtGeometry(const MDTGeometry* mdtGeometry);
+  void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
   void setRoadWidthForFailure(double rWidth_TGC_Failed);
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
@@ -68,6 +72,12 @@ class TgcRoadDefiner
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
 
   double m_rWidth_TGC_Failed;
+
+  bool m_use_new_geometry;
+
+  IRegSelSvc* m_regionSelector;
+  const MdtIdHelper* m_mdtIdHelper;
+
 };
 
 // --------------------------------------------------------------------------------

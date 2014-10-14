@@ -5,6 +5,8 @@
 #ifndef  TRIGL2MUONSA_MUONROAD_H
 #define  TRIGL2MUONSA_MUONROAD_H
 
+#include "Identifier/Identifier.h"
+
 namespace TrigL2MuonSA {
   
   // --------------------------------------------------------------------------------
@@ -74,6 +76,9 @@ namespace TrigL2MuonSA {
     double scales[N_STATION];
     int    MDT_sector_trigger;
     int    MDT_sector_overlap;
+
+    std::vector<Identifier> stationList;
+
   };
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------

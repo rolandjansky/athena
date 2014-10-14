@@ -11,12 +11,12 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "MdtCalibSvc/MdtCalibrationSvc.h"
-#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/TrackData.h"
 
+class MdtIdHelper;
 class StoreGateSvc;
 
 // --------------------------------------------------------------------------------
@@ -65,6 +65,8 @@ class MuFastPatternFinder: public AlgTool
 			      TrigL2MuonSA::MdtHits&        mdtHits,
 			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
 
+      void setGeometry(bool use_new_geometry);
+
    private:
 
       /** @brief Pointer to MsgStream.*/
@@ -82,11 +84,14 @@ class MuFastPatternFinder: public AlgTool
        */
       inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
-      // Cabling
-      ServiceHandle<IMDTcablingSvc>  m_mdtCablingSvc;
-
       // MDT calibration service
       MdtCalibrationSvc*     m_mdtCalibrationSvc;
+
+      // Id helper
+      const MdtIdHelper* m_mdtIdHelper;
+
+      BooleanProperty m_use_new_geometry;
+
 };
 
 // --------------------------------------------------------------------------------

@@ -12,11 +12,12 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
+#include "TrigSteeringEvent/PhiHelper.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-
+#include "GaudiKernel/IJobOptionsSvc.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_trackFitter("TrigL2MuonSA::MuFastTrackFitter"),
     m_trackExtrapolator("TrigL2MuonSA::MuFastTrackExtrapolator"),
     m_backExtrapolatorTool("TrigMuonBackExtrapolator"),
+    m_calStreamer("TrigL2MuonSA::MuCalStreamerTool"),
     m_recMuonRoIUtils(),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
@@ -45,9 +47,15 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
 
   declareProperty("BackExtrapolator", m_backExtrapolatorTool, "public tool for back extrapolating the muon tracks to the IV");
 
-  declareProperty("Timing", m_use_timer=false);
+  declareProperty("Timing", m_use_timer=true);
   declareProperty("UseLUTForMC", m_use_mcLUT=true);
-  
+
+  // options for the calibration stream
+  declareProperty("DoCalibrationStream", m_doCalStream=true);
+  declareProperty("AllowOksConfig", m_allowOksConfig=true);
+  declareProperty("MuonCalBufferName", m_calBufferName="/tmp/testOutput");
+  declareProperty("MuonCalBufferSize", m_calBufferSize=1024*1024);
+
   declareProperty("ESD_EXT_size",m_esd_ext_size=100);
   declareProperty("ESD_ROB_size",m_esd_rob_size=10);
   declareProperty("ESD_CSM_size",m_esd_csm_size=30);
@@ -58,6 +66,9 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
 
   declareProperty("R_WIDTH_RPC_FAILED",m_rWidth_RPC_Failed=30);
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
+
+  declareProperty("USE_NEW_GEOMETRY", m_use_new_geometry = true);
+  declareProperty("USE_RPC", m_use_rpc = false);
 
   declareProperty("Scale_Road_BarrelInner",m_scaleRoadBarrelInner=1);
   declareProperty("Scale_Road_BarrelMiddle",m_scaleRoadBarrelMiddle=1);
@@ -125,6 +136,9 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       m_timers.push_back(m_timerSvc->addItem("MuFastSteering_TrackExtrapolator"));
       m_timers[ITIMER_TRACK_EXTRAPOLATOR]->propName("TrackExtrapolator_Time");
     
+      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_CalibrationStreamer"));
+      m_timers[ITIMER_CALIBRATION_STREAMER]->propName("CalibrationStreamer_Time");
+    
       m_timers.push_back(m_timerSvc->addItem("MuFastSteering_TotalProcessing"));
       m_timers[ITIMER_TOTAL_PROCESSING]->propName("TotalProcessing_Time");
     }
@@ -166,6 +180,19 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::BAD_JOB_SETUP;
   } 
 
+  // retrieve the calibration streamer
+  if ( m_doCalStream ) { 
+    if (m_calStreamer.retrieve().isFailure()) {
+      msg() << MSG::ERROR << "Cannot retrieve Tool CalStreamer" << endreq;
+      return HLT::BAD_JOB_SETUP;
+    }
+    // set properties
+    m_calStreamer->setBufferName(m_calBufferName);
+    m_calStreamer->setBufferSize(m_calBufferSize);
+    msg() << MSG::INFO << "Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
+	  << ", buffer size: " << m_calBufferSize << endreq;
+    
+  }                                                                                                                                                     
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
   m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -174,6 +201,16 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   m_dataPreparator->setRoadWidthForFailure(m_rWidth_RPC_Failed, m_rWidth_TGC_Failed);
 
   StatusCode sc;
+
+  //set geometry
+  sc = m_dataPreparator->setGeometry(m_use_new_geometry);
+  if (!sc.isSuccess()) {
+    msg() << MSG::ERROR << "Failed to set geometry flag to DataPreparator" << endreq;
+    return HLT::ERROR;
+  }
+
+  m_patternFinder->setGeometry(m_use_new_geometry);
+  m_dataPreparator->setRpcGeometry(m_use_rpc);
 
   // set data or MC flag
   sc = m_dataPreparator->setMCFlag(m_use_mcLUT);
@@ -188,6 +225,51 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::ERROR;
   }
 
+
+  std::string applicationName="not_found";
+  if ( m_allowOksConfig ) {
+    sc = service("JobOptionsSvc", m_jobOptionsSvc);
+    if (sc.isFailure()) {
+      msg() << MSG::ERROR << "Could not find JobOptionsSvc" << endreq;
+      return HLT::ERROR;
+    } else {
+ 
+      IService* svc = dynamic_cast<IService*>(m_jobOptionsSvc);
+      if(svc != 0 ) {
+	msg() << MSG::INFO << " Algorithm = " << name() << " is connected to JobOptionsSvc Service = "
+	      << svc->name() << endreq;
+	// Find the Data Flow application name
+	//bool df_found = false;
+	const std::vector<const Property*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
+	if ( dataFlowProps ) {
+	  msg() << MSG::INFO << " Properties available for 'DataFlowConfig': number = " << dataFlowProps->size() << endreq;
+	  msg() << MSG::INFO << " --------------------------------------------------- " << endreq;
+	  for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
+		cur != dataFlowProps->end(); cur++) {
+	    //	    msg() << MSG::INFO << (*cur)->name() << " = " << (*cur)->toString() << endreq;
+	    // the application name is found
+	    if ( (*cur)->name() == "DF_ApplicationName" ) {
+	      //df_found = true;
+	      applicationName = (*cur)->toString();
+	    }
+	  }
+	} 
+
+      }
+    }
+  }
+
+  //
+  // Create the calibration stream
+  if (m_doCalStream) {
+    m_calStreamer->setBufferName(m_calBufferName);
+    m_calStreamer->setInstanceName(applicationName); 
+    StatusCode sc = m_calStreamer->openStream();
+    if ( sc != StatusCode::SUCCESS ) {  
+      msg() << MSG::ERROR << "Failed to open the calibration stream" << endreq;
+    }
+  }
+
   msg() << MSG::DEBUG << "initialize success" << endreq;
   
   return HLT::OK;
@@ -198,12 +280,24 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 
 HLT::ErrorCode MuFastSteering::hltBeginRun() {
 
-   msg() << MSG::DEBUG << "hltBeginRun"<<  endreq;
-   return HLT::OK;
+  msg() << MSG::DEBUG << "hltBeginRun"<<  endreq;
+
+
+  return HLT::OK;
 }
 
 HLT::ErrorCode MuFastSteering::hltEndRun() {
    msg() << MSG::DEBUG << "hltEndRun"<<  endreq;
+
+   //
+   // close the calibration stream 
+   if (m_doCalStream) { 
+     StatusCode sc = m_calStreamer->closeStream();
+     if ( sc != StatusCode::SUCCESS ) {
+       msg() << MSG::ERROR << "Failed to close the calibration stream" << endreq;
+     }
+   } 
+
    return HLT::OK;
 }
 
@@ -277,8 +371,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
     double roiEta = (*p_roi)->eta();
     double roiPhi = (*p_roi)->phi();
-    
-    msg() << MSG::INFO << "RoI eta/phi=" << roiEta << "/" << roiPhi << endreq;
+
+    msg() << MSG::DEBUG << "RoI eta/phi=" << roiEta << "/" << roiPhi << endreq;
     
     std::vector<TrigL2MuonSA::TrackPattern> m_trackPatterns;
     m_mdtHits_normal.clear();
@@ -292,7 +386,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
     
 
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
-      msg() << MSG::INFO << "Barrel" << endreq;
+      msg() << MSG::DEBUG << "Barrel" << endreq;
       
       m_muonRoad.setScales(m_scaleRoadBarrelInner,
                            m_scaleRoadBarrelMiddle,
@@ -355,7 +449,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
 
     } else { // Endcap
-      msg() << MSG::INFO << "Endcap" << endreq;
+      msg() << MSG::DEBUG << "Endcap" << endreq;
       
       // Data preparation
       m_tgcHits.clear();     
@@ -380,6 +474,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       sc = m_patternFinder->findPatterns(m_muonRoad,
                                          m_mdtHits_normal,
                                          m_trackPatterns);
+
       if (!sc.isSuccess()) {
          msg() << MSG::WARNING << "Pattern finder failed" << endreq;
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion,
@@ -393,6 +488,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       sc = m_stationFitter->findSuperPoints(*p_roi,
                                              m_tgcFitResult,
                                              m_trackPatterns);
+
       if (!sc.isSuccess()) {
          msg() << MSG::WARNING << "Super point fitter failed" << endreq;
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion,
@@ -406,6 +502,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       sc = m_trackFitter->findTracks(*p_roi,
                                      m_tgcFitResult,
                                      m_trackPatterns);
+
       if (!sc.isSuccess()) {
          msg() << MSG::WARNING << "Track fitter failed" << endreq;
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion,
@@ -422,7 +519,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
        const float DELTA_ETA_LIMIT = 1.0;
        float roiEta = (*p_roi)->eta();
        const float ZERO_LIMIT = 1.e-5;
-
        if (fabs(track.pt) > ZERO_LIMIT
            && ( fabs(track.etaMap) > ETA_LIMIT || fabs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
           m_trackPatterns[i].etaMap = roiEta;
@@ -454,7 +550,21 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
     // Update output trigger element
     updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion,
                    m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
-                   
+            
+
+    // call the calibration streamer 
+    if (m_doCalStream && m_trackPatterns.size()>0 ) { 
+      TrigL2MuonSA::TrackPattern tp = m_trackPatterns[0];
+      if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->resume();                                                    
+      //      m_calStreamer->setInstanceName(this->name());
+      sc = m_calStreamer->createRoiFragment(*p_roi,tp,m_mdtHits_normal,m_rpcHits); 
+      if (sc != StatusCode::SUCCESS ) {  
+        msg() << MSG::WARNING << "Calibration streamer: create Roi Fragment failed" << endreq;
+      }
+      if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->pause(); 
+    }
+
+       
     p_roids++;    
     if (p_roids==roids.end()) break; 
   }
@@ -499,6 +609,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   const int currentRoIId = roids->roiId();
 
   const double scalePhiWidthForFailure = 2;
+  const double scaleRoIforZeroPt = 2;   
     
   const EventInfo* pEventInfo(0);
   StatusCode sc = m_storeGate->retrieve(pEventInfo);
@@ -549,8 +660,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                    pattern.pt*pattern.charge,
                                    pattern.superPoints[inner].R,
                                    pattern.etaMap,
-                                   pattern.phi,
-                                   pattern.phiDir,
+                                   pattern.phiMS,
+                                   pattern.phiMSDir,
                                    pattern.superPoints[inner].Z,
                                    pattern.superPoints[inner].Alin,
                                    1.0);
@@ -561,8 +672,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     muon_feature->set_sp3(pattern.superPoints[outer].R, pattern.superPoints[outer].Z, pattern.superPoints[outer].Alin);
 
     // add pt variables
-    muon_feature->set_br(pattern.radius, pattern.sagitta);    
-    muon_feature->set_ec(pattern.alpha, pattern.beta);
+    muon_feature->set_br(pattern.barrelRadius, pattern.barrelSagitta);    
+    muon_feature->set_ec(pattern.endcapAlpha, pattern.endcapBeta);
     
     // store eta and phi in dq_flag1
     double flag1 = double(int(fabs(pattern.etaMap)*1e3))*1e3 + double(pattern.etaBin);
@@ -618,18 +729,18 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     msg() << MSG::DEBUG << "pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size() << endreq;
     msg() << MSG::DEBUG << "pattern#0: # of hits at middle =" << pattern.mdtSegments[middle].size() << endreq;
     msg() << MSG::DEBUG << "pattern#0: # of hits at outer  =" << pattern.mdtSegments[outer].size() << endreq;
-    msg() << MSG::INFO << "pt=" << pattern.pt << endreq;
+    msg() << MSG::DEBUG << "pt=" << pattern.pt << endreq;
 
     muon_details->setCharge(pattern.charge);
     muon_details->setPt(pattern.pt*pattern.charge);
 
     muon_details->setAddress(pattern.s_address);
 
-    muon_details->setAlpha(pattern.alpha);
-    muon_details->setBeta(pattern.beta);
+    muon_details->setAlpha(pattern.endcapAlpha);
+    muon_details->setBeta(pattern.endcapBeta);
 
-    muon_details->setSagitta(pattern.sagitta);
-    muon_details->setRadius(pattern.radius);
+    muon_details->setSagitta(pattern.barrelSagitta);
+    muon_details->setRadius(pattern.barrelRadius);
 
     muon_details->setSlope(pattern.superPoints[inner].Alin);
     muon_details->setIntercept(pattern.superPoints[inner].Z);
@@ -637,8 +748,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     muon_details->setEta(pattern.etaMap);
     muon_details->setPhiMap(pattern.phiMap);
-    muon_details->setPhi(pattern.phi);
-    muon_details->setPhiDir(pattern.phiDir);
+    muon_details->setPhi(pattern.phiMS);
+    muon_details->setPhiDir(pattern.phiMSDir);
 
     muon_details->setSP1(pattern.superPoints[inner].Alin,
                          pattern.superPoints[inner].Blin,
@@ -739,14 +850,23 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     // add pT
     muonSA->setPt(pattern.pt*pattern.charge);
+    muonSA->setPtEndcapAlpha(pattern.ptEndcapAlpha*pattern.charge);
+    muonSA->setPtEndcapBeta(pattern.ptEndcapBeta*pattern.charge);
+    muonSA->setPtEndcapRadius(pattern.ptEndcapRadius*pattern.charge);
+
+    muonSA->setEta(pattern.etaVtx);
+    muonSA->setPhi(pattern.phiVtx);
+    //    muonSA->setDeltaPt(pattern.deltaPt);
+    muonSA->setDeltaEta(pattern.deltaEtaVtx);
+    muonSA->setDeltaPhi(pattern.deltaPhiVtx);
 
     // add s_address
     muonSA->setSAddress(pattern.s_address);
 
     // add positions at MS
     muonSA->setEtaMS(pattern.etaMap);
-    muonSA->setPhiMS(pattern.phi);
-    muonSA->setDirPhiMS(pattern.phiDir);
+    muonSA->setPhiMS(pattern.phiMS);
+    muonSA->setDirPhiMS(pattern.phiMSDir);
     muonSA->setRMS(pattern.superPoints[inner].R);
     muonSA->setZMS(pattern.superPoints[inner].Z);
     muonSA->setDirZMS(pattern.superPoints[inner].Alin);
@@ -754,12 +874,12 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     // add pt variables
     // Endcap
-    muonSA->setEndcapAlpha(pattern.alpha);
-    muonSA->setEndcapBeta(pattern.beta);
-    muonSA->setEndcapRadius(pattern.endcapRadius);
+    muonSA->setEndcapAlpha(pattern.endcapAlpha);
+    muonSA->setEndcapBeta(pattern.endcapBeta);
+    muonSA->setEndcapRadius(pattern.endcapRadius3P);
     // Barrel
-    muonSA->setBarrelRadius(pattern.radius);
-    muonSA->setBarrelSagitta(pattern.sagitta);    
+    muonSA->setBarrelRadius(pattern.barrelRadius);
+    muonSA->setBarrelSagitta(pattern.barrelSagitta);    
     
     muonSA->setSlopeInner(pattern.superPoints[inner].Alin);
     muonSA->setInterceptInner(pattern.superPoints[inner].Z);
@@ -831,6 +951,24 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       }
     }
 
+    // CSC hits
+    for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
+      if ( cscHits[i_hit].MeasuresPhi==0 ){
+        if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
+          // store CSC hits into the MDT region for the moment.
+          muonSA->setMdtHit(0, (uint32_t)cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber,
+                            cscHits[i_hit].r, cscHits[i_hit].z, cscHits[i_hit].Residual,
+                            0., 0., 0.);
+			    msg() << MSG::DEBUG << "CSC Hits stored in xAOD: "
+			    << "OL=" << cscHits[i_hit].isOutlier << ","
+			    << "Ch=" << cscHits[i_hit].Chamber << ","
+			    << "r="  << cscHits[i_hit].r << ","
+			    << "z="  << cscHits[i_hit].z << ","
+			    << "Rs=" << cscHits[i_hit].Residual << endreq;
+        }
+      }
+    }
+
     // Road information
     for (int i_station=0; i_station<3; i_station++) {
       for (int i_sector=0; i_sector<2; i_sector++) {
@@ -877,12 +1015,12 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                                                  pattern.etaMap,
                                                                  pattern.etaMap,
                                                                  pattern.etaMap,
-                                                                 pattern.phi,
-                                                                 pattern.phi,
-                                                                 pattern.phi);
+                                                                 pattern.phiMS,
+                                                                 pattern.phiMS,
+                                                                 pattern.phiMS);
       msg() << MSG::DEBUG << "...TrigRoiDescriptor for MS "
-            << "pattern.etaMap/pattern.phi="
-            << pattern.etaMap << "/" << pattern.phi << endreq;
+            << "pattern.etaMap/pattern.phiMS="
+            << pattern.etaMap << "/" << pattern.phiMS << endreq;
 
       // patch for the ID RoI descriptor
       float phiHalfWidth = 0.1;
@@ -950,6 +1088,39 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
           msg() << MSG::DEBUG  << "Recorded an RoiDescriptor for Inner Detector:"
                 << " phi=" << IDroiDescriptor->phi()
                 << ",  eta=" << IDroiDescriptor->eta()
+                << endreq;
+      }
+    } else { // pt = 0.
+
+      TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
+                                                                 roids->roiId(),
+								 roids->eta(),
+								 roids->eta() - (roids->eta() - roids->etaMinus()) * scaleRoIforZeroPt,
+								 roids->eta() + (roids->etaPlus() - roids->eta()) * scaleRoIforZeroPt,
+								 roids->phi(),
+								 HLT::wrapPhi(roids->phi() - HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
+								 HLT::wrapPhi(roids->phi() + HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
+      msg() << MSG::DEBUG << "...TrigRoiDescriptor for ID (zero pT) " << endreq;
+
+      HLT::ErrorCode attached;
+
+      // attach roi descriptor for ID
+      attached = attachFeature(outputTE, IDroiDescriptor, "forID");
+
+      if ( attached!=HLT::OK) {
+
+        msg() << MSG::WARNING  << "Could not attach the roi descriptor for Inner Detector." << endreq;
+
+      } else {
+
+        if (msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG  << "Recorded an RoiDescriptor for Inner Detector in case with zero pT:"
+                << " phi=" << IDroiDescriptor->phi()
+                << ", phi min=" << IDroiDescriptor->phiMinus()
+                << ", phi max=" << IDroiDescriptor->phiPlus()
+                << ", eta=" << IDroiDescriptor->eta()
+                << ", eta min=" << IDroiDescriptor->etaMinus()
+                << ", eta max=" << IDroiDescriptor->etaPlus()
                 << endreq;
       }
     }
@@ -1251,17 +1422,17 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
     m_absolute_pt = fabs(m_track_pt);
 
-    if ( fabs(pattern.etaMap) > ZERO_LIMIT || fabs(pattern.phi) > ZERO_LIMIT ) {
+    if ( fabs(pattern.etaMap) > ZERO_LIMIT || fabs(pattern.phiMS) > ZERO_LIMIT ) {
       m_track_eta.push_back(pattern.etaMap);
-      m_track_phi.push_back(pattern.phi);
+      m_track_phi.push_back(pattern.phiMS);
     }
     if ( fabs(pattern.pt ) < ZERO_LIMIT){
       m_failed_eta.push_back(roi->eta());
       m_failed_phi.push_back(roi->phi());
     }
 
-    m_sagitta     = (fabs(pattern.sagitta) > ZERO_LIMIT)? pattern.sagitta: 9999.;
-    m_sag_inverse = (fabs(pattern.sagitta) > ZERO_LIMIT)? 1./pattern.sagitta: 9999.;
+    m_sagitta     = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? pattern.barrelSagitta: 9999.;
+    m_sag_inverse = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? 1./pattern.barrelSagitta: 9999.;
     m_address     = pattern.s_address;
   }
 

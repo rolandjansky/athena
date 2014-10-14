@@ -91,6 +91,9 @@ class TrigL2MuonSAConfig(MuFastSteering):
             self.Scale_Road_BarrelMiddle = 1
             self.Scale_Road_BarrelOuter  = 1
 
+        if ( args[0]== 'MuonCalib' ):
+            self.DoCalibrationStream = True
+
         # Default backextrapolator is for MC Misaligned Detector
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 

@@ -21,6 +21,7 @@
 #include "TrigL2MuonSA/MuFastTrackFitter.h"
 #include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
+#include "TrigL2MuonSA/MuCalStreamerTool.h"
 
 #include "TrigMuonEvent/MuonFeature.h"
 #include "TrigMuonEvent/MuonFeatureDetails.h"
@@ -30,6 +31,7 @@
 using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
+class IJobOptionsSvc;
 
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
@@ -42,6 +44,7 @@ class MuFastSteering : public HLT::FexAlgo
     ITIMER_STATION_FITTER,
     ITIMER_TRACK_FITTER,
     ITIMER_TRACK_EXTRAPOLATOR,
+    ITIMER_CALIBRATION_STREAMER,
     ITIMER_TOTAL_PROCESSING
   };
   
@@ -111,10 +114,13 @@ class MuFastSteering : public HLT::FexAlgo
   ToolHandle<MuFastStationFitter>      m_stationFitter;
   ToolHandle<MuFastTrackFitter>        m_trackFitter;
   ToolHandle<MuFastTrackExtrapolator>  m_trackExtrapolator;
-  
+
   /** Handle to MuonBackExtrapolator tool */
   ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool;
   
+  // calibration streamer tool
+  ToolHandle<MuCalStreamerTool>        m_calStreamer;
+
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
 
@@ -138,6 +144,9 @@ class MuFastSteering : public HLT::FexAlgo
   
   BooleanProperty  m_use_timer;
   BooleanProperty  m_use_mcLUT;
+  BooleanProperty  m_use_new_geometry;
+  BooleanProperty  m_use_rpc;
+  BooleanProperty  m_doCalStream;
   
   IntegerProperty m_esd_ext_size;
   IntegerProperty m_esd_rob_size;
@@ -173,6 +182,13 @@ class MuFastSteering : public HLT::FexAlgo
 
   ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, MuonFeature* muon_feature);
+
+  // calibration streamer properties
+  IJobOptionsSvc*       m_jobOptionsSvc;
+  BooleanProperty m_allowOksConfig; 
+  StringProperty  m_calBufferName;
+  int m_calBufferSize;
+
 };
 
 #endif // MUFASTSTEERING_H

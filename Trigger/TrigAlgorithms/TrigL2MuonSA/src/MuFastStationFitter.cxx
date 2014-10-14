@@ -10,8 +10,6 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "xAODTrigMuon/TrigMuonDefs.h"
-
 #include <math.h>
 #include <iomanip>
 
@@ -80,7 +78,6 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
 							      TrigL2MuonSA::RpcFitResult rpcFitResult,
 							      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
-  msg() << MSG::DEBUG << "in findSuperPoints in Barrel" << endreq;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -89,9 +86,9 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
   for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
 
     if (rpcFitResult.isSuccess) {
-      itTrack->phiDir = rpcFitResult.phiDir;
+      itTrack->phiMSDir = rpcFitResult.phiDir;
     } else {
-      itTrack->phiDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
+      itTrack->phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
       itTrack->isRpcFailure = true;
     }
     
@@ -117,9 +114,9 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
   for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
 
     if (tgcFitResult.isSuccess) {
-      itTrack->phiDir = tgcFitResult.phiDir;
+      itTrack->phiMSDir = tgcFitResult.phiDir;
     } else {
-      itTrack->phiDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
+      itTrack->phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
       itTrack->isTgcFailure = true;
     }
 
@@ -197,7 +194,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 	 pbFitResult.YILIN[count] = itMdtHit->Z - Yor;
 	 pbFitResult.IGLIN[count] = 2;
 	 pbFitResult.RILIN[count] = (fabs(itMdtHit->DriftSpace) > ZERO_LIMIT)?
-	   itMdtHit->DriftSpace: SetDriftSpace(itMdtHit->DriftTime, itMdtHit->R, itMdtHit->Z, phim, trackPattern.phiDir);
+	   itMdtHit->DriftSpace: SetDriftSpace(itMdtHit->DriftTime, itMdtHit->R, itMdtHit->Z, phim, trackPattern.phiMSDir);
 	 pbFitResult.WILIN[count] = 1/(sigma*sigma);
 	 pbFitResult.JLINE[count] = count;
 	 pbFitResult.IDMEA[count] = station*10 + itMdtHit->Layer;

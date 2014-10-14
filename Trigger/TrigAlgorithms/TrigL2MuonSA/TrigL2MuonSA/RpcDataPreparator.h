@@ -15,7 +15,6 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
 #include "RPCgeometry/IRPCgeometrySvc.h"
-#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RpcFitResult.h"
@@ -88,9 +87,6 @@ class RpcDataPreparator: public AlgTool
       // RPC cablings
       const IRPCcablingSvc*   m_iRpcCablingSvc;
       const CablingRPCBase*   m_rpcCabling;
-
-      // MDT cablings
-      ServiceHandle<IMDTcablingSvc>  m_iMdtCablingSvc;
 
       // ROB DataProvider
       ROBDataProviderSvc*  m_robDataProvider;
