@@ -263,7 +263,7 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
     name = "EM sliding-window"
     version_override_flag = caloClusterCorrectionFlags.CaloSwWhichCorrection
     correction_generation_flag = caloClusterCorrectionFlags.CaloSwGeneration
-    correction_generation_default = "00-02-12"
+    correction_generation_default = "00-02-13"
 
     ##########################################################################
     # This is the list of all known correction versions.
@@ -847,6 +847,35 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                                  [listBadChannel,       820]],
 
 
+        # No energy corrections, except for gap.
+        'v11_noecorr' : [[layers,               100],
+                         [rfac,       'v4',     150],   
+                         [etaoff_b1,  'v4_1',   201],   
+                         [etaoff_e1,  'v4_1',   202],   
+                         [etaoff_b2,  'v4_1',   203],   
+                         [etaoff_e2,  'v4_1',   204],   
+                         [phioff_b2,  'v4',     205],   
+                         [phioff_e2,  'v4',     206],   
+                         [update,               300],
+                         [gap,        'v6',     401],   
+                         [time,                 801],
+                         [listBadChannel,       820]],
+
+        # No energy corrections, except for gap.
+        # phi offset correction sense flipped for data.
+        'v11phiflip_noecorr' : [[layers,               100],
+                             [rfac,       'v4',     150],   
+                             [etaoff_b1,  'v4_1',   201],   
+                             [etaoff_e1,  'v4_1',   202],   
+                             [etaoff_b2,  'v4_1',   203],   
+                             [etaoff_e2,  'v4_1',   204],   
+                             [phioff_b2,  'v4data', 205],
+                             [phioff_e2,  'v4data', 206],
+                             [update,               300],   
+                             [gap,        'v6',     401],   
+                             [time,                 801],
+                             [listBadChannel,       820]],
+
         # Updated with new position corrections from Ewan Hill.
         # This version was derived from mc12, and so has the negative
         # part of the calorimeter in the wrong phi direction.
@@ -913,6 +942,42 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                          [deadOTXback,'v1'  ,   461],   
                          [phimod,     'v4'  ,   501],   
                          [etamod,     'v4',     502],   
+                         [time,                 801],
+                         [listBadChannel,       820]],
+
+
+        # Updated with new position corrections from Ewan Hill.
+        # No energy corrections except for gap.
+        # This version was derived from mc12, and so has the negative
+        # part of the calorimeter in the wrong phi direction.
+        'v12_noecorr' : [[layers,               100],
+                         [rfac,       'v5',     150],   
+                         [etaoff_b1,  'v5',     201],   
+                         [etaoff_e1,  'v5',     202],   
+                         [etaoff_b2,  'v5',     203],   
+                         [etaoff_e2,  'v5',     204],   
+                         [phioff_b2,  'v5',     205],   
+                         [phioff_e2,  'v5',     206],   
+                         [update,               300],
+                         [gap,        'v6',     401],   
+                         [time,                 801],
+                         [listBadChannel,       820]],
+
+
+        # Same as v12_noecorr, but with the sense of phi flipped
+        # in the negative calorimeter.  This could be used for mc14
+        # or for data.
+        'v12phiflip_noecorr' : [
+                         [layers,               100],
+                         [rfac,       'v5',     150],   
+                         [etaoff_b1,  'v5',     201],   
+                         [etaoff_e1,  'v5',     202],   
+                         [etaoff_b2,  'v5',     203],   
+                         [etaoff_e2,  'v5',     204],   
+                         [phioff_b2,  'v5data', 205],   
+                         [phioff_e2,  'v5data', 206],   
+                         [update,               300],
+                         [gap,        'v6',     401],   
                          [time,                 801],
                          [listBadChannel,       820]],
 

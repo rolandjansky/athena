@@ -79,9 +79,15 @@ poolfiles = {
     'caloswcorr_pool_v20' : 'LFN:cond09_mc.000041.gen.COND._0002.pool.root',
 
     # v12, with new position corrections.
+    # This one is broken: eta offset correction parameters are missing
+    # for all versions other than v12.
     'caloswcorr_pool_v21' : 'LFN:cond09_mc.000065.gen.COND._0003.pool.root',
 
-    #'caloswcorr_pool_xx' : 'CaloSwCorrections_13-03.pool.root',
+    # v12, with new position corrections.
+    # Fixed version.
+    'caloswcorr_pool_v22' : 'LFN:cond09_mc:cond09_mc.000079.gen.COND._0002.pool.root',
+
+    'caloswcorr_pool_xx' : 'CaloSwCorrections_13-03.pool.root',
     
     
     #######################################################################
@@ -98,7 +104,7 @@ poolfiles = {
 }
 
 # Aliases for the latest versions.
-poolfiles['caloswcorr_pool'] = poolfiles['caloswcorr_pool_v21']
+poolfiles['caloswcorr_pool'] = poolfiles['caloswcorr_pool_v22']
 #poolfiles['caloswcorr_pool'] = poolfiles['caloswcorr_pool_xx']
 
 poolfiles['calotopoemcorr_pool'] = poolfiles['calotopoemcorr_pool_v3']

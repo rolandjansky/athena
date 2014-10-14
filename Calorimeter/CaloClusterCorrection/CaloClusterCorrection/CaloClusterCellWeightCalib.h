@@ -157,10 +157,10 @@ protected:
   StatusCode f_dirAbsNW(xAOD::CaloCluster* pClus);
 
   /*! @brief Pointer to direction calculation implementation */
-  CALCULATOR f_calc;
+  CALCULATOR m_calc;
 
   /*! @brief Pointer to direction calculation for noise clusters */
-  CALCULATOR f_calc_noise;
+  CALCULATOR m_calc_noise;
 
 protected:
 
