@@ -1,0 +1,35 @@
+package ISF_FatrasDetDescrInterfaces
+
+author Noemi Calace <Noemi.Calace@cern.ch>
+
+#################################################################
+# public use statements
+#public
+use AtlasPolicy             AtlasPolicy-*
+use AtlasROOT               AtlasROOT-*              External
+use GaudiInterface          GaudiInterface-*         External
+#use AthenaBaseComps         AthenaBaseComps-*        Control
+use GeoPrimitives           GeoPrimitives-*          DetectorDescription
+#use Identifier              Identifier-*             DetectorDescription
+#use TrkDetElementBase       TrkDetElementBase-*      Tracking/TrkDetDescr
+use EventPrimitives         EventPrimitives-*        Event
+#use TrkSurfaces             TrkSurfaces-*            Tracking/TrkDetDescr
+#use TrkDetDescrInterfaces   TrkDetDescrInterfaces-*  Tracking/TrkDetDescr
+#use TrkDetDescrUtils        TrkDetDescrUtils-*       Tracking/TrkDetDescr
+#use TrkParameters           TrkParameters-*          Tracking/TrkEvent
+#use TrkEventPrimitives      TrkEventPrimitives-*     Tracking/TrkEvent
+#use TrkGeometry             TrkGeometry-*            Tracking/TrkDetDescr
+#use CLIDSvc                 CLIDSvc-*                Control
+#################################################################
+
+# private use statements
+#private
+#use TrkSurfaces            TrkSurfaces-*             Tracking/TrkDetDescr
+#use StoreGate              StoreGate-*               Control
+#use InDetIdentifier        InDetIdentifier-*         InnerDetector/InDetDetDescr
+#use InDetReadoutGeometry   InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+
+#public
+#library ISF_FatrasDetDescrInterfaces *.cxx 
+#apply_pattern installed_library
+
