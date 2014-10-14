@@ -58,24 +58,24 @@ StatusCode MSVertexRecoAlg::initialize(){
 
 StatusCode MSVertexRecoAlg::execute() {
 
-  std::vector<Tracklet> tracklets;
-  std::vector<MSVertex*> vertices;
+  std::vector<Tracklet> m_tracklets;
+  std::vector<MSVertex*> m_vertices;
 
-  StatusCode sc = m_vertexTrackletTool->findTracklets(tracklets);
+  StatusCode sc = m_vertexTrackletTool->findTracklets(m_tracklets);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Failed vertex tracklet " );
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_DEBUG ("Tracklet reconstruction tool called");
 
-  sc = m_vertexRecoTool->findMSvertices(tracklets, vertices);
+  sc = m_vertexRecoTool->findMSvertices(m_tracklets, m_vertices);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Failed vertex reco " );
     return StatusCode::FAILURE;
   } else
     ATH_MSG_DEBUG ("Vertex reconstruction tool called");
 
-  ATH_MSG_DEBUG ("Found " << tracklets.size() << " tracklets and " << vertices.size() << " vertices in the MS");
+  ATH_MSG_DEBUG ("Found " << m_tracklets.size() << " tracklets and " << m_vertices.size() << " vertices in the MS");
 
   return StatusCode::SUCCESS;
 }
