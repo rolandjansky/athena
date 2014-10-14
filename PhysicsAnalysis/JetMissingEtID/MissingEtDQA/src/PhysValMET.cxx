@@ -14,6 +14,7 @@
 
 // STL includes
 #include <vector>
+#include <cmath>
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
@@ -145,11 +146,35 @@ namespace MissingEtDQA {
 	ATH_CHECK(regHist(m_MET_PVSoftTrk_phi = new TH1D("MET_PVSoftTrk_phi", (m_metName + " MET_PVSoftTrk_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
 	ATH_CHECK(regHist(m_SET_PVSoftTrk = new TH1D("SET_PVSoftTrk", (m_metName + " SET_PVSoftTrk; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/2.), dir_met, all));
 
+	m_metName = "MET_RefFinal_TST";
+	dir_met = "MET/" + m_metName + "/";
+        ATH_CHECK(regHist(m_MET_RefFinal_TST = new TH1D("MET_RefFinal_TST", (m_metName + " MET_RefFinal_TST; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
+        ATH_CHECK(regHist(m_MET_RefFinal_TST_x = new TH1D("MET_RefFinal_TST_x", (m_metName + " MET_RefFinal_TST_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
+        ATH_CHECK(regHist(m_MET_RefFinal_TST_y = new TH1D("MET_RefFinal_TST_y", (m_metName + " MET_RefFinal_TST_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
+        //ATH_CHECK(regHist(m_MET_RefFinal_TST_phi = new TH1D("MET_RefFinal_TST_phi", (m_metName + " MET_RefFinal_TST_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
+        //ATH_CHECK(regHist(m_SET_RefFinal_TST = new TH1D("SET_RefFinal_TST", (m_metName + " SET_RefFinal_TST; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+
 	m_metName = "MET_Resolution";
 	dir_met = "MET/" + m_metName + "/";
 	ATH_CHECK(regHist(m_Resolution_TruthNonInt_RefFinal_METx = new TH1D("m_Resolution_TruthNonInt_RefFinal_METx", (m_metName + " Resolution_TruthNonInt_RefFinal_METx; Resolution; Entries").c_str(), 1.5*m_nbinpxy, -1.5*m_suptmixy, 1.5*m_suptmixy), dir_met, all));
 	ATH_CHECK(regHist(m_Resolution_TruthNonInt_RefFinal_METy = new TH1D("m_Resolution_TruthNonInt_RefFinal_METy", (m_metName + " Resolution_TruthNonInt_RefFinal_METy; Resolution; Entries").c_str(), 1.5*m_nbinpxy, -1.5*m_suptmixy, 1.5*m_suptmixy), dir_met, all));
-	
+
+	m_metName = "MET_Track";
+        dir_met = "MET/" + m_metName + "/";
+	ATH_CHECK(regHist(m_MET_Track = new TH1D("MET_Track", (m_metName + " MET_Track; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
+	ATH_CHECK(regHist(m_MET_Track_x = new TH1D("MET_Track_x", (m_metName + " MET_Track_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
+	ATH_CHECK(regHist(m_MET_Track_y = new TH1D("MET_Track_y", (m_metName + " MET_Track_y; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
+	ATH_CHECK(regHist(m_MET_Track_phi = new TH1D("MET_Track_phi", (m_metName + " MET_Track_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
+	ATH_CHECK(regHist(m_SET_Track = new TH1D("SET_Track", (m_metName + " SET_Track; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+
+	m_metName = "MET_TrackPV";
+        dir_met = "MET/" + m_metName + "/";
+        ATH_CHECK(regHist(m_MET_TrackPV = new TH1D("MET_TrackPV", (m_metName + " MET_TrackPV; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
+        ATH_CHECK(regHist(m_MET_TrackPV_x = new TH1D("MET_TrackPV_x", (m_metName + " MET_TrackPV_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
+        ATH_CHECK(regHist(m_MET_TrackPV_y = new TH1D("MET_TrackPV_y", (m_metName + " MET_TrackPV_y; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
+        ATH_CHECK(regHist(m_MET_TrackPV_phi = new TH1D("MET_TrackPV_phi", (m_metName + " MET_TrackPV_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
+        ATH_CHECK(regHist(m_SET_TrackPV = new TH1D("SET_TrackPV", (m_metName + " SET_TrackPV; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+
       }
 
       return StatusCode::SUCCESS;      
@@ -167,6 +192,8 @@ namespace MissingEtDQA {
     const xAOD::MissingETContainer* met_Truth = 0;
     ATH_CHECK( evtStore()->retrieve(met_Truth,"MET_Truth") );
 
+    const xAOD::MissingETContainer* met_Track = 0;
+    ATH_CHECK( evtStore()->retrieve(met_Track,"MET_Track") );
        
     // if (!met_RefFinal) {
     //   ATH_MSG_ERROR ("Couldn't retrieve MET Final");
@@ -202,7 +229,7 @@ namespace MissingEtDQA {
     m_MET_Muons_x->Fill((*met_RefFinal)["Muons"]->mpx()/1000., 1.);
     m_MET_SoftClus_x->Fill((*met_RefFinal)["SoftClus"]->mpx()/1000., 1.);
     m_MET_PVSoftTrk_x->Fill((*met_RefFinal)["PVSoftTrk"]->mpx()/1000., 1.);
-         
+    
 
     ATH_MSG_INFO( "  MET y-component:" );
 
@@ -227,6 +254,7 @@ namespace MissingEtDQA {
     m_MET_SoftClus_phi->Fill((*met_RefFinal)["SoftClus"]->phi(), 1.);
     m_MET_PVSoftTrk_phi->Fill((*met_RefFinal)["PVSoftTrk"]->phi(), 1.);
 
+
     ATH_MSG_INFO( "  SumET magnitude:" );
 
     m_SET_RefFinal->Fill((*met_RefFinal)["Final"]->sumet()/1000., 1.);
@@ -239,12 +267,41 @@ namespace MissingEtDQA {
     m_SET_PVSoftTrk->Fill((*met_RefFinal)["PVSoftTrk"]->sumet()/1000., 1.);
     
 
+    ATH_MSG_INFO( "  MET_RefFinal_TST :" );
+
+    double MET_TST_x, MET_TST_y;
+    MET_TST_x = (*met_RefFinal)["RefEle"]->mpx() + (*met_RefFinal)["RefGamma"]->mpx()
+               + (*met_RefFinal)["RefTau"]->mpx() + (*met_RefFinal)["RefJet"]->mpx()
+	       + (*met_RefFinal)["Muons"]->mpx() + (*met_RefFinal)["PVSoftTrk"]->mpx();
+    MET_TST_y = (*met_RefFinal)["RefEle"]->mpy() + (*met_RefFinal)["RefGamma"]->mpy()
+               + (*met_RefFinal)["RefTau"]->mpy() + (*met_RefFinal)["RefJet"]->mpy()
+               + (*met_RefFinal)["Muons"]->mpy() + (*met_RefFinal)["PVSoftTrk"]->mpy();
+
+    m_MET_RefFinal_TST_x->Fill(MET_TST_x/1000.);
+    m_MET_RefFinal_TST_y->Fill(MET_TST_y/1000.);
+    m_MET_RefFinal_TST->Fill(std::sqrt(MET_TST_x*MET_TST_x + MET_TST_y*MET_TST_y)/1000.);
+
+    
     ATH_MSG_INFO( "  Resolution:" );
 
     m_Resolution_TruthNonInt_RefFinal_METx->Fill(((*met_RefFinal)["Final"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., 1.);
     m_Resolution_TruthNonInt_RefFinal_METy->Fill(((*met_RefFinal)["Final"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., 1.);
 
 
+    ATH_MSG_INFO( "  MET magnitude:" );
+
+    m_MET_Track->Fill((*met_Track)["Track"]->met()/1000., 1.);
+    m_MET_Track_x->Fill((*met_Track)["Track"]->mpx()/1000., 1.);
+    m_MET_Track_y->Fill((*met_Track)["Track"]->mpy()/1000., 1.);
+    m_MET_Track_phi->Fill((*met_Track)["Track"]->phi(), 1.);
+    m_SET_Track->Fill((*met_Track)["Track"]->sumet()/1000., 1.);
+    
+    //m_MET_TrackPV->Fill((*met_Track)["TrackPV"]->met()/1000., 1.);
+    //m_MET_TrackPV_x->Fill((*met_Track)["TrackPV"]->mpx()/1000., 1.);
+    //m_MET_TrackPV_y->Fill((*met_Track)["TrackPV"]->mpy()/1000., 1.);
+    //m_MET_TrackPV_phi->Fill((*met_Track)["TrackPV"]->phi(), 1.);
+    //m_SET_TrackPV->Fill((*met_Track)["TrackPV"]->sumet()/1000., 1.);
+    
     return StatusCode::SUCCESS;
     //return StatusCode::FAILURE;
   }
