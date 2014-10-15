@@ -414,11 +414,11 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
                 if ( strip < 768 ){ //side 0 0->767
                   const unsigned int waferId0=hashId0;
                   WaferIsGoodInfo_t & thisWaferIsGoodData0 = m_isGoodAllWafersInfo[waferId0];
-                  if ( phiSwap0Present ? thisWaferIsGoodData0[767-strip] = false : thisWaferIsGoodData0[strip] = false );
+                  if ( phiSwap0Present ? thisWaferIsGoodData0[767-strip] = false : thisWaferIsGoodData0[strip] = false ) {;}
                 } else {               // side 1 768->1535 => 0->767
                   const unsigned int waferId1=hashId1;
                   WaferIsGoodInfo_t & thisWaferIsGoodData1 = m_isGoodAllWafersInfo[waferId1];
-                  if ( phiSwap1Present ? thisWaferIsGoodData1[1535-strip] = false : thisWaferIsGoodData1[strip-768] = false );
+                  if ( phiSwap1Present ? thisWaferIsGoodData1[1535-strip] = false : thisWaferIsGoodData1[strip-768] = false ) {;}
                 }
               }
             }

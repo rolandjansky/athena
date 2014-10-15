@@ -35,7 +35,7 @@ use GeoModelUtilities             GeoModelUtilities-*                   Detector
 use GeoModelInterfaces            GeoModelInterfaces-*                  DetectorDescription/GeoModel
 use RDBAccessSvc                  RDBAccessSvc-*                        Database/AthenaPOOL
 use SiPropertiesSvc               SiPropertiesSvc-*                     InnerDetector/InDetConditions
-use TrkEventPrimitives            TrkEventPrimitives-*                  Tracking/TrkEvent
+#use TrkEventPrimitives            TrkEventPrimitives-*                  Tracking/TrkEvent
 
 end_private
 
