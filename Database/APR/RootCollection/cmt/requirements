@@ -20,7 +20,7 @@ macro_append RootCollection_shlibflags " -lTree -lTreePlayer -lHist -lMatrix -lG
 library RootCollection "*.cpp  $(bin)dict/AttributeListLayoutDict.cpp"
 apply_pattern installed_library
 
-apply_pattern generate_rootmap library=RootCollection
+apply_pattern generate_componentslist library=RootCollection
 apply_pattern optdebug_library name=RootCollection
 
 
@@ -36,7 +36,7 @@ use FileCatalog         FileCatalog-* 	        Database/APR
 # for patterns depending on HAVE_GAUDI_PLUGINSVC tag
 # - use_if, use_unless below - to function properly
 # they must be used after GAUDI uses
-use_if pkg=Gaudi tag=HAVE_GAUDI_PLUGINSVC ver="*" 
+#use_if pkg=Gaudi tag=HAVE_GAUDI_PLUGINSVC ver="*" 
  
 use_unless pkg=AtlasReflex tag=HAVE_GAUDI_PLUGINSVC ver=AtlasReflex-* root=External
 use_unless pkg=PersistencySvc tag=HAVE_GAUDI_PLUGINSVC ver=PersistencySvc-* root=Database/APR

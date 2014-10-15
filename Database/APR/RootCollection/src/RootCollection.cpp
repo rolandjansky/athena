@@ -115,7 +115,7 @@ namespace pool {
         TTree *tree( NULL );
         if( m_file ) {
            tree = dynamic_cast<TTree*>(m_file->Get(c_treeName));
-           if( !tree ) {
+           if( !tree && m_file->Get(c_attributeListLayoutName) ) {
               tree = dynamic_cast<TTree*>(m_file->Get(c_oldTreeName));
               if( tree )
                  m_poolOut << coral::Info << "Found old Collection TTree name: "

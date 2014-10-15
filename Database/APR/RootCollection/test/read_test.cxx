@@ -395,6 +395,11 @@ TestDriver::read()
      = collection->metadata().begin();
   while( mdIter !=  collection->metadata().end() ) {
      cout << "  Metadata Key=" << mdIter.key();
+     if (mdIter.key() == "POOLCollectionID") {
+       // The contents of this line will vary from run to run.
+       // Add this to prevent post.sh from comparing it.
+       cout << " [0x00000000]";
+     }
      cout << ",  Value=" << mdIter.value() << endl;
      ++mdIter;
   }
