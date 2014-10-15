@@ -12,14 +12,33 @@ namespace xAOD {
     namespace SecVtxHelper{
     // Helper functions for managing dynamic decorated variables
 
-      double VertexMass(const xAOD::Vertex* );
+      float VertexMass(const xAOD::Vertex* );
 
-      void   setVertexMass(xAOD::Vertex * , double value); 
+      void  setVertexMass(xAOD::Vertex * , float value); 
 
-      double EnergyFraction(const xAOD::Vertex * );
+      float EnergyFraction(const xAOD::Vertex * );
 
-      void   setEnergyFraction(xAOD::Vertex * , double value);
+      void  setEnergyFraction(xAOD::Vertex * , float value);
 
+      int   VtxNtrk(const xAOD::Vertex* );
+
+      void  setVtxNtrk(xAOD::Vertex * , int value);
+
+      float Vtxpt(const xAOD::Vertex* );
+
+      void  setVtxpt(xAOD::Vertex * , float value);
+
+      float Vtxeta(const xAOD::Vertex* );
+
+      void  setVtxeta(xAOD::Vertex * , float value);
+
+      float Vtxphi(const xAOD::Vertex* );
+
+      void  setVtxphi(xAOD::Vertex * , float value);
+
+      float VtxnormDist(const xAOD::Vertex* );
+
+      void  setVtxnormDist(xAOD::Vertex * , float value);
 
     }
 
