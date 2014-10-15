@@ -109,7 +109,7 @@ typedef struct _BLM
 {
 	uint64_t iTimeIOVstart;
 	uint64_t iTimeIOVstop;
-	Float_t fBLM[6];
+	Double_t fBLM[6];
 
 	void clear();
 } BLM, *PBLM;
@@ -118,8 +118,8 @@ typedef struct _HVCHANNEL
 {
 	uint64_t iTimeIOVstart;
 	uint64_t iTimeIOVstop;
-	Float_t fActualVMeas[216];
-	Float_t fActualIMeas[216];
+	Double_t fActualVMeas[216];
+	Double_t fActualIMeas[216];
 
 	void clear();
 } HVCHANNEL, *PHVCHANNEL;
@@ -128,11 +128,11 @@ typedef struct _LOCALMONITORING
 {
 	uint64_t iTimeIOVstart;
 	uint64_t iTimeIOVstop;
-	Float_t fTempSensor1[RPOTSCNT];
-	Float_t fTempSensor2[RPOTSCNT];
-	Float_t fTempSensor3[RPOTSCNT];
-	Float_t fTempSensor4[RPOTSCNT];
-	Float_t fTempSensor5[RPOTSCNT];
+	Double_t fTempSensor1[RPOTSCNT];
+	Double_t fTempSensor2[RPOTSCNT];
+	Double_t fTempSensor3[RPOTSCNT];
+	Double_t fTempSensor4[RPOTSCNT];
+	Double_t fTempSensor5[RPOTSCNT];
 
 	void clear();
 } LOCALMONITORING, *PLOCALMONITORING;
@@ -141,8 +141,8 @@ typedef struct _MOVEMENT
 {
 	uint64_t iTimeIOVstart;
 	uint64_t iTimeIOVstop;
-	Float_t fPosLVDT[RPOTSCNT];
-	Float_t fPosMotor[RPOTSCNT];
+	Double_t fPosLVDT[RPOTSCNT];
+	Double_t fPosMotor[RPOTSCNT];
 
 	void clear();
 } MOVEMENT, *PMOVEMENT;
@@ -151,9 +151,9 @@ typedef struct _RADMON
 {
 	uint64_t iTimeIOVstart;
 	uint64_t iTimeIOVstop;
-	Float_t fDose[4];
-	Float_t fFluence[4];
-	Float_t fTemp[4];
+	Double_t fDose[4];
+	Double_t fFluence[4];
+	Double_t fTemp[4];
 
 	void clear();
 } RADMON, *PRADMON;
@@ -171,30 +171,30 @@ typedef struct _BPMALFA
 {
 	uint64_t iTimeIOVstart;
 	uint64_t iTimeIOVstop;
-	Float_t bpmr_r_x_pos; 	// x position on BPMR.6R1.B1 (231.535 m from IP)
-	Float_t bpmr_r_y_pos; 	// y position on BPMR.6R1.B1 (231.535 m from IP)
-	Float_t bpmr_r_x_err; 	// Error on x position on BPMR.6R1.B1 (231.535 m from IP)
-	Float_t bpmr_r_y_err; 	// Error on y position on BPMR.6R1.B1 (231.535 m from IP)
-	Float_t bpmr_l_x_pos; 	// x position on BPMR.6L1.B2 (225.245 m from IP)
-	Float_t bpmr_l_y_pos; 	// y position on BPMR.6L1.B2 (225.245 m from IP)
-	Float_t bpmr_l_x_err; 	// Error on x position on BPMR.6L1.B2 (225.245 m from IP)
-	Float_t bpmr_l_y_err; 	// Error on y position on BPMR.6L1.B2 (225.245 m from IP)
-	Float_t bpmsa_r_x_pos; 	// x position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
-	Float_t bpmsa_r_y_pos; 	// y position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
-	Float_t bpmsa_r_x_err; 	// Error on x position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
-	Float_t bpmsa_r_y_err; 	// Error on y position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
-	Float_t bpmsa_l_x_pos; 	// x position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
-	Float_t bpmsa_l_y_pos; 	// y position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
-	Float_t bpmsa_l_x_err; 	// Error on x position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
-	Float_t bpmsa_l_y_err; 	// Error on y position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
-	Float_t bpmwb_r_x_pos; 	// x position on BPMWB.4R1.B1 (151.0945 m from IP)
-	Float_t bpmwb_r_y_pos; 	// y position on BPMWB.4R1.B1 (151.0945 m from IP)
-	Float_t bpmwb_r_x_err; 	// Error pn x position on BPMWB.4R1.B1 (151.0945 m from IP)
-	Float_t bpmwb_r_y_err; 	// Error on y position on BPMWB.4R1.B1 (151.0945 m from IP)
-	Float_t bpmya_l_x_pos; 	// x position on BPMYA.4L1.B2 (172.227 m from the IP)
-	Float_t bpmya_l_y_pos; 	// y position on BPMYA.4L1.B2 (172.227 m from the IP)
-	Float_t bpmya_l_x_err; 	// Error on x position on BPMYA.4L1.B2 (172.227 m from the IP)
-	Float_t bpmya_l_y_err; 	// Error on y position on BPMYA.4L1.B2 (172.227 m from the IP)
+	Double_t bpmr_r_x_pos; 	// x position on BPMR.6R1.B1 (231.535 m from IP)
+	Double_t bpmr_r_y_pos; 	// y position on BPMR.6R1.B1 (231.535 m from IP)
+	Double_t bpmr_r_x_err; 	// Error on x position on BPMR.6R1.B1 (231.535 m from IP)
+	Double_t bpmr_r_y_err; 	// Error on y position on BPMR.6R1.B1 (231.535 m from IP)
+	Double_t bpmr_l_x_pos; 	// x position on BPMR.6L1.B2 (225.245 m from IP)
+	Double_t bpmr_l_y_pos; 	// y position on BPMR.6L1.B2 (225.245 m from IP)
+	Double_t bpmr_l_x_err; 	// Error on x position on BPMR.6L1.B2 (225.245 m from IP)
+	Double_t bpmr_l_y_err; 	// Error on y position on BPMR.6L1.B2 (225.245 m from IP)
+	Double_t bpmsa_r_x_pos; 	// x position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
+	Double_t bpmsa_r_y_pos; 	// y position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
+	Double_t bpmsa_r_x_err; 	// Error on x position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
+	Double_t bpmsa_r_y_err; 	// Error on y position on BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
+	Double_t bpmsa_l_x_pos; 	// x position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
+	Double_t bpmsa_l_y_pos; 	// y position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
+	Double_t bpmsa_l_x_err; 	// Error on x position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
+	Double_t bpmsa_l_y_err; 	// Error on y position on BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
+	Double_t bpmwb_r_x_pos; 	// x position on BPMWB.4R1.B1 (151.0945 m from IP)
+	Double_t bpmwb_r_y_pos; 	// y position on BPMWB.4R1.B1 (151.0945 m from IP)
+	Double_t bpmwb_r_x_err; 	// Error pn x position on BPMWB.4R1.B1 (151.0945 m from IP)
+	Double_t bpmwb_r_y_err; 	// Error on y position on BPMWB.4R1.B1 (151.0945 m from IP)
+	Double_t bpmya_l_x_pos; 	// x position on BPMYA.4L1.B2 (172.227 m from the IP)
+	Double_t bpmya_l_y_pos; 	// y position on BPMYA.4L1.B2 (172.227 m from the IP)
+	Double_t bpmya_l_x_err; 	// Error on x position on BPMYA.4L1.B2 (172.227 m from the IP)
+	Double_t bpmya_l_y_err; 	// Error on y position on BPMYA.4L1.B2 (172.227 m from the IP)
 
 	void clear();
 } BPMALFA, *PBPMALFA;
@@ -209,21 +209,21 @@ typedef struct _ALGOTREEMD
 	Int_t   iNumU[MAXNUMTRACKS][RPOTSCNT];
 	Int_t   iNumV[MAXNUMTRACKS][RPOTSCNT];
 	Int_t   iFibSelMD[MAXNUMTRACKS][RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT];
-	Float_t fXDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXPot[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYPot[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fZLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXStat[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYStat[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXBeam[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYBeam[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fOverU[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fOverV[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fInterceptDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fSlopeDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXPot[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYPot[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fZLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXStat[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYStat[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXBeam[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYBeam[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fOverU[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fOverV[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fInterceptDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fSlopeDet[MAXNUMTRACKS][RPOTSCNT];
 	Bool_t  bRecFlag[MAXNUMTRACKS][RPOTSCNT];
 
 	void clear();
@@ -237,20 +237,20 @@ typedef struct _ALGOTREEOD
 	Int_t   iDetector[MAXNUMTRACKS][RPOTSCNT];
 	Int_t   iNumY[MAXNUMTRACKS][RPOTSCNT];
 	Int_t   iFibSelOD[MAXNUMTRACKS][RPOTSCNT][ODPLATESCNT];
-	Float_t fOverY[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXPot[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYPot[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fZLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXStat[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYStat[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fXBeam[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fYBeam[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fInterceptDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t fSlopeDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fOverY[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXPot[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYPot[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fZLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXStat[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYStat[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fXBeam[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fYBeam[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fInterceptDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t fSlopeDet[MAXNUMTRACKS][RPOTSCNT];
 	Bool_t  bRecFlag[MAXNUMTRACKS][RPOTSCNT];
 
 	void clear();
@@ -314,7 +314,7 @@ private:
 	//RunHeader tree ----------------------------------------------------------------
 	Bool_t  m_bTriggerSet[RPOTSCNT][6];
 	Int_t   m_iLatency[RPOTSCNT][3];
-	Float_t m_fTransformDetRP[RPOTSCNT][4][4], m_fProtonMomentum;
+	Double_t m_fTransformDetRP[RPOTSCNT][4][4], m_fProtonMomentum;
 
 	//EventHeader tree --------------------------------------------------------------
 	UInt_t  m_iLumBlock;
@@ -333,26 +333,29 @@ private:
 	Int_t   m_iDetector[MAXNUMTRACKS][RPOTSCNT];
 	Int_t   m_iNumU[MAXNUMTRACKS][RPOTSCNT], m_iNumV[MAXNUMTRACKS][RPOTSCNT], m_iNumY[MAXNUMTRACKS][RPOTSCNT];
 	Int_t   m_iFibSelMD[MAXNUMTRACKS][RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT], m_iFibSelOD[MAXNUMTRACKS][RPOTSCNT][ODPLATESCNT];
-	Float_t m_fXDet[MAXNUMTRACKS][RPOTSCNT], m_fYDet[MAXNUMTRACKS][RPOTSCNT];
-	Float_t m_fXPot[MAXNUMTRACKS][RPOTSCNT], m_fYPot[MAXNUMTRACKS][RPOTSCNT];
-	Float_t m_fXLHC[MAXNUMTRACKS][RPOTSCNT], m_fYLHC[MAXNUMTRACKS][RPOTSCNT], m_fZLHC[MAXNUMTRACKS][RPOTSCNT];
-	Float_t m_fXStat[MAXNUMTRACKS][RPOTSCNT], m_fYStat[MAXNUMTRACKS][RPOTSCNT];
-	Float_t m_fXBeam[MAXNUMTRACKS][RPOTSCNT], m_fYBeam[MAXNUMTRACKS][RPOTSCNT];
-	Float_t m_fOverU[MAXNUMTRACKS][RPOTSCNT], m_fOverV[MAXNUMTRACKS][RPOTSCNT], m_fOverY[MAXNUMTRACKS][RPOTSCNT];
-	Float_t m_fInterceptDet[MAXNUMTRACKS][RPOTSCNT], m_fSlopeDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fXDet[MAXNUMTRACKS][RPOTSCNT], m_fYDet[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fXPot[MAXNUMTRACKS][RPOTSCNT], m_fYPot[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fXLHC[MAXNUMTRACKS][RPOTSCNT], m_fYLHC[MAXNUMTRACKS][RPOTSCNT], m_fZLHC[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fXStat[MAXNUMTRACKS][RPOTSCNT], m_fYStat[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fXBeam[MAXNUMTRACKS][RPOTSCNT], m_fYBeam[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fOverU[MAXNUMTRACKS][RPOTSCNT], m_fOverV[MAXNUMTRACKS][RPOTSCNT], m_fOverY[MAXNUMTRACKS][RPOTSCNT];
+	Double_t m_fInterceptDet[MAXNUMTRACKS][RPOTSCNT], m_fSlopeDet[MAXNUMTRACKS][RPOTSCNT];
 	Bool_t  m_bRecFlag[MAXNUMTRACKS][RPOTSCNT];
 
 	//Vertex_and_IP_kinematics tree -------------------------------------------------
-	Float_t m_fVtx_g[4], m_fVtx_A[4], m_fVtx_C[4], m_fp_beam1_i[4], m_fp_beam1_f[4], m_fp_beam2_i[4], m_fp_beam2_f[4], m_fp_A[4], m_fp_C[4];
-	Float_t m_ft_13, m_ft_24;
+	Double_t m_fVtx_g[4], m_fVtx_A[4], m_fVtx_C[4], m_fp_beam1_i[4], m_fp_beam1_f[4], m_fp_beam2_i[4], m_fp_beam2_f[4];
+	Double_t m_fp_A[4], m_fp_C[4];
+	Double_t m_ft_13, m_ft_24;
+	
+	Double_t m_fvtx_beam1_f[4], m_fvtx_beam2_f[4];
 
 	//GlobalTracks tree -------------------------------------------------------------
 //	Int_t   m_iNumGlobTrack, m_iTrack[2], m_iRPot[2];
-//	Float_t m_fInterceptLHC[MAXNUMGLOBTRACKS], m_fSlopeLHC[MAXNUMGLOBTRACKS];
+//	Double_t m_fInterceptLHC[MAXNUMGLOBTRACKS], m_fSlopeLHC[MAXNUMGLOBTRACKS];
 	Int_t   m_iNumGloTrack;
 	Int_t m_iArmGlo[MAXNUMGLOBTRACKS];
-	Float_t m_fxPosGlo[MAXNUMGLOBTRACKS], m_fyPosGlo[MAXNUMGLOBTRACKS];
-	Float_t m_fxSlopeGlo[MAXNUMGLOBTRACKS], m_fySlopeGlo[MAXNUMGLOBTRACKS];
+	Double_t m_fxPosGlo[MAXNUMGLOBTRACKS], m_fyPosGlo[MAXNUMGLOBTRACKS];
+	Double_t m_fxSlopeGlo[MAXNUMGLOBTRACKS], m_fySlopeGlo[MAXNUMGLOBTRACKS];
 
 	//COOL data trees ---------------------------------------------------------------
 	TTree *m_TreeMovement, *m_TreeLocalMon, *m_TreeBLM, *m_TreeHVChannel, *m_TreeRadmon, *m_TreeTriggerRate, *m_TreeBPMALFA;
