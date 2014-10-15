@@ -21,7 +21,7 @@ public:
    /// Standard constructor
    Guid() : m_data1(0U), m_data2(0U), m_data3(0U), m_data4() {}
    /// Standard constructor (With possible initialization)
-   explicit Guid(bool assign) { if (assign) create(*this); }
+   explicit Guid(bool assign) : Guid() { if (assign) create(*this); }
    /// Constructor for Guid from char*
    explicit Guid(const char* s) { fromString(s); }
    /// Constructor for Guid from string
