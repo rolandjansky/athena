@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphys_v1.h 600800 2014-06-08 12:57:36Z jwalder $
+// $Id: TrigBphys_v1.h 621909 2014-10-15 13:48:56Z jwalder $
 #ifndef XAODTRIGBPHYS_VERSIONS_TRIGBPHYS_V1_H
 #define XAODTRIGBPHYS_VERSIONS_TRIGBPHYS_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
     /// @author James Walder <jwalder@cern.ch>
     /// Based on the previous TrigL2Bphys and TrigEFBphys classes
     ///
-    /// $Revision: 600800 $
-    /// $Date: 2014-06-08 14:57:36 +0200 (Sun, 08 Jun 2014) $
+    /// $Revision: 621909 $
+    /// $Date: 2014-10-15 15:48:56 +0200 (Wed, 15 Oct 2014) $
     ///
     class TrigBphys_v1 : public SG::AuxElement {
 
@@ -73,6 +73,9 @@ namespace xAOD {
         /// Default constructor
         TrigBphys_v1();
 
+        //**clone method, essentially a replacement for a copy constructor*/
+        void clone(const TrigBphys_v1 &rhs);
+        
         //** initialise with defaults. Attempt to call this after creating a particle */
         void initialise();
 
@@ -158,6 +161,11 @@ namespace xAOD {
         void addTrackParticleLink(const ElementLink<xAOD::TrackParticleContainer>& track);
         /** set method: link to secondary decay particle  **/
         void setSecondaryDecayLink(const ElementLink<xAOD::TrigBphysContainer_v1> & link);
+
+        
+    private:
+        //** Copy constructor */
+        TrigBphys_v1(const TrigBphys_v1 & rhs);
 
     }; // TrigBphys
 

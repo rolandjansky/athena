@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphys_v1.cxx 600800 2014-06-08 12:57:36Z jwalder $
+// $Id: TrigBphys_v1.cxx 621909 2014-10-15 13:48:56Z jwalder $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -17,13 +17,6 @@ namespace xAOD {
     : SG::AuxElement() {
     } // TrigBphys_v1
     
-    // copy constructor
-    //    TrigBphys_v1::TrigBphys_v1(const TrigBphys_v1& te):
-    //    SG::AuxElement(te)
-    //    {
-    //        // this is no longer trivial.
-    //        // FIXME - JW define a sensible implementation
-    //    } // TrigBphys_v1
 
     //** initialise with defaults. Attempt to call this after creating a particle */
     void TrigBphys_v1::initialise() {
@@ -34,6 +27,7 @@ namespace xAOD {
         setLevel       (UNKOWNLEVEL);
         setParticleType(UNKNOWNPTYPE);
         // set defaults
+        setFitmass(-99.);
         setFitchi2(-99.);
         setFitndof(-99);
         setFitx   (-99);
@@ -45,6 +39,28 @@ namespace xAOD {
 
     
     } // initialise
+  
+    
+    
+    void TrigBphys_v1::clone(const TrigBphys_v1 & rhs) {
+        if (this == &rhs) {
+            // if attempting to clone oneself, dont
+            return;
+        }
+        initialise(rhs.roiId(), rhs.eta(), rhs.phi(), rhs.particleType(),
+                   rhs.mass(), rhs.level());
+        setFitmass(rhs.fitmass());
+        setFitchi2(rhs.fitchi2());
+        setFitndof(rhs.fitndof());
+        setFitx   (rhs.fitx());
+        setFity   (rhs.fity());
+        setFitz   (rhs.fitz());
+
+        setSecondaryDecayLink(rhs.secondaryDecayLink());
+        setTrackParticleLinks(rhs.trackParticleLinks());
+        
+    }
+
 
     //** initialise with default parameters */
     void TrigBphys_v1::initialise(uint32_t roi, float eta, float phi, pType particleType,
@@ -57,6 +73,7 @@ namespace xAOD {
         setLevel(level);
         setParticleType(particleType);
         // set defaults
+        setFitmass(-99);
         setFitchi2(-99.);
         setFitndof(-99);
         setFitx(-99);
