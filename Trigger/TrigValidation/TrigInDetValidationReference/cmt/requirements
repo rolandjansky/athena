@@ -8,7 +8,7 @@ apply_pattern validate_xml
 public
 
 use AtlasPolicy AtlasPolicy-*
-                                   
+
 use AtlasTriggerRunTime            AtlasTriggerRunTime-*
 
-apply_pattern declare_runtime extras="../share/data-*.root" 
+apply_pattern declare_runtime extras="../share/data-*.root ../share/expert/expert*.root"
