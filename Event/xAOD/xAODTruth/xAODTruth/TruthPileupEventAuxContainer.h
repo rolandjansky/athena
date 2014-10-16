@@ -14,4 +14,8 @@ namespace xAOD {
    typedef TruthPileupEventAuxContainer_v1 TruthPileupEventAuxContainer;
 }
 
+// Declare a CLID for the class
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::TruthPileupEventAuxContainer, 1274365729, 1 )
+
 #endif

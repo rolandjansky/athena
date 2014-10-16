@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthParticleAuxContainer_v1.cxx 574253 2013-12-06 15:21:49Z krasznaa $
+// $Id: TruthParticleAuxContainer_v1.cxx 622193 2014-10-16 16:08:34Z krasznaa $
 
 // Local include(s):
 #include "xAODTruth/versions/TruthParticleAuxContainer_v1.h"

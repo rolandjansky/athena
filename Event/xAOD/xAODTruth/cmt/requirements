@@ -1,5 +1,5 @@
 package xAODTruth
-# $Id: requirements 613511 2014-08-26 15:37:45Z krasznaa $
+# $Id: requirements 615004 2014-09-04 08:42:26Z dquarrie $
 
 author Andy Buckley <andy.buckley@cern.ch>
 author James Catmore <james.catmore@cern.ch>
@@ -21,6 +21,8 @@ use AtlasROOT       AtlasROOT-*        External
 # Other packages
 use TruthUtils      TruthUtils-*       Generators
 
+# Specify the ROOT components that are necessary for cmake. Transparent to CMT
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"
 
 library xAODTruth ../Root/*.cxx
 apply_pattern installed_library

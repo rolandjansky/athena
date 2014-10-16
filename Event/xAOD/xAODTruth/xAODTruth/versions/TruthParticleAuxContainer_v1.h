@@ -47,9 +47,7 @@ namespace xAOD {
 } // namespace xAOD
 
 
-// Declare a CLID for the class for Athena:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::TruthParticleAuxContainer_v1 , 1107340896 , 1 )
+// StoreGate registration
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TruthParticleAuxContainer_v1, xAOD::AuxContainerBase );
 
