@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 568357 2013-11-01 16:21:30Z krasznaa $ -->
+<!-- $Id: selection.xml 615735 2014-09-09 10:13:08Z krasznaa $ -->
 <lcgdict>
 
 
@@ -17,5 +17,12 @@
          newObj->setStore( ( SG::IAuxStore* ) 0 );
       ]]>
    </read>
+
+   <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+    <class name="SG::IConstAuxStore" />
+    <class name="DataLink<SG::IConstAuxStore>" />
+  </exclusion>
 
 </lcgdict>
