@@ -1,53 +1,16 @@
 package EventShapeTools
 
-author Rolf Seuster <Rolf.Seuster@cern.ch>
-author Peter Loch   <loch@physics.arizona.edu>
-
 use AtlasPolicy         AtlasPolicy-*
-
-# use CLIDSvc             CLIDSvc-00-*            Control 
-
-use AthenaBaseComps     AthenaBaseComps-*       Control
-# use AthenaKernel        AthenaKernel-*          Control
-
-use GaudiInterface      GaudiInterface-*        External
-# use AtlasCLHEP          AtlasCLHEP-*            External
-
-# use AtlasROOT		AtlasROOT-*		External
-use StoreGate          StoreGate-*                     Control
-
-private
-# use FourMom             FourMom-*               Event
-use FourMomUtils        FourMomUtils-*          Event
-use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
-use xAODEventShape       xAODEventShape-*         Event/xAOD
-
-end_private
-use EventKernel         EventKernel-*           Event
-use NavFourMom          NavFourMom-*            Event
-
-use AsgTools            AsgTools-*              Control/AthToolSupport
-
-
 use AtlasFastJet	AtlasFastJet-*		External
 
-use JetEvent            JetEvent-*              Reconstruction/Jet
-use JetInterface        JetInterface-*          Reconstruction/Jet
-use JetUtils            JetUtils-*              Reconstruction/Jet
-
-
-# use JetRec              JetRec-*                Reconstruction/Jet
-
-use CaloEvent           CaloEvent-*             Calorimeter
-use CaloUtils           CaloUtils-*             Calorimeter
-
-# use KtJet		KtJet-*			Reconstruction/Jet
-
-use EventShapeEvent     EventShapeEvent-*       Reconstruction/EventShapes
-use EventShapeUtils     EventShapeUtils-*       Reconstruction/EventShapes
+use GaudiInterface      GaudiInterface-*        External
+use AsgTools            AsgTools-*              Control/AthToolSupport
 use EventShapeInterface EventShapeInterface-*   Reconstruction/EventShapes
+use JetInterface        JetInterface-*          Reconstruction/Jet
 
-# use CBNT_Utils     CBNT_Utils-00-*     Reconstruction
+private
+use xAODEventShape       xAODEventShape-*         Event/xAOD
+end_private
 
 apply_pattern dual_use_library files="../Root/*.cxx *.cxx"
 
