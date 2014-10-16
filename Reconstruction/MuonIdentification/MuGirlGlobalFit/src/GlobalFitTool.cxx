@@ -46,7 +46,7 @@ GlobalFitTool::GlobalFitTool(const std::string& t,
         m_pIntersector("Trk::RungeKuttaIntersector/Trk::RungeKuttaIntersector"),
         m_msTrackFitter("Muon::IMuonTrackFinder/MuonTrackSteering"),
         m_probCut(0.01),
-        m_doMSFit(false)
+        m_doSAfit(false)
 {
     declareInterface<IGlobalFitTool>(this);
     //  template for property decalration
@@ -54,7 +54,7 @@ GlobalFitTool::GlobalFitTool(const std::string& t,
     declareProperty("TrackSteering",m_msTrackFitter);
     //declareProperty("ParticleCreatorTool", m_particleCreatorTool);
     declareProperty("ProbabilityCut", m_probCut);
-    declareProperty("doMSFit", m_doMSFit);
+    declareProperty("doSAfit", m_doSAfit);
 }
 
 //================ Destructor =================================================
@@ -95,7 +95,9 @@ StatusCode GlobalFitTool::initialize()
 
     msg(MSG::INFO) << "Retrieved tool " << m_compClusterCreator << endreq;
 
-    if (m_doMSFit)
+    msg(MSG::DEBUG) << "doSAfit " << m_doSAfit << endreq;
+
+    if (m_doSAfit)
     {
        if (m_msTrackFitter.retrieve().isFailure())
        {
@@ -129,6 +131,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
 
  
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in GlobalFitTool::calculateTrackParameters" << endreq;
+    msg(MSG::DEBUG) << "in GlobalFitTool::calculateTrackParameters"<<endreq;
     const Trk::TrackParameters* Track = NULL;
 
 
@@ -542,10 +545,9 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
         return NULL;
     }
 }
-//=================================  MS FIT
+//=================================  standAloneRefit
 
-//const TrackCollection * GlobalFitTool::msFit(const MuonSegmentList & pMuonSegments,BooleanProperty doNTuple=false)
-const Trk::Track* GlobalFitTool::msFit(const MuonSegmentList & pMuonSegments,const Trk::Track* cbtrack=NULL,BooleanProperty doNTuple=false)
+const Trk::Track* GlobalFitTool::standAloneRefit(const MuonSegmentList & pMuonSegments,const Trk::Track* cbtrack=NULL,BooleanProperty doNTuple=false)
 {
 //============== SEGMENT PRESEL
   MuonSegmentList newMuonSegments;
