@@ -61,23 +61,23 @@ class BeamHaloGenerator {
 
 
   /** Set the position of the interface plane in mm. */
-  void setInterfacePlane(double interfacePlane) { m_interfacePlane = interfacePlane; }
+  void setInterfacePlane(double interfacePlane) { p_interfacePlane = interfacePlane; }
 
   /** Turn on or off the event flipping code. */
-  void setEnableFlip(bool enableFlip) { m_enableFlip = enableFlip; }
+  void setEnableFlip(bool enableFlip) { p_enableFlip = enableFlip; }
 
   /** Set probability of flipping an event about Z=0. */
-  void setFlipProbability(float flipProbability) { m_flipProbability = flipProbability; }
+  void setFlipProbability(float flipProbability) { p_flipProbability = flipProbability; }
 
   /** Turn on or off sampling from the input ASCII file. */
-  void setEnableSampling(bool enableSampling) { m_enableSampling = enableSampling; }
+  void setEnableSampling(bool enableSampling) { p_enableSampling = enableSampling; }
 
   /** Set the name of the binary buffer file, needed for sampling from a
       converted file. */
-  void setBufferFileName(std::string bufferFileName) { m_bufferFileName = bufferFileName; }
+  void setBufferFileName(std::string bufferFileName) { p_bufferFileName = bufferFileName; }
 
   /** A function to turn on or off debug print out. */
-  void setDebugEnable(bool debug) { m_debug = debug; }
+  void setDebugEnable(bool debug) { p_debug = debug; }
 
  protected:
 
@@ -102,43 +102,43 @@ class BeamHaloGenerator {
 		   HepMC::GenEvent* evt);
 
   /** A pointer to the particle data table. */
-  const HepPDT::ParticleDataTable* m_particleTable;
+  const HepPDT::ParticleDataTable* p_particleTable;
 
   /** Random number engine */
-  CLHEP::HepRandomEngine *m_engine;
+  CLHEP::HepRandomEngine *p_engine;
   
   /** Input file name */
-  std::string m_inputFile;
+  std::string p_inputFile;
 
   /** The position of the interface plane in mm. */
-  double m_interfacePlane;
+  double p_interfacePlane;
   
    /** Flag for flipping event */
-  bool m_enableFlip;
+  bool p_enableFlip;
 
   /** Flip probability */
-  float m_flipProbability;
+  float p_flipProbability;
   
   /** Flag to enable or disable sampling. */
-  bool m_enableSampling;
+  bool p_enableSampling;
 
   /** The name of the binary buffer file, needed for sampling from a
       converted file. */
-  std::string m_bufferFileName;
+  std::string p_bufferFileName;
 
   /** Binary particle buffer for caching converted events. */
-  BeamHaloParticleBuffer *m_beamHaloParticleBuffer;
+  BeamHaloParticleBuffer *p_beamHaloParticleBuffer;
 
   /** A pointer to an AsciiInput object, used to read data from the
       Ascii input file. */
-  AsciiInput *m_asciiInput;
+  AsciiInput *p_asciiInput;
 
   /** A pointer to a BeamHaloGeneratorSettings object used to filter
       particles. */
-  BeamHaloGeneratorSettings *m_beamHaloGeneratorSettings;
+  BeamHaloGeneratorSettings *p_beamHaloGeneratorSettings;
 
   /** A data member to count the event number. */
-  long m_eventNumber;
+  long p_eventNumber;
 
   /** An enum of particle counter indices. */
   enum enumCounters {
@@ -148,13 +148,13 @@ class BeamHaloGenerator {
     NUM_COUNTERS};
 
   /** Particle or event counters of dimension enumCounters. */
-  long m_counters[NUM_COUNTERS];
+  long p_counters[NUM_COUNTERS];
 
   /** Sum of weights of particles or events of dimension enumCounters. */
-  double m_wsums[NUM_COUNTERS];
+  double p_wsums[NUM_COUNTERS];
 
   /** A flat to turn on or off debug print out. */
-  bool m_debug;
+  bool p_debug;
 
  private:
 
