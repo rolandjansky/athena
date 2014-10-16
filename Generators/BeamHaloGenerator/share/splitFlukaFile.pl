@@ -23,7 +23,7 @@ my $output_file = sprintf("$output_prefix%05d.events",$file_counter);
 die ("Cannot open $output_file for writing\n")
    unless open(OUTPUTFILE, '>', $output_file);
 
-my $event_column = 2; # The position of the event number in the input file columns
+my $event_column = 1; # The position of the event number in the input file columns
 
 my $last_event = -10;
 while (my $line = <INPUTFILE>) {
