@@ -251,10 +251,27 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   bool spC10 = false;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
   double rMinC10 = dbManager->TILBrminimal();
-  if ( dbManager->SetCurrentSection(10+TileDddbManager::TILE_PLUG2) ) {
+  if ( dbManager->SetCurrentSection(10+TileDddbManager::TILE_PLUG2, false) ) {
     double rMinC10sp = dbManager->TILBrminimal();
     spC10 = (rMinC10sp < rMinC10);
-    if (spC10) rMinC10 = rMinC10sp;
+    if (spC10) {
+      (*m_log) << MSG::DEBUG <<" Special C10, changing Rmin from "<<rMinC10<<" to "<< rMinC10sp << endreq;
+      rMinC10 = rMinC10sp;
+    }
+  }
+
+  // extra flag sayubg that E4' present on negative eta side
+  bool spE4 = false;
+  dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
+  double rMinE4pos = dbManager->TILBrminimal();
+  double rMinE4neg = rMinE4pos;
+  if ( dbManager->SetCurrentSection(10+TileDddbManager::TILE_PLUG4, false) ) {
+    double rMinE4sp = dbManager->TILBrminimal();
+    spE4 = (rMinE4sp < rMinE4neg);
+    if (spE4) {
+      (*m_log) << MSG::DEBUG <<" E4' present, changing Rmin for negative crack from "<<rMinE4neg<<" to "<< rMinE4sp << endreq;
+      rMinE4neg = rMinE4sp;
+    }
   }
   
   /** setfinger length */
@@ -370,7 +387,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
   double PosRminITC   = dbManager->TILBrminimal()*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-  double PosRminCrack = dbManager->TILBrminimal()*CLHEP::cm;
+  double PosRminCrack = rMinE4pos*CLHEP::cm;
 
   double PosRminExt = RInMin[3];
     
@@ -460,7 +477,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
   double NegRminITC = dbManager->TILBrminimal()*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-  double NegRminCrack = dbManager->TILBrminimal()*CLHEP::cm;
+  double NegRminCrack = rMinE4neg*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
 
   double NegRminExt = RInMin[2];
@@ -983,12 +1000,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       // Crack Positive
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
 
-      checking("Crack (+)", false, 0, 
-              dbManager->TILBrminimal()*CLHEP::cm,
+      checking("Crack (+)", spE4, 0, 
+              rMinE4pos*CLHEP::cm,
               dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
               AnglMin,AnglMax, dbManager->TILBdzmodul()/2*CLHEP::cm);
 
-      GeoTubs* crackMotherPos = new GeoTubs(dbManager->TILBrminimal()*CLHEP::cm,
+      GeoTubs* crackMotherPos = new GeoTubs(rMinE4pos*CLHEP::cm,
 				            dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
 				            dbManager->TILBdzmodul()/2*CLHEP::cm,
                                             AnglMin, AnglMax);
@@ -1062,12 +1079,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       // Crack Negative
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
   
-      checking("Crack (-)", false, 0, 
-              dbManager->TILBrminimal()*CLHEP::cm,
+      checking("Crack (-)", spE4, 0, 
+              rMinE4neg*CLHEP::cm,
               dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
               AnglMin,AnglMax, dbManager->TILBdzmodul()/2*CLHEP::cm);
 
-      GeoTubs* crackMotherNeg = new GeoTubs(dbManager->TILBrminimal()*CLHEP::cm,
+      GeoTubs* crackMotherNeg = new GeoTubs(rMinE4neg*CLHEP::cm,
 				            dbManager->TILBrmaximal()*CLHEP::cm/cos(deltaPhi/2*CLHEP::deg),
 				            dbManager->TILBdzmodul()/2*CLHEP::cm,
                                             AnglMin, AnglMax);
@@ -2042,7 +2059,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     
           dzGlue = 0.;
 
-          checking("CrackModule (-)", false, 2, 
+          checking("CrackModule (-)", spE4, 2, 
                thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
 
           GeoTrd* crackModuleMotherNeg = new GeoTrd(thicknessWedgeMother/2,
@@ -2362,7 +2379,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     
           dzGlue = 0.;
     
-          checking("CrackModule (+)", false, 2, 
+          checking("CrackModule (+)", spE4, 2, 
                thicknessWedgeMother/2,thicknessWedgeMother/2,dy1WedgeMother,dy2WedgeMother,heightWedgeMother/2);
 
           GeoTrd* crackModuleMotherPos = new GeoTrd(thicknessWedgeMother/2,

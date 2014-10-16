@@ -1256,11 +1256,11 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
     }
   default:
     {
-      // C10_missing/Gap/Crack 5,6,14,15
+      // C10_missing/Gap/Crack 5,6,14,15,16
 
       if ((dbManager->TILBsection()==5)||(dbManager->TILBsection()==6)) //Gap/Crack
 	dbManager->SetCurrentScin(100*dbManager->TILBsection() + 1);
-      else if ((dbManager->TILBsection()==14) || (dbManager->TILBsection()==15)) 
+      else if ((dbManager->TILBsection()==14) || (dbManager->TILBsection()==15) || (dbManager->TILBsection()==16)) 
 	dbManager->SetCurrentScin(dbManager->TILBcurscint());
       else 
       {
@@ -2562,6 +2562,7 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
     for(unsigned int det = detector; det < detector+2; det++)
       for(int status=dbManager->SetFirstTiclInDet(det); status>0; status=dbManager->SetNextTiclInDet())
       {
+        if ((int)dbManager->TICLtower()>16) continue;
 	if(det==detector)
 	  etaIndex = (int)dbManager->TICLsample();
 	else
@@ -3092,6 +3093,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 	  dbManager->SetFirstTiclInDet(detector+1);
 	else
 	  dbManager->SetNextTiclInDet();
+        if ((int)dbManager->TICLtower()>16) continue;
 
 	cellDim = new TileCellDim(1);
 	cellDimNeg = new TileCellDim(1);
