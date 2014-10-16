@@ -28,6 +28,9 @@ end_private
 library xAODTruthCnv *.cxx components/*.cxx
 apply_pattern component_library
 
+# Install the jobOptions:
+apply_pattern declare_joboptions files=*.py
+
 private
 # macro cppdebugflags '$(cppdebugflags_s)'
 # macro_remove componentshr_linkopts "-Wl,-s"
