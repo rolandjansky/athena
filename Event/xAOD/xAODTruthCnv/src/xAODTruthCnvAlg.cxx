@@ -202,16 +202,16 @@ namespace xAODMaker {
           // This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
           const HepMC::PdfInfo* const pdfInfo = genEvt->pdf_info();
           if (pdfInfo) {
-            xTruthEvent->setPdfParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
-            xTruthEvent->setPdfParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID2);
-            xTruthEvent->setPdfParameter(pdfInfo->pdf_id1(), xAOD::TruthEvent::PDFID1);
-            xTruthEvent->setPdfParameter(pdfInfo->pdf_id2(), xAOD::TruthEvent::PDFID2);
+            xTruthEvent->setPdfInfoParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
+            xTruthEvent->setPdfInfoParameter(pdfInfo->id2(), xAOD::TruthEvent::PDGID2);
+            xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id1(), xAOD::TruthEvent::PDFID1);
+            xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id2(), xAOD::TruthEvent::PDFID2);
 
-            xTruthEvent->setPdfParameter((float)pdfInfo->x1(), xAOD::TruthEvent::X1);
-            xTruthEvent->setPdfParameter((float)pdfInfo->x2(), xAOD::TruthEvent::X2);
-            xTruthEvent->setPdfParameter((float)pdfInfo->scalePDF(), xAOD::TruthEvent::Q);
-            xTruthEvent->setPdfParameter((float)pdfInfo->pdf1(), xAOD::TruthEvent::XF1);
-            xTruthEvent->setPdfParameter((float)pdfInfo->pdf2(), xAOD::TruthEvent::XF2);
+            xTruthEvent->setPdfInfoParameter((float)pdfInfo->x1(), xAOD::TruthEvent::X1);
+            xTruthEvent->setPdfInfoParameter((float)pdfInfo->x2(), xAOD::TruthEvent::X2);
+            xTruthEvent->setPdfInfoParameter((float)pdfInfo->scalePDF(), xAOD::TruthEvent::Q);
+            xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf1(), xAOD::TruthEvent::XF1);
+            xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf2(), xAOD::TruthEvent::XF2);
           }
 
 

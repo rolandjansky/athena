@@ -6,7 +6,7 @@ rec.doTruth = True
 printMCOutput = False
  
 # Set up the reading of a file:
-FNAME = "/afs/cern.ch/work/j/jcatmore/public/mc12_8TeV.208002.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu6mu6.merge.AOD.e1331_a159_a173_r3549_tid00862287_00/AOD.00862287._000853.pool.root.1"
+FNAME = "/afs/cern.ch/atlas/project/PAT/data/mc11/mc11_7TeV.106047.PythiaZmumu_no_filter.recon.AOD.e815_s1272_s1274_r2730_tid516371_00/AOD.516371._000209.pool.root.1"
 include( "AthenaPython/iread_file.py" )
  
 # Access the algorithm sequence:
@@ -22,41 +22,24 @@ theJob += alg
 
 # Output
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-xaodStream = MSMgr.NewPoolStream( "StreamAOD", "xAOD.pool.root" )
+xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
+
 # Additional type(s) created automatically by RecExCommon:
 xaodStream.AddItem( "xAOD::EventInfo_v1#EventInfo" )
 xaodStream.AddItem( "xAOD::EventAuxInfo_v1#EventInfoAux." )
-#xaodStream.AddItem( "xAOD::CaloClusterContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::CaloClusterAuxContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::MuonContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::MuonAuxContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::TrackParticleContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::TrackParticleAuxContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::VertexContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::VertexAuxContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::TauJetContainer_v1#*" )
-#xaodStream.AddItem( "xAOD::TauJetAuxContainer_v1#*" )
-xaodStream.AddItem( "xAOD::TruthEventContainer_v1#*" )
-xaodStream.AddItem( "xAOD::TruthEventAuxContainer_v1#*" )
-xaodStream.AddItem( "xAOD::TruthVertexContainer_v1#*" )
-xaodStream.AddItem( "xAOD::TruthVertexAuxContainer_v1#*" )
-xaodStream.AddItem( "xAOD::TruthParticleContainer_v1#*" ) 
-xaodStream.AddItem( "xAOD::TruthParticleAuxContainer_v1#*" )
 
-
-# Make sure that the event format object is added to the output:
-theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-xaodStream.AddMetaDataItem( "xAOD::EventFormat_v1#EventFormat" )
+# The types created explicitly by this job:
+xaodStream.AddItem( "xAOD::TruthEventContainer#*" )
+xaodStream.AddItem( "xAOD::TruthEventAuxContainer#*" )
+xaodStream.AddItem( "xAOD::TruthPileupEventContainer#*" )
+xaodStream.AddItem( "xAOD::TruthPileupEventAuxContainer#*" )
+xaodStream.AddItem( "xAOD::TruthVertexContainer#*" )
+xaodStream.AddItem( "xAOD::TruthVertexAuxContainer#*" )
+xaodStream.AddItem( "xAOD::TruthParticleContainer#*" ) 
+xaodStream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
  
 # Check what happened to the stream:
 xaodStream.Print()
- 
-# Split all branches:
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [
-    "DEFAULT_SPLITLEVEL='1'" ]
- 
-# Force POOL to just simply use the StoreGate keys as branch names:
-ServiceMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<key>"
 
 # Verbose output
 if printMCOutput:
