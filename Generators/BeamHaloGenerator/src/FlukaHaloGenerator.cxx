@@ -14,9 +14,9 @@
 
 FlukaHaloGenerator::FlukaHaloGenerator(int type,
                                        const HepPDT::ParticleDataTable* particleTable,
-				       CLHEP::HepRandomEngine* engine, 
-				       std::string inputFile,
-				       std::vector<std::string> generatorSettings):
+                                       CLHEP::HepRandomEngine* engine,
+                                       std::string inputFile,
+                                       std::vector<std::string> generatorSettings):
   BeamHaloGenerator(particleTable, engine, inputFile, generatorSettings),
   m_sameEvent(true),
   m_firstEvent(true),
@@ -91,8 +91,8 @@ int FlukaHaloGenerator::genFinalize() {
 //--------------------------------------------------------------------------
 
 int FlukaHaloGenerator::readParticle(BeamHaloParticle *beamHaloParticle) {
-  
-  std::cout << "Warning: FlukaHaloGenerator::readParticle is not yet available: "<< beamHaloParticle  << std::endl; 
+
+  std::cout << "Warning: FlukaHaloGenerator::readParticle is not yet available: "<< beamHaloParticle  << std::endl;
   return 0;
 }
 
@@ -112,8 +112,8 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
     if(!m_sameEvent) {
       // Fill the BeamHaloParticle with the data in the FlukaParticle
       if(beamHaloParticle.fill(p_particleTable, &m_lastFlukaParticle)) {
-	std::cout << "Error: Conversion from FlukaParticle to BeamHaloParticle failed." << std::endl;
-	return 1;
+        std::cout << "Error: Conversion from FlukaParticle to BeamHaloParticle failed." << std::endl;
+        return 1;
       }
       // Append the BeamHalo particle to the event.
       beamHaloEvent->push_back(beamHaloParticle);
@@ -146,8 +146,8 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
       m_sameEvent = false;
 
       // Check if the event id of the last particle is the same as this particle.
-      if((m_lastFlukaParticle.type() == FlukaParticle::BRUCE) 
-         && (m_lastFlukaParticle.eventId() == m_flukaParticle.eventId()) 
+      if((m_lastFlukaParticle.type() == FlukaParticle::BRUCE)
+         && (m_lastFlukaParticle.eventId() == m_flukaParticle.eventId())
          && (m_lastFlukaParticle.partGenNum() == m_flukaParticle.partGenNum())) m_sameEvent = true;
 
       if((m_lastFlukaParticle.type() == FlukaParticle::TALANOV)
@@ -165,8 +165,8 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
 
       // Fill the BeamHaloParticle with the data in the FlukaParticle
       if(beamHaloParticle.fill(p_particleTable, &m_flukaParticle)) {
-	std::cout << "Error: Conversion from FlukaParticle to BeamHaloParticle failed." << std::endl;
-	return 1;
+        std::cout << "Error: Conversion from FlukaParticle to BeamHaloParticle failed." << std::endl;
+        return 1;
       }
 
       // Append the BeamHalo particle to the event.
@@ -191,6 +191,7 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
   std::vector<BeamHaloParticle>::iterator itr_end = beamHaloEvent->end();
   bool passed = false;
   for(;itr!=itr_end;++itr) {
+    beamHaloParticle = *itr;
     // Check the generator settings for this particle.
     if(p_beamHaloGeneratorSettings->checkParticle(&beamHaloParticle)) {
       passed = true;
