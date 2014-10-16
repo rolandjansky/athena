@@ -216,7 +216,8 @@ StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
 StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
 if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["JetCollection#*"]
+    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
+    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*"]
 
 
 ## Set the run numbers
