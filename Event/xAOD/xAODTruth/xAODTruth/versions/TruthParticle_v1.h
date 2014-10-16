@@ -23,8 +23,8 @@ namespace xAOD {
   /// @author Andy Buckley <Andy.Buckley@cern.ch>
   /// @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
   ///
-  /// $Revision: 614100 $
-  /// $Date: 2014-08-29 16:01:25 +0200 (Fri, 29 Aug 2014) $
+  /// $Revision: 621221 $
+  /// $Date: 2014-10-11 00:40:08 +0200 (Sat, 11 Oct 2014) $
   ///
   class TruthParticle_v1 : public IParticle {
   public:

@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 613511 2014-08-26 15:37:45Z krasznaa $ -->
+<!-- $Id: selection.xml 622193 2014-10-16 16:08:34Z krasznaa $ -->
 <lcgdict>
 
   <!-- The TruthParticle_v1 class: -->
@@ -27,6 +27,7 @@
 
   <!-- The TruthEvent_v1 class(es): -->
   <class name="xAOD::TruthEventBase_v1" />
+  <class name="xAOD::TruthEventBaseContainer_v1" />
   <class name="xAOD::TruthEvent_v1" />
   <class name="xAOD::TruthPileupEvent_v1" />
 
@@ -36,7 +37,7 @@
   <class name="xAOD::TruthVertexContainer_v1"
          id="5FBAE0AB-09F7-4B6C-B066-0A003FC38ECF" />
   <class name="xAOD::TruthEventContainer_v1"
-	      id="6290F297-F529-40EE-9FE5-1C577678306D" />
+         id="6290F297-F529-40EE-9FE5-1C577678306D" />
   <class name="xAOD::TruthPileupEventContainer_v1"
          id="05ECB16C-A36F-4853-8BB7-C9E7A84B4677" />
 
@@ -45,7 +46,7 @@
   <class name="xAOD::TruthVertexAuxContainer_v1"
          id="B6BD3B02-C411-4EB9-903F-5B099D3B1A3E" />
   <class name="xAOD::TruthEventAuxContainer_v1"
-	      id="1B945EFD-4F7D-4BDD-9FB1-6FB975315961" />
+         id="1B945EFD-4F7D-4BDD-9FB1-6FB975315961" />
   <class name="xAOD::TruthPileupEventAuxContainer_v1"
          id="9E9DD653-247C-4D5E-B14C-538EADEA6CD2" />
 

@@ -2,159 +2,271 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id: TruthEvent_v1.cxx 622193 2014-10-16 16:08:34Z krasznaa $
+
+// EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
+
+// Local include(s):
 #include "xAODTruth/versions/TruthEvent_v1.h"
 #include "TruthAccessors_v1.h"
 
 namespace xAOD {
 
 
-  TruthEvent_v1::TruthEvent_v1()
-    : TruthEventBase_v1() {
-  }
+   TruthEvent_v1::TruthEvent_v1()
+      : TruthEventBase_v1() {
 
-  /////////////////////////////////////////////////////////////////////////////
-  // Simple, always-present event properties
+   }
 
-  //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthEvent_v1, int, signalProcessId, setSignalProcessId )
-  //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthEvent_v1, int, eventNumber, setEventNumber )
+   /////////////////////////////////////////////////////////////////////////////
+   // Simple, always-present event properties
 
-  /// @todo Need upgrade to allow string-valued map-like access... or access a corresponding vector of names
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthEvent_v1, std::vector<float>, weights, setWeights )
+   /// @todo Need upgrade to allow string-valued map-like access... or access a
+   /// corresponding vector of names
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthEvent_v1, std::vector< float >,
+                                      weights, setWeights )
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthEvent_v1, float, crossSection, setCrossSection )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthEvent_v1, float, crossSectionError, setCrossSectionError )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthEvent_v1, float, crossSection,
+                                         setCrossSection )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthEvent_v1, float,
+                                         crossSectionError,
+                                         setCrossSectionError )
 
-  /////////////////////////////////////////////////////////////////////////////
+   void TruthEvent_v1::setCrossSection( float value, float error ) {
 
+      setCrossSection( value );
+      setCrossSectionError( error );
+      return;
+   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // Optional PDF info accessors
+   /////////////////////////////////////////////////////////////////////////////
 
-  // Retrieve as int
-  bool TruthEvent_v1::pdfInfoParameter(int& value, TruthEvent_v1::PdfParam information) const {
-    xAOD::TruthEvent_v1::Accessor<int>* acc = pdfInfoAccessorV1<int>( information );
-    if ( ! acc ) return false;
-    value = ( *acc )( *this );
-    return true;
-  }
-  // Set as int
-  void TruthEvent_v1::setPdfParameter(int value, TruthEvent_v1::PdfParam information) {
-    xAOD::TruthEvent_v1::Accessor<int>* acc = pdfInfoAccessorV1<int>( information );
-    ( *acc )( *this ) = value;
-  }
+   /////////////////////////////////////////////////////////////////////////////
+   // Optional PDF info accessors
 
-  // Retrieve as float
-  bool TruthEvent_v1::pdfInfoParameter(float& value, TruthEvent_v1::PdfParam information) const {
-    xAOD::TruthEvent_v1::Accessor<float>* acc = pdfInfoAccessorV1<float>( information );
-    if ( ! acc ) return false;
-    value = ( *acc )( *this );
-    return true;
-  }
-  // Set as float
-  void TruthEvent_v1::setPdfParameter(float value, TruthEvent_v1::PdfParam information) {
-    xAOD::TruthEvent_v1::Accessor<float>* acc = pdfInfoAccessorV1<float>( information );
-    ( *acc )( *this ) = value;
-  }
+   bool TruthEvent_v1::pdfInfoParameter( int& value,
+                                         PdfParam information ) const {
 
-  /////////////////////////////////////////////////////////////////////////////
+      // Look for the accessor object:
+      auto* acc = pdfInfoAccessorV1< int >( information );
+      if( ! acc ) return false;
 
+      // Get the value:
+      value = ( *acc )( *this );
+      return true;
+   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // Optional heavy ion accessors
+   bool TruthEvent_v1::pdfInfoParameter( float& value,
+                                         PdfParam information ) const {
 
-  // Retrieve as int
-  bool TruthEvent_v1::heavyIonParameter(int& value, TruthEvent_v1::HIParam information) const {
-    xAOD::TruthEvent_v1::Accessor<int>* acc = heavyIonAccessorV1<int>( information );
-    if ( ! acc ) return false;
-    value = ( *acc )( *this );
-    return true;
-  }
-  // Set as int
-  void TruthEvent_v1::setHeavyIonParameter(int value, TruthEvent_v1::HIParam information) {
-    xAOD::TruthEvent_v1::Accessor<int>* acc = heavyIonAccessorV1<int>( information );
-    ( *acc )( *this ) = value;
-  }
+      // Look for the accessor object:
+      auto* acc = pdfInfoAccessorV1< float >( information );
+      if( ! acc ) return false;
 
-  // Retrieve as float
-  bool TruthEvent_v1::heavyIonParameter(float& value, TruthEvent_v1::HIParam information) const {
-    xAOD::TruthEvent_v1::Accessor<float>* acc = heavyIonAccessorV1<float>( information );
-    if ( ! acc ) return false;
-    value = ( *acc )( *this );
-    return true;
-  }
-  // Set as float
-  void TruthEvent_v1::setHeavyIonParameter(float value, TruthEvent_v1::HIParam information) {
-    xAOD::TruthEvent_v1::Accessor<float>* acc = heavyIonAccessorV1<float>( information );
-    ( *acc )( *this ) = value;
-  }
+      // Get the value:
+      value = ( *acc )( *this );
+      return true;
+   }
 
-  /////////////////////////////////////////////////////////////////////////////
+   bool TruthEvent_v1::setPdfInfoParameter( int value,
+                                            PdfParam information ) {
 
+      // Look for the accessor object:
+      auto* acc = pdfInfoAccessorV1< int >( information );
+      if( ! acc ) return false;
 
+      // Set the value:
+      ( *acc )( *this ) = value;
+      return true;
+   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  //           Implementation for the links to the truth particles
-  //
+   bool TruthEvent_v1::setPdfInfoParameter( float value,
+                                            PdfParam information ) {
 
-  // Accessor for the signal vertex
-  static SG::AuxElement::Accessor< ElementLink<TruthVertexContainer> >
-  signalProcessVertexLinkAcc( "signalProcessVertexLink" );
+      // Look for the accessor object:
+      auto* acc = pdfInfoAccessorV1< float >( information );
+      if( ! acc ) return false;
 
-  const TruthVertex* TruthEvent_v1::signalProcessVertex() const {
-    if (!signalProcessVertexLinkAcc.isAvailable(*this)) return NULL;
-    const ElementLink<TruthVertexContainer>& vertLink = signalProcessVertexLinkAcc(*this);
-    return (vertLink.isValid()) ? *vertLink : NULL;
-  }
+      // Set the value:
+      ( *acc )( *this ) = value;
+      return true;
+   }
 
-  void TruthEvent_v1::setSignalProcessVertexLink(const ElementLink<TruthVertexContainer>& link) {
-    signalProcessVertexLinkAcc(*this) = link;
-  }
+   TruthEvent_v1::PdfInfo TruthEvent_v1::pdfInfo() const {
 
+      // The result object:
+      PdfInfo rtn;
 
-  // Accessor for the beam particles
-  static SG::AuxElement::Accessor< ElementLink<TruthParticleContainer> >
-  beamParticle1LinkAcc( "beamParticle1Link" );
-  static SG::AuxElement::Accessor< ElementLink<TruthParticleContainer> >
-  beamParticle2LinkAcc( "beamParticle2Link" );
+      // Retrieve all of its elements:
+      pdfInfoParameter( rtn.pdgId1, PDGID1 );
+      pdfInfoParameter( rtn.pdgId2, PDGID2 );
+      pdfInfoParameter( rtn.pdfId1, PDFID1 );
+      pdfInfoParameter( rtn.pdfId2, PDFID2 );
+      pdfInfoParameter( rtn.x1,     X1 );
+      pdfInfoParameter( rtn.x2,     X2 );
+      pdfInfoParameter( rtn.Q,      Q );
+      pdfInfoParameter( rtn.xf1,    XF1 );
+      pdfInfoParameter( rtn.xf1,    XF1 );
 
-  typedef std::pair<const TruthParticle*, const TruthParticle*> TruthParticlePair;
-  TruthParticlePair TruthEvent_v1::beamParticles() const {
-    const ElementLink<TruthParticleContainer>& el1 = beamParticle1LinkAcc(*this);
-    const ElementLink<TruthParticleContainer>& el2 = beamParticle2LinkAcc(*this);
-    return (el1.isValid() && el2.isValid()) ? TruthParticlePair(*el1, *el2) : TruthParticlePair(NULL, NULL);
-  }
+      return rtn;
+   }
 
-  void TruthEvent_v1::setBeamParticleLinks(const ElementLink<TruthParticleContainer>& pcl1,
-                                           const ElementLink<TruthParticleContainer>& pcl2) {
-    beamParticle1LinkAcc(*this) = pcl1;
-    beamParticle2LinkAcc(*this) = pcl2;
-  }
-  void TruthEvent_v1::setBeamParticle1Link(const ElementLink<TruthParticleContainer>& pcl1) {
-    beamParticle1LinkAcc(*this) = pcl1;
-  }
-  void TruthEvent_v1::setBeamParticle2Link(const ElementLink<TruthParticleContainer>& pcl2) {
-    beamParticle2LinkAcc(*this) = pcl2;
-  }
+   /////////////////////////////////////////////////////////////////////////////
 
+   /////////////////////////////////////////////////////////////////////////////
+   // Optional heavy ion accessors
 
-  /////////////////////////////////////////////////////////////////////////////
+   bool TruthEvent_v1::heavyIonParameter( int& value,
+                                          HIParam information ) const {
 
+      // Look for the accessor object:
+      auto* acc = heavyIonAccessorV1< int >( information );
+      if( ! acc ) return false;
 
-  Type::ObjectType TruthEvent_v1::type() const {
-    return Type::TruthEvent;
-  }
+      // Get the value:
+      value = ( *acc )( *this );
+      return true;
+   }
 
+   bool TruthEvent_v1::heavyIonParameter( float& value,
+                                          HIParam information ) const {
 
-  void TruthEvent_v1::toPersistent() {
-    #ifndef XAOD_STANDALONE
-    if (beamParticle1LinkAcc.isAvailableWritable(*this)) beamParticle1LinkAcc(*this).toPersistent();
-    if (beamParticle2LinkAcc.isAvailableWritable(*this)) beamParticle2LinkAcc(*this).toPersistent();
-    if (signalProcessVertexLinkAcc.isAvailableWritable(*this)) signalProcessVertexLinkAcc(*this).toPersistent();
-    TruthEventBase_v1::toPersistent();
-    #endif // not XAOD_STANDALONE
-  }
+      // Look for the accessor object:
+      auto* acc = heavyIonAccessorV1< float >( information );
+      if( ! acc ) return false;
 
+      // Get the value:
+      value = ( *acc )( *this );
+      return true;
+   }
+
+   bool TruthEvent_v1::setHeavyIonParameter( int value,
+                                             HIParam information ) {
+
+      // Look for the accessor object:
+      auto* acc = heavyIonAccessorV1< int >( information );
+      if( ! acc ) return false;
+
+      // Set the value:
+      ( *acc )( *this ) = value;
+      return true;
+   }
+
+   bool TruthEvent_v1::setHeavyIonParameter( float value,
+                                             HIParam information ) {
+
+      // Look for the accessor object:
+      auto* acc = heavyIonAccessorV1< float >( information );
+      if( ! acc ) return false;
+
+      // Set the value:
+      ( *acc )( *this ) = value;
+      return true;
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Implementation for the links to truth particles/vertices
+
+   // Accessor for the signal vertex
+   static SG::AuxElement::Accessor< TruthEvent_v1::TruthVertexLink_t >
+      signalProcessVertexLinkAcc( "signalProcessVertexLink" );
+
+   const TruthVertex* TruthEvent_v1::signalProcessVertex() const {
+
+      // Check if the link variable is available:
+      if( ! signalProcessVertexLinkAcc.isAvailable( *this ) ) {
+         return 0;
+      }
+
+      // Get the link:
+      const TruthVertexLink_t& vertLink = signalProcessVertexLinkAcc( *this );
+
+      // Check if it's valid:
+      if( ! vertLink.isValid() ) {
+         return 0;
+      }
+
+      // Return the de-referenced link:
+      return *vertLink;
+   }
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthEvent_v1,
+                                      TruthEvent_v1::TruthVertexLink_t,
+                                      signalProcessVertexLink,
+                                      setSignalProcessVertexLink )
+
+   // Accessors for the beam particles
+   static SG::AuxElement::Accessor< TruthEvent_v1::TruthParticleLink_t >
+      beamParticle1LinkAcc( "beamParticle1Link" );
+   static SG::AuxElement::Accessor< TruthEvent_v1::TruthParticleLink_t >
+      beamParticle2LinkAcc( "beamParticle2Link" );
+
+   std::pair< const TruthParticle*, const TruthParticle* >
+   TruthEvent_v1::beamParticles() const {
+
+      // Get the pointer to the first beam particle:
+      const TruthParticle* p1 = 0;
+      if( beamParticle1LinkAcc.isAvailable( *this ) ) {
+         const TruthParticleLink_t link = beamParticle1LinkAcc( *this );
+         if( link.isValid() ) {
+            p1 = *link;
+         }
+      }
+
+      // Get the pointer to the second beam particle:
+      const TruthParticle* p2 = 0;
+      if( beamParticle2LinkAcc.isAvailable( *this ) ) {
+         const TruthParticleLink_t link = beamParticle2LinkAcc( *this );
+         if( link.isValid() ) {
+            p2 = *link;
+         }
+      }
+
+      // Construct the returned object:
+      return std::make_pair( p1, p2 );
+   }
+
+   void TruthEvent_v1::setBeamParticleLinks( const TruthParticleLink_t& pcl1,
+                                             const TruthParticleLink_t& pcl2 ) {
+
+      setBeamParticle1Link( pcl1 );
+      setBeamParticle2Link( pcl2 );
+      return;
+   }
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthEvent_v1,
+                                      TruthEvent_v1::TruthParticleLink_t,
+                                      beamParticle1Link,
+                                      setBeamParticle1Link )
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthEvent_v1,
+                                      TruthEvent_v1::TruthParticleLink_t,
+                                      beamParticle2Link,
+                                      setBeamParticle2Link )
+
+   /////////////////////////////////////////////////////////////////////////////
+
+   Type::ObjectType TruthEvent_v1::type() const {
+
+      return Type::TruthEvent;
+   }
+
+   void TruthEvent_v1::toPersistent() {
+
+      if( beamParticle1LinkAcc.isAvailableWritable( *this ) ) {
+         beamParticle1LinkAcc( *this ).toPersistent();
+      }
+      if( beamParticle2LinkAcc.isAvailableWritable( *this ) ) {
+         beamParticle2LinkAcc( *this ).toPersistent();
+      }
+      if( signalProcessVertexLinkAcc.isAvailableWritable( *this ) ) {
+         signalProcessVertexLinkAcc( *this ).toPersistent();
+      }
+
+      TruthEventBase_v1::toPersistent();
+      return;
+   }
 
 } // namespace xAOD
