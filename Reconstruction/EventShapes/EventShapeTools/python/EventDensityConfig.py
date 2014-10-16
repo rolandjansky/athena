@@ -3,47 +3,28 @@
 from EventShapeTools.EventShapeToolsConf import EventDensityTool
 
 def configEventDensityTool( name, pjGetter, radius, **options ):
-    """ option can be used to pass other EventDensityTool property
-    such as EtaRange or UseAbsoluteEta """
-    from JetRec.FastJetInterfaceConfig import getFastJetInterfaceConfig
-
-    # Prepare default properties of the EventDensityTool
-
-    defaultProperties = dict(
-        PseudoJetGetter     = pjGetter,
-        EventShapeName      = pjGetter.Label+"EventShape",
-        EtaRange            = [-2,2],
-        UseAbsoluteEta      = True,
-        UseAreaFourMomentum = True,
-        VariableName = "DensityForJetsR"+str(int(10*radius) )
+    """ options can be used to pass any EventDensityTool properties 
+    """
+    # Set default and passed properties for the EventDensityTool
+    toolProperties = dict(
+        JetAlgorithm        = "Kt",
+        JetRadius           = radius,
+        JetInput            = pjGetter,
+        AbsRapidityMin      = 0.0,
+        AbsRapidityMax      = 2.0,
+        AreaDefinition      = "Voronoi",
+        VoronoiRfact        = 0.9,
+        OutputContainer     = "Kt"+str(int(10*radius))+pjGetter.Label + "EventShape",
         )
-
-    # special treatment for the FastJetTool
-    if "FastJetTool" not in options:
-        fjTool = getFastJetInterfaceConfig("EventDensityArea"+str(int(radius*10)),
-                                           Algorithm = "Kt",
-                                           JetAreaMethod = "VoronoiArea",
-                                           CalculateJetArea = True,
-                                           VoronoiEffectiveRfact = 0.9,
-                                           Radius = radius )
-        defaultProperties["FastJetTool"] = fjTool
-
-    # override by user-given options if any :
-    defaultProperties.update( options)
+    # Override properties with user-supplied options.
+    toolProperties.update( options)
     # Build the tool :
-    return EventDensityTool( name, 
-                             **defaultProperties)
-
-
-
+    return EventDensityTool(name, **toolProperties)
 
 ## EventDensity Alg for Athena
-
-
 import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-
 class EventDensityAlg (PyAthena.Alg):
     'put some documentation here'
     def __init__(self, name='EventDensityAlg', **kw):
@@ -69,5 +50,3 @@ class EventDensityAlg (PyAthena.Alg):
     def finalize(self):
         self.msg.info('==> finalize...')
         return StatusCode.Success
-
-    # class EventDensityAlg
