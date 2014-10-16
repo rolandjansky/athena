@@ -38,22 +38,9 @@ namespace xAOD {
     enum EventDensityID {
       UnknownDensity = -1,
 
-      DensityForJetsR4,
-      DensityForJetsR4Sigma,
-      DensityForJetsR4Area,
-
-      DensityForJetsR6,
-      DensityForJetsR6Sigma,
-      DensityForJetsR6Area,
-
-      DensityForEgammaCentral,
-      DensityForEgammaCentralSigma,
-      DensityForEgammaCentralArea,
-
-      DensityForEgammaForward,
-      DensityForEgammaForwardSigma,
-      DensityForEgammaForwardArea,
-
+      Density,
+      DensitySigma,
+      DensityArea,
 
     } ;
 

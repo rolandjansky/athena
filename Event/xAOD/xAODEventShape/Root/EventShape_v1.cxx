@@ -45,15 +45,9 @@ namespace xAOD {
   SG::AuxElement::Accessor< float > *  eventDensityAccessor(EventShape_v1::EventDensityID id) {
     switch( id ) {
 
-      DEFINE_ACCESSOR( DensityForJetsR4);
-      DEFINE_ACCESSOR( DensityForJetsR4Sigma);
-      DEFINE_ACCESSOR( DensityForJetsR4Area);
-      DEFINE_ACCESSOR( DensityForEgammaCentral);
-      DEFINE_ACCESSOR( DensityForEgammaCentralSigma);
-      DEFINE_ACCESSOR( DensityForEgammaCentralArea);
-      DEFINE_ACCESSOR( DensityForEgammaForward);
-      DEFINE_ACCESSOR( DensityForEgammaForwardSigma);
-      DEFINE_ACCESSOR( DensityForEgammaForwardArea);
+      DEFINE_ACCESSOR( Density);
+      DEFINE_ACCESSOR( DensitySigma);
+      DEFINE_ACCESSOR( DensityArea);
 
 
     default:
