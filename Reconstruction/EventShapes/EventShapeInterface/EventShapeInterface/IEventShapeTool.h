@@ -38,8 +38,14 @@ class IEventShapeTool
   ///////////////////////////////////////////////////////////////////
 
 
+  /// Builds a default EventShape object, and records it in evt store
   virtual StatusCode fillEventShape() const = 0 ;
-  virtual StatusCode fillEventShape(const xAOD::IParticleContainer*, const xAOD::EventShape *) const =0 ;
+
+  /// Fills the given EventShape object
+  virtual StatusCode fillEventShape(xAOD::EventShape *) const =0 ;
+
+  /// Fills the given EventShape object using the given input IParticleContainer
+  virtual StatusCode fillEventShape(xAOD::EventShape *, const xAOD::IParticleContainer*) const =0 ;
   
 
  protected: 
