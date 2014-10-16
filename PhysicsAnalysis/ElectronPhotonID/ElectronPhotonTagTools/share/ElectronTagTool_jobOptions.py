@@ -7,6 +7,8 @@ from ElectronPhotonTagTools.ElectronPhotonTagToolsConf import \
 ElectronTagTool = ConfiguredElectronTagTool(
      Container         = "ElectronCollection",
      EtCut             = 7.0*GeV,
-     CaloIsoCutValues  = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ],
-     TrackIsoCutValues = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ] )
+     # CaloIsoCutValues  = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ],
+     # TrackIsoCutValues = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ] )
+     CaloIsoCutValues  = [ ],
+     TrackIsoCutValues = [ ] )
 ToolSvc += ElectronTagTool

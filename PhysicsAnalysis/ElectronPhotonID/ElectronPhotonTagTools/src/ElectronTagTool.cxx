@@ -216,75 +216,82 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	    float etcone=0;
 	    
 	    // bool iso_20_ptcorr = 
-	    if(!((*elecItr)->isolationValue(etcone,xAOD::EgammaParameters::etcone20_ptcorrected))){
-	     mLog << MSG::ERROR << "No isolation etcone20pt_corrected defined" << endreq;	  
+	    if(!((*elecItr)->isolationValue(etcone,xAOD::Iso::etcone20_ptcorrected))){
+	     mLog << MSG::INFO << "No isolation etcone20pt_corrected defined" << endreq;	  
 	    }
-            for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = etcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
-                  }
-                else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
-              }
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
+		}
+	    }
 	    //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone20);
-	    if(!((*elecItr)->isolationValue(etcone,xAOD::EgammaParameters::topoetcone20))){
-	      mLog << MSG::ERROR << "No isolation topoetcone20 defined" << endreq;	  
+	    if(!((*elecItr)->isolationValue(etcone,xAOD::Iso::topoetcone20))){
+	      mLog << MSG::INFO << "No isolation topoetcone20 defined" << endreq;	  
 	    }
-            for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = etcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
-                  }
-                else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
-              }
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
+		}
+	    }
 	    //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone40_corrected);
-	    if(!((*elecItr)->isolationValue(etcone,xAOD::EgammaParameters::topoetcone40_corrected))){	
-	      mLog << MSG::ERROR << "No isolation topoetcone40_corrected defined" << endreq;	  
+	    if(!((*elecItr)->isolationValue(etcone,xAOD::Iso::topoetcone40_corrected))){	
+	      mLog << MSG::INFO << "No isolation topoetcone40_corrected defined" << endreq;	  
 	    }
-            for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = etcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
                     if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (16+j);
-                  }
-                else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
-              }
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
+		}
+	    }
             /* Track Isolation in bits from 16 to 31 */ 
             float ptcone = 0;
-	    if(!((*elecItr)->isolationValue(ptcone,xAOD::EgammaParameters::ptcone20))){
-	      mLog << MSG::ERROR << "No isolation ptcone20 defined" << endreq;	  
+	    if(!((*elecItr)->isolationValue(ptcone,xAOD::Iso::ptcone20))){
+	      mLog << MSG::INFO << "No isolation ptcone20 defined" << endreq;	  
 	    }
-            for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
-              { 
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = ptcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
-                  }
-                else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
-              }
-	    // }
-       eTagColl.insert( m_isoStr[i], iso );
-       
+	    else{
+	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
+		{ 
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = ptcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
+		    }
+		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
+		}
+	    }
+	    eTagColl.insert( m_isoStr[i], iso );
+	    
        }
-
+       
        /** count the total number of accepted electrons */
        i++;
     }
   }
- 
+  
   /** insert the number of loose electrons */
   eTagColl.insert(ElectronAttributeNames[ElectronID::NElectron], i);
-
+  
   return StatusCode::SUCCESS;
 }
 
