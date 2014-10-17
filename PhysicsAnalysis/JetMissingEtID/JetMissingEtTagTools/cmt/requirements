@@ -19,14 +19,17 @@ use AthenaPoolUtilities	AthenaPoolUtilities-*	Database/AthenaPOOL
 use GaudiInterface	GaudiInterface-*	External
 use AthenaBaseComps	AthenaBaseComps-*	                Control
 
-use StoreGate           StoreGate-*		Control
+#use StoreGate           StoreGate-*		Control
 
 
 use TagEvent		TagEvent-*		PhysicsAnalysis/EventTag
 
 
-apply_pattern dual_use_library files=*.cxx
+apply_pattern dual_use_library files="*.cxx"
+#library JetMissingEtTagTools JetMissingEtTagTool.cxx  -s=components *.cxx
+#apply_pattern component_library
 
+apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
 
 

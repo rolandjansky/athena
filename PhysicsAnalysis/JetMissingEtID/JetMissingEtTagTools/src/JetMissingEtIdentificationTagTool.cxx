@@ -19,7 +19,6 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 #include "xAODJet/JetContainer.h"
 
 #include "JetUtils/JetCaloQualityUtils.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // #include "MissingETEvent/MissingET.h"
 
@@ -55,12 +54,6 @@ StatusCode  JetMissingEtIdentificationTagTool::initialize() {
   MsgStream mLog(msgSvc(), name());
   mLog << MSG::DEBUG << "in intialize()" << endreq;
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
 
   CHECK(initJetSelectors());
 
@@ -92,7 +85,7 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
   /** fill the Jet and MissingET analysis tag */
   
   const xAOD::JetContainer * jetContainer=0;
-  StatusCode sc = m_storeGate->retrieve( jetContainer, m_jetContainerName);
+  StatusCode sc = evtStore()->retrieve( jetContainer, m_jetContainerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING( "No AOD Jet container ("<<m_jetContainerName<<") found in SG" );
     return StatusCode::SUCCESS;

@@ -17,7 +17,7 @@ Purpose : build the JetMissingEtIdentification Tag object - AnalysisTag.h.
 *****************************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
+//#include "StoreGate/StoreGateSvc.h"
 #include "TagEvent/TagFragmentCollection.h"
  #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -53,7 +53,6 @@ private:
   double m_badjetPtCut;
 
   /** Event Store */
-  StoreGateSvc* m_storeGate;
 
  };
 
