@@ -17,6 +17,8 @@ addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeRecoTimingObjTool"         , "
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeHijingParsTool"            , "MergeHijingParsTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMcEventCollTool"           , "MergeMcEventCollTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.SignalOnlyMcEventCollTool"      , "SignalOnlyMcEventCollTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.InTimeOnlyMcEventCollTool"      , "InTimeOnlyMcEventCollTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeGenericMuonSimHitCollTool" , "MergeGenericMuonSimHitCollTool")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMicromegasSimHitCollTool"  , "MergeMicromegasSimHitCollTool")

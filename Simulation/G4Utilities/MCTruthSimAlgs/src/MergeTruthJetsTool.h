@@ -43,9 +43,12 @@ public:
   ///Merge the Truth JetContainers using the PileUpMergeSvc
   virtual StatusCode processAllSubEvents();
 
+  ///implementation of filter reset
+  virtual void resetFilter() { m_first_event=true; m_signal_max_pT=-1.;  m_pileup_max_pT=-1.; m_filterPassed=true; }
+
 private:
   /// JetContainer Loop
-  virtual void processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID);
+  virtual double processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID);
   StatusCode record(const xAOD::JetContainer* pjets, std::string jetcontainername) const;
   ToolHandle<IJetExecuteTool> m_intool;
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
@@ -56,5 +59,10 @@ private:
   std::string m_outOfTimeOutputJetCollKey;
   double m_inTimePtCut;
   double m_outOfTimePtCut;
+  bool m_vetoOnInTime;
+  bool m_includeSignalJets;
+  bool m_first_event;
+  double m_signal_max_pT;
+  double m_pileup_max_pT;
 };
 #endif //MCTRUTHSIMALGS_MERGETRUTHJETSTOOL_H

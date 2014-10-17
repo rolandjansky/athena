@@ -16,7 +16,10 @@ MergeTruthJetsTool::MergeTruthJetsTool(const std::string& type,
   PileUpToolBase(type, name, parent),m_intool(""),
   m_pMergeSvc("PileUpMergeSvc", name),
   m_inTimeOutputJetContainer(NULL),
-  m_outOfTimeOutputJetContainer(NULL)
+  m_outOfTimeOutputJetContainer(NULL),
+  m_first_event(true),
+  m_signal_max_pT(-1.),
+  m_pileup_max_pT(-1.)
 {
   declareInterface<IPileUpTool>(this);
   declareProperty("InputTool", m_intool);
@@ -25,6 +28,8 @@ MergeTruthJetsTool::MergeTruthJetsTool(const std::string& type,
   declareProperty("OutOfTimeTruthJetCollKey", m_outOfTimeOutputJetCollKey="OutOfTimeAntiKt4TruthJets");
   declareProperty("InTimePtCut", m_inTimePtCut=10.0*Gaudi::Units::GeV);
   declareProperty("OutOfTimePtCut", m_outOfTimePtCut=15.0*Gaudi::Units::GeV);
+  declareProperty("VetoOnInTime", m_vetoOnInTime=false);
+  declareProperty("IncludeSignalJets", m_includeSignalJets=false, "Include signal jets in the pileup truth jet collections, if they exist");
 }
 StatusCode MergeTruthJetsTool::initialize() {
   ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
@@ -60,13 +65,22 @@ StatusCode MergeTruthJetsTool::processBunchXing(int bunchXing,
           return StatusCode::FAILURE;
         }
         ATH_MSG_DEBUG ( "processBunchXing: bunch Crossing = " << bunchXing << " JetContainer size = " << inputJetContainer->size());
+        double pileup_this_pT=-1.;
         if (bunchXing==0) {
-          processJetContainer(&(*inputJetContainer), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
+          if (m_first_event) {//FIXME this may not be robust in the case that there is no TruthJet container from the signal event.
+            m_signal_max_pT = processJetContainer(&(*inputJetContainer), 0, m_inTimePtCut, 0.0);
+            m_first_event=false;
+            if (!m_includeSignalJets) {
+              continue;
+            }
+          }
+          pileup_this_pT=processJetContainer(&(*inputJetContainer), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
         }
         else {
           const float timeOfBCID(static_cast<float>(iEvt->time()));
-          processJetContainer(&(*inputJetContainer), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
+          pileup_this_pT=processJetContainer(&(*inputJetContainer), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
         }
+        if (pileup_this_pT>m_pileup_max_pT) m_pileup_max_pT=pileup_this_pT;
       }
     } else {
       ATH_MSG_DEBUG ( "processBunchXing: No JetContainers found." );
@@ -135,6 +149,7 @@ StatusCode MergeTruthJetsTool::processAllSubEvents()
 
   typedef PileUpMergeSvc::TimedList<xAOD::JetContainer>::type TruthJetList;
   TruthJetList truthList;
+  double pileup_this_pT=-1.;
   if ( (m_pMergeSvc->retrieveSubEvtsData(m_inputJetCollKey, truthList)).isSuccess() ) {
     if (!truthList.empty()) {
 
@@ -144,17 +159,28 @@ StatusCode MergeTruthJetsTool::processAllSubEvents()
       while (jetColl_iter!=endOfJetColls) {
         //FIXME we are forced to do a deep copy
         if (static_cast<int>((jetColl_iter)->first.time())==0) {
-          processJetContainer(&(*((jetColl_iter)->second)), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
+          if (m_first_event) {//FIXME this may not be robust in the case that there is no TruthJet container from the signal event.
+            m_signal_max_pT = processJetContainer(&(*((jetColl_iter)->second)), 0, m_inTimePtCut, 0.0);
+            m_first_event=false;
+            if (!m_includeSignalJets) {
+              continue;
+            }
+          }
+          pileup_this_pT=processJetContainer(&(*((jetColl_iter)->second)), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
         }
         else {
           const float timeOfBCID(static_cast<float>((jetColl_iter)->first.time()));
-          processJetContainer(&(*((jetColl_iter)->second)), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
+          pileup_this_pT=processJetContainer(&(*((jetColl_iter)->second)), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
         }
+        if (pileup_this_pT>m_pileup_max_pT) m_pileup_max_pT=pileup_this_pT;
         ++jetColl_iter;
       }
 
     } else ATH_MSG_DEBUG ( "processAllSubEvents: TruthJetList is empty" );
   } else ATH_MSG_ERROR ( "processAllSubEvents: Can not find TruthJetList" );
+
+  // Veto event when m_pileup_max_pT>m_signal_max_pT
+  if (m_pileup_max_pT>m_signal_max_pT) m_filterPassed = false;
 
   if(this->record(m_inTimeOutputJetContainer, m_inTimeOutputJetCollKey).isFailure()) { //This call also records the JetMomentMap.
     ATH_MSG_ERROR ( "processAllSubEvents: Failed to record InTimeOutputJetContainer" );
@@ -176,14 +202,17 @@ StatusCode MergeTruthJetsTool::processAllSubEvents()
 }
 
 //use a float for timeOfBCID as Jet moments are stored as floats.
-void MergeTruthJetsTool::processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID)
+double MergeTruthJetsTool::processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID)
 {
+  double max_pT=-1.;
   const xAOD::JetContainer::const_iterator endOfJets(inputJetContainer->end());
   for (xAOD::JetContainer::const_iterator jetIter(inputJetContainer->begin()); jetIter != endOfJets; ++jetIter) {
     if (!(*jetIter) || (*jetIter)->pt()<ptCut) {
       ATH_MSG_VERBOSE( "processJetContainer: Jet with pT = " << (*jetIter)->pt() << " GeV failed ptCut of " << ptCut << "GeV." );
       continue;
     }
+    if (max_pT<(*jetIter)->pt()) max_pT=(*jetIter)->pt();
+    if (!outputJetContainer) continue;
     ATH_MSG_VERBOSE( "processJetContainer: Jet with pT = " << (*jetIter)->pt() << " GeV passed ptCut of " << ptCut << "GeV." );
     xAOD::Jet* pjet = new xAOD::Jet();
     outputJetContainer->push_back(pjet);
@@ -194,5 +223,5 @@ void MergeTruthJetsTool::processJetContainer(const xAOD::JetContainer* inputJetC
     //we will have to live without it.
     outputJetContainer->back()->setAttribute("Timing", timeOfBCID);
   }
-  return;
+  return max_pT;
 }

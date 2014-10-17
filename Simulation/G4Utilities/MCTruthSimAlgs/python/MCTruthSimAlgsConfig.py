@@ -5,10 +5,7 @@ from AthenaCommon import CfgMgr
 
 ############################################################################
 
-def MergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
-    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
-        kwargs.setdefault("FirstXing", -30000)
-        kwargs.setdefault("LastXing",   30000)
+def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
     kwargs.setdefault("TruthCollKey", "TruthEvent")
     kwargs.setdefault("LowTimeToKeep", -50.5)
     kwargs.setdefault("HighTimeToKeep", 50.5)
@@ -23,11 +20,33 @@ def MergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
     kwargs.setdefault("SaveInTimeMinBias", True)
     kwargs.setdefault("SaveOutOfTimeMinBias", True)
     kwargs.setdefault("SaveRestOfMinBias", False)
-    kwargs.setdefault("DoSlimming", True)
     kwargs.setdefault("AddBackgroundCollisionVertices", True)
     kwargs.setdefault("CompressOutputCollection", False)
 
     return CfgMgr.MergeMcEventCollTool(name, **kwargs)
+
+def MergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", -30000)
+        kwargs.setdefault("LastXing",   30000)
+    kwargs.setdefault("DoSlimming", True)
+    kwargs.setdefault("OnlySaveSignalTruth", False)
+    return genericMergeMcEventCollTool(name, **kwargs)
+
+def SignalOnlyMcEventCollTool(name="SignalOnlyMcEventCollTool", **kwargs):
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", 0)
+        kwargs.setdefault("LastXing",  0)
+    kwargs.setdefault("OnlySaveSignalTruth", True)
+    return genericMergeMcEventCollTool(name, **kwargs)
+
+def InTimeOnlyMcEventCollTool(name="InTimeOnlyMcEventCollTool", **kwargs):
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", 0)
+        kwargs.setdefault("LastXing",  0)
+    kwargs.setdefault("DoSlimming", False)
+    kwargs.setdefault("OnlySaveSignalTruth", False)
+    return genericMergeMcEventCollTool(name, **kwargs)
 
 ############################################################################
 
