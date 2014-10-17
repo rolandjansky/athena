@@ -16,7 +16,7 @@ if inputFileSummary.has_key("evt_type"):
 		print "Detected that the input file is real data"
 	pass
 
-from JetMissingEtTagTools.JetMissingEtTagToolsConf import JetMissingEtTagTool as ConfiguredJetMissingEtTagTool
+from JetMissingEtTagTools.JetMissingEtTagToolsConf import JetMetTagTool as ConfiguredJetMissingEtTagTool
 if rec.doHeavyIon():
 	JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
 		JetContainer        = "antikt4HIItrEM_TowerJets",

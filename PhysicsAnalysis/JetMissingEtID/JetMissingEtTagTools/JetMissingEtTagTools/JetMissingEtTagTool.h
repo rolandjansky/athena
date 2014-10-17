@@ -20,21 +20,19 @@ Purpose : build the JetMissingEt Tag objects - ParticleJetTagCollection.h and Mi
 
 #include <map>
 
-class StoreGateSvc;
-class ParticleJetTagCollection;
 
-/** Interface ID for JetMissingEtTagTool*/  
-static const InterfaceID IID_JetMissingEtTagTool("JetMissingEtTagTool", 1, 0);
-
-class JetMissingEtTagTool : public AthAlgTool {
+class JetMetTagTool : public AthAlgTool {
 
 public:
   
   /** Standard Constructor */
-  JetMissingEtTagTool(const std::string& type, const std::string& name, const IInterface* parent);
+  JetMetTagTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** AlgTool and IAlgTool interface methods */
-  static const InterfaceID& interfaceID( ) { return IID_JetMissingEtTagTool; };
+  static const InterfaceID& interfaceID( ) { 
+    static const InterfaceID IID_JetMetTagTool("JetMetTagTool", 1, 0);
+
+    return IID_JetMetTagTool; };
 
   /** Overriding initialize, finalize */
   virtual StatusCode initialize();
@@ -44,16 +42,10 @@ public:
   virtual StatusCode execute(TagFragmentCollection& jetTagCol, const int max);
   virtual StatusCode finalize();
 
-  // not the most elegant -- should use the new JetSelectorTool ...
-  /* typedef enum  { LooseMinusBad,  LooseBad, MediumBad,  TightBad  } BadJetCategory; */
-  /* /\* static bool isBad(BadJetCategory criteria, double quality, double NegE, double emf,  *\/ */
-  /* /\*   	    double hecf, double time,double fmax, double eta, double chf, double HecQ, double AvgLArQ ); *\/ */
 
 
-protected:
-
-   /** Standard destructor */
-   virtual ~JetMissingEtTagTool( );
+  //   Standard destructor
+  virtual ~JetMetTagTool( );
 
 private:
 
@@ -77,10 +69,6 @@ private:
   std::vector<std::string> m_etaStr;
   std::vector<std::string> m_phiStr;
   std::vector<std::string> m_pidStr;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
 
 
  };

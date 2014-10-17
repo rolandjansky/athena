@@ -11,11 +11,10 @@ Purpose : create a collection of JetMissingEtJetTag
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "JetMissingEtTagTools/JetMissingEtTagTool.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "StoreGate/StoreGateSvc.h"
 
 //#include "JetEvent/JetCollection.h"
 #include "xAODJet/JetContainer.h"
@@ -26,7 +25,6 @@ Purpose : create a collection of JetMissingEtJetTag
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 
-#include "JetMissingEtTagTools/JetMissingEtTagTool.h"
 #include "TagEvent/MissingETAttributeNames.h"
 #include "TagEvent/ParticleJetAttributeNames.h"
 
@@ -46,8 +44,8 @@ using xAOD::MissingETContainer;
 #include "JetSelectorDefs.h"
 
 /** the constructor */
-JetMissingEtTagTool::JetMissingEtTagTool (const std::string& type, const std::string& name, 
-					  const IInterface* parent) : 
+JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name, 
+                                          const IInterface* parent) : 
   AthAlgTool( type, name, parent ) {
 
   /** JetMissingEt AOD Container Name */
@@ -66,18 +64,13 @@ JetMissingEtTagTool::JetMissingEtTagTool (const std::string& type, const std::st
   declareProperty("UseEMScale",            m_useEMScale              = false);
   declareProperty("isSimulation",          m_isSimulation            = false);
   
-  declareInterface<JetMissingEtTagTool>( this );
+  declareInterface<JetMetTagTool>( this );
 }
 
 /** initialization - called once at the begginning */
-StatusCode  JetMissingEtTagTool::initialize() {
+StatusCode  JetMetTagTool::initialize() {
   ATH_MSG_DEBUG(  "in intialize()" );
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to retrieve pointer to StoreGateSvc" );
-    return sc;
-  }
 
   // init selectors as defined in JetSelectorDefs.h
   CHECK(initJetSelectors());
@@ -86,7 +79,7 @@ StatusCode  JetMissingEtTagTool::initialize() {
 }
 
 /** build the attribute list - called in initialize */
-StatusCode JetMissingEtTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap) {
+StatusCode JetMetTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap) {
 
   ATH_MSG_DEBUG(  "in attributeSpecification() for missingET" );
 
@@ -105,7 +98,7 @@ StatusCode JetMissingEtTagTool::attributeSpecification(std::map<std::string,Athe
 }
 
 /** build the attribute list - called in initialize */
-StatusCode JetMissingEtTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
+StatusCode JetMetTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                        const int max) {
   ATH_MSG_DEBUG(  "in attributeSpecification() for jet" );
 
@@ -151,13 +144,13 @@ StatusCode JetMissingEtTagTool::attributeSpecification(std::map<std::string,Athe
 }
 
 /** execute - called on every event for jetTags */
-StatusCode JetMissingEtTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, const int max) {
+StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, const int max) {
 
   ATH_MSG_DEBUG(  "in execute() - jet" );
 
   /** retrieve the AOD Jet container */
   const xAOD::JetContainer * jetContainer=0;
-  StatusCode sc = m_storeGate->retrieve( jetContainer, m_containerName);
+  StatusCode sc = evtStore()->retrieve( jetContainer, m_containerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(  "No AOD Jet container ("<<m_containerName<<") found in SG" );
     return StatusCode::SUCCESS;
@@ -235,13 +228,15 @@ StatusCode JetMissingEtTagTool::execute(TagFragmentCollection& jetMissingEtTagCo
          
          /** B-tagging */
          const xAOD::BTagging* btag =  (*jetItr)->btagging();
-         double mv1 = btag->MV1_discriminant();
-
-         if (mv1 >  0.9827)  pid |= 1<< 12; 	 // MV1 @ 60% 
-         if (mv1 >  0.7892)  pid |= 1<< 13; 	 // MV1 @ 70% 
-         if (mv1 >  0.6073)  pid |= 1<< 14; 	 // MV1 @ 75% 
-         if (mv1 >  0.1340)  pid |= 1<< 15; 	 // MV1 @ 85% 
-         
+	 if( bool(btag) )
+	   {
+	     double mv1 = btag->MV1_discriminant();
+	     
+	     if (mv1 >  0.9827)  pid |= 1<< 12; 	 // MV1 @ 60% 
+	     if (mv1 >  0.7892)  pid |= 1<< 13; 	 // MV1 @ 70% 
+	     if (mv1 >  0.6073)  pid |= 1<< 14; 	 // MV1 @ 75% 
+	     if (mv1 >  0.1340)  pid |= 1<< 15; 	 // MV1 @ 85% 
+	   }
          jetMissingEtTagColl.insert( m_pidStr[i], pid);
          
       }
@@ -255,14 +250,17 @@ StatusCode JetMissingEtTagTool::execute(TagFragmentCollection& jetMissingEtTagCo
         if (jetP4.pt() > 100.0*CLHEP::GeV) ij100++;
 
         const xAOD::BTagging* btag =  (*jetItr)->btagging();
-        double mv1 = btag->MV1_discriminant();
-        if (fabs(jetP4.eta()) < 2.5 &&  mv1 >  0.6073){
-          if (jetP4.pt() > 40.0*CLHEP::GeV) iBj40++;
-          if (jetP4.pt() > 50.0*CLHEP::GeV) iBj50++;
-          if (jetP4.pt() > 55.0*CLHEP::GeV) iBj55++;
-          if (jetP4.pt() > 80.0*CLHEP::GeV) iBj80++;
-          if (jetP4.pt() > 100.0*CLHEP::GeV) iBj100++;
-        }
+	if( bool(btag) )
+	  {
+	    double mv1 = btag->MV1_discriminant();
+	    if (fabs(jetP4.eta()) < 2.5 &&  mv1 >  0.6073){
+	      if (jetP4.pt() > 40.0*CLHEP::GeV) iBj40++;
+	      if (jetP4.pt() > 50.0*CLHEP::GeV) iBj50++;
+	      if (jetP4.pt() > 55.0*CLHEP::GeV) iBj55++;
+	      if (jetP4.pt() > 80.0*CLHEP::GeV) iBj80++;
+	      if (jetP4.pt() > 100.0*CLHEP::GeV) iBj100++;
+	    }
+	  }
       }
 
       /** count the total number of jets */
@@ -282,18 +280,19 @@ StatusCode JetMissingEtTagTool::execute(TagFragmentCollection& jetMissingEtTagCo
   jetMissingEtTagColl.insert(JetAttributeNames[PJet::NpTJet], ij40+100*ij50+10000*ij55+1000000*ij80+100000000*ij100);
   jetMissingEtTagColl.insert(JetAttributeNames[PJet::NpTBJet], iBj40+100*iBj50+10000*iBj55+1000000*iBj80+100000000*iBj100);
 
+  
   return StatusCode::SUCCESS;
 }
 
 
 
 /** execute - called on every event for missing Et */
-StatusCode JetMissingEtTagTool::execute(TagFragmentCollection& missingEtTagColl) {
+StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
 
   ATH_MSG_DEBUG(  "in execute() - missing Et" );
 
   const MissingETContainer *met(0);
-  StatusCode sc = m_storeGate->retrieve( met, m_metContainerName);
+  StatusCode sc = evtStore()->retrieve( met, m_metContainerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(  "No MissingET container found in SG" ); 
     return StatusCode::SUCCESS;
@@ -334,12 +333,12 @@ StatusCode JetMissingEtTagTool::execute(TagFragmentCollection& missingEtTagColl)
 }
 
 /** finialize - called once at the end */
-StatusCode JetMissingEtTagTool::finalize() {
+StatusCode JetMetTagTool::finalize() {
   ATH_MSG_DEBUG(  "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
 /** destructor */
-JetMissingEtTagTool::~JetMissingEtTagTool() {}
+JetMetTagTool::~JetMetTagTool() {}
 
 
