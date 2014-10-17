@@ -11,15 +11,15 @@ use AthenaBaseComps        AthenaBaseComps-*        Control
 use GaudiInterface         GaudiInterface-*         External
 use TrkParameters          TrkParameters-*          Tracking/TrkEvent
 use GeoPrimitives          GeoPrimitives-*          DetectorDescription 
+use AtlasROOT              AtlasROOT-*              External
+use VxVertex               VxVertex-*               Tracking/TrkEvent
 
 private 
 use TrkEventPrimitives     TrkEventPrimitives-*     Tracking/TrkEvent
 use EventPrimitives        EventPrimitives-*        Event
 use TrkTrack               TrkTrack-*               Tracking/TrkEvent
-use AtlasROOT              AtlasROOT-*              External
 use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
 use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
-
 
 public
 
