@@ -40,6 +40,8 @@ public:
   int TileGeoG4npmtC10(int side, int module) { return m_npmtC10[side][module]; }
   // returns number of PMTs in D4 Cells
   int TileGeoG4npmtD4 (int side, int module) { return  m_npmtD4[side][module]; }
+  // returns number of PMTs in E4' Cells
+  int TileGeoG4npmtE5 (int side, int module) { return  m_npmtE5[side][module]; }
 
 private:
   typedef std::map<std::string, TileGeoG4Cell*, std::less<std::string> > TileGeoG4CellMap;
@@ -51,15 +53,19 @@ private:
   void MakeTileGeoG4npmtC10( );
   // Fill array of number of PMTs for D4 Cells
   void MakeTileGeoG4npmtD4( );
+  // Fill array of number of PMTs for E4' Cells
+  void MakeTileGeoG4npmtE5( );
 
   const TileDetDescrManager* m_theManager;
   const TileID* m_tileID;
-  int m_npmtC10[2][64]; //array of number of PMTs for C10 Cells
-  int m_npmtD4[2][64];  //array of number of PMTs for D4 Cells
   TileDddbManager* m_dbManager;
   TileGeoG4CellMap* m_cellMap;
   TileGeoG4SectionMap* m_sectionMap;
-
+  bool m_isE5;
+  int m_npmtC10[2][64]; //array of number of PMTs for C10 Cells
+  int m_npmtD4[2][64];  //array of number of PMTs for D4 Cells
+  int m_npmtE5[2][64];  //array of number of PMTs for E4' Cells
+  
   IMessageSvc* m_msgSvc;
   MsgStream * m_log;
 };

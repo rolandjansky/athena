@@ -104,7 +104,7 @@ void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift)
     {
       if(gap_crack)
       {
-	m_ScinToCell.push_back((samples[0])->cells[row-1]);
+        m_ScinToCell.push_back((samples[0])->cells[row-1]);
       }
       else
       {
@@ -113,22 +113,22 @@ void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift)
 
         if (per == l_currentBoundary[row-1])
         {
-	  //Boundary reached - move to the next cell and next boundary
-	  //Check forced by special period in ITC2
+          //Boundary reached - move to the next cell and next boundary
+          //Check forced by special period in ITC2
 
-	  if(++l_indCurrentCell[row-1] < static_cast<int>((samples[l_indCurrentSample])->cells.size()))
-	  {
-	    l_currentBoundary[row-1] += ((samples[l_indCurrentSample])->cells[l_indCurrentCell[row-1]])->nrOfTilesInRow[l_rowShiftInSample];
-	  }
+          if(++l_indCurrentCell[row-1] < static_cast<int>((samples[l_indCurrentSample])->cells.size()))
+          {
+            l_currentBoundary[row-1] += ((samples[l_indCurrentSample])->cells[l_indCurrentCell[row-1]])->nrOfTilesInRow[l_rowShiftInSample];
+          }
         }
 
         if(l_indCurrentCell[row-1] < static_cast<int>((samples[l_indCurrentSample])->cells.size()))
         {
-	  m_ScinToCell.push_back((samples[l_indCurrentSample])->cells[l_indCurrentCell[row-1]]);
+          m_ScinToCell.push_back((samples[l_indCurrentSample])->cells[l_indCurrentCell[row-1]]);
         }
         else
         {
-	  m_ScinToCell.push_back(0); // Caused by absence of 6-th scintillator in row 2 of ITC2
+          m_ScinToCell.push_back(0); // Caused by absence of 6-th scintillator in row 2 of ITC2
         }
       }//if(gap_crack)
     }//for(row)
@@ -164,50 +164,50 @@ void TileGeoG4Section::AddModuleToCell(bool negative)
     current_sample = samples[l_nSamp];
 
     //Iterate through all cells of the current sample
-    for (l_nCell = 0; l_nCell < current_sample ->cells.size(); l_nCell++)
+    for (l_nCell = 0; l_nCell < current_sample->cells.size(); l_nCell++)
     {
-      current_cell = current_sample ->cells[l_nCell];
+      current_cell = current_sample->cells[l_nCell];
 
       switch(current_cell->nrOfPMT)
       {
       case 1:      
-	{
-	  // We are in GAP/CRACK Cell - use Up vectors only
-	  if(negative) {
-	    current_cell->m_ModuleToHitDown_negative.push_back(0);
-	    current_cell->m_nCellHit_negative.push_back(0);	
+        {
+          // We are in GAP/CRACK Cell - use Up vectors only
+          if(negative) {
+            current_cell->m_ModuleToHitDown_negative.push_back(0);
+            current_cell->m_nCellHit_negative.push_back(0);
           }
-	  else {
-	    current_cell->m_ModuleToHitDown.push_back(0);
-	    current_cell->m_nCellHit.push_back(0);
-	  }
-	  break;
-	}
+          else {
+            current_cell->m_ModuleToHitDown.push_back(0);
+            current_cell->m_nCellHit.push_back(0);
+          }
+          break;
+        }
       case 2:
-	{
-	  // Standart cell
-	  if(negative)
-	  {
-	    current_cell->m_ModuleToHitUp_negative.push_back(0);
-	    current_cell->m_ModuleToHitDown_negative.push_back(0);
-	    current_cell->m_nCellHit_negative.push_back(0);
-	  }
-	  else
-	  {
-	    current_cell->m_ModuleToHitUp.push_back(0);
-	    current_cell->m_ModuleToHitDown.push_back(0);
-	    current_cell->m_nCellHit.push_back(0);
-	  }
-	  break;
-	}
+        {
+          // Standart cell and E5(E4')
+          if(negative)
+          {
+            current_cell->m_ModuleToHitUp_negative.push_back(0);
+            current_cell->m_ModuleToHitDown_negative.push_back(0);
+            current_cell->m_nCellHit_negative.push_back(0);
+          }
+          else
+          {
+            current_cell->m_ModuleToHitUp.push_back(0);
+            current_cell->m_ModuleToHitDown.push_back(0);
+            current_cell->m_nCellHit.push_back(0);
+          }
+          break;
+        }
       default:
-	{
-	  // Unknown cell type
+        {
+          // Unknown cell type
           (*m_log) << MSG::ERROR
                    << "AddModuleToCell(): Unexpected number of PMTs in cell --> " <<current_cell->nrOfPMT
                    << endreq;
-	  return;
-	}
+          return;
+        }
       }
     }
   }
@@ -223,14 +223,11 @@ void TileGeoG4Section::PrintScinToCell(std::string section_name)
   int l_nRow = nrOfScintillators;
   int i = 0;
 
-   
+  (*m_log) << MSG::DEBUG << endreq;
   (*m_log) << MSG::DEBUG << "***********************************************************" << endreq; 
-  (*m_log) << MSG::DEBUG << "*                                                         *" << endreq;
   (*m_log) << MSG::DEBUG << "* Printing Scintillator-to-Cell corespondence for section *" << endreq;
   (*m_log) << MSG::DEBUG << "       " << section_name.c_str() << "           "            << endreq;
-  (*m_log) << MSG::DEBUG << "*                                                         *" << endreq;
   (*m_log) << MSG::DEBUG << "***********************************************************" << endreq;
-  (*m_log) << MSG::DEBUG << "                                                           " << endreq;
 
   (*m_log) << MSG::DEBUG;
   for (size_t j=0; j<m_ScinToCell.size(); j++)
@@ -239,15 +236,14 @@ void TileGeoG4Section::PrintScinToCell(std::string section_name)
       (*m_log) << m_ScinToCell[j]->tower << "," << m_ScinToCell[j]->sample << " ";
     if (++i == l_nRow)
     {
-      (*m_log) << endreq;
-      (*m_log) << MSG::DEBUG;
+      // (*m_log) << endreq;
       i=0;
     }
   }
   (*m_log) << endreq;
 
-  (*m_log) << MSG::DEBUG << "************************************************************"<<endreq;
-  (*m_log) << MSG::DEBUG << "                                                            "<<endreq;
+  (*m_log) << MSG::DEBUG << "***********************************************************" << endreq;
+  (*m_log) << MSG::DEBUG << endreq;
 
 }
 

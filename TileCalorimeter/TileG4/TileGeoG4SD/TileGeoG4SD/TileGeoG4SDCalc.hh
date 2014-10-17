@@ -21,6 +21,7 @@
 
 #include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 #include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/TileTBID.h"
 
 #include <vector>
 
@@ -32,7 +33,6 @@ class G4Step;
 class G4HCofThisEvent;
 class G4String;
 
-class TileID;
 class TileRow;
 class TileGeoG4Section;
 class TileGeoG4Cell;
@@ -72,6 +72,7 @@ public:
     static G4double Tile_1D_profileSym     (int row, G4double x, G4double y, int PMT, int nDetector, int nSide); //Single Lookup table is included; average of central 17 bins is normalized to 0.5
     static G4double Tile_1D_profileFunc    (int row, G4double x, G4double y, int PMT, int nDetector, int nSide); //Single Lookup table is included; average of all bins is normalized to 0.5
     static G4double Tile_1D_profileRescaled(int row, G4double x, G4double y, int PMT, int nDetector, int nSide);
+    static G4double Tile_1D_profileRescaled_zeroBins(int row, G4double x, G4double y, int PMT, int nDetector, int nSide, int nZeroBins=0);
 
 // the default function which is used in simulation in the case Ushape=1
 #define Tile_1D_profile Tile_1D_profileRescaled
@@ -140,6 +141,9 @@ private:
 
     /** @brief pointer to TileID helper class */
     const  TileID* m_tileID;
+
+    /** @brief pointer to TileTBID helper class */
+    const  TileTBID* m_tileTBID;
 
     /** @brief hits in different tile rows are shifted in time by this amount of ns */
     double m_tilesize_deltaT;
