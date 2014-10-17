@@ -13,6 +13,7 @@
 #include "InDetPriVxFinder/InDetPriVxFinder.h"
 // forward declares
 #include "InDetRecToolInterfaces/IVertexFinder.h"
+#include "TrkVertexFitterInterfaces/IVertexMergingTool.h"
 #include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -31,13 +32,15 @@ namespace InDet
 {
 
   InDetPriVxFinder::InDetPriVxFinder ( const std::string &n, ISvcLocator *pSvcLoc )
-      : AthAlgorithm ( n, pSvcLoc ),
+    : AthAlgorithm ( n, pSvcLoc ),
       m_tracksName ( "Tracks" ),
       m_vxCandidatesOutputName ( "PrimaryVertices" ),
       m_vxCandidatesOutputNameAuxPostfix ( "Aux." ),
       m_VertexFinderTool ( "InDet::InDetPriVxFinderTool" ),
+      m_VertexMergingTool( "Trk::VertexMergingTool" ),
       m_VertexCollectionSortingTool ("Trk::VertexCollectionSortingTool"),
       m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
+      m_doVertexMerging(false),
       m_doVertexSorting(false),
       // for summary output at the end
       m_numEventsProcessed(0),
@@ -48,8 +51,10 @@ namespace InDet
     declareProperty ( "VxCandidatesOutputName",m_vxCandidatesOutputName );
     declareProperty ( "VxCandidatesOutputNameAuxPostfix",m_vxCandidatesOutputNameAuxPostfix );
     declareProperty ( "VertexFinderTool",m_VertexFinderTool );
+    declareProperty ( "VertexMergingTool",m_VertexMergingTool );
     declareProperty ( "VertexCollectionSortingTool",m_VertexCollectionSortingTool );
     declareProperty ( "InternalEdmFactory", m_VertexEdmFactory);
+    declareProperty ( "doVertexMerging",m_doVertexMerging );
     declareProperty ( "doVertexSorting",m_doVertexSorting );
   }
 
@@ -67,6 +72,20 @@ namespace InDet
     else
     {
       msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endreq;
+    }
+
+    /*Get the Vertex Mergin Tool*/
+    if (m_doVertexMerging)
+    {
+      if ( m_VertexMergingTool.retrieve().isFailure() )
+      {
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexMergingTool << endreq;
+        return StatusCode::FAILURE;
+      }
+      else
+      {
+        msg(MSG::INFO) << "Retrieved tool " << m_VertexMergingTool << endreq;
+      }
     }
 
     /*Get the Vertex Collection Sorting Tool*/
@@ -139,11 +158,20 @@ namespace InDet
       return StatusCode::SUCCESS;
     }
 
-    // now resorting the vertex container and store to SG
+    // now  re-merge and resort the vertex container and store to SG
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainer;
     VxContainer* MyTrackVxContainer = 0;
     if (theXAODContainer.first) {
       //sort xAOD::Vertex container
+
+      if(m_doVertexMerging && theXAODContainer.first->size() > 1) {
+        myVxContainer = m_VertexMergingTool->mergeVertexContainer( *theXAODContainer.first );
+        //now delete and copy over theXAODContainer so sorting will still work
+        delete theXAODContainer.first; //also cleans up the aux store
+        delete theXAODContainer.second; 
+        theXAODContainer = myVxContainer;
+      }
+      
       if (m_doVertexSorting && theXAODContainer.first->size() > 1) {	
 	myVxContainer = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainer.first);
 	delete theXAODContainer.first; //also cleans up the aux store
@@ -169,6 +197,14 @@ namespace InDet
 	return StatusCode::FAILURE;
       }
     } else if (theVxContainer) {
+
+      if( m_doVertexMerging && theVxContainer->size() > 1 ) {
+        MyTrackVxContainer = m_VertexMergingTool->mergeVxContainer( * theVxContainer );
+        delete theVxContainer;
+        //reassign so sorting can still run;
+        theVxContainer = MyTrackVxContainer;
+      }
+
       //sort Trk::Track container (or Rec::TrackParticle)
       if (m_doVertexSorting && theVxContainer->size() > 1) {
 	MyTrackVxContainer = m_VertexCollectionSortingTool->sortVxContainer(*theVxContainer);

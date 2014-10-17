@@ -26,6 +26,7 @@
 
 namespace Trk
 {
+  class IVertexMergingTool;
   class IVertexCollectionSortingTool;
   class IVxCandidateXAODVertex;  
 }
@@ -48,9 +49,11 @@ namespace InDet
     std::string m_vxCandidatesOutputNameAuxPostfix; //!< Postfix of output auxiliary container to store results (xAOD only)
 
     ToolHandle< IVertexFinder > m_VertexFinderTool;
+    ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool;
     ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool;
     ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
     
+    bool m_doVertexMerging;
     bool m_doVertexSorting;
 
     // for summary output at the end
