@@ -68,14 +68,12 @@ if jetFlags.useTruth():
   jtm.addJetFinder("CamKt12TruthWZJets",  "AntiKt", 1.2,  "truthwz", ptmin=40000)
 if jetFlags.useTracks():
   jtm.addJetFinder("AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ptmin= 2000)
-  jtm.addJetFinder("AntiKt3ZTrackJets",   "AntiKt", 0.3,   "ztrack", ptmin= 2000)
   jtm.addJetFinder("AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ptmin= 2000)
-  jtm.addJetFinder("AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ptmin= 2000)
 if jetFlags.useTopo():
-  jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 5000)
-  jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 7000)
-  jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000)
-  jtm.addJetFinder("CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000)
+  jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 5000, calibOpt="ar")
+  jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 7000, calibOpt="ar")
+  jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000, calibOpt="a")
+  jtm.addJetFinder("CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000, calibOpt="a")
 
 #--------------------------------------------------------------
 # Build output container list.
@@ -91,6 +89,7 @@ for jetrec in jtm.jetrecs:
     auxprefix = "Trig"
   jetFlags.jetAODList += [ "xAOD::Jet" + auxprefix + "AuxContainer_v1#" + jetrec.name() + "Aux." ]
 
+
 # For testing. These blocks should not be enabled in production.
 if jetFlags.debug > 0:
   jetlog.info( "JetRec_jobOptions.py: Requested output stream: ")
@@ -105,3 +104,11 @@ if jetFlags.debug > 1:
 #--------------------------------------------------------------
 import JetRec.JetAlgorithm 
 
+
+#--------------------------------------------------------------
+# save event shapes set with the JetAlgorithm
+#--------------------------------------------------------------
+for esTool in jtm.jetrun.EventShapeTools :
+    t = getattr(ToolSvc, esTool.getName() )
+    jetFlags.jetAODList += [ "xAOD::EventShape_v1#"+t.OutputContainer,
+                             "xAOD::EventShape_v1#"+t.OutputContainer+'Aux.' ]

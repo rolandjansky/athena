@@ -58,6 +58,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorr
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
 
 #--------------------------------------------------------------
 # Track selection.
@@ -450,4 +451,8 @@ jtm += JetPullTool("pull", UseEtaInsteadOfY=False)
 
 # Jet charge
 jtm += JetChargeTool("charge", K=1.0)
+
+# Shower deconstruction.
+jtm += ShowerDeconstructionTool("showerdec")
+
 

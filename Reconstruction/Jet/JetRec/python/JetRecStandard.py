@@ -12,6 +12,11 @@
 #   from JetRec.JetRecStandard import jtm
 #   jtm.addJetFinder("AntiKt4EMTopoJets", "AntiKt", 0.4, "em", "calib_topo_ungroomed")
 #
+
+myname = "JetRecStandard.py: "
+
+print myname + "Defining standard tools"
+
 #########################################################
 # Create standard tool manager.
 #########################################################
@@ -30,6 +35,8 @@ jtm.ptminFilter =    0
 
 # Add standard tool definitions to the tool manager.
 import JetRec.JetRecStandardTools
+
+print myname + "jetFlags.useTruth: " + str(jetFlags.useTruth())
 
 #########################################################
 # Getters
@@ -138,15 +145,7 @@ if jetFlags.useTruth():
 
 # Modifiers for calibrated topo jets.
 calib_topo_ungroomed_modifiers = []
-calname = jetFlags.applyCalibrationName()
-if calname == "none":
-  calname = ""
-elif calname == "offset" or calname == "jes":
-  if len(calname) and jetFlags.useTracks():
-    calib_topo_ungroomed_modifiers += ["applyCalibrationTool:" + calname]
-else:
-  print "Invalid calibration name: ", calname
-  raise Exception
+calib_topo_ungroomed_modifiers += ["calib"]
 calib_topo_ungroomed_modifiers += topo_ungroomed_modifiers
 
 # Modifiers for groomed jets.
@@ -167,12 +166,12 @@ def filterout(skiptoolnames, tools):
         remtoolnames += [toolname]
     if keep:
       outtools += [tool]
-  print "JetRecStandard.py: Removed tools: " + str(remtoolnames)
+  print myname + "Removed tools: " + str(remtoolnames)
   return outtools
 
 # Filter out skipped tools.
 if len(jetFlags.skipTools()):
-  print "JetRecStandard.py: Tools to be skipped: " + str(jetFlags.skipTools())
+  print myname + "Tools to be skipped: " + str(jetFlags.skipTools())
   topo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), topo_ungroomed_modifiers)
   calib_topo_ungroomed_modifiers  = filterout(jetFlags.skipTools(), calib_topo_ungroomed_modifiers)
   truth_ungroomed_modifiers       = filterout(jetFlags.skipTools(), truth_ungroomed_modifiers)

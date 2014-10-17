@@ -15,6 +15,7 @@
 
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AsgTool.h"
+#include "EventShapeInterface/IEventShapeTool.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "TStopwatch.h"
 
@@ -38,7 +39,7 @@ public:
   // Finalization. Write summary report.
   StatusCode finalize();
 
-  // Lop over tools.
+  // Loop over tools.
   int execute() const;
 
   // Display the configuration.
@@ -47,12 +48,14 @@ public:
 private:
 
   // Properties.
+  ToolHandleArray<IEventShapeTool> m_evstools;
   ToolHandleArray<IJetExecuteTool> m_exetools;
   int m_timer;
 
   // Clocks.
   mutable unsigned int m_nevt;
   mutable TStopwatch m_clock;
+  mutable std::vector<TStopwatch> m_evsclocks;
   mutable std::vector<TStopwatch> m_execlocks;
 
 };

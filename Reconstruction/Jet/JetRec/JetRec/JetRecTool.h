@@ -111,6 +111,7 @@ private:
   ToolHandleArray<IJetModifier> m_modifiers;
   bool m_trigger;
   int m_timer;
+  bool m_shallowCopy;
 
   // Cached state.
   int m_initCount;

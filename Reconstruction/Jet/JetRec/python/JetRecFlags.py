@@ -107,6 +107,14 @@ class usePflow(JobProperty):
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
+class eventShapeTools(JobProperty):
+  """ List of event shape tools that should be called to calculate rho.
+      Allowed values are "em" and "lc".
+  """
+  statusOn     = True     
+  allowedTypes = ['list']  # type
+  StoredValue  = ['em', 'lc']        # default value
+
 class useInDetTrackSelection(JobProperty):
   """ If true, the InDet track selection tool is used.
   """
@@ -143,12 +151,12 @@ class additionalTopoGetters(JobProperty):
   allowedTypes = ['list']  # type
   StoredValue  = []        # default value
 
-class applyCalibrationName(JobProperty):
-  """ Calibration applied to topo jets during jet building: none, offset or jes
+class defaultCalibOpt(JobProperty):
+  """ Calibration applied to topo jets during jet building. See JetRecCalibrationFinder.
   """
   statusOn     = True     
   allowedTypes = ['str']    # type
-  StoredValue  = "offset"   # default value
+  StoredValue  = ""   # default value
 
 class containerNamePrefix(JobProperty):
   """ Prefix for jet collection names
@@ -196,12 +204,13 @@ jobproperties.JetRecFlags.add_JobProperty(useTracks)
 jobproperties.JetRecFlags.add_JobProperty(useInDetTrackSelection)
 jobproperties.JetRecFlags.add_JobProperty(useMuonSegments)
 jobproperties.JetRecFlags.add_JobProperty(usePflow)
+jobproperties.JetRecFlags.add_JobProperty(eventShapeTools)
 jobproperties.JetRecFlags.add_JobProperty(jetAODList)
 jobproperties.JetRecFlags.add_JobProperty(useCells)
 jobproperties.JetRecFlags.add_JobProperty(useCaloQualityTool)
 jobproperties.JetRecFlags.add_JobProperty(skipTools)
 jobproperties.JetRecFlags.add_JobProperty(additionalTopoGetters)
-jobproperties.JetRecFlags.add_JobProperty(applyCalibrationName)
+jobproperties.JetRecFlags.add_JobProperty(defaultCalibOpt)
 jobproperties.JetRecFlags.add_JobProperty(containerNamePrefix)
 jobproperties.JetRecFlags.add_JobProperty(separateJetAlgs)
 jobproperties.JetRecFlags.add_JobProperty(timeJetToolRunner)

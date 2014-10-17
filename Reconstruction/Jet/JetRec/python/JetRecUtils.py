@@ -13,9 +13,13 @@ def retrieveAODList():
     from RecExConfig.ObjKeyStore import objKeyStore
 
     inputcontent = objKeyStore['inputFile'].list()
-    esdjets = [o for o in  inputcontent if 'xAOD::JetContainer_v1' in o ]
-    esdjets += [o for o in  inputcontent if 'xAOD::JetAuxContainer_v1' in o ]
-    esdjets += [o for o in  inputcontent if 'xAOD::JetTrigAuxContainer_v1' in o ]
+    typeToSave = [ 'xAOD::JetContainer_v1', 'xAOD::JetAuxContainer_v1', 'xAOD::JetTrigAuxContainer_v1' , 'xAOD::EventShape_v1', 'xAOD::EventShapeAuxInfo_v1' ]
+
+    def saveThisObject(o):
+        # return True if o is of a desired type
+        return any( o.startswith( typ ) for typ in typeToSave )
+
+    esdjets = [ o for o in inputcontent if saveThisObject(o) ]
 
     return esdjets
 

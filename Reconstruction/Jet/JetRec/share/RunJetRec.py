@@ -31,12 +31,18 @@ useLArHVCorr = False
 jtm.modifiersMap["calib"] += [jtm.isolation]
 if useLArHVCorr:
   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
-jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge]
+jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge, jtm.showerdec]
 print "%%%%%%%"
 print jtm.modifiersMap["mycalib"]
 print "%%%%%%%"
 
 # Finders.
+# Calibration for topo jets: calibOpt =
+#   a - area corrn
+#   r - residual pileup corrn
+#   j - GES
+#   g - GSC
+#   i - Insitu
 gatopo  = 0.01
 gatruth = 0.00
 gatrack = 0.00
@@ -52,10 +58,10 @@ if jetFlags.useTracks:
   jtm.addJetFinder("Run2AntiKt4TrackJets",    "AntiKt", 0.4,    "track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ghostArea=gatrack, ptmin= 2000)
-jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo)
-jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo)
-jtm.addJetFinder(  "Run2AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo)
-jtm.addJetFinder(  "Run2CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo)
+jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="arj")
+jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="ar")
+jtm.addJetFinder(  "Run2AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="a")
+jtm.addJetFinder(  "Run2CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="a")
 
 # Groomers.
 if runJetGrooming:

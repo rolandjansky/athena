@@ -127,16 +127,16 @@ class JetToolManager:
       return self.modifiersMap[modifiersin]
     return modifiersin
 
-  # Build the list of modifiers, replacing the string "applyCalibrationTool"
-  # with the appropriate calibration tool.
-  def buildModifiers(self, modifiersin, finder, getters, altname, output):
-    from ApplyJetCalibration.SetupAthenaCalibration import applyCalibrationTool
+  # Build the list of modifiers, replacing the string "applyCalibrationTool:XXX"
+  # or "calib:XXX" with the appropriate calibration tool.
+  def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt):
     from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
     from JetRec.JetRecConf import JetFinder
     outmods = []
     inmods = self.getModifiers(modifiersin, altname)
+    ncalib = 0
     for mod in inmods:
-      print mod
+      print self.prefix + "Adding modifier " + str(mod)
       mod1 = ""
       # Split mod = mod1:mod2
       if type(mod) == str:
@@ -150,22 +150,36 @@ class JetToolManager:
       if isinstance(mod, ConfigurableAlgTool):
         self.msg(2, "  Adding modifier " + mod.name())
         outmods += [mod]
-      # applyCalibrationTool:opt - Applies calibration opt = "jes" (full JES) or
-      # "offset" (rho*A offset only)
-      elif mod1 == "applyCalibrationTool":
-        #if not isinstance(finder, JetFinder): raise TypeError
+      # Add jet calibration:
+      #   calib:XXX - Applies calibration sequence XXX (see JetRecCalibrationFinder)
+      #               using JetCalibrationTool.
+      elif mod1 == "calib":
+        ncalib += 1
         alg = finder.JetAlgorithm
         rad = finder.JetRadius
         get = getters[0]
         inp = get.Label
+        if mod2 == "":
+          mod2 = calibOpt
+        if mod2 == "":
+          print self.prefix + "ERROR: Calibration requested without option."
+          print self.prefix + "       Add calibOpt to jet build command or to jetFlags.defaultCalibOpt"
+          raise Exception
         self.msg(0, "  Adding " + mod2 + " calibration for " + alg + " R=" + str(rad) + " " + inp)
-        if mod2 == "offset":
-          calmod = applyCalibrationTool(alg, rad, inp, onlyOffset=True)
-        elif mod2 == "jes":
-          calmod = applyCalibrationTool(alg, rad, inp)
+        if mod1 == "calib":
+          from JetRec.JetRecCalibrationFinder import jrcf
+          calmod = jrcf.find(alg, rad, inp, mod2)
         else:
-          self.msg(0, "Invalid calibration type: " + mod2)
-          raise LookupError
+          print self.prefix + "WARNING: Using obsolete calibration tool."
+          from ApplyJetCalibration.SetupAthenaCalibration import applyCalibrationTool
+          if mod2 == "offset":
+            calmod = applyCalibrationTool(alg, rad, inp, onlyOffset=True)
+          elif mod2 == "jes":
+            calmod = applyCalibrationTool(alg, rad, inp)
+          else:
+            self.msg(0, "Invalid calibration type: " + mod2)
+            raise LookupError
+        print self.prefix + "Adding calib modifier " + str(calmod)
         outmods += [calmod]
       # truthassoc - Does truth jet association replacing the input anme with "Truth"
       elif mod == "truthassoc":
@@ -177,8 +191,8 @@ class JetToolManager:
           raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
-          print "JetToolManager: Truth association skipped because container is missing: " + cname
-          print "JetToolManager: Add to jetcons if input stream is expected to have this."
+          print self.prefix + "Truth association skipped because container is missing: " + cname
+          print self.prefix + "Add to jetcons if input stream is expected to have this."
         tname = mod + "_" + salg + srad
         if not tname in self.tools:
           from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
@@ -194,8 +208,8 @@ class JetToolManager:
           raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
-          print "JetToolManager: Track association skipped because container is missing: " + cname
-          print "JetToolManager: Add to jetcons if input stream is expected to have this."
+          print self.prefix + "Track association skipped because container is missing: " + cname
+          print self.prefix + "Add to jetcons if input stream is expected to have this."
         else:
           tname = mod + "_" + salg + srad
           if not tname in self.tools:
@@ -205,7 +219,7 @@ class JetToolManager:
       # jetfilter - Filter to remove jets with pT < self.ptminFilter
       elif mod == "jetfilter":
         if self.ptminFilter <= 0:
-          print "JetToolManager: Jet filter requested without a threshold."
+          print self.prefix + "Jet filter requested without a threshold."
           raise Exception
         tname = "jetpt" + str(self.ptminFilter)
         if not tname in self.tools:
@@ -214,6 +228,11 @@ class JetToolManager:
         outmods += [self.tools[tname]]
       else:
         raise TypeError
+      # Check calibration.
+      if calibOpt != "" and ncalib==0:
+        print self.prefix + "Calibration " + calibOpt + " requested without any calibration modifiers."
+        raise Exception
+        
     return outmods
 
   # Create a jet finder and rectool.
@@ -238,10 +257,12 @@ class JetToolManager:
   #   useTriggerStore: If true, the trigger store is used (only for testing)
   #   variableRMinRadius: Min radius for variable-R finding
   #   variableRMassScale: Mass scale for variable-R finding
+  #   calibOpt: Calibration option, e.g. "ar". See JetRecCalibrationFinder.py.
   def addJetFinder(self, output, alg, radius, gettersin, modifiersin =None, ivtxin =None,
                    ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                    isTrigger =False, useTriggerStore =False,
-                   variableRMinRadius =-1.0, variableRMassScale =-1.0):
+                   variableRMinRadius =-1.0, variableRMassScale =-1.0,
+                   calibOpt =""):
     from JetRec.JetRecConf import JetByVertexFinder
     self.msg(2, "Adding finder")
     if ghostArea == 0.0:
@@ -293,7 +314,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, gettersin, output)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, gettersin, output, calibOpt)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = self.timer
@@ -408,7 +429,8 @@ class JetToolManager:
   #   output = name for output container (and JetRecTool)
   #   output = name for input container
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
-  def addJetCopier(self, output, input, modifiersin, ptminFilter =0.0, radius =0.0, alg ="", inp =""):
+  def addJetCopier(self, output, input, modifiersin, ptminFilter =0.0, radius =0.0, alg ="", inp ="",
+                   isTrigger=False, useTriggerStore=False, calibOpt =""):
     from JetRec.JetRecConf import JetRecTool
     jetrec = JetRecTool(output)
     jetrec.InputContainer = input
@@ -421,7 +443,7 @@ class JetToolManager:
     class get:
       Label = inp
     getters = [get]
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = self.timer
