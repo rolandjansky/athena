@@ -34,6 +34,8 @@ parser.add_argument('inFile2', type=str, default="", nargs='?', help='2nd input 
 parser.add_argument('--treeName1', type=str, default="CollectionTree", help="Name of TTree (default: %(default)s)", metavar='name1')
 parser.add_argument('--treeName2', type=str, default="CollectionTree", help="Name of TTree", metavar='name2')
 parser.add_argument( '--containers', type=str, default= testedContainers, nargs='*',help="list of containers (ex: --containers cont1 cont2 cont3)", metavar='jetcontname')
+parser.add_argument('--details', action='store_true', help="Display status for each variable, even if no error")
+parser.add_argument('--ESD', action='store_true', help="Use this if input files are ESD")
 #parser.add_argument('-exV', '--excludedVar', type=str, default=[], nargs='*')
 #parser.add_argument('-t1', '--type1', type=str, default="xAOD", nargs='?')
 #parser.add_argument('--', type=str, default="")
@@ -79,6 +81,10 @@ def splitVarName_xAOD( fullname ):
     except:
         return "none", None
 
+# act if reading ESD -----------
+if args.ESD:
+    testedContainers = ["xAOD::JetAuxContainer_v1_"+b for b in testedContainers ]
+    
 # Static aux container branches -----
 additionalBranches = []
 for c in testedContainers:
@@ -98,7 +104,7 @@ vc.init_trees( base_vars = [],
                )
 
 #numErr = vc.full_compare(debug=True, maxEvent=1)
-numErr = vc.full_compare(debug=False, maxEvent=100, verbose=False)
+numErr = vc.full_compare(debug=False, maxEvent=100, detailedSummary=args.details)
 
 exit(numErr) # RTT: success if exit code is 0, failure otherwise
 

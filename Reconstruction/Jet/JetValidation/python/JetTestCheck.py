@@ -144,7 +144,7 @@ class VarPairBase(object):
             
 
 
-    def summary(self, silent=False, verbose=False):
+    def summary(self,  verbose=False):
         name = self.name.rjust(21)
         name = name+' '+ ('['+str(self.nvalues)+']').ljust(9)
         maxDiff = min(1 ,self.max_rel_diff.max() )
@@ -159,9 +159,8 @@ class VarPairBase(object):
             statusStr = statusStr+" vec size differed [evt "+str(self.diff_size_event)+"]" 
         if error == 0:
             statusStr = 'ok'
-        if not silent:
-            if error >0 or verbose:
-                print '%40s'%(self.name,), statusStr
+        if error >0 or verbose:
+            print '%40s'%(self.name,), statusStr
 
                 
         return (error, self.nvalues, self.num_errors)
@@ -277,7 +276,6 @@ class VarPairVectorMeV(VarPairVector):
 class VarPairVectorVector(VarPairVector):
 
     def compare(self, evt1, evt2):        
-        #print 'VarPairVectorVector compartor ', self.bname1
 
         self.b1.GetEntry(evt1), self.b2.GetEntry(evt2)
 
@@ -516,10 +514,9 @@ class VarComparator(object):
             for v in l_var:
                 v.resetBranchPointer(one, tree, evt)
 
-    def full_compare(self,stopOnError=False,debug=True, maxEvent=10e10, verbose=False):
+    def full_compare(self,stopOnError=False,debug=True, maxEvent=10e10, detailedSummary=False):
         global fullDebug, fullDebug_on, fullDebug_off
         ok = True
-                
         fullDebug = fullDebug_on if debug else fullDebug_off
         t1, t2 = self.t1, self.t2
         nEvt = min(maxEvent,self.t1.GetEntries(), self.t2.GetEntries() )
@@ -545,7 +542,7 @@ class VarComparator(object):
                 print 'Summary for ',jet, ' num var =', len(l_var),' **********************'
                 #print 'Variable with errors'.rjust(22)
                 for v in l_var:
-                    nerr , nvalues, nwrongvalues = v.summary(verbose=verbose)
+                    nerr , nvalues, nwrongvalues = v.summary(verbose=detailedSummary)
                     err += bool(nerr)
                     values += nvalues
                     wrongvalues +=nwrongvalues

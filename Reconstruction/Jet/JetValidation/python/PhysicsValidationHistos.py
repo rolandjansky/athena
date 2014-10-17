@@ -4,14 +4,20 @@ from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 
-def commonPhysValTool(container, refcontainer=""):
+def commonPhysValTool(container, refcontainer="", onlyKinematics = False):
     filler = JetContainerHistoFiller(container+"HistoFiller",JetContainer = container)
 
     # Give a list of predefined tools from jhm or a combination of such tools
     filler.HistoTools = [
         # build a special tool without 2D hists :
         JetKinematicHistos("kinematics",PlotOccupancy=False, PlotAveragePt=False, PlotNJet=True) ,
+        ]
 
+    if onlyKinematics:
+        # return now 
+        return filler
+
+    filler.HistoTools = [
         
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
@@ -76,7 +82,10 @@ athenaMonTool = JetMonitoringTool(HistoTools = [
 
     commonPhysValTool( "AntiKt4TruthJets" ),
 
+    commonPhysValTool( "HLT_xAOD__JetContainer_TrigHLTJetRec", onlyKinematics = True ),
     ])
+
+
 
 ToolSvc += athenaMonTool
 

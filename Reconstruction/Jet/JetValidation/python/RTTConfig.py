@@ -16,22 +16,23 @@ def scheduleRTTJetTests():
 
     from JetRec.JetRecStandard import calib_topo_ungroomed_modifiers, topo_ungroomed_modifiers
 
-    calibarg = 'calib' if jetFlags.applyCalibrationName()!="none" else None
+    #calibarg = 'calib' if jetFlags.applyCalibrationName()!="none" else None
 
     #calibarg = 'calib' if jetFlags.applyCalibrationName!= "none" else "none"
 
     # arguments to give to addJetFinder
     # format is 'input' : dict_of_args
-    addJetFinderArgs = { 'LCTopo' : dict(gettersin='lctopo', modifiersin=calibarg ,ghostArea=0.01,  ), 
-                         'EMTopo' : dict(gettersin='emtopo', modifiersin=calibarg ,ghostArea=0.01,   ), 
-                         'ZTrack' : {},
-                         }
+    inputArgs = { 'LCTopo' : dict(gettersin='lctopo', modifiersin='calib' ,ghostArea=0.01,  ), 
+                  'EMTopo' : dict(gettersin='emtopo', modifiersin='calib' ,ghostArea=0.01,   ), 
+                  'ZTrack' : {},
+                  }
 
-    ptminFilterDic = {
-        "AntiKt4LCTopoJetsTest" : 7000,
-        "AntiKt4EMTopoJetsTest" : 5000,
-        "AntiKt10LCTopoJetsTest":50000,
-        "CamKt12LCTopoJetsTest" :50000,
+
+    fullnameArgs = {
+        "AntiKt4LCTopoJetsTest" : dict( ptminFilter=7000, calibOpt='ar'),
+        "AntiKt4EMTopoJetsTest" : dict( ptminFilter=5000, calibOpt='ar'),
+        "AntiKt10LCTopoJetsTest": dict( ptminFilter=50000, calibOpt='a'),
+        "CamKt12LCTopoJetsTest" : dict( ptminFilter=50000, calibOpt='a'),
         }
     
     tools = []
@@ -39,16 +40,22 @@ def scheduleRTTJetTests():
         # decompose arg name 
         finder, mainParam, input = interpretJetName(jname)
 
+        args = fullnameArgs[jname]
+        args.update( inputArgs[input] )
         # call addJetFinderArgs with the relavant args for this collection
         t=jtm.addJetFinder(jname, finder, mainParam, ptmin=2000,
-                           ptminFilter= ptminFilterDic.get(jname,-1),
-                           **addJetFinderArgs[input] )
+                           **args
+                           )
 
         tools.append( t )
 
                          
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence= AlgSequence()
+
+    if jetFlags.useTruth:
+        from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
+        scheduleCopyTruthParticles(topSequence)
     
     topSequence += JetAlgorithm( "JetAlgorithmTest", Tools = [jtm.tracksel, jtm.tvassoc, ]+tools )
 
