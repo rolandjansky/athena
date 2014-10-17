@@ -13,7 +13,7 @@
 #include "DBReplicaSvc.h"
 
 DBReplicaSvc::DBReplicaSvc(const std::string& name, ISvcLocator* svc) :
-  Service(name,svc),
+  AthService(name,svc),
   par_configfile("dbreplica.config"),
   par_testhost(""),
   par_coolsqlitepattern(""),
@@ -21,8 +21,7 @@ DBReplicaSvc::DBReplicaSvc(const std::string& name, ISvcLocator* svc) :
   par_usecoolfrontier(true),
   par_usegeomsqlite(true),
   par_nofailover(false),
-  m_frontiergen(false),
-  m_log(0)
+  m_frontiergen(false)
 {
   declareProperty("ConfigFile",par_configfile);
   declareProperty("TestHost",par_testhost);
@@ -45,15 +44,14 @@ StatusCode DBReplicaSvc::queryInterface(const InterfaceID& riid, void** ppvInter
   if (IDBReplicaSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface=(IDBReplicaSvc*)this;
   } else {
-    return Service::queryInterface(riid,ppvInterface);
+    return AthService::queryInterface(riid,ppvInterface);
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode DBReplicaSvc::initialize() {
   // service initialisation
-  if (StatusCode::SUCCESS!=Service::initialize()) return StatusCode::FAILURE;
-  m_log=new MsgStream(msgSvc(),name());
+  if (StatusCode::SUCCESS!=AthService::initialize()) return StatusCode::FAILURE;
   // determine the hostname (or override if from joboption)
   m_hostname=par_testhost;
   // if nothing set on job-options, try environment variable ATLAS_CONDDB
@@ -67,8 +65,8 @@ StatusCode DBReplicaSvc::initialize() {
     if (chost) m_hostname=chost;
     // check if the returned host has a . 
     if (m_hostname.find(".")==std::string::npos) {
-      if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "HOSTNAME " << m_hostname << 
-        " has no domain - try hostname --fqdn" << endreq;
+      ATH_MSG_DEBUG("HOSTNAME " << m_hostname
+                    << " has no domain - try hostname --fqdn");
       m_hostname="unknown";
 #ifndef __APPLE__
       system("hostname --fqdn > hostnamelookup.tmp");
@@ -80,8 +78,7 @@ StatusCode DBReplicaSvc::initialize() {
       infile.open("hostnamelookup.tmp");
       if (infile) { 
         infile >> m_hostname; 
-        if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "HOSTNAME from fqdn: " << m_hostname << 
-            endreq;
+        ATH_MSG_DEBUG ("HOSTNAME from fqdn: " << m_hostname);
       } else {
 	m_hostname="unknown";
       }
@@ -90,24 +87,23 @@ StatusCode DBReplicaSvc::initialize() {
   // check if FRONTIER_SERVER is set, if so, allow generic replicas
   const char* cfrontier=getenv("FRONTIER_SERVER");
   if (par_usecoolfrontier && cfrontier && strcmp(cfrontier,"")!=0) {
-    *m_log << MSG::INFO << "Frontier server at " << cfrontier <<
-      " will be considered for COOL data" << endreq;
+    ATH_MSG_INFO ("Frontier server at " << cfrontier
+                  << " will be considered for COOL data");
     m_frontiergen=true;
   }
   StatusCode sc=readConfig();
   if (!par_usecoolsqlite) {
-    *m_log << MSG::INFO << "COOL SQLite replicas will be excluded" << endreq;
+    ATH_MSG_INFO ("COOL SQLite replicas will be excluded");
   } else if (par_coolsqlitepattern!="") {
-    *m_log << MSG::INFO << 
-      "COOL SQLite replicas will be excluded if matching pattern " <<
-      par_coolsqlitepattern << endreq;
+    ATH_MSG_INFO ("COOL SQLite replicas will be excluded if matching pattern "
+                  << par_coolsqlitepattern);
   }
-  if (!par_usecoolfrontier) *m_log << MSG::INFO << 
-			"COOL Frontier replicas will be excluded" << endreq;
-  if (!par_usegeomsqlite) *m_log << MSG::INFO << 
-			"Geometry SQLite replicas will be excluded" << endreq;
-  if (par_nofailover) *m_log << MSG::INFO << 
-			"Failover to secondary replicas disabled" << endreq;
+  if (!par_usecoolfrontier)
+    ATH_MSG_INFO ("COOL Frontier replicas will be excluded");
+  if (!par_usegeomsqlite)
+    ATH_MSG_INFO ("Geometry SQLite replicas will be excluded");
+  if (par_nofailover) 
+    ATH_MSG_INFO ("Failover to secondary replicas disabled");
   return sc;
 }
 
@@ -121,20 +117,19 @@ StatusCode DBReplicaSvc::readConfig() {
   // try to locate the file using pathresolver
   std::string file=PathResolver::find_file(par_configfile,"DATAPATH");
   if (file.empty()) {
-    *m_log << MSG::ERROR << "Cannot locate configuration file " << par_configfile
-	<< endreq;
+    ATH_MSG_ERROR ("Cannot locate configuration file " << par_configfile);
     return StatusCode::FAILURE;
   }
   // open and read the file
-  *m_log << MSG::INFO << "Read replica configuration from " << file << endreq;
+  ATH_MSG_INFO ("Read replica configuration from " << file);
   FILE* p_inp=fopen(file.c_str(),"r");
   if (p_inp==0) {
-    *m_log << MSG::ERROR << "Cannot open configuration file" << endreq;
+    ATH_MSG_ERROR ("Cannot open configuration file");
     return StatusCode::FAILURE;
   }
   // buffer for reading line
-  unsigned int bufsize=999;
-  char* p_buf=new char[bufsize];
+  const unsigned int bufsize=999;
+  char p_buf[bufsize];
   while (!feof(p_inp)) {
     char* p_line=fgets(p_buf,bufsize,p_inp);
     if (p_line!=NULL && p_line[0]!='#') {
@@ -181,9 +176,7 @@ StatusCode DBReplicaSvc::readConfig() {
 	// for 'default' domain name, add the servers as a last resort
 	// if nothing has been found so far
 	if ("default"==*itr && m_servermap.empty()) {
-	  *m_log << MSG::INFO << 
-            "No specific match for domain found - use default fallback"
-	      << endreq;
+	  ATH_MSG_INFO ("No specific match for domain found - use default fallback");
 	  useit=true;
 	  bestlen=0;
 	}
@@ -199,20 +192,19 @@ StatusCode DBReplicaSvc::readConfig() {
 	    // so it will be preferred over  DBRelaese SQLite file
 	    if (servers[i]=="ATLF") priority-=2000;
 	    m_servermap.push_back(ServerPair(servers[i],priority));
-	    if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "Candidate server " << servers[i] << 
-	    " (priority " << priority << ")" << endreq;
+	    ATH_MSG_DEBUG ("Candidate server " << servers[i] <<
+                           " (priority " << priority << ")");
 	  }
 	}
       }
     }
   }
   fclose(p_inp);
-  delete [] p_buf;
-  *m_log << MSG::INFO << "Total of " << m_servermap.size() << 
+  msg() << MSG::INFO << "Total of " << m_servermap.size() << 
     " servers found for host " << m_hostname << " [";
   for (ServerMap::const_iterator itr=m_servermap.begin();
-	 itr!=m_servermap.end();++itr) *m_log <<  itr->first << " ";
-  *m_log << "]" << endreq;
+       itr!=m_servermap.end();++itr) msg() <<  itr->first << " ";
+  msg() << "]" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -228,7 +220,7 @@ void DBReplicaSvc::sort(std::vector<const
   for (std::vector<const coral::IDatabaseServiceDescription*>::const_iterator 
 	 itr=replicaSet.begin();itr!=replicaSet.end();++itr) {
     const std::string conn=(**itr).connectionString();
-    if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "Replica connection string: " << conn << endreq;
+    ATH_MSG_DEBUG ("Replica connection string: " << conn);
     if (conn.find("sqlite_file")!=std::string::npos) {
       // include SQLite files unless they are vetoed
       // COOL SQLIte files recognised by ALLP in connection string
@@ -290,11 +282,10 @@ void DBReplicaSvc::sort(std::vector<const
   for (std::map<int,const coral::IDatabaseServiceDescription*>::const_iterator 
 	   itr=primap.begin();itr!=primap.end();++itr) {
     replicaSet.push_back(itr->second);
-    if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "Allowed replica to try (priority " << itr->first 
-	  << ") : " << (itr->second)->connectionString() << endreq;
+    ATH_MSG_DEBUG ("Allowed replica to try (priority " << itr->first <<
+                   ") : " << (itr->second)->connectionString());
   }
   if (replicaSet.empty())
-    *m_log << MSG::ERROR << "No matching replicas found" << endreq;
-  if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "Retained total of " << replicaSet.size() << 
-    " replicas" << endreq;
+    ATH_MSG_ERROR ("No matching replicas found");
+  ATH_MSG_DEBUG ("Retained total of " << replicaSet.size() << " replicas");
 }

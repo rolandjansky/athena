@@ -9,6 +9,7 @@ use AtlasCORAL           AtlasCORAL-*              External
 private
 
 use PathResolver         PathResolver-*            Tools
+use AthenaBaseComps      AthenaBaseComps*          Control
 
 library DBReplicaSvc DBReplicaSvc.cxx \
                           components/*.cxx

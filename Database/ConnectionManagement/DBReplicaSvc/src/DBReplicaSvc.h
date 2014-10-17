@@ -9,11 +9,11 @@
 // Richard Hawkings, started 24/4/07
 
 #include<string>
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "DBReplicaSvc/IDBReplicaSvc.h"
 #include "RelationalAccess/IDatabaseServiceDescription.h"
 
-class DBReplicaSvc : public virtual IDBReplicaSvc, public virtual Service
+class DBReplicaSvc : public virtual IDBReplicaSvc, public virtual AthService
 {
   template <class TYPE> class SvcFactory;
  public:
@@ -45,7 +45,6 @@ class DBReplicaSvc : public virtual IDBReplicaSvc, public virtual Service
   typedef std::pair<std::string,int> ServerPair;
   typedef std::vector< ServerPair > ServerMap;
   ServerMap m_servermap;
-  MsgStream* m_log;
 };
 
 #endif // DBREPLICASVC_DBREPLICASVC_H
