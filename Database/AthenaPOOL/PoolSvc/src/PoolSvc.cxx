@@ -33,6 +33,7 @@
 #include "PersistencySvc/ITokenIterator.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/Placement.h"
+#include "StorageSvc/DbType.h"
 
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/IConnectionService.h"
@@ -230,6 +231,12 @@ StatusCode PoolSvc::io_reinit() {
          m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
       }
    }
+   unsigned int streamId = 0;
+   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
+		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+      delete *iter;
+   }
+   m_persistencySvcVec.clear();
    return(this->reinit());
 }
 //__________________________________________________________________________
@@ -479,8 +486,9 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          delete dbH; dbH = 0;
          return(collPtr);
       }
+      dbH->setTechnology(pool::ROOT_StorageType.type());
       pool::FCLeaf* writeCatalog = dynamic_cast<pool::FCLeaf*>(m_catalog->getWriteCatalog());
-      if (writeCatalog != 0 && dbH->fid().empty()) {
+      if (writeCatalog != 0 && !dbH->fid().empty()) {
          pool::PFNEntry entry(connection.substr(4), dbH->fid(), "ROOT_All");
          writeCatalog->getImpl()->insertPFN(entry);
       }
