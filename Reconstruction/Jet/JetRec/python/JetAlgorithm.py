@@ -25,6 +25,20 @@ if jetFlags.useTruth:
   from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
   scheduleCopyTruthParticles(job)
 
+# Event shape tools.
+evstools = []
+for name in jetFlags.eventShapeTools():
+  from EventShapeTools.EventDensityConfig import configEventDensityTool
+  if   name == "em":
+    jtm += configEventDensityTool("EMTopoEventShape", jtm.emget, 0.4)
+    evstools += [jtm.tools["EMTopoEventShape"]]
+  elif name == "lc":
+    jtm += configEventDensityTool("LCTopoEventShape", jtm.lcget, 0.4)
+    evstools += [jtm.tools["LCTopoEventShape"]]
+  else:
+    print myname + "Invalid event shape key: " + name
+    raise Exception
+
 # Add the tool runner. It runs the jetrec tools.
 rtools = []
 if jetFlags.useCells():
@@ -34,13 +48,21 @@ if jetFlags.useTracks:
   rtools += [jtm.tvassoc]
 rtools += jtm.jetrecs
 from JetRec.JetRecConf import JetToolRunner
-jtm += JetToolRunner("jetrun", Tools=rtools, Timer=jetFlags.timeJetToolRunner())
+jtm += JetToolRunner("jetrun",
+         EventShapeTools=evstools,
+         Tools=rtools,
+         Timer=jetFlags.timeJetToolRunner()
+       )
 jetrun = jtm.jetrun
 
 # Add the algorithm. It runs the jetrec tools.
 from JetRec.JetRecConf import JetAlgorithm
 
 if jetFlags.separateJetAlgs():
+    job += JetAlgorithm("jetalg")
+    jetalg = job.jetalg
+    jetalg.Tools = [jtm.jetrun]
+
     for t in rtools:
         jalg = JetAlgorithm("jetalg"+t.name())
         jalg.Tools = [t]

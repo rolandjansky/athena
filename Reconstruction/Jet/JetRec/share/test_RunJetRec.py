@@ -61,6 +61,10 @@ elif 0:
 elif 1:
   # 16may2014 ttbar xAOD
   infile = "/afs/cern.ch/user/d/dadams/pubdata/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.AOD_5ev.root"
+elif 1:
+  # 16sep2014 run 1 data
+  jetFlags.useTruth = False
+  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.CurrentRef.AOD.pool.root"
 
 # Flag to show messges while running.
 #   0 - no messages
@@ -76,8 +80,8 @@ timelev = 0
 jetFlags.timeJetToolRunner = timelev
 jetFlags.timeJetRecTool = timelev
 
-# Calibration state (none, offset or jes).
-#jetFlags.applyCalibrationName = "jes"
+# Event shape tools (calculate rho).
+jetFlags.eventShapeTools = ["em", "lc"]
 
 #--------------------------------------------------------------
 # Input stream
@@ -139,7 +143,10 @@ if 0:
   jtm.setOutputLevel("gmusegget", VERBOSE)
 
 verbosetools = []
+#verbosetools += ["calib_AntiKt4LCTopo_a"]
+#verbosetools += ["LCTopoEventShape"]
 #verbosetools = ["truthsel"]
+verbosetools = ["showerdec"]
 for toolname in verbosetools:
   print myname + "Setting output level to VERBOSE for " + toolname
   jtm.setOutputLevel(toolname, VERBOSE)
@@ -180,9 +187,11 @@ if dumpPseudojets:
     names += ["PseudoJetTruthWZ"]
   names += ["PseudoJetEMTopo"]
   names += ["PseudoJetLCTopo"]
-  names += ["PseudoJetGhostTruth"]
-  for ptype in jetFlags.truthFlavorTags():
-    names += ["PseudoJetGhost" + ptype]
+  if jetFlags.useTruth():
+    names += ["PseudoJetGhostTruth"]
+  if jetFlags.useTruth():
+    for ptype in jetFlags.truthFlavorTags():
+      names += ["PseudoJetGhost" + ptype]
   if jetFlags.useMuonSegments():
     names += ["PseudoJetGhostMuonSegment"]
 icount = 0
@@ -238,7 +247,7 @@ for name in names:
   jdmp.IntMoments += ["ConstituentScale"]
   if jetFlags.useMuonSegments() and isTopo:
     jdmp.IntMoments += ["GhostMuonSegmentCount"]
-  if isTruth:
+  if jetFlags.useTruth():
     for ptype in jetFlags.truthFlavorTags():
       jdmp.IntMoments += ["Ghost" + ptype + "Count"]
   jdmp.FloatMoments = ["SizeParameter"]
@@ -252,6 +261,8 @@ for name in names:
     jdmp.IntMoments += ["GhostTrackCount"]
     jdmp.FloatMoments += ["GhostTrackPt"]
     jdmp.FloatMoments += ["Charge"]
+    jdmp.FloatMoments += ["ShowerDeconstructionW"]
+    jdmp.FloatMoments += ["ShowerDeconstructionTop"]
     if isTrackJetTagged:
       jdmp.IntMoments += ["GhostAntiKt3TrackJetCount"]
       jdmp.IntMoments += ["GhostAntiKt4TrackJetCount"]

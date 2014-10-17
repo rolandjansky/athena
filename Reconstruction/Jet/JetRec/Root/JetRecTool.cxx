@@ -14,6 +14,10 @@
 #include <fstream>
 //#include "AthenaKernel/errorcheck.h"
 
+#include "xAODCore/ShallowCopy.h"
+#include "JetEDM/FastJetLink.h"
+#include "xAODJet/Jet_PseudoJet.icc"
+
 typedef ToolHandleArray<IPseudoJetGetter> PseudoJetGetterArray;
 typedef ToolHandleArray<IJetModifier> ModifierArray;
 
@@ -24,14 +28,33 @@ using std::setprecision;
 using xAOD::JetContainer;
 using xAOD::Jet;
 
+
+namespace {
+  
+  // void deepCopyJets( const xAOD::JetContainer & jetsin, xAOD::JetContainer & jetsout){
+
+  // } 
+
+  xAOD::JetContainer* shallowCopyJets( const xAOD::JetContainer& jetsin){
+    xAOD::JetContainer & shallowcopy = *(xAOD:: shallowCopyContainer( jetsin).first);
+    for (size_t i=0;i<shallowcopy.size(); i++) {
+      const fastjet::PseudoJet * pseudoJ = jetsin[i]->getPseudoJet();
+      if( pseudoJ ) shallowcopy[i]->setPseudoJet(pseudoJ);
+    }
+    return &shallowcopy;
+  } 
+
+}
+
 //**********************************************************************
 
 JetRecTool::JetRecTool(std::string myname)
 : AsgTool(myname), m_intool(""),
   m_finder(""), m_groomer(""),
   m_trigger(false),
+  m_shallowCopy(true),
   m_initCount(0),
-  m_find(false), m_groom(false), m_copy(false) {
+  m_find(false), m_groom(false), m_copy(false)  {
   declareProperty("OutputContainer", m_outcoll);
   declareProperty("InputContainer", m_incoll);
   declareProperty("InputTool", m_intool);
@@ -41,6 +64,8 @@ JetRecTool::JetRecTool(std::string myname)
   declareProperty("JetModifiers", m_modifiers);
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
+  declareProperty("ShallowCopy", m_shallowCopy =true);
+
 }
 
 //**********************************************************************
@@ -74,6 +99,8 @@ StatusCode JetRecTool::initialize() {
       needout = true;
     }
   }
+  m_shallowCopy &= m_copy; // m_shallowCopy is false if not copy mode
+
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
   // Check/set the input jet collection name.
   if ( needinp ) {
@@ -360,14 +387,22 @@ const JetContainer* JetRecTool::build() const {
       m_actclock.Stop();
       return 0;
     }
-    pjets = new JetContainer;
-    if ( m_trigger ) {
-      ATH_MSG_DEBUG("Attaching online Aux container.");
-      pjets->setStore(new xAOD::JetTrigAuxContainer);
+
+    if(m_shallowCopy) {
+      ATH_MSG_DEBUG("Shallow-copying jets.");
+      pjets = shallowCopyJets(*pjetsin);
+      ++naction;
     } else {
-      ATH_MSG_DEBUG("Attaching offline Aux container.");
-      pjets->setStore(new xAOD::JetAuxContainer);
+      pjets = new JetContainer;
+      if ( m_trigger ) {
+        ATH_MSG_DEBUG("Attaching online Aux container.");
+        pjets->setStore(new xAOD::JetTrigAuxContainer);
+      } else {
+        ATH_MSG_DEBUG("Attaching offline Aux container.");
+        pjets->setStore(new xAOD::JetAuxContainer);
+      }
     }
+    
     // Find jets.
     if ( ! m_finder.empty() ) {
       ATH_MSG_DEBUG("Finding jets.");
@@ -382,7 +417,7 @@ const JetContainer* JetRecTool::build() const {
       }
       ++naction;
     // Copy jets.
-    } else if ( pjetsin != 0 ) {
+    } else if ( (pjetsin != 0 ) && !m_shallowCopy) {
       ATH_MSG_DEBUG("Copying " << pjetsin->size() << " jets.");
 #ifdef USE_BOOST_FOREACH
       BOOST_FOREACH(const Jet* poldjet, *pjetsin) {
@@ -440,6 +475,9 @@ int JetRecTool::execute() const {
   }
   if ( m_trigger ) {
     return record<xAOD::JetTrigAuxContainer>(pjets);
+  } 
+  if (m_shallowCopy) {
+    return record<xAOD::ShallowAuxContainer>(pjets);
   }
   return record<xAOD::JetAuxContainer>(pjets);
 }

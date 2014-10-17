@@ -27,6 +27,10 @@ echo Cleaning log
 
 echo
 echo
+echo Checking for FATAL
+grep FATAL $LOG
+echo
+echo
 echo Checking for ERROR
 grep ERROR $LOG
 echo
