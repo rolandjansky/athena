@@ -40,7 +40,7 @@ namespace pool{
 	bool result=false;
 	if(i){ 
            result=i->retrievePFN(query, m_buf, m_current);
-        }else{	
+        }else if(m) {	
            result=m->retrievePFN(query, m_buf, m_current);
         }
 	if(result){
@@ -90,7 +90,7 @@ namespace pool{
         bool result=false;
 	if(i){ 
            result=i->retrieveLFN(query, m_buf, m_current);
-        }else{	
+        }else if(m) {	
            result=m->retrieveLFN(query, m_buf, m_current);
         }
 	if(result){
@@ -176,7 +176,7 @@ namespace pool{
         bool result=false;
         if(i){
           result=i->retrieveGuid(query, m_buf, m_current);
-        }else{	
+        }else if(m) {	
           result=m->retrieveGuid(query, m_buf, m_current);
         }
 	if( result ){

@@ -15,6 +15,7 @@
 #else
 #include "Reflex/PluginService.h"
 #endif
+#include "GAUDI_VERSION.h"
 
 namespace pool{
   FCImpl* FCImplBuilder::BuildFCImpl(const std::string& contact){
@@ -30,7 +31,11 @@ namespace pool{
       if( uriprefix.empty() || uriprefix=="XMLFileCatalog" )
          comp_name = "xmlcatalog";
 #ifdef HAVE_GAUDI_PLUGINSVC
-      fcimpl = Gaudi::PluginService::Factory0< FCImpl* >::create(comp_name);
+  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+      fcimpl = Gaudi::PluginService::Factory< FCImpl* >::create(comp_name);
+  #else  
+	  fcimpl = Gaudi::PluginService::Factory0< FCImpl* >::create(comp_name);
+  #endif
 #else
       fcimpl = Reflex::PluginService::CreateWithId< FCImpl* >(comp_name);
 #endif
@@ -61,7 +66,11 @@ namespace pool{
       if( mytype.empty() || mytype=="XMLFileCatalog" )
          comp_name = "xmlcatalog_meta";      
 #ifdef HAVE_GAUDI_PLUGINSVC
+  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+      metaimpl = Gaudi::PluginService::Factory< FCMetaImpl*, FCImpl* >::create(comp_name, fc);
+  #else  
       metaimpl = Gaudi::PluginService::Factory1< FCMetaImpl*, FCImpl* >::create(comp_name, fc);
+  #endif
 #else
       metaimpl = Reflex::PluginService::CreateWithId< FCMetaImpl* >(comp_name, fc);
 #endif

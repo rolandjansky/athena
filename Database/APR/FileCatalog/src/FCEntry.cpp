@@ -19,9 +19,6 @@ namespace pool{
     m_attrs.extend<std::string>("filetype");
     this->setValue(ipfname,iguid,ifiletype);
   }
-  PFNEntry::PFNEntry(const PFNEntry& pentry){
-    this->m_attrs=pentry.m_attrs;
-  }
   void PFNEntry::setValue(const std::string& ipfname, 
 			  const std::string& iguid, 
 			  const std::string& ifiletype
@@ -53,9 +50,6 @@ namespace pool{
     m_attrs.extend<std::string>("lfname");
     this->setValue(ilfname,iguid);
   }
-  LFNEntry::LFNEntry(const LFNEntry& lentry){
-    this->m_attrs=lentry.m_attrs;
-  }
   void LFNEntry::setValue( const std::string& ilfname, const std::string& iguid){
     m_attrs["guid"].data<std::string>()=iguid;
     m_attrs["lfname"].data<std::string>()=ilfname;
@@ -81,10 +75,6 @@ namespace pool{
   coral::AttributeList& MetaDataEntry::attrs(){
     return m_attrs;
   }
-  MetaDataEntry::MetaDataEntry( const MetaDataEntry& mentry ){
-    this->m_attrs=mentry.m_attrs;
-  }
-
   void MetaDataEntry::addAttributeSpec(const std::string& attr_name, const std::string& type_name ){
     if( type_name != "string" && type_name!="short" && type_name!="unsigned short"&& type_name!="int" && type_name!="unsigned int" && type_name!="long" && type_name!="unsigned long" && type_name!="long long" && type_name!="unsigned long long" && type_name!="float" && type_name!="double" && type_name!="long double"){
       throw pool::FCbackendException("MetaDataEntry::addAttributeSpec", std::string("unsuported type ")+type_name);

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCEntry.h 457829 2011-09-08 13:13:25Z mnowak $
+//$Id: FCEntry.h 622333 2014-10-17 14:10:44Z ssnyder $
 #ifndef POOL_FCENTRY_H
 #define POOL_FCENTRY_H
 #include <string>
@@ -45,8 +45,7 @@ namespace pool{
              const std::string& iguid,
 	     const std::string& ifiletype 
 	     );
-    ///copy constructor
-    PFNEntry(const PFNEntry& pentry);
+    // Default copy constructor
     /**fill the PFNEntry struct
      */
     void setValue(const std::string& ipfname, 
@@ -75,7 +74,7 @@ namespace pool{
        @param iguid [IN] fileid
     */
     LFNEntry(const std::string& ilfname, const std::string& iguid);
-    LFNEntry(const LFNEntry& lentry);
+    // Default copy constructor.
     void setValue( const std::string& ilfname, const std::string& iguid);
     std::string guid() const;
     const std::string lfname() const;
@@ -92,7 +91,7 @@ namespace pool{
   class MetaDataEntry{
   public:
     MetaDataEntry();
-    MetaDataEntry( const MetaDataEntry& mentry );
+    // Default copy constructor.
     unsigned int size() const;
     std::string guid() const;
     void addAttributeSpec(const std::string& attr_name, 

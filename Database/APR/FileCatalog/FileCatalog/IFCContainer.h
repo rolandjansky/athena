@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: IFCContainer.h 457829 2011-09-08 13:13:25Z mnowak $
+//$Id: IFCContainer.h 622333 2014-10-17 14:10:44Z ssnyder $
 #ifndef POOL_IFCCONTAINER_H
 #define POOL_IFCCONTAINER_H
 #include <string>
@@ -77,6 +77,7 @@ namespace pool{
 	  result=this->hasNext(m_me,m_query);
 	  m_rdone=true;
 	}else{
+          if (!m_me) return false;
 	  result=this->hasNext(m_me,m_query);
 	}
 	switch (m_status){
