@@ -34,6 +34,9 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 
 // Trigger specific files
 #include "TrigEgammaRec/TrigEgammaRec.h"
+#include "xAODEgammaCnv/xAODElectronMonFuncs.h"
+#include "xAODEgammaCnv/xAODPhotonMonFuncs.h"
+
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/StatusCode.h"
 
@@ -49,6 +52,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaInterfaces/IEMAmbiguityTool.h"
+#include "egammaInterfaces/IEMIsolationBuilder.h"
 
 // xAOD
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -86,121 +90,7 @@ namespace {
 
 /////////////////////////////////////////////////////////////////
 
-// GETTER for Shower Shape monitoring
-#define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Egamma* eg) \
-{ float val{-99}; \
-    eg->showerShapeValue(val,xAOD::EgammaParameters::_name_); \
-    return val; } 
-GETTER(e237)
-GETTER(e277)
-GETTER(ethad1)    
-GETTER(weta1)
-GETTER(weta2)
-GETTER(f1)
-GETTER(e2tsts1) 
-GETTER(emins1)
-GETTER(wtots1)
-GETTER(fracs1)    
-#undef GETTER
 
-// GETTER for Isolation monitoring
-#define GETTER(_name_) float getIsolation_##_name_(const xAOD::Egamma* eg) \
-{ float val{-99}; \
-    eg->isolationValue(val,xAOD::EgammaParameters::_name_); \
-    return val; } 
-GETTER(etcone)
-GETTER(etcone20)
-GETTER(etcone30)
-GETTER(etcone40)    
-GETTER(ptcone20)
-GETTER(ptcone30)
-GETTER(ptcone40)    
-#undef GETTER    
-
-// GETTERs for CaloCluster monitoring   
-#define GETTER(_name_) float getCluster_##_name_(const xAOD::Egamma* eg) \
-{    if(eg && eg->caloCluster()) \
-        return eg->caloCluster()->_name_(); \
-    else return -99.;}
-GETTER(et)
-GETTER(phi)
-GETTER(eta)   
-#undef GETTER
-
-// GETTERs for Track monitoring   
-#define GETTER(_name_) float getTrack_##_name_(const xAOD::Electron* eg) \
-{    if(eg && eg->trackParticle()) \
-        return eg->trackParticle()->_name_(); \
-    else return -99.;}
-GETTER(pt)
-GETTER(phi)
-GETTER(eta)   
-#undef GETTER
-// GETTERs for Track details monitoring    
-#define GETTER(_name_) float getTrackSummary_##_name_(const xAOD::Electron* eg) \
-{ uint8_t val_uint8{0}; \
-    if(eg && eg->trackParticle()){ \
-        eg->trackParticleSummaryValue(val_uint8,xAOD::_name_); \
-        return val_uint8; } \
-    else return -99; }
-GETTER(numberOfBLayerHits) 
-GETTER(numberOfPixelHits)
-GETTER(numberOfSCTHits)    
-GETTER(numberOfTRTHits)
-GETTER(numberOfTRTHighThresholdHits)
-GETTER(numberOfTRTHighThresholdOutliers)
-GETTER(numberOfTRTOutliers)
-#undef GETTER
-
-// GETTERs for Calo-Track monitoring
-#define GETTER(_name_) float getCaloTrackMatch_##_name_(const xAOD::Electron* eg) \
-{ float val={-99.}; \
-    if(eg && eg->trackParticle()){ \
-        eg->trackCaloMatchValue(val,xAOD::EgammaParameters::_name_);} \
-    return val; }
-GETTER(deltaEta0)
-GETTER(deltaPhi0)
-GETTER(deltaPhiRescaled0)    
-GETTER(deltaEta1)
-GETTER(deltaPhi1)
-GETTER(deltaPhiRescaled1)    
-GETTER(deltaEta2)
-GETTER(deltaPhi2)
-GETTER(deltaPhiRescaled2)    
-GETTER(deltaEta3)
-GETTER(deltaPhi3)
-GETTER(deltaPhiRescaled3) 
-#undef GETTER    
-
-// Additional monitoring function   
-//
-    float EtCluster37(const xAOD::Egamma* eg){
-        if(eg && (eg->caloCluster())){
-        const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
-        float eta2   = fabs(cluster->etaBE(2)); 
-        return cluster->e()/cosh(eta2);      
-    }
-    else return -99.;
-}
-float Eoverp(const xAOD::Electron* eg)	{
-    if(eg && (eg->trackParticle()) && (eg->caloCluster())){
-        return eg->caloCluster()->et()/ eg->trackParticle()->pt();   
-    }
-    else return -99.;
-}
-float rTRT  (const xAOD::Electron* eg) {
-    if(eg && eg->trackParticle()){ 
-        uint8_t trtHits   = 0;
-        eg->trackParticleSummaryValue(trtHits,xAOD::numberOfTRTHits);
-        uint8_t trtHTHits = 0; 
-        eg->trackParticleSummaryValue(trtHTHits,xAOD::numberOfTRTHighThresholdHits);
-        if(trtHits!=0) {
-            return ( (double)trtHTHits / (double)trtHits ); 
-        }
-        else return -99.;
-    }
-    else return -99.;
-}
 //  CONSTRUCTOR:
 
 TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
@@ -223,6 +113,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder, "Handle to TrackMatchBuilder");
     // AmbiguityTool
     declareProperty("AmbiguityTool", m_ambiguityTool, "Handle to AmbiguityTool");
+    //IsolationBuilder
+    declareProperty("IsolationBuilderTool", m_isolationBuilder, "Handle to IsolationBuilder"); 
     
     // Set flag for track matching
     declareProperty("doTrackMatching",m_doTrackMatching = false);
@@ -230,51 +122,80 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("doConversions",m_doConversions = false);
 
     // Monitoring
-    typedef const DataVector<xAOD::Egamma> xAODEgammaDV_type;
     typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
     typedef const DataVector<xAOD::Photon> xAODPhotonDV_type;
      // Showershape monitoring accesible from xAOD::Egamma (common to Electron / Photon)  
-    declareMonitoredCollection("E237",	 *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_e237);
-    declareMonitoredCollection("E277",	 *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_e277);
-    declareMonitoredCollection("EtHad1", *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_ethad1);
-    declareMonitoredCollection("WEta1",	 *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_weta1);
-    declareMonitoredCollection("WEta2",	 *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_weta2);
-    declareMonitoredCollection("F1",	 *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_f1);
-    declareMonitoredCollection("E2tsts1",*my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_e2tsts1);
-    declareMonitoredCollection("Emins1", *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_emins1);
-    declareMonitoredCollection("wtots1", *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_wtots1);
-    declareMonitoredCollection("Fracs1", *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getShowerShape_fracs1);
+    declareMonitoredCollection("El_E237",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_e237);
+    declareMonitoredCollection("El_E277",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_e277);
+    declareMonitoredCollection("El_EtHad1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_ethad1);
+    declareMonitoredCollection("El_WEta1",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_weta1);
+    declareMonitoredCollection("El_WEta2",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_weta2);
+    declareMonitoredCollection("El_F1",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_f1);
+    declareMonitoredCollection("El_Emax2",*my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_e2tsts1);
+    declareMonitoredCollection("El_Emins1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_emins1);
+    declareMonitoredCollection("El_Emax", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_emaxs1);
+    declareMonitoredCollection("El_DEmaxs1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getDEmaxs1);
+    declareMonitoredCollection("El_wtots1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_wtots1);
+    declareMonitoredCollection("El_Fracs1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_fracs1);
     
-    declareMonitoredCollection("Ph_e237",	 *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_e237);
-    declareMonitoredCollection("Ph_e277",	 *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_e277);
-    declareMonitoredCollection("Ph_ethad1", *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_ethad1);
-    declareMonitoredCollection("Ph_weta1",	 *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_weta1);
-    declareMonitoredCollection("Ph_weta2",	 *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_weta2);
-    declareMonitoredCollection("Ph_f1",	 *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_f1);
-    declareMonitoredCollection("Ph_e2tsts1",*my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_e2tsts1);
-    declareMonitoredCollection("Ph_emins1", *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_emins1);
-    declareMonitoredCollection("Ph_wtots1", *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_wtots1);
-    declareMonitoredCollection("Ph_fracs1", *my_pp_cast <xAODEgammaDV_type>(&m_photon_container), &getShowerShape_fracs1);
+    declareMonitoredCollection("El_EtCluster37",	*my_pp_cast<xAODElectronDV_type>(&m_electron_container), &getEtCluster37); 
+    declareMonitoredCollection("El_EtCone20",	*my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getIsolation_etcone20);
+    declareMonitoredCollection("El_PtCone20",	*my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getIsolation_etcone20);
+    declareMonitoredCollection("El_Eta",	        *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCluster_eta);
+    declareMonitoredCollection("El_Phi",	        *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCluster_phi);
+    declareMonitoredCollection("El_ClusterEt",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCluster_et);
+    declareMonitoredCollection("El_EnergyBE0",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE0);
+    declareMonitoredCollection("El_EnergyBE1",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE1);
+    declareMonitoredCollection("El_EnergyBE2",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE2);
+    declareMonitoredCollection("El_EnergyBE3",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE3);
+    declareMonitoredCollection("El_Eaccordion",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEaccordion);
+    declareMonitoredCollection("El_E0Eaccordion",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getE0Eaccordion);
     
-    declareMonitoredCollection("EtCluster37",	*my_pp_cast<xAODEgammaDV_type>(&m_electron_container), &EtCluster37); 
-    declareMonitoredCollection("EtConeIso",	*my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getIsolation_etcone);
-    declareMonitoredCollection("Eta",	        *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getCluster_eta);
-    declareMonitoredCollection("Phi",	        *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getCluster_phi);
-    declareMonitoredCollection("ClusterEt",     *my_pp_cast <xAODEgammaDV_type>(&m_electron_container), &getCluster_et);
+    declareMonitoredCollection("Ph_e237",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_e237);
+    declareMonitoredCollection("Ph_e277",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_e277);
+    declareMonitoredCollection("Ph_ethad1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_ethad1);
+    declareMonitoredCollection("Ph_weta1",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_weta1);
+    declareMonitoredCollection("Ph_weta2",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_weta2);
+    declareMonitoredCollection("Ph_f1",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_f1);
+    declareMonitoredCollection("Ph_Emax2",*my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_e2tsts1);
+    declareMonitoredCollection("Ph_Emins1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_emins1);
+    declareMonitoredCollection("Ph_Emax", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_emaxs1);
+    declareMonitoredCollection("Ph_wtots1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_wtots1);
+    declareMonitoredCollection("Ph_fracs1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_fracs1);
 
+    declareMonitoredCollection("Ph_EtCluster37",	*my_pp_cast<xAODElectronDV_type>(&m_photon_container), &getEtCluster37); 
+    declareMonitoredCollection("Ph_EtCone20",	*my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getIsolation_etcone20);
+    declareMonitoredCollection("Ph_Eta",	        *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getCluster_eta);
+    declareMonitoredCollection("Ph_Phi",	        *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getCluster_phi);
+    declareMonitoredCollection("Ph_ClusterEt",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getCluster_et);
+    declareMonitoredCollection("Ph_EnergyBE0",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE0);
+    declareMonitoredCollection("Ph_EnergyBE1",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE1);
+    declareMonitoredCollection("Ph_EnergyBE2",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE2);
+    declareMonitoredCollection("Ph_EnergyBE3",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE3);
+    declareMonitoredCollection("Ph_Eaccordion",    *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEaccordion);
+    declareMonitoredCollection("Ph_E0Eaccordion",  *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getE0Eaccordion);
+    
     //Track-related monitoring accesible from xAOD::Electron
     declareMonitoredCollection("nBLayerHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfBLayerHits);
+    declareMonitoredCollection("expectBLayerHit",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_expectBLayerHit);
     declareMonitoredCollection("nPixelHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelHits);
     declareMonitoredCollection("nSCTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTHits);
+    declareMonitoredCollection("nBLayerOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfBLayerOutliers);
+    declareMonitoredCollection("nPixelOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelOutliers);
+    declareMonitoredCollection("nSCTOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTOutliers);
     declareMonitoredCollection("nTRTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHits);
     declareMonitoredCollection("nTRTHitsHighTh",         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHighThresholdHits);
     declareMonitoredCollection("nTRTHitsHighThOutliers", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHighThresholdOutliers);
     declareMonitoredCollection("nTRTHitsOutliers",       *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTOutliers);
     declareMonitoredCollection("TrackPt",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrack_pt);
+    declareMonitoredCollection("d0",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrack_d0);
+    declareMonitoredCollection("z0",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrack_z0);
     declareMonitoredCollection("dEta",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCaloTrackMatch_deltaEta2);
     declareMonitoredCollection("dPhi",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCaloTrackMatch_deltaPhi2);
-    declareMonitoredCollection("Eoverp",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &Eoverp);
+    declareMonitoredCollection("dPhiRescaled",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCaloTrackMatch_deltaPhiRescaled2);
     declareMonitoredCollection("rTRT",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &rTRT);
+    declareMonitoredCollection("SigmaD0",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getSigmaD0);
+    declareMonitoredCollection("D0sig",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getD0sig);
 
     //Vertex-related monitoring for Photons
     //TBD
@@ -386,6 +307,19 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
         if (timerSvc()) m_timerTool5 = addTimer("EMShowerBuilder");
     }
     
+    if (m_isolationBuilder.empty()) {
+        ATH_MSG_ERROR("EMIsolationBuilder is empty");
+        return HLT::BAD_JOB_SETUP;
+    }
+
+    if((m_isolationBuilder.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_isolationBuilder);
+        return HLT::BAD_JOB_SETUP;
+    }
+    else {
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_isolationBuilder);
+        if (timerSvc()) m_timerTool6 = addTimer("EMIsolationBuilder");
+    }
 
     ATH_MSG_DEBUG("Obtain CaloCellDetPos tool for calo-frame variables");
     m_caloCellDetPos = new CaloCellDetPos();
@@ -399,6 +333,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
         msg() << MSG::INFO << "REGTEST: Shower  tool: " << m_showerBuilder << endreq;
         msg() << MSG::INFO << "REGTEST: Four Momentum tool: " << m_fourMomBuilder << endreq; 
         msg() << MSG::INFO << "REGTEST: Ambiguity tool: " << m_ambiguityTool << endreq;
+        msg() << MSG::INFO << "REGTEST: Isolation tool: " << m_isolationBuilder << endreq;
 
         if (m_electronContainerAliasSuffix.size() > 0 ) 
             msg() << MSG::VERBOSE << "REGTEST: suffix added to ElectronContainer alias: " << m_electronContainerAliasSuffix << endreq;
@@ -755,7 +690,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // For now set author as Electron
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
-        unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->vertex(),egRec->trackParticle());
+        unsigned int author = m_ambiguityTool->ambiguityResolve(egRec);
         if (timerSvc()) m_timerTool3->stop(); //timer
         ATH_MSG_DEBUG("REGTEST:: AmbiguityTool Author " << author);
         // Set author
@@ -771,6 +706,18 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             std::vector< ElementLink< xAOD::CaloClusterContainer > > el_clusterLinks;
             for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
                 const xAOD::CaloCluster *clus = egRec->caloCluster(i);
+                // Also check the original (non-calibrated cluster)
+                static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+                if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
+                    ATH_MSG_DEBUG("Problem with original cluster link");
+                }
+                else {
+                    const xAOD::CaloCluster *origClus = *orig(*clus); 
+                    ATH_MSG_DEBUG("REGTEST:: Compare new and old clusters");
+                    ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi " << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
+                    ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi " << clus->e() << " " <<  clus->eta() << " " << clus->phi());
+                }
+
                 bool isBarrel = xAOD::EgammaHelpers::isBarrel(clus);
                 CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
                 m_caloCellDetPos->getDetPosition(sample, clus->eta(), clus->phi0(), tmp_etaCalo, tmp_phiCalo); 
@@ -846,6 +793,16 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             std::vector< ElementLink< xAOD::CaloClusterContainer > > ph_clusterLinks;
             for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
                 const xAOD::CaloCluster *clus = egRec->caloCluster(i);
+                static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+                if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
+                    ATH_MSG_DEBUG("Problem with original cluster link");
+                }
+                else {
+                    const xAOD::CaloCluster *origClus = *orig(*clus); 
+                    ATH_MSG_DEBUG("REGTEST:: Compare new and old clusters");
+                    ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi" << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
+                    ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi" << clus->e() << " " <<  clus->eta() << " " << clus->phi());
+                }
                 ATH_MSG_DEBUG("Decorate the CaloClusters with Calo-frame coords.");
                 bool isBarrel = xAOD::EgammaHelpers::isBarrel(clus);
                 CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
@@ -904,10 +861,17 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // Shower Shape
         // Track Isolation tool no longer runs for trigger in showershape, but we can do ourselves
         if (timerSvc()) m_timerTool5->start(); //timer
-        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer,pTrackParticleContainer)");
-        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer,pTrackParticleContainer) );
+        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer)");
+        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
         if (timerSvc()) m_timerTool5->stop(); //timer
+        
+        // Isolation
+        if (timerSvc()) m_timerTool6->start(); //timer
+        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer,pTrackParticleConainer)");
+        if( m_isolationBuilder->recoExecute(eg,pCaloCellContainer,pTrackParticleContainer) );
+        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no isolation computed" << endreq;
+        if (timerSvc()) m_timerTool6->stop(); //timer
     }
     //Dress the Photon objects
     for (const auto& eg : *m_photon_container){
@@ -921,10 +885,17 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
         // Shower Shape
         if (timerSvc()) m_timerTool5->start(); //timer
-        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer,pTrackParticleContainer)");
-        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer,pTrackParticleContainer) );
+        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer)");
+        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
         if (timerSvc()) m_timerTool5->stop(); //timer
+        
+        // Isolation
+        if (timerSvc()) m_timerTool6->start(); //timer
+        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer,pTrackParticleConainer)");
+        if( m_isolationBuilder->recoExecute(eg,pCaloCellContainer,pTrackParticleContainer) );
+        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no isolation computed" << endreq;
+        if (timerSvc()) m_timerTool6->stop(); //timer
     }
 
 
@@ -1004,8 +975,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 msg() << MSG::DEBUG << " REGTEST: problems with egamma pointer" << endreq;
             }
 
-            //msg() << MSG::VERBOSE << " REGTEST: cluster variables " << endreq;
-            //clus = eg->caloCluster();
+            ATH_MSG_DEBUG(" REGTEST: cluster variables");
             if (eg->caloCluster()) {
                 msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
                 msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
@@ -1016,69 +986,35 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
             }
             
-            msg() << MSG::DEBUG << " REGTEST: EMShower variables "        << endreq;
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::ethad); 
-            msg() << MSG::DEBUG << " REGTEST: ethad    =  " << val_float << endreq;
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::e011); 
-            msg() << MSG::DEBUG << " REGTEST: e011     =  " << val_float << endreq;
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::e132); 
-            msg() << MSG::DEBUG << " REGTEST: e132     =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone); 
-            msg() << MSG::DEBUG << " REGTEST: etcone   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone15); 
-            msg() << MSG::DEBUG << " REGTEST: etcone15   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone20); 
-            msg() << MSG::DEBUG << " REGTEST: etcone20   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone25); 
-            msg() << MSG::DEBUG << " REGTEST: etcone25   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone30); 
-            msg() << MSG::DEBUG << " REGTEST: etcone30   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone35); 
-            msg() << MSG::DEBUG << " REGTEST: etcone35   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone40); 
-            msg() << MSG::DEBUG << " REGTEST: etcone40   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone15_ptcorrected); 
-            msg() << MSG::DEBUG << " REGTEST: etcone15_ptcorrected   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone20_ptcorrected); 
-            msg() << MSG::DEBUG << " REGTEST: etcone20_ptcorrected   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone25_ptcorrected); 
-            msg() << MSG::DEBUG << " REGTEST: etcone25_ptcorrected   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone30_ptcorrected); 
-            msg() << MSG::DEBUG << " REGTEST: etcone30_ptcorrected   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone35_ptcorrected); 
-            msg() << MSG::DEBUG << " REGTEST: etcone35_ptcorrected   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::etcone40_ptcorrected); 
-            msg() << MSG::DEBUG << " REGTEST: etcone40_ptcorrected   =  " << val_float << endreq;
+            ATH_MSG_DEBUG(" REGTEST: EMShower variables");
+            ATH_MSG_DEBUG(" REGTEST: ethad    =  " << getShowerShape_ethad(eg));
+            ATH_MSG_DEBUG(" REGTEST: e011     =  " << getShowerShape_e011(eg));
+            ATH_MSG_DEBUG(" REGTEST: e132     =  " << getShowerShape_e132(eg)); 
+            ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+            ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
+            ATH_MSG_DEBUG(" REGTEST: nucone20   =  " << getIsolation_nucone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: nucone30   =  " << getIsolation_nucone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: nucone40   =  " << getIsolation_nucone40(eg));
             eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237); 
-            msg() << MSG::DEBUG << " REGTEST: e237     =  " << val_float << endreq;
+            ATH_MSG_DEBUG(" REGTEST: e237     =  " << val_float);
             eg->showerShapeValue(val_float,xAOD::EgammaParameters::e335); 
-            msg() << MSG::DEBUG << " REGTEST: e335     =  " << val_float << endreq;
+            ATH_MSG_DEBUG(" REGTEST: e335     =  " << val_float);
             eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2ts1); 
-            msg() << MSG::DEBUG << " REGTEST: e2ts1    =  " << val_float << endreq;
+            ATH_MSG_DEBUG(" REGTEST: e2ts1    =  " << val_float);
             eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1); 
-            msg() << MSG::DEBUG << " REGTEST: e2tsts1  =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::ptcone20); 
-            msg() << MSG::DEBUG << " REGTEST: ptcone20   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::ptcone30); 
-            msg() << MSG::DEBUG << " REGTEST: ptcone30   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::ptcone40); 
-            msg() << MSG::DEBUG << " REGTEST: ptcone40   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::nucone20); 
-            msg() << MSG::DEBUG << " REGTEST: nucone20   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::nucone30); 
-            msg() << MSG::DEBUG << " REGTEST: nucone30   =  " << val_float << endreq;
-            eg->isolationValue(val_float,xAOD::EgammaParameters::nucone40); 
-            msg() << MSG::DEBUG << " REGTEST: nucone40   =  " << val_float << endreq;
+            ATH_MSG_DEBUG(" REGTEST: e2tsts1  =  " << val_float);
+           
             //DEBUG info for Electrons which by definition have a track match
-            msg() << MSG::VERBOSE << " REGTEST: trackmatch variables "        << endreq;
-            //clus = eg->caloCluster();
-            //trackParticle = eg->trackParticle();
+            ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
             
             if(eg->trackParticle()){
                 msg() << MSG::DEBUG << " REGTEST: pt=  " << eg->trackParticle()->pt() << endreq;
                 msg() << MSG::VERBOSE << " REGTEST: charge=  " << eg->trackParticle()->charge() << endreq;
                 msg() << MSG::DEBUG << " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() << endreq;
-                //msg() << MSG::DEBUG << " REGTEST: Num. tracks=  " << trkmatch->tracksInBroadWindow() << endreq;
                 eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaEta1);
                 msg() << MSG::DEBUG << " REGTEST: Delta eta 1st sampling=  " << val_float << endreq;
                 eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaPhi2);

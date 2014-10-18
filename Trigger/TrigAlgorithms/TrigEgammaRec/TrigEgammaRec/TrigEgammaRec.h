@@ -38,6 +38,7 @@
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
+#include "egammaInterfaces/IEMIsolationBuilder.h"
 
 #include "CaloUtils/CaloCellDetPos.h"
 /** 
@@ -67,7 +68,7 @@ private:
 
   // Timers
   TrigTimer *m_timerTotal;
-  TrigTimer *m_timerTool1, *m_timerTool2, *m_timerTool3, *m_timerTool4, *m_timerTool5;
+  TrigTimer *m_timerTool1, *m_timerTool2, *m_timerTool3, *m_timerTool4, *m_timerTool5, *m_timerTool6;
 
   // suffix to be added to the egamma container name in TDS as an alias
   std::string m_electronContainerAliasSuffix;
@@ -80,6 +81,7 @@ private:
   ToolHandle<IEMShowerBuilder> m_showerBuilder;  // trigger specific
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder; // trigger specific
   ToolHandle<IEMAmbiguityTool> m_ambiguityTool;
+  ToolHandle<IEMIsolationBuilder> m_isolationBuilder;
 
   // booleans to run specific parts of offline reconstruction
   bool m_doConversions;
