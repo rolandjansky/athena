@@ -21,12 +21,12 @@ from egammaRec.Factories import ToolFactory, FcnWrapper
 # Import tools required for trigger reconstruction
 from egammaTools.egammaToolsFactories import \
         EMTrackMatchBuilder, EMVertexBuilder, EMConversionBuilder, EMAmbiguityTool, \
-        EMFourMomBuilder, EMShowerBuilder
+        EMFourMomBuilder, EMShowerBuilder, EMTrackIsolationTool, EMIsolationBuilder
     # Not importing
-    # EMVertexBuilder
     # egammaCheckEnergyDepositTool, EMBremCollectionBuilder, 
     # egammaOQFlagsBuilder, PIDBuilders
 
+TrigEMTrackIsolationTool = EMTrackIsolationTool(name="TrigEMTrackIsolationTool", useBremAssoc = False)
 
 def configureTrigEgammaMonitoring(tool):
   print 'configuring'
@@ -59,11 +59,15 @@ TrigEgammaRec = ToolFactory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec
     ),
     ShowerBuilderTool = EMShowerBuilder(
       name = "TrigEgammaShowerBuilder", 
-      doEnergyDensityCorrection=False,
-      TopoCaloClusterInputName = "",
       CellsName = "",
-      EMTopoCaloIsolationTool=None,
+      Print = True,
+    ),
+    IsolationBuilderTool = EMIsolationBuilder(
+      name = "TrigEMIsolationBuilder",
+      doEnergyDensityCorrection=False,
+      EMTrackIsolationTool = TrigEMTrackIsolationTool,
       TopoIsoTypes = [],
+      CellsName ="",
       Print = True,
     ),
 

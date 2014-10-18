@@ -28,6 +28,7 @@ private
 use egammaEvent                 egammaEvent-*                 Reconstruction/egamma
 use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
 use xAODTracking                xAODTracking-*                  Event/xAOD
+use xAODEgammaCnv               xAODEgammaCnv-*                 Event/xAOD
 use CaloEvent                   CaloEvent-*                   Calorimeter
 use TrigTimeAlgs                TrigTimeAlgs-*                Trigger/TrigTools
 use AtlasROOT                   AtlasROOT-*                   External
