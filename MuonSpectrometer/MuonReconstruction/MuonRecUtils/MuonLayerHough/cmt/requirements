@@ -22,8 +22,10 @@ apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
 
 use AtlasROOT AtlasROOT-* External
+# Specify the required ROOT components for cmake (transparent for CMT) 
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Gpad Graf)" 
 
-macro_append MuonLayerHough_linkopts "-lCintex" 
+# macro_append MuonLayerHough_linkopts "-lCintex" 
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
