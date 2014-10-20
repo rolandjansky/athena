@@ -80,6 +80,8 @@ public:
 private:
   //read from db
   StatusCode readDataFromDb(SCT_CablingSvc * cabling);
+  //determine which folder to use; COMP200 style or CONDBR2 style
+  std::string determineFolder(const std::string &option1, const std::string &option2) const;
   
   //retrieve a IOVDbSvc coracool dataset, give error message if it is empty or the pointer is zero
   bool successfulFolderRetrieve(const DataHandle<CondAttrListVec> &pDataVec, const std::string & folderName);

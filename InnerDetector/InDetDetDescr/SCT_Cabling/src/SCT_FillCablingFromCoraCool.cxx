@@ -42,10 +42,17 @@
 
 
 //Constants at file scope
+//Run1: folder names in COMP200 database
 static const std::string rodFolderName("/SCT/DAQ/Configuration/ROD");
 static const std::string rodMurFolderName("/SCT/DAQ/Configuration/RODMUR");
 static const std::string murFolderName("/SCT/DAQ/Configuration/MUR");
 static const std::string geoFolderName("/SCT/DAQ/Configuration/Geog");
+//Run2: folders change name in CONDBR2 database
+static const std::string rodFolderName2("/SCT/DAQ/Config/ROD");
+static const std::string rodMurFolderName2("/SCT/DAQ/Config/RODMUR");
+static const std::string murFolderName2("/SCT/DAQ/Config/MUR");
+static const std::string geoFolderName2("/SCT/DAQ/Config/Geog");
+
 //the following applied to run1 (pre Sept 2014)
 //static const unsigned int possibleSlots[]={6,7,8,10,11,12,14,15,16,18,19,20};// strange numbering of slots for the rods, found in DB.
 //...now the 'expanding DAQ' has all slots filled; the TIM sits in slot 13, so...
@@ -245,7 +252,9 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   if (detStore->retrieve(idHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)  << "SCT mgr failed to retrieve" << endreq, StatusCode::FAILURE;
   // let's get the ROD AttrLists
   const DataHandle<CondAttrListVec> pRod;
-  std::string folder(rodFolderName);
+  std::string folder=determineFolder(rodFolderName,rodFolderName2) ;
+  enum DBTYPE {COMP200, CONDBR2};
+  const DBTYPE db=(folder==rodFolderName)? COMP200:CONDBR2;
   if (not successfulFolderRetrieve(pRod, folder)) return StatusCode::FAILURE;
   // build rod-rob map, and store the crate/slot to RobId mapping
   CondAttrListVec::const_iterator rodIt(pRod->begin());
@@ -259,7 +268,12 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     typedef std::set<int> S;
     S slots;
     for (; rodIt != last_rod; ++rodIt) {
-      slots.insert(int(rodIt->second["slot"].data<short>())); //all but 15 inserts will fail, and these 15 should be sorted
+      //type of 'slot' changed between COMP200 and CONDBR2:
+      if (db==COMP200){
+        slots.insert(int(rodIt->second["slot"].data<short>())); //all but 15 inserts will fail, and these 15 should be sorted
+      } else {
+        slots.insert(int(rodIt->second["slot"].data<unsigned char>())); //all but 15 inserts will fail, and these 15 should be sorted
+      }
     }
     int counter(0);
     for (S::const_iterator i(slots.begin());i != slots.end();++i){
@@ -276,8 +290,8 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     //int rod=rodAttributes["SRCid"].data<int>();
     int rob=rodAttributes["ROB"].data<int>();
     //std::cout<<"shaunROB "<<std::hex<<rob<<std::endl;
-    int crate=rodAttributes["crate"].data<int>();
-    int crateSlot=rodAttributes["slot"].data<short>();//slot is int16, others are int32
+    int crate= (db==COMP200)?(rodAttributes["crate"].data<int>()) : (rodAttributes["crate"].data<unsigned char>());
+    int crateSlot=(db==COMP200)?(rodAttributes["slot"].data<short>()) : (rodAttributes["slot"].data<unsigned char>());
     //see note in header; these may be 0-15, but not necessarily, so we need to map these onto 0-15
     IntMap::const_iterator pSlot = slotMap.find(crateSlot);
     int slot = (pSlot==slotMap.end())?-1:pSlot->second;
@@ -302,14 +316,14 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
    **/
   IntMap geoMurMap;
   const DataHandle<CondAttrListVec> pGeo;
-  folder = geoFolderName;
+  folder = determineFolder(geoFolderName, geoFolderName2);
   if (not successfulFolderRetrieve(pGeo, folder)) return StatusCode::FAILURE;
   CondAttrListVec::const_iterator geoIt(pGeo->begin());
   CondAttrListVec::const_iterator last_geo(pGeo->end());
   for(;geoIt != last_geo;++geoIt){
     AthenaAttributeList geoAttributes(geoIt->second);
-    int mur =geoAttributes["MUR"].data<int>();
-    int position=geoAttributes["position"].data<int>();
+    int mur =(db==COMP200)?(geoAttributes["MUR"].data<int>()) : (geoAttributes["MUR"].data<unsigned int>());
+    int position=(db==COMP200)?(geoAttributes["position"].data<int>()) : (geoAttributes["position"].data<short>());
     if (mur > 10000) geoMurMap[mur]=position; //only for endcap case
   }
   /**
@@ -318,22 +332,22 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
    **/
   IntMap murPositionMap;
   const DataHandle<CondAttrListVec> pRodMur;
-  folder = rodMurFolderName;
+  folder = determineFolder(rodMurFolderName,rodMurFolderName2);
   if (not successfulFolderRetrieve(pRodMur, folder)) return StatusCode::FAILURE;
   CondAttrListVec::const_iterator rodMurIt (pRodMur->begin());
   CondAttrListVec::const_iterator last_rodMur (pRodMur->end());
   allInsertsSucceeded = true;
   for (; rodMurIt !=last_rodMur;++rodMurIt){
     AthenaAttributeList rodMurAttributes(rodMurIt->second);
-    int mur=rodMurAttributes["MUR"].data<int>();
-    int crate=rodMurAttributes["crate"].data<int>();
-    int crateSlot=rodMurAttributes["rod"].data<int>();//slot is int16, others are int32
+    int mur=(db==COMP200)?(rodMurAttributes["MUR"].data<int>()) : (rodMurAttributes["MUR"].data<unsigned int>());
+    int crate=(db==COMP200)?(rodMurAttributes["crate"].data<int>()) : (rodMurAttributes["crate"].data<unsigned char>());
+    int crateSlot=(db==COMP200)?(rodMurAttributes["rod"].data<int>()) : (rodMurAttributes["rod"].data<unsigned char>());//slot is int16, others are int32
     //map slot onto 0-11 range
     IntMap::const_iterator pSlot = slotMap.find(crateSlot);
     int slot = (pSlot==slotMap.end())?-1:pSlot->second;
     if (slot==-1) msg(MSG::ERROR)<<"Failed to find a crate slot in the crate map"<<endreq;
     //
-    int order = rodMurAttributes["position"].data<int>();
+    int order = (db==COMP200)?(rodMurAttributes["position"].data<int>()) : (rodMurAttributes["position"].data<unsigned char>());
     int fibreOrder = ((((crate * slotsPerCrate) + slot ) * mursPerRod) + order) * fibresPerMur;
     bool thisInsertSucceeded(murPositionMap.insert(IntMap::value_type(mur, fibreOrder)).second);
     if (not thisInsertSucceeded) msg(MSG::WARNING)<<"Insert (mur, fibre) "<<mur<<", "<<fibreOrder<<" failed."<<endreq;
@@ -343,7 +357,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   //
   // let's get the MUR AttrLists
   const DataHandle<CondAttrListVec> pMur;
-  folder=murFolderName;
+  folder=determineFolder(murFolderName,murFolderName2);
   if (not successfulFolderRetrieve(pMur, folder)) return StatusCode::FAILURE;
   //build identifier map
   CondAttrListVec::const_iterator murIt (pMur->begin());
@@ -354,10 +368,10 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   long long lastSerialNumber(0);
   for (; murIt != last_mur; ++murIt) {
     AthenaAttributeList murAttributes(murIt->second);
-    int mur=murAttributes["MUR"].data<int>();
+    int mur=(db==COMP200)?(murAttributes["MUR"].data<int>()) : (murAttributes["MUR"].data<unsigned int>());
     bool nullMur(murAttributes["moduleID"].isNull() or murAttributes["module"].isNull() );
     if (9999 == mur or nullMur) continue;
-    int fibreInMur=murAttributes["module"].data<int>() - 1;
+    int fibreInMur=( (db==COMP200)?(murAttributes["module"].data<int>()) : (murAttributes["module"].data<unsigned char>()) )  - 1;
     long long sn=murAttributes["moduleID"].data<long long>();
     if (lastSerialNumber==sn){ //old version (<2.6) of Coral/Cool doesn't detect a 'null' value, instead it simply repeats the last known value.
       continue;
@@ -402,7 +416,12 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
       phi= (mur % 100) - 1; //lower 2 digits are phi check whether this wraps around!
       eta = (((mur / 100) % 10) *2 -1) * (fibreInMur+1);//second digit gives eta sign, 0-> -, 1-> +
     }
-    int rxLink[]={murAttributes["rx0Fibre"].data<int>(), murAttributes["rx1Fibre"].data<int>()};
+    int rxLink[2];
+    if (db==COMP200){
+      rxLink[0]=murAttributes["rx0Fibre"].data<int>();rxLink[1]=murAttributes["rx1Fibre"].data<int>();
+    } else {
+      rxLink[0]=murAttributes["rx0Fibre"].data<unsigned char>();rxLink[1]= murAttributes["rx1Fibre"].data<unsigned char>();
+    }
     if (not (validLinkNumber(rxLink[0]) and validLinkNumber(rxLink[1]) )){
       msg(MSG::WARNING)<<"Invalid link number in database in one of these db entries: rx0Fibre="<<rxLink[0]<<", rx1Fibre="<<rxLink[1]<<endreq;
       continue;
@@ -466,3 +485,18 @@ bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<Con
   return true;
 }
 
+std::string SCT_FillCablingFromCoraCool::determineFolder(const std::string &option1, const std::string &option2) const{
+  std::string result("");
+  const bool option1Exists = m_detStore->contains<CondAttrListVec>(option1);
+  const bool option2Exists = m_detStore->contains<CondAttrListVec>(option2);
+  //its only sensible if either of these exists (but not both)
+  const bool nonsense = (option1Exists == option2Exists);
+  if (nonsense) {
+    if (not option1Exists) ATH_MSG_ERROR("The folder names "<<option1<<" or "<<option2<<" could not be found");
+    else ATH_MSG_ERROR("Both folders "<<option1<<" and "<<option2<<" have been loaded; cannot determine run1/run2");
+  } else {
+    result = option1Exists ? option1 : option2;
+    ATH_MSG_INFO("SCT_FillCablingFromCoraCool will use the folder "<<result);
+  }
+ return result;
+}

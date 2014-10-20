@@ -78,8 +78,8 @@ SCT_TestCablingAlg::execute(){
     Identifier offlineId(m_idHelper->wafer_id(hash));
     SCT_OnlineId onlineId(m_cablingSvc->getOnlineIdFromHash(hash));
     SCT_SerialNumber sn(m_cablingSvc->getSerialNumberFromHash(hash));
-    msg(MSG::INFO)<<i<<" "<<dec<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<endreq;
-    opFile<<i<<" "<<dec<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<std::endl;
+    msg(MSG::INFO)<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<endreq;
+    opFile<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<std::endl;
     if (m_cablingSvc->getHashFromOnlineId(onlineId) != hash){
       msg(MSG::INFO)<<"?? "<<m_cablingSvc->getHashFromOnlineId(onlineId)<<endreq;
     }

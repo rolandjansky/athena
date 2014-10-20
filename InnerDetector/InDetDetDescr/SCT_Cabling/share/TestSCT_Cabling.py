@@ -73,7 +73,7 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 
 
-letsTest='ReadingFromCoraCool'
+letsTest='ReadingFromCVP'
 if (letsTest=='ReadingFromCoraCool'):
   #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRod-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/ROD")
   #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationMur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/MUR")
@@ -97,10 +97,10 @@ elif (letsTest=='ReadingFromMCFile'):
   ServiceMgr.SCT_CablingSvc.DataSource='SCT_MC_FullCabling_svc.dat'
 elif (letsTest=='ReadingFromCVP'):
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Configuration/ROD")
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Configuration/MUR")
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Configuration/RODMUR")
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Configuration/Geog")
+  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/ROD")
+  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/MUR")
+  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/RODMUR")
+  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/Geog")
   
 
 
