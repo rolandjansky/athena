@@ -11,7 +11,7 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 G4Eng = None
 
 class iGeant4:
-  def __init__(self, ParticleService, TruthService, SimHitService, UseNewConfiguration, PrintTimingInfo, FullGeant4 ):
+  def __init__(self, ParticleService, TruthService, SimHitService, GeoIDSvc, UseNewConfiguration, PrintTimingInfo, FullGeant4 ):
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -44,9 +44,13 @@ class iGeant4:
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__TrackProcessorUserAction,iGeant4__SDActivateUserAction
     G4TrackProcessorUserAction                   = iGeant4__TrackProcessorUserAction('ISFG4TrackProcessorUserAction')
     G4TrackProcessorUserAction.ParticleBroker    = ParticleService
-    G4TrackProcessorUserAction.GeoIDSvc          = getService('ISF_GeoIDSvc')
+    G4TrackProcessorUserAction.GeoIDSvc          = GeoIDSvc
 
     G4TrackProcessorUserAction.Geant4OnlyMode    = FullGeant4
+
+    if jobproperties.Beam.beamType() == 'cosmics' or \
+       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+      G4TrackProcessorUserAction.TruthVolumeLevel = 2
 
     ToolSvc += G4TrackProcessorUserAction
 

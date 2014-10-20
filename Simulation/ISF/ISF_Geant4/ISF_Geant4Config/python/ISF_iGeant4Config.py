@@ -21,10 +21,14 @@ def usingGeant4():
     global cache
     return bool(cache)
     
-def getIGeant4(FullGeant4 = False):
+def getIGeant4(**kwargs):
     global cache
+
+    FullGeant4 = kwargs['FullGeant4']
+
     if 'iGeant4' in cache:
         i = cache['iGeant4']
+
 
         # if FullGeant4 specified, make sure returning cached version with FullGeant4 already in use
         if FullGeant4:
@@ -34,16 +38,13 @@ def getIGeant4(FullGeant4 = False):
 
     else:
         
-        if FullGeant4:
-            ParticleServiceName ="ISF_ParticleBrokerSvcNoOrdering"
-        else:
-            ParticleServiceName ="ISF_ParticleBrokerSvc"
             
         from ISF_Config.ISF_jobProperties import ISF_Flags
         from iGeant4 import iGeant4
-        i = iGeant4(ParticleService        = getService(ParticleServiceName),
-                    TruthService           = getService('ISF_TruthService'),
-                    SimHitService          = getService('ISF_SimHitService'),
+        i = iGeant4(ParticleService        = kwargs['ParticleService'],
+                    TruthService           = kwargs['TruthService'],
+                    SimHitService          = kwargs['SimHitService'],
+                    GeoIDSvc               = kwargs["GeoIDSvc"],
                     UseNewConfiguration    = ISF_Flags.UseNewG4Config(),
                     PrintTimingInfo        = ISF_Flags.DoTimeMonitoring(),
                     FullGeant4             = FullGeant4)
@@ -51,7 +52,15 @@ def getIGeant4(FullGeant4 = False):
     return i
 
 def getGeant4SimSvc(name="ISF_Geant4SimSvc", **kwargs):
-    return getIGeant4().getSimSvc()
+    kwargs.setdefault('FullGeant4'            , False                               )
+    kwargs.setdefault('ParticleService'       , getService('ISF_ParticleBrokerSvc') )
+    kwargs.setdefault('TruthService'          , ISF_Flags.TruthService.get_Value()  )
+    kwargs.setdefault('SimHitService'         , getService('ISF_SimHitService')     )
+    kwargs.setdefault('GeoIDSvc'              , getService('ISF_GeoIDSvc')          )
+    return getIGeant4(**kwargs).getSimSvc()
 
 def getFullGeant4SimSvc(name="ISF_Geant4SimSvc", **kwargs):
-    return getIGeant4(True).getSimSvc()
+    kwargs.setdefault('FullGeant4'            , True                                          )
+    kwargs.setdefault('ParticleService'       , getService('ISF_ParticleBrokerSvcNoOrdering') )
+    return getGeant4SimSvc(name, **kwargs)
+
