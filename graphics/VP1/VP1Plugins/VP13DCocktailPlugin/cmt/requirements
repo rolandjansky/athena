@@ -3,7 +3,12 @@ package VP13DCocktailPlugin
 author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
 manager Riccardo-Maria BIANCHI <rbianchi@cern.ch>
 
+
 use AtlasPolicy                 AtlasPolicy-*
+
+
+private
+use VP1Base                     VP1Base-*                     graphics/VP1
 use VP1PlugUtils                VP1PlugUtils-*                graphics/VP1/VP1Plugins
 use VP1GeometrySystems          VP1GeometrySystems-*          graphics/VP1/VP1Systems
 use VP1MissingEtSystems         VP1MissingEtSystems-*         graphics/VP1/VP1Systems
@@ -31,5 +36,7 @@ use VP1BPhysSystems             VP1BPhysSystems-*             graphics/VP1/VP1Sy
 
 ### TODO: to be updated when the new Fatras will be available
 #use VP1FatrasSystems            VP1FatrasSystems-*            graphics/VP1/VP1Systems
+
+public
 
 apply_pattern vp1plugin
