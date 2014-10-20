@@ -701,6 +701,10 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     
     double zposMM = 0.;
     std::map<std::string,unsigned> trdMap;  // Used in the new description only
+    for(unsigned indTrd(0);indTrd<mbtsTrds->size();++indTrd) {
+      std::string keyTrd = (*mbtsTrds)[indTrd]->getString("TRD");
+      trdMap[keyTrd]=indTrd;
+    }
 
     // Build material geometry only if the FullGeo flag has been set
     if(m_fullGeo) {
@@ -917,10 +921,6 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
       }
       else {
 	// The "new" description: scintillators + aluminum envelopes + plastic plugs + aluminum press bars (only for RUN1)
-	for(unsigned indTrd(0);indTrd<mbtsTrds->size();++indTrd) {
-	  std::string keyTrd = (*mbtsTrds)[indTrd]->getString("TRD");
-	  trdMap[keyTrd]=indTrd;
-	}
 
 	// General parameters
 	int nAirEnv = (*mbtsGen)[0]->getInt("NSCIN");
