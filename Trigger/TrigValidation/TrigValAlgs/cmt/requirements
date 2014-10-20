@@ -64,7 +64,6 @@ use xAODTau                     xAODTau-*               Event/xAOD
 use xAODTrigMissingET           xAODTrigMissingET-*     Event/xAOD
 use xAODTrigCalo                xAODTrigCalo-*          Event/xAOD
 use xAODTrigMinBias		xAODTrigMinBias-*	Event/xAOD
-#For jet
 use xAODJet			xAODJet-*		Event/xAOD
 use xAODTrigMinBias		xAODTrigMinBias-*	Event/xAOD
 
