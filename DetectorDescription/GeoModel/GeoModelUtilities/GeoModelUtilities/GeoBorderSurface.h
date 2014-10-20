@@ -20,6 +20,8 @@ class GeoBorderSurface
   GeoBorderSurface(const GeoBorderSurface &right);
   ~GeoBorderSurface();
 
+  GeoBorderSurface& operator= (const GeoBorderSurface &right) = delete;
+
   std::string getName() const {return m_name;}
   const GeoOpticalPhysVol* getPV1() const {return m_pv1;}
   const GeoOpticalPhysVol* getPV2() const {return m_pv2;}
