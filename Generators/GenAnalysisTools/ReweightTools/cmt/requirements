@@ -7,15 +7,14 @@ author Alan Poppleton <Alan.Poppleton@cern.ch>
 author Sven Vahsen <SEVahsen@lbl.gov>
 
 use AtlasPolicy		       AtlasPolicy-*
-use AtlasCLHEP		       AtlasCLHEP-*                  External
 use GaudiInterface	       GaudiInterface-*		     External
-use GeneratorObjects	       GeneratorObjects-*	     Generators
 use AtlasHepMC		       AtlasHepMC-*                  External
-use HepPDT		       v*                            LCG_Interfaces
-use StoreGate		       StoreGate-*		     Control
 use Lhapdf            	       Lhapdf-*                      External
-use TruthHelper		       TruthHelper-*		     Generators/GenAnalysisTools
-use DataModel                  DataModel-*                   Control 			
+
+private
+use GeneratorObjects           GeneratorObjects-*            Generators
+use StoreGate                  StoreGate-*                   Control
+use DataModel                  DataModel-*                   Control
 
 apply_pattern dual_use_library files='*.cxx'
 
