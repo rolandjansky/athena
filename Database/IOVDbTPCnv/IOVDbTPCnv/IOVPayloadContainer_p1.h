@@ -73,8 +73,11 @@ public:
     class CondAttrListCollection_p1
     {
     public:
-        CondAttrListCollection_p1() : m_start(static_cast<unsigned long long>(-1)),
-                                      m_stop (static_cast<unsigned long long>(-1)) {}
+        CondAttrListCollection_p1() :
+          m_start(static_cast<unsigned long long>(-1)),
+          m_stop (static_cast<unsigned long long>(-1)),
+          m_hasRunLumiBlockTime(false)
+      {}
         std::vector<CondAttrListEntry_p1> m_attrLists;
         // Must save stop - may be smaller than min stop of all
         // channels because there may be extra channels not yet in

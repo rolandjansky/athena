@@ -17,7 +17,7 @@
 #include "IOVDbTPCnv/IOVPayloadContainer_p1.h"
 #include "IOVDbTPCnv/AttrListIndexes.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_IOVDBTPCNV {
     T_TPCnv<IOVMetaDataContainer, IOVMetaDataContainer_p1> m_iovmetadatacontainer_p1;
     T_TPCnv<IOVPayloadContainer,  IOVPayloadContainer_p1>  m_iovpayloadcontainer_p1;
 };
