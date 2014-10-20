@@ -38,6 +38,8 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
     m_detectorTools(this), 
     m_print(false),
     m_pSvcLocator(svc),
+    m_pToolSvc(0),
+    m_pDetStore(0),
     m_tagInfoMgr(0),
     m_AtlasVersion("AUTO"),
     m_InDetVersion(""),
