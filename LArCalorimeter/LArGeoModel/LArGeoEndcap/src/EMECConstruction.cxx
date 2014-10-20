@@ -130,21 +130,19 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
   DecodeVersionKey larVersionKey(geoModelSvc, "LAr");
 
   // Flag for building detailed absorber. Default=false
-  bool mlabs(false);
+  int mlabs = 0;
   IRDBRecordset_ptr larSwitches = pAccessSvc->getRecordsetPtr("LArSwitches", larVersionKey.tag(), larVersionKey.node());
-  if(larSwitches->size()!=0) {
-    if(!(*larSwitches)[0]->isFieldNull("DETAILED_ABSORBER_EC")) {
-      mlabs = (bool)(*larSwitches)[0]->getInt("DETAILED_ABSORBER_EC");
-    }
-    else if(!(*larSwitches)[0]->isFieldNull("DETAILED_ABSORBER")) {
-      mlabs = (bool)(*larSwitches)[0]->getInt("DETAILED_ABSORBER");
-    }
-  }
-
-  if(mlabs)
+	if(larSwitches->size()!=0){
+		if(!(*larSwitches)[0]->isFieldNull("DETAILED_ABSORBER_EC")){
+			mlabs = (*larSwitches)[0]->getInt("DETAILED_ABSORBER_EC");
+		} else if(!(*larSwitches)[0]->isFieldNull("DETAILED_ABSORBER")){
+			mlabs = (*larSwitches)[0]->getInt("DETAILED_ABSORBER");
+		}
+	}
+  if(mlabs > 0)
     std::cout << "============== EMEC Construction ==============="
 	      << std::endl
-	      << "  multi-layered version of absorbers activated  "
+	      << "  multi-layered version of absorbers activated, mlabs == " << mlabs
 	      << std::endl
 	      << "================================================"
 	      << std::endl;
@@ -160,25 +158,43 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
   if(!LAr) throw std::runtime_error("Error in EMECConstruction, std::LiquidArgon is not found.");
 
 	GeoMaterial* innerAbsorberMaterial = 0;
-	if(mlabs){
+	std::string innerAbsorberMaterial_name = "LAr::EMEC_Thickabs";
+	if(mlabs > 0){
+		if(mlabs != 2){
 // to be replaced with steel - finished by Adam Agocs
-		innerAbsorberMaterial = materialManager->getMaterial("std::Iron");
-	} else {
-		innerAbsorberMaterial = materialManager->getMaterial("LAr::EMEC_Thickabs");
+			innerAbsorberMaterial_name = "std::Iron";
+		} else {
+			innerAbsorberMaterial_name = "LAr::EMEC_shell";
+		}
 	}
-	if(!innerAbsorberMaterial) throw std::runtime_error("Error in EMECConstruction, LAr::EMEC_Thickabs is not found.");
+	innerAbsorberMaterial = materialManager->getMaterial(innerAbsorberMaterial_name.c_str());
+	if(!innerAbsorberMaterial){
+		throw std::runtime_error(
+			(innerAbsorberMaterial_name +
+			 " is not found for inner absorber in EMECConstruction.").c_str()
+		);
+	}
 
 	GeoMaterial* outerAbsorberMaterial = 0;
-	if(mlabs){
+	std::string outerAbsorberMaterial_name = "LAr::EMEC_Thinabs";
+	if(mlabs > 0){
+		if(mlabs != 2){
 // to be replaced with steel - finished by Adam Agocs
-		outerAbsorberMaterial = materialManager->getMaterial("std::Iron");
-	} else {
-		outerAbsorberMaterial = materialManager->getMaterial("LAr::EMEC_Thinabs");
+			outerAbsorberMaterial_name = "std::Iron";
+		} else {
+			outerAbsorberMaterial_name = "LAr::EMEC_shell";
+		}
 	}
-	if(!outerAbsorberMaterial) throw std::runtime_error("Error in EMECConstruction, LAr::EMEC_Thinabs is not found.");
+	outerAbsorberMaterial = materialManager->getMaterial(outerAbsorberMaterial_name.c_str());
+	if(!outerAbsorberMaterial){
+		throw std::runtime_error(
+			(outerAbsorberMaterial_name +
+			 " is not found for outer absorber in EMECConstruction.").c_str()
+		);
+	}
 
 	GeoMaterial *Glue = 0, *Lead = 0;
-	if(mlabs){
+	if(mlabs > 0){
 // to be replaced with glue and lead - finished by Adam Agocs
 		Glue = materialManager->getMaterial("LAr::Glue");
 		if(!Glue) throw std::runtime_error("Error in EMECConstruction, LAr::Glue is not found.");
@@ -326,15 +342,18 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
     fullPV->add(new GeoTransform(HepGeom::Transform3D()));
     fullPV->add(innerElectrodePhysical);
 
-	if(mlabs){
-		std::string IGWname = innerName + "::Glue";
-		LArCustomShape* innerGlueShape = new LArCustomShape(IGWname);
-		GeoLogVol* innerGlueLogical =
-			new GeoLogVol(IGWname, innerGlueShape, Glue);
-		GeoPhysVol* innerGluePhysical  = new GeoPhysVol(innerGlueLogical);
-		innerAbsorberPhysical->add(new GeoIdentifierTag(1));
-		innerAbsorberPhysical->add(new GeoTransform(HepGeom::Transform3D()));
-		innerAbsorberPhysical->add(innerGluePhysical);
+	if(mlabs > 0){
+		GeoPhysVol* innerGluePhysical = innerAbsorberPhysical;
+		if(mlabs != 2){
+			std::string IGWname = innerName + "::Glue";
+			LArCustomShape* innerGlueShape = new LArCustomShape(IGWname);
+			GeoLogVol* innerGlueLogical =
+				new GeoLogVol(IGWname, innerGlueShape, Glue);
+			innerGluePhysical = new GeoPhysVol(innerGlueLogical);
+			innerAbsorberPhysical->add(new GeoIdentifierTag(1));
+			innerAbsorberPhysical->add(new GeoTransform(HepGeom::Transform3D()));
+			innerAbsorberPhysical->add(innerGluePhysical);
+		}
 
 		std::string ILWname = innerName + "::Lead";
 		LArCustomShape* innerLeadShape = new LArCustomShape(ILWname);
@@ -398,15 +417,18 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
     fullPV->add(new GeoTransform(HepGeom::Transform3D()));
     fullPV->add(outerElectrodePhysical);
 
-	if(mlabs){
-		std::string OGWname = outerName + "::Glue";
-		LArCustomShape* outerGlueShape = new LArCustomShape(OGWname);
-		GeoLogVol* outerGlueLogical =
-			new GeoLogVol(OGWname, outerGlueShape, Glue);
-		GeoPhysVol* outerGluePhysical  = new GeoPhysVol(outerGlueLogical);
-		outerAbsorberPhysical->add(new GeoIdentifierTag(1));
-		outerAbsorberPhysical->add(new GeoTransform(HepGeom::Transform3D()));
-		outerAbsorberPhysical->add(outerGluePhysical);
+	if(mlabs > 0){
+		GeoPhysVol* outerGluePhysical = outerAbsorberPhysical;
+		if(mlabs != 2){
+			std::string OGWname = outerName + "::Glue";
+			LArCustomShape* outerGlueShape = new LArCustomShape(OGWname);
+			GeoLogVol* outerGlueLogical =
+				new GeoLogVol(OGWname, outerGlueShape, Glue);
+			outerGluePhysical = new GeoPhysVol(outerGlueLogical);
+			outerAbsorberPhysical->add(new GeoIdentifierTag(1));
+			outerAbsorberPhysical->add(new GeoTransform(HepGeom::Transform3D()));
+			outerAbsorberPhysical->add(outerGluePhysical);
+		}
 
 		std::string OLWname = outerName + "::Lead";
 		LArCustomShape* outerLeadShape = new LArCustomShape(OLWname);
