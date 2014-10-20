@@ -98,7 +98,8 @@ public:
 
   /// Access the current event's McEventCollection (const)
   const SG::RVar<McEventCollection> events_const() const {
-    /// @todo Throw an error if the collection hasn't been initialised yet?
+    if (!m_mcevents_const.isValid())
+      ATH_MSG_ERROR("No McEventCollection found in StoreGate with key " << m_mcEventKey);
     return m_mcevents_const;
   }
 
