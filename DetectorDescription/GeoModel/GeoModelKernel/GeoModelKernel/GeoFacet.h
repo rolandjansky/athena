@@ -34,7 +34,9 @@ class GeoFacet : public RCBase
   inline GeoFacetVertexType getVertexType() const;
 
  protected:
-  GeoFacet(){};
+  GeoFacet()
+    : m_nVertices(0),
+      m_vertexType(ABSOLUTE) {};
   virtual ~GeoFacet(){};
 
   size_t m_nVertices;

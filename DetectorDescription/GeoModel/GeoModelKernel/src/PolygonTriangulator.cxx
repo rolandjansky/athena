@@ -1235,11 +1235,13 @@ namespace internal_poltrig {
 
     Pointbase & operator= ( const Pointbase & pb )
     {
-      this->id=pb.id;
-      this->x=pb.x;
-      this->y=pb.y;
-      this->type=pb.type;
-      this->left=pb.left;
+      if (this != &pb) {
+        this->id=pb.id;
+        this->x=pb.x;
+        this->y=pb.y;
+        this->type=pb.type;
+        this->left=pb.left;
+      }
       return *this;
     }
   };
@@ -1281,12 +1283,14 @@ namespace internal_poltrig {
   public:
     Linebase & operator= ( const Linebase & line )
     {
-      this->_id=line._id;
-      this->_endp[0]=line._endp[0];
-      this->_endp[1]=line._endp[1];
-      this->_type=line._type;
-      this->_key=line._key;
-      this->_helper=line._helper;
+      if (this != &line) {
+        this->_id=line._id;
+        this->_endp[0]=line._endp[0];
+        this->_endp[1]=line._endp[1];
+        this->_type=line._type;
+        this->_key=line._key;
+        this->_helper=line._helper;
+      }
       return *this;
     }
   };

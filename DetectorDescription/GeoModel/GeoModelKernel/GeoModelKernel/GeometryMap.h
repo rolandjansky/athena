@@ -16,7 +16,10 @@ class GeometryMap {
   
   // Destructor;
   ~GeometryMap();
-  
+
+  GeometryMap (const GeometryMap&) = delete;
+  GeometryMap& operator= (const GeometryMap&) = delete;
+
   // Add a name to the list of designated volumes:  Can use wildcards.
   void add(const std::string & name);
   

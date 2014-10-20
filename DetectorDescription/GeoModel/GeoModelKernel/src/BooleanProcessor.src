@@ -56,9 +56,12 @@ class ExtNode {
 
   ExtNode(const ExtNode & node) : v(node.v), s(node.s) {}
 
-  ExtNode & operator=(const ExtNode & node) {
-    v = node.v;
-    s = node.s;
+  ExtNode & operator=(const ExtNode & node)
+  {
+    if (this != &node) {
+      v = node.v;
+      s = node.s;
+    }
     return *this;
   }
 };

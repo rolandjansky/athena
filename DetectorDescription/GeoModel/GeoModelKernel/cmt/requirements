@@ -3,6 +3,7 @@ package GeoModelKernel
 author	  Joe Boudreau
 
 use AtlasPolicy AtlasPolicy-*
+use AtlasCxxPolicy AtlasCxxPolicy-*
 use AtlasCLHEP  AtlasCLHEP-*       External
 
 library GeoModelKernel *.cxx

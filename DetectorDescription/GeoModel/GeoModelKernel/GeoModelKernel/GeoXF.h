@@ -127,6 +127,8 @@ namespace GeoXF
     // Copy constructor:
       Product (const Product & right);
 
+    Product& operator= (const Product & right) = delete;
+
   private:
 
     const Function *_arg1;
@@ -156,7 +158,9 @@ namespace GeoXF
     virtual PreMult *clone () const;
 
     // Copy constructor:
-      PreMult (const PreMult & right);
+    PreMult (const PreMult & right);
+
+    PreMult& operator= (const PreMult & right) = delete;
 
   private:
 
@@ -188,6 +192,8 @@ namespace GeoXF
 
     // Copy constructor:
       PostMult (const PostMult & right);
+
+    PostMult& operator= (const PostMult & right) = delete;
 
   private:
 
