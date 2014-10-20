@@ -76,6 +76,8 @@ class TrigDecisionChecker : public AthAlgorithm
 	void checkTrigVertexCounts(const Trig::FeatureContainer& fc);
 	void checkTrigTrackCounts(const Trig::FeatureContainer& fc);
 
+  StatusCode checkJetEDM(std::string trigItem);
+
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< interface to use the trigger data: TriggerTool
   
@@ -139,7 +141,9 @@ class TrigDecisionChecker : public AthAlgorithm
 
   // MinBias triggers to test output for
   std::vector<std::string> m_minBiasItems;
-
+    
+  // Jet triggers to test output for
+  std::vector<std::string> m_jetItems;
     
   // ...check prescale and passthrough factors 
   std::vector<float> m_chain_prescales;

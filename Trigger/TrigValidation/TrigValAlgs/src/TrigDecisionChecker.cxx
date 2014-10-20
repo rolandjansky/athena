@@ -31,6 +31,7 @@ TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODJet/JetContainer.h"
 
 #include "TrigParticle/TrigEFBjetContainer.h"
 #include "Particle/TrackParticleContainer.h"
@@ -163,6 +164,8 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
   declareProperty("PhotonItems",       m_photonItems, "Photon triggers to test");
   declareProperty("TauItems",       m_TauItems, "Tau triggers to test");
   declareProperty("MinBiasItems",      m_minBiasItems, "MinBias triggers to test");
+  declareProperty("JetItems",       m_jetItems, "Jet triggers to test");
+
 }
 
 
@@ -505,6 +508,16 @@ StatusCode TrigDecisionChecker::execute()
       return sc;
     }
   }
+   
+  ATH_MSG_INFO("REGTEST ==========START of Jet EDM/Navigation check===========");
+  for(auto jetItem : m_jetItems) {
+      sc = checkJetEDM(jetItem);
+      if ( sc.isFailure() ) {
+          ATH_MSG_INFO("REGTEST Could not finish checkJetEDM test for chain " << jetItem);
+          return sc;
+      }
+  }
+  ATH_MSG_INFO("REGTEST ==========END of Jet EDM/Navigatinon check===========");
     
     
   if (m_event_decision_printout) {
@@ -1063,6 +1076,58 @@ void TrigDecisionChecker::checkTrigTrackCounts(const Trig::FeatureContainer& fc)
 			return;
 		}
 	}
+}
+
+StatusCode TrigDecisionChecker::checkJetEDM(std::string trigItem){
+    ATH_MSG_DEBUG("in checkJetEDM()");
+    
+    ATH_MSG_INFO("REGTEST =====For chain " << trigItem << "=====");
+    
+    ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
+    
+    Trig::FeatureContainer fc = m_trigDec->features(trigItem);
+    const std::vector< Trig::Feature<xAOD::JetContainer> > vec_jet = fc.get<xAOD::JetContainer>();
+    ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::JetContainer> > = " << vec_jet.size());
+    for(auto jetfeat : vec_jet){
+        const xAOD::JetContainer * jetCont = jetfeat.cptr();
+        
+        int jetContsize = jetCont->size();
+        ATH_MSG_INFO("REGTEST Got jet container, size: " << jetContsize);
+        
+        int i = 0;
+        for(const auto & thisjet : *jetCont){
+            ++i;
+            ATH_MSG_INFO("REGTEST Looking at jet " << i);
+            if (thisjet) {
+                //checks jet variables
+                ATH_MSG_DEBUG("REGTEST    Checking jet variables");
+                ATH_MSG_INFO("REGTEST    pt: " << thisjet->pt() );
+                ATH_MSG_INFO("REGTEST    eta: " << thisjet->eta() );
+                ATH_MSG_INFO("REGTEST    phi: " << thisjet->phi() );
+                ATH_MSG_INFO("REGTEST    m: " << thisjet->m() );
+                ATH_MSG_INFO("REGTEST    e: " << thisjet->e() );
+                ATH_MSG_INFO("REGTEST    px: " << thisjet->px() );
+                ATH_MSG_INFO("REGTEST    py: " << thisjet->py() );
+                ATH_MSG_INFO("REGTEST    pz: " << thisjet->pz() );
+                ATH_MSG_INFO("REGTEST    type: " << thisjet->type() );
+                ATH_MSG_INFO("REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
+                ATH_MSG_INFO("REGTEST    size parameter: " << thisjet->getSizeParameter() );
+                ATH_MSG_INFO("REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
+                ATH_MSG_INFO("REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
+                ATH_MSG_INFO("REGTEST    number of constituents: " << thisjet->numConstituents() );
+            }
+            else{
+                ATH_MSG_ERROR("REGTEST Problem with jet pointer" );
+                return StatusCode::FAILURE;
+            }
+        }
+        if (jetContsize == i) ATH_MSG_INFO("REGTEST size of jet container == number of displayed jets: " << (jetContsize == i) );
+        else ATH_MSG_WARNING("REGTEST Problem with displaying jets");
+    }
+    
+    ATH_MSG_DEBUG("leaving checkJetEDM()");
+    
+    return StatusCode::SUCCESS;
 }
 
 
