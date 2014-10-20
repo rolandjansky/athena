@@ -35,7 +35,7 @@ import McAsciiEventSelector.ReadMcAscii
 ###################
 ## User parameters
 if not 'MCEVENTKEY' in dir():
-    MCEVENTKEY = 'MyGEN_EVENT'
+    MCEVENTKEY = 'GEN_EVENT'
     pass
 
 #--------------------------------------------------------------
