@@ -37,7 +37,9 @@
 #include "GaudiKernel/IHistogramSvc.h"
 #include "AIDA/IHistogram1D.h"
 
-
+#include "egammaInterfaces/IegammaBaseTool.h"
+#include "egammaInterfaces/IegammaShowerShape.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 class StoreGateSvc;
 class TriggerElement;
 
@@ -67,7 +69,8 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
 
   // define the properties:
   //----------------------------
-
+  bool m_UseShowerShapeTool;
+  bool m_acceptAll;
   // Cuts to be applied:
 
   double     m_EtCut;
@@ -79,6 +82,9 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
 
 
   // Switch on Monitoring:
+  ToolHandle<IegammaShowerShape> m_ShowerShapeTool;
+  std::string m_SelectorToolName;
+  ToolHandle<IAsgElectronIsEMSelector> m_SelectorTool;
   
   bool m_doMonitoring;
   

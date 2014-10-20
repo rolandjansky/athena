@@ -91,12 +91,6 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
 
   bool m_caloCutsOnly;
 
-  // Cuts to be applied:
-
-
-
-
-  //AT Jan2010:
   std::string m_egammaElectronCutIDToolName;
   std::string m_athElectronLHIDSelectorToolName;
   ToolHandle<IAsgElectronIsEMSelector> m_egammaElectronCutIDTool;
@@ -106,6 +100,7 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   unsigned int        m_IsEMrequiredBits;  //!< isem flag bits required
   bool       m_applyIsEM;  //!< true if isem flag required 
   double     m_emEt;  //!< ET cut
+  bool       m_applyEtIsEM; // Use object Et for isEM selection
 
   //Isolation
   bool m_applyIsolation; 
@@ -137,7 +132,7 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   std::vector<double> m_a0;
 
   // egamma container
-  const xAOD::ElectronContainer* m_EgammaContainer; //!<  pointer to EgammaContainer
+  const xAOD::ElectronContainer* m_EgammaContainer; //!<  pointer to ElectronContainer
 
  // Timing:
 
@@ -145,230 +140,11 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   TrigTimer* m_totalTimer;
   TrigTimer* m_timerPIDTool;
 
-  /** The extrapolator tool */
-  //AT Jan 2010: ToolHandle<Trk::IExtrapolator> m_extrapolator; //Extrapolator tool 
-  /** The Beam Service **/
-  //AT Jan 2010: IBeamCondSvc* m_iBeamCondSvc; //pointer to the beam condition service
-
-
   Amg::Vector3D m_primaryVertex; //AT Jan 2010  
   /** @brief Tool handle for track extrapolation to vertex */   	   	 
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool; //AT Jan 2010
 
   void prepareMonitoringVars();
-  
-  /**
-   * \brief implements histograms for monitoring
-   */
-  ////////////
-
-  // Calo and ShowerShape Monitoring accesible via xAOD::Egamma
-  static inline float getF1 (const xAOD::Egamma* eg)	{
-      float val_float=-99;
-      eg->showerShapeValue(val_float,xAOD::EgammaParameters::f1); 
-      return val_float;
-  }
-  static inline float getF3 (const xAOD::Egamma* eg)	{
-      float val_float=-99;
-      eg->showerShapeValue(val_float,xAOD::EgammaParameters::f3); 
-      return val_float;
-  }
-  static inline double getE237 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237); 
-     return val_float;
-  }
-  static inline double getE277 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::e277); 
-     return val_float;
-  }
-  static inline double getEthad1 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::ethad1); 
-     return val_float;
-  }
-  static inline double getWeta1 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::weta1); 
-     return val_float;
-  }
-  static inline double getWeta2 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::weta2); 
-     return val_float;
-  }
-  static inline double getWtots1 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::wtots1); 
-     return val_float;
-  }
-  static inline double getE2tsts1 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1); 
-     return val_float;
-  }
-  static inline double getEmins1 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::emins1); 
-     return val_float;
-  }
-  static inline double getfracs1 (const xAOD::Egamma* eg) {
-     float val_float=-99;
-     eg->showerShapeValue(val_float,xAOD::EgammaParameters::fracs1); 
-     return val_float;
-  }
-  static inline double EtCluster(const xAOD::Egamma* eg){
-    if(eg && (eg->caloCluster())){
-        return eg->caloCluster()->et();
-    }
-    else return -99.;
-  }
-  static inline double EtCluster37(const xAOD::Egamma* eg){
-    if(eg && (eg->caloCluster())){
-      const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
-      double eta2   = fabs(cluster->etaBE(2)); 
-      return cluster->e()/cosh(eta2);      
-    }
-    else return -99.;
-  }
-  static inline float getEratio(const xAOD::Egamma* eg) {
-      if(eg) {
-          // E of 2nd max between max and min in strips
-          float emax2  = -99;
-          eg->showerShapeValue(emax2,xAOD::EgammaParameters::e2tsts1);   
-          // E of 1st max in strips
-          float emax   = -99;
-          eg->showerShapeValue(emax2,xAOD::EgammaParameters::emaxs1);   
-          // E(min) in strips
-          float _demaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.;
-          return _demaxs1;
-      }
-      else {return -99.;}
-  }
-
-  // Track releated Monitoring accesible via xAOD::Electron
-  static inline double getNbLayer  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfBLayerHits); 
-          return val_uint8;
-      }
-      else return -99.;
-  }
-
-  static inline double getNPixel  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfPixelHits);
-          return val_uint8;
-      }
-      else return -99.;
-  }
-
-  static inline double getNSCT  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfSCTHits);
-          return val_uint8;
-      }
-      else return -99.;
-  }
-
-  static inline double getNTRT  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfTRTHits);
-          return val_uint8;
-      }
-      else return -99.;
-  }
-
-  static inline double getNTRThighTh  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfTRTHighThresholdHits);
-          return val_uint8;
-      }
-      else return -99.;
-  }
-
-  static inline double getNTRThighThOutliers  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfTRTHighThresholdOutliers);
-          return val_uint8;
-      }
-      else return -99.;
-  }
-
-  static inline double getNTRTOutliers  (const xAOD::Electron* eg) {
-      uint8_t val_uint8=0;
-      if(eg && eg->trackParticle()) {
-          eg->trackParticleSummaryValue(val_uint8,xAOD::numberOfTRTOutliers);
-          return val_uint8;
-      }
-      else return -99.;
-  }
-  static inline double PtTrack (const xAOD::Electron* eg) {
-      if(eg && (eg->trackParticle())) 
-          return eg->trackParticle()->pt(); 
-      else return -99.;
-  }
-  static inline double dEta (const xAOD::Electron* eg) {
-      float val_float = -99;
-      if(eg) 
-          eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaEta1);	
-      return val_float;
-  }
-  static inline double dPhi (const xAOD::Electron* eg) {
-      float val_float = -99;
-      if(eg) 
-          eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaPhi2);	
-      return val_float;
-  }
-  static inline double Eoverp(const xAOD::Electron* eg)	{
-    if(eg && (eg->trackParticle()) && (eg->caloCluster())){
-      return eg->caloCluster()->et()/ eg->trackParticle()->pt();   
-    }
-    else return -99.;
-  }
-  static inline double rTRT  (const xAOD::Electron* eg) {
-	if(eg && eg->trackParticle()){ 
-		uint8_t trtHits   = 0;
-                eg->trackParticleSummaryValue(trtHits,xAOD::numberOfTRTHits);
-		uint8_t trtHTHits = 0; 
-                eg->trackParticleSummaryValue(trtHTHits,xAOD::numberOfTRTHighThresholdHits);
-		if(trtHits!=0) {
-			return ( (double)trtHTHits / (double)trtHits ); 
-		}
-		else return -99.;
-	}
-	else return -99.;
-  }
-  
-
-  static inline double getEtconeIso(const xAOD::Egamma* eg){
-    if(eg && eg->caloCluster() ){
-      const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
-      float eta2   = fabs(cluster->etaBE(2)); 
-      float et_37  = cluster->e()/cosh(eta2);  
-      float val_float = -99;
-      eg->isolationValue(val_float,xAOD::EgammaParameters::etcone20); 
-      return et_37!=0. ? val_float/et_37 : -99.;
-    }
-    else return -99.;
-  }
-  static inline double getPtconeIso(const xAOD::Electron* eg){
-    if(eg && eg->trackParticle() ){
-      float val_float = -99;
-      eg->isolationValue(val_float,xAOD::EgammaParameters::ptcone20); 
-      return val_float;
-    }
-    else return -99.;
-  }
-
-  
 
 };
 #endif

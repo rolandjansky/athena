@@ -115,7 +115,7 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   std::vector<unsigned int> m_IsEMRequiredBits; 
   std::vector<unsigned int> m_IsEMRequiredBitsAfterCut;
   
-  const xAOD::PhotonContainer* m_EgammaContainer; //!< pointer to EgammaContainer
+  const xAOD::PhotonContainer* m_EgammaContainer; //!< pointer to PhotonContainer
   
   
   std::vector<IHistogram1D*> nCandHistVector;
@@ -135,56 +135,6 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
 
   void prepareMonitoringVars();
 
-  /**
-   * \brief implements histograms for monitoring
-   */
-
-  static inline double Et    (const xAOD::Egamma* eg)	{if(eg && (eg->caloCluster())) return eg->caloCluster()->et(); else return -99.;}
-  static inline double Eta    (const xAOD::Egamma* eg)	{if(eg && (eg->caloCluster())) return eg->eta(); else return -99.;}
-  static inline double Phi    (const xAOD::Egamma* eg)	{if(eg && (eg->caloCluster())) return eg->phi(); else return -99.;}
-  
-  static inline double EtCluster37(const xAOD::Egamma* eg){
-    if(eg && (eg->caloCluster())){
-      const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
-      double eta2   = fabs(cluster->etaBE(2)); 
-      return cluster->e()/cosh(eta2);      
-    }
-    else return -99.;
-  }
-  static inline float rE37E77 (const xAOD::Egamma* eg) {
-     float e277=-99;
-     float e237=-99;
-     eg->showerShapeValue(e237,xAOD::EgammaParameters::e237); 
-     eg->showerShapeValue(e277,xAOD::EgammaParameters::e277); 
-     float _rE37E77 = (e277 != 0.) ? ( e237 / e277 ) : -99. ;
-     return _rE37E77;
-  }
-  static inline float rE33E77 (const xAOD::Egamma* eg) {
-     float e277=-99;
-     float e233=-99;
-     eg->showerShapeValue(e233,xAOD::EgammaParameters::e233); 
-     eg->showerShapeValue(e277,xAOD::EgammaParameters::e277); 
-     float _rE33E77 = (e277 != 0.) ? ( e233 / e277 ) : -99. ;
-     return _rE33E77;
-  }
-
-  static inline float Eratio(const xAOD::Egamma* eg) {
-      if(eg) {
-          // E of 2nd max between max and min in strips
-          float emax2  = -99;
-          eg->showerShapeValue(emax2,xAOD::EgammaParameters::e2tsts1);   
-          // E of 1st max in strips
-          float emax   = -99;
-          eg->showerShapeValue(emax2,xAOD::EgammaParameters::emaxs1);   
-          // E(min) in strips
-          float _demaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.;
-          return _demaxs1;
-      }
-      else {return -99.;}
-  }
-
-
-  //xAOD, what is in EDM
   //TBD
  /*static inline int monIsEM(const egamma* eg){
     if(eg && eg->isem() ) {
