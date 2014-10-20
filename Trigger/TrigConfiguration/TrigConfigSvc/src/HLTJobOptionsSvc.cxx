@@ -110,9 +110,13 @@ TrigConf::HLTJobOptionsSvc::readDbWithMasterKey()
    CHECK(initStorageMgr());
 
    int connectionTimeout=5;
-   dynamic_cast<TrigConf::StorageMgr*>(m_storageMgr)->sessionMgr().createSession(m_dbconfig->m_retrialPeriod,
-                                                                                 m_dbconfig->m_retrialPeriod*(m_dbconfig->m_maxRetrials+1),
-                                                                                 connectionTimeout);
+
+   SessionMgr & sessionMgr = dynamic_cast<TrigConf::StorageMgr*>(m_storageMgr)->sessionMgr();
+
+   sessionMgr.setRetrialPeriod(m_dbconfig->m_retrialPeriod);
+   sessionMgr.setConnectionTimeout(m_dbconfig->m_maxRetrials);
+   sessionMgr.setConnectionTimeout(connectionTimeout);
+   sessionMgr.createSession();
    
    TrigConf::JobOptionTable jot;
    jot.setSMK(m_dbconfig->m_smkey);
