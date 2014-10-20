@@ -658,8 +658,6 @@ InDet::PixelCluster* TrigFTKTrackConverter::createPixelCluster(const FTKHit& h, 
   (*cov)(0,0) = siWidth.phiR()*siWidth.phiR()/12; 
   (*cov)(1,1) = siWidth.z()*siWidth.z()/12; 
 
-  //std::cout<<"errors were "<<sqrt(mat(1,1))<<" "<<sqrt(mat(2,2))<<std::endl;
-
   if(m_usePixelCalibSvc) {
     const Amg::Vector2D& colRow = siWidth.colRow();
     double averageZPitch = siWidth.z()/colRow.y();
@@ -670,20 +668,19 @@ InDet::PixelCluster* TrigFTKTrackConverter::createPixelCluster(const FTKHit& h, 
 
       if(pDE->isBarrel()){ 
 	//std::cout<<"barrel corrections "<<std::endl;
-	(*cov)(1,1) =  pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),int(colRow.x())),2);   
-	(*cov)(2,2) = pow(m_offlineCalibSvc->getBarrelErrorEta(eta,int(colRow.y()),int(colRow.x())),2);
+        (*cov)(0,0) =  pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),int(colRow.x())),2);   
+        (*cov)(1,1) = pow(m_offlineCalibSvc->getBarrelErrorEta(eta,int(colRow.y()),int(colRow.x())),2);
       } 
       else{ 
 	//std::cout<<"endcap corrections "<<std::endl;
-	(*cov)(1,1) = pow(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())),2);  
-	(*cov)(2,2) =  pow(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())),2); 
+        (*cov)(0,0) = pow(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())),2);  
+        (*cov)(1,1) =  pow(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())),2); 
       } 
     } else { 
-      (*cov)(1,1) = pow(siWidth.phiR()/colRow.x(),2)/12; 
-      (*cov)(2,2) = pow(averageZPitch,2)/12; 
+      (*cov)(0,0) = pow(siWidth.phiR()/colRow.x(),2)/12; 
+      (*cov)(1,1) = pow(averageZPitch,2)/12; 
     }
   }
-  //std::cout<<"errors now  "<<sqrt(mat(1,1))<<" "<<sqrt(mat(2,2))<<std::endl;
   InDet::PixelCluster* pCL = new InDet::PixelCluster(pixel_id, position, rdoList, siWidth, 
 						     pDE, cov);
   
