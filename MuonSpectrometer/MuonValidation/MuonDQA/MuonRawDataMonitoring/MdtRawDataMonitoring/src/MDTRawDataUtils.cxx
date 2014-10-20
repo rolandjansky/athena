@@ -13,9 +13,7 @@
 #include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include <TError.h>
-#include "EventInfo/TriggerInfo.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <string>
 #include <TBox.h>
 #include <TList.h>
@@ -952,7 +950,7 @@ bool MdtRawDataValAlg::AinB( int A, std::vector<int> & B ) {
 }
 
 StatusCode MdtRawDataValAlg::StoreTriggerType() {
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
 
   StatusCode sc = StatusCode::SUCCESS;
   sc = evtStore()->retrieve(eventInfo);
@@ -965,11 +963,7 @@ StatusCode MdtRawDataValAlg::StoreTriggerType() {
   }
    
   // protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
-  if(eventInfo->trigger_info() != NULL)
-    {
-      trigtype = eventInfo->trigger_info()->level1TriggerType();
-    }
-  else { trigtype = -1;}
+  trigtype = eventInfo->level1TriggerType();
 
   return sc;
 } 
@@ -998,7 +992,7 @@ StatusCode MdtRawDataValAlg::fillLumiBlock(){
 
   m_lumiblock = -1;
 
-  const EventInfo* evt(0);
+  const xAOD::EventInfo* evt(0);
 
   StatusCode sc = StatusCode::SUCCESS;
   sc = (*m_activeStore)->retrieve(evt);
@@ -1006,13 +1000,8 @@ StatusCode MdtRawDataValAlg::fillLumiBlock(){
     ATH_MSG_ERROR("Could not find Event Info");
     return sc;
   }
-  const EventID* evtid = evt->event_ID();
-  if( !evtid){
-    ATH_MSG_ERROR("Could not find Event ID");
-    return StatusCode::FAILURE;
-  }
 
-  m_lumiblock = evtid->lumi_block();
+  m_lumiblock = evt->lumiBlock();
 
   return sc;
 

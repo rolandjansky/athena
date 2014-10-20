@@ -28,7 +28,7 @@ use     MuonRIO_OnTrack         MuonRIO_OnTrack-*               MuonSpectrometer
 use 	TrkEventPrimitives  	TrkEventPrimitives-*    	Tracking/TrkEvent
 use 	MdtCalibFitters	 	MdtCalibFitters-* 		MuonSpectrometer/MuonCalib/MdtCalib
 use 	MuonSegment 		MuonSegment-* 			MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use     EventInfo               EventInfo-*                     Event
+use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
 use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
 end_private
 
