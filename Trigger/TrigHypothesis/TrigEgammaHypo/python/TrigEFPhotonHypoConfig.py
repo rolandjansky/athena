@@ -1,5 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+############################################
+## EF Photon Hypo Configuration
+## Ryan Mackenzie White <ryan.white@cern.ch>
+############################################
 from AthenaCommon.Logging import logging #AT
 import traceback #AT
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFPhotonHypo
@@ -7,9 +11,8 @@ from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFPhotonHypo
 
 ###############################################################
 # Include EGammaPIDdefs for loose,medium,tight definitions
-from TrigEGammaPIDdefs import SelectionDefPhoton
-from TrigEGammaPIDdefs import TrigEgammaIDQuality 
-##########################
+from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton 
+
 import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaParameters
@@ -18,11 +21,8 @@ PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
 from ROOT import egammaPID
 
 # Include electronPIDmenu from Trigger specific maps 
-#from TrigEgammaElectronIsEMSelectorMapping import electronPIDmenu
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import electronPIDmenu
-####
-#### !!!!!!!!!!!!!!!!!!!!!!!!!!
-# we have to do something with this, where was this defined before?
+
 from AthenaCommon.SystemOfUnits import GeV
 
 class TrigEFPhotonHypoBase (TrigEFPhotonHypo):
@@ -107,7 +107,7 @@ class EFPhotonHypo_g_ID_CaloOnly (TrigEFPhotonHypoBase):
             if hasattr(ToolSvc, "AsgPhotonIsEMLooseSelector"):
                 self.egammaElectronCutIDToolName = "AsgPhotonIsEMLooseSelector"
             else:    
-                thephotoncutlooseid=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMLooseSelector",egammaPID.PhotonIDLoose,electronPIDmenu.menuTrig2012)
+                thephotoncutlooseid=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMLooseSelector",egammaPID.PhotonIDLooseEF,electronPIDmenu.menuTrig2012)
                 self.egammaElectronCutIDToolName = thephotoncutlooseid.getFullName()
                 ToolSvc+=thephotoncutlooseid       
         elif IDinfo == 'medium' or IDinfo == 'medium1':
@@ -115,7 +115,7 @@ class EFPhotonHypo_g_ID_CaloOnly (TrigEFPhotonHypoBase):
             if hasattr(ToolSvc, "AsgPhotonIsEMMediumSelector"):
                 self.egammaElectronCutIDToolName = "AsgPhotonIsEMMediumSelector"
             else:    
-                thephotoncutmediumid=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMMediumSelector",egammaPID.PhotonIDMedium,electronPIDmenu.menuTrig2012)
+                thephotoncutmediumid=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMMediumSelector",egammaPID.PhotonIDMediumEF,electronPIDmenu.menuTrig2012)
                 self.egammaElectronCutIDToolName = thephotoncutmediumid.getFullName()
                 ToolSvc+=thephotoncutmediumid       
         #--- egammaPhotonCutIDTool without ForcePhotonConversion (same selection as in offline)

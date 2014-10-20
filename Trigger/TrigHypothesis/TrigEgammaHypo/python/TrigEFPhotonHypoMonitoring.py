@@ -16,13 +16,6 @@ class TrigEFPhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms  = [ defineHistogram('CutCounter', type='TH1F', title="EFPhoton Hypo cut counter; Cut",
                                              xbins=10, xmin=0.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]    
-        self.Histograms += [ defineHistogram('Et', 	type='TH1F', title="EFPhoton Hypo E_{T}; E_{T}^{em} [MeV]",    xbins=50, xmin=0., xmax=70000.) ]
-        self.Histograms += [ defineHistogram('Eta', 	type='TH1F', title="EFPhoton Hypo #eta; #eta",             xbins=50, xmin=-3.5, xmax=3.5) ]
-        self.Histograms += [ defineHistogram('Phi', 	type='TH1F', title="EFPhoton Hypo #phi; #phi",             xbins=64, xmin=-3.2, xmax=3.2) ]
-        #self.Histograms += [ defineHistogram('rE37E77',	type='TH1F', title="EFPhoton Hypo e237/e277; e237/e277", xbins=50, xmin=0., xmax=2.) ]
-        #self.Histograms += [ defineHistogram('rE33E77',	type='TH1F', title="EFPhoton Hypo e233/e277; e233/e277", xbins=50, xmin=0., xmax=2.) ]
-        #self.Histograms += [ defineHistogram('Eratio',	type='TH1F', title="EFPhoton Hypo Eratio; Eratio", xbins=40, xmin=-0.1, xmax=1.5) ]
-
 
         #----------------------------------------------------------
         #AT Jan2010
@@ -75,6 +68,47 @@ class TrigEFPhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFEgammaHypo isEM; Cut",
         #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
        
+        self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
+                                            xbins=50, xmin=-2000, xmax=100000) ]
+     
+        self.Histograms += [ defineHistogram('Ph_F1', 	type='TH1F', title="EFElectron Hypo fraction of energy found in 1st em sampling;Fraction",
+                                             xbins=50, xmin=-0.1, xmax=1.1 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_E237', 	type='TH1F', title="EFElectron Hypo uncor energy in 3x7 cells in em sampling 2; E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_E277', 	type='TH1F', title="EFElectron Hypo uncor energy in 7x7 cells in em sampling 2;E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+                                             
+        self.Histograms += [ defineHistogram('Ph_Reta', 	type='TH1F', title="EFElectron Hypo Reta = E237/E277; Reta",
+                                             xbins=130, xmin=-5.0, xmax=1.5 ) ]
+                                             
+        self.Histograms += [ defineHistogram('Ph_Eratio', 	type='TH1F', title="EFElectron Hypo Eratio = (emax1 - emax2) / (emax1 + emax2) ; Eratio ",
+                                             xbins=32, xmin=-0.1, xmax=1.5 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_EtHad1', 	type='TH1F', title="EFElectron Hypo E leakage into 1st sampling of had calo; E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_WEta1', 	type='TH1F', title="EFElectron Hypo corrected width in 3 strips in the 1st samp. ; WEta1",
+                                             xbins=20, xmin=0, xmax=1 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_WEta2', 	type='TH1F', title="EFElectron  Hypo corrected width in 3 strips in the 2st samp. ; WEta2",
+                                             xbins=20, xmin=0, xmax=0.05 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Emax2', 	type='TH1F', title="EFElectron Hypo 2nd maximum in strips; E [MeV]",
+                                             xbins=50, xmin=-1000, xmax=5000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Emins1', 	type='TH1F', title="EFElectron Hypo energy of strip with minimum between max 1 & 2; E [MeV]",
+                                             xbins=50, xmin=-1000, xmax=5000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Fracs1', 	type='TH1F', title="EFElectron Hypo energy outside core (E(+-7)-E(+-3))/E(+-7); E [MeV]",
+                                             xbins=50, xmin=-5000, xmax=10000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_wtots1', 	type='TH1F', title="EFElectron Hypo total width in em sampling 1 in 20 strips; WTots1",
+                                             xbins=20, xmin=0, xmax=20 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_EtCone20', 	type='TH1F', title="EFElectron Hypo Et in a ring of DR<0.20 above noise (excluding electron ET); ET [MeV]",
+                                             xbins=60, xmin=-10000, xmax=50000 ) ]
 
 
 class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
@@ -91,12 +125,6 @@ class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
             
         self.Histograms  = [ defineHistogram('CutCounter', type='TH1F', title="EFPhoton Hypo cut counter; Cut",
                                              xbins=10, xmin=0.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]    
-        self.Histograms += [ defineHistogram('Et', 	type='TH1F', title="EFPhoton Hypo E_{T}; E_{T}^{em} [MeV]",    xbins=50, xmin=0., xmax=70000.) ]
-        self.Histograms += [ defineHistogram('Eta', 	type='TH1F', title="EFPhoton Hypo #eta; #eta",             xbins=50, xmin=-3.5, xmax=3.5) ]
-        self.Histograms += [ defineHistogram('Phi', 	type='TH1F', title="EFPhoton Hypo #phi; #phi",             xbins=64, xmin=-3.2, xmax=3.2) ]
-        #self.Histograms += [ defineHistogram('rE37E77',	type='TH1F', title="EFPhoton Hypo e237/e277; e237/e277", xbins=50, xmin=0., xmax=2.) ]
-        #self.Histograms += [ defineHistogram('rE33E77',	type='TH1F', title="EFPhoton Hypo e233/e277; e233/e277", xbins=50, xmin=0., xmax=2.) ]
-        #self.Histograms += [ defineHistogram('Eratio',	type='TH1F', title="EFPhoton Hypo Eratio; Eratio", xbins=40, xmin=-0.1, xmax=1.5) ]
 
         #----------------------------------------------------------
         #AT Jan2010
@@ -148,6 +176,47 @@ class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFEgammaHypo isEM; Cut",
         #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
 
+        self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
+                                            xbins=50, xmin=-2000, xmax=100000) ]
+     
+        self.Histograms += [ defineHistogram('Ph_F1', 	type='TH1F', title="EFElectron Hypo fraction of energy found in 1st em sampling;Fraction",
+                                             xbins=50, xmin=-0.1, xmax=1.1 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_E237', 	type='TH1F', title="EFElectron Hypo uncor energy in 3x7 cells in em sampling 2; E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_E277', 	type='TH1F', title="EFElectron Hypo uncor energy in 7x7 cells in em sampling 2;E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+                                             
+        self.Histograms += [ defineHistogram('Ph_Reta', 	type='TH1F', title="EFElectron Hypo Reta = E237/E277; Reta",
+                                             xbins=130, xmin=-5.0, xmax=1.5 ) ]
+                                             
+        self.Histograms += [ defineHistogram('Ph_Eratio', 	type='TH1F', title="EFElectron Hypo Eratio = (emax1 - emax2) / (emax1 + emax2) ; Eratio ",
+                                             xbins=32, xmin=-0.1, xmax=1.5 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_EtHad1', 	type='TH1F', title="EFElectron Hypo E leakage into 1st sampling of had calo; E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_WEta1', 	type='TH1F', title="EFElectron Hypo corrected width in 3 strips in the 1st samp. ; WEta1",
+                                             xbins=20, xmin=0, xmax=1 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_WEta2', 	type='TH1F', title="EFElectron  Hypo corrected width in 3 strips in the 2st samp. ; WEta2",
+                                             xbins=20, xmin=0, xmax=0.05 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Emax2', 	type='TH1F', title="EFElectron Hypo 2nd maximum in strips; E [MeV]",
+                                             xbins=50, xmin=-1000, xmax=5000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Emins1', 	type='TH1F', title="EFElectron Hypo energy of strip with minimum between max 1 & 2; E [MeV]",
+                                             xbins=50, xmin=-1000, xmax=5000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Fracs1', 	type='TH1F', title="EFElectron Hypo energy outside core (E(+-7)-E(+-3))/E(+-7); E [MeV]",
+                                             xbins=50, xmin=-5000, xmax=10000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_wtots1', 	type='TH1F', title="EFElectron Hypo total width in em sampling 1 in 20 strips; WTots1",
+                                             xbins=20, xmin=0, xmax=20 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_EtCone20', 	type='TH1F', title="EFElectron Hypo Et in a ring of DR<0.20 above noise (excluding electron ET); ET [MeV]",
+                                             xbins=60, xmin=-10000, xmax=50000 ) ]
 
 class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigEFPhotonHypoCosmicMonitoring"):
@@ -164,12 +233,6 @@ class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
        
         self.Histograms  = [ defineHistogram('CutCounter', type='TH1F', title="EFPhoton Hypo cut counter; Cut",
                                              xbins=10, xmin=0.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ] 
-        self.Histograms += [ defineHistogram('Et', 	type='TH1F', title="EFPhoton Hypo E_{T}; E_{T}^{em} [MeV]",    xbins=50, xmin=0., xmax=70000.) ]
-        self.Histograms += [ defineHistogram('Eta', 	type='TH1F', title="EFPhoton Hypo #eta; #eta",             xbins=50, xmin=-3.5, xmax=3.5) ]
-        self.Histograms += [ defineHistogram('Phi', 	type='TH1F', title="EFPhoton Hypo #phi; #phi",             xbins=64, xmin=-3.2, xmax=3.2) ]
-        #self.Histograms += [ defineHistogram('rE37E77',	type='TH1F', title="EFPhoton Hypo e237/e277; e237/e277", xbins=50, xmin=0., xmax=2.) ]
-        #self.Histograms += [ defineHistogram('rE33E77',	type='TH1F', title="EFPhoton Hypo e233/e277; e233/e277", xbins=50, xmin=0., xmax=2.) ]
-        #self.Histograms += [ defineHistogram('Eratio',	type='TH1F', title="EFPhoton Hypo Eratio; Eratio", xbins=50, xmin=-0.1, xmax=1.5) ]
 
 
         #----------------------------------------------------------
@@ -223,3 +286,44 @@ class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFEgammaHypo isEM; Cut",
         #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
        
+        self.Histograms += [ defineHistogram('Ph_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
+                                            xbins=50, xmin=-2000, xmax=100000) ]
+     
+        self.Histograms += [ defineHistogram('Ph_F1', 	type='TH1F', title="EFElectron Hypo fraction of energy found in 1st em sampling;Fraction",
+                                             xbins=50, xmin=-0.1, xmax=1.1 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_E237', 	type='TH1F', title="EFElectron Hypo uncor energy in 3x7 cells in em sampling 2; E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_E277', 	type='TH1F', title="EFElectron Hypo uncor energy in 7x7 cells in em sampling 2;E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+                                             
+        self.Histograms += [ defineHistogram('Ph_Reta', 	type='TH1F', title="EFElectron Hypo Reta = E237/E277; Reta",
+                                             xbins=130, xmin=-5.0, xmax=1.5 ) ]
+                                             
+        self.Histograms += [ defineHistogram('Ph_Eratio', 	type='TH1F', title="EFElectron Hypo Eratio = (emax1 - emax2) / (emax1 + emax2) ; Eratio ",
+                                             xbins=32, xmin=-0.1, xmax=1.5 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_EtHad1', 	type='TH1F', title="EFElectron Hypo E leakage into 1st sampling of had calo; E [MeV]",
+                                             xbins=50, xmin=-15000, xmax=150000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_WEta1', 	type='TH1F', title="EFElectron Hypo corrected width in 3 strips in the 1st samp. ; WEta1",
+                                             xbins=20, xmin=0, xmax=1 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_WEta2', 	type='TH1F', title="EFElectron  Hypo corrected width in 3 strips in the 2st samp. ; WEta2",
+                                             xbins=20, xmin=0, xmax=0.05 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Emax2', 	type='TH1F', title="EFElectron Hypo 2nd maximum in strips; E [MeV]",
+                                             xbins=50, xmin=-1000, xmax=5000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Emins1', 	type='TH1F', title="EFElectron Hypo energy of strip with minimum between max 1 & 2; E [MeV]",
+                                             xbins=50, xmin=-1000, xmax=5000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_Fracs1', 	type='TH1F', title="EFElectron Hypo energy outside core (E(+-7)-E(+-3))/E(+-7); E [MeV]",
+                                             xbins=50, xmin=-5000, xmax=10000 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_wtots1', 	type='TH1F', title="EFElectron Hypo total width in em sampling 1 in 20 strips; WTots1",
+                                             xbins=20, xmin=0, xmax=20 ) ]
+
+        self.Histograms += [ defineHistogram('Ph_EtCone20', 	type='TH1F', title="EFElectron Hypo Et in a ring of DR<0.20 above noise (excluding electron ET); ET [MeV]",
+                                             xbins=60, xmin=-10000, xmax=50000 ) ]

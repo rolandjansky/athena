@@ -44,6 +44,7 @@
 //#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
+#include "xAODEgammaCnv/xAODPhotonMonFuncs.h"
 // to add TrigPassBits 
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassFlags.h"
@@ -79,13 +80,41 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("emEt",m_emEt = 0.*CLHEP::GeV);
   
   declareProperty("histoPath", m_path = "/EXPERT" ); 
-  typedef const DataVector<xAOD::Egamma> m_dataVector;
-  declareMonitoredCollection("Eta",	*my_pp_cast <m_dataVector>(&m_EgammaContainer), &Eta);
-  declareMonitoredCollection("Phi",	*my_pp_cast <m_dataVector>(&m_EgammaContainer), &Phi);
-  declareMonitoredCollection("Et",      *my_pp_cast <m_dataVector>(&m_EgammaContainer), &Et);
-  //declareMonitoredCollection("rE37E77", *my_pp_cast <m_dataVector>(&m_EgammaContainer), &rE37E77);
-  //declareMonitoredCollection("rE33E77",	*my_pp_cast <m_dataVector>(&m_EgammaContainer), &rE33E77);
-  //declareMonitoredCollection("Eratio",	*my_pp_cast <m_dataVector>(&m_EgammaContainer), &Eratio);
+  typedef const DataVector<xAOD::Photon> xAODPhotonDV_type; 
+  // Cluster and ShowerShape Monitoring
+  declareMonitoredCollection("Ph_E237",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_e237);
+  declareMonitoredCollection("Ph_E277",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_e277);
+  declareMonitoredCollection("Ph_Reta",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_Reta);
+  declareMonitoredCollection("Ph_Rphi",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_Rphi);
+  declareMonitoredCollection("Ph_Rhad",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_Rhad);
+  declareMonitoredCollection("Ph_Rhad1",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_Rhad1);
+  declareMonitoredCollection("Ph_EtHad1", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_ethad1);
+  declareMonitoredCollection("Ph_WEta1",  *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_weta1);
+  declareMonitoredCollection("Ph_WEta2",  *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_weta2);
+  declareMonitoredCollection("Ph_F1",     *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_f1);
+  declareMonitoredCollection("Ph_F3",     *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_f3);
+  declareMonitoredCollection("Ph_F3core",     *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_f3core);
+  declareMonitoredCollection("Ph_Emax2",*my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_e2tsts1);
+  declareMonitoredCollection("Ph_Emins1", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_emins1);
+  declareMonitoredCollection("Ph_Emax", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_emaxs1);
+  declareMonitoredCollection("Ph_DEmaxs1", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getDEmaxs1);
+  declareMonitoredCollection("Ph_wtots1", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_wtots1);
+  declareMonitoredCollection("Ph_Fracs1", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_fracs1);
+  declareMonitoredCollection("Ph_Eratio", *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_Eratio);
+  declareMonitoredCollection("Ph_EtCone20",     *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getIsolation_etcone20);
+  declareMonitoredCollection("Ph_EnergyBE0",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEnergyBE0);
+  declareMonitoredCollection("Ph_EnergyBE1",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEnergyBE1);
+  declareMonitoredCollection("Ph_EnergyBE2",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEnergyBE2);
+  declareMonitoredCollection("Ph_EnergyBE3",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEnergyBE3);
+  declareMonitoredCollection("Ph_Eaccordion",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEaccordion);
+  declareMonitoredCollection("Ph_E0Eaccordion",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getE0Eaccordion);
+
+  declareMonitoredCollection("Ph_EtCluster37",   *my_pp_cast<xAODPhotonDV_type>(&m_EgammaContainer), &getEtCluster37);
+  declareMonitoredCollection("Ph_Eta",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getCluster_eta);
+  declareMonitoredCollection("Ph_Eta2",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEta2);
+  declareMonitoredCollection("Ph_Phi",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getCluster_phi);
+  declareMonitoredCollection("Ph_ClusterEt",     *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getCluster_et);
+  
   declareMonitoredVariable("CutCounter",m_NofPassedCuts);
   
   //isEM monitoring 

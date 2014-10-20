@@ -32,6 +32,7 @@
 #include "egammaEvent/egammaParamDefs.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgammaCnv/xAODElectronMonFuncs.h"
 #include "VxVertex/RecVertex.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -39,9 +40,6 @@
 #include "TrigSteeringEvent/TrigPassBits.h"
 
 #include "TrigSteeringEvent/TrigPassFlags.h"
-
-
-
 
 namespace {
     template <class DEST,class SRC>
@@ -78,6 +76,7 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   
   //isEM offline
   declareProperty("ApplyIsEM",m_applyIsEM = false);
+  declareProperty("ApplyEtIsEM",m_applyEtIsEM = false);
   declareProperty("IsEMrequiredBits",m_IsEMrequiredBits = 0xF2);
   
   declareProperty("egammaElectronCutIDToolName",m_egammaElectronCutIDToolName="");
@@ -95,45 +94,60 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
 
   declareProperty("histoPath", m_path = "/stat/Monitoring/EventFilter" ); 
 
-  typedef const DataVector<xAOD::Egamma> m_dataVector;
-  typedef const DataVector<xAOD::Electron> m_dataVector2;
+  typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
   
   // Cluster and ShowerShape Monitoring
-  declareMonitoredCollection("ClusterEt",*my_pp_cast<m_dataVector>(&m_EgammaContainer), &EtCluster);
-  declareMonitoredCollection("EtCluster37", *my_pp_cast<m_dataVector>(&m_EgammaContainer), &EtCluster37); 
-  declareMonitoredCollection("E237",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getE237);
-  declareMonitoredCollection("E277",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getE277);
-  declareMonitoredCollection("Reta",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getE277);
-  declareMonitoredCollection("EtHad1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getEthad1);
-  declareMonitoredCollection("WEta1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getWeta1);
-  declareMonitoredCollection("WEta2",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getWeta2);
-  declareMonitoredCollection("F1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getF1);
-  declareMonitoredCollection("E2tsts1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getE2tsts1);
-  declareMonitoredCollection("Emins1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getEmins1);
-  declareMonitoredCollection("wtots1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getWtots1);
-  declareMonitoredCollection("Fracs1",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getfracs1);
-  declareMonitoredCollection("F3",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getF3);
-  declareMonitoredCollection("Eratio",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getEratio);
-  declareMonitoredCollection("EtConeIso",	*my_pp_cast<m_dataVector>(&m_EgammaContainer), &getEtconeIso);
-  declareMonitoredCollection("PtConeIso",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getPtconeIso);
-  
-  declareMonitoredCollection("nBLayerHits",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNbLayer);
-  declareMonitoredCollection("nPixelHits",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNPixel);
-  declareMonitoredCollection("nSCTHits",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNSCT);
-  declareMonitoredCollection("nTRTHits",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNTRT);
-  declareMonitoredCollection("nTRTHitsHighTh",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNTRThighTh);
-  declareMonitoredCollection("nTRTHitsHighThOutliers",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNTRThighThOutliers);
-  declareMonitoredCollection("nTRTHitsOutliers",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &getNTRTOutliers);
- 
-  declareMonitoredCollection("TrackPt",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &PtTrack);
-  declareMonitoredCollection("dEta",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &dEta);
-  declareMonitoredCollection("dPhi",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &dPhi);
-  declareMonitoredCollection("Eoverp",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &Eoverp);
-  declareMonitoredCollection("rTRT",	*my_pp_cast<m_dataVector2>(&m_EgammaContainer), &rTRT);
+  declareMonitoredCollection("El_E237",   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_e237);
+  declareMonitoredCollection("El_E277",   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_e277);
+  declareMonitoredCollection("El_Reta",   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_Reta);
+  declareMonitoredCollection("El_Rphi",   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_Rphi);
+  declareMonitoredCollection("El_Rhad",   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_Rhad);
+  declareMonitoredCollection("El_Rhad1",   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_Rhad1);
+  declareMonitoredCollection("El_EtHad1", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_ethad1);
+  declareMonitoredCollection("El_WEta1",  *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_weta1);
+  declareMonitoredCollection("El_WEta2",  *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_weta2);
+  declareMonitoredCollection("El_F1",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_f1);
+  declareMonitoredCollection("El_F3",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_f3);
+  declareMonitoredCollection("El_F3core",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_f3core);
+  declareMonitoredCollection("El_Emax2",*my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_e2tsts1);
+  declareMonitoredCollection("El_Emins1", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_emins1);
+  declareMonitoredCollection("El_Emax", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_emaxs1);
+  declareMonitoredCollection("El_DEmaxs1", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getDEmaxs1);
+  declareMonitoredCollection("El_wtots1", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_wtots1);
+  declareMonitoredCollection("El_Fracs1", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_fracs1);
+  declareMonitoredCollection("El_Eratio", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_Eratio);
+  declareMonitoredCollection("El_DeltaE", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_DeltaE);
+  declareMonitoredCollection("El_EtCluster37",   *my_pp_cast<xAODElectronDV_type>(&m_EgammaContainer), &getEtCluster37);
+  declareMonitoredCollection("El_EtCone20",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getIsolation_etcone20);
+  declareMonitoredCollection("El_PtCone20",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getIsolation_ptcone20);
+  declareMonitoredCollection("El_Eta",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCluster_eta);
+  declareMonitoredCollection("El_Phi",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCluster_phi);
+  declareMonitoredCollection("El_ClusterEt",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCluster_et);
+  declareMonitoredCollection("El_Eta2",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getEta2);
+  declareMonitoredCollection("El_EnergyBE0",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getEnergyBE0);
+  declareMonitoredCollection("El_EnergyBE1",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getEnergyBE1);
+  declareMonitoredCollection("El_EnergyBE2",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getEnergyBE2);
+  declareMonitoredCollection("El_EnergyBE3",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getEnergyBE3);
+  declareMonitoredCollection("El_Eaccordion",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getEaccordion);
+  declareMonitoredCollection("El_E0Eaccordion",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getE0Eaccordion);
 
- 
-  
-
+  //Track-related monitoring accesible from xAOD::Electron
+  declareMonitoredCollection("nBLayerHits",            *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfBLayerHits);
+  declareMonitoredCollection("nPixelHits",             *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfPixelHits);
+  declareMonitoredCollection("nSCTHits",               *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfSCTHits);
+  declareMonitoredCollection("nTRTHits",               *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfTRTHits);
+  declareMonitoredCollection("nTRTHitsHighTh",         *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfTRTHighThresholdHits);
+  declareMonitoredCollection("nTRTHitsHighThOutliers", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfTRTHighThresholdOutliers);
+  declareMonitoredCollection("nTRTHitsOutliers",       *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfTRTOutliers);
+  declareMonitoredCollection("TrackPt",                *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrack_pt);
+  declareMonitoredCollection("d0",                *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrack_d0);
+  declareMonitoredCollection("z0",                *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrack_z0);
+  declareMonitoredCollection("dEta",                   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCaloTrackMatch_deltaEta2);
+  declareMonitoredCollection("dPhi",                   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCaloTrackMatch_deltaPhi2);
+  declareMonitoredCollection("dPhiRescaled",                   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCaloTrackMatch_deltaPhiRescaled2);
+  declareMonitoredCollection("rTRT",                   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &rTRT);
+  declareMonitoredCollection("SigmaD0",                   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getSigmaD0);
+  declareMonitoredCollection("D0sig",                   *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getD0sig);
   declareMonitoredVariable("CutCounter",m_NofPassedCuts);//Event Counter*/
   
   //Isolation
@@ -291,23 +305,17 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     }
 
     //Define mapping between vector of Isolation Cone Sizes and variable names 
-    m_mapEtCone.insert(std::pair<int, string>(0, "etcone15")); 
-    m_mapEtCone.insert(std::pair<int, string>(1, "etcone20")); 
-    m_mapEtCone.insert(std::pair<int, string>(2, "etcone25")); 
-    m_mapEtCone.insert(std::pair<int, string>(3, "etcone30")); 
-    m_mapEtCone.insert(std::pair<int, string>(4, "etcone35")); 
-    m_mapEtCone.insert(std::pair<int, string>(5, "etcone40"));
+    m_mapEtCone.insert(std::pair<int, string>(0, "etcone20")); 
+    m_mapEtCone.insert(std::pair<int, string>(1, "etcone30")); 
+    m_mapEtCone.insert(std::pair<int, string>(2, "etcone40"));
     //
     m_mapPtCone.insert(std::pair<int, string>(0, "ptcone20")); 
     m_mapPtCone.insert(std::pair<int, string>(1, "ptcone30")); 
     m_mapPtCone.insert(std::pair<int, string>(2, "ptcone40")); 
     //
-    m_mapRelEtCone.insert(std::pair<int, string>(0, "etcone15/ele_pt")); 
-    m_mapRelEtCone.insert(std::pair<int, string>(1, "etcone20/ele_pt")); 
-    m_mapRelEtCone.insert(std::pair<int, string>(2, "etcone25/ele_pt")); 
-    m_mapRelEtCone.insert(std::pair<int, string>(3, "etcone30/ele_pt")); 
-    m_mapRelEtCone.insert(std::pair<int, string>(4, "etcone35/ele_pt")); 
-    m_mapRelEtCone.insert(std::pair<int, string>(5, "etcone40/ele_pt")); 
+    m_mapRelEtCone.insert(std::pair<int, string>(0, "etcone20/ele_pt")); 
+    m_mapRelEtCone.insert(std::pair<int, string>(1, "etcone30/ele_pt")); 
+    m_mapRelEtCone.insert(std::pair<int, string>(2, "etcone40/ele_pt")); 
     //
     m_mapRelPtCone.insert(std::pair<int, string>(0, "ptcone20/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(1, "ptcone30/ele_pt")); 
@@ -466,8 +474,11 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     if( m_applyIsEM){ 
         //In order to force the tool to pick up the same cuts for Et>20 GeV, change the trigger threshold
         double temp_EtThreshold=m_emEt;
-        if (temp_EtThreshold>20000) temp_EtThreshold=20000;
+        if(!m_applyEtIsEM){
+            if (temp_EtThreshold>20000) temp_EtThreshold=20000;
+        }
 
+        ATH_MSG_DEBUG("Et for Cut selector " << temp_EtThreshold);
         //To re-run the Offline Electron isEM Builder
         //Old and new tool 
         unsigned int isEMTrig = 0;
@@ -492,7 +503,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             msg() << MSG::ERROR << m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
         }else{
             if (timerSvc()) m_timerPIDTool->start(); //timer
-            msg() << MSG::DEBUG << m_egammaElectronCutIDTool << " Passing egamma object to AthenaSelectorTool" << endreq;
+            ATH_MSG_DEBUG(m_egammaElectronCutIDTool << " Passing egamma object to AthenaSelectorTool with Et " << temp_EtThreshold); 
             if ( m_egammaElectronCutIDTool->execute(egIt, temp_EtThreshold, m_caloCutsOnly).isFailure() ) {
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                     << "problem with egammaElectronCutIDTool, egamma object not stored"
@@ -598,25 +609,19 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	std::vector<float>  EtCone, PtCone;	
 	//--Fill vectors of Absolute isolation variables for different cone sizes
         float val_float=-99;
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::etcone15);
+        egIt->isolationValue(val_float,xAOD::Iso::etcone20);
 	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::etcone20);
+        egIt->isolationValue(val_float,xAOD::Iso::etcone30);
 	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::etcone25);
-	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::etcone30);
-	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::etcone35);
-	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::etcone40);
+        egIt->isolationValue(val_float,xAOD::Iso::etcone40);
 	EtCone.push_back(val_float);
 
 	//
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::ptcone20);
+        egIt->isolationValue(val_float,xAOD::Iso::ptcone20);
 	PtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::ptcone30);
+        egIt->isolationValue(val_float,xAOD::Iso::ptcone30);
 	PtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::EgammaParameters::ptcone40);
+        egIt->isolationValue(val_float,xAOD::Iso::ptcone40);
 	PtCone.push_back(val_float);
 	
 	//printout

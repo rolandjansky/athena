@@ -18,23 +18,31 @@ use     TrigSteeringEvent     	TrigSteeringEvent-*     Trigger/TrigEvent
 use xAODEgamma                  xAODEgamma-*                    Event/xAOD
 use PATCore                     PATCore-*                     PhysicsAnalysis/AnalysisCommon
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*   PhysicsAnalysis/ElectronPhotonID
+use egammaInterfaces            egammaInterfaces-*            Reconstruction/egamma
 
 # Tracking
 use VxVertex                    VxVertex-*                    Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*                 Tracking/TrkDetDescr
 
+# Calo
+use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
+use CaloUtils                  CaloUtils-*             Calorimeter
+
 private
 apply_tag ROOTMathLibs
 
 use     egammaEvent             egammaEvent-*           Reconstruction/egamma
+use     TrigCaloRec                 TrigCaloRec-*           Trigger/TrigAlgorithms
 use     CaloEvent               CaloEvent-*             Calorimeter
 use     CxxUtils                CxxUtils-*              Control
+use     egammaMVACalib              egammaMVACalib-*        Reconstruction/egamma
 use     ITrackToVertex          ITrackToVertex-*        Reconstruction/RecoTools 
 #use     TrigInDetToolInterfaces TrigInDetToolInterfaces-* Trigger/TrigTools
 use     RecoToolInterfaces      RecoToolInterfaces-*    Reconstruction/RecoTools
+use     xAODEgammaCnv               xAODEgammaCnv-*                 Event/xAOD
 
-use TrigMissingEtEvent TrigMissingEtEvent-* Trigger/TrigEvent
-use TrigNavigation     TrigNavigation-*     Trigger/TrigEvent
+use     TrigMissingEtEvent TrigMissingEtEvent-* Trigger/TrigEvent
+use     TrigNavigation     TrigNavigation-*     Trigger/TrigEvent
 
 #need to import egammaPID
 use AtlasROOT                   AtlasROOT-*                   External
