@@ -108,6 +108,11 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_TGC_ID                  (other.m_TGC_ID),
 	m_STGC_ID                 (other.m_STGC_ID),
 	m_MM_ID                   (other.m_MM_ID),
+	m_FWD_ID                  (other.m_FWD_ID),
+	m_ALFA_ID                 (other.m_ALFA_ID),
+	m_BCM_ID                  (other.m_BCM_ID),
+	m_LUCID_ID                (other.m_LUCID_ID),
+	m_ZDC_ID                  (other.m_ZDC_ID),
         m_isSLHC                  (other.m_isSLHC),
         m_lvl1_field              (other.m_lvl1_field),
         m_lvl1_onl_field          (other.m_lvl1_onl_field),
@@ -168,6 +173,11 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_TGC_ID                = other.m_TGC_ID;
 	m_STGC_ID               = other.m_STGC_ID;
 	m_MM_ID                 = other.m_MM_ID;
+        m_FWD_ID                = other.m_FWD_ID;
+        m_ALFA_ID               = other.m_ALFA_ID;
+        m_BCM_ID                = other.m_BCM_ID;
+        m_LUCID_ID              = other.m_LUCID_ID;
+        m_ZDC_ID                = other.m_ZDC_ID;
         m_isSLHC                = other.m_isSLHC;
         m_lvl1_field            = other.m_lvl1_field;
         m_lvl1_onl_field        = other.m_lvl1_onl_field;
@@ -191,10 +201,10 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_muon_rpc_impl         = other.m_muon_rpc_impl;
 
         if (other.m_helper) {
-            // Must copy helper and delete other
+            // Must copy helper.
+            delete m_helper;
             m_helper = new  AtlasDetectorIDHelper(*other.m_helper);
             m_helper->setMsgSvc(m_msgSvc);
-            delete other.m_helper;
         }
     }
 
@@ -470,7 +480,7 @@ AtlasDetectorID::reinitialize             (const IdDictMgr& dict_mgr)
                 log << MSG::ERROR << "reinitialize: could not find dict -  " << m_dict_names[i] << endreq;
             }
             else {
-                std::cout << "AtlasDetectorID::reinitialize ERROR could not find dict -  " << m_dict_names[i] << endreq;
+              std::cout << "AtlasDetectorID::reinitialize ERROR could not find dict -  " << m_dict_names[i] << std::endl;
             }
             return(false);
         }
@@ -2266,7 +2276,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         }
 
         size_type bits    = m_det_impl.bits();
-        size_type nvalues = 1 << bits;
+        size_type nvalues = static_cast<size_type>(1) << bits;
         Range::field det  = m_det_impl.ored_field();
         size_type max     = det.get_maximum ();
         for (size_type i = det.get_values().size(); i < nvalues; ++i) {
