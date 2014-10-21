@@ -5,8 +5,7 @@
 #ifndef MCTRUTHALGS_TRACKRECORDFILTER_H
 #define MCTRUTHALGS_TRACKRECORDFILTER_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 // particle table
 #include "HepPDT/ParticleDataTable.hh"
@@ -15,24 +14,22 @@
 #include <string>
 
 class StoreGateSvc;
-class TrackRecordFilter : public Algorithm {
+class TrackRecordFilter : public AthAlgorithm {
 
 
 public:
-        TrackRecordFilter (const std::string& name, ISvcLocator* pSvcLocator);
-        virtual ~TrackRecordFilter(){};
+  TrackRecordFilter (const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~TrackRecordFilter(){};
 
-        StatusCode initialize();
-        StatusCode finalize();
-        StatusCode execute();
+  StatusCode initialize();
+  StatusCode finalize();
+  StatusCode execute();
 
 private:
-	std::string m_inputName;
-	std::string m_outputName;
-        double m_cutOff;
-	StoreGateSvc* m_storeGate;
-        const HepPDT::ParticleDataTable* m_pParticleTable;
+  std::string m_inputName;
+  std::string m_outputName;
+  double m_cutOff;
+  const HepPDT::ParticleDataTable* m_pParticleTable;
 };
 
 #endif
-

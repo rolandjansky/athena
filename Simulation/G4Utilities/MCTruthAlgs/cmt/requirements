@@ -2,14 +2,14 @@ package MCTruthAlgs
 author Davide Costanzo
 
 use AtlasPolicy         AtlasPolicy-*
-use GaudiInterface      GaudiInterface-*    External
-use HepPDT              v*		       LCG_Interfaces
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use GaudiInterface      GaudiInterface-*        External
+use HepPDT              v*                      LCG_Interfaces
 
 
 private
-use AtlasCLHEP          AtlasCLHEP-*         External
-use StoreGate           StoreGate-*         Control
-use TrackRecord		TrackRecord-*       Simulation/G4Sim
+use AtlasCLHEP          AtlasCLHEP-*            External
+use TrackRecord         TrackRecord-*           Simulation/G4Sim
 end_private
 
 
