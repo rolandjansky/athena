@@ -220,7 +220,9 @@ G4bool MinBiasScintillatorSD::ProcessHits(G4Step* aStep,G4TouchableHistory* /* R
   std::string volName = physVol->GetName();
   std::string volNumber = volName.substr(volName.size()-1,1); 
   int side = (preStepPointPosition.z()>0) ? 1 : 0;
-  int phi  = physVol->GetCopyNo();
+  int phi  = physVol->GetCopyNo(); // should be in the range [0,nPhi) or 16969 if there is no any copyNo
+  // for new geometry copyNo is taken from envelope
+  if ( phi > nPhi ) phi = theTouchable->GetVolume(3)->GetCopyNo();
   int eta  = atoi(volNumber.c_str())-1;
   int ind  = cell_index(side,phi,eta);
   //if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "R = " 
