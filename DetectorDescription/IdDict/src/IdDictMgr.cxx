@@ -2815,7 +2815,7 @@ Range IdDictRegion::build_range () const
 
 
       //std::cout << "IdDictRegion::build_range> [" << (std::string) r << "]" << std::endl; 
-      result.add (r, true); 
+      result.add (std::move(r)); 
   } 
 
   return (result); 
@@ -3201,7 +3201,7 @@ Range IdDictRange::build_range () const
 //  	    << " wrap " << m_wraparound 
 //  	    << " " << field.wrap_around() << std::endl; 
 
-  result.add (field, true);
+  result.add (std::move(field));
   return (result); 
 } 
  
