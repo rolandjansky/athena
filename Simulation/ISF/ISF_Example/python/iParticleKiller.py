@@ -3,7 +3,7 @@
 from Gaudi.Configuration import *
 
 class iParticleKiller:
-  def __init__(self, TruthService):
+  def __init__(self):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
     from ISF_Services.ISF_ServicesConf import ISF__ParticleKillerSimSvc
