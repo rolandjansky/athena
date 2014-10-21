@@ -57,7 +57,7 @@ void ExpandedIdentifier::set (const std::string& text)
       sep = strchr (ctext, '/');
 
       int value = 0;
-      sscanf (ctext, "%80d", &value);
+      sscanf (ctext, "%d", &value);
 
       add ((element_type) value);
 
