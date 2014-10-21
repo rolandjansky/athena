@@ -14,7 +14,7 @@ class ISF_HITSStream:
   from ISF_Config.ISF_jobProperties import ISF_Flags
   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
   from AthenaCommon.AppMgr import ServiceMgr
-  if athenaCommonFlags.PoolHitsOutput.statusOn:
+  if athenaCommonFlags.PoolHitsOutput.statusOn or (hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn):
       ## Write hits in POOL
       print "ISF_HITSStream starting"
 
@@ -40,7 +40,9 @@ class ISF_HITSStream:
           stream1.ForceRead = True
           stream1.ItemList = ["EventInfo#*",
                               "McEventCollection#TruthEvent",
-                              "JetCollection#*"]
+                              "JetCollection#*",
+                              "xAOD::JetContainer_v1#*",
+                              "xAOD::JetAuxContainer_v1#*"]
 
           ## Make stream aware of aborted events
           stream1.AcceptAlgs = ['ISF_Kernel_'+ISF_Flags.Simulator()]#,"G4AtlasAlg"]
@@ -212,6 +214,7 @@ class ISF_HITSStream:
       import os
       dbFiller.addSimParam('G4Version', str(os.environ['G4VERS']))
       dbFiller.addSimParam('RunType', 'atlas')
+      from AthenaCommon.BeamFlags import jobproperties
       dbFiller.addSimParam('beamType', jobproperties.Beam.beamType.get_Value())
 
       ## Simulated detector flags: add each enabled detector to the simulatedDetectors list

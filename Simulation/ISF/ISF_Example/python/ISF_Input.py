@@ -29,23 +29,27 @@ class ISF_Input:
       if athenaCommonFlags.SkipEvents.statusOn:
           svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
-      ## Read input file metadata
+      ## Allow the input check to be skipped.  This should only be done in production
+      ##  jobs, in order to avoid peeking and spoiling performance on some systems
+      import os
       import PyUtils.AthFile as af
-      hitfile = athenaCommonFlags.PoolEvgenInput.get_Value()[0]
-      f = af.fopen(hitfile)
-
-      ## Check that event type is SIMULATION (as it must be)
-      if "evt_type" in f.infos.keys():
-          evttypes = f.infos["evt_type"]
-          evttype0 = str(evttypes[0])
-          if not evttype0.startswith("IS_SIMULATION"):
-              msg = "ERROR: ISF_Input :: This input file has incorrect evt_type: %s\n" % str(evttypes)
-              msg += "Please make sure you have set input file metadata correctly - "
-              msg += "consider using the job transforms for earlier steps if you aren't already doing so."
-              print msg
-              raise SystemExit("Input file evt_type is incorrect: please check your evgen jobs.")
-      else:
-        print "WARNING: ISF_Input :: Could not find 'evt_type' key in athfile.infos. Unable to that check evt_type is correct."
+      if not ('G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']):
+          ## Read input file metadata
+          hitfile = athenaCommonFlags.PoolEvgenInput.get_Value()[0]
+          f = af.fopen(hitfile)
+    
+          ## Check that event type is SIMULATION (as it must be)
+          if "evt_type" in f.infos.keys():
+              evttypes = f.infos["evt_type"]
+              evttype0 = str(evttypes[0])
+              if not evttype0.startswith("IS_SIMULATION"):
+                  msg = "ERROR: ISF_Input :: This input file has incorrect evt_type: %s\n" % str(evttypes)
+                  msg += "Please make sure you have set input file metadata correctly - "
+                  msg += "consider using the job transforms for earlier steps if you aren't already doing so."
+                  print msg
+                  raise SystemExit("Input file evt_type is incorrect: please check your evgen jobs.")
+          else:
+            print "WARNING: ISF_Input :: Could not find 'evt_type' key in athfile.infos. Unable to that check evt_type is correct."
 
   else:
       ## No input file so assume that we are running a Generator in the same job

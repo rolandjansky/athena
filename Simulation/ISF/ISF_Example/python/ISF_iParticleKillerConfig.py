@@ -26,8 +26,8 @@ def getIParticleKiller():
     if 'iParticleKiller' in cache:
         i = cache['iParticleKiller']
     else:
-        from iParticleKiller import iParticleKiller 
-        i = iParticleKiller(getService('ISF_TruthService'))
+        from iParticleKiller import iParticleKiller
+        i = iParticleKiller()
         cache['iParticleKiller'] = i
     return i
 
