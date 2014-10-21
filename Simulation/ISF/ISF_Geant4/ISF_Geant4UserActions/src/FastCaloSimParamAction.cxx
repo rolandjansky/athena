@@ -144,7 +144,7 @@ void FastCaloSimParamAction::BeginOfEventAction(const G4Event* )
   if (m_calculator_EMECIW_neg == 0)
     m_calculator_EMECIW_neg = new LArG4::EC::EnergyCalculator(LArWheelCalculator::InnerAbsorberWheel,LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT, -1);
   if (m_calculator_EMECOW_neg == 0)
-    m_calculator_EMECOW_neg = new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberWheel,LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT, -11);
+    m_calculator_EMECOW_neg = new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberWheel,LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT, -1);
   //if (m_calculator_BIB == 0)
   //  m_calculator_BIB = new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackInnerBarretteWheel);
   if (m_calculator_BOB == 0)
@@ -291,7 +291,7 @@ void FastCaloSimParamAction::BeginOfRunAction(const G4Run* )
   if (m_calculator_EMECIW_neg == 0)
     m_calculator_EMECIW_neg = new LArG4::EC::EnergyCalculator(LArWheelCalculator::InnerAbsorberWheel,LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT, -1);
   if (m_calculator_EMECOW_neg == 0)
-    m_calculator_EMECOW_neg = new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberWheel,LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT, -11);
+    m_calculator_EMECOW_neg = new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberWheel,LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT, -1);
   //if (m_calculator_BIB == 0)
   //  m_calculator_BIB = new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackInnerBarretteWheel);
   if (m_calculator_BOB == 0)
