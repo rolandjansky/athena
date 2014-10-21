@@ -65,10 +65,8 @@ public:
     /// Create a field copy 
     field (const field& other); 
 
-    /// A `move' constructor.
-    /// The new field will take over the memory of the vectors allocated
-    /// by other; after the call, the vectors in other will be empty.
-    field (field& other, bool);
+    /// Move constructor.
+    field (field&& other);
  
     /// Create a unique value (understood as : low bound = high bound = value) 
     field (element_type value); 
@@ -284,14 +282,13 @@ public:
   void add (const field& f); 
  
   /// Add a range specified using a field, with move semantics.
-  void add (field& f, bool);
+  void add (field&& f);
  
   /// Append a subrange 
   void add (const Range& subrange); 
 
   /// Append a subrange, with move semantics.
-  /// The orignal subrange may be modified.
-  void add (Range& subrange, bool); 
+  void add (Range&& subrange); 
  
   /// Match an identifier 
   int match (const ExpandedIdentifier& id) const; 

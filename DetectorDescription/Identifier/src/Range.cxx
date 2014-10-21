@@ -5,7 +5,6 @@
  
  
 #include "Identifier/Range.h" 
-#include "Identifier/fast_push_back.h"
  
 #include <stdio.h> 
 #include <string> 
@@ -337,7 +336,7 @@ Range::field::field (const field& other)
 } 
 
 //----------------------------------------------- 
-Range::field::field (field& other, bool) 
+Range::field::field (field&& other) 
 { 
   m_minimum  = other.m_minimum; 
   m_maximum  = other.m_maximum; 
@@ -1278,13 +1277,13 @@ void Range::add_maximum (element_type maximum)
 /// Add a range specified using a field  
 void Range::add (const field& f) 
 {
-  m_fields.push_back (f); 
+  m_fields.emplace_back (f); 
 } 
  
 /// Add a range specified using a field, using move semantics.
-void Range::add (field& f, bool) 
+void Range::add (field&& f) 
 {
-  Identifier_detail::fast_push_back (m_fields, f, true);
+  m_fields.emplace_back (std::move(f));
 } 
  
 /// Append a subrange 
@@ -1297,8 +1296,7 @@ void Range::add (const Range& subrange)
     } 
 } 
 
-/// Append a subrange, with move semantics.
-void Range::add (Range& subrange, bool) 
+void Range::add (Range&& subrange) 
 {
   if (m_fields.empty())
     m_fields.swap (subrange.m_fields);
@@ -1307,7 +1305,7 @@ void Range::add (Range& subrange, bool)
     m_fields.reserve (m_fields.size() + sz);
     for (size_t i = 0; i < sz; ++i) 
     { 
-      Identifier_detail::fast_push_back (m_fields, subrange.m_fields[i], true);
+      m_fields.emplace_back (std::move(subrange.m_fields[i]));
     }
   }
 } 
@@ -2399,7 +2397,7 @@ void MultiRange::add (Range& range, bool)
 	const Range& test_range = m_ranges[i];
 	if (test_range == range) return;
     }
-    Identifier_detail::fast_push_back (m_ranges, range, true);
+    m_ranges.emplace_back (range, true);
 } 
  
 //----------------------------------------------- 
@@ -2898,6 +2896,7 @@ MultiRange::const_identifier_factory::~const_identifier_factory ()
 //----------------------------------------------- 
 MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::operator = (const const_identifier_factory& other) 
 { 
+  if (this != &other) {
     m_id 		= other.m_id;
     m_sort 		= other.m_sort;
     m_id_fac_it  	= other.m_id_fac_it;
@@ -2915,7 +2914,7 @@ MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::oper
 //  		  << m_multirange->m_it_count 
 //  		  << std::endl;
     }
- 
+  } 
   return (*this); 
 } 
  
