@@ -8,6 +8,7 @@ use GaudiInterface       GaudiInterface-*       External
 use AthenaKernel         AthenaKernel-*         Control
 
 private
+use CxxUtils             CxxUtils-*             Control
 use StoreGate            StoreGate-*            Control
 use SGTools              SGTools-*              Control
 use EventInfo            EventInfo-*            Event

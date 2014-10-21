@@ -35,6 +35,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/CondAttrListCollAddress.h"
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
+#include "CxxUtils/make_unique.h"
 
 // Gaudi includes
 #include "GaudiKernel/SvcFactory.h"
@@ -565,14 +566,6 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
         return StatusCode::FAILURE;
     }
 
-    if (m_log.level() <= MSG::DEBUG) {
-        if (attrListColl) m_log << MSG::DEBUG << "fillMetaData: Added TagInfo to meta data store for minRange " 
-                                << attrListColl->minRange() << endreq;
-        else m_log << MSG::WARNING
-                   << "fillMetaData: Did NOT add TagInfo to meta data store. Must be duplicate " 
-                   << endreq;
-    }
-
     return StatusCode::SUCCESS;
 
 }
@@ -709,6 +702,12 @@ TagInfoMgr::handle(const Incident& inc) {
         unsigned int lb  = evt->event_ID()->lumi_block();
         IOVTime curTime;
         curTime.setRunEvent(run, lb);
+
+        // save both seconds and ns offset for timestamp
+        uint64_t nsTime = evt->event_ID()->time_stamp()*1000000000LL;
+        nsTime         += evt->event_ID()->time_stamp_ns_offset();
+        curTime.setTimestamp(nsTime);
+
         if (StatusCode::SUCCESS != m_iovDbSvc->signalBeginRun(curTime)) {
             m_log << MSG::ERROR << "Unable to signal begin run to IOVDbSvc" << endreq;
             throw GaudiException( "Unable to signal begin run to IOVDbSvc", "TagInfoMgr::handle", StatusCode::FAILURE );
@@ -890,8 +889,8 @@ TagInfoMgr::preLoadAddresses( StoreID::type storeID,
 {
     if (storeID == StoreID::DETECTOR_STORE) {
 
-        SG::TransientAddress* tad;
-        tad = new SG::TransientAddress( ClassID_traits<TagInfo>::ID(), m_tagInfoKeyValue );
+        std::unique_ptr<SG::TransientAddress> tad = 
+          CxxUtils::make_unique<SG::TransientAddress>( ClassID_traits<TagInfo>::ID(), m_tagInfoKeyValue );
         IAddressProvider* addp = this;
         tad->setProvider(addp, storeID);
         // Get IOpaqueAddress and add to tad
@@ -900,18 +899,18 @@ TagInfoMgr::preLoadAddresses( StoreID::type storeID,
         StatusCode sc = createAddress(TagInfoMgr_StorageType, tad->clID(), refAddr, ioa);
         if ( sc.isFailure() ) {
             m_log << MSG::ERROR << "preLoadAddresses: Could not create IOpaqueAddress" << endreq;      
+            delete ioa;
             return StatusCode::FAILURE;
         }
         tad->setAddress(ioa);
         // set flag to avoid resetting the ioa when a proxy is reset
         tad->clearAddress(false);
-        tlist.push_back( tad );
+        tlist.push_back( tad.release() );
 
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "preLoadAddresses - add transient address for TagInfo to detector store" << endreq;
             m_log << MSG::DEBUG << "preLoadAddresses - Found CLID: " << ioa->clID()  
                   << " key from ioa " << *(ioa->par()) << endreq;
-            // m_log << MSG::DEBUG << "preLoadAddresses - provider: " << tad->provider() << " -  address: " << tad->address() << endreq;
         }
     }
     return StatusCode::SUCCESS;
@@ -976,7 +975,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
 
     // Create TagInfo from either incoming conditions for from the
     // saved TagInfo object
-    TagInfo* tagInfo = 0;
+    std::unique_ptr<TagInfo> tagInfo;
 
     // Check whether TagInfo is coming from file meta data or the
     // input event
@@ -999,7 +998,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // information. Otherwise we fill from from event info (OLD and
     // most likely not used anymore. RDS 08/2012).
     if (attrListColl && attrListColl->size() == 0) {
-        tagInfo = new TagInfo(m_lastTagInfo);
+        tagInfo = CxxUtils::make_unique<TagInfo>(m_lastTagInfo);
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "createObj: recreate tagInfo from saved info" << endreq; 
             // Dump out contents of TagInfo
@@ -1008,8 +1007,8 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
         }
     }
     else {
-        tagInfo = new TagInfo;
-        if (StatusCode::SUCCESS != fillTagInfo(attrListColl, tagInfo)) {
+        tagInfo = CxxUtils::make_unique<TagInfo>();
+        if (StatusCode::SUCCESS != fillTagInfo(attrListColl, tagInfo.get())) {
             m_log << MSG::DEBUG << "createObj: Unable to fill TagInfo !" << endreq;
             return StatusCode::FAILURE;
         } 
@@ -1020,7 +1019,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     }
     
     // Copy TagInfo to meta data store for writing to file meta data
-    if (StatusCode::SUCCESS != fillMetaData(tagInfo, attrListColl)) {
+    if (StatusCode::SUCCESS != fillMetaData(tagInfo.get(), attrListColl)) {
         m_log << MSG::ERROR << "createObj: Unable to write TagInfo to MetaDataStore !" << endreq;
         return StatusCode::FAILURE;
     } 
@@ -1029,7 +1028,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     }
 
     // Do standard conversion to data object
-    dataObj = SG::asStorable(tagInfo);
+    dataObj = SG::asStorable(std::move(tagInfo));
 
     if (outputLevel() <= MSG::DEBUG) {
         m_log << MSG::DEBUG << "createObj:  created new TagInfo object " << endreq;
