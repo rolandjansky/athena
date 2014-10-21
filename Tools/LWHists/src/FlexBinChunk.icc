@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
+
 #define FLEXBINCHUNK_ALLEMPTYSTAGE (static_cast<uint32_t>(0x00000000))
 #define FLEXBINCHUNK_ALLFULLSTAGE  (static_cast<uint32_t>(0xFFFFFFFF))
 #define FLEXBINCHUNK_ALLCHARSTAGE  (static_cast<uint32_t>(0x55555555))
@@ -232,7 +234,7 @@ void FlexBinChunk<T>::fill(unsigned bin, const double& weight)
   if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
     //Special case: all bins in full mode. Deal with this fast.
     ((reinterpret_cast<T*>(m_data))[bin]) += static_cast<T>(weight);
-    assert(fabs(getBinContent(bin)-expectedval)<1.0e-5);
+    assert(std::fabs(getBinContent(bin)-expectedval)<1.0e-5);
     return;
   }
   //In this method we only give priority to "all-char-stage or

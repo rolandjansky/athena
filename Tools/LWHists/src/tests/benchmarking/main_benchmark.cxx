@@ -301,7 +301,7 @@ int main (int argc, char** argv) {
   const int nbins = atoi(argv[4]);
   const int nfills = atoi(argv[5]);
   const int nhists = atoi(argv[6]);
-  if (nbins<1||nbins>USHRT_MAX-1||nhists<1)
+  if (nbins<1||nbins>USHRT_MAX-1||nhists<1||nhists>1000000)
     return usage();
 
   std::string valtype(argv[1]),dim(argv[2]),histimpl(argv[3]);

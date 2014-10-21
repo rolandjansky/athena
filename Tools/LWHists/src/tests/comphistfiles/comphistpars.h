@@ -25,8 +25,8 @@ bool checkParameters(T*h1,T*h2);
 template <class T> bool varCompatible(const T var1,const T var2) {
   if (var1==var2)
     return true;
-  const bool var1_nan = (var1!=var1);
-  const bool var2_nan = (var2!=var2);
+  const bool var1_nan = isnan(var1);
+  const bool var2_nan = isnan(var2);
   if (var1_nan&&var2_nan) {
     if (cfg_report_NaN)
       std::cout<<"WARNING: Spotted NaN values in parameter (but same in both of the compared histograms)!"<<std::endl;
@@ -64,6 +64,7 @@ inline bool floatingpointcompat(double var1, double var2, const double& epsilon)
 template <>        bool varCompatible(const double var1,const double var2) { return floatingpointcompat(var1,var2,1.0e-5); }
 template <>        bool varCompatible(const float var1,const float var2) { return floatingpointcompat(var1,var2,1.0e-3); }
 template <>        bool varCompatible(const char* var1,const char* var2) { return std::string(var1)==std::string(var2); }
+template <>        bool varCompatible(TString var1,TString var2) { return var1 == var2; }
 
 
 template <class TContainedType>

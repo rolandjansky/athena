@@ -6,6 +6,10 @@ use AtlasPolicy AtlasPolicy-*
 
 private
 use AtlasROOT         AtlasROOT-*        External
+
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist RIO)"
+
 #Various compilation options:
 #
 #*3 lines to get this lib compiled in debug mode (private tests only):
