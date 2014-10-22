@@ -15,7 +15,7 @@
 #include "G4SimTPCnv/TrackRecord_p0.h"
 #include "G4SimTPCnv/TrackRecordStreamer_p0.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_G4SIMTPCNV {
   T_TPCnv<TrackRecordCollection,TrackRecordCollection_p2> m_cnv;
 };
 
