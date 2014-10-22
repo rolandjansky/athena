@@ -49,13 +49,13 @@ namespace InDet
       void beginRun();
       
       /** finds event phase of a track from the leading edge */
-      double findPhase(const Trk::Track *track) const;
+      double findPhase(const Trk::Track *track);
       
       /** finds event phase of a segment from the leading edge */
-      double findPhase(const Trk::Segment *segment) const;
+      double findPhase(const Trk::Segment *segment);
       
       /** finds event phase of a track from the trailing edge */
-      double findPhaseFromTE(const Trk::Track *track) const;
+      double findPhaseFromTE(const Trk::Track *track);
       
     private:
       

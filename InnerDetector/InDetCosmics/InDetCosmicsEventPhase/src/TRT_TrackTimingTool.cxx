@@ -50,10 +50,10 @@ StatusCode InDet::TRT_TrackTimingTool::initialize() {
 
   // retrieve fitter
   if (m_ITrackFitter.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_ITrackFitter << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_ITrackFitter << endreq;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::INFO) << "Retrieved tool " << m_ITrackFitter << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_ITrackFitter << endreq;
   
   ATH_MSG_INFO("InDet::TRT_TrackTimingTool::initialize() successful in " << name() << ", do eta correction: " << (m_doEtaCorrection?"true":"false"));
   return StatusCode::SUCCESS;
@@ -73,10 +73,7 @@ std::vector<Trk::SpaceTimePoint*> InDet::TRT_TrackTimingTool::timeMeasurements(c
   std::vector<Trk::SpaceTimePoint*> timeMeasurementsVector;
   // need to use constructor: SpaceTimePoint(const GlobalPosition& position, const float& t, const float& t_error, const float& weight);
 
-  // Useless test; compiler can assume it's false and optimize it away.
-  // Tests for null must be done on pointers, not references
-  // (which by definition cannot be null).
-  //if (&track==0) return timeMeasurementsVector; // this function should not have been called in the first place
+if (&track==0) return timeMeasurementsVector; // this function should not have been called in the first place
 	
 	float time = 0.;
 	Amg::Vector3D position(0., 0., 0.);
@@ -166,16 +163,18 @@ float InDet::TRT_TrackTimingTool::getTrackTimeFromDriftRadius(const Trk::Track* 
 	
 	float time = 0.;
 	nHits = 0;
-
-        for (const Trk::TrackStateOnSurface* state : *track->trackStateOnSurfaces()) {
 	
-		Trk::MeasurementBase const * mesb = state->measurementOnTrack();
-		if ( !mesb || !state->type(Trk::TrackStateOnSurface::Measurement) ) continue;
+	std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
+	std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
+	for(; trackStateItr!= trackStateEnd; ++trackStateItr ) {
+	
+		Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
+		if ( !mesb || !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) ) continue;
 
 		InDet::TRT_DriftCircleOnTrack const * trtcirc = dynamic_cast<InDet::TRT_DriftCircleOnTrack const *>(mesb);		
 		if ( !trtcirc ) continue;
 		
-		Trk::TrackParameters const * tparp = state->trackParameters();
+		Trk::TrackParameters const * tparp = ((*trackStateItr)->trackParameters());
 		if ( !tparp ) continue;
 						
 		float driftR = trtcirc->localParameters()[Trk::driftRadius];		
@@ -227,12 +226,14 @@ float InDet::TRT_TrackTimingTool::etaCorrection(const Trk::Track& track) const {
 void InDet::TRT_TrackTimingTool::trackInformation(const Trk::Track& track, Amg::Vector3D &position, int &nTRTdriftCircles, int &nMissingRDOs, int &nMissingTrackParameters, int &nUsedHits) const {
 
 	// define position as center-of-gravity for all TRT hits on track
-        Amg::Vector3D GlobalPositionSum(0., 0., 0.);
-
-        for (const Trk::TrackStateOnSurface* state : *track.trackStateOnSurfaces()) {
+  Amg::Vector3D GlobalPositionSum(0., 0., 0.);
+	
+	std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track.trackStateOnSurfaces()->begin();
+	std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track.trackStateOnSurfaces()->end();
+	for(; trackStateItr!= trackStateEnd; ++trackStateItr ) {
 		
-		Trk::MeasurementBase const * mesb = state->measurementOnTrack();
-		if ( !mesb || !state->type(Trk::TrackStateOnSurface::Measurement) ) continue;
+		Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
+		if ( !mesb || !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) ) continue;
 		
 		InDet::TRT_DriftCircleOnTrack const * trtcirc = dynamic_cast<InDet::TRT_DriftCircleOnTrack const *>(mesb);		
 		if ( !trtcirc ) continue;
@@ -241,14 +242,14 @@ void InDet::TRT_TrackTimingTool::trackInformation(const Trk::Track& track, Amg::
 		
 		GlobalPositionSum += trtcirc->globalPosition();
 		
-		if ( !state->trackParameters() ) nMissingTrackParameters++;
+		if ( !((*trackStateItr)->trackParameters()) ) nMissingTrackParameters++;
 		
 		InDet::TRT_DriftCircle const * rawhit = trtcirc->prepRawData();
 		if ( !rawhit ) { nMissingRDOs++; continue; }
 		if (  !rawhit->driftTimeValid() || rawhit->firstBinHigh() ) continue;
 		nUsedHits++; // this is the N of hits that will potentially be used for the track time calculation 
 		
-//		if ( !(state->trackParameters()) ) continue;
+//		if ( !((*trackStateItr)->trackParameters()) ) continue;
 	}
 	
 	if (nTRTdriftCircles) GlobalPositionSum /= (double) nTRTdriftCircles;		
@@ -263,10 +264,12 @@ void InDet::TRT_TrackTimingTool::debugMissingMeasurements(const Trk::Track& trac
 
   int checkNTRThits(0), missingMeasurement(0), noTRT_DriftCircle(0), missingPrepRawData(0), invalidHits(0), missingTrackPar(0);
 
-  for (Trk::TrackStateOnSurface const* state : *track.trackStateOnSurfaces()) {
+  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track.trackStateOnSurfaces()->begin();
+  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track.trackStateOnSurfaces()->end();
+  for ( ; trackStateItr!= trackStateEnd; ++trackStateItr) {
 
-    Trk::MeasurementBase const * mesb = state->measurementOnTrack();
-    if ( !mesb || !state->type(Trk::TrackStateOnSurface::Measurement) ) { missingMeasurement++; continue; }
+    Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
+    if ( !mesb || !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) ) { missingMeasurement++; continue; }
 
     InDet::TRT_DriftCircleOnTrack const * trtcirc = dynamic_cast<InDet::TRT_DriftCircleOnTrack const *>(mesb);
     if ( !trtcirc ) { noTRT_DriftCircle++; continue; }
@@ -274,7 +277,7 @@ void InDet::TRT_TrackTimingTool::debugMissingMeasurements(const Trk::Track& trac
     InDet::TRT_DriftCircle const * rawhit = trtcirc->prepRawData();
     if ( !rawhit ) { missingPrepRawData++; continue; }
     if (  !rawhit->driftTimeValid() || rawhit->firstBinHigh() ) { invalidHits++; continue; }
-    Trk::TrackParameters const * tparp = state->trackParameters();
+    Trk::TrackParameters const * tparp = ((*trackStateItr)->trackParameters());
     if ( !tparp ) { missingTrackPar++; continue; }
 
     checkNTRThits++;
@@ -315,7 +318,7 @@ void InDet::TRT_TrackTimingTool::print(const Trk::Track* track, float time) cons
 	static std::vector<double> pT_list;
 	const xAOD::EventInfo *eventInfo = 0;
 	StatusCode sc = evtStore()->retrieve(eventInfo); 
-	if ( sc.isFailure() ) { msg(MSG::ERROR) << "Unable to retrieve Event Info " << endmsg; return; }
+	if ( sc.isFailure() ) { msg(MSG::ERROR) << "Unable to retrieve Event Info " << endreq; return; }
 	int event = (int) eventInfo->eventNumber();
 	if (event != last_event) {
 		last_event = event;

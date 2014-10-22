@@ -129,7 +129,7 @@ void InDet::InDetSlidingWindowTrackTimeTool::beginRun()
 }
 
 
-double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * track ) const
+double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * track )
 {
   ATH_MSG_DEBUG( "Finding phase..." );
   
@@ -147,13 +147,16 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * tra
   
   double windowCenter = 0;
   for (int itr = 0; itr != m_nIterations; ++itr) {
+    std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
+    std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
+
     timeresidualsum = 0;
     ntrthits = 0;
     
-    for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces()) {
-      Trk::MeasurementBase const * mesb = state->measurementOnTrack();
+    for ( ; trackStateItr!= trackStateEnd; ++trackStateItr ) {
+      Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
       if(  !mesb
-	   || !state->type(Trk::TrackStateOnSurface::Measurement) 
+	   || !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) 
 	   ) 
 	continue;
       
@@ -181,7 +184,7 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * tra
       if (m_gett0)
 	rtr = m_trtconddbsvc->getRtRelation(ident) ;
       
-      Trk::TrackParameters const * tparp=state->trackParameters();
+      Trk::TrackParameters const * tparp=((*trackStateItr)->trackParameters());
       if( !tparp )
 	continue;
 
@@ -226,7 +229,7 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * tra
 }
 
 
-double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Segment const * segment) const
+double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Segment const * segment)
 {
   std::vector<float> data(4);
   data.push_back(0.); //0 0.1 -0.00087 0
@@ -286,18 +289,20 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Segment const * s
 }
 
 
-double InDet::InDetSlidingWindowTrackTimeTool::findPhaseFromTE(Trk::Track const * track) const
+double InDet::InDetSlidingWindowTrackTimeTool::findPhaseFromTE(Trk::Track const * track)
 {
   ATH_MSG_DEBUG( "Finding phase..." );
   
   double timeresidualsum = 0;
   size_t ntrthits = 0;  
-
-  for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces())
+  
+  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
+  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
+  for( ; trackStateItr!= trackStateEnd; ++trackStateItr)
     {
-      Trk::MeasurementBase const * mesb=state->measurementOnTrack();
+      Trk::MeasurementBase const * mesb=(*trackStateItr)->measurementOnTrack();
       if(  !mesb 
-	|| !state->type(Trk::TrackStateOnSurface::Measurement)
+	|| !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement)
 	) 
 	continue;
       
