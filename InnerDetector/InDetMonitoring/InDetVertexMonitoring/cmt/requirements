@@ -4,7 +4,7 @@ author Federico Meloni <federico.meloni@cern.ch>
 
 private
 use AthenaBaseComps		AthenaBaseComps-*		Control
-use EventInfo                   EventInfo-*                     Event
+use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 use VxVertex             	VxVertex-*                  	Tracking/TrkEvent
 #use TrkParameters		TrkParameters-*			Tracking/TrkEvent
 use AtlasROOT			AtlasROOT-*			External

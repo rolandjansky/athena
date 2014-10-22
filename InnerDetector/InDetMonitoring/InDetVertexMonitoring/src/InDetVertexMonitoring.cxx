@@ -19,8 +19,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
@@ -111,14 +110,14 @@ StatusCode InDetVertexMonitoring::fillHistograms()
   
   int lumiBlock=0;
 
-  const EventInfo*  p_evt = 0;
+  const xAOD::EventInfo*  p_evt = 0;
   sc = m_storeGate->retrieve(p_evt);
   if( sc.isFailure()) {
      ATH_MSG_WARNING ("No Event Info found");
      return StatusCode::FAILURE;
   }   
 
-  lumiBlock = p_evt->event_ID()->lumi_block(); 
+  lumiBlock = p_evt->lumiBlock(); 
   int n_vtx = Vertexes->size()-1;
 
   for (VxContainer::const_iterator vxIter = Vertexes->begin(); vxIter != Vertexes->end(); ++vxIter){
