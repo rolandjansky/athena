@@ -43,17 +43,9 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     // finalize
     virtual StatusCode procHistograms(); 
 
-    float stripsSum_EA;
-    float stripsSum_EAtest;
-    float stripsSum_EC;
-    float stripsSum_ECtest;
-
 
   private:
 
-    // initialize histograms
-    void initHistograms();
-    
     // helper to fill histograms
     void FillCSCClusters( const Muon::CscPrepDataContainer& , const Muon::CscStripPrepDataContainer& );
 
@@ -94,10 +86,6 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     TH2F *m_h2csc_clus_r_vs_z_hitmap;
     TH2F *m_h2csc_clus_y_vs_x_hitmap;
 
-    // layer occupancy
-    TH1F *m_h1csc_clus_occupancy_signal_EA;
-    TH1F *m_h1csc_clus_occupancy_signal_EC;
-
     // q_max of cluster
     TH2F *m_h2csc_clus_qmax;
     TH2F *m_h2csc_clus_qmax_noise;
@@ -105,11 +93,11 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     
     TH2F *m_h2csc_clus_qmax_signal_EA;
     TH1F *m_h1csc_clus_qmax_signal_EA_count;
-    //TH1F *m_h1csc_clus_qmax_signal_EA_occupancy;
+    TH1F *m_h1csc_clus_qmax_signal_EA_occupancy;
     
     TH2F *m_h2csc_clus_qmax_signal_EC;
     TH1F *m_h1csc_clus_qmax_signal_EC_count;
-    //TH1F *m_h1csc_clus_qmax_signal_EC_occupancy;
+    TH1F *m_h1csc_clus_qmax_signal_EC_occupancy;
 
     // q_sum = q_max + q_left + q_right of cluster
     TH2F *m_h2csc_clus_qsum;
@@ -118,12 +106,12 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     
     TH2F *m_h2csc_clus_qsum_signal_EA;
     TH1F *m_h1csc_clus_qsum_signal_EA_count;
-    //TH1F *m_h1csc_clus_qsum_signal_EA_occupancy;
+    TH1F *m_h1csc_clus_qsum_signal_EA_occupancy;
     TH1F *m_h1csc_clus_qsum_signal_EA_lfitmean;
     
     TH2F *m_h2csc_clus_qsum_signal_EC;
     TH1F *m_h1csc_clus_qsum_signal_EC_count;
-    //TH1F *m_h1csc_clus_qsum_signal_EC_occupancy;
+    TH1F *m_h1csc_clus_qsum_signal_EC_occupancy;
     TH1F *m_h1csc_clus_qsum_signal_EC_lfitmean;
 
     // sampling time - eta cluster
@@ -172,11 +160,7 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     // cluster width - phi layer
     TH2F *m_h2csc_clus_phicluswidth;           
     TH2F *m_h2csc_clus_phicluswidth_signal;    
-    TH2F *m_h2csc_clus_phicluswidth_noise;  
-
-    //totaLl cluster width
-    TH1F *m_h1csc_clus_totalWidth_EA;
-    TH1F *m_h1csc_clus_totalWidth_EC;    
+    TH2F *m_h2csc_clus_phicluswidth_noise;     
 
 
     // correlation plots

@@ -89,10 +89,8 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type,
   declareProperty("CSCDoEventSelection",   m_doEvtSel = false );
   declareProperty("CSCEventSelTriggers", m_sampSelTriggers );
 
+
   m_cscGenPath = m_cscClusterPath.substr(0,m_cscClusterPath.find("CSC"));
-
-  initHistograms();
-
 }
 
 //
@@ -169,128 +167,6 @@ StatusCode CscClusterValAlg::initialize(){
 
 
 //
-// initHistograms  ----------------------------------------------------------------
-//
-void CscClusterValAlg::initHistograms() {
-
-  // hitmaps
-  m_h2csc_clus_hitmap = 0;
-  m_h2csc_clus_hitmap_noise = 0;
-  m_h2csc_clus_hitmap_signal = 0;
-  m_h2csc_clus_segmap_signal = 0;
-
-  m_h2csc_clus_eta_vs_phi_hitmap = 0;
-  m_h2csc_clus_r_vs_z_hitmap = 0;
-  m_h2csc_clus_y_vs_x_hitmap = 0;
-
-  // layer occupancy
-  m_h1csc_clus_occupancy_signal_EA = 0;
-  m_h1csc_clus_occupancy_signal_EC = 0;
-
-  // q_max of cluster
-  m_h2csc_clus_qmax = 0;
-  m_h2csc_clus_qmax_noise = 0;
-  m_h2csc_clus_qmax_signal = 0;
-
-  m_h2csc_clus_qmax_signal_EA = 0;
-  m_h1csc_clus_qmax_signal_EA_count = 0;
-  //m_h1csc_clus_qmax_signal_EA_occupancy = 0;
-
-  m_h2csc_clus_qmax_signal_EC = 0;
-  m_h1csc_clus_qmax_signal_EC_count = 0;
-  //m_h1csc_clus_qmax_signal_EC_occupancy = 0;
-
-  // q_sum = q_max + q_left + q_right of cluster
-  m_h2csc_clus_qsum = 0;
-  m_h2csc_clus_qsum_noise = 0;
-  m_h2csc_clus_qsum_signal = 0;
-
-  m_h2csc_clus_qsum_signal_EA = 0;
-  m_h1csc_clus_qsum_signal_EA_count = 0;
-  //m_h1csc_clus_qsum_signal_EA_occupancy = 0;
-  m_h1csc_clus_qsum_signal_EA_lfitmean = 0;
-
-  m_h2csc_clus_qsum_signal_EC = 0;
-  m_h1csc_clus_qsum_signal_EC_count = 0;
-  //m_h1csc_clus_qsum_signal_EC_occupancy = 0;
-  m_h1csc_clus_qsum_signal_EC_lfitmean = 0;
-
-  // sampling time - eta cluster
-  m_h1csc_clus_precision_time = 0;
-  m_h1csc_clus_precision_time_noise = 0;
-  m_h1csc_clus_precision_time_signal = 0;
-  m_h1csc_clus_precision_time_signal_EA = 0;
-  m_h1csc_clus_precision_time_signal_EC = 0;
-
-  // sampling time - phi cluster
-  m_h1csc_clus_transverse_time = 0;
-  m_h1csc_clus_transverse_time_noise = 0;
-  m_h1csc_clus_transverse_time_signal = 0;
-
-  // sampling time - phi cluster
-  m_h1csc_clus_transverse_time = 0;
-  m_h1csc_clus_transverse_time_noise = 0;
-  m_h1csc_clus_transverse_time_signal = 0;
-
-  // cluster charge - eta cluster
-  m_h1csc_clus_precision_charge = 0;
-  m_h1csc_clus_precision_charge_noise = 0;
-  m_h1csc_clus_precision_charge_signal = 0;
-
-  // cluster charge - phi cluster
-  m_h1csc_clus_transverse_charge = 0;
-  m_h1csc_clus_transverse_charge_noise = 0;
-  m_h1csc_clus_transverse_charge_signal = 0;
-
-  // cluster count - phi layer // 
-  m_h2csc_clus_phicluscount = 0;
-  m_h2csc_clus_phicluscount_signal = 0;
-  m_h2csc_clus_phicluscount_noise = 0;
-
-  // cluster count - eta layer // 
-  m_h2csc_clus_etacluscount = 0;
-  m_h2csc_clus_etacluscount_signal = 0;
-  m_h2csc_clus_etacluscount_noise = 0;
-
-  m_h1csc_clus_count = 0;
-  m_h1csc_clus_count_signal = 0;
-  m_h1csc_clus_count_noise = 0;
-
-  m_h1csc_clus_count_perlayer = 0;
-
-  // cluster width - eta layer
-  m_h2csc_clus_etacluswidth = 0;
-  m_h2csc_clus_etacluswidth_signal = 0;
-  m_h2csc_clus_etacluswidth_noise = 0;
-
-  // cluster width - phi layer
-  m_h2csc_clus_phicluswidth = 0;
-  m_h2csc_clus_phicluswidth_signal = 0;
-  m_h2csc_clus_phicluswidth_noise = 0;
-
-  //total cluster width
-  m_h1csc_clus_totalWidth_EA = 0;
-  m_h1csc_clus_totalWidth_EC = 0;
-
-  // correlation plots
-  m_h2csc_clus_eta_vs_phi_charge = 0;
-  m_h2csc_clus_eta_vs_phi_charge_noise = 0;
-  m_h2csc_clus_eta_vs_phi_charge_signal = 0;
-
-  // hit correlation b/w eta/phi clusters
-  m_h2csc_clus_eta_vs_phi_cluscount = 0;
-  m_h2csc_clus_eta_vs_phi_cluscount_noise = 0;
-  m_h2csc_clus_eta_vs_phi_cluscount_signal = 0;
-
-  // width correlation b/w eta/phi clusters
-  m_h2csc_clus_eta_vs_phi_cluswidth = 0;
-  m_h2csc_clus_eta_vs_phi_cluswidth_signal = 0;
-  m_h2csc_clus_eta_vs_phi_cluswidth_noise = 0;
-
-}
-
-
-//
 // bookClusterHistograms  ----------------------------------------------------------------
 //
 void CscClusterValAlg::bookClusterHistograms() {
@@ -326,22 +202,17 @@ void CscClusterValAlg::bookClusterHistograms() {
   int ntbins = 260;
   float ntmin = -60;
   float ntmax = 200;
-
-  //total cluster width
-  int Nxbins  = 15360;  //16 chambers * [(192 eta-strips * 4 layers) + (48 phi-strips * 4 layers)] = 15360 channels
-  float Nxmin = 1.; 
-  float Nxmax = 15361.;
   ///******************** DO NOT MODIFY (end) ***********************************************///
 
 
   // cluster hitmap
   m_h2csc_clus_hitmap = new TH2F("h2csc_clus_hitmap", 
       "Cluster occupancy ;channel;[sector] + [0.2 #times layer]",nxbins,nxmin,nxmax,nybins,nymin,nymax);
-
+  
   m_h2csc_clus_hitmap_noise = new TH2F("h2csc_clus_hitmap_noise", 
       Form("Cluster occupancy, Qmax #leq %4u counts;channel;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       nxbins,nxmin,nxmax,nybins,nymin,nymax);
-
+  
   m_h2csc_clus_hitmap_signal = new TH2F("h2csc_clus_hitmap_signal", 
       Form("Cluster occupancy, Qmax > %4u counts;channel;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       nxbins,nxmin,nxmax,nybins,nymin,nymax);
@@ -349,15 +220,6 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_h2csc_clus_segmap_signal = new TH2F("h2csc_clus_segmap_signal", 
       Form("Segment occupancy, Qmax > %4u counts;segment;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       16,-0.5,15.5,nybins,nymin,nymax);
-
-  // layer occupancy
-  m_h1csc_clus_occupancy_signal_EA = new TH1F("h1csc_clus_occupancy_signal_EA", 
-      Form("EndCap A: Layer occupancy, Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEA,nyminEA,nymaxEA);
-  CscBins::BinLabels(m_h1csc_clus_occupancy_signal_EA,1);
-
-  m_h1csc_clus_occupancy_signal_EC = new TH1F("h1csc_clus_occupancy_signal_EC", 
-      Form("EndCap C: Layer occupancy, Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEC,nyminEC,nymaxEC);
-  CscBins::BinLabels(m_h1csc_clus_occupancy_signal_EC,1);
 
   // cluster qsum
   m_h2csc_clus_qsum = new TH2F("h2csc_clus_qsum", "Cluster charge (Qsum);counts;[sector] + [0.2 #times layer]",
@@ -373,33 +235,29 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_h2csc_clus_qsum_signal_EA = new TH2F("h2csc_clus_qsum_signal_EA", 
       Form("EndCap A: Cluster charge(Qsum), Qmax > %4u counts;counts;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       nqbins,nqmin,nqmax,nybinsEA,nyminEA,nymaxEA);
-
+  
   m_h1csc_clus_qsum_signal_EA_count = new TH1F("h1csc_clus_qsum_signal_EA_count", 
       Form("EndCap A: Cluster charge(Qsum), Qmax > %4u counts;counts;entries/20 counts;",m_qmaxADCCut),nqbins,nqmin,nqmax);
-
-  /*
+  
   m_h1csc_clus_qsum_signal_EA_occupancy = new TH1F("h1csc_clus_qsum_signal_EA_occupancy", 
       Form("EndCap A: Cluster charge(Qsum), Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEA,nyminEA,nymaxEA);
   CscBins::BinLabels(m_h1csc_clus_qsum_signal_EA_occupancy,1);
-  */
-
+  
   m_h1csc_clus_qsum_signal_EA_lfitmean = new TH1F("h1csc_clus_qsum_signal_EA_lfitmean", 
       Form("EndCap A: MPV of Landau fit to Cluster charge(Qsum);[sector] + [0.2 #times layer];counts/layer"),nybinsEA,nyminEA,nymaxEA);
   CscBins::BinLabels(m_h1csc_clus_qsum_signal_EA_lfitmean,1);
-
+  
   m_h2csc_clus_qsum_signal_EC = new TH2F("h2csc_clus_qsum_signal_EC", 
       Form("EndCap C: Cluster charge(Qsum), Qmax > %4u counts;counts;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       nqbins,nqmin,nqmax,nybinsEC,nyminEC,nymaxEC);
-
+  
   m_h1csc_clus_qsum_signal_EC_count = new TH1F("h1csc_clus_qsum_signal_EC_count", 
       Form("EndCap C: Cluster charge(Qsum), Qmax > %4u counts;counts;entries/20 counts;",m_qmaxADCCut),nqbins,nqmin,nqmax);
-
-  /*
+  
   m_h1csc_clus_qsum_signal_EC_occupancy = new TH1F("h1csc_clus_qsum_signal_EC_occupancy", 
       Form("EndCap C: Cluster charge(Qsum), Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEC,nyminEC,nymaxEC);
   CscBins::BinLabels(m_h1csc_clus_qsum_signal_EC_occupancy,-1);
-  */
-
+  
   m_h1csc_clus_qsum_signal_EC_lfitmean = new TH1F("h1csc_clus_qsum_signal_EC_lfitmean", 
       Form("EndCap C: MPV of Landau fit to Cluster charge(Qsum);[sector] + [0.2 #times layer];counts/layer"),nybinsEC,nyminEC,nymaxEC);
   CscBins::BinLabels(m_h1csc_clus_qsum_signal_EC_lfitmean,-1);
@@ -417,28 +275,24 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_h2csc_clus_qmax_signal_EA = new TH2F("h2csc_clus_qmax_signal_EA", 
       Form("EndCap A: Cluster peak-strip charge, Qmax > %4u counts;counts;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       nqbins,nqmin,nqmax,nybinsEA,nyminEA,nymaxEA);
-
+  
   m_h1csc_clus_qmax_signal_EA_count = new TH1F("h1csc_clus_qmax_signal_EA_count", 
       Form("EndCap A: Cluster peak-strip charge, Qmax > %4u counts;counts;entries/20 counts;",m_qmaxADCCut),nqbins,nqmin,nqmax);
-
-  /*
+  
   m_h1csc_clus_qmax_signal_EA_occupancy = new TH1F("h1csc_clus_qmax_signal_EA_occupancy", 
       Form("EndCap A: Cluster peak-strip charge, Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEA,nyminEA,nymaxEA);
   CscBins::BinLabels(m_h1csc_clus_qmax_signal_EA_occupancy,1);
-  */
 
   m_h2csc_clus_qmax_signal_EC = new TH2F("h2csc_clus_qmax_signal_EC", 
       Form("EndCap C: Cluster peak-strip charge, Qmax > %4u counts;counts;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       nqbins,nqmin,nqmax,nybinsEC,nyminEC,nymaxEC);
-
+  
   m_h1csc_clus_qmax_signal_EC_count = new TH1F("h1csc_clus_qmax_signal_EC_count", 
       Form("EndCap C: Cluster peak-strip charge, Qmax > %4u counts;counts;entries/20 counts;",m_qmaxADCCut),nqbins,nqmin,nqmax);
-
-  /*
+  
   m_h1csc_clus_qmax_signal_EC_occupancy = new TH1F("h1csc_clus_qmax_signal_EC_occupancy", 
       Form("EndCap C: Cluster peak-strip charge, Qmax > %4u counts;[sector] + [0.2 #times layer];entries/layer",m_qmaxADCCut),nybinsEC,nyminEC,nymaxEC);
   CscBins::BinLabels(m_h1csc_clus_qmax_signal_EC_occupancy,-1);
-  */
 
   // eta-cluster sampling time
   m_h1csc_clus_precision_time = new TH1F("h1csc_clus_precision_time", 
@@ -499,11 +353,6 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_h2csc_clus_phicluswidth_signal = new TH2F("h2csc_clus_phicluswidth_signal",
       Form("#phi-cluster width, Qmax > %4u counts;# strips;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       48,0,48,nybins,nymin,nymax);
-
-  //total cluster width
-  m_h1csc_clus_totalWidth_EA = new TH1F("h1csc_clus_totalWidth_EA","EndCap A: Cluster hits in all EA eta(#eta) & phi(#phi) strips;strips;cluster hits",Nxbins,Nxmin,Nxmax);
- 
-  m_h1csc_clus_totalWidth_EC = new TH1F("h1csc_clus_totalWidth_EC","EndCap C: Cluster hits in all EC eta(#eta) & phi(#phi) strips;strips;cluster hits",Nxbins,Nxmin,Nxmax);
 
   // eta-cluster count
   m_h2csc_clus_etacluscount = new TH2F("h2csc_clus_etacluscount",
@@ -567,10 +416,6 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_cscClusShift.push_back(m_h2csc_clus_r_vs_z_hitmap);         // shift
   m_cscClusShift.push_back(m_h2csc_clus_y_vs_x_hitmap);         // shift
 
-  // layer occupancy
-  m_cscClusOviewEA.push_back(m_h1csc_clus_occupancy_signal_EA);
-  m_cscClusOviewEC.push_back(m_h1csc_clus_occupancy_signal_EC);
-
   // qsum
   m_cscClusExpert.push_back(m_h2csc_clus_qsum);                 // expert
   m_cscClusShift.push_back(m_h2csc_clus_qsum_signal);           // shift, overview, dq-flag(Q3 is landau)
@@ -578,12 +423,12 @@ void CscClusterValAlg::bookClusterHistograms() {
 
   m_cscClusOviewEA.push_back(m_h2csc_clus_qsum_signal_EA);           
   m_cscClusOviewEA.push_back(m_h1csc_clus_qsum_signal_EA_count);           
-  //m_cscClusOviewEA.push_back(m_h1csc_clus_qsum_signal_EA_occupancy);           
+  m_cscClusOviewEA.push_back(m_h1csc_clus_qsum_signal_EA_occupancy);           
   m_cscClusOviewEA.push_back(m_h1csc_clus_qsum_signal_EA_lfitmean);           
-
+  
   m_cscClusOviewEC.push_back(m_h2csc_clus_qsum_signal_EC);           
   m_cscClusOviewEC.push_back(m_h1csc_clus_qsum_signal_EC_count);           
-  //m_cscClusOviewEC.push_back(m_h1csc_clus_qsum_signal_EC_occupancy);           
+  m_cscClusOviewEC.push_back(m_h1csc_clus_qsum_signal_EC_occupancy);           
   m_cscClusOviewEC.push_back(m_h1csc_clus_qsum_signal_EC_lfitmean);           
 
   // qmax
@@ -593,11 +438,11 @@ void CscClusterValAlg::bookClusterHistograms() {
 
   m_cscClusOviewEA.push_back(m_h2csc_clus_qmax_signal_EA);
   m_cscClusOviewEA.push_back(m_h1csc_clus_qmax_signal_EA_count);           
-  //m_cscClusOviewEA.push_back(m_h1csc_clus_qmax_signal_EA_occupancy);           
-
+  m_cscClusOviewEA.push_back(m_h1csc_clus_qmax_signal_EA_occupancy);           
+  
   m_cscClusOviewEC.push_back(m_h2csc_clus_qmax_signal_EC);        
   m_cscClusOviewEC.push_back(m_h1csc_clus_qmax_signal_EC_count);           
-  //m_cscClusOviewEC.push_back(m_h1csc_clus_qmax_signal_EC_occupancy);           
+  m_cscClusOviewEC.push_back(m_h1csc_clus_qmax_signal_EC_occupancy);           
 
   // phi time
   m_cscClusExpert.push_back(m_h1csc_clus_transverse_time);          // expert
@@ -632,10 +477,6 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_cscClusExpert.push_back(m_h2csc_clus_phicluswidth_signal);      // expert
   m_cscClusExpert.push_back(m_h2csc_clus_phicluswidth_noise);       // expert
 
-  //total cluster width
-  m_cscClusOviewEA.push_back(m_h1csc_clus_totalWidth_EA);           // overview
-  m_cscClusOviewEC.push_back(m_h1csc_clus_totalWidth_EC);           // overview
-
   // eta count (# of clusters)
   m_cscClusExpert.push_back(m_h2csc_clus_etacluscount);             // expert
   m_cscClusExpert.push_back(m_h2csc_clus_etacluscount_signal);      // shift
@@ -669,61 +510,61 @@ void CscClusterValAlg::bookClusterHistograms() {
 // bookHistograms  ----------------------------------------------------------------
 //
 StatusCode CscClusterValAlg::bookHistograms(){
-
+ 
   ATH_MSG_DEBUG (  "Booking CSC cluster histograms." );
   StatusCode sc = StatusCode::SUCCESS;
 
   //if(newRun) {
-  bookClusterHistograms();
-  // register shift histograms
-  MonGroup cscclus_shift( this, m_cscClusterPath+"/Shift", run, ATTRIB_MANAGED );
-  std::vector<TH1 *>::iterator m_iT = m_cscClusShift.begin();
-  ATH_MSG_DEBUG (  "Found " << m_cscClusShift.size() << " shift Histograms " );
-  for (; m_iT != m_cscClusShift.end(); ++m_iT) {
-    sc = cscclus_shift.regHist(*m_iT);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register histogram " << (*m_iT)->GetName() );
-      return sc;
+    bookClusterHistograms();
+    // register shift histograms
+    MonGroup cscclus_shift( this, m_cscClusterPath+"/Shift", run, ATTRIB_MANAGED );
+    std::vector<TH1 *>::iterator m_iT = m_cscClusShift.begin();
+    ATH_MSG_DEBUG (  "Found " << m_cscClusShift.size() << " shift Histograms " );
+    for (; m_iT != m_cscClusShift.end(); ++m_iT) {
+      sc = cscclus_shift.regHist(*m_iT);
+      if ( sc.isFailure() ) {
+        ATH_MSG_ERROR (  "Cannot register histogram " << (*m_iT)->GetName() );
+        return sc;
+      }
     }
-  }
 
-  // register expert histograms
-  MonGroup cscclus_expert( this, m_cscClusterPath+"/Expert", run, ATTRIB_MANAGED );
-  m_iT = m_cscClusExpert.begin();
-  ATH_MSG_DEBUG (  "Found " << m_cscClusExpert.size() << " expert Histograms " );
-  for (; m_iT != m_cscClusExpert.end(); ++m_iT) {
-    sc = cscclus_expert.regHist(*m_iT);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register histogram " << (*m_iT)->GetName() );
-      return sc;
+    // register expert histograms
+    MonGroup cscclus_expert( this, m_cscClusterPath+"/Expert", run, ATTRIB_MANAGED );
+    m_iT = m_cscClusExpert.begin();
+    ATH_MSG_DEBUG (  "Found " << m_cscClusExpert.size() << " expert Histograms " );
+    for (; m_iT != m_cscClusExpert.end(); ++m_iT) {
+      sc = cscclus_expert.regHist(*m_iT);
+      if ( sc.isFailure() ) {
+        ATH_MSG_ERROR (  "Cannot register histogram " << (*m_iT)->GetName() );
+        return sc;
+      }
     }
-  }
 
-  // register overview histograms for EA
-  //MonGroup cscclus_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
-  cscclus_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/Cluster", run, ATTRIB_MANAGED );
-  m_iT = m_cscClusOviewEA.begin();
-  ATH_MSG_DEBUG (  "Found " << m_cscClusOviewEA.size() << " CSCEA Overview Histograms " );
-  for (; m_iT != m_cscClusOviewEA.end(); ++m_iT) {
-    sc = cscclus_oviewEA->regHist(*m_iT);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*m_iT)->GetName() );
-      return sc;
+    // register overview histograms for EA
+    //MonGroup cscclus_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
+    cscclus_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/Cluster", run, ATTRIB_MANAGED );
+    m_iT = m_cscClusOviewEA.begin();
+    ATH_MSG_DEBUG (  "Found " << m_cscClusOviewEA.size() << " CSCEA Overview Histograms " );
+    for (; m_iT != m_cscClusOviewEA.end(); ++m_iT) {
+      sc = cscclus_oviewEA->regHist(*m_iT);
+      if ( sc.isFailure() ) {
+        ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*m_iT)->GetName() );
+        return sc;
+      }
     }
-  }
 
-  // register overview histograms for EC
-  //MonGroup cscclus_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
-  cscclus_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/Cluster", run, ATTRIB_MANAGED );
-  m_iT = m_cscClusOviewEC.begin();
-  ATH_MSG_DEBUG (  "Found " << m_cscClusOviewEC.size() << " CSCEC Overview Histograms " );
-  for (; m_iT != m_cscClusOviewEC.end(); ++m_iT) {
-    sc = cscclus_oviewEC->regHist(*m_iT);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*m_iT)->GetName() );
-      return sc;
+    // register overview histograms for EC
+    //MonGroup cscclus_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
+    cscclus_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/Cluster", run, ATTRIB_MANAGED );
+    m_iT = m_cscClusOviewEC.begin();
+    ATH_MSG_DEBUG (  "Found " << m_cscClusOviewEC.size() << " CSCEC Overview Histograms " );
+    for (; m_iT != m_cscClusOviewEC.end(); ++m_iT) {
+      sc = cscclus_oviewEC->regHist(*m_iT);
+      if ( sc.isFailure() ) {
+        ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*m_iT)->GetName() );
+        return sc;
+      }
     }
-  }
   //} 
   //if(newEventsBlock){}
   //if(newLumiBlock){}
@@ -825,12 +666,6 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
     // ==============================================================================
 
 
-    stripsSum_EA = 0.;
-    stripsSum_EAtest = -50.;
-    stripsSum_EC = 0.;
-    stripsSum_ECtest = -50.;
-
-
     ATH_MSG_DEBUG ( " Begin loop over clusters ============================");
     for ( CscPrepDataCollection::const_iterator m_Itclu = m_clus.begin();
         m_Itclu != m_clus.end(); ++m_Itclu ) {
@@ -869,23 +704,6 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
       int m_sectorNo  = m_stationEta * (2 * m_stationPhi - m_chamberType);   // [-16 -> -1] and [+1 -> +16]
       float m_secLayer = m_sectorNo + 0.2 * (m_wireLayer - 1) + 0.1;
       int xfac = m_measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
-
-
-      //total cluster width (EA and EC) calculation
-       if(m_secLayer > 0.) { 
-          stripsSum_EA = stripsSum_EA + m_noStrips;
-     }
-       if(stripsSum_EA > stripsSum_EAtest) {
-          stripsSum_EAtest = stripsSum_EA;
-     }
-
-       if(m_secLayer < 0. || m_secLayer == 0.) { 
-          stripsSum_EC = stripsSum_EC + m_noStrips;
-     }
-       if(stripsSum_EC > stripsSum_ECtest) {
-          stripsSum_ECtest = stripsSum_EC;
-     }  
-
 
       // check boundaries of sector/layer - redundancy
       //if(!(m_sectorNo+16) < 33) m_sectorNo = 0;
@@ -1063,13 +881,6 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
             } else {
               m_h2csc_clus_etacluswidth_signal->Fill(m_noStrips,m_secLayer);  
             }
-
-            // Fill layer occupancy
-            if(m_stationEta == 1) {
-              m_h1csc_clus_occupancy_signal_EA->Fill(m_secLayer);
-            } else {
-              m_h1csc_clus_occupancy_signal_EC->Fill(m_secLayer);
-            }
           } else {
             for(unsigned int j =0; j < m_fStripIDs.size(); j++)
               m_h2csc_clus_hitmap_noise->Fill(m_fStripIDs[j], m_secLayer);
@@ -1086,11 +897,11 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
             if(m_stationEta == 1) {
               m_h2csc_clus_qmax_signal_EA->Fill(m_QmaxADC, m_secLayer);
               m_h1csc_clus_qmax_signal_EA_count->Fill(m_QmaxADC);
-              //m_h1csc_clus_qmax_signal_EA_occupancy->Fill(m_secLayer);
+              m_h1csc_clus_qmax_signal_EA_occupancy->Fill(m_secLayer);
             } else {
               m_h2csc_clus_qmax_signal_EC->Fill(m_QmaxADC, m_secLayer);
               m_h1csc_clus_qmax_signal_EC_count->Fill(m_QmaxADC);
-              //m_h1csc_clus_qmax_signal_EC_occupancy->Fill(m_secLayer);
+              m_h1csc_clus_qmax_signal_EC_occupancy->Fill(m_secLayer);
             }
           } else {
             m_h2csc_clus_qmax_noise->Fill(m_QmaxADC, m_secLayer);
@@ -1102,11 +913,11 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
             if(m_stationEta == 1) {
               m_h2csc_clus_qsum_signal_EA->Fill(m_QsumADC, m_secLayer);
               m_h1csc_clus_qsum_signal_EA_count->Fill(m_QsumADC);
-              //m_h1csc_clus_qsum_signal_EA_occupancy->Fill(m_secLayer);
+              m_h1csc_clus_qsum_signal_EA_occupancy->Fill(m_secLayer);
             } else {
               m_h2csc_clus_qsum_signal_EC->Fill(m_QsumADC, m_secLayer);
               m_h1csc_clus_qsum_signal_EC_count->Fill(m_QsumADC);
-              //m_h1csc_clus_qsum_signal_EC_occupancy->Fill(m_secLayer);
+              m_h1csc_clus_qsum_signal_EC_occupancy->Fill(m_secLayer);
             }
           } else {
             m_h2csc_clus_qsum_noise->Fill(m_QsumADC, m_secLayer);
@@ -1141,10 +952,6 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
 
 
       } // end if cluster_status
-
-        //filling total cluster width histograms
-        m_h1csc_clus_totalWidth_EA->Fill( stripsSum_EA );
-        m_h1csc_clus_totalWidth_EC->Fill( stripsSum_EC );
 
     } // end for loop over prep-data collection
     ATH_MSG_DEBUG ( " End loop over clusters ============================");
