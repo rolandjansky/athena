@@ -22,8 +22,7 @@
 
 #include "CscClusterization/ICscStripFitter.h"
 #include "MuonIdHelpers/CscIdHelper.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // ROOT include(s)
 #include "TClass.h"
@@ -729,7 +728,7 @@ StatusCode CscPrdValAlg::fillLumiBlock(){
 
   m_lumiblock = -1;
   
-  const EventInfo* evt(0);
+  const xAOD::EventInfo* evt(0);
 
   StatusCode sc = StatusCode::SUCCESS;
   sc = (*m_activeStore)->retrieve(evt);
@@ -737,13 +736,8 @@ StatusCode CscPrdValAlg::fillLumiBlock(){
     ATH_MSG_ERROR("Could not find Event Info");
     return sc;
   }
-  const EventID* evtid = evt->event_ID();
-  if( !evtid){
-    ATH_MSG_ERROR("Could not find Event ID");
-    return StatusCode::FAILURE;
-  }
   
-  m_lumiblock = evtid->lumi_block();
+  m_lumiblock = evt->lumiBlock();
 
   return sc;
   

@@ -23,7 +23,7 @@ use	    CscClusterization	    CscClusterization-*	     MuonSpectrometer/MuonReco
 use     MuonCSC_CnvTools        MuonCSC_CnvTools-*       MuonSpectrometer/MuonCnv 
 use     MuonIdHelpers           MuonIdHelpers-*          MuonSpectrometer
 use     MuonRDO                 MuonRDO-*                MuonSpectrometer
-use     EventInfo               EventInfo-*              Event
+use     xAODEventInfo           xAODEventInfo-*          Event/xAOD
 end_private
 
 # build a component library
