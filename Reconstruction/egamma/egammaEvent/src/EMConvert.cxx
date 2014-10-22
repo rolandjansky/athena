@@ -770,64 +770,55 @@ void EMConvert::fillVxTracks(const Trk::VxCandidate* vxCand, int trkAuthor)
     if(i==0){
       Trk::VxTrackAtVertex* trk = trks[i];
       const Trk::TrackParameters* trkParams = trk->perigeeAtVertex();
+      set_vertex_track1_chi2(trk->trackQuality().chiSquared());
+      set_vertex_track1_author(trkAuthor);
       if(trkParams){
         set_vertex_track1_phi(trkParams->parameters()[Trk::phi]);
         set_vertex_track1_theta(trkParams->parameters()[Trk::theta]);
-        set_vertex_track1_qOverP(trkParams->parameters()[Trk::qOverP]);
-      }
-      set_vertex_track1_chi2(trk->trackQuality().chiSquared());
-      set_vertex_track1_author(trkAuthor);
-      const AmgSymMatrix(5)* errMat= trkParams->covariance();
-      
-      if(errMat){
-        set_vertex_Covd01d01((*errMat)(Trk::d0,Trk::d0));
-        set_vertex_Covd01z01((*errMat)(Trk::d0,Trk::z0));
-        set_vertex_Covd01phi1((*errMat)(Trk::d0,Trk::phi));
-        set_vertex_Covd01theta1((*errMat)(Trk::d0,Trk::theta));
-        set_vertex_Covd01qOverP1((*errMat)(Trk::d0,Trk::qOverP));
-        set_vertex_Covz01z01((*errMat)(Trk::z0,Trk::z0));
-        set_vertex_Covz01phi1((*errMat)(Trk::z0,Trk::phi));
-        set_vertex_Covz01theta1((*errMat)(Trk::z0,Trk::theta));
-        set_vertex_Covz01qOverP1((*errMat)(Trk::z0,Trk::qOverP));
-        if(numTracksAtVertex<2){
-          set_vertex_Covphi1phi1((*errMat)(Trk::phi,Trk::phi));
-          set_vertex_Covphi1theta1((*errMat)(Trk::phi,Trk::theta));
-          set_vertex_Covphi1qOverP1((*errMat)(Trk::phi,Trk::qOverP));
-          set_vertex_Covtheta1theta1((*errMat)(Trk::theta,Trk::theta));
-          set_vertex_Covtheta1qOverP1((*errMat)(Trk::theta,Trk::qOverP));
-          set_vertex_CovqOverP1qOverP1((*errMat)(Trk::qOverP,Trk::qOverP));
-        }
+        set_vertex_track1_qOverP(trkParams->parameters()[Trk::qOverP]);      
+	const AmgSymMatrix(5)* errMat= trkParams->covariance();
+	
+	if(errMat){
+	  set_vertex_Covd01d01((*errMat)(Trk::d0,Trk::d0));
+	  set_vertex_Covd01z01((*errMat)(Trk::d0,Trk::z0));
+	  set_vertex_Covd01phi1((*errMat)(Trk::d0,Trk::phi));
+	  set_vertex_Covd01theta1((*errMat)(Trk::d0,Trk::theta));
+	  set_vertex_Covd01qOverP1((*errMat)(Trk::d0,Trk::qOverP));
+	  set_vertex_Covz01z01((*errMat)(Trk::z0,Trk::z0));
+	  set_vertex_Covz01phi1((*errMat)(Trk::z0,Trk::phi));
+	  set_vertex_Covz01theta1((*errMat)(Trk::z0,Trk::theta));
+	  set_vertex_Covz01qOverP1((*errMat)(Trk::z0,Trk::qOverP));
+	  if(numTracksAtVertex<2){
+	    set_vertex_Covphi1phi1((*errMat)(Trk::phi,Trk::phi));
+	    set_vertex_Covphi1theta1((*errMat)(Trk::phi,Trk::theta));
+	    set_vertex_Covphi1qOverP1((*errMat)(Trk::phi,Trk::qOverP));
+	    set_vertex_Covtheta1theta1((*errMat)(Trk::theta,Trk::theta));
+	    set_vertex_Covtheta1qOverP1((*errMat)(Trk::theta,Trk::qOverP));
+	    set_vertex_CovqOverP1qOverP1((*errMat)(Trk::qOverP,Trk::qOverP));
+	  }
+	}
       }
     }else if(i==1){
       Trk::VxTrackAtVertex* trk = trks[i];
       const Trk::TrackParameters* trkParams = trk->perigeeAtVertex();
+      set_vertex_track2_chi2(trk->trackQuality().chiSquared());
+      set_vertex_track2_author(trkAuthor);
       if(trkParams){
         set_vertex_track2_phi(trkParams->parameters()[Trk::phi]);
         set_vertex_track2_theta(trkParams->parameters()[Trk::theta]);
-        set_vertex_track2_qOverP(trkParams->parameters()[Trk::qOverP]);
-      }
-      set_vertex_track2_chi2(trk->trackQuality().chiSquared());
-      set_vertex_track2_author(trkAuthor);
-
-      const AmgSymMatrix(5)* errMat= trkParams->covariance();
-      
-      if(errMat){
-  
-        set_vertex_Covd02d02((*errMat)(Trk::d0,Trk::d0));
-        set_vertex_Covd02z02((*errMat)(Trk::d0,Trk::z0));
-        set_vertex_Covd02phi2((*errMat)(Trk::d0,Trk::phi));
-        set_vertex_Covd02theta2((*errMat)(Trk::d0,Trk::theta));
-        set_vertex_Covd02qOverP2((*errMat)(Trk::d0,Trk::qOverP));
-        set_vertex_Covz02z02((*errMat)(Trk::z0,Trk::z0));
-        set_vertex_Covz02phi2((*errMat)(Trk::z0,Trk::phi));
-        set_vertex_Covz02theta2((*errMat)(Trk::z0,Trk::theta));
-        set_vertex_Covz02qOverP2((*errMat)(Trk::z0,Trk::qOverP));
-        //    set_vertex_Covphi2phi2((*errMat)(Trk::phi,Trk::phi));
-        //    set_vertex_Covphi2theta2((*errMat)(Trk::phi,Trk::theta));
-        //    set_vertex_Covphi2qOverP2((*errMat)(Trk::phi,Trk::qOverP));
-        //    set_vertex_Covtheta2theta2((*errMat)(Trk::theta,Trk::theta));
-        //    set_vertex_Covtheta2qOverP2((*errMat)(Trk::theta,Trk::qOverP));
-        //    set_vertex_CovqOverP2qOverP2((*errMat)(Trk::qOverP,Trk::qOverP));
+        set_vertex_track2_qOverP(trkParams->parameters()[Trk::qOverP]);      
+	const AmgSymMatrix(5)* errMat= trkParams->covariance();
+	if(errMat){
+	  set_vertex_Covd02d02((*errMat)(Trk::d0,Trk::d0));
+	  set_vertex_Covd02z02((*errMat)(Trk::d0,Trk::z0));
+	  set_vertex_Covd02phi2((*errMat)(Trk::d0,Trk::phi));
+	  set_vertex_Covd02theta2((*errMat)(Trk::d0,Trk::theta));
+	  set_vertex_Covd02qOverP2((*errMat)(Trk::d0,Trk::qOverP));
+	  set_vertex_Covz02z02((*errMat)(Trk::z0,Trk::z0));
+	  set_vertex_Covz02phi2((*errMat)(Trk::z0,Trk::phi));
+	  set_vertex_Covz02theta2((*errMat)(Trk::z0,Trk::theta));
+	  set_vertex_Covz02qOverP2((*errMat)(Trk::z0,Trk::qOverP));
+	}
       }
     }
   }
