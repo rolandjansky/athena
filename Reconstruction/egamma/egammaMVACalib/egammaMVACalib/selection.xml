@@ -1,0 +1,9 @@
+<lcgdict>
+
+  <class name="IegammaMVATool" />
+  <class name="egammaMVACalibNmsp::Node" />
+  <class name="egammaMVACalibNmsp::BDT" />
+  <class name="std::vector<egammaMVACalibNmsp::Node*>" />
+  <enum pattern="egammaMVACalib::*" />
+
+</lcgdict>
