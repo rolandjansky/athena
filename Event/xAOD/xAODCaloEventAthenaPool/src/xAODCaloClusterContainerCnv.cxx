@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterContainerCnv.cxx 582844 2014-02-12 17:02:24Z krasznaa $
+// $Id: xAODCaloClusterContainerCnv.cxx 623231 2014-10-22 11:19:00Z wlampl $
 
 // System include(s):
 #include <exception>
@@ -12,6 +12,8 @@
 
 // Local include(s):
 #include "xAODCaloClusterContainerCnv.h"
+
+#include "CaloInterface/IxAODClusterCompressor.h"
 
 namespace {
 
@@ -30,8 +32,18 @@ namespace {
 } // private namespace
 
 xAODCaloClusterContainerCnv::xAODCaloClusterContainerCnv( ISvcLocator* svcLoc )
-   : xAODCaloClusterContainerCnvBase( svcLoc ) {
-
+  : xAODCaloClusterContainerCnvBase( svcLoc ),
+    m_compressor("xAODClusterCompressor")
+{
+  StatusCode sc=m_compressor.retrieve();
+  if (sc.isSuccess()) {
+    m_doCompression=true; //Got compression tool
+    ATH_MSG_INFO("Retrieved compression tool");
+  }
+  else {
+    m_doCompression=false;
+    ATH_MSG_ERROR("Failed to retrieve compression tool. Will store uncompressed cluster");
+  }
 }
 
 /**
@@ -53,6 +65,11 @@ StatusCode xAODCaloClusterContainerCnv::createObj( IOpaqueAddress* pAddr,
 xAOD::CaloClusterContainer*
 xAODCaloClusterContainerCnv::
 createPersistent( xAOD::CaloClusterContainer* trans ) {
+
+  //Compress the object is possible
+   if (m_doCompression) {
+     m_compressor->compress(trans);
+   }
 
    // Create a view copy of the container:
    xAOD::CaloClusterContainer* result =
