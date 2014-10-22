@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterAuxContainerCnv.h 565402 2013-10-15 09:44:40Z krasznaa $
+// $Id: xAODCaloClusterAuxContainerCnv.h 621071 2014-10-10 10:36:25Z krasznaa $
 #ifndef XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 
@@ -30,8 +30,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 565402 $
- * $Date: 2013-10-15 11:44:40 +0200 (Tue, 15 Oct 2013) $
+ * $Revision: 621071 $
+ * $Date: 2014-10-10 12:36:25 +0200 (Fri, 10 Oct 2014) $
  */
 class xAODCaloClusterAuxContainerCnv :
    public xAODCaloClusterAuxContainerCnvBase {
