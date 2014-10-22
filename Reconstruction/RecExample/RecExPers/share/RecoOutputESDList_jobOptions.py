@@ -60,12 +60,12 @@ except Exception:
 if rec.doTruth():
     fullESDList += CfgItemList( "McTruthEsd",
                                 items = [ "McEventCollection#TruthEvent",
-                                          "xAOD::TruthEventContainer_v1#TruthEvent",
-                                          "xAOD::TruthEventAuxContainer_v1#TruthEventAux.",
-                                          "xAOD::TruthParticleContainer_v1#TruthParticle",
-                                          "xAOD::TruthParticleAuxContainer_v1#TruthParticleAux.",
-                                          "xAOD::TruthVertexContainer_v1#TruthVertex", 
-                                          "xAOD::TruthVertexAuxContainer_v1#TruthVertexAux."
+                                          "xAOD::TruthEventContainer#TruthEvent",
+                                          "xAOD::TruthEventAuxContainer#TruthEventAux.",
+                                          "xAOD::TruthParticleContainer#TruthParticle",
+                                          "xAOD::TruthParticleAuxContainer#TruthParticleAux.",
+                                          "xAOD::TruthVertexContainer#TruthVertex", 
+                                          "xAOD::TruthVertexAuxContainer#TruthVertexAux."
                                           ] )
     if jobproperties.Beam.beamType=="cosmics" and globalflags.DataSource=="geant4":
         fullESDList += CfgItemList( "McTruthTracRecord",
