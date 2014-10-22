@@ -100,6 +100,7 @@ class TileHitVecToCntTool: public PileUpToolBase {
     std::vector<std::string> m_hitVectorNames;  //!< vector with the names of TileHitVectors to use
     std::string m_hitContainer;                 //!< name of the TileHitCointainer
     std::string m_infoName;                     //!< name of TileInfo object in TES
+    bool m_run2;                                //!< if true => RUN2 geometry with E4' and merged E1
     bool m_pileUp;                              //!< if true => pileup mode is activated
     double m_deltaT;                            //!< minimal time granularity for TileHit
     int m_timeFlag;                             //!< specail options to deal with times of hits for cosmics and TB
@@ -118,7 +119,7 @@ class TileHitVecToCntTool: public PileUpToolBase {
     const TileTBID* m_tileTBID;                 //!< Pointer to TileID helper
     const TileInfo* m_tileInfo;                 //!< Pointer to TileInfo
     const TileDetDescrManager* m_tileMgr;       //!< Pointer to TileDetDescrManager
-    float numPhElec[6];                         //!< number of photo electrons per GeV in samplings
+    float numPhElec[7];                         //!< number of photo electrons per GeV in samplings
 
     CLHEP::HepRandomEngine* m_pHRengine;       //!< Random number service to use
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;     //!< Random number generator engine to use
@@ -136,6 +137,13 @@ class TileHitVecToCntTool: public PileUpToolBase {
     static const int nCellMBTS = nSide * nPhi * nEta;
     inline int mbts_index(int side, int phi, int eta) const {
       return (side * nPhi + phi) * nEta + eta + m_mbtsOffset;
+    }
+    static const int E4side = -1;
+    static const int E4eta  = 2;
+    static const int E4nPhi = 4;
+    static const int nCellE4pr = E4nPhi;
+    inline int e4pr_index(int phi) const {
+      return  phi + nCellMBTS + m_mbtsOffset;
     }
 
     ServiceHandle<TileCablingSvc> m_cablingSvc;
