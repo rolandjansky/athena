@@ -148,7 +148,7 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
   // in (r,z) space for each envelope volume
   for ( int region = AtlasDetDescr::fFirstAtlasRegion; region < AtlasDetDescr::fNumAtlasRegions; region++) {
     ATH_MSG_VERBOSE( "Envelope: positive-z region=" << region);
-    m_rz[region] = *mirrorRZ( m_rposz[region] );
+    mirrorRZ( m_rposz[region], m_rz[region] );
   }
 
   // debugging output:
@@ -185,13 +185,17 @@ RZPairVector *DetDescrDBEnvelopeSvc::retrieveRZBoundaryOptionalFallback(
   // try the DB approach to retrieve the (r,z) values
   RZPairVector *rz = retrieveRZBoundary(dbNode);
 
-  // if 0 return value -> something went wrong
+  // if 0 return value -> unsuccessfully read DDDB
   if (!rz) {
-    ATH_MSG_WARNING("Problems retrieving the envelope volume definition from DDDB node '"
-                    << dbNode << "'.");
+    ATH_MSG_DEBUG("Will try reading Python-based envelope definition for '" << dbNode << "'.");
+
     // try fallback approach
     rz = enableFallback() ? fallbackRZBoundary(r, z) : 0;
-    if (rz) ATH_MSG_INFO("Fallback envelope volume definition created for " << dbNode);
+    if (rz) {
+      ATH_MSG_INFO("Sucessfully read Python-based envelope definition for '" << dbNode << "'.");
+    } else {
+      ATH_MSG_WARNING("Could not create envelope volume for '" << dbNode << "'.");
+    }
   }
 
   return rz;
@@ -232,7 +236,7 @@ RZPairVector *DetDescrDBEnvelopeSvc::retrieveRZBoundary( std::string &node)
   // entries in the database table
   size_t numEntries = envelopeRec ? envelopeRec->size() : 0;
   if ( !numEntries) {
-    ATH_MSG_WARNING("No entries for table '" << node << "' in Detector Description DB. Will skip this envelope volume.");
+    ATH_MSG_INFO("No entries for table '" << node << "' in Detector Description Database (DDDB). Maybe you are using Python-based envelope definitions...");
     return 0;
   }
 
