@@ -6,8 +6,8 @@
 
 // gaudi
 #include "GaudiKernel/MsgStream.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/TagInfo.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TileEvent/TileContainer.h"
 #include "TileIdentifier/TileTBID.h"
@@ -25,7 +25,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "EventInfo/TagInfo.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -879,7 +878,7 @@ namespace MuonCalib {
   MuonCalibEventInfo MuonCalibAlg::retrieveEventInfo() const
     { 
       MsgStream log(messageService(), name());
-      const EventInfo* eventInfo;
+      const xAOD::EventInfo* eventInfo;
       log<<MSG::VERBOSE<<"retrieveEventInfo() called"<<endreq;
 
       MuonCalibEventInfo MCeventInfo;
@@ -893,11 +892,11 @@ namespace MuonCalib {
 
       //Cast eventID into MuonCalibEventInfo class:
    
-      MCeventInfo.setRunNumber( eventInfo->event_ID()->run_number() ) ;
-      MCeventInfo.setEventNumber( eventInfo->event_ID()->event_number() );
-      MCeventInfo.setTimeStamp( eventInfo->event_ID()->time_stamp() );
-      MCeventInfo.setLumiBlock( eventInfo->event_ID()->lumi_block() );
-      MCeventInfo.setBcId( eventInfo->event_ID()->bunch_crossing_id() );
+      MCeventInfo.setRunNumber( eventInfo->runNumber() ) ;
+      MCeventInfo.setEventNumber( eventInfo->eventNumber() );
+      MCeventInfo.setTimeStamp( eventInfo->timeStamp() );
+      MCeventInfo.setLumiBlock( eventInfo->lumiBlock() );
+      MCeventInfo.setBcId( eventInfo->bcid() );
       std::string eventTag=m_eventTag;
       MCeventInfo.setTag( eventTag );
       if ( m_addTriggerTag ) {
