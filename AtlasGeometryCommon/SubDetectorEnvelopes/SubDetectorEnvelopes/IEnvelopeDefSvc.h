@@ -61,34 +61,34 @@ class IEnvelopeDefSvc : virtual public IInterface {
     RZPairVector &getCavernRZValues( unsigned short = 0)   const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasCavern) );  }
 
   protected:
-    /** mirror the given RZPairs in the XY-plane to describe all corner points
-     in (r,z) space */
-    inline RZPairVector *mirrorRZ( RZPairVector &rposz ) const ;
+    /** mirror the given srcRZ RZPairVector in the XY-plane to describe all corner points
+     in (r,z) space in the dstRZ RZPairVector */
+    inline void mirrorRZ( const RZPairVector &srcRZ, RZPairVector &dstRZ ) const ;
 
 };
 
 /** mirror the given RZPairs in the XY-plane to describe all corner points in (r,z) space */
-inline RZPairVector *IEnvelopeDefSvc::mirrorRZ( RZPairVector &rposz ) const
+inline void IEnvelopeDefSvc::mirrorRZ( const RZPairVector &srcRZ, RZPairVector &dstRZ ) const
 {
-  int numPosPairs = rposz.size();
-  // the mirrored envelope will have exactly twice as many entries as the given rposz
-  RZPairVector *completeRZ = new RZPairVector(2*numPosPairs);
+  int numPosPairs = srcRZ.size();
+  // the mirrored envelope will have exactly twice as many entries as the given srcRZ
+  dstRZ.resize(2*numPosPairs);
 
   // loop over all positive (r,z) pairs
   for ( int curNum = 0; curNum<numPosPairs; curNum++) {
-    double curR = rposz[curNum].first;
-    double curZ = rposz[curNum].second;
+    double curR = srcRZ[curNum].first;
+    double curZ = srcRZ[curNum].second;
 
     // debugging output:
     //std::cout << "Envelope: pos=" << curNum << " r=" << curR << " z="<< curZ << std::endl;
 
     // fill in the z<0 side
-    (*completeRZ)[numPosPairs-curNum-1] = RZPair(curR, -curZ);
+    dstRZ[numPosPairs-curNum-1] = RZPair(curR, -curZ);
     // fill in the z>0 side
-    (*completeRZ)[numPosPairs+curNum]   = RZPair(curR, curZ);
+    dstRZ[numPosPairs+curNum]   = RZPair(curR, curZ);
   }
 
-  return completeRZ;
+  return;
 }
 
 #endif // IENVELOPEDEFSVC_H
