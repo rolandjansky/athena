@@ -29,7 +29,7 @@ public:
 
   /// Constructor
   GenerateCavernBkg(const std::string& name, ISvcLocator* pSvcLocator);
-  
+
   /// @name Loop methods
   //@{
   StatusCode genInitialize();
@@ -38,7 +38,7 @@ public:
   StatusCode genFinalize();
   //@}
 
-  /// Static pointer to random number generator for use by 
+  /// Static pointer to random number generator for use by
   static CLHEP::HepRandomEngine* CAVBKG_RANDOM_ENGINE;
 
 
