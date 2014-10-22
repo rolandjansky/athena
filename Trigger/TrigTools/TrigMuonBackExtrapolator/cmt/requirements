@@ -8,6 +8,7 @@ use  AtlasPolicy              AtlasPolicy-*
 use  GaudiInterface           GaudiInterface-*                External
 use  TrigInDetEvent           TrigInDetEvent-*                Trigger/TrigEvent
 use  TrigMuonEvent            TrigMuonEvent-*                 Trigger/TrigEvent
+use  xAODTrigMuon             xAODTrigMuon-*                  Event/xAOD
 
 library TrigMuonBackExtrapolator *.cxx components/*.cxx
 

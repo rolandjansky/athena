@@ -309,6 +309,253 @@ TrigMuonBackExtrapolator::give_tight_chi2  (const MuonFeature*,const TrigInDetTr
     return 0.;
 }
 
+/////////////////////////////////
+// Use xAOD EDM
+
+StatusCode 
+TrigMuonBackExtrapolator::give_eta_phi_at_vertex (const xAOD::L2StandAloneMuon* muonSA,
+     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT)
+{
+    bool result = MuonBackExtrapolator::give_eta_phi_at_vertex(
+                                                     muonSA->pt(), 
+						     muonSA->etaMS(), 
+						     muonSA->phiMS(),
+                                                     muonSA->sAddress()!=-1,
+						     muonSA->rMS() <= 10.,
+						     m_aligned,
+                                                     m_dataset,
+						     extEta,
+                                                     sigmaEta,
+						     extPhi,
+						     sigmaPhi,
+						     PT,
+                                                     data_Barrel_Param,
+                                                     data_Barrel_Sigmas,
+                                                     data_Endcap_TriggerST_Param,
+                                                     data_Endcap_TriggerST_Sigmas,
+                                                     data_Endcap_InnerST_Param,
+                                                     data_Endcap_InnerST_PhiSigmas,
+                                                     data_Endcap_InnerST_EtaSigmas);
+
+
+    if (result) return  StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
+}
+
+StatusCode 
+TrigMuonBackExtrapolator::give_eta_phi_at_vertex (double pt,
+    const xAOD::L2StandAloneMuon* muonSA, double& extEta, double& sigmaEta,
+    double& extPhi, double& sigmaPhi, double PT)
+{
+    bool result = MuonBackExtrapolator::give_eta_phi_at_vertex(
+                                                     pt, 
+						     muonSA->etaMS(), 
+						     muonSA->phiMS(),
+                                                     muonSA->sAddress()!=-1,
+						     muonSA->rMS() <= 10.,
+						     m_aligned,
+                                                     m_dataset,
+						     extEta,
+                                                     sigmaEta,
+						     extPhi,
+						     sigmaPhi,
+						     PT,
+                                                     data_Barrel_Param,
+                                                     data_Barrel_Sigmas,
+                                                     data_Endcap_TriggerST_Param,
+                                                     data_Endcap_TriggerST_Sigmas,
+                                                     data_Endcap_InnerST_Param,
+                                                     data_Endcap_InnerST_PhiSigmas,
+                                                     data_Endcap_InnerST_EtaSigmas);
+
+    if (result) return  StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
+}
+
+
+StatusCode 
+TrigMuonBackExtrapolator::give_eta_phi_at_vertex( const xAOD::L2StandAloneMuon* muonSA,
+                               double ZetaID,double& extEta,double& sigmaEta,
+                                   double& extPhi,double& sigmaPhi,double PT)
+{
+     bool result = MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
+                                                     muonSA->pt(),
+						     ZetaID,
+						     muonSA->zMS(),
+						     muonSA->etaMS(), 
+						     muonSA->phiMS(),
+                                                     muonSA->sAddress()!=-1,
+						     muonSA->rMS() <= 10.,
+						     m_aligned,
+                                                     m_dataset,
+						     extEta,
+                                                     sigmaEta,
+						     extPhi,
+						     sigmaPhi,
+						     PT,
+                                                     data_Barrel_Param,
+                                                     data_Barrel_Sigmas,
+                                                     data_Endcap_TriggerST_Param,
+                                                     data_Endcap_TriggerST_Sigmas,
+                                                     data_Endcap_InnerST_Param,
+                                                     data_Endcap_InnerST_PhiSigmas,
+                                                     data_Endcap_InnerST_EtaSigmas);
+     if (result) return  StatusCode::SUCCESS;
+     return StatusCode::FAILURE;
+}
+
+
+StatusCode 
+TrigMuonBackExtrapolator::give_eta_phi_at_vertex( double pt,
+    const xAOD::L2StandAloneMuon* muonSA, double ZetaID, double& extEta, double& sigmaEta,
+    double& extPhi, double& sigmaPhi, double PT)
+{
+     bool result = MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
+                                                     pt,
+						     ZetaID,
+						     muonSA->zMS(),
+						     muonSA->etaMS(), 
+						     muonSA->phiMS(),
+                                                     muonSA->sAddress()!=-1,
+						     muonSA->rMS() <= 10.,
+						     m_aligned,
+                                                     m_dataset,
+						     extEta,
+                                                     sigmaEta,
+						     extPhi,
+						     sigmaPhi,
+						     PT,
+                                                     data_Barrel_Param,
+                                                     data_Barrel_Sigmas,
+                                                     data_Endcap_TriggerST_Param,
+                                                     data_Endcap_TriggerST_Sigmas,
+                                                     data_Endcap_InnerST_Param,
+                                                     data_Endcap_InnerST_PhiSigmas,
+                                                     data_Endcap_InnerST_EtaSigmas);
+     if (result) return  StatusCode::SUCCESS;
+     return StatusCode::FAILURE;
+}
+
+StatusCode 
+TrigMuonBackExtrapolator::loose_window_match (const xAOD::L2StandAloneMuon* muonSA,
+                     const TrigInDetTrack* idtrack,double winPT,double weight)
+{
+     bool result = MuonBackExtrapolator::idTrack_in_loose_window(
+                                                  idtrack->param()->pT()/1000.,
+						  muonSA->sAddress(),
+						  muonSA->rMS(),
+						  muonSA->etaMS(), 
+						  muonSA->phiMS(),
+						  idtrack->param()->eta(),
+						  idtrack->param()->phi0(),
+						  m_aligned,
+                                                  m_dataset,
+						  winPT,
+                                                  weight,
+                                                  data_Barrel_Param,
+                                                  data_Barrel_Sigmas,
+                                                  data_Endcap_TriggerST_Param,
+                                                  data_Endcap_TriggerST_Sigmas,
+                                                  data_Endcap_InnerST_Param,
+                                                  data_Endcap_InnerST_PhiSigmas,
+                                                  data_Endcap_InnerST_EtaSigmas);
+
+     if (result) return  StatusCode::SUCCESS;
+     return StatusCode::FAILURE;
+}			     
+
+StatusCode 
+TrigMuonBackExtrapolator::loose_window_match (double pt, 
+                     const xAOD::L2StandAloneMuon* muonSA, const TrigInDetTrack* idtrack,
+		     double winPT,double weight)
+{
+     bool result = MuonBackExtrapolator::idTrack_in_loose_window(
+                                                  pt,
+						  muonSA->sAddress(),
+						  muonSA->rMS(),
+						  muonSA->etaMS(), 
+						  muonSA->phiMS(),
+						  idtrack->param()->eta(),
+						  idtrack->param()->phi0(),
+						  m_aligned,
+                                                  m_dataset,
+						  winPT,
+                                                  weight,
+                                                  data_Barrel_Param,
+                                                  data_Barrel_Sigmas,
+                                                  data_Endcap_TriggerST_Param,
+                                                  data_Endcap_TriggerST_Sigmas,
+                                                  data_Endcap_InnerST_Param,
+                                                  data_Endcap_InnerST_PhiSigmas,
+                                                  data_Endcap_InnerST_EtaSigmas);
+
+     if (result) return  StatusCode::SUCCESS;
+     return StatusCode::FAILURE;
+}			     
+
+
+StatusCode 
+TrigMuonBackExtrapolator::tight_window_match (const xAOD::L2StandAloneMuon* muonSA,
+		     const TrigInDetTrack* idtrack,double winPT,double weight)
+{  
+    bool result = MuonBackExtrapolator::idTrack_in_tight_window(
+                                                  idtrack->param()->pT()/1000.,
+						  muonSA->sAddress(),
+						  muonSA->rMS(),
+						  idtrack->param()->z0(),
+						  muonSA->zMS(), 
+						  muonSA->etaMS(), 
+						  muonSA->phiMS(),
+						  idtrack->param()->eta(),
+						  idtrack->param()->phi0(),
+						  m_aligned,
+                                                  m_dataset,
+						  winPT,
+                                                  weight,
+                                                  data_Barrel_Param,
+                                                  data_Barrel_Sigmas,
+                                                  data_Endcap_TriggerST_Param,
+                                                  data_Endcap_TriggerST_Sigmas,
+                                                  data_Endcap_InnerST_Param,
+                                                  data_Endcap_InnerST_PhiSigmas,
+                                                  data_Endcap_InnerST_EtaSigmas);
+
+    if (result) return  StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
+}
+  
+  
+StatusCode 
+TrigMuonBackExtrapolator::tight_window_match (double pt,
+                     const xAOD::L2StandAloneMuon* muonSA, const TrigInDetTrack* idtrack,
+		     double winPT,double weight)
+{  
+    bool result = MuonBackExtrapolator::idTrack_in_tight_window(
+                                                  pt,
+						  muonSA->sAddress(),
+						  muonSA->rMS(),
+						  idtrack->param()->z0(),
+						  muonSA->zMS(), 
+						  muonSA->etaMS(), 
+						  muonSA->phiMS(),
+						  idtrack->param()->eta(),
+						  idtrack->param()->phi0(),
+						  m_aligned,
+                                                  m_dataset,
+						  winPT,
+                                                  weight,
+                                                  data_Barrel_Param,
+                                                  data_Barrel_Sigmas,
+                                                  data_Endcap_TriggerST_Param,
+                                                  data_Endcap_TriggerST_Sigmas,
+                                                  data_Endcap_InnerST_Param,
+                                                  data_Endcap_InnerST_PhiSigmas,
+                                                  data_Endcap_InnerST_EtaSigmas);
+
+    if (result) return  StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
+}
+
 void
 TrigMuonBackExtrapolator::init_LUT()
 {
