@@ -18,7 +18,8 @@ private
 #use AtlasCLHEP             AtlasCLHEP-*             External
 use GeoPrimitives        GeoPrimitives-*         DetectorDescription
 
-use xAODBase               xAODBase-*             Event/xAOD  
+use xAODBase               xAODBase-*               Event/xAOD  
+use xAODCore               xAODCore-*               Event/xAOD  
 use xAODTracking           xAODTracking-*           Event/xAOD
 use Particle               Particle-*               Reconstruction
 
@@ -40,7 +41,7 @@ public
 macro DOXYGEN_IMAGE_PATH "../doc/images"
 
 #apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="BTagTool.cxx BTagTrackAssociation.cxx  BTagSecVertexing.cxx JetBTaggerTool.cxx BTagLabeling.cxx"
+apply_pattern dual_use_library files="BTagTool.cxx BTagTrackAssociation.cxx  BTagSecVertexing.cxx JetBTaggerTool.cxx BTagLabeling.cxx StandAloneJetBTaggerAlg.cxx"
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 

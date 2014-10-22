@@ -26,6 +26,12 @@ myBTagSecVtx = Analysis__BTagSecVertexing(
 ToolSvc += myBTagSecVtx 
 
 
+#Add services
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+if not hasattr(svcMgr, 'THistSvc'):
+    from GaudiSvc.GaudiSvcConf import THistSvc
+    svcMgr += THistSvc()
+
 
 
 # -- determine the keys of the McEventCollection to be used and of the JetCollections already there in the input
@@ -81,7 +87,7 @@ else: #useTruth()
 from BTagging.BTaggingConf import Analysis__BTagTool
 myBTagTool = Analysis__BTagTool(
   name                  = "myBTagTool",
-  #Runmodus              = BTaggingFlags.Runmodus,
+  Runmodus              = BTaggingFlags.Runmodus,
   #PrimaryVertexName     = BTaggingFlags.PrimaryVertexCollectionName,
   #BaselineTagger        = BTaggingFlags.BaselineTagger,
   BTagLabelingTool      = thisBTagLabeling,
@@ -116,11 +122,30 @@ myBTagTrackAssociation = Analysis__BTagTrackAssociation(
   OutputLevel           = BTaggingFlags.OutputLevel
 )
 ToolSvc += myBTagTrackAssociation
+# track assoc for bb-tag
+if BTaggingFlags.MultiSVbb1 | BTaggingFlags.MultiSVbb2:
 
+  BTagTrackToJetAssociatorBB = Analysis__ParticleToJetAssociator(
+    name        = "BTagTrackToJetAssociatorBB",
+    OutputLevel           = BTaggingFlags.OutputLevel,
+    shareTracks           = False,
+    useVariableSizedTrackCone = True,
+    coneSizeFitPar1 = 3.15265e-01,
+    coneSizeFitPar2 = -3.66502e-01,
+    coneSizeFitPar3 = -1.56387e-05,
+  )
+  ToolSvc += BTagTrackToJetAssociatorBB
 
+  myBTagTrackAssociation.TrackToJetAssociatorList += [ BTagTrackToJetAssociatorBB ]
+  myBTagTrackAssociation.TrackToJetAssocNameList  += ["BTagTrackToJetAssociatorBB"]
+  myBTagTrackAssociation.TrackContainerNameList   += ["InDetTrackParticles"]
 
-
-
+  include( "BTagging/BTagging_InDetVKalMultiVxInJetTool.py" ) 
+  myBTagSecVtx.SecVtxFinderList             += [ InDetVKalMultiVxInJetTool ]
+  myBTagSecVtx.SecVtxFinderTrackNameList    += ["BTagTrackToJetAssociatorBB"]
+  myBTagSecVtx.SecVtxFinderxAODBaseNameList += ["MSV"]
+  myBTagSecVtx.MSVVariableFactory = MSVVariablesFactory
+#
 from AthenaCommon.Resilience import treatException,protectedInclude
 protectedInclude( "JetTagCalibration/BTagCalibrationBroker_jobOptions.py" )
 
@@ -172,6 +197,7 @@ BTaggingFlags.CalibrationSingleFolder = True
 # -- extrapolation to propagate tracks to primary vertex:
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 AtlasExtrapolator = AtlasExtrapolator()
+ToolSvc += AtlasExtrapolator
 
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
 myBTagLinTrkFactory = Trk__FullLinearizedTrackFactory(name              = "BTagFullLinearizedTrackFactory",
@@ -293,7 +319,13 @@ if BTaggingFlags.MV2c20:
 if BTaggingFlags.MVb:
     include( "BTagging/BTagging_MVbTag.py" )
     myBTagTool.TagToolList += [ MVbTagTool ]
-
+#MSV
+if BTaggingFlags.MultiSVbb1:
+    include( "BTagging/BTagging_MultiSVbb1Tag.py" )
+    myBTagTool.TagToolList += [ MultiSVbb1TagTool ]
+if BTaggingFlags.MultiSVbb2:
+    include( "BTagging/BTagging_MultiSVbb2Tag.py" )
+    myBTagTool.TagToolList += [ MultiSVbb2TagTool ]
 
 from BTagging.BTaggingConf import Analysis__JetBTaggerTool
 myJetBTaggerTool = Analysis__JetBTaggerTool(
@@ -308,6 +340,24 @@ ToolSvc += myJetBTaggerTool
 if BTaggingFlags.OutputLevel < 3:
     print myBTagSecVtx
     print myJetBTaggerTool
+
+
+
+
+# -- for reference mode:
+if BTaggingFlags.Runmodus == 'reference':
+
+    for key in BTaggingFlags.Jets:
+        for tagger in ['JetProb','IP1D','IP2D','IP2DSpc','IP3D','IP3DSpc','SV1','SV2','SoftMu','SoftEl','JetFitterTagNN','JetFitterCOMBNN']:
+            if BTaggingFlags.IsEnabled(tagger):
+                RefileName = "BTaggingRef"+tagger+key+".root"
+                svcMgr.THistSvc.Output += ["RefFile"+tagger+key+" DATAFILE='"+RefileName+"' OPT='RECREATE'"]
+
+if ( BTaggingFlags.lifetime1D | BTaggingFlags.lifetime2D | BTaggingFlags.lifetime3D | 
+         BTaggingFlags.secVtxFitBU | BTaggingFlags.secVtxFitTD ):
+    svcMgr.THistSvc.Output += ["SigCali DATAFILE='cern.sig.referencehistos.root' OPT='RECREATE'"]
+    svcMgr.THistSvc.Output += ["BkgCali DATAFILE='cern.bkg.referencehistos.root' OPT='RECREATE'"]
+
 
 
 

@@ -14,3 +14,12 @@ InDetVKalMultiVxInJetTool.OutputLevel      = BTaggingFlags.OutputLevel
 ToolSvc += InDetVKalMultiVxInJetTool
 if BTaggingFlags.OutputLevel < 3:
   print InDetVKalMultiVxInJetTool
+
+## factory for BTagSecVertexing
+from JetTagTools.JetTagToolsConf import Analysis__MSVVariablesFactory
+MSVVariablesFactory = Analysis__MSVVariablesFactory( name = "MSVVariablesFactory",
+                                                     OutputLevel = BTaggingFlags.OutputLevel)
+ToolSvc += MSVVariablesFactory
+
+if BTaggingFlags.OutputLevel < 3:
+  print MSVVariablesFactory

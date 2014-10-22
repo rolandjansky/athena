@@ -7,11 +7,13 @@
 #include "BTagging/BTagSecVertexing.h"
 //#include "BTagging/BTagRemoving.h"
 #include "BTagging/JetBTaggerTool.h"
+#include "BTagging/StandAloneJetBTaggerAlg.h"
 
 using namespace Analysis ;
 
 //DECLARE_ALGORITHM_FACTORY( BJetBuilder )
 //DECLARE_ALGORITHM_FACTORY( BJetBuilderFast )
+DECLARE_ALGORITHM_FACTORY( StandAloneJetBTaggerAlg )
 DECLARE_TOOL_FACTORY( BTagLabeling )
 DECLARE_TOOL_FACTORY( BTagTrackAssociation )
 DECLARE_TOOL_FACTORY( BTagSecVertexing )
@@ -24,6 +26,7 @@ DECLARE_FACTORY_ENTRIES( BTagging )
 {
 //  DECLARE_ALGORITHM( BJetBuilder );
 //  DECLARE_ALGORITHM( BJetBuilderFast );
+  DECLARE_ALGORITHM( StandAloneJetBTaggerAlg );
   DECLARE_TOOL( BTagLabeling );
   DECLARE_TOOL( BTagTrackAssociation );
   DECLARE_TOOL( BTagSecVertexing );

@@ -30,9 +30,9 @@ namespace Analysis
        static const InterfaceID& interfaceID() { return IID_IBTagSecVertexing; };
 
        virtual StatusCode initialize() = 0;
-    virtual StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*) = 0;
+       virtual StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*) = 0;
        virtual StatusCode finalize() = 0;
-       //virtual StatusCode BTagSecVertexing_exec(Jet& myJet, const Trk::RecVertex& MyprimaryVertex) = 0;
+      
 
   };
 

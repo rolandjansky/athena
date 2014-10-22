@@ -9,6 +9,36 @@
 # - configure the b-tagging algorithms
 ########################################
 
+# <================= IMPORTANT ==============================================>
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # NOTE: The inclusion of the LoadTools is no longer needed with the
+  # new configuration; the default configuration is automatically set up
+  # for any unconfigured jet collection where which setupJetBTaggerTool
+  # is called. In fact the only thing the LoadTools does now is just call
+  # this default setup on all jet collections in BTaggingFlags.Jets.
+  #
+  # If you need to modify the default setup permanently can modify
+  # BTaggingConfiguration_LoadTools.py in the ./python/ directory.
+  #
+  # If you want different settings not obtainable via the BTaggingFlags,
+  # you need to use the new configuration scheme before any call to
+  # setupJetBTaggerTools is made for the jet collection in question.
+  # You can start by calling BTaggingConfiguration_LoadTools.py's
+  # Initiate() function.
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# <================= IMPORTANT ==============================================>
+
+# <================= IMPORTANT ==============================================>
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # NOTE: Consider adding some of the stuff found here to the Initiate()
+  # function in BTaggingConfiguration_LoadTools.py. The code there is
+  # run exactly once; if B-tagging is enabled.
+  #
+  # DOING SO WILL MAKE THE CODE COMPATIBLE WITH A FUTURE CHANGE IN JETREC
+  # WHERE THEY WILL RETRIEVE OUR BTAGGING FUNCTION IF REQUESTED BY A USER.
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# <================= IMPORTANT ==============================================>
+
 import re
 #
 # ========== Load and configure everything
@@ -16,19 +46,20 @@ import re
 if BTaggingFlags.Active:
 
   #Jet collections
-  JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt10LCTopoJets', 'AntiKt4EMTopoJets']
+  JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt10LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets']
   from JetRec.JetRecFlags import jetFlags
   if jetFlags.useTruth():
-    JetCollectionList += [ 'AntiKt10TruthJets', 'AntiKt10TruthWZJets', 'AntiKt4TruthJets', 'AntiKt4TruthWZJets' ]
+    JetCollectionList += [ 'AntiKt10TruthWZJets', 'AntiKt4TruthWZJets' ]
 
-
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMTopo->AntiKt4TopoEM,AntiKt4H1Topo" ]
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4H1Topo" ]
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt10LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4H1Topo" ]
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4H1Topo" ]
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt10TruthWZ->AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4H1Topo" ]
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4Truth->AntiKt4TopoEM,AntiKt4H1Topo" ]
-  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TruthWZ->AntiKt4TopoEM,AntiKt4H1Topo" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMTopo->AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt10LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt10TruthWZ->AntiKt6TopoEM,AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4Truth->AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TruthWZ->AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4Track->AntiKt4TopoEM" ]
+  BTaggingFlags.CalibrationChannelAliases += [ "AntiKt3Track->AntiKt4TopoEM" ]
 
   BTaggingFlags.Jets = [ name[:-4] for name in JetCollectionList]
 
@@ -40,13 +71,10 @@ if BTaggingFlags.Active:
   tmpSVname = "SecVtx"
   tmpJFVxname = "JFVtx"
 
-  include( "BTagging/BTagging_Rel19_LoadTools.py" )
-  # -- b-tagging tool is now fully configured:
-  if BTaggingFlags.OutputLevel < 3:
-    print myBTagTool
+  #include( "BTagging/BTagging_Rel19_LoadTools.py" )
 
-
-  from BTagging.BTaggingConf import Analysis__JetBTaggerTool as JetBTaggerTool
+  #from BTagging.BTaggingConf import Analysis__JetBTaggerTool as JetBTaggerTool
+  from BTagging.BTaggingConfiguration import setupJetBTaggerTool, getJetCollectionTool
   #### should be unique per collection
   #### replaces the jet rec JetBTaggerTool config or the BJetBuilder config in case of retagging
  
@@ -55,22 +83,31 @@ if BTaggingFlags.Active:
   from JetRec.JetRecStandard import jtm
   for i, jet in enumerate(JetCollectionList):
       try: 
-          jetname = getattr(jtm, jet)
-          btagger = JetBTaggerTool(AuthorSubString[i].lower(), 
-                                   BTagTool=myBTagTool, 
-                                   BTagName = AuthorSubString[i], 
-                                   BTagTrackAssocTool = myBTagTrackAssociation, 
-                                   BTagSVName = tmpSVname, 
-                                   BTagJFVtxName = tmpJFVxname, 
-                                   BTagSecVertexing=myBTagSecVtx)
-
-          ToolSvc += btagger
-          jetname.unlock()
-          jetname.JetModifiers += [ btagger ]
-          jetname.lock()
+        jet = jet.replace("Track", "PV0Track")
+        jetname = getattr(jtm, jet)
+#          btagger = JetBTaggerTool(AuthorSubString[i].lower(), 
+#                                   BTagTool=myBTagTool, 
+#                                   BTagName = AuthorSubString[i], 
+#                                   BTagTrackAssocTool = myBTagTrackAssociation, 
+#                                   BTagSVName = tmpSVname, 
+#                                   BTagJFVtxName = tmpJFVxname, 
+#                                   BTagSecVertexing=myBTagSecVtx)
+#
+#          ToolSvc += btagger
+        btagger = setupJetBTaggerTool(ToolSvc, JetCollection=jet[:-4], AddToToolSvc=True,
+                                      Verbose=BTaggingFlags.OutputLevel < 3,
+                                      options={"name"          : AuthorSubString[i].lower(),
+                                               "BTagName"      : AuthorSubString[i],
+                                               "BTagJFVtxName" : tmpJFVxname,
+                                               "BTagSVName"    : tmpSVname })
+        jetname.unlock()
+        jetname.JetModifiers += [ btagger ]
+        jetname.lock()
+        if BTaggingFlags.OutputLevel < 3:
+          print getJetCollectionTool(jet[:-4])
       except AttributeError as error:
-          print '#BTAG# --> ' + str(error)
-          NotInJetToolManager.append(AuthorSubString[i])
+        print '#BTAG# --> ' + str(error)
+        NotInJetToolManager.append(AuthorSubString[i])
 
   if len(NotInJetToolManager) > 0:
       AuthorSubString = list(set(AuthorSubString) - set(NotInJetToolManager))
@@ -95,15 +132,14 @@ if BTaggingFlags.Active:
   BTaggingFlags.btaggingESDList += [ BaseNameSecVtx + author + tmpSVname for author in AuthorSubString]
   BTaggingFlags.btaggingESDList += [ BaseAuxNameSecVtx + author + tmpSVname + 'Aux.-vxTrackAtVertex' for author in AuthorSubString]
 
-
-  # #AOD list JFSeCVert
-  # BaseNameJFSecVtx = "xAOD::BTagVertexContainer_v1#"
-  # BaseAuxNameJFSecVtx = "xAOD::BTagVertexAuxContainer_v1#"
-  # BTaggingFlags.btaggingAODList += [ BaseNameJFSecVtx + author + tmpJFVxname for author in AuthorSubString]
-  # BTaggingFlags.btaggingAODList += [ BaseAuxNameJFSecVtx + author + tmpJFVxname + 'Aux.' for author in AuthorSubString]
-  # #ESD list
-  # BTaggingFlags.btaggingESDList += [ BaseNameJFSecVtx + author + tmpJFVxname for author in AuthorSubString]
-  # BTaggingFlags.btaggingESDList += [ BaseAuxNameJFSecVtx + author + tmpJFVxname + 'Aux.' for author in AuthorSubString]
+  #AOD list JFSeCVert
+  BaseNameJFSecVtx = "xAOD::BTagVertexContainer_v1#"
+  BaseAuxNameJFSecVtx = "xAOD::BTagVertexAuxContainer_v1#"
+  BTaggingFlags.btaggingAODList += [ BaseNameJFSecVtx + author + tmpJFVxname for author in AuthorSubString]
+  BTaggingFlags.btaggingAODList += [ BaseAuxNameJFSecVtx + author + tmpJFVxname + 'Aux.' for author in AuthorSubString]
+  #ESD list
+  BTaggingFlags.btaggingESDList += [ BaseNameJFSecVtx + author + tmpJFVxname for author in AuthorSubString]
+  BTaggingFlags.btaggingESDList += [ BaseAuxNameJFSecVtx + author + tmpJFVxname + 'Aux.' for author in AuthorSubString]
 
   # 
   # ========== Create and configure main b-tagging algorithms (one for each jet collection)
