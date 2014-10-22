@@ -6,355 +6,406 @@
                            MultiSVTag.cxx
 ***************************************************************************/
 #include "JetTagTools/MultiSVTag.h"
-
 //#include "JetEvent/Jet.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "JetTagInfo/TruthInfo.h"
-#include "JetTagInfo/SVInfoBase.h"
-#include "JetTagInfo/MultiSVInfoPlus.h"
 #include "Navigation/NavigationToken.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "JetTagTools/HistoHelperRoot.h"
+#include "JetTagTools/JetTagUtils.h"
 
-#include "JetTagEvent/ISvxAssociation.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
+#include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "xAODJet/Jet.h"
 #include "xAODTracking/TrackParticle.h"
-
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODBTagging/SecVtxHelper.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
+#include "CLHEP/Vector/LorentzVector.h"
 
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-
+#include "JetTagCalibration/CalibrationBroker.h"
+#include "TMVA/Reader.h"
+#include "TMVA/Types.h"
+#include "TList.h"
+#include "TString.h"
+#include "TObjString.h"
+#include <fstream>
+#include <algorithm>
+#include <utility>
+#include <vector>
+#include <map>
 #include <string>
- 
+#include <sstream>
+#include "TMVA/IMethod.h"
+#include "TMVA/BinarySearchTree.h"
+#include "TMVA/MethodBase.h"
 namespace Analysis
 {
 
   MultiSVTag::MultiSVTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_secVxFinderName("InDetVKalVxInJetTool")
+    m_calibrationTool("BTagCalibrationBroker"),
+    m_runModus("analysis") 
+   // m_secVxFinderName("InDetVKalVxInJetTool")
   {
     declareInterface<ITagTool>(this);
+    // access to XML configuration files for TMVA from COOL:
+    declareProperty("calibrationTool", m_calibrationTool);
     declareProperty("Runmodus",       m_runModus= "analysis");
-    declareProperty("writeInfoBase",  m_writeInfoBase = true);
-    declareProperty("writeInfoPlus",  m_writeInfoPlus = true);
-    declareProperty("infoPlusName",   m_infoPlusName = "MutliSVInfoPlus");
-    declareProperty("originalTPCollectionName", m_originalTPCollectionName = "TrackParticleCandidate");
     declareProperty("jetCollectionList", m_jetCollectionList);
-    declareProperty("jetWithInfoPlus", m_jetWithInfoPlus);
+    declareProperty("useForcedCalibration", m_doForcedCalib   = false);
+    declareProperty("ForcedCalibrationName", m_ForcedCalibName = "AntiKt4TopoEM");//Cone4H1Tower
     declareProperty("SecVxFinderName",m_secVxFinderName);
+    //declareProperty("SVAlgType",      m_SVmode);
+    declareProperty("taggerNameBase",m_taggerNameBase = "MultiSVbb1");
+    declareProperty("xAODBaseName",m_xAODBaseName);
+    declareProperty("inputSV0SourceName", m_sv0_infosource = "SV0");
   }
 
   MultiSVTag::~MultiSVTag() {
   }
 
   StatusCode MultiSVTag::initialize() {
+    // define tagger name:
+    
+    //m_taggerNameBase = instanceName2;
+    //std::string tmp = "MultiSV1" ;
+    //m_taggerNameBase = tmp;
+
+    StatusCode sc = m_calibrationTool.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_calibrationTool);
+      return sc;
+    } else {
+      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_calibrationTool);
+    }
+    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
+    ATH_MSG_DEBUG("#BTAG# m_taggerNameBase " << m_taggerNameBase);
+    m_tmvaReaders.clear();
+    m_tmvaMethod.clear();
     return StatusCode::SUCCESS;                       
   }
 
-
-  StatusCode MultiSVTag::finalize()
-  {
- 
+  StatusCode MultiSVTag::finalize(){
+  // delete readers:
+    std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.begin();
+    for( ; pos != m_tmvaReaders.end(); ++pos ) delete pos->second;
+    std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod.begin();
+    for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
     return StatusCode::SUCCESS;
   }
 
-  void MultiSVTag::tagJet(xAOD::Jet& jetToTag){
-
-    /* Do not keep the InfoPlus for all jet collection */
-    bool keepInfoPlus = false;
-
-    if(m_writeInfoPlus){
-      std::string author = jetToTag.jetAuthor();
-      if (std::find( m_jetWithInfoPlus.begin(), 
-		     m_jetWithInfoPlus.end(), 
-		     author ) != m_jetWithInfoPlus.end()) keepInfoPlus = true;
-
-      const MultiSVInfoPlus *dummy = jetToTag.tagInfo<MultiSVInfoPlus>(m_infoPlusName);
-      if(dummy) {
-	ATH_MSG_VERBOSE("#BTAG# Previous MultiSVInfoPlus " << m_infoPlusName << " found...");
-	keepInfoPlus = false;
-      }
-    }
-
-    if(keepInfoPlus) ATH_MSG_VERBOSE("#BTAG# Writing infoPlus for this tagger and this jet type.");
-
-
-    if(keepInfoPlus) {
-      StatusCode sc = evtStore()->retrieve(m_originalTPCollection, m_originalTPCollectionName);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR("#BTAG# " << m_originalTPCollectionName << " not found in StoreGate.");
-	return;
-      } 
-      else{
-	ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_originalTPCollectionName << " found.");
-      }
-    }
+  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag){    
     
+    /** author to know which jet algorithm: */ 
+    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    if (m_doForcedCalib) author = m_ForcedCalibName;
+    ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
+    //....
+    std::string alias = m_calibrationTool->channelAlias(author);//why this gives always the same?
+    //TString xmlFileName = "btag"+m_taggerNameBase+"Config_"+alias+".xml";//from MV1, so should work
+    //ATH_MSG_DEBUG("#BTAG# xmlFileName= "<<xmlFileName);
 
-   
-    const ISvxAssociation* newSvxAssociation=jetToTag.getAssociation<ISvxAssociation>(m_secVxFinderName);
-    if (newSvxAssociation==0) {
-      ATH_MSG_DEBUG( "#BTAG# No VKalVrt vertex found, attached to the Jet as association. Not going on with tagging...");
-      return;
-    } 
-    else {
-      ATH_MSG_DEBUG( "#BTAG# VKalVrt vertex info " << m_secVxFinderName << " found.");
-    }
-
-    std::vector<const Trk::RecVertex*> secondaryRecVertices;
-    MultiSVInfoPlus *multiSVInfoPlusObject=0;
-    int npsec=0;
-    int NSVPair=0;
-    double jetenergy=0;
-
-    const Trk::VxSecVertexInfo* myVertexInfo=newSvxAssociation->vertexInfo();
-    if(myVertexInfo){
-      const Trk::VxSecVKalVertexInfo* myVKalVertexInfo=dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo);
-      if (myVKalVertexInfo==0) {
-	ATH_MSG_WARNING( "#BTAG# Could not cast to a VKalVrt Info object ");
-	return;
-      } 
-
-      NSVPair=(int)(myVKalVertexInfo->n2trackvertices());
-      jetenergy= myVKalVertexInfo->energyTrkInJet();
-
-      const std::vector<Trk::VxCandidate*> & myVertices=myVKalVertexInfo->vertices();
-
-      const std::vector<Trk::VxCandidate*>::const_iterator verticesBegin=myVertices.begin();
-      const std::vector<Trk::VxCandidate*>::const_iterator verticesEnd=myVertices.end();
-      for (std::vector<Trk::VxCandidate*>::const_iterator verticesIter=verticesBegin;
-	   verticesIter!=verticesEnd;verticesIter++) {
-	if ((*verticesIter)==0){
-	    ATH_MSG_ERROR("#BTAG# Secondary vertex from InDetVKalVxInJetFinder has zero pointer. Skipping... ");
-	    continue;
-	  }
-
-	secondaryRecVertices.push_back(&((*verticesIter)->recVertex()));
-
-	if(!keepInfoPlus) continue;
-
-	double sumpx = 0.0; 
-	double sumpy = 0.0; 
-	double sumpz = 0.0; 
-	double sume = 0.0; 
-
-	std::vector<const xAOD::TrackParticle*> TrkList;
-	const std::vector<Trk::VxTrackAtVertex*>* myTracks=(*verticesIter)->vxTrackAtVertex();
-	if (myTracks!=0) {
-	  npsec+=myTracks->size();
-	  const std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksBegin=myTracks->begin();
-	  const std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksEnd=myTracks->end();
-	  for (std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksIter=tracksBegin;
-	       tracksIter!=tracksEnd;++tracksIter) {
-	    const Trk::ITrackLink* myTrackLink=((*tracksIter)->trackOrParticleLink());
-	    //
-	    if (myTrackLink==0) {
-	      ATH_MSG_WARNING("#BTAG# No ITrack Link attached to the track at the sec vertex... ");
-	    }
-	    const Trk::LinkToTrackParticleBase* myTPLink=
-	      dynamic_cast<const Trk::LinkToTrackParticleBase*>(myTrackLink);
-	    if (myTPLink!=0) {
-	      TrkList.push_back(**myTPLink);
-	    } else {
-	      ATH_MSG_WARNING("#BTAG# Cannot cast to TrackParticlBase. Running on tracks not yet foreseen... ");
-	    }
-
-	    const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>((*tracksIter)->perigeeAtVertex());
-	    if(perigee){
-	      sumpx += perigee->momentum().x();
-	      sumpy += perigee->momentum().y();
-	      sumpz += perigee->momentum().z();
-	      sume +=sqrt(perigee->momentum().mag()*perigee->momentum().mag() + 139.5702*139.5702 );
-	    }
-	    else{
-	      ATH_MSG_WARNING("#BTAG# perigee for VxTrackAtVertex not found");
-	    }
-
-	  }
-	}
-
-	if(!multiSVInfoPlusObject){
-	  multiSVInfoPlusObject=new MultiSVInfoPlus(m_infoPlusName);
-	}
-	MSVVtxInfo* vtxinfo = new MSVVtxInfo();
-
-	CLHEP::HepLorentzVector vtxp4(sumpx,sumpy,sumpz,sume);
-	double efrac = (jetenergy>0)?vtxp4.e()/jetenergy:0;
-
-	vtxinfo->setRecSvx((*verticesIter)->recVertex());
-	vtxinfo->setEnergyFraction(efrac);
-	vtxinfo->setMass(vtxp4.m());
-	vtxinfo->setPt(vtxp4.perp());
-	vtxinfo->setEta(vtxp4.eta());
-	vtxinfo->setPhi(vtxp4.phi());
-
-	std::vector<const Trk::RecVertex*> vtxholder;
-	vtxholder.push_back(&((*verticesIter)->recVertex()));
-	double localdistnrm=0;
-	if (m_priVtx){
-	    //TODO: getting Amg::Vector3D from HepLorentzVector is ugly. At least like this.
-	  localdistnrm=get3DSignificance(m_priVtx->recVertex(),
-					 vtxholder,
-					 Amg::Vector3D(jetToTag.p4().Vect().x(), jetToTag.p4().Vect().y(), jetToTag.p4().Vect().z()));
-	}
-	vtxinfo->setNormDist(localdistnrm);
-	for (uint itk = 0; itk < TrkList.size(); itk++) {
-	  SVTrackInfo tinfo(m_originalTPCollection, TrkList[itk]);
-	  vtxinfo->addTrackInfo(tinfo);
-	}
-	multiSVInfoPlusObject->addVtxInfo(vtxinfo); /// no need to delete; MultiSVInfoPlus will take care
-      }
-
-    }   
-
-
-    double distnrm=0.;
-    if (m_priVtx){
-        //TODO: getting Amg::Vector3D from HepLorentzVector is ugly. At least like this.
-      distnrm=get3DSignificance(m_priVtx->recVertex(),
-				secondaryRecVertices,
-				Amg::Vector3D(jetToTag.p4().Px(), jetToTag.p4().Py(), jetToTag.p4().Pz()));
-    }
-    else{
-      ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
-    }
-    
-    
-    std::string iname( this->name().substr(8) );
-    std::string instanceName(iname);
-    std::string::size_type pos = iname.find("Tag");
-    if ( pos!=std::string::npos ) {
-      std::string prefix = iname.substr(0,pos);
-      std::string posfix = iname.substr(pos+3);
-      instanceName = prefix;
-      instanceName += posfix;
-    }
-    SVInfoBase *mySVInfoBase(0);
-    if (m_writeInfoBase) {
-      ATH_MSG_VERBOSE("#BTAG# Filling SVInfoBase " << instanceName);
-      mySVInfoBase = new SVInfoBase(instanceName);
-      std::vector<double> probi;
-      probi.push_back(distnrm);
-      mySVInfoBase->setTagLikelihood(probi);
-      jetToTag.addInfo(mySVInfoBase);
-      mySVInfoBase->makeValid();
-    }
-   
-
-    if(multiSVInfoPlusObject){
-      multiSVInfoPlusObject->makeValid();
-      multiSVInfoPlusObject->setNGTrackInJet(-1);//// not available for the moment
-      multiSVInfoPlusObject->setNGTrackInSvx(npsec);
-      multiSVInfoPlusObject->setN2T(NSVPair);
-      multiSVInfoPlusObject->setNormDist(distnrm);
-      jetToTag.addInfo(multiSVInfoPlusObject);
-    }
-
-  }
-
-
-
-  double MultiSVTag::get3DSignificance(const Trk::RecVertex & priVertex,
-                                  std::vector<const Trk::RecVertex* > & secVertex,
-                                  const Amg::Vector3D jetDirection) {
-
-    if(!secVertex.size()) return 0;
-    
-    std::vector<Amg::Vector3D> positions;
-    std::vector<Amg::MatrixX> weightMatrices;
-
-    std::vector<const Trk::RecVertex* >::const_iterator secBegin=secVertex.begin();
-    std::vector<const Trk::RecVertex* >::const_iterator secEnd=secVertex.end();
-
-    for (std::vector<const Trk::RecVertex* >::const_iterator secIter=secBegin;
-         secIter!=secEnd;++secIter)
-      {
-	Amg::Vector3D position;
-	position[0]=(*secIter)->position().x();
-	position[1]=(*secIter)->position().y();
-	position[2]=(*secIter)->position().z();
-	positions.push_back(position);
+    TMVA::Reader* tmvaReader;
+    std::map<std::string, TMVA::Reader*>::iterator pos;
+    ATH_MSG_DEBUG("#BTAG# Jet author for MultiSVTag: " << author << ", alias: " << alias );
+    /* check if calibration (neural net structure or weights) has to be updated: */
+    std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib");
+     
+    bool calibHasChanged = calib.second;
+    //bool calibHasChanged = true;
+    std::ostringstream iss;
+    TMVA::MethodBase * kl=0; // = dynamic_cast<TMVA::MethodBase*>(method); 
+    std::map<std::string, TMVA::MethodBase*>::iterator itmap;
+    if(calibHasChanged) {
       
-	weightMatrices.push_back((*secIter)->covariancePosition().inverse());
+      ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
+      if(!calib.first) {
+        ATH_MSG_WARNING("#BTAG# Tlist can't be retrieved -> no calibration for "<< m_taggerNameBase );
+        return StatusCode::SUCCESS;
       }
- 
+      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
+      //now the new part istringstream
+      TList* list = calib.first; 
+      for(int i=0; i<list->GetSize(); ++i) {
+        TObjString* ss = (TObjString*)list->At(i);
+	    TString sss = ss->String();
+	    int pos = sss.First('<');
+	    sss.Remove(0,pos); 
+    //	std::cout <<ss->String() << std::endl;
+	    iss << sss.Data() ;
+      }
+      ATH_MSG_DEBUG("#BTAG# new std::istringstream created: " );           
+    
+    // now configure the TMVAReaders:
+    // check if the reader for this tagger needs update
+    //if(!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name())) {
+    //  if(iss.str().size()>0){
+        tmvaReader = new TMVA::Reader();
 
-    // If multiple secondary vertices were reconstructed, then a common (weighted) position will be used
-    // in the signed decay length significance calculation
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2") tmvaReader->AddVariable( "pt",  &m_jetpt  );                     //v1v2
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "Nvtx",  &m_nvtx  );                    //v1v2                      
+        if(m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "MaxEfrc",  &m_maxefrc );               //  v2                        
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "sumMass",  &m_summass    );            //v1v2
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "totalntrk",  &m_totalntrk    );        //v1v2
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "diffntrkSV0",  &m_diffntrkSV0 );       //v1v2
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "normDist",  &m_normDist );            //v1v2//
+        if(m_taggerNameBase=="MultiSVbb1")tmvaReader->AddVariable( "maxVtxMass",  &m_mmax_mass    );       //v1 
+        if(m_taggerNameBase=="MultiSVbb1")tmvaReader->AddVariable( "maxSecVtxMass",  &m_mmx2_mass    );    //v1
+        if(m_taggerNameBase=="MultiSVbb1")tmvaReader->AddVariable( "EfrcmaxVtxMass",  &m_mmax_efrc    );   //v1
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "EfrcmaxSecVtxMass", &m_mmx2_efrc    ); //v1v2
+        if(m_taggerNameBase=="MultiSVbb1" ||m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "dlsmaxVtxMass",  &m_mmax_dist    );    //v1v2
+        if(m_taggerNameBase=="MultiSVbb1")tmvaReader->AddVariable( "dlsmaxSecVtxMass", &m_mmx2_dist    );  //v1
+        if(m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "dRmaxVtxMassj",  &m_mmax_DRjet    );   //  v2
+        if(m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "dRmaxSecVtxMassj", &m_mmx2_DRjet   );  //  v2
+        if(m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "d2Mass12",  &m_mx12_2d12    );         //  v2
+        if(m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "DRMass12",  &m_mx12_DR   );            //  v2
+        if(m_taggerNameBase=="MultiSVbb2")tmvaReader->AddVariable( "AngleMass12",  &m_mx12_Angle );        //  v2
+//      tmvaReader->BookMVA("BDT", xmlFileName);
+        TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, iss.str().c_str());
+        
+	    kl = dynamic_cast<TMVA::MethodBase*>(method);
+        
+      // add it or overwrite it in the map of readers:
+        pos = m_tmvaReaders.find(alias);
+        if(pos!=m_tmvaReaders.end()) {
+          delete pos->second;
+          m_tmvaReaders.erase(pos);
+        }
+        itmap = m_tmvaMethod.find(alias);
+        if(itmap!=m_tmvaMethod.end()) {
+          delete itmap->second;
+          m_tmvaMethod.erase(itmap);
+        }
+        m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
+        m_tmvaMethod.insert( std::make_pair( alias, kl ) );
+      //  m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
+      }
 
-    Amg::Vector3D weightTimesPosition(0.,0.,0.);
-    AmgSymMatrix(3) sumWeights;
-    sumWeights.setZero();
+    //....
+    //the jet
+    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
+    m_jetpt = jetpt;
+    ATH_MSG_DEBUG("#BTAG# Jet properties : eta = " << jeteta
+                    << " phi = " << jetphi << " pT  = " <<jetpt/1000.);
+    //ATH_MSG_INFO("Factory PVX x = " << m_priVtx->x() << " y = " << m_priVtx->y() << " z = " << m_priVtx->z());
 
-    int count=0;
-    for (std::vector<const Trk::RecVertex* >::const_iterator secIter=secBegin;
-         secIter!=secEnd;++secIter)
-      {
-
-	weightTimesPosition+=(weightMatrices[count])*positions[count];
-	sumWeights+=(weightMatrices[count]);
+    TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag.pt(), jetToTag.eta(), jetToTag.phi(), jetToTag.m());
+   // CLHEP::HepLorentzVector jp4(jetToTag.jetP4().px(), jetToTag.jetP4().px(), jetToTag.jetP4().px(), jetToTag.e());
+    
+    int msv_n = 0;
+    int all_trks = 0;
+    int nvtx2trk = 0;
+    int nsv    = 0;
+    int singletrk = 0;
+    float totalmass = 0.;
+    float distnorm = 0.;
+    
+    BTag->variable<float>(m_secVxFinderName, "normdist", distnorm);
+    BTag->variable<int>(m_secVxFinderName, "nvsec", msv_n);
+    std::vector< ElementLink< xAOD::VertexContainer > > msvVertices;
+    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", msvVertices);
+    ATH_MSG_DEBUG("#BTAG# MSV_vertices: " <<msvVertices.size());
+    std::vector<float> v_vtxmass = std::vector<float>(10,0);
+    std::vector<float> v_vtxefrc = std::vector<float>(10,0);
+    std::vector<float> v_vtxntrk = std::vector<float>(10,0);
+    std::vector<float> v_vtxDRj  = std::vector<float>(10,0);
+    std::vector<float> v_vtxdls  = std::vector<float>(10,0);
+    std::vector<float> v_vtxpt   = std::vector<float>(10,0);
+    std::vector<float> v_vtxeta  = std::vector<float>(10,0);
+    std::vector<float> v_vtxphi  = std::vector<float>(10,0);
+    std::vector<float> v_vtxx   = std::vector<float>(10,0);
+    std::vector<float> v_vtxy  = std::vector<float>(10,0);
+    std::vector<float> v_vtxz  = std::vector<float>(10,0);
+    // loop in msv vertices
+    if(msvVertices.size()>0){
+      const std::vector<ElementLink<xAOD::VertexContainer> >::const_iterator verticesEnd = msvVertices.end();
+      for(std::vector<ElementLink<xAOD::VertexContainer> >::const_iterator vtxIter=msvVertices.begin(); vtxIter!=verticesEnd; ++vtxIter){
+        if(msvVertices.size()>=10) continue;
+        float mass = xAOD::SecVtxHelper::VertexMass(**vtxIter);
+        float efrc = xAOD::SecVtxHelper::EnergyFraction(**vtxIter);
+        int   ntrk = xAOD::SecVtxHelper::VtxNtrk(**vtxIter);
+        float pt   = xAOD::SecVtxHelper::Vtxpt(**vtxIter); 
+        float eta  = xAOD::SecVtxHelper::Vtxeta(**vtxIter);
+        float phi  = xAOD::SecVtxHelper::Vtxphi(**vtxIter);
+        float dls  = xAOD::SecVtxHelper::VtxnormDist(**vtxIter);
+        float x = (**vtxIter)->x();
+        float y = (**vtxIter)->y();
+        float z = (**vtxIter)->z();
+        TLorentzVector svp4; svp4.SetPtEtaPhiM(pt,eta,phi,mass);
+        //if(jp4.DeltaR(svp4)>0.4) continue;
+        totalmass += mass;
+        const std::vector<ElementLink<xAOD::TrackParticleContainer> > svTrackLinks = (**vtxIter)->trackParticleLinks();
+        if(svTrackLinks.size()==1){ singletrk++;
+        }else{ nvtx2trk++;
+        }
+        all_trks += svTrackLinks.size();
+        
+        ATH_MSG_DEBUG("#BTAG# MSV_vtx mass: " <<mass<<", efrc: "<<efrc<<", ntrk: "<<ntrk );
+        ATH_MSG_DEBUG("#BTAG# MSV_vtx pt: " <<pt<<", eta: "<<eta<<", phi: "<<phi );
+        ATH_MSG_DEBUG("#BTAG# MSV_vtx DRj: " <<jp4.DeltaR(svp4)); 
+        v_vtxmass[nsv] = mass;
+        v_vtxefrc[nsv] = efrc;
+        v_vtxntrk[nsv] = ntrk;
+        v_vtxDRj[nsv]  = jp4.DeltaR(svp4);
+        v_vtxdls[nsv]  = dls;
+        v_vtxpt[nsv]   = pt;
+        v_vtxeta[nsv]  = eta;
+        v_vtxphi[nsv]  = phi;
+        v_vtxx[nsv]    = x;
+        v_vtxy[nsv]    = y;
+        v_vtxz[nsv]    = z;
+        nsv++;
+                                       
+      }//loop in vertices
+      m_normDist = distnorm;
+      m_nvtx = nsv;
+      m_totalntrk = all_trks;
+      m_summass = totalmass;
       
-	count+=1;
+      int diffntrk = -999;
+      int SV0ntrk  = 0;
+      std::vector< ElementLink< xAOD::VertexContainer > > SV0Vertice;
+      BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", SV0Vertice);
+      if (SV0Vertice.size()>0 && SV0Vertice[0].isValid()){
+         BTag->taggerInfo(SV0ntrk, xAOD::BTagInfo::SV0_NGTinSvx);
+         diffntrk = all_trks - SV0ntrk;
+      }else{ diffntrk = all_trks;
+      }    
+      /*if(_msv_n>0 &&SV0Vertices.size()>0){
+         diffntrk = all_trks - SV0ntrk;
+      }else{if(_msv_n>0)diffntrk = all_trks;
+      }*/
+      m_diffntrkSV0 = diffntrk;
+      float tmpefrc = 0.;
+      for(int i=0; i<nsv; i++) {
+        if(v_vtxntrk[i]!=1){ 
+          if(v_vtxefrc[i] > tmpefrc ) tmpefrc = v_vtxefrc[i];
+        } 
       }
-
-    // now we have the sum of the weights, let's invert this matrix to get the mean covariance matrix
-
-//    int failed(0);
-//    AmgSymMatrix(3) meanCovariance=sumWeights.inverse();
-    //undefined return value of not invertible matrix
-//    if (failed!=0) {
-//      ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices");
-//      return 0.;
-//    }
-    bool invertible; 
-    AmgSymMatrix(3) meanCovariance; 
-    sumWeights.computeInverseWithCheck(meanCovariance, invertible); 
-    if (not invertible) { 
-       ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices"); 
-       return 0.; 
-    } 
-
-    // calculate the weighted mean secondary vertex position
-    Amg::Vector3D meanPosition=meanCovariance*weightTimesPosition;
-
-    // add the mean covariance matrix of the secondary vertices to that of the primary vertex
-    // this is the covariance matrix for the decay length
-    AmgSymMatrix(3) covariance=meanCovariance
-      +priVertex.covariancePosition();
+      m_maxefrc = tmpefrc;
+      m_mmax_mass  = -9.;
+      
+      m_mmax_efrc  = -9.;
     
-    // ********
-    // Calculate the signed decay length significance
-    // ********
+      m_mmax_DRjet = -9;
+      m_mmax_dist  = -9.;
+      m_mmx2_mass  = -9.;      
+     
+      m_mmx2_efrc  = -9.;
+   
+      m_mmx2_DRjet = -9.;
+      m_mmx2_dist  = -9.;
+      int ivm1 = -1; int ivm2 = -1;
+      float vm1 = 0.; float vm2 = 0.;
+      TLorentzVector pvtx1;  TLorentzVector pvtx2;
+      TVector3 sv1p3;  TVector3 sv2p3;
+      for(int i=0; i<nsv; i++) {
+        if( v_vtxntrk[i]!=1) {
+          if( v_vtxmass[i] > vm1 ) {
+            vm1 = v_vtxmass[i];
+            ivm1 = i;
+          }
+        }  
+      }
+      for(int i=0; i<nsv; i++) {
+        if( v_vtxntrk[i]!=1) {
+          if( v_vtxmass[i] > vm2 && v_vtxmass[i] < vm1 ) {
+            vm2  = v_vtxmass[i];
+            ivm2 = i;
+          }
+        }
+      }
+      if(ivm1>=0) {
+        pvtx1.SetPtEtaPhiM(v_vtxpt[ivm1], v_vtxeta[ivm1], v_vtxphi[ivm1], v_vtxmass[ivm1]);
+        TVector3 p1 = pvtx1.Vect();
+        sv1p3.SetX(v_vtxx[ivm1] - m_priVtx->x());
+        sv1p3.SetY(v_vtxy[ivm1] - m_priVtx->y());
+        sv1p3.SetZ(v_vtxz[ivm1] - m_priVtx->z());
+        m_mmax_mass  = v_vtxmass[ivm1];
+        m_mmax_efrc  = v_vtxefrc[ivm1];
+  
+        m_mmax_DRjet = v_vtxDRj[ivm1];
+        m_mmax_dist  = v_vtxdls[ivm1];
+      }
+      if(ivm2>=0) {
+        pvtx2.SetPtEtaPhiM(v_vtxpt[ivm2], v_vtxeta[ivm2], v_vtxphi[ivm2], v_vtxmass[ivm2]);
+        TVector3 p2 = pvtx2.Vect();
+        sv2p3.SetX(v_vtxx[ivm2] - m_priVtx->x());
+        sv2p3.SetY(v_vtxy[ivm2] - m_priVtx->y());
+        sv2p3.SetZ(v_vtxz[ivm2] - m_priVtx->z());
+        m_mmx2_mass  = v_vtxmass[ivm2];
+        m_mmx2_efrc  = v_vtxefrc[ivm2];
 
-    double Lx = meanPosition[0]-priVertex.position().x();
-    double Ly = meanPosition[1]-priVertex.position().y();
-    double Lz = meanPosition[2]-priVertex.position().z();
-    
-    double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
-    
-    double dLdLx = Lx/decaylength;
-    double dLdLy = Ly/decaylength;
-    double dLdLz = Lz/decaylength;
-    double decaylength_err = sqrt(dLdLx*dLdLx*covariance(0,0) +
-				  dLdLy*dLdLy*covariance(1,1) +
-				  dLdLz*dLdLz*covariance(2,2) +
-				  2.*dLdLx*dLdLy*covariance(0,1) +
-				  2.*dLdLx*dLdLz*covariance(0,2) +
-				  2.*dLdLy*dLdLz*covariance(1,2));
-    
-    double decaylength_significance = 0.;
-    if (decaylength_err != 0.) decaylength_significance = decaylength/decaylength_err;
-
-    // get sign from projection on jet axis
-    double L_proj_jetDir = jetDirection.x()*Lx + jetDirection.y()*Ly + jetDirection.z()*Lz;
-    if (L_proj_jetDir < 0.) decaylength_significance *= -1.;
-    
-    return decaylength_significance;
+        m_mmx2_DRjet = v_vtxDRj[ivm2];
+        m_mmx2_dist  = v_vtxdls[ivm2];
+      }
+      // distances: max mass vertex to PV, and mx2 to max vertex:
+      m_mx12_2d12 = -9.;
+      m_mx12_DR   = -9.;
+      m_mx12_Angle= -9.; 
+      if(m_priVtx) {
+        if(ivm1>=0&&ivm2>=0) {
+                                      
+          m_mx12_2d12 = TMath::Sqrt(  (v_vtxx[ivm2] - v_vtxx[ivm1]) * (v_vtxx[ivm2] - v_vtxx[ivm1])
+                                   +  (v_vtxy[ivm2] - v_vtxy[ivm1]) * (v_vtxy[ivm2] - v_vtxy[ivm1]) );       
+          m_mx12_DR    = sv1p3.DeltaR(sv2p3);
+         
+          m_mx12_Angle = sv1p3.Angle(sv2p3);
+          
+        }  
+      }else {
+        ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
+      }
+      //end of inputs
+      ATH_MSG_DEBUG("#BTAG# MSV inputs: "           <<
+                               "nvtx= "            << m_nvtx        <<
+                               ", maxefrc= "       << m_maxefrc     <<
+                               ", summass= "       << m_summass     <<
+                               ", totalntrk= "     << m_totalntrk   <<
+                               ", diffntrkSV0= "   << m_diffntrkSV0 <<
+                               ", normDist= "      << m_normDist    <<
+                               ", mmax_mass= "     << m_mmax_mass   <<
+                               ", mmax_efrc= "     << m_mmax_efrc   <<
+                               ", mmax_DRjet= "    << m_mmax_DRjet  <<
+                               ", mmax_dist= "     << m_mmax_dist   <<
+                               ", mmx2_mass= "     << m_mmx2_mass   <<
+                               ", mmx2_efrc= "     << m_mmx2_efrc   << 
+                               ", mmx2_DRjet= "    << m_mmx2_DRjet  <<
+                               ", mmx2_dist= "     << m_mmx2_dist   <<
+                               ", mx12_2d12= "     << m_mx12_2d12   << 
+                               ", mx12_DR= "       << m_mx12_DR     <<
+                               ", mx12_Angle="     << m_mx12_Angle 
+                   );
+    }
+    //...
+    //compute BDT weight
+    double msvW = -9.;
+    if( nvtx2trk>1 ){
+      std::map<std::string, TMVA::Reader*>::iterator pos2 = m_tmvaReaders.find(alias);
+      if(pos2==m_tmvaReaders.end()) {//    if(pos2==m_tmvaReaders[binnb-1].end()) {
+        int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
+        if(0==alreadyWarned) {
+          ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << alias);
+          m_undefinedReaders.push_back(alias);
+        }
+      }
+      else {
+        std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(alias);
+        if((itmap2->second)!=0){
+          msvW = pos2->second->EvaluateMVA( itmap2->second ); //"BDT method"
+          ATH_MSG_DEBUG("#BTAG# BB weight: "<<m_taggerNameBase<<" "<< msvW);
+        }else ATH_MSG_WARNING("#BTAG#  kl==0"); 
+      }
+    }
+    if(m_runModus=="analysis") {
+      BTag->setVariable<double>(m_taggerNameBase, "discriminant", msvW);
+   }
+    return StatusCode::SUCCESS;
   }
-
   void MultiSVTag::finalizeHistos() {
     /// implementation for Analysis::ITagTool::finalizeHistos
   }

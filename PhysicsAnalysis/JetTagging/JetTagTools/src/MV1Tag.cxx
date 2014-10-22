@@ -41,6 +41,9 @@ namespace Analysis {
     declareProperty("inputIP3DWeightName", m_inputIP3DWeightName = "IP3D");
     declareProperty("inputSV1WeightName", m_inputSV1WeightName = "SV1");
     declareProperty("inputJetFitterWeightName", m_inputJetFitterWeightName = "JetFitterCombNN");
+    // which calibration folder to use
+    declareProperty("taggerNameBase", m_taggerNameBase = "MV1");
+    declareProperty("taggerName", m_taggerName = "MV1");
   }
 
 
@@ -49,28 +52,6 @@ namespace Analysis {
 
 
   StatusCode MV1Tag::initialize() {
-    // define tagger name:
-    // (remove ToolSvc. in front and Tag inside name):
-    std::string iname( this->name().substr(8) );
-    std::string instanceName(iname);
-    std::string::size_type pos = iname.find("Tag");
-    if ( pos!=std::string::npos ) {
-      std::string prefix = iname.substr(0,pos);
-      std::string posfix = iname.substr(pos+3);
-      instanceName = prefix;
-      instanceName += posfix;
-    }
-    m_taggerName = instanceName;
-    // remove also Flip:
-    std::string instanceName2(instanceName);
-    pos = instanceName.find("Flip");
-    if ( pos!=std::string::npos ) {
-      std::string prefix = instanceName.substr(0,pos);
-      std::string posfix = instanceName.substr(pos+4);
-      instanceName2 = prefix;
-      instanceName2 += posfix;
-    }
-    m_taggerNameBase = instanceName2;
     // prepare calibration tool:
     StatusCode sc = m_calibrationTool.retrieve();
     if ( sc.isFailure() ) {

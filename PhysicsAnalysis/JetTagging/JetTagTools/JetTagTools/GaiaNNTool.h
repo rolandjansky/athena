@@ -16,97 +16,100 @@
     c-jet or uds-jet for a single event. 
     @authors Dan Guest, Luke de Oliveira
 ********************************************************/
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "JetTagTools/IJetFitterClassifierTool.h"
+#include "JetTagTools/ITagTool.h"
+
+#include "xAODBTagging/BTagging.h"
 
 #include <vector>
-#include <string>
 #include <map>
+#include <string>
 
-// class TList; 
-// #include <TString.h>
-
-// class TTrainedNetwork;
-// class TH1;
-
-// namespace Trk
-// {
-//   class NeuralNetworkToHistoTool;
-// }
-
-namespace JetTagger { 
-  class NeuralNet; 
+// class declarations
+namespace agile {
+    class network_client;
 }
 
 namespace Analysis {
+    class CalibrationBroker;
+}
 
+namespace Analysis {
+    
+    class GaiaNNTool : public AthAlgTool, virtual public ITagTool
+    {
+        public:
+            GaiaNNTool(const std::string& name, 
+                        const std::string& n, 
+                        const IInterface*);
 
-class IJetFitterTagInfo;
-class CalibrationBroker;
+            virtual ~GaiaNNTool();
+            StatusCode initialize();
+            StatusCode finalize();
+            void setOrigin(const xAOD::Vertex* priVtx);
+
+            virtual StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);
+
+            void finalizeHistos() {};
+        
+        // internal typdefs
+        private:
+            typedef std::map<std::string, agile::network_client*> nn_map;
+            typedef std::map<std::string, double> var_map;
+        
+        // functions
+        private:
+            
+            // load the calibration file from the COOL db
+            void load_calibration_file();
+            void cache_calibration(const std::string& jetauthor);
+            std::string get_calib_string(std::string jetauthor, std::string name="calib");
+
+            // load input variables from xAOD
+            void fill_ip3d(var_map& inputs, xAOD::BTagging* BTag);
+            void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag);
+            void fill_svp(var_map& inputs, xAOD::BTagging* BTag);
+        
+        // data members
+        private:
+            // variables to load the Gaia calibration file
+            std::string m_calibrationDirectory;
+            std::string m_calibrationSubDirectory;
+            ToolHandle<CalibrationBroker> m_calibrationTool; // pointer to calibration in COOL
+            std::string m_xAODBaseName;
+            
+            // container information
+            std::string m_ip3d_infosource;
+            std::string m_jftNN_infosource;
+            std::string m_sv1_infosource;
+            
+            // map holding neural network calibrations ( jet_author -> NN )
+            nn_map m_networks;
+
+            // constants
+            double m_min_pt;
+            double m_max_abs_eta;
+            
+            /** This switch is needed to indicate what to do. The algorithm can be run to produce
+                reference histograms from the given MC files (m_runModus=0) or to work in analysis mode
+                (m_runModus=1) where already made reference histograms are read.*/ 
+            std::string    m_runModus;          //!< 0=Do not read histos, 1=Read referece histos (analysis mode)
+            
+            /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
+            // this pointer does not need to be deleted in the destructor (because it
+            // points to something in storegate)
+            const xAOD::Vertex* m_priVtx;
+            
+    }; // end class
   
+    inline void GaiaNNTool::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 
-static const InterfaceID 
-IID_GaiaNNTool("Analysis::GaiaNNTool", 1, 0);
 
-  class GaiaNNTool : public IJetFitterClassifierTool, 
-			       public AthAlgTool
-  {
-    
-  public:
-
-    static const std::string SPECS; 
-    static const std::string TRAINING; 
-
-    static const InterfaceID& interfaceID() { 
-      return IID_GaiaNNTool; 
-    };
-
-    GaiaNNTool(const std::string& name,
-                    const std::string& n, const IInterface* p);
-    ~GaiaNNTool();
-    
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    
-    void fillLikelihoodValues(IJetFitterTagInfo & myTagInfo,
-			      const std::string & jetauthor,
-                              double jetpT,
-                              double jeteta,
-                              double IP3dlike=-5000);
-
-    
-  private:
-
-    // variable names used internally to pass jet pt / eta around 
-    static const std::string JET_PT; 
-    static const std::string JET_ETA; 
-
-    // some input variables like IP3DNeg or SV1Flip need remapping
-    std::map<std::string, std::string> m_variable_remapping; 
-
-    void loadCalibration(const std::string & jetauthor);
-
-    void initializeCalibrationFile();
-
-    void registerHist(std::string name); 
-    std::string getCalString(std::string jet_author, std::string name); 
-    std::string getRemapping(const std::string&) const; 
-
-    std::string m_calibrationDirectory;
-    std::string m_calibrationSubDirectory;
-    ToolHandle<CalibrationBroker> m_calibrationTool;
-
-    std::map<std::string, JetTagger::NeuralNet*> m_networks; 
-
-    double m_min_pt; 
-    double m_max_abs_eta; 
-    
-
-  };
-  
-}//end Analysis namespace
+}// end Analysis namespace
 
 #endif
+
+
+

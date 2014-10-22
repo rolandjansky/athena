@@ -3,7 +3,7 @@
 //#include "JetTagTools/SecVtxTag.h"
 #include "JetTagTools/IPTag.h"
 #include "JetTagTools/SVTag.h"
-//#include "JetTagTools/MultiSVTag.h"
+#include "JetTagTools/MultiSVTag.h"
 //#include "JetTagTools/JetProbTag.h"
 //#include "JetTagTools/SoftElectronTag.h"
 //#include "JetTagTools/SoftMuonTag.h"
@@ -17,6 +17,7 @@
 // #include "JetTagTools/JetFitterLikelihood.h"
 #include "JetTagTools/JetFitterNtupleWriter.h"
 #include "JetTagTools/JetFitterVariablesFactory.h"
+#include "JetTagTools/MSVVariablesFactory.h"
 //#include "JetTagTools/JetFitterCharmVariablesFactory.h"
 //#include "JetTagTools/GaiaVariablesFactory.h"
 #include "JetTagTools/JetFitterNNTool.h"
@@ -44,7 +45,7 @@
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SecVtxTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, IPTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVTag )
-//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultiSVTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultiSVTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetProbTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftElectronTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftMuonTag )
@@ -58,11 +59,12 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterNtupleWriter )
 // DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterLikelihood )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterVariablesFactory )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MSVVariablesFactory )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmVariablesFactory )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaVariablesFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterNNTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmNNTool )
-//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaNNTool )
+//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaNNTool );
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVForIPTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, BasicTrackGradeFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DetailedTrackGradeFactory )
@@ -88,7 +90,7 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   // DECLARE_NAMESPACE_TOOL( Analysis, SecVtxTag );
   DECLARE_NAMESPACE_TOOL( Analysis, IPTag );
   DECLARE_NAMESPACE_TOOL( Analysis, SVTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, MultiSVTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, MultiSVTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetProbTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, SoftElectronTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
@@ -102,11 +104,12 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNtupleWriter );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterLikelihood );
   DECLARE_NAMESPACE_TOOL( Analysis, JetFitterVariablesFactory );
+  DECLARE_NAMESPACE_TOOL( Analysis, MSVVariablesFactory );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmVariablesFactory );
   // DECLARE_NAMESPACE_TOOL( Analysis, GaiaVariablesFactory );
   DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNNTool );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmNNTool );
-  // DECLARE_NAMESPACE_TOOL( Analysis, GaiaNNTool );
+  //DECLARE_NAMESPACE_TOOL( Analysis, GaiaNNTool );
   DECLARE_NAMESPACE_TOOL( Analysis, SVForIPTool );
   DECLARE_NAMESPACE_TOOL( Analysis, BasicTrackGradeFactory );
   DECLARE_NAMESPACE_TOOL( Analysis, DetailedTrackGradeFactory );
