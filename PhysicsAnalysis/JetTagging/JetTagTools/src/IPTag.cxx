@@ -251,7 +251,8 @@ namespace Analysis {
 
     /** book calibration histograms if needed */
     if( m_runModus == "reference" ) {
-      /* FF: comment out reference mode running for now
+      //FF: comment out reference mode running for now
+      ATH_MSG_INFO("#BTAG# running IPTag in reference mode");
      for(uint j=0;j<m_jetCollectionList.size();j++) {
 
         //int nbGrades=trackFactoryGradesDefinition.numberOfGrades();
@@ -289,7 +290,7 @@ namespace Analysis {
 	  }
 	} // endloop on partitions
 
-	}*/
+	}
       // ms m_histoHelper->print();
     }
   /* ms
@@ -341,45 +342,50 @@ namespace Analysis {
     }
 
     /** for the reference mode we need the true label: */
-    std::string label = "N/A";
+    int label = -1;
+    //std::string label = "N/A";
     std::string pref  = "";
     // FF: Disable reference mode running for now
-    // if( m_runModus == "reference" ) {
-    //   // here we require a jet selection:
-    //   if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
-    //     // and also a truth match:
-    //     const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
-    // 	double deltaRmin(0.);
-    //     if( mcinfo ) {
-    //       label = mcinfo->jetTruthLabel();
-    // 	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
-    // 	  double deltaRtoClosestB = mcinfo->deltaRMinTo("B");
-    // 	  double deltaRtoClosestC = mcinfo->deltaRMinTo("C");
-    // 	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
-    //       double deltaRtoClosestT = mcinfo->deltaRMinTo("T");
-    //       deltaRmin = deltaRtoClosestT < deltaRmin ? deltaRtoClosestT : deltaRmin;
-    //     } else {
-    //       ATH_MSG_ERROR("#BTAG# No TruthInfo ! Cannot run on reference mode !");
-    //       return StatusCode::FAILURE;
-    //     }
-    // 	if ( (    "B"==m_referenceType &&   "B"==label ) ||  // b-jets    
-    // 	     ( "UDSG"==m_referenceType && "N/A"==label ) ||  // light jets
-    // 	     (  "ALL"==m_referenceType && // all jets: b + purified light jets
-    // 		( "B"==label || "C"==label || ( "N/A"==label && deltaRmin > m_purificationDeltaR ) ) )
-    // 	     ) {
-    //       if ("B"==label) {
-    //         pref = m_hypotheses[0];
-    //         m_nbjet++;
-    //       } else if ("N/A"==label) {
-    //         pref = m_hypotheses[1];
-    //         m_nljet++;
-    //       } else if ("C"==label && m_useCHypo) {
-    //         pref = m_hypotheses[2];
-    //         m_ncjet++;
-    // 	  }
-    // 	}
-    //   }
-    // }
+    if( m_runModus == "reference" ) {
+      // here we require a jet selection:
+      if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
+        // and also a truth match:
+        //const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
+    	double deltaRmin(0.);
+        if(jetToTag.getAttribute("TruthLabelID",label)) {
+	    //label = mcinfo->jetTruthLabel();
+    	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
+	  double deltaRtoClosestB, deltaRtoClosestC, deltaRtoClosestT;
+	  jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB);
+	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
+	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
+	  //double deltaRtoClosestB = mcinfo->deltaRMinTo("B");
+   	  //double deltaRtoClosestC = mcinfo->deltaRMinTo("C");
+    	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
+          //double deltaRtoClosestT = mcinfo->deltaRMinTo("T");
+          deltaRmin = deltaRtoClosestT < deltaRmin ? deltaRtoClosestT : deltaRmin;
+        } else {
+          ATH_MSG_ERROR("#BTAG# No TruthInfo ! Cannot run on reference mode !");
+          return StatusCode::FAILURE;
+        }
+    	if ( (    "B"==m_referenceType &&   5==label ) ||  // b-jets    
+    	     ( "UDSG"==m_referenceType &&   0==label ) ||  // light jets
+    	     (  "ALL"==m_referenceType && // all jets: b + purified light jets
+    		( 5==label || 4==label || ( 0==label && deltaRmin > m_purificationDeltaR ) ) )
+    	     ) {
+          if (5==label) {
+            pref = m_hypotheses[0];
+            m_nbjet++;
+          } else if (0==label) {
+            pref = m_hypotheses[1];
+            m_nljet++;
+          } else if (4==label && m_useCHypo) {
+            pref = m_hypotheses[2];
+            m_ncjet++;
+    	  }
+    	}
+      }
+    }
     
     m_tracksInJet.clear();
     int nbPart = m_trackGradePartitionsDefinition.size();
@@ -554,7 +560,7 @@ namespace Analysis {
 
 
       /** fill reference histograms: */
-      /* ms
+      ///* ms
       if( m_runModus == "reference" ) {
 	if( pref != "" ) { // current jet passes selection for Sig or Bkg
 	  ATH_MSG_DEBUG("#BTAG# filling ref histo for " << pref);
@@ -589,7 +595,7 @@ namespace Analysis {
 	    }
 	  }
 	}
-      }*/
+      }//*/
 
       IPTracks.push_back(trkItr->track);
       vectD0.push_back(sIP);

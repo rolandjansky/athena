@@ -22,6 +22,9 @@ apply_tag ROOTMathLibs
 end_private
 use AtlasROOT            AtlasROOT-*             External
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
+
 use SGTools		 SGTools-*		 Control
 use JetTagInfo           JetTagInfo-*            PhysicsAnalysis/JetTagging
 use TrkParameters        TrkParameters-*         Tracking/TrkEvent
@@ -52,7 +55,7 @@ use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVerte
 #use TrkToolInterfaces    TrkToolInterfaces-*     Tracking/TrkTools
 #use TrkParticleBase      TrkParticleBase-*       Tracking/TrkEvent
 use TrkTrackLink         TrkTrackLink-*          Tracking/TrkEvent
-
+use TrkLinks             TrkLinks-*              Tracking/TrkEvent
 #use EventPrimitives      EventPrimitives-*       Event
 
 
@@ -84,6 +87,9 @@ use VxJetVertex         VxJetVertex-*   	 Tracking/TrkEvent
 # for GbbNN inputvariable calculation
 use AtlasFastJet        AtlasFastJet-*   External
 
+# for Gaia (re-enable once we actually have AGILEPack included...)
+# use AGILEPack  AGILEPack-*    
+
 
 end_private
 
@@ -93,7 +99,7 @@ macro DOXYGEN_IMAGE_PATH "../doc/images"
 #library JetTagTools *.cxx components/*.cxx
 #library JetTagTools DummyTag.cxx components/*.cxx
 #apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx" 
+apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx" 
 #apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime files="-s=../share *.root *.txt"
 

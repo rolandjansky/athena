@@ -130,8 +130,13 @@ namespace Analysis {
 
       for (std::vector<std::string>::const_iterator striter=strbegin;
 	   striter!=strend;++striter) {
-
-        m_ntupleWriter->bookNtuple(*striter);
+	ATH_MSG_VERBOSE("#BTAG# booking ntuple for: " << *striter);
+        sc = m_ntupleWriter->bookNtuple(*striter);
+	if( StatusCode::SUCCESS != sc ) {
+	  ATH_MSG_ERROR(" booking ntuple : " 
+			<< *striter << " failed");
+	  return sc;
+	}
 
       }
 
@@ -163,49 +168,52 @@ namespace Analysis {
     double jeteta = jetToTag.eta();
 
     /** for the reference mode we need the true label: */
-    // std::string label = "N/A";
-    // std::string pref  = "";
+    int label = -1;
+    std::string pref  = "";
     // ELG: Disable reference mode running for now
-    /*if( m_runModus == "reference" ) {
+    if( m_runModus == "reference" ) {
       // here we require a jet selection:
       if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
         // and also a truth match:
-        const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
+        //const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
 	double deltaRmin(0.);
-        if( mcinfo ) {
-          label = mcinfo->jetTruthLabel();
+        //if( mcinfo ) {
+	if (jetToTag.getAttribute("TruthLabelID",label))
+	{
 	  // for purification: require no b or c quark closer
 	  // than dR=m_purificationDeltaR
-	  double deltaRtoClosestB = mcinfo->deltaRMinTo("B");
-	  double deltaRtoClosestC = mcinfo->deltaRMinTo("C");
+	  double deltaRtoClosestB, deltaRtoClosestC;
+	  jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB);
+	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
 	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? 
 	    deltaRtoClosestB : deltaRtoClosestC;
           //JBdV 04/05/2006 purify also w.r.t tau
-          double deltaRtoClosestT = mcinfo->deltaRMinTo("T");
+          double deltaRtoClosestT;
+	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
           deltaRmin = deltaRtoClosestT < deltaRmin ? 
 	    deltaRtoClosestT : deltaRmin;
         } else {
           ATH_MSG_ERROR("No TruthInfo ! Cannot run on reference mode !");
-          return;
+          return StatusCode::FAILURE;
         }
 
 	ATH_MSG_VERBOSE(" label " << label << " m_hypothese.size() " << 
 			m_hypothese.size());
 
 	//GP here you need then to add the charm...
-	if ( ( (   "B"==label || "C"==label || "N/A"==label) && 
+	if ( ( (   5==label || 4==label || 0==label) && 
 	       m_hypothese.size()==3 ) ||
-	     ( ( "B"==label || "N/A"==label) && m_hypothese.size()==2 ) ) {
-          if ("B"==label) {
+	     ( ( 5==label || 0==label) && m_hypothese.size()==2 ) ) {
+          if (5==label) {
             pref = m_hypothese[0];
-          } else if ("N/A"==label) {
+          } else if (0==label) {
             pref = m_hypothese[1];
-          } else if ("C" == label) {
+          } else if (4 == label) {
 	    pref = m_hypothese[2];
 	  }
         }
       }
-    }*/
+    }
 
     
     //IJetFitterTagInfo* theVariables = 0;
@@ -218,10 +226,10 @@ namespace Analysis {
     // ====================================
     // ====================================
     // ELG: Disable reference mode running for now
-    //if( m_runModus == "reference" ) {
-    //  m_ntupleWriter->fillNtuple(pref, author,
-    //				 *theVariables,jetToTag);
-    //}
+    if( m_runModus == "reference" ) {
+      //  m_ntupleWriter->fillNtuple(pref, jetauthor,
+      //				 *theVariables,jetToTag);
+    }
 
     /** give information to the info class. */
     if(m_runModus=="analysis") {

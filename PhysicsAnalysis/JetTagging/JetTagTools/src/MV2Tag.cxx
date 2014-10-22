@@ -50,6 +50,10 @@ namespace Analysis {
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
     declareProperty("inputJFProbSourceName", m_jfprob_infosource = "JetFitterCombNN");
     declareProperty("xAODBaseName",      m_xAODBaseName);
+    // which calibration folder to use 
+    declareProperty("taggerNameBase", m_taggerNameBase = "MV2");
+    declareProperty("taggerName", m_taggerName = "MV2");
+
 
     /// and this what was used before the flip (comfigure from python now)
       // m_ip2d_infosource  = "IP2DNeg";
@@ -68,28 +72,6 @@ namespace Analysis {
 
 
   StatusCode MV2Tag::initialize() {
-    // define tagger name:
-    // (remove ToolSvc. in front and Tag inside name):
-    std::string iname( this->name().substr(8) );
-    std::string instanceName(iname);
-    std::string::size_type pos = iname.find("Tag");
-    if ( pos!=std::string::npos ) {
-      std::string prefix = iname.substr(0,pos);
-      std::string posfix = iname.substr(pos+3);
-      instanceName = prefix;
-      instanceName += posfix;
-    }
-    m_taggerName = instanceName;
-    // remove also Flip:
-    std::string instanceName2(instanceName);
-    pos = instanceName.find("Flip");
-    if ( pos!=std::string::npos ) {
-      std::string prefix = instanceName.substr(0,pos);
-      std::string posfix = instanceName.substr(pos+4);
-      instanceName2 = prefix;
-      instanceName2 += posfix;
-    }
-    m_taggerNameBase = instanceName2;
     // prepare calibration tool:
     StatusCode sc = m_calibrationTool.retrieve();
     if ( sc.isFailure() ) {

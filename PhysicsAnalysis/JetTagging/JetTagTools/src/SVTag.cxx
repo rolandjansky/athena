@@ -323,7 +323,8 @@ namespace Analysis
       std::string pref = "";
       if (m_runModus=="reference") {
 	if (jetpt >= m_pTjetmin && fabs(jeteta) <= 2.5) {
-	  std::string label = "N/A";
+	  int label = -1;
+	  //std::string label = "N/A";
 	  bool success = jetToTag.getAttribute("TruthLabelID", label);//mcTrueInfo->jetTruthLabel();
 	  ATH_MSG_VERBOSE("#BTAG# label found : " << label);
 	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
@@ -333,18 +334,18 @@ namespace Analysis
 	  jetToTag.getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
 	  double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
 
-	  if ( (    "B"==m_refType &&   "B"==label ) ||  // b-jets    
-	       ( "UDSG"==m_refType && "N/A"==label ) ||  // light jets
+	  if ( (    "B"==m_refType &&   5==label ) ||  // b-jets    
+	       ( "UDSG"==m_refType &&   0==label ) ||  // light jets
 	       (  "ALL"==m_refType && // all jets: b + purified light jets
-		  ( "B"==label || "C"==label || ( "N/A"==label && deltaRmin > m_purificationDeltaR ) ) )
+		  ( 5==label || 4==label || ( 0==label && deltaRmin > m_purificationDeltaR ) ) )
 	       ) {
-	    if ("B"==label) {
+	    if (5==label) {
 	      pref = m_hypotheses[0];
 	      m_nbjet++;
-	    } else if ("N/A"==label) {
+	    } else if (0==label) {
 	      pref = m_hypotheses[1];
 	      m_nljet++;
-	    } else if ("C"==label && m_useCHypo) {
+	    } else if (4==label && m_useCHypo) {
 	      pref = m_hypotheses[2];
 	      m_ncjet++;
 	    }

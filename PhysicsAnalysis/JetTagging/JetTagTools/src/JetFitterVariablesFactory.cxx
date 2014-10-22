@@ -114,6 +114,12 @@ StatusCode JetFitterVariablesFactory::finalize() {
     float deltaphi(0.);
     float deltaeta(0.);
 
+    // get fit quality variables for the PV of jetfitter
+    const Trk::VxVertexOnJetAxis* pvtxjet = myVxJetCandidate->getPrimaryVertex();
+    const Trk::FitQuality& fitquality = pvtxjet->fitQuality();
+    float chi2 = fitquality.chiSquared();
+    int   ndof = fitquality.numberDoF();
+
     if (mySelectedTracksInJet!=0) 
     {
       ATH_MSG_DEBUG(" Adding the tracks from primary vertex information ");
@@ -394,6 +400,8 @@ StatusCode JetFitterVariablesFactory::finalize() {
       BTag->setVariable<float>(basename, "significance3d", significance3d);
       BTag->setVariable<float>(basename, "deltaeta", deltaeta);
       BTag->setVariable<float>(basename, "deltaphi", deltaphi);
+      BTag->setVariable<float>(basename, "chi2", chi2);
+      BTag->setVariable<int>(basename, "ndof", ndof);
     }
 
 
