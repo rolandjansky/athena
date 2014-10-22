@@ -62,6 +62,7 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     : PileUpToolBase(type,name,parent)
     , m_hitContainer("TileHitCnt")
     , m_infoName("TileInfo")
+    , m_run2(false)
     , m_pileUp(false)
     , m_deltaT(1.0 * Gaudi::Units::nanosecond)
     , m_timeFlag(0)
@@ -128,9 +129,19 @@ StatusCode TileHitVecToCntTool::initialize() {
 
     CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
-    for (int i = 0; i < 6; ++i) {
+    CHECK( m_cablingSvc.retrieve() );
+    m_cabling = m_cablingSvc->cablingService();
+
+    m_run2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+
+    for (int i = 0; i < 7; ++i) {
         Identifier pmt_id;
         switch (i) { // invent pmt_id in a given part(sampling) of the calorimeter
+        case 6:
+            //pmt_id = m_tileTBID->channel_id(-1/*side*/, 0/*phi*/, 2/*radius*/);
+            // use the same ID as for normal E-cell - to obtain the same Npe at the end 
+            pmt_id = m_tileID->pmt_id(3/*section*/, 1/*side*/, 0/*module*/, 11/*tower*/, 3/*sample*/, 0);
+            break; // E4' cell uses special ID, similar to MBTS
         case 5:
             pmt_id = m_tileTBID->channel_id(1/*side*/, 0/*phi*/, 1/*radius*/);
             break; // MBTS outer cell
@@ -148,20 +159,25 @@ StatusCode TileHitVecToCntTool::initialize() {
         // and multiply by inverted sampling fraction (35.9)
         // to get number of photoelectrons per 1 MeV energy in scintillator
         numPhElec[i] = (m_tileInfo->NPhElec(i)) / (Gaudi::Units::GeV / Gaudi::Units::MeV) * m_tileInfo->HitCalib(pmt_id);
+
+        //ATH_MSG_DEBUG( i << " " << m_tileInfo->NPhElec(i) << " " << m_tileInfo->HitCalib(pmt_id) );
+        
     }
 
     if (numPhElec[0] <= 0) {
-        numPhElec[5] = numPhElec[4] = numPhElec[3] = numPhElec[2] = numPhElec[1] = numPhElec[0];
+        numPhElec[6] = numPhElec[5] = numPhElec[4] = numPhElec[3] = numPhElec[2] = numPhElec[1] = numPhElec[0];
         ATH_MSG_DEBUG( "No photostatistics effect will be simulated");
     }
 
     ATH_MSG_DEBUG( " numPhElec/MeV for TileHit energy: "
-                   << numPhElec[0] << " "
-                   << numPhElec[1] << " "
-                   << numPhElec[2] << " "
-                   << numPhElec[3] << " "
-                   << numPhElec[4] << " "
-                   << numPhElec[5]);
+                   << " A "  << numPhElec[0]
+                   << " BC " << numPhElec[1]
+                   << " D "  << numPhElec[2]
+                   << " E "  << numPhElec[3]
+                   << " E4' "  << numPhElec[6]
+                   << " MBTSout "  << numPhElec[5]
+                   << " MBTSin "  << numPhElec[4]
+        );
 
     if (m_rndmEvtOverlay) {
         m_pileUp = false;
@@ -194,7 +210,8 @@ StatusCode TileHitVecToCntTool::initialize() {
         if (m_pileUp) {
             // prepare vector with all hits
             m_mbtsOffset = m_tileID->pmt_hash_max();
-            m_allHits.resize(m_mbtsOffset + nCellMBTS);
+            if (m_run2) m_allHits.resize(m_mbtsOffset + nCellMBTS + nCellE4pr);
+            else m_allHits.resize(m_mbtsOffset + nCellMBTS);
             Identifier hit_id;
             IdContext pmt_context = m_tileID->pmt_context();
             for (int i = 0; i < m_mbtsOffset; ++i) {
@@ -211,6 +228,14 @@ StatusCode TileHitVecToCntTool::initialize() {
                         pHit->reserve(71); // reserve max possible size for pileup
                         m_allHits[mbts_index(side, phi, eta)] = pHit;
                     }
+                }
+            }
+            if (m_run2) {
+                for (int phi = 0; phi < E4nPhi; ++phi) {
+                    hit_id = m_tileTBID->channel_id(E4side, phi, E4eta);
+                    TileHit * pHit = new TileHit(hit_id, 0., 0.);
+                    pHit->reserve(71); // reserve max possible size for pileup
+                    m_allHits[e4pr_index(phi)] = pHit;
                 }
             }
         }
@@ -262,10 +287,7 @@ StatusCode TileHitVecToCntTool::initialize() {
         }
     }
 
-    CHECK( m_cablingSvc.retrieve() );
-    m_cabling = m_cablingSvc->cablingService();
-
-    if (m_cabling->getCablingType() == TileCablingService::RUN2Cabling) {
+    if (m_run2) {
       const TileHWID* tileHWID;
       CHECK( detStore()->retrieve(tileHWID) );
 
@@ -278,11 +300,8 @@ StatusCode TileHitVecToCntTool::initialize() {
 	for (int drawer = 0; drawer < 64; ++drawer) {
 	  int frag_id = tileHWID->frag(ros, drawer);
 	  IdentifierHash frag_hash = m_fragHashFunc(frag_id);
-	  if (m_cabling->E1_merged_with_run2(drawer) != 0) m_E1merged[frag_hash] = true;
-	  else m_E1merged[frag_hash] = false;
-	
-	  if (m_cabling->is_MBTS_merged_run2(drawer)) m_MBTSmerged[frag_hash] = true;
-	  else m_MBTSmerged[frag_hash] = false;
+	  m_E1merged[frag_hash] = (m_cabling->E1_merged_with_run2(ros,drawer) != 0);
+	  m_MBTSmerged[frag_hash] = (m_cabling->is_MBTS_merged_run2(drawer));
 	}
       }
       ATH_MSG_INFO("Number of E1 cell to be merged: " << std::count (m_E1merged.begin(), m_E1merged.end(), true));
@@ -403,7 +422,8 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
             int side = std::max(0, m_tileTBID->type(hit_id));
             int phi = m_tileTBID->module(hit_id);
             int eta = m_tileTBID->channel(hit_id);
-            hit_idhash = mbts_index(side, phi, eta);
+            if (eta<2) hit_idhash = mbts_index(side, phi, eta);
+            else hit_idhash = e4pr_index(phi);
         } else {
             m_tileID->get_hash(hit_id, hit_idhash, &pmt_context);
         }
@@ -860,7 +880,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     m_tileTBID->set_do_checks(do_checks_tb); // set back this flag to TileTBID
 
 
-    if (m_cabling->getCablingType() == TileCablingService::RUN2Cabling) {
+    if (m_run2) {
       // Merge MBTS and E1 where it is needed.
       
       TileHitContainer::const_iterator collIt = m_hits->begin();
@@ -941,7 +961,7 @@ StatusCode TileHitVecToCntTool::finalize() {
 }
 
 double TileHitVecToCntTool::ApplyPhotoStat(double energy, Identifier pmt_id) {
-    // pmt_sample = 0-3 for normal cells 4 for inner MBTS, 5 for outer MBTS
+    // pmt_sample = 0-3 for normal cells 4 for inner MBTS, 5 for outer MBTS, 6 for E4'
     int pmt_sample = (m_tileTBID->is_tiletb(pmt_id))
         ? TileID::SAMP_X + m_tileTBID->channel(pmt_id)
         : m_tileID->sample(pmt_id);
