@@ -17,8 +17,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 /// head file
 #include "InDetVertexSplitterHist.h"
@@ -151,13 +150,12 @@ StatusCode InDet::InDetVertexSplitterHist::makeSplitHist() {
       m_evenBranch.c11=yee;
       m_evenBranch.c22=zee;
       
-      const DataHandle<EventInfo> eventInfo;
+      const DataHandle<xAOD::EventInfo> eventInfo;
       sc = evtStore()->retrieve( eventInfo );
       if(sc.isSuccess()){
-        EventID* eventID = eventInfo->event_ID();
-        m_metaData.lumi = eventID->lumi_block();
-        m_metaData.run = eventID->run_number();
-        m_metaData.event = eventID->event_number();
+        m_metaData.lumi = eventInfo->lumiBlock();
+        m_metaData.run = eventInfo->runNumber();
+        m_metaData.event = eventInfo->eventNumber();
       }
       else{
         return sc;
