@@ -70,12 +70,12 @@ except Exception:
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
-    McTruthAODList=["xAOD::TruthEventContainer_v1#TruthEvent",
-                    "xAOD::TruthEventAuxContainer_v1#TruthEventAux.",
-                    "xAOD::TruthParticleContainer_v1#TruthParticle",
-                    "xAOD::TruthParticleAuxContainer_v1#TruthParticleAux.",
-                    "xAOD::TruthVertexContainer_v1#TruthVertex", 
-                    "xAOD::TruthVertexAuxContainer_v1#TruthVertexAux."]
+    McTruthAODList=["xAOD::TruthEventContainer#TruthEvent",
+                    "xAOD::TruthEventAuxContainer#TruthEventAux.",
+                    "xAOD::TruthParticleContainer#TruthParticle",
+                    "xAOD::TruthParticleAuxContainer#TruthParticleAux.",
+                    "xAOD::TruthVertexContainer#TruthVertex", 
+                    "xAOD::TruthVertexAuxContainer#TruthVertexAux."]
     fullAODList += CfgItemList( "McTruthAod",
                                 items = McTruthAODList )
 
