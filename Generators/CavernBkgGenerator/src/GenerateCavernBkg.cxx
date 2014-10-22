@@ -28,7 +28,7 @@ extern "C" {
 
 
 GenerateCavernBkg::GenerateCavernBkg(const string& name, ISvcLocator* pSvcLocator)
-  : GenModule(name, pSvcLocator)
+  : GenModule(name, pSvcLocator), m_mcEvtColl(0)
 {
   declareProperty("InputFile",  m_infile="fvpn21n.dat");
 }
