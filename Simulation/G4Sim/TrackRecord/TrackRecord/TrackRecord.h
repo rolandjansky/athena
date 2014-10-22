@@ -10,7 +10,7 @@
 class TrackRecord {
 public:
   /** @brief Default constructor */ 
-  TrackRecord()  {}
+  TrackRecord() : PDG_code(0), Energy(0), Momentum(0,0,0), Position(0,0,0), Time(0), barCode(0), volName("") {}
   /** @brief Default destructor */ 
   virtual ~TrackRecord() {}
   /** @brief Constructor */ 
