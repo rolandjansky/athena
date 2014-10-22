@@ -14,8 +14,7 @@
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 using CLHEP::GeV;
 
@@ -317,10 +316,10 @@ void InDet::TRT_TrackTimingTool::print(const Trk::Track* track, float time) cons
 	static int last_event = 0; // code to remove duplicates - do not print if this track was already called
         if (last_event==0) { FILE *f = fopen("tmp.txt", "w"); fclose(f); } // first call, reset file
 	static std::vector<double> pT_list;
-	const EventInfo *eventInfo = 0;
+	const xAOD::EventInfo *eventInfo = 0;
 	StatusCode sc = evtStore()->retrieve(eventInfo); 
 	if ( sc.isFailure() ) { msg(MSG::ERROR) << "Unable to retrieve Event Info " << endreq; return; }
-	int event = (int) eventInfo->event_ID()->event_number();
+	int event = (int) eventInfo->eventNumber();
 	if (event != last_event) {
 		last_event = event;
 		pT_list.clear();
