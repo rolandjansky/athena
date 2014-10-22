@@ -24,6 +24,7 @@ namespace InDet {
 #include "xAODJet/Jet.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
 #include "xAODBTagging/BTagVertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -40,6 +41,7 @@ namespace Trk{
 namespace Analysis
 {
   class IJetFitterVariablesFactory;
+  class IMSVVariablesFactory;
 
   class BTagSecVertexing : public AthAlgTool, virtual public IBTagSecVertexing
   {
@@ -51,17 +53,16 @@ namespace Analysis
           StatusCode initialize();
           StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*);
           StatusCode finalize();
-          //StatusCode BTagSecVertexing_exec(Jet& myJet, const Trk::RecVertex& MyprimaryVertex);
+
 
       private:
         
-    StatusCode fillVkalVariables(xAOD::BTagging*, xAOD::VertexContainer*, const Trk::VxSecVKalVertexInfo*, const xAOD::TrackParticleContainer*, std::string);
+    StatusCode fillVkalVariables(xAOD::Jet&, xAOD::BTagging*, xAOD::VertexContainer*, const Trk::VxSecVKalVertexInfo*, const xAOD::TrackParticleContainer*,const xAOD::Vertex&,  std::string);
     StatusCode fillJFVariables(xAOD::Jet&, xAOD::BTagging*, xAOD::BTagVertexContainer*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*, std::string);
-
-        //ToolHandle< InDet::ISecVertexInJetFinder > m_bTagVtx;   
 
          ToolHandleArray< InDet::ISecVertexInJetFinder > m_secVertexFinderToolsHandleArray;
          ToolHandle<IJetFitterVariablesFactory> m_JFvarFactory;
+         ToolHandle<IMSVVariablesFactory> m_MSVvarFactory;
 
          std::vector<std::string> m_secVertexFinderTrackNameList;
          std::vector<std::string> m_secVertexFinderBaseNameList;

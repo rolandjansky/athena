@@ -14,7 +14,7 @@ class _BTaggingFlags:
     _tags = [ 'lifetime1D', 'lifetime2D', 'lifetime3D', 'secVtxFitBU', 'secVtxFitTD', 'IP1D', 
               'IP2D', 'IP2DFlip', 'IP2DPos', 'IP2DNeg', 'IP2DSpc', 'IP2DSpcFlip', 'IP2DSpcPos', 'IP2DSpcNeg',
               'IP3D', 'IP3DFlip', 'IP3DPos', 'IP3DNeg', 'IP3DSpc', 'IP3DSpcFlip', 'IP3DSpcPos', 'IP3DSpcNeg',
-              'SV0', 'MultiSV',
+              'SV0', 'MultiSVbb1','MultiSVbb2',
               'SV1', 'SV1Flip', 
               'SV2', 'SV2Flip', 
               'JetProb', 'JetProbFlip', 
@@ -168,8 +168,10 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'SV0':
           setattr(self, attr, True)
-        if attr == 'MultiSV':
-          setattr(self, attr, True)
+        if attr == 'MultiSVbb1':
+          setattr(self, attr, False)
+        if attr == 'MultiSVbb2':
+          setattr(self, attr, False)
         if attr == 'SV1':
           setattr(self, attr, True)
         if attr == 'SV1Flip':

@@ -306,6 +306,7 @@ if BTaggingFlags.Active:
   from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
   AtlasExtrapolator = AtlasExtrapolator()
   ToolSvc += AtlasExtrapolator
+
   from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
   BTagTrackToVertexTool = Reco__TrackToVertex(
                                               name = "BTagTrackToVertexTool",

@@ -32,18 +32,18 @@ namespace Analysis {
       declareProperty( "BTagAssociation",                     m_BTagAssociation);
 
       declareProperty( "TrackToJetAssociatorList",            m_TrackToJetAssociatorList);
-      // declareProperty( "ElectronToJetAssociatorList",         m_ElectronToJetAssociatorList );
-      // declareProperty( "MuonToJetAssociatorList",             m_MuonToJetAssociatorList );
+      declareProperty( "ElectronToJetAssociatorList",         m_ElectronToJetAssociatorList );
+      declareProperty( "MuonToJetAssociatorList",             m_MuonToJetAssociatorList );
 
       declareProperty( "TrackToJetAssocNameList",             m_TrackToJetAssocNameList);
-      // declareProperty( "ElectronToJetAssocNameList",          m_ElectronToJetAssocNameList);
-      // declareProperty( "PhotonToJetAssocNameList",            m_PhotonToJetAssocNameList);
-      // declareProperty( "MuonToJetAssocNameList",              m_MuonToJetAssocNameList);
+      declareProperty( "ElectronToJetAssocNameList",          m_ElectronToJetAssocNameList);
+      declareProperty( "PhotonToJetAssocNameList",            m_PhotonToJetAssocNameList);
+      declareProperty( "MuonToJetAssocNameList",              m_MuonToJetAssocNameList);
 
       declareProperty( "TrackContainerNameList",              m_TrackContainerNameList);
-      // declareProperty( "ElectronContainerNameList",           m_ElectronContainerNameList ); //for SoftEl
-      // declareProperty( "PhotonContainerNameList",             m_PhotonContainerNameList);   //for SoftEl
-      // declareProperty( "MuonContainerNameList",               m_MuonContainerNameList );     //for SoftMu
+      declareProperty( "ElectronContainerNameList",           m_ElectronContainerNameList ); //for SoftEl
+      declareProperty( "PhotonContainerNameList",             m_PhotonContainerNameList);   //for SoftEl
+      declareProperty( "MuonContainerNameList",               m_MuonContainerNameList );     //for SoftMu
   }
 
   BTagTrackAssociation::~BTagTrackAssociation() {
