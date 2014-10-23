@@ -43,64 +43,65 @@ namespace ISF {
   typedef ToolHandleArray<ITruthStrategy>     TruthStrategyArray;
 
   /** @class HepMC_TruthSvc
-  
+
       HepMC based version of the ISF::ITruthSvc,
-      currently it takes an ITruthIncident base class (!@TODO resolve to HepMC_TruthIncident )
-      
-      
+      currently it takes an ITruthIncident base class
+
+
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
-     */
+  */
   class HepMC_TruthSvc : public AthService, public ITruthSvc {
-    public: 
-      
-      //** Constructor with parameters */
-      HepMC_TruthSvc( const std::string& name, ISvcLocator* pSvcLocator );
-      
-      /** Destructor */
-      virtual ~HepMC_TruthSvc(); 
-      
-      /** Athena algorithm's interface method initialize() */
-      StatusCode  initialize();
-      /** Athena algorithm's interface method finalize() */
-      StatusCode  finalize();
+  public:
 
-      /** Register a truth incident */
-      void registerTruthIncident( ITruthIncident& truthincident);
+    //** Constructor with parameters */
+    HepMC_TruthSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      /** Initialize the Truth Svc at the beginning of each event */
-      StatusCode initializeTruthCollection();
+    /** Destructor */
+    virtual ~HepMC_TruthSvc();
 
-      /** Finalize the Truth Svc at the end of each event*/
-      StatusCode releaseEvent();
-      
-      /** Query the interfaces. **/
-	    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-  
-    private:
-      StoreGateSvc                             *m_storeGate;            //!< The storegate svc
-      ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
-      Barcode::IBarcodeSvc                     *m_barcodeSvcQuick;      //!< The Barcode service for quick access
+    /** Athena algorithm's interface method initialize() */
+    StatusCode  initialize();
+    /** Athena algorithm's interface method finalize() */
+    StatusCode  finalize();
 
-      std::string                               m_collectionName;       //!< name of the output McEventCollection
-      McEventCollection                        *m_mcEventCollection;    //!< pointer to the McEventCollection
-      HepMC::GenEvent                          *m_mcEvent;
+    /** Register a truth incident */
+    void registerTruthIncident( ITruthIncident& truthincident);
 
-      /** the truth strategie applied (as AthenaToolHandle Array) */
-      TruthStrategyArray                        m_geoStrategyHandles[AtlasDetDescr::fNumAtlasRegions];
-      /** for faster access: using an internal pointer to the actual ITruthStrategy instances */
-      ITruthStrategy**                          m_geoStrategies[AtlasDetDescr::fNumAtlasRegions];
-      unsigned short                            m_numStrategies[AtlasDetDescr::fNumAtlasRegions];
+    /** Initialize the Truth Svc at the beginning of each event */
+    StatusCode initializeTruthCollection();
 
-      /** MCTruth steering */
-      bool                                      m_skipIfNoSecondaries;    //!< do not record incident if numSecondaries==0
-      bool                                      m_skipIfNoPrimaryBarcode; //!< do not record if primaryBarcode==fUndefinedBarcode
-      bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
+    /** Finalize the Truth Svc at the end of each event*/
+    StatusCode releaseEvent();
 
-      std::string                               m_screenOutputPrefix;
-      std::string                               m_screenEmptyPrefix;      
+    /** Query the interfaces. **/
+    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
-      bool                                      m_storeExtraBCs;
-  }; 
+  private:
+    StoreGateSvc                             *m_storeGate;            //!< The storegate svc
+    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
+    Barcode::IBarcodeSvc                     *m_barcodeSvcQuick;      //!< The Barcode service for quick access
+
+    std::string                               m_collectionName;       //!< name of the output McEventCollection
+    McEventCollection                        *m_mcEventCollection;    //!< pointer to the McEventCollection
+    HepMC::GenEvent                          *m_mcEvent;
+
+    /** the truth strategie applied (as AthenaToolHandle Array) */
+    TruthStrategyArray                        m_geoStrategyHandles[AtlasDetDescr::fNumAtlasRegions];
+    /** for faster access: using an internal pointer to the actual ITruthStrategy instances */
+    ITruthStrategy**                          m_geoStrategies[AtlasDetDescr::fNumAtlasRegions];
+    unsigned short                            m_numStrategies[AtlasDetDescr::fNumAtlasRegions];
+
+    /** MCTruth steering */
+    bool                                      m_skipIfNoSecondaries;    //!< do not record incident if numSecondaries==0
+    bool                                      m_skipIfNoPrimaryBarcode; //!< do not record if primaryBarcode==fUndefinedBarcode
+    bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
+
+    std::string                               m_screenOutputPrefix;
+    std::string                               m_screenEmptyPrefix;
+
+    bool                                      m_storeExtraBCs;
+    bool                                      m_passWholeVertex;
+  };
 }
 
 
