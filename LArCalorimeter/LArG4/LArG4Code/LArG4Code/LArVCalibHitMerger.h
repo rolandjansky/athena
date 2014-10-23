@@ -30,10 +30,10 @@ class LArVCalibHitMerger
   virtual void BeginOfEvent() = 0;
 
   // Do the actual job here
-  virtual bool process(LArG4Identifier ident,
+  virtual bool process(const LArG4Identifier& ident,
                        const std::vector<G4double>& energies) = 0;
   // Do the actual job here
-  virtual bool process(LArG4Identifier ident,
+  virtual bool process(const LArG4Identifier& ident,
                        const std::vector<G4double>& energies, unsigned int particleID) = 0;
 
   // Distribute hits created during the event between global containers
