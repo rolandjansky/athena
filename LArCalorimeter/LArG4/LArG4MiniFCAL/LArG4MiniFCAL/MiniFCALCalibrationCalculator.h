@@ -37,7 +37,7 @@ namespace LArG4 {
       virtual G4bool Process (const G4Step* step, 
 			      const eCalculatorProcessing p = kEnergyAndID);
     
-      virtual LArG4Identifier identifier() const { return m_identifier; }
+      virtual const LArG4Identifier& identifier() const { return m_identifier; }
     
       virtual const std::vector<G4double>& energies() const { return m_energies; }
 
