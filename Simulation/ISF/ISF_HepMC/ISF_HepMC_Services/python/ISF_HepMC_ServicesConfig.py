@@ -21,8 +21,24 @@ def getTruthService(name="ISF_TruthService", **kwargs):
     else :
       return getMC12TruthService( name, **kwargs );
 
+def getMC15TruthService(name="ISF_MC15TruthService", **kwargs):
+    kwargs.setdefault('BarcodeSvc'              , ISF_Flags.BarcodeService() )
+    kwargs.setdefault('McEventCollection'       , 'TruthEvent')
+    kwargs.setdefault('SkipIfNoSecondaries'     , True)
+    kwargs.setdefault('SkipIfNoPrimaryBarcode'  , True)
+    kwargs.setdefault('BeamPipeTruthStrategies' , [ 'ISF_MCTruthStrategyGroupID_MC15' ] ) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
+    kwargs.setdefault('IDTruthStrategies'       , [ 'ISF_MCTruthStrategyGroupID_MC15', 'ISF_MCTruthStrategyGroupIDHadInt_MC15' ] )
+    kwargs.setdefault('CaloTruthStrategies'     , [ 'ISF_MCTruthStrategyGroupCaloMuBrem', 'ISF_MCTruthStrategyGroupCaloDecay_MC15' ])
+    kwargs.setdefault('MSTruthStrategies'       , [])
+    kwargs.setdefault('IgnoreUndefinedBarcodes' , False)
+    kwargs.setdefault('StoreExtraBarcodes'      , False)
+    kwargs.setdefault('PassWholeVertices'       , False) # new for MC15 - can write out partial vertices.
+
+    from ISF_HepMC_Services.ISF_HepMC_ServicesConf import ISF__HepMC_TruthSvc
+    return ISF__HepMC_TruthSvc(name, **kwargs);
+
 def getMC12TruthService(name="ISF_MC12TruthService", **kwargs):
-    kwargs.setdefault('BarcodeSvc'              , getService('ISF_MC12BarcodeSvc'))
+    kwargs.setdefault('BarcodeSvc'              , ISF_Flags.BarcodeService() )
     kwargs.setdefault('McEventCollection'       , 'TruthEvent')
     kwargs.setdefault('SkipIfNoSecondaries'     , True)
     kwargs.setdefault('SkipIfNoPrimaryBarcode'  , True)
@@ -32,12 +48,13 @@ def getMC12TruthService(name="ISF_MC12TruthService", **kwargs):
     kwargs.setdefault('MSTruthStrategies'       , [])
     kwargs.setdefault('IgnoreUndefinedBarcodes' , False)
     kwargs.setdefault('StoreExtraBarcodes'      , False)
+    kwargs.setdefault('PassWholeVertices'       , True)
 
     from ISF_HepMC_Services.ISF_HepMC_ServicesConf import ISF__HepMC_TruthSvc
     return ISF__HepMC_TruthSvc(name, **kwargs);
 
 def getValidationTruthService(name="ISF_ValidationTruthService", **kwargs):
-    kwargs.setdefault('BarcodeSvc'              , getService('ISF_ValidationBarcodeSvc'))
+    kwargs.setdefault('BarcodeSvc'              , ISF_Flags.BarcodeService() )
     kwargs.setdefault('McEventCollection'       , 'TruthEvent')
     kwargs.setdefault('SkipIfNoSecondaries'     , True)
     kwargs.setdefault('SkipIfNoPrimaryBarcode'  , True)
@@ -47,6 +64,7 @@ def getValidationTruthService(name="ISF_ValidationTruthService", **kwargs):
     kwargs.setdefault('MSTruthStrategies'       , [])
     kwargs.setdefault('IgnoreUndefinedBarcodes' , True)
     kwargs.setdefault('StoreExtraBarcodes'      , False)
+    kwargs.setdefault('PassWholeVertices'       , True)
 
     from ISF_HepMC_Services.ISF_HepMC_ServicesConf import ISF__HepMC_TruthSvc
     return ISF__HepMC_TruthSvc(name, **kwargs);

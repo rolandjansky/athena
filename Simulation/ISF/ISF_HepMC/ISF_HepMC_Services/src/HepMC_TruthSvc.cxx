@@ -53,7 +53,8 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_ignoreUndefinedBarcodes(false),
   m_screenOutputPrefix("isf >> "),
   m_screenEmptyPrefix(),
-  m_storeExtraBCs(true)
+  m_storeExtraBCs(true),
+  m_passWholeVertex(true)
 {
     // the particle stack filler tool
     declareProperty("McEventCollection",                m_collectionName          );
@@ -65,7 +66,7 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
     declareProperty("SkipIfNoSecondaries",              m_skipIfNoSecondaries     );
     declareProperty("SkipIfNoPrimaryBarcode",           m_skipIfNoPrimaryBarcode  );
     declareProperty("IgnoreUndefinedBarcodes",          m_ignoreUndefinedBarcodes );
-
+    declareProperty("PassWholeVertices",                  m_passWholeVertex         );
     // the truth strategies for the different SimGeoIDs
     declareProperty("BeamPipeTruthStrategies",          m_geoStrategyHandles[AtlasDetDescr::fAtlasForward] );
     declareProperty("IDTruthStrategies",                m_geoStrategyHandles[AtlasDetDescr::fAtlasID]      );
@@ -213,6 +214,9 @@ StatusCode ISF::HepMC_TruthSvc::releaseEvent() {
 /** Register a truth incident */
 void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
+  // pass whole vertex or individual secondaries
+  truth.setPassWholeVertices(m_passWholeVertex);
+
   // the GeoID
   AtlasDetDescr::AtlasRegion geoID = truth.geoID();
 
@@ -265,6 +269,19 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     weights[0] = static_cast<double>(primBC);
     weights[1] = static_cast<double>(processCode);
 
+    // Check for a previous end vertex on this particle.  If one existed, snip it
+    bool setPersistent = true;
+    HepMC::GenParticle *prim = truth.primaryParticle( setPersistent );
+    if (prim->end_vertex()){
+      ATH_MSG_WARNING("Primary found with an end vertex attached.  This should only happen");
+      ATH_MSG_WARNING("in the case of simulating quasi-stable particles.  That functionality");
+      ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
+      ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
+      HepMC::GenVertex * old_vtx = prim->end_vertex();
+      old_vtx->remove_particle( prim );
+      delete old_vtx; // This should be nice and iterative
+    } 
+
     // generate vertex
     HepMC::GenVertex *vtx = new HepMC::GenVertex( truth.position(), 0, weights ); // 0 = barcode, overwritten below
     Barcode::VertexBarcode vtxbcode = m_barcodeSvcQuick->newVertex( primBC, processCode );
@@ -279,8 +296,6 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     vtx->suggest_barcode( vtxbcode);
 
     // add primary particle to vtx
-    bool setPersistent = true;
-    HepMC::GenParticle *prim = truth.primaryParticle( setPersistent);
     vtx->add_particle_in( prim );
   
     // update primary barcode and add it to the vertex as outgoing particle
