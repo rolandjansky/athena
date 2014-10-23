@@ -27,19 +27,17 @@
 #include "LArReadoutGeometry/FCALModule.h"
 #include "LArReadoutGeometry/FCALTile.h"
 #include "LArReadoutGeometry/FCALTube.h"
-#include "AthenaKernel/Units.h"
-namespace Units = Athena::Units;
 
 //
 // constructor
 //
 LArFCALCalculatorBase::LArFCALCalculatorBase()
-  : m_OOTcut(2.5*CLHEP::ns),m_posModule(NULL),m_negModule(NULL), m_FCalSampling(0), m_birksLaw(NULL)
+  : m_OOTcut(2.5*CLHEP::ns),m_posModule(NULL),m_negModule(NULL), m_FCalSampling(0), birksLaw(NULL)
 {
-  //m_identifier = LArG4Identifier();
+  m_identifier = LArG4Identifier();
 
-  //m_time = 0.;
-  //m_energy = 0.;
+  m_time = 0.;
+  m_energy = 0.;
   m_isInTime = false;
 
 
@@ -55,7 +53,7 @@ LArFCALCalculatorBase::LArFCALCalculatorBase()
     if (fcalOptions->FCALBirksLaw()) {
       const double Birks_LAr_density = 1.396;
       const double Birks_k = fcalOptions->FCALBirksk();
-      m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+      birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
     }
     
     if (fcalOptions->FCALHVEnable()) {
@@ -77,12 +75,12 @@ LArFCALCalculatorBase::LArFCALCalculatorBase()
 //
 LArFCALCalculatorBase::~LArFCALCalculatorBase()
 { 
-  delete m_birksLaw;
+  delete birksLaw;
 }
 
 
 
-G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+G4bool LArFCALCalculatorBase::Process(const G4Step* a_step)
 {
   // Given a G4Step, determine the cell identifier.
 
@@ -90,13 +88,11 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
   // true, the hit is valid; if it's false, there was some problem
   // with the hit and it should be ignored.
 
-  // make sure hdata is reset
-  hdata.resize(1); 
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  m_energy = a_step->GetTotalEnergyDeposit();
 
-  G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
-  if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10);
+  G4double stepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+  if(birksLaw)  m_energy = (*birksLaw)(m_energy, stepLengthCm, 10);
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
@@ -109,8 +105,8 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
 
 
   // Determine if the hit was in-time.
-  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
-  if (hdata[0].time > m_OOTcut)
+  m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  if (m_time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
@@ -145,8 +141,8 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
 	    double voltage = line->voltage();
 	    //double current = line->current();
 	    bool   hvOn    = line->hvOn();
-	    if (!hvOn) hdata[0].energy=0.0;
-	    hdata[0].energy *= pow((voltage)/2000.0,0.6);
+	    if (!hvOn) m_energy=0.0;
+	    m_energy *= pow((voltage)/2000.0,0.6);
 	    tubeFound=true;
 	    break;
 	  }
@@ -157,10 +153,10 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
     }
     
   }
-  hdata[0].id.clear();
+  m_identifier.clear();
 
   // Append the values to the empty identifier.
-  hdata[0].id  << 4          // LArCalorimeter
+  m_identifier << 4          // LArCalorimeter
 	       << 3          // LArFCAL
 	       << zSide      // EndCap	      
 	       << sampling   // FCal Module #
