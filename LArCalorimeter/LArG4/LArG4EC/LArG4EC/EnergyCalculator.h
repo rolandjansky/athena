@@ -54,7 +54,7 @@ class EnergyCalculator
 	virtual G4bool Process(const G4Step*);
 	virtual G4bool FindIdentifier(const G4Step *, G4ThreeVector &,
 								  G4ThreeVector &);
-	virtual LArG4Identifier identifier(int i = 0) const {
+	virtual const LArG4Identifier& identifier(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
 		return m_identifier;
 	}
