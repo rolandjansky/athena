@@ -15,22 +15,24 @@
 Barcode::GenericBarcodeSvc::GenericBarcodeSvc(const std::string& name,ISvcLocator* svc) :
   AthService(name,svc),
   m_incidentSvc("IncidentSvc", name),
-  m_firstVertex(-200000),
-  m_vertexIncrement(-1000000),
-  m_curVertex(m_firstVertex),
-  m_firstSecondary(200001),
+  m_firstVertex(-1000001),
+  m_vertexIncrement(-1),
+  m_currentVertex(-1),
+  m_firstSecondary(1000001),
   m_secondaryIncrement(1),
-  m_curParticle(m_firstSecondary),
+  m_currentSecondary(1),
+  m_particleRegenerationIncrement(10000000),
   m_doUnderOverflowChecks(true),
-  m_encodePhysicsProcess(true)
+  m_encodePhysicsProcess(false)
 {
   // python properties
-  declareProperty("FirstVertexBarcode"            ,  m_firstVertex=-200000        );
-  declareProperty("VertexIncrement"               ,  m_vertexIncrement=-1000000   );
-  declareProperty("FirstSecondaryBarcode"         ,  m_firstSecondary=200001      );
-  declareProperty("SecondaryIncrement"            ,  m_secondaryIncrement=1       );
-  declareProperty("DoUnderAndOverflowChecks"      ,  m_doUnderOverflowChecks=true );
-  declareProperty("EncodePhysicsProcessInVertexBC",  m_encodePhysicsProcess=true  );
+  declareProperty("FirstVertexBarcode"            ,  m_firstVertex=-1000001                  );
+  declareProperty("VertexIncrement"               ,  m_vertexIncrement=-1                    );
+  declareProperty("FirstSecondaryBarcode"         ,  m_firstSecondary=1000001                );
+  declareProperty("SecondaryIncrement"            ,  m_secondaryIncrement=1                  );
+  declareProperty("ParticleRegenerationIncrement" ,  m_particleRegenerationIncrement=10000000);
+  declareProperty("DoUnderAndOverflowChecks"      ,  m_doUnderOverflowChecks=true            );
+  declareProperty("EncodePhysicsProcessInVertexBC",  m_encodePhysicsProcess=false            );
 }
 
 
@@ -60,22 +62,24 @@ StatusCode Barcode::GenericBarcodeSvc::initialize()
 Barcode::VertexBarcode Barcode::GenericBarcodeSvc::newVertex( Barcode::ParticleBarcode /* parent */,
                                                               Barcode::PhysicsProcessCode process ) {
   // update the internal vertex BC counter
-  m_curVertex += m_vertexIncrement;
+  m_currentVertex += m_vertexIncrement;
 
   // the barcode that will be returned
-  Barcode::VertexBarcode newBC = m_curVertex;
+  Barcode::VertexBarcode newBC = m_currentVertex;
 
   // if enabled, put the physics process code into the vertex barcode
-  if (m_encodePhysicsProcess)
+  if (m_encodePhysicsProcess) {
     newBC = newBC - process;
     // an example vertex BC would be (8th vtx, process #1234):  -8201234
+  }
 
   // a naive underflog checking based on the fact that vertex
   // barcodes should never be positive
-  if ( m_doUnderOverflowChecks && ( newBC > 0))
+  if ( m_doUnderOverflowChecks && ( newBC > 0)) {
     ATH_MSG_ERROR("LegacyBarcodeSvc::newVertex(...)"
-                  << " will return a vertex barcode greater than 0: "
-                  << m_curVertex << ". Possibly Integer Underflow?");
+                  << " will return a vertex barcode greater than 0: '"
+                  << m_currentVertex << "'. Possibly Integer Underflow?");
+  }
 
   return newBC;
 }
@@ -86,16 +90,18 @@ Barcode::VertexBarcode Barcode::GenericBarcodeSvc::newVertex( Barcode::ParticleB
     the secondary  */
 Barcode::ParticleBarcode Barcode::GenericBarcodeSvc::newSecondary( Barcode::ParticleBarcode /* parentBC */,
                                                                    Barcode::PhysicsProcessCode /* process */) {
-  m_curParticle += m_secondaryIncrement;
+  m_currentSecondary += m_secondaryIncrement;
 
   // a naive overflow checking based on the fact that particle
   // barcodes should never be negative
-  if ( m_doUnderOverflowChecks && (m_curParticle < 0))
+  if ( m_doUnderOverflowChecks && (m_currentSecondary < 0)) {
     ATH_MSG_ERROR("LegacyBarcodeSvc::newSecondary(...)"
-                  << " will return a particle barcode of less than 0: "
-                  << m_curParticle << ". Possibly Integer Overflow?");
+                  << " will return a particle barcode of less than 0: '"
+                  << m_currentSecondary << "'. Reset to zero.");
+    m_currentSecondary = Barcode::fUndefinedBarcode;
+  }
 
-  return m_curParticle;
+  return m_currentSecondary;
 }
 
 
@@ -110,10 +116,20 @@ Barcode::ParticleBarcode Barcode::GenericBarcodeSvc::sharedChildBarcode( Barcode
 
 
 /** Update the given barcode (e.g. after an interaction) */
-Barcode::ParticleBarcode Barcode::GenericBarcodeSvc::incrementBarcode( Barcode::ParticleBarcode /* old */,
+Barcode::ParticleBarcode Barcode::GenericBarcodeSvc::incrementBarcode( Barcode::ParticleBarcode old,
                                                                        Barcode::PhysicsProcessCode /* process */) {
-  m_curParticle += m_secondaryIncrement;
-  return ( m_curParticle);
+  Barcode::ParticleBarcode newBC = old + m_particleRegenerationIncrement;
+
+  // a naive overflow checking based on the fact that particle
+  // barcodes should never be negative
+  if ( m_doUnderOverflowChecks && (newBC < 0)) {
+    ATH_MSG_ERROR("LegacyBarcodeSvc::incrementBarcode('" << old << "')"
+                  << " will return a particle barcode of less than 0: '"
+                  << newBC << "'. Reset to zero.");
+    newBC = Barcode::fUndefinedBarcode;
+  }
+
+  return newBC;
 }
 
 
@@ -129,8 +145,8 @@ void Barcode::GenericBarcodeSvc::registerLargestGenEvtVtxBC( Barcode::VertexBarc
 void Barcode::GenericBarcodeSvc::handle(const Incident& inc) {
   if ( inc.type() == IncidentType::BeginEvent ) {
       ATH_MSG_VERBOSE("'BeginEvent' incident caught. Resetting Vertex and Particle barcode counters.");
-      m_curParticle = m_firstSecondary - m_secondaryIncrement;
-      m_curVertex   = m_firstVertex    - m_vertexIncrement;
+      m_currentVertex    = m_firstVertex    - m_vertexIncrement;
+      m_currentSecondary = m_firstSecondary - m_secondaryIncrement;
   }
 }
 
