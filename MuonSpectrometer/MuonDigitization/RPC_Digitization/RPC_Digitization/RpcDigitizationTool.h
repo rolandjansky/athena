@@ -214,7 +214,7 @@ private:
         
   bool SetPhiOn ;    
   bool SetEtaOn ;
-    
+  bool m_muonOnlySDOs;
 protected:  
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputHitCollectionName; // name of the input objects

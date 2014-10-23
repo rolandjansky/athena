@@ -82,16 +82,17 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("OutputObjectName"     ,  m_outputDigitCollectionName = "RPC_DIGITS","name of the output object");
   declareProperty("OutputSDOsName"       ,  m_outputSDO_CollectionName  = "RPC_SDO",   "name of the output object");
   declareProperty("WindowLowerOffset"    ,  m_timeWindowLowerOffset = -100.       , "digitization window lower limit");
-  declareProperty("WindowUpperOffset"    ,  m_timeWindowUpperOffset = +100.       , "digitization window lower limit");
+  declareProperty("WindowUpperOffset"    ,  m_timeWindowUpperOffset = +150.       , "digitization window lower limit");
   declareProperty("DeadTime"             ,  m_deadTime              = 100.        , "dead time"                      );
   declareProperty("UncorrJitter"         ,  m_UncorrJitter          = 1.5         , "jitter uncorrelated"            );
   declareProperty("CorrJitter"           ,  m_CorrJitter            = 0.0         , "jitter correlated"              );
   declareProperty("RndmSvc"              ,  m_rndmSvc                  , "Random Number Service used in Muon digitization" );
   declareProperty("RndmEngine"           ,  m_rndmEngineName           , "Random engine name");
   declareProperty("PatchForRpcTime"      ,  m_patch_for_rpc_time       = false );
-  declareProperty("PatchForRpcTimeShift" ,  m_rpc_time_shift           =  5.   ); // shift to rpc digit time to avoid negative time from jitter
+  declareProperty("PatchForRpcTimeShift" ,  m_rpc_time_shift           = 12.5   ); // shift rpc digit time to match hardware time calibration: Zmumu muons are at the center of BC0, i.e. at 12.5ns+BC0shift w.r.t. RPC readout (BC0shift=2x3.125)
   declareProperty("RPC_TimeSchema"       ,  m_RPC_TimeSchema           = "RPC_TimeSchema"); // RPC time Info tag name
   declareProperty("RPCSDOareRPCDigits"   ,  m_sdoAreOnlyDigits         = true  );
+  declareProperty("MuonOnlySDOs"         ,  m_muonOnlySDOs             = true  );
   declareProperty("PanelId_OFF_fromlist" ,  m_PanelId_OFF_fromlist     = false );
   declareProperty("FileName_DeadPanels"  ,  m_FileName_DeadPanels= "PermanentDeadPanels.txt"); //File with deadpanel list
   declareProperty("PanelId_OK_fromlist"  ,  m_PanelId_OK_fromlist      = false );
@@ -506,7 +507,16 @@ StatusCode RpcDigitizationTool::doDigitization() {
     return StatusCode::FAILURE;
   }
 
+  
   while( m_thpcRPC->nextDetectorElement(i, e) ) {
+
+    // to store the a single 
+    struct SimDataContent {
+      Identifier channelId;
+      std::vector<MuonSimData::Deposit> deposits;
+      Amg::Vector3D gpos;
+    };
+    std::map<Identifier,SimDataContent> channelSimDataMap; 
 
     // Loop over the hits:
     while (i != e) {
@@ -532,7 +542,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
       //          << " Bunch time " << bunchTime      <<  std::endl;
 
       if (m_validationSetup){
-	  RPCSimHit* copyHit = new RPCSimHit(idHit, globalHitTime,hit.localPosition(),hit.trackNumber(),
+	  RPCSimHit* copyHit = new RPCSimHit(idHit, globalHitTime, hit.localPosition(), hit.trackNumber(),
 					     hit.postLocalPosition(), hit.energyDeposit(), hit.stepLength(), 
 					     hit.particleEncoding(), hit.kineticEnergy());
 	  ATH_MSG_VERBOSE("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime);
@@ -571,84 +581,58 @@ StatusCode RpcDigitizationTool::doDigitization() {
 		      << " gasGap "	 <<    gasGap
 		      << " measphi "	 <<    measphi );//
 
+      const Identifier idpaneleta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+                                                          doubletZ, doubletPhi,gasGap, 0, 1);
+      const Identifier idpanelphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+                                                          doubletZ, doubletPhi,gasGap, 1, 1);
+
       //loop on eta and phi to apply correlated efficiency between the two views
-      std::vector<int> pcs;
-      std::vector<int> pcsphi;
       //      Identifier atlasRpcId;
       //      Identifier atlasRpcIdphi;
       
-      double timejitter    =  0 ;
-      if(m_CorrJitter>0.01) timejitter    = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_CorrJitter); //correlated jitter
+      double corrtimejitter    =  0 ;
+      if(m_CorrJitter>0.01) corrtimejitter    = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_CorrJitter); //correlated jitter
+      //      std::cout<<" Correlated eta / phi jitter = "<<corrtimejitter<<std::endl;
       // handle here the special case where eta panel is dead => phi strip status (dead or eff.) cannot be resolved; 
       // measured panel eff. will be used in that case and no phi strip killing will happen
       bool undefPhiStripStat = false;
 
+      std::vector<int> pcseta    = PhysicalClusterSize(&idpaneleta, &hit); //set to one for new algorithms
+      ATH_MSG_DEBUG ( "Simulated cluster on eta panel: size/first/last= "<<pcseta[0]   <<"/"<<pcseta[1]   <<"/"<<pcseta[2] );
+      std::vector<int> pcsphi = PhysicalClusterSize(&idpanelphi, &hit); //set to one for new algorithms
+      ATH_MSG_DEBUG ( "Simulated cluster on phi panel: size/first/last= "<<pcsphi[0]<<"/"<<pcsphi[1]<<"/"<<pcsphi[2] );
+
+      // create Identifiers
+      Identifier atlasRpcIdeta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+                                                       doubletZ, doubletPhi,gasGap, 0, pcseta[1] );
+      Identifier atlasRpcIdphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+                                                       doubletZ, doubletPhi,gasGap, 1, pcsphi[1] );
+
+      const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
+
+      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat).isFailure()) return StatusCode::FAILURE ;
+      ATH_MSG_DEBUG ( "SetPhiOn " << SetPhiOn << " SetEtaOn " <<  SetEtaOn );
+
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
 
-	const Identifier atlasId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-							 doubletZ, doubletPhi,gasGap, imeasphi, 1);
-	const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasId);// first add time jitter to the time:
-
-	
-
-	if( imeasphi==0 ){
-	  //Cluster Size Generation
-	  //pcs contains the cluster size, the first strip number and the first strip number of the cluster
-	  const Identifier idpaneleta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-							     doubletZ, doubletPhi,gasGap, 0, 1);
-	  const Identifier idpanelphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-							     doubletZ, doubletPhi,gasGap, 1, 1);
-	  ATH_MSG_DEBUG ("about to compute strip number (and generate cluster size) on eta panel");
-	  pcs    = PhysicalClusterSize(&idpaneleta, &hit); //set to one for new algorithms
-	  ATH_MSG_DEBUG ("about to compute strip number (and generate cluster size) on phi panel");
-	  pcsphi = PhysicalClusterSize(&idpanelphi, &hit); //set to one for new algorithms
-	  
-	  ATH_MSG_DEBUG ( "Simulated cluster on eta panel: size/first/last= "<<pcs[0]   <<"/"<<pcs[1]   <<"/"<<pcs[2] );
-	  ATH_MSG_DEBUG ( "Simulated cluster on phi panel: size/first/last= "<<pcsphi[0]<<"/"<<pcsphi[1]<<"/"<<pcsphi[2] );
-
-	  const Identifier atlasRpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-					     doubletZ, doubletPhi,gasGap, imeasphi, pcs[1] );
-	  
-	  const Identifier atlasRpcIdphi = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-						doubletZ, doubletPhi,gasGap,        1, pcsphi[1] );
-	  StatusCode status = DetectionEfficiency(&atlasRpcId,&atlasRpcIdphi, undefPhiStripStat);
-	  if (status.isFailure()) return status ;
-
-	  ATH_MSG_DEBUG ( "SetPhiOn " << SetPhiOn << " SetEtaOn " <<  SetEtaOn );
-	  //std::cout<< "SetPhiOn " << SetPhiOn << " SetEtaOn " <<  SetEtaOn << " " << SetPhiOn + SetEtaOn <<std::endl;
-	}
-	else 
-	  {
-	    pcs = pcsphi;
-	  }	
-	
-
-	if( imeasphi==0 && SetEtaOn==0)continue ;
-	if( imeasphi==1 && SetPhiOn==0)continue ;
+        // get Identifier and list of clusters for this projection 
+        const Identifier atlasId = (imeasphi==0) ? atlasRpcIdeta : atlasRpcIdphi;
+        std::vector<int> pcs = (imeasphi==0) ? pcseta : pcsphi;
 
 	ATH_MSG_DEBUG ( "SetOn: stationName "  <<    stationName.c_str()
-			 << " stationEta "   <<    stationEta
-			 << " stationPhi "   <<    stationPhi
-			 << " doubletR "     <<    doubletR
-			 << " doubletZ "     <<    doubletZ
-			 << " doubletPhi "   <<    doubletPhi
-			 << " gasGap "       <<    gasGap
-			 << " measphi "      <<    imeasphi ) ;
-
+                        << " stationEta "   <<    stationEta
+                        << " stationPhi "   <<    stationPhi
+                        << " doubletR "     <<    doubletR
+                        << " doubletZ "     <<    doubletZ
+                        << " doubletPhi "   <<    doubletPhi
+                        << " gasGap "       <<    gasGap
+                        << " measphi "      <<    imeasphi ) ;
+        
 	//pcs contains the cluster size, the first strip number and the last strip number of the cluster
 	pcs = TurnOnStrips(pcs, &atlasId);
-
-        //std::cout<<  "SetOn: stationName "  <<    stationName.c_str();
-	//std::cout  << " stationEta "   <<    stationEta;
-	//std::cout  << " stationPhi "   <<    stationPhi;
-	//std::cout  << " doubletR "     <<    doubletR;
-	//std::cout  << " doubletZ "     <<    doubletZ;
-	//std::cout  << " doubletPhi "   <<    doubletPhi;
-	//std::cout  << " gasGap "       <<    gasGap;
-	//std::cout  << " measphi "      <<    imeasphi << std::endl;
+        if(pcs[2]<0) return StatusCode::FAILURE;
 
 	ATH_MSG_DEBUG ( "Simulated cluster1: size/first/last= "<<pcs[0]<<"/"<<pcs[1]<<"/"<<pcs[2] );
-	//std::cout<<"Simulated cluster1: size/first/last= "<<pcs[0]<<" "<<pcs[1]<<" "<<pcs[2]<<" "<<imeasphi<<std::endl;
 
 	//Adjust absolute position and local position
 	Amg::Vector3D pos=hit.localPosition();
@@ -656,10 +640,10 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	pos=posInPanel(&atlasId, pos);     //This is what we want to save in deposit?
 
 	//Calculate propagation time along readout strip in seconds
-	//double proptime=PropagationTime(&atlasId,pos); obsolete? // eliminare<
-	double proptime=PropagationTimeNew(&atlasId,ele->localToGlobalCoords(hit.localPosition(),atlasId));
+        Amg::Vector3D gpos = ele->localToGlobalCoords(pos,atlasId);
+	double proptime=PropagationTimeNew(&atlasId,gpos);
 
-	double tns = G4Time + proptime + timejitter; //the time is in nanoseconds
+	double tns = G4Time + proptime + corrtimejitter; //the time is in nanoseconds
 	ATH_MSG_VERBOSE ( "TOF+propagation time  "<< tns <<" /s where proptime "<< proptime << "/s" );
 
 	double time =tns + bunchTime;
@@ -678,13 +662,30 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	// create here deposit for MuonSimData
 	// ME unused: const HepMcParticleLink & particleLink = hit.particleLink();
 	// MuonMCData first  word is the packing of    : proptime, bunchTime, posy, posz
-	// MuonMCData second word is the total hit time: bunchcTime+tof+proptime / ns
+	// MuonMCData second word is the total hit time: bunchcTime+tof+proptime+correlatedJitter / ns
 	MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()),
-				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
+				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
+	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 
+        if( abs(hit.particleEncoding())== 13 ){
 
+          auto channelSimDataMapPos = channelSimDataMap.find(atlasId);
+          if( channelSimDataMapPos == channelSimDataMap.end() ){
+            Amg::Vector3D ppos=hit.postLocalPosition();
+            Amg::Vector3D gppos = ele->localToGlobalCoords(ppos,atlasId);
+            Amg::Vector3D gdir = gppos - gpos;
+            Trk::SurfaceIntersection intersection = ele->surface(atlasId).straightLineIntersection(gpos,gdir,false,false); 
+            SimDataContent& content = channelSimDataMap[atlasId];
+            content.channelId = atlasId;
+            content.deposits.push_back(deposit);
+            content.gpos = intersection.intersection;
+            ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
+          }
+        }
 
-	if(pcs[2]<0) return StatusCode::FAILURE;
+	if( imeasphi==0 && SetEtaOn==0) continue ;
+	if( imeasphi==1 && SetPhiOn==0) continue ;
+
 
 	//---------------------------------------------------------------------
 	// construct new digit and store it in the respective digit collection
@@ -732,6 +733,18 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	} // end for cluster
       } //loop on eta and phi
     } // end loop hits
+
+    if( m_muonOnlySDOs ){
+      
+      for( auto it = channelSimDataMap.begin(); it!=channelSimDataMap.end();++it ){
+        
+        MuonSimData simData(it->second.deposits,0);
+        simData.setPosition(it->second.gpos);
+        auto insertResult = m_sdoContainer->insert(std::make_pair( it->first,simData) );
+        if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the m_sdoContainer map" );
+      }
+    }
+
   } // end loop detector elements
 
 
@@ -748,7 +761,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
     ATH_MSG_DEBUG ( "in the map loop: id "<<m_idHelper->show_to_string(theId) );
     //Deposit
     const std::vector<MuonSimData::Deposit> theDeps=(*map_iter).second;
-
+  
     // store the SDO from the muon
     MuonSimData::Deposit theMuon;                      // useful beacuse it sorts the digits in ascending time.
     std::multimap<double, MuonSimData::Deposit> times; // extract here time info from deposits.
@@ -771,7 +784,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
       double currTime =(*map_dep_iter).first;
       ATH_MSG_VERBOSE ( "deposit with time " << currTime  );
 
-      if (!m_sdoAreOnlyDigits)
+      if (!m_muonOnlySDOs && !m_sdoAreOnlyDigits)
 	{
 	  // store (before any cut: all G4 hits) in the SDO container
 	  //Identifier sdo and digit are the same
@@ -799,8 +812,9 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  last_time=(*map_dep_iter).first;
 
 	  // first add time jitter to the time:
-          double jitter    = 0 ;
-	  if(m_UncorrJitter>0.01) CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_UncorrJitter);
+          double uncorrjitter    = 0 ;
+	  if(m_UncorrJitter>0.01) uncorrjitter = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.,m_UncorrJitter);
+	  //	  std::cout<<" uncorrelated jitter = "<<uncorrjitter<<std::endl;
 
 	  //Historically patch for the cavern background
 	  //Now we subtract TOF from IP to assume full time calibrated detector (t=0 for particle from IP at light speed)
@@ -810,9 +824,11 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  Amg::Vector3D posi = ele->stripPos(theId);
 	  double tp = time_correction(posi.x(),posi.y(),posi.z());
 	  tp = (m_patch_for_rpc_time)?  tp: 0;
-	  double newDigit_time =	currTime+jitter+m_rpc_time_shift-tp;
+	  //Calculate propagation time for a hit at the center of the strip, to be subtructed as well as the nominal TOF 
+	  double propTimeFromStripCenter=PropagationTimeNew(&theId,posi);
+	  double newDigit_time =	currTime+uncorrjitter+m_rpc_time_shift-tp-propTimeFromStripCenter;
 
-	  ATH_MSG_VERBOSE ( "last_time=currTime " << last_time << " jitter " <<jitter << " TOFcorrection " <<tp << " shift " << m_rpc_time_shift << "  newDigit_time " << newDigit_time );
+	  ATH_MSG_VERBOSE ( "last_time=currTime " << last_time << " jitter " <<uncorrjitter << " TOFcorrection " <<tp << " shift " << m_rpc_time_shift << "  newDigit_time " << newDigit_time );
 
 	  //Apply readout window (sensitive detector time window)
 	  bool outsideDigitizationWindow = outsideWindow(newDigit_time);
@@ -865,7 +881,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	    digitCollection->push_back(newDigit);
 	  }
 
-	  if (m_sdoAreOnlyDigits)
+	  if (!m_muonOnlySDOs && m_sdoAreOnlyDigits)
 	    {
 
 	      // put SDO collection in StoreGate

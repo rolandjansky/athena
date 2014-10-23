@@ -6,12 +6,12 @@ from AthenaCommon import CfgMgr
 # The earliest bunch crossing time for which interactions will be sent
 # to the RpcDigitizationTool.
 def RPC_FirstXing():
-    return -100
+    return -150
 
 # The latest bunch crossing time for which interactions will be sent
 # to the RpcDigitizationTool.
 def RPC_LastXing():
-    return 100
+    return 125
 
 def getRpcRange(name="RpcRange", **kwargs):
     # bunch crossing range in ns
@@ -33,7 +33,8 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
         kwargs.setdefault("LastXing",  RPC_LastXing() ) 
     kwargs.setdefault("DeadTime", 100)  
     kwargs.setdefault("PatchForRpcTime"       ,True  )	    
-    kwargs.setdefault("PatchForRpcTimeShift"  ,5     )  
+    # kwargs.setdefault("PatchForRpcTimeShift"  ,9.6875)  
+    kwargs.setdefault("PatchForRpcTimeShift"  ,12.5)  
     kwargs.setdefault("turnON_efficiency"     ,True  )  
     kwargs.setdefault("turnON_clustersize"    ,True  )  
     kwargs.setdefault("testbeam_clustersize"  ,0     )  
