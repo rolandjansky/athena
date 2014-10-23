@@ -46,7 +46,7 @@ public:
   virtual G4float OOTcut() const { return m_OOTcut; }  
  
   virtual int getNumHits() const {return m_nhits;}
-  virtual LArG4Identifier identifier(int i=0) const { 
+  virtual const LArG4Identifier& identifier(int i=0) const { 
     if (i<0||i>=m_nhits) throw std::range_error("Hit asked is out of range");
     return m_identifier[i]; }
   virtual G4double time(int i=0) const { 
