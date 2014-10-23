@@ -3,10 +3,10 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// ISFEnvelopeDefSvc.h, (c) ATLAS Detector software
+// AFIIEnvelopeDefSvc.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef ISFENVELOPEDEFSVC_H
-#define ISFENVELOPEDEFSVC_H
+#ifndef AFIIENVELOPEDEFSVC_H
+#define AFIIENVELOPEDEFSVC_H
 
 // STL includes
 #include <string>
@@ -21,14 +21,14 @@
 
 namespace ISF {
 
-  class ISFEnvelopeDefSvc : public IEnvelopeDefSvc, virtual public AthService {
+  class AFIIEnvelopeDefSvc : public IEnvelopeDefSvc, virtual public AthService {
 
     public:
       /** public AthService constructor */
-      ISFEnvelopeDefSvc(const std::string& name, ISvcLocator* svc);
+      AFIIEnvelopeDefSvc(const std::string& name, ISvcLocator* svc);
 
       /** Destructor */
-      ~ISFEnvelopeDefSvc();
+      ~AFIIEnvelopeDefSvc();
 
       /** Query the interfaces. */
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
@@ -45,21 +45,32 @@ namespace ISF {
       const RZPairVector &getRPositiveZBoundary( AtlasDetDescr::AtlasRegion region ) const;
 
     private:
-      /** ServiceHandle to the common ATLAS envelope definition service */
-      ServiceHandle<IEnvelopeDefSvc>            m_atlasEnvDefSvc;
+      /** return boundary with shifted z values */
+      RZPairVector getShiftedBoundary( AtlasDetDescr::AtlasRegion region, double shiftFromZ, double shiftToZ ) const;
 
-      /** internal (r,z) representation for BeamPipe and InnerDetector volumes */
+      /** ServiceHandle to the standard ISF envelope definition service */
+      ServiceHandle<IEnvelopeDefSvc>            m_isfEnvDefSvc;
+
+      /** internal tolerance on coordinates */
+      double                                    m_tolerance;
+
+      /** maximum desired extent (halfz) of the modified inner detector volume */
+      double                                    m_idMaxExtentZ;
+
+      /** internal (r,z) representation for BeamPipe, InnerDetector and calo volumes */
       RZPairVector                              m_rzBeamPipe;
       RZPairVector                              m_rzInDet;
+      RZPairVector                              m_rzCalo;
       /** internal (r,z) representation for the positive z-side only,
        *  one RZPairVector for BeamPipe and InnerDetector each */
       RZPairVector                              m_rposzBeamPipe;
       RZPairVector                              m_rposzInDet;
+      RZPairVector                              m_rposzCalo;
 
   };
 
 
 } // namespace ISF
 
-#endif // ISFENVELOPEDEFSVC_H
+#endif // AFIIENVELOPEDEFSVC_H
 

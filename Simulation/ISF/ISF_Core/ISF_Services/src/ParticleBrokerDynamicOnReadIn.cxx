@@ -40,7 +40,7 @@ ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::str
   m_entryLayerToolQuick(0),
   m_orderingTool(""),
   m_orderingToolQuick(0),
-  m_geoIDSvc("iGeant4::GeoIDSvc/ISF_GeoIDSvc", name),
+  m_geoIDSvc("", name),
   m_geoIDSvcQuick(0),
   m_forceGeoIDSvc(false),
   m_validateGeoID(false),
@@ -50,7 +50,7 @@ ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::str
   m_simSelectorSet(),
   m_screenOutputPrefix("isf >> "),
   m_screenEmptyPrefix(),
-  m_barcodeSvc("ISF_MC12BarcodeSvc", name),
+  m_barcodeSvc("", name),
   m_doSelectorCPUMon(false),
   m_benchPDGCode(0),
   m_benchGeoID(0),
@@ -471,7 +471,7 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::initializeEvent()
     //       - if a Selector selects a particle -> it is pushed onto the active stack
     //       - if it is not selected -> pushed onto the hold stack
     selectAndStore( *particleIter);
-    if (!m_orderingTool) {
+    if (!m_orderingToolQuick) {
       (*particleIter)->setOrder(iparticle);
     }
   }
@@ -494,7 +494,8 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::finalizeEvent() {
   for ( ; fSimSelIter != fSimSelIterEnd; ++fSimSelIter )
     (*fSimSelIter)->endEvent();
 
-  for (int i=0;i<(int)m_extraParticles.size();i++) delete m_extraParticles[i];
+  for (size_t i=0;i<m_extraParticles.size();i++) {delete m_extraParticles[i];}
+  m_extraParticles.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -549,7 +550,7 @@ const ISF::ConstISFParticleVector& ISF::ParticleBrokerDynamicOnReadIn::popVector
       
       // if this particle has a different order or the maximum size of the return vector is reached
       //   -> don't add any more particles to the m_popParticles std::vector
-      if (  m_orderingTool && ((curOrder != returnOrder) || (m_popParticles.size()>=maxVectorSize) ) ) break;
+      if (  m_orderingToolQuick && ((curOrder != returnOrder) || (m_popParticles.size()>=maxVectorSize) ) ) break;
       
       // add this particle to the, later returned, m_popParticles std::vector
       m_popParticles.push_back( curParticle);
