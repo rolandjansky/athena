@@ -25,6 +25,7 @@
 // Include the interfaces
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 
+#include "xAODEgamma/PhotonFwd.h"
 #include "xAODTracking/VertexFwd.h"
 
 // Include the return object and the underlying ROOT tool
@@ -55,6 +56,11 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
   /** The main accept method: the actual cuts are applied here */
   const Root::TAccept& accept( const xAOD::Photon* part ) const;
 
+  /** Accept using reference **/
+  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const {
+    return accept (&part);
+  }
+
   unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
   // what isEM should be filled
@@ -77,6 +83,9 @@ private:
 
   double getConversion1OverP(const xAOD::Vertex*) const; 
   
+  /** Config File */
+  std::string m_configFile;
+
   /** Pointer to the underlying ROOT based tool */
   Root::TPhotonIsEMSelector* m_rootTool;
 

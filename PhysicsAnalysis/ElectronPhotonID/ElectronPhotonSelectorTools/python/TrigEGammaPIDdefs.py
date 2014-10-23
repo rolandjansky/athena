@@ -1,23 +1,30 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-class trigEgammaIDQuality:
+class TrigEgammaIDQuality:
     ElectronIDLoose = 0
-    ElectronIDMedium = 1
-    ElectronIDMedium1 = 2
-    ElectronIDMedium2 = 3
-    ElectronIDMedium3 = 4
-    ElectronIDMedium_TRT = 5
-    ElectronIDTight = 6
-    ElectronIDTightEF = 7
-    ElectronIDTightEF_TRT = 8
-    ElectronIDTightEF_NoEoP_WithTightDeltaEta = 9
-    ElectronIDTight1 = 10
-    ElectronIDTight2 = 11
-    ElectronIDHltTighter = 12
-    PhotonIDLoose = 13
-    PhotonIDLooseEF = 14
-    PhotonIDMediumEF = 15
-    PhotonIDTight = 16
+    ElectronIDLoose0 = 1
+    ElectronIDLoose1 = 2
+    ElectronIDLoose2 = 3
+    ElectronIDMedium = 4
+    ElectronIDMedium1 = 5
+    ElectronIDMedium2 = 6
+    ElectronIDMedium3 = 7
+    ElectronIDMedium_TRT = 8
+    ElectronIDTight = 9
+    ElectronIDTightEF = 10
+    ElectronIDTightEF_TRT = 11
+    ElectronIDTightEF_NoEoP_WithTightDeltaEta = 12
+    ElectronIDTight1 = 13
+    ElectronIDTight2 = 14
+    ElectronIDHltTighter = 15
+    PhotonIDLoose = 16
+    PhotonIDLooseEF = 17
+    PhotonIDMediumEF = 18
+    PhotonIDTight = 19
+    PhotonIDLooseEFTauMass = 20
+    ElectronIDLooseHLT = 21
+    ElectronIDMediumHLT = 22
+    ElectronIDTightHLT = 23
 
 class BitDefElectron:
    """  @brief cluster eta range """
@@ -121,11 +128,11 @@ class CutDefElectron:
 	CALOMIDDLE_ELECTRON = \
 	   0x1 << BitDefElectron.ClusterMiddleEnergy_Electron     | \
 	   0x1 << BitDefElectron.ClusterMiddleEratio37_Electron   | \
-	   0x1 << BitDefElectron.ClusterMiddleWidth_Electron     
+           0x1 << BitDefElectron.ClusterMiddleWidth_Electron
 	""" @brief calorimeter isolation"""
 	CALORIMETRICISOLATION_ELECTRON =  \
 	   0x1 << BitDefElectron.ClusterIsolation_Electron 
-
+        
 	""" @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 """
 	CALONOISOOLD_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPSOLD_ELECTRON | CALOMIDDLE_ELECTRON 
 	""" @brief "old" all cuts in calorimeter (including isolation) without ClusterStripsDEmaxs1 """
@@ -216,177 +223,45 @@ class CutDefElectron:
 
 class SelectionDefElectron:
 	
-	# old definitions of cuts as in rel<15.2.0
-#	ElectronLooseOLD =  CutDefElectron.CALOMIDDLE_ELECTRON | CutDefElectron.HADLEAKETA_ELECTRON
-#	ElectronMediumOLD =  CutDefElectron.CALOOLD_ELECTRON | \
-#		CutDefElectron.TRACKINGNOBLAYER_ELECTRON | CutDefElectron.TRACKMATCHDETA_ELECTRON
-#	ElectronMediumNoIsoOLD =  CutDefElectron.CALONOISOOLD_ELECTRON | \
-#		CutDefElectron.TRACKINGNOBLAYER_ELECTRON | CutDefElectron.TRACKMATCHDETA_ELECTRON
-#	ElectronTightOLD =  CutDefElectron.ALLOLD_ELECTRON
-#	ElectronTightTRTNoIsoOLD =  CutDefElectron.TRACKING_ELECTRON | \
-#		CutDefElectron.TRACKMATCH_ELECTRON | CutDefElectron.CALONOISOOLD_ELECTRON | CutDefElectron.TRT90_ELECTRON 
-#	ElectronTightNoIsolationOLD = ElectronTightTRTNoIsoOLD
-	
-	
-	# new definitions of cuts as in rel>=15.2.0
-	# since 15.7.0 also Tight selection contains 
-	#     TRACKMATCHTIGHT_ELECTRON 
-	#     CONVMATCH_ELECTRON
-	# since rel 16.0.0 definition of ElectronTight has changed
-	
-	""" @brief Loose electron selection """
-	ElectronLoose =  CutDefElectron.CALOMIDDLE_ELECTRON | CutDefElectron.HADLEAKETA_ELECTRON
-	""" @brief Medium electron selection with the delta eta cut has been removed """
-	ElectronMedium_WithoutTrackMatch =  CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKINGNOBLAYER_ELECTRON
-	""" @brief Medium electron selection without deta match with isolation requirement """
-	ElectronMediumIso_WithoutTrackMatch = ElectronMedium_WithoutTrackMatch | CutDefElectron.ISOLATION_ELECTRON
-	""" @brief Medium electron selection with deta match (was ElectronMedium in 15.X)"""
-	ElectronMedium_WithTrackMatch =  CutDefElectron.CALO_ELECTRON | \
-		CutDefElectron.TRACKINGNOBLAYER_ELECTRON | CutDefElectron.TRACKMATCHDETA_ELECTRON
-	""" @brief MediumIso electron selection with deta match (was ElectronMediumIso in 15.X)"""
-	ElectronMediumIso_WithTrackMatch =  ElectronMedium_WithTrackMatch | CutDefElectron.ISOLATION_ELECTRON
-	""" @brief Medium electron selecton """
-	ElectronMedium = ElectronMedium_WithTrackMatch
-	""" @brief MediumIso electron selecton """
-	ElectronMediumIso = ElectronMediumIso_WithTrackMatch
-	""" @brief obsolete - kept not crash clients """
-	ElectronMediumNoIso = ElectronMedium
-	
-	""" @brief Tight electron without track match (corresponds to RobusterTight in 15.6.X but 
-	      without the deltaEta bits TrackMatchEta_Electron and TrackMatchEtaTight_Electron) """
-	ElectronTight_WithoutTrackMatch =  CutDefElectron.CALO_ELECTRON | \
-	   CutDefElectron.TRACKING_ELECTRON | \
-	   0x1 << BitDefElectron.TrackMatchEoverP_Electron | \
-	   0x1 << BitDefElectron.TrackA0Tight_Electron | \
-	   CutDefElectron.CONVMATCH_ELECTRON | CutDefElectron.TRT_ELECTRON 
-	
-	""" @brief Tight without conversion requirement or track match """
-	ElectronTight_WithoutTrackMatch_NoConvCut =  CutDefElectron.CALO_ELECTRON | \
-	   CutDefElectron.TRACKING_ELECTRON | \
-	   0x1 << BitDefElectron.TrackMatchEoverP_Electron | \
-	   0x1 << BitDefElectron.TrackA0Tight_Electron | \
-	   CutDefElectron.TRT_ELECTRON
-	
-	""" @brief Tight_WithTrackMatch electron selection with isolation requirement """
-	ElectronTightIso_WithoutTrackMatch = ElectronTight_WithoutTrackMatch | CutDefElectron.ISOLATION_ELECTRON
-	
-	""" @brief Tight electron selection with track match"""
-	ElectronTight_WithTrackMatch = CutDefElectron.CALO_ELECTRON | \
-		CutDefElectron.TRACKING_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON | \
-	   CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.CONVMATCH_ELECTRON | \
-		CutDefElectron.TRT_ELECTRON 
-	
-	""" @brief Tight with track match without conversion requirement """
-	ElectronTight_WithTrackMatch_NoConvCut =  \
-	   CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON | \
-	   CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON 
-	
-	""" @brief Tight_WithTrackMatch electron selection with isolation requirement """
-	ElectronTightIso_WithTrackMatch = ElectronTight_WithTrackMatch | CutDefElectron.ISOLATION_ELECTRON
-	
-	""" @brief Tight electron selection """
-	ElectronTight = ElectronTight_WithTrackMatch
-	""" @brief Tight without conversion requirement """
-	ElectronTight_NoConvCut = ElectronTight_WithTrackMatch_NoConvCut
-	""" @brief Tight electron selection with isolation requirement """
-	ElectronTightIso = ElectronTightIso_WithTrackMatch
-	
-	""" @brief obsolete - kept not to crash clients """
-	ElectronTightTRTNoIso = ElectronTight
-	""" @brief obsolete - kept not to crash clients """
-	ElectronTightNoIsolation = ElectronTight
-	
-	""" @brief Tight electron (corresponds to RobusterTight in 15.6.X with the loose deltaEta bit
-	      TrackMatchEta_Electron but with out the tight one TrackMatchEtaTight_Electron) """
-	ElectronTight_WithLooseEtaTrackMatch = CutDefElectron.CALO_ELECTRON | \
-	   CutDefElectron.TRACKING_ELECTRON | CutDefElectron.TRACKMATCHDETA_ELECTRON | \
-	   0x1 << BitDefElectron.TrackMatchEoverP_Electron | \
-	   0x1 << BitDefElectron.TrackA0Tight_Electron | \
-	   CutDefElectron.CONVMATCH_ELECTRON | CutDefElectron.TRT_ELECTRON 
-
-	""" @brief Tight electron (corresponds to RobusterTight in 15.6.X with the deltaEta bits
-	      TrackMatchEta_Electron and TrackMatchEtaTight_Electron) """
-	ElectronTight_WithTightEtaTrackMatch = CutDefElectron.CALO_ELECTRON | \
-	   CutDefElectron.TRACKING_ELECTRON | CutDefElectron.TRACKMATCHDETA_ELECTRON | \
-	   CutDefElectron.TRACKMATCHTIGHT_ELECTRON | \
-	   0x1 << BitDefElectron.TrackMatchEoverP_Electron |  \
-	   CutDefElectron.CONVMATCH_ELECTRON | CutDefElectron.TRT_ELECTRON 
-	
-	""" @brief Tight_WithLooseEtaTrackMatch electron selection with isolation requirement """
-	ElectronTightIso_WithLooseEtaTrackMatch =  ElectronTight_WithLooseEtaTrackMatch | \
-	   CutDefElectron.ISOLATION_ELECTRON
-	
-	""" @brief Tight_WithTightEtaTrackMatch electron selection with isolation requirement """
-	ElectronTightIso_WithTightEtaTrackMatch = ElectronTight_WithTightEtaTrackMatch | \
-	   CutDefElectron.ISOLATION_ELECTRON
-	
-	""" @brief Tight electron (NB: kept for backward compatibility) """
-	ElectronTightRobust = ElectronTight_WithLooseEtaTrackMatch
-	
 	#############
 	### Added TrigEGamma Definitions
-	""" @brief Loose1 Electron """
 	ElectronLoose1 =  CutDefElectron.CALOMIDDLE_ELECTRON | \
                           CutDefElectron.HADLEAKETA_ELECTRON | \
                           CutDefElectron.CALOSTRIPS_LOOSE_ELECTRON | \
 		          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
                           CutDefElectron.TRACKMATCHDETA_ELECTRON
-	""" @brief Loose2 Electron """
-	ElectronLoose2    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-                            CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON
-
-	""" @brief Medium Electron for TRT chains """
-	ElectronMedium_TRT = CutDefElectron.CALO_ELECTRON
-	""" @brief Medium1 Electron definition for trigger """
 	#AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
 	ElectronMedium1    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
 		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
 		0x1 << BitDefElectron.TrackTRTratio_Electron | \
 		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron
-	""" @brief Medium2 Electron definition for trigger """
-	ElectronMedium2    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | \
-		0x1 << BitDefElectron.TrackTRTratio_Electron
-	## ElectronMedium2    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-## 		CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON
-	""" @brief Medium3 Electron definition for trigger """
-	ElectronMedium3    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON
-	""" @brief Medium4 Electron definition for trigger """
-	ElectronMedium4    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON
-   
-	""" @brief Tight Electron definition for EF, removes ConversionMatch,TrackMatchPhi,TrackMatchEtaTight bits"""
-	ElectronTightEF    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCH_ELECTRON_EF | CutDefElectron.TRACKMATCHTIGHT_ELECTRON_EF | \
-		CutDefElectron.TRT_ELECTRON
-	""" @brief Tight Electron definition for EF, removes ConversionMatch,TrackMatchPhi, TrackMatchEoverP and add TrackMatchEtaTight bits"""
-	ElectronTightEF_NoEoP_WithTightDeltaEta    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCH_ELECTRON_NoEoP_EF | CutDefElectron.TRACKMATCHTIGHT_ELECTRON | \
-		CutDefElectron.TRT_ELECTRON
-	""" @brief Tight Electron definition for TRT chains in EF """
-	ElectronTightEF_TRT = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRT_ELECTRON 
 	""" @brief Tight Electron1 definition for e15_tight in EF """
 	ElectronTight1 = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
 		CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
 		CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON
-	""" @brief Tight Electron definition for e5_tight """
-	ElectronTight2 = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRT_ELECTRON | \
-		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron
-	""" @brief Tight Electron definition for e5_tight """
-	ElectronHltTighter = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRT_ELECTRON | \
-		CutDefElectron.TRACKMATCHTIGHT_ELECTRON_EF | CutDefElectron.TRACKMATCH_ELECTRON_EF
+	
+        #############
+	### Added TrigEGammaDC14 Definitions for Run2
+	""" @brief Loose1 with RPhi Electron """
+	ElectronLooseHLT =  CutDefElectron.CALOMIDDLE_ELECTRON | \
+                          CutDefElectron.HADLEAKETA_ELECTRON | \
+                          CutDefElectron.CALOSTRIPS_LOOSE_ELECTRON | \
+		          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
+                          CutDefElectron.TRACKMATCHDETA_ELECTRON | \
+                          0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
+	""" @brief Medium1 with Rphi Electron definition for trigger """
+	#AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
+	ElectronMediumHLT    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
+		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
+		0x1 << BitDefElectron.TrackTRTratio_Electron | \
+		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
+                0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
 
-	""" @brief Electron definition for Et cut with track quality"""
-	Electron_trk    = BitDefElectron.TrackSi_Electron | BitDefElectron.TrackPixel_Electron
-	Electron_trkTRT = Electron_trk | CutDefElectron.TRT_ELECTRON
-        
-	""" @brief Loose electron for background trigger """
-	ElectronLooseTrk = ElectronLoose | CutDefElectron.TRACKINGNOBLAYERNOA0_ELECTRON | \
-                           CutDefElectron.TRACKMATCHDETA_ELECTRON
-
+	""" @brief Tight with Rphi Electron1 definition """
+	ElectronTightHLT = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
+		CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
+		CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON | \
+                0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
 """ \enum Bitdefinitons for the egamma class for photon identification
     see egammaParameters for info on the variable definitions """
 class BitDefPhoton:
@@ -565,23 +440,15 @@ class SelectionDefPhoton:
 print ""
 print "==============================================================================="
 print "====                       TrigEgamma isEM bit masks                      ====="
-print "====  ElectronLoose:                              0x%08x              =====" % SelectionDefElectron.ElectronLoose
-print "====  ElectronMedium:                             0x%08x              =====" % SelectionDefElectron.ElectronMedium
-print "====  ElectronMedium1:                            0x%08x              =====" % SelectionDefElectron.ElectronMedium1
-print "====  ElectronMedium2:                            0x%08x              =====" % SelectionDefElectron.ElectronMedium2
-print "====  ElectronMedium3:                            0x%08x              =====" % SelectionDefElectron.ElectronMedium3
-print "====  ElectronMedium4:                            0x%08x              =====" % SelectionDefElectron.ElectronMedium3
-print "====  ElectronMedium_TRT:                         0x%08x              =====" % SelectionDefElectron.ElectronMedium_TRT
-print "====  ElectronTight:                              0x%08x              =====" % SelectionDefElectron.ElectronTight
-print "====  ElectronTightEF:                            0x%08x              =====" % SelectionDefElectron.ElectronTightEF
-print "====  ElectronTightEF_TRT:                        0x%08x              =====" % SelectionDefElectron.ElectronTightEF_TRT
-print "====  ElectronTightEF_NoEoP_WithTightDeltaEta:    0x%08x              =====" % SelectionDefElectron.ElectronTightEF_NoEoP_WithTightDeltaEta
-print "====  ElectronTight1:                             0x%08x              =====" % SelectionDefElectron.ElectronTight1
-print "====  ElectronTight2:                             0x%08x              =====" % SelectionDefElectron.ElectronTight2
-print "====  ElectronHltTighter:                         0x%08x              =====" % SelectionDefElectron.ElectronHltTighter
-print "====  PhotonLoose:                                0x%08x              =====" % SelectionDefPhoton.PhotonLoose
-print "====  PhotonLooseEF:                              0x%08x              =====" % SelectionDefPhoton.PhotonLooseEF
-print "====  PhotonMediumEF:                             0x%08x              =====" % SelectionDefPhoton.PhotonMediumEF
-print "====  PhotonTight:                                0x%08x              =====" % SelectionDefPhoton.PhotonTight
+print "====  ElectronLoose1:                              0x%08x              =====" % SelectionDefElectron.ElectronLoose1
+print "====  ElectronMedium1:                             0x%08x              =====" % SelectionDefElectron.ElectronMedium1
+print "====  ElectronTight1:                              0x%08x              =====" % SelectionDefElectron.ElectronTight1
+print "====  ElectronLooseHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronLooseHLT
+print "====  ElectronMediumHLT:                           0x%08x              =====" % SelectionDefElectron.ElectronMediumHLT
+print "====  ElectronTightHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronTightHLT
+print "====  PhotonLoose:                                 0x%08x              =====" % SelectionDefPhoton.PhotonLoose
+print "====  PhotonLooseEF:                               0x%08x              =====" % SelectionDefPhoton.PhotonLooseEF
+print "====  PhotonMediumEF:                              0x%08x              =====" % SelectionDefPhoton.PhotonMediumEF
+print "====  PhotonTight:                                 0x%08x              =====" % SelectionDefPhoton.PhotonTight
 print "==============================================================================="
 print ""

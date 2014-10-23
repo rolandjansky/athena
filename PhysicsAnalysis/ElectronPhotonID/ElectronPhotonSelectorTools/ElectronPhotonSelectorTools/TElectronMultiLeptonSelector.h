@@ -21,14 +21,10 @@
 #include "PATCore/TAccept.h"
 #include "PATCore/TSelectorToolBase.h"
 
-#ifdef PAT_CORE_D3PDREADER
-#include <iostream>
-#include <D3PDReader/ElectronD3PDObject.h>
-#endif
 
 
 namespace Root {
-class TElectronMultiLeptonSelector : public TSelectorToolBase
+  class TElectronMultiLeptonSelector : public TSelectorToolBase
   {
 
   public: 
@@ -73,19 +69,6 @@ class TElectronMultiLeptonSelector : public TSelectorToolBase
                                  ) const;
 
 
-
-#ifdef PAT_CORE_D3PDREADER
-  public:
-    /// The generic D3PDReader accept method
-    virtual const Root::TAccept& accept( const TObject& d3pd ){
-      std::cerr << "NOT YET IMPLEMENTED!" << std::endl;
-      m_accept.clear();
-      return m_accept;
-    };
-#endif
-
-
-
     // Private helper methods
   private:
     bool passRHad(double rhad, double rhad1, unsigned int etbin, unsigned int etabin) const;
@@ -98,8 +81,8 @@ class TElectronMultiLeptonSelector : public TSelectorToolBase
     bool passDeltaPhiRes(double deltaPhiRes, bool isBrem, unsigned int etbin, unsigned int etabin) const ;
     bool passTR(double TRratio, double eta, unsigned int  nTRTTotal ) const ;
     bool passTightDeltaPhi(double deltaPhiRes,
-                        bool expectBlayer, int nBlayerHits,
-                        unsigned int eTBin, unsigned int etaBin) const ;
+			   bool expectBlayer, int nBlayerHits,
+			   unsigned int eTBin, unsigned int etaBin) const ;
 
     // Helper Fuctions
     unsigned int getEtaBinH4l(double eta) const ;

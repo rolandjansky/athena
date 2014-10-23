@@ -22,8 +22,9 @@ class electronLHmenu:
     customMenu = 1
     trigger2012 = 2
     trigger2015 = 3
+    offline2015 = 4
 
-import ElectronLikelihoodMenuDefs as ElectronLikelihoodMenuDefs
+import ElectronPhotonSelectorTools.ElectronLikelihoodMenuDefs as ElectronLikelihoodMenuDefs
 
 # format - key: (mask, function)
 
@@ -53,14 +54,22 @@ ElectronLHMapTrigger2015 = {
     LikeEnum.Tight: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightTriggerConfig2015 ),
     }
 
+ElectronLHMapOffline2015 = {
+    LikeEnum.Loose: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseOfflineConfig2015 ),
+    LikeEnum.Medium: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumOfflineConfig2015 ),
+    LikeEnum.Tight: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfig2015 ),
+    }
+
 def ElectronLikelihoodMap(quality, menu):
     if menu == electronLHmenu.menu2012:
         return ElectronLHMap2012[quality]
     elif menu == electronLHmenu.customMenu:
         return ElectronLHMapCustom[quality]
-    elif menu == electronLHmenu.trigger2015:
-        return ElectronLHMapTrigger2015[quality]
     elif menu == electronLHmenu.trigger2012:
         return ElectronLHMapTrigger2012[quality]
+    elif menu == electronLHmenu.trigger2015:
+        return ElectronLHMapTrigger2015[quality]
+    elif menu == electronLHmenu.offline2015:
+        return ElectronLHMapOffline2015[quality]
     else:
         raise ValueError("Requested menu is undefined: %d" % menu)

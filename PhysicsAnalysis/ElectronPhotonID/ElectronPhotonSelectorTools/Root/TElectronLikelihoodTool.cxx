@@ -21,8 +21,9 @@
 
 //----------------------------------------------------------------------------------------
 Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
-  TCalculatorToolBase(name),
-  TSelectorToolBase(name),
+  ITElectronLikelihoodTool(name),
+  doCutConversion(0),
+  doRemoveF3AtHighEt(0),
   VariableNames(""),
   OperatingPoint(LikeEnum::VeryLoose),
   PdfFileName(""),
@@ -466,8 +467,8 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
     if ((etabin == 9) && (varstr.find("el_f3") != std::string::npos)){
       continue;
     }
-    // Don't use f3 for high et (>45 GeV)
-    if (doRemoveF3AtHighEt && (et > 45) && (varstr.find("el_f3") != std::string::npos)){
+    // Don't use f3 for high et (>100 GeV)
+    if (doRemoveF3AtHighEt && (et > 100) && (varstr.find("el_f3") != std::string::npos)){
         continue;
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {

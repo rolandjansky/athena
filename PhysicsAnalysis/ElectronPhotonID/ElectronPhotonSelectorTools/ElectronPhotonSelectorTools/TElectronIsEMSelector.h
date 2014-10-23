@@ -27,7 +27,6 @@
 #include "PATCore/TSelectorToolBase.h"
 
 #include "ElectronPhotonSelectorTools/FakeMsgStreamAndSC.h"
-#include "ElectronPhotonSelectorTools/EMAmbiguityToolDefs.h" // temporarily
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 
 #include <vector>
@@ -63,15 +62,15 @@ namespace Root {
 				double et,
 				//////////////// - calo
 				// E(3*3) in 2nd sampling
-				float e233,
+				float Reta, //e233,
 				// E(3*7) in 2nd sampling
-				float e237,
+				float Rphi, //e237,
 				// E(7*7) in 2nd sampling
 				float e277,
 				// transverse energy in 1st scintillator of hadronic calorimeter
-				float ethad1,
+				float Rhad1, //ethad1,
 				// transverse energy in hadronic calorimeter
-				float ethad,
+				float Rhad, //ethad,
 				// shower width in 3 strips in 1st sampling
 				float weta1c,
 				// shower width in 2nd sampling
@@ -81,9 +80,9 @@ namespace Root {
 				// E of 2nd max between max and min in strips
 				float emax2,
 				// E of 1st max in strips
-				float emax,
+				float Eratio, //emax,
 				// E(min) in strips
-				float emin,
+				float DeltaE, //emin,
 				// total shower width in 1st sampling
 				float wtot,
 				// E(+/-3)-E(+/-1)/E(+/-1)
@@ -113,9 +112,7 @@ namespace Root {
 				float deltaphi,
 				// E/p
 				double ep,
-				bool expectHitInBLayer,
-				// The ambiguity result 
-				EMAmbiguityType::AmbiguityResult ambiguityResult ) const;
+				bool expectHitInBLayer) const;
 
     // calculate the isEM. (Used internally by accept)
     unsigned int calcIsEm(
@@ -125,15 +122,15 @@ namespace Root {
 			  double et,
 			  //////////////// - calo
 			  // E(3*3) in 2nd sampling
-			  float e233,
+			  float Reta, //e233,
 			  // E(3*7) in 2nd sampling
-			  float e237,
+			  float Rphi, //e237,
 			  // E(7*7) in 2nd sampling
 			  float e277,
 			  // transverse energy in 1st scintillator of hadronic calorimeter
-			  float ethad1,
+			  float Rhad1, //ethad1,
 			  // transverse energy in hadronic calorimeter
-			  float ethad,
+			  float Rhad, //ethad,
 			  // shower width in 3 strips in 1st sampling
 			  float weta1c,
 			  // shower width in 2nd sampling
@@ -143,9 +140,9 @@ namespace Root {
 			  // E of 2nd max between max and min in strips
 			  float emax2,
 			  // E of 1st max in strips
-			  float emax,
+			  float Eratio, //emax,
 			  // E(min) in strips
-			  float emin,
+			  float DeltaE, //emin,
 			  // total shower width in 1st sampling
 			  float wtot,
 			  // E(+/-3)-E(+/-1)/E(+/-1)
@@ -175,9 +172,7 @@ namespace Root {
 			  float deltaphi,
 			  // E/p
 			  double ep,
-			  bool expectHitInBLayer,
-			  // The ambiguity result 
-			  EMAmbiguityType::AmbiguityResult ambiguityResult) const;
+			  bool expectHitInBLayer) const;
 
     // used internally by calcIsEm, but left public because it can be useful for users. Note that
     // it doesn't necessarily zero all the values that pass, so make sure that the input iflag
@@ -188,15 +183,15 @@ namespace Root {
 				    // transverse energy in calorimeter (using eta position in second sampling)
 				    double et,
 				    // E(3*3) in 2nd sampling
-				    float e233,
+				    float Reta, //e233,
 				    // E(3*7) in 2nd sampling
-				    float e237,
+				    float Rphi, //e237,
 				    // E(7*7) in 2nd sampling
 				    float e277,
 				    // transverse energy in 1st scintillator of hadronic calorimeter
-				    float ethad1,
+				    float Rhad1, //ethad1,
 				    // transverse energy in hadronic calorimeter
-				    float ethad,
+				    float Rhad, //ethad,
 				    // shower width in 3 strips in 1st sampling
 				    float weta1c,
 				    // shower width in 2nd sampling
@@ -206,9 +201,9 @@ namespace Root {
 				    // E of 2nd max between max and min in strips
 				    float emax2,
 				    // E of 1st max in strips
-				    float emax,
+				    float Eratio, //emax,
 				    // E(min) in strips
-				    float emin,
+				    float DeltaE, //emin,
 				    // total shower width in 1st sampling
 				    float wtot,
 				    // E(+/-3)-E(+/-1)/E(+/-1)
@@ -254,9 +249,6 @@ namespace Root {
 			  bool expectHitInBLayer,
 			  unsigned int iflag) const;
 
-    // used internally by calcIsEm, but left public because it can be useful for users.
-    unsigned int ambiguitycuts_electrons(EMAmbiguityType::AmbiguityResult ambiguityResult, 
-					 unsigned int iflag) const;
 
     unsigned int isEM() const {return m_isEM; };
     //unsigned int isEMMask() const {return m_isEMMask; } // user should not need this

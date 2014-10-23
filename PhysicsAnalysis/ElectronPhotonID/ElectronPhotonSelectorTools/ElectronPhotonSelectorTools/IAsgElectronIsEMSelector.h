@@ -25,8 +25,8 @@
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 
 // Forward declarations
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/ElectronFwd.h"
+#include "xAODEgamma/EgammaFwd.h"
 
 class IAsgElectronIsEMSelector : virtual public IAsgSelectionTool
 {
@@ -44,13 +44,18 @@ class IAsgElectronIsEMSelector : virtual public IAsgSelectionTool
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
+  /** The main accept method: using the generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
+  
+  /** The main accept method: the actual cuts are applied here for (Trigger) */
   virtual const Root::TAccept& accept( const xAOD::Electron* part, 
 				       double trigEtTh, 
 				       bool CaloCutsOnly) const = 0;
 
-  /** This method is for the trigger, and implies CaloCutsOnly set to true */
+  /** This method is for the trigger, and implies CaloCutsOnly set to true (for Trigger)*/
   virtual const Root::TAccept& accept( const xAOD::Egamma* part, 
 				       double trigEtTh) const = 0;
 

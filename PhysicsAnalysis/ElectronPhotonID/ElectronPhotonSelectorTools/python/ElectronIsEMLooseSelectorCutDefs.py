@@ -4,7 +4,10 @@
 # This one is used for loose++ menu
 
 import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+try :
+    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+except :
+    pass
   
 from ROOT import egammaPID
 

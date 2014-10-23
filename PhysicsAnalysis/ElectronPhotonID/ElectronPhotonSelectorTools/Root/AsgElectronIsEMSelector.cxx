@@ -16,10 +16,12 @@
 */
 
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
-
+#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
-
+#include "PathResolver/PathResolver.h"
+#include "TEnv.h"
 #include <cstdint>
 
 //=============================================================================
@@ -27,10 +29,13 @@
 //=============================================================================
 AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   AsgTool(myname),
+  m_configFile(""),
   m_rootTool(0)
 {
 
   m_rootTool = new Root::TElectronIsEMSelector();
+
+  declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
   
   // Name of the PID
   declareProperty("isEMMask",
@@ -74,6 +79,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   // Eta binning
   declareProperty("CutBinEta",m_rootTool->CutBinEta,
 		  "Eta binning");
+
   // ET binning
   declareProperty("CutBinET",m_rootTool->CutBinET,
 		  "ET binning");
@@ -188,6 +194,55 @@ StatusCode AsgElectronIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
+  if(!m_configFile.empty()){
+    
+    std::string filename = PathResolverFindCalibFile( m_configFile);
+    TEnv env(filename.c_str());
+    bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
+    m_rootTool->useTRTOutliers =useTRTOutliers;
+    bool useBLOutliers(env.GetValue("useBLOutliers", true));
+    m_rootTool->useBLOutliers =useBLOutliers;
+    bool usePIXOutliers(env.GetValue("usePIXOutliers", true));
+    m_rootTool->usePIXOutliers =usePIXOutliers;
+    bool useSCTOutliers(env.GetValue("useSCTOutliers", true));
+    m_rootTool->useSCTOutliers =useSCTOutliers;
+    bool  useTRTXenonHits(env.GetValue(" useTRTXenonHits", false));
+    m_rootTool->useTRTXenonHits =useTRTXenonHits;
+    bool useBLayerHitPrediction (env.GetValue("useBLayerHitPrediction", false));
+    m_rootTool->useBLayerHitPrediction =useBLayerHitPrediction;
+
+    m_rootTool->CutBinEta  =AsgConfigHelper::HelperFloat("CutBinEta",env);
+    m_rootTool->CutBinET = AsgConfigHelper::HelperFloat("CutBinET",env);
+    m_rootTool->CutF1 = AsgConfigHelper::HelperFloat("CutF1",env);
+    m_rootTool->CutHadLeakage = AsgConfigHelper::HelperFloat("CutHadLeakage",env);
+    m_rootTool->CutReta37 = AsgConfigHelper::HelperFloat("CutReta37",env);
+    m_rootTool->CutRphi37 = AsgConfigHelper::HelperFloat("CutRphi37",env);
+    m_rootTool->CutWeta2c = AsgConfigHelper::HelperFloat("CutWeta2c",env);
+    m_rootTool->CutDeltaEmax2 = AsgConfigHelper::HelperFloat("CutDeltaEmax2",env);
+    m_rootTool->CutDeltaE = AsgConfigHelper::HelperFloat("CutDeltaE",env);
+    m_rootTool->CutDEmaxs1 = AsgConfigHelper::HelperFloat("CutDEmaxs1",env);
+    m_rootTool->CutDeltaE = AsgConfigHelper::HelperFloat("CutDeltaE",env);
+    m_rootTool->CutWtot = AsgConfigHelper::HelperFloat("CutWtot",env);
+    m_rootTool->CutWeta1c = AsgConfigHelper::HelperFloat("CutWeta1c",env);
+    m_rootTool->CutFracm = AsgConfigHelper::HelperFloat("CutFracm",env);
+    m_rootTool->CutF3 = AsgConfigHelper::HelperFloat("CutF3",env);
+    m_rootTool->CutBL = AsgConfigHelper::HelperInt("CutBL",env);
+    m_rootTool->CutPi = AsgConfigHelper::HelperInt("CutPi",env);
+    m_rootTool->CutSi = AsgConfigHelper::HelperInt("CutSi",env);
+    m_rootTool->CutA0 = AsgConfigHelper::HelperFloat("CutA0",env);
+    m_rootTool->CutA0Tight = AsgConfigHelper::HelperFloat("CutA0Tight",env);
+    m_rootTool->CutDeltaEta = AsgConfigHelper::HelperFloat("CutDeltaEta",env);
+    m_rootTool->CutDeltaEtaTight = AsgConfigHelper::HelperFloat("CutDeltaEtaTight",env);
+    m_rootTool->CutminDeltaPhi = AsgConfigHelper::HelperFloat("CutminDeltaPhi",env);    
+    m_rootTool->CutmaxDeltaPhi = AsgConfigHelper::HelperFloat("CutmaxDeltaPhi",env);    
+    m_rootTool->CutminEp = AsgConfigHelper::HelperFloat("CutminEp",env);    
+    m_rootTool->CutmaxEp = AsgConfigHelper::HelperFloat("CutmaxEp",env);    
+    m_rootTool->CutBinEta_TRT = AsgConfigHelper::HelperFloat("CutBinEta_TRT",env); 
+    m_rootTool->CutNumTRT = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
+    m_rootTool->CutTRTRatio = AsgConfigHelper::HelperFloat("CutTRTRatio",env);    
+    m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);    
+  }
+
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
     {
@@ -225,17 +280,16 @@ StatusCode AsgElectronIsEMSelector::finalize()
 //=============================================================================
 const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const
 {
+
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
-  const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
-  if ( eg )
-    {
-      return accept(eg);
-    }
-  else
-    {
-      ATH_MSG_ERROR("AsgElectronIsEMSelector::could not cast argument to accept");
-      return m_acceptDummy;
-    }
+  if(part->type()==xAOD::Type::Electron){
+    const xAOD::Electron* eg =static_cast<const xAOD::Electron*> (part);
+    return accept(eg);
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to accept");
+    return m_acceptDummy;
+  }
 }
 
 const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg ) const
@@ -365,8 +419,6 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg,
     // apply calorimeter selection
     iflag = calocuts_electrons(eg, eta2, et, trigEtTh, 0);
 
-    // should I apply ambiguity cuts here?
-    // m_iflag = ambiguitycuts_electrons(eg, emConversion);
 
   } else {
 
@@ -379,9 +431,6 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg,
     iflag = TrackCut(eg, eta2, et, energy, iflag);
     //ATH_MSG_DEBUG(std::hex << "after track cuts, iflag = " << iflag); 
 
-    // // apply ambiguity cuts
-    // iflag = ambiguitycuts_electrons(eg, emConversion, iflag);
-    // //ATH_MSG_DEBUG(std::hex << "final isem = " << iflag); 
 
   }// end of switch(CaloCutsOnly)
     
@@ -438,8 +487,6 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg,
   // apply calorimeter selection
   iflag = calocuts_electrons(eg, eta2, et, trigEtTh, 0);
   
-  // should I apply ambiguity cuts here?
-  // m_iflag = ambiguitycuts_electrons(eg, emConversion);
 
   m_rootTool->setIsEM(iflag);  
   return StatusCode::SUCCESS;
@@ -460,20 +507,21 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   //
 
 
-  float e233, e237, e277, ethad1, ethad, weta1c, weta2c, f1, emax2, emax, emin, wtot, fracm, f3;
+  float Reta(0), Rphi(0), e277(0), Rhad1(0), Rhad(0), weta1c(0), weta2c(0), 
+    f1(0), emax2(0), Eratio(0), DeltaE(0), wtot(0), fracm(0), f3(0);
 
   bool allFound = true;
 
   // E(3*3) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e233, xAOD::EgammaParameters::e233);
+  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
   // E(3*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e237, xAOD::EgammaParameters::e237);
+  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
   // E(7*7) in 2nd sampling
   allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
   // transverse energy in 1st scintillator of hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1);
+  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
   // transverse energy in hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad, xAOD::EgammaParameters::ethad);
+  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
   // shower width in 3 strips in 1st sampling
   allFound = allFound && eg->showerShapeValue(weta1c, xAOD::EgammaParameters::weta1);
   // shower width in 2nd sampling
@@ -482,10 +530,14 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
   // E of 2nd max between max and min in strips
   allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
+  // E of 2nd max between max and min in strips
+  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
   // E of 1st max in strips
-  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
+  allFound = allFound && eg->showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE);
+  // E of 1st max in strips
+  //allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
   // E(min) in strips
-  allFound = allFound && eg->showerShapeValue(emin, xAOD::EgammaParameters::emins1);
+ // allFound = allFound && eg->showerShapeValue(emin, xAOD::EgammaParameters::emins1);
   // total shower width in 1st sampling
   allFound = allFound && eg->showerShapeValue(wtot, xAOD::EgammaParameters::wtots1);
   // E(+/-3)-E(+/-1)/E(+/-1)
@@ -510,17 +562,17 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
 
   return m_rootTool->calocuts_electrons(eta2,
 					et,
-                                        e233,
-					e237,
+                                        Reta, //replacing e233
+					Rphi,  //replacing e237,
 					e277,
-					ethad1,
-					ethad,
+					Rhad1, //replacing ethad1,
+					Rhad, //replacing ethad,
 					weta1c,
 					weta2c,
 					f1,
-					emax2,
-					emax,
-					emin,
+					emax2, // emax2
+					Eratio, // emax
+					DeltaE, //emin,
 					wtot,
 					fracm,
 					f3,
@@ -578,15 +630,12 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   allFound = allFound && t->summaryValue(nBLOutliers, xAOD::numberOfBLayerOutliers);
   allFound = allFound && t->summaryValue(nPiOutliers, xAOD::numberOfPixelOutliers);
   allFound = allFound && t->summaryValue(nSCTOutliers, xAOD::numberOfSCTOutliers);
-
   allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
   allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
   allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
   allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
   allFound = allFound && t->summaryValue(nTRTXenonHits, xAOD::numberOfTRTXenonHits);
-
   allFound = allFound && t->summaryValue(expectHitInBLayer, xAOD::expectBLayerHit);
-
 
   const float trackd0 = fabsf(t->d0());
   
@@ -628,16 +677,4 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      iflag);
 }
 
-// // ==============================================================
-// unsigned int AsgElectronIsEMSelector::ambiguitycuts_electrons(const xAOD::Electron* /* eg */, 
-// 							      unsigned int iflag) const 
-// {
-//   if (!emConversion) {
-//     iflag &= ~(0x1 << egammaPID::ConversionMatch_Electron); 
-//     // set bit to 0 (passed)
-//     return iflag;
-//   } else {
-//     return m_rootTool->ambiguitycuts_electrons(static_cast<EMAmbiguityType::AmbiguityResult>(emConversion->ambiguityResult()), iflag);
-//   }
-// }
 

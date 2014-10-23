@@ -23,7 +23,7 @@
 #include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
-#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronLikelihoodTool : virtual public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
@@ -37,8 +37,6 @@ public:
 
   /** Standard destructor */
   virtual ~AsgElectronLikelihoodTool();
-
-
 public:
   /** Gaudi Service Interface method implementations */
   virtual StatusCode initialize();
@@ -54,6 +52,25 @@ public:
   /** The main accept method: the actual cuts are applied here */
   const Root::TAccept& accept( const xAOD::Electron* eg ) const;
 
+  /** Accept method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly **/
+  const Root::TAccept& accept( const xAOD::Egamma* eg,
+                               bool CaloCutsOnly=true) const;
+
+  /** Accept using reference **/
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const {
+    return accept (&part);
+  }
+
+  /** Accept using reference **/
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
+    return accept (&part);
+  }
+
+  /** Accept using reference **/
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part, 
+                                       bool CaloCutsOnly=true) const {
+    return accept (&part, CaloCutsOnly);
+  }
 
   // Main methods for IAsgCalculatorTool interface
 public:
@@ -63,6 +80,9 @@ public:
   /** The main result method: the actual likelihood is calculated here */
   const Root::TResult& calculate( const xAOD::Electron* eg ) const;
 
+  /** Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly **/
+  const Root::TResult& calculate( const xAOD::Egamma* eg,
+                                  bool CaloCutsOnly=true) const;
 
   /** Method to get the plain TAccept */
   inline virtual const Root::TAccept& getTAccept( ) const
@@ -122,35 +142,6 @@ private:
 
 
 
-// Inline methods
-inline const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
-{
-  const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
-  if (eg)
-    {
-      return accept(eg);
-    }
-  else
-    {
-      ATH_MSG_ERROR ( " Could not cast to const electron " );
-      return m_acceptDummy;
-    }
-}
-
-// Inline methods
-inline const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
-{
-  const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
-  if (eg)
-    {
-      return calculate(eg);
-    }
-  else
-    {
-      ATH_MSG_ERROR ( " Could not cast to const egamma " );
-      return m_resultDummy;
-    }
-}
 
 
 #endif

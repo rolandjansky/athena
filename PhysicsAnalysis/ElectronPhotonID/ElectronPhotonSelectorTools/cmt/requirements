@@ -13,13 +13,12 @@ use PATCore                     PATCore-*               PhysicsAnalysis/Analysis
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODTracking                xAODTracking-*          Event/xAOD
-use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 
 private
-use  GaudiInterface             GaudiInterface-*                External
-use  xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
-use PathResolver                PathResolver-*          Tools
-
+use  GaudiInterface             GaudiInterface-*           External
+use  xAODCaloEvent              xAODCaloEvent-*           Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*            Event/xAOD
+use  PathResolver               PathResolver-*             Tools
 # in AtlasEvent, even if in PhysicsAnalysis directory   
 end_private
 
@@ -31,21 +30,10 @@ apply_tag       ROOTMathLibs
 #macro_append ROOT_linkopts " -lPyROOT"
 
 ## declare the directories CMT should know about
-branches ElectronPhotonSelectorTools python share src Root data
+branches ElectronPhotonSelectorTools python src Root share data
 
 # Create a dual-use library
 apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
-
-
-# Create a named installed library
-#library ElectronPhotonSelectorToolsLib *.cxx ../Root/*.cxx
-#apply_pattern named_installed_library library=ElectronPhotonSelectorToolsLib
-
-## create a component library
-#library ElectronPhotonSelectorTools *.cxx components/*.cxx
-#macro_append ElectronPhotonSelectorTools_dependencies " ElectronPhotonSelectorToolsLib"
-#apply_pattern component_library
-
 
 ## install our python modules
 apply_pattern declare_python_modules files="*.py"
@@ -53,10 +41,8 @@ apply_pattern declare_python_modules files="*.py"
 ## install our job options files
 apply_pattern declare_joboptions files="*.py"
 
-
-## install the xml and ROOT files (in the data/ directory)
-apply_pattern declare_xmls extras="-s=../data *.root"
-
+## install the ROOT files (in the data/ directory)
+apply_pattern declare_calib files="../data/*.root ../data/*.conf" 
 
 ## For reflex dictionary generation
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports

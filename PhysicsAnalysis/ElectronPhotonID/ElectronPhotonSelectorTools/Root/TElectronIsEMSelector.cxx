@@ -37,13 +37,71 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   useSCTOutliers(true),
   useTRTXenonHits(false),
   useBLayerHitPrediction(true),
-
+  /** @brief cluster eta range */
+  m_cutPositionClusterEtaRange_Electron(0),    
+  /** @brief matching to photon (not necessarily conversion--the name is historical) */
+  m_cutPositionConversionMatch_Electron(0),    
+  /** @brief cluster leakage o the hadronic calorimeter */
+  m_cutPositionClusterHadronicLeakage_Electron(0),
+  /** @brief energy in 2nd sampling (e.g E277>0) */
+  m_cutPositionClusterMiddleEnergy_Electron(0),
+  /** @brief energy ratio in 2nd sampling (e.g E237/E277) */
+  m_cutPositionClusterMiddleEratio37_Electron(0),
+  /** @brief energy ratio in 2nd sampling (e.g E233/E237) */
+  m_cutPositionClusterMiddleEratio33_Electron(0),
+  /** @brief width in the second sampling (e.g Weta2) */
+  m_cutPositionClusterMiddleWidth_Electron(0),
+  /** @brief energy fraction in the third layer */
+  m_cutPositionClusterBackEnergyFraction_Electron(0),
+  /** @brief fraction of energy found in 1st sampling (NB: not used in fact for electrons)*/
+  m_cutPositionClusterStripsEratio_Electron(0),
+  /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
+  m_cutPositionClusterStripsDeltaEmax2_Electron(0),
+  /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
+  m_cutPositionClusterStripsDeltaE_Electron(0),
+  /** @brief shower width in 1st sampling */
+  m_cutPositionClusterStripsWtot_Electron(0),
+  /** @brief shower shape in shower core 1st sampling */
+  m_cutPositionClusterStripsFracm_Electron(0),
+  /** @brief shower width weighted by distance from the maximum one */
+  m_cutPositionClusterStripsWeta1c_Electron(0),
+  /** @brief difference between max and 2nd max in strips */
+  m_cutPositionClusterStripsDEmaxs1_Electron(0),
+  /** @brief B layer hit */
+  m_cutPositionTrackBlayer_Electron(0),
+  /** @brief number of Pixel hits */
+  m_cutPositionTrackPixel_Electron(0),
+  /** @brief number of Pixel and SCT hits */
+  m_cutPositionTrackSi_Electron(0),
+  /** @brief distance of closet approach */
+  m_cutPositionTrackA0_Electron(0),
+  /** @brief eta difference between cluster and extrapolated track in the 1st sampling */
+  m_cutPositionTrackMatchEta_Electron(0),
+  /** @brief phi difference between cluster and extrapolated track in the 2nd sampling */
+  m_cutPositionTrackMatchPhi_Electron(0),
+  /** @brief energy-momentum match */
+  m_cutPositionTrackMatchEoverP_Electron(0),
+  /** @brief number of TRT hits */
+  m_cutPositionTrackTRThits_Electron(0),
+  /** @brief ratio of high to all TRT hits for isolated electrons */
+  m_cutPositionTrackTRTratio_Electron(0),
+  /** @brief ratio of high to all TRT hits for non-isolated electrons (not for new ++ menus) */    
+  m_cutPositionTrackTRTratio90_Electron(0),
+  /** @brief distance of closet approach for tight selection (not to be used in new ++ menus) */
+  m_cutPositionTrackA0Tight_Electron(0),
+  /** @brief eta difference between cluster and extrapolated track in the 1st sampling for 
+      tight selection (not to be used in new ++ menus)*/
+  m_cutPositionTrackMatchEtaTight_Electron(0),
+  /** @brief isolation */
+  m_cutPositionIsolation_Electron(0),
+  /** @brief calorimetric isolation */
+  m_cutPositionClusterIsolation_Electron(0),
+  /** @brief tracker isolation */
+  m_cutPositionTrackIsolation_Electron(0),
   /** @brief cluster eta range */
   m_cutNameClusterEtaRange_Electron("ClusterEtaRange_Electron"),
-  
   /** @brief matching to photon (not necessarily conversion--the name is historical) */
-  m_cutNameConversionMatch_Electron("ConversionMatch_Electron"),
-  
+  m_cutNameConversionMatch_Electron("ConversionMatch_Electron"),  
   /** @brief cluster leakage into the hadronic calorimeter */
   m_cutNameClusterHadronicLeakage_Electron("ClusterHadronicLeakage_Electron"),
   /** @brief energy in 2nd sampling (i.e. E277>0) */
@@ -54,10 +112,8 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   m_cutNameClusterMiddleEratio33_Electron("ClusterMiddleEratio33_Electron"),
   /** @brief width in the second sampling (i.e. Weta2) */
   m_cutNameClusterMiddleWidth_Electron("ClusterMiddleWidth_Electron"),
-
   /** @brief energy fraction in the third layer (i.e. f3) */
-  m_cutNameClusterBackEnergyFraction_Electron("ClusterBackEnergyFraction_Electron"),
-  
+  m_cutNameClusterBackEnergyFraction_Electron("ClusterBackEnergyFraction_Electron"),  
   /** @brief fraction of energy found in 1st sampling (NB: not used in fact for electrons)*/
   m_cutNameClusterStripsEratio_Electron("ClusterStripsEratio_Electron"),
   /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
@@ -69,8 +125,7 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   /** @brief shower shape in shower core 1st sampling */
   m_cutNameClusterStripsFracm_Electron("ClusterStripsFracm_Electron"),
   /** @brief shower width weighted by distance from the maximum one */
-  m_cutNameClusterStripsWeta1c_Electron("ClusterStripsWeta1c_Electron"),
-  
+  m_cutNameClusterStripsWeta1c_Electron("ClusterStripsWeta1c_Electron"),  
   /** @brief difference between max and 2nd max in strips */
   m_cutNameClusterStripsDEmaxs1_Electron("ClusterStripsDEmaxs1_Electron"),
   /** @brief B layer hit */
@@ -93,13 +148,11 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   m_cutNameTrackTRTratio_Electron("TrackTRTratio_Electron"),
   /** @brief ratio of high to all TRT hits for non-isolated electrons (not for new ++ menus) */    
   m_cutNameTrackTRTratio90_Electron("TrackTRTratio90_Electron"),
-  
   /** @brief distance of closet approach for tight selection (not to be used in new ++ menus) */
   m_cutNameTrackA0Tight_Electron("TrackA0Tight_Electron"),
   /** @brief eta difference between cluster and extrapolated track in the 1st sampling for 
       tight selection (not to be used in new ++ menus)*/
   m_cutNameTrackMatchEtaTight_Electron("TrackMatchEtaTight_Electron"),
-  
   /** @brief isolation */
   m_cutNameIsolation_Electron("Isolation_Electron"),
   /** @brief calorimetric isolation */
@@ -313,16 +366,16 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 // transverse energy in calorimeter (using eta position in second sampling)
 							 double et,
 							 //////////////// - calo
-							 // E(3*3) in 2nd sampling
-							 float e233,
-							 // E(3*7) in 2nd sampling
-							 float e237,
+							 // E(3*3) in 2nd sampling   e233
+							 float Reta,
+							 // E(3*7) in 2nd sampling  e237
+							 float Rphi,
 							 // E(7*7) in 2nd sampling
 							 float e277,
 							 // transverse energy in 1st scintillator of hadronic calorimeter
-							 float ethad1,
+							 float Rhad1,
 							 // transverse energy in hadronic calorimeter
-							 float ethad,
+							 float Rhad,
 							 // shower width in 3 strips in 1st sampling
 							 float weta1c,
 							 // shower width in 2nd sampling
@@ -332,9 +385,9 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 // E of 2nd max between max and min in strips
 							 float emax2,
 							 // E of 1st max in strips
-							 float emax,
+							 float Eratio,
 							 // E(min) in strips
-							 float emin,
+							 float DeltaE,
 							 // total shower width in 1st sampling
 							 float wtot,
 							 // E(+/-3)-E(+/-1)/E(+/-1)
@@ -364,9 +417,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 float deltaphi,
 							 // E/p
 							 double ep,
-							 bool expectHitInBLayer,
-							 // The ambiguity result 
-							 EMAmbiguityType::AmbiguityResult ambiguityResult) const 
+							 bool expectHitInBLayer) const 
 {
   // Reset the cut result bits to zero (= fail cut)
   m_accept.clear();
@@ -375,17 +426,17 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 
   m_isEM = calcIsEm(eta2,
 		    et,
-                    e233,
-		    e237,
+		    Reta, // e233,
+		    Rphi, //e237,
 		    e277,
-		    ethad1,
-		    ethad,
+		    Rhad1, ///ethad1,
+		    Rhad, //ethad,
 		    weta1c,
 		    weta2c,
 		    f1,
 		    emax2,
-		    emax,
-		    emin,
+		    Eratio, //emax,
+		    DeltaE, //emin,
 		    wtot,
 		    fracm,
 		    f3,
@@ -404,8 +455,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    deltaeta,
 		    deltaphi,
 		    ep,
-		    expectHitInBLayer,
-		    ambiguityResult);
+		    expectHitInBLayer);
 
   return fillAccept();
 
@@ -418,16 +468,16 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   // transverse energy in calorimeter (using eta position in second sampling)
 						   double et,
 						   //////////////// - calo
-						   // E(3*3) in 2nd sampling
-						   float e233,
-						   // E(3*7) in 2nd sampling
-						   float e237,
+						   // E(3*3) in 2nd sampling e233
+						   float Reta,
+						   // E(3*7) in 2nd sampling e237
+						   float Rphi,
 						   // E(7*7) in 2nd sampling
 						   float e277,
 						   // transverse energy in 1st scintillator of hadronic calorimeter
-						   float ethad1,
+						   float Rhad1,
 						   // transverse energy in hadronic calorimeter
-						   float ethad,
+						   float Rhad,
 						   // shower width in 3 strips in 1st sampling
 						   float weta1c,
 						   // shower width in 2nd sampling
@@ -437,9 +487,9 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   // E of 2nd max between max and min in strips
 						   float emax2,
 						   // E of 1st max in strips
-						   float emax,
+						   float Eratio, // replaced emax,
 						   // E(min) in strips
-						   float emin,
+						   float DeltaE, //emin,
 						   // total shower width in 1st sampling
 						   float wtot,
 						   // E(+/-3)-E(+/-1)/E(+/-1)
@@ -469,23 +519,21 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   float deltaphi,
 						   // E/p
 						   double ep,
-						   bool expectHitInBLayer,
-						   // The ambiguity result 
-						   EMAmbiguityType::AmbiguityResult ambiguityResult) const
+						   bool expectHitInBLayer) const
 { 
   unsigned int iflag = calocuts_electrons(eta2,
 					  et,
-                                          e233,
-					  e237,
+                                          Reta, //e233,
+					  Rphi, //e237,
 					  e277,
-					  ethad1,
-					  ethad,
+					  Rhad1, //ethad1,
+					  Rhad, //ethad,
 					  weta1c,
 					  weta2c,
 					  f1,
 					  emax2,
-					  emax,
-					  emin,
+					  Eratio, //emax,
+					  DeltaE, //emin,
 					  wtot,
 					  fracm,
 					  f3,
@@ -511,7 +559,6 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 		   expectHitInBLayer,
 		   iflag);
 
-  iflag = ambiguitycuts_electrons(ambiguityResult, iflag);
   return iflag;
 }
 
@@ -521,16 +568,16 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 							     float eta2,
 							     // transverse energy in calorimeter (using eta position in second sampling)
 							     double et,
+							     // E(3*3) in 2nd sampling  233
+							     float Reta,
 							     // E(3*7) in 2nd sampling
-							     float e233,
-							     // E(7*7) in 2nd sampling
-							     float e237,
+							     float Rphi,
 							     // E(7*7) in 2nd sampling
 							     float e277,
 							     // transverse energy in 1st scintillator of hadronic calorimeter
-							     float ethad1,
+							     float Rhad1,
 							     // transverse energy in hadronic calorimeter
-							     float ethad,
+							     float Rhad,
 							     // shower width in 3 strips in 1st sampling
 							     float weta1c,
 							     // shower width in 2nd sampling
@@ -539,10 +586,10 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 							     float f1,
 							     // E of 2nd max between max and min in strips
 							     float emax2,
-							     // E of 1st max in strips
-							     float emax,
-							     // E(min) in strips
-							     float emin,
+							     // E of 1st max in strips (emax)
+							     float Eratio,
+							     // E(min) in strips (emin)
+							     float DeltaE,
 							     // total shower width in 1st sampling
 							     float wtot,
 							     // E(+/-3)-E(+/-1)/E(+/-1)
@@ -558,12 +605,13 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 
   // derived variables
 
+  //------- These are now in the xAOD
   // hadronic leakage variables
-  double raphad1 = fabs(et) > 0. ? ethad1/et : 0.;
-  double raphad  = fabs(et) > 0. ? ethad/et : 0.;
+  //double raphad1 = fabs(et) > 0. ? ethad1/et : 0.;
+  //double raphad  = fabs(et) > 0. ? ethad/et : 0.;
 
   // (Emax1-Emax2)/(Emax1+Emax2)
-  double demaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.;
+  //double demaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.;
 
   // parametrizatiion of emax2
   double deltaemax2= emax2/(1000.+0.009*et);
@@ -614,7 +662,7 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 
   // check eta range 
   if (ibin_eta < 0) {  
-     iflag |= (0x1 << egammaPID::ClusterEtaRange_Electron);  
+    iflag |= (0x1 << egammaPID::ClusterEtaRange_Electron);  
   }
  
   // check if index is defined
@@ -623,13 +671,13 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
     // hadronic leakage
     if (CheckVar(CutHadLeakage,4)) {
       if (eta2 < 0.8) {
-	if (raphad1>CutHadLeakage[ibin_combined])
+	if (Rhad1>CutHadLeakage[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Electron);
       } else if (eta2 >= 0.8 && eta2 < 1.37) {
-	if (raphad>CutHadLeakage[ibin_combined])
+	if (Rhad>CutHadLeakage[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Electron);
       } else {
-	if (raphad1>CutHadLeakage[ibin_combined])
+	if (Rhad1>CutHadLeakage[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Electron);
       }
     }
@@ -644,12 +692,12 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
     // cuts on 2nd sampling
     if (e277<=0.) iflag |= ( 0x1 << egammaPID::ClusterMiddleEnergy_Electron) ; 
     if (CheckVar(CutReta37,4)) {
-      if (e277 != 0. && e237/e277<=CutReta37[ibin_combined]) 
+      if (Reta<=CutReta37[ibin_combined]) 
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio37_Electron);
     }
     // -------------------------------
     if (CheckVar(CutRphi37,4)) {
-      if (e237 != 0. && e233/e237<=CutRphi37[ibin_combined]) 
+      if (Rphi<=CutRphi37[ibin_combined]) 
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio33_Electron);
     }
     // -------------------------------
@@ -672,13 +720,13 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 
       // check Delta E
       if (CheckVar(CutDeltaE,4)) {
-	if (emax2>0. &&  (emax2-emin)>=CutDeltaE[ibin_combined])
+	if (emax2>0. &&  DeltaE>=CutDeltaE[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaE_Electron);
       }
 
       // check DEmaxs1
       if (CheckVar(CutDEmaxs1,4)) {
-	if (demaxs1<=CutDEmaxs1[ibin_combined])
+	if (Eratio<=CutDEmaxs1[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterStripsDEmaxs1_Electron);
       }
 
@@ -958,21 +1006,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
   return iflag; 
 }
 
-// ==============================================================
-unsigned int Root::TElectronIsEMSelector::ambiguitycuts_electrons(EMAmbiguityType::AmbiguityResult ambiguityResult, 
-								  unsigned int iflag) const 
-{
-  // should maybe make it configurable
-  if (ambiguityResult <= EMAmbiguityType::LOOSE ||
-      ambiguityResult == EMAmbiguityType::MEDIUM) {    
-    // set bit to 0 (passed)
-    iflag &= ~(0x1 << egammaPID::ConversionMatch_Electron); 
-  } else {
-    // set bit to 1 (not passed)
-    iflag |= (0x1 << egammaPID::ConversionMatch_Electron); 
-  }
-  return iflag;
-}
 
 // ==============================================================
 bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) const
@@ -1004,7 +1037,7 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   if (choice==0) {
     if ( vec.size() != 1) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs 1"); 
+		     << vec.size() << " but needs 1"); 
       return false;      
     }
   }
@@ -1013,8 +1046,8 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   if (choice==1) {
     if ( vec.size() != etaNB ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs " 
-		    << etaNB);
+		     << vec.size() << " but needs " 
+		     << etaNB);
       return false;      
     }
   }
@@ -1023,8 +1056,8 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   if (choice==2) {
     if ( vec.size() != etaTRTNB ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs " 
-		    << etaTRTNB);
+		     << vec.size() << " but needs " 
+		     << etaTRTNB);
       return false;      
     }
   }
@@ -1033,8 +1066,8 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   if (choice==3) {
     if ( vec.size() != etNB ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs " 
-		    << etNB);
+		     << vec.size() << " but needs " 
+		     << etNB);
       return false;      
     }
   }
@@ -1043,8 +1076,8 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   if (choice==4) {
     if ( vec.size() != combinedNB ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs " 
-		    << combinedNB);
+		     << vec.size() << " but needs " 
+		     << combinedNB);
       return false;      
     }
   }
@@ -1073,53 +1106,53 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<int> vec, int choice) con
   case 0:
     if ( vec.size() != 1) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs 1"); 
+		     << vec.size() << " but needs 1"); 
       return false;      
     } else {
       return true;
     }
 
-  // check if size is etaNB
+    // check if size is etaNB
   case 1:
     {
       const unsigned int etaNB = CutBinEta.size();
       if ( vec.size() != etaNB ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaNB=" 
-		      << etaNB);
+		       << vec.size() << " but needs etaNB=" 
+		       << etaNB);
 	return false;      
       } else {
 	return true;
       }
     }
-  // check if size is etaTRTNB
+    // check if size is etaTRTNB
   case 2:
     {
       const unsigned int etaTRTNB = CutBinEta_TRT.size();      
       if ( vec.size() != etaTRTNB ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaTRTNB=" 
-		      << etaTRTNB);
+		       << vec.size() << " but needs etaTRTNB=" 
+		       << etaTRTNB);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etNB
+    // check if size is etNB
   case 3:
     {
       const unsigned int etNB =  CutBinET.size();
       if ( vec.size() != etNB ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etNB=" 
-		      << etNB);
+		       << vec.size() << " but needs etNB=" 
+		       << etNB);
 	return false;      
       } else {
 	return true;
       }
     }
-  // check if size is combinedNB 
+    // check if size is combinedNB 
   case 4:
     {
       const unsigned int etaNB = CutBinEta.size();
@@ -1134,8 +1167,8 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<int> vec, int choice) con
       
       if ( vec.size() != combinedNB ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs combinedNB=" 
-		      << combinedNB);
+		       << vec.size() << " but needs combinedNB=" 
+		       << combinedNB);
 	return false;      
       } else {
 	return true;

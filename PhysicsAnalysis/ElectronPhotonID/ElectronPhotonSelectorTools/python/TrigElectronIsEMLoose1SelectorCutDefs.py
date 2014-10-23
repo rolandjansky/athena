@@ -11,7 +11,11 @@
 ##===============================================================================
 
 import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+try :
+    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+except :
+    pass
+
 from ROOT import egammaPID
 
 # Import a needed helper
