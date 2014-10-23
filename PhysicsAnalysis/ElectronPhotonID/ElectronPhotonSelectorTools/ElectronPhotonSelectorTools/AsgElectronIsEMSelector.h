@@ -29,7 +29,7 @@
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
 #include "ElectronPhotonSelectorTools/TElectronIsEMSelector.h"
-
+#include <string>
 
 class AsgElectronIsEMSelector :  virtual public asg::AsgTool, 
                                  virtual public IAsgElectronIsEMSelector
@@ -57,10 +57,21 @@ class AsgElectronIsEMSelector :  virtual public asg::AsgTool,
   /** The main accept method: the actual cuts are applied here */
   const Root::TAccept& accept( const xAOD::Electron* part ) const;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept using reference **/
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const {
+    return accept (&part);
+  }
+
+  /** Accept using reference **/
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
+    return accept (&part);
+  }
+
+  /** METHODS FOR THE TRIGGER **/
+  /*This method is for the trigger */
   virtual const Root::TAccept& accept( const xAOD::Electron* part, 
 				       double trigEtTh, 
-				       bool CaloCutsOnly) const;
+				       bool CaloCutsOnly=true) const;
 
   /** This method is for the trigger, and implies CaloCutsOnly set to true */
   virtual const Root::TAccept& accept( const xAOD::Egamma* part, 
@@ -102,9 +113,8 @@ private:
 			float eta2, double et, double energy,
 			unsigned int iflag) const;
 
-  // unsigned int ambiguitycuts_electrons(const xAOD::Electron* /* eg */, 
-  // 				       unsigned int iflag) const;
-
+  /** Config File */
+  std::string m_configFile;
 
   /** Pointer to the underlying ROOT based tool */
   Root::TElectronIsEMSelector* m_rootTool;

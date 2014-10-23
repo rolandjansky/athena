@@ -27,12 +27,62 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   PIDName(egammaPID::IsEM),
   forceConvertedPhotonPID(false),
   forceNonConvertedPhotonPID(false),
-
+  /** @brief cluster eta range */
+  m_cutPositionClusterEtaRange_Photon(0),
+  /** @brief cluster eta range */
+  m_cutPositionClusterEtaRange_PhotonLoose(0),
+  // selection for Loose photons
+  /** @brief cluster leakage o the hadronic calorimeter */
+  m_cutPositionClusterHadronicLeakage_PhotonLoose(0),
+  /** @brief energy in 2nd sampling (e277) */
+  m_cutPositionClusterMiddleEnergy_PhotonLoose(0),
+  /** @brief energy ratio in 2nd sampling */
+  m_cutPositionClusterMiddleEratio37_PhotonLoose(0),
+  /** @brief energy ratio in 2nd sampling */
+  m_cutPositionClusterMiddleEratio33_PhotonLoose(0),
+  /** @brief width in the second sampling */
+  m_cutPositionClusterMiddleWidth_PhotonLoose(0),
+  /** @brief energy fraction in the third layer */
+  m_cutPositionClusterBackEnergyFraction_Photon(0),
+  // selection for tight photons
+  /** @brief cluster leakage o the hadronic calorimeter */
+  m_cutPositionClusterHadronicLeakage_Photon(0),
+  /** @brief energy in 2nd sampling (e277) */
+  m_cutPositionClusterMiddleEnergy_Photon(0),
+  /** @brief energy ratio in 2nd sampling */
+  m_cutPositionClusterMiddleEratio37_Photon(0),
+  /** @brief energy ratio in 2nd sampling for photons */
+  m_cutPositionClusterMiddleEratio33_Photon(0),
+  /** @brief width in the second sampling */
+  m_cutPositionClusterMiddleWidth_Photon(0),
+  /** @brief fraction of energy found in 1st sampling */
+  m_cutPositionClusterStripsEratio_Photon(0),
+  /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
+  m_cutPositionClusterStripsDeltaEmax2_Photon(0),
+  /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
+  m_cutPositionClusterStripsDeltaE_Photon(0),
+  /** @brief shower width in 1st sampling */
+  m_cutPositionClusterStripsWtot_Photon(0),
+  /** @brief shower shape in shower core 1st sampling */
+  m_cutPositionClusterStripsFracm_Photon(0),
+  /** @brief shower width weighted by distance from the maximum one */
+  m_cutPositionClusterStripsWeta1c_Photon(0),
+  /** @brief difference between max and 2nd max in strips */
+  m_cutPositionClusterStripsDEmaxs1_Photon(0),
+  /** @brief energy-momentum match for photon selection*/
+  m_cutPositionTrackMatchEoverP_Photon(0),
+  /** @brief ambiguity resolution for photon (vs electron) */
+  m_cutPositionAmbiguityResolution_Photon(0),
+  /** @brief isolation */
+  m_cutPositionIsolation_Photon(0),
+  /** @brief calorimetric isolation for photon selection */
+  m_cutPositionClusterIsolation_Photon(0),
+  /** @brief tracker isolation for photon selection */
+  m_cutPositionTrackIsolation_Photon(0),
   /** @brief cluster eta range */
   m_cutNameClusterEtaRange_Photon("ClusterEtaRange_Photon"),
   /** @brief cluster eta range */
   m_cutNameClusterEtaRange_PhotonLoose("ClusterEtaRange_PhotonLoose"),
-
   // selection for Loose photons
   /** @brief cluster leakage into the hadronic calorimeter */
   m_cutNameClusterHadronicLeakage_PhotonLoose("ClusterHadronicLeakage_PhotonLoose"),
@@ -315,7 +365,7 @@ const Root::TAccept& Root::TPhotonIsEMSelector::accept(
 						       // The ambiguity result 
 						       EMAmbiguityType::AmbiguityResult ambiguityResult)
 {
-    // Reset the cut result bits to zero (= fail cut)
+  // Reset the cut result bits to zero (= fail cut)
   m_accept.clear();
 
   // -----------------------------------------------------------
@@ -1170,7 +1220,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==0) {
     if ( vec.size() != 1) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs 1"); 
+		     << vec.size() << " but needs 1"); 
       return false;      
     }
   }
@@ -1179,8 +1229,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==1) {
     if ( vec.size() != etaNB_photonsLoose ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etaNB_photonsLoose=" 
-		    << etaNB_photonsLoose);
+		     << vec.size() << " but needs etaNB_photonsLoose=" 
+		     << etaNB_photonsLoose);
       return false;      
     }
   }
@@ -1189,8 +1239,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==2) {
     if ( vec.size() != etNB_photonsLoose ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etNB_photonsLoose=" 
-		    << etNB_photonsLoose);
+		     << vec.size() << " but needs etNB_photonsLoose=" 
+		     << etNB_photonsLoose);
       return false;      
     }
   }
@@ -1199,8 +1249,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==3) {
     if ( vec.size() != combinedNB_photonsLoose ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs combinedNB_photonsLoose=" 
-		    << combinedNB_photonsLoose);
+		     << vec.size() << " but needs combinedNB_photonsLoose=" 
+		     << combinedNB_photonsLoose);
       return false;      
     }
   }
@@ -1209,8 +1259,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==11) {
     if ( vec.size() != etaNB_photonsTightConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etaNB_photonsTightConv " 
-		    << etaNB_photonsTightConv);
+		     << vec.size() << " but needs etaNB_photonsTightConv " 
+		     << etaNB_photonsTightConv);
       return false;      
     }
   }
@@ -1219,8 +1269,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==12) {
     if ( vec.size() != etNB_photonsTightConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etNB_photonsTightConv=" 
-		    << etNB_photonsTightConv);
+		     << vec.size() << " but needs etNB_photonsTightConv=" 
+		     << etNB_photonsTightConv);
       return false;      
     }
   }
@@ -1229,8 +1279,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==13) {
     if ( vec.size() != combinedNB_photonsTightConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs combinedNB_photonsTightConv=" 
-		    << combinedNB_photonsTightConv);
+		     << vec.size() << " but needs combinedNB_photonsTightConv=" 
+		     << combinedNB_photonsTightConv);
       return false;      
     }
   }
@@ -1239,8 +1289,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==14) {
     if ( vec.size() != etaStripsNB_photonsTightConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etaStripsNB_photonsTightConv=" 
-		    << etaStripsNB_photonsTightConv);
+		     << vec.size() << " but needs etaStripsNB_photonsTightConv=" 
+		     << etaStripsNB_photonsTightConv);
       return false;      
     }
   }
@@ -1249,8 +1299,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==15) {
     if ( vec.size() != etStripsNB_photonsTightConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etStripsNB_photonsTightConv=" 
-		    << etStripsNB_photonsTightConv);
+		     << vec.size() << " but needs etStripsNB_photonsTightConv=" 
+		     << etStripsNB_photonsTightConv);
       return false;      
     }
   }
@@ -1259,8 +1309,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==16) {
     if ( vec.size() != combinedStripsNB_photonsTightConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs combinedStripsNB_photonsTightConv=" 
-		    << combinedStripsNB_photonsTightConv);
+		     << vec.size() << " but needs combinedStripsNB_photonsTightConv=" 
+		     << combinedStripsNB_photonsTightConv);
       return false;      
     }
   }
@@ -1269,8 +1319,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==21) {
     if ( vec.size() != etaNB_photonsTightNonConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etaNB_photonsTightNonConv " 
-		    << etaNB_photonsTightNonConv);
+		     << vec.size() << " but needs etaNB_photonsTightNonConv " 
+		     << etaNB_photonsTightNonConv);
       return false;      
     }
   }
@@ -1279,8 +1329,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==22) {
     if ( vec.size() != etNB_photonsTightNonConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etNB_photonsTightNonConv=" 
-		    << etNB_photonsTightNonConv);
+		     << vec.size() << " but needs etNB_photonsTightNonConv=" 
+		     << etNB_photonsTightNonConv);
       return false;      
     }
   }
@@ -1289,8 +1339,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==23) {
     if ( vec.size() != combinedNB_photonsTightNonConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs combinedNB_photonsTightNonConv=" 
-		    << combinedNB_photonsTightNonConv);
+		     << vec.size() << " but needs combinedNB_photonsTightNonConv=" 
+		     << combinedNB_photonsTightNonConv);
       return false;      
     }
   }
@@ -1299,8 +1349,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==24) {
     if ( vec.size() != etaStripsNB_photonsTightNonConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etaStripsNB_photonsTightNonConv=" 
-		    << etaStripsNB_photonsTightNonConv);
+		     << vec.size() << " but needs etaStripsNB_photonsTightNonConv=" 
+		     << etaStripsNB_photonsTightNonConv);
       return false;      
     }
   }
@@ -1309,8 +1359,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==25) {
     if ( vec.size() != etStripsNB_photonsTightNonConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs etStripsNB_photonsTightNonConv=" 
-		    << etStripsNB_photonsTightNonConv);
+		     << vec.size() << " but needs etStripsNB_photonsTightNonConv=" 
+		     << etStripsNB_photonsTightNonConv);
       return false;      
     }
   }
@@ -1319,8 +1369,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   if (choice==26) {
     if ( vec.size() != combinedStripsNB_photonsTightNonConv ) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs combinedStripsNB_photonsTightNonConv=" 
-		    << combinedStripsNB_photonsTightNonConv);
+		     << vec.size() << " but needs combinedStripsNB_photonsTightNonConv=" 
+		     << combinedStripsNB_photonsTightNonConv);
       return false;      
     }
   }
@@ -1357,47 +1407,47 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   if (vec.size() == 0) return false;
 
   switch(choice) {
-  // check if size is 1
+    // check if size is 1
   case 0:
     if ( vec.size() != 1) {
       FAKE_MSG_ERROR("vector size is " 
-		    << vec.size() << " but needs 1"); 
+		     << vec.size() << " but needs 1"); 
       return false;      
     } else {
       return true;
     }
 
-  // check if size is etaNB_photonsLoose
+    // check if size is etaNB_photonsLoose
   case 1: 
     {
       const unsigned int etaNB_photonsLoose = 
 	CutBinEta_photonsLoose.size();
       if ( vec.size() != etaNB_photonsLoose ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaNB_photonsLoose=" 
-		      << etaNB_photonsLoose);
+		       << vec.size() << " but needs etaNB_photonsLoose=" 
+		       << etaNB_photonsLoose);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etNB_photonsLoose
+    // check if size is etNB_photonsLoose
   case 2:
     {
       const unsigned int etNB_photonsLoose = 
 	CutBinEnergy_photonsLoose.size();
       if ( vec.size() != etNB_photonsLoose ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etNB_photonsLoose=" 
-		      << etNB_photonsLoose);
+		       << vec.size() << " but needs etNB_photonsLoose=" 
+		       << etNB_photonsLoose);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is combinedNB_photonsLoose
+    // check if size is combinedNB_photonsLoose
   case 3:
     {
       const unsigned int etaNB_photonsLoose = 
@@ -1412,45 +1462,45 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       
       if ( vec.size() != combinedNB_photonsLoose ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs combinedNB_photonsLoose=" 
-		      << combinedNB_photonsLoose);
+		       << vec.size() << " but needs combinedNB_photonsLoose=" 
+		       << combinedNB_photonsLoose);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etaNB_photonsTightConv
+    // check if size is etaNB_photonsTightConv
   case 11:
     {
       const unsigned int etaNB_photonsTightConv = 
 	CutBinEta_photonsConverted.size();
       if ( vec.size() != etaNB_photonsTightConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaNB_photonsTightConv " 
-		      << etaNB_photonsTightConv);
+		       << vec.size() << " but needs etaNB_photonsTightConv " 
+		       << etaNB_photonsTightConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etNB_photonsTightConv 
+    // check if size is etNB_photonsTightConv 
   case 12:
     {
       const unsigned int etNB_photonsTightConv  = 
 	CutBinEnergy_photonsConverted.size();
       if ( vec.size() != etNB_photonsTightConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etNB_photonsTightConv=" 
-		      << etNB_photonsTightConv);
+		       << vec.size() << " but needs etNB_photonsTightConv=" 
+		       << etNB_photonsTightConv);
 	return false;      
       } else {
 	return true;
       }
     }
  
-  // check if size is combinedNB_photonsTightConv
+    // check if size is combinedNB_photonsTightConv
   case 13:
     {
       const unsigned int etaNB_photonsTightConv = 
@@ -1466,45 +1516,45 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	  etaNB_photonsTightConv;
       if ( vec.size() != combinedNB_photonsTightConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs combinedNB_photonsTightConv=" 
-		      << combinedNB_photonsTightConv);
+		       << vec.size() << " but needs combinedNB_photonsTightConv=" 
+		       << combinedNB_photonsTightConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etaStripsNB_photonsTightConv
+    // check if size is etaStripsNB_photonsTightConv
   case 14:
     {
       const unsigned int etaStripsNB_photonsTightConv = 
 	CutBinEtaStrips_photonsConverted.size();
       if ( vec.size() != etaStripsNB_photonsTightConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaStripsNB_photonsTightConv=" 
-		      << etaStripsNB_photonsTightConv);
+		       << vec.size() << " but needs etaStripsNB_photonsTightConv=" 
+		       << etaStripsNB_photonsTightConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etStripsNB_photonsTightConv
+    // check if size is etStripsNB_photonsTightConv
   case 15:
     {
       const unsigned int etStripsNB_photonsTightConv = 
 	CutBinEnergyStrips_photonsConverted.size();
       if ( vec.size() != etStripsNB_photonsTightConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etStripsNB_photonsTightConv=" 
-		      << etStripsNB_photonsTightConv);
+		       << vec.size() << " but needs etStripsNB_photonsTightConv=" 
+		       << etStripsNB_photonsTightConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is combinedStripsNB_photonsTightConv
+    // check if size is combinedStripsNB_photonsTightConv
   case 16:
     {
       const unsigned int etaStripsNB_photonsTightConv = 
@@ -1520,44 +1570,44 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	  etaStripsNB_photonsTightConv;
       if ( vec.size() != combinedStripsNB_photonsTightConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs combinedStripsNB_photonsTightConv=" 
-		      << combinedStripsNB_photonsTightConv);
+		       << vec.size() << " but needs combinedStripsNB_photonsTightConv=" 
+		       << combinedStripsNB_photonsTightConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etaNB_photonsTightNonConv
+    // check if size is etaNB_photonsTightNonConv
   case 21:
     {
       const unsigned int etaNB_photonsTightNonConv = 
 	CutBinEta_photonsNonConverted.size();     
       if ( vec.size() != etaNB_photonsTightNonConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaNB_photonsTightNonConv " 
-		      << etaNB_photonsTightNonConv);
+		       << vec.size() << " but needs etaNB_photonsTightNonConv " 
+		       << etaNB_photonsTightNonConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etNB_photonsTightNonConv 
+    // check if size is etNB_photonsTightNonConv 
   case 22:
     {
       const unsigned int etNB_photonsTightNonConv  = 
 	CutBinEnergy_photonsNonConverted.size();
       if ( vec.size() != etNB_photonsTightNonConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etNB_photonsTightNonConv=" 
-		      << etNB_photonsTightNonConv);
+		       << vec.size() << " but needs etNB_photonsTightNonConv=" 
+		       << etNB_photonsTightNonConv);
 	return false;      
       } else {
 	return true;
       }
     }
-  // check if size is combinedNB_photonsTightNonConv
+    // check if size is combinedNB_photonsTightNonConv
   case 23:
     {
       const unsigned int etaNB_photonsTightNonConv = 
@@ -1573,45 +1623,45 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       
       if ( vec.size() != combinedNB_photonsTightNonConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs combinedNB_photonsTightNonConv=" 
-		      << combinedNB_photonsTightNonConv);
+		       << vec.size() << " but needs combinedNB_photonsTightNonConv=" 
+		       << combinedNB_photonsTightNonConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etaStripsNB_photonsTightNonConv
+    // check if size is etaStripsNB_photonsTightNonConv
   case 24:
     {
       const unsigned int etaStripsNB_photonsTightNonConv = 
 	CutBinEtaStrips_photonsNonConverted.size();
       if ( vec.size() != etaStripsNB_photonsTightNonConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etaStripsNB_photonsTightNonConv=" 
-		      << etaStripsNB_photonsTightNonConv);
+		       << vec.size() << " but needs etaStripsNB_photonsTightNonConv=" 
+		       << etaStripsNB_photonsTightNonConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is etStripsNB_photonsTightNonConv
+    // check if size is etStripsNB_photonsTightNonConv
   case 25:
     {
       const unsigned int etStripsNB_photonsTightNonConv = 
 	CutBinEnergyStrips_photonsNonConverted.size();
       if ( vec.size() != etStripsNB_photonsTightNonConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs etStripsNB_photonsTightNonConv=" 
-		      << etStripsNB_photonsTightNonConv);
+		       << vec.size() << " but needs etStripsNB_photonsTightNonConv=" 
+		       << etStripsNB_photonsTightNonConv);
 	return false;      
       } else {
 	return true;
       }
     }
 
-  // check if size is combinedStripsNB_photonsTightNonConv
+    // check if size is combinedStripsNB_photonsTightNonConv
   case 26:
     {
       const unsigned int etaStripsNB_photonsTightNonConv = 
@@ -1627,8 +1677,8 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	  etaStripsNB_photonsTightNonConv;
       if ( vec.size() != combinedStripsNB_photonsTightNonConv ) {
 	FAKE_MSG_ERROR("vector size is " 
-		      << vec.size() << " but needs combinedStripsNB_photonsTightNonConv=" 
-		      << combinedStripsNB_photonsTightNonConv);
+		       << vec.size() << " but needs combinedStripsNB_photonsTightNonConv=" 
+		       << combinedStripsNB_photonsTightNonConv);
 	return false;      
       } else {
 	return true;

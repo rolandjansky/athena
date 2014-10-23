@@ -16,6 +16,7 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
 
+#include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
@@ -114,7 +115,8 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
   
   bool allFound = true;
 
-  float e237, e277, ethad1, ethad, w2, f1, f3, wstot, emax2, emax, deltaEta, deltaPhiRescaled;
+  float e237(0), e277(0), ethad1(0), ethad(0), w2(0), f1(0), f3(0), wstot(0),
+    emax2(0), emax(0), deltaEta(0), deltaPhiRescaled(0);
 
   // E(3*7) in 2nd sampling
   allFound = allFound && eg->showerShapeValue(e237, xAOD::EgammaParameters::e237);
@@ -241,3 +243,16 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
                             debug );
 }
 
+
+const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticle* part) const
+{
+  ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
+  if(part->type()==xAOD::Type::Electron){
+    const xAOD::Electron* eg =static_cast<const xAOD::Electron*> (part);
+    return accept(eg);
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronMultiLeptonSelector::could not convert argument to accept");
+    return m_acceptDummy;
+  }
+}

@@ -26,7 +26,7 @@
 
 // Forward declarations
 
-#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/PhotonFwd.h"
 
 class IAsgPhotonIsEMSelector : virtual public IAsgSelectionTool
 {

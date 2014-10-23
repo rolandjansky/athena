@@ -10,7 +10,10 @@
 ##=============================================================================
 
 import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+try :
+    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+except :
+    pass
 
 from ROOT import egammaPID
 
@@ -63,17 +66,17 @@ ElectronIsEMMap2012OLD = {
     }
 
 TrigElectronIsEMMap2012 = {
-    egammaPID.ElectronIDLoosePP: ( egammaPID.ElectronLoosePP, TrigElectronIsEMLoose1SelectorCutDefs.TrigElectronIsEMLoose1SelectorConfig2012 ),
-    egammaPID.ElectronIDMediumPP: ( egammaPID.ElectronMediumPP, TrigElectronIsEMMedium1SelectorCutDefs.TrigElectronIsEMMedium1SelectorConfig2012 ),
-    egammaPID.ElectronIDTightPP: ( egammaPID.ElectronTightPP, TrigElectronIsEMTight1SelectorCutDefs.TrigElectronIsEMTight1SelectorConfig2012 ),
-    egammaPID.PhotonIDLoose: ( egammaPID.PhotonIDLoose, TrigPhotonIsEMCaloCutsOnlySelectorCutDefs.TrigPhotonIsEMLooseCaloCutsOnlySelectorConfig2012),
-    egammaPID.PhotonIDMedium: ( egammaPID.PhotonIDMedium, TrigPhotonIsEMCaloCutsOnlySelectorCutDefs.TrigPhotonIsEMMediumCaloCutsOnlySelectorConfig2012),
+    egammaPID.ElectronIDLoose1: ( egammaPID.ElectronLoose1, TrigElectronIsEMLoose1SelectorCutDefs.TrigElectronIsEMLoose1SelectorConfig2012 ),
+    egammaPID.ElectronIDMedium1: ( egammaPID.ElectronMedium1, TrigElectronIsEMMedium1SelectorCutDefs.TrigElectronIsEMMedium1SelectorConfig2012 ),
+    egammaPID.ElectronIDTight1: ( egammaPID.ElectronTight1, TrigElectronIsEMTight1SelectorCutDefs.TrigElectronIsEMTight1SelectorConfig2012 ),
+    egammaPID.PhotonIDLooseEF: ( egammaPID.PhotonLooseEF, TrigPhotonIsEMCaloCutsOnlySelectorCutDefs.TrigPhotonIsEMLooseCaloCutsOnlySelectorConfig2012),
+    egammaPID.PhotonIDMediumEF: ( egammaPID.PhotonMediumEF, TrigPhotonIsEMCaloCutsOnlySelectorCutDefs.TrigPhotonIsEMMediumCaloCutsOnlySelectorConfig2012),
     }
 
 TrigElectronIsEMMapDC14 = {
-    egammaPID.ElectronIDLoose: ( egammaPID.ElectronLoose, TrigElectronIsEMLooseSelectorCutDefs.TrigElectronIsEMLooseSelectorConfigDC14 ),
-    egammaPID.ElectronIDMedium: ( egammaPID.ElectronMedium, TrigElectronIsEMMediumSelectorCutDefs.TrigElectronIsEMMediumSelectorConfigDC14 ),
-    egammaPID.ElectronIDTight: ( egammaPID.ElectronTight, TrigElectronIsEMTightSelectorCutDefs.TrigElectronIsEMTightSelectorConfigDC14 ),
+    egammaPID.ElectronIDLooseHLT: ( egammaPID.ElectronLooseHLT, TrigElectronIsEMLooseSelectorCutDefs.TrigElectronIsEMLooseSelectorConfigDC14 ),
+    egammaPID.ElectronIDMediumHLT: ( egammaPID.ElectronMediumHLT, TrigElectronIsEMMediumSelectorCutDefs.TrigElectronIsEMMediumSelectorConfigDC14 ),
+    egammaPID.ElectronIDTightHLT: ( egammaPID.ElectronTightHLT, TrigElectronIsEMTightSelectorCutDefs.TrigElectronIsEMTightSelectorConfigDC14 ),
     }
 
 def ElectronIsEMMap(quality, menu):

@@ -17,11 +17,15 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 
+#include "xAODEgamma/Photon.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "PathResolver/PathResolver.h"
+#include "TEnv.h"
 
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
@@ -44,11 +48,14 @@ double AsgPhotonIsEMSelector::getConversion1OverP(const xAOD::Vertex* vx) const
 //=============================================================================
 AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
   AsgTool(myname),
+  m_configFile(""),
   m_rootTool(0)
 {
 
   m_rootTool = new Root::TPhotonIsEMSelector();
   
+  declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
+
   // Name of the PID
   declareProperty("isEMMask",
 		  m_rootTool->isEMMask=egammaPID::PhotonTightAR,
@@ -273,6 +280,57 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
+  if(!m_configFile.empty()){
+
+      std::string filename = PathResolverFindCalibFile( m_configFile);
+      TEnv env(filename.c_str());
+
+      m_rootTool->CutBinEta_photonsLoose                    =AsgConfigHelper::HelperFloat("CutBinEta_photonsLoose",env);
+      m_rootTool->CutBinEnergy_photonsLoose                 =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsLoose",env);
+      m_rootTool->e277_photonsLoose                         =AsgConfigHelper::HelperFloat("e277_photonsLoose",env);
+      m_rootTool->CutHadLeakage_photonsLoose                =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsLoose",env);
+      m_rootTool->Reta37_photonsLoose                       =AsgConfigHelper::HelperFloat("Reta37_photonsLoose",env);
+      m_rootTool->Rphi33_photonsLoose                       =AsgConfigHelper::HelperFloat("Rphi33_photonsLoose",env);
+      m_rootTool->weta2_photonsLoose                        =AsgConfigHelper::HelperFloat("weta2_photonsLoose",env);
+      m_rootTool->CutBinEta_photonsNonConverted             =AsgConfigHelper::HelperFloat("CutBinEta_photonsNonConverted",env);
+      m_rootTool->CutBinEnergy_photonsNonConverted          =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsNonConverted",env);
+      m_rootTool->e277_photonsNonConverted                  =AsgConfigHelper::HelperFloat("e277_photonsNonConverted",env);
+      m_rootTool->CutHadLeakage_photonsNonConverted         =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsNonConverted",env);
+      m_rootTool->Reta37_photonsNonConverted                =AsgConfigHelper::HelperFloat("Reta37_photonsNonConverted",env);
+      m_rootTool->Rphi33_photonsNonConverted                =AsgConfigHelper::HelperFloat("Rphi33_photonsNonConverted",env);
+      m_rootTool->weta2_photonsNonConverted                 =AsgConfigHelper::HelperFloat("weta2_photonsNonConverted",env);
+      m_rootTool->CutBinEtaStrips_photonsNonConverted       =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsNonConverted",env);
+      m_rootTool->CutBinEnergyStrips_photonsNonConverted    =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsNonConverted",env);
+      m_rootTool->f1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("f1_photonsNonConverted",env);
+      m_rootTool->emax2r_photonsNonConverted                =AsgConfigHelper::HelperFloat("emax2r_photonsNonConverted",env);
+      m_rootTool->deltae_photonsNonConverted                =AsgConfigHelper::HelperFloat("deltae_photonsNonConverted",env);
+      m_rootTool->DEmaxs1_photonsNonConverted               =AsgConfigHelper::HelperFloat("DEmaxs1_photonsNonConverted",env);
+      m_rootTool->wtot_photonsNonConverted                  =AsgConfigHelper::HelperFloat("wtot_photonsNonConverted",env);
+      m_rootTool->fracm_photonsNonConverted                 =AsgConfigHelper::HelperFloat("fracm_photonsNonConverted",env);
+      m_rootTool->w1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("w1_photonsNonConverted",env);
+      m_rootTool->CutF3_photonsNonConverted                 =AsgConfigHelper::HelperFloat("CutF3_photonsNonConverted",env);
+      m_rootTool->CutBinEta_photonsConverted                =AsgConfigHelper::HelperFloat("CutBinEta_photonsConverted",env);
+      m_rootTool->CutBinEnergy_photonsConverted             =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsConverted",env);
+      m_rootTool->e277_photonsConverted                     =AsgConfigHelper::HelperFloat("e277_photonsConverted",env);
+      m_rootTool->CutHadLeakage_photonsConverted            =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsConverted",env);
+      m_rootTool->Reta37_photonsConverted                   =AsgConfigHelper::HelperFloat("Reta37_photonsConverted",env);
+      m_rootTool->Rphi33_photonsConverted                   =AsgConfigHelper::HelperFloat("Rphi33_photonsConverted",env);
+      m_rootTool->weta2_photonsConverted                    =AsgConfigHelper::HelperFloat("weta2_photonsConverted",env);
+      m_rootTool->CutBinEtaStrips_photonsConverted          =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsConverted",env);
+      m_rootTool->CutBinEnergyStrips_photonsConverted       =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsConverted",env);
+      m_rootTool->f1_photonsConverted                       =AsgConfigHelper::HelperFloat("f1_photonsConverted",env);
+      m_rootTool->emax2r_photonsConverted                   =AsgConfigHelper::HelperFloat("emax2r_photonsConverted",env);
+      m_rootTool->deltae_photonsConverted                   =AsgConfigHelper::HelperFloat("deltae_photonsConverted",env);
+      m_rootTool->DEmaxs1_photonsConverted                  =AsgConfigHelper::HelperFloat("DEmaxs1_photonsConverted",env);
+      m_rootTool->wtot_photonsConverted                     =AsgConfigHelper::HelperFloat("wtot_photonsConverted",env);
+      m_rootTool->fracm_photonsConverted                    =AsgConfigHelper::HelperFloat("fracm_photonsConverted",env);
+      m_rootTool->w1_photonsConverted                       =AsgConfigHelper::HelperFloat("w1_photonsConverted",env);
+      m_rootTool->CutminEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutminEp_photonsConverted",env);
+      m_rootTool->CutmaxEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutmaxEp_photonsConverted",env);
+      m_rootTool->CutF3_photonsConverted                    =AsgConfigHelper::HelperFloat("CutF3_photonsConverted",env);
+
+
+  }
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
     {
@@ -397,7 +455,8 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg,
     et = (cosheta != 0.) ? energy/cosheta : 0.;
   }
 
-  float ethad1, ethad, e233, e237, e277, weta2c, emax2, emax, emin, f1, weta1c, wtot, fracm, f3;
+  float ethad1(0), ethad(0), e233(0), e237(0), e277(0), weta2c(0), 
+    emax2(0), emax(0), emin(0), f1(0), weta1c(0), wtot(0), fracm(0), f3(0);
 
   bool allFound = true;
     

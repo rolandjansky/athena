@@ -118,7 +118,15 @@ namespace egammaPID {
     frwdElectronIDTight,
     NoIDCut,
     PhotonIDMedium,
-    PhotonIDMediumAR
+    PhotonIDMediumAR,
+    ElectronIDLoose1,
+    ElectronIDMedium1,
+    ElectronIDTight1,
+    ElectronIDLooseHLT,
+    ElectronIDMediumHLT,
+    ElectronIDTightHLT,
+    PhotonIDLooseEF,
+    PhotonIDMediumEF
   };
     
 
@@ -510,6 +518,80 @@ namespace egammaPID {
     ElectronTight_WithTightEtaTrackMatch |
     ISOLATION_ELECTRON;
 
+ 
+  /** @brief trigger specfic definitions **/
+  /** @brief calo middle with rphi **/
+  const unsigned int CALOMIDDLE_ELECTRON_HLT = 
+      CALOMIDDLE_ELECTRON | 
+      0X1 << ClusterMiddleEratio33_Electron;
+
+  /** @brief all cuts in calorimeter (except isolation)*/
+  const unsigned int CALO_ELECTRON_HLT = 
+      HADLEAKETA_ELECTRON | 
+      CALOSTRIPS_ELECTRON | 
+      CALOMIDDLE_ELECTRON_HLT | 
+      CALOBACK_ELECTRON;
+
+  /** @brief Tight Track cluster matching redefined for EF **/
+  const unsigned int TRACKMATCHTIGHT_ELECTRON_EF = 0x1 << TrackA0Tight_Electron;
+  /** @brief Track-cluster matching in eta, E/p for electrons redefined for EF **/
+  const unsigned int TRACKMATCH_ELECTRON_EF = 0x1 << TrackMatchEta_Electron | 
+      0x1 << TrackMatchEoverP_Electron;  
+  /** @brief Track-cluster matching in eta for electrons redefined for EF **/
+  const unsigned int TRACKMATCH_ELECTRON_NoEoP_EF = 0x1 << TrackMatchEta_Electron;
+  
+  /** Electron trigger PID definitions */
+  
+  /** @brief Loose1 tunes electron selection */
+  // Add Rphi to Calo selection
+  const unsigned int ElectronLoose1 = 
+    CALOMIDDLE_ELECTRON | HADLEAKETA_ELECTRON | CALOSTRIPS_LOOSE_ELECTRON | 
+    TRACKMATCHDETA_ELECTRON | TRACKINGLOOSE_ELECTRON;
+
+  /** @brief Medium1 tunes electron selecton */
+  // Add Rphi to Calo selection and CALOBACK
+  const unsigned int ElectronMedium1 =
+    CALO_ELECTRON | 
+    TRACKING_ELECTRON | 
+    TRACKMATCHDETA_ELECTRON |
+    TRT_RATIO_ELECTRON;
+  
+   /** @brief Tight1 tunes electron selecton */
+  const unsigned int ElectronTight1 = 
+      HADLEAKETA_ELECTRON | 
+      CALOSTRIPS_ELECTRON | 
+      CALOMIDDLE_ELECTRON |
+      TRACKING_ELECTRON | 
+      TRACKMATCHDETA_ELECTRON | 
+      TRACKMATCH_ELECTRON_EF | 
+      TRACKMATCHTIGHT_ELECTRON | 
+      TRT_ELECTRON;
+  
+  /** @brief Loose 2014 tunes electron selection */
+  // Add Rphi to Calo selection
+  const unsigned int ElectronLooseHLT = 
+    CALOMIDDLE_ELECTRON_HLT | HADLEAKETA_ELECTRON | CALOSTRIPS_LOOSE_ELECTRON | 
+    TRACKMATCHDETA_ELECTRON | TRACKINGLOOSE_ELECTRON;
+
+  /** @brief Medium 2014 tunes electron selecton */
+  // Add Rphi to Calo selection and CALOBACK
+  const unsigned int ElectronMediumHLT =
+    CALO_ELECTRON_HLT | 
+    TRACKING_ELECTRON | 
+    TRACKMATCHDETA_ELECTRON |
+    TRT_RATIO_ELECTRON;
+
+  /** @brief Tight 2014 tunes electron selecton */
+  // Add Rphi to Calo selection and CALOBACK
+  const unsigned int ElectronTightHLT =
+    HADLEAKETA_ELECTRON | 
+    CALOSTRIPS_ELECTRON | 
+    CALOMIDDLE_ELECTRON_HLT |
+    TRACKING_ELECTRON | 
+    TRACKMATCHDETA_ELECTRON |
+    TRACKMATCH_ELECTRON_EF | 
+    TRACKMATCHTIGHT_ELECTRON |
+    TRT_ELECTRON;
 
   //
   // for photon selection
@@ -573,6 +655,21 @@ namespace egammaPID {
   const unsigned int AMBIGUITYRESOLVE_PHOTON =
     0x1 << AmbiguityResolution_Photon;
 
+  /** @brief bit definitions for Photon triggers */
+  // Added for Trigger
+  /** @brief cuts of hadronic leakage (for Loose selection) */
+  const unsigned int HADLEAKETA_PHOTON_EF = 
+      0x1 << ClusterEtaRange_Photon | 
+      0x1 << ClusterHadronicLeakage_PhotonLoose;
+
+  /** @brief cuts of Eratio (for Medium selection) */
+  const unsigned int CALO_PHOTON_REAT_WETA2_ERATIO = 
+      0x1 << ClusterEtaRange_Photon | 
+      0x1 << ClusterMiddleEnergy_PhotonLoose | 
+      0x1 << ClusterMiddleEratio37_PhotonLoose | 
+      0x1 << ClusterMiddleWidth_PhotonLoose   | 
+      0x1 << ClusterStripsEratio_Photon;
+
   /** @brief Loose photon selection with Ambiguity resolver*/
   const unsigned int PhotonLooseAR = 
     CALOMIDDLE_PHOTONLOOSE | HADLEAKETA_PHOTONLOOSE | AMBIGUITYRESOLVE_PHOTON;
@@ -602,6 +699,13 @@ namespace egammaPID {
   const unsigned int PhotonTightIso = PhotonTight | ISOLATION_PHOTON;
 
 
+  /** @brief TrigEgamma Pid Definitions */
+  /** @brief Loose photon selection for online EF */
+  const unsigned int PhotonLooseEF =  CALOMIDDLE_PHOTONLOOSE | HADLEAKETA_PHOTON_EF;
+
+  // Added for 2g20_medium
+  /** @brief Medium photon selection for online EF */
+  const unsigned int PhotonMediumEF = HADLEAKETA_PHOTON_EF | CALO_PHOTON_REAT_WETA2_ERATIO;
 
 
   /**@brief forward electron flavours */

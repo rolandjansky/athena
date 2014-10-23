@@ -27,6 +27,7 @@
 
 // Forward declarations
 #include "xAODEgamma/ElectronFwd.h"
+#include "xAODEgamma/EgammaFwd.h"
 
 class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
 {
@@ -44,11 +45,26 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part, bool CaloCutsOnly ) const = 0;
+
+  /** The main accept method: using the generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part, bool CaloCutsOnly ) const = 0;
+
   /** The main result method: the actual likelihood is calculated here */
   virtual const Root::TResult& calculate( const xAOD::IParticle* part ) const = 0;
 
   /** The main result method: the actual likelihood is calculated here */
   virtual const Root::TResult& calculate( const xAOD::Electron* eg ) const = 0;
+
+  /** The main result method: the actual likelihood is calculated here */
+  virtual const Root::TResult& calculate( const xAOD::Egamma* eg, bool CaloCutsOnly ) const = 0;
 
   /** Method to get the plain TResult */
   virtual const Root::TResult& getTResult( ) const=0;

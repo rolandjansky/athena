@@ -23,6 +23,7 @@
 
 #include "TSystem.h"
 
+#include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -46,10 +47,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   // Declare the needed properties
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 11, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContName="VxPrimaryCandidate", "The primary vertex container name" );
-
-  // declareProperty("forceRecalculateLikelihood", m_forceCalcLH=false,
-  //                 "Say if we should re-calculate the likelihood every time (otherwise tried to be taken from UserData)" );
+  declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
 
 
   //
@@ -96,23 +94,16 @@ AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 StatusCode AsgElectronLikelihoodTool::initialize()
 {
   // Add an input file that holds the PDFs
-  // For that, first, expand the given file name such that it becomes an absolute path
-  const char* fname=0;
-  if ( m_pdfFileName.find("/")==0 || m_pdfFileName.find("$")==0 || m_pdfFileName.find(".")==0 || m_pdfFileName.find(":")!=std::string::npos )
-    {
-      fname = gSystem->ExpandPathName( m_pdfFileName.c_str() );
-    }  
-  else
-    {
-      m_pdfFileName = PathResolverFindXMLFile( m_pdfFileName );
-      if ( m_pdfFileName.empty() )
-        {
-          ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
-        }
-      fname = m_pdfFileName.c_str();
-    }
 
-  
+  //First try the PathResolver
+  std::string filename = PathResolverFindCalibFile( m_pdfFileName );
+  if (filename.empty()){
+    ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
+  }  else{
+    ATH_MSG_INFO(" Path found = "<<filename);
+  }
+
+  const char* fname= filename.c_str();
   m_rootTool->setPDFFileName ( fname );
 
   // Get the name of the current operating point, and massage the other strings accordingly
@@ -262,12 +253,84 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
                              );
 }
 
+//=============================================================================
+// Accept method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
+//=============================================================================
+const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg,
+                                                        bool CaloCutsOnly) const
+{
+  if( !CaloCutsOnly )
+    {
+      return accept( (xAOD::IParticle*) eg);
+    }
+  if ( !eg )
+    {
+      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      return m_acceptDummy;
+    }
+  
+  const xAOD::CaloCluster* cluster = eg->caloCluster();
+  if ( !cluster )
+    {
+      ATH_MSG_DEBUG ("Failed, no cluster.");
+      return m_acceptDummy;
+    }  
+  
+  const float eta = (cluster->etaBE(2)); 
+  if ( fabs(eta) > 300.0 )
+    {
+      ATH_MSG_DEBUG ("Failed, eta range.");
+      return m_acceptDummy;
+    }
+  
+  double et = cluster->e()/cosh(eta); 
+
+  // Variables the EFCaloLH ignores
+  uint8_t nSi(0);
+  uint8_t nSiDeadSensors(0);
+  uint8_t nPix(0);
+  uint8_t nPixDeadSensors(0); 
+  uint8_t expectBlayer(true);
+  uint8_t nBlayerHits(0); 
+  uint8_t nBlayerOutliers(0); 
+  int convBit(0);
+
+  // Should make this mu in the end
+  double ip = static_cast<double>(m_nPVdefault);
+
+  // for now don't cache. 
+  double likelihood = calculate(eg, CaloCutsOnly); 
+
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, convBit=%i, ip=%8.5f",
+                         likelihood, eta, et,
+                         nSi, nSiDeadSensors, nPix, nPixDeadSensors,
+                         nBlayerHits, nBlayerOutliers, expectBlayer,
+                         convBit, ip ) );
+
+
+  // Get the answer from the underlying ROOT tool
+  return m_rootTool->accept( likelihood,
+                             eta,
+                             et,
+                             nSi,
+                             nSiDeadSensors,
+                             nPix,
+                             nPixDeadSensors,
+                             nBlayerHits,
+                             nBlayerOutliers,
+                             expectBlayer,
+                             convBit,
+                             ip
+                             );
+}
    
 
 
 
 
+//=============================================================================
 // The main result method: the actual likelihood is calculated here
+//=============================================================================
 const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg ) const
 {
   if ( !eg )
@@ -344,18 +407,19 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   //if ( nSi < 4 ){ et = cluster->et(); }
 
 
-  float e233, e237, e277, ethad1, ethad, ws3, w2, f1, emax2, emax, f3;
+  //float e233(0), e237(0), e277(0), ethad1(0), ethad(0), ws3(0), w2(0), f1(0), emax2(0), emax(0), f3(0);
+  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
 
-  // E(3*3) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e233, xAOD::EgammaParameters::e233);
-  // E(3*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e237, xAOD::EgammaParameters::e237);
+  // reta = e237/e277
+  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  // rphi e233/e237
+  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
   // E(7*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
-  // transverse energy in 1st scintillator of hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1);
-  // transverse energy in hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad, xAOD::EgammaParameters::ethad);
+ // allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
+  // rhad1 = ethad1/et
+  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  // rhad = ethad/et
+  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
   // shower width in 3 strips in 1st sampling
   allFound = allFound && eg->showerShapeValue(ws3, xAOD::EgammaParameters::weta1);
   // shower width in 2nd sampling
@@ -363,23 +427,23 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   // fraction of energy reconstructed in the 1st sampling
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
   // E of 2nd max between max and min in strips
-  allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
+  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
   // E of 1st max in strips
-  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
+//  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
   // fraction of energy reconstructed in the 3rd sampling
   allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
 
-  double rHad1  = et != 0. ? ethad1/et : 0.;
-  double rHad   = et != 0. ? ethad/et : 0.;
+ // double rHad1  = et != 0. ? ethad1/et : 0.;
+ // double rHad   = et != 0. ? ethad/et : 0.;
   
-  float Reta   = e277 != 0 ? e237/e277 : 0.;
-  float Rphi   = e237 != 0. ? e233 / e237 : 0.;
+ // float Reta   = e277 != 0 ? e237/e277 : 0.;
+ // float Rphi   = e237 != 0. ? e233 / e237 : 0.;
   
-  float DEmaxs1 = (emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.0;
+  //float Eratio = (emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.0;
   
 
   // Delta eta,phi matching
-  float deltaEta, deltaPhiRescaled2;
+  float deltaEta=0, deltaPhiRescaled2=0;
 
   allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
 
@@ -402,8 +466,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   
 
   ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, ip=%8.5f",
-                         eta, et, f3, rHad, rHad1, Reta,
-                         w2, f1, DEmaxs1,
+                         eta, et, f3, Rhad, Rhad1, Reta,
+                         w2, f1, Eratio,
                          deltaEta, d0, rTRT,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
@@ -418,12 +482,12 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   return m_rootTool->calculate( eta,
                                 et,
                                 f3,
-                                rHad,
-                                rHad1,
+                                Rhad,
+                                Rhad1,
                                 Reta,
                                 w2,
                                 f1,
-                                DEmaxs1,
+                                Eratio,
                                 deltaEta,
                                 d0, //??? el_trackd0pv
                                 rTRT,
@@ -435,18 +499,151 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
                                 );
 }
 
+//=============================================================================
+// Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
+//=============================================================================
+const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, 
+                                                           bool CaloCutsOnly) const
+{
+  if( !CaloCutsOnly )
+    {
+      return calculate( (xAOD::IParticle*) eg);
+    }
+  if ( !eg )
+    {
+      ATH_MSG_DEBUG ("Failed, no egamma object.");
+      return m_resultDummy;
+    }
+  
+  const xAOD::CaloCluster* cluster = eg->caloCluster();
+  if ( !cluster )
+    {
+      ATH_MSG_DEBUG ("Failed, no cluster.");
+      return m_resultDummy;
+    }  
+  
+  const float eta = cluster->etaBE(2); 
+  if ( fabs(eta) > 300.0 )
+    {
+      ATH_MSG_DEBUG ("Failed, eta range.");
+      return m_resultDummy;
+    }
+  
+  double et = cluster->e()/cosh(eta); 
+  
+  // Track variables that the EFCaloLH will not use
+  float d0(0.0);
+  float d0sigma(0.0);
+  double dpOverp(0.0);
+
+  float deltaEta=0, deltaPhiRescaled2=0;
+  double rTRT(0.0);
+
+  // Calo Variables
+  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
+
+  bool allFound = true;
+
+  // reta = e237/e277
+  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  // rphi e233/e237
+  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
+  // rhad1 = ethad1/et
+  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  // rhad = ethad/et
+  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
+  // shower width in 3 strips in 1st sampling
+  allFound = allFound && eg->showerShapeValue(ws3, xAOD::EgammaParameters::weta1);
+  // shower width in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2);
+  // fraction of energy reconstructed in the 1st sampling
+  allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
+  // E of 2nd max between max and min in strips
+  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
+  // fraction of energy reconstructed in the 3rd sampling
+  allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
+
+  // Get the number of primary vertices in this events
+  // Should make this mu!
+  double ip = static_cast<double>(m_nPVdefault);
+
+  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, ip=%8.5f",
+                         eta, et, f3, Rhad, Rhad1, Reta,
+                         w2, f1, Eratio,
+                         deltaEta, d0, rTRT,
+                         d0sigma, 
+                         Rphi, ws3, dpOverp, deltaPhiRescaled2,
+                         ip ) );
+
+
+  if (!allFound) {
+    ATH_MSG_WARNING("Have some variables missing.");
+  }
+
+  // Get the answer from the underlying ROOT tool
+  return m_rootTool->calculate( eta,
+                                et,
+                                f3,
+                                Rhad,
+                                Rhad1,
+                                Reta,
+                                w2,
+                                f1,
+                                Eratio,
+                                deltaEta,
+                                d0,
+                                rTRT,
+                                d0sigma,
+                                Rphi,
+                                dpOverp,
+                                deltaPhiRescaled2,
+                                ip
+                                );
+}
+
+//=============================================================================
+// Inline methods
+//=============================================================================
+const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
+{
+  ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
+  if(part->type()==xAOD::Type::Electron){
+    const xAOD::Electron* eg =static_cast<const xAOD::Electron*> (part);
+    return accept(eg);
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not convert argument to accept");
+    return m_acceptDummy;
+  }
+}
+
+const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
+{
+  const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
+  if (eg)
+    {
+      return calculate(eg);
+    }
+  else
+    {
+      ATH_MSG_ERROR ( " Could not cast to const egamma " );
+      return m_resultDummy;
+    }
+}
 
 
 
 
+//=============================================================================
 // Helper method to get the number of primary vertices
 // ( This is horrible! We don't want to iterate over all vertices in the event for each electron!!! 
 //   This is slow!)
+//=============================================================================
 unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 {
   // Get the number of vertices
   unsigned int nVtx(0);
-  const xAOD::VertexContainer* vxContainer(NULL);
+  const xAOD::VertexContainer* vxContainer(0);
   if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
     {
       ATH_MSG_ERROR ( "Vertex container not found with name:" << m_primVtxContName );
@@ -461,7 +658,9 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 }
 
 
+//=============================================================================
 /// Get the name of the current operating point
+//=============================================================================
 std::string AsgElectronLikelihoodTool::getOperatingPointName( const LikeEnum::Menu operating_point ) const
 {
   if ( operating_point == LikeEnum::VeryLoose ){ return "VeryLoose"; }
