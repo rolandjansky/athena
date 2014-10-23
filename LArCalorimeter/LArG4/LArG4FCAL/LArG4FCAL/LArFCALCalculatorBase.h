@@ -38,7 +38,7 @@ class LArFCALCalculatorBase : public LArVCalculator
   virtual G4float OOTcut() const { return m_OOTcut; }
 
   virtual G4bool Process(const G4Step*);
-  virtual LArG4Identifier identifier(int i=0) const { 
+  virtual const LArG4Identifier& identifier(int i=0) const { 
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
     return m_identifier; 
   }

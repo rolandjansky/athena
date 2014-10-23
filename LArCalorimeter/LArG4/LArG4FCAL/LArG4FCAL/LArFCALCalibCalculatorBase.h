@@ -55,7 +55,7 @@ namespace LArG4 {
 			      const eCalculatorProcessing p = kEnergyAndID);
 	
 	// The cell identifier determined by the Process method.
-      virtual LArG4Identifier identifier() const { return m_identifier; }
+      virtual const LArG4Identifier& identifier() const { return m_identifier; }
 
 
       virtual G4float OOTcut() const { return m_OOTcut; }
