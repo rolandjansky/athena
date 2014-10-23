@@ -35,7 +35,9 @@ library BarcodeServices *.cxx components/*.cxx
 macro_append BarcodeServices_dependencies " BarcodeServicesLib"
 apply_pattern component_library
 
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
 private
-macro_append BarcodeServicesLib_use_linkopts " -L$(ROOTSYS)/lib -lCore -lCint"
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

@@ -17,8 +17,8 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace Barcode;
-#pragma link C++ class Barcode::BitCalculator;
-#pragma link C++ class Barcode::TruthDressRoom;
+#pragma link C++ class Barcode::BitCalculator+;
+#pragma link C++ class Barcode::TruthDressRoom+;
 
 #endif
 

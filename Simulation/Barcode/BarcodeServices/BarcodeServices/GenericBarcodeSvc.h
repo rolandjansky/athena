@@ -90,13 +90,16 @@ namespace Barcode {
       /** barcode information used for GenVertices */
       VertexBarcode                                 m_firstVertex;
       VertexBarcode                                 m_vertexIncrement;
-      VertexBarcode                                 m_curVertex;
+      VertexBarcode                                 m_currentVertex;
 
       /** barcode information used for secondary GenParticles */
       ParticleBarcode                               m_firstSecondary;
       ParticleBarcode                               m_secondaryIncrement;
-      ParticleBarcode                               m_curParticle;
+      ParticleBarcode                               m_currentSecondary;
         
+      /** barcode offset for each regeneration of updated particles */
+      ParticleBarcode                               m_particleRegenerationIncrement;
+
       /** throw error messages if a possible overflow is detected */
       bool                                          m_doUnderOverflowChecks;
 
