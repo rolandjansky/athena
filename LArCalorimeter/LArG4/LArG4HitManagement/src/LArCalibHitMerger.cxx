@@ -26,7 +26,7 @@ void LArCalibHitMerger::BeginOfEvent()
 {
 }
 
-bool LArCalibHitMerger::process(LArG4Identifier ident,
+bool LArCalibHitMerger::process(const LArG4Identifier& ident,
 				const std::vector<G4double>& energies)
 {
   Identifier id = ConvertID(ident);
@@ -107,7 +107,7 @@ bool LArCalibHitMerger::process(LArG4Identifier ident,
 }
 
 
-bool LArCalibHitMerger::process(LArG4Identifier ident,
+bool LArCalibHitMerger::process(const LArG4Identifier& ident,
                                 const std::vector<G4double>& energies, 
 				unsigned int particleID)
 {

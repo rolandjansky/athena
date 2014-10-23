@@ -39,7 +39,7 @@ void LArHitMerger::BeginOfEvent()
 }
 
 bool LArHitMerger::process(G4Step* /*step*/,
-			   LArG4Identifier ident,
+			   const LArG4Identifier& ident,
 			   G4double time,
 			   G4double energy)
 {
