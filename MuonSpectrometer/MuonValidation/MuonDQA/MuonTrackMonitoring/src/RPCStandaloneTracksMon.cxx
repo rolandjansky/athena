@@ -37,8 +37,7 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
  
-#include "EventInfo/EventInfo.h" 
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h" 
  
 #include "MuonTrackMonitoring/RPCStandaloneTracksMon.h"
      
@@ -222,7 +221,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 
       //select lumiblock for analysis
       if ( m_selectLB ) {
-	const DataHandle<EventInfo> eventInfo;
+	const DataHandle<xAOD::EventInfo> eventInfo;
 	StatusCode sc = m_eventStore->retrieve( eventInfo );
 	if (sc.isFailure()) {
 	  ATH_MSG_DEBUG ( "no event info" );
@@ -230,7 +229,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	}
 	else {
 	  // skip events outside Lb range selected in jobOpt
-	  int lumiBlock = eventInfo->event_ID()->lumi_block()  ;
+	  int lumiBlock = eventInfo->lumiBlock()  ;
 	  if ( lumiBlock<m_minSelLB || lumiBlock>m_maxSelLB ) 
 	    { 
 	      ATH_MSG_INFO ( "event LB " << lumiBlock << " outside range " <<  m_minSelLB <<" "<<m_maxSelLB 
