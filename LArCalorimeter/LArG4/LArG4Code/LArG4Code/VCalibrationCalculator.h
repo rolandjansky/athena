@@ -47,7 +47,7 @@ namespace LArG4 {
 			    const eCalculatorProcessing = kEnergyAndID) = 0;
     
     // The cell identifier determined by the Process method.
-    virtual LArG4Identifier identifier() const = 0;
+    virtual const LArG4Identifier& identifier() const = 0;
     
     // The calibration energies as determined by the Process method for
     // the current G4Step.  Units are the native G4 unit of energy.

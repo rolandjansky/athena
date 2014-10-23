@@ -51,7 +51,7 @@ public:
   virtual int getNumHits() const {return 1;}
 
   // The cell identifier determined by the Process method.
-  virtual LArG4Identifier identifier(int i=0) const = 0;
+  virtual const LArG4Identifier& identifier(int i=0) const = 0;
 
   // Routines added 09-Jan-2002 WGS: For some detectors, the
   // determination of the time, energy deposition, or whether the hit
