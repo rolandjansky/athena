@@ -75,6 +75,14 @@ public:
     {
       m_hitvector.push_back(h);
     }
+  void Insert(const T&& h)
+    {
+      m_hitvector.push_back(h);
+    }
+  template <class... Args> void Emplace(Args&&... args)
+    {
+      m_hitvector.emplace_back(args...);
+    }
   int  Size() const
     {
       return size();
