@@ -15,34 +15,34 @@ from AthenaCommon.DetFlags import DetFlags
 from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 
 
-def getParticleBrokerSvc(name="ISF_ParticleBrokerSvc", **kwargs):
-    kwargs.setdefault('StackFiller'                 , getPublicTool('ISF_StackFiller')                     )
-    kwargs.setdefault('EntryLayerTool'              , getPublicTool('ISF_EntryLayerTool')                  )
-    #kwargs.setdefault('ParticleOrderingTool'        , getPublicTool('ISF_InToOutSubDetOrderingTool')       )
-    kwargs.setdefault('ParticleOrderingTool'        , getPublicTool('ISF_ParticleOrderingTool')            )
-    kwargs.setdefault('GeoIDSvc'                    , getService('ISF_G4PolyconeGeoIDSvc')                 )
-    kwargs.setdefault('AlwaysUseGeoIDSvc'           , False                                                )
-    kwargs.setdefault('ValidateGeoIDs'              , ISF_Flags.ValidationMode()                           )
-    kwargs.setdefault('ValidationOutput'            , ISF_Flags.ValidationMode()                           )
-    kwargs.setdefault('ValidationStreamName'        , "ParticleBroker"                                     )
-
-    from ISF_Services.ISF_ServicesConf import ISF__ParticleBrokerDynamicOnReadIn
-    return ISF__ParticleBrokerDynamicOnReadIn(name, **kwargs)
-
 def getParticleBrokerSvcNoOrdering(name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
-    kwargs.setdefault('StackFiller'                 , getPublicTool('ISF_StackFiller')                     )
-    kwargs.setdefault('EntryLayerTool'              , getPublicTool('ISF_EntryLayerTool')                  )
-    kwargs.setdefault('GeoIDSvc'                    , getService('ISF_G4PolyconeGeoIDSvc')                 )
-    kwargs.setdefault('AlwaysUseGeoIDSvc'           , False                                                )
-    kwargs.setdefault('ValidateGeoIDs'              , ISF_Flags.ValidationMode()                           )
-    kwargs.setdefault('ValidationOutput'            , ISF_Flags.ValidationMode()                           )
-    kwargs.setdefault('ValidationStreamName'        , "ParticleBroker"                                     )
+    kwargs.setdefault('StackFiller'                 , 'ISF_StackFiller'                     )
+    kwargs.setdefault('EntryLayerTool'              , 'ISF_EntryLayerTool'                  )
+    kwargs.setdefault('GeoIDSvc'                    , 'ISF_GeoIDSvc'                        )
+    kwargs.setdefault('AlwaysUseGeoIDSvc'           , False                                 )
+    kwargs.setdefault('ValidateGeoIDs'              , ISF_Flags.ValidationMode()            )
+    kwargs.setdefault('ValidationOutput'            , ISF_Flags.ValidationMode()            )
+    kwargs.setdefault('ValidationStreamName'        , "ParticleBroker"                      )
+    kwargs.setdefault('BarcodeService'              , ISF_Flags.BarcodeService()            )
 
     from ISF_Services.ISF_ServicesConf import ISF__ParticleBrokerDynamicOnReadIn
     return ISF__ParticleBrokerDynamicOnReadIn(name, **kwargs)
+
+def getParticleBrokerSvc(name="ISF_ParticleBrokerSvc", **kwargs):
+    #kwargs.setdefault('ParticleOrderingTool'       , 'ISF_InToOutSubDetOrderingTool'       )
+    kwargs.setdefault('ParticleOrderingTool'        , 'ISF_ParticleOrderingTool'            )
+    return getParticleBrokerSvcNoOrdering(name, **kwargs)
+
+def getLongLivedParticleBrokerSvc(name="ISF_LongLivedParticleBrokerSvc", **kwargs):
+    kwargs.setdefault('StackFiller'                 , 'ISF_LongLivedStackFiller'            )
+    return getParticleBrokerSvcNoOrdering(name, **kwargs)
+
+def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
+    kwargs.setdefault('EntryLayerTool'              , 'ISF_AFIIEntryLayerTool'              )
+    return getParticleBrokerSvc(name, **kwargs)
 
 def getSimHitService(name="ISF_SimHitService", **kwargs):
-    kwargs.setdefault('ValidationOutput'    , ISF_Flags.ValidationMode())
+    kwargs.setdefault('ValidationOutput'    , ISF_Flags.ValidationMode()                    )
 
     from G4AtlasApps.SimFlags import simFlags
 
@@ -57,14 +57,29 @@ def getSimHitService(name="ISF_SimHitService", **kwargs):
 
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
-    kwargs.setdefault("ATLASEnvelopeDefSvc"    , getService("AtlasGeometry_EnvelopeDefSvc"))
+    kwargs.setdefault("ATLASEnvelopeDefSvc"    , "AtlasGeometry_EnvelopeDefSvc")
 
     from ISF_Services.ISF_ServicesConf import ISF__ISFEnvelopeDefSvc
     return ISF__ISFEnvelopeDefSvc(name, **kwargs)
 
+def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
+    from AthenaCommon.SystemOfUnits import mm
+    # ATLAS common envlope definitions
+    kwargs.setdefault("ISFEnvelopeDefSvc"    , "ISF_ISFEnvelopeDefSvc"         )
+    kwargs.setdefault("InDetMaxExtentZ"      , 3550.*mm                        )
+
+    from ISF_Services.ISF_ServicesConf import ISF__AFIIEnvelopeDefSvc
+    return ISF__AFIIEnvelopeDefSvc(name, **kwargs)
+
+
 def getGeoIDSvc(name="ISF_GeoIDSvc", **kwargs):
     # with ISF volume definitions
-    kwargs.setdefault("EnvelopeDefSvc"          , getService("ISF_ISFEnvelopeDefSvc"))
+    kwargs.setdefault("EnvelopeDefSvc"          , "ISF_ISFEnvelopeDefSvc"      )
 
     from ISF_Services.ISF_ServicesConf import ISF__GeoIDSvc
     return ISF__GeoIDSvc(name, **kwargs)
+
+
+def getAFIIGeoIDSvc(name="ISF_AFIIGeoIDSvc", **kwargs):
+    kwargs.setdefault("EnvelopeDefSvc"          , "ISF_AFIIEnvelopeDefSvc"     )
+    return getGeoIDSvc(name, **kwargs)

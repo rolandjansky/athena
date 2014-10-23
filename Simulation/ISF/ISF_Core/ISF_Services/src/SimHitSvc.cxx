@@ -285,9 +285,7 @@ StatusCode ISF::SimHitSvc::initializeEvent()
   m_tileHitVecHits = m_hitCollectionHelper->RetrieveNonconstCollection<TileHitVector>(m_tileHitVecHitCollectionName);
   m_mbtsHits       = m_hitCollectionHelper->RetrieveNonconstCollection<TileHitVector>(m_mbtsHitCollectionName);
 
-  if (!m_doTileCalibHits)
-    m_tileHitVecHits = m_hitCollectionHelper->RetrieveNonconstCollection<TileHitVector>(m_tileHitVecHitCollectionName);
-  else {
+  if (m_doTileCalibHits) {
     m_tileActiveCellCalibHits   = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_tileActiveCellCalibHitCollectionName);
     m_tileInactiveCellCalibHits = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_tileInactiveCellCalibHitCollectionName);
     m_tileDeadMaterialCalibHits = m_hitCollectionHelper->RetrieveNonconstCollection<CaloCalibrationHitContainer>(m_tileDeadMaterialCalibHitCollectionName);
@@ -596,11 +594,7 @@ StatusCode ISF::SimHitSvc::releaseEvent()
     m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_mbtsHits);
     m_tileHitVecHits=0;
     m_mbtsHits=0;
-    if (!m_doTileCalibHits) {
-      m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_tileHitVecHits);
-      m_tileHitVecHits=0;
-    }
-    else {
+    if (m_doTileCalibHits) {
       m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileActiveCellCalibHits);
       m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileInactiveCellCalibHits);
       m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileDeadMaterialCalibHits);
