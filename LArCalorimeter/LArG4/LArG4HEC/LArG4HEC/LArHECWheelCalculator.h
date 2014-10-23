@@ -46,8 +46,8 @@ public:
 
   virtual G4bool Process(const G4Step* a_step);
   
-  virtual LArG4Identifier identifier() const { return m_identifier; }
-  virtual LArG4Identifier identifier(int i) const { 
+  virtual const LArG4Identifier& identifier() const { return m_identifier; }
+  virtual const LArG4Identifier& identifier(int i) const { 
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
     return m_identifier; 
   }
