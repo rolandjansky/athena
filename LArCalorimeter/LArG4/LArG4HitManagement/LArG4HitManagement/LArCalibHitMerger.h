@@ -30,11 +30,11 @@ public:
   void BeginOfEvent();
 
   // Do the actual job here
-  bool process(LArG4Identifier ident,
+  bool process(const LArG4Identifier& ident,
                const std::vector<G4double>& energies);
 
   // Do the actual job here
-  bool process(LArG4Identifier ident,
+  bool process(const LArG4Identifier& ident,
                const std::vector<G4double>& energies, 
 	       unsigned int particleID);
 
