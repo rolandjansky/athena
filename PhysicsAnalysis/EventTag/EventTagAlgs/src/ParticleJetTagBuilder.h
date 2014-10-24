@@ -43,7 +43,7 @@ private:
   StoreGateSvc* m_storeGateSvc;
 
   //! Jet and Missing Tag Tool
-  ToolHandle<JetMissingEtTagTool> m_jetMissingEtTagTool;
+  ToolHandle<JetMetTagTool> m_jetMissingEtTagTool;
 
 };
 
