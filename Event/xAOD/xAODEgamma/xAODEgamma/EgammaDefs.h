@@ -4,11 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaDefs.h 600675 2014-06-06 17:19:57Z christos $
+// $Id: EgammaDefs.h 617559 2014-09-18 21:37:54Z christos $
 #ifndef XAODEGAMMA_EGAMMADEFS_H
 #define XAODEGAMMA_EGAMMADEFS_H
 
-#include <stdint.h>
+extern "C" {
+ #include <stdint.h>
+ }
+
 
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {

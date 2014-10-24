@@ -5,15 +5,12 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 #include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
+#include "xAODEgamma/Electron.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 
-
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 bool xAOD::EgammaHelpers::isElectron(const xAOD::Egamma *eg){
@@ -34,19 +31,6 @@ bool xAOD::EgammaHelpers::isConvertedPhoton(const xAOD::Egamma *eg){
   const xAOD::Photon *ph = dynamic_cast<const xAOD::Photon*>(eg);
   return (ph && (ph->nVertices()>0) );
 }
-
-// ==================================================================
-size_t xAOD::EgammaHelpers::numberOfSiHits(const xAOD::TrackParticle *tp)
-{
-  if (!tp) return 0;
-  
-  uint8_t dummy(0), nSiHits(0);
-  if (tp->summaryValue(dummy, xAOD::numberOfPixelHits))
-    nSiHits += dummy;
-  if (tp->summaryValue(dummy, xAOD::numberOfSCTHits))
-    nSiHits += dummy;
-  return nSiHits;
-}  
 
 // ==================================================================
 bool xAOD::EgammaHelpers::isBarrel(const xAOD::Egamma *eg)
@@ -82,48 +66,32 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
 }
 
 // ==================================================================
-const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Electron* el, 
-  bool useBremAssoc /* = true */, bool allParticles /* = true */)
-{
-  std::set<const xAOD::TrackParticle*> tps;
-  for (unsigned int i = 0; i < el->nTrackParticles(); ++i)
-  {
-    const xAOD::TrackParticle* tp = el->trackParticle(i);
-    if (useBremAssoc) tp = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp);
-    if (tp) tps.insert( tp );
-    if (!allParticles) break; // break after first particle
-  }
-  return tps;
-}
 
-// ==================================================================
-const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,
-  bool useBremAssoc /* = true */)
-{
-  std::set<const xAOD::TrackParticle*> tps;
-  if (!ph) return tps;
-  const xAOD::Vertex* vx = ph->vertex();
-  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i)
-  {
-    const xAOD::TrackParticle *tp = vx->trackParticle(i);
-    tps.insert( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
-  }
-  return tps;
-}
-
-// ==================================================================
-
-const xAOD::TruthParticle* xAOD::EgammaHelpers::getTruthParticle(const xAOD::IParticle* particle, bool debug)
+const xAOD::TruthParticle* xAOD::EgammaHelpers::getTruthParticle(const xAOD::IParticle* particle, bool debug /* =false */)
 {
   return getLink<xAOD::TruthParticle>(particle, "truthParticleLink", debug);
 }
 
-const xAOD::Electron* xAOD::EgammaHelpers::getRecoElectron(const xAOD::TruthParticle* particle, bool debug)
+
+int xAOD::EgammaHelpers::getParticleTruthType(const xAOD::IParticle* particle){
+  static SG::AuxElement::Accessor<int> tT("truthType") ;
+  if (!tT.isAvailable(*particle)) return 0;
+  return tT(*particle);
+}
+
+
+int xAOD::EgammaHelpers::getParticleTruthOrigin(const xAOD::IParticle* particle){
+  static SG::AuxElement::Accessor<int> tO("truthOrigin") ;
+  if (!tO.isAvailable(*particle)) return 0;
+  return tO(*particle);
+}
+
+const xAOD::Electron* xAOD::EgammaHelpers::getRecoElectron(const xAOD::TruthParticle* particle, bool debug /* =false */)
 {
   return getLink<xAOD::Electron>(particle, "recoElectronLink", debug);
 }
 
-const xAOD::Photon* xAOD::EgammaHelpers::getRecoPhoton(const xAOD::TruthParticle* particle, bool debug)
+const xAOD::Photon* xAOD::EgammaHelpers::getRecoPhoton(const xAOD::TruthParticle* particle, bool debug /* =false */)
 {
   return getLink<xAOD::Photon>(particle, "recoPhotonLink", debug);
 }

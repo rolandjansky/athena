@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronAuxContainer.h 614829 2014-09-03 09:39:36Z krasznaa $
+// $Id: ElectronAuxContainer.h 619882 2014-10-03 14:57:46Z christos $
 #ifndef XAODEGAMMA_ELECTRONAUXCONTAINER_H
 #define XAODEGAMMA_ELECTRONAUXCONTAINER_H
 
 // Local include(s):
-#include "xAODEgamma/versions/ElectronAuxContainer_v2.h"
+#include "xAODEgamma/versions/ElectronAuxContainer_v3.h"
 
 namespace xAOD {
    /// Definition of the current electron auxiliary container
@@ -19,7 +19,7 @@ namespace xAOD {
    /// the container type as we get new I/O technologies for these
    /// objects.
    ///
-   typedef ElectronAuxContainer_v2 ElectronAuxContainer;
+   typedef ElectronAuxContainer_v3 ElectronAuxContainer;
 }
 
 // Set up a CLID for the class:

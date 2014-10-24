@@ -97,7 +97,8 @@ namespace xAOD {
       pos7 = 31, 
       /// @brief  barycentre in sampling 1 calculated in 3 strips
       barys1 =32,   
-      /// @brief shower width is determined in a window detaxdphi = 0,0625 ×~0,2, corresponding typically to 20 strips in eta : wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei}, where i is the strip number and imax the strip number of the first local maximum
+      /// @brief shower width is determined in a window detaxdphi = 0,0625 ×~0,2, corresponding typically to 20 strips in 
+      ///eta : wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei}, where i is the strip number and imax the strip number of the first local maximum
       wtots1 = 33,   
       /// @brief energy reconstructed in the strip with the minimal value between the first and second maximum
       emins1 = 34,   
@@ -108,81 +109,31 @@ namespace xAOD {
       r33over37allcalo = 36,     
       /// @brief core energy in em calo  E(core) = E0(3x3) + E1(15x2) + E2(5x5) + E3(3x5)
       ecore = 37,
+      /// @brief  e237/e277
+      Reta = 38,
+      /// @brief  e233/e237
+      Rphi = 39,
+      /// @brief (emaxs1-e2tsts1)/(emaxs1+e2tsts1)
+      Eratio = 40,
+      /// @bried ethad/et
+      Rhad = 41,
+      /// @bried ethad1/et
+      Rhad1 = 42,
+      /// @bried e2tsts1-emins1
+      DeltaE =43,
       /// @brief pointing z at vertex reconstructed from the cluster
-      zvertex = 38,
+      zvertex = 44,
       /// @brief error associated to zvertex 
-      errz = 39,
+      errz = 45,
       /// @brief pointing eta reconstructed from the cluster (first and second sampling)
-      etap = 40, 
+      etap = 46, 
       /// @brief pointing depth of the shower as calculated in egammaqgcld
-      depth = 41,
+      depth = 47,
       ///maximum number of enums 
-      NumberOfShowerShapes = 42 
+      NumberOfShowerShapes = 48 
     };
     /// @}  
     
-    /// @name Isolation variable types
-    /// @{
-    enum IsolationType{
-      /// @brief ET in a cone of R=0.45 in calo, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3
-      etcone   = 0,   
-      /// @brief ET in a cone with half-opening angle 0.15, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3
-      etcone15 = 1, 
-      /// @brief ET in a cone with half-opening angle 0.2, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3
-      etcone20 = 2, 
-      /// @brief ET in a cone with half-opening angle 0.25, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3
-      etcone25 = 3, 
-      /// @brief ET in a cone with half-opening angle 0.3, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3 
-      etcone30 = 4, 
-      /// @brief ET in a cone with half-opening angle 0.35, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3
-      etcone35 = 5, 
-      /// @brief ET in a cone with half-opening angle 0.4, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3
-      etcone40 = 6, 
-      /// @brief summed pt of tracks in a cone with half-opening angle 0.2 (no zvx cut photons, 1mm electrons) 
-      ptcone20 = 7,
-      /// @brief summed pt of tracks in a cone with half-opening angle 0.3
-      ptcone30 = 8,
-      /// @brief summed pt of tracks in a cone with half-opening angle 0.4
-      ptcone40 = 9,
-      /// @brief number of tracks in a cone with half-opening angle 0.2
-      nucone20 = 10,
-      /// @brief number of tracks in a cone with half-opening angle 0.3
-      nucone30 = 11,
-      /// @brief number of tracks in a cone with half-opening angle 0.4
-      nucone40 = 12,
-      /// @brief pt corrected ET in a cone with half-opening angle 0.15 
-      etcone15_ptcorrected = 13,
-      /// @brief pt corrected ET in a cone with half-opening angle 0.2 
-      etcone20_ptcorrected = 14,
-      /// @brief pt corrected ET in a cone with half-opening angle 0.25 
-      etcone25_ptcorrected = 15,
-      /// @brief pt corrected ET in a cone with half-opening angle 0.3 
-      etcone30_ptcorrected = 16,
-      /// @brief pt corrected ET in a cone with half-opening angle 0.35 
-      etcone35_ptcorrected = 17,
-      /// @brief ptcorrected ET in a cone with half-opening angle 0.4 
-      etcone40_ptcorrected = 18,
-      /// @brief pt + ED corrected ET in a cone with half-opening angle 0.2 
-      etcone20_corrected = 19,
-      /// @brief pt + ED corrected ET in a cone with half-opening angle 0.3 
-      etcone30_corrected = 20,
-      /// @brief pt + ED corrected ET in a cone with half-opening angle 0.4 
-      etcone40_corrected = 21,
-      //et cone for topo cluster 
-      /// @brief ET in a cone with half-opening angle 0.20 
-      topoetcone20 = 22,
-      /// @brief ET in a cone with half-opening angle 0.30 
-      topoetcone30 = 23,
-      /// @brief ET in a cone with half-opening angle 0.40 
-      topoetcone40 = 24,
-      /// @brief pt corrected ET in a cone with half-opening angle 0.40 
-      topoetcone40_ptcorrected = 25,
-      /// @brief fully corrected ET in a cone with half-opening angle 0.40 
-      topoetcone40_corrected = 26,
-      ///maximum number of enums 
-      NumberOfIsolationProperties= 27
-    };
-    /// @}
   
     
     /// @name Track Match variable types
@@ -191,8 +142,10 @@ namespace xAOD {
       /// @brief difference between the cluster eta (presampler) and
       ///the eta of the track extrapolated to the presampler 
       deltaEta0 = 0,
-      ///@brief difference between the cluster eta (first sampling) and the eta of the track extrapolated to the first sampling: |eta_stripscluster -eta_ID|, where eta_stripscluster is computed 
-      ///in the first sampling of the electromagnetic calorimeter, where the granularity is very fine, and eta_ID is the pseudo-rapidity of the track extrapolated to the calorimeter 
+      ///@brief difference between the cluster eta (first sampling) and the eta of the track extrapolated to the 
+      ///first sampling: |eta_stripscluster -eta_ID|, where eta_stripscluster is computed 
+      ///in the first sampling of the electromagnetic calorimeter, where the granularity is very fine, and eta_ID is the pseudo-rapidity 
+      ///of the track extrapolated to the calorimeter 
       deltaEta1 = 1,
       /// @brief difference between the cluster eta (second sampling) and the eta of the track extrapolated to the second sampling 
       deltaEta2 = 2,

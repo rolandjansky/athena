@@ -3,8 +3,9 @@
 */
 
 #include "xAODEgamma/PhotonxAODHelpers.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODEgamma/ElectronxAODHelpers.h"
 #include "xAODEgamma/Photon.h"
+
 #include<cmath>
 
 // ==================================================================
@@ -41,18 +42,18 @@ xAOD::EgammaParameters::ConversionType xAOD::EgammaHelpers::conversionType(const
 
 // ==================================================================
 
-size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Photon *ph){
+std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Photon *ph){
   if (!ph || !ph->vertex()) return 0;
   return numberOfSiTracks(ph->vertex());
 }
 
-size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Vertex *vx)
+std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Vertex *vx)
 {
   if (!vx) return 0;
   return numberOfSiTracks(conversionType(vx));
 }
 
-size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::EgammaParameters::ConversionType convType)
+std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::EgammaParameters::ConversionType convType)
 {
   if (convType == xAOD::EgammaParameters::doubleSi) return 2;
   if (convType == xAOD::EgammaParameters::singleSi ||
@@ -98,6 +99,23 @@ Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Vertex& vertex, 
   
   return Amg::Vector3D(0., 0., 0.);
 }
+
+// ==================================================================
+const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,
+  bool useBremAssoc /* = true */)
+{
+  std::set<const xAOD::TrackParticle*> tps;
+  if (!ph) return tps;
+  const xAOD::Vertex* vx = ph->vertex();
+  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i)
+  {
+    const xAOD::TrackParticle *tp = vx->trackParticle(i);
+    tps.insert( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
+  }
+  return tps;
+}
+
+
 
 bool xAOD::EgammaHelpers::isAvailable(const xAOD::Vertex& vertex, std::string name)
 {

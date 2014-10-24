@@ -13,12 +13,13 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <cstddef>
+#include <set>
 
 namespace xAOD {
 
   namespace EgammaHelpers{
 
-    using std::size_t;
+
 
     ///@brief is the object a converted photon
     bool isConvertedPhoton(const xAOD::Photon *ph);
@@ -30,13 +31,13 @@ namespace xAOD {
     xAOD::EgammaParameters::ConversionType conversionType(const xAOD::Vertex *vx);
     
     ///@brief return the number of Si tracks in the conversion
-    size_t numberOfSiTracks(const xAOD::Photon *eg);
+    std::size_t numberOfSiTracks(const xAOD::Photon *eg);
 
     ///@brief return the number of Si tracks in the conversion
-    size_t numberOfSiTracks(const xAOD::Vertex *vx);
+    std::size_t numberOfSiTracks(const xAOD::Vertex *vx);
 
     ///@brief return the number of Si tracks in the conversion
-    size_t numberOfSiTracks(const xAOD::EgammaParameters::ConversionType convType);
+    std::size_t numberOfSiTracks(const xAOD::EgammaParameters::ConversionType convType);
 
     ///@brief return the conversion radius or 9999.
     float conversionRadius(const xAOD::Vertex* vx);
@@ -50,9 +51,16 @@ namespace xAOD {
     ///@brief return the momentum at the vertex (which can be 0)
     Amg::Vector3D momentumAtVertex(const xAOD::Vertex&, bool debug = false);
 
+    /** Return a list of all or only the best TrackParticle associated to the object. 
+      * (used for track isolation)
+      * If useBremAssoc is set, get the original TrackParticle **/
+    const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Photon* ph,
+      bool useBremAssoc = true);
+
     // xAOD::Vertex does not have method isAvailable for the moment
     bool isAvailable(const xAOD::Vertex& vertex, std::string name);
     
+
   } //namaspace EgammaHelpers
 
 } // namespace xAOD

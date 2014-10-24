@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Electron_v1.h 615077 2014-09-04 13:42:41Z schaffer $
+// $Id: Electron_v1.h 617559 2014-09-18 21:37:54Z christos $
 #ifndef XAODEGAMMA_VERSIONS_ELECTRON_V1_H
 #define XAODEGAMMA_VERSIONS_ELECTRON_V1_H
 	
@@ -29,8 +29,8 @@ namespace xAOD {
   /// @author Christos Anastopoulos
   /// @author Anthony Morley
   ///
-  /// $Revision: 615077 $
-  /// $Date: 2014-09-04 15:42:41 +0200 (Thu, 04 Sep 2014) $
+  /// $Revision: 617559 $
+  /// $Date: 2014-09-18 23:37:54 +0200 (Thu, 18 Sep 2014) $
   ///
   class Electron_v1 :public xAOD::Egamma_v1{
 
@@ -106,13 +106,26 @@ namespace xAOD {
 
     /// Accessor to CaloMatch Values    
     bool trackCaloMatchValue( float& value, const EgammaParameters::TrackCaloMatchType information ) const;
-    
-    /// Set method for CaloMatch values.
-    bool  setTrackCaloMatchValue( float& value, const EgammaParameters::TrackCaloMatchType information );
 
-    /// Accessor to best matching tracks information
+    ///@brief Accessor to CaloMatch values , this just returns the value without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available.
+    float trackCaloMatchValue(  const EgammaParameters::TrackCaloMatchType information ) const;
+
+    
+    ///@brief Set method for CaloMatch values.
+    bool  setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information );
+
+    ///@ Accessor to best matching tracks information
+    /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
     bool trackParticleSummaryValue( uint8_t& value, const SummaryType information, int index = 0) const;
     bool trackParticleSummaryValue( float& value, const SummaryType information, int index =  0) const;
+
+
+    ///@ Accessor to best matching tracks information
+    /// Will lead to an exception if the information is not available.
+    uint8_t trackParticleSummaryIntValue( const SummaryType information, int index = 0) const;
+    float  trackParticleSummaryFloatValue(  const SummaryType information, int index =  0) const;
 
     /// @}
 

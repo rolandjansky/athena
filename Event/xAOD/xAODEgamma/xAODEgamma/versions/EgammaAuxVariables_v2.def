@@ -185,10 +185,11 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, zvertex );
 EGAMMA_AUX_VARIABLE( std::vector< float >, errz );
 /// Pointing eta reconstructed from the cluster (first and second sampling)
 EGAMMA_AUX_VARIABLE( std::vector< float >, etap );
-/// Pointing depth of the shower as calculated in egammaqgcld
+/// Pointing depth of the shower as calculated in 
 EGAMMA_AUX_VARIABLE( std::vector< float >, depth );
 
 /// @}
+
 
 /// @name Isolation variables
 /// @{
@@ -210,7 +211,7 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, etcone20 );
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone25 );
 /// E<sub>T</sub> in a cone with half-opening angle 0.3, with exclusion of a
 /// window of size 7x5 in electromagnetic calorimeter and exclude
-/// CaloSampling::TileGap3 
+/// CaloSampling::TileGap3
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone30 );
 /// E<sub>T</sub> in a cone with half-opening angle 0.35, with exclusion of a
 /// window of size 7x5 in electromagnetic calorimeter and exclude
@@ -221,7 +222,7 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, etcone35 );
 /// CaloSampling::TileGap3
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone40 );
 /// Summed p<sub>T</sub> of tracks in a cone with half-opening angle 0.2
-/// (no zvx cut photons, 1mm electrons) 
+/// (no zvx cut photons, 1mm electrons)
 EGAMMA_AUX_VARIABLE( std::vector< float >, ptcone20 );
 /// Summed p<sub>T</sub> of tracks in a cone with half-opening angle 0.3
 EGAMMA_AUX_VARIABLE( std::vector< float >, ptcone30 );
@@ -235,13 +236,13 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, nucone30 );
 EGAMMA_AUX_VARIABLE( std::vector< float >, nucone40 );
 /// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.15
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone15_ptcorrected );
-/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.2 
+/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.2
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone20_ptcorrected );
-/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.25 
+/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.25
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone25_ptcorrected );
-/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.3 
+/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.3
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone30_ptcorrected );
-/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.35 
+/// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.35
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone35_ptcorrected );
 /// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.4
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone40_ptcorrected );
@@ -254,11 +255,11 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, etcone30_corrected );
 /// p<sub>T</sub> + ED corrected E<sub>T</sub> in a cone with half-opening
 /// angle 0.4
 EGAMMA_AUX_VARIABLE( std::vector< float >, etcone40_corrected );
-/// E<sub>T</sub> in a cone with half-opening angle 0.20 
+/// E<sub>T</sub> in a cone with half-opening angle 0.20
 EGAMMA_AUX_VARIABLE( std::vector< float >, topoetcone20 );
-/// E<sub>T</sub> in a cone with half-opening angle 0.30 
+/// E<sub>T</sub> in a cone with half-opening angle 0.30
 EGAMMA_AUX_VARIABLE( std::vector< float >, topoetcone30 );
-/// E<sub>T</sub> in a cone with half-opening angle 0.40 
+/// E<sub>T</sub> in a cone with half-opening angle 0.40
 EGAMMA_AUX_VARIABLE( std::vector< float >, topoetcone40 );
 /// p<sub>T</sub> corrected E<sub>T</sub> in a cone with half-opening angle 0.4
 EGAMMA_AUX_VARIABLE( std::vector< float >, topoetcone40_ptcorrected );

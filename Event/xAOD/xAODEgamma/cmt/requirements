@@ -25,11 +25,15 @@ use xAODBase		xAODBase-*		Event/xAOD
 use xAODCore      	xAODCore-*		Event/xAOD
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODPrimitives      xAODPrimitives-*        Event/xAOD
 use xAODTruth           xAODTruth-*             Event/xAOD
 
 #Eigen/Amg includes
 use EventPrimitives      EventPrimitives-*      Event
 use GeoPrimitives        GeoPrimitives-*        DetectorDescription
+
+# Specify to cmake that this package has non-standard headers (transparent to CMT)
+apply_pattern cmake_add_command command="athena_install_nonstandard_headers(xAODEgamma/versions)"
 
 library xAODEgamma ../Root/*.cxx
 apply_pattern installed_library
