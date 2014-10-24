@@ -15,22 +15,22 @@ class LArHitContainer;
 
 class TBStoredLArHitContainers
 {
-  public:
-	TBStoredLArHitContainers() {}
-	std::map<std::string, LArHitContainer*> emecHitCollection;
+public:
+  TBStoredLArHitContainers() {}
+  std::map<std::string, LArHitContainer*> emecHitCollection;
 };
 
 CLASS_DEF( TBStoredLArHitContainers , 1239862175, 1 )
 
 class LArTBECHitsEventAction: public FADS::ApplicationAction {
 public:
-	LArTBECHitsEventAction();
-	~LArTBECHitsEventAction();
-	void BeginOfRunAction(const G4Run*);
-	void BeginOfEventAction(const G4Event*);
-	void EndOfEventAction(const G4Event*);
+  LArTBECHitsEventAction();
+  ~LArTBECHitsEventAction();
+  void BeginOfRunAction(const G4Run*);
+  void BeginOfEventAction(const G4Event*);
+  void EndOfEventAction(const G4Event*);
 private:
-	AthenaHitsCollectionHelper helper;
+  AthenaHitsCollectionHelper helper;
   TBStoredLArHitContainers* m_storedContainers;
 
   StoreGateSvc* m_detStore;

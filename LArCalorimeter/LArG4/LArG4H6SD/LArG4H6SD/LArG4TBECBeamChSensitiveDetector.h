@@ -26,7 +26,7 @@ public:
   LArG4TBECBeamChSensitiveDetector(G4String name);//,
 //  LArG4TBECBeamChCalculator* calc);
   ~LArG4TBECBeamChSensitiveDetector();
-  
+
   // The required functions for all sensitive detectors:
   void Initialize(G4HCofThisEvent* HCE);
   G4bool ProcessHits(G4Step* step, G4TouchableHistory* ROhist);
@@ -45,7 +45,7 @@ private:
   // The name associated the hit collection of this sensitive
   // detector.
   G4String m_HCname;
-  
+
   public:
   typedef std::vector< LArG4TBECBeamChHit*>  m_Hit_t;
   typedef m_Hit_t::iterator m_Hit_pointer;

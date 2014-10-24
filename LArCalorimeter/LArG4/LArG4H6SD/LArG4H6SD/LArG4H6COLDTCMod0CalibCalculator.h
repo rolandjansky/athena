@@ -19,15 +19,15 @@
 class LArG4H6COLDTCMod0CalibCalculator : public LArG4::VCalibrationCalculator {
 
 public:
-      
+
       LArG4H6COLDTCMod0CalibCalculator();
       virtual ~LArG4H6COLDTCMod0CalibCalculator();
 
       virtual G4bool Process(const G4Step*, const eCalculatorProcessing p = kEnergyAndID);
-      virtual LArG4Identifier identifier() const {return m_identifier;}
-      virtual LArG4Identifier identifier(int i=0) const {
-	       if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-	           return m_identifier;
+      virtual const LArG4Identifier& identifier() const {return m_identifier;}
+      virtual const LArG4Identifier& identifier(int i=0) const {
+               if (i!=0) throw std::range_error("Multiple hits not yet implemented");
+                   return m_identifier;
       }
       virtual const std::vector<G4double>& energies() const { return m_energies; }
 
@@ -40,5 +40,5 @@ public:
       CaloG4::SimulationEnergies m_energyCalculator;
 
 };
-  
+
 #endif

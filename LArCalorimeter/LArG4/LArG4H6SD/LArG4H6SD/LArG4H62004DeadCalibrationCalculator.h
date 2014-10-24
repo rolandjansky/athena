@@ -16,17 +16,17 @@
 
 class LArG4H62004DeadCalibrationCalculator : public LArG4::VCalibrationCalculator {
 public:
-    
+
       LArG4H62004DeadCalibrationCalculator();
       virtual ~LArG4H62004DeadCalibrationCalculator();
-    
 
-      virtual G4bool Process (const G4Step* step, 
-			      const eCalculatorProcessing p = kEnergyAndID);
-    
+
+      virtual G4bool Process (const G4Step* step,
+                              const eCalculatorProcessing p = kEnergyAndID);
+
       // The cell identifier determined by the Process method.
-      virtual LArG4Identifier identifier() const { return m_identifier; }
-    
+      virtual const LArG4Identifier& identifier() const { return m_identifier; }
+
       // The calibration energies as determined by the Process method for
       // the current G4Step.  Units are the native G4 unit of energy.
       virtual const std::vector<G4double>& energies() const { return m_energies; }
@@ -39,4 +39,4 @@ private:
       CaloG4::SimulationEnergies m_energyCalculator;
 
 };
-#endif 
+#endif

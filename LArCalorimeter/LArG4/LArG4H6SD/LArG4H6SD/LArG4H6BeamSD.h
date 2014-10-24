@@ -10,7 +10,7 @@
 
 #include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 
-// #define ARRSIZE plit src/0 
+// #define ARRSIZE plit src/0
 #define NUM_MWPC 10
 
 class G4Step;
@@ -18,7 +18,6 @@ class G4HCofThisEvent;
 class G4TouchableHistory;
 
 class StoreGateSvc;
-class IMessageSvc;
 
 class LArG4H6BeamSD : public FADS::FadsSensitiveDetector
 {
@@ -43,17 +42,15 @@ class LArG4H6BeamSD : public FADS::FadsSensitiveDetector
       LArG4H6FrontHitCollection* m_FrontCollection;
 
       StoreGateSvc *m_storeGate;
-      IMessageSvc *m_msgSvc;
 
 // MWPC half width and wires step
       static const float WDIM;
-      static const float DW;  
+      static const float DW;
 // BPC half width and wires step
       static const float BPC_WDIM;
-      static const float BPC_DW;  
+      static const float BPC_DW;
 // OLD BPC half width and wires step
       static const float BPCO_WDIM;
-      static const float BPCO_DW;  
+      static const float BPCO_DW;
 };
 #endif
-

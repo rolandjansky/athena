@@ -20,15 +20,13 @@ class LArVCalibHitMerger;
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
-class IMessageSvc;
 
-//class LArG4H62004CalibSD : public FADS::FadsSensitiveDetector 
-class LArG4H62004CalibSD : public LArG4::CalibrationSensitiveDetector,   public FADS::FadsSensitiveDetector
+class LArG4H62004CalibSD : public LArG4::CalibrationSensitiveDetector, public FADS::FadsSensitiveDetector
 {
 public:
   LArG4H62004CalibSD(G4String name,bool doInit=true);
 //  ~LArG4H62004CalibSD();
-  
+
   // The required functions for all sensitive detectors:
   virtual void Initialize(G4HCofThisEvent* HCE);
   G4bool ProcessHits(G4Step* step, G4TouchableHistory* ROhist);
@@ -61,10 +59,10 @@ private:
   // does not have to be the same as the name of the detector, and
   // we make use of this in LArG4.
 //  G4String m_HCname;
- 
+
   // Count the number of invalid steps.
 //  G4int m_numberInvalidSteps;
- 
+
   // Pointer to the message service
 //  IMessageSvc* m_msgSvc;
 

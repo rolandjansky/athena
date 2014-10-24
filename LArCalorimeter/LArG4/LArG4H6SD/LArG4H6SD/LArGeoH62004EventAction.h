@@ -22,10 +22,9 @@ class LArGeoH62004EventAction : public FADS::UserAction
   private:
     static int m_evnum;
     const LArGeoTB2004Options *m_largeoTB2004Options;
-    IMessageSvc* m_msgSvc; 
+    IMessageSvc* m_msgSvc;
     StoreGateSvc*   m_storeGate;
     StoreGateSvc*   m_detectorStore;
 };
 
 #endif
-
