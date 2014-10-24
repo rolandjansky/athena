@@ -11,7 +11,7 @@ use  TrkAlignInterfaces         TrkAlignInterfaces-*            Tracking/TrkAlig
 private
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
-use  EventInfo                  EventInfo-*                     Event
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  StoreGate                  StoreGate-*                     Control
 use  TrkAlignEvent              TrkAlignEvent-*                 Tracking/TrkAlignment
 use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent

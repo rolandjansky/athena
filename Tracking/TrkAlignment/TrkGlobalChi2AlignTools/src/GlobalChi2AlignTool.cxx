@@ -28,8 +28,7 @@
 #include "TrkAlignInterfaces/IAlignModuleTool.h"
 
 #include "TrkGlobalChi2AlignTools/GlobalChi2AlignTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -519,11 +518,11 @@ namespace Trk {
     if (m_tree) {      
       
       // get tree variables
-      const EventInfo* currentEvent;
+      const xAOD::EventInfo* currentEvent;
       StatusCode sc = evtStore()->retrieve(currentEvent);
       if (sc==StatusCode::SUCCESS) {
-	      m_run   = currentEvent->event_ID()->run_number();
-	      m_event = currentEvent->event_ID()->event_number();
+	      m_run   = currentEvent->runNumber();
+	      m_event = currentEvent->eventNumber();
       }
       else {
         m_run   = -999;
