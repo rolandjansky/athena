@@ -18,7 +18,7 @@ class LArIdentifierConverter : public LArVHitMerger {
   inline void BeginOfEvent() { ; }
   inline void EndOfEvent() { ; }
   //inline bool process(G4Step* step,    LArG4Identifier ident, G4double time, G4double energy) { return true; }
-  inline bool process(G4Step*, LArG4Identifier, G4double, G4double) { return true;}
+  inline bool process(G4Step*, const LArG4Identifier&, G4double, G4double) { return true;}
   inline Identifier convertID(LArG4Identifier id) { return ConvertID(id);}
 
 };
