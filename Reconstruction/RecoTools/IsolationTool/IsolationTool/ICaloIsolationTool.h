@@ -32,6 +32,7 @@ namespace xAOD {
   public:
     enum SubtractionStrategy {
       Ecore = 0,
+      Eeg57 = 1,
       NoSubtraction
     };
 

@@ -18,6 +18,14 @@ use AtlasReflex	           AtlasReflex-*          External -no_auto_imports
 use ITrackInCaloTools      ITrackInCaloTools-*    Reconstruction/RecoTools
 use ParticlesInConeTools   ParticlesInConeTools-* Reconstruction/RecoTools
 
+use xAODCaloEvent          xAODCaloEvent-*        Event/xAOD
+use xAODEgamma             xAODEgamma-*           Event/xAOD
+use AtlasBoost		   AtlasBoost-*		  External
+use FourMomUtils           FourMomUtils-*         Event
+
+use CaloUtils              CaloUtils-*     	   Calorimeter	
+use CaloClusterCorrection  CaloClusterCorrection-* Calorimeter
+
 public
 
 	
@@ -26,6 +34,8 @@ library IsolationTool *.cxx components/*.cxx
 
 #branches IsolationTool src
 #apply_pattern dual_use_library files="*.cxx"
+
+apply_pattern declare_python_modules files="*.py"
 
 private
 #apply_pattern lcgdict dict=IsolationTool selectionfile=selection.xml headerfiles="../IsolationTool/IsolationToolDict.h"
