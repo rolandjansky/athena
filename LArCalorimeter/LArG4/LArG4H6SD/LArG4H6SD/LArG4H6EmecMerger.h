@@ -22,7 +22,7 @@ public:
 
   // Constructors and destructors.
   LArG4H6EmecMerger(StoreGateSvc* detStore,
-	       G4float timeBinWidth);
+               G4float timeBinWidth);
 
   virtual ~LArG4H6EmecMerger();
 
@@ -31,9 +31,9 @@ public:
 
   // Do the actual job here
   bool process(G4Step* step,
-	       LArG4Identifier ident,
-	       G4double time,
-	       G4double energy);
+               const LArG4Identifier& ident,
+               G4double time,
+               G4double energy);
 
   // Distribute hits created during the event between global containers
   void EndOfEvent();
@@ -55,14 +55,14 @@ public:
       return p->Less(q);
     }
   };
-  
+
   typedef std::set< LArHit*, LessHit >  hits_t;
   typedef hits_t::iterator              hits_pointer;
-  
+
   // The hits are grouped into time bins, with the width of a bin
   // determined by a user parameter.  This map is used to associate a
   // time bin with its corresponding set of hits.
-  
+
   typedef std::map < G4int, hits_t* >   timeBins_t;
   typedef timeBins_t::iterator          timeBins_pointer;
   typedef timeBins_t::const_iterator    timeBins_const_pointer;

@@ -24,12 +24,12 @@ class LArFCALH62004CalibCalculatorBase : public LArG4::VCalibrationCalculator {
     public:
       LArFCALH62004CalibCalculatorBase();
       virtual ~LArFCALH62004CalibCalculatorBase();
-      
+
       virtual G4bool Process (const G4Step* step,
-			      const LArG4::VCalibrationCalculator::eCalculatorProcessing p = LArG4::VCalibrationCalculator::kEnergyAndID);
-	
-	// The cell identifier determined by the Process method.
-      virtual LArG4Identifier identifier() const { return m_identifier; }
+                              const LArG4::VCalibrationCalculator::eCalculatorProcessing p = LArG4::VCalibrationCalculator::kEnergyAndID);
+
+        // The cell identifier determined by the Process method.
+      virtual const LArG4Identifier& identifier() const { return m_identifier; }
 
 
       virtual G4float OOTcut() const { return m_OOTcut; }
@@ -42,7 +42,7 @@ class LArFCALH62004CalibCalculatorBase : public LArG4::VCalibrationCalculator {
 
       virtual G4double GetdeltaX(){return m_deltaX;}
       virtual G4double GetdeltaY(){return m_deltaY;}
-      
+
     protected:
 
       G4double m_deltaX;
@@ -55,14 +55,14 @@ class LArFCALH62004CalibCalculatorBase : public LArG4::VCalibrationCalculator {
   // The values calculated by Process()
       LArG4Identifier m_identifier;
       std::vector<G4double> m_energies;
-      
-      
+
+
   // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
-      
+
       G4float m_OOTcut;
-      
-	// The results of the Process calculation:
+
+        // The results of the Process calculation:
       G4double m_time;
       G4bool m_isInTime;
 
@@ -70,8 +70,8 @@ class LArFCALH62004CalibCalculatorBase : public LArG4::VCalibrationCalculator {
 
       const IRDBRecordset* m_fcalMod;
       float m_Zshift;
-      
+
 };
-  
+
 
 #endif    // LArG4_HEC_CalibrationCalculator_H

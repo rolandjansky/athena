@@ -18,7 +18,6 @@ class LArVCalculator;
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
-class IMessageSvc;
 class StoreGateSvc;
 
 class LArEM_ID;
@@ -34,7 +33,7 @@ class LArG4H62004SD : public FADS::FadsSensitiveDetector
 public:
   LArG4H62004SD(G4String name);
   virtual ~LArG4H62004SD();
-  
+
   // The required functions for all sensitive detectors:
   virtual void Initialize(G4HCofThisEvent* HCE);
   virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* ROhist);
@@ -62,9 +61,7 @@ private:
   // Count the number of invalid hits.
   G4int m_numberInvalidHits;
 
-  // Pointer to the message service
-  IMessageSvc* m_msgSvc;
-
+  // Pointer to the detector store
   StoreGateSvc* m_detStore;
 
   // Pointers to the identifier helpers

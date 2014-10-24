@@ -2,18 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArTBH6BeamInfo_H 
-#define LArTBH6BeamInfo_H 
+#ifndef LArTBH6BeamInfo_H
+#define LArTBH6BeamInfo_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "Identifier/Identifier.h"
 
 #include <string>
 
-class StoreGateSvc;
-
-class LArTBH6BeamInfo : public Algorithm {
+class LArTBH6BeamInfo : public AthAlgorithm {
 
 public:
 
@@ -25,7 +23,7 @@ public:
 
 // Gaudi
    StatusCode initialize();
-   StatusCode execute(); 
+   StatusCode execute();
    StatusCode finalize();
 
 private:
@@ -37,15 +35,14 @@ private:
   ///        intercept, slope, residual for each BPC, and chi2 on fit
   /////////////////////////////////////////////////////////////////////////
   bool fitVect(const dVect &vec_x, const dVect &vec_xz, const dVect &vec_ex,
-	       double &a1, double &a2, double &chi2, dVect &residual);
+               double &a1, double &a2, double &chi2, dVect &residual);
 
    std::vector<std::string> m_HitsCollNames;
    bool                     m_Primary;
-   int			    m_pcode;
+   int                      m_pcode;
 
-   StoreGateSvc*            m_StoreGate;
    float                    m_cryoX;
-   int 			    m_numEv;
+   int                      m_numEv;
 
 };
 #endif

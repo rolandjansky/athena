@@ -3,7 +3,7 @@
 */
 
 //=====================================
-// EMEC/HEC/FCAL TB stepping action, 
+// EMEC/HEC/FCAL TB stepping action,
 // do not stopping the particle in leakage det. !!!!
 //=====================================
 #ifndef LArGeoH62004SteppingAction_h
@@ -29,8 +29,8 @@ class LArGeoH62004SteppingAction : public FADS::UserAction
     void SteppingAction(const G4Step* theStep);
 
   private:
-    std::vector<int> m_tracks;  
-    IMessageSvc* m_msgSvc; 
+    std::vector<int> m_tracks;
+    IMessageSvc* m_msgSvc;
     StoreGateSvc*   m_detectorStore;
     const LArGeoTB2004Options *m_largeoTB2004Options;
     bool m_ownOptions;
@@ -38,4 +38,3 @@ class LArGeoH62004SteppingAction : public FADS::UserAction
 };
 
 #endif
-

@@ -17,8 +17,8 @@ class LArG4H62004MergerFactory : public LArVHitMergerFactory
 
   // Constructors and destructors.
   LArG4H62004MergerFactory(StoreGateSvc* detStore,
-		      LArHitsEventAction* action,
-		      G4float timeBinWidth);
+                      LArHitsEventAction* action,
+                      G4float timeBinWidth);
 
   virtual ~LArG4H62004MergerFactory();
 

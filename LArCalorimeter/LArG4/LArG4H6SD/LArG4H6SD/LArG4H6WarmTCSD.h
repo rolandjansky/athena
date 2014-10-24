@@ -16,11 +16,10 @@
 #include <map>
 
 class StoreGateSvc;
-class IMessageSvc;
 
-class LArG4H6WarmTCSD : public FADS::FadsSensitiveDetector 
+class LArG4H6WarmTCSD : public FADS::FadsSensitiveDetector
 {
- public:
+public:
 
   // Constructor and destructor.
   LArG4H6WarmTCSD(G4String name);
@@ -45,12 +44,10 @@ private:
   typedef std::map<int,LArG4H6WarmTCHit*>::iterator hitIt;
   typedef std::map<int,LArG4H6WarmTCHit*>::value_type hitPair;
 
-   LArG4H6WarmTCHitCollection* m_Collection;
-   LArG4::CalibrationSensitiveDetector* m_CalibSD;
+  LArG4H6WarmTCHitCollection *m_Collection;
+  LArG4::CalibrationSensitiveDetector *m_CalibSD;
 
-   StoreGateSvc *m_storeGate;
-   IMessageSvc *m_msgSvc;
-
+  StoreGateSvc *m_storeGate;
 };
 
 #endif

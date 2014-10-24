@@ -10,7 +10,7 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/INTupleSvc.h" 
+#include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -39,15 +39,15 @@ void RadLenNtuple::EndOfEventAction(const G4Event* /*anEvent*/)
    /*
    StoreGateSvc* detStore;
    const LArGeoTBH1GeoOptions      *largeoTBH1geoOptions ;
-  
+
    StatusCode status;
-   ISvcLocator* svcLocator = Gaudi::svcLocator(); 
+   ISvcLocator* svcLocator = Gaudi::svcLocator();
    status = svcLocator->service("DetectorStore", detStore);
 
    if( status.isSuccess() ) {
       status = detStore->retrieve(largeoTBH1geoOptions, "LArGeoTBH1GeoOptions");
       if ( !status.isFailure() ) {
-	 m_xcoord = largeoTBH1geoOptions->CryoXPosition();
+         m_xcoord = largeoTBH1geoOptions->CryoXPosition();
       }
    }
    */
@@ -57,14 +57,14 @@ void RadLenNtuple::EndOfEventAction(const G4Event* /*anEvent*/)
    ISvcLocator* svcLocator = Gaudi::svcLocator();
   if ( svcLocator->service("StoreGateSvc", m_storeGate).isSuccess() ) {
      if (! m_storeGate->retrieve(m_mcEvtColl, "GEN_EVENT").isFailure() ) {
-	 McEventCollection::const_iterator iEvt = m_mcEvtColl->begin(); 
-	 HepMC::GenEvent::particle_const_iterator p = (*iEvt)->particles_begin();
-	 m_xcoord = (*p)->production_vertex()->point3d().x();  
+         McEventCollection::const_iterator iEvt = m_mcEvtColl->begin();
+         HepMC::GenEvent::particle_const_iterator p = (*iEvt)->particles_begin();
+         m_xcoord = (*p)->production_vertex()->point3d().x();
      }
   }
-   
+
    ntupleSvc()->writeRecord("/NTUPLES/FILE1/RadLenNtuple/radlen");
- 
+
 }
 
 void RadLenNtuple::BeginOfRunAction(const G4Run* /*aRun*/)
@@ -77,27 +77,27 @@ void RadLenNtuple::BeginOfRunAction(const G4Run* /*aRun*/)
   SmartDataPtr<NTuple::Directory>
     ntdir(ntupleSvc(),"/NTUPLES/FILE1/RadLenNtuple");
   if ( !ntdir )
-    { 
+    {
       //    otherwise create the directory
       ntdir = ntupleSvc()->createDirectory(file1,"RadLenNtuple");
     }
-  if ( ! ntdir )  
+  if ( ! ntdir )
     {
       log << MSG::ERROR << " failed to get ntuple directory" << endreq;
     }
-  
+
   NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/RadLenNtuple/radlen");
 
   if ( !nt )    {    // Check if already booked
- 
+
    nt = ntupleSvc()->book (ntdir.ptr(), "radlen",CLID_ColumnWiseTuple, "Some Description");
     if ( nt )    {
-      
-      
+
+
       log << MSG::DEBUG << "booked ntuple " << endreq;
 
       // WARNING!! Force limit to 50k tracks
-      
+
       StatusCode status = nt->addItem ("tot_x", m_tot_x);
       status = nt->addItem ("tot_ni", m_tot_ni);
       status = nt->addItem ("cryo_x", m_cryo_x);
@@ -113,14 +113,14 @@ void RadLenNtuple::BeginOfRunAction(const G4Run* /*aRun*/)
       status = nt->addItem ("hec_y", m_hec_y);
       status = nt->addItem ("fcal_y", m_fcal_y);
       status = nt->addItem ("coord_x", m_xcoord);
-      
+
     } else {   // did not manage to book the N tuple....
-      
+
       log << MSG::ERROR << "Could not book ntuple!! " << endreq;
-      
+
     }
-  }   
-  
+  }
+
 }
 
 void RadLenNtuple::EndOfRunAction(const G4Run* /*aRun*/)

@@ -5,23 +5,21 @@
 #ifndef LArTBH6TriggerTimeTool_H
 #define LArTBH6TriggerTimeTool_H
 
-#include "AthenaKernel/ITriggerTime.h" 
+#include "AthenaKernel/ITriggerTime.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
-class StoreGateSvc ; 
-
-class LArTBH6TriggerTimeTool :public ITriggerTime, public AlgTool,
+class LArTBH6TriggerTimeTool :public ITriggerTime, public AthAlgTool,
 virtual public IIncidentListener
 {
 
 public:
-   LArTBH6TriggerTimeTool(const std::string& type, 
-			 const std::string& name,
-			 const IInterface* parent);
+   LArTBH6TriggerTimeTool(const std::string& type,
+                         const std::string& name,
+                         const IInterface* parent);
 
 
-   virtual StatusCode initialize() ; 
+   virtual StatusCode initialize() ;
 
    virtual ~LArTBH6TriggerTimeTool() {}
 
@@ -30,16 +28,15 @@ public:
 
    virtual void handle(const Incident& incident);
 
-    double larTime(); 
-    double trackRecordTime()   ; 
+    double larTime();
+    double trackRecordTime()   ;
 
-private: 
+private:
 
-   double m_time; 
-   StoreGateSvc* m_sg; 
-   bool m_newEvent ; 
+   double m_time;
+   bool m_newEvent ;
    bool m_fixed;
 };
 
 
-#endif 
+#endif

@@ -34,58 +34,58 @@ public:
   // destructor
   virtual ~LArG4H6COLDTCMod0Calculator() { };
 
-  //  
+  //
   virtual G4float OOTcut() const { return m_OOTcut; }
   virtual void SetOutOfTimeCut(G4double c) { m_OOTcut = c; }
 
   virtual G4bool Process(const G4Step*);
-    virtual LArG4Identifier identifier() const {return m_identifier;} 
-  virtual LArG4Identifier identifier(int i=0) const { 
+    virtual const LArG4Identifier& identifier() const {return m_identifier;}
+  virtual const LArG4Identifier& identifier(int i=0) const {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_identifier; 
+    return m_identifier;
   }
 
-  virtual G4double time() const      {return m_time;} 
-  virtual G4double time(int i=0) const      { 
+  virtual G4double time() const      {return m_time;}
+  virtual G4double time(int i=0) const      {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_time; 
+    return m_time;
   }
-  virtual G4double energy() const    {return m_energy;} 
-  virtual G4double energy(int i=0) const    { 
+  virtual G4double energy() const    {return m_energy;}
+  virtual G4double energy(int i=0) const    {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_energy; 
+    return m_energy;
   }
-  virtual G4bool isInTime() const    {return     m_isInTime;} 
-  virtual G4bool isInTime(int i=0) const    { 
+  virtual G4bool isInTime() const    {return     m_isInTime;}
+  virtual G4bool isInTime(int i=0) const    {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return     m_isInTime; 
+    return     m_isInTime;
   }
-  virtual G4bool isOutOfTime() const { return ( ! m_isInTime );} 
-  virtual G4bool isOutOfTime(int i=0) const { 
+  virtual G4bool isOutOfTime() const { return ( ! m_isInTime );}
+  virtual G4bool isOutOfTime(int i=0) const {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return ( ! m_isInTime ); 
+    return ( ! m_isInTime );
   }
 
   // access module parameters  ---> bulk absorber = Cu
-  virtual G4double GetModulePhiStart() const 
+  virtual G4double GetModulePhiStart() const
     { return m_phiModuleStart; }
-  virtual G4double GetModulePhiEnd() const   
+  virtual G4double GetModulePhiEnd() const
     { return m_phiModuleEnd; }
-  
-  // access active medium ---> readout gap = LAr 
+
+  // access active medium ---> readout gap = LAr
   virtual G4double GetActiveDepth() const
-    { return m_fullActiveDepth; } 
+    { return m_fullActiveDepth; }
   virtual G4double GetActiveInnerRadius() const
     { return m_innerActiveRadius; }
   virtual G4double GetActiveOuterRadius() const
-    { return m_outerActiveRadius; } 
+    { return m_outerActiveRadius; }
 
 protected:
 
   LArG4H6COLDTCMod0Calculator();
 
 private:
-  
+
   static LArG4H6COLDTCMod0Calculator* m_instance;
   // private datamember handling the hit
   G4float m_OOTcut;

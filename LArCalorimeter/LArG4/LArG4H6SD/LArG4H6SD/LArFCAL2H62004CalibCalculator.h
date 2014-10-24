@@ -17,8 +17,8 @@ class LArFCAL2H62004CalibCalculator : public  LArFCALH62004CalibCalculatorBase {
       static LArFCAL2H62004CalibCalculator* GetCalculator();
 
       virtual ~LArFCAL2H62004CalibCalculator();
-      
-    protected: 
+
+    protected:
 
       LArFCAL2H62004CalibCalculator();
     private:

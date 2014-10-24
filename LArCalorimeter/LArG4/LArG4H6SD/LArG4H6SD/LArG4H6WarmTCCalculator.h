@@ -12,9 +12,9 @@
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include <stdexcept>
 enum WTCComp {
-   WTC_X, 	// X - coordinate scintilator
-   WTC_Y,	// Y - coordinate scintilator
-   WTC_ABS    	// Absorbers
+   WTC_X,       // X - coordinate scintilator
+   WTC_Y,       // Y - coordinate scintilator
+   WTC_ABS      // Absorbers
 };
 
 // Forward declarations.
@@ -33,27 +33,27 @@ public:
   virtual void SetOutOfTimeCut(G4double c) { m_OOTcut = c; }
 
   virtual G4bool Process(const G4Step* a_step);
-  G4int address() const { return m_addr;} 
-  virtual LArG4Identifier identifier(int i=0) const { 
+  G4int address() const { return m_addr;}
+  virtual const LArG4Identifier& identifier(int i=0) const {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_identifier; 
+    return m_identifier;
   }
 
-  virtual G4double time(int i=0) const { 
+  virtual G4double time(int i=0) const {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_time; 
+    return m_time;
   }
-  virtual G4double energy(int i=0) const { 
+  virtual G4double energy(int i=0) const {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_energy; 
+    return m_energy;
   };
-  virtual G4bool isInTime(int i=0) const    { 
+  virtual G4bool isInTime(int i=0) const    {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return     m_isInTime; 
+    return     m_isInTime;
   }
-  virtual G4bool isOutOfTime(int i=0) const { 
+  virtual G4bool isOutOfTime(int i=0) const {
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return ( ! m_isInTime ); 
+    return ( ! m_isInTime );
   }
   bool isX() const { return m_isX; }
   bool isABS() const { return m_isABS; }

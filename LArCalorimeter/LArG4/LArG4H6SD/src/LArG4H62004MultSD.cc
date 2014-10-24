@@ -7,18 +7,8 @@
 #include "LArG4H6SD/LArG4H62004SD.h"
 #include "LArG4H6SD/LArG4H6WarmTCSD.h"
 #include "LArG4H6SD/LArG4H6BeamSD.h"
-
 #include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
 #include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-
-#include "G4Step.hh"
-#include "G4TouchableHistory.hh"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #undef DEBUG_ME
 
@@ -37,8 +27,6 @@ static FADS::SensitiveDetectorEntryT<LArG4H62004MultSD> FrontSD("FrontMult::H6")
 static FADS::SensitiveDetectorEntryT<LArG4H62004MultSD> MoveSD("MoveMult::H6");
 
 LArG4H62004MultSD::LArG4H62004MultSD(G4String a_name)
-//  : FadsSensitiveDetector(a_name),
-//    m_detectorName(a_name)
     : LArG4MultSD(a_name)
 {
 
@@ -132,41 +120,6 @@ LArG4H62004MultSD::LArG4H62004MultSD(G4String a_name)
 }
 
 
-LArG4H62004MultSD::~LArG4H62004MultSD() 
+LArG4H62004MultSD::~LArG4H62004MultSD()
 {
 }
-
-/*
-void LArG4H62004MultSD::Initialize(G4HCofThisEvent* m_HCE)
-{
-}
-
-
-G4bool LArG4H62004MultSD::ProcessHits(G4Step* a_step,G4TouchableHistory* ROhist)
-{
-  G4bool result = true;
-#ifdef DEBUG_ME
-  std::cout << "my name: "<<this->GetName()<<", num SD: "<<  m_sdList.size()<<std::endl;
-#endif
-  for(unsigned int i=0; i!=m_sdList.size(); i++) 
-      result &= m_sdList[i]->Hit(a_step); 
-
-  return result;
-}
-
-
-void LArG4H62004MultSD::EndOfEvent(G4HCofThisEvent* m_HCE)
-{
-}
-
-void LArG4H62004MultSD::addSD(FadsSensitiveDetector* sd)
-{
-  m_sdList.push_back(sd); 
-
-  if(m_msgSvc)
-  {
-    MsgStream log(m_msgSvc, "LArG4H62004MultSD");
-    log << MSG::DEBUG << "Added SD " << sd->GetName() << endreq;
-  }
-}
-*/

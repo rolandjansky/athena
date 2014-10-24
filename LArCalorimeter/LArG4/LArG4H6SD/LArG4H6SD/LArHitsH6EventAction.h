@@ -16,15 +16,15 @@ class StoredLArHitContainers;
 
 class LArHitsH6EventAction: public FADS::UserAction {
 public:
-	LArHitsH6EventAction(std::string s);
-	~LArHitsH6EventAction();
-	void BeginOfRunAction(const G4Run*);
-	void BeginOfEventAction(const G4Event*);
-	void EndOfEventAction(const G4Event*);
+        LArHitsH6EventAction(std::string s);
+        ~LArHitsH6EventAction();
+        void BeginOfRunAction(const G4Run*);
+        void BeginOfEventAction(const G4Event*);
+        void EndOfEventAction(const G4Event*);
 private:
-	AthenaHitsCollectionHelper helper;
+        AthenaHitsCollectionHelper helper;
 
-	StoreGateSvc*   m_storeGate;
+        StoreGateSvc*   m_storeGate;
         IMessageSvc*  m_msgSvc;
 };
 

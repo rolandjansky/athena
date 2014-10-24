@@ -34,7 +34,7 @@ private:
 
 public:
   // Note the lack of "Set" methods.  Once you've defined the position
-  // of a hit, you can't change it.  
+  // of a hit, you can't change it.
   // 01-Feb-2001 WGS: Add accessor methods for calorID, zSideID, and region.
   inline G4int getIdentifier() const { return m_Chamber; }
   inline G4double X() const { return m_X; }
@@ -43,7 +43,7 @@ public:
 
 
 // The following is copied from the Geant4 example; I'm not entirely
-// sure why we need to define "new" and "delete". 
+// sure why we need to define "new" and "delete".
 
 typedef G4THitsCollection<LArG4TBECBeamChHit> LArG4TBECBeamChHitsCollection;
 

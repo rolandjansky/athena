@@ -4,134 +4,113 @@
 
 #include "LArG4H6SD/LArTBH6TriggerTimeTool.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
-#include "LArSimEvent/LArHitContainer.h" 
+#include "LArSimEvent/LArHitContainer.h"
 
 LArTBH6TriggerTimeTool::LArTBH6TriggerTimeTool(const std::string& type,
-                                   const std::string& name,
-                                   const IInterface* parent) :
-  AlgTool(type,name,parent), m_time(0), m_sg(0),m_newEvent(true),
-  m_fixed(true) 
+                                               const std::string& name,
+                                               const IInterface* parent) :
+  AthAlgTool(type,name,parent), m_time(0), m_newEvent(true),
+  m_fixed(true)
 {
-   declareInterface< ITriggerTime >(this) ;
- declareProperty("isFixed",m_fixed);
- declareProperty("FixedTime",m_time);
+  declareInterface< ITriggerTime >(this) ;
+  declareProperty("isFixed",m_fixed);
+  declareProperty("FixedTime",m_time);
 }
 
 
 StatusCode LArTBH6TriggerTimeTool::initialize()
 {
 
-  MsgStream log( msgSvc(), name() );
-
-  // Pointer to StoreGate (cached)
-  StatusCode sc = service("StoreGateSvc", m_sg);
-
-  if (sc.isFailure())
-  {
-    log << MSG::ERROR
-        << "Unable to retrieve pointer to StoreGateSvc "
-        << endreq;
-    return sc;
-  }
-
   IIncidentSvc* incsvc;
   if (StatusCode::SUCCESS!=service("IncidentSvc",incsvc))
-  { 
-     log << MSG::FATAL << "Incident service not found" << endreq;
-     return StatusCode::FAILURE ; 
-  }  
+    {
+      ATH_MSG_FATAL ( "Incident service not found" );
+      return StatusCode::FAILURE ;
+    }
 
   long int pri=100;
   incsvc->addListener(this,"BeginEvent",pri);
 
-  log << MSG::DEBUG
-        << " LArTBH6TriggerTimeTool initialized "
-        << endreq;
+  ATH_MSG_DEBUG ( " LArTBH6TriggerTimeTool initialized " );
 
-  return StatusCode::SUCCESS;  
+  return StatusCode::SUCCESS;
 
-} 
+}
 
 
 void LArTBH6TriggerTimeTool::handle(const Incident& incident){
 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG
-        << " handle called  " << "for incident "<< incident. type() 
-        << endreq;
+  ATH_MSG_DEBUG ( " handle called  " << "for incident "<< incident. type() );
 
-  m_newEvent = true ; 
-  return ; 
-} 
+  m_newEvent = true ;
+  return ;
+}
 
 double LArTBH6TriggerTimeTool::time(){
-	
-        if(m_fixed || !m_newEvent) return m_time;         
 
-        // new event, try to get it from FrontHit 
-        if( false )
-        {
-        }
-	else
-	{ 
-	  // double t1 = trackRecordTime(); 
-          m_time = larTime() ; 
-        } 
+  if(m_fixed || !m_newEvent) return m_time;
 
-	m_newEvent= false; 
-	return m_time; 
-} 
+  // new event, try to get it from FrontHit
+  if( false )
+    {
+    }
+  else
+    {
+      // double t1 = trackRecordTime();
+      m_time = larTime() ;
+    }
+
+  m_newEvent= false;
+  return m_time;
+}
 
 
 double LArTBH6TriggerTimeTool::larTime(){
 
-    MsgStream log( msgSvc(), name() );
+  std::vector<std::string> keys ;
+  //    keys.push_back("LArHitEMB") ;
+  keys.push_back("LArHitEMEC") ;
+  keys.push_back("LArHitHEC") ;
+  keys.push_back("LArHitFCAL") ;
 
-    std::vector<std::string> keys ; 
-//    keys.push_back("LArHitEMB") ; 
-    keys.push_back("LArHitEMEC") ; 
-    keys.push_back("LArHitHEC") ; 
-    keys.push_back("LArHitFCAL") ; 
+  std::vector<std::string>::const_iterator it = keys.begin()  ;
+  std::vector<std::string>::const_iterator it_e = keys.end()  ;
+  double te = 0;
+  double e = 0;
+  int n=0;
 
-    std::vector<std::string>::const_iterator it = keys.begin()  ; 
-    std::vector<std::string>::const_iterator it_e = keys.end()  ; 
-    double te = 0; 
-    double e = 0; 
-    int n=0; 
+  for(;it!=it_e;++it){
+    const LArHitContainer* cont;
 
-    for(;it!=it_e;++it){
-     const LArHitContainer* cont; 
-
-     if(StatusCode::SUCCESS!=m_sg->retrieve(cont,(*it) ) )
-     { 
-      log<<MSG::ERROR<<" Failed to retrieve LArHitContainer  " <<*it<<endreq; 
-      return StatusCode::FAILURE; 
-     } 
-     LArHitContainer::const_iterator hit_it = cont->begin(); 
-     LArHitContainer::const_iterator hit_it_e = cont->end(); 
-     for(;hit_it!=hit_it_e;++hit_it){ 
-	const LArHit * hit = (*hit_it);
-	e += hit->energy(); 
-	te += hit->energy() * hit->time() ; 
-	++n; 
-     } 
-    } 
-
-    if(n==0){ 
-	log<<MSG::INFO<<" no LArHit in this event" <<endreq; 
-        return 0 ;
-    } 
-    if(e==0){ 
-	 log<<MSG::INFO<<" no LArHit energy in this event" <<endreq; 
-	 return 0; 
+    if(StatusCode::SUCCESS!=evtStore()->retrieve(cont,(*it) ) )
+      {
+        ATH_MSG_ERROR ( " Failed to retrieve LArHitContainer  " <<*it );
+        return StatusCode::FAILURE;
+      }
+    LArHitContainer::const_iterator hit_it = cont->begin();
+    LArHitContainer::const_iterator hit_it_e = cont->end();
+    for(;hit_it!=hit_it_e;++hit_it){
+      const LArHit * hit = (*hit_it);
+      e += hit->energy();
+      te += hit->energy() * hit->time() ;
+      ++n;
     }
+  }
 
-    double t = te/e; 
-    log<<MSG::DEBUG << " average time from LArHit =  " <<t <<endreq; 
+  if(n==0){
+    ATH_MSG_INFO ( " no LArHit in this event" );
+    return 0 ;
+  }
+  if(e==0){
+    ATH_MSG_INFO ( " no LArHit energy in this event" );
+    return 0;
+  }
 
-    return t; 
+  double t = te/e;
+  ATH_MSG_DEBUG ( " average time from LArHit =  " <<t );
+
+  return t;
 
 
 }
