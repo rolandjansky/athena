@@ -34,9 +34,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
+#include "xAODEventInfo/EventInfo.h"
 
 #include "egammaEvent/ElectronContainer.h"
 #include "egammaEvent/EMShower.h"
@@ -82,13 +80,6 @@
 #include "TrigCaloEvent/TrigT2Jet.h"
 #include "TrigCaloEvent/TrigTauCluster.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-
-// Event Info
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-
 
 #include <algorithm>
 #include <math.h>
@@ -1324,7 +1315,7 @@ StatusCode AnalysisSkeleton::addEventInfo() {
 
   //get EventInfo for run and event number
 
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   StatusCode sc = evtStore()->retrieve(eventInfo);
   
   if (sc.isFailure())
@@ -1333,23 +1324,15 @@ StatusCode AnalysisSkeleton::addEventInfo() {
       return sc;
     }
   
-  const EventID* myEventID=eventInfo->event_ID();
   //
-  m_runNumber=myEventID->run_number();
-  m_eventNumber=myEventID->event_number();
+  m_runNumber=eventInfo->runNumber();
+  m_eventNumber=eventInfo->eventNumber();
   ATH_MSG_DEBUG( "event "<<m_eventNumber);
 
-  m_eventTime= myEventID->time_stamp() ; 
-  m_lumiBlock=myEventID->lumi_block() ;
-  m_bCID=myEventID->bunch_crossing_id() ;
-
-  const EventType* myEventType=eventInfo->event_type();
-  if (myEventType!=0) {
-    m_eventWeight=myEventType->mc_event_weight();
-  }else
-    {
-      m_eventWeight=-999;
-    }
+  m_eventTime=eventInfo->timeStamp() ; 
+  m_lumiBlock=eventInfo->lumiBlock() ;
+  m_bCID=eventInfo->bcid();
+  m_eventWeight=eventInfo->mcEventWeight();
 
   /*
   // see code in triggerSkeleton()

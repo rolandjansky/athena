@@ -43,7 +43,7 @@ use NavFourMom			NavFourMom-*			Event
 use AnalysisTriggerEvent        AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
 use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
 
-use EventInfo                   EventInfo-*                     Event
+use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 
 end_private
 
