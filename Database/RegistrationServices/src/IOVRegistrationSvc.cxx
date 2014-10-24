@@ -28,7 +28,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/IAddressCreator.h"
-#include "GaudiKernel/MsgStream.h"
 //#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IConverter.h"
@@ -55,7 +54,7 @@ DECLARE_SERVICE_FACTORY(IOVRegistrationSvc)
 
 IOVRegistrationSvc::IOVRegistrationSvc( const std::string& name, ISvcLocator* svc )
     : 
-    Service( name, svc ),
+    AthService( name, svc ),
     m_recreateFolders(false),
     m_beginRun(IOVTime::MINRUN),
     m_endRun(IOVTime::MAXRUN),
@@ -114,17 +113,16 @@ const InterfaceID& IOVRegistrationSvc::type() const
 StatusCode
 IOVRegistrationSvc::queryInterface( const InterfaceID& riid, void** ppvInterface ) 
 {
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "in queryInterface()" << endreq;
+    ATH_MSG_DEBUG ("in queryInterface()");
 
     if ( IIOVRegistrationSvc::interfaceID().versionMatch(riid) ) {
-	log << MSG::DEBUG << "matched IIOVRegistrationSvc" << endreq;
+        ATH_MSG_DEBUG ("matched IIOVRegistrationSvc");
 	*ppvInterface = (IIOVRegistrationSvc*)this;
     }
     else {
 	// Interface is not directly available: try out a base class
-	log << MSG::DEBUG << "Default to Service interface" << endreq;
-	return Service::queryInterface(riid, ppvInterface);
+        ATH_MSG_DEBUG ("Default to Service interface");
+	return AthService::queryInterface(riid, ppvInterface);
     }
 
     return StatusCode::SUCCESS;
@@ -135,26 +133,25 @@ IOVRegistrationSvc::queryInterface( const InterfaceID& riid, void** ppvInterface
 
 StatusCode IOVRegistrationSvc::initialize()
 {
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "in initialize()" << endreq;
+    ATH_MSG_DEBUG ("in initialize()");
 
-    StatusCode sc = Service::initialize();
+    StatusCode sc = AthService::initialize();
     if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Unable to call base initialize method" << endreq;
+      ATH_MSG_ERROR ("Unable to call base initialize method");
       return StatusCode::FAILURE;
     }
 
     // locate the conditions store ptr to it.
     sc = m_detStore.retrieve();
     if (!sc.isSuccess() || 0 == m_detStore)  {
-	log << MSG::ERROR << "Could not find ConditionsStore" << endreq;
-	return StatusCode::FAILURE;
+       ATH_MSG_ERROR ("Could not find ConditionsStore");
+       return StatusCode::FAILURE;
     }
 
     // Get the IOVDbSvc
     sc = m_iov_db.retrieve();
     if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Unable to get the IOVDbSvc" << endreq;
+      ATH_MSG_ERROR ("Unable to get the IOVDbSvc");
       return StatusCode::FAILURE;
     }
 
@@ -162,49 +159,45 @@ StatusCode IOVRegistrationSvc::initialize()
     // string
     sc = m_persSvc.retrieve(); 
     if ( sc != StatusCode::SUCCESS ) {
-	log << MSG::ERROR 
-	    << " Cannot get IAddressCreator interface of the EventPersistencySvc " 
-	    << endreq; 
+        ATH_MSG_ERROR (" Cannot get IAddressCreator interface of the EventPersistencySvc ");
 	return sc ;
     }
-    log << MSG::DEBUG << "Found PersistencySvc " << endreq;
+    ATH_MSG_DEBUG ("Found PersistencySvc ");
 
     
     // Get the ClassIDSvc - to get typename for clid
     sc = m_clidSvc.retrieve(); 
     if (sc != StatusCode::SUCCESS ) {
-	log << MSG::ERROR 
-	    << " Cannot get IClassIDSvc interface of the CLIDSvc " 
-	    << endreq; 
+        ATH_MSG_ERROR (" Cannot get IClassIDSvc interface of the CLIDSvc " );
 	return sc ;
     }
-    log << MSG::DEBUG << "Found CLIDSvc " << endreq;
+    ATH_MSG_DEBUG ("Found CLIDSvc ");
 
 
-    log << MSG::DEBUG << "Properties "      << endreq;
-    log << MSG::DEBUG << "RecreateFolders " <<  m_recreateFolders << endreq;
+    ATH_MSG_DEBUG ("Properties ");
+    ATH_MSG_DEBUG ("RecreateFolders " <<  m_recreateFolders);
     if (m_timeStamp)
       {
-	log << MSG::DEBUG << "BeginTime      " <<  m_beginTime        << endreq;
-	log << MSG::DEBUG << "EndTime        " <<  m_endTime          << endreq;
+	ATH_MSG_DEBUG ("BeginTime      " <<  m_beginTime);
+	ATH_MSG_DEBUG ("EndTime        " <<  m_endTime);
       }
     else
       {
-	log << MSG::DEBUG << "BeginRun        " <<  m_beginRun        << endreq;
-	log << MSG::DEBUG << "EndRun          " <<  m_endRun          << endreq;
-	log << MSG::DEBUG << "BeginLB      " <<  m_beginLB      << endreq;
-	log << MSG::DEBUG << "EndLB        " <<  m_endLB        << endreq;
+	ATH_MSG_DEBUG ("BeginRun        " <<  m_beginRun);
+	ATH_MSG_DEBUG ("EndRun          " <<  m_endRun);
+	ATH_MSG_DEBUG ("BeginLB      " <<  m_beginLB);
+	ATH_MSG_DEBUG ("EndLB        " <<  m_endLB);
       }
-    log << MSG::DEBUG << "IOVDbTag        " <<  m_tag             << endreq;
+    ATH_MSG_DEBUG ("IOVDbTag        " <<  m_tag);
 
     // check consistency of override specification, if any
     if (m_overrideName.size()!=m_overrideType.size()) {
-      log << MSG::FATAL << "Inconsistent settings of OverrideNames and OverrideTypes parameters" << endreq;
+      ATH_MSG_FATAL ("Inconsistent settings of OverrideNames and OverrideTypes parameters");
       return StatusCode::FAILURE;
     }
     for (unsigned int i=0;i<m_overrideName.size();++i)
-      log << MSG::INFO << "Attributes with name " << m_overrideName[i] <<
-	" will be stored as COOL type " << m_overrideType[i] << endreq;
+      ATH_MSG_INFO ("Attributes with name " << m_overrideName[i] <<
+                    " will be stored as COOL type " << m_overrideType[i]);
     return StatusCode::SUCCESS;
 
 }
@@ -465,30 +458,28 @@ StatusCode IOVRegistrationSvc::registerIOV( const std::string& typeName,
     // start/stop as the time interval
 
 
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG <<" in registerIOV()" 
-	<< " typename: "     << typeName << " - tag: " << tag;
+    msg() << MSG::DEBUG <<" in registerIOV()" 
+          << " typename: "     << typeName << " - tag: " << tag;
     if (spec_key.empty())
       {
-	log << " key: *empty* " << endreq;
+	msg() << " key: *empty* " << endreq;
       }
     else
       {
-	log << " spec_key " << spec_key << endreq;
+	msg() << " spec_key " << spec_key << endreq;
       }
-    log << " - begin time: "   << start
-	<< " - end time: "     << stop
-	<< endreq;
+    msg() << " - begin time: "   << start
+          << " - end time: "     << stop
+          << endreq;
   
     // Check validity of start/stop
     if(start.isBoth() || stop.isBoth() || 
        start.isTimestamp() != stop.isTimestamp() ||
        start.isRunEvent() != stop.isRunEvent()) {
-	log << MSG::ERROR << "Incorrect start/stop: " 
-	    << " isBoth: " << start.isBoth() << ":" << stop.isBoth() 
-	    << " isTimestamp: " << start.isTimestamp() << ":" << stop.isTimestamp() 
-	    << " isRunEvent: " << start.isRunEvent() << ":" << stop.isRunEvent()
-	    << endreq;
+        ATH_MSG_ERROR ("Incorrect start/stop: " 
+                       << " isBoth: " << start.isBoth() << ":" << stop.isBoth() 
+                       << " isTimestamp: " << start.isTimestamp() << ":" << stop.isTimestamp() 
+                       << " isRunEvent: " << start.isRunEvent() << ":" << stop.isRunEvent());
 	return( StatusCode::FAILURE);
     }
     
@@ -506,7 +497,7 @@ StatusCode IOVRegistrationSvc::registerIOV( const std::string& typeName,
 
 StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 						const std::string& spec_key,
-						const std::string& folder,
+						const std::string& folderName,
 						const std::string& tag,
 						const IOVTime&     start, 
 						const IOVTime&     stop ) const
@@ -515,17 +506,14 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
     // start/stop as the time interval
 
 
-    MsgStream log(msgSvc(), name());
-
-    log << MSG::DEBUG <<" in registerIOVCOOL()" 
-	<< endreq;
+    ATH_MSG_DEBUG (" in registerIOVCOOL()" );
   
 
     // Find the clid for type name from the CLIDSvc
     CLID clid;
     StatusCode sc = m_clidSvc->getIDOfTypeName(typeName, clid);
     if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not get clid for typeName " << typeName <<endreq;
+        ATH_MSG_ERROR ("Could not get clid for typeName " << typeName);
 	return( StatusCode::FAILURE);
     }
 
@@ -570,7 +558,7 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    // StoreGate
 	    proxy = m_detStore->proxy(clid);
 	    if (!proxy) {
-	      log <<MSG::ERROR <<"Could not get proxy for clid " << clid <<endreq;
+	      ATH_MSG_ERROR ("Could not get proxy for clid " << clid);
 	      return( StatusCode::FAILURE);
 	    }
 	    
@@ -583,7 +571,7 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    // Get IOpaqueAddress for each data object from StoreGate
 	    proxy = m_detStore->proxy(clid, key);
 	    if (!proxy) {
-	      log <<MSG::ERROR <<"Could not get proxy for clid " << clid << " and key " << key << endreq;
+	      ATH_MSG_ERROR ("Could not get proxy for clid " << clid << " and key " << key);
 	      return( StatusCode::FAILURE );
 	    }
 	    // get proxy address - this will fail if object not streamed out
@@ -597,12 +585,12 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	  const SG::TransientAddress* tad = proxy->transientAddress();
 	  if (tad) {
 	    const TransientClidSet clids = tad->transientID();
-	    log << MSG::DEBUG << "clid size " << clids.size() <<endreq;
+	    ATH_MSG_DEBUG ("clid size " << clids.size());
 	    TransientClidSet::const_iterator clidIt  = clids.begin();
 	    TransientClidSet::const_iterator clidEnd = clids.end();
 	    for (; clidIt != clidEnd; ++clidIt) {
 	     if (clid != (*clidIt)) symlinks.push_back((*clidIt));
-	     log << MSG::DEBUG << "clid  " << (*clidIt) <<endreq;
+	     ATH_MSG_DEBUG ("clid  " << (*clidIt));
 	    }
 	  }
 	  // Check whether the IOA is a CondAttrListCollAddress - if so
@@ -616,54 +604,50 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	  // service. We then store the string address in the IOV DB
 	  sc = m_persSvc->convertAddress(addr, saddr);   
 	  if (sc.isFailure()) {
-	    log << MSG::WARNING <<"Could not get string from IOpaqueAddress for clid " << clid
-	   << " is BAD_STORAGE_TYPE: " << (sc == IConverter::BAD_STORAGE_TYPE)
-		<< endreq;
+	    ATH_MSG_WARNING ("Could not get string from IOpaqueAddress for clid " << clid
+                             << " is BAD_STORAGE_TYPE: " << (sc == IConverter::BAD_STORAGE_TYPE));
 	  return( StatusCode::FAILURE);
 	  }
-	  log << MSG::DEBUG <<"String address = \"" << saddr << "\"" << endreq;
+	  ATH_MSG_DEBUG ("String address = \"" << saddr << "\"");
 	} else {
 	  // if no addr was found, object has not been streamed out
 	  // this is OK providing we do not need the addr later
 	  // i.e. plain CondAttrListCollection or AthenaAttributeList
 	  if (needSGaddr) {
-	    log <<MSG::ERROR <<"Could not get address for clid " << clid 
-<< endreq;
+	    ATH_MSG_ERROR ("Could not get address for clid " << clid);
 	    return( StatusCode::FAILURE );
 	  } else {
-	    log << MSG::DEBUG << "Faking address for " << typeName << endreq;
+	    ATH_MSG_DEBUG ("Faking address for " << typeName);
 	    // fake the saddr contents 
  	    if ("AthenaAttributeList" == typeName) {
 	      saddr="<address_header service_type=\"256\" clid=\"40774348\" /> POOLContainer_AthenaAttributeList][CLID=x";
 	    } else if ("CondAttrListCollection" == typeName) {
 	      saddr="<address_header service_type=\"256\" clid=\"1238547719\" /> POOLContainer_CondAttrListCollection][CLID=x";
 	    } else {
-	      log << MSG::ERROR << "Cannot fake stringaddress for typename "
-		  << typeName << endreq;
+	      ATH_MSG_ERROR ("Cannot fake stringaddress for typename "
+                             << typeName);
 	    }
  	  }
 	}
 
-	log << MSG::DEBUG <<"Storing ref: " << storeRef 
-	    << " Storing AttrListCollection: " << storeAttrListColl 
-	    << endreq;
+	ATH_MSG_DEBUG ("Storing ref: " << storeRef 
+                       << " Storing AttrListCollection: " << storeAttrListColl);
 
 	// Set folder name - in the present case this is defined
 	// to be the key 
 	// RJH - unless a non-null folder is given on input
 	std::string local_folder;
-	if (""==folder) {
+	if (""==folderName) {
   	  local_folder = key;
 	} else {
-	  local_folder=folder;
+	  local_folder=folderName;
 	}
-	log << MSG::DEBUG <<"Using folder name " << local_folder << endreq;
+	ATH_MSG_DEBUG ("Using folder name " << local_folder);
 	  
 	// Get COOL database in update mode (false == readOnly flag)
 	cool::IDatabasePtr db = m_iov_db->getDatabase(false); 
 	if (!db) {
-	    log << MSG::ERROR << "Could not get pointer to COOL db "
-		<< endreq;
+            ATH_MSG_ERROR ("Could not get pointer to COOL db ");
 	    return(StatusCode::FAILURE);       
 	}
 	// get some information about the database connection for later checks
@@ -676,12 +660,11 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	// look for use of writer account ('_W' in connection string)
 	bool dbidwriter=(dbid.find("oracle")!=std::string::npos && 
 			 dbid.find("_W")!=std::string::npos);
-	log << MSG::DEBUG << "Identified prod/writer " << dbidprod << 
-	  dbidwriter << endreq;
+	ATH_MSG_DEBUG ("Identified prod/writer " << dbidprod << dbidwriter);
 	// do not allow write accesss to production servers
 	if (dbidprod) {
-	  log << MSG::FATAL << "Direct update of production Oracle servers from Athena is FORBIDDEN" << endreq;
-	  log << MSG::FATAL << "Please write to SQLite file and then merge with AtlCoolMerge.py" << endreq;
+	  ATH_MSG_FATAL ("Direct update of production Oracle servers from Athena is FORBIDDEN");
+	  ATH_MSG_FATAL ("Please write to SQLite file and then merge with AtlCoolMerge.py");
 	  return StatusCode::FAILURE;
 	}
 	
@@ -693,8 +676,8 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    if ("CondAttrListCollection"==typeName) {
 	      if (StatusCode::SUCCESS!=m_detStore->
 		  retrieve(attrListColl,key)) {
-		log << MSG::ERROR << 
-		  "Could not find CondAttrListCollecton for " << key << endreq;
+                ATH_MSG_ERROR ("Could not find CondAttrListCollecton for "
+                               << key);
 		return StatusCode::FAILURE;
 	      }
 	    } else if (storeAttrListColl) {
@@ -704,27 +687,22 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 		if (attrAddr) {
 		    // Successful cast
 		    attrListColl = attrAddr->attrListColl();
-		    log << MSG::DEBUG <<"Set attr list coll ptr " << endreq;
-		    log << MSG::DEBUG <<"addr, attrAddr, coll " 
-			<< addr << " " << attrAddr << " " << attrListColl
-			<< endreq;
+		    ATH_MSG_DEBUG ("Set attr list coll ptr ");
+		    ATH_MSG_DEBUG ("addr, attrAddr, coll " 
+                                   << addr << " " << attrAddr << " " << attrListColl);
 		} else {
-		  log << MSG::ERROR << 
-		      "Could not extract ptr for CondAttrListCollAddress " <<
-			endreq;
+		  ATH_MSG_ERROR ("Could not extract ptr for CondAttrListCollAddress ");
 		  return StatusCode::FAILURE;
 		}
 	      } else {
-		log << MSG::ERROR << 
-      "Cannot write out collection of POOLref without streaming them first" 
-		    << endreq;
+		ATH_MSG_ERROR ("Cannot write out collection of POOLref without streaming them first" );
 		return StatusCode::FAILURE;
 	      }
 	    } else {
 	      // Just AttrList - get directly from Storegate
 	      if (StatusCode::SUCCESS!=m_detStore->retrieve(attrList,key)) {
-		log << MSG::ERROR << "Cound not find AthenaAttributeList for "
-		    << key << endreq;
+		ATH_MSG_ERROR ("Could not find AthenaAttributeList for "
+                               << key);
 		return StatusCode::FAILURE;
 	      }
 	    }
@@ -732,7 +710,7 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	}
 
 
-	log << MSG::DEBUG <<"Set attr list coll ptr " << attrListColl << endreq;
+	ATH_MSG_DEBUG ("Set attr list coll ptr " << attrListColl);
 
 	// Save folder pointer
 	cool::IFolderPtr folder;
@@ -747,25 +725,24 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    if (m_recreateFolders) {
   	        // do not allow this action on production schema or with writer
 	        if (dbidprod || dbidwriter) {
-		  log << MSG::FATAL << "Apparent attempt to delete folder on production COOL schema " << dbid << endreq;
+		  ATH_MSG_FATAL ("Apparent attempt to delete folder on production COOL schema " << dbid);
 		  return StatusCode::FAILURE;
 	        }
 	    
-		log << MSG::DEBUG <<" Deleting existing COOL Folder " << local_folder << endreq;
+		ATH_MSG_DEBUG (" Deleting existing COOL Folder " << local_folder);
 		db->dropNode( local_folder ); 
 		createFolders = true;
 	    }
 	    else {
 		// Get folder
-		log << MSG::DEBUG <<"COOL Folder " << local_folder 
-		    << " exists" << endreq;
+                ATH_MSG_DEBUG ("COOL Folder " << local_folder << " exists");
 		folder = db->getFolder(local_folder);
 	    }
 
 	}
 	else {
-	    log << MSG::DEBUG <<"COOL Folder " << local_folder 
-		<< " does not exist - must create it" << endreq;
+            ATH_MSG_DEBUG ("COOL Folder " << local_folder 
+                           << " does not exist - must create it");
 	    createFolders = true;
 	}
 	    
@@ -775,22 +752,21 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 
 	sc = splitAddress(saddr,address_header,address_data);
 	if (sc.isFailure()) {
-	    log << MSG::ERROR <<"Could not split address: "
-		<< "addr: " << saddr << "\n"
-		<< "hdr:  " << address_header << "\n"
-		<< "data  " << address_data 
-		<< endreq;
+            ATH_MSG_ERROR ("Could not split address: "
+                           << "addr: " << saddr << "\n"
+                           << "hdr:  " << address_header << "\n"
+                           << "data  " << address_data);
 	    return( StatusCode::FAILURE);
 	}
-	log << MSG::DEBUG <<"split address: " << saddr << endreq
-	    << "  hdr:  " << address_header << endreq
-	    << "  data: " << address_data << endreq;
+	msg() << MSG::DEBUG <<"split address: " << saddr << endreq
+              << "  hdr:  " << address_header << endreq
+              << "  data: " << address_data << endreq;
 				
 
 	if(createFolders) {
   	    // first make sure not using writer account -if so abort
 	    if (dbidwriter) {
-	      log << MSG::FATAL << "Apparent attempt to create folder using writer account, dbID is: " << dbid << endreq;
+	      ATH_MSG_FATAL ("Apparent attempt to create folder using writer account, dbID is: " << dbid);
 	      return StatusCode::FAILURE;
 	    }
 
@@ -815,18 +791,16 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    sc = buildDescription( "typeName", typeName,
 					     mergedNames );
 	    if (sc.isFailure()) {
-		log << MSG::ERROR <<"Could not merge towards merged description: "
-		    << "typeName: " << typeName 
-		    << endreq;
+                ATH_MSG_ERROR ("Could not merge towards merged description: "
+                               << "typeName: " << typeName);
 		return( StatusCode::FAILURE);
 	    }
 		
 	    sc = buildDescription( "addrHeader", address_header,
 					     mergedNames );
 	    if (sc.isFailure()) {
-		log << MSG::ERROR <<"Could not merge towards merged description: "
-		    << "addrHeader: " << address_header
-		    << endreq;
+                ATH_MSG_ERROR ("Could not merge towards merged description: "
+                               << "addrHeader: " << address_header);
 		return( StatusCode::FAILURE);
 	    }
 	    // RJH - if key is not same as folder, and we want the read-back
@@ -838,9 +812,8 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    if (local_folder!=key && m_writeKeyInfo) {
 	      sc=buildDescription("key",key,mergedNames);
 	      if (sc.isFailure()) {
-		log << MSG::ERROR <<"Could not merge towards merged description: "
-		    << "key: " << key
-		    << endreq;
+		ATH_MSG_ERROR ("Could not merge towards merged description: "
+                               << "key: " << key);
 		return( StatusCode::FAILURE);
 	      }
 	    }
@@ -852,32 +825,30 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 		    std::string type;
 		    sc = m_clidSvc->getTypeNameOfID(symlinks[i], type);
 		    if (sc.isFailure()) {
-			log <<MSG::ERROR <<"Could not get type name for symlink clid "
-			    << symlinks[i] <<endreq;
+                        ATH_MSG_ERROR ("Could not get type name for symlink clid "
+                                       << symlinks[i]);
 			return( StatusCode::FAILURE);
 		    }
 		    else {
-			log << MSG::DEBUG << "adding symlink: clid, type  " 
-			    << symlinks[i] << " " << type
-			    <<endreq;
+                        ATH_MSG_DEBUG ("adding symlink: clid, type  " 
+                                       << symlinks[i] << " " << type);
 		    }
 		    if (symlinkTypes.size()) symlinkTypes += ':';
 		    symlinkTypes += type;
 		}
 		sc=buildDescription("symlinks", symlinkTypes, mergedNames);
 		if (sc.isFailure()) {
-		    log << MSG::ERROR <<"Could not merge symlinks to merged description: "
+                  msg() << MSG::ERROR <<"Could not merge symlinks to merged description: "
 			<< "symlink types: ";
 		    for (unsigned int i = 0; i < symlinkTypes.size(); ++i) {
-			log << MSG::ERROR << symlinkTypes[i] << " ";
+                      msg() << MSG::ERROR << symlinkTypes[i] << " ";
 		    }
-		    log << MSG::ERROR << endreq;
+		    msg() << MSG::ERROR << endreq;
 		    return( StatusCode::FAILURE);
 		}
 		else {
-		    log << MSG::DEBUG << "symlinks, merged names " 
-			<< symlinkTypes << " " << mergedNames
-			<<endreq;
+                  ATH_MSG_DEBUG ("symlinks, merged names " 
+                                 << symlinkTypes << " " << mergedNames);
 		}
 	    }
 
@@ -888,14 +859,14 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 		!stop.isValid()  || 
 		start.isTimestamp() != stop.isTimestamp() || 
 		start.isRunEvent() != stop.isRunEvent()) {
-		log << MSG::ERROR <<"Invalid times: start isValid/isTimeStamp/isRunEvent "
-		    << "addrHeader: " << address_header
-		    << start.isValid() << " " << start.isTimestamp() << " " 
-		    << start.isRunEvent() << endreq;
-		log << MSG::ERROR <<"Invalid times: stop isValid/isTimeStamp/isRunEvent "
-		    << "addrHeader: " << address_header
-		    << stop.isValid() << " " << stop.isTimestamp() << " " 
-		    << stop.isRunEvent() << endreq;
+                ATH_MSG_ERROR ("Invalid times: start isValid/isTimeStamp/isRunEvent "
+                               << "addrHeader: " << address_header
+                               << start.isValid() << " " << start.isTimestamp() << " " 
+                               << start.isRunEvent());
+                ATH_MSG_ERROR ("Invalid times: stop isValid/isTimeStamp/isRunEvent "
+                               << "addrHeader: " << address_header
+                               << stop.isValid() << " " << stop.isTimestamp() << " " 
+                               << stop.isRunEvent());
 		return( StatusCode::FAILURE);
 	    }
 	    bool isTimeStamp = false;
@@ -912,20 +883,19 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 						 mergedNames );
 	      }
  	    if (sc.isFailure()) { 
- 		log << MSG::ERROR <<"Could not merge timeStamp flag towards merged description. "
- 		    << endreq;
+                ATH_MSG_ERROR ("Could not merge timeStamp flag towards merged description. ");
  		return( StatusCode::FAILURE);
  	    }
 	    // add <named/> for channels with names
 	    if (storeAttrListColl && attrListColl!=0 && 
 		attrListColl->name_size()>0) mergedNames+="<named/>";
 	    
-	    log << MSG::DEBUG <<" create folder " << local_folder 
-		<< " with description " << mergedNames << endreq;
+	    ATH_MSG_DEBUG (" create folder " << local_folder 
+                           << " with description " << mergedNames);
 
 	    // Create folder 
 
-	    log << MSG::DEBUG <<"Set attr list coll ptr " << attrListColl << endreq;
+            ATH_MSG_DEBUG ("Set attr list coll ptr " << attrListColl);
 
 	    cool::RecordSpecification payloadSpec;
 	    if (storeRef) {
@@ -942,28 +912,25 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 		    // Folder with CondAttrListCollection itself
 		    // Get the attribute spec from the first element in the collection
 		    if (0 == attrListColl) {
-			log << MSG::ERROR <<"attrListColl not found. "
-			    << endreq;
+                        ATH_MSG_ERROR ("attrListColl not found. ");
 			return( StatusCode::FAILURE);
 		    }
 		
 		    if (0 == attrListColl->size()) {
-			log << MSG::ERROR <<"attrListColl is empty. "
-			    << endreq;
+                        ATH_MSG_ERROR ("attrListColl is empty. ");
 			return( StatusCode::FAILURE);
 		    }
 		    // FIXME
-		    log << MSG::DEBUG << "Size of AttrList collection" <<
-		      attrListColl->size() << endreq;
+                    ATH_MSG_DEBUG ("Size of AttrList collection" <<
+                                   attrListColl->size());
 
                     atr4spec=&((*attrListColl->begin()).second);
 		} else {
 		    // folder with simple AttributeList
 		    atr4spec=attrList;
-		    log << MSG::DEBUG << "In simple atrlist branch" << endreq;
+                    ATH_MSG_DEBUG ("In simple atrlist branch");
 		}
-		log << MSG::DEBUG << "Pointer to atrList is " << atr4spec << 
-		  endreq;
+                ATH_MSG_DEBUG ("Pointer to atrList is " << atr4spec);
 		// construct COOL specification
 		for (coral::AttributeList::const_iterator itr=
 		       atr4spec->begin();itr!=atr4spec->end();++itr) {
@@ -979,12 +946,12 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	      cool::FolderVersioning::MULTI_VERSION;
 	    if (m_svFolder) {
 	      version=cool::FolderVersioning::SINGLE_VERSION;
-	      log << MSG::INFO << "Creating single version folder for "
-		  << local_folder << endreq;
+              ATH_MSG_INFO ("Creating single version folder for "
+                            << local_folder);
 	    }
 	    if (m_payloadTable)
-	      log << MSG::INFO << "Creating separate payload table for "
-		  << local_folder << endreq;
+              ATH_MSG_INFO ("Creating separate payload table for "
+                            << local_folder);
 	    // use old or new ABI. New ABI:
 #if defined(COOL290) && defined(COOL290VP)
 	    cool::FolderSpecification folderSpec(version,payloadSpec,cool::PayloadMode::SEPARATEPAYLOAD);
@@ -994,14 +961,14 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 #endif
 	    folder = db->createFolder(local_folder,folderSpec,
                   mergedNames,true); 
-	    log << MSG::DEBUG <<"Creation of CondDBFolder " << 
-                   local_folder << " done" << endreq;
+            ATH_MSG_DEBUG ("Creation of CondDBFolder " << 
+                           local_folder << " done");
 
 	    // create channels if needed - only for CondAttrListColl with names
 	    if (storeAttrListColl && attrListColl!=0 && 
 		attrListColl->name_size()>0) {
-	      log << MSG::DEBUG << "Naming " << attrListColl->name_size() <<
-		" channels in " << local_folder << endreq;
+              ATH_MSG_DEBUG ("Naming " << attrListColl->name_size() <<
+                             " channels in " << local_folder);
 	      for (CondAttrListCollection::name_const_iterator nitr=
 		     attrListColl->name_begin();
 		   nitr!=attrListColl->name_end();++nitr) {
@@ -1013,14 +980,11 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	// Print out stop/start ONLY for non-collections - collections
 	// have a per-channel start/stop
 	if (storeAttrListColl) {
-	    log << MSG::DEBUG <<" Global Start/stop time: "
-		<< start << " " << stop << " Note: will be ignored for channels with differnt IOVs " 
-		<< endreq;
+            ATH_MSG_DEBUG (" Global Start/stop time: "
+                           << start << " " << stop << " Note: will be ignored for channels with differnt IOVs " );
 	}
 	else {
-	    log << MSG::DEBUG <<" Start/stop time " 
-		<< start << " " << stop << " "
-		<< endreq;
+            ATH_MSG_DEBUG (" Start/stop time " << start << " " << stop << " ");
 	}
 
 	// Convert IOVTime to ValidityKey
@@ -1045,14 +1009,13 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    //
 	    if (storeRef) {
 		// Should NOT get here for a collection, signal error
-		log << MSG::ERROR <<"Trying to store a ref for a CondAttrListCollection. "
-		    << endreq;
+                ATH_MSG_ERROR ("Trying to store a ref for a CondAttrListCollection. ");
 		return( StatusCode::FAILURE);
 	    }
 
-	    log << MSG::DEBUG << " --> Storing Object( " << start << ", " << stop 
-		<< ", " << tag << " )" << endreq;
-	    log << MSG::DEBUG << " -->   address: " << address_data << endreq;
+	    ATH_MSG_DEBUG (" --> Storing Object( " << start << ", " << stop 
+                           << ", " << tag << " )");
+	    ATH_MSG_DEBUG (" -->   address: " << address_data);
 	    // Loop over collection
 	    CondAttrListCollection::const_iterator first = attrListColl->begin();
 	    CondAttrListCollection::const_iterator last  = attrListColl->end();
@@ -1070,7 +1033,7 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 		CondAttrListCollection::iov_const_iterator iovIt = attrListColl->chanIOVPair(chanNum);
 		std::ostringstream attr;
 		payload.toOutputStream( attr );
-		log << MSG::DEBUG << " --> ChanNum: " << chanNum << " Payload: " << attr.str() << endreq;
+		ATH_MSG_DEBUG (" --> ChanNum: " << chanNum << " Payload: " << attr.str());
 		if (!m_forceGlobalIOV && iovIt != attrListColl->iov_end()) {
 		    const IOVRange& range = (*iovIt).second;
 		    if(range.start().isTimestamp()) {
@@ -1081,30 +1044,27 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 			ivStart1 = range.start().re_time();
 			ivStop1  = range.stop().re_time();
 		    }
-		    log << MSG::DEBUG <<" --> Start/stop time " 
-			<< range.start() << " " << range.stop() << " "
-			<< endreq;
+		    ATH_MSG_DEBUG (" --> Start/stop time " 
+                                   << range.start() << " " << range.stop() << " ");
 		}
 		else {
-		    log << MSG::DEBUG <<" --> Start/stop time " 
-			<< start << " " << stop << " "
-			<< endreq;
+                  ATH_MSG_DEBUG (" --> Start/stop time " 
+                                 << start << " " << stop << " ");
 		}
 		
 		// Store address in folder with interval
 		cool::Record record(rspec,payload);
 		if (m_userTags && tag!="") {
-  	          log << MSG::DEBUG << "Object stored with user tag " << tag 
-		  << endreq;
+  	          ATH_MSG_DEBUG ("Object stored with user tag " << tag );
   		  folder->storeObject( ivStart1, 
-				     ivStop1,
-				     record,
-				     chanNum,tag,!m_userTagsUH);
+                                       ivStop1,
+                                       record,
+                                       chanNum,tag,!m_userTagsUH);
 		} else {
   		  folder->storeObject( ivStart1, 
-				     ivStop1,
-				     record,
-				     chanNum);
+                                       ivStop1,
+                                       record,
+                                       chanNum);
 		}
 	    }
 	}
@@ -1122,58 +1082,55 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 
 	    // Store address in folder with interval
 	    if (m_userTags && tag!="") {
-	      log << MSG::DEBUG << "Object stored with user tag " << tag 
-		  << endreq;
+	      ATH_MSG_DEBUG ("Object stored with user tag " << tag );
   	      folder->storeObject( ivStart, 
-				 ivStop,
-				 record,0,tag,!m_userTagsUH);
+                                   ivStop,
+                                   record,0,tag,!m_userTagsUH);
 	    } else {
   	      folder->storeObject( ivStart, 
-				 ivStop,
-				 record,0);
+                                   ivStop,
+                                   record,0);
 	    }
 	      
-	    log << MSG::DEBUG << " --> Stored Object( " << start << ", " << stop 
-		<< ", " << tag << " )" << endreq;
-	    log << MSG::DEBUG << " -->   address: " << address_data << endreq;
+	    ATH_MSG_DEBUG (" --> Stored Object( " << start << ", " << stop 
+                           << ", " << tag << " )");
+	    ATH_MSG_DEBUG (" -->   address: " << address_data);
 	}
 	
-	log << MSG::DEBUG <<" storeData OK " << endreq;
+	ATH_MSG_DEBUG (" storeData OK ");
 	      
 	// Now tag the folder if required
 	if (!m_userTags) {
   	  if ("" == tag) {
-	      log << MSG::DEBUG <<" tag is empty - folder is not being tagged " << endreq;
+              ATH_MSG_DEBUG (" tag is empty - folder is not being tagged ");
    	  }
 	  else {
-	    log << MSG::INFO <<" Tagging HEAD of folder " << local_folder << 
-            " with tag " << tag << endreq;
+            ATH_MSG_INFO (" Tagging HEAD of folder " << local_folder << 
+                          " with tag " << tag);
 	    try { 
   	      folder->tagCurrentHead(tag,m_tagDescription);
 	    }
 	    catch ( cool::TagExists& e) {
-	      log << MSG::INFO << "Tag " << tag << 
-		" exists - attempt to delete tag and retag HEAD" << endreq;
+              ATH_MSG_INFO ("Tag " << tag << 
+                            " exists - attempt to delete tag and retag HEAD");
 	      // first check this tag is really defined in THIS folder
               std::vector<std::string> taglist=folder->listTags();
 	      if (find(taglist.begin(),taglist.end(),tag)==
 		  taglist.end()) {
-		log << MSG::ERROR << 
-		 "Tag is defined in another folder - tag names must be global"
-		    << endreq;
+                  ATH_MSG_ERROR ("Tag is defined in another folder - tag names must be global");
 	      } else if (folder->existsUserTag(tag)) {
 		// this is a COOL user tag, in which case user
  	        // is trying to mix user and HEAD tags, not allowed in COOL1.3
-		log << MSG::ERROR << "Tag " << tag << 
-		  " is already USER tag - cannot mix tagging modes" << endreq;
+		ATH_MSG_ERROR ("Tag " << tag << 
+                               " is already USER tag - cannot mix tagging modes");
 	      } else {
 	        try {
 	          folder->deleteTag(tag);
     	          folder->tagCurrentHead(tag,m_tagDescription);
-	          log << MSG::INFO << "Delete and retag succeeded" << endreq;
+	          ATH_MSG_INFO ("Delete and retag succeeded");
 	        }
 	        catch ( cool::TagNotFound& e) {
-	          log << MSG::ERROR << "Delete and retag HEAD failed" << endreq;
+	          ATH_MSG_ERROR ("Delete and retag HEAD failed");
 	        }
 	      }
 	    }
@@ -1183,10 +1140,9 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
     }
     
     catch (std::exception& e) {
-	log <<MSG::ERROR << "*** COOL  exception caught: " << e.what() 
-	  // << "\n"
-	  //	    << "***   error code: " << e.code() 
-	    << endreq;
+        ATH_MSG_ERROR ("*** COOL  exception caught: " << e.what() );
+        // << "\n"
+        //	    << "***   error code: " << e.code() 
 	return StatusCode::FAILURE;
     }
 
@@ -1201,9 +1157,8 @@ cool::StorageType::TypeId IOVRegistrationSvc::coralToCoolType(
   for (unsigned int i=0;i<m_overrideType.size();++i) {
     if (m_overrideName[i]==parname) {
       coralType=m_overrideType[i];
-      MsgStream log(msgSvc(), name());
-      log << MSG::INFO << "Override default type for attribute " << 
-	parname << " - use " << coralType << endreq;
+      ATH_MSG_INFO ("Override default type for attribute " << 
+                    parname << " - use " << coralType);
     }
   }
   // FIXME to include all CORAL/COOL types
@@ -1228,9 +1183,7 @@ cool::StorageType::TypeId IOVRegistrationSvc::coralToCoolType(
   if (coralType=="Blob16M") return cool::StorageType::Blob16M;
 
   // if we get here, mapping is undefined
-  MsgStream log(msgSvc(), name());
-  log << MSG::FATAL << "No COOL mapping defined for CORAL type " << coralName
-      << endreq;
+  ATH_MSG_FATAL ("No COOL mapping defined for CORAL type " << coralName);
   throw std::exception();
 }
 
@@ -1254,8 +1207,7 @@ StatusCode IOVRegistrationSvc::buildDescription(const std::string&  identifier,
   // this routine was originally in IOVDbSvc, moved here as only client
   // buids an XML fragment of form <identifier>value</identifier>
   if (identifier.empty() || value.empty()) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::ERROR << "Identifier or value is null." << endreq;
+    ATH_MSG_ERROR ("Identifier or value is null.");
     return StatusCode::FAILURE;
   }
   description = "<"+identifier+">"+value+"</"+identifier+">"+description;

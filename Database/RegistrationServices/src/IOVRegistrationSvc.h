@@ -20,7 +20,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "RegistrationServices/IIOVRegistrationSvc.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ClassID.h"
 //#include "GaudiKernel/IProperty.h"
@@ -51,8 +51,8 @@ class IClassIDSvc;
  **    - IOVDbTag:<pre>        the tag to be used</pre>
  **    - IOVDbTimeStamp:<pre>  the flag for time versus run-LB use</pre>
  **/
-class IOVRegistrationSvc : public virtual IIOVRegistrationSvc,
-			   public virtual Service
+class IOVRegistrationSvc : public AthService,
+                           public virtual IIOVRegistrationSvc
 {
   // Forward declarations
   template <class TYPE> class SvcFactory;
@@ -163,7 +163,7 @@ private:
     
     StatusCode registerIOVCOOL(const std::string& typeName,
 			       const std::string& key,
-			       const std::string& folder,
+			       const std::string& folderName,
 			       const std::string& tag,
 			       const IOVTime&     begin,
 			       const IOVTime&     end) const;

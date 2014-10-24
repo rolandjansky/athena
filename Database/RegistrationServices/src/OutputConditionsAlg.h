@@ -9,7 +9,7 @@
 // optionally register it in the conditions database
 // Richard Hawkings, started 1/9/05, from a skeleton by Walter Lampl
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
@@ -20,7 +20,7 @@ class StoreGateSvc;
 class IClassIDSvc;
 class IIOVRegistrationSvc;
 
-class OutputConditionsAlg: public Algorithm 
+class OutputConditionsAlg: public AthAlgorithm 
 {
 public:
     OutputConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -32,7 +32,6 @@ public:
 
 private:
 
-  ServiceHandle<StoreGateSvc> p_detstore;
   ServiceHandle<IClassIDSvc> p_clidsvc;
   ServiceHandle<IIOVRegistrationSvc> p_regsvc;
 

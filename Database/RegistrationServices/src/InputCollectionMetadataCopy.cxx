@@ -12,7 +12,6 @@
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "DBDataModel/CollectionMetadata.h"
 
@@ -20,7 +19,7 @@
 
 //___________________________________________________________________________
 InputCollectionMetadataCopy::InputCollectionMetadataCopy(const std::string& type, const std::string& name, const IInterface* parent) : 
-   AlgTool(type, name, parent), 
+   AthAlgTool(type, name, parent), 
    m_pMetaDataStore ("StoreGateSvc/MetaDataStore",      name), 
    m_pInputStore    ("StoreGateSvc/TagMetaDataStore", name) {
    declareInterface<IMetaDataTool>(this);
@@ -33,25 +32,24 @@ InputCollectionMetadataCopy::~InputCollectionMetadataCopy() {
 //___________________________________________________________________________
 StatusCode InputCollectionMetadataCopy::initialize() {
    StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
+   ATH_MSG_INFO ("in initialize()");
 
    // locate the DetectorStore and initialize our local ptr
    sc = m_pMetaDataStore.retrieve();
    if (!sc.isSuccess() || 0 == m_pMetaDataStore) {
-      log << MSG::ERROR << "Could not find MetaDataStore" << endreq;
+       ATH_MSG_ERROR ("Could not find MetaDataStore");
       return(StatusCode::FAILURE);
    }
    sc = m_pInputStore.retrieve();
    if (!sc.isSuccess() || 0 == m_pInputStore) {
-      log << MSG::ERROR << "Could not find TagMetaDataStore" << endreq;
+      ATH_MSG_ERROR ("Could not find TagMetaDataStore");
       return(StatusCode::FAILURE);
    }
    // Set to be listener for end of event
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
    sc = incSvc.retrieve();
    if (!sc.isSuccess()) {
-      log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
+       ATH_MSG_ERROR (log << MSG::ERROR << "Unable to get the IncidentSvc");
       return(sc);
    }
    incSvc->addListener(this, "BeginTagFile", 60); // pri has to be < 100 to be after MetaDataSvc.
@@ -60,37 +58,34 @@ StatusCode InputCollectionMetadataCopy::initialize() {
 
 //___________________________________________________________________________
 StatusCode InputCollectionMetadataCopy::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   log << MSG::DEBUG << "DEBYG in finalize()" << endreq;
+   ATH_MSG_INFO ("in finalize()");
+   ATH_MSG_DEBUG ("DEBUG in finalize()");
    return(StatusCode::SUCCESS);
 }
 
 //__________________________________________________________________________
 void InputCollectionMetadataCopy::handle(const Incident& inc) {
 
-   MsgStream log(msgSvc(), name());
-
-   log << MSG::DEBUG << "handle() " << inc.type() << endreq;
+   ATH_MSG_DEBUG ("handle() " << inc.type());
 
    if (inc.type() == "BeginTagFile") {
 
       const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
       if (fileInc == 0) {
-         log << MSG::ERROR << " Unable to get FileName from BeginTagFile incident" << endreq;
+         ATH_MSG_ERROR (" Unable to get FileName from BeginTagFile incident");
          return;
       }
       const std::string fileName = fileInc->fileName();
-      log << MSG::DEBUG << "handle() saw BeginTagFile incident for " << fileName << endreq;
+      ATH_MSG_DEBUG ("handle() saw BeginTagFile incident for " << fileName);
       if (m_pInputStore->contains<CollectionMetadata>("CollectionMetadata")) {
          DataHandle<CollectionMetadata> p_cmd;
          StatusCode sc = m_pInputStore->retrieve(p_cmd, "CollectionMetadata");
          if (!sc.isSuccess()) {
-            log << MSG::ERROR << "Could not find Input CollectionMetadata" << endreq;
+            ATH_MSG_ERROR ("Could not find Input CollectionMetadata");
             return;
          }
          else {
-            log << MSG::DEBUG << "Found Input CollectionMetadata" << endreq;
+           ATH_MSG_DEBUG ("Found Input CollectionMetadata");
          }
          // Make a copy for use in metadata store
          std::map<std::string,std::string> copyM;
@@ -111,17 +106,17 @@ void InputCollectionMetadataCopy::handle(const Incident& inc) {
          std::string key("Input");
          if (m_pMetaDataStore->contains<CollectionMetadataContainer>(key)) 
          {
-            log << MSG::DEBUG << "Pre-existing CollectionMetadataContainer found" << endreq;
+            ATH_MSG_DEBUG ("Pre-existing CollectionMetadataContainer found");
             DataHandle<CollectionMetadataContainer> list;
             StatusCode status = m_pMetaDataStore->retrieve(list,key);
             if (!sc.isSuccess()) {
-               log << MSG::ERROR << "Could not retrieve " << key 
-                   << " CollectionMetadataContainer" << endreq;
+              ATH_MSG_ERROR ("Could not retrieve " << key 
+                             << " CollectionMetadataContainer");
             }
             else {
                list->push_back(copy);
-               log << MSG::DEBUG << "Added CollectionMetadata to existing container for "
-                   << fileInc->fileName() << endreq;
+               ATH_MSG_DEBUG ("Added CollectionMetadata to existing container for "
+                              << fileInc->fileName());
             }
          }
          else
@@ -130,17 +125,17 @@ void InputCollectionMetadataCopy::handle(const Incident& inc) {
             list->push_back(copy);
             sc = m_pMetaDataStore->record(list,key);
             if (!sc.isSuccess()) {
-               log << MSG::ERROR << "Could not store CollectionMetadata in Metadata store for file " 
-                   << fileInc->fileName() << endreq;
+              ATH_MSG_ERROR ("Could not store CollectionMetadata in Metadata store for file " 
+                             << fileInc->fileName());
             }
             else {
-               log << MSG::INFO << "CollectionMetadata copied to MetaDataStore for " 
-                   << fileInc->fileName() << endreq;
+              ATH_MSG_INFO ("CollectionMetadata copied to MetaDataStore for " 
+                            << fileInc->fileName());
             }
          }
       }
       else {
-         log << MSG::INFO << "No CollectionMetadata in Input Metadata store" << endreq;
+        ATH_MSG_INFO ("No CollectionMetadata in Input Metadata store");
       }
    }
 }

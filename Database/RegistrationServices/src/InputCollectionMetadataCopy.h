@@ -12,7 +12,7 @@
  **/
 
 #include <string>
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
@@ -22,7 +22,7 @@ class StoreGateSvc;
 /** @class AthPoolEx::InputCollectionMetadataCopy
  *  @brief This class provides an example for reading in file meta data objects from Pool.
  **/
-class InputCollectionMetadataCopy : public AlgTool, 
+class InputCollectionMetadataCopy : public AthAlgTool, 
                                     virtual public IMetaDataTool, 
                                     virtual public IIncidentListener 
 {
