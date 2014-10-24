@@ -12,11 +12,6 @@
 // Author: Thomas Kittelmann <kittel@nbi.dk>                   //
 // First version: April 2005. Rewritten November 2005.         //
 //                                                             //
-//-------------------------------------------------------------//
-//                                                             //
-// Modified for 2012/2013 tuning campaign                      //
-// Andrew.Beddall@cern.ch October 2013                         //
-//                                                             //
 //  - Settings can be changed via:                             //
 //    share/postInclude.OverrideTRTparameters.py               //
 //                                                             //
@@ -29,18 +24,14 @@
 #include "GaudiKernel/AlgTool.h"           //For adding properties to an algtool
 #include <iostream>
 
-//Geometry db
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "RDBAccessSvc/IRDBRecordset.h"
-#include "RDBAccessSvc/IRDBRecord.h"
-
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/GaudiException.h"
-
 //Geomodel
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+
+// RDBAccessSvc (Interface to the DD database) has been removed since
+// TRT_Digitization-01-00-11 because the fetched values are correctly
+// hard-coded already. See TRT_Digitization-01-00-10 for an example of
+// how that works.
 
 //_________________________________________________________________________________________________________
 TRTDigSettings::TRTDigSettings()
@@ -81,20 +72,25 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("discriminatorDeadTime",&m_discriminatorDeadTime,"Discriminator dead time","ns",CLHEP::ns,0.5,20.0);
   defineNewVariable("lowThresholdBar",&m_lowThresholdBar,"Low Threshold Barrel","eV",CLHEP::eV,50.0,800.0);
   defineNewVariable("lowThresholdEC",&m_lowThresholdEC,"Low Threshold end-cap","eV",CLHEP::eV,50.0,800.0);
-  defineNewVariable("lowThresholdBarArgon",&m_lowThresholdBarArgon,"Low Threshold Barrel Argon","eV",CLHEP::eV,50.0,800.0);
-  defineNewVariable("lowThresholdECArgon",&m_lowThresholdECArgon,"Low Threshold end-cap Argon","eV",CLHEP::eV,50.0,800.0);
+  defineNewVariable("lowThresholdBarArgon",&m_lowThresholdBarArgon,"Low Threshold Barrel Argon","eV",CLHEP::eV,50.0,400.0);
+  defineNewVariable("lowThresholdECArgon",&m_lowThresholdECArgon,"Low Threshold end-cap Argon","eV",CLHEP::eV,50.0,400.0);
+
   defineNewVariable("highThresholdBarShort",&m_highThresholdBarShort,"High Threshold short barrel straws","keV",CLHEP::keV,4.0,10.0);
   defineNewVariable("highThresholdBarLong",&m_highThresholdBarLong,"High Threshold long barrel straws","keV",CLHEP::keV,4.0,10.0);
   defineNewVariable("highThresholdECAwheels",&m_highThresholdECAwheels,"High Threshold A type wheels","keV",CLHEP::keV,4.0,10.0);
   defineNewVariable("highThresholdECBwheels",&m_highThresholdECBwheels,"High Threshold B type wheels","keV",CLHEP::keV,4.0,10.0);
 
-  defineNewVariable("highThresholdBarShortArgon",&m_highThresholdBarShortArgon,"High Threshold short barrel straws Argon","keV",CLHEP::keV,4.0,10.0);
-  defineNewVariable("highThresholdBarLongArgon",&m_highThresholdBarLongArgon,"High Threshold long barrel straws Argon","keV",CLHEP::keV,4.0,10.0);
-  defineNewVariable("highThresholdECAwheelsArgon",&m_highThresholdECAwheelsArgon,"High Threshold A type wheels Argon","keV",CLHEP::keV,4.0,10.0);
-  defineNewVariable("highThresholdECBwheelsArgon",&m_highThresholdECBwheelsArgon,"High Threshold B type wheels Argon","keV",CLHEP::keV,4.0,10.0);
+  defineNewVariable("highThresholdBarShortArgon",&m_highThresholdBarShortArgon,"High Threshold short barrel straws Argon","keV",CLHEP::keV,1.0,5.0);
+  defineNewVariable("highThresholdBarLongArgon",&m_highThresholdBarLongArgon,"High Threshold long barrel straws Argon","keV",CLHEP::keV,1.0,5.0);
+  defineNewVariable("highThresholdECAwheelsArgon",&m_highThresholdECAwheelsArgon,"High Threshold A type wheels Argon","keV",CLHEP::keV,1.0,5.0);
+  defineNewVariable("highThresholdECBwheelsArgon",&m_highThresholdECBwheelsArgon,"High Threshold B type wheels Argon","keV",CLHEP::keV,1.0,5.0);
 
-  defineNewVariable("innerRadiusOfStraw",&m_innerRadiusOfStraw,"Inner radius of straw","mm",CLHEP::mm,1.0,3.0);
-  defineNewVariable("outerRadiusOfWire",&m_outerRadiusOfWire,"Outer radius of wire","micrometer",CLHEP::micrometer,5.0,40.0);
+  defineNewVariable("strawLengthBarrel",&m_strawLengthBarrel,"Long barrel straw length","mm",CLHEP::mm,1400.0,1450.0); // 1425.5
+  defineNewVariable("innerRadiusEndcap",&m_innerRadiusEndcap,"Inner radius of the endcap straws","mm",CLHEP::mm,600.0,640.0); // 621.18
+  defineNewVariable("outerRadiusEndcap",&m_outerRadiusEndcap,"Outer radius of the endcap straws","mm",CLHEP::mm,1060.0,1070.0); // 1067
+
+  defineNewVariable("innerRadiusOfStraw",&m_innerRadiusOfStraw,"Inner radius of straw","mm",CLHEP::mm,1.0,3.0); // 2.0 mm
+  defineNewVariable("outerRadiusOfWire",&m_outerRadiusOfWire,"Outer radius of wire","micrometer",CLHEP::micrometer,5.0,40.0); // 0.0155 mm
   defineNewVariable("lengthOfDeadRegion",&m_lengthOfDeadRegion,"Length of dead region at straw ends","mm",CLHEP::mm,1.0,3.0);
   defineNewVariable("signalPropagationSpeed",&m_signalPropagationSpeed,"Speed of signal propagation along wire","c",CLHEP::c_light,0.1,1.0);
   defineNewVariable("overallT0Shift",&m_overallT0Shift,"Overall shift of all electronics T0's to get correct effects of pileup, noise, etc.","ns",CLHEP::ns,-5000.0,5000.0);
@@ -108,7 +104,7 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("trEfficiencyBarrel",&m_trEfficiencyBarrel,"Transition radiation efficiency barrel","%",0.01,0.0,100.0);
   defineNewVariable("trEfficiencyEndCap",&m_trEfficiencyEndCap,"Transition radiation efficiency endcap","%",0.01,0.0,100.0);
   defineNewVariable("trEfficiencyBarrelArgon",&m_trEfficiencyBarrelArgon,"Transition radiation efficiency barrel Argon","%",0.01,0.0,100.0);
-  defineNewVariable("trEfficiencyEndCapArgon",&m_trEfficiencyEndCapArgon,"Transition radiation efficiency endcap ARgon","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapArgon",&m_trEfficiencyEndCapArgon,"Transition radiation efficiency endcap Argon","%",0.01,0.0,100.0);
   defineNewVariable("fastElectronicsNoisePulseDistance",&m_fastElectronicsNoisePulseDistance,"Fast electronics noise-pulse distance","ns",CLHEP::ns,0.01,20.0);
   defineNewVariable("slowPeriodicNoisePulseDistance",&m_slowPeriodicNoisePulseDistance,"Slow periodic electronics noise-pulse distance","ns",CLHEP::ns,1.0,500.0);
   defineNewVariable("slowPeriodicNoisePulseFraction",&m_slowPeriodicNoisePulseFraction,"Fraction of slow periodic pulses","%",0.01,0.0,1.0);
@@ -150,14 +146,16 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("doStreamer",&m_doStreamer,"Determine if a straw is streaming, and modify ToHT according to measured alpha-particles");
 
   //ints:
-  //  none
+  defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 delta shift in 0.78125 ns steps, short barrel straws",-32,32);
+  defineNewIntVariable("htT0shiftBarLong",  &m_htT0shiftBarLong,  "HT T0 delta shift in 0.78125 ns steps, long barrel straws", -32,32);
+  defineNewIntVariable("htT0shiftECAwheels",&m_htT0shiftECAwheels,"HT T0 delta shift in 0.78125 ns steps, A type wheels",      -32,32);
+  defineNewIntVariable("htT0shiftECBwheels",&m_htT0shiftECBwheels,"HT T0 delta shift in 0.78125 ns steps, B type wheels",      -32,32);
 
 }
 
 //check that all have a default set and that it is inside range!!
 //(check also that unsetmagicnumber is outside range)
 //In init: setDefaultsBasedOnVersionNumber(digVers);
-
 //_________________________________________________________________________________________________________
 void TRTDigSettings::print(const std::string& front) const {
 
@@ -462,12 +460,22 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_distanceToTimeFactor = 1.0;
 
   // time
+  // Fred: It would seem to me that the timing base for both low and high hits could
+  //       be slightly different for the A & C sides and it would be wise to allow
+  //       for the possibility in the code [FIXME].
+
+  // We need to tune the T0shift separately the endcap and the barrel [FIXME].
   m_overallT0ShiftShortBarrel = 0.0*CLHEP::ns;
   m_overallT0Shift            = 1.0*CLHEP::ns;
   m_minDiscriminatorWidth     = 1.1*CLHEP::ns;
   m_discriminatorSettlingTime = 1.1*CLHEP::ns;
   m_discriminatorDeadTime     = 6.0*CLHEP::ns;
   m_jitterTimeOffset          = 0.0*CLHEP::ns;
+
+  m_htT0shiftBarShort  = 0; // This is a delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns).
+  m_htT0shiftBarLong   = 0; // It affects only HL threshold timing. The purpose is to
+  m_htT0shiftECAwheels = 0; // tune the middle HT bit fraction so that HT probability
+  m_htT0shiftECBwheels = 0; // can be based on the middle bit only at high occupancy.
 
   // length
   m_strawLengthBarrel  = 1425.5*CLHEP::mm;
@@ -493,8 +501,8 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_trEfficiencyEndCap = 1.00;
 
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
-  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; // Argon needs fine tuning
-  m_lowThresholdECArgon         = 0.070*CLHEP::keV; // Argon needs fine tuning
+  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; // Argon needs tuning
+  m_lowThresholdECArgon         = 0.070*CLHEP::keV; // Argon needs tuning
   m_highThresholdBarShortArgon  = 2.446*CLHEP::keV; // Argon needs fine tuning
   m_highThresholdBarLongArgon   = 2.141*CLHEP::keV; // Argon needs fine tuning
   m_highThresholdECAwheelsArgon = 2.235*CLHEP::keV; // Argon needs fine tuning
@@ -516,57 +524,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_smearingFactorArgon = 0.4;
   m_ionisationPotential      = 26.0*CLHEP::eV;
   m_ionisationPotentialArgon = 28.3*CLHEP::eV; // according to thesis of Peter Cwetanski (TABLE 4-I)
-
-
-  //Geometry db
-  // RDBAccessSvc (Interface to the DD database).
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
-  IRDBAccessSvc* iAccessSvc = NULL;
-  StatusCode result = svcLocator->service("RDBAccessSvc",iAccessSvc);
-
-  if ( result.isFailure()  ||  iAccessSvc == NULL ) {
-
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)
-        << "Could not initialize RDBAccessSvc! Will use defaults hardcoded parameters"
-        << "to determine if a cluster is located outside the active volume." << endreq;
-
-  } else {
-
-    iAccessSvc->connect();
-    IGeoModelSvc *geoModel;
-    result = svcLocator->service ("GeoModelSvc",geoModel);
-    if ( result.isFailure()) {
-
-      if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)
-        << "Could not locate GeoModelSvc! Will use defaults hardcoded parameters"
-        << "to determine if a cluster is located outside the active volume." << endreq;
-
-    } else {
-
-      DecodeVersionKey versionKey(geoModel, "TRT");
-      std::string detectorKey  = versionKey.tag();
-      std::string detectorNode = versionKey.node();
-      const IRDBRecordset* RDB_TRTCommonPars  = iAccessSvc->getRecordset("TRTCommonPars",detectorKey,detectorNode);
-      const IRDBRecordset* RDB_TRTBarrelOverallPars  = iAccessSvc->getRecordset("TRTBarrelOverallPars",detectorKey,detectorNode);
-      const IRDBRecordset* RDB_TRTEndCapOverallPars  = iAccessSvc->getRecordset("TRTEndCapOverallPars",detectorKey,detectorNode);
-
-      if (RDB_TRTCommonPars->size()!=0) {
-        const IRDBRecord* RDBVars__TRTCommonPars = (*RDB_TRTCommonPars)[0];
-        m_innerRadiusOfStraw =  RDBVars__TRTCommonPars->getFloat("INNERRADIUSOFSTRAW");
-      }
-      if (RDB_TRTBarrelOverallPars->size()!=0) {
-        const IRDBRecord* RDBVars__TRTBarrelOverallPars = (*RDB_TRTBarrelOverallPars)[0];
-        m_strawLengthBarrel =  RDBVars__TRTBarrelOverallPars->getFloat("LENGTHOFSTRAW");
-        // m_deadRegionLengthBarrel =  RDBVars__TRTBarrelOverallPars->getFloat("LENLARGEDEADREGION");
-      }
-      if (RDB_TRTEndCapOverallPars->size()!=0) {
-        const IRDBRecord* RDBVars__TRTEndCapOverallPars = (*RDB_TRTEndCapOverallPars)[0];
-        m_innerRadiusEndcap =  RDBVars__TRTEndCapOverallPars->getFloat("INNERRADIUSOFECVOLAB");
-        m_outerRadiusEndcap =  RDBVars__TRTEndCapOverallPars->getFloat("OUTERRADIUSOFECVOLAB");
-      }
-    }
-    iAccessSvc->disconnect();
-  }
 
 }
 

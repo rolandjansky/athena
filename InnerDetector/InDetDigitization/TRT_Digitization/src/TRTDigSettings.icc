@@ -100,6 +100,7 @@ inline double TRTDigSettings::lowThresholdEC(bool isArgonStraw) const {
     return m_lowThresholdECArgon;
   }
 }
+
 inline double TRTDigSettings::highThresholdBarShort(bool isArgonStraw) const {
   if (isArgonStraw==false){
     return m_highThresholdBarShort;
@@ -128,6 +129,20 @@ inline double TRTDigSettings::highThresholdECBwheels(bool isArgonStraw) const {
     return m_highThresholdECBwheelsArgon;
   }
 }
+
+inline int TRTDigSettings::htT0shiftBarShort() const {
+  return m_htT0shiftBarShort;
+}
+inline int TRTDigSettings::htT0shiftBarLong() const {
+  return m_htT0shiftBarLong;
+}
+inline int TRTDigSettings::htT0shiftECAwheels() const {
+  return m_htT0shiftECAwheels;
+}
+inline int TRTDigSettings::htT0shiftECBwheels() const {
+  return m_htT0shiftECBwheels;
+}
+
 inline double TRTDigSettings::innerRadiusOfStraw() const {
   return m_innerRadiusOfStraw;
 }

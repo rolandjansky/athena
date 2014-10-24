@@ -58,6 +58,10 @@ class TRTDigitizationTool : virtual public IPileUpTool, public PileUpToolBase {
 public:
   static const InterfaceID& interfaceID();
   TRTDigitizationTool( const std::string& type, const std::string& name, const IInterface* parent );
+
+  /** Destructor */
+  ~TRTDigitizationTool();
+
   ///called at the end of the subevts loop. Not (necessarily) able to access SubEvents
   StatusCode mergeEvent();
   ///called for each active bunch-crossing to process current SubEvents bunchXing is in ns
@@ -103,6 +107,7 @@ private:
   // define type of straw (Argon or Xenon)
   bool IsArgonStraw(Identifier& TRT_Identifier) const;
   bool particleFlagQueryBit(int bitposition, unsigned short particleFlag) const;
+  unsigned int getRegion(int hitID);
 
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */

@@ -33,6 +33,7 @@ void bits24(unsigned int n) {
     }
     n=n<<1;
   }
+  std::cout << std::endl;
 }
 
 int driftTimeBin(unsigned int m_word) {
@@ -69,8 +70,24 @@ int trailingEdge(unsigned int m_word) {
   return (23 - i);
 }
 
+bool lowLevelMiddle(unsigned int m_word) {
+  return (m_word & 0x0001FE00);
+}
+
 bool highLevel(unsigned int m_word) {
   return (m_word & 0x04020100);
+}
+
+bool highLevel1(unsigned int m_word) {
+  return (m_word & 0x04000000);
+}
+
+bool highLevel2(unsigned int m_word) {
+  return (m_word & 0x00020000);
+}
+
+bool highLevel3(unsigned int m_word) {
+  return (m_word & 0x00000100);
 }
 
 bool firstBinHigh(unsigned int m_word) {

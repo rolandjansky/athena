@@ -109,11 +109,11 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   m_useAttenuation                = m_settings->useAttenuation();
   m_smearingFactorDependsOnRadius = m_settings->smearingFactorDependsOnRadius();
   m_epsilonBarrel                 = m_settings->trEfficiencyBarrel();
-  m_epsilonEndCap                 = m_settings->trEfficiencyEndCap(); // unused, as it is 100% in the EndCap
+  m_epsilonEndCap                 = m_settings->trEfficiencyEndCap(); // is 100% in the EndCap
   m_epsilonBarrelArgon            = m_settings->trEfficiencyBarrelArgon();
   m_epsilonEndCapArgon            = m_settings->trEfficiencyEndCapArgon();
 
-  m_maxelectrons = 100; // Should be at least 100 for Gaussian approximation to be reasonable.
+  m_maxelectrons = 100; // 100 gives good Gaussian approximation
   m_depositEnergy.reserve(m_maxelectrons);    // Electron energy deposits.
   m_depositEnergy.resize(m_maxelectrons,0.0); // The size of this vector will be constant for the whole job.
 
@@ -302,6 +302,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   // We need the straw id several times in the following  //
   //////////////////////////////////////////////////////////
   const int hitID((*i)->GetHitID());
+  const bool isBarrel(!(hitID & 0x00200000));
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -381,12 +382,14 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
             particleFlagSetBit(2, m_particleFlag); // mostly brem.
           }
 
-          // Apply "fudge factor" to kill O(10%) TR photons in the Barrel to improve
-          // electron agreement. Avoid fudging non-TR photons (TR is < 30 keV).
+          // Apply "fudge factor" to kill ~10% TR photons (for Xenon in the Barrel) to
+          // improve electron agreement. Avoid fudging non-TR photons (TR is < 30 keV).
+          // Similarly for Argon, but with different efficiency.
+          // Also:
           // For |eta|<0.5 apply parabolic scale to m_epsilonBarrel (to kill more TR)
-          //   see "Parabolic Fudge" https://indico.cern.ch/event/304066/
+          // see "Parabolic Fudge" https://indico.cern.ch/event/304066/
           if ( energyDeposit<30.0 ) {
-            if ( !(hitID & 0x00200000) ) { // Barrel
+            if (isBarrel) { // Barrel
               double TRfudge = isArgonStraw ? m_epsilonBarrelArgon : m_epsilonBarrel;
               double hitx = TRThitGlobalPos[0];
               double hity = TRThitGlobalPos[1];
@@ -460,7 +463,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
 	    }
 	  else
 	    {
-	      const int number_of_digits(static_cast<int>(log10((double)particleEncoding)+1.));
+	      const int number_of_digits(static_cast<int>(log10((double)abs(particleEncoding))+1.));
 	      if (number_of_digits != 10)
 		{
 		  ATH_MSG_ERROR ( "Data for sim. particle with pdgcode "<<particleEncoding
@@ -565,7 +568,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   if (m_settings->noiseInSimhits()) {
       m_pDigConditions->getStrawData( hitID, lowthreshold, noiseamplitude );
   } else {
-      lowthreshold = ( !(hitID & 0x00200000) ) ? m_settings->lowThresholdBar(isArgonStraw) : m_settings->lowThresholdEC(isArgonStraw);
+      lowthreshold = isBarrel ? m_settings->lowThresholdBar(isArgonStraw) : m_settings->lowThresholdEC(isArgonStraw);
       noiseamplitude = 0.0;
   }
 
@@ -586,7 +589,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
   // Some initial work before looping over the cluster
 
   deposits.clear();
-  const bool isbarrel(!(hitID & 0x00200000));
+  const bool isBarrel(!(hitID & 0x00200000));
 
   std::vector<cluster>::const_iterator currentClusterIter(clusters.begin());
   const std::vector<cluster>::const_iterator endOfClusterList(clusters.end());
@@ -637,6 +640,19 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
   m_ionisationPotential = m_settings->ionisationPotential(isArgonStraw);
 
+  // straw radius
+  m_innerRadiusOfStraw  = m_settings->innerRadiusOfStraw();
+  m_outerRadiusOfWire   = m_settings->outerRadiusOfWire();
+  const double  wire_r2 = m_outerRadiusOfWire*m_outerRadiusOfWire;
+  const double straw_r2 = m_innerRadiusOfStraw*m_innerRadiusOfStraw;
+
+  // straw length
+  m_outerRadiusEndcap  = m_settings->outerRadiusEndcap();
+  m_innerRadiusEndcap  = m_settings->innerRadiusEndcap();
+  m_strawLengthBarrel  = m_settings->strawLengthBarrel();
+  const double halfECstrawLength = (m_outerRadiusEndcap-m_innerRadiusEndcap)/2;
+  const double quartBstrawLength = m_strawLengthBarrel/4;
+
   // Cluster loop
   for (;currentClusterIter!=endOfClusterList;++currentClusterIter)
     {
@@ -649,14 +665,23 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
       double cluster_r2(cluster_x2+cluster_y2);
 
-      // Basic checks on radius for getAverageDriftTime(). I am not going to use m_settings!
-      if (cluster_r2<0.00024025) cluster_r2=0.00024025;   // Compression may (v. rarely) cause r to be smaller
-                                                          // than the wire radius. If r=0 then NaN's later!
-      if (cluster_r2>4.00000000) cluster_r2=4.00000000;   // Again small error from compression, but might never occur.
+      // Give a warning for clusters that are outside of the straw gas volume.
+      // Since T/P version 3 we should expect no such occurences (allow for 22.5 mm compression error).
+      if ( cluster_r2 > straw_r2+0.04 ) {
+        ATH_MSG_WARNING ( "Radius of cluster: "<<std::sqrt(cluster_r2)<<" mm is outside gas volume!" );
+      }
+      if (!isBarrel) {
+        if ( fabs(cluster_z) > halfECstrawLength + 22.5*CLHEP::mm ) ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume!" );
+      } else { // (fixme: does not check inner 9 strawlayers dead region )
+        if ( fabs(cluster_z) > quartBstrawLength + 22.5*CLHEP::mm ) ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume!" );
+      }
+
+      // Basic checks on radius for getAverageDriftTime() so that function does not need to check this.
+      if (cluster_r2<wire_r2)  cluster_r2=wire_r2;  // Compression may (v. rarely) cause r to be smaller than the wire radius. If r=0 then NaN's later!
+      if (cluster_r2>straw_r2) cluster_r2=straw_r2; // Again small error from compression, but might never occur.
 
       const double cluster_r(std::sqrt(cluster_r2));      // cluster radius
       const double cluster_E(currentClusterIter->energy); // cluster energy
-
       const unsigned int nprimaryelectrons( static_cast<unsigned int>( cluster_E/m_ionisationPotential + 1.0 ) );
 
       // Determine the survival probability (optionally as a function of cluster radius).
@@ -711,7 +736,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       // the solenoidal z-direction. After Garfield simulations and long thought it was found that only
       // field perpendicular to the electron drift is of importance.
 
-      if (!isbarrel) // Endcap
+      if (!isBarrel) // Endcap
         {
           if (m_useMagneticFieldMap) { // Using magnetic field map
 	      effectiveField2 = map_z2*cluster_y2/cluster_r2 + map_x2 + map_y2;
@@ -795,28 +820,6 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
           deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*Esum*expdirect,  timedirect+dt));
           deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*Esum*expreflect, timereflect+dt));
         }
-
-      // Give a warning for clusters that are outside the straw gas volume allowing a small distance for g4hit compression.
-      // (Andrew) with T/P version 3 I would expect no warnings to occur here.
-
-      // radius (actually in T/P version 3, r is never > 2mm)
-      if (cluster_r>m_settings->innerRadiusOfStraw()+0.0001*CLHEP::mm) {
-        ATH_MSG_WARNING ( "Radius of cluster: "<<cluster_r<<" mm is outside gas volume. Contact author if this message repeats." );
-      }
-
-      // z-coordinate (in T/P version 3 the z compression error is < 23 mm, 0.1 ns)
-      if (!isbarrel) // Endcap
-	{
-	  if ( fabs(cluster_z) > ( 0.5*(m_settings->outerRadiusEndcap()-m_settings->innerRadiusEndcap() )) + 23.0*CLHEP::mm ) {
-            ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume. Contact author if this message repeats." );
-          }
-	}
-      else // Barrel
-	{
-	  if ( fabs(cluster_z) > ( m_settings->strawLengthBarrel() + 22.5*CLHEP::mm ) ) { // fixme: does not check inner 9 strawlayers dead region
-            ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume. Contact author if this message repeats." );
-          }
-	}
 
     } // end of cluster loop
 
