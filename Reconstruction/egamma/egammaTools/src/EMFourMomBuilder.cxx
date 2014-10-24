@@ -29,7 +29,6 @@ PURPOSE:  subAlgorithm which sets the 4-mom of the egamma object
 #include "EMFourMomBuilder.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrackLink/ITrackLink.h"
-#include "TrkVertexFitterInterfaces/INeutralParticleParameterCalculator.h" 
 #include "FourMom/ErrorMatrixEEtaPhiM.h"
 #include "egammaInterfaces/IFourMomCombiner.h"
 
@@ -71,46 +70,19 @@ EMFourMomBuilder::EMFourMomBuilder(const std::string& type,
                                  const IInterface* parent)
   : egammaBaseTool(type, name, parent),
     //m_tmp_dataType(ParticleDataType::Full),
-    m_convUtils("Trk::NeutralParticleParameterCalculator"),
     m_FourMomCombiner("FourMomCombiner")
 {
-
   // declare interface
   declareInterface<IEMFourMomBuilder>(this);
 
   // The following properties are specified at run-time
   // (declared in jobOptions file)
   
-  // Name of the seed for the analysis
-  declareProperty("AnalysisSeed", m_AnalysisSeed,
-		  "Name of the seed for the analysis");
-
-  // Name of the primary vertex candidates
-  declareProperty("PrimaryVertexContainer", 
-		  m_vxCandidatesName="PrimaryVertices",
-		  "Name of the primary vertex container");
-
-  // Name of conversion utility
-  declareProperty("ConversionUtils", m_convUtils,
-		  "Name of conversion utility");
-  
   // Use E-p combination.
   declareProperty("UseCombination",
 		  m_useCombination = false,
 		  "Use the E-p combination");
-
-  // Data type
-  declareProperty("dataType",  m_tmp_dataType,
-		  "Data type");
-
-  declareProperty("TreatElectronsAsPhotons", 
-		  m_treatElectronsAsPhotons = false,
-		  "Use this to treat electrons as nonconverted photons");
-
-  declareProperty("MinPtTRT", 
-		  m_minPtTRT = 2000.0, 
-		  "Minimum pT for TRT-only tracks for them to be combined");
-
+ 
   declareProperty("m_FourMomCombiner",
 		  m_FourMomCombiner,
 		  "Tool for performing E-p combination");		  
@@ -194,8 +166,14 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el,
     
     //Get # of Si hits.
     uint8_t nPixel(0), nSCT(0);
-    el->trackParticle()->summaryValue(nPixel, xAOD::numberOfPixelHits);
-    el->trackParticle()->summaryValue(nSCT,   xAOD::numberOfSCTHits);
+    if(!el->trackParticle()->summaryValue(nPixel,xAOD::numberOfPixelHits)){
+    ATH_MSG_INFO("No Pixel Hits available in xAOD");
+    }
+
+    if(!el->trackParticle()->summaryValue(nSCT,xAOD::numberOfSCTHits)){
+      ATH_MSG_INFO("No SCT Hits available in xAOD");
+    }
+
     bool hasSi (nPixel + nSCT > 4);
 
     //Perform E-p combination.
@@ -204,8 +182,7 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el,
     //Put combined error matrix in EMErrorDetail.
     saveParameters(el);
   }
-  else {
-    
+  else { //===========No combination  
     const xAOD::CaloCluster *cluster = el->caloCluster();
     if (!cluster) {
       ATH_MSG_WARNING("Null pointer to cluster");
@@ -245,7 +222,8 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el,
     
     //Set the four momentum.
     ATH_MSG_DEBUG("Setting P4 using E=" << E << " eta=" << eta << " phi=" << phi <<" mass" << mass);
-    el->setP4( E/cosh(eta), eta, phi, mass);
+    const double pt = sqrt(E*E - mass*mass)/cosh(eta);
+    el->setP4( pt, eta, phi, mass);
     
     //Set the covariance matrix.
     el->setCovMatrix(matrix.cast<float>());
@@ -319,11 +297,10 @@ void EMFourMomBuilder::saveParameters(xAOD::Egamma *eg) {
 }
 
 void EMFourMomBuilder::saveCombinedParams(xAOD::Egamma *eg) {
-
   double mass(0.);
-  if (xAOD::EgammaHelpers::isElectron(eg))
+  if (eg->type()==xAOD::Type::Electron){
     mass = 0.510998;
-
+  }
   //Fill in combined parameters + matrix.
   Amg::VectorX m_combVector = m_FourMomCombiner->getCombinedVector();
   eg->setPhi(m_combVector[2]);

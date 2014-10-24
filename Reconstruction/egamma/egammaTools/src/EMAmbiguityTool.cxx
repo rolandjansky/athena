@@ -23,13 +23,11 @@ MODIFIED:
 ********************************************************************/
 
 #include "EMAmbiguityTool.h"
-
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-
+#include "egammaRecEvent/egammaRec.h"
 
 EMAmbiguityTool::EMAmbiguityTool(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent)
@@ -37,8 +35,10 @@ EMAmbiguityTool::EMAmbiguityTool(const std::string& type, const std::string& nam
   declareInterface<IEMAmbiguityTool>(this);
   //Minimum silicon hits for electron
 
-  declareProperty("minNoSiHits",  m_MinNoSiHits = 4, "Minimum number of silicon hits to be an electron");
-  declareProperty("minNoPixHits", m_MinNoPixHits = 2, "Minimum number of Pixel hits to be an electron");
+  declareProperty("minNoSiHits",  m_MinNoSiHits = 4, "Minimum number of silicon hits to be an electron==>not photon for sure");
+  declareProperty("minNoPixHits", m_MinNoPixHits = 2, "Minimum number of Pixel hits to be an electron==>not photon for sure");
+  declareProperty("maxEoverPCut", m_maxEoverPCut = 10,"Maximum EoverP , more that this is ambiguous");
+  declareProperty("minPCut",      m_minPtCut = 1500 ,  "Minimum P, less than that is ambiguous");
 
 }
 
@@ -58,10 +58,20 @@ StatusCode EMAmbiguityTool::finalize() {
 // ====================================================================
 // return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown
 
-unsigned int EMAmbiguityTool::ambiguityResolve(const xAOD::Vertex* vx, 
-	                                             const xAOD::TrackParticle* tp) const
+unsigned int EMAmbiguityTool::ambiguityResolve(const egammaRec *egRec) const
 {
+
+  const xAOD::CaloCluster* cluster = egRec->caloCluster();
+  const xAOD::Vertex* vx =  egRec->vertex();
+  const xAOD::TrackParticle* tp = egRec->trackParticle();
+
+
   uint8_t trkExpectBlayerHit(0), trkBlayerHits(0), trkPixelHits(0), trkSiHits(0);
+
+  double ep(0);
+  if(tp){
+    ep= cluster->e() * fabs(tp->qOverP());
+  }
 
   if (tp && !tp->summaryValue(trkExpectBlayerHit,xAOD::expectBLayerHit))
     ATH_MSG_WARNING("Could not retrieve expected BLayer hit from track");
@@ -83,7 +93,6 @@ unsigned int EMAmbiguityTool::ambiguityResolve(const xAOD::Vertex* vx,
   //See if the Si+Si conversion shares one track with the electron
   //if not we might have a trident.
   //if yes and the track is not good we definetely matched the conversion as electron.
-
   bool shareTrack=false;
   if(tp && trkSiHits>=m_MinNoSiHits && vxDoubleSi){
     const xAOD::TrackParticle *trk1 = ( vx->nTrackParticles() ? vx->trackParticle(0) : 0 );
@@ -114,49 +123,44 @@ unsigned int EMAmbiguityTool::ambiguityResolve(const xAOD::Vertex* vx,
   // - no track
   // - or no track with the minimum requirent hits to be an electron
   // - or Si+Si vertex and
-  //    - less than minimum pixel hits
+  //    - No pixel
   //    - The electron track is part of the conversion
   // In this case we do not want this to be in Electrons
 
   if (!tp || 
       trkSiHits<m_MinNoSiHits || 
-      (vxDoubleSi && trkPixelHits< m_MinNoPixHits && shareTrack)){
+      (vxDoubleSi && !trkPixelHits && shareTrack)){
     ATH_MSG_DEBUG("Returning Photon");
     return xAOD::EgammaParameters::AuthorPhoton;
   }
   
+  //Ambigous due to E/P and Min Pt 
+  // - E/P >10  or track P < 1.5 GeV then Ambigoous
+  if( ep > m_maxEoverPCut ||  tp->pt()<m_minPtCut) {
+    ATH_MSG_DEBUG("Returning Ambiguous deu to E over P and min Pt ");
+    return xAOD::EgammaParameters::AuthorAmbiguous;
+  }
+
   //Electron ==> Surely not Photon
-  
   // - Track with at least the minimum si hits (previous selection for photons)
+  // - And has E/P < 10 and Pt > 1.5 GeV (previous for ambiguous)
   // - No vertex Matched
   // - Or if a vertex exists and is not  Si+Si
   //    - Either Blayer hit
-  //    - Or 2 or more Pixel hits
+  //    - Or (2) or more Pixel hits when not expecting a b-layer hit
   // In this case we do not want this to be in Photons
   
-  if(!vx || 
-     (trkBlayerHits && !vxDoubleSi) || 
-     (trkPixelHits>=m_MinNoPixHits  && !vxDoubleSi)){
-    ATH_MSG_DEBUG("Returning Electron");
-    return xAOD::EgammaParameters::AuthorElectron;
+  if (!vx || 
+      (trkBlayerHits && !vxDoubleSi) || 
+      (!trkExpectBlayerHit && trkPixelHits>=m_MinNoPixHits  && !vxDoubleSi) ){
+      ATH_MSG_DEBUG("Returning Electron");
+      return xAOD::EgammaParameters::AuthorElectron;
   }
 
   // Ambiguous all else, these will go to both electrons and photons
 
-  // This involves a matched Si+Si vertex and  a track with both silicon and pixel hits.
-  // Or a non Si+Si vertex matched and a track with enough Silicon but not Pixel hits
-  //i.e 
-
-  //1)
-  // - A track with minimum Si hits is matched
-  // - A Si+Si vertex is also matched
-  // - The track has also the minimum Pixel hit
-
-  //2)
-  // - A track with minimum Si hits is matched
-  // - A non Si+Si vertex is also matched
-  // - There is no b-layer hit or   
-  // - Less than the minimum pixel hits 
+  // This involves a matched Si+Si vertex and  a track with enough hits.
+  // Or a non Si+Si vertex matched and a track with not enough hits.
 
 
   ATH_MSG_DEBUG("Returning Ambiguous");

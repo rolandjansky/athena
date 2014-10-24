@@ -13,9 +13,11 @@
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
 
 class IegammaSwTool;
+class IegammaMVATool;
 class StoreGateSvc;
 class CaloCellDetPos;
 
@@ -63,18 +65,21 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   void setNewCluster(xAOD::Egamma *eg,
                      xAOD::CaloClusterContainer *outputClusterContainer,
                      xAOD::EgammaParameters::EgammaType egType);
-
   
   /** @brief creation of new cluster based on existing one **/
-  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::EgammaParameters::EgammaType);
+  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, xAOD::EgammaParameters::EgammaType);
 
-  /** @brief Decorate cluster with positions in the calorimeter frame **/
-  void fillPositionsInCalo(xAOD::CaloCluster& cluster);
-
+  void fillPositionsInCalo(xAOD::CaloCluster* cluster);
  private:
+  /** @brief Position in Calo frame**/
+
+
   /** @brief Name of the output cluster container **/
   std::string m_outputClusterContainerName;
-  
+
+  /** Handle to the MVA calibration Tool **/
+  ToolHandle<IegammaMVATool>  m_MVACalibTool;  
+
   /** @brief Name of the input electron container **/
   std::string m_electronContainerName;
 
@@ -89,6 +94,9 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   
   /** @brief Decorate clusters with positions in calo frame? **/
   bool m_doPositionInCalo;
+
+  /** @brief Call CaloClusterStoreHelper::finalizeClusters ? **/ 
+  bool m_finalizeClusters;
   
   StoreGateSvc*   m_storeGate;
   

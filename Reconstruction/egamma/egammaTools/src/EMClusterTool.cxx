@@ -2,12 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "EMClusterTool.h"
 
 #include "egammaInterfaces/IegammaSwTool.h"
+#include "egammaMVACalib/IegammaMVATool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEgamma/ElectronContainer.h"
@@ -19,10 +20,12 @@
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
   egammaBaseTool(type, name, parent),
+  m_MVACalibTool(0),
   m_storeGate(0),
   m_caloCellDetPos(0)
 {
   declareProperty("ClusterCorrectionToolName", m_ClusterCorrectionToolName = "egammaSwTool/egammaswtool");
+  declareProperty("MVACalibTool", m_MVACalibTool);
   declareProperty("OutputClusterContainerName", m_outputClusterContainerName, 
     "Name of the output cluster container");
   declareProperty("ElectronContainerName", m_electronContainerName, 
@@ -31,6 +34,8 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
     "Name of the input photon container");
   declareProperty("DoPositionInCalo", m_doPositionInCalo = true, 
     "Decorate clusters with positions in calo frame");
+  declareProperty("FinalizeClusters", m_finalizeClusters = false, 
+    "Call CaloClusterStoreHelper::finalizeClusters ?");
 
   declareInterface<IEMClusterTool>(this);
   
@@ -62,6 +67,16 @@ StatusCode EMClusterTool::initialize() {
   } 
   else {
     ATH_MSG_DEBUG("Retrieved tool " << m_clusterCorrectionTool);   
+  }
+
+
+  // Get the cluster correction tool
+  if(m_MVACalibTool.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
+    return StatusCode::SUCCESS;
+  } 
+  else {
+    ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibTool);   
   }
 
   ATH_MSG_DEBUG("Initialization successful");
@@ -118,15 +133,11 @@ StatusCode EMClusterTool::contExecute()
     setNewCluster(photon, outputClusterContainer, egType);
   }    
   
-  if (CaloClusterStoreHelper::finalizeClusters(m_storeGate, 
-                                               outputClusterContainer,
-					       m_outputClusterContainerName,
-					       msg()).isFailure() )
-  {
-    ATH_MSG_ERROR("Failed to finalize Output Cluster Container " <<
-      m_outputClusterContainerName);
-    return StatusCode::FAILURE;
-  }
+  if (m_finalizeClusters)
+    CHECK( CaloClusterStoreHelper::finalizeClusters(m_storeGate, 
+                                                    outputClusterContainer,
+                                                    m_outputClusterContainerName,
+                                                    msg()) );
 
   return StatusCode::SUCCESS;
 }
@@ -150,9 +161,9 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
     cluster = new xAOD::CaloCluster(*(eg->caloCluster()));
   }
   else {
-    cluster = makeNewCluster(*(eg->caloCluster()), egType);
+    cluster = makeNewCluster(*(eg->caloCluster()), eg,egType);
   }
-    outputClusterContainer->push_back(cluster);
+  outputClusterContainer->push_back(cluster);
 
   // Set the link to the new cluster
   ClusterLink_t clusterLink(cluster, *outputClusterContainer);
@@ -162,7 +173,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
 }
 
 // ==========================================================================
-xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, xAOD::EgammaParameters::EgammaType egType)
+xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg, xAOD::EgammaParameters::EgammaType egType)
 {
   //
   // Create new cluster based on an existing one
@@ -198,41 +209,44 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 								   cluster.eta0(),cluster.phi0(),
 								   cluSize);
 
-  //FIXME/WARNING: The CaloFillRectangularClusterTool does NOT set the overall eta/phi of the cluster
-  //For regular SW clusters, this is done by CaloClusterUpdate after all corrections are applied 
-  //To maintain the previous behavior, I set the eta/phi of the origial cluster
-  newClus->setEta(cluster.eta());
-  newClus->setPhi(cluster.phi());
-  
-  if (m_clusterCorrectionTool->execute(newClus).isFailure())
+  if(!newClus){
+    ATH_MSG_ERROR("Null newClus");
+  }
+  if (m_clusterCorrectionTool->execute(newClus).isFailure()){
     ATH_MSG_ERROR("Problem executing cluster correction tool");
-  
-  if (newClus) fillPositionsInCalo(*newClus);
+  }
+
+  fillPositionsInCalo(newClus);
+  //Fill the raw state , by default the above filled the calib one
+  newClus->setRawE(newClus->calE());
+  newClus->setRawEta(newClus->calEta());
+  newClus->setRawPhi(newClus->calPhi());
+
+  if (m_MVACalibTool->execute(newClus,eg).isFailure()){
+    ATH_MSG_ERROR("Problem executing MVA cluster tool");
+  }
   return newClus;
 }
 
-// ==========================================================================
-void EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster& cluster)
-{
-  bool isBarrel = xAOD::EgammaHelpers::isBarrel(&cluster);
+void EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster* cluster){
+
+  bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
-  
   // eta and phi of the cluster in the calorimeter frame
   double eta, phi;
-  m_caloCellDetPos->getDetPosition(sample, cluster.eta(), cluster.phi0(), eta, phi);  
-  
-  cluster.auxdata<float>("etaCalo") = eta;
-  cluster.auxdata<float>("phiCalo") = phi;
-  
-  //  eta in the second sampling
-  m_caloCellDetPos->getDetPosition(sample, cluster.etaBE(2), cluster.phiBE(2), 
-    eta, phi);
-  cluster.auxdata<float>("etas2Calo") = eta;
+  m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi0(), eta, phi); 
 
-  //  eta in the first sampling  
+  cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);
+
+  //  eta in the second sampling
+  m_caloCellDetPos->getDetPosition(sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETA2CALOFRAME,eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHI2CALOFRAME,phi);
+  //  eta in the first sampling 
   sample = isBarrel ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
-  m_caloCellDetPos->getDetPosition(sample, cluster.etaBE(1), cluster.phiBE(1), 
-    eta, phi);
-  cluster.auxdata<float>("etas1Calo") = eta;
+  m_caloCellDetPos->getDetPosition(sample, cluster->etaBE(1), cluster->phiBE(1),eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME,eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME,phi);
 
 }

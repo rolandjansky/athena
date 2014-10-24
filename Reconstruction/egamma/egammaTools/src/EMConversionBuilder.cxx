@@ -104,28 +104,17 @@ StatusCode EMConversionBuilder::contExecute()
 
   // retrieve Conversion Container
   const xAOD::VertexContainer* conversions = 0;
-  if (evtStore()->contains<xAOD::VertexContainer>(m_conversionContainerName)) {
-    StatusCode sc = evtStore()->retrieve(conversions,m_conversionContainerName);
-    if(sc.isFailure()) {
-      ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    ATH_MSG_DEBUG("Could not find conversion container! Acting as if there are 0 conversions."); 
+  if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
+    ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
+    return StatusCode::SUCCESS;
   }
   
   // retrieve egammaRec container
   const EgammaRecContainer* egammaRecs = 0;
-  if (evtStore()->contains<EgammaRecContainer>(m_egammaRecContainerName)) {
-    StatusCode sc = evtStore()->retrieve(egammaRecs,m_egammaRecContainerName);
-    if(sc.isFailure()) {
-      ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    ATH_MSG_DEBUG("Could not find conversion container! Acting as if there are 0 egammaRecs."); 
-  }
-  
+  if(evtStore()->retrieve(egammaRecs,m_egammaRecContainerName).isFailure()){
+    ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
+    return StatusCode::SUCCESS;
+  }  
   
   // Extrapolate each vertex (keeping etatCalo, phiAtCalo)
   // and try to match to each cluster
@@ -136,7 +125,7 @@ StatusCode EMConversionBuilder::contExecute()
     SG::AuxElement::Accessor<float> acc(name, "");
     return acc.isAvailable(vertex); } ; 
 
-  float etaAtCalo, phiAtCalo;
+  float etaAtCalo(0), phiAtCalo(0);
   for (unsigned int iVtx = 0; iVtx < conversions->size(); ++iVtx)
   {
     const xAOD::Vertex *vertex = conversions->at(iVtx);

@@ -17,7 +17,9 @@ EMClusterTool : define cluster size depending on type of object
 
 EMClusterErrorsTool : associate error on cluster quantities
 
-EMShowerBuilder : Calculation of the EM shower shapes. It calls specialized tools located in egammaCaloTools package. When called from an analysis alg or tool it applies a special treatement to retrieve the original shower object to keep the "calorimetric isolation" variables which cannot be recalculated (due to lack of cells)
+EMShowerBuilder : Calculation of the EM shower shapes. 
+
+EMIsolationBuilder : It calls specialized tools located in egammaCaloTools package. When called from an analysis alg or tool it applies a special treatement to retrieve the original shower object to keep the "calorimetric isolation" variables which cannot be recalculated (due to lack of cells)
 
 EMTrackMatchBuilder : performs matching between cluster and a track
 

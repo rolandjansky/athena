@@ -4,7 +4,6 @@
 
 #include "egammaBaseTool.h"
 #include "xAODEgamma/Egamma.h"
-#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -59,16 +58,6 @@ StatusCode egammaBaseTool::executeRec(egammaRec* eg)
 
 }
 
-// =======================================================================================
-StatusCode  egammaBaseTool::caloExecute(xAOD::Egamma* eg , const CaloCellContainer*)
-{
-  //
-  // execute method for calo-based
-  //
-  if(eg) return StatusCode::SUCCESS;
-
-  return StatusCode::SUCCESS;
-}
 
 StatusCode egammaBaseTool::trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer* ) {
 

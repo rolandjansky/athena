@@ -3,6 +3,7 @@
 */
 
 /***************************************************************************
+
 EMVertexBuilder.cxx  -  Description
 -------------------
 begin   : 11-03-2011
@@ -11,6 +12,7 @@ email   : kerstin.tackmann@cern.ch, Bruno.Lenzi@cern.ch
 changes :
           Nov 2011 (KT) Initial version
           Mar 2014 (BL) xAOD migration, creates both double and single track vertices
+
 ***************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
@@ -22,6 +24,9 @@ changes :
 
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
+
+#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "egammaUtils/EMConversionUtils.h"
 
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 
@@ -48,10 +53,15 @@ EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& nam
   declareProperty("ExtrapolationTool",
 		  m_EMExtrapolationTool,
 		  "Handle of the extrapolation tool");
-  
+
+
   declareProperty("MaxRadius", m_maxRadius = 800., 
       "Maximum radius accepted for conversion vertices");
-  
+
+  declareProperty("minPCutDoubleTrackConversion",      m_minPtCut_DoubleTrack = 2000 ,  "Minimum Pt, less than that TRT tracks pileup for double-track conversion");  
+
+  declareProperty("minPCutSingleTrackConversion",      m_minPtCut_SingleTrack = 2000 ,  "Minimum Pt, less than that TRT track pileup for single-track conversion");  
+
   declareInterface<IEMVertexBuilder>(this);
 }
 
@@ -94,6 +104,7 @@ StatusCode EMVertexBuilder::initialize() {
     ATH_MSG_DEBUG("Retrieved extrapolationTool " << m_EMExtrapolationTool);
   }
 
+
   ATH_MSG_DEBUG( "Initialization successful");
 
   return StatusCode::SUCCESS;
@@ -117,50 +128,53 @@ StatusCode EMVertexBuilder::contExecute()
     return sc;
   }
   
-  // Call vertex finder to build double-track vertices
   xAOD::TrackParticleContainer * TPCol = const_cast<xAOD::TrackParticleContainer*>(TrackParticleInputContainer);
-  if (!TPCol)
-  {
-    ATH_MSG_ERROR("Could not cast TrackParticleContainer");
-    return StatusCode::SUCCESS;
-  }
+
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> vertices = m_vertexFinderTool->findVertex(TPCol);
   if (!vertices.first || !vertices.second)
   {
     ATH_MSG_ERROR("Null pointer to conversion container");
     return StatusCode::SUCCESS;
   }
+
+
   ATH_MSG_DEBUG("New conversion container size: " << vertices.first->size());
-  
-  // Add remaining tracks as single track vertices
-//   addSingleTrackVertices(TrackParticleInputContainer, vertices.first);
-//   ATH_MSG_DEBUG("Conversion container size with single tracks: " << vertices.first->size());
-  
+
   // Remove vertices with radii above m_maxRadius   
   xAOD::VertexContainer::iterator itVtx = vertices.first->begin();
-  while ( itVtx != vertices.first->end() )
-  {
-		if ( (*itVtx)->position().perp() > m_maxRadius )
+  xAOD::VertexContainer::iterator itVtxEnd = vertices.first->end();
+  
+  while (itVtx != itVtxEnd){
+
+    // false is to force the extrapolation
+    Amg::Vector3D momentum = m_EMExtrapolationTool->getMomentumAtVertex(**itVtx, false);
+    (*itVtx)->auxdata<float>("px") = momentum.x();
+    (*itVtx)->auxdata<float>("py") = momentum.y();
+    (*itVtx)->auxdata<float>("pz") = momentum.z();
+    
+    xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType((*itVtx)));
+    bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);
+    bool vxSingleTRT = (convType == xAOD::EgammaParameters::singleTRT);
+
+    if ((vxDoubleTRT && momentum.perp() < m_minPtCut_DoubleTrack) ||
+	(vxSingleTRT &&  momentum.perp()< m_minPtCut_SingleTrack) || 
+	((*itVtx)->position().perp() > m_maxRadius)){
+      
       itVtx = vertices.first->erase(itVtx);
-    else
+    }
+    else{
       ++itVtx;
+    }
   }
   
   // Decorate the vertices with the momentum at the conversion point and 
   // etaAtCalo, phiAtCalo (extrapolate each vertex)
   float etaAtCalo = -9999., phiAtCalo = -9999.;
-  for (itVtx = vertices.first->begin(); itVtx != vertices.first->end(); ++itVtx )
-  {
+  for (itVtx = vertices.first->begin(); itVtx != vertices.first->end(); ++itVtx ){
     xAOD::Vertex *vertex = *itVtx;
     
-    // false is to force the extrapolation
-    Amg::Vector3D momentum = m_EMExtrapolationTool->getMomentumAtVertex(*vertex, false);
-    vertex->auxdata<float>("px") = momentum.x();
-    vertex->auxdata<float>("py") = momentum.y();
-    vertex->auxdata<float>("pz") = momentum.z();
     
-    if (!m_EMExtrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo))
-    {
+    if (!m_EMExtrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo)){
       ATH_MSG_DEBUG("getEtaPhiAtCalo failed!");
     }
     
@@ -169,18 +183,13 @@ StatusCode EMVertexBuilder::contExecute()
     vertex->auxdata<float>("phiAtCalo") = phiAtCalo;
   }
   
-  
   //put the new conversion vertex container and its aux container into StoreGate
+
   ATH_MSG_DEBUG("Writing container " << m_outputConversionContainerName);
-  CHECK( evtStore()->record(vertices.first, m_outputConversionContainerName) );
+
+  CHECK( evtStore()->record(vertices.first,  m_outputConversionContainerName) );
   CHECK( evtStore()->record(vertices.second, m_outputConversionContainerName + "Aux.") );
   
-  // FIXME: remove. Trying to retrieve the container to understand why it is not in the xAOD...
-  xAOD::VertexContainer *vx = 0;
-  CHECK( evtStore()->retrieve(vx, m_outputConversionContainerName) );
-  ATH_MSG_DEBUG("Vertex container: " << vx);
-  
-
   return StatusCode::SUCCESS;
 }
 // ============================================================
@@ -203,6 +212,17 @@ void EMVertexBuilder::addSingleTrackVertices(const xAOD::TrackParticleContainer*
   for ( ; itTP != tracks->end(); ++itTP)
   {
     if ( tracksInVertices.find(*itTP) != tracksInVertices.end() ) continue;
+
+    int nclus(0);
+    uint8_t dummy(0); 
+    
+    if( (*itTP)->summaryValue(dummy,xAOD::numberOfPixelHits) )
+      nclus += dummy;
+    if( (*itTP)->summaryValue(dummy,xAOD::numberOfSCTHits) )
+      nclus += dummy;
+    
+    if(nclus<4 && (*itTP)->pt() < m_minPtCut_SingleTrack )      continue;
+
     m_singleTrkConvTool->buildSingleTrackParticleConversion(*itTP, vertices);
   }
 
