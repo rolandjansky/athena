@@ -9,8 +9,7 @@
 #include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
 #include "AthenaPoolUtilities/TagAthenaAttributeList.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -101,8 +100,8 @@ StatusCode EventSplitter::execute()
 
   // get Trigger Type Word for EventInfo
 
-  const DataHandle<EventInfo> eventInfo;
-  const DataHandle<EventInfo> eventInfoEnd;
+  const DataHandle<xAOD::EventInfo> eventInfo;
+  const DataHandle<xAOD::EventInfo> eventInfoEnd;
   StatusCode sc = m_StoreGate->retrieve(eventInfo, eventInfoEnd);
   if (sc.isFailure())
     {
@@ -115,10 +114,7 @@ StatusCode EventSplitter::execute()
       return sc;
     }
 
-  uint32_t triggerTypeWord = 0;
-  const TriggerInfo *tInfo = eventInfo->trigger_info();
-  if (tInfo!=0)
-    triggerTypeWord = tInfo->level1TriggerType();
+  uint32_t triggerTypeWord = eventInfo->level1TriggerType();
 
   // get CTP_Decision
   const CTP_Decision * ctpDecision = 0;
