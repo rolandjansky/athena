@@ -4,7 +4,7 @@ use AtlasPolicy		  AtlasPolicy-*
     
 use AtlasROOT             AtlasROOT-*              External
 use xAODCaloEvent         xAODCaloEvent-*          Event/xAOD
-use VxVertex              VxVertex-*               Tracking/TrkEvent
+use xAODTracking          xAODTracking-*           Event/xAOD
 use TrkNeutralParameters  TrkNeutralParameters-*   Tracking/TrkEvent
 use EventPrimitives       EventPrimitives-*        Event
 
