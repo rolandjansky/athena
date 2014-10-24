@@ -62,7 +62,7 @@ class LArTBCryostatCalibrationCalculator : public LArG4::VCalibrationCalculator
 			      const eCalculatorProcessing p = kEnergyAndID);
     
       // The cell identifier determined by the Process method.
-      virtual LArG4Identifier identifier() const { return m_identifier; }
+      virtual const LArG4Identifier& identifier() const { return m_identifier; }
     
       // The calibration energies as determined by the Process method for
       // the current G4Step.  Units are the native G4 unit of energy.

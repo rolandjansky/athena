@@ -21,7 +21,6 @@ private
 # (e.g., LArG4Identifier) has an alternative ROOT-based form that's
 # only used in the stand-alone version of this application.
 macro_append LArG4H8SD_cppflags  " -DLARG4NOROOT -O -Wno-unused"
-macro_append LArG4H8SD_linkopts " -lLArG4SD"
 
 use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
 use GaudiInterface         GaudiInterface-*         External
