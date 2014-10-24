@@ -97,14 +97,23 @@ class TRTDigSettings {
   double discriminatorSettlingTime() const;
   /** Get discriminator dead time */
   double discriminatorDeadTime() const;
+
   /** Get discriminator setting for low threshold */
   double lowThresholdBar(bool isArgonStraw) const;
   double lowThresholdEC(bool isArgonStraw) const;
+
   /** Get discriminator setting for high threshold */
   double highThresholdBarShort(bool isArgonStraw) const;
   double highThresholdBarLong(bool isArgonStraw) const;
   double highThresholdECAwheels(bool isArgonStraw) const;
   double highThresholdECBwheels(bool isArgonStraw) const;
+
+  /** delta T0 for HT */
+  int htT0shiftBarShort()  const;
+  int htT0shiftBarLong()   const;
+  int htT0shiftECAwheels() const;
+  int htT0shiftECBwheels() const;
+
 
   //--- Common straw geometry parameters:
 
@@ -289,6 +298,11 @@ class TRTDigSettings {
   double m_highThresholdBarLongArgon;        /**< High threshold discriminator setting Argon */
   double m_highThresholdECAwheelsArgon;        /**< High threshold discriminator setting Argon */
   double m_highThresholdECBwheelsArgon;        /**< High threshold discriminator setting Argon */
+
+  int m_htT0shiftBarShort; /** HT T0 delta shift */
+  int m_htT0shiftBarLong;
+  int m_htT0shiftECAwheels;
+  int m_htT0shiftECBwheels;
 
   double m_innerRadiusOfStraw;   /**< Inner radius of straw */
   double m_outerRadiusOfWire;    /**< Radius of drift wire */

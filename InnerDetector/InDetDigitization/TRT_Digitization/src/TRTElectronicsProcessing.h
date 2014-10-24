@@ -73,9 +73,10 @@ public:
 			double highthreshold = -1.0
 		      );
 
-
   double getHighThreshold ( int hitID, bool isArgonStraw);
-
+  int getHTdeltaT0Shift   ( int hitID );
+  unsigned int getRegion  ( int hitID );
+  void HTdeltaShift       ( int hitID );
 
 private:
   //NB copy-constructor and assignment operator declared, but not defined.
@@ -121,12 +122,11 @@ private:
    * Encode 27 bit digit from discriminator response
    * [8 low + 1 high + 8 low + 1 high + 8 low + 1 high]:
    * - input: @c m_lowThresholdDiscriminator[],
-   *           @c m_highThresholdDiscriminator[]
+   *          @c m_highThresholdDiscriminator[]
    *
    * @return digit
    */
   unsigned EncodeDigit() const;
-
 
   const TRTDigSettings* m_settings;
 

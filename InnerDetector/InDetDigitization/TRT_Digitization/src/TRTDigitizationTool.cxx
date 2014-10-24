@@ -137,6 +137,19 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
 }
 
 //_____________________________________________________________________________
+TRTDigitizationTool::~TRTDigitizationTool() {
+
+  ATH_MSG_VERBOSE ( "Begin TRTDigitizationTool::Destructor");
+  delete m_pElectronicsProcessing;
+  delete m_pProcessingOfStraw;
+  delete m_pDigConditions;
+  delete m_pNoise;
+  delete m_settings;
+  ATH_MSG_VERBOSE ( "End TRTDigitizationTool::Destructor");
+
+}
+
+//_____________________________________________________________________________
 StatusCode TRTDigitizationTool::initialize()
 {
 
@@ -552,15 +565,21 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     //std::cout << "AJB "; bits27(mword);
 
 /*
-    // AJB get Barrel or Endcap.
-    if ( digit_straw.GetDigit() ) {
-      int ichip = 0;
-      m_TRTStrawNeighbourSvc->getChip(idStraw, ichip);
-      int detid = m_trt_id->barrel_ec(idLayer);
-      if (detid==1)  std::cout << "AJBBA " << highLevel(mword) << std::endl;
-      if (detid==-1) std::cout << "AJBBC " << highLevel(mword) << std::endl;
-      if (detid==-2) std::cout << "AJBEC " << highLevel(mword) << std::endl;
-      if (detid==2)  std::cout << "AJBEA " << highLevel(mword) << std::endl;
+    if (particleFlagQueryBit(8,m_particleFlag)) { // Do this only for muons > 10 GeV
+      if ( digit_straw.GetDigit() ) {
+        bool HT=highLevel(mword);
+        if (HT) {
+          unsigned int region = getRegion(hitID); // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+          bool HT1=highLevel1(mword); bool HT2=highLevel2(mword); bool HT3=highLevel3(mword);
+          std::cout << "AJB " << region << " " << HT1 << " " << HT2 << " " << HT3 << std::endl;
+          //int ichip = 0; m_TRTStrawNeighbourSvc->getChip(idStraw, ichip);
+          //int detid = m_trt_id->barrel_ec(idLayer); // +1=BA, -1=BC, +2=EA, -2=EC
+          //if (detid==+1) std::cout << "AJBBA " << HT1 << " " << HT2 << " " << HT3 << std::endl;
+          //if (detid==-1) std::cout << "AJBBC " << HT1 << " " << HT2 << " " << HT3 << std::endl;
+          //if (detid==-2) std::cout << "AJBEC " << HT1 << " " << HT2 << " " << HT3 << std::endl;
+          //if (detid==+2) std::cout << "AJBEA " << HT1 << " " << HT2 << " " << HT3 << std::endl;
+        }
+      }
     }
 */
 
@@ -1025,11 +1044,6 @@ StatusCode TRTDigitizationTool::finalize() {
     msg(MSG::DEBUG) << "Total time spent adding noise in unhit straws per event : " << m_timer_purenoise.check() / m_timer_eventcount << " seconds" << endreq;
     msg(MSG::DEBUG) << "Total time spent doing a temporary sort per event (to be fixed): " << m_timer_stupidsort.check() / m_timer_eventcount << " seconds" << endreq;
   }
-  delete m_pElectronicsProcessing;
-  delete m_pProcessingOfStraw;
-  delete m_pDigConditions;
-  delete m_pNoise;
-  delete m_settings;
 
   return StatusCode::SUCCESS;
 }
@@ -1108,4 +1122,35 @@ bool TRTDigitizationTool::particleFlagQueryBit(int bitposition, unsigned short p
     ATH_MSG_WARNING ( "Trying to read bit position " << bitposition << " in unsigned short m_particleFlag !");
     return 0; // returning a false neagtive is preferred over a false positive.
   }
+}
+
+//_____________________________________________________________________________
+unsigned int TRTDigitizationTool::getRegion(int hitID) {
+// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+  const int mask(0x0000001F);
+  const int word_shift(5);
+  int layerID, ringID, wheelID;
+  unsigned int region(0);
+
+  if ( !(hitID & 0x00200000) ) { // barrel
+
+    hitID >>= word_shift;
+    layerID = hitID & mask;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    ringID = hitID & mask;
+    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
+
+  } else { // endcap
+
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    wheelID = hitID & mask;
+    region = wheelID < 8 ?  3 : 4;
+
+  }
+
+  return region;
+
 }

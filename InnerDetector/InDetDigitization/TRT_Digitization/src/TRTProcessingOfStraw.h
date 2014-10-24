@@ -143,6 +143,12 @@ private:
   double m_shiftOfZeroPoint;
   double m_time_y_eq_zero;
 
+  double m_innerRadiusOfStraw;
+  double m_outerRadiusOfWire;
+  double m_outerRadiusEndcap;
+  double m_innerRadiusEndcap;
+  double m_strawLengthBarrel;
+
   const ComTime* m_ComTime;
 
   TRTTimeCorrection*        m_pTimeCorrection;

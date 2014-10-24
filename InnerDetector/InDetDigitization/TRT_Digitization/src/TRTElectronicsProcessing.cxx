@@ -375,7 +375,13 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   // Discriminator response (in what fine time bins are the thresholds exceeded)
   DiscriminatorResponse(lowthreshold,highthreshold);
   //std::cout << "AJB after discriminator ";
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highThresholdDiscriminator[i] << " "; // or m_highThresholdDiscriminator[i]
+  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowhThresholdDiscriminator[i] << " "; // or m_highThresholdDiscriminator[i]
+  //std::cout << std::endl;
+
+  // Apply an independent HT T0 shift to m_highThresholdDiscriminator[]
+  HTdeltaShift(hitID);
+  //std::cout << "AJB after discriminator HT delta T0 shift";
+  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highhThresholdDiscriminator[i] << " ";
   //std::cout << std::endl;
 
   // Optionally check if the straw has gone into streamer mode (depSum>m_streamerThreshold).
@@ -661,6 +667,68 @@ double TRTElectronicsProcessing::getHighThreshold ( int hitID, bool isArgonStraw
 }
 
 //_____________________________________________________________________________
+int TRTElectronicsProcessing::getHTdeltaT0Shift(int hitID) {
+
+  const int mask(0x0000001F);
+  const int word_shift(5);
+  int layerID, ringID, wheelID;
+  int deltaT0Shift(0);
+
+  if ( !(hitID & 0x00200000) ) { // barrel
+
+    hitID >>= word_shift;
+    layerID = hitID & mask;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    ringID = hitID & mask;
+    deltaT0Shift = ( (layerID < 9) && (ringID == 0) ) ? m_settings->htT0shiftBarShort() : m_settings->htT0shiftBarLong() ;
+
+  } else { // endcap
+
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    wheelID = hitID & mask;
+    deltaT0Shift = wheelID < 8 ?  m_settings->htT0shiftECAwheels() : m_settings->htT0shiftECBwheels();
+
+  }
+
+  return deltaT0Shift;
+
+}
+
+//_____________________________________________________________________________
+unsigned int TRTElectronicsProcessing::getRegion(int hitID) {
+// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+  const int mask(0x0000001F);
+  const int word_shift(5);
+  int layerID, ringID, wheelID;
+  unsigned int region(0);
+
+  if ( !(hitID & 0x00200000) ) { // barrel
+
+    hitID >>= word_shift;
+    layerID = hitID & mask;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    ringID = hitID & mask;
+    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
+
+  } else { // endcap
+
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    wheelID = hitID & mask;
+    region = wheelID < 8 ?  3 : 4;
+
+  }
+
+  return region;
+
+}
+
+//_____________________________________________________________________________
 
 // RNG modelling of measured ToHT values for alpha particles by Ximo Poveda Torres May 2013).
 // The statistics were not very high (580 values). See:
@@ -677,3 +745,44 @@ int TRTElectronicsProcessing::nBinsOverHT() const {
   }
   return static_cast<int>(ToHT/m_binWidth+0.5);
 }
+
+//___________________________________________________________________________
+void TRTElectronicsProcessing::HTdeltaShift(int hitID) {
+
+  // Apply a (small)timing shift to m_highThresholdDiscriminator[] w.r.t the overall T0.
+  // Tuning is provided by the parameters: htT0shiftBarShort, htT0shiftBarLong,
+  // htT0shiftECAwheels and m_htT0shiftECBwheels which are fetched with getHTdeltaT0Shift(hitID).
+
+  int j = getHTdeltaT0Shift(hitID);
+  if (!j) return; // skip this process if there is no shift
+
+  unsigned int vsum=0;
+  for (int i=0; i<m_totalNumberOfBins; ++i) { vsum += m_highThresholdDiscriminator[i]; }
+  if (!vsum) return; // skip this process if there are no HT bits
+
+  if (j<0) { // for negative shifts
+
+      for (int i=0; i<m_totalNumberOfBins; ++i) {
+        if (i-j>=m_totalNumberOfBins) break;
+        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-j];
+      }
+      for (int i=m_totalNumberOfBins+j; i<m_totalNumberOfBins; ++i) if (i>=0) m_highThresholdDiscriminator[i]=0; // the last j bins are set to zero
+
+  } else {  // for positive shifts
+
+      for (int i=m_totalNumberOfBins-1; i>0; --i) {
+        if (i-j<0) break;
+        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-j];
+      }
+      for (int i=0; i<j; ++i) if (i<m_totalNumberOfBins) m_highThresholdDiscriminator[i]=0; // the first j bins are set to zero
+
+  }
+
+  //std::cout << "AJB " << getRegion(hitID) << " ";
+  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highThresholdDiscriminator[i];
+  //std::cout << std::endl;
+
+  return;
+
+}
+//_____________________________________________________________________________

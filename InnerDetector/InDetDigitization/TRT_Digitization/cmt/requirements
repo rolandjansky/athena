@@ -35,7 +35,7 @@ use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/
 use InDetSimData                  InDetSimData-*                  InnerDetector/InDetRawEvent
 use InDetSimEvent                 InDetSimEvent-*                 InnerDetector
 use PileUpTools                   PileUpTools-*                   Control
-use RDBAccessSvc                  RDBAccessSvc-*                  Database/AthenaPOOL
+#use RDBAccessSvc                  RDBAccessSvc-*                  Database/AthenaPOOL
 use TRT_ConditionsServices        TRT_ConditionsServices-*        InnerDetector/InDetConditions
 #use TRT_DriftTimeSimUtils        TRT_DriftTimeSimUtils-*         InnerDetector/InDetSimUtils
 use TRT_PAI_Process               TRT_PAI_Process-*               InnerDetector/InDetSimUtils

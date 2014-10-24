@@ -52,8 +52,7 @@ StatusCode TRTFastORAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-TRTFastORAlg::~TRTFastORAlg (){
-}
+TRTFastORAlg::~TRTFastORAlg () { }
 
 int TRTFastORAlg::TRTFastORAlg_getStrawId(std::vector<std::vector<int> >& m_fastOrHtDiscriminator,
 					  std::vector<int>& m_chipIdVector,
