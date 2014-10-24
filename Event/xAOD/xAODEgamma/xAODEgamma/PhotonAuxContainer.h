@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PhotonAuxContainer.h 614853 2014-09-03 11:40:46Z krasznaa $
+// $Id: PhotonAuxContainer.h 619882 2014-10-03 14:57:46Z christos $
 #ifndef XAODEGAMMA_PHOTONAUXCONTAINER_H
 #define XAODEGAMMA_PHOTONAUXCONTAINER_H
 
 // Local include(s):
-#include "xAODEgamma/versions/PhotonAuxContainer_v2.h"
+#include "xAODEgamma/versions/PhotonAuxContainer_v3.h"
 
 namespace xAOD {
    /// Definition of the current photon auxiliary container
@@ -19,7 +19,7 @@ namespace xAOD {
    /// the container type as we get new I/O technologies for these
    /// objects.
    ///
-   typedef PhotonAuxContainer_v2 PhotonAuxContainer;
+   typedef PhotonAuxContainer_v3 PhotonAuxContainer;
 }
 
 // Set up a CLID for the class:

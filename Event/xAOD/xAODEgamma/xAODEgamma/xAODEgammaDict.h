@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEgammaDict.h 615077 2014-09-04 13:42:41Z schaffer $
+// $Id: xAODEgammaDict.h 619839 2014-10-03 13:38:44Z christos $
 #ifndef XAODEGAMMA_XAODEGAMMADICT_H
 #define XAODEGAMMA_XAODEGAMMADICT_H
 
@@ -28,10 +28,12 @@
 #include "xAODEgamma/versions/ElectronContainer_v1.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v1.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v2.h"
+#include "xAODEgamma/versions/ElectronAuxContainer_v3.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/versions/PhotonContainer_v1.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v1.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v2.h"
+#include "xAODEgamma/versions/PhotonAuxContainer_v3.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 #include "xAODEgamma/EgammaEnums.h"

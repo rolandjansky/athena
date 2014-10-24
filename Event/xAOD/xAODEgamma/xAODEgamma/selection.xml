@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 614853 2014-09-03 11:40:46Z krasznaa $ -->
+<!-- $Id: selection.xml 619839 2014-10-03 13:38:44Z christos $ -->
 <lcgdict>
 
   <!-- Egamma_v1 dictionaries: -->
@@ -39,6 +39,10 @@
   <class name="xAOD::ElectronAuxContainer_v2"
          id="7160FC1C-937D-474C-909B-2C0FCE1DD755" />
 
+  <!-- Electron_v3 dictionaries: -->
+  <class name="xAOD::ElectronAuxContainer_v3"
+         id="5435686E-4B00-11E4-AEAA-02163E00A5BB" />
+
   <!-- Smart pointers to Electron_v1: -->
   <class name="DataLink<xAOD::ElectronContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::ElectronContainer_v1> >" />
@@ -58,6 +62,11 @@
   <!-- Photon_v2 dictionaries: -->
   <class name="xAOD::PhotonAuxContainer_v2"
          id="CAE4C9A6-B3D0-429B-9A4F-1F174D892CA5" />
+
+  <!-- Photon_v3 dictionaries: -->
+  <class name="xAOD::PhotonAuxContainer_v3"
+         id="5C389DEC-4B00-11E4-B9F0-02163E00A5BB" />
+
 
   <!-- Smart pointers to Photon_v1: -->
   <class name="DataLink<xAOD::PhotonContainer_v1>" />

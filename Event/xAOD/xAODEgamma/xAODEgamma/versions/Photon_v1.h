@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.h 615077 2014-09-04 13:42:41Z schaffer $
+// $Id: Photon_v1.h 617559 2014-09-18 21:37:54Z christos $
 #ifndef XAODEGAMMA_VERSIONS_PHOTON_V1_H
 #define XAODEGAMMA_VERSIONS_PHOTON_V1_H
 
@@ -27,8 +27,8 @@ namespace xAOD {
   /// @author Christos Anastopoulos
   /// @author Anthony Morley
   ///
-  /// $Revision: 615077 $
-  /// $Date: 2014-09-04 15:42:41 +0200 (Thu, 04 Sep 2014) $
+  /// $Revision: 617559 $
+  /// $Date: 2014-09-18 23:37:54 +0200 (Thu, 18 Sep 2014) $
   ///
   class Photon_v1 :public xAOD::Egamma_v1 {
 
@@ -87,9 +87,16 @@ namespace xAOD {
     /// @name xAOD::Photon to cluster matching values.
     /// @{ 
 
-    /// Accessor to CaloMatch Values
+    ///@brief Accessor to CaloMatch Values
+    /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
     bool vertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information ) const;
     
+    /// Accessor to CaloMatch Values , this just returns the value without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float vertexCaloMatchValue( const EgammaParameters::VertexCaloMatchType information ) const;
+
+
     /// Set method for CaloMatch values.
     bool  setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information );
     /// @}

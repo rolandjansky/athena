@@ -10,6 +10,9 @@
 // Local include(s):
 #include "xAODEgamma/versions/Electron_v1.h"
 #include "ElectronAccessors_v1.h"
+#include "xAODTracking/TrackSummaryAccessors_v1.h"
+
+#include <stdexcept>
 
 namespace xAOD {
 
@@ -98,7 +101,13 @@ namespace xAOD {
     return true;
   }
 
-  bool Electron_v1::setTrackCaloMatchValue( float& value, const EgammaParameters::TrackCaloMatchType information ) {
+  float Electron_v1::trackCaloMatchValue( const EgammaParameters::TrackCaloMatchType information ) const {
+    xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
+    if(! acc ) throw std::runtime_error( "Unknown/Unavailable Track to Calo Match type requested" );
+    return ( *acc )( *this );
+  }
+
+  bool Electron_v1::setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information ) {
 
     xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
      if( ! acc ) return false;
@@ -120,6 +129,20 @@ namespace xAOD {
     const xAOD::TrackParticle* tempTrackParticle = trackParticle(index);
     if (!tempTrackParticle) return false;
     return tempTrackParticle->summaryValue(value,information);
+  }
+
+  
+  uint8_t Electron_v1::trackParticleSummaryIntValue( const SummaryType information, int index) const {
+    const xAOD::TrackParticle* tempTrackParticle = trackParticle(index);
+    SG::AuxElement::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information );
+    if(! acc ) throw std::runtime_error( "Unknown/Unavailable Int Track Summary type requested" );
+    return (*acc)(*tempTrackParticle);
+  }
+  float  Electron_v1::trackParticleSummaryFloatValue(  const SummaryType information, int index ) const{
+    const xAOD::TrackParticle* tempTrackParticle = trackParticle(index);
+    SG::AuxElement::Accessor< float >* acc = trackSummaryAccessorV1<float>( information );
+    if(! acc ) throw std::runtime_error( "Unknown/Unavailable Float Track Summary type requested" );
+    return (*acc)(*tempTrackParticle);
   }
 
   /////////////////////////////////////////////////////////////////////////////

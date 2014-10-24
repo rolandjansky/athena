@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Electron.h 615476 2014-09-07 15:56:30Z schaffer $
+// $Id: Electron.h 615475 2014-09-07 15:55:28Z schaffer $
 #ifndef XAODEGAMMA_ELECTRON_H
 #define XAODEGAMMA_ELECTRON_H
 

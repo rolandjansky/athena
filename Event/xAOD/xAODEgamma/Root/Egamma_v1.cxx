@@ -9,6 +9,9 @@
 // Local include(s):
 #include "xAODEgamma/versions/Egamma_v1.h"
 #include "EgammaAccessors_v1.h"
+#include "xAODPrimitives/tools/getIsolationAccessor.h"
+
+#include <stdexcept>
 
 namespace xAOD {
 
@@ -157,8 +160,14 @@ namespace xAOD {
     value = ( *acc )( *this );
     return true;
   }
+
+  float Egamma_v1::showerShapeValue(const EgammaParameters::ShowerShapeType information)  const {
+    xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
+    if(! acc ) throw std::runtime_error( "Unknown/Unavailable Shower Shape type requested" );
+    return ( *acc )( *this );
+  }
   
-  bool Egamma_v1::setShowerShapeValue(float& value, const EgammaParameters::ShowerShapeType information){
+  bool Egamma_v1::setShowerShapeValue(float value, const EgammaParameters::ShowerShapeType information){
     xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
      if( ! acc ) return false;
     // Set the value:
@@ -167,11 +176,9 @@ namespace xAOD {
 
   }
    
-  
   ///////////////
-  bool  Egamma_v1::isolationValue(float& value, const EgammaParameters::IsolationType information)  const {
-
-    xAOD::Egamma_v1::Accessor< float >* acc = isolationAccessorV1( information );
+  bool  Egamma_v1::isolationValue(float& value, const Iso::IsolationType information)  const {
+    SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
     if( ! acc ) {
       return false;
     }
@@ -183,14 +190,18 @@ namespace xAOD {
     return true;
   }
 
-  bool Egamma_v1::setIsolationValue(float& value, const EgammaParameters::IsolationType information) {
+  float Egamma_v1::isolationValue( const Iso::IsolationType information)  const {
+    SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
+    if( ! acc ) throw std::runtime_error( "Unknown/Unavailable Isolation type requested" );
+    return  ( *acc )( *this );
+  }
 
-     xAOD::Egamma_v1::Accessor< float >* acc = isolationAccessorV1( information );
-     if( ! acc ) return false;
-     // Set the value:
-     ( *acc )( *this ) = value;
-     return true;
-
+  bool Egamma_v1::setIsolationValue(float value, const Iso::IsolationType information) {
+    SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
+    if( ! acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
   }
 
 
@@ -238,7 +249,7 @@ namespace xAOD {
   bool Egamma_v1::isGoodOQ(uint32_t mask) const {
     static Accessor< uint32_t > acc( "OQ" );
     uint32_t OQ = acc( *this );
-    return OQ & mask;
+    return (OQ & mask)==0;
   }
   
   void Egamma_v1::setOQ(uint32_t newOQ) {
@@ -249,9 +260,16 @@ namespace xAOD {
   ///////////
   bool Egamma_v1::passSelection(bool&  value, const std::string& menu ) const {
     SG::AuxElement::Accessor< char > acc( menu );
-    if(! acc.isAvailable( *this) ) { return  false;}
+    if(! acc.isAvailable( *this) ) { 
+      return  false;
+    }
     value= (acc)( *this );
     return true;
+  }
+
+  bool Egamma_v1::passSelection(const std::string& menu ) const {
+    SG::AuxElement::Accessor< char > acc( menu );
+    return (acc)( *this );
   }
 
   void Egamma_v1::setPassSelection(bool value, const std::string& menu){

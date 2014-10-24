@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAccessors_v1.h 582601 2014-02-11 15:46:49Z christos $
+// $Id: EgammaAccessors_v1.h 617292 2014-09-17 18:22:08Z christos $
 #ifndef XAOD_EGAMMAACCESSORS_V1_H
 #define XAOD_EGAMMAACCESSORS_V1_H
 
@@ -24,8 +24,6 @@ namespace xAOD {
    SG::AuxElement::Accessor< float >*
    showerShapeAccessorV1( xAOD::EgammaParameters::ShowerShapeType type );
 
-   SG::AuxElement::Accessor< float >*
-   isolationAccessorV1( xAOD::EgammaParameters::IsolationType type );
 
 } // namespace xAOD
 

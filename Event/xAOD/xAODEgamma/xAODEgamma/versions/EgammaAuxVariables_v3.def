@@ -1,0 +1,106 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// This file is used to describe the common variables used by
+// ElectronAuxContainer_v1 and PhotonAuxContainer_v1. It's not a
+// standalone header! It only becomes meaningful C++ code when a
+// proper definition of EGAMMA_AUX_VARIABLE(...) is available.
+//
+// There are no header guards protecting the file against multiple
+// inclusion, as in some cases it may need to be included multiple
+// times. (For instance when one piece of code ends up using both
+// ElectronAuxContainer and PhotonAuxContainer at the same time.)
+//
+
+///@name vector of links to cluster 
+/// @{
+
+EGAMMA_AUX_VARIABLE( std::vector< std::vector< ElementLink< CaloClusterContainer > > >,
+                     caloClusterLinks );
+
+/// @}
+
+///@name IParticle variables
+/// @{
+
+EGAMMA_AUX_VARIABLE( std::vector< float >, pt );
+EGAMMA_AUX_VARIABLE( std::vector< float >, eta );
+EGAMMA_AUX_VARIABLE( std::vector< float >, phi );
+EGAMMA_AUX_VARIABLE( std::vector< float >, m );
+
+/// @}
+
+///@name Covariance Matrix
+/// @{
+
+EGAMMA_AUX_VARIABLE( std::vector< std::vector< float > >,
+                     EgammaCovarianceMatrix );
+
+/// @}
+    
+///@name Author
+/// @{
+
+EGAMMA_AUX_VARIABLE( std::vector< uint16_t >, author );
+
+/// @}
+
+///@name Data Quality flag
+/// @{
+
+EGAMMA_AUX_VARIABLE( std::vector< uint32_t >, OQ );
+
+/// @}
+    
+/// @name Shower shape details
+/// @{
+/// E1/E = fraction of energy reconstructed in the first sampling, where E1 is
+/// energy in all strips belonging to the cluster and E is the total energy
+/// reconstructed in the electromagnetic calorimeter cluster
+EGAMMA_AUX_VARIABLE( std::vector< float >, f1 );
+/// Fraction of energy reconstructed in 3rd sampling
+EGAMMA_AUX_VARIABLE( std::vector< float >, f3 );
+/// E1(3x1)/E = fraction of the energy reconstructed in the first longitudinal
+/// compartment of the electromagnetic calorimeter, where E1(3x1) the energy
+/// reconstructed in +/-3 strips in eta, centered around the maximum energy
+/// strip and E is the energy reconstructed in the electromagnetic calorimeter
+EGAMMA_AUX_VARIABLE( std::vector< float >, f1core );
+/// E3(3x3)/E fraction of the energy reconstructed in the third compartment of
+/// the electromagnetic calorimeter, where E3(3x3), energy in the back
+/// sampling, is the sum of the energy contained in a 3x3 window around the
+/// maximum energy cell
+EGAMMA_AUX_VARIABLE( std::vector< float >, f3core );
+/// Shower width using +/-3 strips around the one with the maximal energy
+/// deposit: w3 strips = sqrt{sum(Ei)x(i-imax)^2/sum(Ei)},
+/// where i is the number of the strip and imax the strip number of the most
+/// energetic one 
+EGAMMA_AUX_VARIABLE( std::vector< float >, weta1 );
+///same as egammaParameters::weta1 but without corrections  on particle impact point inside the cell
+EGAMMA_AUX_VARIABLE( std::vector< float >, widths1 );
+/// The lateral width is calculated with a window of 3x5 cells using the
+/// energy weighted  sum over all cells, which depends on the particle impact
+/// point inside the cell:
+/// weta2 = sqrt(sum Ei x eta^2)/(sum Ei) -((sum Ei x eta)/(sum Ei))^2,
+/// where Ei is the energy of the i-th cell 
+EGAMMA_AUX_VARIABLE( std::vector< float >, weta2 );
+/// Shower shape in the shower core : [E(+/-3)-E(+/-1)]/E(+/-1), where E(+/-n)
+/// is the energy in ± n strips around the strip with highest energy
+EGAMMA_AUX_VARIABLE( std::vector< float >, fracs1 );
+/// Shower width is determined in a window detaxdphi = 0,0625 ×~0,2,
+/// corresponding typically to 20 strips in eta :
+/// wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei},
+/// where i is the strip number and imax the strip number of the first local
+/// maximum
+EGAMMA_AUX_VARIABLE( std::vector< float >, wtots1 );
+/// e237/e277
+EGAMMA_AUX_VARIABLE( std::vector< float >, Reta );
+///  e233/e237
+EGAMMA_AUX_VARIABLE( std::vector< float >, Rphi );
+///  (emaxs1-e2tsts1)/(emaxs1+e2tsts1)
+EGAMMA_AUX_VARIABLE( std::vector< float >, Eratio );
+/// ethad/et
+EGAMMA_AUX_VARIABLE( std::vector< float >, Rhad );
+///  ethad1/et
+EGAMMA_AUX_VARIABLE( std::vector< float >, Rhad1 );
+/// e2tsts1-emins1
+EGAMMA_AUX_VARIABLE( std::vector< float >, DeltaE );
+/// @}

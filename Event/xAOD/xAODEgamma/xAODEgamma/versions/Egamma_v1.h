@@ -4,15 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1.h 612532 2014-08-19 14:07:39Z christos $
+// $Id: Egamma_v1.h 617559 2014-09-18 21:37:54Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 
 // Core include(s):
 #include "AthLinks/ElementLink.h"
-
-// ROOT include(s):
-#include <Math/SMatrix.h>
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
@@ -20,15 +17,19 @@
 //Egamma includes
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/EgammaEnums.h"
+
 //CaloCluster include
 #include  "xAODCaloEvent/CaloCluster.h" 
 #include  "xAODCaloEvent/CaloClusterContainer.h" 
 
-#include <stdint.h>
+//xAOD Primitives
+#include "xAODPrimitives/IsolationType.h"
 
 //Eigen/Amg includes , prefer to do it via EventPrimitives for now
 #include "EventPrimitives/EventPrimitives.h"
 
+//std Include
+#include <stdint.h>
 namespace xAOD {
 
   /// @class xAOD::Egamma
@@ -40,8 +41,8 @@ namespace xAOD {
   /// @author Anthony Morley
   /// @author Jovan Mitrevski
   ///
-  /// $Revision: 612532 $
-  /// $Date: 2014-08-19 16:07:39 +0200 (Tue, 19 Aug 2014) $
+  /// $Revision: 617559 $
+  /// $Date: 2014-09-18 23:37:54 +0200 (Thu, 18 Sep 2014) $
   ///
   class Egamma_v1 :public IParticle {
 
@@ -187,23 +188,32 @@ namespace xAOD {
     /// @{    
 
     /// @brief Accessor for ShowerShape values.
-    bool showerShapeValue(float& value,   const EgammaParameters::ShowerShapeType information) const;
+    bool showerShapeValue(float& value,const EgammaParameters::ShowerShapeType information) const;
+
+    /// Accessor to ShowerShape values , this just returns the value without internaly checking if it exists.
+    /// Will lead to an exception if the variable is not available
+    float showerShapeValue(const EgammaParameters::ShowerShapeType information) const;
 
     /// @brief Set method for Shower Shape values.
-    bool setShowerShapeValue(float& value, const EgammaParameters::ShowerShapeType information) ;
+    bool setShowerShapeValue(float value, const EgammaParameters::ShowerShapeType information) ;
+
 
     /// @brief Accessor for Isolation values.
-    bool isolationValue(float& value,   const EgammaParameters::IsolationType information) const;
+    bool isolationValue(float& value,   const Iso::IsolationType information) const;
+
+    /// Accessor to Isolation values , this just returns the value without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationValue(const Iso::IsolationType information) const;
 
     /// @method for Isolation values.
-    bool setIsolationValue(float& value, const EgammaParameters::IsolationType information);
+    bool setIsolationValue(float value, const Iso::IsolationType information);
 
     /// @}
     
     /// @name xAOD::Egamma  object quality of the calorimeter cluster 
     /// @{    
     
-    /// @brief  Check object quality
+    /// @brief  Check object quality. Return True is it is Good Object Quality
     bool isGoodOQ(uint32_t mask ) const;
 
     /// @brief Set the object quality
@@ -216,15 +226,20 @@ namespace xAOD {
 
     /// @brief  Check if the egamma object pass a selection menu
     ///If the menu decision is stored in this xAOD::Egamma,
-    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', 
-    //and does not touch 'value'.
+    ///then the function fills 'value' and returns 'true', otherwise it returns 'false', 
+    /// and does not touch 'value'.
     bool passSelection(bool& value, const std::string& menu ) const;
 
-    /// @brief Set  if the egamma object pass a selection menu
+
+    /// @brief  Check if the egamma object pass a selection menu
+    /// If the particular menu decision is not stored in this xAOD::Egamma,
+    /// an exception will occur
+    bool passSelection( const std::string& menu ) const;
+
+    /// @brief Set if the egamma object pass a selection menu
     void setPassSelection(bool value, const std::string& menu);
 
     ///@}
-
 
 
   private:

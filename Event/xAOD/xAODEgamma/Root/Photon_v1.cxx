@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.cxx 612240 2014-08-18 11:04:15Z christos $
+// $Id: Photon_v1.cxx 619818 2014-10-03 12:34:09Z christos $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -10,6 +10,8 @@
 // Local include(s):
 #include "xAODEgamma/versions/Photon_v1.h"
 #include "PhotonAccessors_v1.h"
+
+#include <stdexcept>
 
 namespace xAOD {
 
@@ -96,6 +98,14 @@ namespace xAOD {
     // Retrieve the value:
     value = ( *acc )( *this );
     return true;
+  }
+
+  float Photon_v1::vertexCaloMatchValue( const EgammaParameters::VertexCaloMatchType information ) const {
+
+    xAOD::Photon_v1::Accessor< float >* acc = vertexCaloMatchAccessorV1( information );
+    if(! acc ) throw std::runtime_error( "Unknown/Unavailable Vertex to Calo Match type requested" );
+    // Retrieve the value:
+    return ( *acc )( *this );
   }
 
   bool Photon_v1::setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information ) {
