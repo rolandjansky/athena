@@ -7,8 +7,8 @@ use AtlasPolicy AtlasPolicy-*
 use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
-macro Genser_home "$(LCG_external)/MCGenerators_lcgcmt$(LCG_config_version)"
-macro Lhapdf_home "$(Genser_home)/lhapdf6"
+macro Genser_home "$(LCG_external)/MCGenerators"
+macro Lhapdf_home "$(Genser_home)/lhapdf"
 macro Lhapdf_version "6.1.4"
 macro Lhapdf_native_version "$(Lhapdf_version)_lcgcmt$(LCG_config_version)"
 macro Lhapdf_system "$(LCG_ext_system)"
