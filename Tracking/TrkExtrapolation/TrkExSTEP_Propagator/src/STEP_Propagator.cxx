@@ -61,7 +61,7 @@ Trk::STEP_Propagator::STEP_Propagator
   m_momentumCutOff( 50.),     //Minimum allowed momentum in MeV.
   m_multipleScattering(true), //Add multiple scattering to the covariance matrix?
   m_energyLoss(true),         //Include energy loss?
-  m_detailedEloss(false),     //Provide the extended EnergyLoss object with MopIonization etc.
+  m_detailedEloss(true),     //Provide the extended EnergyLoss object with MopIonization etc.
   m_straggling(true),         //Add energy loss fluctuations (straggling) to the covariance matrix?
   m_MPV(false),                //Use the most probable value of the energy loss, else use the mean energy loss.
   m_stragglingScale(1.),      //Scale for adjusting the width of the energy loss fluctuations.
@@ -218,6 +218,7 @@ const Trk::TrackParameters*
   m_identifiedParameters = 0;
   m_matstates = 0;
   m_extrapolationCache = 0;
+  m_hitVector = 0;
 
   return propagateRungeKutta( true, trackParameters, targetSurface, propagationDirection,
 			       magneticFieldProperties, particle, boundaryCheck, Jacobian, returnCurv);
@@ -250,6 +251,7 @@ const Trk::TrackParameters*
   m_identifiedParameters = 0;
   m_matstates = 0;
   m_extrapolationCache = 0;
+  m_hitVector = 0;
 
   m_matupd_lastmom = trackParameters.momentum().mag();
   m_matupd_lastpath = 0.;
@@ -287,7 +289,8 @@ const Trk::TrackParameters*
                                                PathLimit&               pathLim,
                                                TimeLimit&               timeLim,
  				               bool                     returnCurv,
-				    const Trk::TrackingVolume*          tVol) const
+				    const Trk::TrackingVolume*          tVol,
+				    std::vector<Trk::HitInfo>*&         hitVector) const
 {
   // cache particle mass
   m_particleMass = s_particleMasses.mass[particle]; //Get particle mass from ParticleHypothesis
@@ -304,6 +307,7 @@ const Trk::TrackParameters*
   m_identifiedParameters = 0;
   m_matstates = 0;
   m_extrapolationCache = 0;
+  m_hitVector = hitVector;
 
   m_matupd_lastmom = trackParameters.momentum().mag();
   m_matupd_lastpath = 0.;
@@ -324,9 +328,24 @@ const Trk::TrackParameters*
   if ( timMax>0. && timMax < path ) path = timMax;
   bool usePathLimit = (path > 0.);    
 
-  const Trk::TrackParameters* nextPar=propagate(trackParameters,targetSurfaces,propagationDirection,
-						magneticFieldProperties,
-						particle,solutions,path,usePathLimit,returnCurv,tVol);
+  // resolve path limit input
+  if (path>0.) {
+    m_propagateWithPathLimit = usePathLimit? 1 : 0;
+    m_pathLimit = path;
+    path = 0.;
+  } else {
+    m_propagateWithPathLimit = 0;
+    m_pathLimit = -1.;
+    path = 0.; 
+  } 
+
+  const Trk::TrackParameters* nextPar = 0;
+
+  if ( particle==Trk::neutron || particle==Trk::photon || particle==Trk::pi0 || particle==Trk::k0 )
+    nextPar = propagateNeutral(trackParameters,targetSurfaces,propagationDirection,solutions,path,usePathLimit,returnCurv);
+  nextPar =  propagateRungeKutta( true, trackParameters, targetSurfaces, propagationDirection, magneticFieldProperties,
+			      particle, solutions, path,returnCurv);  
+
   // update material path
   if (m_matPropOK && m_material->x0()>0.) pathLim.updateMat( path/m_material->x0(),m_material->averageZ(),0.);   
 
@@ -366,6 +385,7 @@ const Trk::TrackParameters*
   m_matstates = matstates;
   m_identifiedParameters = intersections;
   m_extrapolationCache = cache;
+  m_hitVector = 0;
 
   m_matupd_lastmom = trackParameters.momentum().mag();
   m_matupd_lastpath = 0.;
@@ -416,6 +436,7 @@ const Trk::TrackParameters*
   m_identifiedParameters = 0;
   m_matstates = 0;
   m_extrapolationCache = 0;
+  m_hitVector = 0;
 
   m_matupd_lastmom = trackParameters.momentum().mag();
   m_matupd_lastpath = 0.;
@@ -457,6 +478,7 @@ const Trk::TrackParameters*
   // no identified intersections needed/ no material dump
   m_identifiedParameters = 0;
   m_matstates = 0;
+  m_hitVector = 0;
 
   return propagateRungeKutta( false, trackParameters, targetSurface, propagationDirection,
 			      magneticFieldProperties, particle, boundaryCheck, Jacobian, returnCurv);
@@ -489,6 +511,7 @@ const Trk::TrackParameters*
   m_identifiedParameters = 0;
   m_matstates = 0;
   m_extrapolationCache = 0;
+  m_hitVector = 0;
 
   const Trk::TrackParameters* parameters = propagateRungeKutta( true, trackParameters, targetSurface, propagationDirection,
 								magneticFieldProperties,
@@ -526,6 +549,7 @@ const Trk::IntersectionSolution*
   m_identifiedParameters = 0;
   m_matstates = 0;
   m_extrapolationCache = 0;
+  m_hitVector = 0;
 
   // Bfield mode
   mft.magneticFieldMode()==2 ? m_solenoid     = true : m_solenoid     = false;  
@@ -1248,13 +1272,15 @@ bool
   double tol = 0.001; 
   solutions.clear();
   double distanceToTarget = propDir*maxPath;
-  if( sfs.size() > m_currentDist.capacity() ) m_currentDist.reserve(sfs.size());
-  m_currentDist.clear(); 
+  m_currentDist.resize(sfs.size());      // keep size through the call
+
   int nextSf=sfs.size();
   int nextSfCand=nextSf;
   std::vector<DestSurf >::iterator sIter = sfs.begin();
   std::vector<DestSurf >::iterator sBeg  = sfs.begin();
   unsigned int numSf=0; 
+  unsigned int iCurr=0;         // index for m_currentDist
+
   for (; sIter!=sfs.end(); sIter++) {
     Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,direction0);
     double distEst = -propDir*maxPath;
@@ -1266,26 +1292,22 @@ bool
     // do not accept trivial solutions (at the surface)
     // but include them into further distance estimate (aca return to the same surface) 
     if ( distEst*propDir > -tol ) {
-      if (distSol.currentDistance()>500.) m_currentDist.push_back( std::pair<int,std::pair<double,double> >(0,std::pair<double,double>(distEst,distSol.currentDistance(true))));
-      else m_currentDist.push_back( std::pair<int,std::pair<double,double> >(1,std::pair<double,double>(distEst,distSol.currentDistance(true))));
+      if (distSol.currentDistance()>500.) m_currentDist[iCurr]=std::pair<int,std::pair<double,double> >(0,std::pair<double,double>(distEst,distSol.currentDistance(true)));
+      else m_currentDist[iCurr]=std::pair<int,std::pair<double,double> >(1,std::pair<double,double>(distEst,distSol.currentDistance(true)));
 
       if (tol < propDir*distEst && propDir*distEst < propDir*distanceToTarget) {
         distanceToTarget = distEst;
-        nextSf = m_currentDist.size()-1;
+        nextSf = iCurr;
       }
       numSf++;
     } else {
       // save the nearest distance to surface
-      m_currentDist.push_back( std::pair<int,std::pair<double,double> >(-1,std::pair<double,double>(distSol.currentDistance(),distSol.currentDistance(true))));
+      m_currentDist[iCurr]=std::pair<int,std::pair<double,double> >(-1,std::pair<double,double>(distSol.currentDistance(),distSol.currentDistance(true)));
     }
-
+    iCurr++;
   }   
 
-  if (distanceToTarget == maxPath || numSf == 0 ) {
-    if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-
-    return false; 
-  }
+  if (distanceToTarget == maxPath || numSf == 0 ) return false; 
 
   //for (unsigned int is=0; is<m_currentDist.size(); is++) std::cout << "initial distance to Surface:"<<is<<","<<
   //	   m_currentDist[is].first<<","<<m_currentDist[is].second.first<<","<<m_currentDist[is].second.second<<std::endl;
@@ -1333,7 +1355,6 @@ bool
   while ( numSf > 0 && ( fabs( distanceToTarget) > distanceTolerance || fabs(path+distanceStepped)<tol) ) { // Step until within tolerance
     //Do the step. Stop the propagation if the energy goes below m_momentumCutOff
     if (!rungeKuttaStep( errorPropagation, h, P, dDir, BG1, firstStep, distanceStepped)) {
-      if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
       // emit brem photon before stopped ?
       if (m_brem) {
 	if ( m_momentumCutOff < m_bremEmitThreshold && m_simMatUpdator ) {
@@ -1391,10 +1412,7 @@ bool
       m_combinedThickness += distanceStepped/m_material->x0(); 
     }
 
-    if (absPath > maxPath) {
-      if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-      return false;
-    }
+    if (absPath > maxPath) return false;
    
     // path limit implemented
     if (m_propagateWithPathLimit>0 && m_pathLimit<= path) { m_propagateWithPathLimit++; return true; }  
@@ -1442,6 +1460,16 @@ bool
 	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),iMat->second));
 	    }
           } 
+          if (m_hitVector) {
+            double hitTiming = m_timeIn+m_timeOfFlight+m_timeStep;
+            if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
+	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
+            } else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
+	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
+            } else if (iMat && iMat->second>0) {       // entry active layer
+	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, iMat->second,0.));
+	    }
+          } 
 	  delete cPar;
  
           m_currentLayerBin = layerBin;
@@ -1479,6 +1507,16 @@ bool
 	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
             } else if (nextMat && nextMat->second>0) {       // entry active layer
 	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),nextMat->second));
+	    }
+	  }
+          if (m_hitVector) {
+            double hitTiming = m_timeIn+m_timeOfFlight+m_timeStep;
+            if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
+	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
+            } else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
+	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
+            } else if (nextMat && nextMat->second>0) {       // entry active layer
+	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, nextMat->second,0.));
 	    }
 	  }
           delete cPar;
@@ -1521,10 +1559,8 @@ bool
     for ( ; vsIter!= vsEnd; vsIter++) {
       if ( restart ) {
         numRestart++;
-        if (numRestart>restartLimit) {
-	  if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-	  return false;
-	}
+        if (numRestart>restartLimit) return false;
+
 	vsIter = vsBeg; ic=0; sIter=sBeg; distanceToTarget = propDir*maxPath;
 	nextSf = -1; nextSfCand = -1;
         restart = false;
@@ -1642,10 +1678,8 @@ bool
       sIter++; ic++;
     }
     // if next closest not found, propagation failed
-    if (nextSf<0 && nextSfCand<0) {
-      if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-      return false;
-    }
+    if (nextSf<0 && nextSfCand<0) return false;
+
     // flip direction
     if (flipDirection) {
       distanceToTarget = (*(vsBeg+nextSf)).second.first;
@@ -1669,21 +1703,14 @@ bool
     //std::cout <<"current closest estimate: distanceToTarget: step size :"<< nextSf<<":"<< distanceToTarget <<":"<<h<< std::endl;
 
     //Abort if maxPath is reached 
-    if (fabs( path) > maxPath) {
-      if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-      return false;
-    }
+    if (fabs( path) > maxPath) return false;
 
-    if (steps++ > m_maxSteps) {
-      if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-      return false; //Too many steps, something is wrong
-    }
+    if (steps++ > m_maxSteps) return false; //Too many steps, something is wrong
+
   }
 
-  if (!numSf) {
-    if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
-    return false;
-  }
+  if (!numSf) return false;
+ 
   //Use Taylor expansions to step the remaining distance (typically microns).
   path = path + distanceToTarget;
 
@@ -1723,7 +1750,6 @@ bool
     index++;
   }
 
-  if( m_currentDist.capacity() > m_maxCurrentDist ) m_currentDist.reserve(m_maxCurrentDist);
   return true;
 }
 
@@ -2248,8 +2274,10 @@ void Trk::STEP_Propagator::dumpMaterialEffects( const Trk::CurvilinearParameters
     Trk::EnergyLoss* eloss = !m_detailedEloss ? new Trk::EnergyLoss(m_combinedEloss.deltaE(),
 								 m_combinedEloss.sigmaDeltaE() ) :
       new Trk::EnergyLoss(m_combinedEloss.deltaE(), m_combinedEloss.sigmaDeltaE(),
-			  m_combinedEloss.meanIoni(), m_combinedEloss.sigmaIoni(),
-			  m_combinedEloss.meanRad(), m_combinedEloss.sigmaRad() ) ;
+                          m_combinedEloss.sigmaDeltaE(),m_combinedEloss.sigmaDeltaE(),
+                          m_combinedEloss.meanIoni(), m_combinedEloss.sigmaIoni(),
+                          m_combinedEloss.meanRad(), m_combinedEloss.sigmaRad(), path ) ;
+
     Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(0.,0.,sqrt(m_covariance(2,2)), sqrt(m_covariance(3,3)));    
   
     Trk::CurvilinearParameters* cvlTP = parms->clone();
@@ -2486,6 +2514,7 @@ const Trk::TrackParameters*
  
   Amg::Vector3D position(parm.position()); 
   Amg::Vector3D direction(parm.momentum().normalized()); 
+
   for (; sIter!=targetSurfaces.end(); sIter++) {
     Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,direction);
     if (distSol.numberOfSolutions()>0 ) {
