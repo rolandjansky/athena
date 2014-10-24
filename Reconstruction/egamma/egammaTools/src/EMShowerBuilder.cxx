@@ -13,7 +13,6 @@
 
 #include "egammaInterfaces/IegammaShowerShape.h"
 #include "egammaInterfaces/IegammaIso.h"
-#include "egammaInterfaces/IEMTrackIsolationTool.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Electron.h"
@@ -64,49 +63,24 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
   
   // Boolean to call isolation variables calculation and filling
   // (NB: this could be important when redoing calculation from AODs)
-  declareProperty("UseCaloIsoTool", m_UseCaloIsoTool=true, "Boolean to call calo isolation variables calculation and filling");
+  declareProperty("UseCaloIsoTool", m_UseCaloIsoTool=true, "Boolean to call hadronic leakage calculation and filling");
   
-  // Boolean to use track iso tool
-  declareProperty("UseTrackIsoTool", m_UseTrackIsoTool= true, "Boolean to call track isolation variables calculation and filling");
-
   // Handles of instance of egammaShowerShape Tool to be run 
   declareProperty("ShowerShapeTool", m_ShowerShapeTool, "Handle of instance of egammaShowerShape Tool to be run");
 
   // Handle of the calorimetric isolation tool
-  declareProperty("EMCaloIsolationTool", m_emCaloIsolationTool, "Handle of the EMCaloIsolationTool");
-
-  // Handle of the calorimetric isolation tool
-  declareProperty("EMCaloIsoPtCorrectionTool", m_emCaloIsoPtCorrectionTool, "Handle of the EMCaloIsoPtCorrectionTool");
-
-  // Handle of the calorimetric isolation tool
-  declareProperty("EMTopoCaloIsolationTool", m_emTopoCaloIsolationTool, "Handle of the EMTopoCaloIsolationTool");
-
-  // Handle of the EMTrackIsolationTool
-  declareProperty("EMTrackIsolationTool", m_emTrackIsolationTool,"Handle of the EMTrackIsolationTool");
+  declareProperty("HadronicLeakageTool", m_HadronicLeakageTool, "Handle of the EMCaloIsolationTool for Hadronic leakage");
 
   // Boolean for use of cosmics
   declareProperty("isCosmics",m_isCosmics=false,"Boolean for use of cosmics");
 
-  // Boolean to do isolation for TopoSeededPhoton 
-  declareProperty("doIsolForTopoSeeded",m_doIsolForTopoSeeded=true,"Boolean for doing isolation for TopoSeeded Photons");
-
-  // Name of the input Topo Calo container
-  declareProperty("TopoCaloClusterInputName",m_topoCaloClusterInputName="CaloCalTopoCluster","Topo CaloCluster input conainer to compute the isolation");
-  
   // in case we want some extra print
   declareProperty("Print",m_Print=false,"in case of extra prints");
 
   // in case we want some extra print
   declareProperty("Timing",m_timing=false,"do extra timing");
       
-      
-  declareProperty("IsoTypes", m_isoTypes, "The isolation types to do: vector of enum type egammaParameter::ParamDef");
-      
-  declareProperty("TopoIsoTypes", m_topoIsoTypes,"The topo isolation types to do: vector of enum type egammaParameter::ParamDef");
-      
-  declareProperty("doEnergyDensityCorrection", m_doEnergyDensityCorrection=true,"Correct isolation variables based on energy density estimations");
-
- }
+}
 
 // ===============================================================
 EMShowerBuilder::~EMShowerBuilder()
@@ -157,36 +131,12 @@ StatusCode EMShowerBuilder::initialize()
     ATH_MSG_FATAL(" Tool Service not found ");
     return StatusCode::FAILURE;
   } 
-    
-
-  m_doTopoIso = true;
-  if (m_topoIsoTypes.size() == 0) {
-    ATH_MSG_DEBUG("No topo iso requested, turning off");
-    m_doTopoIso = false;
-  }
-
+ 
   // 
   // call calorimeter isolation tool only if needed
   //
   if (m_UseCaloIsoTool) {
-    if ((sc = RetrieveEMCaloIsolationTool()).isFailure()) {
-      return sc;
-    }
-    if ((sc = RetrieveEMCaloIsoPtCorrectionTool()).isFailure()) {
-      return sc;
-    }
-    if (m_doTopoIso) {
-      if ((sc = RetrieveEMTopoCaloIsolationTool()).isFailure()) {
-	return sc;
-      }
-    }
-  }
-
-  // 
-  // call track isolation tool only if needed
-  //
-  if (m_UseTrackIsoTool) {
-    if ((sc = RetrieveEMTrackIsolationTool()).isFailure()) {
+    if ((sc = RetrieveHadronicLeakageTool()).isFailure()) {
       return sc;
     }
   }
@@ -199,23 +149,6 @@ StatusCode EMShowerBuilder::initialize()
       ATH_MSG_ERROR("Cannot find the ChronoStatSvc " << m_timingProfile);
       return sc;
     }
-  }
-
-  // lets set up the isolation variables
-  m_doNoiseCalc = false; // initialize to false
-
-  for (unsigned int i = 0; i < m_isoTypes.size(); i++) {
-    m_specs.push_back(getSpecifier(static_cast<xAOD::EgammaParameters::IsolationType>(m_isoTypes.at(i))));
-  }
-
-  if (!m_doNoiseCalc) {
-    // let's optimize by using just Rs
-    for (std::vector<IegammaIso::IsoSpecifier>::const_iterator specsit = m_specs.begin();
-	 specsit != m_specs.end();
-	 ++specsit) {
-      m_Rs.push_back(specsit->R2);
-    }
-
   }
 
   return sc;
@@ -244,88 +177,23 @@ StatusCode EMShowerBuilder::RetrieveShowerShapeTool()
 
 
 // ====================================================================
-StatusCode EMShowerBuilder::RetrieveEMCaloIsolationTool()
+StatusCode EMShowerBuilder::RetrieveHadronicLeakageTool()
 {
   //
   // retrieve EMCaloIsolationTool
   //
   
-  if (m_emCaloIsolationTool.empty()) {
-    ATH_MSG_INFO("EMCaloIsolation is empty");
+  if (m_HadronicLeakageTool.empty()) {
+    ATH_MSG_INFO("HadronicLeakageTool is empty");
     return StatusCode::SUCCESS;
   } 
 
-  if(m_emCaloIsolationTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_emCaloIsolationTool);
+  if(m_HadronicLeakageTool.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Unable to retrieve "<<m_HadronicLeakageTool);
     return StatusCode::FAILURE;
   } 
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_emCaloIsolationTool);
+  else ATH_MSG_DEBUG("Retrieved Tool "<<m_HadronicLeakageTool);
   
-  return StatusCode::SUCCESS;
-}
-
-// ====================================================================
-StatusCode EMShowerBuilder::RetrieveEMTrackIsolationTool()
-{
-  //
-  // retrieve EMTrackIsolationTool
-  //
-  
-  if (m_emTrackIsolationTool.empty()) {
-    ATH_MSG_INFO("EMTrackIsolation is empty");
-    return StatusCode::SUCCESS;
-  } 
-
-  if(m_emTrackIsolationTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_emTrackIsolationTool);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_emTrackIsolationTool);
-  return StatusCode::SUCCESS;
-}
-
-
-
-// ====================================================================
-StatusCode EMShowerBuilder::RetrieveEMCaloIsoPtCorrectionTool()
-{
-  //
-  // retrieve EMCaloIsolationPtCorrectionTool
-  //
-
-  if (m_emCaloIsoPtCorrectionTool.empty()) {
-    ATH_MSG_INFO("EMCaloIsolationPtCorrection is empty");
-    return StatusCode::SUCCESS;
-  }
-
-  if(m_emCaloIsoPtCorrectionTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_emCaloIsoPtCorrectionTool);
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_emCaloIsoPtCorrectionTool);
-
-  return StatusCode::SUCCESS;
-}
-
-// ====================================================================
-StatusCode EMShowerBuilder::RetrieveEMTopoCaloIsolationTool()
-{
-  //
-  // retrieve EMTopoCaloIsolationTool
-  //
-
-  if (m_emTopoCaloIsolationTool.empty()) {
-    ATH_MSG_INFO("EMTopoCaloIsolation is empty");
-    m_doTopoIso = false;
-    return StatusCode::SUCCESS;
-  }
-
-  if(m_emTopoCaloIsolationTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_emTopoCaloIsolationTool);
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_emTopoCaloIsolationTool);
-
   return StatusCode::SUCCESS;
 }
 
@@ -368,26 +236,8 @@ StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg)
 }
 
 // ======================================================================
-StatusCode EMShowerBuilder::caloExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll)
-{ 
-  // 
-  // execute method as used by Event Filter
-  // 
-  
-  ATH_MSG_DEBUG("Executing caloExecute");
 
-  // put the CaloCellContainer into the global variable
-  m_cellcoll = cellcoll;
-
-  // calculate shower shapes
-  CalcShowerShape(eg);
-
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll,
-					const xAOD::TrackParticleContainer* aTrackParticleContainer /*= 0*/)
+StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll)
 { 
   // 
   // execute method as used by Offline reconstruction
@@ -398,35 +248,9 @@ StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContaine
   // put the CaloCellContainer into the global variable
   m_cellcoll = cellcoll;
 
-
-  //if We do not want to do isolation for topoSeeded 
-  //Do just Shower Shapes
-  if(!m_doIsolForTopoSeeded){ 
-    if(eg->author(xAOD::EgammaParameters::AuthorCaloTopo35)) {
-
-      m_clus = eg->caloCluster(); 
-      if (m_clus == 0 ) return StatusCode::SUCCESS; 
-    
-      if (m_ShowerShapeTool.empty())  return StatusCode::SUCCESS; 
-    
-      StatusCode sc  = m_ShowerShapeTool->execute(m_clus,m_cellcoll);
-      if ( sc.isFailure() ) {
-	ATH_MSG_WARNING("call to ShowerShape returns failure ");
-	return sc; 
-      } 
-      else {
-	FillEMShowerShape(eg);
-	return StatusCode::SUCCESS; 
-      }
-    }
-  }
-  
-   
   // calculate shower shapes
   CalcShowerShape(eg);
-  // calculate track isolation
-  CalcFromTracker(eg,aTrackParticleContainer);
-
+  
   ATH_MSG_DEBUG("Exiting recoExecute");
   
   return StatusCode::SUCCESS;
@@ -448,15 +272,6 @@ StatusCode EMShowerBuilder::retrieveContainers()
       ATH_MSG_WARNING("no Calo Cell Container " << m_cellsName << " found");
       return sc;
     }
-  }
-
-  //SL+JBdV
-  ATH_MSG_DEBUG("Will retrieve EMTopoEventShape");
-  if (evtStore()->contains<xAOD::EventShape>("EMTopoEventShape")) {
-    m_evtShape = evtStore()->retrieve<xAOD::EventShape>("EMTopoEventShape") ;
-  } else {
-    ATH_MSG_WARNING("EMTopoEventShape does not exist in evtStore");
-    m_evtShape = 0;
   }
 
   return StatusCode::SUCCESS;
@@ -485,14 +300,12 @@ void EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
   if (m_UseCaloIsoTool){
   
     if (m_timingProfile) {
-      std::string chronoName = this->name()+"_CalcCaloIsolation";         
+      std::string chronoName = this->name()+"_CalcHadronicLeakage";         
       m_timingProfile->chronoStart(chronoName);
-      CalcCaloIsolation(eg);
-      CalcCaloIsolationPtCorrection(eg);
+      CalcHadronicLeakage(eg);
       m_timingProfile->chronoStop(chronoName);
     } else {
-      CalcCaloIsolation(eg);
-      CalcCaloIsolationPtCorrection(eg);
+      CalcHadronicLeakage(eg);
     }
   } 
 
@@ -518,90 +331,18 @@ void EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
   }
 }
 
-// =====================================================================
-void EMShowerBuilder::CalcFromTracker(xAOD::Egamma* eg,const xAOD::TrackParticleContainer* aTrackParticleContainer /*= 0*/)
-{ 
-  // 
-  // Estimate track isolation from tracker
-  // 
-
-  ATH_MSG_DEBUG("Executing CalcFromTracker");
-
-  if (m_timingProfile) {
-    std::string chronoName = this->name()+"_CalcFromTracker";         
-    m_timingProfile->chronoStart(chronoName);
-  }
-
-
-  // Apply Track Isolation calculation
-  if (m_UseTrackIsoTool && !m_isCosmics) {
-    
-    // protection in case tool is not available
-    // return as algorithm may be able to run without it 
-    // in degraded mode
-    if (m_emTrackIsolationTool.empty()) return;
-    
-    // execute the tool
-    StatusCode sc = m_emTrackIsolationTool->execute(eg,aTrackParticleContainer);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("EMTrackisolation reports failure");
-      return;
-    }
-    
-    // retrieve and set value
-    float value=0;
-    value= static_cast<float>(m_emTrackIsolationTool->ptcone20());
-    eg->setIsolationValue(value, xAOD::EgammaParameters::ptcone20);
-    value= static_cast<float>(m_emTrackIsolationTool->ptcone30());
-    eg->setIsolationValue(value, xAOD::EgammaParameters::ptcone30);
-    value= static_cast<float>(m_emTrackIsolationTool->ptcone40());
-    eg->setIsolationValue(value, xAOD::EgammaParameters::ptcone40);
-    value= static_cast<float>(m_emTrackIsolationTool->nucone20());
-    eg->setIsolationValue(value, xAOD::EgammaParameters::nucone20);
-    value= static_cast<float>(m_emTrackIsolationTool->nucone30());
-    eg->setIsolationValue(value, xAOD::EgammaParameters::nucone30);
-    value= static_cast<float>(m_emTrackIsolationTool->nucone40());
-    eg->setIsolationValue(value, xAOD::EgammaParameters::nucone40);
-  }
-    
-  
-  if (m_timingProfile) {
-    std::string chronoName = this->name()+"_CalcFromTracker";         
-    m_timingProfile->chronoStop(chronoName);
-  }
-  return;
-}
-
 // ==========================================================================
-void EMShowerBuilder::CalcCaloIsolation(xAOD::Egamma* eg)
+void EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg)
 {
   //
   // Call calorimeter isolation tool
   //
 
-  ATH_MSG_DEBUG("Executing CalcCaloIsolation");
+  ATH_MSG_DEBUG("Executing CalcHadronicLeakage");
 
-  // protection in case tool does not exist
-  if (m_emCaloIsolationTool.empty()) {
+   // protection in case tool does not exist
+  if (m_HadronicLeakageTool.empty()) {
     return;
-  }
-  if (m_doTopoIso) {
-
-
-    // get topo calo container
-    const xAOD::CaloClusterContainer* calocontainer = 0;
-    StatusCode sc = evtStore()->retrieve(calocontainer, m_topoCaloClusterInputName);
-    if ( sc.isFailure() || calocontainer==0 ) {
-      ATH_MSG_WARNING("CaloClusters not found" );
-      return;
-    }
-    
-    // topo cluster isolation
-    sc = m_emTopoCaloIsolationTool->execute(eg, calocontainer, m_topoIsoTypes);
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("call to TopoIso returns failure for execute");
-      return;
-    }
   }
 
   if ( m_caloNums.size() < 3 ) {
@@ -631,10 +372,8 @@ void EMShowerBuilder::CalcCaloIsolation(xAOD::Egamma* eg)
   CaloCellList* HADccl = new CaloCellList(m_cellcoll,theVecCalo); 
 
 
-  // calculate information concerning isolation behind em clusters in the 
-  // hadronic calorimeter and around the em cluster
-  // for isolation around em clustr use cone size 0.45
-  StatusCode sc =  m_emCaloIsolationTool->execute(m_clus,HADccl,EMccl,m_Rs,5,7); 
+  // calculate information concerning just the hadronic leakage
+  StatusCode sc =  m_HadronicLeakageTool->execute(m_clus,HADccl);
 
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("call to Iso returns failure for execute");
@@ -645,100 +384,28 @@ void EMShowerBuilder::CalcCaloIsolation(xAOD::Egamma* eg)
   }
   
   float value=0;
-  value=static_cast<float>(m_emCaloIsolationTool->ethad1());
+  /// @bried ethad/et
+  const double et = eg->caloCluster()->et();
+  
+  value=static_cast<float>(m_HadronicLeakageTool->ethad1());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ethad1);
-
-  value=static_cast<float>(m_emCaloIsolationTool->ethad());
+  eg->setShowerShapeValue( et != 0. ? value/et : 0., xAOD::EgammaParameters::Rhad1);
+  
+  value=static_cast<float>(m_HadronicLeakageTool->ethad());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ethad);
+  eg->setShowerShapeValue( et != 0. ? value/et : 0., xAOD::EgammaParameters::Rhad);
 
-  value=static_cast<float>(m_emCaloIsolationTool->ehad1());
+  value=static_cast<float>(m_HadronicLeakageTool->ehad1());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ehad1);
+  
+ 
 
   
-  // pt correction for topoetcone40 
-  m_dotopoptcor = false;
-
-  try {
-    for (unsigned int i = 0; i < m_isoTypes.size(); i++) {
-      float isovalue=static_cast<float>(m_emCaloIsolationTool->etcone(i));
-      eg->setIsolationValue(isovalue,static_cast<xAOD::EgammaParameters::IsolationType>(m_isoTypes.at(i)));
-    }
-    if (m_doTopoIso) {
-      for (unsigned int i = 0; i < m_topoIsoTypes.size(); i++) {
-        if (m_topoIsoTypes.at(i) == xAOD::EgammaParameters::topoetcone40) {m_dotopoptcor = true;}
-	float isotopovalue=static_cast<float>(m_emTopoCaloIsolationTool->topoetcone(i));
-	eg->setIsolationValue(isotopovalue,static_cast<xAOD::EgammaParameters::IsolationType>(m_topoIsoTypes.at(i)));	
-      }
-    }
-  }
-  catch(std::out_of_range) {
-    ATH_MSG_WARNING("out of range exception caught");
-  }
-
   // delete ccls
   delete EMccl;
   delete HADccl;
 }
 
-// ==========================================================================
-void EMShowerBuilder::CalcCaloIsolationPtCorrection(xAOD::Egamma* eg)
-{ 
-  //
-  // Call calorimeter pt corrected  isolation tool
-  //
-
-    float value=0;
-    float initialvalue=0;
-    if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::etcone15)){
-    value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.15));
-    eg->setIsolationValue(value, xAOD::EgammaParameters::etcone15_ptcorrected);
-    }
-    if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::etcone20)){
-    value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.20));
-    eg->setIsolationValue(value, xAOD::EgammaParameters::etcone20_ptcorrected);
-    }
-    if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::etcone25)){
-    value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.25));
-    eg->setIsolationValue(value, xAOD::EgammaParameters::etcone25_ptcorrected);
-    }
-    if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::etcone30)){
-    value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.30));
-    eg->setIsolationValue(value, xAOD::EgammaParameters::etcone30_ptcorrected);
-    }
-    if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::etcone35)){
-    value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.35));
-    eg->setIsolationValue(value, xAOD::EgammaParameters::etcone35_ptcorrected);
-    }
-    if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::etcone40)){
-    value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.40));
-    eg->setIsolationValue(value, xAOD::EgammaParameters::etcone40_ptcorrected);
-    }
-
-    if ( m_dotopoptcor ){
-      if (eg->isolationValue(initialvalue,xAOD::EgammaParameters::topoetcone40)){
-	value= static_cast<float>(initialvalue - m_emCaloIsoPtCorrectionTool->CalcPtCorrection(eg,  0.40, "topo"));
-	eg->setIsolationValue(value, xAOD::EgammaParameters::topoetcone40_ptcorrected);
-
-	// SL+JBdV
-	float toSub = 0.;
-	double rho  = 0.;
-	if (m_evtShape) {
-	  xAOD::EventShape::EventDensityID densityType = xAOD::EventShape::EventDensityID::DensityForEgammaCentral;
-	  ATH_MSG_DEBUG("Will get density");
-	  if (fabs(eg->eta())>1.5) 
-	    densityType = xAOD::EventShape::EventDensityID::DensityForEgammaForward;
-	  bool status = m_evtShape->getDensity(densityType,rho);
-	  if (!status)
-	    ATH_MSG_WARNING("EventDensity not OK");
-	}
-	toSub = rho*M_PI*(0.16-0.875/128.);
-	ATH_MSG_DEBUG("Density  = " << rho << ", to sub = " << toSub);
-	float edcor = static_cast<float>(value - toSub);
-	eg->setIsolationValue(edcor, xAOD::EgammaParameters::topoetcone40_corrected);
-
-      }	
-    }
-}
 
 // ==========================================================================
 void EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg)
@@ -873,31 +540,26 @@ void EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg)
   value=static_cast<float>(m_ShowerShapeTool->ecore());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ecore);
 
+  //
+  // information combining different shower shape
+  //
+  float valueSecond=0;
+  /// @brief  e237/e277
+  value=static_cast<float>(m_ShowerShapeTool->e277());
+  valueSecond=static_cast<float>(m_ShowerShapeTool->e237());
+  eg->setShowerShapeValue( value != 0 ? valueSecond/value : 0., xAOD::EgammaParameters::Reta);
+  /// @brief  e233/e237
+  value=static_cast<float>(m_ShowerShapeTool->e233());
+  valueSecond=static_cast<float>(m_ShowerShapeTool->e237());
+  eg->setShowerShapeValue( valueSecond != 0 ? value/valueSecond : 0., xAOD::EgammaParameters::Rphi);
+  /// @brief (emaxs1-e2tsts1)/(emaxs1+e2tsts1)
+  value=static_cast<float>(m_ShowerShapeTool->emax());
+  valueSecond=static_cast<float>(m_ShowerShapeTool->esec1());
+  eg->setShowerShapeValue(fabs(value+valueSecond)>0. ? (value-valueSecond)/(value+valueSecond) : 0., xAOD::EgammaParameters::Eratio);
+
+  value=static_cast<float>(m_ShowerShapeTool->emin());
+  eg->setShowerShapeValue( (valueSecond-value), xAOD::EgammaParameters::DeltaE);
+
   return;
-}
-
-// ==========================================================================
-IegammaIso::IsoSpecifier EMShowerBuilder::getSpecifier(xAOD::EgammaParameters::IsolationType par) const
-{
-  switch (par) {
-  case xAOD::EgammaParameters::etcone15:
-    return IegammaIso::IsoSpecifier(0, 0.15, -1);
-  case xAOD::EgammaParameters::etcone20:
-    return IegammaIso::IsoSpecifier(0, 0.20, -1);
-  case xAOD::EgammaParameters::etcone25:
-    return IegammaIso::IsoSpecifier(0, 0.25, -1);
-  case xAOD::EgammaParameters::etcone30:
-    return IegammaIso::IsoSpecifier(0, 0.30, -1);
-  case xAOD::EgammaParameters::etcone35:
-    return IegammaIso::IsoSpecifier(0, 0.35, -1);
-  case xAOD::EgammaParameters::etcone40:
-    return IegammaIso::IsoSpecifier(0, 0.40, -1);
-  case xAOD::EgammaParameters::etcone:
-    return IegammaIso::IsoSpecifier(0, 0.45, -1);
-
-  default:
-    ATH_MSG_WARNING("found an unrecognized isolation parameter: " << par);
-    return IegammaIso::IsoSpecifier();
-  }
 }
 

@@ -6,6 +6,7 @@
 #include "../EMConversionBuilder.h"
 #include "../EMFourMomBuilder.h"
 #include "../EMShowerBuilder.h"
+#include "../EMIsolationBuilder.h"
 #include "../EMTrackIsolationTool.h"
 #include "../EMTrackMatchBuilder.h"
 #include "../EMVertexBuilder.h"
@@ -21,6 +22,7 @@ DECLARE_TOOL_FACTORY     ( EMClusterTool                )
 DECLARE_TOOL_FACTORY     ( EMConversionBuilder          )
 DECLARE_TOOL_FACTORY     ( EMFourMomBuilder             )
 DECLARE_TOOL_FACTORY     ( EMShowerBuilder              )
+DECLARE_TOOL_FACTORY     ( EMIsolationBuilder           )
 DECLARE_TOOL_FACTORY     ( EMTrackIsolationTool         )
 DECLARE_TOOL_FACTORY     ( EMTrackMatchBuilder          )
 DECLARE_TOOL_FACTORY     ( EMVertexBuilder              )
@@ -38,6 +40,7 @@ DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( EMConversionBuilder          )
     DECLARE_TOOL     ( EMFourMomBuilder             )
     DECLARE_TOOL     ( EMShowerBuilder              )
+    DECLARE_TOOL     ( EMIsolationBuilder           )
     DECLARE_TOOL     ( EMTrackIsolationTool         )
     DECLARE_TOOL     ( EMTrackMatchBuilder          )
     DECLARE_TOOL     ( EMVertexBuilder              )

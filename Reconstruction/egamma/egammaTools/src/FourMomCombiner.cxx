@@ -164,16 +164,11 @@ StatusCode FourMomCombiner::TrackClusterExecute(xAOD::Egamma *eg,
   // the other 
 
   //A few security checks.
-  if (eg == NULL) {
+  if (!eg) {
     ATH_MSG_ERROR("No Egamma Object");
     return StatusCode::FAILURE;
   }
 
-  //Do preliminary execution for cluster parameters.
-  if (!eg) {
-    ATH_MSG_WARNING("FourMomCombiner: Filling of cluster parameters failed!");
-    return StatusCode::SUCCESS;
-  }
   
   //Load track parameters from egamma object.
   fillTrackVectorElements(eg,index);
@@ -743,94 +738,18 @@ bool FourMomCombiner::isElectron(const xAOD::Egamma* eg) const
 //Adaptation of routine from EMFourMomBuilder.cxx.
 void FourMomCombiner::MakeCombinationDecisionElectron(xAOD::Egamma *eg, 
 						      unsigned int index, 
-						      bool hasSi)
-{
+						      bool hasSi){
 
-  ATH_MSG_DEBUG("Using CLUSTER flag (no combination) for now ");
-  if (hasSi)
-    setDownweightParameters(PHI, ETA, PMOM, CLUSTER);
-  else
-    setDownweightParameters(PHI, ETA, PMOM, CLUSTER_TRT);
-
-  return;
-
-  //Old combination code - not interested for now.
-
-  double momentum = -999999.;
-  double momentumError = -999999.;
-  
-  if (m_trkVector[4] > 0) {
-    momentum = m_trkVector[4];
-    momentumError = sqrt(m_trkMatrix(4,4));
-  }
-  
-  double energy(m_clusVector[4]);
-  double energyError(sqrt(m_clusMatrix(4,4)));
-  
-  // Cluster eta for (E-p)/p check on crack.
-  double cluster_eta(m_clusVector[3]);
-  
-  //const Rec::TrackParticle * trParticle;// = eg->trackParticle(index);
   xAOD::Electron* el = dynamic_cast<xAOD::Electron*> (eg);
   const xAOD::TrackParticle *trParticle = el->trackParticle(index);
-  
-  // require TRT-only tracks to have a minimum pT in order to combine
-  bool passMinPt = hasSi || trParticle->pt() > m_minPtTRT;
-  
-  //NEED xAOD HANDLE TO LAST MEASUREMENT PARAMETERS!
-  //Get last measurement parameters if using dP/P (or dPhi/Phi) as a metric.
-  /*
-  if (m_usedPoverP) {
-    
-    const Trk::TrackParticleBase*     trkbase = dynamic_cast<const Trk::TrackParticleBase* >(trParticle);
-    const Trk::TrackParameters*      pperigee = GetPerigeeParameters(trkbase);
-    const Trk::TrackParameters*  parametersLM = GetLastMeasurementParameters(trkbase);
-    
-    //Calculate dP/P.
-    double P(pperigee->momentum().mag());
-    double P_LM(parametersLM->momentum().mag());
-    m_dPoverP = fabs(P_LM-P) / P;
-    
+  float trkParPt=trParticle->pt();
+  ATH_MSG_DEBUG("Using CLUSTER flag (no combination) for now ");
+  if (hasSi && trkParPt > 0){
+    setDownweightParameters(PHI, ETA, PMOM, CLUSTER);
   }
-  */
-  
-  //Start the logic for combining track and cluster matrices , then set eg parameters
-  m_useCombination = (m_usedPoverP) ? 
-    m_dPoverP < m_dPoverPcut && fabs(momentum-energy)/momentum < m_EPoverPcut && passMinPt :
-    computeEPsigma(energy, energyError, momentum, momentumError ) < m_EPsigmacut && passMinPt;
-  
-  if (m_useCombination) {
-    // flag = "TRACK";
-    ATH_MSG_DEBUG("TRACK flag");
-    if (hasSi) {
-      setDownweightParameters(PHI, ETA, INVALID, TRACK);
-    } else {
-      setDownweightParameters(PHI, ETA, INVALID, TRACK_TRT);
-    }
+  else{
+    setDownweightParameters(PHI, ETA, PMOM, CLUSTER_TRT);
   }
-  //inconsistent measurements
-  else {
-    //flag = "CLUSTER";
-    ATH_MSG_DEBUG("CLUSTER flag ");
-    if (hasSi){
-      if( m_applyTrackOnly && energy<m_applytrackOnlyEcut) {
-	//Inconsistent measurements and low E
-	setDownweightParameters(PHI, ETA, PMOM, TRACKONLY);
-      }
-      
-      //For higher energies always go with the cluster, except in the crack.
-      else {
-	
-	if (fabs(cluster_eta) > 1.37 && fabs(cluster_eta) < 1.56 && energy/momentum < 1.)
-	  setDownweightParameters(PHI, ETA, PMOM, TRACKONLY);
-	else
-	  setDownweightParameters(PHI, ETA, PMOM, CLUSTER);
-	
-      }
-    }
-    else {
-      setDownweightParameters(PHI, ETA, PMOM, CLUSTER_TRT);
-    }
-  } // Chisquared test        
-  
+
+  return;
 }

@@ -20,6 +20,8 @@
    @author Christos Anastopoulos
 */
 
+class egammaRec;
+
 class EMAmbiguityTool : virtual public IEMAmbiguityTool, public AthAlgTool {
 
 public:
@@ -29,14 +31,16 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  unsigned int ambiguityResolve(const xAOD::Vertex* vx, 
-				const xAOD::TrackParticle* trParticle) const;
+  unsigned int ambiguityResolve(const egammaRec* egRec) const;
 
 private:
 
   /** @brief Minimum number of silicon hits to be an electron */
   unsigned int m_MinNoSiHits;
   unsigned int m_MinNoPixHits;
+  double  m_maxEoverPCut;
+  double m_minPtCut;
+
 };
 
 #endif // EMAMBIGUITYTOOL_H 

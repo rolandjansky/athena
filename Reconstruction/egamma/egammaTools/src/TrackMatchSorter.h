@@ -25,7 +25,7 @@ struct TrackMatch
 class TrackMatchSorter
 : public std::binary_function<TrackMatch, TrackMatch, bool> {
  public:
-  bool operator()(TrackMatch match1, TrackMatch match2) const
+  bool operator()(const TrackMatch& match1, const TrackMatch& match2) const
   {
 
     if(match1.score!= match2.score) {//Higher score 

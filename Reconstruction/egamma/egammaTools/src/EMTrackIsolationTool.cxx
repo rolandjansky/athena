@@ -14,8 +14,6 @@
 
 #include "IsolationTool/ITrackIsolationTool.h"
 #include "xAODPrimitives/IsolationType.h"
-// #include "xAODCaloEvent/CaloCluster.h"
-// #include "CaloUtils/CaloClusterVertexCorrection.h"
 
 
 // ==============================================================

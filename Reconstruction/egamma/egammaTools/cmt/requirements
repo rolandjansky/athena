@@ -20,7 +20,6 @@ use EventPrimitives            EventPrimitives-*       Event
 use LArRecConditions           LArRecConditions-*      LArCalorimeter 
 use LArTools                   LArTools-*              LArCalorimeter 
 
-use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*   Tracking/TrkVertexFitter 
 use InDetConversionFinderTools InDetConversionFinderTools-*  InnerDetector/InDetRecTools
 use InDetRecToolInterfaces     InDetRecToolInterfaces-*      InnerDetector/InDetRecTools
 use InDetBeamSpotService       InDetBeamSpotService-*        InnerDetector/InDetConditions
@@ -42,16 +41,14 @@ use TrkTrack                   TrkTrack-*              Tracking/TrkEvent
 use TrkEventPrimitives         TrkEventPrimitives-*    Tracking/TrkEvent
 use VxVertex                   VxVertex-*              Tracking/TrkEvent
 use TrkTrackLink               TrkTrackLink-*          Tracking/TrkEvent
-#use TrkNeutralParameters       TrkNeutralParameters-*  Tracking/TrkEvent
-use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
 use TrkToolInterfaces          TrkToolInterfaces-*     Tracking/TrkTools 
 use ParticleTruth              ParticleTruth-*         Reconstruction 
 
 
 use egammaInterfaces	       egammaInterfaces-*      Reconstruction/egamma
-use egammaRecEvent	       egammaRecEvent-*      Reconstruction/egamma
+use egammaRecEvent	       egammaRecEvent-*        Reconstruction/egamma
 use egammaUtils                egammaUtils-*           Reconstruction/egamma
-#use egammaConditions           egammaConditions-*      Reconstruction/egamma
+use egammaMVACalib             egammaMVACalib-*        Reconstruction/egamma 
 
 use xAODEgamma                 xAODEgamma-*            Event/xAOD
 use xAODTracking               xAODTracking-*          Event/xAOD

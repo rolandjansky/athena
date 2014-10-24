@@ -37,18 +37,8 @@
 #include "egammaRecEvent/egammaRec.h"
 
 
-class EMShower;
-class EMTrackFit;
-class EMConvert;
 class FourMomCombiner;
 class IFourMomCombiner;
-
-namespace Trk
-{
-  class INeutralParticleParameterCalculator;
-  struct ParticleMasses;
-  class TrackParticleBase;
-}
 
 class EMFourMomBuilder : public egammaBaseTool, virtual public IEMFourMomBuilder
 {
@@ -79,39 +69,20 @@ private:
 			       unsigned int);
 
   StatusCode setFromTrkCluster(xAOD::Photon*);
- 
- 
+  
   /** @brief Method to set the 4-mom in case of unconverted photon */
   StatusCode setFromCluster(xAOD::Egamma*);
 
   //Method to save parameters in egamma object.
   void saveParameters    (xAOD::Egamma*);
   void saveCombinedParams(xAOD::Egamma*);
-  
-  /** @brief seed of the analysis*/
-  std::string		     m_AnalysisSeed; 
-  /** @brief Name of the vertex candidates*/
-  std::string                m_vxCandidatesName;
-  /** @brief */
-  ParticleDataType::DataType m_dataType;
-  /** @brief */
-  int                        m_tmp_dataType;
 
-  /** @brief Tool Handle for */
-  ToolHandle<Trk::INeutralParticleParameterCalculator> m_convUtils;
+  //Adding in separate combination tool - this should act as the shell that makes the decision.
+  ToolHandle<IFourMomCombiner> m_FourMomCombiner;
 
   /** @brief Use E-p combination*/
   bool   m_useCombination;
 
-  //Adding in separate combination tool - this should act as the shell that makes the decision.
-  ToolHandle<IFourMomCombiner> m_FourMomCombiner;
-  Amg::Vector3D m_vtxOrigin;
-  
-  /** @brief Treat electron as unconverted photon for photon perf studies */
-  bool   m_treatElectronsAsPhotons;
-
-  /** @brief Minimum pT for TRT-only tracks for them to be combined */
-  double m_minPtTRT;
 
 };
 

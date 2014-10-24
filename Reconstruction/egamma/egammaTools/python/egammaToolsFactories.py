@@ -6,6 +6,7 @@ __author__ = "Bruno Lenzi"
 import egammaToolsConf
 from egammaRec.Factories import FcnWrapper, ToolFactory, FullNameWrapper
 from egammaRec import egammaKeys
+from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
 from RecExConfig.RecFlags import rec
 
 def configureClusterCorrections(swTool):
@@ -23,7 +24,9 @@ def configureClusterCorrections(swTool):
     x = 'ClusterCorrectionTools' + attrName
     if not hasattr(swTool, x) or getattr(swTool, x):
       continue
-    y = make_CaloSwCorrections(clName, suffix='EG', cells_name=egammaKeys.caloCellKey() )
+    y = make_CaloSwCorrections(clName, suffix='EG',
+      version = jobproperties.egammaRecFlags.clusterCorrectionVersion(),
+      cells_name=egammaKeys.caloCellKey() )
     setattr(swTool, x, _process_tools (swTool, y) )
 
 #-------------------------
@@ -31,12 +34,15 @@ def configureClusterCorrections(swTool):
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
   postInit=[configureClusterCorrections])
 
+from egammaMVACalib import egammaMVACalibConf 
+egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool)
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
-  OutputClusterContainerName = egammaKeys.outputClusterKey(),
-  ElectronContainerName = egammaKeys.outputElectronKey(),
-  PhotonContainerName = egammaKeys.outputPhotonKey(),
-  ClusterCorrectionToolName = FullNameWrapper(egammaSwTool)
+                            OutputClusterContainerName = egammaKeys.outputClusterKey(),
+                            ElectronContainerName = egammaKeys.outputElectronKey(),
+                            PhotonContainerName = egammaKeys.outputPhotonKey(),
+                            ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
+                            MVACalibTool= egammaMVATool
 )
 
 
@@ -52,7 +58,6 @@ from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 EMTrackIsolationTool = ToolFactory( egammaToolsConf.EMTrackIsolationTool,
   TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool),
   useBremAssoc = True)
-
 
 from EMBremCollectionBuilder import egammaBremCollectionBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
@@ -76,11 +81,7 @@ EMAmbiguityTool = ToolFactory( egammaToolsConf.EMAmbiguityTool )
 
 
 
-from egammaTrackTools.egammaTrackToolsFactories import convUtils
-import EventKernel.ParticleDataType
-EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder,
-                                ConversionUtils          = convUtils,
-                                dataType=EventKernel.ParticleDataType.Full )
+EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
 
 # Electron Selectors
 from EMPIDBuilderBase import EMPIDBuilderElectronBase
@@ -94,6 +95,7 @@ PhotonPIDBuilder = ToolFactory( EMPIDBuilderPhotonBase, name = "PhotonPIDBuilder
 
 # Import the factories that are not defined here
 from EMShowerBuilder import EMShowerBuilder
+from EMIsolationBuilder import EMIsolationBuilder
 from egammaOQFlagsBuilder import egammaOQFlagsBuilder
 from EMTrackMatchBuilder import EMTrackMatchBuilder
 from EMVertexBuilder import EMVertexBuilder

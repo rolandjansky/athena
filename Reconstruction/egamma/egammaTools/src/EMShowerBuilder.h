@@ -34,8 +34,6 @@
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
 #include "egammaInterfaces/IegammaIso.h"
-#include "egammaInterfaces/IegammaIsoPtCorrection.h"
-#include "egammaInterfaces/IegammaTopoIso.h"
 
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/EgammaFwd.h"
@@ -67,9 +65,7 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   /** @brief standard execute method */
   virtual StatusCode execute(xAOD::Egamma*);
   /** @brief method to calculate shower shapes from a CaloCellContainer */
-  virtual StatusCode caloExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll);
-  /** @brief method to calculate shower shapes from a CaloCellContainer */
-  virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll,const xAOD::TrackParticleContainer* aTrackParticleContainer = 0);
+  virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll);
   /** @brief finalize method*/
   StatusCode finalize();
 
@@ -78,27 +74,16 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   const xAOD::Egamma* matchdRParent();
   /** @brief method to retrieve ShowerBuilder tool */
   StatusCode RetrieveShowerShapeTool();
-  /** @brief method to retrieve Calo isolation tool */
-  StatusCode RetrieveEMCaloIsolationTool();
-  /** @brief method to retrieve Track isolation tool */
-  StatusCode RetrieveEMTrackIsolationTool();
-  /** @brief method to retrieve pt correction for Calo isolation tool */
-  StatusCode RetrieveEMCaloIsoPtCorrectionTool();
-  /** @brief method to retrieve Topo Calo isolation tool */
-  StatusCode RetrieveEMTopoCaloIsolationTool();
-
+  /** @brief method to retrieve hadronic leakage calculation from CaloIso tool */
+  StatusCode RetrieveHadronicLeakageTool();
+ 
 
   /** @brief method shared by the various execute method to retrieve the cell and cluster containers */
   StatusCode retrieveContainers();
   /** @brief calculate shower shapes*/
   void CalcShowerShape(xAOD::Egamma* eg);
-  /** @brief method to calculate isolation from tracker */
-  void CalcFromTracker(xAOD::Egamma* eg,const xAOD::TrackParticleContainer* aTrackParticleContainer = 0);
-  /** @brief calculate cluster isolation variables */
-  void CalcCaloIsolation(xAOD::Egamma* eg);
-  /** @brief calculate pt corrected cluster isolation variables */
-  void CalcCaloIsolationPtCorrection(xAOD::Egamma* eg);
-
+  void CalcHadronicLeakage(xAOD::Egamma* eg);
+  
   /** @brief fill shower detail from shower shape calculation*/
   void FillEMShowerShape(xAOD::Egamma* eg);
 
@@ -107,11 +92,6 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   /** @brief retrieve information from calorimeter isolation calculation */
   void FillEMShowerIso(xAOD::Egamma* eg);
 
-  /** @brief method to return the isoSpecifier given parameter */
-  IegammaIso::IsoSpecifier getSpecifier(xAOD::EgammaParameters::IsolationType par) const;
-
-  std::string m_topoCaloClusterInputName;
-
   /** @brief Cell container*/
   std::string m_cellsName;     
   /** @brief vector of calo-id to treat*/
@@ -119,14 +99,9 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
 
   /** @brief Tool for shower shape calculation*/
   ToolHandle<IegammaShowerShape> m_ShowerShapeTool;
-  /** @brief Tool for isolation calculation*/
-  ToolHandle<IegammaIso> m_emCaloIsolationTool;
-  /** @brief Pointer to the EMTrackIsolationTool*/
-  ToolHandle<IEMTrackIsolationTool> m_emTrackIsolationTool;
-  /** @brief Tool for pt-corrected isolation calculation*/
-  ToolHandle<IegammaIsoPtCorrection> m_emCaloIsoPtCorrectionTool;
-  /** @brief Tool for topo calo isolation calculation*/
-  ToolHandle<IegammaTopoIso> m_emTopoCaloIsolationTool;
+  /** @brief Tool for hadronic leakage calculation*/
+  ToolHandle<IegammaIso> m_HadronicLeakageTool;
+ 
 
   /** @brief the CaloCell container */
   const CaloCellContainer* m_cellcoll;
@@ -145,45 +120,13 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   /** @brief Boolean to call calo isolation variables calculation and filling
       (NB: this could be important when redoing calculation from AODs) */
   bool m_UseCaloIsoTool;
-  /** @brief Boolean to call isolation variables calculation and filling */
-  bool m_UseTrackIsoTool;
   /** @brief */
   bool m_caloSelection ;
-
-  /** @brief Flag to do isolation for Topo Seeded Photons */
-  bool m_doIsolForTopoSeeded;
 
   /** @brief boolean to know if we are looking at cosmic data */
   bool m_isCosmics;
   
-  /** @brief The isolation cones to do; really vector of enum type egammaParameter::ParamDef */
-  std::vector<int> m_isoTypes;
-
-  /** @brief The isolation cones to do; really vector of enum type egammaParameter::ParamDef */
-  std::vector<int> m_topoIsoTypes;
-
-  // Those below are just variables not configurables 
-
-  // /** @brief Turn on noise isolation calculation */
-  bool m_doNoiseCalc;
-
-  /** @brief the cone sizes for the isolation (used when no noise)*/
-  std::vector<double> m_Rs;
-
-  /** @brief the cone sizes for the isolation (used when at least one noised iso)*/
-  std::vector<IegammaIso::IsoSpecifier> m_specs;
-
-  /** @brief do topo isolation is it is requested */
-  bool m_doTopoIso;
-
-  /** @brief calculate topoetcone40_ptcorrected if topoetcone40 is in the topo isoType list */
-  bool m_dotopoptcor;
-  
- /** @brief Correct isolation variables based on energy density estimations */
- bool m_doEnergyDensityCorrection;
-
-
-  // for timing
+   // for timing
   bool m_timing;
   IChronoStatSvc* m_timingProfile;
 

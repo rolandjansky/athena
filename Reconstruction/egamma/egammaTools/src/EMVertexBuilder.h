@@ -6,6 +6,7 @@
 #define EMVERTEXBUILDER_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "egammaInterfaces/IEMVertexBuilder.h"
 #include "egammaBaseTool.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
@@ -29,41 +30,44 @@ class IEMExtrapolationTools;
 
 class EMVertexBuilder : virtual public IEMVertexBuilder, public egammaBaseTool {
 
-	public:
-		EMVertexBuilder (const std::string& type,const std::string& name, const IInterface* parent);
-		virtual ~EMVertexBuilder();
+ public:
+  EMVertexBuilder (const std::string& type,const std::string& name, const IInterface* parent);
+  virtual ~EMVertexBuilder();
 
-		virtual StatusCode initialize();
-		virtual StatusCode finalize();
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
 
-		virtual StatusCode contExecute();
+  virtual StatusCode contExecute();
 
-	private:
+ private:
 	
-	  /** Maximum radius accepted for conversion vertices **/
-	  float m_maxRadius;
+  /** Maximum radius accepted for conversion vertices **/
+  float m_maxRadius;
+  /**  Minimum Pt, less than that TRT track are pileup for double/single track conversion **/
+  float m_minPtCut_DoubleTrack;
+  float m_minPtCut_SingleTrack;
 
-    /** @brief create single track vertices from tracks that are not part of other vertices **/
-    void addSingleTrackVertices(const xAOD::TrackParticleContainer*,
-                                xAOD::VertexContainer*) const;
+  /** @brief create single track vertices from tracks that are not part of other vertices **/
+  void addSingleTrackVertices(const xAOD::TrackParticleContainer*,
+			      xAOD::VertexContainer*) const;
 
 
-		StoreGateSvc          *m_storeGate;
+  StoreGateSvc          *m_storeGate;
 		
-		/** @brief TrackParticle container input name*/
-		std::string            m_inputTrackParticleContainerName;
+  /** @brief TrackParticle container input name*/
+  std::string            m_inputTrackParticleContainerName;
 
-		/** @brief conversion container output name*/
-		std::string            m_outputConversionContainerName;
+  /** @brief conversion container output name*/
+  std::string            m_outputConversionContainerName;
 
-    /** @brief Tool to find vertices (creates double-track conversions) */
-		ToolHandle<InDet::IVertexFinder>    m_vertexFinderTool;
+  /** @brief Tool to find vertices (creates double-track conversions) */
+  ToolHandle<InDet::IVertexFinder>    m_vertexFinderTool;
 
-    /** @brief Tool to create single-track conversions */
-    ToolHandle<InDet::SingleTrackConversionTool> m_singleTrkConvTool;
+  /** @brief Tool to create single-track conversions */
+  ToolHandle<InDet::SingleTrackConversionTool> m_singleTrkConvTool;
 
-    /** @brief EMExtrapolationTool */
-    ToolHandle<IEMExtrapolationTools>  m_EMExtrapolationTool;
+  /** @brief EMExtrapolationTool */
+  ToolHandle<IEMExtrapolationTools>  m_EMExtrapolationTool;
     		
 };
 
