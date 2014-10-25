@@ -30,6 +30,8 @@ public:
     CondAttrListCollAddress();
     /// Copy Constructor
     CondAttrListCollAddress(const CondAttrListCollAddress& copy);
+    /// Assignment.
+    CondAttrListCollAddress& operator= (const CondAttrListCollAddress& copy);
     /// Constructor from GA
     CondAttrListCollAddress(const GenericAddress& copy);
     /// Standard Constructor
@@ -71,6 +73,19 @@ CondAttrListCollAddress::CondAttrListCollAddress(const CondAttrListCollAddress& 
 	m_attrListColl(copy.m_attrListColl)
 {
     if (m_attrListColl) m_attrListColl->addRef();
+}
+
+inline     
+CondAttrListCollAddress&
+CondAttrListCollAddress::operator=(const CondAttrListCollAddress& copy)
+{
+  if (this != &copy) {
+    GenericAddress::operator= (copy);
+    if (m_attrListColl) m_attrListColl->release();
+    m_attrListColl = copy.m_attrListColl;
+    if (m_attrListColl) m_attrListColl->addRef();
+  }
+  return *this;
 }
 
 inline     

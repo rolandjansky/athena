@@ -44,6 +44,9 @@ public:
     /// Standard Destructor
     virtual ~AthenaAttrListAddress();
 
+    /// Assignment is not implemented.
+    AthenaAttrListAddress& operator= (const AthenaAttrListAddress& copy) = delete;
+
     /// Access to AttributeList
     AthenaAttributeList*  attrList    () const;
 

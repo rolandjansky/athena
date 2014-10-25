@@ -53,6 +53,8 @@ public:
     /// Copy attribute lists.
     TagAthenaAttributeList(const coral::AttributeList& rhs);
     TagAthenaAttributeList(const TagAthenaAttributeList& rhs);
+    /// Assignment.
+    TagAthenaAttributeList& operator= (const TagAthenaAttributeList& rhs);
         
     /// Construct attribute list according to the specification.
     /// The link to the specification is kept internally.
@@ -129,6 +131,20 @@ TagAthenaAttributeList::TagAthenaAttributeList(const TagAthenaAttributeList& rhs
 {
   if (rhs.hasDesc()) m_desc = new AthenaAttributeListSpecification( *(rhs.getDesc()) );
   else m_desc=0;
+}
+        
+inline
+TagAthenaAttributeList&
+TagAthenaAttributeList::operator=(const TagAthenaAttributeList& rhs) 
+{
+  if (this != &rhs) {
+    coral::AttributeList::operator= (rhs);
+    DataObject::operator= (rhs);
+    if (m_desc) m_desc->release();
+    if (rhs.hasDesc()) m_desc = new AthenaAttributeListSpecification( *(rhs.getDesc()) );
+    else m_desc=0;
+  }
+  return *this;
 }
         
 inline

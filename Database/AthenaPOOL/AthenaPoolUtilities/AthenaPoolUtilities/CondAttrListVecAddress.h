@@ -28,6 +28,8 @@ public:
     CondAttrListVecAddress();
     /// Copy Constructor
     CondAttrListVecAddress(const CondAttrListVecAddress& copy);
+    /// Assignment
+    CondAttrListVecAddress& operator=(const CondAttrListVecAddress& copy);
     /// Constructor from GA
     CondAttrListVecAddress(const GenericAddress& copy);
     /// Standard Constructor
@@ -69,6 +71,19 @@ CondAttrListVecAddress::CondAttrListVecAddress(const CondAttrListVecAddress& cop
 	m_attrListVec(copy.m_attrListVec)
 {
     if (m_attrListVec) m_attrListVec->addRef();
+}
+
+inline     
+CondAttrListVecAddress&
+CondAttrListVecAddress::operator=(const CondAttrListVecAddress& copy)
+{
+  if (this != &copy) {
+    GenericAddress::operator= (copy);
+    if (m_attrListVec) m_attrListVec->release();
+    m_attrListVec = copy.m_attrListVec;
+    if (m_attrListVec) m_attrListVec->addRef();
+  }
+  return *this;
 }
 
 inline     
