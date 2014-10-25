@@ -275,6 +275,5 @@ double LArGeo::RALEmb::GetValue(const std::string& a_name,
   std::cerr << errMessage << std::endl;
   throw std::runtime_error (errMessage.c_str());
 
-  // This is a dummy statement to prevent a compiler warning. 
-  return 0.;
+  // Unreached.
 }
