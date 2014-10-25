@@ -46,6 +46,7 @@
 TileDetDescrManager::TileDetDescrManager(TileDddbManager_ptr dbManager,
                                          MsgStream *log)
   : m_dbManager(dbManager)
+  , m_elements_created(false)
   , m_tile_id(0)
   , m_cell_id(0)
   , m_tile_hwid(0)
