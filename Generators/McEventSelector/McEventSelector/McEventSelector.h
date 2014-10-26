@@ -24,7 +24,7 @@
 
 // Include files
 #include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/MsgStream.h"
 
@@ -45,7 +45,7 @@ class McContext;
 // Event Selector 
 //--------------------------------------------------------------------
 
-class McEventSelector : virtual public Service, 
+class McEventSelector : virtual public AthService, 
                         virtual public IEvtSelector,
                         virtual public IEventSeek {
 public:
@@ -96,7 +96,6 @@ private:
   BooleanProperty m_overrideLBNumber;
   BooleanProperty m_overrideTimeStamp;
 
-  mutable MsgStream m_log;
   mutable McContext *m_ctx;
 
 };

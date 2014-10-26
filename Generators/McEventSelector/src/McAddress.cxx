@@ -32,7 +32,7 @@
 /// Standard Constructor
 McAddress::McAddress(const CLID& clid, const std::string& fname, const std::string& cname )
 : GenericAddress(McCnvSvc::storageType(), clid, fname, cname),
-  m_runNo(0), m_eventNo(0), m_timeStamp(0)
+  m_runNo(0), m_eventNo(0), m_LBNo(0), m_timeStamp(0)
 { }
 
 McAddress::McAddress(const CLID& clid, const std::string& fname, 

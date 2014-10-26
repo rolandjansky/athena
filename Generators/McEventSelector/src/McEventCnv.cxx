@@ -37,7 +37,7 @@ McEventCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
     return StatusCode::SUCCESS;
   else  
     delete peT;
-    return StatusCode::FAILURE;    
+  return StatusCode::FAILURE;    
 }
 
 long

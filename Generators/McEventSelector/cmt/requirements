@@ -1,8 +1,9 @@
 package McEventSelector
 
-use AtlasPolicy    AtlasPolicy-* 
-use AthenaKernel   AthenaKernel-*   Control
-use GaudiInterface GaudiInterface-* External
+use AtlasPolicy     AtlasPolicy-* 
+use AthenaKernel    AthenaKernel-*    Control
+use AthenaBaseComps AthenaBaseComps-* Control
+use GaudiInterface GaudiInterface-*  External
 
 author Marjorie Shapiro <MDShapiro@lbl.gov>
 author Paolo Calafiura <Paolo.Calafiura@cern.ch>

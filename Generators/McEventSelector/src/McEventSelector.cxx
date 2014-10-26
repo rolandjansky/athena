@@ -167,6 +167,11 @@ McContext::McContext(const McEventSelector* pSelector):
   m_eventsPLB(1000),     // <-- ditto
   m_initTimeStamp(0),
   m_timeStampInt(0),
+  m_runNo(0),
+  m_eventNo(0),
+  m_LBNo(0),
+  m_timeStamp(0),
+  m_LBTick(0),
   m_nevt(0),
   m_firstEvent(true)
 {}
@@ -183,6 +188,11 @@ McContext::McContext(const McEventSelector* pSelector,
   m_initRunNo(initRunNo), m_initEventNo(initEventNo), m_eventsP(evPR),
   m_initLBNo(initLBNo), m_eventsPLB(evPLB),
   m_initTimeStamp(initTimeStamp), m_timeStampInt(timeStampInt),
+  m_runNo(0),
+  m_eventNo(0),
+  m_LBNo(0),
+  m_timeStamp(0),
+  m_LBTick(0),
   m_nevt(0),
   m_firstEvent(true)
 {}
@@ -204,14 +214,14 @@ StatusCode McEventSelector::queryInterface(const InterfaceID& riid,
     addRef();
     return SUCCESS;
   }
-  return Service::queryInterface( riid, ppvIf );
+  return AthService::queryInterface( riid, ppvIf );
 }
 
 
 
 McEventSelector::McEventSelector( const std::string& name, ISvcLocator* svcloc ) :
-        Service( name, svcloc),
-        m_log(msgSvc(), name ), m_ctx(0)
+        AthService( name, svcloc),
+        m_ctx(0)
 {
 
   declareProperty( "RunNumber",           m_runNo = 0 );
@@ -263,33 +273,28 @@ McEventSelector::createContext(Context*& refpCtxt) const
 }
 
 StatusCode McEventSelector::initialize()     {
-  m_log << MSG::INFO << " Enter McEventSelector Initialization " << endreq;
-  StatusCode sc = Service::initialize();
-  m_log.setLevel( m_outputLevel.value() );
+  ATH_MSG_INFO (" Enter McEventSelector Initialization ");
+  StatusCode sc = AthService::initialize();
+  msg().setLevel( m_outputLevel.value() );
   if( sc.isSuccess() ) {
     setProperties().ignore();
   } else {
-    m_log << MSG::ERROR << "Unable to initialize service " << endreq;
+    ATH_MSG_ERROR ("Unable to initialize service ");
     return sc;
   }
 
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG  << " McEventSelector Initialized Properly ... "
-	  << endreq;
-  }
+  ATH_MSG_DEBUG (" McEventSelector Initialized Properly ... ");
 
   return sc;
 }
 
 StatusCode McEventSelector::stop()     {
-  if (m_log.level() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "............. stop ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. stop .............");
 
   const bool createIf = true;
   IIncidentSvc* incSvc = 0;
   if ( !service("IncidentSvc", incSvc, createIf).isSuccess() || 0 == incSvc ) {
-    m_log << MSG::ERROR << "Could not retrieve IncidentSvc " << endreq;
+    ATH_MSG_ERROR ("Could not retrieve IncidentSvc ");
     return StatusCode::FAILURE;
   }
   Incident lastInputIncident(name(), "LastInput");
@@ -299,7 +304,7 @@ StatusCode McEventSelector::stop()     {
 }
 
 StatusCode McEventSelector::finalize()     {
-  m_log << MSG::INFO << "finalize" << endreq;
+  ATH_MSG_INFO ("finalize");
 
   return StatusCode::SUCCESS;
 }
@@ -307,9 +312,7 @@ StatusCode McEventSelector::finalize()     {
 // IEvtSelector::next
 StatusCode
 McEventSelector::next(Context& ctxt) const {
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "............. Next Event ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. Next Event .............");
 
   McContext* ct = dynamic_cast<McContext*>(&ctxt);
   StatusCode sc(StatusCode::FAILURE);
@@ -318,7 +321,7 @@ McEventSelector::next(Context& ctxt) const {
     ct->next();
     sc = StatusCode::SUCCESS;
   } else {
-    m_log << MSG::ERROR << "Could not dcast to McContext" << endreq;
+    ATH_MSG_ERROR ("Could not dcast to McContext");
   }
 
   m_ctx = ct;
@@ -329,9 +332,7 @@ McEventSelector::next(Context& ctxt) const {
 StatusCode
 McEventSelector::next(Context& ctxt,int jump) const
 {
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "............. Next (" << jump << ") ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. Next (" << jump << ") .............");
 
   if ( jump > 0 ) {
     for ( int i = 0; i < jump; ++i ) {
@@ -349,9 +350,7 @@ McEventSelector::next(Context& ctxt,int jump) const
 // IEvtSelector::previous
 StatusCode
 McEventSelector::previous(Context& ctxt) const {
-  if (m_log.level() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "............. previous ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. previous .............");
 
   McContext* ct = dynamic_cast<McContext*>(&ctxt);
 
@@ -361,7 +360,7 @@ McEventSelector::previous(Context& ctxt) const {
     ct->previous();
     sc = StatusCode::SUCCESS;
   } else {
-    m_log << MSG::ERROR << "Could not dcast to McContext" << endreq;
+    ATH_MSG_ERROR ("Could not dcast to McContext");
   }
 
   m_ctx = ct;
@@ -387,9 +386,7 @@ McEventSelector::previous(Context& ctxt, int jump) const
 
 StatusCode
 McEventSelector::last(Context& /*ctxt*/) const {
-  m_log << MSG::ERROR
-	<< "............. Last Event Not Implemented ............."
-	<< endreq;
+  ATH_MSG_ERROR ("............. Last Event Not Implemented .............");
   return StatusCode::FAILURE;
 }
 
@@ -397,10 +394,7 @@ McEventSelector::last(Context& /*ctxt*/) const {
 StatusCode
 McEventSelector::rewind(Context& ctxt) const
 {
-
-  if (m_log.level() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "............. rewind ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. rewind .............");
 
   McContext* ct = dynamic_cast<McContext*>(&ctxt);
   StatusCode sc(StatusCode::FAILURE);
@@ -409,7 +403,7 @@ McEventSelector::rewind(Context& ctxt) const
     ct->rewind();
     sc = StatusCode::SUCCESS;
   } else {
-    m_log << MSG::ERROR << "Could not dcast to McContext" << endreq;
+    ATH_MSG_ERROR ("Could not dcast to McContext");
   }
 
   m_ctx = ct;
@@ -422,9 +416,7 @@ StatusCode
 McEventSelector::createAddress(const Context& refCtxt,
 			       IOpaqueAddress*& addr) const {
 
-  if (m_log.level() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "............. createAddress ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. createAddress .............");
 
   const McContext* ctx = dynamic_cast<const McContext*>( &refCtxt );
 
@@ -434,7 +426,7 @@ McEventSelector::createAddress(const Context& refCtxt,
 			 ctx->lumiBlock(),ctx->timeStamp());
     m_ctx = const_cast<McContext*> (ctx);
   } else {
-    m_log << MSG::ERROR << "casting to a McContext" << endreq;
+    ATH_MSG_ERROR ("casting to a McContext");
     return StatusCode::FAILURE;
   }
 
@@ -445,10 +437,7 @@ McEventSelector::createAddress(const Context& refCtxt,
 StatusCode
 McEventSelector::releaseContext(Context*& /*refCtxt*/) const {
 
-  m_log << MSG::ERROR
-	<< "............. releaseContext Not Implemented ............."
-	<< endreq;
-
+  ATH_MSG_ERROR ("............. releaseContext Not Implemented .............");
   return StatusCode::FAILURE;
 
 }
@@ -456,10 +445,7 @@ McEventSelector::releaseContext(Context*& /*refCtxt*/) const {
 StatusCode
 McEventSelector::resetCriteria(const std::string&, Context& ) const {
 
-  m_log << MSG::ERROR
-	<< "............. resetCriteria Not Implemented ............."
-	<< endreq;
-
+  ATH_MSG_ERROR ("............. resetCriteria Not Implemented .............");
   return StatusCode::FAILURE;
 
 }
@@ -467,9 +453,7 @@ McEventSelector::resetCriteria(const std::string&, Context& ) const {
 StatusCode
 McEventSelector::seek(int evtNum) {
 
-  if (m_log.level() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "............. seek(" << evtNum << ") ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. seek(" << evtNum << ") .............");
 
   m_ctx->rewind();
 
@@ -478,16 +462,12 @@ McEventSelector::seek(int evtNum) {
   }
 
   return StatusCode::SUCCESS;
-
-
 }
 
 int
 McEventSelector::curEvent() const {
 
-  if (m_log.level() <= MSG::DEBUG ) {
-    m_log << MSG::DEBUG << "............. curEvent ............." << endreq;
-  }
+  ATH_MSG_DEBUG ("............. curEvent .............");
 
 
   return m_ctx->serialEventNumber();
