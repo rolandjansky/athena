@@ -7,403 +7,222 @@
 
 <logicalservice name="ATLASDD">
  <service name="sqlite_file:geomDB/geomDB_sqlite" accessMode="read" />
- <service name="oracle://atlas_dd/atlasdd" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLASDD" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLASDD" accessMode="read" />
+ <service name="oracle://atlas_dd/atlasdd" accessMode="read" authentication="password" />
 </logicalservice>
 
 <logicalservice name="COOLONL_INDET">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_INDET" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_INDET" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_TRT">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_TRT" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_TRT" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_LAR">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_LAR" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_LAR" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_TILE">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_TILE" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_TILE" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_MUON">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_MUON" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_MUON" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_MUONALIGN">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_MUONALIGN" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_MUONALIGN" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_MDT">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_MDT" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_MDT" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_TDAQ">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_TDAQ" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_TDAQ" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_GLOBAL">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_GLOBAL" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_GLOBAL" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_SCT">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_SCT" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_SCT" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_PIXEL">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_PIXEL" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_PIXEL" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_TRIGGER">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_TRIGGER" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_TRIGGER" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_CALO">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_CALO" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_CALO" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_RPC">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_RPC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_RPC" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_TGC">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_TGC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_TGC" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_CSC">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_CSC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_CSC" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLONL_FWD">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLONL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLONL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLONL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLONL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLONL_FWD" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLONL_FWD" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_INDET">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_INDET" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_INDET" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_INDET" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_TRT">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_TRT" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_TRT" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_TRT" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_LAR">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_LAR" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_LAR" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_LAR" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_TILE">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_TILE" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_TILE" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_TILE" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_MUON">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_MUON" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_MUON" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_MUON" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_MUONALIGN">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_MUONALIGN" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_MUONALIGN" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_MUONALIGN" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_MDT">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_MDT" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_MDT" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_MDT" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_TDAQ">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_TDAQ" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_TDAQ" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_TDAQ" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_GLOBAL">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_GLOBAL" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_GLOBAL" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_GLOBAL" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_SCT">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_SCT" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_SCT" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_SCT" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_PIXEL">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_PIXEL" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_PIXEL" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_PIXEL" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_TRIGGER">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_TRIGGER" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_TRIGGER" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_TRIGGER" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_CALO">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_CALO" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_CALO" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_CALO" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_RPC">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_RPC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_RPC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_RPC" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_TGC">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_TGC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_TGC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_TGC" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_CSC">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_CSC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_CSC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_CSC" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_DCS">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_DCS" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_DCS" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_DCS" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_DCS" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_DCS" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_DCS" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_DCS" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="COOLOFL_FWD">
  <service name="sqlite_file:sqlite200/ALLP200.db" accessMode="read" />
  <service name="oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_COOLOFL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_COOLOFL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_COOLOFL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_COOLOFL_FWD" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_COOLOFL_FWD" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_COOLOFL_FWD" accessMode="read" />
 </logicalservice>
 
 <logicalservice name="TRIGGERDB">
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_CONF_TRIGGER_V2" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_V2" accessMode="read" />
 </logicalservice>
 
@@ -414,11 +233,6 @@
 <logicalservice name="TRIGGERDBMC">
  <service name="sqlite_file:triggerDB/triggerDBMC.db" accessMode="read" />
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_MC" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_CONF_TRIGGER_MC" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_CONF_TRIGGER_MC" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_CONF_TRIGGER_MC" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_CONF_TRIGGER_MC" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_CONF_TRIGGER_MC" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_MC" accessMode="read" />
 </logicalservice>
 
@@ -448,11 +262,6 @@
 
 <logicalservice name="TRIGGERDBREPR">
  <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
- <service name="oracle://RAL/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
- <service name="oracle://FZK/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
- <service name="oracle://LYON/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
- <service name="oracle://TRIUMF/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
- <service name="oracle://BNL/ATLAS_CONF_TRIGGER_REPR" accessMode="read" authentication="password" />
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_REPR" accessMode="read" />
 </logicalservice>
 
