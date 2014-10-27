@@ -38,23 +38,23 @@ public:
   void DeleteObjects();
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
+  bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
 
 private:
   void InitializeHitProcessing();
+  //FIXME all class variables should have an "m_" prefix.
 
+  ///Configuration paremeters
   int printMessages;
-
   int hitsWithZeroEnergyDeposit;
-
   G4VProcess* phot;
-
   double energyThreshold;
   double probabilityThreshold;
   double energyDepositCorrection;
-
   double boundaryZ;
 
+  ///Properties of current TRTUncompressedHit, set by
+  ///TRTProcessingOfBarrelHits and TRTProcessingOfEndCapHits friend classes.
   int hitID;
   int trackID; //DC 2-29-04 use it as barcode
   int particleEncoding;
@@ -69,6 +69,7 @@ private:
   double postStepZ;
   double globalTime;
 
+  ///Other member variables
   TRTUncompressedHitCollection* pUncompressedHitCollection;
 
   TRTParameters* pParameters;
