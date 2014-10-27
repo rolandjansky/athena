@@ -243,7 +243,8 @@ def parseCmdLine(args):
     parser.add_option("--autoConfiguration", dest="autoConfiguration", help="autoConfiguration", default='')
     parser.add_option("--geometryVersion", dest="geometryVersion", help="geometryVersion", default='')
     parser.add_option("--conditionsTag", dest="conditionsTag", help="conditionsTag", default='')
-    parser.add_option("--ignoreerrors", dest="--ignoreerrors", help="ignoreerrors", default='')
+    parser.add_option("--ignoreErrors", dest="ignoreErrors", help="ignoreErrors", action='store_true', default='True')
+    #parser.add_option("--ignoreerrors", dest="ignoreerrors", help="ignoreErrors", action='store_true', default='NONE')
     #parser.add_option("--beamType", dest="beamType", help="Beam type", default='')
     parser.add_option("--preExec", dest="preExec", help="Pre-execute options (overwrite)", default='')
     parser.add_option("--preExec_r2e", dest="preExec_r2e", help="Pre-execute in RAWtoESD options (overwrite)", default='')
@@ -268,7 +269,7 @@ def parseCmdLine(args):
                       action='store_true', default=False)
     parser.add_option("--dropNTUPs", dest="dropNTUPs_", help="Drop NTUP files from outputs",
                       action='store_true', default=False)
-    parser.add_option("--uploadtoami", dest="--uploadtoami", help="Upload performance data to AMI", type='float', default=0.0)
+    #parser.add_option("--uploadtoami", dest="uploadtoami", help="Upload performance data to AMI", type='float', default=0.0)
     (config, args) = parser.parse_args(args)
     print 'config',config
     return config
@@ -276,7 +277,7 @@ def parseCmdLine(args):
 def generateRecoTrfCmd(config):
     """ Generate from command line options the list of arguments
     used by Reco_trf.py """
-    recocmd = "Reco_trf.py "
+    recocmd = "Reco_tf.py "
     nfiles = config.nfiles_
     nfilescheck = 0
     for ifile in range(nfiles):
@@ -313,7 +314,7 @@ def generateRecoTrfCmd(config):
         ntuplist = []
         config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     else:
-        config.outputTAGFile_a2t = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
+        config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
         config.outputAODFile = "myAOD_%s_%d.AOD.pool.root" % (config.trigStream_,config.jobnum_)
     #if config.beamType == 'cosmics':
     #    desdlist = ['DESD_PIXELCOMM','DESD_IDCOMM','DESD_CALOCOMM','DESD_MUONCOMM','DESD_TILECOMM']
@@ -334,9 +335,11 @@ def generateRecoTrfCmd(config):
         for ntype in ntuplist:
             setattr(config,'output%sFile' % ntype,
                     "%s_%s_%d.NTUP.root" % (ntype.split('_')[1],config.trigStream_,config.jobnum_))
+    if config.ignoreErrors=="ALL":
+        config.ignoreErrors = "True"
     for arg in vars(config):
         if arg.endswith('_') or getattr(config,arg) == '': continue
-        recocmd += " "+arg+"="+str(getattr(config,arg))
+        recocmd += " --"+arg+"="+str(getattr(config,arg))
     return recocmd
 
 #
