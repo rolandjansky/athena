@@ -64,14 +64,13 @@ if not ('AbortOnError' in dir()):
     StatusCodeSvc.AbortOnError=True
 
 #-----------------Monitoring -----------------
-from PerfMonComps import PerfMonFlags
-
-if not ('doPerfMon' in dir()):
-    rec.doPerfMon = True
-
-if rec.doPerfMon:
-    jobproperties.PerfMonFlags.doMonitoring = True
-    jobproperties.PerfMonFlags.OutputFile = "ntuple.root"
+if not ('checkLeak' in dir()):
+    from PerfMonComps import PerfMonFlags
+    if not ('doPerfMon' in dir()):
+        rec.doPerfMon = True
+    if rec.doPerfMon:
+        jobproperties.PerfMonFlags.doMonitoring = True
+        jobproperties.PerfMonFlags.OutputFile = "ntuple.root"
 
 
 # set this true to measure memory increase on repeated events
