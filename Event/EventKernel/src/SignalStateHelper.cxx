@@ -19,12 +19,14 @@
 
 /** Empty Constructor */
 SignalStateHelper::SignalStateHelper():
+  m_originalState(P4SignalState::UNKNOWN),
   m_currentState(P4SignalState::UNKNOWN),
   m_object(0)
 {}
 
 /** Constructor with initialization */
 SignalStateHelper::SignalStateHelper(const ISignalState* theObject):
+  m_originalState(P4SignalState::UNKNOWN),
   m_currentState(P4SignalState::UNKNOWN),
   m_object(0)
 {  
@@ -32,6 +34,7 @@ SignalStateHelper::SignalStateHelper(const ISignalState* theObject):
 }
 
 SignalStateHelper::SignalStateHelper(P4SignalState::State s):
+  m_originalState(P4SignalState::UNKNOWN),
   m_currentState(s),
   m_object(0)
 {  
@@ -39,6 +42,7 @@ SignalStateHelper::SignalStateHelper(P4SignalState::State s):
 }
 
 SignalStateHelper::SignalStateHelper(const ISignalState* theObject, P4SignalState::State s):
+  m_originalState(P4SignalState::UNKNOWN),
   m_currentState(s),
   m_object(theObject)
 {  
