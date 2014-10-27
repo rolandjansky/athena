@@ -118,13 +118,21 @@ class doSwitchTRTGas (JobProperty):
 class egammaRecFlags(JobPropertyContainer):
     """ egamma information """
 
+class clusterCorrectionVersion (JobProperty):
+    """Version of calo cluster corrections used for calibration.
+    """
+    statusOn=True
+    allowedTypes=['str', 'None']
+    StoredValue='v11phiflip_noecorr'
+
+
 
 # add the egammaRec flags container to the top container 
 jobproperties.add_Container(egammaRecFlags)
 
 
 # I want always the following flags in the  container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation]
+_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)
