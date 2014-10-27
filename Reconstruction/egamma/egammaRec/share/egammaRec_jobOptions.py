@@ -7,6 +7,7 @@ from AthenaCommon.Resilience import treatException
 from AthenaCommon.DetFlags import DetFlags
 from egammaRec import egammaKeys
 
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -23,7 +24,7 @@ if jobproperties.egammaRecFlags.doEgammaCaloSeeded()  and ( rec.readESD() or job
     except Exception:
         treatException("Could not set up egammaGetter. Switch it off !")
         jobproperties.egammaRecFlags.doEgammaCaloSeeded=False    
-
+        egammaGetter(disable=True)
 else:
     jobproperties.egammaRecFlags.doEgammaCaloSeeded=False
     try:
@@ -48,6 +49,7 @@ if jobproperties.egammaRecFlags.doEgammaForwardSeeded and ( rec.readESD() or job
     except Exception: 
         jobproperties.egammaRecFlags.doEgammaForwardSeeded=False    
         treatException("Could not set up egammaForwardGetter. Switch it off !")
+        egammaForwardGetter(disable=True)
 else:
     jobproperties.egammaRecFlags.doEgammaForwardSeeded=False    
     try:
@@ -58,20 +60,31 @@ else:
 
 ####################################################################
 # Run association between true and reco objects
-if not rec.doTruth():
+# It requires Truth and some of the above to be actually there
+
+if not rec.doTruth(): 
   jobproperties.egammaRecFlags.doEgammaTruthAssociation = False
 
-if jobproperties.egammaRecFlags.doEgammaTruthAssociation():
+if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.egammaRecFlags.doEgammaCaloSeeded() :
     try:
-        include("egammaRec/egammaTruthAssociationAlg_jobOptions.py")
+        from egammaRec.egammaTruthAssociationAlg import egammaTruthAssociationAlg
+        egammaTruthAssociationAlg(MatchForwardElectrons= jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
+                                  MatchClusters=False)
     except Exception:
         treatException("Could not set up egammaTruthAssociationAlg. Switched off !")
 
 ####################################################################
 # Lock egamma containers
-try:
-    from egammaRec.egammaLocker import egammaLocker
-    topSequence += egammaLocker()
-except:
-    treatException("Could not set up egammaLocker. Switched off !")
+if rec.doESD():
+    try:
+        from egammaRec.egammaLocker import egammaLocker
+        topSequence +=egammaLocker(name= "egLocker",
+                                   doTruth=rec.doTruth(),
+                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
+                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
+                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
+                                   outputClusterKey=egammaKeys.outputClusterKey(),
+                                   egammakeys=egammaKeys.outputs.items())
+    except:
+        treatException("Could not set up egammaLocker. Switched off !")
 

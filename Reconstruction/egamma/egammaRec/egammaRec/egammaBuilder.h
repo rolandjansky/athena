@@ -41,7 +41,6 @@ class IegammaBaseTool;
 class IEMAmbiguityTool;
 class IEMTrackMatchBuilder;
 class IEMConversionBuilder;
-class IegammaCheckEnergyDepositTool;
 //C.A
 class IEMBremCollectionBuilder;
 class IEMVertexBuilder;
@@ -127,8 +126,6 @@ class egammaBuilder : public AthAlgorithm
   StatusCode RetrieveBremCollectionBuilder();
   /** @brief retrieve BremVertexBuilder **/
   StatusCode RetrieveVertexBuilder();
-  /** @brief retrieve egammaCheckEnergyDepositTool **/
-  StatusCode RetrieveegammaCheckEnergyDepositTool();
   
   /** @brief Name of the track particle container in StoreGate  */
   std::string m_tracksName;
@@ -163,8 +160,6 @@ class egammaBuilder : public AthAlgorithm
   //C.A
   /** @brief Pointer to the VertexBuilder*/
   ToolHandle<IEMVertexBuilder>                 m_vertexBuilder;
-  /** @brief Pointer to the egammaCheckEnergyDepositTool*/
-  ToolHandle<IegammaCheckEnergyDepositTool>    m_egammaCheckEnergyDepositTool;
   
   //
   // All booleans

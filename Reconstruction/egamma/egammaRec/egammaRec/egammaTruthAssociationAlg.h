@@ -47,15 +47,16 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
  private:
  
   typedef std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> MCTruthInfo_t;
+  
+  /** @brief Loop over elements in the reco container, decorate them with truth info and
+    * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
+  template<class T> StatusCode match(std::string containerName, std::string typeName);
    
-  /** @brief Decorate egamma object with truth information **/
-  bool decorateTruth(xAOD::Egamma*, MCTruthInfo_t&);
-
-  /** @brief Decorate truth object with link to reco electron **/  
-  bool decorateReco(xAOD::Electron*, const xAOD::ElectronContainer*);
-
-  /** @brief Decorate truth object with link to reco photon **/
-  bool decorateReco(xAOD::Photon*, const xAOD::PhotonContainer*);
+  /** @brief Decorate IParticle (cluster or egamma) object with truth information **/
+  StatusCode decorateWithTruthInfo(xAOD::IParticle*, MCTruthInfo_t&);
+  
+  /** @brief Decorate truth object with link to reco as recoNameLink **/
+  template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, std::string name);
   
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/
@@ -73,8 +74,14 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   /** @brief Create egamma truth container? **/
   bool m_doEgammaTruthContainer;
   
-  /** @brief Use forward electrons? **/
-  bool m_useForwardElectrons;
+  /** @brief Match fwd electrons? **/
+  bool m_matchForwardElectrons;
+
+  /** @brief Match clusters? **/
+  bool m_matchClusters;
+  
+  /** @brief Name of the egamma cluster container **/
+  std::string m_clusterContainerName;
     
   /** @brief Name of the input electron container **/
   std::string m_electronContainerName;

@@ -5,9 +5,9 @@ __author__ = "Bruno Lenzi"
 
 from egammaRec import egammaRecConf, egammaKeys
 from egammaRec.Factories import ToolFactory, AlgFactory, FcnWrapper
+from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-
 
 from egammaTrackTools.egammaTrackToolsFactories import ExtrapolateToCaloTool
 
@@ -18,12 +18,14 @@ MCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier,
 ################
 
 egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
+    ClusterContainerName = egammaKeys.outputClusterKey(),
     ElectronContainerName = egammaKeys.outputElectronKey(),
     PhotonContainerName = egammaKeys.outputPhotonKey(),
     FwdElectronContainerName = egammaKeys.outputFwdElectronKey(),
     TruthParticleContainerName = egammaKeys.truthParticleKey(),
     EgammaTruthContainerName = egammaKeys.outputTruthKey(),
     MCTruthClassifier = MCTruthClassifier,
-    UseForwardElectrons = egammaRecFlags.doEgammaForwardSeeded()
+    MatchForwardElectrons = egammaRecFlags.doEgammaForwardSeeded(),
+    MatchClusters = True
 )
 

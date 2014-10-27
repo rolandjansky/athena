@@ -117,10 +117,6 @@ egammaBuilder::egammaBuilder(const std::string& name,
   declareProperty("AmbiguityTool", m_ambiguityTool,
 		  "Handle of ambiguity tool");
 
-  // Handle of the egammaCheckEnergyDeposit tool
-  declareProperty("egammaCheckEnergyDepositTool", 
-		  m_egammaCheckEnergyDepositTool,
-		  "Handle of the egammaCheckEnergyDepositTool");
 
   // Handle of TrackMatchBuilder
   declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder,
@@ -201,8 +197,6 @@ StatusCode egammaBuilder::initialize()
 
   ATH_MSG_DEBUG("Initializing egammaBuilder");
 
-  // retrieve egammaCheckEnergyDepositTool
-  CHECK( RetrieveegammaCheckEnergyDepositTool() );
 
   // retrieve track match builder
   CHECK( RetrieveEMTrackMatchBuilder() );
@@ -368,26 +362,6 @@ StatusCode egammaBuilder::RetrieveVertexBuilder()
   return StatusCode::SUCCESS;
 }
 
-// ====================================================================
-StatusCode egammaBuilder::RetrieveegammaCheckEnergyDepositTool()
-{
-  //
-  // retrieve egammaCheckEnergyDepositTool
-  //
-
-  if (m_egammaCheckEnergyDepositTool.empty()) {
-    ATH_MSG_ERROR("egammaCheckEnergyDepositTool is empty");
-    return StatusCode::FAILURE;
-  } 
-
-  if(m_egammaCheckEnergyDepositTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_egammaCheckEnergyDepositTool);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_egammaCheckEnergyDepositTool);
-
-  return StatusCode::SUCCESS;
-}
 
 // ====================================================================
 StatusCode egammaBuilder::finalize()
@@ -496,8 +470,7 @@ StatusCode egammaBuilder::execute()
   for (const auto& egRec : *egammaRecs)
   {
     ATH_MSG_DEBUG("Running AmbiguityTool");
-    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->vertex(),
-                                                            egRec->trackParticle());
+    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec);
     
     ATH_MSG_DEBUG("...author: " << author);
     if (author == xAOD::EgammaParameters::AuthorUnknown) continue;

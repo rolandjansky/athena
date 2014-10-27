@@ -56,12 +56,6 @@ def caloCellKey():
   else: 
     return "AllCalo"
 
-# Also
-#             from CaloRec.CaloRecFlags import jobproperties as caloJP
-#             (ig_modname, ig_name) = \
-#                    caloJP.CaloRecFlags.clusterCellGetterName().rsplit ('.', 1)
-#             ig_mod = __import__ (ig_modname, fromlist = [ig_name])
-#             theCaloCellGetter = getattr (ig_mod, ig_name)()
 
 def truthParticleKey():
   return 'TruthParticle'

@@ -1,2 +1,0 @@
-from egammaRec.egammaTruthAssociationAlg import egammaTruthAssociationAlg
-egammaTruthAssociationAlg()

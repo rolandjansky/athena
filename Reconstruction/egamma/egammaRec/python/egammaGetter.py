@@ -15,20 +15,20 @@ from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
 from egammaTools.egammaToolsFactories import \
-  egammaCheckEnergyDepositTool, EMBremCollectionBuilder, EMTrackMatchBuilder, \
-  EMVertexBuilder, EMConversionBuilder, EMAmbiguityTool, \
-  EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
-  ElectronPIDBuilder, PhotonPIDBuilder
+    EMBremCollectionBuilder, EMTrackMatchBuilder, \
+    EMVertexBuilder, EMConversionBuilder, EMAmbiguityTool, \
+    EMClusterTool, EMFourMomBuilder, EMShowerBuilder, EMIsolationBuilder, egammaOQFlagsBuilder, \
+    ElectronPIDBuilder, PhotonPIDBuilder
 
 doConversions = (DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions())
 
 def getTopoSeededCollectionName():
   if egammaRecFlags.doTopoCaloSeeded() :
     from CaloRec import CaloRecFlags
+    from CaloRec.CaloRecTopoEM35Flags import jobproperties
+    jobproperties.CaloRecTopoEM35Flags.EtSeedCut =0.8 * GeV # The cut on the Fixed size is 1.5 GeV later on 
     from CaloRec.CaloClusterTopoEMFixedSizeGetter import CaloClusterTopoEMFixedSizeGetter
     theCaloClusterTopoEMFixedSizeGetter = CaloClusterTopoEMFixedSizeGetter()
-    from AthenaCommon.BeamFlags import jobproperties
-    jobproperties.CaloRecTopoEM35Flags.EtSeedCut =0.4 * GeV # The cut on the Fixed size is 1.5 GeV later on 
     return theCaloClusterTopoEMFixedSizeGetter.outputKey()
   else:
     return ""
@@ -38,7 +38,7 @@ def doTopoCaloSeeded():
 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
-  return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
+  return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), EMIsolationBuilder(), egammaOQFlagsBuilder()]
 
 def electronDecorationTools():
   "Return a list with the tools that decorate only electrons"
@@ -56,7 +56,6 @@ egammaBuilder = AlgFactory(egammaRecConf.egammaBuilder, name = 'egamma',
     TopoSeededClusterContainerName = FcnWrapper(getTopoSeededCollectionName),
     
     # Builder tools
-    egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
     BremCollectionBuilderTool = EMBremCollectionBuilder,
     TrackMatchBuilderTool = EMTrackMatchBuilder,
     VertexBuilder = EMVertexBuilder if doConversions else None,
