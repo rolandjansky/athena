@@ -18,6 +18,9 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
+#include <iostream>
+#include <stdio.h>
+
 #include <ext/functional>
 //================ Constructor =================================================
 
@@ -195,7 +198,7 @@ const Trk::Track* Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk
 	ATH_MSG_DEBUG("Track is not sharing precision hits, keeping ");
 	return ptrTrack;
       }
-      if( precisionPerLayer.size() > 2 && precisionPerLayer.size() - sharedPrecisionPerLayer.size() == 1 ) {
+      if( overlapFraction < 0.25 && precisionPerLayer.size() > 2 && precisionPerLayer.size() - sharedPrecisionPerLayer.size() == 1 ) {
 	ATH_MSG_DEBUG("Three station track differing by one precision layer, keeping ");
 	return ptrTrack;
       }
