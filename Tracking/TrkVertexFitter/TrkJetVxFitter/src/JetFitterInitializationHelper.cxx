@@ -406,6 +406,10 @@ namespace Trk
       
       //if the size of the RecVertexPositions is not big enough, enlarge it...
       if (numRow(numTrack)>sizeOfRecVertex) {
+
+        //Added 2. October 2014 !! (BUG...)
+        myJetCandidate->setRecVertexPositions(myJetCandidate->getConstraintVertexPositions());
+
 	Amg::VectorX myPosition   = myJetCandidate->getRecVertexPositions().position();
 	Amg::MatrixX myCovariance = myJetCandidate->getRecVertexPositions().covariancePosition();
 	Amg::VectorX newPosition(numRow(numTrack)); newPosition.setZero();
@@ -414,17 +418,23 @@ namespace Trk
         newCovariance.setZero();
 	newCovariance.block(0,0,myCovariance.rows(),myCovariance.cols()) = myCovariance;
 	for (int i=sizeOfRecVertex;i<numRow(numTrack);++i) {
-	  newCovariance(i,i)=1000.*1000.;
+	  newCovariance(i,i)=500.*500.;
 	}
 	
 	RecVertexPositions newRecVertexPositions(newPosition,
 						 newCovariance,
 						 myJetCandidate->getRecVertexPositions().fitQuality().chiSquared(),
 						 myJetCandidate->getRecVertexPositions().fitQuality().numberDoF());
-						 
+				
+        
+	Amg::VectorX myPositionLinearization   = myJetCandidate->getLinearizationVertexPositions().position();
+	Amg::VectorX newPositionLinearization(numRow(numTrack)); 
+        newPositionLinearization.setZero();
+	newPositionLinearization.segment(0,myPositionLinearization.rows()) = myPositionLinearization;
+
 	myJetCandidate->setRecVertexPositions(newRecVertexPositions);//needed here?
 	myJetCandidate->setConstraintVertexPositions(newRecVertexPositions);
-	myJetCandidate->setLinearizationVertexPositions(newRecVertexPositions);
+	myJetCandidate->setLinearizationVertexPositions(newPositionLinearization);
 	
       } else if (numRow(numTrack)<sizeOfRecVertex) {
 	std::cout << "Strange: size of RecVertexPosition's position in JetFitterInitializationHelper is bigger than actual numTracks plus 5. CHECK..." << std::endl;

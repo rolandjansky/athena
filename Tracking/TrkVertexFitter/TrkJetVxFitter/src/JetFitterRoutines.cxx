@@ -19,6 +19,8 @@
      
  ***************************************************************************/
 
+#include <iostream>
+
 #include "TrkJetVxFitter/JetFitterRoutines.h"
 #include "VxVertex/RecVertex.h"
 #include "VxJetVertex/VxJetCandidate.h"
@@ -140,7 +142,7 @@ namespace Trk
 
   void JetFitterRoutines::initializeToMinDistancesToJetAxis(VxJetCandidate* myJetCandidate) const {
     
-    ATH_MSG_DEBUG ("initializingToMinDistancesToJetAxis is now implemented! Will converge faster!!! Neutrals are fully supported...");
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG ("initializingToMinDistancesToJetAxis is now implemented! Will converge faster!!! Neutrals are fully supported...");
 
     VertexPositions & linVertexPositions=myJetCandidate->getLinearizationVertexPositions();
     Amg::VectorX linPositions=linVertexPositions.position();
@@ -388,6 +390,8 @@ namespace Trk
       
       const RecVertexPositions & myRecPosition=myJetCandidate->getRecVertexPositions();
 
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " num_iteration (full fit): " << num_iteration << " det " << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() << endreq;
+
       const FitQuality & myFitQuality=myRecPosition.fitQuality();
       double actualchi2=myFitQuality.chiSquared();
       
@@ -413,13 +417,17 @@ namespace Trk
     if (converged) {
       if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Fit without sign flip treatment there was convergence after " << num_iteration << endreq;
     } 
-
+    
     //    if (msgSvc()->outputLevel()== MSG::VERBOSE) {
     #ifdef JetFitterRoutines_DEBUG
-      std::cout << "JetFitterRoutines: after convergence without sign flip treatment: " << myJetCandidate->getRecVertexPositions() << std::endl;
+    std::cout << "JetFitterRoutines: after convergence without sign flip treatment: " << myJetCandidate->getRecVertexPositions() << std::endl;
     #endif
       //    }
-    
+    if (num_iteration>=num_maxiterations)
+    {
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There wasn't convergence in JetFitter after: " << num_maxiterations << endreq;
+    }
+
     //now only the smoothing is missing as a last step... (updated momenta, chi2 + ndf of clusters,...)
     
     smoothAllVertices(myJetCandidate);
@@ -439,6 +447,9 @@ namespace Trk
 
 //    std::cout << " Updating PV " << std::endl;
 
+    int n_iteration=0;
+    
+
     if (!m_noPrimaryVertexRefit) {
       //new iteration
       VxVertexOnJetAxis* myPrimary=myJetCandidate->getPrimaryVertex();
@@ -457,10 +468,17 @@ namespace Trk
 	} else {
 	  m_updator->addWithFastUpdate(*primaryVectorIter,myPrimary,myJetCandidate);
 	}
-	
+
+        const RecVertexPositions & myRecPosition=myJetCandidate->getRecVertexPositions();
+
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Determinant after PRIMARY VTX update: " << n_iteration <<  " det: "  << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() << endreq;	
       }
     }
+
+    n_iteration=0;
     
+    const RecVertexPositions & myRecPositionBeg=myJetCandidate->getRecVertexPositions();
+
     const std::vector<VxVertexOnJetAxis*> & associatedVertices=myJetCandidate->getVerticesOnJetAxis();
     
     const std::vector<VxVertexOnJetAxis*>::const_iterator VtxBegin=associatedVertices.begin();
@@ -485,7 +503,12 @@ namespace Trk
 	} else {
 	  m_updator->addWithFastUpdate(*TrackVectorIter,*VtxIter,myJetCandidate);
 	}
-		  
+
+        n_iteration+=1;
+
+        const RecVertexPositions & myRecPosition=myJetCandidate->getRecVertexPositions();
+
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Determinant after sec update: " << n_iteration <<  " det: "  << myRecPosition.covariancePosition().determinant() <<  " recVertex " << myJetCandidate->getRecVertexPositions() << endreq;
       }
     }
 

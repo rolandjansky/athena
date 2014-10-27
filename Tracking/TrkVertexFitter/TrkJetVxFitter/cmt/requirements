@@ -22,6 +22,10 @@ use TrkNeutralParameters TrkNeutralParameters-* Tracking/TrkEvent
 use AtlasROOT           AtlasROOT-*          External
 
 public
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore)"
+
 apply_pattern dual_use_library files="*.cxx"
 
 #apply_pattern declare_joboptions files="*.py"
