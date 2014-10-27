@@ -11,7 +11,7 @@ use TrkAlignInterfaces TrkAlignInterfaces-* Tracking/TrkAlignment
 private
 use AtlasROOT         AtlasROOT-*         External
 use StoreGate	      StoreGate-*	  Control
-use EventInfo          EventInfo-*          Event
+use xAODEventInfo     xAODEventInfo-*     Event/xAOD
 use TrkTrack           TrkTrack-*           Tracking/TrkEvent
 use TrkAlignEvent      TrkAlignEvent-*      Tracking/TrkAlignment
 
@@ -20,6 +20,9 @@ use TrkAlignEvent      TrkAlignEvent-*      Tracking/TrkAlignment
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
 
 public
 library TrkAlignGenAlgs *.cxx components/*.cxx 

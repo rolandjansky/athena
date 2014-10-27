@@ -4,8 +4,7 @@
 
 #include "TrkAlignGenAlgs/SelectEventNumber.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <fstream>
 
@@ -51,14 +50,14 @@ StatusCode SelectEventNumber::execute()
 {
   ATH_MSG_DEBUG("in SelectEventNumber::execute()");
 
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   StatusCode sc=evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) { 
     ATH_MSG_ERROR("Couldn't retrieve event info"); 
   }
 
-  int run=eventInfo->event_ID()->run_number();
-  int evt=eventInfo->event_ID()->event_number();
+  int run=eventInfo->runNumber();
+  int evt=eventInfo->eventNumber();
 
   // check if this run/evt is in the good file
   int currentevt=m_lastGoodEvt;
