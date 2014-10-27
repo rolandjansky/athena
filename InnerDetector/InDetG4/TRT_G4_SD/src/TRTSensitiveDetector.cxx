@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "TRT_G4_SD/TRTSensitiveDetector.h"
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4_SD/TRTParametersForBarrelHits.h"
@@ -32,7 +31,7 @@
 //stl includes
 #include <fstream>
 #include <cmath>
-
+#include <utility>
 
 static FADS::SensitiveDetectorEntryT<TRTSensitiveDetector> sd("TRTSensitiveDetector");
 
@@ -40,7 +39,20 @@ static FADS::SensitiveDetectorEntryT<TRTSensitiveDetector> sd("TRTSensitiveDetec
 // Called by FADS/Goofy
 
 TRTSensitiveDetector::TRTSensitiveDetector(const std::string name):
-  FADS::FadsSensitiveDetector(name), m_msg("TRTSensitiveDetector")
+  FADS::FadsSensitiveDetector(name),
+  //Variables properly set during InitializeHitProcessing() method
+  hitsWithZeroEnergyDeposit(0), phot(NULL), energyThreshold(0.0),
+  probabilityThreshold(0.0), energyDepositCorrection(0.0), boundaryZ(0.0),
+  //End of variables properly set during InitializeHitProcessing() method
+  //Properties of current TRTUncompressedHit
+  hitID(0), trackID(0), particleEncoding(0), kineticEnergy(0.0),
+  energyDeposit(0.0), energyDepositInKeV(0.0), preStepX(0.0),
+  preStepY(0.0), preStepZ(0.0), postStepX(0.0), postStepY(0.0),
+  postStepZ(0.0), globalTime(0.0),
+  //End of Properties of current TRTUncompressedHit
+  pUncompressedHitCollection(NULL), pParameters(NULL),
+  pProcessingOfBarrelHits(NULL), pProcessingOfEndCapHits(NULL),
+  m_msg("TRTSensitiveDetector")
 {
   pParameters = TRTParameters::GetPointer();
 
@@ -96,8 +108,8 @@ void TRTSensitiveDetector::InitializeHitProcessing()
 }
 
 
-  // Called by Geant4
-  // For each event
+// Called by Geant4
+// For each event
 
 void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
 {
@@ -119,8 +131,8 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
       G4Gamma::Definition()->GetProcessManager()->GetProcessList();
     for(G4int ip=0;ip<pVec->entries();ip++) {
       if((*pVec)[ip]->GetProcessName()=="phot") {
-	phot = (*pVec)[ip];
-	break;
+        phot = (*pVec)[ip];
+        break;
       }
     }
   }
@@ -133,7 +145,7 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
 // Called by Geant4
 
 bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
-				       G4TouchableHistory* /*pTouchableHistory*/)
+                                       G4TouchableHistory* /*pTouchableHistory*/)
 {
   energyDeposit = pStep->GetTotalEnergyDeposit();
 
@@ -143,7 +155,7 @@ bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
   // Skip particles which deposit no energy
   if ( energyDeposit == 0. && !hitsWithZeroEnergyDeposit ) {
     if ( pParticleDefinition != G4Geantino::Definition() &&
-	 pParticleDefinition != G4ChargedGeantino::Definition() )
+         pParticleDefinition != G4ChargedGeantino::Definition() )
       return false;
   }
 
@@ -152,17 +164,17 @@ bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
   // give the wrong energy deposit.
   // Instead we count for a photon which undergoes a "phot" reaction
   // the full energy as deposited in the interaction point (see below)
-  if(pTrack->GetCreatorProcess()==phot) { 
-    return false; 
+  if(pTrack->GetCreatorProcess()==phot) {
+    return false;
   }
 
-  // Get kinetic energy of depositing particle 
-  kineticEnergy = pStep->GetPreStepPoint()->GetKineticEnergy(); 
-  
-  // If we are dealing with a photon undergoing a "phot" reaction, count 
-  // the photon kinetic energy as deposited energy in the point of 
-  // the reaction 
-  
+  // Get kinetic energy of depositing particle
+  kineticEnergy = pStep->GetPreStepPoint()->GetKineticEnergy();
+
+  // If we are dealing with a photon undergoing a "phot" reaction, count
+  // the photon kinetic energy as deposited energy in the point of
+  // the reaction
+
   if ( pParticleDefinition==G4Gamma::GammaDefinition() &&
        pStep->GetPostStepPoint()->GetProcessDefinedStep()==phot ) {
     energyDeposit = kineticEnergy;
@@ -172,7 +184,7 @@ bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
     //    energy above threshold (4.9 keV) reduce deposited energy
     //    by correction (4.0 keV)
     if ( energyDeposit > energyThreshold &&
-	 CLHEP::RandFlat::shoot() > probabilityThreshold )
+         CLHEP::RandFlat::shoot() > probabilityThreshold )
       energyDeposit -= energyDepositCorrection;
   }
 
@@ -195,21 +207,19 @@ bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
   // Create UncompressedHit
 
   if (trackerHit) {
-    TRTUncompressedHit
-      uncompressedHit( hitID, trackID, particleEncoding,
-		       (float) kineticEnergy, (float) energyDepositInKeV,
-		       (float) preStepX, (float) preStepY, (float) preStepZ,
-		       (float) postStepX, (float) postStepY, (float) postStepZ,
-		       (float) globalTime);
-
-    pUncompressedHitCollection->Insert(uncompressedHit);
+    // Build the hit straight onto the vector
+    pUncompressedHitCollection->Emplace(hitID, trackID, particleEncoding,
+                                        (float) kineticEnergy, (float) energyDepositInKeV,
+                                        (float) preStepX, (float) preStepY, (float) preStepZ,
+                                        (float) postStepX, (float) postStepY, (float) postStepZ,
+                                        (float) globalTime );
   }
 
   return true;
 }
 
 
-  // Called by Geant4
+// Called by Geant4
 
 void TRTSensitiveDetector::EndOfEvent(G4HCofThisEvent* /*pHCofThisEvent*/)
 {
@@ -225,7 +235,7 @@ void TRTSensitiveDetector::EndOfEvent(G4HCofThisEvent* /*pHCofThisEvent*/)
 }
 
 
-  // It was called by TRTRunAction::EndOfRunAction ...
+// It was called by TRTRunAction::EndOfRunAction ...
 
 void TRTSensitiveDetector::DeleteObjects()
 {
