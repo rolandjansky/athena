@@ -70,9 +70,6 @@ namespace Muon
     
     /** flag to keep partial overlaps */
     bool m_keepPartial;
-
-    /** flag to keep overlaps which share more than one presicion layer */
-    bool m_keepMoreThanOne;
   }; 
 } // end of namespace
 
