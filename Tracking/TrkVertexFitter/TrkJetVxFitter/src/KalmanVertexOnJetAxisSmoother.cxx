@@ -144,7 +144,7 @@ namespace Trk
       // by storing position --> weight*position
       // and        covariance -> weightmatrix
       if (final_vrt_covariance.determinant() == 0.0) {
-        ATH_MSG_DEBUG("Jet vertex positions matrix not invertible right at start of smoother!" <<
+        ATH_MSG_WARNING("Jet vertex positions matrix not invertible right at start of smoother!" <<
                       " -> stop smoothing.");
         return;
       }
@@ -395,6 +395,10 @@ namespace Trk
          myPositionInWeightFormalism.covariancePosition();
       //perform a FAST inversion of the weight matrix - done here for the first time
       Amg::MatrixX vrt_removed_tracks_covariance = vrt_removed_tracks_weight;
+
+      //4.October 2014 remove smartInversion for now (problems with numerical accuracy)
+      vrt_removed_tracks_covariance=vrt_removed_tracks_weight.inverse().eval();
+/*
       try 
       {
         m_Updator->smartInvert(vrt_removed_tracks_covariance);
@@ -404,7 +408,7 @@ namespace Trk
         msg(MSG::ERROR)  << a << " Doing inversion the normal way " << endreq;
         vrt_removed_tracks_covariance=vrt_removed_tracks_weight.inverse().eval();
       }
-
+*/
       const Amg::VectorX vrt_removed_tracks_pos=vrt_removed_tracks_covariance*vrt_removed_tracks_weight_times_vrt_pos;
     
       #ifdef KalmanVertexOnJetAxisSmoother_DEBUG

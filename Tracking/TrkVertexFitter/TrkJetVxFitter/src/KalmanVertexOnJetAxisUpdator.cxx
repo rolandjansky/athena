@@ -155,7 +155,7 @@ namespace Trk{
                                                  int numVertex, bool isPrimary,
                                                  bool doFastUpdate) const {
 
-    //linearized track information 
+    //linearized track information
 
     const int numrow_toupdate = isPrimary ? 4 : numRow(numVertex);
 //    std::cout << " num row to update " << numrow_toupdate << std::endl;
@@ -235,7 +235,7 @@ namespace Trk{
         return r_vtx;
       }
       //      AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse().eval();
-      AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse();
+      AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse().eval();
 
       Eigen::Matrix<double,Eigen::Dynamic,5> Kk1 = old_vrt_cov*A.transpose()*old_residual_cov_inv;
       AmgVector(5) residual_vector=trackParameters-constantTerm-A*old_vrt_pos;
@@ -284,6 +284,12 @@ namespace Trk{
     
       const AmgSymMatrix(5) & trackParametersWeight  = trk->expectedWeightAtPCA();
     
+      if (trackParametersWeight.determinant()<=0)  
+      {
+        ATH_MSG_WARNING(" The determinant of the track covariance matrix is negative: " << trackParametersWeight.determinant());
+      }
+      
+
       //vertex to be updated, needs to be copied 
       RecVertexPositions myPosition=candidateToUpdate.getRecVertexPositions();
       if(myPosition.covariancePosition().determinant() ==0.0) {
@@ -304,6 +310,19 @@ namespace Trk{
 
       const Amg::MatrixX & old_full_vrt_weight = myPosition.covariancePosition().inverse();
 
+    
+      if (trackParametersWeight.determinant()<=0)  
+      {
+        ATH_MSG_WARNING(" The determinant of the track covariance matrix is zero or negative: " << trackParametersWeight.determinant());
+      }
+
+    
+//      if (old_full_vrt_weight.determinant()<=0)  
+//      {
+//        ATH_MSG_WARNING(" The determinant of the vertex full weight matrix is zero or negative: " << old_full_vrt_weight.determinant());
+//      }
+
+
 //      std::cout << " WEIGHT MATRIX of POS " << old_full_vrt_weight << std::endl;
 
       Amg::MatrixX         old_vrt_weight(numrow_toupdate+1,numrow_toupdate+1);
@@ -315,7 +334,8 @@ namespace Trk{
 
       //making the intermediate quantities:
       //W_k = (B^T*G*B)^(-1)  
-      AmgSymMatrix(3) S = B.transpose()*trackParametersWeight*B;
+      AmgSymMatrix(3) S = B.transpose()*(trackParametersWeight*B);
+
 
 //      std::cout << " Matrix S " << S << std::endl;
 
@@ -329,8 +349,9 @@ namespace Trk{
 //      std::cout << " Matrix S after inversion " << S << std::endl;
 
       //G_b = G_k - G_k*B_k*W_k*B_k^(T)*G_k  
+
       AmgSymMatrix(5) gB = trackParametersWeight - trackParametersWeight*(B*(S*B.transpose()))*trackParametersWeight.transpose();
-    
+
 //      std::cout << " gB " << gB << std::endl;
 
 #ifdef Updator_DEBUG
@@ -346,8 +367,18 @@ namespace Trk{
 //      std::cout << " add second piece " << trackWeight * sign * A.transpose() * gB * A << std::endl;
 
       //      Amg::MatrixX new_vrt_cov = old_vrt_weight + trackWeight * sign * gB.similarityT(A); GP bug of Eigen ???
-      Amg::MatrixX new_vrt_cov = old_vrt_weight + trackWeight * sign * A.transpose() * gB * A;
+      Amg::MatrixX new_vrt_cov = old_vrt_weight + trackWeight * sign * A.transpose() * ( gB * A );
 
+      if (sign<0)
+      {
+        std::cout << " ATTENTION! Sign is " << sign << std::endl;
+      }
+
+      if (new_vrt_cov.determinant()<=0)
+      {
+        ATH_MSG_ERROR(std::scientific << "The new vtx weight  matrix determinant is negative: "<< new_vrt_cov.determinant());
+      }
+      
 //      std::cout << " new_vrt_cov " << new_vrt_cov << std::endl;
 
 //      std::cout << " NEW weight matrix before inversion " << new_vrt_cov << std::endl;
@@ -360,12 +391,20 @@ namespace Trk{
         return r_vtx;
       }
       new_vrt_cov = new_vrt_cov.inverse().eval();
+
 #endif
 #ifdef KalmanVertexUpdate_NEW
       try 
       {
+//4.Oct.2014 Temporarily remove smart inversion as it seems to cause negative errors from time to time
 //	std::cout << " SMART INVERT " << std::endl;
-        smartInvert(new_vrt_cov);
+//        smartInvert(new_vrt_cov);
+        if (new_vrt_cov.determinant() == 0.0) {
+          ATH_MSG_ERROR ("The reduced weight matrix is not invertible, returning copy of initial vertex.");
+          Trk::RecVertexPositions r_vtx(myPosition);
+          return r_vtx;
+        }
+        new_vrt_cov = new_vrt_cov.inverse().eval();
       }
       catch (std::string a)
       {
@@ -376,11 +415,16 @@ namespace Trk{
 #endif
 #ifdef Updator_DEBUG
       std::cout << " new vertex covariance " << new_vrt_cov << std::endl;
+
+      if (new_vrt_cov.determinant()<=0)
+      {
+        ATH_MSG_WARNING("The new vtx cov. matrix determinant is negative: "<< new_vrt_cov.determinant());
+      }
 #endif
 
       //new vertex position
       Amg::VectorX new_vrt_position = 
-        new_vrt_cov*(old_vrt_weight * old_vrt_pos + trackWeight * sign * A.transpose() * gB *(trackParameters - constantTerm) ); 
+          new_vrt_cov*(old_vrt_weight * old_vrt_pos + trackWeight * sign * (A.transpose() * (gB *(trackParameters - constantTerm)))); 
 #ifdef Updator_DEBUG
       std::cout << " new position " << new_vrt_position << std::endl;
 #endif
@@ -416,6 +460,21 @@ namespace Trk{
       } else {
         ndf+=sign*1.;
       }
+
+      for (int i=0;i<new_vrt_cov.rows();i++)
+      {
+        bool negative(false);
+        if (new_vrt_cov(i,i)<=0.) 
+        {
+          ATH_MSG_WARNING(" Diagonal element ("<<i<<","<<i<<") of covariance matrix after update negative: "<<new_vrt_cov(i,i) <<". Giving back previous vertex.");
+          negative=true;
+        }
+        if (negative) {
+          Trk::RecVertexPositions r_vtx(myPosition);
+          return r_vtx;
+        }
+      }
+      
     
 #ifdef KalmanVertexUpdate_OLD
       Trk::RecVertexPositions r_vtx(new_vrt_position,new_vrt_cov,ndf, chi2);
@@ -425,6 +484,7 @@ namespace Trk{
       new_full_vrt_pos.segment(0,new_vrt_position.rows()) = new_vrt_position;
       Amg::MatrixX new_full_vrt_cov(myPosition.covariancePosition());
       new_full_vrt_cov.block(0,0,new_vrt_cov.rows(),new_vrt_cov.cols()) = new_vrt_cov;
+
       Trk::RecVertexPositions r_vtx(new_full_vrt_pos,new_full_vrt_cov,ndf, chi2);
 #endif
       return r_vtx; 
@@ -687,14 +747,17 @@ namespace Trk{
     
     // Eigen::DiagonalMatrix<double,Eigen::Dynamic> DdiagINV(D.rows()); // was CLHEP::HepDiagMatrix
 //    if (numRows>6 && D.isDiagonal(/*precision<scalar>=*/1e-7))
+/*
+GP: 4.10.2014 Just ignore that due to numerical precision the non diagonal elements can be ||>1e-6
     if (numRows>6 && fabs(D(0,1))>1e-6)
     {
-      const std::streamsize old = std::cout.precision();
-      msg(MSG::DEBUG) << std::setprecision(10) << " Will invert normally, because the non diagonal element is: " << D(0,1) << endreq;
+      //const std::streamsize old = std::cout.precision();
+      msg(MSG::ERROR) << std::setprecision(10) << " Will invert normally, because the non diagonal element is: " << D(0,1) << endreq;
 
       new_vrt_weight=new_vrt_weight.inverse().eval();
       return;
     }
+*/
 
     // Eigen's diagonal matrices don't have the full MatrixBase members like determinant(),
     // similarity() etc needed later -> therefore do not use them and invert by hand.
@@ -710,7 +773,7 @@ namespace Trk{
 
 //    std::cout << " D after inversion " << D << std::endl;
 
-    AmgSymMatrix(5) E = A - B*D*B.transpose();
+    Amg::MatrixX E = A - B*(D*B.transpose());
     if (E.determinant() == 0.) {
       throw std::string("Cannot invert E matrix...");
     }
@@ -721,15 +784,32 @@ namespace Trk{
     Amg::MatrixX finalWeight(numRows,numRows); 
     finalWeight.setZero();
     finalWeight.block<5,5>(0,0) = E;
-    Eigen::Matrix<double,5,Eigen::Dynamic> F = -E*B*D;
+    Eigen::Matrix<double,5,Eigen::Dynamic> F = -E*(B*D);
     finalWeight.block(0,5,5,D.rows()) = F;
     finalWeight.block(5,0,D.rows(),5) = F.transpose();
     finalWeight.block(5,5,D.rows(),D.rows()) = 
-      D+(D*(B.transpose()*(E*B))*D.transpose());
+        D+(D*((B.transpose()*(E*B))*D.transpose()));
 
 //    std::cout << " finalWeight " << finalWeight << std::endl;
 
-    new_vrt_weight = finalWeight;
+    Amg::MatrixX normalInversion=new_vrt_weight.inverse().eval();
+    Amg::MatrixX smartInversion=finalWeight;
+    
+    bool mismatch(false);
+    
+    for (int i=0;i<numRows;i++)
+    {
+      for (int j=0;j<numRows;j++)
+      {
+        if (fabs(normalInversion(i,j)-smartInversion(i,j))>1e-4) mismatch=true;
+      }
+    }
+    if (mismatch) std::cout << " mismatch, normalInv: " << normalInversion << " smartInv " << smartInversion << " det 1 " << normalInversion.determinant() << " det 2 " << smartInversion.determinant() << std::endl;
+
+    new_vrt_weight = new_vrt_weight.inverse().eval();//finalWeight;//MODIFIED!!
+
+    if (new_vrt_weight.determinant()<=0) ATH_MSG_DEBUG("smartInvert() new_vrt_weight FINAL det. is: " << new_vrt_weight.determinant());
+
   }
 
 }//end of namespace definition
