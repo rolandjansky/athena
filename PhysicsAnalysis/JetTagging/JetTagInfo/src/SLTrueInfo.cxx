@@ -8,7 +8,16 @@
 
 namespace Analysis {
 
-SLTrueInfo::SLTrueInfo() {
+SLTrueInfo::SLTrueInfo()
+  : m_barcode(0),
+    m_pdgCode(0),
+    m_pdgCodeMother(0),
+    m_isFromBhadron(0),
+    m_isFromDhadron(0),
+    m_isFromGHboson(0)
+{
+  m_Momentum.setZero();
+  m_ProductionVertex.setZero();
 }
 
 SLTrueInfo::SLTrueInfo(int barc, int pdg, int pdgm, bool b, bool d, bool w, Eigen::Vector3d& p, Eigen::Vector3d& r) {

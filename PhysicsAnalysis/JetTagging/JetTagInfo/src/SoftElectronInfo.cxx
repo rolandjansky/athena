@@ -24,8 +24,10 @@ namespace Analysis
 {
 
 /** Default constructor */
-SoftElectronInfo::SoftElectronInfo() : BaseTagInfo(), m_trackinfo()
-
+SoftElectronInfo::SoftElectronInfo()
+  : BaseTagInfo(), 
+    m_nTrackProb(0),
+    m_trackinfo()
 {
 
 }

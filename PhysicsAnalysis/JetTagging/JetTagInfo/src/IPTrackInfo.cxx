@@ -10,8 +10,19 @@
 
 namespace Analysis {
 
-IPTrackInfo::IPTrackInfo() : m_track(ElementLink<Rec::TrackParticleContainer>()),
-                                       m_trackGrade() {
+IPTrackInfo::IPTrackInfo() :
+  m_track(ElementLink<Rec::TrackParticleContainer>()),
+  m_trackGrade(),
+  m_isFromV0(false),
+  m_valD0wrtPV(0),
+  m_sigD0wrtPV(0),
+  m_valZ0wrtPV(0),
+  m_sigZ0wrtPV(0),
+  m_trackWeight2D(0),
+  m_trackWeight3D(0),
+  m_trackProbJP(0),
+  m_trackProbJPneg(0)
+{
 }
 
 IPTrackInfo::IPTrackInfo(const Rec::TrackParticleContainer* coll, 
@@ -19,7 +30,12 @@ IPTrackInfo::IPTrackInfo(const Rec::TrackParticleContainer* coll,
 				   TrackGrade grade,
 				   bool isFromV0,
 				   double d0val, double d0sig,
-				   double z0val, double z0sig) {
+                                   double z0val, double z0sig)
+  : m_trackWeight2D(0),
+    m_trackWeight3D(0),
+    m_trackProbJP(0),
+    m_trackProbJPneg(0)
+{
         ElementLink<Rec::TrackParticleContainer> link;
         if( link.toContainedElement(*coll, const_cast<Rec::TrackParticle*>(trk)) ) {
 	  m_track = link;

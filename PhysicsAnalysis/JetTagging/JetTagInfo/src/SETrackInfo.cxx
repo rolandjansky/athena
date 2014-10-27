@@ -9,7 +9,10 @@
 namespace Analysis {
 
 SETrackInfo::SETrackInfo() : m_electron(ElementLink<ElectronContainer>()),
-			     m_photon(ElementLink<PhotonContainer>()) {
+			     m_photon(ElementLink<PhotonContainer>()),
+                             m_valD0wrtPV(0),
+                             m_pTrel(0)
+{
 }
 
 SETrackInfo::SETrackInfo(const ElectronContainer* coll, 

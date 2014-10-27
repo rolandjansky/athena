@@ -8,7 +8,11 @@
 
 namespace Analysis {
 
-SMTrackInfo::SMTrackInfo() : m_muon(ElementLink<MuonContainer>()) {
+SMTrackInfo::SMTrackInfo()
+  : m_muon(ElementLink<MuonContainer>()),
+    m_valD0wrtPV(0),
+    m_pTrel(0)
+{
 }
 
 SMTrackInfo::SMTrackInfo(const MuonContainer* coll, 
