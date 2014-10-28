@@ -36,22 +36,6 @@ class L1TopoMenu:
     def addGlobalConfig(self, name, value):
         self.globalConfig[name]=str(value)
 
-
-    def getTriggerLines(self):
-        from collections import namedtuple
-        TriggerLine = namedtuple("TriggerLine","trigger cable bit clock ordinal")
-        outputLines = {}
-        #print "Topo trigger defines %i output algorithms" % len(self.topoOutput)
-        for output in self.topoOutput:
-
-            for (idx,line) in enumerate(output.algo.outputs):
-                ordinal = 64*output.module + 32*output.clock + 16*output.fpga + output.firstbit+idx
-                outputLines[ordinal] = TriggerLine(trigger = line, cable = output.module, bit = output.firstbit+idx+16*output.fpga, clock = output.clock, ordinal = ordinal)
-
-        return [x[1] for x in sorted(outputLines.items())] # return the TriggerLines, sorted by the ordinal
-
-
-
     def xml(self, ind=1, step=2):
         s  = '<?xml version="1.0" ?>\n'
         s += '<TOPO_MENU menu_name="Topo_pp_vX" menu_version="1">\n' # % (self.menuName.replace("Physics_pp_","").replace("MC_pp_",""))

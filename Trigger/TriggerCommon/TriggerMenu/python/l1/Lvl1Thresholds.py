@@ -81,6 +81,13 @@ class LVL1Threshold(object):
         return self.name
 
 
+    #def x(self, multi=1):
+    #    from Logic import Logic
+    #    from Lvl1MenuItems import LVL1MenuItem
+    #    condition = LVL1MenuItem.Lvl1Condition(self, multi)
+    #    return Logic(condition)
+
+
     def setCableInput(self):
         from Cabling import Cabling
         self.cableinfo = Cabling.getInputCable(self.ttype, self.mapping, self.seed_ttype)
@@ -178,10 +185,10 @@ class LVL1Threshold(object):
         for thrv in self.thresholdValues:
             s += thrv.xml(ind+1,step)
         if self.cableinfo.isDirectIn:
-            s += (ind+1) * step * ' ' + '<Cable connector="%s" input="CTPCORE" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.name)
+            s += (ind+1) * step * ' ' + '<Cable connector="%s" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.name)
             s += (ind+2) * step * ' ' + '<Signal range_begin="%i" range_end="%i" clock="%i"/>\n' % (self.cableinfo.range_begin, self.cableinfo.range_end, self.cableinfo.clock)
         else:
-            s += (ind+1) * step * ' ' + '<Cable connector="%s" input="%s" ctpin="%s" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.slot, self.cableinfo.slot, self.cableinfo.name)
+            s += (ind+1) * step * ' ' + '<Cable connector="%s" ctpin="%s" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.slot, self.cableinfo.name)
             s += (ind+2) * step * ' ' + '<Signal range_begin="%i" range_end="%i"/>\n' % (self.cableinfo.range_begin, self.cableinfo.range_end)
         s += (ind+1) * step * ' ' + '</Cable>\n'
         s += ind * step * ' ' + '</TriggerThreshold>\n'

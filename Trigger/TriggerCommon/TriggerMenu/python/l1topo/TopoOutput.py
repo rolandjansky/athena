@@ -12,11 +12,10 @@ class TopoOutput(object):
         self.firstbit = firstbit
 
     def xml(self, ind, step=2):
-        s = (' '*ind*step) + '<Output algname="%s" triggerline="%s" algoId="%i" module="%i" fpga="%i" firstbit="%i" clock="%i"/>\n' % (self.algoname,
-                                                                                                                                       ",".join(self.algo.outputs),
-                                                                                                                                       self.algo.algoId,
-                                                                                                                                       self.module,
-                                                                                                                                       self.fpga,
-                                                                                                                                       self.firstbit,
-                                                                                                                                       self.clock)
+        s = (' '*ind*step) + '<Output algname="%s" algoId="%i" module="%i" fpga="%i" firstbit="%i" clock="%i"/>\n' % (self.algoname,
+                                                                                                                      self.algo.algoId,
+                                                                                                                      self.module,
+                                                                                                                      self.fpga,
+                                                                                                                      self.firstbit,
+                                                                                                                      self.clock)
         return s

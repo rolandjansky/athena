@@ -254,9 +254,7 @@ class ItemDef:
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_EM15V.x(1) & physcond).setTriggerType(TT.zerobs)
         else:
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_EM14.x(1) & physcond).setTriggerType(TT.zerobs)
-
-
-            
+                        
         # - Add/remap new L1 thresholds:
         #   J20->J15, J40->J30, J70->J55, J100->J75, J130->J95, J150->J115
         LVL1MenuItem('L1_4J30'    ).setLogic( J30.x(4) & physcond)
@@ -656,7 +654,6 @@ class ItemDef:
         # LUCID
         
         LVL1MenuItem('L1_LUCID_C',     ctpid=0xed  ).setLogic( LUCID_C.x(1) & physcond).setTriggerType(TT.minb)
-        LVL1MenuItem('L1_LUCID_A',     ctpid=0xec  ).setLogic( LUCID_A.x(1) & physcond).setTriggerType(TT.minb)
         LVL1MenuItem('L1_LUCID_A_C',   ctpid=0xee  ).setLogic( LUCID_A.x(1)&LUCID_C.x(1) & physcond).setTriggerType(TT.minb)
         LVL1MenuItem('L1_LUCID',       ctpid=0xf5  ).setLogic( (LUCID_A.x(1)|LUCID_C.x(1)) & physcond).setTriggerType(TT.minb)
         LVL1MenuItem('L1_LUCID_BGRP7'              ).setLogic( (LUCID_A.x(1)|LUCID_C.x(1))&bgrp7cond).setTriggerType(TT.minb)

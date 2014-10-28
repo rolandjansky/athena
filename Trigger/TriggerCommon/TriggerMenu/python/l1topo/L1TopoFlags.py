@@ -20,16 +20,20 @@ class algos(JobProperty):
 
 _flags.append(algos)  
 
-class L1TopoTriggerFlags(JobPropertyContainer):
+class L1TopoNew(JobPropertyContainer):
     """ L1Topo flags used in menu generation """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.add_Container(L1TopoTriggerFlags)
+TriggerFlags.add_Container(L1TopoNew)
 
 for flag in _flags:
-    TriggerFlags.L1TopoTriggerFlags.add_JobProperty(flag)
+    TriggerFlags.L1TopoNew.add_JobProperty(flag)
 del _flags
 
 # make an alias
-L1TopoFlags = TriggerFlags.L1TopoTriggerFlags
+L1TopoFlags = TriggerFlags.L1TopoNew
+
+#  LocalWords:  AllowedList
+
+
             

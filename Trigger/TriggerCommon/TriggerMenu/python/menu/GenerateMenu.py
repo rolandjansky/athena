@@ -15,7 +15,6 @@ from TriggerMenu.calibcosmicmon.CosmicSliceFlags      import CosmicSliceFlags
 from TriggerMenu.calibcosmicmon.CalibSliceFlags       import CalibSliceFlags
 from TriggerMenu.calibcosmicmon.StreamingSliceFlags   import StreamingSliceFlags
 from TriggerMenu.calibcosmicmon.MonitorSliceFlags     import MonitorSliceFlags
-from TriggerMenu.calibcosmicmon.BeamspotSliceFlags    import BeamspotSliceFlags
 
 # hlt
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
@@ -87,7 +86,6 @@ class GenerateMenu:
         self.doCalibrationChains = True
         self.doStreamingChains   = True
         self.doMonitorChains   = True
-        self.doBeamspotChains   = True
         self.doCombinedChains   = True
 
         # Or like this:
@@ -182,12 +180,6 @@ class GenerateMenu:
             log.debug('GenerateMenu : Monitor : '+str(chains))
         else:
             self.doMonitorChains   = False
-
-        if BeamspotSliceFlags.signatures() and self.doBeamspotChains:
-            chains += BeamspotSliceFlags.signatures()            
-            log.debug('GenerateMenu : Beamspot : '+str(chains))
-        else:
-            self.doBeamspotChains   = False
 
         log.debug( 'Enabled before comb chains: '+str(chains) )
         if CombinedSliceFlags.signatures():
@@ -334,17 +326,9 @@ class GenerateMenu:
             try:
                 import TriggerMenu.calibcosmicmon.generateMonitoringChainDefs 
             except:
-                log.error('GenerateMenu: Problems when importing Monitor.py, disabling monitoring chains.')
+                log.error('GenerateMenu: Problems when importing Monitor.py, disabling streaming chains.')
                 log.info(traceback.print_exc())
                 self.doMonitorChains = False
-
-        if self.doBeamspotChains:
-            try:
-                import TriggerMenu.calibcosmicmon.generateBeamspotChainDefs 
-            except:
-                log.error('GenerateMenu: Problems when importing Beamspot.py, disabling beamspot chains.')
-                log.info(traceback.print_exc())
-                self.doBeamspotChains = False
                 
         if self.doCombinedChains:
             try:
@@ -483,14 +467,6 @@ class GenerateMenu:
                     log.info(traceback.print_exc())
                     continue
 
-            elif chainDict["signature"] == "Beamspot" and self.doBeamspotChains:
-                try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateBeamspotChainDefs.generateChainDefs(chainDict)
-                except:
-                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
-                    log.info(traceback.print_exc())
-                    continue
-
             else:                
                 log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.' %(str(chainDict)))
@@ -519,7 +495,7 @@ class GenerateMenu:
         #Do TOPO on Combined chains
         if self.doCombinedChains:
             if self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]:
-                theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts)
+                theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
                 
         return theChainDef
 
@@ -589,19 +565,25 @@ class GenerateMenu:
 
         def inputSequenceExists(thisSequence):
             
-            thisSequenceInputs = [thisSequence["input"]] if isinstance(thisSequence["input"],str) else thisSequence["input"]
-            if thisSequenceInputs == [""] or thisSequenceInputs[0].isupper() or inputsAreTEs(thisSequenceInputs):
-                return True
+            print "OOOOOOOOOOOOOOH ", thisSequence
+            listOfSequenceInputs = [thisSequence["input"]] if isinstance(thisSequence["input"],str) else thisSequence["input"]
+            if len(listOfSequenceInputs)<2:
+                listOfSequenceInputs = [listOfSequenceInputs]
+            print listOfSequenceInputs
+            for thisSequenceInputs in listOfSequenceInputs:
+                print "thisSequenceInputs", thisSequenceInputs
+                if thisSequenceInputs == [""] or thisSequenceInputs[0].isupper() or inputsAreTEs(thisSequenceInputs):
+                    return True
             
-            inputsExist = []
-            for thisSequenceInput in thisSequenceInputs:                            
-                for sequence in theChainDef.sequenceList:
-                    if sequence["output"]==thisSequenceInput:
-                        if inputSequenceExists(sequence):
-                            inputsExist += [True]
-                        else:
-                            log.error("Input %s of sequence %s not found." % (thisSequenceInput, str(thisSequence)))
-                            inputsExist += [False]
+                inputsExist = []
+                for thisSequenceInput in thisSequenceInputs:                            
+                    for sequence in theChainDef.sequenceList:
+                        if sequence["output"]==thisSequenceInput:
+                            if inputSequenceExists(sequence):
+                                inputsExist += [True]
+                            else:
+                                log.error("Input %s of sequence %s not found." % (thisSequenceInput, str(thisSequence)))
+                                inputsExist += [False]
                    
             if len(inputsExist)==0:
                 return False
@@ -641,7 +623,6 @@ class GenerateMenu:
         dumpIt(f, CalibSliceFlags.signatures(), 'Calibration')
         dumpIt(f, StreamingSliceFlags.signatures(), 'Streaming')
         dumpIt(f, MonitorSliceFlags.signatures(), 'Monitoring')
-        dumpIt(f, BeamspotSliceFlags.signatures(), 'Beamspot')
         pass
     
     def chainCounterAvailability(self, clist):
@@ -665,13 +646,18 @@ class GenerateMenu:
         ############################
         # Start L1 menu generation #
         ############################
+
+        print "TriggerFlags.readLVL1configFromXML set to: ", TriggerFlags.readLVL1configFromXML()
+        print "TriggerFlags.readMenuFromTriggerDb set to: ", TriggerFlags.readMenuFromTriggerDb()
+        print "TriggerFlags.readHLTconfigFromXML set to: ", TriggerFlags.readHLTconfigFromXML()
+            
+
         if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
 
             log.info('Generating L1 configuration for %s' % TriggerFlags.triggerMenuSetup() )
 
             from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
             self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile(), menuName = TriggerFlags.triggerMenuSetup() )        
-            
             # build the menu structure
             self.trigConfL1.generateMenu()        
             log.info('Menu has %i items' % len(self.trigConfL1.menu.items) )
@@ -757,6 +743,7 @@ class GenerateMenu:
             log.info('generation of HLT XML file not requested')
             return
 
+
         #-----------------------------------
         # info print out
         #-----------------------------------
@@ -770,7 +757,12 @@ class GenerateMenu:
         log.info('N L1 thresholds: %s ' % len(self.trigConfL1.menu.thresholds) )
         log.info('GenerateMenu: generate: NOTE: only these chains enter current config: ')
         log.info("All chains: %s " %self.triggerPythonConfig.allChains.keys())
-       
+
+
+
+
+
+         
         """
         log.info('GenerateMenu: generate: Adding HLT chain')
         for name, chains in self.triggerPythonConfig.allChains.iteritems():

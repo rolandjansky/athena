@@ -289,7 +289,7 @@ def superRoIMaker():
     factory = 'SeededAlgo'
     return Alg(factory,
                (),
-               {'UseRoiSizes':False,'EtaHalwWidth':0.5,'PhiHalwWidth':0.5})
+               {'UseRoiSizes':False,'EtaHalfWidth':0.5,'PhiHalfWidth':0.5})
 
 
 def cellMaker_superPS_topo():

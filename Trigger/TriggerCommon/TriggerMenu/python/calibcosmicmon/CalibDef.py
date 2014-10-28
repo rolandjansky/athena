@@ -102,7 +102,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       if 'idcalib' in self.chainPart['purpose']:         
          self.L2InputTE = roi1
          self.setupTrkCalibChains()
-      elif ('larcalib' in self.chainPart['purpose']) or ('tilelarcalib' in self.chainPart['purpose']):
+      elif 'larcalib' in self.chainPart['purpose']:
          self.setupLArROBListWWriterLvl1Chain()
       elif 'l1calocalib' in self.chainPart['purpose']:
          self.L2InputTE = self.L2InputL1Item
@@ -190,28 +190,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
                                 [LArL2ROBListWriter('LArL2ROBListWriter_' + self.chainName, addCTPResult = True, addL2Result = True),
                                  L1CaloTileHackL2ROBListWriter('L1CaloTileHackL2ROBListWriter_' + self.chainName)],
                                 'L2_step1']]
-
-      if ('larcalib' in self.chainName):
-        self.L2sequenceList += [[ ['L2_step1'], [CSCSubDetListWriter('CSCSubDetListWriter_' + self.chainName)], 'L2_step2']]
-        Tespecifier='CSCsubdetlistwriter'
-      elif ('tilelarcalib' in self.chainName):
-        from TrigDetCalib.TrigDetCalibConfig import TileSubDetListWriter
-        self.l2_tileSubDetListWriter = TileSubDetListWriter("L2_Cosmic_"+self.chainName+"_TileSubDetListWriter")
-        self.l2_tileSubDetListWriter.Subdetectors = "Tile"
-        self.l2_tileSubDetListWriter.MaxRoIsPerEvent = 1
-        self.l2_tileSubDetListWriter.addL1Calo = True
-        self.L2sequenceList += [[ ['L2_step1'], [self.l2_tileSubDetListWriter], 'L2_step2']]
-        Tespecifier='Tilesubdetlistwriter'
-      else:
-        mlog.error('Cannot find the right sequence for this chain.')
-        Tespecifier=''
-
+      self.L2sequenceList += [[ ['L2_step1'], [CSCSubDetListWriter('CSCSubDetListWriter_' + self.chainName)], 'L2_step2']]
+      
       self.L2signatureList += [ [['L2_step1']] ]
       self.L2signatureList += [ [['L2_step2']] ]
 
       self.TErenamingDict = {
         'L2_step1': mergeRemovingOverlap('L2_', 'Cosmic_'+self.chainName),
-        'L2_step2': mergeRemovingOverlap('L2_', 'Cosmic_'+self.chainName+Tespecifier),        
+        'L2_step2': mergeRemovingOverlap('L2_', 'Cosmic_'+self.chainName+'_CSC'),        
         }
-
-

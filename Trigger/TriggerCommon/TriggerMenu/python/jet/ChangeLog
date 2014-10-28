@@ -1,24 +1,3 @@
-2014-09-02   Peter Sherwood  <peter@pb-d-128-141-165-197.cern.ch>
-
-	* The presence of the string 'perf' in the chain parts dictionaries
-	signals that the jet hypo should not be run.
-
-	* JetSequenceRouter.py (_make_sequence_list): ensure hypo
-	is run only if the 'run_hypo' flag is set.
-
-	* ChainConfigMaker.py (ChainConfigMaker.__call__): add the 
-	'run_hypo' flag in ChainConfig.
-
-	* ChainConfig.py (ChainConfig.__init__): add a flag to turn
-	off running the jet hypo (hypo is not run if 'perf'
-	occurs in the 'addInfi' list of the chain part dictionary.
-
-	* JetDef.py (_check_input): ensure all cghain parts have an
-	'addInfo' key.
-	(_check_chainpart_consistency.remove_hypodata): check that
-	the presence or absence of 'addInfo' is consitent across all
-	chain_parts
-
 2014-07-31   Peter Sherwood  <peter@pb-d-128-141-165-159.cern.ch>
 
 	* algFactories.py (jr_hypo_multi): fixed bug setting 

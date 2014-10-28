@@ -309,7 +309,7 @@ def setupMenu():
         ['e20_medium1_2g20_loose1', 892, 'L1_2EM15VH',[], ['Egamma'], ['RATE:ElectronPhoton', 'BW:Egamma'], 1,['parallel',-1,[] ]],
         ]
 
-    TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [
+    TriggerFlags.MinBiasSlice.signatures = [
         ['mb_perf_L1LUCID', 823, 'L1_LUCID', [], ['MinBias'], [], 1],
         ]
 
@@ -362,6 +362,10 @@ Prescales = physics_menu.Prescales
 StreamConfig = physics_menu.StreamConfig
 
 Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
+
+##default Prescales, used to set rerun chain in the MC menu
+#Prescales.HLTPrescales['mu0noL1_fsperf']=   [    0,    0,   1]
+
 
 Prescales.L1Prescales_loose_mc_prescale  = Prescales.L1Prescales
 Prescales.HLTPrescales_loose_mc_prescale = Prescales.HLTPrescales

@@ -52,9 +52,7 @@ def _check_input(in_data):
         
 
     # input data check
-    must_have = ('etaRange', 'threshold', 'recoAlg', 'dataType', 'calib',
-                 'addInfo')
-
+    must_have = ('etaRange', 'threshold', 'recoAlg', 'dataType', 'calib')
     for cp in chain_parts:
         missing = [k for k in must_have if k not in cp]
         if missing:
@@ -77,8 +75,7 @@ def _check_input(in_data):
 def _check_chainpart_consistency(chain_parts):
     check_chain_parts = [copy.deepcopy(c) for c in chain_parts]
     def remove_hypodata(d):
-        to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName',
-                     'addInfo']
+        to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName']
         for tr in to_remove: 
             try:
                 del d[tr]

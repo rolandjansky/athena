@@ -8,7 +8,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
 from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 
-def generateL1Menu(menu, useTopoMenu="MATCH"):
+def generateL1Menu(menu):
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger("TriggerConfigLVL1")
@@ -128,25 +128,19 @@ def findFreeCTPIDs(menu):
     
 def main():
     if len(sys.argv)==1:
+        #generateL1Menu(menu="Physics_pp_v4")
         generateL1Menu(menu="Physics_pp_v5")
         generateL1Menu(menu="MC_pp_v5")
-        generateL1Menu(menu="LS1_v1" )
+        generateL1Menu(menu="LS1_v1")
         generateL1Menu(menu="DC14")
-        #generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
         return 0
-
+    
     if sys.argv[1].endswith(".xml"):
         readL1MenuFromXML(sys.argv[1])
         return 0
     
     if sys.argv[1].lower().startswith("phy"):
         generateL1Menu(menu="Physics_pp_v5")
-        return 0
-
-    print "============================="
-
-    if sys.argv[1].lower().startswith("mc4"):
-        generateL1Menu(menu="MC_pp_v4")
         return 0
 
     if sys.argv[1].lower().startswith("mc"):
@@ -157,12 +151,9 @@ def main():
         generateL1Menu(menu="LS1_v1")
         return 0
 
-    if sys.argv[1].lower().startswith("dc14"):
-        generateL1Menu(menu="DC14", useTopoMenu="Physics_pp_v5")
-        return 0
 
-    if sys.argv[1].lower().startswith("hi"):
-        generateL1Menu(menu="Physics_HI_v3")
+    if sys.argv[1].lower().startswith("dc14"):
+        generateL1Menu(menu="DC14")
         return 0
     
     #readL1MenuFromXML()

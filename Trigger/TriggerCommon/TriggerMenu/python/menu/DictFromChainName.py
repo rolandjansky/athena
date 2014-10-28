@@ -146,8 +146,7 @@ class DictFromChainName(object):
 
         # ---- obtain dictionary parts for signature defining patterns ----
         from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
-            AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
-            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
+            AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, AllowedMonitorChainIdentifiers
 
         logDict.debug("cparts: "+ str(cparts))
         for cpart in cparts:
@@ -219,15 +218,6 @@ class DictFromChainName(object):
                 m_groupdict = {'signature': 'Monitoring', 'threshold': '', 'multiplicity': '', 
                                 'trigType': 'calib', 'extra': ''}
                 if 'Monitoring' not in signatureNames:  signatureNames.append('Monitoring')
-                logDict.debug(str(signatureNames))
-                mdicts.append(m_groupdict)
-
-            elif cpart in AllowedBeamspotChainIdentifiers:
-                logDict.debug('Beamspot CHAIN from Beamspot')
-                multichainindex.append(chainName.index(cpart)) 
-                m_groupdict = {'signature': 'Beamspot', 'threshold': '', 'multiplicity': '', 
-                                'trigType': 'beamspot', 'extra': ''}
-                if 'Beamspot' not in signatureNames:  signatureNames.append('Beamspot')
                 logDict.debug(str(signatureNames))
                 mdicts.append(m_groupdict)
 
@@ -315,11 +305,8 @@ class DictFromChainName(object):
             chainProperties['signature']=mdicts[chainindex]['signature']
             chainProperties['chainPartName'] = chainparts #"_".join(filter(None,parts))
             logDict.debug('Chainparts: '+ str(chainparts))
-            if (chainProperties['signature'] != 'Cosmic') \
-                    & (chainProperties['signature'] != 'Calibration')\
-                    & (chainProperties['signature'] != 'Streaming') \
-                    & (chainProperties['signature'] != 'Beamspot') \
-                    & (chainProperties['signature'] != 'Monitoring') : 
+            if (chainProperties['signature'] != 'Cosmic') & (chainProperties['signature'] != 'Calibration')\
+                    &  (chainProperties['signature'] != 'Streaming') & (chainProperties['signature'] != 'Monitoring') : 
                 parts.pop(0)
 
 

@@ -28,7 +28,7 @@ class ThresholdDef:
         # EM all have hadronic veto
         ThresholdValue.setDefaults('EM', {'had_veto' : 1})
         
-        for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 30, 50]:
+        for thrV in [3, 4, 6, 8, 12, 15, 30, 50]:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
 
@@ -148,7 +148,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('JET', {'window' : 8})
 
-        for thrV in [10, 12, 15, 20, 25, 30, 40, 50, 70, 75, 100, 120, 175, 250, 400]:
+        for thrV in [12, 15, 20, 25, 30, 40, 50, 70, 75, 100, 120, 400]:
             tc.registerThr('J%i' % thrV, 'JET').addThrValue(JetOff).addThrValue(thrV, etamin=-32, etamax=32, priority=1) # jets are between -32 and 32
 
 
@@ -164,7 +164,7 @@ class ThresholdDef:
             tc.registerThr('JF%i' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin=32,  etamax=49, priority=1)
             tc.registerThr('JB%i' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin=-49, etamax=-32, priority=1)
 
-        for thrV in [10, 15, 20, 30, 50, 75, 100]:
+        for thrV in [15, 20, 30, 50, 75, 100]:
             tc.registerThr('FJ%i' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin=32,  etamax=49, priority=1).addThrValue( thrV, etamin=-49, etamax=-32, priority=1)
 
 
@@ -181,9 +181,9 @@ class ThresholdDef:
 
 
         # ZB
-        tc.registerThr('ZB_EM12', 'ZB', seed='EM12',seed_ttype = 'EM',  seed_multi=1, bcdelay=3564)
-        tc.registerThr('ZB_J10',  'ZB', seed='J10', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
-        tc.registerThr('ZB_J75',  'ZB', seed='J75', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
+
+        tc.registerThr('ZB_EM12', 'ZB', seed='EM12', seed_ttype = 'EM',  seed_multi=1, bcdelay=3564)
+
 
         # JE
 
@@ -196,7 +196,7 @@ class ThresholdDef:
 
 
         # TE
-        for thrV in [5, 10, 20, 30, 40, 50, 2000, 4000]:
+        for thrV in [20, 30, 40]:
             tc.registerThr('TE%i' % thrV, 'TE').addThrValue(thrV)
 
 
@@ -217,32 +217,19 @@ class ThresholdDef:
 
 
         ## MBTS
-
-        # MBTS naming scheme defined in
-        # https://docs.google.com/spreadsheets/d/1R0s8Lw-0nPSjqe9YTuZBCeAdedn_Ve4Ax6bbMe_4bSk/edit#gid=1818891632
-
-        # run 1
         thresholdA=[ 32.04, 26.98, 35.00, 33.54, 32.08, 36.46, 30.63, 32.08, 33.54, 30.63, 29.17, 33.54, 32.08, 32.08, 30.63, 26.25]
-        thresholdC=[ 55.42, 31.98, 32.81, 49.48, 98.44, 32.11, 32.62, 29.90, 24.06, 25.81, 25.52, 35.00, 27.71, 36.46, 26.25, 30.63]
-
-        # run 2 above MBTS_A08 only the even numbers are used
-        thresholdA=[ 32.04, 26.98, 35.00, 33.54, 32.08, 36.46, 30.63, 32.08, 33.54, 0, 29.17, 0, 32.08, 0, 30.63, 0]
-        thresholdC=[ 55.42, 31.98, 32.81, 49.48, 98.44, 32.11, 32.62, 29.90, 24.06, 0, 25.52, 0, 27.71, 0, 26.25, 0]
+        thresholdC=[ 55.42, 31.98, 32.81, 49.48, 98.44, 32.11, 32.62, 29.90, 24.06, 25.81, 25.52, 35, 27.71, 36.46, 26.25, 30.63]
 
         for i, (vA, vC) in enumerate(zip(thresholdA, thresholdC)):
-            if(thresholdA[i]!=0):
-                tc.registerThr('MBTS_A%i' % i, 'MBTSSI').addThrValue(thresholdA[i])
-            if(thresholdC[i]!=0):
-                tc.registerThr('MBTS_C%i' % i, 'MBTSSI').addThrValue(thresholdC[i])
+            tc.registerThr('MBTS_A%i' % i, 'MBTSSI').addThrValue(thresholdA[i])
+            tc.registerThr('MBTS_C%i' % i, 'MBTSSI').addThrValue(thresholdC[i])
 
 
         thr_mbtsA = tc.registerThr('MBTS_A', 'MBTS', mapping=0)
         thr_mbtsC = tc.registerThr('MBTS_C', 'MBTS', mapping=1)
         for x in xrange(16):
-            if tc.getRegisteredThreshold('MBTS_A%i' % x):
-                thr_mbtsA.thresholdValues += [ tc.getRegisteredThreshold('MBTS_A%i' % x).thresholdValues[0] ]
-            if tc.getRegisteredThreshold('MBTS_C%i' % x):
-                thr_mbtsC.thresholdValues += [ tc.getRegisteredThreshold('MBTS_C%i' % x).thresholdValues[0] ]
+            thr_mbtsA.thresholdValues += [ tc.getRegisteredThreshold('MBTS_A%i' % x).thresholdValues[0] ]
+            thr_mbtsC.thresholdValues += [ tc.getRegisteredThreshold('MBTS_C%i' % x).thresholdValues[0] ]
 
 
 
@@ -290,16 +277,15 @@ class ThresholdDef:
 
 
         # DIRECT INPUTS
-        # all topo inputs are directly set from the L1Topo menu
         
-        #tc.registerTopoThr('TOPO_JETDPHI', 'TOPO', mapping=0)
-        #tc.registerThr('TOPO_HT',   'TOPO', mapping=1)
-        #tc.registerThr('TOPO_JPSI', 'TOPO', mapping=31)
-        #tc.registerThr('TOPO_0',    'TOPO', mapping=32)
-        #tc.registerThr('TOPO_1',    'TOPO', mapping=63)
-        #tc.registerThr('TOPO_2',    'TOPO', mapping=64)
-        #tc.registerThr('TOPO_3',    'TOPO', mapping=91)
-        #tc.registerThr('TOPO_4',    'TOPO', mapping=127)
-        #tc.registerThr('TOPO_5',    'TOPO', mapping=128)
-        #tc.registerThr('TOPO_6',    'TOPO', mapping=191)
+        tc.registerThr('TOPO_DPHI', 'TOPO', mapping=0)
+        tc.registerThr('TOPO_HT',   'TOPO', mapping=1)
+        tc.registerThr('TOPO_JPSI', 'TOPO', mapping=31)
+        tc.registerThr('TOPO_0',    'TOPO', mapping=32)
+        tc.registerThr('TOPO_1',    'TOPO', mapping=63)
+        tc.registerThr('TOPO_2',    'TOPO', mapping=64)
+        tc.registerThr('TOPO_3',    'TOPO', mapping=91)
+        tc.registerThr('TOPO_4',    'TOPO', mapping=127)
+        tc.registerThr('TOPO_5',    'TOPO', mapping=128)
+        tc.registerThr('TOPO_6',    'TOPO', mapping=191)
         

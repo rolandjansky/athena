@@ -26,14 +26,12 @@ class ChainConfig(object):
     def __init__(self,
                  name,
                  seed,
-                 run_hypo,
                  test,
                  tt_menudata,
                  jr_menudata):
 
         self.name = name
         self.seed = seed
-        self.run_hypo = run_hypo
 
         # the following flags will guide sequence construction
         self.tt_menudata = tt_menudata

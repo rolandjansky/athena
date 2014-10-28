@@ -8,11 +8,6 @@ from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
 
 def generateL1TopoMenu(menu):
 
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger("TriggerConfigL1Topo")
-    log.setLevel(logging.INFO)
-
-
     # what menu to build
     TF.triggerMenuSetup = menu
 
@@ -21,6 +16,10 @@ def generateL1TopoMenu(menu):
 
     # build the menu structure
     tpcl1.generateMenu()
+
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger("TriggerConfigL1Topo")
+    log.setLevel(logging.DEBUG)
 
     # write xml file
     tpcl1.writeXML()

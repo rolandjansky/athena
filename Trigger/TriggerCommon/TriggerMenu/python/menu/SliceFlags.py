@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 import TriggerMenu.egamma.EgammaSliceFlags
 import TriggerMenu.jet.JetSliceFlags
 import TriggerMenu.bjet.BjetSliceFlags
@@ -13,6 +14,5 @@ import TriggerMenu.calibcosmicmon.CosmicSliceFlags
 import TriggerMenu.calibcosmicmon.CalibSliceFlags
 import TriggerMenu.calibcosmicmon.StreamingSliceFlags
 import TriggerMenu.calibcosmicmon.MonitorSliceFlags
-import TriggerMenu.calibcosmicmon.BeamspotSliceFlags
 
 

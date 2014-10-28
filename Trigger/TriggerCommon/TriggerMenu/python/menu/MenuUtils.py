@@ -130,6 +130,8 @@ def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True):
     """
     serial merging of chain def objects for combined chains
     """
+
+    listOfChainDefs = deepcopy(listOfChainDefs)
     
     # copy the chaindef into which we want to merge the other chaindefs
     mergedChainDef = deepcopy(listOfChainDefs[0])
@@ -176,6 +178,9 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
     merge chain def objects for combined chains
     the order of signatures corresponds to the signature counters in the constituent chainDefs
     """
+
+    listOfChainDefs = deepcopy(listOfChainDefs)
+
 
     for chainDef in listOfChainDefs:
         log.debug("List of ChainDefs to be merged %s " % str(chainDef))

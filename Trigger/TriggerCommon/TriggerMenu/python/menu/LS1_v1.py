@@ -24,32 +24,9 @@ def setupMenu():
         ['mu4_cosmic_L1MU4_EMPTY',                743, 'L1_MU4_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
         ['mu4_cosmic_L1MU11_EMPTY',               744, 'L1_MU11_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
         ['mu4_msonly_cosmic_L1MU11_EMPTY',        724, 'L1_MU11_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
-        
-        ['mu4_cosmicEF_L1MU4_EMPTY',                745, 'L1_MU4_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
-        ['mu4_cosmicEF_L1MU11_EMPTY',               746, 'L1_MU11_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
-        ['mu4_msonly_cosmicEF_L1MU11_EMPTY',        747, 'L1_MU11_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
-        ['mu4_msonly_cosmicEF_L1MU4_EMPTY',        748, 'L1_MU4_EMPTY', [], ['CosmicMuons'], ["RATE:Cosmic_Muon", "BW:Muon"], 1],
-
-        #['mu4_cosmic_ds_L1MU4',                   725, 'L1_MU4',   [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-        #['mu4_cosmic_ds_L1MU10',                  726, 'L1_MU10',  [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-        #['mu4_cosmic_ds_L1MU11',                  727, 'L1_MU11',  [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-        #['mu4_cosmic_ds_L1MU4_EMPTY',             728, 'L1_MU4_EMPTY',  [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-        #['mu4_cosmic_ds_L1MU10_EMPTY',            729, 'L1_MU10_EMPTY',  [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-        #['mu4_cosmic_ds_L1MU11_EMPTY',            730, 'L1_MU11_EMPTY',  [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-
-        ['mu4_cosmic_ds1_L1MU4', 725, 'L1_MU4', [], ['DataScouting_01_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
-        ['mu4_cosmic_ds2_L1MU4', 726, 'L1_MU4', [], ['DataScouting_01_CosmicMuons','DataScouting_02_CosmicMuons'], ["RATE:Cosmic_Muon_DS", "BW:Muon"], 1],
         ]
 
-    TriggerFlags.JetSlice.signatures = [
-        # Performance chains
-        ['j0_perf_L1RD0_EMPTY', 116,     'L1_RD0_EMPTY',[], ['Jet'], ['RATE:SingleJet', 'BW:Jets'], 1],
-        ['j0_perf_L1MU10',      117,     'L1_MU10',[], ['Jet'], ['RATE:SingleJet', 'BW:Jets'], 1],
-        ['j0_perf_L1J10',       118, 'L1_J10',[], ['Jet'], ['RATE:SingleJet', 'BW:Jets'], 1],
-        #['j_perf_lcw_L1RD0_EMPTY', 118,'L1_RD0_EMPTY',[], ['Jet'], ['RATE:SingleJet', 'BW:Jets'], 1],
-        #['j_perf_lcw_L1MU10', 119,     'L1_MU10',[], ['Jet'], ['RATE:SingleJet', 'BW:Jets'], 1],          
-        ]
-
+    TriggerFlags.JetSlice.signatures = []
     TriggerFlags.METSlice.signatures = []
     TriggerFlags.TauSlice.signatures = []
     TriggerFlags.EgammaSlice.signatures = [
@@ -94,20 +71,15 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures   = [
         ['l1calocalib',             6416, 'L1_RD0_FILLED',     [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], 1],
         ['l1calocalib_L1BGRP7',     6417, 'L1_BGRP7',          [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], 1], 
-
         ['larcalib_L1EM3_EMPTY',    6418, 'L1_EM3_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
         ['larcalib_L1TAU8_EMPTY',   6419, 'L1_TAU8_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
         ['larcalib_L1J10_EMPTY',    6420, 'L1_J10_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
         ['larcalib_L1FJ30_EMPTY',   6421, 'L1_FJ30_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
+
         # DCM level monitoring chain for CSC (#104895)
         ['larcalib_L1MU10',   6422, 'L1_MU10',     [], ['calibration_CSC'], ["RATE:Calibration", "BW:Detector"], 1],
         ['larcalib_L1EM3',   6423, 'L1_EM3',     [], ['calibration_CSC'], ["RATE:Calibration", "BW:Detector"], 1],
         ['larcalib_L1J10',   6424, 'L1_J10',     [], ['calibration_CSC'], ["RATE:Calibration", "BW:Detector"], 1],
-
-        ['tilelarcalib_L1EM3_EMPTY',    6430, 'L1_EM3_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
-        ['tilelarcalib_L1TAU8_EMPTY',   6431, 'L1_TAU8_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
-        ['tilelarcalib_L1J10_EMPTY',    6432, 'L1_J10_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
-        ['tilelarcalib_L1FJ30_EMPTY',   6433, 'L1_FJ30_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], 1],
         ]
        
 
@@ -129,14 +101,11 @@ def setupMenu():
         ['larps_L1J30_FIRSTEMPTY', 5066, 'L1_J30_FIRSTEMPTY', [], ['JetTauEtmiss'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], 1],
 
         #CosmicID
-        ['id_cosmic_L1MU4',         5041, 'L1_MU4', [], ['IDCosmic', 'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], 1],
-        ['id_cosmic_L1MU11',        5040, 'L1_MU11', [], ['IDCosmic', 'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], 1],
-
         ['id_cosmic',               5042, '', [], ['IDCosmic', 'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], 1],
         ['id_cosmic_trtxk',         5043, '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1],
         ['id_cosmic_trtxk_central', 5044, '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1],
         
-        ['id_cosmic_ds',            5045, '', [], ['DataScouting_02_IDCosmic'], ['RATE:CosmicSlice_DS', 'RATE:Cosmic_Tracking_DS', 'BW:Detector'], 1],        
+        
 
         ]
 
@@ -215,11 +184,6 @@ def setupMenu():
         ]
     #TriggerFlags.GenericSlice.signatures =  []
 
-    TriggerFlags.BeamspotSlice.signatures =  [
-        ##['beamspot_vtx_trkFS_L2StarB',        7000, 'L1_4J15', [], ['beamspot'], ["BW:Detector"], 1],
-        ##['beamspot_vtx_activeTE_L2StarB_peb', 7001, 'L1_4J15', [], ['beamspot'], ["BW:Detector"], 1],
-        ##['beamspot_vtx_allTE_L2StarB_peb',    7002, 'L1_4J15', [], ['beamspot'], ["BW:Detector"], 1],
-        ]
 
 
     

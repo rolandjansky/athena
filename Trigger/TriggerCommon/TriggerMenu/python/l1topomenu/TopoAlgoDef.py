@@ -24,99 +24,54 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 63)
         tm.registerAlgo(alg) 
         
-        alg = AlgConf.ClusterSortingAlg( name = 'TauSort', inputs = 'TauIn', outputs = 'SortedTaus', algoId = 1)
-        alg.addgeneric('NumberOfClusters', HW.OutputWidthSortEM)
-        alg.addvariable('MinIsolation', 0)
-        alg.addvariable('MinEta', 0)
-        alg.addvariable('MaxEta', 63)
-        tm.registerAlgo(alg) 
-        
-        alg = AlgConf.JetSortingAlg( name = 'JetSort', inputs = 'JetIn', outputs = 'SortedJets', algoId = 2)
+        alg = AlgConf.JetSortingAlg( name = 'JetSort', inputs = 'JetIn', outputs = 'SortedJetsDefault', algoId = 1)
         alg.addgeneric('NumberOfJets', HW.OutputWidthSortJET)
         alg.addgeneric('JetSize', HW.DefaultJetSize)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 63)
         tm.registerAlgo(alg)
         
-        alg = AlgConf.JetSortingAlg( name = 'JetSort_Size2', inputs = 'JetIn', outputs = 'SortedJetsSize2', algoId = 3)
+        alg = AlgConf.JetSortingAlg( name = 'JetSort_Size2', inputs = 'JetIn', outputs = 'SortedJetsSize2', algoId = 2)
         alg.addgeneric('NumberOfJets', HW.OutputWidthSortJET)
         alg.addgeneric('JetSize', 1 if HW.DefaultJetSize==2 else 2)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 63)
         tm.registerAlgo(alg) 
 
-        alg = AlgConf.METSortingAlg( name = 'METSort', inputs = 'JetIn', outputs = 'MET', algoId = 4)
-        alg.addvariable('MinEta', 0)
-        alg.addvariable('MaxEta', 31)
-        tm.registerAlgo(alg) 
+
         # decision algorithms
-
-        alg = AlgConf.GenericListGenerator( name = 'GenericFromJet', inputs = 'JetsIn', outputs = 'JetsIn', algoId = 5 )
-        tm.registerAlgo(alg)
-
-        currentAlgoId = 0
-
-        alg = AlgConf.EtCut( name = 'J25', inputs = 'SortedJets', outputs = 'J25_topo', algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addvariable('MinET', 25)
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.DeltaPhiIncl1( name = 'DPhi_JsJs', inputs = 'SortedJets', outputs = ['JetDeltaPhiNarrow'], algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addgeneric('NumberLeading1', HW.OutputWidthSortJET)
-        alg.addgeneric('NumberLeading2', HW.OutputWidthSortJET)
-        alg.addvariable('MinET', 0)
-        alg.addvariable('DeltaPhiMin', 0, 0)
-        alg.addvariable('DeltaPhiMax', 16, 0)
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.JetHT( name = 'HT200', inputs = 'JetsIn', outputs = ['JetDeltaPhiNarrow'], algoId = currentAlgoId ); currentAlgoId += 1
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.EtCut( name = 'EM25', inputs = 'SortedClusters', outputs = ['EM25_topo'], algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addvariable('MinET', 25)
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.DeltaPhiIncl1( name = 'DPhi_EMsEMs', inputs = 'SortedClusters', outputs = ['EMDeltaPhiNarrow'], algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addgeneric('NumberLeading1', HW.OutputWidthSortEM)
-        alg.addgeneric('NumberLeading2', HW.OutputWidthSortEM)
-        alg.addvariable('MinET', 0)
-        alg.addvariable('DeltaPhiMin', 0, 0)
-        alg.addvariable('DeltaPhiMax', 16, 0)
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.DeltaEtaIncl1( name = 'DEta_EMsEMs', inputs = 'SortedClusters', outputs = 'DEta_EMEM10', algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addgeneric('NumberLeading1', HW.OutputWidthSortEM)
-        alg.addgeneric('NumberLeading2', HW.OutputWidthSortEM)
-        alg.addvariable('MinET', 0)
-        alg.addvariable('DeltaEtaMin', 0, 0)
-        alg.addvariable('DeltaEtaMax', 10, 0)
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.EtCut( name = 'TAU25', inputs = 'SortedTaus', outputs = ['TAU25_topo'], algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addvariable('MinET', 25)
-        tm.registerAlgo(alg)
         
-        alg = AlgConf.DeltaPhiIncl1( name = 'DPhi_TAUsTAUs', inputs = 'SortedTaus', outputs = ['DPhi_TAU16'], algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addgeneric('NumberLeading1', HW.OutputWidthSortTAU)
-        alg.addgeneric('NumberLeading2', HW.OutputWidthSortTAU)
-        alg.addvariable('MinET', 0)
-        alg.addvariable('DeltaPhiMin', 0, 0)
-        alg.addvariable('DeltaPhiMax', 16, 0)
-        tm.registerAlgo(alg)
-
-        alg = AlgConf.DeltaEtaIncl1( name = 'DEta_TAUTAU_10', inputs = 'SortedTaus', outputs = 'DEta_TAUTAU10', algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addgeneric('NumberLeading1', HW.OutputWidthSortEM)
-        alg.addgeneric('NumberLeading2', HW.OutputWidthSortEM)
-        alg.addvariable('MinET', 0)
-        alg.addvariable('DeltaEtaMin', 0, 0)
-        alg.addvariable('DeltaEtaMax', 10, 0)
+        alg = AlgConf.DeltaPhiLeading( name = 'ClusterDeltaPhi_12', inputs = ['SortedClusters_EM_NoIso', 'SortedClusters_EM_NoIso'], outputs = ['ClusterDeltaPhi_Loose', 'ClusterDeltaPhi_Tight'], algoId = 0)
+        alg.addgeneric('MaxTob', 6)
+        alg.addvariable('MinET', 5)
+        alg.addvariable('DeltaPhiMin', 12, 0)
+        alg.addvariable('DeltaPhiMax', 31, 0)
+        alg.addvariable('DeltaPhiMin', 22, 1)
+        alg.addvariable('DeltaPhiMax', 31, 1)
         tm.registerAlgo(alg)
 
 
-        alg = AlgConf.METCut( name = 'XE', inputs = 'MET', outputs = 'XE25_topo', algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addvariable('XE', 25)
+        alg = AlgConf.DeltaPhiIncl1( name = 'JetDefaultDeltaPhiIncl_12', inputs = ['SortedJetsDefault'], outputs = ['JetDeltaPhiNarrow','JetDeltaPhiWide'], algoId = 1)
+        alg.addgeneric('NumberLeading1', 4)
+        alg.addgeneric('NumberLeading2', 4)
+        alg.addvariable('MinET', 5)
+        alg.addvariable('DeltaPhiMin', 20, 0)
+        alg.addvariable('DeltaPhiMax', 27, 0)
+        alg.addvariable('DeltaPhiMin', 27, 1)
+        alg.addvariable('DeltaPhiMax', 32, 1)
         tm.registerAlgo(alg)
 
+        
+        alg = AlgConf.DeltaEtaLeading( name = 'ClusterDeltaEta_12', inputs = ['SortedClusters_EM_NoIso', 'SortedJetsSize2'], outputs = ['ClusterDeltaEta_Loose', 'ClusterDeltaEta_Tight'], algoId = 2)
+        alg.addgeneric('MaxTob', 6)
+        alg.addvariable('MinET', 5)
+        alg.addvariable('DeltaEtaMin', 12, 0)
+        alg.addvariable('DeltaEtaMax', 31, 0)
+        alg.addvariable('DeltaEtaMin', 22, 1)
+        alg.addvariable('DeltaEtaMax', 31, 1)
+        tm.registerAlgo(alg)
 
+        
 
         
         

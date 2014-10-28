@@ -35,10 +35,6 @@ def getStreamTag(streams):
                     'SCTNoise',
                     'calibration_CSC',
                     'CostMonitoring',
-                    'beamspot',
-                    'DataScouting_01_CosmicMuons',
-                    'DataScouting_02_CosmicMuons',
-                    'DataScouting_02_IDCosmic',
                     ]
 
     expressStreams = ['express']

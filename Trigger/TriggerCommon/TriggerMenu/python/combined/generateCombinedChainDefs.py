@@ -15,7 +15,7 @@ from copy import deepcopy
 ###########################################################################
 ###########################################################################
 
-def _addTopoInfo(theChainDef,chainDicts,doAtL2AndEF=True):
+def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
 
     maxL2SignatureIndex = -1
     for signatureIndex,signature in enumerate(theChainDef.signatureList):
@@ -33,7 +33,7 @@ def _addTopoInfo(theChainDef,chainDicts,doAtL2AndEF=True):
         if len(inputChains)<2:
             logCombined.warning("Need a Met and a JET chain to run DPhi Topo cut")        
         else:
-            theChainDef=_addDPhiMetJet(theChainDef,chainDicts)
+            theChainDef=_addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs)
 
     else:
         logCombined.error("do nothing, intra-signature topological cut not implemented yet")
@@ -43,7 +43,7 @@ def _addTopoInfo(theChainDef,chainDicts,doAtL2AndEF=True):
 
 
 ##############################################################################
-def _addDPhiMetJet(theChainDef,chainDicts):
+def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     
 
     for topo_item in chainDicts[0]['topo']:
@@ -64,16 +64,12 @@ def _addDPhiMetJet(theChainDef,chainDicts):
                                            dPhiCut=DPhiCut, minJetEt=JetThr,maxDPhiJets=1)
     
     ##Get only the last MET TE
-    inputTEsEF = deepcopy(theChainDef.signatureList[-1]['listOfTriggerElements'])
-    #print "Betta: sigantureList ",theChainDef.signatureList
-    #print "Betta: inputTEsEF ",inputTEsEF 
-
-    ##Get the last Jet hypo TE
-    for sig in theChainDef.signatureList: 
-        #print "Betta: sig ",sig
-        if "EF" in sig['listOfTriggerElements'][-1] and 'j'+str(JetThr) in sig['listOfTriggerElements'][-1]:
-            #print "Betta: Adding ",sig['listOfTriggerElements'][-1]
-            inputTEsEF.append( sig['listOfTriggerElements'][-1])
+    
+    inputTEsEF = []
+    for cD in listOfChainDefs:
+        inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])]
+        
+    inputTEsEF.reverse() # need first met then jet input TE
             
     logCombined.debug("Input TEs to DPhi algorithm: %s" % inputTEsEF)
 

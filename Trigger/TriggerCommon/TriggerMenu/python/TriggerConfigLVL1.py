@@ -2,10 +2,14 @@
 
 from sys import settrace
 
-from .TriggerConfigL1Topo import TriggerConfigL1Topo
+#from l1.Lvl1CaloInfo import Lvl1CaloInfo
+from l1.CaloInfo import CaloInfo
+from l1.MuctpiInfo import MuctpiInfo
+from l1.CTPInfo import CTPInfo
+from l1.Lvl1Thresholds import LVL1Thresholds
+from l1.Lvl1MenuItems import LVL1MenuItems
 from l1.Lvl1Menu import Lvl1Menu
 from l1.Lvl1Flags import Lvl1Flags
-
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigLVL1")
@@ -13,17 +17,14 @@ log = logging.getLogger("TriggerConfigLVL1")
 class TriggerConfigLVL1:
 
     current = None
-    def __init__(self, outputFile = None , inputFile = None , menuName = None , topoMenu = "MATCH" ):
-        """
-        topoMenu: MATCH means that the L1Topo menu matches the L1 menu
-        """
+    def __init__(self, outputFile = None , inputFile = None , menuName = None ):
         TriggerConfigLVL1.current = self
-
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         if menuName:
             TriggerFlags.triggerMenuSetup = menuName
         self.menuName = TriggerFlags.triggerMenuSetup()
 
+        
         self.inputFile     = inputFile
         self.outputFile    = outputFile
         self.l1menuFromXML = None # flag if l1menu is read from XML file
@@ -34,11 +35,6 @@ class TriggerConfigLVL1:
         
         # all registered thresholds
         self.registeredThresholds = {}
-
-        # get L1Topo trigger line connections
-        if topoMenu=="MATCH": topoMenu = self.menuName # topo menu name should match CTP menu for correct connection
-        self.topotriggers = self.getL1TopoTriggerLines(topoMenu)
-        self.registerAllTopoTriggersAsThresholds()
 
         # menu
         self.menu = Lvl1Menu(self.menuName)
@@ -57,29 +53,6 @@ class TriggerConfigLVL1:
 
             # registers all items ever defined
             self.registerMenu()
-
-
-    ## L1 Topo connection
-    def getL1TopoTriggerLines(self, menu):
-        if menu == None:
-            return None
-
-        if menu.endswith(".xml"):
-            raise RuntimeError("Can't read the topo trigger lines from xml yet")
-
-        else:
-            triggerLines = None
-            try:
-                tpcl1 = TriggerConfigL1Topo( menuName = menu )
-                tpcl1.generateMenu()
-                triggerLines = tpcl1.menu.getTriggerLines()
-            except Exception, ex:
-                print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
-                
-            # restore the triggerMenuSetup for the LVL1 generation
-            from TriggerJobOpts.TriggerFlags import TriggerFlags
-            TriggerFlags.triggerMenuSetup = self.menuName
-            return triggerLines
 
             
     ## Thresholds
@@ -110,19 +83,6 @@ class TriggerConfigLVL1:
         self.registeredThresholds[name] = thr
         return thr
 
-
-    def registerAllTopoTriggersAsThresholds(self):
-        """
-        Add all L1Topo triggers as allowed input to the menu
-        """
-        if not self.topotriggers:
-            return
-        from l1.Lvl1Thresholds import LVL1Threshold
-        for topotrigger in self.topotriggers:
-            thr = LVL1Threshold( topotrigger.trigger, 'TOPO', mapping = topotrigger.ordinal)
-            thr.setCableInput()        
-            self.registeredThresholds[topotrigger.trigger] = thr
-        
 
     def getRegisteredThreshold(self, name):
         if name in self.registeredThresholds:
@@ -166,8 +126,7 @@ class TriggerConfigLVL1:
         FH = open( self.outputFile, mode="wt" )
         FH.write( self.menu.xml() )
         FH.close()
-        from l1.Lvl1MenuUtil import oldStyle
-        log.info("Wrote %s in %s" % (self.outputFile, "run 1 style" if oldStyle() else "run 2 style"))
+        log.info("Wrote %s" % self.outputFile)
 
 
 

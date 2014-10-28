@@ -23,9 +23,6 @@ from TriggerMenu.menu.HltConfig import *
 
 # default class, no ID at EF level
 
-from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec_NoIDEF_eGamma
-#theTrigEgammaRec_NoIDEF_eGamma         = TrigEgammaRec(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False)
-theTrigEgammaRec_NoIDEF_eGamma         = TrigEgammaRec_NoIDEF_eGamma()
 #-----------------------------------
 class L2EFChain_g(L2EFChainDef):
 #-----------------------------------
@@ -120,6 +117,8 @@ class L2EFChain_g(L2EFChainDef):
         theTrigCaloTowerMaker_eGamma       = TrigCaloTowerMaker_eGamma()
         theTrigCaloClusterMaker_slw        = TrigCaloClusterMaker_slw()
 
+        from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec_NoIDEF_eGamma
+        theTrigEgammaRec_NoIDEF_eGamma         = TrigEgammaRec_NoIDEF_eGamma()
     
         if 'etcut' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g_nocut

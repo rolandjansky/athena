@@ -64,17 +64,14 @@ class L2EFChain_mu(L2EFChainDef):
     if not self.chainPart['extra'] \
           and not self.chainPart['FSinfo'] \
           and not self.chainPart['hypoInfo'] \
-          and not self.chainPart['reccalibInfo'] \
-          and "cosmicEF" not in self.chainPart['addInfo']:
+          and not self.chainPart['reccalibInfo']:
       self.setup_muXX_ID()
     elif self.chainPart['extra']:
       self.setup_muXX_noL1()
     elif self.chainPart['reccalibInfo'] == "idperf":
       self.setup_muXX_idperf()
-    elif self.chainPart['reccalibInfo'] == "msonly"  and "cosmicEF" not in self.chainPart['addInfo'] :
+    elif self.chainPart['reccalibInfo'] == "msonly":
       self.setup_muXX_MSOnly()
-    elif "cosmicEF" in self.chainPart['addInfo']:
-      self.setup_muXX_cosmicEF()
     else:
       logMuonDef.error('Chain %s could not be assembled' % (self.chainPartName))
       return False
@@ -203,14 +200,8 @@ class L2EFChain_mu(L2EFChainDef):
     if 'SuperEF' in self.chainPart['EFAlg']:
       from AthenaCommon import CfgGetter
       theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF")
+      theEFAlg = theTrigMuSuperEF 
       EFRecoAlgName = "Muon"
-
-      if ("ds2" in self.chainPart['addInfo']):
-        theEFAlg= theTrigMuSuperEF
-        theEFAlg.MuonContName = "HLT_MuonEFInfoDSOnly"
-      else:
-        theEFAlg = theTrigMuSuperEF 
-
     else:
       logMuonDef.error("Chain built with %s but so far only SuperEF is supported." % (self.chainPart['EFAlg']))
       return False
@@ -289,26 +280,6 @@ class L2EFChain_mu(L2EFChainDef):
                                [TrigMuonEFTrackIsolationConfig("TrigMuonEFTrackIsolation"),theTrigMuonEFTrackIsolationHypoConfig],
                                'EF_mu_step4']]
 
-
-    # DATASCOUTING CHAIN  
-    if (("ds1" in self.chainPart['addInfo']) or ("ds2" in self.chainPart['addInfo'])) and (self.mult==1):
-      from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
-      if ("ds1" in self.chainPart['addInfo']):
-        dsAlg = ScoutingStreamWriter("MuonCosmicDataScouting")
-        dsAlg.CollectionTypeName = ['xAOD::MuonContainer_v1#HLT_MuonEFInfo']
-      elif ("ds2" in self.chainPart['addInfo']):
-        dsAlg = ScoutingStreamWriter("MuonCosmicDataScouting")
-        dsAlg.CollectionTypeName = ['xAOD::MuonContainer_v1#HLT_MuonEFInfoDSOnly']
-      else:
-        logMuonDef.error("Datascouting configuration not defined for chain %s." % (self.chainName))
-
-      inputTE = self.EFsequenceList[-1][-1] # should be "EF_mu_step2" or "EF_mu_step4"
-      outputTE = "EF_mu_ds"
-      
-      self.EFsequenceList += [[ [inputTE], [dsAlg], outputTE ] ]
-
-
-
     ########### Signatures ###########
     self.L2signatureList += [ [['L2_mu_step1']*self.mult] ]
     if (self.doOvlpRm):
@@ -325,10 +296,6 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_mu_step3']*self.mult] ]
       self.EFsignatureList += [ [['EF_mu_step4']*self.mult] ]
 
-    if "ds" in self.chainPart['addInfo']:
-      self.EFsignatureList += [ [['EF_mu_ds']] ]
-
-
     ########### TE renaming ##########
     self.TErenamingDict = {
       'L2_mu_step1': mergeRemovingOverlap('L2_mu_SA_', L2AlgName+muFastThresh+'_'+self.L2InputTE),
@@ -336,36 +303,26 @@ class L2EFChain_mu(L2EFChainDef):
       'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult),
       'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult),
       }    
-
-    if (("ds1" in self.chainPart['addInfo'])):
-      chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds1', '')
-    elif (("ds2" in self.chainPart['addInfo'])):
-      chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds2', '')
-    else:
-      chainPartNameNoMultNoDS = self.chainPartNameNoMult
-
     if (self.chainPart['isoInfo']):
-      self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
-                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
-                                  'EF_mu_step3': mergeRemovingOverlap('EF_muI_efid_',    chainPartNameNoMultNoDS),
-                                  'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       chainPartNameNoMultNoDS)}) 
+      self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'],'')),
+                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'],'')),
+                                  'EF_mu_step3': mergeRemovingOverlap('EF_muI_efid_',    self.chainPartNameNoMult),
+                                  'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       self.chainPartNameNoMult)}) 
     if self.doOvlpRm:
       self.TErenamingDict.update({'L2_step1a_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step1b_wOvlpRm'  : mergeRemovingOverlap('L2_muon_comb',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step2_wOvlpRm'   : mergeRemovingOverlap('L2_mu_combOvlpRm_',  L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm'),
-                                  'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS+'_wOvlpRm'),
-                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS+'_wOvlpRm')})
+                                  'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult+'_wOvlpRm'),
+                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult+'_wOvlpRm')})
     if self.doOvlpRm and self.chainPart['isoInfo']:
       self.TErenamingDict.update({'L2_step1a_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step1b_wOvlpRm'  : mergeRemovingOverlap('L2_muon_comb',       L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
                                   'L2_step2_wOvlpRm'   : mergeRemovingOverlap('L2_mu_combOvlpRm_',  L2AlgName+muCombThresh+'_'+self.L2InputTE+'_wOvlpRm'),
-                                  'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS+'_wOvlpRm'),
-                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS+'_wOvlpRm'),
-                                  'EF_mu_step3': mergeRemovingOverlap('EF_muI_efid_',    chainPartNameNoMultNoDS+'_wOvlpRm'),
-                                  'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       chainPartNameNoMultNoDS+'_wOvlpRm')}) 
+                                  'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult+'_wOvlpRm'),
+                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult+'_wOvlpRm'),
+                                  'EF_mu_step3': mergeRemovingOverlap('EF_muI_efid_',    self.chainPartNameNoMult+'_wOvlpRm'),
+                                  'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       self.chainPartNameNoMult+'_wOvlpRm')}) 
      
-    if (("ds1" in self.chainPart['addInfo']) or ("ds2" in self.chainPart['addInfo'])):
-      self.TErenamingDict.update({'EF_mu_ds'  : mergeRemovingOverlap('EF_',    self.chainPartNameNoMult ),})
 
 
                                       
@@ -673,65 +630,8 @@ class L2EFChain_mu(L2EFChainDef):
 
       }
 
-  #################################################################################################
-  #################################################################################################
-  def setup_muXX_cosmicEF(self):
-
-    if 'SuperEF' in self.chainPart['EFAlg']:
-      from AthenaCommon import CfgGetter
-      theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF")
-      theEFAlg = theTrigMuSuperEF 
-      EFRecoAlgName = "Muon"
-    else:
-      logMuonDef.error("Chain built with %s but so far only SuperEF is supported." % (self.chainPart['EFAlg']))
-      return False
-
-
-    if (self.chainPart['reccalibInfo'] == "msonly"):
-      from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorHypoConfig
-      EFExtrapolatorThresh = self.getEFExtrapolatorThresh()
-      theTrigMuonEFExtrapolatorHypoConfig = TrigMuonEFExtrapolatorHypoConfig(EFRecoAlgName, EFExtrapolatorThresh)
-      ########### Sequence List ##############
-      self.EFsequenceList += [[[self.L2InputTE],
-    	  		       [theEFAlg, theTrigMuonEFExtrapolatorHypoConfig],
-                               'EF_mu_step1']]
-    else:
-      EFCombinerThresh = self.getEFCombinerThresh()
-      
-      ########### EF algos  #################
-      from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
-      theEFIDTracking=TrigEFIDInsideOut_CosmicsN()
-      
-      from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
-      theTrigMuonEFCombinerHypoConfig = TrigMuonEFCombinerHypoConfig(EFRecoAlgName,EFCombinerThresh)
-                  
-      
-      ########### Sequence List ##############
-      self.EFsequenceList += [[[self.L2InputTE],
-                               ## old ## theTrigEFIDDataPrep_Muon+[theTrigFastTrackFinder_Muon,theTrigEFIDInsideOutMerged_Muon.getSequence()],
-                               #theTrigEFIDDataPrep_Muon+[theEFIDTracking,theTrigEFIDInsideOutMerged_Muon.getSequence()],
-                               theEFIDTracking.getSequence(),
-                               'EF_mu_step1']]
-      
-      self.EFsequenceList += [[['EF_mu_step1'],
-    	  		       [theEFAlg, theTrigMuonEFCombinerHypoConfig],
-                               'EF_mu_step2']]
 
 
 
-    ########### Signatures ###########
-    self.EFsignatureList += [ [['EF_mu_step1']*self.mult] ]
-    if not (self.chainPart['reccalibInfo'] == "msonly"):
-      self.EFsignatureList += [ [['EF_mu_step2']*self.mult] ]
 
-    ########### TE renaming ##########
-    if (self.chainPart['reccalibInfo'] == "msonly"):
-      self.TErenamingDict = {
-        'EF_mu_step1': mergeRemovingOverlap('EF_SuperEF_Extrapolator_', self.chainPartNameNoMult),
-        }    
-    else:
-      self.TErenamingDict = {
-        'EF_mu_step1': mergeRemovingOverlap('EF_CosmicsN_', self.chainPartNameNoMult),
-        'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult),
-        }    
-    
+

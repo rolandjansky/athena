@@ -21,7 +21,6 @@ SliceIDDict = {
     'Calibration'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitoring'    : 'mon',
-    'Beamspot'      : 'beamspot',
 }
 
 #==========================================================
@@ -88,7 +87,7 @@ JetChainParts = {
     'dataType'     : ['TT', 'tc', 'cc'],
     'calib'        : ["had","lcw","em"],
     'scan'         : ['FS','PS'],
-    'addInfo'      : ['perf'],    
+    'addInfo'      : [''],    
     'topo'         : AllowedTopos_jet,
     'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf'],
     'bTracking'    : ['EFID'],
@@ -152,18 +151,18 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta105', '0eta250'],
     'threshold'      : '',
-    'extra'          : ['noL1'],
-    'IDinfo'         : [],
-    'isoInfo'        : ['iloose', 'imedium', 'itight',],
-    'reccalibInfo'   : ['msonly', 'idperf'],
+    'extra'          : ['i', 'ns', 'T', 'i4','noL1'],
+    'IDinfo'         : ['loose', 'medium', 'tight', 'loosev1', 'mediumv1', 'tightv1', 'tight1',],
+    'isoInfo'        : ['iloose', 'imedium', 'itight', 'iloosev1', 'imediumv1', 'itightv1'],
+    'reccalibInfo'   : ['MSonly', 'msonly', 'idperf'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
     'hypoInfo'       : [],
     'FSinfo'         : ['ftkFS'],
-    'L2IDAlg'        : ['L2Star','IdScan','FTK'],
-    'L2SAAlg'        : ['muFast', 'l2muonSA',],
-    'L2CBAlg'        : ['muComb',],
-    'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2'],
+    'L2IDAlg'        : ['L2Star','L2StarA','L2StarB','L2StarC','IdScan','FTK'],
+    'L2SAAlg'        : ['muFast', 'l2muonSA', 'slow_outOfTime'],
+    'L2CBAlg'        : ['muComb', 'slow'],
+    'EFAlg'          : ['MuonEF','MG','slowEF','TMEFonly','SuperEF'],
+    'addInfo'        : ['cosmic','IdTest','fsperf'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm'],
     'topo'           : AllowedTopos_mu,
     }
@@ -415,7 +414,7 @@ CosmicChainParts = {
     'chainPartName'  : '',
     'L1item'       : '',
     'purpose'        : AllowedCosmicChainIdentifiers,
-    'addInfo'        : ['cosmic','noise', 'beam', 'laser', 'AllTE', 'central', 'ds'], #'trtd0cut'
+    'addInfo'        : ['cosmic','noise', 'beam', 'laser', 'AllTE', 'central'], #'trtd0cut'
     'trackingAlg'    : ['idscan', 'sitrack', 'trtxk'],
     'hits'           : ['4hits'],
     'threshold'      : '',
@@ -477,7 +476,7 @@ StreamingChainParts_Default = {
 #==========================================================
 # ---- CalibDef chains -----
 #==========================================================
-AllowedCalibChainIdentifiers = ['larcalib', 'idcalib', 'l1calocalib', 'tilelarcalib']
+AllowedCalibChainIdentifiers = ['larcalib', 'idcalib', 'l1calocalib']
 
 # ---- Calib Chain Dictinary of all allowed Values ----
 CalibChainParts = {
@@ -535,7 +534,7 @@ MonitorChainParts = {
     'extra'          : '',
     }
 
-# ---- Monitor Chain Default Dictinary of all allowed Values ----
+# ---- Calib Chain Default Dictinary of all allowed Values ----
 MonitorChainParts_Default = {
     'signature'      : ['Monitoring'],
     'chainPartName'  : '',
@@ -551,45 +550,6 @@ MonitorChainParts_Default = {
     'trigType'       : '', 
     'extra'          : '',
 
-    }
-
-#==========================================================
-# ---- BeamspotDef chains -----
-#==========================================================
-AllowedBeamspotChainIdentifiers = ['beamspot',]
-
-# ---- Beamspot Chain Dictinary of all allowed Values ----
-BeamspotChainParts = {
-    'signature'      : ['Beamspot'],
-    'chainPartName'  : '',
-    'L1item'       : '',
-    'monType'        : AllowedBeamspotChainIdentifiers,
-    'location'       : ['vtx'],
-    'addInfo'        : ['trkFS', 'allTE', 'activeTE'],
-    'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB',],
-    'threshold'      : '',
-    'multiplicity'   : '',
-    'trigType'       : 'beamspot',
-    'extra'          : '',
-    'eventBuildType' : ['peb'],
-    }
-
-# ---- Beamspot Chain Default Dictinary of all allowed Values ----
-BeamspotChainParts_Default = {
-    'signature'      : ['Beamspot'],
-    'chainPartName'  : '',
-    'L1item'       : '',
-    'monType'        : [],
-    'addInfo'        : [],
-    'hypo'           : [],
-    'l2IDAlg'        : [],
-    'threshold'      : '',
-    'multiplicity'   : '',
-    'location'   : '',
-    'trigType'       : '', 
-    'extra'          : '',
-    'eventBuildType' : [],
     }
 
 #==========================================================
@@ -639,8 +599,6 @@ def getSignatureInformation(signature):
         return [StreamingChainParts_Default, StreamingChainParts]
     if signature == "Monitoring":
         return [MonitorChainParts_Default, MonitorChainParts]
-    if signature == "Beamspot":
-        return [BeamspotChainParts_Default, BeamspotChainParts]
     else:
         raise RuntimeError("ERROR Cannot find corresponding dictionary")
 

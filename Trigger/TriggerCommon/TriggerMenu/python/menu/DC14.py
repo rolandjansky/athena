@@ -511,16 +511,14 @@ def setupMenu():
         ['e20_medium1_g35_loose1', 891, 'L1_2EM15VH',[], [globalStream], ['RATE:ElectronPhoton', 'BW:Egamma'], 1,['parallel',-1,[] ]],
         ['e20_medium1_2g20_loose1', 892, 'L1_2EM15VH',[], [globalStream], ['RATE:ElectronPhoton', 'BW:Egamma'], 1,['parallel',-1,[] ]],
 
-        
-
         #MET+X
         ['mu24_xe100noL1_wEFMu',       901, 'L1_MU20',['L1_MU20',''], [globalStream], ['RATE:METMuon', 'BW:Muon'], 1,['serial',-1,["mu24","xe100noL1_wEFMu"]]],
         ['e28_medium1_xe100noL1', 902, 'L1_EM24VHI',['L1_EM24VHI',''], [globalStream], ['RATE:METElectron', 'BW:Egamma'], 1,['serial',-1,["e28_medium1","xe100noL1"]]], 
         ['g60_loose1_xe60noL1',         903, 'L1_EM50',['L1_EM50',''], [globalStream], ['RATE:METElectron', 'BW:Egamma'], 1,['serial',-1,["g60_loose1","xe60noL1"]]],        
         
-        ['j100_xe80noL1',              904, 'L1_J40_XE50',['',''], [globalStream], ['RATE:JetMET', 'BW:Jets'], 1,['serial',-1,["j100","xe80noL1"]]],
-        ['j80_xe80noL1',               905, 'L1_J40_XE50',['',''], [globalStream], ['RATE:JetMET', 'BW:Jets'], 1,['serial',-1,["j80","xe80noL1"]]],
-        #['j80_xe80noL1_dphi1',        905, 'L1_J40_XE50',['',''], [globalStream], ['RATE:JetMET', 'BW:Jets'], 1, ['serial',-1,["j80","xe80noL1"]]],
+        ['j100_xe80',              904, 'L1_J40_XE50',['',''], [globalStream], ['RATE:JetMET', 'BW:Jets'], 1, ['serial',-1, ["j100","xe80"]]],
+        ['j80_xe80',               905, 'L1_J40_XE50',['',''], [globalStream], ['RATE:JetMET', 'BW:Jets'], 1, ['serial',-1, ["j80","xe80"]]],
+        ['j80_xe80_dphi1',         878, 'L1_J40_XE50',['',''], [globalStream], ['RATE:JetMET', 'BW:Jets'], 1, ['serial',-1, ["j80","xe80"]]],
 
         # TAU+X
         ['tau35_medium1_calo_tau25_medium1_calo',          906, 'L1_TAU20_2TAU12_J25_2J20_3J12',['L1_TAU20','L1_TAU12'], [globalStream], ['RATE:Tau', 'BW:Tau'], 1,['serial',-1,["tau35_medium1_calo","tau25_medium1_calo"]]],

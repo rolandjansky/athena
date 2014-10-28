@@ -91,9 +91,9 @@ class L2EFChain_Monitoring(L2EFChainDef):
         #self.L2sequenceList += [[  '',[TDAQ_L2SubDetListWriter('TDAQ_L2SubDetListWriter')],l2_seq_peb]]
         #self.L2signatureList += [ [[l2_seq_peb]] ]
 
-        from TrigDetCalib.TrigDetCalibConfig import TDAQ_HLTSubDetListWriter        
-        ef_seq_peb = 'HLT_'+self.chainName+'_peb'
-        self.L2sequenceList += [['',[TDAQ_HLTSubDetListWriter('TDAQ_HLTSubDetListWriter')],ef_seq_peb]]                               
+        from TrigDetCalib.TrigDetCalibConfig import TDAQ_EFSubDetListWriter        
+        ef_seq_peb = 'HLT_ef_'+self.chainName+'_peb'
+        self.L2sequenceList += [['',[TDAQ_EFSubDetListWriter('TDAQ_EFSubDetListWriter')],ef_seq_peb]]                               
         self.L2signatureList += [ [[ef_seq_peb]] ]
         
     ####################################

@@ -99,11 +99,8 @@ class ChainConfigMaker(object):
         calib = part['calib']
         self.check_and_set('calib', calib)
 
-        # check whether to run the hypo
-        run_hypo =  'perf' not in part['addInfo']
-        self.check_and_set('run_hypo', run_hypo)
+        # ----------- pack the hypo parameters
 
-        # ----------- in any case, pack the hypo parameters
         scan_type = part['scan']
         scan_types = ('', 'PS', 'FS')
         if scan_type not in scan_types:
@@ -158,12 +155,12 @@ class ChainConfigMaker(object):
 
         fex = fex_factory(self.fex_name, fex_args)
 
-        hypo_args = {
-            'chain_name': self.chainpart_name,
-            'eta_str': '',   # '' for now
-            'jet_attributes': self.jet_attributes,
-            'isCaloFullScan': self.scan_type == 'FS',
-            'triggertower': self.data_type == 'TT'}
+        hypo_args = {#'chain_name': self.chain_name,
+                     'chain_name': self.chainpart_name,
+                     'eta_str': '',   # '' for now
+                     'jet_attributes': self.jet_attributes,
+                     'isCaloFullScan': self.scan_type == 'FS',
+                     'triggertower': self.data_type == 'TT'}
 
         hypo = hypo_factory(hypo_args)
 
@@ -172,6 +169,5 @@ class ChainConfigMaker(object):
         kwds[self.menudata_label] = menu_data
         return ChainConfig(name=self.chain_name,
                            seed=self.seed,
-                           run_hypo=self.run_hypo,
                            test=self.test,
                            **kwds)

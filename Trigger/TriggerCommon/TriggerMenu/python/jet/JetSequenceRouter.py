@@ -121,13 +121,11 @@ def _make_sequence_list(chain_config):
         # seq_order.extend(['rd', 'ced', 'cld', 'jrd'])
         seq_order.append('fexd')
 
-    # check that running the hypo has been requested
-    if chain_config.run_hypo:
-        seq_order.append('jh')
-        if chain_config.test:
-            # run the jet hypo doagnostic after the jet hypo - so we can
-            # see which jets are cut.
-            seq_order.append('jhd')
+    seq_order.append('jh')
+    if chain_config.test:
+        # run the jet hypo doagnostic after the jet hypo - so we can
+        # see which jets are cut.
+        seq_order.append('jhd')
 
     seq_order = tuple(seq_order)
     return seq_order

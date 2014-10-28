@@ -66,9 +66,7 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
         mlog.verbose('in L2EFChain_CosmicTemplate constructor for %s' % self.chainName)
 
-        #---------------------------------
-        # CHAIN DEFINITION SPECIFICATIONS
-        #---------------------------------
+        # SPECIFICATIONS
         if ('tilecalib' in  self.chainPart['purpose']) \
                 & ('laser' in self.chainPart['addInfo']):
             self.setupCosmicTileCalibration()
@@ -194,24 +192,17 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
     ##################################################################
     def setupCosmicAllTeChains(self):
-
-        newchainName = self.chainName
-        if ('ds' in self.chainPart['addInfo']): newchainName = self.chainName.replace('_ds','')
-        if ('_L1' in self.chainName): 
-            pos = self.chainName.find('_L1')
-            newchainName = self.chainName[:pos]
-
         # common L2 sequence
         from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-        theAllTEDummyFakeROI = PESA__DummyUnseededAllTEAlgo("Cosmic"+newchainName+"AllTEDummy")
+        theAllTEDummyFakeROI = PESA__DummyUnseededAllTEAlgo("Cosmic"+self.chainName+"AllTEDummy")
 
         from TrigHypoCommonTools.TrigHypoCommonToolsConf import L1InfoHypo
-        theL1InfoHypo = L1InfoHypo("L1InfoHypo"+newchainName)
+        theL1InfoHypo = L1InfoHypo("L1InfoHypo"+self.chainName)
         theL1InfoHypo.TriggerTypeBitMask=0x80
         theL1InfoHypo.TriggerTypeBit=0x80
         theL1InfoHypo.InvertSelection=False
     
-        theL1InfoHypoRNDMReject = L1InfoHypo("L1InfoHypoRNDMReject"+newchainName) 
+        theL1InfoHypoRNDMReject = L1InfoHypo("L1InfoHypoRNDMReject"+self.chainName) 
         theL1InfoHypoRNDMReject.InvertSelection=True
         theL1InfoHypoRNDMReject.TriggerTypeBit = 0x81
         theL1InfoHypoRNDMReject.TriggerTypeBitMask=0xff
@@ -225,13 +216,13 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             
         if any('trtxk' in x for x in self.chainPart['trackingAlg']):
             from TrigL2TRTSegFinder.TrigTRTSegFinder_Config import TrigTRTSegFinder_Cosmics_NewAlgo
-            thetrtsegm  = TrigTRTSegFinder_Cosmics_NewAlgo("Cosmic"+newchainName+"TrigTRTSegFinder")
+            thetrtsegm  = TrigTRTSegFinder_Cosmics_NewAlgo("Cosmic"+self.chainName+"TrigTRTSegFinder")
             thetrtsegm.SegmentsMakerTool.IsMagneticFieldOn = True
             thetrtsegm.RoIhalfWidthDeltaPhi = 3.14
             thetrtsegm.RoIhalfWidthDeltaEta = 3.
 
             from TrigL2CosmicMuonHypo.TrigL2CosmicMuonHypo_Config import CosmicTrtHypo_Cosmic
-            theTrthypoCosmics = CosmicTrtHypo_Cosmic("Cosmic"+newchainName+"TrtHypo") 
+            theTrthypoCosmics = CosmicTrtHypo_Cosmic("Cosmic"+self.chainName+"TrtHypo") 
             theTrthypoCosmics.NTrthitsCut = 15
             thetrtsegm.SegmentsMakerTool.MinimalNumberOfTRTHits = 15
             thetrtsegm.pTmin = 100.0
@@ -244,8 +235,8 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
  
 
             self.TErenamingDict = {
-                'L2_ih':   mergeRemovingOverlap('L2_','Cosmic_'+newchainName+"_AllTEDummy"),
-                'L2_seg':  mergeRemovingOverlap('L2_', 'Cosmic_'+newchainName+"_TrigTRTSegFinder"),
+                'L2_ih':   mergeRemovingOverlap('L2_','Cosmic'+self.chainName+"AllTEDummy"),
+                'L2_seg':  mergeRemovingOverlap('L2_', 'Cosmic'+self.chainName+"TrigTRTSegFinder"),
                 }
 
 
@@ -253,9 +244,9 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
             theEFIDTracking=TrigEFIDInsideOut_CosmicsN()
             from TrigMinBias.TrigMinBiasConfig import MbTrkFex_1, MbTrkHypo_1
-            thetrackcnt =  MbTrkFex_1("MbTrkFex_"+newchainName)
+            thetrackcnt =  MbTrkFex_1("MbTrkFex_"+self.chainName)
             thetrackcnt.InputTrackContainerName = "InDetTrigTrackSlimmerIOTRT_CosmicsN_EFID"
-            theefidcosmhypo = MbTrkHypo_1("MbTrkHypo_"+newchainName)
+            theefidcosmhypo = MbTrkHypo_1("MbTrkHypo_"+self.chainName)
             theefidcosmhypo.AcceptAll_EF=False
             theefidcosmhypo.Required_ntrks=1
             theefidcosmhypo.Max_z0=1000.0
@@ -263,25 +254,51 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             self.EFsequenceList += [[['L2_ih'],theEFIDTracking.getSequence()+[thetrackcnt,  theefidcosmhypo], 'EF_efid']]
             self.EFsignatureList +=  [ [['EF_efid']*self.mult] ]
 
-
-            # DATASCOUTING CHAIN  
-            if ("ds" in self.chainPart['addInfo']) and (self.mult==1):
-                from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
-                dsAlg  = ScoutingStreamWriter("MuonCosmicDataScouting")
-                # this should go to a dedicated place for datascouting configuration
-                dsAlg.CollectionTypeName = ['xAOD::MuonContainer_v1#HLT_MuonEFInfo']                
-                inputTE = 'EF_efid'
-                outputTE = "EF_efid_ds"                
-                self.EFsequenceList += [[ [inputTE], [dsAlg], outputTE ] ]
-                self.EFsignatureList +=  [ [['EF_efid_ds']*self.mult] ]
-            
-                
-            
             self.TErenamingDict = {
-                'L2_ih':    "L2_Cosmic_"+newchainName+"_AllTEDummy",
+                'L2_ih':    "L2_Cosmic"+self.chainName+"AllTEDummy",
                 'EF_efid':  "EF_TrigEFIDInsideOut_CosmicsN",
                 }
 
-            if "ds" in self.chainPart['addInfo']:
-                self.TErenamingDict.update({'EF_efid_ds'  : mergeRemovingOverlap('EF_efid_',    self.chainName),})
 
+
+        # if any('idscan' in x for x in self.chainPart['trackingAlg']) | any('sitrack' in x for x in self.chainPart['trackingAlg']):
+        #     theTEsuffix = ''
+        #     if any('idscan' in x for x in self.chainPart['trackingAlg']):
+        #         from TrigIDSCAN.TrigIDSCAN_Config import TrigIDSCAN_Cosmics            
+        #         theIdScanCosmics = TrigIDSCAN_Cosmics("CosmicIDSCANSequence"+self.chainName)
+        #         theIdScanCosmics.doTRTpropagation = True
+        #         if '4hits' in self.chainPart['hits']:
+        #             theIdScanCosmics.MinHits = 4
+        #             theIdScanCosmics.TrigHitFilter.LayerThreshold = 3.5
+        #         else:
+        #             theIdScanCosmics.MinHits = 3
+        #             theIdScanCosmics.TrigHitFilter.LayerThreshold = 2.5
+
+        #         theTEsuffix = 'TrigIDSCAN'
+        #         theTrackingCosmics = theIdScanCosmics
+
+        #     else: #if any('SiTrack' in x for x in self.chainPart['purpose']):
+        #         from TrigSiTrack.TrigSiTrack_Config import TrigSiTrack_Cosmics    
+        #         theSiTrackCosmics = TrigSiTrack_Cosmics("Cosmic"+self.chainName+"TrigSiTrack") # here we created an instance
+        #         if '4hits' in self.chainPart['hits']:            
+        #             theSiTrackCosmics.Extension_SpacePoints = 4
+        #         else:
+        #             theSiTrackCosmics.Extension_SpacePoints = 3
+
+        #         theTEsuffix = 'TrigSiTrack'
+        #         theTrackingCosmics = theSiTrackCosmics
+                    
+                           
+        #     from TrigL2CosmicMuonHypo.TrigL2CosmicMuonHypo_Config import CosmicTrtHypo_Cosmic                  
+        #     theTrkhypoCosmics = CosmicTrtHypo_Cosmic("Cosmic"+self.chainName+"TrkHypo") 
+        #     theTrkhypoCosmics.NTrthitsCut = -1
+        #     self.L2sequenceList += [[['L2_ih'], [theTrackingCosmics, theTrkhypoCosmics],  'L2_track']]
+        #     self.L2signatureList+=[ [['L2_track']*self.mult] ]
+
+    
+        #     self.TErenamingDict = {
+        #         'L2_ih'   : mergeRemovingOverlap('L2_','Cosmic'+self.chainName+"AllTEDummy"),
+        #         'L2_track': mergeRemovingOverlap('L2_','Cosmic_'+self.chainName+'_'+theTEsuffix),                
+        #         }
+
+ 

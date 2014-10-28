@@ -10,8 +10,7 @@ def oldStyle():
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     oldStylePrescales = 'pp_v4' in TriggerFlags.triggerMenuSetup() or \
                         'HI_v2' in TriggerFlags.triggerMenuSetup() or \
-                        'alfa_v2' in TriggerFlags.triggerMenuSetup() or \
-                        'DC14' in TriggerFlags.triggerMenuSetup()
+                        'alfa_v2' in TriggerFlags.triggerMenuSetup()
     return oldStylePrescales
 
 
@@ -56,6 +55,7 @@ def get_smk_psk_Name(menuName):
     smk_psk_Name["smkName"] = str(smkName)
     smk_psk_Name["pskName"] = str(smkName+"_"+pskName+"_prescale")
 
+    print "EEE", menuName, smk_psk_Name["smkName"], smk_psk_Name["pskName"]
     return smk_psk_Name
 
 def getJetWeights(triggerPythonConfig, use_fj=False):

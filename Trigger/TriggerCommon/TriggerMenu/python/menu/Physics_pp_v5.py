@@ -73,8 +73,7 @@ def setupMenu():
 
         #Partial scan
         ['j200_PS', 114, 'L1_J100', [], ['Jet'], ['RATE:SingleJet', 'BW:Jets'], 1],         
-        ['3j175_PS', 115, 'L1_J100', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],
-
+        ['3j175_PS', 115, 'L1_J100', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],         
         ]
 
     TriggerFlags.BjetSlice.signatures = [

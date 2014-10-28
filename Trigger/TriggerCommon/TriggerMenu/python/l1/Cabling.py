@@ -42,7 +42,7 @@ class Cabling:
                             'MBTS'  : 'NIM',
                             'CALREQ': 'NIM',
                             'NIM'   : 'NIM',
-                            'TOPO'  : 'TOPO1'
+                            'TOPO'  : 'DIRECT'
                             }
         return type2cablename[thrtype]
 
@@ -92,7 +92,6 @@ class InputCable:
         self.calcSlotAndConnector(self.thrtype, self.mapping)
 
         if thrtype=='EM' and mapping>=8: self.name = 'CP2'  # need to understand this
-        if thrtype=='TOPO' and mapping>=64: self.name = 'TOPO2'
 
         if self.isDirectIn:
             log.debug( 'Threshold type %s (mapping=%i) comes in on CTPCore on cable %s, bit %s, clock %i' % ( self.thrtype, self.mapping, self.connector,

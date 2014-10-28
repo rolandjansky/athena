@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
-
+#------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
 def defineMenu():
     """
     Defines the following LlTopoFlags:
@@ -13,9 +13,10 @@ def defineMenu():
     from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
     from TriggerMenu.l1topo.TopoOutput import TopoOutput
 
-    import Menu_MC_pp_v5
-    Menu_MC_pp_v5.defineMenu()
     
+    L1TopoFlags.algos = [
+        TopoOutput( algoname='JetDefaultDeltaPhiIncl_12', module=0, fpga=0, clock=0, firstbit=0 )
+        ]
 
     
     

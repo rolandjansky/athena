@@ -45,8 +45,8 @@ class Variable(object):
 class Generic(object):
     def __init__(self, name, value):
         self.name = name
-        from L1TopoHardware.L1TopoHardware import HardwareConstrainedParameter
-        if isinstance(value,HardwareConstrainedParameter):
+        from L1TopoHardware.L1TopoHardware import HWP
+        if isinstance(value,HWP):
             self.value = ":%s:" % value.name
         else:
             self.value = str(int(value))
@@ -115,4 +115,6 @@ class DecisionAlgo(TopoAlgo):
         s+='    </Variable>\n'    
         s+='  </DecisionAlgo>\n'
         return s
+
+
 

@@ -32,10 +32,6 @@ theL2StarxAOD                           = TrigInDetSequence("Electron","electron
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma as TrigFastTrackFinder_Electron
 theTrigFastTrackFinder_Electron = TrigFastTrackFinder_Electron()
 
-# EF Electron FEX
-from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec_eGamma
-theTrigEgammaRec_eGamma = TrigEgammaRec_eGamma()
-#theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
 
 from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 terminateAlgo = PrescaleAlgo('terminateAlgo')
@@ -184,8 +180,8 @@ class L2EFChain_e(L2EFChainDef):
         theEFElectronIDFex           = TrigEFIDInsideOut_Electron("Electron").getSequence()
         
         # EF Electron FEX
-        # from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        # theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
+        from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec_eGamma
+        theTrigEgammaRec_eGamma                  = TrigEgammaRec_eGamma()
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         if 'etcut' in self.chainPart['addInfo']:
@@ -325,8 +321,8 @@ class L2EFChain_e(L2EFChainDef):
         theEFElectronIDFex           = TrigEFIDInsideOut_Electron("Electron").getSequence()
 
         # EF Electron FEX
-        # from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        #theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
+        from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec_eGamma
+        theTrigEgammaRec_eGamma                  = TrigEgammaRec_eGamma()
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         
@@ -425,8 +421,8 @@ class L2EFChain_e(L2EFChainDef):
         # EF Tracking
         theEFElectronIDFex           = theTrigEFIDInsideOutMerged_Electron
         # EF Electron FEX
-        #from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        #theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
+        from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec_eGamma
+        theTrigEgammaRec_eGamma                  = TrigEgammaRec_eGamma()
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         if 'etcut' in self.chainPart['addInfo']:
