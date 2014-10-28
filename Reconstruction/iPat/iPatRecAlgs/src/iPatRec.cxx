@@ -15,8 +15,7 @@
 #include <iostream>
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -202,16 +201,19 @@ StatusCode
 iPatRec::execute()
 {
     bool	process = true;  // gets set false when obligatory input data is missing
-    const EventInfo* eventInfo;
-    if (StatusCode::SUCCESS != evtStore()->retrieve(eventInfo))
+    if (msgLvl(MSG::DEBUG))
     {
-	ATH_MSG_WARNING( "Could not retrieve event info" );
-    }
-    else
-    {	
-	ATH_MSG_DEBUG( "entered execution for run "
-		       << eventInfo->event_ID()->run_number() << "   event "
-		       << eventInfo->event_ID()->event_number() );
+	const xAOD::EventInfo* eventInfo;
+	if (StatusCode::SUCCESS != evtStore()->retrieve(eventInfo))
+	{
+	    ATH_MSG_WARNING( "Could not retrieve event info" );
+	}
+	else
+	{	
+	    ATH_MSG_DEBUG( "entered execution for run "
+			   << eventInfo->runNumber() << "   event "
+			   << eventInfo->eventNumber() );
+	}
     }
 	
     // retrieve pixel container

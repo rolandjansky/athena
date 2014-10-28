@@ -9,7 +9,7 @@ author			Alan Poppleton <Alan.Poppleton@cern.ch>
 author			Nectarios Benekos <Nectarios.Benekos@cern.ch>
 
 private
-use EventInfo		       EventInfo-*		     Event
+use xAODEventInfo	       xAODEventInfo-*		     Event/xAOD
 use GeneratorObjects	       GeneratorObjects-*	     Generators
 use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
 use InDetPrepRawData	       InDetPrepRawData-*	     InnerDetector/InDetRecEvent

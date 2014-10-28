@@ -13,8 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
@@ -173,14 +172,15 @@ iPatStatistics::execute()
     ATH_MSG_DEBUG( "entered execution with eventCount " << m_eventCount );
 
     // on first event find out if McTruth really exists
-    if (!m_eventCount++)
+    if (!m_eventCount++ && m_haveTruth)
     {
-	const EventInfo* eventInfo;
+        const xAOD::EventInfo* eventInfo;
 	if (StatusCode::SUCCESS != evtStore()->retrieve(eventInfo))
 	{
 	    ATH_MSG_WARNING( "Could not retrieve event info" );
+	    m_haveTruth = false;
 	}
-	else if (!eventInfo->event_type()->test(EventType::IS_SIMULATION))
+	else if (!eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION))
 	{
 	    m_haveTruth = false;
 	}
@@ -631,7 +631,7 @@ iPatStatistics::execute()
 	{
 	    if ((**t).hitQuality().number_drift_hits())
 	    {
-		if (is_primary || is_secondary) ++m_countTrtTruthAssociated;
+		if (m_haveTruth && (is_primary || is_secondary)) ++m_countTrtTruthAssociated;
 		++m_countTrtAssociated;
 	    }
 	    else if ((**t).status() == truncated)
@@ -914,7 +914,7 @@ iPatStatistics::finalize()
 				 static_cast<double>(m_countTrtAssociated+m_countTrtMissed);
 		std::cout << " TRT association rate (for eta < 2.0):"
 			  << std::setw(8) << std::setprecision(4) << trtRate;
-		if (m_countTrtAssociated)
+		if (m_countTrtTruthAssociated)
 		{
 		    trtRate = static_cast<double>(m_countTrtTruthAssociated) /
 			      static_cast<double>(m_countTrtTruthAssociated+m_countTrtTruthMissed);

@@ -29,8 +29,7 @@ ATLAS Collaboration
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include <cmath>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -185,7 +184,7 @@ iPatNtuple::execute()
 
     //   Store a pointer to the event
     // **********************************
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     //StatusCode sc =  evtStore()->retrieve(eventInfo);
     if ( evtStore()->retrieve(eventInfo).isFailure())
     {
@@ -193,10 +192,8 @@ iPatNtuple::execute()
 	return StatusCode::SUCCESS;
     }
   
-    m_iPatEventID=eventInfo->event_ID();
-
-    m_RunNum =m_iPatEventID->run_number();
-    m_EventNum = m_iPatEventID->event_number();
+    m_RunNum =eventInfo->runNumber();
+    m_EventNum = eventInfo->eventNumber();
     ++m_iPatEvent;
     m_iPatEventNum = m_iPatEvent;
 

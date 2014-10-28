@@ -15,8 +15,7 @@
 #include <iomanip>
 #include <map>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TruthTools/ITruthSelector.h"
 #include "iPatInterfaces/IDetectorSelection.h"
@@ -98,12 +97,13 @@ iPatTrackTruthAssociator::execute()
     // on first event find out if McTruth exists (exit if real data)
     if (!m_eventCount++)
     {
-	const EventInfo* eventInfo;
+        const xAOD::EventInfo* eventInfo;
 	if (StatusCode::SUCCESS != evtStore()->retrieve(eventInfo))
 	{
 	    ATH_MSG_WARNING( "Could not retrieve event info" );
+	    return StatusCode::SUCCESS;
 	}
-	else if (eventInfo->event_type()->test(EventType::IS_SIMULATION)
+	else if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)
 		 && m_truthSelector->mcEventCollection())
 	{
 	    m_haveTruth = true;

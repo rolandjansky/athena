@@ -28,7 +28,6 @@ ATLAS Collaboration
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-class EventID;
 class ITruthParameters;
 class ITruthSelector;
 class iPatTrackContainer;
@@ -68,7 +67,6 @@ private:
     void					initNTuple(void);
 
     int 					m_eventCount; 
-    EventID*				m_iPatEventID;	// pointer to the event info
     bool                                  m_g3;
     int					m_maxKine;	// max number of kine tracks stored in ntuple
     int					m_maxReco;	// max number of reconstructed tracks stored in ntuple
