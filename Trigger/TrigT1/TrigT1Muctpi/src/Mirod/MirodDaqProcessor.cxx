@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MirodDaqProcessor.cxx 441850 2011-06-06 14:50:52Z krasznaa $
+// $Id: MirodDaqProcessor.cxx 624535 2014-10-28 10:02:49Z stelzer $
 
 // STL include(s):
 #include <iomanip>
@@ -18,11 +18,11 @@
 #include "../Common/EventID.h"
 
 /*******************************************************************
- * $Date: 2011-06-06 16:50:52 +0200 (Mon, 06 Jun 2011) $
+ * $Date: 2014-10-28 11:02:49 +0100 (Tue, 28 Oct 2014) $
  *
  * Implementation of class MirodDaqProcessor
  * @author   Author: Thorsten Wengler
- * @version $Revision: 441850 $
+ * @version $Revision: 624535 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -50,11 +50,11 @@ namespace LVL1MUCTPI {
       unsigned int inputWord = 0;
       unsigned int extractorStatus = 0;
       unsigned int monitorFlag = 0;
-      unsigned int thresholdFirst = 0;
-      unsigned int thresholdSecond = 0;
+//       unsigned int thresholdFirst = 0;
+//       unsigned int thresholdSecond = 0;
       unsigned int suppressedFirst = 0;
       unsigned int suppressedSecond = 0;
-      unsigned int suppressedEither = 0;
+//       unsigned int suppressedEither = 0;
       unsigned int headerBCID = 0;
       m_daqOutputData.clear();
 
@@ -120,11 +120,11 @@ namespace LVL1MUCTPI {
       // retrieve information from last word in extractor data
       inputWord = 0 ;
       inputWord = extractorData->back() ;
-      thresholdFirst = BitOp::getValue( &inputWord, ExtrThresholdOneMask );
-      thresholdSecond = BitOp::getValue( &inputWord, ExtrThresholdSecondMask );
+//       thresholdFirst = BitOp::getValue( &inputWord, ExtrThresholdOneMask );
+//       thresholdSecond = BitOp::getValue( &inputWord, ExtrThresholdSecondMask );
       suppressedFirst = BitOp::getValue( &inputWord, ExtrSuppressedFirstMask );
       suppressedSecond = BitOp::getValue( &inputWord, ExtrSuppressedSecondMask );
-      suppressedEither = BitOp::getValue( &inputWord, ExtrSuppressedEitherMask );
+//       suppressedEither = BitOp::getValue( &inputWord, ExtrSuppressedEitherMask );
 
       // build up error status word and add to data stream
       inputWord = 0 ;

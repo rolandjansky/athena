@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MirodLvl2Processor.cxx 515239 2012-08-28 11:39:45Z krasznaa $
+// $Id: MirodLvl2Processor.cxx 624535 2014-10-28 10:02:49Z stelzer $
 
 // STL include(s):
 #include <cassert>
@@ -21,11 +21,11 @@
 #include "../Common/SectorConstants.h"
 
 /*******************************************************************
- * $Date: 2012-08-28 13:39:45 +0200 (Tue, 28 Aug 2012) $
+ * $Date: 2014-10-28 11:02:49 +0100 (Tue, 28 Oct 2014) $
  *
  * Implementation of class MirodLvl2Processor
  * @author   Author: Thorsten Wengler
- * @version $Revision: 515239 $
+ * @version $Revision: 624535 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -69,8 +69,8 @@ namespace LVL1MUCTPI {
       unsigned int inputWord = 0;
       unsigned int extractorStatus = 0;
       unsigned int monitorFlag = 0;
-      unsigned int thresholdFirst = 0;
-      unsigned int thresholdSecond = 0;
+//       unsigned int thresholdFirst = 0;
+//       unsigned int thresholdSecond = 0;
       unsigned int suppressedFirst = 0;
       unsigned int suppressedSecond = 0;
       unsigned int suppressedEither = 0;
@@ -191,8 +191,8 @@ namespace LVL1MUCTPI {
       // retrieve information from last word in extractor data
       inputWord = 0 ;
       inputWord = extractorData->back() ;
-      thresholdFirst = BitOp::getValue( &inputWord, ExtrThresholdOneMask );
-      thresholdSecond = BitOp::getValue( &inputWord, ExtrThresholdSecondMask );
+//       thresholdFirst = BitOp::getValue( &inputWord, ExtrThresholdOneMask );
+//       thresholdSecond = BitOp::getValue( &inputWord, ExtrThresholdSecondMask );
       suppressedFirst = BitOp::getValue( &inputWord, ExtrSuppressedFirstMask );
       suppressedSecond = BitOp::getValue( &inputWord, ExtrSuppressedSecondMask );
       suppressedEither = BitOp::getValue( &inputWord, ExtrSuppressedEitherMask );

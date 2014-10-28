@@ -20,7 +20,7 @@ use AtlasXercesC          AtlasXercesC-*          External
 use AnalysisTriggerEvent  AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 
 # Trigger configuration packages:
-use TrigConfigSvc         TrigConfigSvc-*         Trigger/TrigConfiguration
+use TrigConfInterfaces    TrigConfInterfaces-*    Trigger/TrigConfiguration
 use TrigConfL1Data        TrigConfL1Data-*        Trigger/TrigConfiguration
 use TrigConfMuctpi        TrigConfMuctpi-*        Trigger/TrigConfiguration
 

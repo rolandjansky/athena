@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.cxx 551289 2013-06-16 10:19:25Z stelzer $
+// $Id: L1Muctpi.cxx 624535 2014-10-28 10:02:49Z stelzer $
 
 // STL include(s):
 #include <iostream>
@@ -16,7 +16,7 @@
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 
 // The new trigger configuration
-#include "TrigConfigSvc/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/Muctpi.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
@@ -274,7 +274,7 @@ namespace LVL1MUCTPI {
                     << " 2ndThr:" << muctpiConfiguration.getThreshold2Candidate()
                     << " MaximalCandCount:" << muctpiConfiguration.getMaxCandSendToRoib() );
 
-      StatusCode sc = validate( m_configSvc->thresholdConfig()->getMuonThresholdPointer() );
+      StatusCode sc = validate( m_configSvc->thresholdConfig()->getThresholdVector(TrigConf::L1DataDef::MUON) );
 
       if( sc.isFailure() ) {
          REPORT_ERROR( StatusCode::FAILURE )
@@ -455,24 +455,24 @@ namespace LVL1MUCTPI {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode L1Muctpi::validate( const std::vector< TrigConf::TriggerThreshold* >*
+   StatusCode L1Muctpi::validate( const std::vector< TrigConf::TriggerThreshold* > &
                                   thresholds ) const {
 
       //
       // Check that it's not a null-pointer:
       //
-      if( ! thresholds ) {
-         REPORT_ERROR( StatusCode::FAILURE )
-            << "No muon threshold vector given for validation!";
-         return StatusCode::FAILURE;
-      }
+//       if( ! thresholds ) {
+//          REPORT_ERROR( StatusCode::FAILURE )
+//             << "No muon threshold vector given for validation!";
+//          return StatusCode::FAILURE;
+//       }
 
       //
       // Check that there are 6 thresholds:
       //
-      if( thresholds->size() != 6 ) {
+      if( thresholds.size() != 6 ) {
          REPORT_ERROR( StatusCode::FAILURE )
-            << thresholds->size() << " muon thresholds defined";
+            << thresholds.size() << " muon thresholds defined";
          REPORT_ERROR( StatusCode::FAILURE )
             << "There have to be exactly 6 threshold defined!";
          return StatusCode::FAILURE;
@@ -481,9 +481,8 @@ namespace LVL1MUCTPI {
       //
       // Check that they are all muon thresholds:
       //
-      for( std::vector< TrigConf::TriggerThreshold* >::const_iterator thr =
-              thresholds->begin(); thr != thresholds->end(); ++thr ) {
-         if( ( ( *thr )->cableName() != "MU" ) || ( ( *thr )->type() != "MUON" ) ) {
+      for( TrigConf::TriggerThreshold* thr : thresholds ) {
+         if( ( thr->cableName() != "MU" && thr->cableName() != "MUCTPI" ) || ( thr->type() != "MUON" ) ) {
             REPORT_ERROR( StatusCode::FAILURE )
                << "There is a non-muon threshold in the LVL1 muon configuration!";
             return StatusCode::FAILURE;
@@ -493,12 +492,10 @@ namespace LVL1MUCTPI {
       //
       // Check that they're all on the same cable:
       //
-      const std::string ctpin     = thresholds->at( 0 )->cableCtpin();
-      const std::string connector = thresholds->at( 0 )->cableConnector();
-      for( std::vector< TrigConf::TriggerThreshold* >::const_iterator thr =
-              thresholds->begin(); thr != thresholds->end(); ++thr ) {
-         if( ( ( *thr )->cableCtpin() != ctpin ) ||
-             ( ( *thr )->cableConnector() != connector ) ) {
+      const std::string ctpin     = thresholds.at( 0 )->cableCtpin();
+      const std::string connector = thresholds.at( 0 )->cableConnector();
+      for( const TrigConf::TriggerThreshold * thr : thresholds ) {
+         if( ( thr->cableCtpin() != ctpin ) || ( thr->cableConnector() != connector ) ) {
             REPORT_ERROR( StatusCode::FAILURE )
                << "The muon thresholds are not all configured on the same cable!";
             return StatusCode::FAILURE;
@@ -509,16 +506,13 @@ namespace LVL1MUCTPI {
       // Check that they are configured on the correct wires:
       //
       unsigned int mask = 0;
-      for( std::vector< TrigConf::TriggerThreshold* >::const_iterator thr =
-              thresholds->begin(); thr != thresholds->end(); ++thr ) {
-         if( ( ( *thr )->cableEnd() - ( *thr )->cableStart() ) != 2 ) {
+      for( TrigConf::TriggerThreshold* thr : thresholds ) {
+         if( ( thr->cableEnd() - thr->cableStart() ) != 2 ) {
             REPORT_ERROR( StatusCode::FAILURE )
                << "A muon threshold is not 3 bit wide in the configuration!";
             return StatusCode::FAILURE;
          }
-         mask |= ( static_cast< unsigned int >( pow( 2, ( *thr )->cableEnd() -
-                                                     ( *thr )->cableStart() +
-                                                     1 ) - 1 ) << ( *thr )->cableStart() );
+         mask |= ( static_cast< unsigned int >( pow( 2, thr->cableEnd() - thr->cableStart() + 1 ) - 1 ) << thr->cableStart() );
       }
       if( mask != 0x7fffe ) {
          REPORT_ERROR( StatusCode::FAILURE )

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.h 484720 2012-02-23 16:38:31Z krasznaa $
+// $Id: L1Muctpi.h 624535 2014-10-28 10:02:49Z stelzer $
 #ifndef TRIGT1MUCTPI_L1MUCTPI_H
 #define TRIGT1MUCTPI_L1MUCTPI_H
 
@@ -32,7 +32,7 @@ namespace LVL1MUCTPI {
    class MuctpiSim;
 
    /**
-    *   $Date: 2012-02-23 17:38:31 +0100 (Thu, 23 Feb 2012) $
+    *   $Date: 2014-10-28 11:02:49 +0100 (Tue, 28 Oct 2014) $
     *
     *   @short Main Athena algorithm of the MuCTPI simulation
     *
@@ -50,7 +50,7 @@ namespace LVL1MUCTPI {
     *     @see LVL1::MuCTPICTP
     *
     *  @author $Author: krasznaa $
-    * @version $Revision: 484720 $
+    * @version $Revision: 624535 $
     *
     */
    class L1Muctpi : public AthAlgorithm {
@@ -78,7 +78,7 @@ namespace LVL1MUCTPI {
       /// Event loop method for running on an RDO file
       StatusCode executeFromRDO();
       /// Validate the muon threshold configuration
-      StatusCode validate( const std::vector< TrigConf::TriggerThreshold* >* thresholds ) const;
+      StatusCode validate( const std::vector< TrigConf::TriggerThreshold* >& thresholds ) const;
       /// Save the outputs of the simulation into StoreGate
       StatusCode saveOutput();
 
