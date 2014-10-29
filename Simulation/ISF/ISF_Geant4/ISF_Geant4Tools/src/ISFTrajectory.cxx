@@ -16,6 +16,8 @@
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackHelper.h"
 
+#undef _ISFTRAJECTORY_DEBUG_
+
 iGeant4::ISFTrajectory::ISFTrajectory()
   : G4Trajectory()
   , m_truthRecordSvcQuick(0)
@@ -38,28 +40,30 @@ iGeant4::ISFTrajectory::~ISFTrajectory()
 void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
 {
 
-  bool debug=false;
-
   // only use truth service if there are new any secondaries
   int numSecondaries = m_sHelper.NrOfNewSecondaries();
 
   if (numSecondaries) {
 
     G4Track* track=aStep->GetTrack();
-    if (debug) {
-      std::cout << "A new track "
-                << " (trackID " << track->GetTrackID()
-                << "), track pos: "<<track->GetPosition()
-                << ", mom: "<<track->GetMomentum()
-                << ", parentID " << track->GetParentID()
-                << ", numSec="<<numSecondaries<<" is in AppendStep." << std::endl;
-    }
-
+#ifdef _ISFTRAJECTORY_DEBUG_
+    std::cout << "A new track "
+              << " (trackID " << track->GetTrackID()
+              << "), track pos: "<<track->GetPosition()
+              << ", mom: "<<track->GetMomentum()
+              << ", parentID " << track->GetParentID()
+              << ", numSec="<<numSecondaries<<" is in AppendStep." << std::endl;
+#endif
     // OK, there was an interaction. look at the track, if it
     // is not a secondary (i.e. we have a connected tree) we
     // apply the MC truth machinery...
     TrackHelper tHelper(track);
-    if (tHelper.IsSecondary()) { if (debug) std::cout<<"is secondary, returning"<<std::endl; return; }
+    if (tHelper.IsSecondary()) {
+#ifdef _ISFTRAJECTORY_DEBUG_
+      std::cout<<"is secondary, returning"<<std::endl;
+#endif
+      return;
+    }
 
     AtlasDetDescr::AtlasRegion geoID = AtlasDetDescr::fUndefinedAtlasRegion;
 
@@ -68,9 +72,15 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
     if (!trackInfo) {  std::cerr<<"ISFTrajectory::AppendStep ERROR NULL TrackInformation pointer!"<<std::endl; }
 
     const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : 0;
-    assert(parent); //FIXME: assert only works in dbg builds of Athena
-
-    geoID=parent->nextGeoID();
+    if (!parent) {
+      G4ExceptionDescription description;
+      description << G4String("AppendStep: ") + "NULL ISFParticle pointer for current G4Step (trackID "
+                  << track->GetTrackID() << ", track pos: "<<track->GetPosition() << ", mom: "<<track->GetMomentum()
+                  << ", parentID " << track->GetParentID() << ", numSec="<<numSecondaries << ")";
+      G4Exception("iGeant4::ISFTrajectory", "NoISFParticle", FatalException, description);
+    } else {
+      geoID=parent->nextGeoID();
+    }
 
     ISF::Geant4TruthIncident truth( aStep, geoID, numSecondaries, m_sHelper);
 
@@ -78,8 +88,9 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       m_truthRecordSvcQuick->registerTruthIncident(truth);
     }
     else {
-      std::cerr<<"no truth record svc!!!"<<std::endl;
-      exit(3);
+      G4ExceptionDescription description;
+      description << G4String("AppendStep: ") + "m_truthRecordSvcQuick is NULL!";
+      G4Exception("iGeant4::ISFTrajectory", "NoTruthRecordSvc", FatalException, description);
     }
   }
 

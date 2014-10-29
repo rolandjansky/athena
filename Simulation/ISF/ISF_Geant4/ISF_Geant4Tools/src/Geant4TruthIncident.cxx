@@ -12,6 +12,9 @@
 // ISF includes
 //#include "ISF_Event/ISFParticle.h"
 
+// Units
+#include "GaudiKernel/PhysicalConstants.h"
+
 // HepMC includes
 #include "HepMC/GenParticle.h"
 
@@ -68,7 +71,8 @@ ISF::Geant4TruthIncident::Geant4TruthIncident(const G4Step *step, AtlasDetDescr:
   m_secondariesNum( numSecondaries ),
   m_secondariesPrepared(false),
   m_secondaries(),
-  m_checkLastSecondaryOnly(false)
+  m_checkLastSecondaryOnly(false),
+  m_passedFilters(numSecondaries, false)
 {
   // only intialisation
   //  static SecondaryTracksHelper sHelper(FADS::FadsTrackingAction::GetTrackingAction()->GetTrackingManager());
@@ -85,7 +89,7 @@ const HepMC::FourVector& ISF::Geant4TruthIncident::position() const {
     // post step processes:
     const G4StepPoint *postStepPoint = m_step->GetPostStepPoint();
     const G4ThreeVector         &pos = postStepPoint->GetPosition();
-    const G4double              time = postStepPoint->GetGlobalTime();
+    const G4double              time = postStepPoint->GetGlobalTime()*Gaudi::Units::c_light;
     m_position.set( pos.x(), pos.y(), pos.z(), time );
     m_positionSet = true;
   }
@@ -279,8 +283,11 @@ bool ISF::Geant4TruthIncident::secondaryPt2Pass(double pt2cut) const {
 
   // as soon as at a particle passes the cut -> end loop and return true
   for ( unsigned short i=imin; (!pass) && (i<numSec); ++i) {
-    pass = (secondaryPt2(i) >= pt2cut);
+    bool thispassed = (secondaryPt2(i) >= pt2cut);
+    if(thispassed) { setSecondaryPassed(i); }
+    pass |= thispassed;
   }
+  m_wholeVertexPassed=m_passWholeVertex && pass;
   return pass;
 }
 
@@ -297,8 +304,11 @@ bool ISF::Geant4TruthIncident::secondaryEkinPass(double ekincut) const {
 
     // as soon as at a particle passes the cut -> end loop and return true
     for ( unsigned short i=imin; (!pass) && (i<numSec); ++i) {
-      pass = (secondaryEkin(i) >= ekincut);
-    }
+       bool thispassed = (secondaryEkin(i) >= ekincut);
+       if(thispassed) { setSecondaryPassed(i); }
+       pass |= thispassed;
+   }
+    m_wholeVertexPassed=m_passWholeVertex && pass;
     return pass;
   }
 

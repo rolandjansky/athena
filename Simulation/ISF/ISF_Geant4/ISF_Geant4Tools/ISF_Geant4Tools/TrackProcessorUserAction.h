@@ -24,6 +24,7 @@ namespace ISF {
   class ISFParticle;
   class IParticleBroker;
 }
+class G4LogicalVolume;
 
 namespace iGeant4 {
 
@@ -58,6 +59,8 @@ namespace iGeant4 {
 
     AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
 
+    bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 ) const;
+
     ServiceHandle<ISF::IParticleBroker>  m_particleBroker;
 
     /** access to the central ISF GeoID serice*/
@@ -74,6 +77,8 @@ namespace iGeant4 {
     int m_minHistoryDepth;
 
     bool m_geant4OnlyMode;
+
+    int m_truthVolLevel; //!< Which level in the hierarchy are our truth volumes?
 
     std::map<std::string, int, std::less<std::string> > m_entryLayerMap;
 

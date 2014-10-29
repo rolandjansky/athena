@@ -52,8 +52,11 @@
 #include "G4UImanager.hh"
 #include "G4LorentzVector.hh"
 #include "G4PrimaryVertex.hh"
+#include "G4PrimaryParticle.hh"
 #include "G4Trajectory.hh"
 #include "G4Geantino.hh"
+#include "G4ChargedGeantino.hh"
+#include "G4ParticleTable.hh"
 
 
 //________________________________________________________________________
@@ -312,8 +315,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 {
   ATH_MSG_DEBUG("processing vector of "<<particles.size()<<" particles");
 
-  static PreEventActionManager *preEvent=PreEventActionManager::
-    GetPreEventActionManager();
+  static PreEventActionManager *preEvent=PreEventActionManager::GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
 
   preEvent->Execute();
@@ -329,12 +331,12 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
       //ATH_MSG_WARNING("Simulation will now go on to the next event ");
       //ATH_MSG_WARNING("setFilterPassed is now False");
       //setFilterPassed(false);
-      return 0;
+      return StatusCode::FAILURE;
     }
   }
   else {
     ATH_MSG_ERROR("ISF Event conversion failed ");
-    return 0;
+    return StatusCode::FAILURE;
   }
 
   // const DataHandle <TrackRecordCollection> tracks;
@@ -380,7 +382,6 @@ G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVec
 //________________________________________________________________________
 G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp) const
 {
-  
   G4Event * g4evt=new G4Event();
   
   addPrimaryVertex(g4evt,isp);
@@ -392,11 +393,68 @@ G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp) c
   g4evt->SetUserInformation(eventInfo);
 
   return g4evt;
-
 }
 
 //________________________________________________________________________
-void iGeant4::G4TransportTool::addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const
+G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::GenParticle& gp) const
+{
+
+  G4ParticleTable * ptable = G4ParticleTable::GetParticleTable();
+  const G4ParticleDefinition* particle_definition = 0;
+  if (gp.pdg_id()==998){
+    particle_definition = G4ChargedGeantino::Definition();
+  }
+  else if (gp.pdg_id()==999){
+    particle_definition = G4Geantino::GeantinoDefinition();
+  }
+  else {
+    particle_definition = ptable->FindParticle(gp.pdg_id());
+  }
+
+  if(particle_definition==0) {
+    ATH_MSG_ERROR("ISF_to_G4Event article conversion failed. ISF_Particle PDG code = " << gp.pdg_id() <<
+                  "\n This usually indicates a problem with the evgen step.\n" <<
+                  "Please report this to the Generators group, mentioning the release and generator used for evgen and the PDG code above." );
+    return 0;
+  }
+
+  // create new primaries and set them to the vertex
+  //  G4double mass =  particle_definition->GetPDGMass();
+  G4double px = gp.momentum().x();
+  G4double py = gp.momentum().y();
+  G4double pz = gp.momentum().z();
+
+  G4PrimaryParticle* particle =
+    new G4PrimaryParticle(particle_definition,px,py,pz);
+
+  if (gp.end_vertex()){
+    // Add all necessary daughter particles
+    for (HepMC::GenVertex::particles_out_const_iterator iter=gp.end_vertex()->particles_out_const_begin();
+         iter!=gp.end_vertex()->particles_out_const_end(); ++iter){
+      if (! (*iter) ) continue;
+      G4PrimaryParticle * daught = getPrimaryParticle( **iter );
+      particle->SetDaughter( daught );
+    }
+    // Set the lifetime appropriately - this is slow but rigorous, and we
+    //  don't want to end up with something like vertex time that we have
+    //  to validate for every generator on earth...
+    G4LorentzVector lv0 ( gp.production_vertex()->position().x(),
+                          gp.production_vertex()->position().y(),
+                          gp.production_vertex()->position().z(),
+                          gp.production_vertex()->position().t() );
+    G4LorentzVector lv1 ( gp.end_vertex()->position().x(),
+                          gp.end_vertex()->position().y(),
+                          gp.end_vertex()->position().z(),
+                          gp.end_vertex()->position().t() );
+    particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
+  }
+
+  return particle;
+}
+
+
+//________________________________________________________________________
+G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFParticle& isp) const
 {
   /*
     see conversion from PrimaryParticleInformation to TrackInformation in
@@ -410,7 +468,10 @@ void iGeant4::G4TransportTool::addPrimaryVertex(G4Event* g4evt, const ISF::ISFPa
 
   G4ParticleTable * ptable = G4ParticleTable::GetParticleTable();
   const G4ParticleDefinition* particle_definition = 0;
-  if (isp.pdgCode()==999){
+  if (isp.pdgCode()==998){
+    particle_definition = G4ChargedGeantino::Definition();
+  }
+  else if (isp.pdgCode()==999){
     particle_definition = G4Geantino::GeantinoDefinition();
   }
   else {
@@ -423,14 +484,9 @@ void iGeant4::G4TransportTool::addPrimaryVertex(G4Event* g4evt, const ISF::ISFPa
     ATH_MSG_ERROR("ISF_to_G4Event particle conversion failed. ISF_Particle PDG code = " << isp.pdgCode() <<
                   "\n This usually indicates a problem with the evgen step.\n" <<
                   "Please report this to the Generators group, mentioning the release and generator used for evgen and the PDG code above." );
-    return;
+    return 0;
   }
 
-  // create a new vertex
-  G4PrimaryVertex* vertex =
-    new G4PrimaryVertex(isp.position().x(),isp.position().y(),isp.position().z(),isp.timeStamp());
-
-  
   // create new primaries and set them to the vertex
   //  G4double mass =  particle_definition->GetPDGMass();
   G4double px = isp.momentum().x();
@@ -454,16 +510,64 @@ void iGeant4::G4TransportTool::addPrimaryVertex(G4Event* g4evt, const ISF::ISFPa
 
       ppi->SetParticle(genpart);
       ppi->SetRegenerationNr(0); // // *AS* this may not be true if this is not a real primary particle
-    }
-  }
+
+      if (genpart->end_vertex()){
+        ATH_MSG_WARNING( "Detected primary particle with end vertex. This should only be the case if" );
+        ATH_MSG_WARNING( "you are running with quasi-stable particle simulation enabled.  This is not" );
+        ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
+        ATH_MSG_WARNING( "particle set on." );
+
+        // Add all necessary daughter particles
+        for (HepMC::GenVertex::particles_out_const_iterator iter=genpart->end_vertex()->particles_out_const_begin();
+             iter!=genpart->end_vertex()->particles_out_const_end(); ++iter){
+          G4PrimaryParticle * daught = getPrimaryParticle( **iter );
+          particle->SetDaughter( daught );
+        }
+        // Set the lifetime appropriately - this is slow but rigorous, and we
+        //  don't want to end up with something like vertex time that we have
+        //  to validate for every generator on earth...
+        G4LorentzVector lv0 ( genpart->production_vertex()->position().x(),
+                              genpart->production_vertex()->position().y(),
+                              genpart->production_vertex()->position().z(),
+                              genpart->production_vertex()->position().t() );
+        G4LorentzVector lv1 ( genpart->end_vertex()->position().x(),
+                              genpart->end_vertex()->position().y(),
+                              genpart->end_vertex()->position().z(),
+                              genpart->end_vertex()->position().t() );
+        particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
+      } // particle had an end vertex
+    } // Truth binding worked
+  } // Truth was detected
 
   particle->SetUserInformation(ppi);
+
+  return particle;
+}
+
+//________________________________________________________________________
+void iGeant4::G4TransportTool::addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const
+{
+  /*
+    see conversion from PrimaryParticleInformation to TrackInformation in
+    http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Simulation/G4Atlas/G4AtlasAlg/src/AthenaStackingAction.cxx#0044
+
+    need to check with
+    http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Simulation/G4Atlas/G4AtlasAlg/src/TruthHepMCEventConverter.cxx#0151
+
+    that we don't miss something
+  */
+
+  G4PrimaryParticle * particle = getPrimaryParticle( isp );
+  if (!particle) return; // Already printed a warning
+
+  // create a new vertex
+  G4PrimaryVertex* vertex =
+    new G4PrimaryVertex(isp.position().x(),isp.position().y(),isp.position().z(),isp.timeStamp());
 
   vertex->SetPrimary( particle );
 
   g4evt->AddPrimaryVertex( vertex );
 
-  return;
 }
 
 //________________________________________________________________________

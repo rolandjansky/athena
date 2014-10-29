@@ -30,6 +30,7 @@
 #include "G4TouchableHistory.hh"
 #include "G4Step.hh"
 #include "G4TransportationManager.hh"
+#include "G4LogicalVolumeStore.hh"
 //#include "G4VPhysicalVolume.hh"
 
 #include "ISF_Geant4Tools/TrackProcessorUserAction.h"
@@ -63,6 +64,7 @@ iGeant4::TrackProcessorUserAction::TrackProcessorUserAction(const std::string& t
   declareProperty("ParticleBroker", m_particleBroker, "ISF Particle Broker Svc");
   declareProperty("GeoIDSvc"      , m_geoIDSvc      , "ISF GeoID Svc"          );
   declareProperty("Geant4OnlyMode", m_geant4OnlyMode=false);
+  declareProperty("TruthVolumeLevel", m_truthVolLevel=1, "Level in geo hierarchy for the truth volumes");
 
 }
 
@@ -82,9 +84,9 @@ StatusCode iGeant4::TrackProcessorUserAction::initialize()
   m_geoIDSvcQuick = &(*m_geoIDSvc);
 
 
-  m_entryLayerMap["CALO::CALO"] = 2;
-  m_entryLayerMap["MUONQ02::MUONQ02"] = 2;
-  m_entryLayerMap["IDET::IDET"] = 2;
+  m_entryLayerMap["CALO::CALO"] = m_truthVolLevel+1;
+  m_entryLayerMap["MUONQ02::MUONQ02"] = m_truthVolLevel+1;
+  m_entryLayerMap["IDET::IDET"] = m_truthVolLevel+1;
 
   return StatusCode::SUCCESS;
 }
@@ -131,17 +133,28 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
 {
 
   G4Track* aTrack = aStep->GetTrack();
-  int trackID = aTrack->GetTrackID();
 
-  ISF::ISFParticle* isp=m_parentISPmap[trackID];
+  // Dirty trick to speed up the lookup
+  static int trackID=-999;
+  static ISF::ISFParticle* isp=0;
+  if (aTrack->GetTrackID()!=trackID){
+    trackID=aTrack->GetTrackID();
+    isp = m_parentISPmap[trackID];
+    if (!isp) ATH_MSG_ERROR("no ISFParticle!");
+  }
+
   //std::cout<<"retrieved isp "<<isp<<" for trackID "<<trackID<<std::endl;
-
-  if (!isp) ATH_MSG_ERROR("no ISFParticle!");
 
   // reset nextGeoID for this particle so ISFTrajectory::AppendStep will have correct nextGeoID
   if (m_geant4OnlyMode) {
     AtlasDetDescr::AtlasRegion nextG4GeoID = nextGeoId(aStep);
-    if (isp->nextGeoID()!=nextG4GeoID) isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextG4GeoID) );
+    if(!isp) {
+      G4ExceptionDescription description;
+      description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
+                  << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
+                  << ", parentID " << aTrack->GetParentID() << ")";
+      G4Exception("iGeant4::TrackProcessorUserAction", "NoISFParticle", FatalException, description);
+    } else if (isp->nextGeoID()!=nextG4GeoID) { isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextG4GeoID) ); }
   }
 
   // check if dead track
@@ -171,8 +184,15 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
   //
 
 
+  if(!isp) {
+    G4ExceptionDescription description;
+    description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
+                << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
+                << ", parentID " << aTrack->GetParentID() << ")";
+    G4Exception("iGeant4::TrackProcessorUserAction", "NoISFParticle2", FatalException, description);
+  }
   // get geoID from parent
-  AtlasDetDescr::AtlasRegion curGeoID=isp->nextGeoID();
+  AtlasDetDescr::AtlasRegion curGeoID=isp?isp->nextGeoID():AtlasDetDescr::fUndefinedAtlasRegion;
 
   ATH_MSG_DEBUG("got geoID = "<<curGeoID);
 
@@ -337,7 +357,7 @@ void iGeant4::TrackProcessorUserAction::PreUserTrackingAction(const G4Track* aTr
   PrimaryParticleInformation* ppInfo = dynamic_cast <PrimaryParticleInformation*> (aTrack->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation());
 
   // get parent
-  const ISF::ISFParticle* parent = ppInfo->GetISFParticle();
+  const ISF::ISFParticle* parent = ppInfo?ppInfo->GetISFParticle():0;
 
   if (!parent) ATH_MSG_ERROR("no ISFParticle in PrimaryParticleInformation for "<<aTrack->GetTrackID()<<"!");
 
@@ -472,33 +492,97 @@ iGeant4::TrackProcessorUserAction::entryLayer(const G4Step* aStep)
 AtlasDetDescr::AtlasRegion
 iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
 {
+  // Static so that it will keep the value from the previous step
+  static AtlasDetDescr::AtlasRegion nextGeoID = m_truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
 
-  AtlasDetDescr::AtlasRegion nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
+  StepHelper step(aStep);
 
-  static StepHelper step(aStep);
-  std::string postname=step.GetPostStepLogicalVolumeName(1);
+  // Protect against being in a mother volume, then reset it to undefined if we don't know where we are
+  //  Since we start particles in the beampipe (for the most part) this will rarely result in returning
+  //  an undefined region answer; since G4 works on a stack rather than a queue, this is safe-ish
+  if (step.PostStepBranchDepth()<m_truthVolLevel){
+    if (m_truthVolLevel>1 &&
+        step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra") ) nextGeoID = AtlasDetDescr::fAtlasCavern;
+    return nextGeoID;
+  }
+  nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
 
-  if (postname=="Atlas::Atlas") {
-    postname=step.GetPostStepLogicalVolumeName(2);
+  static G4LogicalVolume * BPholder=0 , * IDholder=0 , * CALOholder=0 , * MUholder=0 , * TTRholder=0 ;
+  if (BPholder==0){ // Initialize
+    G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+    for (size_t i=0;i<lvs->size();++i){
+      if ( !(*lvs)[i] ) continue;
+      if ( (*lvs)[i]->GetName() == "BeamPipe::BeamPipe" ) BPholder = (*lvs)[i];
+      else if ( (*lvs)[i]->GetName() == "IDET::IDET" ) IDholder = (*lvs)[i];
+      else if ( (*lvs)[i]->GetName() == "CALO::CALO" ) CALOholder = (*lvs)[i];
+      else if ( (*lvs)[i]->GetName() == "MUONQ02::MUONQ02" ) MUholder = (*lvs)[i];
+      else if ( (*lvs)[i]->GetName() == "TTR_BARREL::TTR_BARREL" ) TTRholder = (*lvs)[i];
+    }
+    checkVolumeDepth( G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume() , m_truthVolLevel );
   }
 
-  if (postname=="BeamPipe::BeamPipe") {
-    std::string postname2=step.GetPostStepLogicalVolumeName(2);
-    if (postname2=="BeamPipe::BeamPipeCentral") nextGeoID=AtlasDetDescr::fAtlasID;
-    else nextGeoID=AtlasDetDescr::fAtlasForward;
-  }
- 
-  else if (postname=="IDET::IDET" )      nextGeoID=AtlasDetDescr::fAtlasID;
-  else if (postname=="CALO::CALO")       nextGeoID=AtlasDetDescr::fAtlasCalo;
-  else if (postname=="MUONQ02::MUONQ02") nextGeoID=AtlasDetDescr::fAtlasMS;
-  else if (postname.find("CavernInfra")!=std::string::npos || 
-	   postname=="TTR_BARREL::TTR_BARREL") nextGeoID=AtlasDetDescr::fAtlasCavern;
-
-  else {
-    //ATH_MSG_ERROR("vol1: "<<step.GetPostStepLogicalVolumeName(1)<<", vol2: "<<step.GetPostStepLogicalVolumeName(2)<<", postname="<<postname<<", returning undefined geoID");    
-    ATH_MSG_ERROR("returning undefined geoID");    
-
+  // Ordering inside out (most truth in the ID anyway...)
+  if ( IDholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
+    nextGeoID = AtlasDetDescr::fAtlasID;
+  } else if ( CALOholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
+    nextGeoID = AtlasDetDescr::fAtlasCalo;
+  } else if ( MUholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
+    nextGeoID = AtlasDetDescr::fAtlasMS;
+  } else if ( BPholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
+    nextGeoID = step.GetPostStepLogicalVolumeName(m_truthVolLevel+1)=="BeamPipe::BeamPipeCentral"?AtlasDetDescr::fAtlasID:AtlasDetDescr::fAtlasForward;
+  } else if ( TTRholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
+    nextGeoID = AtlasDetDescr::fAtlasCavern;
+  } else if (step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
+    nextGeoID = AtlasDetDescr::fAtlasCavern;
+  } else {
+    // We are in trouble
+    //ATH_MSG_ERROR("vol1: "<<step.GetPostStepLogicalVolumeName(1)<<", vol2: "<<step.GetPostStepLogicalVolumeName(2)<<", postname="<<postname<<", returning undefined geoID");
+    G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
+    ATH_MSG_ERROR("Returning undefined geoID from " << step.GetPostStepLogicalVolume() << " requesting " << step.GetPostStepLogicalVolume(m_truthVolLevel) << " at " << myPos.x() << " " << myPos.y() << " " << myPos.z() );
   }
 
   return nextGeoID;
+}
+
+bool iGeant4::TrackProcessorUserAction::checkVolumeDepth( G4LogicalVolume * lv , int volLevel , int d ) const {
+  if (lv==0) return false;
+  bool Cavern = false;
+
+  // Check the volumes rather explicitly
+  if ( lv->GetName() == "BeamPipe::BeamPipe" ||
+       lv->GetName() == "IDET::IDET" ||
+       lv->GetName() == "CALO::CALO" ||
+       lv->GetName() == "MUONQ02::MUONQ02" ||
+       lv->GetName() == "TTR_BARREL::TTR_BARREL" ){
+    if (d==volLevel){
+      ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
+    } else {
+      ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << d << " instead of depth " << volLevel);
+      throw "WrongDepth";
+    } // Check of volume level
+  } else if ( lv->GetName()=="BeamPipe::BeamPipeCentral" ){ // Things that are supposed to be one deeper
+    if (d==volLevel+1){
+      ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
+    } else {
+      ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << d << " instead of depth " << volLevel+1);
+      throw "WrongDepth";
+    } // Check of volume level
+  } else if ( lv->GetName().find("CavernInfra")!=std::string::npos ){ // Things that are supposed to be one shallower
+    if (d==volLevel-1){
+      Cavern=true;
+      ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
+      // Note: a number of volumes exist with "CavernInfra" in the name at the wrong depth, so we just need to
+      //   check that there's at least one at the right depth
+    } // Check of volume level
+  } // Check of volume name
+
+  // Going through the volume depth
+  for (int i=0; i<lv->GetNoDaughters(); ++i){
+    Cavern = Cavern || checkVolumeDepth( lv->GetDaughter(i)->GetLogicalVolume() , volLevel , d+1 );
+  }
+  if (d==0 && !Cavern && volLevel>1){
+    ATH_MSG_ERROR("No CavernInfra volume registered at depth " << volLevel-1);
+    throw "WrongDepth";
+  }
+  return Cavern;
 }

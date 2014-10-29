@@ -23,6 +23,7 @@
 class AthenaStackingAction;
 class G4Event;
 class StoreGateSvc;
+class G4PrimaryParticle;
 
 namespace ISF {
   class ISFParticle;
@@ -32,6 +33,7 @@ namespace ISF {
 
 namespace HepMC {
   class GenEvent;
+  class GenParticle;
 }
 
 //namespace PyAthena {
@@ -83,6 +85,9 @@ namespace iGeant4
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp) const;
 
   private:
+	G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
+
+	G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
 
     void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
 
