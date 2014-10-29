@@ -12,10 +12,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/DataHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 //#include "TrkTrack/Track.h"
 //#include "TRT_ConditionsTools/TRTCalDbTool.h"
 
-class EventInfo;
 namespace TRT{
   class TrackInfo;
 }
@@ -81,7 +81,7 @@ private:
   bool m_writeConstants;
   int m_ntrk;
 
-  const DataHandle<EventInfo> m_EventInfo;
+  const DataHandle<xAOD::EventInfo> m_EventInfo;
   ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
 
   std::vector<std::string> m_TrkCollections;

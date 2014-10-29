@@ -10,13 +10,14 @@ use StoreGate            StoreGate-*               Control
 use AtlasPolicy          AtlasPolicy-*
 
 use GaudiInterface       GaudiInterface-*          External
+use xAODEventInfo        xAODEventInfo-*           Event/xAOD
 
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
 
 private
 
+use xAODTracking                xAODTracking-*          Event/xAOD
 use VxVertex             VxVertex-*                Tracking/TrkEvent
-use EventInfo            EventInfo-*               Event
 use DataModel            DataModel-*               Control
 
 use TRT_CalibData        TRT_CalibData-*           InnerDetector/InDetCalibEvent

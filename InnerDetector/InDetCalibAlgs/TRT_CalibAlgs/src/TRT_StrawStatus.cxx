@@ -19,8 +19,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //#include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
@@ -48,6 +47,7 @@ m_nBarrelBoards(9), m_nEndcapBoards(20), m_nAllBoards(29),
 m_nBarrelChips(104), m_nEndcapChips(240), m_nAllChips(344),
 m_nBarrelPads(208), m_nEndcapPads(480), m_nAllPads(688),
 m_nEvents(0), m_runNumber(0),
+m_TRTHelper(0),
 m_mapSvc("TRT_HWMappingSvc",name),
 m_DCSSvc("TRT_DCS_ConditionsSvc",name),
 m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name), // use this service to retrieve barrel and end-cap straw number later on, as well as DTMROC,.. 
@@ -141,22 +141,18 @@ StatusCode InDet::TRT_StrawStatus::finalize(){
 //================ Execution ====================================================
 
 StatusCode InDet::TRT_StrawStatus::execute(){
-    const EventInfo *eventInfo = 0;
+    const xAOD::EventInfo *eventInfo = 0;
     StatusCode sc = evtStore()->retrieve(eventInfo); 
     if ( sc.isFailure() ) {
         msg(MSG::ERROR) << "Unable to retrieve Event Info " << endreq;
         return sc;
     } 
-    int runNumber = (int) eventInfo->event_ID()->run_number();  
+    int runNumber = (int) eventInfo->runNumber();  
     if (runNumber != m_runNumber) {
         if (m_nEvents) { reportResults(); clear(); }
         m_runNumber = runNumber;
     } 
-    EventID* TRTEventID0 = eventInfo->event_ID();
-    int lumiBlock0 = -100;
-    if (TRTEventID0) {
-        lumiBlock0=TRTEventID0->lumi_block();
-    }
+    int lumiBlock0 =eventInfo->lumiBlock();
     const TRT_RDO_Container* rdoContainer; // container of all TRT hits
     sc = evtStore()->retrieve(rdoContainer, "TRT_RDOs");
     if ( sc.isFailure() ) {

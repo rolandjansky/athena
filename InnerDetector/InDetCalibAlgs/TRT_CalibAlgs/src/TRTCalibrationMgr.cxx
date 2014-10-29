@@ -10,9 +10,6 @@
 
 #include "TRT_CalibAlgs/TRTCalibrationMgr.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-
 #include "TrkTrack/Track.h"
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 
@@ -27,6 +24,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "CommissionEvent/ComTime.h"
 #include "VxVertex/VxContainer.h"
+#include "xAODTracking/VertexContainer.h"
 #include "TROOT.h"
 
 TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -39,6 +37,7 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
   m_dorefit(true),
   m_docalibrate(false),
   m_writeConstants(false),
+  m_ntrk(0),
   m_trackSelector("InDet::InDetTrackSelectorTool/InDetTrackSelectorTool"),
   m_TrkCollections(),
   m_max_ntrk(100000)
@@ -137,18 +136,10 @@ StatusCode TRTCalibrationMgr::execute()
     return sc;
   }
   
-  const EventInfo *eventInfo = 0;
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "skipping event, unable to retrieve eventInfo " << endreq;
-    return sc;
-  }
-  //int runNumber = (int) eventInfo->event_ID()->run_number();
-  //int lumi_block = (int) eventInfo->event_ID()->lumi_block();
-  
   // require at least one vertex per event
+/*
   const VxContainer* vxContainer(0);
-  sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate");
+  StatusCode sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate");
   if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endreq; }
   else {
     int countVertices(0);
@@ -157,6 +148,28 @@ StatusCode TRTCalibrationMgr::execute()
     }
     if (countVertices < 1) {msg(MSG::INFO) << "no vertices found" << endreq;}// return sc;}
   }
+*/
+
+  // Get Primary vertex
+  const xAOD::VertexContainer* vertices =  evtStore()->retrieve< const xAOD::VertexContainer >("PrimaryVertices");
+  if(!vertices) {
+        ATH_MSG_ERROR ("Couldn't retrieve VertexContainer with key: PrimaryVertices");
+        return StatusCode::FAILURE;
+  }
+
+  int countVertices(0);
+  for (const xAOD::Vertex* vx : *vertices) {
+    if (vx->vertexType() == xAOD::VxType::PriVtx) {
+      if ( vx-> nTrackParticles() >= 3) countVertices++;
+    }
+  }
+  if (countVertices < 1) {
+        msg(MSG::INFO) << "no vertices found" << endreq;
+        return StatusCode::SUCCESS;
+  }
+
+
+
 
   // get event info pointer
   if ((evtStore()->retrieve(m_EventInfo)).isFailure()) {
@@ -173,7 +186,7 @@ StatusCode TRTCalibrationMgr::execute()
   double eventPhase = 0;
   
   ComTime* theComTime(0);
-  sc = evtStore()->retrieve(theComTime, "TRT_Phase");
+  StatusCode sc = evtStore()->retrieve(theComTime, "TRT_Phase");
   if(sc.isFailure()){
     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ComTime object not found with name TRT_Phase !!!" << endreq;
     eventPhase = -1;//invalid, reject track 
@@ -226,8 +239,8 @@ StatusCode TRTCalibrationMgr::execute()
 	     // fill track info
 	     TRT::TrackInfo at;
 	     // Run, event, track id
-	     at[TRT::Track::run]=m_EventInfo->event_ID()->run_number();
-	     at[TRT::Track::event]=m_EventInfo->event_ID()->event_number();
+	     at[TRT::Track::run]=m_EventInfo->runNumber();
+	     at[TRT::Track::event]=m_EventInfo->eventNumber();
 	     at[TRT::Track::trackNumber]=m_ntrk;
 	     if (msgLvl(MSG::DEBUG)) msg() << "  Track " << m_ntrk << " accepted Info: run="
   					<< at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endreq;
