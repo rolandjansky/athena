@@ -125,14 +125,7 @@ namespace Analysis
 
 
     /** Copy constructor */
-    explicit ParticleShallowClone( const ParticleShallowClone& rhs ) :
-      P4Momentum_t ( rhs ),
-      m_masterLink ( rhs.getMasterLink() ),
-      m_originLink ( rhs.originLink() ),
-      m_hasCharge  ( rhs.hasCharge() ),
-      m_charge     ( rhs.charge() )
-    {
-    }
+    // Use default.
     
 
 
