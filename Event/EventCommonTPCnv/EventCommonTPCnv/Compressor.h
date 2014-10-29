@@ -29,6 +29,7 @@ public:
 	Compressor(){
 		m_sign=false;
 		m_bits=16;
+                m_bitStrip = false;
 	}
 	~Compressor(){}
 	

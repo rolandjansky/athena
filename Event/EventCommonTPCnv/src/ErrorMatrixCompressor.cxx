@@ -278,8 +278,9 @@ bool ErrorMatrixCompressor::restore(std::vector<unsigned int> src, std::vector<d
   for(i=0;i<5;i++)
     for(j=0;j<=i;j++)
       {
-	S[i][j]=(*fIt).restore();++fIt;
 	if(fIt==vecFR.end()) break;
+	S[i][j]=(*fIt).restore();
+        ++fIt;
       }
 
   memset(&L[0][0],0,sizeof(L));
@@ -496,7 +497,9 @@ bool ErrorMatrixCompressor::restoreFR(std::vector<unsigned short> src, std::vect
 	}
       if(nBitsToStore==0)
 	{
-	  ++uIt;if(uIt==src.end()) 
+          if(uIt==src.end()) break;
+	  ++uIt;
+          if(uIt==src.end()) 
 	    {
 	      //printf("Breaking ... nR=%d\n",nRestored);
 	      break;
