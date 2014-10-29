@@ -85,3 +85,6 @@ static FADS::PhysicsListEntryT<QBBC> physlist_QBBC("QBBC");
 #include "Shielding.hh"
 static FADS::PhysicsListEntryT<Shielding> physlist_Shielding("Shielding");
 
+#include "FadsPhysics/FactoryMadeList.h"
+static FADS::FactoryMadeList physlist_FTFP_BERT_EMY("FTFP_BERT_EMY");
+
