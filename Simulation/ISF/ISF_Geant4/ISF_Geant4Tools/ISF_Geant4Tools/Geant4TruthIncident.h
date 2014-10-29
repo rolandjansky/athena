@@ -91,13 +91,17 @@ namespace ISF {
       const HepMC::FourVector&  position() const;
 
       /** Return true if at least one secondary particle passes the given pT^2 cut
-	  (= at least one secondary with pT^2 >= pt2cut) */
+          (= at least one secondary with pT^2 >= pt2cut) */
       bool secondaryPt2Pass(double pt2cut) const;
 
       /** Return true if at least one secondary particle passes the given Ekin cut
-	  (= at least one secondary with Ekin >= ekincut) */
+          (= at least one secondary with Ekin >= ekincut) */
       bool secondaryEkinPass(double ekincut) const;
 
+      /** Record that a particular secondary passed a check */
+      inline void                      setSecondaryPassed(unsigned short index) const;
+      /** Should a particular secondary be written out to the GenEvent */
+      inline bool                      writeOutSecondary(unsigned short index) const;
 
     private:
       Geant4TruthIncident();
@@ -116,7 +120,17 @@ namespace ISF {
       mutable std::vector<G4Track*> m_secondaries;
 
       bool                          m_checkLastSecondaryOnly;
+      mutable std::vector<bool>     m_passedFilters;
    };
+  void ISF::Geant4TruthIncident::setSecondaryPassed(unsigned short index) const {
+    m_passedFilters[index] = m_passedFilters[index] || true;
+    return;
+  }
+
+  bool ISF::Geant4TruthIncident::writeOutSecondary(unsigned short index) const {
+    return m_wholeVertexPassed || m_passedFilters[index];
+  }
+
 }
 
 #endif // ISF_GEANT4TOOLS_Geant4TruthIncident_H
