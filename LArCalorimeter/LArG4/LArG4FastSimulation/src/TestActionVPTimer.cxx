@@ -39,7 +39,8 @@ using std::pair;	using std::find;	using std::vector;
 
 static TestActionVPTimer ts1("TestActionVPTimer");
 
-TestActionVPTimer::TestActionVPTimer(std::string s): UserAction(s),
+TestActionVPTimer::TestActionVPTimer(std::string s): 
+    FADS::ActionsBase(s),FADS::UserAction(s),
     m_runTimer(0), m_eventTimer(0),
     m_runTime(0.), m_eventTime(0.),
     dCALO(2), dBeam(2), dIDET(2), dMUON(2), dDetail(""),
@@ -57,11 +58,6 @@ TestActionVPTimer::TestActionVPTimer(std::string s): UserAction(s),
   v_timer = new G4Timer();
   v_timer->Start();
   v_timer->Stop();
-
-  // prepare GAUDI messaging service
-  _msgSvc = Athena::getMessageSvc();
-  MsgStream log(_msgSvc, "TestActionVPTimer");
-  log << MSG::INFO <<"Athena message service initialized"<< endmsg;
 
 #ifdef _myDebug
   G4cout << "TestActionVPTimer::Constructor done" << G4endl;
@@ -110,22 +106,34 @@ void TestActionVPTimer::BeginOfRunAction(const G4Run* /*aRun*/)
 	 << "##                                     ##" << G4endl
 	 << "#########################################" << G4endl;
 #endif
-  MsgStream log(_msgSvc,"TestActionVPTimer");
 
   // get jobOptions properties
   //fName = theProperties["CSVFileName"];
   //if (fName.empty()) {
-  //    log << MSG::WARNING <<"No output file name specified, using default.csv!"<< endmsg;
+  //    ATH_MSG_WARNING("No output file name specified, using default.csv!");
   //    fName = "default.csv";
   //}
 
-  if (!m_runTimer->IsValid()) { m_runTimer->Start(); }
-  if (!theProperties["CaloDepth"].empty())      dCALO = atoi(theProperties["CaloDepth"].c_str());
-  if (!theProperties["BeamPipeDepth"].empty())  dBeam = atoi(theProperties["BeamPipeDepth"].c_str());
-  if (!theProperties["InDetDepth"].empty())     dIDET = atoi(theProperties["InDetDepth"].c_str());
-  if (!theProperties["MuonDepth"].empty())      dMUON = atoi(theProperties["MuonDepth"].c_str());
+  char * endptr=0;
+  if ( !theProperties["CaloDepth"].empty() ){     
+    dCALO = strtol(theProperties["CaloDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["CaloDepth"]));
+  }
+  if ( !theProperties["BeamPipeDepth"].empty() ){
+    dBeam = strtol(theProperties["BeamPipeDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["BeamPipeDepth"]));
+  }
+  if ( !theProperties["InDetDepth"].empty() ){
+    dIDET = strtol(theProperties["InDetDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["InDetDepth"]));
+  }
+  if ( !theProperties["MuonDepth"].empty() ){
+    dMUON = strtol(theProperties["MuonDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MuonDepth"]));
+  }
   if (!theProperties["DetailDepth"].empty())    dDetail = theProperties["DetailDepth"];
-  log << MSG::INFO <<"Retrieved job properties successfully!"<< endmsg;
+  ATH_MSG_INFO("Retrieved job properties successfully!");
+  if (!m_runTimer->IsValid()) { m_runTimer->Start(); }
   return;
 }
 
@@ -139,7 +147,6 @@ void TestActionVPTimer::EndOfRunAction(const G4Run* /*aRun*/)
 	 << "##                                     ##" << G4endl
 	 << "#########################################" << G4endl;
 #endif
-  MsgStream log(_msgSvc,"TestActionVPTimer");
   
   m_runTime += TimerSum(m_runTimer);
 
@@ -163,15 +170,15 @@ void TestActionVPTimer::EndOfRunAction(const G4Run* /*aRun*/)
       G4cout << vPrFmt(m_runTime, m_nev, atlasData.tTotal, -999, "  Event Average") << G4endl;
       G4cout << vPrFmt(DeadTime, m_nev, atlasData.tTotal, -999, "  Dead/Initialization") << G4endl;
 
-      log<< MSG::INFO <<"\n******* Data by volume/select particles *******" << endmsg;
-      log<< MSG::INFO <<"Data printed in reverse tree order (mother following daughter)"<< endmsg;
+      ATH_MSG_INFO("\n******* Data by volume/select particles *******");
+      ATH_MSG_INFO("Data printed in reverse tree order (mother following daughter)");
 
       TreeOut(topPV, atlasData.tTotal);
 //      for (VolIt c = v_time_index.begin(); c != v_time_index.end(); c++) {
 //          TimerPrint(*c, atlasData.tTotal, c->first.size());
 //      }
 
-      log<< MSG::INFO << "\n******* Data by particle/category *******" << endmsg;
+      ATH_MSG_INFO( "\n******* Data by particle/category *******");
 
       G4cout << vPrFmt(atlasData.tElectron, m_nev, atlasData.tTotal, -999, "e+/-"   ) << G4endl;
       G4cout << vPrFmt(atlasData.tPhoton,   m_nev, atlasData.tTotal, -999, "gamma"  ) << G4endl;
@@ -182,7 +189,7 @@ void TestActionVPTimer::EndOfRunAction(const G4Run* /*aRun*/)
       G4cout << vPrFmt(atlasData.tMeson,    m_nev, atlasData.tTotal, -999, "meson"  ) << G4endl;
       G4cout << vPrFmt(atlasData.tOther,    m_nev, atlasData.tTotal, -999, "other"  ) << G4endl;
 
-  } else { log << MSG::WARNING <<"******* No events timed! *******"<< endmsg; }
+  } else { ATH_MSG_WARNING("******* No events timed! *******"); }
   return;
 }
 
@@ -196,7 +203,6 @@ void TestActionVPTimer::SteppingAction(const G4Step* aStep)
 	 << "##                                     ##" << G4endl
 	 << "#########################################" << G4endl;
 #endif
-  MsgStream log(_msgSvc,"TestActionVPTimer");
 
   // HERE IS WHERE WE BEGIN OUR CLOCKING -- ONLY IF 
   // TIMERS ARE NOT VALID
@@ -229,7 +235,7 @@ void TestActionVPTimer::SteppingAction(const G4Step* aStep)
         else if (PDef->GetParticleType() == "lepton")	{ v_time_index[VHistory].tLepton += vtime; }
         else if (PDef->GetParticleType() == "meson")	{ v_time_index[VHistory].tMeson += vtime; }
         else						{ v_time_index[VHistory].tOther += vtime; }
-        log << MSG::DEBUG <<"Time stored in "<<VHistory.back().first->GetName()<< endmsg;
+        ATH_MSG_DEBUG("Time stored in "<<VHistory.back().first->GetName());
         if ( !currentTree.Ascend() )  break;
     }
   }

@@ -17,7 +17,7 @@
 //      Revised by						//
 //         Kevin Sapp, Pitt, USA				//
 //                                                              //
-//      @version $Revision: 448395 $ 				//
+//      @version $Revision: 619285 $ 				//
 //                                                              //
 //////////////////////////////////////////////////////////////////
 
@@ -25,6 +25,7 @@
 #define TestActionVPTimer_H
 
 #include "LArG4FastSimulation/VolumeTreeNavigator.h"
+#include "FadsActions/ActionsBase.h"
 #include "FadsActions/UserAction.h"
 #include "FadsActions/FadsTrackingAction.h"
 
@@ -33,9 +34,6 @@
 #include <G4Step.hh>
 #include <G4Timer.hh>
 #include <G4VPhysicalVolume.hh>
-
-#include <GaudiKernel/MsgStream.h>
-#include <AthenaKernel/getMessageSvc.h>
 
 #include <string>
 #include <map>
@@ -51,7 +49,6 @@ class G4Timer;
 class G4VPhysicalVolume;
 
 class Algorithm;
-class IMessageSvc;
 
 class VolumeTreeNavigator;
 
@@ -90,7 +87,7 @@ volData volData::operator+= (const volData& acc)
 typedef std::map<VolTree, volData> VolMap;
 typedef VolMap::const_iterator VolIt;
 
-class TestActionVPTimer: public FADS::UserAction
+class TestActionVPTimer: public FADS::ActionsBase , public FADS::UserAction
 {  
  public:
 
@@ -103,7 +100,6 @@ class TestActionVPTimer: public FADS::UserAction
 
  private:
 
-  IMessageSvc* _msgSvc;
   //std::string fName;			//!< Name of output csv file
   //std::ofstream file;			//!< Output csv file of time data (easy import into calc, etc.)
 

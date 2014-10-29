@@ -22,6 +22,7 @@
 
 #include "LArG4FastSimulation/VolumeTreeNavigator.h"
 
+#include "FadsActions/ActionsBase.h"
 #include "FadsActions/UserAction.h"
 #include "FadsActions/TrackingAction.h"
 
@@ -30,9 +31,6 @@
 #include <G4Step.hh>
 #include <TFile.h>
 #include <TH1.h>
-
-#include <GaudiKernel/MsgStream.h>
-#include <AthenaKernel/getMessageSvc.h>
 
 #include <string>
 #include <vector>
@@ -47,7 +45,7 @@ class G4TouchableHistory;
 class Algorithm;
 class IMessageSvc;
 
-class TestActionEHist: public FADS::UserAction, public FADS::TrackingAction
+class TestActionEHist: public FADS::ActionsBase, public FADS::UserAction, public FADS::TrackingAction
 {  
  public:
 
@@ -58,11 +56,8 @@ class TestActionEHist: public FADS::UserAction, public FADS::TrackingAction
   void PostUserTrackingAction(const G4Track*);	//!< Tracking action called at end of track, stores trajectory
   void SteppingAction(const G4Step*);		//!< Stepping action that increments the appropriate timer
 
-  
-
  private:
 
-  IMessageSvc* _msgSvc;			//!< Pointer to current IMessageSvc object
   const G4VProcess* _pds;		//!< Pointer to current process defining the step at postStepPoint
   TFile* world;				//!< File in which to store neutron & electron info
 
