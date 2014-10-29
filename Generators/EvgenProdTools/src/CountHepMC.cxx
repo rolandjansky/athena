@@ -20,6 +20,10 @@ using namespace std;
 
 CountHepMC::CountHepMC(const std::string& name, ISvcLocator* pSvcLocator) :
   GenBase(name, pSvcLocator),
+  m_nPass(0),
+  m_wtpass(0),
+  m_wthepmc(0),
+  m_wtall(0),
   /// @todo Why 'new' these?
   m_streamAlgs(new vector<Algorithm*>),
   m_requireAlgs(new vector<Algorithm*>),
