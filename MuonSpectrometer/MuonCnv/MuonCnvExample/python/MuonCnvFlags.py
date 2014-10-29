@@ -121,8 +121,8 @@ muonCnvFlags = jobproperties.MuonCnv
 class MdtCablingMode(JobProperty):
     statusOn = True
     allowedTypes = ['str']
-    allowedValues=['auto','old','new']
-    StoredValue='old' 
+    allowedValues=['new']
+    StoredValue='new' 
 
 muonCnvFlags.add_JobProperty(MdtCablingMode)
 
