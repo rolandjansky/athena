@@ -11,6 +11,8 @@
 
 // framework
 #include "GaudiKernel/IPartPropSvc.h"
+#include "GaudiKernel/PhysicalConstants.h"
+
 // ISF_HepMC include
 #include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 #include "ISF_HepMC_Interfaces/IGenEventManipulator.h"
@@ -267,6 +269,14 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
   McEventCollection::iterator eventIt    = mcCollection->begin();
   McEventCollection::iterator eventItEnd = mcCollection->end();
 
+  //ATH_MSG_INFO("printing events");
+  //for ( ; eventIt != eventItEnd; ++eventIt) {
+  //std::cout<<**eventIt<<"\n"<<std::endl;
+  //}
+  eventIt = mcCollection->begin();
+
+  std::vector<HepMC::GenParticle*> goodparticles;
+
   // loop over the event in the mc collection
   for ( ; eventIt != eventItEnd; ++eventIt) {
     // skip empty events
@@ -289,72 +299,107 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       }
     }
 
+    // get particles
+    std::vector<HepMC::GenParticle*> particles;
+
+    // ---- LOOP over GenVertex objects
+    HepMC::GenEvent::vertex_const_iterator vert  = (*eventIt)->vertices_begin();
+    HepMC::GenEvent::vertex_const_iterator vertE = (*eventIt)->vertices_end();
+    for ( ; vert != vertE ; vert++ ) {
+
+      // get particles
+      std::map< int , HepMC::GenParticle*, std::less<int> > pMap;
+      
+      for (HepMC::GenVertex::particle_iterator it=
+	     (*vert)->particles_begin(HepMC::children);
+	   it!=(*vert)->particles_end(HepMC::children);++it) {
+	int bc=(*it)->barcode();
+	pMap[bc]=(*it);
+      }
+      
+      for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
+
+	particles.push_back(it->second);
+      }
+
+    }
+
     // ---- LOOP over GenParticles  -------------------------------------------------------
-    HepMC::GenEvent::particle_const_iterator part  = (*eventIt)->particles_begin();
-    HepMC::GenEvent::particle_const_iterator partE = (*eventIt)->particles_end();
+    //std::map< int, HepMC::GenParticle*, std::less<int> >::const_iterator part = pMap.begin();
+    //std::map< int, HepMC::GenParticle*, std::less<int> >::const_iterator partE = pMap.end();
+    
+    std::vector<HepMC::GenParticle*>::iterator part = particles.begin();
+    std::vector<HepMC::GenParticle*>::iterator partE = particles.end();
+
     for( ; part != partE ; part++ ) {
+      
       // the current particle
       HepMC::GenParticle* tParticle = *part;
-
+      
       // store largest appearing barcode
       int pBarcode = tParticle->barcode();
       // for 1 genevent collection ( = no pileup merging ), the isf particle's barcode is the genparticle barcode
       m_uniqueBc = bcPileupOffset + pBarcode ; 
       if ( m_uniqueBc > m_largestBc) m_largestBc = m_uniqueBc;
-
+      
       m_number_of_gen_minbias++;
-
+      
       ATH_MSG_VERBOSE( "Picking up GenParticle with Barcode '" << pBarcode << " tParticle " << tParticle->barcode() );
       //tParticle->print();
-
+      
       // loop over all GenParticleFilters
       //   -> don't add it to the 'particleColl' if one of them returns 'false'
       bool passFilter = true;
       GenParticleFilters::const_iterator filterIt  = m_genParticleFilters.begin();
       GenParticleFilters::const_iterator filterEnd = m_genParticleFilters.end();
       for ( ; passFilter && filterIt!=filterEnd; ++filterIt) {
-        // determine if the particle passes current filter
-        passFilter = (*filterIt)->pass(*tParticle);
-        ATH_MSG_DEBUG("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
-                      << (passFilter ? "true, will keep particle."
-                          : "false, will remove particle.") );
+	// determine if the particle passes current filter
+	passFilter = (*filterIt)->pass(*tParticle);
+	ATH_MSG_DEBUG("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
+		     << (passFilter ? "true, will keep particle."
+			 : "false, will remove particle."));
+	ATH_MSG_DEBUG("Particle: ("
+		     <<tParticle->momentum().px()<<", "
+		     <<tParticle->momentum().py()<<", "
+		     <<tParticle->momentum().pz()<<"), pdgCode: "
+		     <<tParticle->pdg_id() );
       }
-
+      
       // if the GenParticleFilters were not passed
       //  -> skip particle
       if (!passFilter) {
-
-        // remove the particle from the TruthEvent if requested
-        if (m_recordOnlySimulated) {
-          // the production vertex
-          HepMC::GenVertex *vtx = tParticle->production_vertex();
-          if (vtx) {
-            // remove particle from its production-vertex
-            vtx->remove_particle( tParticle);
-
-            // remove the vertex form the GenEvent if there
-            // are no more particles emerging from it
-            if ( vtx->particles_out_size()==0) {
-              (**eventIt).remove_vertex( vtx);
-              delete vtx;
-            }
-          }
-
-          // remove particle from its end-vertex
-          vtx = tParticle->end_vertex();
-          if (vtx) vtx->remove_particle( tParticle);
-
-          // destructor should automatically remove particle from GenEvent
-          delete tParticle;
-        }
-
-        // go to the next particle
-        continue;
+	
+	// remove the particle from the TruthEvent if requested
+	if (m_recordOnlySimulated) {
+	  // the production vertex
+	  HepMC::GenVertex *vtx = tParticle->production_vertex();
+	  if (vtx) {
+	    // remove particle from its production-vertex
+	    vtx->remove_particle( tParticle);
+	    
+	    // remove the vertex form the GenEvent if there
+	    // are no more particles emerging from it
+	    if ( vtx->particles_out_size()==0) {
+	      (**eventIt).remove_vertex( vtx);
+	      delete vtx;
+	    }
+	  }
+	  
+	  // remove particle from its end-vertex
+	  vtx = tParticle->end_vertex();
+	  if (vtx) vtx->remove_particle( tParticle);
+	  
+	  // destructor should automatically remove particle from GenEvent
+	  delete tParticle;
+	}
+	
+	// go to the next particle
+	continue;
       }
-
+      
       ATH_MSG_DEBUG( "GenParticle with Barcode '" << pBarcode
-                     << "' passed all cuts, adding it to the initial ISF particle list.");
-
+		     << "' passed all cuts, adding it to the initial ISF particle list.");
+      
       // -> particle origin (TODO: add proper GeoID, collision/cosmics)
       DetRegionSvcIDPair origin( AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
       // -> truth binding
@@ -365,32 +410,46 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       HepGeom::Point3D<double> *pos = 0;
       // ...based on the Vertex coordinates in the GenEvent
       if  (pVertex) {
-        const HepMC::ThreeVector vtxPos(pVertex->point3d());
-        pos = new HepGeom::Point3D<double>( vtxPos.x(), vtxPos.y(), vtxPos.z());
+	const HepMC::ThreeVector vtxPos(pVertex->point3d());
+	pos = new HepGeom::Point3D<double>( vtxPos.x(), vtxPos.y(), vtxPos.z());
       } else {
-        ATH_MSG_ERROR( "GenParticle with Barcode '" << pBarcode <<
-                       "' has an unset production_vertex, setting it to (0,0,0).");
-        pos = new HepGeom::Point3D<double>(0.,0.,0.);
+	ATH_MSG_ERROR( "GenParticle with Barcode '" << pBarcode <<
+		       "' has an unset production_vertex, setting it to (0,0,0).");
+	pos = new HepGeom::Point3D<double>(0.,0.,0.);
       }
-
+      
       const HepMC::FourVector &pMomentum = tParticle->momentum();
       // get the pdg_id, mass & time
       int     pPdgId   = tParticle->pdg_id();
       double  pMass    = getParticleMass( *tParticle);
-      double  pTime    = 0.0;  // !@TODO fix this
+      double  pTime    = pVertex?pVertex->position().t()/(Gaudi::Units::c_light):0.;
       double  charge   = HepPDT::ParticleID(pPdgId).charge();
+      
+      //if (nparticles>1) continue;
 
+      /*
+      std::cout<<"GESF setting primary particle: momentum: ("
+	       << tParticle->momentum().x()<<","
+	       << tParticle->momentum().y()<<","
+	       << tParticle->momentum().z()<<")"
+	       <<", pdgCode="<< tParticle->pdg_id()
+	       <<", barcode="<< tParticle->barcode()
+	       <<std::endl; 
+      */
+
+      goodparticles.push_back(tParticle);
+      
       HepGeom::Vector3D<double> mom(pMomentum.px(),pMomentum.py(),pMomentum.pz());
       ISF::ISFParticle* sParticle = new ISF::ISFParticle( *pos,
-                                                          mom,
-                                                          pMass,
-                                                          charge,
-                                                          pPdgId,
-                                                          pTime,
-                                                          origin,
-                                                          m_uniqueBc,
-                                                          tBinding );
-
+							  mom,
+							  pMass,
+							  charge,
+							  pPdgId,
+							  pTime,
+							  origin,
+							  m_uniqueBc,
+							  tBinding );
+      
       // MB : need this (for now) to store extra barcode information
       Barcode::ParticleBarcode extrabc;
       sParticle->setUserInformation( new ISF::ParticleUserInformation() );
@@ -408,13 +467,23 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       }
       // and store the extra bc (for now this is done in the particle's user information
       sParticle->setExtraBC( extrabc );
-
+      
       // free up memory
       delete pos;
-
+      
       // push back the particle into the collection
       particleColl.push_back(sParticle);
     }
+    
+    /*
+    // loop over particles and print info
+    std::cout<<"printing HepMC::GenParticles"<<std::endl;
+    for (int i=0;i<(int)goodparticles.size();i++) {
+      const HepMC::GenParticle* part=goodparticles[i];
+      std::cout<<*part<<std::endl;
+    }
+    */
+
   }
 
   return StatusCode::SUCCESS;
@@ -425,6 +494,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part) const {
   // default value: generated particle mass
   double mass = part.generated_mass();
+  ATH_MSG_DEBUG("part.generated_mass, mass="<<mass);
 
   // 1. use PDT mass?
   if ( !m_useGeneratedParticleMass) {
@@ -432,8 +502,10 @@ double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part)
     HepPDT::ParticleData const *pData = (m_particleDataTable)
       ? m_particleDataTable->particle(absPDG)
       : 0 ;
-    if (pData)
+    if (pData) {
       mass = pData->mass();
+      ATH_MSG_DEBUG("using pData mass, mass="<<mass);
+    }
     else
       ATH_MSG_WARNING( "Unable to find mass of particle with PDG ID '" << absPDG << "' in ParticleDataTable. Will set mass to generated_mass: " << mass);
   }
