@@ -1,5 +1,5 @@
 #
-# $Id: LArG4FastSimulation_setupTimer_jobOptions.py 541012 2013-03-14 20:54:37Z zmarshal $
+# $Id: LArG4FastSimulation_setupTimer_jobOptions.py 619286 2014-09-30 23:27:14Z zmarshal $
 #
 # job options for calculating timing information
 #
@@ -13,4 +13,9 @@ def LArG4Timer_preG4Init():
     MyAction = PyG4Atlas.UserAction('LArG4FastSimulationTestActions','TestActionTimer',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
     AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(MyAction)
 simFlags.InitFunctions.add_function("preInitG4", LArG4Timer_preG4Init)
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import THistSvc
+ServiceMgr += THistSvc("THistSvc")
+ServiceMgr.THistSvc.Output += ["simTime DATAFILE='timing_histos.root' OPT='RECREATE'"]
 

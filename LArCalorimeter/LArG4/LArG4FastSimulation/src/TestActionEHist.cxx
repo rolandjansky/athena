@@ -37,15 +37,11 @@ using std::vector;
 
 static TestActionEHist ts2("TestActionEHist");
 
-TestActionEHist::TestActionEHist(string s) : UserAction(s), TrackingAction(),
+TestActionEHist::TestActionEHist(string s) : 
+     FADS::ActionsBase(s), FADS::UserAction(s), FADS::TrackingAction(),
 	 _pds(0),  world(0), fFirstStep(0),  dCALO(2), dBeam(2), dIDET(2), dMUON(2),
 	 dDetail(""), maxhists(1000), maxdirs(1000), p_tag("")
-{ 
-  // test GAUDI messaging service
-  _msgSvc = Athena::getMessageSvc();
-  MsgStream log(_msgSvc,"TestActionEHist");
-  log<< MSG::INFO <<"Athena message service initialized (TestActionEHist)"<< endmsg;
-}
+{}
 
 void TestActionEHist::BeginOfRunAction(const G4Run* /*aRun*/)
 {
@@ -57,28 +53,42 @@ void TestActionEHist::BeginOfRunAction(const G4Run* /*aRun*/)
 	 << "#########################################" << G4endl;
 #endif
 
-  MsgStream log(_msgSvc,"TestActionEHist");
-
   // get jobOptions properties
   fName = theProperties["ROOTFileName"];
   if (fName.empty()) { 
-      log<< MSG::WARNING <<"No output file name specified, using default.root!"<< endmsg;
+      ATH_MSG_WARNING("No output file name specified, using default.root!");
       fName = "default.root";
   }
-  
-  if ( !theProperties["CaloDepth"].empty() )     dCALO = atoi(theProperties["CaloDepth"].c_str());
-  if ( !theProperties["BeamPipeDepth"].empty() ) dBeam = atoi(theProperties["BeamPipeDepth"].c_str());
-  if ( !theProperties["InDetDepth"].empty() )    dIDET = atoi(theProperties["InDetDepth"].c_str());
-  if ( !theProperties["MuonDepth"].empty() )     dMUON = atoi(theProperties["MuonDepth"].c_str());
-  if ( !theProperties["DetailDepth"].empty() )   dDetail = theProperties["DetailDepth"];
-  if ( !theProperties["MaxHists"].empty() )      maxhists = atoi(theProperties["MaxHists"].c_str());
+ 
+  char * endptr=0;
+  if ( !theProperties["CaloDepth"].empty() ){
+    dCALO = strtol(theProperties["CaloDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["CaloDepth"]));
+  }
+  if ( !theProperties["BeamPipeDepth"].empty() ){
+    dBeam = strtol(theProperties["BeamPipeDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["BeamPipeDepth"]));
+  }
+  if ( !theProperties["InDetDepth"].empty() ){
+    dIDET = strtol(theProperties["InDetDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["InDetDepth"]));
+  }
+  if ( !theProperties["MuonDepth"].empty() ){
+    dMUON = strtol(theProperties["MuonDepth"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MuonDepth"]));
+  }
+  if ( !theProperties["MaxHists"].empty() ){
+    maxhists = strtol(theProperties["MaxHists"].c_str(),&endptr,0);
+    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MaxHists"]));
+  }
+  if ( !theProperties["DetailDepth"].empty() ) dDetail = theProperties["DetailDepth"];
   maxdirs = maxhists;
-  log<< MSG::INFO <<"Retrieved job properties successfully"<< endmsg;
+  ATH_MSG_INFO("Retrieved job properties successfully");
     
 
   // initialize histogramming file (DON'T USE GAUDI) & directories
   world = new TFile(fName.c_str(), "RECREATE");
-  log<< MSG::INFO <<fName<<" initialized, in directory "<<gDirectory->GetPath()<< endmsg;
+  ATH_MSG_INFO(fName<<" initialized, in directory "<<gDirectory->GetPath());
 
   return;
 }
@@ -94,11 +104,10 @@ void TestActionEHist::EndOfRunAction(const G4Run* /*aRun*/)
 	 << "#########################################" << G4endl;
 #endif
 
-  MsgStream log(_msgSvc,"TestActionEHist");
   world->Write();
   world->Close();
   delete world;
-  log<< MSG::INFO <<fName<<" saved & closed."<< endmsg;
+  ATH_MSG_INFO(fName<<" saved & closed.");
 
   return;
 }
@@ -154,8 +163,6 @@ void TestActionEHist::SteppingAction(const G4Step* aStep)
 	 << "#########################################" << G4endl;
 #endif
 if (aStep) {
-
-  MsgStream log(_msgSvc,"TestActionEHist");
 
   // Create tree structure for current step
   VolumeTreeNavigator currentTree( aStep );
@@ -220,7 +227,6 @@ if (aStep) {
 void TestActionEHist::BuildHists(string vol_tag, string part_tag, int& hLeft, double xfill,
 				 double weight, const int nbins, const int binsize)
 {
-  MsgStream log(_msgSvc, "TestActionEHist::BuildHists");
   TH1F* hExists = (TH1F*)gDirectory->FindObjectAny((part_tag+"_"+vol_tag+"_hist").c_str());
   if (!hLeft && !hExists) { return; }
   else if (!hExists) {
@@ -228,14 +234,14 @@ void TestActionEHist::BuildHists(string vol_tag, string part_tag, int& hLeft, do
 		       (part_tag+" KE in "+vol_tag).c_str(),
 		       nbins,0,nbins*binsize);
     hLeft--;
-    log<< MSG::DEBUG <<"Histogram "<<gDirectory->GetPath()<<"/"<<hExists->GetName()<<" created"<< endmsg;
-    if (!hLeft) log<< MSG::INFO <<"Last histogram reached"<< endmsg;
+    ATH_MSG_DEBUG("Histogram "<<gDirectory->GetPath()<<"/"<<hExists->GetName()<<" created");
+    if (!hLeft) ATH_MSG_INFO("Last histogram reached");
   }
 
   if (xfill >= 0 && weight >= 0) { hExists->Fill(xfill,weight); }
   else if (xfill >= 0) { hExists->Fill(xfill); }
   else { return; }
-  log<< MSG::DEBUG <<"KE added to "<<gDirectory->GetPath()<< endmsg;
+  ATH_MSG_DEBUG("KE added to "<<gDirectory->GetPath());
   return;
 }
 
@@ -244,7 +250,6 @@ void TestActionEHist::BuildHists(string vol_tag, string part_tag, int& hLeft, do
 
 bool TestActionEHist::BuildDirs(string vol_tag, string dirTitle, int& dLeft)
 {
-  MsgStream log(_msgSvc, "TestActionEHist::BuildDirs");
   bool enter = false;
   TDirectory* dExists = (TDirectory*)gDirectory->FindObjectAny(vol_tag.c_str());
   if (!dLeft && !dExists) { return enter; }
@@ -252,11 +257,11 @@ bool TestActionEHist::BuildDirs(string vol_tag, string dirTitle, int& dLeft)
     dExists = new TDirectoryFile(vol_tag.c_str(),
 				 dirTitle.c_str());
     dLeft--;
-    log<< MSG::DEBUG <<"Directory "<<gDirectory->GetPath()<<vol_tag<<" created"<< endmsg;
-    if (!dLeft) log<< MSG::INFO <<"Last directory created"<< endmsg;
+    ATH_MSG_DEBUG("Directory "<<gDirectory->GetPath()<<vol_tag<<" created");
+    if (!dLeft) ATH_MSG_INFO("Last directory created");
   }
 
   if (dExists) enter = (bool)dExists->cd();
-  if (enter) log<< MSG::DEBUG <<"Current directory: "<<gDirectory->GetPath()<< endmsg;
+  if (enter) ATH_MSG_DEBUG("Current directory: "<<gDirectory->GetPath());
   return enter;
 }

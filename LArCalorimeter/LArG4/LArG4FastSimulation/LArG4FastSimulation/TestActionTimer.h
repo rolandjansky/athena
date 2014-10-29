@@ -4,7 +4,7 @@
 
 //////////////////////////////////////////////////////////////////
 //                                                              //
-//     $Id: TestActionTimer.h 448395 2011-07-12 18:28:47Z gsedov $ //
+//     $Id: TestActionTimer.h 619285 2014-09-30 23:26:39Z zmarshal $ //
 //                                                              //
 //                      TestActionTimer                         //
 //      Code for text output (into log file)                    //
@@ -15,14 +15,18 @@
 //         Zachary Marshall, Caltech, USA                       //
 //         Wolfgang Ehrenfeld, University of Hamburg, Germany   //
 //                                                              //
-//      @version $Revision: 448395 $ //
+//      @version $Revision: 619285 $ //
 //                                                              //
 //////////////////////////////////////////////////////////////////
 
 #ifndef TestActionTimer_H
 #define TestActionTimer_H
 
+#include "FadsActions/ActionsBase.h"
 #include "FadsActions/UserAction.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "G4String.hh"
 
 #include <string>
 #include <vector>
@@ -31,8 +35,9 @@ class G4Run;
 class G4Event;
 class G4Step;
 class G4Timer;
+class ITHistSvc;
 
-class TestActionTimer: public FADS::UserAction 
+class TestActionTimer: public FADS::ActionsBase , public FADS::UserAction 
 {  
  public:
 
@@ -44,13 +49,12 @@ class TestActionTimer: public FADS::UserAction
   void SteppingAction(const G4Step*);      //!< Stepping action that increments the appropriate timer
 
 private:
-
   /* Enumeration for timers to be used
   First timers are by subdetector, second few are by particle
   These are not straightforward for the non-expert to interpret*/
   enum { eEMB, eEMEC, eFC1, eFC23, eFCO, eHEC, eCry, eLAr, eHCB, 
 	 ePre, eMu, ePx, eSct, eSev, eTrt, eOther, 
-	 eElec, eGam, eMax };
+	 eElec, ePos, eGam, eNeut, eMax };
 
   G4Timer* m_runTimer;                     //!< Timer for the entire run
   G4Timer* m_eventTimer;                   //!< Timer for this event
@@ -63,8 +67,11 @@ private:
   double TimerSum(G4Timer* timer) const;   //!< Gets the appropriate time from the timer for adding to the sum
   int m_nev;
 
+  ServiceHandle<ITHistSvc> m_histSvc;
+
   void PPanic();                           //!< Method to shut down all particle timers
   void VPanic();                           //!< Method to shut down all volume timers
+  int ClassifyVolume( G4String& ) const; //!< Method to sort out which volume we are in
 };
 
 #endif // #define TestActionTimer_H
