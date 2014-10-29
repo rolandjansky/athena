@@ -10,13 +10,9 @@
 
 #include "LArDetDescr/LArRecoSimpleGeomTool.h"
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include <vector>
@@ -53,7 +49,7 @@ const InterfaceID& LArRecoSimpleGeomTool::interfaceID( )
 LArRecoSimpleGeomTool::LArRecoSimpleGeomTool(const std::string& type, 
 				   const std::string& name, 
 				   const IInterface* parent) :
-  AlgTool(type, name, parent)
+  AthAlgTool(type, name, parent)
 {
   declareInterface<LArRecoSimpleGeomTool>( this );
 }
@@ -61,18 +57,6 @@ LArRecoSimpleGeomTool::LArRecoSimpleGeomTool(const std::string& type,
 StatusCode
 LArRecoSimpleGeomTool::initialize()
 {
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  StatusCode status   = svcLoc->service( "MessageSvc", m_msgSvc );
-  if ( status.isFailure( ) ) return status;
-  MsgStream log(m_msgSvc, "LArRecoSimpleGeomTool" );
-  
-  m_detStore = 0;
-  status = svcLoc->service( "DetectorStore", m_detStore );
-  if ( status.isFailure( ) ) {
-    log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-    return status;
-  }
-
   // Retrieve the Id helpers needed    
   const CaloIdManager* mgr = CaloIdManager::instance();
   m_calo_id = mgr->getCaloCell_ID();
@@ -83,15 +67,15 @@ LArRecoSimpleGeomTool::initialize()
   m_node = "ATLAS";
   m_geoModelSvc  = 0;
 
-  status = svcLoc->service("GeoModelSvc",m_geoModelSvc);
+  StatusCode status = this->service("GeoModelSvc",m_geoModelSvc);
   if (status.isFailure()) {
-    log << MSG::ERROR << "Unable to get pointer to GeoModel service" << endreq;
+    ATH_MSG_ERROR ("Unable to get pointer to GeoModel service");
     return status;
   }
   else {
     DecodeVersionKey detectorKey = DecodeVersionKey(m_geoModelSvc, "LAr");
-    log <<MSG::INFO << "DecodeVersionKey found : " << detectorKey.tag() 
-	<< " " << detectorKey.tag()<<endreq; 
+    ATH_MSG_INFO ("DecodeVersionKey found : " << detectorKey.tag()
+                  << " " << detectorKey.tag());
     if ( detectorKey.tag() != "LAr-H8-00" &&  detectorKey.tag() != "LAr-H6-00"
 	 && detectorKey.tag() != "LAr-G3-00")
       {
@@ -99,17 +83,17 @@ LArRecoSimpleGeomTool::initialize()
 	m_node =  detectorKey.node();
       }
   }  
-  log <<MSG::INFO <<"LAr simplified geometry will use : " << m_tag << " " << m_node <<endreq;
+  ATH_MSG_INFO ("LAr simplified geometry will use : " << m_tag << " " << m_node);
     
   // Acess the DB service :    
-  status = svcLoc->service("RDBAccessSvc",m_iAccessSvc);
+  status = this->service("RDBAccessSvc",m_iAccessSvc);
   if (status.isFailure()) 
     {
-      log << MSG::ERROR << "Unable to get RDBAccessSvc." << endreq;
+      ATH_MSG_ERROR ("Unable to get RDBAccessSvc.");
       return status;
     }
   else
-    log <<MSG::INFO <<" did access RDBAccessSvc " <<endreq;
+    ATH_MSG_INFO (" did access RDBAccessSvc ");
 
   m_iAccessSvc->connect();
 
@@ -141,9 +125,8 @@ LArRecoSimpleGeomTool::initialize()
 
   m_iAccessSvc->disconnect();
 
-  log << MSG::INFO << " LArRecoSimpleGeomTool successfully initialized " << endreq;
-  status = StatusCode::SUCCESS;
-  return status;
+  ATH_MSG_INFO (" LArRecoSimpleGeomTool successfully initialized ");
+  return StatusCode::SUCCESS;
 }
 
 LArRecoSimpleGeomTool::~LArRecoSimpleGeomTool()
@@ -153,9 +136,7 @@ LArRecoSimpleGeomTool::~LArRecoSimpleGeomTool()
 StatusCode
 LArRecoSimpleGeomTool::finalize()
 {
-  
-  StatusCode sc = StatusCode::SUCCESS;
-  return sc;
+  return StatusCode::SUCCESS;
 }
   
 bool 
@@ -171,9 +152,9 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
   StoredPhysVol* storedPV = 0;
   std::string key = map_av(alvol);
-  if(m_detStore->contains<StoredPhysVol>(key))
+  if(detStore()->contains<StoredPhysVol>(key))
   {
-    if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+    if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
     {
       return false;
     }
@@ -351,9 +332,9 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
   //                                and "depth" is actually the half depth
   StoredPhysVol* storedPV = 0;
   std::string key = map_av(alvol);
-  if(m_detStore->contains<StoredPhysVol>(key))
+  if(detStore()->contains<StoredPhysVol>(key))
   {
-    if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+    if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
     {
       return false;
     }
@@ -623,9 +604,9 @@ LArRecoSimpleGeomTool::ScanBarrelCryo(CaloSubdetNames::ALIGNVOL alvol,
 {
   StoredPhysVol* storedPV = 0;
   std::string key = map_av(alvol);
-  if(m_detStore->contains<StoredPhysVol>(key))
+  if(detStore()->contains<StoredPhysVol>(key))
   {
-    if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+    if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
     {
       return false;
     }
@@ -658,9 +639,9 @@ LArRecoSimpleGeomTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
 {
   StoredPhysVol* storedPV = 0;
   std::string key = map_av(alvol);
-  if(m_detStore->contains<StoredPhysVol>(key))
+  if(detStore()->contains<StoredPhysVol>(key))
   {
-    if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+    if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
     {
       return false;
     }

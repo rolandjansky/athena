@@ -13,7 +13,7 @@
 #define LARDETDESCR_LARRECOMATERIALTOOL_H
 
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 //done in the interface : #include "CLHEP/Geometry/Transform3D.h"
 
@@ -42,7 +42,8 @@ class StoreGateSvc;
 
  **/
 
-class LArRecoMaterialTool : public AlgTool, virtual public ICaloRecoMaterialTool
+class LArRecoMaterialTool : public AthAlgTool,
+  virtual public ICaloRecoMaterialTool
 {
 public:
   
@@ -142,9 +143,6 @@ private:
 
   const CaloCell_ID*        m_calo_id;
   const CaloDM_ID*          m_dm_id;
-
-  StoreGateSvc* m_detStore;
-  IMessageSvc*  m_msgSvc;
 
   // Store results per ALIGNVOL :
   std::vector<CaloSubdetNames::ALIGNVOL>  m_alignvol_number;

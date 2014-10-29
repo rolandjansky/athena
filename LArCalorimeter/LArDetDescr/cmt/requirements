@@ -12,6 +12,7 @@ use CaloGeoHelpers      CaloGeoHelpers-*        Calorimeter
 use GaudiInterface      GaudiInterface-*        External
 
 use CLIDSvc             CLIDSvc-*               Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 use LArReadoutGeometry  LArReadoutGeometry-*    LArCalorimeter/LArGeoModel
 use GeoModelKernel      GeoModelKernel-*        DetectorDescription/GeoModel

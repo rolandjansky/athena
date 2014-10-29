@@ -11,12 +11,9 @@
 #include "LArDetDescr/LArRecoMaterialTool.h"
 
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include <vector>
@@ -28,13 +25,8 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 
-#ifdef HAVE_NEW_IOSTREAMS
-    #include <iostream>
-    #include <iomanip>
-#else
-    #include <iostream.h>
-    #include <iomanip.h>
-#endif
+#include <iostream>
+#include <iomanip>
 
 static const InterfaceID IID_LArRecoMaterialTool("LArRecoMaterialTool", 1, 0);
 
@@ -44,7 +36,7 @@ const InterfaceID& LArRecoMaterialTool::interfaceID( )
 LArRecoMaterialTool::LArRecoMaterialTool(const std::string& type, 
 				   const std::string& name, 
 				   const IInterface* parent) :
-  AlgTool(type, name, parent),
+  AthAlgTool(type, name, parent),
   m_calo_id(0),m_dm_id(0)
 {
   declareInterface<LArRecoMaterialTool>( this );
@@ -53,18 +45,6 @@ LArRecoMaterialTool::LArRecoMaterialTool(const std::string& type,
 StatusCode
 LArRecoMaterialTool::initialize()
 {
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  StatusCode status   = svcLoc->service( "MessageSvc", m_msgSvc );
-  if ( status.isFailure( ) ) return status;
-  MsgStream log(m_msgSvc, "LArRecoMaterialTool" );
-  
-  m_detStore = 0;
-  status = svcLoc->service( "DetectorStore", m_detStore );
-  if ( status.isFailure( ) ) {
-    log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-    return status;
-  }
-
   // Retrieve the Id helpers needed    
   const CaloIdManager* mgr = CaloIdManager::instance();
   m_calo_id = mgr->getCaloCell_ID();
@@ -92,9 +72,8 @@ LArRecoMaterialTool::initialize()
   // ---------- That's it   
 
 
-  log << MSG::INFO << " LArRecoMaterialTool successfully initialized " << endreq;
-  StatusCode sc = StatusCode::SUCCESS;
-  return sc;
+  ATH_MSG_INFO (" LArRecoMaterialTool successfully initialized ");
+  return StatusCode::SUCCESS;
 }
 
 LArRecoMaterialTool::~LArRecoMaterialTool()
@@ -104,8 +83,7 @@ LArRecoMaterialTool::~LArRecoMaterialTool()
 StatusCode
 LArRecoMaterialTool::finalize()
 {
-    StatusCode sc = StatusCode::SUCCESS;
-    return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -154,25 +132,20 @@ void
 LArRecoMaterialTool::print ()
 {
     
-  MsgStream log(msgSvc(), name());
-
   for ( unsigned int i = 0; i < m_alignvol_number.size(); i++ )
     {
-      log << MSG::INFO << " + Result for ALIGNVOL " << m_alignvol_number[i] << endreq;
-      log << MSG::INFO << "    - mass     [gram]  " << m_alignvol_mass[i] << endreq;
-      log << MSG::INFO << "    - X0               " << m_alignvol_x0[i]  << endreq;
-      log << MSG::INFO << "    - DeDx             " << m_alignvol_dEdX[i] << endreq;
-      log << MSG::INFO << "    - AverageA         " << m_alignvol_aveA[i] << endreq;
-      log << MSG::INFO << "    - AverageZ         " << m_alignvol_aveZ[i] << endreq;      
+      ATH_MSG_INFO (" + Result for ALIGNVOL " << m_alignvol_number[i]);
+      ATH_MSG_INFO ("    - mass     [gram]  " << m_alignvol_mass[i]);
+      ATH_MSG_INFO ("    - X0               " << m_alignvol_x0[i]);
+      ATH_MSG_INFO ("    - DeDx             " << m_alignvol_dEdX[i]);
+      ATH_MSG_INFO ("    - AverageA         " << m_alignvol_aveA[i]);
+      ATH_MSG_INFO ("    - AverageZ         " << m_alignvol_aveZ[i]);    
     }
 }
 
 void
 LArRecoMaterialTool::ScanTree()
 {
-    
-  MsgStream log(msgSvc(), name());
- 
   double mass = 0.;
   double  x0 = 0.;
   double dEdx = 0.;
@@ -181,7 +154,7 @@ LArRecoMaterialTool::ScanTree()
 
   bool result = false;
 
-  log << MSG::INFO << " Entering method ScanTree() " << endreq;
+  ATH_MSG_INFO (" Entering method ScanTree() ");
 
   result = this->ScanCRYO(CaloSubdetNames::LARCRYO_B,mass,x0,dEdx,aveA,aveZ);
   result = this->ScanCRYO(CaloSubdetNames::LARCRYO_EC_POS,mass,x0,dEdx,aveA,aveZ);
@@ -213,7 +186,7 @@ LArRecoMaterialTool::ScanTree()
   result = this->ScanFCAL(CaloSubdetNames::FCAL3_NEG,mass,x0,dEdx,aveA,aveZ);
 
   if (!result)
-    log << MSG::INFO << " If seems to have failed ?" << endreq;
+    ATH_MSG_INFO (" If seems to have failed ?");
 
   return;
 }
@@ -223,9 +196,6 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
 			      double& mass, double& x0, double& dEdx,
 			      double& aveA, double& aveZ)
 {
-    
-  MsgStream log(msgSvc(), name());
-    
   mass =  0.;
   x0 = 0.;
   dEdx = 0.;
@@ -236,8 +206,7 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
        && alvol != CaloSubdetNames::LARCRYO_EC_POS
        && alvol != CaloSubdetNames::LARCRYO_EC_NEG
        && alvol != CaloSubdetNames::SOLENOID ) {
-    log << MSG::INFO << "method ScanCryo does not support CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< endreq;
+    ATH_MSG_INFO ("method ScanCryo does not support CaloSubdetNames::ALIGNVOL " << (int) alvol);
     return false;
   }
 
@@ -284,16 +253,16 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
     
     const StoredPhysVol* storedPV = 0;
     std::string key = map_av(alvol);
-    if(m_detStore->contains<StoredPhysVol>(key))
+    if(detStore()->contains<StoredPhysVol>(key))
     {
-     if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+     if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
      {
-       log << MSG::INFO << "Unable to retrieve Stored PV " << key << endreq;
+       ATH_MSG_INFO ("Unable to retrieve Stored PV " << key);
      }
    }
     
     if (!storedPV) {
-      log << MSG::INFO << "no Volume for " << key << endreq;
+      ATH_MSG_INFO ("no Volume for " << key);
       return false;
     }
 
@@ -314,9 +283,9 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
       
       if (!stop) {
 	
-	log << MSG::DEBUG << "CaloSubdetNames::ALIGNVOL " << (int) alvol
-	    <<" Direct Child " << ichild << " -  with name : " 
-	    << larTopVolLink->getNameOfChildVol(ichild) << endreq;
+	ATH_MSG_DEBUG ("CaloSubdetNames::ALIGNVOL " << (int) alvol
+                       <<" Direct Child " << ichild << " -  with name : " 
+                       << larTopVolLink->getNameOfChildVol(ichild));
 	
 	PVConstLink  childVolLink          = larTopVolLink->getChildVol(ichild);
 	
@@ -358,8 +327,8 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
     
     // Now do the final average and store it :
     
-    log << MSG::DEBUG << "Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< " !!!!! " << endreq;
+    ATH_MSG_DEBUG ("Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
+                   << " !!!!! ");
     
     this->averageFraction(m_child_Volume, m_child_Mass,
 			  m_child_x0Fractions,
@@ -392,9 +361,6 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
 			    double& mass, double& x0, double& dEdx,
 			    double& aveA, double& aveZ)
 {
-    
-  MsgStream log(msgSvc(), name());
-    
   mass =  0.;
   x0 = 0.;
   dEdx = 0.;
@@ -406,8 +372,7 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
        && alvol != CaloSubdetNames::PRESAMPLER_EC_POS 
        && alvol != CaloSubdetNames::PRESAMPLER_EC_NEG 
 	  ) {
-    log << MSG::INFO << "method ScanCryo does not support CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< endreq;
+    ATH_MSG_INFO ("method ScanCryo does not support CaloSubdetNames::ALIGNVOL " << (int) alvol);
     return false;
   }
 
@@ -448,16 +413,16 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
     
     StoredPhysVol* storedPV = 0;
     std::string key = map_av(alvol);
-    if(m_detStore->contains<StoredPhysVol>(key))
+    if(detStore()->contains<StoredPhysVol>(key))
     {
-     if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+     if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
      {
-       log << MSG::INFO << "Unable to retrieve Stored PV " << key << endreq;
+       ATH_MSG_INFO ("Unable to retrieve Stored PV " << key);
      }
     }
     
     if (!storedPV) {
-      log << MSG::INFO << "no Volume for " << key << endreq;
+      ATH_MSG_INFO ("no Volume for " << key);
       return false;
     }
 
@@ -476,9 +441,9 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
       
       if (!stop) {
 	
-	log << MSG::DEBUG << "CaloSubdetNames::ALIGNVOL " << (int) alvol
-	    <<" Direct Child " << ichild << " -  with name : " 
-	    << larTopVolLink->getNameOfChildVol(ichild) << endreq;
+	ATH_MSG_DEBUG ("CaloSubdetNames::ALIGNVOL " << (int) alvol
+                       <<" Direct Child " << ichild << " -  with name : " 
+                       << larTopVolLink->getNameOfChildVol(ichild));
 	
 	PVConstLink  childVolLink          = larTopVolLink->getChildVol(ichild);
 	
@@ -520,8 +485,8 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
     
     // Now do the final average and store it :
     
-    log << MSG::DEBUG << "Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< " !!!!! " << endreq;
+    ATH_MSG_DEBUG ("Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
+                   << " !!!!! ");
     
     this->averageFraction(m_child_Volume, m_child_Mass,
 			  m_child_x0Fractions,
@@ -554,9 +519,6 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
 			      double& mass, double& x0, double& dEdx,
 			      double& aveA, double& aveZ)
 {
-    
-  MsgStream log(msgSvc(), name());
-    
   mass =  0.;
   x0 = 0.;
   dEdx = 0.;
@@ -565,8 +527,7 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
 
   if ( alvol != CaloSubdetNames::EMB_POS && 
        alvol != CaloSubdetNames::EMB_NEG ) {
-    log << MSG::INFO << "method ScanEMB does not support CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< endreq;
+    ATH_MSG_INFO ("method ScanEMB does not support CaloSubdetNames::ALIGNVOL " << (int) alvol);
     return false;
   }
 
@@ -602,16 +563,16 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
     
     StoredPhysVol* storedPV = 0;
     std::string key = map_av(alvol);
-    if(m_detStore->contains<StoredPhysVol>(key))
+    if(detStore()->contains<StoredPhysVol>(key))
     {
-     if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+     if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
      {
-       log << MSG::INFO << "Unable to retrieve Stored PV " << key << endreq;
+       ATH_MSG_INFO ("Unable to retrieve Stored PV " << key);
      }
     }
     
     if (!storedPV) {
-      log << MSG::INFO << "no Volume for " << key << endreq;
+      ATH_MSG_INFO ("no Volume for " << key);
       mass =  0.;
       x0 = 0.;
       dEdx = 0.;
@@ -634,10 +595,10 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
       //	   larTopVolLink->getNameOfChildVol(ichild) == "Total LAR Volume") stop = true;
       
       if (!stop) {
-	
-	log << MSG::DEBUG << "CaloSubdetNames::ALIGNVOL " << (int) alvol
-	    <<" Direct Child " << ichild << " -  with name : " 
-	    << larTopVolLink->getNameOfChildVol(ichild) << endreq;
+
+        ATH_MSG_DEBUG ("CaloSubdetNames::ALIGNVOL " << (int) alvol
+                       <<" Direct Child " << ichild << " -  with name : " 
+                       << larTopVolLink->getNameOfChildVol(ichild));
 	
 	PVConstLink  childVolLink          = larTopVolLink->getChildVol(ichild);
 	
@@ -679,8 +640,8 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
     
     // Now do the final average and store it :
     
-    log << MSG::DEBUG << "Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< " !!!!! " << endreq;
+    ATH_MSG_DEBUG ("Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
+                   << " !!!!! ");
     
     this->averageFraction(m_child_Volume, m_child_Mass,
 			  m_child_x0Fractions,
@@ -713,8 +674,6 @@ LArRecoMaterialTool::ScanEMEC(CaloSubdetNames::ALIGNVOL alvol,
 			      double& mass, double& x0, double& dEdx,
 			      double& aveA, double& aveZ)
 {
-  MsgStream log(msgSvc(), name());
-    
   mass =  0.;
   x0 = 0.;
   dEdx = 0.;
@@ -722,8 +681,7 @@ LArRecoMaterialTool::ScanEMEC(CaloSubdetNames::ALIGNVOL alvol,
   aveZ = 0.;
 
   if ( alvol != CaloSubdetNames::EMEC_POS && alvol != CaloSubdetNames::EMEC_NEG ) {
-    log << MSG::INFO << "method ScanEMEM does not support CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< endreq;
+    ATH_MSG_INFO ("method ScanEMEM does not support CaloSubdetNames::ALIGNVOL " << (int) alvol);
     return false;
   }
 
@@ -754,9 +712,6 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
 			      double& mass, double& x0, double& dEdx,
 			      double& aveA, double& aveZ)
 {
-    
-  MsgStream log(msgSvc(), name());
-    
   mass =  0.;
   x0 = 0.;
   dEdx = 0.;
@@ -767,9 +722,8 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
        alvol != CaloSubdetNames::HEC1_NEG &&
        alvol != CaloSubdetNames::HEC2_POS && 
        alvol != CaloSubdetNames::HEC2_NEG ) {
-    log << MSG::INFO << "method ScanEMB does not support CaloSubdetNames::ALIGNVOL " 
-	<< (int) alvol
-	<< endreq;
+    ATH_MSG_INFO ("method ScanEMB does not support CaloSubdetNames::ALIGNVOL " 
+                  << (int) alvol);
     return false;
   }
 
@@ -805,16 +759,16 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
     
     StoredPhysVol* storedPV = 0;
     std::string key = map_av(alvol);
-    if(m_detStore->contains<StoredPhysVol>(key))
+    if(detStore()->contains<StoredPhysVol>(key))
     {
-     if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+     if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
      {
-       log << MSG::INFO << "Unable to retrieve Stored PV " << key << endreq;
+       ATH_MSG_INFO ("Unable to retrieve Stored PV " << key);
      }
     }
     
     if (!storedPV) {
-      log << MSG::INFO << "no Volume for " << key << endreq;
+      ATH_MSG_INFO ("no Volume for " << key);
       mass =  0.;
       x0 = 0.;
       dEdx = 0.;
@@ -837,10 +791,10 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
       //	   larTopVolLink->getNameOfChildVol(ichild) == "Total LAR Volume") stop = true;
       
       if (!stop) {
-	
-	log << MSG::DEBUG << "CaloSubdetNames::ALIGNVOL " << (int) alvol
-	    <<" Direct Child " << ichild << " -  with name : " 
-	    << larTopVolLink->getNameOfChildVol(ichild) << endreq;
+
+        ATH_MSG_DEBUG ("CaloSubdetNames::ALIGNVOL " << (int) alvol
+                       <<" Direct Child " << ichild << " -  with name : " 
+                       << larTopVolLink->getNameOfChildVol(ichild));
 	
 	PVConstLink  childVolLink          = larTopVolLink->getChildVol(ichild);
 	
@@ -881,9 +835,9 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
     }
     
     // Now do the final average and store it :
-    
-    log << MSG::DEBUG << "Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< " !!!!! " << endreq;
+
+    ATH_MSG_DEBUG ("Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
+                   << " !!!!! ");
     
     this->averageFraction(m_child_Volume, m_child_Mass,
 			  m_child_x0Fractions,
@@ -916,8 +870,6 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
 			      double& mass, double& x0, double& dEdx,
 			      double& aveA, double& aveZ)
 {
-  MsgStream log(msgSvc(), name());
-    
   mass =  0.;
   x0 = 0.;
   dEdx = 0.;
@@ -930,9 +882,8 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
        alvol != CaloSubdetNames::FCAL2_NEG && 
        alvol != CaloSubdetNames::FCAL3_POS && 
        alvol != CaloSubdetNames::FCAL3_NEG  ) {
-    log << MSG::INFO << "method ScanEMB does not support CaloSubdetNames::ALIGNVOL " 
-	<< (int) alvol
-	<< endreq;
+    ATH_MSG_INFO ("method ScanEMB does not support CaloSubdetNames::ALIGNVOL " 
+                  << (int) alvol);
     return false;
   }
 
@@ -986,16 +937,16 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
     
     StoredPhysVol* storedPV = 0;
     std::string key = map_av(alvol);
-    if(m_detStore->contains<StoredPhysVol>(key))
+    if(detStore()->contains<StoredPhysVol>(key))
     {
-     if(m_detStore->retrieve(storedPV,key)==StatusCode::FAILURE)
+     if(detStore()->retrieve(storedPV,key)==StatusCode::FAILURE)
      {
-       log << MSG::INFO << "Unable to retrieve Stored PV " << key << endreq;
+       ATH_MSG_INFO ("Unable to retrieve Stored PV " << key);
      }
     }
     
     if (!storedPV) {
-      log << MSG::INFO << "no Volume for " << key << endreq;
+      ATH_MSG_INFO ("no Volume for " << key);
       mass =  0.;
       x0 = 0.;
       dEdx = 0.;
@@ -1018,10 +969,10 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
       //	   larTopVolLink->getNameOfChildVol(ichild) == "Total LAR Volume") stop = true;
       
       if (!stop) {
-	
-	log << MSG::DEBUG << "CaloSubdetNames::ALIGNVOL " << (int) alvol
-	    <<" Direct Child " << ichild << " -  with name : " 
-	    << larTopVolLink->getNameOfChildVol(ichild) << endreq;
+
+        ATH_MSG_DEBUG ("CaloSubdetNames::ALIGNVOL " << (int) alvol
+                       <<" Direct Child " << ichild << " -  with name : " 
+                       << larTopVolLink->getNameOfChildVol(ichild));
 	
 	PVConstLink  childVolLink          = larTopVolLink->getChildVol(ichild);
 	
@@ -1062,9 +1013,9 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
     }
     
     // Now do the final average and store it :
-    
-    log << MSG::DEBUG << "Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
-	<< " !!!!! " << endreq;
+
+    ATH_MSG_DEBUG ("Final average for  CaloSubdetNames::ALIGNVOL " << (int) alvol
+                   << " !!!!! ");
     
     this->averageFraction(m_child_Volume, m_child_Mass,
 			  m_child_x0Fractions,
@@ -1122,8 +1073,6 @@ LArRecoMaterialTool::addMaterialFraction(const GeoLogVol& geoVol,
 					 std::vector<double>& aveA,
 					 std::vector<double>& aveZ) const
 {
-   MsgStream log(msgSvc(), name());
-     
    const GeoShape*     childShape    = geoVol.getShape();
    const GeoMaterial*  childMaterial = geoVol.getMaterial();
    
@@ -1133,18 +1082,17 @@ LArRecoMaterialTool::addMaterialFraction(const GeoLogVol& geoVol,
    double childX0                    = childMaterial->getRadLength ();
    double childDeDx                  = childMaterial->getDeDxMin();
    double childRho                   = childMaterial->getDensity();
-   
-   log << MSG::DEBUG << "addMaterialFraction : " << geoVol.getName() 
-       << " has volume=" << childVolume << " mm**3 and " 
-       << childNumberOfElements << " elements " 
-       << endreq;
+
+   ATH_MSG_DEBUG ("addMaterialFraction : " << geoVol.getName() 
+                  << " has volume=" << childVolume << " mm**3 and " 
+                  << childNumberOfElements << " elements ");
    
    for (unsigned int iEl=0; iEl<childNumberOfElements; iEl++){
      const GeoElement* geoEl = childMaterial->getElement(iEl);
      double fraction = childMaterial->getFraction(iEl);
 
-     log << MSG::DEBUG << "         direct child : " << geoEl->getName() << " fraction = " << fraction 
-     	 << " A= " << geoEl->getA()/(CLHEP::gram) << " Z= " << geoEl->getZ() << endreq;
+     ATH_MSG_DEBUG ("         direct child : " << geoEl->getName() << " fraction = " << fraction 
+                    << " A= " << geoEl->getA()/(CLHEP::gram) << " Z= " << geoEl->getZ());
 
      volume.push_back(fraction*childVolume);
      mass.push_back(fraction*childVolume*childRho);
@@ -1167,11 +1115,9 @@ LArRecoMaterialTool::averageFraction (std::vector<double>& volumeFractions,
 				      double& childX0, double& childDeDx,
 				      double& childAverageA, double& childAverageZ, double& childRho )
 {
-  MsgStream log(msgSvc(), name());
-     
   unsigned int parsedVolumes = massFractions.size();
-  log << MSG::DEBUG << " averageFraction : will average over... " 
-      << parsedVolumes << " elements " << endreq;
+  ATH_MSG_DEBUG (" averageFraction : will average over... " 
+                 << parsedVolumes << " elements ");
 
   childMass = 0.;
   childVolume = 0.;
@@ -1197,16 +1143,16 @@ LArRecoMaterialTool::averageFraction (std::vector<double>& volumeFractions,
     
   childRho = childMass/(CLHEP::gram*childVolume);
   
-  log << MSG::DEBUG << endreq;
-  log << MSG::DEBUG << "  + averaged over " << parsedVolumes << " volumes "       << endreq;
-  log << MSG::DEBUG << "    - volume   [mm^3]        : " << childVolume    << endreq;
-  log << MSG::DEBUG << "    - mass     [gram]        : " << childMass/CLHEP::gram << endreq;
-  log << MSG::DEBUG << "    - rho      [gram/mm^3]   : " << childRho       << endreq;
-  log << MSG::DEBUG << "    - X0                     : " << childX0        << endreq;
-  log << MSG::DEBUG << "    - DeDx                   : " << childDeDx      << endreq;
-  log << MSG::DEBUG << "    - AverageA               : " << childAverageA  << endreq;
-  log << MSG::DEBUG << "    - AverageZ               : " << childAverageZ  << endreq;      
-  log << MSG::DEBUG << endreq;
+  ATH_MSG_DEBUG ("");
+  ATH_MSG_DEBUG ("  + averaged over " << parsedVolumes << " volumes ");
+  ATH_MSG_DEBUG ("    - volume   [mm^3]        : " << childVolume);
+  ATH_MSG_DEBUG ("    - mass     [gram]        : " << childMass/CLHEP::gram);
+  ATH_MSG_DEBUG ("    - rho      [gram/mm^3]   : " << childRho);
+  ATH_MSG_DEBUG ("    - X0                     : " << childX0);
+  ATH_MSG_DEBUG ("    - DeDx                   : " << childDeDx);
+  ATH_MSG_DEBUG ("    - AverageA               : " << childAverageA);
+  ATH_MSG_DEBUG ("    - AverageZ               : " << childAverageZ);
+  ATH_MSG_DEBUG ("");
 
 }
 

@@ -13,7 +13,7 @@
 #define LARDETDESCR_LARRECOSIMPLEGEOMTOOL_H
 
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 class IMessageSvc;
@@ -34,7 +34,7 @@ class IGeoModelSvc;
 
  */
 
-class LArRecoSimpleGeomTool : public AlgTool, virtual public ICaloRecoSimpleGeomTool
+class LArRecoSimpleGeomTool : public AthAlgTool, virtual public ICaloRecoSimpleGeomTool
 {
 public:
   
@@ -84,9 +84,6 @@ private:
 
   const CaloCell_ID*        m_calo_id;
   CaloPhiRange             m_phi_range;
-
-  StoreGateSvc* m_detStore;
-  IMessageSvc*  m_msgSvc;
 
   // Access to DDDb :
   std::string m_geometry;

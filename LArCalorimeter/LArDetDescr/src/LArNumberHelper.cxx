@@ -360,6 +360,7 @@ LArNumberHelper::prepare_arrays()
     m_deta_em [i] = (double)  m_em_id->etaGranularity(i);
     m_dphi_em [i] = (double)  m_em_id->phiGranularity(i);
     int barrel_ec = abs( m_em_id->barrel_ec (id) );
+    if (barrel_ec == 0) barrel_ec = 1;
     m_sign_em[i] = m_em_id->barrel_ec (id) /  barrel_ec;
     m_eta_min_em [i] = (double) (m_em_id->eta0(i) - 
 	      m_em_id->eta_min(id)*m_em_id->etaGranularity(i));  // ideal !
@@ -421,6 +422,7 @@ LArNumberHelper::prepare_arrays()
     m_deta_hec [i] = (double) m_hec_id->etaGranularity(i);
     m_dphi_hec [i] = (double) m_hec_id->phiGranularity(i);
     int pos_neg = abs( m_hec_id->pos_neg (id) );
+    if (pos_neg == 0) pos_neg = 1;
     m_eta_min_hec [i] = (double)(m_hec_id->eta0(i) - 
         m_hec_id->eta_min(id)*m_hec_id->etaGranularity(i));  // ideal !
     m_eta_max_hec [i] = m_eta_min_hec[i] + m_n_eta_hec[i]*m_deta_hec[i];
