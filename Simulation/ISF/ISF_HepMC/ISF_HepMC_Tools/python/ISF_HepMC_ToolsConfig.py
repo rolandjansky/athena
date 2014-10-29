@@ -59,9 +59,14 @@ def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticleFinalStateFilter
     return ISF__GenParticleFinalStateFilter(name, **kwargs)
 
+def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
+    # GenParticleSimWhiteList
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticleSimWhiteList
+    return ISF__GenParticleSimWhiteList(name, **kwargs)
+
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , getService('ISF_G4PolyconeGeoIDSvc'))
+    kwargs.setdefault('GeoIDService' , getService('ISF_GeoIDSvc'))
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticlePositionFilter
     return ISF__GenParticlePositionFilter(name, **kwargs)
@@ -79,6 +84,14 @@ def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticleGenericFilter
     return ISF__GenParticleGenericFilter(name, **kwargs)
+
+
+def getLongLivedStackFiller(name="ISF_LongLivedStackFiller", **kwargs):
+    kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
+                                                    'ISF_ParticlePositionFilter',
+                                                    'ISF_EtaPhiFilter' ] )
+    return getStackFiller(name, **kwargs)
+
 
 def getStackFiller(name="ISF_StackFiller", **kwargs):
     kwargs.setdefault("InputMcEventCollection"                          , 'GEN_EVENT'  )
@@ -103,7 +116,7 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
                                                                            getPublicTool('ISF_ParticlePositionFilter'),
                                                                            getPublicTool('ISF_EtaPhiFilter'),
                                                                           ])
-    kwargs.setdefault("BarcodeService"                                  , getService("ISF_MC12BarcodeSvc"))
+    kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
     kwargs.setdefault("PileUpMergeService"                                  , '')
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenEventStackFiller
@@ -121,12 +134,33 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
 #  http://www-geant4.kek.jp/lxr/source//processes/electromagnetic/utils/include/G4EmProcessSubType.hh
 # G4 HadInt sub types:
 #  http://www-geant4.kek.jp/lxr/source//processes/hadronic/management/include/G4HadronicProcessType.hh#L46
+def getTruthStrategyGroupID_MC15(name="ISF_MCTruthStrategyGroupID_MC15", **kwargs):
+    kwargs.setdefault('PrimaryMinPt'        , 100.*MeV)
+    kwargs.setdefault('SecondaryMinPt'      , 300.*MeV)
+    kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
+    kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
+    kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
+
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
+    return ISF__GenericTruthStrategy(name, **kwargs);
+
+
 def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
     kwargs.setdefault('PrimaryMinPt'        , 100.*MeV)
     kwargs.setdefault('SecondaryMinPt'      , 100.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
+
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
+    return ISF__GenericTruthStrategy(name, **kwargs);
+
+
+def getTruthStrategyGroupIDHadInt_MC15(name="ISF_MCTruthStrategyGroupIDHadInt_MC15", **kwargs):
+    kwargs.setdefault('PrimaryMinPt'                      , 100.*MeV)
+    kwargs.setdefault('SecondaryMinPt'                    , 300.*MeV)
+    kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
+    kwargs.setdefault('AllowSecondaryOrPrimaryPassKineticCuts' , True)
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
     return ISF__GenericTruthStrategy(name, **kwargs);
@@ -142,11 +176,30 @@ def getTruthStrategyGroupIDHadInt(name="ISF_MCTruthStrategyGroupIDHadInt", **kwa
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 
+def getTruthStrategyGroupCaloMuBrem_MC15(name="ISF_MCTruthStrategyGroupCaloMuBrem_MC15", **kwargs):
+    kwargs.setdefault('PrimaryMinEkin'      , 500.*MeV)
+    kwargs.setdefault('SecondaryMinEkin'    , 300.*MeV)
+    kwargs.setdefault('VertexTypes'         , [ 3 ])
+    kwargs.setdefault('PrimaryPDGCodes'     , [ 13, -13 ])
+
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
+    return ISF__GenericTruthStrategy(name, **kwargs);
+
 def getTruthStrategyGroupCaloMuBrem(name="ISF_MCTruthStrategyGroupCaloMuBrem", **kwargs):
     kwargs.setdefault('PrimaryMinEkin'      , 500.*MeV)
     kwargs.setdefault('SecondaryMinEkin'    , 100.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3 ])
     kwargs.setdefault('PrimaryPDGCodes'     , [ 13, -13 ])
+
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
+    return ISF__GenericTruthStrategy(name, **kwargs);
+
+def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_MC15", **kwargs):
+    kwargs.setdefault('PrimaryMinEkin'      , 1000.*MeV)
+    kwargs.setdefault('SecondaryMinEkin'    , 500.*MeV)
+    kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
+    kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
+    kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
     return ISF__GenericTruthStrategy(name, **kwargs);

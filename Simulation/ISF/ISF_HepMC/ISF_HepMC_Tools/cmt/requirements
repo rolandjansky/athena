@@ -35,6 +35,8 @@ use GeneratorObjects            GeneratorObjects-*       Generators
 use TruthUtils                  TruthUtils-*             Generators
 use PileUpTools                 PileUpTools-*            Control
 
+use PathResolver                PathResolver-*           Tools
+
 public
 library ISF_HepMC_Tools *.cxx components/*.cxx
 apply_pattern component_library
