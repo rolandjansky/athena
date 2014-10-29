@@ -11,8 +11,11 @@
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include <math.h>
 
-TrigJpsi::TrigJpsi() 
-{}
+TrigJpsi::TrigJpsi()
+{
+    m_jpsimuon[0] = nullptr; 
+    m_jpsimuon[1] = nullptr;
+}
 
 TrigJpsi::TrigJpsi(const CombinedMuonFeature* m_jpsimuon1, const CombinedMuonFeature* m_jpsimuon2)
 {
