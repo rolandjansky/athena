@@ -145,9 +145,9 @@ if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.rea
     ServiceMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", UseOldCabling=muonCnvFlags.MdtCablingMode=='old', ForcedUse=muonCnvFlags.MdtCablingMode!='auto')
     #ServiceMgr.MuonMDT_CablingSvc.OutputLevel=0 # Will be useful to have debug output in log for initial debugging.
 
-    if recFlags.doTrigger() or muonCnvFlags.MdtCablingMode=='old' or muonCnvFlags.MdtCablingMode=='auto':
-      # currently this is needed for the trigger and for reconstruction of old MC sample digitized with MDTcabling
-      import MDTcabling.MDTcablingConfig # TODO: move config here?
+#    if recFlags.doTrigger() or muonCnvFlags.MdtCablingMode=='old' or muonCnvFlags.MdtCablingMode=='auto':
+#      # currently this is needed for the trigger and for reconstruction of old MC sample digitized with MDTcabling
+#      import MDTcabling.MDTcablingConfig # TODO: move config here?
 
     if muonCnvFlags.MdtCablingMode!='old':
       # new cabling service, access to COOL for cabling map
