@@ -9,12 +9,13 @@ package TrigAnalysisTest
 author John Baines <j.baines@rl.ac.uk>
 author Simon george <S.George@rhul.ac.uk>
 author Ricardo Goncalo <r.goncalo@rhul.ac.uk>
+#contact Patrick Czodrowski <czodrows@cern>
 
 use AtlasPolicy 		    AtlasPolicy-*
 #try if we can use AtlasTriggerRunTime instead of AtlasAnalysisRunTime
 use AtlasTriggerRunTime     AtlasTriggerRunTime-*
 #use AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
-#use RunTimeTester          RunTimeTester-*		Tools
+#use RunTimeTester          RunTimeTester-* Tools
 use TestPolicy              TestPolicy-*
 
 
