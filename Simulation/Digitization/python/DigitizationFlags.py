@@ -26,7 +26,11 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.Logging import logging
 logDigitizationFlags = logging.getLogger( 'DigitizationFlags' )
 
-
+class digiSteeringConf(JobProperty):
+    """Overall steering of the digitization"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'StandardPileUpToolsAlg'
 #
 class rndmSeedList(JobProperty):
     """ Random Number Seeds
@@ -758,7 +762,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,\
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,specialConfiguration]
+                    experimentalDigi,specialConfiguration,digiSteeringConf]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

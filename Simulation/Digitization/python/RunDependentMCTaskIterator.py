@@ -4,12 +4,31 @@
 # defines class taskIterator(runLumiInfo,evtsPerJob)
 # defines primitive function findPlaceInTask(jobNum,runLumiInfo,evtsPerJob)
 # defines user function getRunLumiInfoFragment(jobNum,runLumiInfo,evtsPerJob)
-## author: ATA <ayana>
-## date: 1 Sept 2010
+## author: ATA <ayana>, DMB <davidb>
+## date: 29 Oct 2014, 1 Sept 2010
 
 import itertools
 
 def getRunLumiInfoFragment(jobnumber,task,maxEvents):
+    """Calculate the specific configuration of the current job in the digi
+    task. Try to make each fragment utilize the same amount of CPU and
+    Cache resources.  Exploits the fact that the task when sorted by
+    mu value will have long finishing pieces near the beginning and
+    short pieces near the end.  A more even solution is obtained by
+    pairing chunks of maxEvents/2 from the beginning and end of the
+    sorted task.
+    """
+    hiMaxEvents,loMaxEvents=0,0
+    if(maxEvents%2==0):
+        hiMaxEvents=loMaxEvents=int(maxEvents/2)
+    else:
+        hiMaxEvents=int((maxEvents-1)/2)
+        loMaxEvents=int((maxEvents+1)/2)
+    hi_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu'],reverse=True),hiMaxEvents)
+    lo_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu']),loMaxEvents)
+    return sum([hi_mu_frag,lo_mu_frag],[])
+
+def getFragment(jobnumber,task,maxEvents):
     """ Calculate the specific configuration of the current job in the digi task.
     """
     try: tIter = findPlaceInTask(jobnumber,task,maxEvents)
@@ -27,19 +46,19 @@ def findPlaceInTask(jobnumber,task,maxEvents):
     """
     jobnumber = max(int(jobnumber),0)
     i, jobs = (0,taskIterator(task,maxEvents))
-    while True:       
+    while True:
         if (i == jobnumber): return jobs
         i += 1
         jobs.next()
-    #exit by exception    
+    #exit by exception
 #
 class taskIterator(object):
     """iterator over a list of dicts (the 'task'). Each dict must contain 'evts', optionally 'force_new'.
     """
-    def __init__(self,task,step):        
+    def __init__(self,task,step):
         """create the iterator from task (a list of dicts) and step (the max number of evts. per job)
         the iterator """
-        self.step = step 
+        self.step = step
         self.taskit = itertools.cycle(task)
         self.offset = 0
         self.current = None
@@ -48,10 +67,10 @@ class taskIterator(object):
             if min(e['evts'] for e in task) < 0: #py2.4
                 raise ValueError("Cannot use empty task lists or negative N(events).")
         except KeyError:
-            raise ValueError("Cannot use tasks that don't always define 'evts':", task)        
+            raise ValueError("Cannot use tasks that don't always define 'evts':", task)
         if (step < 1): raise ValueError("Cannot use step size smaller than 1 in a taskIterator.")
         return
-    
+
     def __eq__(self, another):
         return (self.current == another.current) and (self.step == another.step)
 
@@ -68,7 +87,7 @@ class taskIterator(object):
         while True:
             if (to_do == 0) : return self.offset, self.current
             can_do = self.current['evts'] - self.offset
-            if ( can_do > to_do ) :                
+            if ( can_do > to_do ) :
                 self.donejob.append( self.current.copy() )
                 self.donejob[-1].update({'evts':to_do})
                 self.offset += to_do
