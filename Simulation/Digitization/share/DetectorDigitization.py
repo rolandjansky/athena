@@ -37,8 +37,9 @@ if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi'
     job += CfgGetter.getAlgorithm("FastPileUpToolsAlg", tryDefaultConfigurable=True)
 elif 'doSplitDigi' in digitizationFlags.experimentalDigi():
     job += CfgGetter.getAlgorithm("SplitPileUpToolsAlg", tryDefaultConfigurable=True)
-else:
-    job += CfgGetter.getAlgorithm("StandardPileUpToolsAlg", tryDefaultConfigurable=True)
+else: ## The above two options are just there for back-compatibility
+    job += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
+
 
 # MC Truth info
 #if DetFlags.Truth_on():

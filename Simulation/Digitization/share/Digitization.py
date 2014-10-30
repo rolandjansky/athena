@@ -110,6 +110,7 @@ if DetFlags.writeRDOPool.any_on():
     streamRDO.ForceRead = True
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
+    streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]
     streamRDO.OutputFile = athenaCommonFlags.PoolRDOOutput()
     # Increase Compression Level to 4, reducing filesize somewhat without hurting writespeed too much
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '4'" ]
