@@ -11,6 +11,8 @@
 //TGC includes
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/TgcReadoutElement.h"
+
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
@@ -323,16 +325,15 @@ StatusCode TgcDigitizationTool::digitizeCore() {
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
   while(m_thpcTGC->nextDetectorElement(i, e)) {
     ATH_MSG_DEBUG("TgcDigitizationTool::digitizeCore next element");
-    
+      
     // Loop over the hits:
     while(i != e) {
       TimedHitPtr<TGCSimHit> phit = *i++;
       const TGCSimHit& hit = *phit;
       double globalHitTime = hitTime(phit);
       double tof = phit->globalTime();
-      
-      TgcDigitCollection* digiHits = 0;
-      digiHits = m_digitizer->executeDigi(&hit, globalHitTime);
+      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime);
+
       if(!digiHits) continue;
 
       TgcDigitCollection::const_iterator it_digiHits;
@@ -405,6 +406,13 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	}
 	
 	if(!duplicate) {
+          static double invalid_pos = -99999.;
+          Amg::Vector3D gpos(invalid_pos,invalid_pos,invalid_pos);
+          const MuonGM::TgcReadoutElement *tgcChamber = m_mdManager->getTgcReadoutElement(newDigiId);
+          if(tgcChamber) {
+            gpos = tgcChamber->localToGlobalCoords(hit.localPosition(),newDigiId);
+          }
+
 	  // fill the SDO collection in StoreGate
 	  // link to MC info
 	  //const HepMcParticleLink & particleLink = hit.particleLink();
@@ -412,7 +420,9 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	  MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId()), MuonMCData(tof, 0));
 	  std::vector<MuonSimData::Deposit> deposits;
 	  deposits.push_back(deposit);
-	  m_sdoContainer->insert(std::make_pair(newDigiId, MuonSimData(deposits, 0)));
+          MuonSimData simData(deposits,0);
+          simData.setPosition(gpos);
+	  m_sdoContainer->insert(std::make_pair(newDigiId, simData));
 	}
 	
       }

@@ -118,6 +118,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "executeDigi() - no ReadoutElement found for " << m_idHelper->show_to_string(elemId) << endreq;
     return 0;
   }
+
   
   const Amg::Vector3D centreChamber = tgcChamber->globalPosition();
   float height                   = tgcChamber->getRsize();
@@ -1033,7 +1034,12 @@ double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stat
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void TgcDigitMaker::randomCrossTalk(const Identifier elemId, const int gasGap, const int isStrip, const int channel, const float posInChan, const double digitTime) 
+void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
+                                    const int gasGap,
+                                    const int isStrip,
+                                    const int channel,
+                                    const float posInChan,
+                                    const double digitTime) 
 {
   int stationName = m_idHelper->stationName(elemId) - OFFSET_STATIONNAME;
   int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
@@ -1041,35 +1047,37 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId, const int gasGap, c
   int iGasGap     = gasGap                          - OFFSET_GASGAP; 
   int iIsStrip    = isStrip                         - OFFSET_ISSTRIP; 
 
-  double prob1CrossTalk  = 0.; 
-  double prob2CrossTalks = 0.; 
-  double frac2CrossTalks = 1.; 
-  double prob3CrossTalks = 0.; 
+  double prob1CrossTalk  = 0.;
+  double prob11CrossTalk = 0.;
+  double prob20CrossTalk = 0.;
+  double prob21CrossTalk = 0.;
 
   if((stationName>=0 && stationName<N_STATIONNAME) &&
      (stationEta >=0 && stationEta <N_STATIONETA ) &&
      (stationPhi >=0 && stationPhi <N_STATIONPHI ) &&
      (iGasGap    >=0 && iGasGap    <N_GASGAP     )) {
     prob1CrossTalk  = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][0];
-    prob2CrossTalks = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][1] 
-                    + m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][2];
-    frac2CrossTalks = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][1]/prob2CrossTalks;
-    prob3CrossTalks = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][3];
+    prob11CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][1];
+    prob20CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][2];
+    prob21CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][3];
   }
 
   int nCrossTalks_neg = 0; 
   int nCrossTalks_pos = 0; 
 
-  if(     posInChan<   prob1CrossTalk) { nCrossTalks_neg = 1; } // 1-0
-  else if(posInChan>1.-prob1CrossTalk) { nCrossTalks_pos = 1; } // 0-1
-  else {
+  if(posInChan < prob1CrossTalk) {
+    nCrossTalks_neg = 1;  // 1-0
+  } else if(posInChan > 1.-prob1CrossTalk) {
+    nCrossTalks_pos = 1;  // 0-1
+  } else {
     double prob = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0);
-    if(     prob<frac2CrossTalks*prob2CrossTalks/(1.-2.*prob1CrossTalk)) { nCrossTalks_neg = 1; nCrossTalks_pos = 1; } // 1-1
-    else if(prob<                prob2CrossTalks/(1.-2.*prob1CrossTalk)) { 
+    if(prob < prob11CrossTalk/(1.-2.*prob1CrossTalk)) {
+      nCrossTalks_neg = 1; nCrossTalks_pos = 1;  // 1-1
+    } else if(prob < (prob20CrossTalk + prob11CrossTalk) / (1.-2.*prob1CrossTalk)) { 
       if(posInChan<0.5) { nCrossTalks_neg = 2; } // 2-0
       else              { nCrossTalks_pos = 2; } // 0-2
     } else {
-      if(prob<(prob2CrossTalks+2.*prob3CrossTalks)/(1.-2.*prob1CrossTalk)) {
+      if(prob < (prob20CrossTalk + prob11CrossTalk + 2.*prob21CrossTalk)/(1.-2.*prob1CrossTalk)) {
 	if(posInChan<0.5) { nCrossTalks_neg = 2; nCrossTalks_pos = 1; } // 2-1
 	else              { nCrossTalks_neg = 1; nCrossTalks_pos = 2; } // 1-2
       }
@@ -1082,8 +1090,13 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId, const int gasGap, c
   double dt = digitTime; 
   uint16_t bctag = bcTagging(dt, isStrip); 
 
-  for(int jChan=channel-nCrossTalks_neg; jChan<=channel+nCrossTalks_pos; jChan++) { 
-    if(jChan==channel || jChan<1 || jChan>32) continue; 
+  // obtain max channel number
+  Identifier thisId = m_idHelper->channelID(elemId, gasGap, isStrip, channel);
+  int maxChannelNumber = m_idHelper->channelMax(thisId);
+
+  for(int jChan=channel-nCrossTalks_neg; jChan<=channel+nCrossTalks_pos; jChan++) {
+    if(jChan == channel || jChan < 1 || jChan > maxChannelNumber) continue;
+
     Identifier newId = m_idHelper->channelID(elemId, gasGap, isStrip, jChan);
     addDigit(newId, bctag); // TgcDigit can be duplicated. 
   }
