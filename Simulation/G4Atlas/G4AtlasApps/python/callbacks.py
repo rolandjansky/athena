@@ -35,3 +35,9 @@ def add_LLP_truth_strategies():
     mcTruthMenu=PyG4Atlas.G4AtlasEngine.menu_MCTruth()
     mcTruthMenu.add_McTruthStrategy(astrategy)
 
+def add_EnergyConservationTest():
+    from G4AtlasApps import PyG4Atlas,AtlasG4Eng
+    # Enable the energy conservation test action
+    MyAction = PyG4Atlas.UserAction('G4UserActions','EnergyConservationTest', ['BeginOfEvent','EndOfEvent','Step'])
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(MyAction)
+

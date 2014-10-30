@@ -17,7 +17,7 @@ DetFlags.Truth_setOn()
 
 ## Global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.ConditionsTag = "OFLCOND-MC12-SIM-00"
+jobproperties.Global.ConditionsTag = "OFLCOND-RUN12-SDR-01"
 
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -34,9 +34,9 @@ simFlags.RandomSvc = 'AtDSFMTGenSvc'
 ## Use the default layout:
 simFlags.SimLayout.set_On()
 ## Set a specific layout tag:
-#simFlags.SimLayout='ATLAS-GEO-20-00-01'
+#simFlags.SimLayout='ATLAS-R2-2015-01-01-00'
 ## Set a specific non-officially-supported layout tag using the _VALIDATION suffix:
-#simFlags.SimLayout = 'ATLAS-GEO-20-00-01_VALIDATION'
+#simFlags.SimLayout = 'ATLAS-R2-2015-01-01-00_VALIDATION'
 
 ## Set the EtaPhi, VertexSpread and VertexRange checks on
 simFlags.EventFilter.set_On()
