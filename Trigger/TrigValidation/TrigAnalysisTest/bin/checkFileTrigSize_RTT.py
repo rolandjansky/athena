@@ -122,7 +122,6 @@ class checkFileTrigSize_RTT:
             #    'CaloClusterContainer_p4_egClusterCollection',
             #    'CaloClusterContainer_p4_CaloCalTopoCluster',
             #    'Trk::TrackCollection_tlp2_Tracks',
-
         ]
         caloCounter = Counter('calo',caloList)
     
@@ -856,9 +855,9 @@ class checkFileTrigSize_RTT:
             'TrigTauClusterContainer_p4_HLT_TrigT2CaloTau',
             'TrigTauContainer_tlp1_HLT',
             'TrigTauContainer_p3_HLT',
-        'TrigTauClusterContainer_p3_HLT_TrigT2CaloTau',
-        'TrigTauClusterContainer_p5_HLT_TrigT2CaloTau',
-        'TrigTauClusterDetailsContainer_p2_HLT_TrigT2CaloTauDetails',
+            'TrigTauClusterContainer_p3_HLT_TrigT2CaloTau',
+            'TrigTauClusterContainer_p5_HLT_TrigT2CaloTau',
+            'TrigTauClusterDetailsContainer_p2_HLT_TrigT2CaloTauDetails',
             'TrigTauTracksInfoCollection_tlp1_HLT',
             'TrigTauTracksInfoCollection_p2_HLT',
             'TrigTauClusterDetailsContainer_tlp1_HLT_TrigT2CaloTau',
@@ -1053,6 +1052,11 @@ class checkFileTrigSize_RTT:
             if re.search("TOTAL",line):
                 total = float(splitline[4])
 
+            #for new xAOD    
+            if re.search("Total",line):
+                if (unicode(splitline[4])).isnumeric():
+                    total = float(splitline[4])
+
             #only count the good lines (ie. not "=====", etc.)
             if len(splitline)!=10:
                 continue
@@ -1070,18 +1074,20 @@ class checkFileTrigSize_RTT:
             
             ## Added by Rodger
             ## ========================================================
-            
+
             # sum of all algorithm sizes in checkFile
             totalAlgSize += float(sizePerEvent)
             
             # Variable for testing if algorithm might be trigger related
             # Used in the last elif statement
             TrigInName = name.find("Trig") + name.find("HLT") + name.find("LVL1")
+
             
             ## Add trigger algorithm to trigger list if it's found in TriggerEDM.py dictionary
             ## !! It should definately be found if it's a trigger algorithm !!
             if getCategory(name) != 'NOTFOUND':
                 triggerAlgList.append([name, getCategory(name), float(sizePerEvent)])
+
                 
             ## IOVMetaDataContainer* are not in TriggerEDM.py dictionary
             ## Add these manually to list
@@ -1108,7 +1114,6 @@ class checkFileTrigSize_RTT:
                 #check that item has not already been counted
                     if item==name and isLineCounted:
                         doublesList[name]=item
-
                     #if not already counted, increment the size of the Counter
                     if item==name and not isLineCounted:
                         counter.size += float(splitline[4])
@@ -1120,13 +1125,14 @@ class checkFileTrigSize_RTT:
                  sumNU += float(splitline[4])
                 except: pass
                 TrigInName = name.find("Trig") + name.find("HLT") + name.find("LVL1")
-                if TrigInName!=-3:
-                    notUsedList.append(name)
-                    print "====================="
-                    print "Missing Trigger Containers!!!"
-                    print "====================="
-                    print name, sizePerEvent
-        
+#                if TrigInName!=-3:
+#                    notUsedList.append(name)
+#                    print "====================="
+#                    print "Missing Trigger Containers!!!"
+#                    print "====================="
+#                    print name, sizePerEvent
+                    
+
         sum = 0 #the sum of all counters (should be equal to 'total')
         sumTrig = 0 #the sum of trigger component
         sumNonTrig = 0 #the sum of non trigger component
@@ -1137,7 +1143,6 @@ class checkFileTrigSize_RTT:
         triggerAlgSize = {}
         triggerAlgSize[ 'Total' ] = 0.0
         for triggerAlg in triggerAlgList:
-            # print '%s = %s' % (triggerAlg[1], triggerAlg[2])
             if not triggerAlg[1] in triggerAlgSize: triggerAlgSize[ triggerAlg[1] ] = triggerAlg[2]
             else: triggerAlgSize[ triggerAlg[1] ] += triggerAlg[2]
             triggerAlgSize[ 'Total' ] += triggerAlg[2]
