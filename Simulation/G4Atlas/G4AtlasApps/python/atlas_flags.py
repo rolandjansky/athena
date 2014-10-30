@@ -363,3 +363,61 @@ class BeamEffectOptions(JobProperty):
     allowedTypes = ['dict']
     StoredValue = {}
 
+class FwdStepLimitation(JobProperty):
+    """
+    Forward step limitation option
+    """
+    statusOn = False
+    allowedTypes = ['float']
+    StoredValue = 1000.
+
+class TwissFileBeam1(JobProperty):
+    """
+    Twiss file full path for beam 1
+    """
+    statusOn = False
+    allowedTypes = ['str']
+    StoredValue = None
+
+class TwissFileBeam2(JobProperty):
+    """
+    Twiss file full path for beam 2
+    """
+    statusOn = False
+    allowedTypes = ['str']
+    StoredValue = None
+
+class TwissEnergy(JobProperty):
+    """
+    Twiss file center of mass energy, in ATLAS units.
+    Use 'None' for autoconfiguration based on input file.
+    """
+    statusOn = False
+    allowedTypes = ['float']
+    StoredValue = 8000000.
+
+class TwissFileBeta(JobProperty):
+    """
+    Twiss file beta, in ATLAS units
+    """
+    statusOn = True
+    allowedTypes = ['float']
+    StoredValue = 550.
+
+class TwissFileNomReal(JobProperty):
+    """
+    Twiss file: nominal or real optics?
+    """
+    statusOn = False
+    allowedTypes = ['str']
+    allowedValues = ['nominal','real']
+    StoredValue = None
+
+class TwissFileVersion(JobProperty):
+    """
+    Twiss file version string
+    """
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = 'v01'
+

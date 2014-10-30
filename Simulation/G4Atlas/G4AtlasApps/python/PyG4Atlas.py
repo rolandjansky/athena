@@ -1866,7 +1866,7 @@ class RecEnvelope:
         self.Dict_Volumes = dict()
         self.Dict_Volumes[volume_name] = volume_level
         self._AllowMods=allowMods
-        
+
     def _construct(self):
         if not self._Built:
            for i in self.Dict_Volumes.keys():
@@ -1874,7 +1874,7 @@ class RecEnvelope:
                #Temporary protection to avoid branching for MC12
                if hasattr(G4AtlasEngine._ctrl.sendetectorMenu, 'setAllowMods'):
                    G4AtlasEngine._ctrl.sendetectorMenu.setAllowMods(self.Name,self._AllowMods)
-               
+
                G4AtlasEngine.log.debug(' RecEnvelope:'+
                                              '_construct: '+self.Name+' and store at the exit of volume  '+i)
            self._Built = True
@@ -2137,13 +2137,15 @@ class SimSkeleton(object):
         stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput())
 
         ## Write geometry tag info - move to main method
-        #import EventInfoMgt.EventInfoMgtInit 
+        #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
         stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
-                            "JetCollection#*"]
+                            "JetCollection#*",
+                            "xAOD::JetContainer_v1#*",
+                            "xAOD::JetAuxContainer_v1#*"]
 
         ## Make stream aware of aborted events
         stream1.AcceptAlgs = ["G4AtlasAlg"]
@@ -2177,7 +2179,7 @@ class SimSkeleton(object):
             stream1.ItemList += ["LUCID_SimHitCollection#*"]
 
         ## FwdRegion
-        checkFwdRegion = getattr(DetFlags, 'FwdRegion_on', None) #back-compatibility 
+        checkFwdRegion = getattr(DetFlags, 'FwdRegion_on', None) #back-compatibility
         if checkFwdRegion is not None: #back-compatibility
             if checkFwdRegion():
                 stream1.ItemList += ["SimulationHitCollection#*"]
@@ -2351,7 +2353,7 @@ class SimSkeleton(object):
             svcMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_BUFFERSIZE = '2048'"]
 
             ## Write geometry tag info
-            import EventInfoMgt.EventInfoMgtInit 
+            import EventInfoMgt.EventInfoMgtInit
 
             ## Instantiate StreamHITS
             if athenaCommonFlags.PoolHitsOutput.statusOn:
@@ -2404,7 +2406,7 @@ class SimSkeleton(object):
                 import PyUtils.AthFile as af
                 hitfile = athenaCommonFlags.PoolEvgenInput.get_Value()[0]
                 f = af.fopen(hitfile)
-    
+
                 ## Check that event type is SIMULATION (as it must be)
                 if "evt_type" in f.infos.keys():
                     evttypes = f.infos["evt_type"]
@@ -2456,19 +2458,19 @@ class SimSkeleton(object):
             ## Save the fast simulation
             job.G4AtlasAlg.IncludeParentsInG4Event = simFlags.IncludeParentsInG4Event.get_Value()
 
-        if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn: 
-            ## default true 
-            job.G4AtlasAlg.KillAbortedEvents = simFlags.KillAbortedEvents.get_Value() 
+        if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn:
+            ## default true
+            job.G4AtlasAlg.KillAbortedEvents = simFlags.KillAbortedEvents.get_Value()
 
-        if hasattr(simFlags, 'FlagAbortedEvents') and simFlags.FlagAbortedEvents.statusOn: 
-            ## default false 
-            job.G4AtlasAlg.FlagAbortedEvents = simFlags.FlagAbortedEvents.get_Value() 
+        if hasattr(simFlags, 'FlagAbortedEvents') and simFlags.FlagAbortedEvents.statusOn:
+            ## default false
+            job.G4AtlasAlg.FlagAbortedEvents = simFlags.FlagAbortedEvents.get_Value()
             if simFlags.FlagAbortedEvents.get_Value() and simFlags.KillAbortedEvents.get_Value():
                 G4AtlasEngine.log.warning('When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!')
                 job.G4AtlasAlg.KillAbortedEvents = False
-                
+
         if hasattr(simFlags, 'RandomSvc') and simFlags.RandomSvc.statusOn:
-            ## default true 
+            ## default true
             job.G4AtlasAlg.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 
         ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)

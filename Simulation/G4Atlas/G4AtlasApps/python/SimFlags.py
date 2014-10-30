@@ -199,38 +199,12 @@ class PhysicsList(JobProperty):
     """
     statusOn = True
     allowedTypes = ["str"]
-    allowedValues = ["ExN01",
+    allowedValues = ["FTFP_BERT",
                      "QGSP_BERT",
-                     "QGSP_BERT_CHIPS",
-                     "QGSP_FTFP_BERT",
                      "QGSP_BERT_HP",
-                     "QGSP_BERT_TRV",
-                     "QGSP_BERT_EMV",
-                     "QGSP_BERT_EMX",
-                     "QGSP_BERT_NOLEP",
-                     "QGS_BIC",
                      "QGSP_BIC",
-                     "QGSP_BIC_HP",
-                     "QGSP_BIC_EMY",
-                     "QGSC_BERT",
-                     "QGSC_CHIPS",
-                     "FTFP_BERT",
-                     "FTFP_BERT_TRV",
-                     "FTFP_BERT_EMV",
-                     "FTFP_BERT_EMX",
-                     "FTF_BIC",
-                     "QGSP",
-                     "LHEP",
-                     "LHEP_EMV",
-                     "CHIPS",
-                     "QBBC",
-                     "QGSP_BERT_Msc95",
-                     "QGSP_BERT_Conv95",
-                     "QGSP_BERT_Brem95",
-                     "QGSP_BERT_95",
-                     "QGSP_BERT_95NoMsc",
                       ]
-    StoredValue = "QGSP_BERT"
+    StoredValue = "FTFP_BERT"
 
     def __setattr__(self, name, n_value):
         """
@@ -257,8 +231,11 @@ class SimLayout(JobProperty):
     unless you definitely know what you are doing!
 
     For more info see:
-      https://twiki.cern.ch/twiki/bin/view/Atlas/AtlasGeomDBTags
+      https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasGeomDBTags
+      https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasGeomDBTagsNew
       http://atlas.web.cern.ch/Atlas/GROUPS/OPERATIONS/dataBases/DDDB/tag_hierarchy_browser.php
+    And for more on the "new" naming conventions, see:
+      [ No note yet... ]
 
     The allowed values are as follows:
 
@@ -378,95 +355,20 @@ class SimLayout(JobProperty):
 
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = 'ATLAS-GEO-20-00-01'
-    allowedValues = ['ATLAS-GEO-06-00-00',
-                     'ATLAS-GEO-06-01-00',
-                     'ATLAS-GEO-06-02-00',
-                     'ATLAS-GEO-06-03-00',
-                     'ATLAS-GEO-06-04-00',
-                     'ATLAS-GEO-06-05-00',
-                     'ATLAS-GEO-06-06-00',
-                     'ATLAS-GEO-06-07-00',
-                     'ATLAS-GEO-06-08-00',
-                     'ATLAS-GEO-06-09-00',
-                     'ATLAS-GEO-06-10-00',
-                     'ATLAS-GEO-06-11-00',
-                     'ATLAS-GEO-06-12-00',
-                     'ATLAS-GEO-06-13-00',
-                     'ATLAS-GEO-06-14-00',
-                     'ATLAS-GEO-06-15-00',
-                     'ATLAS-GEO-06-16-00',
-                     'ATLAS-GEO-06-17-00',
-                     'ATLAS-GEO-06-18-00',
-                     'ATLAS-GEO-06-19-00',
-                     'ATLAS-GEO-06-20-00',
-                     'ATLAS-GEO-06-21-00',
-                     'ATLAS-GEO-06-22-00',
-                     'ATLAS-GEO-07-00-00',
-                     'ATLAS-GEONSF-07-00-00',
-                     'ATLAS-GEONTF-07-00-00',
-                     'ATLAS-GEONF-07-00-00',
-                     'ATLAS-GEO-08-00-00',
-                     'ATLAS-GEO-08-00-01',
-                     'ATLAS-GEO-08-00-02',
-                     'ATLAS-GEONSF-08-00-00',
-                     'ATLAS-GEONTF-08-00-00',
-                     'ATLAS-GEONF-08-00-00',
-                     'ATLAS-GEOHNSF-08-00-02',
-                     'ATLAS-GEOHF-08-00-02',
-                     'ATLAS-GEONSF-08-00-02',
-                     'ATLAS-GEONTF-08-00-02',
-                     'ATLAS-GEONF-08-00-02',
-                     'ATLAS-GEO-08-01-00',
-                     'ATLAS-GEO-08-02-00',
-                     'ATLAS-GEO-08-03-00',
-                     'ATLAS-GEO-08-04-00',
-                     'ATLAS-GEO-08-05-00',
-                     'ATLAS-GEO-09-00-00',
-                     'ATLAS-GEO-10-00-00',
-                     'ATLAS-GEO-10-00-01',
-                     'ATLAS-GEO-10-00-02',
-                     'ATLAS-GEONTF-10-00-01',
-                     'ATLAS-GEO-10-01-00',
-                     'ATLAS-GEO-10-02-00',
-                     'ATLAS-GEO-10-03-00',
-                     'ATLAS-GEO-10-04-00',
-                     'ATLAS-GEO-10-05-00',
-                     'ATLAS-GEO-10-06-00',
-                     'ATLAS-GEO-10-07-00',
-                     'ATLAS-GEO-10-08-00',
-                     'ATLAS-GEO-10-09-00',
-                     'ATLAS-GEO-10-10-00',
-                     'ATLAS-GEO-10-11-00',
-                     'ATLAS-GEO-10-12-00',
-                     'ATLAS-GEO-10-13-00',
-                     'ATLAS-GEO-11-00-00',
-                     'ATLAS-GEO-11-00-01',
-                     'ATLAS-GEO-11-01-00',
-                     'ATLAS-GEO-11-01-01',
-                     'ATLAS-GEO-11-02-00',
-                     'ATLAS-GEO-11-02-01',
-                     'ATLAS-GEO-11-03-00',
-                     'ATLAS-GEO-11-03-01',
-                     'ATLAS-GEO-11-04-00',
-                     'ATLAS-GEO-11-04-01',
-                     'ATLAS-GEO-12-00-00',
-                     'ATLAS-GEO-13-00-00',
-                     'ATLAS-GEO-13-00-01',
-                     'ATLAS-GEO-13-01-00',
-                     'ATLAS-GEO-14-00-01',
-                     'ATLAS-GEO-14-01-01',
-                     'ATLAS-GEO-14-02-01',
-                     'ATLAS-GEO-16-00-00',
-                     'ATLAS-GEONSF-16-00-00',
-                     'ATLAS-GEO-16-01-00',
-                     'ATLAS-GEO-18-01-00',
-                     'ATLAS-GEO-18-01-03',
-                     'ATLAS-GEO-20-00-00',
-                     'ATLAS-GEO-20-00-01',
-                     'ATLAS-IBL-00-00-00',
-                     'ATLAS-IBL-01-00-00',
-                     'ATLAS-SLHC-00-00-00',
+    StoredValue = 'ATLAS-R2-2015-01-01-00'
+    allowedValues = [
+                     'ATLAS-GEO-16-00-00', # Default for MC10
+                     'ATLAS-GEO-18-01-00', # Used in MC11a, MC11b, MC11c
+                     'ATLAS-GEO-18-01-01', # Used in MC11a, MC11b, MC11c
+                     'ATLAS-GEO-18-01-03', # Used in MC11a, MC11b, MC11c
+                     'ATLAS-GEO-20-00-01', # Default for MC12a, MC12b
+                     'ATLAS-GEO-21-02-02', # Used in MC11d, MC12c
+                     'ATLAS-IBL-03-00-00', # Used in MC12 Upgrade
+                     'ATLAS-SLHC-02-00-00', # Used in MC12 Upgrade
+                     'ATLAS-R1-2010-02-00-00', # Used in MC14a
+                     'ATLAS-R1-2011-02-00-00', # Used in MC14a
+                     'ATLAS-R1-2012-02-00-00', # Used in MC14a
+                     'ATLAS-R2-2015-01-01-00', # Used in MC14a
                      'ctbh8_combined',
                      'ctbh8_photon',
                      'ctbh8_lar-material',
@@ -478,7 +380,6 @@ class SimLayout(JobProperty):
                      'tb_LArH6_2002',
                      'tb_LArH6EC_2002',
                      'tb_LArH6_2004']
-
 
     def __setattr__(self, name, n_value):
         """

@@ -443,6 +443,16 @@ class AtlasSimSkeleton(SimSkeleton):
         if simFlags.ForwardDetectors.statusOn:
             from atlas_forward import ForwardRegion
             atlasForwardRegion = ForwardRegion()
+
+            # Set up Twiss Files
+            atlasForwardRegion.setupTwissFiles()
+
+            # Set up the field
+            if simFlags.FwdStepLimitation.statusOn:
+                atlasForwardRegion.add_field(simFlags.FwdStepLimitation())
+            else:
+                atlasForwardRegion.add_field()
+
             fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
             AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
 
@@ -845,6 +855,9 @@ class AtlasSimSkeleton(SimSkeleton):
                         exec( 'beFilter.Set_'+opt+'(float('+str(simFlags.BeamEffectOptions.get_Value()[opt])+'))' )
                         exec( 'new_value = beFilter.Get_'+opt+'()' ) 
                         AtlasG4Eng.G4Eng.log.info('Set BeamEffectTransformation option '+opt+' to '+str( new_value ) )
+
+        if simFlags.VertexTimeOffset.statusOn and simFlags.VertexTimeOffset.get_Value() != 0:
+            raise RuntimeError( 'Vertex time offset should not be used!' )
 
         if hasattr(simFlags, 'RandomSvc') and simFlags.RandomSvc.statusOn:
                 AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetRandomNumberService( simFlags.RandomSvc() )

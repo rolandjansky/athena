@@ -15,7 +15,7 @@ DetFlags.Truth_setOn()
 
 ## Global conditions tag (set for global MC12 sim)
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-MC12-SIM-00" # Probably want a different conditions tag for cosmics running
+globalflags.ConditionsTag = "OFLCOND-RUN12-SDR-01" # Probably want a different conditions tag for cosmics running
 
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -34,7 +34,7 @@ simFlags.RandomSvc = 'AtDSFMTGenSvc'
 ## Use the default layout:
 simFlags.SimLayout.set_On()
 ## Set a specific layout tag:
-#simFlags.SimLayout='ATLAS-GEO-20-00-01'
+#simFlags.SimLayout='ATLAS-R2-2015-01-01-00'
 
 ## There are three ways to run cosmics sim:
 ## 1) Generate and simulate directly without intermediates:
