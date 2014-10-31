@@ -16,7 +16,7 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
-    kwargs.setdefault("BarcodeSvc"              , getService("ISF_MC12BarcodeSvc"))
+    kwargs.setdefault("BarcodeSvc"             , ISF_Flags.BarcodeService())
     from ISF_Tools.ISF_ToolsConf import ISF__ParticleHelper
     return ISF__ParticleHelper(name, **kwargs)
 
@@ -24,13 +24,22 @@ def getMemoryMonitor(name="ISF_MemoryMonitor", **kwargs):
     from ISF_Tools.ISF_ToolsConf import ISF__MemoryMonitoringTool
     return ISF__MemoryMonitoringTool(name, **kwargs)
 
-def getBarcodeFilter(name="ISF_BarcodeFilter", **kwargs):
+def getMC12EntryLayerFilter(name="ISF_MC12EntryLayerFilter", **kwargs):
     kwargs.setdefault('AllowOnlyDefinedBarcodes'          , True    )
     kwargs.setdefault('AllowOnlyLegacyPrimaries'          , False   )
     kwargs.setdefault('LegacyParticleGenerationIncrement' , 1000000 )
     kwargs.setdefault('LegacyFirstSecondaryBarcode'       , 200001  )
     from ISF_Tools.ISF_ToolsConf import ISF__GenericBarcodeFilter
     return ISF__GenericBarcodeFilter(name, **kwargs)
+
+def getMC15EntryLayerFilter(name="ISF_MC15EntryLayerFilter", **kwargs):
+    kwargs.setdefault('MinEkinCharged'      , 100.*MeV  )
+    kwargs.setdefault('MinEkinNeutral'      , -1.       )
+    from ISF_Tools.ISF_ToolsConf import ISF__EntryLayerFilter
+    return ISF__EntryLayerFilter(name, **kwargs  )
+
+def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):
+    return getMC12EntryLayerFilter(name, **kwargs)
 
 def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
