@@ -65,6 +65,10 @@ class ValidationMode(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
+    def _do_action(self):
+        jobproperties.ISF_Flags.TruthService.set_Value("ISF_ValidationTruthService")
+    def _undo_action(self):
+        jobproperties.ISF_Flags.TruthService.set_Value(jobproperties.ISF_Flags.TruthService.__class__.StoredValue)
 
 class VertexPositionFromFile(JobProperty):
     """Steering of ISF: run vertex position from file"""
@@ -102,6 +106,31 @@ class Simulator(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ATLFASTII'
 
+class TruthService(JobProperty):
+    """Steering of ISF: set the TruthService"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_TruthService'
+
+class EntryLayerFilter(JobProperty):
+    """Steering of ISF: set the EntryLayerFilter"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_MC12EntryLayerFilter'
+
+class BarcodeService(JobProperty):
+    """Steering of ISF: set the BarcodeService"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'Barcode_MC12BarcodeSvc'
+
+# currently unused:
+#class ParticleBroker(JobProperty):
+#    """Steering of ISF: set the Particle Broker Service"""
+#    statusOn     = True
+#    allowedTypes = ['str']
+#    StoredValue  = 'ISF_ParticleBrokerSvc'
+
 class OverrideInputFiles(JobProperty):
     """Steering of ISF: set input override"""
     statusOn     = True
@@ -138,6 +167,12 @@ class RoutingChainCavern(JobProperty):
     allowedTypes = ['list']
     StoredValue  = []
 
+class GeoIDService(JobProperty):
+    """The GeoIDService to bue used by ISF"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'NONE'
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -169,6 +204,10 @@ jobproperties.ISF_jobProperties.add_JobProperty(DoMemoryMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(DoTimeMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(Input)
 jobproperties.ISF_jobProperties.add_JobProperty(Simulator)
+jobproperties.ISF_jobProperties.add_JobProperty(TruthService)
+jobproperties.ISF_jobProperties.add_JobProperty(EntryLayerFilter)
+jobproperties.ISF_jobProperties.add_JobProperty(BarcodeService)
+#jobproperties.ISF_jobProperties.add_JobProperty(ParticleBroker)
 jobproperties.ISF_jobProperties.add_JobProperty(OverrideInputFiles)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainBeamPipe)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainID)
