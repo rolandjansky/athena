@@ -22,7 +22,9 @@ if [ -n "$CPUPROFILE" ] || [ -n "$HEAPPROFILE" ] || [ -n "$HEAPCHECK" ]; then
 fi
 
 if [ -z $TCMALLOCDIR ]; then
+   if [[ $CMTEXTRATAGS != *ManaCore* ]]; then
     echo "WARNING: TCMALLOCDIR not defined, will use libc malloc"
+   fi
 else
     USETCMALLOC=1
 fi

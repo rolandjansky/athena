@@ -82,14 +82,14 @@ elif os.getenv( "ATHENA_PYCINTEX_MINVMEM" ):
 else:
    min_cppyy_vmem_growth = None
 
+import cppyy
 try:
-   import cppyy
-except ImportError, e:
- # handle a somewhat common mistake
-   import traceback
-   traceback.print_exception( sys.exc_type,
-       '%s, ROOT version or setup problem?' % str(e), sys.exc_traceback )
-   sys.exit( 1 )
+   # try to touch ROOT5-only attribute
+   cppyy.Cintex.Debug
+except AttributeError:
+   # ROOT 6
+   from PyUtils.Helpers import ROOT6Setup
+   ROOT6Setup()
 
 if min_cppyy_vmem_growth:
    grow_vmem( vmem_before_cppyy + min_cppyy_vmem_growth )
