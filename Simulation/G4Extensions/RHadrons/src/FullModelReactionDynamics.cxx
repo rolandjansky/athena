@@ -808,7 +808,7 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
             {
               l = 1;
               ran = G4UniformRand()*dndl[19];
-              while( ( ran >= dndl[l] ) && ( l < 20 ) )l++;
+              while( ( l < 20 ) && ( ran >= dndl[l] ) ) l++;
               l = std::min( 19, l );
               x = std::min( 1.0, pt*(binl[l-1] + G4UniformRand()*(binl[l]-binl[l-1])/2.) );
               if( targetParticle.GetSide() < 0 )x *= -1.;
