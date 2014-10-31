@@ -229,6 +229,15 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       }
     }
 
+  if (NULL==outgoingRhadron) {
+    //FIXME: What should be done in the case that outgoingRhadron is
+    //still 0 at this point? Throwing an exception for now to prevent
+    //a null-pointer being dereferenced later on in the code.
+    G4ExceptionDescription description;
+    description << "PostStepDoIt: outgoingRHadron is null";
+    G4Exception("FullModelHadronicProcess", "NoOutGoingRHadron", FatalException, description);
+  }
+
   if (outgoingTarget==0) outgoingTarget = theParticleTable->FindParticle(rp[1]);
 
   // If the incident particle survives it is not a "secondary", although
