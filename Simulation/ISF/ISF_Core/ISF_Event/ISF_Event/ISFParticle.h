@@ -119,6 +119,9 @@ namespace ISF {
     /** PDG value */
     int pdgCode() const;
 
+    /** Kinetic energy */
+    double ekin() const;
+
     /** the particle's full history */
     const ParticleHistory& history() const;
     /** the sub-detector ID the particle's originates from */

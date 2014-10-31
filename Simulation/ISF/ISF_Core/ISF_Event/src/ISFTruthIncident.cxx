@@ -28,7 +28,8 @@ ISF::ISFTruthIncident::ISFTruthIncident( ISF::ISFParticle &primary,
   m_secondary(secondary),
   m_process(process),
   m_killsPrimary(killsPrimary),
-  m_position(position)
+  m_position(position),
+  m_passedFilters(secondary.size(), false)
 {
 }
 
@@ -66,9 +67,7 @@ double ISF::ISFTruthIncident::primaryPt2() const {
 }
 
 double ISF::ISFTruthIncident::primaryEkin() const {
-  double mass = m_primary.mass();
-  // TODO: somebody needs to check the units here:
-  return sqrt( m_primary.momentum().mag2() + mass*mass) - mass;
+  return m_primary.ekin();
 }
 
 int ISF::ISFTruthIncident::primaryPdgCode() const {
@@ -113,9 +112,7 @@ double ISF::ISFTruthIncident::secondaryPt2(unsigned short index) const {
 }
 
 double ISF::ISFTruthIncident::secondaryEkin(unsigned short index) const {
-  double mass = m_secondary[index]->mass();
-  // TODO: somebody needs to check the units here:
-  return sqrt( m_secondary[index]->momentum().mag2() + mass*mass) - mass;
+  return m_secondary[index]->ekin();
 }
 
 

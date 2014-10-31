@@ -17,6 +17,8 @@ namespace ISF {
   inline double          ISFParticle::timeStamp() const { return m_tstamp; }
   inline int             ISFParticle::pdgCode() const   { return m_pdgCode; }
 
+  inline double          ISFParticle::ekin() const      { return sqrt( m_momentum.mag2() + m_mass*m_mass ) - m_mass; }
+
   // history methods
   //
   inline const ParticleHistory&      ISFParticle::history()     const { return m_history;           }
