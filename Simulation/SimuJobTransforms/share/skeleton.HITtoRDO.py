@@ -16,7 +16,7 @@ if hasattr(runArgs,"geometryVersion"):
 
 # get the logger
 from AthenaCommon.Logging import logging
-digilog = logging.getLogger('Digi_trf')
+digilog = logging.getLogger('Digi_tf')
 digilog.info( '****************** STARTING DIGITIZATION *****************' )
 
 
@@ -262,11 +262,8 @@ if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
     bkgArgName="inputLowPtMinbiasHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
-    if(digitizationFlags.doXingByXingPileUp()):
-        digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                                  digitizationFlags.numberOfLowPtMinBias.get_Value(), True)
-    else:
-        digitizationFlags.LowPtMinBiasInputCols = bkgArg
+    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+                                                              digitizationFlags.numberOfLowPtMinBias.get_Value(), True)
 if digitizationFlags.LowPtMinBiasInputCols.statusOn:
     digitizationFlags.doLowPtMinBias = True
 else:
@@ -278,11 +275,8 @@ if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
     bkgArgName="inputHighPtMinbiasHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
-    if(digitizationFlags.doXingByXingPileUp()):
-        digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
-                                                                   digitizationFlags.numberOfHighPtMinBias.get_Value(), True)
-    else:
-        digitizationFlags.HighPtMinBiasInputCols = bkgArg
+    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True)
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
     digitizationFlags.doHighPtMinBias = True
 else:
@@ -294,11 +288,8 @@ if hasattr(runArgs, "inputCavernHitsFile"):
     bkgArgName="inputCavernHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
-    if(digitizationFlags.doXingByXingPileUp()):
-        digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
-                                                            digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()))
-    else:
-        digitizationFlags.cavernInputCols = bkgArg
+    digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
+                                                        digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()))
 if digitizationFlags.cavernInputCols.statusOn:
     digitizationFlags.doCavern = True
 else:
@@ -310,11 +301,8 @@ if hasattr(runArgs, "inputBeamHaloHitsFile"):
     bkgArgName="inputBeamHaloHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
-    if(digitizationFlags.doXingByXingPileUp()):
-        digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
-                                                              digitizationFlags.numberOfBeamHalo.get_Value(), True)
-    else:
-        digitizationFlags.beamHaloInputCols = bkgArg
+    digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
+                                                          digitizationFlags.numberOfBeamHalo.get_Value(), True)
 if digitizationFlags.beamHaloInputCols.statusOn:
     digitizationFlags.doBeamHalo = True
 else:
@@ -326,11 +314,8 @@ if hasattr(runArgs, "inputBeamGasHitsFile"):
     bkgArgName="inputBeamGasHitsFile"
 if HasInputFiles(runArgs, bkgArgName):
     exec("bkgArg = runArgs."+bkgArgName)
-    if(digitizationFlags.doXingByXingPileUp()):
-        digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
-                                                             digitizationFlags.numberOfBeamGas.get_Value(), True)
-    else:
-        digitizationFlags.beamGasInputCols = bkgArg
+    digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
+                                                         digitizationFlags.numberOfBeamGas.get_Value(), True)
 if digitizationFlags.beamGasInputCols.statusOn:
     digitizationFlags.doBeamGas = True
 else:
@@ -407,21 +392,40 @@ if NoTriggerConfig(runArgs):
     DetFlags.Print()
 
 ## Output RDO File
-if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO"):
+if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO") or hasattr(runArgs,"outputRDO_FILTFile") or hasattr(runArgs,"tmpRDO_FILT"):
     if hasattr(runArgs,"outputRDOFile"):
         if hasattr(runArgs,"tmpRDO"):
             digilog.fatal("Both outputRDOFile and tmpRDO specified - this configuration should not be used!")
             raise SystemError
+        if hasattr(runArgs,"outputRDO_FILTFile"):
+            digilog.fatal("Both outputRDOFile and outputRDO_FILTFile specified - this configuration should not be used!")
+            raise SystemError
+        if hasattr(runArgs,"tmpRDO_FILT"):
+            digilog.fatal("Both outputRDOFile and tmpRDO_FILT specified - this configuration should not be used!")
+            raise SystemError
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
-    if hasattr(runArgs,"tmpRDO"):
+    elif hasattr(runArgs,"tmpRDO"):
+        if hasattr(runArgs,"outputRDO_FILTFile"):
+            digilog.fatal("Both tmpRDO and outputRDO_FILTFile specified - this configuration should not be used!")
+            raise SystemError
+        if hasattr(runArgs,"tmpRDO_FILT"):
+            digilog.fatal("Both tmpRDO and tmpRDO_FILT specified - this configuration should not be used!")
+            raise SystemError
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.tmpRDO )
+    elif hasattr(runArgs,"outputRDO_FILTFile"):
+        if hasattr(runArgs,"tmpRDO_FILT"):
+            digilog.fatal("Both outputRDO_FILTFile and tmpRDO_FILT specified - this configuration should not be used!")
+            raise SystemError
+        athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_FILTFile )
+    elif hasattr(runArgs,"tmpRDO_FILT"):
+        athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.tmpRDO_FILT )
     if hasattr(runArgs, "AddCaloDigi"):
         AddCaloDigi = runArgs.AddCaloDigi
         if AddCaloDigi:
             digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
             digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
-    digilog.info("no output file (outputRDOFile or tmpRDO) specified - switching off output StreamRDO")
+    digilog.info("no output file (outputRDOFile, outputRDO_FILTFile, tmpRDO or tmpRDO_FILT) specified - switching off output StreamRDO")
     if not 'DetFlags' in dir():
         #if you configure one detflag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags

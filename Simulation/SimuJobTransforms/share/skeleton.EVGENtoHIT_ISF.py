@@ -234,6 +234,15 @@ elif hasattr(runArgs, 'simulator'):
     ISF_Flags.Simulator = runArgs.simulator
 else:
     ISF_Flags.Simulator = 'MC12G4'
+if hasattr(runArgs, 'truthStrategy'):
+    ISF_Flags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
+    ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
+    ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
+else:
+    ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
+    ISF_Flags.TruthService     = 'ISF_TruthService'
+    ISF_Flags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
+
 #### *********** import ISF_Example code here **************** ####
 include("ISF_Config/ISF_ConfigJobInclude.py")
 

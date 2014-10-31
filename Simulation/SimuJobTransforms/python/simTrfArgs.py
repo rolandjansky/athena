@@ -42,6 +42,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--outputRDOFile', nargs='+',
                         type=argFactory(argRDOFile, io='output'),
                         help='Output RDO file', group='Digi')
+    parser.add_argument('--outputRDO_FILTFile', nargs='+',
+                        type=argFactory(argRDOFile, io='output'),
+                        help='Output Filtered RDO file', group='Digi')
     parser.add_argument('--digiSeedOffset1',
                         type=argFactory(argInt),
                         help='Offset for first random seed', group='Digi')
@@ -63,6 +66,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--tmpRDO', nargs='+',
                         type=argFactory(argRDOFile, io='output'),
                         help='Temporary output RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
+    parser.add_argument('--tmpRDO_FILT', nargs='+',
+                        type=argFactory(argRDOFile, io='output'),
+                        help='Temporary output filtered RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):
@@ -145,6 +151,9 @@ def addSim_tfArgs(parser):
     parser.add_argument('--simulator',
                         type=argFactory(argString), metavar='CONFIGNAME',
                         help='Specify a named configuration. E.g. MC12G4, ATLFASTII ATLFASTIIF', group='Sim_tf')
+    parser.add_argument('--truthStrategy',
+                        type=argFactory(argString), metavar='CONFIGNAME',
+                        help='Specify the named group of Truth strategies that the ISF should use.  E.g. MC12, MC15, Validation', group='Sim_tf')
 
 ## Add arguments used only by TestBeam simulation jobs
 def addTestBeamArgs(parser):
@@ -204,5 +213,3 @@ def addHITSMergeArgs(parser):
     parser.add_argument('--inputLogsFile', nargs='+',
                         type=argFactory(argFile, io='input', runarg=True, type='log'),
                         help='Input Log files', group='HITSMerge_tf') ## FIXME need to add code to do the log file merging.
-    parser.add_argument('--fastPoolMerge', type=argFactory(argBool),
-                        help='Hybrid POOL merging switch (default True)')
