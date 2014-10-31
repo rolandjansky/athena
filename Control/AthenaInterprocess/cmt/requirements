@@ -2,6 +2,7 @@ package AthenaInterprocess
 
 use AtlasPolicy    AtlasPolicy-*
 use CLIDSvc        CLIDSvc-*            Control
+use GaudiInterface GaudiInterface-*     External
 use AtlasBoost     AtlasBoost-*         External
 
 library AthenaInterprocess *.cxx
