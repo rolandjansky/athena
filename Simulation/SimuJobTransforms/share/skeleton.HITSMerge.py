@@ -128,17 +128,6 @@ try:
 except:
   print "No accept algs indicated in VetoList"
 
-# Fast merge options
-if hasattr(runArgs,"fastPoolMerge") and runArgs.fastPoolMerge == True:
-     merHitLog.info("Using CopyEventStreamInfo")
-     from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import CopyEventStreamInfo
-     StreamHITS.HelperTools = []
-     streamInfoToolKey = StreamHITS.name()
-     streamInfoTool = CopyEventStreamInfo( streamInfoToolKey+"_CopyEventStreamInfo" )
-     streamInfoTool.Key = streamInfoToolKey
-     ToolSvc += streamInfoTool
-     ServiceMgr.MetaDataSvc.MetaDataTools += [ streamInfoTool ]
-
 # Perfmon
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doMonitoring=True

@@ -97,8 +97,11 @@ def HitsFilePeeker(runArgs, skeletonLog):
             if not re.match(metadatadict['IOVDbGlobalTag'], runArgs.conditionsTag):
                 skeletonLog.warning("command-line conditionsTag (%s) does not match the value used in the Simulation step (%s) !",
                                     runArgs.conditionsTag, metadatadict['IOVDbGlobalTag'])
-        #globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag ) ## already done in CommonSkeletonJobOptions.py
-        skeletonLog.info("Using conditionsTag from command-line: %s", globalflags.ConditionsTag.get_Value())
+            if not globalflags.ConditionsTag.is_locked():
+                globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
+                skeletonLog.info("Using conditionsTag from command-line: %s", globalflags.ConditionsTag.get_Value())
+            else:
+                skeletonLog.info("globalflags.ConditionsTag already locked to %s - will not alter it.", globalflags.ConditionsTag.get_Value())
     elif 'IOVDbGlobalTag' in metadatadict.keys():
         globalflags.ConditionsTag.set_Value_and_Lock( metadatadict['IOVDbGlobalTag'] )
         skeletonLog.info("Using conditionsTag from HITS file metadata %s", globalflags.ConditionsTag.get_Value())
