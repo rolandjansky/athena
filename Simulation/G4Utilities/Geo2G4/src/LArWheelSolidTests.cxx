@@ -3,6 +3,7 @@
 */
 
 #include<iostream>
+#include<stdexcept>
 #include"boost/io/ios_state.hpp"
 #include<map>
 
@@ -11,13 +12,16 @@
 #include"TNtupleD.h"
 #include"TFile.h"
 
+// For root version ifdef
+#include "TROOT.h"
+
 #include"G4Polycone.hh"
 
 #include"LArWheelSolid.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-//#define DEBUG 1
+//#define LOCAL_DEBUG 1
 #include<stdlib.h>
 
 static double IntPrecision = 0.0001;
@@ -32,7 +36,7 @@ EInside LArWheelSolid::Inside_accordion(const G4ThreeVector &p) const
 }
 
 void LArWheelSolid::set_failover_point(G4ThreeVector &p,
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
                                        const char *m) const
 #else
   const char *) const
@@ -41,7 +45,7 @@ void LArWheelSolid::set_failover_point(G4ThreeVector &p,
     p[0] = 0.; p[1] = Rmin; p[2] = Zmin;
     Calculator->DistanceToTheNearestFan(p);
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     if(m) std::cout << m << std::endl;
 #endif
   }
@@ -306,8 +310,14 @@ void LArWheelSolid::get_point_on_flat_surface(G4ThreeVector &p) const
 G4double LArWheelSolid::GetCubicVolume(void)
 {
   // sagging ignored, effect should be negligible
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   double result =
     f_vol->Integral(Rmin, Rmax, (const Double_t *)0, IntPrecision)
+#else
+    double result =
+    f_vol->Integral(Rmin, Rmax, IntPrecision)
+#endif
+
 #ifndef DEBUG
     * Calculator->GetNumberOfFans()
 #endif
@@ -350,7 +360,11 @@ G4double LArWheelSolid::get_length_at_r(G4double r) const
 
 G4double LArWheelSolid::get_area_on_side(void) const
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   return f_side_area->Integral(Rmin, Rmax, (const Double_t *)0, IntPrecision);
+#else
+  return f_side_area->Integral(Rmin, Rmax, IntPrecision);
+#endif
 }
 
 G4double LArWheelSolid::GetSurfaceArea(void)
@@ -359,19 +373,19 @@ G4double LArWheelSolid::GetSurfaceArea(void)
 
   double a1 = get_area_on_polycone();
   result += a1;
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "get_area_on_polycone: " << a1/mm2 << std::endl;
 #endif
 
   double a2 = get_area_on_face();
   result += a2;
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "get_area_on_face: " << a2/mm2 << std::endl;
 #endif
 
   double a3 = get_area_on_side();
   result += a3;
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "get_area_on_side: " << a3/mm2 << std::endl;
 #endif
 
@@ -385,6 +399,37 @@ G4double LArWheelSolid::GetSurfaceArea(void)
 
 void LArWheelSolid::test(void)
 {
+#if 0
+  FILE *FF = fopen("test_input", "r");
+  if(FF){
+    LArWheelSolid_t type;
+    fread(&type, sizeof(type), 1, FF);
+    if(type == Type){
+      G4ThreeVector p0, v0;
+      fread(&p0, sizeof(p0), 1, FF);
+      fread(&v0, sizeof(v0), 1, FF);
+      Verbose = true;
+      std::cout << "AT TEST DTI" << p0 << " Rt = " << p0.perp()
+                << " phi = " << p0.phi() << " " << v0 << std::endl;
+      G4ThreeVector p1(p0), v1(v0), p(p0), v(v0);
+      G4double dd1 = distance_to_in_ref(p1, v1);
+      G4double dd = distance_to_in(p, v);
+      std::cout << "== DTI new " << dd1 << " old " << dd << " == " << std::endl;
+      EInside i1 = Inside(p0 + v0 * dd1);
+      EInside i =  Inside(p0 + v0 * dd);
+      std::cout << "new " << inside(i1) << std::endl;
+      std::cout << "old " << inside(i) << std::endl;
+
+      std::cout << std::endl << "AT TEST DTO" << p0 << " " << v0 << std::endl;
+      dd1 = distance_to_out_ref(p0, v0);
+      dd = distance_to_out(p0, v0);
+      std::cout << "== DTO new " << dd1 << " old " << dd << " == " << std::endl;
+      exit(0);
+    }
+    fclose(FF);
+  }
+#endif
+
   boost::io::ios_all_saver ias(std::cout);
   const char *on = getenv("LARWHEELSOLID_TEST");
   if(on == 0) return;
@@ -414,7 +459,14 @@ void LArWheelSolid::test(void)
   int N = 1000000;
   const int Nmax(1000000000);
   char *NN = getenv("LARWHEELSOLID_TEST_NPOINTS");
-  if(NN) N = atoi(NN);
+
+  if(NN) {
+    char *endptr;
+    N = strtol(NN, &endptr, 0);
+    if (endptr[0] != '\0') {
+      throw std::invalid_argument("Could not convert string to int: " + std::string(NN));
+    }
+  }
   if (Nmax<N) {
     std::cout << "Number of points from LARWHEELSOLID_TEST_NPOINTS environment variable ("<<N<<") is too large. Using " << Nmax << " instead." << std::endl;
     N=Nmax;
@@ -430,7 +482,7 @@ void LArWheelSolid::test(void)
   }
   for(int i = 0; i < N; ++ i){
     G4ThreeVector p = GetPointOnSurface();
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
     EInside ii = Inside(p);
     if(ii != kSurface){
       std::cout << i << " "

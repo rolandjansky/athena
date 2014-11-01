@@ -18,6 +18,11 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "Geo2G4/LArWheelSolid.h"
+#include "Geo2G4/LArFanSection.h"
+
+#ifdef DEBUG_LARWHEELSOLID
+G4bool Verbose;
+#endif
 
 // these are internal technical constants, should not go in DB
 const unsigned int LArWheelSolid::IterationsLimit = 50; // That's enough even for 10e-15 IterationPrecision
@@ -27,7 +32,7 @@ const G4double LArWheelSolid::IterationPrecision2 = IterationPrecision * Iterati
 
 LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
 			     G4int zside)
-  : G4VSolid(name)
+  : G4VSolid(name), m_fs(0)
 {
         ISvcLocator* svcLocator = Gaudi::svcLocator();
         IMessageSvc* msgSvc;
@@ -38,6 +43,13 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
 		throw std::runtime_error("LArWheelSolid constructor: cannot initialze message service");
 	}
 	(*msg) << MSG::DEBUG << "constructor started" << endreq;
+
+#ifdef LArWheelSolidDTI_NEW
+	(*msg) << MSG::INFO << "compiled with new DTI" << endreq;
+#endif
+#ifdef LArWheelSolidDTO_NEW
+	(*msg) << MSG::INFO << "compiled with new DTO" << endreq;
+#endif
 
 	Type = type;
 	PhiPosition = CLHEP::halfpi;
@@ -80,12 +92,14 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
 		calc_type = LArWheelCalculator::OuterLeadWheel;
 		break;
 	default:
-		G4Exception("LArWheelSolid", "UnknownSolidType", FatalException, 
+		G4Exception("LArWheelSolid", "UnknownSolidType", FatalException,
 			    "Constructor: unknown LArWheelSolid_t");
 	}
 	Calculator = new LArWheelCalculator(calc_type, zside);
 	G4String bp_name = name + "-BoundingPolycone";
+#ifdef DEBUG_LARWHEELSOLID
 	Verbose = false;
+#endif
 
 	// Initialize code that depends on wheel type:
 	FanHalfThickness = Calculator->GetFanHalfThickness();
@@ -124,6 +138,7 @@ LArWheelSolid::~LArWheelSolid()
 {
 	delete [] FanSection;
 	delete msg;
+	if(m_fs) delete m_fs;
 	clean_tests();
 }
 
@@ -139,7 +154,7 @@ void LArWheelSolid::inner_solid_init(const G4String &bp_name)
 	G4double wheel_thickness = zPlane[1] - zPlane[0];
 	Calculator->GetWheelInnerRadius(rInner); // This can give us three radii - only want two...
 	Calculator->GetWheelOuterRadius(rOuter);
-	
+
 	Zmin = zPlane[0]; Zmax = zPlane[1];
 	Rmin = rInner[0]; Rmax = rOuter[1];
 
@@ -158,7 +173,8 @@ void LArWheelSolid::inner_solid_init(const G4String &bp_name)
 
 	G4double Ain = (rInner[1] - rInner[0]) / wheel_thickness;
 	G4double Aout = (rOuter[1] - rOuter[0]) / wheel_thickness;
-	G4double Bin = rInner[0], Bout = rOuter[0];
+	G4double Bin = rInner[0] - Ain * zPlane[0];
+	G4double Bout = rOuter[0] - Aout * zPlane[0];
 
 	G4double phi_min = CLHEP::halfpi - FanPhiAmplitude - Calculator->GetFanStepOnPhi() * 2;
 	G4double phi_max = CLHEP::halfpi + FanPhiAmplitude + Calculator->GetFanStepOnPhi() * 2;
@@ -172,6 +188,12 @@ void LArWheelSolid::inner_solid_init(const G4String &bp_name)
 	FanSectionLimits[MaxFanSectionLimits] = wheel_thickness - FanSectionLimits[0];
 	FanSectionLimits[MaxFanSectionLimits - 1] = wheel_thickness - FanSectionLimits[1];
 
+	m_fs = new LArFanSections(Ain, Aout, Bin, Bout, Rmax*cos(phi_min));
+
+	m_fs->z.push_back(FanSectionLimits[0]);
+	m_fs->rmin2.push_back(rInner[0]*rInner[0]);
+	m_fs->rmax2.push_back(rOuter[0]*rOuter[0]);
+
 	char tmp_str[10];
 	for(i = 0; i <= MaxFanSection; i ++){
 		zPlane[0] = FanSectionLimits[i];
@@ -181,10 +203,26 @@ void LArWheelSolid::inner_solid_init(const G4String &bp_name)
 		rInner[1] = Bin  + zPlane[1] * Ain;
 		rOuter[1] = Bout + zPlane[1] * Aout;
 
+		if(LArFanSectionsMult > 1 && i != 0 && i != MaxFanSection){
+			const G4double dzi = (FanSectionLimits[i + 1] - FanSectionLimits[i])
+			                   / LArFanSectionsMult;
+			for(G4int di = 1; di < LArFanSectionsMult; ++ di){
+				const G4double zi = FanSectionLimits[i] + dzi * di;
+				m_fs->z.push_back(zi);
+				const G4double ri = Bin + zi * Ain;
+				m_fs->rmin2.push_back(ri*ri);
+				const G4double ro = Bout + zi * Aout;
+				m_fs->rmax2.push_back(ro*ro);
+			}
+		}
+		m_fs->z.push_back(FanSectionLimits[i + 1]);
+		m_fs->rmin2.push_back(rInner[1]*rInner[1]);
+		m_fs->rmax2.push_back(rOuter[1]*rOuter[1]);
+
 		sprintf(tmp_str, "%i", i);
 		G4String fs_name = bp_name + "-FanSection-" + tmp_str;
 #ifdef DEBUG_LARWHEELSOLID
-		(*msg) << MSG::DEBUG << fs_name << G4endl
+		(*msg) << MSG::INFO << fs_name << G4endl
 			   << "  z    = (" << zPlane[0] << "," << zPlane[1] << ")" << G4endl
 			   << "  rIn  = (" << rInner[0] << "," << rInner[1] << ")" << G4endl
 			   << "  rOut = (" << rOuter[0] << "," << rOuter[1] << ")" << endreq;
@@ -192,10 +230,14 @@ void LArWheelSolid::inner_solid_init(const G4String &bp_name)
 		FanSection[i] = new G4Polycone(fs_name, phi_min, phi_max - phi_min,
 		    		                   2, zPlane, rInner, rOuter);
 #ifdef DEBUG_LARWHEELSOLID
-		(*msg) << MSG::DEBUG << "  phi  = (" << FanSection[i]->GetStartPhi()
+		(*msg) << MSG::INFO << "  phi  = (" << FanSection[i]->GetStartPhi()
 			   << "," << FanSection[i]->GetEndPhi() << ")" << endreq;
 #endif
 	}
+	m_fs->prepare();
+#ifdef DEBUG_LARWHEELSOLID
+	m_fs->print();
+#endif
 }
 
 // initialization of outer Absorber or Electrod wheels
@@ -210,10 +252,10 @@ void LArWheelSolid::outer_solid_init(const G4String &bp_name)
 	G4double wheel_thickness = zPlane[2] - zPlane[0];
 	zPlane[1] = Calculator->GetWheelInnerRadius(rInner);
 	Calculator->GetWheelOuterRadius(rOuter);
-	
+
 	Zmin = zPlane[0]; Zmax = zPlane[2];
 	Rmin = rInner[0]; Rmax = rOuter[2];
-	
+
 	BoundingPolycone = new G4Polycone(bp_name, MinPhi, MaxPhi - MinPhi,
 		    		                        3, zPlane, rInner, rOuter);
 
@@ -253,13 +295,20 @@ void LArWheelSolid::outer_solid_init(const G4String &bp_name)
 	// Calculate slopes and intercepts for beginning part
 	G4double Ain = (rInner[1] - rInner[0]) / (zPlane[1] - zPlane[0]);
 	G4double Aout = (rOuter[1] - rOuter[0]) / (zPlane[1] - zPlane[0]);
-	G4double Bin = rInner[0], Bout = rOuter[0];
+	G4double Bin = rInner[0] - Ain * zPlane[0];
+	G4double Bout = rOuter[0] - Aout * zPlane[0];
+
+	m_fs = new LArFanSections(Ain, Aout, Bin, Bout, Rmax*cos(phi_min));
+
+	m_fs->z.push_back(FanSectionLimits[0]);
+	m_fs->rmin2.push_back(rInner[0]*rInner[0]);
+	m_fs->rmax2.push_back(rOuter[0]*rOuter[0]);
 
 	for(i = 0; i <= MaxFanSection; i ++){
 		zPlane[0] = FanSectionLimits[i];
 		zPlane[1] = FanSectionLimits[i + 1];
 #ifdef DEBUG_LARWHEELSOLID
-		(*msg) << MSG::DEBUG << "zPlane[0]=" << zPlane[0]
+		(*msg) << MSG::INFO << "zPlane[0]=" << zPlane[0]
 		       << ", zMid=" << zMid << ", zPlane[1]="
 			   << zPlane[1] << endreq;
 #endif
@@ -284,10 +333,35 @@ void LArWheelSolid::outer_solid_init(const G4String &bp_name)
 			rInner[1] = rMidInner;
 			rOuter[1] = rMidOuter;
 
+			if(LArFanSectionsMult > 1){
+				const G4double dzi = (FanSectionLimits[i + 1] - FanSectionLimits[i])
+				                   / LArFanSectionsMult;
+				for(G4int di = 1; di < LArFanSectionsMult; ++ di){
+					const G4double zi = FanSectionLimits[i] + dzi * di;
+					if(zi > zMid && m_fs->z.back() < zMid){
+						m_fs->z.push_back(zMid);
+						m_fs->rmin2.push_back(rMidInner*rMidInner);
+						m_fs->rmax2.push_back(rMidOuter*rMidOuter);
+					}
+					m_fs->z.push_back(zi);
+					const G4double ri = Bin + zi * Ain;
+					m_fs->rmin2.push_back(ri*ri);
+					const G4double ro = Bout + zi * Aout;
+					m_fs->rmax2.push_back(ro*ro);
+				}
+			} else {
+				m_fs->z.push_back(zMid);
+				m_fs->rmin2.push_back(rMidInner*rMidInner);
+				m_fs->rmax2.push_back(rMidOuter*rMidOuter);
+			}
+			m_fs->z.push_back(FanSectionLimits[i + 1]);
+			m_fs->rmin2.push_back(rInner[2]*rInner[2]);
+			m_fs->rmax2.push_back(rOuter[2]*rOuter[2]);
+
 			sprintf(tmp_str, "%i", i);
 			G4String fs_name = bp_name + "-FanSection-" + tmp_str;
 #ifdef DEBUG_LARWHEELSOLID
-			(*msg) << MSG::DEBUG << fs_name << G4endl
+			(*msg) << MSG::INFO << fs_name << G4endl
 			       << "  z	  = (" << zPlane[0] << "," << zPlane[1] << "," << zPlane[2] << ")" << G4endl
 				   << "  rIn  = (" << rInner[0] << "," << rInner[1] << "," << rInner[2] << ")" << G4endl
 				   << "  rOut = (" << rOuter[0] << "," << rOuter[1] << "," << rOuter[2] << ")" << endreq;
@@ -295,7 +369,7 @@ void LArWheelSolid::outer_solid_init(const G4String &bp_name)
 			FanSection[i] = new G4Polycone(fs_name, phi_min, phi_max - phi_min,
 					                       3, zPlane, rInner, rOuter);
 #ifdef DEBUG_LARWHEELSOLID
-			(*msg) << MSG::DEBUG << "  phi  = (" << FanSection[i]->GetStartPhi()
+			(*msg) << MSG::INFO << "  phi  = (" << FanSection[i]->GetStartPhi()
 				   << "," << FanSection[i]->GetEndPhi() << ")" << endreq;
 #endif
 		} else {
@@ -306,10 +380,26 @@ void LArWheelSolid::outer_solid_init(const G4String &bp_name)
 			rInner[1] = Bin  + zPlane[1] * Ain;
 			rOuter[1] = Bout + zPlane[1] * Aout;
 
+			if(LArFanSectionsMult > 1 && i != 0 && i != MaxFanSection){
+				const G4double dzi = (FanSectionLimits[i + 1] - FanSectionLimits[i])
+				                   / LArFanSectionsMult;
+				for(G4int di = 1; di < LArFanSectionsMult; ++ di){
+					const G4double zi = FanSectionLimits[i] + dzi * di;
+					m_fs->z.push_back(zi);
+					const G4double ri = Bin + zi * Ain;
+					m_fs->rmin2.push_back(ri*ri);
+					const G4double ro = Bout + zi * Aout;
+					m_fs->rmax2.push_back(ro*ro);
+				}
+			}
+			m_fs->z.push_back(FanSectionLimits[i + 1]);
+			m_fs->rmin2.push_back(rInner[1]*rInner[1]);
+			m_fs->rmax2.push_back(rOuter[1]*rOuter[1]);
+
 			sprintf(tmp_str, "%i", i);
 			G4String fs_name = bp_name + "-FanSection-" + tmp_str;
 #ifdef DEBUG_LARWHEELSOLID
-			(*msg) << MSG::DEBUG << fs_name << G4endl
+			(*msg) << MSG::INFO << fs_name << G4endl
 			       << "  z	  = (" << zPlane[0] << "," << zPlane[1] << ")" << G4endl
 				   << "  rIn  = (" << rInner[0] << "," << rInner[1] << ")" << G4endl
 				   << "  rOut = (" << rOuter[0] << "," << rOuter[1] << ")" << endreq;
@@ -317,11 +407,15 @@ void LArWheelSolid::outer_solid_init(const G4String &bp_name)
 			FanSection[i] = new G4Polycone(fs_name, phi_min, phi_max - phi_min,
 				                           2, zPlane, rInner, rOuter);
 #ifdef DEBUG_LARWHEELSOLID
-			(*msg) << MSG::DEBUG << "  phi  = (" << FanSection[i]->GetStartPhi()
+			(*msg) << MSG::INFO << "  phi  = (" << FanSection[i]->GetStartPhi()
 				   << "," << FanSection[i]->GetEndPhi() << ")" << endreq;
 #endif
 		}
 	}
+	m_fs->prepare();
+#ifdef DEBUG_LARWHEELSOLID
+	m_fs->print();
+#endif
 }
 
 // it should be called after FanPhiAmplitude has been set

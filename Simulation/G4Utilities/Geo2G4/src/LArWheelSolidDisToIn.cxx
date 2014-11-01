@@ -44,10 +44,53 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP,
 	if(FanHalfThickness - fabs(d) > Tolerance) return distance;
 	v = inputV;
 	v.rotateZ(p.phi() - phi0);
-	//	G4double dd = distance_to_in(p, d, v);
+#ifndef DEBUG_LARWHEELSOLID
+	return distance + distance_to_in(p, v);
+#else
+	G4ThreeVector p1(p), v1(v), p0(p), v0(v);
+	G4double dd1 = distance_to_in_ref(p1, v1);
 	G4double dd = distance_to_in(p, v);
-//if(dd < 0) return -distance + dd;
+	if(fabs(dd - dd1) > IterationPrecision){
+		static int cnt = 0;
+		std::cout << "DTI " << p0 << " " << v0 << " "
+		          << LArWheelSolidTypeString(Type) << std::endl
+		          << "DTI_ref " << dd1 << " DTI " << dd << std::endl;
+		std::cout << "DTI MISMATCH " << (dd - dd1) << std::endl;
+		Verbose = true;
+		p1 = p0; p = p0; v1 = v0; v = v0;
+		G4double dd2 = distance_to_in_ref(p1, v1);
+		G4double dd3 = distance_to_in(p, v);
+		std::cout << " === " << dd2 << " === " << dd3 << " === " << std::endl;
+		cnt ++;
+//		if(cnt > 10) exit(0);
+		Verbose = false;
+		if(cnt < 10){
+			FILE *F = fopen("test_dti", "a");
+			fwrite(&Type, sizeof(Type), 1, F);
+			fwrite(&p0, sizeof(p0), 1, F);
+			fwrite(&v0, sizeof(v0), 1, F);
+			fclose(F);
+		}
+	}
+	bool inf = false;
+	if(dd > 10.*m){
+		dd = BoundingPolycone->DistanceToOut(p0, v);
+		inf = true;
+	}
+	size_t i = 1;
+	for(G4double t = 0.; t < dd; t += IterationPrecision * 10.){
+		G4ThreeVector b = p0 + v * t;
+		if(FanHalfThickness - fabs(Calculator->DistanceToTheNeutralFibre(b)) > Tolerance){
+			if(fabs(t - dd) <= IterationPrecision) break;
+			std::cout << "@# " << Type << " " << p << " " << v << " ";
+			std::cout << i << " " << (inf? kInfinity: dd) << " " << t << std::endl;
+			break;
+		}
+		i ++;
+	}
+	if(inf) return kInfinity;
 	return(distance + dd);
+#endif
 }
 
 // This functions should be called in the case when we are sure that
@@ -59,6 +102,12 @@ G4double LArWheelSolid::in_iteration_process(const G4ThreeVector &p,
                                              const G4ThreeVector &out_point)
                                              const
 {
+#ifdef DEBUG_LARWHEELSOLID
+	if(Verbose){
+		std::cout << "iip from " << p << " to " << out_point
+		          << " dir " << (out_point - p).unit() << std::endl;
+	}
+#endif
 	static G4ThreeVector A, B, C, diff;
 	A = p;
 	B = out_point;
@@ -81,7 +130,16 @@ G4double LArWheelSolid::in_iteration_process(const G4ThreeVector &p,
 	} while(diff.mag2() > IterationPrecision2 && niter < IterationsLimit);
 	assert(niter < IterationsLimit);
 	assert(fabs(Calculator->DistanceToTheNeutralFibre(B)) - FanHalfThickness < Tolerance);
+/*std::cout << "diff^2 " << diff.mag2() << " " << IterationPrecision2;
+std::cout << " dist_c " << dist_c << " " << (FanHalfThickness - fabs(dist_c)) << " tol " << Tolerance
+<< std::endl;*/
 	diff = p - B;
+#ifdef DEBUG_LARWHEELSOLID
+	if(Verbose){
+		std::cout << "iip result in " << niter << " = " << B
+		          << " " << diff.mag() << std::endl;
+	}
+#endif
 	return diff.mag();
 }
 
@@ -141,31 +199,31 @@ G4double LArWheelSolid::search_for_nearest_point(const G4ThreeVector &p_in,
 	}
 	return kInfinity;
 }
-/*
-void inside(EInside i)
-{
-	switch(i){
-	case kInside: G4cout << "inside" << G4endl; break;
-	case kSurface: G4cout << "surface" << G4endl; break;
-	case kOutside: G4cout << "outside" << G4endl; break;
-	default: G4cout << "unknown" << G4endl; break;
-	}
-}
-*/
 
-/*============================*/
-/* new version of dti(p, v)   */
-/* it's slower but better :-) */
-/*============================*/
-G4double LArWheelSolid::distance_to_in(G4ThreeVector &p,
-                                       G4ThreeVector &v) const
+#ifdef LArWheelSolidDTI_NEW
+G4double LArWheelSolid::distance_to_in_ref
+#else
+G4double LArWheelSolid::distance_to_in
+#endif
+(G4ThreeVector &p, const G4ThreeVector &v) const
 {
+	static G4ThreeVector out_point;
+#ifdef DEBUG_LARWHEELSOLID
+	G4ThreeVector p0 = p;
+	if(Verbose) std::cout << "dti old" << std::endl;
+#endif
 	G4int sign, start, stop;
 	if(v[2] < 0.){ sign = -1; start = MaxFanSection; stop = -1; }
 	else { sign = 1; start = 0; stop = MaxFanSection + 1; }
 	G4double distance = 0., result = kInfinity;
 	G4double dist_p = 0.;
 	for(G4int i = start; i != stop; i += sign){
+#ifdef DEBUG_LARWHEELSOLID
+		if(Verbose){
+			std::cout << "dti old at " << i << " " << p << " d = "
+			          << distance << std::endl;
+		}
+#endif
 		if(FanSection[i]->Inside(p) == kOutside){
 			G4double d1 = FanSection[i]->DistanceToIn(p, v);
 //			if(d1 < kInfinity){ // crossed this FS
@@ -175,11 +233,13 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p,
 				distance += d1;
 				p += v * d1;
 			} else {
+#ifdef DEBUG_LARWHEELSOLID
 				if(d1 < kInfinity){
 					(*msg) << MSG::ERROR << "DistanceToIn(p, v):" << G4endl
 					       << "FanSection[" << i << "]->DistanceToIn(" << MSG_VECTOR(p)
 						   << ", " << MSG_VECTOR(v) << ") = " << d1 << endreq;
 				}
+#endif
 				continue;
 			}
 		}
@@ -189,22 +249,31 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p,
 			result = distance;
 			break;
 		}
-		static G4ThreeVector out_point;
 
 		G4double dist_from_p_to_out = FanSection[i]->DistanceToOut(p, v);
 
 /* workaround for bug in G4Polycone  */
 		if(dist_from_p_to_out > 10 * CLHEP::m){
+#ifdef DEBUG_LARWHEELSOLID
 			(*msg) << MSG::WARNING
 			       << "distance_to_in: workaround for a 'bug' in G4Polycone "
 			       << " at " << MSG_VECTOR(p) << ": "
 				   << dist_from_p_to_out << endreq;
+#endif
 			return kInfinity;
 		}
 
 		out_point = p + v * dist_from_p_to_out;
 
 		G4double dist_out = Calculator->DistanceToTheNeutralFibre(out_point);
+#ifdef DEBUG_LARWHEELSOLID
+		if(Verbose){
+			std::cout << ">" << p << " " << dist_p << " " << out_point
+			          << " " << dist_out << std::endl
+			          << "out_point r " << out_point.perp() << " phi "
+			          << out_point.phi() << std::endl;
+		}
+#endif
 		if(dist_p * dist_out < 0.){// it certanly cross current half-wave
 			result = distance + in_iteration_process(p, dist_p, out_point);
 			break;
@@ -217,6 +286,9 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p,
 		p = out_point;
 		distance += dist_from_p_to_out;
 	}
+#ifdef DEBUG_LARWHEELSOLID
+	if(Verbose) std::cout << "dti old end " << result << std::endl;
+#endif
 	return result;
 }
 
@@ -239,6 +311,7 @@ G4double LArWheelSolid::distance_to_in(const G4ThreeVector &p,
 //  assert(current_section->Inside(p) != kOutside);
 
 	if(current_section->Inside(p) == kOutside){
+#ifdef DEBUG_LARWHEELSOLID
 		(*msg) << MSG::WARNING
 		       << "#" << (warning ++) << " from istance_to_in:" << G4endl
 			   << "current_section->Inside(p) == kOutside!!!" << G4endl
@@ -250,6 +323,7 @@ G4double LArWheelSolid::distance_to_in(const G4ThreeVector &p,
 			   << "\tphi borders: " << current_section->GetStartPhi()
 			   << ", " << current_section->GetEndPhi()
 			   << endreq;
+#endif
 		if(warning >= 5){
 			(*msg) << MSG::WARNING << "iterations are stopped" << endreq;
 			return kInfinity;
@@ -304,3 +378,47 @@ G4double LArWheelSolid::distance_to_in(const G4ThreeVector &p,
 	}
 	return distance;
 }
+
+#ifdef DEBUG_LARWHEELSOLID
+
+G4double LArWheelSolid::in_chord_method(
+	const G4ThreeVector &p0, const G4ThreeVector &p1,
+	const G4ThreeVector &v) const
+{
+#if 0
+if(Verbose) std::cout << "icm: " << p0 << " " << v << std::endl;
+	const G4double d0 = Calculator->DistanceToTheNeutralFibre(p0);
+	const G4double ht = d0 < 0.? FanHalfThickness: (-FanHalfThickness);
+	G4double f = d0 + ht;
+if(Verbose) std::cout << "at p0: " << f << std::endl;
+
+{
+	FILE *F = fopen("test_icm", "r");
+	if(F == 0){
+		F = fopen("test_icm", "w");
+		for(double x = 0.; x < (p1 - p0).mag(); x += IterationPrecision){
+			G4ThreeVector pi = p0 + v * x;
+			fprintf(F, "%e %e\n", x, Calcuator->DistanceToTheNeutralFibre(pi) + ht);
+		}
+		std::cout << "Vz = " << v.z() << std::endl;
+		fclose(F);
+	} else fclose(F);
+}
+	G4double F = Calculator->DistanceToTheNeutralFibre(p1) + ht;
+	G4double T = (p1 - p0).mag();
+if(Verbose) std::cout << "at p1: T " << T << " " << " F " << F << std::endl;
+	G4double t = 0.;
+	for(size_t i = 0; i < IterationsLimit; ++ i){
+		const G4double dt = f * (t - T) / (f - F);
+if(Verbose) std::cout << "at " << i << ": t " << t << " dt " << dt << " f " << f << std::endl;
+		if(fabs(dt) < IterationPrecision){
+			return t;
+		}
+		if(std::signbit(f) != std::signbit
+		t -= dt;
+		f = Calculator->DistanceToTheNeutralFibre(p0 + v * t) + ht;
+	}
+#endif
+	return 0.;
+}
+#endif

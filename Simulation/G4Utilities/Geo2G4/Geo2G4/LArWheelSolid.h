@@ -15,11 +15,20 @@
 
 #include "G4VSolid.hh"
 
-#define MSG_VECTOR(v) "(" << v.x() << ", " << v.y() << ", " << v.z() << ")"
-
 // set this to allow debug output in LArWheelSolid methods
 // disabled by default to avoid any performance degradation
 //#define DEBUG_LARWHEELSOLID
+
+// set this to use speed-improved version of DistanceToOut
+#define LArWheelSolidDTO_NEW
+
+// set this to use speed-improved version of DistanceToIn
+#define LArWheelSolidDTI_NEW
+
+#ifdef DEBUG_LARWHEELSOLID
+extern G4bool Verbose;
+#define MSG_VECTOR(v) "(" << v.x() << ", " << v.y() << ", " << v.z() << ")"
+#endif
 
 // Forward declarations.
 class G4VGraphicsScene;
@@ -32,6 +41,7 @@ class G4Polycone;
 class LArWheelCalculator;
 class MsgStream;
 class TF1;
+class LArFanSections;
 
 typedef enum {
 	InnerAbsorberWheel,
@@ -120,13 +130,14 @@ class LArWheelSolid : public G4VSolid
 	G4double MinPhi;
 	G4double MaxPhi;
 	G4double PhiPosition;
-	G4bool Verbose;
 	G4Polycone* BoundingPolycone;
 	G4Polycone** FanSection;
 	G4int MaxFanSection;
 	G4double *FanSectionLimits;
 	G4int MaxFanSectionLimits;
-	
+
+	LArFanSections *m_fs;
+
 	// limits for use in service functions
 	G4double Zmin, Zmax, Rmin, Rmax;
 
@@ -137,7 +148,8 @@ class LArWheelSolid : public G4VSolid
 	virtual G4double distance_to_in(const G4ThreeVector &,
 	                                const G4double,
 									const G4ThreeVector &) const;
-	virtual G4double distance_to_in(G4ThreeVector &, G4ThreeVector &) const;
+	virtual G4double distance_to_in(G4ThreeVector &, const G4ThreeVector &) const;
+	virtual G4double distance_to_in_ref(G4ThreeVector &, const G4ThreeVector &) const;
 	G4double in_iteration_process(const G4ThreeVector &,
                                   G4double,
 								  const G4ThreeVector &) const;
@@ -148,9 +160,15 @@ class LArWheelSolid : public G4VSolid
 										 G4ThreeVector &) const;
 	G4double distance_to_out(const G4ThreeVector &,
                              const G4ThreeVector &) const;
+	G4double distance_to_out_ref(const G4ThreeVector &, const G4ThreeVector &) const;
 	G4double out_iteration_process(const G4ThreeVector &,
 	                               const G4ThreeVector &) const;
 	G4int select_fan_section(G4double) const;
+
+	bool fs_inner_escape(G4double &b,
+		const G4ThreeVector &p, const G4ThreeVector &v) const;
+	void fs_outer_escape(const G4int &fan_section, G4double &b,
+		const G4ThreeVector &p, const G4ThreeVector &v) const;
 
 	EInside Inside_accordion(const G4ThreeVector&) const;
 	void get_point_on_accordion_surface(G4ThreeVector &) const;
@@ -173,13 +191,29 @@ class LArWheelSolid : public G4VSolid
 	MsgStream *msg;
 
 	TF1 *f_area, *f_vol, *f_area_on_pc, *f_length, *f_side_area;
-	
+
 	double test_index;
 	friend double LArWheelSolid_fcn_area(double *, double *);
 	friend double LArWheelSolid_fcn_vol(double *, double *);
 	friend double LArWheelSolid_fcn_area_on_pc(double *, double *);
 	friend double LArWheelSolid_get_dl(double *, double *, G4int);
 	friend double LArWheelSolid_fcn_side_area(double *, double *);
+
+#ifdef DEBUG_LARWHEELSOLID
+	G4double in_chord_method(
+		const G4ThreeVector &p0, const G4ThreeVector &p1,
+		const G4ThreeVector &v) const;
+
+	static const char* inside(EInside i)
+	{
+		switch(i){
+			case kInside: return "inside"; break;
+			case kSurface: return "surface"; break;
+			case kOutside: return "outside"; break;
+		}
+		return "unknown";
+	}
+#endif
 };
 
 #endif // __LArWheelSolid_HH__
