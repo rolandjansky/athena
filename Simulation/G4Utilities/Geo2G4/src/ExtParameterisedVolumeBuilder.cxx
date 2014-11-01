@@ -41,7 +41,7 @@ ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n):
 LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhysVolume, OpticalVolumesMap* optical_volumes) const
 {
   PVConstLink theGeoPhysChild;
-  const GeoSerialTransformer* serialTransformerChild;
+  const GeoSerialTransformer* serialTransformerChild=0;
   G4LogicalVolume* theG4LogChild;
   unsigned int numChildNodes;                      // number of child nodes (PV and ST)
   bool descend;                                    // flag to continue geo tree navigation
