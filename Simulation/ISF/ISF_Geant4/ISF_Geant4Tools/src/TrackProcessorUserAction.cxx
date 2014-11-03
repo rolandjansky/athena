@@ -502,6 +502,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
   //  an undefined region answer; since G4 works on a stack rather than a queue, this is safe-ish
   if (step.PostStepBranchDepth()<m_truthVolLevel){
     if (m_truthVolLevel>1 &&
+        step.PostStepBranchDepth()>m_truthVolLevel-1 &&
         step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra") ) nextGeoID = AtlasDetDescr::fAtlasCavern;
     return nextGeoID;
   }
