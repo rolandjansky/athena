@@ -27,7 +27,7 @@ int main( int argc, char* argv[]){
   TChain* ntupleToRead = new TChain("data") ;
   ntupleToRead->SetMakeClass(1);
   TString outName = "LayerAnalysis";
-  TString inName = "HitNtuple";
+  TString inName = "HitNtuple2";
   TString postFix = "";
   if( data == 0 )      postFix += "Cav";
   else if( data == 1 ) postFix += "Zmumu";
@@ -36,8 +36,9 @@ int main( int argc, char* argv[]){
   else if( data == 4 ) postFix += "Overlay20";
   else if( data == 5 ) postFix += "CavNSW";
   else if( data == 6 ) postFix += "SingleNSW";
-  
-  ntupleToRead->Add(inName+postFix+".root");
+ 
+  ntupleToRead->Add("HitNtuple.root"); 
+//  ntupleToRead->Add(inName+postFix+".root");
   outName += postFix;
   outName += ".root";
   TFile* output = new TFile(outName,"RECREATE");

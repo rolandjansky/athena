@@ -7,6 +7,7 @@
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonLayerHough/Hit.h"
+#include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include <vector>
 #include <iostream>
 #include <string>
@@ -94,7 +95,7 @@ namespace MuonHough {
     std::pair<float,float> layerConfirmation( unsigned int thetaBin, float x, float y, float range = 1000. ) const;
 
     /// find the highest maximum that is above maxval
-    bool findMaximum( Maximum& maximum, float maxval ) const;
+    bool findMaximum( Maximum& maximum, const MuonLayerHoughSelector& selector ) const;
 
     /// associates the list of input hits to the provided maximum
     void associateHitsToMaximum( Maximum& maximum, const std::vector<Hit*>& hits ) const;

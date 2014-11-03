@@ -23,7 +23,7 @@ namespace MuonHough {
       SectorData::iterator sit_end = it->second.end();
       for( ;sit!=sit_end;++sit ){
     	HitList& list = sit->second;
-	std::stable_sort(list.begin(),list.end(),SortHitsPerLayer());
+      	std::stable_sort(list.begin(),list.end(),SortHitsPerLayer());
       }
     }
   }
@@ -297,7 +297,7 @@ namespace MuonHough {
 
   bool HitNtuple::read( EventData& event, std::vector<MuonDebugInfo>& muons ){
     if( nhits == 0 ) {
-      std::cout << " ntuple not initilized for reading " << std::endl;
+      std::cout << " ntuple not initialized for reading " << std::endl;
       return false;
     }
     bool hasDebug = nhits == ndebug;
