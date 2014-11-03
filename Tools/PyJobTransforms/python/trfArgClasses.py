@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 617615 2014-09-19 09:36:02Z graemes $
+# @version $Id: trfArgClasses.py 625001 2014-10-29 18:34:02Z wbreaden $
 
 
 import argparse
@@ -14,23 +14,18 @@ import io
 import os
 import re
 import subprocess
-import sys
-import traceback
 import types
 import uuid
-
-from fnmatch import fnmatch
 
 import logging
 msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
-from PyJobTransforms.trfUtils import call, cmpMetadata, cliToKey
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
+from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
-import os
 
 
 ## @class argFactory
@@ -111,7 +106,7 @@ class argument(object):
     ## @brief Name setter
     @name.setter
     def name(self, value):
-         self._name = value
+        self._name = value
 
     @property
     def prodsysDescription(self):
@@ -210,7 +205,8 @@ class argInt(argument):
                 try:
                     self._value = int(value)
                 except ValueError, e:
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert value {0} to int'.format(value))
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                              'Failed to convert value {0} to int: {1}'.format(value, e))
 
     # prodsysDescription: human readable from of type plus possible values
     @property
@@ -393,7 +389,7 @@ class argIntList(argList):
             for v in value:
                 if not isinstance(v, (int, long)):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'),
-                                                              'Illegal argument %s in list of ints' % str(el))
+                                                              'Illegal value {0} in list of ints'.format(v))
             self._value = value
         elif value==None:
             self._value = []
@@ -585,7 +581,7 @@ class argFile(argList):
     def prodsysDescription(self):
         if type(self._type) is types.DictType:
             if self._type=={}:
-               self._desc = {'type' : 'file', 'subtype' : "NONE" }
+                self._desc = {'type' : 'file', 'subtype' : "NONE" }
             else:
                 self._desc = {'type' : 'file', 'subtype' : dict((str(k).upper(), str(v).upper()) for (k,v) in self._type.iteritems())}
         else:
@@ -629,11 +625,11 @@ class argFile(argList):
                 
         ## @note Check for duplicates (N.B. preserve the order, just remove the duplicates)
         deDuplicatedValue = []
-        for file in self._value:
-            if file not in deDuplicatedValue:
-                deDuplicatedValue.append(file)
+        for fname in self._value:
+            if fname not in deDuplicatedValue:
+                deDuplicatedValue.append(fname)
             else:
-                msg.warning("Removing duplicated file {0} from file list".format(file))
+                msg.warning("Removing duplicated file {0} from file list".format(fname))
         if len(self._value) != len(deDuplicatedValue):
             self._value = deDuplicatedValue
             msg.warning('File list after duplicate removal: {0}'.format(self._value))
@@ -734,7 +730,7 @@ class argFile(argList):
                             msg.debug('Seems that only one file was given: {0}'.format(filename))
                             newValue.extend(([filename]))
                         else:
-                           #hopefully this recognised wildcards...
+                            # Hopefully this recognised wildcards...
                             path = filename
                             fileMask = ''
                             if '*' in filename or '?' in filename:
@@ -869,16 +865,16 @@ class argFile(argList):
     ## @brief Explicit getter, offering fast switch
     def getnentries(self, fast=False):
         totalEvents = 0
-        for file in self._value:
-            events = self.getSingleMetadata(file, 'nentries', populate = not fast)
+        for fname in self._value:
+            events = self.getSingleMetadata(fname, 'nentries', populate = not fast)
             if events is None:
-                msg.debug('Got events=None for file {0} - returning None for this instance'.format(file))
+                msg.debug('Got events=None for file {0} - returning None for this instance'.format(fname))
                 return None
             if events is 'UNDEFINED':
-                msg.debug('Got events=UNDEFINED for file {0} - returning UNDEFINED for this instance'.format(file))
+                msg.debug('Got events=UNDEFINED for file {0} - returning UNDEFINED for this instance'.format(fname))
                 return 'UNDEFINED'
             if not isinstance(events, (int, long)):
-                msg.warning('Got unexpected events metadata for file {0}: {1!s} - returning None for this instance'.format(file, events))
+                msg.warning('Got unexpected events metadata for file {0}: {1!s} - returning None for this instance'.format(fname, events))
                 return None
             totalEvents += events
         
@@ -893,24 +889,24 @@ class argFile(argList):
     def _resetMetadata(self, files=[]):
         if files == [] or '_fileMetadata' not in dir(self):
             self._fileMetadata = {}
-            for file in self.value:
-                self._fileMetadata[file] = {}
+            for fname in self.value:
+                self._fileMetadata[fname] = {}
         else:
-            for file in files:
-                if file in self.value:
-                    self._fileMetadata[file] = {}
-                elif file in self._fileMetadata:
-                    del self._fileMetadata[file]
+            for fname in files:
+                if fname in self.value:
+                    self._fileMetadata[fname] = {}
+                elif fname in self._fileMetadata:
+                    del self._fileMetadata[fname]
         msg.debug('Metadata dictionary now {0}'.format(self._fileMetadata))
         
         # If we have the special guid option, then manually try to set GUIDs we find
         if self._guid is not None:
             msg.debug('Now trying to set file GUID metadata using {0}'.format(self._guid))
-            for file, guid in self._guid.iteritems():
-                if file in self._value:
-                    self._fileMetadata[file]['file_guid'] = guid
+            for fname, guid in self._guid.iteritems():
+                if fname in self._value:
+                    self._fileMetadata[fname]['file_guid'] = guid
                 else:
-                    msg.warning('Explicit GUID {0} was passed for file {1}, but this file is not a member of this instance'.format(guid, file))
+                    msg.warning('Explicit GUID {0} was passed for file {1}, but this file is not a member of this instance'.format(guid, fname))
     
     ## @brief Return specific keys for specific files
     #  @param files List of files to return metadata for (default - all files in this instance)
@@ -945,16 +941,16 @@ class argFile(argList):
             self._readMetadata(files, metadataKeys)
 
         metadata = {}
-        for file in files:
-            metadata[file] = {}
+        for fname in files:
+            metadata[fname] = {}
             for mdkey in metadataKeys:
                 try:
-                    metadata[file][mdkey] = self._fileMetadata[file][mdkey]
+                    metadata[fname][mdkey] = self._fileMetadata[fname][mdkey]
                 except KeyError:
                     # This should not happen, unless we skipped populating
                     if populate:
-                        msg.error('Did not find metadata key {0!s} for file {1!s} - setting to None'.format(mdkey, file))
-                    metadata[file][mdkey] = None
+                        msg.error('Did not find metadata key {0!s} for file {1!s} - setting to None'.format(mdkey, fname))
+                    metadata[fname][mdkey] = None
         return metadata
     
     ## @brief Convenience function to extract a single metadata key for a single file
@@ -964,12 +960,12 @@ class argFile(argList):
     #  @param metadataKey Keys to return
     #  @param populate If missing key should be generated by calling the population subroutines
     #  @param flush If cached data should be flushed and the generator rerun 
-    def getSingleMetadata(self, file, metadataKey, populate = True, flush = False):
-        if not (isinstance(file, str) and isinstance(metadataKey, str)):
+    def getSingleMetadata(self, fname, metadataKey, populate = True, flush = False):
+        if not (isinstance(fname, str) and isinstance(metadataKey, str)):
             raise trfExceptions.TransformInternalException(trfExit.nameToCode('TRF_INTERNAL'), 
-                                                           'Illegal call to getSingleMetadata function: {0!s} {1!s}'.format(file, metadataKey))
-        md = self.getMetadata(files = file, metadataKeys = metadataKey, populate = populate, flush = flush)
-        return md[file][metadataKey]
+                                                           'Illegal call to getSingleMetadata function: {0!s} {1!s}'.format(fname, metadataKey))
+        md = self.getMetadata(files = fname, metadataKeys = metadataKey, populate = populate, flush = flush)
+        return md[fname][metadataKey]
     
     
     ## @brief Check metadata is in the cache or generate it if it's missing
@@ -977,39 +973,39 @@ class argFile(argList):
     #  @return: dictionary of files with metadata, for any unknown keys 'UNDEFINED' is returned
     def _readMetadata(self, files, metadataKeys):
         msg.debug('Retrieving metadata keys {1!s} for files {0!s}'.format(files, metadataKeys))
-        for file in files:
-            if file not in self._fileMetadata:
-                self._fileMetadata[file] = {}
-        for file in files:
+        for fname in files:
+            if fname not in self._fileMetadata:
+                self._fileMetadata[fname] = {}
+        for fname in files:
             # Always try for a simple existence test first before producing misleading error messages
             # from metadata populator functions
-            if '_exists' not in self._fileMetadata[file]:
+            if '_exists' not in self._fileMetadata[fname]:
                 self._metadataKeys['_exists'](files)
-            if self._fileMetadata[file]['_exists'] is False:
+            if self._fileMetadata[fname]['_exists'] is False:
                 # N.B. A log ERROR message has printed by the existence test, so do not repeat that news here
                 for key in metadataKeys:
                     if key is not '_exists':
-                        self._fileMetadata[file][key] = None
+                        self._fileMetadata[fname][key] = None
             else:
                 # OK, file seems to exist at least... 
                 for key in metadataKeys:
                     if key not in self._metadataKeys:
                         msg.debug('Metadata key {0} is unknown for {1}'.format(key, self.__class__.__name__))
-                        self._fileMetadata[file][key] = 'UNDEFINED'
+                        self._fileMetadata[fname][key] = 'UNDEFINED'
                     else:
-                        if key in self._fileMetadata[file]:
-                            msg.debug('Found cached value for {0}:{1} = {2!s}'.format(file, key, self._fileMetadata[file][key]))
+                        if key in self._fileMetadata[fname]:
+                            msg.debug('Found cached value for {0}:{1} = {2!s}'.format(fname, key, self._fileMetadata[fname][key]))
                         else:
-                            msg.debug('No cached value for {0}:{1}. Calling generator function {2} ({3})'.format(file, key, self._metadataKeys[key].func_name, self._metadataKeys[key]))
+                            msg.debug('No cached value for {0}:{1}. Calling generator function {2} ({3})'.format(fname, key, self._metadataKeys[key].func_name, self._metadataKeys[key]))
                             try:
                                 # For efficiency call this routine with all files we have
                                 self._metadataKeys[key](files)
                             except trfExceptions.TransformMetadataException, e:
                                 msg.error('Calling {0!s} raised an exception: {1!s}'.format(self._metadataKeys[key].func_name, e))
-                            if key not in self._fileMetadata[file]:
-                                msg.warning('Call to function {0} for {1} file {2} failed to populate metadata key {3}'.format(self._metadataKeys[key].__name__, self.__class__.__name__, file, key))
-                                self._fileMetadata[file][key] = None
-                            msg.debug('Now have {0}:{1} = {2!s}'.format(file, key, self._fileMetadata[file][key]))
+                            if key not in self._fileMetadata[fname]:
+                                msg.warning('Call to function {0} for {1} file {2} failed to populate metadata key {3}'.format(self._metadataKeys[key].__name__, self.__class__.__name__, fname, key))
+                                self._fileMetadata[fname][key] = None
+                            msg.debug('Now have {0}:{1} = {2!s}'.format(fname, key, self._fileMetadata[fname][key]))
     
     
     ## @brief Set metadata values into the cache
@@ -1025,10 +1021,10 @@ class argFile(argList):
     def _setMetadata(self, files=None, metadataKeys={}):
         if files == None:
             files = self._value
-        for file in files:
+        for fname in files:
             for k, v in metadataKeys.iteritems():
-                msg.debug('Manualy setting %s for file %s to %s'.format(k, file, v))
-                self._fileMetadata[file][k] = v
+                msg.debug('Manualy setting {0} for file {1} to {2}'.format(k, fname, v))
+                self._fileMetadata[fname][k] = v
     
     
     ## @brief Test if certain metadata elements are already cached
@@ -1049,9 +1045,9 @@ class argFile(argList):
             metadataKeys = (metadataKeys,)
             
         isCachedFlag = True
-        for file in files:
+        for fname in files:
             for key in metadataKeys:
-                if key not in self._fileMetadata[file]:
+                if key not in self._fileMetadata[fname]:
                     isCachedFlag = False
                     break
             if isCachedFlag == False:
@@ -1070,8 +1066,8 @@ class argFile(argList):
         newValue = []
         for filename in self._value:
             if filename.find('#') > -1:
-                (dataset, file) = filename.split('#', 1)
-                newValue.append(file)
+                (dataset, fname) = filename.split('#', 1)
+                newValue.append(fname)
                 msg.debug('Current dataset: {0}; New dataset {1}'.format(self._dataset, dataset))
                 if (self._dataset is not None) and (self._dataset != dataset):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_DATASET'), 
@@ -1080,28 +1076,23 @@ class argFile(argList):
             else:
                 newValue.append(filename)
         self._value = newValue
-
-
-    def __str__(self):
-        return "%s (Dataset %s, IO %s)" % (self.value, self.dataset, self.io)
-
     
     ## @brief Determines the size of files.
     #  @details Currently only for statable files (posix fs). Caches the
     #  @param files List of paths to the files for which the size is determined.
     #  @return None (internal @c self._fileMetadata cache is updated)
     def _getSize(self, files):
-        for file in files:
+        for fname in files:
             if self._urlType is 'posix':
                 try:
-                    self._fileMetadata[file]['size'] = os.stat(file).st_size
+                    self._fileMetadata[fname]['size'] = os.stat(fname).st_size
                 except (IOError, OSError) as e:
-                    msg.error('Got exception {0!s} raised while stating file {1}'.format(e, file))
-                    self._fileMetadata[file]['size'] = None
+                    msg.error('Got exception {0!s} raised while stating file {1}'.format(e, fname))
+                    self._fileMetadata[fname]['size'] = None
             else:
                 # OK, let's see if ROOT can do it...
-                msg.debug('Calling ROOT TFile.GetSize({0})'.format(file))
-                self._fileMetadata[file]['size'] = ROOTGetSize(file)
+                msg.debug('Calling ROOT TFile.GetSize({0})'.format(fname))
+                self._fileMetadata[fname]['size'] = ROOTGetSize(fname)
 
 
     ## @brief File integrity checker
@@ -1109,17 +1100,17 @@ class argFile(argList):
     #  @param @c files List of paths to the files for which the integrity is determined
     #  @return None (internal @c self._fileMetadata cache is updated)
     def _getIntegrity(self, files):
-        for file in files:
-            with open(file) as f: 
+        for fname in files:
+            with open(fname) as f: 
                 try:
                     while True:
                         chunk = len(f.read(1024*1024))
-                        msg.debug('Read {0} bytes from {1}'.format(chunk, file)) 
+                        msg.debug('Read {0} bytes from {1}'.format(chunk, fname)) 
                         if chunk == 0:
                             break
-                    self._fileMetadata[file]['integrity'] = True
+                    self._fileMetadata[fname]['integrity'] = True
                 except (OSError, IOError) as e:
-                    msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, file))
+                    msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, fname))
                     self._fileMetadata[file]['integrity'] = False
                     
                     
@@ -1128,9 +1119,9 @@ class argFile(argList):
     #  @note This generation method will be superceeded in any file type which 
     #  actually has an intrinsic GUID (e.g. BS or POOL files)
     def _generateGUID(self, files):
-        for file in files:
-            msg.debug('Generating a GUID for file {0}'.format(file))
-            self._fileMetadata[file]['file_guid'] = str(uuid.uuid4()).upper()
+        for fname in files:
+            msg.debug('Generating a GUID for file {0}'.format(fname))
+            self._fileMetadata[fname]['file_guid'] = str(uuid.uuid4()).upper()
             
             
     ## @brief Try to determine if a file actually exists...
@@ -1140,27 +1131,27 @@ class argFile(argList):
     #  @return None (internal @c self._fileMetadata cache is updated)
     def _exists(self, files):
         msg.debug('Testing existance for {0}'.format(files))
-        for file in files:
+        for fname in files:
             if self._urlType is 'posix':
                 try:
-                    size = os.stat(file).st_size
-                    self._fileMetadata[file]['file_size'] = size
-                    self._fileMetadata[file]['_exists'] = True
-                    msg.debug('POSIX file {0} exists'.format(file))
+                    size = os.stat(fname).st_size
+                    self._fileMetadata[fname]['file_size'] = size
+                    self._fileMetadata[fname]['_exists'] = True
+                    msg.debug('POSIX file {0} exists'.format(fname))
                 except (IOError, OSError) as e:
-                    msg.error('Got exception {0!s} raised while stating file {1}  - probably it does not exist'.format(e, file))
-                    self._fileMetadata[file]['_exists'] = False
+                    msg.error('Got exception {0!s} raised while stating file {1}  - probably it does not exist'.format(e, fname))
+                    self._fileMetadata[fname]['_exists'] = False
             else:
                 # OK, let's see if ROOT can do it...
-                msg.debug('Calling ROOT TFile.GetSize({0})'.format(file))
-                size = ROOTGetSize(file)
+                msg.debug('Calling ROOT TFile.GetSize({0})'.format(fname))
+                size = ROOTGetSize(fname)
                 if size is None:
-                    self._fileMetadata[file]['_exists'] = False
-                    msg.error('Non-POSIX file {0} could not be opened - probably it does not exist'.format(file))
+                    self._fileMetadata[fname]['_exists'] = False
+                    msg.error('Non-POSIX file {0} could not be opened - probably it does not exist'.format(fname))
                 else:
-                    msg.debug('Non-POSIX file {0} exists'.format(file))
-                    self._fileMetadata[file]['file_size'] = size
-                    self._fileMetadata[file]['_exists'] = True
+                    msg.debug('Non-POSIX file {0} exists'.format(fname))
+                    self._fileMetadata[fname]['file_size'] = size
+                    self._fileMetadata[fname]['_exists'] = True
 
     ## @brief String representation of a file argument
     def __str__(self):
@@ -1173,8 +1164,8 @@ class argAthenaFile(argFile):
                  name=None, executor=list(), mergeTargetSize=-1):
         super(argAthenaFile, self).__init__(value=value, subtype=subtype, io=io, type=type, splitter=splitter, runarg=runarg, 
                                             multipleOK=multipleOK, name=name, executor=executor, mergeTargetSize=mergeTargetSize)
-        # Extra metadata known for athena files:
 
+        # Extra metadata known for athena files:
         for key in athFileInterestingKeys:
             self._metadataKeys[key] = self._getAthInfo
             
@@ -1185,12 +1176,20 @@ class argAthenaFile(argFile):
         else:
             myFiles = files
         msg.debug('Will retrieve AthFile info for {0!s}'.format(myFiles))
-        athFileMetadata = AthenaFileInfo(myFiles, retrieveKeys=retrieveKeys, timeout=240+30*len(myFiles), defaultrc=None)
-        if athFileMetadata == None:
-            raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaFileInfo failed')
-        for file, fileMetadata in athFileMetadata.iteritems():
-            msg.debug('Setting metadata for file {0} to {1}'.format(file, fileMetadata))
-            self._fileMetadata[file].update(fileMetadata)
+        aftype = 'POOL'
+        if self._type.upper() in ('BS', 'RAW'):
+            aftype = 'BS'
+        elif self._type.upper() in ('TAG'):
+            aftype = 'TAG'
+
+        # N.B. Could parallelise here            
+        for fname in myFiles:
+            # athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys, timeout=240+30*len(myFiles), defaultrc=None)
+            athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys)
+            if athFileMetadata == None:
+                raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaFileInfo failed')
+            msg.debug('Setting metadata for file {0} to {1}'.format(fname, athFileMetadata[fname]))
+            self._fileMetadata[fname].update(athFileMetadata[fname])
 
     ## @brief Small wrapper which sets the standard options for doAllFiles and retrieveKeys
     def _getAthInfo(self, files):
@@ -1233,15 +1232,15 @@ class argBSFile(argAthenaFile):
     integrityFunction = "returnIntegrityOfBSFile"
 
     def _getIntegrity(self, files):
-        for file in files:
+        for fname in files:
             try:
-                rc=call(["AtlListBSEvents.exe", "-c", file], logger=msg, message="Report by AtlListBSEvents.exe: ", timeout=600)
+                rc=call(["AtlListBSEvents.exe", "-c", fname], logger=msg, message="Report by AtlListBSEvents.exe: ", timeout=600)
             except trfExceptions.TransformTimeoutException:
                 return False
             if rc==0:
-                self._fileMetadata[file]['integrity'] = True
+                self._fileMetadata[fname]['integrity'] = True
             else:
-                self._fileMetadata[file]['integrity'] = False
+                self._fileMetadata[fname]['integrity'] = False
 
     @property
     def prodsysDescription(self):
@@ -1258,13 +1257,13 @@ class argPOOLFile(argAthenaFile):
     # trfValidateRootFile is written in an odd way, so timelimit it here.
     @timelimited()
     def _getIntegrity(self, files):
-        for file in files:
+        for fname in files:
             from PyJobTransforms.trfValidateRootFile import checkFile
-            rc=checkFile(fileName=file, type='event', requireTree=True)
+            rc=checkFile(fileName=fname, the_type='event', requireTree=True)
             if rc==0:
-                self._fileMetadata[file]['integrity'] = True
+                self._fileMetadata[fname]['integrity'] = True
             else:
-                self._fileMetadata[file]['integrity'] = False
+                self._fileMetadata[fname]['integrity'] = False
 
     @property
     def prodsysDescription(self):
@@ -1280,10 +1279,10 @@ class argPOOLFile(argAthenaFile):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
-        for file in inputs:
-            if file not in self._value:
+        for fname in inputs:
+            if fname not in self._value:
                 raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
-                                                            "File {0} is not part of this agument: {1}".format(file, self))
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
         
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         
@@ -1303,8 +1302,8 @@ class argPOOLFile(argAthenaFile):
         
         # OK, if we got to here with no exceptions, we're good shape
         # Now update our own list of files to reflect the merge
-        for file in inputs:
-            self._value.remove(file)
+        for fname in inputs:
+            self._value.remove(fname)
         self._value.append(output)
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
@@ -1320,10 +1319,10 @@ class argHITSFile(argPOOLFile):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
-        for file in inputs:
-            if file not in self._value:
+        for fname in inputs:
+            if fname not in self._value:
                 raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
-                                                            "File {0} is not part of this agument: {1}".format(file, self))
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
         
         ## @note Modify argdict
         mySubstepName = 'HITSMerge_AthenaMP'
@@ -1340,8 +1339,8 @@ class argHITSFile(argPOOLFile):
         
         # OK, if we got to here with no exceptions, we're good shape
         # Now update our own list of files to reflect the merge
-        for file in inputs:
-            self._value.remove(file)
+        for fname in inputs:
+            self._value.remove(fname)
         self._value.append(output)
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
@@ -1357,10 +1356,10 @@ class argRDOFile(argPOOLFile):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
-        for file in inputs:
-            if file not in self._value:
+        for fname in inputs:
+            if fname not in self._value:
                 raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
-                                                            "File {0} is not part of this agument: {1}".format(file, self))
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
 
         ## @note Modify argdict
         myargdict = self._mergeArgs(argdict) 
@@ -1376,8 +1375,8 @@ class argRDOFile(argPOOLFile):
         
         # OK, if we got to here with no exceptions, we're good shape
         # Now update our own list of files to reflect the merge
-        for file in inputs:
-            self._value.remove(file)
+        for fname in inputs:
+            self._value.remove(fname)
         self._value.append(output)
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
@@ -1396,15 +1395,15 @@ class argTAGFile(argPOOLFile):
     ## @brief Simple integrity checked for TAG files
     #  @details Checks that the event count in the POOLCollectionTree is the same as the AthFile value
     def _getIntegrity(self, files):
-        for file in files:
-            from PyJobTransforms.trfFileUtils import NTUPEntries
-            eventCount = NTUPEntries(file, ['POOLCollectionTree'])
+        for fname in files:
+            eventCount = NTUPEntries(fname, ['POOLCollectionTree'])
             if eventCount is None:
-                msg.error('Got a bad event count for the POOLCollectionTree in {0}: {1}'.format(file, eventCount))
-                self._fileMetadata[file]['integrity'] = False
+                msg.error('Got a bad event count for the POOLCollectionTree in {0}: {1}'.format(fname, eventCount))
+                self._fileMetadata[fname]['integrity'] = False
                 return
-            if eventCount != self.getSingleMetadata(file, 'nentries'):
-                msg.error('Event count for {0} from POOLCollectionTree disagrees with AthFile: {1} != {2}'.format(file, eventCount, self.getSingleMetadata(file, 'nentries')))
+            if eventCount != self.getSingleMetadata(fname, 'nentries'):
+                msg.error('Event count for {0} from POOLCollectionTree disagrees with AthFile:'
+                          ' {1} != {2}'.format(fname, eventCount, self.getSingleMetadata(fname, 'nentries')))
                 self._fileMetadata[file]['integrity'] = False
                 return
             self._fileMetadata[file]['integrity'] = True
@@ -1418,10 +1417,10 @@ class argTAGFile(argPOOLFile):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
-        for file in inputs:
-            if file not in self._value:
+        for fname in inputs:
+            if fname not in self._value:
                 raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
-                                                            "File {0} is not part of this agument: {1}".format(file, self))
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
         
         from PyJobTransforms.trfExe import tagMergeExecutor, executorConfig
         
@@ -1439,8 +1438,8 @@ class argTAGFile(argPOOLFile):
         
         # OK, if we got to here with no exceptions, we're good shape
         # Now update our own list of files to reflect the merge
-        for file in inputs:
-            self._value.remove(file)
+        for fname in inputs:
+            self._value.remove(fname)
         self._value.append(output)
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
@@ -1471,16 +1470,16 @@ class argHISTFile(argFile):
         
     ## @brief There is no integrity check for HIST files - return 'UNDEFINED'
     def _getIntegrity(self, files):
-        for file in files:
-            self._fileMetadata[file]['integrity'] = 'UNDEFINED'
+        for fname in files:
+            self._fileMetadata[fname]['integrity'] = 'UNDEFINED'
         
         
     def _getNumberOfEvents(self, files):
-        for file in files:
+        for fname in files:
             try:
-                self._fileMetadata[file]['nentries'] = HISTEntries(file)
+                self._fileMetadata[fname]['nentries'] = HISTEntries(fname)
             except trfExceptions.TransformTimeoutException:
-                msg.error('Timeout counting events for {0}'.format(file))
+                msg.error('Timeout counting events for {0}'.format(fname))
 
     @property
     def prodsysDescription(self):
@@ -1511,34 +1510,34 @@ class argNTUPFile(argFile):
         msg.debug('Retrieving event count for NTUP files {0}'.format(files))
         if self._treeNames is None:
             msg.debug('treeNames is set to None - event count undefined for this NTUP')
-            for file in files:
-                self._fileMetadata[file]['nentries'] = 'UNDEFINED'
+            for fname in files:
+                self._fileMetadata[fname]['nentries'] = 'UNDEFINED'
         else:
-            for file in files:
+            for fname in files:
                 try:
-                    self._fileMetadata[file]['nentries'] = NTUPEntries(fileName=file, treeNames=self._treeNames)
+                    self._fileMetadata[fname]['nentries'] = NTUPEntries(fileName=fname, treeNames=self._treeNames)
                 except trfExceptions.TransformTimeoutException:
-                    msg.error('Timeout counting events for {0}'.format(file))
+                    msg.error('Timeout counting events for {0}'.format(fname))
 
 
     def _getIntegrity(self, files):
-        for file in files:
+        for fname in files:
             from PyJobTransforms.trfValidateRootFile import checkFile
-            rc=checkFile(fileName=file, type='basket', requireTree=False)
+            rc=checkFile(fileName=fname, the_type='basket', requireTree=False)
             if rc==0:
-                self._fileMetadata[file]['integrity'] = True
+                self._fileMetadata[fname]['integrity'] = True
             else:
-                self._fileMetadata[file]['integrity'] = False
+                self._fileMetadata[fname]['integrity'] = False
                 
                 
-    def selfMarge(self, files):
+    def selfMerge(self, output, inputs, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
-        for file in inputs:
-            if file not in self._value:
+        for fname in inputs:
+            if fname not in self._value:
                 raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
-                                                            "File {0} is not part of this agument: {1}".format(file, self))
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
         
         from PyJobTransforms.trfExe import NTUPMergeExecutor, executorConfig
         
@@ -1546,8 +1545,8 @@ class argNTUPFile(argFile):
         myargdict = self._mergeArgs(argdict) 
         
         # We need a NTUPMergeExecutor to do the merge
-        myDataDictionary = {'NTUP_MRG_INPUT' : argPOOLFile(inputs, type=self.type, io='input'),
-                            'NYUP_MRG_OUTPUT' : argPOOLFile(output, type=self.type, io='output')}
+        myDataDictionary = {'NTUP_MRG_INPUT' : argNTUPFile(inputs, type=self.type, io='input'),
+                            'NYUP_MRG_OUTPUT' : argNTUPFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
         myMerger = NTUPMergeExecutor(name='NTUPMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, 
                                      inData=set(['NTUP_MRG_INPUT']), outData=set(['NTUP_MRG_OUTPUT']))
@@ -1555,8 +1554,8 @@ class argNTUPFile(argFile):
         
         # OK, if we got to here with no exceptions, we're good shape
         # Now update our own list of files to reflect the merge
-        for file in inputs:
-            self._value.remove(file)
+        for fname in inputs:
+            self._value.remove(fname)
         self._value.append(output)
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
@@ -1573,20 +1572,20 @@ class argNTUPFile(argFile):
 ## @brief TarBZ filetype
 class argBZ2File(argFile):
     def _getIntegrity(self, files):
-        for file in files:
+        for fname in files:
             # bz2 only supports 'with' from python 2.7
             try:
-                f = bz2.BZ2File(file, 'r')
+                f = bz2.BZ2File(fname, 'r')
                 while True:
                     chunk = len(f.read(1024*1024))
-                    msg.debug('Read {0} bytes from {1}'.format(chunk, file)) 
+                    msg.debug('Read {0} bytes from {1}'.format(chunk, fname)) 
                     if chunk == 0:
                         break
-                self._fileMetadata[file]['integrity'] = True
+                self._fileMetadata[fname]['integrity'] = True
                 f.close()
             except (OSError, IOError) as e:
-                msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, file))
-                self._fileMetadata[file]['integrity'] = False
+                msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, fname))
+                self._fileMetadata[fname]['integrity'] = False
                 
 
     @property
@@ -1605,17 +1604,17 @@ class argFTKIPFile(argBZ2File):
                                    })
 
     def _getNumberOfEvents(self, files):
-        for file in files:
+        for fname in files:
             try:
                 eventCount = 0
-                f = bz2.BZ2File(file, 'r')
+                f = bz2.BZ2File(fname, 'r')
                 for line in f:
                     if line.startswith('F'):
                         eventCount += 1
-                self._fileMetadata[file]['nentries'] = eventCount
+                self._fileMetadata[fname]['nentries'] = eventCount
             except (OSError, IOError) as e:
-                msg.error('Event count for file {0} failed: {1!s}'.format(file, e))
-                self._fileMetadata[file]['nentries'] = None
+                msg.error('Event count for file {0} failed: {1!s}'.format(fname, e))
+                self._fileMetadata[fname]['nentries'] = None
 
     @property
     def prodsysDescription(self):
@@ -1633,17 +1632,17 @@ class argHepEvtAsciiFile(argFile):
                                    })
         
     def _getNumberOfEvents(self, files):
-        for file in files:
+        for fname in files:
             try:
                 eventCount = 0
-                f = open(file, 'r')
+                f = open(fname, 'r')
                 for line in f:
                     if len(line.split(" "))==3:
                         eventCount += 1
-                self._fileMetadata[file]['nentries'] = eventCount
+                self._fileMetadata[fname]['nentries'] = eventCount
             except (OSError, IOError) as e:
-                msg.error('Event count for file {0} failed: {1!s}'.format(file, e))
-                self._fileMetadata[file]['nentries'] = None
+                msg.error('Event count for file {0} failed: {1!s}'.format(fname, e))
+                self._fileMetadata[fname]['nentries'] = None
                 
 
 ## @brief Base class for substep arguments
@@ -1927,7 +1926,8 @@ class argSubstepFloat(argSubstep):
                 self._value = {}
                 for item in value:
                     if not isinstance(item, str):
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                                  'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                     if (self._min != None and float(item) < self._min) or (self._max != None and float(item) > self._max):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
                                                           'argFloat value out of range: %s is not between %s and %s' % 
@@ -1937,28 +1937,35 @@ class argSubstepFloat(argSubstep):
             elif isinstance(value, dict):
                 for k, v in value.iteritems():
                     if not isinstance(k, str):
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                                  'Dictionary key {0!s} for substep is not a string'.format(k))
                     if not isinstance(v, float):
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not an float'.format(v))
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                                  'Dictionary value {0!s} for substep is not an float'.format(v))
                     if (self._min != None and float(v) < self._min) or (self._max != None and float(v) > self._max):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
                                                           'argFloat value out of range: %s is not between %s and %s' % 
                                                           (v, self._min, self._max))
                 self._value = value
             else:
-                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
+                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                          'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
         except ValueError, e:
-            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert substep value {0} to float'.format(value))
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                      'Failed to convert substep value {0} to float: {1}'.format(value, e))
 
 
 ## @brief Special argument class to hold steering information
 class argSubstepSteering(argSubstep):
+    steeringAlises = {'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]}}
+    
     # Reset getter
     @property
     def value(self):
         return self._value
 
     ## @details For strings passed to the setter we expect the format to be @c substep:{in/out}{+/-}DATATYPE
+    #  or to be a steering alias, which is then expanded to the more complex format.
     #  This is then cast into a dictionary of tuples {substep: [('in/out', '+/-', DATATYPE), ...], ...}
     @value.setter
     def value(self, value):
@@ -1969,10 +1976,12 @@ class argSubstepSteering(argSubstep):
             # OK, this should be the direct setable dictionary - but do a check of that
             for k, v in value.iteritems():
                 if not isinstance(k, str) or not isinstance(v, list):
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert dict {0!s} to argSubstepSteering'.format(value))
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                              'Failed to convert dict {0!s} to argSubstepSteering'.format(value))
                 for subv in v:
                     if not isinstance(subv, (list, tuple)) or len(subv) != 3 or subv[0] not in ('in', 'out') or subv[1] not in ('+', '-'):                    
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert dict {0!s} to argSubstepSteering'.format(value))                    
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                                  'Failed to convert dict {0!s} to argSubstepSteering'.format(value))                    
             self._value = value
         elif isinstance(value, str):
             # Single string value case
@@ -1983,18 +1992,25 @@ class argSubstepSteering(argSubstep):
             self._value = {}
             for item in value:
                 if not isinstance(item, str):
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                              'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 subStep, subStepValue = self._parseStringAsSubstep(item)
                 self._value.update({subStep: self._parseSteeringString(subStepValue)})
         else:
-            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                      'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
+
+    def _parseSetterString(self, string):
+        if string in argSubstepSteering.steeringAlises:
+            return argSubstepSteering.steeringAlises[string]
 
     def _parseSteeringString(self, ivalue):
         retvalue = []
         for subvalue in ivalue.split(','):
             matchedParts = re.match(r'(in|out)(\+|\-)([A-Z_]+)$', subvalue)
             if not matchedParts:
-                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert string {0!s} to argSubstepSteering'.format(value))
+                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                          'Failed to convert string {0!s} to argSubstepSteering'.format(subvalue))
             retvalue.append((matchedParts.group(1), matchedParts.group(2), matchedParts.group(3)))
         return retvalue
 
@@ -2140,6 +2156,7 @@ class trfArgParser(argparse.ArgumentParser):
 ## @brief Small utility to convert a string value to a boolean
 def strToBool(string):
     try:
+        msg.debug("converting string {string} to boolean".format(string = string))
         if string.lower() == 'false':
             return False
         elif string.lower() == 'true':

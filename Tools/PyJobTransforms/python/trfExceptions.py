@@ -3,9 +3,7 @@
 ## @Package PyJobTransforms.trfExceptions
 #  @brief Standard exceptions thrown by transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfExceptions.py 570543 2013-11-14 21:52:16Z graemes $
-
-import unittest
+#  @version $Id: trfExceptions.py 623865 2014-10-24 12:39:44Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)

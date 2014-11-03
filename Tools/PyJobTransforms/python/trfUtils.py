@@ -3,20 +3,18 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 609252 2014-07-29 16:20:33Z wbreaden $
+# @version $Id: trfUtils.py 625411 2014-10-31 14:06:03Z wbreaden $
 
 import os
-import os.path
+import os.path as path
 import re
 import signal
 import sys
 import tarfile
 import time
-import unittest
 import uuid
 
 import multiprocessing
-import inspect
 import base64
 
 from datetime import datetime
@@ -32,22 +30,25 @@ import logging
 msg = logging.getLogger(__name__)
 
 
-## @brief Find a named file along a colon separated PATH
+## @brief Find a named file along a colon separated PATH type variable
 #  @details Note will also work for finding directories
 #  @return Full path to file or @c None is file is not found
-def findFile(path, file):
-    # First see if the file already includes a path
-    msg.debug('Finding full path for %s\nSearching along %s' % (file, path))
-    if file.startswith('/'):
-        return file
+def findFile(pathvar, fname):
+    # First see if the file already includes a path.
+    msg.debug('Finding full path for {fileName} in path {path}'.format(
+        fileName = fname,
+        path = pathvar
+    ))
+    if fname.startswith('/'):
+        return(fname)
     
-    # Split path
-    pathElements = path.split(':')
+    # Split the path.
+    pathElements = pathvar.split(':')
     for pathElement in pathElements:
-        if os.path.exists(os.path.join(pathElement, file)):
-            return os.path.join(pathElement, file)
+        if path.exists(path.join(pathElement, fname)):
+            return(path.join(pathElement, fname))
     
-    return None
+    return(None)
 
 
 ## @brief List all processes and parents and form a dictionary where the 
@@ -219,8 +220,8 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
 
 ## @brief Return a string with a report of the current athena setup
 def asetupReport():
-    setupMsg = os.linesep
-    for eVar in ('AtlasProject', 'AtlasVersion', 'AtlasPatch', 'AtlasPatchVersion', 'CMTCONFIG','TestArea'):
+    setupMsg = str()
+    for eVar in ('AtlasBaseDir', 'AtlasProject', 'AtlasVersion', 'AtlasPatch', 'AtlasPatchVersion', 'CMTCONFIG', 'TestArea'):
         if eVar in os.environ:
             setupMsg += '\t%s=%s\n' % (eVar, os.environ[eVar])
         else:
@@ -268,7 +269,7 @@ def releaseIsOlderThan(major, minor=None):
         relMatch = re.match(relRegExp, os.environ['AtlasVersion'])
         if not relMatch:
             # Now try the final part of AtlasBaseDir
-            leafDir = os.path.basename(os.environ['AtlasBaseDir'])
+            leafDir = path.basename(os.environ['AtlasBaseDir'])
             relMatch = re.match(relRegExp, leafDir)
             if not relMatch:
                 msg.info('No identifiable numbered release found from AtlasVersion or AtlasBaseDir - assuming dev/devval/mig')
@@ -398,9 +399,9 @@ def cmpMetadata(metadata1, metadata2, guidCheck = 'valid'):
     if len(allFiles) > len(metadata1.keys()) or len(allFiles) > len(metadata2.keys()):
         msg.warning('In metadata comparison file lists are not equal - fails ({0} != {1}'.format(metadata1, metadata2))
         return False
-    for file in allFiles:
-        allKeys = set(metadata1[file].keys()) | set(metadata2[file].keys())
-        if len(allKeys) > len(metadata1[file].keys()) or len(allFiles) > len(metadata2[file].keys()):
+    for fname in allFiles:
+        allKeys = set(metadata1[fname].keys()) | set(metadata2[fname].keys())
+        if len(allKeys) > len(metadata1[fname].keys()) or len(allFiles) > len(metadata2[fname].keys()):
             msg.warning('In metadata comparison key lists are not equal - fails')
             return False
         for key in allKeys:
@@ -408,21 +409,21 @@ def cmpMetadata(metadata1, metadata2, guidCheck = 'valid'):
                 if guidCheck is 'ignore':
                     continue
                 elif guidCheck is 'equal':
-                    if metadata1[file]['file_guid'].upper() == metadata2[file]['file_guid'].upper():
+                    if metadata1[fname]['file_guid'].upper() == metadata2[fname]['file_guid'].upper():
                         continue
                     else:
                         msg.warning('In metadata comparison strict GUID comparison failed.')
                         return False
                 elif guidCheck is 'valid':
-                     try:
-                         uuid.UUID(metadata1[file]['file_guid'])
-                         uuid.UUID(metadata2[file]['file_guid'])
-                         continue
-                     except ValueError:
-                         msg.warning('In metadata comparison found invalid GUID strings.')
-                         return False
-            if metadata1[file][key] != metadata2[file][key]:
-                msg.warning('In metadata comparison found different key values: {0!s} != {1!s}'.format(metadata1[file][key], metadata2[file][key]))
+                    try:
+                        uuid.UUID(metadata1[fname]['file_guid'])
+                        uuid.UUID(metadata2[fname]['file_guid'])
+                        continue
+                    except ValueError:
+                        msg.warning('In metadata comparison found invalid GUID strings.')
+                        return False
+            if metadata1[fname][key] != metadata2[fname][key]:
+                msg.warning('In metadata comparison found different key values: {0!s} != {1!s}'.format(metadata1[fname][key], metadata2[fname][key]))
     return True                
 
 
@@ -450,12 +451,12 @@ def unpackTarFile(filename, directory="."):
 #  @return Two element tuple: (@c True if release was unpacked or @c False if release was already unpacked, dbsetup path)
 def unpackDBRelease(tarball, dbversion=None):
     if dbversion == None:
-        dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', os.path.basename(tarball))
+        dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', path.basename(tarball))
         if dbdMatch == None:
             raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'),
                                                         'Could not find a valid version in the DBRelease tarball: {0}'.format(tarball))
         dbversion = dbdMatch.group(1)
-    dbsetup = os.path.abspath(os.path.join("DBRelease", dbversion, "setup.py")) 
+    dbsetup = path.abspath(path.join("DBRelease", dbversion, "setup.py")) 
     if os.access(dbsetup, os.R_OK):
         msg.debug('DBRelease {0} is already unpacked, found {1}'.format(tarball, dbsetup))
         return False, dbsetup
@@ -473,7 +474,7 @@ def unpackDBRelease(tarball, dbversion=None):
 #  @return: None
 def setupDBRelease(setup):
     try:
-        dbdir=os.path.abspath(os.path.dirname(setup))
+        dbdir=path.abspath(path.dirname(setup))
         msg.debug('Will add {0} to sys.path to load DBRelease setup module'.format(dbdir))
         # N.B. We cannot use __import__ because the X.Y.Z directory name is illegal for a python module path
         opath = sys.path
@@ -503,18 +504,18 @@ def cvmfsDBReleaseCheck(dbrelease):
     if dbdMatch:
         if 'VO_ATLAS_SW_DIR' in os.environ:
             msg.debug('Found site defined path to ATLAS software: {0}'.format(os.environ['VO_ATLAS_SW_DIR']))
-            dbsetup = os.path.join(os.environ['VO_ATLAS_SW_DIR'], 'database', 'DBRelease', dbrelease, 'setup.py')
+            dbsetup = path.join(os.environ['VO_ATLAS_SW_DIR'], 'database', 'DBRelease', dbrelease, 'setup.py')
             if os.access(dbsetup, os.R_OK):
                 return dbsetup
             msg.warning('Site defined path to ATLAS software seems invalid (failed to access {0}). Will also try standard cvmfs path.'.format(dbsetup))
         else:
             msg.debug('Using standard CVMFS path to ATLAS software')
 
-        dbsetup = os.path.join('/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease', dbrelease, 'setup.py')
+        dbsetup = path.join('/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease', dbrelease, 'setup.py')
         if not os.access(dbsetup, os.R_OK):
             raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'),
                                                                 'CVMFS DBRelease setup file {0} was not readable'.format(dbsetup))
-        msg.debug('Using cvmfs based dbrelease: {0}'.format(os.path.dirname(dbsetup)))
+        msg.debug('Using cvmfs based dbrelease: {0}'.format(path.dirname(dbsetup)))
     else:
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'),
                                                     'Unable to interpret DBRelease "{0}" as either a tarball or a CVMFS release directory'.format(dbrelease))
@@ -560,16 +561,15 @@ def JSONDump(argdict):
         
 ## @brief Recursively convert unicode to str, useful when we have just loaded something
 #  from json (TODO: make the transforms happy with unicode as well as plain str!)
-def convertToStr(input):
-    if isinstance(input, dict):
-        return dict([(convertToStr(key), convertToStr(value)) for key, value in input.iteritems()])
-        #return {convertToStr(key): convertToStr(value) for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [convertToStr(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
+def convertToStr(in_string):
+    if isinstance(in_string, dict):
+        return dict([(convertToStr(key), convertToStr(value)) for key, value in in_string.iteritems()])
+    elif isinstance(in_string, list):
+        return [convertToStr(element) for element in in_string]
+    elif isinstance(in_string, unicode):
+        return in_string.encode('utf-8')
     else:
-        return input
+        return in_string
 
         
 ## @brief Convert a command line option to the dictionary key that will be used by argparse
@@ -581,18 +581,18 @@ def cliToKey(option):
 #  @detail This function prints in a human-readable way the items of a given
 #  object.
 #  @param object to print
-def printHR(object):
+def printHR(the_object):
     # dictionary
-    if isinstance(object, dict):
-        for key, value in sorted(object.items()):
+    if isinstance(the_object, dict):
+        for key, value in sorted(the_object.items()):
             print u'{key}: {value}'.format(key = key, value = value)
     # list or tuple
-    elif isinstance(object, list) or isinstance(object, tuple):
-        for element in object:
+    elif isinstance(the_object, list) or isinstance(the_object, tuple):
+        for element in the_object:
             print element
     # other
     else:
-        print object
+        print the_object
 
 
 ## @brief return a URL-safe, base 64-encoded pseudorandom UUID
@@ -1159,3 +1159,66 @@ class ParallelJobProcessor(object):
             status = self.status
         ))
         msg.debug(self.statusReport())
+
+### @brief return Valgrind command
+#   @detail This function returns a Valgrind command for use with Athena. The
+#   command is returned as a string (by default) or a list, as requested using
+#   the argument returnFormat.
+#   To return a default Valgrind command specification, the function is called
+#   with no command options specified. To compose a command from scratch, the
+#   argument optionsList is used. This causes the list of specified command
+#   options to be appended to the basic executable command. To append options to
+#   the default command specification, the argument extraOptionsList is used.
+#   This causes the list of extra specified command options to be appended to
+#   the default command specification (not simply the basic executable command).
+#   The Athena serialised configuration file is specified using the argument
+#   AthenaSerialisedConfigurationFile.
+#   @return command as string or command as list
+def ValgrindCommand(
+    basicOptionsList                  = None,
+    extraOptionsList                  = None,
+    AthenaSerialisedConfigurationFile = "athenaConf.pkl",
+    returnFormat                      = "string"
+    ):
+    optionsList = ["valgrind"]
+    # If basic options are not specified, use default options.
+    if not basicOptionsList:
+        optionsList.append("--num-callers=30")
+        optionsList.append("--tool=memcheck")
+        optionsList.append("--leak-check=full")
+        # Access Valgrind suppressions files by finding the paths from
+        # environment variables. Append the files to the Valgrind suppressions
+        # options.
+        suppressionFilesAndCorrespondingPathEnvironmentVariables = {
+            "etc/valgrind-root.supp": "ROOTSYS",
+            "Gaudi.supp/Gaudi.supp":  "DATAPATH",
+            "oracleDB.supp":          "DATAPATH",
+            "valgrindRTT.supp":       "DATAPATH",
+            "root.supp/root.supp":    "DATAPATH"
+        }
+        for suppressionFile, pathEnvironmentVariable in suppressionFilesAndCorrespondingPathEnvironmentVariables.iteritems():
+            optionsList.append("--suppressions=" +
+                findFile(os.environ[pathEnvironmentVariable], suppressionFile))
+        optionsList.append("$(which python)")
+        optionsList.append("$(which athena.py)")
+        optionsList.append(AthenaSerialisedConfigurationFile)
+    # If basic options are specified, append them to the existing options.
+    if basicOptionsList:
+        for option in basicOptionsList:
+            optionsList.append(option)
+    # If extra options are specified, append them to the existing options.
+    if extraOptionsList:
+        for option in extraOptionsList:
+            optionsList.append(option)
+    # Return the command in the requested format, string (by default) or list.
+    if returnFormat is None or returnFormat == "string":
+        return(" ".join(optionsList))
+    elif returnFormat == "list":
+        return(optionsList)
+    else:
+        print(
+            "error: invalid Valgrind command format request (requested " +
+            "format: {format}; valid formats: string, list)".format(
+            format = returnFormat
+        ))
+        raise(Exception)

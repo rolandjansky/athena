@@ -5,13 +5,11 @@
 # @brief Contains functions related Athena Job Options files 
 # @details Generates runArgs JobOptions and interfaces with skeleton
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfJobOptions.py 575444 2013-12-13 14:12:10Z graemes $
+# @version $Id: trfJobOptions.py 623865 2014-10-24 12:39:44Z graemes $
 # 
 
 import os
-import string
 import time
-import unittest
 
 import logging
 msg = logging.getLogger(__name__)

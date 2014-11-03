@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: makeTrfSignatures.py 528688 2012-12-03 15:18:29Z graemes $
+# $Id: makeTrfSignatures.py 619492 2014-10-01 20:44:50Z graemes $
 #
 
 __doc__ = 'Dump job transform arguments into a file as a pickle'

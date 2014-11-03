@@ -5,17 +5,16 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 617963 2014-09-22 13:13:07Z graemes $
+# @version $Id: trfExe.py 625768 2014-11-03 14:24:34Z graemes $
 
 import copy
 import math
 import os
-import os.path
+import os.path as path
 import re
 import shutil
 import subprocess
 import sys
-import unittest
 
 from xml.etree import ElementTree
 
@@ -23,7 +22,7 @@ import logging
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
-from PyJobTransforms.trfUtils import findFile, asetupReport, unpackTarFile, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum, releaseIsOlderThan
+from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum, releaseIsOlderThan, ValgrindCommand
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 
@@ -588,7 +587,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 617963 2014-09-22 13:13:07Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 625768 2014-11-03 14:24:34Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -677,7 +676,7 @@ class athenaExecutor(scriptExecutor):
             dbrelease = self.conf.argdict['DBRelease'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
             if dbrelease:
                 # Classic tarball - filename format is DBRelease-X.Y.Z.tar.gz
-                dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', os.path.basename(dbrelease))
+                dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', path.basename(dbrelease))
                 if dbdMatch:
                     msg.debug('DBRelease setting {0} matches classic tarball file'.format(dbrelease))
                     if not os.access(dbrelease, os.R_OK):
@@ -716,7 +715,7 @@ class athenaExecutor(scriptExecutor):
 
         # If this was an athenaMP run then we need to update output files
         if self._athenaMP:
-            if os.path.exists(self._athenaMPFileReport):
+            if path.exists(self._athenaMPFileReport):
                 try:
                     try:
                         outputFileArgs = [ self.conf.dataDictionary[dataType] for dataType in self._output ]
@@ -847,8 +846,6 @@ class athenaExecutor(scriptExecutor):
     #  @return Tuple of two booleans: first is true if AthenaMPv2 is enabled, second is true 
     #  if AthenaMPv1 is enabled
     def _detectAthenaMP(self):
-        athenaMPVersion = 2
-        
         if self.conf._disableMP:
             msg.debug('Executor configuration specified disabling AthenaMP')
             return False, False
@@ -886,9 +883,6 @@ class athenaExecutor(scriptExecutor):
         except ValueError:
             msg.error('Could not understand ATHENA_PROC_NUMBER environment variable (int conversion failed)')
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Invalid ATHENA_PROC_NUMBER environment variable')
-        except OSError, e:
-            msg.error('Problem running AthenaMP detection command: {0} raised {1}'.format(detectCmd, e))
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Error when detecting AthenaMP version')
 
 
     ## @brief Prepare the correct command line to be used to invoke athena
@@ -910,9 +904,10 @@ class athenaExecutor(scriptExecutor):
                     if athArg.startswith('--preloadlib'):
                         try:
                             i = self.conf.argdict['athenaopts'].value.index(athArg)
-                            k, v = athArg.split('=', 1)
+                            v = athArg.split('=', 1)[1]
                             msg.info('Updating athena --preloadlib option with: {0}'.format(self._envUpdate.value('LD_PRELOAD')))
-                            self.conf.argdict['athenaopts']._value[i] = '--preloadlib={0}:{1}'.format(self._envUpdate.value('LD_PRELOAD'), v)
+                            newPreloads = ":".join(set(v.split(":")) | set(self._envUpdate.value('LD_PRELOAD').split(":")))
+                            self.conf.argdict['athenaopts']._value[i] = '--preloadlib={0}'.format(newPreloads)
                         except Exception, e:
                             msg.warning('Failed to interpret athena option: {0} ({1})'.format(athArg, e))
                         preLoadUpdated = True
@@ -931,7 +926,9 @@ class athenaExecutor(scriptExecutor):
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
             if self._athenaMPv1:
-                    msg.info('Disabling "--drop-and-reload" because the job is configured to use AthenaMP v1')
+                msg.info('Disabling "--drop-and-reload" because the job is configured to use AthenaMP v1')
+            elif 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
+                msg.info('Disabling "--drop-and-reload" because the job is configured to use Valgrind')
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
                 # Note for athena options we split on '=' so that we properly get the option and not the whole "--option=value" string
@@ -954,31 +951,48 @@ class athenaExecutor(scriptExecutor):
             msg.info('Updated script arguments with topoptions: %s' % self._cmd)
 
 
-    ## @brief Write a wrapper script which runs asetup and then athena
-    def _writeAthenaWrapper(self, asetup=None, dbsetup=None):
+    ## @brief Write a wrapper script which runs asetup and then Athena.
+    def _writeAthenaWrapper(
+        self,
+        asetup = None,
+        dbsetup = None
+        ):
         self._originalCmd = self._cmd
-        self._asetup = asetup
-        self._dbsetup = dbsetup
-        self._wrapperFile = 'runwrapper.{0}.sh'.format(self._name)
-        msg.debug('Preparing warpper file {0} with asetup={1} and dbsetup={2}'.format(self._wrapperFile, self._asetup, self._dbsetup))
+        self._asetup      = asetup
+        self._dbsetup     = dbsetup
+        self._wrapperFile = 'runwrapper.{name}.sh'.format(name = self._name)
+        msg.debug(
+            'Preparing wrapper file {wrapperFileName} with ' +
+            'asetup={asetupStatus} and dbsetup={dbsetupStatus}'.format(
+                wrapperFileName = self._wrapperFile,
+                asetupStatus    = self._asetup,
+                dbsetupStatus   = self._dbsetup
+            )
+        )
         try:
             with open(self._wrapperFile, 'w') as wrapper:
                 print >>wrapper, '#! /bin/sh'
                 if asetup:
                     print >>wrapper, "# asetup"
-                    print >>wrapper, 'echo Sourcing {0}/scripts/asetup.sh {1}'.format(os.environ['AtlasSetup'], asetup)
-                    print >>wrapper, 'source {0}/scripts/asetup.sh {1}'.format(os.environ['AtlasSetup'], asetup)
-                    print >>wrapper, 'if [ $? != "0" ]; then exit 255; fi'
+                    print >>wrapper, 'echo Sourcing {AtlasSetupDirectory}/scripts/asetup.sh {asetupStatus}'.format(
+                        AtlasSetupDirectory = os.environ['AtlasSetup'],
+                        asetupStatus        = asetup
+                    )
+                    print >>wrapper, 'source {AtlasSetupDirectory}/scripts/asetup.sh {asetupStatus}'.format(
+                        AtlasSetupDirectory = os.environ['AtlasSetup'],
+                        asetupStatus        = asetup
+                    )
+                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi'
                 if dbsetup:
-                    dbroot = os.path.dirname(dbsetup)
-                    dbversion = os.path.basename(dbroot)
+                    dbroot = path.dirname(dbsetup)
+                    dbversion = path.basename(dbroot)
                     print >>wrapper, "# DBRelease setup"
-                    print >>wrapper, 'echo Setting up DBRelease {0} environment'.format(dbroot)
-                    print >>wrapper, 'export DBRELEASE={0}'.format(dbversion)
-                    print >>wrapper, 'export CORAL_AUTH_PATH={0}'.format(os.path.join(dbroot, 'XMLConfig'))
-                    print >>wrapper, 'export CORAL_DBLOOKUP_PATH={0}'.format(os.path.join(dbroot, 'XMLConfig'))
-                    print >>wrapper, 'export TNS_ADMIN={0}'.format(os.path.join(dbroot, 'oracle-admin'))
-                    print >>wrapper, 'DATAPATH={0}:$DATAPATH'.format(dbroot)
+                    print >>wrapper, 'echo Setting up DBRelease {dbroot} environment'.format(dbroot = dbroot)
+                    print >>wrapper, 'export DBRELEASE={dbversion}'.format(dbversion = dbversion)
+                    print >>wrapper, 'export CORAL_AUTH_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig'))
+                    print >>wrapper, 'export CORAL_DBLOOKUP_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig'))
+                    print >>wrapper, 'export TNS_ADMIN={directory}'.format(directory = path.join(dbroot, 'oracle-admin'))
+                    print >>wrapper, 'DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot)
                 if self.conf._disableMP:
                     print >>wrapper, "# AthenaMP explicitly disabled for this executor"
                     print >>wrapper, "unset ATHENA_PROC_NUMBER"
@@ -987,13 +1001,55 @@ class athenaExecutor(scriptExecutor):
                     for envSetting in  self._envUpdate.values:
                         if not envSetting.startswith('LD_PRELOAD'):
                             print >>wrapper, "export", envSetting
-                print >>wrapper, ' '.join(self._cmd)
+                # If Valgrind is engaged, a serialised Athena configuration file
+                # is generated for use with a subsequent run of Athena with
+                # Valgrind.
+                if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
+                    msg.info('Valgrind engaged')
+                    # Define the file name of the serialised Athena
+                    # configuration.
+                    AthenaSerialisedConfigurationFile = "{name}Conf.pkl".format(
+                        name = self._name
+                    )
+                    # Run Athena for generation of its serialised configuration.
+                    print >>wrapper, ' '.join(self._cmd), "--config-only={0}".format(AthenaSerialisedConfigurationFile)
+                    print >>wrapper, 'if [ $? != "0" ]; then exit 255; fi'
+                    # Generate a Valgrind command, using default or basic
+                    # options as requested and extra options as requested.
+                    if 'valgrindbasicopts' in self.conf._argdict:
+                        basicOptionsList = self.conf._argdict['valgrindbasicopts'].value
+                    else:
+                        basicOptionsList = None
+                    if 'valgrindextraopts' in self.conf._argdict:
+                        extraOptionsList = self.conf._argdict['valgrindextraopts'].value
+                    else:
+                        extraOptionsList = None
+                    msg.debug("requested Valgrind command basic options: {options}".format(options = basicOptionsList))
+                    msg.debug("requested Valgrind command extra options: {options}".format(options = extraOptionsList))
+                    command = ValgrindCommand(
+                        basicOptionsList = basicOptionsList,
+                        extraOptionsList = extraOptionsList,
+                        AthenaSerialisedConfigurationFile = \
+                            AthenaSerialisedConfigurationFile
+                    )
+                    msg.debug("Valgrind command: {command}".format(command = command))
+                    print >>wrapper, command
+                else:
+                    msg.info('Valgrind not engaged')
+                    # run Athena command
+                    print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
-            errMsg = 'Got an error when writing athena wrapper {0}: {1}'.format(self._wrapperFile, e)
+            errMsg = 'error writing athena wrapper {fileName}: {error}'.format(
+                fileName = self._wrapperFile,
+                error = e
+            )
             msg.error(errMsg)
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'), errMsg)
-        self._cmd = [os.path.join('.', self._wrapperFile)]
+            raise trfExceptions.TransformExecutionException(
+                trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
+                errMsg
+            )
+        self._cmd = [path.join('.', self._wrapperFile)]
 
 
     ## @brief Manage smart merging of output files
@@ -1015,26 +1071,26 @@ class athenaExecutor(scriptExecutor):
         
         mergeCandidates = [list()]
         currentMergeSize = 0
-        for file in fileArg.value:
-            size = fileArg.getSingleMetadata(file, 'file_size')
+        for fname in fileArg.value:
+            size = fileArg.getSingleMetadata(fname, 'file_size')
             if type(size) not in (int, long):
                 msg.warning('File size metadata for {0} was not correct, found type {1}. Aborting merge attempts.'.format(fileArg, type(size)))
                 return
             # if there is no file in the job, then we must add it
             if len(mergeCandidates[-1]) == 0:
-                msg.debug('Adding file {0} to current empty merge list'.format(file))
-                mergeCandidates[-1].append(file)
+                msg.debug('Adding file {0} to current empty merge list'.format(fname))
+                mergeCandidates[-1].append(fname)
                 currentMergeSize += size
                 continue
             # see if adding this file gets us closer to the target size (but always add if target size is negative)
             if fileArg.mergeTargetSize < 0 or math.fabs(currentMergeSize + size - fileArg.mergeTargetSize) < math.fabs(currentMergeSize - fileArg.mergeTargetSize):
-                msg.debug('Adding file {0} to merge list {1} as it gets closer to the target size'.format(file, mergeCandidates[-1]))
-                mergeCandidates[-1].append(file)
+                msg.debug('Adding file {0} to merge list {1} as it gets closer to the target size'.format(fname, mergeCandidates[-1]))
+                mergeCandidates[-1].append(fname)
                 currentMergeSize += size
                 continue
             # close this merge list and start a new one
-            msg.debug('Starting a new merge list with file {0}'.format(file))
-            mergeCandidates.append([file])
+            msg.debug('Starting a new merge list with file {0}'.format(fname))
+            mergeCandidates.append([fname])
             currentMergeSize = size
             
         msg.debug('First pass splitting will merge files in this way: {0}'.format(mergeCandidates))
@@ -1124,8 +1180,8 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         fastEventMerge1 = scriptExecutor(name='fastEventMerge_step1', conf=fastConf, inData=self._inData, outData=self._outData,
                                         exe='mergePOOL.exe', exeArgs=None)
         fastEventMerge1._cmd = ['mergePOOL.exe', '-o', self._hybridMergeTmpFile]
-        for file in self.conf.dataDictionary[list(self._input)[0]].value:
-            fastEventMerge1._cmd.extend(['-i', file])
+        for fname in self.conf.dataDictionary[list(self._input)[0]].value:
+            fastEventMerge1._cmd.extend(['-i', fname])
         fastEventMerge1._cmd.extend(['-e', 'MetaData', '-e', 'MetaDataHdrDataHeaderForm', '-e', 'MetaDataHdrDataHeader', '-e', 'MetaDataHdr'])
 
         msg.debug('Constructed this command line for fast event merge step 1: {0}'.format(fastEventMerge1._cmd))
@@ -1255,9 +1311,9 @@ class DQMergeExecutor(scriptExecutor):
         # Write the list of files to be merged
         with open(self._histMergeList, 'w') as DQMergeFile:
             for dataType in input:
-                for file in self.conf.dataDictionary[dataType].value:
-                    self.conf.dataDictionary[dataType]._getNumberOfEvents([file])
-                    print >>DQMergeFile, file
+                for fname in self.conf.dataDictionary[dataType].value:
+                    self.conf.dataDictionary[dataType]._getNumberOfEvents([fname])
+                    print >>DQMergeFile, fname
             
         self._cmd.append(self._histMergeList)
         
@@ -1290,7 +1346,7 @@ class NTUPMergeExecutor(scriptExecutor):
                                                             'One (and only one) output file must be given to {0} (got {1})'.format(self.name, len(output)))
         outDataType = list(output)[0]
         self._cmd.append(self.conf.dataDictionary[outDataType].value[0])
-             # Add to be merged to the cmd chain
+        # Add to be merged to the cmd chain
         for dataType in input:
             self._cmd.extend(self.conf.dataDictionary[dataType].value)
 
@@ -1303,11 +1359,11 @@ class bsMergeExecutor(scriptExecutor):
         self._maskedFiles = []
         if 'BS' in self.conf.argdict and 'maskEmptyInputs' in self.conf.argdict and self.conf.argdict['maskEmptyInputs'].value is True:
             eventfullFiles = []
-            for file in self.conf.dataDictionary['BS'].value:
-                nEvents = self.conf.dataDictionary['BS'].getSingleMetadata(file, 'nentries')
-                msg.debug('Found {0} events in file {1}'.format(nEvents, file))
+            for fname in self.conf.dataDictionary['BS'].value:
+                nEvents = self.conf.dataDictionary['BS'].getSingleMetadata(fname, 'nentries')
+                msg.debug('Found {0} events in file {1}'.format(nEvents, fname))
                 if isinstance(nEvents, int) and nEvents > 0:
-                    eventfullFiles.append(file)
+                    eventfullFiles.append(fname)
             self._maskedFiles = list(set(self.conf.dataDictionary['BS'].value) - set(eventfullFiles))
             if len(self._maskedFiles) > 0:
                 msg.info('The following input files are masked because they have 0 events: {0}'.format(' '.join(self._maskedFiles)))
@@ -1320,9 +1376,9 @@ class bsMergeExecutor(scriptExecutor):
         self._mergeBSLogfile = '{0}.out'.format(self._exe)
         try:
             with open(self._mergeBSFileList, 'w') as BSFileList:
-                for file in self.conf.dataDictionary['BS'].value:
-                    if file not in self._maskedFiles:
-                        print >>BSFileList, file
+                for fname in self.conf.dataDictionary['BS'].value:
+                    if fname not in self._maskedFiles:
+                        print >>BSFileList, fname
         except (IOError, OSError) as e:
             errMsg = 'Got an error when writing list of BS files to {0}: {1}'.format(self._mergeBSFileList, e)
             msg.error(errMsg)
@@ -1367,8 +1423,8 @@ class tagMergeExecutor(scriptExecutor):
         # Just need to write the customised CollAppend command line
         self._cmd = [self._exe, '-src']
         for dataType in input:
-            for file in self.conf.dataDictionary[dataType].value:
-                self._cmd.extend(['PFN:{0}'.format(file), 'RootCollection'])
+            for fname in self.conf.dataDictionary[dataType].value:
+                self._cmd.extend(['PFN:{0}'.format(fname), 'RootCollection'])
         self._cmd.extend(['-dst', 'PFN:{0}'.format(self.conf.dataDictionary[list(output)[0]].value[0]), 'RootCollection', '-nevtcached', '5000'])
         
         # In AthenaMP jobs the output file can be created empty, which CollAppend does not like

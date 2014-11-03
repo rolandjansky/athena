@@ -6,11 +6,10 @@
 # @details Define all transform exit codes with their acronymns
 # @remarks Usual usage is to import @c trfExit from this module
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExitCodes.py 609252 2014-07-29 16:20:33Z wbreaden $
+# @version $Id: trfExitCodes.py 623865 2014-10-24 12:39:44Z graemes $
 # 
 
 import signal
-import unittest
 
 import logging
 msg = logging.getLogger(__name__)

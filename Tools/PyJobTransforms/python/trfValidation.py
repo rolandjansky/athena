@@ -6,21 +6,17 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 617963 2014-09-22 13:13:07Z graemes $
+# @version $Id: trfValidation.py 625109 2014-10-30 13:15:18Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
 #                          'testMatchEvents' : False, 'testEventMinMax' : True , 'stopOnEventCountNone' : True,
 #                          'continueOnZeroEventCount' : True}</tt>
-import inspect
 import fnmatch
 import os
 import re
-import sys
-import unittest
 
 from subprocess import Popen, STDOUT, PIPE
-from xml.etree import ElementTree
 
 import logging
 msg = logging.getLogger(__name__)
@@ -28,7 +24,7 @@ msg = logging.getLogger(__name__)
 from PyUtils import RootUtils
 
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfLogger import stdLogLevels, stdLogLevelsByCritcality
+from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfArgClasses import argFile
 
 import PyJobTransforms.trfExceptions as trfExceptions
@@ -43,7 +39,7 @@ def corruptionTestPool(filename, verbose=False):
 
     ROOT = RootUtils.import_root()
     from ROOT import TFile, TTree
-    import PyCintex
+    import cppyy
 
     try:
         f = TFile.Open(filename)
@@ -60,7 +56,7 @@ def corruptionTestPool(filename, verbose=False):
             t = f.Get(tn)
             if not isinstance(t, TTree): return
         except:
-            msg.info("Can't get tree %s from file %s" % (tn, fn))
+            msg.info("Can't get tree %s from file %s" % (tn, filename))
             f.Close()
             return -1
 
@@ -87,7 +83,7 @@ def corruptionTestPool(filename, verbose=False):
     if n is None:
         msg.info("Failed to determine number of events in file %s. No tree named 'CollectionTree'" % filename)
         return 0
-    return n
+    return nEvents
 
 # @brief Check BS file for corruption
 def corruptionTestBS(filename):
@@ -163,7 +159,7 @@ class ignorePatterns(object):
                         self._structuredPatterns.append({'service': reWho, 'level': level, 'message': reMessage})
 
             except (IOError, OSError) as (errno, errMsg):
-                msg.warning('Failed to open error pattern file %s: %s' % (fullName, errMsg))
+                msg.warning('Failed to open error pattern file {0}: {1} ({2})'.format(fullName, errMsg, errno))
 
 
     def _initialiseSerches(self, searchStrings=[]):
@@ -172,7 +168,7 @@ class ignorePatterns(object):
                 self._searchPatterns.append(re.compile(string))
                 msg.debug('Successfully parsed additional logfile search string: {0}'.format(string))
             except re.error, e:
-                msg.warning('Could not parse valid regexp from {0}: {1}'.format(message, e))
+                msg.warning('Could not parse valid regexp from {0}: {1}'.format(string, e))
 
 
 
@@ -495,10 +491,10 @@ def returnIntegrityOfFile(file, functionName):
 ## @brief perform standard file validation
 #  @ detail This method performs standard file validation in either serial or
 #  @ parallel and updates file integrity metadata.
-def performStandardFileValidation(dict, io, parallelMode = False):
+def performStandardFileValidation(dictionary, io, parallelMode = False):
     if parallelMode == False:
         msg.info('Starting legacy (serial) file validation')
-        for (key, arg) in dict.items():
+        for (key, arg) in dictionary.items():
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
@@ -506,43 +502,42 @@ def performStandardFileValidation(dict, io, parallelMode = False):
             
             msg.info('Validating data type %s...' % key)
     
-            for file in arg.value:
-                msg.info('Validating file %s...' % file)
+            for fname in arg.value:
+                msg.info('Validating file %s...' % fname)
     
                 if io == "output":
-                    msg.info('{0}: Testing corruption...'.format(file))
-                    if arg.getSingleMetadata(file, 'integrity') is True:
+                    msg.info('{0}: Testing corruption...'.format(fname))
+                    if arg.getSingleMetadata(fname, 'integrity') is True:
                         msg.info('Corruption test passed.')
-                    elif arg.getSingleMetadata(file, 'integrity') is False:
+                    elif arg.getSingleMetadata(fname, 'integrity') is False:
                         msg.error('Corruption test failed.')
-                        raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % file)
-                    elif arg.getSingleMetadata(file, 'integrity') == 'UNDEFINED':
+                        raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
+                    elif arg.getSingleMetadata(fname, 'integrity') == 'UNDEFINED':
                         msg.info('No corruption test defined.')
                     else:    
                         msg.error('Unknown rc from corruption test.')
-                        raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % file)
+                        raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
     
     
-                msg.info('{0}: Testing event count...'.format(file))
-                if arg.getSingleMetadata(file, 'nentries') is not None:
-                    msg.info('Event counting test passed ({0!s} events).'.format(arg.getSingleMetadata(file, 'nentries')))
+                msg.info('{0}: Testing event count...'.format(fname))
+                if arg.getSingleMetadata(fname, 'nentries') is not None:
+                    msg.info('Event counting test passed ({0!s} events).'.format(arg.getSingleMetadata(fname, 'nentries')))
                 else:    
                     msg.error('Event counting test failed.')
-                    raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % file)
+                    raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
                   
     
-                msg.info('{0}: Checking if guid exists...'.format(file))
-                if arg.getSingleMetadata(file, 'file_guid') is None:
+                msg.info('{0}: Checking if guid exists...'.format(fname))
+                if arg.getSingleMetadata(fname, 'file_guid') is None:
                     msg.error('Guid could not be determined.')
-                    raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % file)
-                elif arg.getSingleMetadata(file, 'file_guid') == 'UNDEFINED':
+                    raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
+                elif arg.getSingleMetadata(fname, 'file_guid') == 'UNDEFINED':
                     msg.info('Guid not defined.')
                 else:
-                    msg.info('Guid is %s' % arg.getSingleMetadata(file, 'file_guid'))
+                    msg.info('Guid is %s' % arg.getSingleMetadata(fname, 'file_guid'))
         msg.info('Stopping legacy (serial) file validation')
     if parallelMode == True:
         msg.info('Starting parallel file validation')
-        from PyJobTransforms.trfValidateRootFile import checkFile
         # Create lists of files and args. These lists are to be used with zip in
         # order to check and update file integrity metadata as appropriate.
         fileList = []
@@ -552,16 +547,16 @@ def performStandardFileValidation(dict, io, parallelMode = False):
         # Create a list for collation of file validation jobs for submission to
         # the parallel job processor.
         jobs = []
-        for (key, arg) in dict.items():
+        for (key, arg) in dictionary.items():
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
                 continue
             msg.debug('Collating list of files for validation')
-            for file in arg.value:
-                msg.debug('Appending file {fileName} to list of files for validation'.format(fileName = str(file)))
+            for fname in arg.value:
+                msg.debug('Appending file {fileName} to list of files for validation'.format(fileName = str(fname)))
                 # Append the current file to the file list.
-                fileList.append(file)
+                fileList.append(fname)
                 # Append the current arg to the arg list.
                 argList.append(arg)
                 # Append the current integrity function name to the integrity
@@ -570,18 +565,18 @@ def performStandardFileValidation(dict, io, parallelMode = False):
                 if arg.integrityFunction:
                     integrityFunctionList.append(arg.integrityFunction)
                 else:
-                    msg.error('Validation function for file {fileName} not available for parallel file validation'.format(fileName = str(file)))
-                    raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'Validation function for file %s not available for parallel file validation' % str(file))
+                    msg.error('Validation function for file {fileName} not available for parallel file validation'.format(fileName = str(fname)))
+                    raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'Validation function for file %s not available for parallel file validation' % str(fname))
                 # Compose a job for validation of the current file using the
                 # appropriate validation function, which is derived from the
                 # associated data attribute arg.integrityFunction.
                 jobs.append(
                     trfUtils.Job(
                         name = "validation of file {fileName}".format(
-                        fileName = str(file)),
+                        fileName = str(fname)),
                         workFunction = returnIntegrityOfFile,
                         workFunctionKeywordArguments = {
-                            'file': file,
+                            'file': fname,
                             'functionName': arg.integrityFunction
                         },
                         workFunctionTimeout = 600
@@ -675,7 +670,7 @@ class eventMatch(object):
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
         self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD_*': "filter"}
-        self._eventCountConf['RDO'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match"}
+        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_FILT": "filter"}
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}

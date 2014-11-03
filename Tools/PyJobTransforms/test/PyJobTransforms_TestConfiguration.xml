@@ -249,6 +249,16 @@
           <queue>short</queue>
         </jobTransform>
 
+        <jobTransform userJobId="ArgClassesATLASTest">
+          <doc>Unittest suite for trfArgClasses, ATLAS specific data formats</doc>
+          <jobTransformJobName>trfArgClassesATLAS</jobTransformJobName>
+          <jobTransformCmd>
+            TransformTestRunner.py test_trfArgClassesATLAS.py
+          </jobTransformCmd>
+          <group>PyJobTransforms:TransformCoreTests</group>
+          <queue>short</queue>
+        </jobTransform>
+
         <jobTransform userJobId="AMITagTest">
           <doc>Unittest suite for AMI tag resolution</doc>
           <jobTransformJobName>trfArgClasses</jobTransformJobName>
