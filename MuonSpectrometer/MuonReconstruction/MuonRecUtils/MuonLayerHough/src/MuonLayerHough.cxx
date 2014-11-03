@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonLayerHough/MuonLayerHough.h"
 #include <memory.h>
 #include <cmath>
@@ -292,8 +291,8 @@ namespace MuonHough {
     return hists;
   }
 
-
-  bool MuonLayerHough::findMaximum( MuonLayerHough::Maximum& maximum, float maxval ) const {
+  bool MuonLayerHough::findMaximum( Maximum& maximum, const MuonLayerHoughSelector& selector ) const {
+    const float preMaxCut = selector.getMinCutValue();
     maximum.max = 0;
     maximum.pos = 0;
     maximum.theta = 0;
@@ -305,18 +304,18 @@ namespace MuonHough {
     maximum.hits.clear();
     maximum.hough = this;
 
-    if( maxval < 0 ) return false;
+    if( preMaxCut < 0 ) return false;
 
     float tmax = 0;
     int posb = -1;
     int thetab = -1;
-    int cycles = m_histos.size();
-    int imaxval = maxval*1000;
+    const int cycles = m_histos.size();
+    int imaxval = preMaxCut*1000;
     // loop over histograms and find maximum
     for( int ci=0;ci<cycles;++ci ){
-      float scale = 1. - 0.01*fabs(ci-cycles/2); // small deweightubg of non pointing bins
+      const float scale = 1. - 0.01*fabs(ci-cycles/2); // small deweighting of non pointing bins
       for( int n=0;n<m_nbins;++n ) {
-	int val = m_histos[ci][n];
+	const int val = m_histos[ci][n];
 	//if( m_debug && val != 0 ) std::cout << " cycle " << ci << " bin " << n  << " val " << val << std::endl;
 	if( val < imaxval ) continue;
 
@@ -329,11 +328,13 @@ namespace MuonHough {
     }
     //if( m_debug ) std::cout << " done loop over bins: cycle " << thetab << " total cylces " << cycles << " bin " << posb  << " val " << tmax << std::endl;
     if( posb == -1 )    return false;
-    if( tmax < maxval ) return false;
 
-    maximum.max   = tmax/1000.;
-    maximum.pos   = m_descriptor.yMinRange + m_binsize*posb;
-    maximum.theta = m_descriptor.thetaStep*(thetab-(m_histos.size()-1)/2.) + atan2(m_descriptor.referencePosition,maximum.pos);
+    const float candidatePos = m_descriptor.yMinRange + m_binsize*posb;
+    if( tmax < selector.getCutValue(candidatePos) ) return false;
+
+    maximum.max   = tmax*0.001;
+    maximum.pos   = candidatePos;
+    maximum.theta = m_descriptor.thetaStep*(thetab-(m_histos.size()-1)*0.5) + atan2(m_descriptor.referencePosition,maximum.pos);
     maximum.binpos    = posb;
     maximum.binposmin = posb;
     maximum.binposmax = posb;
