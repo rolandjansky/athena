@@ -3,7 +3,7 @@
 #include "DataQualityTools/DQTDetSynchMonTool.h"
 #include "DataQualityTools/DQTMuonIDTrackTool.h"
 //#include "DataQualityTools/DQTElectronQualityTool.h"
-#include "DataQualityTools/DQTCaloClusterTool.h"
+//#include "DataQualityTools/DQTCaloClusterTool.h"
 //#include "DataQualityTools/DQTNonCollBkg_ZDC.h"
 #include "DataQualityTools/DQTBackgroundMon.h"
 //#include "DataQualityTools/DQTGlobalWFinderTool.h"
@@ -24,7 +24,7 @@ DECLARE_TOOL_FACTORY(DQTMuonIDTrackTool)
 //DECLARE_TOOL_FACTORY(DQTNonCollBkg_ZDC)
 DECLARE_TOOL_FACTORY(DQTBackgroundMon)
 //DECLARE_TOOL_FACTORY(DQTRateMonTool)
-DECLARE_TOOL_FACTORY(DQTCaloClusterTool)
+//DECLARE_TOOL_FACTORY(DQTCaloClusterTool)
 DECLARE_TOOL_FACTORY(DQTDataFlowMonTool)
 //DECLARE_TOOL_FACTORY(DQTTopLeptonJetsFinderTool)
 //DECLARE_TOOL_FACTORY(DQTGlobalTopDilFinderTool)
@@ -35,7 +35,7 @@ DECLARE_FACTORY_ENTRIES(DataQualityTools) {
   DECLARE_ALGTOOL(DataQualityFatherMonTool);
 //  DECLARE_ALGTOOL(DQTMuTrkEff);
   DECLARE_ALGTOOL(DQTDetSynchMonTool);
-  DECLARE_ALGTOOL(DQTCaloClusterTool);
+//  DECLARE_ALGTOOL(DQTCaloClusterTool);
   DECLARE_ALGTOOL(DQTMuonIDTrackTool);
 //  DECLARE_ALGTOOL(DQTElectronQualityTool);
 //  DECLARE_ALGTOOL(DQTGlobalWFinderTool);
