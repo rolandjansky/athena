@@ -30,7 +30,7 @@ namespace Evt {
 static const AthenaAttributeSpecification EventAttributeSpecs[Evt::NevtAttr] = 
 {
    AthenaAttributeSpecification("RunNumber","unsigned int",        GroupNames[Grp::Time],UnitNames[Unt::Number]),
-   AthenaAttributeSpecification("EventNumber","unsigned int",      GroupNames[Grp::Time],UnitNames[Unt::Number]),
+   AthenaAttributeSpecification("EventNumber","unsigned long long",      GroupNames[Grp::Time],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("EventTime","unsigned int",        GroupNames[Grp::Time],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("EventTimeNanoSec","unsigned int", GroupNames[Grp::Time],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("LumiBlockN","unsigned int",       GroupNames[Grp::Time],UnitNames[Unt::Number]),
