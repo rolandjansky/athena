@@ -8,6 +8,7 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "PFOHistUtils/PFOPlots.h"
 #include "PFOHistUtils/PFOClusterMomentPlots.h"
+#include "PFOHistUtils/PFOAttributePlots.h"
 #include "PFOHistUtils/PFOEMPlots.h"
 #include "xAODPFlow/PFO.h"
 
@@ -26,6 +27,8 @@ class PFOValidationPlots : public PlotBase {
   PFO::PFOPlots m_PFOPlots;
   /** Cluster Moment histograms */
   PFO::PFOClusterMomentPlots m_PFOClusterMomentPlots;
+  /** PFO attributes */
+  PFO::PFOAttributePlots m_PFOAttributePlots;
   /** 4-vector histograms at EM scale */
   PFO::PFOEMPlots m_PFOEMPlots;
 
