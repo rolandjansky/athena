@@ -12,13 +12,15 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "SGTools/ClassID_traits.h"
 #include "SGTools/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
 #include "TrigSerializeCnvSvc/ITrigSerConvHelper.h"
 #include "TrigSerializeCnvSvc/TrigSerializeCnvSvc.h"
+
+#include "AthContainers/normalizedTypeinfoName.h"
 
 #include <memory>
 
@@ -113,24 +115,29 @@ public:
   
    // tran->per
    StatusCode createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
- 
-      const std::string clname = ClassID_traits<DATA>::typeName();
+
+      // const std::string clname = ClassID_traits<DATA>::typeName(); // old style, does not contain the _vX of the actual class type
+
+      // const std::type_info& typeId = ClassID_traits<DATA>::typeId();  // damn, this line just does not compile
+
+      std::string classname = SG::normalizedTypeinfoName( typeid(DATA) ); // normalized string representation (matching the names used in the root dictionary)
+
       DATA *d( 0 );
       SG::fromStorable( pObj, d );
       if( m_log->level() <= MSG::DEBUG ) {
          *m_log << MSG::DEBUG << "My createRep for " << classID() << " "
-                << clname << endreq;
+                << classname << endreq;
       }
       void *serptr = d;
       //
       std::vector< uint32_t > ser;
 
-      StatusCode sc = m_convHelper->createRep( clname, serptr, ser, typeIsxAOD);
+      StatusCode sc = m_convHelper->createRep( classname, serptr, ser, typeIsxAOD);
       if( m_log->level() <= MSG::DEBUG ) {
          *m_log << MSG::DEBUG << "convHelper " << ser.size() << endreq;
       }
 
-      TrigStreamAddress *addr = new TrigStreamAddress( classID(), clname, "" );
+      TrigStreamAddress *addr = new TrigStreamAddress( classID(), classname, "" );
       addr->add( ser );
 
       pAddr = addr;

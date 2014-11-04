@@ -18,12 +18,6 @@
 #include "TROOT.h"
 #include "TClass.h"
 
-//
-#include "Reflex/Reflex.h"
-#include "StorageSvc/DbReflex.h"
-using ROOT::Reflex::Type;
-using ROOT::Reflex::PropertyList;
-
 
 TrigSerializeConvHelper::TrigSerializeConvHelper(const std::string& toolname, const std::string& type, const IInterface* parent) :
   AthAlgTool(toolname, type, parent),
