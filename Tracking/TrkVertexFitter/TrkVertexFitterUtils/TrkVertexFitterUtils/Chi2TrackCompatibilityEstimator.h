@@ -52,6 +52,12 @@ namespace Trk
   private:  
   
      mutable unsigned int                        m_outputLevel;
+
+    /**
+    * Compatibility method returning the compatibility value
+    */  
+     template<class T> float _compatibility(T & plane,const Vertex & vertex);
+
   };
 }
 #endif

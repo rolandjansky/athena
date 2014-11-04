@@ -70,24 +70,14 @@ namespace Trk
   }
 
 
-  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Vertex* theVertex) const
-  { 
-    // clean up before any sanity checks so a return 0 corresponds to internal members reset too
-    if (m_vertex!=0) {
-      delete m_vertex;
-      m_vertex=0;
-    }
+  template<typename T> PlaneSurface* ImpactPoint3dEstimator::_Estimate3dIPNoCurvature(const T* thePerigee,const Vertex* theVertex) const  {
 
-    double magnFieldVect[3];
-    m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
-    if(magnFieldVect[2] == 0 ){
-      ATH_MSG_DEBUG("Magnetic field in the Z dierction is 0 --  propergate like a straight line");
-      const Amg::Vector3D  momentumUnit = trackPerigee->momentum().unit(); 
-      double pathLength  =  ( theVertex->position()  - trackPerigee->position() ).dot( momentumUnit ) 
+      const Amg::Vector3D  momentumUnit = thePerigee->momentum().unit(); 
+      double pathLength  =  ( theVertex->position()  - thePerigee->position() ).dot( momentumUnit ) 
                                                                        / (  momentumUnit.dot( momentumUnit )) ;
        //first vector at 3d impact point
 
-      Amg::Vector3D POCA   =  trackPerigee->position()  + pathLength * momentumUnit;// Position of closest approach
+      Amg::Vector3D POCA   =  thePerigee->position()  + pathLength * momentumUnit;// Position of closest approach
       Amg::Vector3D DeltaR =  theVertex->position()  - POCA;
       m_distance=DeltaR.mag();
       DeltaR=DeltaR.unit();
@@ -122,6 +112,34 @@ namespace Trk
 #endif
 
       return new PlaneSurface(thePlane);
+
+  }
+
+  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const NeutralParameters* neutralPerigee,const Vertex* theVertex) const { 
+    // clean up before any sanity checks so a return 0 corresponds to internal members reset too
+    if (m_vertex!=0) {
+      delete m_vertex;
+      m_vertex=0;
+    }
+
+    ATH_MSG_DEBUG("Neutral particle --  propergate like a straight line");
+    return _Estimate3dIPNoCurvature(neutralPerigee, theVertex);
+  }
+
+
+  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Vertex* theVertex) const
+  { 
+    // clean up before any sanity checks so a return 0 corresponds to internal members reset too
+    if (m_vertex!=0) {
+      delete m_vertex;
+      m_vertex=0;
+    }
+
+    double magnFieldVect[3];
+    m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
+    if(magnFieldVect[2] == 0 ){
+      ATH_MSG_DEBUG("Magnetic field in the Z dierction is 0 --  propergate like a straight line");
+      return _Estimate3dIPNoCurvature(trackPerigee, theVertex);
     }
 
 
@@ -296,17 +314,29 @@ namespace Trk
 
   bool ImpactPoint3dEstimator::addIP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Vertex & vertex) const
   {
-    AtaPlane* myPlane=IP3dAtaPlane(vtxTrack,vertex);
-    if (myPlane)
-    {
-      vtxTrack.setImpactPoint3dAtaPlane(myPlane);
-      return true;
+    if (vtxTrack.initialPerigee()) {
+      AtaPlane* myPlane=IP3dAtaPlane(vtxTrack,vertex);
+      if (myPlane)
+	{
+	  vtxTrack.setImpactPoint3dAtaPlane(myPlane);
+	  return true;
+	}
+    } else { //for neutrals
+      NeutralAtaPlane* myPlane=IP3dNeutralAtaPlane(vtxTrack.initialNeutralPerigee(),vertex);
+      if (myPlane)	{
+	ATH_MSG_VERBOSE ("Adding plane: " << myPlane->associatedSurface() );
+	vtxTrack.setImpactPoint3dNeutralAtaPlane(myPlane);
+	return true;
+      }
     }
     return false;
   }
 
   Trk::AtaPlane * ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Vertex & vertex) const
   {
+    if (!vtxTrack.initialPerigee() && vtxTrack.initialNeutralPerigee())
+      msg(MSG::WARNING) << "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane" << endreq;
+
     const PlaneSurface* theSurfaceAtIP(0);
 
     try
@@ -328,6 +358,33 @@ namespace Trk
 
    Trk::AtaPlane* res = const_cast<Trk::AtaPlane *>(dynamic_cast<const Trk::AtaPlane *>
                               (m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP)));
+   delete theSurfaceAtIP;
+   return res;
+  }  
+
+  Trk::NeutralAtaPlane * ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Vertex & vertex) const
+  {
+    const PlaneSurface* theSurfaceAtIP(0);
+
+    try
+    {
+	theSurfaceAtIP = Estimate3dIP(initNeutPerigee,&vertex);
+    }
+    catch (error::ImpactPoint3dEstimatorProblem err)
+    {
+      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endreq;
+      return 0;
+    }
+    if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance and returned 0 " 
+<< endreq;
+
+#ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
+    msg(MSG::VERBOSE) << "Original neutral perigee was: " << *initNeutPerigee << endreq;
+    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endreq;
+#endif
+
+    Trk::NeutralAtaPlane* res = const_cast<Trk::NeutralAtaPlane *>(dynamic_cast<const Trk::NeutralAtaPlane *>
+								   (m_extrapolator->extrapolate(*initNeutPerigee,*theSurfaceAtIP)));
    delete theSurfaceAtIP;
    return res;
   }  

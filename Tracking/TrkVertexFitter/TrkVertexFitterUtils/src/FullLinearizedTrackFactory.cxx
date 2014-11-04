@@ -62,7 +62,10 @@ namespace Trk
 
   void FullLinearizedTrackFactory::linearize(VxTrackAtVertex & theTrack,const Vertex & linPoint) const 
   {
-   theTrack.setLinTrack(linearizedTrack(theTrack.initialPerigee(),linPoint));
+    if (theTrack.initialPerigee())
+      theTrack.setLinTrack(linearizedTrack(theTrack.initialPerigee(),linPoint));
+    else
+      theTrack.setLinTrack(linearizedTrack(theTrack.initialNeutralPerigee(),linPoint));
   } 
 
   LinearizedTrack * FullLinearizedTrackFactory::linearizedTrack(const TrackParameters *  trackPars,

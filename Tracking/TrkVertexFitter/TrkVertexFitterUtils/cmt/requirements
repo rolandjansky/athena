@@ -21,7 +21,7 @@ use TrkSurfaces                TrkSurfaces-*		    Tracking/TrkDetDescr
 use TrkExInterfaces            TrkExInterfaces-*	    Tracking/TrkExtrapolation
 use VxVertex                   VxVertex-*		    Tracking/TrkEvent
 use MagFieldInterfaces         MagFieldInterfaces-*         MagneticField
-# use TrkNeutralParameters       TrkNeutralParameters-*       Tracking/TrkEvent
+use TrkNeutralParameters       TrkNeutralParameters-*       Tracking/TrkEvent
 use TrkParticleBase            TrkParticleBase-*	    Tracking/TrkEvent
 use TrkExUtils                 TrkExUtils-*		    Tracking/TrkExtrapolation
 use TrkTrack                   TrkTrack-*		    Tracking/TrkEvent

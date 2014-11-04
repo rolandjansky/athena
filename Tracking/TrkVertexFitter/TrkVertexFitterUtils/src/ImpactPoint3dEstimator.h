@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 
 /**
  * @class Trk::ImpactPoint3dEstimator
@@ -57,7 +58,9 @@ namespace Trk
    /**
     * New method implementing the features of two above methods at once
     */
+    template<typename T> PlaneSurface* _Estimate3dIPNoCurvature(const T*, const Vertex* theVertex) const; 
     PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Vertex* theVertex) const; 
+    PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Vertex* theVertex) const; 
    
     /**
      * Access to the 3D impact point
@@ -82,6 +85,9 @@ namespace Trk
       * of the plane defined as the given vertex.
       */
     Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Vertex & vertex) const;
+
+    //Same for neutrals
+    Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Vertex & vertex) const;
  
   private:
     

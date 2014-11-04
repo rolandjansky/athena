@@ -48,18 +48,11 @@ namespace Trk
   }
   
   
-  float Chi2TrackCompatibilityEstimator::compatibility(VxTrackAtVertex & vtxTrack,const Vertex & vertex) 
-  {
-    const Trk::AtaPlane * myAtaPlane=vtxTrack.ImpactPoint3dAtaPlane();
-
-    if (myAtaPlane==0 || myAtaPlane->covariance()==0) 
-    {
-      msg(MSG::WARNING) << " No compatibility plane attached to the track. Compatibility couldn't be found... 0 compatibility returned." << endreq;
-      return 100;
-    }
+  template <class T> float Chi2TrackCompatibilityEstimator::_compatibility(T & myAtaPlane,const Vertex & vertex) {
     
+    ATH_MSG_VERBOSE ("Given plane: " << myAtaPlane->associatedSurface() );
 
-//now, once you have the AtaPlane, project the actual vertex on the plane.
+    //now, once you have the AtaPlane, project the actual vertex on the plane.
     Amg::RotationMatrix3D myPlaneRotation=myAtaPlane->associatedSurface().transform().rotation();
     Amg::Vector3D myTranslation=myAtaPlane->associatedSurface().transform().translation();
 
@@ -68,25 +61,26 @@ namespace Trk
     Amg::Vector3D myYdirPlane=myPlaneRotation.col(1);
     //CLHEP::Hep3Vector myZdirPlane=myRotation.colZ();
 
-#ifdef Chi2TrackCompatibilityEstimator_DEBUG
+    #ifdef Chi2TrackCompatibilityEstimator_DEBUG
+    std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "Position is: " << vertex.position() << std::endl;
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "Rotation is: " << myPlaneRotation << std::endl;
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "Norm of colX() is: " << myXdirPlane.mag() << " of colY() is: " << myYdirPlane.mag() << std::endl;
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "Translation is: " << myTranslation << std::endl;
-#endif
+    #endif
 
     Amg::Vector3D vertexMinusCenter=vertex.position()-myTranslation;
 
-#ifdef Chi2TrackCompatibilityEstimator_DEBUG
+    #ifdef Chi2TrackCompatibilityEstimator_DEBUG
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "VertexMinusCenter: " << vertexMinusCenter << std::endl;
-#endif
+    #endif
     
     Amg::Vector2D myVertexlocXlocY;
     myVertexlocXlocY[0]=vertexMinusCenter.dot(myXdirPlane);
     myVertexlocXlocY[1]=vertexMinusCenter.dot(myYdirPlane);
 
-#ifdef Chi2TrackCompatibilityEstimator_DEBUG
+    #ifdef Chi2TrackCompatibilityEstimator_DEBUG
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "Vertex local coordinates: " << myVertexlocXlocY << std::endl;
-#endif
+    #endif
     
     /* ******Maybe this can be still helpfull
     //create a default xy plane
@@ -101,18 +95,19 @@ namespace Trk
     //now express the point found in local coordinates
     */
     
-    AmgSymMatrix(2) myWeightXY = (*(myAtaPlane->covariance())).block<2,2>(0,0);
+    const AmgSymMatrix(5) * covar = (myAtaPlane->covariance());
+    AmgSymMatrix(2) myWeightXY = (*covar).block<2,2>(0,0);
     myWeightXY = myWeightXY.inverse().eval();
     
     Amg::Vector2D myXY;
     myXY[0]=myAtaPlane->parameters()[Trk::locX]-myVertexlocXlocY[0];
     myXY[1]=myAtaPlane->parameters()[Trk::locY]-myVertexlocXlocY[1];
     
-#ifdef Chi2TrackCompatibilityEstimator_DEBUG
+    #ifdef Chi2TrackCompatibilityEstimator_DEBUG
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "Parameters local coordinates: " << " x: " <<myAtaPlane->parameters()[Trk::locX] << 
       " y: " << myAtaPlane->parameters()[Trk::locY] << std::endl;    
     std::cout << std::setprecision(10) << "Chi2TrackCompatibilityEstimator: " << "VertexToTrack coordinates: " << myXY << std::endl;
-#endif
+    #endif
     
     ATH_MSG_DEBUG ("The weight assigned to the track is " << myXY.dot(myWeightXY*myXY) );
     ATH_MSG_VERBOSE ("coming from X: " << myXY[0] << " and error: "
@@ -121,6 +116,22 @@ namespace Trk
 	<< std::sqrt((*(myAtaPlane->covariance()))(Trk::locY,Trk::locY)));
 	 
     return myXY.dot(myWeightXY*myXY);
-    
+  }
+
+
+  float Chi2TrackCompatibilityEstimator::compatibility(VxTrackAtVertex & vtxTrack,const Vertex & vertex) 
+  {
+    const Trk::AtaPlane * myAtaPlane=vtxTrack.ImpactPoint3dAtaPlane();
+
+    if (myAtaPlane!=0 && myAtaPlane->covariance()!=0) //Looking for a AtaPlane object (track)
+      return _compatibility(myAtaPlane, vertex);
+    else { //looking for a NeutralAtaPlane object (neutral)
+      const Trk::NeutralAtaPlane * myNeutralAtaPlane=vtxTrack.ImpactPoint3dNeutralAtaPlane();
+      if (myNeutralAtaPlane!=0 && myNeutralAtaPlane->covariance()!=0) 
+	return _compatibility(myNeutralAtaPlane, vertex);
+    }
+
+    msg(MSG::WARNING) << " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned." << endreq;
+    return 100;    
   }
 }
