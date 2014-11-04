@@ -74,7 +74,7 @@ class TrigT2HistoPrmVtxBase {
    * - longitudinal impact parameter >= 2mm
    *
    */
-  bool efTrackSel(const Rec::TrackParticle*&, unsigned int, float, float);
+  bool efTrackSel(const xAOD::TrackParticle*&, unsigned int, float, float);
 
   /** @brief To calculate, through a sliding window approach, the three positions of the window in the histogram that maximize the entries of longitudinal impact parameter. */
   void findPrmVtx();
