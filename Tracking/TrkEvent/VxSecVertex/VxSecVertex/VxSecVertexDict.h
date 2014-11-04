@@ -9,4 +9,8 @@
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 #include "VxSecVertex/VxJetFitterVertexInfo.h"
 
+// MN: ROOT6 needs that
+#include "xAODTracking/TrackParticle.h"
+
+
 #endif

@@ -68,12 +68,12 @@ namespace Trk {
     /* set the list of Vertices */
     void setVertices(const std::vector<xAOD::Vertex*> &);
 
-    void getSVOwnership(bool Ownership){ m_SVOwnership=Ownership; }
+    void getSVOwnership(bool Ownership) const { m_SVOwnership=Ownership; }
 
   protected:
 
     std::vector<xAOD::Vertex*> m_vertices;
-    bool m_SVOwnership;
+    mutable bool m_SVOwnership;
 
   };
 
