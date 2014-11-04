@@ -24,19 +24,19 @@
 
 <CTSpecs >
 
-    <CTSpec ns='v0'>
+    <!--<CTSpec ns='v0'>
         <name>"NumPseudoHeaderWords"</name> 
         <type>u16</type>
         <value>0</value>
         <comment>"Number of words in the CTP pseudo-header"</comment>
-    </CTSpec>
+    </CTSpec>-->
 
-    <CTSpec ns='v4'>
+    <!--<CTSpec ns='v4'>
         <name>"NumPseudoHeaderWords"</name> 
         <type>u16</type>
         <value>6</value>
         <comment>"Number of words in the CTP pseudo-header"</comment>
-    </CTSpec>
+    </CTSpec>-->
     
     <CTSpec ns='v0'>
         <name>"NumTrailerWords"</name> 
@@ -96,6 +96,20 @@
         <value>4</value>
         <comment>"Number of random triggers"</comment>
     </CTSpec>
+		
+    <CTSpec ns='v0'>
+        <name>"NumPrescaledClocks"</name> 
+        <type>u16</type>
+        <value>2</value>
+        <comment>"Number of prescaled clock triggers"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"NumPrescaledClocks"</name> 
+        <type>u16</type>
+        <value>0</value>
+        <comment>"No prescaled clock triggers in this data format version."</comment>
+    </CTSpec>
     
     
     <CTSpec ns='v0'>
@@ -127,6 +141,23 @@
         <comment>"Maximum number of input signals via the PIT bus"</comment>
     </CTSpec>
     
+    
+    <CTSpec ns='v0'>
+        <name>"OverclockingFactorBack"</name> 
+        <type>u32</type>
+        <value>1</value>
+        <comment>"No overclocking of the PIT bus in this version"</comment>
+    </CTSpec>
+    
+    
+    <CTSpec ns='v4'>
+        <name>"OverclockingFactorBack"</name> 
+        <type>u32</type>
+        <value>2</value>
+        <comment>"PIT bus operated at double data rate"</comment>
+    </CTSpec>
+		
+    
     <CTSpec ns='v0'>
         <name>"MaxTIPfront"</name> 
         <type>u32</type>
@@ -140,6 +171,23 @@
         <value>192</value>
         <comment>"Maximum number of input signals via CTPCORE front panel"</comment>
     </CTSpec>
+		
+	
+    
+    <CTSpec ns='v0'>
+        <name>"OverclockingFactorFront"</name> 
+        <type>u32</type>
+        <value>0</value>
+        <comment>"No front-panel inputs yet in this version"</comment>
+    </CTSpec>
+		
+    <CTSpec ns='v4'>
+        <name>"OverclockingFactorFront"</name> 
+        <type>u32</type>
+        <value>2</value>
+        <comment>"Front-panel inputs are overclocked with a factor of 2"</comment>
+    </CTSpec>
+		
     
     <CTSpec ns='v0'>
         <name>"MaxTIPtotal"</name> 
@@ -165,6 +213,51 @@
 
 
 
+    <!--<CTSpec ns='v0'>
+        <name>"PITwords"</name> 
+        <type>u32</type>
+        <value>6</value>
+        <comment>"160 input bits = 5 x 32bit words, plus 32 bits BCID etc."</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"PITwords"</name> 
+        <type>u32</type>
+        <value>11</value>
+        <comment>"160x2 (=320) input bits = 10 x 32bit words, plus 32 bits BCID etc."</comment>
+    </CTSpec>-->
+    
+    
+    <CTSpec ns='v0'>
+        <name>"AuxTIPwordPos"</name> 
+        <type>u32</type>
+        <value>6</value>
+        <comment>"word with BCID, prescaled clock and random trigger"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"AuxTIPwordPos"</name> 
+        <type>u32</type>
+        <value>17</value>
+        <comment>"word with BCID, prescaled clock and random trigger"</comment>
+    </CTSpec>
+    
+
+    <!--<CTSpec ns='v0'>
+        <name>"FPIwords"</name> 
+        <type>u32</type>
+        <value>0</value>
+        <comment>"Front-Panel inputs not yet present in this version."</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"FPIwords"</name> 
+        <type>u32</type>
+        <value>6</value>
+        <comment>"192 input bits = 6 x 32bit words"</comment>
+    </CTSpec>-->
+    
+
     <CTSpec ns='v0'>
         <name>"TIPwords"</name> 
         <type>u32</type>
@@ -177,21 +270,6 @@
         <type>u32</type>
         <value>17</value>
         <comment>"160x2+192 (=512) input bits = 16 x 32bit words, plus 32 bits BCID etc."</comment>
-    </CTSpec>
-    
-    
-    <CTSpec ns='v0'>
-        <name>"AuxTIPwordPos"</name> 
-        <type>u32</type>
-        <value>6</value>
-        <comment>"word with BCID, prescaled clock and random trigger"</comment>
-    </CTSpec>
-    
-    <CTSpec ns='v4'>
-        <name>"AuxTIPwordPos"</name> 
-        <type>u32</type>
-        <value>17</value>
-        <comment>"word with BCID, prescaled clock and random trigger"</comment>
     </CTSpec>
     
     
@@ -266,12 +344,25 @@
     
     
     
-    
     <CTSpec ns='v0'>
+        <name>"BcidMask"</name> 
+        <type>u32</type>
+        <value>0x1000</value>
+        <comment>"12 lowest bits for BCID"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
         <name>"BcidMask"</name> 
         <type>u32</type>
         <value>0xf</value>
         <comment>"4 lowest bits for BCID (12 in early data)"</comment>
+    </CTSpec>
+		
+		<CTSpec ns='v4'>
+        <name>"BcidMask"</name> 
+        <type>u32</type>
+        <value>0x1000</value>
+        <comment>"12 lowest bits for BCID again"</comment>
     </CTSpec>
     
     <CTSpec ns='v0'>
@@ -279,8 +370,16 @@
         <type>u32</type>
         <value>0</value>
     </CTSpec>
-    
+		
+		
     <CTSpec ns='v0'>
+        <name>"BunchGroupMask"</name> 
+        <type>u32</type>
+        <value>0x0</value>
+        <comment>"Bunchgroup information not yet in this version"</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
         <name>"BunchGroupMask"</name> 
         <type>u32</type>
         <value>0xff</value>
@@ -293,12 +392,27 @@
         <value>0xffff</value>
         <comment>"16-bit word with bunch group information"</comment>
     </CTSpec>
+		
     
     <CTSpec ns='v0'>
         <name>"BunchGroupShift"</name> 
         <type>u32</type>
+        <value>999</value>
+        <value>"Bunchgroup information not yet in this version"</value>
+    </CTSpec>
+    
+    <CTSpec ns='v2'>
+        <name>"BunchGroupShift"</name> 
+        <type>u32</type>
         <value>4</value>
     </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"BunchGroupShift"</name> 
+        <type>u32</type>
+        <value>16</value>
+    </CTSpec>
+		
     
     <CTSpec ns='v0'>
         <name>"RandomTrigMask"</name> 
@@ -323,7 +437,7 @@
     <CTSpec ns='v4'>
         <name>"RandomTrigShift"</name> 
         <type>u32</type>
-        <value>20</value>
+        <value>12</value>
     </CTSpec>
     
     <CTSpec ns='v0'>
@@ -340,9 +454,17 @@
     </CTSpec>
     
     <CTSpec ns='v4'>
+        <name>"PrescaledClockMask"</name> 
+        <type>u32</type>
+        <value>0x0</value>
+        <comment>"No prescaled clock triggers in this format version."</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
         <name>"PrescaledClockShift"</name> 
         <type>u32</type>
-        <value>24</value>
+        <value>999</value>
+        <comment>"No prescaled clock triggers in this format version."</comment>
     </CTSpec>
     
     <CTSpec ns='v0'>
@@ -510,6 +632,8 @@
     </CTSpec>
     
     
+        
+    
     <CTSpec ns='v0'>
         <name>"CTPFormatVersionMask"</name> 
         <type>u32</type>
@@ -538,6 +662,26 @@
     </CTSpec>
     
     
+    
+    <CTSpec ns='v0'>
+        <name>"PITpos"</name> 
+        <type>u32</type>
+        <value>2</value>
+    </CTSpec>
+    
+    <CTSpec ns='v0'>
+        <name>"FPIpos"</name> 
+        <type>u32</type>
+        <value>999</value>
+        <comment>"Front-Panel inputs not yet present in this version."</comment>
+    </CTSpec>
+    
+    <CTSpec ns='v4'>
+        <name>"FPIpos"</name> 
+        <type>u32</type>
+        <value>13</value>
+        <comment>"PITpos (=2) + PITwords(=11)"</comment>
+    </CTSpec>
     
     <CTSpec ns='v0'>
         <name>"TIPpos"</name> 

@@ -38,10 +38,10 @@ typeDictJava = {'u32' :'long','u16':'long','s32' :'int','s16':'int','string':'St
 
 versionDict = {}
 
-if 'dataformat' in outputNames:
+if 'dataformat' in os.path.basename(outputNames):
     versionDict = {'v0':'Before moving the L1A position to the eformat-version field', 'v1': 'After moving the L1A position to the eformat-version field to free bits for the HLT counter', 'v2':'First version of CTP data with programmable extra words (up to 50), and time difference in BC to previous L1A', 'v3':'Including also the turn counter in the payload','v4':'Version with increased number of inputs/items for run-2 (->beginning 2015)'}#,'vZ': 'dummy for testing'}
 
-if 'L1Common' in outputNames:
+if 'L1Common' in os.path.basename(outputNames):
     #versionDict = {'v0':'Before long shutdown I (before 2015)', 'v1': 'Version after long shutdown I','v2':'dummy','v3':'dummy','v4':'dummy'}
     versionDict = {'v0':'Before long shutdown I (before 2015)', 'v1': 'Version after long shutdown I'}
     
@@ -118,9 +118,10 @@ def CreateFiles(time):
     #--------- the definition of CTP version class--------------------------------
     cppBaseStartstring = "/*\n*This file was automatically created by XMLtoHeader.py\n* Created on:             {creationTime}\n* Created with config:    {xmlFile}\n*\n* Author: Ruth Poettgen\n* Contact: ruth.poettgen@cern.ch\n**Brief: Defines class for different CTP versions.\n*/\n\n\n#include <inttypes.h>\n#include <assert.h>\n#include <iostream>\n#include <stdlib.h>\n#include <map>\n#include <iomanip>\n#include <sstream>\n\n"
     start = cppBaseStartstring.format(creationTime = time, xmlFile = inputXMLname)
-    
-    baseName = outputNames + 'Version'
-    baseHeader = open(baseName+'.h','w')
+
+    baseName = os.path.basename(outputNames) + 'Version'
+    fileName = outputNames + 'Version'
+    baseHeader = open(fileName+'.h','w')
     baseHeader.write(start)
     
     
@@ -141,9 +142,14 @@ def CreateFiles(time):
     dumpString = '\n    std::string dump() const {\n';
     dumpString += '\n        std::ostringstream s;\n';
     dumpString += '\n        std::ostringstream tmp;\n\n';
-    dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n';
-    dumpString += '        s << \"|                    Name                 |      Value                          |                                Comment                                                                                   |\" << std::endl;\n';
-    dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n';
+    dumpString += '        s << \"For a description of the parameters for different CTP version, see schema/L1CoreSpecifications.xml in L1CommonCore.\" << std::endl;\n\n';
+    dumpString += '        s << \"|-------------------------------------------------------------|\" << std::endl;\n';
+    dumpString += '        s << \"|                    Name                 |       Value       |\" << std::endl;\n';
+    dumpString += '        s << \"|-------------------------------------------------------------|\" << std::endl;\n';
+    
+    #dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n';
+    #dumpString += '        s << \"|                    Name                 |      Value                          |                                Comment                                                                                   |\" << std::endl;\n';
+    #dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n';
     
     changedValuesDict = {}
     numberOfChanges = 0
@@ -270,11 +276,12 @@ def CreateFiles(time):
                     dumpString += '        for (int i=0; i <' + str(numberOfElements) + '; i++) {\n'
                     dumpString += '            if (i) tmp<<\",\";\n'
                     dumpString += '            tmp << this->' + nameText + '[i];\n        }\n        tmp<<\"]\";\n'
-                    dumpString += '        s <<        std::right << std::setw(35)  << tmp.str()  << \" | \";\n'
-                    if child.find('comment') is None:
-                        dumpString += '        s <<        std::left  << std::setw(120) << ' + '\"--\"' + '  << \" | \" << std::endl;\n\n'
-                    else:
-                        dumpString += '        s <<        std::left  << std::setw(120) << ' + child.find('comment').text + '  << \" | \" << std::endl;\n\n'
+                    dumpString += '        s <<        std::right << std::setw(17)  << tmp.str()  << \" | \" << std::endl;\n\n'
+                    #dumpString += '        s <<        std::right << std::setw(35)  << tmp.str()  << \" | \";\n'
+                    #if child.find('comment') is None:
+                     #   dumpString += '        s <<        std::left  << std::setw(120) << ' + '\"--\"' + '  << \" | \" << std::endl;\n\n'
+                    #else:
+                     #   dumpString += '        s <<        std::left  << std::setw(120) << ' + child.find('comment').text + '  << \" | \" << std::endl;\n\n'
                 
                 
                
@@ -302,11 +309,12 @@ def CreateFiles(time):
                     protectedString += ' = ' + valueText + ';'
 
                     dumpString += '        s << \"|\" << std::left  << std::setw(40)  << \"  ' + nameText + '\" << \" | \";\n'
-                    dumpString += '        s <<        std::right << std::setw(35)  << this->'  + nameText +  '  << \" | \";\n'
-                    if child.find('comment') is None:
-                        dumpString += '        s <<        std::left  << std::setw(120) << ' + '\"--\"' + '  << \" | \" << std::endl;\n\n'
-                    else:
-                        dumpString += '        s <<        std::left  << std::setw(120) << ' + child.find('comment').text + '  << \" | \" << std::endl;\n\n'
+                    dumpString += '        s <<        std::right << std::setw(17)  << this->'  + nameText +  '  << \" | \" << std::endl;\n\n'
+                    #dumpString += '        s <<        std::right << std::setw(35)  << this->'  + nameText +  '  << \" | \";\n'
+                    #if child.find('comment') is None:
+                        #dumpString += '        s <<        std::left  << std::setw(120) << ' + '\"--\"' + '  << \" | \" << std::endl;\n\n'
+                    #else:
+                        #dumpString += '        s <<        std::left  << std::setw(120) << ' + child.find('comment').text + '  << \" | \" << std::endl;\n\n'
 
                   
                 if hasChanged:
@@ -333,16 +341,16 @@ def CreateFiles(time):
         #------------------------------
   
         pyHeader.write('\n\n' + outputNames + '_' + v + ' = ' + outputNames + '()'+'\n\n' + 'del ' + outputNames)
-        #javaHeader.write('\n}')
-
-    
-    dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n\n';
-    dumpString+= '        return s.str();\n\n    }'
+        #javaHeader.write('\n}') 
+        
+    dumpString += '        s << \"|-------------------------------------------------------------|\" << std::endl;\n\n';
+    #dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n\n';
+    dumpString += '        return s.str();\n\n    }'
 
     nVersions = len(versionDict.keys())
    
     #access function
-    selection= '        if (version<0 || version>=' + str(nVersions)+') {\n';
+    selection= '        if (version>=' + str(nVersions)+') {\n';
     selection+= '            std::cerr << \"ERROR: invalid CTP version requested (\" << version << \"). Should be in [0,'+ str(nVersions-1)+ '].Setting it to the latest version ('+str(nVersions-1)+'). \" << std::endl;\n'
     selection += '            version='+str(nVersions-1)+';\n'
     selection+= '        }\n\n'
