@@ -21,6 +21,9 @@
 #ifndef VALIDATION_TOOL
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "Particle/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODBase/IParticle.h"
+
 #endif
 
 
@@ -31,14 +34,14 @@ class TrigBjetTrackInfo {
   TrigBjetTrackInfo();
 #ifndef VALIDATION_TOOL
   TrigBjetTrackInfo(const TrigInDetTrack*&     track);
-  TrigBjetTrackInfo(const Rec::TrackParticle*& track);
+  TrigBjetTrackInfo(const xAOD::TrackParticle*& track);
 #endif
 
   ~TrigBjetTrackInfo();
 
 #ifndef VALIDATION_TOOL
   void addTrack(const TrigInDetTrack*&     track);
-  void addTrack(const Rec::TrackParticle*& track);
+  void addTrack(const xAOD::TrackParticle*& track);
 #endif
 
   void setPT (const float& pT)  { m_pT=pT  ; }
@@ -85,7 +88,8 @@ class TrigBjetTrackInfo {
   float m_pT, m_eta, m_phi, m_d0, m_z0;
   float m_ed0, m_ez0;
   float m_d0Corr, m_z0Corr;
-  int m_pixHits, m_sctHits, m_siHits;
+  int m_dummyPix, m_dummySct;
+  uint8_t m_pixHits, m_sctHits, m_siHits;
   float m_chi2;
   int m_Blayer;
 };

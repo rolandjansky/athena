@@ -9,11 +9,7 @@ from AthenaCommon.SystemOfUnits import mm, GeV
 
 
 def getBjetFexInstance( instance, version, algo ):
-    if instance=="L1.5" :
-        return BjetFex( instance=instance, version=version, algo=algo, name="L2BjetFex_FastJet_"+algo )
-    elif instance=="L2" :
-        return BjetFex( instance=instance, version=version, algo=algo, name="L2BjetFex_Jet_"+algo )
-    elif instance=="EF" :
+    if instance=="EF" :
         return BjetFex( instance=instance, version=version, algo=algo, name="EFBjetFex_"+algo )
 
 
@@ -25,9 +21,9 @@ class BjetFex (TrigBjetFex):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedInstances = ["L1.5","L2","EF"]
-        AllowedVersions  = ["2012","2011"]
-        AllowedAlgos     = ["SiTrack","IDScan","JetA","JetB","JetF","JetFR","EFID"]
+        AllowedInstances = ["EF"]
+        AllowedVersions  = ["2012"]
+        AllowedAlgos     = ["EFID"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
@@ -37,9 +33,7 @@ class BjetFex (TrigBjetFex):
             mlog.error("Version "+version+" is not supported!")
             return None
 
-        if instance=="L1.5" or instance=="L2" :        
-            calibInstance = "L2"
-        elif instance=="EF" :
+        if instance=="EF" :
             calibInstance = "EF"
         
         self.par_0_MC = getTuning_par_0_MC(calibInstance)
@@ -82,20 +76,7 @@ class BjetFex (TrigBjetFex):
         
         self.AlgoId = -1
         
-        if instance=="L1.5" or instance=="L2" :
-            if algo=="JetB" :
-                self.AlgoId = 6
-            elif algo=="JetA" :
-                self.AlgoId = 5
-            elif algo=="JetF" :
-                self.AlgoId = 8
-            elif algo=="JetFR" :
-                self.AlgoId = 13                
-            elif algo=="SiTrack" :
-                self.AlgoId = 1
-            elif algo=="IDScan" :
-                self.AlgoId = 2
-        elif instance=="EF" :
+        if instance=="EF" :
             if algo=="EFID" :
                 self.AlgoId = 1
         
@@ -109,34 +90,23 @@ class BjetFex (TrigBjetFex):
         if version=="2012" :
             self.UseJetDirection = 1
             self.RetrieveHLTJets = True
-        elif version=="2011" :
-            self. UseJetDirection = 2
-            self.RetrieveHLTJets  = False
         
         if self.UseJetDirection==-1 :
             mlog.error("UseJetDirection is wrongly set!")
             return None
 
-        ## Unset = -1; Disabled = 0; L1.5 jets = 1; L2 jets = 2; EF jets = 3
+        ## Unset = -1; EF jets = 3
         self.TagHLTJets = -1
 
         if version=="2012" :
-            if instance=="L1.5" :
-                self.TagHLTJets = 1
-            elif instance=="L2" :
-                self.TagHLTJets = 2
-            elif instance=="EF" :
+            if instance=="EF" :
                 self.TagHLTJets = 3
-        elif version=="2011" :
-            self.TagHLTJets = 0
         
         if self.TagHLTJets==-1 :
             mlog.error("TagHLTJets is wrongly set!")
             return None
         
-        if instance=="L1.5" or instance=="L2" :
-            self.Instance = "L2"
-        elif instance=="EF" :
+        if instance=="EF" :
             self.Instance = "EF"
         
         self.UseBeamSpotFlag    = False
@@ -149,21 +119,7 @@ class BjetFex (TrigBjetFex):
         
         self.Taggers            = ["IP1D", "IP2D", "IP3D", "CHI2", "MVTX", "EVTX", "NVTX", "SVTX", "COMB"]
 
-        if algo=="JetB" or algo=="SiTrack" or algo=="JetF" or algo=="JetFR" :
-            self.TrkSel_Chi2    = 0.001
-            self.TrkSel_BLayer  = 1
-            self.TrkSel_SiHits  = 4
-            self.TrkSel_D0      = 1*mm
-            self.TrkSel_Z0      = 2*mm
-            self.TrkSel_Pt      = 1*GeV
-        elif algo=="JetA" or algo=="IDScan" :
-            self.TrkSel_Chi2    = 0.001
-            self.TrkSel_BLayer  = 1
-            self.TrkSel_SiHits  = 5
-            self.TrkSel_D0      = 1*mm
-            self.TrkSel_Z0      = 2*mm
-            self.TrkSel_Pt      = 1*GeV
-        elif algo=="EFID" :
+        if algo=="EFID" :
             self.TrkSel_Chi2    = 0.0
             self.TrkSel_BLayer  = 1
             self.TrkSel_PixHits = 2
@@ -172,10 +128,6 @@ class BjetFex (TrigBjetFex):
             self.TrkSel_Z0      = 2*mm
             self.TrkSel_Pt      = 1*GeV
 
-        if instance=="L1.5" or instance=="L2" :
-            from TrigBjetHypo.TrigBjetFexMonitoring import TrigL2BjetFexValidationMonitoring, TrigL2BjetFexOnlineMonitoring
-            validation = TrigL2BjetFexValidationMonitoring()
-            online     = TrigL2BjetFexOnlineMonitoring()
         if instance=="EF" :
             from TrigBjetHypo.TrigBjetFexMonitoring import TrigEFBjetFexValidationMonitoring, TrigEFBjetFexOnlineMonitoring
             validation = TrigEFBjetFexValidationMonitoring()

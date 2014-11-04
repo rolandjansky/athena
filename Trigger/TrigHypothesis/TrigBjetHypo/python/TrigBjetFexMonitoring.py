@@ -56,35 +56,6 @@ class TrigBjetFexMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-class TrigL2BjetFexValidationMonitoring(TrigBjetFexMonitoring):
-    def __init__ (self, name="TrigL2BjetFexValidationMonitoring"):
-        super(TrigL2BjetFexValidationMonitoring, self).__init__(name)
-
-        self.defineTarget("Validation")
-        
-        self.Histograms += [ defineHistogram('trk_a0', type='TH1F', title="transverse IP",
-                                             xbins=200, xmin=-10, xmax=10) ]
-        self.Histograms += [ defineHistogram('trk_z0', type='TH1F', title="longitudinal IP",
-                                             xbins=200, xmin=-400, xmax=400) ]
-        
-        self.Histograms += [ defineHistogram('roi_stepsToSelect', type='TH1F', title="Steps to select tracks for CHI2 tagger",
-                                             xbins=11, xmin=0.0, xmax=11,
-                                             labels='BS flag status:BS width:eta matching:phi matching:pT cut:d0 cut:z0 cut:b-layer hit cut:silicon hit cut:chi2 cut:selected') ]
-
-
-
-class TrigL2BjetFexOnlineMonitoring(TrigBjetFexMonitoring):
-    def __init__ (self, name="TrigL2BjetFexOnlineMonitoring"):
-        super(TrigL2BjetFexOnlineMonitoring, self).__init__(name)
-
-        self.defineTarget("Online")
-        
-        self.Histograms += [ defineHistogram('roi_stepsToSelect', type='TH1F', title="Steps to select tracks for CHI2 tagger",
-                                             xbins=11, xmin=0.0, xmax=11,
-                                             labels='BS flag status:BS width:eta matching:phi matching:pT cut:d0 cut:z0 cut:b-layer hit cut:silicon hit cut:chi2 cut:selected') ]
-
-
-
 class TrigEFBjetFexValidationMonitoring(TrigBjetFexMonitoring):
     def __init__ (self, name="TrigEFBjetFexValidationMonitoring"):
         super(TrigEFBjetFexValidationMonitoring, self).__init__(name)

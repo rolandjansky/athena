@@ -64,48 +64,6 @@ TrigBjetTagger::~TrigBjetTagger() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-float TrigBjetTagger::getIP1DErr(float param, float errParam) {
-
-  float sd0=errParam;
-  
-  if (m_trigBjetFex->m_instance == "L2" && m_trigBjetFex->m_algo == 1) {
-    float eta = fabs(param);
-    float sd0 = 0.173 + 8.43e-3*std::pow(eta,4);
-
-    return sd0;
-  }
-
-  return sd0;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-float TrigBjetTagger::getIP2DErr(float param, float errParam ) {
-
-  float sd0=errParam;
-
-  if (m_trigBjetFex->m_instance == "L2" && m_trigBjetFex->m_algo == 1) {
-    float pt = fabs(param);
-    float p0 = 0.023, p1=27, p2=1.48;
-    float sd014 = sqrt(p0*p0 + std::pow((float)(p1/14000.),p2));   
-      
-    sd0 = sqrt(p0*p0 + std::pow((float)(p1/pt),p2));
-	
-    if (pt>14000)
-      sd0 = sd014;
-  
-    return sd0*1.5;
-  }
-  
-  return sd0;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
 void TrigBjetTagger::getWeights() {
 
   m_taggersXMap["IP1D"] = -50; m_taggersXMap["IP2D"] = -50; m_taggersXMap["IP3D"] = -50; m_taggersXMap["CHI2"] = -50;
@@ -160,13 +118,8 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     float m_IP2D=0, errIP2D=0;
     float z0=0, z0Sign=0, d0Sign=0;
     
-    if (m_trigBjetFex->m_useErrIPParam) {
-      errIP1D = getIP1DErr((*pTrack).eta(), (*pTrack).ez0());
-      errIP2D = getIP2DErr((*pTrack).pT(),  (*pTrack).ed0());
-    } else {
-      errIP1D = (*pTrack).ez0();
-      errIP2D = (*pTrack).ed0();
-    }
+    errIP1D = (*pTrack).ez0();
+    errIP2D = (*pTrack).ed0();
 
     z0 = (*pTrack).z0Corr() - m_trigBjetPrmVtxInfo->zPrmVtx();
 
@@ -196,41 +149,35 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       if ((*pTagger) == "IP1D") {
 
 	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
-        if (m_trigBjetFex->m_useLowSiHits && ((*pTrack).siHits() < 7) ) {
-#ifdef VALIDATION_TOOL
-          m_vectorIP1D_lowSiHits.push_back(m_IP1D);
-#endif
-	  w = getW("IP1D_lowSiHits", m_IP1D);
-        } else {
+
+        if ( (*pTrack).siHits() >= 7 ) {
+
 #ifdef VALIDATION_TOOL
           m_vectorIP1D.push_back(m_IP1D);
 #endif
 	  w = getW("IP1D", m_IP1D);
         }
+      } 
 
-      } else if ((*pTagger) == "IP2D") {
+      else if ((*pTagger) == "IP2D") {
 
 	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
-        if (m_trigBjetFex->m_useLowSiHits && ((*pTrack).siHits() < 7) ) {
-#ifdef VALIDATION_TOOL
-          m_vectorIP2D_lowSiHits.push_back(m_IP2D);
-#endif
-	  w = getW("IP2D_lowSiHits", m_IP2D);
-        } else {
+
+        if ( (*pTrack).siHits() >= 7 ) {
+
 #ifdef VALIDATION_TOOL
           m_vectorIP2D.push_back(m_IP2D);
 #endif
 	  w = getW("IP2D", m_IP2D);
         }
+      } 
 
-      } else if ((*pTagger) == "IP3D") {
+      else if ((*pTagger) == "IP3D") {
 
 	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
 	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
-        if (m_trigBjetFex->m_useLowSiHits && ((*pTrack).siHits() < 7) ) {
-	  w = getW("IP3D_lowSiHits", m_IP2D, m_IP1D);
-        } else {
+        if ( (*pTrack).siHits() >= 7 ) {
 	  w = getW("IP3D", m_IP2D, m_IP1D);
         }
 

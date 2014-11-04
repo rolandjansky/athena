@@ -51,23 +51,22 @@ TrigBjetTrackInfo::TrigBjetTrackInfo(const TrigInDetTrack*& track) :
   m_siHits (track->NPixelSpacePoints()+track->NSCT_SpacePoints())
 {}
 
-TrigBjetTrackInfo::TrigBjetTrackInfo(const Rec::TrackParticle*& track) :
-  m_pT  (sin(track->measuredPerigee()->parameters()[Trk::theta])/track->measuredPerigee()->parameters()[Trk::qOverP]),
+TrigBjetTrackInfo::TrigBjetTrackInfo(const xAOD::TrackParticle*& track) :
+  m_pT  (sin(track->theta())/track->qOverP()),
   m_eta (track->eta()),
   m_phi (track->phi()),
-  m_d0  (track->measuredPerigee()->parameters()[Trk::d0]),
-  m_z0  (track->measuredPerigee()->parameters()[Trk::z0]),
-  m_ed0 (Amg::error(*(track->measuredPerigee()->covariance()),Trk::d0)),
-  m_ez0 (Amg::error(*(track->measuredPerigee()->covariance()),Trk::z0)),
+  m_d0  (track->d0()),
+  m_z0  (track->z0()),
+  m_ed0 (Amg::error(track->definingParametersCovMatrix(), 0)),
+  m_ez0 (Amg::error(track->definingParametersCovMatrix(), 1)),
   m_d0Corr (-1),
   m_z0Corr (-1),
-  m_pixHits(track->trackSummary()->get(Trk::numberOfPixelHits)),
-  m_sctHits(track->trackSummary()->get(Trk::numberOfSCTHits)),
+  m_dummyPix( track->summaryValue( m_pixHits, xAOD::numberOfPixelHits) ),
+  m_dummySct( track->summaryValue( m_sctHits, xAOD::numberOfSCTHits  ) ),
   m_siHits (m_pixHits+m_sctHits)
 {}
 
 #endif
-
 
 TrigBjetTrackInfo::~TrigBjetTrackInfo(){}
 
@@ -88,19 +87,24 @@ void TrigBjetTrackInfo::addTrack(const TrigInDetTrack*& track) {
   m_siHits  = track->NPixelSpacePoints()+track->NSCT_SpacePoints();
 }
 
-void TrigBjetTrackInfo::addTrack(const Rec::TrackParticle*& track) {
-  m_pT  = sin(track->measuredPerigee()->parameters()[Trk::theta])/track->measuredPerigee()->parameters()[Trk::qOverP];
+void TrigBjetTrackInfo::addTrack(const xAOD::TrackParticle*& track) {
+  m_pT  = sin(track->theta())/track->qOverP();
   m_eta = track->eta();
   m_phi = track->phi();
-  m_d0  = track->measuredPerigee()->parameters()[Trk::d0];
-  m_z0  = track->measuredPerigee()->parameters()[Trk::z0];
-  m_ed0 = Amg::error(*(track->measuredPerigee()->covariance()),Trk::d0);
-  m_ez0 = Amg::error(*(track->measuredPerigee()->covariance()),Trk::z0);
+  m_d0  = track->d0();
+  m_z0  = track->z0();
+  m_ed0 = Amg::error(track->definingParametersCovMatrix(), 0);
+  m_ez0 = Amg::error(track->definingParametersCovMatrix(), 1);
   m_d0Corr  = -1;
   m_z0Corr  = -1;
-  m_pixHits = track->trackSummary()->get(Trk::numberOfPixelHits);
-  m_sctHits = track->trackSummary()->get(Trk::numberOfSCTHits);
+  uint8_t nPixHits    = 0;  
+  uint8_t nSCTHits    = 0; 
+  track->summaryValue(nPixHits, xAOD::numberOfPixelHits);
+  track->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
+  m_pixHits = (int)nPixHits;
+  m_sctHits = (int)nSCTHits;
   m_siHits  = m_pixHits+m_sctHits;
+  
 }
 
 #endif

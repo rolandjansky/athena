@@ -1,27 +1,27 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    TrigJetSplitterAllTE.h        
+//   @file    TrigSuperRoiBuilderAllTE.h        
 //
 //                   
 //  
 //   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrigJetSplitterAllTE.h, v0.0   Tue 17 Jun 2014 03:26:44 CEST sutt $
+//   $Id: TrigSuperRoiBuilderAllTE.h 623211 2014-10-22 09:35:01Z kleney $
 
 
-#ifndef  TRIGJETSPLITTERALLTE_H
-#define  TRIGJETSPLITTERALLTE_H
+#ifndef  TRIGSUPERROIBUILDERALLTE_H
+#define  TRIGSUPERROIBUILDERALLTE_H
 
 #include <iostream>
 
 #include "TrigInterfaces/AllTEAlgo.h"
 
 
-class TrigJetSplitterAllTE : public HLT::AllTEAlgo {
+class TrigSuperRoiBuilderAllTE : public HLT::AllTEAlgo {
 
  public:
-  TrigJetSplitterAllTE(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigJetSplitterAllTE();
+  TrigSuperRoiBuilderAllTE(const std::string & name, ISvcLocator* pSvcLocator);
+  ~TrigSuperRoiBuilderAllTE();
   
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >&,unsigned int);
@@ -35,7 +35,7 @@ class TrigJetSplitterAllTE : public HLT::AllTEAlgo {
   double m_etaHalfWidth;
   double m_phiHalfWidth;
 
-  double m_minJetEt; // is this needed still? (at least allows 1-to-1 tests with TrigEFBjetSequenceAllTE while we keep it at 15)
+  double m_minJetEt; // is this needed still?
 
 };
  
