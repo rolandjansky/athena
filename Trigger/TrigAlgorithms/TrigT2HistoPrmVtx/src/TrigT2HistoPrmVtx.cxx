@@ -25,6 +25,9 @@
 #include "Particle/TrackParticleContainer.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODBase/IParticle.h"
+
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 
@@ -167,36 +170,6 @@ HLT::ErrorCode TrigT2HistoPrmVtx::getCollection(const TrigInDetTrackCollection*&
     }    
 }
 
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-HLT::ErrorCode TrigT2HistoPrmVtx::getCollection(const Rec::TrackParticleContainer*& pointerToEFTrackCollections, const HLT::TriggerElement* outputTE) {
-
-  //* Create TrackParticleContainer standard vector *// 
-  std::vector<const Rec::TrackParticleContainer*> vectorOfEFTrackCollections;
-
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFTrackCollections, ""); 
-  if (status != HLT::OK)
-    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element" << endreq;
-  else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfEFTrackCollections.size() << " TrackParticleContainer" << endreq;
-  
-  //* Create iterator on TrackParticleContainer collections *// 
-  std::vector<const Rec::TrackParticleContainer*>::iterator pTrackColl =  vectorOfEFTrackCollections.begin();
-  std::vector<const Rec::TrackParticleContainer*>::iterator lastTrackColl = vectorOfEFTrackCollections.end();
-  
-  //* Loop over TrackParticleContainer collections *// 
-  if (pTrackColl == lastTrackColl) {
-    pointerToEFTrackCollections = 0;
-    return HLT::ERROR;
-  } else {
-    pointerToEFTrackCollections = *pTrackColl;
-    return HLT::OK;
-  }
-}
-
-
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
@@ -221,7 +194,7 @@ unsigned int TrigT2HistoPrmVtx::getTrackNumbers(const TrigInDetTrackCollection* 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-unsigned int TrigT2HistoPrmVtx::getTrackNumbers(const Rec::TrackParticleContainer* pointerToEFTrackCollections) {
+unsigned int TrigT2HistoPrmVtx::getTrackNumbers(const xAOD::TrackParticleContainer* pointerToEFTrackCollections) {
 
   unsigned int nEFtracks;
 
@@ -311,7 +284,7 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
 
   //* Create pointers to collections *// 
   const TrigInDetTrackCollection* pointerToL2TrackCollections = 0;
-  const Rec::TrackParticleContainer* pointerToEFTrackCollections = 0;
+  const xAOD::TrackParticleContainer* pointerToEFTrackCollections = 0;
 
   if (c->m_instance == "_L2")  { 
 
@@ -336,12 +309,13 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
 	msg() << MSG::DEBUG << "Loop over tracks: retrieving z0" << endreq;
 
       const TrigInDetTrack* track = (*pointerToL2TrackCollections)[i];
-      float d0  = track->param()->a0();
       float z0  = track->param()->z0();
       float ez0 = track->param()->ez0();
 
-      if (c->m_useBeamSpot) 
-	c->IPCorr(track->param()->a0(),track->param()->z0(),d0,z0,track->param()->phi0(), track->param()->eta(), track->param()->pT());
+//       float d0  = track->param()->a0();
+//       if (c->m_useBeamSpot) 
+//         c->IPCorr(track->param()->a0(),track->param()->z0(),d0,z0,track->param()->phi0(), track->param()->eta(), track->param()->pT());
+
       if (!c->l2TrackSel(track, i, roiDescriptor->eta(), roiDescriptor->phi())) continue;
 
       c->m_totSelTracks++;
@@ -363,11 +337,12 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "Executing TrigT2HistoPrmVtx at EF" << endreq;
 
-    //* Get collection from TrigT2HistoPrmVtx::getCollection *//
-    if (getCollection(pointerToEFTrackCollections, outputTE) != HLT::OK)
-      msg() << MSG::DEBUG << "No tracks retrieved from TrigT2HistoPrmVtx::getCollection" << endreq;
+    HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, ""); 
+    if (status != HLT::OK) {
+      msg() << MSG::DEBUG << "No tracks retrieved from TrigT2HistoPrmVtx" << endreq;
+    } 
     else if (msgLvl() <= MSG::DEBUG)  
-      msg() << MSG::DEBUG << "Got collection from TrigT2HistoPrmVtx::getCollection" << endreq;   
+      msg() << MSG::DEBUG << "Got collection from TrigT2HistoPrmVtx" << endreq;   
 
     //* Get tracks number *//
     c->m_totTracks = getTrackNumbers(pointerToEFTrackCollections);
@@ -380,16 +355,16 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
       if (msgLvl() <= MSG::DEBUG && i == 0) 
 	msg() << MSG::DEBUG << "Loop over tracks: retrieving z0" << endreq;
 
-      const Rec::TrackParticle* track = (*pointerToEFTrackCollections)[i];
-      float d0 =  track->measuredPerigee()->parameters()[Trk::d0];
-      float z0 =  track->measuredPerigee()->parameters()[Trk::z0];
-      float ez0 = Amg::error(*(track->measuredPerigee()->covariance()),Trk::z0);
-      float theta = track->measuredPerigee()->parameters()[Trk::theta];
-      float qOverPt = track->measuredPerigee()->parameters()[Trk::qOverP]/sin(theta);
-      float pT = (1/qOverPt);
+      const xAOD::TrackParticle* track = (*pointerToEFTrackCollections)[i];
+      float z0 =  track->z0();
+      const xAOD::ParametersCovMatrix_t covTrk = track->definingParametersCovMatrix();
+      float ez0 = Amg::error(covTrk, 1);
+      
+//       float pT = track->pt();
+//       float d0 =  track->d0();
+//       if(c->m_useBeamSpot)
+//         c->IPCorr(track->d0(),track->z0(),d0,z0,track->phi(),track->eta(), pT);
 
-      if(c->m_useBeamSpot)
-	c->IPCorr(track->measuredPerigee()->parameters()[Trk::d0],track->measuredPerigee()->parameters()[Trk::z0],d0,z0,track->phi(),track->eta(), pT);
       if (!c->efTrackSel(track, i, roiDescriptor->eta(), roiDescriptor->phi())) continue;
 
       c->m_totSelTracks++;

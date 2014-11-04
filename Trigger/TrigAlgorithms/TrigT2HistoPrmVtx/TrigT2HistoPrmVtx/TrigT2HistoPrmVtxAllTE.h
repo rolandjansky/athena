@@ -60,13 +60,11 @@ class TrigT2HistoPrmVtxAllTE : public HLT::AllTEAlgo {
 
   /** @brief To retrieve tracks collection reconstructed at LVL2 and stored in TrigInDetTrackCollection. */
   HLT::ErrorCode getCollection(const TrigInDetTrackCollection*&, const HLT::TriggerElement*);
-  /** @brief To retrieve track collections reconstructed at EF and stored in TrackParticleContainer. */
-  HLT::ErrorCode getCollection(const Rec::TrackParticleContainer*&, const HLT::TriggerElement*);
 
   /** @brief To get the number of tracks in a track collection at LVL2. */
   unsigned int getTrackNumbers(const TrigInDetTrackCollection*);
   /** @brief To get the number of tracks in a track collection at EF. */
-  unsigned int getTrackNumbers(const Rec::TrackParticleContainer*);
+  unsigned int getTrackNumbers(const xAOD::TrackParticleContainer*);
 
   /** @brief Pointer to TrigVertex collection. */
   TrigVertexCollection* m_trigVertexColl;

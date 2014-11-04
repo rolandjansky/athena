@@ -23,6 +23,8 @@ use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEven
 use     TrigSteeringEvent       TrigSteeringEvent-*             Trigger/TrigEvent
 use	TrigNavigation		TrigNavigation-*		Trigger/TrigEvent
 use     TrigTimeAlgs            TrigTimeAlgs-*                  Trigger/TrigTools
+use     xAODTracking            xAODTracking-*              Event/xAOD
+use     xAODBase                xAODBase-*                  Event/xAOD
 
 
 # ============================================================================================
