@@ -7,7 +7,9 @@
 #include "TrigBjetHypo/TrigLeptonJetMatchAllTE.h"
 #include "TrigBjetHypo/TrigEFBjetSequenceAllTE.h"
 #include "TrigBjetHypo/TrigJetSplitterAllTE.h"
+#include "TrigBjetHypo/TrigSuperRoiBuilderAllTE.h"
 #include "TrigBjetHypo/TrigBjetEtHypo.h"
+#include "TrigBjetHypo/TrigBjetEtaHypo.h"
 
 DECLARE_ALGORITHM_FACTORY( TrigBjetHypo )
 DECLARE_ALGORITHM_FACTORY( TrigBjetFex )
@@ -17,7 +19,9 @@ DECLARE_ALGORITHM_FACTORY( TrigLeptonJetFexAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigLeptonJetMatchAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigEFBjetSequenceAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigJetSplitterAllTE )
+DECLARE_ALGORITHM_FACTORY( TrigSuperRoiBuilderAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigBjetEtHypo )
+DECLARE_ALGORITHM_FACTORY( TrigBjetEtaHypo )
 
 DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) { 
 
@@ -29,6 +33,8 @@ DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) {
     DECLARE_ALGORITHM( TrigLeptonJetMatchAllTE )
     DECLARE_ALGORITHM( TrigEFBjetSequenceAllTE )
     DECLARE_ALGORITHM( TrigJetSplitterAllTE )
+    DECLARE_ALGORITHM( TrigSuperRoiBuilderAllTE )
     DECLARE_ALGORITHM( TrigBjetEtHypo )
+    DECLARE_ALGORITHM( TrigBjetEtaHypo )
 
 }

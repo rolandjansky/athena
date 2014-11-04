@@ -29,7 +29,6 @@
 
 
 class MsgStream;
-class TrigL2BjetContainer;
 class TrigEFBjetContainer;
 class TriggerElement;
 
@@ -79,34 +78,26 @@ class TrigBjetFex: public HLT::FexAlgo {
 
  private:
 
-  /** @brief To retrieve tracks collection reconstructed at LVL2 and stored in TrigInDetTrackCollection. */
-  HLT::ErrorCode getCollection(const TrigInDetTrackCollection*&, const HLT::TriggerElement*);
   /** @brief To retrieve track collections reconstructed at EF and stored in TrackParticleContainer. */
-  HLT::ErrorCode getCollection(const Rec::TrackParticleContainer*&, const HLT::TriggerElement*);
+  HLT::ErrorCode getCollection(const xAOD::TrackParticleContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve primary vertex collections reconstructed and stored in TrigVertexCollection. */
   HLT::ErrorCode getPrmVtxCollection(const TrigVertexCollection*&, const HLT::TriggerElement*);
   /** @brief To retrieve primary vertex collections reconstructed and stored in VxContainer. */
   HLT::ErrorCode getPrmVtxCollection(const VxContainer*&, const HLT::TriggerElement*);
-  /** @brief To retrieve secondary vertex collections reconstructed at L2 */
-  HLT::ErrorCode getSecVtxCollection(const TrigVertexCollection*&, const HLT::TriggerElement*);
   /** @brief To retrieve secondary vertex collections reconstructed and stored in Trk::VxSecVertexInfoContainer. */
   HLT::ErrorCode getSecVtxCollection(const Trk::VxSecVertexInfoContainer*&, const HLT::TriggerElement*);
-  /** @brief To retrieve the L2 secondary vertex information */
-  HLT::ErrorCode getSecVtxInfo(const TrigVertexCollection*&); 
   /** @brief To retrieve the EF secondary vertex information. */
   HLT::ErrorCode getSecVtxInfo(const Trk::VxSecVertexInfoContainer*&, const VxContainer*&, const TrigVertexCollection*&);
 
-  /** @brief To select LVL2 tracks. */
-  bool l2TrackSel(const TrigInDetTrack*&, unsigned int);
   /** @brief To select EF tracks. */
-  bool efTrackSel(const Rec::TrackParticle*&, unsigned int);
+  bool efTrackSel(const xAOD::TrackParticle*&, unsigned int);
 
   /** @brief TrigTrackJetFinder tool. */
   ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
-  /** @brief Pointer to TrigL2Bjet collection. */
-  TrigL2BjetContainer* m_trigL2BjetColl;
   /** @brief Pointer to TrigEFBjet collection. */
   TrigEFBjetContainer* m_trigEFBjetColl;
+  /** @brief Pointer to xAOD::BTaggingContainer. */
+  xAOD::BTaggingContainer* m_trigBTaggingContainer;
 
   /** @brief Pointer to TaggerHelper class. */ 
   TaggerHelper* m_taggerHelper;
@@ -125,14 +116,14 @@ class TrigBjetFex: public HLT::FexAlgo {
   /** @brief Internal EDM class for track parameter information, defined in TrigBjetDataHelper. */ 
   std::vector<TrigBjetTrackInfo>* m_trigBjetTrackInfoVector;
 
-  /** @brief track reconstruction algorithm at LVL2. */
+  /** @brief track reconstruction algorithm. */
   int m_algo;
   /** @brief list of computed taggers. */
   std::vector<std::string> m_taggers;
   /** @brief switch to use impact parameter errors parametrization. */
   bool m_useErrIPParam;
   /** @brief switch to use primary vertex computed with TrigT2HistoPrmVtx or InDetTrigPriVxFinder algorithm. */
-  bool m_l2PrmVtxAtEF;
+  bool m_histoPrmVtxAtEF;
   /** @brief switch to perform track-RoI eta/phi matching when selecting reconstructed tracks. */
   bool m_useEtaPhiTrackSel;
   /** @brief switch to estimate the track impact parameter sign using the HLT jet direction (1) or the HLT track-jet direction (2) or the LVL1 jet RoI direction (3). */
@@ -191,17 +182,17 @@ class TrigBjetFex: public HLT::FexAlgo {
   /** @brief Number of selected tracks per RoI. */
   float m_totSelTracks;
 
-  /** @brief Delta eta between the LVL1 jet RoI and the LVL2/EF jet. */
+  /** @brief Delta eta between the LVL1 jet RoI and the EF jet. */
   float m_deltaEtaJet;
-  /** @brief Delta phi between the LVL1 jet RoI and the LVL2/EF jet. */
+  /** @brief Delta phi between the LVL1 jet RoI and the EF jet. */
   float m_deltaPhiJet;
-  /** @brief Delta eta between the LVL1 jet RoI and the LVL2/EF track-jet. */
+  /** @brief Delta eta between the LVL1 jet RoI and the EF track-jet. */
   float m_deltaEtaTrkJet;
-  /** @brief Delta phi between the LVL1 jet RoI and the LVL2/EF track-jet. */
+  /** @brief Delta phi between the LVL1 jet RoI and the EF track-jet. */
   float m_deltaPhiTrkJet;
-  /** @brief Delta eta between the LVL2/EF jet and the LVL2/EF track-jet. */
+  /** @brief Delta eta between the EF jet and the EF track-jet. */
   float m_deltaEtaJetTrkJet;
-  /** @brief Delta phi between the LVL2/EF jet and the LVL2/EF track-jet. */
+  /** @brief Delta phi between the EF jet and the EF track-jet. */
   float m_deltaPhiJetTrkJet;
 
   //////////////////////

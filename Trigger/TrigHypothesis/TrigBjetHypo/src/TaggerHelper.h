@@ -15,8 +15,6 @@
 #ifndef TRIGBJETHYPO_TAGGERHELPER
 #define TRIGBJETHYPO_TAGGERHELPER
 
-
-
 /**
  * @brief Private class for common functions used by different classes in TrigBjetHypo package.
  *
@@ -31,18 +29,20 @@
 #ifndef VALIDATION_TOOL
 #include "GaudiKernel/MsgStream.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-//#include "CLHEP/Vector/ThreeVector.h"
-
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODBase/IParticle.h"
+#include "VxVertex/VxContainer.h"
+ 
 
 class TrigInDetTrackCollection;
 class TrigInDetTrack;
 class TrigVertexCollection;
-class VxContainer;
+//class VxContainer;
 
-namespace Rec {
-  class TrackParticleContainer;
-  class TrackParticle;
-}
+/* namespace Rec { */
+/*   class TrackParticleContainer; */
+/*   class TrackParticle; */
+/* } */
 
 namespace Trk { 
   class ErrorMatrix;
@@ -81,12 +81,12 @@ class TaggerHelper
   /** @brief To print track parameters and track parameter errors for reconstructed tracks at LVL2 */
   void showParam(const TrigInDetTrack*&, unsigned int);
   /** @brief To print track parameters and track parameter errors for reconstructed tracks at EF */
-  void showParam(const Rec::TrackParticle*&, unsigned int);
+  void showParam(const xAOD::TrackParticle*&, unsigned int);
 
   /** @brief To get the number of tracks in a track collection at LVL2. */
   unsigned int getTrackNumber(const TrigInDetTrackCollection*);
   /** @brief To get the number of tracks in a track collection at EF. */
-  unsigned int getTrackNumber(const Rec::TrackParticleContainer*);
+  unsigned int getTrackNumber(const xAOD::TrackParticleContainer*);
   /** @brief To get the number of vertices in a vertex collection at LVL2. */
   unsigned int getVerticesNumber(const TrigVertexCollection*&);
   /** @brief To get the number of vertices in a vertex collection at EF. */

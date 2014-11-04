@@ -117,11 +117,6 @@ public:
   TrigBjetFexStandalone* m_trigBjetFex;
 #endif
 
-  /** @brief To parametrize errors on track longitudinal impact parameter at LVL2. */
-  float getIP1DErr(float, float);
-  /** @brief To parametrize errors on track transverse impact parameter at LVL2. */
-  float getIP2DErr(float, float);
-
   /** @brief To get the likelihood ratio of a given track. */
   float getW(const std::string, float);
   /** @brief To get the likelihood ratio of a given track for the 2D combination of significances likelihood taggers. */

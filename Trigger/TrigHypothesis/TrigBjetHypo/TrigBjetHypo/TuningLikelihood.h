@@ -23,9 +23,6 @@
  * @author Andrea Coccaro <Andrea.Coccaro@ge.infn.it>
  *
  * This is the private class used to store likelihood calibrations which are set through the following python files:
- * - python/TrigBjetFexTuningSiTrack.py: calibration of LVL2 distributions using SiTrack tracks;
- * - python/TrigBjetFexTuningIDScan.py: calibration of LVL2 distributions using IDScan tracks;
- * - python/TrigBjetFexTuningEFID.py: calibration of EF distributions.
  */
 
 

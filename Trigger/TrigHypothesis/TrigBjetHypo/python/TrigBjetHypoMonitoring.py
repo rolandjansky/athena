@@ -15,24 +15,6 @@ class TrigBjetHypoMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-class TrigL2BjetHypoValidationMonitoring(TrigBjetHypoMonitoring):
-    def __init__ (self, name="TrigL2BjetHypoValidationMonitoring"):
-        """ defines hisograms for online """
-        super(TrigL2BjetHypoValidationMonitoring, self).__init__(name)
-
-        self.defineTarget("Validation")
-
-
-
-class TrigL2BjetHypoOnlineMonitoring(TrigBjetHypoMonitoring):
-    def __init__ (self, name="TrigL2BjetHypoOnlineMonitoring"):
-        """ defines hisograms for online """
-        super(TrigL2BjetHypoOnlineMonitoring, self).__init__(name)
-
-        self.defineTarget("Online")
-
-
-
 class TrigEFBjetHypoValidationMonitoring(TrigBjetHypoMonitoring):
     def __init__ (self, name="TrigEFBjetHypoValidationMonitoring"):
         super(TrigEFBjetHypoValidationMonitoring, self).__init__(name)
