@@ -9,7 +9,6 @@
  */
 
 #include "AlignableTransformCnv.h"
-#include "DetDescrCondRootFix.h"
 #include "DetDescrCondTPCnv/AlignableTransformCnv_p1.h"
 
 AlignableTransformCnv::AlignableTransformCnv(ISvcLocator* svcloc) 
@@ -48,6 +47,5 @@ AlignableTransform* AlignableTransformCnv::createTransient() {
 
 StatusCode AlignableTransformCnv::initialize()
 {
-    static DetDescrCondRootFix fix;
     return AlignableTransformCnvBase::initialize();
 }

@@ -9,7 +9,6 @@
  */
 
 #include "DetCondCFloatCnv.h"
-#include "DetDescrCondRootFix.h"
 #include "DetDescrCondTPCnv/DetCondCFloatCnv_p1.h"
 
 DetCondCFloatCnv::DetCondCFloatCnv(ISvcLocator* svcloc) 
@@ -49,6 +48,5 @@ DetCondCFloat* DetCondCFloatCnv::createTransient() {
 
 StatusCode DetCondCFloatCnv::initialize()
 {
-    static DetDescrCondRootFix fix;
     return DetCondCFloatCnvBase::initialize();
 }

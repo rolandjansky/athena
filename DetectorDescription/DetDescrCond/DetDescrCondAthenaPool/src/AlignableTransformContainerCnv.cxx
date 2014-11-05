@@ -9,7 +9,6 @@
  */
 
 #include "AlignableTransformContainerCnv.h"
-#include "DetDescrCondRootFix.h"
 #include "DetDescrCondTPCnv/AlignableTransformCnv_p1.h"
 
 
@@ -43,7 +42,6 @@ AlignableTransform_TRANS* AlignableTransformContainerCnv::createTransient() {
 
 StatusCode AlignableTransformContainerCnv::initialize()
 {
-    static DetDescrCondRootFix fix;
     return AlignableTransformContainerCnvBase::initialize();
 }
 
