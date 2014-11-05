@@ -656,7 +656,7 @@ void TileL2Builder::MTagEB(int partition
                                    | (pattern << 25)
                                    | ((int) (2 * E_D[eta[i]])));
 
-              extraWord.push_back((((int) (2 * E_BC[k2])) << 16) | ((int) (2 * E_A[k2])));
+              extraWord.push_back((((int) (2 * E_BC[k2])) << 16) | ((int) (2 * E_A[k1])));
 
               NMuons++;
 
