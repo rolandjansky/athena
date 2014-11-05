@@ -58,6 +58,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   double innerRadius = gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",zmin,zmax)+safety;
   double outerRadius = gmt_mgr->IBLServiceGetMinRadialPosition("IST","simple",zmin,zmax)-safety;
+  double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();  
 
 
   // Define IFlex section for side A
@@ -165,7 +166,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     gmt_mgr->SetPhi(ii);    
     
     // cooling transform 
-    double phiOfCooling = cooling_angle + ii*angle;
+    double phiOfCooling = phiOfModuleZero+ cooling_angle + ii*angle;
     std::ostringstream tmp1; 
     tmp1 << "fl" << ii;
     GeoNameTag * tag1 = new GeoNameTag(tmp1.str());
@@ -180,7 +181,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
 
     // flex transform 
-    double phiOfFlex = flex_angle + ii*angle;
+    double phiOfFlex = phiOfModuleZero+ flex_angle + ii*angle;
     std::ostringstream tmp2; 
     tmp2 << "fl" << ii;
     GeoNameTag * tag2 = new GeoNameTag(tmp2.str());
