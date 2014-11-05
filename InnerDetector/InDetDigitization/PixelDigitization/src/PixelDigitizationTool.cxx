@@ -1337,7 +1337,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, PileUpEventInf
 }
   
 PixelDigitizationTool::ReadoutTech PixelDigitizationTool::getReadoutTech(const InDetDD::SiDetectorElement *module) {
-	const PixelID* pixelId = dynamic_cast<const PixelID *>(module->getIdHelper());
+	const PixelID* pixelId = static_cast<const PixelID *>(module->getIdHelper());
 	if ((!m_IBLabsent && pixelId->is_blayer(module->identify())) ||
 	    pixelId->barrel_ec(module->identify())==4 ||
 	    pixelId->barrel_ec(module->identify())==-4) return FEI4;

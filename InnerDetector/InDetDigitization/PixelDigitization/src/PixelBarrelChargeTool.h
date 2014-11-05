@@ -60,12 +60,6 @@ public:
   int m_numberOfCharges;  
   double m_diffusionConstant;
  
-  //Constants derived from position/geometry of sensor
-  double tanLorentz;
-  double sensorThickness;
-
- 
-  
 private:
   /** empty constructor, make private */
   PixelBarrelChargeTool();
