@@ -36,18 +36,17 @@ def egammaTruthParticleConfig \
 
     algname = prefix + sgkey + 'Builder'
     if not hasattr (seq, algname):
-        from AthenaCommon.AppMgr import ToolSvc
-        from TrackToCalo.ExtrapolateToCaloToolBase import \
-             ExtrapolateToCaloToolFactory
-        extrap = ExtrapolateToCaloToolFactory (depth='showerdefault',
-                                               straightLine=False)
-        ToolSvc += extrap
+        import AthenaCommon.CfgMgr as CfgMgr
+        from egammaRec.Factories import ToolFactory
+        exten = ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
+                             name="GSFParticleCaloExtensionTool",
+                             StartFromPerigee = True)()
 
         seq += egammaD3PDAnalysis.egammaTruthAlg (
             algname,
             InputKey = D3PDMakerFlags.TruthSGKey(),
             OutputKey = sgkey,
-            ExtrapolTrackToCaloTool = extrap,
+            ParticleCaloExtensionTool = exten,
             AuxPrefix = D3PDMakerFlags.EgammaUserDataPrefix())
             
         cfgKeyStore.addTransient ('DataVector<xAOD::TruthParticle_v1>', sgkey)

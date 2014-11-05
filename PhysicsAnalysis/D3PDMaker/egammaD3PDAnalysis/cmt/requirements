@@ -5,8 +5,6 @@ use AtlasPolicy                AtlasPolicy-*
 
 private
 use GaudiInterface             GaudiInterface-*        External
-use AtlasBoost                 AtlasBoost-*            External
-use HepPDT                     v*                      LCG_Interfaces
 use CxxUtils                   CxxUtils-*              Control
 use AthenaKernel               AthenaKernel-*          Control
 use AthenaBaseComps            AthenaBaseComps-*       Control
@@ -20,12 +18,11 @@ use CaloClusterCorrection      CaloClusterCorrection-* Calorimeter
 use CaloRec                    CaloRec-*               Calorimeter
 use CaloInterface              CaloInterface-*         Calorimeter
 use LArTools                   LArTools-*              LArCalorimeter
-use FourMomUtils               FourMomUtils-*          Event
 use EventKernel                EventKernel-*           Event
 use EventInfo                  EventInfo*              Event
 use VxVertex                   VxVertex-*              Tracking/TrkEvent
+use TrkCaloExtension           TrkCaloExtension-*      Tracking/TrkEvent
 use RecoToolInterfaces         RecoToolInterfaces-*    Reconstruction/RecoTools
-use TrackToCalo                TrackToCalo-*           Reconstruction/RecoTools
 use egammaInterfaces           egammaInterfaces-*      Reconstruction/egamma
 use egammaEvent                egammaEvent-*           Reconstruction/egamma
 use D3PDMakerInterfaces        D3PDMakerInterfaces-*   PhysicsAnalysis/D3PDMaker

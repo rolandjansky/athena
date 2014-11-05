@@ -23,8 +23,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <string>
-class IPartPropSvc;
-class IExtrapolateToCaloTool;
+namespace Trk {
+class IParticleCaloExtensionTool;
+}
 
 
 namespace D3PD {
@@ -111,10 +112,7 @@ private:
   float m_photonEtIsoMax;
 
   /// Property: Extrapolation tool to calorimeter.
-  ToolHandle<IExtrapolateToCaloTool> m_extrap;
-
-  /// Property: Particle property service.
-  ServiceHandle<IPartPropSvc> m_ppsvc;
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_exten;
 };
 
 

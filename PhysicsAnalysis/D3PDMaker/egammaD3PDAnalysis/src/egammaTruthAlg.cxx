@@ -14,14 +14,12 @@
 #include "egammaTruthAlg.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-#include "TrackToCalo/ImpactInCalo.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkCaloExtension/CaloExtension.h"
+#include "TrkCaloExtension/CaloExtensionHelpers.h"
 #include "EventKernel/PdtPdg.h"
 #include "CxxUtils/make_unique.h"
-#include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "HepPDT/ParticleData.hh"
-#include "HepPDT/ParticleDataTable.hh"
 
 
 using Gaudi::Units::GeV;
@@ -94,8 +92,7 @@ namespace D3PD {
  */
 egammaTruthAlg::egammaTruthAlg (const std::string& name,
                                 ISvcLocator* svcloc)
-  : AthAlgorithm (name, svcloc),
-    m_ppsvc ("PartPropSvc", name)
+  : AthAlgorithm (name, svcloc)
 {
   declareProperty ("AuxPrefix", m_auxPrefix,
                    "Prefix to add to aux data items.");
@@ -116,10 +113,8 @@ egammaTruthAlg::egammaTruthAlg (const std::string& name,
   declareProperty ("PhotonEtIsoMax", m_photonEtIsoMax = 2*MeV,
                    "Maximum isolation cone energy allowed to keep a photon.");
 
-  declareProperty("ExtrapolTrackToCaloTool", m_extrap,
+  declareProperty("ParticleCaloExtensionTool", m_exten,
                   "Extrapolator to calorimeter.");
-  declareProperty("PartPropSvc", m_ppsvc,
-                  "Particle property service.");
 }
 
 
@@ -129,8 +124,7 @@ egammaTruthAlg::egammaTruthAlg (const std::string& name,
 StatusCode egammaTruthAlg::initialize()
 {
   CHECK( AthAlgorithm::initialize() );
-  CHECK( m_extrap.retrieve() );
-  CHECK( m_ppsvc.retrieve() );
+  CHECK( m_exten.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -261,40 +255,21 @@ StatusCode egammaTruthAlg::findImpact (const xAOD::TruthParticle& tp,
   etaCalo = -999;
   phiCalo = -999;
 
-  const xAOD::TruthVertex* pvtx = tp.hasProdVtx() ? tp.prodVtx() : 0;
-  if (pvtx) {
-    //create the perigee here
+  const Trk::CaloExtension* extension = 0;
+  if (!m_exten->caloExtension (tp, extension)) {
+    REPORT_MESSAGE (MSG::ERROR) <<  "Extension to calorimeter failed";
+    return StatusCode::FAILURE;
+  }
 
-    Amg::Vector3D pos (pvtx->x(),
-                       pvtx->y(),
-                       pvtx->z());
-    Amg::Vector3D mom (tp.px(),
-                       tp.py(),
-                       tp.pz());
-    
-    ImpactInCalo* imp = 0;
-
-    const HepPDT::ParticleDataTable* pdt = m_ppsvc->PDT();
-    const HepPDT::ParticleData* pd = pdt->particle (std::abs(tp.pdgId()));
-    float charge = pd ? pd->charge() : 0;
-    if (tp.pdgId() < 0)
-      charge = - charge;
-    if ( abs(tp.pdgId()) == abs(PDG::e_minus) ) {
-      Trk::Perigee candidatePerigee (pos, mom, charge, pos);
-      imp = m_extrap->getImpactInCalo (candidatePerigee,
-                                       Trk::nonInteracting);
-    }
-    else {
-      Trk::NeutralPerigee candidatePerigee (pos, mom, charge, pos);
-      imp = m_extrap->getImpactInCalo (candidatePerigee,
-                                       Trk::nonInteracting);
-    }
-
-    if (imp) {
-      etaCalo = imp->etaCaloLocal_2();
-      phiCalo = imp->phiCaloLocal_2();
-      delete imp;
-    }
+  CaloExtensionHelpers::EtaPhiHashLookupVector posvec;
+  CaloExtensionHelpers::entryEtaPhiHashLookupVector (*extension, posvec);
+  if (std::get<0> (posvec[CaloSampling::EMB2])) {
+    etaCalo = std::get<1> (posvec[CaloSampling::EMB2]);
+    phiCalo = std::get<2> (posvec[CaloSampling::EMB2]);
+  }
+  else if (std::get<0> (posvec[CaloSampling::EME2])) {
+    etaCalo = std::get<1> (posvec[CaloSampling::EME2]);
+    phiCalo = std::get<2> (posvec[CaloSampling::EME2]);
   }
 
   return StatusCode::SUCCESS;
