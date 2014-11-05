@@ -100,6 +100,9 @@ public:
     bool   m_doCalibHitParticleID;
 
 private:
+    // Private copy-constructor
+    TileGeoG4SDCalc& operator=( const TileGeoG4SDCalc& ) = delete;
+    TileGeoG4SDCalc ( const TileGeoG4SDCalc& ) = delete;
     IMessageSvc* m_msgSvc;
     MsgStream*   m_log;
 

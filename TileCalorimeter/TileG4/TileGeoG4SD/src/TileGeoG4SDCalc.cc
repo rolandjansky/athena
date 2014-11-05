@@ -85,6 +85,7 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(bool is_ctb)
     , is_negative(0)
     , totalTime_up(0)
     , totalTime_down(0)
+    , m_row(0)
 {
     // Get MessageSvc pointers
     ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
@@ -292,6 +293,7 @@ TileGeoG4SDCalc::~TileGeoG4SDCalc()
 {
     delete m_log;
     delete m_lookup;
+    if(m_row) {delete m_row;}
 }
 
 

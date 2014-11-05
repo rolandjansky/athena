@@ -32,6 +32,7 @@ TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore,
   m_dbManager(0),
   m_cellMap(0),
   m_sectionMap(0),
+  m_isE5(false),
   m_msgSvc(msgSvc)
 {
   m_log = new MsgStream (msgSvc, "TileGeoG4DMLookupBuilder");

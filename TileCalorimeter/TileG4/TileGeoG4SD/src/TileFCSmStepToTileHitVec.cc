@@ -47,6 +47,7 @@ TileFCSmStepToTileHitVec::TileFCSmStepToTileHitVec(const std::string& name, ISvc
     , m_tileID(0)
     , m_tileInfo(0)
     , m_tileMgr(0)
+    , m_calc(0)
     , m_UshapeType(0)
     , m_deltaT(0.5 * Gaudi::Units::nanosecond)
     , m_allHits(0)
@@ -124,6 +125,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
     // Get FCS_StepInfo from FCS_StepInfoCollection
     if ( evtStore()->retrieve(inCollect,m_FCS_StepInfo).isFailure() ) {
         ATH_MSG_WARNING( "Could not find container " << m_FCS_StepInfo );
+        delete FCS_hits;
         return StatusCode::FAILURE;
     } else {
         ISF_FCS_Parametrization::FCS_StepInfoCollection::const_iterator iter = inCollect->begin();
