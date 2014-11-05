@@ -1,5 +1,5 @@
 package xAODTriggerCnv
-# $Id: requirements 583381 2014-02-14 15:58:20Z krasznaa $
+# $Id: requirements 615094 2014-09-04 14:15:07Z tbold $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -21,6 +21,7 @@ use StoreGate              StoreGate-*              Control
 
 # EDM package(s):
 use TrigDecisionEvent      TrigDecisionEvent-*      Trigger/TrigEvent
+use TrigSteeringEvent      TrigSteeringEvent-*      Trigger/TrigEvent
 use AnalysisTriggerEvent   AnalysisTriggerEvent-*   PhysicsAnalysis/AnalysisTrigger
 
 # Trigger package(s):

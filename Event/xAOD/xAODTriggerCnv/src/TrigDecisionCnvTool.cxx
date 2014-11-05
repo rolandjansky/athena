@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.cxx 582803 2014-02-12 15:58:23Z krasznaa $
+// $Id: TrigDecisionCnvTool.cxx 626150 2014-11-04 20:33:29Z lheinric $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -222,7 +222,7 @@ namespace xAODMaker {
          bitset[ word ] = bitset[ word ] | ( 0x1 << bit );
       } else {
          // Turn the bit off:
-         bitset[ word ] = bitset[ word ] & ( ! ( 0x1 << bit ) );
+         bitset[ word ] = bitset[ word ] & ( ~ ( 0x1 << bit ) );
       }
 
       // Everything went fine:
