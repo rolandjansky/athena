@@ -80,8 +80,8 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     Muon.addRZ(    70.0 , 12900.0 )
     Muon.addRZ(   279.0 , 12900.0 )
     Muon.addRZ(   279.0 , 18650.0 )
-    Muon.addRZ(   436.0 , 18650.0 )
-    Muon.addRZ(   436.0 , 22030.0 )
+    Muon.addRZ(   436.7 , 18650.0 )
+    Muon.addRZ(   436.7 , 22030.0 )
     Muon.addRZ(  1050.0 , 22030.0 )
     Muon.addRZ(  1050.0 , 26046.0 )
     Muon.addRZ(  1500.0 , 26046.0 )
@@ -92,14 +92,18 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     Muon.addRZ( 12650.0 , 18650.0 )
     Muon.addRZ( 13400.0 , 18650.0 )
     Muon.addRZ( 13400.0 , 12900.0 )
-    Muon.addRZ( 13000.0 , 12900.0 )
+    Muon.addRZ( 13910.0 , 12900.0 )
+    Muon.addRZ( 13910.0 , 6550.0 )
+    Muon.addRZ( 13000.0 , 6550.0 )
     kwargs.setdefault("FallbackMuonR"   , Muon.getRs()        )
     kwargs.setdefault("FallbackMuonZ"   , Muon.getZs()        )
 
 
     # setup fallback CavernEnvelope 
     Cavern = Volume()
-    Cavern.addRZ( 13000.0 , 12900.0 ) # boundary with MS
+    Cavern.addRZ( 13000.0 , 6550.0 )
+    Cavern.addRZ( 13910.0 , 6550.0 )
+    Cavern.addRZ( 13910.0 , 12900.0 ) # boundary with MS
     Cavern.addRZ( 13400.0 , 12900.0 ) # boundary with MS
     Cavern.addRZ( 13400.0 , 18650.0 ) # boundary with MS
     Cavern.addRZ( 12650.0 , 18650.0 ) # boundary with MS
