@@ -25,8 +25,6 @@ ChargeCollProbSvc::ChargeCollProbSvc(const std::string& name,ISvcLocator* svc)
  
   declareProperty( "CCProbMapFileFEI3", m_cc_prob_file_fei3 = "3DFEI3-3E-problist-1um_v1.txt");  
   declareProperty( "CCProbMapFileFEI4", m_cc_prob_file_fei4 = "3DFEI4-2E-problist-1um_v0.txt");  
-  declareProperty( "anInteger",         m_anInt);
-  declareProperty( "aString",           m_aString);
 }
  
 ChargeCollProbSvc::~ChargeCollProbSvc()

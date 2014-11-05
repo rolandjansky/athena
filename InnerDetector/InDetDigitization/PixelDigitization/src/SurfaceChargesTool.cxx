@@ -145,7 +145,7 @@ StatusCode SurfaceChargesTool::initTools()
 //Returns the technology of the current module. The enum type Technology is defined in SurfaceChargesTool.h
 SurfaceChargesTool::Technology SurfaceChargesTool::getTechnology()
 {
-	const PixelID* pixelId = dynamic_cast<const PixelID *>(m_module->getIdHelper());
+	const PixelID* pixelId = static_cast<const PixelID *>(m_module->getIdHelper());
 	PixelModuleDesign *design = (PixelModuleDesign*)(&(m_module->design()));
 	Identifier iden = m_module->identify();
 	int barrel_ec = pixelId->barrel_ec(iden);

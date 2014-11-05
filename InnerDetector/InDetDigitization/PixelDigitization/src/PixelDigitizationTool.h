@@ -99,7 +99,6 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "PixelDigitizationTool.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "CalibSvc.h"
 #include "HitManagement/TimedHitCollection.h"

@@ -48,11 +48,6 @@ public:
   //Constants that can be set by user 
   int m_numberOfSteps;    //number of steps for particle traveling perpendicular to detector element
  
-  //Constants derived from position/geometry of sensor
-  double tanLorentz;
-  double sensorThickness;
- 
-  
 private:
   /** empty constructor, make private */
   Ibl3DChargeTool();

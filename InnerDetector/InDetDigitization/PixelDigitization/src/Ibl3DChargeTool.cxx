@@ -83,11 +83,10 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  const InDetDD::SiDetectorElement &Module)
 { 
   ATH_MSG_VERBOSE("Applying IBL3D charge processor");
-  sensorThickness = Module.design().thickness();
+  double sensorThickness = Module.design().thickness();
   double stepsize = sensorThickness/m_numberOfSteps;
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
   electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
-  tanLorentz = Module.getTanLorentzAnglePhi();
 
   // Charge Collection Probability Map bin size
   const double x_bin_size = 0.002;
@@ -97,7 +96,7 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
  
   // determine which readout is used
   // FEI4 : 50 X 250 microns
-  const PixelModuleDesign *p_design= dynamic_cast<const PixelModuleDesign *>(&(Module.design() ) );
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign *>(&(Module.design() ) );
   double pixel_size_x = Module.width()/p_design->rows();
   double pixel_size_y = Module.length()/p_design->columns();
   double module_size_x = Module.width();
