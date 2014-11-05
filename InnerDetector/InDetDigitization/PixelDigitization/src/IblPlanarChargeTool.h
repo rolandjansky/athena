@@ -58,10 +58,6 @@ public:
   int m_numberOfSteps;    //number of steps for particle traveling perpendicular to detector element
   int m_numberOfCharges;  
   double m_diffusionConstant;
- 
-  //Constants derived from position/geometry of sensor
-  double tanLorentz;
-  double sensorThickness;
 
  
   

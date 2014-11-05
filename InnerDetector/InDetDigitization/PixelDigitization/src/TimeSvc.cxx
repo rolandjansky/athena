@@ -20,6 +20,7 @@
 
 TimeSvc::TimeSvc(const std::string& name, ISvcLocator* svc ) :
   AthService(name,svc),
+  m_comTime(0.0),
   m_timePerBCO(25.0),
   m_timeBCN(5),
   m_timeZero(30.0),

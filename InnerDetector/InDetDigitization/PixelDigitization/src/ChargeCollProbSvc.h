@@ -58,8 +58,6 @@ protected:
        
 private:
  
-    std::string m_aString;
-    int m_anInt;
     std::string m_cc_prob_file_fei3;
     std::string m_cc_prob_file_fei4;
     std::multimap< std::pair< int , int >, double >  probMapFEI4;

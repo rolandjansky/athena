@@ -84,7 +84,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
-  sensorThickness = Module.design().thickness();
+  double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
   electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
 /*  
@@ -97,7 +97,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   ATH_MSG_INFO("IBLPLANAR: ModuleSize = (" << module_size_x << "," << module_size_y << ")");
 */
   double stepsize = sensorThickness/m_numberOfSteps;
-  tanLorentz = Module.getTanLorentzAnglePhi();
+  double tanLorentz = Module.getTanLorentzAnglePhi();
   const CLHEP::Hep3Vector pos=phit->localStartPosition();
   const CLHEP::Hep3Vector cs=phit->localEndPosition();
   
@@ -125,7 +125,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
   double e1=phit->energyLoss()/static_cast<double>(nsteps*ncharges);
 
-  double coLorentz=sqrt(1+pow(this->tanLorentz,2));
+  double coLorentz=sqrt(1+pow(tanLorentz,2));
 
   for(int istep =0; istep < nsteps; istep++) {
     double xEta1 = xEta +  stepEta * (istep + 0.5);
@@ -134,7 +134,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
-    double spess = 0.5 * this->sensorThickness - Module.design().readoutSide() * depD;
+    double spess = 0.5 * sensorThickness - Module.design().readoutSide() * depD;
     if (spess<0) spess=0;
       
     for(int i=0 ; i<ncharges ; i++) {
@@ -143,7 +143,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       double rdif=this->m_diffusionConstant*sqrt(spess*coLorentz/0.3);
       
       // position at the surface
-      double xPhiD=xPhi1+spess*this->tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
       double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
 // Slim Edge for IBL planar sensors:
