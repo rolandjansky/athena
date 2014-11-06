@@ -23,7 +23,8 @@ use EventPrimitives           EventPrimitives-*          Event
 use AtlasHepMC                AtlasHepMC-*               External                                                    
 use HepPDT                    *                          LCG_Interfaces                                              
 use TruthHelper               TruthHelper-*              Generators/GenAnalysisTools                                 
-use EventInfo                 EventInfo-*                Event         
+use xAODEventInfo             xAODEventInfo-*            Event/xAOD         
+use AtlasFFTW                 AtlasFFTW-*                External
 
 public
 

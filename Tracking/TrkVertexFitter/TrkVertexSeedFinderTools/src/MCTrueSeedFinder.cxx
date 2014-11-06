@@ -11,8 +11,7 @@
 #include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -142,7 +141,7 @@ namespace Trk
 
   StatusCode MCTrueSeedFinder::retrieveInteractionsInfo() {
     // This gets the EventInfo object from StoreGate
-    const EventInfo* myEventInfo = 0;
+    const xAOD::EventInfo* myEventInfo = 0;
     if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
       // Key "MyEvent" is optional, usually not specified for EventInfo because
       // there'll be only one. When not specified, just takes the first container.
@@ -150,8 +149,8 @@ namespace Trk
       return StatusCode::FAILURE;
     }
     
-    unsigned int ei_RunNumber = myEventInfo->event_ID()->run_number();
-    unsigned int ei_EventNumber =myEventInfo->event_ID()->event_number();
+    unsigned int ei_RunNumber = myEventInfo->runNumber();
+    unsigned int ei_EventNumber =myEventInfo->eventNumber();
 
     if ( (ei_RunNumber == m_cacheRunNumber) && (ei_EventNumber == m_cacheEventNumber) )
       return SUCCESS; //cached info already available
