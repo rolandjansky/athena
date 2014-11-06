@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.cxx 582803 2014-02-12 15:58:23Z krasznaa $
+// $Id: TrigDecisionCnvTool.cxx 626691 2014-11-06 16:27:15Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -24,7 +24,7 @@ namespace xAODMaker {
       // Conditions Mask elements
       // -- we should do this with enum but there are issues with python
       //    so we'll code it as int for now.
- 
+
       const static unsigned int requireDecision          = 0x1;
       // ... otherwise ignore the decision
       const static unsigned int passedThrough            = 0x1 << 1;
@@ -64,7 +64,7 @@ namespace xAODMaker {
     * Note that the "physics chains" by convention get a chain counter
     * smaller than this value.
     */
-   static const uint32_t MAXIMUM_CHAIN_ID = 1024;
+   static const uint32_t MAXIMUM_CHAIN_ID = 8192;
    /// Size of the bitset vectors
    static const uint32_t BITSET_SIZE = MAXIMUM_CHAIN_ID / 32;
 
@@ -222,7 +222,7 @@ namespace xAODMaker {
          bitset[ word ] = bitset[ word ] | ( 0x1 << bit );
       } else {
          // Turn the bit off:
-         bitset[ word ] = bitset[ word ] & ( ! ( 0x1 << bit ) );
+         bitset[ word ] = bitset[ word ] & ( ~ ( 0x1 << bit ) );
       }
 
       // Everything went fine:
