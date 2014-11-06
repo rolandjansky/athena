@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvAlg.cxx 578517 2014-01-15 13:48:04Z krasznaa $
-
-// Gaudi/Athena include(s):
-#include "AthenaKernel/errorcheck.h"
+// $Id: TrigDecisionCnvAlg.cxx 626691 2014-11-06 16:27:15Z krasznaa $
 
 // EDM include(s):
 #include "TrigDecisionEvent/TrigDecision.h"
@@ -36,7 +33,7 @@ namespace xAODMaker {
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 
       // Retrieve the converter tool:
-      CHECK( m_cnvTool.retrieve() );
+      ATH_CHECK( m_cnvTool.retrieve() );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -46,7 +43,7 @@ namespace xAODMaker {
 
       // Retrieve the AOD object:
       const TrigDec::TrigDecision* aod = 0;
-      CHECK( evtStore()->retrieve( aod, m_aodKey ) );
+      ATH_CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
       // Create the xAOD object and its auxiliary store:
       xAOD::TrigDecisionAuxInfo* aux = new xAOD::TrigDecisionAuxInfo();
@@ -54,11 +51,20 @@ namespace xAODMaker {
       xaod->setStore( aux );
 
       // Fill the xAOD object:
-      CHECK( m_cnvTool->convert( aod, xaod ) );
+      ATH_CHECK( m_cnvTool->convert( aod, xaod ) );
 
       // Record the xAOD objects:
-      CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( xaod, m_xaodKey ) );
+      if( evtStore()->contains< xAOD::TrigDecisionAuxInfo >( m_xaodKey +
+                                                             "Aux." ) ) {
+         ATH_CHECK( evtStore()->overwrite( aux, m_xaodKey + "Aux." ) );
+      } else {
+         ATH_CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
+      }
+      if( evtStore()->contains< xAOD::TrigDecision >( m_xaodKey ) ) {
+         ATH_CHECK( evtStore()->overwrite( xaod, m_xaodKey ) );
+      } else {
+         ATH_CHECK( evtStore()->record( xaod, m_xaodKey ) );
+      }
 
       // Return gracefully:
       return StatusCode::SUCCESS;
