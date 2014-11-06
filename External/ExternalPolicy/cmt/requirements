@@ -312,6 +312,8 @@ cmtpath_pattern \
                <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/${CMTCONFIG}/lib/python$(Python_version)" ; \
   path_prepend DATAPATH          "" \
                <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/share" ; \
+  path_prepend DATAPATH          "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/${CMTCONFIG}/share" ; \
   path_prepend ROOTMAPSEARCHPATH "" \
                <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/rootmap" ; \
   path_prepend XMLPATH           "" \
