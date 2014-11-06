@@ -48,7 +48,8 @@ public:
   void produceNewFile(const std::string& sourceFile,
 		      int runNumber,
 		      int eventNumber,
-		      int timeStamp);
+		      int timeStamp,
+              std::string textLabel = "");
 
   //
 

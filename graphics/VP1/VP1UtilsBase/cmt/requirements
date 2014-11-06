@@ -8,7 +8,10 @@ package VP1UtilsBase
 author Riccardo Maria BIANCHI <rbianchi@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
+
+private
 use VP1Qt               VP1Qt-*              graphics/VP1
+public
 
 apply_pattern qt4based_library
 

@@ -34,7 +34,7 @@ VP1FileUtilities::VP1FileUtilities(const std::string& inputDirectory,
   // Check if the input directory exists and is writable
   QFileInfo inpDir(m_inputDirectory.c_str());
   if(!inpDir.exists()||!inpDir.isDir()||!inpDir.isReadable()||!inpDir.isWritable()) {
-    std::string errMessage = std::string("The directory ") + inputDirectory + std::string(" either does not exist or is not writable");
+    std::string errMessage = std::string("VP1FileUtilities: ERROR!! The directory ") + inputDirectory + std::string(" either does not exist or is not writable");
     throw std::runtime_error(errMessage.c_str());
   }
 }
@@ -46,7 +46,8 @@ VP1FileUtilities::~VP1FileUtilities()
 void VP1FileUtilities::produceNewFile(const std::string& sourceFile,
 				      int runNumber,
 				      int eventNumber,
-				      int timeStamp)
+				      int timeStamp,
+                      std::string textLabel)
 {
   // Check if the sourceFile exists
   QString srcName(sourceFile.c_str());
@@ -67,7 +68,12 @@ void VP1FileUtilities::produceNewFile(const std::string& sourceFile,
 
   QString latestEventFileName = inpDirName + QString(newFileStr.str().c_str()) + QString("latest_vp1event");
 
-  newFileStr << "vp1_" << runNumber << "_" << eventNumber << "_" << timeStamp << ".pool.root";
+  if (textLabel != "" ) {
+    newFileStr << "vp1_" << runNumber << "_" << eventNumber << "_" << timeStamp << "_" << textLabel << ".pool.root";
+  } else {
+    newFileStr << "vp1_" << runNumber << "_" << eventNumber << "_" << timeStamp << ".pool.root";
+  }
+
   newFileName += QString(newFileStr.str().c_str());
 
   // do copy
@@ -107,7 +113,7 @@ void VP1FileUtilities::cleanUp()
     QFileInfo fileInfo = list.at(0);
 
     if(!_dir.remove(fileInfo.fileName()))
-      throw std::runtime_error("Unable to do the clean up");
+      throw std::runtime_error("VP1FileUtilities::cleanup() - WARNING: Unable to do the clean up!");
   }
 
   return;
