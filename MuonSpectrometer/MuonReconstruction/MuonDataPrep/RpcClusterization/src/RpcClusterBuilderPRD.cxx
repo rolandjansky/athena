@@ -73,17 +73,18 @@ StatusCode RpcClusterBuilderPRD::initialize(){
   sc = serviceLocator()->service("DetectorStore", detStore);
   if (sc.isFailure()) {
     log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
+    return sc;
+  } 
+  
+  sc = detStore->retrieve( m_muonMgr );
+  if (sc.isFailure()) {
       log << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endreq;
       return sc;
-    }
-    else {
-      m_rpcId = m_muonMgr->rpcIdHelper();
-    }
   }
+  
+  m_rpcId = m_muonMgr->rpcIdHelper();
+   
+  
 
   // Create an empty cluster container
   //  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_rpcId->module_hash_max()); 
