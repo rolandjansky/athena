@@ -726,6 +726,7 @@ else:
                                                             TracksLocation          = InputCombinedInDetTracks,
                                                             OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
                                                             AssoTool                = InDetPrdAssociationTool,
+                                                            UpdateSharedHitsOnly    = False,
                                                             SummaryTool             = InDetTrackSummaryToolSharedHits)
       topSequence += TrkTrackCollectionMerger
       if (InDetFlags.doPrintConfigurables()):
