@@ -29,8 +29,11 @@ apply_pattern declare_python_modules files="*.py"
 #path_append LD_LIBRARY_PATH "$(AtlasSoQt_home)/lib"
 
 private
+use VP1Qt                VP1Qt-*                graphics/VP1  -no_auto_imports # Needed for linker. The flag '-no_auto_imports' avoids CHECKREQ errors.
 use VP1UtilsBase         VP1UtilsBase-*         graphics/VP1
-
 use EventInfo            EventInfo-*            Event
 use PathResolver         PathResolver-*         Tools
 use AtlasPOOL            AtlasPOOL-*            External
+
+
+

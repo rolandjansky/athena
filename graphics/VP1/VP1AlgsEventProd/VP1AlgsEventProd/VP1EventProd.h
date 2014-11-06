@@ -46,12 +46,13 @@ class VP1EventProd: public AthAlgorithm,
   int m_runNumber;
   int m_eventNumber;
   unsigned int m_timeStamp;
+  std::string m_humanTimestamp;
 
   // properties
   std::string m_inputPoolFile;
   std::string m_destinationDir;
   int m_maxProducedFiles;
-
+  int m_nEvent; // Internal counter for the number of processed events
   // service handle
   ServiceHandle<IPoolSvc> m_poolSvc;
 };
