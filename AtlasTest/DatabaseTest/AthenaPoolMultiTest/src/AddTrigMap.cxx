@@ -20,8 +20,8 @@
 
 #include <string>
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
+
     
 AddTrigMap::AddTrigMap(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
@@ -51,6 +51,7 @@ StatusCode AddTrigMap::execute()
    log << MSG::DEBUG << "in execute()" << endreq;
    
    // Check for event header
+   //const DataHandle<xAOD::EventInfo> evt;
    const DataHandle<EventInfo> evt;
    sc = m_sGevent->retrieve(evt);
    if (sc.isFailure()) {

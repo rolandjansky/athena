@@ -115,17 +115,17 @@ FullColl = RegistrationStream("FullColl")
 FullColl.OutputCollection = "SplittableCollection.root"
 #FullColl.ItemList        += [ "DataHeader#*" ]
 FullColl.ItemList        += [ "DataHeader#DataStream" ]
-FullColl.ItemList        += [ "TagAthenaAttributeList#SimpleTag" ]
+FullColl.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
 FullColl.ItemList        += [ "CollectionMetadataContainer#*" ]
 FullColl.AcceptAlgs       = [ "PassAllFilter"]
-FullColl.Tool = TagTool
+#FullColl.Tool = TagTool
 
 # Now put full veto to make sure vetos work on collections
 #topSequence    += ["RegistrationStream/NullColl" ]
 NullColl = RegistrationStream("NullColl")
 NullColl.OutputCollection = "NullableCollection.root"
 NullColl.ItemList        += [ "DataHeader#DataStream" ]
-NullColl.ItemList        += [ "TagAthenaAttributeList#SimpleTag" ]
+NullColl.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
 NullColl.OutputLevel      = INFO
 NullColl.RequireAlgs      = ["PassNoneFilter"]
 

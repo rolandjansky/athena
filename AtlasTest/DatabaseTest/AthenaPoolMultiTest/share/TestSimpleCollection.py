@@ -81,8 +81,8 @@ RegStream1.OutputCollection = "test.coll"; # The output file name
 # List of DO's to register
 RegStream1.ItemList += [ "DataHeader#*" ]
 # Key name of AthenaAttributeList used for the tag:
-RegStream1.ItemList += [ "TagAthenaAttributeList#RunEventTag" ]
-RegStream1.Tool = TagTool
+RegStream1.ItemList += [ "AthenaAttributeList#RunEventTag" ]
+#RegStream1.Tool = TagTool
 
 topSequence+=RegStream1
 

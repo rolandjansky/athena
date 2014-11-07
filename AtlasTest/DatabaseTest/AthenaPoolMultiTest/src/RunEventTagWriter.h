@@ -15,6 +15,7 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <string>
 
@@ -23,6 +24,13 @@ namespace coral
   class AttributeListSpecification;
 }
 class AthenaAttributeListSpecification; 
+class AthenaAttributeList; 
+class EventInfo;
+
+//namespace xAOD
+//{
+//  class EventInfo;
+//}
 
 /**
  * @class RunEventTagWriter
@@ -68,11 +76,14 @@ class RunEventTagWriter : public Algorithm
 
   private:
 
+    StatusCode fillTag(const EventInfo*, AthenaAttributeList*);
+    StatusCode fillTag(const xAOD::EventInfo*, AthenaAttributeList*);
+
     /// StoreGate service accessor
     StoreGateSvc* m_storeGateSvc;
 
     /// Specification of the event tag metadata schema
-    AthenaAttributeListSpecification* m_attribListSpec;
+    coral::AttributeListSpecification* m_attribListSpec;
 };
 
 #endif // ATHENAPOOLMULTITEST_RUNEVENTTAGWRITER_H

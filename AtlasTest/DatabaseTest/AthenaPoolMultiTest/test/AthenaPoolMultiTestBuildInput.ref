@@ -9,7 +9,7 @@ AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 0  run: 0
 WriteData            INFO registered all data
-FullColl.TagTool     INFO No Primary Key defined
+FullColl.Regist...   INFO No Primary Key defined
 AddTrigMap           INFO Found EventInfo in SG
 AddTrigMap           INFO EventInfo event: 1 run: 0
 AddTrigMap           INFO registered all data
@@ -124,7 +124,7 @@ AddTrigMap           INFO registered all data
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 19  run: 0
 WriteData            INFO registered all data
-FullColl.TagTool     INFO Collection Events output: 20
+FullColl.Regist...   INFO Collection Events output: 20
 NullColl.Regist...   INFO Collection Events output: 0
 WriteData            INFO in finalize()
 DecisionSvc          INFO List of registered 3 Streams: DataStream FullColl NullColl 

@@ -63,6 +63,7 @@ StatusCode EventTagReader::execute()
 
   const AthenaAttributeList* attribList;
   StatusCode sc = m_storeGateSvc->retrieve(attribList, "Input");
+  //log << MSG::INFO << "BLARG " << m_storeGateSvc->dump() << endreq;
 
   if (sc.isSuccess()) {
   

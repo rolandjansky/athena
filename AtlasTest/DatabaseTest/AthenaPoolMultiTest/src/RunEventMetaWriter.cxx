@@ -13,8 +13,6 @@
 #include "RunEventMetaWriter.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 

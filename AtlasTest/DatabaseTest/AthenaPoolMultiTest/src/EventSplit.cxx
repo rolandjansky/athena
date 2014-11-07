@@ -61,6 +61,7 @@ StatusCode EventSplit::execute()
    log << MSG::DEBUG << "in execute()" << endreq;
 
    // Get the event header, print out event and run number
+   //const DataHandle<xAOD::EventInfo> evt;
    const DataHandle<EventInfo> evt;
    sc = m_sGevent->retrieve(evt);
    if (sc.isFailure()) {

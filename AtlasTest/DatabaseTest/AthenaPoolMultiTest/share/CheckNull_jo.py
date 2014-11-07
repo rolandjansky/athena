@@ -86,9 +86,9 @@ FullColl = RegistrationStream("FullColl")
 FullColl.WriteInputDataHeader = TRUE
 FullColl.OutputCollection = "CheckNull.root"
 FullColl.ItemList        += [ "DataHeader#*" ]
-FullColl.ItemList        += [ "TagAthenaAttributeList#RunEventTag" ]
+FullColl.ItemList        += [ "AthenaAttributeList#RunEventTag" ]
 FullColl.ItemList        += [ "CollectionMetadataContainer#Default" ]
-FullColl.Tool = TagTool
+#FullColl.Tool = TagTool
 FullColl.OutputLevel = DEBUG
 
 athRegSeq += FullColl
